@@ -13,12 +13,14 @@
  * "may be used once per round".
  */
 import { SKILLS } from '../utils/skills.js';
+import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
+import { specialApplicationLimit } from '../combat/special-application.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
@@ -824,15 +826,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
             .map((sk) => {
             const def = SKILLS[sk];
             const rank = num(system?.skills?.[sk]);
-            // Skills are used in Mastery-Rank jumps: up to 4 uses per Safe Haven
-            // Rest. Spend the skill rank across the 4 boxes left to right, each
-            // box taking min(MR, remaining); once depleted the boxes read 0.
-            let remaining = Math.max(0, rank);
-            const uses = Array.from({ length: 4 }, () => {
-                const v = Math.min(masteryRank, remaining);
-                remaining -= v;
-                return v;
-            });
+            const uses = buildSkillUseBoxes(rank, 0, masteryRank).map((box) => box.size);
             return {
                 key: sk,
                 name: def.name,
@@ -1012,15 +1006,20 @@ export function buildCharacterPrintContext(actor, options = {}) {
     // Hide attribute pools with 0 free stones; keep General only if some pool has
     // stones to pay generic powers with.
     const stonePowerGroups = allStoneGroups.filter((g) => g.isGeneral ? totalFreeStones > 0 : g.freeStones > 0);
+    const iniStoneCost = Math.max(4, masteryRank * 4);
     const technical = {
         stonePowerGroups,
         hasStonePowers: stonePowerGroups.length > 0,
+        iniStoneCost,
+        colorlessBoxes: Array.from({ length: 10 }, (_, i) => i + 1),
     };
     return {
         name: String(actor?.name ?? ''),
         player: resolvePlayerName(actor),
         echo: resolveEchoName(actor, system),
         masteryRank,
+        specialRecovery: masteryRank,
+        specialCap: specialApplicationLimit(masteryRank),
         faithFractures: {
             current: num(system?.faithFractures?.current),
             maximum: num(system?.faithFractures?.maximum, 8)

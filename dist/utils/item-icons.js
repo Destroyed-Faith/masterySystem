@@ -157,6 +157,7 @@ const DEFAULT_TYPE_ICONS = {
 };
 const ECHO_ARTIFACT_ICON_BASE = `${ICON_BASE}/echo-artifacts`;
 const GENERAL_ARTIFACT_ICON_BASE = `${ICON_BASE}/general-artifacts`;
+const FORGE_ARTEFACT_ART = 'https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts';
 /** Echo Artifact key → custom icon under `assets/icons/items/echo-artifacts/`. */
 const ECHO_ARTIFACT_ICONS = {
     stoneboundSoles: `${ECHO_ARTIFACT_ICON_BASE}/Stonebound Soles.png`,
@@ -188,6 +189,13 @@ const GENERAL_ARTIFACT_ICONS = {
     heartOfWinter: `${GENERAL_ARTIFACT_ICON_BASE}/HeartofIce.png`,
     heartseeker: `${GENERAL_ARTIFACT_ICON_BASE}/Heartseeker.png`,
     falconWideBrim: `${GENERAL_ARTIFACT_ICON_BASE}/Falcon Wide Brim.png`,
+    staffOfTheDark: `${FORGE_ARTEFACT_ART}/StaffOfNethrion_Render.png`,
+    lanternOfTheHollowStar: `${FORGE_ARTEFACT_ART}/Lantern%20of%20Nethrion.png`,
+};
+/** Optional showcase / combined art (second portrait on the item). */
+const ARTIFACT_ALT_ICONS = {
+    staffOfTheDark: `${FORGE_ARTEFACT_ART}/StaffOfNethrion_RenderMagic.png`,
+    lanternOfTheHollowStar: `${FORGE_ARTEFACT_ART}/StaffOfNethrion_RenderMagic.png`,
 };
 /**
  * Custom icon for a seeded Echo or General Artifact tree (all levels share the same art).
@@ -206,6 +214,13 @@ export function getEchoArtifactIcon(echoArtifactKey) {
         return `${ECHO_ARTIFACT_ICON_BASE}/Titan Scars.png`;
     }
     return null;
+}
+/** Alternative / combined art for an Echo or General Artifact, if authored. */
+export function getEchoArtifactAltIcon(echoArtifactKey) {
+    const key = String(echoArtifactKey || '').trim();
+    if (!key)
+        return null;
+    return ARTIFACT_ALT_ICONS[key] || null;
 }
 /** Build an icon lookup hint from a live or pending Item document. */
 export function getItemIconHintFromItem(item) {

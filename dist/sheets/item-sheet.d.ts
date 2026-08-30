@@ -28,6 +28,7 @@ export declare class MasteryItemSheet extends BaseItemSheet {
             template: string;
         };
     };
+    get title(): string;
     /** Resolve the per-type template (V1 `get template()` equivalent). @override */
     _configureRenderParts(options: any): any;
     /** @override */

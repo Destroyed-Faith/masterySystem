@@ -18,5 +18,7 @@ export declare function readViewportSize(win?: {
  * Uses CSS pixels (browser/OS zoom already applied), same space Foundry validates.
  */
 export declare function isCompactCarouselViewport(width?: number, height?: number): boolean;
+export declare function syncCarouselTopOffset(root: HTMLElement | null | undefined): void;
+export declare function clearCarouselTopOffset(): void;
 export declare function applyCarouselCompactClass(root: HTMLElement | null | undefined, compact: boolean): void;
 //# sourceMappingURL=combat-carousel-layout.d.ts.map

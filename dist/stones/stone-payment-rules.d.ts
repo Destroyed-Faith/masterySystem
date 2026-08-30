@@ -23,11 +23,23 @@ export declare function shouldSettleStoneWave(args: {
 }): boolean;
 /**
  * Card order inside a power row. Every row holds exactly one ramp power whose
- * Tier 1 is a no-op, so its first activation costs 2 stones and its Anchor lane
- * renders disabled. It leads the row so the dead lane sits in one corner
- * instead of somewhere in the middle. The remaining cards keep their order.
+ * Tier 1 is a no-op, so its first activation costs 2 stones and the unused
+ * Anchor lane is omitted (the card starts at the Mid / 2-stone segment). It
+ * leads the row so the shorter cluster sits in one corner. The remaining
+ * cards keep their order.
  */
 export declare function orderPowersRampFirst<T>(powers: readonly T[], skipsFirstTier: (power: T) => boolean): T[];
+/**
+ * Whether an attribute (or General) section starts expanded in the Stone
+ * Powers dialog. Sections with freely spendable stones of that attribute
+ * open; empty ones stay collapsed. The player can still toggle them.
+ * A stored override (this dialog session) always wins.
+ */
+export declare function stoneDialogSectionStartsOpen(args: {
+    sectionHasSpendable: boolean;
+    sectionHasAssigned?: boolean;
+    userOverride?: boolean;
+}): boolean;
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export declare function stonePoolBlockedReason(pool: {
     max: number;

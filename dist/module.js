@@ -21,7 +21,7 @@ import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dialog.js';
-import { showEncounterGeneratorDialog } from './creation/encounter-generator/encounter-generator-dialog.js';
+import { showEncounterForgeDialog } from './creation/encounter-forge/encounter-forge-dialog.js';
 import { showCharacterImportDialog } from './import/character-import-dialog.js';
 import { importMasteryCharacter, importMasteryCharacterFromJson, validateCharacterImportDocument, validateCharacterImportJson, parseCharacterImportJson, } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
@@ -237,10 +237,10 @@ Hooks.once('init', async function () {
             btn.type = 'button';
             btn.className = 'eg-open-encounter-generator';
             btn.innerHTML = '<i class="fas fa-dragon"></i> Encounter';
-            btn.title = 'Encounter-Generator';
+            btn.title = 'Encounter Forge';
             btn.addEventListener('click', (ev) => {
                 ev.preventDefault();
-                showEncounterGeneratorDialog();
+                showEncounterForgeDialog();
             });
             host.appendChild(btn);
         }
@@ -1372,7 +1372,7 @@ function exposeMasterySystemApi() {
     game.masterySystem = Object.assign(game.masterySystem || {}, {
         refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
         openTowerWizard: showTowerWizardDialog,
-        openEncounterGenerator: showEncounterGeneratorDialog,
+        openEncounterGenerator: showEncounterForgeDialog,
         // Force-rebuild every template-backed Power's baked level table from the
         // current catalog templates (use after editing/auditing power templates).
         resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),

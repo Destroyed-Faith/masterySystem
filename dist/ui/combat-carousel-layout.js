@@ -21,6 +21,15 @@ export function isCompactCarouselViewport(width, height) {
         : { width, height };
     return size.width < CAROUSEL_COMPACT_MIN_WIDTH || size.height < CAROUSEL_COMPACT_MIN_HEIGHT;
 }
+const CAROUSEL_OFFSET_VAR = '--mastery-carousel-offset';
+export function syncCarouselTopOffset(root) {
+    const inner = root?.querySelector?.('.mastery-carousel');
+    const height = inner?.offsetHeight ?? 0;
+    document.body.style.setProperty(CAROUSEL_OFFSET_VAR, `${height}px`);
+}
+export function clearCarouselTopOffset() {
+    document.body.style.removeProperty(CAROUSEL_OFFSET_VAR);
+}
 export function applyCarouselCompactClass(root, compact) {
     if (!root)
         return;
@@ -34,6 +43,7 @@ export function applyCarouselCompactClass(root, compact) {
         inner?.removeAttribute('title');
     }
     document.body.classList.toggle('mastery-carousel-compact', compact);
+    syncCarouselTopOffset(root);
 }
 function compactHint() {
     const key = 'MASTERY.carousel.compactHint';

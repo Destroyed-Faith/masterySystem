@@ -382,14 +382,16 @@
    Combat Carousel
    ======================================== */
 #mastery-combat-carousel,
-.mastery-carousel {
-  background: var(--df-bg-primary) !important;
-  border-bottom: 1px solid var(--df-border-primary) !important;
-  box-shadow: 0 4px 8px var(--df-shadow) !important;
+#mastery-combat-carousel.application {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .mastery-carousel {
   background: var(--df-bg-primary) !important;
+  border-bottom: 1px solid var(--df-border-primary) !important;
+  box-shadow: 0 4px 8px var(--df-shadow) !important;
 }
 
 .mastery-carousel.is-active {

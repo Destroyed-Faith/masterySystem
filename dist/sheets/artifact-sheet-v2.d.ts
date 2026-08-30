@@ -35,6 +35,7 @@ export declare class ArtifactSheetV2 extends BaseArtifactSheet {
             template: string;
         };
     };
+    get title(): string;
     /** @override */
     _prepareContext(_options?: any): Promise<any>;
     /** @override */

@@ -11,6 +11,8 @@ import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
 import { creatureTypeSelectOptions } from '../utils/creature-type.js';
 import { NPC_STANDARD_REACTIONS, clampNpcReactionSlots, coerceNpcReactionsArray, listNpcCatalogReactions, newCatalogNpcReaction, newCustomNpcReaction, newStandardNpcReaction, } from '../utils/npc-reactions.js';
+import { isKnownNpcReleased, toggleKnownNpc } from '../system/known-npcs.js';
+import { KnownNpcsBar } from '../ui/known-npcs-bar.js';
 /** Attach Ini malus/bonus split fields for the sheet dropdowns. */
 function withNpcIniUi(combat) {
     const c = combat && typeof combat === 'object' ? { ...combat } : {};
@@ -53,6 +55,8 @@ function ensureNpcBaseShape(b) {
         o.specials = [];
     if (o.name == null || o.name === '')
         o.name = 'Waffenangriff';
+    const stress = Math.floor(Number(o.npcStressD8));
+    o.npcStressD8 = Number.isFinite(stress) && stress >= 1 ? Math.min(4, stress) : 1;
     return o;
 }
 function newExtraNpcPower() {
@@ -66,6 +70,7 @@ function newExtraNpcPower() {
         npcAoeShape: 'none',
         npcAoeRadiusM: 0,
         npcAttacksPerRound: 1,
+        npcStressD8: 1,
         specials: []
     };
 }
@@ -98,10 +103,18 @@ function normalizeNpcAttackRowForContext(row) {
             continue;
         }
         const n = Math.floor(Number(raw));
-        if (Number.isFinite(n) && n > 0)
-            o[k] = n;
+        if (Number.isFinite(n) && n > 0) {
+            o[k] =
+                k === 'attackDiceCount' || k === 'damageDiceCount' ? Math.min(80, n) : n;
+        }
+        else if (k === 'npcStressD8')
+            o[k] = 1;
         else
             delete o[k];
+    }
+    {
+        const n = Math.floor(Number(o.npcStressD8));
+        o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 1;
     }
     // Short band may be 0 (= derive from Long) — keep it for the select.
     {
@@ -156,14 +169,6 @@ function normalizeNpcAttackRowForContext(row) {
     else {
         // Persist explicit melee so empty FormData can't leave a stale "ranged" flag.
         o.npcRangeKind = 'melee';
-        // Reach: 1–8 m (default 2 when empty / when coming from Fern 12–24).
-        const reachRaw = Math.floor(Number(o.npcRangeMeters));
-        if (Number.isFinite(reachRaw) && reachRaw >= 1 && reachRaw <= 8) {
-            o.npcRangeMeters = reachRaw;
-        }
-        else {
-            o.npcRangeMeters = 2;
-        }
         delete o.npcRangeMinMeters;
     }
     // AoE is driven only by radius (≥ 2 m). Stale npcAoeShape alone must not keep AoE on.
@@ -177,6 +182,17 @@ function normalizeNpcAttackRowForContext(row) {
     else {
         o.npcAoeRadiusM = 0;
         o.npcAoeShape = 'none';
+    }
+    if (o.npcRangeKind === 'melee') {
+        if (hasAoe) {
+            // Melee burst is around self — no extra reach band.
+            o.npcRangeMeters = 0;
+        }
+        else {
+            const reachRaw = Math.floor(Number(o.npcRangeMeters));
+            o.npcRangeMeters =
+                Number.isFinite(reachRaw) && reachRaw >= 1 && reachRaw <= 8 ? reachRaw : 2;
+        }
     }
     return o;
 }
@@ -246,6 +262,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             msCopyPictureLink: function () {
                 void copyDocumentImageLink(this.actor);
             },
+            'toggle-known-npc': function (event) {
+                event.preventDefault();
+                void this.#onToggleKnownNpc();
+            },
         },
     };
     /**
@@ -295,6 +315,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const isSummon = context.actor?.type === 'summon';
         const isNpcLike = context.actor?.type === 'npc' || isSummon;
         context.isSummon = isSummon;
+        context.editable = this.isEditable;
         context.npcDamageDiceMin = isSummon ? 1 : 4;
         context.creatureTypeOptions = creatureTypeSelectOptions(context.system?.creatureType);
         if (isNpcLike && context.system) {
@@ -349,6 +370,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 { value: 0, label: 'Neutral', selected: disposition === 0 },
                 { value: 1, label: 'Friendly', selected: disposition === 1 },
             ];
+            context.canReleaseKnownNpc = !isSummon && !!game.user?.isGM;
+            context.knownNpcReleased = isKnownNpcReleased(String(actorDoc?.id || ''));
             context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
             if (Array.isArray(context.system.attackValues)) {
                 context.system.attackValues = context.system.attackValues.map((r) => normalizeNpcAttackRowForContext(r));
@@ -1231,6 +1254,15 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             phases.splice(phaseIndex, 1);
             await this.actor.update({ 'system.phases': phases });
         }
+    }
+    async #onToggleKnownNpc() {
+        if (!game.user?.isGM)
+            return;
+        if (String(this.actor?.type || '') !== 'npc')
+            return;
+        await toggleKnownNpc(String(this.actor.id || ''));
+        await KnownNpcsBar.refresh();
+        await this.render(false);
     }
 }
 //# sourceMappingURL=npc-sheet.js.map

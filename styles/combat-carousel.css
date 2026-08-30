@@ -7,22 +7,24 @@
    ======================================== */
 
 .mastery-carousel {
-  position: fixed !important;
-  top: 20px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
   z-index: 100 !important;
   background: rgba(0, 0, 0, 0.9) !important;
   backdrop-filter: blur(10px);
   border-bottom: 2px solid #e94560;
   border-radius: 0 0 12px 12px;
-  padding: 1rem;
+  padding: 0.3rem 0.6rem 0.4rem;
   display: none;
+  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 1rem;
-  width: 50vw !important;
+  gap: 0.45rem 0.75rem;
+  width: 100% !important;
   height: auto !important;
-  min-height: 180px !important;
+  min-height: 0 !important;
+  max-height: none !important;
   overflow: visible !important;
   margin: 0 !important;
 }
@@ -33,20 +35,23 @@
 
 .mastery-carousel.is-preparing {
   flex-wrap: wrap;
-  padding-top: 3.25rem;
+  padding-top: 0.3rem;
 }
 
 .ms-carousel-prepare-bar {
-  position: absolute;
-  top: 0.4rem;
-  left: 0.75rem;
-  right: 0.75rem;
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  flex: 1 0 100%;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
   z-index: 5;
   font-size: 0.85rem;
   color: #a8dadc;
+  margin: 0;
+  min-height: 0;
 }
 
 .ms-carousel-prepare-bar.is-round-gate {
@@ -90,19 +95,32 @@
   cursor: not-allowed;
 }
 
-/* Ensure the app window itself is positioned correctly */
-#mastery-combat-carousel {
+/* Foundry window is only a transparent host — the inner rail paints the chrome. */
+#mastery-combat-carousel,
+#mastery-combat-carousel.application {
   position: fixed !important;
-  top: 20px !important;
+  inset: auto !important;
+  top: 0 !important;
   left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
   transform: translateX(-50%) !important;
   width: 50vw !important;
-  height: auto !important;
+  height: fit-content !important;
+  min-height: 0 !important;
+  max-height: none !important;
   max-width: 50vw !important;
   overflow: visible !important;
   margin: 0 !important;
+  padding: 0 !important;
   border: none !important;
   box-shadow: none !important;
+  background: transparent !important;
+}
+
+#mastery-combat-carousel .window-header,
+#mastery-combat-carousel .application-header {
+  display: none !important;
 }
 
 #mastery-combat-carousel .window-content {
@@ -111,6 +129,8 @@
   background: transparent !important;
   border: none !important;
   overflow: visible !important;
+  height: auto !important;
+  min-height: 0 !important;
 }
 
 /* ========================================
@@ -126,7 +146,7 @@
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: #e94560 rgba(255, 255, 255, 0.1);
-  padding: 0.5rem 0;
+  padding: 0;
 }
 
 .carousel-combatants::-webkit-scrollbar {
@@ -565,7 +585,7 @@
   align-self: flex-start;
   flex-shrink: 0;
   gap: 0.5rem;
-  padding-top: 0.75rem;
+  padding-top: 0;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -663,7 +683,7 @@
 
 /* Don't hide scene navigation since carousel is now at top */
 body.mastery-carousel-open #ui-top {
-  margin-top: 22vh;
+  margin-top: var(--mastery-carousel-offset, 0px);
   transition: margin-top 0.3s;
 }
 
@@ -676,15 +696,15 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
    ======================================== */
 
 #mastery-combat-carousel.mastery-carousel-compact {
-  top: 4px !important;
+  top: 0 !important;
   width: min(96vw, 1400px) !important;
   max-width: 96vw !important;
-  height: auto !important;
+  height: fit-content !important;
   max-height: 72px !important;
 }
 
 .mastery-carousel.is-compact {
-  top: 0 !important;
+  top: auto !important;
   width: 100% !important;
   height: auto !important;
   min-height: 0 !important;

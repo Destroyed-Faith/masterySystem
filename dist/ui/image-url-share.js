@@ -94,6 +94,27 @@ export async function copyShareableImageUrl(src) {
 export async function copyDocumentImageLink(doc) {
     return copyShareableImageUrl(String(doc?.img ?? ''));
 }
+/** Open Foundry's ImagePopout for a picture (item portraits, alt art, etc.). */
+export async function openFoundryImagePopout(src, title) {
+    const imgSrc = String(src || '').trim();
+    if (!imgSrc)
+        return false;
+    try {
+        const ImagePopoutClass = foundry?.applications?.apps?.ImagePopout?.implementation || window.ImagePopout;
+        if (!ImagePopoutClass)
+            return false;
+        const popout = new ImagePopoutClass(imgSrc, {
+            title: title || 'Image',
+            shareable: false,
+        });
+        await popout.render(true);
+        return true;
+    }
+    catch (err) {
+        console.warn('Mastery System | Image popout failed', err);
+        return false;
+    }
+}
 export function buildImageUrlBarHtml(src) {
     const url = resolveShareableImageUrl(src);
     if (!url)

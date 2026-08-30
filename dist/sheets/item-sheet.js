@@ -20,6 +20,9 @@ export class MasteryItemSheet extends BaseItemSheet {
         // Template is resolved per item type in _configureRenderParts.
         body: { template: 'systems/mastery-system/templates/item/gear-sheet.hbs' },
     };
+    get title() {
+        return String(this.item?.name || 'Item');
+    }
     /** Resolve the per-type template (V1 `get template()` equivalent). @override */
     _configureRenderParts(options) {
         const parts = super._configureRenderParts(options);

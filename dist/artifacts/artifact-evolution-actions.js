@@ -8,6 +8,27 @@ import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItems
 import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
 import { isBumped, recordBump, undoBump } from '../utils/xp-step-rule.js';
 import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
+/** Flavor line from lore / description (embedded first, then world root). */
+export function artifactFlavorText(...items) {
+    for (const item of items) {
+        const sys = item?.system;
+        const lore = String(sys?.lore || '').trim();
+        if (lore)
+            return lore;
+        const description = String(sys?.description || '').trim();
+        if (description)
+            return description;
+    }
+    return '';
+}
+export function artifactUpgradeBlockReason(paths, opts) {
+    if (paths.some((p) => !String(p.disabledReason || '').trim()))
+        return '';
+    const first = paths.find((p) => String(p.disabledReason || '').trim());
+    if (first?.disabledReason)
+        return String(first.disabledReason);
+    return opts?.atMax ? 'Max level for current Mastery Rank.' : 'No further branches from this node.';
+}
 function actorXpAvailable(actor) {
     const sys = actor.system || {};
     const regular = Math.max(0, Number(sys.points?.xp) || 0);
@@ -55,7 +76,7 @@ function readStepArtifacts(actor) {
     return Array.isArray(raw) ? raw.map((v) => String(v ?? '')) : [];
 }
 /** Build evolution cards for every tree-linked embedded artifact on the actor. */
-export function buildArtifactEvolutionCards(actor) {
+export function buildArtifactEvolutionCards(actor, opts) {
     const A = actor;
     const items = Array.from(A.items.filter((i) => i.type === 'artifact'));
     const cards = [];
@@ -71,6 +92,7 @@ export function buildArtifactEvolutionCards(actor) {
         artifacts: stepArtifacts,
     };
     const stones = Math.max(0, Number(actor.system?.stones?.current) || 0);
+    const xpAvailable = opts?.xpAvailable != null ? Math.max(0, Math.floor(Number(opts.xpAvailable) || 0)) : actorXpAvailable(actor);
     for (const emb of items) {
         const rootWorldId = emb.getFlag('mastery-system', 'evolutionRootItemId');
         const embeddedNodeId = emb.getFlag('mastery-system', 'evolutionNodeId');
@@ -102,7 +124,7 @@ export function buildArtifactEvolutionCards(actor) {
         const bindingKind = getArtifactBindingKind(emb);
         const isEchoBound = bindingKind === 'echo';
         const linked = isArtifactLinkedOnActor(A, emb);
-        const display = summarizeEmbeddedArtifactDisplay(emb, linked);
+        const display = summarizeEmbeddedArtifactDisplay(emb, true);
         let linkDisabledReason = '';
         if (linked) {
             linkDisabledReason = '';
@@ -131,8 +153,8 @@ export function buildArtifactEvolutionCards(actor) {
             else if (tl > maxSys) {
                 disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
             }
-            else if (actorXpAvailable(actor) < ARTIFACT_UPGRADE_XP_COST) {
-                disabledReason = 'Not enough XP.';
+            else if (xpAvailable < ARTIFACT_UPGRADE_XP_COST) {
+                disabledReason = `Not enough XP (${ARTIFACT_UPGRADE_XP_COST} needed for level 2+).`;
             }
             else if (alreadyBumped) {
                 disabledReason = 'Already upgraded this session. Use Free XP to raise it again.';
@@ -149,6 +171,8 @@ export function buildArtifactEvolutionCards(actor) {
         });
         const nextUpgrade = paths.find((p) => !p.disabledReason) || null;
         const nextGmUpgrade = paths.find((p) => !p.gmDisabledReason) || null;
+        const atMaxTierForMr = linked && currentSysLevel >= maxSys && maxSys >= 1;
+        const upgradeDisabledReason = artifactUpgradeBlockReason(paths, { atMax: atMaxTierForMr });
         const activationStoneAttr = emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') || '';
         const activationStoneLabel = activationStoneAttr
             ? getArtifactStonePoolLabel(activationStoneAttr)
@@ -157,6 +181,8 @@ export function buildArtifactEvolutionCards(actor) {
         cards.push({
             embeddedId,
             displayName: rw.name?.replace(/\s*-\s*Level\s*1-1\s*$/i, '').trim() || emb.name,
+            img: String(emb.img || rw.img || ''),
+            flavor: artifactFlavorText(emb, rw),
             rootWorldId: rw.id,
             folderId,
             masteryRank,
@@ -166,20 +192,23 @@ export function buildArtifactEvolutionCards(actor) {
             progress,
             currentSystemLevel: currentSysLevel,
             currentLabel: labels.get(progress.nodeId) || `Level ${currentSysLevel}`,
-            xp: actorXpAvailable(actor),
+            xp: xpAvailable,
             stones,
             paths,
-            atMaxTierForMr: linked && currentSysLevel >= maxSys && maxSys >= 1,
+            atMaxTierForMr,
             bindingKind,
             isEchoBound,
             linkDisabledReason,
             canActivate: !linked && !linkDisabledReason,
+            canUpgrade: linked && !!nextUpgrade,
+            upgradeDisabledReason,
             nextUpgrade: linked ? nextUpgrade : null,
             nextGmUpgrade: linked ? nextGmUpgrade : null,
             baseValues: display.baseValues,
             abilities: display.abilities,
             hasBaseValues: display.hasBaseValues,
             hasAbilities: display.hasAbilities,
+            openAbilities: linked && display.hasAbilities && display.abilities.length <= 3,
             activationStoneAttr,
             activationStoneLabel,
         });

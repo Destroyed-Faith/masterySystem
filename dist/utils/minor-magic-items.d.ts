@@ -12,6 +12,8 @@ export declare const MINOR_MAGIC_REST_FLAG = "minorMagicRest";
 export declare const MINOR_MAGIC_ARTIFACT_LEVEL_CAP = 6;
 export declare const MINOR_MAGIC_FORMS: readonly ["potion", "grenade", "rune", "weapon", "trap", "charm"];
 export type MinorMagicForm = (typeof MINOR_MAGIC_FORMS)[number];
+/** True for a PC assigned to a player — not GM-only character sheets or NPCs. */
+export declare function isPlayerCharacterActor(actor: any): boolean;
 export declare const MINOR_MAGIC_FORM_LABELS: Record<MinorMagicForm, string>;
 export interface MinorMagicAttackPool {
     attribute: string;
@@ -44,6 +46,8 @@ export interface MinorMagicSnapshot {
 export interface MinorMagicItemFlag {
     creatorId: string;
     creatorName: string;
+    /** Stable id that survives being given to another character. */
+    instanceId?: string;
     form: MinorMagicForm;
     released?: boolean;
     armedAsTrap?: boolean;
@@ -52,11 +56,19 @@ export interface MinorMagicItemFlag {
 }
 export interface MinorMagicLedger {
     itemIds: string[];
+    /** Display names for given-away items (keyed by instance id). */
+    labels?: Record<string, string>;
 }
+/** Delete option: the item is moving to another actor, not being spent. */
+export declare const MINOR_MAGIC_TRANSFER_DELETE = "masterySystemMinorMagicTransfer";
 export declare function emptyMinorMagicLedger(): MinorMagicLedger;
 export declare function normalizeMinorMagicLedger(raw: unknown): MinorMagicLedger;
+export declare function ledgerKeyForMinorMagic(flag: Pick<MinorMagicItemFlag, 'instanceId'> | null | undefined, itemId?: string): string;
+export declare function newMinorMagicInstanceId(fallback?: string): string;
+export declare function prepareMinorMagicFlagForTransfer(flag: MinorMagicItemFlag, sourceItemId: string): MinorMagicItemFlag;
+export declare function shouldReleaseMinorMagicOnDelete(flag: MinorMagicItemFlag | null | undefined, options?: Record<string, unknown> | null): boolean;
 export declare function countHeldMinorMagicItems(ledger: MinorMagicLedger): number;
-export declare function applyCreateToLedger(ledger: MinorMagicLedger, itemId: string): MinorMagicLedger;
+export declare function applyCreateToLedger(ledger: MinorMagicLedger, itemId: string, label?: string): MinorMagicLedger;
 export declare function applyReleaseToLedger(ledger: MinorMagicLedger, itemId: string): MinorMagicLedger | null;
 export declare function canManageMinorMagic(actor: any): boolean;
 export declare function beginMinorMagicRest(actor: {
@@ -169,11 +181,12 @@ export declare function dismissMinorMagicItem(actor: any, item: any): Promise<{
     ok: false;
     error: string;
 }>;
-export declare function onMinorMagicItemDeleted(item: any): Promise<void>;
+export declare function onMinorMagicItemDeleted(item: any, options?: Record<string, unknown> | null): Promise<void>;
 export declare function minorMagicSheetView(actor: any): {
     limit: number;
     held: number;
     remaining: number;
+    givenAway: number;
     canManage: boolean;
     items: Array<{
         id: string;
@@ -182,6 +195,8 @@ export declare function minorMagicSheetView(actor: any): {
         powerName: string;
         summary: string;
         actionCost: string;
+        givenAway?: boolean;
+        canGive?: boolean;
     }>;
 };
 //# sourceMappingURL=minor-magic-items.d.ts.map

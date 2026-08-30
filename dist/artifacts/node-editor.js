@@ -18,6 +18,7 @@ import { deriveBaseValueDisplay, scaleWeaponSpecial, isScalingWeaponSpecial, } f
 import { catalogSpecialTierForTemplate, catalogTemplateRequiresSpecial, listCatalogSpecialOptions, } from '../utils/artifact-catalog-pick.js';
 import { artifactPickCanBeSpell, uiTemplateIdCanBeSpell } from '../utils/artifact-spell-pick.js';
 import { getArtifactBaseTypeGroups, resolveArtifactBaseType, } from '../utils/artifact-base-type-catalog.js';
+import { getFilePickerClass } from '../utils/foundry-v14.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog = foundry?.appv1?.Application || Application;
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
@@ -407,6 +408,7 @@ export class NodeEditor extends BaseDialog {
         const damageStr = weapon.damage != null ? String(weapon.damage).trim() : '';
         const weaponDamagePreset = coerceTreeDamage(damageStr);
         data.item = this.item;
+        data.imgAlt = String(system.imgAlt || '').trim();
         data.level = system.level || 1;
         data.artifactKind = artifactKind;
         data.gearSlot = gearSlot;
@@ -669,6 +671,26 @@ export class NodeEditor extends BaseDialog {
     }
     activateListeners(html) {
         super.activateListeners(html);
+        html.find('[data-action="pick-img-alt"]').on('click', (ev) => {
+            ev.preventDefault();
+            const FilePickerImpl = getFilePickerClass();
+            if (!FilePickerImpl)
+                return;
+            const current = String(html.find('#node-img-alt').val() || '').trim();
+            const fp = new FilePickerImpl({
+                type: 'image',
+                current,
+                callback: (path) => {
+                    html.find('#node-img-alt').val(path);
+                    const preview = html.find('.node-img-alt-preview');
+                    if (path)
+                        preview.attr('src', path).removeClass('is-empty');
+                    else
+                        preview.attr('src', '').addClass('is-empty');
+                },
+            });
+            fp.browse();
+        });
         const { isLineageRoot } = resolveLineageForItem(this.item);
         const syncKindUi = () => {
             const profile = String(html.find('#node-spec-base-profile').val() || '');
@@ -1491,6 +1513,7 @@ export class NodeEditor extends BaseDialog {
             'system.progressionPicks': progressionPicks,
             'system.levelProgression': levelProgression,
             'system.powers': [],
+            'system.imgAlt': String(html.find('#node-img-alt').val() || '').trim(),
             'system.binding': specBinding,
             ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
         };

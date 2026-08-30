@@ -1,0 +1,374 @@
+<div class="encounter-gen-dialog">
+  <header class="encounter-gen-header">
+    <nav class="encounter-gen-progress">
+      {{#each steps}}
+        <button type="button" class="encounter-gen-tag {{#if active}}active{{/if}} {{#if done}}done{{/if}}" data-action="goto" data-step="{{id}}">{{label}}</button>
+      {{/each}}
+    </nav>
+  </header>
+
+  <section class="encounter-gen-body">
+    {{#if (eq step 'party')}}
+      <p class="encounter-gen-prose">Wähle die Gruppe, gegen die dieses Encounter funktionieren soll. Der Generator analysiert die tatsächlichen Charaktere — keine Durchschnittswerte.</p>
+      <div class="encounter-gen-form">
+        <div class="encounter-gen-field encounter-gen-field--wide">
+          <label>Encounter-Name</label>
+          <input type="text" value="{{party.name}}" data-field="name" placeholder="z. B. Nargat, Herr der Grube"/>
+        </div>
+        <div class="encounter-gen-field">
+          <label>Phasen</label>
+          <select data-field="phase-count">
+            {{#each party.phaseOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+          </select>
+        </div>
+      </div>
+      <div class="encounter-gen-party-grid">
+        {{#each party.actors}}
+          <label class="encounter-gen-pc">
+            <input type="checkbox" data-field="party-actor" data-actor="{{id}}" {{#if checked}}checked{{/if}}/>
+            <span class="encounter-gen-pc-name">{{name}}</span>
+            <span class="encounter-gen-pc-meta">MR {{mr}}</span>
+          </label>
+        {{/each}}
+      </div>
+    {{/if}}
+
+    {{#if (eq step 'enemies')}}
+      <p class="encounter-gen-prose">Du entscheidest, was der Gegner tut — der Generator bestimmt später, wie stark es gegen diese Gruppe sein darf. Pro Hauptgegner: 1 Primärverteidigung (Pflicht), optional Sekundär/Tertiär.</p>
+      {{#each enemies.list}}
+        <div class="encounter-gen-card">
+          <div class="encounter-gen-form">
+            <div class="encounter-gen-field">
+              <label>Name</label>
+              <input type="text" value="{{name}}" data-field="enemy-name" data-enemy="{{id}}"/>
+            </div>
+            <div class="encounter-gen-field encounter-gen-field--wide">
+              <label>Konzept (Fiktion)</label>
+              <input type="text" value="{{concept}}" data-field="enemy-concept" data-enemy="{{id}}" placeholder="z. B. gepanzerter Grubenwächter mit Kettenpeitsche"/>
+            </div>
+            {{#if ../enemies.canRemove}}
+              <button type="button" class="encounter-gen-btn" data-action="remove-enemy" data-enemy="{{id}}"><i class="fas fa-trash"></i></button>
+            {{/if}}
+          </div>
+          <div class="encounter-gen-form">
+            <div class="encounter-gen-field">
+              <label>Primärverteidigung</label>
+              <select data-field="defense-primary" data-enemy="{{id}}" data-phase="0">
+                {{#each primaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
+              </select>
+            </div>
+            <div class="encounter-gen-field">
+              <label>Sekundär</label>
+              <select data-field="defense-secondary" data-enemy="{{id}}" data-phase="0">
+                {{#each secondaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
+              </select>
+            </div>
+            <div class="encounter-gen-field">
+              <label>Tertiär</label>
+              <select data-field="defense-tertiary" data-enemy="{{id}}" data-phase="0">
+                {{#each tertiaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
+              </select>
+            </div>
+          </div>
+          {{#if primaryNote}}<p class="encounter-gen-caution-line">⚠ {{primaryNote}}</p>{{/if}}
+          <div class="encounter-gen-form">
+            <div class="encounter-gen-field">
+              <label>Bewegung</label>
+              <select data-field="movement-kind" data-enemy="{{id}}">
+                {{#each movementOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+              </select>
+            </div>
+            <label class="encounter-gen-field encounter-gen-field--checkbox">
+              <input type="checkbox" data-field="escapes-melee" data-enemy="{{id}}" {{#if escapesMelee}}checked{{/if}}/>
+              Entzieht sich zuverlässig dem Nahkampf
+            </label>
+          </div>
+          <div class="encounter-gen-form">
+            <span class="encounter-gen-card-text">Reaktionen (max. 2):</span>
+            {{#each reactionOptions}}
+              <label class="encounter-gen-field encounter-gen-field--checkbox">
+                <input type="checkbox" data-field="reaction-toggle" data-enemy="{{../id}}" data-reaction="{{value}}" {{#if selected}}checked{{/if}}/>
+                {{label}}
+              </label>
+            {{/each}}
+          </div>
+          <div class="encounter-gen-form">
+            <label class="encounter-gen-field encounter-gen-field--checkbox">
+              <input type="checkbox" data-field="copies-enabled" data-enemy="{{id}}" {{#if copies.enabled}}checked{{/if}}/>
+              Kopien / Illusionen
+            </label>
+            {{#if copies.enabled}}
+              <div class="encounter-gen-field">
+                <label>Anzahl</label>
+                <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{copies.count}}" data-field="copies-count" data-enemy="{{id}}"/>
+              </div>
+              <div class="encounter-gen-field">
+                <label>Health</label>
+                <select data-field="copies-health" data-enemy="{{id}}">
+                  <option value="independent" {{#unless (eq copies.health 'shared')}}selected{{/unless}}>unabhängig</option>
+                  <option value="shared" {{#if (eq copies.health 'shared')}}selected{{/if}}>geteilt</option>
+                </select>
+              </div>
+              <label class="encounter-gen-field encounter-gen-field--checkbox">
+                <input type="checkbox" data-field="copies-fragile" data-enemy="{{id}}" {{#if copies.fragile}}checked{{/if}}/>
+                zerbrechlich (1 Treffer)
+              </label>
+              <label class="encounter-gen-field encounter-gen-field--checkbox">
+                <input type="checkbox" data-field="copies-attack" data-enemy="{{id}}" {{#if copies.attack}}checked{{/if}}/>
+                greifen mit an
+              </label>
+            {{/if}}
+          </div>
+        </div>
+      {{/each}}
+      {{#if enemies.canAdd}}
+        <button type="button" class="encounter-gen-btn" data-action="add-enemy"><i class="fas fa-plus"></i> Hauptgegner hinzufügen</button>
+      {{/if}}
+    {{/if}}
+
+    {{#if (eq step 'actions')}}
+      <p class="encounter-gen-note">{{actions.recText}}</p>
+      <p class="encounter-gen-prose">Jede Aktion braucht einen konkreten Angriff. Der Solver bestimmt Attack-Pool, Schadenswürfel und Special-Stärke — du bestimmst, WAS der Angriff ist.</p>
+      {{#each actions.list}}
+        <div class="encounter-gen-card">
+          <div class="encounter-gen-form">
+            <span class="encounter-gen-card-title">{{name}}</span>
+            <div class="encounter-gen-field">
+              <label>Aktionen/Runde (empfohlen: {{recommended}})</label>
+              <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{override}}" placeholder="{{recommended}}" data-field="actions-override" data-enemy="{{id}}"/>
+            </div>
+          </div>
+          {{#each attacks}}
+            <div class="encounter-gen-form encounter-gen-form--inline">
+              <div class="encounter-gen-field">
+                <label>Angriff</label>
+                <input type="text" value="{{name}}" data-field="attack-name" data-enemy="{{enemyId}}" data-attack="{{id}}" placeholder="z. B. Kettenpeitsche"/>
+              </div>
+              <label class="encounter-gen-field encounter-gen-field--checkbox">
+                <input type="checkbox" data-field="attack-spell" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if isSpell}}checked{{/if}}/>
+                Spell
+              </label>
+              <label class="encounter-gen-field encounter-gen-field--checkbox">
+                <input type="checkbox" data-field="attack-ranged" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if isRanged}}checked{{/if}}/>
+                Fernkampf
+              </label>
+              <div class="encounter-gen-field">
+                <label>Fläche</label>
+                <select data-field="attack-area" data-enemy="{{enemyId}}" data-attack="{{id}}">
+                  {{#each areaOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                </select>
+              </div>
+              {{#unless (eq area 'single')}}
+                <div class="encounter-gen-field">
+                  <label>Fläche (m)</label>
+                  <input type="number" class="encounter-gen-input--small" min="2" max="24" value="{{areaSize}}" data-field="attack-area-size" data-enemy="{{enemyId}}" data-attack="{{id}}"/>
+                </div>
+              {{/unless}}
+              <div class="encounter-gen-field">
+                <label>Reichweite (m)</label>
+                <input type="number" class="encounter-gen-input--small" min="0" max="48" value="{{range}}" data-field="attack-range" data-enemy="{{enemyId}}" data-attack="{{id}}"/>
+              </div>
+              <div class="encounter-gen-field">
+                <label>Special</label>
+                <select data-field="attack-special" data-enemy="{{enemyId}}" data-attack="{{id}}">
+                  {{#each specialOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                </select>
+              </div>
+              <label class="encounter-gen-field encounter-gen-field--checkbox">
+                <input type="checkbox" data-field="attack-stress" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if stress}}checked{{/if}}/>
+                +1d8 Stress
+              </label>
+              {{#if canRemove}}
+                <button type="button" class="encounter-gen-btn" data-action="remove-attack" data-enemy="{{enemyId}}" data-attack="{{id}}"><i class="fas fa-trash"></i></button>
+              {{/if}}
+            </div>
+          {{/each}}
+          {{#if canAddAttack}}
+            <button type="button" class="encounter-gen-btn" data-action="add-attack" data-enemy="{{id}}"><i class="fas fa-plus"></i> Angriff hinzufügen</button>
+          {{/if}}
+        </div>
+      {{/each}}
+    {{/if}}
+
+    {{#if (eq step 'phases')}}
+      {{#if phases.multiPhase}}
+        <p class="encounter-gen-prose">Jede Phase ist ein echter Kampfzustand mit eigenem Health-Pool. Änderungen sind deine Entscheidung — es gibt keine automatische Skalierung.</p>
+        {{#each phases.phases}}
+          <div class="encounter-gen-card">
+            <span class="encounter-gen-card-title">{{label}}</span>
+            {{#each enemies}}
+              <div class="encounter-gen-form">
+                <span class="encounter-gen-card-text">{{name}}</span>
+                <div class="encounter-gen-field">
+                  <label>Primärverteidigung</label>
+                  <select data-field="defense-primary" data-enemy="{{enemyId}}" data-phase="{{../index}}">
+                    {{#each primaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
+                  </select>
+                </div>
+                <div class="encounter-gen-field">
+                  <label>Sekundär</label>
+                  <select data-field="defense-secondary" data-enemy="{{enemyId}}" data-phase="{{../index}}">
+                    {{#each secondaryOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}} {{#if disabled}}disabled{{/if}}>{{label}}</option>{{/each}}
+                  </select>
+                </div>
+                <div class="encounter-gen-field encounter-gen-field--wide">
+                  <label>Mechanik-Notiz</label>
+                  <input type="text" value="{{mechanicsNote}}" data-field="phase-note" data-enemy="{{enemyId}}" data-phase="{{../index}}" placeholder="z. B. Boden brennt, Arena schrumpft"/>
+                </div>
+              </div>
+              <div class="encounter-gen-form">
+                <span class="encounter-gen-card-text">Aktive Angriffe:</span>
+                {{#each attacks}}
+                  <label class="encounter-gen-field encounter-gen-field--checkbox">
+                    <input type="checkbox" data-field="phase-attack-toggle" data-enemy="{{../enemyId}}" data-phase="{{../../index}}" data-attack="{{id}}" {{#if active}}checked{{/if}}/>
+                    {{name}}
+                  </label>
+                {{/each}}
+              </div>
+            {{/each}}
+          </div>
+        {{/each}}
+      {{else}}
+        <p class="encounter-gen-prose">Einphasiger Kampf. Hier verwaltest du Adds, Verstärkungen und Beschwörungen.</p>
+      {{/if}}
+
+      <h3>Adds / Verstärkung / Beschwörung</h3>
+      {{#each phases.addGroups}}
+        <div class="encounter-gen-card">
+          <div class="encounter-gen-form encounter-gen-form--inline">
+            <div class="encounter-gen-field">
+              <label>Name</label>
+              <input type="text" value="{{name}}" data-field="group-name" data-group="{{id}}"/>
+            </div>
+            <div class="encounter-gen-field">
+              <label>Anzahl</label>
+              <input type="number" class="encounter-gen-input--small" min="1" max="12" value="{{count}}" data-field="group-count" data-group="{{id}}"/>
+            </div>
+            <div class="encounter-gen-field">
+              <label>Zweck</label>
+              <select data-field="group-role" data-group="{{id}}">
+                {{#each roleOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+              </select>
+            </div>
+            <div class="encounter-gen-field">
+              <label>Auftritt</label>
+              <select data-field="group-arrival" data-group="{{id}}">
+                {{#each arrivalOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+              </select>
+            </div>
+            {{#if isReinforcement}}
+              <div class="encounter-gen-field">
+                <label>Runde</label>
+                <input type="number" class="encounter-gen-input--small" min="1" max="8" value="{{arrivalRound}}" data-field="group-round" data-group="{{id}}"/>
+              </div>
+            {{/if}}
+            {{#if isSummon}}
+              <div class="encounter-gen-field">
+                <label>Beschwörer</label>
+                <select data-field="group-summoner" data-group="{{id}}">
+                  {{#each summonerOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                </select>
+              </div>
+            {{/if}}
+            <div class="encounter-gen-field">
+              <label>Treffer bis Tod</label>
+              <input type="number" class="encounter-gen-input--small" min="1" max="6" value="{{hitsToKill}}" data-field="group-hits" data-group="{{id}}"/>
+            </div>
+            <label class="encounter-gen-field encounter-gen-field--checkbox">
+              <input type="checkbox" data-field="group-attacks" data-group="{{id}}" {{#if attacks}}checked{{/if}}/>
+              greifen an
+            </label>
+            {{#if isSpecialRole}}
+              <div class="encounter-gen-field">
+                <label>Special</label>
+                <select data-field="group-special" data-group="{{id}}">
+                  {{#each specialOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+                </select>
+              </div>
+            {{/if}}
+            <button type="button" class="encounter-gen-btn" data-action="remove-group" data-group="{{id}}"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      {{/each}}
+      <button type="button" class="encounter-gen-btn" data-action="add-group"><i class="fas fa-plus"></i> Add-Gruppe hinzufügen</button>
+    {{/if}}
+
+    {{#if (eq step 'review')}}
+      {{#if review.empty}}
+        <p class="encounter-gen-empty">Keine Gruppe gewählt — zurück zu Schritt 1.</p>
+      {{else}}
+        <p class="encounter-gen-prose"><strong>{{review.name}}</strong> — erwartete Gesamtdauer <strong>~{{review.totalRounds}} Runden</strong> gegen {{review.partySize}} Charaktere.</p>
+
+        {{#if review.warnings.length}}
+          <div class="encounter-gen-warnings">
+            {{#each review.warnings}}
+              <p class="encounter-gen-caution-line">{{#if strong}}⛔{{else if info}}ℹ{{else}}⚠{{/if}} {{message}}</p>
+            {{/each}}
+          </div>
+        {{/if}}
+
+        {{#each review.phases}}
+          <div class="encounter-gen-card">
+            <span class="encounter-gen-card-title">{{label}}</span>
+            <p class="encounter-gen-card-text">{{duration}}</p>
+            {{#if multiBody}}<p class="encounter-gen-card-text">Erster Gegner fällt ~Runde {{firstDrop}}; danach {{afterDrop}} feindliche Aktionen/Runde.</p>{{/if}}
+            <p class="encounter-gen-card-text">Gruppenschaden-Kurve: {{roundCurve}}</p>
+            <p class="encounter-gen-card-text">{{actionText}}</p>
+
+            <table class="encounter-gen-table">
+              <thead><tr><th>Gegner</th><th>Health</th><th>Verteidigungen (Anteil)</th><th>Aktionen</th><th>Angriffe</th><th>Override</th></tr></thead>
+              <tbody>
+                {{#each enemies}}
+                  <tr>
+                    <td><strong>{{name}}</strong></td>
+                    <td>{{health}}</td>
+                    <td>
+                      {{#each defenses}}
+                        <span class="encounter-gen-tag {{#if unsupported}}encounter-gen-caution{{/if}}">{{label}} · {{share}}</span>
+                      {{/each}}
+                    </td>
+                    <td>{{actions}}</td>
+                    <td>
+                      {{#each attacks}}<div><strong>{{name}}</strong>: {{line}}</div>{{/each}}
+                    </td>
+                    <td>
+                      <input type="number" class="encounter-gen-input--small" placeholder="HP" value="{{healthOverride}}" data-field="override-health" data-enemy="{{enemyId}}" data-phase="{{phaseIndex}}" title="Health-Override — Validierung läuft erneut"/>
+                      <input type="number" class="encounter-gen-input--small" placeholder="Akt." value="{{actionsOverride}}" data-field="override-actions" data-enemy="{{enemyId}}" data-phase="{{phaseIndex}}" title="Aktionen-Override — Validierung läuft erneut"/>
+                    </td>
+                  </tr>
+                {{/each}}
+              </tbody>
+            </table>
+
+            {{#if adds.length}}
+              <p class="encounter-gen-card-text"><strong>Adds:</strong></p>
+              <ul>{{#each adds}}<li>{{name}} — {{line}}</li>{{/each}}</ul>
+            {{/if}}
+
+            <table class="encounter-gen-table">
+              <thead><tr><th>Charakter</th><th>HL/Runde</th><th>HL/Phase</th><th>Special-Spitze</th><th>Trefferchancen</th></tr></thead>
+              <tbody>
+                {{#each perPc}}
+                  <tr><td>{{name}}</td><td>{{hlRound}}</td><td>{{hlPhase}}</td><td>{{specials}}</td><td>{{hitRates}}</td></tr>
+                {{/each}}
+              </tbody>
+            </table>
+            <p class="encounter-gen-card-text">Höchstes Risiko: <strong>{{highestRisk}}</strong>. {{burstLine}}</p>
+          </div>
+        {{/each}}
+      {{/if}}
+    {{/if}}
+  </section>
+
+  <footer class="encounter-gen-footer">
+    {{#unless isFirst}}
+      <button type="button" class="encounter-gen-btn" data-action="prev"><i class="fas fa-arrow-left"></i> Zurück</button>
+    {{/unless}}
+    {{#unless isLast}}
+      <button type="button" class="encounter-gen-btn encounter-gen-btn--primary" data-action="next" {{#unless canNext}}disabled{{/unless}}>Weiter <i class="fas fa-arrow-right"></i></button>
+    {{/unless}}
+    {{#if isLast}}
+      <button type="button" class="encounter-gen-btn encounter-gen-btn--primary" data-action="generate" {{#unless review.canGenerate}}disabled{{/unless}}><i class="fas fa-hammer"></i> Encounter generieren</button>
+    {{/if}}
+  </footer>
+</div>

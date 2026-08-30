@@ -7,6 +7,8 @@ export declare function normalizeGearIconKey(name: string): string;
  * Returns null when no dedicated PNG exists for the key.
  */
 export declare function getEchoArtifactIcon(echoArtifactKey: string): string | null;
+/** Alternative / combined art for an Echo or General Artifact, if authored. */
+export declare function getEchoArtifactAltIcon(echoArtifactKey: string): string | null;
 export type ItemIconSystemHint = {
     type?: string;
     echoArtifactKey?: string;

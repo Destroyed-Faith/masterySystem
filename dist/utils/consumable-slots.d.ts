@@ -46,6 +46,8 @@ export declare function listEquippedConsumableItems(actor: {
     index: number;
     item: any;
 }>;
+/** Unequipped inventory items that may occupy a Consumable Slot. */
+export declare function listCarriedConsumableItems(items: Iterable<any> | null | undefined): any[];
 export declare function itemOccupyingConsumableSlot(actor: {
     items?: Iterable<any>;
 }, index: number): any | null;

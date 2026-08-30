@@ -62,4 +62,8 @@ export declare function inferArtifactEquipSlots(system: {
     slot?: string;
     baseProfile?: string;
 } | null | undefined): string[] | null;
+/** Unequipped inventory / stash items that may occupy this paperdoll slot. */
+export declare function listCarriedItemsForPaperdollSlot(items: Iterable<any> | null | undefined, slotKey: string, opts?: {
+    allowOffhandWeapon?: (item: any) => boolean;
+}): any[];
 //# sourceMappingURL=equip-slots.d.ts.map

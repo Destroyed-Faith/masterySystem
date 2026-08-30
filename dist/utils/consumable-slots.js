@@ -4,7 +4,8 @@
  * existing `flags.mastery-system.equipment` object. Slot count is derived
  * from the actor's current Mastery Rank (no parallel inventory).
  */
-import { readMinorMagicFlag, snapshotSummaryLines } from './minor-magic-items.js';
+import { isCarriedUnequippedItem } from './inventory-grid.js';
+import { MINOR_MAGIC_TRANSFER_DELETE, prepareMinorMagicFlagForTransfer, readMinorMagicFlag, snapshotSummaryLines, } from './minor-magic-items.js';
 export const CONSUMABLE_SLOT_FLAG = 'consumableSlot';
 export const CONSUMABLE_I18N_KEYS = [
     'MASTERY.consumable.title',
@@ -76,6 +77,10 @@ export function itemDataForConsumableTransfer(source) {
     delete equipment.consumableSlot;
     delete equipment.slot;
     ms.equipment = equipment;
+    const minor = readMinorMagicFlag(source);
+    if (minor) {
+        ms.minorMagic = prepareMinorMagicFlagForTransfer(minor, String(source.id || ''));
+    }
     return data;
 }
 export function listEquippedConsumableItems(actor) {
@@ -95,6 +100,19 @@ export function listEquippedConsumableItems(actor) {
         rows.push({ index, item });
     }
     return rows.sort((a, b) => a.index - b.index);
+}
+/** Unequipped inventory items that may occupy a Consumable Slot. */
+export function listCarriedConsumableItems(items) {
+    const out = [];
+    for (const item of items ?? []) {
+        if (!isCarriedUnequippedItem(item))
+            continue;
+        if (!isConsumableItem(item))
+            continue;
+        out.push(item);
+    }
+    out.sort((a, b) => String(a?.name || '').localeCompare(String(b?.name || '')));
+    return out;
 }
 export function itemOccupyingConsumableSlot(actor, index) {
     return listEquippedConsumableItems(actor).find((row) => row.index === index)?.item ?? null;
@@ -383,7 +401,9 @@ export async function transferConsumableToActor(targetActor, sourceItem) {
     const [created] = await targetActor.createEmbeddedDocuments('Item', [data]);
     const sourceActor = sourceItem.parent;
     if (sourceActor?.deleteEmbeddedDocuments && sourceItem.id) {
-        await sourceActor.deleteEmbeddedDocuments('Item', [sourceItem.id]);
+        await sourceActor.deleteEmbeddedDocuments('Item', [sourceItem.id], {
+            [MINOR_MAGIC_TRANSFER_DELETE]: true,
+        });
     }
     return created ?? null;
 }

@@ -7,6 +7,7 @@
  */
 import { CREATURE_TYPE_OPTIONS, resolveCreatureType } from '../utils/creature-type.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcDamageDiceFormula, resolveNpcAttackList, sumNpcAttackSlotsFromPowers, } from '../utils/npc-attack-model.js';
+import { specialApplicationLimit } from '../combat/special-application.js';
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/npc-print.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/npc-print.css';
 function routed(path) {
@@ -51,6 +52,9 @@ function formatRangeLine(atk) {
             ? `Range Short ≤${shortM} / Long ≤${longM} m`
             : `Range Long ≤${longM} m`;
     }
+    const aoeM = Math.floor(num(atk.npcAoeRadiusM, 0));
+    if (aoeM >= 2)
+        return 'Melee around self';
     const reach = Math.floor(num(atk.npcRangeMeters, 2));
     return `Melee ${reach > 0 ? reach : 2} m`;
 }
@@ -198,6 +202,8 @@ export function buildNpcPrintContext(actor) {
         return {
             name,
             masteryRank,
+            specialRecovery: masteryRank,
+            specialCap: specialApplicationLimit(masteryRank),
             castingTn,
             creatureType,
             faction,

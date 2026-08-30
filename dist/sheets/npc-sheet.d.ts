@@ -22,6 +22,7 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
         actions: {
             msNpcPrintSheet: (this: any) => void;
             msCopyPictureLink: (this: any) => void;
+            'toggle-known-npc': (this: any, event: Event) => void;
         };
     };
     /**

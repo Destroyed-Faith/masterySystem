@@ -19,17 +19,13 @@
  */
 import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { calculateBaseTN } from '../combat/spell-roll-handler.js';
+import { powerLevelCost } from '../utils/constants.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import { buildPowerItemFromCatalogEntry, } from '../utils/power-item-builder.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, activeTemplateCanBeSpell, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, powerIdentityKeyFromEntry, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
-/** Friendly label for a subfamily key. */
-function labelSubfamily(key) {
-    return key
-        .split('-')
-        .map((p) => (p.length ? p[0].toUpperCase() + p.slice(1) : p))
-        .join(' ');
-}
+import { applyXpCost, getXpState, } from '../progression/progression-hub-actions.js';
+import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, activeTemplateCanBeSpell, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 /**
  * Show the template-based Power picker.
  */
@@ -47,9 +43,8 @@ export async function showPowerCreationDialog(actor, options) {
     const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
     const maxSpellLevel = maxPowerLevel;
     const categoryOptions = CATEGORY_ORDER.map((c) => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`).join('');
-    const rankOptions = Array.from({ length: 16 }, (_, i) => i + 1)
-        .map((r) => `<option value="${r}">Rank ${r}</option>`)
-        .join('');
+    const newPowerCost = powerLevelCost(1);
+    const xpState = getXpState(actor);
     const content = `
     <form class="power-creation-form power-catalog-form">
       <div class="power-catalog-filters">
@@ -61,10 +56,11 @@ export async function showPowerCreationDialog(actor, options) {
           </select>
         </div>
         <div class="form-group power-form-group">
-          <label class="power-form-label">Subfamily:</label>
+          <label class="power-form-label">Kind:</label>
           <select name="subfamily" id="pc-subfamily" class="power-form-select">
-            <option value="">-- Any Subfamily --</option>
+            <option value="">-- Any kind --</option>
           </select>
+          <p class="pc-subfamily-hint" id="pc-subfamily-hint"></p>
         </div>
         <div class="form-group power-form-group pc-special-group" style="display:none;">
           <label class="power-form-label">Special:</label>
@@ -113,11 +109,10 @@ export async function showPowerCreationDialog(actor, options) {
         </div>
       </div>
       ${creationComplete ? `
-      <div class="form-group power-form-group">
-        <label class="power-form-label">Rank:</label>
-        <select name="rank" id="pc-rank" class="power-form-select">
-          ${rankOptions}
-        </select>
+      <div class="form-group power-form-group pc-purchase-bar">
+        <input type="hidden" name="rank" id="pc-rank" value="1" />
+        <p class="pc-purchase-copy">New Powers start at <strong>Level 1</strong>. Raise the level later on the sheet.</p>
+        <p class="pc-purchase-cost">Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span></p>
       </div>
       ` : `
       <div class="form-group power-form-group">
@@ -135,7 +130,7 @@ export async function showPowerCreationDialog(actor, options) {
         buttons: {
             create: {
                 icon: '<i class="fas fa-check"></i>',
-                label: 'Add',
+                label: creationComplete ? `Buy (${newPowerCost} XP)` : 'Add',
                 callback: async (htmlCb) => {
                     const $html = (htmlCb instanceof HTMLElement) ? $(htmlCb) : $(htmlCb);
                     const selectedName = $html.find('#pc-power').val();
@@ -149,6 +144,8 @@ export async function showPowerCreationDialog(actor, options) {
                         return false;
                     }
                     let rank = parseInt($html.find('#pc-rank').val() || '1', 10);
+                    if (creationComplete)
+                        rank = 1;
                     if (!creationComplete)
                         rank = 2;
                     const isSpell = entry.category === 'active'
@@ -198,8 +195,49 @@ export async function showPowerCreationDialog(actor, options) {
                             return false;
                         }
                     }
+                    if (creationComplete) {
+                        const cost = powerLevelCost(rank);
+                        const beforeXp = getXpState(actor);
+                        if (beforeXp.available < cost) {
+                            ui.notifications?.error(`Not enough XP. A new Power costs ${cost} XP (you have ${beforeXp.available}).`);
+                            return false;
+                        }
+                    }
                     await actor.createEmbeddedDocuments('Item', [itemData]);
-                    ui.notifications?.info(`Created ${entry.name} (Rank ${rank})${isSpell ? ' as a Spell' : ''}`);
+                    if (creationComplete) {
+                        const cost = powerLevelCost(rank);
+                        const beforeXp = getXpState(actor);
+                        const acct = applyXpCost(beforeXp, cost);
+                        const history = appendXpHistory(actor, [{
+                                ts: Date.now(),
+                                ...currentXpUser(),
+                                kind: 'spend',
+                                category: 'power',
+                                amount: cost,
+                                note: `Added ${entry.name} at level ${rank}`,
+                                details: { from: 0, to: rank, label: entry.name, cost },
+                                before: {
+                                    available: beforeXp.available,
+                                    totalEarned: beforeXp.totalEarned,
+                                    totalSpent: beforeXp.totalSpent,
+                                },
+                                after: {
+                                    available: acct.pointsXp + acct.pointsXpFree,
+                                    totalEarned: beforeXp.totalEarned,
+                                    totalSpent: acct.totalSpent,
+                                },
+                            }]);
+                        await actor.update({
+                            'system.points.xp': acct.pointsXp,
+                            'system.points.xpFree': acct.pointsXpFree,
+                            'system.xp.totalSpent': acct.totalSpent,
+                            'system.xp.freeSpent': acct.freeSpent,
+                            'system.xp.history': history,
+                        });
+                    }
+                    ui.notifications?.info(creationComplete
+                        ? `Added ${entry.name} at Level ${rank} (−${powerLevelCost(rank)} XP)${isSpell ? ' as a Spell' : ''}`
+                        : `Created ${entry.name} (Rank ${rank})${isSpell ? ' as a Spell' : ''}`);
                     return true;
                 },
             },
@@ -235,15 +273,20 @@ export async function showPowerCreationDialog(actor, options) {
             const refreshSubfamilyDropdown = () => {
                 const category = $categorySelect.val() || '';
                 $subfamilySelect.empty();
-                $subfamilySelect.append('<option value="">-- Any Subfamily --</option>');
+                $subfamilySelect.append('<option value="">-- Any kind --</option>');
                 if (!category)
                     return;
                 for (const sub of getSubfamiliesByCategory(category)) {
                     const opt = document.createElement('option');
                     opt.value = sub;
-                    opt.textContent = labelSubfamily(sub);
+                    opt.textContent = labelPowerSubfamily(sub);
                     $subfamilySelect.append(opt);
                 }
+            };
+            const refreshSubfamilyHint = () => {
+                const $hint = html.find('#pc-subfamily-hint');
+                const sub = $subfamilySelect.val() || '';
+                $hint.text(powerSubfamilyHint(sub));
             };
             const refreshActiveOnlyVisibility = () => {
                 const category = $categorySelect.val() || '';
@@ -310,7 +353,7 @@ export async function showPowerCreationDialog(actor, options) {
                         if (e.chosenSpecial)
                             badges.push(e.chosenSpecial.key);
                         const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
-                        const label = `${e.templateName}${badgeStr} · ${labelSubfamily(e.subfamily)} [${CATEGORY_LABELS[e.category]}]`;
+                        const label = `${e.templateName}${badgeStr} · ${labelPowerSubfamily(e.subfamily)} [${CATEGORY_LABELS[e.category]}]`;
                         const opt = document.createElement('option');
                         opt.value = e.name;
                         opt.textContent = label;
@@ -358,11 +401,13 @@ export async function showPowerCreationDialog(actor, options) {
             };
             $categorySelect.on('change', () => {
                 refreshSubfamilyDropdown();
+                refreshSubfamilyHint();
                 refreshActiveOnlyVisibility();
                 refreshSpecialDropdown();
                 refreshList();
             });
             $subfamilySelect.on('change', () => {
+                refreshSubfamilyHint();
                 refreshSpecialDropdown();
                 refreshList();
             });
@@ -397,6 +442,7 @@ export async function showPowerCreationDialog(actor, options) {
             });
             // Initial boot
             refreshSubfamilyDropdown();
+            refreshSubfamilyHint();
             refreshActiveOnlyVisibility();
             refreshSpecialDropdown();
             refreshList();
@@ -411,7 +457,7 @@ function renderEntryDetails(entry, $description, $levelTable) {
     $description.text(raw.description || raw.fluff || '');
     if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
         const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l) => l?.trigger);
-        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger));
+        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));
     }
     else {
         $levelTable.empty();

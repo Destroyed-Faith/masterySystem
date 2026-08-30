@@ -1,14 +1,14 @@
 /**
  * Creature type catalog (NPC + Summon). No free text — pick from this list.
  *
- * Exorcism(X) applies only to Fiends; Requiem(X) only to Undead (Rules).
+ * Exorcism(X) applies only to Fiends; Requiem(X) only to Deathless (Rules).
  */
 export const CREATURE_TYPE_OPTIONS = [
     { value: '', label: '— Creature Type —' },
     { value: 'humanoid', label: 'Humanoid' },
     { value: 'beast', label: 'Beast' },
     { value: 'spirit', label: 'Spirit' },
-    { value: 'undead', label: 'Undead' },
+    { value: 'deathless', label: 'Deathless' },
     { value: 'fiend', label: 'Fiend' },
     { value: 'construct', label: 'Construct' },
     { value: 'elemental', label: 'Elemental' },
@@ -43,13 +43,16 @@ export function normalizeCreatureTypeValue(raw) {
         return '';
     if (isCreatureTypeKey(value))
         return value;
-    if (value === 'untot' ||
+    if (value === 'undead' ||
+        value === 'untot' ||
         value === 'zombie' ||
         value === 'skeleton' ||
         value === 'vampire' ||
         value === 'geist' ||
-        value === 'ghost') {
-        return 'undead';
+        value === 'ghost' ||
+        value === 'lich' ||
+        value === 'totenlos') {
+        return 'deathless';
     }
     if (value === 'demon' ||
         value === 'daemon' ||
@@ -86,9 +89,9 @@ export function resolveCreatureType(actor) {
 export function isExorcismValidTarget(actor) {
     return resolveCreatureType(actor) === 'fiend';
 }
-/** True when Requiem(X) may be applied (Undead only). */
+/** True when Requiem(X) may be applied (Deathless only). */
 export function isRequiemValidTarget(actor) {
-    return resolveCreatureType(actor) === 'undead';
+    return resolveCreatureType(actor) === 'deathless';
 }
 /** Tag gate for a targeted Special id (`exorcism` / `requiem`). */
 export function isTargetedSpecialValidTarget(specialId, actor) {

@@ -24,6 +24,11 @@ import { type PowerTemplate } from './powers/templates/index.js';
 /** Category keys used in filter UI (in display order). */
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
+/** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
+export declare const SUBFAMILY_LABELS: Record<string, string>;
+export declare const SUBFAMILY_HINTS: Record<string, string>;
+export declare function labelPowerSubfamily(key: string): string;
+export declare function powerSubfamilyHint(key: string): string;
 /**
  * Requirements for character creation per category.
  *

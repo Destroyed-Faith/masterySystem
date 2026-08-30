@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.429] - 2026-08-30
+
+### Added
+
+- **Encounter Forge:** Replaces the Encounter Generator. You pick the fight — party, main enemies, defenses, concrete attacks, phases, adds. The generator solves how strong those choices may be against the selected characters. No difficulty, rank, or style sliders, and no random rerolls. Review shows expected phase length, per-PC threat, and warnings. Generated NPCs write real sheet fields (Evade, Armor, Spell Resistance, DR%) instead of fake attributes.
+
+### Fixed
+
+- **Combat carousel:** The rail sits flush with the top of the screen. Round/shutdown buttons stay in a tight header row; cards start immediately below. The dark panel shrinks to the cards instead of leaving a tall empty band over the map.
+
 ## [0.9.428] - 2026-08-29
 
 ### Fixed

@@ -39,9 +39,10 @@ export function shouldSettleStoneWave(args) {
 }
 /**
  * Card order inside a power row. Every row holds exactly one ramp power whose
- * Tier 1 is a no-op, so its first activation costs 2 stones and its Anchor lane
- * renders disabled. It leads the row so the dead lane sits in one corner
- * instead of somewhere in the middle. The remaining cards keep their order.
+ * Tier 1 is a no-op, so its first activation costs 2 stones and the unused
+ * Anchor lane is omitted (the card starts at the Mid / 2-stone segment). It
+ * leads the row so the shorter cluster sits in one corner. The remaining
+ * cards keep their order.
  */
 export function orderPowersRampFirst(powers, skipsFirstTier) {
     const lead = [];
@@ -50,6 +51,17 @@ export function orderPowersRampFirst(powers, skipsFirstTier) {
         (skipsFirstTier(power) ? lead : rest).push(power);
     }
     return [...lead, ...rest];
+}
+/**
+ * Whether an attribute (or General) section starts expanded in the Stone
+ * Powers dialog. Sections with freely spendable stones of that attribute
+ * open; empty ones stay collapsed. The player can still toggle them.
+ * A stored override (this dialog session) always wins.
+ */
+export function stoneDialogSectionStartsOpen(args) {
+    if (typeof args.userOverride === 'boolean')
+        return args.userOverride;
+    return !!args.sectionHasSpendable || !!args.sectionHasAssigned;
 }
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool) {

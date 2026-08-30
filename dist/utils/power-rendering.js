@@ -2,6 +2,7 @@
  * Power Rendering Utilities
  * Helper functions to render power data in the UI
  */
+import { formatEffectReference, getEffectById, getEffectBaseName } from './special-effects.js';
 /** Radius-style AoE: definitions use either `radiusM` or legacy `m`. */
 function aoeRadiusM(aoe) {
     return aoe.radiusM ?? aoe.m;
@@ -102,33 +103,77 @@ export function renderDuration(duration) {
     }
     return duration.note || 'N/A';
 }
+function titleSpecialKey(key) {
+    return key
+        .split(/[-_]/g)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ');
+}
+function specialNumericValue(spec) {
+    const raw = spec.rank ?? spec.value;
+    if (raw === undefined || raw === null || raw === '')
+        return undefined;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : undefined;
+}
+/** One special for power tables: Ruin(3), Root(2) — never a bare lowercase key. */
+export function formatPowerSpecialLabel(spec, chosenKey) {
+    if (spec == null)
+        return '';
+    if (typeof spec === 'string') {
+        const s = spec.trim();
+        if (!s)
+            return '';
+        const m = s.match(/^([^(]+)\((\d+)\)\s*$/);
+        if (m) {
+            return formatEffectReference({ specialId: m[1].trim().toLowerCase(), value: Number(m[2]) });
+        }
+        const effect = getEffectById(s.toLowerCase());
+        return effect ? getEffectBaseName(effect.name) : titleSpecialKey(s);
+    }
+    let key = String(spec.key || spec.type || '').trim();
+    if (!key)
+        return '';
+    if (key.toUpperCase() === 'SPECIAL' && chosenKey)
+        key = String(chosenKey).trim();
+    if (!key || key.toUpperCase() === 'SPECIAL')
+        return '';
+    const value = specialNumericValue(spec);
+    const effect = getEffectById(key.toLowerCase());
+    let label = effect
+        ? formatEffectReference({ specialId: effect.id, value })
+        : value !== undefined
+            ? `${titleSpecialKey(key)}(${value})`
+            : titleSpecialKey(key);
+    if (effect?.hasValue && value === undefined) {
+        label = `${getEffectBaseName(effect.name)}(X)`;
+    }
+    if (spec.note && !/bound at item-create/i.test(spec.note)) {
+        label += ` ${spec.note}`;
+    }
+    return label;
+}
 /**
- * Render PowerSpecial array to a human-readable string
+ * Render PowerSpecial array to a human-readable string (Ruin(3), Root(2), …).
  */
-export function renderSpecials(specials) {
-    if (!specials || specials.length === 0) {
+export function renderSpecials(specials, chosenKey) {
+    if (!specials || !Array.isArray(specials) || specials.length === 0) {
         return '—';
     }
-    return specials.map(spec => {
-        if (spec.value !== undefined) {
-            return `${spec.key}(${spec.value})${spec.note ? ` ${spec.note}` : ''}`;
-        }
-        if (spec.rank !== undefined) {
-            return `${spec.key}(${spec.rank})${spec.note ? ` ${spec.note}` : ''}`;
-        }
-        return spec.key + (spec.note ? ` ${spec.note}` : '');
-    }).join(', ');
+    const parts = specials.map((spec) => formatPowerSpecialLabel(spec, chosenKey)).filter(Boolean);
+    return parts.length ? parts.join(', ') : '—';
 }
 /**
  * Render a PowerLevelRow to a table row HTML
  */
-export function renderPowerLevelRow(levelRow, level) {
+export function renderPowerLevelRow(levelRow, level, chosenKey) {
     const type = levelRow.type || '—';
     const range = renderRange(levelRow.range);
     const aoe = renderAoe(levelRow.aoe);
     const duration = renderDuration(levelRow.duration);
     const effect = levelRow.effect?.text || '—';
-    const specials = renderSpecials(levelRow.specials || []);
+    const specials = renderSpecials(levelRow.specials || [], chosenKey);
     const trigger = levelRow.trigger || '';
     let html = `<tr class="power-level-row" data-level="${level}">`;
     html += `<td class="power-level-cell">${level}</td>`;
@@ -148,7 +193,7 @@ const MAX_LEVEL_TABLE = 16;
 /**
  * Render a power level table for every defined level 1..16 (rows only when data exists).
  */
-export function renderPowerLevelTable(levels, showTrigger = false) {
+export function renderPowerLevelTable(levels, showTrigger = false, chosenKey) {
     if (!levels || typeof levels !== 'object') {
         return '<p class="power-level-table-empty">—</p>';
     }
@@ -170,7 +215,7 @@ export function renderPowerLevelTable(levels, showTrigger = false) {
         const levelKey = String(n);
         const levelRow = levels[levelKey];
         if (levelRow) {
-            html += renderPowerLevelRow(levelRow, n);
+            html += renderPowerLevelRow(levelRow, n, chosenKey);
         }
     }
     html += '</tbody></table>';

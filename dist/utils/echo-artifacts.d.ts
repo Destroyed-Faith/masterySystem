@@ -30,7 +30,7 @@
  * The catalog is pure data; it is consumed by `character-sheet-echo-dialog.ts`
  * during creation, and by `artifact-actor-rules.ts` for echo-bound checks.
  */
-import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind, PowerLevelKey } from '../types/item.js';
+import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind, CastingAttribute, PowerLevelKey, SpellResolution } from '../types/item.js';
 import { type MartialDelivery } from './artifact-power-pick.js';
 /**
  * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
@@ -92,6 +92,10 @@ export interface EchoArtifactProgressionPickSpec {
     stageTemplateIds?: [string, string, string];
     /** Full row names per stage when `stageTemplateIds` is set (length 3). */
     stageNames?: [string, string, string];
+    /** Cast this line as a Spell (Intellect / Resolve). */
+    isSpell?: boolean;
+    castingAttribute?: CastingAttribute;
+    spellResolution?: SpellResolution;
 }
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */
@@ -115,6 +119,11 @@ export interface EchoArtifactDefinition {
     requiresSubChoice?: string;
     baseValues: EchoArtifactBaseValueHint[];
     levelProgression: ArtifactLevelProgressionRow[];
+    /**
+     * Optional alternative / combined portrait (stored on `system.imgAlt`).
+     * When omitted, the tree builder still copies a catalog alt icon if one exists.
+     */
+    imgAlt?: string;
     /** Free-text restriction note (e.g. "occupies both hand slots"). */
     restriction?: string;
     /**
@@ -239,6 +248,9 @@ export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): 
     stageNumerals?: string[];
     stageTemplateIds?: [string, string, string];
     stageNames?: [string, string, string];
+    isSpell?: boolean;
+    castingAttribute?: CastingAttribute;
+    spellResolution?: SpellResolution;
 }[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;
 //# sourceMappingURL=echo-artifacts.d.ts.map

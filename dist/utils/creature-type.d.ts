@@ -1,7 +1,7 @@
 /**
  * Creature type catalog (NPC + Summon). No free text — pick from this list.
  *
- * Exorcism(X) applies only to Fiends; Requiem(X) only to Undead (Rules).
+ * Exorcism(X) applies only to Fiends; Requiem(X) only to Deathless (Rules).
  */
 export declare const CREATURE_TYPE_OPTIONS: readonly [{
     readonly value: "";
@@ -16,8 +16,8 @@ export declare const CREATURE_TYPE_OPTIONS: readonly [{
     readonly value: "spirit";
     readonly label: "Spirit";
 }, {
-    readonly value: "undead";
-    readonly label: "Undead";
+    readonly value: "deathless";
+    readonly label: "Deathless";
 }, {
     readonly value: "fiend";
     readonly label: "Fiend";
@@ -58,7 +58,7 @@ export declare function resolveCreatureType(actor: {
 export declare function isExorcismValidTarget(actor: {
     system?: any;
 } | null | undefined): boolean;
-/** True when Requiem(X) may be applied (Undead only). */
+/** True when Requiem(X) may be applied (Deathless only). */
 export declare function isRequiemValidTarget(actor: {
     system?: any;
 } | null | undefined): boolean;

@@ -916,7 +916,7 @@ export function tierForUseIndex(usesBefore) {
 /**
  * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
  * its first real effect is Tier 2. Such powers start one segment higher: the
- * Tier-1 / Anchor field is disabled and the first activation costs 2 stones.
+ * Tier-1 / Anchor field is omitted and the first activation costs 2 stones.
  * Used by Extra Attack, Spell Action, Damage Reduction, Phasing, Crit,
  * Parry, Damage Negation, and Not a Target.
  */

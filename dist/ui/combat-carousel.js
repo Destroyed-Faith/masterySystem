@@ -3,7 +3,7 @@ import { canViewerSeeEndTurn, requestEndTurn } from '../combat/end-turn.js';
 import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
-import { applyCarouselCompactClass, isCompactCarouselViewport, } from './combat-carousel-layout.js';
+import { applyCarouselCompactClass, clearCarouselTopOffset, isCompactCarouselViewport, } from './combat-carousel-layout.js';
 import { buildEncounterSetupStatus, forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
@@ -608,6 +608,7 @@ export class CombatCarouselApp extends BaseCarousel {
         // Remove body class when carousel is closed
         document.body.classList.remove('mastery-carousel-open');
         document.body.classList.remove('mastery-carousel-compact');
+        clearCarouselTopOffset();
         return super._onClose(_options);
     }
     compactViewportHandler = null;

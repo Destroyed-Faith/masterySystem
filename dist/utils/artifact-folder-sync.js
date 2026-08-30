@@ -84,7 +84,8 @@ export async function syncArtifactInheritedFromParent(parentItem) {
             'system.attackAttribute': String(parentSystem.attackAttribute || 'default').trim() || 'default',
             'system.progressionPicks': inheritedPicks,
             'system.levelProgression': inheritedProgression,
-            'system.powers': []
+            'system.powers': [],
+            'system.imgAlt': String(parentSystem.imgAlt || '').trim(),
         };
         const inferredSlots = inferArtifactEquipSlots({
             artifactKind: parentSystem.artifactKind || 'weapon',

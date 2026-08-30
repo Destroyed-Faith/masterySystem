@@ -48,6 +48,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _recoveryCommitting;
     /** Stones staged for the Initiative Exchange (the convert button spends them). */
     private _colorlessConvertCount;
+    /** Player toggles for attribute / General sections in this dialog session. */
+    private _sectionOpenOverride;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

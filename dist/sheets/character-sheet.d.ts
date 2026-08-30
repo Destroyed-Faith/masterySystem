@@ -19,6 +19,7 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     activeTab?: string;
     openRitualWorkshop(ritualId?: string): Promise<void>;
     openMinorMagicPanel(): Promise<void>;
+    close(options?: any): Promise<this>;
     /** Initial tab when the sheet is first opened; subclasses override. */
     protected get _initialTab(): string;
     /** @override */

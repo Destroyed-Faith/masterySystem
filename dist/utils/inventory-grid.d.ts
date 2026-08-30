@@ -17,6 +17,9 @@ export interface EquipmentGridFlags {
     /** Legacy: equipped items no longer occupy the carry grid. */
     keepInventoryGrid?: boolean;
 }
+export declare function readEquipmentFlags(item: any): EquipmentGridFlags;
+/** Carried item that is not on the paperdoll, in a consumable slot, or a prepared weapon-set piece. */
+export declare function isCarriedUnequippedItem(item: any): boolean;
 /** True when the item currently occupies carry-grid cells (not equipped, stash, or a consumable slot). */
 export declare function occupiesInventoryGrid(flags: EquipmentGridFlags | null | undefined, band?: string): boolean;
 export declare function collectInventoryBandRects(items: Iterable<any>, band: string, opts?: {

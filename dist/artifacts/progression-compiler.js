@@ -15,7 +15,7 @@
  */
 import { getTemplate } from '../utils/powers/index.js';
 import { renderRange, renderAoe, renderDuration, renderSpecials } from '../utils/power-rendering.js';
-import { STONE_POWERS } from '../stones/stone-powers.js';
+import { STONE_POWERS, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, stonePowerSkipsFirstTier, } from '../stones/stone-powers.js';
 import { artifactPowerRowLabel, } from '../utils/artifact-power-pick.js';
 import { catalogPowerRowLabel, catalogTemplateRequiresSpecial, } from '../utils/artifact-catalog-pick.js';
 import { getEffect, getEffectBaseName } from '../utils/special-effects.js';
@@ -116,15 +116,19 @@ function stoneFunctionEffect(sf, stageIndex) {
             ? STONE_POWERS[sf.stonePowerId]
             : undefined;
         const spName = sp?.name || sf.stonePowerId || 'Stone Power';
-        const prefillTier = stageIndex + 2;
-        const lowerTiers = prefillTier > 1
-            ? Array.from({ length: prefillTier - 1 }, (_, i) => String(i + 1)).join(', ')
-            : '';
+        const powerId = sf.stonePowerId || '';
+        const shift = powerId ? STONE_POWER_SUPPORT_TIER_SHIFT[powerId] ?? 0 : 0;
+        const prefillTier = Math.min(STONE_TIER_HARD_MAX, stageIndex + 2 + shift);
+        const skipFirst = !!(powerId && stonePowerSkipsFirstTier(powerId));
+        const lowerTiers = Array.from({ length: Math.max(0, prefillTier - 1) }, (_, i) => i + 1)
+            .filter((tier) => !(skipFirst && tier === 1))
+            .join(', ');
+        const many = lowerTiers.includes(',');
         const payNote = lowerTiers
-            ? ` You must still pay Tier${prefillTier > 2 ? 's' : ''} ${lowerTiers} yourself.`
+            ? ` You must still pay Tier${many ? 's' : ''} ${lowerTiers} yourself.`
             : '';
         const unpaidNote = lowerTiers
-            ? ` If Tier${prefillTier > 2 ? 's' : ''} ${lowerTiers} ${prefillTier > 2 ? 'are' : 'is'} not paid, the pre-filled Tier ${prefillTier} has no effect.`
+            ? ` If Tier${many ? 's' : ''} ${lowerTiers} ${many ? 'are' : 'is'} not paid, the pre-filled Tier ${prefillTier} has no effect.`
             : '';
         return `Supports the ${attrLabel}Ability: ${spName} Stone Power and pre-fills Tier ${prefillTier}.${payNote}${unpaidNote}`;
     }

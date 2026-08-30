@@ -20,6 +20,8 @@ export interface UpgradeArtifactOptions {
 export interface ArtifactEvolutionCard {
     embeddedId: string;
     displayName: string;
+    img: string;
+    flavor: string;
     rootWorldId: string;
     folderId: string;
     masteryRank: number;
@@ -37,6 +39,8 @@ export interface ArtifactEvolutionCard {
     isEchoBound: boolean;
     linkDisabledReason: string;
     canActivate: boolean;
+    canUpgrade: boolean;
+    upgradeDisabledReason: string;
     nextUpgrade: ArtifactEvolutionPath | null;
     nextGmUpgrade: ArtifactEvolutionPath | null;
     baseValues: Array<{
@@ -50,11 +54,21 @@ export interface ArtifactEvolutionCard {
     }>;
     hasBaseValues: boolean;
     hasAbilities: boolean;
+    openAbilities: boolean;
     activationStoneAttr: string;
     activationStoneLabel: string;
 }
+/** Flavor line from lore / description (embedded first, then world root). */
+export declare function artifactFlavorText(...items: unknown[]): string;
+export declare function artifactUpgradeBlockReason(paths: Array<{
+    disabledReason?: string;
+}>, opts?: {
+    atMax?: boolean;
+}): string;
 /** Build evolution cards for every tree-linked embedded artifact on the actor. */
-export declare function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard[];
+export declare function buildArtifactEvolutionCards(actor: Actor, opts?: {
+    xpAvailable?: number;
+}): ArtifactEvolutionCard[];
 /** Activate (link) an artifact — costs 1 Stone once from a chosen pool. */
 export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, stoneAttr?: string): Promise<boolean>;
 /**

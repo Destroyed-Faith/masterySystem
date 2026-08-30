@@ -633,7 +633,7 @@ function targetedSpecialAttackTemplate(flavour) {
         tags: [],
         specialSlot: targetedSpecialSlot(),
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A targeted weapon strike against one supernatural creature type. Choose Exorcism (Fiend) or Requiem (Undead) when the Power is built.',
+        fluff: 'A targeted weapon strike against one supernatural creature type. Choose Exorcism (Fiend) or Requiem (Deathless) when the Power is built.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
@@ -662,7 +662,7 @@ function targetedSpecialAoeAttackTemplate(flavour) {
         tags: [],
         specialSlot: targetedSpecialSlot(),
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A targeted area attack against one supernatural creature type. Choose Exorcism (Fiend) or Requiem (Undead) when the Power is built.',
+        fluff: 'A targeted area attack against one supernatural creature type. Choose Exorcism (Fiend) or Requiem (Deathless) when the Power is built.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {

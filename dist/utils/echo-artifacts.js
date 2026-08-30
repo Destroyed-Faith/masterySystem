@@ -195,11 +195,11 @@ const ELORIAN_STRIDE = {
         {
             level: 3,
             name: 'Elorian Focus I',
-            type: 'Support Stone Power',
+            type: 'Stone Power Support',
             range: 'Self',
-            duration: 'Until used',
-            effect: 'Spend 1 Ready Stone to gain Crit(2).',
-            special: 'Crit',
+            duration: 'Instant',
+            effect: 'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect.',
+            special: 'agility.crit',
         },
         {
             level: 4,
@@ -222,11 +222,11 @@ const ELORIAN_STRIDE = {
         {
             level: 6,
             name: 'Elorian Focus II',
-            type: 'Support Stone Power',
+            type: 'Stone Power Support',
             range: 'Self',
-            duration: 'Until used',
-            effect: 'Spend 1 Ready Stone to gain Crit(3).',
-            special: 'Crit',
+            duration: 'Instant',
+            effect: 'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 2, 3 yourself. If Tiers 2, 3 are not paid, the pre-filled Tier 4 has no effect.',
+            special: 'agility.crit',
         },
         {
             level: 7,
@@ -249,11 +249,11 @@ const ELORIAN_STRIDE = {
         {
             level: 9,
             name: 'Elorian Focus III',
-            type: 'Support Stone Power',
+            type: 'Stone Power Support',
             range: 'Self',
-            duration: 'Until used',
-            effect: 'Spend 1 Ready Stone to gain Crit(4).',
-            special: 'Crit',
+            duration: 'Instant',
+            effect: 'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 5. You must still pay Tiers 2, 3, 4 yourself. If Tiers 2, 3, 4 are not paid, the pre-filled Tier 5 has no effect.',
+            special: 'agility.crit',
         },
         {
             level: 10,
@@ -1560,6 +1560,9 @@ export function buildEchoProgressionPicks(def) {
             ...(spec.stageNumerals ? { stageNumerals: spec.stageNumerals } : {}),
             ...(spec.stageTemplateIds ? { stageTemplateIds: spec.stageTemplateIds } : {}),
             ...(spec.stageNames ? { stageNames: spec.stageNames } : {}),
+            ...(spec.isSpell ? { isSpell: true } : {}),
+            ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
+            ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),
         };
         if (spec.stoneFunction) {
             const sfSpec = spec.stoneFunction;

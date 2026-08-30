@@ -25,9 +25,9 @@ import { bindImageUrlBar, buildImageUrlBarHtml, copyDocumentImageLink, } from '.
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
-import { dismissMinorMagicItem, minorMagicSheetView, useMinorMagicItem, } from '../utils/minor-magic-items.js';
+import { dismissMinorMagicItem, findInventorySlotForMinorMagic, isPlayerCharacterActor, minorMagicSheetView, readMinorMagicFlag, useMinorMagicItem, } from '../utils/minor-magic-items.js';
 import { applySafeHavenRest, SAFE_HAVEN_REST_INFO } from '../utils/safe-haven-rest.js';
-import { buildConsumableSlotView, equippedConsumableActionRows, equipConsumableToSlot, isConsumableItem, readConsumableSlotIndex, transferConsumableToActor, useEquippedConsumable, validateUnequipConsumable, } from '../utils/consumable-slots.js';
+import { buildConsumableSlotView, equippedConsumableActionRows, equipConsumableToSlot, isConsumableItem, itemOccupyingConsumableSlot, listCarriedConsumableItems, readConsumableSlotIndex, transferConsumableToActor, unequipConsumable, useEquippedConsumable, validateUnequipConsumable, } from '../utils/consumable-slots.js';
 import { dissolveSummonBond, getSummonBondsFromActor, tokensSummary, } from '../stones/summon-bond-bind.js';
 import { deleteSummonActor } from '../stones/familiar-actor-factory.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
@@ -36,11 +36,12 @@ import { findLegacyDialogRoot, scheduleCenterLegacyDialog } from '../utils/legac
 import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpdates, buildStartSkillsRedistributeUpdates, canStartSkillsRedistribute, getCreationSkillBudget, isSkillsRedistributing, validateCreationSkillAllocation, } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
-import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
+import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
 import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
+import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
@@ -70,6 +71,28 @@ const BaseActorSheet = foundry.applications.api.HandlebarsApplicationMixin(found
 function isEchoLockedItem(item) {
     return isEchoBoundArtifact(item);
 }
+const EQUIP_SLOT_FILL_MENU_ID = 'df-equip-slot-fill-menu';
+function localizeSheet(key, fallback, data) {
+    const i18n = globalThis.game?.i18n;
+    const raw = data
+        ? i18n?.format?.(key, data)
+        : i18n?.localize?.(key);
+    if (typeof raw === 'string' && raw && raw !== key)
+        return raw;
+    if (!data)
+        return fallback;
+    return Object.entries(data).reduce((text, [k, v]) => text.replace(`{${k}}`, v), fallback);
+}
+function escapeSheetHtml(value) {
+    const fn = globalThis.foundry?.utils?.escapeHTML;
+    if (typeof fn === 'function')
+        return fn(value);
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 export class MasteryCharacterSheet extends BaseActorSheet {
     /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
     _radialManeuverPrefsDetailsOpen;
@@ -84,6 +107,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #attributeBaselinesMigrationDone = false;
     /** Last pointer-down on equipment tile (for click vs drag distinction). */
     #itemInfoPointerDown = null;
+    #equipSlotFillMenuAbort = null;
+    #sheetGmMenuAbort = null;
     _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
     _pendingPowerLevelChanges = {}; // Track pending power level increases
     _pendingSkillRankChanges = {}; // Track pending skill rank changes (signed)
@@ -131,6 +156,48 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.activeTab = 'minor-magic';
         await this.render(true);
         this.bringToFront?.();
+    }
+    async close(options) {
+        this.#closeEquipSlotFillMenu();
+        this.#sheetGmMenuAbort?.abort();
+        this.#sheetGmMenuAbort = null;
+        return super.close(options);
+    }
+    #bindSheetGmMenu(html) {
+        this.#sheetGmMenuAbort?.abort();
+        this.#sheetGmMenuAbort = null;
+        const menu = html.find('.sheet-gm-menu')[0];
+        if (!menu)
+            return;
+        const toggle = menu.querySelector('.sheet-gm-menu-toggle');
+        const list = menu.querySelector('.sheet-gm-menu-list');
+        if (!toggle || !list)
+            return;
+        const setOpen = (open) => {
+            menu.classList.toggle('is-open', open);
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            list.hidden = !open;
+        };
+        toggle.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            setOpen(list.hidden);
+        });
+        list.addEventListener('click', (ev) => {
+            if (ev.target?.closest('button'))
+                setOpen(false);
+        });
+        const abort = new AbortController();
+        this.#sheetGmMenuAbort = abort;
+        const dismiss = (ev) => {
+            if (ev.type === 'keydown' && ev.key !== 'Escape')
+                return;
+            if (ev.type === 'pointerdown' && menu.contains(ev.target))
+                return;
+            setOpen(false);
+        };
+        document.addEventListener('pointerdown', dismiss, { capture: true, signal: abort.signal });
+        document.addEventListener('keydown', dismiss, { signal: abort.signal });
     }
     /** Initial tab when the sheet is first opened; subclasses override. */
     get _initialTab() {
@@ -215,17 +282,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * GM-only: add a single normal Power from the full catalog (recovery tool for
-     * an accidentally deleted Power). Opens the catalog picker, which creates the
-     * Power as an embedded Item on this actor without touching the rest of the
-     * combat package.
+     * Buy a single catalog Power at Level 1 (post-creation). Same picker for
+     * players and GM; XP is charged on the character.
      */
-    async #onGmAddPower(event) {
+    async #onAddPower(event) {
         event.preventDefault();
-        if (!game.user?.isGM) {
-            ui.notifications?.warn('Only the GM can add a Power directly.');
-            return;
-        }
         try {
             await showPowerCreationDialog(this.actor);
             this.render();
@@ -1041,9 +1102,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         if (context.creationComplete) {
             context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
-            /* Default: collapsed; open after finalize or when user expanded in this session. */
-            context.powersListDetailsOpen = this._powersListDetailsOpen === true;
-            context.powersGroupsExpanded = this._powersListDetailsOpen === true;
+            context.powersListDetailsOpen = true;
+            context.powersGroupsExpanded = true;
         }
         else {
             context.powersByTypeGroups = [];
@@ -1282,6 +1342,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         catch (e) {
             console.warn('Mastery System | Failed to bind sheet drag & drop', e);
         }
+        this.#closeEquipSlotFillMenu();
         this.activateListeners($(root));
     }
     /**
@@ -1824,6 +1885,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     #prepareSkills(skillValues = {}, skillsSpent = {}) {
         const skillsByCategory = {};
+        const masteryRank = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 2));
         // Group skills by category
         for (const [key, definition] of Object.entries(SKILLS)) {
             const category = definition.category;
@@ -1833,6 +1895,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const value = skillValues[key] || 0;
             const spent = skillsSpent[key] || 0;
             const remaining = Math.max(0, value - spent);
+            const useBoxes = buildSkillUseBoxes(value, spent, masteryRank);
             const rollPools = definition.attributes.map((attributeKey) => buildSkillRollPoolPreview(this.actor, key, attributeKey, value));
             skillsByCategory[category].push({
                 key,
@@ -1844,7 +1907,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 rollPools,
                 value,
                 spent,
-                remaining
+                remaining,
+                useBoxes,
+                pointsPerUse: masteryRank,
             });
         }
         // Sort skills within each category by name
@@ -1961,6 +2026,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             this.#attributeBaselinesMigrationDone = true;
             void this.#migrateAttributeBaselinesIfNeeded();
         }
+        this.#bindSheetGmMenu(html);
         // Character Creation buttons
         const unlockButton = html.find('.force-unlock-creation');
         if (unlockButton.length > 0) {
@@ -2006,9 +2072,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         // Passive slotting is handled exclusively by the in-combat dialog; the
         // character-sheet passive-slot manager (and its handlers) were removed.
-        // Check if creation is incomplete - don't lock, just disable non-creation fields
+        // Check if creation is incomplete - don't lock, just disable non-creation fields.
+        // NPCs / summons inherit `creation.complete: false` from the actor template
+        // but are not in chargen — locking them disables the name field.
+        const actorType = String(this.actor?.type || '');
+        const isNpcLike = actorType === 'npc' || actorType === 'summon';
         const creationComplete = this.actor.system?.creation?.complete !== false;
-        if (!creationComplete) {
+        if (!isNpcLike && !creationComplete) {
             this.#lockSheetForCreation(html);
         }
         this.#silenceFoundryButtonTooltips(html);
@@ -2366,6 +2436,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 ui.notifications?.warn(res.error);
             this.render(false);
         });
+        html.on('click.minorMagic', '.js-sheet-minor-magic-give', async (ev) => {
+            ev.preventDefault();
+            const id = ev.currentTarget.dataset.itemId;
+            const item = id ? this.actor.items.get(id) : null;
+            if (!item)
+                return;
+            const given = await this.#giveMinorMagicItem(item);
+            if (given)
+                this.render(false);
+        });
         html.on('click.summonBonds', '.js-sheet-summon-bond-dissolve', async (ev) => {
             ev.preventDefault();
             const id = ev.currentTarget.dataset.bondId;
@@ -2460,7 +2540,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Power/Spell creation buttons (always visible)
         html.find('.open-tower-wizard-btn').on('click', this.#onOpenTowerWizard.bind(this));
         html.find('.open-manual-combat-package-btn').on('click', this.#onOpenManualCombatPackage.bind(this));
-        html.find('.gm-add-power-btn').on('click', this.#onGmAddPower.bind(this));
+        html.find('.add-power-btn, .gm-add-power-btn').on('click', this.#onAddPower.bind(this));
         // Echo creation / deck interactions
         html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));
         html.find('.add-echo-card-btn').on('click', this.#onEchoCardAdd.bind(this));
@@ -2506,11 +2586,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         const invEquipSelector = '.tab.equipment .df-enc-band .df-draggable-item';
         const ContextMenuCls = foundry.applications?.ux?.ContextMenu;
-        if (ContextMenuCls) {
-            const rootEl = html?.[0] ?? this.element ?? document.body;
+        const rootEl = (html?.[0] ?? this.element ?? null);
+        if (ContextMenuCls && rootEl) {
             new ContextMenuCls(rootEl, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
                 eventName: 'contextmenu',
                 jQuery: false
+            });
+        }
+        if (rootEl) {
+            rootEl.removeEventListener('contextmenu', this.#onEquipSlotContextMenu, true);
+            rootEl.addEventListener('contextmenu', this.#onEquipSlotContextMenu, true);
+            const hint = localizeSheet('MASTERY.inventory.slotFillHint', 'Right-click to choose an item from inventory');
+            html.find('.df-equip-slot, .df-consumable-slot').each((_, el) => {
+                const node = el;
+                const existing = String(node.getAttribute('title') || '').trim();
+                if (existing.includes(hint))
+                    return;
+                node.setAttribute('title', existing ? `${existing} — ${hint}` : hint);
             });
         }
         if (!window.__msGlobalDropDebugBound) {
@@ -5524,10 +5616,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         $scope.find('input[name="name"], textarea').prop('disabled', true);
         $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = $scope.find('button:not(.header-control):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         $scope.find('.power-rank-select').prop('disabled', false);
@@ -6568,6 +6660,62 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const target = event?.target;
         return !!target?.closest?.('.js-mm-name, .mm-root .js-mm-form');
     }
+    async #giveMinorMagicItem(item) {
+        const actors = Array.from((globalThis.game?.actors ?? [])).filter((a) => {
+            if (a.id === this.actor.id)
+                return false;
+            return isPlayerCharacterActor(a);
+        });
+        if (!actors.length) {
+            ui.notifications?.warn('No other player character you can give this to.');
+            return false;
+        }
+        const options = actors
+            .map((a) => `<option value="${a.id}">${a.name}</option>`)
+            .join('');
+        const DialogV2 = globalThis.foundry?.applications?.api?.DialogV2;
+        let targetId = '';
+        if (typeof DialogV2?.prompt === 'function') {
+            targetId = await DialogV2.prompt({
+                window: { title: `Give ${item.name}` },
+                content: `<form class="mastery-dialog-form"><label class="md-label">Give to</label><select name="target" class="md-select">${options}</select></form>`,
+                ok: {
+                    label: 'Give',
+                    callback: (_event, button) => String(button?.form?.elements?.target?.value || ''),
+                },
+            });
+        }
+        else {
+            targetId = String(actors[0]?.id || '');
+        }
+        const target = actors.find((a) => a.id === targetId);
+        if (!target)
+            return false;
+        const slot = findInventorySlotForMinorMagic(target);
+        if (!slot) {
+            ui.notifications?.warn(`${target.name} has no inventory space for a 1×1 item.`);
+            return false;
+        }
+        const moved = await transferConsumableToActor(target, item);
+        if (!moved) {
+            ui.notifications?.error(`Could not give ${item.name} to ${target.name}.`);
+            return false;
+        }
+        try {
+            await moved.update?.({
+                'flags.mastery-system.equipment': {
+                    container: 'inventory',
+                    band: slot.band,
+                    grid: { x: slot.x, y: slot.y },
+                },
+            });
+        }
+        catch {
+            /* item is on the other sheet even if the grid stamp fails */
+        }
+        ui.notifications?.info(`${item.name} given to ${target.name}. It still counts against your Minor Magic limit.`);
+        return true;
+    }
     /** @override */
     _onChangeForm(formConfig, event) {
         if (this.#isLocalMinorMagicField(event))
@@ -6625,6 +6773,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             || null;
         const target = resolvedTarget;
         if (!target) {
+            if (data.uuid) {
+                try {
+                    const src = await fromUuid(data.uuid);
+                    if (readMinorMagicFlag(src) && src.parent && src.parent.id !== this.actor.id) {
+                        const moved = await transferConsumableToActor(this.actor, src);
+                        if (!moved) {
+                            ui.notifications?.error(`Could not give ${src.name} to this character.`);
+                            return false;
+                        }
+                        await this.render(true, { focus: false });
+                        return true;
+                    }
+                }
+                catch {
+                    /* fall through to the default drop */
+                }
+            }
             // No equipment drop zone — delegate to ActorSheetV2 (item creation / sorting).
             await super._onDrop(event);
             return true;
@@ -6690,21 +6855,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             return true;
         }
-        // World/compendium item dropped on sheet - create embedded copy first
+        // World/compendium item dropped on sheet - create embedded copy first.
+        // Minor Magic Items move (they keep counting on the creator) instead of copying.
         if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
             const sourceWorldItem = droppedItem;
-            const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
-            try {
-                const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
-                if (!created)
+            if (readMinorMagicFlag(droppedItem) && droppedItem.parent) {
+                const moved = await transferConsumableToActor(this.actor, droppedItem);
+                if (!moved) {
+                    ui.notifications?.error(`Could not give ${droppedItem.name} to this character.`);
                     return false;
-                droppedItem = created;
-                await this.#tryWireDroppedArtifact(created, sourceWorldItem);
+                }
+                droppedItem = moved;
             }
-            catch (error) {
-                console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);
-                ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
-                return false;
+            else {
+                const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
+                try {
+                    const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
+                    if (!created)
+                        return false;
+                    droppedItem = created;
+                    await this.#tryWireDroppedArtifact(created, sourceWorldItem);
+                }
+                catch (error) {
+                    console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);
+                    ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
+                    return false;
+                }
             }
         }
         if (isAmmunitionItem(droppedItem)) {
@@ -6888,6 +7064,117 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             await syncActiveWeaponSetFromHands(this.actor);
         }
         return true;
+    }
+    #onEquipSlotContextMenu = (ev) => {
+        if (!this.isEditable || !this.actor.isOwner)
+            return;
+        const target = ev.target;
+        const slotEl = target?.closest?.('.df-equip-slot, .df-consumable-slot');
+        const root = this.element;
+        if (!slotEl || !root?.contains(slotEl))
+            return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+        this.#openEquipSlotFillMenu(ev, slotEl);
+    };
+    #closeEquipSlotFillMenu() {
+        document.getElementById(EQUIP_SLOT_FILL_MENU_ID)?.remove();
+        this.#equipSlotFillMenuAbort?.abort();
+        this.#equipSlotFillMenuAbort = null;
+    }
+    #openEquipSlotFillMenu(event, slotEl) {
+        this.#closeEquipSlotFillMenu();
+        const isConsumable = slotEl.classList.contains('df-consumable-slot');
+        const slotKey = String(slotEl.dataset.slot || '').trim();
+        const slotIndex = Math.floor(Number(slotEl.dataset.slotIndex));
+        const slotLabel = slotEl.querySelector('.df-slot-label')?.textContent?.trim() ||
+            (isConsumable ? `Consumable ${slotIndex + 1}` : slotKey);
+        const locked = isConsumable && slotEl.classList.contains('is-locked');
+        const items = locked
+            ? []
+            : isConsumable
+                ? listCarriedConsumableItems(this.actor.items)
+                : listCarriedItemsForPaperdollSlot(this.actor.items, slotKey, {
+                    allowOffhandWeapon: (item) => requiresAmmunition(item),
+                });
+        const menu = document.createElement('div');
+        menu.id = EQUIP_SLOT_FILL_MENU_ID;
+        menu.className = 'df-equip-slot-fill-menu';
+        menu.setAttribute('role', 'menu');
+        const title = localizeSheet('MASTERY.inventory.slotFillTitle', 'Place into {slot}', { slot: slotLabel });
+        const emptyText = locked
+            ? localizeSheet('MASTERY.consumable.lockedInCombat', 'Consumable Slots cannot be changed during combat.')
+            : localizeSheet('MASTERY.inventory.slotFillEmpty', 'No matching items in inventory');
+        const rows = items.map((item) => {
+            const id = String(item?.id || '');
+            const name = String(item?.name || id);
+            const img = String(item?.img || 'icons/svg/item-bag.svg');
+            return `<button type="button" class="df-equip-slot-fill-menu__item" role="menuitem" data-item-id="${escapeSheetHtml(id)}">
+        <img src="${escapeSheetHtml(img)}" alt="">
+        <span>${escapeSheetHtml(name)}</span>
+      </button>`;
+        });
+        menu.innerHTML = `<div class="df-equip-slot-fill-menu__title">${escapeSheetHtml(title)}</div>${rows.length ? rows.join('') : `<div class="df-equip-slot-fill-menu__empty">${escapeSheetHtml(emptyText)}</div>`}`;
+        const pad = 8;
+        const left = Math.max(pad, event.clientX);
+        const top = Math.max(pad, event.clientY);
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+        document.body.appendChild(menu);
+        const rect = menu.getBoundingClientRect();
+        const maxLeft = Math.max(pad, window.innerWidth - rect.width - pad);
+        const maxTop = Math.max(pad, window.innerHeight - rect.height - pad);
+        menu.style.left = `${Math.min(left, maxLeft)}px`;
+        menu.style.top = `${Math.min(top, maxTop)}px`;
+        menu.addEventListener('click', async (clickEv) => {
+            const button = clickEv.target?.closest?.('[data-item-id]');
+            if (!button)
+                return;
+            clickEv.preventDefault();
+            clickEv.stopPropagation();
+            const item = this.actor.items.get(button.dataset.itemId || '');
+            this.#closeEquipSlotFillMenu();
+            if (!item)
+                return;
+            if (isConsumable) {
+                if (!Number.isFinite(slotIndex))
+                    return;
+                const occupant = itemOccupyingConsumableSlot(this.actor, slotIndex);
+                if (occupant && occupant.id !== item.id) {
+                    const cleared = await unequipConsumable(this.actor, occupant);
+                    if (!cleared.ok) {
+                        ui.notifications?.warn(cleared.error);
+                        return;
+                    }
+                }
+                const result = await equipConsumableToSlot(this.actor, item, slotIndex);
+                if (!result.ok) {
+                    ui.notifications?.warn(result.error);
+                    return;
+                }
+                await this.render(true, { focus: false });
+                return;
+            }
+            if (!slotKey)
+                return;
+            if (await this.#applyEquipToSlot(item, slotKey)) {
+                await this.render(true, { focus: false });
+            }
+        });
+        const abort = new AbortController();
+        this.#equipSlotFillMenuAbort = abort;
+        const dismiss = (ev) => {
+            if (ev.type === 'keydown' && ev.key !== 'Escape')
+                return;
+            if (ev.type === 'pointerdown' && menu.contains(ev.target))
+                return;
+            this.#closeEquipSlotFillMenu();
+        };
+        document.addEventListener('pointerdown', dismiss, { capture: true, signal: abort.signal });
+        document.addEventListener('keydown', dismiss, { signal: abort.signal });
+        window.addEventListener('resize', dismiss, { signal: abort.signal });
+        window.addEventListener('blur', dismiss, { signal: abort.signal });
     }
     /**
      * Resolve actor Item from a context-menu target (jQuery or HTMLElement).

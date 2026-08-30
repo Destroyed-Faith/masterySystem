@@ -471,6 +471,21 @@ export class MasteryActor extends Actor {
       const blockEvade = Math.max(0, Number(block.evade) || 0);
       system.combat.armorTotal = blockArmor;
       system.combat.evadeTotal = blockEvade;
+      // Optional stat-block defenses (written by the Encounter Forge, editable
+      // on the sheet): Spell Resistance raises the Casting TN against this
+      // NPC; DR% enters the damage mitigation pipeline.
+      const blockSpellResistance = Math.max(0, Number((block as any).spellResistance) || 0);
+      if (blockSpellResistance > 0) {
+        system.combat.spellResistanceTotal =
+          (Number(system.combat.spellResistanceTotal) || 0) + blockSpellResistance;
+      }
+      const blockDrPct = Math.max(0, Math.min(100, Number((block as any).damageReduction) || 0));
+      if (blockDrPct > 0) {
+        system.combat.damageReductionPct = Math.max(
+          Number(system.combat.damageReductionPct) || 0,
+          blockDrPct,
+        );
+      }
       if (phaseIndex != null) {
         if (block.speed != null) {
           system.combat.speed = Number(block.speed) || system.combat.speed;
