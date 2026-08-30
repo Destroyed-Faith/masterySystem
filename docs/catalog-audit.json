@@ -1,8 +1,8 @@
 {
-  "version": "0.9.429",
-  "generatedAt": "2026-08-30T16:00:33.883Z",
+  "version": "0.9.430",
+  "generatedAt": "2026-08-30T22:55:45.219Z",
   "summary": {
-    "correct": 214,
+    "correct": 216,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -207,8 +207,22 @@
     },
     {
       "category": "active",
+      "id": "active-mental-control",
+      "name": "Mental Control",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
       "id": "active-mind-illusion",
       "name": "Mind Illusion",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-mind-probe",
+      "name": "Mind Probe",
       "status": "correct",
       "notes": "Matches Rules entry"
     },

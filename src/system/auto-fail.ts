@@ -13,7 +13,7 @@
  */
 
 import { getSkillTags, type SkillTag } from './skill-tags.js';
-import { getActiveSpecialValue } from './active-specials.js';
+import { getActiveSpecialValue, hasActiveSpecial } from './active-specials.js';
 
 export type CheckTag = SkillTag | 'sight' | string;
 
@@ -96,6 +96,11 @@ export function getDisorientedRank(actor: any): number {
 /** Stunned rank (0 when not stunned). Same lookup as Disoriented. */
 export function getStunnedRank(actor: any): number {
   if (!actor) return 0;
+  // Primary: the applied Special on `system.statusEffects` (Stunned is a
+  // valueless condition — presence counts as rank 1; a stored value wins).
+  const fromStatus = getActiveSpecialValue(actor, 'stunned');
+  if (fromStatus > 0) return fromStatus;
+  if (hasActiveSpecial(actor, 'stunned')) return 1;
   const statuses: any = actor?.statuses;
   if (statuses && typeof statuses.has === 'function') {
     if (statuses.has('stunned')) return 1;

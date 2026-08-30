@@ -33,7 +33,7 @@ import {
   isEchoCardLicensed,
   removeSelectedEchoCard
 } from '../utils/echos/index.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, creationPowerRequirementsForMasteryRank, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
 import { showTowerWizardDialog } from '../creation/tower-wizard/tower-wizard-dialog.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
@@ -41,7 +41,7 @@ import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wiza
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -917,21 +917,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (cat && cat in categoryCounts) categoryCounts[cat]++;
     }
 
-    /** Starting character: Combat Package via Tower Wizard (6 powers, mixed ranks). */
-    const totalPowersRequired = CREATION_POWER_TOTAL;
+    /** Starting character: Combat Package via Tower Wizard (mixed ranks).
+     * PG "Starting Powers": Passives = available Passive Slots (MR 1 → 1). */
+    const creationRequirements = creationPowerRequirementsForMasteryRank(masteryRank);
+    const totalPowersRequired = Object.values(creationRequirements).reduce((s, n) => s + n, 0);
     const totalPowersSelected = powers.length;
     const activesAtRank2 = powers.filter((p: any) => {
       const cat = resolvePowerCategoryFromItem(p);
       return cat === 'active' && Number((p.system as any)?.level ?? 1) >= CREATION_OFFENSIVE_RANK;
     }).length;
     const categoryRequirements = CATEGORY_ORDER
-      .filter((cat) => CREATION_POWER_REQUIREMENTS[cat] > 0)
+      .filter((cat) => creationRequirements[cat] > 0)
       .map(cat => ({
       key: cat,
       label: CATEGORY_LABELS[cat],
-      required: CREATION_POWER_REQUIREMENTS[cat],
+      required: creationRequirements[cat],
       selected: categoryCounts[cat],
-      valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
+      valid: categoryCounts[cat] === creationRequirements[cat]
     }));
     const categoriesValid = validateTowerWizardCreation(this.actor) === null;
 
@@ -1704,7 +1706,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const unplaced: any[] = [];
 
       for (const item of itemList) {
-        const size = parseInventorySize(item?.system?.inventorySize);
+        const size = itemInventorySize(item);
         const w = Math.min(cols, size.w);
         const h = Math.min(rows, size.h);
         const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
@@ -1743,7 +1745,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           overflow++;
           continue;
         }
-        const size = parseInventorySize(item?.system?.inventorySize);
+        const size = itemInventorySize(item);
         const w = Math.min(cols, size.w);
         const h = Math.min(rows, size.h);
         const pos = findFirstFit(rects, w, h, cols, rows);
@@ -3019,7 +3021,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const computedSize = systemSize ? undefined : getDefaultInventorySizeForItemData(item);
         const resolvedSize = systemSize || computedSize || undefined;
         logDragSize(source, { ...details, systemSize, computedSize, resolvedSize });
-        return parseInventorySize(resolvedSize);
+        const size = parseInventorySize(resolvedSize);
+        // PG "Item Rotation": rotated items drag with their swapped footprint.
+        const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
+        return flags?.rotated === true ? { w: size.h, h: size.w } : size;
       };
       const resolveSizeFromDragData = (data: any, source: string, details: Record<string, unknown>) => {
         if (!data) return null;
@@ -3151,7 +3156,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const hoverItem = this.#itemAtInventoryCell(band, col, row);
       if (canLoadAmmunitionOnto(dragItem, hoverItem)) {
         const flags = hoverItem.getFlag?.('mastery-system', 'equipment') || {};
-        const size = parseInventorySize(hoverItem?.system?.inventorySize);
+        const size = itemInventorySize(hoverItem);
         const ox = Number(flags.grid?.x || col);
         const oy = Number(flags.grid?.y || row);
         const bandCells = html.find(`.df-enc-band[data-band="${band}"] .df-cell`);
@@ -4156,7 +4161,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Players Guide minimum-pool rule (~5888–5899) — apply *before* the
     // health penalty so the percentage scales with the post-floor pool.
     numDice = Math.max(numDice, keepDice);
-    const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+    const { applyHealthAndEncumbrancePenalties } = await import('../utils/encumbrance.js');
     const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor as any);
     numDice = poolPenalties.numDice;
 
@@ -4164,9 +4169,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     let flavor = `Attribute: ${attrLabel}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`;
     if (poolPenalties.healthPenaltyDice > 0) {
       flavor += ` (Health penalty: −${poolPenalties.healthPenaltyDice} dice)`;
-    }
-    if (poolPenalties.encumbrancePenaltyDice > 0) {
-      flavor += ` (Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice} dice)`;
     }
 
     const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
@@ -6010,7 +6012,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (isPower && inCreationMode) {
           // Count remaining powers
           const remainingPowers = this.actor.items.filter((i: any) => i.type === 'power');
-          ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of ${CREATION_POWER_TOTAL} Powers selected.`);
+          const powerTotal = Object.values(
+            creationPowerRequirementsForMasteryRank(Number(system?.mastery?.rank) || 2),
+          ).reduce((s, n) => s + n, 0);
+          ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of ${powerTotal} Powers selected.`);
         } else {
           ui.notifications?.info(`"${itemName}" deleted.`);
         }
@@ -6573,8 +6578,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Character Creation / Redistribute: set skill to the full chunk (4).
-   * Partial ranks (1–3) are not allowed — only 0 or 4.
+   * Character Creation / Redistribute: raise a skill by 1 point
+   * (PG "Skill Point Buy": 40 points freely, max 4 per skill).
    */
   async #onCreationSkillIncrease(event: JQuery.ClickEvent) {
     event.preventDefault();
@@ -6604,20 +6609,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     const remaining = skillPointsConfig - skillPointsSpent;
     
-    // Validate: all-or-nothing chunk of maxPerSkill (4)
+    // PG "Skill Point Buy": points are distributed freely, +1 per point,
+    // capped at maxPerSkill (4) per skill at creation.
     if (currentValue >= maxPerSkill) {
-      ui.notifications?.warn(`This skill is already at ${maxPerSkill}.`);
+      ui.notifications?.warn(`This skill is already at the creation cap of ${maxPerSkill}.`);
       return;
     }
-    if (remaining < maxPerSkill) {
-      ui.notifications?.warn(
-        `Need ${maxPerSkill} free skill points to pick a skill (remaining: ${remaining}).`,
-      );
+    if (remaining < 1) {
+      ui.notifications?.warn('No skill points remaining.');
       return;
     }
     
     await this.actor.update({
-      [`system.skills.${skill}`]: maxPerSkill,
+      [`system.skills.${skill}`]: currentValue + 1,
     });
     
     await this.render();
@@ -6659,7 +6663,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     await this.actor.update({
-      [`system.skills.${skill}`]: 0,
+      [`system.skills.${skill}`]: currentValue - 1,
     });
     
     await this.render();
@@ -6682,11 +6686,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     const { total, maxPerSkill } = getCreationSkillBudget();
-    const picks = Math.floor(total / maxPerSkill);
     const confirmed = await new Promise<boolean>((resolve) => {
       new Dialog({
         title: 'Redistribute Skills',
-        content: `<p>Reset all skills to <strong>0</strong> and pick <strong>${picks}</strong> skills at <strong>${maxPerSkill}</strong> each (${total} points). Each + sets a skill to ${maxPerSkill} — no 1/2/3 ranks.</p>
+        content: `<p>Reset all skills to <strong>0</strong> and distribute <strong>${total}</strong> points freely (+1 per point, max <strong>${maxPerSkill}</strong> per skill at creation).</p>
 <p><em>Only available when the character has no XP yet. Cancel restores the previous allocation.</em></p>`,
         buttons: {
           yes: {
@@ -6707,7 +6710,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!confirmed) return;
     await this.actor.update(buildStartSkillsRedistributeUpdates(this.actor));
     ui.notifications?.info(
-      `Skills cleared — pick ${picks} skills at ${maxPerSkill} each (+ sets ${maxPerSkill}), then Finish.`,
+      `Skills cleared — distribute ${total} points freely (max ${maxPerSkill} per skill), then Finish.`,
     );
     this.render();
   }
@@ -7330,9 +7333,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         echoDef.veiledForm && rawEcho.veiledFormKey ? `veiled as ${getEcho(rawEcho.veiledFormKey)?.name || rawEcho.veiledFormKey}` : '',
       ].filter(Boolean).join(' · ');
 
-      if (savedPowers.length !== CREATION_POWER_TOTAL) {
+      const expectedPowerTotal = Object.values(
+        creationPowerRequirementsForMasteryRank(Number((this.actor as any).system?.mastery?.rank) || 2),
+      ).reduce((s, n) => s + n, 0);
+      if (savedPowers.length !== expectedPowerTotal) {
         ui.notifications?.warn(
-          `Character creation marked complete, but only ${savedPowers.length} of ${CREATION_POWER_TOTAL} Powers are on this actor. Check the Items tab in the sidebar — if powers are missing, re-add them before playing.`,
+          `Character creation marked complete, but only ${savedPowers.length} of ${expectedPowerTotal} Powers are on this actor. Check the Items tab in the sidebar — if powers are missing, re-add them before playing.`,
         );
       } else {
         ui.notifications?.info(
@@ -7716,8 +7722,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await syncActiveWeaponSetFromHands(this.actor);
         return true;
       }
-      ui.notifications?.warn('Weapons can only be equipped in the main hand. Use the off hand for a shield.');
-      return false;
+      // PG "Weapon Properties": Light — "May be wielded in the off-hand."
+      const { isLightWeapon } = await import('../utils/weapon-properties.js');
+      if (!isLightWeapon(item)) {
+        ui.notifications?.warn(
+          'Only Light weapons can be wielded in the off hand (or use it for a shield).',
+        );
+        return false;
+      }
+      if (mainhandItem && isNaturallyTwoHandedItem(mainhandItem)) {
+        ui.notifications?.warn('Cannot equip an off-hand weapon while a 2-handed weapon is equipped.');
+        return false;
+      }
     }
 
     if ((slot === 'mainhand' || slot === 'offhand') && (requiresAmmunition(item) || isAmmoContainer(item) || requiresAmmunition(this.#getItemInEquipSlot(slot === 'mainhand' ? 'offhand' : 'mainhand')))) {
@@ -7744,6 +7760,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
       } else if (mainhandItem && isNaturallyTwoHandedItem(mainhandItem)) {
         ui.notifications?.warn('Cannot equip shield while 2-handed weapon is equipped.');
+        return false;
+      }
+    }
+
+    // Artefacts.md: equipped Ring + Amulet share a combined max of 4 printed
+    // Base Values (count assigned Base Values, including locked ones).
+    if ((slot === 'ring' || slot === 'amulet') && item.type === 'artifact') {
+      const otherSlot = slot === 'ring' ? 'amulet' : 'ring';
+      const other = this.#getItemInEquipSlot(otherSlot);
+      const countBv = (it: any): number =>
+        Array.isArray(it?.system?.baseValues) ? it.system.baseValues.length : 0;
+      const { ringAmuletCombinedBaseValueError } = await import('../utils/artifact-rules.js');
+      const ringBv = slot === 'ring' ? countBv(item) : countBv(other);
+      const amuletBv = slot === 'amulet' ? countBv(item) : countBv(other);
+      const err = ringAmuletCombinedBaseValueError(ringBv, amuletBv);
+      if (err && other && other.id !== item.id) {
+        ui.notifications?.warn(err);
         return false;
       }
     }
@@ -7951,11 +7984,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         group: 'quick',
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
-          return (
-            !!item &&
-            (item.type !== 'weapon' || requiresAmmunition(item)) &&
-            !!getNormalizedEquipSlots(item)?.includes('offhand')
-          );
+          if (!item || !getNormalizedEquipSlots(item)?.includes('offhand')) return false;
+          if (item.type === 'weapon' && !requiresAmmunition(item)) {
+            // Light weapons may be wielded in the off-hand (PG Weapon Properties).
+            const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
+            return innates.some((a: unknown) => /^light\b/i.test(String(a).trim()));
+          }
+          return true;
         },
         callback: async (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
@@ -7980,6 +8015,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             await this.render(true, { focus: false });
           }
         }
+      },
+      {
+        // PG "Item Rotation": rotate 90° — width × height becomes height × width.
+        // Allowed only if the rotated item still fits entirely into empty squares.
+        name: 'Rotate 90°',
+        icon: '<i class="fas fa-rotate-right"></i>',
+        group: 'quick',
+        condition: (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return false;
+          const size = parseInventorySize(item.system?.inventorySize);
+          return size.w !== size.h;
+        },
+        callback: async (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return;
+          await this.#rotateInventoryItem(item);
+        }
       }
     ];
 
@@ -7991,7 +8044,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         condition: (target: unknown) => {
           const item = this.#itemFromInventoryTileContextTarget(target);
           if (!item || !getNormalizedEquipSlots(item)?.includes(key)) return false;
-          if (key === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item)) return false;
+          // Light weapons may be wielded in the off-hand (PG Weapon Properties).
+          if (key === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item)) {
+            const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
+            if (!innates.some((a: unknown) => /^light\b/i.test(String(a).trim()))) return false;
+          }
           return true;
         },
         callback: async (target: unknown) => {
@@ -8067,6 +8124,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
   }
 
+  /**
+   * PG "Item Rotation": rotate an item 90° (width × height → height × width).
+   * Allowed only if the rotated footprint still fits entirely into empty squares.
+   */
+  async #rotateInventoryItem(item: any): Promise<void> {
+    const flags = item.getFlag('mastery-system', 'equipment') || {};
+    const wasRotated = flags.rotated === true;
+    const current = itemInventorySize(item);
+    const rotatedSize = { w: current.h, h: current.w };
+
+    // If the item sits in the carry grid, the rotated rect must fit in place.
+    if (occupiesInventoryGrid(flags)) {
+      const band = String(flags.band ?? 'not');
+      const x = Number(flags.grid?.x || 0);
+      const y = Number(flags.grid?.y || 0);
+      const rect = { x, y, w: rotatedSize.w, h: rotatedSize.h };
+      const rects = this.#inventoryBandRects(band, item.id);
+      const fits =
+        fitsInGrid(rect.x, rect.y, rect.w, rect.h, ZONE_WIDTH_COLS, 9) &&
+        !rects.some((r) => rectsOverlap(r, rect));
+      if (!fits) {
+        ui.notifications?.warn(
+          'Rotation blocked — the rotated item does not fit entirely into empty squares.',
+        );
+        return;
+      }
+    }
+
+    await item.update({
+      'flags.mastery-system.equipment': { ...flags, rotated: !wasRotated },
+    });
+    await this.render(true, { focus: false });
+  }
+
   #resolveDraggedActorOrWorldItem(): any | null {
     const id = (window as any).__msDragItemId as string | undefined;
     if (!id) return null;
@@ -8095,7 +8186,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     for (const item of this.actor.items.values()) {
       const flags = (item as any).getFlag?.('mastery-system', 'equipment') || {};
       if (!occupiesInventoryGrid(flags, band)) continue;
-      const size = parseInventorySize((item as any)?.system?.inventorySize);
+      const size = itemInventorySize(item);
       const rect = {
         x: Number(flags.grid?.x || 0),
         y: Number(flags.grid?.y || 0),
@@ -8157,7 +8248,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         delete newFlags.keepInventoryGrid;
         const BAND_COLS = ZONE_WIDTH_COLS;
         const BAND_ROWS = 9;
-        const size = parseInventorySize(item?.system?.inventorySize);
+        const size = itemInventorySize(item);
         const w = Math.min(BAND_COLS, size.w);
         const h = Math.min(BAND_ROWS, size.h);
         const cell = this.#resolveDropCell(event);

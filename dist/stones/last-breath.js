@@ -49,7 +49,13 @@ async function burnOneReadyStone(actor) {
         const pool = getStonePool(actor, attr);
         if (pool.current <= 0)
             continue;
-        await actor.update?.({ [`system.stonePools.${attr}.current`]: pool.current - 1 });
+        // BURN: the stone is lost until a Safe Haven Rest — `burned` blocks regen
+        // and end-of-combat refills from bringing it back early.
+        const burnedNow = Math.max(0, Number(actor?.system?.stonePools?.[attr]?.burned) || 0);
+        await actor.update?.({
+            [`system.stonePools.${attr}.current`]: pool.current - 1,
+            [`system.stonePools.${attr}.burned`]: burnedNow + 1,
+        });
         return attr;
     }
     return null;

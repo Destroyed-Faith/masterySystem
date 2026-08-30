@@ -25,7 +25,9 @@ import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown } from '../ut
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
-import { getActiveSpecialValue } from '../system/active-specials.js';
+import { getActiveSpecialValue, hasActiveSpecial } from '../system/active-specials.js';
+import { getActorInventoryLoadZone, movementPenaltyForLoad } from '../utils/encumbrance.js';
+import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
 import {
   deriveMasteryRankFromStones,
@@ -174,9 +176,26 @@ export class MasteryActor extends Actor {
         const stressBarBonus = Math.max(-9999, system.manual.stress.barMaxBonus || 0);
 
         const vitality = system.attributes.vitality?.value || 2;
-        // Health bar max = Vitality × 2 + manual Health Bonus per bar.
+        // Absorption Passive (Rules/passives.md): each normal Health Bar gains
+        // +4 Max HP per Passive Level (bar formula: Vitality × 2 + Absorption HP).
+        let absorptionHp = 0;
+        try {
+          for (const item of (this as any).items ?? []) {
+            if (
+              item?.type === 'power' &&
+              String((item as any).system?.templateId ?? '') === 'passive-absorption'
+            ) {
+              const lvl = Math.max(1, Math.min(16, Math.floor(Number((item as any).system?.level) || 1)));
+              absorptionHp = 4 * lvl;
+              break;
+            }
+          }
+        } catch {
+          /* items not yet initialized on first prepare */
+        }
+        // Health bar max = Vitality × 2 + Absorption HP + manual Health Bonus per bar.
         // A negative bonus is clamped at 1 so HP never collapses to 0.
-        const maxHP = Math.max(1, calculateHealthBarMax(vitality) + healthBarBonus);
+        const maxHP = Math.max(1, calculateHealthBarMax(vitality) + absorptionHp + healthBarBonus);
 
         if (!system.health) {
           system.health = {
@@ -514,14 +533,20 @@ export class MasteryActor extends Actor {
     } else {
       // Character: armorTotal = Mastery Rank + Armor Value + Shield Value
       const armorValue = (equippedArmor?.system as any)?.armorValue || 0;
-      const shieldValue = (equippedShield?.system as any)?.shieldValue || 0;
+      const baseShieldValue = (equippedShield?.system as any)?.shieldValue || 0;
+      // Brace(X): while Braced, the Shield value is doubled for Armor calculation.
+      const braceStacks = getActiveSpecialValue(this, 'brace');
+      const shieldValue = braceStacks > 0 ? baseShieldValue * 2 : baseShieldValue;
       system.combat.armorTotal = masteryRank + armorValue + shieldValue;
 
       // evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier
       const baseEvade = calculateBaseEvade(masteryRank);
       const shieldEvadeBonus = (equippedShield?.system as any)?.evadeBonus || 0;
       const armorEvadeModifier = (equippedArmor?.system as any)?.evadeModifier || 0;
-      system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier;
+      // Weapon property "Defensive": +MR Evade (max +6) while wielded two-handed.
+      const defensiveWeaponEvade = defensiveEvadeBonus(this, equippedWeapon);
+      system.combat.evadeTotal =
+        baseEvade + shieldEvadeBonus + armorEvadeModifier + defensiveWeaponEvade;
 
       const fmtEvadeContrib = (n: number): string => {
         if (n === 0) return '0';
@@ -547,6 +572,14 @@ export class MasteryActor extends Actor {
           display: equippedArmor ? fmtEvadeContrib(armorEvadeModifier) : '—'
         }
       ];
+      if (defensiveWeaponEvade > 0) {
+        (system.combat.evadeBreakdownRows as any[]).push({
+          label: 'Defensive weapon',
+          detail: `${equippedWeapon?.name ?? 'Weapon'} (two-handed)`,
+          value: defensiveWeaponEvade,
+          display: fmtEvadeContrib(defensiveWeaponEvade),
+        });
+      }
       system.combat.evadeBreakdownHint = (system.combat.evadeBreakdownRows as any[])
         .map((r) => `${r.label} ${r.display}`)
         .join(' · ');
@@ -566,7 +599,7 @@ export class MasteryActor extends Actor {
         },
         {
           label: 'Shield',
-          detail: equippedShield?.name ?? 'Not equipped',
+          detail: `${equippedShield?.name ?? 'Not equipped'}${braceStacks > 0 && equippedShield ? ' (Brace ×2)' : ''}`,
           value: equippedShield != null ? shieldValue : null,
           display: equippedShield != null ? String(shieldValue) : '—'
         }
@@ -925,6 +958,22 @@ export class MasteryActor extends Actor {
       system.scaling.baseEvade = calculateBaseEvade(masteryRank);
     }
 
+    // Encumbrance (PG load table): Encumbered −4 m / Overloaded −6 m Movement.
+    // Load affects Movement only — there is no dice-pool penalty.
+    if (actorType === 'character') {
+      try {
+        const loadZone = getActorInventoryLoadZone(this as any);
+        const loadPenalty = movementPenaltyForLoad(loadZone);
+        if (loadPenalty < 0) {
+          system.combat.speed = Math.max(0, Number(system.combat.speed ?? 8) + loadPenalty);
+          system.combat.loadZone = loadZone;
+          system.combat.loadMovementPenaltyM = loadPenalty;
+        }
+      } catch (err) {
+        console.debug?.('Mastery System | encumbrance movement penalty skipped', err);
+      }
+    }
+
     // Diminishing Special-Effect maluses: Corrode −Armor, Expose −Evade,
     // Slow −Speed. Applied last so they subtract from the fully-computed totals.
     try {
@@ -945,6 +994,25 @@ export class MasteryActor extends Actor {
       }
       if (slow > 0) {
         system.combat.speed = Math.max(0, Number(system.combat.speed ?? 8) - slow);
+      }
+      // Root(X): while Root is above 0, Speed is 0 m (no voluntary movement).
+      const root = getActiveSpecialValue(this, 'root');
+      if (root > 0) {
+        system.combat.speed = 0;
+      }
+      // Brace(X): locked defensive stance — Speed becomes 0 m.
+      const brace = getActiveSpecialValue(this, 'brace');
+      if (brace > 0) {
+        system.combat.speed = 0;
+      }
+      // Immovable: cannot use Movement Powers, Movement becomes 0 m.
+      if (hasActiveSpecial(this, 'immovable')) {
+        system.combat.speed = 0;
+      }
+      // Grappled (PG "Grapple"): Speed becomes 0 m while held. Grappled can
+      // arrive via the specials list or as a Foundry token status.
+      if (hasActiveSpecial(this, 'grappled') || (this as any).statuses?.has?.('grappled')) {
+        system.combat.speed = 0;
       }
     } catch (err) {
       console.debug?.('Mastery System | special-effect malus skipped', err);

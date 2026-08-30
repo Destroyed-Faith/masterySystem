@@ -21,9 +21,14 @@ describe('artifact-spell-pick', () => {
   });
 
   it('detects spell eligibility on stored picks', () => {
+    // PG Spell Design Rule: a Spell is always Ranged + Special —
+    // heal-only ranged Actives can no longer be converted.
+    expect(
+      artifactPickCanBeSpell({ powerTemplateId: 'active-ranged-single-cleanse' }),
+    ).toBe(true);
     expect(
       artifactPickCanBeSpell({ powerTemplateId: 'active-ranged-single-heal' }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       artifactPickCanBeSpell({ powerTemplateId: 'active-melee-weapon-single' }),
     ).toBe(false);

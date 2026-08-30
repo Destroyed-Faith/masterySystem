@@ -1,7 +1,7 @@
 /**
  * Tower Wizard — validation for selections and finalize.
  */
-import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_REQUIREMENTS, TOWER_WIZARD_POWER_TOTAL, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_TOTAL, creationPowerRequirementsForMasteryRank, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getDefaultPassive1TemplateId, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidPassive1Variant, isValidReplacementActiveBuffId, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { getPassiveCategoryConflictMessage, isAllowedSecondPassive, } from './tower-wizard-passive-categories.js';
 import { collectEchoAdvisorWarnings, } from './tower-wizard-echo-advisor.js';
@@ -167,13 +167,16 @@ export function validateTowerWizardCreation(actor) {
     if (!system.creation?.towerWizardPackageId) {
         return 'Open the Combat Package Wizard and apply your combat package before finalizing.';
     }
+    /* PG "Starting Powers": Passives = available Passive Slots (MR 1 → 1 Passive). */
+    const requirements = creationPowerRequirementsForMasteryRank(Number(system?.mastery?.rank) || 2);
+    const requiredTotal = Object.values(requirements).reduce((s, n) => s + n, 0);
     const powers = actor.items.filter((i) => i.type === 'power');
-    if (powers.length !== TOWER_WIZARD_POWER_TOTAL) {
-        return `Must have exactly ${TOWER_WIZARD_POWER_TOTAL} Powers from the combat package (currently ${powers.length}).`;
+    if (powers.length !== requiredTotal) {
+        return `Must have exactly ${requiredTotal} Powers from the combat package (currently ${powers.length}).`;
     }
     const counts = countPowersByCategory(powers);
     for (const cat of CATEGORY_ORDER) {
-        const need = TOWER_WIZARD_POWER_REQUIREMENTS[cat];
+        const need = requirements[cat];
         const have = counts[cat];
         if (have !== need) {
             return `Must have exactly ${need} ${CATEGORY_LABELS[cat]} power(s). Currently: ${have}.`;

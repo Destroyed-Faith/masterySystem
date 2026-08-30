@@ -7,20 +7,13 @@
  */
 import { collectInventoryBandRects, findFirstFit } from './inventory-grid.js';
 import { ZONE_WIDTH_COLS } from './encumbrance.js';
-import { artifactPowersUnlocked, isArtifactEquippedOnActor } from './artifact-actor-rules.js';
-import { isItemAssignedToWeaponSet, isWeaponSetPreparedItem } from './weapon-sets.js';
-import { artifactLevelToTemplateRank } from './artifact-spell-pick.js';
-import { resolveFullLevelProgression, visibleAbilityRows } from './artifact-visible-abilities.js';
 import { resolvePowerCategoryFromItem } from './power-catalog.js';
 import { getPowerDefinitionRank } from './power-definition-rank.js';
 import { getAttackAttributeForPowerTreeOrSchool } from './power-roll-attribute.js';
 import { renderAoe, renderDuration, renderRange, renderSpecials } from './power-rendering.js';
-import { getTemplate } from './powers/index.js';
 export const MINOR_MAGIC_FLAG = 'minorMagic';
 export const MINOR_MAGIC_LEDGER_FLAG = 'minorMagicLedger';
 export const MINOR_MAGIC_REST_FLAG = 'minorMagicRest';
-/** Artifact Actives may be stored only at Basic / Improved (row level ≤ 6). */
-export const MINOR_MAGIC_ARTIFACT_LEVEL_CAP = 6;
 export const MINOR_MAGIC_FORMS = [
     'potion',
     'grenade',
@@ -207,18 +200,12 @@ function isArtifactSourcedPower(item) {
         return true;
     return readSourceFlag(item) === 'artifact';
 }
-function artifactRowLevelOf(item) {
-    const raw = Number(item.system?.artifactRowLevel);
-    if (!Number.isFinite(raw) || raw <= 0)
-        return null;
-    return Math.floor(raw);
-}
 function isBlockedSourcePower(item) {
     const sys = item.system || {};
-    if (isArtifactSourcedPower(item)) {
-        const rowLevel = artifactRowLevelOf(item);
-        return rowLevel != null && rowLevel > MINOR_MAGIC_ARTIFACT_LEVEL_CAP;
-    }
+    /* PG "Creating Minor Magic Items": only the creator's OWN Active Powers are
+     * eligible — Artifact Functions and artifact-granted Actives are not. */
+    if (isArtifactSourcedPower(item))
+        return true;
     if (sys.granted === true || sys.temporary === true)
         return true;
     const source = readSourceFlag(item);
@@ -234,6 +221,21 @@ function isBlockedSourcePower(item) {
     }
     return false;
 }
+/**
+ * PG "Creating Minor Magic Items": the stored Active Power must have an
+ * Instant duration — no persistent zones, barriers, constructs, images, or
+ * other ongoing effects.
+ */
+export function isInstantDurationPower(item) {
+    const row = readLevelRow(item);
+    const kind = row?.duration?.kind;
+    if (kind)
+        return kind === 'instant';
+    const raw = String(item.system?.duration || '').trim().toLowerCase();
+    if (!raw || raw === '—' || raw === '-' || raw === 'instant')
+        return true;
+    return false;
+}
 export function isEligibleMinorMagicPower(item) {
     if (item?.type !== 'power')
         return false;
@@ -242,121 +244,15 @@ export function isEligibleMinorMagicPower(item) {
     }
     if (isBlockedSourcePower(item))
         return false;
+    if (!isInstantDurationPower(item))
+        return false;
     return true;
-}
-/**
- * Minor Magic may store a power from an artifact that is worn now or prepared
- * on either Weaponslot. Inventory-only artifacts stay excluded.
- */
-export function isArtifactAvailableForMinorMagic(actor, item) {
-    if (!item || item.type !== 'artifact')
-        return false;
-    if (isArtifactEquippedOnActor(item))
-        return true;
-    if (isWeaponSetPreparedItem(item))
-        return true;
-    return isItemAssignedToWeaponSet(actor, item.id);
-}
-/** Offensive / Active artifact rows only — not buffs, movement, reactions, or functions. */
-function isArtifactActiveForMinorMagic(rowType) {
-    const t = String(rowType || '').trim().toLowerCase();
-    if (!t)
-        return false;
-    if (t.includes('reaction') || t.includes('movement'))
-        return false;
-    if (t.includes('active buff') || t.includes('active-buff') || (t.includes('buff') && !t.includes('debuff'))) {
-        return false;
-    }
-    if (t.includes('stone') || t.includes('support') || t.includes('passive'))
-        return false;
-    if (t.includes('aoe') ||
-        t.includes('attack') ||
-        t.includes('zone') ||
-        t.includes('barrier') ||
-        t.includes('damage') ||
-        t === 'melee' ||
-        t === 'ranged' ||
-        t.startsWith('melee ') ||
-        t.startsWith('ranged ')) {
-        return true;
-    }
-    return t.startsWith('active') || t === 'ultimate';
-}
-function buildSyntheticPowerFromArtifactRow(artifact, row, slotIndex) {
-    const templateId = String(row.powerTemplateId || '').trim();
-    const tpl = templateId ? getTemplate(templateId) : undefined;
-    const plKey = artifactLevelToTemplateRank(Number(row.level) || 1);
-    const pl = Number(plKey);
-    let levels;
-    if (tpl?.levels) {
-        let levelRow = tpl.levels[plKey];
-        if (levelRow && row.chosenSpecialKey) {
-            const specials = (levelRow.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: row.chosenSpecialKey } : s);
-            levelRow = { ...levelRow, specials };
-        }
-        if (levelRow)
-            levels = { [plKey]: levelRow };
-    }
-    return {
-        id: `artifact:${artifact.id}:${slotIndex}`,
-        type: 'power',
-        name: row.name || `${artifact.name} L${row.level}`,
-        system: {
-            category: 'active',
-            powerType: 'active',
-            fromArtifact: true,
-            source: 'artifact',
-            artifactRowLevel: Number(row.level) || 1,
-            artifactItemId: artifact.id,
-            rank: pl,
-            level: pl,
-            templateId,
-            templateName: tpl?.templateName || row.name || artifact.name,
-            isSpell: row.isSpell === true,
-            castingAttribute: row.castingAttribute || '',
-            chosenSpecial: row.chosenSpecialKey ? { key: row.chosenSpecialKey } : undefined,
-            cost: tpl?.cost ?? { action: 'attack' },
-            newCost: tpl?.cost,
-            levels,
-            range: row.range,
-            aoe: row.aoe,
-            duration: row.duration,
-            effect: row.effect,
-            specials: row.special ? [row.special] : [],
-        },
-    };
-}
-export function listEligibleArtifactMinorMagicPowers(actor) {
-    const items = actor?.items ? Array.from(actor.items) : [];
-    const out = [];
-    for (const item of items) {
-        if (item?.type !== 'artifact')
-            continue;
-        if (!isArtifactAvailableForMinorMagic(actor, item))
-            continue;
-        if (!artifactPowersUnlocked(actor, item))
-            continue;
-        const sys = item.system || {};
-        const currentLevel = Number(sys.currentLevel) || Number(sys.level) || 1;
-        const cappedLevel = Math.min(currentLevel, MINOR_MAGIC_ARTIFACT_LEVEL_CAP);
-        const progression = resolveFullLevelProgression(sys.levelProgression, sys.progressionPicks);
-        const rows = visibleAbilityRows(progression, cappedLevel);
-        rows.forEach((row, slotIndex) => {
-            const lvl = Number(row.level) || 1;
-            if (lvl > MINOR_MAGIC_ARTIFACT_LEVEL_CAP)
-                return;
-            if (!isArtifactActiveForMinorMagic(row.type))
-                return;
-            out.push(buildSyntheticPowerFromArtifactRow(item, row, slotIndex));
-        });
-    }
-    return out;
 }
 export function listEligibleMinorMagicPowers(actor) {
     const items = actor?.items ? Array.from(actor.items) : [];
-    const purchased = items.filter((it) => isEligibleMinorMagicPower(it) && !isArtifactSourcedPower(it));
-    const artifact = listEligibleArtifactMinorMagicPowers(actor);
-    return [...purchased, ...artifact].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    return items
+        .filter((it) => isEligibleMinorMagicPower(it))
+        .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
 }
 export function resolveMinorMagicPower(actor, powerId) {
     const id = String(powerId || '').trim();
@@ -522,7 +418,7 @@ function canCreateMinorMagic(actor, power, form) {
     if (!canManageMinorMagic(actor))
         return MINOR_MAGIC_REST_REQUIRED;
     if (!isEligibleMinorMagicPower(power)) {
-        return 'Only a purchased Active Power or an Artifact Active (up to Artifact Level 6) can be stored.';
+        return 'Only one of your own Active Powers with an Instant duration can be stored — no Artifact Functions, Buffs, Passives, Reactions, Movement Powers, or ongoing effects.';
     }
     if (!isMinorMagicForm(form))
         return 'Choose a form for the item.';
@@ -664,11 +560,72 @@ export function buildMinorMagicChatHtml(itemName, flag, mode) {
       <p>${formLabel} — stored ${flag.snapshot.powerName} (creator: ${flag.creatorName || 'unknown'}).</p>
       ${trapLine}
       <ul>${lines}</ul>
-      <p><em>Prototype:</em> the stored Power is recorded. Full attack / trap resolution comes next. The item is spent and no longer counts against the creator’s limit. An empty place can only be filled during a Safe Haven Rest.</p>
+      <p><em>The item is spent and no longer counts against the creator’s limit. An empty place can only be filled during a Safe Haven Rest.</em></p>
     </div>
   `;
 }
+/** True when the stored Power resolves via an attack roll (has an attack pool). */
+function snapshotRequiresAttack(snapshot) {
+    return snapshot.attackPool.numDice > 0 && String(snapshot.actionCost) !== 'none';
+}
+/**
+ * PG "Using Minor Magic Items": the stored Power resolves using its recorded
+ * values. If it requires an attack, roll the recorded Attack Pool with the
+ * recorded Keep value — a Minor Magic Item never hits automatically. Damage
+ * is the stored Power's damage only (no weapon dice / weapon specials).
+ */
+export async function resolveMinorMagicSnapshot(actor, itemName, flag, mode) {
+    const g = globalThis;
+    const RollCls = g.Roll;
+    const ChatMessage = g.ChatMessage;
+    if (!RollCls || !ChatMessage?.create)
+        return;
+    const snapshot = flag.snapshot;
+    const rolls = [];
+    const parts = [];
+    if (snapshotRequiresAttack(snapshot)) {
+        const pool = snapshot.attackPool;
+        const keep = Math.max(1, Math.min(pool.keepDice, pool.numDice));
+        const attackRoll = new RollCls(`${pool.numDice}d8kh${keep}`);
+        await attackRoll.evaluate();
+        rolls.push(attackRoll);
+        parts.push(`<p><strong>Attack:</strong> ${formatAttackPool(pool)} → <strong>${attackRoll.total}</strong> ` +
+            `(recorded pool; compare vs the target's TN — no auto-hit).</p>`);
+    }
+    const dmg = String(snapshot.damage || '').trim();
+    if (dmg && dmg !== '—' && /\dd8/i.test(dmg)) {
+        const dmgRoll = new RollCls(dmg.replace(/^\+/, ''));
+        await dmgRoll.evaluate();
+        rolls.push(dmgRoll);
+        parts.push(`<p><strong>Damage (on hit):</strong> ${dmg} → <strong>${dmgRoll.total}</strong> ` +
+            `(stored Power only — no weapon dice or Weapon Specials).</p>`);
+    }
+    const heal = String(snapshot.healing || '').trim();
+    if (heal && heal !== '—' && /\dd8/i.test(heal)) {
+        const healRoll = new RollCls(heal.replace(/^\+/, ''));
+        await healRoll.evaluate();
+        rolls.push(healRoll);
+        parts.push(`<p><strong>Healing:</strong> ${heal} → <strong>${healRoll.total}</strong></p>`);
+    }
+    if (snapshot.specials && snapshot.specials !== '—') {
+        parts.push(`<p><strong>Specials (on hit):</strong> ${snapshot.specials}</p>`);
+    }
+    if (parts.length === 0) {
+        parts.push(`<p>${snapshot.effect || 'The stored effect resolves as written.'}</p>`);
+    }
+    await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker?.({ actor }) ?? {},
+        rolls,
+        content: `
+      <div class="minor-magic-chat">
+        <h4>${mode === 'trap' ? 'Trap triggers' : 'Resolving'}: ${itemName}</h4>
+        ${parts.join('')}
+      </div>
+    `,
+    });
+}
 export async function useMinorMagicItem(actor, item, mode = 'use', trapTrigger) {
+    const itemName = String(item.name || 'Minor Magic Item');
     const result = await consumeMinorMagicItem(actor, item, mode, trapTrigger);
     if (!result.ok)
         return result;
@@ -676,8 +633,18 @@ export async function useMinorMagicItem(actor, item, mode = 'use', trapTrigger) 
     if (ChatMessage?.create) {
         await ChatMessage.create({
             speaker: ChatMessage.getSpeaker?.({ actor }) ?? {},
-            content: buildMinorMagicChatHtml(item.name, result.flag, mode),
+            content: buildMinorMagicChatHtml(itemName, result.flag, mode),
         });
+    }
+    // Direct use resolves immediately; an armed Trap resolves when triggered,
+    // so its rolls are made by the GM via the same resolver at trigger time.
+    if (mode === 'use') {
+        try {
+            await resolveMinorMagicSnapshot(actor, itemName, result.flag, mode);
+        }
+        catch (err) {
+            console.warn('Mastery System | Minor Magic resolution failed', err);
+        }
     }
     return { ok: true };
 }

@@ -263,15 +263,21 @@ export async function promptPhasingConsume(target, context = {}) {
         return false;
     }
     const attackerName = context.attacker?.name ?? 'Attacker';
-    const rawDamage = Math.max(0, Math.floor(Number(context.rawDamage) || 0));
+    const rawDamageNum = Number(context.rawDamage);
+    const hasRawDamage = Number.isFinite(rawDamageNum) && rawDamageNum > 0;
     const charges = state.current;
+    const situationLine = hasRawDamage
+        ? `<p><strong>${target.name ?? 'Target'}</strong> is about to take
+        <strong>${Math.floor(rawDamageNum)}</strong> raw damage from
+        <strong>${attackerName}</strong>.</p>`
+        : `<p><strong>${target.name ?? 'Target'}</strong> has been hit by
+        <strong>${attackerName}</strong> — Phasing resolves <em>before</em> the
+        damage is rolled.</p>`;
     try {
         const accepted = await Dialog.confirm({
             title: 'Phasing — Ignore Hit?',
             content: `
-        <p><strong>${target.name ?? 'Target'}</strong> is about to take
-        <strong>${rawDamage}</strong> raw damage from
-        <strong>${attackerName}</strong>.</p>
+        ${situationLine}
         <p>Spend <strong>1 of ${charges}</strong> phasing charge(s) to ignore this
         hit entirely? (No damage, no on-hit effects will apply.)</p>
       `,

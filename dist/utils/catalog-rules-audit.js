@@ -172,6 +172,8 @@ export const RULES_EXPECTED_ACTIVES = [
     { rulesName: 'Cleanse Absorption', id: 'active-cleanse-absorption' },
     { rulesName: 'Mental Attack', id: 'active-mental-attack' },
     { rulesName: 'Mind Illusion', id: 'active-mind-illusion' },
+    { rulesName: 'Mind Probe', id: 'active-mind-probe' },
+    { rulesName: 'Mental Control', id: 'active-mental-control' },
 ];
 /**
  * Foundry support / empowerment passives (not obsolete — system scaffolding

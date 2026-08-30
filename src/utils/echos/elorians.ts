@@ -9,7 +9,7 @@ export const ELORIANS_ECHO: EchoDefinition = {
     'Children of the Otherworld, Eloria. Stranded when the Four Stone Gates were sealed. Demonic marks catch like thorns in them, never fully sinking \u2014 but that resistance is its own private war.',
   creatureType: 'Humanoid',
   size: 'medium',
-  speed: 12,
+  speed: 8,
   coreTraits: [],
   deck: [
     {

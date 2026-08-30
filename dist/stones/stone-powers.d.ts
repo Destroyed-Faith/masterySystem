@@ -70,12 +70,17 @@ export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic',
 export declare function tierForUseIndex(usesBefore: number): number;
 /**
  * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
- * its first real effect is Tier 2. Such powers start one segment higher: the
- * Tier-1 / Anchor field is omitted and the first activation costs 2 stones.
- * Used by Extra Attack, Spell Action, Damage Reduction, Phasing, Crit,
- * Parry, Damage Negation, and Not a Target.
+ * its first real effect is Tier 2 (Extra Attack, Spell Action, Damage
+ * Reduction, Phasing, Crit, Parry, Damage Negation, Not a Target).
+ *
+ * Players Guide "Spending Stones" (cost ladder 1/2/4/8): the blank Tier 1 is
+ * a REAL, payable step — the 1st use costs 1 Stone and has no effect; the
+ * 2nd use costs 2 Stones and resolves Tier 2. The lane is therefore rendered
+ * and charged like any other Anchor segment, never skipped.
  */
-export declare function stonePowerSkipsFirstTier(powerId: string): boolean;
+export declare function stonePowerSkipsFirstTier(_powerId: string): boolean;
+/** Whether a power's printed Tier 1 is a blank ramp step (no effect). */
+export declare function stonePowerHasBlankFirstTier(powerId: string): boolean;
 /** Retired ids that still resolve to a current Stone Power. */
 export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
 /**

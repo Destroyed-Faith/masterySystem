@@ -2,12 +2,10 @@
  * Rules for upgrading artifact evolution items on actors (Mastery Rank gates, costs)
  * AND binding rules (Artifact Capacity, Echo-bound, slot blocking).
  *
- * New XP spec — Artifacts:
+ * XP spec — Artifacts (Artefacts.md):
  *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
- *   • Maximum reachable artifact level = `(MR - 1) × 2`, capped at 16
- *     (`getMaxArtifactSystemLevelForMasteryRank`). MR 1 cannot evolve at all.
- *   • Link / activation: 1 Stone once per artifact (`ARTIFACT_LINK_STONE_COST`).
- *   • Per-upgrade Stone costs and the legacy XP Ultimate cost have been removed.
+ *   • No Mastery-Rank level gate and no activation Stone cost — the old
+ *     `(MR−1)×2` cap and 1-Stone link were not in the rulebook and were removed.
  *
  * New Artifact spec (Artefacts.md):
  *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
@@ -25,7 +23,8 @@ export interface ArtifactStonePoolOption {
     canSpend: boolean;
 }
 export declare const ARTIFACT_UPGRADE_XP_COST = 8;
-export declare const ARTIFACT_LINK_STONE_COST = 1;
+/** Artefacts.md: activation costs nothing — the legacy 1-Stone link is gone. */
+export declare const ARTIFACT_LINK_STONE_COST = 0;
 export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 10;
 /**
  * New spec: flat Artifact Capacity. Every character can bind up to four
@@ -40,17 +39,14 @@ export declare const ARTIFACT_CAPACITY_DEFAULT = 4;
  */
 export declare function getArtifactCapacityForMasteryRank(_masteryRank?: number): number;
 /**
- * Max artifact system.level the actor may reach:
- *   `(MR - 1) × 2`, capped at `ARTIFACT_MAX_SYSTEM_LEVEL` (10).
- *   MR 1 → 0 (no link / no upgrades). MR 6+ → 10.
+ * Max artifact system.level the actor may reach. Artefacts.md has no
+ * Mastery-Rank gate — every character may evolve up to the flat cap.
  */
-export declare function getMaxArtifactSystemLevelForMasteryRank(masteryRank: number): number;
-/**
- * Max spec-level (1..10) an actor may reach. Mirrors the spec ARTIFACT_MAX_LEVEL
- * but allows MR gating in the future. For now: MR 2+ may reach level 10.
- */
-export declare function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): number;
-export declare function canArtifactLink(masteryRank: number): boolean;
+export declare function getMaxArtifactSystemLevelForMasteryRank(_masteryRank?: number): number;
+/** Max spec-level (1..10) — no MR gate (Artefacts.md). */
+export declare function getMaxArtifactSpecLevelForMasteryRank(_masteryRank?: number): number;
+/** Activation has no Mastery-Rank requirement (Artefacts.md). */
+export declare function canArtifactLink(_masteryRank?: number): boolean;
 /** Spendable stones in one attribute pool (`current − sustained − artifact-bound`). */
 export declare function poolSpendableStones(actor: any, attr: string): number;
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
@@ -59,13 +55,15 @@ export declare function actorStonesCurrent(actor: any): number;
 export declare function usesStonePoolEconomy(actor: any): boolean;
 /** Pools the player may choose from when activating an artifact. */
 export declare function listArtifactSpendableStonePools(actor: any): ArtifactStonePoolOption[];
-export declare function canSpendArtifactLinkStone(actor: any): boolean;
-export declare function canSpendArtifactLinkStoneFromPool(actor: any, stoneAttr: string): boolean;
+/** Activation is free (Artefacts.md) — always true, kept for callers. */
+export declare function canSpendArtifactLinkStone(_actor: any): boolean;
+/** Activation is free (Artefacts.md) — always true, kept for callers. */
+export declare function canSpendArtifactLinkStoneFromPool(_actor: any, _stoneAttr: string): boolean;
 export declare function getArtifactStonePoolLabel(attr: string): string;
-/** Deduct one Stone from the chosen attribute pool (or legacy `stones.current`). */
-export declare function spendArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean>;
-/** Refund one activation Stone to the pool it was spent from (GM reset). */
-export declare function refundArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean>;
+/** Activation no longer costs a Stone (Artefacts.md) — no-op, kept for callers. */
+export declare function spendArtifactLinkStone(_actor: Actor, _stoneAttr?: string): Promise<boolean>;
+/** No activation Stone exists any more — nothing to refund. */
+export declare function refundArtifactLinkStone(_actor: Actor, _stoneAttr?: string): Promise<boolean>;
 /** Binding kind for an artifact instance on a character. */
 export type ArtifactBindingKind = 'unbound' | 'bound' | 'echo';
 /** Per-actor progress record kept on the root world item flag. */

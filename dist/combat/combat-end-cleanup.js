@@ -130,5 +130,28 @@ export async function runCombatEndCleanup(combat) {
     await resetTempHpAfterCombat(combat);
     await clearColorlessStonesAfterCombat(combat);
     await clearNpcOngoingEffectsAfterCombat(combat);
+    // A new post-combat First Aid window opens (once per creature per combat).
+    try {
+        const { clearFirstAidFlags } = await import('../utils/first-aid.js');
+        await clearFirstAidFlags(collectCleanupActors(combat));
+    }
+    catch (err) {
+        console.warn('Mastery System | First Aid flag reset failed', err);
+    }
+    // Damage Negation Reserve and accumulated Absorbed Damage die with the combat.
+    try {
+        const { clearDamageNegationForCombat } = await import('./damage-negation.js');
+        await clearDamageNegationForCombat(combat);
+    }
+    catch (err) {
+        console.warn('Mastery System | Damage Negation cleanup failed', err);
+    }
+    try {
+        const { clearAbsorptionForCombat } = await import('./absorption.js');
+        await clearAbsorptionForCombat(combat);
+    }
+    catch (err) {
+        console.warn('Mastery System | Absorption cleanup failed', err);
+    }
 }
 //# sourceMappingURL=combat-end-cleanup.js.map

@@ -250,6 +250,29 @@ export function buildOpportunityAttackReactionItem(actor: any): any {
 }
 
 /**
+ * Threatened Ranged (PG 9719–9725): the window opens at DECLARATION of the
+ * ranged attack — the reactor was not hit, targeted, or damaged. Reactions
+ * whose trigger requires being hit / targeted / taking damage (Counterattack,
+ * Counter Damage, Guard, Evade, Parry follow-ups, …) are therefore illegal in
+ * this window. Only reactions without such a trigger remain usable.
+ */
+export function isThreatenedDeclarationLegalReaction(item: any): boolean {
+  // All Basic Reactions trigger off being hit/targeted (Guard, Evade,
+  // Counterattack, Interpose, Dive for Cover) or a Skill Check (Aid).
+  if (String(item?.basicReaction || '')) return false;
+  if (isThreatenedRangedOffensiveReaction(item)) return false;
+  const trig = String(item?.system?.trigger ?? '').toLowerCase();
+  if (
+    /\bhit\b|\btargeted\b|take damage|would take|damage instance|fully parry|lose actual hp|ongoing effect/.test(
+      trig,
+    )
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Offensive reactions for Threatened Ranged (shooter in your melee reach).
  * Not the attack target — Guard/Evade/Ally mitigation do not apply here.
  */
@@ -430,9 +453,11 @@ export function collectReactionWindowEntries(params: {
         }
 
         const summary = getReactionActionsSummary(economyOpp, combat);
+        // Declaration window: only reactions whose trigger does not require
+        // being hit / targeted / damaged are legal (PG Threatened Ranged).
         const offensivePowers =
           summary.remaining > 0
-            ? getEligibleReactionPowers(economyOpp, combat).filter(isThreatenedRangedOffensiveReaction)
+            ? getEligibleReactionPowers(economyOpp, combat).filter(isThreatenedDeclarationLegalReaction)
             : [];
         // Always list Threatened candidates (even at 0 Reactions / no powers)
         // so the post-attack card can explain why they cannot act.

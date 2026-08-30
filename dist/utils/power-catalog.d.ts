@@ -36,6 +36,11 @@ export declare function powerSubfamilyHint(key: string): string;
  * **1 Reaction (R4)**, **2 Active (R2)** — no Movement Power.
  */
 export declare const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number>;
+/**
+ * PG "Starting Powers": Passives at creation = available Passive Slots.
+ * MR 2 (default) → 2 Passives; MR 1 campaigns → 1 Passive.
+ */
+export declare function creationPowerRequirementsForMasteryRank(masteryRank: number): Record<PowerCategory, number>;
 /** Total Powers at character creation (sum of requirements above). */
 export declare const CREATION_POWER_TOTAL = 6;
 /** Defensive powers (Passive ×2, Active Buff, Reaction) start at Rank 4. */
@@ -79,7 +84,11 @@ export declare function powerIdentityKeyFromItem(item: {
     };
 }): string;
 export declare function powerIdentityKeyFromEntry(entry: CatalogEntry): string;
-/** Only ranged Active templates may be flagged as Spells (`active-ranged-*`). */
+/**
+ * PG "Spell Design Rule": only a Ranged Active with at least one Special may
+ * be converted into a Spell ("A Spell is always Ranged + Special"). Damage
+ * templates with a Special slot qualify because the chosen Special fills it.
+ */
 export declare function activeTemplateCanBeSpell(templateId: string): boolean;
 export declare function collectOwnedPowerIdentityKeys(powers: Iterable<{
     system?: {

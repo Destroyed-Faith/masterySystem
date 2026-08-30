@@ -15,9 +15,11 @@
 export function computeMarkFloorBonus(
   damageChatRolls: Array<{ terms?: any[] } | null | undefined>,
   spend: number,
+  existingFloor = 0,
 ): number {
   const floor = Math.max(0, Math.floor(Number(spend) || 0));
   if (floor <= 0) return 0;
+  const prior = Math.max(0, Math.floor(Number(existingFloor) || 0));
   let bonus = 0;
   for (const roll of damageChatRolls) {
     for (const term of roll?.terms || []) {
@@ -26,9 +28,11 @@ export function computeMarkFloorBonus(
       for (const res of results) {
         if (res?.active === false) continue;
         const face = Number(res?.result);
-        if (Number.isFinite(face) && face < floor) {
-          bonus += floor - face;
-        }
+        if (!Number.isFinite(face)) continue;
+        // A previously applied floor (e.g. Brutal Impact) already raised this
+        // die — only the remaining gap counts.
+        const effective = Math.max(face, prior);
+        if (effective < floor) bonus += floor - effective;
       }
     }
   }

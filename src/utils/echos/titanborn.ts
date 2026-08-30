@@ -9,7 +9,7 @@ export const TITANBORN_ECHO: EchoDefinition = {
     'Awakened fury of the godless age. Where others break, Titanborn endure. Where others retreat, they advance. Their greatest struggle is often against the ancient hunger within them, the part that does not want the war to end.',
   creatureType: 'Humanoid',
   size: 'medium',
-  speed: 12,
+  speed: 8,
   coreTraits: [],
   subChoiceLabel: 'Titan Stone Affinity',
   // The Titan Scars body artifact carries a Stone Pool. The player chooses at

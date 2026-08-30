@@ -35,7 +35,7 @@ import {
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
-import { formatEffectReference } from '../utils/special-effects.js';
+import { formatEffectReference, getEffectById } from '../utils/special-effects.js';
 
 /**
  * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
@@ -60,6 +60,40 @@ function addD8DiceToFormula(formula: string, bonusDice: number): string {
   const m = f.match(/^(\d+)d8$/i);
   if (m) return `${parseInt(m[1], 10) + bonusDice}d8`;
   return `${f} + ${bonusDice}d8`;
+}
+
+/** Count the d8 Damage Dice in a formula ("3d8+2" → 3, "d8" → 1). */
+function countD8DiceInFormula(formula: string): number {
+  const f = String(formula ?? '').trim();
+  if (!f || f === '0') return 0;
+  let count = 0;
+  const re = /(\d*)d8/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(f)) !== null) {
+    count += m[1] ? parseInt(m[1], 10) : 1;
+  }
+  return count;
+}
+
+/** Remove up to `remove` d8 dice from a formula (Damage Negation). */
+function removeD8DiceFromFormula(
+  formula: string,
+  remove: number,
+): { formula: string; removed: number } {
+  let left = Math.max(0, Math.floor(Number(remove) || 0));
+  const f = String(formula ?? '').trim();
+  if (!f || f === '0' || left <= 0) return { formula: f, removed: 0 };
+  let removedTotal = 0;
+  const next = f.replace(/(\d*)d8/gi, (match, countStr) => {
+    if (left <= 0) return match;
+    const have = countStr ? parseInt(countStr, 10) : 1;
+    const take = Math.min(have, left);
+    left -= take;
+    removedTotal += take;
+    const rest = have - take;
+    return rest > 0 ? `${rest}d8` : '0';
+  });
+  return { formula: next, removed: removedTotal };
 }
 
 /** True when a power item is a damaging Spell (carries the `spell` tag). */
@@ -191,8 +225,13 @@ export interface DamageResult {
    * posts the damage chat, runs the Reaction Window, then applies.
    */
   pendingApply?: boolean;
-  /** Attack total / Evade TN carried for the deferred apply path. */
-  attackContext?: { attackTotal?: number | null; evadeTn?: number | null };
+  /** Attack total / Evade TN / per-hit riders carried for the deferred apply path. */
+  attackContext?: {
+    attackTotal?: number | null;
+    evadeTn?: number | null;
+    /** Armor Penetration collected for THIS hit (Specials + stones). */
+    armorPenetration?: number;
+  };
   /**
    * Faith Fracture Keep already posted this chat message as the damage card
    * (with Keep/Reroll). Caller should update it instead of creating a second one.
@@ -450,8 +489,23 @@ export async function showDamageDialog(
     weaponForDamage = null;
   }
   // Resolve base damage using helper (returns string directly)
-  const baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
-  
+  let baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
+
+  // Weapon properties (PG "Weapon Properties"):
+  //   Versatile — +2d8 weapon damage while wielded two-handed.
+  //   Set — +1d8 weapon damage when the wielder did not move this round.
+  if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && weaponForDamage) {
+    try {
+      const { versatileBonusDice, setBonusDice } = await import('../utils/weapon-properties.js');
+      const versatile = versatileBonusDice(weaponForDamage);
+      const setBonus = setBonusDice(actorToUse, weaponForDamage);
+      if (versatile > 0) baseDamage = addD8DiceToFormula(baseDamage, versatile);
+      if (setBonus > 0) baseDamage = addD8DiceToFormula(baseDamage, setBonus);
+    } catch (err) {
+      console.warn('Mastery System | weapon property bonus failed', err);
+    }
+  }
+
   // Sanitize base damage before use
   const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
 
@@ -1042,7 +1096,7 @@ export function attachDamageCardHandlers(messageId: string): void {
     // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
     // mitigates inside applyStressToActor). Applies alongside the HP damage.
     const stressDice = Math.max(0, Math.floor(Number(flags.npcStressD8) || 0));
-    if (stressDice > 0 && target) {
+    if (stressDice > 0 && target && !result.mitigation?.phased) {
       try {
         const stressRoll = await new (globalThis as any).Roll(`${stressDice}d8`).evaluate({ async: true });
         const stressTotal = Math.max(0, Math.floor(Number(stressRoll?.total) || 0));
@@ -1239,8 +1293,13 @@ async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
   }
 }
 
-/** Stone Ward / incoming Special reduction. `null` means the Special is fully blocked. */
-function applyStoneWardToIncomingSpecial(
+/**
+ * Ward — total incoming-Special reduction on the target: passive Ward
+ * (mechanics `wardIncoming`) + Stone Ward (`tempWard`) + Stone incoming
+ * Special reduction. Applies separately to every eligible hostile Special
+ * (Players Guide "Ward"). `null` means the Special is fully blocked.
+ */
+function applyWardToIncomingSpecial(
   target: Actor,
   effectId: string | undefined,
   effectName: string,
@@ -1248,20 +1307,28 @@ function applyStoneWardToIncomingSpecial(
 ): number | null {
   if (effectValue == null) return effectValue;
   const id = String(effectId || effectName || '').toLowerCase();
+  // Ward only reduces hostile Specials — positive effects pass through.
   if (id === 'regeneration' || id.includes('regeneration')) return effectValue;
+  const effect = effectId ? getEffectById(effectId) : undefined;
+  if (effect?.polarity === 'positive') return effectValue;
+  let ward = 0;
   try {
     const combat = (globalThis as any).game?.combat ?? null;
     const sb = getRoundState(target as any, combat)?.stoneBonuses;
-    const ward = Math.max(
-      0,
-      Math.floor(Number(sb?.tempWard ?? sb?.incomingSpecialReduction ?? 0) || 0),
-    );
-    if (ward <= 0) return effectValue;
-    const next = effectValue - ward;
-    return next > 0 ? next : null;
+    ward += Math.max(0, Math.floor(Number(sb?.tempWard ?? 0) || 0));
+    ward += Math.max(0, Math.floor(Number(sb?.incomingSpecialReduction ?? 0) || 0));
   } catch {
-    return effectValue;
+    /* no combat state — stones contribute 0 */
   }
+  try {
+    const bd = (target as any).system?.derived?.mechanicsBreakdown;
+    ward += Math.max(0, Math.floor(Number(bd?.totals?.wardIncoming ?? 0) || 0));
+  } catch {
+    /* derived data unavailable */
+  }
+  if (ward <= 0) return effectValue;
+  const next = effectValue - ward;
+  return next > 0 ? next : null;
 }
 
 /**
@@ -1302,10 +1369,52 @@ async function applyStatusEffectsToTarget(
       if (match) {
         const effectName = match[1].trim();
         const effectValue = match[2] ? parseInt(match[2]) : null;
-        const effectId = getEffect(effectName)?.id;
-        const wardReduced = applyStoneWardToIncomingSpecial(target, effectId, effectName, effectValue);
+        const effectDef = getEffect(effectName);
+        const effectId = effectDef?.id;
+
+        // Instant Specials resolve with the attack itself (Push/Pull via
+        // forced movement, Penetration/Precision/Brutal Impact in the damage
+        // pipeline, Disarm on the spot) and never persist as a status.
+        if (effectDef?.category === 'instant') continue;
+
+        // Immovable: immune to Prone (and Push/Pull/forced movement,
+        // guarded in the forced-movement flow).
+        if (effectId === 'prone') {
+          const { hasActiveSpecial } = await import('../system/active-specials.js');
+          if (hasActiveSpecial(target, 'immovable')) {
+            limitNotes.push(`${(target as any).name} is Immovable — Prone has no effect.`);
+            continue;
+          }
+        }
+
+        // Cleanse(X) is a support effect, not a status: distribute its value
+        // freely across the target's eligible negative Specials right now.
+        if (effectId === 'cleanse') {
+          const x = Math.max(0, Math.floor(Number(effectValue) || 0));
+          if (x > 0) {
+            const { distributeCleanseAcrossList, formatCleanseDistribution } =
+              await import('../system/pool-reduction.js');
+            const cleansed = distributeCleanseAcrossList(list, x);
+            if (cleansed.applied) {
+              list = cleansed.statusEffects;
+              limitNotes.push(`Cleanse(${x}) → ${formatCleanseDistribution(cleansed)}`);
+            } else {
+              limitNotes.push(`Cleanse(${x}) — no eligible Special to reduce`);
+            }
+          }
+          continue;
+        }
+
+        const wardReduced = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
         if (wardReduced === null) continue;
         let wardedValue = wardReduced;
+
+        // Root has a minimum applied value of 2 — Root(1) is not a valid
+        // application (Players Guide "Root(X)").
+        if (effectId === 'root' && wardedValue !== null && wardedValue > 0 && wardedValue < 2) {
+          limitNotes.push('Root(1) is below the minimum applied value of Root(2) — not applied.');
+          continue;
+        }
         const isChallenge =
           effectId === 'challenge' || effectName.toLowerCase() === 'challenge';
 
@@ -1348,13 +1457,18 @@ async function applyStatusEffectsToTarget(
           }
           if (effectId && !existingEffect.id) existingEffect.id = effectId;
         } else {
-          // Add new effect
+          // Add new effect. `sourceMasteryRank` feeds effects whose recovery
+          // TN scales with the source (e.g. Root break checks: TN 8 × source MR).
+          const srcRank = attacker
+            ? Math.max(1, Math.floor(Number((attacker as any)?.system?.mastery?.rank) || 1))
+            : null;
           list.push({
             id: effectId,
             name: effectName,
             value: wardedValue,
             source: sourceName,
             ...(sourceUuid ? { sourceUuid } : {}),
+            ...(srcRank ? { sourceMasteryRank: srcRank } : {}),
             timestamp: Date.now()
           });
         }
@@ -1422,6 +1536,11 @@ export interface ApplyDamageOptions {
   skipReactionPrompt?: boolean;
   /** Phasing already resolved by the caller — do not prompt again. */
   skipPhasing?: boolean;
+  /**
+   * Armor Penetration for THIS hit (Penetration(X) Specials, Might
+   * Ignore-Armor stones). Reduces the target's Armor before subtraction.
+   */
+  armorPenetration?: number;
 }
 
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
@@ -1595,8 +1714,55 @@ export async function applyDamageToTarget(
       armorTotal: baseArmorTotal + reactionArmorFlat,
       damageReductionPct: Number(system.combat?.damageReductionPct ?? 0),
       reactionDrPct,
+      armorPenetration: Math.max(0, Math.floor(Number(attackContext?.armorPenetration) || 0)),
     });
-    const mitigated = mitigation.mitigatedDamage;
+    let mitigated = mitigation.mitigatedDamage;
+
+    // Bulwark(X) — Reaction when hit: reduce this hit's FINAL damage by 50%
+    // and consume 1 Bulwark (Players Guide "Bulwark(X)", Until Used).
+    let bulwarkNote = '';
+    if (mitigated > 0) {
+      try {
+        const { getActiveSpecialValue, statusEntryId } = await import('../system/active-specials.js');
+        const bulwarkStacks = getActiveSpecialValue(target, 'bulwark');
+        if (bulwarkStacks > 0) {
+          const { getAvailableReactionActions, spendReactionAction } =
+            await import('../combat/action-economy.js');
+          const canReact = combat
+            ? getAvailableReactionActions(target as any, combat) > 0
+            : true;
+          if (canReact) {
+            const halved = Math.floor(mitigated / 2);
+            const use = await Dialog.confirm({
+              title: `Bulwark — ${(target as any).name}`,
+              content:
+                `<p><strong>${(target as any).name}</strong> has <strong>Bulwark(${bulwarkStacks})</strong>.</p>` +
+                `<p>Spend <strong>1 Reaction</strong> and consume <strong>1 Bulwark</strong> to reduce this hit's final damage by 50% (${mitigated} → ${halved})?</p>`,
+              defaultYes: false,
+            });
+            if (use) {
+              const spent = combat ? await spendReactionAction(target as any, combat) : true;
+              if (spent) {
+                const listNow: any[] = Array.isArray((target as any).system?.statusEffects)
+                  ? [...(target as any).system.statusEffects]
+                  : [];
+                const idx = listNow.findIndex((e: any) => statusEntryId(e) === 'bulwark');
+                if (idx >= 0) {
+                  const cur = Math.max(0, Math.floor(Number(listNow[idx]?.value ?? 0)));
+                  if (cur > 1) listNow[idx] = { ...listNow[idx], value: cur - 1 };
+                  else listNow.splice(idx, 1);
+                  await (target as any).update({ 'system.statusEffects': listNow });
+                }
+                bulwarkNote = `Bulwark −50% (${mitigated} → ${halved})`;
+                mitigated = halved;
+              }
+            }
+          }
+        }
+      } catch (bulwarkErr) {
+        console.warn('Mastery System | [APPLY DAMAGE] Bulwark reaction skipped', bulwarkErr);
+      }
+    }
 
     // Step 2: Route tempHP reduction through the passive-trigger pool so that
     //         per-source book-keeping (Lean Ward one-shot, Dragon Scales
@@ -1770,7 +1936,21 @@ export async function applyDamageToTarget(
       }
     }
 
+    // Rulebook attack sequence step 18: Absorption — after the damage instance
+    // resolves, eligible actual HP loss may generate Temporary Colorless Stones.
+    if (barDamage > 0) {
+      try {
+        const { accumulateAbsorbedDamage } = await import('../combat/absorption.js');
+        await accumulateAbsorbedDamage(target, barDamage, attacker);
+      } catch (absorbErr) {
+        console.debug?.('Mastery System | Absorption harvest skipped', absorbErr);
+      }
+    }
+
     const tail: string[] = [];
+    if (bulwarkNote) {
+      tail.push(bulwarkNote);
+    }
     if (tempHPConsumption.reducedBy > 0) {
       tail.push(`TempHP ${tempHPConsumption.reducedBy}`);
     }
@@ -1788,7 +1968,7 @@ export async function applyDamageToTarget(
       rawDamage: mitigation.rawDamage,
       armorApplied: mitigation.armorApplied,
       drPercent: mitigation.drPercent,
-      mitigatedDamage: mitigation.mitigatedDamage,
+      mitigatedDamage: mitigated,
       tempHPAbsorbed: tempHPConsumption.reducedBy,
       barDamage,
       min8sUsed: mitigation.min8sUsed,
@@ -2144,13 +2324,113 @@ async function calculateDamageResult(
    * The reroll recursion passes `false` — any roll may be rerolled at most once.
    */
   allowFaithReroll: boolean = true,
-  attackContext?: { attackTotal?: number | null; evadeTn?: number | null },
+  attackContext?: { attackTotal?: number | null; evadeTn?: number | null; armorPenetration?: number },
   /**
    * When true, roll dice + status effects but do not apply HP yet.
    * Caller posts damage chat → Reaction Window → `applyDamageToTarget`.
    */
   skipApply: boolean = false,
+  /**
+   * Phasing was already offered for this strike (e.g. Faith-Fracture reroll
+   * recursion) — do not prompt again.
+   */
+  skipPhasingPrompt: boolean = false,
 ): Promise<DamageResult> {
+  // Rulebook attack sequence step 7: Phasing resolves after the hit is
+  // confirmed but BEFORE any damage dice are rolled and BEFORE Specials
+  // apply. If the target phases, the strike ends here — no damage roll,
+  // no on-hit Specials, no riders.
+  if (target && !skipPhasingPrompt) {
+    try {
+      const { promptPhasingConsume, consumePhasingCharge } = await import('../combat/phasing.js');
+      const phased = await promptPhasingConsume(target, { attacker });
+      if (phased) {
+        await consumePhasingCharge(target);
+        const sheet = (target as any).sheet;
+        if (sheet && sheet.rendered) sheet.render(false);
+        return {
+          baseDamage: 0,
+          powerDamage: 0,
+          passiveDamage: 0,
+          raiseDamage: 0,
+          specialsUsed: [],
+          totalDamage: 0,
+          rollDetails: ['Phased — hit ignored before the damage roll (no damage, no Specials)'],
+          count8s: 0,
+          mitigation: {
+            rawDamage: 0,
+            armorApplied: 0,
+            drPercent: 0,
+            mitigatedDamage: 0,
+            tempHPAbsorbed: 0,
+            barDamage: 0,
+            min8sUsed: false,
+            breakdownLine: 'Phased (ignored before damage roll)',
+            phased: true,
+          },
+        };
+      }
+    } catch (err) {
+      console.debug?.('Mastery System | [CALCULATE DAMAGE] pre-roll phasing skipped', err);
+    }
+  }
+
+  // Rulebook attack sequence step 11: Damage Negation — the defender may
+  // remove Damage Dice from the pool assigned to them BEFORE the dice are
+  // rolled (half-pool cap, floor). Skipped on Faith-Fracture rerolls: the
+  // reduced pool from the first roll is passed back in.
+  let negationSkipRaiseDice = 0;
+  const negationNotes: string[] = [];
+  if (target && !skipPhasingPrompt) {
+    try {
+      let raiseDamagePicks = 0;
+      for (let i = 0; i < raises; i++) {
+        if (raiseSelections.get(i)?.type === 'damage') raiseDamagePicks++;
+      }
+      const originalDice =
+        countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
+        Math.max(0, Math.floor(stoneDamageBonusDice)) +
+        countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
+        countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
+        raiseDamagePicks +
+        Math.max(0, Math.floor(npcAutoDamageDice));
+      if (originalDice >= 2) {
+        const { promptDamageNegationSpend } = await import('../combat/damage-negation.js');
+        const spend = await promptDamageNegationSpend(target, { attacker, totalDice: originalDice });
+        if (spend.diceRemoved > 0) {
+          let left = spend.diceRemoved;
+          const fromBase = removeD8DiceFromFormula(baseDamage || '0', left);
+          baseDamage = fromBase.formula;
+          left -= fromBase.removed;
+          if (left > 0 && stoneDamageBonusDice > 0) {
+            const take = Math.min(stoneDamageBonusDice, left);
+            stoneDamageBonusDice -= take;
+            left -= take;
+          }
+          if (left > 0) {
+            const fromPower = removeD8DiceFromFormula(powerDamage || '0', left);
+            powerDamage = fromPower.formula;
+            left -= fromPower.removed;
+          }
+          if (left > 0) {
+            const fromPassive = removeD8DiceFromFormula(passiveDamage || '0', left);
+            passiveDamage = fromPassive.formula;
+            left -= fromPassive.removed;
+          }
+          if (left > 0 && npcAutoDamageDice > 0) {
+            const take = Math.min(npcAutoDamageDice, left);
+            npcAutoDamageDice -= take;
+            left -= take;
+          }
+          negationSkipRaiseDice = Math.max(0, Math.min(raiseDamagePicks, left));
+          negationNotes.push(spend.note);
+        }
+      }
+    } catch (err) {
+      console.debug?.('Mastery System | [CALCULATE DAMAGE] Damage Negation skipped', err);
+    }
+  }
+
   // Roll base damage
   // Sanitize dice notations before rolling
   const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
@@ -2159,6 +2439,7 @@ async function calculateDamageResult(
   
   const rollDetails: string[] = [];
   const damageChatRolls: any[] = [];
+  for (const note of negationNotes) rollDetails.push(note);
 
   const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
   const baseDamageRolled = baseRoll.total;
@@ -2207,6 +2488,11 @@ async function calculateDamageResult(
     if (selection) {
       if (selection.type === 'damage') {
         raiseDiceCount += 1;
+        if (negationSkipRaiseDice > 0) {
+          negationSkipRaiseDice -= 1;
+          rollDetails.push(`Raise ${raiseDiceCount} (+1d8): removed by Damage Negation`);
+          continue;
+        }
         const r = await rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`);
         raiseDamage += r.total;
         if (r.line) rollDetails.push(r.line);
@@ -2360,6 +2646,41 @@ async function calculateDamageResult(
     }
   }
 
+  // Instant Specials that resolve on the damage roll itself:
+  //   Precision(X)      → on hit, +Xd8 bonus damage.
+  //   Brutal Impact(X)  → each damage die counts as at least X.
+  // Both are Instant (no stacking — highest value applies) and are filtered
+  // out of the persisted status list further below.
+  let precisionBonusRolled = 0;
+  let brutalImpactBonus = 0;
+  let brutalImpactFloor = 0;
+  try {
+    let precisionDice = 0;
+    for (const s of specialsUsed) {
+      const text = String(s).trim();
+      const p = /^precision\s*\(\s*(\d+)\s*\)/i.exec(text);
+      if (p) precisionDice = Math.max(precisionDice, parseInt(p[1], 10) || 0);
+      const b = /^brutal\s*impact\s*\(\s*(\d+)\s*\)/i.exec(text);
+      if (b) brutalImpactFloor = Math.max(brutalImpactFloor, parseInt(b[1], 10) || 0);
+    }
+    if (precisionDice > 0) {
+      const r = await rollDiceWithDetail(`${precisionDice}d8`, `Precision(${precisionDice})`);
+      precisionBonusRolled = r.total;
+      if (r.line) rollDetails.push(r.line);
+      if (r.roll) damageChatRolls.push(r.roll);
+    }
+    if (brutalImpactFloor > 0) {
+      brutalImpactBonus = computeMarkFloorBonus(damageChatRolls, brutalImpactFloor);
+      rollDetails.push(
+        brutalImpactBonus > 0
+          ? `Brutal Impact(${brutalImpactFloor}): damage dice floored at ${brutalImpactFloor} (+${brutalImpactBonus})`
+          : `Brutal Impact(${brutalImpactFloor}): all damage dice already ≥ ${brutalImpactFloor}`,
+      );
+    }
+  } catch (e) {
+    console.warn('Mastery System | [CALCULATE DAMAGE] instant special riders failed', e);
+  }
+
   // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual + Active Buff Damage (Passives separate)
   // (Mark floor bonus is added after the post-roll Mark prompt below.)
   let totalDamage =
@@ -2372,7 +2693,9 @@ async function calculateDamageResult(
     + activeBuffDamageRolled
     + manualDamageRolled
     + manualDamageFlat
-    + vulnerabilityBonusRolled;
+    + vulnerabilityBonusRolled
+    + precisionBonusRolled
+    + brutalImpactBonus;
   // Faith Fracture damage reroll — offered once on the damage chat card itself
   // (Keep / Reroll), AFTER seeing the dice but BEFORE Mark / status / HP apply.
   let prePostedChatMessageId: string | undefined;
@@ -2409,6 +2732,7 @@ async function calculateDamageResult(
         false,
         attackContext,
         skipApply,
+        true, // phasing was already offered before the first roll
       );
       rerolled.rollDetails = [
         `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
@@ -2428,13 +2752,13 @@ async function calculateDamageResult(
       const { getActiveSpecialValue } = await import('../system/active-specials.js');
       const mark = Math.max(0, getActiveSpecialValue(target, 'mark'));
       if (mark > 0) {
-        const maxBonus = computeMarkFloorBonus(damageChatRolls, mark);
+        const maxBonus = computeMarkFloorBonus(damageChatRolls, mark, brutalImpactFloor);
         if (maxBonus <= 0) {
           rollDetails.push(`Mark(${mark}) available — all damage dice already ≥ ${mark}, nothing to gain`);
         } else {
           const spend = await promptMarkSpend(target, mark, totalDamage, damageChatRolls);
           if (spend > 0) {
-            const markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend);
+            const markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend, brutalImpactFloor);
             totalDamage += markFloorBonus;
             rollDetails.push(`Mark(${mark}) spend ${spend} → floor ${spend} (+${markFloorBonus})`);
             specialsUsed.push(`Mark spent ${spend} (floor ${spend})`);
@@ -2458,11 +2782,42 @@ async function calculateDamageResult(
     }
   }
 
+  // Penetration(X) is an INSTANT Special: it modifies this hit's Armor step
+  // and must not persist as a status on the target. Collect its total here
+  // and feed it into the mitigation pipeline via the attack context.
+  let hitArmorPenetration = 0;
+  for (const s of specialsUsed) {
+    const m = /^penetration\s*\(\s*(\d+)\s*\)/i.exec(String(s).trim());
+    if (m) hitArmorPenetration += Math.max(0, parseInt(m[1], 10) || 0);
+  }
+  // Might "Ignore Armor" stones grant melee armor penetration for the round.
+  if (attackType === 'melee' && attacker) {
+    try {
+      const combatRef = (globalThis as any).game?.combat ?? null;
+      if (combatRef) {
+        const { getRoundState } = await import('../combat/action-economy.js');
+        const rs = getRoundState(attacker as any, combatRef);
+        hitArmorPenetration += Math.max(
+          0,
+          Math.floor(Number(rs?.stoneBonuses?.armorPenetration) || 0),
+        );
+      }
+    } catch (err) {
+      console.debug?.('Mastery System | [CALCULATE DAMAGE] stone penetration lookup skipped', err);
+    }
+  }
+  if (hitArmorPenetration > 0) {
+    rollDetails.push(`Armor Penetration ${hitArmorPenetration} (reduces Armor for this hit)`);
+  }
+
   // Apply status effects from specials to target (Exorcism/Requiem tag-gated inside apply).
   const statusSpecials = specialsUsed.filter((s) => {
     if (/^mark spent /i.test(s)) return false;
     if (/vulnerability/i.test(s) && /→/.test(s)) return false;
     if (/\(buff damage\)/i.test(s)) return false;
+    if (/^penetration\s*\(/i.test(s.trim())) return false; // instant — consumed by the Armor step
+    if (/^precision\s*\(/i.test(s.trim())) return false; // instant — rolled into this hit's damage
+    if (/^brutal\s*impact\s*\(/i.test(s.trim())) return false; // instant — damage-die floor for this hit
     return true;
   });
   let applicationLimitNotes: string[] = [];
@@ -2495,16 +2850,22 @@ async function calculateDamageResult(
   // pipeline. Halving it would under-report 8s that came from the raise
   // dice of *this* strike; we keep the full count (it is per-strike).
   const appliedCount8s = count8s;
+  // Per-hit context forwarded to mitigation (direct or deferred path).
+  // Phasing was already resolved before the damage roll — never re-prompt.
+  const applyContext = {
+    ...(attackContext ?? {}),
+    armorPenetration:
+      Math.max(0, Math.floor(Number(attackContext?.armorPenetration) || 0)) +
+      hitArmorPenetration,
+  };
+
   // Apply damage to target (unless deferred for Reaction Window chat order)
   let mitigation: AppliedDamageSummary | undefined;
   if (target && !skipApply) {
-    mitigation = await applyDamageToTarget(
-      target,
-      appliedDamage,
-      attacker,
-      appliedCount8s,
-      attackContext,
-    );
+    mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s, {
+      ...applyContext,
+      skipPhasing: true,
+    });
   }
 
   const result: DamageResult = {
@@ -2520,7 +2881,7 @@ async function calculateDamageResult(
     count8s: appliedCount8s,
     mitigation,
     pendingApply: skipApply || undefined,
-    attackContext: skipApply ? attackContext : undefined,
+    attackContext: skipApply ? applyContext : undefined,
     prePostedChatMessageId,
   };
   return result;

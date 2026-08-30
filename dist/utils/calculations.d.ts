@@ -51,8 +51,14 @@ export declare function updateHealthBars(bars: HealthBar[], vitality: number): v
  * legacy flat dice penalty so existing code paths keep working until they
  * are switched over to the percentage-aware variant.
  *
+ * Rulebook: the penalty belongs to the **Active** Health Bar — the first bar
+ * that still has boxes left. Scarred (fully emptied) bars are skipped: once
+ * Healthy is scarred, the creature is Bruised (−10%) even though the Healthy
+ * bar still sits at `current = 0 < max`. If every bar is empty the creature
+ * is Incapacitated (fraction 1 → pool zeroed).
+ *
  * @param bars        actor health bars
- * @param _currentBar legacy index — ignored; we always use the first broken bar
+ * @param _currentBar legacy index — ignored; we derive the active bar
  * @param pool        optional pre-penalty dice pool (Attribute, MR, etc.)
  */
 export declare function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?: number): number;

@@ -23,6 +23,10 @@ async function sealRitualStones(actor, cost, placed) {
             if (current < n)
                 return false;
             updates[`system.stonePools.${attr}.current`] = current - n;
+            // Track the seal on the pool so regen / refills cannot resurrect these
+            // stones before a Safe Haven Rest.
+            const sealedNow = Math.max(0, Number(system.stonePools?.[attr]?.sealed) || 0);
+            updates[`system.stonePools.${attr}.sealed`] = sealedNow + n;
         }
     }
     else {
@@ -106,6 +110,29 @@ export async function performRitualRoll(actor, ritual, opts) {
     const effectHtml = effects.length
         ? `<ol class="ritual-raise-effects">${effects.map((t, i) => `<li><strong>Raise ${i}:</strong> ${t}</li>`).join('')}</ol>`
         : '';
+    // PG "Word of Recall" Special Cost Rule: while the mark exists the Stones
+    // stay Sealed even across Safe Haven Rests. Track the mark on the actor.
+    let wordOfRecallHtml = '';
+    if (ritual.id === 'ritual-word-of-recall' && resolved.success) {
+        try {
+            const { setWordOfRecallMark } = await import('../stones/word-of-recall-mark.js');
+            const attrCounts = {};
+            for (const attr of placed)
+                attrCounts[attr] = (attrCounts[attr] || 0) + 1;
+            await setWordOfRecallMark(actor, {
+                attrCounts,
+                generic: placed.length ? 0 : cost,
+                raise: resolved.appliedRaise,
+            });
+            wordOfRecallHtml =
+                `<p><em>The mark is bound — these Stones stay Sealed while it exists.</em></p>` +
+                    `<button type="button" data-action="word-of-recall-release" data-actor-id="${actor.id}">` +
+                    `Use / Dismiss Mark</button>`;
+        }
+        catch (err) {
+            console.warn('Mastery System | Word of Recall mark tracking failed', err);
+        }
+    }
     await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor }),
         content: `
@@ -114,6 +141,7 @@ export async function performRitualRoll(actor, ritual, opts) {
         <p>Base TN ${opts.baseTn} · declared Raise ${opts.declaredRaises} (TN ${raiseTn}) · roll ${result.total}</p>
         ${effectHtml}
         <p><em>${cost} stone(s) Sealed until Safe Haven Rest${ritual.id === 'ritual-word-of-recall' ? ' (or until the mark is used or dismissed, then a Safe Haven Rest)' : ''}.</em></p>
+        ${wordOfRecallHtml}
         ${!resolved.success ? '<p><em>The Ritual does not produce its intended effect. The GM may apply a fitting consequence.</em></p>' : ''}
       </div>
     `,

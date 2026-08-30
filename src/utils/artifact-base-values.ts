@@ -325,9 +325,20 @@ export function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBr
 }
 
 /**
- * Total Spell Focus bonus dice (d8) the actor's equipped weapon-slot artifacts
- * add to Spell damage. Cheap convenience wrapper around the full breakdown.
+ * Total Spell Focus bonus dice (d8) added to Spell damage: equipped
+ * weapon-slot artifacts PLUS mundane weapons with a printed
+ * `Spell Focus (+Xd8)` innate (Wand / Runestaff, PG weapon table).
  */
 export function getActorSpellFocusBonusDice(actor: any): number {
-  return buildArtifactBaseValueBreakdown(actor).spellFocusBonusDice;
+  let total = buildArtifactBaseValueBreakdown(actor).spellFocusBonusDice;
+  const items = actor?.items ? Array.from(actor.items as Iterable<any>) : [];
+  for (const it of items) {
+    if (it?.type !== 'weapon' || it?.system?.equipped !== true) continue;
+    const innates = Array.isArray(it.system?.innateAbilities) ? it.system.innateAbilities : [];
+    for (const innate of innates) {
+      const m = String(innate ?? '').match(/spell\s*focus[^\d]*(\d+)\s*d8/i);
+      if (m) total += Math.max(0, Math.floor(Number(m[1]) || 0));
+    }
+  }
+  return total;
 }

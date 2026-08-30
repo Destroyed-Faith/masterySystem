@@ -59,12 +59,12 @@ export function canStartSkillsRedistribute(actor: any): { ok: boolean; reason?: 
 }
 
 /**
- * Creation / redistribute ranks are all-or-nothing chunks: 0 or maxPerSkill (4).
- * Partial ranks (1–3) are illegal.
+ * Creation / redistribute ranks (PG "Skill Point Buy"): the 40 points are
+ * distributed FREELY, +1 per point; any rank 0..maxPerSkill (4) is legal.
  */
 export function isValidCreationSkillRank(raw: unknown, maxPerSkill = getCreationSkillBudget().maxPerSkill): boolean {
   const v = typeof raw === 'number' ? raw : Math.floor(Number(raw) || 0);
-  return v === 0 || v === maxPerSkill;
+  return Number.isInteger(v) && v >= 0 && v <= maxPerSkill;
 }
 
 export function validateCreationSkillAllocation(system: any): { ok: boolean; reason?: string } {
@@ -75,7 +75,7 @@ export function validateCreationSkillAllocation(system: any): { ok: boolean; rea
     if (!isValidCreationSkillRank(v, maxPerSkill)) {
       return {
         ok: false,
-        reason: `Skill "${key}" must be 0 or ${maxPerSkill} during creation (got ${v}).`,
+        reason: `Skill "${key}" must be between 0 and ${maxPerSkill} during creation (got ${v}).`,
       };
     }
   }
@@ -83,7 +83,7 @@ export function validateCreationSkillAllocation(system: any): { ok: boolean; rea
   if (spent !== total) {
     return {
       ok: false,
-      reason: `Allocate exactly ${total} skill points in chunks of ${maxPerSkill} (currently ${spent}).`,
+      reason: `Allocate exactly ${total} skill points (max ${maxPerSkill} per skill; currently ${spent}).`,
     };
   }
   return { ok: true };

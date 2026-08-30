@@ -42,6 +42,7 @@ export function emptyBreakdown(): MechanicsBreakdown {
     regen: [],
     spellResistance: [],
     cleanseMaintenance: [],
+    wardIncoming: [],
     tempHP: [],
     healing: [],
     modifySpecialDeclared: [],
@@ -57,6 +58,7 @@ export function emptyBreakdown(): MechanicsBreakdown {
       regen: 0,
       spellResistance: 0,
       cleanseMaintenance: 0,
+      wardIncoming: 0,
       damageReductionPct: 0,
       rollDice: { attack: 0, skill: 0, damage: 0 },
     },
@@ -395,6 +397,7 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
       typeof mech.regen === 'number' ||
       typeof mech.spellResistance === 'number' ||
       typeof mech.cleanseMaintenance === 'number' ||
+      typeof mech.wardIncoming === 'number' ||
       typeof mech.initiative === 'number' ||
       typeof mech.initiativeD8 === 'number' ||
       !!mech.phasing?.combatStart;
@@ -544,6 +547,7 @@ export function aggregateMechanics(
     pushNum(bd.regen, source, mechanics.regen);
     pushNum(bd.spellResistance, source, mechanics.spellResistance);
     pushNum(bd.cleanseMaintenance, source, mechanics.cleanseMaintenance);
+    pushNum(bd.wardIncoming, source, mechanics.wardIncoming);
 
     // Damage Reduction — closed subsystem, whitelisted by power name.
     const drPctRaw = mechanics.damageReductionPct as unknown;
@@ -592,6 +596,7 @@ export function aggregateMechanics(
   bd.totals.regen = sum(bd.regen);
   bd.totals.spellResistance = sum(bd.spellResistance);
   bd.totals.cleanseMaintenance = sum(bd.cleanseMaintenance);
+  bd.totals.wardIncoming = sum(bd.wardIncoming);
   bd.totals.rollDice.attack = sum(bd.rollDice.attack);
   bd.totals.rollDice.skill = sum(bd.rollDice.skill);
   bd.totals.rollDice.damage = sum(bd.rollDice.damage);

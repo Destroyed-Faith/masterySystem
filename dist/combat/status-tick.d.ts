@@ -27,6 +27,12 @@
  */
 export declare function processTurnStartStatusTick(actor: any): Promise<string>;
 /**
+ * End-of-turn Special resolution for the creature whose turn just ended.
+ * Currently: Brace(X) — "at the end of each of your turns, reduce Brace by 1;
+ * if Brace reaches 0, it ends."
+ */
+export declare function processTurnEndSpecials(actor: any): Promise<string>;
+/**
  * Post a compact chat summary of a turn-start Tick, if anything happened.
  */
 export declare function announceStatusTick(actor: any, summary: string): Promise<void>;

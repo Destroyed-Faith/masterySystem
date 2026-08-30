@@ -35,7 +35,7 @@ export const WEAPONS: WeaponDefinition[] = [
     name: 'Dagger',
     weaponDamage: '1d8',
     hands: 1,
-    innateAbilities: ['Finesse', 'Light', 'Thrown (4/8/16m)'],
+    innateAbilities: ['Finesse', 'Light', 'Thrown (16 m)'],
     special: 'Penetration(4)',
     description: 'A small blade for close work and throwing.'
   },
@@ -84,7 +84,7 @@ export const WEAPONS: WeaponDefinition[] = [
     weaponDamage: '2d8',
     hands: 1,
     innateAbilities: [],
-    special: 'Prone(1), Challenge(2)',
+    special: 'Prone(1)',
     description: 'A chained head that unbalances foes.'
   },
   {
@@ -139,7 +139,7 @@ export const WEAPONS: WeaponDefinition[] = [
     name: 'Handaxe',
     weaponDamage: '1d8',
     hands: 1,
-    innateAbilities: ['Light', 'Thrown (4/8/16m)'],
+    innateAbilities: ['Light', 'Thrown (16 m)'],
     special: '—',
     description: 'A light axe for melee or throwing.'
   },
@@ -147,7 +147,7 @@ export const WEAPONS: WeaponDefinition[] = [
     name: 'Shortbow',
     weaponDamage: '2d8',
     hands: 2,
-    innateAbilities: ['Ranged (8/16/32m)', 'Light'],
+    innateAbilities: ['Ranged (32 m)', 'Light'],
     special: 'Expose(4)',
     description: 'A compact bow for mobility.',
     requiresAmmunition: true,
@@ -157,7 +157,7 @@ export const WEAPONS: WeaponDefinition[] = [
     name: 'Longbow',
     weaponDamage: '2d8',
     hands: 2,
-    innateAbilities: ['Ranged (8/16/32m)', 'Set'],
+    innateAbilities: ['Ranged (32 m)', 'Set'],
     special: 'Penetration(2), Expose(4)',
     description: 'A powerful bow that rewards a planted shot.',
     requiresAmmunition: true,
@@ -167,7 +167,7 @@ export const WEAPONS: WeaponDefinition[] = [
     name: 'Light Crossbow',
     weaponDamage: '2d8',
     hands: 2,
-    innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+    innateAbilities: ['Ranged (32 m)', 'Load'],
     special: 'Penetration(4), Precision(2)',
     description: 'A lighter crossbow; must be loaded between shots.',
     requiresAmmunition: true,
@@ -177,7 +177,7 @@ export const WEAPONS: WeaponDefinition[] = [
     name: 'Heavy Crossbow',
     weaponDamage: '4d8',
     hands: 2,
-    innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+    innateAbilities: ['Ranged (32 m)', 'Load'],
     special: 'Penetration(4), Precision(4)',
     description: 'A devastating crossbow; slow to reload.',
     requiresAmmunition: true,
@@ -232,14 +232,14 @@ export const WEAPON_PROPERTIES: Record<string, string> = {
   Heavy: 'You get –10 to your Initiative roll.',
   Balanced:
     'If a weapon has Heavy + Balanced, reduce the Heavy penalty to –5 Initiative.',
-  Ranged: 'Ranged weapon; cover and range are handled separately.',
-  'Ranged (8/16/32m)':
-    'Ranged weapon; typical range bands 8 / 16 / 32 m (cover and range rules apply).',
+  Ranged: 'You may make a ranged weapon attack up to the listed distance.',
+  'Ranged (32 m)':
+    'You may make a ranged weapon attack up to 32 m.',
   Set: 'If you did not move this round: gain +1d8 weapon damage.',
-  'Thrown (4/8/16m)':
-    'You may make a ranged attack by throwing the weapon up to the listed increments (retrieve afterward unless a rule says otherwise).',
+  'Thrown (16 m)':
+    'You may make a ranged attack by throwing the weapon up to 16 m (retrieve afterward unless a rule says otherwise).',
   Load:
-    'After you fire, the weapon is Unloaded. To fire again you must Reload (1 Action) and you need one free hand to do so.',
+    'After you fire, the weapon is Unloaded. To fire again, spend 1 Attack Action to reload (one free hand required). Quick Load may instead use Movement.',
   Defensive:
     'While wielding this weapon two-handed, add your Mastery (max +6) to your Evade.',
   'Spell Focus (+2d8)':
@@ -262,7 +262,7 @@ export function describeInnateAbility(ability: string): string {
     if (lower.startsWith(key.toLowerCase())) return WEAPON_PROPERTIES[key];
   }
   if (lower.startsWith('ranged')) return WEAPON_PROPERTIES.Ranged;
-  if (lower.startsWith('thrown')) return WEAPON_PROPERTIES['Thrown (4/8/16m)'];
+  if (lower.startsWith('thrown')) return WEAPON_PROPERTIES['Thrown (16 m)'];
   if (lower.startsWith('reach')) return WEAPON_PROPERTIES['Reach (+1 m)'];
   if (lower.startsWith('spell focus')) {
     if (trimmed.includes('+4')) return WEAPON_PROPERTIES['Spell Focus (+4d8)'];

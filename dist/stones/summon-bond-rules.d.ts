@@ -2,10 +2,10 @@
  * Summons V2 — universal Summon Bond rules (Players Guide / agent.md v0.9.8).
  *
  * Tokens = Bound Stones × 8 (first stone included).
- * One Movement Mode (Flying 4–16 m; Walking/Swimming 8–16 m). Bond- vs Body-scoped upgrades.
+ * One Movement Mode (Walking/Flying/Swimming/Climbing, each 8–16 m). Bond- vs Body-scoped upgrades.
  * No Familiar / Companion / Host chassis.
  */
-export type SummonMovementMode = 'walking' | 'flying' | 'swimming';
+export type SummonMovementMode = 'walking' | 'flying' | 'swimming' | 'climbing';
 export type SharedSenseGroup = 'sight' | 'hearing' | 'tasteSmell' | 'touchPressure';
 export declare const SUMMON_MOVEMENT_MODES: {
     value: SummonMovementMode;
@@ -13,11 +13,11 @@ export declare const SUMMON_MOVEMENT_MODES: {
     baseM: number;
     maxM: number;
 }[];
-/** Base movement meters for a mode (Flying starts lower). */
+/** PG "One Movement Mode": every chosen mode begins at 8 m (cap 16 m). */
 export declare function baseMovementM(mode: SummonMovementMode | string): number;
 /** Max +2 m purchases until the 16 m cap. */
 export declare function maxMovementPurchases(mode: SummonMovementMode | string): number;
-/** Collapse retired modes (e.g. Climbing) onto Walking. */
+/** Normalize legacy spellings; PG modes: Walking / Flying / Swimming / Climbing. */
 export declare function normalizeMovementMode(mode: string | undefined): SummonMovementMode;
 export declare const SHARED_SENSE_GROUPS: {
     value: SharedSenseGroup;
@@ -98,11 +98,14 @@ export type SummonBondUpgradeSpend = {
     bodies: SummonBodyUpgradeSpend[];
 };
 export declare function summonTokensFromStones(boundStoneCount: number, bonusTokens?: number): number;
-/** Minimum owner Rating for a Summon Skill: MR × 2. */
-export declare function summonSkillMinRating(ownerMasteryRank: number): number;
+/**
+ * PG "Buying and Distributing Skill Dice": the only floor is owner Rating ≥ 1
+ * ("If the owner has Rating 0 in a Skill, the Bond cannot assign dice").
+ */
+export declare function summonSkillMinRating(_ownerMasteryRank: number): number;
 /** Owner skill cap: MR × 4. */
 export declare function summonSkillMaxRating(ownerMasteryRank: number): number;
-/** A skill is eligible only if the owner Rating is at least MR × 2. */
+/** A skill is eligible when the owner has any Rating in it (≥ 1). */
 export declare function isSummonSkillEligible(ownerRating: number, ownerMasteryRank: number): boolean;
 /** Selected skill slots by Bound Stones (bonus tokens do not increase this). */
 export declare function summonSkillSlots(boundStoneCount: number): number;

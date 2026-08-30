@@ -34,6 +34,13 @@ export interface DefensiveMitigationInput {
      * on the post-armor remainder for this strike only.
      */
     reactionDrPct?: number;
+    /**
+     * Armor Penetration for THIS hit (Penetration(X) Special, weapon riders,
+     * Might "Ignore Armor" stones). Rulebook defense sequence: "Penetration
+     * reduces Armor first, then subtract the remaining Armor." Never reduces
+     * Armor below 0 and never adds damage on its own.
+     */
+    armorPenetration?: number;
 }
 /**
  * Pure helper — no actor mutations. See module docstring for pipeline order.

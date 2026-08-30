@@ -17,6 +17,7 @@ import { getActiveSpecialValue } from '../system/active-specials.js';
 const FLAG_SCOPE = 'mastery-system';
 const FLAG_MOVED = 'movedThisTurnM';
 const FLAG_LACERATE_STAGE = 'lacerateStageThisTurn';
+const FLAG_SAFE_MOVE_NOTED = 'safeMoveNotedThisTurn';
 
 /** Apply unmitigated direct damage to an actor's health bars. */
 async function applyDirectDamage(actor: any, amount: number): Promise<void> {
@@ -43,6 +44,9 @@ export async function resetMovementForTurn(actor: any): Promise<void> {
   try {
     await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, 0);
     await actor.setFlag(FLAG_SCOPE, FLAG_LACERATE_STAGE, 0);
+    if (actor.getFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED)) {
+      await actor.unsetFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED);
+    }
   } catch (err) {
     console.debug?.('Mastery System | resetMovementForTurn failed', err);
   }
@@ -77,6 +81,23 @@ export async function handleTokenMovement(tokenDoc: any, changes: any): Promise<
   const prevMoved = Number(actor.getFlag(FLAG_SCOPE, FLAG_MOVED) ?? 0);
   const totalMoved = prevMoved + moved;
   await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, totalMoved);
+
+  // Disengage / Safe Movement: this movement does not provoke
+  // movement-triggered Reactions — announce once per turn so the table
+  // adjudicates any such reaction as illegal.
+  try {
+    const { getRoundState } = await import('./action-economy.js');
+    const rs = getRoundState(actor, combat);
+    if (rs?.safeMovementThisTurn && !actor.getFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED)) {
+      await actor.setFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED, true);
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        content: `<div class="mastery-status-tick"><strong>${actor.name}</strong> — <strong>Disengage:</strong> this movement does not provoke movement-triggered Reactions.</div>`,
+      });
+    }
+  } catch (err) {
+    console.debug?.('Mastery System | safe movement note failed', err);
+  }
 
   try {
     const { applyMovementCloakDisruption } = await import('./perception-combat-hooks.js');

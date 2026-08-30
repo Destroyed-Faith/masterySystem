@@ -18,7 +18,7 @@
  * saving throws were removed from the rules.
  */
 import { calculateMaxPowerLevel } from '../utils/calculations.js';
-import { calculateBaseTN } from '../combat/spell-roll-handler.js';
+import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { powerLevelCost } from '../utils/constants.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
@@ -390,12 +390,9 @@ export async function showPowerCreationDialog(actor, options) {
                     $spellHint.text('');
                     return;
                 }
-                const rankVal = $rankSelect.length
-                    ? Math.max(1, Math.min(16, parseInt(String($rankSelect.val() || '1'), 10) || 1))
-                    : 2;
-                const castingTn = calculateBaseTN(rankVal);
+                const castingTn = castingBaseTnForMasteryRank(masteryRank);
                 $spellHint.html(`<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs <strong>Casting TN ${castingTn}</strong> ` +
-                    `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong>). ` +
+                    `(8 × Mastery Rank ${masteryRank}; + Target Spell Resistance). ` +
                     `<strong>Declared Raises</strong> before the roll add +4 each to that TN. ` +
                     `<strong>Raises</strong> after a successful hit can improve damage, special potency, Range, AoE, and other riders (per spell rules).`);
             };

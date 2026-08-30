@@ -90,7 +90,7 @@ describe('skills redistribute', () => {
     expect(updates['system.skills.stealth']).toBe(2);
   });
 
-  it('finish requires exact 40 and ranks of only 0 or 4', () => {
+  it('finish requires exactly 40 points with a per-skill cap of 4', () => {
     const actor = makeActor();
     expect(sumActorSkillPoints(actor.system)).toBe(40);
     expect(validateCreationSkillAllocation(actor.system).ok).toBe(true);
@@ -104,15 +104,22 @@ describe('skills redistribute', () => {
     expect(buildFinishSkillsRedistributeUpdates(actor).ok).toBe(false);
   });
 
-  it('rejects partial creation ranks (1–3)', () => {
+  it('allows free distribution 0–4 per skill (PG Skill Point Buy)', () => {
     expect(isValidCreationSkillRank(0)).toBe(true);
+    expect(isValidCreationSkillRank(1)).toBe(true);
+    expect(isValidCreationSkillRank(2)).toBe(true);
+    expect(isValidCreationSkillRank(3)).toBe(true);
     expect(isValidCreationSkillRank(4)).toBe(true);
-    expect(isValidCreationSkillRank(1)).toBe(false);
-    expect(isValidCreationSkillRank(2)).toBe(false);
-    expect(isValidCreationSkillRank(3)).toBe(false);
+    expect(isValidCreationSkillRank(5)).toBe(false);
+
+    // Free distribution summing to 40 is valid even with partial ranks.
     const actor = makeActor();
-    const key = Object.keys(SKILLS)[0];
-    actor.system.skills[key] = 2;
-    expect(validateCreationSkillAllocation(actor.system).ok).toBe(false);
+    const keys = Object.keys(SKILLS);
+    for (const key of keys) actor.system.skills[key] = 0;
+    for (const key of keys.slice(0, 9)) actor.system.skills[key] = 4; // 36
+    actor.system.skills[keys[9]] = 3;
+    actor.system.skills[keys[10]] = 1;
+    expect(sumActorSkillPoints(actor.system)).toBe(40);
+    expect(validateCreationSkillAllocation(actor.system).ok).toBe(true);
   });
 });

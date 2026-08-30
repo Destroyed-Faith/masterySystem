@@ -188,9 +188,6 @@ export declare function getMovementRangeBonusMeters(actor: Actor, combat: Combat
  * rounds. Always replace the whole `roundState` flag (unset, then set).
  */
 export declare function setRoundState(actor: Actor, state: RoundState): Promise<void>;
-/**
- * Whether this power item has already been used this round (combat powers only).
- */
 export declare function hasPowerBeenUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): boolean;
 /**
  * Record a power as used this round. No-op if already recorded.
@@ -301,6 +298,12 @@ export declare function getStonePool(actor: Actor, attribute: AttributeKey): {
     current: number;
     max: number;
 };
+/**
+ * Stones in a pool that must NOT come back through regen / refills:
+ * Sustain, Sealed (Rituals — return on Safe Haven Rest) and Burned
+ * (lost until Safe Haven Rest, e.g. Last Breath / Remove Scar).
+ */
+export declare function stonePoolReservedStones(system: any, attr: string): number;
 /**
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
  */

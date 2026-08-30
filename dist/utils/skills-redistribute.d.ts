@@ -18,8 +18,8 @@ export declare function canStartSkillsRedistribute(actor: any): {
     reason?: string;
 };
 /**
- * Creation / redistribute ranks are all-or-nothing chunks: 0 or maxPerSkill (4).
- * Partial ranks (1–3) are illegal.
+ * Creation / redistribute ranks (PG "Skill Point Buy"): the 40 points are
+ * distributed FREELY, +1 per point; any rank 0..maxPerSkill (4) is legal.
  */
 export declare function isValidCreationSkillRank(raw: unknown, maxPerSkill?: number): boolean;
 export declare function validateCreationSkillAllocation(system: any): {

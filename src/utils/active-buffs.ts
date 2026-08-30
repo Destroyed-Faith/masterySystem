@@ -205,14 +205,20 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
   // Check if this is a true active buff (not a utility)
   const isTrueBuff = isTrueActiveBuff(power);
   
-  // If it's a true active buff, check if another one is already active
+  // PG "Active Buffs": activating a new Active Buff ENDS the previous one —
+  // the new buff replaces it (swap), it is not blocked.
   if (isTrueBuff) {
     const existingTrueBuffs = getTrueActiveBuffs(actor);
-    if (existingTrueBuffs.length > 0) {
-      const existingBuff = existingTrueBuffs[0];
+    for (const existingBuff of existingTrueBuffs) {
       const existingName = existingBuff.name || 'Unknown';
-      ui.notifications?.warn(`Cannot activate ${power.name}: Another active buff (${existingName}) is already active. Only one active buff can be active at a time.`);
-      return false;
+      try {
+        await existingBuff.delete();
+        ui.notifications?.info(
+          `${existingName} ends — ${power.name} replaces it (only one Active Buff at a time).`,
+        );
+      } catch (err) {
+        console.warn('Mastery System | failed to end previous Active Buff', err);
+      }
     }
   }
   

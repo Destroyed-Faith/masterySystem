@@ -152,11 +152,11 @@ export const COMBAT_MANEUVERS = [
     {
         id: "aid",
         name: "Aid",
-        description: "Grant an ally +2 flat to a roll within 8 m.",
+        description: "Assist an ally's Skill Check: +4 to its Final Result.",
         slot: "reaction",
         category: "support-reaction",
-        tags: ["reaction", "support"],
-        effect: "When an ally within **8 m** makes an Attack, Save, or Skill check, give them **+2 flat bonus**. Must be justified in roleplay.",
+        tags: ["reaction", "support", "basic", "basic-reaction"],
+        effect: "Trigger: an ally makes a **Skill Check** you can meaningfully assist. Requirement: you have the **same Skill** at **Rating ≥ 2 × your Mastery Rank** (Full Pool Requirement). Effect: the ally gains **+4 to the Final Result** of that Skill Check. Only **one Aid** may affect the same Check. Aid does not spend your Skill Points. In combat, using Aid spends **1 Reaction**.",
     },
     {
         id: "interpose",
@@ -223,11 +223,11 @@ export const COMBAT_MANEUVERS = [
     {
         id: "grapple",
         name: "Grapple",
-        description: "Restrain a creature within reach.",
+        description: "Restrain a creature within melee reach.",
         slot: "attack",
         category: "combat-action",
         tags: ["combat-action", "control", "melee"],
-        effect: "Attempt to restrain a creature within reach. Contest (Might/Agility Roll + optional HtH Skill vs. Might/Agility Roll + optional HtH Skill). On success, the target is **Grappled**. The target may attempt to end the grapple on their turn; if the grapple remains, you may deal **MR weapon damage dice** to the target.",
+        effect: "Range: Melee Reach. Make an **Opposed Hand-to-Hand Skill Check** (both creatures use an appropriate physical Attribute Pool and their Hand-to-Hand Skill Pool normally). If the attacker wins, the target is **Grappled**: its Speed becomes **0 m** and it cannot voluntarily move away from the grappler. **Escape:** the Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Check; on a win the Grapple ends, on a tie it remains. **Pressure:** while maintaining the Grapple, the grappler may deal **Mastery Rank damage once per Round**; this damage **ignores Armor**. The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.",
     },
     {
         id: "reckless-attack",

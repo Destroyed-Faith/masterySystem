@@ -58,7 +58,7 @@
     <div class="rw-perform">
       <div class="rw-controls">
         <label class="rw-field">Ritual MR
-          <input type="number" class="js-rw-mr" min="1" step="1" value="{{ritualMR}}" />
+          <input type="number" class="js-rw-mr" min="1" step="1" value="{{ritualMR}}" placeholder="GM" />
         </label>
         <label class="rw-field">Situational TN
           <input type="number" class="js-rw-gm-mod" step="4" value="{{gmMod}}" />
@@ -87,8 +87,8 @@
       </div>
 
       <div class="rw-tn">
-        <span>Base <strong>{{baseTn}}</strong></span>
-        <span>Raise TN <strong>{{raiseTn}}</strong></span>
+        <span>Base <strong>{{#if baseTn}}{{baseTn}}{{else}}—{{/if}}</strong></span>
+        <span>Raise TN <strong>{{#if raiseTn}}{{raiseTn}}{{else}}—{{/if}}</strong></span>
         <span>Stones <strong>{{stoneCost}}</strong></span>
       </div>
 

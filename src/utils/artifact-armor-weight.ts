@@ -98,14 +98,23 @@ export function resolveArtifactBodyArmor(
   const bonusArmor = bv.armorWeightClass ? rawValue : Math.max(0, rawValue - def.armorValue);
   const skillPenalty = def.skillPenalty === '—' ? '' : def.skillPenalty;
 
+  // Printed per-level drawback overrides (e.g. Wyrm Scales' escalating
+  // −2/−4/−6 Evade & Initiative) take precedence over the class defaults.
+  const evadeOverride = Number.isFinite(Number((bv as any).evadeModifier))
+    ? Number((bv as any).evadeModifier)
+    : null;
+  const initiativeOverride = Number.isFinite(Number((bv as any).initiativeModifier))
+    ? Number((bv as any).initiativeModifier)
+    : null;
+
   return {
     weightClass,
     typeLabel: def.name,
     baseArmor: def.armorValue,
     bonusArmor,
     totalArmor: def.armorValue + bonusArmor,
-    evadeModifier: def.evadeModifier,
-    initiativeModifier: def.initiativeModifier ?? 0,
+    evadeModifier: evadeOverride ?? def.evadeModifier,
+    initiativeModifier: initiativeOverride ?? def.initiativeModifier ?? 0,
     skillPenalty,
     skillPenaltyDice: parseSkillPenaltyDice(skillPenalty),
   };

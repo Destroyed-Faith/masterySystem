@@ -220,7 +220,10 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
                     : `If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to a maximum of **${cap}% total DR**.`,
                 // +10% is aggregated only when a sanctioned passive DR line exists
                 // (`aggregateMechanics`); mechanics stay on the buff for snapshots / UI.
-                mechanics: { damageReductionPct: 10, duration: 'masteryRankRounds' },
+                // Printed table: L1–3 are "—" (cap 0) — no mechanics before L4.
+                mechanics: cap === 0
+                    ? { duration: 'masteryRankRounds' }
+                    : { damageReductionPct: 10, duration: 'masteryRankRounds' },
             });
         }),
     },

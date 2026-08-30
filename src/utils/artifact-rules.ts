@@ -276,12 +276,10 @@ export function spellFocusDiceFromSystem(system: any): number {
 // ----------------------------------------------------------------------
 
 /**
- * Max number of Base Values per slot per spec:
- *   Main Hand / Off Hand: 2
- *   Body: 1
- *   Head: 2
- *   Feet: 2
- *   Ring / Amulet: 1
+ * Max number of Base Values per slot (Artefacts.md "Base Values" table):
+ *   Main Hand / Off Hand: 2 · Both Hands: 3 · Body: 1 · Head: 2 · Feet: 2
+ *   Ring / Amulet: 3 each — but an equipped Ring + Amulet share a combined
+ *   maximum of 4 printed Base Values (see ringAmuletCombinedBaseValueError).
  */
 export const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number> = {
   mainHand: 2,
@@ -292,9 +290,32 @@ export const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number> = {
   body: 1,
   head: 2,
   feet: 2,
-  amulet: 1,
-  ring: 1,
+  amulet: 3,
+  ring: 3,
 };
+
+/** Combined printed Base Values allowed on an equipped Ring + Amulet pair. */
+export const RING_AMULET_COMBINED_BASE_VALUE_CAP = 4;
+
+/**
+ * Artefacts.md: "An equipped Ring and equipped Amulet share a combined maximum
+ * of four printed Base Values" — counting every assigned Base Value, including
+ * ones not yet unlocked. Returns an error string, or null when legal.
+ */
+export function ringAmuletCombinedBaseValueError(
+  ringBaseValues: number,
+  amuletBaseValues: number,
+): string | null {
+  const ring = Math.max(0, Math.floor(Number(ringBaseValues) || 0));
+  const amulet = Math.max(0, Math.floor(Number(amuletBaseValues) || 0));
+  if (ring > 3 || amulet > 3) {
+    return 'A Ring or Amulet may individually have at most 3 Base Values.';
+  }
+  if (ring + amulet > RING_AMULET_COMBINED_BASE_VALUE_CAP) {
+    return `Equipped Ring + Amulet share a combined maximum of ${RING_AMULET_COMBINED_BASE_VALUE_CAP} printed Base Values (currently ${ring} + ${amulet}).`;
+  }
+  return null;
+}
 
 /** Hard cap on Base Values per artifact regardless of slot. */
 export const BASE_VALUE_HARD_CAP = 3;

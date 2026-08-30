@@ -25,7 +25,7 @@
 import { applyDamage, healDamage, applyStress } from '../utils/calculations.js';
 import { getEffectById } from '../utils/special-effects.js';
 import { statusEntryId } from '../system/active-specials.js';
-import { applyCleanseToList } from '../system/pool-reduction.js';
+import { distributeCleanseAcrossList, formatCleanseDistribution } from '../system/pool-reduction.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import {
   applyNaturalRecoveryToValue,
@@ -54,6 +54,7 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
 
   let ruinDamage = 0;
   let blightStress = 0;
+  let blightHealReduction = 0;
   let regenHeal = 0;
   const notes: string[] = [];
   const working: StatusEffectEntry[] = [];
@@ -62,6 +63,12 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
   for (const entry of list) {
     const id = statusEntryId(entry);
     const effect = id ? getEffectById(id) : undefined;
+
+    // Stunned lasts "until the start of your next turn" — clear it here.
+    if (id === 'stunned') {
+      notes.push('Stunned ended');
+      continue;
+    }
 
     // Root(X): at start of turn, reduce by Mastery Rank (Rules v0.9.8 / agent.md).
     if (id === 'root') {
@@ -101,6 +108,7 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
           break;
         case 'blight':
           blightStress += value;
+          blightHealReduction += value;
           notes.push(`Blight(${value}) → ${value} Stress`);
           break;
         case 'regeneration':
@@ -158,26 +166,18 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
     }
   }
 
-  // Cleanse Maintenance — reduce exactly one eligible Special (no split).
-  // Auto-picks the highest-value cleansable Special when several exist.
+  // Cleanse Maintenance — the Cleanse value may be distributed freely across
+  // eligible Specials (rulebook Cleanse(X)). Auto-spends greedily: highest
+  // stack first, spilling over until the budget is exhausted.
   try {
     const bd = buildActorMechanicsBreakdown(actor);
     const cleanseX = Math.max(0, Math.floor(Number(bd?.totals?.cleanseMaintenance ?? 0) || 0));
     if (cleanseX > 0) {
-      const eligible = next
-        .map((e) => ({ entry: e, id: statusEntryId(e), value: Math.max(0, Math.floor(Number(e.value ?? 0))) }))
-        .filter((x) => x.id && x.value > 0 && getEffectById(x.id!)?.dispellable);
-      if (eligible.length > 0) {
-        eligible.sort((a, b) => b.value - a.value);
-        const pick = eligible[0].id!;
-        const cleansed = applyCleanseToList(next, cleanseX, pick);
-        if (cleansed.applied) {
-          next.length = 0;
-          next.push(...cleansed.statusEffects);
-          notes.push(
-            `Cleanse(${cleanseX}) → ${pick}${cleansed.remaining > 0 ? `(${cleansed.remaining})` : ' ended'}`,
-          );
-        }
+      const cleansed = distributeCleanseAcrossList(next, cleanseX);
+      if (cleansed.applied) {
+        next.length = 0;
+        next.push(...cleansed.statusEffects);
+        notes.push(`Cleanse(${cleanseX}) → ${formatCleanseDistribution(cleansed)}`);
       }
     }
   } catch (err) {
@@ -185,6 +185,14 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
   }
 
   const update: Record<string, unknown> = { 'system.statusEffects': next };
+
+  // Blight(X): all healing received is reduced by X — applies to the
+  // Regeneration heal resolved in this same Tick.
+  if (regenHeal > 0 && blightHealReduction > 0) {
+    const reducedHeal = Math.max(0, regenHeal - blightHealReduction);
+    notes.push(`Blight reduces healing: ${regenHeal} → ${reducedHeal}`);
+    regenHeal = reducedHeal;
+  }
 
   // Apply HP damage (Ruin, ignores Armor) then Regeneration heal to health bars.
   if ((ruinDamage > 0 || regenHeal > 0) && Array.isArray(system?.health?.bars) && system.health.bars.length > 0) {
@@ -215,6 +223,46 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
     return '';
   }
 
+  return notes.join(', ');
+}
+
+/**
+ * End-of-turn Special resolution for the creature whose turn just ended.
+ * Currently: Brace(X) — "at the end of each of your turns, reduce Brace by 1;
+ * if Brace reaches 0, it ends."
+ */
+export async function processTurnEndSpecials(actor: any): Promise<string> {
+  if (!actor) return '';
+  const system = actor.system;
+  const list: StatusEffectEntry[] = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+  if (list.length === 0) return '';
+
+  const notes: string[] = [];
+  let changed = false;
+  const next: StatusEffectEntry[] = [];
+  for (const entry of list) {
+    const id = statusEntryId(entry);
+    if (id !== 'brace') {
+      next.push(entry);
+      continue;
+    }
+    const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
+    const decayed = value - 1;
+    changed = true;
+    if (decayed > 0) {
+      next.push({ ...entry, id, value: decayed });
+      notes.push(`Brace(${value}) → Brace(${decayed})`);
+    } else {
+      notes.push('Brace ended');
+    }
+  }
+  if (!changed) return '';
+  try {
+    await actor.update({ 'system.statusEffects': next });
+  } catch (err) {
+    console.warn('Mastery System | turn-end special update failed', actor?.name, err);
+    return '';
+  }
   return notes.join(', ');
 }
 

@@ -8,8 +8,6 @@
 export declare const MINOR_MAGIC_FLAG = "minorMagic";
 export declare const MINOR_MAGIC_LEDGER_FLAG = "minorMagicLedger";
 export declare const MINOR_MAGIC_REST_FLAG = "minorMagicRest";
-/** Artifact Actives may be stored only at Basic / Improved (row level ≤ 6). */
-export declare const MINOR_MAGIC_ARTIFACT_LEVEL_CAP = 6;
 export declare const MINOR_MAGIC_FORMS: readonly ["potion", "grenade", "rune", "weapon", "trap", "charm"];
 export type MinorMagicForm = (typeof MINOR_MAGIC_FORMS)[number];
 /** True for a PC assigned to a player — not GM-only character sheets or NPCs. */
@@ -98,17 +96,19 @@ export declare function minorMagicLimit(actor: {
         };
     };
 }): number;
+/**
+ * PG "Creating Minor Magic Items": the stored Active Power must have an
+ * Instant duration — no persistent zones, barriers, constructs, images, or
+ * other ongoing effects.
+ */
+export declare function isInstantDurationPower(item: {
+    system?: any;
+}): boolean;
 export declare function isEligibleMinorMagicPower(item: {
     type?: string;
     system?: Record<string, unknown>;
     getFlag?: (scope: string, key: string) => unknown;
 }): boolean;
-/**
- * Minor Magic may store a power from an artifact that is worn now or prepared
- * on either Weaponslot. Inventory-only artifacts stay excluded.
- */
-export declare function isArtifactAvailableForMinorMagic(actor: any, item: any): boolean;
-export declare function listEligibleArtifactMinorMagicPowers(actor: any): any[];
 export declare function listEligibleMinorMagicPowers(actor: any): any[];
 export declare function resolveMinorMagicPower(actor: any, powerId: string): any | null;
 export declare function readMinorMagicFlag(item: {
@@ -169,6 +169,13 @@ export declare function consumeMinorMagicItem(actor: any, item: any, mode: 'use'
     error: string;
 }>;
 export declare function buildMinorMagicChatHtml(itemName: string, flag: MinorMagicItemFlag, mode: 'use' | 'trap' | 'dismiss'): string;
+/**
+ * PG "Using Minor Magic Items": the stored Power resolves using its recorded
+ * values. If it requires an attack, roll the recorded Attack Pool with the
+ * recorded Keep value — a Minor Magic Item never hits automatically. Damage
+ * is the stored Power's damage only (no weapon dice / weapon specials).
+ */
+export declare function resolveMinorMagicSnapshot(actor: any, itemName: string, flag: MinorMagicItemFlag, mode: 'use' | 'trap'): Promise<void>;
 export declare function useMinorMagicItem(actor: any, item: any, mode?: 'use' | 'trap', trapTrigger?: string): Promise<{
     ok: true;
 } | {

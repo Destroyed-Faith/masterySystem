@@ -401,7 +401,7 @@ describe('Heartseeker', () => {
     expect(sys.artifactWeapon).toMatchObject({
       weaponType: 'ranged',
       hands: 2,
-      innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+      innateAbilities: ['Ranged (32 m)', 'Load'],
     });
     expect(sys.artifactWeapon.specials).toEqual([
       { specialId: 'penetration', value: 4 },

@@ -275,19 +275,16 @@ function buildReactionWindowHtml(
         ? `⚡ Reaction Window — Allies${remainingSuffix}`
         : phase === 'opportunity'
           ? `⚡ Threatened Ranged — Reactions${remainingSuffix}`
-          : `⚡ After attack — Threatened Reactions${remainingSuffix}`;
+          : `⚡ Threatened Ranged declared — Reactions${remainingSuffix}`;
 
   const hasThreatened = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
   let hitLine: string;
   if (phase === 'opportunity') {
-    hitLine = `<p><strong>${escHtml(attackerName)}</strong>'s attack is done — enemies who had the shooter in melee reach may spend a <strong>Reaction</strong> (offensive Reactions vs the shooter, in parallel).</p>`;
+    hitLine = `<p><strong>${escHtml(attackerName)}</strong> declared a Threatened Ranged attack — enemies who have the shooter in melee reach may immediately spend a <strong>legal Reaction</strong>.</p>`;
   } else if (phase === 'others') {
-    const dmgBit = state.hit
-      ? `damage applied (${Math.max(0, Math.floor(state.rawDamage))})`
-      : 'attack resolved';
     hitLine = hasThreatened
-      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}. Threatened enemies may spend a <strong>Reaction</strong> (Counterattack / Counter Damage / Special Increase). Summary shrinks as each acts or Declines.</p>`
-      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — ${dmgBit}.</p>`;
+      ? `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong> — <strong>Threatened Ranged declared</strong>. Enemies in melee reach of the shooter may immediately spend a <strong>legal Reaction</strong> (hit/target-triggered reactions do not qualify). Summary shrinks as each acts or Declines.</p>`
+      : `<p><strong>${escHtml(attackerName)}</strong> → <strong>${escHtml(defenderName)}</strong>.</p>`;
   } else if (phase === 'allies') {
     hitLine = state.hit
       ? `<p>Nearby allies may protect <strong>${escHtml(defenderName)}</strong> before damage (Ally Armor / Evade / Temp HP / Interpose).</p>`
@@ -333,7 +330,7 @@ function buildReactionWindowHtml(
                 const why =
                   left <= 0
                     ? `no Reactions left this round (${tot - left}/${tot} used)`
-                    : 'no usable offensive Reaction (Counterattack / Counter Damage / Special Increase)';
+                    : 'no legal Reaction for a declaration window (hit/target-triggered reactions do not qualify)';
                 return `<li><strong>${escHtml(e.name)}</strong> — ${escHtml(why)}</li>`;
               })
               .join('')}</ul>`

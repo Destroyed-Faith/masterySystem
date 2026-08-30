@@ -90,17 +90,17 @@ describe('Skill XP Costs (now share the attribute band)', () => {
   });
 });
 
-describe('Power Level XP Costs (new spec: cost = level, cap 16)', () => {
-  it('every level 1..16 costs its level', () => {
+describe('Power Level XP Costs (rulebook: cost = 2 × newLevel, cap 16)', () => {
+  it('every level 1..16 costs twice its level', () => {
     for (let lvl = 1; lvl <= 16; lvl++) {
-      expect(getPowerLevelCost(lvl)).toBe(lvl);
+      expect(getPowerLevelCost(lvl)).toBe(2 * lvl);
     }
   });
 
-  it('level 1 costs 1 XP', () => expect(getPowerLevelCost(1)).toBe(1));
-  it('level 8 costs 8 XP', () => expect(getPowerLevelCost(8)).toBe(8));
-  it('level 12 costs 12 XP (old cap)', () => expect(getPowerLevelCost(12)).toBe(12));
-  it('level 16 costs 16 XP (new cap)', () => expect(getPowerLevelCost(16)).toBe(16));
+  it('level 1 costs 2 XP', () => expect(getPowerLevelCost(1)).toBe(2));
+  it('level 8 costs 16 XP', () => expect(getPowerLevelCost(8)).toBe(16));
+  it('level 12 costs 24 XP', () => expect(getPowerLevelCost(12)).toBe(24));
+  it('level 16 costs 32 XP (cap)', () => expect(getPowerLevelCost(16)).toBe(32));
 
   it('returns 0 for level 0 or out-of-range', () => {
     expect(getPowerLevelCost(0)).toBe(0);
@@ -108,25 +108,25 @@ describe('Power Level XP Costs (new spec: cost = level, cap 16)', () => {
     expect(getPowerLevelCost(99)).toBe(0);
   });
 
-  it('total cost from level 1 to 6 is 21 XP', () => {
+  it('total cost from level 1 to 6 is 42 XP', () => {
     let total = 0;
     for (let lvl = 1; lvl <= 6; lvl++) total += getPowerLevelCost(lvl);
-    expect(total).toBe(1 + 2 + 3 + 4 + 5 + 6);
-    expect(total).toBe(21);
+    expect(total).toBe(2 * (1 + 2 + 3 + 4 + 5 + 6));
+    expect(total).toBe(42);
   });
 
-  it('total cost from level 1 to 12 is 78 XP', () => {
+  it('total cost from level 1 to 12 is 156 XP', () => {
     let total = 0;
     for (let lvl = 1; lvl <= 12; lvl++) total += getPowerLevelCost(lvl);
-    // 1+2+...+12 = 78
-    expect(total).toBe(78);
+    // 2 × (1+2+...+12) = 156
+    expect(total).toBe(156);
   });
 
-  it('total cost from level 1 to 16 is 136 XP', () => {
+  it('total cost from level 1 to 16 is 272 XP', () => {
     let total = 0;
     for (let lvl = 1; lvl <= 16; lvl++) total += getPowerLevelCost(lvl);
-    // 1+2+...+16 = 136
-    expect(total).toBe(136);
+    // 2 × (1+2+...+16) = 272
+    expect(total).toBe(272);
   });
 });
 

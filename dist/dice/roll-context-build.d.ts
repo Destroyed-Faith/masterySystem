@@ -23,6 +23,13 @@ export interface BuiltRollContext {
 /** Players Guide: full attribute pool when skill rating ≥ 2 × Mastery Rank. */
 export declare function skillFullPoolThreshold(masteryRank: number): number;
 export declare function isSkillFullPoolReady(skillRating: number, masteryRank: number): boolean;
+/**
+ * Opposed Skill Rolls (PG "Opposed Skill Rolls"): after a successful setup
+ * roll, the opposing creature rolls against
+ *   Opposing TN = standard Skill Check TN by the setup creature's MR (8 × MR)
+ *                 + 2 per Raise on the setup roll.
+ */
+export declare function buildOpposedSkillTn(setupMasteryRank: number, setupRaises: number): number;
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
 export interface SkillRollPoolPreview {
     attributeKey: string;
@@ -39,7 +46,7 @@ export interface SkillRollPoolPreview {
     attributeValue: number;
     iconClass: string | null;
 }
-/** Skill rating below 2×MR: attribute dice = round(attr/2), minimum 1. */
+/** Skill rating below 2×MR: attribute dice = floor(attr/2), minimum 1 (Players Guide: "half the Attribute Pool, rounded down"). */
 export declare function reducedSkillAttributePool(attributeValue: number): number;
 /** Sheet + dialog helper: dice pool label and tooltip for a skill attribute roll. */
 export declare function buildSkillRollPoolPreview(actor: Actor, skillKey: string, attributeKey: string, skillRatingOverride?: number): SkillRollPoolPreview;

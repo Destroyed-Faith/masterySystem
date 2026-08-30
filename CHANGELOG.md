@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.430] - 2026-08-31
+
+### Changed
+
+- **Rules parity:** Align Foundry math and combat with the current Core Rulebook — Spell TN, health-penalty index, Cleanse/Natural Recovery, Root, Blight, Death Check, Safe Haven / Night / Day Rest, First Aid, burned and sealed Stones, opposed skills, Aid, Threatened Ranged, Disengage, summons, rituals, weapon properties, flat ranges, and Echo artifact tables (speeds 8 m, Elorian Focus, Stonebound Soles, Dragon Head/Claws, Wyrm Scales).
+- **Encumbrance and range:** Load now affects Movement only (Encumbered / Overloaded). Weapon ranges are flat maxima; range-band pool cuts are gone.
+- **Artifacts:** Ring/Amulet Base Value 3 with a combined cap of 4. Artifact activation no longer costs a Stone or gates level by Mastery Rank.
+
+### Added
+
+- **Combat and items:** Absorption, Damage Negation, Mind Probe / Mental Control, Word of Recall mark tracking, inventory item rotation, Drop Load, Reload / Load weapons, Light off-hand, and NPC per-attack Keep.
+
+### Removed
+
+- Undocumented legacy extras where the current book does not support them: encumbrance dice penalties, artifact MR level gate, and the 1-Stone artifact link cost.
+
 ## [0.9.429] - 2026-08-30
 
 ### Added

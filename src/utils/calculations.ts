@@ -108,8 +108,14 @@ export function updateHealthBars(bars: HealthBar[], vitality: number): void {
  * legacy flat dice penalty so existing code paths keep working until they
  * are switched over to the percentage-aware variant.
  *
+ * Rulebook: the penalty belongs to the **Active** Health Bar — the first bar
+ * that still has boxes left. Scarred (fully emptied) bars are skipped: once
+ * Healthy is scarred, the creature is Bruised (−10%) even though the Healthy
+ * bar still sits at `current = 0 < max`. If every bar is empty the creature
+ * is Incapacitated (fraction 1 → pool zeroed).
+ *
  * @param bars        actor health bars
- * @param _currentBar legacy index — ignored; we always use the first broken bar
+ * @param _currentBar legacy index — ignored; we derive the active bar
  * @param pool        optional pre-penalty dice pool (Attribute, MR, etc.)
  */
 export function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?: number): number {
@@ -117,18 +123,19 @@ export function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?:
     return 0;
   }
 
-  let brokenIndex = -1;
+  // Active bar = first bar with boxes remaining (scarred bars are skipped).
+  let activeIndex = -1;
   for (let i = 0; i < bars.length; i++) {
-    const bar = bars[i];
-    if (bar.current < bar.max) {
-      brokenIndex = i;
+    if ((Number(bars[i]?.current) || 0) > 0) {
+      activeIndex = i;
       break;
     }
   }
-  if (brokenIndex < 0) return 0;
+  // Every bar empty → Incapacitated (last index; fraction 1 zeroes the pool).
+  if (activeIndex < 0) activeIndex = bars.length - 1;
 
   if (typeof pool === 'number' && Number.isFinite(pool)) {
-    const fraction = HEALTH_PENALTY_FRACTIONS[brokenIndex] ?? 0;
+    const fraction = HEALTH_PENALTY_FRACTIONS[activeIndex] ?? 0;
     if (fraction <= 0) return 0;
     // `|| 0` normalises -0 (e.g. -⌊0.8⌋) to a clean +0.
     const penalty = -Math.floor(pool * fraction) || 0;
@@ -137,7 +144,7 @@ export function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?:
 
   // Legacy fallback: flat per-bar dice penalty (kept until all callers
   // pass `pool`).
-  return bars[brokenIndex].penalty;
+  return bars[activeIndex].penalty;
 }
 
 /**

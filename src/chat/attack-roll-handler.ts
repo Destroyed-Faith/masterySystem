@@ -24,71 +24,6 @@ function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Threatened Ranged OA token ids from attack-card flags. */
-function readOpportunityEnemyTokenIds(flags: any): string[] {
-  const raw = flags?.opportunityEnemyTokenIds;
-  if (Array.isArray(raw)) return raw.map((id) => String(id || '').trim()).filter(Boolean);
-  if (typeof raw === 'string' && raw.trim()) {
-    return raw.split(/[,|]/).map((s) => s.trim()).filter(Boolean);
-  }
-  return [];
-}
-
-/**
- * Flags ∪ live re-scan around the shooter. Catches cases where card creation
- * missed melee enemies (distance/disposition) but they are engaged at resolve time.
- */
-async function resolveOpportunityEnemyTokenIds(
-  flags: any,
-  attackerActor: any,
-): Promise<string[]> {
-  const fromFlags = readOpportunityEnemyTokenIds(flags);
-  const attackType = String(flags?.attackType || '');
-  const applies =
-    flags?.threatenedRangedAppliesRule === true ||
-    flags?.threatenedRanged === true ||
-    flags?.rollDisadvantage === true ||
-    fromFlags.length > 0 ||
-    (attackType === 'ranged' &&
-      flags?.npcAttackSource === true &&
-      flags?.npcIsSpell !== true);
-
-  if (!applies || attackType === 'melee') {
-    console.log(
-      `[MS Threatened Ranged] resolveOpportunity — skip live rescan attackType=${attackType} ` +
-        `applies=${applies} fromFlags=[${fromFlags.join(', ') || 'none'}] ` +
-        `cardReason=${flags?.threatenedRangedDebugReason ?? '∅'}`,
-    );
-    return fromFlags;
-  }
-
-  try {
-    const { findOpportunityEnemyTokenIds } = await import('../combat/threatened-ranged.js');
-    const { getPrimaryTokenForActor } = await import('../utils/mechanics-adjacency.js');
-    let shooterTok =
-      (typeof canvas !== 'undefined'
-        ? (canvas as any).tokens?.placeables?.find(
-            (t: any) =>
-              t?.actor?.id === attackerActor?.id || t?.document?.actorId === attackerActor?.id,
-          )
-        : null) ?? null;
-    if (!shooterTok && attackerActor) {
-      shooterTok = getPrimaryTokenForActor(attackerActor);
-    }
-    const live = shooterTok ? findOpportunityEnemyTokenIds(shooterTok) : [];
-    const merged = [...new Set([...fromFlags, ...live.map(String)])];
-    console.log(
-      `[MS Threatened Ranged] resolveOpportunity — shooter="${shooterTok?.name || '?'}" ` +
-        `fromFlags=[${fromFlags.join(', ') || 'none'}] live=[${live.join(', ') || 'none'}] ` +
-        `merged=[${merged.join(', ') || 'none'}] cardReason=${flags?.threatenedRangedDebugReason ?? '∅'}`,
-    );
-    return merged;
-  } catch (err) {
-    console.warn('[MS Threatened Ranged] resolveOpportunity rescan failed', err);
-    return fromFlags;
-  }
-}
-
 const rollAttackMessageLocks = new Set<string>();
 
 export function registerAttackRollClickHandler(): void {
@@ -259,6 +194,41 @@ export async function executeAttackRollFromCard(
         }
       }
 
+      // Load property (PG Weapon Properties): an Unloaded weapon cannot fire.
+      // Firing marks it Unloaded; Reload (Attack Action or Quick Load) clears it.
+      let loadWeaponToUnload: any = null;
+      if (!isFaithReroll && flags.attackType === 'ranged' && flags.isSpell !== true && !flags.npcAttackSource) {
+        try {
+          const { hasLoadProperty, isWeaponUnloaded } = await import('../utils/weapon-properties.js');
+          const items: any[] = freshAttacker.items ? Array.from(freshAttacker.items) : [];
+          const weapon =
+            (flags.weaponId ? freshAttacker.items?.get?.(flags.weaponId) : null) ??
+            items.find(
+              (it: any) =>
+                it.type === 'weapon' &&
+                it.system?.equipped === true &&
+                String(it.system?.weaponType || '') === 'ranged',
+            ) ??
+            null;
+          if (weapon && hasLoadProperty(weapon)) {
+            if (isWeaponUnloaded(weapon)) {
+              ui.notifications?.warn(
+                `${weapon.name} is Unloaded — reload first (1 Attack Action or Quick Load).`,
+              );
+              resetRollButton();
+              if (spentActionOnRoll && actorToRefund) {
+                const { refundAttackAction } = await import('../combat/action-economy.js');
+                await refundAttackAction(actorToRefund, (game as any).combat);
+              }
+              return;
+            }
+            loadWeaponToUnload = weapon;
+          }
+        } catch (err) {
+          console.warn('Mastery System | Load property check failed', err);
+        }
+      }
+
       if (!isFaithReroll && flags.attackType === 'ranged' && flags.isSpell !== true) {
         const ammo = await import('../utils/ammunition.js');
         if (ammo.findEquippedAmmunitionWeapon(freshAttacker)) {
@@ -285,7 +255,17 @@ export async function executeAttackRollFromCard(
           actorForAmmo = freshAttacker;
         }
       }
-      
+
+      // "After you fire, the weapon is Unloaded."
+      if (loadWeaponToUnload) {
+        try {
+          const { markWeaponUnloaded } = await import('../utils/weapon-properties.js');
+          await markWeaponUnloaded(loadWeaponToUnload);
+        } catch (err) {
+          console.warn('Mastery System | could not mark weapon Unloaded', err);
+        }
+      }
+
       // Debug: Log actor items to verify we have latest data
       let attackerItems: any[] = [];
       if (freshAttacker.items) {
@@ -369,17 +349,12 @@ export async function executeAttackRollFromCard(
       // penalty are applied centrally inside `masteryRoll` in canonical
       // order (`applyPoolPenalties: true`).
 
-      // Players Guide 7497–7521: Range Bands.
-      // For ranged attacks the dice pool is multiplied by the band:
-      //   Short = 100% / Medium = 75% / Long = 50%, min 1 die.
-      // Agility scales the bands by +1 / +2 / +4 m per full 8 Agility.
-      // The pre-band pool is used as the basis; the health penalty applies
-      // after, so the two reductions stay independent (just like in the
-      // Players Guide examples).
-      let rangeBandNote = '';
+      // Players Guide "Weapon Properties": Ranged (X m) / Thrown (X m) are
+      // flat maximums — full pool inside the printed range, illegal beyond it.
+      // (Range Bands and the 100/75/50 % pool reduction are obsolete.)
       if (flags.attackType === 'ranged' && flags.targetTokenId) {
         try {
-          const { dicePoolAtDistance } = await import('../utils/range-bands.js');
+          const { checkWeaponRange } = await import('../utils/range-bands.js');
           const { measureSceneDistanceBetweenPoints } = await import('../utils/grid-range.js');
           const attackerToken = (attackerForRoll as any)?.getActiveTokens?.()?.[0];
           const targetTokenDoc = (canvas as any)?.scene?.tokens?.get(flags.targetTokenId);
@@ -388,24 +363,16 @@ export async function executeAttackRollFromCard(
           const targetCenter = targetToken?.center;
           if (attackerCenter && targetCenter) {
             const distanceM = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
-            // Resolve the weapon's printed range string. Falls back to the
-            // canonical 8/16/32m bands when nothing is on the weapon.
             const weaponRange =
               flags.weaponRange ||
               (() => {
                 const w = (attackerForRoll?.items?.get?.(flags.weaponId)) || null;
-                return w?.system?.range || '8/16/32m';
+                return w?.system?.range || null;
               })();
-            const agility = Number(attackerForRoll?.system?.attributes?.agility?.value ?? 0) || 0;
-            const result = dicePoolAtDistance({
-              rangeText: weaponRange,
-              agility,
-              distanceM,
-              pool: numDice,
-            });
-            if (result.band === 'out-of-range') {
+            const result = checkWeaponRange({ rangeText: weaponRange, distanceM });
+            if (!result.inRange) {
               ui.notifications?.warn(
-                `Target is out of range (${distanceM.toFixed(1)} m vs Long ${result.bands.long} m).`,
+                `Target is out of range (${distanceM.toFixed(1)} m vs max ${result.maxRangeM} m).`,
               );
               resetRollButton();
               if (spentActionOnRoll && actorToRefund) {
@@ -416,20 +383,15 @@ export async function executeAttackRollFromCard(
                 const { refundAmmunitionForAttack } = await import('../utils/ammunition.js');
                 await refundAmmunitionForAttack(actorForAmmo, 1);
               }
+              if (loadWeaponToUnload) {
+                const { markWeaponLoaded } = await import('../utils/weapon-properties.js');
+                await markWeaponLoaded(loadWeaponToUnload);
+              }
               return;
-            }
-            const adjusted = result.pool;
-            if (adjusted !== numDice) {
-              const bandLabel = result.band === 'short' ? 'Short' : result.band === 'medium' ? 'Medium' : 'Long';
-              const bandPctLabel = result.band === 'short' ? '100%' : result.band === 'medium' ? '75%' : '50%';
-              rangeBandNote = ` (Range Band: ${bandLabel} ${bandPctLabel} → ${numDice} → ${adjusted})`;
-              numDice = adjusted;
-            } else {
-              rangeBandNote = ' (Range Band: Short)';
             }
           }
         } catch (err) {
-          console.warn('Mastery System | Range Band evaluation failed:', err);
+          console.warn('Mastery System | weapon range check failed:', err);
         }
       }
 
@@ -512,7 +474,12 @@ export async function executeAttackRollFromCard(
       // / manual bonus dice cannot inflate the strike back to the full attribute pool.
       const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;
       
-      let keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
+      // NPC attacks carry their printed Keep value ("6d8, Keep 1"); PCs keep MR.
+      const npcKeep = Math.floor(Number(flags.npcAttackKeepDice) || 0);
+      let keepDice =
+        flags.npcAttackSource && npcKeep > 0
+          ? npcKeep
+          : (flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2));
       const baseKeepDice = keepDice;
       // Disadvantage is no longer modeled as a Keep reduction (Players Guide
       // ~6471–6477 says only one chosen 8 may explode; pool & keep are
@@ -553,10 +520,10 @@ export async function executeAttackRollFromCard(
         tnKind === 'casting'
           ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${
               declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''
-            }${aoeFlavorHint}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
+            }${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`
           : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${
               declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
-            })${aoeFlavorHint}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`;
+            })${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
       const rollFlavor = opts.faithReroll
         ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
         : rollFlavorBase;
@@ -978,18 +945,12 @@ export async function executeAttackRollFromCard(
           const isAreaAttack = aoeWeapon;
 
           // Phase 1 — direct target reacts immediately after the attack Roll,
-          // before the damage dialog / damage roll.
+          // before the damage dialog / damage roll. (Threatened Ranged
+          // reactions were already offered at declaration.)
           const combatForReactions = (game as any).combat ?? null;
-          const opportunityEnemyTokenIds = await resolveOpportunityEnemyTokenIds(
-            updatedFlags,
-            freshAttackerForDialog,
-          );
           const { runInteractiveReactionWindow } = await import(
             '../combat/reaction-window-chat.js'
           );
-
-          // Target reactions first (before damage). Threatened Ranged OA waits
-          // until this attack fully resolves — see Phase 2 below.
           const phase1 = await runInteractiveReactionWindow({
             defender: target as any,
             attacker: freshAttackerForDialog as any,
@@ -1105,37 +1066,10 @@ export async function executeAttackRollFromCard(
                     null,
                 };
 
-                // Phasing after damage roll, before HP apply / ally reactions.
-                let phasedOut = false;
-                try {
-                  const { promptPhasingConsume, consumePhasingCharge } = await import(
-                    '../combat/phasing.js'
-                  );
-                  phasedOut = await promptPhasingConsume(target, {
-                    attacker: freshAttackerForDialog,
-                    rawDamage: damageResult.totalDamage,
-                  });
-                  if (phasedOut) {
-                    await consumePhasingCharge(target);
-                    const sheet = (target as any).sheet;
-                    if (sheet?.rendered) sheet.render(false);
-                    damageResult.mitigation = {
-                      rawDamage: damageResult.totalDamage,
-                      armorApplied: 0,
-                      drPercent: 0,
-                      mitigatedDamage: 0,
-                      tempHPAbsorbed: 0,
-                      barDamage: 0,
-                      min8sUsed: false,
-                      breakdownLine: `Raw ${damageResult.totalDamage} → Phased (ignored)`,
-                      phased: true,
-                    };
-                  }
-                } catch (phaseErr) {
-                  console.debug?.('Mastery System | deferred phasing skipped', phaseErr);
-                }
-
-                if (!phasedOut) {
+                // Phasing was already resolved BEFORE the damage roll inside
+                // `calculateDamageResult` (rulebook sequence step 7) — a
+                // phased strike never reaches this deferred-apply branch.
+                {
                   const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
                   damageResult.mitigation = await applyDamageToTarget(
                     target as any,
@@ -1145,6 +1079,10 @@ export async function executeAttackRollFromCard(
                     {
                       attackTotal: attackCtx.attackTotal ?? null,
                       evadeTn: attackCtx.evadeTn ?? null,
+                      armorPenetration: Math.max(
+                        0,
+                        Math.floor(Number((attackCtx as any).armorPenetration) || 0),
+                      ),
                       reactionMitigation: preDamage.mitigation,
                       skipPhasing: true,
                       skipReactionPrompt: true,
@@ -1162,31 +1100,8 @@ export async function executeAttackRollFromCard(
             }
           }
 
-          // Phase 2 — after the original attack fully resolved: Threatened Ranged OAs.
-          try {
-            await runInteractiveReactionWindow({
-              defender: target as any,
-              attacker: freshAttackerForDialog as any,
-              combat: combatForReactions,
-              rawDamage: Math.max(0, Math.floor(Number(damageResult?.totalDamage) || 0)),
-              attackTotal: updatedFlags.attackTotal ?? null,
-              evadeTn: normalTn,
-              hit: !primaryNegated,
-              damageMessageId: null,
-              phase: 'others',
-              eventId: preDamage.eventId,
-              spentActorIds: preDamage.spentActorIds,
-              used: preDamage.used,
-              priorMitigation: preDamage.mitigation,
-              opportunityEnemyTokenIds: suppressNestedCounterattack
-                ? []
-                : opportunityEnemyTokenIds,
-              suppressCounterattack: suppressNestedCounterattack,
-              silentIfEmpty: true,
-            });
-          } catch (allyErr) {
-            console.warn('Mastery System | opportunity reaction window failed', allyErr);
-          }
+          // Threatened Ranged reactions were already offered at DECLARATION
+          // (PG 9725) — no post-resolution opportunity window.
 
           // Secondaries: each compared separately against its own Evade / Final
           // Spell TN. Resolve even if the primary Evaded, dove out, or was missed
@@ -1278,13 +1193,9 @@ export async function executeAttackRollFromCard(
             const { runInteractiveReactionWindow } = await import(
               '../combat/reaction-window-chat.js'
             );
-            const missFlags =
-              message.getFlag?.('mastery-system') || message.flags?.['mastery-system'] || flags;
-            const opportunityEnemyTokenIds = await resolveOpportunityEnemyTokenIds(
-              missFlags,
-              missAttacker,
-            );
-            const phase1 = await runInteractiveReactionWindow({
+            // Threatened Ranged reactions were already offered at DECLARATION
+            // (PG 9725) — on a miss only the target's own window remains.
+            await runInteractiveReactionWindow({
               defender: missTarget,
               attacker: missAttacker,
               combat: (game as any).combat ?? null,
@@ -1294,25 +1205,6 @@ export async function executeAttackRollFromCard(
               hit: false,
               phase: 'defender',
               suppressCounterattack: suppressNestedCounterattack,
-            });
-            await runInteractiveReactionWindow({
-              defender: missTarget,
-              attacker: missAttacker,
-              combat: (game as any).combat ?? null,
-              rawDamage: 0,
-              attackTotal: Math.floor(Number(result?.total) || 0),
-              evadeTn: normalTn,
-              hit: false,
-              phase: 'others',
-              eventId: phase1.eventId,
-              spentActorIds: phase1.spentActorIds,
-              used: phase1.used,
-              priorMitigation: phase1.mitigation,
-              opportunityEnemyTokenIds: suppressNestedCounterattack
-                ? []
-                : opportunityEnemyTokenIds,
-              suppressCounterattack: suppressNestedCounterattack,
-              silentIfEmpty: true,
             });
           }
         } catch (missReactErr) {

@@ -96,14 +96,20 @@ export declare function artifactSystemHasSpellFocus(system: any): boolean;
 /** Total Spell Focus bonus dice (d8) authored on an artifact `system`. */
 export declare function spellFocusDiceFromSystem(system: any): number;
 /**
- * Max number of Base Values per slot per spec:
- *   Main Hand / Off Hand: 2
- *   Body: 1
- *   Head: 2
- *   Feet: 2
- *   Ring / Amulet: 1
+ * Max number of Base Values per slot (Artefacts.md "Base Values" table):
+ *   Main Hand / Off Hand: 2 · Both Hands: 3 · Body: 1 · Head: 2 · Feet: 2
+ *   Ring / Amulet: 3 each — but an equipped Ring + Amulet share a combined
+ *   maximum of 4 printed Base Values (see ringAmuletCombinedBaseValueError).
  */
 export declare const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number>;
+/** Combined printed Base Values allowed on an equipped Ring + Amulet pair. */
+export declare const RING_AMULET_COMBINED_BASE_VALUE_CAP = 4;
+/**
+ * Artefacts.md: "An equipped Ring and equipped Amulet share a combined maximum
+ * of four printed Base Values" — counting every assigned Base Value, including
+ * ones not yet unlocked. Returns an error string, or null when legal.
+ */
+export declare function ringAmuletCombinedBaseValueError(ringBaseValues: number, amuletBaseValues: number): string | null;
 /** Hard cap on Base Values per artifact regardless of slot. */
 export declare const BASE_VALUE_HARD_CAP = 3;
 export type ArtifactBaseValueType = 'weaponDamage' | 'spellFocus' | 'thrownRange' | 'weaponSpecial' | 'bodyArmor' | 'headArmor' | 'shieldValue' | 'evade' | 'movement' | 'sense' | 'minorFeature';

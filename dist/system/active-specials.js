@@ -57,6 +57,19 @@ export function getActiveSpecialValue(actor, id) {
     }
     return total;
 }
+/**
+ * Whether a given Special is present on a creature at all — including
+ * valueless conditions (Stunned, Prone, Immovable) whose entries carry no
+ * numeric stack.
+ */
+export function hasActiveSpecial(actor, id) {
+    const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
+    for (const entry of list) {
+        if (statusEntryId(entry) === id)
+            return true;
+    }
+    return false;
+}
 /** Coerce Foundry object-shaped `statusEffects` to a real array. */
 export function coerceStatusEffectsArray(raw) {
     if (Array.isArray(raw))

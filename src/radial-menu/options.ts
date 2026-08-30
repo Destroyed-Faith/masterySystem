@@ -1010,10 +1010,33 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
     
-    // For attack slot: only Parry Stance (Weapon Attack is injected separately).
+    // For attack slot: only Parry Stance, Reload, and Drop Load (Weapon Attack is injected separately).
     if (maneuver.slot === 'attack') {
-      if (maneuver.id !== 'parry-stance') {
+      if (maneuver.id !== 'parry-stance' && maneuver.id !== 'reload' && maneuver.id !== 'drop-load') {
         continue;
+      }
+      // Drop Load only appears while Encumbered or Overloaded.
+      if (maneuver.id === 'drop-load') {
+        try {
+          const { getActorInventoryLoadZone } = await import('../utils/encumbrance.js');
+          if (getActorInventoryLoadZone(actor) === 'normal') continue;
+        } catch {
+          continue;
+        }
+      }
+      // Reload only appears while an equipped Load weapon is actually Unloaded.
+      if (maneuver.id === 'reload') {
+        const items: any[] = actor?.items ? Array.from(actor.items) : [];
+        const hasUnloaded = items.some(
+          (it: any) =>
+            it.type === 'weapon' &&
+            it.system?.equipped === true &&
+            Array.isArray(it.system?.innateAbilities) &&
+            it.system.innateAbilities.some((a: unknown) => /^load\b/i.test(String(a).trim())) &&
+            (it.getFlag?.('mastery-system', 'weaponUnloaded') === true ||
+              it.flags?.['mastery-system']?.weaponUnloaded === true),
+        );
+        if (!hasUnloaded) continue;
       }
     }
     

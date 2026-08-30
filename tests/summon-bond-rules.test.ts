@@ -54,14 +54,14 @@ describe('Summons V2 power costs', () => {
 });
 
 describe('computeSummonBond', () => {
-  it('starts flying at 4 m and walking/swimming at 8 m', () => {
+  it('starts every Movement Mode at 8 m (PG: chosen mode begins at 8 m)', () => {
     const flying = computeSummonBond({
       boundStoneCount: 1,
       movementMode: 'flying',
       spend: emptyBondSpend(1),
     });
     expect(flying.errors).toEqual([]);
-    expect(flying.movementM).toBe(4);
+    expect(flying.movementM).toBe(8);
     expect(flying.attackDice).toBe(BASE_SUMMON.attackDice);
     expect(flying.tokensAvailable).toBe(8);
     expect(flying.bodies[0].hp).toBe(10);
@@ -74,7 +74,7 @@ describe('computeSummonBond', () => {
     expect(swim.movementM).toBe(8);
   });
 
-  it('maps retired climbing mode to walking base 8 m', () => {
+  it('supports Climbing as its own Movement Mode at base 8 m', () => {
     const c = computeSummonBond({
       boundStoneCount: 1,
       movementMode: 'climbing' as any,

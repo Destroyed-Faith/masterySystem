@@ -302,7 +302,7 @@ export function inspectBondSpend(spend, ctx) {
     const mr = ctx.ownerMasteryRank ?? 1;
     for (const skill of ctx.selectedSkills ?? []) {
         if (!isSummonSkillEligible(ctx.ownerSkillRatings?.[skill] ?? 0, mr)) {
-            reasons.push(`${skill}: Owner skill too low. Needs MR × 2.`);
+            reasons.push(`${skill}: Owner has Rating 0 — the Bond cannot select this Skill.`);
         }
     }
     if (ctx.skillDiceAlloc) {

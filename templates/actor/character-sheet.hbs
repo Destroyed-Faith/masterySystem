@@ -1298,7 +1298,7 @@
         {{/if}}
         {{#if skillsRedistributing}}
         <div class="skills-redistribute-banner">
-          <p><i class="fas fa-rotate"></i> <strong>Redistribute Skills</strong> — pick skills at <strong>{{creation.maxSkillAtCreation}}</strong> each ({{creation.skillPointsConfig}} total). <strong>+</strong> sets 4; no 1/2/3. Remaining: <strong>{{creation.skillPointsRemaining}}</strong>.</p>
+          <p><i class="fas fa-rotate"></i> <strong>Redistribute Skills</strong> — distribute {{creation.skillPointsConfig}} points freely (+1 per point, max <strong>{{creation.maxSkillAtCreation}}</strong> per skill). Remaining: <strong>{{creation.skillPointsRemaining}}</strong>.</p>
           <div class="skills-redistribute-actions">
             <button type="button" class="finish-skills-redistribute" {{#unless canFinishSkillsRedistribute}}disabled{{/unless}} title="Save the new 40-point allocation">
               <i class="fas fa-check"></i> Finish Redistribute
@@ -1332,7 +1332,7 @@
             <i class="fas fa-comments"></i> Social Combat
           </button>
           {{#if canStartSkillsRedistribute}}
-          <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and pick 10 skills at 4 each (+ sets 4). Only when the character has no XP yet.">
+          <button type="button" class="start-skills-redistribute" title="Reset skills to 0 and redistribute the 40 creation points freely (max 4 per skill). Only when the character has no XP yet.">
             <i class="fas fa-rotate"></i> Redistribute Skills
           </button>
           {{/if}}
@@ -1392,10 +1392,10 @@
                   </div>
                   {{#if @root.skillsAllocationMode}}
                   <div class="creation-controls">
-                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Clear skill to 0 (refund {{@root.creation.maxSkillAtCreation}} points)" {{#if (lte this.value 0)}}disabled{{/if}}>
+                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Decrease skill by 1 (refund 1 point)" {{#if (lte this.value 0)}}disabled{{/if}}>
                       <i class="fas fa-minus"></i>
                     </button>
-                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Set skill to {{@root.creation.maxSkillAtCreation}} (costs {{@root.creation.maxSkillAtCreation}} points)" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (lt @root.creation.skillPointsRemaining 4)}}disabled{{/if}}>
+                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase skill by 1 (creation cap {{@root.creation.maxSkillAtCreation}})" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (lt @root.creation.skillPointsRemaining 1)}}disabled{{/if}}>
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>

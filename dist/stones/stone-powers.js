@@ -198,12 +198,11 @@ const MIGHT_POWERS_RAW = [
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            // Tiers are cumulative TOTALS (+4/+8/+16/+32). SET, don't stack, so
-            // ramping +4→+8 yields +8 (not +12).
+            // Re-activation ADDs (PG "Temporary Defensive Stone Values").
             const bonus = scaleStoneTier([4, 8, 16, 32], tier);
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.tempArmor = bonus;
+            sb.tempArmor = (sb.tempArmor ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },
     },
@@ -250,7 +249,8 @@ const MIGHT_POWERS_RAW = [
                 return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.tempParryPool = bonus;
+            // Re-activation ADDs (PG "Temporary Defensive Stone Values").
+            sb.tempParryPool = (sb.tempParryPool ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },
     },
@@ -367,14 +367,11 @@ const VITALITY_POWERS_RAW = [
             // health math read/consume that.
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            const prevGranted = Math.max(0, Number(sb.tempHpGrantedThisTurn ?? 0) || 0);
             const current = Math.max(0, Number(actor.system?.health?.tempHP ?? 0) || 0);
-            // SET the stone-granted portion to the new tier total instead of stacking
-            // it: ramping 20→40 yields 40 (not 60), and re-activating never balloons.
-            // Any non-stone Temp HP (e.g. Lean Ward) is preserved.
-            const baseTempHp = Math.max(0, current - prevGranted);
-            await actor.update?.({ 'system.health.tempHP': baseTempHp + hp });
-            sb.tempHpGrantedThisTurn = hp;
+            // Re-activation ADDs to the existing value (PG "Temporary Defensive
+            // Stone Values": if you already have the defense, add the listed value).
+            await actor.update?.({ 'system.health.tempHP': current + hp });
+            sb.tempHpGrantedThisTurn = Math.max(0, Number(sb.tempHpGrantedThisTurn ?? 0) || 0) + hp;
             await setRoundState(actor, roundState);
             ui.notifications?.info(`${actor.name}: ${hp} Temp HP until the start of your next turn.`);
         },
@@ -398,7 +395,8 @@ const VITALITY_POWERS_RAW = [
                 return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.tempDamageNegation = bonus;
+            // Re-activation ADDs (PG "Temporary Defensive Stone Values").
+            sb.tempDamageNegation = (sb.tempDamageNegation ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },
     },
@@ -416,13 +414,38 @@ const VITALITY_POWERS_RAW = [
         ],
         apply: async ({ actor }) => {
             const system = actor.system ?? {};
-            const scar = Math.max(0, Number(system?.health?.scarred ?? 0) || 0);
-            if (scar <= 0) {
-                ui.notifications?.warn(`${actor.name} has no Scars to remove.`);
+            // Scarred bar = fully depleted Health Bar. Restore the most recent one.
+            const src = Array.isArray(system?.health?.bars) ? system.health.bars : [];
+            let activeIdx = src.findIndex((b) => (Number(b?.current) || 0) > 0);
+            if (activeIdx < 0)
+                activeIdx = src.length;
+            let scarIdx = -1;
+            for (let i = activeIdx - 1; i >= 0; i--) {
+                if ((Number(src[i]?.current) || 0) === 0) {
+                    scarIdx = i;
+                    break;
+                }
+            }
+            if (scarIdx < 0) {
+                ui.notifications?.warn(`${actor.name} has no Scarred Health Bar to recover.`);
                 return;
             }
-            await actor.update?.({ 'system.health.scarred': scar - 1 });
-            ui.notifications?.info(`${actor.name} removed a Scar (${scar} → ${scar - 1}).`);
+            const bars = src.map((b) => ({ ...b }));
+            bars[scarIdx] = { ...bars[scarIdx], current: Number(bars[scarIdx]?.max) || 0 };
+            const scarredCount = bars.filter((b) => (Number(b?.current) || 0) === 0).length;
+            const newActive = bars.findIndex((b) => (Number(b?.current) || 0) > 0);
+            // BURN: the spent Vitality Stone is lost until a Safe Haven Rest —
+            // `burned` keeps regen / refills from bringing it back early.
+            const burnedNow = Math.max(0, Number(system?.stonePools?.vitality?.burned) || 0);
+            await actor.update?.({
+                'system.health.bars': bars,
+                'system.health.currentBar': Math.max(0, newActive),
+                ...(Object.prototype.hasOwnProperty.call(system?.health ?? {}, 'scarred')
+                    ? { 'system.health.scarred': scarredCount }
+                    : {}),
+                'system.stonePools.vitality.burned': burnedNow + 1,
+            });
+            ui.notifications?.info(`${actor.name} recovered a Scarred Health Bar (1 Vitality Stone burned until Safe Haven Rest).`);
         },
     },
     {
@@ -481,12 +504,12 @@ const INTELLECT_POWERS_RAW = [
         name: 'Spell Resistance',
         attribute: 'intellect',
         category: 'passive',
-        description: 'Until the start of your next turn, Spells that directly target you increase their TN against you by +4 / +8 / +12 / +16. Does not increase the TN of AoE Spells that include you.',
+        description: 'Until the start of your next turn, gain +4 / +8 / +12 / +16 Spell Resistance. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you.',
         tiers: [
-            { label: '+4 Spell TN', description: 'Spells that directly target you increase their TN against you by +4 until the start of your next turn.', value: 4 },
-            { label: '+8 Spell TN', description: 'Spells that directly target you increase their TN against you by +8 until the start of your next turn.', value: 8 },
-            { label: '+12 Spell TN', description: 'Spells that directly target you increase their TN against you by +12 until the start of your next turn.', value: 12 },
-            { label: '+16 Spell TN', description: 'Spells that directly target you increase their TN against you by +16 until the start of your next turn.', value: 16 },
+            { label: '+4 Spell Resistance', description: 'Gain +4 Spell Resistance until the start of your next turn (direct Spells and Spell AoEs).', value: 4 },
+            { label: '+8 Spell Resistance', description: 'Gain +8 Spell Resistance until the start of your next turn (direct Spells and Spell AoEs).', value: 8 },
+            { label: '+12 Spell Resistance', description: 'Gain +12 Spell Resistance until the start of your next turn (direct Spells and Spell AoEs).', value: 12 },
+            { label: '+16 Spell Resistance', description: 'Gain +16 Spell Resistance until the start of your next turn (direct Spells and Spell AoEs).', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
@@ -634,14 +657,13 @@ const RESOLVE_POWERS_RAW = [
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            // Tiers are cumulative TOTALS. SET, don't stack, so ramping +10%→+20%
-            // yields +20% (not +30%).
+            // Re-activation ADDs (PG "Temporary Defensive Stone Values").
             const pct = scaleStoneTier([0, 10, 20, 30], tier);
             if (pct <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.damageReductionBoostPct = pct;
+            sb.damageReductionBoostPct = (sb.damageReductionBoostPct ?? 0) + pct;
             await setRoundState(actor, roundState);
         },
     },
@@ -662,8 +684,9 @@ const RESOLVE_POWERS_RAW = [
             const bonus = scaleStoneTier([2, 4, 8, 12], tier);
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.tempWard = bonus;
-            sb.incomingSpecialReduction = bonus;
+            // Re-activation ADDs (PG "Temporary Defensive Stone Values").
+            sb.tempWard = (sb.tempWard ?? 0) + bonus;
+            sb.incomingSpecialReduction = (sb.incomingSpecialReduction ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },
     },
@@ -915,12 +938,19 @@ export function tierForUseIndex(usesBefore) {
 }
 /**
  * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
- * its first real effect is Tier 2. Such powers start one segment higher: the
- * Tier-1 / Anchor field is omitted and the first activation costs 2 stones.
- * Used by Extra Attack, Spell Action, Damage Reduction, Phasing, Crit,
- * Parry, Damage Negation, and Not a Target.
+ * its first real effect is Tier 2 (Extra Attack, Spell Action, Damage
+ * Reduction, Phasing, Crit, Parry, Damage Negation, Not a Target).
+ *
+ * Players Guide "Spending Stones" (cost ladder 1/2/4/8): the blank Tier 1 is
+ * a REAL, payable step — the 1st use costs 1 Stone and has no effect; the
+ * 2nd use costs 2 Stones and resolves Tier 2. The lane is therefore rendered
+ * and charged like any other Anchor segment, never skipped.
  */
-export function stonePowerSkipsFirstTier(powerId) {
+export function stonePowerSkipsFirstTier(_powerId) {
+    return false;
+}
+/** Whether a power's printed Tier 1 is a blank ramp step (no effect). */
+export function stonePowerHasBlankFirstTier(powerId) {
     const t0 = STONE_POWERS[resolveStonePowerId(powerId)]?.tiers?.[0];
     if (!t0)
         return false;

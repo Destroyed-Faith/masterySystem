@@ -493,6 +493,7 @@ export class StonePowersDialog extends BaseDialog {
             const current = pool?.current ?? pool?.value ?? 0;
             const max = pool?.max ?? pool?.maximum ?? 0;
             const sustained = pool?.sustained ?? 0;
+            const sealedBurned = Math.max(0, Number(pool?.sealed) || 0) + Math.max(0, Number(pool?.burned) || 0);
             // Artifact activation flags live on the embedded items of the actor the
             // sheet / evolution dialog edit (`this.actor`). For unlinked tokens the
             // economy actor (`poolOwner`) can be a different document whose item
@@ -516,6 +517,7 @@ export class StonePowersDialog extends BaseDialog {
                 current: Number(current) || 0,
                 max: Number(max) || 0,
                 sustained: Number(sustained) || 0,
+                sealedBurned,
                 artifactBound,
                 available: spendable,
                 gemStyle,
@@ -537,6 +539,7 @@ export class StonePowersDialog extends BaseDialog {
             current: colorlessHave,
             max: Math.max(colorlessHave, 0),
             sustained: 0,
+            sealedBurned: 0,
             artifactBound: 0,
             available: colorlessHave,
             gemStyle: COLORLESS_GEM_STYLE,
@@ -835,7 +838,8 @@ export class StonePowersDialog extends BaseDialog {
             key: String(pool.key),
             max: pool.max,
             current: pool.current,
-            sustained: pool.sustained,
+            // Sealed / Burned stones block regen space exactly like Sustain.
+            sustained: pool.sustained + (pool.sealedBurned ?? 0),
         }));
     }
     /**
@@ -907,7 +911,9 @@ export class StonePowersDialog extends BaseDialog {
                 key: attr,
                 max: Number(pool?.max ?? pool?.maximum ?? 0) || 0,
                 current: Number(pool?.current ?? pool?.value ?? 0) || 0,
-                sustained: Number(pool?.sustained ?? 0) || 0,
+                sustained: (Number(pool?.sustained ?? 0) || 0) +
+                    Math.max(0, Number(pool?.sealed) || 0) +
+                    Math.max(0, Number(pool?.burned) || 0),
             };
         });
         return {

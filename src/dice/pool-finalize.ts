@@ -19,7 +19,7 @@ import {
   challengePoolReduction,
   normalizeTargetRefs,
 } from '../system/pool-reduction.js';
-import { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } from '../utils/encumbrance.js';
+import { applyHealthAndEncumbrancePenalties } from '../utils/encumbrance.js';
 
 export interface FinalizePoolOptions {
   /** 'attack' enables the Challenge reduction and attack-intent auto-fail. */
@@ -97,16 +97,11 @@ export function finalizeRolledPool(
     anyStageApplied = true;
   }
 
-  // (b) Percentage Health / Encumbrance penalty.
+  // (b) Percentage Health penalty (encumbrance affects Movement only).
   if (options.applyPoolPenalties !== false) {
     const penalties = applyHealthAndEncumbrancePenalties(numDice, actor);
     if (penalties.healthPenaltyDice > 0) {
       notes.push(`Health penalty: −${penalties.healthPenaltyDice} dice`);
-    }
-    if (penalties.encumbrancePenaltyDice > 0) {
-      notes.push(
-        `Encumbrance (${LOAD_ZONE_LABEL[penalties.loadZone]}): −${penalties.encumbrancePenaltyDice} dice`,
-      );
     }
     if (penalties.numDice !== numDice) anyStageApplied = true;
     numDice = penalties.numDice;

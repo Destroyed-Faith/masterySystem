@@ -117,18 +117,18 @@ describe('XP Cost Tables (new spec)', () => {
     expect(attributeBandCost(80)).toBe(10);
   });
 
-  it('power level cost array runs 1..16 for levels 1..16', () => {
+  it('power level cost array runs 2..32 (2 × level) for levels 1..16', () => {
     expect(XP_COSTS.POWER_LEVEL).toHaveLength(16);
     for (let i = 0; i < 16; i++) {
-      expect(XP_COSTS.POWER_LEVEL[i]).toBe(i + 1);
+      expect(XP_COSTS.POWER_LEVEL[i]).toBe(2 * (i + 1));
     }
   });
 
-  it('powerLevelCost returns the level for levels 1..16, 0 otherwise', () => {
+  it('powerLevelCost returns 2 × level for levels 1..16, 0 otherwise', () => {
     expect(powerLevelCost(0)).toBe(0);
-    expect(powerLevelCost(1)).toBe(1);
-    expect(powerLevelCost(8)).toBe(8);
-    expect(powerLevelCost(16)).toBe(16);
+    expect(powerLevelCost(1)).toBe(2);
+    expect(powerLevelCost(8)).toBe(16);
+    expect(powerLevelCost(16)).toBe(32);
     expect(powerLevelCost(17)).toBe(0);
   });
 

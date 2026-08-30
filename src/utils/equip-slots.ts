@@ -90,8 +90,13 @@ export function inferDefaultEquipSlotsForType(item: {
 }): string[] | null {
   const t = item?.type;
   if (t === 'weapon') {
-    // One weapon slot only (main hand); off-hand is for shields, not a second weapon.
-    return ['mainhand'];
+    // Main hand always; Light weapons may also be wielded in the off-hand
+    // (PG "Weapon Properties": Light).
+    const innates = Array.isArray((item as any)?.system?.innateAbilities)
+      ? (item as any).system.innateAbilities
+      : [];
+    const isLight = innates.some((a: unknown) => /^light\b/i.test(String(a ?? '').trim()));
+    return isLight ? ['mainhand', 'offhand'] : ['mainhand'];
   }
   if (t === 'armor') return ['body'];
   if (t === 'shield') return ['offhand'];

@@ -19,8 +19,8 @@ describe('power XP refund — creation-baseline flooring', () => {
     });
 
     it('refunds only the XP spent above the baseline for a clean upgrade', () => {
-        // Active raised from creation R2 to level 3 → cost(3) = 3.
-        expect(calculatePowerUpgradeRefund(power('active', 3, 2))).toBe(3);
+        // Active raised from creation R2 to level 3 → cost(3) = 2 × 3 = 6.
+        expect(calculatePowerUpgradeRefund(power('active', 3, 2))).toBe(6);
     });
 
     it('ignores a corrupt minLevel below the creation rank (no phantom refund)', () => {
@@ -32,13 +32,13 @@ describe('power XP refund — creation-baseline flooring', () => {
     });
 
     it('still recovers the baseline for actives when minLevel is missing/low', () => {
-        expect(calculatePowerUpgradeRefund(power('active', 3, undefined))).toBe(3);
-        expect(calculatePowerUpgradeRefund(power('active', 3, 1))).toBe(3);
+        expect(calculatePowerUpgradeRefund(power('active', 3, undefined))).toBe(6);
+        expect(calculatePowerUpgradeRefund(power('active', 3, 1))).toBe(6);
     });
 
     it('preserves a legitimate large refund for a genuinely upgraded power', () => {
-        // Passive raised from R4 to level 8 → cost(5..8) = 5+6+7+8 = 26.
-        expect(calculatePowerUpgradeRefund(power('passive', 8, 4))).toBe(26);
+        // Passive raised from R4 to level 8 → cost(5..8) = 2 × (5+6+7+8) = 52.
+        expect(calculatePowerUpgradeRefund(power('passive', 8, 4))).toBe(52);
     });
 
     it('getPowerMinLevel never exceeds current level', () => {
@@ -64,8 +64,8 @@ describe('power XP refund — creation-baseline flooring', () => {
             power('activeBuff', 4, 0),
             power('reaction', 4, undefined),
             power('active', 2, 2),
-            power('active', 3, 2), // the one actually upgraded → cost(3) = 3
+            power('active', 3, 2), // the one actually upgraded → cost(3) = 6
         ];
-        expect(calculatePowersUpgradeRefund(powers)).toBe(3);
+        expect(calculatePowersUpgradeRefund(powers)).toBe(6);
     });
 });

@@ -90,28 +90,27 @@ describe('Health Bar Calculations', () => {
     expect(getCurrentPenalty(bars, 0)).toBe(0); // Healthy bar has penalty=0
   });
 
-  it('returns -1 penalty when Bruised bar is the first broken', () => {
+  it('returns -1 penalty when Healthy is scarred and Bruised is the active bar', () => {
     const bars = initializeHealthBars(8);
-    bars[0].current = 16; // Healthy full
-    bars[1].current = 10; // Bruised partially damaged
+    bars[0].current = 0; // Healthy scarred
+    bars[1].current = 10; // Bruised active (partially damaged)
     expect(getCurrentPenalty(bars, 1)).toBe(-1);
   });
 
-  it('returns 0 from Healthy when it is the first bar with any damage', () => {
+  it('skips scarred bars: Injured is the active bar once Healthy and Bruised are empty', () => {
     const bars = initializeHealthBars(8);
-    bars[0].current = 0; // Healthy depleted
-    bars[1].current = 0; // Bruised depleted
-    bars[2].current = 10; // Injured partially damaged
-    // First "broken" bar in index order is 0 (0 < max) → its penalty is 0.
-    expect(getCurrentPenalty(bars, 0)).toBe(0);
+    bars[0].current = 0; // Healthy scarred
+    bars[1].current = 0; // Bruised scarred
+    bars[2].current = 10; // Injured active
+    // Active bar = first bar with boxes left → Injured (−2 legacy flat).
+    expect(getCurrentPenalty(bars, 0)).toBe(-2);
   });
 
-  it('returns -2 when first damaged bar in order is Injured (Healthy and Bruised full)', () => {
+  it('returns 0 while Healthy still has boxes left (Healthy is the active bar)', () => {
     const bars = initializeHealthBars(8);
-    bars[0].current = 16;
+    bars[0].current = 3; // Healthy damaged but not empty
     bars[1].current = 16;
-    bars[2].current = 8;
-    expect(getCurrentPenalty(bars, 0)).toBe(-2);
+    expect(getCurrentPenalty(bars, 0)).toBe(0);
   });
 
   it('applies damage from a later start index (legacy) before inner pools', () => {
@@ -173,10 +172,12 @@ describe('Health Bar Calculations', () => {
   });
 
   describe('percentage-of-pool penalty (with pool argument)', () => {
+    // Book-accurate wound state: all bars above `index` are scarred (empty),
+    // `index` is the active bar (partially damaged).
     const brokenAt = (index: number) => {
       const bars = initializeHealthBars(8);
-      for (let i = 0; i < index; i++) bars[i].current = bars[i].max; // keep full
-      bars[index].current = bars[index].max - 1; // first broken bar
+      for (let i = 0; i < index; i++) bars[i].current = 0; // scarred
+      bars[index].current = bars[index].max - 1; // active bar
       return bars;
     };
 

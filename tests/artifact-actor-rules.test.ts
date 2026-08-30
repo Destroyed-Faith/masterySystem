@@ -19,8 +19,8 @@ import {
 } from '../src/utils/artifact-actor-rules.js';
 
 describe('Artifact constants (new spec)', () => {
-  it('activation costs 1 Stone once', () => {
-    expect(ARTIFACT_LINK_STONE_COST).toBe(1);
+  it('activation is free (Artefacts.md — no 1-Stone link)', () => {
+    expect(ARTIFACT_LINK_STONE_COST).toBe(0);
   });
 
   it('upgrade costs flat 8 XP per +1', () => {
@@ -33,24 +33,17 @@ describe('Artifact constants (new spec)', () => {
 });
 
 describe('getMaxArtifactSystemLevelForMasteryRank', () => {
-  it('caps by MR using (MR - 1) × 2, hard-capped at 10', () => {
-    expect(getMaxArtifactSystemLevelForMasteryRank(1)).toBe(0);
-    expect(getMaxArtifactSystemLevelForMasteryRank(2)).toBe(2);
-    expect(getMaxArtifactSystemLevelForMasteryRank(3)).toBe(4);
-    expect(getMaxArtifactSystemLevelForMasteryRank(4)).toBe(6);
-    expect(getMaxArtifactSystemLevelForMasteryRank(5)).toBe(8);
-    expect(getMaxArtifactSystemLevelForMasteryRank(6)).toBe(10);
-    expect(getMaxArtifactSystemLevelForMasteryRank(7)).toBe(10);
-    expect(getMaxArtifactSystemLevelForMasteryRank(8)).toBe(10);
+  it('has no MR gate — flat cap 10 for every rank (Artefacts.md)', () => {
+    expect(getMaxArtifactSystemLevelForMasteryRank(1)).toBe(10);
+    expect(getMaxArtifactSystemLevelForMasteryRank(5)).toBe(10);
     expect(getMaxArtifactSystemLevelForMasteryRank(99)).toBe(ARTIFACT_MAX_SYSTEM_LEVEL);
   });
 });
 
 describe('canArtifactLink', () => {
-  it('MR1 cannot link; MR2+ can', () => {
-    expect(canArtifactLink(1)).toBe(false);
+  it('every MR can activate (no rulebook gate)', () => {
+    expect(canArtifactLink(1)).toBe(true);
     expect(canArtifactLink(2)).toBe(true);
-    expect(canArtifactLink(5)).toBe(true);
     expect(canArtifactLink(8)).toBe(true);
   });
 });
@@ -79,14 +72,12 @@ describe('readActorArtifactProgress', () => {
 });
 
 describe('artifact link stone helpers', () => {
-  it('canSpendArtifactLinkStone requires at least 1 stone (legacy stones.current)', () => {
-    const actor = { system: { stones: { current: 0 } } };
-    expect(canSpendArtifactLinkStone(actor)).toBe(false);
-    expect(actorStonesCurrent({ system: { stones: { current: 1 } } })).toBe(1);
-    expect(canSpendArtifactLinkStone({ system: { stones: { current: 1 } } })).toBe(true);
+  it('activation never requires Stones (free per Artefacts.md)', () => {
+    expect(canSpendArtifactLinkStone({ system: { stones: { current: 0 } } })).toBe(true);
+    expect(canSpendArtifactLinkStoneFromPool({ system: { stonePools: {} } }, 'might')).toBe(true);
   });
 
-  it('sums spendable stones from stonePools (current − sustained − artifact-bound)', () => {
+  it('sums spendable stones from stonePools (current − sustained)', () => {
     const actor = {
       system: {
         stonePools: {
@@ -97,21 +88,16 @@ describe('artifact link stone helpers', () => {
       },
     };
     expect(actorStonesCurrent(actor)).toBe(2);
-    expect(canSpendArtifactLinkStone(actor)).toBe(true);
-    expect(canSpendArtifactLinkStoneFromPool(actor, 'might')).toBe(true);
-    expect(canSpendArtifactLinkStoneFromPool(actor, 'vitality')).toBe(false);
     const pools = listArtifactSpendableStonePools(actor);
     expect(pools.map((p) => p.key)).toEqual(['might', 'agility']);
-    expect(pools.find((p) => p.key === 'agility')?.canSpend).toBe(true);
   });
 
-  it('artifact-bound stones are not spendable for activation or Stone Powers', () => {
+  it('legacy artifact-bound stones still reduce the spendable pool', () => {
     const actor = mockActorWithArtifacts(
       { might: { current: 2, max: 2, sustained: 0 } },
       [{ activated: true, stoneAttr: 'might' }],
     );
     expect(poolSpendableStones(actor, 'might')).toBe(1);
-    expect(canSpendArtifactLinkStoneFromPool(actor, 'might')).toBe(true);
     expect(actorStonesCurrent(actor)).toBe(1);
 
     const fullyBound = mockActorWithArtifacts(
@@ -119,7 +105,6 @@ describe('artifact link stone helpers', () => {
       [{ activated: true, stoneAttr: 'might' }],
     );
     expect(poolSpendableStones(fullyBound, 'might')).toBe(0);
-    expect(canSpendArtifactLinkStoneFromPool(fullyBound, 'might')).toBe(false);
   });
 });
 

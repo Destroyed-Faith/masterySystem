@@ -9,7 +9,7 @@ export const SENTINELS_ECHO: EchoDefinition = {
     'Divinely-forged engines of judgment: ancient, deathless, built for obedience. Their radiant divine cores are hunted by demons. Some remain, some doubt, some chose to defend mortals instead of ruling them.',
   creatureType: 'Humanoid',
   size: 'medium',
-  speed: 10,
+  speed: 8,
   coreTraits: [],
   subChoiceLabel: 'Order Protocol',
   subChoices: [

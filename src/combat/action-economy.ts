@@ -11,6 +11,7 @@ import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
+import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 
 /** NPC ATK total = sum of Angriffe/Runde copies (falls back to attackSlots). */
 function npcAttackSlotsForEconomy(owner: any): number {
@@ -478,13 +479,34 @@ export async function setRoundState(actor: Actor, state: RoundState): Promise<vo
 /**
  * Whether this power item has already been used this round (combat powers only).
  */
+/**
+ * Power Use Limit identity (PG "Power Use Limit"): a Power's identity is its
+ * base **Technical Reference** (template + chosen Special), not the item id.
+ * Two embedded duplicates of the same template therefore share one use per
+ * round. Falls back to the raw item id for non-template items.
+ */
+function powerUseIdentity(actor: Actor, powerItemId: string): string {
+  try {
+    const item = (actor as any).items?.get?.(powerItemId);
+    if (item) {
+      const key = powerIdentityKeyFromItem(item as any);
+      if (key) return key;
+    }
+  } catch {
+    /* fall back to raw id */
+  }
+  return powerItemId;
+}
+
 export function hasPowerBeenUsedThisRound(
   actor: Actor,
   combat: Combat | null,
   powerItemId: string
 ): boolean {
   const rs = getRoundState(actor, combat);
-  return (rs.usedPowerIdsThisRound ?? []).includes(powerItemId);
+  const used = rs.usedPowerIdsThisRound ?? [];
+  // Raw ids from older round states still match directly.
+  return used.includes(powerUseIdentity(actor, powerItemId)) || used.includes(powerItemId);
 }
 
 /**
@@ -496,10 +518,11 @@ export async function markPowerUsedThisRound(
   powerItemId: string
 ): Promise<void> {
   if (!powerItemId) return;
+  const identity = powerUseIdentity(actor, powerItemId);
   const rs = getRoundState(actor, combat);
   const arr = rs.usedPowerIdsThisRound ?? [];
-  if (arr.includes(powerItemId)) return;
-  rs.usedPowerIdsThisRound = [...arr, powerItemId];
+  if (arr.includes(identity)) return;
+  rs.usedPowerIdsThisRound = [...arr, identity];
   await setRoundState(actor, rs);
 }
 
@@ -512,10 +535,11 @@ export async function unmarkPowerUsedThisRound(
   powerItemId: string
 ): Promise<void> {
   if (!powerItemId) return;
+  const identity = powerUseIdentity(actor, powerItemId);
   const rs = getRoundState(actor, combat);
   const arr = rs.usedPowerIdsThisRound ?? [];
   if (!arr.length) return;
-  rs.usedPowerIdsThisRound = arr.filter((id) => id !== powerItemId);
+  rs.usedPowerIdsThisRound = arr.filter((id) => id !== identity && id !== powerItemId);
   await setRoundState(actor, rs);
 }
 
@@ -783,6 +807,12 @@ export async function spendReactionAction(actor: Actor, combat: Combat | null): 
     return false;
   }
 
+  // Stunned: no Reactions until the start of your next turn (Players Guide).
+  if (getStunnedRank(getActionEconomyActor(actor) ?? actor) > 0) {
+    ui.notifications?.warn('Stunned — you cannot use Reactions until the start of your next turn.');
+    return false;
+  }
+
   if (roundState.reactionActions.used >= roundState.reactionActions.total) {
     ui.notifications?.warn('No reaction actions remaining!');
     return false;
@@ -902,6 +932,8 @@ export function getAvailableReactionActions(actor: Actor, combat: Combat | null)
     const used = Math.max(0, Math.floor(Number((rs as any).summonBondUsage?.[summonCtx.bondId]?.reactionsUsed) || 0));
     return Math.max(0, slots - used);
   }
+  // Stunned: no Reactions until the start of your next turn.
+  if (getStunnedRank(getActionEconomyActor(actor) ?? actor) > 0) return 0;
   const roundState = getRoundState(actor, combat);
   return Math.max(0, roundState.reactionActions.total - roundState.reactionActions.used);
 }
@@ -1038,6 +1070,17 @@ export function getStonePool(actor: Actor, attribute: AttributeKey): { current: 
 }
 
 /**
+ * Stones in a pool that must NOT come back through regen / refills:
+ * Sustain, Sealed (Rituals — return on Safe Haven Rest) and Burned
+ * (lost until Safe Haven Rest, e.g. Last Breath / Remove Scar).
+ */
+export function stonePoolReservedStones(system: any, attr: string): number {
+  const p = system?.stonePools?.[attr] ?? {};
+  const n = (v: unknown) => Math.max(0, Math.floor(Number(v) || 0));
+  return n(p.sustained) + n(p.sealed) + n(p.burned);
+}
+
+/**
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
  */
 export const STONE_POOL_ATTRIBUTE_KEYS = [
@@ -1063,8 +1106,8 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
     const maxStones = Math.floor(attrValue / 8);
-    const sustained = Number(sys.stonePools?.[attr]?.sustained ?? 0);
-    const effectiveMax = Math.max(0, maxStones - sustained);
+    const reserved = stonePoolReservedStones(sys, attr);
+    const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
     const curCurrent = Number(sys.stonePools?.[attr]?.current ?? -1);
     if (curMax !== maxStones || curCurrent !== effectiveMax) {
@@ -1098,8 +1141,8 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
     const maxStones = Math.floor(attrValue / 8);
-    const sustained = Number(sys.stonePools?.[attr]?.sustained ?? 0);
-    const effectiveMax = Math.max(0, maxStones - sustained);
+    const reserved = stonePoolReservedStones(sys, attr);
+    const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
     const curCurrent = Math.max(0, Number(sys.stonePools?.[attr]?.current ?? 0));
     const newCurrent = Math.min(curCurrent, effectiveMax);
@@ -1394,8 +1437,8 @@ export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
     let placed = false;
     for (const attr of priority) {
       const pool = getStonePool(owner, attr);
-      const sustained = system.stonePools?.[attr]?.sustained || 0;
-      const effectiveMax = Math.max(0, pool.max - sustained);
+      const reserved = stonePoolReservedStones(system, attr);
+      const effectiveMax = Math.max(0, pool.max - reserved);
       if (simulated[attr] < effectiveMax) {
         simulated[attr] += 1;
         placed = true;
@@ -1442,8 +1485,8 @@ export async function applyStoneRegenAllocation(
     const add = Math.max(0, Math.floor(Number(allocation[attr]) || 0));
     if (!add) continue;
     const pool = getStonePool(owner, attr);
-    const sustained = Number(system.stonePools?.[attr]?.sustained) || 0;
-    const cap = Math.max(0, pool.max - sustained);
+    const reserved = stonePoolReservedStones(system, attr);
+    const cap = Math.max(0, pool.max - reserved);
     const next = Math.min(cap, pool.current + add);
     if (next !== pool.current) {
       updates[`system.stonePools.${attr}.current`] = next;
@@ -1489,10 +1532,10 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
     // (`poolSpendableStones`), so they stay reserved without shrinking the pool.
     for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
       const pool = getStonePool(owner, attr);
-      const sustained = (system.stonePools?.[attr]?.sustained || 0);
+      const reserved = stonePoolReservedStones(system, attr);
       const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
       const maxStones = Math.floor(attrValue / 8);
-      const fullCurrent = Math.max(0, maxStones - sustained);
+      const fullCurrent = Math.max(0, maxStones - reserved);
 
       if (pool.current !== fullCurrent || pool.max !== maxStones) {
         updates[`system.stonePools.${attr}.max`] = maxStones;
@@ -1565,10 +1608,12 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
   const roundState = getRoundState(actor, combat);
   roundState.combatId = (combat as any)?.id ?? '';
 
-  // Reset used counts
+  // Reset used counts. Reactions are a per-ROUND budget (Players Guide
+  // "Basic Action Kit": 1 Reaction per Round) — they refresh in
+  // `resetRoundState`, NOT at the start of your turn. Resetting here would
+  // grant a second Reaction to anyone who reacted before their turn.
   roundState.movementActions.used = 0;
   roundState.attackActions.used = 0;
-  roundState.reactionActions.used = 0;
   // Basic maneuver turn locks expire at the start of your next Turn.
   roundState.baseAttackLocked = false;
   roundState.safeMovementThisTurn = false;

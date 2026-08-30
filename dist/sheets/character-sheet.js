@@ -10,7 +10,7 @@ import { getAllSchticks } from '../utils/schticks.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
 import { getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isEchoCardLicensed, removeSelectedEchoCard } from '../utils/echos/index.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, creationPowerRequirementsForMasteryRank, countPowersByCategory, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
 import { showTowerWizardDialog } from '../creation/tower-wizard/tower-wizard-dialog.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
@@ -790,21 +790,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (cat && cat in categoryCounts)
                 categoryCounts[cat]++;
         }
-        /** Starting character: Combat Package via Tower Wizard (6 powers, mixed ranks). */
-        const totalPowersRequired = CREATION_POWER_TOTAL;
+        /** Starting character: Combat Package via Tower Wizard (mixed ranks).
+         * PG "Starting Powers": Passives = available Passive Slots (MR 1 → 1). */
+        const creationRequirements = creationPowerRequirementsForMasteryRank(masteryRank);
+        const totalPowersRequired = Object.values(creationRequirements).reduce((s, n) => s + n, 0);
         const totalPowersSelected = powers.length;
         const activesAtRank2 = powers.filter((p) => {
             const cat = resolvePowerCategoryFromItem(p);
             return cat === 'active' && Number(p.system?.level ?? 1) >= CREATION_OFFENSIVE_RANK;
         }).length;
         const categoryRequirements = CATEGORY_ORDER
-            .filter((cat) => CREATION_POWER_REQUIREMENTS[cat] > 0)
+            .filter((cat) => creationRequirements[cat] > 0)
             .map(cat => ({
             key: cat,
             label: CATEGORY_LABELS[cat],
-            required: CREATION_POWER_REQUIREMENTS[cat],
+            required: creationRequirements[cat],
             selected: categoryCounts[cat],
-            valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
+            valid: categoryCounts[cat] === creationRequirements[cat]
         }));
         const categoriesValid = validateTowerWizardCreation(this.actor) === null;
         // --- Echo view ------------------------------------------------------------
@@ -5418,7 +5420,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (isPower && inCreationMode) {
                     // Count remaining powers
                     const remainingPowers = this.actor.items.filter((i) => i.type === 'power');
-                    ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of ${CREATION_POWER_TOTAL} Powers selected.`);
+                    const powerTotal = Object.values(creationPowerRequirementsForMasteryRank(Number(system?.mastery?.rank) || 2)).reduce((s, n) => s + n, 0);
+                    ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of ${powerTotal} Powers selected.`);
                 }
                 else {
                     ui.notifications?.info(`"${itemName}" deleted.`);
@@ -5944,8 +5947,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.render();
     }
     /**
-     * Character Creation / Redistribute: set skill to the full chunk (4).
-     * Partial ranks (1–3) are not allowed — only 0 or 4.
+     * Character Creation / Redistribute: raise a skill by 1 point
+     * (PG "Skill Point Buy": 40 points freely, max 4 per skill).
      */
     async #onCreationSkillIncrease(event) {
         event.preventDefault();
@@ -5972,17 +5975,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
         }
         const remaining = skillPointsConfig - skillPointsSpent;
-        // Validate: all-or-nothing chunk of maxPerSkill (4)
+        // PG "Skill Point Buy": points are distributed freely, +1 per point,
+        // capped at maxPerSkill (4) per skill at creation.
         if (currentValue >= maxPerSkill) {
-            ui.notifications?.warn(`This skill is already at ${maxPerSkill}.`);
+            ui.notifications?.warn(`This skill is already at the creation cap of ${maxPerSkill}.`);
             return;
         }
-        if (remaining < maxPerSkill) {
-            ui.notifications?.warn(`Need ${maxPerSkill} free skill points to pick a skill (remaining: ${remaining}).`);
+        if (remaining < 1) {
+            ui.notifications?.warn('No skill points remaining.');
             return;
         }
         await this.actor.update({
-            [`system.skills.${skill}`]: maxPerSkill,
+            [`system.skills.${skill}`]: currentValue + 1,
         });
         await this.render();
         // Restore scroll position
@@ -6018,7 +6022,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         await this.actor.update({
-            [`system.skills.${skill}`]: 0,
+            [`system.skills.${skill}`]: currentValue - 1,
         });
         await this.render();
         // Restore scroll position
@@ -6038,11 +6042,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         const { total, maxPerSkill } = getCreationSkillBudget();
-        const picks = Math.floor(total / maxPerSkill);
         const confirmed = await new Promise((resolve) => {
             new Dialog({
                 title: 'Redistribute Skills',
-                content: `<p>Reset all skills to <strong>0</strong> and pick <strong>${picks}</strong> skills at <strong>${maxPerSkill}</strong> each (${total} points). Each + sets a skill to ${maxPerSkill} — no 1/2/3 ranks.</p>
+                content: `<p>Reset all skills to <strong>0</strong> and distribute <strong>${total}</strong> points freely (+1 per point, max <strong>${maxPerSkill}</strong> per skill at creation).</p>
 <p><em>Only available when the character has no XP yet. Cancel restores the previous allocation.</em></p>`,
                 buttons: {
                     yes: {
@@ -6063,7 +6066,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!confirmed)
             return;
         await this.actor.update(buildStartSkillsRedistributeUpdates(this.actor));
-        ui.notifications?.info(`Skills cleared — pick ${picks} skills at ${maxPerSkill} each (+ sets ${maxPerSkill}), then Finish.`);
+        ui.notifications?.info(`Skills cleared — distribute ${total} points freely (max ${maxPerSkill} per skill), then Finish.`);
         this.render();
     }
     async #onFinishSkillsRedistribute() {
@@ -6628,8 +6631,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 echoSubChoice?.name,
                 echoDef.veiledForm && rawEcho.veiledFormKey ? `veiled as ${getEcho(rawEcho.veiledFormKey)?.name || rawEcho.veiledFormKey}` : '',
             ].filter(Boolean).join(' · ');
-            if (savedPowers.length !== CREATION_POWER_TOTAL) {
-                ui.notifications?.warn(`Character creation marked complete, but only ${savedPowers.length} of ${CREATION_POWER_TOTAL} Powers are on this actor. Check the Items tab in the sidebar — if powers are missing, re-add them before playing.`);
+            const expectedPowerTotal = Object.values(creationPowerRequirementsForMasteryRank(Number(this.actor.system?.mastery?.rank) || 2)).reduce((s, n) => s + n, 0);
+            if (savedPowers.length !== expectedPowerTotal) {
+                ui.notifications?.warn(`Character creation marked complete, but only ${savedPowers.length} of ${expectedPowerTotal} Powers are on this actor. Check the Items tab in the sidebar — if powers are missing, re-add them before playing.`);
             }
             else {
                 ui.notifications?.info(`Character creation complete — ${savedPowers.length} Powers saved (${CATEGORY_ORDER.map(c => `${savedCounts[c]} ${CATEGORY_LABELS[c]}`).join(', ')}). Echo: ${echoLabel}.`);
@@ -7030,6 +7034,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             else if (mainhandItem && isNaturallyTwoHandedItem(mainhandItem)) {
                 ui.notifications?.warn('Cannot equip shield while 2-handed weapon is equipped.');
+                return false;
+            }
+        }
+        // Artefacts.md: equipped Ring + Amulet share a combined max of 4 printed
+        // Base Values (count assigned Base Values, including locked ones).
+        if ((slot === 'ring' || slot === 'amulet') && item.type === 'artifact') {
+            const otherSlot = slot === 'ring' ? 'amulet' : 'ring';
+            const other = this.#getItemInEquipSlot(otherSlot);
+            const countBv = (it) => Array.isArray(it?.system?.baseValues) ? it.system.baseValues.length : 0;
+            const { ringAmuletCombinedBaseValueError } = await import('../utils/artifact-rules.js');
+            const ringBv = slot === 'ring' ? countBv(item) : countBv(other);
+            const amuletBv = slot === 'amulet' ? countBv(item) : countBv(other);
+            const err = ringAmuletCombinedBaseValueError(ringBv, amuletBv);
+            if (err && other && other.id !== item.id) {
+                ui.notifications?.warn(err);
                 return false;
             }
         }

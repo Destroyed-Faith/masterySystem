@@ -10,8 +10,8 @@ import {
   prepareMinorMagicFlagForTransfer,
   shouldReleaseMinorMagicOnDelete,
   isEligibleMinorMagicPower,
+  isInstantDurationPower,
   isPlayerCharacterActor,
-  isArtifactAvailableForMinorMagic,
   listEligibleMinorMagicPowers,
   minorMagicLimit,
   normalizeMinorMagicLedger,
@@ -119,78 +119,41 @@ describe('eligibility', () => {
     expect(isEligibleMinorMagicPower({ type: 'gear', system: {} })).toBe(false);
   });
 
-  it('accepts Artifact Actives at level 6 or lower and rejects Greater / Ultimate rows', () => {
+  it('rejects Artifact-sourced Actives entirely (PG: Artifact Functions are not eligible)', () => {
     expect(
       isEligibleMinorMagicPower(
-        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 6 } }),
-      ),
-    ).toBe(true);
-    expect(
-      isEligibleMinorMagicPower(
-        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 7 } }),
+        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 4 } }),
       ),
     ).toBe(false);
     expect(
       isEligibleMinorMagicPower(
-        powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 10 } }),
+        powerItem({ system: { ...powerItem().system, source: 'artifact' } }),
       ),
     ).toBe(false);
   });
 
-  it('lists equipped Artifact Actives capped at Artifact Level 6', () => {
+  it('rejects Actives without an Instant duration (persistent zones, images, etc.)', () => {
+    const persistent = powerItem({
+      system: {
+        ...powerItem().system,
+        levels: {
+          '3': {
+            ...((powerItem().system as any).levels['3']),
+            duration: { kind: 'masteryRankRounds' },
+          },
+        },
+      },
+    });
+    expect(isInstantDurationPower(persistent as any)).toBe(false);
+    expect(isEligibleMinorMagicPower(persistent)).toBe(false);
+    expect(isInstantDurationPower(powerItem() as any)).toBe(true);
+  });
+
+  it('lists only own purchased Actives — never Artifact rows', () => {
     const actor = actorWithItems([powerItem(), artifactItem()]);
     const listed = listEligibleMinorMagicPowers(actor);
-    expect(listed.map((p) => p.name)).toEqual(['Breath II', 'Single Attack']);
-    const breath = listed.find((p) => p.name === 'Breath II');
-    expect(breath.system.artifactRowLevel).toBe(4);
-    expect(breath.system.rank).toBe(10);
-    expect(resolveMinorMagicPower(actor, breath.id)?.name).toBe('Breath II');
-    expect(listed.some((p) => p.name === 'Breath III')).toBe(false);
-    expect(listed.some((p) => p.name === 'Roar')).toBe(false);
-  });
-
-  it('lists Artifact Actives from either Weaponslot, even when that set is not in hand', () => {
-    const prepared = artifactItem({
-      system: { equipped: false },
-      equipment: { container: 'inventory', band: 'not', weaponSetPrepared: true },
-    });
-    const actor = actorWithItems([prepared]);
-    expect(isArtifactAvailableForMinorMagic(actor, prepared)).toBe(true);
-    expect(listEligibleMinorMagicPowers(actor).map((p) => p.name)).toEqual(['Breath II']);
-  });
-
-  it('does not list Artifact Actives that are only sitting in inventory', () => {
-    const loose = artifactItem({
-      system: { equipped: false },
-      equipment: { container: 'inventory', band: 'not', grid: { x: 1, y: 1 } },
-    });
-    const actor = actorWithItems([loose]);
-    expect(isArtifactAvailableForMinorMagic(actor, loose)).toBe(false);
-    expect(listEligibleMinorMagicPowers(actor)).toEqual([]);
-  });
-
-  it('lists Artifact Actives assigned to Weaponslot II while Weaponslot I is active', () => {
-    const item = artifactItem({
-      id: 'art-slot-2',
-      system: { equipped: false },
-    });
-    const base = actorWithItems([item]);
-    const actor = {
-      ...base,
-      getFlag: (_scope: string, key: string) =>
-        key === 'weaponSets'
-          ? {
-              schemaVersion: 1,
-              active: 1,
-              sets: {
-                1: { mainhand: null, offhand: null },
-                2: { mainhand: 'art-slot-2', offhand: null },
-              },
-            }
-          : undefined,
-    };
-    expect(isArtifactAvailableForMinorMagic(actor, item)).toBe(true);
-    expect(listEligibleMinorMagicPowers(actor).map((p) => p.name)).toEqual(['Breath II']);
+    expect(listed.map((p) => p.name)).toEqual(['Single Attack']);
+    expect(resolveMinorMagicPower(actor, 'pow-1')?.name).toBe('Single Attack');
   });
 });
 
@@ -293,17 +256,6 @@ describe('snapshot', () => {
     expect(snap.attackPool.numDice).toBe(12);
   });
 
-  it('snapshots an Artifact Active at the Improved (level 6) stage, not Greater', () => {
-    const actor = actorWithItems([artifactItem()]);
-    const breath = listEligibleMinorMagicPowers(actor).find((p) => p.name === 'Breath II');
-    expect(breath).toBeTruthy();
-    const snap = snapshotPowerForMinorMagic(actor, breath);
-    expect(snap.powerName).toBe('Breath II');
-    expect(snap.powerLevel).toBe(10);
-    expect(snap.templateId).toBe('active-melee-damage-t3');
-    expect(snap.chosenSpecialKey).toBe('bleed');
-    expect(snap.damage).toMatch(/d8/);
-  });
 });
 
 describe('player character recipients', () => {

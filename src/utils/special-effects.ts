@@ -334,10 +334,10 @@ export const TIMED_EFFECTS: SpecialEffect[] = [
     name: 'Prone',
     category: 'timed',
     description:
-      'You are knocked down. Standing up requires the normal Movement Action or Action cost and ends the effect.',
+      'You are knocked down. Standing up costs 1 Attack Action and does not consume your Movement.',
     duration: 'Until you stand',
     stacking: 'No',
-    removal: 'Stand up (normal Movement Action or Action cost).',
+    removal: 'Stand up (costs 1 Attack Action, no Movement).',
     hasValue: false,
     dispellable: false,
     pricing: '60 PP'
@@ -550,7 +550,7 @@ export const SUPPORT_EFFECTS: SpecialEffect[] = [
     name: 'Cleanse(X)',
     category: 'support',
     description:
-      'Choose exactly one eligible ongoing Special on one target and reduce its current value by X. The Cleanse value cannot be divided between multiple Specials; any excess is lost. If X equals or exceeds the current value, the Special is removed. Cleanse can only reduce Specials that are dispellable, and does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.',
+      'Choose one creature. Remove up to X total points from one or more ongoing negative Specials affecting that creature that list Cleanse: Yes. You may distribute the Cleanse value freely between those eligible Specials. If a Special reaches 0, it ends. Any unused Cleanse value is lost. Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.',
     duration: 'Instant',
     stacking: 'No',
     removal: '—',

@@ -269,10 +269,17 @@ export interface PowerMechanics {
   spellResistance?: number;
 
   /**
-   * Recurring self-Cleanse at the start of each turn (one eligible effect,
-   * not split). Ward passives / Cleanse Maintenance active buffs only.
+   * Recurring self-Cleanse at the start of each turn. The value may be
+   * distributed freely across eligible Specials (Cleanse rule). Ward
+   * passives / Cleanse Maintenance active buffs only.
    */
   cleanseMaintenance?: number;
+
+  /**
+   * Ward — reduces every incoming eligible hostile Special(X) by this value
+   * before it is applied (Players Guide "Ward"). Ward passives only.
+   */
+  wardIncoming?: number;
 
   /**
    * Percentage-based Damage Reduction applied to incoming damage AFTER flat
@@ -779,6 +786,10 @@ export interface ArtifactBaseValue {
   isBaseline?: boolean;
   /** Light / Medium / Heavy — mundane base + class drawbacks apply on top of `value` (artifact bonus). */
   armorWeightClass?: 'light' | 'medium' | 'heavy';
+  /** Printed per-level drawback override (e.g. Wyrm Scales −2/−4/−6 Evade). Overrides the class default. */
+  evadeModifier?: number;
+  /** Printed per-level drawback override (e.g. Wyrm Scales −2/−4/−6 Initiative). Overrides the class default. */
+  initiativeModifier?: number;
 }
 
 /** A Stone Function block on an artifact. */
@@ -845,6 +856,12 @@ export interface ArtifactProgressionPick {
   stageTemplateIds?: [string, string, string];
   /** Full row names per stage when `stageTemplateIds` is set (length 3). */
   stageNames?: [string, string, string];
+  /**
+   * Printed artifact-exclusive per-stage effect texts (length 3). When set,
+   * each staged row uses this text instead of the catalog template's effect
+   * column (e.g. Wyrm Scales' printed +6/+12/+18 Armor buff).
+   */
+  stageEffectTexts?: [string, string, string];
   /** Ranged Active picks only: cast this line as a Spell (Intellect / Resolve). */
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;

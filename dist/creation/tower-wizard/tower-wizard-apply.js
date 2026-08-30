@@ -2,7 +2,7 @@
  * Tower Wizard — apply package to actor.
  */
 import { applyXpCost, getXpState } from '../../progression/progression-hub-actions.js';
-import { CREATION_POWER_TOTAL } from '../../utils/power-catalog.js';
+import { creationPowerRequirementsForMasteryRank, findCatalogEntry } from '../../utils/power-catalog.js';
 import { grantPowerSpecs } from '../../utils/power-item-builder.js';
 import { calculatePowersUpgradeRefund } from '../../utils/power-xp-refund.js';
 import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildPackageReview, isManualBuildMode, } from './tower-wizard-packages.js';
@@ -39,13 +39,26 @@ export async function applyTowerWizardPackage(actor, selection, options) {
         if (!confirmed)
             return false;
     }
-    const specs = isManualBuildMode(selection)
+    let specs = isManualBuildMode(selection)
         ? buildPackageGrantSpecsFromOverrides(selection)
         : buildPackageGrantSpecs(selection);
     if (!specs) {
         ui.notifications?.error('Cannot apply package — incomplete selection.');
         return false;
     }
+    /* PG "Starting Powers": MR 1 campaigns start with 1 Passive instead of 2. */
+    const masteryRank = Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 2));
+    const requirements = creationPowerRequirementsForMasteryRank(masteryRank);
+    const maxPassives = requirements.passive;
+    let passivesKept = 0;
+    specs = specs.filter((spec) => {
+        const cat = findCatalogEntry(spec.templateId)?.category;
+        if (cat !== 'passive')
+            return true;
+        passivesKept++;
+        return passivesKept <= maxPassives;
+    });
+    const expectedTotal = Object.values(requirements).reduce((s, n) => s + n, 0);
     const powerIds = existingPowers.map((i) => i.id);
     if (powerIds.length > 0) {
         await actor.deleteEmbeddedDocuments('Item', powerIds);
@@ -84,8 +97,8 @@ export async function applyTowerWizardPackage(actor, selection, options) {
     }
     await actor.update(updateData);
     const granted = await grantPowerSpecs(actor, specs);
-    if (granted !== CREATION_POWER_TOTAL) {
-        ui.notifications?.warn(`Applied ${granted} of ${CREATION_POWER_TOTAL} Powers — check the character sheet.`);
+    if (granted !== expectedTotal) {
+        ui.notifications?.warn(`Applied ${granted} of ${expectedTotal} Powers — check the character sheet.`);
     }
     else if (refundXp > 0) {
         ui.notifications?.info(`Combat package applied. ${refundXp} XP refunded.`);

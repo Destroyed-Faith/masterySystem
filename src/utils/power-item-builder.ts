@@ -58,20 +58,35 @@ export function buildPowerItemFromCatalogEntry(
     if (chosenSpecial) {
         const next: Record<string, unknown> = {};
         for (const [k, row] of Object.entries(template.levels)) {
-            const specials = (row.specials || []).map((s: PowerSpecial) =>
-                s.key === 'SPECIAL' ? { ...s, key: chosenSpecial.key } : s,
-            );
+            const specials = (row.specials || []).map((s: PowerSpecial) => {
+                if (s.key !== 'SPECIAL') return s;
+                const bound = { ...s, key: chosenSpecial.key };
+                /* Actives.md: "Root uses a minimum of Root(2), including at Level 1." */
+                if (chosenSpecial.key === 'root' && (bound.rank ?? 0) > 0 && (bound.rank ?? 0) < 2) {
+                    bound.rank = 2;
+                }
+                return bound;
+            });
             next[k] = { ...row, specials };
         }
         levels = next as Record<PowerLevelKey, unknown>;
     }
+
+    /* PG Spell Design Rule: the `spell` tag marks an actual Spell. Items only
+     * carry it when converted (isSpell) or inherently mental (always resolved
+     * as Spells). Template-level 'spell' tags just mean "convertible". */
+    const baseTags = template.tags || [];
+    const isMental = baseTags.includes('mental');
+    const itemTags = spell.isSpell || isMental
+        ? baseTags
+        : baseTags.filter((t: string) => t !== 'spell');
 
     return {
         name: entry.name,
         type: 'power',
         system: {
             category: template.category,
-            tags: template.tags || [],
+            tags: itemTags,
             rank,
             level: rank,
             minLevel: rank,

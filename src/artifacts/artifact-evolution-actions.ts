@@ -351,37 +351,15 @@ export async function linkArtifactForActor(
     }
   }
 
-  if (usesStonePoolEconomy(actor)) {
-    if (!stoneAttr) {
-      ui.notifications?.warn('Wähle einen Stone aus deinem Pool.');
-      return false;
-    }
-    if (!(await spendArtifactLinkStone(actor, stoneAttr))) {
-      ui.notifications?.warn(`Nicht genug ${stoneAttr} Stones (benötigt ${ARTIFACT_LINK_STONE_COST}).`);
-      return false;
-    }
-  } else {
-    if (!canSpendArtifactLinkStone(actor)) {
-      ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-      return false;
-    }
-    if (!(await spendArtifactLinkStone(actor))) {
-      ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-      return false;
-    }
-  }
-
+  // Artefacts.md: activation is free — the legacy 1-Stone link cost is gone.
   const next: ArtifactActorProgress = { ...cur, linked: true };
   levels[A.id] = serializeActorArtifactProgress(next);
   await setRootActorLevels(root, levels);
 
   if (emb) {
     await emb.setFlag('mastery-system', 'artifactActivated', true);
-    if (stoneAttr) {
-      await emb.setFlag('mastery-system', 'artifactActivationStoneAttr', stoneAttr);
-    } else {
-      await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
-    }
+    // No activation Stone is bound any more (legacy flag cleared).
+    await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
     const currentKind = getArtifactBindingKind(emb);
     if (currentKind === 'unbound') {
       try {
@@ -392,10 +370,7 @@ export async function linkArtifactForActor(
     }
   }
 
-  const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
-  ui.notifications?.info(
-    `Artifact activated (${ARTIFACT_LINK_STONE_COST} Stone${poolNote}). You can now spend XP to evolve it.`,
-  );
+  ui.notifications?.info('Artifact activated. You can now spend XP to evolve it.');
   return true;
 }
 

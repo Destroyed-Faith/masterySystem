@@ -119,7 +119,7 @@ describe('reaction eligibility', () => {
     ).toBe(true);
   });
 
-  it('keeps ally powers out of defender phase; retires synthetic OA; allows Counterattack in Threatened window', () => {
+  it('keeps ally powers out of defender phase; Threatened window rejects hit-trigger reactions', () => {
     const ally = { system: { templateId: 'reaction-ally-armor' }, mechanics: { armor: 3 } };
     const oa = { id: 'basic-reaction-opportunity-attack', basicReaction: 'counterattack' };
     const counter = { id: 'basic-reaction-counterattack', basicReaction: 'counterattack' };
@@ -128,13 +128,22 @@ describe('reaction eligibility', () => {
     expect(
       evaluateReactionEligibility(ally, { ...hitCtx, phase: 'allies', allyDistanceM: 3 }).shown,
     ).toBe(true);
+    // Threatened Ranged opens at DECLARATION (PG 9725): the reactor was not
+    // hit/targeted — Counterattack, Guard, and Counter Damage are illegal.
     expect(evaluateReactionEligibility(oa, { ...hitCtx, phase: 'others' }).shown).toBe(false);
-    expect(evaluateReactionEligibility(counter, { ...hitCtx, phase: 'others' }).shown).toBe(true);
+    expect(evaluateReactionEligibility(counter, { ...hitCtx, phase: 'others' }).shown).toBe(false);
     expect(evaluateReactionEligibility(guard, { ...hitCtx, phase: 'others' }).shown).toBe(false);
     expect(
       evaluateReactionEligibility(
         { system: { templateId: 'reaction-counter-damage' }, mechanics: { damageRider: { flat: '+2d8' } } },
         { ...hitCtx, phase: 'others', hit: false, rangeToAttackerM: 2 },
+      ).shown,
+    ).toBe(false);
+    // A custom reaction without a hit/target trigger stays legal at declaration.
+    expect(
+      evaluateReactionEligibility(
+        { system: { templateId: 'custom-war-cry', trigger: 'When an enemy in your melee reach acts' }, mechanics: {} },
+        { ...hitCtx, phase: 'others', hit: false },
       ).shown,
     ).toBe(true);
   });

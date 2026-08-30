@@ -25,6 +25,12 @@ export declare function readActiveSpecials(actor: any): ActiveSpecial[];
  * Diminishing Specials track a single stack value, so entries are summed.
  */
 export declare function getActiveSpecialValue(actor: any, id: string): number;
+/**
+ * Whether a given Special is present on a creature at all — including
+ * valueless conditions (Stunned, Prone, Immovable) whose entries carry no
+ * numeric stack.
+ */
+export declare function hasActiveSpecial(actor: any, id: string): boolean;
 /** Coerce Foundry object-shaped `statusEffects` to a real array. */
 export declare function coerceStatusEffectsArray(raw: unknown): RawStatusEntry[];
 /**

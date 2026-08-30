@@ -9,7 +9,7 @@ export const DWARFS_ECHO: EchoDefinition = {
     'A dying, proud people hated by the powers of Hell. Their flesh resists demonic marks; their souls do not open willingly. Guardians of old crafts, buried names, and weapons fit to wound Hell.',
   creatureType: 'Humanoid',
   size: 'medium',
-  speed: 9,
+  speed: 8,
   coreTraits: [],
   deck: [
     {

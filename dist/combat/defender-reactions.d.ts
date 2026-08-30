@@ -82,6 +82,14 @@ export declare function buildInterposeReactionItem(): any;
  */
 export declare function buildOpportunityAttackReactionItem(actor: any): any;
 /**
+ * Threatened Ranged (PG 9719–9725): the window opens at DECLARATION of the
+ * ranged attack — the reactor was not hit, targeted, or damaged. Reactions
+ * whose trigger requires being hit / targeted / taking damage (Counterattack,
+ * Counter Damage, Guard, Evade, Parry follow-ups, …) are therefore illegal in
+ * this window. Only reactions without such a trigger remain usable.
+ */
+export declare function isThreatenedDeclarationLegalReaction(item: any): boolean;
+/**
  * Offensive reactions for Threatened Ranged (shooter in your melee reach).
  * Not the attack target — Guard/Evade/Ally mitigation do not apply here.
  */

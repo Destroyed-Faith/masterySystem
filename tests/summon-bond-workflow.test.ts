@@ -256,18 +256,17 @@ describe('Summon spend recompute', () => {
       movementMode: 'flying',
       stoneAttributes: ['wits'],
     });
-    bond.spend.movementPurchases = 2; // Flying base 4 + 4 m → 8
-    bond.spend.skillDicePurchases = 2; // 2 tok
+    bond.spend.skillDicePurchases = 2; // 2 tok — Flying base is already 8 m (PG)
     bond.spend.bodies[0].sharedSenses = ['sight']; // 2 tok
     bond.spend.bodies[0].evadePurchases = 1; // 2 tok
-    // total 2+2+2+2 = 8
+    // total 2+2+2 = 6 of 8
     const c = computeSummonBond({
       boundStoneCount: 1,
       movementMode: 'flying',
       spend: bond.spend,
     });
     expect(c.errors).toEqual([]);
-    expect(c.tokensRemaining).toBe(0);
+    expect(c.tokensRemaining).toBe(2);
     expect(c.movementM).toBe(8);
     const done = recomputeBondDerived({ ...bond, needsRedistribution: false });
     expect(done.movementM).toBe(8);
@@ -276,16 +275,15 @@ describe('Summon spend recompute', () => {
 });
 
 describe('Summon acceptance — rules, budget, action economy', () => {
-  it('1. Flying Owl: 8 tokens, 4 m base, 2× movement → 8 m + skill/sight/evade', () => {
+  it('1. Flying Owl: 8 tokens, base 8 m flying (PG) + skill/sight/evade', () => {
     const spend = emptyBondSpend(1);
-    spend.movementPurchases = 2;
     spend.skillDicePurchases = 2;
     spend.bodies[0].sharedSenses = ['sight'];
     spend.bodies[0].evadePurchases = 1;
     const c = computeSummonBond({ boundStoneCount: 1, movementMode: 'flying', spend });
     expect(c.tokensAvailable).toBe(8);
     expect(c.movementM).toBe(8);
-    expect(c.tokensRemaining).toBe(0);
+    expect(c.tokensRemaining).toBe(2);
     expect(c.errors).toEqual([]);
     expect(c.summonAttacks).toBe(1);
   });
@@ -379,7 +377,7 @@ describe('Summon acceptance — rules, budget, action economy', () => {
       movementMode: 'flying',
       stoneAttributes: ['wits', 'wits', 'wits', 'wits'],
     });
-    bond.bodies[0].powers = [{ templateId: 'ab-armor', level: 8, tokenCost: 16, category: 'activeBuff' }];
+    bond.bodies[0].powers = [{ templateId: 'ab-evade', level: 8, tokenCost: 16, category: 'activeBuff' }];
     const v = validateBondRitual(bond, {}, 1);
     expect(v.ok).toBe(false);
     expect(v.status).toBe('invalidUntilFixed');

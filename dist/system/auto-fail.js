@@ -12,7 +12,7 @@
  * and attack-roll-handler can call it without pulling in Foundry globals.
  */
 import { getSkillTags } from './skill-tags.js';
-import { getActiveSpecialValue } from './active-specials.js';
+import { getActiveSpecialValue, hasActiveSpecial } from './active-specials.js';
 /**
  * Extract the rank from a status-effect label like `"Disoriented(2)"` or a
  * status id like `"disoriented-2"`. Returns 1 when no rank is encoded.
@@ -67,6 +67,13 @@ export function getDisorientedRank(actor) {
 export function getStunnedRank(actor) {
     if (!actor)
         return 0;
+    // Primary: the applied Special on `system.statusEffects` (Stunned is a
+    // valueless condition — presence counts as rank 1; a stored value wins).
+    const fromStatus = getActiveSpecialValue(actor, 'stunned');
+    if (fromStatus > 0)
+        return fromStatus;
+    if (hasActiveSpecial(actor, 'stunned'))
+        return 1;
     const statuses = actor?.statuses;
     if (statuses && typeof statuses.has === 'function') {
         if (statuses.has('stunned'))

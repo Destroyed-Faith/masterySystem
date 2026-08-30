@@ -48,8 +48,34 @@ function rowFromBudget(opts) {
 // the Special scales with the rest). These tables encode the md spec directly
 // for the player-visible damage / radius / range columns. The Special *rank*
 // is still derived from the budget solver (it is not shown in the md tables).
-/** Single-target damage anchor per tier (dice = min(level, anchor)). */
-const SINGLE_DAMAGE_ANCHOR = { 3: 1, 4: 1, 5: 3, 6: 2 };
+// Instant Attack Martial Special single-target — printed PL tables
+// (docs/Rules/actives.md "Melee/Ranged Attack + …" sections). Damage stays a
+// small fixed rider; the Special column is the primary scaling axis.
+const MELEE_SINGLE_DMG_DICE = {
+    3: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    4: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    5: [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    6: [1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+};
+const RANGED_SINGLE_DMG_DICE = {
+    3: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    4: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    5: [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    6: [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+};
+/** Printed Special ranks for single-target Attack + Special templates. */
+const MELEE_SINGLE_DMG_SPECIAL = {
+    3: [3, 5, 6, 8, 9, 10, 11, 12, 12, 13, 14, 14, 15, 16, 16, 17],
+    4: [2, 4, 5, 6, 7, 8, 9, 10, 10, 11, 12, 12, 13, 13, 14, 14],
+    5: [2, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 10, 10, 11, 11],
+    6: [1, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 9, 10],
+};
+const RANGED_SINGLE_DMG_SPECIAL = {
+    3: [2, 4, 6, 7, 8, 9, 10, 10, 11, 12, 12, 13, 14, 14, 15, 15],
+    4: [2, 4, 5, 6, 7, 7, 8, 9, 9, 10, 11, 11, 12, 12, 13, 13],
+    5: [1, 2, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 9, 9, 10, 10],
+    6: [1, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 8, 9],
+};
 /** Instant Attack Martial Special AoE — printed PL tables (docs/Rules/actives.md). */
 const MELEE_AOE_DMG_DICE = {
     3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -117,15 +143,15 @@ function damageSingleTemplate(def) {
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const r = rowFromBudget({ tier: def.tier, lvl, isRanged, aoe: false });
-            const d = Math.min(lvl, SINGLE_DAMAGE_ANCHOR[def.tier]);
+            const rank = (isRanged ? RANGED_SINGLE_DMG_SPECIAL : MELEE_SINGLE_DMG_SPECIAL)[def.tier][lvl - 1];
+            const d = (isRanged ? RANGED_SINGLE_DMG_DICE : MELEE_SINGLE_DMG_DICE)[def.tier][lvl - 1];
             return activeRow({
                 type: isRanged ? 'Ranged' : 'Melee',
                 range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
                 aoe: R_NONE,
                 effectText: `Deal **+${d}d8 damage** on hit.`,
                 dice: `${d}d8`,
-                specials: [{ key: 'SPECIAL', rank: r.rank, note: 'bound at item-create via chosenSpecial' }],
+                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (printed table)' }],
                 mechanics: { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
             });
         }),
@@ -594,6 +620,8 @@ function buildActiveTemplates() {
         cleanseAbsorptionTemplate(),
         mentalAttackTemplate(),
         mindIllusionTemplate(),
+        mindProbeTemplate(),
+        mentalControlTemplate(),
     ];
 }
 // ─── Targeted Special Attacks (Exorcism / Requiem) ────────────────────────
@@ -1099,14 +1127,14 @@ function mentalAttackTemplate() {
         category: 'active',
         tags: ['spell', 'mental'],
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'Requires Telepathic Access. Psychic assault vs Mind Save; Mental Damage ignores Armor and does not target Evade.',
+        fluff: 'Requires Telepathic Access. Resolved as a Spell with Base TN +4; Mental Damage ignores Armor and does not target Evade.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
         levels: buildLevels((lvl) => activeRow({
             type: 'Active, Mental',
             range: { kind: 'distance', m: 0, note: 'Telepathic Access' },
             aoe: R_NONE,
-            effectText: `Deal **${lvl}d8 Mental Damage**. On a successful Mind Save, the target takes half damage.`,
+            effectText: `Deal **${lvl}d8 Mental Damage** (ignores Armor, does not target Evade). On a successful Mental Power roll the target takes the full listed damage — no save, no automatic second roll.`,
             dice: `${lvl}d8`,
             specials: [],
             mechanics: { damageRider: { flat: `+${lvl}d8` } },
@@ -1137,6 +1165,93 @@ function mindIllusionTemplate() {
                 effectText: `${effect} **Targets:** ${targets}. **Senses / Complexity:** ${complexity}. **Duration:** Mastery Rank rounds.`,
                 specials: [],
                 mechanics: { duration: 'masteryRankRounds' },
+            });
+        }),
+    };
+}
+/** Mind Probe — printed information-access column (Rules/actives.md). */
+const MIND_PROBE_ACCESS = [
+    "Learn the target's current dominant emotion.",
+    "Read one dominant surface thought currently passing through the target's mind.",
+    "Learn the target's immediate intention or next intended non-reflexive action.",
+    "Learn one simple fact currently held in the target's active memory.",
+    'Read one sensory memory from approximately the last minute.',
+    'Read one event memory from approximately the last hour.',
+    'Read one named memory from approximately the last day.',
+    'Read one named memory from approximately the last week.',
+    'Read one named memory from approximately the last month.',
+    'Read one named memory from approximately the last year.',
+    "Read one accessible named memory from any point in the target's life.",
+    'Follow one connected memory chain and learn up to **MR linked facts** about one named person, place, object, or event.',
+    "Recover one fragmented or partially forgotten memory as the target's mind still retains it.",
+    'Reach one deliberately suppressed or deeply buried memory.',
+    'Reach one memory protected by a Mental Power, ward, or seal of a lower Power Level. Equal- or higher-level protection still blocks the probe.',
+    'Reconstruct one complete remembered sequence around a named event, including connected sensory details, emotions, and up to **MR linked facts**.',
+];
+function mindProbeTemplate() {
+    return {
+        templateId: 'active-mind-probe',
+        templateName: 'Mind Probe',
+        name: 'Mind Probe',
+        subfamily: 'mental',
+        category: 'active',
+        tags: ['spell', 'mental'],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: 'Requires Telepathic Access. Searches thoughts and memories (Final Mental Power TN, +4). Reads remembered understanding, not objective truth — no memory alteration, no control, no damage. An unwilling target knows it was probed.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => activeRow({
+            type: 'Active, Mental',
+            range: { kind: 'distance', m: 0, note: 'Telepathic Access' },
+            aoe: R_NONE,
+            effectText: `${MIND_PROBE_ACCESS[lvl - 1]} One creature; one answer, fact set, or memory per use. ` +
+                'Cannot discover knowledge the target never possessed or make a false belief correct.',
+            specials: [],
+            mechanics: {},
+        })),
+    };
+}
+/** Mental Control — printed Targets / Duration / Scope columns (Rules/actives.md). */
+const MENTAL_CONTROL_ROWS = [
+    { targets: '1 creature', duration: '1 minute', scope: 'Impose one immediate, simple, non-harmful instruction.' },
+    { targets: '1 creature', duration: '10 minutes', scope: 'Impose one simple task that can be completed without complex judgment.' },
+    { targets: '1 creature', duration: '1 hour', scope: 'Impose one simple task with several obvious steps.' },
+    { targets: '1 creature', duration: '4 hours', scope: 'Impose one clear command or one temporary attitude toward a person, place, or object.' },
+    { targets: '2 creatures', duration: '4 hours', scope: 'Give both targets the same simple task or attitude.' },
+    { targets: '2 creatures', duration: '8 hours', scope: 'Impose one sustained role, routine, or pattern of cooperation.' },
+    { targets: '2 creatures', duration: '12 hours', scope: 'Impose two linked instructions or one simple conditional instruction.' },
+    { targets: '3 creatures', duration: '1 day', scope: 'Impose one believable temporary relationship, loyalty, aversion, trust, affection, or false assumption.' },
+    { targets: '3 creatures', duration: '1 day', scope: 'Impose one complex noncombat objective and allow reasonable improvisation toward it.' },
+    { targets: 'MR creatures', duration: '2 days', scope: 'Give all targets the same complex task, attitude, or temporary relationship.' },
+    { targets: 'MR creatures', duration: '3 days', scope: 'Impose one conditional behavioral program with a clear trigger and response.' },
+    { targets: 'MR + 1 creatures', duration: '3 days', scope: 'Combine one complex task with one supporting attitude or belief.' },
+    { targets: 'MR + 1 creatures', duration: '1 week', scope: 'Impose one sustained false loyalty, relationship, social role, or long-form objective.' },
+    { targets: 'MR + 2 creatures', duration: '1 week', scope: 'Impose several linked instructions serving one defined noncombat purpose.' },
+    { targets: 'MR + 3 creatures', duration: '2 weeks', scope: 'Impose a broad behavioral program around one defined noncombat purpose.' },
+    { targets: 'MR + 4 creatures', duration: '1 month', scope: 'Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior.' },
+];
+function mentalControlTemplate() {
+    return {
+        templateId: 'active-mental-control',
+        templateName: 'Mental Control',
+        name: 'Mental Control',
+        subfamily: 'mental',
+        category: 'active',
+        tags: ['spell', 'mental'],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: 'Requires Telepathic Access. Noncombat only — cannot be activated after Initiative begins, and control ends before a controlled creature takes its first combat action. Affects only creatures of strictly lower Mastery Rank (Final Mental Power TN, +4). Never orders attacks, self-harm, or resource expenditure; no memory rewriting or permanent personality change.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => {
+            const row = MENTAL_CONTROL_ROWS[lvl - 1];
+            return activeRow({
+                type: 'Active, Mental, Noncombat',
+                range: { kind: 'distance', m: 0, note: 'Telepathic Access' },
+                aoe: { shape: 'none', targets: undefined, note: row.targets },
+                effectText: `${row.scope} **Targets:** ${row.targets} (all within Telepathic Access; same control program). ` +
+                    `**Duration:** ${row.duration}. Wits Check vs the original Mental Power TN only when the control collides with a defining conviction, deep bond, or clear severe harm to a protected person. Ends immediately if the controller or an obvious ally directly harms the target.`,
+                specials: [],
+                mechanics: {},
             });
         }),
     };

@@ -8,6 +8,7 @@ import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
 import { resolveRaiseOutcome, type RaiseOutcome } from '../combat/raise-resolution.js';
 import { type CheckContext } from '../system/auto-fail.js';
 import { finalizeRolledPool } from './pool-finalize.js';
+import { buildOpposedSkillTn } from './roll-context-build.js';
 import {
   manualKindFromRollKind,
   manualRollBonusForKind,
@@ -864,6 +865,12 @@ async function sendRollToChat(
                   <span class="value"><strong>${result.raises}</strong></span>
                 </div>
               ` : ''}
+              ${isSkillRoll && result.success && actor ? `
+                <div class="result-line" title="Opposed Skill Rolls: if this was a Setup Roll, the opposing creature rolls against 8 × your Mastery Rank + 2 per Raise.">
+                  <span>Opposing TN (Setup Roll):</span>
+                  <span class="value">${buildOpposedSkillTn((actor as any).system?.mastery?.rank || 2, result.raises)}</span>
+                </div>
+              ` : ''}
             </div>
           ` : ''}
         </div>
@@ -881,6 +888,13 @@ async function sendRollToChat(
                 </button>
               `).join('')}
             </div>
+          </div>
+        ` : ''}
+        ${isSkillRoll && skillKey && actorId ? `
+          <div class="skill-aid-panel" style="margin-top:0.35em;">
+            <button type="button" class="skill-spend-btn" data-action="aid-skill-check" data-skill-key="${skillKey}" data-actor-id="${actorId}" title="Basic Reaction: an ally with the same Skill at Rating ≥ 2 × their Mastery Rank grants +4 to the Final Result (1 Reaction in combat, one Aid per check).">
+              <i class="fas fa-hands-helping"></i> Aid (+4)
+            </button>
           </div>
         ` : ''}
       </div>

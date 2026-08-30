@@ -77,17 +77,48 @@ export interface CleanseApplyResult {
     statusEffects: any[];
 }
 /**
- * Apply Cleanse(X) to exactly one Special on `actor`.
+ * Apply a portion of a Cleanse to exactly one Special in the list.
  *
- * - Always affects a single Special (no split). Excess X is lost.
- * - If `chosenId` is omitted and only one cleansable Special exists, that one is used.
- * - If multiple exist and none is chosen, returns `applied: false` (caller should prompt).
+ * Single-target primitive used by `distributeCleanseAcrossList` — the
+ * rulebook allows the Cleanse value to be distributed freely across several
+ * eligible Specials.
  * Pure: does not persist — caller updates the actor.
  */
 export declare function applyCleanseToList(statusEffects: any[], cleanseX: number, chosenId?: string | null): CleanseApplyResult;
+export interface CleanseDistributionStep {
+    specialId: string;
+    before: number;
+    after: number;
+    reducedBy: number;
+}
+export interface CleanseDistributeResult {
+    applied: boolean;
+    totalReduced: number;
+    /** Unspent Cleanse value (lost per the rulebook). */
+    leftover: number;
+    steps: CleanseDistributionStep[];
+    /** Updated statusEffects list (not persisted). */
+    statusEffects: any[];
+}
+/**
+ * Distribute Cleanse(X) freely across eligible Specials (Players Guide
+ * "Cleanse(X)": remove up to X total points from one or more ongoing
+ * negative Specials that list Cleanse: Yes; distribution is free; unused
+ * value is lost).
+ *
+ * - With `allocations` (specialId → points) the given split is applied,
+ *   clamped to each Special's current value and the total budget X.
+ * - Without `allocations` the budget is spent greedily: highest stack
+ *   first, spilling over into the next until X is exhausted.
+ * Pure: does not persist — caller updates the actor.
+ */
+export declare function distributeCleanseAcrossList(statusEffects: any[], cleanseX: number, allocations?: Record<string, number> | null): CleanseDistributeResult;
+/** Human-readable summary of a Cleanse distribution ("Corrode 4→1, Hex ended"). */
+export declare function formatCleanseDistribution(result: CleanseDistributeResult): string;
 /**
  * Persist Cleanse(X) onto an actor. When multiple Specials are eligible and
- * `chosenId` is omitted, opens a Dialog so the user picks exactly one.
+ * `chosenId` is omitted, the value is distributed greedily across all
+ * eligible Specials (free distribution per the rulebook).
  */
 export declare function applyCleanseToActor(actor: any, cleanseX: number, chosenId?: string | null): Promise<CleanseApplyResult>;
 //# sourceMappingURL=pool-reduction.d.ts.map

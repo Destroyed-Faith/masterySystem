@@ -14,6 +14,8 @@ export interface EquipmentGridFlags {
   weaponSetPrepared?: boolean;
   /** Legacy: equipped items no longer occupy the carry grid. */
   keepInventoryGrid?: boolean;
+  /** PG "Item Rotation": rotated 90° — width × height becomes height × width. */
+  rotated?: boolean;
 }
 
 export function readEquipmentFlags(item: any): EquipmentGridFlags {
@@ -64,7 +66,7 @@ export function collectInventoryBandRects(
       item?.flags?.['mastery-system']?.equipment ||
       {};
     if (!occupiesInventoryGrid(flags, band)) continue;
-    const size = parseInventorySize(item?.system?.inventorySize);
+    const size = itemInventorySize(item);
     rects.push({
       x: Number(flags.grid.x),
       y: Number(flags.grid.y),
@@ -88,6 +90,16 @@ export function parseInventorySize(size: string | undefined): { w: number; h: nu
   const w = Math.max(1, parseInt(match[1], 10) || 1);
   const h = Math.max(1, parseInt(match[2], 10) || 1);
   return { w, h };
+}
+
+/**
+ * Effective footprint of an item in the carry grid, honoring the PG
+ * "Item Rotation" rule: a rotated item swaps width × height.
+ */
+export function itemInventorySize(item: any): { w: number; h: number } {
+  const size = parseInventorySize(item?.system?.inventorySize);
+  const flags = readEquipmentFlags(item);
+  return flags.rotated === true ? { w: size.h, h: size.w } : size;
 }
 
 export function rectsOverlap(a: GridRect, b: GridRect): boolean {

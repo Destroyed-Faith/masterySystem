@@ -7,7 +7,7 @@ import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown } from '../ut
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
-import { getActiveSpecialValue } from '../system/active-specials.js';
+import { getActiveSpecialValue, hasActiveSpecial } from '../system/active-specials.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
@@ -137,9 +137,25 @@ export class MasteryActor extends Actor {
                 const healthBarBonus = Math.max(-9999, system.manual.health.barMaxBonus || 0);
                 const stressBarBonus = Math.max(-9999, system.manual.stress.barMaxBonus || 0);
                 const vitality = system.attributes.vitality?.value || 2;
-                // Health bar max = Vitality × 2 + manual Health Bonus per bar.
+                // Absorption Passive (Rules/passives.md): each normal Health Bar gains
+                // +4 Max HP per Passive Level (bar formula: Vitality × 2 + Absorption HP).
+                let absorptionHp = 0;
+                try {
+                    for (const item of this.items ?? []) {
+                        if (item?.type === 'power' &&
+                            String(item.system?.templateId ?? '') === 'passive-absorption') {
+                            const lvl = Math.max(1, Math.min(16, Math.floor(Number(item.system?.level) || 1)));
+                            absorptionHp = 4 * lvl;
+                            break;
+                        }
+                    }
+                }
+                catch {
+                    /* items not yet initialized on first prepare */
+                }
+                // Health bar max = Vitality × 2 + Absorption HP + manual Health Bonus per bar.
                 // A negative bonus is clamped at 1 so HP never collapses to 0.
-                const maxHP = Math.max(1, calculateHealthBarMax(vitality) + healthBarBonus);
+                const maxHP = Math.max(1, calculateHealthBarMax(vitality) + absorptionHp + healthBarBonus);
                 if (!system.health) {
                     system.health = {
                         bars: initializeHealthBars(vitality),
@@ -463,7 +479,10 @@ export class MasteryActor extends Actor {
         else {
             // Character: armorTotal = Mastery Rank + Armor Value + Shield Value
             const armorValue = equippedArmor?.system?.armorValue || 0;
-            const shieldValue = equippedShield?.system?.shieldValue || 0;
+            const baseShieldValue = equippedShield?.system?.shieldValue || 0;
+            // Brace(X): while Braced, the Shield value is doubled for Armor calculation.
+            const braceStacks = getActiveSpecialValue(this, 'brace');
+            const shieldValue = braceStacks > 0 ? baseShieldValue * 2 : baseShieldValue;
             system.combat.armorTotal = masteryRank + armorValue + shieldValue;
             // evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier
             const baseEvade = calculateBaseEvade(masteryRank);
@@ -513,7 +532,7 @@ export class MasteryActor extends Actor {
                 },
                 {
                     label: 'Shield',
-                    detail: equippedShield?.name ?? 'Not equipped',
+                    detail: `${equippedShield?.name ?? 'Not equipped'}${braceStacks > 0 && equippedShield ? ' (Brace ×2)' : ''}`,
                     value: equippedShield != null ? shieldValue : null,
                     display: equippedShield != null ? String(shieldValue) : '—'
                 }
@@ -874,6 +893,25 @@ export class MasteryActor extends Actor {
             }
             if (slow > 0) {
                 system.combat.speed = Math.max(0, Number(system.combat.speed ?? 8) - slow);
+            }
+            // Root(X): while Root is above 0, Speed is 0 m (no voluntary movement).
+            const root = getActiveSpecialValue(this, 'root');
+            if (root > 0) {
+                system.combat.speed = 0;
+            }
+            // Brace(X): locked defensive stance — Speed becomes 0 m.
+            const brace = getActiveSpecialValue(this, 'brace');
+            if (brace > 0) {
+                system.combat.speed = 0;
+            }
+            // Immovable: cannot use Movement Powers, Movement becomes 0 m.
+            if (hasActiveSpecial(this, 'immovable')) {
+                system.combat.speed = 0;
+            }
+            // Grappled (PG "Grapple"): Speed becomes 0 m while held. Grappled can
+            // arrive via the specials list or as a Foundry token status.
+            if (hasActiveSpecial(this, 'grappled') || this.statuses?.has?.('grappled')) {
+                system.combat.speed = 0;
             }
         }
         catch (err) {

@@ -109,6 +109,12 @@ export interface EchoArtifactProgressionPickSpec {
   stageTemplateIds?: [string, string, string];
   /** Full row names per stage when `stageTemplateIds` is set (length 3). */
   stageNames?: [string, string, string];
+  /**
+   * Printed artifact-exclusive per-stage effect text (length 3). Overrides the
+   * catalog template's effect column when the rulebook prints its own profile
+   * (e.g. Wyrm Scales' +6/+12/+18 Armor buff).
+   */
+  stageEffectTexts?: [string, string, string];
   /** Cast this line as a Spell (Intellect / Resolve). */
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
@@ -219,8 +225,9 @@ const STONEBOUND_SOLES: EchoArtifactDefinition = {
     3: { name: 'Stoneweave Guard', templateId: 'empower-buff-armor' },
   },
   baseValues: [
-    { slot: 'a', label: 'Tremorsense', note: 'Ground-contact detection within 4–16 m.' },
-    { slot: 'b', label: 'Armor (Feet)', note: '+1 to +4 Armor at higher levels.' },
+    { slot: 'a', label: 'Armor (Feet)', note: '+1 Armor at Level 1 up to +5 Armor at Levels 9–10.' },
+    { slot: 'b', label: 'Tunneling', note: '+1 m Tunneling at Levels 4–5 up to +4 m at Level 10 (not Burrow).' },
+    { slot: 'c', label: 'Tremor Sense (Sense Option)', note: 'Slot instead of Normal Combat Awareness; 20 m, shared solid surface. Does not scale.' },
   ],
   levelProgression: [
     {
@@ -378,7 +385,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect.',
+        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
       special: 'agility.crit',
     },
     {
@@ -406,7 +413,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 2, 3 yourself. If Tiers 2, 3 are not paid, the pre-filled Tier 4 has no effect.',
+        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.',
       special: 'agility.crit',
     },
     {
@@ -434,7 +441,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 5. You must still pay Tiers 2, 3, 4 yourself. If Tiers 2, 3, 4 are not paid, the pre-filled Tier 5 has no effect.',
+        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.',
       special: 'agility.crit',
     },
     {
@@ -958,17 +965,17 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     {
       slot: 'a',
       label: 'Claw / Tail Damage',
-      note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).',
+      note: '4d8 at Level 1 up to 16d8 at Level 10 (printed per-level table).',
     },
     {
       slot: 'b',
       label: 'Weapon Special',
-      note: 'Penetration scaling from L4.',
+      note: 'Penetration(2) at L4 up to Penetration(5) at L9–10.',
     },
     {
       slot: 'c',
       label: 'Weapon Special',
-      note: 'Brutal Impact scaling from L7.',
+      note: 'Brutal Impact(4) at L7–8, Brutal Impact(5) at L9–10.',
     },
   ],
   levelProgression: [
@@ -990,7 +997,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       aoe: 'Radius 3 m',
       duration: 'Instant',
       effect: 'Affected creatures take your current Claw / Tail Weapon Damage.',
-      special: 'Lacerate(3)',
+      special: 'Lacerate(5)',
     },
     {
       level: 3,
@@ -1020,7 +1027,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       aoe: 'Radius 6 m',
       duration: 'Instant',
       effect: 'Affected creatures take Claw / Tail Damage.',
-      special: 'Lacerate(5)',
+      special: 'Lacerate(7)',
     },
     {
       level: 6,
@@ -1050,7 +1057,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       aoe: 'Radius 7 m',
       duration: 'Instant',
       effect: 'Affected creatures take Claw / Tail Damage.',
-      special: 'Lacerate(7)',
+      special: 'Lacerate(10)',
     },
     {
       level: 9,
@@ -1109,8 +1116,13 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
     },
     {
       slot: 'b',
-      label: 'Scent of Blood',
-      note: 'Detect from L4, Locate from L7, Identify at L10.',
+      label: 'Head Armor',
+      note: '+1 Armor at Level 1 up to +5 Armor at Levels 9–10 (minor Armor, stacks normally).',
+    },
+    {
+      slot: 'c',
+      label: 'Predator Sense (Sense Option)',
+      note: 'Sense Slot option, 20 m. Does not scale with Artifact Level.',
     },
   ],
   levelProgression: [
@@ -1821,6 +1833,7 @@ export function buildEchoProgressionPicks(
   stageNumerals?: string[];
   stageTemplateIds?: [string, string, string];
   stageNames?: [string, string, string];
+  stageEffectTexts?: [string, string, string];
   isSpell?: boolean;
   castingAttribute?: CastingAttribute;
   spellResolution?: SpellResolution;
@@ -1838,6 +1851,7 @@ export function buildEchoProgressionPicks(
     stageNumerals?: string[];
     stageTemplateIds?: [string, string, string];
     stageNames?: [string, string, string];
+    stageEffectTexts?: [string, string, string];
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;
@@ -1868,6 +1882,7 @@ export function buildEchoProgressionPicks(
       ...(spec.stageNumerals ? { stageNumerals: spec.stageNumerals } : {}),
       ...(spec.stageTemplateIds ? { stageTemplateIds: spec.stageTemplateIds } : {}),
       ...(spec.stageNames ? { stageNames: spec.stageNames } : {}),
+      ...(spec.stageEffectTexts ? { stageEffectTexts: spec.stageEffectTexts } : {}),
       ...(spec.isSpell ? { isSpell: true } : {}),
       ...(spec.castingAttribute ? { castingAttribute: spec.castingAttribute } : {}),
       ...(spec.spellResolution ? { spellResolution: spec.spellResolution } : {}),

@@ -13,7 +13,7 @@
  */
 export declare function computeMarkFloorBonus(damageChatRolls: Array<{
     terms?: any[];
-} | null | undefined>, spend: number): number;
+} | null | undefined>, spend: number, existingFloor?: number): number;
 /** Clamp a chosen Mark spend to `[0, markOnTarget]`. */
 export declare function clampMarkSpend(markOnTarget: number, chosen: number): number;
 //# sourceMappingURL=mark-floor.d.ts.map

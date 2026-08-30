@@ -53,7 +53,18 @@ function makeMockActor(): MockActor {
     system: {
       // Canonical Temp-HP field is `tempHP` (capital P) — the damage pipeline
       // and stone powers read/write that spelling.
-      health: { tempHP: 0, scarred: 1 },
+      health: {
+        tempHP: 0,
+        scarred: 1,
+        // One Scarred Bar (index 0) + the active bar — Remove Scar needs a
+        // depleted bar it can reopen.
+        bars: [
+          { max: 20, current: 0 },
+          { max: 20, current: 10 },
+        ],
+        currentBar: 1,
+      },
+      stonePools: { vitality: { current: 2, max: 3, sustained: 0, sealed: 0, burned: 0 } },
       mastery: { rank: 2 },
       statusEffects: [{ id: 'ruin', name: 'Ruin (X)', value: 6 }],
     },
@@ -530,19 +541,18 @@ describe('Resolve — Damage Reduction ramps at T2', () => {
 });
 
 describe('stonePowerSkipsFirstTier', () => {
-  it('skips the empty Tier 1 on ramp powers', () => {
-    expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(true);
-    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
-    expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(true);
-    expect(stonePowerSkipsFirstTier('resolve.damageReduction')).toBe(true);
-    expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(true);
-    expect(stonePowerSkipsFirstTier('agility.crit')).toBe(true);
-    expect(stonePowerSkipsFirstTier('might.parry')).toBe(true);
-    expect(stonePowerSkipsFirstTier('vitality.damageNegation')).toBe(true);
-    expect(stonePowerSkipsFirstTier('influence.notATarget')).toBe(true);
-  });
-
-  it('does not skip powers that already do something at Tier 1', () => {
+  it('never skips: the blank Tier 1 is a payable ramp step (1 Stone, no effect)', () => {
+    // Players Guide cost ladder: 1st use = 1 Stone. Ramp powers pay their
+    // empty Tier 1 instead of jumping to Tier 2 for 2 Stones.
+    expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(false);
+    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(false);
+    expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(false);
+    expect(stonePowerSkipsFirstTier('resolve.damageReduction')).toBe(false);
+    expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(false);
+    expect(stonePowerSkipsFirstTier('agility.crit')).toBe(false);
+    expect(stonePowerSkipsFirstTier('might.parry')).toBe(false);
+    expect(stonePowerSkipsFirstTier('vitality.damageNegation')).toBe(false);
+    expect(stonePowerSkipsFirstTier('influence.notATarget')).toBe(false);
     expect(stonePowerSkipsFirstTier('wits.initiativeBoost')).toBe(false);
     expect(stonePowerSkipsFirstTier('wits.reactionRange')).toBe(false);
   });

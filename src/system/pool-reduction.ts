@@ -221,11 +221,11 @@ export interface CleanseApplyResult {
 }
 
 /**
- * Apply Cleanse(X) to exactly one Special on `actor`.
+ * Apply a portion of a Cleanse to exactly one Special in the list.
  *
- * - Always affects a single Special (no split). Excess X is lost.
- * - If `chosenId` is omitted and only one cleansable Special exists, that one is used.
- * - If multiple exist and none is chosen, returns `applied: false` (caller should prompt).
+ * Single-target primitive used by `distributeCleanseAcrossList` — the
+ * rulebook allows the Cleanse value to be distributed freely across several
+ * eligible Specials.
  * Pure: does not persist — caller updates the actor.
  */
 export function applyCleanseToList(
@@ -289,9 +289,111 @@ export function applyCleanseToList(
   };
 }
 
+export interface CleanseDistributionStep {
+  specialId: string;
+  before: number;
+  after: number;
+  reducedBy: number;
+}
+
+export interface CleanseDistributeResult {
+  applied: boolean;
+  totalReduced: number;
+  /** Unspent Cleanse value (lost per the rulebook). */
+  leftover: number;
+  steps: CleanseDistributionStep[];
+  /** Updated statusEffects list (not persisted). */
+  statusEffects: any[];
+}
+
+/**
+ * Distribute Cleanse(X) freely across eligible Specials (Players Guide
+ * "Cleanse(X)": remove up to X total points from one or more ongoing
+ * negative Specials that list Cleanse: Yes; distribution is free; unused
+ * value is lost).
+ *
+ * - With `allocations` (specialId → points) the given split is applied,
+ *   clamped to each Special's current value and the total budget X.
+ * - Without `allocations` the budget is spent greedily: highest stack
+ *   first, spilling over into the next until X is exhausted.
+ * Pure: does not persist — caller updates the actor.
+ */
+export function distributeCleanseAcrossList(
+  statusEffects: any[],
+  cleanseX: number,
+  allocations?: Record<string, number> | null,
+): CleanseDistributeResult {
+  let budget = Math.max(0, Math.floor(Number(cleanseX) || 0));
+  let list = Array.isArray(statusEffects) ? statusEffects.map((e) => ({ ...e })) : [];
+  const steps: CleanseDistributionStep[] = [];
+
+  const eligibleRows = () =>
+    list
+      .map((e) => {
+        const rawId = String(e?.id ?? '').toLowerCase();
+        const name = String(e?.name ?? '').toLowerCase();
+        const canon = SPECIAL_EFFECTS_BY_ID.get(rawId)
+          ? rawId
+          : [...SPECIAL_EFFECTS_BY_ID.values()].find((eff) => eff.name.toLowerCase() === name)?.id;
+        return { entry: e, id: canon ?? '', value: Math.max(0, Math.floor(Number(e?.value ?? 0))) };
+      })
+      .filter((r) => r.id && r.value > 0 && isCleansable(r.id));
+
+  const spendOn = (id: string, amount: number) => {
+    if (amount <= 0 || budget <= 0) return;
+    const spend = Math.min(amount, budget);
+    const result = applyCleanseToList(list, spend, id);
+    if (!result.applied) return;
+    list = result.statusEffects;
+    budget -= result.reducedBy;
+    steps.push({
+      specialId: id,
+      before: result.remaining + result.reducedBy,
+      after: result.remaining,
+      reducedBy: result.reducedBy,
+    });
+  };
+
+  if (allocations && Object.keys(allocations).length > 0) {
+    for (const [id, amount] of Object.entries(allocations)) {
+      spendOn(String(id).toLowerCase(), Math.max(0, Math.floor(Number(amount) || 0)));
+      if (budget <= 0) break;
+    }
+  } else {
+    // Greedy: highest stack first, spill over until the budget is spent.
+    let guard = 64;
+    while (budget > 0 && guard-- > 0) {
+      const rows = eligibleRows().sort((a, b) => b.value - a.value || a.id.localeCompare(b.id));
+      if (!rows.length) break;
+      spendOn(rows[0]!.id, rows[0]!.value);
+    }
+  }
+
+  const totalReduced = steps.reduce((s, st) => s + st.reducedBy, 0);
+  return {
+    applied: totalReduced > 0,
+    totalReduced,
+    leftover: budget,
+    steps,
+    statusEffects: list,
+  };
+}
+
+/** Human-readable summary of a Cleanse distribution ("Corrode 4→1, Hex ended"). */
+export function formatCleanseDistribution(result: CleanseDistributeResult): string {
+  return result.steps
+    .map((s) =>
+      s.after > 0
+        ? `${s.specialId}(${s.before}) → ${s.specialId}(${s.after})`
+        : `${s.specialId}(${s.before}) ended`,
+    )
+    .join(', ');
+}
+
 /**
  * Persist Cleanse(X) onto an actor. When multiple Specials are eligible and
- * `chosenId` is omitted, opens a Dialog so the user picks exactly one.
+ * `chosenId` is omitted, the value is distributed greedily across all
+ * eligible Specials (free distribution per the rulebook).
  */
 export async function applyCleanseToActor(
   actor: any,
@@ -301,46 +403,28 @@ export async function applyCleanseToActor(
   const list: any[] = Array.isArray(actor?.system?.statusEffects)
     ? [...actor.system.statusEffects]
     : [];
-  const eligible = cleansableSpecials(actor);
-  let pick = chosenId ?? null;
 
-  if (!pick && eligible.length > 1 && typeof (globalThis as any).Dialog === 'function') {
-    pick = await new Promise<string | null>((resolve) => {
-      const buttons: Record<string, any> = {};
-      for (const s of eligible) {
-        const label = `${s.id}(${s.value})`;
-        buttons[s.id] = {
-          label,
-          callback: () => resolve(s.id),
-        };
-      }
-      buttons.cancel = {
-        label: 'Cancel',
-        callback: () => resolve(null),
-      };
-      new (globalThis as any).Dialog({
-        title: `Cleanse(${Math.floor(cleanseX)}) — choose one Special`,
-        content: `<p>Cleanse affects exactly one Special. Excess value is lost.</p>`,
-        buttons,
-        default: eligible[0]?.id,
-        close: () => resolve(null),
-      }).render(true);
-    });
-    if (!pick) {
-      return {
-        applied: false,
-        specialId: null,
-        reducedBy: 0,
-        remaining: 0,
-        fullValueSpent: false,
-        statusEffects: list,
-      };
+  // Explicit single-target pick (legacy callers / Reactive Cleanse).
+  if (chosenId) {
+    const result = applyCleanseToList(list, cleanseX, chosenId);
+    if (result.applied && actor?.update) {
+      await actor.update({ 'system.statusEffects': result.statusEffects });
     }
+    return result;
   }
 
-  const result = applyCleanseToList(list, cleanseX, pick);
-  if (result.applied && actor?.update) {
-    await actor.update({ 'system.statusEffects': result.statusEffects });
+  // Free distribution across all eligible Specials (rulebook default).
+  const distributed = distributeCleanseAcrossList(list, cleanseX);
+  if (distributed.applied && actor?.update) {
+    await actor.update({ 'system.statusEffects': distributed.statusEffects });
   }
-  return result;
+  const first = distributed.steps[0] ?? null;
+  return {
+    applied: distributed.applied,
+    specialId: first?.specialId ?? null,
+    reducedBy: distributed.totalReduced,
+    remaining: first?.after ?? 0,
+    fullValueSpent: distributed.leftover <= 0 && distributed.totalReduced > 0,
+    statusEffects: distributed.statusEffects,
+  };
 }

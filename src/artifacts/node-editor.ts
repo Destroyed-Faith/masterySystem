@@ -488,7 +488,7 @@ function syncWeaponRangeLabel(html: JQuery): void {
   html.find('#node-weapon-range-label').text(melee ? 'Reach' : 'Range');
   html
     .find('#node-weapon-range')
-    .attr('placeholder', melee ? 'e.g. 0m, Reach (+1 m)' : 'e.g. 8/16/32m');
+    .attr('placeholder', melee ? 'e.g. 0m, Reach (+1 m)' : 'e.g. 32m');
 }
 
 function syncSpecialRowValueVisibility($row: JQuery): void {

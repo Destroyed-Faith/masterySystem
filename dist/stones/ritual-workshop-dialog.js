@@ -29,9 +29,6 @@ function skillKeyFromDisplayName(name) {
     const entry = Object.entries(SKILLS).find(([, def]) => def.name.toLowerCase() === name.toLowerCase());
     return entry ? entry[0] : null;
 }
-function actorMasteryRank(actor) {
-    return Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 1));
-}
 function attrLabel(key) {
     return ATTR_LABELS[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
 }
@@ -49,7 +46,10 @@ export class RitualWorkshopController {
     constructor(actor, opts) {
         this.actor = actor;
         this.onRefresh = opts.onRefresh;
-        this.ritualMR = actorMasteryRank(actor);
+        /* PG "Determining the Ritual MR": the character's own MR does NOT set the
+         * TN — the Ritual MR comes from the target/creator/artifact/scene and must
+         * be entered by the GM. Starts unset (0) and blocks the roll. */
+        this.ritualMR = 0;
         const initial = (opts.ritualId && getRitualById(opts.ritualId)) || RITUALS[0];
         this.selectedId = initial?.id ?? '';
         this.#applyRitualDefaults(initial, true);
@@ -97,7 +97,11 @@ export class RitualWorkshopController {
             this.placed = this.placed.slice(0, cost);
     }
     #canRoll(ritual, stoneCost) {
-        return !!ritual && this.placed.length === stoneCost && !!this.skillKey && !!this.attributeKey;
+        return (!!ritual &&
+            this.ritualMR >= 1 &&
+            this.placed.length === stoneCost &&
+            !!this.skillKey &&
+            !!this.attributeKey);
     }
     prepareContext() {
         const ritual = this.#selectedRitual();
@@ -106,8 +110,9 @@ export class RitualWorkshopController {
         this.#trimPlacedToCost(ritual);
         const categoryLabel = ritual ? ritualCategoryLabels(ritual) : '';
         const stoneCost = ritual ? ritualStoneCost(ritual, this.declaredRaise) : 1;
-        const baseTn = calculateRitualTN(this.ritualMR, this.gmMod);
-        const raiseTn = calculateRitualRaiseTN(baseTn, this.declaredRaise);
+        const mrSet = this.ritualMR >= 1;
+        const baseTn = mrSet ? calculateRitualTN(this.ritualMR, this.gmMod) : null;
+        const raiseTn = mrSet && baseTn != null ? calculateRitualRaiseTN(baseTn, this.declaredRaise) : null;
         const skillKeys = this.#eligibleSkillKeys(ritual);
         const skillOptions = skillKeys.map((key) => ({
             key,
@@ -181,7 +186,7 @@ export class RitualWorkshopController {
                     specialCostNote: ritual.specialCostNote ?? '',
                 }
                 : null,
-            ritualMR: this.ritualMR,
+            ritualMR: mrSet ? this.ritualMR : '',
             gmMod: this.gmMod,
             declaredRaise: this.declaredRaise,
             raiseOptions: Array.from({ length: maxRaise + 1 }, (_, level) => ({
@@ -247,7 +252,8 @@ export class RitualWorkshopController {
             });
         });
         root.querySelector('.js-rw-mr')?.addEventListener('change', (ev) => {
-            this.ritualMR = Math.max(1, Math.floor(Number(ev.target.value) || 1));
+            // 0 = unset ("empty"); the roll stays blocked until a Ritual MR is entered.
+            this.ritualMR = Math.max(0, Math.floor(Number(ev.target.value) || 0));
             refresh();
         });
         root.querySelector('.js-rw-gm-mod')?.addEventListener('change', (ev) => {
@@ -311,8 +317,12 @@ export class RitualWorkshopController {
         if (!ritual)
             return;
         const stoneCost = ritualStoneCost(ritual, this.declaredRaise);
-        if (!this.#canRoll(ritual, stoneCost))
+        if (!this.#canRoll(ritual, stoneCost)) {
+            if (this.ritualMR < 1) {
+                ui.notifications?.warn('Enter the Ritual MR first (target / creator / artifact / scene — not your own MR).');
+            }
             return;
+        }
         const baseTn = calculateRitualTN(this.ritualMR, this.gmMod);
         await performRitualRoll(this.actor, ritual, {
             skillKey: this.skillKey,

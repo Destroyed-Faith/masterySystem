@@ -27,10 +27,10 @@ function mockActor(overrides: {
 }
 
 describe('reducedSkillAttributePool', () => {
-  it('rounds attribute/2 mathematically with a minimum of 1', () => {
+  it('floors attribute/2 with a minimum of 1', () => {
     expect(reducedSkillAttributePool(8)).toBe(4);
-    expect(reducedSkillAttributePool(7)).toBe(4);
-    expect(reducedSkillAttributePool(5)).toBe(3);
+    expect(reducedSkillAttributePool(7)).toBe(3);
+    expect(reducedSkillAttributePool(5)).toBe(2);
     expect(reducedSkillAttributePool(1)).toBe(1);
   });
 });
@@ -50,11 +50,11 @@ describe('skill roll pool preview', () => {
     expect(preview.diceLabel).toBe('4d8 k2');
   });
 
-  it('rounds odd attributes up when below 2×MR', () => {
+  it('rounds odd attributes down when below 2×MR (rulebook: rounded down)', () => {
     const actor = mockActor({ masteryRank: 2, skills: { athletics: 3 }, attributes: { might: 7 } });
     const preview = buildSkillRollPoolPreview(actor, 'athletics', 'might', 3);
-    expect(preview.numDice).toBe(4);
-    expect(preview.rollLabel).toBe('4k2');
+    expect(preview.numDice).toBe(3);
+    expect(preview.rollLabel).toBe('3k2');
   });
 
   it('switches to full pool when skill rating override crosses threshold', () => {

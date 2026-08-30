@@ -90,7 +90,7 @@ export class MinorMagicPanel {
         },
         {
           label: 'What it stores',
-          text: 'One use of a single Active Power you purchased and advanced, or an Artifact Active at Artifact Level 6 or lower (Basic or Improved). If the Artifact is higher, the Improved stage is stored. Greater and Ultimate Artifact Powers, granted Powers, Active Buffs, and temporary Powers cannot be stored. No Stones, currency, or special materials.',
+          text: 'One use of a single Active Power you currently have as one of your own Powers, with an Instant duration. Active Buffs, Passives, Reactions, Movement Powers, Rituals, Stone Abilities, Artifact Functions, granted and temporary Powers cannot be stored. No Stones, currency, or special materials.',
         },
         {
           label: 'Snapshot',

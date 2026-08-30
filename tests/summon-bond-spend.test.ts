@@ -76,21 +76,22 @@ describe('Bond upgrade steppers', () => {
     expect(applyBodyFieldDelta(spend, 0, 'evadePurchases', 1, ctx())).toBeNull();
   });
 
-  it('caps walking/swimming movement at 4 purchases (16 m) and flying at 6', () => {
+  it('caps every Movement Mode at 4 purchases (base 8 m → 16 m)', () => {
     expect(maxMovementPurchases('walking')).toBe(4);
     expect(maxMovementPurchases('swimming')).toBe(4);
-    expect(maxMovementPurchases('flying')).toBe(6);
+    expect(maxMovementPurchases('flying')).toBe(4);
+    expect(maxMovementPurchases('climbing')).toBe(4);
 
     const walk = emptyBondSpend(1);
     walk.movementPurchases = 4;
     expect(applyBondFieldDelta(walk, 'movementPurchases', 1, ctx({ boundStoneCount: 4 }))).toBeNull();
 
     const fly = emptyBondSpend(1);
-    fly.movementPurchases = 6;
+    fly.movementPurchases = 4;
     expect(applyBondFieldDelta(fly, 'movementPurchases', 1, ctx({ boundStoneCount: 4, movementMode: 'flying' }))).toBeNull();
-    const fly5 = emptyBondSpend(1);
-    fly5.movementPurchases = 5;
-    expect(applyBondFieldDelta(fly5, 'movementPurchases', 1, ctx({ boundStoneCount: 4, movementMode: 'flying' }))?.movementPurchases).toBe(6);
+    const fly3 = emptyBondSpend(1);
+    fly3.movementPurchases = 3;
+    expect(applyBondFieldDelta(fly3, 'movementPurchases', 1, ctx({ boundStoneCount: 4, movementMode: 'flying' }))?.movementPurchases).toBe(4);
   });
 
   it('caps Extra Attack at 2 purchases (3 total Bond Attacks)', () => {
@@ -230,14 +231,13 @@ describe('legacy illegal purchases', () => {
 });
 
 describe('Summon Skill eligibility', () => {
-  it('requires owner Rating >= MR × 2 and caps at MR × 4', () => {
-    expect(summonSkillMinRating(2)).toBe(4);
+  it('requires owner Rating >= 1 (PG: Rating 0 cannot be assigned dice)', () => {
+    expect(summonSkillMinRating(2)).toBe(1);
     expect(summonSkillMaxRating(2)).toBe(8);
     expect(isSummonSkillEligible(0, 2)).toBe(false);
-    expect(isSummonSkillEligible(3, 2)).toBe(false);
-    expect(isSummonSkillEligible(4, 2)).toBe(true);
-    expect(isSummonSkillEligible(4, 3)).toBe(false);
-    expect(isSummonSkillEligible(6, 3)).toBe(true);
+    expect(isSummonSkillEligible(1, 2)).toBe(true);
+    expect(isSummonSkillEligible(3, 2)).toBe(true);
+    expect(isSummonSkillEligible(4, 3)).toBe(true);
   });
 
   it('cannot buy Skill Dice without an eligible selected skill', () => {
@@ -271,7 +271,7 @@ describe('Summon Skill eligibility', () => {
     ).toBe(1);
   });
 
-  it('blocks Apply when a selected skill falls below the new MR threshold', () => {
+  it('blocks Apply when the owner has Rating 0 in a selected skill', () => {
     const bond = createEmptyBond({
       name: 'Owl',
       ownerActorId: 'A',
@@ -279,9 +279,10 @@ describe('Summon Skill eligibility', () => {
       stoneAttributes: ['wits'],
     });
     bond.selectedSkills = ['perception'];
-    const v = validateBondRitual(bond, { perception: 4 }, 3);
+    expect(validateBondRitual(bond, { perception: 4 }, 3).ok).toBe(true);
+    const v = validateBondRitual(bond, { perception: 0 }, 3);
     expect(v.ok).toBe(false);
-    expect(v.errors.some((e) => /Owner skill too low\. Needs MR × 2/.test(e))).toBe(true);
+    expect(v.errors.some((e) => /Rating 0/.test(e))).toBe(true);
   });
 });
 

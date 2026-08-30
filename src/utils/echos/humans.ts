@@ -9,7 +9,7 @@ export const HUMANS_ECHO: EchoDefinition = {
     'The most widespread people of the shattered world. Adaptable, resilient, painfully easy to use. Bearers of demonic marks, keepers of small fires in dark places.',
   creatureType: 'Humanoid',
   size: 'medium',
-  speed: 10,
+  speed: 8,
   coreTraits: [],
   deck: [
     {

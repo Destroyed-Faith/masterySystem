@@ -1,1 +1,1 @@
-{"version":3,"file":"passives.d.ts","sourceRoot":"","sources":["../../../../src/utils/powers/templates/passives.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;;;;;;;GAqBG;AAEH,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,cAAc,CAAC;AAglClD,eAAO,MAAM,iBAAiB,EAAE,aAAa,EAE5C,CAAC"}
+{"version":3,"file":"passives.d.ts","sourceRoot":"","sources":["../../../../src/utils/powers/templates/passives.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;;;;;;;GAqBG;AAEH,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,cAAc,CAAC;AAilClD,eAAO,MAAM,iBAAiB,EAAE,aAAa,EAE5C,CAAC"}

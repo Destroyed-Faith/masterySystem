@@ -20,6 +20,17 @@ export function skillFullPoolThreshold(masteryRank) {
 export function isSkillFullPoolReady(skillRating, masteryRank) {
     return Number(skillRating) >= skillFullPoolThreshold(masteryRank);
 }
+/**
+ * Opposed Skill Rolls (PG "Opposed Skill Rolls"): after a successful setup
+ * roll, the opposing creature rolls against
+ *   Opposing TN = standard Skill Check TN by the setup creature's MR (8 × MR)
+ *                 + 2 per Raise on the setup roll.
+ */
+export function buildOpposedSkillTn(setupMasteryRank, setupRaises) {
+    const mr = Math.max(1, Math.floor(Number(setupMasteryRank) || 1));
+    const raises = Math.max(0, Math.floor(Number(setupRaises) || 0));
+    return mr * 8 + raises * 2;
+}
 export function buildDifficultyPresets(challengeMR) {
     const std = Math.max(1, Math.floor(challengeMR)) * 8;
     return {
@@ -35,9 +46,9 @@ export function buildDifficultyPresets(challengeMR) {
 function capAttr(key) {
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
-/** Skill rating below 2×MR: attribute dice = round(attr/2), minimum 1. */
+/** Skill rating below 2×MR: attribute dice = floor(attr/2), minimum 1 (Players Guide: "half the Attribute Pool, rounded down"). */
 export function reducedSkillAttributePool(attributeValue) {
-    return Math.max(1, Math.round(Number(attributeValue) / 2));
+    return Math.max(1, Math.floor(Number(attributeValue) / 2));
 }
 function skillRollIconClass(skillKey, attributeKey) {
     if (skillKey === 'perception') {
@@ -72,7 +83,7 @@ export function buildSkillRollPoolPreview(actor, skillKey, attributeKey, skillRa
     }
     else {
         const reduced = reducedSkillAttributePool(attributeValue);
-        tooltip = `${attrLabel} ${attributeValue} → ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; round(${attributeValue}/2) = ${reduced}, MR floor ${masteryRank})`;
+        tooltip = `${attrLabel} ${attributeValue} → ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; floor(${attributeValue}/2) = ${reduced}, MR floor ${masteryRank})`;
     }
     const penaltyParts = [];
     if (pool.equipPenalty > 0)
@@ -175,7 +186,7 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
     let halfPoolFlavor = '';
     if (pool.halfPool) {
         const reduced = reducedSkillAttributePool(attributeValue);
-        halfPoolFlavor = ` Reduced pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → round(${attributeValue}/2) = ${reduced} attribute dice.`;
+        halfPoolFlavor = ` Reduced pool: skill rating ${skillRating} < ${poolThreshold} (2×MR) → floor(${attributeValue}/2) = ${reduced} attribute dice.`;
     }
     const equipPenaltyFlavor = pool.equipPenalty > 0
         ? ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8.`

@@ -2,11 +2,11 @@
  * Summons V2 — universal Summon Bond rules (Players Guide / agent.md v0.9.8).
  *
  * Tokens = Bound Stones × 8 (first stone included).
- * One Movement Mode (Flying 4–16 m; Walking/Swimming 8–16 m). Bond- vs Body-scoped upgrades.
+ * One Movement Mode (Walking/Flying/Swimming/Climbing, each 8–16 m). Bond- vs Body-scoped upgrades.
  * No Familiar / Companion / Host chassis.
  */
 
-export type SummonMovementMode = 'walking' | 'flying' | 'swimming';
+export type SummonMovementMode = 'walking' | 'flying' | 'swimming' | 'climbing';
 
 export type SharedSenseGroup = 'sight' | 'hearing' | 'tasteSmell' | 'touchPressure';
 
@@ -17,14 +17,15 @@ export const SUMMON_MOVEMENT_MODES: {
   maxM: number;
 }[] = [
   { value: 'walking', label: 'Walking', baseM: 8, maxM: 16 },
-  { value: 'flying', label: 'Flying', baseM: 4, maxM: 16 },
+  { value: 'flying', label: 'Flying', baseM: 8, maxM: 16 },
   { value: 'swimming', label: 'Swimming', baseM: 8, maxM: 16 },
+  { value: 'climbing', label: 'Climbing', baseM: 8, maxM: 16 },
 ];
 
-/** Base movement meters for a mode (Flying starts lower). */
+/** PG "One Movement Mode": every chosen mode begins at 8 m (cap 16 m). */
 export function baseMovementM(mode: SummonMovementMode | string): number {
-  const m = normalizeMovementMode(mode);
-  return m === 'flying' ? 4 : 8;
+  void normalizeMovementMode(mode);
+  return 8;
 }
 
 /** Max +2 m purchases until the 16 m cap. */
@@ -33,11 +34,12 @@ export function maxMovementPurchases(mode: SummonMovementMode | string): number 
   return Math.max(0, Math.floor((SUMMON_CAPS.maxMovementM - base) / SUMMON_CAPS.movementGainM));
 }
 
-/** Collapse retired modes (e.g. Climbing) onto Walking. */
+/** Normalize legacy spellings; PG modes: Walking / Flying / Swimming / Climbing. */
 export function normalizeMovementMode(mode: string | undefined): SummonMovementMode {
   const t = String(mode || '').toLowerCase();
   if (t === 'flying' || t === 'fly') return 'flying';
   if (t === 'swimming' || t === 'swim') return 'swimming';
+  if (t === 'climbing' || t === 'climb') return 'climbing';
   return 'walking';
 }
 
@@ -162,10 +164,12 @@ export function summonTokensFromStones(boundStoneCount: number, bonusTokens = 0)
   return stones * SUMMON_CAPS.tokensPerStone + bonus;
 }
 
-/** Minimum owner Rating for a Summon Skill: MR × 2. */
-export function summonSkillMinRating(ownerMasteryRank: number): number {
-  const mr = Math.max(1, Math.floor(Number(ownerMasteryRank) || 1));
-  return mr * 2;
+/**
+ * PG "Buying and Distributing Skill Dice": the only floor is owner Rating ≥ 1
+ * ("If the owner has Rating 0 in a Skill, the Bond cannot assign dice").
+ */
+export function summonSkillMinRating(_ownerMasteryRank: number): number {
+  return 1;
 }
 
 /** Owner skill cap: MR × 4. */
@@ -174,7 +178,7 @@ export function summonSkillMaxRating(ownerMasteryRank: number): number {
   return mr * 4;
 }
 
-/** A skill is eligible only if the owner Rating is at least MR × 2. */
+/** A skill is eligible when the owner has any Rating in it (≥ 1). */
 export function isSummonSkillEligible(ownerRating: number, ownerMasteryRank: number): boolean {
   const rating = Math.max(0, Math.floor(Number(ownerRating) || 0));
   return rating >= summonSkillMinRating(ownerMasteryRank);

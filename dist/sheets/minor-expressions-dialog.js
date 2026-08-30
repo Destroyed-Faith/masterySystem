@@ -119,7 +119,30 @@ export async function showMinorExpressionsDialog(actor, options) {
                         if (prev !== next && sanitized.length > cleaned.length) {
                             globalThis.ui?.notifications?.info('Minor Expressions wurden an Mastery Rank oder Attributwerte angepasst.');
                         }
-                        await actor.update({ 'system.minorExpressions': cleaned });
+                        /* PG "Reroll Point Cost": neue Minor Expression kostet 1 aktuellen
+                         * Reroll Point, Entfernen erstattet 1 (bis Maximum). Ohne
+                         * Reroll-Point-Pool ist die Wahl kostenlos. */
+                        const updateData = { 'system.minorExpressions': cleaned };
+                        const ffMax = Math.max(0, Math.floor(Number(system.faithFractures?.maximum) || 0));
+                        if (ffMax > 0) {
+                            const before = new Set(sanitized);
+                            const after = new Set(cleaned);
+                            const added = cleaned.filter((id) => !before.has(id)).length;
+                            const removed = sanitized.filter((id) => !after.has(id)).length;
+                            if (added > 0 || removed > 0) {
+                                const current = Math.max(0, Math.floor(Number(system.faithFractures?.current) || 0));
+                                const afterRefund = Math.min(ffMax, current + removed);
+                                if (afterRefund < added) {
+                                    globalThis.ui?.notifications?.warn(`Nicht genug Reroll Points: ${added} neue Minor Expression${added === 1 ? '' : 's'} kosten je 1 Reroll Point (verfügbar: ${afterRefund}).`);
+                                    resolve();
+                                    return true;
+                                }
+                                const newCurrent = afterRefund - added;
+                                updateData['system.faithFractures.current'] = newCurrent;
+                                globalThis.ui?.notifications?.info(`Reroll Points: ${current} → ${newCurrent} (${added ? `−${added} neu` : ''}${added && removed ? ', ' : ''}${removed ? `+${removed} erstattet` : ''}).`);
+                            }
+                        }
+                        await actor.update(updateData);
                         resolve();
                         return true;
                     }

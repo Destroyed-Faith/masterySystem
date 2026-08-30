@@ -56,7 +56,7 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(rows.map((r) => r.name)).toEqual(['Stone Support I', 'Stone Support II', 'Stone Support III']);
   });
 
-  it('describes Crit support from the first real tier (2 stones), not a fake Tier 1', () => {
+  it('describes Crit support including the payable blank Tier 1 (1 Stone, no effect)', () => {
     const picks: ArtifactProgressionPick[] = [
       {
         level: 3,
@@ -68,12 +68,11 @@ describe('deriveLevelProgressionFromPicks', () => {
     const rows = deriveLevelProgressionFromPicks(picks);
     expect(rows.map((r) => r.level)).toEqual([3, 6, 9]);
     expect(rows[0].effect).toContain('pre-fills Tier 3');
-    expect(rows[0].effect).toContain('Tier 2');
-    expect(rows[0].effect).not.toContain('Tier 1');
+    expect(rows[0].effect).toContain('Tiers 1, 2');
     expect(rows[1].effect).toContain('pre-fills Tier 4');
-    expect(rows[1].effect).toContain('Tiers 2, 3');
+    expect(rows[1].effect).toContain('Tiers 1, 2, 3');
     expect(rows[2].effect).toContain('pre-fills Tier 5');
-    expect(rows[2].effect).toContain('Tiers 2, 3, 4');
+    expect(rows[2].effect).toContain('Tiers 1, 2, 3, 4');
   });
 
   it('emits nothing for empty / none picks', () => {

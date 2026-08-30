@@ -272,7 +272,7 @@ export function validateBondSkillAlloc(
   for (const skill of bond.selectedSkills || []) {
     const rating = Math.max(0, Math.floor(Number(ownerSkillRatings[skill]) || 0));
     if (!isSummonSkillEligible(rating, ownerMasteryRank)) {
-      errors.push(`${skill}: Owner skill too low. Needs MR × 2.`);
+      errors.push(`${skill}: Owner has Rating 0 — the Bond cannot select this Skill.`);
     }
   }
   let diceSum = 0;

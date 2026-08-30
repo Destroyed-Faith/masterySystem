@@ -1,20 +1,19 @@
 /**
  * Encumbrance & Inventory-Grid Load helpers.
  *
- * Source: Players Guide 7546–7727.
+ * Source: Players Guide "Inventory Grid & Load".
  *
  *   • Inventory Grid is **24 × 9 squares**, divided into 3 zones of 8
  *     columns each:
  *       Zone 1 (cols 1..8)   = Normal Load
- *       Zone 2 (cols 9..16)  = Encumbered  (Movement −4 m, dice pool −20 %)
- *       Zone 3 (cols 17..24) = Heavy Load  (Movement −6 m, dice pool −50 %)
+ *       Zone 2 (cols 9..16)  = Encumbered  (Movement −4 m)
+ *       Zone 3 (cols 17..24) = Overloaded  (Movement −6 m)
  *   • Only the *highest occupied* zone matters.
  *   • Items spanning multiple zones inherit the highest zone they touch.
  *
- * The character-sheet UI renders three equal 8 × 9 bands (Normal /
- * Encumbered / Heavy Load). Dice-pool penalties apply to **all rolls**
- * and stack additively with health penalties (both as % of the same base
- * pool); the final pool may reach 0.
+ * Load affects Movement only — there is NO dice-pool penalty from
+ * encumbrance in the current rulebook. (Dropping the load costs 1 Attack
+ * Action when Encumbered, 2 when Overloaded.)
  */
 
 import { getCurrentPenalty } from './calculations.js';
@@ -37,24 +36,17 @@ export const INVENTORY_GRID_COLS = 24;
 export const INVENTORY_GRID_ROWS = 9;
 export const ZONE_WIDTH_COLS = 8;
 
-/** Movement penalties per zone (Players Guide 7575–7579). */
+/** Movement penalties per zone (Players Guide load table). */
 export const MOVEMENT_PENALTY_BY_ZONE: Record<LoadZone, number> = {
     normal: 0,
     encumbered: -4,
     overloaded: -6,
 };
 
-/** Dice-pool penalty (% of base pool, floored) per load zone. */
-export const DICE_POOL_PENALTY_PERCENT_BY_ZONE: Record<LoadZone, number> = {
-    normal: 0,
-    encumbered: 20,
-    overloaded: 50,
-};
-
 export const LOAD_ZONE_LABEL: Record<LoadZone, string> = {
     normal: 'Normal Load',
     encumbered: 'Encumbered',
-    overloaded: 'Heavy Load',
+    overloaded: 'Overloaded',
 };
 
 /** Highest column an item rect occupies (1-based, inclusive). */
@@ -109,14 +101,6 @@ export function movementPenaltyForLoad(zone: LoadZone): number {
     return MOVEMENT_PENALTY_BY_ZONE[zone];
 }
 
-/** Floored dice removed from a pool due to encumbrance (0 when zone is normal). */
-export function dicePoolPenaltyFromLoadZone(zone: LoadZone, pool: number): number {
-    const pct = DICE_POOL_PENALTY_PERCENT_BY_ZONE[zone] ?? 0;
-    const base = Math.max(0, Math.floor(Number(pool) || 0));
-    if (pct <= 0 || base <= 0) return 0;
-    return Math.floor(base * pct / 100);
-}
-
 /**
  * Highest load zone from inventory-band flags on an actor's items.
  * Only items in the carry grid (`container: 'inventory'`) count.
@@ -143,14 +127,13 @@ export function getActorInventoryLoadZone(actor: { items: Iterable<any> }): Load
 export interface PoolPenaltyResult {
     numDice: number;
     healthPenaltyDice: number;
-    encumbrancePenaltyDice: number;
     loadZone: LoadZone;
 }
 
 /**
- * Apply health and encumbrance penalties to a dice pool. Both are computed as
- * percentages of the same `basePool` and subtracted additively; result floors
- * at 0 (encumbrance can zero the pool when stacked with wounds).
+ * Apply the Health percentage penalty to a dice pool. Encumbrance affects
+ * Movement only (no dice-pool reduction in the current rulebook); the load
+ * zone is still reported for UI display.
  */
 export function applyHealthAndEncumbrancePenalties(
     basePool: number,
@@ -162,9 +145,8 @@ export function applyHealthAndEncumbrancePenalties(
     const currentBar = actor.system?.health?.currentBar ?? 0;
     const healthPenalty = getCurrentPenalty(healthBars, currentBar, pool);
     const healthPenaltyDice = healthPenalty < 0 ? -healthPenalty : 0;
-    const encumbrancePenaltyDice = dicePoolPenaltyFromLoadZone(loadZone, pool);
-    const numDice = Math.max(0, pool - healthPenaltyDice - encumbrancePenaltyDice);
-    return { numDice, healthPenaltyDice, encumbrancePenaltyDice, loadZone };
+    const numDice = Math.max(0, pool - healthPenaltyDice);
+    return { numDice, healthPenaltyDice, loadZone };
 }
 
 /**

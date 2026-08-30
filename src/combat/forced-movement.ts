@@ -514,6 +514,20 @@ export async function offerForcedMovementFromActors(params: {
   labelPrefix?: string;
 }): Promise<ForcedMoveOutcome[]> {
   const outcomes: ForcedMoveOutcome[] = [];
+
+  // Immovable: immune to Push, Pull and forced movement (Players Guide).
+  try {
+    const { hasActiveSpecial } = await import('../system/active-specials.js');
+    if (params.movedActor && hasActiveSpecial(params.movedActor, 'immovable')) {
+      (globalThis as any).ui?.notifications?.info?.(
+        `${(params.movedActor as any).name} is Immovable — Push/Pull has no effect.`,
+      );
+      return ['unavailable'];
+    }
+  } catch {
+    /* active-specials unavailable — proceed */
+  }
+
   const movedTok = params.movedActor ? getPrimaryTokenForActor(params.movedActor as any) : null;
   const refTok = params.referenceActor ? getPrimaryTokenForActor(params.referenceActor as any) : null;
   if (!movedTok || !refTok) {

@@ -8,7 +8,7 @@
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { isBasicReactionItem } from './basic-combat.js';
-import { isAllyReactionPower, isThreatenedRangedOffensiveReaction } from './defender-reactions.js';
+import { isAllyReactionPower, isThreatenedDeclarationLegalReaction } from './defender-reactions.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
 
@@ -264,11 +264,13 @@ export function evaluateReactionEligibility(power: any, ctx: ReactionTriggerCont
   }
   const threatenedWindow = phase === 'others' || phase === 'opportunity';
   if (threatenedWindow) {
-    if (!isThreatenedRangedOffensiveReaction(power)) {
+    // Threatened Ranged opens at DECLARATION — the reactor was not hit,
+    // targeted, or damaged, so hit-trigger reactions are illegal here.
+    if (!isThreatenedDeclarationLegalReaction(power)) {
       return {
         shown: false,
         enabled: false,
-        reason: 'Threatened Ranged window — offensive reactions only (Counterattack / Counter Damage / Special Increase)',
+        reason: 'Threatened Ranged (declaration) — hit/target-triggered reactions are not legal here',
       };
     }
   }

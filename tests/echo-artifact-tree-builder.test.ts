@@ -378,8 +378,8 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
         /Elorian Focus/.test(r.name),
       )?.effect as string) || '';
     expect(focusEffectAt(3)).toContain('pre-fills Tier 3');
-    expect(focusEffectAt(3)).toContain('Tier 2');
-    expect(focusEffectAt(3)).not.toContain('Tier 1');
+    // Blank Tier 1 is a payable ramp step and must be listed as owed.
+    expect(focusEffectAt(3)).toContain('Tiers 1, 2');
     expect(focusEffectAt(6)).toContain('pre-fills Tier 4');
     expect(focusEffectAt(9)).toContain('pre-fills Tier 5');
   });

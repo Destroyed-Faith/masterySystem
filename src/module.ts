@@ -905,13 +905,22 @@ Hooks.once('init', async function() {
   Hooks.on('updateCombat', async (combat: Combat, changes: any) => {
     if (changes?.turn === undefined) return;
 
-    // End-of-turn resolution for the creature whose turn just ended (Slow).
+    // End-of-turn resolution for the creature whose turn just ended (Slow, Brace).
     try {
       const prevId = (combat as any)?.previous?.combatantId;
       const endingActor = prevId ? (combat as any)?.combatants?.get?.(prevId)?.actor : null;
       if (endingActor && canCurrentUserUpdateDocument(endingActor)) {
         const { processTurnEndMovement } = await import('./combat/movement-tracker.js');
         await processTurnEndMovement(endingActor);
+        const { processTurnEndSpecials, announceStatusTick } = await import('./combat/status-tick.js');
+        const endSummary = await processTurnEndSpecials(endingActor);
+        await announceStatusTick(endingActor, endSummary);
+        // Incapacitated PCs roll a Death Check at the end of each of their turns.
+        const { maybeRollDeathCheck } = await import('./combat/death-check.js');
+        await maybeRollDeathCheck(endingActor);
+        // Absorption stones expire at the end of the character's next turn.
+        const { expireAbsorptionStonesAtTurnEnd } = await import('./combat/absorption.js');
+        await expireAbsorptionStonesAtTurnEnd(endingActor, combat);
       }
     } catch (err) {
       console.error('Mastery System | turn-end movement resolution failed', err);
@@ -3114,6 +3123,10 @@ Hooks.once('ready', async function() {
   // Register skill spend click handler
   const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
   registerSkillSpendClickHandler();
+  const { registerAidReactionClickHandler } = await import('./chat/aid-reaction-handler.js');
+  registerAidReactionClickHandler();
+  const { registerWordOfRecallChatHandler } = await import('./stones/word-of-recall-mark.js');
+  registerWordOfRecallChatHandler();
 
   const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
   registerFaithFractureRerollHandlers();
@@ -3433,7 +3446,8 @@ Hooks.once('ready', async function() {
         const attrValue = attributes[attrKey]?.value || 0;
         const maxStones = Math.floor(attrValue / 8);
         const sustained = pool.sustained ?? 0;
-        const effectiveMax = Math.max(0, maxStones - sustained);
+        const sealedBurned = (Math.max(0, Number(pool.sealed) || 0)) + (Math.max(0, Number(pool.burned) || 0));
+        const effectiveMax = Math.max(0, maxStones - sustained - sealedBurned);
         
         // Only fix if max > 0 (actor has stones)
         if (maxStones > 0) {

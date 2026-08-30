@@ -6,7 +6,8 @@
  * standard attack:
  *
  *   Spell Attack → pool = casting attribute, keep = mastery rank,
- *                  TN = calculateBaseTN(spellLevel) + 4 × raises (casting-table rules).
+ *                  TN = 8 × caster Mastery Rank (+4 for Mental Powers)
+ *                       + Target Spell Resistance + 4 × declared raises.
  *
  *   Saving Throws were removed from the rules: a successful cast resolves the
  *   spell's full listed payload. Resistance only happens through explicitly
@@ -22,32 +23,26 @@
 import type { CastingAttribute, SpellResolution } from '../types/item.js';
 import type { MasteryRollResult } from '../types/index';
 import { type RaiseOutcome } from './raise-resolution.js';
-/** Maximum Spell Level a character can learn/cast: `Mastery Rank × 2`. */
-export declare function getMaxSpellLevel(masteryRank: number): number;
-/** Whether an actor of `masteryRank` can cast/learn a spell at `spellLevel`. */
+/**
+ * Maximum Power Level a character can learn/cast (spells use the normal
+ * Power Level cap by Mastery Rank: MR1–2 → 4, MR3 → 8, MR4 → 12, MR5+ → 16).
+ */
 export declare function canCastSpellAtLevel(masteryRank: number, spellLevel: number): boolean;
 /**
- * Spell Tier I–VIII (Players Guide 7912–7923).
+ * Spell Base TN (Players Guide "Casting Roll"): **8 × caster Mastery Rank**,
+ * independent of the Power Level of the spell being cast.
  *
- *   I → 8, II → 16, III → 24, IV → 32, V → 40, VI → 48, VII → 56, VIII → 64.
+ *   MR 1 → 8, MR 2 → 16, … MR 8 → 64.
  *
- * Each Tier covers two consecutive Power Levels (L1+L2 = Tier I, etc.) so the
- * "Spell Tier" surface always lines up with the underlying Active Power Level.
+ * Mental Powers (Mental Attack, Mind Illusion, Mind Probe, Mental Control)
+ * use `Mental Power Base TN = Spell Base TN + 4`.
+ *
+ * `Final Spell TN = Spell Base TN + Target Spell Resistance` — SR is added by
+ * the caller (it is per-target).
  */
-export type SpellTier = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-export declare const SPELL_TIER_TABLE: Record<SpellTier, number>;
-/** Spell Tier (I–VIII) that contains the given Power Level (1–16). */
-export declare function spellTierForPowerLevel(spellLevel: number): SpellTier;
-/** Casting TN for a Spell of Tier I..VIII (Players Guide 7912–7923). */
-export declare function castingTNForTier(tier: SpellTier): number;
-/**
- * Base Casting TN for a Spell built from a Power of `spellLevel` (1..16).
- *
- * Equivalent to `castingTNForTier(spellTierForPowerLevel(spellLevel))`, kept
- * as a stand-alone export because every existing caller already uses
- * `calculateBaseTN(...)`.
- */
-export declare function calculateBaseTN(spellLevel: number): number;
+export declare function castingBaseTnForMasteryRank(masteryRank: number, opts?: {
+    mental?: boolean;
+}): number;
 /**
  * Deduct `amount` HP from the actor, bypassing armor (blood magic). Records
  * the amount lost so it cannot be healed until combat ends.
@@ -100,6 +95,8 @@ export interface SpellRollParams {
     flavor?: string;
     /** Support spell: no target required — only the Casting Roll must succeed. */
     supportMode?: boolean;
+    /** Mental Power: Base TN = Spell Base TN + 4. */
+    mentalPower?: boolean;
 }
 export interface SpellRollResult {
     /** Casting / spell-attack roll result. */

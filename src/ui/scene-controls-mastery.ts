@@ -50,6 +50,69 @@ const handleUnluckMenu = onceAtATime(async () => {
   }
 });
 
+const handleNightRest = onceAtATime(async () => {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Only the GM can rest all characters.');
+    return;
+  }
+  try {
+    const { applyNightRest, listWorldCharacters } = await import('../utils/safe-haven-rest.js');
+    const characters = listWorldCharacters();
+    const ok = await (Dialog as any).confirm({
+      title: 'Night Rest — All Characters',
+      content:
+        `<p>Apply <strong>Night Rest</strong> (8 h) to <strong>${characters.length}</strong> character(s)? ` +
+        `Restores the current active Health Bar to full. No Scarred Bars, no daily/Sealed refresh.</p>`,
+      yes: () => true,
+      no: () => false,
+    });
+    if (!ok) return;
+    for (const actor of characters) await applyNightRest(actor);
+    ui.notifications?.info(`Night Rest applied to ${characters.length} character(s).`);
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Night Rest failed', err);
+    ui.notifications?.error('Night Rest failed - see console');
+  }
+});
+
+const handleDayOfRest = onceAtATime(async () => {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Only the GM can rest all characters.');
+    return;
+  }
+  try {
+    const { applyDayOfRest, listWorldCharacters } = await import('../utils/safe-haven-rest.js');
+    const characters = listWorldCharacters();
+    const ok = await (Dialog as any).confirm({
+      title: 'Day of Rest — All Characters',
+      content:
+        `<p>Apply <strong>Day of Rest</strong> (24 h natural recovery) to <strong>${characters.length}</strong> character(s)? ` +
+        `Restores 1 Scarred Health Bar each (blocked by Lacerate/Blight).</p>`,
+      yes: () => true,
+      no: () => false,
+    });
+    if (!ok) return;
+    let n = 0;
+    for (const actor of characters) {
+      if (await applyDayOfRest(actor)) n += 1;
+    }
+    ui.notifications?.info(`Day of Rest: ${n} character(s) recovered a Scarred Health Bar.`);
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Day of Rest failed', err);
+    ui.notifications?.error('Day of Rest failed - see console');
+  }
+});
+
+const handleFirstAid = onceAtATime(async () => {
+  try {
+    const { promptFirstAidForSelectedToken } = await import('../utils/first-aid.js');
+    await promptFirstAidForSelectedToken();
+  } catch (err) {
+    console.error('Mastery System | [ERROR] First Aid failed', err);
+    ui.notifications?.error('First Aid failed - see console');
+  }
+});
+
 const handleKnownNpcsMenu = onceAtATime(async () => {
   if (!game.user?.isGM) {
     ui.notifications?.warn('Only the GM can choose which NPCs players see');
@@ -65,8 +128,11 @@ const handleKnownNpcsMenu = onceAtATime(async () => {
 
 const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
   safeHavenRestAll: handlePartySafeHavenRest,
+  nightRestAll: handleNightRest,
+  dayOfRestAll: handleDayOfRest,
   unluckMenu: handleUnluckMenu,
   knownNpcsMenu: handleKnownNpcsMenu,
+  firstAid: handleFirstAid,
 };
 
 function bindMasteryToolClicks(): void {
@@ -116,6 +182,22 @@ export function initializeSceneControls(): void {
           onClick: handlePartySafeHavenRest,
         },
         {
+          name: 'nightRestAll',
+          title: 'Night Rest — All Characters',
+          icon: 'fas fa-moon',
+          visible: isGM,
+          button: true,
+          onClick: handleNightRest,
+        },
+        {
+          name: 'dayOfRestAll',
+          title: 'Day of Rest — All Characters',
+          icon: 'fas fa-sun',
+          visible: isGM,
+          button: true,
+          onClick: handleDayOfRest,
+        },
+        {
           name: 'unluckMenu',
           title: 'Unluck / Misfortune',
           icon: 'fas fa-cloud-moon',
@@ -130,6 +212,14 @@ export function initializeSceneControls(): void {
           visible: isGM,
           button: true,
           onClick: handleKnownNpcsMenu,
+        },
+        {
+          name: 'firstAid',
+          title: 'First Aid (selected token)',
+          icon: 'fas fa-briefcase-medical',
+          visible: isGM,
+          button: true,
+          onClick: handleFirstAid,
         },
       ],
       activeTool: '',

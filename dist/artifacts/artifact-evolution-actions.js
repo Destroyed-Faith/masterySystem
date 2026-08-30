@@ -2,7 +2,7 @@
  * Shared artifact link / upgrade actions for the Evolution dialog and
  * Equipment-tab controls on the character sheet.
  */
-import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, getArtifactStonePoolLabel, isArtifactLinkedOnActor, readActorArtifactProgress, refundArtifactLinkStone, serializeActorArtifactProgress, spendArtifactLinkStone, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
+import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, getArtifactStonePoolLabel, isArtifactLinkedOnActor, readActorArtifactProgress, refundArtifactLinkStone, serializeActorArtifactProgress, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
 import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItemsForNode, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
 import { setRootActorLevels } from '../utils/world-artifact-flag-sync.js';
@@ -243,37 +243,14 @@ export async function linkArtifactForActor(actor, rootWorldId, embeddedId, stone
             return false;
         }
     }
-    if (usesStonePoolEconomy(actor)) {
-        if (!stoneAttr) {
-            ui.notifications?.warn('Wähle einen Stone aus deinem Pool.');
-            return false;
-        }
-        if (!(await spendArtifactLinkStone(actor, stoneAttr))) {
-            ui.notifications?.warn(`Nicht genug ${stoneAttr} Stones (benötigt ${ARTIFACT_LINK_STONE_COST}).`);
-            return false;
-        }
-    }
-    else {
-        if (!canSpendArtifactLinkStone(actor)) {
-            ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-            return false;
-        }
-        if (!(await spendArtifactLinkStone(actor))) {
-            ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-            return false;
-        }
-    }
+    // Artefacts.md: activation is free — the legacy 1-Stone link cost is gone.
     const next = { ...cur, linked: true };
     levels[A.id] = serializeActorArtifactProgress(next);
     await setRootActorLevels(root, levels);
     if (emb) {
         await emb.setFlag('mastery-system', 'artifactActivated', true);
-        if (stoneAttr) {
-            await emb.setFlag('mastery-system', 'artifactActivationStoneAttr', stoneAttr);
-        }
-        else {
-            await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
-        }
+        // No activation Stone is bound any more (legacy flag cleared).
+        await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
         const currentKind = getArtifactBindingKind(emb);
         if (currentKind === 'unbound') {
             try {
@@ -284,8 +261,7 @@ export async function linkArtifactForActor(actor, rootWorldId, embeddedId, stone
             }
         }
     }
-    const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
-    ui.notifications?.info(`Artifact activated (${ARTIFACT_LINK_STONE_COST} Stone${poolNote}). You can now spend XP to evolve it.`);
+    ui.notifications?.info('Artifact activated. You can now spend XP to evolve it.');
     return true;
 }
 /**

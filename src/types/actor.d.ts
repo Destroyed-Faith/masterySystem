@@ -122,6 +122,8 @@ export interface MechanicsBreakdown {
   regen: MechanicsBreakdownEntry[];
   spellResistance: MechanicsBreakdownEntry[];
   cleanseMaintenance: MechanicsBreakdownEntry[];
+  /** Ward — incoming hostile Special reduction rows. */
+  wardIncoming: MechanicsBreakdownEntry[];
   tempHP: Array<{ source: string; value: string }>;
   /** Heal dice or flat strings from `PowerMechanics.healing` (not summed numerically). */
   healing: MechanicsBreakdownDiceStringEntry[];
@@ -152,6 +154,8 @@ export interface MechanicsBreakdown {
     regen: number;
     spellResistance: number;
     cleanseMaintenance: number;
+    /** Ward — total incoming hostile Special reduction. */
+    wardIncoming: number;
     /** Final DR % after gating and clamping (0–100). */
     damageReductionPct: number;
     rollDice: { attack: number; skill: number; damage: number };
@@ -383,6 +387,8 @@ export interface AttackValue {
   damage?: string;
   /** Attack pool: d8 count (sheet dropdown 2–16) */
   attackDiceCount?: number;
+  /** Keep value printed on the stat block (e.g. "6d8, Keep 1"). Unset ⇒ actor MR. */
+  keepDice?: number;
   /** Damage pool: d8 count (sheet dropdown 4–16) */
   damageDiceCount?: number;
   /** Reach (Standard/leer) oder Fernkampf — steuert Radial-Reichweite und Angriffsart. */

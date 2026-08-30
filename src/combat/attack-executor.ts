@@ -9,18 +9,19 @@ import { normalizeArtifactAttackAttribute } from "../utils/artifact-node-options
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
-import { bandsFromNpcShortLong, rangeTextFromBands } from "../utils/range-bands.js";
+import { npcMaxRangeM, rangeTextFromMax } from "../utils/range-bands.js";
 import {
   formatNpcAttackSpecialsLine,
   getNpcAttackByIndex,
   npcAttackDiceCount,
+  npcAttackKeepDice,
   npcDamageDiceFormula
 } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { formatEffectReference } from "../utils/special-effects.js";
 import { parseD8Count } from "../utils/dice-formula.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
-import { calculateBaseTN } from "./spell-roll-handler.js";
+import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import {
   buildAvailableRaiseOptions,
@@ -506,14 +507,18 @@ export async function createAttackCard(
 
     if (powerSystem.isSpell === true || artifactIsSpell) {
       tnKind = 'casting';
-      const lvl = Math.max(
-        1,
-        Math.floor(
-          Number(selectedPowerLevel) ||
-            Number(artifactLevelToTemplateRank(option.artifactRowLevel || 1)),
-        ),
-      );
-      castingBaseTn = calculateBaseTN(lvl) + getTargetSpellResistance(target);
+      // Spell Base TN = 8 × caster Mastery Rank (Players Guide "Casting
+      // Roll"); Mental Powers add +4. The Power Level does NOT set the TN.
+      const powerTags: string[] = Array.isArray(powerSystem.tags)
+        ? powerSystem.tags.map((t: unknown) => String(t))
+        : [];
+      const isMentalPower =
+        powerTags.includes('mental') ||
+        /mental/i.test(String(powerSystem.templateId ?? '')) ||
+        /mind-illusion|mind-probe|mental-control/i.test(String(powerSystem.templateId ?? ''));
+      castingBaseTn =
+        castingBaseTnForMasteryRank(masteryRank, { mental: isMentalPower }) +
+        getTargetSpellResistance(target);
     }
   }
 
@@ -658,18 +663,17 @@ export async function createAttackCard(
     threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
     opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
     threatenedRangedDebugReason: tr.debugReason ?? null,
-    // NPC ranged: Short/Medium/Long from sheet Short(=gifted full pool) / Long(=max).
+    // NPC ranged: the sheet's Max field is the flat maximum range.
     weaponRange:
       isNpcAttack && attackType === "ranged"
-        ? rangeTextFromBands(
-            bandsFromNpcShortLong(
-              Math.floor(Number((option as any).rangeMinMeters) || 0),
-              Math.floor(Number((option as any).rangeMeters ?? option.range) || 0),
-            ),
+        ? rangeTextFromMax(
+            npcMaxRangeM(Math.floor(Number((option as any).rangeMeters ?? option.range) || 0)),
           )
         : undefined,
     useNpcAttackDicePool: isNpcAttack,
     npcAttackDicePool: isNpcAttack ? attributeValue : undefined,
+    // PG statblocks print the Keep per attack ("6d8, Keep 1"); unset ⇒ MR.
+    npcAttackKeepDice: isNpcAttack ? npcAttackKeepDice(npcAttackRow, masteryRank) : undefined,
     npcAttackSource: isNpcAttack,
     npcAttackIndex: isNpcAttack ? ((option as any).npcAttackIndex ?? 0) : undefined,
     npcPhaseIndex: isNpcAttack ? ((option as any).npcPhaseIndex ?? null) : undefined,
@@ -760,7 +764,7 @@ export async function createAttackCard(
       ? `<div class="mastery-threatened-ranged" style="border-left:4px solid #c0392b;padding:8px;margin:8px 0;background:rgba(192,57,43,0.08);">
           <p><strong>Threatened Ranged</strong></p>
           <p><strong>Disadvantage:</strong> only <strong>one</strong> die showing 8 may explode; other 8s stay flat. Pool size and Keep are unchanged.</p>
-          <p>After this attack fully resolves, enemies who have you in <em>their</em> melee reach may spend a <strong>Reaction</strong> (Counterattack / Counter Damage / Special Increase): <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
+          <p>On <strong>declaration</strong> of this attack, enemies who have you in <em>their</em> melee reach may immediately spend a <strong>legal Reaction</strong> (hit/target-triggered reactions do not qualify): <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
         </div>`
       : "";
 
@@ -923,8 +927,27 @@ export async function createAttackCard(
         optionId: option.id
       });
       ui.notifications?.info?.(
-        `Threatened Ranged: Nachteil auf den Fernangriff. Reaktion (Counterattack / Counter Damage / Special Increase) für: ${oppNames.join(", ") || "—"}`
+        `Threatened Ranged: Nachteil auf den Fernangriff. Bedrohende Gegner dürfen sofort eine legale Reaktion nutzen: ${oppNames.join(", ") || "—"}`
       );
+      // PG 9725: the Reaction window opens immediately AFTER DECLARATION —
+      // before the attack roll, not after the attack resolves.
+      try {
+        const { runInteractiveReactionWindow } = await import('./reaction-window-chat.js');
+        await runInteractiveReactionWindow({
+          defender: target as any,
+          attacker: attacker as any,
+          combat: (game as any).combat ?? null,
+          rawDamage: 0,
+          attackTotal: null,
+          evadeTn: normalTn,
+          hit: false,
+          phase: 'others',
+          opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
+          silentIfEmpty: true,
+        });
+      } catch (trErr) {
+        console.warn('Mastery System | Threatened Ranged declaration window failed', trErr);
+      }
     }
 
     if (message) {

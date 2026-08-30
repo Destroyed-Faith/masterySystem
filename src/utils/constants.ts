@@ -80,8 +80,9 @@ export const MAX_POWER_LEVEL = 16;
  *   Skills    — same banded table as Attributes (1 / 2 / … / 10 XP) instead
  *       of the old `R × SKILL_PER_RANK` ramp. `SKILL` aliases `ATTRIBUTE`.
  *
- *   Powers    — `cost = newLevel` for levels 1..16. POWER_LEVEL[i] is the
- *       cost for buying level `i + 1`. `powerLevelCost(level)` is the helper.
+ *   Powers    — `cost = 2 × newLevel` for levels 1..16 (Players Guide
+ *       "Power Costs": Level 1 = 2 XP … Level 16 = 32 XP). POWER_LEVEL[i] is
+ *       the cost for buying level `i + 1`. `powerLevelCost(level)` is the helper.
  *
  *   Artifacts — flat 8 XP per +1 level (`ARTIFACT_LEVEL`). MR gating still
  *       limits the maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
@@ -101,9 +102,9 @@ export const XP_COSTS = {
     ],
     get SKILL() { return XP_COSTS.ATTRIBUTE; },
     POWER_LEVEL: [
-        1, 2, 3, 4, 5, 6, 7, 8,
-        9, 10, 11, 12, 13, 14, 15, 16
-    ], // Levels 1-16, cost = newLevel
+        2, 4, 6, 8, 10, 12, 14, 16,
+        18, 20, 22, 24, 26, 28, 30, 32
+    ], // Levels 1-16, cost = 2 × newLevel
     ARTIFACT_LEVEL: 8
 };
 
@@ -113,11 +114,11 @@ export function attributeBandCost(nextValue: number): number {
     return Math.floor((v - 1) / 8) + 1;
 }
 
-/** XP cost to raise a Power to `level` (1..16); `cost = level`. */
+/** XP cost to raise a Power to `level` (1..16); `cost = 2 × level`. */
 export function powerLevelCost(level: number): number {
     const l = Math.max(0, Math.floor(Number(level) || 0));
     if (l <= 0 || l > MAX_POWER_LEVEL) return 0;
-    return l;
+    return 2 * l;
 }
 
 /**

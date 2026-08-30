@@ -11,10 +11,11 @@
  * `spend`. Returns the flat bonus added to the damage total.
  * Spend 0 → no floor (attacker declined to use Mark).
  */
-export function computeMarkFloorBonus(damageChatRolls, spend) {
+export function computeMarkFloorBonus(damageChatRolls, spend, existingFloor = 0) {
     const floor = Math.max(0, Math.floor(Number(spend) || 0));
     if (floor <= 0)
         return 0;
+    const prior = Math.max(0, Math.floor(Number(existingFloor) || 0));
     let bonus = 0;
     for (const roll of damageChatRolls) {
         for (const term of roll?.terms || []) {
@@ -25,9 +26,13 @@ export function computeMarkFloorBonus(damageChatRolls, spend) {
                 if (res?.active === false)
                     continue;
                 const face = Number(res?.result);
-                if (Number.isFinite(face) && face < floor) {
-                    bonus += floor - face;
-                }
+                if (!Number.isFinite(face))
+                    continue;
+                // A previously applied floor (e.g. Brutal Impact) already raised this
+                // die — only the remaining gap counts.
+                const effective = Math.max(face, prior);
+                if (effective < floor)
+                    bonus += floor - effective;
             }
         }
     }

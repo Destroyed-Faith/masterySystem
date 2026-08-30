@@ -850,7 +850,7 @@ export class SummonBondDialog extends BaseDialog {
         const mr = Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 1));
         if (checked && !isSummonSkillEligible(ratings[skill] ?? 0, mr)) {
           (el as HTMLInputElement).checked = false;
-          ui.notifications?.warn(`Owner skill too low. Needs MR × 2.`);
+          ui.notifications?.warn(`Owner has Rating 0 in this Skill — it cannot be selected.`);
           return;
         }
         const set = new Set(this.draft.selectedSkills);

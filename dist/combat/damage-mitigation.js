@@ -4,10 +4,12 @@
 export function applyDefensiveMitigation(input) {
     const raw = Math.max(0, Math.floor(Number(input.rawDamage) || 0));
     const count8s = Math.max(0, Math.floor(Number(input.count8s) || 0));
-    const armor = Math.max(0, Math.floor(Number(input.armorTotal) || 0));
+    const armorBase = Math.max(0, Math.floor(Number(input.armorTotal) || 0));
+    const penetration = Math.max(0, Math.floor(Number(input.armorPenetration) || 0));
     const drBase = Math.max(0, Math.min(100, Math.floor(Number(input.damageReductionPct) || 0)));
     const drReact = Math.max(0, Math.min(100, Math.floor(Number(input.reactionDrPct) || 0)));
-    // Step 1 — flat Armor.
+    // Step 1 — Penetration reduces Armor for this hit, then flat Armor applies.
+    const armor = Math.max(0, armorBase - penetration);
     const afterArmor = Math.max(0, raw - armor);
     // Step 2 — DR% in sequence: continuous sheet DR first, then per-hit reaction DR
     // on the remainder (each step uses ceil on the reduction — defender-favorable).
@@ -27,8 +29,12 @@ export function applyDefensiveMitigation(input) {
         min8sUsed = true;
     }
     const parts = [`Raw ${raw}`];
-    if (armor > 0)
+    if (penetration > 0 && armorBase > 0) {
+        parts.push(`Armor ${armorBase} − Pen ${penetration} → ${armor}`);
+    }
+    else if (armor > 0) {
         parts.push(`Armor ${armor}`);
+    }
     if (drBase > 0)
         parts.push(`DR ${drBase}%`);
     if (drReact > 0)

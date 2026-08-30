@@ -100,24 +100,25 @@ const TELEPATHY_LINKS = [
     'MR + 2 willing creatures', 'MR + 2 willing creatures', 'MR + 3 willing creatures', 'MR + 4 willing creatures',
 ];
 
-/** Telepathy / Mind Link — feature text per level (Rules/passive.md). */
+/** Telepathy / Mind Link — feature text per level (Rules/passives.md printed table).
+ * Telepathy never reads unwilling minds (that requires Mind Probe); no "Mind Save" exists. */
 const TELEPATHY_FEATURE = [
-    'You can send simple silent words to one willing creature within range.',
-    'You and the linked creature can communicate silently in both directions.',
-    'You may maintain a small Mind Link between yourself and up to two willing creatures.',
-    'Mind Link no longer requires a shared spoken language for simple meaning, emotion, direction, and intent.',
-    'You may sense the surface emotion of an unwilling creature within range on a failed Mind Save.',
-    'You may maintain silent group communication between all linked willing creatures.',
-    'A willing linked creature may share one simple sense impression with you, such as a sound, image, smell, pain, or direction.',
-    'You may detect the presence of thinking minds within range. This reveals presence, not identity, exact thoughts, or creature type.',
-    'You may read one surface thought from an unwilling creature within range on a failed Mind Save.',
+    'Send simple silent words to one willing creature within range.',
+    'You and the linked creature may communicate silently in both directions.',
+    'Maintain a small Mind Link between yourself and up to two willing creatures.',
+    'Simple meaning, emotion, direction, and intent no longer require a shared spoken language.',
+    'Send one simple image, emotion, sensation, or sensory impression through the link.',
+    'All linked willing creatures may communicate silently through you.',
+    'A willing linked creature may deliberately share one simple sensory impression with you.',
+    'Detect the presence of thinking minds within range. This reveals presence only, not identity, exact thoughts, creature type, or precise location.',
+    'A willing linked creature may share one brief memory fragment lasting only a few seconds as it remembers it.',
     'A willing linked creature may share one active sense with you, such as sight or hearing, while the link is maintained.',
-    'Mind Link may pass through normal walls or obstacles if you know the linked creature and it remains within range.',
-    'You may share sight and hearing with one willing linked creature while the link is maintained.',
+    'A Mind Link may pass through normal walls or obstacles if you know the linked creature and it remains within range.',
+    'Share sight and hearing with one willing linked creature while the link is maintained.',
     'Your Mind Link becomes a mental conference. All linked willing creatures may communicate silently with each other.',
-    'You may maintain a link to a known willing creature at long range if the link was willingly established.',
-    'You may read a clear surface thought from an unwilling creature on a failed Mind Save. This still does not reveal memories or force obedience.',
-    'You may maintain a wide Mind Link with known willing creatures across a large area. The GM may limit this by wards, distance, planes, divine interference, or narrative barriers.',
+    'Maintain a link to a known willing creature at long range if the link was willingly established.',
+    'A willing linked creature may deliberately share one complete remembered scene, including its sensory and emotional impressions.',
+    'Maintain a wide Mind Link with known willing creatures across a large area. Wards, planar separation, divine interference, or narrative barriers may still block it.',
 ];
 
 // Health Bar progression shared by Deep Vitality & all Health combined passives.
@@ -524,7 +525,7 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
             const amt = WARD_INCOMING[lvl - 1]!;
             return {
                 text: `Reduce every incoming eligible hostile Special by **${amt}**.`,
-                mechanics: {},
+                mechanics: { wardIncoming: amt },
             };
         },
     }),

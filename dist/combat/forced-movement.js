@@ -432,6 +432,17 @@ export function startForcedMovementMode(req) {
  */
 export async function offerForcedMovementFromActors(params) {
     const outcomes = [];
+    // Immovable: immune to Push, Pull and forced movement (Players Guide).
+    try {
+        const { hasActiveSpecial } = await import('../system/active-specials.js');
+        if (params.movedActor && hasActiveSpecial(params.movedActor, 'immovable')) {
+            globalThis.ui?.notifications?.info?.(`${params.movedActor.name} is Immovable — Push/Pull has no effect.`);
+            return ['unavailable'];
+        }
+    }
+    catch {
+        /* active-specials unavailable — proceed */
+    }
     const movedTok = params.movedActor ? getPrimaryTokenForActor(params.movedActor) : null;
     const refTok = params.referenceActor ? getPrimaryTokenForActor(params.referenceActor) : null;
     if (!movedTok || !refTok) {

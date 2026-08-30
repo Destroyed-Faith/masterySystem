@@ -219,12 +219,12 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
   {
     id: "aid",
     name: "Aid",
-    description: "Grant an ally +2 flat to a roll within 8 m.",
+    description: "Assist an ally's Skill Check: +4 to its Final Result.",
     slot: "reaction",
     category: "support-reaction",
-    tags: ["reaction", "support"],
+    tags: ["reaction", "support", "basic", "basic-reaction"],
     effect:
-      "When an ally within **8 m** makes an Attack, Save, or Skill check, give them **+2 flat bonus**. Must be justified in roleplay.",
+      "Trigger: an ally makes a **Skill Check** you can meaningfully assist. Requirement: you have the **same Skill** at **Rating ≥ 2 × your Mastery Rank** (Full Pool Requirement). Effect: the ally gains **+4 to the Final Result** of that Skill Check. Only **one Aid** may affect the same Check. Aid does not spend your Skill Points. In combat, using Aid spends **1 Reaction**.",
   },
   {
     id: "interpose",
@@ -259,6 +259,29 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
   // COMBAT ACTIONS / STANCES
   // (Players Guide 6902–6963)
   // ========================================
+  {
+    id: "drop-load",
+    name: "Drop Load",
+    description: "Safely drop carried gear to remove Encumbered / Overloaded.",
+    slot: "attack",
+    category: "combat-action",
+    tags: ["combat-action", "load", "basic"],
+    effect:
+      "Safely drop your carried load: **1 Attack Action** while Encumbered, **2 Attack Actions** while Overloaded. Dropping hastily is immediate with GM approval, but items may be damaged, scattered, lost, or exposed.",
+  },
+  {
+    id: "reload",
+    name: "Reload",
+    description: "Spend 1 Attack Action to reload an Unloaded weapon.",
+    slot: "attack",
+    category: "combat-action",
+    tags: ["combat-action", "reload", "basic"],
+    requirements: {
+      requiresFreeHand: true,
+    },
+    effect:
+      "Spend **1 Attack Action** to reload a weapon with the **Load** property. Requires one free hand. (Quick Load may instead use Movement, up to Mastery Rank reloads per turn.)",
+  },
   {
     id: "parry-stance",
     name: "Parry Stance",
@@ -298,12 +321,12 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
   {
     id: "grapple",
     name: "Grapple",
-    description: "Restrain a creature within reach.",
+    description: "Restrain a creature within melee reach.",
     slot: "attack",
     category: "combat-action",
     tags: ["combat-action", "control", "melee"],
     effect:
-      "Attempt to restrain a creature within reach. Contest (Might/Agility Roll + optional HtH Skill vs. Might/Agility Roll + optional HtH Skill). On success, the target is **Grappled**. The target may attempt to end the grapple on their turn; if the grapple remains, you may deal **MR weapon damage dice** to the target.",
+      "Range: Melee Reach. Make an **Opposed Hand-to-Hand Skill Check** (both creatures use an appropriate physical Attribute Pool and their Hand-to-Hand Skill Pool normally). If the attacker wins, the target is **Grappled**: its Speed becomes **0 m** and it cannot voluntarily move away from the grappler. **Escape:** the Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Check; on a win the Grapple ends, on a tie it remains. **Pressure:** while maintaining the Grapple, the grappler may deal **Mastery Rank damage once per Round**; this damage **ignores Armor**. The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.",
   },
   {
     id: "reckless-attack",

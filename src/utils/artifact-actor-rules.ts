@@ -2,12 +2,10 @@
  * Rules for upgrading artifact evolution items on actors (Mastery Rank gates, costs)
  * AND binding rules (Artifact Capacity, Echo-bound, slot blocking).
  *
- * New XP spec — Artifacts:
+ * XP spec — Artifacts (Artefacts.md):
  *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
- *   • Maximum reachable artifact level = `(MR - 1) × 2`, capped at 16
- *     (`getMaxArtifactSystemLevelForMasteryRank`). MR 1 cannot evolve at all.
- *   • Link / activation: 1 Stone once per artifact (`ARTIFACT_LINK_STONE_COST`).
- *   • Per-upgrade Stone costs and the legacy XP Ultimate cost have been removed.
+ *   • No Mastery-Rank level gate and no activation Stone cost — the old
+ *     `(MR−1)×2` cap and 1-Stone link were not in the rulebook and were removed.
  *
  * New Artifact spec (Artefacts.md):
  *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
@@ -48,7 +46,8 @@ export interface ArtifactStonePoolOption {
 }
 
 export const ARTIFACT_UPGRADE_XP_COST = 8;
-export const ARTIFACT_LINK_STONE_COST = 1;
+/** Artefacts.md: activation costs nothing — the legacy 1-Stone link is gone. */
+export const ARTIFACT_LINK_STONE_COST = 0;
 export const ARTIFACT_MAX_SYSTEM_LEVEL = 10;
 
 /**
@@ -68,29 +67,21 @@ export function getArtifactCapacityForMasteryRank(_masteryRank?: number): number
 }
 
 /**
- * Max artifact system.level the actor may reach:
- *   `(MR - 1) × 2`, capped at `ARTIFACT_MAX_SYSTEM_LEVEL` (10).
- *   MR 1 → 0 (no link / no upgrades). MR 6+ → 10.
+ * Max artifact system.level the actor may reach. Artefacts.md has no
+ * Mastery-Rank gate — every character may evolve up to the flat cap.
  */
-export function getMaxArtifactSystemLevelForMasteryRank(masteryRank: number): number {
-  const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
-  if (mr <= 1) return 0;
-  return Math.min(ARTIFACT_MAX_SYSTEM_LEVEL, (mr - 1) * 2);
+export function getMaxArtifactSystemLevelForMasteryRank(_masteryRank?: number): number {
+  return ARTIFACT_MAX_SYSTEM_LEVEL;
 }
 
-/**
- * Max spec-level (1..10) an actor may reach. Mirrors the spec ARTIFACT_MAX_LEVEL
- * but allows MR gating in the future. For now: MR 2+ may reach level 10.
- */
-export function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): number {
-  const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
-  if (mr <= 1) return 0;
-  // Two spec-levels per MR step → MR2 = 2, MR3 = 3, …, MR6+ = 10.
-  return Math.min(SPEC_ARTIFACT_MAX_LEVEL, mr);
+/** Max spec-level (1..10) — no MR gate (Artefacts.md). */
+export function getMaxArtifactSpecLevelForMasteryRank(_masteryRank?: number): number {
+  return SPEC_ARTIFACT_MAX_LEVEL;
 }
 
-export function canArtifactLink(masteryRank: number): boolean {
-  return getMaxArtifactSystemLevelForMasteryRank(masteryRank) >= 2;
+/** Activation has no Mastery-Rank requirement (Artefacts.md). */
+export function canArtifactLink(_masteryRank?: number): boolean {
+  return true;
 }
 
 function economyActor(actor: any): any {
@@ -158,44 +149,27 @@ export function listArtifactSpendableStonePools(actor: any): ArtifactStonePoolOp
   return out;
 }
 
-export function canSpendArtifactLinkStone(actor: any): boolean {
-  return actorStonesCurrent(actor) >= ARTIFACT_LINK_STONE_COST;
+/** Activation is free (Artefacts.md) — always true, kept for callers. */
+export function canSpendArtifactLinkStone(_actor: any): boolean {
+  return true;
 }
 
-export function canSpendArtifactLinkStoneFromPool(actor: any, stoneAttr: string): boolean {
-  return poolSpendableStones(actor, stoneAttr) >= ARTIFACT_LINK_STONE_COST;
+/** Activation is free (Artefacts.md) — always true, kept for callers. */
+export function canSpendArtifactLinkStoneFromPool(_actor: any, _stoneAttr: string): boolean {
+  return true;
 }
 
 export function getArtifactStonePoolLabel(attr: string): string {
   return STONE_POOL_LABELS[attr] || attr;
 }
 
-/** Deduct one Stone from the chosen attribute pool (or legacy `stones.current`). */
-export async function spendArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean> {
-  if (usesStonePoolEconomy(actor)) {
-    if (!stoneAttr || !canSpendArtifactLinkStoneFromPool(actor, stoneAttr)) return false;
-    // Permanent commitment is tracked on the artifact via `artifactActivationStoneAttr`;
-    // pool refills and the Stone Powers dialog subtract bound stones from spendable.
-    return true;
-  }
-  if (!canSpendArtifactLinkStone(actor)) return false;
-  const sys = (economyActor(actor)?.system as any) || {};
-  const next = Math.max(0, Number(sys.stones?.current) || 0) - ARTIFACT_LINK_STONE_COST;
-  await actor.update({ 'system.stones.current': next });
+/** Activation no longer costs a Stone (Artefacts.md) — no-op, kept for callers. */
+export async function spendArtifactLinkStone(_actor: Actor, _stoneAttr?: string): Promise<boolean> {
   return true;
 }
 
-/** Refund one activation Stone to the pool it was spent from (GM reset). */
-export async function refundArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean> {
-  if (usesStonePoolEconomy(actor)) {
-    if (!stoneAttr) return false;
-    // Bound stone is released when `artifactActivationStoneAttr` is cleared on deactivate.
-    return true;
-  }
-  const sys = (economyActor(actor)?.system as any) || {};
-  const cur = Math.max(0, Number(sys.stones?.current) || 0);
-  const max = Math.max(0, Number(sys.stones?.maximum) || cur + ARTIFACT_LINK_STONE_COST);
-  await actor.update({ 'system.stones.current': Math.min(max, cur + ARTIFACT_LINK_STONE_COST) });
+/** No activation Stone exists any more — nothing to refund. */
+export async function refundArtifactLinkStone(_actor: Actor, _stoneAttr?: string): Promise<boolean> {
   return true;
 }
 

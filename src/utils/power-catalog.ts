@@ -108,6 +108,20 @@ export const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number> = {
     movement: 0,
 };
 
+/**
+ * PG "Starting Powers": Passives at creation = available Passive Slots.
+ * MR 2 (default) → 2 Passives; MR 1 campaigns → 1 Passive.
+ */
+export function creationPowerRequirementsForMasteryRank(
+    masteryRank: number,
+): Record<PowerCategory, number> {
+    const mr = Math.max(1, Math.floor(Number(masteryRank) || 2));
+    return {
+        ...CREATION_POWER_REQUIREMENTS,
+        passive: mr <= 1 ? 1 : CREATION_POWER_REQUIREMENTS.passive,
+    };
+}
+
 /** Total Powers at character creation (sum of requirements above). */
 export const CREATION_POWER_TOTAL = 6;
 
@@ -187,9 +201,22 @@ export function powerIdentityKeyFromEntry(entry: CatalogEntry): string {
     });
 }
 
-/** Only ranged Active templates may be flagged as Spells (`active-ranged-*`). */
+/**
+ * PG "Spell Design Rule": only a Ranged Active with at least one Special may
+ * be converted into a Spell ("A Spell is always Ranged + Special"). Damage
+ * templates with a Special slot qualify because the chosen Special fills it.
+ */
 export function activeTemplateCanBeSpell(templateId: string): boolean {
-    return templateId.includes('active-ranged');
+    if (!templateId.includes('active-ranged')) return false;
+    const template = ALL_POWER_TEMPLATES.find((t) => t.templateId === templateId);
+    if (!template) return false;
+    for (const k of POWER_LEVEL_KEYS) {
+        const row = template.levels[k as PowerLevelKey];
+        for (const s of row?.specials ?? []) {
+            if (s?.key) return true; // includes the 'special' placeholder slot
+        }
+    }
+    return false;
 }
 
 export function collectOwnedPowerIdentityKeys(

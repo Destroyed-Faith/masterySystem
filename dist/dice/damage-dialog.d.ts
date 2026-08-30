@@ -57,10 +57,12 @@ export interface DamageResult {
      * posts the damage chat, runs the Reaction Window, then applies.
      */
     pendingApply?: boolean;
-    /** Attack total / Evade TN carried for the deferred apply path. */
+    /** Attack total / Evade TN / per-hit riders carried for the deferred apply path. */
     attackContext?: {
         attackTotal?: number | null;
         evadeTn?: number | null;
+        /** Armor Penetration collected for THIS hit (Specials + stones). */
+        armorPenetration?: number;
     };
     /**
      * Faith Fracture Keep already posted this chat message as the damage card
@@ -113,6 +115,11 @@ export interface ApplyDamageOptions {
     skipReactionPrompt?: boolean;
     /** Phasing already resolved by the caller — do not prompt again. */
     skipPhasing?: boolean;
+    /**
+     * Armor Penetration for THIS hit (Penetration(X) Specials, Might
+     * Ignore-Armor stones). Reduces the target's Armor before subtraction.
+     */
+    armorPenetration?: number;
 }
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
 export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;

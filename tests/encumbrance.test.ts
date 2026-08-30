@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   applyHealthAndEncumbrancePenalties,
-  dicePoolPenaltyFromLoadZone,
+  applyEncumbranceToMovement,
   getActorInventoryLoadZone,
   loadZoneFromBands,
+  movementPenaltyForLoad,
+  LOAD_ZONE_LABEL,
 } from '../src/utils/encumbrance.js';
 
 function mockActor(items: Array<{ band?: string; container?: string; slot?: string; weaponSetPrepared?: boolean; keepInventoryGrid?: boolean }>, healthBars?: Array<{ current: number; max: number; penalty: number }>) {
@@ -42,38 +44,45 @@ describe('encumbrance load zones', () => {
     expect(getActorInventoryLoadZone(mockActor([{ band: 'enc', slot: 'offhand', keepInventoryGrid: true }]))).toBe('normal');
     expect(getActorInventoryLoadZone(mockActor([{ band: 'heavy', weaponSetPrepared: true }]))).toBe('normal');
   });
+
+  it('zone 3 is labeled Overloaded (PG load table)', () => {
+    expect(LOAD_ZONE_LABEL.overloaded).toBe('Overloaded');
+  });
 });
 
-describe('encumbrance dice pool penalties', () => {
-  it('applies −20% for encumbered and −50% for heavy load (floored)', () => {
-    expect(dicePoolPenaltyFromLoadZone('normal', 20)).toBe(0);
-    expect(dicePoolPenaltyFromLoadZone('encumbered', 20)).toBe(4);
-    expect(dicePoolPenaltyFromLoadZone('overloaded', 20)).toBe(10);
-    expect(dicePoolPenaltyFromLoadZone('encumbered', 17)).toBe(3);
+describe('encumbrance movement penalty (PG: load affects Movement only)', () => {
+  it('applies −4 m Encumbered / −6 m Overloaded, floored at 0', () => {
+    expect(movementPenaltyForLoad('normal')).toBe(0);
+    expect(movementPenaltyForLoad('encumbered')).toBe(-4);
+    expect(movementPenaltyForLoad('overloaded')).toBe(-6);
+    expect(applyEncumbranceToMovement(8, 'encumbered')).toBe(4);
+    expect(applyEncumbranceToMovement(8, 'overloaded')).toBe(2);
+    expect(applyEncumbranceToMovement(4, 'overloaded')).toBe(0);
   });
 
-  it('stacks additively with health penalties and can reach zero dice', () => {
+  it('no dice-pool penalty from load — only the Health penalty reduces the pool', () => {
+    // Healthy scarred (empty) → Bruised is the active bar (−10%).
     const actor = mockActor([{ band: 'heavy' }], [
-      { current: 10, max: 10, penalty: 0 },
+      { current: 0, max: 10, penalty: 0 },
       { current: 5, max: 10, penalty: -2 },
     ]);
     const result = applyHealthAndEncumbrancePenalties(20, actor);
-    expect(result.encumbrancePenaltyDice).toBe(10);
+    expect(result.loadZone).toBe('overloaded');
     expect(result.healthPenaltyDice).toBe(2);
-    expect(result.numDice).toBe(8);
+    expect(result.numDice).toBe(18);
   });
 
-  it('can zero the pool when penalties exceed the base pool', () => {
+  it('health penalty alone can floor the pool at 0', () => {
+    // Four scarred bars → Broken is the active bar (−50%).
     const actor = mockActor([{ band: 'heavy' }], [
-      { current: 10, max: 10, penalty: 0 },
-      { current: 10, max: 10, penalty: 0 },
-      { current: 10, max: 10, penalty: 0 },
-      { current: 10, max: 10, penalty: 0 },
+      { current: 0, max: 10, penalty: 0 },
+      { current: 0, max: 10, penalty: 0 },
+      { current: 0, max: 10, penalty: 0 },
+      { current: 0, max: 10, penalty: 0 },
       { current: 3, max: 10, penalty: -10 },
     ]);
     const result = applyHealthAndEncumbrancePenalties(20, actor);
-    expect(result.encumbrancePenaltyDice).toBe(10);
     expect(result.healthPenaltyDice).toBe(10);
-    expect(result.numDice).toBe(0);
+    expect(result.numDice).toBe(10);
   });
 });

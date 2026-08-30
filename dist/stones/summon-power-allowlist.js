@@ -1,50 +1,32 @@
 /**
- * Canonical Summon Power allowlist.
- * Movement Powers are excluded — they would bypass the Bond Movement upgrade.
- * Only listed Passives / Active Buffs / Reactions may be bought for a Body.
+ * Canonical Summon Power purchases (PG "Purchasing Canonical Powers").
+ *
+ * Summons buy complete Powers from the canonical catalogues — the catalog is
+ * open, not a curated allowlist. A small blocklist covers Powers whose written
+ * requirements a Summon can never meet (wielded weapon / worn armor) per
+ * PG: "A Power that requires an Attribute, resource, item, or subsystem the
+ * Summon does not possess cannot be purchased or used."
+ *
+ * Movement Powers are legal purchases: they replace the using Body's normal
+ * Movement for that Turn and do not add a second permanent Movement Mode.
  */
-import { getTemplate } from '../utils/powers/templates/index.js';
+import { ALL_POWER_TEMPLATES, getTemplate } from '../utils/powers/templates/index.js';
 import { ppBudgetForLevel } from '../utils/powers/pp-budget.js';
 import { maxSummonPowerLevel, powerTokenCostFromPp, standardPowerTokenCost, } from './summon-bond-rules.js';
-export const SUMMON_POWER_ALLOWLIST = [
-    // Actives — unarmed / bond-attack legal
-    'active-melee-damage-t3',
-    'active-melee-damage-t4',
-    'active-ranged-damage-t3',
-    'active-ranged-damage-t4',
-    'active-melee-targeted-special',
-    'active-ranged-targeted-special',
-    'active-melee-health-level-heal',
-    'active-ranged-health-level-heal',
-    'active-mental-attack',
-    // Summon-specific + simple defensive/offensive buffs
-    'ab-summon-damage-aura',
-    'ab-summon-armor-aura',
-    'ab-armor',
-    'ab-evade',
-    'ab-temp-hp',
+/** Powers whose requirements a Summon cannot satisfy (no weapons / worn armor). */
+export const SUMMON_POWER_BLOCKLIST = [
     'ab-damage',
-    'ab-invisibility',
-    // Passives that do not grant extra actions / stones / another bond
-    'passive-fortified-frame',
-    'passive-evade',
-    'passive-temp-hp',
-    'passive-regeneration',
-    'passive-spell-resistance',
-    'passive-ward',
-    'passive-invisibility',
-    'passive-thornhide',
-    // Reactions — Bond still has only 1 Reaction / round
-    'reaction-armor',
-    'reaction-evade',
-    'reaction-temp-hp',
-    'reaction-reposition',
-    'reaction-counter-damage',
+    'ab-armor',
 ];
 export function isSummonPowerAllowed(templateId) {
-    return SUMMON_POWER_ALLOWLIST.includes(templateId);
+    if (SUMMON_POWER_BLOCKLIST.includes(templateId))
+        return false;
+    return getTemplate(templateId) != null;
 }
-/** Written PP for a summon purchase: Active uses 30×Level; others use the standard table ×10. */
+/**
+ * Written PP for a summon purchase. Active/Movement use the 30 PP/level curve;
+ * Passive/Reaction 20/level; Active Buff 30/level + 10.
+ */
 export function summonPowerPpCost(category, level, explicitPp) {
     if (explicitPp != null && Number.isFinite(explicitPp) && explicitPp > 0) {
         return Math.floor(explicitPp);
@@ -52,14 +34,13 @@ export function summonPowerPpCost(category, level, explicitPp) {
     const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
     switch (category) {
         case 'active':
+        case 'movement':
             return ppBudgetForLevel(lvl);
         case 'passive':
         case 'reaction':
             return 20 * lvl;
         case 'activeBuff':
             return 30 * lvl + 10;
-        case 'movement':
-            return 0;
         default:
             return 0;
     }
@@ -80,18 +61,6 @@ export function evaluateSummonPower(templateId, level, ownerMasteryRank) {
     const maxLvl = maxSummonPowerLevel(ownerMasteryRank);
     const ppCost = summonPowerPpCost(category, lvl);
     const tokenCost = summonPowerTokenCost(category, lvl);
-    if (category === 'movement') {
-        return {
-            templateId,
-            name,
-            category,
-            level: lvl,
-            ppCost,
-            tokenCost: 0,
-            legal: false,
-            reason: 'Movement Powers cannot be bought as Body Powers — they would bypass the Bond Movement upgrade.',
-        };
-    }
     if (!tpl) {
         return {
             templateId,
@@ -104,7 +73,7 @@ export function evaluateSummonPower(templateId, level, ownerMasteryRank) {
             reason: 'Unknown power template.',
         };
     }
-    if (!isSummonPowerAllowed(templateId)) {
+    if (SUMMON_POWER_BLOCKLIST.includes(templateId)) {
         return {
             templateId,
             name,
@@ -113,7 +82,7 @@ export function evaluateSummonPower(templateId, level, ownerMasteryRank) {
             ppCost,
             tokenCost,
             legal: false,
-            reason: 'Not on the canonical Summon Power allowlist.',
+            reason: 'Requires a wielded weapon or worn armor the Summon does not possess.',
         };
     }
     if (lvl > maxLvl) {
@@ -136,10 +105,14 @@ export function evaluateSummonPower(templateId, level, ownerMasteryRank) {
         ppCost,
         tokenCost,
         legal: true,
-        reason: 'Legal for this Bond.',
+        reason: category === 'movement'
+            ? 'Legal — replaces the Body\u2019s normal Movement for that Turn (no second permanent Mode).'
+            : 'Legal for this Bond.',
     };
 }
 export function listSummonPowerCatalog(ownerMasteryRank, level = 1) {
-    return SUMMON_POWER_ALLOWLIST.map((id) => evaluateSummonPower(id, level, ownerMasteryRank)).sort((a, b) => a.name.localeCompare(b.name));
+    return ALL_POWER_TEMPLATES
+        .map((t) => evaluateSummonPower(t.templateId, level, ownerMasteryRank))
+        .sort((a, b) => a.name.localeCompare(b.name));
 }
 //# sourceMappingURL=summon-power-allowlist.js.map
