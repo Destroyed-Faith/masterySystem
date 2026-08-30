@@ -7,7 +7,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
-import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, stonePowerSkipsFirstTier, } from './stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, stonePowerSkipsFirstTier, firstEffectiveStonePowerTier, } from './stone-powers.js';
 import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
@@ -247,11 +247,12 @@ function escapeAttrValueInCssSelector(value) {
  * are not part of the player `occupied` set. Returns `undefined` when there
  * is no support or it is no longer available this turn.
  */
-function buildSupportLaneSet(prefillTier, usesThisTurn) {
+function buildSupportLaneSet(prefillTier, usesThisTurn, powerId) {
     if (!(prefillTier >= 2))
         return undefined;
-    // The support only applies to the very first activation of the power this turn.
-    if (usesThisTurn !== 0)
+    const firstEffective = powerId ? firstEffectiveStonePowerTier(powerId) : 1;
+    // Support only after the character has paid the first effective tier themselves.
+    if (usesThisTurn < firstEffective)
         return undefined;
     const count = Math.min(STONE_PAYMENT_LANE_COUNT - 1, Math.pow(2, prefillTier - 1));
     const set = new Set();
@@ -598,7 +599,7 @@ export class StonePowersDialog extends BaseDialog {
             const occupied = this.#stoneOccGet(accKey);
             const support = supportForPower(power.id, attrKey);
             const supportTier = support?.tier ?? 0;
-            const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn);
+            const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/${attrKey}`, supportLanes, leadLockedLanes);
             return {
                 id: power.id,
@@ -654,7 +655,7 @@ export class StonePowersDialog extends BaseDialog {
             const sp = STONE_POWERS[power.id];
             const support = supportForPower(power.id);
             const supportTier = support?.tier ?? 0;
-            const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn);
+            const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/general`, supportLanes, leadLockedLanes);
             return {
                 id: power.id,

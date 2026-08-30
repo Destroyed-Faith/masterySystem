@@ -55,7 +55,7 @@
 ---
 - #### [{{ Schticks}}{{ 64}}](#p64)
 ---
-- #### [{{ Playable Echoes}}{{ 67}}](#p67)
+- #### [{{ Playable Echoes}}{{ 68}}](#p68)
 ---
 - #### [{{ Social Combat}}{{ 127}}](#p127)
 ---
@@ -77,25 +77,25 @@
 ---
 - #### [{{ Combat Senses}}{{ 148}}](#p148)
 ---
-- #### [{{ Initiative}}{{ 161}}](#p161)
+- #### [{{ Initiative}}{{ 160}}](#p160)
 ---
-- #### [{{ Attacks}}{{ 162}}](#p162)
+- #### [{{ Attacks}}{{ 161}}](#p161)
 ---
-- #### [{{ Armor and Shields}}{{ 165}}](#p165)
+- #### [{{ Armor and Shields}}{{ 164}}](#p164)
 ---
-- #### [{{ Attribute Checks Against Effects}}{{ 166}}](#p166)
+- #### [{{ Attribute Checks Against Effects}}{{ 165}}](#p165)
 ---
-- #### [{{ Advantage and Disadvantage}}{{ 167}}](#p167)
+- #### [{{ Advantage and Disadvantage}}{{ 166}}](#p166)
 ---
-- #### [{{ Health & Stress}}{{ 168}}](#p168)
+- #### [{{ Health & Stress}}{{ 167}}](#p167)
 ---
-- #### [{{ Combat Maneuvers}}{{ 173}}](#p173)
+- #### [{{ Combat Maneuvers}}{{ 172}}](#p172)
 ---
-- #### [{{ Rest & Recovery}}{{ 181}}](#p181)
+- #### [{{ Rest & Recovery}}{{ 179}}](#p179)
 ---
-- #### [{{ Progression}}{{ 184}}](#p184)
+- #### [{{ Progression}}{{ 182}}](#p182)
 ---
-- #### [{{ Mastery Rank Progression}}{{ 187}}](#p187)
+- #### [{{ Mastery Rank Progression}}{{ 185}}](#p185)
 ---
 
 }}
@@ -107,21 +107,21 @@
 ### Powers & Magic
 
 ---
-- #### [{{ Special Effects Reference}}{{ 190}}](#p190)
+- #### [{{ Special Effects Reference}}{{ 188}}](#p188)
 ---
-- #### [{{ Equipment}}{{ 193}}](#p193)
+- #### [{{ Equipment}}{{ 191}}](#p191)
 ---
-- #### [{{ Weapons}}{{ 196}}](#p196)
+- #### [{{ Weapons}}{{ 194}}](#p194)
 ---
-- #### [{{ Magic}}{{ 197}}](#p197)
+- #### [{{ Magic}}{{ 195}}](#p195)
 ---
-- #### [{{ Mental Powers}}{{ 199}}](#p199)
+- #### [{{ Mental Powers}}{{ 197}}](#p197)
 ---
-- #### [{{ Powers}}{{ 202}}](#p202)
+- #### [{{ Powers}}{{ 200}}](#p200)
 ---
-- #### [{{ Minor Expressions}}{{ 209}}](#p209)
+- #### [{{ Minor Expressions}}{{ 207}}](#p207)
 ---
-- #### [{{ Minor Expressions Catalogue}}{{ 211}}](#p211)
+- #### [{{ Minor Expressions Catalogue}}{{ 209}}](#p209)
 ---
 
 ### Power Catalogues
@@ -141,26 +141,27 @@
 ### Rituals, Summons & Artifacts
 
 ---
-- #### [{{ Rituals}}{{ 223}}](#p223)
+- #### [{{ Rituals}}{{ 221}}](#p221)
 ---
-- #### [{{ Summons}}{{ 236}}](#p236)
+- #### [{{ Summons}}{{ 234}}](#p234)
 ---
-- #### [{{ Artifacts}}{{ 250}}](#p250)
+- #### [{{ Artifacts}}{{ 248}}](#p248)
 ---
 
 ### Advanced & Optional Systems
 
 ---
-- #### [{{ Player Cheat Sheet}}{{ 252}}](#p252)
+- #### [{{ Building Encounters}}{{ 250}}](#p250)
 ---
-- #### [{{ Game System Details}}{{ 254}}](#p254)
+- #### [{{ Player Cheat Sheet}}{{ 261}}](#p261)
+---
+- #### [{{ Game System Details}}{{ 263}}](#p263)
 ---
 
 ### Appendix
 
 ---
-- #### [{{ Appendix — Special Descriptions}}{{ 255}}](#p255)
-
+- #### [{{ Appendix — Special Descriptions}}{{ 265}}](#p265)
 }}
 
 \page
@@ -206,7 +207,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core
-Version: v0.9.8 (2026-07-31)
+Version: v0.9.8.1 (2026-08-30)
 }}
 
 }}
@@ -1040,15 +1041,14 @@ Kings claimed to dream of them, priests swore to have seen their wings pass over
 ![Pyriel](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/Pyriel.png) {position:absolute,top:-40px,left:480px,width:400px}
 
 
-
-| **Land** | **Archangel** | **Known As** | **Domains**  |
+| **Land** | **Archangel** | **Known As** | **Domains** |
 |:--|:--|:--|:--|
 | — | **Gabriel** | *The Crownless One* | Judgment, Dominion, The Void, the Throne Beyond Gods |
-| **Orrondar** | **Pyriel** | *The Judge of Light* | Law, Purity, Fire, Revelation |
-| **Athera** | **Ignariel** | *The Flame of Renewal* | Creation, Change, Wrath, Rebirth |
+| **Zehrion** | **Pyriel** | *The Judge of Light* | Law, Purity, Fire, Revelation |
+| **Kalgrad** | **Ignariel** | *The Flame of Renewal* | War, Strength, Flame, Smithing |
+| **Athera** | **Korruniel** | *The Voice of the Wind* | Air, Freedom, Storms, Defiance |
 | **Velenor** | **Ambriel** | *The Weaver of Stars* | Mind, Dream, Prophecy, Memory |
 | **Astravar** | **Zadkiel** | *The Seraph of Mercy* | Water, Healing, Compassion, Sorrow |
-| **Zehrion** | **Korruniel** | *The Voice of the Wind* | Air, Freedom, Storms, Defiance |
 | **Karaveth** | **Uraliel** | *The Keeper of Masks* | Earth, Memory, Secrets, Bargains |
 | **Morrdrak** | **Ezrael** | *The Silent Watcher* | Shadow, Death, Stillness, Passage |
 </div>
@@ -1062,7 +1062,7 @@ Kings claimed to dream of them, priests swore to have seen their wings pass over
 | **Primordial Age** | *Creation of the World* | The five Prime Dragons shape sky, sea, earth, fire, and time. |
 |  | *Awakening of the Peoples* | From elements and starlight, elves, dwarves, humans, and beastfolk are born. |
 | **Age of the Gods**<br>*(ca. 10,000 years ago)* |  *Appearance of the Gods* | 888 divine sparks awaken as gods and begin to rule the world and its fate. |
-|  |  *War of the Gods*<br>*(~1,000 years)* | Brother fights sister, order shatters. Continents shim, seas boil. |
+|  |  *War of the Gods*<br>*(~1,000 years)* | Brother fights sister, order shatters. Continents shift, seas boil. |
 | **Great Peace**<br>*(ca. 6,000 years ago)* |  *Age of Order* | The eight gods establish a balance. Magic, cities, arts, and faith flourish. |
 |  |  *Founding of the Realms* | Athera, Velenor, Astravar, Morrdrak, and others arise under divine guidance. |
 | **Fall of Order**<br>*(< 500 years ago)* |  *Disappearance of the Dragons* | The great ancestors withdraw or perish. Their bones become mountains, their names legends. |
@@ -1116,8 +1116,8 @@ And so the Eight had found their perfect justification: order was not merely vir
 <img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/ragged%20cloak.png" style="float:right; width:200px; margin:0px 30px 12px -24px;" />
 
 Above all gods had stood Thyrros, the leader of the pantheon, worshipped equally in all realms.
-Thyrros, god of fate and balance, had possessed the wisdom and strength to end the divine war and had brought the remaining gods to reason.
-His word had been law, and it had been his hand that had forged the divine covenant watching over the seven realms.
+Thyrros, god of truth, community, and law, had possessed the wisdom and strength to end the divine war and had brought the remaining gods to reason.
+His word had been law, and it had been his hand that had forged the divine covenant watching over the eight realms.
 Under Thyrros’ guidance, the Great Peace had been established, and for centuries, prosperity and harmony had reigned across the world.
 
 ---
@@ -1499,17 +1499,34 @@ Pilgrims who seek solace find only the echoes of their own hopeless prayers.
 
 #### **Malphas in Aerithar (Zehrion)**
 
-In **Aerithar**, a place of forgotten wisdom and broken academies, rules **Malphas, the Crow-King**.
+**Malphas, the Crow-King**, does not rule Aerithar from a throne.
 
-His spies and shadow-priests weave a network that stretches across nations. The libraries that once taught truth now trade in secrets and lies, each whisper becoming another thread in his vast conspiracy.
+Aerithar is no permanent city. It is the great wandering gathering of Zehrion, raised anew each year wherever the winds and the clan leaders call the people together. Thousands arrive with tents, herds, banners, stories, rivalries, and secrets.
 
-No ruler speaks without his ravens listening.
+Malphas has learned to move with them.
+
+His ravens follow the caravans. His spies travel as merchants, servants, healers, wanderers, and clanless refugees. Shadow-priests listen at fires, copy names, collect grudges, and carry whispers from one tribe to another.
+
+Where Aerithar gathers, so does his network.
+
+Malphas rarely commands openly. Instead, he turns suspicion into accusation, rivalry into betrayal, and private knowledge into weapons. A secret spoken beside one fire may reach another clan before sunrise. A promise made beneath one banner may already be known three valleys away.
+
+No clan knows how deeply his servants have entered their ranks.
+
+And so Aerithar still moves freely across Zehrion.
+
+Malphas simply moves with it.
 
 <div class="df-realm-clear"></div>
 
 ---
 :
+}}
 
+
+\page
+{{pageNumber,auto}}
+{{wide
 <img
   src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Flauros.png"
   class="df-realm-mark"
@@ -1526,12 +1543,7 @@ Few have heard his name spoken aloud, and fewer still remember it correctly.
 
 <div class="df-realm-clear"></div>
 
-}}
 
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 <img
   src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Demons/Marks/Beleth.png"
@@ -1907,7 +1919,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 
 ---
 :
-> **Languages** — choose one additional language to your common language which everyone speaks
+> **Languages** — everyone speaks the **Common Tongue** and gains one additional language. For some Echoes, this additional language is fixed by their origin.
 
 ---
 :
@@ -1976,7 +1988,7 @@ Later progression can push values beyond 8, where raw capacity transcends mortal
 | **Agility** | Reflex, balance, and flow | How purely you move with instinct and momentum. | **Range & Evade** |
 | **Vitality** | Endurance and survival | How strongly your body can hold the spark of life. | **Health & Physical Resistance** |
 | **Intellect** | Knowledge and arcane structure | How far your mind can reach into the patterns of creation. | **Mental Analysis & Resistance** |
-| **Resolve** | Willpower and inner stability | How fiercely your soul resists corruption and bends reality instead of breaking. | **Stress Armor & Soul Resistance** |
+| **Resolve** | Willpower and inner stability | How fiercely your soul resists corruption and bends reality instead of breaking. | **Stress & Soul Resistance** |
 | **Influence** | Charisma and presence | How brightly your essence resonates with others and commands the world through emotion. | **Social Skills** |
 | **Wits** | Awareness and reaction | How swiftly your consciousness adapts and shapes events before they unfold. | **Initiative & Instinctive Mental Resistance** |
 
@@ -2126,7 +2138,7 @@ You receive **40 points** to distribute freely across your skills.
 
 - At creation, **no single skill may exceed 4**.
 - Long-term cap: A skill’s maximum rating equals **4 × Mastery Rank**.  
-  *Example: at Mastery 8, a skill can reach **32** (33 situationally with a Specialty).*
+  *Example: at Mastery 8, a skill can reach **32**.*
 
 ---
 
@@ -2134,9 +2146,9 @@ You receive **40 points** to distribute freely across your skills.
 #### Example
 
 A character is searching for signs of an ambush in the woods.  
-The GM sets the TN at **20** for “Challenging” terrain. The character declares **1 Raise**, so TN becomes **24**.
+The GM sets the TN at **24** for a Difficult challenge.
 
-He has **Wits 5**, **Mastery II** (keep 2 dice), and **Perception 3**.
+He has **Wits 5**, **Mastery II** (keep 2 dice), and **Perception 4**. Because MR 2 requires Skill 4 for the full pool, he rolls his full Wits Pool.
 
 He rolls **5k2** → results: 4, 6, 8, 2, 3.  
 The 8 explodes → he rolls again and gets a 7, so the 8 becomes **15**.  
@@ -2145,7 +2157,7 @@ Keep the best two: **15 + 6 = 21**.
 Now the player chooses how many **Perception Skill Points** to spend:
 - If he spends **0**, Final Result = **21** (fail).
 - If he spends **MR = 2**, Final Result = **23** (still fail).
-- If he goes **all-in** and spends his full remaining Perception Pool (**3**), Final Result = **24** (success).
+- If he goes **all-in** and spends his full remaining Perception Pool (**4**), Final Result = **25** (success).
 
 ---
 
@@ -2251,7 +2263,7 @@ Set the TN to **Standard (Standard TN = 8 × Challenge MR)**, then adjust the TN
 | Extreme (Standard +12 or more)   |  28+  |  36+  |  44+  |  52+  |  60+  |
 
 - Every **+4 over the TN** is **1 Raise**.
-- A player may **declare Raises before rolling**: Each Raise = **+4 TN** for a **better outcome** if they still succeed.
+- For ordinary Skill Checks, Raises are counted **after the roll**. Every full **+4** by which the Final Result exceeds the final TN equals **1 Raise**. Raises are declared before rolling only when a specific rule explicitly says so.
 
 ---
 :
@@ -2322,7 +2334,10 @@ Examples include:
 
 ---
 In these cases, do not use repeated opposed rolls.
-Instead, the first creature makes the setup roll.
+
+**Exception:** **Grapple** and **Pursuit** use repeated opposed checks through their own combat rules. Those rules override this procedure.
+
+Otherwise, the first creature makes the setup roll.
 The result of that roll determines how difficult it is for the opposing creature to overcome it.
 
 ---
@@ -2486,7 +2501,7 @@ It is the strength that turns struggle into momentum and exhaustion into triumph
 
 ---
 
-**Roll:** Might or Agility keep Mastery   
+**Roll:** Might keep Mastery   
 **Opposed By:** Environment
 
 ---
@@ -2559,7 +2574,7 @@ Hunters, assassins, and prey alike rely on its lessons.
 {{wide
 
 :
-**Roll:** Wits keep Mastery + Concealment  
+**Roll:** Wits keep Mastery  
 **Opposed By:** Perception or Intuition  
 **Typical Raises:** poor cover, shifting light, leaving no trace, hiding equipment, resisting active search, longer duration
 
@@ -3252,7 +3267,7 @@ Ranged Weapons is breath, stability, and choosing the right second to release.
 
 ---
 
-**Applies to:** ranged attack rolls, aimed shots, called targets, volleys (as defined by your combat rules).
+**Applies to:** ranged attack rolls.
 
 > **Effect:** When you make a **ranged attack roll**, you may spend **Ranged Weapons Skill Points** to add a flat bonus to the result.
 
@@ -3518,7 +3533,13 @@ The two Actives give Alaris a choice between immediate damage and preparing a ta
 ## Choose a Language
 
 > All souls share the **Common Tongue**, born from the Echoes of the First War.  
-> In addition, choose **one other language** that reflects your origin, training, culture, or story.
+> Every character also learns **one additional language**. For some Echoes, this language is fixed by their origin and cannot be chosen freely.
+
+- **Dwarves** automatically learn **Dwarvish**.
+- **Dragonborn** automatically learn **Draconic**.
+- **Sentinels** automatically learn **Mustelic**.
+- **Elorians** automatically learn **Elvish**.
+- Characters of **all other Echoes** choose their additional language freely to reflect their origin, training, culture, or story.
 
 ---
 ::
@@ -3531,137 +3552,173 @@ The two Actives give Alaris a choice between immediate damage and preparing a ta
 - **Dwarvish** – forged words of stone and steel  
 - **The First** – ancient tongue of the Titan-born  
 - **Elvish** – fluid and timeless, carried by wind and memory  
-- **Draconic** – the primal roar of flame, wave, and storm
+- **Draconic** – the primal roar of flame, wave, and storm  
+- **Mustelic** – the precise command-tongue of Sentinels and divine law
 
 ---
 :
 #### Example
 
-A character with a demonic mark might choose **Infernal**.  
+A Human with a demonic mark might choose **Infernal**.  
 Their languages are: **Common Tongue, Infernal**.
 
-An Elorian wanderer might choose **Elvish**.  
+An Elorian wanderer automatically learns **Elvish**.  
 Their languages are: **Common Tongue, Elvish**.
 
+
 }}
 
 
 \page
 {{pageNumber,auto}}
 {{wide
-## **Schticks**
+## Schticks
 > *“Power leaves traces — in the body, in the soul, and in the world around you.”*
 
----
+Schticks are **narrative signatures** created by the power awakening within a character. They may be physical, visual, audible, emotional, or supernatural: an unnatural eye color, frost gathering on the skin, a voice that carries a strange echo, sparks appearing during moments of anger, or shadows briefly moving against the light.
 
-#### **What Are Schticks?**
-Schticks are **unique traits** that manifest as a character’s **physical, mental, or mystical signatures**.  
-They do not grant direct mechanical bonuses, but **define your Mastery’s expression** — the *“flavor of power”* that makes your hero memorable.
-
-Each Schtick represents a **visible or perceptible change** brought by your growing attunement to the forces you wield.
+Schticks show **how Mastery changes a character**. They make growing power visible in the fiction, but they are not Powers, abilities, or mechanical upgrades.
 
 ---
 
-#### **Acquisition**
+#### What Are Schticks?
 
-| Source | Schticks Gained |
-|:--|:--:|
-| **Per Mastery Rank** | +1 |
-| **Optional Purchase** | Spend **2 Mastery Points** for +1 additional Schtick |
+A Schtick is a distinctive trait that makes a character recognizable and shows how their inner power manifests in the world.
 
-> Schticks are permanent unless a GM-approved transformation or ritual alters them.
+Schticks have **no mechanical effect**. They do not change Attributes, Skills, dice pools, Target Numbers, Damage, Armor, Evade, Movement, Senses, concealment, social rolls, or any other game value.
 
----
+A Schtick may influence how the world is described or how NPCs react in the fiction, but it never grants an automatic bonus, penalty, success, failure, or special capability.
 
-#### **Progressive Manifestation**
-As your power deepens, so too does its imprint on your form and aura.  
-Below is a general guideline — adjust by theme (e.g. frost, flame, void, blood, etc.):
+> **A Schtick describes what your power looks or feels like. It does not determine what your power can do.**
 
-| **Mastery Rank** | **Manifestation Scale** | **Example (Frost-Dominated Character)** |
-|:--|:--|:--|
-| **M1 — Minor Traits** | Subtle signs or small curiosities; a hint of what’s to come. | *Eyes gleam pale blue; breath mists even indoors.* |
-| **M2 — Distinct Features** | Clear aesthetic or behavioral quirk visible to others. | *Tears fall as tiny snowflakes; touch feels cool as marble.* |
-| **M3 — Defining Aspect** | Your power visibly marks your entire body or presence. | *Skin fades to icy blue; faint frost lines trace your veins.* |
-| **M4 — Environmental Echoes** | Your aura influences nearby objects or the air itself. | *Objects frost slightly when touched; cold lingers where you stand.* |
-| **M5+ — Mythic Signature** | Reality subtly bends around your nature; myth and truth blur. | *A halo of frost shimmers in moonlight; snow falls when you grieve.* |
+If a trait should provide an actual mechanical effect, it must come from a Power, Echo, Artifact, Stone Ability, or another rule that explicitly grants that effect.
 
 ---
 
-### **Usage in Play**
-- **No Mechanics:** Purely cosmetic — but GMs may grant situational effects (e.g., intimidation bonus, disguise penalties).  
-- **Narrative Hooks:** Use Schticks to describe reactions, mutations, or divine marks.  
-- **Customization:** Players may define their Schticks at creation or upon reaching new Mastery Ranks.
+#### Acquisition
 
-> **GM Note:** Schticks help visualize evolution without breaking balance. They’re *storytelling rewards* — not upgrades.
+You gain **one Schtick for each Mastery Rank** you possess.
 
+A character therefore has:
+
+| **Mastery Rank** | **Schticks** |
+|:--:|:--:|
+| **MR 1** | 1 |
+| **MR 2** | 2 |
+| **MR 3** | 3 |
+| **MR 4** | 4 |
+| **MR 5** | 5 |
+| **MR 6** | 6 |
+| **MR 7** | 7 |
+| **MR 8** | 8 |
+
+A character beginning at **MR 2** therefore starts with **two Schticks**.
+
+When your Mastery Rank increases, choose another Schtick that represents how your growing power has changed you.
+
+Schticks are normally permanent. They may change through major transformations, rituals, Artifact awakenings, Echo developments, or other significant events if the player and GM agree that the change fits the story.
+
+---
 }}
 
 
 \page
 {{pageNumber,auto}}
 {{wide
+#### Progressive Manifestation
 
+Schticks generally become more striking as Mastery increases. Early manifestations are subtle enough to be dismissed as unusual. At higher Mastery, the character may visibly appear touched by forces beyond ordinary mortal nature.
+
+The following scale is a guideline for tone rather than a mechanical restriction:
+
+| **Mastery Rank** | **Manifestation Scale** | **Example — Frost** |
+|:--|:--|:--|
+| **MR 1 — Minor Trait** | A subtle physical or sensory peculiarity. | *Your breath mists even in warm rooms.* |
+| **MR 2 — Distinct Feature** | A clearly unusual characteristic others may notice. | *Your touch feels cold and moisture briefly crystallizes against your skin.* |
+| **MR 3 — Defining Aspect** | Your power visibly marks your body or presence. | *Pale-blue lines spread beneath your skin like frozen veins.* |
+| **MR 4 — Environmental Echo** | Your presence creates small, harmless changes around you. | *Frost gathers briefly on objects you touch and cold lingers where you stand.* |
+| **MR 5+ — Mythic Signature** | Your nature becomes increasingly difficult to mistake for something ordinary. | *A halo of frost shimmers around you and tiny snowflakes sometimes drift through still air.* |
+
+A new Schtick does not have to be an upgraded version of an earlier one. A character may develop several different manifestations representing different aspects of their Powers, Echo, Artifacts, experiences, or personality.
+
+---
+
+#### Using Schticks in Play
+
+Schticks exist to help describe characters and their evolution.
+
+Use them when describing how a character enters a scene, activates a Power, becomes emotional, suffers injury, invokes an Artifact, or reaches a new stage of Mastery. They may also become recognizable features that friends, enemies, witnesses, or legends associate with that character.
+
+They remain narrative unless another rule explicitly gives them mechanics.
+
+{{note
+##### Schticks Are Not Powers
+
+A Schtick cannot provide a free mechanical ability.
+
+A character whose eyes glow in darkness does not automatically gain Darkvision. A character surrounded by frost does not deal cold damage. A character who appears briefly translucent does not gain Phasing. A character whose voice sounds terrifying does not gain a bonus to Intimidation.
+
+If you want one of those effects, choose or acquire the appropriate Power.
+
+**Describe freely. Resolve mechanically through the rules.**
+}}
+
+---
+}}
+
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Example: Schticks
 
-> *“Power leaves traces — in the body, in the soul, and in the world around you.”*
+The following examples show how different themes might manifest as Mastery grows. These are suggestions, not fixed lists.
 
-Schticks are not bonuses.  
-They are **signatures** — visible, audible, emotional, or supernatural marks of the power that reshapes a character.
-
-Use them to show how Mastery changes the way a character looks, feels, moves, or is perceived by others.
-
----
-:
-#### Example Progressions
-
-The following examples show how one theme can grow across the first four Mastery Ranks.
-
-These are not fixed lists.  
-They show the expected scale of Schticks at each Rank.
-
----
-:
-##### Freeze
+#### Freeze
 
 | **Rank** | **Schtick Example** |
 |:--|:--|
-| **M1 — Minor Trait** | Your breath mists even in warm rooms. |
-| **M2 — Distinct Feature** | Your touch feels cold, and tears or sweat may crystallize briefly. |
-| **M3 — Defining Aspect** | Pale-blue lines spread beneath your skin like frozen veins. |
-| **M4 — Environmental Echo** | Frost gathers on objects you touch, and cold lingers where you stand. |
+| **MR 1 — Minor Trait** | Your breath mists even in warm rooms. |
+| **MR 2 — Distinct Feature** | Your touch feels cold, and tears or sweat may crystallize briefly. |
+| **MR 3 — Defining Aspect** | Pale-blue lines spread beneath your skin like frozen veins. |
+| **MR 4 — Environmental Echo** | Frost gathers briefly on objects you touch, and cold lingers where you stand. |
+| **MR 5+ — Mythic Signature** | Fine snow sometimes drifts around you even beneath a clear sky. |
 
 ---
-:
-##### Ruin
+
+#### Ruin
 
 | **Rank** | **Schtick Example** |
 |:--|:--|
-| **M1 — Minor Trait** | Your breath carries the faint scent of smoke. |
-| **M2 — Distinct Feature** | Sparks flicker at your lips, fingers, or eyes when emotion rises. |
-| **M3 — Defining Aspect** | Thin ember-lines glow beneath your skin, especially around scars or veins. |
-| **M4 — Environmental Echo** | Heat shimmer surrounds you, candles lean toward you, and ash drifts in still air. |
+| **MR 1 — Minor Trait** | Your breath carries the faint scent of smoke. |
+| **MR 2 — Distinct Feature** | Sparks flicker at your lips, fingers, or eyes when emotion rises. |
+| **MR 3 — Defining Aspect** | Thin ember-lines glow beneath your skin, especially around scars or veins. |
+| **MR 4 — Environmental Echo** | Heat shimmer surrounds you, candles lean toward you, and ash drifts in still air. |
+| **MR 5+ — Mythic Signature** | Your silhouette sometimes appears wreathed in distant flame without anything actually burning. |
 
 ---
-:
-##### Beast
+
+#### Beast
 
 | **Rank** | **Schtick Example** |
 |:--|:--|
-| **M1 — Minor Trait** | Your eyes reflect light like an animal’s in darkness. |
-| **M2 — Distinct Feature** | Your movements become unnervingly quiet, still, or predatory. |
-| **M3 — Defining Aspect** | Teeth, nails, posture, or voice take on a clearly bestial quality. |
-| **M4 — Environmental Echo** | Nearby animals grow tense, silent, submissive, or aggressive when your power stirs. |
+| **MR 1 — Minor Trait** | Your eyes reflect light like an animal's in darkness. |
+| **MR 2 — Distinct Feature** | Your movements become unnervingly still, fluid, or predatory. |
+| **MR 3 — Defining Aspect** | Teeth, nails, posture, voice, or facial features take on a clearly bestial quality. |
+| **MR 4 — Environmental Echo** | Nearby animals become noticeably attentive, restless, or quiet when your power stirs. |
+| **MR 5+ — Mythic Signature** | For an instant, observers may glimpse the outline of something far larger and more primal moving with you. |
 
 ---
-:
-##### Divine
+
+#### Divine
 
 | **Rank** | **Schtick Example** |
 |:--|:--|
-| **M1 — Minor Trait** | Your eyes catch a faint blue gleam in darkness. |
-| **M2 — Distinct Feature** | A cold blue shimmer gathers around your scars, hands, or pupils when you focus. |
-| **M3 — Defining Aspect** | Your presence carries a visible blue radiance, like moonlight beneath the skin. |
-| **M4 — Environmental Echo** | The air around you dims and glows blue; dust, mist, or falling ash hangs briefly in your aura. |
+| **MR 1 — Minor Trait** | Your eyes catch a faint blue gleam in darkness. |
+| **MR 2 — Distinct Feature** | A cold blue shimmer gathers around your scars, hands, or pupils when you focus. |
+| **MR 3 — Defining Aspect** | Your presence carries a visible blue radiance, like moonlight beneath the skin. |
+| **MR 4 — Environmental Echo** | The air around you dims and glows blue; dust, mist, or falling ash hangs briefly in your presence. |
+| **MR 5+ — Mythic Signature** | For brief moments, the space around you resembles sacred light from an age that no longer exists. |
 }}
 
 
@@ -3671,7 +3728,9 @@ They show the expected scale of Schticks at each Rank.
 
 ## Example: Alaris Chooses Languages and Schticks
 
-Every character speaks the **Common Tongue** and chooses one additional language. Alaris chooses **Elvish**, connecting her directly to Elorian history, communities, and surviving traditions.
+Every character speaks the **Common Tongue** and gains one additional language. For Elorians, this language is fixed as **Elvish**.
+
+Alaris therefore automatically learns **Elvish** through her Elorian Echo, connecting her directly to Elorian history, communities, and surviving traditions.
 
 Alaris is Mastery Rank 2 and therefore chooses two Schticks. Both are purely descriptive and grant no concealment, teleportation, movement, or defensive benefit.
 
@@ -3683,7 +3742,6 @@ Sometimes Alaris appears to vanish for the smallest part of a movement. An obser
 
 When Alaris channels one of her Powers, her eyes become completely black. Anyone looking closely can see the **Six Constants** burning faintly inside them like distant stars.
 
-<img src="https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Rulebook/Alaris-Example-Identity.png" style="display:block; width:680px; margin:14px auto 0 auto;" />
 
 {{note
 ##### What this example shows
@@ -3759,17 +3817,6 @@ An Echo should support both the fiction and the ways a character approaches scen
 
 ### Echo Artifacts
 
-<style>
-.artifactTechnicalReference {
-  display: block;
-  margin-top: 2px;
-  font-size: 7px;
-  line-height: 1.1;
-  font-style: italic;
-  font-weight: normal;
-  color: #888;
-}
-</style>
 
 Some Echoes are bound to physical manifestations called **Echo Artifacts**.
 
@@ -3788,39 +3835,6 @@ Echo Artifacts follow the normal Artifact rules:
 A character normally has **4 Artifact Capacity**.
 
 ---
-
-#### Technical References and Power Identity
-
-The **Artifact Name** is the Echo Artifact's character-facing name. The **Technical Reference** is the mechanical identity used for all rules interactions. In each Level Progression table, it is printed in smaller text directly below the Artifact Name. **PL** means effective Power Level. The PL and any parenthetical source restriction describe the available profile; they are not part of the Power's identity.
-
-- If a Technical Reference names a catalogue Power, use that Power's complete rules at the listed PL. The Artifact's Range, weapon, target, or delivery restriction applies only when the row explicitly says it overrides the catalogue profile.
-- A Power granted by an Echo Artifact counts as that Power for selection and use limits. You cannot purchase or select a second copy of the same base Technical Reference to create another once-per-round use.
-- If several sources grant the same base Technical Reference anyway, they are one Power with several available profiles. Use the highest currently available and legal PL. If that profile cannot legally be used because its Artifact, weapon, target, Range, Trigger, or other source restriction is unavailable, use the highest remaining legal profile. All copies share the same spent state until the start of the next Round.
-- A later row with the same base Technical Reference at a higher PL is an upgrade. It replaces the earlier Artifact profile and does not grant another Power.
-- Successive stages of one Artifact Function use the same base Technical Reference. Stage numerals such as I, II, and III remain part of the Artifact Name only. Changing PL, capacity, distance, uses, or another parenthetical source-profile value does not create a new base identity.
-- If a Technical Reference lists alternatives separated by a slash and says **choose one**, make that choice when the Artifact is created and record the exact chosen Technical Reference. Later upgrades keep the same choice.
-- **Artifact Active**, **Artifact Active Buff**, and **Artifact Reaction** are Artifact-exclusive Powers. They follow the normal once-per-round Power Use Limit under their exact Technical Reference.
-- **Artifact Function**, **Stone Power Support**, **Stone Pool**, **Sense Option**, **Passive**, and **Ultimate** are not catalogue Powers unless their Technical Reference explicitly names one.
-- A GM-defined Ultimate is unavailable until its action type, trigger, range, AoE, duration, uses, full effect, effective PL if relevant, and final Technical Reference have been written down and approved.
-
-If a summary in an Artifact table conflicts with the referenced catalogue Power, the catalogue Power controls except for an explicit Artifact override.
-
----
-
-#### Artifact Overlap and Retraining
-
-If an Echo Artifact first grants a Technical Power that the character has already purchased with their own advancement resources, the character may keep the purchased version as a fallback or retrain the purchased Power and its paid upgrades at no additional cost during the next legal retraining or downtime opportunity.
-
-The replacement choices must follow all normal requirements and may not exceed the total advancement value actually paid for the replaced Power and its upgrades.
-
-This retraining grants no bonus XP, Power Points, or other advancement resources. A Power received for free has no refundable or retrainable advancement value.
-
-If the purchased version is retained and the Echo Artifact becomes unavailable, the character falls back to the purchased profile at its own PL. If the purchased version was retrained, the character loses access to the Power while the Artifact is unavailable.
-
-Foundry VTT must never delete, refund, or retrain a purchased Power automatically. It should identify the overlap, combine the source profiles for use tracking, and show the retraining choice to the player and GM.
-
----
-
 #### Choosing Echo Artifacts
 
 Not every Echo handles Echo Artifacts the same way.
@@ -3831,12 +3845,17 @@ Others must choose at least one Echo Artifact because their body or bloodline is
 | **Echo** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
 |:--|:--:|:--:|:--:|
 | **Human** | 0 | 0 | 4 |
-| **Halfling** | 1 | 1 | 3 |
+| **Halfling** | 0 | 1 | 3–4 |
 | **Dwarf** | 1 | 1 | 3 |
 | **Elf** | 1 | 1 | 3 |
-| **Dragonborn** | 1 | 3 | 1-3 |
-| **Titanborn** | 1 | 1| 3 |
+| **Dragonborn** | 1 | 3 | 1–3 |
+| **Titanborn** | 1 | 1 | 3 |
 | **Sentinel** | 1 | 1 | 3 |
+| **Unbound — Beast** | 1 | 1 | 3 |
+| **Unbound — Witch** | 1 | 1 | 3 |
+| **Unbound — Bane: Alchemist** | 1 | 1 | 3 |
+| **Unbound — Bane: Greenwarden** | 1 | 1 | 3 |
+| **Unbound — Bane: Relic Hunter** | 1 | 1 | 3 |
 
 If an Echo requires Echo Artifacts, you must choose at least the required number from that Echo's available Echo Artifact list at character creation.
 
@@ -3876,7 +3895,7 @@ You cannot freely replace one Echo Artifact with another unless the Echo or GM e
 ### Echo Deck
 
 - **Each Echo has a deck of 4 cards.**
-- **Start (Character Creation) and Progression:** Choose **1 card** from your Echo Deck and another card at mastery rank 2,4 and 6.
+- **Start and Progression:** Choose **1 card** from your Echo Deck at Character Creation. Choose **1 additional card at Mastery Rank 4** and **1 additional card at Mastery Rank 6**. A standard **MR 2** starting character therefore begins with **1 Echo Card**.
 - **Daily use:** Each card can be used **once per day**.  
   When you use a card, choose **one option** on that card (based on your unlocked Mastery tier).
 
@@ -4138,7 +4157,7 @@ You are kind because Hell failed to teach you hunger.
 
 | **Echo** | **Creature Type** | **Size** | **Speed** | **Required Echo Artifacts at Character Creation** | **Maximum Echo Artifacts at Character Creation** | **Free Artifact Capacity Left** |
 |:--|:--|:--:|:--:|:--:|:--:|:--:|
-| **Halfling** | Humanoid | Small | 8 m | 0 | 0 | 4 |
+| **Halfling** | Humanoid | Small | 8 m | 0 | 1 | 3-4 |
 
 ---
 :
@@ -4151,6 +4170,11 @@ Once a demon has tasted a Halfling's blood or flesh, it can recognize that same 
 Even demons that have never tasted a Halfling may react to Hearthsweet when blood is spilled, terror breaks restraint, or a Halfling calls openly upon the warmth of their Echo. Hunger sharpens. Attention turns. A creature that had other priorities may suddenly decide that the smallest person in the room is the only one that matters.
 
 Halflings therefore learn an unbearable discipline: survive without becoming memorable to the wrong monster.
+
+
+
+
+![Halfling General](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/Halfling-General-Transparent.png){position:absolute,top:60px,right:20px,width:320px}
 }}
 
 \page
@@ -4158,60 +4182,54 @@ Halflings therefore learn an unbearable discipline: survive without becoming mem
 {{wide
 #### Ringchain of Kept Names
 
-![Ringchain](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Ringchain.png){position:absolute,top:60px,right:120px,width:120px}
- 
-<div style="width:65%; margin:left;">
-The Ringchain of Kept Names is a Halfling Echo Artifact representing family, remembered dead, chosen kin, and the impossible duty of keeping the herd alive.
+![Ringchain](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Ringchain.png){position:absolute,top:100px,right:80px,width:220px}
 
-Each ring on the chain belonged to someone who mattered: a parent, a sibling, a child, a friend, a rescued stranger, or someone who did not make it out. The chain is not a symbol of wealth. It is a record of who must not be forgotten.
 
+<div style="width:65%; margin-left:0; text-align:justify;">
+
+The **Ringchain of Kept Names** is a Halfling Echo Artifact representing family, remembered dead, chosen kin, and the impossible duty of keeping the herd alive. Each ring on the chain belonged to someone who mattered: a parent, sibling, child, friend, rescued stranger, or someone who did not make it out. The chain is not a symbol of wealth. It is a record of those who must not be forgotten.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
 | Amulet | Halfling Ringchain | Not a Target Stone Support / Cleanse / Healing Aura / Single Heal | Echo-bound |
 
+The Ringchain occupies the **Amulet Slot**. Although it carries rings, those rings are part of the Artifact and do not occupy the Ring Slot or count as separate Ring Artifacts. A Halfling with the Ringchain cannot wear another Amulet Artifact, magical necklace, soul chain, oath mark, curse mark, or similar Amulet-based Artifact.
+
+The Ringchain is **Echo-bound** and cannot normally be removed, replaced, sold, stolen, or unbound.
+
+</div>
+
 ---
 
-The Ringchain of Kept Names occupies the Amulet Slot.
+#### Choosing the Ringchain
 
-Although it carries rings, those rings are part of this Artifact. They do not occupy the Ring Slot and do not count as separate Ring Artifacts.
+Halflings are not required to begin with an Echo Artifact.
 
-A halfling with the Ringchain of Kept Names cannot wear another Amulet Artifact, magical necklace, soul chain, oath mark, curse mark, or similar Amulet-based Artifact.
+During Character Creation, a Halfling may choose the **Ringchain of Kept Names** as their single available Echo Artifact.
 
-The Ringchain of Kept Names is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.
-</div>
+If chosen, the Ringchain occupies **1 Artifact Capacity** and the **Amulet Slot**, leaving the character with **3 Free Artifact Capacity**.
+
+A Halfling who does not choose the Ringchain retains all **4 Artifact Capacity** and is not required to replace it with another Echo Artifact.
 
 ---
 
 #### Ringchain Base
 
-The Ringchain of Kept Names has no numeric Base Values.
+The Ringchain of Kept Names has no numeric Base Values. It grants no Armor, Evade, Movement, Weapon Damage, Sense Option, or passive defensive value by itself. Its mechanical power comes entirely from its Level Progression.
 
-It grants no Armor, Evade, Movement, Weapon Damage, Sense Option, or passive defensive value by itself.
-
-Its power comes entirely from its Level Progression.
-
-The names and rings on the chain are narrative unless a Level Progression entry explicitly grants a mechanical effect.
+The names and rings carried on the chain remain narrative unless a Level Progression entry explicitly grants a mechanical effect.
 
 ---
 
 #### Influence Stone Support: Not a Target
 
-The Ringchain of Kept Names contains one Stone Function.
+The Ringchain contains one Stone Function supporting the **Influence Ability: Not a Target** Stone Power.
 
-It supports the **Influence Ability: Not a Target** Stone Power.
+Stone Power Support never pre-fills Tier 1. The character must always pay all lower tiers themselves. If the required lower tiers are not paid, the pre-filled tier has no effect.
 
-Stone Power Support never pre-fills Tier 1.
+This Stone Power Support can be used a number of times per Safe Haven Rest equal to the character's **Mastery Rank**.
 
-The character must always pay all lower tiers themselves.
-
-If the required lower tiers are not paid, the pre-filled tier has no effect.
-
-This Stone Power Support can be used a number of times per Safe Haven Rest equal to the character's Mastery Rank.
-
-This does not make the halfling invisible, hidden, untargetable, or immune to attacks.
-
-It represents the chain pulling attention away from the one carrying the names, preventing enemies from simply choosing them as easy prey.
+This effect does not make the Halfling invisible, hidden, permanently untargetable, or immune to attacks. It represents the chain pulling attention away from the one carrying the names, preventing enemies from simply choosing them as easy prey.
 
 ---
 }}
@@ -4219,17 +4237,12 @@ It represents the chain pulling attention away from the one carrying the names, 
 \page
 {{pageNumber,auto}}
 {{wide
+
 #### Healing Aura
 
-Healing Aura uses the normal Active Buff rules.
+Healing Aura follows the normal **Active Buff** rules and uses the character's maintained Active Buff slot. A character may normally maintain only one Active Buff at a time.
 
-It uses the character's maintained Active Buff slot.
-
-A character may normally maintain only one Active Buff at a time.
-
-Healing Aura restores HP inside the current Health Level only.
-
-It does not restore lost Health Levels unless another rule explicitly says otherwise.
+Healing Aura restores HP only inside the creature's current Health Level. It does not restore lost Health Levels unless another rule explicitly says otherwise.
 
 ---
 
@@ -4238,11 +4251,11 @@ It does not restore lost Health Levels unless another rule explicitly says other
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Kept from Sight I**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
-| **2** | **Burden Lifted I**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 4)</span> | Active, Support | 20 m | None | Instant | Reduce one eligible negative Special on one creature by **6**. |
+| **2** | **Burden Lifted I**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 4)</span> | Active, Support | 20 m | None | Instant | Remove up to **6 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. |
 | **3** | **Hearth Circle I**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 4)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **3d8 HP**. Each creature can be affected only once per Round. |
 | **4** | **Remembered Hands I**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 10)</span> | Active, Support | 44 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest**. |
 | **5** | **Kept from Sight II**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
-| **6** | **Burden Lifted II**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 10)</span> | Active, Support | 44 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. This replaces Burden Lifted I. |
+| **6** | **Burden Lifted II**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 10)</span> | Active, Support | 44 m | None | Instant | Remove up to **10 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. This replaces Burden Lifted I. |
 | **7** | **Remembered Hands II**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 16)</span> | Active, Support | 68 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Remembered Hands I. |
 | **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 16)</span> | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **11d8 HP**. Each creature can be affected only once per Round. This replaces Hearth Circle I. |
 | **9** | **Kept from Sight III**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
@@ -4576,7 +4589,7 @@ You remind them what refusal will cost. Not loudly. Clearly.
 
 ---
 *Skill: Leadership*  
-You rally your comrades, lock in their resolve and and turn doubt into a united stance.
+You rally your comrades, lock in their resolve and turn doubt into a united stance.
 
 :
 **IV — THE OLD RULES APPLY**
@@ -4699,7 +4712,7 @@ You keep control of your center. You do not get thrown, tripped, or panicked.
 \page
 {{pageNumber,auto}}
 {{wide
-![elfen ranger](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/Alaris.png){position:absolute,top:40px,right:0px,width:400px}
+![elfen ranger](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/Alaris/Alaris.png){position:absolute,top:40px,right:0px,width:400px}
 
 ### **Elorians** 
 
@@ -6233,8 +6246,8 @@ Beasts are the body’s response.
 They are the Unbound of transformation, instinct, animal memory, and sacred violence. Their power comes from the great shapes of the wild: wolf, bear, raven, stag, fox, boar, serpent, lynx, and stranger things remembered by old forests. The most famous Beasts are wolves, bears, and ravens, but they are not the only ones. Stags and foxes still appear in old tales, though they are rarer now, and some Beast-shapes are known only in specific regions or blood-soaked places.
 
 :::::::::::::::
-Placeholder
-![KristinTheHealer](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/NPC%27s/NPC/KristinTheHealer.png){position:absolute,top:400px,right:160px,width:500px}
+
+![Raukar](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Adventures/Myrial/NPC/Raukar-noBG.png){position:absolute,top:200px,right:-20px,width:900px}
 }}
 \page
 {{pageNumber,auto}}
@@ -6792,13 +6805,13 @@ The forest answers through them.
 {{wide
 #### Hunter's Scourge
 
-Hunter's Scourge is a Demon Hunter Echo Artifact: a chain-whip, iron lash, hooked cord, weighted scourge, relic whip, or segmented killing chain built to drag monsters into reach and destroy them.
+Hunter's Scourge is a Relic Hunter Echo Artifact: a chain-whip, iron lash, hooked cord, weighted scourge, relic whip, or segmented killing chain built to drag monsters into reach and destroy them.
 
-Demon Hunters are not holy knights.
+Relic Hunters are not holy knights.
 
 They are trained killers of demons, undead, fiends, cursed things, and monsters that survived too long.
 
-Where Alchemists survive the hunt by changing their own bodies, and Green Wardens protect what still lives, Demon Hunters end the hunt by pulling the monster close and burning it out of the world.
+Where Alchemists survive the hunt by changing their own bodies, and Green Wardens protect what still lives, Relic Hunters end the hunt by pulling the monster close and burning it out of the world.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
@@ -6806,7 +6819,7 @@ Where Alchemists survive the hunt by changing their own bodies, and Green Warden
 
 Hunter's Scourge occupies both hand Slots.
 
-A Demon Hunter with Hunter's Scourge cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.
+A Relic Hunter with Hunter's Scourge cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.
 
 Hunter's Scourge is Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.
 
@@ -7030,7 +7043,7 @@ You find what they actually feel, then speak to that instead of their words.
 {{wide
 ## Deathless
 
-In the lands of Tyra, death does not always hold. Not everywhere. Not quickly. Not all at once. But slowly, quietly, and without mercy, something has begun to loosen.
+In the lands of Tyhra, death does not always hold. Not everywhere. Not quickly. Not all at once. But slowly, quietly, and without mercy, something has begun to loosen.
 
 A corpse opens its eyes beneath wet soil. A drowned soldier coughs river mud from dead lungs. A burned woman stands among ashes and no longer feels the fire. A child hears someone crying from inside a sealed grave.
 
@@ -7096,15 +7109,15 @@ Deathless characters still lose Health normally. Deathless characters can still 
 
 ### Deathless Body Progression
 
-At Level 1, Hollow Crown grants **Deathless Body I**. The first two Health Penalty steps are reduced by two steps.
+At Level 1, Hollow Crown grants **Deathless Body I**. Normal Health Penalties are shifted two Health Levels toward **Healthy**.
 
-| Normal Health Penalty | Deathless Body I Penalty |
-|:---:|:---:|
-| 0% | 0% |
-| 10% | 0% |
-| 20% | 0% |
-| 30% | 10% |
-| 40% | 20% |
+| Health Level | Normal Health Penalty | Deathless Body I Penalty |
+|:---:|:---:|:---:|
+| Healthy | 0% | 0% |
+| Bruised | 10% | 0% |
+| Injured | 20% | 0% |
+| Wounded | 40% | 10% |
+| Broken | 50% | 20% |
 
 A Deathless character with Deathless Body I can never suffer more than **20% Health Penalty** from normal Health Penalty steps.
 
@@ -7190,11 +7203,6 @@ The call belongs to the **Hollow King**. Nothing more is certain.
 
 Some Deathless resist the call. Some follow it. Some fear it. Some believe it is the only thing keeping them from becoming truly empty. No Deathless begins with certainty about what waits at the end.
 
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 
 }}
@@ -7512,11 +7520,13 @@ On failure, the character suffers an appropriate complication, such as distracti
 You lose control when badly wounded, succumbing to blood-fury.
 
 **Trigger:**  
-When you take **Wounds ≥ your Vitality**, make a `Resolve k1` roll against **TN 8**.
+When you lose your **second Health Level**, and each time you lose another Health Level thereafter, make a `Resolve k1` roll against **TN 8**.
+
+If one damage instance causes you to lose multiple Health Levels and crosses more than one qualifying threshold, make one test for each Health Level lost from the second onward.
 
 No Raises may be declared on this roll.
 
-On failure, you go **Berserk** for `1d8 / 2 rounds`.
+On failure, you go **Berserk** for `1d8 / 2 rounds, rounded up`.
 
 **While Berserk:**
 
@@ -7590,7 +7600,7 @@ They may affect:
 {{wide
 | **Example Flaw** | **Points** | **Effect** |
 |---|:---:|---|
-| One-Eyed | 1 | –1k0 to Ranged Attacks and Perception checks based on sight. |
+| One-Eyed | 1 | **−1 die** to Ranged Attack Pools and sight-based Perception Pools. |
 | One-Handed | 2 | You cannot dual wield or use a shield and one-handed weapon at the same time. |
 | Heavy Sleeper | 1 | You do not wake from normal noise. You wake only when damaged, physically shaken, or directly disturbed. |
 | Light Sleeper | 1 | You sleep poorly and may suffer complications during rests, watches, or exhaustion scenes. |
@@ -7718,7 +7728,7 @@ The GM may spend a Misfortune Token to:
 
 | **Points** | **Misfortune Tokens per Session** |
 |:---:|:---:|
-| 1 | `1d8 / 2` |
+| 1 | `1d8 / 2, rounded up` |
 | 2 | `1d8` |
 | 3 | `2d8` |
 
@@ -7829,7 +7839,7 @@ They only show how Disadvantages can create pressure, story hooks, and Reroll Po
 | **Physical Scar** *(Damaged Lungs)* | **2** | Smoke, poison gas, drowning, long chases, or exhaustion may affect the character more severely. | The war left wounds that never fully healed. |
 | **Hunted** *(Old War Enemy)* | **2** | The GM may introduce pursuers, bounty notices, old rivals, or dangerous recognition. | Someone from the past still wants revenge. |
 | **Mental Restriction** *(Never Abandon an Ally)* | **2** | Leaving an ally behind requires a `Resolve k1` roll against the appropriate TN. | Loyalty is strength, but also a chain. |
-| **Berserker’s Curse** | **2** | When badly wounded, the character risks losing control according to the Berserker’s Curse rules. | Pain turns discipline into fury. |
+| **Berserker’s Curse** | **2** | When the character loses their second Health Level, and each further Health Level thereafter, they risk losing control according to the Berserker’s Curse rules. | Pain turns discipline into fury. |
 
 **Total:** **8 Points**
 
@@ -7839,7 +7849,7 @@ They only show how Disadvantages can create pressure, story hooks, and Reroll Po
 
 | **Disadvantage** | **Points** | **Trigger / Effect** | **Narrative Hook** |
 |:--|:--:|:--|:--|
-| **Vulnerability** *(Ruin)* | **4** | Whenever the character is affected by **Ruin(X)**, they suffer the doubled effect listed under Vulnerability. | Fire does not merely burn them; it awakens the curse. |
+| **Vulnerability** *(Ruin)* | **4** | Whenever **Ruin(X)** is applied to the character, increase the applied Ruin value by **4**. | Fire does not merely burn them; it awakens the curse. |
 | **Mental Restriction** *(Fear of Fire)* | **2** | Acting calmly near dangerous flame requires a `Resolve k1` roll against the appropriate TN. | The character remembers burning, even when no fire is present. |
 | **Physical Scar** *(Trembling Hands)* | **1** | Fine manipulation, delicate tools, ranged precision, or spell focus may become harder under pressure. | The body still shakes from an old trauma. |
 | **Unluck** | **1** | The GM gains Misfortune Tokens according to the Unluck rules. | Misfortune follows like a shadow. |
@@ -7970,7 +7980,7 @@ If a Stone Power states “cumulative per combat”, the doubling cost persists 
 :
 #### Regeneration
 - At the end of each round, you regenerate a total number of Exhausted Stones equal to your Mastery Rank, chosen from any of your Attribute Stone Pools.
-- Sealed / Bound Stones do not return by you Regeneration.
+- Sealed / Bound Stones do not return through Regeneration.
 
 
 
@@ -8040,7 +8050,7 @@ Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**,
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
 | **Spell Raises** | Your **Spells** this turn gain **+4** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+8** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+12** to their roll for the purpose of meeting the **Raise TN** only. | Your **Spells** this turn gain **+16** to their roll for the purpose of meeting the **Raise TN** only. |
-| **Spell Resistance** | Until the start of your next turn, Spells that directly target you increase their TN against you by **+4**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+8**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+12**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. | Until the start of your next turn, Spells that directly target you increase their TN against you by **+16**. Spell Resistance does not increase the TN of AoE Spells that include you in their area. |
+| **Spell Resistance** | Until the start of your next turn, gain **+4 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. | Until the start of your next turn, gain **+8 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. | Until the start of your next turn, gain **+12 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. | Until the start of your next turn, gain **+16 Spell Resistance**. This increases the Final Spell TN of both direct Spells and Spell AoEs checked against you. |
 | **Spell Action** | — | Gain **1 additional Attack Action** this round. It may only be used to cast a **Spell**. | Gain **2 additional Attack Actions** this round. They may only be used to cast **Spells**. | Gain **3 additional Attack Actions** this round. They may only be used to cast **Spells**. |
 | **Special Boost** | Increase one eligible Special on your **Spells** this turn by **+2**. | Increase one eligible Special on your **Spells** this turn by **+4**. | Increase one eligible Special on your **Spells** this turn by **+8**. | Increase one eligible Special on your **Spells** this turn by **+12**. |
 
@@ -8869,11 +8879,7 @@ At the start of each Round, each character normally has:
 Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions.
 
 ---
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
+::
 ### Turn Structure
 
 On your Turn, resolve the following steps in order:
@@ -8896,15 +8902,22 @@ This includes:
 - start-of-turn buffs,
 - start-of-turn penalties,
 - and similar effects.
+}}
 
-If an effect has Diminishing Stacks, resolve it in this order:
+\page
+{{pageNumber,auto}}
+{{wide
+When Diminishing Specials are present at the start of your Turn, resolve them in this order:
 
-1. **Tick** the effect.
-2. **Decay** the stack value by 1.
+1. Resolve all **Ticks**.
+2. Apply **Natural Special Recovery** to eligible negative Diminishing Specials.
+3. Apply the normal **Diminishing Decay** of **−1** to each Diminishing Special.
+
+**Root is an exception.** Root is not a Diminishing Special, does not receive Natural Special Recovery, and does not use normal Diminishing Decay. Resolve Root's own start-of-turn reduction exactly as written in Root(X).
 
 Example:
 
-`Lacerate(4)` deals its start-of-turn effect, then becomes `Lacerate(3)`. Diminishing Stacks cannot decay below 0.
+`Ruin(4)` resolves its Tick, may be reduced by Natural Special Recovery, and then decays by **1**. Diminishing Specials cannot decay below 0.
 
 ---
 
@@ -8937,11 +8950,7 @@ A Reaction is not a free Attack Action unless a rule explicitly says so.
 If you gain an extra Reaction, you may use it only if a valid trigger occurs.
 
 ---
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
+:
 ### End of Turn
 
 At the end of your Turn, resolve effects that trigger at the end of your Turn.
@@ -8958,13 +8967,13 @@ Initiative represents combat tempo, reaction speed, and the ability to seize ope
 Initiative is rolled once at the **start of combat**.
 Roll a number of d8s equal to your **Mastery Rank**.
 
-Keep all dice.
-
-8s explode.
+Keep all dice and 8s explode.
 
 Your Initiative Score is:
 
-`Initiative Roll + Combat Reflexes spent`
+`Initial Initiative Score = Initiative Roll + Combat Reflexes spent + all Initiative modifiers`
+
+The Initial Initiative Score can never be lower than **0**.
 
 You may spend Combat Reflexes Skill Points like a normal Skill resource after seeing the roll, up to your remaining Combat Reflexes pool and no more than `MR × 4` per Initiative roll.
 
@@ -9009,9 +9018,7 @@ After Initiative Exchange, higher Initiative acts first.
 
 Once the first Turn begins, Initiative Order is locked for the rest of that Round. Changes to Initiative do not reorder the current Round unless a rule explicitly says they do.
 
-At the start of the next Round, before anyone moves or acts, resolve Initiative Exchange again and determine a new Initiative Order from the remaining Initiative Scores.
-
-Every creature still receives only one Turn per Round.
+At the start of the next Round, before anyone moves or acts, resolve Initiative Exchange again and determine a new Initiative Order from the remaining Initiative Scores. Every creature still receives only one Turn per Round.
 
 ---
 }}
@@ -9037,7 +9044,7 @@ The Primary Defense Pillars are complete defensive foundations around which a ch
 | **Primary Defense Pillar** | **Stage** | **Function** |
 |:--|:--|:--|
 | **Parry** | Before the Attack Roll | Removes Attack Dice from an eligible direct Attack. If the entire Attack Pool is reduced to 0, the Attack is Fully Parried and does not resolve. |
-| **Evade** | During the Attack Roll | Determines the Target Number a direct Attack must reach to hit the character. Evade does not modify the TN of an AoE Attack.|
+| **Evade** | During the Attack Roll | Determines the Target Number an Attack must reach to hit the character. For a Martial AoE, the same Attack Roll is compared separately against the Evade of each valid creature in the area. |
 | **Armor** | After the Damage Roll | Reduces the rolled damage result before it is applied to the character. |
 | **Absorption** | After actual HP loss | Provides additional real HP and converts actual HP lost into Temporary Colorless Stones. |
 
@@ -9052,22 +9059,21 @@ Premium Defense Systems are powerful specialized additions. They normally do not
 
 **Spell Resistance** is a separate specialized defense against Powers with the **Spell** tag. Spell Resistance increases the Final Spell TN against the protected creature. It does not reduce Attack Dice, Damage Dice, damage, or Specials.
 
+**Base Evade = Mastery Rank × 4.** Apply size, equipment, Powers, Passives, Active Buffs, Reactions, items, and other modifiers afterward.
+
 ---
 :
 ### Choosing Your Defense
 
 Do not worry about using every defensive system listed above. Most characters focus on **one Primary Defense Pillar** and may later support it with a second Pillar or one of the specialized Premium Defenses.
 
----
-:
+
 A heavily armored character may rely primarily on **Armor**, while a fast character builds around **Evade**. A dedicated defender may choose **Parry**, while an Absorption character deliberately accepts actual HP loss and turns it into power. Premium Defenses such as Damage Negation, Damage Reduction, Phasing, or Ward are usually added to strengthen one of these foundations rather than replace it.
 
----
-:
+
 You are not expected to track every step in the sequence below. When resolving an effect, simply skip every step for which your character has no relevant defense. A character without Parry ignores the Parry step; a character without Ward ignores the Ward step; and a character without Absorption ends the sequence after damage has been applied.
 
----
-:
+
 Especially when building a new character, it is usually better to develop **one clear defensive identity first** instead of investing in several incomplete defenses.
 }}
 
@@ -9270,11 +9276,11 @@ If a hostile effect calls for an Attribute Check but does not state a TN, use:
 
 A successful Attack, Spell, or AoE normally resolves its full listed payload.
 
-Push, Pull, Knockback, Prone, Root, Disarm, and Stunned do not automatically grant an Attribute Check. Ongoing effects do not automatically grant repeated checks.
+Push, Pull, Prone, Root, Disarm, and Stunned do not automatically grant an Attribute Check. Ongoing effects do not automatically grant repeated checks.
 
 An Attribute Check is used only when a rule explicitly creates a separately timed response, such as:
 
-- spending an Action to inspect an illusion,
+- spending **1 Attack Action** to inspect an illusion,
 - attempting to break a mental or spiritual binding,
 - resisting unwilling telepathic contact,
 - making a Death Check,
@@ -9467,7 +9473,7 @@ You are now **Incapacitated**.
 #### Incapacitated
 
 - You fall **Prone**.
-- You cannot take **Actions, Reactions, or Movement**.
+- You cannot take **Attack Actions, Reactions, or Movement**.
 - You begin with **0 Death Marks**.
 - At the end of each of your turns, the GM rolls your **Death Check**.
   *(The roll may be kept secret for dramatic effect.)*
@@ -9513,11 +9519,12 @@ Once <strong>4 Successes</strong> are reached or an ally stabilizes you, you are
   <li>You remain at <strong>0 boxes</strong> and do not awaken until healing or recovery restores you.</li>
   <li>If you receive <strong>any healing</strong>, you wake <strong>immediately</strong> with that amount restored.</li>
 </ul>
+If a Stable creature at 0 Health Bars receives healing, its <strong>Broken Health Bar reopens</strong> and the healing is applied to that Bar. The creature wakes immediately.
 
 ### Healing & Assistance
 An adjacent ally may:
 <ul style="margin-top:0; padding-left: 1.2em;">
-  <li>Spend <strong>1 Full Action</strong> to make a Medicine Skill Check against a Difficult TN based on the patient’s Mastery Rank (<code>TN = 12 × MR</code>). On success, the patient is Stabilized (counts as <strong>4 Successes</strong>).</li>
+  <li>Spend <strong>1 Attack Action</strong> to make a Medicine Skill Check against a Difficult TN based on the patient’s Mastery Rank (<code>TN = 12 × MR</code>). On success, the patient is Stabilized (counts as <strong>4 Successes</strong>).</li>
   <li>Use <strong>any Healing Spell, Power, or Aura</strong> to restore HP / end incapacitation once <code>HP &gt; 0</code>.</li>
   <li>Passive or continuous <strong>Healing Auras</strong> restore you the moment your Health Bars rise above <code>0</code>.</li>
 </ul>
@@ -9603,23 +9610,17 @@ Whenever your Stress Track fills all bars, make a **Wits Attribute Check** and k
 Skill Points and Vitality expenditure do not apply.
 
 #### Results
-- **Success (Virtue)** → You reset your Stress Track back to *Clear* and gain a short burst of clarity or courage. For the next action you gain another die to keep to your roll. 
 
+**Success (Virtue):** Your Stress Track resets to **Clear**. You gain a short burst of clarity or courage; on the next roll you make as part of your next action, increase **Keep by 1**.
 
-- **Failure (Affliction)** → Your Stress Track clears, but you gain an  **Affliction**.  
-  - Multiple Afflictions may stack.  
-
-When the **Breakdown** box is reached, the character suffers a **Meltdown** (catatonia, panic, or possession as decided by the GM).
-
-#### Failure
-Your Stress Track resets back to **Clear**, and you choose ONE:
+**Failure:** Your Stress Track resets to **Clear**, and you choose **one** of the following:
 
 **A) Scar of Will (Player Choice) — Mental Restriction**
 - You choose a **Mental Restriction (2 Points)** (Oath, Fear, or Trait).
 - This is **added** to your character (it’s not rolled and not forced).
 - Rule stays the same: acting against it requires `Resolve k1`
   (TN 6 minor / TN 10 severe / TN 14 core violation).
-- Reward: immediately recover 2 Reroll Points, up to your maximum..
+- Reward: immediately recover 2 Reroll Points, up to your maximum.
 
 }}
 
@@ -9792,7 +9793,7 @@ If you gain additional Movements, you may use Quick Load multiple times during t
 
 You still need one free hand and must be able to manipulate the weapon or ammunition.
 
-You cannot Quick Load while Immobilized or Restrained.
+You cannot use Quick Load while you cannot legally spend **Movement**.
 
 #### Stand Up
 
@@ -9845,11 +9846,11 @@ If you gain additional Attack Actions, you may use them to make additional Basic
 
 Both creatures use an appropriate physical Attribute Pool and their Hand-to-Hand Skill Pool normally.
 
-If the attacker wins, the target becomes **Grappled**.
+If the attacker wins, the target becomes **Grappled**. If the defender wins or the check ties, the Grapple fails.
 
 **Grappled:** The creature's Speed becomes **0 m** and it cannot voluntarily move away from the grappler.
 
-**Escape:** The Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Skill Check. If it wins, the Grapple ends.
+**Escape:** The Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Skill Check. If it wins, the Grapple ends. If the check ties, the Grapple remains.
 
 **Pressure:** While maintaining the Grapple, the grappler may deal **Mastery Rank Damage once per Round**. This damage ignores Armor.
 
@@ -10505,12 +10506,32 @@ Most entries fall into one of these types:
 
 
 ---
+:
+#### Special Application Limit
 
+A creature can receive a maximum of:
+
+**4 × its Mastery Rank**
+
+new points of the same Diminishing Special during a single Round.
+
+This limit counts all applications of that Special from all sources combined. Any amount beyond this limit is ignored. This is an application limit, not a maximum stack value. Special points already present from previous Rounds do not count against the limit.
+
+---
+:
+
+#### Natural Special Recovery
+
+At the start of its Turn, after resolving all Ticks, a creature reduces one or more negative Diminishing Specials currently affecting it by a total amount equal to its Mastery Rank. The creature chooses freely how to distribute this reduction among its negative Diminishing Specials. If a Special reaches 0, it ends. Any unused reduction is lost.
+
+**Root is excluded from Natural Special Recovery.** Root follows its own Until Broken recovery rule instead.
+
+---
 #### Cleanse(X)
 
-Choose one ongoing Special on a creature and reduce that Special by **X**. If the Special reaches **0**, it ends.
+Choose one creature. Remove up to **X total points** from one or more ongoing negative Specials affecting that creature that list **Cleanse: Yes**.
 
-Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cleanse(X) cannot be divided between multiple Specials.
+You may distribute the Cleanse value freely between those eligible Specials. If a Special reaches **0**, it ends. Any unused Cleanse value is lost.
 
 ---
 }}
@@ -10538,7 +10559,7 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 | **Regeneration(X)** | At Tick, heal **X HP**. | Yes | No |
 | **Ruin(X)** | At Tick, take **X** damage. | Yes | Yes |
 | **Exorcism(X)** | **Fiends only.** At Tick, take **X** damage. A non-Fiend cannot receive Exorcism. | Yes | Yes |
-| **Requiem(X)** | **Deathless only.** At Tick, take **X** damage. A non-Deathless cannot receive Requiem. | Yes | Yes |
+| **Requiem(X)** | **Undead only.** At Tick, take **X** damage. A non-Undead cannot receive Requiem. | Yes | Yes |
 | **Slow(X)** | Your **Speed** is reduced by **X m**. If you do not voluntarily move at least **1 m** during your turn, take **X damage** at the end of your turn. | Yes | Yes |
 | **Soulburn(X)** | All dice pools based on **Wits**, **Influence**, or **Resolve** are reduced by **X**, to a minimum of your **Mastery Rank**. | Yes | Yes |
 | **Sundered(X)** | When hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up. | Yes | Yes |
@@ -10556,7 +10577,7 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 | **Effect** | **What It Does** | **Duration** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|:--:|
 | **Brace(X)** | Your **Speed becomes 0 m**. While Braced, your **Shield value is doubled** for Armor calculation. At the end of each of your turns, reduce **Brace by 1**. | Until X reaches 0 | No | No |
-| **Prone** | You are knocked down. Standing up requires the normal Movement Action or Action cost. | Until you stand | No | No |
+| **Prone** | You are knocked down. Standing up costs **1 Attack Action** and does not consume your Movement. | Until you stand | No | No |
 | **Stunned** | Lose your next **Attack Action** and cannot use **Reactions** until the start of your next turn. | Until the start of your next turn | No | No |
 
 ---
@@ -10576,7 +10597,7 @@ Cleanse can only reduce Specials that list **Cleanse: Yes**. The value of one Cl
 |:--|:--|:--:|:--:|:--:|
 | **Bulwark(X)** | As a **Reaction** when hit by an attack you can perceive, reduce the attack’s **final damage by 50%** and consume **1** Bulwark. | Until used | Yes | No |
 | **Immovable** | You are immune to **Push**, **Pull**, **Prone**, and forced movement while the effect lasts. | Buff Duration | No | No |
-| **Root(X)** | Root has a minimum applied value of **2**. While Root is above **0**, your Speed is **0 m** and you cannot move voluntarily. At the start of your Turn, reduce Root by your **Mastery Rank**. You may also spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On success, reduce Root by **1**; each Raise reduces it by **1 additional point**. | Until broken | Yes | Yes |
+| **Root(X)** | Root has a minimum applied value of **2**. While Root is above **0**, your Speed is **0 m** and you cannot move voluntarily. At the start of your Turn, reduce Root by your **Mastery Rank**. You may also spend **1 Attack Action**, **1 Movement**, or **1 Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On success, reduce Root by **1**; each Raise reduces it by **1 additional point**. | Until broken | Yes | Yes |
 
 ---
 ::
@@ -10593,7 +10614,7 @@ They do not grant an automatic Attribute Check.
 | **Precision(X)** | On hit, add **+Xd8** bonus damage. | No | No |
 | **Push(X)** | Push the target **X m** immediately. | No | No |
 | **Pull(X)** | Pull the target **X m** immediately. | No | No |
-| **Disarm** | On hit, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires a **Movement Action** or an **Action**. | No | No |
+| **Disarm** | On hit, the target loses grip on one visible held item; the item falls to the ground. Recovering it requires **1 Movement** or **1 Attack Action** and makes the item ready to use again. | No | No |
 
 ---
 ::
@@ -10602,7 +10623,7 @@ They do not grant an automatic Attribute Check.
 
 | **Effect** | **What It Does** | **Duration** | **Stacking** |
 |:--|:--|:--:|:--:|
-| **Cleanse(X)** | Reduce one eligible ongoing Special by **X**. The value cannot be split between multiple Specials. If the Special reaches **0**, it ends. | Instant | No |
+| **Cleanse(X)** | Remove up to **X total points** from eligible negative Specials on one creature. The reduction may be distributed across one or more eligible Specials. | Instant | No |
 
 ---
 :::::::
@@ -10806,7 +10827,7 @@ If at least one item reaches into Zone 3, the character is **Overloaded**.
 
 A character may drop carried gear to remove Encumbered or Overloaded.
 
-If the gear is dropped **safely**, it takes the listed number of Actions.
+If a character is surprised while Encumbered or Overloaded, they must decide whether to fight while carrying the load or spend **Attack Actions** to drop it safely.
 
 If the gear is dropped **hastily**, it can be done immediately with GM approval, but the character accepts the risk that items inside are damaged, scattered, lost, or exposed.
 
@@ -10827,7 +10848,7 @@ Examples:
 
 ### Surprise and Load
 
-If a character is surprised while Encumbered or Overloaded, they must decide whether to fight while carrying the load or spend Actions to drop it safely.
+If a character is surprised while Encumbered or Overloaded, they must decide whether to fight while carrying the load or spend **Attack Actions** to drop it safely.
 
 This makes heavy preparation a tactical risk without adding extra math.
 
@@ -10838,8 +10859,8 @@ This makes heavy preparation a tactical risk without adding extra math.
 | Load State | Trigger | Movement | Safely Drop Load |
 |---|---|:---:|:---:|
 | **Normal** | Only Zone 1 occupied | Normal | Free / no issue |
-| **Encumbered** | Any item in Zone 2 | −4 m | 1 Action |
-| **Overloaded** | Any item in Zone 3 | −6 m | 2 Actions |
+| **Encumbered** | Any item in Zone 2 | −4 m | 1 Attack Action |
+| **Overloaded** | Any item in Zone 3 | −6 m | 2 Attack Actions |
 
 
 }}
@@ -10848,31 +10869,30 @@ This makes heavy preparation a tactical risk without adding extra math.
 {{wide
 ## Weapons
 
-> **Rule:** Everything in the **Special** column is a reference to an Effect from:
-> **Ongoing Conditions**, **Mental Effects**, or **Damage & Combat Modifiers**.  
+> **Rule:** Everything in the **Special** column refers to a Special defined in the **Special Effects Reference** and **Appendix — Special Descriptions**.
 
 :
 | **Weapon**        | **Weapon Damage** | **Hands** | **Innate Abilities**                         | **Special**                          |
 |------------------|:-----------------:|:---------:|----------------------------------------------|--------------------------------------|
 | **Unarmed**       | 1                 | 1         | —                                            | —                                    |
-| **Dagger**        | 1d8               | 1         | **Finesse, Light, Thrown (4/8/16m)**         | **Penetration(4)**                   |
+| **Dagger**        | 1d8               | 1         | **Finesse, Light, Thrown (16 m)**         | **Penetration(4)**                   |
 | **Short Sword**   | 1d8               | 1         | **Finesse, Light**                           | **Expose(2)**                        |
 | **Rapier**        | 1d8               | 1         | **Finesse**                                  | **Precision(1)**                     |
 | **Longsword**     | 2d8               | 1         | **Versatile**                                | **Expose(2)**                        |
 | **Battleaxe**     | 2d8               | 1         | **Versatile**                                | **Brutal Impact(3), Corrode(2)**     |
 | **Warhammer**     | 2d8               | 1         | —                                            | **Push(2), Slow(2)**               |
-| **Flail**         | 2d8               | 1         | —                                            | **Prone(1)**                           |
+| **Flail**         | 2d8               | 1         | —                                            | **Prone**                           |
 | **Spear**         | 2d8               | 1         | **Reach (+1 m), Set**                        | **Push(1)**                          |
 | **Glaive**        | 4d8               | 2         | **Reach (+2 m), Heavy**                      | **Brutal Impact(4)**                 |
 | **Greataxe**      | 4d8               | 2         | **Heavy**                                    | **Brutal Impact(4), Corrode(2)**     |
 | **Greatsword**    | 4d8               | 2         | **Heavy, Balanced**                          | **Precision(2)**                     |
 | **Maul**          | 4d8               | 2         | **Heavy**                                    | **Brutal Impact(3), Push(2)**        |
 | **Halberd**       | 4d8               | 2         | **Reach (+2 m), Heavy**                      | **Mark(2)**                          |
-| **Handaxe**       | 1d8               | 1         | **Light, Thrown (4/8/16m)**                  | —                                    |
-| **Shortbow**      | 2d8               | 2         | **Ranged (8/16/32m), Light**                 | **Expose(4)**                        |
-| **Longbow**       | 2d8               | 2         | **Ranged (8/16/32m), Set**                   | **Penetration(2), Expose(4)**        |
-| **Light Xbow**    | 2d8               | 2         | **Ranged (8/16/32m), Load**                  | **Penetration(4), Precision(2)**     |
-| **Heavy Xbow**    | 4d8               | 2         | **Ranged (8/16/32m), Load**                  | **Penetration(4), Precision(4)**     |
+| **Handaxe**       | 1d8               | 1         | **Light, Thrown (16 m)**                  | —                                    |
+| **Shortbow**      | 2d8               | 2         | **Ranged (32 m), Light**                 | **Expose(4)**                        |
+| **Longbow**       | 2d8               | 2         | **Ranged (32 m), Set**                   | **Penetration(2), Expose(4)**        |
+| **Light Xbow**    | 2d8               | 2         | **Ranged (32 m), Load**                  | **Penetration(4), Precision(2)**     |
+| **Heavy Xbow**    | 4d8               | 2         | **Ranged (32 m), Load**                  | **Penetration(4), Precision(4)**     |
 | **Whip**          | 1d8               | 1         | **Finesse, Reach (+1 m)**                    |                   |
 | **Quarterstaff**  | 2d8               | 2         | **Defensive**                                | **Expose(1)**                        |
 | **Wand**          | 1                 | 1         | **Spell Focus (+2d8)**                       | —                                    |
@@ -10884,15 +10904,15 @@ This makes heavy preparation a tactical risk without adding extra math.
 | Property | Description |
 |:--|:--|
 | **Finesse** | Attack Roll uses **Agility** (for To-Hit only, not for damage). |
-| **Light** | Usable in **off-hand** (required for **Full Dual-Wield**). |
+| **Light** | May be wielded in the **off-hand**. |
 | **Versatile** | When wielded **two-handed**, gain **+2d8 weapon damage** (you lose your shield / off-hand). |
 | **Reach (+1 m / +2 m)** | Your melee reach is **2 m** by default; this increases it. Measured from the attacker’s token center. |
 | **Heavy** | You get **–10 to your Initiative roll**. |
 | **Balanced** | If a weapon has **Heavy + Balanced**, reduce the Heavy penalty to **–5 Initiative**. |
-| **Ranged** | Ranged weapon; cover and range are handled separately. |
+| **Ranged (X m)** | You may make a ranged weapon attack up to **X m**. |
 | **Set** | If you **did not move** this round: gain **+1d8 weapon damage**. |
 | **Thrown (X m)** | You may make a ranged attack by throwing the weapon up to **X m** (you must retrieve it afterward unless a rule says otherwise). |
-| **Load** | After you fire, the weapon is **Unloaded**. To fire again you must **Reload (1 Action)** and you need **one free hand** to do so. |
+| **Load** | After you fire, the weapon is **Unloaded**. To fire again, spend **1 Attack Action** to reload it. You need **one free hand** to do so. **Quick Load** may instead use Movement as described in the Movement rules. |
 | **Defensive** | While wielding this weapon **two-handed**, add your **Mastery (max +6)** to your **Evade**. |
 | **Spell Focus (+Xd8)** | When you deal damage with a Power that has the Spell tag, add +Xd8 bonus damage dice. This does not add damage to non-damaging Spells.|
 
@@ -10988,39 +11008,42 @@ Spells do **not** roll against the target’s Evade.
 
 ---
 
-Every Spell uses a **Base Casting TN** determined by the caster’s Mastery Rank.
+Every Spell uses a **Spell Base TN** determined by the caster’s Mastery Rank.
 
 This TN represents how difficult it is to shape, stabilize, and release the Spell.
 
-| Mastery Rank | Base Casting TN |
-| :----------: | :-------------: |
-|       I      |        8        |
-|      II      |        16       |
-|      III     |        24       |
-|      IV      |        32       |
-|       V      |        40       |
-|      VI      |        48       |
-|      VII     |        56       |
-|     VIII     |        64       |
+| Mastery Rank | Spell Base TN |
+| :----------: | :-----------: |
+|       I      |       8       |
+|      II      |      16       |
+|      III     |      24       |
+|      IV      |      32       |
+|       V      |      40       |
+|      VI      |      48       |
+|      VII     |      56       |
+|     VIII     |      64       |
 
 ---
 
-For a Spell that directly targets a creature, add the target’s **Spell Resistance**:
+For a Spell that affects a creature, determine that creature's **Final Spell TN**:
 
 ---
 
-`Final Casting TN = Base Casting TN + Target Spell Resistance`
+`Final Spell TN = Spell Base TN + Target Spell Resistance`
 
 ---
 
-For a Spell with the **AoE** tag, use the **Base Casting TN without adding Spell Resistance**.
+For a direct Spell, compare the Spell Roll against the target's Final Spell TN.
+
+For a Spell with the **AoE** tag, make **one Spell Roll** for the entire area. Compare that same result separately against the **Final Spell TN of each valid creature** in the area.
+
+Each creature is checked independently using its own Spell Resistance.
+
+Spell AoEs do **not** use Evade, but they do use **Spell Resistance**.
 
 ---
-AoE Spells ignore the individual **Evade** and **Spell Resistance** of all creatures inside their area.
 
----
-
-If the casting roll equals or exceeds the applicable Casting TN, the Spell is successfully cast and its effects resolve.
+If the casting roll equals or exceeds the applicable Final Spell TN, the Spell is successfully cast and its effects resolve.
 
 ---
 
@@ -11073,23 +11096,25 @@ Mental Attack, Mind Illusion, Mind Probe, and Mental Control cannot normally be 
 
 Mental Powers are harder to execute than normal Spells.
 
-Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like Spells against a fixed TN, but their TN is increased by **+4**.
+Mental Attack, Mind Illusion, Mind Probe, and Mental Control are resolved like Spells, but their **Spell Base TN is increased by +4**.
 
 This represents the difficulty of reaching, piercing, shaping, searching, or controlling another creature's mind.
 
-Mental Powers do not count as one level higher. They use their normal Power Level for scaling, requirements, limits, and Power construction.
-
-Only the fixed TN is increased.
+Mental Powers do not count as one Power Level higher. They use their normal Power Level for scaling, requirements, limits, and Power construction.
 
 ### Mental Power TN
 
-Determine the normal fixed TN for a Power of that Power Level, then increase that TN by **+4**.
+First determine the user's normal **Spell Base TN** from Mastery Rank, then increase it by **+4**:
 
-Example:
+`Mental Power Base TN = Spell Base TN + 4`
 
-If a normal Spell of the same Power Level would use **TN 24**, the Mental Power uses **TN 28**.
+For a Mental Power that affects another creature, add that creature's Spell Resistance:
 
-If the Mental Power roll fails, the Power fizzles and has no effect.
+`Final Mental Power TN = Mental Power Base TN + Target Spell Resistance`
+
+Spell Resistance therefore applies normally to Mental Powers unless a specific Power explicitly says otherwise.
+
+If the Mental Power roll fails, the Power fizzles and the user takes **1d8 Stress**, as with a failed Spell.
 
 If the Mental Power roll succeeds, its listed effect resolves. The target does not make an automatic second roll.
 
@@ -11123,7 +11148,7 @@ If the Power succeeds, the illusion applies without an automatic resistance roll
 
 A creature may attempt to disbelieve a Mind Illusion only when:
 
-- it spends an Action to inspect or test the illusion,
+- it spends **1 Attack Action** to inspect or test the illusion,
 - it physically interacts with something the illusion cannot support,
 - it receives clear contradictory evidence,
 - or the Power explicitly grants another attempt.
@@ -11142,7 +11167,7 @@ Mind Illusions do not create real objects, terrain, cover, barriers, creatures, 
 
 Mind Probe searches a creature's thoughts and memories.
 
-It requires Telepathic Access and uses the normal Mental Power TN increased by **+4**.
+It requires Telepathic Access and uses the normal **Final Mental Power TN**.
 
 On a success, the user learns the kind of information allowed by the Power's current Power Level. Lower Power Levels reveal emotions, surface thoughts, and immediate intentions. Higher Power Levels reach increasingly old, fragmented, suppressed, or protected memories.
 
@@ -11162,7 +11187,7 @@ A willing creature may share thoughts, impressions, senses, and memories through
 
 Mental Control imposes temporary noncombat instructions, attitudes, relationships, beliefs, or behavioral programs.
 
-It requires Telepathic Access and uses the normal Mental Power TN increased by **+4**.
+It requires Telepathic Access and uses the normal **Final Mental Power TN**.
 
 Mental Control can affect only creatures whose **Mastery Rank is lower than the user's Mastery Rank**.
 
@@ -11409,12 +11434,10 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 Active Buffs are temporary combat enhancements.
 
-They represent a character entering a stance, invoking protection, empowering their body, reinforcing allies, or activating a short-lived combat state.
-
+They represent a character entering a stance, invoking protection, empowering their body, reinforcing allies, or activating a short-lived combat state. 
 An Active Buff usually costs **1 Attack Action** to activate and lasts **Mastery Rank Rounds**.
 
 The round in which the Active Buff is activated counts as the **first round** of its duration. An Active Buff expires at the end of your turn in its final round unless the Buff states another timing.
-
 This means activating an Active Buff is part of your current turn: you spend the Attack Action now, the Buff becomes active immediately, and its duration has already begun.
 
 ---
@@ -11577,10 +11600,7 @@ They are not Powers.
 They are not Spells.  
 They are not combat techniques.
 
-They are minor manifestations of what a high Attribute means in the fiction.
-
-Minor Expressions support, color, and enable scenes.  
-They do not replace Powers.
+They are minor manifestations of what a high Attribute means in the fiction. Minor Expressions support, color, and enable scenes. They do not replace Powers.
 
 ---
 
@@ -11597,11 +11617,7 @@ The following Attributes have Minor Expressions:
 - Influence
 - Wits
 
-Vitality does not have Minor Expressions.
-
-To choose a Minor Expression from an Attribute, that Attribute must be at least **8**.
-
-If an Attribute is lower than 8, its Minor Expressions are not available.
+Vitality does not have Minor Expressions. To choose a Minor Expression from an Attribute, that Attribute must be at least **8**. If an Attribute is lower than 8, its Minor Expressions are not available.
 
 ---
 
@@ -11613,9 +11629,7 @@ This is a global limit across all Attributes.
 
 Example:
 
-A Mastery Rank 2 character may choose **2 Minor Expressions total**.
-
-These may both come from the same eligible Attribute, or from different eligible Attributes, as long as each chosen Expression belongs to an Attribute with a value of at least 8.
+A Mastery Rank 2 character may choose **2 Minor Expressions total**. These may both come from the same eligible Attribute, or from different eligible Attributes, as long as each chosen Expression belongs to an Attribute with a value of at least 8.
 
 ---
 
@@ -12335,8 +12349,8 @@ Use the most relevant source:
 
 - **Target MR** if the Ritual affects a creature, spirit, corpse, soul, demonic mark, living target, enemy, or similar being.
 - **Creator / Owner MR** if the Ritual affects an item, ward, seal, trap, forged document, Resonant lock, or constructed supernatural effect.
-- **Artifact Level Tier** if the Ritual targets an Artifact or awakened relic.
-- **Power Tier** if the Ritual targets a Spell, Power, active supernatural effect, summon, familiar, or similar structured effect.
+- **Artifact Level** if the Ritual targets an Artifact or awakened relic.
+- **Power Level** if the Ritual targets a Spell, Power, active supernatural effect, summon, familiar, or similar structured effect.
 - **Scene MR** if the Ritual affects a place, ruin, battlefield, dream, leyline, shrine, corrupted area, sacred site, threshold, or unknown supernatural phenomenon.
 
 If multiple sources apply, use the strongest or most narratively important one.
@@ -13155,7 +13169,7 @@ When the owner actively perceives through a Body's Shared Sense, the owner uses 
 
 When the Summon observes independently, it uses the Bond's purchased Summon Skill Pool instead.
 
-Switching between the owner's senses and a Summon's Shared Senses costs a Minor Action.
+Switching between the owner's senses and a Summon's Shared Senses costs **1 Movement** during combat. Outside combat, switching senses requires no action.
 
 Shared Senses grant sensory access only. They do not grant automatic success, knowledge, analysis, or additional Skill checks.
 
@@ -13217,11 +13231,8 @@ A purchased Power cannot grant Stones, Artifacts, another Summon Bond, or additi
 ### Summon Specials
 
 Special Access unlocks one eligible numeric **Special(X)** at **Special(1)** for the Bond's normal Summon Attacks.
-
 Special Value increases that Special by +1, to a maximum of **Special(4)**.
-
 The Special applies only when a Summon Attack hits and may apply only once per Round for the entire Bond.
-
 A canonical Power applies only the Special written in that Power and follows the Power's normal rules. It does not grant permanent Special Access to the Bond's normal attacks.
 
 ---
@@ -13412,7 +13423,7 @@ Assign the four Skill Dice to **Stealth 4d8**, assuming the owner has Stealth 4 
 - Stealth 4kMR
 - Conditional Passive: Damage (Moved 8+ m This Turn) at Power Level 2
 
-After moving at least 8 m during its turn, the Panther gains **+2d6 Damage** on all damage rolls it makes until the end of that turn. Its pouncing predator identity therefore comes from a complete canonical Passive rather than an invented Summon-only ability.
+After moving at least 8 m during its turn, the Panther gains **+2d8 Damage** on all damage rolls it makes until the end of that turn. Its pouncing predator identity therefore comes from a complete canonical Passive rather than an invented Summon-only ability.
 
 ---
 
@@ -13435,9 +13446,7 @@ No example requires a separate Chassis, class, or private subsystem.
 {{wide
 ## Minor Magic Items
 
-Minor Magic Items allow characters to store their own eligible Active Powers in temporary magical objects. A Minor Magic Item may take any appropriate form, such as a potion, grenade, rune, prepared weapon, mechanical trap, or enchanted charm.
-
-The chosen form does not change the stored Power.
+Minor Magic Items allow characters to store their own eligible Active Powers in temporary magical objects. A Minor Magic Item may take any appropriate form, such as a potion, grenade, rune, prepared weapon, mechanical trap, or enchanted charm. The chosen form does not change the stored Power.
 
 ### Creating Minor Magic Items
 
@@ -13589,13 +13598,572 @@ can be found in the separate **Artifacts Catalogue**:
 
 }}
 
+\page
+{{pageNumber,auto}}
+
+{{wide
+<div style="text-align: justify;">
+
+## Building Encounters
+### Creating NPCs without Character Creation
+
+NPCs in the Mastery System are not built like player characters. They do not require Attributes, Skills, XP, Artifact progression, or a complete character build. An NPC exists to perform a specific function inside an encounter and therefore needs only the combat values and Powers required to perform that function.
+
+The most important rule of encounter creation is simple:
+
+> **Build the fight first. Build the numbers second.**
+
+Decide what the encounter is supposed to be before deciding how much Health, Armor, Damage, or Special strength its creatures receive. A heavily armored captain, a group of fast skirmishers, a spellcaster protected by servants, and a two-phase monster are different encounters even if they oppose the same group of players. Their numbers should support their identity, not define it.
+
+---
+
+#### Step 1 — Build the Encounter
+
+Begin with the creatures that are actually present in the fight. Decide how many **Main Enemies** there are and whether the encounter also contains **Fixed Adds**, **Reinforcements**, **Summons**, or **Copies**.
+
+**Fixed Adds** begin the encounter on the battlefield. **Reinforcements** enter when a defined event occurs, such as the beginning of a later Round or a phase transition. **Summons** are created by a creature during the encounter and therefore require that creature to spend the appropriate Action or Power to bring them into play. Copies or illusions should use clearly defined mechanics, such as independent Health, Shared Health, or another written effect.
+
+All creatures in the same encounter belong to the same combat pressure. Adding another enemy does not create another complete encounter worth of Actions, damage, and defenses. The more hostile creatures are active at the same time, the less pressure each individual creature normally needs to create.
+
+---
+
+#### Step 2 — Decide Whether the Encounter Has Phases
+
+A normal encounter may have only one phase. Important enemies and bosses may have several. **Two phases** are a normal structure for a major boss encounter; **three phases** already create a long battle, while four should be reserved for exceptional encounters.
+
+A boss phase has one Health pool. When that Health is reduced to 0, the creature either dies or enters its next phase. A new phase receives a new Health pool and may change the creature's Powers, Defenses, Movement, Reactions, Adds, or other encounter mechanics.
+
+Do not treat a new phase as nothing more than additional Health. A phase should change something the players can perceive and respond to.
+
+---
+
+#### The Three-Round Rule
+
+A boss phase should normally reveal its idea, create meaningful pressure, and end within approximately **three Rounds**.
+
+A strong player performance may end the phase in about two Rounds. Three Rounds is the normal target. A fourth Round may occur when attacks miss, positioning becomes difficult, or the situation turns against the group. If a phase routinely lasts considerably longer than this, reduce its Health or defenses. If it routinely disappears during the first Round, increase them.
+
+For a two-phase boss encounter, this usually creates a total combat length of roughly **four to eight Rounds**, with approximately five or six Rounds being a good expected result.
+
+This is a guideline, not a timer. The encounter never ends simply because three Rounds have passed.
+
+---
+
+
+
+
+
+
+
+}}
+
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 3 — Choose the NPC's Defenses
+
+Every important NPC should have a clear defensive identity. Choose one **Primary Defense**. You may then add one **Secondary Defense** and, for particularly important enemies, one additional defense. An NPC should normally use no more than **three distinct defensive systems**.
+
+The four Primary Defense Pillars are **Parry, Evade, Armor, and Absorption**. Specialized defenses such as **Phasing, Ward, Damage Negation, Damage Reduction,** or **Spell Resistance** may support that foundation when appropriate.
+
+The Primary Defense should remain the main reason the creature survives. A heavily armored warrior should actually survive because of Armor. A duelist built around Evade should be difficult to hit. A defender built around Parry should remove meaningful Attack Dice. Do not give every enemy every defense simply because those defenses exist.
+
+Defenses and Health together determine how long an enemy survives. This means that Health should normally be chosen **after** the creature's defenses.
+
+---
+
+#### Step 4 — Estimate the Party's Sustainable Output
+
+Before assigning Health to an important enemy, look at what the player characters normally do during a good combat Round. Do not use their absolute theoretical maximum and do not assume that every limited resource is spent at once. Instead, consider the attacks, Powers, weapon damage, Specials, and other effects they can use reliably for several Rounds.
+
+Estimate how much real damage reaches the enemy after its chosen defenses. Remember that the value of a defense depends on the group attacking it. High Armor matters less against characters with strong Penetration. High Evade matters less against characters capable of reaching very high Attack results. Ward matters only when relevant Specials are being applied.
+
+Specials that change later Rounds must also be considered. Corrode may reduce Armor and increase later damage. Sundered may make later non-Spell attacks more dangerous. Other Specials may reduce offensive capability, restrict movement, or create ongoing damage. The party's Round 2 or Round 3 output may therefore be different from its Round 1 output.
+
+You do not need perfect mathematics for manual encounter creation. A useful approximation is enough.
+
+---
+
+#### Step 5 — Set Health
+
+Once the enemy's defenses are known, estimate how much damage the party can realistically deal to that enemy during approximately three Rounds of focused attacks.
+
+If the party can deliver roughly 120 effective damage during a normal Round against the chosen defenses, a phase with around 240 Health will probably be short, while a phase approaching 360 effective Health should be much closer to the normal three-Round target. These numbers are only examples; use the actual group and defenses in front of you.
+
+The important principle is:
+
+> **Health fills the durability that the chosen defenses do not already provide.**
+
+A creature with little Armor, Evade, or other protection may need a large Health pool. A highly evasive duelist or strongly armored guardian may need considerably less raw Health while still surviving for the same number of Rounds.
+
+Do not give an enemy both extreme defenses and extreme Health unless an unusually long encounter is deliberately intended.
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 6 — Determine the Action Economy
+
+After deciding how difficult the enemies are to remove, determine how much they may do in return.
+
+Every creature normally has a Turn, Movement, an Attack Action, and a Reaction unless its NPC rules say otherwise. Additional Actions create very large increases in encounter pressure and should therefore be distributed across the entire encounter rather than granted independently to every enemy.
+
+{{note
+##### One Encounter, One Action Economy
+All hostile creatures in the same encounter contribute to the same pressure. Adding another main enemy does not add another complete boss worth of Actions.
+
+As a rough starting point, a solo enemy may need several meaningful offensive Actions, two major enemies may divide those Actions between them, and encounters containing many active enemies often need only one offensive Action per creature.
+
+Fixed Adds, offensive Reactions, Summons, and other sources of attacks also contribute to the same total pressure.
+}}
+
+A creature with several Attack Actions must also have legal ways to use them. A specific Power can normally be used only once per Round. Additional Attack Actions therefore require additional distinct Powers or legal Basic Attacks; they do not allow the same Active Power to be repeated.
+
+---
+
+#### Step 7 — Choose What the NPC Actually Does
+
+Do not assign abstract combat roles such as *damage dealer*, *controller*, or *mixed attacker* and expect those words to balance the encounter. Write the actual Powers.
+
+An NPC attack is either **Martial** or **Spell-based** and uses the normal rules for that type of attack. Decide whether the individual Power is melee or ranged, Single Target or Area of Effect, whether it deals direct damage, and which Special or other effect it applies.
+
+For example, a creature might have a Martial melee attack that deals damage and applies **Lacerate**, a Spell that creates an area and applies **Ruin**, or a direct ranged attack with no Special but higher damage.
+
+Each attack should have a clear purpose. The GM decides **what the Power does**. Its Attack Pool, Damage Dice, Special strength, Range, and other numeric values determine **how dangerous it is**.
+
+Do not weaken additional attacks merely because a creature has several of them. If a creature has too many full-strength attacks for the encounter, reduce its number of Actions rather than filling its turn with deliberately useless attacks.
+
+---
+
+#### Step 8 — Add Movement and Reactions
+
+Movement is also concrete. Every creature can use normal Movement, while specialized movement such as Teleport, Leap, Flight, Safe Movement, Wall Walk, Burrow, or Phase Passage should be represented by an actual Movement Power where appropriate.
+
+Remember that movement can change encounter strength even when it deals no damage. A ranged creature that can repeatedly escape melee pressure, a monster capable of crossing blocking terrain, or an enemy that can reach vulnerable characters easily may require less raw durability or offensive pressure elsewhere.
+
+Reactions must be considered in the same way. A Reaction that increases Armor, raises Evade, phases through a hit, counters an attacker, or otherwise changes combat is part of the creature's real strength. It is not merely descriptive text on the NPC sheet.
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 9 — Test the Enemy Against Different Characters
+
+Do not balance an enemy only against the average member of the party. Compare its important attacks against several actual characters.
+
+Check at least the character who is hardest to hit, the character with the strongest damage mitigation, and the character most vulnerable to the attack. An attack that is reasonable against one may be nearly useless against another or devastating against a third.
+
+A normal hit should matter, but an ordinary attack should not routinely remove several Health Levels from a healthy character. Powerful Specials, combinations, phase mechanics, and exceptional attacks may create greater danger, but the players should normally have an opportunity to recognize and answer that danger.
+
+For Special-heavy encounters, consider not only the first application but what happens after several Rounds. If an escalating Special becomes overwhelming before the players have had a reasonable opportunity to react, reduce its application or shorten the expected phase.
+
+---
+
+#### Step 10 — Adjust After Play
+
+Encounter building is not a promise that every battle will follow an exact mathematical result. Player decisions, positioning, luck, resource use, and unexpected combinations will always matter.
+
+After an encounter, compare what happened with what was intended. If an enemy consistently survives beyond its interesting part of the fight, reduce Health or defense next time. If enemies disappear before their mechanics matter, increase durability. If one ordinary attack repeatedly threatens to remove a character immediately, reduce its offensive strength. If many enemies overwhelm the party simply through the number of Actions they receive, reduce their combined Action Economy rather than weakening every individual attack into irrelevance.
+
+The goal is not to make every battle identical. The goal is to make the numbers support the encounter you wanted to create.
+
+---
+
+{{note
+##### NPCs Are Not Player Characters
+NPCs do not need complete player-character builds. Do not create Attributes merely to manufacture combat values.
+
+For encounter play, an NPC normally needs only:
+
+**Health • Defenses • Movement • Actions • Attacks/Powers • Reactions • Specials • Encounter Mechanics**
+
+If the creature needs an Attack Pool of 10 dice, record that Attack Pool. If it needs Armor 12, record Armor 12. The NPC does not need a player-style Attribute whose only purpose is to produce those numbers.
+}}
+
+---
+
+#### Automated Encounter Building
+
+The manual method above is intended to make NPC and encounter creation possible without digital tools. It deliberately favors clear estimates over hidden formulas.
+
+A digital Encounter Builder may perform the same process in greater detail by analyzing the selected player characters, calculating expected Attack and Spell results, evaluating Specials over several Rounds, testing defenses individually, and estimating phase duration and party danger.
+
+The principles remain the same in either case:
+
+> **The GM decides what the encounter does. The numbers decide how strong those choices may be.**
+
+</div>
+
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+
+
+### Example Encounter — Bandit Ambush
+<div style="text-align: justify;">
+
+---
+::
+  
+### Building an Encounter Step by Step
+
+The following example shows how the encounter-building rules can be used without an automated Encounter Builder.
+
+For this example, assume a newly created group of **four Mastery Rank 2 characters**. The characters have different weapons, defenses, and Powers, but each normally contributes one Attack Action per Round.
+
+The encounter idea is deliberately simple: the characters are traveling along an old road when a group of bandits blocks their path. Several armed raiders surround them while their captain steps forward and demands their supplies.
+
+We want the fight to feel dangerous because of **numbers**, while the Bandit Captain is clearly more experienced and difficult to remove than the ordinary Bandits.
+
+---
+
+#### Step 1 — Build the Encounter
+
+We begin with the fiction.
+
+The encounter contains:
+
+**1 Bandit Captain**  
+**6 Bandits**
+
+All six Bandits are **Fixed Adds**. They are already present when combat begins.
+
+There are no Reinforcements, Summons, or Copies.
+
+This gives us seven hostile creatures on the battlefield, but they still form **one encounter**. We therefore do not build the Captain as a complete solo boss and then place six additional full-strength encounters beside him.
+
+The Bandits create pressure through numbers. The Captain is the most durable and dangerous individual creature, but the entire group shares the encounter's Action Economy and overall pressure.
+
+---
+
+#### Step 2 — Decide Whether the Encounter Has Phases
+
+This encounter has only **one phase**.
+
+The Bandit Captain is an important enemy, but there is no reason for him to transform, recover a new Health pool, or reveal a second combat form when defeated.
+
+When the Captain reaches **0 Health**, he is defeated normally.
+
+The entire encounter should therefore usually be resolved within approximately **three to four Rounds**. A particularly effective group may finish it faster, while poor rolls, difficult positioning, or defensive play may extend it somewhat.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 3 — Choose the Defenses
+
+The Bandit Captain survives through equipment and experience rather than supernatural defenses.
+
+His chosen Defense is:
+
+> **Primary Defense: Armor**
+
+That is all.
+
+He receives no Secondary or Tertiary Defense. He does not need Phasing, Ward, Damage Negation, Damage Reduction, or another defensive subsystem.
+
+The ordinary Bandits also wear simple protection, but their Armor exists mainly to prevent completely trivial damage. They are not intended to be durable enemies.
+
+For the first estimate we choose:
+
+| Creature | Evade | Armor |
+|:--|:--:|:--:|
+| **Bandit** | 8 | 4 |
+| **Bandit Captain** | 8 | 10 |
+
+The Captain's **Armor 10** is his defining defense. His Evade 8 is simply the TN attackers must reach; he is not intended to survive by avoiding attacks.
+
+---
+
+#### Step 4 — Estimate the Party's Sustainable Output
+
+The group contains four characters and therefore normally begins with approximately **four offensive Actions per Round**.
+
+We are not interested in the greatest amount of damage they could theoretically produce by spending every Stone and limited resource at once. We want to know what happens during a normal good Round.
+
+Against ordinary Bandits with only Armor 4, a successful starting-character attack should usually inflict enough damage to seriously injure or remove one Bandit. Some weaker attacks may require a second hit, while stronger Powers may remove one immediately.
+
+We therefore assume that the party can usually remove approximately **two to three Bandits during a good Round**, once positioning, misses, and defensive choices are considered.
+
+Against the Captain's Armor 10, considerably less damage reaches Health. A reasonable manual estimate is that four fresh characters focusing entirely on him can inflict roughly **60–80 effective Health damage during a good Round**, depending on weapons, Powers, Penetration, Specials, and rolls.
+
+That gives us enough information to choose Health.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 5 — Set Health
+
+The ordinary Bandits should not become small Health sponges. Their purpose is to create Actions, occupy space, and force the players to decide whether to remove them or focus on the Captain.
+
+We therefore give each Bandit:
+
+> **18 Health**
+
+A strong hit will often remove one Bandit. A weaker hit may leave one injured enough that another attack finishes the job.
+
+The Captain needs substantially more Health, but we do **not** give him enough Health to survive three full Rounds of concentrated attacks from the entire group.
+
+The Captain is not the whole encounter.
+
+The six Bandits are also consuming player Actions. Every Action spent removing a Bandit is an Action that is not damaging the Captain.
+
+We therefore begin with:
+
+> **110 Health**
+
+Together with Armor 10 and his defensive Reaction, this should require several successful attacks to remove him without turning him into a prolonged damage sponge.
+
+The encounter now contains **108 Health** distributed across the six Bandits and **110 Health** on the Captain, for a total of **218 raw Health**.
+
+That total is less important than its distribution. Six small targets and one armored target play very differently from one creature with 218 Health.
+
+---
+
+#### Step 6 — Determine the Action Economy
+
+The encounter already contains **seven active hostile creatures**.
+
+That is a large number of bodies against four players.
+
+We therefore do not give the Captain three or four additional Attack Actions simply because he is the most important enemy.
+
+Each Bandit receives:
+
+> **1 Attack Action**
+
+The Captain receives:
+
+> **1 Attack Action**
+
+At the beginning of the encounter, this creates a maximum of **seven hostile offensive Actions**. 
+That pressure decreases naturally as the players remove Bandits.
+If two Bandits fall during the first Round, the hostile side drops from seven potential offensive Actions to five. If another two fall during the second Round, only three hostile creatures remain.
+The encounter therefore creates its own pressure curve:
+
+> **The beginning is dangerous because of numbers.  
+> The end is dangerous because of the Captain.**
+
+The Captain does not need additional Actions to remain important.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 7 — Choose the Attacks
+
+The ordinary Bandits are simple Martial combatants. They receive one straightforward attack.
+
+##### Bandit — Rusted Blade
+
+| Type | Range | Attack | Damage | Special |
+|:--|:--|:--:|:--:|:--|
+| **Martial** | Melee, Single Target | **6d8, Keep 1** | **3d8** | — |
+
+The attack is deliberately uncomplicated. Six Bandits already create considerable pressure through the number of attacks they can make. They do not also need powerful Specials.
+
+The Bandit Captain is a more capable fighter. He receives two different Martial attacks, but still has only **one Attack Action**. He therefore chooses one of them when he attacks.
+
+##### Bandit Captain — Heavy Cleaver
+
+| Type | Range | Attack | Damage | Effect |
+|:--|:--|:--:|:--:|:--|
+| **Martial** | Melee, Single Target | **8d8, Keep 2** | **5d8** | **Penetration(4)** |
+
+Heavy Cleaver is his direct-damage option. Penetration allows him to remain relevant against heavily armored characters without forcing his raw Damage to become excessive against lightly armored targets.
+
+##### Bandit Captain — Hooking Slash
+
+| Type | Range | Attack | Damage | Special |
+|:--|:--|:--:|:--:|:--|
+| **Martial** | Melee, Single Target | **8d8, Keep 2** | **3d8** | **Lacerate(2)** |
+
+Hooking Slash deals less immediate damage but creates continuing pressure through Lacerate.
+
+The Captain may use **Heavy Cleaver or Hooking Slash**, not both during the same Turn unless another rule grants him an additional Attack Action.
+
+---
+
+#### Step 8 — Add Movement and Reactions
+
+The Bandits do not need specialized Movement Powers.
+
+Every creature receives:
+
+> **Movement 8 m**
+
+That is enough for this encounter. The Bandits can surround characters, close paths, move between targets, or attempt to protect their Captain without requiring supernatural mobility.
+
+The ordinary Bandits receive no special Reaction.
+
+The Captain receives one defensive Reaction that strengthens his Armor identity instead of introducing another permanent Defense.
+
+##### Bandit Captain — Brace
+
+**Trigger:** The Captain is hit by an attack.  
+**Cost:** 1 Reaction.  
+**Effect:** Gain **+8 Armor** against the triggering attack.
+
+The Captain has **1 Reaction per Round**.
+
+Brace therefore protects him against one important hit but cannot reduce every attack directed at him. If the whole party focuses on the Captain, one attack may encounter Armor 18 while the remaining attacks still face his normal Armor 10.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+#### Step 9 — Test the Encounter Against the Party
+
+Before using the encounter, compare its attacks against different defensive characters.
+
+A highly evasive character should be difficult for the ordinary Bandits to hit because their attacks Keep only one die. The Captain's **8d8 Keep 2** attacks are considerably more reliable and make him the greater individual threat.
+
+A heavily armored character will often absorb much of the ordinary Bandits' **3d8 Damage**. That is acceptable. An individual Bandit is not supposed to defeat a heavily armored defender.
+
+The Captain's Heavy Cleaver addresses Armor through **Penetration(4)**, while Hooking Slash can create pressure through **Lacerate** instead of simply increasing raw Damage.
+
+Against a lightly armored character, the ordinary Bandits can deal meaningful damage when they connect, but their lower Attack quality makes repeated hits less reliable.
+
+Different characters therefore experience the same enemies differently without requiring different versions of the encounter.
+
+---
+
+#### Step 10 — Check the Expected Fight
+
+During **Round One**, all seven enemies are present. The party will probably begin removing Bandits immediately. If two or three Bandits fall, the hostile Action Economy is already significantly reduced.
+
+During **Round Two**, approximately three or four Bandits may remain depending on player choices and rolls. The group must decide whether to continue clearing weaker enemies or begin concentrating attacks on the Captain.
+
+During **Round Three**, most ordinary Bandits should be defeated and the Captain becomes the primary target. His Armor and Brace allow him to survive several attacks, but the party should now be capable of finishing him.
+
+A **fourth Round** may occur if several attacks missed, the players used Actions for support or movement, or the Captain was particularly fortunate. That is acceptable.
+
+If the encounter routinely reaches Round Five or Six, its durability is too high.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+### Final Encounter Statistics
+
+#### Encounter Overview
+
+| Encounter Element | Value |
+|:--|:--|
+| **Party** | 4 freshly created MR2 characters |
+| **Main Enemies** | 1 Bandit Captain |
+| **Fixed Adds** | 6 Bandits |
+| **Reinforcements** | None |
+| **Summons** | None |
+| **Copies** | None |
+| **Phases** | 1 |
+| **Expected Duration** | 3–4 Rounds |
+| **Starting Hostile Attack Actions** | 7 |
+| **Total Raw Health** | 218 |
+
+---
+
+#### Bandit — 6 Fixed Adds
+
+| Statistic | Value |
+|:--|:--:|
+| **Health** | **18 each** |
+| **Evade** | **8** |
+| **Armor** | **4** |
+| **Movement** | **8 m** |
+| **Attack Actions** | **1** |
+| **Reactions** | **0** |
+
+##### Rusted Blade
+
+| Type | Range | Attack | Damage | Special |
+|:--|:--|:--:|:--:|:--|
+| Martial | Melee, Single Target | **6d8, Keep 1** | **3d8** | — |
+
+---
+
+#### Bandit Captain
+
+| Statistic | Value |
+|:--|:--:|
+| **Health** | **110** |
+| **Primary Defense** | **Armor** |
+| **Evade** | **8** |
+| **Armor** | **10** |
+| **Movement** | **8 m** |
+| **Attack Actions** | **1** |
+| **Reactions** | **1** |
+| **Phases** | **1** |
+
+##### Heavy Cleaver
+
+| Type | Range | Attack | Damage | Effect |
+|:--|:--|:--:|:--:|:--|
+| Martial | Melee, Single Target | **8d8, Keep 2** | **5d8** | **Penetration(4)** |
+
+##### Hooking Slash
+
+| Type | Range | Attack | Damage | Special |
+|:--|:--|:--:|:--:|:--|
+| Martial | Melee, Single Target | **8d8, Keep 2** | **3d8** | **Lacerate(2)** |
+
+##### Brace
+
+**Trigger:** The Captain is hit by an attack.  
+**Cost:** **1 Reaction**  
+**Effect:** Gain **+8 Armor** against the triggering attack.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+
+{{wide
+{{note
+#### What This Example Shows
+
+The encounter was not created by assigning a Challenge Rating to the Bandit Captain.
+
+First, we decided what existed in the fight: **one Captain and six Fixed Adds**. We decided that the encounter had **one phase**, gave the Captain **Armor as his only defensive identity**, estimated what a freshly created group could accomplish, and then assigned Health according to the durability of the **entire encounter**.
+
+Only after that did we determine Action Economy and build the attacks.
+
+The Captain does not need three or four Actions because six other hostile creatures are already acting beside him. He does not need three Rounds of solo-boss Health because the players must also spend Actions removing those creatures.
+
+**Build the encounter first. Balance the whole fight. Then build the individual NPCs.**
+}}
+
+</div>
+}}
+
+
 
 \page
 {{pageNumber,auto}}
 {{wide
-<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.76em; line-height:1.12;">
+<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.76em; line-height:1.1;">
 
-### **Player Cheat Sheet: Core Flow**
+#### **Player Cheat Sheet: Core Flow**
 
 <div style="display:flex; gap:14px; align-items:flex-start;">
 
@@ -13686,8 +14254,11 @@ Echo Card Raises are counted after the roll unless the card says otherwise.
 
 Every full **+4 over TN** equals **1 Raise**.
 
----
 
+</div>
+
+<div style="flex: 1;">
+  
 #### **4) Round & Turn**
 
 Each Round, every creature gets **one Turn**.
@@ -13718,9 +14289,7 @@ Extra Attack Actions, Reactions, or Movements do **not** let you repeat the same
 
 Basic Attacks are not Powers and may be repeated if you have enough Attack Actions.
 
-</div>
 
-<div style="flex: 1;">
 
 #### **6) Initiative**
 
@@ -13765,7 +14334,26 @@ Initiative cannot drop below 0 and is not reset between Rounds. Each creature st
 
 Temporary Colorless Stones may pay normal costs for unlocked Stone Abilities. They disappear when spent or at the end of combat and cannot be burned, sealed, or bound.
 
----
+
+
+</div>
+
+</div>
+</div>
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
+<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.76em; line-height:1.12;">
+
+#### **Player Cheat Sheet: Defense & Resources**
+
+<div style="display:flex; gap:14px; align-items:flex-start;">
+
+<div style="flex: 1;">
+
+
 
 #### **8) Attacks**
 
@@ -13819,24 +14407,6 @@ Ongoing Special damage usually ignores Armor unless the Special says otherwise.
 If final damage is reduced to 0 or less, the target still takes:
 
 `1 damage per natural 8 rolled on the original damage dice`
-
-</div>
-
-</div>
-</div>
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<div style="max-width: 980px; margin: 0 auto; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); padding: 10px 12px; border-radius: 10px; font-size:0.76em; line-height:1.12;">
-
-### **Player Cheat Sheet: Defense & Resources**
-
-<div style="display:flex; gap:14px; align-items:flex-start;">
-
-<div style="flex: 1;">
-
 #### **10) Defense**
 
 Base Evade:
@@ -13868,7 +14438,9 @@ You may spend Defensive Combat Skill Points to increase Evade against one visibl
 - Mental analysis uses **Intellect**.
 - Mental intrusion and sensory doubt use **Wits**.
 
----
+</div>
+
+<div style="flex: 1;">
 
 #### **11) Health & Stress**
 
@@ -13886,7 +14458,7 @@ You may spend Defensive Combat Skill Points to increase Evade against one visibl
 - Each Stress Bar has `Resolve + Intellect` boxes.
 - When Stress breaks, make a **Wits Attribute Check** against `TN 8 × MR`.
 - Success: clarity.
-- Failure: Affliction, panic, restriction, or GM pressure.
+- Failure: reset Stress to Clear, then choose **Scar of Will** or **Push It Down**.
 
 ---
 
@@ -13906,9 +14478,6 @@ If you activate a new Active Buff, the previous one ends unless a rule explicitl
 
 Active Buffs cannot be stacked with themselves.
 
-</div>
-
-<div style="flex: 1;">
 
 #### **13) Stones**
 
@@ -13939,7 +14508,7 @@ Sealed and Bound Stones do not regenerate normally.
 
 ---
 
-#### **14) Reroll Points & Minor Expressions**
+#### **14) Reroll Points**
 
 **Reroll Points**
 
@@ -13949,34 +14518,12 @@ Sealed and Bound Stones do not regenerate normally.
 - Or spend 1 to force the GM to reroll one roll.
 - The new result stands.
 
-**Minor Expressions**
-
-- Not Powers.
-- Not Spells.
-- Not combat techniques.
-- Total chosen = MR.
-- Required Attribute: 8+.
-- Scale at `8 / 16 / 24 / 32 / 40`.
-- Choosing one costs **1 current Reroll Point**.
-- Removing one refunds **1 Reroll Point**, up to your maximum.
-
----
 
 #### **15) Safe Haven Rest**
 
-A Safe Haven Rest refreshes:
-
-- Skill Points
-- Reroll Points
-- Mastery Charges
-- daily resources
-- Sealed Stones
-- Stones burned until Safe Haven Rest
-
-It also restores the current active Health Bar and restores **1 Scarred Health Bar**.
+- A Safe Haven Rest refreshes **Skill Points, Reroll Points, Mastery Charges, Sealed Stones,** and **Stones lost until Safe Haven Rest**; releases Stones bound by **Stone-Bound Form**; restores the current Active Health Bar to full; and restores **1 Scarred Health Bar**.
 
 </div>
-
 </div>
 </div>
 
@@ -13991,51 +14538,101 @@ It also restores the current active Health Bar and restores **1 Scarred Health B
 ---
 #### Expected Total Values 
 
-> You roll **Attribute (0–40)** d8 (exploding on **8**) and keep the **Mastery Rank (1–8)**.
-> In this table you can see what your statistically expected result would be. 
+> You roll your current dice pool in exploding d8s and keep dice equal to **Mastery Rank (1–8)**.  
+> The table below shows the statistically expected result for **Attribute 1–80** before Skill halving, flat pool modifiers, or Health Penalties. The **Minimum Pool Rule is included**: if the Attribute is lower than Mastery Rank, use a pool equal to Mastery Rank.
 
 | **Attribute** | **M1** | **M2** | **M3** | **M4** | **M5** | **M6** | **M7** | **M8** |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| 1 | 5.14 | 5.14 | 5.14 | 5.14 | 5.14 | 5.14 | 5.14 | 5.14 |
-| 2 | 7.05 | 10.29 | 10.29 | 10.29 | 10.29 | 10.29 | 10.29 | 10.29 |
-| 3 | 8.22 | 12.86 | 15.39 | 15.39 | 15.39 | 15.39 | 15.39 | 15.39 |
-| 4 | 9.14 | 14.72 | 18.44 | 20.59 | 20.59 | 20.59 | 20.59 | 20.59 |
-| 5 | 9.87 | 16.12 | 20.66 | 23.82 | 25.70 | 25.70 | 25.70 | 25.70 |
-| 6 | 10.51 | 17.31 | 22.47 | 26.40 | 29.18 | 30.89 | 30.89 | 30.89 |
-| 7 | 11.01 | 18.29 | 23.91 | 28.42 | 31.92 | 34.42 | 35.99 | 35.99 |
-| 8 | 11.51 | 19.20 | 25.22 | 30.18 | 34.23 | 37.40 | 39.67 | 41.13 |
-| 9 | 11.91 | 19.97 | 26.33 | 31.67 | 36.18 | 39.88 | 42.78 | 44.89 |
-| 10 | 12.34 | 20.75 | 27.40 | 33.06 | 37.93 | 42.06 | 45.47 | 48.15 |
-| 11 | 12.69 | 21.42 | 28.36 | 34.29 | 39.48 | 43.98 | 47.82 | 51.00 |
-| 12 | 13.00 | 22.04 | 29.22 | 35.38 | 40.81 | 45.61 | 49.80 | 53.37 |
-| 13 | 13.32 | 22.66 | 30.08 | 36.44 | 42.08 | 47.18 | 51.71 | 55.58 |
-| 14 | 13.61 | 23.23 | 30.90 | 37.46 | 43.32 | 48.66 | 53.55 | 57.69 |
-| 15 | 13.85 | 23.74 | 31.61 | 38.36 | 44.42 | 50.00 | 55.21 | 59.58 |
-| 16 | 14.12 | 24.24 | 32.37 | 39.30 | 45.56 | 51.36 | 56.82 | 61.40 |
-| 17 | 14.36 | 24.72 | 33.05 | 40.16 | 46.60 | 52.62 | 58.32 | 63.13 |
-| 18 | 14.57 | 25.19 | 33.72 | 41.01 | 47.59 | 53.81 | 59.72 | 64.78 |
-| 19 | 14.79 | 25.61 | 34.36 | 41.79 | 48.51 | 54.91 | 61.03 | 66.35 |
-| 20 | 14.98 | 26.03 | 34.94 | 42.56 | 49.41 | 56.01 | 62.35 | 67.93 |
-| 21 | 15.18 | 26.41 | 35.51 | 43.28 | 50.22 | 56.99 | 63.57 | 69.38 |
-| 22 | 15.35 | 26.79 | 36.07 | 43.98 | 51.03 | 57.97 | 64.74 | 70.77 |
-| 23 | 15.52 | 27.12 | 36.61 | 44.65 | 51.78 | 58.85 | 65.84 | 72.06 |
-| 24 | 15.66 | 27.44 | 37.12 | 45.30 | 52.51 | 59.70 | 66.91 | 73.30 |
-| 25 | 15.82 | 27.76 | 37.63 | 45.93 | 53.21 | 60.52 | 67.93 | 74.49 |
-| 26 | 15.97 | 28.08 | 38.10 | 46.54 | 53.89 | 61.33 | 68.92 | 75.63 |
-| 27 | 16.12 | 28.38 | 38.57 | 47.15 | 54.58 | 62.14 | 69.87 | 76.73 |
-| 28 | 16.25 | 28.66 | 39.02 | 47.72 | 55.23 | 62.90 | 70.74 | 77.76 |
-| 29 | 16.39 | 28.97 | 39.46 | 48.45 | 56.36 | 63.58 | 70.33 | 76.74 |
-| 30 | 16.47 | 29.18 | 39.83 | 48.97 | 57.01 | 64.33 | 71.16 | 77.64 |
-| 31 | 16.64 | 29.50 | 40.30 | 49.57 | 57.73 | 65.15 | 72.07 | 78.63 |
-| 32 | 16.72 | 29.66 | 40.56 | 49.95 | 58.21 | 65.70 | 72.69 | 79.32 |
-| 33 | 16.86 | 29.95 | 41.03 | 50.59 | 59.00 | 66.60 | 73.67 | 80.37 |
-| 34 | 16.94 | 30.14 | 41.34 | 51.04 | 59.56 | 67.25 | 74.40 | 81.16 |
-| 35 | 17.08 | 30.41 | 41.76 | 51.59 | 60.23 | 68.03 | 75.25 | 82.08 |
-| 36 | 17.17 | 30.60 | 42.06 | 52.01 | 60.77 | 68.67 | 75.97 | 82.87 |
-| 37 | 17.29 | 30.84 | 42.44 | 52.54 | 61.43 | 69.44 | 76.83 | 83.80 |
-| 38 | 17.37 | 31.03 | 42.74 | 52.96 | 61.97 | 70.07 | 77.54 | 84.57 |
-| 39 | 17.49 | 31.24 | 43.06 | 53.38 | 62.50 | 70.70 | 78.24 | 85.33 |
-| 40 | 17.58 | 31.42 | 43.34 | 53.81 | 63.06 | 71.36 | 78.98 | 86.14 |
+| 1 | 5.14 | 10.29 | 15.43 | 20.57 | 25.71 | 30.86 | 36.00 | 41.14 |
+| 2 | 7.05 | 10.29 | 15.43 | 20.57 | 25.71 | 30.86 | 36.00 | 41.14 |
+| 3 | 8.25 | 12.89 | 15.43 | 20.57 | 25.71 | 30.86 | 36.00 | 41.14 |
+| 4 | 9.15 | 14.71 | 18.43 | 20.57 | 25.71 | 30.86 | 36.00 | 41.14 |
+| 5 | 9.87 | 16.12 | 20.66 | 23.83 | 25.71 | 30.86 | 36.00 | 41.14 |
+| 6 | 10.48 | 17.28 | 22.43 | 26.37 | 29.15 | 30.86 | 36.00 | 41.14 |
+| 7 | 11.02 | 18.29 | 23.91 | 28.43 | 31.93 | 34.43 | 36.00 | 41.14 |
+| 8 | 11.50 | 19.18 | 25.20 | 30.17 | 34.23 | 37.39 | 39.67 | 41.14 |
+| 9 | 11.93 | 19.99 | 26.34 | 31.69 | 36.19 | 39.89 | 42.79 | 44.89 |
+| 10 | 12.32 | 20.73 | 27.39 | 33.04 | 37.91 | 42.05 | 45.46 | 48.14 |
+| 11 | 12.68 | 21.41 | 28.35 | 34.27 | 39.45 | 43.96 | 47.79 | 50.96 |
+| 12 | 13.01 | 22.05 | 29.24 | 35.41 | 40.85 | 45.67 | 49.86 | 53.44 |
+| 13 | 13.32 | 22.65 | 30.09 | 36.47 | 42.14 | 47.22 | 51.72 | 55.65 |
+| 14 | 13.60 | 23.21 | 30.88 | 37.46 | 43.34 | 48.65 | 53.42 | 57.65 |
+| 15 | 13.87 | 23.74 | 31.64 | 38.41 | 44.47 | 49.98 | 54.99 | 59.49 |
+| 16 | 14.11 | 24.25 | 32.35 | 39.30 | 45.54 | 51.23 | 56.44 | 61.18 |
+| 17 | 14.35 | 24.72 | 33.04 | 40.16 | 46.55 | 52.41 | 57.81 | 62.75 |
+| 18 | 14.57 | 25.17 | 33.70 | 40.99 | 47.52 | 53.53 | 59.09 | 64.23 |
+| 19 | 14.78 | 25.60 | 34.33 | 41.78 | 48.46 | 54.60 | 60.31 | 65.62 |
+| 20 | 14.97 | 26.01 | 34.93 | 42.55 | 49.36 | 55.63 | 61.48 | 66.93 |
+| 21 | 15.16 | 26.40 | 35.52 | 43.29 | 50.22 | 56.62 | 62.59 | 68.19 |
+| 22 | 15.34 | 26.77 | 36.08 | 44.00 | 51.07 | 57.58 | 63.67 | 69.39 |
+| 23 | 15.51 | 27.12 | 36.61 | 44.69 | 51.88 | 58.50 | 64.70 | 70.54 |
+| 24 | 15.67 | 27.46 | 37.13 | 45.37 | 52.68 | 59.40 | 65.70 | 71.66 |
+| 25 | 15.82 | 27.79 | 37.63 | 46.02 | 53.45 | 60.28 | 66.68 | 72.73 |
+| 26 | 15.97 | 28.10 | 38.11 | 46.65 | 54.20 | 61.13 | 67.62 | 73.77 |
+| 27 | 16.11 | 28.40 | 38.57 | 47.26 | 54.94 | 61.96 | 68.54 | 74.78 |
+| 28 | 16.25 | 28.68 | 39.02 | 47.86 | 55.65 | 62.77 | 69.44 | 75.77 |
+| 29 | 16.38 | 28.96 | 39.45 | 48.44 | 56.35 | 63.57 | 70.32 | 76.73 |
+| 30 | 16.51 | 29.22 | 39.87 | 49.00 | 57.04 | 64.35 | 71.18 | 77.66 |
+| 31 | 16.63 | 29.47 | 40.27 | 49.54 | 57.70 | 65.11 | 72.02 | 78.58 |
+| 32 | 16.75 | 29.72 | 40.66 | 50.07 | 58.35 | 65.86 | 72.85 | 79.48 |
+| 33 | 16.86 | 29.96 | 41.03 | 50.59 | 58.99 | 66.59 | 73.66 | 80.36 |
+| 34 | 16.97 | 30.18 | 41.39 | 51.09 | 59.61 | 67.31 | 74.46 | 81.22 |
+| 35 | 17.08 | 30.40 | 41.75 | 51.57 | 60.22 | 68.01 | 75.24 | 82.07 |
+| 36 | 17.18 | 30.62 | 42.08 | 52.04 | 60.81 | 68.70 | 76.01 | 82.91 |
+| 37 | 17.28 | 30.82 | 42.41 | 52.50 | 61.39 | 69.38 | 76.76 | 83.73 |
+| 38 | 17.38 | 31.02 | 42.73 | 52.95 | 61.95 | 70.05 | 77.51 | 84.54 |
+| 39 | 17.48 | 31.22 | 43.04 | 53.38 | 62.50 | 70.70 | 78.24 | 85.34 |
+| 40 | 17.57 | 31.41 | 43.34 | 53.80 | 63.04 | 71.34 | 78.96 | 86.12 |
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+#### Expected Total Values — Continued
+
+| **Attribute** | **M1** | **M2** | **M3** | **M4** | **M5** | **M6** | **M7** | **M8** |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| 41 | 17.66 | 31.59 | 43.63 | 54.21 | 63.57 | 71.97 | 79.67 | 86.90 |
+| 42 | 17.75 | 31.77 | 43.91 | 54.61 | 64.08 | 72.58 | 80.37 | 87.66 |
+| 43 | 17.84 | 31.94 | 44.18 | 54.99 | 64.58 | 73.19 | 81.06 | 88.42 |
+| 44 | 17.92 | 32.11 | 44.45 | 55.37 | 65.07 | 73.78 | 81.74 | 89.16 |
+| 45 | 18.00 | 32.28 | 44.71 | 55.73 | 65.55 | 74.36 | 82.40 | 89.89 |
+| 46 | 18.08 | 32.44 | 44.96 | 56.09 | 66.02 | 74.93 | 83.06 | 90.62 |
+| 47 | 18.16 | 32.59 | 45.20 | 56.44 | 66.47 | 75.49 | 83.70 | 91.33 |
+| 48 | 18.24 | 32.75 | 45.44 | 56.77 | 66.92 | 76.03 | 84.34 | 92.03 |
+| 49 | 18.32 | 32.90 | 45.67 | 57.10 | 67.35 | 76.57 | 84.96 | 92.73 |
+| 50 | 18.39 | 33.04 | 45.90 | 57.42 | 67.77 | 77.09 | 85.57 | 93.41 |
+| 51 | 18.47 | 33.19 | 46.12 | 57.74 | 68.19 | 77.61 | 86.18 | 94.09 |
+| 52 | 18.54 | 33.33 | 46.34 | 58.04 | 68.59 | 78.11 | 86.77 | 94.76 |
+| 53 | 18.61 | 33.47 | 46.55 | 58.34 | 68.98 | 78.60 | 87.35 | 95.42 |
+| 54 | 18.68 | 33.60 | 46.75 | 58.63 | 69.37 | 79.09 | 87.92 | 96.07 |
+| 55 | 18.75 | 33.73 | 46.96 | 58.91 | 69.75 | 79.56 | 88.49 | 96.71 |
+| 56 | 18.81 | 33.86 | 47.15 | 59.19 | 70.11 | 80.02 | 89.04 | 97.34 |
+| 57 | 18.88 | 33.99 | 47.35 | 59.46 | 70.47 | 80.47 | 89.58 | 97.96 |
+| 58 | 18.95 | 34.12 | 47.54 | 59.72 | 70.82 | 80.92 | 90.12 | 98.57 |
+| 59 | 19.01 | 34.24 | 47.72 | 59.98 | 71.17 | 81.35 | 90.64 | 99.18 |
+| 60 | 19.07 | 34.36 | 47.90 | 60.23 | 71.50 | 81.78 | 91.15 | 99.77 |
+| 61 | 19.14 | 34.48 | 48.08 | 60.48 | 71.83 | 82.19 | 91.66 | 100.36 |
+| 62 | 19.20 | 34.60 | 48.26 | 60.72 | 72.15 | 82.60 | 92.15 | 100.93 |
+| 63 | 19.26 | 34.71 | 48.43 | 60.96 | 72.47 | 83.00 | 92.64 | 101.50 |
+| 64 | 19.32 | 34.83 | 48.60 | 61.19 | 72.77 | 83.39 | 93.12 | 102.06 |
+| 65 | 19.37 | 34.94 | 48.76 | 61.42 | 73.07 | 83.77 | 93.59 | 102.61 |
+| 66 | 19.43 | 35.05 | 48.93 | 61.65 | 73.37 | 84.15 | 94.05 | 103.15 |
+| 67 | 19.49 | 35.16 | 49.09 | 61.86 | 73.66 | 84.52 | 94.50 | 103.68 |
+| 68 | 19.55 | 35.27 | 49.24 | 62.08 | 73.94 | 84.88 | 94.94 | 104.20 |
+| 69 | 19.60 | 35.37 | 49.40 | 62.29 | 74.22 | 85.23 | 95.37 | 104.72 |
+| 70 | 19.66 | 35.48 | 49.55 | 62.50 | 74.49 | 85.58 | 95.80 | 105.22 |
+| 71 | 19.71 | 35.58 | 49.70 | 62.70 | 74.76 | 85.92 | 96.22 | 105.72 |
+| 72 | 19.76 | 35.68 | 49.85 | 62.90 | 75.02 | 86.25 | 96.63 | 106.21 |
+| 73 | 19.82 | 35.79 | 50.00 | 63.10 | 75.28 | 86.58 | 97.03 | 106.69 |
+| 74 | 19.87 | 35.89 | 50.14 | 63.29 | 75.53 | 86.90 | 97.43 | 107.16 |
+| 75 | 19.92 | 35.98 | 50.29 | 63.49 | 75.78 | 87.21 | 97.82 | 107.63 |
+| 76 | 19.97 | 36.08 | 50.43 | 63.67 | 76.02 | 87.52 | 98.20 | 108.09 |
+| 77 | 20.02 | 36.18 | 50.57 | 63.86 | 76.26 | 87.82 | 98.57 | 108.54 |
+| 78 | 20.07 | 36.27 | 50.70 | 64.04 | 76.50 | 88.12 | 98.94 | 108.98 |
+| 79 | 20.12 | 36.37 | 50.84 | 64.22 | 76.73 | 88.41 | 99.30 | 109.41 |
+| 80 | 20.17 | 36.46 | 50.97 | 64.40 | 76.96 | 88.70 | 99.65 | 109.84 |
 
 
 }}
@@ -14256,15 +14853,21 @@ Regeneration is a positive effect and cannot be removed by Cleanse.
 **Cleanse:** Yes
 
 ---
-**Effect:** Root is a movement-lock Special. **X** is the Root's Break Strength. A Power that applies Root must apply at least **Root(2)**.
+**Effect:** Root is a movement-lock Special. Root can only be applied with a minimum value of **Root(2)**. **Root(1)** cannot be applied as a valid Root effect.
 
-While Root is above **0**, your Speed is reduced to **0 m** and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, using non-movement actions, or being moved by forced movement.
+While Root is above **0**, your **Speed is 0 m** and you cannot move voluntarily. Root does not prevent attacking, casting, using Reactions, or being moved by forced movement. You cannot use Movement Powers to leave your current space while Root remains above 0.
 
-At the start of your Turn, reduce Root by your **Mastery Rank**. If this reduces Root to **0**, Root ends before you take your actions.
+At the start of your Turn, reduce Root by your **Mastery Rank**. If Root reaches **0**, it ends.
 
-You may additionally spend an **Action**, **Movement Action**, or **Reaction** to make a **Vitality Attribute Check** against **TN 8 × source Mastery Rank**. On a success, reduce Root by **1**. Each Raise reduces Root by **1 additional point**.
+Root does **not** receive Natural Special Recovery and does **not** use normal Diminishing Decay.
 
-Cleanse may reduce Root normally. When Root reaches **0**, it ends.
+You may also spend **1 Attack Action**, **1 Movement**, or **1 Reaction** to make a **Vitality Attribute Check** against:
+
+`TN = 8 × source Mastery Rank`
+
+On a success, reduce Root by **1**. Each Raise reduces Root by **1 additional point**.
+
+If Root reaches **0**, it ends.
 
 ---
 
@@ -14300,7 +14903,10 @@ Cleanse may reduce Root normally. When Root reaches **0**, it ends.
 **Effect:** Exorcism is a targeted ongoing damage Special. A creature without the **Fiend** tag cannot receive Exorcism. At Tick, a Fiend affected by Exorcism takes **X damage**. Exorcism damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Exorcism decays by **1**. If Exorcism reaches **0**, it ends.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Requiem(X)
 
 **Type:** Diminishing (X→0)
@@ -14312,10 +14918,10 @@ Cleanse may reduce Root normally. When Root reaches **0**, it ends.
 **Cleanse:** Yes
 
 ---
-**Valid Target:** Deathless only
+**Valid Target:** Undead only
 
 ---
-**Effect:** Requiem is a targeted ongoing damage Special. A creature without the **Deathless** tag cannot receive Requiem. At Tick, a Deathless creature affected by Requiem takes **X damage**. Requiem damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Requiem decays by **1**. If Requiem reaches **0**, it ends.
+**Effect:** Requiem is a targeted ongoing damage Special. A creature without the **Undead** tag cannot receive Requiem. At Tick, an Undead creature affected by Requiem takes **X damage**. Requiem damage ignores Armor unless a rule says otherwise. At the start of the affected creature's turn, after the Tick, Requiem decays by **1**. If Requiem reaches **0**, it ends.
 
 ---
 
@@ -14367,7 +14973,10 @@ Apply Soulburn before percentage-based Health Penalties. The final pool cannot b
 **Effect:** Sundered makes a target vulnerable to non-Spell attacks. When you are hit by a **non-Spell attack**, take **+1d8 bonus damage for every 2 Sundered**, rounded up. At the start of your turn, Sundered decays by **1**. If Sundered reaches **0**, it ends.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Weaken(X)
 
 **Type:** Diminishing (X→0)
@@ -14423,7 +15032,11 @@ Apply Weaken before percentage-based Health Penalties. The final pool cannot be 
 **Cleanse:** No
 
 ---
-**Effect:** You are knocked down. Standing up requires the normal Movement Action or Action cost. Prone is fixed and does not scale with a numeric value.
+**Effect:** You are knocked down.
+
+Standing up costs **1 Attack Action** and does **not** consume your Movement.
+
+Prone is fixed and does not scale with a numeric value.
 
 ---
 
@@ -14506,29 +15119,25 @@ Each damage die rolled counts as at least **X**. A die that rolls lower than **X
 **Type:** Instant
 
 ---
-
 **Stacking:** No
 
 ---
-
 **Cleanse:** No
 
 ---
-
 **Effect:** Disarm forces the target to lose grip on one held item.
 
 If an attack with Disarm hits, the target loses grip on one visible held item. The item falls to the ground.
 
 The attacker chooses the affected item. Disarm can affect a weapon, shield, focus, wand, staff, tool, or other object currently held in the target's hand or grip.
 
-Disarm cannot affect armor, worn artifacts, rings, amulets, natural weapons, claws, bites, body parts, or items that are not currently held.
+Disarm cannot affect armor, worn Artifacts, rings, amulets, natural weapons, claws, bites, body parts, or items that are not currently held.
 
-Recovering a disarmed item requires a **Movement Action** or an **Action**. Recovering the item also makes it ready to use again.
+Recovering a disarmed item requires **1 Movement** or **1 Attack Action**. Recovering the item also makes it ready to use again.
 
-If an item is physically attached, magically bound, echo-bound, enormous, or otherwise impossible to remove, the GM may declare that Disarm has no effect on that item. Any other effects of the attack still apply normally.
+If an item is physically attached, magically bound, Echo-bound, enormous, or otherwise impossible to remove, the GM may declare that Disarm has no effect on that item. Any other effects of the attack still apply normally.
 
-
-
+---
 
 
 #### Penetration(X)
@@ -14613,11 +15222,25 @@ Forced movement does not trigger Lacerate unless a Power explicitly says otherwi
 **Cleanse:** No
 
 ---
-**Effect:** Choose one ongoing Special on one creature that lists **Cleanse: Yes** and reduce that Special by **X**. If the Special reaches **0**, it ends.
+**Effect:** Choose one creature. Remove up to **X total points** from one or more ongoing negative Specials affecting that creature that list **Cleanse: Yes**.
 
-The value of one Cleanse(X) can never be divided between multiple Specials, multiple creatures, or multiple instances. If Cleanse removes more points than the chosen Special currently has, the excess value is lost.
+You may distribute the Cleanse value freely between those eligible Specials. If a Special is reduced to **0**, it ends.
 
-Cleanse does not affect a Special that lists **Cleanse: No**, and it does not remove a Power, Spell, Barrier, Wall, Summon, or other effect unless that effect explicitly says that Cleanse can remove it.
+A single Cleanse(X) can affect only **one creature**. If the creature has less than **X total eligible Special value**, any unused Cleanse points are lost.
+
+Cleanse does not affect a Special that lists **Cleanse: No**, and it does not remove a Power, Spell, Barrier, Wall, Summon, or other effect unless that effect explicitly states that Cleanse can remove it.
+
+##### Example
+
+A creature is affected by **Ruin(3)**, **Slow(2)**, and **Hex(4)**.
+
+Using **Cleanse(6)** could:
+
+- remove **Ruin(3)** and **Slow(2)**, then reduce **Hex(4)** to **Hex(3)**,
+- remove **Hex(4)** and reduce **Ruin(3)** to **Ruin(1)**,
+- or distribute the 6 points in any other way among those eligible Specials.
+
+The Cleanse value cannot be transferred to another creature.
 
 
 }}

@@ -57,7 +57,7 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 47;
+export const ECHO_ARTIFACT_SEED_VERSION = 48;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -270,25 +270,18 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
     { slot: 'a', type: 'evade', label: 'Evade', unlock: 1, valueAt: (l) => feetEvadeForLevel(l) },
     { slot: 'b', type: 'movement', label: 'Movement', unlock: 4, valueAt: (l) => getMinorMovementBaselineB(l) },
   ],
-  // Titan Scars (Titanborn) has one variant per Attribute affinity
-  // (titanScarsMight, titanScarsAgility, …). All share the same Medium Echo Armor
-  // base value, so generate the identical table for every variant key.
-  ...Object.fromEntries(
-    ['Might', 'Agility', 'Vitality', 'Intellect', 'Resolve', 'Influence', 'Wits'].map((attr) => [
-      `titanScars${attr}`,
-      [
-        {
-          slot: 'a',
-          type: 'bodyArmor',
-          label: 'Medium Echo Armor',
-          armorWeightClass: 'medium',
-          unlock: 1,
-          valueAt: (l: number) => bodyArmorBonusForLevel(l),
-          note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
-        },
-      ] as BaseValueSpec[],
-    ]),
-  ),
+  titanScars: [
+    {
+      slot: 'a',
+      type: 'bodyArmor',
+      label: 'Medium Echo Armor',
+      armorWeightClass: 'medium',
+      unlock: 1,
+      valueAt: (l) => bodyArmorBonusForLevel(l),
+      note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+    },
+  ],
+  ringchainOfKeptNames: [],
   // PG "Wyrm Scales Base Item": total Armor +16 (L1) … +25 (L10) with
   // escalating drawbacks −2/−2 (L1-3), −4/−4 (L4-6), −6/−6 (L7-10) and always
   // −2d8 Physical Skill Checks. Stored value = bonus over the Heavy base 12.
@@ -398,19 +391,19 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
         { slot: 'a', type: 'weaponDamage', label: 'Staff Damage', unlock: 1, valueAt: (l: number) => unboundGuideDamageForLevel(l) },
         {
           slot: 'b',
-          type: 'spellFocus',
-          label: 'Spell Focus',
-          unlock: 1,
-          valueAt: (l: number) => spellFocusForLevel(l, 'twoHandedWeapon'),
-          note: 'Spell Focus from Level 1. May be used with Intellect.',
-        },
-        {
-          slot: 'c',
           type: 'weaponSpecial',
           label: special,
           unlock: 4,
           valueAt: (l: number) => witchTraditionSpecialForLevel(l),
           note: `Tradition Special (${special}) applies only on a legal Staff attack or Power.`,
+        },
+        {
+          slot: 'c',
+          type: 'spellFocus',
+          label: 'Spell Focus',
+          unlock: 1,
+          valueAt: (l: number) => spellFocusForLevel(l, 'twoHandedWeapon'),
+          note: 'Spell Focus from Level 1. May be used with Intellect.',
         },
       ] as BaseValueSpec[],
     ]),
@@ -961,6 +954,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
         def.stoneFunction && level >= def.stoneFunction.level
           ? buildEchoStoneFunction(def)
           : null,
+      extraStoneFunctions: def.extraStoneFunctions ?? [],
       progressionPicks: picks,
       lore: def.description,
       description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,

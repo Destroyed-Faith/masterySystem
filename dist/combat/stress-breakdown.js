@@ -2,11 +2,10 @@
  * Stress Breakdown Check — Players Guide (~9214–9257).
  *
  * When the Stress Track fills (all bars empty / Breakdown reached):
- *  1. Meltdown (GM narrative: catatonia / panic / possession).
- *  2. Wits Attribute Check, keep = MR, TN = 8 × MR
+ *  1. Wits Attribute Check, keep = MR, TN = 8 × MR
  *     (no Skill Points, no Vitality expenditure).
- *  3. Success (Virtue) → reset track to Clear; next action +1 Keep.
- *  4. Failure (Affliction) → reset track; choose:
+ *  2. Success (Virtue) → reset track to Clear; next action +1 Keep.
+ *  3. Failure (Affliction) → reset track; choose:
  *       A) Scar of Will — Mental Restriction (2 pts) + recover 2 Reroll Points
  *       B) Push It Down — GM gains 1d8 Misfortune Tokens
  */
@@ -54,7 +53,7 @@ function buildBreakdownPromptHtml(actor, tn, mr) {
     const name = escHtml(String(actor?.name ?? 'Character'));
     return `<div class="mastery-stress-breakdown" data-actor-id="${escHtml(String(actor.id))}">
     <strong>⚡ Stress Breakdown — ${name}</strong>
-    <p>The Stress Track is full. <strong>Meltdown</strong> (catatonia, panic, or possession — GM decides).</p>
+    <p>The Stress Track is full. Make the Stress Breakdown Check.</p>
     <p>Make a <strong>Wits Attribute Check</strong>: keep <strong>${mr}</strong>, TN <strong>${tn}</strong> (= 8 × MR). No Skill Points / Vitality expenditure.</p>
     <div class="ms-stress-breakdown-actions" style="margin-top:0.5em;display:flex;flex-wrap:wrap;gap:0.4em;">
       <button type="button" class="ms-stress-breakdown-roll-btn" data-actor-id="${escHtml(String(actor.id))}">
@@ -122,7 +121,7 @@ export async function maybeTriggerStressBreakdown(actor, opts) {
                 },
             },
         });
-        g.ui?.notifications?.warn?.(`${actor.name}: Stress Breakdown! Meltdown — roll the Wits check (TN ${tn}).`);
+        g.ui?.notifications?.warn?.(`${actor.name}: Stress Breakdown — roll the Wits check (TN ${tn}).`);
     }
     catch (err) {
         console.warn('Mastery System | stress breakdown prompt failed', err);

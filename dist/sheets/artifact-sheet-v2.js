@@ -13,7 +13,7 @@
  * happens in the Artifact Builder / Node Editor, never on this sheet.
  */
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, } from '../utils/artifact-rules.js';
-import { ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, isArtifactLinkedOnActor, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
+import { ARTIFACT_UPGRADE_XP_COST, isArtifactLinkedOnActor, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { displayFromArtifactSystem, resolveNextArtifactPreviews, } from '../utils/artifact-sheet-preview.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { openFoundryImagePopout } from '../ui/image-url-share.js';
@@ -78,18 +78,16 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         context.isGM = !!game.user?.isGM;
         context.mechanicallyActive = mechanicallyActive;
         context.labels = {
-            inactive: loc('MASTERY.artifact.sheet.inactive', 'Inactive — activate here or via Artifacts'),
-            whenActivated: loc('MASTERY.artifact.sheet.whenActivated', 'When activated'),
-            whenActivatedHint: loc('MASTERY.artifact.sheet.whenActivatedHint', 'These values and abilities unlock when you activate this artifact.'),
+            inactive: loc('MASTERY.artifact.sheet.inactive', 'Dormant — complete Attunement here or via Artifacts'),
+            whenActivated: loc('MASTERY.artifact.sheet.whenActivated', 'When attuned'),
+            whenActivatedHint: loc('MASTERY.artifact.sheet.whenActivatedHint', 'These values and abilities unlock after the Attunement / Binding Ritual.'),
             nextLevelHint: loc('MASTERY.artifact.sheet.nextLevelHint', 'Unlocked when you raise this artifact.'),
             imgAlt: loc('MASTERY.artifact.sheet.imgAlt', 'Alternative image'),
             upgrade: loc('MASTERY.artifact.sheet.upgrade', 'Upgrade ({xp} XP)', {
                 xp: String(ARTIFACT_UPGRADE_XP_COST),
             }),
             upgradeGm: loc('MASTERY.artifact.sheet.upgradeGm', 'GM: Upgrade (no XP)'),
-            activate: loc('MASTERY.artifact.sheet.activate', 'Activate ({n} Stone)', {
-                n: String(ARTIFACT_LINK_STONE_COST),
-            }),
+            activate: loc('MASTERY.artifact.sheet.activate', 'Attunement Ritual'),
             choosePool: loc('MASTERY.artifact.sheet.choosePool', 'Stone pool'),
             path: loc('MASTERY.artifact.sheet.path', 'Path'),
             unwired: loc('MASTERY.artifact.sheet.unwired', 'This artifact is not linked to its evolution tree yet.'),

@@ -1044,6 +1044,34 @@ export function stonePowerHasBlankFirstTier(powerId: string): boolean {
   return (t0.label === null || t0.label === undefined) && t0.value === undefined;
 }
 
+/**
+ * One Ramp Stone Ability per Attribute whose Tier 1 is intentionally blank.
+ * Extra Attack (generic) is also a blank-T1 ramp and uses the same gate.
+ */
+export const BLANK_T1_STONE_POWER_IDS = [
+  'might.parry',
+  'agility.crit',
+  'vitality.damageNegation',
+  'intellect.spellAction',
+  'resolve.damageReduction',
+  'influence.notATarget',
+  'wits.phasing',
+] as const;
+
+/** First tier that produces an effect (T2 for blank-T1 ramps, otherwise T1). */
+export function firstEffectiveStonePowerTier(powerId: string): number {
+  return stonePowerHasBlankFirstTier(powerId) ? 2 : 1;
+}
+
+/**
+ * Support may only improve an already-activated ability. The character must
+ * pay through the first effective tier themselves before a prefill applies.
+ * `rawUsesBefore` is the number of completed activations this turn.
+ */
+export function stonePowerSupportPrefillApplies(powerId: string, rawUsesBefore: number): boolean {
+  return Math.max(0, Math.floor(Number(rawUsesBefore) || 0)) >= firstEffectiveStonePowerTier(powerId);
+}
+
 /** Retired ids that still resolve to a current Stone Power. */
 export const STONE_POWER_ID_ALIASES: Record<string, string> = {
   'resolve.damageReductionBoost': 'resolve.damageReduction',

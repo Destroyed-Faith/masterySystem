@@ -256,6 +256,15 @@ export const EFFECT_TYPE_LABELS = {
     damageRider: 'Damage Rider',
     movementBonus: 'Movement',
 };
+/** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
+export function echoRequirementMet(requires, echoKey, subChoiceKey) {
+    if (!requires?.length)
+        return true;
+    const have = [echoKey, subChoiceKey]
+        .map((k) => String(k || '').trim().toLowerCase())
+        .filter(Boolean);
+    return requires.some((r) => have.includes(r.toLowerCase()));
+}
 // ─── Helpers ─────────────────────────────────────────────────────────────
 function collectSpecialKeysFromTemplate(t, chosenKey) {
     const keys = new Set();
@@ -381,6 +390,7 @@ export function filterCatalog(filter) {
     const entries = getAllCatalogEntries();
     const term = (filter.search || '').trim().toLowerCase();
     const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
+    const subChoiceKey = (filter.actorSubChoiceKey || '').trim().toLowerCase();
     return entries.filter((e) => {
         if (filter.category && e.category !== filter.category)
             return false;
@@ -402,7 +412,7 @@ export function filterCatalog(filter) {
                 return false;
         }
         if (e.requiresEcho && e.requiresEcho.length > 0) {
-            if (!echoKey || !e.requiresEcho.includes(echoKey))
+            if (!echoRequirementMet(e.requiresEcho, echoKey, subChoiceKey))
                 return false;
         }
         return true;

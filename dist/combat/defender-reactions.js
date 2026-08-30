@@ -221,7 +221,9 @@ export function isThreatenedRangedOffensiveReaction(item) {
     if (String(item?.basicReaction || '') === 'counterattack')
         return true;
     const tid = String(item?.system?.templateId ?? '').toLowerCase();
-    if (tid === 'reaction-counter-damage' || tid === 'reaction-counter-damage-push')
+    if (tid === 'reaction-counter-damage' ||
+        tid === 'reaction-counter-damage-push' ||
+        tid === 'reaction-counter-damage-pull')
         return true;
     if (tid === 'reaction-special-increase')
         return true;
@@ -327,11 +329,8 @@ export function collectReactionWindowEntries(params) {
                 const summary = getReactionActionsSummary(economyAlly, combat);
                 if (summary.remaining <= 0)
                     continue;
-                const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter((p) => isAllyReactionPower(p) || p?.basicReaction === 'interpose');
-                const isPcAlly = economyAlly.type === 'character';
-                const powersForAlly = dist <= 2.05 && isPcAlly
-                    ? [...allyPowers, buildInterposeReactionItem()]
-                    : allyPowers;
+                const allyPowers = getEligibleReactionPowers(economyAlly, combat).filter((p) => isAllyReactionPower(p));
+                const powersForAlly = allyPowers;
                 if (!powersForAlly.length)
                     continue;
                 out.push({

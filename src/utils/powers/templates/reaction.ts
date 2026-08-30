@@ -283,6 +283,31 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
         }),
     },
     {
+        templateId: 'reaction-counter-damage-pull',
+        templateName: 'Counter Damage + Pull',
+        name: 'Reaction: Counter Damage + Pull',
+        subfamily: 'counter',
+        category: 'reaction',
+        tags: [],
+        fluff: 'The enemy strikes or leaves your Threat Zone and the chain, hook, or lash yanks them back into reach.',
+        trigger: 'When a creature in your Threat Zone hits you or leaves your Threat Zone',
+        cost: { action: 'reaction' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const d = COUNTER_DMG_PUSH_D[lvl - 1];
+            const m = COUNTER_DMG_PUSH_M[lvl - 1];
+            const text = m > 0
+                ? `Deal **${d}d8 damage** to the triggering creature and pull it **${m} m** directly toward you.`
+                : `Deal **${d}d8 damage** to the triggering creature.`;
+            return reactionRow({
+                range: NEAR_2M,
+                effectText: text,
+                specials: m > 0 ? [{ key: 'pull', rank: m }] : [],
+                mechanics: { damageRider: { flat: `+${d}d8` } },
+            });
+        }),
+    },
+    {
         templateId: 'reaction-special-increase',
         templateName: 'Special Increase',
         name: 'Reaction: Special Increase',

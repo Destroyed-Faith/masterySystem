@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Actives
-Version: v0.9.8 (2026-07-31)
+Version: v0.9.8.1 (2026-08-30)
 }}
 
 }}
@@ -978,8 +978,11 @@ This pricing applies only to **instant Attack AoEs**. Support AoEs, Persistent Z
 
 **8 m Radius** is the normal maximum for standard player Attack Powers.
 
----
-:
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### AoE Special Rule
 
 An AoE Special uses the same printed value and the same normal PP cost as the matching single-target Special.
@@ -1665,8 +1668,10 @@ AoE Specials cost one Diminishing step higher than their printed value.
 **AoE Special(X) = Base Cost × T(X+1)**  
 **T(X) = X × (X + 1) / 2**
 
----
-:
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Scaling Integrity Rule
 
 Range, Radius, and Special value may stay the same or increase, but they may never decrease.
@@ -1677,10 +1682,7 @@ If increasing Special value would force Radius to drop, the Special increase is 
 
 Damage is omitted from these templates.
 
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Example — Persistent Zone Timing
 
 A caster creates a persistent poison zone.
@@ -2851,20 +2853,21 @@ Healing cannot raise a creature above its maximum HP unless a Power explicitly s
 
 ### Cleanse
 
-Cleanse removes points from one eligible negative Special.
+Cleanse removes negative Special value from a creature.
 
-When you use **Cleanse(X)**, choose exactly **one** eligible negative Special affecting the target and reduce that Special by **X**.
+When you use **Cleanse(X)**, remove up to **X total points** from one or more eligible negative Specials affecting the target. You choose how to distribute the reduction between those Specials.
 
-The Cleanse value cannot be divided between several Specials.
-
-If the chosen Special reaches **0**, it ends. If the chosen Special has a lower value than the Cleanse value, the unused Cleanse points are lost.
+If a Special is reduced to **0**, it ends. If the target has less than **X total eligible negative Special value**, any unused Cleanse points are lost.
 
 Examples:
 
 - **Cleanse(3)** reduces **Ruin(5)** to **Ruin(2)**.
-- **Cleanse(6)** ends **Hex(4)**; the remaining 2 Cleanse points are lost.
-- **Cleanse(6)** cannot be divided between **Ruin(3)** and **Slow(3)**.
-
+- **Cleanse(6)** may end **Hex(4)** and reduce **Slow(3)** to **Slow(1)**.
+- **Cleanse(6)** may remove **Ruin(3)** and **Slow(3)** completely.
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 Cleanse can reduce eligible creature effects such as:
 
 - **Blight(X)**
@@ -2894,7 +2897,7 @@ Pure Cleanse is the reliable removal version.
 
 **Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption** is the conversion version. It removes negative Special value and grants the chosen Absorption Bonus only if the full Cleanse value is spent.
 
-Cleanse Maintenance is not a normal Active. It is an Active Buff. It protects only the user over time and cannot split its Cleanse value unless a specific entry says otherwise.
+Cleanse Maintenance is not a normal Active. It is an Active Buff. It protects only the user over time and follows the normal Cleanse distribution rule unless a specific entry explicitly says otherwise.
 
 Pure Cleanse is not replaced by **Ranged Single Target Cleanse + Damage / Speed / Armor / Evade Absorption**.
 Pure Cleanse is the reliable removal tool.
@@ -2988,8 +2991,10 @@ A close-range restorative Active that heals one creature you can touch or reach.
 | **15** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **22d8 HP**. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the target. | Restore up to **4 Health Levels** per Safe Haven Rest. |
 | **16** | Active, Support | Touch / Melee Reach | — | Instant | Heal one creature for **24d8 HP**. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the target. | Restore up to **4 Health Levels** per Safe Haven Rest. |
 
----
-:
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 <h3 id="ranged-single-target-heal">
   Ranged Single Target Heal
   <span class="tooltip">🛈
@@ -3417,10 +3422,10 @@ A ranged restorative Active that repairs lost Health Levels without restoring HP
       Cleanse(14) = 420 PP<br>
       Cleanse(15) = 480 PP<br><br>
       CLEANSE RULE<br>
-      Cleanse(X) reduces one eligible negative Special on the target by X.<br>
-      The Cleanse value cannot be split across several Specials.<br>
+      Cleanse(X) removes up to X total negative Special value from the target.<br>
+      The removed value may be split across one or more eligible negative Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse reduces the chosen Special value, not PP value.<br>
+      Cleanse removes Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
       SCALING RULE<br>
       Spend the Active budget on Cleanse strength.<br>
@@ -3454,22 +3459,22 @@ A close-range support Active that removes negative Special value from one creatu
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **3**. |
-| **2** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **5**. |
-| **3** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **6**. |
-| **4** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **7**. |
-| **5** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **8**. |
-| **6** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
-| **7** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
-| **8** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **10**. |
-| **9** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
-| **10** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
-| **11** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
-| **12** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
-| **13** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **13**. |
-| **14** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **14**. |
-| **15** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **14**. |
-| **16** | Active, Support | Touch / Melee Reach | None | Instant | Reduce one eligible negative Special on one creature by **15**. |
+| **1** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
+| **2** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
+| **3** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
+| **4** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
+| **5** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
+| **6** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **7** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **8** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
+| **9** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **10** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **11** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **12** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **13** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
+| **14** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
+| **15** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(14)** total negative Special value from one creature. |
+| **16** | Active, Support | Touch / Melee Reach | None | Instant | Remove up to **Cleanse(15)** total negative Special value from one creature. |
 
 }}
 
@@ -3523,10 +3528,10 @@ A close-range support Active that removes negative Special value from one creatu
       Cleanse(12) = 312 PP<br>
       Cleanse(13) = 364 PP<br><br>
       CLEANSE RULE<br>
-      Cleanse(X) reduces one eligible negative Special on the target by X.<br>
-      The Cleanse value cannot be split across several Specials.<br>
+      Cleanse(X) removes up to X total negative Special value from the target.<br>
+      The removed value may be split across one or more eligible negative Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse reduces the chosen Special value, not PP value.<br>
+      Cleanse removes Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
       SCALING RULE<br>
       First pay Range.<br>
@@ -3561,22 +3566,22 @@ A ranged support Active that removes negative Special value from one creature wi
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | None | Instant | Reduce one eligible negative Special on one creature by **3**. |
-| **2** | Active, Support | 12 m | None | Instant | Reduce one eligible negative Special on one creature by **4**. |
-| **3** | Active, Support | 16 m | None | Instant | Reduce one eligible negative Special on one creature by **5**. |
-| **4** | Active, Support | 20 m | None | Instant | Reduce one eligible negative Special on one creature by **6**. |
-| **5** | Active, Support | 24 m | None | Instant | Reduce one eligible negative Special on one creature by **7**. |
-| **6** | Active, Support | 28 m | None | Instant | Reduce one eligible negative Special on one creature by **8**. |
-| **7** | Active, Support | 32 m | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
-| **8** | Active, Support | 36 m | None | Instant | Reduce one eligible negative Special on one creature by **9**. |
-| **9** | Active, Support | 40 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. |
-| **10** | Active, Support | 44 m | None | Instant | Reduce one eligible negative Special on one creature by **10**. |
-| **11** | Active, Support | 48 m | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
-| **12** | Active, Support | 52 m | None | Instant | Reduce one eligible negative Special on one creature by **11**. |
-| **13** | Active, Support | 56 m | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
-| **14** | Active, Support | 60 m | None | Instant | Reduce one eligible negative Special on one creature by **12**. |
-| **15** | Active, Support | 64 m | None | Instant | Reduce one eligible negative Special on one creature by **13**. |
-| **16** | Active, Support | 68 m | None | Instant | Reduce one eligible negative Special on one creature by **13**. |
+| **1** | Active, Support | 8 m | None | Instant | Remove up to **Cleanse(3)** total negative Special value from one creature. |
+| **2** | Active, Support | 12 m | None | Instant | Remove up to **Cleanse(4)** total negative Special value from one creature. |
+| **3** | Active, Support | 16 m | None | Instant | Remove up to **Cleanse(5)** total negative Special value from one creature. |
+| **4** | Active, Support | 20 m | None | Instant | Remove up to **Cleanse(6)** total negative Special value from one creature. |
+| **5** | Active, Support | 24 m | None | Instant | Remove up to **Cleanse(7)** total negative Special value from one creature. |
+| **6** | Active, Support | 28 m | None | Instant | Remove up to **Cleanse(8)** total negative Special value from one creature. |
+| **7** | Active, Support | 32 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **8** | Active, Support | 36 m | None | Instant | Remove up to **Cleanse(9)** total negative Special value from one creature. |
+| **9** | Active, Support | 40 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
+| **10** | Active, Support | 44 m | None | Instant | Remove up to **Cleanse(10)** total negative Special value from one creature. |
+| **11** | Active, Support | 48 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **12** | Active, Support | 52 m | None | Instant | Remove up to **Cleanse(11)** total negative Special value from one creature. |
+| **13** | Active, Support | 56 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **14** | Active, Support | 60 m | None | Instant | Remove up to **Cleanse(12)** total negative Special value from one creature. |
+| **15** | Active, Support | 64 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
+| **16** | Active, Support | 68 m | None | Instant | Remove up to **Cleanse(13)** total negative Special value from one creature. |
 
 }}
 
@@ -3602,10 +3607,10 @@ A ranged support Active that removes negative Special value from one creature wi
       Radius 4 m = 90 PP<br>
       Radius 5 m = 140 PP<br><br>
       CLEANSE RULE<br>
-      Cleanse(X) reduces one eligible negative Special on each affected creature by X.<br>
-      On each affected creature, choose one eligible negative Special. The Cleanse value cannot be split.<br>
+      Cleanse(X) removes up to X total negative Special value from each affected creature.<br>
+      For each affected creature, the removed value may be split independently across one or more eligible negative Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse reduces the chosen Special value, not PP value.<br>
+      Cleanse removes Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
       SCALING RULE<br>
       First pay AoE radius.<br>
@@ -3642,22 +3647,22 @@ A self-centered support Active that removes negative Special value from affected
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **1**. |
-| **2** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **4**. |
-| **3** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **5**. |
-| **4** | Active, Support | Self | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
-| **5** | Active, Support | Self | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
-| **6** | Active, Support | Self | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **7**. |
-| **7** | Active, Support | Self | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
-| **8** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
-| **9** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
-| **10** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
-| **11** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
-| **12** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
-| **13** | Active, Support | Self | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
-| **14** | Active, Support | Self | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
-| **15** | Active, Support | Self | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
-| **16** | Active, Support | Self | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **12**. |
+| **1** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
+| **2** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(4)** total negative Special value from each affected creature. |
+| **3** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
+| **4** | Active, Support | Self | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **5** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **6** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
+| **7** | Active, Support | Self | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **8** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **9** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **10** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **11** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **12** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **13** | Active, Support | Self | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **14** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **15** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **16** | Active, Support | Self | Radius 5 m | Instant | Remove up to **Cleanse(12)** total negative Special value from each affected creature. |
 
 }}
 
@@ -3701,10 +3706,10 @@ A self-centered support Active that removes negative Special value from affected
       Radius 4 m = 90 PP<br>
       Radius 5 m = 140 PP<br><br>
       CLEANSE RULE<br>
-      Cleanse(X) reduces one eligible negative Special on each affected creature by X.<br>
-      On each affected creature, choose one eligible negative Special. The Cleanse value cannot be split.<br>
+      Cleanse(X) removes up to X total negative Special value from each affected creature.<br>
+      For each affected creature, the removed value may be split independently across one or more eligible negative Specials.<br>
       If a Special is reduced to 0, it is removed.<br>
-      Cleanse reduces the chosen Special value, not PP value.<br>
+      Cleanse removes Special value, not PP value.<br>
       Cleanse does not remove battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, constructs, objects, or ongoing non-creature effects.<br><br>
       SCALING RULE<br>
       First pay Range and AoE radius.<br>
@@ -3742,22 +3747,22 @@ A ranged area support Active that removes negative Special value from affected c
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active, Support | 8 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **1**. |
-| **2** | Active, Support | 12 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **3**. |
-| **3** | Active, Support | 16 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **5**. |
-| **4** | Active, Support | 20 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
-| **5** | Active, Support | 24 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **6**. |
-| **6** | Active, Support | 28 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **7**. |
-| **7** | Active, Support | 32 m | Radius 2 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
-| **8** | Active, Support | 36 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **8**. |
-| **9** | Active, Support | 40 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
-| **10** | Active, Support | 44 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **9**. |
-| **11** | Active, Support | 48 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
-| **12** | Active, Support | 52 m | Radius 3 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
-| **13** | Active, Support | 56 m | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **10**. |
-| **14** | Active, Support | 60 m | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
-| **15** | Active, Support | 64 m | Radius 4 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
-| **16** | Active, Support | 68 m | Radius 5 m | Instant | Reduce one eligible negative Special on each affected creature by **11**. |
+| **1** | Active, Support | 8 m | Radius 2 m | Instant | Remove up to **Cleanse(1)** total negative Special value from each affected creature. |
+| **2** | Active, Support | 12 m | Radius 2 m | Instant | Remove up to **Cleanse(3)** total negative Special value from each affected creature. |
+| **3** | Active, Support | 16 m | Radius 2 m | Instant | Remove up to **Cleanse(5)** total negative Special value from each affected creature. |
+| **4** | Active, Support | 20 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **5** | Active, Support | 24 m | Radius 2 m | Instant | Remove up to **Cleanse(6)** total negative Special value from each affected creature. |
+| **6** | Active, Support | 28 m | Radius 2 m | Instant | Remove up to **Cleanse(7)** total negative Special value from each affected creature. |
+| **7** | Active, Support | 32 m | Radius 2 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **8** | Active, Support | 36 m | Radius 3 m | Instant | Remove up to **Cleanse(8)** total negative Special value from each affected creature. |
+| **9** | Active, Support | 40 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **10** | Active, Support | 44 m | Radius 3 m | Instant | Remove up to **Cleanse(9)** total negative Special value from each affected creature. |
+| **11** | Active, Support | 48 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **12** | Active, Support | 52 m | Radius 3 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **13** | Active, Support | 56 m | Radius 4 m | Instant | Remove up to **Cleanse(10)** total negative Special value from each affected creature. |
+| **14** | Active, Support | 60 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **15** | Active, Support | 64 m | Radius 4 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
+| **16** | Active, Support | 68 m | Radius 5 m | Instant | Remove up to **Cleanse(11)** total negative Special value from each affected creature. |
 
 
 }}
@@ -3767,7 +3772,6 @@ A ranged area support Active that removes negative Special value from affected c
 
 ## Heal + Cleanse
 
-{{wide
 <h3 id="melee-single-target-heal-cleanse">
   Melee Single Target Heal + Cleanse
   <span class="tooltip">🛈
@@ -3800,7 +3804,7 @@ A ranged area support Active that removes negative Special value from affected c
       It is not intended to replace pure Healing, pure Cleanse, or pure Health Level Recovery.<br>
       Normal Healing restores HP inside the target's current Health Level.<br>
       Cleanse removes up to X total negative Special value from the target.<br>
-      The Cleanse value applies to exactly one eligible negative Special and cannot be split.<br>
+      The Cleanse value may be distributed across one or more eligible negative Specials affecting the target.<br>
       Health Level Recovery restores lost Health Levels and is tracked as a pool per Safe Haven Rest.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
@@ -3837,7 +3841,7 @@ A ranged area support Active that removes negative Special value from affected c
       NOTES<br>
       This Power is intentionally weaker than a pure Heal Active and weaker than a pure Cleanse Active.<br>
       It pays for three support axes from one Active budget: Healing, Cleanse, and Health Level Recovery.<br>
-      Cleanse reduces the chosen Special value, not PP value.<br>
+      Cleanse removes Special value, not PP value.<br>
       This Power does not grant Temporary HP, does not grant an Absorption Bonus, and does not restore Health Levels beyond its listed Safe Haven Rest pool.
     </span>
   </span>
@@ -3860,6 +3864,14 @@ A close-range hybrid support Active that heals one creature and removes negative
 | **11** | Active, Support | Touch / Melee Reach | None | Instant | Heal one creature for **10d8 HP** and remove up to **Cleanse(8)** total negative Special value from it. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the same target. | Restore up to **1 Health Level** per Safe Haven Rest. |
 | **12** | Active, Support | Touch / Melee Reach | None | Instant | Heal one creature for **12d8 HP** and remove up to **Cleanse(8)** total negative Special value from it. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the same target. | Restore up to **1 Health Level** per Safe Haven Rest. |
 | **13** | Active, Support | Touch / Melee Reach | None | Instant | Heal one creature for **14d8 HP** and remove up to **Cleanse(8)** total negative Special value from it. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the same target. | Restore up to **1 Health Level** per Safe Haven Rest. |
+
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Health Level Recovery Pool** |
+|:--:|:--|:--:|:--:|:--:|:--|:--|
 | **14** | Active, Support | Touch / Melee Reach | None | Instant | Heal one creature for **14d8 HP** and remove up to **Cleanse(9)** total negative Special value from it. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the same target. | Restore up to **1 Health Level** per Safe Haven Rest. |
 | **15** | Active, Support | Touch / Melee Reach | None | Instant | Heal one creature for **14d8 HP** and remove up to **Cleanse(9)** total negative Special value from it. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the same target. | Restore up to **2 Health Levels** per Safe Haven Rest. |
 | **16** | Active, Support | Touch / Melee Reach | None | Instant | Heal one creature for **16d8 HP** and remove up to **Cleanse(9)** total negative Special value from it. You may spend this Power's Health Level Recovery pool to restore lost Health Levels on the same target. | Restore up to **2 Health Levels** per Safe Haven Rest. |
@@ -3921,7 +3933,7 @@ A close-range hybrid support Active that heals one creature and removes negative
       It is not intended to replace pure Healing, pure Cleanse, or pure Health Level Recovery.<br>
       Normal Healing restores HP inside the target's current Health Level.<br>
       Cleanse removes up to X total negative Special value from the target.<br>
-      The Cleanse value applies to exactly one eligible negative Special and cannot be split.<br>
+      The Cleanse value may be distributed across one or more eligible negative Specials affecting the target.<br>
       Health Level Recovery restores lost Health Levels and is tracked as a pool per Safe Haven Rest.<br>
       The Health Level Recovery pool may be spent across multiple uses of this Power.<br>
       Health Level Recovery does not restore HP by itself. HP recovery comes only from the Healing dice.<br><br>
@@ -3960,7 +3972,7 @@ A close-range hybrid support Active that heals one creature and removes negative
       This Power is weaker than the melee version because Range is paid every level.<br>
       This Power is intentionally weaker than a pure Heal Active and weaker than a pure Cleanse Active.<br>
       It pays for four support axes from one Active budget: Range, Healing, Cleanse, and Health Level Recovery.<br>
-      Cleanse reduces the chosen Special value, not PP value.<br>
+      Cleanse removes Special value, not PP value.<br>
       This Power does not grant Temporary HP, does not grant an Absorption Bonus, and does not restore Health Levels beyond its listed Safe Haven Rest pool.
     </span>
   </span>
@@ -4018,7 +4030,7 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
       It is not an Active Buff and does not occupy the maintained Active Buff slot.<br>
       Each version has exactly one Absorption type: Damage, Speed, Armor, or Evade.<br>
       The Absorption type is chosen when the Power is created or learned.<br>
-      The Cleanse value applies to exactly one eligible negative Special.<br>
+      The Cleanse value may be distributed across one or more eligible negative Specials affecting the target.<br>
       Absorption triggers only if the full listed Cleanse value is actually spent.<br>
       Absorption Bonuses can stack, including repeated bonuses of the same Absorption type.<br><br>
       CALCULATION<br>
@@ -4040,8 +4052,8 @@ A ranged hybrid support Active that heals one creature and removes negative Spec
       L16 → Target 480 PP: Range 24 m (20) + Cleanse(8) (144) + Absorption Bonus VII (catalogue milestone) = fixed catalogue progression<br><br>
       NOTES<br>
       Do not rebuild this Power by adding the full standalone Cleanse cost and the full standalone bonus cost together.<br>
-      The Absorption Bonus is conditional and only triggers when one chosen eligible Special is reduced by the full Cleanse value.<br>
-      If the chosen Special has less than the listed Cleanse value, the Power still reduces that Special to 0, but Absorption does not trigger.<br>
+      The Absorption Bonus is conditional and only triggers when the full listed Cleanse value is actually spent across eligible negative Specials.<br>
+      If the target has less total eligible negative Special value than the listed Cleanse value, Cleanse removes what it can, but Absorption does not trigger.<br>
       This Power has no damage by itself, no attack rider, no Spell Resistance, no Healing, no Temporary HP, no Damage Reduction, no Phasing, and no passive effect.<br>
       Damage, Speed, Armor, or Evade are gained only through the chosen Absorption type and only if Absorption triggers.
     </span>
@@ -4054,14 +4066,14 @@ This Power cleanses one creature and converts the fully spent Cleanse value into
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active, Support | — | — | — | No version. | — |
 | **2** | Active, Support | — | — | — | No version. | — |
-| **3** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **3**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **4** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **4**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **5** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **5**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **6** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **6**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **7** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **6**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus II** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **8** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **6**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **9** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **7**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **10** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **3** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(3)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **4** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(4)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **5** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(5)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **6** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(6)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus I** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **7** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(6)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus II** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **8** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(6)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **9** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(7)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **10** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
 }}
 
 \page
@@ -4069,12 +4081,12 @@ This Power cleanses one creature and converts the fully spent Cleanse value into
 {{wide
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **11** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **12** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus IV** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **13** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **14** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **15** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VI** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
-| **16** | Active, Support | 24 m | — | Instant | Reduce one eligible negative Special on the target by **8**. The Cleanse value cannot be split across several Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VII** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **11** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus III** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **12** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus IV** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **13** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **14** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus V** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **15** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VI** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
+| **16** | Active, Support | 24 m | — | Instant | Remove up to **Cleanse(8)** total negative Special value from the target. The removed value may be split across one or more eligible negative Specials. If the full Cleanse value is spent, the target gains **Absorption Bonus VII** until the end of combat. Choose one Absorption type when this Power is created or learned: Damage, Speed, Armor, or Evade. Absorption Bonuses can stack. | — |
 
 
 ABSORPTION BONUS VALUES 
@@ -4088,7 +4100,7 @@ ABSORPTION BONUS VALUES
 | VI | +6d8 Damage | +24 m Speed | +12 Armor | +12 Evade | 
 | VII | +7d8 Damage | +28 m Speed | +14 Armor | +14 Evade | 
 
-CLEANSE EXAMPLES Cleanse(6) may reduce Ruin(8) to Ruin(2). Cleanse(6) may end Ruin(6). Cleanse(6) cannot be divided between Ruin(3) and Hex(3). Absorption triggers only when one chosen Special is reduced by the full Cleanse value. If the target has only Ruin(3) and you use Cleanse(6), Ruin ends but Absorption does not trigger. If the target has Ruin(6) or higher, the full value is spent on that one Special and Absorption triggers.
+CLEANSE EXAMPLES Cleanse(6) may reduce Ruin(8) to Ruin(2). Cleanse(6) may end Ruin(6). Cleanse(6) may also be divided between Ruin(3) and Hex(3), ending both. Absorption triggers whenever the full total Cleanse(6) value is spent, whether on one Special or several. If the target has only Ruin(3) and you use Cleanse(6), Ruin ends but Absorption does not trigger because only 3 points were spent.
 }}
 \page
 {{pageNumber,auto}}
@@ -5934,7 +5946,7 @@ A ranged weapon attack that walks a burst through an ordered line of targets.
 **Exorcism(X)** and **Requiem(X)** are separate Diminishing Specials with the same pricing:
 
 - **Exorcism(X):** can be applied only to a creature with the **Fiend** tag.
-- **Requiem(X):** can be applied only to a creature with the **Deathless** tag.
+- **Requiem(X):** can be applied only to a creature with the **Undead** tag.
 - **Cost:** **2 × T(X) PP**.
 - **Tick:** at the start of the affected creature's Turn, take **X damage**, then reduce X by 1.
 - **Stacking:** normal Diminishing stacking.

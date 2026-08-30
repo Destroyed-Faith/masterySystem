@@ -47,7 +47,7 @@ export function collectInventoryBandRects(items, band, opts = {}) {
             {};
         if (!occupiesInventoryGrid(flags, band))
             continue;
-        const size = parseInventorySize(item?.system?.inventorySize);
+        const size = itemInventorySize(item);
         rects.push({
             x: Number(flags.grid.x),
             y: Number(flags.grid.y),
@@ -68,6 +68,15 @@ export function parseInventorySize(size) {
     const w = Math.max(1, parseInt(match[1], 10) || 1);
     const h = Math.max(1, parseInt(match[2], 10) || 1);
     return { w, h };
+}
+/**
+ * Effective footprint of an item in the carry grid, honoring the PG
+ * "Item Rotation" rule: a rotated item swaps width × height.
+ */
+export function itemInventorySize(item) {
+    const size = parseInventorySize(item?.system?.inventorySize);
+    const flags = readEquipmentFlags(item);
+    return flags.rotated === true ? { w: size.h, h: size.w } : size;
 }
 export function rectsOverlap(a, b) {
     return !(a.x + a.w - 1 < b.x ||

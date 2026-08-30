@@ -8,6 +8,8 @@ import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.j
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 import { getActiveSpecialValue, hasActiveSpecial } from '../system/active-specials.js';
+import { getActorInventoryLoadZone, movementPenaltyForLoad } from '../utils/encumbrance.js';
+import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
@@ -488,7 +490,10 @@ export class MasteryActor extends Actor {
             const baseEvade = calculateBaseEvade(masteryRank);
             const shieldEvadeBonus = equippedShield?.system?.evadeBonus || 0;
             const armorEvadeModifier = equippedArmor?.system?.evadeModifier || 0;
-            system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier;
+            // Weapon property "Defensive": +MR Evade (max +6) while wielded two-handed.
+            const defensiveWeaponEvade = defensiveEvadeBonus(this, equippedWeapon);
+            system.combat.evadeTotal =
+                baseEvade + shieldEvadeBonus + armorEvadeModifier + defensiveWeaponEvade;
             const fmtEvadeContrib = (n) => {
                 if (n === 0)
                     return '0';
@@ -514,6 +519,14 @@ export class MasteryActor extends Actor {
                     display: equippedArmor ? fmtEvadeContrib(armorEvadeModifier) : '—'
                 }
             ];
+            if (defensiveWeaponEvade > 0) {
+                system.combat.evadeBreakdownRows.push({
+                    label: 'Defensive weapon',
+                    detail: `${equippedWeapon?.name ?? 'Weapon'} (two-handed)`,
+                    value: defensiveWeaponEvade,
+                    display: fmtEvadeContrib(defensiveWeaponEvade),
+                });
+            }
             system.combat.evadeBreakdownHint = system.combat.evadeBreakdownRows
                 .map((r) => `${r.label} ${r.display}`)
                 .join(' · ');
@@ -872,6 +885,22 @@ export class MasteryActor extends Actor {
             system.scaling.witsInitiativeBonus = calculateWitsInitiativeBonus(wits);
             system.scaling.armorBreaker = calculateArmorBreaker(might);
             system.scaling.baseEvade = calculateBaseEvade(masteryRank);
+        }
+        // Encumbrance (PG load table): Encumbered −4 m / Overloaded −6 m Movement.
+        // Load affects Movement only — there is no dice-pool penalty.
+        if (actorType === 'character') {
+            try {
+                const loadZone = getActorInventoryLoadZone(this);
+                const loadPenalty = movementPenaltyForLoad(loadZone);
+                if (loadPenalty < 0) {
+                    system.combat.speed = Math.max(0, Number(system.combat.speed ?? 8) + loadPenalty);
+                    system.combat.loadZone = loadZone;
+                    system.combat.loadMovementPenaltyM = loadPenalty;
+                }
+            }
+            catch (err) {
+                console.debug?.('Mastery System | encumbrance movement penalty skipped', err);
+            }
         }
         // Diminishing Special-Effect maluses: Corrode −Armor, Expose −Evade,
         // Slow −Speed. Applied last so they subtract from the fully-computed totals.

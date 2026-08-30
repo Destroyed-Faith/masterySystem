@@ -81,12 +81,26 @@ export declare function tierForUseIndex(usesBefore: number): number;
 export declare function stonePowerSkipsFirstTier(_powerId: string): boolean;
 /** Whether a power's printed Tier 1 is a blank ramp step (no effect). */
 export declare function stonePowerHasBlankFirstTier(powerId: string): boolean;
+/**
+ * One Ramp Stone Ability per Attribute whose Tier 1 is intentionally blank.
+ * Extra Attack (generic) is also a blank-T1 ramp and uses the same gate.
+ */
+export declare const BLANK_T1_STONE_POWER_IDS: readonly ["might.parry", "agility.crit", "vitality.damageNegation", "intellect.spellAction", "resolve.damageReduction", "influence.notATarget", "wits.phasing"];
+/** First tier that produces an effect (T2 for blank-T1 ramps, otherwise T1). */
+export declare function firstEffectiveStonePowerTier(powerId: string): number;
+/**
+ * Support may only improve an already-activated ability. The character must
+ * pay through the first effective tier themselves before a prefill applies.
+ * `rawUsesBefore` is the number of completed activations this turn.
+ */
+export declare function stonePowerSupportPrefillApplies(powerId: string, rawUsesBefore: number): boolean;
 /** Retired ids that still resolve to a current Stone Power. */
 export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
 /**
- * Powers whose published table shifted one tier (old T1 became empty).
- * Artifact Support that prefills T2/T3/T4 is raised by this many tiers
- * so the stored effect still matches the old numbered tier (L7–10 Crit → T5).
+ * Per-power adjustment applied to Artifact Stone Power Support pre-fill tiers.
+ * The current rulebook prints Support stages as Tier 2 / 3 / 4 for every power
+ * (Elorian Focus PG 4819–4825, Ringchain "Kept from Sight" PG 4253–4261), so
+ * no power is shifted. Kept as a map in case a future table diverges.
  */
 export declare const STONE_POWER_SUPPORT_TIER_SHIFT: Record<string, number>;
 export declare function resolveStonePowerId(powerId: string): string;

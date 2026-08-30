@@ -2,7 +2,7 @@
  * Tower Wizard — declarative defense/offense package definitions.
  */
 import { getEffectById } from '../../utils/special-effects.js';
-import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, findCatalogEntry, getAllCatalogEntries, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
+import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, echoRequirementMet, findCatalogEntry, getAllCatalogEntries, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
 import { formatPassiveCategoryList, } from './tower-wizard-passive-categories.js';
 import { buildGuidedBuildSummary, getGuidedSecondPassiveIntentGroups, } from './tower-wizard-guided.js';
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
@@ -372,8 +372,9 @@ function offensePatternHint(entry) {
         return text.length > 100 ? `${text.slice(0, 97)}…` : text;
     return ACTIVE_SUBFAMILY_LABELS[normalizeActiveSubfamily(entry.subfamily)] ?? entry.subfamily;
 }
-export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds, excludeIdentityKeys) {
+export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds, excludeIdentityKeys, actorSubChoiceKey) {
     const echoKey = (actorEchoKey || '').trim().toLowerCase();
+    const subChoiceKey = (actorSubChoiceKey || '').trim().toLowerCase();
     const selected = selectedPickIds ?? new Set();
     const excluded = excludeIdentityKeys ?? new Set();
     const bySpecial = new Map();
@@ -383,7 +384,7 @@ export function getOffenseActiveSpecialGroups(actorEchoKey, selectedPickIds, exc
         if (!catalogEntryHasRank(entry, OFF_RANK))
             continue;
         if (entry.requiresEcho?.length) {
-            if (!echoKey || !entry.requiresEcho.includes(echoKey))
+            if (!echoRequirementMet(entry.requiresEcho, echoKey, subChoiceKey))
                 continue;
         }
         if (excluded.has(powerIdentityKeyFromEntry(entry)))
@@ -540,6 +541,7 @@ export function getCategoryPickerGroups(category, rank, options) {
     const excludedSubfamilies = options?.excludeSubfamilies ?? new Set();
     const selected = options?.selectedIdentityKeys ?? new Set();
     const echoKey = (options?.actorEchoKey || '').trim().toLowerCase();
+    const subChoiceKey = (options?.actorSubChoiceKey || '').trim().toLowerCase();
     const labels = CATEGORY_PICKER_LABELS[category] ?? {};
     const order = CATEGORY_PICKER_ORDER[category] ?? [];
     const bySubfamily = new Map();
@@ -550,7 +552,7 @@ export function getCategoryPickerGroups(category, rank, options) {
         if (!catalogEntryHasRank(entry, rank))
             continue;
         if (entry.requiresEcho?.length) {
-            if (!echoKey || !entry.requiresEcho.includes(echoKey))
+            if (!echoRequirementMet(entry.requiresEcho, echoKey, subChoiceKey))
                 continue;
         }
         if (entry.subfamily && excludedSubfamilies.has(entry.subfamily))

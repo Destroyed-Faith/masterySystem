@@ -2,10 +2,11 @@
  * Rules for upgrading artifact evolution items on actors (Mastery Rank gates, costs)
  * AND binding rules (Artifact Capacity, Echo-bound, slot blocking).
  *
- * XP spec — Artifacts (Artefacts.md):
+ * XP spec — Artifacts:
  *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
- *   • No Mastery-Rank level gate and no activation Stone cost — the old
- *     `(MR−1)×2` cap and 1-Stone link were not in the rulebook and were removed.
+ *   • Attunement / Binding Ritual is one-time and free (no Stone Bind/Seal/Burn).
+ *   • Artifact Level 1 is free after Attunement. Further levels cost 8 XP.
+ *   • Mastery-Rank Artifact Level Gate: min(10, max(1, (MR − 1) × 2)).
  *
  * New Artifact spec (Artefacts.md):
  *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
@@ -20,7 +21,6 @@ import {
   type AttributeKey,
 } from '../combat/action-economy.js';
 import { getStoneGemStyle } from './stone-attribute-ui.js';
-import { countArtifactActivationStones } from './artifact-stone-bound.js';
 import {
   ARTIFACT_MAX_LEVEL as SPEC_ARTIFACT_MAX_LEVEL,
   type ArtifactSlot,
@@ -46,7 +46,7 @@ export interface ArtifactStonePoolOption {
 }
 
 export const ARTIFACT_UPGRADE_XP_COST = 8;
-/** Artefacts.md: activation costs nothing — the legacy 1-Stone link is gone. */
+/** Attunement / Binding Ritual does not Bind, Seal, Burn, or reserve a Stone. */
 export const ARTIFACT_LINK_STONE_COST = 0;
 export const ARTIFACT_MAX_SYSTEM_LEVEL = 10;
 
@@ -67,19 +67,30 @@ export function getArtifactCapacityForMasteryRank(_masteryRank?: number): number
 }
 
 /**
- * Max artifact system.level the actor may reach. Artefacts.md has no
- * Mastery-Rank gate — every character may evolve up to the flat cap.
+ * Maximum Artifact Level by Mastery Rank.
+ *   MR 1 → 1, MR 2 → 2, MR 3 → 4, MR 4 → 6, MR 5 → 8, MR 6+ → 10
+ * Formula: min(10, max(1, (Mastery Rank − 1) × 2))
  */
-export function getMaxArtifactSystemLevelForMasteryRank(_masteryRank?: number): number {
-  return ARTIFACT_MAX_SYSTEM_LEVEL;
+export function getMaxArtifactSystemLevelForMasteryRank(masteryRank?: number): number {
+  const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+  return Math.min(ARTIFACT_MAX_SYSTEM_LEVEL, Math.max(1, (mr - 1) * 2));
 }
 
-/** Max spec-level (1..10) — no MR gate (Artefacts.md). */
-export function getMaxArtifactSpecLevelForMasteryRank(_masteryRank?: number): number {
-  return SPEC_ARTIFACT_MAX_LEVEL;
+/** Same MR gate as system level (spec levels 1..10). */
+export function getMaxArtifactSpecLevelForMasteryRank(masteryRank?: number): number {
+  return Math.min(SPEC_ARTIFACT_MAX_LEVEL, getMaxArtifactSystemLevelForMasteryRank(masteryRank));
 }
 
-/** Activation has no Mastery-Rank requirement (Artefacts.md). */
+/**
+ * True when an existing Artifact Level is above the actor's current MR cap.
+ * Callers must flag this — never silently reduce the stored level.
+ */
+export function artifactExceedsMasteryRankCap(level: number, masteryRank?: number): boolean {
+  const lv = Math.max(0, Math.floor(Number(level) || 0));
+  return lv > getMaxArtifactSystemLevelForMasteryRank(masteryRank);
+}
+
+/** Attunement has no Mastery-Rank requirement (MR 1 may attune a Level 1 Artifact). */
 export function canArtifactLink(_masteryRank?: number): boolean {
   return true;
 }
@@ -88,7 +99,7 @@ function economyActor(actor: any): any {
   return getActionEconomyActor(actor) ?? actor;
 }
 
-/** Spendable stones in one attribute pool (`current − sustained − artifact-bound`). */
+/** Spendable stones in one attribute pool (`current − sustained`). */
 export function poolSpendableStones(actor: any, attr: string): number {
   const sys = (economyActor(actor)?.system as any) || {};
   const pool = sys.stonePools?.[attr];
@@ -100,8 +111,7 @@ export function poolSpendableStones(actor: any, attr: string): number {
   // not let a player commit more permanent artifact bindings than capacity.
   const current = Math.min(max, Math.max(0, Number(pool.current) || 0));
   const sustained = Math.max(0, Number(pool.sustained) || 0);
-  const artifactBound = countArtifactActivationStones(actor, attr);
-  return Math.max(0, current - sustained - artifactBound);
+  return Math.max(0, current - sustained);
 }
 
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */

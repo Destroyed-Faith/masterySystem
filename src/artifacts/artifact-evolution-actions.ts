@@ -5,11 +5,10 @@
 
 import {
   ARTIFACT_CAPACITY_DEFAULT,
-  ARTIFACT_LINK_STONE_COST,
   ARTIFACT_UPGRADE_XP_COST,
+  artifactExceedsMasteryRankCap,
   canArtifactLink,
   canBindMoreArtifacts,
-  canSpendArtifactLinkStone,
   countBoundArtifacts,
   getArtifactBindingKind,
   getMaxArtifactSystemLevelForMasteryRank,
@@ -18,7 +17,6 @@ import {
   readActorArtifactProgress,
   refundArtifactLinkStone,
   serializeActorArtifactProgress,
-  spendArtifactLinkStone,
   usesStonePoolEconomy,
   type ArtifactActorProgress,
 } from '../utils/artifact-actor-rules.js';
@@ -83,6 +81,9 @@ export interface ArtifactEvolutionCard {
   openAbilities: boolean;
   activationStoneAttr: string;
   activationStoneLabel: string;
+  /** Existing Artifact Level is above the actor's MR cap — do not silently reduce. */
+  legacyOverCap: boolean;
+  legacyOverCapReason: string;
 }
 
 /** Flavor line from lore / description (embedded first, then world root). */
@@ -225,10 +226,6 @@ export function buildArtifactEvolutionCards(
     let linkDisabledReason = '';
     if (linked) {
       linkDisabledReason = '';
-    } else if (!canArtifactLink(masteryRank)) {
-      linkDisabledReason = 'Mastery Rank 2+ required to activate.';
-    } else if (!canSpendArtifactLinkStone(actor)) {
-      linkDisabledReason = `Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`;
     } else if (!isEchoBound && bindingKind === 'unbound' && !canBindOneMore) {
       linkDisabledReason = `Artifact Capacity full (${boundCount}/${ARTIFACT_CAPACITY_DEFAULT}). Unbind an Artifact first.`;
     }
@@ -239,10 +236,8 @@ export function buildArtifactEvolutionCards(
       let disabledReason = '';
       let gmDisabledReason = '';
       if (!linked) {
-        disabledReason = 'Activate the artifact first.';
+        disabledReason = 'Complete the Attunement / Binding Ritual first.';
         gmDisabledReason = disabledReason;
-      } else if (!canArtifactLink(masteryRank)) {
-        disabledReason = 'Mastery Rank 2+ required.';
       } else if (tl > maxSys) {
         disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
       } else if (xpAvailable < ARTIFACT_UPGRADE_XP_COST) {
@@ -266,6 +261,10 @@ export function buildArtifactEvolutionCards(
     const nextGmUpgrade = paths.find((p) => !p.gmDisabledReason) || null;
     const atMaxTierForMr = linked && currentSysLevel >= maxSys && maxSys >= 1;
     const upgradeDisabledReason = artifactUpgradeBlockReason(paths, { atMax: atMaxTierForMr });
+    const legacyOverCap = artifactExceedsMasteryRankCap(currentSysLevel, masteryRank);
+    const legacyOverCapReason = legacyOverCap
+      ? `Legacy: this artifact is level ${currentSysLevel}, above the MR ${masteryRank} cap of ${maxSys}. It was not reduced.`
+      : '';
 
     const activationStoneAttr =
       (emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') as string | undefined) || '';
@@ -307,25 +306,27 @@ export function buildArtifactEvolutionCards(
       openAbilities: linked && display.hasAbilities && display.abilities.length <= 3,
       activationStoneAttr,
       activationStoneLabel,
+      legacyOverCap,
+      legacyOverCapReason,
     });
   }
 
   return cards;
 }
 
-/** Activate (link) an artifact — costs 1 Stone once from a chosen pool. */
+/** Attune / bind an artifact — one-time ritual, no Stone reservation, Level 1 is free. */
 export async function linkArtifactForActor(
   actor: Actor,
   rootWorldId: string,
   embeddedId: string,
-  stoneAttr?: string,
+  _stoneAttr?: string,
 ): Promise<boolean> {
   const A = actor as any;
   if (!A.isOwner) return false;
 
   const mr = (actor.system as any)?.mastery?.rank ?? 1;
   if (!canArtifactLink(mr)) {
-    ui.notifications?.warn('Mastery Rank 2+ is required to activate an artifact.');
+    ui.notifications?.warn('Cannot complete Attunement for this character.');
     return false;
   }
 
@@ -336,7 +337,7 @@ export async function linkArtifactForActor(
   const levels = { ...((root.getFlag('mastery-system', 'actorLevels') || {}) as any) };
   const emb = A.items.get(embeddedId);
   if (emb && isArtifactLinkedOnActor(actor, emb)) {
-    ui.notifications?.info('Already activated.');
+    ui.notifications?.info('Already attuned.');
     return false;
   }
 
@@ -351,26 +352,37 @@ export async function linkArtifactForActor(
     }
   }
 
-  // Artefacts.md: activation is free — the legacy 1-Stone link cost is gone.
+  // Attunement is free: no Bind / Seal / Burn / reservation of a character Stone.
   const next: ArtifactActorProgress = { ...cur, linked: true };
   levels[A.id] = serializeActorArtifactProgress(next);
   await setRootActorLevels(root, levels);
 
   if (emb) {
     await emb.setFlag('mastery-system', 'artifactActivated', true);
-    // No activation Stone is bound any more (legacy flag cleared).
     await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    const sys = (emb.system as any) || {};
+    const curLevel = Math.max(0, Number(sys.currentLevel ?? sys.level ?? 0) || 0);
+    const patch: Record<string, unknown> = {};
+    if (curLevel < 1) {
+      patch['system.currentLevel'] = 1;
+      patch['system.level'] = 1;
+    }
     const currentKind = getArtifactBindingKind(emb);
     if (currentKind === 'unbound') {
+      patch['system.binding'] = 'bound';
+    }
+    if (Object.keys(patch).length > 0) {
       try {
-        await emb.update({ 'system.binding': 'bound' });
+        await emb.update(patch);
       } catch (err) {
-        console.warn('[mastery-system] could not set binding=bound on artifact', err);
+        console.warn('[mastery-system] could not finish artifact attunement fields', err);
       }
     }
   }
 
-  ui.notifications?.info('Artifact activated. You can now spend XP to evolve it.');
+  ui.notifications?.info(
+    'Attunement complete. The artifact awakens at Level 1 (no XP) and occupies its Artifact Capacity. Further levels cost 8 XP each.',
+  );
   return true;
 }
 
@@ -557,7 +569,7 @@ export async function upgradeArtifactForActor(
   const rootNodeId = root.getFlag('mastery-system', 'nodeId') as string;
   const levels = { ...((root.getFlag('mastery-system', 'actorLevels') || {}) as any) };
   if (!isArtifactLinkedOnActor(actor, emb)) {
-    ui.notifications?.warn('Activate the artifact first.');
+    ui.notifications?.warn('Complete the Attunement / Binding Ritual first.');
     return false;
   }
 

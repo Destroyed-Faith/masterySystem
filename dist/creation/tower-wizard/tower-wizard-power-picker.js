@@ -31,7 +31,7 @@ function dataSpecialAttr(special) {
     return special == null ? '' : escapeHtml(special);
 }
 function renderActiveGroupsHtml(options) {
-    const groups = getOffenseActiveSpecialGroups(options.actorEchoKey ?? null, options.selectedIds, options.excludeIds);
+    const groups = getOffenseActiveSpecialGroups(options.actorEchoKey ?? null, options.selectedIds, options.excludeIds, options.actorSubChoiceKey ?? null);
     if (!groups.length) {
         return '<p class="tower-wizard-warn">No matching powers available for this slot.</p>';
     }
@@ -79,6 +79,7 @@ function renderCategoryGroupsHtml(options) {
         excludeSubfamilies: options.excludeSubfamilies,
         selectedIdentityKeys: options.selectedIds,
         actorEchoKey: options.actorEchoKey ?? null,
+        actorSubChoiceKey: options.actorSubChoiceKey ?? null,
     });
     if (!groups.length) {
         return '<p class="tower-wizard-warn">No matching powers available for this slot.</p>';
@@ -126,6 +127,7 @@ export async function showTowerWizardPowerPicker(options) {
     const groupsHtml = category === 'active'
         ? renderActiveGroupsHtml({
             actorEchoKey: options.actorEchoKey,
+            actorSubChoiceKey: options.actorSubChoiceKey,
             selectedIds,
             excludeIds: options.excludeIdentityKeys,
         })
@@ -133,6 +135,7 @@ export async function showTowerWizardPowerPicker(options) {
             category,
             rank: fixedRank,
             actorEchoKey: options.actorEchoKey,
+            actorSubChoiceKey: options.actorSubChoiceKey,
             selectedIds,
             excludeIds: options.excludeIdentityKeys,
             excludeSubfamilies: options.excludeSubfamilies ?? new Set(),

@@ -24,6 +24,7 @@ import type {
 } from './tower-wizard-types.js';
 import type { PackageReview } from './tower-wizard-packages.js';
 import {
+    echoRequirementMet,
     findCatalogEntry,
     getAllCatalogEntries,
     powerIdentityKeyFromEntry,
@@ -551,10 +552,12 @@ function catalogEntryHasRank(entry: CatalogEntry, rank: number): boolean {
     return !!levels?.[String(rank)];
 }
 
-function echoAllowsEntry(entry: CatalogEntry, actorEchoKey?: string | null): boolean {
-    if (!entry.requiresEcho?.length) return true;
-    const echoKey = (actorEchoKey || '').trim().toLowerCase();
-    return !!echoKey && entry.requiresEcho.includes(echoKey);
+function echoAllowsEntry(
+    entry: CatalogEntry,
+    actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
+): boolean {
+    return echoRequirementMet(entry.requiresEcho, actorEchoKey, actorSubChoiceKey);
 }
 
 export function wrapGuidedPassive2Card(templateId: string): SecondPassiveOption | null {

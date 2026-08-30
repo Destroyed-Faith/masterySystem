@@ -56,7 +56,7 @@ function ensureNpcBaseShape(b) {
     if (o.name == null || o.name === '')
         o.name = 'Waffenangriff';
     const stress = Math.floor(Number(o.npcStressD8));
-    o.npcStressD8 = Number.isFinite(stress) && stress >= 1 ? Math.min(4, stress) : 1;
+    o.npcStressD8 = Number.isFinite(stress) && stress >= 1 ? Math.min(4, stress) : 0;
     return o;
 }
 function newExtraNpcPower() {
@@ -70,7 +70,7 @@ function newExtraNpcPower() {
         npcAoeShape: 'none',
         npcAoeRadiusM: 0,
         npcAttacksPerRound: 1,
-        npcStressD8: 1,
+        npcStressD8: 0,
         specials: []
     };
 }
@@ -108,13 +108,13 @@ function normalizeNpcAttackRowForContext(row) {
                 k === 'attackDiceCount' || k === 'damageDiceCount' ? Math.min(80, n) : n;
         }
         else if (k === 'npcStressD8')
-            o[k] = 1;
+            o[k] = 0;
         else
             delete o[k];
     }
     {
         const n = Math.floor(Number(o.npcStressD8));
-        o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 1;
+        o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 0;
     }
     // Short band may be 0 (= derive from Long) — keep it for the select.
     {

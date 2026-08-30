@@ -96,6 +96,17 @@ export declare function minorMagicLimit(actor: {
         };
     };
 }): number;
+/** Item/Artifact-granted Actives stored in Minor Magic never exceed this Power Level. */
+export declare const MINOR_MAGIC_MAX_POWER_LEVEL = 10;
+/** Artifact Level 4–6 band — the PL10 profile. Higher artifact levels cap here. */
+export declare const MINOR_MAGIC_MAX_ARTIFACT_LEVEL = 6;
+export declare function artifactLevelForMinorMagicCap(currentLevel: number): number;
+/** Artifact L1–3 → PL 4, L4–6 → PL 10, L7+ → PL 16. */
+export declare function powerLevelForArtifactLevel(level: number): number;
+export declare function capPowerLevelForMinorMagic(level: number, opts?: {
+    fromArtifact?: boolean;
+    artifactLevel?: number;
+}): number;
 /**
  * PG "Creating Minor Magic Items": the stored Active Power must have an
  * Instant duration — no persistent zones, barriers, constructs, images, or

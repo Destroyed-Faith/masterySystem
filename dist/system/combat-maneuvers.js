@@ -75,10 +75,10 @@ export const COMBAT_MANEUVERS = [
         id: "weapon-swap",
         name: "Weapon Swap",
         description: "Switch to your other prepared Weapon Set.",
-        slot: "movement",
-        category: "movement",
-        tags: ["movement", "basic", "weapon-swap"],
-        effect: "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs your Movement Action. Out of combat it is free. The inactive set may be empty.",
+        slot: "attack",
+        category: "combat-action",
+        tags: ["attack", "basic", "weapon-swap"],
+        effect: "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs 1 Attack Action. Out of combat it is free. The inactive set may be empty.",
     },
     {
         id: "stand-up",
@@ -188,6 +188,27 @@ export const COMBAT_MANEUVERS = [
     // (Players Guide 6902–6963)
     // ========================================
     {
+        id: "drop-load",
+        name: "Drop Load",
+        description: "Safely drop carried gear to remove Encumbered / Overloaded.",
+        slot: "attack",
+        category: "combat-action",
+        tags: ["combat-action", "load", "basic"],
+        effect: "Safely drop your carried load: **1 Attack Action** while Encumbered, **2 Attack Actions** while Overloaded. Dropping hastily is immediate with GM approval, but items may be damaged, scattered, lost, or exposed.",
+    },
+    {
+        id: "reload",
+        name: "Reload",
+        description: "Spend 1 Attack Action to reload an Unloaded weapon.",
+        slot: "attack",
+        category: "combat-action",
+        tags: ["combat-action", "reload", "basic"],
+        requirements: {
+            requiresFreeHand: true,
+        },
+        effect: "Spend **1 Attack Action** to reload a weapon with the **Load** property. Requires one free hand. (Quick Load may instead use Movement, up to Mastery Rank reloads per turn.)",
+    },
+    {
         id: "parry-stance",
         name: "Parry Stance",
         description: "Give up Attack Actions; one Parry contest sets your TN.",
@@ -270,6 +291,10 @@ export const COMBAT_MANEUVERS = [
 export function getAvailableManeuvers(actor) {
     const available = [];
     for (const maneuver of COMBAT_MANEUVERS) {
+        if (maneuver.id === 'opportunity-attack')
+            continue;
+        if (maneuver.id === 'interpose' && actor?.type === 'character')
+            continue;
         if (meetsRequirements(actor, maneuver)) {
             available.push(maneuver);
         }

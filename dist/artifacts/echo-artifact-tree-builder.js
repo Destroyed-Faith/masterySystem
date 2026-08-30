@@ -26,7 +26,7 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 47;
+export const ECHO_ARTIFACT_SEED_VERSION = 48;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -37,6 +37,44 @@ const ALL_POWER_LEVEL_KEYS = [
 /** Two-handed weapon damage — 4d8 base + 1d8 per level (5d8 L1 … 14d8 L10). */
 function twoHandedEchoDamageForLevel(level) {
     return weaponDamageForLevel(level, 'twoHandedWeapon');
+}
+/** Wyrm Scales armor bonus over the Heavy base 12 — totals +16 (L1) … +25 (L10). */
+function wyrmScalesArmorBonusForLevel(level) {
+    const l = clampLevel(level);
+    return l >= 10 ? 13 : l + 3;
+}
+/** Wyrm Scales printed Evade/Initiative drawback — −2 (L1-3), −4 (L4-6), −6 (L7-10). */
+function wyrmScalesDrawbackForLevel(level) {
+    const l = clampLevel(level);
+    if (l >= 7)
+        return -6;
+    if (l >= 4)
+        return -4;
+    return -2;
+}
+/** Dragon Claws printed damage table — 4d8 L1 … 16d8 L10 (PG "Claw / Tail Base"). */
+const DRAGON_CLAWS_DAMAGE_TABLE = [4, 5, 6, 8, 9, 10, 12, 14, 15, 16];
+function dragonClawsDamageForLevel(level) {
+    return `${DRAGON_CLAWS_DAMAGE_TABLE[clampLevel(level) - 1]}d8`;
+}
+/** Dragon Claws Penetration — (2) L4, (3) L5-6, (4) L7-8, (5) L9-10. */
+const DRAGON_CLAWS_PENETRATION_TABLE = [0, 0, 0, 2, 3, 3, 4, 4, 5, 5];
+function dragonClawsPenetrationForLevel(level) {
+    return DRAGON_CLAWS_PENETRATION_TABLE[clampLevel(level) - 1];
+}
+/** Dragon Claws Brutal Impact — (4) L7-8, (5) L9-10. */
+const DRAGON_CLAWS_BRUTAL_TABLE = [0, 0, 0, 0, 0, 0, 4, 4, 5, 5];
+function dragonClawsBrutalForLevel(level) {
+    return DRAGON_CLAWS_BRUTAL_TABLE[clampLevel(level) - 1];
+}
+/** Stonebound Soles Tunneling — +1 m L4-5, +2 m L6-7, +3 m L8-9, +4 m L10. */
+function tunnelingMetersForLevel(level) {
+    const l = clampLevel(level);
+    if (l < 4)
+        return 0;
+    if (l >= 10)
+        return 4;
+    return Math.floor((l - 2) / 2);
 }
 /** Value-based Weapon Special rank by Artifact level breakpoints (L1/L4/L7/L10). */
 function weaponSpecialRankForLevel(table, level) {
@@ -53,16 +91,6 @@ function clampLevel(level) {
     return Math.max(1, Math.min(10, Math.floor(Number(level) || 1)));
 }
 /** Scent of Blood tier — Detect L4, Locate L7, Identify L10. */
-function scentOfBloodTierForLevel(level) {
-    const l = clampLevel(level);
-    if (l >= 10)
-        return 'Identify';
-    if (l >= 7)
-        return 'Locate';
-    if (l >= 4)
-        return 'Detect';
-    return '';
-}
 // --- General-artifact per-level tables (Artifact Examples, Player's Guide) ---
 /** One-handed weapon damage — 2d8 base + 1d8 per level (3d8 L1 … 12d8 L10). */
 function oneHandedGeneralDamageForLevel(level) {
@@ -180,31 +208,46 @@ function huntersScourgeExtraReachForLevel(level) {
  * stores the artifact bonus only; mundane Light/Medium/Heavy base is added at runtime.
  */
 const BASE_VALUE_TABLES = {
+    // PG "Stonebound Soles Base": A = Armor (+1 L1 … +5 L9-10), B = Tunneling
+    // (+1 m L4-5 … +4 m L10). Tremor Sense is a Sense Slot option, not A/B.
     stoneboundSoles: [
-        { slot: 'a', type: 'sense', label: 'Tremorsense', unlock: 1, valueAt: () => 0, note: 'Ground-contact detection; depth scales with level.' },
-        { slot: 'b', type: 'headArmor', label: 'Armor (Feet)', unlock: 4, valueAt: (l) => minorArmorForLevel(l) },
+        { slot: 'a', type: 'headArmor', label: 'Armor (Feet)', unlock: 1, valueAt: (l) => minorArmorForLevel(l) },
+        {
+            slot: 'b',
+            type: 'minorFeature',
+            label: 'Tunneling',
+            unlock: 4,
+            valueAt: (l) => `+${tunnelingMetersForLevel(l)} m`,
+            note: 'Tunneling is not Burrow — digging, mining, and moving through workable tunnel material.',
+        },
+        {
+            slot: 'c',
+            type: 'sense',
+            label: 'Tremor Sense',
+            unlock: 1,
+            valueAt: () => '20 m',
+            note: 'Sense Slot option. Does not scale with Artifact Level; works through a shared solid surface.',
+        },
     ],
     elorianStride: [
         { slot: 'a', type: 'evade', label: 'Evade', unlock: 1, valueAt: (l) => feetEvadeForLevel(l) },
         { slot: 'b', type: 'movement', label: 'Movement', unlock: 4, valueAt: (l) => getMinorMovementBaselineB(l) },
     ],
-    // Titan Scars (Titanborn) has one variant per Attribute affinity
-    // (titanScarsMight, titanScarsAgility, …). All share the same Medium Echo Armor
-    // base value, so generate the identical table for every variant key.
-    ...Object.fromEntries(['Might', 'Agility', 'Vitality', 'Intellect', 'Resolve', 'Influence', 'Wits'].map((attr) => [
-        `titanScars${attr}`,
-        [
-            {
-                slot: 'a',
-                type: 'bodyArmor',
-                label: 'Medium Echo Armor',
-                armorWeightClass: 'medium',
-                unlock: 1,
-                valueAt: (l) => bodyArmorBonusForLevel(l),
-                note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
-            },
-        ],
-    ])),
+    titanScars: [
+        {
+            slot: 'a',
+            type: 'bodyArmor',
+            label: 'Medium Echo Armor',
+            armorWeightClass: 'medium',
+            unlock: 1,
+            valueAt: (l) => bodyArmorBonusForLevel(l),
+            note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
+        },
+    ],
+    ringchainOfKeptNames: [],
+    // PG "Wyrm Scales Base Item": total Armor +16 (L1) … +25 (L10) with
+    // escalating drawbacks −2/−2 (L1-3), −4/−4 (L4-6), −6/−6 (L7-10) and always
+    // −2d8 Physical Skill Checks. Stored value = bonus over the Heavy base 12.
     wyrmScalesHeavy: [
         {
             slot: 'a',
@@ -212,8 +255,10 @@ const BASE_VALUE_TABLES = {
             label: 'Heavy Echo Armor',
             armorWeightClass: 'heavy',
             unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.',
+            valueAt: (l) => wyrmScalesArmorBonusForLevel(l),
+            evadeModifierAt: (l) => wyrmScalesDrawbackForLevel(l),
+            initiativeModifierAt: (l) => wyrmScalesDrawbackForLevel(l),
+            note: 'Drawbacks: −2/−4/−6 Evade & Initiative (L1-3 / L4-6 / L7-10), −2d8 Physical Skills.',
         },
     ],
     wyrmScalesLight: [
@@ -227,10 +272,12 @@ const BASE_VALUE_TABLES = {
             note: 'Light Armor: no class drawbacks.',
         },
     ],
+    // PG "Claw / Tail Base": printed per-level table (4d8 L1 … 16d8 L10;
+    // Penetration 2→5 from L4; Brutal Impact 4→5 from L7).
     dragonClaws: [
-        { slot: 'a', type: 'weaponDamage', label: 'Claw / Tail Damage', unlock: 1, valueAt: (l) => twoHandedEchoDamageForLevel(l) },
-        { slot: 'b', type: 'weaponSpecial', label: 'Penetration', unlock: 4, valueAt: (l) => weaponSpecialRankForLevel([2, 4, 6, 8], l) },
-        { slot: 'c', type: 'weaponSpecial', label: 'Brutal Impact', unlock: 7, valueAt: (l) => weaponSpecialRankForLevel([3, 5, 7, 9], l) },
+        { slot: 'a', type: 'weaponDamage', label: 'Claw / Tail Damage', unlock: 1, valueAt: (l) => dragonClawsDamageForLevel(l) },
+        { slot: 'b', type: 'weaponSpecial', label: 'Penetration', unlock: 4, valueAt: (l) => dragonClawsPenetrationForLevel(l) },
+        { slot: 'c', type: 'weaponSpecial', label: 'Brutal Impact', unlock: 7, valueAt: (l) => dragonClawsBrutalForLevel(l) },
     ],
     sentinelFrame: [
         {
@@ -265,15 +312,18 @@ const BASE_VALUE_TABLES = {
             note: 'Light Armor: no class drawbacks.',
         },
     ],
+    // PG "Bite and Head Armor Base": A = Bite 1d8/level, B = Head Armor (+1 L1
+    // … +5 L9-10). Predator Sense is a Sense Slot option, not a Base Value.
     dragonHead: [
         { slot: 'a', type: 'weaponDamage', label: 'Bite Weapon Damage', unlock: 1, valueAt: (l) => weaponDamageForLevel(l) },
+        { slot: 'b', type: 'headArmor', label: 'Head Armor', unlock: 1, valueAt: (l) => minorArmorForLevel(l) },
         {
-            slot: 'b',
+            slot: 'c',
             type: 'sense',
-            label: 'Scent of Blood',
-            unlock: 4,
-            valueAt: (l) => scentOfBloodTierForLevel(l),
-            note: 'Detect from L4, Locate from L7, Identify at L10.',
+            label: 'Predator Sense',
+            unlock: 1,
+            valueAt: () => '20 m',
+            note: 'Sense Slot option. Does not scale with Artifact Level.',
         },
     ],
     ...Object.fromEntries(['predatorCrownMight', 'predatorCrownWits', 'predatorCrownIntellect'].map((key) => [
@@ -301,19 +351,19 @@ const BASE_VALUE_TABLES = {
             { slot: 'a', type: 'weaponDamage', label: 'Staff Damage', unlock: 1, valueAt: (l) => unboundGuideDamageForLevel(l) },
             {
                 slot: 'b',
-                type: 'spellFocus',
-                label: 'Spell Focus',
-                unlock: 1,
-                valueAt: (l) => spellFocusForLevel(l, 'twoHandedWeapon'),
-                note: 'Spell Focus from Level 1. May be used with Intellect.',
-            },
-            {
-                slot: 'c',
                 type: 'weaponSpecial',
                 label: special,
                 unlock: 4,
                 valueAt: (l) => witchTraditionSpecialForLevel(l),
                 note: `Tradition Special (${special}) applies only on a legal Staff attack or Power.`,
+            },
+            {
+                slot: 'c',
+                type: 'spellFocus',
+                label: 'Spell Focus',
+                unlock: 1,
+                valueAt: (l) => spellFocusForLevel(l, 'twoHandedWeapon'),
+                note: 'Spell Focus from Level 1. May be used with Intellect.',
             },
         ],
     ])),
@@ -680,6 +730,8 @@ function baseValuesAtLevel(echoArtifactKey, level) {
             note: spec.note,
             isBaseline: true,
             ...(spec.armorWeightClass ? { armorWeightClass: spec.armorWeightClass } : {}),
+            ...(spec.evadeModifierAt ? { evadeModifier: spec.evadeModifierAt(level) } : {}),
+            ...(spec.initiativeModifierAt ? { initiativeModifier: spec.initiativeModifierAt(level) } : {}),
         });
     }
     return out;
@@ -726,7 +778,7 @@ function weaponProfileAtLevel(def, level) {
             weaponType: 'ranged',
             range: '32m',
             hands: 2,
-            innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+            innateAbilities: ['Ranged (32 m)', 'Load'],
             specials: [
                 { specialId: 'penetration', value: 4 },
                 { specialId: 'precision', value: 4 + artifactPrec },
@@ -836,6 +888,7 @@ export function buildEchoArtifactTree(def) {
             stoneFunction: def.stoneFunction && level >= def.stoneFunction.level
                 ? buildEchoStoneFunction(def)
                 : null,
+            extraStoneFunctions: def.extraStoneFunctions ?? [],
             progressionPicks: picks,
             lore: def.description,
             description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,

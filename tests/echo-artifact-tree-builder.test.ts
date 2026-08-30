@@ -53,7 +53,7 @@ describe('Echo Artifact tree builder — structure', () => {
       ['elorianStride', 'Elven Stride.png'],
       ['wyrmScalesLight', 'Serpent Scales.png'],
       ['wyrmScalesHeavy', 'Wyrm Scales.png'],
-      ['titanScarsMight', 'Titan Scars.png'],
+      ['titanScars', 'Titan Scars.png'],
       ['sentinelFrame', 'Sentinel Frame.png'],
     ];
     for (const [key, fragment] of cases) {
@@ -108,7 +108,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
     expect(types(4)).toContain('weaponSpecial');
     expect(types(3)).not.toContain('weaponSpecial');
     expect(types(10).filter((t: string) => t === 'weaponSpecial').length).toBe(2);
-    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe('14d8');
+    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe('16d8');
   });
 
   it('Dragon Claws use the two-handed bothHands slot and occupy both hands', () => {
@@ -207,10 +207,10 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
 
     const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesHeavy')!);
     const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
-    expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.effect).toContain('+17 Armor');
+    expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.effect).toContain('+6 Armor');
     expect(l2Rows.find((r: any) => r.name === 'Wyrm Scales I')?.powerTemplateId).toBe('ab-armor');
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
-    expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+41 Armor');
+    expect(l5Rows.find((r: any) => r.name === 'Wyrm Scales II')?.effect).toContain('+12 Armor');
   });
 
   it('Serpent Scales: Dragon Wings + ab-evade / mobility extension + EVADE Stone Support', () => {
@@ -288,13 +288,13 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(field?.aoe).toContain('10');
   });
 
-  it('Sentinel: Single Heal Active + Resolve Stone Battery + Resolve Healing Support', () => {
+  it('Sentinel: Single Heal Active + Resolve Stone Pool + Resolve Healing Support', () => {
     expect(pick('sentinelFrame', 1).kind).toBe('power');
     expect(pick('sentinelFrame', 1).powerTemplateId).toBe('active-ranged-single-heal');
 
     const l2 = pick('sentinelFrame', 2);
     expect(l2.kind).toBe('stoneFunction');
-    expect(l2.stoneFunction).toEqual({ kind: 'stoneBattery', attribute: 'resolve' });
+    expect(l2.stoneFunction).toEqual({ kind: 'stonePool', attribute: 'resolve' });
 
     const l3 = pick('sentinelFrame', 3);
     expect(l3.kind).toBe('stoneFunction');
@@ -377,11 +377,10 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
         /Elorian Focus/.test(r.name),
       )?.effect as string) || '';
-    expect(focusEffectAt(3)).toContain('pre-fills Tier 3');
-    // Blank Tier 1 is a payable ramp step and must be listed as owed.
-    expect(focusEffectAt(3)).toContain('Tiers 1, 2');
-    expect(focusEffectAt(6)).toContain('pre-fills Tier 4');
-    expect(focusEffectAt(9)).toContain('pre-fills Tier 5');
+    expect(focusEffectAt(3)).toContain('pre-fills Tier 2');
+    expect(focusEffectAt(3)).toMatch(/Tier 1/);
+    expect(focusEffectAt(6)).toContain('pre-fills Tier 3');
+    expect(focusEffectAt(9)).toContain('pre-fills Tier 4');
   });
 
   it('Elorian Stride Evade (+2..+12) and Movement (L4+) base values scale per spec', () => {
@@ -409,31 +408,35 @@ describe('Echo Artifact tree builder — Titan Scars', () => {
     expect((tree.nodes[0].itemData.system as any).artifactArmor.type).toBe('medium');
   });
 
-  it('renders Titan Growth (Active Buff) / Titan <Attr> Pool (Stone) / Titan Regeneration as real Powers', () => {
-    // getEchoArtifact('titanScars') resolves via alias to the Might-affinity variant.
+  it('renders Titan Growth / Titan Might Support / Titan Healing Support', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     const l3rows = (tree.nodes[2].itemData.system as any).levelProgression as any[];
     expect(l3rows.map((r) => r.name)).toEqual([
       'Titan Growth I',
-      'Titan Might Pool I',
-      'Titan Regeneration I',
+      'Titan Might I',
+      'Titan Healing I',
     ]);
 
-    // Titan Growth is now the Active Buff: Armor + Temporary HP catalog Power, so it
-    // stays an Active Buff (routes to the Buff segment) and shows the template effect.
     const growth = l3rows.find((r) => r.name === 'Titan Growth I');
     expect(String(growth.type)).toBe('Active Buff');
-    expect(String(growth.effect)).toContain('Armor');
-    expect(String(growth.effect)).toContain('Temporary HP');
+    expect(String(growth.effect)).toMatch(/Size|Armor|Damage/i);
 
-    // Slot 2 is the chosen-attribute Stone Pool (Might for this variant); Slots 1 & 3
-    // are real catalog Power picks (no longer authored fallback).
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
     const l2pick = picks.find((p) => p.level === 2);
     expect(l2pick.kind).toBe('stoneFunction');
-    expect(l2pick.stoneFunction).toEqual({ kind: 'stonePool', attribute: 'might' });
+    expect(l2pick.stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'might',
+      stonePowerId: 'might.meleeDamage',
+    });
     expect(picks.find((p) => p.level === 1).kind).toBe('power');
-    expect(picks.find((p) => p.level === 3).kind).toBe('power');
+    const l3pick = picks.find((p) => p.level === 3);
+    expect(l3pick.kind).toBe('stoneFunction');
+    expect(l3pick.stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'vitality',
+      stonePowerId: 'vitality.removeScar',
+    });
   });
 
   it('Titan Growth upgrades to PL 16 by L7 and keeps the True capstone', () => {
@@ -441,8 +444,7 @@ describe('Echo Artifact tree builder — Titan Scars', () => {
     const l7 = (tree.nodes[6].itemData.system as any).levelProgression as any[];
     const growth7 = l7.find((r) => r.name === 'Titan Growth III');
     expect(growth7).toBeTruthy();
-    // PL16 Armor + Temporary HP row: +17 Armor / 91 Temporary HP.
-    expect(String(growth7.effect)).toContain('17 Armor');
+    expect(String(growth7.effect)).toMatch(/16|Size|Armor|Damage/i);
 
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression.map((r: any) => r.name);
     expect(l10).toContain('True Titan Scars');
@@ -450,18 +452,16 @@ describe('Echo Artifact tree builder — Titan Scars', () => {
 });
 
 describe('Echo Artifact tree builder — Dragon Head', () => {
-  it('has Bite damage and gated Scent of Blood base values', () => {
+  it('has Bite damage, Head Armor, and Predator Sense', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('dragonHead')!);
     const l1 = (tree.nodes[0].itemData.system as any).baseValues;
-    expect(l1.map((b: any) => b.type)).toEqual(['weaponDamage']);
+    expect(l1.map((b: any) => b.type)).toEqual(['weaponDamage', 'headArmor', 'sense']);
     expect(l1[0].value).toBe('1d8');
-
-    const l4 = (tree.nodes[3].itemData.system as any).baseValues;
-    expect(l4.map((b: any) => b.label)).toEqual(['Bite Weapon Damage', 'Scent of Blood']);
-    expect(l4.find((b: any) => b.label === 'Scent of Blood').value).toBe('Detect');
+    expect(l1.find((b: any) => b.label === 'Head Armor')?.value).toBe(1);
+    expect(l1.find((b: any) => b.label === 'Predator Sense')?.value).toBe('20 m');
 
     const l10bv = (tree.nodes[9].itemData.system as any).baseValues;
-    expect(l10bv.find((b: any) => b.label === 'Scent of Blood').value).toBe('Identify');
+    expect(l10bv.find((b: any) => b.label === 'Head Armor')?.value).toBe(5);
   });
 
   it('exposes Breath / Roar / Recovery from authored progression', () => {

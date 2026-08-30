@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   getArtifactStoneFunctions,
   getArtifactStoneSupportPrefill,
-  getArtifactStoneBatteryCapacityByAttribute,
   getArtifactStonePoolExtraByAttribute,
 } from '../src/utils/artifact-stone-functions.js';
 import { buildEchoArtifactTree } from '../src/artifacts/echo-artifact-tree-builder.js';
@@ -37,21 +36,32 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     const actorL1 = actorWith(activeItemFromNode(tree.nodes[0], 'Sentinel Frame'));
     expect(getArtifactStoneFunctions(actorL1)).toHaveLength(0);
 
-    // At level 3 both Stone Functions are unlocked: the Resolve Stone Battery
+    // At level 3 both pick Stone Functions are unlocked: the Resolve Stone Pool
     // (L2) and the Resolve Healing Support (L3).
     const actorL3 = actorWith(activeItemFromNode(tree.nodes[2], 'Sentinel Frame'));
     const records = getArtifactStoneFunctions(actorL3);
     expect(records).toHaveLength(2);
 
-    const battery = records.find((r) => r.kind === 'stoneBattery');
+    const pool = records.find((r) => r.kind === 'stonePool');
     const support = records.find((r) => r.kind === 'stonePowerSupport');
-    expect(battery?.attribute).toBe('resolve');
+    expect(pool?.attribute).toBe('resolve');
     expect(support?.stonePowerId).toBe('resolve.healing');
 
     // The Healing Support pre-fills Tier 2 at level 3.
     expect(getArtifactStoneSupportPrefill(actorL3, 'resolve.healing', 'resolve')).toBe(2);
-    // The Resolve battery contributes capacity.
-    expect(getArtifactStoneBatteryCapacityByAttribute(actorL3).resolve).toBeGreaterThan(0);
+    expect(getArtifactStonePoolExtraByAttribute(actorL3).resolve).toBeGreaterThan(0);
+  });
+
+  it('Sentinel Frame unlocks Special Reduction Support from Artifact Level 5', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('sentinelFrame')!);
+    const actorL4 = actorWith(activeItemFromNode(tree.nodes[3], 'Sentinel Frame'));
+    expect(getArtifactStoneSupportPrefill(actorL4, 'resolve.ward', 'resolve')).toBe(0);
+
+    const actorL5 = actorWith(activeItemFromNode(tree.nodes[4], 'Sentinel Frame'));
+    expect(getArtifactStoneSupportPrefill(actorL5, 'resolve.ward', 'resolve')).toBe(3);
+
+    const actorL9 = actorWith(activeItemFromNode(tree.nodes[8], 'Sentinel Frame'));
+    expect(getArtifactStoneSupportPrefill(actorL9, 'resolve.ward', 'resolve')).toBe(4);
   });
 
   it('Judicator carries both the Wits Stone Pool and the Influence Regeneration Support', () => {
@@ -67,14 +77,17 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(getArtifactStoneSupportPrefill(actor, 'influence.regeneration', 'influence')).toBe(3);
   });
 
-  it('Titan Scars gift Might Stones via a Might Stone Pool (2/4/8 per stage)', () => {
+  it('Titan Scars supports Might Melee Damage and Vitality Remove Scar', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
-    // Below L2 the pool is not yet unlocked.
-    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[0], 'Titan Scars'))).might || 0).toBe(0);
-    // L2 → 2, L5 → 4, L8 → 8 Might Stones.
-    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[1], 'Titan Scars'))).might).toBe(2);
-    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[4], 'Titan Scars'))).might).toBe(4);
-    expect(getArtifactStonePoolExtraByAttribute(actorWith(activeItemFromNode(tree.nodes[7], 'Titan Scars'))).might).toBe(8);
+    const actorL1 = actorWith(activeItemFromNode(tree.nodes[0], 'Titan Scars'));
+    expect(getArtifactStoneSupportPrefill(actorL1, 'might.meleeDamage', 'might')).toBe(0);
+    expect(getArtifactStoneSupportPrefill(actorL1, 'vitality.removeScar', 'vitality')).toBe(0);
+
+    const actorL2 = actorWith(activeItemFromNode(tree.nodes[1], 'Titan Scars'));
+    expect(getArtifactStoneSupportPrefill(actorL2, 'might.meleeDamage', 'might')).toBe(2);
+
+    const actorL3 = actorWith(activeItemFromNode(tree.nodes[2], 'Titan Scars'));
+    expect(getArtifactStoneSupportPrefill(actorL3, 'vitality.removeScar', 'vitality')).toBe(2);
   });
 
   it('falls back to the single legacy sys.stoneFunction when there are no picks', () => {
@@ -97,14 +110,12 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(records[0].attribute).toBe('might');
   });
 
-  it('raises Crit Stone Power Support by one tier after the table shift', () => {
+  it('Elorian Focus prefills Crit at the printed T2 / T3 / T4 stages', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     const actorL3 = actorWith(activeItemFromNode(tree.nodes[2], 'Elorian Stride'));
-    // Raw prefill at L3 is T2; Crit's empty T1 shifts that to T3 (old T2 = 2 Crits).
-    expect(getArtifactStoneSupportPrefill(actorL3, 'agility.crit', 'agility')).toBe(3);
+    expect(getArtifactStoneSupportPrefill(actorL3, 'agility.crit', 'agility')).toBe(2);
 
     const actorL7 = actorWith(activeItemFromNode(tree.nodes[6], 'Elorian Stride'));
-    // Raw prefill at L7 is T4; Crit's empty T1 shifts that to T5 (old T4 = 4 Crits).
-    expect(getArtifactStoneSupportPrefill(actorL7, 'agility.crit', 'agility')).toBe(5);
+    expect(getArtifactStoneSupportPrefill(actorL7, 'agility.crit', 'agility')).toBe(4);
   });
 });

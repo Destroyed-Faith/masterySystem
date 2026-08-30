@@ -1,8 +1,8 @@
 {
-  "version": "0.9.430",
-  "generatedAt": "2026-08-30T22:55:45.219Z",
+  "version": "0.9.431",
+  "generatedAt": "2026-08-30T23:40:43.704Z",
   "summary": {
-    "correct": 216,
+    "correct": 218,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -788,6 +788,13 @@
     },
     {
       "category": "artifact",
+      "id": "ringchainOfKeptNames",
+      "name": "Ringchain of Kept Names",
+      "status": "correct",
+      "notes": "Present in echo catalog (curated expected list)"
+    },
+    {
+      "category": "artifact",
       "id": "sentinelFrame",
       "name": "Sentinel Frame",
       "status": "correct",
@@ -830,10 +837,10 @@
     },
     {
       "category": "artifact",
-      "id": "titanScars*",
+      "id": "titanScars",
       "name": "Titan Scars",
       "status": "correct",
-      "notes": "7 attribute variants in ECHO_ARTIFACTS (Might/Agility/…); Rules example family"
+      "notes": "Present in echo catalog (curated expected list)"
     },
     {
       "category": "artifact",
@@ -1434,6 +1441,13 @@
       "category": "reaction",
       "id": "reaction-counter-damage",
       "name": "Reaction: Counter Damage",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "reaction",
+      "id": "reaction-counter-damage-pull",
+      "name": "Reaction: Counter Damage + Pull",
       "status": "correct",
       "notes": "Matches Rules entry"
     },

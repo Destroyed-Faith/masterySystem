@@ -7,6 +7,7 @@ import { getEffectById } from '../../utils/special-effects.js';
 import {
     TOWER_WIZARD_DEFENSIVE_RANK,
     TOWER_WIZARD_OFFENSIVE_RANK,
+    echoRequirementMet,
     findCatalogEntry,
     getAllCatalogEntries,
     powerIdentityKey,
@@ -477,8 +478,10 @@ export function getOffenseActiveSpecialGroups(
     actorEchoKey?: string | null,
     selectedPickIds?: Set<string>,
     excludeIdentityKeys?: Set<string>,
+    actorSubChoiceKey?: string | null,
 ): OffenseActiveSpecialGroup[] {
     const echoKey = (actorEchoKey || '').trim().toLowerCase();
+    const subChoiceKey = (actorSubChoiceKey || '').trim().toLowerCase();
     const selected = selectedPickIds ?? new Set<string>();
     const excluded = excludeIdentityKeys ?? new Set<string>();
 
@@ -494,7 +497,7 @@ export function getOffenseActiveSpecialGroups(
         if (entry.category !== 'active') continue;
         if (!catalogEntryHasRank(entry, OFF_RANK)) continue;
         if (entry.requiresEcho?.length) {
-            if (!echoKey || !entry.requiresEcho.includes(echoKey)) continue;
+            if (!echoRequirementMet(entry.requiresEcho, echoKey, subChoiceKey)) continue;
         }
         if (excluded.has(powerIdentityKeyFromEntry(entry))) continue;
 
@@ -654,12 +657,14 @@ export function getCategoryPickerGroups(
         excludeSubfamilies?: Set<string>;
         selectedIdentityKeys?: Set<string>;
         actorEchoKey?: string | null;
+        actorSubChoiceKey?: string | null;
     },
 ): PowerPickerGroup[] {
     const excluded = options?.excludeIdentityKeys ?? new Set<string>();
     const excludedSubfamilies = options?.excludeSubfamilies ?? new Set<string>();
     const selected = options?.selectedIdentityKeys ?? new Set<string>();
     const echoKey = (options?.actorEchoKey || '').trim().toLowerCase();
+    const subChoiceKey = (options?.actorSubChoiceKey || '').trim().toLowerCase();
     const labels = CATEGORY_PICKER_LABELS[category] ?? {};
     const order = CATEGORY_PICKER_ORDER[category] ?? [];
 
@@ -670,7 +675,7 @@ export function getCategoryPickerGroups(
         if (entry.category !== category) continue;
         if (!catalogEntryHasRank(entry, rank)) continue;
         if (entry.requiresEcho?.length) {
-            if (!echoKey || !entry.requiresEcho.includes(echoKey)) continue;
+            if (!echoRequirementMet(entry.requiresEcho, echoKey, subChoiceKey)) continue;
         }
         if (entry.subfamily && excludedSubfamilies.has(entry.subfamily)) continue;
         const identityKey = powerIdentityKeyFromEntry(entry);

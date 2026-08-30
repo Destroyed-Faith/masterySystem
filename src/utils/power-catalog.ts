@@ -346,6 +346,21 @@ export interface CatalogFilter {
 
     /** Actor's Echo key, lowercased. Echo-gated entries are hidden if missing. */
     actorEchoKey?: string | null;
+    /** Actor's Echo sub-choice (e.g. bane-greenwarden). Also matches requiresEcho. */
+    actorSubChoiceKey?: string | null;
+}
+
+/** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
+export function echoRequirementMet(
+    requires: string[] | undefined,
+    echoKey?: string | null,
+    subChoiceKey?: string | null,
+): boolean {
+    if (!requires?.length) return true;
+    const have = [echoKey, subChoiceKey]
+        .map((k) => String(k || '').trim().toLowerCase())
+        .filter(Boolean);
+    return requires.some((r) => have.includes(r.toLowerCase()));
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
@@ -464,6 +479,7 @@ export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
     const entries = getAllCatalogEntries();
     const term = (filter.search || '').trim().toLowerCase();
     const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
+    const subChoiceKey = (filter.actorSubChoiceKey || '').trim().toLowerCase();
     return entries.filter((e) => {
         if (filter.category && e.category !== filter.category) return false;
         if (filter.subfamily && e.subfamily !== filter.subfamily) return false;
@@ -477,7 +493,7 @@ export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
             if (!hay.includes(term)) return false;
         }
         if (e.requiresEcho && e.requiresEcho.length > 0) {
-            if (!echoKey || !e.requiresEcho.includes(echoKey)) return false;
+            if (!echoRequirementMet(e.requiresEcho, echoKey, subChoiceKey)) return false;
         }
         return true;
     });

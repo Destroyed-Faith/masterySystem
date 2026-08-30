@@ -99,7 +99,11 @@ export function isCounterDamageReaction(item: any): boolean {
   if (tid.includes('riposte') || tid.includes('reflection') || subfamilyOf(item) === 'parry') {
     return false;
   }
-  if (tid === 'reaction-counter-damage' || tid === 'reaction-counter-damage-push') return true;
+  if (
+    tid === 'reaction-counter-damage' ||
+    tid === 'reaction-counter-damage-push' ||
+    tid === 'reaction-counter-damage-pull'
+  ) return true;
   if (subfamilyOf(item) === 'counter') return true;
   const flat = String(mechanicsOf(item)?.damageRider?.flat ?? '');
   return /d8/i.test(flat);

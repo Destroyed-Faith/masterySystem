@@ -5,6 +5,7 @@
  * more Echo-bound Artifacts that must be selected at character creation:
  *
  *   • Human:      0 required, 0 maximum.
+ *   • Halfling:   0 required, 1 maximum.   (Ringchain of Kept Names — Amulet)
  *   • Dwarf:      1 required, 1 maximum.   (Stonebound Soles — Feet)
  *   • Elorian:    1 required, 1 maximum.   (Elorian Stride — Feet)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
@@ -174,6 +175,22 @@ export interface EchoArtifactDefinition {
    * catalog Powers instead of fixed text.
    */
   progressionPickSpecs?: Partial<Record<1 | 2 | 3, EchoArtifactProgressionPickSpec>>;
+  /**
+   * Extra Stone Functions that do not occupy a Basic 1/2/3 pick slot.
+   * Used when a printed table has a fourth support line (e.g. Sentinel Frame
+   * Special Reduction at Artifact Level 5).
+   */
+  extraStoneFunctions?: Array<{
+    level: number;
+    name?: string;
+    kind: ArtifactStoneFunctionKind;
+    attribute: string;
+    stonePowerId?: string;
+    /** Artifact levels at which Support prefills T2 / T3 / T4. Default 1 / 4 / 7. */
+    supportStages?: [number, number, number];
+    /** Artifact levels at which Pool stores 2 / 4 / 8. Default 1 / 4 / 7. */
+    poolStages?: [number, number, number];
+  }>;
   /**
    * Optional natural/innate weapon for a non-weapon-slot artifact (e.g. Dragon
    * Head's Bite). When set, the tree builder attaches a scaling `artifactWeapon`
@@ -349,6 +366,8 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
     3: {
       name: 'Elorian Focus',
       stoneFunction: {
+        // Follow-up: support begins at T2, the first effective Crit tier.
+        // Do not invent replacement Level Progression values here.
         kind: 'stonePowerSupport',
         attribute: 'agility',
         stonePowerId: 'agility.crit',
@@ -461,170 +480,137 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
 // Titan Scars (Titanborn)
 // ----------------------------------------------------------------------
 
-/** The 7 Attributes a Titanborn may bind their Titan Stone Pool to. */
-const TITAN_ATTRIBUTES = [
-  'might',
-  'agility',
-  'vitality',
-  'intellect',
-  'resolve',
-  'influence',
-  'wits',
-] as const;
-type TitanAttribute = (typeof TITAN_ATTRIBUTES)[number];
-
-const TITAN_ATTR_LABELS: Record<TitanAttribute, string> = {
-  might: 'Might',
-  agility: 'Agility',
-  vitality: 'Vitality',
-  intellect: 'Intellect',
-  resolve: 'Resolve',
-  influence: 'Influence',
-  wits: 'Wits',
-};
-
-/** Echo Artifact key for a Titan Scars variant bound to `attr` (e.g. `titanScarsMight`). */
-function titanScarsKey(attr: TitanAttribute): string {
-  return `titanScars${attr.charAt(0).toUpperCase()}${attr.slice(1)}`;
-}
-
-/**
- * Titan Scars (Titanborn body armor) — one variant per Attribute affinity.
- *
- * All variants are identical except the Stone Pool's Attribute, which the player
- * chooses at creation via the Titanborn `subChoices` (the matching variant is
- * gated by `requiresSubChoice`). Slot 1 (Titan Growth) and Slot 3 (Titan
- * Regeneration) are now real, editable catalog Powers via `progressionPickSpecs`
- * (Active Buff: Armor + Temporary HP / Active Buff: Healing) instead of authored
- * text. Slot 2 carries the Stone Pool as a pick (like the Sentinel / Judicator
- * frames), so any of the 7 Attributes works — the actor-side aggregator reads
- * the pick's attribute directly.
- */
-function makeTitanScars(attr: TitanAttribute): EchoArtifactDefinition {
-  const label = TITAN_ATTR_LABELS[attr];
-  return {
-    key: titanScarsKey(attr),
-    name: 'Titan Scars',
-    echoKey: 'titanborn',
-    slot: 'body',
-    baseProfile: 'bodyArmor',
-    requiresSubChoice: attr,
-    description:
-      'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
-    restriction:
-      'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
-    progressionPickSpecs: {
-      1: { templateId: 'ab-armor-temp-hp', name: 'Titan Growth' },
-      2: { name: `Titan ${label} Pool`, stoneFunction: { kind: 'stonePool', attribute: attr } },
-      3: { templateId: 'ab-healing', name: 'Titan Regeneration' },
+const TITAN_SCARS: EchoArtifactDefinition = {
+  key: 'titanScars',
+  name: 'Titan Scars',
+  echoKey: 'titanborn',
+  slot: 'body',
+  baseProfile: 'bodyArmor',
+  description:
+    'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
+  restriction:
+    'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.',
+  progressionPickSpecs: {
+    1: { templateId: 'ab-growth-form', name: 'Titan Growth' },
+    2: {
+      name: 'Titan Might',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'might',
+        stonePowerId: 'might.meleeDamage',
+      },
     },
-    baseValues: [
-      {
-        slot: 'a',
-        label: 'Medium Armor',
-        note: '+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).',
+    3: {
+      name: 'Titan Healing',
+      stoneFunction: {
+        kind: 'stonePowerSupport',
+        attribute: 'vitality',
+        stonePowerId: 'vitality.removeScar',
       },
-    ],
-    levelProgression: [
-      {
-        level: 1,
-        name: 'Titan Growth I',
-        type: 'Active Buff',
-        range: 'Self',
-        duration: 'Mastery Rank Rounds',
-        effect:
-          'Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.',
-        special: 'Titan Growth',
-      },
-      {
-        level: 2,
-        name: `Titan ${label} Pool I`,
-        type: 'Stone Pool',
-        range: 'Self',
-        duration: 'Passive',
-        effect: `After each Safe Haven Rest, Titan Scars gift you 2 ${label} Stones.`,
-        special: `${label} Stones`,
-      },
-      {
-        level: 3,
-        name: 'Titan Regeneration I',
-        type: 'Active Buff',
-        range: 'Self',
-        duration: 'Mastery Rank Rounds',
-        effect:
-          'Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.',
-        special: 'Titan Regeneration',
-      },
-      {
-        level: 4,
-        name: 'Titan Growth II',
-        type: 'Active Buff',
-        range: 'Self',
-        duration: 'Mastery Rank Rounds',
-        effect: 'Titan Growth improves to Power Level 10.',
-        special: 'Titan Growth',
-      },
-      {
-        level: 5,
-        name: `Titan ${label} Pool II`,
-        type: 'Stone Pool',
-        range: 'Self',
-        duration: 'Passive',
-        effect: `After each Safe Haven Rest, Titan Scars gift you 4 ${label} Stones.`,
-        special: `${label} Stones`,
-      },
-      {
-        level: 6,
-        name: 'Titan Regeneration II',
-        type: 'Active Buff',
-        range: 'Self',
-        duration: 'Mastery Rank Rounds',
-        effect: 'Titan Regeneration improves to Power Level 10.',
-        special: 'Titan Regeneration',
-      },
-      {
-        level: 7,
-        name: 'Titan Growth III',
-        type: 'Active Buff',
-        range: 'Self',
-        duration: 'Mastery Rank Rounds',
-        effect: 'Titan Growth improves to Power Level 16.',
-        special: 'Titan Growth',
-      },
-      {
-        level: 8,
-        name: `Titan ${label} Pool III`,
-        type: 'Stone Pool',
-        range: 'Self',
-        duration: 'Passive',
-        effect: `After each Safe Haven Rest, Titan Scars gift you 8 ${label} Stones.`,
-        special: `${label} Stones`,
-      },
-      {
-        level: 9,
-        name: 'Titan Regeneration III',
-        type: 'Active Buff',
-        range: 'Self',
-        duration: 'Mastery Rank Rounds',
-        effect: 'Titan Regeneration improves to Power Level 16.',
-        special: 'Titan Regeneration',
-      },
-      {
-        level: 10,
-        name: 'True Titan Scars',
-        type: 'Ultimate',
-        range: 'Self',
-        duration: 'Special',
-        effect:
-          'Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.',
-        special: 'True Titan Scars',
-      },
-    ],
-  };
-}
-
-/** All 7 Titan Scars variants (one per Attribute affinity). */
-const TITAN_SCARS_VARIANTS: EchoArtifactDefinition[] = TITAN_ATTRIBUTES.map(makeTitanScars);
+    },
+  },
+  baseValues: [
+    {
+      slot: 'a',
+      label: 'Medium Armor',
+      note: '+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical).',
+    },
+  ],
+  levelProgression: [
+    {
+      level: 1,
+      name: 'Titan Growth I',
+      type: 'Active Buff',
+      range: 'Self',
+      duration: 'Mastery Rank Rounds',
+      effect: 'Use Active Buff: Size + Damage + Armor at Power Level 4.',
+      special: 'Titan Growth',
+    },
+    {
+      level: 2,
+      name: 'Titan Might I',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Supports Might Ability: Melee Damage and pre-fills Tier 2. Tier 1 must still be paid.',
+      special: 'might.meleeDamage',
+    },
+    {
+      level: 3,
+      name: 'Titan Healing I',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Use Remove Scar through Titan Scars and pay its normal Stone cost.',
+      special: 'vitality.removeScar',
+    },
+    {
+      level: 4,
+      name: 'Titan Growth II',
+      type: 'Active Buff',
+      range: 'Self',
+      duration: 'Mastery Rank Rounds',
+      effect: 'Use Active Buff: Size + Damage + Armor at Power Level 10. This replaces Titan Growth I.',
+      special: 'Titan Growth',
+    },
+    {
+      level: 5,
+      name: 'Titan Might II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Tier 3. Tiers 1 and 2 must still be paid.',
+      special: 'might.meleeDamage',
+    },
+    {
+      level: 6,
+      name: 'Titan Healing II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect:
+        'Remove Scar used through Titan Scars may recover 1 Scarred Health Bar, as written by the Stone Power. Pay its normal Stone cost.',
+      special: 'vitality.removeScar',
+    },
+    {
+      level: 7,
+      name: 'Titan Growth III',
+      type: 'Active Buff',
+      range: 'Self',
+      duration: 'Mastery Rank Rounds',
+      effect: 'Use Active Buff: Size + Damage + Armor at Power Level 16. This replaces Titan Growth II.',
+      special: 'Titan Growth',
+    },
+    {
+      level: 8,
+      name: 'Titan Might III',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.',
+      special: 'might.meleeDamage',
+    },
+    {
+      level: 9,
+      name: 'Titan Healing III',
+      type: 'Stone Power Support',
+      range: 'Self / Touch',
+      duration: 'Instant',
+      effect: 'Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost.',
+      special: 'vitality.removeScar',
+    },
+    {
+      level: 10,
+      name: 'True Titan Scars',
+      type: 'Ultimate',
+      range: 'Self / Touch',
+      duration: 'Instant',
+      effect:
+        'Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover 1 Scarred Health Bar and follows all normal limits.',
+      special: 'True Titan Scars',
+    },
+  ],
+};
 
 // ----------------------------------------------------------------------
 // Wyrm Scales variants (Dragonborn — pick one body armor line)
@@ -637,7 +623,13 @@ export const ECHO_ARTIFACT_KEY_ALIASES: Record<string, string> = {
   wyrmScales: 'wyrmScalesHeavy',
   wyrmScalesMedium: 'wyrmScalesHeavy',
   serpentScales: 'wyrmScalesLight',
-  titanScars: 'titanScarsMight',
+  titanScarsMight: 'titanScars',
+  titanScarsAgility: 'titanScars',
+  titanScarsVitality: 'titanScars',
+  titanScarsIntellect: 'titanScars',
+  titanScarsResolve: 'titanScars',
+  titanScarsInfluence: 'titanScars',
+  titanScarsWits: 'titanScars',
   elvenStride: 'elorianStride',
   elvenStrideFire: 'elorianStride',
   elvenStrideEarth: 'elorianStride',
@@ -670,7 +662,15 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
   // with the rules table: TempHP / Damage Negation / Remove Scar / Extend Active Buff).
   progressionPickSpecs: {
     1: { name: 'Dragon Wings', templateId: 'movement-flight' },
-    2: { name: 'Wyrm Scales', templateId: 'ab-armor' },
+    2: {
+      name: 'Wyrm Scales',
+      templateId: 'ab-armor',
+      stageEffectTexts: [
+        'Gain **+6 Armor**.',
+        'Gain **+12 Armor**. This replaces Wyrm Scales I.',
+        'Gain **+18 Armor**. This replaces Wyrm Scales II.',
+      ],
+    },
     3: {
       name: 'Armor Stone Support',
       stoneFunction: {
@@ -684,7 +684,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
     {
       slot: 'a',
       label: 'Heavy Echo Armor',
-      note: 'Heavy Armor base + artifact bonus; Evade −4, Initiative −8, −2d8 Physical Skills.',
+      note: 'Heavy Armor +16 (L1) … +25 (L10). Drawbacks −2/−4/−6 Evade & Initiative; −2d8 Physical Skills.',
     },
   ],
   levelProgression: [
@@ -703,7 +703,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
       type: 'Active Buff',
       range: 'Self',
       duration: 'Mastery Rank Rounds',
-      effect: 'You gain +13 Armor.',
+      effect: 'You gain +6 Armor.',
       special: 'Armor',
     },
     {
@@ -731,7 +731,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
       type: 'Active Buff',
       range: 'Self',
       duration: 'Mastery Rank Rounds',
-      effect: 'You gain +31 Armor.',
+      effect: 'You gain +12 Armor.',
       special: 'Armor',
     },
     {
@@ -759,7 +759,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
       type: 'Active Buff',
       range: 'Self',
       duration: 'Mastery Rank Rounds',
-      effect: 'You gain +49 Armor.',
+      effect: 'You gain +18 Armor.',
       special: 'Armor',
     },
     {
@@ -1240,14 +1240,12 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'sentinel',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // Three clean tracks mapped to real, editable Powers / Stone Functions:
-  //   L1 Single Heal  → `active-ranged-single-heal` (catalog heal Active),
-  //   L2 Resolve Core → Stone Battery (Resolve),
-  //   L3 Healing Support → Stone Power Support (Resolve: Healing).
-  // The two Stone Functions live on their own picks and both apply mechanically.
+  // Printed table: Heal 1/4/7, Resolve Pool 2/6, Healing Support 3/8,
+  // Special Reduction 5/9. The 1/2/3 compiler covers Heal + Pool + Healing;
+  // Special Reduction is an extra Stone Function from Artifact Level 5.
   progressionPickSpecs: {
     1: { templateId: 'active-ranged-single-heal', name: 'Single Heal' },
-    2: { name: 'Resolve Core', stoneFunction: { kind: 'stoneBattery', attribute: 'resolve' } },
+    2: { name: 'Resolve Core', stoneFunction: { kind: 'stonePool', attribute: 'resolve' } },
     3: {
       name: 'Healing Support',
       stoneFunction: {
@@ -1257,6 +1255,16 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
       },
     },
   },
+  extraStoneFunctions: [
+    {
+      level: 5,
+      name: 'Special Reduction Support',
+      kind: 'stonePowerSupport',
+      attribute: 'resolve',
+      stonePowerId: 'resolve.ward',
+      supportStages: [5, 5, 9],
+    },
+  ],
   baseValues: [
     {
       slot: 'a',
@@ -1277,10 +1285,10 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     {
       level: 2,
       name: 'Resolve Core I',
-      type: 'Stone Battery',
+      type: 'Stone Pool',
       range: 'Self',
       duration: 'Passive',
-      effect: 'Sentinel Frame gains a Resolve Stone Battery (capacity 10).',
+      effect: 'Store 2 Resolve Stones after each Safe Haven Rest. They may be spent only on Sentinel Frame\'s listed Resolve Stone functions.',
       special: 'Resolve Stones',
     },
     {
@@ -1304,21 +1312,21 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 5,
-      name: 'Resolve Core II',
-      type: 'Stone Battery',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Resolve Stone Battery capacity increases to 20.',
-      special: 'Resolve Stones',
-    },
-    {
-      level: 6,
-      name: 'Healing Support II',
+      name: 'Special Reduction Support I',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Sentinel Frame pre-fills Tier 3 of the Resolve Ability: Healing Stone Power.',
-      special: 'Healing Stone Power',
+      effect: 'Supports Resolve Ability: Special Reduction and pre-fills Tier 3. Tiers 1 and 2 must still be paid.',
+      special: 'resolve.ward',
+    },
+    {
+      level: 6,
+      name: 'Resolve Core II',
+      type: 'Stone Pool',
+      range: 'Self',
+      duration: 'Passive',
+      effect: 'Store 4 Resolve Stones after each Safe Haven Rest. They may be spent only on Sentinel Frame\'s listed Resolve Stone functions.',
+      special: 'Resolve Stones',
     },
     {
       level: 7,
@@ -1331,21 +1339,21 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 8,
-      name: 'Resolve Core III',
-      type: 'Stone Battery',
-      range: 'Self',
-      duration: 'Passive',
-      effect: 'Resolve Stone Battery capacity increases to 40.',
-      special: 'Resolve Stones',
-    },
-    {
-      level: 9,
-      name: 'Healing Support III',
+      name: 'Healing Support II',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Sentinel Frame pre-fills Tier 4 of the Resolve Ability: Healing Stone Power.',
+      effect: 'Pre-fill Tier 4 of Resolve Ability: Healing. Tiers 1, 2, and 3 must still be paid.',
       special: 'Healing Stone Power',
+    },
+    {
+      level: 9,
+      name: 'Special Reduction Support II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Tier 4 of Resolve Ability: Special Reduction. Tiers 1, 2, and 3 must still be paid.',
+      special: 'resolve.ward',
     },
     {
       level: 10,
@@ -1596,7 +1604,7 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
       range: 'Self',
       aoe: 'Radius 10 m',
       duration: 'Mastery Rank Rounds',
-      effect: 'You and allies in the area gain +15 Armor.',
+      effect: 'You and allies in the area gain +14 Armor.',
       special: 'Armor Aura',
     },
     {
@@ -1633,13 +1641,142 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
 };
 
 // ----------------------------------------------------------------------
+// Ringchain of Kept Names (Halfling — optional Amulet)
+// ----------------------------------------------------------------------
+
+const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
+  key: 'ringchainOfKeptNames',
+  name: 'Ringchain of Kept Names',
+  echoKey: 'halflings',
+  slot: 'amulet',
+  baseProfile: 'noArmorBody',
+  description:
+    'Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Healing Aura, and Single Heal.',
+  restriction:
+    'The Ringchain occupies the Amulet Slot. A Halfling with the Ringchain cannot wear another Amulet Artifact. Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
+  extraStoneFunctions: [
+    {
+      level: 1,
+      name: 'Kept from Sight',
+      kind: 'stonePowerSupport',
+      attribute: 'influence',
+      stonePowerId: 'influence.notATarget',
+      // Follow-up: T2 support at L1 is the first effective Not a Target tier.
+      // Do not invent replacement Level Progression values here.
+      supportStages: [1, 5, 9],
+    },
+  ],
+  baseValues: [
+    {
+      slot: 'a',
+      label: 'No numeric Base Values',
+      note: 'Grants no Armor, Evade, Movement, or weapon value. Power comes from Level Progression.',
+    },
+  ],
+  levelProgression: [
+    {
+      level: 1,
+      name: 'Kept from Sight I',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Tier 2 of Influence Ability: Not a Target. Tier 1 must still be paid.',
+      special: 'influence.notATarget',
+    },
+    {
+      level: 2,
+      name: 'Burden Lifted I',
+      type: 'Active, Support',
+      range: '20 m',
+      duration: 'Instant',
+      effect: 'Remove up to 6 total points of eligible negative Special value from one creature.',
+      special: 'Ranged Single Target Cleanse (PL 4)',
+    },
+    {
+      level: 3,
+      name: 'Hearth Circle I',
+      type: 'Active Buff',
+      range: 'Self',
+      aoe: 'Radius 2 m',
+      duration: 'Mastery Rank Rounds',
+      effect: 'At the end of each of your turns, allies inside the aura heal 3d8 HP. Each creature can be affected only once per Round.',
+      special: 'Active Buff: Healing Aura (PL 4)',
+    },
+    {
+      level: 4,
+      name: 'Remembered Hands I',
+      type: 'Active, Support',
+      range: '44 m',
+      duration: 'Instant',
+      effect: 'Heal one creature for 13d8 HP. This profile has a pool of 2 Health Levels per Safe Haven Rest.',
+      special: 'Ranged Single Target Heal (PL 10)',
+    },
+    {
+      level: 5,
+      name: 'Kept from Sight II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Tier 3 of Influence Ability: Not a Target. Tiers 1 and 2 must still be paid.',
+      special: 'influence.notATarget',
+    },
+    {
+      level: 6,
+      name: 'Burden Lifted II',
+      type: 'Active, Support',
+      range: '44 m',
+      duration: 'Instant',
+      effect: 'Remove up to 10 total points of eligible negative Special value from one creature. This replaces Burden Lifted I.',
+      special: 'Ranged Single Target Cleanse (PL 10)',
+    },
+    {
+      level: 7,
+      name: 'Remembered Hands II',
+      type: 'Active, Support',
+      range: '68 m',
+      duration: 'Instant',
+      effect: 'Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I.',
+      special: 'Ranged Single Target Heal (PL 16)',
+    },
+    {
+      level: 8,
+      name: 'Hearth Circle II',
+      type: 'Active Buff',
+      range: 'Self',
+      aoe: 'Radius 4 m',
+      duration: 'Mastery Rank Rounds',
+      effect: 'At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I.',
+      special: 'Active Buff: Healing Aura (PL 16)',
+    },
+    {
+      level: 9,
+      name: 'Kept from Sight III',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect: 'Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.',
+      special: 'influence.notATarget',
+    },
+    {
+      level: 10,
+      name: 'True Ringchain of Kept Names',
+      type: 'Ultimate',
+      range: 'As defined',
+      duration: 'As defined',
+      effect: 'Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded.',
+      special: 'Artifact Ultimate: GM-Defined Ringchain Effect',
+    },
+  ],
+};
+
+// ----------------------------------------------------------------------
 // Registry
 // ----------------------------------------------------------------------
 
 export const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition> = {
   stoneboundSoles: STONEBOUND_SOLES,
   elorianStride: ELORIAN_STRIDE,
-  ...Object.fromEntries(TITAN_SCARS_VARIANTS.map((def) => [def.key, def])),
+  titanScars: TITAN_SCARS,
   wyrmScalesHeavy: WYRM_SCALES_HEAVY,
   wyrmScalesLight: WYRM_SCALES_LIGHT,
   dragonClaws: DRAGON_CLAWS,
@@ -1647,6 +1784,7 @@ export const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition> = {
   sentinelFrame: SENTINEL_FRAME,
   judicatorFrame: JUDICATOR_FRAME,
   oracleFrame: ORACLE_FRAME,
+  ringchainOfKeptNames: RINGCHAIN_OF_KEPT_NAMES,
   ...UNBOUND_ECHO_ARTIFACTS,
 };
 
@@ -1691,11 +1829,13 @@ export const ECHO_ARTIFACT_RULES: Record<string, EchoArtifactRules> = {
     echoKey: 'titanborn',
     requiredAtCreation: 1,
     maxAtCreation: 1,
-    // One Titan Scars variant per Attribute affinity. The chosen sub-choice
-    // (`actor.system.echo.subChoiceKey`) gates which variant is offered via
-    // `requiresSubChoice`, and the exclusive group enforces "pick exactly one".
-    availableKeys: TITAN_ATTRIBUTES.map(titanScarsKey),
-    exclusiveGroups: [TITAN_ATTRIBUTES.map(titanScarsKey)],
+    availableKeys: ['titanScars'],
+  },
+  halflings: {
+    echoKey: 'halflings',
+    requiredAtCreation: 0,
+    maxAtCreation: 1,
+    availableKeys: ['ringchainOfKeptNames'],
   },
   dragonborn: {
     echoKey: 'dragonborn',
@@ -1737,6 +1877,7 @@ export function listEchoArtifactsInVariantGroup(groupKey: string): EchoArtifactD
 function resolveEchoKey(echoKey: string | null | undefined): string | null {
   if (!echoKey) return null;
   if (echoKey === 'elves') return 'elorians';
+  if (echoKey === 'halfling') return 'halflings';
   return echoKey;
 }
 
@@ -2014,6 +2155,7 @@ export function buildArtifactSystemFromEchoDef(
     })),
     levelProgression: def.levelProgression,
     stoneFunction: buildEchoStoneFunction(def),
+    extraStoneFunctions: def.extraStoneFunctions ?? [],
     progressionPicks: buildEchoProgressionPicks(def),
     lore: def.description,
     bonuses: { attack: 0, damage: '', defense: 0, specials: [] },

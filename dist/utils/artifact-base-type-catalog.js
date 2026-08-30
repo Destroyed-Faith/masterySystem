@@ -27,7 +27,7 @@ function slug(name) {
 function isRangedWeapon(innateAbilities) {
     return innateAbilities.some((a) => /^ranged/i.test(String(a).trim()));
 }
-/** Extract the range band from a `Ranged (8/16/32m)` / `Thrown (4/8/16m)` innate. */
+/** Extract the printed range from a `Ranged (32 m)` / `Thrown (16 m)` innate. */
 function extractRangeBand(innateAbilities) {
     for (const a of innateAbilities) {
         const m = String(a).match(/\(([\d/]+\s*m?)\)/i);

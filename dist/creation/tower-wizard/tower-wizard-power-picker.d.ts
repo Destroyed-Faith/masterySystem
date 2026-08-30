@@ -24,6 +24,7 @@ export declare function showTowerWizardPowerPicker(options: {
     excludeIdentityKeys: Set<string>;
     excludeSubfamilies?: Set<string>;
     actorEchoKey?: string | null;
+    actorSubChoiceKey?: string | null;
     echoPickerNote?: string;
     currentTemplateId?: string;
     currentSpecial?: string | null;

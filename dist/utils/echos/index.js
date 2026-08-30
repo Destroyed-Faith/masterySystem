@@ -1,10 +1,11 @@
 /**
  * Echo Catalog
  *
- * Central registry for all 7 playable Echos. Accessed by the character-creation
+ * Central registry for all playable Echos. Accessed by the character-creation
  * Echo picker, the sheet's Echo Deck block, and the Echo Roll handler.
  */
 import { HUMANS_ECHO } from './humans.js';
+import { HALFLINGS_ECHO } from './halflings.js';
 import { DWARFS_ECHO } from './dwarfs.js';
 import { ELORIANS_ECHO } from './elorians.js';
 import { SENTINELS_ECHO } from './sentinels.js';
@@ -14,6 +15,7 @@ import { UNBOUND_ECHO } from './unbound.js';
 /** Display order in pickers (mirrors the Player\u2019s Guide). */
 export const ECHO_KEY_ORDER = [
     'humans',
+    'halflings',
     'dwarfs',
     'elorians',
     'sentinels',
@@ -24,6 +26,7 @@ export const ECHO_KEY_ORDER = [
 /** All Echos indexed by stable key. */
 export const ALL_ECHOS = {
     humans: HUMANS_ECHO,
+    halflings: HALFLINGS_ECHO,
     dwarfs: DWARFS_ECHO,
     elorians: ELORIANS_ECHO,
     sentinels: SENTINELS_ECHO,

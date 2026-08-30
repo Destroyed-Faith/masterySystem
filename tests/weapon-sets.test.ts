@@ -389,10 +389,10 @@ describe('weapon set apply + swap', () => {
   });
 });
 
-describe('Weapon Swap movement action catalog', () => {
-  it('is a general movement action and appears with the other standard movement maneuvers', () => {
+describe('Weapon Swap action catalog', () => {
+  it('is an Attack Action and still appears as a standard radial maneuver', () => {
     const maneuver = COMBAT_MANEUVERS.find((m) => m.id === WEAPON_SWAP_ID);
-    expect(maneuver).toMatchObject({ id: 'weapon-swap', name: 'Weapon Swap', slot: 'movement' });
+    expect(maneuver).toMatchObject({ id: 'weapon-swap', name: 'Weapon Swap', slot: 'attack' });
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-swap');
     const available = getAvailableManeuvers({
       system: {},

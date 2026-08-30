@@ -19,6 +19,9 @@ import {
   snapshotPowerForMinorMagic,
   snapshotSummaryLines,
   validateCreateMinorMagic,
+  artifactLevelForMinorMagicCap,
+  capPowerLevelForMinorMagic,
+  powerLevelForArtifactLevel,
 } from '../src/utils/minor-magic-items';
 
 function powerItem(overrides: Record<string, unknown> = {}) {
@@ -119,15 +122,25 @@ describe('eligibility', () => {
     expect(isEligibleMinorMagicPower({ type: 'gear', system: {} })).toBe(false);
   });
 
-  it('rejects Artifact-sourced Actives entirely (PG: Artifact Functions are not eligible)', () => {
+  it('accepts equipped Item/Artifact-granted Actives and still rejects other-creature grants', () => {
     expect(
       isEligibleMinorMagicPower(
         powerItem({ system: { ...powerItem().system, fromArtifact: true, artifactRowLevel: 4 } }),
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       isEligibleMinorMagicPower(
         powerItem({ system: { ...powerItem().system, source: 'artifact' } }),
+      ),
+    ).toBe(true);
+    expect(
+      isEligibleMinorMagicPower(
+        powerItem({ system: { ...powerItem().system, source: 'item' } }),
+      ),
+    ).toBe(true);
+    expect(
+      isEligibleMinorMagicPower(
+        powerItem({ system: { ...powerItem().system, source: 'summon' } }),
       ),
     ).toBe(false);
   });
@@ -149,11 +162,113 @@ describe('eligibility', () => {
     expect(isInstantDurationPower(powerItem() as any)).toBe(true);
   });
 
-  it('lists only own purchased Actives — never Artifact rows', () => {
+  it('lists own Actives plus equipped Artifact Actives, never buffs or functions', () => {
     const actor = actorWithItems([powerItem(), artifactItem()]);
     const listed = listEligibleMinorMagicPowers(actor);
-    expect(listed.map((p) => p.name)).toEqual(['Single Attack']);
+    expect(listed.map((p) => p.name)).toContain('Single Attack');
+    expect(listed.map((p) => p.name)).toContain('Breath II');
+    expect(listed.some((p) => p.name === 'Roar')).toBe(false);
+    expect(listed.some((p) => p.name === 'Recovery')).toBe(false);
     expect(resolveMinorMagicPower(actor, 'pow-1')?.name).toBe('Single Attack');
+  });
+});
+
+describe('Item/Artifact Power Level cap', () => {
+  it('maps artifact bands and caps L7+ at the PL10 / Level 4–6 band', () => {
+    expect(powerLevelForArtifactLevel(1)).toBe(4);
+    expect(powerLevelForArtifactLevel(3)).toBe(4);
+    expect(powerLevelForArtifactLevel(4)).toBe(10);
+    expect(powerLevelForArtifactLevel(6)).toBe(10);
+    expect(powerLevelForArtifactLevel(7)).toBe(16);
+    expect(artifactLevelForMinorMagicCap(2)).toBe(2);
+    expect(artifactLevelForMinorMagicCap(6)).toBe(6);
+    expect(artifactLevelForMinorMagicCap(8)).toBe(6);
+    expect(artifactLevelForMinorMagicCap(10)).toBe(6);
+    expect(capPowerLevelForMinorMagic(16)).toBe(10);
+    expect(capPowerLevelForMinorMagic(16, { fromArtifact: true, artifactLevel: 8 })).toBe(10);
+    expect(capPowerLevelForMinorMagic(4, { fromArtifact: true, artifactLevel: 2 })).toBe(4);
+  });
+
+  it('snapshots a lower-band Artifact Active at PL4', () => {
+    const power = powerItem({
+      system: {
+        ...powerItem().system,
+        fromArtifact: true,
+        artifactLevel: 2,
+        artifactRowLevel: 1,
+        rank: 4,
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Melee',
+            range: { kind: 'melee' },
+            aoe: { shape: 'single' },
+            duration: { kind: 'instant' },
+            effect: { text: 'Low band.', dice: '4d8' },
+          },
+          '10': {
+            type: 'Melee',
+            range: { kind: 'melee' },
+            aoe: { shape: 'single' },
+            duration: { kind: 'instant' },
+            effect: { text: 'PL10 band.', dice: '8d8' },
+          },
+          '16': {
+            type: 'Melee',
+            range: { kind: 'melee' },
+            aoe: { shape: 'single' },
+            duration: { kind: 'instant' },
+            effect: { text: 'Ultimate.', dice: '16d8' },
+          },
+        },
+      },
+    });
+    const snap = snapshotPowerForMinorMagic(actorStub(4), power);
+    expect(snap.powerLevel).toBe(4);
+    expect(snap.damage).toBe('4d8');
+  });
+
+  it('snapshots a PL10 / Artifact Level 4–6 profile normally', () => {
+    const power = powerItem({
+      system: {
+        ...powerItem().system,
+        fromArtifact: true,
+        artifactLevel: 5,
+        artifactRowLevel: 4,
+        rank: 10,
+        level: 10,
+        levels: {
+          '4': { type: 'Melee', duration: { kind: 'instant' }, effect: { text: 'Low', dice: '4d8' } },
+          '10': { type: 'Melee', duration: { kind: 'instant' }, effect: { text: 'Mid', dice: '8d8' } },
+          '16': { type: 'Melee', duration: { kind: 'instant' }, effect: { text: 'High', dice: '16d8' } },
+        },
+      },
+    });
+    const snap = snapshotPowerForMinorMagic(actorStub(4), power);
+    expect(snap.powerLevel).toBe(10);
+    expect(snap.damage).toBe('8d8');
+  });
+
+  it('caps a PL16 / Artifact Level 7+ source down to the PL10 profile', () => {
+    const power = powerItem({
+      system: {
+        ...powerItem().system,
+        fromArtifact: true,
+        artifactLevel: 9,
+        artifactRowLevel: 7,
+        rank: 16,
+        level: 16,
+        levels: {
+          '4': { type: 'Melee', duration: { kind: 'instant' }, effect: { text: 'Low', dice: '4d8' } },
+          '10': { type: 'Melee', duration: { kind: 'instant' }, effect: { text: 'Mid', dice: '8d8' } },
+          '16': { type: 'Melee', duration: { kind: 'instant' }, effect: { text: 'High', dice: '16d8' } },
+        },
+      },
+    });
+    const snap = snapshotPowerForMinorMagic(actorStub(6), power);
+    expect(snap.powerLevel).toBe(10);
+    expect(snap.damage).toBe('8d8');
+    expect(snap.effect).toBe('Mid');
   });
 });
 

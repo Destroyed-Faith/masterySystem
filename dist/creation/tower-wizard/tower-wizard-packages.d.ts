@@ -15,7 +15,7 @@ export declare function collectPackageIdentityKeys(specs: PowerGrantSpec[], exce
 /** Offense packages hidden from the wizard UI (still in type union for saved data). */
 export declare const WIZARD_HIDDEN_OFFENSE_IDS: OffensePackageId[];
 export declare function offensePickFromEntry(entry: CatalogEntry): OffenseActivePick;
-export declare function getOffenseActiveSpecialGroups(actorEchoKey?: string | null, selectedPickIds?: Set<string>, excludeIdentityKeys?: Set<string>): OffenseActiveSpecialGroup[];
+export declare function getOffenseActiveSpecialGroups(actorEchoKey?: string | null, selectedPickIds?: Set<string>, excludeIdentityKeys?: Set<string>, actorSubChoiceKey?: string | null): OffenseActiveSpecialGroup[];
 /** Flat list grouped by subfamily — kept for tooling; wizard uses special groups. */
 export declare function getOffenseActiveGroups(actorEchoKey?: string | null): OffenseActiveGroup[];
 /** Rank-specific mechanical effect text for a catalog entry (hover tooltip). */
@@ -31,6 +31,7 @@ export declare function getCategoryPickerGroups(category: PowerCategory, rank: n
     excludeSubfamilies?: Set<string>;
     selectedIdentityKeys?: Set<string>;
     actorEchoKey?: string | null;
+    actorSubChoiceKey?: string | null;
 }): PowerPickerGroup[];
 export declare function resolveOffenseActiveSpecs(selection: TowerWizardSelection): PowerGrantSpec[] | null;
 export declare function selectionUsesGuidedOffenseFlow(selection: Partial<TowerWizardSelection>): boolean;

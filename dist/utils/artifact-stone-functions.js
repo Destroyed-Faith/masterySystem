@@ -61,10 +61,36 @@ function collectStoneFunctionsForItem(item, currentLevel) {
             continue;
         fromPicks.push(fn);
     }
+    const extras = Array.isArray(sys.extraStoneFunctions) ? sys.extraStoneFunctions : [];
+    for (const extra of extras) {
+        if (!extra || typeof extra !== 'object' || !extra.kind || !extra.attribute)
+            continue;
+        if (currentLevel < Math.max(1, Number(extra.level) || 1))
+            continue;
+        fromPicks.push(extra);
+    }
     if (fromPicks.length > 0)
         return fromPicks;
     const legacy = resolveStoneFunction(item);
     return legacy ? [legacy] : [];
+}
+function stagedSupportPrefill(level, stages) {
+    if (level < stages[0])
+        return 0;
+    if (level < stages[1])
+        return 2;
+    if (level < stages[2])
+        return 3;
+    return 4;
+}
+function stagedPoolValue(level, stages) {
+    if (level < stages[0])
+        return 0;
+    if (level < stages[1])
+        return 2;
+    if (level < stages[2])
+        return 4;
+    return 8;
 }
 function valueForFunction(kind, level) {
     switch (kind) {
@@ -97,7 +123,12 @@ export function getArtifactStoneFunctions(actor) {
         const sys = item.system || {};
         const level = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
         for (const fn of collectStoneFunctionsForItem(item, level)) {
-            const value = valueForFunction(fn.kind, level);
+            const extra = fn;
+            const value = extra.kind === 'stonePowerSupport' && extra.supportStages
+                ? stagedSupportPrefill(level, extra.supportStages)
+                : extra.kind === 'stonePool' && extra.poolStages
+                    ? stagedPoolValue(level, extra.poolStages)
+                    : valueForFunction(fn.kind, level);
             if (value <= 0 && fn.kind !== 'stonePowerSupport')
                 continue;
             const rec = {

@@ -983,6 +983,18 @@ export interface ArtifactData extends BaseItemData {
   baseValues?: ArtifactBaseValue[];
   /** Optional Stone Function — at most one per artifact. */
   stoneFunction?: ArtifactStoneFunction | null;
+  /**
+   * Extra Stone Functions that do not occupy a Basic 1/2/3 pick
+   * (e.g. Sentinel Frame Special Reduction at Artifact Level 5).
+   */
+  extraStoneFunctions?: Array<
+    ArtifactStoneFunction & {
+      level?: number;
+      name?: string;
+      supportStages?: [number, number, number];
+      poolStages?: [number, number, number];
+    }
+  >;
   /** Level Progression picks (up to 3, introduced at Basic levels 1–3). */
   progressionPicks?: ArtifactProgressionPick[];
   /** Binding kind on this character. */

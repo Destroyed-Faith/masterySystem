@@ -40,6 +40,7 @@ export async function showPowerCreationDialog(actor, options) {
     }
     const masteryRank = system?.mastery?.rank || 2;
     const actorEchoKey = system?.echo?.key || null;
+    const actorSubChoiceKey = system?.echo?.subChoiceKey || null;
     const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
     const maxSpellLevel = maxPowerLevel;
     const categoryOptions = CATEGORY_ORDER.map((c) => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`).join('');
@@ -316,6 +317,7 @@ export async function showPowerCreationDialog(actor, options) {
                     category: (category || null),
                     subfamily: subfamily || null,
                     actorEchoKey,
+                    actorSubChoiceKey,
                 });
                 $specialSelect.empty();
                 $specialSelect.append('<option value="">-- Any Special --</option>');
@@ -339,6 +341,7 @@ export async function showPowerCreationDialog(actor, options) {
                     special: special || null,
                     search,
                     actorEchoKey,
+                    actorSubChoiceKey,
                 });
                 const ownedKeys = collectOwnedPowerIdentityKeys(actor.items.filter((i) => i.type === 'power'));
                 const available = entries.filter((e) => !ownedKeys.has(powerIdentityKeyFromEntry(e)));

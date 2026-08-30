@@ -19,7 +19,6 @@ import {
   BASE_PROFILE_LABELS,
 } from '../utils/artifact-rules.js';
 import {
-  ARTIFACT_LINK_STONE_COST,
   ARTIFACT_UPGRADE_XP_COST,
   isArtifactLinkedOnActor,
   listArtifactSpendableStonePools,
@@ -109,11 +108,11 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
     context.isGM = !!game.user?.isGM;
     context.mechanicallyActive = mechanicallyActive;
     context.labels = {
-      inactive: loc('MASTERY.artifact.sheet.inactive', 'Inactive — activate here or via Artifacts'),
-      whenActivated: loc('MASTERY.artifact.sheet.whenActivated', 'When activated'),
+      inactive: loc('MASTERY.artifact.sheet.inactive', 'Dormant — complete Attunement here or via Artifacts'),
+      whenActivated: loc('MASTERY.artifact.sheet.whenActivated', 'When attuned'),
       whenActivatedHint: loc(
         'MASTERY.artifact.sheet.whenActivatedHint',
-        'These values and abilities unlock when you activate this artifact.',
+        'These values and abilities unlock after the Attunement / Binding Ritual.',
       ),
       nextLevelHint: loc(
         'MASTERY.artifact.sheet.nextLevelHint',
@@ -124,9 +123,7 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         xp: String(ARTIFACT_UPGRADE_XP_COST),
       }),
       upgradeGm: loc('MASTERY.artifact.sheet.upgradeGm', 'GM: Upgrade (no XP)'),
-      activate: loc('MASTERY.artifact.sheet.activate', 'Activate ({n} Stone)', {
-        n: String(ARTIFACT_LINK_STONE_COST),
-      }),
+      activate: loc('MASTERY.artifact.sheet.activate', 'Attunement Ritual'),
       choosePool: loc('MASTERY.artifact.sheet.choosePool', 'Stone pool'),
       path: loc('MASTERY.artifact.sheet.path', 'Path'),
       unwired: loc(

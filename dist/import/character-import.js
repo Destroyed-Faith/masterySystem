@@ -76,7 +76,6 @@ async function importArtifactSpec(actor, spec) {
     const key = String(spec.key).trim();
     const level = Math.max(1, Math.min(10, Math.floor(Number(spec.level) || 1)));
     const activated = spec.activated === true;
-    const stoneAttr = String(spec.activationStoneAttribute ?? '').trim().toLowerCase();
     let emb = await grantArtifactTreeToActor(actor, key);
     if (!emb) {
         throw new Error(`Could not grant artifact "${key}". Ensure the GM has seeded the artifact library.`);
@@ -87,9 +86,7 @@ async function importArtifactSpec(actor, spec) {
     }
     if (activated) {
         await emb.setFlag('mastery-system', 'artifactActivated', true);
-        if (stoneAttr) {
-            await emb.setFlag('mastery-system', 'artifactActivationStoneAttr', stoneAttr);
-        }
+        await emb.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
         const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
         const root = rootWorldId ? game.items?.get(rootWorldId) : findEchoArtifactRootInWorld(key);
         const nodeId = emb.getFlag?.('mastery-system', 'evolutionNodeId') ||

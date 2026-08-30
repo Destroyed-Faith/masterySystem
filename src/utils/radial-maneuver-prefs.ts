@@ -14,7 +14,6 @@ export const RADIAL_STANDARD_MANEUVER_IDS: readonly string[] = [
   'weapon-attack',
   'parry-stance',
   'aid',
-  'interpose',
 ];
 
 export function isStandardRadialManeuverId(id: string): boolean {
@@ -48,11 +47,10 @@ const RADIAL_PREFS_ROWS: Array<{ id: string; name: string; group: string }> = [
   { id: 'stand-up', name: 'Stand Up', group: 'Bewegung' },
   { id: 'flee', name: 'Flee', group: 'Bewegung' },
   { id: 'quick-load', name: 'Quick Load', group: 'Bewegung' },
-  { id: 'weapon-swap', name: 'Weapon Swap', group: 'Bewegung' },
+  { id: 'weapon-swap', name: 'Weapon Swap', group: 'Angriff' },
   { id: 'weapon-attack', name: 'Basic Attack', group: 'Angriff' },
   { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
   { id: 'aid', name: 'Aid', group: 'Reaktion' },
-  { id: 'interpose', name: 'Interpose', group: 'Reaktion' },
 ];
 
 /**

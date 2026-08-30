@@ -10,7 +10,9 @@ import {
   canSpendArtifactLinkStoneFromPool,
   listArtifactSpendableStonePools,
   poolSpendableStones,
+  artifactExceedsMasteryRankCap,
   getMaxArtifactSystemLevelForMasteryRank,
+  getMaxArtifactSpecLevelForMasteryRank,
   getArtifactBindingKind,
   isArtifactLinkedOnActor,
   isArtifactMechanicallyActive,
@@ -33,10 +35,35 @@ describe('Artifact constants (new spec)', () => {
 });
 
 describe('getMaxArtifactSystemLevelForMasteryRank', () => {
-  it('has no MR gate — flat cap 10 for every rank (Artefacts.md)', () => {
-    expect(getMaxArtifactSystemLevelForMasteryRank(1)).toBe(10);
-    expect(getMaxArtifactSystemLevelForMasteryRank(5)).toBe(10);
+  it('enforces the MR Artifact Level Gate at every breakpoint', () => {
+    expect(getMaxArtifactSystemLevelForMasteryRank(1)).toBe(1);
+    expect(getMaxArtifactSystemLevelForMasteryRank(2)).toBe(2);
+    expect(getMaxArtifactSystemLevelForMasteryRank(3)).toBe(4);
+    expect(getMaxArtifactSystemLevelForMasteryRank(4)).toBe(6);
+    expect(getMaxArtifactSystemLevelForMasteryRank(5)).toBe(8);
+    expect(getMaxArtifactSystemLevelForMasteryRank(6)).toBe(10);
+    expect(getMaxArtifactSystemLevelForMasteryRank(7)).toBe(10);
     expect(getMaxArtifactSystemLevelForMasteryRank(99)).toBe(ARTIFACT_MAX_SYSTEM_LEVEL);
+  });
+
+  it('matches min(10, max(1, (MR − 1) × 2))', () => {
+    for (let mr = 1; mr <= 12; mr++) {
+      expect(getMaxArtifactSystemLevelForMasteryRank(mr)).toBe(
+        Math.min(10, Math.max(1, (mr - 1) * 2)),
+      );
+      expect(getMaxArtifactSpecLevelForMasteryRank(mr)).toBe(
+        getMaxArtifactSystemLevelForMasteryRank(mr),
+      );
+    }
+  });
+
+  it('flags over-cap legacy levels without implying a silent reduce', () => {
+    expect(artifactExceedsMasteryRankCap(1, 1)).toBe(false);
+    expect(artifactExceedsMasteryRankCap(2, 1)).toBe(true);
+    expect(artifactExceedsMasteryRankCap(4, 3)).toBe(false);
+    expect(artifactExceedsMasteryRankCap(5, 3)).toBe(true);
+    expect(artifactExceedsMasteryRankCap(10, 6)).toBe(false);
+    expect(artifactExceedsMasteryRankCap(10, 5)).toBe(true);
   });
 });
 
@@ -92,19 +119,19 @@ describe('artifact link stone helpers', () => {
     expect(pools.map((p) => p.key)).toEqual(['might', 'agility']);
   });
 
-  it('legacy artifact-bound stones still reduce the spendable pool', () => {
+  it('legacy activation-stone flags do not reserve spendable stones', () => {
     const actor = mockActorWithArtifacts(
       { might: { current: 2, max: 2, sustained: 0 } },
       [{ activated: true, stoneAttr: 'might' }],
     );
-    expect(poolSpendableStones(actor, 'might')).toBe(1);
-    expect(actorStonesCurrent(actor)).toBe(1);
+    expect(poolSpendableStones(actor, 'might')).toBe(2);
+    expect(actorStonesCurrent(actor)).toBe(2);
 
-    const fullyBound = mockActorWithArtifacts(
+    const leftover = mockActorWithArtifacts(
       { might: { current: 1, max: 1, sustained: 0 } },
       [{ activated: true, stoneAttr: 'might' }],
     );
-    expect(poolSpendableStones(fullyBound, 'might')).toBe(0);
+    expect(poolSpendableStones(leftover, 'might')).toBe(1);
   });
 });
 

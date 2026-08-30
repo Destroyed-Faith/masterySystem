@@ -22,6 +22,7 @@ import {
   STONE_TIER_HARD_MAX,
   resolveStonePowerId,
   stonePowerSkipsFirstTier,
+  firstEffectiveStonePowerTier,
   type StonePower,
 } from './stone-powers.js';
 import {
@@ -367,10 +368,15 @@ type StonePayLaneCell = {
  * are not part of the player `occupied` set. Returns `undefined` when there
  * is no support or it is no longer available this turn.
  */
-function buildSupportLaneSet(prefillTier: number, usesThisTurn: number): Set<number> | undefined {
+function buildSupportLaneSet(
+  prefillTier: number,
+  usesThisTurn: number,
+  powerId?: string,
+): Set<number> | undefined {
   if (!(prefillTier >= 2)) return undefined;
-  // The support only applies to the very first activation of the power this turn.
-  if (usesThisTurn !== 0) return undefined;
+  const firstEffective = powerId ? firstEffectiveStonePowerTier(powerId) : 1;
+  // Support only after the character has paid the first effective tier themselves.
+  if (usesThisTurn < firstEffective) return undefined;
   const count = Math.min(STONE_PAYMENT_LANE_COUNT - 1, Math.pow(2, prefillTier - 1));
   const set = new Set<number>();
   for (let i = 1; i <= count; i++) set.add(i);
@@ -755,7 +761,7 @@ export class StonePowersDialog extends BaseDialog {
       const occupied = this.#stoneOccGet(accKey);
       const support = supportForPower(power.id, attrKey);
       const supportTier = support?.tier ?? 0;
-      const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn);
+      const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
       const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
         spendableNet,
@@ -831,7 +837,7 @@ export class StonePowersDialog extends BaseDialog {
       const sp = STONE_POWERS[power.id];
       const support = supportForPower(power.id);
       const supportTier = support?.tier ?? 0;
-      const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn);
+      const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
       const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
         spendableNet,

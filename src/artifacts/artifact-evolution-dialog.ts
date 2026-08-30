@@ -1,9 +1,9 @@
 /**
- * Actor-facing artifact evolution: activate (1 Stone), upgrade along tree.
+ * Actor-facing artifact evolution: Attunement ritual, then upgrade along tree.
  *
- *   • Activate / link: 1 Stone once (MR ≥ 2).
- *   • Upgrade: 8 XP per +1 artifact level.
- *   • Maximum reachable level = `(MR - 1) × 2`, capped at 16.
+ *   • Attunement / Binding Ritual: one-time, no Stone reservation.
+ *   • Level 1 is free after Attunement. Further levels cost 8 XP each.
+ *   • Maximum reachable level = min(10, max(1, (MR − 1) × 2)).
  *   • Each Artifact may only be upgraded once per Upgrade Step.
  */
 

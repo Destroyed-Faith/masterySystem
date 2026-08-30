@@ -132,11 +132,11 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
     id: "weapon-swap",
     name: "Weapon Swap",
     description: "Switch to your other prepared Weapon Set.",
-    slot: "movement",
-    category: "movement",
-    tags: ["movement", "basic", "weapon-swap"],
+    slot: "attack",
+    category: "combat-action",
+    tags: ["attack", "basic", "weapon-swap"],
     effect:
-      "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs your Movement Action. Out of combat it is free. The inactive set may be empty.",
+      "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs 1 Attack Action. Out of combat it is free. The inactive set may be empty.",
   },
   {
     id: "stand-up",
@@ -375,6 +375,8 @@ export function getAvailableManeuvers(actor: any): CombatManeuver[] {
   const available: CombatManeuver[] = [];
 
   for (const maneuver of COMBAT_MANEUVERS) {
+    if (maneuver.id === 'opportunity-attack') continue;
+    if (maneuver.id === 'interpose' && actor?.type === 'character') continue;
     if (meetsRequirements(actor, maneuver)) {
       available.push(maneuver);
     }

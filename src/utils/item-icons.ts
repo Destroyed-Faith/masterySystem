@@ -205,6 +205,8 @@ const ECHO_ARTIFACT_ICONS: Record<string, string> = {
   alchemistCoat: `${ECHO_ARTIFACT_ICON_BASE}/Alchemist Coat.png`,
   greenWardenMantle: `${ECHO_ARTIFACT_ICON_BASE}/Green Warden Mantle.png`,
   huntersScourge: `${ECHO_ARTIFACT_ICON_BASE}/Hunter's Scourge.png`,
+  ringchainOfKeptNames: `${FORGE_ARTEFACT_ART}/Icons/Ringchain.png`,
+  titanScars: `${ECHO_ARTIFACT_ICON_BASE}/Titan Scars.png`,
 };
 
 /** General (bound) Artifact key → custom icon under `assets/icons/items/general-artifacts/`. */

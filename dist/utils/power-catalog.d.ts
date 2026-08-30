@@ -175,7 +175,11 @@ export interface CatalogFilter {
     sourceName?: string | null;
     /** Actor's Echo key, lowercased. Echo-gated entries are hidden if missing. */
     actorEchoKey?: string | null;
+    /** Actor's Echo sub-choice (e.g. bane-greenwarden). Also matches requiresEcho. */
+    actorSubChoiceKey?: string | null;
 }
+/** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
+export declare function echoRequirementMet(requires: string[] | undefined, echoKey?: string | null, subChoiceKey?: string | null): boolean;
 /** Dispel actives are retired — cleanse covers table play; hide from all pickers. */
 export declare function isDispelCatalogEntry(entry: {
     templateId: string;

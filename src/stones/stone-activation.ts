@@ -19,9 +19,32 @@ import {
 } from '../combat/action-economy.js';
 
 // Import canonical stone powers definition
-import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, type StonePower } from './stone-powers.js';
+import {
+  STONE_POWERS,
+  resolveStonePowerId,
+  tierForUseIndex,
+  stonePowerSkipsFirstTier,
+  stonePowerSupportPrefillApplies,
+  type StonePower,
+} from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
 import { isInitiativeBoostUsedThisCombat } from './colorless-stones.js';
+
+export function resolveStonePowerActivation(
+  abilityId: string,
+  rawUsesBefore: number,
+  prefillTier: number,
+): { tier: number; cost: number; supportApplies: boolean } {
+  const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
+  const supportApplies = stonePowerSupportPrefillApplies(abilityId, rawUsesBefore);
+  const prefillBaseline = supportApplies ? Math.max(0, prefillTier - 1) : 0;
+  const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
+  return {
+    tier: tierForUseIndex(usesBefore),
+    cost: calculateStoneCost(rawUsesBefore + rampSkip),
+    supportApplies,
+  };
+}
 
 // Re-export for backward compatibility
 export { STONE_POWERS, type StonePower };
@@ -68,27 +91,17 @@ export async function activateStonePower(options: {
     poolAttribute = power.attribute;
   }
   
-  // Artifact "Stone Power Support" Stone Functions provide Artifact Support
-  // Stones that raise the tier:
-  //   • The EFFECT tier is floored to the support's pre-fill tier (the
-  //     artifact has pre-filled the lanes up to that tier).
-  //   • The player only pays the raw-wave cost (the anchor = 1 stone on the
-  //     first activation); the Artifact Support Stones are provided by the
-  //     artifact. spendStoneAbility deducts that raw cost, so `cost` mirrors it.
-  // Subsequent activations on the same turn scale normally from the raw
-  // usage count, but the tier never drops below the support floor.
+  // Artifact Stone Power Support may only raise an already-activated ability.
+  // The character must pay through the first effective tier themselves;
+  // support never turns a blank T1 payment into the first real effect.
   const combat = (game as any).combat;
   const rawUsesBefore = abilityId.startsWith('generic.')
     ? getGenericStonePowerUsageCount(actor, abilityId, combat)
     : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
   // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher: the
   // first activation is Tier 2 and the player pays the Tier-2 cost.
-  const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
-  const prefillBaseline = Math.max(0, prefillTier - 1);
-  const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
-  const tier = tierForUseIndex(usesBefore);
-  const cost = calculateStoneCost(rawUsesBefore + rampSkip);
+  const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
 
   // Use the action economy system to handle stone spending
   return await spendStoneAbility(
@@ -131,12 +144,8 @@ export async function activateGenericStonePowerMixed(options: {
   // any equipped artifact (attribute-agnostic match). The effect tier is
   // floored to the prefill tier while the player only pays the raw wave
   // cost (the Artifact Support Stones are provided by the artifact).
-  const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
-  const prefillBaseline = Math.max(0, prefillTier - 1);
-  const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
-  const tier = tierForUseIndex(usesBefore);
-  const cost = calculateStoneCost(rawUsesBefore + rampSkip);
+  const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
 
   return spendGenericStoneAbilityWithPerAttributeDeductions(
     actor,

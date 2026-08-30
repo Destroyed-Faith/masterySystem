@@ -825,14 +825,7 @@ export async function createAttackCard(
         </div>`
           : ''
       }
-      ${
-        tnKind === 'casting'
-          ? `<div class="blood-raises-row md-sublabel">
-          Blood Raises (+4 roll each, −4 HP each):
-          <input type="number" class="blood-raises-input" min="0" max="8" value="0" style="width:3em" />
-        </div>`
-          : ''
-      }
+      ${''}
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -1138,8 +1131,7 @@ function setupRaisesHandler(
     button.attr('data-raise-slots', String(slots));
     button.attr('data-raise-plan', JSON.stringify(plan));
     button.attr('data-raises', String(slots));
-    const blood = Math.max(0, parseInt(panel.find('.blood-raises-input').val() as string, 10) || 0);
-    button.attr('data-blood-raises', String(blood));
+    button.attr('data-blood-raises', '0');
   };
 
   const addRow = (): void => {
@@ -1176,7 +1168,7 @@ function setupRaisesHandler(
     addRow();
   });
 
-  panel.find('.spell-cost-select, .blood-raises-input')
+  panel.find('.spell-cost-select')
     .off('input.masteryRaisePlan change.masteryRaisePlan')
     .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
 

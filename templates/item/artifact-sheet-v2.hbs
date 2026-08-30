@@ -163,17 +163,6 @@
     {{/unless}}
     {{/if}}
     {{else}}
-    {{#if actorActions.usesStonePools}}
-    <label class="artifact-card-path">
-      <span>{{labels.choosePool}}</span>
-      <select class="artifact-sheet-pool-select">
-        <option value="">—</option>
-        {{#each actorActions.stonePools}}
-        <option value="{{key}}" {{#unless canSpend}}disabled{{/unless}}>{{label}} ({{spendable}})</option>
-        {{/each}}
-      </select>
-    </label>
-    {{/if}}
     <button type="button" class="artifact-card-edit artifact-card-upgrade" data-action="sheet-activate"
       data-root-id="{{actorActions.rootWorldId}}" data-emb-id="{{actorActions.embeddedId}}"
       {{#unless actorActions.canActivate}}disabled title="{{actorActions.linkDisabledReason}}"{{/unless}}

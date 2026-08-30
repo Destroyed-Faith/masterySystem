@@ -1,7 +1,7 @@
 /**
  * Echo Catalog
  *
- * Central registry for all 7 playable Echos. Accessed by the character-creation
+ * Central registry for all playable Echos. Accessed by the character-creation
  * Echo picker, the sheet's Echo Deck block, and the Echo Roll handler.
  */
 import type { EchoCard, EchoCardOption, EchoDefinition, EchoSubChoice, EchoTrait, EchoUsage } from './types.js';

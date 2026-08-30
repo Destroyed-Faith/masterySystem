@@ -360,7 +360,7 @@ function syncWeaponRangeLabel(html) {
     html.find('#node-weapon-range-label').text(melee ? 'Reach' : 'Range');
     html
         .find('#node-weapon-range')
-        .attr('placeholder', melee ? 'e.g. 0m, Reach (+1 m)' : 'e.g. 8/16/32m');
+        .attr('placeholder', melee ? 'e.g. 0m, Reach (+1 m)' : 'e.g. 32m');
 }
 function syncSpecialRowValueVisibility($row) {
     const $sel = $row.find('.node-weapon-special-id');

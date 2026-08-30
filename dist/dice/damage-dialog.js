@@ -391,7 +391,24 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponForDamage = null;
     }
     // Resolve base damage using helper (returns string directly)
-    const baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
+    let baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
+    // Weapon properties (PG "Weapon Properties"):
+    //   Versatile — +2d8 weapon damage while wielded two-handed.
+    //   Set — +1d8 weapon damage when the wielder did not move this round.
+    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && weaponForDamage) {
+        try {
+            const { versatileBonusDice, setBonusDice } = await import('../utils/weapon-properties.js');
+            const versatile = versatileBonusDice(weaponForDamage);
+            const setBonus = setBonusDice(actorToUse, weaponForDamage);
+            if (versatile > 0)
+                baseDamage = addD8DiceToFormula(baseDamage, versatile);
+            if (setBonus > 0)
+                baseDamage = addD8DiceToFormula(baseDamage, setBonus);
+        }
+        catch (err) {
+            console.warn('Mastery System | weapon property bonus failed', err);
+        }
+    }
     // Sanitize base damage before use
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
     // Weapon specials should come from the same resolved weapon (only once)

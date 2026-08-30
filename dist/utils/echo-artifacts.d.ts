@@ -5,6 +5,7 @@
  * more Echo-bound Artifacts that must be selected at character creation:
  *
  *   • Human:      0 required, 0 maximum.
+ *   • Halfling:   0 required, 1 maximum.   (Ringchain of Kept Names — Amulet)
  *   • Dwarf:      1 required, 1 maximum.   (Stonebound Soles — Feet)
  *   • Elorian:    1 required, 1 maximum.   (Elorian Stride — Feet)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
@@ -92,6 +93,12 @@ export interface EchoArtifactProgressionPickSpec {
     stageTemplateIds?: [string, string, string];
     /** Full row names per stage when `stageTemplateIds` is set (length 3). */
     stageNames?: [string, string, string];
+    /**
+     * Printed artifact-exclusive per-stage effect text (length 3). Overrides the
+     * catalog template's effect column when the rulebook prints its own profile
+     * (e.g. Wyrm Scales' +6/+12/+18 Armor buff).
+     */
+    stageEffectTexts?: [string, string, string];
     /** Cast this line as a Spell (Intellect / Resolve). */
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
@@ -149,6 +156,22 @@ export interface EchoArtifactDefinition {
      * catalog Powers instead of fixed text.
      */
     progressionPickSpecs?: Partial<Record<1 | 2 | 3, EchoArtifactProgressionPickSpec>>;
+    /**
+     * Extra Stone Functions that do not occupy a Basic 1/2/3 pick slot.
+     * Used when a printed table has a fourth support line (e.g. Sentinel Frame
+     * Special Reduction at Artifact Level 5).
+     */
+    extraStoneFunctions?: Array<{
+        level: number;
+        name?: string;
+        kind: ArtifactStoneFunctionKind;
+        attribute: string;
+        stonePowerId?: string;
+        /** Artifact levels at which Support prefills T2 / T3 / T4. Default 1 / 4 / 7. */
+        supportStages?: [number, number, number];
+        /** Artifact levels at which Pool stores 2 / 4 / 8. Default 1 / 4 / 7. */
+        poolStages?: [number, number, number];
+    }>;
     /**
      * Optional natural/innate weapon for a non-weapon-slot artifact (e.g. Dragon
      * Head's Bite). When set, the tree builder attaches a scaling `artifactWeapon`
@@ -248,6 +271,7 @@ export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): 
     stageNumerals?: string[];
     stageTemplateIds?: [string, string, string];
     stageNames?: [string, string, string];
+    stageEffectTexts?: [string, string, string];
     isSpell?: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;

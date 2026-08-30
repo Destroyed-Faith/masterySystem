@@ -294,25 +294,17 @@ export async function masteryRoll(options) {
     }
     const rollAdvantage = !!options.rollAdvantage;
     const rollDisadvantage = !!options.rollDisadvantage;
-    if (rollAdvantage && rollDisadvantage) {
-        // Per the player guide adv/disadv chapter the two cancel out (the
-        // disadvantage rule is "only one die may explode" — Advantage cannot
-        // grant additional 1-rerolls when it has been negated). We keep both
-        // flags off so the standard rule applies.
-        const note = 'Advantage + Disadvantage cancel — rolling normally';
-        flavor = flavor ? `${flavor} | ${note}` : note;
-    }
-    else if (rollAdvantage) {
+    if (rollAdvantage) {
         const note = 'Advantage: reroll any face of 1 once';
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
-    else if (rollDisadvantage) {
+    if (rollDisadvantage) {
         const note = 'Disadvantage: only one 8 may explode';
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
-    // Roll the dice
-    const useAdv = rollAdvantage && !rollDisadvantage;
-    const useDis = rollDisadvantage && !rollAdvantage;
+    // Both may apply at once — the book does not cancel them into a normal roll.
+    const useAdv = rollAdvantage;
+    const useDis = rollDisadvantage;
     const { dice, exploded, dieChains } = rollDice(numDice, {
         explodeOn78: explodeAttack78,
         rollAdvantage: useAdv,

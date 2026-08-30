@@ -173,17 +173,19 @@ export function attributeCheckTn(sourceMasteryRank: number): number {
 
 // Echo base speeds
 export const ECHO_SPEEDS: Record<string, number> = {
-    human: 10,
-    dwarf: 9,
+    human: 8,
+    humans: 8,
+    dwarf: 8,
+    dwarfs: 8,
     halfling: 8,
-    elf: 12,
-    elorian: 12,
-    elorians: 12,
-    sentinel: 10,
-    titanborn: 12,
-    centaur: 14,
-    minotaur: 10,
-    dragonborn: 10,
-    unbound: 10
+    halflings: 8,
+    elf: 8,
+    elorian: 8,
+    elorians: 8,
+    sentinel: 8,
+    sentinels: 8,
+    titanborn: 8,
+    dragonborn: 8,
+    unbound: 8,
 };
 

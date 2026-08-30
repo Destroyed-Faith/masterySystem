@@ -341,8 +341,8 @@ function makeWitchStaff(opts: {
     },
     baseValues: [
       { slot: 'a', label: 'Staff Damage', note: '4d8 to 14d8 two-handed weapon damage.' },
-      { slot: 'b', label: 'Spell Focus', note: 'Spell Focus from Level 1. Boosts Spells cast through the Staff.' },
-      { slot: 'c', label: `Tradition Special (${opts.special})`, note: `${opts.tradition}: ${opts.special} from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5).` },
+      { slot: 'b', label: `Tradition Special (${opts.special})`, note: `${opts.tradition}: ${opts.special} from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5).` },
+      { slot: 'c', label: 'Spell Focus', note: 'Spell Focus from Level 1. Boosts Spells cast through the Staff.' },
     ],
     levelProgression: tenLevels(
       WITCH_STONE,
@@ -639,7 +639,7 @@ const HUNTERS_SCOURGE: EchoArtifactDefinition = {
     "Hunter's Scourge occupies both hand Slots. A Relic Hunter cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.",
   progressionPickSpecs: {
     1: { name: 'Exorcism Lash', templateId: 'active-melee-targeted-special', special: 'exorcism' },
-    2: { name: 'Snap Chain', templateId: 'reaction-counter-damage-push' },
+    2: { name: 'Snap Chain', templateId: 'reaction-counter-damage-pull' },
     3: { name: 'Whirling Scourge', templateId: 'active-melee-aoe-targeted-special', special: 'exorcism' },
   },
   baseValues: [

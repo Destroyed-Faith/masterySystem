@@ -397,7 +397,9 @@ export class TowerWizardDialog extends BaseDialog {
                 excludeIdentityKeys.add(key);
             }
         }
-        const echoKey = this.actor.system?.echo?.key ?? null;
+        const echo = this.actor.system;
+        const echoKey = echo?.echo?.key ?? null;
+        const echoSubChoiceKey = echo?.echo?.subChoiceKey ?? null;
         const echoPickerNote = grantKey === 'active-buff' && echoContext.artifactActiveBuffs.length > 0
             ? TOWER_WIZARD_COPY.echo.activeBuffPickerNote
             : undefined;
@@ -407,6 +409,7 @@ export class TowerWizardDialog extends BaseDialog {
             excludeIdentityKeys,
             excludeSubfamilies,
             actorEchoKey: echoKey,
+            actorSubChoiceKey: echoSubChoiceKey,
             echoPickerNote,
             currentTemplateId: row?.spec.templateId || undefined,
             currentSpecial: row?.spec.special,

@@ -569,21 +569,13 @@ export async function executeAttackRollFromCard(
       });
       const attackExplodeDiceOn78 = critMod.explodeOn78;
 
-      const bloodRaises = Math.max(
-        0,
-        parseInt(button.attr('data-blood-raises') || '0', 10) || 0,
-      );
+      const bloodRaises = 0;
       let raiseTnRollBonus = 0;
       if (isSpellcasting && freshAttacker && combatRef) {
         raiseTnRollBonus = Math.max(
           0,
           Number(rsCrit?.stoneBonuses?.spellRaiseTnBonus ?? 0) || 0,
         );
-      }
-      // Faith reroll: Blood Raise HP was already paid on the original roll.
-      if (bloodRaises > 0 && isSpellcasting && freshAttacker && !isFaithReroll) {
-        const { applyBloodRaiseHpLoss } = await import('../combat/spell-roll-handler.js');
-        await applyBloodRaiseHpLoss(freshAttacker, bloodRaises * 4);
       }
 
       // All targets of this attack (primary + AoE secondaries) — used by the

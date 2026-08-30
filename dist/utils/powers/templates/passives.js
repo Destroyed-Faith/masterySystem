@@ -38,12 +38,12 @@ const TEMP_HP_UNCOND = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 
 const HEAL_UNCOND = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
 /** Conditional Healing (Blood Feast / Battle Trance / Stillness Recovery; 4 PP per HP). */
 const HEAL_COND = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
-/** Killing Intent — unconditional Damage (banded; L1 empty, L4 = +2d6). */
-const DMG_KILLING_INTENT = ['', '+1d6', '+1d6', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6',
-    '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'];
-/** Conditional Damage dice (Momentum, Ambusher, …; +1d6 per level). */
-const DMG_COND = ['+1d6', '+2d6', '+3d6', '+4d6', '+5d6', '+6d6', '+7d6', '+8d6',
-    '+9d6', '+10d6', '+11d6', '+12d6', '+13d6', '+14d6', '+15d6', '+16d6'];
+/** Killing Intent — unconditional Damage (banded; L1 empty, L4 = +2d8). */
+const DMG_KILLING_INTENT = ['', '+1d8', '+1d8', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8',
+    '+4d8', '+5d8', '+5d8', '+6d8', '+6d8', '+7d8', '+7d8', '+8d8'];
+/** Conditional Damage dice (Momentum, Ambusher, …; +1d8 per level). */
+const DMG_COND = ['+1d8', '+2d8', '+3d8', '+4d8', '+5d8', '+6d8', '+7d8', '+8d8',
+    '+9d8', '+10d8', '+11d8', '+12d8', '+13d8', '+14d8', '+15d8', '+16d8'];
 /** Ward: Spell Resistance passive curve (15 PP / +1). */
 const WARD_SPELL_RESISTANCE = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
 /** Ward: incoming Special reduction (plateaus per Rules/passive.md). */
@@ -191,6 +191,7 @@ function basePassive(def) {
         fluff: def.fluff,
         cost: { action: 'none' },
         roll: { kind: 'none' },
+        ...(def.requiresEcho ? { requiresEcho: def.requiresEcho } : {}),
         levels: buildLevels((lvl) => {
             const row = def.perLevel(lvl);
             return passiveRow({
@@ -206,10 +207,10 @@ function basePassive(def) {
 const COMB_AXIS = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const THP_5 = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
 const COMB_HEAL = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
-const COMB_DMG_BANDED = ['', '', '', '+2d6', '+2d6', '+3d6', '+3d6', '+4d6', '+4d6', '+5d6', '+5d6', '+6d6', '+6d6', '+7d6', '+7d6', '+8d6'];
+const COMB_DMG_BANDED = ['', '', '', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8', '+4d8', '+5d8', '+5d8', '+6d8', '+6d8', '+7d8', '+7d8', '+8d8'];
 const CC_HALF = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
 const CC_HEAL = [3, 6, 10, 13, 16, 20, 23, 26, 30, 33, 36, 40, 43, 46, 50, 53];
-const CC_DMG_BANDED = ['', '+1d6', '+2d6', '+2d6', '+3d6', '+4d6', '+4d6', '+5d6', '+6d6', '+6d6', '+7d6', '+8d6', '+8d6', '+9d6', '+10d6', '+10d6'];
+const CC_DMG_BANDED = ['', '+1d8', '+2d8', '+2d8', '+3d8', '+4d8', '+4d8', '+5d8', '+6d8', '+6d8', '+7d8', '+8d8', '+8d8', '+9d8', '+10d8', '+10d8'];
 /** Rules/passives.md Armor + Healing / Armor + Temporary HP / Armor + Health. */
 const COMB_ARMOR_HALF = [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11];
 const COMB_ARMOR_HEAL_HP = [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20];
@@ -1002,7 +1003,8 @@ const RAW_PASSIVE_TEMPLATES = [
     basePassive({
         id: 'passive-thornhide', name: 'Thorns', subfamily: 'damage',
         passiveType: 'Passive',
-        fluff: 'When final HP damage lands on you, thorns bite back — capped by that loss.',
+        requiresEcho: ['bane-greenwarden'],
+        fluff: 'When final HP damage lands on you, thorns bite back — capped by that loss. Exclusive to Green Wardens.',
         perLevel: (lvl) => {
             const d = THORNHIDE_DICE[lvl - 1];
             if (d <= 0)

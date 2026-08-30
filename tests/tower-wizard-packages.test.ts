@@ -97,8 +97,8 @@ describe('tower-wizard-packages', () => {
 
         expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Damage');
         expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Damage (Moved 8+ m This Turn)');
-        expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.mechanicsPreview).toMatch(/\+2d6 Damage/);
-        expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.mechanicsPreview).toMatch(/\+4d6 Damage/);
+        expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.mechanicsPreview).toMatch(/\+2d8 Damage/);
+        expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.mechanicsPreview).toMatch(/\+4d8 Damage/);
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {
@@ -427,7 +427,7 @@ describe('tower-wizard-packages', () => {
             .find((c) => c.templateId === 'passive-bloodlust');
         expect(bloodlust).toBeDefined();
         expect(bloodlust!.mechanics).toMatch(/lacerate/i);
-        expect(bloodlust!.mechanics).toMatch(/d6/i);
+        expect(bloodlust!.mechanics).toMatch(/d8/i);
         expect(bloodlust!.mechanics).not.toContain('**');
     });
 

@@ -38,7 +38,8 @@ export function inferArtifactKeyFromName(name: string): string | null {
   if (n.includes('wyrm scale')) return 'wyrmScalesHeavy';
   // Titan Scars variants are all named "Titan Scars"; the affinity isn't in the
   // name, so default name-based wiring to the Might variant (legacy default).
-  if (n.includes('titan scar')) return 'titanScarsMight';
+  if (n.includes('titan scar')) return 'titanScars';
+  if (n.includes('ringchain')) return 'ringchainOfKeptNames';
   if (n.includes('stonebound sole')) return 'stoneboundSoles';
   if (n.includes('elorian stride')) return 'elorianStride';
   if (n.includes('elven stride')) return 'elorianStride';
@@ -140,7 +141,7 @@ export async function wireEmbeddedArtifactToWorldTree(
 
   if (options.notify !== false && typeof ui !== 'undefined') {
     ui.notifications?.info(
-      `${embeddedItem.name} linked to the artifact evolution tree. Activate it in Progression (1 Stone at MR 2+).`,
+      `${embeddedItem.name} linked to the artifact evolution tree. Complete the Attunement Ritual in Progression — Level 1 is free.`,
     );
   }
 

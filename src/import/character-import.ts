@@ -132,7 +132,6 @@ async function importArtifactSpec(actor: Actor, spec: CharacterImportArtifact): 
   const key = String(spec.key).trim();
   const level = Math.max(1, Math.min(10, Math.floor(Number(spec.level) || 1)));
   const activated = spec.activated === true;
-  const stoneAttr = String(spec.activationStoneAttribute ?? '').trim().toLowerCase();
 
   let emb = await grantArtifactTreeToActor(actor, key);
   if (!emb) {
@@ -148,9 +147,7 @@ async function importArtifactSpec(actor: Actor, spec: CharacterImportArtifact): 
 
   if (activated) {
     await emb.setFlag('mastery-system', 'artifactActivated', true);
-    if (stoneAttr) {
-      await emb.setFlag('mastery-system', 'artifactActivationStoneAttr', stoneAttr);
-    }
+    await emb.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
     const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
     const root = rootWorldId ? (game as any).items?.get(rootWorldId) : findEchoArtifactRootInWorld(key);
     const nodeId =

@@ -85,9 +85,29 @@ function collectStoneFunctionsForItem(item: any, currentLevel: number): Artifact
         if (currentLevel < baseLevel) continue;
         fromPicks.push(fn as ArtifactStoneFunction);
     }
+    const extras = Array.isArray(sys.extraStoneFunctions) ? sys.extraStoneFunctions : [];
+    for (const extra of extras) {
+        if (!extra || typeof extra !== 'object' || !extra.kind || !extra.attribute) continue;
+        if (currentLevel < Math.max(1, Number(extra.level) || 1)) continue;
+        fromPicks.push(extra as ArtifactStoneFunction);
+    }
     if (fromPicks.length > 0) return fromPicks;
     const legacy = resolveStoneFunction(item);
     return legacy ? [legacy] : [];
+}
+
+function stagedSupportPrefill(level: number, stages: [number, number, number]): number {
+    if (level < stages[0]) return 0;
+    if (level < stages[1]) return 2;
+    if (level < stages[2]) return 3;
+    return 4;
+}
+
+function stagedPoolValue(level: number, stages: [number, number, number]): number {
+    if (level < stages[0]) return 0;
+    if (level < stages[1]) return 2;
+    if (level < stages[2]) return 4;
+    return 8;
 }
 
 function valueForFunction(kind: ArtifactStoneFunctionKind, level: number): number {
@@ -119,7 +139,16 @@ export function getArtifactStoneFunctions(actor: any): ArtifactStoneFunctionReco
         const sys = (item.system as any) || {};
         const level = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
         for (const fn of collectStoneFunctionsForItem(item, level)) {
-            const value = valueForFunction(fn.kind, level);
+            const extra = fn as ArtifactStoneFunction & {
+                supportStages?: [number, number, number];
+                poolStages?: [number, number, number];
+            };
+            const value =
+                extra.kind === 'stonePowerSupport' && extra.supportStages
+                    ? stagedSupportPrefill(level, extra.supportStages)
+                    : extra.kind === 'stonePool' && extra.poolStages
+                      ? stagedPoolValue(level, extra.poolStages)
+                      : valueForFunction(fn.kind, level);
             if (value <= 0 && fn.kind !== 'stonePowerSupport') continue;
 
             const rec: ArtifactStoneFunctionRecord = {

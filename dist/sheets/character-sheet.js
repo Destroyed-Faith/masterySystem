@@ -17,7 +17,7 @@ import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
-import { collectInventoryBandRects, findFirstFit, fitsInGrid, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize, occupiesInventoryGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
@@ -1530,7 +1530,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const getIndex = (col, row) => (row - 1) * cols + (col - 1);
             const unplaced = [];
             for (const item of itemList) {
-                const size = parseInventorySize(item?.system?.inventorySize);
+                const size = itemInventorySize(item);
                 const w = Math.min(cols, size.w);
                 const h = Math.min(rows, size.h);
                 const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
@@ -1569,7 +1569,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     overflow++;
                     continue;
                 }
-                const size = parseInventorySize(item?.system?.inventorySize);
+                const size = itemInventorySize(item);
                 const w = Math.min(cols, size.w);
                 const h = Math.min(rows, size.h);
                 const pos = findFirstFit(rects, w, h, cols, rows);
@@ -2771,7 +2771,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const computedSize = systemSize ? undefined : getDefaultInventorySizeForItemData(item);
                 const resolvedSize = systemSize || computedSize || undefined;
                 logDragSize(source, { ...details, systemSize, computedSize, resolvedSize });
-                return parseInventorySize(resolvedSize);
+                const size = parseInventorySize(resolvedSize);
+                // PG "Item Rotation": rotated items drag with their swapped footprint.
+                const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
+                return flags?.rotated === true ? { w: size.h, h: size.w } : size;
             };
             const resolveSizeFromDragData = (data, source, details) => {
                 if (!data)
@@ -2899,7 +2902,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const hoverItem = this.#itemAtInventoryCell(band, col, row);
             if (canLoadAmmunitionOnto(dragItem, hoverItem)) {
                 const flags = hoverItem.getFlag?.('mastery-system', 'equipment') || {};
-                const size = parseInventorySize(hoverItem?.system?.inventorySize);
+                const size = itemInventorySize(hoverItem);
                 const ox = Number(flags.grid?.x || col);
                 const oy = Number(flags.grid?.y || row);
                 const bandCells = html.find(`.df-enc-band[data-band="${band}"] .df-cell`);
@@ -3769,16 +3772,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Players Guide minimum-pool rule (~5888–5899) — apply *before* the
         // health penalty so the percentage scales with the post-floor pool.
         numDice = Math.max(numDice, keepDice);
-        const { applyHealthAndEncumbrancePenalties, LOAD_ZONE_LABEL } = await import('../utils/encumbrance.js');
+        const { applyHealthAndEncumbrancePenalties } = await import('../utils/encumbrance.js');
         const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor);
         numDice = poolPenalties.numDice;
         const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
         let flavor = `Attribute: ${attrLabel}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`;
         if (poolPenalties.healthPenaltyDice > 0) {
             flavor += ` (Health penalty: −${poolPenalties.healthPenaltyDice} dice)`;
-        }
-        if (poolPenalties.encumbrancePenaltyDice > 0) {
-            flavor += ` (Encumbrance (${LOAD_ZONE_LABEL[poolPenalties.loadZone]}): −${poolPenalties.encumbrancePenaltyDice} dice)`;
         }
         const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
         let stoneBonusRaises = 0;
@@ -7006,8 +7006,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 await syncActiveWeaponSetFromHands(this.actor);
                 return true;
             }
-            ui.notifications?.warn('Weapons can only be equipped in the main hand. Use the off hand for a shield.');
-            return false;
+            // PG "Weapon Properties": Light — "May be wielded in the off-hand."
+            const { isLightWeapon } = await import('../utils/weapon-properties.js');
+            if (!isLightWeapon(item)) {
+                ui.notifications?.warn('Only Light weapons can be wielded in the off hand (or use it for a shield).');
+                return false;
+            }
+            if (mainhandItem && isNaturallyTwoHandedItem(mainhandItem)) {
+                ui.notifications?.warn('Cannot equip an off-hand weapon while a 2-handed weapon is equipped.');
+                return false;
+            }
         }
         if ((slot === 'mainhand' || slot === 'offhand') && (requiresAmmunition(item) || isAmmoContainer(item) || requiresAmmunition(this.#getItemInEquipSlot(slot === 'mainhand' ? 'offhand' : 'mainhand')))) {
             const check = validateHandEquip(this.actor, item, slot);
@@ -7251,9 +7259,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 group: 'quick',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return (!!item &&
-                        (item.type !== 'weapon' || requiresAmmunition(item)) &&
-                        !!getNormalizedEquipSlots(item)?.includes('offhand'));
+                    if (!item || !getNormalizedEquipSlots(item)?.includes('offhand'))
+                        return false;
+                    if (item.type === 'weapon' && !requiresAmmunition(item)) {
+                        // Light weapons may be wielded in the off-hand (PG Weapon Properties).
+                        const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
+                        return innates.some((a) => /^light\b/i.test(String(a).trim()));
+                    }
+                    return true;
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
@@ -7280,6 +7293,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         await this.render(true, { focus: false });
                     }
                 }
+            },
+            {
+                // PG "Item Rotation": rotate 90° — width × height becomes height × width.
+                // Allowed only if the rotated item still fits entirely into empty squares.
+                name: 'Rotate 90°',
+                icon: '<i class="fas fa-rotate-right"></i>',
+                group: 'quick',
+                condition: (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    if (!item)
+                        return false;
+                    const size = parseInventorySize(item.system?.inventorySize);
+                    return size.w !== size.h;
+                },
+                callback: async (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    if (!item)
+                        return;
+                    await this.#rotateInventoryItem(item);
+                }
             }
         ];
         for (const { key, label } of slots) {
@@ -7291,8 +7324,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     const item = this.#itemFromInventoryTileContextTarget(target);
                     if (!item || !getNormalizedEquipSlots(item)?.includes(key))
                         return false;
-                    if (key === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item))
-                        return false;
+                    // Light weapons may be wielded in the off-hand (PG Weapon Properties).
+                    if (key === 'offhand' && item.type === 'weapon' && !requiresAmmunition(item)) {
+                        const innates = Array.isArray(item.system?.innateAbilities) ? item.system.innateAbilities : [];
+                        if (!innates.some((a) => /^light\b/i.test(String(a).trim())))
+                            return false;
+                    }
                     return true;
                 },
                 callback: async (target) => {
@@ -7365,6 +7402,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             rows: 9,
         });
     }
+    /**
+     * PG "Item Rotation": rotate an item 90° (width × height → height × width).
+     * Allowed only if the rotated footprint still fits entirely into empty squares.
+     */
+    async #rotateInventoryItem(item) {
+        const flags = item.getFlag('mastery-system', 'equipment') || {};
+        const wasRotated = flags.rotated === true;
+        const current = itemInventorySize(item);
+        const rotatedSize = { w: current.h, h: current.w };
+        // If the item sits in the carry grid, the rotated rect must fit in place.
+        if (occupiesInventoryGrid(flags)) {
+            const band = String(flags.band ?? 'not');
+            const x = Number(flags.grid?.x || 0);
+            const y = Number(flags.grid?.y || 0);
+            const rect = { x, y, w: rotatedSize.w, h: rotatedSize.h };
+            const rects = this.#inventoryBandRects(band, item.id);
+            const fits = fitsInGrid(rect.x, rect.y, rect.w, rect.h, ZONE_WIDTH_COLS, 9) &&
+                !rects.some((r) => rectsOverlap(r, rect));
+            if (!fits) {
+                ui.notifications?.warn('Rotation blocked — the rotated item does not fit entirely into empty squares.');
+                return;
+            }
+        }
+        await item.update({
+            'flags.mastery-system.equipment': { ...flags, rotated: !wasRotated },
+        });
+        await this.render(true, { focus: false });
+    }
     #resolveDraggedActorOrWorldItem() {
         const id = window.__msDragItemId;
         if (!id)
@@ -7391,7 +7456,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const flags = item.getFlag?.('mastery-system', 'equipment') || {};
             if (!occupiesInventoryGrid(flags, band))
                 continue;
-            const size = parseInventorySize(item?.system?.inventorySize);
+            const size = itemInventorySize(item);
             const rect = {
                 x: Number(flags.grid?.x || 0),
                 y: Number(flags.grid?.y || 0),
@@ -7451,7 +7516,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 delete newFlags.keepInventoryGrid;
                 const BAND_COLS = ZONE_WIDTH_COLS;
                 const BAND_ROWS = 9;
-                const size = parseInventorySize(item?.system?.inventorySize);
+                const size = itemInventorySize(item);
                 const w = Math.min(BAND_COLS, size.w);
                 const h = Math.min(BAND_ROWS, size.h);
                 const cell = this.#resolveDropCell(event);

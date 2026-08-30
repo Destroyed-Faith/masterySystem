@@ -6,43 +6,42 @@ export const SENTINELS_ECHO = {
     summary: 'Divinely-forged engines of judgment: ancient, deathless, built for obedience. Their radiant divine cores are hunted by demons. Some remain, some doubt, some chose to defend mortals instead of ruling them.',
     creatureType: 'Humanoid',
     size: 'medium',
-    speed: 10,
+    speed: 8,
     coreTraits: [],
     subChoiceLabel: 'Order Protocol',
+    // Keys match the Echo Artifact `requiresSubChoice` values (sentinel / judicator / oracle).
+    // Order traits in older drafts are not in the current rulebook — keep flavor only.
     subChoices: [
         {
-            key: 'judicators',
-            name: 'Judicators \u2014 Sentence Engine',
+            key: 'judicator',
+            name: 'Judicator',
             trait: {
-                id: 'sentence-engine',
-                name: 'Sentence Engine',
-                effect: 'Mastery Rank per Safe Haven Rest: when you openly pronounce a Verdict on a target you can see (guilty, condemned, spared, warned), your next roll against that target this scene that succeeds gains +1 Raise. Cannot turn a failure into a success.',
-                flavor: 'Law made sharp.',
-                usage: 'mr-per-rest'
-            }
+                id: 'judicator-order',
+                name: 'Judicator',
+                effect: 'Order protocol: Judicator Frame.',
+                usage: 'passive',
+            },
         },
         {
-            key: 'sentinels',
-            name: 'Sentinels \u2014 Bulwark Overdrive',
+            key: 'sentinel',
+            name: 'Sentinel',
             trait: {
-                id: 'bulwark-overdrive',
-                name: 'Bulwark Overdrive',
-                effect: 'Mastery Rank per Safe Haven Rest: as a reaction when you would take damage (or at the start of your turn), increase your Armor by your Mastery Rank until the start of your next turn.',
-                flavor: 'A wall that remembers how to hold.',
-                usage: 'mr-per-rest'
-            }
+                id: 'sentinel-order',
+                name: 'Sentinel',
+                effect: 'Order protocol: Sentinel Frame.',
+                usage: 'passive',
+            },
         },
         {
-            key: 'oracles',
-            name: 'Oracles \u2014 Oracular Overclock',
+            key: 'oracle',
+            name: 'Oracle',
             trait: {
-                id: 'oracular-overclock',
-                name: 'Oracular Overclock',
-                effect: 'Mastery Rank per Safe Haven Rest: after you roll Occultism, Investigation, Lore, Engineering, or any spell/arcane roll, you may mark 1 Stress to reroll one die. A die can\u2019t be rerolled twice.',
-                flavor: 'The gods are gone. The signal remains.',
-                usage: 'mr-per-rest'
-            }
-        }
+                id: 'oracle-order',
+                name: 'Oracle',
+                effect: 'Order protocol: Oracle Frame.',
+                usage: 'passive',
+            },
+        },
     ],
     deck: [
         {

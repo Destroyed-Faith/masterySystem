@@ -5,7 +5,7 @@
  * any category with Passive 1.
  */
 
-import { findCatalogEntry } from '../../utils/power-catalog.js';
+import { echoRequirementMet, findCatalogEntry } from '../../utils/power-catalog.js';
 
 /** Categories hidden from the guided Second Passive step. */
 const GUIDED_SECOND_PASSIVE_HIDDEN_CATEGORIES = new Set([
@@ -222,8 +222,7 @@ function isLegalForEchoAndPrerequisites(templateId: string, actorEchoKey?: strin
     const entry = findCatalogEntry(templateId);
     if (!entry) return false;
     if (entry.requiresEcho?.length) {
-        const echoKey = (actorEchoKey || '').trim().toLowerCase();
-        if (!echoKey || !entry.requiresEcho.includes(echoKey)) return false;
+        if (!echoRequirementMet(entry.requiresEcho, actorEchoKey)) return false;
     }
     return true;
 }

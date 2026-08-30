@@ -75,6 +75,7 @@ export async function showPowerCreationDialog(
     }
     const masteryRank = system?.mastery?.rank || 2;
     const actorEchoKey = (system?.echo?.key as string | undefined) || null;
+    const actorSubChoiceKey = (system?.echo?.subChoiceKey as string | undefined) || null;
     const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
     const maxSpellLevel = maxPowerLevel;
 
@@ -384,6 +385,7 @@ export async function showPowerCreationDialog(
                     category: (category || null) as PowerCategory | null,
                     subfamily: subfamily || null,
                     actorEchoKey,
+                    actorSubChoiceKey,
                 });
                 $specialSelect.empty();
                 $specialSelect.append('<option value="">-- Any Special --</option>');
@@ -408,6 +410,7 @@ export async function showPowerCreationDialog(
                     special: special || null,
                     search,
                     actorEchoKey,
+                    actorSubChoiceKey,
                 });
 
                 const ownedKeys = collectOwnedPowerIdentityKeys(

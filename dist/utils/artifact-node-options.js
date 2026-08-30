@@ -189,14 +189,12 @@ export function getArtifactWeaponInnateOptions() {
 /** Damage dice presets (matches former artifact builder). */
 export function getArtifactWeaponDamagePresets() {
     return [
-        { value: '1d4', label: '1d4' },
-        { value: '1d6', label: '1d6' },
         { value: '1d8', label: '1d8' },
-        { value: '1d10', label: '1d10' },
-        { value: '1d12', label: '1d12' },
-        { value: '2d6', label: '2d6' },
         { value: '2d8', label: '2d8' },
-        { value: '4d8', label: '4d8' }
+        { value: '3d8', label: '3d8' },
+        { value: '4d8', label: '4d8' },
+        { value: '6d8', label: '6d8' },
+        { value: '8d8', label: '8d8' },
     ];
 }
 /** Artifact tree node editor: 1d8 … 8d8 only. */

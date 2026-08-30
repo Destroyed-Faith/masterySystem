@@ -57,6 +57,7 @@ function dataSpecialAttr(special: string | null | undefined): string {
 
 function renderActiveGroupsHtml(options: {
     actorEchoKey?: string | null;
+    actorSubChoiceKey?: string | null;
     selectedIds: Set<string>;
     excludeIds: Set<string>;
 }): string {
@@ -64,6 +65,7 @@ function renderActiveGroupsHtml(options: {
         options.actorEchoKey ?? null,
         options.selectedIds,
         options.excludeIds,
+        options.actorSubChoiceKey ?? null,
     );
     if (!groups.length) {
         return '<p class="tower-wizard-warn">No matching powers available for this slot.</p>';
@@ -111,6 +113,7 @@ function renderCategoryGroupsHtml(options: {
     category: ReturnType<typeof grantKeyCategory>;
     rank: number;
     actorEchoKey?: string | null;
+    actorSubChoiceKey?: string | null;
     selectedIds: Set<string>;
     excludeIds: Set<string>;
     excludeSubfamilies: Set<string>;
@@ -120,6 +123,7 @@ function renderCategoryGroupsHtml(options: {
         excludeSubfamilies: options.excludeSubfamilies,
         selectedIdentityKeys: options.selectedIds,
         actorEchoKey: options.actorEchoKey ?? null,
+        actorSubChoiceKey: options.actorSubChoiceKey ?? null,
     });
     if (!groups.length) {
         return '<p class="tower-wizard-warn">No matching powers available for this slot.</p>';
@@ -160,6 +164,7 @@ export async function showTowerWizardPowerPicker(options: {
     excludeIdentityKeys: Set<string>;
     excludeSubfamilies?: Set<string>;
     actorEchoKey?: string | null;
+    actorSubChoiceKey?: string | null;
     echoPickerNote?: string;
     currentTemplateId?: string;
     currentSpecial?: string | null;
@@ -179,6 +184,7 @@ export async function showTowerWizardPowerPicker(options: {
     const groupsHtml = category === 'active'
         ? renderActiveGroupsHtml({
             actorEchoKey: options.actorEchoKey,
+            actorSubChoiceKey: options.actorSubChoiceKey,
             selectedIds,
             excludeIds: options.excludeIdentityKeys,
         })
@@ -186,6 +192,7 @@ export async function showTowerWizardPowerPicker(options: {
             category,
             rank: fixedRank,
             actorEchoKey: options.actorEchoKey,
+            actorSubChoiceKey: options.actorSubChoiceKey,
             selectedIds,
             excludeIds: options.excludeIdentityKeys,
             excludeSubfamilies: options.excludeSubfamilies ?? new Set<string>(),

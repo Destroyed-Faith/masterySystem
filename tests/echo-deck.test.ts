@@ -29,9 +29,10 @@ import {
 import { SKILLS } from '../src/utils/skills';
 
 describe('Echo Catalog', () => {
-  it('registers all 7 playable Echos in canonical order', () => {
+  it('registers all 8 playable Echos in canonical order', () => {
     expect(ECHO_KEY_ORDER).toEqual([
       'humans',
+      'halflings',
       'dwarfs',
       'elorians',
       'sentinels',
@@ -39,7 +40,7 @@ describe('Echo Catalog', () => {
       'dragonborn',
       'unbound'
     ]);
-    expect(getAllEchos().length).toBe(7);
+    expect(getAllEchos().length).toBe(8);
     for (const key of ECHO_KEY_ORDER) {
       expect(ALL_ECHOS[key]).toBeDefined();
       expect(ALL_ECHOS[key].key).toBe(key);
@@ -166,14 +167,11 @@ describe('Echo Card Usage + Safe-Haven Reset Simulation', () => {
     expect(result.cardUses).toEqual({ kept: true });
   });
 
-  it('buildFreshTraitUses respects Mastery Rank for mr-per-rest sub-choice traits', () => {
-    const sc = getEchoSubChoice('sentinels', 'judicators')!;
-    expect(isMrPerRest(sc.trait.usage)).toBe(true);
-
-    const usesAtMr1 = buildFreshTraitUses('sentinels', 'judicators', 1);
-    const usesAtMr3 = buildFreshTraitUses('sentinels', 'judicators', 3);
-    expect(usesAtMr1[sc.trait.id]).toBe(1);
-    expect(usesAtMr3[sc.trait.id]).toBe(3);
+  it('Sentinel Order traits are flavor-only passives (no per-rest uses)', () => {
+    const sc = getEchoSubChoice('sentinels', 'judicator')!;
+    expect(sc.trait.usage).toBe('passive');
+    expect(isMrPerRest(sc.trait.usage)).toBe(false);
+    expect(buildFreshTraitUses('sentinels', 'judicator', 3)).toEqual({});
   });
 
   it('buildFreshTraitUses returns empty when no active traits', () => {
@@ -216,13 +214,9 @@ describe('Echo Sub-Choice Validation', () => {
     expect(def.speed).toBe(8);
   });
 
-  it('Titanborn offer a Titan Stone Affinity sub-choice per Attribute (7)', () => {
+  it('Titanborn have no Attribute-affinity sub-choice (Titan Scars is one artifact)', () => {
     const def = getEcho('titanborn')!;
-    expect(def.subChoices).toBeDefined();
-    expect(def.subChoices!.length).toBe(7);
-    expect(def.subChoices!.map((s) => s.key).sort()).toEqual(
-      ['agility', 'influence', 'intellect', 'might', 'resolve', 'vitality', 'wits'],
-    );
+    expect(def.subChoices === undefined || def.subChoices.length === 0).toBe(true);
   });
 
   it('Dragonborn require a Veiled Form, others do not', () => {
@@ -238,9 +232,9 @@ describe('Echo Sub-Choice Validation', () => {
   });
 
   it('getActiveEchoTraits includes sub-choice trait when chosen', () => {
-    const traits = getActiveEchoTraits('sentinels', 'judicators');
+    const traits = getActiveEchoTraits('sentinels', 'judicator');
     expect(traits).toHaveLength(1);
-    expect(traits[0].id).toBe('sentence-engine');
+    expect(traits[0].id).toBe('judicator-order');
   });
 });
 

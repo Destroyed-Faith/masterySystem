@@ -2,11 +2,10 @@
  * Stress Breakdown Check — Players Guide (~9214–9257).
  *
  * When the Stress Track fills (all bars empty / Breakdown reached):
- *  1. Meltdown (GM narrative: catatonia / panic / possession).
- *  2. Wits Attribute Check, keep = MR, TN = 8 × MR
+ *  1. Wits Attribute Check, keep = MR, TN = 8 × MR
  *     (no Skill Points, no Vitality expenditure).
- *  3. Success (Virtue) → reset track to Clear; next action +1 Keep.
- *  4. Failure (Affliction) → reset track; choose:
+ *  2. Success (Virtue) → reset track to Clear; next action +1 Keep.
+ *  3. Failure (Affliction) → reset track; choose:
  *       A) Scar of Will — Mental Restriction (2 pts) + recover 2 Reroll Points
  *       B) Push It Down — GM gains 1d8 Misfortune Tokens
  */

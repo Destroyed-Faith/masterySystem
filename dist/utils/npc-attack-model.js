@@ -444,6 +444,16 @@ export function npcAttackDiceCount(attack) {
         return Math.min(MAX_D, p);
     return 0;
 }
+/**
+ * Keep value for one NPC attack row (PG statblocks print e.g. "6d8, Keep 1").
+ * Explicit `keepDice` wins; unset rows fall back to the actor's Mastery Rank.
+ */
+export function npcAttackKeepDice(attack, actorMasteryRank) {
+    const explicit = Math.floor(Number(attack?.keepDice) || 0);
+    if (explicit > 0)
+        return Math.min(10, explicit);
+    return Math.max(1, Math.floor(Number(actorMasteryRank) || 1));
+}
 /** Damage formula: Nd8 from count (4–16 typical), else legacy damage string */
 export function npcDamageDiceFormula(attack) {
     if (!attack)

@@ -7,8 +7,8 @@ import { normalizeArtifactAttackAttribute } from "../utils/artifact-node-options
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
-import { bandsFromNpcShortLong, rangeTextFromBands } from "../utils/range-bands.js";
-import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
+import { npcMaxRangeM, rangeTextFromMax } from "../utils/range-bands.js";
+import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcAttackKeepDice, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { formatEffectReference } from "../utils/special-effects.js";
 import { parseD8Count } from "../utils/dice-formula.js";
@@ -546,12 +546,14 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
         opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
         threatenedRangedDebugReason: tr.debugReason ?? null,
-        // NPC ranged: Short/Medium/Long from sheet Short(=gifted full pool) / Long(=max).
+        // NPC ranged: the sheet's Max field is the flat maximum range.
         weaponRange: isNpcAttack && attackType === "ranged"
-            ? rangeTextFromBands(bandsFromNpcShortLong(Math.floor(Number(option.rangeMinMeters) || 0), Math.floor(Number(option.rangeMeters ?? option.range) || 0)))
+            ? rangeTextFromMax(npcMaxRangeM(Math.floor(Number(option.rangeMeters ?? option.range) || 0)))
             : undefined,
         useNpcAttackDicePool: isNpcAttack,
         npcAttackDicePool: isNpcAttack ? attributeValue : undefined,
+        // PG statblocks print the Keep per attack ("6d8, Keep 1"); unset ⇒ MR.
+        npcAttackKeepDice: isNpcAttack ? npcAttackKeepDice(npcAttackRow, masteryRank) : undefined,
         npcAttackSource: isNpcAttack,
         npcAttackIndex: isNpcAttack ? (option.npcAttackIndex ?? 0) : undefined,
         npcPhaseIndex: isNpcAttack ? (option.npcPhaseIndex ?? null) : undefined,
@@ -682,12 +684,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
           </select>
         </div>`
             : ''}
-      ${tnKind === 'casting'
-            ? `<div class="blood-raises-row md-sublabel">
-          Blood Raises (+4 roll each, −4 HP each):
-          <input type="number" class="blood-raises-input" min="0" max="8" value="0" style="width:3em" />
-        </div>`
-            : ''}
+      ${''}
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -940,8 +937,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         button.attr('data-raise-slots', String(slots));
         button.attr('data-raise-plan', JSON.stringify(plan));
         button.attr('data-raises', String(slots));
-        const blood = Math.max(0, parseInt(panel.find('.blood-raises-input').val(), 10) || 0);
-        button.attr('data-blood-raises', String(blood));
+        button.attr('data-blood-raises', '0');
     };
     const addRow = () => {
         const currentSlots = countRaiseSlots(collectPlan());
@@ -975,7 +971,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         ev.preventDefault();
         addRow();
     });
-    panel.find('.spell-cost-select, .blood-raises-input')
+    panel.find('.spell-cost-select')
         .off('input.masteryRaisePlan change.masteryRaisePlan')
         .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
     void messageId;

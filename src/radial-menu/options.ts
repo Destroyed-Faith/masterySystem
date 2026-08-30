@@ -981,7 +981,6 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     'dash',
     'disengage',
     'quick-load',
-    'weapon-swap',
     'stand-up',
     'flee',
   ];

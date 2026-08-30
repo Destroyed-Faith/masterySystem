@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.431] - 2026-08-31
+
+### Changed
+
+- **Artifacts:** Attunement / Binding Ritual is one-time and free — it no longer permanently reserves a Stone. After Attunement the artifact awakens at Level 1 at no XP cost; further levels still cost 8 XP. The Mastery Rank Artifact Level Gate is restored (MR 1→1, MR 2→2, MR 3→4, MR 4→6, MR 5→8, MR 6+→10). Existing over-cap artifacts are flagged, not reduced.
+- **Minor Magic:** Equipped Item/Artifact Actives may be stored. Values from those sources never exceed the Artifact Level 4–6 / Power Level 10 band.
+- **Stone Power Support:** Support cannot activate a blank-T1 ability's first effective tier. Elorian Focus, Ringchain of Kept Names, and Heartseeker are flagged for a later Level Progression review.
+- **Echo and combat parity:** Halfling / Ringchain, Sentinel Frame pool + Special Reduction, Titan Scars as a single artifact, and remaining rulebook combat cleanup. NPC Reaction defaults are unchanged. Deathless remains WIP.
+
 ## [0.9.430] - 2026-08-31
 
 ### Changed

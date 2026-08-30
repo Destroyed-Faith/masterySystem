@@ -5,9 +5,9 @@
         Each artifact is listed separately: flavor first, then current abilities, then activate or upgrade.
       </p>
       <ul class="ae-rules-facts">
-        <li><strong>Activate</strong> at MR 2+ for {{constants.linkStone}} Stone</li>
-        <li><strong>Level 2+</strong> costs {{constants.upXp}} XP per upgrade — locked without XP</li>
-        <li>Max = (MR − 1) × 2 (cap {{constants.maxLevel}}) · one upgrade per step</li>
+        <li><strong>Attunement / Binding Ritual</strong> is one-time and free (no Stone reserved)</li>
+        <li><strong>Level 1</strong> is free after Attunement. <strong>Level 2+</strong> costs {{constants.upXp}} XP per upgrade</li>
+        <li>Max Artifact Level = (MR − 1) × 2 (cap {{constants.maxLevel}}) · one upgrade per step</li>
         <li class="{{#if capacity.full}}ae-warn{{/if}}">Capacity {{capacity.bound}} / {{capacity.max}}{{#if capacity.full}} — full{{/if}}</li>
       </ul>
     </div>
@@ -48,6 +48,9 @@
         <li>Stones {{stones}}</li>
         {{#if isEchoBound}}<li class="ae-tag-echo">Echo</li>{{/if}}
       </ul>
+      {{#if legacyOverCap}}
+      <p class="ae-warn">{{legacyOverCapReason}}</p>
+      {{/if}}
 
       {{#if hasAbilities}}
       <details class="ae-details" {{#if openAbilities}}open{{/if}}>
@@ -76,35 +79,15 @@
       {{/if}}
 
       {{#unless linked}}
-        {{#if canLinkRules}}
-          {{#if linkDisabledReason}}
+        {{#if linkDisabledReason}}
           <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
-            Aktivieren ({{@root.constants.linkStone}} Stone)
+            Attunement Ritual
           </button>
           <p class="ae-path-reason">{{linkDisabledReason}}</p>
-          {{else if @root.usesStonePools}}
-          <div class="ae-activate-row">
-            <label class="ae-field-label" for="ae-stone-{{embeddedId}}">Stone-Pool</label>
-            <select id="ae-stone-{{embeddedId}}" class="ae-stone-select" data-emb-id="{{embeddedId}}">
-              <option value="">— Pool wählen —</option>
-              {{#each @root.stonePools}}
-              <option value="{{key}}" {{#unless canSpend}}disabled{{/unless}}>
-                {{label}} ({{spendable}} frei)
-              </option>
-              {{/each}}
-            </select>
-            <button type="button" class="ae-btn ae-btn-primary" data-action="ae-activate"
-              data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-              Aktivieren
-            </button>
-          </div>
-          {{else}}
-          <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-            Aktivieren ({{@root.constants.linkStone}} Stone)
-          </button>
-          {{/if}}
         {{else}}
-          <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
+          <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+            Attunement Ritual
+          </button>
         {{/if}}
       {{else}}
         {{#if @root.isGM}}

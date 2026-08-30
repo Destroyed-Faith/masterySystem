@@ -96,7 +96,7 @@ function ensureNpcBaseShape(b: Record<string, any> | null | undefined): Record<s
   if (!Array.isArray(o.specials)) o.specials = [];
   if (o.name == null || o.name === '') o.name = 'Waffenangriff';
   const stress = Math.floor(Number(o.npcStressD8));
-  o.npcStressD8 = Number.isFinite(stress) && stress >= 1 ? Math.min(4, stress) : 1;
+  o.npcStressD8 = Number.isFinite(stress) && stress >= 1 ? Math.min(4, stress) : 0;
   return o;
 }
 
@@ -111,7 +111,7 @@ function newExtraNpcPower(): Record<string, unknown> {
     npcAoeShape: 'none',
     npcAoeRadiusM: 0,
     npcAttacksPerRound: 1,
-    npcStressD8: 1,
+    npcStressD8: 0,
     specials: [] as { special?: string; specialValue?: number }[]
   };
 }
@@ -148,12 +148,12 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     if (Number.isFinite(n) && n > 0) {
       (o as any)[k] =
         k === 'attackDiceCount' || k === 'damageDiceCount' ? Math.min(80, n) : n;
-    } else if (k === 'npcStressD8') (o as any)[k] = 1;
+    } else if (k === 'npcStressD8') (o as any)[k] = 0;
     else delete (o as any)[k];
   }
   {
     const n = Math.floor(Number(o.npcStressD8));
-    o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 1;
+    o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 0;
   }
   // Short band may be 0 (= derive from Long) — keep it for the select.
   {

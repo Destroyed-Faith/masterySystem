@@ -8,6 +8,11 @@
  */
 import { type AttributeKey } from '../combat/action-economy.js';
 import { STONE_POWERS, type StonePower } from './stone-powers.js';
+export declare function resolveStonePowerActivation(abilityId: string, rawUsesBefore: number, prefillTier: number): {
+    tier: number;
+    cost: number;
+    supportApplies: boolean;
+};
 export { STONE_POWERS, type StonePower };
 /**
  * Activate a stone power

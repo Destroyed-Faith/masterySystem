@@ -156,6 +156,35 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     markedNpcAttackIdForRoll = String(flags.npcAttackOptionId);
                 }
             }
+            // Load property (PG Weapon Properties): an Unloaded weapon cannot fire.
+            // Firing marks it Unloaded; Reload (Attack Action or Quick Load) clears it.
+            let loadWeaponToUnload = null;
+            if (!isFaithReroll && flags.attackType === 'ranged' && flags.isSpell !== true && !flags.npcAttackSource) {
+                try {
+                    const { hasLoadProperty, isWeaponUnloaded } = await import('../utils/weapon-properties.js');
+                    const items = freshAttacker.items ? Array.from(freshAttacker.items) : [];
+                    const weapon = (flags.weaponId ? freshAttacker.items?.get?.(flags.weaponId) : null) ??
+                        items.find((it) => it.type === 'weapon' &&
+                            it.system?.equipped === true &&
+                            String(it.system?.weaponType || '') === 'ranged') ??
+                        null;
+                    if (weapon && hasLoadProperty(weapon)) {
+                        if (isWeaponUnloaded(weapon)) {
+                            ui.notifications?.warn(`${weapon.name} is Unloaded — reload first (1 Attack Action or Quick Load).`);
+                            resetRollButton();
+                            if (spentActionOnRoll && actorToRefund) {
+                                const { refundAttackAction } = await import('../combat/action-economy.js');
+                                await refundAttackAction(actorToRefund, game.combat);
+                            }
+                            return;
+                        }
+                        loadWeaponToUnload = weapon;
+                    }
+                }
+                catch (err) {
+                    console.warn('Mastery System | Load property check failed', err);
+                }
+            }
             if (!isFaithReroll && flags.attackType === 'ranged' && flags.isSpell !== true) {
                 const ammo = await import('../utils/ammunition.js');
                 if (ammo.findEquippedAmmunitionWeapon(freshAttacker)) {
@@ -180,6 +209,16 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     }
                     spentAmmoOnRoll = true;
                     actorForAmmo = freshAttacker;
+                }
+            }
+            // "After you fire, the weapon is Unloaded."
+            if (loadWeaponToUnload) {
+                try {
+                    const { markWeaponUnloaded } = await import('../utils/weapon-properties.js');
+                    await markWeaponUnloaded(loadWeaponToUnload);
+                }
+                catch (err) {
+                    console.warn('Mastery System | could not mark weapon Unloaded', err);
                 }
             }
             // Debug: Log actor items to verify we have latest data
@@ -259,17 +298,12 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // Challenge / Disoriented) and the Health / Encumbrance percentage
             // penalty are applied centrally inside `masteryRoll` in canonical
             // order (`applyPoolPenalties: true`).
-            // Players Guide 7497–7521: Range Bands.
-            // For ranged attacks the dice pool is multiplied by the band:
-            //   Short = 100% / Medium = 75% / Long = 50%, min 1 die.
-            // Agility scales the bands by +1 / +2 / +4 m per full 8 Agility.
-            // The pre-band pool is used as the basis; the health penalty applies
-            // after, so the two reductions stay independent (just like in the
-            // Players Guide examples).
-            let rangeBandNote = '';
+            // Players Guide "Weapon Properties": Ranged (X m) / Thrown (X m) are
+            // flat maximums — full pool inside the printed range, illegal beyond it.
+            // (Range Bands and the 100/75/50 % pool reduction are obsolete.)
             if (flags.attackType === 'ranged' && flags.targetTokenId) {
                 try {
-                    const { dicePoolAtDistance } = await import('../utils/range-bands.js');
+                    const { checkWeaponRange } = await import('../utils/range-bands.js');
                     const { measureSceneDistanceBetweenPoints } = await import('../utils/grid-range.js');
                     const attackerToken = attackerForRoll?.getActiveTokens?.()?.[0];
                     const targetTokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
@@ -278,22 +312,14 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     const targetCenter = targetToken?.center;
                     if (attackerCenter && targetCenter) {
                         const distanceM = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
-                        // Resolve the weapon's printed range string. Falls back to the
-                        // canonical 8/16/32m bands when nothing is on the weapon.
                         const weaponRange = flags.weaponRange ||
                             (() => {
                                 const w = (attackerForRoll?.items?.get?.(flags.weaponId)) || null;
-                                return w?.system?.range || '8/16/32m';
+                                return w?.system?.range || null;
                             })();
-                        const agility = Number(attackerForRoll?.system?.attributes?.agility?.value ?? 0) || 0;
-                        const result = dicePoolAtDistance({
-                            rangeText: weaponRange,
-                            agility,
-                            distanceM,
-                            pool: numDice,
-                        });
-                        if (result.band === 'out-of-range') {
-                            ui.notifications?.warn(`Target is out of range (${distanceM.toFixed(1)} m vs Long ${result.bands.long} m).`);
+                        const result = checkWeaponRange({ rangeText: weaponRange, distanceM });
+                        if (!result.inRange) {
+                            ui.notifications?.warn(`Target is out of range (${distanceM.toFixed(1)} m vs max ${result.maxRangeM} m).`);
                             resetRollButton();
                             if (spentActionOnRoll && actorToRefund) {
                                 const { refundAttackAction } = await import('../combat/action-economy.js');
@@ -303,22 +329,16 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                 const { refundAmmunitionForAttack } = await import('../utils/ammunition.js');
                                 await refundAmmunitionForAttack(actorForAmmo, 1);
                             }
+                            if (loadWeaponToUnload) {
+                                const { markWeaponLoaded } = await import('../utils/weapon-properties.js');
+                                await markWeaponLoaded(loadWeaponToUnload);
+                            }
                             return;
-                        }
-                        const adjusted = result.pool;
-                        if (adjusted !== numDice) {
-                            const bandLabel = result.band === 'short' ? 'Short' : result.band === 'medium' ? 'Medium' : 'Long';
-                            const bandPctLabel = result.band === 'short' ? '100%' : result.band === 'medium' ? '75%' : '50%';
-                            rangeBandNote = ` (Range Band: ${bandLabel} ${bandPctLabel} → ${numDice} → ${adjusted})`;
-                            numDice = adjusted;
-                        }
-                        else {
-                            rangeBandNote = ' (Range Band: Short)';
                         }
                     }
                 }
                 catch (err) {
-                    console.warn('Mastery System | Range Band evaluation failed:', err);
+                    console.warn('Mastery System | weapon range check failed:', err);
                 }
             }
             // Passive Parry: strip Attack Dice 1:1 before the roll. 0 dice = Fully Parried.
@@ -395,7 +415,11 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // Split-Attack: hard-cap the final pool inside `masteryRoll` so attack-rider
             // / manual bonus dice cannot inflate the strike back to the full attribute pool.
             const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;
-            let keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
+            // NPC attacks carry their printed Keep value ("6d8, Keep 1"); PCs keep MR.
+            const npcKeep = Math.floor(Number(flags.npcAttackKeepDice) || 0);
+            let keepDice = flags.npcAttackSource && npcKeep > 0
+                ? npcKeep
+                : (flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2));
             const baseKeepDice = keepDice;
             // Disadvantage is no longer modeled as a Keep reduction (Players Guide
             // ~6471–6477 says only one chosen 8 may explode; pool & keep are
@@ -429,8 +453,8 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 ? ' — AoE: same roll compared separately against each creature'
                 : '';
             const rollFlavorBase = tnKind === 'casting'
-                ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${aoeFlavorHint}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`
-                : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${aoeFlavorHint}${advantageNote}${disadvantageNote}${rangeBandNote}${parryFlavorNote}`;
+                ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`
+                : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
             const rollFlavor = opts.faithReroll
                 ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
                 : rollFlavorBase;
@@ -467,15 +491,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 stoneCritCharges: critBank,
             });
             const attackExplodeDiceOn78 = critMod.explodeOn78;
-            const bloodRaises = Math.max(0, parseInt(button.attr('data-blood-raises') || '0', 10) || 0);
+            const bloodRaises = 0;
             let raiseTnRollBonus = 0;
             if (isSpellcasting && freshAttacker && combatRef) {
                 raiseTnRollBonus = Math.max(0, Number(rsCrit?.stoneBonuses?.spellRaiseTnBonus ?? 0) || 0);
-            }
-            // Faith reroll: Blood Raise HP was already paid on the original roll.
-            if (bloodRaises > 0 && isSpellcasting && freshAttacker && !isFaithReroll) {
-                const { applyBloodRaiseHpLoss } = await import('../combat/spell-roll-handler.js');
-                await applyBloodRaiseHpLoss(freshAttacker, bloodRaises * 4);
             }
             // All targets of this attack (primary + AoE secondaries) — used by the
             // Challenge(X) pool reduction (no reduction when the challenger is hit).

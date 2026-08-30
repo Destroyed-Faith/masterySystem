@@ -83,8 +83,9 @@ export interface ArtifactBaseValueBreakdown {
  */
 export declare function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBreakdown;
 /**
- * Total Spell Focus bonus dice (d8) the actor's equipped weapon-slot artifacts
- * add to Spell damage. Cheap convenience wrapper around the full breakdown.
+ * Total Spell Focus bonus dice (d8) added to Spell damage: equipped
+ * weapon-slot artifacts PLUS mundane weapons with a printed
+ * `Spell Focus (+Xd8)` innate (Wand / Runestaff, PG weapon table).
  */
 export declare function getActorSpellFocusBonusDice(actor: any): number;
 //# sourceMappingURL=artifact-base-values.d.ts.map

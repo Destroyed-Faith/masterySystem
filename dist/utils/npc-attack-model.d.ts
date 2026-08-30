@@ -107,6 +107,11 @@ export declare function getNpcAttackByIndex(system: any, attackIndex: number, ph
 export declare function mergeNpcAttackTargetingFlag(atk: AttackValue | null | undefined, actor: any, usageKey: string): AttackValue | null;
 /** Attack roll pool: explicit count (2–16 typical), else parse legacy attackDice */
 export declare function npcAttackDiceCount(attack: AttackValue | null | undefined): number;
+/**
+ * Keep value for one NPC attack row (PG statblocks print e.g. "6d8, Keep 1").
+ * Explicit `keepDice` wins; unset rows fall back to the actor's Mastery Rank.
+ */
+export declare function npcAttackKeepDice(attack: AttackValue | null | undefined, actorMasteryRank: number): number;
 /** Damage formula: Nd8 from count (4–16 typical), else legacy damage string */
 export declare function npcDamageDiceFormula(attack: AttackValue | null | undefined): string;
 export declare function formatNpcSpecialLabel(name: string, value: string | number | undefined | null): string;

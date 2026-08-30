@@ -2,7 +2,7 @@
  * Tower Wizard — Guided Mode player-facing copy, wrappers, and offense flow helpers.
  */
 import { secondPassiveBucketFor, isAllowedSecondPassive, secondPassiveCardWarning, } from './tower-wizard-passive-categories.js';
-import { findCatalogEntry, getAllCatalogEntries, powerIdentityKeyFromEntry, } from '../../utils/power-catalog.js';
+import { echoRequirementMet, findCatalogEntry, getAllCatalogEntries, powerIdentityKeyFromEntry, } from '../../utils/power-catalog.js';
 import { getEffectById } from '../../utils/special-effects.js';
 function capitalizeSpecial(key) {
     if (!key)
@@ -489,11 +489,8 @@ function catalogEntryHasRank(entry, rank) {
     const levels = entry.raw?.levels;
     return !!levels?.[String(rank)];
 }
-function echoAllowsEntry(entry, actorEchoKey) {
-    if (!entry.requiresEcho?.length)
-        return true;
-    const echoKey = (actorEchoKey || '').trim().toLowerCase();
-    return !!echoKey && entry.requiresEcho.includes(echoKey);
+function echoAllowsEntry(entry, actorEchoKey, actorSubChoiceKey) {
+    return echoRequirementMet(entry.requiresEcho, actorEchoKey, actorSubChoiceKey);
 }
 export function wrapGuidedPassive2Card(templateId) {
     if (isPassiveHiddenFromGuidedPassive2(templateId))

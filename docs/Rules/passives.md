@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Passives
-Version: v0.9.8 (2026-07-31)
+Version: v0.9.8.1 (2026-08-30)
 }}
 
 }}
@@ -139,6 +139,12 @@ Passives use the following PP target curve:
 
 ---
 ::
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Passive Slot Progression
 
 Characters gain Passive Slots according to their Mastery Rank.
@@ -165,11 +171,7 @@ If a Passive is not slotted, it provides no benefit.
 Passive choices cannot normally be changed during combat.
 
 ---
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 
 ### Passive Categories
 
@@ -207,8 +209,11 @@ The **Type** of every Passive remains:
 
 If category tracking is used, write the category in a separate **Category** field or column.
 
----
-::
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Pure and Combined Passives
 
 A Pure Passive uses one mechanical category.
@@ -225,11 +230,6 @@ A Combined Passive:
 * and may not include a closed or dedicated subsystem unless that subsystem explicitly allows combination use.
 
 ---
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 ### Passive Limits
 
@@ -261,8 +261,11 @@ Passives may not normally generate Stones.
 
 A Passive may never use the **Spell** or **Charged** tag.
 
----
-::
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ### Dedicated Passive Subsystems
 
 Some Passive Categories use dedicated rules rather than normal linear Passive construction.
@@ -651,24 +654,24 @@ Your body no longer fully agrees to be where the world says it is.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Unconditional Passive Damage = 40 PP per +1d6 Damage<br><br>
+      Unconditional Passive Damage = 40 PP per +1d8 Damage<br><br>
       CALCULATION<br>
       L1 → no effect = 0 PP<br>
-      L2 → +1d6 Damage = 40 PP = 40 target<br>
-      L3 → +1d6 Damage = 40 PP below 60 target<br>
-      L4 → +2d6 Damage = 80 PP = 80 target<br>
-      L5 → +2d6 Damage = 80 PP below 100 target<br>
-      L6 → +3d6 Damage = 120 PP = 120 target<br>
-      L7 → +3d6 Damage = 120 PP below 140 target<br>
-      L8 → +4d6 Damage = 160 PP = 160 target<br>
-      L9 → +4d6 Damage = 160 PP below 180 target<br>
-      L10 → +5d6 Damage = 200 PP = 200 target<br>
-      L11 → +5d6 Damage = 200 PP below 220 target<br>
-      L12 → +6d6 Damage = 240 PP = 240 target<br>
-      L13 → +6d6 Damage = 240 PP below 260 target<br>
-      L14 → +7d6 Damage = 280 PP = 280 target<br>
-      L15 → +7d6 Damage = 280 PP below 300 target<br>
-      L16 → +8d6 Damage = 320 PP = 320 target<br><br>
+      L2 → +1d8 Damage = 40 PP = 40 target<br>
+      L3 → +1d8 Damage = 40 PP below 60 target<br>
+      L4 → +2d8 Damage = 80 PP = 80 target<br>
+      L5 → +2d8 Damage = 80 PP below 100 target<br>
+      L6 → +3d8 Damage = 120 PP = 120 target<br>
+      L7 → +3d8 Damage = 120 PP below 140 target<br>
+      L8 → +4d8 Damage = 160 PP = 160 target<br>
+      L9 → +4d8 Damage = 160 PP below 180 target<br>
+      L10 → +5d8 Damage = 200 PP = 200 target<br>
+      L11 → +5d8 Damage = 200 PP below 220 target<br>
+      L12 → +6d8 Damage = 240 PP = 240 target<br>
+      L13 → +6d8 Damage = 240 PP below 260 target<br>
+      L14 → +7d8 Damage = 280 PP = 280 target<br>
+      L15 → +7d8 Damage = 280 PP below 300 target<br>
+      L16 → +8d8 Damage = 320 PP = 320 target<br><br>
       NOTES — Pure unconditional Damage passive. Because it applies broadly to all damage rolls you make, it uses the doubled unconditional price. No Attack Dice, no crit rider, no Special rider, no once-per-turn limitation.
     </span>
   </span>
@@ -679,21 +682,21 @@ Your blows carry more weight because your intent no longer wavers.
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Passive, Damage | Self | — | Permanent | — |
-| **2** | Passive, Damage | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Permanent | Gain **+4d6 Damage** on all damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Permanent | Gain **+4d6 Damage** on all damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Permanent | Gain **+5d6 Damage** on all damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Permanent | Gain **+5d6 Damage** on all damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Permanent | Gain **+6d6 Damage** on all damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Permanent | Gain **+6d6 Damage** on all damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Permanent | Gain **+7d6 Damage** on all damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Permanent | Gain **+7d6 Damage** on all damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Permanent | Gain **+8d6 Damage** on all damage rolls you make. |
+| **2** | Passive, Damage | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. |
+| **3** | Passive, Damage | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. |
+| **4** | Passive, Damage | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. |
+| **5** | Passive, Damage | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. |
+| **6** | Passive, Damage | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. |
+| **7** | Passive, Damage | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. |
+| **8** | Passive, Damage | Self | — | Permanent | Gain **+4d8 Damage** on all damage rolls you make. |
+| **9** | Passive, Damage | Self | — | Permanent | Gain **+4d8 Damage** on all damage rolls you make. |
+| **10** | Passive, Damage | Self | — | Permanent | Gain **+5d8 Damage** on all damage rolls you make. |
+| **11** | Passive, Damage | Self | — | Permanent | Gain **+5d8 Damage** on all damage rolls you make. |
+| **12** | Passive, Damage | Self | — | Permanent | Gain **+6d8 Damage** on all damage rolls you make. |
+| **13** | Passive, Damage | Self | — | Permanent | Gain **+6d8 Damage** on all damage rolls you make. |
+| **14** | Passive, Damage | Self | — | Permanent | Gain **+7d8 Damage** on all damage rolls you make. |
+| **15** | Passive, Damage | Self | — | Permanent | Gain **+7d8 Damage** on all damage rolls you make. |
+| **16** | Passive, Damage | Self | — | Permanent | Gain **+8d8 Damage** on all damage rolls you make. |
 
 }}
 
@@ -934,7 +937,7 @@ You do not dodge the battlefield. You reduce it to a duel.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d6 Damage<br><br>
+      Conditional Damage = 20 PP per +1d8 Damage<br><br>
       CONDITION<br>
       This Damage applies only after you move at least 8 m on your turn.<br><br>
       NOTES — Conditional Damage passive. Requires a full movement commitment. No Attack Dice, no Special rider, no extra attack.
@@ -946,22 +949,22 @@ Speed becomes weight. Weight becomes impact.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1d6 Damage** on all damage rolls you make until the end of your turn. |
-| **2** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2d6 Damage** on all damage rolls you make until the end of your turn. |
-| **3** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+3d6 Damage** on all damage rolls you make until the end of your turn. |
-| **4** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4d6 Damage** on all damage rolls you make until the end of your turn. |
-| **5** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+5d6 Damage** on all damage rolls you make until the end of your turn. |
-| **6** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6d6 Damage** on all damage rolls you make until the end of your turn. |
-| **7** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+7d6 Damage** on all damage rolls you make until the end of your turn. |
-| **8** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8d6 Damage** on all damage rolls you make until the end of your turn. |
-| **9** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+9d6 Damage** on all damage rolls you make until the end of your turn. |
-| **10** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10d6 Damage** on all damage rolls you make until the end of your turn. |
-| **11** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+11d6 Damage** on all damage rolls you make until the end of your turn. |
-| **12** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+12d6 Damage** on all damage rolls you make until the end of your turn. |
-| **13** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+13d6 Damage** on all damage rolls you make until the end of your turn. |
-| **14** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+14d6 Damage** on all damage rolls you make until the end of your turn. |
-| **15** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+15d6 Damage** on all damage rolls you make until the end of your turn. |
-| **16** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+16d6 Damage** on all damage rolls you make until the end of your turn. |
+| **1** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1d8 Damage** on all damage rolls you make until the end of your turn. |
+| **2** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2d8 Damage** on all damage rolls you make until the end of your turn. |
+| **3** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+3d8 Damage** on all damage rolls you make until the end of your turn. |
+| **4** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4d8 Damage** on all damage rolls you make until the end of your turn. |
+| **5** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+5d8 Damage** on all damage rolls you make until the end of your turn. |
+| **6** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6d8 Damage** on all damage rolls you make until the end of your turn. |
+| **7** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+7d8 Damage** on all damage rolls you make until the end of your turn. |
+| **8** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8d8 Damage** on all damage rolls you make until the end of your turn. |
+| **9** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+9d8 Damage** on all damage rolls you make until the end of your turn. |
+| **10** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10d8 Damage** on all damage rolls you make until the end of your turn. |
+| **11** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+11d8 Damage** on all damage rolls you make until the end of your turn. |
+| **12** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+12d8 Damage** on all damage rolls you make until the end of your turn. |
+| **13** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+13d8 Damage** on all damage rolls you make until the end of your turn. |
+| **14** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+14d8 Damage** on all damage rolls you make until the end of your turn. |
+| **15** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+15d8 Damage** on all damage rolls you make until the end of your turn. |
+| **16** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+16d8 Damage** on all damage rolls you make until the end of your turn. |
 
 ---
 }}
@@ -976,7 +979,7 @@ Speed becomes weight. Weight becomes impact.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d6 Damage<br><br>
+      Conditional Damage = 20 PP per +1d8 Damage<br><br>
       CONDITION<br>
       This Damage applies only against targets that cannot see or otherwise perceive you.<br><br>
       NOTES — Conditional Damage passive. The damage applies to attacks made from Hidden or equivalent unseen positioning. This passive does not grant Hidden, invisibility, Phasing, or any stealth action.
@@ -988,22 +991,22 @@ The wound arrives before the enemy understands where you are.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+1d6 Damage** on damage rolls you make. |
-| **2** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+2d6 Damage** on damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+3d6 Damage** on damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+4d6 Damage** on damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+5d6 Damage** on damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+6d6 Damage** on damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+7d6 Damage** on damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+8d6 Damage** on damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+9d6 Damage** on damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+10d6 Damage** on damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+11d6 Damage** on damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+12d6 Damage** on damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+13d6 Damage** on damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+14d6 Damage** on damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+15d6 Damage** on damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+16d6 Damage** on damage rolls you make. |
+| **1** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+1d8 Damage** on damage rolls you make. |
+| **2** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+2d8 Damage** on damage rolls you make. |
+| **3** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+3d8 Damage** on damage rolls you make. |
+| **4** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+4d8 Damage** on damage rolls you make. |
+| **5** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+5d8 Damage** on damage rolls you make. |
+| **6** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+6d8 Damage** on damage rolls you make. |
+| **7** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+7d8 Damage** on damage rolls you make. |
+| **8** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+8d8 Damage** on damage rolls you make. |
+| **9** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+9d8 Damage** on damage rolls you make. |
+| **10** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+10d8 Damage** on damage rolls you make. |
+| **11** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+11d8 Damage** on damage rolls you make. |
+| **12** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+12d8 Damage** on damage rolls you make. |
+| **13** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+13d8 Damage** on damage rolls you make. |
+| **14** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+14d8 Damage** on damage rolls you make. |
+| **15** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+15d8 Damage** on damage rolls you make. |
+| **16** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+16d8 Damage** on damage rolls you make. |
 
 ---
 }}
@@ -1018,7 +1021,7 @@ The wound arrives before the enemy understands where you are.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d6 Damage<br><br>
+      Conditional Damage = 20 PP per +1d8 Damage<br><br>
       CONDITION<br>
       This Damage applies only while you are affected by Lacerate.<br><br>
       NOTES — Conditional Damage passive. This passive does not apply Lacerate, increase Lacerate, reduce Lacerate, or make Lacerate harder to remove. It only rewards fighting while you personally suffer Lacerate.
@@ -1030,22 +1033,22 @@ Your own blood teaches your hands to stop hesitating.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d6 Damage** on all damage rolls you make. |
-| **2** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d6 Damage** on all damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d6 Damage** on all damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d6 Damage** on all damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d6 Damage** on all damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d6 Damage** on all damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d6 Damage** on all damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+8d6 Damage** on all damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+9d6 Damage** on all damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+10d6 Damage** on all damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+11d6 Damage** on all damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+12d6 Damage** on all damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+13d6 Damage** on all damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+14d6 Damage** on all damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+15d6 Damage** on all damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+16d6 Damage** on all damage rolls you make. |
+| **1** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d8 Damage** on all damage rolls you make. |
+| **2** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d8 Damage** on all damage rolls you make. |
+| **3** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d8 Damage** on all damage rolls you make. |
+| **4** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d8 Damage** on all damage rolls you make. |
+| **5** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d8 Damage** on all damage rolls you make. |
+| **6** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d8 Damage** on all damage rolls you make. |
+| **7** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d8 Damage** on all damage rolls you make. |
+| **8** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+8d8 Damage** on all damage rolls you make. |
+| **9** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+9d8 Damage** on all damage rolls you make. |
+| **10** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+10d8 Damage** on all damage rolls you make. |
+| **11** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+11d8 Damage** on all damage rolls you make. |
+| **12** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+12d8 Damage** on all damage rolls you make. |
+| **13** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+13d8 Damage** on all damage rolls you make. |
+| **14** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+14d8 Damage** on all damage rolls you make. |
+| **15** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+15d8 Damage** on all damage rolls you make. |
+| **16** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+16d8 Damage** on all damage rolls you make. |
 
 ---
 }}
@@ -1060,7 +1063,7 @@ Your own blood teaches your hands to stop hesitating.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d6 Damage<br><br>
+      Conditional Damage = 20 PP per +1d8 Damage<br><br>
       CONDITION<br>
       This Damage applies only against targets that are Injured or worse.<br><br>
       NOTES — Conditional Damage passive. This is a finisher profile. It does not improve opening damage and does not apply a Special.
@@ -1072,22 +1075,22 @@ You do not waste strength on enemies who have not started dying.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+1d6 Damage** on damage rolls you make. |
-| **2** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+2d6 Damage** on damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+3d6 Damage** on damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+4d6 Damage** on damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+5d6 Damage** on damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+6d6 Damage** on damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+7d6 Damage** on damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+8d6 Damage** on damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+9d6 Damage** on damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+10d6 Damage** on damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+11d6 Damage** on damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+12d6 Damage** on damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+13d6 Damage** on damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+14d6 Damage** on damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+15d6 Damage** on damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+16d6 Damage** on damage rolls you make. |
+| **1** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+1d8 Damage** on damage rolls you make. |
+| **2** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+2d8 Damage** on damage rolls you make. |
+| **3** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+3d8 Damage** on damage rolls you make. |
+| **4** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+4d8 Damage** on damage rolls you make. |
+| **5** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+5d8 Damage** on damage rolls you make. |
+| **6** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+6d8 Damage** on damage rolls you make. |
+| **7** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+7d8 Damage** on damage rolls you make. |
+| **8** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+8d8 Damage** on damage rolls you make. |
+| **9** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+9d8 Damage** on damage rolls you make. |
+| **10** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+10d8 Damage** on damage rolls you make. |
+| **11** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+11d8 Damage** on damage rolls you make. |
+| **12** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+12d8 Damage** on damage rolls you make. |
+| **13** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+13d8 Damage** on damage rolls you make. |
+| **14** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+14d8 Damage** on damage rolls you make. |
+| **15** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+15d8 Damage** on damage rolls you make. |
+| **16** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+16d8 Damage** on damage rolls you make. |
 }}
 
 \page
@@ -1483,7 +1486,7 @@ Combined Passives may not use:
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Combined Passive = two half-budget axes<br>
       Evade Half = 10 PP per +1 Evade<br>
-      Damage Half = 40 PP per +1d6 Damage<br><br>
+      Damage Half = 40 PP per +1d8 Damage<br><br>
       CALCULATION<br>
       Each level combines the listed Evade value with the listed Damage value.<br>
       Evade PP + Damage PP should approximately match the Passive Curve target.<br><br>
@@ -1497,19 +1500,19 @@ Combined Passives may not use:
 | **1** | Passive: Evade + Damage | Self | — | Permanent | Gain **+1 Evade**. |
 | **2** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade**. |
 | **3** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade**. |
-| **4** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **5** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **6** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **7** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+1d6 Damage** on all damage rolls you make. |
-| **8** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **9** | Passive: Evade + Damage | Self | — | Permanent | Gain **+9 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **10** | Passive: Evade + Damage | Self | — | Permanent | Gain **+10 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **11** | Passive: Evade + Damage | Self | — | Permanent | Gain **+11 Evade** and **+2d6 Damage** on all damage rolls you make. |
-| **12** | Passive: Evade + Damage | Self | — | Permanent | Gain **+12 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **13** | Passive: Evade + Damage | Self | — | Permanent | Gain **+13 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **14** | Passive: Evade + Damage | Self | — | Permanent | Gain **+14 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **15** | Passive: Evade + Damage | Self | — | Permanent | Gain **+15 Evade** and **+3d6 Damage** on all damage rolls you make. |
-| **16** | Passive: Evade + Damage | Self | — | Permanent | Gain **+16 Evade** and **+4d6 Damage** on all damage rolls you make. |
+| **4** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **5** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **6** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **7** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **8** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **9** | Passive: Evade + Damage | Self | — | Permanent | Gain **+9 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **10** | Passive: Evade + Damage | Self | — | Permanent | Gain **+10 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **11** | Passive: Evade + Damage | Self | — | Permanent | Gain **+11 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **12** | Passive: Evade + Damage | Self | — | Permanent | Gain **+12 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **13** | Passive: Evade + Damage | Self | — | Permanent | Gain **+13 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **14** | Passive: Evade + Damage | Self | — | Permanent | Gain **+14 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **15** | Passive: Evade + Damage | Self | — | Permanent | Gain **+15 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **16** | Passive: Evade + Damage | Self | — | Permanent | Gain **+16 Evade** and **+4d8 Damage** on all damage rolls you make. |
 
 }}
 
@@ -1525,7 +1528,7 @@ Combined Passives may not use:
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Combined Passive = two half-budget axes<br>
-      Damage Half = 40 PP per +1d6 Damage<br>
+      Damage Half = 40 PP per +1d8 Damage<br>
       Healing Half = 8 PP per HP healed<br><br>
       CALCULATION<br>
       Each level combines the listed Damage value with the listed start-of-turn Healing value.<br>
@@ -1540,19 +1543,19 @@ Combined Passives may not use:
 | **1** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
 | **2** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
 | **3** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d6 Damage** on all damage rolls you make. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d6 Damage** on all damage rolls you make. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d6 Damage** on all damage rolls you make. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Damage + Healing | Self | — | Permanent | Gain **+4d6 Damage** on all damage rolls you make. At the start of your turn, heal **20 HP**. |
+| **4** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **5 HP**. |
+| **5** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **6 HP**. |
+| **6** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **7 HP**. |
+| **7** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **8 HP**. |
+| **8** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **10 HP**. |
+| **9** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **11 HP**. |
+| **10** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **12 HP**. |
+| **11** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **13 HP**. |
+| **12** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **15 HP**. |
+| **13** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **16 HP**. |
+| **14** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **17 HP**. |
+| **15** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **18 HP**. |
+| **16** | Passive: Damage + Healing | Self | — | Permanent | Gain **+4d8 Damage** on all damage rolls you make. At the start of your turn, heal **20 HP**. |
 
 ---
 }}
@@ -1568,7 +1571,7 @@ Combined Passives may not use:
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Combined Passive = two half-budget axes<br>
-      Damage Half = 40 PP per +1d6 Damage<br>
+      Damage Half = 40 PP per +1d8 Damage<br>
       Temporary HP Half = 2 PP per Temporary HP<br><br>
       CALCULATION<br>
       Each level combines the listed Damage value with the listed start-of-combat Temporary HP value.<br>
@@ -1583,19 +1586,19 @@ Combined Passives may not use:
 | **1** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
 | **2** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
 | **3** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d6 Damage** on all damage rolls you make. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d6 Damage** on all damage rolls you make. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d6 Damage** on all damage rolls you make. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4d6 Damage** on all damage rolls you make. At the start of combat, gain **80 Temporary HP**. |
+| **4** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **20 Temporary HP**. |
+| **5** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **25 Temporary HP**. |
+| **6** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **30 Temporary HP**. |
+| **7** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **35 Temporary HP**. |
+| **8** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **40 Temporary HP**. |
+| **9** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **45 Temporary HP**. |
+| **10** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **50 Temporary HP**. |
+| **11** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **55 Temporary HP**. |
+| **12** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **60 Temporary HP**. |
+| **13** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **65 Temporary HP**. |
+| **14** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **70 Temporary HP**. |
+| **15** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **75 Temporary HP**. |
+| **16** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4d8 Damage** on all damage rolls you make. At the start of combat, gain **80 Temporary HP**. |
 
 }}
 
@@ -1754,7 +1757,7 @@ Conditional Combined Passives may not use:
 |:--|:--|
 | **Armor Half** | Conditional Armor at half budget: **7.5 PP per +1 Armor** |
 | **Evade Half** | Conditional Evade at half budget: **5 PP per +1 Evade** |
-| **Damage Half** | Conditional Damage at half budget: **20 PP per +1d6 Damage** |
+| **Damage Half** | Conditional Damage at half budget: **20 PP per +1d8 Damage** |
 | **Healing Half** | Conditional Healing at half budget: **4 PP per 1 HP healed** |
 | **Temporary HP Half** | Start-of-combat Temporary HP at half budget: **2 PP per 1 Temporary HP** |
 | **Health Half** | Milestone structural Health progression; no Healthy bar in Combined Passives |
@@ -2081,26 +2084,26 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Conditional Combined Passive = two conditional half-budget axes<br>
       Evade Half = 5 PP per +1 Evade<br>
-      Damage Half = 20 PP per +1d6 Damage<br><br>
+      Damage Half = 20 PP per +1d8 Damage<br><br>
       CONDITION<br>
       This passive applies if you moved at least 8 m on your turn.<br><br>
       CALCULATION<br>
       L1 → +2 Evade = 10 PP + no Damage = 0 PP → 10 PP below 20 target<br>
-      L2 → +4 Evade = 20 PP + +1d6 Damage = 20 PP → 40 PP = 40 target<br>
-      L3 → +6 Evade = 30 PP + +1d6 Damage = 20 PP → 50 PP below 60 target<br>
-      L4 → +8 Evade = 40 PP + +2d6 Damage = 40 PP → 80 PP = 80 target<br>
-      L5 → +10 Evade = 50 PP + +2d6 Damage = 40 PP → 90 PP below 100 target<br>
-      L6 → +12 Evade = 60 PP + +3d6 Damage = 60 PP → 120 PP = 120 target<br>
-      L7 → +14 Evade = 70 PP + +3d6 Damage = 60 PP → 130 PP below 140 target<br>
-      L8 → +16 Evade = 80 PP + +4d6 Damage = 80 PP → 160 PP = 160 target<br>
-      L9 → +18 Evade = 90 PP + +4d6 Damage = 80 PP → 170 PP below 180 target<br>
-      L10 → +20 Evade = 100 PP + +5d6 Damage = 100 PP → 200 PP = 200 target<br>
-      L11 → +22 Evade = 110 PP + +5d6 Damage = 100 PP → 210 PP below 220 target<br>
-      L12 → +24 Evade = 120 PP + +6d6 Damage = 120 PP → 240 PP = 240 target<br>
-      L13 → +26 Evade = 130 PP + +6d6 Damage = 120 PP → 250 PP below 260 target<br>
-      L14 → +28 Evade = 140 PP + +7d6 Damage = 140 PP → 280 PP = 280 target<br>
-      L15 → +30 Evade = 150 PP + +7d6 Damage = 140 PP → 290 PP below 300 target<br>
-      L16 → +32 Evade = 160 PP + +8d6 Damage = 160 PP → 320 PP = 320 target<br><br>
+      L2 → +4 Evade = 20 PP + +1d8 Damage = 20 PP → 40 PP = 40 target<br>
+      L3 → +6 Evade = 30 PP + +1d8 Damage = 20 PP → 50 PP below 60 target<br>
+      L4 → +8 Evade = 40 PP + +2d8 Damage = 40 PP → 80 PP = 80 target<br>
+      L5 → +10 Evade = 50 PP + +2d8 Damage = 40 PP → 90 PP below 100 target<br>
+      L6 → +12 Evade = 60 PP + +3d8 Damage = 60 PP → 120 PP = 120 target<br>
+      L7 → +14 Evade = 70 PP + +3d8 Damage = 60 PP → 130 PP below 140 target<br>
+      L8 → +16 Evade = 80 PP + +4d8 Damage = 80 PP → 160 PP = 160 target<br>
+      L9 → +18 Evade = 90 PP + +4d8 Damage = 80 PP → 170 PP below 180 target<br>
+      L10 → +20 Evade = 100 PP + +5d8 Damage = 100 PP → 200 PP = 200 target<br>
+      L11 → +22 Evade = 110 PP + +5d8 Damage = 100 PP → 210 PP below 220 target<br>
+      L12 → +24 Evade = 120 PP + +6d8 Damage = 120 PP → 240 PP = 240 target<br>
+      L13 → +26 Evade = 130 PP + +6d8 Damage = 120 PP → 250 PP below 260 target<br>
+      L14 → +28 Evade = 140 PP + +7d8 Damage = 140 PP → 280 PP = 280 target<br>
+      L15 → +30 Evade = 150 PP + +7d8 Damage = 140 PP → 290 PP below 300 target<br>
+      L16 → +32 Evade = 160 PP + +8d8 Damage = 160 PP → 320 PP = 320 target<br><br>
       NOTES — Counts as both Evade and Damage. No Attack Dice, no crit rider, no Special rider, no Phasing.
     </span>
   </span>
@@ -2109,21 +2112,21 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2 Evade** until the start of your next turn. |
-| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+1d6 Damage** on all damage rolls you make until the end of your turn. |
-| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+1d6 Damage** on all damage rolls you make until the end of your turn. |
-| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+2d6 Damage** on all damage rolls you make until the end of your turn. |
-| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+2d6 Damage** on all damage rolls you make until the end of your turn. |
-| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+12 Evade** until the start of your next turn and **+3d6 Damage** on all damage rolls you make until the end of your turn. |
-| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+14 Evade** until the start of your next turn and **+3d6 Damage** on all damage rolls you make until the end of your turn. |
-| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+16 Evade** until the start of your next turn and **+4d6 Damage** on all damage rolls you make until the end of your turn. |
-| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+18 Evade** until the start of your next turn and **+4d6 Damage** on all damage rolls you make until the end of your turn. |
-| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+20 Evade** until the start of your next turn and **+5d6 Damage** on all damage rolls you make until the end of your turn. |
-| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+22 Evade** until the start of your next turn and **+5d6 Damage** on all damage rolls you make until the end of your turn. |
-| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+24 Evade** until the start of your next turn and **+6d6 Damage** on all damage rolls you make until the end of your turn. |
-| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+26 Evade** until the start of your next turn and **+6d6 Damage** on all damage rolls you make until the end of your turn. |
-| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+28 Evade** until the start of your next turn and **+7d6 Damage** on all damage rolls you make until the end of your turn. |
-| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+30 Evade** until the start of your next turn and **+7d6 Damage** on all damage rolls you make until the end of your turn. |
-| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+32 Evade** until the start of your next turn and **+8d6 Damage** on all damage rolls you make until the end of your turn. |
+| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
+| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
+| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
+| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
+| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+12 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
+| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+14 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
+| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+16 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
+| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+18 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
+| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+20 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
+| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+22 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
+| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+24 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
+| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+26 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
+| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+28 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
+| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+30 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
+| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+32 Evade** until the start of your next turn and **+8d8 Damage** on all damage rolls you make until the end of your turn. |
 
 }}
 
@@ -2140,27 +2143,27 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Conditional Combined Passive = two conditional half-budget axes<br>
-      Damage Half = 20 PP per +1d6 Damage<br>
+      Damage Half = 20 PP per +1d8 Damage<br>
       Healing Half = 4 PP per HP healed<br><br>
       CONDITION<br>
       This passive applies only while you are affected by Lacerate.<br><br>
       CALCULATION<br>
       L1 → no Damage = 0 PP + heal 2 HP = 8 PP → 8 PP below 20 target<br>
-      L2 → +1d6 Damage = 20 PP + heal 5 HP = 20 PP → 40 PP = 40 target<br>
-      L3 → +1d6 Damage = 20 PP + heal 7 HP = 28 PP → 48 PP below 60 target<br>
-      L4 → +2d6 Damage = 40 PP + heal 10 HP = 40 PP → 80 PP = 80 target<br>
-      L5 → +2d6 Damage = 40 PP + heal 12 HP = 48 PP → 88 PP below 100 target<br>
-      L6 → +3d6 Damage = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
-      L7 → +3d6 Damage = 60 PP + heal 17 HP = 68 PP → 128 PP below 140 target<br>
-      L8 → +4d6 Damage = 80 PP + heal 20 HP = 80 PP → 160 PP = 160 target<br>
-      L9 → +4d6 Damage = 80 PP + heal 22 HP = 88 PP → 168 PP below 180 target<br>
-      L10 → +5d6 Damage = 100 PP + heal 25 HP = 100 PP → 200 PP = 200 target<br>
-      L11 → +5d6 Damage = 100 PP + heal 27 HP = 108 PP → 208 PP below 220 target<br>
-      L12 → +6d6 Damage = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
-      L13 → +6d6 Damage = 120 PP + heal 32 HP = 128 PP → 248 PP below 260 target<br>
-      L14 → +7d6 Damage = 140 PP + heal 35 HP = 140 PP → 280 PP = 280 target<br>
-      L15 → +7d6 Damage = 140 PP + heal 37 HP = 148 PP → 288 PP below 300 target<br>
-      L16 → +8d6 Damage = 160 PP + heal 40 HP = 160 PP → 320 PP = 320 target<br><br>
+      L2 → +1d8 Damage = 20 PP + heal 5 HP = 20 PP → 40 PP = 40 target<br>
+      L3 → +1d8 Damage = 20 PP + heal 7 HP = 28 PP → 48 PP below 60 target<br>
+      L4 → +2d8 Damage = 40 PP + heal 10 HP = 40 PP → 80 PP = 80 target<br>
+      L5 → +2d8 Damage = 40 PP + heal 12 HP = 48 PP → 88 PP below 100 target<br>
+      L6 → +3d8 Damage = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
+      L7 → +3d8 Damage = 60 PP + heal 17 HP = 68 PP → 128 PP below 140 target<br>
+      L8 → +4d8 Damage = 80 PP + heal 20 HP = 80 PP → 160 PP = 160 target<br>
+      L9 → +4d8 Damage = 80 PP + heal 22 HP = 88 PP → 168 PP below 180 target<br>
+      L10 → +5d8 Damage = 100 PP + heal 25 HP = 100 PP → 200 PP = 200 target<br>
+      L11 → +5d8 Damage = 100 PP + heal 27 HP = 108 PP → 208 PP below 220 target<br>
+      L12 → +6d8 Damage = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
+      L13 → +6d8 Damage = 120 PP + heal 32 HP = 128 PP → 248 PP below 260 target<br>
+      L14 → +7d8 Damage = 140 PP + heal 35 HP = 140 PP → 280 PP = 280 target<br>
+      L15 → +7d8 Damage = 140 PP + heal 37 HP = 148 PP → 288 PP below 300 target<br>
+      L16 → +8d8 Damage = 160 PP + heal 40 HP = 160 PP → 320 PP = 320 target<br><br>
       NOTES — Counts as both Damage and Healing. This passive does not apply Lacerate, increase Lacerate, reduce Lacerate, or make Lacerate harder to remove. Healing restores current HP only and never restores lost Health Bars. No Special rider, no Attack Dice, no Phasing.
     </span>
   </span>
@@ -2169,21 +2172,21 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, heal **2 HP** at the start of your turn. |
-| **2** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d6 Damage** on all damage rolls you make and heal **5 HP** at the start of your turn. |
-| **3** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d6 Damage** on all damage rolls you make and heal **7 HP** at the start of your turn. |
-| **4** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d6 Damage** on all damage rolls you make and heal **10 HP** at the start of your turn. |
-| **5** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d6 Damage** on all damage rolls you make and heal **12 HP** at the start of your turn. |
-| **6** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d6 Damage** on all damage rolls you make and heal **15 HP** at the start of your turn. |
-| **7** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d6 Damage** on all damage rolls you make and heal **17 HP** at the start of your turn. |
-| **8** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d6 Damage** on all damage rolls you make and heal **20 HP** at the start of your turn. |
-| **9** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d6 Damage** on all damage rolls you make and heal **22 HP** at the start of your turn. |
-| **10** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d6 Damage** on all damage rolls you make and heal **25 HP** at the start of your turn. |
-| **11** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d6 Damage** on all damage rolls you make and heal **27 HP** at the start of your turn. |
-| **12** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d6 Damage** on all damage rolls you make and heal **30 HP** at the start of your turn. |
-| **13** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d6 Damage** on all damage rolls you make and heal **32 HP** at the start of your turn. |
-| **14** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d6 Damage** on all damage rolls you make and heal **35 HP** at the start of your turn. |
-| **15** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d6 Damage** on all damage rolls you make and heal **37 HP** at the start of your turn. |
-| **16** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+8d6 Damage** on all damage rolls you make and heal **40 HP** at the start of your turn. |
+| **2** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d8 Damage** on all damage rolls you make and heal **5 HP** at the start of your turn. |
+| **3** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d8 Damage** on all damage rolls you make and heal **7 HP** at the start of your turn. |
+| **4** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d8 Damage** on all damage rolls you make and heal **10 HP** at the start of your turn. |
+| **5** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d8 Damage** on all damage rolls you make and heal **12 HP** at the start of your turn. |
+| **6** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d8 Damage** on all damage rolls you make and heal **15 HP** at the start of your turn. |
+| **7** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d8 Damage** on all damage rolls you make and heal **17 HP** at the start of your turn. |
+| **8** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d8 Damage** on all damage rolls you make and heal **20 HP** at the start of your turn. |
+| **9** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d8 Damage** on all damage rolls you make and heal **22 HP** at the start of your turn. |
+| **10** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d8 Damage** on all damage rolls you make and heal **25 HP** at the start of your turn. |
+| **11** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d8 Damage** on all damage rolls you make and heal **27 HP** at the start of your turn. |
+| **12** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d8 Damage** on all damage rolls you make and heal **30 HP** at the start of your turn. |
+| **13** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d8 Damage** on all damage rolls you make and heal **32 HP** at the start of your turn. |
+| **14** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d8 Damage** on all damage rolls you make and heal **35 HP** at the start of your turn. |
+| **15** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d8 Damage** on all damage rolls you make and heal **37 HP** at the start of your turn. |
+| **16** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+8d8 Damage** on all damage rolls you make and heal **40 HP** at the start of your turn. |
 
 ---
 }}
@@ -2201,28 +2204,28 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Conditional Combined Passive = two conditional half-budget axes<br>
-      Damage Half = 20 PP per +1d6 Damage<br>
+      Damage Half = 20 PP per +1d8 Damage<br>
       Temporary HP Half = 2 PP per Temporary HP<br><br>
       CONDITION<br>
       Damage applies if you moved at least 8 m on your turn.<br>
       Temporary HP is gained once after you first move at least 8 m this combat.<br><br>
       CALCULATION<br>
       L1 → no Damage = 0 PP + 5 THP = 10 PP → 10 PP below 20 target<br>
-      L2 → +1d6 Damage = 20 PP + 10 THP = 20 PP → 40 PP = 40 target<br>
-      L3 → +1d6 Damage = 20 PP + 15 THP = 30 PP → 50 PP below 60 target<br>
-      L4 → +2d6 Damage = 40 PP + 20 THP = 40 PP → 80 PP = 80 target<br>
-      L5 → +2d6 Damage = 40 PP + 25 THP = 50 PP → 90 PP below 100 target<br>
-      L6 → +3d6 Damage = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
-      L7 → +3d6 Damage = 60 PP + 35 THP = 70 PP → 130 PP below 140 target<br>
-      L8 → +4d6 Damage = 80 PP + 40 THP = 80 PP → 160 PP = 160 target<br>
-      L9 → +4d6 Damage = 80 PP + 45 THP = 90 PP → 170 PP below 180 target<br>
-      L10 → +5d6 Damage = 100 PP + 50 THP = 100 PP → 200 PP = 200 target<br>
-      L11 → +5d6 Damage = 100 PP + 55 THP = 110 PP → 210 PP below 220 target<br>
-      L12 → +6d6 Damage = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
-      L13 → +6d6 Damage = 120 PP + 65 THP = 130 PP → 250 PP below 260 target<br>
-      L14 → +7d6 Damage = 140 PP + 70 THP = 140 PP → 280 PP = 280 target<br>
-      L15 → +7d6 Damage = 140 PP + 75 THP = 150 PP → 290 PP below 300 target<br>
-      L16 → +8d6 Damage = 160 PP + 80 THP = 160 PP → 320 PP = 320 target<br><br>
+      L2 → +1d8 Damage = 20 PP + 10 THP = 20 PP → 40 PP = 40 target<br>
+      L3 → +1d8 Damage = 20 PP + 15 THP = 30 PP → 50 PP below 60 target<br>
+      L4 → +2d8 Damage = 40 PP + 20 THP = 40 PP → 80 PP = 80 target<br>
+      L5 → +2d8 Damage = 40 PP + 25 THP = 50 PP → 90 PP below 100 target<br>
+      L6 → +3d8 Damage = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
+      L7 → +3d8 Damage = 60 PP + 35 THP = 70 PP → 130 PP below 140 target<br>
+      L8 → +4d8 Damage = 80 PP + 40 THP = 80 PP → 160 PP = 160 target<br>
+      L9 → +4d8 Damage = 80 PP + 45 THP = 90 PP → 170 PP below 180 target<br>
+      L10 → +5d8 Damage = 100 PP + 50 THP = 100 PP → 200 PP = 200 target<br>
+      L11 → +5d8 Damage = 100 PP + 55 THP = 110 PP → 210 PP below 220 target<br>
+      L12 → +6d8 Damage = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
+      L13 → +6d8 Damage = 120 PP + 65 THP = 130 PP → 250 PP below 260 target<br>
+      L14 → +7d8 Damage = 140 PP + 70 THP = 140 PP → 280 PP = 280 target<br>
+      L15 → +7d8 Damage = 140 PP + 75 THP = 150 PP → 290 PP below 300 target<br>
+      L16 → +8d8 Damage = 160 PP + 80 THP = 160 PP → 320 PP = 320 target<br><br>
       NOTES — Counts as both Damage and Temporary HP. Temporary HP is gained once per combat only and does not refresh if you move 8 m again. No Healing, no Special rider, no Attack Dice, no Phasing.
     </span>
   </span>
@@ -2231,21 +2234,21 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Passive | Self | — | Conditional / Once per Combat | Once per combat, after you first move at least **8 m**, gain **5 Temporary HP**. |
-| **2** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+1d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **10 Temporary HP**. |
-| **3** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+1d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **15 Temporary HP**. |
-| **4** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+2d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **20 Temporary HP**. |
-| **5** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+2d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **25 Temporary HP**. |
-| **6** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+3d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **30 Temporary HP**. |
-| **7** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+3d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **35 Temporary HP**. |
-| **8** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+4d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **40 Temporary HP**. |
-| **9** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+4d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **45 Temporary HP**. |
-| **10** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+5d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **50 Temporary HP**. |
-| **11** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+5d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **55 Temporary HP**. |
-| **12** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+6d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **60 Temporary HP**. |
-| **13** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+6d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **65 Temporary HP**. |
-| **14** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+7d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **70 Temporary HP**. |
-| **15** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+7d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **75 Temporary HP**. |
-| **16** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+8d6 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **80 Temporary HP**. |
+| **2** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+1d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **10 Temporary HP**. |
+| **3** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+1d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **15 Temporary HP**. |
+| **4** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+2d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **20 Temporary HP**. |
+| **5** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+2d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **25 Temporary HP**. |
+| **6** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+3d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **30 Temporary HP**. |
+| **7** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+3d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **35 Temporary HP**. |
+| **8** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+4d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **40 Temporary HP**. |
+| **9** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+4d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **45 Temporary HP**. |
+| **10** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+5d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **50 Temporary HP**. |
+| **11** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+5d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **55 Temporary HP**. |
+| **12** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+6d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **60 Temporary HP**. |
+| **13** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+6d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **65 Temporary HP**. |
+| **14** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+7d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **70 Temporary HP**. |
+| **15** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+7d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **75 Temporary HP**. |
+| **16** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+8d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **80 Temporary HP**. |
 
 ---
 }}
@@ -2437,6 +2440,12 @@ A Passive Special Aura may only affect a Special if all of the following are tru
 - the Special does not deny all reactions,
 - the Special does not grant or alter Damage Reduction or Phasing.
 
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 Common eligible examples include:
 
 - **Blight(X)**
@@ -2787,17 +2796,13 @@ It grants **Telepathic Access** and allows the user to establish voluntary **Min
 Mind Link is not a separate Power. It is part of Telepathy and requires no additional Passive Slot.
 
 Telepathy does not deal damage.
-
 Telepathy does not apply Specials.
-
 Telepathy does not control creatures.
 
 Telepathy does not read or search an unwilling creature's thoughts or memories. Hostile information gathering requires **Mind Probe**.
 
 While this Passive is slotted, you have Telepathic Access to thinking creatures within the listed range that you can perceive or whose location you know. Telepathic Access by itself reveals no thoughts, memories, identity, or hidden information. It only allows eligible Mental Powers to reach the target.
-
 A willing creature may accept or leave a Mind Link without a Check.
-
 A Mind Link allows only the communication and voluntary sharing listed by the Passive's current level. A willing creature never reveals more than it chooses to share.
 
 <h3 id="passive-telepathy">
@@ -2810,12 +2815,10 @@ A Mind Link allows only the communication and voluntary sharing listed by the Pa
       Passive curve = 20 PP per level<br>
       Telepathy is an access and utility Passive.<br>
       Mind Link is included and does not require a second Power.<br>
-      Telepathy does not deal damage, apply Specials, control creatures, or search unwilling minds.<br><br>
-
+      Telepathy does not deal d
       DESIGN STRUCTURE<br>
       This Passive scales through Range, linked creatures, voluntary communication, shared impressions, shared senses, and willing memory sharing.<br>
       It is required for Mental Attack, Mind Illusion, Mind Probe, and Mental Control unless a specific Power says otherwise.<br><br>
-
       ACCESS RULE<br>
       A Mental Power cannot normally be used at a higher level than the user's Telepathy Passive level.<br>
       This means Mental builds pay both a Passive Slot and the relevant Active Power choice.
@@ -3244,7 +3247,11 @@ You choose how many points to spend against each eligible Attack.
 Your Parry Pool is shared across all eligible Attacks against you until the beginning of your next Turn.
 
 If Parry reduces an Attack Pool below its normal Keep value, roll the remaining Attack Dice and keep all remaining dice.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 #### Example
 
 An enemy attacks with **8k3**.
@@ -3277,11 +3284,7 @@ Unspent Parry is lost at the beginning of your next Turn.
 
 ---
 
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 
 ### Parry Limitations
 
@@ -3657,7 +3660,7 @@ Your body does not reject pain. It consumes it, turning every wound into a brief
 \page
 {{pageNumber,auto}}
 {{wide
-{{wide
+
 
 ## Damage Negation Passives
 
@@ -3717,7 +3720,11 @@ It does not reduce damage dealt to other creatures by the same Attack, Area Effe
 If the same Damage Pool would normally be rolled once for several creatures, roll a separate reduced Damage Pool for the character using Damage Negation.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Half-Pool Limit
 
 Damage Negation can never remove more than half of the original Damage Dice assigned to you.
@@ -3730,11 +3737,7 @@ At least half of the original Damage Dice, rounded up, must remain.
 
 This limit applies to the total amount removed by all Damage Negation effects combined.
 
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 
 #### Examples
 
@@ -3778,7 +3781,11 @@ The normal defensive order is:
 If an Attack is Fully Parried, misses, or is ignored through Phasing, no Damage Pool is rolled and no Damage Negation needs to be spent.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Attack Effects and Specials
 
 Damage Negation affects only Damage Dice.
@@ -3798,11 +3805,7 @@ Damage Negation does not prevent or remove:
 * automatic effects
 * or another payload that does not depend on the number of Damage Dice rolled
 
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 
 A Special or on-hit effect applies normally unless another defense, such as **Ward**, prevents or reduces it.
 
@@ -3834,7 +3837,11 @@ Damage Negation cannot affect:
 * effects that do not roll Damage Dice
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Interaction with Other Defenses
 
 Damage Negation may be combined with the primary Defense Pillars and other premium defenses.

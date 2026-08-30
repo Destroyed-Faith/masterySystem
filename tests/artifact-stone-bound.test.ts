@@ -31,7 +31,7 @@ function mockActorWithArtifacts(
 }
 
 describe('artifact-stone-bound', () => {
-  it('counts activated artifacts with a stone attribute', () => {
+  it('never reserves a Stone for Attunement (count is always 0)', () => {
     const actor = mockActorWithArtifacts(
       { might: { current: 2, max: 2 } },
       [
@@ -41,9 +41,9 @@ describe('artifact-stone-bound', () => {
         { activated: true, stoneAttr: undefined },
       ],
     );
-    expect(countArtifactActivationStones(actor)).toBe(2);
-    expect(countArtifactActivationStones(actor, 'might')).toBe(1);
-    expect(countArtifactActivationStones(actor, 'agility')).toBe(1);
+    expect(countArtifactActivationStones(actor)).toBe(0);
+    expect(countArtifactActivationStones(actor, 'might')).toBe(0);
+    expect(countArtifactActivationStones(actor, 'agility')).toBe(0);
   });
 
   it('effectiveStonePoolAfterBindings subtracts sustained and artifact-bound', () => {
@@ -51,11 +51,11 @@ describe('artifact-stone-bound', () => {
     expect(effectiveStonePoolAfterBindings(2, 0, 3)).toBe(0);
   });
 
-  it('poolSpendableStones excludes artifact-bound stones from distribution', () => {
+  it('poolSpendableStones ignores leftover activation-stone flags', () => {
     const actor = mockActorWithArtifacts(
       { might: { current: 2, max: 2, sustained: 0 } },
       [{ activated: true, stoneAttr: 'might' }],
     );
-    expect(poolSpendableStones(actor, 'might')).toBe(1);
+    expect(poolSpendableStones(actor, 'might')).toBe(2);
   });
 });

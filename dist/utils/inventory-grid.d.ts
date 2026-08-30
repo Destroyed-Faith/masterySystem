@@ -16,6 +16,8 @@ export interface EquipmentGridFlags {
     weaponSetPrepared?: boolean;
     /** Legacy: equipped items no longer occupy the carry grid. */
     keepInventoryGrid?: boolean;
+    /** PG "Item Rotation": rotated 90° — width × height becomes height × width. */
+    rotated?: boolean;
 }
 export declare function readEquipmentFlags(item: any): EquipmentGridFlags;
 /** Carried item that is not on the paperdoll, in a consumable slot, or a prepared weapon-set piece. */
@@ -28,6 +30,14 @@ export declare function collectInventoryBandRects(items: Iterable<any>, band: st
     rows?: number;
 }): GridRect[];
 export declare function parseInventorySize(size: string | undefined): {
+    w: number;
+    h: number;
+};
+/**
+ * Effective footprint of an item in the carry grid, honoring the PG
+ * "Item Rotation" rule: a rotated item swaps width × height.
+ */
+export declare function itemInventorySize(item: any): {
     w: number;
     h: number;
 };

@@ -155,6 +155,7 @@ export const RULES_EXPECTED_REACTIONS: ReadonlyArray<{ rulesName: string; id: st
     { rulesName: 'Phasing', id: 'reaction-phasing' },
     { rulesName: 'Counter Damage', id: 'reaction-counter-damage' },
     { rulesName: 'Counter Damage + Push', id: 'reaction-counter-damage-push' },
+    { rulesName: 'Counter Damage + Pull', id: 'reaction-counter-damage-pull' },
     { rulesName: 'Special Increase', id: 'reaction-special-increase' },
     { rulesName: 'Initiative Gain', id: 'reaction-initiative-gain' },
     { rulesName: 'Reposition', id: 'reaction-reposition' },
@@ -342,6 +343,8 @@ export const RULES_EXPECTED_ARTIFACTS: ReadonlyArray<{
     { rulesName: 'Sentinel Frame', id: 'sentinelFrame', source: 'echo' },
     { rulesName: 'Judicator Frame', id: 'judicatorFrame', source: 'echo' },
     { rulesName: 'Oracle Frame', id: 'oracleFrame', source: 'echo' },
+    { rulesName: 'Titan Scars', id: 'titanScars', source: 'echo' },
+    { rulesName: 'Ringchain of Kept Names', id: 'ringchainOfKeptNames', source: 'echo' },
     { rulesName: 'Predator Crown (Might)', id: 'predatorCrownMight', source: 'echo' },
     { rulesName: 'Predator Crown (Wits)', id: 'predatorCrownWits', source: 'echo' },
     { rulesName: 'Predator Crown (Intellect)', id: 'predatorCrownIntellect', source: 'echo' },
@@ -959,17 +962,10 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
         Object.entries(GENERAL_ARTIFACTS).map(([id, def]) => [id, { name: def.name }]),
     );
 
-    // Titan Scars attribute variants — collapse to one rules-facing entry
-    const titanKeys = [...echoById.keys()].filter((k) => k.startsWith('titanScars'));
+    // Legacy Titan Scars attribute variants — collapse only when more than one key remains.
+    const titanKeys = [...echoById.keys()].filter((k) => k.startsWith('titanScars') && k !== 'titanScars');
     if (titanKeys.length > 0) {
         for (const k of titanKeys) echoById.delete(k);
-        pushEntry(entries, summary, {
-            category: 'artifact',
-            id: 'titanScars*',
-            name: 'Titan Scars',
-            status: 'correct',
-            notes: `${titanKeys.length} attribute variants in ECHO_ARTIFACTS (Might/Agility/…); Rules example family`,
-        });
     }
 
     for (const exp of RULES_EXPECTED_ARTIFACTS) {

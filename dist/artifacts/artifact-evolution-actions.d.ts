@@ -57,6 +57,9 @@ export interface ArtifactEvolutionCard {
     openAbilities: boolean;
     activationStoneAttr: string;
     activationStoneLabel: string;
+    /** Existing Artifact Level is above the actor's MR cap — do not silently reduce. */
+    legacyOverCap: boolean;
+    legacyOverCapReason: string;
 }
 /** Flavor line from lore / description (embedded first, then world root). */
 export declare function artifactFlavorText(...items: unknown[]): string;
@@ -69,8 +72,8 @@ export declare function artifactUpgradeBlockReason(paths: Array<{
 export declare function buildArtifactEvolutionCards(actor: Actor, opts?: {
     xpAvailable?: number;
 }): ArtifactEvolutionCard[];
-/** Activate (link) an artifact — costs 1 Stone once from a chosen pool. */
-export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, stoneAttr?: string): Promise<boolean>;
+/** Attune / bind an artifact — one-time ritual, no Stone reservation, Level 1 is free. */
+export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, _stoneAttr?: string): Promise<boolean>;
 /**
  * GM-only: deactivate artifact and refund its activation Stone so the player
  * can choose a different pool.

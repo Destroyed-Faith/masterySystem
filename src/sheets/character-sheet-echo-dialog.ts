@@ -428,7 +428,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
             }
             await dedupeEchoArtifactsOnActor(actor);
             (ui as any).notifications?.info(
-              `Echo set to ${def.name}${unboundIdentity ? ` — ${unboundIdentity.name}` : ''}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren über Artifacts.`,
+              `Echo set to ${def.name}${unboundIdentity ? ` — ${unboundIdentity.name}` : ''}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Attune via Artifacts — Level 1 is free.`,
             );
             return true;
           }

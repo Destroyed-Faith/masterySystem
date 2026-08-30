@@ -883,6 +883,18 @@ export async function handleChosenCombatOption(token, option) {
             itemRange: option.item?.system?.range,
         });
     }
+    // Reload (PG "Load"): 1 Attack Action clears the Unloaded state.
+    if (option.source === 'maneuver' && option.maneuver?.id === 'reload') {
+        closeRadialMenu();
+        await executeReloadAction(token, option);
+        return;
+    }
+    // Drop Load (PG "Dropping Load"): 1 Attack Action Encumbered / 2 Overloaded.
+    if (option.source === 'maneuver' && option.maneuver?.id === 'drop-load') {
+        closeRadialMenu();
+        await executeDropLoadAction(token, option);
+        return;
+    }
     // Parry Stance → enter Passive Parry pool (must run before melee targeting —
     // the maneuver uses slot "attack" with a melee-ish range).
     if (option.source === 'maneuver' && option.maneuver?.id === 'parry-stance') {
@@ -1381,6 +1393,124 @@ async function actorHasBlockingCondition(actor, names) {
         return false;
     }
 }
+/** Clear the Unloaded state on every equipped Load weapon. Returns their names. */
+async function reloadEquippedLoadWeapons(actor) {
+    const { hasLoadProperty, isWeaponUnloaded, markWeaponLoaded } = await import('./utils/weapon-properties.js');
+    const items = actor?.items ? Array.from(actor.items) : [];
+    const reloaded = [];
+    for (const it of items) {
+        if (it.type !== 'weapon' || it.system?.equipped !== true)
+            continue;
+        if (!hasLoadProperty(it) || !isWeaponUnloaded(it))
+            continue;
+        await markWeaponLoaded(it);
+        reloaded.push(String(it.name));
+    }
+    return reloaded;
+}
+/**
+ * Drop Load (PG "Dropping Load"): safely drop carried gear to remove
+ * Encumbered / Overloaded — 1 Attack Action Encumbered, 2 Overloaded.
+ * Dropped items leave the carry grid (moved to the stash as "on the ground").
+ */
+async function executeDropLoadAction(token, option) {
+    const actor = token.actor;
+    if (!actor)
+        return;
+    const combat = game.combat ?? null;
+    const { getActorInventoryLoadZone, LOAD_ZONE_LABEL } = await import('./utils/encumbrance.js');
+    const zone = getActorInventoryLoadZone(actor);
+    if (zone === 'normal') {
+        ui.notifications?.info('Not Encumbered or Overloaded — nothing to drop.');
+        return;
+    }
+    const cost = zone === 'overloaded' ? 2 : 1;
+    const { getAvailableAttackActions, consumeAttackAction } = await import('./combat/action-economy.js');
+    if (combat) {
+        if (getAvailableAttackActions(actor, combat) < cost) {
+            ui.notifications?.warn(`Drop Load (${LOAD_ZONE_LABEL[zone]}) costs ${cost} Attack Action${cost > 1 ? 's' : ''} — not enough left.`);
+            return;
+        }
+    }
+    // Every carry-grid item leaves the character (dropped safely at their feet).
+    const updates = [];
+    const droppedNames = [];
+    for (const item of actor.items) {
+        const flags = item.getFlag?.('mastery-system', 'equipment') || {};
+        if (flags.container !== 'inventory' || flags.slot)
+            continue;
+        if (flags.weaponSetPrepared === true)
+            continue;
+        if (flags.consumableSlot != null && Number.isFinite(Number(flags.consumableSlot)))
+            continue;
+        const newFlags = { ...flags, container: 'stash', band: null, grid: null };
+        updates.push({ _id: item.id, 'flags.mastery-system.equipment': newFlags });
+        droppedNames.push(String(item.name));
+    }
+    if (updates.length === 0) {
+        ui.notifications?.info('No carried gear in the inventory grid to drop.');
+        return;
+    }
+    if (combat) {
+        for (let i = 0; i < cost; i++)
+            await consumeAttackAction(actor, combat);
+    }
+    await actor.updateEmbeddedDocuments('Item', updates);
+    try {
+        await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor, token: token.document }),
+            content: `<div class="mastery-system-action">
+        <h3><i class="fas fa-box-open"></i> Drop Load</h3>
+        <p><strong>${actor.name}</strong> safely drops the carried load (${cost} Attack Action${cost > 1 ? 's' : ''} — was ${LOAD_ZONE_LABEL[zone]}).</p>
+        <p>Dropped to the ground (stash): ${droppedNames.join(', ')}.</p>
+      </div>`,
+            style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+        });
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not create Drop Load chat message:', error);
+    }
+}
+/**
+ * Reload (Attack Action) — PG "Load": spend 1 Attack Action to reload.
+ */
+async function executeReloadAction(token, option) {
+    const actor = token.actor;
+    if (!actor)
+        return;
+    const combat = game.combat ?? null;
+    const { getAvailableAttackActions, consumeAttackAction } = await import('./combat/action-economy.js');
+    if (combat) {
+        if (getAvailableAttackActions(actor, combat) <= 0) {
+            ui.notifications?.warn('No Actions left this round.');
+            return;
+        }
+    }
+    if (await actorHasBlockingCondition(actor, ['immobilized', 'restrained'])) {
+        ui.notifications?.warn('Reload: you cannot reload while Immobilized or Restrained.');
+        return;
+    }
+    const reloaded = await reloadEquippedLoadWeapons(actor);
+    if (reloaded.length === 0) {
+        ui.notifications?.info('No Unloaded weapon equipped — nothing to reload.');
+        return;
+    }
+    if (combat)
+        await consumeAttackAction(actor, combat);
+    try {
+        await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor, token: token.document }),
+            content: `<div class="mastery-system-action">
+        <h3><i class="fas fa-sync-alt"></i> ${option.name || 'Reload'}</h3>
+        <p>Reloaded: <strong>${reloaded.join(', ')}</strong> (1 Attack Action).</p>
+      </div>`,
+            style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+        });
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not create Reload chat message:', error);
+    }
+}
 /**
  * Quick Load — spend Movement (already consumed) for Reload (1).
  * Caps total Reload this Turn at Mastery Rank. No token movement.
@@ -1417,6 +1547,13 @@ async function executeQuickLoad(token, option) {
     if (!recorded) {
         await refund(`Quick Load: Reload this Turn is capped at Mastery Rank (${mr}).`);
         return;
+    }
+    // Actually clear the Unloaded state on the equipped Load weapon(s).
+    try {
+        await reloadEquippedLoadWeapons(actor);
+    }
+    catch (err) {
+        console.warn('Mastery System | Quick Load weapon reload failed', err);
     }
     const chatData = {
         speaker: ChatMessage.getSpeaker({ actor, token: token.document }),

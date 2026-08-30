@@ -187,9 +187,13 @@ export function deriveLevelProgressionFromPicks(picks) {
                 if (!lrRaw)
                     continue;
                 const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey) : lrRaw;
-                const effectText = chosenKey && catalogTemplateRequiresSpecial(templateId)
-                    ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
-                    : (lr.effect?.text || '');
+                // Printed artifact-exclusive profiles override the catalog effect text.
+                const effectOverride = pick.stageEffectTexts?.[s]?.trim();
+                const effectText = effectOverride
+                    ? effectOverride
+                    : chosenKey && catalogTemplateRequiresSpecial(templateId)
+                        ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
+                        : (lr.effect?.text || '');
                 const specialCol = pick.isSpell
                     ? [specialTextForRow(lrRaw, chosenKey), 'Spell'].filter(Boolean).join(', ')
                     : chosenKey && isWeaponAoe && !catalogTemplateRequiresSpecial(templateId)

@@ -8,7 +8,7 @@ import {
     listSelectableEchoArtifacts,
 } from '../src/utils/echo-artifacts.js';
 
-const KNOWN_ECHOES = ['dwarfs', 'elorians', 'titanborn', 'dragonborn', 'sentinels', 'unbound'];
+const KNOWN_ECHOES = ['dwarfs', 'elorians', 'titanborn', 'dragonborn', 'sentinels', 'unbound', 'halflings'];
 
 describe('Echo Artifact catalog — shape & coverage', () => {
     it('contains a non-empty registry', () => {
@@ -113,6 +113,18 @@ describe('Echo Artifact catalog — lookups', () => {
             'predatorCrownWits',
             'predatorCrownIntellect',
         ]);
+    });
+
+    it('Titanborn pick the single Titan Scars artifact', () => {
+        expect(listSelectableEchoArtifacts('titanborn').map((d) => d.key)).toEqual(['titanScars']);
+        expect(getEchoArtifact('titanScarsMight')?.key).toBe('titanScars');
+    });
+
+    it('Halflings may optionally take the Ringchain of Kept Names', () => {
+        const rule = getEchoArtifactRules('halflings');
+        expect(rule.requiredAtCreation).toBe(0);
+        expect(rule.maxAtCreation).toBe(1);
+        expect(listSelectableEchoArtifacts('halflings').map((d) => d.key)).toEqual(['ringchainOfKeptNames']);
     });
 
     it('Dragonborn pick exactly one of two body armor variants', () => {

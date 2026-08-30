@@ -956,20 +956,43 @@ export function stonePowerHasBlankFirstTier(powerId) {
         return false;
     return (t0.label === null || t0.label === undefined) && t0.value === undefined;
 }
+/**
+ * One Ramp Stone Ability per Attribute whose Tier 1 is intentionally blank.
+ * Extra Attack (generic) is also a blank-T1 ramp and uses the same gate.
+ */
+export const BLANK_T1_STONE_POWER_IDS = [
+    'might.parry',
+    'agility.crit',
+    'vitality.damageNegation',
+    'intellect.spellAction',
+    'resolve.damageReduction',
+    'influence.notATarget',
+    'wits.phasing',
+];
+/** First tier that produces an effect (T2 for blank-T1 ramps, otherwise T1). */
+export function firstEffectiveStonePowerTier(powerId) {
+    return stonePowerHasBlankFirstTier(powerId) ? 2 : 1;
+}
+/**
+ * Support may only improve an already-activated ability. The character must
+ * pay through the first effective tier themselves before a prefill applies.
+ * `rawUsesBefore` is the number of completed activations this turn.
+ */
+export function stonePowerSupportPrefillApplies(powerId, rawUsesBefore) {
+    return Math.max(0, Math.floor(Number(rawUsesBefore) || 0)) >= firstEffectiveStonePowerTier(powerId);
+}
 /** Retired ids that still resolve to a current Stone Power. */
 export const STONE_POWER_ID_ALIASES = {
     'resolve.damageReductionBoost': 'resolve.damageReduction',
     'resolve.specialReduction': 'resolve.ward',
 };
 /**
- * Powers whose published table shifted one tier (old T1 became empty).
- * Artifact Support that prefills T2/T3/T4 is raised by this many tiers
- * so the stored effect still matches the old numbered tier (L7–10 Crit → T5).
+ * Per-power adjustment applied to Artifact Stone Power Support pre-fill tiers.
+ * The current rulebook prints Support stages as Tier 2 / 3 / 4 for every power
+ * (Elorian Focus PG 4819–4825, Ringchain "Kept from Sight" PG 4253–4261), so
+ * no power is shifted. Kept as a map in case a future table diverges.
  */
-export const STONE_POWER_SUPPORT_TIER_SHIFT = {
-    'agility.crit': 1,
-    'influence.notATarget': 1,
-};
+export const STONE_POWER_SUPPORT_TIER_SHIFT = {};
 export function resolveStonePowerId(powerId) {
     const id = String(powerId || '').trim();
     return STONE_POWER_ID_ALIASES[id] || id;
