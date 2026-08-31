@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.436] - 2026-08-31
+
+### Added
+
+- **Character sheet:** A one-page dark compact print (Kompaktbogen) uses the same A4 portrait, 10 mm margins, and browser print/PDF export as the full sheet. It shows only play values, trained skills, powers, Echo, and artifacts, plus the character portrait.
+
 ## [0.9.435] - 2026-08-31
 
 ### Changed

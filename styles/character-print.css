@@ -1904,3 +1904,204 @@
   display: block;
   text-align: center;
 }
+
+/* ── Compact one-page sheet (same A4 / 10mm / 190mm frame, dark) ──────── */
+.mastery-print.is-compact {
+  background: #141210;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-compact .print-page-compact {
+  width: 190mm;
+  min-height: 0;
+  max-height: 277mm;
+  padding: 2mm 0 6mm;
+  page: cp-portrait;
+}
+
+.mastery-print.is-compact .cp-page-footer {
+  color: #8a8478;
+}
+
+.cpc-id {
+  display: flex;
+  align-items: flex-end;
+  gap: 3.5mm;
+  margin-bottom: 2.5mm;
+}
+
+.cpc-portrait {
+  width: 28mm;
+  height: 36mm;
+  object-fit: contain;
+  object-position: center bottom;
+  background: transparent;
+  flex: 0 0 28mm;
+}
+
+.cpc-id-text {
+  min-width: 0;
+  padding-bottom: 1mm;
+}
+
+.cpc-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.cpc-meta {
+  margin: 1mm 0 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c4b8a4;
+}
+
+.cpc-cores {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.2mm;
+  margin-bottom: 2.5mm;
+}
+
+.cpc-core {
+  border: 1px solid #4a453c;
+  border-radius: 3px;
+  padding: 1.4mm 1.2mm 1.2mm;
+  text-align: center;
+  background: #1c1916;
+}
+
+.cpc-k {
+  display: block;
+  font-size: 7.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a9286;
+}
+
+.cpc-v {
+  display: block;
+  margin-top: 0.4mm;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.cpc-block {
+  margin: 0 0 2.2mm;
+}
+
+.cpc-block h2 {
+  margin: 0 0 1mm;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c4b8a4;
+  border-bottom: 1px solid #3c3832;
+  padding-bottom: 0.6mm;
+}
+
+.cpc-block h3 {
+  margin: 1.2mm 0 0.4mm;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a8478;
+}
+
+.cpc-attrs {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1mm;
+}
+
+.cpc-attr {
+  border: 1px solid #4a453c;
+  border-radius: 3px;
+  padding: 1.2mm 0.8mm;
+  text-align: center;
+  background: #1c1916;
+}
+
+.cpc-attr-name {
+  display: block;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9a9286;
+}
+
+.cpc-attr-val {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.cpc-attr-st {
+  display: block;
+  font-size: 8px;
+  color: #c4b8a4;
+}
+
+.cpc-attr-might { border-top: 2px solid #d8d4cc; }
+.cpc-attr-agility { border-top: 2px solid #4caf50; }
+.cpc-attr-vitality { border-top: 2px solid #e53935; }
+.cpc-attr-intellect { border-top: 2px solid #42a5f5; }
+.cpc-attr-resolve { border-top: 2px solid #ab47bc; }
+.cpc-attr-influence { border-top: 2px solid #fb8c00; }
+.cpc-attr-wits { border-top: 2px solid #fdd835; }
+
+.cpc-hint {
+  margin: 0.8mm 0 0;
+  font-size: 7px;
+  color: #6e685e;
+}
+
+.cpc-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8mm 2.2mm;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cpc-skills li {
+  display: flex;
+  gap: 1.4mm;
+  font-size: 9px;
+  min-width: 38mm;
+}
+
+.cpc-skill-r {
+  color: #c4b8a4;
+  font-weight: 700;
+}
+
+.cpc-power,
+.cpc-echo,
+.cpc-art {
+  margin: 0 0 0.7mm;
+  font-size: 8.5px;
+  line-height: 1.28;
+}
+
+.cpc-power strong,
+.cpc-echo strong,
+.cpc-art strong {
+  font-weight: 700;
+}
+
+@media print {
+  .mastery-print.is-compact .print-page-compact {
+    page-break-after: auto;
+    break-after: auto;
+    margin: 0 auto;
+  }
+}

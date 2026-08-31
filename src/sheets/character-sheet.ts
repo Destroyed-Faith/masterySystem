@@ -328,6 +328,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           action: 'msPrintSheetWithBasics',
         },
         {
+          icon: 'fas fa-compress',
+          label: 'Kompaktbogen',
+          action: 'msPrintCompactSheet',
+        },
+        {
           icon: 'fas fa-link',
           label: 'MASTERY.image.copyLink',
           action: 'msCopyPictureLink',
@@ -341,6 +346,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       },
       msPrintSheetWithBasics: function (this: any) {
         void openCharacterPrintSheet(this.actor, { includeStandardManeuvers: true });
+      },
+      msPrintCompactSheet: function (this: any) {
+        void openCharacterPrintSheet(this.actor, { layout: 'compact' });
       },
       msCopyPictureLink: function (this: any) {
         void copyDocumentImageLink(this.actor);
@@ -364,7 +372,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const controls = super._getHeaderControls?.() ?? [];
     if (this.actor?.type === 'character') return controls;
     return controls.filter(
-      (c: any) => c?.action !== 'msPrintSheet' && c?.action !== 'msPrintSheetWithBasics',
+      (c: any) =>
+        c?.action !== 'msPrintSheet' &&
+        c?.action !== 'msPrintSheetWithBasics' &&
+        c?.action !== 'msPrintCompactSheet',
     );
   }
 

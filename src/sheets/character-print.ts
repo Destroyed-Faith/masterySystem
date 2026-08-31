@@ -30,7 +30,7 @@ import {
 } from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
-import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
+import { getEcho, getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
 import {
   parseInventorySize,
   fitsInGrid,
@@ -65,6 +65,8 @@ export interface CharacterPrintOptions {
    * battle page (same universal options as radial / Reaction Window).
    */
   includeStandardManeuvers?: boolean;
+  /** One dark A4 page with only play-essential values. */
+  layout?: 'full' | 'compact';
 }
 
 /** Human-readable label per Stone Function kind (technical summary). */
@@ -88,6 +90,7 @@ const STONE_GROUPS: { key: string; label: string }[] = [
 ];
 
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/character-print.hbs';
+const PRINT_TEMPLATE_COMPACT = 'systems/mastery-system/templates/actor/character-print-compact.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/character-print.css';
 
 const ATTR_ORDER = [
@@ -1126,6 +1129,215 @@ function routed(path: string): string {
   return `${window.location.origin}/${path.replace(/^\//, '')}`;
 }
 
+function actorItemList(actor: any): any[] {
+  if (!actor?.items) return [];
+  if (typeof actor.items.values === 'function') return Array.from(actor.items.values());
+  if (Array.isArray(actor.items)) return actor.items;
+  try {
+    return Array.from(actor.items);
+  } catch {
+    return [];
+  }
+}
+
+function itemFlag(item: any, key: string): unknown {
+  if (typeof item?.getFlag === 'function') return item.getFlag('mastery-system', key);
+  return item?.flags?.['mastery-system']?.[key];
+}
+
+function compactOneLine(value: unknown, max = 108): string {
+  const s = stripHtml(value);
+  if (!s) return '';
+  if (s.length <= max) return s;
+  return `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
+}
+
+function missingMark(value: unknown, fallback?: string): string {
+  if (value == null) return '[CHECK]';
+  const s = String(value).trim();
+  if (!s) return fallback || '[CHECK]';
+  return s;
+}
+
+/**
+ * One-page compact print context — play values only, no inventory / empty rows.
+ */
+export function buildCharacterCompactPrintContext(actor: any): Record<string, unknown> {
+  const system = actor?.system ?? {};
+  const masteryRank = num(system?.mastery?.rank);
+  const combat = system?.combat ?? {};
+  const allItems = actorItemList(actor);
+
+  const echoKey = String(system?.echo?.key ?? '').trim();
+  const echoDef = getEcho(echoKey);
+  const echoName = echoDef?.name || missingMark(system?.bio?.echo || echoKey);
+
+  const cardIds = Array.isArray(system?.echo?.selectedCardIds)
+    ? system.echo.selectedCardIds.map((id: unknown) => String(id || '').trim()).filter(Boolean)
+    : [];
+  const echoCards = cardIds
+    .map((id: string) => {
+      const card = getEchoCard(echoKey, id);
+      if (!card) return { name: missingMark(id), summary: '[CHECK]' };
+      return {
+        name: card.name,
+        summary: compactOneLine(card.trigger, 140),
+      };
+    })
+    .filter((c: { name: string }) => c.name);
+
+  const attributes = ATTR_ORDER.map((key) => {
+    const value = num(system?.attributes?.[key]?.value);
+    const stones = num(
+      system?.stonePools?.[key]?.current,
+      num(system?.stonePools?.[key]?.max, Math.floor(value / 8)),
+    );
+    return { key, label: cap(key), value, stones };
+  });
+
+  const skills: { name: string; rating: number; attr: string }[] = [];
+  const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
+  for (const [key, raw] of Object.entries(skillMap)) {
+    const rating = num(raw);
+    if (rating <= 0) continue;
+    const def = SKILLS[key];
+    skills.push({
+      name: def?.name || cap(key),
+      rating,
+      attr: def?.attributes?.[0] ? cap(def.attributes[0]).slice(0, 3) : '',
+    });
+  }
+  skills.sort((a, b) => a.name.localeCompare(b.name));
+
+  const healthBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
+  const playHealth = healthBars.filter((b: any) => String(b?.name ?? '') !== 'Incapacitated');
+  const healthPerBar = playHealth.length ? num(playHealth[0]?.max) : 0;
+  const healthBarCount = playHealth.length;
+  const incap = healthBars.find((b: any) => String(b?.name ?? '') === 'Incapacitated');
+
+  const stressBars = Array.isArray(system?.stress?.bars) ? system.stress.bars : [];
+  const stressPerBar = stressBars.length ? num(stressBars[0]?.max) : 0;
+
+  const initMr = num(combat?.initiativeMasteryRank, masteryRank);
+  const initStored = combat?.initiative;
+  const initiative =
+    initStored == null || (num(initStored) === 0 && initMr > 0) ? initMr : num(initStored);
+
+  const powerItems = allItems.filter((i: any) => i?.type === 'power');
+  const powers: Record<string, { phase: string; name: string; effect: string; attack: string; damage: string }[]> = {
+    Active: [],
+    'Active Buff': [],
+    Reaction: [],
+    Passive: [],
+    Other: [],
+  };
+
+  for (const p of powerItems) {
+    const sys = p?.system ?? {};
+    const category = resolvePowerCategoryFromItem(p);
+    const rank = num(sys?.level ?? sys?.rank, 1);
+    const phase = powerPhaseLabel(category) || 'Other';
+    const slot =
+      category === 'activeBuff' ? 'activeBuff' : category === 'reaction' ? 'reaction' : 'active';
+    const preview = buildPrintCombatPreview(actor, p, allItems, slot);
+    const bucket = powers[phase] ? phase : 'Other';
+    powers[bucket]!.push({
+      phase,
+      name: prettyPowerName(p, rank),
+      effect: compactOneLine(powerEffectForRank(sys, rank), 100),
+      attack: preview?.showAttack && preview.attackLabel ? String(preview.attackLabel) : '',
+      damage: preview?.showDamage && preview.damage ? String(preview.damage) : '',
+    });
+  }
+
+  const artifacts: { name: string; note: string }[] = [];
+  for (const a of allItems.filter((i: any) => i?.type === 'artifact')) {
+    if (itemFlag(a, 'artifactActivated') === false) continue;
+    const sys = a?.system ?? {};
+    const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+    const bits: string[] = [`L${level}`];
+    const isWeapon =
+      sys.artifactKind === 'weapon' || String(sys.baseTypeKey ?? '').startsWith('weapon:');
+    if (isWeapon) {
+      const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
+      const dmg = derived || String(sys.artifactWeapon?.damage ?? '').trim();
+      if (dmg) bits.push(dmg);
+    }
+    const trait = String(sys.freeTrait ?? '').trim();
+    if (trait) bits.push(trait);
+    const rows = visibleAbilityRows(
+      Array.isArray(sys.levelProgression) ? sys.levelProgression : [],
+      level,
+    );
+    for (const row of rows) {
+      const type = String(row?.type ?? '').trim();
+      const t = type.toLowerCase();
+      if (t.includes('stone') || t.includes('support')) {
+        bits.push(compactOneLine(row?.effect, 72));
+        continue;
+      }
+      const phase =
+        powerPhaseLabel(
+          t.includes('buff')
+            ? 'activeBuff'
+            : t.includes('reaction')
+              ? 'reaction'
+              : t.includes('passive')
+                ? 'passive'
+                : 'active',
+        ) ||
+        type ||
+        'Active';
+      const preview = buildPrintCombatPreviewForArtifactRow(actor, row, allItems, 'active');
+      const bucket = powers[phase] ? phase : 'Other';
+      powers[bucket]!.push({
+        phase,
+        name: `${String(row?.name ?? '').trim()} (${String(a?.name ?? '').replace(/\s*-\s*Level.*$/i, '').trim()})`,
+        effect: compactOneLine(row?.effect, 90),
+        attack: preview?.showAttack && preview.attackLabel ? String(preview.attackLabel) : '',
+        damage: preview?.showDamage && preview.damage ? String(preview.damage) : '',
+      });
+    }
+    artifacts.push({
+      name: String(a?.name ?? '').replace(/\s*-\s*Level.*$/i, '').trim() || missingMark(a?.name),
+      note: bits.join(' · '),
+    });
+  }
+
+  const powerGroups = (['Active', 'Active Buff', 'Reaction', 'Passive', 'Other'] as const)
+    .map((phase) => ({ phase, items: powers[phase] ?? [] }))
+    .filter((g) => g.items.length > 0);
+
+  const rawImg = String(actor?.img ?? '').trim();
+  const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
+  const portrait = absImg(portraitSrc);
+
+  return {
+    name: missingMark(actor?.name, '[CHECK]'),
+    echoName,
+    masteryRank: masteryRank > 0 ? masteryRank : '[CHECK]',
+    portrait,
+    hasPortrait: !!portrait,
+    movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '[CHECK]',
+    evade: combat?.evadeTotal != null ? num(combat.evadeTotal) : '[CHECK]',
+    armor: combat?.armorTotal != null ? num(combat.armorTotal) : '[CHECK]',
+    initiative,
+    health:
+      healthBarCount && healthPerBar
+        ? `${healthPerBar} × ${healthBarCount}${incap ? ' +1' : ''}`
+        : '[CHECK]',
+    stress: stressBars.length && stressPerBar ? `${stressPerBar} × ${stressBars.length}` : '[CHECK]',
+    attributes,
+    skills,
+    hasSkills: skills.length > 0,
+    powerGroups,
+    echoCards,
+    hasEchoCards: echoCards.length > 0,
+    artifacts,
+    hasArtifacts: artifacts.length > 0,
+  };
+}
+
 /**
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
@@ -1139,10 +1351,14 @@ export async function openCharacterPrintSheet(
     return;
   }
 
+  const compact = options.layout === 'compact';
   let body = '';
   try {
-    const context = buildCharacterPrintContext(actor, options);
-    body = await (foundry as any).applications.handlebars.renderTemplate(PRINT_TEMPLATE, context);
+    const context = compact
+      ? buildCharacterCompactPrintContext(actor)
+      : buildCharacterPrintContext(actor, options);
+    const template = compact ? PRINT_TEMPLATE_COMPACT : PRINT_TEMPLATE;
+    body = await (foundry as any).applications.handlebars.renderTemplate(template, context);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Mastery System | Failed to build character print sheet', message, error);
@@ -1163,6 +1379,7 @@ export async function openCharacterPrintSheet(
   const cssVersion = String((game as any)?.system?.version ?? Date.now());
   const cssHref = `${routed(PRINT_CSS)}?v=${encodeURIComponent(cssVersion)}`;
   const title = String(actor?.name ?? 'Character');
+  const bodyClass = compact ? 'mastery-print is-compact' : 'mastery-print';
   const doc = `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1170,7 +1387,7 @@ export async function openCharacterPrintSheet(
   <title>${title}</title>
   <link rel="stylesheet" href="${cssHref}" />
 </head>
-<body class="mastery-print">
+<body class="${bodyClass}">
 ${body}
 <script>
   window.addEventListener('load', function () {
