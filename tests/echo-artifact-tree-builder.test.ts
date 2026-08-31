@@ -378,9 +378,13 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
         /Elorian Focus/.test(r.name),
       )?.effect as string) || '';
     expect(focusEffectAt(3)).toContain('pre-fills Tier 2');
-    expect(focusEffectAt(3)).toMatch(/Tier 1/);
+    expect(focusEffectAt(3)).not.toMatch(/Tier 1/);
     expect(focusEffectAt(6)).toContain('pre-fills Tier 3');
+    expect(focusEffectAt(6)).toMatch(/Tier 2/);
+    expect(focusEffectAt(6)).not.toMatch(/Tier 1/);
     expect(focusEffectAt(9)).toContain('pre-fills Tier 4');
+    expect(focusEffectAt(9)).toMatch(/Tiers 2, 3/);
+    expect(focusEffectAt(9)).not.toMatch(/Tier 1/);
   });
 
   it('Elorian Stride Evade (+2..+12) and Movement (L4+) base values scale per spec', () => {

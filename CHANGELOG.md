@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.433] - 2026-08-31
+
+### Fixed
+
+- **Artifacts:** Elorian Focus / Crit Stone Power Support copy no longer mentions a payable Tier 1. Crit starts at Tier 2.
+
 ## [0.9.432] - 2026-08-31
 
 ### Changed

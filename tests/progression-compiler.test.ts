@@ -68,9 +68,13 @@ describe('deriveLevelProgressionFromPicks', () => {
     const rows = deriveLevelProgressionFromPicks(picks);
     expect(rows.map((r) => r.level)).toEqual([3, 6, 9]);
     expect(rows[0].effect).toContain('pre-fills Tier 2');
-    expect(rows[0].effect).toMatch(/Tier 1/);
+    expect(rows[0].effect).not.toMatch(/Tier 1/);
     expect(rows[1].effect).toContain('pre-fills Tier 3');
+    expect(rows[1].effect).toMatch(/Tier 2/);
+    expect(rows[1].effect).not.toMatch(/Tier 1/);
     expect(rows[2].effect).toContain('pre-fills Tier 4');
+    expect(rows[2].effect).toMatch(/Tiers 2, 3/);
+    expect(rows[2].effect).not.toMatch(/Tier 1/);
   });
 
   it('emits nothing for empty / none picks', () => {
