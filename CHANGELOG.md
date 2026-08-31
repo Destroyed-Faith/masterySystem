@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.437] - 2026-08-31
+
+### Changed
+
+- **Character sheet:** The one-page print is now the Destroyed Faith Quick Play sheet. Same A4 portrait, 10 mm margins, and browser PDF download as the full sheet. Attribute / Stone modules and trained-only skills stay; the header adds Faith Fractures, INIT as MR d8, Health penalties, Temp HP, Stress Breakdown, Initiative Left, Colorless Stones, and Phasing. Bounding Leap sits with the powers. Melee Damage + Special uses the live catalog dice (T6 at PL 2 is +1d8). Power and Artifact play text is no longer cut off with ellipsis.
+
 ## [0.9.436] - 2026-08-31
 
 ### Added

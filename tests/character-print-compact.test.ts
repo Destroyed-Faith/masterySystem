@@ -28,6 +28,8 @@ function alarisActor() {
         influence: { current: 0, max: 0 },
         wits: { current: 1, max: 1 },
       },
+      faithFractures: { current: 8, maximum: 8 },
+      minorExpressions: ['agility-light-fingers'],
       combat: {
         speed: 8,
         evadeTotal: 17,
@@ -36,6 +38,7 @@ function alarisActor() {
         initiativeMasteryRank: 2,
       },
       health: {
+        tempHP: 0,
         bars: [
           { name: 'Healthy', current: 22, max: 22 },
           { name: 'Bruised', current: 22, max: 22 },
@@ -47,10 +50,10 @@ function alarisActor() {
       },
       stress: {
         bars: [
-          { current: 16, max: 16 },
-          { current: 16, max: 16 },
-          { current: 16, max: 16 },
-          { current: 16, max: 16 },
+          { name: 'Healthy', current: 16, max: 16 },
+          { name: 'Stressed', current: 16, max: 16 },
+          { name: 'Not Well', current: 16, max: 16 },
+          { name: 'Breaking', current: 16, max: 16 },
         ],
       },
       skills: {
@@ -85,15 +88,57 @@ function alarisActor() {
         },
       },
       {
+        name: 'Melee Damage — Tier 6 — Sundered',
+        type: 'power',
+        system: {
+          category: 'active',
+          templateId: 'active-melee-damage-t6',
+          rank: 2,
+          level: 2,
+          chosenSpecial: { key: 'sundered', tier: 6 },
+          cost: { action: 'attack' },
+          effect: 'Deal **+2d8 damage** on hit.',
+          levels: {
+            2: {
+              effect: { text: 'Deal **+2d8 damage** on hit.', dice: '2d8' },
+              mechanics: { damageRider: { flat: '+2d8' } },
+              specials: [{ key: 'sundered', rank: 3 }],
+            },
+          },
+        },
+      },
+      {
+        name: 'Passive: Ghostform',
+        type: 'power',
+        system: {
+          category: 'passive',
+          templateId: 'passive-ghostform',
+          rank: 4,
+          level: 4,
+          effect: 'At the start of combat, gain **1 Phasing charge**.',
+        },
+      },
+      {
+        name: 'Active Buff: Phasing',
+        type: 'power',
+        system: {
+          category: 'activeBuff',
+          templateId: 'ab-phasing',
+          rank: 4,
+          level: 4,
+        },
+      },
+      {
         name: 'Moonlight Greatsword - Level 1-1',
         type: 'artifact',
         system: {
           artifactKind: 'weapon',
           baseTypeKey: 'weapon:greatsword',
           baseProfile: 'twoHandedWeapon',
+          binding: 'bound',
           freeTrait: 'Finesse',
           currentLevel: 1,
-          artifactWeapon: { damage: '5d8' },
+          artifactWeapon: { damage: '5d8', weaponType: 'melee' },
           levelProgression: [
             {
               level: 1,
@@ -105,12 +150,51 @@ function alarisActor() {
         },
         flags: { 'mastery-system': { artifactActivated: true } },
       },
+      {
+        name: 'Elorian Stride - Level 1-1',
+        type: 'artifact',
+        system: {
+          artifactKind: 'gear',
+          baseProfile: 'feet',
+          currentLevel: 1,
+          baseValues: [{ slot: 'a', type: 'evade', label: 'Evade', value: 2 }],
+          levelProgression: [
+            {
+              level: 1,
+              name: 'Otherworld Reflex I',
+              type: 'Reaction',
+              effect: 'Gain **+8 Evade** against the triggering attack.',
+            },
+          ],
+        },
+        flags: { 'mastery-system': { artifactActivated: true } },
+      },
+      {
+        name: 'Soul Sigil - Level 1-1',
+        type: 'artifact',
+        system: {
+          artifactKind: 'armor',
+          baseProfile: 'noArmorBody',
+          currentLevel: 1,
+          baseValues: [{ slot: 'a', type: 'evade', label: 'Evade (Silver Veil)', value: 7 }],
+          levelProgression: [
+            {
+              level: 1,
+              name: 'Soul Shell I',
+              type: 'Stone Power Support',
+              effect:
+                'Supports the Vitality Ability: Temporary HP Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+            },
+          ],
+        },
+        flags: { 'mastery-system': { artifactActivated: true } },
+      },
     ],
   };
 }
 
-describe('compact character print', () => {
-  it('uses Alaris play values and omits untrained skills', () => {
+describe('Quick Play character print', () => {
+  it('renders Alaris from the same actor data without a separate Echo block', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     expect(ctx.name).toBe('Alaris');
     expect(ctx.echoName).toBe('Elorians');
@@ -120,15 +204,92 @@ describe('compact character print', () => {
     expect(ctx.movement).toBe('8 m');
     expect(ctx.evade).toBe(17);
     expect(ctx.armor).toBe(2);
-    expect(ctx.initiative).toBe(2);
-    expect(ctx.health).toBe('22 × 5 +1');
-    expect(ctx.stress).toBe('16 × 4');
+    expect(ctx.initiative).toBe('2d8');
+    expect(ctx.faithFractures).toBe('8 / 8');
+    expect(ctx.tempHp).toBe(0);
+    expect(ctx.colorlessCost).toBe(8);
+    expect(ctx.colorlessBoxes).toHaveLength(4);
+    expect(ctx.phasingBoxes).toHaveLength(2);
+    expect(ctx.healthBars.map((b: any) => b.name)).toEqual([
+      'Healthy',
+      'Bruised',
+      'Injured',
+      'Wounded',
+      'Broken',
+    ]);
+    expect(ctx.healthBars[0]).toMatchObject({ available: 22, max: 22, penalty: '' });
+    expect(ctx.healthBars[1].penalty).toBe('−10%');
+    expect(ctx.healthBars[4].penalty).toBe('−50%');
+    expect(ctx.stressBars).toHaveLength(4);
+    expect(ctx.echoCards).toBeUndefined();
+    expect(ctx.hasEchoCards).toBeUndefined();
+  });
+
+  it('connects each Attribute to its stones and first real Stone Power tier', () => {
+    const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
+    expect(ctx.attributeModules).toHaveLength(7);
+    const agility = ctx.attributeModules.find((m: any) => m.key === 'agility');
+    expect(agility.value).toBe(10);
+    expect(agility.stoneReady).toBe(1);
+    expect(agility.stones).toEqual([{ ready: true }]);
+    const crit = agility.powers.find((p: any) => p.name === 'Crit');
+    expect(crit.tier).toBe(2);
+    expect(crit.cost).toBe(2);
+    expect(crit.costPips).toHaveLength(2);
+    expect(agility.powers.some((p: any) => p.tier === 1 && p.name === 'Crit')).toBe(false);
+
+    const influence = ctx.attributeModules.find((m: any) => m.key === 'influence');
+    expect(influence.value).toBe(4);
+    expect(influence.hasStones).toBe(false);
+    expect(influence.stones).toEqual([]);
+    expect(influence.powers).toHaveLength(4);
+
+    expect(ctx.generalStones.powers).toHaveLength(4);
+    const extraAttack = ctx.generalStones.powers.find((p: any) => p.name === 'Extra Attack');
+    expect(extraAttack.tier).toBe(2);
+    expect(extraAttack.cost).toBe(2);
+  });
+
+  it('shows only trained skills with Keep and existing skill-use boxes', () => {
+    const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     expect(ctx.skills.map((s: any) => s.name)).not.toContain('Athletics');
-    expect(ctx.skills.map((s: any) => s.name)).toContain('Melee Weapons');
-    expect(ctx.skills.every((s: any) => s.rating > 0)).toBe(true);
-    expect(ctx.echoCards[0]?.name).toBe('Unseen Grace');
-    expect(ctx.artifacts.some((a: any) => a.name === 'Moonlight Greatsword')).toBe(true);
-    expect(JSON.stringify(ctx)).not.toMatch(/Quick Play|Quickplay/i);
+    const acro = ctx.skills.find((s: any) => s.name === 'Acrobatics');
+    expect(acro.attr).toBe('Agility');
+    expect(acro.pool).toBe(10);
+    expect(acro.keep).toBe('k2');
+    expect(acro.boxes.map((b: any) => b.size)).toEqual([2, 2]);
+  });
+
+  it('keeps Artifact powers on the Artifact, not in the general Power list', () => {
+    const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
+    const sword = ctx.artifacts.find((a: any) => a.name === 'Moonlight Greatsword');
+    expect(sword.damage).toBe('5d8');
+    expect(sword.trait).toBe('Finesse');
+    expect(sword.powers.some((p: any) => p.name === 'Moonlight Mending I')).toBe(true);
+    const allPowerNames = ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.name));
+    expect(allPowerNames.join(' ')).not.toMatch(/Moonlight Mending/);
+    expect(allPowerNames).toContain('Melee Single Attack');
+    expect(allPowerNames).toContain('Evade');
+    expect(allPowerNames).not.toContain('Passive: Evade');
+    const stride = ctx.artifacts.find((a: any) => a.name === 'Elorian Stride');
+    expect(stride.bases).toContain('+2 Evade');
+    expect(stride.powers.some((p: any) => p.name === 'Otherworld Reflex I')).toBe(true);
+    const sigil = ctx.artifacts.find((a: any) => a.name === 'Soul Sigil');
+    expect(sigil.bases).toContain('+7 Evade');
+    const shell = sigil.powers.find((p: any) => p.name === 'Soul Shell I');
+    expect(shell.effect).toMatch(/Temporary HP/);
+    expect(shell.effect).not.toMatch(/…/);
+    const sundered = ctx.powerGroups
+      .flatMap((g: any) => g.items)
+      .find((i: any) => String(i.name).includes('Sundered'));
+    expect(sundered.damage).toMatch(/WD 5d8 \+ 1d8/);
+    expect(sundered.damage).not.toMatch(/\+ 2d8/);
+    expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);
+    const allEffects = [
+      ...ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.effect)),
+      ...ctx.artifacts.flatMap((a: any) => a.powers.map((p: any) => p.effect)),
+    ].join('\n');
+    expect(allEffects).not.toMatch(/…/);
   });
 
   it('marks missing combat totals as [CHECK]', () => {
@@ -142,6 +303,6 @@ describe('compact character print', () => {
     expect(ctx.name).toBe('[CHECK]');
     expect(ctx.movement).toBe('[CHECK]');
     expect(ctx.evade).toBe('[CHECK]');
-    expect(ctx.health).toBe('[CHECK]');
+    expect(ctx.hasHealth).toBe(false);
   });
 });

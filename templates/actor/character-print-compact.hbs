@@ -1,81 +1,195 @@
 <section class="print-page print-page-compact">
-  <header class="cpc-id">
+  <header class="qp-top">
     {{#if hasPortrait}}
-    <img class="cpc-portrait" src="{{portrait}}" alt="{{name}}" />
+    <img class="qp-portrait" src="{{portrait}}" alt="{{name}}" />
     {{/if}}
-    <div class="cpc-id-text">
-      <h1 class="cpc-name">{{name}}</h1>
-      <p class="cpc-meta">{{echoName}} · MR {{masteryRank}}</p>
+    <div class="qp-id">
+      <h1 class="qp-name">{{name}}</h1>
+      <p class="qp-meta">{{echoName}} · MR {{masteryRank}}</p>
+      {{#if hasFaithFractures}}
+      <p class="qp-faith">Faith Fractures <b>{{faithFractures}}</b></p>
+      {{/if}}
+      <div class="qp-cores">
+        <div class="qp-core"><span>Move</span><b>{{movement}}</b></div>
+        <div class="qp-core"><span>Init</span><b>{{initiative}}</b></div>
+        <div class="qp-core"><span>Evade</span><b>{{evade}}</b></div>
+        <div class="qp-core"><span>Armor</span><b>{{armor}}</b></div>
+      </div>
+    </div>
+    <div class="qp-tracks">
+      {{#if hasHealth}}
+      <div class="qp-track">
+        <h2>Health</h2>
+        {{#each healthBars}}
+        <div class="qp-bar">
+          <span class="qp-bar-name">{{name}}</span>
+          <span class="qp-bar-n">{{available}}</span>
+          <span class="qp-bar-pen">{{penalty}}</span>
+        </div>
+        {{/each}}
+        <div class="qp-bar qp-temp">
+          <span class="qp-bar-name">Temp HP</span>
+          <span class="qp-bar-n">{{tempHp}}</span>
+          <span class="qp-bar-pen qp-write"></span>
+        </div>
+      </div>
+      {{/if}}
+      {{#if hasStress}}
+      <div class="qp-track">
+        <h2>Stress</h2>
+        {{#each stressBars}}
+        <div class="qp-bar">
+          <span class="qp-bar-name">{{name}}</span>
+          <span class="qp-bar-n">{{available}}</span>
+          <span class="qp-bar-pen"></span>
+        </div>
+        {{/each}}
+        <div class="qp-bar">
+          <span class="qp-bar-name">Breakdown</span>
+          <span class="qp-bar-n qp-empty-box"></span>
+          <span class="qp-bar-pen"></span>
+        </div>
+      </div>
+      {{/if}}
     </div>
   </header>
-
-  <div class="cpc-cores">
-    <div class="cpc-core"><span class="cpc-k">Move</span><span class="cpc-v">{{movement}}</span></div>
-    <div class="cpc-core"><span class="cpc-k">Evade</span><span class="cpc-v">{{evade}}</span></div>
-    <div class="cpc-core"><span class="cpc-k">Armor</span><span class="cpc-v">{{armor}}</span></div>
-    <div class="cpc-core"><span class="cpc-k">Init</span><span class="cpc-v">{{initiative}}</span></div>
-    <div class="cpc-core"><span class="cpc-k">Health</span><span class="cpc-v">{{health}}</span></div>
-    <div class="cpc-core"><span class="cpc-k">Stress</span><span class="cpc-v">{{stress}}</span></div>
+  <div class="qp-combat-strip">
+    <div class="qp-res"><span>Initiative Left</span><i class="qp-write-line"></i></div>
+    <div class="qp-res">
+      <span>Colorless Stones</span>
+      <span class="qp-tick-row">{{#each colorlessBoxes}}<i class="qp-tick"></i>{{/each}}</span>
+    </div>
+    <p class="qp-res-note">{{colorlessCost}} Initiative = 1 Colorless Stone</p>
+    {{#if hasPhasing}}
+    <div class="qp-res">
+      <span>Phasing</span>
+      <span class="qp-tick-row">{{#each phasingBoxes}}<i class="qp-tick"></i>{{/each}}</span>
+    </div>
+    {{/if}}
   </div>
 
-  <section class="cpc-block">
-    <h2>Attributes</h2>
-    <div class="cpc-attrs">
-      {{#each attributes}}
-      <div class="cpc-attr cpc-attr-{{key}}">
-        <span class="cpc-attr-name">{{label}}</span>
-        <span class="cpc-attr-val">{{value}}</span>
-        <span class="cpc-attr-st">{{stones}}</span>
-      </div>
+  <section class="qp-stones">
+    <div class="qp-attr-grid">
+      {{#each attributeModules}}
+      <article class="qp-mod qp-mod-{{key}}{{#unless hasStones}} is-empty{{/unless}}">
+        <header class="qp-mod-head">
+          <span class="qp-mod-name">{{label}}</span>
+          <span class="qp-mod-val">{{value}}</span>
+          <span class="qp-mod-pips">
+            <span class="qp-mod-stones-label">Stones:</span>
+            {{#each stones}}<i class="qp-pip{{#if ready}} is-ready{{/if}}"></i>{{/each}}
+          </span>
+        </header>
+        <div class="qp-sp-grid">
+          {{#each powers}}
+          <p class="qp-sp">
+            <span class="qp-sp-name">{{name}}</span>
+            <span class="qp-sp-tier">T{{tier}} · {{#each costPips}}<i class="qp-cost"></i>{{/each}}</span>
+            <span class="qp-sp-fx">{{effect}}</span>
+          </p>
+          {{/each}}
+        </div>
+      </article>
       {{/each}}
+      <article class="qp-mod qp-mod-generic">
+        <header class="qp-mod-head">
+          <span class="qp-mod-name">General Stone Powers</span>
+        </header>
+        <div class="qp-sp-grid">
+          {{#each generalStones.powers}}
+          <p class="qp-sp">
+            <span class="qp-sp-name">{{name}}</span>
+            <span class="qp-sp-tier">T{{tier}} · {{#each costPips}}<i class="qp-cost"></i>{{/each}}</span>
+            <span class="qp-sp-fx">{{effect}}</span>
+          </p>
+          {{/each}}
+        </div>
+      </article>
     </div>
-    <p class="cpc-hint">Value / Stones</p>
   </section>
 
   {{#if hasSkills}}
-  <section class="cpc-block">
+  <section class="qp-block">
     <h2>Skills</h2>
-    <ul class="cpc-skills">
+    <ul class="qp-skills">
       {{#each skills}}
-      <li><span>{{name}}</span><span class="cpc-skill-r">{{rating}}{{#if attr}} {{attr}}{{/if}}</span></li>
+      <li>
+        <span class="qp-sk-name">{{name}} <em>({{attr}})</em></span>
+        <span class="qp-sk-keep">{{pool}}{{keep}}</span>
+        <span class="qp-sk-boxes">
+          {{#each boxes}}<i class="qp-sk-box is-{{state}}">{{size}}</i>{{/each}}
+        </span>
+      </li>
       {{/each}}
     </ul>
   </section>
   {{/if}}
 
-  {{#if powerGroups.length}}
-  <section class="cpc-block">
+  {{#if hasPowerArea}}
+  <section class="qp-block">
     <h2>Powers</h2>
-    {{#each powerGroups}}
-    <div class="cpc-pg">
-      <h3>{{phase}}</h3>
-      {{#each items}}
-      <p class="cpc-power">
-        <strong>{{name}}</strong>{{#if attack}} · {{attack}}{{/if}}{{#if damage}} · {{damage}}{{/if}}{{#if effect}} — {{effect}}{{/if}}
-      </p>
+    <div class="qp-power-cols">
+      {{#each powerGroups}}
+      <div class="qp-pg">
+        <h3>{{phase}}</h3>
+        <div class="qp-tiles">
+          {{#each items}}
+          <article class="qp-tile qp-tile-{{phaseClass}}">
+            <header>
+              <strong>{{name}}</strong>
+              <span>{{phase}} · PL {{rank}}</span>
+            </header>
+            {{#if attack}}<p>Attack: {{attack}}</p>{{/if}}
+            {{#if damage}}<p>Damage: {{damage}}</p>{{/if}}
+            {{#if effect}}<p>{{effect}}</p>{{/if}}
+          </article>
+          {{/each}}
+        </div>
+      </div>
       {{/each}}
+      {{#if hasMinorExpressions}}
+      <div class="qp-pg">
+        <h3>Minor Expression</h3>
+        <div class="qp-tiles">
+          {{#each minorExpressionTiles}}
+          <article class="qp-tile qp-tile-{{phaseClass}}">
+            <header>
+              <strong>{{name}}</strong>
+              <span>{{phase}} · {{attr}}</span>
+            </header>
+            {{#if effect}}<p>{{effect}}</p>{{/if}}
+          </article>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
     </div>
-    {{/each}}
-  </section>
-  {{/if}}
-
-  {{#if hasEchoCards}}
-  <section class="cpc-block">
-    <h2>Echo</h2>
-    {{#each echoCards}}
-    <p class="cpc-echo"><strong>{{name}}</strong> — {{summary}}</p>
-    {{/each}}
   </section>
   {{/if}}
 
   {{#if hasArtifacts}}
-  <section class="cpc-block">
+  <section class="qp-block">
     <h2>Artifacts</h2>
-    {{#each artifacts}}
-    <p class="cpc-art"><strong>{{name}}</strong>{{#if note}} — {{note}}{{/if}}</p>
-    {{/each}}
+    <div class="qp-arts">
+      {{#each artifacts}}
+      <article class="qp-art">
+        <header>
+          <strong>{{name}}</strong>
+          <span>L{{level}}{{#if kind}} · {{kind}}{{/if}}{{#if damage}} · {{damage}}{{/if}}{{#if trait}} · {{trait}}{{/if}}</span>
+        </header>
+        {{#each bases}}<p class="qp-art-base">{{this}}</p>{{/each}}
+        {{#if powers.length}}
+        <div class="qp-art-powers">
+          {{#each powers}}
+          <p><strong>{{name}}</strong>{{#if type}} <em>{{type}}</em>{{/if}}{{#if effect}} — {{effect}}{{/if}}</p>
+          {{/each}}
+        </div>
+        {{/if}}
+      </article>
+      {{/each}}
+    </div>
   </section>
   {{/if}}
 
-  <div class="cp-page-footer">— Kompaktbogen —</div>
+  <div class="cp-page-footer">— Quick Play —</div>
 </section>

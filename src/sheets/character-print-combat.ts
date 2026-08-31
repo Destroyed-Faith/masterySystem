@@ -81,8 +81,20 @@ function levelRow(sys: any, rank: number): any | null {
   return levels[key] ?? null;
 }
 
+function catalogLevelRow(sys: any, rank: number): any | null {
+  const tid = String(sys?.templateId ?? '').trim();
+  if (!tid) return null;
+  const tmpl = getTemplate(tid);
+  const levels = tmpl?.levels;
+  if (!levels || typeof levels !== 'object') return null;
+  const key = String(getPowerDefinitionRank(rank, levels));
+  return (levels as Record<string, unknown>)[key] ?? null;
+}
+
 function powerDamageForRank(sys: any, rank: number): string {
-  const row = levelRow(sys, rank);
+  const catalog = catalogLevelRow(sys, rank);
+  const baked = levelRow(sys, rank);
+  const row = catalog ?? baked;
   const dice = row?.effect?.dice ?? row?.roll?.damage;
   if (dice != null && String(dice).trim()) return cleanPowerDamage(dice);
   const rider = row?.mechanics?.damageRider?.flat;

@@ -329,7 +329,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         },
         {
           icon: 'fas fa-compress',
-          label: 'Kompaktbogen',
+          label: 'Quick Play',
           action: 'msPrintCompactSheet',
         },
         {
