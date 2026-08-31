@@ -57,7 +57,12 @@ import {
   planStoneRecovery,
   type StoneRecoveryPoolInput,
 } from './stone-recovery.js';
-import { isStoneRegenDone } from '../combat/encounter-setup-flags.js';
+import {
+  isPassivesReviewedThisEncounter,
+  isStoneRegenDone,
+  persistCombatantSetupStep,
+} from '../combat/encounter-setup-flags.js';
+import { getPassiveSlots } from '../powers/passives.js';
 import {
   combatReflexesInitiativeState,
   spendCombatReflexesUse,
@@ -572,6 +577,19 @@ export class StonePowersDialog extends BaseDialog {
         console.warn('Mastery System | Could not roll initiative before Stone Powers', err);
       }
     }
+    try {
+      const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
+      await ensureDefaultPassiveSlots(actor);
+      const combat = (game as any).combat;
+      const actorId = String((actor as { id?: string }).id ?? '');
+      const round = Math.max(1, Number(combat?.round) || 1);
+      if (combat && actorId && round <= 1) {
+        const { handlePassiveSelectionComplete } = await import('../combat/encounter-start.js');
+        await handlePassiveSelectionComplete(combat, actorId, {});
+      }
+    } catch (err) {
+      console.warn('Mastery System | Could not apply default passives before Stone Powers', err);
+    }
     return new Promise(resolve => {
       const app = new StonePowersDialog(actor, combatant || null, resolve);
       (app as any).render({ force: true });
@@ -972,6 +990,7 @@ export class StonePowersDialog extends BaseDialog {
     return {
       actor: this.actor,
       pools,
+      passivesCta: this.#passivesCtaContext(combat),
       initiativeExchange,
       attributePowerMatrix,
       generalPowers,
@@ -1030,6 +1049,50 @@ export class StonePowersDialog extends BaseDialog {
       hint: hint === 'MASTERY.specials.naturalRecoveryHint' ? fallbackHint : hint,
       noneLabel: noneLabel === 'MASTERY.specials.naturalRecoveryNone' ? 'None' : noneLabel,
     };
+  }
+
+  #passivesCtaContext(combat: Combat | null) {
+    const actorType = (this.actor as { type?: string }).type;
+    const reviewed = isPassivesReviewedThisEncounter(combat, this.combatant);
+    const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
+    const show = !!this.combatant && actorType === 'character' && (round <= 1 || !reviewed);
+    const names = getPassiveSlots(this.actor)
+      .map((slot) => String(slot.passive?.name ?? '').trim())
+      .filter(Boolean);
+    const i18n = (game as any)?.i18n;
+    const label = i18n?.localize?.('MASTERY.encounterSetup.assignPassives') || 'Passives verteilen';
+    const hint =
+      i18n?.localize?.('MASTERY.encounterSetup.assignPassivesHint') ||
+      'Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.';
+    return {
+      show,
+      glow: show && !reviewed,
+      names,
+      namesLabel: names.length ? names.join(', ') : '—',
+      label: label === 'MASTERY.encounterSetup.assignPassives' ? 'Passives verteilen' : label,
+      hint: hint === 'MASTERY.encounterSetup.assignPassivesHint'
+        ? 'Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.'
+        : hint,
+    };
+  }
+
+  async #openPassivesFromCta(): Promise<void> {
+    if (!this.combatant) return;
+    const combat = (game as any).combat ?? null;
+    await persistCombatantSetupStep(this.combatant, combat, { passivesReviewed: true });
+    const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
+    const outcome = await PassiveSelectionDialog.showForCombatant(this.combatant, false);
+    if (outcome.alreadyOpen) return;
+    const actorId = String((this.actor as { id?: string }).id ?? '');
+    if (outcome.confirmed && combat && actorId) {
+      try {
+        const { handlePassiveSelectionComplete } = await import('../combat/encounter-start.js');
+        await handlePassiveSelectionComplete(combat, actorId, {});
+      } catch (err) {
+        console.warn('Mastery System | Could not lock passives after picker', err);
+      }
+    }
+    await this.#renderKeepingScroll();
   }
   
   /** Stones a Mastery Rank buys back at the start of a round. */
@@ -1369,6 +1432,13 @@ export class StonePowersDialog extends BaseDialog {
     this.#bindInitiativeExchangeControls(root);
     this.#bindNaturalRecoveryControls(root);
     this.#bindSectionToggles(root);
+    const passivesCta = root.querySelector('.js-open-passives') as HTMLElement | null;
+    if (passivesCta) {
+      passivesCta.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        await this.#openPassivesFromCta();
+      };
+    }
 
     const convertBtn = root.querySelector('.js-convert-initiative-colorless') as HTMLButtonElement | null;
     if (convertBtn) {

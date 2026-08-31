@@ -1,9 +1,8 @@
 /**
- * Player-side encounter setup: Passives → Stones (Initiative Exchange).
- * Opens on first scene/combat load after the GM started the encounter.
- * Closing with ✕ leaves the step pending; it does not lock or confirm.
- * A per-session dismiss set prevents the same dialog from immediately
- * reopening after ✕; Join Game As / reload starts a new session.
+ * Player-side encounter setup: apply default Passives, then open Stones
+ * (Initiative Exchange + Passives button). Closing Stones with ✕ leaves
+ * that step pending. A per-session dismiss set prevents the same dialog
+ * from immediately reopening after ✕; Join Game As / reload starts a new session.
  */
 
 import {
@@ -76,6 +75,11 @@ export async function resumePlayerEncounterSetup(combat?: Combat | null): Promis
   }
 }
 
+/** @internal Exported for pipeline tests. */
+export async function runPlayerSetupForCombatant(combat: Combat, combatant: Combatant): Promise<void> {
+  return runSetupForCombatant(combat, combatant);
+}
+
 async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promise<void> {
   const actor = combatant.actor;
   if (!actor?.id) return;
@@ -97,22 +101,15 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
   }
 
   if (round <= 1 && !isPassiveSelectionLocked(combat, actorId)) {
-    if (dismissedThisSession.has(stepKey(combatId, actorId, 'passives'))) return;
-    if (dialogAlreadyOpen('mastery-passive-selection')) return;
-
-    const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
-    const outcome = await PassiveSelectionDialog.showForCombatant(combatant, false);
-    if (outcome.alreadyOpen) return;
-    if (!outcome.confirmed) {
-      dismissedThisSession.add(stepKey(combatId, actorId, 'passives'));
-      return;
-    }
     try {
+      const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
+      if (canCurrentUserUpdateDocument(actor)) {
+        await ensureDefaultPassiveSlots(actor);
+      }
       await handlePassiveSelectionComplete(combat, actorId, {});
     } catch (err) {
-      console.error('Mastery System | Could not persist passive confirmation', err);
+      console.error('Mastery System | Could not apply default passives', err);
     }
-    // Players cannot write Combat flags; the GM socket applies the lock. Continue locally.
   }
 
   const { isStonePowersDone } = await import('./stone-round-gate.js');

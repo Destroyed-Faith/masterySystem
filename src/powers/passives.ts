@@ -65,13 +65,19 @@ export function getPassiveSlots(actor: Actor): PassiveSlot[] {
   return slots;
 }
 
-/**
- * Get all available passive abilities for an actor
- * Gets passives from actor's items (powers with powerType 'passive')
- */
+function actorItemList(actor: Actor): any[] {
+  const raw = (actor as any).items;
+  if (!raw) return [];
+  if (Array.isArray(raw)) return raw;
+  if (Array.isArray(raw.contents)) return raw.contents;
+  if (typeof raw[Symbol.iterator] === 'function') return [...raw];
+  return [];
+}
+
+/** Passive powers on the actor (items with powerType `passive`). */
 export function getAvailablePassives(actor: Actor): PassiveAbility[] {
   const available: PassiveAbility[] = [];
-  const items = (actor as any).items || [];
+  const items = actorItemList(actor);
   
   // Get all items that are powers with powerType 'passive'
   for (const item of items) {
@@ -124,7 +130,7 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
   }
   
   // Find the passive item by ID or name
-  const items = (actor as any).items || [];
+  const items = actorItemList(actor);
   const passiveItem = items.find((item: any) => 
     (item.id === passiveId || item._id === passiveId || item.name === passiveId) && 
     item.type === 'power' && 
@@ -204,5 +210,76 @@ export async function unslotPassive(actor: Actor, slotIndex: number): Promise<vo
 function getActivePassiveCount(actor: Actor): number {
   const slots = getPassiveSlots(actor);
   return slots.filter(slot => slot.active && slot.passive).length;
+}
+
+function hashSeed(text: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i += 1) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function seededUnit(seed: number): () => number {
+  let t = seed >>> 0;
+  return () => {
+    t += 0x6d2b79f5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Choose default passive ids for empty slots. Deterministic per `seed`
+ * (normally the actor id) so the first fight does not reshuffle.
+ */
+export function pickDefaultPassiveIds(
+  available: Array<{ id?: string | null }>,
+  slotCount: number,
+  seed: string,
+): string[] {
+  const count = Math.max(0, Math.floor(Number(slotCount) || 0));
+  const ids = [
+    ...new Set(
+      available
+        .map((p) => String(p?.id ?? '').trim())
+        .filter(Boolean),
+    ),
+  ].sort((a, b) => a.localeCompare(b));
+  if (count <= 0 || ids.length === 0) return [];
+  if (ids.length <= count) return ids;
+  const rng = seededUnit(hashSeed(String(seed || 'passives')));
+  const shuffled = [...ids];
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = tmp;
+  }
+  return shuffled.slice(0, count);
+}
+
+/**
+ * If the actor has no slotted passives yet, fill unlocked slots from known
+ * passives (all of them when they fit; otherwise a stable random subset).
+ * Already-slotted picks are the saved default and are left alone.
+ */
+export async function ensureDefaultPassiveSlots(actor: Actor): Promise<string[]> {
+  const slots = getPassiveSlots(actor);
+  if (slots.some((s) => s.passive)) {
+    return slots.map((s) => String(s.passive?.id ?? '')).filter(Boolean);
+  }
+  const available = getAvailablePassives(actor);
+  const picked = pickDefaultPassiveIds(
+    available,
+    slots.length,
+    String((actor as { id?: string }).id ?? (actor as { name?: string }).name ?? ''),
+  );
+  for (let i = 0; i < picked.length; i += 1) {
+    await slotPassive(actor, i, picked[i]);
+  }
+  return picked;
 }
 

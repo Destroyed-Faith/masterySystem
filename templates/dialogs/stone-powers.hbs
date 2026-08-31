@@ -27,6 +27,15 @@
   </div>
   {{/if}}
 
+  {{#if passivesCta.show}}
+  <button type="button"
+          class="passives-cta js-open-passives{{#if passivesCta.glow}} is-glow{{/if}}"
+          title="{{passivesCta.hint}}">
+    <span class="passives-cta-label">{{passivesCta.label}}</span>
+    <span class="passives-cta-names">{{passivesCta.namesLabel}}</span>
+  </button>
+  {{/if}}
+
   {{#if initiativeExchange.show}}
   <div class="initiative-exchange-bar{{#if initiativeExchange.locked}} is-locked{{/if}}">
     <div class="initiative-exchange-copy">

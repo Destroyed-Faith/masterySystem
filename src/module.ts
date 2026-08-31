@@ -659,21 +659,16 @@ Hooks.once('init', async function() {
         actorIdForPassives && encSetup?.passives?.[actorIdForPassives]?.locked === true;
       const setupStatus =
         combatant.actor?.type === 'character' ? buildEncounterSetupStatus(combatant, combat) : null;
-      const setupRowTip = (kind: 'passives' | 'stones' | 'initiative', fallback: string): string => {
-        const row = setupStatus?.rows.find((r) => r.kind === kind);
-        if (!row) return fallback;
-        const forceHint = game.user?.isGM
-          ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
-          : '';
-        return `${row.done ? '✓' : '—'} ${row.label}: ${row.summary}${forceHint}`;
-      };
-      const passiveTooltip = setupRowTip(
-        'passives',
-        passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen',
-      );
+      const forceHint = game.user?.isGM
+        ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
+        : '';
+      const passiveTooltip =
+        (setupStatus?.passivesDone || passivesLocked
+          ? 'Passives ansehen (gesperrt)'
+          : 'Passives wählen / bestätigen') + forceHint;
       const passiveBtn = $(
         '<button type="button" class="combatant-control ms-passive-btn' +
-          (setupStatus?.rows.find((r) => r.kind === 'passives')?.done ? ' is-setup-done' : '') +
+          (setupStatus?.passivesDone ? ' is-setup-done' : '') +
           '" data-action="selectPassives" data-combatant-id="' +
           combatantId +
           '" data-tooltip="' +
@@ -687,10 +682,10 @@ Hooks.once('init', async function() {
       // Add Stone Powers button (only for characters)
       const actor = combatant.actor;
       if (actor && actor.type === 'character') {
-        const stoneTooltip = setupRowTip('stones', 'Stone Powers');
+        const stoneTooltip = (setupStatus?.stonesDone ? '✓ Stone Powers' : 'Stone Powers') + forceHint;
         const stonePowersBtn = $(
           '<button type="button" class="combatant-control ms-stone-powers-btn' +
-            (setupStatus?.rows.find((r) => r.kind === 'stones')?.done ? ' is-setup-done' : '') +
+            (setupStatus?.stonesDone ? ' is-setup-done' : '') +
             '" data-action="openStonePowers" data-combatant-id="' +
             combatantId +
             '" data-tooltip="' +

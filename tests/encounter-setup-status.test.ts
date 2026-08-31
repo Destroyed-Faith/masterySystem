@@ -27,18 +27,18 @@ function mockCombatant(opts: {
 }
 
 describe('buildEncounterSetupStatus', () => {
-  it('lists slotted passives without marking them done', () => {
+  it('keeps carousel cards free of Passives and Stones setup rows', () => {
     (globalThis as any).game = { user: { isGM: true }, combat: null };
     const combatant = mockCombatant({
       passives: [{ name: 'Lean Ward' }],
     });
     const status = buildEncounterSetupStatus(combatant, null);
-    expect(status?.rows[0]?.summary).toContain('Lean Ward');
-    expect(status?.rows[0]?.done).toBe(false);
-    expect(status?.rows).toHaveLength(2);
+    expect(status?.rows).toEqual([]);
+    expect(status?.passivesDone).toBe(false);
+    expect(status?.stonesDone).toBe(false);
   });
 
-  it('marks rows done only after explicit confirm', () => {
+  it('marks setup done flags after explicit confirm without adding rows', () => {
     const combat = {
       id: 'c1',
       round: 1,
@@ -58,7 +58,9 @@ describe('buildEncounterSetupStatus', () => {
       combats: { get: (id: string) => (id === 'c1' ? combat : null) },
     };
     const status = buildEncounterSetupStatus(mockCombatant({ actorId: 'a1' }), combat as unknown as Combat);
-    expect(status?.rows.every((r) => r.done)).toBe(true);
+    expect(status?.rows).toEqual([]);
+    expect(status?.passivesDone).toBe(true);
+    expect(status?.stonesDone).toBe(true);
   });
 
   it('hides pick summaries from players', () => {
@@ -66,10 +68,10 @@ describe('buildEncounterSetupStatus', () => {
     expect(buildEncounterSetupStatus(mockCombatant({ passives: [{ name: 'Lean Ward' }] }), null)).toBeNull();
   });
 
-  it('summarizes the confirmed stone assignment for the GM', () => {
+  it('tracks a confirmed stone assignment for the GM without listing it', () => {
     const combat = {
       id: 'cmb',
-      round: 0,
+      round: 1,
       flags: {
         'mastery-system': {
           stonePowersState: { stonesDone: { c1: 1 } },
@@ -90,14 +92,16 @@ describe('buildEncounterSetupStatus', () => {
           }
         : null;
     const status = buildEncounterSetupStatus(combatant, combat as unknown as Combat);
-    expect(status?.rows[1]?.done).toBe(true);
-    expect(status?.rows[1]?.summary).toContain('Parry');
+    expect(status?.rows).toEqual([]);
+    expect(status?.stonesDone).toBe(true);
   });
 
-  it('shows open rows when nothing was picked', () => {
+  it('still lets the GM force dialogs when nothing was picked', () => {
     (globalThis as any).game = { user: { isGM: true }, combat: null };
     const status = buildEncounterSetupStatus(mockCombatant({}), null);
-    expect(status?.rows.every((r) => r.summary === 'noch nichts')).toBe(true);
+    expect(status?.rows).toEqual([]);
     expect(status?.canForce).toBe(true);
+    expect(status?.passivesDone).toBe(false);
+    expect(status?.stonesDone).toBe(false);
   });
 });

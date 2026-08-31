@@ -18,7 +18,6 @@ import {
   isCompactCarouselViewport,
 } from './combat-carousel-layout.js';
 import {
-  buildEncounterSetupStatus,
   forceEncounterDialog,
   forceEncounterDialogForAll,
 } from '../combat/encounter-setup-status.js';
@@ -365,7 +364,6 @@ export class CombatCarouselApp extends BaseCarousel {
         combatStrip,
         hasToken: !!token,
         tokenId: tokenId,
-        setupStatus: buildEncounterSetupStatus(combatant, combat),
       });
     }
     const preparing = isEncounterPreparing(combat);
@@ -427,6 +425,31 @@ export class CombatCarouselApp extends BaseCarousel {
     if (this.hookEntries.length === 0) {
       this.registerUpdateHooks();
     }
+
+    // Name click — Stone Powers (Passives live in that dialog).
+    root.querySelectorAll('.js-open-stone-powers').forEach((nameEl: HTMLElement) => {
+      nameEl.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const portrait = nameEl.closest('.carousel-portrait') as HTMLElement | null;
+        const combatantId = portrait?.dataset.combatantId;
+        if (!combatantId) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        const actor = combatant?.actor;
+        if (!combatant || !actor || actor.type !== 'character') return;
+        if (game.user?.isGM) {
+          await forceEncounterDialog('stones', combatant);
+          return;
+        }
+        const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+        await StonePowersDialog.showForActor(actor, combatant);
+      };
+      nameEl.ondblclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+      };
+    });
 
     // Portrait click - pan to token; double-click - open actor sheet
     root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {

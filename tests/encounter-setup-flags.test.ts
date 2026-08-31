@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isCombatantInitiativeConfirmed,
   isPassiveSelectionLocked,
+  isPassivesReviewedThisEncounter,
   readCombatantSetupStep,
 } from '../src/combat/encounter-setup-flags.js';
 
@@ -44,5 +45,21 @@ describe('encounter setup combatant flags', () => {
 
     expect(isPassiveSelectionLocked(combat, 'a1')).toBe(true);
     expect(isCombatantInitiativeConfirmed(combat, 'c1')).toBe(true);
+  });
+
+  it('tracks passivesReviewed only for the current encounter', () => {
+    const combat = { id: 'c1' } as Combat;
+    expect(
+      isPassivesReviewedThisEncounter(
+        combat,
+        combatantWithStep({ combatId: 'c1', passivesReviewed: true }),
+      ),
+    ).toBe(true);
+    expect(
+      isPassivesReviewedThisEncounter(
+        combat,
+        combatantWithStep({ combatId: 'other', passivesReviewed: true }),
+      ),
+    ).toBe(false);
   });
 });

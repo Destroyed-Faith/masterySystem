@@ -267,7 +267,7 @@
   color: #9df;
 }
 
-/* Portrait Name */
+/* Portrait Name — click opens Stone Powers */
 .portrait-name {
   font-size: 0.85rem;
   color: #fff;
@@ -277,6 +277,12 @@
   text-overflow: ellipsis;
   max-width: 100%;
   font-weight: 600;
+  cursor: pointer;
+}
+
+.portrait-name:hover {
+  color: #ffd166;
+  text-decoration: underline;
 }
 
 /* End Turn Button */

@@ -88,6 +88,8 @@
     "encounterSetup": {
       "title": "Kampf-Setup",
       "passives": "Passives",
+      "assignPassives": "Passives verteilen",
+      "assignPassivesHint": "Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.",
       "stones": "Steine",
       "shop": "Initiative",
       "initiative": "Initiative",

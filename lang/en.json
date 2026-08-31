@@ -88,6 +88,8 @@
     "encounterSetup": {
       "title": "Encounter Setup",
       "passives": "Passives",
+      "assignPassives": "Assign Passives",
+      "assignPassivesHint": "Change the pre-selected Passives. Your last choice is kept.",
       "stones": "Stones",
       "shop": "Initiative",
       "initiative": "Initiative",

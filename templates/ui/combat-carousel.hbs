@@ -56,25 +56,8 @@
           </div>
           {{/if}}
 
-          <!-- Name -->
-          <div class="portrait-name">{{combatant.name}}</div>
-
-          {{#if combatant.setupStatus}}
-          <div class="ms-setup-picks" title="Kampf-Setup">
-            {{#each combatant.setupStatus.rows as |row|}}
-            <div class="ms-setup-row {{#if row.done}}is-done{{else}}is-open{{/if}}" title="{{row.tooltip}}">
-              <span class="ms-setup-mark">{{#if row.done}}✓{{else}}—{{/if}}</span>
-              <span class="ms-setup-label">{{row.label}}</span>
-              <span class="ms-setup-summary">{{row.summary}}</span>
-              {{#if ../setupStatus.canForce}}
-              <button type="button" class="ms-setup-force js-force-setup" data-kind="{{row.kind}}" data-combatant-id="{{../id}}" title="{{localize 'MASTERY.encounterSetup.openForPlayer'}}">
-                <i class="fas fa-share"></i>
-              </button>
-              {{/if}}
-            </div>
-            {{/each}}
-          </div>
-          {{/if}}
+          <!-- Name — opens Stone Powers (Passives live in that dialog) -->
+          <div class="portrait-name js-open-stone-powers" title="{{localize 'MASTERY.encounterSetup.stones'}}">{{combatant.name}}</div>
 
           {{#if combatant.combatStrip}}
           <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR%) — Hover für Herkunft{{/if}}">

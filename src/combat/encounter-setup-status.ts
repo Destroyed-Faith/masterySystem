@@ -21,7 +21,10 @@ export interface EncounterSetupStatus {
   isCharacter: boolean;
   combatantId: string;
   actorId: string;
+  /** Carousel no longer lists Passives/Stones; tracker gems still use done flags. */
   rows: EncounterPickRow[];
+  passivesDone: boolean;
+  stonesDone: boolean;
   canForce: boolean;
 }
 
@@ -103,33 +106,14 @@ export function buildEncounterSetupStatus(
   const passives = passiveSummary(actor, combatant);
   const stones = stoneSummary(actor, combatant.id, live);
 
-  const row = (
-    kind: EncounterDialogKind,
-    label: string,
-    done: boolean,
-    parts: string[],
-    empty: string,
-  ): EncounterPickRow => {
-    const summary = parts.length ? parts.join(', ') : done ? loc('confirmed', 'Bestätigt') : empty;
-    return {
-      kind,
-      label,
-      done,
-      summary,
-      tooltip: `${label}: ${done ? loc('chosen', 'gewählt') : loc('pending', 'offen')} — ${parts.length ? parts.join(', ') : empty}`,
-    };
-  };
-
-  const empty = loc('nothingYet', 'noch nichts');
   return {
     isCharacter: true,
     combatantId: combatant.id,
     actorId: actor.id ?? '',
     canForce: !!game.user?.isGM,
-    rows: [
-      row('passives', loc('passives', 'Passives'), passives.done, passives.names, empty),
-      row('stones', loc('stones', 'Steine'), stones.done, stones.parts, empty),
-    ],
+    passivesDone: passives.done,
+    stonesDone: stones.done,
+    rows: [],
   };
 }
 

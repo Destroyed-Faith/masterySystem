@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.434] - 2026-08-31
+
+### Changed
+
+- **Combat carousel:** Passives move into Stone Powers. A glowing full-width button sits above Initiative Exchange and opens the existing Passives picker. Empty slots get a stable default (typically two at MR 2); the last confirmed pick stays. The carousel name opens that dialog; the GM Passives/Stones summary rows under each portrait are gone.
+
 ## [0.9.433] - 2026-08-31
 
 ### Fixed

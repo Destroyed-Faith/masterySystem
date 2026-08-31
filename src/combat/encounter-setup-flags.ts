@@ -11,6 +11,8 @@ export const COMBATANT_SETUP_FLAG = 'encounterSetupStep';
 export interface CombatantSetupStep {
   combatId: string;
   passivesLocked?: boolean;
+  /** Player opened the Passives picker from Stone Powers this encounter. */
+  passivesReviewed?: boolean;
   stonesDoneRound?: number;
   regenDoneRound?: number;
   initiativeConfirmed?: boolean;
@@ -55,6 +57,13 @@ export function findCombatantByActorId(combat: Combat, actorId: string): Combata
 export function isPassiveSelectionLocked(combat: Combat, actorId: string): boolean {
   if ((combat.flags as any)?.['mastery-system']?.encounterSetup?.passives?.[actorId]?.locked) return true;
   return readCombatantSetupStep(findCombatantByActorId(combat, actorId), combat)?.passivesLocked === true;
+}
+
+export function isPassivesReviewedThisEncounter(
+  combat: Combat | null | undefined,
+  combatant: Combatant | null | undefined,
+): boolean {
+  return readCombatantSetupStep(combatant, combat)?.passivesReviewed === true;
 }
 
 export function isStoneRegenDone(combat: Combat, combatantId: string, round: number): boolean {
