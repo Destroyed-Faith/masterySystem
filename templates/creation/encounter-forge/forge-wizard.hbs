@@ -233,6 +233,7 @@
       {{/if}}
 
       <h3>Adds / Verstärkung / Beschwörung</h3>
+      <p class="encounter-gen-note">Optional — ohne Adds einfach Weiter.</p>
       {{#each phases.addGroups}}
         <div class="encounter-gen-card">
           <div class="encounter-gen-form encounter-gen-form--inline">
@@ -299,6 +300,22 @@
       {{else}}
         <p class="encounter-gen-prose"><strong>{{review.name}}</strong> — erwartete Gesamtdauer <strong>~{{review.totalRounds}} Runden</strong> gegen {{review.partySize}} Charaktere.</p>
 
+        {{#if review.partyProfiles.length}}
+          <div class="encounter-gen-card">
+            <span class="encounter-gen-card-title">Gruppenprofile (Live-Combat-Werte)</span>
+            <p class="encounter-gen-note">Solver nutzt Sustained. Baseline = immer an. Burst = Stones/limitierte Powers. Inaktive bekannte Buffs sind nur aufgelistet, nicht eingerechnet.</p>
+            {{#each review.partyProfiles}}
+              <p class="encounter-gen-card-text"><strong>{{name}}</strong> — Sustained Evade {{evade}} · Armor {{armor}} · DR {{drPct}}% · SR {{sr}}</p>
+              <ul>
+                <li>Baseline: Evade {{baseline.evade}} · {{baseline.attack}} — {{baseline.notes}}</li>
+                <li>Sustained: Evade {{sustained.evade}} · {{sustained.attack}} — {{sustained.notes}}</li>
+                <li>Burst: Evade {{burst.evade}} · {{burst.attack}} — {{burst.notes}}</li>
+                {{#if knownBuffs}}<li>Bekannte Buffs (nicht aktiv): {{knownBuffs}}</li>{{/if}}
+              </ul>
+            {{/each}}
+          </div>
+        {{/if}}
+
         {{#if review.warnings.length}}
           <div class="encounter-gen-warnings">
             {{#each review.warnings}}
@@ -316,7 +333,7 @@
             <p class="encounter-gen-card-text">{{actionText}}</p>
 
             <table class="encounter-gen-table">
-              <thead><tr><th>Gegner</th><th>Health</th><th>Verteidigungen (Anteil)</th><th>Aktionen</th><th>Angriffe</th><th>Override</th></tr></thead>
+              <thead><tr><th>Gegner</th><th>Health</th><th>Verteidigungen (Mitigation-Anteil, kein Miss-%)</th><th>Aktionen</th><th>Angriffe</th><th>Override</th></tr></thead>
               <tbody>
                 {{#each enemies}}
                   <tr>
@@ -345,6 +362,7 @@
               <ul>{{#each adds}}<li>{{name}} — {{line}}</li>{{/each}}</ul>
             {{/if}}
 
+            <p class="encounter-gen-note">Trefferchancen nutzen dieselbe TN wie die Attack-Pool-Suche (effektive Evade + anteilige Evade-Reaction).</p>
             <table class="encounter-gen-table">
               <thead><tr><th>Charakter</th><th>HL/Runde</th><th>HL/Phase</th><th>Special-Spitze</th><th>Trefferchancen</th></tr></thead>
               <tbody>

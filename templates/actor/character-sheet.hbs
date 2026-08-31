@@ -2276,7 +2276,7 @@
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
         </div>
-        <p class="summons-tab-hint">Store one use of a purchased Active Power. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank).{{#if minorMagicView.givenAway}} {{minorMagicView.givenAway}} given to other characters — still count.{{/if}} Press <strong>Safe Haven Rest</strong> on this tab to create, replace, or dismiss. Drag or Give to hand an item to someone else. Use and Arm Trap work anytime. No Stones.</p>
+        <p class="summons-tab-hint">Store one use of a purchased Active Power. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank).{{#if minorMagicView.givenAway}} {{minorMagicView.givenAway}} given to other characters — still count until used or dismissed.{{/if}} Press <strong>Safe Haven Rest</strong> to create, replace, or dismiss. Use, Give, or Give Back from this tab or by right-clicking the item in Equipment. No Stones.</p>
         <div class="minor-magic-tab-embed">
           {{#with minorMagicPanel}}
           {{> "systems/mastery-system/templates/dialogs/minor-magic.hbs"}}
@@ -2290,13 +2290,17 @@
               <strong>{{this.name}}</strong>
               <span class="summons-bond-meta">{{this.formLabel}} · {{this.powerName}} · {{this.actionCost}}</span>
               <span class="summons-bond-meta">{{this.summary}}</span>
+              {{#if this.received}}<span class="summons-bond-meta">From {{this.creatorName}} — Give Back so they can give it again.</span>{{/if}}
             </div>
             <div class="summons-bond-actions">
               {{#unless this.givenAway}}
               <button type="button" class="js-sheet-minor-magic-use dialog-btn dialog-btn-primary" data-item-id="{{this.id}}">Use</button>
               <button type="button" class="js-sheet-minor-magic-trap dialog-btn" data-item-id="{{this.id}}">Arm Trap</button>
               <button type="button" class="js-sheet-minor-magic-give dialog-btn" data-item-id="{{this.id}}">Give</button>
-              {{#if ../minorMagicView.canManage}}
+              {{#if this.canGiveBack}}
+              <button type="button" class="js-sheet-minor-magic-give-back dialog-btn" data-item-id="{{this.id}}">Give Back</button>
+              {{/if}}
+              {{#if this.canDismiss}}
               <button type="button" class="js-sheet-minor-magic-dismiss dialog-btn" data-item-id="{{this.id}}">Dismiss</button>
               {{/if}}
               {{/unless}}

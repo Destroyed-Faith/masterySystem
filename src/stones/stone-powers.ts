@@ -1,15 +1,10 @@
 /**
  * Canonical Stone Powers Definition — new tier-based spec.
  *
- * Each Stone Power has a published T1–T4 table (what the UI shows).
- * Tiers continue past that — T5 costs 16, T6 costs 32, up to T8.
- * Dumping every Stone in the game (80) pays through T6 (1+2+4+8+16+32=63).
- * Extra payment lanes for T5+ are future UI; Artifact Support can already
- * prefill T5+ so Elorian Crit at L7–10 keeps the old 4-charge effect.
- *
- * Some tiers are intentionally blank (`label === null`). Spending the
- * stones is still required, but no effect triggers — this is the "ramp"
- * mechanic that prevents trivial low-tier spam of the strongest effects.
+ * Most powers publish T1–T4. A listed set starts at Tier 2: Tier 1 does
+ * not exist in data, UI, spending, validation, or serialization. First
+ * purchase is T2 (2 Stones total), then T3 (6 total), then T4 (14 total).
+ * Tiers continue past the printed table — T5 costs 16, T6 costs 32, up to T8.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
  * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
@@ -34,8 +29,8 @@ import {
 export type StonePowerAttribute = AttributeKey | 'generic';
 
 export interface StoneTier {
-  /** Short rules label. `null` ⇒ tier has no effect (still paid for as a ramp step). */
-  label: string | null;
+  /** Short rules label for a published tier. */
+  label: string;
   /** Long-form description used in the dialog tooltip / chat audit. */
   description: string;
   /** Optional numeric scale (used by apply()). Meaning varies per power. */
@@ -60,11 +55,15 @@ export interface StonePower {
   description: string;
   /** Compiled multi-tier tooltip — generated on module load. */
   effect: string;
-  /** Published Tier 1..4 effects. Higher tiers continue the same scale. */
-  tiers: [StoneTier, StoneTier, StoneTier, StoneTier];
+  /** First published tier. `2` means Tier 1 does not exist for this ability. */
+  startsAtTier: 1 | 2;
+  /** Published effects starting at `startsAtTier` (T1–T4 or T2–T4). */
+  tiers: StoneTier[];
   /** Apply the effect for the given tier. */
   apply: (ctx: StonePowerContext) => Promise<void>;
 }
+
+type StonePowerDraft = Omit<StonePower, 'effect' | 'startsAtTier'> & { startsAtTier?: 1 | 2 };
 
 /** Tiers shown in the dialog / Players Guide. */
 export const STONE_TIER_VISIBLE = 4;
@@ -91,13 +90,30 @@ export function scaleStoneTier(seq: readonly number[], tier: number): number {
   return b + (b - a) * steps;
 }
 
-/** Compile the multi-tier tooltip. Blank ramp steps (`label === null`) render as "—". */
-function compileEffectText(name: string, tiers: readonly StoneTier[]): string {
+/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8, … */
+export function stonePowerWaveCost(tier: number): number {
+  return Math.pow(2, Math.max(1, Math.floor(Number(tier) || 1)) - 1);
+}
+
+/** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
+export function cumulativeStoneCostForTier(tier: number, startsAtTier: 1 | 2 = 1): number {
+  const start = startsAtTier === 2 ? 2 : 1;
+  const end = Math.max(start, Math.floor(Number(tier) || start));
+  let total = 0;
+  for (let t = start; t <= end; t += 1) total += stonePowerWaveCost(t);
+  return total;
+}
+
+/** Compile the multi-tier tooltip. T2-start powers omit any T1 line. */
+function compileEffectText(
+  name: string,
+  tiers: readonly StoneTier[],
+  startsAtTier: 1 | 2 = 1,
+): string {
   const lines = tiers.map((t, i) => {
-    const tierNum = i + 1;
-    const cost = Math.pow(2, i); // 1 / 2 / 4 / 8
-    const body = t.label === null ? '—' : t.description || t.label;
-    return `T${tierNum} (${cost}): ${body}`;
+    const tierNum = startsAtTier + i;
+    const cost = stonePowerWaveCost(tierNum);
+    return `T${tierNum} (${cost}): ${t.description || t.label}`;
   });
   return `${name}\n${lines.join('\n')}`;
 }
@@ -114,22 +130,23 @@ function ensureStoneBonuses(rs: any): NonNullable<ReturnType<typeof getRoundStat
 // Generic Powers — any pool can pay. 4 powers per spec.
 // ---------------------------------------------------------------------------
 
-const GENERIC_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const GENERIC_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'generic.extraAttack',
     name: 'Extra Attack',
     attribute: 'generic',
     category: 'action',
     description: 'Gain additional Attack Actions this round (T2: +1, T3: +2, T4: +3).',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '+1 Attack Action', description: 'Gain 1 additional Attack Action this round.', value: 1 },
       { label: '+2 Attack Actions', description: 'Gain 2 additional Attack Actions this round.', value: 2 },
       { label: '+3 Attack Actions', description: 'Gain 3 additional Attack Actions this round.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
+      if (tier < 2) return;
       const combat = (game as any).combat;
-      const bonus = scaleStoneTier([0, 1, 2, 3], tier);
+      const bonus = scaleStoneTier([1, 2, 3], tier - 1);
       if (bonus <= 0) return;
       const roundState = getRoundState(actor, combat);
       roundState.attackActions.total += bonus;
@@ -208,7 +225,7 @@ const GENERIC_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Might
 // ---------------------------------------------------------------------------
 
-const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const MIGHT_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'might.meleeDamage',
     name: 'Melee Damage',
@@ -286,15 +303,16 @@ const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     attribute: 'might',
     category: 'passive',
     description: 'Gain Parry Pool until the start of your next turn (T2: +4, T3: +8, T4: +12). Creates Parry if you do not have it.',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '+4 Parry Pool', description: 'Gain +4 Parry Pool until the start of your next turn.', value: 4 },
       { label: '+8 Parry Pool', description: 'Gain +8 Parry Pool until the start of your next turn.', value: 8 },
       { label: '+12 Parry Pool', description: 'Gain +12 Parry Pool until the start of your next turn.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
+      if (tier < 2) return;
       const combat = (game as any).combat;
-      const bonus = scaleStoneTier([0, 4, 8, 12], tier);
+      const bonus = scaleStoneTier([4, 8, 12], tier - 1);
       if (bonus <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -309,22 +327,23 @@ const MIGHT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Agility
 // ---------------------------------------------------------------------------
 
-const AGILITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const AGILITY_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'agility.crit',
     name: 'Crit',
     attribute: 'agility',
     category: 'action',
     description: 'A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll (T2: 1, T3: 2, T4: 3).',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '1 attack: Crit(1)', description: 'One of your attacks this round can have Crit(1). You decide which attack before you roll the Attack Roll.', value: 1 },
       { label: '2 attacks: Crit(1)', description: 'Two of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 2 },
       { label: '3 attacks: Crit(1)', description: 'Three of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
+      if (tier < 2) return;
       const combat = (game as any).combat;
-      const charges = scaleStoneTier([0, 1, 2, 3], tier);
+      const charges = scaleStoneTier([1, 2, 3], tier - 1);
       if (charges <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -398,7 +417,7 @@ const AGILITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Vitality
 // ---------------------------------------------------------------------------
 
-const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const VITALITY_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'vitality.tempHp',
     name: 'Temporary HP',
@@ -434,15 +453,16 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     attribute: 'vitality',
     category: 'passive',
     description: 'Gain Damage Negation until the start of your next turn (T2: +4, T3: +8, T4: +12). Creates it if you do not have it.',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '+4 Damage Negation', description: 'Gain +4 Damage Negation until the start of your next turn.', value: 4 },
       { label: '+8 Damage Negation', description: 'Gain +8 Damage Negation until the start of your next turn.', value: 8 },
       { label: '+12 Damage Negation', description: 'Gain +12 Damage Negation until the start of your next turn.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
+      if (tier < 2) return;
       const combat = (game as any).combat;
-      const bonus = scaleStoneTier([0, 4, 8, 12], tier);
+      const bonus = scaleStoneTier([4, 8, 12], tier - 1);
       if (bonus <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -533,7 +553,7 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Intellect
 // ---------------------------------------------------------------------------
 
-const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const INTELLECT_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'intellect.spellRaises',
     name: 'Spell Raises',
@@ -583,14 +603,15 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     attribute: 'intellect',
     category: 'action',
     description: 'Gain additional Attack Actions this round that may only cast Spells (T2: +1, T3: +2, T4: +3).',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '+1 Spell Action', description: 'Gain 1 additional Attack Action this round. It may only be used to cast a Spell.', value: 1 },
       { label: '+2 Spell Actions', description: 'Gain 2 additional Attack Actions this round. They may only be used to cast Spells.', value: 2 },
       { label: '+3 Spell Actions', description: 'Gain 3 additional Attack Actions this round. They may only be used to cast Spells.', value: 3 },
     ],
     apply: async ({ actor, combatant, tier }) => {
-      const bonus = scaleStoneTier([0, 1, 2, 3], tier);
+      if (tier < 2) return;
+      const bonus = scaleStoneTier([1, 2, 3], tier - 1);
       if (bonus <= 0) return;
       const combat = (game as any).combat;
       const roundState = getRoundState(actor, combat);
@@ -633,7 +654,7 @@ const INTELLECT_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Resolve
 // ---------------------------------------------------------------------------
 
-const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const RESOLVE_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'resolve.healing',
     name: 'Healing',
@@ -712,16 +733,17 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     attribute: 'resolve',
     category: 'passive',
     description: 'Gain Damage Reduction until the start of your next turn (T2:+10%, T3:+20%, T4:+30%). Creates it if you do not have it.',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '+10% DR', description: 'Gain +10% Damage Reduction until the start of your next turn.', value: 10 },
       { label: '+20% DR', description: 'Gain +20% Damage Reduction until the start of your next turn.', value: 20 },
       { label: '+30% DR', description: 'Gain +30% Damage Reduction until the start of your next turn.', value: 30 },
     ],
     apply: async ({ actor, tier }) => {
+      if (tier < 2) return;
       const combat = (game as any).combat;
       // Re-activation ADDs (PG "Temporary Defensive Stone Values").
-      const pct = scaleStoneTier([0, 10, 20, 30], tier);
+      const pct = scaleStoneTier([10, 20, 30], tier - 1);
       if (pct <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -758,7 +780,7 @@ const RESOLVE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Influence
 // ---------------------------------------------------------------------------
 
-const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const INFLUENCE_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'influence.aidRoll',
     name: 'Aid Roll',
@@ -833,15 +855,16 @@ const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     attribute: 'influence',
     category: 'reaction',
     description: 'Enemies cannot target you with their next attack before the start of your next turn unless you are the only valid target. T2: 1@8 m, T3: 2@16 m, T4: 3@24 m.',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '1 enemy @ 8 m', description: 'One enemy within 8 m cannot target you with its next attack before the start of your next turn unless you are the only valid target.', value: 1 },
       { label: '2 enemies @ 16 m', description: 'Up to 2 enemies within 16 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 2 },
       { label: '3 enemies @ 24 m', description: 'Up to 3 enemies within 24 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
-      const enemies = scaleStoneTier([0, 1, 2, 3], tier);
-      const meters = scaleStoneTier([0, 8, 16, 24], tier);
+      if (tier < 2) return;
+      const enemies = scaleStoneTier([1, 2, 3], tier - 1);
+      const meters = scaleStoneTier([8, 16, 24], tier - 1);
       if (enemies <= 0) return;
       await (actor as any).setFlag?.('mastery-system', 'pendingNotATarget', { enemies, range: meters });
       ui.notifications?.info(
@@ -855,7 +878,7 @@ const INFLUENCE_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Wits
 // ---------------------------------------------------------------------------
 
-const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
+const WITS_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'wits.initiativeBoost',
     name: 'Initiative Boost',
@@ -900,15 +923,16 @@ const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     attribute: 'wits',
     category: 'reaction',
     description: 'Gain Phasing Charges until the start of your next turn (T2: 1, T3: 1, T4: 2).',
+    startsAtTier: 2,
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: '1 Phasing Charge', description: 'Gain 1 Phasing Charge until the start of your next turn.', value: 1 },
       { label: '1 Phasing Charge', description: 'Gain 1 Phasing Charge until the start of your next turn.', value: 1 },
       { label: '2 Phasing Charges', description: 'Gain 2 Phasing Charges until the start of your next turn.', value: 2 },
     ],
     apply: async ({ actor, tier }) => {
+      if (tier < 2) return;
       const combat = (game as any).combat;
-      const charges = tier <= 1 ? 0 : Math.ceil((tier - 1) / 2);
+      const charges = Math.ceil((tier - 1) / 2);
       if (charges <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
@@ -973,11 +997,21 @@ const WITS_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
 // Registry + finalization (auto-compile `.effect`)
 // ---------------------------------------------------------------------------
 
-function finalize(list: Array<Omit<StonePower, 'effect'>>): StonePower[] {
-  return list.map((p) => ({
-    ...p,
-    effect: compileEffectText(p.name, p.tiers),
-  }));
+function finalize(list: StonePowerDraft[]): StonePower[] {
+  return list.map((p) => {
+    const startsAtTier: 1 | 2 = p.startsAtTier === 2 ? 2 : 1;
+    return {
+      ...p,
+      startsAtTier,
+      effect: compileEffectText(p.name, p.tiers, startsAtTier),
+    };
+  });
+}
+
+function leadTier2Start(list: StonePower[]): StonePower[] {
+  const lead = list.filter((p) => p.startsAtTier === 2);
+  const rest = list.filter((p) => p.startsAtTier !== 2);
+  return [...lead, ...rest];
 }
 
 const GENERIC_POWERS = finalize(GENERIC_POWERS_RAW);
@@ -1005,14 +1039,14 @@ export const STONE_POWERS: Record<string, StonePower> = {};
 });
 
 export const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]> = {
-  generic: GENERIC_POWERS,
-  might: MIGHT_POWERS,
-  agility: AGILITY_POWERS,
-  vitality: VITALITY_POWERS,
-  intellect: INTELLECT_POWERS,
-  resolve: RESOLVE_POWERS,
-  influence: INFLUENCE_POWERS,
-  wits: WITS_POWERS,
+  generic: leadTier2Start(GENERIC_POWERS),
+  might: leadTier2Start(MIGHT_POWERS),
+  agility: leadTier2Start(AGILITY_POWERS),
+  vitality: leadTier2Start(VITALITY_POWERS),
+  intellect: leadTier2Start(INTELLECT_POWERS),
+  resolve: leadTier2Start(RESOLVE_POWERS),
+  influence: leadTier2Start(INFLUENCE_POWERS),
+  wits: leadTier2Start(WITS_POWERS),
 };
 
 /**
@@ -1024,31 +1058,10 @@ export function tierForUseIndex(usesBefore: number): number {
 }
 
 /**
- * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
- * its first real effect is Tier 2 (Extra Attack, Spell Action, Damage
- * Reduction, Phasing, Crit, Parry, Damage Negation, Not a Target).
- *
- * Players Guide "Spending Stones" (cost ladder 1/2/4/8): the blank Tier 1 is
- * a REAL, payable step — the 1st use costs 1 Stone and has no effect; the
- * 2nd use costs 2 Stones and resolves Tier 2. The lane is therefore rendered
- * and charged like any other Anchor segment, never skipped.
+ * Abilities whose first published tier is T2. Tier 1 does not exist.
+ * Extra Attack (generic) uses the same start.
  */
-export function stonePowerSkipsFirstTier(_powerId: string): boolean {
-  return false;
-}
-
-/** Whether a power's printed Tier 1 is a blank ramp step (no effect). */
-export function stonePowerHasBlankFirstTier(powerId: string): boolean {
-  const t0 = STONE_POWERS[resolveStonePowerId(powerId)]?.tiers?.[0] as StoneTier | undefined;
-  if (!t0) return false;
-  return (t0.label === null || t0.label === undefined) && t0.value === undefined;
-}
-
-/**
- * One Ramp Stone Ability per Attribute whose Tier 1 is intentionally blank.
- * Extra Attack (generic) is also a blank-T1 ramp and uses the same gate.
- */
-export const BLANK_T1_STONE_POWER_IDS = [
+export const TIER2_START_STONE_POWER_IDS = [
   'might.parry',
   'agility.crit',
   'vitality.damageNegation',
@@ -1056,20 +1069,35 @@ export const BLANK_T1_STONE_POWER_IDS = [
   'resolve.damageReduction',
   'influence.notATarget',
   'wits.phasing',
+  'generic.extraAttack',
 ] as const;
 
-/** First tier that produces an effect (T2 for blank-T1 ramps, otherwise T1). */
+export function stonePowerStartsAtTier(powerId: string): 1 | 2 {
+  const power = STONE_POWERS[resolveStonePowerId(powerId)];
+  if (power?.startsAtTier === 2) return 2;
+  if ((TIER2_START_STONE_POWER_IDS as readonly string[]).includes(resolveStonePowerId(powerId))) {
+    return 2;
+  }
+  return 1;
+}
+
+/** True when the ability begins at Tier 2 (no Tier-1 slot). */
+export function stonePowerSkipsFirstTier(powerId: string): boolean {
+  return stonePowerStartsAtTier(powerId) === 2;
+}
+
+/** First published tier (2 when Tier 1 does not exist, otherwise 1). */
 export function firstEffectiveStonePowerTier(powerId: string): number {
-  return stonePowerHasBlankFirstTier(powerId) ? 2 : 1;
+  return stonePowerStartsAtTier(powerId);
 }
 
 /**
- * Support may only improve an already-activated ability. The character must
- * pay through the first effective tier themselves before a prefill applies.
- * `rawUsesBefore` is the number of completed activations this turn.
+ * Support may only raise an already-activated ability. The character must
+ * pay the first published tier themselves (T1, or T2 when T1 does not exist)
+ * before a prefill applies. `rawUsesBefore` is completed activations this turn.
  */
-export function stonePowerSupportPrefillApplies(powerId: string, rawUsesBefore: number): boolean {
-  return Math.max(0, Math.floor(Number(rawUsesBefore) || 0)) >= firstEffectiveStonePowerTier(powerId);
+export function stonePowerSupportPrefillApplies(_powerId: string, rawUsesBefore: number): boolean {
+  return Math.max(0, Math.floor(Number(rawUsesBefore) || 0)) >= 1;
 }
 
 /** Retired ids that still resolve to a current Stone Power. */

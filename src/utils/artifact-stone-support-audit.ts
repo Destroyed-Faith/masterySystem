@@ -1,10 +1,11 @@
 /**
- * Audit Artifact / Echo-Artifact Stone Power Supports against blank-T1 ramps.
+ * Audit Artifact / Echo-Artifact Stone Power Supports against T2-start
+ * abilities (Tier 1 does not exist).
  *
- * Support must never activate the first effective tier. Tables that begin
- * support at that tier (Elorian Focus / Ringchain Kept from Sight, and any
- * matching General Artifact) are flagged for a manual Level Progression
- * review — this file does not invent replacement values.
+ * Support must never activate Tier 2 for these abilities. Tables that begin
+ * support at T2 (Elorian Focus / Ringchain Kept from Sight, and any matching
+ * General Artifact) are flagged for a manual Level Progression review —
+ * this file does not invent replacement values.
  */
 
 import { ECHO_ARTIFACTS, type EchoArtifactDefinition } from './echo-artifacts.js';
@@ -12,10 +13,10 @@ import { GENERAL_ARTIFACTS } from './general-artifacts.js';
 import { getStonePowerSupportPrefillTier } from './artifact-rules.js';
 import {
   firstEffectiveStonePowerTier,
-  stonePowerHasBlankFirstTier,
+  stonePowerSkipsFirstTier,
 } from '../stones/stone-powers.js';
 
-export interface BlankT1SupportFollowUp {
+export interface Tier2StartSupportFollowUp {
   artifactKey: string;
   artifactName: string;
   stonePowerId: string;
@@ -25,6 +26,9 @@ export interface BlankT1SupportFollowUp {
   reason: string;
 }
 
+/** @deprecated Use Tier2StartSupportFollowUp — T1 is not a blank placeholder. */
+export type BlankT1SupportFollowUp = Tier2StartSupportFollowUp;
+
 function stagedSupportPrefill(level: number, stages: [number, number, number]): number {
   if (level < stages[0]) return 0;
   if (level < stages[1]) return 2;
@@ -32,15 +36,15 @@ function stagedSupportPrefill(level: number, stages: [number, number, number]): 
   return 4;
 }
 
-function recordIfBlankT1Bypass(
-  out: BlankT1SupportFollowUp[],
+function recordIfTier2StartBypass(
+  out: Tier2StartSupportFollowUp[],
   def: EchoArtifactDefinition,
   stonePowerId: string,
   unlockLevel: number,
   firstPrefillTier: number,
 ): void {
   const id = String(stonePowerId || '').trim();
-  if (!id || !stonePowerHasBlankFirstTier(id)) return;
+  if (!id || !stonePowerSkipsFirstTier(id)) return;
   const firstEffective = firstEffectiveStonePowerTier(id);
   if (firstPrefillTier <= 0 || firstPrefillTier > firstEffective) return;
   out.push({
@@ -50,16 +54,16 @@ function recordIfBlankT1Bypass(
     unlockLevel,
     firstPrefillTier,
     firstEffectiveTier: firstEffective,
-    reason: `${def.name} begins ${id} support at Tier ${firstPrefillTier}, which is the first effective tier. Level Progression needs a manual review before new values are implemented.`,
+    reason: `${def.name} begins ${id} support at Tier ${firstPrefillTier}, which is the first published tier. The player must pay Tier 2 themselves — Level Progression needs a manual review before new values are implemented.`,
   });
 }
 
-function inspectDefinition(def: EchoArtifactDefinition): BlankT1SupportFollowUp[] {
-  const out: BlankT1SupportFollowUp[] = [];
+function inspectDefinition(def: EchoArtifactDefinition): Tier2StartSupportFollowUp[] {
+  const out: Tier2StartSupportFollowUp[] = [];
   const top = def.stoneFunction;
   if (top?.kind === 'stonePowerSupport' && top.stonePowerId) {
     const unlock = Math.max(1, Number((top as { level?: number }).level) || 1);
-    recordIfBlankT1Bypass(
+    recordIfTier2StartBypass(
       out,
       def,
       top.stonePowerId,
@@ -75,7 +79,7 @@ function inspectDefinition(def: EchoArtifactDefinition): BlankT1SupportFollowUp[
     const firstPrefill = stages
       ? stagedSupportPrefill(key, stages)
       : getStonePowerSupportPrefillTier(key);
-    recordIfBlankT1Bypass(out, def, fn.stonePowerId, key, firstPrefill);
+    recordIfTier2StartBypass(out, def, fn.stonePowerId, key, firstPrefill);
   }
   for (const extra of def.extraStoneFunctions || []) {
     if (extra.kind !== 'stonePowerSupport' || !extra.stonePowerId) continue;
@@ -83,14 +87,14 @@ function inspectDefinition(def: EchoArtifactDefinition): BlankT1SupportFollowUp[
     const firstPrefill = extra.supportStages
       ? stagedSupportPrefill(unlock, extra.supportStages)
       : getStonePowerSupportPrefillTier(unlock);
-    recordIfBlankT1Bypass(out, def, extra.stonePowerId, unlock, firstPrefill);
+    recordIfTier2StartBypass(out, def, extra.stonePowerId, unlock, firstPrefill);
   }
   return out;
 }
 
-export function auditBlankT1StonePowerSupports(): BlankT1SupportFollowUp[] {
+export function auditTier2StartStonePowerSupports(): Tier2StartSupportFollowUp[] {
   const seen = new Set<string>();
-  const out: BlankT1SupportFollowUp[] = [];
+  const out: Tier2StartSupportFollowUp[] = [];
   const catalogs: EchoArtifactDefinition[] = [
     ...Object.values(ECHO_ARTIFACTS),
     ...Object.values(GENERAL_ARTIFACTS),
@@ -105,3 +109,6 @@ export function auditBlankT1StonePowerSupports(): BlankT1SupportFollowUp[] {
   }
   return out.sort((a, b) => a.artifactKey.localeCompare(b.artifactKey));
 }
+
+/** @deprecated Use auditTier2StartStonePowerSupports */
+export const auditBlankT1StonePowerSupports = auditTier2StartStonePowerSupports;

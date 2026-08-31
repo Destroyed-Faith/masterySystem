@@ -22,7 +22,7 @@ import {
   STONE_TIER_HARD_MAX,
   resolveStonePowerId,
   stonePowerSkipsFirstTier,
-  firstEffectiveStonePowerTier,
+  stonePowerSupportPrefillApplies,
   type StonePower,
 } from './stone-powers.js';
 import {
@@ -146,10 +146,8 @@ function nextStoneSegmentToFill(occupied: number[]): number | null {
 }
 
 /**
- * Some powers have a no-op Tier 1 "ramp step" (e.g. Extra Attack), so their
- * first real activation is Tier 2 = the Mid segment (2 stones). Such powers
- * skip the leading segment(s): the Anchor is omitted and the first payable
- * wave is the Mid segment.
+ * Powers that start at Tier 2 have no Tier-1 slot. First activation is the
+ * Mid segment (2 stones): the Anchor is omitted, not rendered empty.
  */
 function rampSkipSegmentsForPower(powerId: string): number {
   return stonePowerSkipsFirstTier(powerId) ? 1 : 0;
@@ -374,9 +372,9 @@ function buildSupportLaneSet(
   powerId?: string,
 ): Set<number> | undefined {
   if (!(prefillTier >= 2)) return undefined;
-  const firstEffective = powerId ? firstEffectiveStonePowerTier(powerId) : 1;
-  // Support only after the character has paid the first effective tier themselves.
-  if (usesThisTurn < firstEffective) return undefined;
+  // Support only after the character has paid the first published tier themselves.
+  if (powerId && !stonePowerSupportPrefillApplies(powerId, usesThisTurn)) return undefined;
+  if (!powerId && usesThisTurn < 1) return undefined;
   const count = Math.min(STONE_PAYMENT_LANE_COUNT - 1, Math.pow(2, prefillTier - 1));
   const set = new Set<number>();
   for (let i = 1; i <= count; i++) set.add(i);
@@ -825,8 +823,7 @@ export class StonePowersDialog extends BaseDialog {
     
     const generalPowers = genericPowers.map((power) => {
       const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
-      // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher:
-      // first activation = Tier 2 (2 stones), Anchor omitted.
+      // T2-start powers have no Tier 1: first activation = Tier 2 (2 stones).
       const rampSkip = rampSkipSegmentsForPower(power.id);
       const leadLockedLanes = rampSkipLeadLanes(power.id);
       const nextCost = calculateStoneCost(usesThisTurn + rampSkip);

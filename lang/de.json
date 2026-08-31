@@ -134,6 +134,8 @@
       "rankUnequipped": "Mastery Rank gesunken. Aus Verbrauchsmaterial-Slots entfernt (Gegenstände bleiben im Inventar): {names}",
       "attackActions": "Attack Actions — Verbrauchsmaterial",
       "use": "Benutzen",
+      "give": "Weitergeben",
+      "giveBack": "Zurückgeben",
       "badge": "Verbrauchsmaterial",
       "printFootnote": "Verbrauchsmaterial — nur gespeicherte Power. Keine Waffenschadenswürfel und keine Waffen-Specials.",
       "powerLabel": "Power"

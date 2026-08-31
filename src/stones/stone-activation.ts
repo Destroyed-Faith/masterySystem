@@ -92,14 +92,14 @@ export async function activateStonePower(options: {
   }
   
   // Artifact Stone Power Support may only raise an already-activated ability.
-  // The character must pay through the first effective tier themselves;
-  // support never turns a blank T1 payment into the first real effect.
+  // The character must pay the first published tier themselves (T2 when T1
+  // does not exist). Support never activates that first tier.
   const combat = (game as any).combat;
   const rawUsesBefore = abilityId.startsWith('generic.')
     ? getGenericStonePowerUsageCount(actor, abilityId, combat)
     : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
-  // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher: the
-  // first activation is Tier 2 and the player pays the Tier-2 cost.
+  // T2-start powers (no Tier 1, e.g. Extra Attack) start one segment higher:
+  // the first activation is Tier 2 and the player pays the Tier-2 cost.
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
   const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
 

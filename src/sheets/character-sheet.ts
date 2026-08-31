@@ -54,11 +54,13 @@ import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
 import {
+  canGiveBackMinorMagic,
   dismissMinorMagicItem,
-  findInventorySlotForMinorMagic,
-  isPlayerCharacterActor,
+  giveMinorMagicItemToActor,
+  listMinorMagicGiveTargets,
   minorMagicSheetView,
   readMinorMagicFlag,
+  returnMinorMagicItemToCreator,
   useMinorMagicItem,
 } from '../utils/minor-magic-items.js';
 import { applySafeHavenRest, SAFE_HAVEN_REST_INFO } from '../utils/safe-haven-rest.js';
@@ -2687,6 +2689,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const given = await this.#giveMinorMagicItem(item);
       if (given) this.render(false);
     });
+    html.on('click.minorMagic', '.js-sheet-minor-magic-give-back', async (ev) => {
+      ev.preventDefault();
+      const id = (ev.currentTarget as HTMLElement).dataset.itemId;
+      const item = id ? this.actor.items.get(id) : null;
+      if (!item) return;
+      const returned = await this.#returnMinorMagicItem(item);
+      if (returned) this.render(false);
+    });
 
     html.on('click.summonBonds', '.js-sheet-summon-bond-dissolve', async (ev) => {
       ev.preventDefault();
@@ -2839,7 +2849,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
 
     const invEquipSelector =
-      '.tab.equipment .df-enc-band .df-draggable-item';
+      '.tab.equipment .df-enc-band .df-draggable-item, .tab.equipment .df-consumable-slot .df-draggable-item';
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
     const rootEl = ((html as any)?.[0] ?? (this.element as any) ?? null) as HTMLElement | null;
     if (ContextMenuCls && rootEl) {
@@ -7375,10 +7385,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   async #giveMinorMagicItem(item: any): Promise<boolean> {
-    const actors = Array.from(((globalThis as any).game?.actors ?? []) as Iterable<any>).filter((a: any) => {
-      if (a.id === this.actor.id) return false;
-      return isPlayerCharacterActor(a);
-    });
+    const actors = listMinorMagicGiveTargets(this.actor.id);
     if (!actors.length) {
       ui.notifications?.warn('No other player character you can give this to.');
       return false;
@@ -7403,28 +7410,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     const target = actors.find((a: any) => a.id === targetId);
     if (!target) return false;
-    const slot = findInventorySlotForMinorMagic(target);
-    if (!slot) {
-      ui.notifications?.warn(`${target.name} has no inventory space for a 1×1 item.`);
+    const result = await giveMinorMagicItemToActor(this.actor, item, target);
+    if (!result.ok) {
+      ui.notifications?.warn(result.error);
       return false;
     }
-    const moved = await transferConsumableToActor(target, item);
-    if (!moved) {
-      ui.notifications?.error(`Could not give ${item.name} to ${target.name}.`);
+    const flag = readMinorMagicFlag(item) || readMinorMagicFlag(result.item);
+    const creatorName = String(flag?.creatorName || 'the creator');
+    const ownLimit = String(flag?.creatorId || '') === String(this.actor.id);
+    ui.notifications?.info(
+      ownLimit
+        ? `${item.name} given to ${target.name}. It still counts against your Minor Magic limit.`
+        : `${item.name} given to ${target.name}. It still counts against ${creatorName}'s Minor Magic limit.`,
+    );
+    return true;
+  }
+
+  async #returnMinorMagicItem(item: any): Promise<boolean> {
+    const result = await returnMinorMagicItemToCreator(this.actor, item);
+    if (!result.ok) {
+      ui.notifications?.warn(result.error);
       return false;
     }
-    try {
-      await moved.update?.({
-        'flags.mastery-system.equipment': {
-          container: 'inventory',
-          band: slot.band,
-          grid: { x: slot.x, y: slot.y },
-        },
-      });
-    } catch {
-      /* item is on the other sheet even if the grid stamp fails */
-    }
-    ui.notifications?.info(`${item.name} given to ${target.name}. It still counts against your Minor Magic limit.`);
+    ui.notifications?.info(
+      `${item.name} returned to ${result.creator.name}. They can give it again. It still counts against their Minor Magic limit.`,
+    );
     return true;
   }
 
@@ -7821,6 +7831,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const slotEl = target?.closest?.('.df-equip-slot, .df-consumable-slot') as HTMLElement | null;
     const root = this.element as HTMLElement | null;
     if (!slotEl || !root?.contains(slotEl)) return;
+    const filledTile = target?.closest?.('.df-draggable-item') as HTMLElement | null;
+    if (filledTile && slotEl.contains(filledTile)) return;
     ev.preventDefault();
     ev.stopPropagation();
     ev.stopImmediatePropagation();
@@ -7962,6 +7974,50 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     ];
 
     const entries: any[] = [
+      {
+        name: localizeSheet('MASTERY.consumable.use', 'Use'),
+        icon: '<i class="fas fa-flask"></i>',
+        group: 'minor-magic',
+        condition: (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          return !!item && !!readMinorMagicFlag(item) && readConsumableSlotIndex(item) != null;
+        },
+        callback: async (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return;
+          const res = await useEquippedConsumable(this.actor, item);
+          if (!res.ok) ui.notifications?.warn(res.error);
+          else await this.render(false);
+        },
+      },
+      {
+        name: localizeSheet('MASTERY.consumable.give', 'Give'),
+        icon: '<i class="fas fa-hand-holding"></i>',
+        group: 'minor-magic',
+        condition: (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          return !!item && !!readMinorMagicFlag(item);
+        },
+        callback: async (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return;
+          if (await this.#giveMinorMagicItem(item)) await this.render(false);
+        },
+      },
+      {
+        name: localizeSheet('MASTERY.consumable.giveBack', 'Give Back'),
+        icon: '<i class="fas fa-undo"></i>',
+        group: 'minor-magic',
+        condition: (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          return !!item && canGiveBackMinorMagic(this.actor, item);
+        },
+        callback: async (target: unknown) => {
+          const item = this.#itemFromInventoryTileContextTarget(target);
+          if (!item) return;
+          if (await this.#returnMinorMagicItem(item)) await this.render(false);
+        },
+      },
       {
         name: 'Equip (main hand)',
         icon: '<i class="fas fa-hand-fist"></i>',

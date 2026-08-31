@@ -47,11 +47,10 @@ export function shouldSettleStoneWave(args: {
 }
 
 /**
- * Card order inside a power row. Every row holds exactly one ramp power whose
- * Tier 1 is a no-op, so its first activation costs 2 stones and the unused
- * Anchor lane is omitted (the card starts at the Mid / 2-stone segment). It
- * leads the row so the shorter cluster sits in one corner. The remaining
- * cards keep their order.
+ * Card order inside a power row. Every row holds exactly one T2-start power
+ * (Tier 1 does not exist). Its first activation costs 2 stones and the
+ * unused Anchor lane is omitted. It leads the row so the shorter cluster
+ * sits first. The remaining cards keep their order.
  */
 export function orderPowersRampFirst<T>(
   powers: readonly T[],

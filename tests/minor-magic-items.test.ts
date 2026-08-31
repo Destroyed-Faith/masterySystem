@@ -22,6 +22,12 @@ import {
   artifactLevelForMinorMagicCap,
   capPowerLevelForMinorMagic,
   powerLevelForArtifactLevel,
+  canGiveBackMinorMagic,
+  giveMinorMagicItemToActor,
+  isMinorMagicCreatedBy,
+  listMinorMagicGiveTargets,
+  minorMagicSheetView,
+  returnMinorMagicItemToCreator,
 } from '../src/utils/minor-magic-items';
 
 function powerItem(overrides: Record<string, unknown> = {}) {
@@ -393,5 +399,131 @@ describe('default names', () => {
     expect(defaultMinorMagicName('weapon', 'Single Attack')).toBe('Prepared Single Attack');
     expect(defaultMinorMagicName('trap', 'Single Attack')).toBe('Trap: Single Attack');
     expect(defaultMinorMagicName('charm', 'Ward')).toBe('Charm of Ward');
+  });
+});
+
+describe('give and give back', () => {
+  const flag = {
+    creatorId: 'act-1',
+    creatorName: 'Hero',
+    instanceId: 'mm-1',
+    form: 'potion' as const,
+    snapshot: {
+      powerName: 'Heal',
+      powerLevel: 4,
+      actionCost: 'attack',
+      attackPool: { attribute: 'might', numDice: 4, keepDice: 2 },
+      damage: '4d8',
+      range: 'Touch',
+      aoe: '—',
+      specials: '—',
+    } as any,
+  };
+
+  function minorItem(holderId: string) {
+    return {
+      id: 'item-1',
+      name: 'Potion of Heal',
+      type: 'gear',
+      system: { inventorySize: '1x1', consumable: true },
+      getFlag: (_scope: string, key: string) => (key === 'minorMagic' ? flag : undefined),
+      parent: { id: holderId, deleteEmbeddedDocuments: async () => {} },
+    };
+  }
+
+  it('marks a held item as returnable only when the holder is not the creator', () => {
+    expect(isMinorMagicCreatedBy(flag, 'act-1')).toBe(true);
+    expect(canGiveBackMinorMagic({ id: 'act-1' }, minorItem('act-1'))).toBe(false);
+    expect(canGiveBackMinorMagic({ id: 'act-2' }, minorItem('act-2'))).toBe(true);
+  });
+
+  it('lists other player characters as give targets', () => {
+    (globalThis as any).game = {
+      actors: [
+        { id: 'act-1', type: 'character', hasPlayerOwner: true, name: 'Hero' },
+        { id: 'act-2', type: 'character', hasPlayerOwner: true, name: 'Ally' },
+        { id: 'npc-1', type: 'npc', hasPlayerOwner: false, name: 'Goblin' },
+      ],
+    };
+    expect(listMinorMagicGiveTargets('act-1').map((a) => a.id)).toEqual(['act-2']);
+    delete (globalThis as any).game;
+  });
+
+  it('shows received items as Give Back on the holder and given-away placeholders on the creator', () => {
+    const potion = {
+      ...minorItem('act-2'),
+      flags: { 'mastery-system': { minorMagic: flag } },
+    };
+    const holder = {
+      ...actorWithItems([potion], 2),
+      id: 'act-2',
+      getFlag: () => undefined,
+    };
+    const holderView = minorMagicSheetView(holder);
+    expect(holderView.items[0].received).toBe(true);
+    expect(holderView.items[0].canGiveBack).toBe(true);
+    expect(holderView.items[0].canDismiss).toBe(false);
+
+    const creator = {
+      ...actorStub(2),
+      items: { [Symbol.iterator]: () => [][Symbol.iterator]() },
+      getFlag: (_scope: string, key: string) =>
+        key === 'minorMagicLedger' ? { itemIds: ['mm-1'], labels: { 'mm-1': 'Potion of Heal' } } : undefined,
+    };
+    const creatorView = minorMagicSheetView(creator);
+    expect(creatorView.givenAway).toBe(1);
+    expect(creatorView.items[0].givenAway).toBe(true);
+    expect(creatorView.items[0].canGive).toBe(false);
+  });
+
+  it('moves the item to another actor and keeps the creator ledger untouched', async () => {
+    const created: any[] = [];
+    const deleted: any[] = [];
+    const target = {
+      id: 'act-2',
+      name: 'Ally',
+      type: 'character',
+      hasPlayerOwner: true,
+      items: { [Symbol.iterator]: () => [][Symbol.iterator]() },
+      createEmbeddedDocuments: async (_type: string, docs: any[]) => {
+        const item = { ...docs[0], id: 'item-2', update: async () => {}, parent: { id: 'act-2' } };
+        created.push(item);
+        return [item];
+      },
+    };
+    const source = { id: 'act-1', name: 'Hero', deleteEmbeddedDocuments: async (_t: string, ids: string[]) => deleted.push(...ids) };
+    const item = { ...minorItem('act-1'), parent: source };
+    const result = await giveMinorMagicItemToActor(source, item, target);
+    expect(result.ok).toBe(true);
+    expect(created).toHaveLength(1);
+    expect(deleted).toEqual(['item-1']);
+  });
+
+  it('returns a received item to the creator', async () => {
+    const created: any[] = [];
+    const creator = {
+      id: 'act-1',
+      name: 'Hero',
+      type: 'character',
+      hasPlayerOwner: true,
+      items: { [Symbol.iterator]: () => [][Symbol.iterator]() },
+      createEmbeddedDocuments: async (_type: string, docs: any[]) => {
+        const item = { ...docs[0], id: 'item-3', update: async () => {}, parent: { id: 'act-1' } };
+        created.push(item);
+        return [item];
+      },
+    };
+    const holder = { id: 'act-2', name: 'Ally', deleteEmbeddedDocuments: async () => {} };
+    (globalThis as any).game = { actors: { get: (id: string) => (id === 'act-1' ? creator : null) } };
+    const result = await returnMinorMagicItemToCreator(holder, { ...minorItem('act-2'), parent: holder });
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.creator.id).toBe('act-1');
+    expect(created).toHaveLength(1);
+    delete (globalThis as any).game;
+  });
+
+  it('does not return an item that is already with its creator', async () => {
+    const result = await returnMinorMagicItemToCreator({ id: 'act-1' }, minorItem('act-1'));
+    expect(result.ok).toBe(false);
   });
 });

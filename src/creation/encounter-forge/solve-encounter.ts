@@ -315,6 +315,7 @@ export function solveEncounterForParty(
       allPhaseAttacks,
       npcMr,
       Math.max(1, durability.expectedPhaseRounds),
+      totalHostileAttacks,
     );
     // Second durability pass: expected injuries shrink party dice pools.
     const poolPenaltyByRound = offense.perPc.map((r) => r.poolPenaltyByRound);

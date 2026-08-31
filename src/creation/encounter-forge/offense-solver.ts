@@ -37,28 +37,28 @@ import { HEALTH_PENALTY_FRACTIONS } from './combat-math.js';
 /* ------------------------------------------------------------------ */
 
 export interface PartyActionEconomy {
-  /** Baseline offensive actions per round (1 per PC). */
+  /** Sustained offensive actions per round (1 per PC). Stone extras are Burst-only. */
   offensiveActionsPerRound: number;
-  /** Amortized extra attack actions from stones over a typical encounter. */
+  /** Always 0 — extra stone actions are not treated as permanently available. */
   sustainableExtraActions: number;
+  /** Temporary extra attacks available in a Burst round. */
+  burstExtraActions: number;
   reactionsPerRound: number;
 }
 
 export function analyzePartyActionEconomy(party: PartyProfile): PartyActionEconomy {
   let offensive = 0;
   let reactions = 0;
-  let extras = 0;
+  let burstExtras = 0;
   for (const m of party.members) {
     offensive += m.attackActionsPerRound;
     reactions += m.reactionsPerRound;
-    // A +1 attack wave costs 3 stones; amortize affordable waves over the
-    // burst amortization window (rules: stone costs; playtest: window).
-    const waves = Math.floor(m.stonesTotal / m.extraAttackStoneCost);
-    extras += Math.min(1, waves / ENCOUNTER_TUNING.burstAmortizationRounds);
+    burstExtras += m.burstExtraActions ?? 0;
   }
   return {
     offensiveActionsPerRound: offensive,
-    sustainableExtraActions: extras,
+    sustainableExtraActions: 0,
+    burstExtraActions: burstExtras,
     reactionsPerRound: reactions,
   };
 }
@@ -84,7 +84,7 @@ export function recommendActionEconomy(
 ): ActionEconomyRecommendation {
   const tuning = ENCOUNTER_TUNING;
   const pae = analyzePartyActionEconomy(party);
-  const partyActions = pae.offensiveActionsPerRound + pae.sustainableExtraActions;
+  const partyActions = pae.offensiveActionsPerRound;
   const totalTarget = Math.max(1, Math.round(partyActions * tuning.hostileActionRatio));
   // Attacking adds consume from the same envelope, weighted below full boss
   // actions because their solved attacks are individually weaker.
@@ -139,6 +139,10 @@ export interface SolvedAttack {
   usesPerRound: number;
   /** Explicit occupancy assumptions for AoE review lines. */
   occupancy: AoeOccupancy | null;
+  /** True when pool 20 still cannot reach the target hit chance. */
+  poolAtCap: boolean;
+  /** Matrix-average connect chance the solver used (same TN as Review). */
+  achievedHitChance: number;
 }
 
 /** Occupancy cases when map geometry is unknown (explicit, never hidden). */
@@ -162,6 +166,9 @@ interface PcDefenseView {
   spellResistance: number;
   hlSize: number;
   mr: number;
+  ward: number;
+  damageNegationDice: number;
+  phasingCharges: number;
 }
 
 function pcDefenseView(pc: PcCombatProfile): PcDefenseView {
@@ -172,6 +179,9 @@ function pcDefenseView(pc: PcCombatProfile): PcDefenseView {
     spellResistance: pc.spellResistance,
     hlSize: pc.healthLevelSize,
     mr: pc.mr,
+    ward: pc.ward ?? 0,
+    damageNegationDice: pc.damageNegationDice ?? 0,
+    phasingCharges: pc.phasingCharges ?? 0,
   };
 }
 
@@ -211,6 +221,7 @@ function npcExpectedHitDamage(
     penetration,
     armor: pc.armor + guardShare,
     drPct: pc.drPct,
+    damageNegationDice: pc.damageNegationDice,
   });
 }
 
@@ -326,7 +337,10 @@ export function solveAttack(concept: AttackConcept, ctx: AttackSolveContext): So
   const connects = views.map((v) =>
     npcConnectChance(attackPool, ctx.npcMr, isSpell, v, ctx.totalHostileAttacks),
   );
-  const avgConnect = connects.reduce((a, b) => a + b, 0) / connects.length;
+  const avgConnect = connects.length
+    ? connects.reduce((a, b) => a + b, 0) / connects.length
+    : 0;
+  const atCap = attackPool >= tuning.maxAttackPool && avgConnect + tuning.probabilityTolerance < tuning.targetNpcHitChance;
 
   // --- Damage dice: this attack's expected HL/round ≈ its budget share. ---
   const hasSpecial = Boolean(concept.specialId);
@@ -405,6 +419,8 @@ export function solveAttack(concept: AttackConcept, ctx: AttackSolveContext): So
     stress: concept.stress,
     usesPerRound: 1,
     occupancy,
+    poolAtCap: atCap,
+    achievedHitChance: avgConnect,
   };
 }
 
@@ -455,11 +471,16 @@ export function simulateNpcOffense(
   attacks: SolvedAttack[],
   npcMr: number,
   phaseRounds: number,
+  /** Must match the hostile-attack count `solveAttack` used for the TN. */
+  solverHostileAttacks?: number,
 ): OffenseSimulationResult {
   const rounds = Math.max(1, Math.ceil(phaseRounds));
   const members = party.members;
   const views = members.map(pcDefenseView);
-  const totalAttacks = attacks.reduce((a, atk) => a + atk.usesPerRound, 0);
+  const totalAttacks = Math.max(
+    1,
+    solverHostileAttacks ?? attacks.reduce((a, atk) => a + atk.usesPerRound, 0),
+  );
 
   const cumulativeDamage = members.map(() => 0);
   const stacks: SpecialStacks[] = members.map(() => new Map());
@@ -511,7 +532,7 @@ export function simulateNpcOffense(
             atk.specialId,
             uses * threat.connectChance * atk.specialValue,
             member.mr,
-            0,
+            views[j].ward,
           );
         }
       }
@@ -556,7 +577,13 @@ export function simulateNpcOffense(
   members.forEach((member, j) => {
     for (const atk of attacks) {
       const q90 = hitDamageQuantile(
-        { dice: atk.damageDice, penetration: atk.penetration, armor: views[j].armor, drPct: views[j].drPct },
+        {
+          dice: atk.damageDice,
+          penetration: atk.penetration,
+          armor: views[j].armor,
+          drPct: views[j].drPct,
+          damageNegationDice: views[j].damageNegationDice,
+        },
         0.9,
       );
       if (q90 / member.totalHealth > worstQ90) {

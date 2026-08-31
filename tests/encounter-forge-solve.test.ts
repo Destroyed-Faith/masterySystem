@@ -143,7 +143,8 @@ describe('party analyzer', () => {
     expect(alaris.mr).toBe(2);
     expect(alaris.bestAttack.pool).toBe(14); // full Might, not halved
     expect(alaris.bestAttack.keep).toBe(2);
-    expect(alaris.bestAttack.damageDice).toBe(4);
+    expect(alaris.bestAttack.role).toBe('basic');
+    expect(alaris.bestAttack.damageDice).toBe(8); // 4d8 weapon + MR2×2d8
     expect(alaris.bestAttack.specials.some((s) => s.id === 'lacerate')).toBe(true);
     const fynn = party.members[3];
     expect(fynn.attacks.some((a) => a.kind === 'spell')).toBe(true);

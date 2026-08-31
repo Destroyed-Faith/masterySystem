@@ -134,6 +134,8 @@
       "rankUnequipped": "Mastery Rank decreased. Unequipped from Consumable Slots (items remain in inventory): {names}",
       "attackActions": "Attack Actions — Consumables",
       "use": "Use",
+      "give": "Give",
+      "giveBack": "Give Back",
       "badge": "Consumable",
       "printFootnote": "Consumable — stored Power only. No weapon dice or weapon Specials.",
       "powerLabel": "Power"

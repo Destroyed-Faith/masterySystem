@@ -366,7 +366,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
     3: {
       name: 'Elorian Focus',
       stoneFunction: {
-        // Follow-up: support begins at T2, the first effective Crit tier.
+        // Follow-up: support begins at T2, the first published Crit tier.
         // Do not invent replacement Level Progression values here.
         kind: 'stonePowerSupport',
         attribute: 'agility',
@@ -1661,8 +1661,8 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       kind: 'stonePowerSupport',
       attribute: 'influence',
       stonePowerId: 'influence.notATarget',
-      // Follow-up: T2 support at L1 is the first effective Not a Target tier.
-      // Do not invent replacement Level Progression values here.
+      // Follow-up: T2 support at L1 tries to activate the first published
+      // Not a Target tier. Do not invent replacement Level Progression values here.
       supportStages: [1, 5, 9],
     },
   ],

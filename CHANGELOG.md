@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.432] - 2026-08-31
+
+### Changed
+
+- **Encounter Forge:** Party analysis now uses the same combat aggregators as live Foundry (effective Evade, Armor, SR, DR, Ward, Damage Negation, Phasing). Each selected PC gets Baseline / Sustained / Burst profiles. Legal attacks are Basic (Weapon + MR × 2d8), Power only when combat actually combines them, and Spells at 8 × caster MR. Temporary Stone extra actions count in Burst only. Review hit chance uses the same TN as the solver; defense share is labeled Mitigation-Anteil. If Attack Pool 20 cannot reach the target hit chance, the encounter is flagged instead of a silent near-miss.
+- **Stone Powers:** Parry, Crit, Damage Negation, Spell Action, Damage Reduction, Not a Target, Phasing, and Extra Attack have no Tier 1. They start at Tier 2 (2 / 6 / 14 Stones total). Support cannot activate Tier 2. The first UI box is Tier 2, and each of these abilities leads its attribute list.
+- **Minor Magic:** Holders can Use, Give, or Give Back from the Minor Magic tab and the Equipment context menu. The creator cannot make new items until a given item is used, given back, or dismissed.
+
+### Fixed
+
+- **Character sheet:** The white stripe under combat stats now matches the dark sheet; content is inset with the rest of the layout.
+- **Encounter Forge:** The Phasen/Adds continue button matches the other wizard buttons so it no longer looks disabled.
+
 ## [0.9.431] - 2026-08-31
 
 ### Changed

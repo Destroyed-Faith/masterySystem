@@ -13,6 +13,7 @@
 
 .mastery-system.sheet.actor.character .window-content {
   padding: 0;
+  background: var(--df-bg-primary, #20272B);
 }
 
 /* ========== Header Layout ========== */
@@ -536,7 +537,7 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 15px;
+  padding: 12px 18px 18px;
   background: var(--df-bg-primary, #20272B);
 }
 
@@ -5064,7 +5065,7 @@
 }
 
 .mastery-system.sheet.actor.character .character-status-panel {
-  margin: 8px 12px 0;
+  margin: 8px 18px 0;
 }
 
 .mastery-system.sheet.actor.npc .status-effects-panel h3,
@@ -9621,6 +9622,10 @@ aside#tooltip,
    Equipment Tab Styling
    ======================================== */
 
+.mastery-system.sheet.actor.character .sheet-body .tab.equipment {
+  padding: 4px 8px 0;
+}
+
 .mastery-system.sheet.actor.character .equipment-overview {
   display: flex;
   justify-content: space-between;
@@ -10921,9 +10926,9 @@ aside#tooltip,
    ===================================================================== */
 
 .mastery-system.sheet.actor.character .combat-stats-panel {
-  margin: 10px 0 12px 0;
+  margin: 8px 18px 0;
   padding: 10px 14px;
-  background: var(--df-bg-panel, rgba(30, 40, 50, 0.55));
+  background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border, rgba(233, 69, 96, 0.35));
   border-radius: 8px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -11867,6 +11872,7 @@ aside#tooltip,
   min-height: 0;
   overflow: hidden;
   padding: 0;
+  background: var(--df-bg-primary, #20272B);
 }
 
 .application.mastery-system.sheet.actor.character .window-content > *,
@@ -11878,6 +11884,7 @@ aside#tooltip,
   height: 100%;
   position: relative;
   overflow: hidden;
+  background: var(--df-bg-primary, #20272B);
 }
 
 .mastery-system.sheet.actor.character .sheet-header,

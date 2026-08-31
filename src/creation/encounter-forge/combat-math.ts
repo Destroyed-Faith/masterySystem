@@ -59,12 +59,17 @@ export function npcSpellCastingTn(mr: number, targetSpellResistance = 0): number
 }
 
 /**
- * PC spell Casting TN: 8 × tier where tier = ceil(powerLevel / 2)
- * (spell-roll-handler.ts SPELL_TIER_TABLE), plus target Spell Resistance.
+ * PC spell Casting TN vs an NPC: 8 × caster Mastery Rank
+ * (`castingBaseTnForMasteryRank`), +4 if Mental, plus target Spell Resistance.
+ * Power Level does not set the TN.
  */
-export function pcSpellCastingTn(powerLevel: number, targetSpellResistance = 0): number {
-  const tier = Math.max(1, Math.min(8, Math.ceil(Math.max(1, powerLevel) / 2)));
-  return 8 * tier + Math.max(0, Math.floor(targetSpellResistance));
+export function pcSpellCastingTn(
+  casterMr: number,
+  targetSpellResistance = 0,
+  opts?: { mental?: boolean },
+): number {
+  const mr = Math.max(1, Math.min(8, Math.floor(Number(casterMr) || 1)));
+  return 8 * mr + (opts?.mental ? 4 : 0) + Math.max(0, Math.floor(targetSpellResistance));
 }
 
 /** Melee flat damage bonus from Might: 2 × floor(Might / 8) (calculations.ts). */

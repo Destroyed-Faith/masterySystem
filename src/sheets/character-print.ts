@@ -23,7 +23,8 @@ import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { specialApplicationLimit } from '../combat/special-application.js';
-import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, stonePowerSkipsFirstTier } from '../stones/stone-powers.js';
+import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
 import {
@@ -1021,12 +1022,11 @@ export function buildCharacterPrintContext(
       freeStones,
       slots: Array.from({ length: freeStones }, (_, i) => i + 1),
       boosts: boostsByAttr.get(key) ?? [],
-      powers: list.map((p: any) => {
+      powers: orderPowersRampFirst(list, (p: any) => stonePowerSkipsFirstTier(String(p.id))).map((p: any) => {
         const sup = supportByPowerId.get(String(p.id));
         const supportTier = sup?.tier ?? 0;
-        // Ramp powers (e.g. Extra Attack) have a no-op Tier 1 step — their
-        // first usable effect starts at Tier 2 (2 stones), so hide the T1 box.
-        const isRamp = Array.isArray(p?.tiers) && p.tiers.length > 0 && p.tiers[0]?.label == null;
+        // T2-start powers have no Tier-1 slot — do not render an empty T1 box.
+        const isRamp = stonePowerSkipsFirstTier(String(p.id));
         // Tier placement areas (T1=1, T2=2, T3=4). When an artifact Support
         // pre-fills a tier, those boxes are shown already filled.
         const tiers = [

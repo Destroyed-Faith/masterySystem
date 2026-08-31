@@ -191,29 +191,40 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(Object.keys(STONE_POWERS)).toHaveLength(32);
   });
 
-  it('Resolve pool matches the rules table', () => {
+  it('Resolve pool leads with the T2-start ability', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.resolve.map((p) => p.id);
+    expect(ids[0]).toBe('resolve.damageReduction');
     expect(ids).toEqual([
+      'resolve.damageReduction',
       'resolve.healing',
       'resolve.stressHealing',
-      'resolve.damageReduction',
       'resolve.ward',
     ]);
   });
 
-  it('Vitality pool matches the rules table', () => {
+  it('Vitality pool leads with the T2-start ability', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.vitality.map((p) => p.id);
+    expect(ids[0]).toBe('vitality.damageNegation');
     expect(ids).toEqual([
-      'vitality.tempHp',
       'vitality.damageNegation',
+      'vitality.tempHp',
       'vitality.removeScar',
       'vitality.extendActiveBuff',
     ]);
   });
 
-  it('Might pool includes Parry instead of Attack Pool Reduction', () => {
+  it('Might pool leads with Parry (T2-start)', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.might.map((p) => p.id);
-    expect(ids).toEqual(['might.meleeDamage', 'might.armor', 'might.ignoreArmor', 'might.parry']);
+    expect(ids[0]).toBe('might.parry');
+    expect(ids).toEqual(['might.parry', 'might.meleeDamage', 'might.armor', 'might.ignoreArmor']);
+  });
+
+  it('each attribute list leads with its T2-start ability', () => {
+    expect(STONE_POWERS_BY_ATTRIBUTE.generic[0].id).toBe('generic.extraAttack');
+    expect(STONE_POWERS_BY_ATTRIBUTE.agility[0].id).toBe('agility.crit');
+    expect(STONE_POWERS_BY_ATTRIBUTE.intellect[0].id).toBe('intellect.spellAction');
+    expect(STONE_POWERS_BY_ATTRIBUTE.influence[0].id).toBe('influence.notATarget');
+    expect(STONE_POWERS_BY_ATTRIBUTE.wits[0].id).toBe('wits.phasing');
   });
 
   it('every registry key matches its power.id', () => {
@@ -225,28 +236,31 @@ describe('Stone Powers — pool layout (new spec)', () => {
 
 describe('Stone Powers — tier table shape', () => {
   it.each(Object.values(STONE_POWERS).map((p) => [p.id, p]))(
-    '"%s" has exactly 4 tiers with description text',
+    '"%s" publishes only existing tiers with description text',
     (_id, power) => {
       const p = power as StonePower;
-      expect(p.tiers).toHaveLength(4);
+      const expected = p.startsAtTier === 2 ? 3 : 4;
+      expect(p.tiers).toHaveLength(expected);
       for (const tier of p.tiers) {
         expect(typeof tier.description).toBe('string');
         expect(tier.description.length).toBeGreaterThan(0);
-        // label may be null (blank ramp tier), otherwise a non-empty string
-        if (tier.label !== null) {
-          expect(typeof tier.label).toBe('string');
-          expect(tier.label.length).toBeGreaterThan(0);
-        }
+        expect(typeof tier.label).toBe('string');
+        expect(tier.label.length).toBeGreaterThan(0);
+        expect(/ramp step/i.test(tier.description)).toBe(false);
       }
     },
   );
 
-  it('compiled effect tooltip includes all 4 tiers with cost markers', () => {
+  it('compiled effect tooltip includes published tiers with cost markers', () => {
     for (const power of Object.values(STONE_POWERS)) {
-      expect(power.effect).toContain('T1 (1)');
       expect(power.effect).toContain('T2 (2)');
       expect(power.effect).toContain('T3 (4)');
       expect(power.effect).toContain('T4 (8)');
+      if (power.startsAtTier === 2) {
+        expect(power.effect).not.toContain('T1 (1)');
+      } else {
+        expect(power.effect).toContain('T1 (1)');
+      }
     }
   });
 });
@@ -304,7 +318,9 @@ describe('scaleStoneTier continues past the printed table', () => {
 describe('apply() — runs cleanly across every power and tier', () => {
   for (const [id, power] of Object.entries(STONE_POWERS)) {
     describe(id, () => {
-      for (const tier of [1, 2, 3, 4]) {
+      const start = power.startsAtTier ?? 1;
+      const publishedTiers = power.tiers.map((_, i) => start + i);
+      for (const tier of publishedTiers) {
         it(`tier ${tier} runs without throwing`, async () => {
           const actor = makeMockActor();
           const combatant = makeMockCombatant();
@@ -328,8 +344,6 @@ describe('apply() — runs cleanly across every power and tier', () => {
             !Array.isArray(actor.system.statusEffects) ||
             actor.system.statusEffects.length !== 1 ||
             (actor.system.statusEffects[0]?.value ?? 6) !== 6;
-          // Ramp tiers (label === null) are allowed to touch nothing.
-          const isRampTier = power.tiers[tier - 1].label === null;
           const touched =
             sbTouched ||
             actionsTouched ||
@@ -338,12 +352,7 @@ describe('apply() — runs cleanly across every power and tier', () => {
             grantedHp ||
             tempHpRaised ||
             specialsTouched;
-          if (!isRampTier) {
-            expect(
-              touched,
-              `${id} T${tier} should affect actor state`,
-            ).toBe(true);
-          }
+          expect(touched, `${id} T${tier} should affect actor state`).toBe(true);
         });
       }
     });
@@ -351,13 +360,11 @@ describe('apply() — runs cleanly across every power and tier', () => {
 });
 
 describe('Generic powers — Extra Attack', () => {
-  it('T1 is a ramp step (no extra attack granted)', async () => {
+  it('has no Tier 1 and first purchase is +1 Attack Action for 2 Stones', () => {
     const power = STONE_POWERS['generic.extraAttack'];
-    expect(power).toBeDefined();
-    const actor = makeMockActor();
-    await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
-    expect(actor._roundState.attackActions.total).toBe(1);
-    expect(actor._roundState.stoneBonuses.extraAttacks).toBe(0);
+    expect(power.startsAtTier).toBe(2);
+    expect(power.tiers[0].value).toBe(1);
+    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
   });
 
   it('T2 grants +1, T3 grants +2, T4 grants +3, T5 grants +4 Attack Actions', async () => {
@@ -413,16 +420,10 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
   });
 });
 
-describe('Vitality — Damage Negation ramps at T2', () => {
-  it('T1 is a ramp step (no effect)', async () => {
-    const actor = makeMockActor();
-    await STONE_POWERS['vitality.damageNegation'].apply({
-      actor: actor as any,
-      combatant: makeMockCombatant() as any,
-      tier: 1,
-      cost: 1,
-    });
-    expect(actor._roundState.stoneBonuses.tempDamageNegation ?? 0).toBe(0);
+describe('Vitality — Damage Negation starts at T2', () => {
+  it('has no Tier-1 slot', () => {
+    expect(STONE_POWERS['vitality.damageNegation'].startsAtTier).toBe(2);
+    expect(STONE_POWERS['vitality.damageNegation'].tiers).toHaveLength(3);
   });
 
   it.each([[2, 4], [3, 8], [4, 12]])('T%i grants +%i Damage Negation', async (tier, expected) => {
@@ -516,16 +517,10 @@ describe('Resolve — Stress Healing scales 1d8/2d8/3d8/4d8', () => {
   );
 });
 
-describe('Resolve — Damage Reduction ramps at T2', () => {
-  it('T1 is a ramp step (no effect)', async () => {
-    const actor = makeMockActor();
-    await STONE_POWERS['resolve.damageReduction'].apply({
-      actor: actor as any,
-      combatant: makeMockCombatant() as any,
-      tier: 1,
-      cost: 1,
-    });
-    expect(actor._roundState.stoneBonuses.damageReductionBoostPct ?? 0).toBe(0);
+describe('Resolve — Damage Reduction starts at T2', () => {
+  it('has no Tier-1 slot', () => {
+    expect(STONE_POWERS['resolve.damageReduction'].startsAtTier).toBe(2);
+    expect(STONE_POWERS['resolve.damageReduction'].tiers).toHaveLength(3);
   });
 
   it.each([[2, 10], [3, 20], [4, 30]])('T%i adds +%i%% DR', async (tier, expected) => {
@@ -541,29 +536,26 @@ describe('Resolve — Damage Reduction ramps at T2', () => {
 });
 
 describe('stonePowerSkipsFirstTier', () => {
-  it('never skips: the blank Tier 1 is a payable ramp step (1 Stone, no effect)', () => {
-    // Players Guide cost ladder: 1st use = 1 Stone. Ramp powers pay their
-    // empty Tier 1 instead of jumping to Tier 2 for 2 Stones.
-    expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(false);
-    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(false);
-    expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(false);
-    expect(stonePowerSkipsFirstTier('resolve.damageReduction')).toBe(false);
-    expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(false);
-    expect(stonePowerSkipsFirstTier('agility.crit')).toBe(false);
-    expect(stonePowerSkipsFirstTier('might.parry')).toBe(false);
-    expect(stonePowerSkipsFirstTier('vitality.damageNegation')).toBe(false);
-    expect(stonePowerSkipsFirstTier('influence.notATarget')).toBe(false);
+  it('is true only for abilities that begin at Tier 2', () => {
+    expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(true);
+    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
+    expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(true);
+    expect(stonePowerSkipsFirstTier('resolve.damageReduction')).toBe(true);
+    expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(true);
+    expect(stonePowerSkipsFirstTier('agility.crit')).toBe(true);
+    expect(stonePowerSkipsFirstTier('might.parry')).toBe(true);
+    expect(stonePowerSkipsFirstTier('vitality.damageNegation')).toBe(true);
+    expect(stonePowerSkipsFirstTier('influence.notATarget')).toBe(true);
     expect(stonePowerSkipsFirstTier('wits.initiativeBoost')).toBe(false);
     expect(stonePowerSkipsFirstTier('wits.reactionRange')).toBe(false);
   });
 });
 
 describe('Wits — Phasing', () => {
-  it('T1 is a ramp step; T2/T3 grant 1, T4/T5 grant 2, T6 grants 3', async () => {
+  it('has no Tier 1; T2/T3 grant 1, T4/T5 grant 2, T6 grants 3', async () => {
     const power = STONE_POWERS['wits.phasing'];
-    const t1 = makeMockActor();
-    await power.apply({ actor: t1 as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
-    expect(t1._roundState.stoneBonuses?.phasingChargesFromStones ?? 0).toBe(0);
+    expect(power.startsAtTier).toBe(2);
+    expect(power.tiers).toHaveLength(3);
 
     for (const [tier, charges] of [[2, 1], [3, 1], [4, 2], [5, 2], [6, 3]] as const) {
       const actor = makeMockActor();
@@ -618,16 +610,10 @@ describe('Might — Parry ramps at T2', () => {
   });
 });
 
-describe('Agility — Crit ramps at T2', () => {
-  it('T1 is a ramp step', async () => {
-    const actor = makeMockActor();
-    await STONE_POWERS['agility.crit'].apply({
-      actor: actor as any,
-      combatant: makeMockCombatant() as any,
-      tier: 1,
-      cost: 1,
-    });
-    expect(actor._roundState.stoneBonuses.critRaises ?? 0).toBe(0);
+describe('Agility — Crit starts at T2', () => {
+  it('has no Tier-1 slot', () => {
+    expect(STONE_POWERS['agility.crit'].startsAtTier).toBe(2);
+    expect(STONE_POWERS['agility.crit'].tiers).toHaveLength(3);
   });
 
   it.each([[2, 1], [3, 2], [4, 3], [5, 4]])('T%i grants Crit(1) on %i attack(s)', async (tier, expected) => {

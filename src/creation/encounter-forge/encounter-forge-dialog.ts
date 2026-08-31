@@ -267,7 +267,7 @@ export class EncounterForgeDialog extends BaseDialog {
     return {
       rec,
       recText: rec
-        ? `Gruppe: ${rec.party.offensiveActionsPerRound} Angriffs-Aktionen/Runde (+${fmt(rec.party.sustainableExtraActions)} nachhaltige Stone-Extras), ${rec.party.reactionsPerRound} Reaktionen. Empfohlen feindlich: ${rec.totalHostileActions} Aktionen/Runde gesamt.`
+        ? `Gruppe: ${rec.party.offensiveActionsPerRound} Angriffs-Aktionen/Runde (Sustained; Burst +${fmt(rec.party.burstExtraActions ?? 0, 0)} Extra-Aktionen aus Stones), ${rec.party.reactionsPerRound} Reaktionen. Empfohlen feindlich: ${rec.totalHostileActions} Aktionen/Runde gesamt.`
         : 'Keine Gruppe gewählt.',
       list: this.design.enemies.map((enemy, i) => ({
         id: enemy.id,
@@ -381,6 +381,37 @@ export class EncounterForgeDialog extends BaseDialog {
       name: this.design.name || 'Encounter',
       totalRounds: fmt(solution.totalExpectedRounds),
       partySize: solution.party.size,
+      partyProfiles: solution.party.members.map((m) => ({
+        name: m.name,
+        evade: m.evade,
+        armor: m.armor,
+        drPct: m.drPct,
+        sr: m.spellResistance,
+        baseline: {
+          evade: m.defense.baseline.evade,
+          attack: `${m.offense.baseline.attack.label} ${m.offense.baseline.attack.damageDice}d8 · ${m.offense.baseline.attack.pool}k${m.offense.baseline.attack.keep}`,
+          notes: m.offense.baseline.notes.join(' · '),
+        },
+        sustained: {
+          evade: m.defense.sustained.evade,
+          attack: `${m.offense.sustained.attack.label} ${m.offense.sustained.attack.damageDice}d8 · ${m.offense.sustained.attack.pool}k${m.offense.sustained.attack.keep}`,
+          notes: m.offense.sustained.notes.join(' · '),
+        },
+        burst: {
+          evade: m.defense.burst.evade,
+          attack: `${m.offense.burst.attack.label} ${m.offense.burst.attack.damageDice}d8 · ${m.offense.burst.attackActions} Aktionen`,
+          notes: m.offense.burst.notes.join(' · '),
+        },
+        knownBuffs: m.knownBuffs
+          .map((b) => {
+            const bits = [b.name];
+            if (b.evade) bits.push(`Evade +${b.evade}`);
+            if (b.armor) bits.push(`Armor +${b.armor}`);
+            if (b.drPct) bits.push(`DR +${b.drPct}%`);
+            return bits.join(' ');
+          })
+          .join(' · '),
+      })),
       warnings: this.warnings.map((w) => ({
         message: w.message,
         strong: w.severity === 'strong',
@@ -413,12 +444,12 @@ export class EncounterForgeDialog extends BaseDialog {
               actionsOverride: overrides?.offensiveActions ?? '',
               defenses: e.defensePackage.contributions.map((c) => ({
                 label: `${DEFENSE_LABELS[c.kind]} ${c.value}`,
-                share: `${fmt(c.share * 100, 0)}%`,
+                share: `Mitigation-Anteil ${fmt(c.share * 100, 0)}%`,
                 unsupported: !c.supported,
               })),
               attacks: e.attacks.map((a) => ({
                 name: a.name,
-                line: `${a.attackPool}k${a.keep} · ${a.damageDice}d8${a.specialId ? ` · ${a.specialId}(${a.specialValue})` : ''}${a.usesPerRound > 1 ? ` · ×${a.usesPerRound}/Runde` : ''}${a.occupancy ? ` · AoE typ. ${a.occupancy.typical} Ziele` : ''}`,
+                line: `${a.attackPool}k${a.keep} · ${a.damageDice}d8${a.specialId ? ` · ${a.specialId}(${a.specialValue})` : ''}${a.usesPerRound > 1 ? ` · ×${a.usesPerRound}/Runde` : ''}${a.occupancy ? ` · AoE typ. ${a.occupancy.typical} Ziele` : ''}${a.poolAtCap ? ' · Pool-Deckel' : ''}`,
               })),
             };
           }),
@@ -434,6 +465,8 @@ export class EncounterForgeDialog extends BaseDialog {
             hitRates: pc.byAttack
               .map((b) => `${b.attackName} ${fmt(b.connectChance * 100, 0)}%`)
               .join(' · '),
+            hitRatesNote:
+              'Dieselbe TN wie der Solver (effektive Evade + anteilige Evade-Reaction).',
           })),
           highestRisk: phase.offense.highestRiskPcName,
           burstLine: `Härtester Einzeltreffer (P90): „${phase.offense.worstSingleHitAttackName}" vs ${phase.offense.worstSingleHitTargetName} ≈ ${fmt(phase.offense.worstSingleHitQ90 * 100, 0)}% der Gesamt-HP`,

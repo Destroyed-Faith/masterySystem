@@ -18,11 +18,12 @@
 }
 
 .encounter-gen-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin: 0;
   font-size: 0.85rem;
-  opacity: 0.7;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .encounter-gen-body {
@@ -324,27 +325,78 @@
   border-top: 1px solid var(--df-border, #3a3a42);
 }
 
-.encounter-gen-btn {
+/*
+ * Beat Foundry + df-rulebook-ui `.application.mastery-system:not(.sheet) button`
+ * so wizard actions (Weiter, Add-Gruppe, Hauptgegner, …) share one look.
+ * Without this, Weiter inherits the muted rulebook chrome and feels disabled.
+ */
+.application.mastery-system.encounter-gen-app .encounter-gen-progress .encounter-gen-tag,
+.application.mastery-system.encounter-gen-app button.encounter-gen-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
   padding: 6px 16px;
+  min-height: 32px;
   border: 1px solid var(--df-border, #3a3a42);
   border-radius: 6px;
   background: var(--df-bg-elevated, #24242c);
-  color: inherit;
+  color: var(--df-text-primary, #e8e8ea);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.2;
+  opacity: 1;
+  box-shadow: none;
   cursor: pointer;
 }
 
-.encounter-gen-btn:hover {
-  border-color: var(--df-accent, #b8863b);
+.application.mastery-system.encounter-gen-app .encounter-gen-progress .encounter-gen-tag {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  opacity: 0.78;
 }
 
-.encounter-gen-btn--primary {
+.application.mastery-system.encounter-gen-app .encounter-gen-progress .encounter-gen-tag.active {
+  opacity: 1;
+  border-color: var(--df-accent, #b8863b);
+  background: var(--df-accent-bg, rgba(184, 134, 59, 0.18));
+  font-weight: 600;
+}
+
+.application.mastery-system.encounter-gen-app .encounter-gen-progress .encounter-gen-tag.done {
+  opacity: 0.9;
+}
+
+.application.mastery-system.encounter-gen-app .encounter-gen-progress .encounter-gen-tag:hover:not(:disabled),
+.application.mastery-system.encounter-gen-app button.encounter-gen-btn:hover:not(:disabled) {
+  background: var(--df-bg-elevated, #24242c);
+  border-color: var(--df-accent, #b8863b);
+  color: var(--df-text-primary, #e8e8ea);
+  box-shadow: none;
+}
+
+.application.mastery-system.encounter-gen-app button.encounter-gen-btn--primary {
   background: var(--df-accent, #b8863b);
   border-color: var(--df-accent, #b8863b);
   color: #1a1a1f;
   font-weight: 600;
 }
 
-.encounter-gen-btn[disabled] {
+.application.mastery-system.encounter-gen-app button.encounter-gen-btn--primary:hover:not(:disabled) {
+  background: #c9974a;
+  border-color: #c9974a;
+  color: #1a1a1f;
+  box-shadow: none;
+}
+
+.application.mastery-system.encounter-gen-app button.encounter-gen-btn:disabled,
+.application.mastery-system.encounter-gen-app button.encounter-gen-btn[disabled] {
   opacity: 0.45;
   cursor: not-allowed;
 }
