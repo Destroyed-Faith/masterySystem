@@ -23,14 +23,14 @@
         {{#each healthBars}}
         <div class="qp-bar">
           <span class="qp-bar-name">{{name}}</span>
+          <span class="qp-mark"></span>
           <span class="qp-bar-n">{{available}}</span>
           <span class="qp-bar-pen">{{penalty}}</span>
         </div>
         {{/each}}
         <div class="qp-bar qp-temp">
           <span class="qp-bar-name">Temp HP</span>
-          <span class="qp-bar-n">{{tempHp}}</span>
-          <span class="qp-bar-pen qp-write"></span>
+          <span class="qp-mark">{{tempHp}}</span>
         </div>
       </div>
       {{/if}}
@@ -40,14 +40,14 @@
         {{#each stressBars}}
         <div class="qp-bar">
           <span class="qp-bar-name">{{name}}</span>
+          <span class="qp-mark"></span>
           <span class="qp-bar-n">{{available}}</span>
           <span class="qp-bar-pen"></span>
         </div>
         {{/each}}
         <div class="qp-bar">
           <span class="qp-bar-name">Breakdown</span>
-          <span class="qp-bar-n qp-empty-box"></span>
-          <span class="qp-bar-pen"></span>
+          <span class="qp-mark"></span>
         </div>
       </div>
       {{/if}}
@@ -108,6 +108,23 @@
     </div>
   </section>
 
+  {{#if hasMinorExpressions}}
+  <section class="qp-block qp-minors">
+    <h2>Minor Expressions</h2>
+    <div class="qp-tiles qp-minor-tiles">
+      {{#each minorExpressionTiles}}
+      <article class="qp-tile qp-tile-{{phaseClass}}">
+        <header>
+          <strong>{{name}}</strong>
+          <span>Minor Expression · {{attr}}</span>
+        </header>
+        {{#if effect}}<p>{{effect}}</p>{{/if}}
+      </article>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+
   {{#if hasSkills}}
   <section class="qp-block">
     <h2>Skills</h2>
@@ -117,7 +134,7 @@
         <span class="qp-sk-name">{{name}} <em>({{attr}})</em></span>
         <span class="qp-sk-keep">{{pool}}{{keep}}</span>
         <span class="qp-sk-boxes">
-          {{#each boxes}}<i class="qp-sk-box is-{{state}}">{{size}}</i>{{/each}}
+          {{#each boxes}}<i class="qp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
         </span>
       </li>
       {{/each}}
@@ -147,22 +164,6 @@
         </div>
       </div>
       {{/each}}
-      {{#if hasMinorExpressions}}
-      <div class="qp-pg">
-        <h3>Minor Expression</h3>
-        <div class="qp-tiles">
-          {{#each minorExpressionTiles}}
-          <article class="qp-tile qp-tile-{{phaseClass}}">
-            <header>
-              <strong>{{name}}</strong>
-              <span>{{phase}} · {{attr}}</span>
-            </header>
-            {{#if effect}}<p>{{effect}}</p>{{/if}}
-          </article>
-          {{/each}}
-        </div>
-      </div>
-      {{/if}}
     </div>
   </section>
   {{/if}}
@@ -190,6 +191,4 @@
     </div>
   </section>
   {{/if}}
-
-  <div class="cp-page-footer">— Quick Play —</div>
 </section>

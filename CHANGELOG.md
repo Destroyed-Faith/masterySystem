@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.438] - 2026-08-31
+
+### Changed
+
+- **Quick Play sheet:** Final one-page polish. Minor Expressions sit between Stone Powers and Skills and are no longer listed as Powers. Trained skills always show four Skill Point boxes. Health, Temp HP, and Stress use writable tracker fields. The “Quick Play” footer is gone, body type is slightly larger, and the printed page stays dark to the physical edges.
+
 ## [0.9.437] - 2026-08-31
 
 ### Changed

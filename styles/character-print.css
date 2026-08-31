@@ -1905,10 +1905,25 @@
   text-align: center;
 }
 
-/* ── Quick Play one-page sheet (same A4 / 10mm / 190mm frame) ─────────── */
+/* ── Quick Play one-page sheet ─────────────────────────────────────────── */
+@page qp-portrait {
+  size: A4 portrait;
+  margin: 0;
+  background: #141210;
+}
+
+html:has(body.mastery-print.is-compact),
+body.mastery-print.is-compact {
+  margin: 0;
+  min-height: 297mm;
+  background: #141210;
+  color: #e6e1d6;
+}
+
 .mastery-print.is-compact {
   background: #141210;
   color: #e6e1d6;
+  min-height: 297mm;
 }
 
 .qp-print-bar {
@@ -1936,40 +1951,38 @@
 }
 
 .mastery-print.is-compact .print-page-compact {
-  width: 190mm;
-  min-height: 0;
-  padding: 1.5mm 0 5mm;
-  page: cp-portrait;
-}
-
-.mastery-print.is-compact .cp-page-footer {
-  color: #8a8478;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm;
+  margin: 0;
+  background: #141210;
+  page: qp-portrait;
 }
 
 .qp-top {
   display: flex;
   align-items: flex-end;
-  gap: 3mm;
-  margin-bottom: 2mm;
+  gap: 2.6mm;
+  margin-bottom: 1.5mm;
 }
 
 .qp-portrait {
-  width: 22mm;
-  height: 30mm;
+  width: 25mm;
+  height: 34mm;
   object-fit: contain;
   object-position: center bottom;
   background: transparent;
-  flex: 0 0 22mm;
+  flex: 0 0 25mm;
 }
 
 .qp-id {
-  flex: 0 0 48mm;
+  flex: 0 0 50mm;
   min-width: 0;
 }
 
 .qp-name {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2028,45 +2041,59 @@
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2mm;
+  gap: 1.4mm;
   min-width: 0;
 }
 
 .qp-track h2,
 .qp-block h2 {
-  margin: 0 0 0.8mm;
-  font-size: 8px;
+  margin: 0 0 0.6mm;
+  font-size: 9px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #c4b8a4;
   border-bottom: 1px solid #3c3832;
-  padding-bottom: 0.4mm;
+  padding-bottom: 0.35mm;
 }
 
 .qp-bar {
   display: grid;
-  grid-template-columns: 18mm 8mm 12mm;
-  gap: 1mm;
+  grid-template-columns: 18mm 11mm 7mm 12mm;
+  gap: 0.8mm;
   align-items: center;
-  margin: 0 0 0.45mm;
+  margin: 0 0 0.32mm;
 }
 
 .qp-bar-name {
-  font-size: 7px;
+  font-size: 8px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #b8b0a4;
 }
 
-.qp-bar-n {
+.qp-mark {
+  display: block;
+  min-height: 3.4mm;
+  border: 1px solid #8a8478;
+  border-radius: 1px;
+  background: #1c1916;
   font-size: 8px;
+  line-height: 3.2mm;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: #e6e1d6;
+}
+
+.qp-bar-n {
+  font-size: 9px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
 }
 
 .qp-bar-pen {
-  font-size: 6.5px;
+  font-size: 7.5px;
   color: #8a8478;
   letter-spacing: 0.02em;
 }
@@ -2088,8 +2115,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.5mm 4mm;
-  margin: 0 0 2mm;
+  gap: 1.2mm 3.5mm;
+  margin: 0 0 1.5mm;
   padding: 1mm 1.2mm;
   border: 1px solid #3c3832;
   background: #1a1714;
@@ -2099,7 +2126,7 @@
   display: flex;
   align-items: center;
   gap: 1.4mm;
-  font-size: 7.5px;
+  font-size: 8.5px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #c4b8a4;
@@ -2128,7 +2155,7 @@
 
 .qp-res-note {
   margin: 0;
-  font-size: 6.5px;
+  font-size: 7.5px;
   letter-spacing: 0.03em;
   color: #8a8478;
 }
@@ -2136,8 +2163,8 @@
 .qp-attr-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.4mm 2mm;
-  margin-bottom: 2mm;
+  gap: 1.2mm 1.8mm;
+  margin-bottom: 1.5mm;
 }
 
 .qp-mod {
@@ -2227,9 +2254,9 @@
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
   column-gap: 1mm;
-  margin: 0.25mm 0;
-  font-size: 7.5px;
-  line-height: 1.2;
+  margin: 0.2mm 0;
+  font-size: 8.5px;
+  line-height: 1.22;
 }
 
 .qp-sp-name {
@@ -2264,13 +2291,17 @@
 .qp-mod-generic .qp-cost { color: #bdb6aa; }
 
 .qp-block {
-  margin: 0 0 1.8mm;
+  margin: 0 0 1.4mm;
+}
+
+.qp-minors {
+  margin-bottom: 1.3mm;
 }
 
 .qp-skills {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.3mm 3mm;
+  gap: 0.25mm 3mm;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2281,7 +2312,7 @@
   grid-template-columns: 1fr auto auto;
   gap: 1.5mm;
   align-items: center;
-  font-size: 8.5px;
+  font-size: 9.5px;
 }
 
 .qp-sk-name em {
@@ -2301,17 +2332,18 @@
 
 .qp-sk-box {
   min-width: 4.2mm;
-  height: 3.4mm;
+  height: 3.6mm;
   border: 1px solid #8a8478;
   border-radius: 1px;
   text-align: center;
-  font-size: 7px;
-  line-height: 3.2mm;
+  font-size: 8px;
+  line-height: 3.4mm;
   font-style: normal;
 }
 
 .qp-sk-box.is-available { background: #2a2622; }
 .qp-sk-box.is-spent { background: #4a453c; color: #8a8478; }
+.qp-sk-box.is-locked { background: transparent; border-color: #5a544c; }
 
 .qp-power-cols {
   display: grid;
@@ -2320,8 +2352,8 @@
 }
 
 .qp-pg h3 {
-  margin: 0 0 0.6mm;
-  font-size: 7.5px;
+  margin: 0 0 0.5mm;
+  font-size: 8.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #8a8478;
@@ -2336,10 +2368,14 @@
   border: 1px solid #3c3832;
   border-left-width: 2px;
   border-radius: 2px;
-  padding: 0.8mm 1.2mm;
+  padding: 0.7mm 1.2mm;
   background: #1a1714;
-  font-size: 8px;
+  font-size: 9px;
   line-height: 1.25;
+}
+
+.qp-minor-tiles {
+  grid-template-columns: 1fr;
 }
 
 .qp-tile header {
@@ -2381,7 +2417,7 @@
   border-radius: 2px;
   padding: 1mm 1.4mm;
   background: #1a1714;
-  font-size: 8px;
+  font-size: 9px;
   line-height: 1.25;
 }
 
@@ -2407,17 +2443,13 @@
 }
 
 @media print {
-  @page {
-    size: A4 portrait;
-    margin: 10mm;
-    background: #141210;
-  }
-
-  html,
-  html:has(.mastery-print.is-compact),
+  html:has(body.mastery-print.is-compact),
   body.mastery-print.is-compact {
     background: #141210 !important;
     color: #e6e1d6 !important;
+    min-height: 297mm;
+    margin: 0;
+    padding: 0;
   }
 
   .mastery-print.is-compact,
@@ -2427,10 +2459,14 @@
   }
 
   .mastery-print.is-compact .print-page-compact {
+    page: qp-portrait;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 10mm;
+    margin: 0;
+    background: #141210;
     page-break-after: auto;
     break-after: auto;
-    margin: 0 auto;
-    background: #141210;
   }
 
   .qp-print-bar {

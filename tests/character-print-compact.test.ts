@@ -257,7 +257,14 @@ describe('Quick Play character print', () => {
     expect(acro.attr).toBe('Agility');
     expect(acro.pool).toBe(10);
     expect(acro.keep).toBe('k2');
-    expect(acro.boxes.map((b: any) => b.size)).toEqual([2, 2]);
+    expect(acro.boxes.map((b: any) => b.size)).toEqual([2, 2, 0, 0]);
+    expect(acro.boxes.map((b: any) => b.state)).toEqual([
+      'available',
+      'available',
+      'locked',
+      'locked',
+    ]);
+    expect(ctx.skills.every((s: any) => s.boxes.length === 4)).toBe(true);
   });
 
   it('keeps Artifact powers on the Artifact, not in the general Power list', () => {
@@ -285,6 +292,8 @@ describe('Quick Play character print', () => {
     expect(sundered.damage).toMatch(/WD 5d8 \+ 1d8/);
     expect(sundered.damage).not.toMatch(/\+ 2d8/);
     expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);
+    expect(allPowerNames).not.toContain('Bounding Leap');
+    expect(ctx.powerGroups.every((g: any) => g.phase !== 'Minor Expression')).toBe(true);
     const allEffects = [
       ...ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.effect)),
       ...ctx.artifacts.flatMap((a: any) => a.powers.map((p: any) => p.effect)),

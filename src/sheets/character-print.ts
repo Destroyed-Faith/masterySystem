@@ -1375,7 +1375,6 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     const attrKey = def?.attributes?.[0];
     const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
     const boxes = buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1)
-      .filter((b) => b.size > 0)
       .map((b) => ({ size: b.size, state: b.state }));
     skills.push({
       name: def?.name || cap(key),
@@ -1506,7 +1505,7 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     skills,
     hasSkills: skills.length > 0,
     powerGroups,
-    hasPowerArea: powerGroups.length > 0 || minorExpressionTiles.length > 0,
+    hasPowerArea: powerGroups.length > 0,
     artifacts,
     hasArtifacts: artifacts.length > 0,
   };
