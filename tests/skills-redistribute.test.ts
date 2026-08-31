@@ -7,6 +7,8 @@ import {
   canStartSkillsRedistribute,
   getCreationSkillBudget,
   isValidCreationSkillRank,
+  nextCreationSkillValue,
+  prevCreationSkillValue,
   sumActorSkillPoints,
   validateCreationSkillAllocation,
 } from '../src/utils/skills-redistribute.js';
@@ -39,7 +41,7 @@ function makeActor(overrides: Record<string, any> = {}) {
 
 describe('skills redistribute', () => {
   it('reads creation budget from CONFIG', () => {
-    expect(getCreationSkillBudget()).toEqual({ total: 40, maxPerSkill: 4 });
+    expect(getCreationSkillBudget()).toEqual({ total: 40, maxPerSkill: 4, step: 4 });
   });
 
   it('gates start on no XP earned/spent and creation complete', () => {
@@ -104,21 +106,32 @@ describe('skills redistribute', () => {
     expect(buildFinishSkillsRedistributeUpdates(actor).ok).toBe(false);
   });
 
-  it('allows free distribution 0–4 per skill (PG Skill Point Buy)', () => {
+  it('allows only 0 or 4 per skill (one click = 4 points)', () => {
     expect(isValidCreationSkillRank(0)).toBe(true);
-    expect(isValidCreationSkillRank(1)).toBe(true);
-    expect(isValidCreationSkillRank(2)).toBe(true);
-    expect(isValidCreationSkillRank(3)).toBe(true);
+    expect(isValidCreationSkillRank(1)).toBe(false);
+    expect(isValidCreationSkillRank(2)).toBe(false);
+    expect(isValidCreationSkillRank(3)).toBe(false);
     expect(isValidCreationSkillRank(4)).toBe(true);
     expect(isValidCreationSkillRank(5)).toBe(false);
 
-    // Free distribution summing to 40 is valid even with partial ranks.
+    expect(nextCreationSkillValue(0, 40).value).toBe(4);
+    expect(nextCreationSkillValue(0, 3).ok).toBe(false);
+    expect(nextCreationSkillValue(4, 40).ok).toBe(false);
+    expect(prevCreationSkillValue(4).value).toBe(0);
+    expect(prevCreationSkillValue(2).value).toBe(0);
+    expect(prevCreationSkillValue(0).ok).toBe(false);
+
     const actor = makeActor();
     const keys = Object.keys(SKILLS);
     for (const key of keys) actor.system.skills[key] = 0;
     for (const key of keys.slice(0, 9)) actor.system.skills[key] = 4; // 36
     actor.system.skills[keys[9]] = 3;
     actor.system.skills[keys[10]] = 1;
+    expect(sumActorSkillPoints(actor.system)).toBe(40);
+    expect(validateCreationSkillAllocation(actor.system).ok).toBe(false);
+
+    actor.system.skills[keys[9]] = 4;
+    actor.system.skills[keys[10]] = 0;
     expect(sumActorSkillPoints(actor.system)).toBe(40);
     expect(validateCreationSkillAllocation(actor.system).ok).toBe(true);
   });

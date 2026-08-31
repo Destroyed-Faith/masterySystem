@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.439] - 2026-08-31
+
+### Fixed
+
+- **Character creation:** Skill +/− now moves in steps of 4 (0 or 4 only), so 40 points fill exactly 10 skills. Power display names can be typed again during creation. Sheet action buttons (Add Disadvantage and the other creation controls) keep their hover look but no longer lose the click to Foundry’s tooltip.
+
+### Changed
+
+- **Quick Play sheet:** Minor Expressions sit in one row. Power categories pack side by side (short groups stack) so Artifacts fit cleanly on the same page.
+
 ## [0.9.438] - 2026-08-31
 
 ### Changed

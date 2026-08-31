@@ -2345,14 +2345,31 @@ body.mastery-print.is-compact {
 .qp-sk-box.is-spent { background: #4a453c; color: #8a8478; }
 .qp-sk-box.is-locked { background: transparent; border-color: #5a544c; }
 
+.qp-powers {
+  margin-bottom: 1.1mm;
+}
+
 .qp-power-cols {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.4mm 2mm;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1mm 1.5mm;
+}
+
+.qp-pg-col {
+  flex: 1 1 52mm;
+  min-width: 48mm;
+  display: flex;
+  flex-direction: column;
+  gap: 1mm;
+}
+
+.qp-pg {
+  min-width: 0;
 }
 
 .qp-pg h3 {
-  margin: 0 0 0.5mm;
+  margin: 0 0 0.4mm;
   font-size: 8.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2361,21 +2378,28 @@ body.mastery-print.is-compact {
 
 .qp-tiles {
   display: grid;
-  gap: 0.8mm;
+  gap: 0.6mm;
 }
 
 .qp-tile {
   border: 1px solid #3c3832;
   border-left-width: 2px;
   border-radius: 2px;
-  padding: 0.7mm 1.2mm;
+  padding: 0.6mm 1.1mm;
   background: #1a1714;
   font-size: 9px;
   line-height: 1.25;
 }
 
 .qp-minor-tiles {
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8mm 1.4mm;
+}
+
+.qp-minor-tiles .qp-tile {
+  flex: 1 1 32mm;
+  min-width: 32mm;
 }
 
 .qp-tile header {
@@ -2388,6 +2412,15 @@ body.mastery-print.is-compact {
 .qp-tile header span {
   color: #8a8478;
   white-space: nowrap;
+}
+
+.qp-pg .qp-tile header {
+  flex-wrap: wrap;
+}
+
+.qp-pg .qp-tile header span {
+  white-space: normal;
+  text-align: right;
 }
 
 .qp-tile p {
@@ -2409,7 +2442,8 @@ body.mastery-print.is-compact {
 .qp-arts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.2mm;
+  gap: 1mm 1.4mm;
+  align-items: start;
 }
 
 .qp-art {

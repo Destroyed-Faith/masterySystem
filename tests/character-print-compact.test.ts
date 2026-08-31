@@ -294,6 +294,10 @@ describe('Quick Play character print', () => {
     expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);
     expect(allPowerNames).not.toContain('Bounding Leap');
     expect(ctx.powerGroups.every((g: any) => g.phase !== 'Minor Expression')).toBe(true);
+    expect(ctx.powerColumns.length).toBeGreaterThan(0);
+    expect(ctx.powerColumns.flatMap((c: any) => c.groups.map((g: any) => g.phase)).sort()).toEqual(
+      ctx.powerGroups.map((g: any) => g.phase).sort(),
+    );
     const allEffects = [
       ...ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.effect)),
       ...ctx.artifacts.flatMap((a: any) => a.powers.map((p: any) => p.effect)),

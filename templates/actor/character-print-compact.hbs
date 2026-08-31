@@ -143,25 +143,29 @@
   {{/if}}
 
   {{#if hasPowerArea}}
-  <section class="qp-block">
+  <section class="qp-block qp-powers">
     <h2>Powers</h2>
     <div class="qp-power-cols">
-      {{#each powerGroups}}
-      <div class="qp-pg">
-        <h3>{{phase}}</h3>
-        <div class="qp-tiles">
-          {{#each items}}
-          <article class="qp-tile qp-tile-{{phaseClass}}">
-            <header>
-              <strong>{{name}}</strong>
-              <span>{{phase}} · PL {{rank}}</span>
-            </header>
-            {{#if attack}}<p>Attack: {{attack}}</p>{{/if}}
-            {{#if damage}}<p>Damage: {{damage}}</p>{{/if}}
-            {{#if effect}}<p>{{effect}}</p>{{/if}}
-          </article>
-          {{/each}}
+      {{#each powerColumns}}
+      <div class="qp-pg-col">
+        {{#each groups}}
+        <div class="qp-pg">
+          <h3>{{phase}}</h3>
+          <div class="qp-tiles">
+            {{#each items}}
+            <article class="qp-tile qp-tile-{{phaseClass}}">
+              <header>
+                <strong>{{name}}</strong>
+                <span>{{phase}} · PL {{rank}}</span>
+              </header>
+              {{#if attack}}<p>Attack: {{attack}}</p>{{/if}}
+              {{#if damage}}<p>Damage: {{damage}}</p>{{/if}}
+              {{#if effect}}<p>{{effect}}</p>{{/if}}
+            </article>
+            {{/each}}
+          </div>
         </div>
+        {{/each}}
       </div>
       {{/each}}
     </div>

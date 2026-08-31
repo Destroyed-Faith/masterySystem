@@ -2,6 +2,22 @@
  * Main stylesheet for Mastery System
  */
 
+/* Foundry parks #tooltip under the cursor. It must never receive clicks or
+   it steals :hover from the control underneath (button looks inactive) and
+   the click never lands. Hover text can stay visible. */
+#tooltip,
+#tooltip.active,
+#tooltip.locked-tooltip,
+aside#tooltip,
+.locked-tooltip {
+  pointer-events: none !important;
+}
+
+#tooltip *,
+aside#tooltip * {
+  pointer-events: none !important;
+}
+
 /* ========== Global Styles ========== */
 .mastery-system {
   font-family: 'Signika', sans-serif;

@@ -1472,6 +1472,13 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
   const powerGroups = (['Active', 'Active Buff', 'Passive', 'Reaction'] as const)
     .map((phase) => ({ phase, items: powers[phase] ?? [] }))
     .filter((g) => g.items.length > 0);
+  const powerColumns: { groups: typeof powerGroups }[] = [];
+  const tallGroups = powerGroups.filter((g) => g.items.length >= 2);
+  const shortGroups = powerGroups.filter((g) => g.items.length < 2);
+  for (const group of tallGroups) powerColumns.push({ groups: [group] });
+  for (let i = 0; i < shortGroups.length; i += 2) {
+    powerColumns.push({ groups: shortGroups.slice(i, i + 2) });
+  }
 
   const rawImg = String(actor?.img ?? '').trim();
   const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
@@ -1505,6 +1512,7 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     skills,
     hasSkills: skills.length > 0,
     powerGroups,
+    powerColumns,
     hasPowerArea: powerGroups.length > 0,
     artifacts,
     hasArtifacts: artifacts.length > 0,

@@ -9169,6 +9169,12 @@ aside#tooltip,
   pointer-events: none;
 }
 
+.mastery-system.sheet.actor.character.creation-incomplete .window-content .power-display-name-input,
+.mastery-system.sheet.actor.character.creation-incomplete .window-content .power-radial-checkbox {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .mastery-system.sheet.actor.character .window-header,
 .mastery-system.sheet.actor.character .window-header .header-control,
 .mastery-system.sheet.actor.character .window-header button {

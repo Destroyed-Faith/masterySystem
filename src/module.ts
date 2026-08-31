@@ -35,6 +35,7 @@ import {
 } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
+import { installTooltipPassthrough } from './ui/tooltip-passthrough.js';
 import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import {
@@ -2604,6 +2605,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
  * Also migrate skillsSpent for new consumable skill system
  */
 Hooks.once('ready', async function() {
+  installTooltipPassthrough();
   // Get all character actors
   const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
   let migratedCreation = 0;

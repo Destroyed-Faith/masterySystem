@@ -94,9 +94,12 @@ import {
   canStartSkillsRedistribute,
   getCreationSkillBudget,
   isSkillsRedistributing,
+  nextCreationSkillValue,
+  prevCreationSkillValue,
   validateCreationSkillAllocation,
 } from '../utils/skills-redistribute.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
+import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
 import {
   canMarkTwoHandedGrip,
@@ -1079,11 +1082,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     };
     
     // Always provide creation data for template (even if complete)
-    const { maxPerSkill: maxSkillAtCreation } = getCreationSkillBudget();
+    const { maxPerSkill: maxSkillAtCreation, step: skillStep } = getCreationSkillBudget();
     context.creation = {
       masteryRank,
       skillPointsConfig,
       maxSkillAtCreation,
+      skillStep,
       attrCount8: count8,
       attrCount6: count6,
       attrCount4: count4,
@@ -2320,7 +2324,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       this.#lockSheetForCreation(html);
     }
 
-    this.#silenceFoundryButtonTooltips(html);
+    this.#armSheetButtonsAgainstTooltipSteal(html);
 
     this.#bindMasteryRankSelect(html);
     
@@ -2342,7 +2346,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Common Tongue is always pre-selected and locked; players choose
      * additional languages reflecting their origin/training.
      */
-    html.find('.open-languages-btn').on('click', async (ev: JQuery.ClickEvent) => {
+    bindReliableControlClick(html, '.open-languages-btn', async (ev: JQuery.TriggeredEvent) => {
       ev.preventDefault();
       if (!this.actor.isOwner && !(game as any).user?.isGM) {
         (ui as any).notifications?.warn('Only the owner (or GM) can edit languages.');
@@ -2353,17 +2357,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
 
     // Roll buttons work for everyone
-    html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
-    html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
-    html.find('.skill-roll-compact').on('click', this.#onSkillRoll.bind(this));
-    
-    // Safe Haven Rest button
-    html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
-    html.find('.gm-restore-health-bar').on('click', this.#onGmRestoreHealthBar.bind(this));
-    html.find('.gm-restore-stress-bar').on('click', this.#onGmRestoreStressBar.bind(this));
-    html.find('.social-combat-btn').on('click', this.#onSocialCombat.bind(this));
-    html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
-    html.find('.gm-edit-xp').on('click', this.#onGmEditXp.bind(this));
+    bindReliableControlClick(html, '.attribute-roll', this.#onAttributeRoll.bind(this));
+    bindReliableControlClick(html, '.skill-roll, .skill-roll-compact', this.#onSkillRoll.bind(this));
+    bindReliableControlClick(html, '.safe-haven-rest', this.#onSafeHavenRest.bind(this));
+    bindReliableControlClick(html, '.gm-restore-health-bar', this.#onGmRestoreHealthBar.bind(this));
+    bindReliableControlClick(html, '.gm-restore-stress-bar', this.#onGmRestoreStressBar.bind(this));
+    bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
+    bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
+    bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
     
     // Point spending buttons (JavaScript will check permissions)
     // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
@@ -2409,10 +2410,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ev.preventDefault();
       (ev.currentTarget as HTMLElement).click();
     });
-    html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
-    html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
-    html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
-    html.find('.reset-creation-attributes').on('click', this.#onResetCreationAttributes.bind(this));
+    bindReliableControlClick(html, '.skill-increase', this.#onCreationSkillIncrease.bind(this));
+    bindReliableControlClick(html, '.skill-decrease', this.#onCreationSkillDecrease.bind(this));
+    bindReliableControlClick(html, '.finalize-creation', this.#onFinalizeCreation.bind(this));
+    bindReliableControlClick(html, '.reset-creation-attributes', this.#onResetCreationAttributes.bind(this));
     
     html.find('.js-character-status-remove').on('click', this.#onRemoveCharacterStatus.bind(this));
     html.find('.js-character-status-reduce').on('click', this.#onReduceCharacterStatus.bind(this));
@@ -2476,14 +2477,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       await swapWeaponSet(this.actor, target);
     });
 
-    html.find('[data-action="openArtifactEvolution"]').on('click', async (ev: JQuery.ClickEvent) => {
+    bindReliableControlClick(html, '[data-action="openArtifactEvolution"]', async (ev: JQuery.TriggeredEvent) => {
       ev.preventDefault();
       if (!this.actor.isOwner) return;
       const { openArtifactEvolutionDialog } = await import('../artifacts/artifact-evolution-dialog.js');
       await openArtifactEvolutionDialog(this.actor);
     });
 
-    html.find('[data-action="openProgressionHub"]').on('click', async (ev: JQuery.ClickEvent) => {
+    bindReliableControlClick(html, '[data-action="openProgressionHub"]', async (ev: JQuery.TriggeredEvent) => {
       ev.preventDefault();
       if (!this.actor.isOwner) return;
       const $btn = $(ev.currentTarget);
@@ -2534,24 +2535,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.schtick-input').on('blur', this.#onSchtickNameChange.bind(this));
     html.find('.schtick-manifestation-input').on('blur', this.#onSchtickManifestationChange.bind(this));
     
-    // Disadvantages buttons (only during creation)
-    const addDisadvantageBtn = html.find('.add-disadvantage-btn');
-    if (addDisadvantageBtn.length > 0) {
-      addDisadvantageBtn.off('click.add-disadvantage').on('click.add-disadvantage', (e: JQuery.ClickEvent) => {
-        this.#onAddDisadvantage(e);
-      });
-      // Also try direct binding as fallback
-      addDisadvantageBtn.on('click', (e: JQuery.ClickEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.#onAddDisadvantage(e);
-      });
-    } else {
-      console.warn('Mastery System | add-disadvantage-btn not found in HTML!');
-    }
-    
-    html.find('.disadvantage-edit-btn').on('click', this.#onEditDisadvantage.bind(this));
-    html.find('.disadvantage-remove-btn').on('click', this.#onRemoveDisadvantage.bind(this));
+    bindReliableControlClick(html, '.add-disadvantage-btn', this.#onAddDisadvantage.bind(this));
+    bindReliableControlClick(html, '.disadvantage-edit-btn', this.#onEditDisadvantage.bind(this));
+    bindReliableControlClick(html, '.disadvantage-remove-btn', this.#onRemoveDisadvantage.bind(this));
     
     // Blood color picker synchronization
     // When color picker changes, update text field
@@ -2810,14 +2796,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     // Add power
     // Power/Spell creation buttons (always visible)
-    html.find('.open-tower-wizard-btn').on('click', this.#onOpenTowerWizard.bind(this));
-    html.find('.open-manual-combat-package-btn').on('click', this.#onOpenManualCombatPackage.bind(this));
-    html.find('.add-power-btn, .gm-add-power-btn').on('click', this.#onAddPower.bind(this));
+    bindReliableControlClick(html, '.open-tower-wizard-btn', this.#onOpenTowerWizard.bind(this));
+    bindReliableControlClick(html, '.open-manual-combat-package-btn', this.#onOpenManualCombatPackage.bind(this));
+    bindReliableControlClick(html, '.add-power-btn, .gm-add-power-btn', this.#onAddPower.bind(this));
 
     // Echo creation / deck interactions
-    html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));
-    html.find('.add-echo-card-btn').on('click', this.#onEchoCardAdd.bind(this));
-    html.find('.echo-card-use-btn').on('click', this.#onEchoRoll.bind(this));
+    bindReliableControlClick(html, '.choose-echo-btn', this.#onEchoChoose.bind(this));
+    bindReliableControlClick(html, '.add-echo-card-btn', this.#onEchoCardAdd.bind(this));
+    bindReliableControlClick(html, '.echo-card-use-btn', this.#onEchoRoll.bind(this));
     html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
     html
       .off('change', '.power-radial-checkbox')
@@ -2830,8 +2816,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       .on('change', '.radial-maneuver-hide-one', this.#onRadialManeuverHideOne.bind(this));
     
     // Equipment handlers
-    html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
-    html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
+    bindReliableControlClick(html, '.general-items-btn', this.#onGeneralItemsClick.bind(this));
+    bindReliableControlClick(html, '.store-btn', this.#onStoreClick.bind(this));
     if (this.actor.isOwner) {
       void this.#purgeLegacyUnarmedItems();
     }
@@ -5689,6 +5675,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   async #onPowerDisplayNameChange(event: JQuery.ChangeEvent) {
+    event.preventDefault();
+    event.stopPropagation();
     const el = event.currentTarget as HTMLInputElement | null;
     if (!el) return;
     const itemId = el.getAttribute('data-item-id');
@@ -6299,24 +6287,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Foundry's tooltip sits under the cursor. On titled sheet buttons that
-   * produces a hover loop (active/inactive flicker) and eats the click —
-   * bad for recording General Items / Add Disadvantage. Drop those infos
-   * and dismiss any tooltip already opening.
+   * Keep hover styling. Do not deactivate Foundry tooltips on enter — that
+   * flicker (active ↔ inactive) is what ate clicks. The tooltip itself is
+   * inert so it cannot sit on top of the button.
    */
-  #silenceFoundryButtonTooltips(html: JQuery) {
-    const actionButtons = html.find(
-      '.general-items-btn, .add-disadvantage-btn, .store-btn, .choose-echo-btn, .open-languages-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .finalize-creation, .reset-creation-attributes, .progression-hub-btn, .artifact-evolution-btn',
-    );
-    actionButtons.removeAttr('title').removeAttr('data-tooltip');
-
+  #armSheetButtonsAgainstTooltipSteal(html: JQuery) {
+    makeFoundryTooltipInert();
     html
-      .find('button, .sheet-tabs .item')
-      .off('pointerenter.ms-no-tooltip')
-      .on('pointerenter.ms-no-tooltip', () => {
-        const tooltip = (game as any).tooltip;
-        tooltip?.deactivate?.();
-        tooltip?.clear?.();
+      .off('pointerdown.msTipPass')
+      .on('pointerdown.msTipPass', 'button, [role="button"], .sheet-tabs .item', () => {
+        makeFoundryTooltipInert();
       });
   }
 
@@ -6600,8 +6580,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Character Creation / Redistribute: raise a skill by 1 point
-   * (PG "Skill Point Buy": 40 points freely, max 4 per skill).
+   * Character Creation / Redistribute: raise a skill by 4 (0 → 4).
+   * One click spends the full creation cap; leftover 1/2/3 ranks are not allowed.
    */
   async #onCreationSkillIncrease(event: JQuery.ClickEvent) {
     event.preventDefault();
@@ -6622,7 +6602,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const system = (this.actor as any).system;
     const currentValue = Math.max(0, Math.floor(Number(system.skills?.[skill]) || 0));
-    const { total: skillPointsConfig, maxPerSkill } = getCreationSkillBudget();
+    const { total: skillPointsConfig } = getCreationSkillBudget();
     
     // Calculate current points spent
     let skillPointsSpent = 0;
@@ -6630,20 +6610,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
     }
     const remaining = skillPointsConfig - skillPointsSpent;
-    
-    // PG "Skill Point Buy": points are distributed freely, +1 per point,
-    // capped at maxPerSkill (4) per skill at creation.
-    if (currentValue >= maxPerSkill) {
-      ui.notifications?.warn(`This skill is already at the creation cap of ${maxPerSkill}.`);
-      return;
-    }
-    if (remaining < 1) {
-      ui.notifications?.warn('No skill points remaining.');
+    const next = nextCreationSkillValue(currentValue, remaining);
+    if (!next.ok || next.value == null) {
+      ui.notifications?.warn(next.reason || 'Cannot raise this skill.');
       return;
     }
     
     await this.actor.update({
-      [`system.skills.${skill}`]: currentValue + 1,
+      [`system.skills.${skill}`]: next.value,
     });
     
     await this.render();
@@ -6677,15 +6651,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const system = (this.actor as any).system;
     const currentValue = Math.max(0, Math.floor(Number(system.skills?.[skill]) || 0));
-    
-    // Validate
-    if (currentValue <= 0) {
-      ui.notifications?.warn('Skill cannot go below 0.');
+    const prev = prevCreationSkillValue(currentValue);
+    if (!prev.ok || prev.value == null) {
+      ui.notifications?.warn(prev.reason || 'Skill cannot go below 0.');
       return;
     }
     
     await this.actor.update({
-      [`system.skills.${skill}`]: currentValue - 1,
+      [`system.skills.${skill}`]: prev.value,
     });
     
     await this.render();
@@ -6711,7 +6684,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const confirmed = await new Promise<boolean>((resolve) => {
       new Dialog({
         title: 'Redistribute Skills',
-        content: `<p>Reset all skills to <strong>0</strong> and distribute <strong>${total}</strong> points freely (+1 per point, max <strong>${maxPerSkill}</strong> per skill at creation).</p>
+        content: `<p>Reset all skills to <strong>0</strong> and distribute <strong>${total}</strong> points in steps of <strong>${maxPerSkill}</strong> (each click sets a skill to ${maxPerSkill}; only 0 or ${maxPerSkill}).</p>
 <p><em>Only available when the character has no XP yet. Cancel restores the previous allocation.</em></p>`,
         buttons: {
           yes: {
@@ -7390,10 +7363,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return data;
   }
 
-  /** Local Minor Magic controls must not submit / re-render the actor sheet. */
+  /** Local controls that must not submit / re-render the actor sheet. */
   #isLocalMinorMagicField(event?: Event): boolean {
     const target = event?.target as HTMLElement | null;
-    return !!target?.closest?.('.js-mm-name, .mm-root .js-mm-form');
+    return !!target?.closest?.('.js-mm-name, .mm-root .js-mm-form, .power-display-name-input');
   }
 
   async #giveMinorMagicItem(item: any): Promise<boolean> {
