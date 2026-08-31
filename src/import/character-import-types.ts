@@ -53,9 +53,9 @@ export interface CharacterImportArtifact {
   key: string;
   /** Artifact tree level 1–10 (default 1). */
   level?: number;
-  /** When true, marks the artifact activated (blocks one activation stone). */
+  /** Defaults to active. Set false to import an explicitly inactive artifact. */
   activated?: boolean;
-  /** Attribute pool used for activation stone binding, e.g. `might`. */
+  /** Legacy field — activation no longer reserves a Stone. */
   activationStoneAttribute?: string;
   /** Paperdoll equip after import (default true for weapons/armor). */
   equipped?: boolean;

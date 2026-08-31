@@ -128,6 +128,7 @@ import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../com
 import type { CombatSenseId } from '../combat/combat-senses.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
+import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
 import {
   applyAttributePendingChanges,
@@ -1895,7 +1896,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const level = Math.max(1, Number(sys.currentLevel ?? sys.level ?? 1));
       return {
         currentSystemLevel: level,
-        linked: false,
+        linked: isArtifactLinkedOnActor(this.actor, item),
         embeddedId: item.id,
         unwired: true,
       };

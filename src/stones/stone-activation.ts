@@ -25,6 +25,7 @@ import {
   tierForUseIndex,
   stonePowerSkipsFirstTier,
   stonePowerSupportPrefillApplies,
+  effectiveStoneSupportPrefillTier,
   type StonePower,
 } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
@@ -36,12 +37,14 @@ export function resolveStonePowerActivation(
   prefillTier: number,
 ): { tier: number; cost: number; supportApplies: boolean } {
   const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
-  const supportApplies = stonePowerSupportPrefillApplies(abilityId, rawUsesBefore);
-  const prefillBaseline = supportApplies ? Math.max(0, prefillTier - 1) : 0;
-  const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
+  const effective = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
+  const supportApplies = stonePowerSupportPrefillApplies(abilityId, prefillTier);
+  const paidUses = Math.max(0, Math.floor(Number(rawUsesBefore) || 0));
+  const prefillBaseline = supportApplies ? Math.max(0, effective - 1) : 0;
+  const usesBefore = Math.max(paidUses + rampSkip, prefillBaseline);
   return {
     tier: tierForUseIndex(usesBefore),
-    cost: calculateStoneCost(rawUsesBefore + rampSkip),
+    cost: calculateStoneCost(paidUses + rampSkip),
     supportApplies,
   };
 }

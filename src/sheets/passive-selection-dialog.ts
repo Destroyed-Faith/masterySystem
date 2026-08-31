@@ -12,7 +12,10 @@ import {
   getAvailablePassives,
   getSlottedPassiveIds,
   slotPassive,
-  unslotPassive
+  unslotPassive,
+  canEditEncounterPassives,
+  consumePendingPassiveSwap,
+  getPendingPassiveSwaps,
 } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
@@ -29,6 +32,8 @@ export class PassiveSelectionDialog extends BaseDialog {
   private resolve?: (outcome: PassiveSelectionOutcome) => void;
   private readOnly: boolean = false;
   private _outcomeResolved = false;
+  /** Slots emptied with a paid mid-combat swap; refilling them does not cost another token. */
+  private freedSlots = new Set<number>();
 
   static DEFAULT_OPTIONS = {
     id: "mastery-passive-selection",
@@ -136,6 +141,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     const slottedIds = getSlottedPassiveIds(actor);
     const selectablePassives = available.filter((p: any) => !slottedIds.has(String(p.id)));
 
+    const canEdit = this.#canMutate();
     return {
       actor,
       slots,
@@ -143,8 +149,18 @@ export class PassiveSelectionDialog extends BaseDialog {
       isFirst: this.currentIndex === 0,
       isLast: this.currentIndex === this.pcs.length - 1,
       isGM: game.user?.isGM ?? false,
-      readOnly: this.readOnly
+      readOnly: !canEdit,
+      canEdit,
     };
+  }
+
+  #combatRound(): number {
+    return Math.max(1, Math.floor(Number((game as any)?.combat?.round) || 1));
+  }
+
+  #canMutate(): boolean {
+    if (canEditEncounterPassives((game as any)?.combat, this.currentActor)) return true;
+    return this.freedSlots.size > 0;
   }
 
   protected async _onRender(_context: any, _options: any): Promise<void> {
@@ -155,8 +171,8 @@ export class PassiveSelectionDialog extends BaseDialog {
     const titleEl = root.querySelector?.('.window-title') as HTMLElement | null;
     if (titleEl) titleEl.textContent = this.title;
 
-    // If read-only, disable all interactive elements
-    if (this.readOnly) {
+    // After round 1 the loadout is locked unless Exchange Passive was paid.
+    if (!this.#canMutate()) {
       root.classList.add('read-only');
       root.querySelectorAll<HTMLElement>('.draggable-passive').forEach(el => {
         el.draggable = false;
@@ -210,6 +226,15 @@ export class PassiveSelectionDialog extends BaseDialog {
           const passiveId = ev.dataTransfer?.getData('text/plain') || '';
 
           if (!passiveId || !slot.classList.contains('empty')) return;
+          if (!this.#canMutate()) return;
+          if (this.#combatRound() > 1) {
+            if (this.freedSlots.has(slotIndex)) {
+              this.freedSlots.delete(slotIndex);
+            } else {
+              if (getPendingPassiveSwaps(actor) <= 0) return;
+              await consumePendingPassiveSwap(actor);
+            }
+          }
 
           await slotPassive(actor, slotIndex, passiveId);
           await (this as any).render({ force: true });
@@ -274,10 +299,15 @@ export class PassiveSelectionDialog extends BaseDialog {
   }
 
   async #unslotClicked(btn: HTMLElement): Promise<void> {
-    if (this.readOnly) return;
+    if (!this.#canMutate()) return;
     const actor = this.currentActor;
     if (!actor) return;
     const slotIndex = Number(btn.dataset.slotIndex ?? 0);
+    if (this.#combatRound() > 1 && !this.freedSlots.has(slotIndex)) {
+      if (getPendingPassiveSwaps(actor) <= 0) return;
+      await consumePendingPassiveSwap(actor);
+      this.freedSlots.add(slotIndex);
+    }
     try {
       await unslotPassive(actor, slotIndex);
     } catch (err) {

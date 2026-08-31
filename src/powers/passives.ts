@@ -283,3 +283,35 @@ export async function ensureDefaultPassiveSlots(actor: Actor): Promise<string[]>
   return picked;
 }
 
+/** Stone Power `generic.exchangePassive` stores leftover mid-combat swaps here. */
+export const EXCHANGE_PASSIVE_SWAPS_FLAG = 'exchangePassiveSwapsPending';
+
+export function getPendingPassiveSwaps(actor: Actor | null | undefined): number {
+  if (!actor) return 0;
+  return Math.max(
+    0,
+    Math.floor(Number((actor as any).getFlag?.('mastery-system', EXCHANGE_PASSIVE_SWAPS_FLAG) ?? 0) || 0),
+  );
+}
+
+export async function consumePendingPassiveSwap(actor: Actor): Promise<number> {
+  const left = getPendingPassiveSwaps(actor);
+  if (left <= 0) return 0;
+  const next = left - 1;
+  await (actor as any).setFlag?.('mastery-system', EXCHANGE_PASSIVE_SWAPS_FLAG, next);
+  return next;
+}
+
+/**
+ * Round 1 (and prepare) is free. Later rounds stay locked unless Exchange
+ * Passive (or leftover swap tokens) has been paid this fight.
+ */
+export function canEditEncounterPassives(
+  combat: Combat | null | undefined,
+  actor: Actor | null | undefined,
+): boolean {
+  const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
+  if (round <= 1) return true;
+  return getPendingPassiveSwaps(actor) > 0;
+}
+

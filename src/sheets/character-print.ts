@@ -18,12 +18,16 @@ import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
-import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { specialApplicationLimit } from '../combat/special-application.js';
-import { STONE_POWERS_BY_ATTRIBUTE, stonePowerSkipsFirstTier } from '../stones/stone-powers.js';
+import {
+  STONE_POWERS_BY_ATTRIBUTE,
+  effectiveStoneSupportPrefillTier,
+  firstEffectiveStonePowerTier,
+  stonePowerSkipsFirstTier,
+} from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
@@ -478,24 +482,19 @@ export function buildCharacterPrintContext(
   const system = actor?.system ?? {};
   const masteryRank = num(system?.mastery?.rank, 2);
 
-  // Stones bound into artifacts (blocked) — used to show real availability.
-  const bindingNamesByAttr = artifactBindingNamesByAttr(actor);
-
   // ── Abilities ─────────────────────────────────────────────────────────
   const abilities = ATTR_ORDER.map((key) => {
     const value = num(system?.attributes?.[key]?.value, 0);
     const stoneCapacity = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
-    const bound = countArtifactActivationStones(actor, key);
-    const stoneAvailable = Math.max(0, stoneCapacity - bound);
-    const blockedBy = bindingNamesByAttr[key] ?? [];
+    const stoneAvailable = Math.max(0, stoneCapacity);
     return {
       key,
       label: cap(key).toUpperCase(),
       value,
       stoneCapacity,
       stoneAvailable,
-      blocked: blockedBy.length > 0,
-      blockedBy: blockedBy.join(', '),
+      blocked: false,
+      blockedBy: '',
       slots: Array.from({ length: stoneAvailable }, (_, i) => i + 1),
       ladder: ABILITY_LADDER.map((n) => ({ n, filled: value >= n })),
       poolTiers: HEALTH_POOL_TIERS.map((t) => ({
@@ -508,8 +507,7 @@ export function buildCharacterPrintContext(
   // ── Stone Powers (per-attribute capacity overview) ────────────────────
   const stonePools = ATTR_ORDER.map((key) => {
     const max = num(system?.stonePools?.[key]?.max, Math.floor(num(system?.attributes?.[key]?.value, 0) / 8));
-    const bound = countArtifactActivationStones(actor, key);
-    return { key, label: cap(key).toUpperCase(), max, available: Math.max(0, max - bound) };
+    return { key, label: cap(key).toUpperCase(), max, available: Math.max(0, max) };
   });
 
   const attrVal = (k: string) => num(system?.attributes?.[k]?.value, 0);
@@ -987,8 +985,9 @@ export function buildCharacterPrintContext(
   const supportByPowerId = new Map<string, { tier: number; source: string }>();
   for (const s of stoneStatus.supports ?? []) {
     if (s?.stonePowerId) {
-      supportByPowerId.set(String(s.stonePowerId), {
-        tier: num(s.value),
+      const powerId = String(s.stonePowerId);
+      supportByPowerId.set(powerId, {
+        tier: effectiveStoneSupportPrefillTier(powerId, num(s.value)),
         source: String(s.source ?? ''),
       });
     }
@@ -1002,13 +1001,11 @@ export function buildCharacterPrintContext(
       boostsByAttr.set(attr, arr);
     }
   }
-  // Free stones a pool can actually hold = capacity (max) − stones bound into
-  // artifacts. A pool reads 0 when the attribute is below 8 (max 0) and/or all
-  // its stones are locked into artifacts.
+  // Free stones a pool can actually hold = capacity. Attunement no longer
+  // reserves a Stone, so leftover activation flags never shrink the printout.
   const freeStonesForAttr = (attr: string): number => {
     const poolMax = num(system?.stonePools?.[attr]?.max, Math.floor(attrVal(attr) / 8));
-    const bound = countArtifactActivationStones(actor, attr);
-    return Math.max(0, poolMax - bound);
+    return Math.max(0, poolMax);
   };
 
   const allStoneGroups = STONE_GROUPS.map(({ key, label }) => {
@@ -1027,17 +1024,19 @@ export function buildCharacterPrintContext(
         const supportTier = sup?.tier ?? 0;
         // T2-start powers have no Tier-1 slot — do not render an empty T1 box.
         const isRamp = stonePowerSkipsFirstTier(String(p.id));
-        // Tier placement areas (T1=1, T2=2, T3=4). When an artifact Support
-        // pre-fills a tier, those boxes are shown already filled.
+        const firstPaid = firstEffectiveStonePowerTier(String(p.id));
+        // Tier placement areas (T1=1, T2=2, T3=4). Support gold-fills every
+        // published tier above the one the player must pay, up through the
+        // effective prefill (Crit + Focus I → T3 filled, T2 empty).
         const tiers = [
           { label: 'T1', tier: 1, count: 1 },
           { label: 'T2', tier: 2, count: 2 },
           { label: 'T3', tier: 3, count: 4 },
         ].filter((g) => !(isRamp && g.tier === 1)).map((g) => ({
           label: g.label,
-          // Only the supported tier is pre-filled — the player still pays the
-          // lower tiers themselves.
-          boxes: Array.from({ length: g.count }, () => ({ filled: !!sup && g.tier === supportTier })),
+          boxes: Array.from({ length: g.count }, () => ({
+            filled: !!sup && g.tier > firstPaid && g.tier <= supportTier,
+          })),
         }));
         return {
           name: String(p?.name ?? ''),

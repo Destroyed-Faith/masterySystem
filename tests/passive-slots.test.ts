@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canEditEncounterPassives,
+  consumePendingPassiveSwap,
   ensureDefaultPassiveSlots,
+  EXCHANGE_PASSIVE_SWAPS_FLAG,
   getPassiveSlotCountForMasteryRank,
   getPassiveSlots,
   getPassiveSlotUnlockRank,
+  getPendingPassiveSwaps,
   MAX_PASSIVE_SLOTS,
   PASSIVE_SLOT_UNLOCK_RANKS,
   pickDefaultPassiveIds,
@@ -121,5 +125,35 @@ describe('default passive picks', () => {
     const kept = await ensureDefaultPassiveSlots(actor);
     expect(kept).toEqual(['focus']);
     expect(getPassiveSlots(actor)[0]?.passive?.id).toBe('focus');
+  });
+});
+
+describe('mid-combat passive edits', () => {
+  function actorWithSwaps(n: number): Actor {
+    let pending = n;
+    return {
+      getFlag: (_scope: string, key: string) =>
+        key === EXCHANGE_PASSIVE_SWAPS_FLAG ? pending : null,
+      setFlag: async (_scope: string, key: string, value: unknown) => {
+        if (key === EXCHANGE_PASSIVE_SWAPS_FLAG) pending = Number(value) || 0;
+      },
+    } as unknown as Actor;
+  }
+
+  it('allows free edits in round 1 and locks afterwards unless Exchange Passive was paid', () => {
+    const actor = actorWithSwaps(0);
+    expect(canEditEncounterPassives({ round: 1 } as Combat, actor)).toBe(true);
+    expect(canEditEncounterPassives({ round: 2 } as Combat, actor)).toBe(false);
+    expect(canEditEncounterPassives({ round: 2 } as Combat, actorWithSwaps(1))).toBe(true);
+  });
+
+  it('consumes one paid swap token at a time', async () => {
+    const actor = actorWithSwaps(2);
+    expect(getPendingPassiveSwaps(actor)).toBe(2);
+    expect(await consumePendingPassiveSwap(actor)).toBe(1);
+    expect(getPendingPassiveSwaps(actor)).toBe(1);
+    expect(await consumePendingPassiveSwap(actor)).toBe(0);
+    expect(getPendingPassiveSwaps(actor)).toBe(0);
+    expect(canEditEncounterPassives({ round: 3 } as Combat, actor)).toBe(false);
   });
 });

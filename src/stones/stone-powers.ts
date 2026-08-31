@@ -202,7 +202,8 @@ const GENERIC_POWERS_RAW: StonePowerDraft[] = [
     name: 'Exchange Passive',
     attribute: 'generic',
     category: 'passive',
-    description: 'Swap active Passives with other Passives you know (T1..T4: 1/1/2/2 swaps).',
+    description:
+      'Swap active Passives with other Passives you know (T1..T4: 1/1/2/2 swaps). Cost is cumulative per combat (1, then 2, then 4…). Stones become Exhausted, not Burned.',
     tiers: [
       { label: 'Swap 1', description: 'Swap 1 active Passive with another Passive you know.', value: 1 },
       { label: 'Swap 1', description: 'Swap 1 active Passive with another Passive you know.', value: 1 },
@@ -1092,12 +1093,50 @@ export function firstEffectiveStonePowerTier(powerId: string): number {
 }
 
 /**
- * Support may only raise an already-activated ability. The character must
- * pay the first published tier themselves (T1, or T2 when T1 does not exist)
- * before a prefill applies. `rawUsesBefore` is completed activations this turn.
+ * Printed Support that would land on (or below) the first published tier is
+ * lifted one step so the player still pays that tier and the gold prefills
+ * sit above it. Crit + Elorian Focus I (printed T2) → T3.
  */
-export function stonePowerSupportPrefillApplies(_powerId: string, rawUsesBefore: number): boolean {
-  return Math.max(0, Math.floor(Number(rawUsesBefore) || 0)) >= 1;
+export function effectiveStoneSupportPrefillTier(powerId: string, printedTier: number): number {
+  const printed = Math.max(0, Math.floor(Number(printedTier) || 0));
+  if (printed <= 0) return 0;
+  const first = firstEffectiveStonePowerTier(powerId);
+  if (printed <= first) return Math.min(STONE_TIER_HARD_MAX, first + 1);
+  return Math.min(STONE_TIER_HARD_MAX, printed);
+}
+
+/** Lane indices for one published tier (T1=anchor, T2=mid, T3=quad, T4=oct). */
+export function stonePaymentLanesForTier(tier: number): number[] {
+  const seg = Math.floor(Number(tier) || 0) - 1;
+  if (seg === 0) return [0];
+  if (seg === 1) return [1, 2];
+  if (seg === 2) return [3, 4, 5, 6];
+  if (seg === 3) return [7, 8, 9, 10, 11, 12, 13, 14];
+  return [];
+}
+
+/**
+ * Gold Artifact Support Stone lanes: every published tier above the one the
+ * player must pay, up through the effective prefill. Empty when Support
+ * cannot raise the first published tier.
+ */
+export function stoneSupportPrefillLanes(powerId: string, printedTier: number): number[] {
+  const first = firstEffectiveStonePowerTier(powerId);
+  const effective = effectiveStoneSupportPrefillTier(powerId, printedTier);
+  if (effective <= first) return [];
+  const lanes: number[] = [];
+  for (let tier = first + 1; tier <= effective; tier += 1) {
+    lanes.push(...stonePaymentLanesForTier(tier));
+  }
+  return lanes;
+}
+
+/**
+ * Support may raise the first paid activation to a higher tier. It never
+ * grants the first published tier for free (T1, or T2 when T1 does not exist).
+ */
+export function stonePowerSupportPrefillApplies(powerId: string, printedTier: number): boolean {
+  return effectiveStoneSupportPrefillTier(powerId, printedTier) > firstEffectiveStonePowerTier(powerId);
 }
 
 /** Retired ids that still resolve to a current Stone Power. */

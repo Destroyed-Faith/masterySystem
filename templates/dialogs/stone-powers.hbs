@@ -210,7 +210,7 @@
                        data-is-generic="true"
                        data-slot-index="{{ls.slotIndex}}"
                        data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -221,7 +221,7 @@
                   {{#each power.paymentMid as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-is-generic="true" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -231,7 +231,7 @@
                   {{#each power.paymentQuad as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-is-generic="true" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -241,7 +241,7 @@
                   {{#each power.paymentOct as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-is-generic="true" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -251,7 +251,7 @@
           </div>
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{power.effectLong}}">{{power.name}}</strong>
-            {{#if power.supportTier}}<span class="power-support-badge{{#unless power.supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{power.supportSource}}): {{#if power.supportActive}}Erstaktivierung startet auf Tier {{power.supportTier}} — du legst nur 1 Stein in den Anker, die Artifact Support Stones stellt das Artefakt.{{else}}Artifact Support Stones bereits genutzt — skaliert ab jetzt normal (Mindest-Tier {{power.supportTier}}).{{/if}}"><i class="fas fa-gem"></i> T{{power.supportTier}}</span>{{/if}}
+            {{#if power.supportTier}}<span class="power-support-badge{{#unless power.supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{power.supportSource}}): {{#if power.supportActive}}{{power.supportHint}}{{else}}Artifact Support Stones bereits genutzt — skaliert ab jetzt normal (Mindest-Tier {{power.supportTier}}).{{/if}}"><i class="fas fa-gem"></i> T{{power.supportTier}}</span>{{/if}}
           </div>
         </div>
         {{/each}}
@@ -280,7 +280,7 @@
                        data-pay-attribute="{{../attribute}}"
                        data-slot-index="{{ls.slotIndex}}"
                        data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -291,7 +291,7 @@
                   {{#each paymentMid as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-pay-attribute="{{../attribute}}" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -301,7 +301,7 @@
                   {{#each paymentQuad as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-pay-attribute="{{../attribute}}" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -311,7 +311,7 @@
                   {{#each paymentOct as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-pay-attribute="{{../attribute}}" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'support')}}Vom Artefakt vorgefüllt — eigene Steine nicht hier{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -321,7 +321,7 @@
           </div>
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{effectLong}}">{{name}}</strong>
-            {{#if supportTier}}<span class="power-support-badge{{#unless supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{supportSource}}): {{#if supportActive}}Erstaktivierung startet auf Tier {{supportTier}} — du legst nur 1 Stein in den Anker, die Artifact Support Stones stellt das Artefakt.{{else}}Artifact Support Stones bereits genutzt — skaliert ab jetzt normal (Mindest-Tier {{supportTier}}).{{/if}}"><i class="fas fa-gem"></i> T{{supportTier}}</span>{{/if}}
+            {{#if supportTier}}<span class="power-support-badge{{#unless supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{supportSource}}): {{#if supportActive}}{{supportHint}}{{else}}Artifact Support Stones bereits genutzt — skaliert ab jetzt normal (Mindest-Tier {{supportTier}}).{{/if}}"><i class="fas fa-gem"></i> T{{supportTier}}</span>{{/if}}
           </div>
         </div>
           {{else}}

@@ -144,6 +144,10 @@ import {
   registerArtifactEchoActivationMigrationSetting,
   runArtifactEchoActivationMigration,
 } from './migrations/artifact-echo-activation-migration.js';
+import {
+  registerArtifactDefaultActiveMigrationSetting,
+  runArtifactDefaultActiveMigration,
+} from './migrations/artifact-default-active-migration.js';
 
 // Dice roller functions are imported in sheets where needed
 // Register Handlebars helpers immediately (before init hook)
@@ -164,6 +168,7 @@ function registerAllMasteryInitSettings(): void {
   registerArtifactSpecBackfillSetting();
   registerArtifactEchoLinkMigrationSetting();
   registerArtifactEchoActivationMigrationSetting();
+  registerArtifactDefaultActiveMigrationSetting();
   registerEchoArtifactTreeMigrationSetting();
   registerEchoArtifactDedupeMigrationSetting();
   registerPaperdollSlotCanonicalSetting();
@@ -742,11 +747,11 @@ Hooks.once('init', async function() {
             await forceEncounterDialog('passives', combatant);
             return;
           }
-          const f = (combat.flags as any)?.['mastery-system'] || {};
-          const setupEnc = f.encounterSetup;
-          const aid = combatant.actor?.id;
-          const locked = aid && setupEnc?.passives?.[aid]?.locked === true;
-          await PassiveSelectionDialog.showForCombatant(combatant, !!locked);
+          const { canEditEncounterPassives } = await import('./powers/passives.js');
+          await PassiveSelectionDialog.showForCombatant(
+            combatant,
+            !canEditEncounterPassives(combat, combatant.actor),
+          );
         } catch (error) {
           console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing passive dialog', error);
           ui.notifications?.error('Failed to open passive selection dialog');
@@ -3029,6 +3034,12 @@ Hooks.once('ready', async function() {
     await runArtifactEchoActivationMigration();
   } catch (error) {
     console.warn('Mastery System | Echo artifact activation migration failed', error);
+  }
+
+  try {
+    await runArtifactDefaultActiveMigration();
+  } catch (error) {
+    console.warn('Mastery System | Artifact default-active migration failed', error);
   }
 
   // One-shot Echo Artifact → Builder-Tree migration (GM-only, guarded). Runs

@@ -90,6 +90,8 @@
       "passives": "Passives",
       "assignPassives": "Assign Passives",
       "assignPassivesHint": "Change the pre-selected Passives. Your last choice is kept.",
+      "assignPassivesHintView": "View only. Passives stay set until you pay Exchange Passive.",
+      "assignPassivesHintSwap": "Exchange Passive is paid — you may swap now.",
       "stones": "Stones",
       "shop": "Initiative",
       "initiative": "Initiative",

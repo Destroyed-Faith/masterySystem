@@ -125,8 +125,12 @@ export async function openEncounterDialogLocally(
   const actor = combatant.actor;
   if (!actor) return;
   if (kind === 'passives') {
+    const { canEditEncounterPassives } = await import('../powers/passives.js');
     const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
-    await PassiveSelectionDialog.showForCombatant(combatant, false);
+    await PassiveSelectionDialog.showForCombatant(
+      combatant,
+      !canEditEncounterPassives(combat, combatant.actor),
+    );
     return;
   }
   if (kind === 'stones') {

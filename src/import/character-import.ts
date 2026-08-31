@@ -131,7 +131,7 @@ async function setEmbeddedArtifactToLevel(
 async function importArtifactSpec(actor: Actor, spec: CharacterImportArtifact): Promise<void> {
   const key = String(spec.key).trim();
   const level = Math.max(1, Math.min(10, Math.floor(Number(spec.level) || 1)));
-  const activated = spec.activated === true;
+  const activated = spec.activated !== false;
 
   let emb = await grantArtifactTreeToActor(actor, key);
   if (!emb) {
@@ -145,16 +145,22 @@ async function importArtifactSpec(actor: Actor, spec: CharacterImportArtifact): 
     emb = (actor as any).items.get(emb.id) ?? emb;
   }
 
+  const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
+  const root = rootWorldId ? (game as any).items?.get(rootWorldId) : findEchoArtifactRootInWorld(key);
+  const nodeId =
+    (emb.getFlag?.('mastery-system', 'evolutionNodeId') as string | undefined) ||
+    `${key}-l${level}`;
   if (activated) {
     await emb.setFlag('mastery-system', 'artifactActivated', true);
     await emb.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
-    const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
-    const root = rootWorldId ? (game as any).items?.get(rootWorldId) : findEchoArtifactRootInWorld(key);
-    const nodeId =
-      (emb.getFlag?.('mastery-system', 'evolutionNodeId') as string | undefined) ||
-      `${key}-l${level}`;
     if (root) {
       await upsertRootActorProgress(root, (actor as any).id, { nodeId, linked: true });
+    }
+  } else {
+    await emb.setFlag('mastery-system', 'artifactActivated', false);
+    await emb.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
+    if (root) {
+      await upsertRootActorProgress(root, (actor as any).id, { nodeId, linked: false });
     }
   }
 
@@ -229,8 +235,9 @@ async function importEchoArtifacts(
   for (const item of grantedItems) {
     try {
       await equipEchoArtifact(actor, item);
-      if (item.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-        await item.setFlag('mastery-system', 'artifactActivated', false);
+      if (item.getFlag?.('mastery-system', 'artifactActivated') !== false) {
+        await item.setFlag('mastery-system', 'artifactActivated', true);
+        await item.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
       }
     } catch (err) {
       console.warn('[mastery-system] import: failed to auto-equip echo artifact', err);

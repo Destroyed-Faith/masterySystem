@@ -8,9 +8,11 @@
           <div class="slot-header">
             <span class="slot-number">Slot {{inc slot.slotIndex}} <span class="slot-unlock">(MR {{slot.unlockMasteryRank}}+)</span></span>
             {{#if slot.passive}}
+              {{#if ../canEdit}}
               <button type="button" class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Slot leeren">
                 <i class="fas fa-times"></i>
               </button>
+              {{/if}}
             {{/if}}
           </div>
           
@@ -29,6 +31,7 @@
     </div>
   </section>
 
+  {{#if canEdit}}
   <section class="available-passives-section">
     <h3>Available Passives</h3>
     {{#if availablePassives}}
@@ -48,9 +51,10 @@
       </div>
     {{/if}}
   </section>
+  {{/if}}
 
   <footer class="overlay-footer">
-    <p class="passive-footer-hint">{{#unless readOnly}}Schließen mit ✕ zählt <strong>nicht</strong> als Bestätigung (Encounter wartet). Nutze „Weiter“ / „Bestätigen“.{{/unless}}</p>
+    <p class="passive-footer-hint">{{#if canEdit}}Schließen mit ✕ zählt <strong>nicht</strong> als Bestätigung (Encounter wartet). Nutze „Weiter“ / „Bestätigen“.{{else}}Nur Ansicht — Passives bleiben gesetzt, bis Exchange Passive bezahlt ist.{{/if}}</p>
     <button class="js-prev-character btn-nav" {{#if isFirst}}disabled{{/if}}>
       <i class="fas fa-chevron-left"></i> Previous
     </button>

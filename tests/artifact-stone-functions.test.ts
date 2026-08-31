@@ -110,10 +110,10 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(records[0].attribute).toBe('might');
   });
 
-  it('Elorian Focus prefills Crit at the printed T2 / T3 / T4 stages', () => {
+  it('Elorian Focus prefills Crit above T2 so the first published box stays player-paid', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     const actorL3 = actorWith(activeItemFromNode(tree.nodes[2], 'Elorian Stride'));
-    expect(getArtifactStoneSupportPrefill(actorL3, 'agility.crit', 'agility')).toBe(2);
+    expect(getArtifactStoneSupportPrefill(actorL3, 'agility.crit', 'agility')).toBe(3);
 
     const actorL7 = actorWith(activeItemFromNode(tree.nodes[6], 'Elorian Stride'));
     expect(getArtifactStoneSupportPrefill(actorL7, 'agility.crit', 'agility')).toBe(4);

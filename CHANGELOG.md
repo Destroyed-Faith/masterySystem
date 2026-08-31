@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.435] - 2026-08-31
+
+### Changed
+
+- **Artifacts:** Level 1 is free and artifacts start active. Players can still turn one off. Grant, import, Echo, and a one-shot world migration wake existing items and clear leftover Link-Stone flags.
+- **Stone Powers:** Crit / Elorian Focus Support gold-fills the printed upper tiers (Focus I fills T3; the player still pays T2). Exchange Passive cost stacks per combat (1, then 2, then 4…) and Exhausts stones instead of Burning them. After round 1, Passives stay locked until that cost is paid.
+
+### Fixed
+
+- **Character sheet:** Attribute and print pages no longer show “Blocked by Artifact”. Spendable pools, round refill, recovery, and the next fight use the full attribute capacity — leftover attunement flags never reserve a Stone.
+
 ## [0.9.434] - 2026-08-31
 
 ### Changed

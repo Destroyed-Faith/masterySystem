@@ -105,7 +105,10 @@ export async function repairArtifactEvolutionLinks(actor: any): Promise<number> 
 
     const activated = emb.getFlag?.('mastery-system', 'artifactActivated');
     if (activated !== true && activated !== false) {
-      await emb.setFlag('mastery-system', 'artifactActivated', false);
+      await emb.setFlag('mastery-system', 'artifactActivated', true);
+      if (typeof emb.unsetFlag === 'function') {
+        await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+      }
       fixes++;
     }
   }

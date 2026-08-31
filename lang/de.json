@@ -90,6 +90,8 @@
       "passives": "Passives",
       "assignPassives": "Passives verteilen",
       "assignPassivesHint": "Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.",
+      "assignPassivesHintView": "Nur Ansicht. Passives bleiben, bis Exchange Passive bezahlt ist.",
+      "assignPassivesHintSwap": "Exchange Passive ist bezahlt — du kannst jetzt tauschen.",
       "stones": "Steine",
       "shop": "Initiative",
       "initiative": "Initiative",

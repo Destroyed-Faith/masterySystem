@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   TIER2_START_STONE_POWER_IDS,
   cumulativeStoneCostForTier,
+  effectiveStoneSupportPrefillTier,
   firstEffectiveStonePowerTier,
   stonePowerSkipsFirstTier,
   stonePowerSupportPrefillApplies,
+  stoneSupportPrefillLanes,
   STONE_POWERS,
 } from '../src/stones/stone-powers';
 import { resolveStonePowerActivation } from '../src/stones/stone-activation';
@@ -45,11 +47,15 @@ describe('T2-start abilities have no Tier 1', () => {
   });
 });
 
-describe('Stone Power Support cannot activate Tier 2', () => {
-  it('Crit: first payment is T2 for 2 Stones; T2 support does not apply yet', () => {
+describe('Stone Power Support prefills sit above the first published tier', () => {
+  it('Crit + printed T2 (Elorian Focus I) lifts to T3; player still pays 2 Stones', () => {
+    expect(effectiveStoneSupportPrefillTier('agility.crit', 2)).toBe(3);
+    expect(stoneSupportPrefillLanes('agility.crit', 2)).toEqual([3, 4, 5, 6]);
+    expect(stonePowerSupportPrefillApplies('agility.crit', 2)).toBe(true);
+
     const first = resolveStonePowerActivation('agility.crit', 0, 2);
-    expect(first.supportApplies).toBe(false);
-    expect(first.tier).toBe(2);
+    expect(first.supportApplies).toBe(true);
+    expect(first.tier).toBe(3);
     expect(first.cost).toBe(2);
 
     const second = resolveStonePowerActivation('agility.crit', 1, 2);
@@ -57,31 +63,35 @@ describe('Stone Power Support cannot activate Tier 2', () => {
     expect(second.tier).toBe(3);
     expect(second.cost).toBe(4);
 
-    const third = resolveStonePowerActivation('agility.crit', 1, 4);
-    expect(third.supportApplies).toBe(true);
-    expect(third.tier).toBe(4);
-    expect(third.cost).toBe(4);
+    const high = resolveStonePowerActivation('agility.crit', 1, 4);
+    expect(high.supportApplies).toBe(true);
+    expect(high.tier).toBe(4);
+    expect(high.cost).toBe(4);
   });
 
-  it('gates every T2-start ability the same way', () => {
+  it('never prefills the first published T2 box on T2-start abilities', () => {
     for (const id of TIER2_START_STONE_POWER_IDS) {
-      expect(stonePowerSupportPrefillApplies(id, 0)).toBe(false);
-      expect(stonePowerSupportPrefillApplies(id, 1)).toBe(true);
+      expect(stoneSupportPrefillLanes(id, 2)).toEqual([3, 4, 5, 6]);
+      expect(stoneSupportPrefillLanes(id, 2)).not.toContain(1);
+      expect(stoneSupportPrefillLanes(id, 2)).not.toContain(2);
       const first = resolveStonePowerActivation(id, 0, 2);
-      expect(first.tier).toBe(2);
+      expect(first.tier).toBe(3);
       expect(first.cost).toBe(2);
-      expect(first.supportApplies).toBe(false);
+      expect(first.supportApplies).toBe(true);
     }
   });
 
-  it('Healing (real T1) still requires the player to pay the first published tier', () => {
+  it('Healing (real T1): player pays the anchor, T2 is prefilled', () => {
+    expect(effectiveStoneSupportPrefillTier('resolve.healing', 2)).toBe(2);
+    expect(stoneSupportPrefillLanes('resolve.healing', 2)).toEqual([1, 2]);
     const first = resolveStonePowerActivation('resolve.healing', 0, 2);
-    expect(first.supportApplies).toBe(false);
-    expect(first.tier).toBe(1);
+    expect(first.supportApplies).toBe(true);
+    expect(first.tier).toBe(2);
     expect(first.cost).toBe(1);
     const second = resolveStonePowerActivation('resolve.healing', 1, 3);
     expect(second.supportApplies).toBe(true);
     expect(second.tier).toBe(3);
+    expect(second.cost).toBe(2);
   });
 });
 

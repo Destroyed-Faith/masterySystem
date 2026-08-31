@@ -88,7 +88,6 @@ export function stonePoolBlockedReason(pool: {
 }): string {
   if (pool.max <= 0) return 'Attribute below 8 — no stone pool';
   if (pool.available > 0) return '';
-  if (pool.artifactBound > 0) return 'bound to an artifact activation';
   if (pool.sustained > 0) return 'bound by Sustain';
   return 'spent this round';
 }

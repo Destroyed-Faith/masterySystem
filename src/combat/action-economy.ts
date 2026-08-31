@@ -73,7 +73,24 @@ const STONE_USAGE_ATTR_KEYS: AttributeKey[] = [
   'influence'
 ];
 
-function genericStoneUsageFlagKey(abilityKey: string, round: number, turn: number): string {
+/**
+ * Players Guide: doubling costs reset each turn, unless the power is
+ * “cumulative per combat”. Exchange Passive uses that exception.
+ */
+export function stonePowerCostPersistsForCombat(abilityKey: string): boolean {
+  return String(abilityKey || '').trim() === 'generic.exchangePassive';
+}
+
+function genericStoneUsageFlagKey(
+  abilityKey: string,
+  round: number,
+  turn: number,
+  combat?: Combat | null,
+): string {
+  if (stonePowerCostPersistsForCombat(abilityKey)) {
+    const combatId = String(combat?.id ?? 'active');
+    return `generic:${abilityKey}:combat:${combatId}`;
+  }
   return `generic:${abilityKey}:${round}:${turn}`;
 }
 
@@ -89,12 +106,15 @@ export function getGenericStonePowerUsageCount(
   const owner = getActionEconomyActor(actor) ?? actor;
   const round = combat?.round || 1;
   const turn = combat?.turn || 0;
-  const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn);
+  const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn, combat);
   const stoneUsage = (owner as any).getFlag('mastery-system', 'stoneUsage') as
     | Record<string, number>
     | undefined;
   if (stoneUsage && Object.prototype.hasOwnProperty.call(stoneUsage, usageKey)) {
     return stoneUsage[usageKey] || 0;
+  }
+  if (stonePowerCostPersistsForCombat(abilityKey)) {
+    return 0;
   }
   let legacy = 0;
   for (const attr of STONE_USAGE_ATTR_KEYS) {
@@ -111,7 +131,7 @@ export async function incrementGenericStonePowerUsage(
   const owner = getActionEconomyActor(actor) ?? actor;
   const round = combat?.round || 1;
   const turn = combat?.turn || 0;
-  const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn);
+  const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn, combat);
   const stoneUsage =
     ((owner as any).getFlag('mastery-system', 'stoneUsage') as Record<string, number>) || {};
   stoneUsage[usageKey] = (stoneUsage[usageKey] || 0) + 1;

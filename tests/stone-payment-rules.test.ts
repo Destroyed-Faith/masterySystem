@@ -123,9 +123,9 @@ describe('pool blocked reason', () => {
     expect(stonePoolBlockedReason({ max: 2, available: 1, sustained: 0, artifactBound: 1 })).toBe('');
   });
 
-  it('names artifact bindings and sustain before the generic case', () => {
+  it('names sustain before the generic case and never blames artifacts', () => {
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 2 })).toBe(
-      'bound to an artifact activation',
+      'spent this round',
     );
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 2, artifactBound: 0 })).toBe(
       'bound by Sustain',

@@ -163,7 +163,7 @@ function mockActorWithArtifacts(
 }
 
 describe('isArtifactLinkedOnActor (echo)', () => {
-  it('echo items stay inactive unless artifactActivated is true', () => {
+  it('explicit artifactActivated false is the player opt-out', () => {
     const actor = { id: 'a1' };
     const echoItem = {
       type: 'artifact',
@@ -182,6 +182,16 @@ describe('isArtifactLinkedOnActor (echo)', () => {
       getFlag: (_ns: string, key: string) => (key === 'artifactActivated' ? true : echoItem.getFlag(_ns, key)),
     };
     expect(isArtifactLinkedOnActor(actor, activeEcho)).toBe(true);
+  });
+
+  it('echo items with no activation flag default to active', () => {
+    const actor = { id: 'a1' };
+    const echoItem = {
+      type: 'artifact',
+      system: { binding: 'echo' },
+      getFlag: (_ns: string, key: string) => (key === 'echoBound' ? 'dragonborn' : undefined),
+    };
+    expect(isArtifactLinkedOnActor(actor, echoItem)).toBe(true);
   });
 });
 
