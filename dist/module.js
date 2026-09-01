@@ -26,6 +26,8 @@ import { showCharacterImportDialog } from './import/character-import-dialog.js';
 import { importMasteryCharacter, importMasteryCharacterFromJson, validateCharacterImportDocument, validateCharacterImportJson, parseCharacterImportJson, } from './import/character-import.js';
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
+import { installTooltipPassthrough } from './ui/tooltip-passthrough.js';
+import { installFadedUiUnlock, installStuckOverlayCleanup, } from './ui/foundry-chrome.js';
 import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { applyPassiveTriggerToCombat, applyPassiveTrigger, applyBuffTriggersOnActivate, clearTempHPSourcesForBuffEffect, clearTempHPSourcesForCombat, } from './combat/passive-triggers.js';
@@ -79,6 +81,7 @@ import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration,
 import { registerAbCriticalMilestonesMigrationSetting, runAbCriticalMilestonesMigration, } from './migrations/ab-critical-milestones-migration.js';
 import { registerPowerTemplateResyncMigrationSetting, runPowerTemplateResyncMigration, } from './migrations/power-template-resync-migration.js';
 import { registerArtifactEchoActivationMigrationSetting, runArtifactEchoActivationMigration, } from './migrations/artifact-echo-activation-migration.js';
+import { registerArtifactDefaultActiveMigrationSetting, runArtifactDefaultActiveMigration, } from './migrations/artifact-default-active-migration.js';
 // Dice roller functions are imported in sheets where needed
 // Register Handlebars helpers immediately (before init hook)
 // This ensures they are available when templates are first rendered
@@ -97,6 +100,7 @@ function registerAllMasteryInitSettings() {
     registerArtifactSpecBackfillSetting();
     registerArtifactEchoLinkMigrationSetting();
     registerArtifactEchoActivationMigrationSetting();
+    registerArtifactDefaultActiveMigrationSetting();
     registerEchoArtifactTreeMigrationSetting();
     registerEchoArtifactDedupeMigrationSetting();
     registerPaperdollSlotCanonicalSetting();
@@ -555,18 +559,14 @@ Hooks.once('init', async function () {
             const actorIdForPassives = combatant.actor?.id;
             const passivesLocked = actorIdForPassives && encSetup?.passives?.[actorIdForPassives]?.locked === true;
             const setupStatus = combatant.actor?.type === 'character' ? buildEncounterSetupStatus(combatant, combat) : null;
-            const setupRowTip = (kind, fallback) => {
-                const row = setupStatus?.rows.find((r) => r.kind === kind);
-                if (!row)
-                    return fallback;
-                const forceHint = game.user?.isGM
-                    ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
-                    : '';
-                return `${row.done ? '✓' : '—'} ${row.label}: ${row.summary}${forceHint}`;
-            };
-            const passiveTooltip = setupRowTip('passives', passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen');
+            const forceHint = game.user?.isGM
+                ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
+                : '';
+            const passiveTooltip = (setupStatus?.passivesDone || passivesLocked
+                ? 'Passives ansehen (gesperrt)'
+                : 'Passives wählen / bestätigen') + forceHint;
             const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn' +
-                (setupStatus?.rows.find((r) => r.kind === 'passives')?.done ? ' is-setup-done' : '') +
+                (setupStatus?.passivesDone ? ' is-setup-done' : '') +
                 '" data-action="selectPassives" data-combatant-id="' +
                 combatantId +
                 '" data-tooltip="' +
@@ -578,9 +578,9 @@ Hooks.once('init', async function () {
             // Add Stone Powers button (only for characters)
             const actor = combatant.actor;
             if (actor && actor.type === 'character') {
-                const stoneTooltip = setupRowTip('stones', 'Stone Powers');
+                const stoneTooltip = (setupStatus?.stonesDone ? '✓ Stone Powers' : 'Stone Powers') + forceHint;
                 const stonePowersBtn = $('<button type="button" class="combatant-control ms-stone-powers-btn' +
-                    (setupStatus?.rows.find((r) => r.kind === 'stones')?.done ? ' is-setup-done' : '') +
+                    (setupStatus?.stonesDone ? ' is-setup-done' : '') +
                     '" data-action="openStonePowers" data-combatant-id="' +
                     combatantId +
                     '" data-tooltip="' +
@@ -630,11 +630,8 @@ Hooks.once('init', async function () {
                         await forceEncounterDialog('passives', combatant);
                         return;
                     }
-                    const f = combat.flags?.['mastery-system'] || {};
-                    const setupEnc = f.encounterSetup;
-                    const aid = combatant.actor?.id;
-                    const locked = aid && setupEnc?.passives?.[aid]?.locked === true;
-                    await PassiveSelectionDialog.showForCombatant(combatant, !!locked);
+                    const { canEditEncounterPassives } = await import('./powers/passives.js');
+                    await PassiveSelectionDialog.showForCombatant(combatant, !canEditEncounterPassives(combat, combatant.actor));
                 }
                 catch (error) {
                     console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing passive dialog', error);
@@ -2038,6 +2035,7 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/actor/partials/npc-combat-ini.hbs',
         'systems/mastery-system/templates/actor/partials/npc-reactions.hbs',
         'systems/mastery-system/templates/actor/character-print.hbs',
+        'systems/mastery-system/templates/actor/character-print-compact.hbs',
         'systems/mastery-system/templates/actor/npc-print.hbs',
         'systems/mastery-system/templates/actor/npc-sheet.hbs',
         'systems/mastery-system/templates/actor/summon-sheet.hbs',
@@ -2370,6 +2368,14 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
  * Also migrate skillsSpent for new consumable skill system
  */
 Hooks.once('ready', async function () {
+    installTooltipPassthrough();
+    installFadedUiUnlock();
+    installStuckOverlayCleanup();
+    // Re-apply if Foundry recreates `game.tooltip` after canvas boot.
+    Hooks.on('canvasReady', () => {
+        installTooltipPassthrough();
+        installFadedUiUnlock();
+    });
     // Get all character actors
     const characters = game.actors?.filter((a) => a.type === 'character') || [];
     let migratedCreation = 0;
@@ -2789,6 +2795,12 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Echo artifact activation migration failed', error);
+    }
+    try {
+        await runArtifactDefaultActiveMigration();
+    }
+    catch (error) {
+        console.warn('Mastery System | Artifact default-active migration failed', error);
     }
     // One-shot Echo Artifact → Builder-Tree migration (GM-only, guarded). Runs
     // after the library is seeded above so legacy single-item grants can be

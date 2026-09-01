@@ -4,24 +4,109 @@
  * and the click lands on the tooltip instead of the control.
  *
  * Hover text may still appear. It must never steal the pointer.
+ *
+ * This also covers Foundry chrome (sidebar / scene-controls): when the
+ * tooltip steals hover, faded-ui buttons stay `inert` + `pointer-events: none`.
  */
 
-export function makeFoundryTooltipInert(): void {
-  const mgr = (globalThis as any).game?.tooltip;
-  const node = (mgr?.element ?? mgr?.tooltip ?? document.getElementById('tooltip')) as
-    | HTMLElement
-    | null;
-  if (!node) return;
-  node.style.pointerEvents = 'none';
-  node.setAttribute('inert', '');
-  node.setAttribute('aria-hidden', 'true');
-  mgr?.unlock?.();
+const TOOLTIP_SELECTORS = [
+  '#tooltip',
+  'aside#tooltip',
+  '.locked-tooltip',
+  '#tooltip.locked-tooltip',
+  '.toolclip',
+  '#toolclip',
+] as const;
+
+let tooltipObserver: MutationObserver | null = null;
+let documentObserverInstalled = false;
+let applyingInert = false;
+
+function isTooltipSurface(el: Element): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  return (
+    el.id === 'tooltip' ||
+    el.id === 'toolclip' ||
+    el.classList.contains('locked-tooltip') ||
+    el.classList.contains('toolclip') ||
+    el.matches('aside#tooltip')
+  );
 }
 
-export function installTooltipPassthrough(): void {
-  makeFoundryTooltipInert();
+function inertTooltipNode(node: HTMLElement): void {
+  if (node.style.pointerEvents !== 'none') node.style.pointerEvents = 'none';
+  if (!node.hasAttribute('inert')) node.setAttribute('inert', '');
+  if (node.getAttribute('aria-hidden') !== 'true') node.setAttribute('aria-hidden', 'true');
+}
 
-  const mgr = (globalThis as any).game?.tooltip;
+/** Make every known Foundry tooltip / toolclip surface ignore the pointer. */
+export function makeFoundryTooltipInert(): void {
+  if (applyingInert) return;
+  applyingInert = true;
+  try {
+    const mgr = (globalThis as any).game?.tooltip;
+    const fromMgr = (mgr?.element ?? mgr?.tooltip) as HTMLElement | null | undefined;
+    if (fromMgr instanceof HTMLElement) inertTooltipNode(fromMgr);
+
+    if (typeof document !== 'undefined') {
+      for (const sel of TOOLTIP_SELECTORS) {
+        document.querySelectorAll(sel).forEach((el) => {
+          if (el instanceof HTMLElement) inertTooltipNode(el);
+        });
+      }
+    }
+
+    mgr?.unlock?.();
+  } finally {
+    applyingInert = false;
+  }
+}
+
+function ensureTooltipObserver(): void {
+  if (typeof MutationObserver === 'undefined' || typeof document === 'undefined') return;
+
+  if (!tooltipObserver) {
+    tooltipObserver = new MutationObserver((mutations) => {
+      if (applyingInert) return;
+      let needsInert = false;
+      for (const m of mutations) {
+        if (m.type === 'childList') {
+          m.addedNodes.forEach((n) => {
+            if (!(n instanceof HTMLElement)) return;
+            if (isTooltipSurface(n)) needsInert = true;
+            else if (n.querySelector?.('#tooltip, aside#tooltip, .locked-tooltip, #toolclip, .toolclip')) {
+              needsInert = true;
+            }
+          });
+        } else if (m.type === 'attributes' && m.target instanceof HTMLElement && isTooltipSurface(m.target)) {
+          // Foundry may re-enable pointer-events when activating the tooltip.
+          if (m.target.style.pointerEvents !== 'none' || !m.target.hasAttribute('inert')) {
+            needsInert = true;
+          }
+        }
+      }
+      if (needsInert) makeFoundryTooltipInert();
+    });
+  }
+
+  const tip = document.getElementById('tooltip') ?? document.querySelector('aside#tooltip');
+  if (tip) {
+    tooltipObserver.observe(tip, {
+      attributes: true,
+      attributeFilter: ['style', 'class', 'inert', 'aria-hidden'],
+      childList: true,
+      subtree: true,
+    });
+  }
+
+  if (!documentObserverInstalled && document.body) {
+    documentObserverInstalled = true;
+    // Only watch for tooltip nodes being (re)inserted — not every attribute tweak.
+    tooltipObserver.observe(document.body, { childList: true, subtree: true });
+  }
+}
+
+function patchTooltipManager(mgr: any): void {
   if (!mgr || mgr.__msPassthrough) return;
   mgr.__msPassthrough = true;
 
@@ -40,6 +125,27 @@ export function installTooltipPassthrough(): void {
       return this;
     };
   }
+
+  if (typeof mgr.deactivate === 'function') {
+    const origDeactivate = mgr.deactivate.bind(mgr);
+    mgr.deactivate = function (...args: unknown[]) {
+      const result = origDeactivate(...args);
+      makeFoundryTooltipInert();
+      return result;
+    };
+  }
+}
+
+/**
+ * Install / refresh tooltip passthrough. Safe to call again after `canvasReady`
+ * in case Foundry replaced `game.tooltip`.
+ */
+export function installTooltipPassthrough(): void {
+  makeFoundryTooltipInert();
+  ensureTooltipObserver();
+
+  const mgr = (globalThis as any).game?.tooltip;
+  if (mgr) patchTooltipManager(mgr);
 }
 
 /**

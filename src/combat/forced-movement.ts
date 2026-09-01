@@ -316,6 +316,17 @@ function endForcedMovement(outcome: ForcedMoveOutcome): void {
   state.resolve(outcome);
 }
 
+/** True while interactive Push/Pull placement is listening on the canvas. */
+export function isForcedMovementActive(): boolean {
+  return active !== null;
+}
+
+/** Cancel interactive Push/Pull (Esc / stuck-overlay cleanup). No-ops if idle. */
+export function cancelForcedMovementMode(): void {
+  if (!active) return;
+  endForcedMovement('skipped');
+}
+
 async function commitForcedMove(state: ForcedMoveState, destTL: { x: number; y: number }): Promise<void> {
   const g = globalThis as any;
   const grid: any = g.canvas?.grid;

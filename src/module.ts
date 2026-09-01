@@ -36,6 +36,10 @@ import {
 import { CHARACTER_IMPORT_SCHEMA_VERSION } from './import/character-import-types.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { installTooltipPassthrough } from './ui/tooltip-passthrough.js';
+import {
+  installFadedUiUnlock,
+  installStuckOverlayCleanup,
+} from './ui/foundry-chrome.js';
 import { StartEncounterDialog } from './ui/start-encounter-dialog.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import {
@@ -2606,6 +2610,13 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
  */
 Hooks.once('ready', async function() {
   installTooltipPassthrough();
+  installFadedUiUnlock();
+  installStuckOverlayCleanup();
+  // Re-apply if Foundry recreates `game.tooltip` after canvas boot.
+  Hooks.on('canvasReady', () => {
+    installTooltipPassthrough();
+    installFadedUiUnlock();
+  });
   // Get all character actors
   const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
   let migratedCreation = 0;

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.440] - 2026-09-01
+
+### Fixed
+
+- **Foundry chrome:** Sidebar tabs and Scene Controls no longer stick in Foundry’s faded-ui `inert` / `pointer-events: none` state when a tooltip or leftover Mastery overlay steals hover. Tooltip passthrough re-applies after canvas ready and tooltip recreation; capture unlock restores clicks; Escape / ready clears stuck epic-roll and targeting overlays.
+
 ## [0.9.439] - 2026-08-31
 
 ### Fixed

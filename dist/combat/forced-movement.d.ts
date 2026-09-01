@@ -37,6 +37,10 @@ export declare function filterLegalForcedMoveKeys(params: {
     /** Map key → distance-in-steps from the reference token. */
     distFromRefSteps: (key: string) => number | null;
 }): Set<string>;
+/** True while interactive Push/Pull placement is listening on the canvas. */
+export declare function isForcedMovementActive(): boolean;
+/** Cancel interactive Push/Pull (Esc / stuck-overlay cleanup). No-ops if idle. */
+export declare function cancelForcedMovementMode(): void;
 /**
  * Interactive Push/Pull placement. Resolves when the token is moved or the mode is cancelled.
  */

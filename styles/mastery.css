@@ -4,17 +4,22 @@
 
 /* Foundry parks #tooltip under the cursor. It must never receive clicks or
    it steals :hover from the control underneath (button looks inactive) and
-   the click never lands. Hover text can stay visible. */
+   the click never lands. Hover text can stay visible. Also covers toolclip
+   surfaces that can block sidebar / scene-control faded-ui hover unlock. */
 #tooltip,
 #tooltip.active,
 #tooltip.locked-tooltip,
 aside#tooltip,
-.locked-tooltip {
+.locked-tooltip,
+#toolclip,
+.toolclip {
   pointer-events: none !important;
 }
 
 #tooltip *,
-aside#tooltip * {
+aside#tooltip *,
+#toolclip *,
+.toolclip * {
   pointer-events: none !important;
 }
 
