@@ -144,6 +144,54 @@ describe('buildPrintCombatPreview', () => {
     expect(preview?.damage).toBe('WD 8d8 + 1d8 + Ruin(7)');
   });
 
+  it('resolves melee WD from the prepared melee Weapon Set even when the active set is ranged', () => {
+    const longbow = {
+      id: 'longbow-1',
+      type: 'weapon',
+      name: 'Longbow',
+      system: {
+        weaponType: 'ranged',
+        damage: '2d8',
+        equipped: true,
+        innateAbilities: ['Ranged (32 m)', 'Set'],
+      },
+    };
+    const sword = {
+      id: 'moonlight-1',
+      type: 'artifact',
+      name: 'Moonlight Greatsword',
+      system: {
+        binding: 'bound',
+        equipped: false,
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 1,
+        freeTrait: 'Finesse',
+        artifactWeapon: { weaponType: 'melee', damage: '5d8' },
+      },
+      flags: { 'mastery-system': { weaponSetPrepared: true } },
+    };
+    const actor = {
+      system: {
+        attributes: { might: { value: 14 }, agility: { value: 14 } },
+      },
+      items: [longbow, sword],
+      flags: {
+        'mastery-system': {
+          weaponSets: {
+            schemaVersion: 1,
+            active: 1,
+            sets: {
+              1: { mainhand: 'longbow-1', offhand: 'longbow-1' },
+              2: { mainhand: 'moonlight-1', offhand: 'moonlight-1' },
+            },
+          },
+        },
+      },
+    };
+    const preview = buildPrintCombatPreview(actor, meleeWeaponSinglePower(), [longbow, sword]);
+    expect(preview?.damage).toBe('WD 5d8 + 8d8');
+  });
+
   it('includes weapon damage on weapon-attack powers even when mis-flagged as spell', () => {
     const weapon = moonlightGreatsword(4);
     const actor = mockActor({ intellect: 18, might: 14 }, [weapon]);

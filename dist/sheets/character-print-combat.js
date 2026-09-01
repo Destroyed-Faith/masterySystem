@@ -10,6 +10,7 @@ import { artifactSystemHasSpellFocus, resolveArtifactWeaponKind, } from '../util
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
+import { peekWeaponSets, } from '../utils/weapon-sets.js';
 import { addD8Formulas, parseD8Count } from '../utils/dice-formula.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 export function isSpellPowerSys(sys) {
@@ -58,8 +59,21 @@ function levelRow(sys, rank) {
     const key = String(getPowerDefinitionRank(rank, levels));
     return levels[key] ?? null;
 }
+function catalogLevelRow(sys, rank) {
+    const tid = String(sys?.templateId ?? '').trim();
+    if (!tid)
+        return null;
+    const tmpl = getTemplate(tid);
+    const levels = tmpl?.levels;
+    if (!levels || typeof levels !== 'object')
+        return null;
+    const key = String(getPowerDefinitionRank(rank, levels));
+    return levels[key] ?? null;
+}
 function powerDamageForRank(sys, rank) {
-    const row = levelRow(sys, rank);
+    const catalog = catalogLevelRow(sys, rank);
+    const baked = levelRow(sys, rank);
+    const row = catalog ?? baked;
     const dice = row?.effect?.dice ?? row?.roll?.damage;
     if (dice != null && String(dice).trim())
         return cleanPowerDamage(dice);
@@ -86,12 +100,17 @@ function healFootnoteForRank(rank, aoe) {
     return text;
 }
 function resolvePowerSpecialsLabel(sys, rank) {
-    const row = levelRow(sys, rank);
+    const catalog = catalogLevelRow(sys, rank);
+    const baked = levelRow(sys, rank);
+    // Prefer baked specials when the player already bound a concrete Special;
+    // otherwise use the catalog row (SPECIAL placeholder → chosenSpecial).
+    const row = baked ?? catalog;
     const raw = Array.isArray(row?.specials)
         ? row.specials
         : Array.isArray(sys?.specials)
             ? sys.specials
             : [];
+    const chosenKey = String(sys?.chosenSpecial?.key ?? '').trim();
     const labels = [];
     for (const entry of raw) {
         if (typeof entry === 'string') {
@@ -100,9 +119,14 @@ function resolvePowerSpecialsLabel(sys, rank) {
                 labels.push(s);
             continue;
         }
-        const key = String(entry?.key ?? '').trim();
-        if (!key || key.toUpperCase() === 'SPECIAL')
+        let key = String(entry?.key ?? '').trim();
+        if (!key)
             continue;
+        if (key.toUpperCase() === 'SPECIAL') {
+            if (!chosenKey)
+                continue;
+            key = chosenKey;
+        }
         const value = entry?.value ?? entry?.rank;
         labels.push(formatEffectReference({ specialId: key, value }));
     }
@@ -186,7 +210,65 @@ function isArtifactEquipped(item) {
     const binding = String(item.system?.binding ?? '').toLowerCase();
     return binding === 'bound' || binding === 'echo';
 }
-function resolveWeaponForPrint(items, attackType) {
+function findItemById(items, id) {
+    if (!id)
+        return null;
+    const key = String(id);
+    return items.find((i) => String(i?.id) === key) ?? null;
+}
+/** True when an item contributes weapon damage of the requested attack type. */
+function itemMatchesAttackType(item, attackType) {
+    if (!item)
+        return false;
+    if (item.type === 'weapon') {
+        if (String(item.name || '').trim().toLowerCase() === 'unarmed')
+            return false;
+        if (item.system?.virtualUnarmed === true)
+            return false;
+        return weaponKind(item) === attackType;
+    }
+    if (item.type !== 'artifact')
+        return false;
+    const sys = item.system ?? {};
+    if (sys.artifactWeapon) {
+        return weaponKind(item) === attackType;
+    }
+    if (String(sys.artifactKind ?? '') === 'weapon' || String(sys.baseTypeKey ?? '').startsWith('weapon:')) {
+        return weaponKind(item) === attackType;
+    }
+    const level = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
+    if (deriveArtifactWeaponDamage(sys.baseProfile, level) != null) {
+        return weaponKind(item) === attackType;
+    }
+    return false;
+}
+/**
+ * Prefer the active Weapon Set's matching weapon, then the other prepared set,
+ * then the live equipped resolver (unarmed fallback for melee).
+ */
+function resolveWeaponForPrint(actor, items, attackType) {
+    try {
+        const state = peekWeaponSets(actor);
+        const order = [state.active, state.active === 1 ? 2 : 1];
+        for (const idx of order) {
+            const hands = state.sets[idx] || { mainhand: null, offhand: null };
+            const seen = new Set();
+            for (const rawId of [hands.mainhand, hands.offhand]) {
+                if (!rawId)
+                    continue;
+                const id = String(rawId);
+                if (seen.has(id))
+                    continue;
+                seen.add(id);
+                const item = findItemById(items, id);
+                if (itemMatchesAttackType(item, attackType))
+                    return item;
+            }
+        }
+    }
+    catch {
+        /* ignore — fall through to equipped resolver */
+    }
     const resolved = resolveEquippedWeaponForAttackType(items, attackType);
     if (!resolved)
         return null;
@@ -361,7 +443,7 @@ export function buildPrintCombatPreview(actor, powerItem, items, slot = 'active'
         };
     }
     const attackType = powerAttackTypeForRank(sys, rank);
-    const weapon = resolveWeaponForPrint(items, attackType);
+    const weapon = resolveWeaponForPrint(actor, items, attackType);
     const powerDmg = powerDamageForRank(sys, rank);
     const powerSpecials = resolvePowerSpecialsLabel(sys, rank);
     const spellFocusDice = spell ? getActorSpellFocusBonusDice(actor) : 0;

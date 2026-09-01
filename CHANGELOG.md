@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.443] - 2026-09-01
+
+### Fixed
+
+- **Quick Play sheet:** Melee Power cards now take Weapon Damage from the prepared Weapon Sets (active set first, then the other set) instead of falling back to Unarmed 1d8 when the active set is ranged. Chosen Specials on catalog damage powers print correctly (e.g. `WD 5d8 + 2d8 + Sundered(5)`).
+
 ## [0.9.442] - 2026-09-01
 
 ### Added

@@ -96,9 +96,13 @@ function alarisActor() {
         type: 'power',
         system: {
           category: 'active',
-          rank: 2,
-          level: 2,
-          effect: 'Make **one melee weapon attack**. On hit, deal weapon damage + **4d8 damage**.',
+          templateId: 'active-melee-weapon-single',
+          subfamily: 'weapon-attack',
+          slot: 'attack',
+          cost: { action: 'attack' },
+          rank: 4,
+          level: 4,
+          effect: 'Make **one melee weapon attack**. On hit, deal weapon damage + **8d8 damage**.',
         },
       },
       {
@@ -107,18 +111,12 @@ function alarisActor() {
         system: {
           category: 'active',
           templateId: 'active-melee-damage-t6',
-          rank: 2,
-          level: 2,
+          rank: 5,
+          level: 5,
           chosenSpecial: { key: 'sundered', tier: 6 },
           cost: { action: 'attack' },
+          slot: 'attack',
           effect: 'Deal **+2d8 damage** on hit.',
-          levels: {
-            2: {
-              effect: { text: 'Deal **+2d8 damage** on hit.', dice: '2d8' },
-              mechanics: { damageRider: { flat: '+2d8' } },
-              specials: [{ key: 'sundered', rank: 3 }],
-            },
-          },
         },
       },
       {
@@ -336,8 +334,11 @@ describe('Quick Play character print', () => {
     const sundered = ctx.powerGroups
       .flatMap((g: any) => g.items)
       .find((i: any) => String(i.name).includes('Sundered'));
-    expect(sundered.damage).toMatch(/WD 5d8 \+ 1d8/);
-    expect(sundered.damage).not.toMatch(/\+ 2d8/);
+    expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
+    const meleeSingle = ctx.powerGroups
+      .flatMap((g: any) => g.items)
+      .find((i: any) => i.name === 'Melee Single Attack');
+    expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');
     expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);
     expect(allPowerNames).not.toContain('Bounding Leap');
     expect(ctx.powerGroups.every((g: any) => g.phase !== 'Minor Expression')).toBe(true);
