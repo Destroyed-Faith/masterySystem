@@ -45,6 +45,7 @@ import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { peekWeaponSets, type WeaponSetIndex } from '../utils/weapon-sets.js';
+import { parseMaxRangeM, DEFAULT_WEAPON_RANGE_M } from '../utils/range-bands.js';
 import {
   formatArtifactWeaponRangeDisplay,
   resolveArtifactWeaponKind,
@@ -1210,11 +1211,13 @@ function splitCompactTags(raw: unknown): string[] {
 }
 
 function extractRangedMetersFromTags(tags: string[]): number | null {
+  let max: number | null = null;
   for (const tag of tags) {
-    const m = tag.match(/^ranged\s*\(?\s*(\d+)\s*m\s*\)?$/i);
-    if (m) return Number(m[1]);
+    if (!/ranged|thrown/i.test(tag)) continue;
+    const parsed = parseMaxRangeM(tag);
+    if (parsed != null && (max == null || parsed > max)) max = parsed;
   }
-  return null;
+  return max;
 }
 
 function formatCompactWeaponPiece(item: any): {
@@ -1247,26 +1250,27 @@ function formatCompactWeaponPiece(item: any): {
     tags = [
       ...splitCompactTags(aw.innateAbilities),
       ...splitCompactTags(sys.freeTrait),
-    ].filter((t) => !/^ranged\b/i.test(t) && !/^artifact$/i.test(t));
+    ].filter((t) => !/^ranged\b/i.test(t) && !/^thrown\b/i.test(t) && !/^artifact$/i.test(t));
     tags.push('Artifact');
     specials = splitCompactTags(aw.specials);
   } else {
     damage = String(sys.damage ?? '').trim();
     const innates = splitCompactTags(sys.innateAbilities);
+    // Always print the flat maximum (Players Guide). Prefer innate "Ranged (32 m)"
+    // over stale seed values like system.range = "10m"; never show short/long bands.
+    const fromTags = extractRangedMetersFromTags(innates);
+    const fromSys = parseMaxRangeM(String(sys.range ?? ''));
     const rangedMeters =
-      extractRangedMetersFromTags(innates) ??
-      (sys.weaponType === 'ranged'
-        ? (() => {
-            const m = String(sys.range ?? '').match(/(\d+)\s*m/i);
-            return m ? Number(m[1]) : null;
-          })()
-        : null);
+      fromTags != null || fromSys != null
+        ? Math.max(fromTags ?? 0, fromSys ?? 0) || null
+        : null;
     if (sys.weaponType === 'ranged' || rangedMeters != null) {
-      kindLabel = `Ranged ${rangedMeters != null ? rangedMeters : 24} m`;
+      const meters = rangedMeters != null && rangedMeters > 0 ? rangedMeters : DEFAULT_WEAPON_RANGE_M;
+      kindLabel = `Ranged ${meters} m`;
     } else {
       kindLabel = 'Melee';
     }
-    tags = innates.filter((t) => !/^ranged\b/i.test(t));
+    tags = innates.filter((t) => !/^ranged\b/i.test(t) && !/^thrown\b/i.test(t));
     specials = splitCompactTags(sys.specials);
   }
 
@@ -1513,32 +1517,141 @@ function compactTrackBars(
     });
 }
 
-function compactPhasingBoxes(items: any[]): { n: number }[] {
-  let base = 0;
-  let bonus = 0;
-  let cap = 0;
-  for (const p of items) {
-    if (p?.type !== 'power') continue;
-    const sys = p?.system ?? {};
-    const rank = num(sys?.level ?? sys?.rank, 1);
-    const tid = String(sys?.templateId ?? '').trim();
-    const tmpl = tid ? getTemplate(tid) : undefined;
+/** Same PL curve as Reaction / Active Buff Phasing templates. */
+function phasingPublishedMaxCharges(rank: number): number {
+  if (rank >= 15) return 4;
+  if (rank >= 8) return 3;
+  if (rank >= 4) return 2;
+  return 0;
+}
+
+function readPhasingMechanicsFromPowerItem(p: any): {
+  start: number;
+  add: number;
+  reaction: boolean;
+  rank: number;
+  tid: string;
+} {
+  const sys = p?.system ?? {};
+  const rank = num(sys?.level ?? sys?.rank, 1);
+  const tid = String(sys?.templateId ?? '').trim();
+  const tmpl = tid ? getTemplate(tid) : undefined;
+  const catalogRow = tmpl?.levels
+    ? (tmpl.levels as Record<string, any>)[String(getPowerDefinitionRank(rank, tmpl.levels))]
+    : null;
+  const bakedRow = sys?.levels?.[String(getPowerDefinitionRank(rank, sys.levels))];
+  const ph = catalogRow?.mechanics?.phasing ?? bakedRow?.mechanics?.phasing ?? sys?.mechanics?.phasing;
+  return {
+    start: num(ph?.combatStart?.charges),
+    add: num(ph?.augment?.addCharges),
+    reaction: !!ph?.reactionSingleHit,
+    rank,
+    tid,
+  };
+}
+
+function readPhasingMechanicsFromArtifactRow(
+  row: any,
+  artifactLevel: number,
+): { start: number; add: number; reaction: boolean; rank: number; tid: string } | null {
+  const type = String(row?.type ?? '').toLowerCase();
+  const tid = String(row?.powerTemplateId ?? row?.templateId ?? '').trim();
+  // Authored rows may only say "Phasing" / "Reaction" without a template id.
+  const looksPhasing =
+    !!tid ||
+    /phasing|ghost\s*(form|slip|mantle)/i.test(String(row?.name ?? '')) ||
+    /phasing/i.test(type);
+  if (!looksPhasing) return null;
+
+  if (tid) {
+    const tmpl = getTemplate(tid);
+    const pl = num(row?.level, artifactLevel) || artifactLevel;
+    const defRank = tmpl?.levels ? getPowerDefinitionRank(pl, tmpl.levels) : pl;
     const catalogRow = tmpl?.levels
-      ? (tmpl.levels as Record<string, any>)[String(getPowerDefinitionRank(rank, tmpl.levels))]
+      ? (tmpl.levels as Record<string, any>)[String(defRank)]
       : null;
-    const bakedRow = sys?.levels?.[String(getPowerDefinitionRank(rank, sys.levels))];
-    const ph = catalogRow?.mechanics?.phasing ?? bakedRow?.mechanics?.phasing;
-    const start = num(ph?.combatStart?.charges);
-    if (start > 0) base = Math.max(base, start);
-    const add = num(ph?.augment?.addCharges);
-    if (add > 0) {
-      bonus += add;
-      if (tid === 'ab-phasing') {
-        cap = rank >= 15 ? 4 : rank >= 8 ? 3 : rank >= 4 ? 2 : 0;
-      }
+    const ph = catalogRow?.mechanics?.phasing;
+    if (ph) {
+      return {
+        start: num(ph?.combatStart?.charges),
+        add: num(ph?.augment?.addCharges),
+        reaction: !!ph?.reactionSingleHit,
+        rank: num(defRank, pl),
+        tid,
+      };
+    }
+    if (/reaction-phasing|phasing/i.test(tid)) {
+      return {
+        start: 0,
+        add: 0,
+        reaction: /reaction/i.test(tid) || type.includes('reaction'),
+        rank: num(defRank, pl),
+        tid,
+      };
     }
   }
-  const max = cap > 0 ? cap : base + bonus;
+
+  if (type.includes('reaction') || /ghost\s*slip|uncanny soul/i.test(String(row?.name ?? ''))) {
+    return { start: 0, add: 0, reaction: true, rank: artifactLevel, tid };
+  }
+  if (type.includes('buff') || /ghost\s*mantle|resting soul/i.test(String(row?.name ?? ''))) {
+    return { start: 0, add: 1, reaction: false, rank: artifactLevel, tid };
+  }
+  if (type.includes('passive') || /ghostform/i.test(String(row?.name ?? ''))) {
+    // Fall back to effect text "gain N Phasing charge"
+    const m = String(row?.effect ?? '').match(/(\d+)\s*Phasing charge/i);
+    const start = m ? Number(m[1]) : 0;
+    return { start, add: 0, reaction: false, rank: artifactLevel, tid };
+  }
+  return null;
+}
+
+/**
+ * Quick Play Phasing tick boxes = maximum ignore-hit charges available this
+ * combat from Passive start charges + Active Buff augments + Reaction Ghost Slip
+ * (+ matching Artifact lines). Grows when more sources are present.
+ */
+function compactPhasingBoxes(items: any[]): { n: number }[] {
+  let startCharges = 0;
+  let augmentCharges = 0;
+  let reactionCharges = 0;
+  let publishedCap = 0;
+
+  const apply = (m: { start: number; add: number; reaction: boolean; rank: number; tid: string }) => {
+    if (m.start > 0) startCharges = Math.max(startCharges, m.start);
+    if (m.add > 0) augmentCharges += m.add;
+    if (m.reaction) {
+      reactionCharges += 1;
+      publishedCap = Math.max(publishedCap, phasingPublishedMaxCharges(m.rank));
+    }
+    if (m.tid === 'ab-phasing' || (/phasing/i.test(m.tid) && m.add > 0)) {
+      publishedCap = Math.max(publishedCap, phasingPublishedMaxCharges(m.rank));
+    }
+  };
+
+  for (const p of items) {
+    if (p?.type === 'power') {
+      apply(readPhasingMechanicsFromPowerItem(p));
+      continue;
+    }
+    if (p?.type !== 'artifact') continue;
+    if (itemFlag(p, 'artifactActivated') === false) continue;
+    const sys = p?.system ?? {};
+    const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+    const rows = visibleAbilityRows(
+      Array.isArray(sys.levelProgression) ? sys.levelProgression : [],
+      level,
+    );
+    for (const row of rows) {
+      const m = readPhasingMechanicsFromArtifactRow(row, level);
+      if (m) apply(m);
+    }
+  }
+
+  // Pool from every source; never hide a Reaction contribution. When a
+  // Reaction/Buff publishes a higher combat cap, use that as the floor for ticks.
+  const fromSources = startCharges + augmentCharges + reactionCharges;
+  const max = Math.max(fromSources, publishedCap > 0 && reactionCharges > 0 ? publishedCap : 0);
   if (max <= 0) return [];
   return Array.from({ length: max }, (_, i) => ({ n: i + 1 }));
 }

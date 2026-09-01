@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.451] - 2026-09-01
+
+### Fixed
+
+- **Quick Play sheet:** Phasing tick boxes count Passive start charges, Reaction Ghost Slip, and Active Buff augments (including Artifact lines). Longbow / ranged Weapon Sets print only the flat maximum range (e.g. `32 m`), never stale `system.range` or short/long bands.
+
 ## [0.9.450] - 2026-09-01
 
 ### Changed

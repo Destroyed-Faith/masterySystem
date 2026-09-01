@@ -148,6 +148,16 @@ function alarisActor() {
         },
       },
       {
+        name: 'Reaction: Phasing',
+        type: 'power',
+        system: {
+          category: 'reaction',
+          templateId: 'reaction-phasing',
+          rank: 4,
+          level: 4,
+        },
+      },
+      {
         name: 'Active Buff: Phasing',
         type: 'power',
         system: {
@@ -263,7 +273,8 @@ describe('Quick Play character print', () => {
     expect(ctx.tempHp).toBe(0);
     expect(ctx.colorlessCost).toBe(8);
     expect(ctx.colorlessBoxes).toHaveLength(4);
-    expect(ctx.phasingBoxes).toHaveLength(2);
+    expect(ctx.phasingBoxes).toHaveLength(3);
+    expect(ctx.hasPhasing).toBe(true);
     expect(ctx.healthBars.map((b: any) => b.name)).toEqual([
       'Healthy',
       'Bruised',
@@ -328,6 +339,51 @@ describe('Quick Play character print', () => {
       'locked',
     ]);
     expect(ctx.skills.every((s: any) => s.boxes.length === 4)).toBe(true);
+  });
+
+  it('counts Phasing boxes from Passive + Reaction + Buff sources', () => {
+    const onlyPassive = {
+      ...alarisActor(),
+      items: alarisActor().items.filter(
+        (i: any) =>
+          i.type !== 'power' ||
+          !['passive-ghostform', 'reaction-phasing', 'ab-phasing'].includes(String(i.system?.templateId)),
+      ),
+    };
+    onlyPassive.items = [
+      ...onlyPassive.items,
+      {
+        name: 'Passive: Ghostform',
+        type: 'power',
+        system: { category: 'passive', templateId: 'passive-ghostform', rank: 4, level: 4 },
+      },
+    ];
+    expect(buildCharacterCompactPrintContext(onlyPassive).phasingBoxes).toHaveLength(1);
+
+    const passiveAndReaction = {
+      ...onlyPassive,
+      items: [
+        ...onlyPassive.items,
+        {
+          name: 'Reaction: Phasing',
+          type: 'power',
+          system: { category: 'reaction', templateId: 'reaction-phasing', rank: 4, level: 4 },
+        },
+      ],
+    };
+    expect(buildCharacterCompactPrintContext(passiveAndReaction).phasingBoxes).toHaveLength(2);
+
+    const withBuff = alarisActor();
+    // Passive 1 + Reaction 1 + Buff 1 = 3
+    expect(buildCharacterCompactPrintContext(withBuff).phasingBoxes).toHaveLength(3);
+  });
+
+  it('prints Longbow as a single maximum range even when system.range is stale', () => {
+    const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
+    const bow = ctx.weaponSetTiles.find((t: any) => /LONGBOW/i.test(t.title));
+    expect(bow.body).toMatch(/Ranged 32 m/);
+    expect(bow.body).not.toMatch(/10\s*m/);
+    expect(bow.body).not.toMatch(/\d+\s*\/\s*\d+/);
   });
 
   it('lists prepared weapon Sets between Skills and Powers style tiles', () => {
