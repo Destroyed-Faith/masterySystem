@@ -106,7 +106,13 @@ function alarisActor() {
       {
         name: 'Passive: Evade',
         type: 'power',
-        system: { category: 'passive', rank: 4, level: 4, effect: 'Gain **+8 Evade**.' },
+        system: {
+          category: 'passive',
+          templateId: 'passive-evade',
+          rank: 4,
+          level: 4,
+          effect: 'Gain **+8 Evade**.',
+        },
       },
       {
         name: 'Melee Single Attack',
@@ -264,15 +270,18 @@ describe('Quick Play character print', () => {
     expect(ctx.hasPortrait).toBe(true);
     expect(ctx.portrait).toContain('Players/Alaris/Alaris.png');
     expect(ctx.movement).toBe('8 m');
-    expect(ctx.evade).toBe(17);
+    expect(ctx.evade).toBe(25);
     expect(ctx.armor).toBe(2);
-    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +2 · Soul Sigil +7');
+    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +2 · Soul Sigil +7 · Evade +8');
     expect(ctx.armorSources).toBe('Base 2');
     expect(ctx.initiative).toBe('2d8');
     expect(ctx.faithFractures).toBe('8 / 8');
     expect(ctx.tempHp).toBe(0);
     expect(ctx.colorlessCost).toBe(8);
     expect(ctx.colorlessBoxes).toHaveLength(4);
+    expect(ctx.defenseSpecialLabel).toBe('Phasing');
+    expect(ctx.defenseSpecialBoxes).toHaveLength(3);
+    expect(ctx.hasDefenseSpecial).toBe(true);
     expect(ctx.phasingBoxes).toHaveLength(3);
     expect(ctx.hasPhasing).toBe(true);
     expect(ctx.healthBars.map((b: any) => b.name)).toEqual([
@@ -376,6 +385,98 @@ describe('Quick Play character print', () => {
     const withBuff = alarisActor();
     // Passive 1 + Reaction 1 + Buff 1 = 3
     expect(buildCharacterCompactPrintContext(withBuff).phasingBoxes).toHaveLength(3);
+  });
+
+  it('shows Damage Negation or Parry in the Phasing slot, never both with Phasing', () => {
+    const withoutPhasing = {
+      ...alarisActor(),
+      items: alarisActor().items.filter(
+        (i: any) =>
+          i.type !== 'power' ||
+          !['passive-ghostform', 'reaction-phasing', 'ab-phasing'].includes(String(i.system?.templateId)),
+      ),
+    };
+
+    const withNegation = {
+      ...withoutPhasing,
+      items: [
+        ...withoutPhasing.items,
+        {
+          name: 'Passive: Damage Negation',
+          type: 'power',
+          system: {
+            category: 'passive',
+            templateId: 'passive-damage-negation',
+            rank: 4,
+            level: 4,
+          },
+        },
+      ],
+    };
+    const negCtx = buildCharacterCompactPrintContext(withNegation) as any;
+    expect(negCtx.defenseSpecialLabel).toBe('Damage Negation');
+    expect(negCtx.defenseSpecialBoxes).toHaveLength(16);
+    expect(negCtx.hasDefenseSpecial).toBe(true);
+    expect(negCtx.hasPhasing).toBe(false);
+
+    const withParry = {
+      ...withoutPhasing,
+      items: [
+        ...withoutPhasing.items,
+        {
+          name: 'Passive: Parry',
+          type: 'power',
+          system: { category: 'passive', templateId: 'passive-parry', rank: 4, level: 4 },
+        },
+      ],
+    };
+    const parryCtx = buildCharacterCompactPrintContext(withParry) as any;
+    expect(parryCtx.defenseSpecialLabel).toBe('Parry');
+    expect(parryCtx.defenseSpecialBoxes).toHaveLength(20);
+    expect(parryCtx.hasPhasing).toBe(false);
+
+    // Phasing wins when present alongside Damage Negation.
+    const both = {
+      ...alarisActor(),
+      items: [
+        ...alarisActor().items,
+        {
+          name: 'Passive: Damage Negation',
+          type: 'power',
+          system: {
+            category: 'passive',
+            templateId: 'passive-damage-negation',
+            rank: 4,
+            level: 4,
+          },
+        },
+      ],
+    };
+    const bothCtx = buildCharacterCompactPrintContext(both) as any;
+    expect(bothCtx.defenseSpecialLabel).toBe('Phasing');
+    expect(bothCtx.hasPhasing).toBe(true);
+  });
+
+  it('folds always-on Passive Armor into the Armor total and sources', () => {
+    const actor = {
+      ...alarisActor(),
+      items: [
+        ...alarisActor().items,
+        {
+          name: 'Passive: Armor',
+          type: 'power',
+          system: {
+            category: 'passive',
+            templateId: 'passive-fortified-frame',
+            rank: 4,
+            level: 4,
+          },
+        },
+      ],
+    };
+    const ctx = buildCharacterCompactPrintContext(actor) as any;
+    expect(ctx.armor).toBe(7); // Base 2 + Fortified Frame L4 (+5)
+    expect(ctx.armorSources).toMatch(/Armor \+5/);
   });
 
   it('prints Longbow as a single maximum range even when system.range is stale', () => {

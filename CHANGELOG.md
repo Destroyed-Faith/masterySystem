@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.455] - 2026-09-01
+
+### Fixed
+
+- **Quick Play sheet:** Always-on Passive Evade/Armor now add into the printed totals and source lines. The Phasing tick strip is a shared defense-special slot: Phasing, or else Damage Negation, or else Parry (never more than one; empty when none).
+
 ## [0.9.454] - 2026-09-01
 
 ### Fixed

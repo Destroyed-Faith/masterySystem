@@ -27,6 +27,8 @@ import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { colorlessStoneInitiativeCost } from '../stones/colorless-stones.js';
 import { getTemplate } from '../utils/powers/index.js';
+import { passiveDamageNegationReserveForLevel, passiveParryPoolForLevel, } from '../utils/powers/templates/passives.js';
+import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getEcho, getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
 import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../utils/inventory-grid.js';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
@@ -1356,14 +1358,14 @@ export function formatCompactDefenseSources(rows) {
     return parts.join(' · ');
 }
 /** Prefer live combat breakdown rows; otherwise synthesize Base + artifact contribs. */
-function buildCompactDefenseSources(kind, combat, actor, masteryRank) {
+function buildCompactDefenseSources(kind, combat, actor, masteryRank, passiveExtras = []) {
     const live = kind === 'evade'
         ? formatCompactDefenseSources(combat?.evadeBreakdownRows)
         : formatCompactDefenseSources(combat?.armorBreakdownRows);
-    if (live)
-        return live;
     const parts = [];
-    if (kind === 'evade') {
+    if (live)
+        parts.push(live);
+    else if (kind === 'evade') {
         const base = calculateBaseEvade(masteryRank > 0 ? masteryRank : 0);
         if (base > 0)
             parts.push(`Base ${base}`);
@@ -1386,7 +1388,39 @@ function buildCompactDefenseSources(kind, combat, actor, masteryRank) {
             parts.push(`${name} ${row.value > 0 ? `+${row.value}` : String(row.value)}`);
         }
     }
-    return parts.join(' · ');
+    for (const row of passiveExtras) {
+        if (!row?.value)
+            continue;
+        parts.push(`${row.label} ${row.value > 0 ? `+${row.value}` : String(row.value)}`);
+    }
+    return parts.filter(Boolean).join(' · ');
+}
+/**
+ * Always-on Passive Armor / Evade for Quick Play (no conditionExpr).
+ * Sheet combat totals intentionally omit these; the print sheet must show them.
+ */
+function compactAlwaysOnPassiveDefense(items, kind) {
+    const rows = [];
+    for (const p of items) {
+        if (p?.type !== 'power')
+            continue;
+        if (resolvePowerCategoryFromItem(p) !== 'passive')
+            continue;
+        const mech = resolvePowerMechanics(p);
+        if (!mech)
+            continue;
+        if (mech.condition || mech.conditionExpr)
+            continue;
+        const raw = kind === 'evade' ? mech.evade : mech.armor;
+        const value = Math.floor(Number(raw) || 0);
+        if (!value)
+            continue;
+        const label = String(p?.name ?? '')
+            .replace(/^passive:\s*/i, '')
+            .trim() || (kind === 'evade' ? 'Evade' : 'Armor');
+        rows.push({ label, value });
+    }
+    return rows;
 }
 function compactStoneRows(attrKey, supportByPowerId) {
     const list = STONE_POWERS_BY_ATTRIBUTE[attrKey] ?? [];
@@ -1570,6 +1604,48 @@ function compactPhasingBoxes(items) {
         return [];
     return Array.from({ length: max }, (_, i) => ({ n: i + 1 }));
 }
+function powerRank(p) {
+    return Math.max(1, Math.min(16, num(p?.system?.level ?? p?.system?.rank, 1)));
+}
+function compactPoolBoxes(size) {
+    const max = Math.max(0, Math.floor(size));
+    if (max <= 0)
+        return [];
+    return Array.from({ length: max }, (_, i) => ({ n: i + 1 }));
+}
+/**
+ * One shared Quick Play strip for Phasing / Damage Negation / Parry.
+ * Only one label is shown (priority: Phasing → Damage Negation → Parry).
+ */
+function compactDefenseSpecial(items) {
+    const phasing = compactPhasingBoxes(items);
+    if (phasing.length)
+        return { label: 'Phasing', boxes: phasing };
+    let negation = 0;
+    let parry = 0;
+    for (const p of items) {
+        if (p?.type !== 'power')
+            continue;
+        const tid = String(p?.system?.templateId ?? '').trim().toLowerCase();
+        const name = String(p?.name ?? '').toLowerCase();
+        const rank = powerRank(p);
+        const isNegation = tid === 'passive-damage-negation' ||
+            (resolvePowerCategoryFromItem(p) === 'passive' && /damage\s*negation/i.test(name));
+        const isParry = tid === 'passive-parry' ||
+            (resolvePowerCategoryFromItem(p) === 'passive' &&
+                /\bparry\b/i.test(name) &&
+                !/riposte|reflection|reinforced/i.test(name));
+        if (isNegation)
+            negation = Math.max(negation, passiveDamageNegationReserveForLevel(rank));
+        if (isParry)
+            parry = Math.max(parry, passiveParryPoolForLevel(rank));
+    }
+    if (negation > 0)
+        return { label: 'Damage Negation', boxes: compactPoolBoxes(negation) };
+    if (parry > 0)
+        return { label: 'Parry', boxes: compactPoolBoxes(parry) };
+    return null;
+}
 /**
  * Pack Quick Play power phases into balanced columns.
  * Tall Active lists split across columns so Passive / Buff / Reaction are not
@@ -1655,7 +1731,11 @@ export function buildCharacterCompactPrintContext(actor) {
         };
     })
         .filter(Boolean);
-    const phasingBoxes = compactPhasingBoxes(allItems);
+    const defenseSpecial = compactDefenseSpecial(allItems);
+    const phasingBoxes = defenseSpecial?.label === 'Phasing' ? defenseSpecial.boxes : [];
+    const defenseSpecialBoxes = defenseSpecial?.boxes ?? [];
+    const defenseSpecialLabel = defenseSpecial?.label ?? '';
+    const hasDefenseSpecial = defenseSpecialBoxes.length > 0;
     const stoneStatus = getArtifactStoneFunctionStatus(actor);
     const supportByPowerId = new Map();
     for (const s of stoneStatus.supports ?? []) {
@@ -1772,11 +1852,17 @@ export function buildCharacterCompactPrintContext(actor) {
         .map((phase) => ({ phase, items: powers[phase] ?? [] }))
         .filter((g) => g.items.length > 0);
     const powerColumns = packCompactPowerColumns(powerGroups);
-    const evadeSources = buildCompactDefenseSources('evade', combat, actor, masteryRank);
-    const armorSources = buildCompactDefenseSources('armor', combat, actor, masteryRank);
+    const passiveEvadeRows = compactAlwaysOnPassiveDefense(allItems, 'evade');
+    const passiveArmorRows = compactAlwaysOnPassiveDefense(allItems, 'armor');
+    const passiveEvadeBonus = passiveEvadeRows.reduce((s, r) => s + r.value, 0);
+    const passiveArmorBonus = passiveArmorRows.reduce((s, r) => s + r.value, 0);
+    const evadeSources = buildCompactDefenseSources('evade', combat, actor, masteryRank, passiveEvadeRows);
+    const armorSources = buildCompactDefenseSources('armor', combat, actor, masteryRank, passiveArmorRows);
     const rawImg = String(actor?.img ?? '').trim();
     const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
     const portrait = absImg(portraitSrc);
+    const evadeBase = combat?.evadeTotal != null ? num(combat.evadeTotal) : null;
+    const armorBase = combat?.armorTotal != null ? num(combat.armorTotal) : null;
     return {
         name: missingMark(actor?.name, '[CHECK]'),
         echoName,
@@ -1784,8 +1870,8 @@ export function buildCharacterCompactPrintContext(actor) {
         portrait,
         hasPortrait: !!portrait,
         movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '[CHECK]',
-        evade: combat?.evadeTotal != null ? num(combat.evadeTotal) : '[CHECK]',
-        armor: combat?.armorTotal != null ? num(combat.armorTotal) : '[CHECK]',
+        evade: evadeBase != null ? evadeBase + passiveEvadeBonus : '[CHECK]',
+        armor: armorBase != null ? armorBase + passiveArmorBonus : '[CHECK]',
         evadeSources,
         armorSources,
         hasEvadeSources: !!evadeSources,
@@ -1796,8 +1882,11 @@ export function buildCharacterCompactPrintContext(actor) {
         tempHp,
         colorlessCost: colorlessCost > 0 ? colorlessCost : 8,
         colorlessBoxes: Array.from({ length: 4 }, (_, i) => i + 1),
+        defenseSpecialLabel,
+        defenseSpecialBoxes,
+        hasDefenseSpecial,
         phasingBoxes,
-        hasPhasing: phasingBoxes.length > 0,
+        hasPhasing: hasDefenseSpecial && defenseSpecialLabel === 'Phasing',
         minorExpressionTiles,
         hasMinorExpressions: minorExpressionTiles.length > 0,
         healthBars,

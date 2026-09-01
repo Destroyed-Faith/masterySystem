@@ -74,10 +74,10 @@
       <span class="qp-tick-row">{{#each colorlessBoxes}}<i class="qp-tick"></i>{{/each}}</span>
     </div>
     <p class="qp-res-note">{{colorlessCost}} Initiative = 1 Colorless Stone</p>
-    {{#if hasPhasing}}
+    {{#if hasDefenseSpecial}}
     <div class="qp-res">
-      <span>Phasing</span>
-      <span class="qp-tick-row">{{#each phasingBoxes}}<i class="qp-tick"></i>{{/each}}</span>
+      <span>{{defenseSpecialLabel}}</span>
+      <span class="qp-tick-row">{{#each defenseSpecialBoxes}}<i class="qp-tick"></i>{{/each}}</span>
     </div>
     {{/if}}
   </div>

@@ -83,6 +83,21 @@ const ABSORPTION_HP_PER_BAR = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52,
 /** Damage Negation — combat reserve Damage Dice = 4 × Level. */
 const DAMAGE_NEGATION_RESERVE = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
 
+function clampPassiveLevel(level: number): number {
+  const n = Math.floor(Number(level) || 0);
+  return Math.max(1, Math.min(16, n));
+}
+
+/** Max Parry Pool dice for Passive: Parry at the given power level. */
+export function passiveParryPoolForLevel(level: number): number {
+  return PARRY_POOL[clampPassiveLevel(level) - 1] ?? 0;
+}
+
+/** Combat Damage Negation reserve for Passive: Damage Negation at level. */
+export function passiveDamageNegationReserveForLevel(level: number): number {
+  return DAMAGE_NEGATION_RESERVE[clampPassiveLevel(level) - 1] ?? 0;
+}
+
 /** Bound Host — Summon Tokens (+2 per level). */
 const BOUND_HOST_TOKENS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 

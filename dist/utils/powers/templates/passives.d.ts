@@ -21,5 +21,9 @@
  * falls back to descriptive behaviour for rows without a mechanical delta.
  */
 import type { PowerTemplate } from './_shared.js';
+/** Max Parry Pool dice for Passive: Parry at the given power level. */
+export declare function passiveParryPoolForLevel(level: number): number;
+/** Combat Damage Negation reserve for Passive: Damage Negation at level. */
+export declare function passiveDamageNegationReserveForLevel(level: number): number;
 export declare const PASSIVE_TEMPLATES: PowerTemplate[];
 //# sourceMappingURL=passives.d.ts.map
