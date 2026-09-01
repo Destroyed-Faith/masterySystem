@@ -4,7 +4,7 @@
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
-import { coerceNpcPhasesArray, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, NPC_EXTRA_POWERS_UPDATE, } from '../utils/npc-attack-model.js';
+import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
 import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
@@ -51,8 +51,7 @@ function dup(obj) {
 }
 function ensureNpcBaseShape(b) {
     const o = b && typeof b === 'object' ? dup(b) : {};
-    if (!Array.isArray(o.specials))
-        o.specials = [];
+    o.specials = coerceNpcAttackSpecials(o.specials);
     if (o.name == null || o.name === '')
         o.name = 'Waffenangriff';
     const stress = Math.floor(Number(o.npcStressD8));
@@ -651,8 +650,15 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                     ...phase,
                     combat,
                     health: ensureNpcHealthState(health),
+                    npcBaseAttack: phase.npcBaseAttack && typeof phase.npcBaseAttack === 'object'
+                        ? mergeNpcAttackRowSpecials(prev.npcBaseAttack, phase.npcBaseAttack)
+                        : phase.npcBaseAttack ?? prev.npcBaseAttack,
                     attackValues: mergeNpcAttackValueLists(prev.attackValues, phase.attackValues),
-                    npcReactions: coerceNpcReactionsArray(phase.npcReactions ?? prev.npcReactions),
+                    npcReactions: (() => {
+                        const prevRows = coerceNpcReactionsArray(prev.npcReactions);
+                        const nextRows = coerceNpcReactionsArray(phase.npcReactions ?? prev.npcReactions);
+                        return nextRows.map((row, ri) => mergeNpcAttackRowSpecials(prevRows[ri], row));
+                    })(),
                     npcReactionSlots: clampNpcReactionSlots(phase.npcReactionSlots ?? prev.npcReactionSlots),
                 };
             });
@@ -660,7 +666,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         if (data.system.attackValues != null || existingSystem.attackValues != null) {
             data.system.attackValues = mergeNpcAttackValueLists(existingSystem.attackValues, data.system.attackValues);
         }
-        data.system.npcReactions = coerceNpcReactionsArray(data.system.npcReactions ?? existingSystem.npcReactions);
+        if (data.system.npcBaseAttack && typeof data.system.npcBaseAttack === 'object') {
+            data.system.npcBaseAttack = mergeNpcAttackRowSpecials(existingSystem.npcBaseAttack, data.system.npcBaseAttack);
+        }
+        {
+            const prevRows = coerceNpcReactionsArray(existingSystem.npcReactions);
+            const nextRows = coerceNpcReactionsArray(data.system.npcReactions ?? existingSystem.npcReactions);
+            data.system.npcReactions = nextRows.map((row, ri) => mergeNpcAttackRowSpecials(prevRows[ri], row));
+        }
         data.system.npcReactionSlots = clampNpcReactionSlots(data.system.npcReactionSlots ?? existingSystem.npcReactionSlots);
         if (data.system.combat && typeof data.system.combat === 'object') {
             data.system.combat = {
@@ -837,6 +850,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         html.find('.phase-delete-btn').on('click', this.#onPhaseDelete.bind(this));
         html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
         html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
+        // Native <select> change must not race a full form submit that expands
+        // specials.0 as an object and wipes the choice on re-render.
+        html
+            .find('select.special-select, .npc-attack-special-row select[name$=".specialValue"]')
+            .on('change', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            void this.#onNpcAttackSpecialFieldChange(ev);
+        });
         html.find('.npc-reaction-add-custom').on('click', this.#onNpcReactionAddCustom.bind(this));
         html.find('.npc-reaction-add-standard').on('click', this.#onNpcReactionAddStandard.bind(this));
         html.find('.npc-reaction-add-catalog').on('click', this.#onNpcReactionAddCatalog.bind(this));
@@ -971,16 +994,18 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     }
     async #onNpcPowerSpecialAdd(event) {
         event.preventDefault();
+        event.stopPropagation();
         const $t = $(event.currentTarget);
         const scope = String($t.data('scope') || '');
         const phaseRaw = $t.data('phase-index');
         const attackRaw = $t.data('attack-index');
         const system = this.actor.system;
         const entry = { special: '' };
+        const specialsOpt = { [NPC_ATTACK_SPECIALS_UPDATE]: true };
         if (scope === 'base') {
             const base = ensureNpcBaseShape(system.npcBaseAttack);
-            base.specials = [...(base.specials || []), entry];
-            await this.actor.update({ 'system.npcBaseAttack': base });
+            base.specials = [...coerceNpcAttackSpecials(base.specials), entry];
+            await this.actor.update({ 'system.npcBaseAttack': base }, specialsOpt);
             return;
         }
         if (scope === 'phase-base') {
@@ -989,9 +1014,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 return;
             const phases = dup(system.phases);
             const base = ensureNpcBaseShape(phases[pi].npcBaseAttack);
-            base.specials = [...(base.specials || []), entry];
+            base.specials = [...coerceNpcAttackSpecials(base.specials), entry];
             phases[pi].npcBaseAttack = base;
-            await this.actor.update({ 'system.phases': phases });
+            await this.actor.update({ 'system.phases': phases }, specialsOpt);
             return;
         }
         if (scope === 'reaction') {
@@ -1003,10 +1028,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                     return rows;
                 const next = dup(rows);
                 const row = dup(next[ri]);
-                row.specials = [...(row.specials || []), entry];
+                row.specials = [...coerceNpcAttackSpecials(row.specials), entry];
                 next[ri] = row;
                 return next;
-            });
+            }, undefined, specialsOpt);
             return;
         }
         if (scope === 'extra') {
@@ -1019,23 +1044,126 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                     return;
                 const phases = dup(system.phases);
                 const att = dup(phases[pi].attackValues[ai]);
-                att.specials = [...(att.specials || []), entry];
+                att.specials = [...coerceNpcAttackSpecials(att.specials), entry];
                 phases[pi].attackValues[ai] = att;
-                await this.actor.update({ 'system.phases': phases });
+                await this.actor.update({ 'system.phases': phases }, specialsOpt);
             }
             else {
                 if (!system.attackValues?.[ai])
                     return;
                 const av = dup(system.attackValues);
                 const att = dup(av[ai]);
-                att.specials = [...(att.specials || []), entry];
+                att.specials = [...coerceNpcAttackSpecials(att.specials), entry];
                 av[ai] = att;
-                await this.actor.update({ 'system.attackValues': av });
+                await this.actor.update({ 'system.attackValues': av }, specialsOpt);
             }
+        }
+    }
+    /**
+     * Persist one special / specialValue select without a full form submit.
+     * Paths look like `system.npcBaseAttack.specials.0.special`.
+     */
+    async #onNpcAttackSpecialFieldChange(event) {
+        const el = event.currentTarget;
+        const name = String(el.name || '');
+        const match = /^(.*?)\.specials\.(\d+)\.(special|specialValue)$/.exec(name);
+        if (!match)
+            return;
+        const basePath = match[1];
+        const si = Number(match[2]);
+        const field = match[3];
+        if (!Number.isFinite(si) || si < 0)
+            return;
+        const actor = this.actor;
+        const specialsOpt = { [NPC_ATTACK_SPECIALS_UPDATE]: true };
+        const readPath = (path) => path.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), actor);
+        const row = readPath(basePath);
+        if (!row || typeof row !== 'object')
+            return;
+        const specials = coerceNpcAttackSpecials(row.specials);
+        while (specials.length <= si)
+            specials.push({ special: '' });
+        if (field === 'special') {
+            specials[si] = { ...specials[si], special: String(el.value || '').trim() };
+        }
+        else {
+            const raw = String(el.value || '').trim();
+            const num = Math.floor(Number(raw));
+            const next = { ...specials[si] };
+            if (raw === '' || !Number.isFinite(num))
+                delete next.specialValue;
+            else
+                next.specialValue = num;
+            specials[si] = next;
+        }
+        const phaseBase = /^system\.phases\.(\d+)\.npcBaseAttack$/.exec(basePath);
+        const phaseExtra = /^system\.phases\.(\d+)\.attackValues\.(\d+)$/.exec(basePath);
+        const rootExtra = /^system\.attackValues\.(\d+)$/.exec(basePath);
+        const phaseReaction = /^system\.phases\.(\d+)\.npcReactions\.(\d+)$/.exec(basePath);
+        const rootReaction = /^system\.npcReactions\.(\d+)$/.exec(basePath);
+        if (basePath === 'system.npcBaseAttack') {
+            const base = ensureNpcBaseShape(actor.system?.npcBaseAttack);
+            base.specials = specials;
+            await actor.update({ 'system.npcBaseAttack': base }, specialsOpt);
+            return;
+        }
+        if (phaseBase) {
+            const pi = Number(phaseBase[1]);
+            const phases = dup(coerceNpcPhasesArray(actor.system?.phases));
+            if (!phases[pi])
+                return;
+            const base = ensureNpcBaseShape(phases[pi].npcBaseAttack);
+            base.specials = specials;
+            phases[pi].npcBaseAttack = base;
+            await actor.update({ 'system.phases': phases }, specialsOpt);
+            return;
+        }
+        if (phaseExtra) {
+            const pi = Number(phaseExtra[1]);
+            const ai = Number(phaseExtra[2]);
+            const phases = dup(coerceNpcPhasesArray(actor.system?.phases));
+            if (!phases[pi]?.attackValues?.[ai])
+                return;
+            const att = dup(phases[pi].attackValues[ai]);
+            att.specials = specials;
+            phases[pi].attackValues[ai] = att;
+            await actor.update({ 'system.phases': phases }, specialsOpt);
+            return;
+        }
+        if (rootExtra) {
+            const ai = Number(rootExtra[1]);
+            const av = dup(Array.isArray(actor.system?.attackValues) ? actor.system.attackValues : []);
+            if (!av[ai])
+                return;
+            av[ai] = { ...dup(av[ai]), specials };
+            await actor.update({ 'system.attackValues': av }, specialsOpt);
+            return;
+        }
+        if (phaseReaction) {
+            await this.#mutateNpcReactions(phaseReaction[1], (rows) => {
+                const ri = Number(phaseReaction[2]);
+                if (!rows[ri])
+                    return rows;
+                const next = dup(rows);
+                next[ri] = { ...dup(next[ri]), specials };
+                return next;
+            }, undefined, specialsOpt);
+            return;
+        }
+        if (rootReaction) {
+            await this.#mutateNpcReactions(null, (rows) => {
+                const ri = Number(rootReaction[1]);
+                if (!rows[ri])
+                    return rows;
+                const next = dup(rows);
+                next[ri] = { ...dup(next[ri]), specials };
+                return next;
+            }, undefined, specialsOpt);
         }
     }
     async #onNpcPowerSpecialDel(event) {
         event.preventDefault();
+        event.stopPropagation();
         const $t = $(event.currentTarget);
         const scope = String($t.data('scope') || '');
         const si = parseInt(String($t.data('special-index') ?? '-1'), 10);
@@ -1044,12 +1172,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const phaseRaw = $t.data('phase-index');
         const attackRaw = $t.data('attack-index');
         const system = this.actor.system;
+        const specialsOpt = { [NPC_ATTACK_SPECIALS_UPDATE]: true };
         if (scope === 'base') {
             const base = ensureNpcBaseShape(system.npcBaseAttack);
             if (si >= base.specials.length)
                 return;
+            base.specials = coerceNpcAttackSpecials(base.specials);
             base.specials.splice(si, 1);
-            await this.actor.update({ 'system.npcBaseAttack': base });
+            await this.actor.update({ 'system.npcBaseAttack': base }, specialsOpt);
             return;
         }
         if (scope === 'phase-base') {
@@ -1060,9 +1190,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             const base = ensureNpcBaseShape(phases[pi].npcBaseAttack);
             if (si >= base.specials.length)
                 return;
+            base.specials = coerceNpcAttackSpecials(base.specials);
             base.specials.splice(si, 1);
             phases[pi].npcBaseAttack = base;
-            await this.actor.update({ 'system.phases': phases });
+            await this.actor.update({ 'system.phases': phases }, specialsOpt);
             return;
         }
         if (scope === 'reaction') {
@@ -1070,15 +1201,18 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             if (!Number.isFinite(ri))
                 return;
             await this.#mutateNpcReactions(phaseRaw, (rows) => {
-                if (!rows[ri] || !Array.isArray(rows[ri].specials) || si >= rows[ri].specials.length)
+                if (!rows[ri])
+                    return rows;
+                const list = coerceNpcAttackSpecials(rows[ri].specials);
+                if (si >= list.length)
                     return rows;
                 const next = dup(rows);
                 const row = dup(next[ri]);
-                row.specials = [...(row.specials || [])];
+                row.specials = [...list];
                 row.specials.splice(si, 1);
                 next[ri] = row;
                 return next;
-            });
+            }, undefined, specialsOpt);
             return;
         }
         if (scope === 'extra') {
@@ -1091,29 +1225,34 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                     return;
                 const phases = dup(system.phases);
                 const att = dup(phases[pi].attackValues[ai]);
-                if (!Array.isArray(att.specials) || si >= att.specials.length)
+                if (!Array.isArray(att.specials) || si >= att.specials.length) {
+                    att.specials = coerceNpcAttackSpecials(att.specials);
+                }
+                if (si >= att.specials.length)
                     return;
+                att.specials = coerceNpcAttackSpecials(att.specials);
                 att.specials.splice(si, 1);
                 phases[pi].attackValues[ai] = att;
-                await this.actor.update({ 'system.phases': phases });
+                await this.actor.update({ 'system.phases': phases }, specialsOpt);
             }
             else {
                 if (!system.attackValues?.[ai])
                     return;
                 const av = dup(system.attackValues);
                 const att = dup(av[ai]);
-                if (!Array.isArray(att.specials) || si >= att.specials.length)
+                att.specials = coerceNpcAttackSpecials(att.specials);
+                if (si >= att.specials.length)
                     return;
                 att.specials.splice(si, 1);
                 av[ai] = att;
-                await this.actor.update({ 'system.attackValues': av });
+                await this.actor.update({ 'system.attackValues': av }, specialsOpt);
             }
         }
     }
     #npcMasteryRank() {
         return Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 2));
     }
-    async #mutateNpcReactions(phaseRaw, mutator, extra) {
+    async #mutateNpcReactions(phaseRaw, mutator, extra, updateOptions) {
         const system = this.actor.system;
         const phaseIndex = phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== ''
             ? Number(phaseRaw)
@@ -1129,7 +1268,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             else if (clampNpcReactionSlots(phases[phaseIndex].npcReactionSlots) <= 0 && rows.length > 0) {
                 phases[phaseIndex].npcReactionSlots = 1;
             }
-            await this.actor.update({ 'system.phases': phases });
+            await this.actor.update({ 'system.phases': phases }, updateOptions);
             return;
         }
         const rows = mutator(coerceNpcReactionsArray(system.npcReactions));
@@ -1139,7 +1278,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         else if (clampNpcReactionSlots(system.npcReactionSlots) <= 0 && rows.length > 0) {
             patch['system.npcReactionSlots'] = 1;
         }
-        await this.actor.update(patch);
+        await this.actor.update(patch, updateOptions);
     }
     async #onNpcReactionAddCustom(event) {
         event.preventDefault();

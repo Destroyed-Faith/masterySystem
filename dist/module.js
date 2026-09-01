@@ -9,7 +9,7 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
 import { renderSpecials } from './utils/power-rendering.js';
-import { NPC_EXTRA_POWERS_UPDATE, preserveNpcExtraPowersInSystemUpdate, } from './utils/npc-attack-model.js';
+import { NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, preserveNpcExtraPowersInSystemUpdate, preserveNpcAttackSpecialsInSystemUpdate, } from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
@@ -2138,6 +2138,11 @@ Hooks.on('preUpdateActor', (actor, updateData, options, _userId) => {
         // actor's extras unless this write *is* the add/delete.
         if (updateData.system && !options?.[NPC_EXTRA_POWERS_UPDATE]) {
             preserveNpcExtraPowersInSystemUpdate(actor.system, updateData.system);
+        }
+        // Same race for attack specials (form expands specials.0 as an object /
+        // stale submit clears a just-added row). Skip when the write *is* add/delete/select.
+        if (updateData.system && !options?.[NPC_ATTACK_SPECIALS_UPDATE]) {
+            preserveNpcAttackSpecialsInSystemUpdate(actor.system, updateData.system);
         }
     }
 });

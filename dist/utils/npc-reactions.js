@@ -6,7 +6,7 @@
  */
 import { filterCatalog } from './power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from './power-item-builder.js';
-import { coerceNpcPhasesArray, npcSpecialEffectString } from './npc-attack-model.js';
+import { coerceNpcAttackSpecials, coerceNpcPhasesArray, npcSpecialEffectString, } from './npc-attack-model.js';
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
 export const NPC_STANDARD_REACTIONS = [
@@ -37,12 +37,7 @@ export function normalizeNpcReactionRow(row) {
     const sourceRaw = String(o.source || 'custom').toLowerCase();
     const source = sourceRaw === 'basic' || sourceRaw === 'catalog' ? sourceRaw : 'custom';
     const rankN = Math.floor(Number(o.rank));
-    const specials = Array.isArray(o.specials)
-        ? o.specials.map((s) => ({
-            special: String(s?.special || ''),
-            specialValue: Number.isFinite(Number(s?.specialValue)) ? Math.floor(Number(s.specialValue)) : undefined,
-        }))
-        : [];
+    const specials = coerceNpcAttackSpecials(o.specials);
     return {
         id: String(o.id || newNpcReactionId()),
         name: String(o.name || 'Reaction').trim() || 'Reaction',

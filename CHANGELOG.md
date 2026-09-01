@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.453] - 2026-09-01
+
+### Fixed
+
+- **NPC sheet:** Base Weapon Attack (and other attack/reaction) Specials no longer snap closed without sticking. Form expand used to turn `specials.0` into an object and wipe the choice on re-render; specials are coerced/merged, and the select writes through a dedicated update path.
+
 ## [0.9.452] - 2026-09-01
 
 ### Changed

@@ -1,9 +1,25 @@
 /**
  * NPC attack helpers — d8 pool sizes, phase index, damage formula.
  */
-import type { AttackValue } from '../types/actor.js';
+import type { AttackValue, NpcAttackSpecialEntry } from '../types/actor.js';
 /** Human-readable name for chat / attack card (catalog id or legacy key). */
 export declare function displayNpcSpecialName(raw: string): string;
+/**
+ * Form expandObject often turns `specials.0.special` into a numeric-keyed
+ * object instead of an array. Coerce both shapes (and legacy singles) to a
+ * real array so sheet getData does not wipe the rows.
+ */
+export declare function coerceNpcAttackSpecials(raw: unknown): NpcAttackSpecialEntry[];
+/**
+ * Specials add/delete are button-driven. Keep list length from `existing` and
+ * overlay submitted special / specialValue by index (same race pattern as
+ * extra powers).
+ */
+export declare function mergeNpcAttackSpecials(existing: unknown, submitted: unknown): NpcAttackSpecialEntry[];
+/** Foundry `actor.update` option: this write *is* the specials add/delete/select. */
+export declare const NPC_ATTACK_SPECIALS_UPDATE = "msNpcAttackSpecials";
+/** Merge specials onto one attack / reaction row for form submit. */
+export declare function mergeNpcAttackRowSpecials<T extends Record<string, any>>(existingRow: T | null | undefined, submittedRow: T): T;
 /** Effective attack row for display / damage (includes merged specials). */
 export declare function normalizeNpcAttackRow(attack: AttackValue): AttackValue;
 /**
@@ -48,6 +64,12 @@ export declare const NPC_EXTRA_POWERS_UPDATE = "msNpcExtraPowers";
  * `system.attackValues` without the latest button-driven rows.
  */
 export declare function preserveNpcExtraPowersInSystemUpdate(currentSystem: any, updateSystem: any): void;
+/**
+ * Keep button-driven specials rows when a form submit expands `specials.0`
+ * as an object or races an empty specials list.
+ * Does not change attackValues / phases list length (extras add/delete own that).
+ */
+export declare function preserveNpcAttackSpecialsInSystemUpdate(currentSystem: any, updateSystem: any): void;
 /**
  * Sanitize all NPC attack targeting on a `system` blob (sheet submit / updates).
  * Coerces object-shaped `phases` to a real array so combat and sheet share one shape.

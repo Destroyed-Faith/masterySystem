@@ -30,12 +30,82 @@ export function displayNpcSpecialName(raw: string): string {
 
 const MAX_D = 99;
 
+/**
+ * Form expandObject often turns `specials.0.special` into a numeric-keyed
+ * object instead of an array. Coerce both shapes (and legacy singles) to a
+ * real array so sheet getData does not wipe the rows.
+ */
+export function coerceNpcAttackSpecials(raw: unknown): NpcAttackSpecialEntry[] {
+  const rows: unknown[] = Array.isArray(raw)
+    ? raw
+    : raw && typeof raw === 'object'
+      ? Object.keys(raw as object)
+          .filter((k) => /^\d+$/.test(k))
+          .sort((a, b) => Number(a) - Number(b))
+          .map((k) => (raw as Record<string, unknown>)[k])
+      : [];
+  return rows
+    .filter((s) => s && typeof s === 'object')
+    .map((s) => {
+      const row = s as Record<string, unknown>;
+      const special = String(row.special ?? '').trim();
+      const valueRaw = row.specialValue;
+      const valueNum = Math.floor(Number(valueRaw));
+      const entry: NpcAttackSpecialEntry = { special };
+      if (
+        valueRaw !== undefined &&
+        valueRaw !== null &&
+        String(valueRaw).trim() !== '' &&
+        Number.isFinite(valueNum)
+      ) {
+        entry.specialValue = valueNum;
+      }
+      return entry;
+    });
+}
+
+/**
+ * Specials add/delete are button-driven. Keep list length from `existing` and
+ * overlay submitted special / specialValue by index (same race pattern as
+ * extra powers).
+ */
+export function mergeNpcAttackSpecials(existing: unknown, submitted: unknown): NpcAttackSpecialEntry[] {
+  const existingPresent = existing != null;
+  const ex = coerceNpcAttackSpecials(existing);
+  const sub = coerceNpcAttackSpecials(submitted);
+  if (!existingPresent) return sub.map((s) => ({ ...s }));
+  return ex.map((row, i) => {
+    const overlay = sub[i];
+    if (!overlay) return { ...row };
+    const next: NpcAttackSpecialEntry = { ...row };
+    if (overlay.special !== undefined) next.special = overlay.special;
+    if (Object.prototype.hasOwnProperty.call(overlay, 'specialValue')) {
+      next.specialValue = overlay.specialValue;
+    }
+    return next;
+  });
+}
+
+/** Foundry `actor.update` option: this write *is* the specials add/delete/select. */
+export const NPC_ATTACK_SPECIALS_UPDATE = 'msNpcAttackSpecials';
+
+/** Merge specials onto one attack / reaction row for form submit. */
+export function mergeNpcAttackRowSpecials<T extends Record<string, any>>(
+  existingRow: T | null | undefined,
+  submittedRow: T,
+): T {
+  const row: Record<string, any> =
+    submittedRow && typeof submittedRow === 'object' ? { ...submittedRow } : {};
+  const prev = existingRow && typeof existingRow === 'object' ? existingRow : null;
+  row.specials = mergeNpcAttackSpecials(prev?.specials, row.specials);
+  return row as T;
+}
+
 function mergeSpecialsFromLegacy(attack: AttackValue): NpcAttackSpecialEntry[] {
-  if (Array.isArray(attack.specials) && attack.specials.length > 0) {
-    return attack.specials
-      .filter((s) => s && (s.special || s.specialValue != null))
-      .map((s) => ({ ...s }));
-  }
+  const fromArray = coerceNpcAttackSpecials(attack.specials).filter(
+    (s) => s.special || s.specialValue != null,
+  );
+  if (fromArray.length > 0) return fromArray.map((s) => ({ ...s }));
   if (attack.special && String(attack.special).trim()) {
     return [{ special: attack.special, specialValue: attack.specialValue }];
   }
@@ -135,6 +205,11 @@ export function applyNpcAttackTargetingToOption<T extends Record<string, any>>(
 export function sanitizeNpcAttackTargetingFields<T extends Record<string, any>>(row: T): T {
   if (!row || typeof row !== 'object') return row;
   const out: Record<string, any> = { ...row };
+  if (Object.prototype.hasOwnProperty.call(out, 'specials') || out.special != null) {
+    out.specials = coerceNpcAttackSpecials(
+      out.specials != null ? out.specials : mergeSpecialsFromLegacy(out as AttackValue),
+    );
+  }
   const isRanged = String(out.npcRangeKind || '').toLowerCase() === 'ranged';
   out.npcRangeKind = isRanged ? 'ranged' : 'melee';
 
@@ -209,7 +284,10 @@ export function mergeNpcAttackValueLists(existing: unknown, submitted: unknown):
   }
   return ex.map((row, i) => {
     const overlay = sub[i] && typeof sub[i] === 'object' ? sub[i] : null;
-    return sanitizeNpcAttackTargetingFields(overlay ? { ...row, ...overlay } : { ...row });
+    if (!overlay) return sanitizeNpcAttackTargetingFields({ ...row });
+    return sanitizeNpcAttackTargetingFields(
+      mergeNpcAttackRowSpecials(row, { ...row, ...overlay }),
+    );
   });
 }
 
@@ -245,6 +323,81 @@ export function preserveNpcExtraPowersInSystemUpdate(currentSystem: any, updateS
       ...phase,
       attackValues: mergeNpcAttackValueLists(prev.attackValues, phase.attackValues),
     };
+  });
+  updateSystem.phases = wasArray
+    ? merged
+    : Object.fromEntries(merged.map((phase, i) => [String(i), phase]));
+}
+
+/**
+ * Keep button-driven specials rows when a form submit expands `specials.0`
+ * as an object or races an empty specials list.
+ * Does not change attackValues / phases list length (extras add/delete own that).
+ */
+export function preserveNpcAttackSpecialsInSystemUpdate(
+  currentSystem: any,
+  updateSystem: any,
+): void {
+  if (!updateSystem || typeof updateSystem !== 'object') return;
+  const current = currentSystem && typeof currentSystem === 'object' ? currentSystem : {};
+
+  if (Object.prototype.hasOwnProperty.call(updateSystem, 'npcBaseAttack') && updateSystem.npcBaseAttack) {
+    updateSystem.npcBaseAttack = sanitizeNpcAttackTargetingFields(
+      mergeNpcAttackRowSpecials(current.npcBaseAttack, updateSystem.npcBaseAttack),
+    );
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updateSystem, 'attackValues')) {
+    const currentRows = asAttackValueRows(current.attackValues);
+    const updateRows = asAttackValueRows(updateSystem.attackValues);
+    updateSystem.attackValues = updateRows.map((row: any, i: number) =>
+      row && typeof row === 'object'
+        ? sanitizeNpcAttackTargetingFields(mergeNpcAttackRowSpecials(currentRows[i], row))
+        : row,
+    );
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updateSystem, 'npcReactions')) {
+    const prevRows = coerceNpcPhasesArray(current.npcReactions);
+    const nextRows = coerceNpcPhasesArray(updateSystem.npcReactions);
+    updateSystem.npcReactions = nextRows.map((row: any, i: number) =>
+      row && typeof row === 'object' ? mergeNpcAttackRowSpecials(prevRows[i], row) : row,
+    );
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(updateSystem, 'phases') || updateSystem.phases == null) {
+    return;
+  }
+
+  const currentPhases = coerceNpcPhasesArray(current.phases);
+  const wasArray = Array.isArray(updateSystem.phases);
+  const updatePhases = coerceNpcPhasesArray(updateSystem.phases);
+  const merged = updatePhases.map((phase: any, i: number) => {
+    if (!phase || typeof phase !== 'object') return phase;
+    const prev = currentPhases[i] || {};
+    const next: Record<string, any> = { ...phase };
+    if (phase.npcBaseAttack && typeof phase.npcBaseAttack === 'object') {
+      next.npcBaseAttack = sanitizeNpcAttackTargetingFields(
+        mergeNpcAttackRowSpecials(prev.npcBaseAttack, phase.npcBaseAttack),
+      );
+    }
+    if (phase.attackValues != null) {
+      const currentRows = asAttackValueRows(prev.attackValues);
+      const updateRows = asAttackValueRows(phase.attackValues);
+      next.attackValues = updateRows.map((row: any, ri: number) =>
+        row && typeof row === 'object'
+          ? sanitizeNpcAttackTargetingFields(mergeNpcAttackRowSpecials(currentRows[ri], row))
+          : row,
+      );
+    }
+    if (phase.npcReactions != null) {
+      const prevRows = coerceNpcPhasesArray(prev.npcReactions);
+      const nextRows = coerceNpcPhasesArray(phase.npcReactions);
+      next.npcReactions = nextRows.map((row: any, ri: number) =>
+        row && typeof row === 'object' ? mergeNpcAttackRowSpecials(prevRows[ri], row) : row,
+      );
+    }
+    return next;
   });
   updateSystem.phases = wasArray
     ? merged

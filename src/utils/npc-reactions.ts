@@ -8,7 +8,11 @@
 import type { NpcAttackSpecialEntry } from '../types/actor.js';
 import { filterCatalog } from './power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from './power-item-builder.js';
-import { coerceNpcPhasesArray, npcSpecialEffectString } from './npc-attack-model.js';
+import {
+  coerceNpcAttackSpecials,
+  coerceNpcPhasesArray,
+  npcSpecialEffectString,
+} from './npc-attack-model.js';
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
 
@@ -63,12 +67,7 @@ export function normalizeNpcReactionRow(row: Record<string, unknown> | null | un
   const source: NpcReactionSource =
     sourceRaw === 'basic' || sourceRaw === 'catalog' ? sourceRaw : 'custom';
   const rankN = Math.floor(Number(o.rank));
-  const specials = Array.isArray(o.specials)
-    ? (o.specials as NpcAttackSpecialEntry[]).map((s) => ({
-        special: String(s?.special || ''),
-        specialValue: Number.isFinite(Number(s?.specialValue)) ? Math.floor(Number(s.specialValue)) : undefined,
-      }))
-    : [];
+  const specials = coerceNpcAttackSpecials(o.specials);
   return {
     id: String(o.id || newNpcReactionId()),
     name: String(o.name || 'Reaction').trim() || 'Reaction',
