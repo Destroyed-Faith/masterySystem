@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.447] - 2026-09-01
+
+### Changed
+
+- **Quick Play sheet:** Powers columns balance by item count. A long Active list splits across columns so Passive / Active Buff / Reaction are not left with empty space beside them.
+
 ## [0.9.446] - 2026-09-01
 
 ### Changed

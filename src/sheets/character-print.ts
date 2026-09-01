@@ -1472,6 +1472,60 @@ function compactPhasingBoxes(items: any[]): { n: number }[] {
   return Array.from({ length: max }, (_, i) => ({ n: i + 1 }));
 }
 
+type CompactPowerGroup<T = unknown> = { phase: string; items: T[] };
+
+/**
+ * Pack Quick Play power phases into balanced columns.
+ * Tall Active lists split across columns so Passive / Buff / Reaction are not
+ * left with empty vertical space beside them. Phase headers repeat when a
+ * group continues in the next column.
+ */
+export function packCompactPowerColumns<T extends CompactPowerGroup>(
+  groups: T[],
+  maxCols = 4,
+): { groups: T[] }[] {
+  const nonempty = groups.filter((g) => g.items.length > 0);
+  if (!nonempty.length) return [];
+
+  const total = nonempty.reduce((n, g) => n + g.items.length, 0);
+  const colCount = Math.min(maxCols, Math.max(1, Math.ceil(total / 2)));
+  const target = Math.ceil(total / colCount);
+
+  const columns: { groups: T[] }[] = [];
+  let bucket: T[] = [];
+  let filled = 0;
+
+  const seal = () => {
+    if (bucket.length) columns.push({ groups: bucket });
+    bucket = [];
+    filled = 0;
+  };
+
+  const pushItems = (base: T, items: T['items']) => {
+    if (!items.length) return;
+    const last = bucket[bucket.length - 1];
+    if (last && last.phase === base.phase) {
+      last.items.push(...items);
+    } else {
+      bucket.push({ ...base, items: [...items] });
+    }
+    filled += items.length;
+  };
+
+  for (const g of nonempty) {
+    let rest = [...g.items];
+    while (rest.length) {
+      const onLastCol = columns.length >= colCount - 1;
+      if (!onLastCol && filled >= target) seal();
+      const room = onLastCol ? rest.length : Math.max(1, target - filled);
+      const take = rest.splice(0, Math.min(room, rest.length));
+      pushItems(g, take);
+    }
+  }
+  seal();
+  return columns;
+}
+
 /**
  * One-page Quick Play context — same actor data as the full sheet.
  */
@@ -1672,13 +1726,7 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
   const powerGroups = (['Active', 'Active Buff', 'Passive', 'Reaction'] as const)
     .map((phase) => ({ phase, items: powers[phase] ?? [] }))
     .filter((g) => g.items.length > 0);
-  const powerColumns: { groups: typeof powerGroups }[] = [];
-  const tallGroups = powerGroups.filter((g) => g.items.length >= 2);
-  const shortGroups = powerGroups.filter((g) => g.items.length < 2);
-  for (const group of tallGroups) powerColumns.push({ groups: [group] });
-  for (let i = 0; i < shortGroups.length; i += 2) {
-    powerColumns.push({ groups: shortGroups.slice(i, i + 2) });
-  }
+  const powerColumns = packCompactPowerColumns(powerGroups);
 
   const rawImg = String(actor?.img ?? '').trim();
   const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');

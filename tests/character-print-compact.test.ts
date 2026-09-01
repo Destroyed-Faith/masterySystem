@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildCharacterCompactPrintContext } from '../src/sheets/character-print';
+import {
+  buildCharacterCompactPrintContext,
+  packCompactPowerColumns,
+} from '../src/sheets/character-print';
 
 function alarisActor() {
   return {
@@ -356,14 +359,46 @@ describe('Quick Play character print', () => {
     expect(allPowerNames).not.toContain('Bounding Leap');
     expect(ctx.powerGroups.every((g: any) => g.phase !== 'Minor Expression')).toBe(true);
     expect(ctx.powerColumns.length).toBeGreaterThan(0);
-    expect(ctx.powerColumns.flatMap((c: any) => c.groups.map((g: any) => g.phase)).sort()).toEqual(
-      ctx.powerGroups.map((g: any) => g.phase).sort(),
+    expect(
+      [...new Set(ctx.powerColumns.flatMap((c: any) => c.groups.map((g: any) => g.phase)))].sort(),
+    ).toEqual(ctx.powerGroups.map((g: any) => g.phase).sort());
+    // Every power item still appears exactly once across the balanced columns.
+    const colNames = ctx.powerColumns.flatMap((c: any) =>
+      c.groups.flatMap((g: any) => g.items.map((i: any) => `${g.phase}:${i.name}`)),
     );
+    const groupNames = ctx.powerGroups.flatMap((g: any) =>
+      g.items.map((i: any) => `${g.phase}:${i.name}`),
+    );
+    expect(colNames.sort()).toEqual(groupNames.sort());
+    // Column heights stay within one item of each other.
+    if (ctx.powerColumns.length >= 2) {
+      const counts = ctx.powerColumns.map((c: any) =>
+        c.groups.reduce((n: number, g: any) => n + g.items.length, 0),
+      );
+      expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
+    }
     const allEffects = [
       ...ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.effect)),
       ...ctx.artifacts.flatMap((a: any) => a.powers.map((p: any) => p.effect)),
     ].join('\n');
     expect(allEffects).not.toMatch(/…/);
+  });
+
+  it('splits oversized Active groups across columns to fill empty space', () => {
+    const packed = packCompactPowerColumns([
+      { phase: 'Active', items: [{ n: 1 }, { n: 2 }, { n: 3 }] },
+      { phase: 'Passive', items: [{ n: 4 }, { n: 5 }] },
+      { phase: 'Active Buff', items: [{ n: 6 }] },
+      { phase: 'Reaction', items: [{ n: 7 }] },
+    ]);
+    expect(packed.length).toBe(4);
+    expect(packed.every((c) => c.groups.reduce((n, g) => n + g.items.length, 0) <= 2)).toBe(true);
+    // Active continues into a later column instead of stacking alone on the left.
+    const activeColIndexes = packed
+      .map((c, i) => (c.groups.some((g) => g.phase === 'Active') ? i : -1))
+      .filter((i) => i >= 0);
+    expect(activeColIndexes.length).toBeGreaterThan(1);
+    expect(activeColIndexes[0]).toBe(0);
   });
 
   it('marks missing combat totals as [CHECK]', () => {

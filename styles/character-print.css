@@ -2357,8 +2357,8 @@ body.mastery-print.is-compact {
 }
 
 .qp-pg-col {
-  flex: 1 1 52mm;
-  min-width: 48mm;
+  flex: 1 1 0;
+  min-width: 36mm;
   display: flex;
   flex-direction: column;
   gap: 1mm;
@@ -2381,16 +2381,17 @@ body.mastery-print.is-compact {
   gap: 0.6mm;
 }
 
-/* Within a power phase, sit tiles side by side when they fit. */
+/* Columns are height-balanced in JS; stack tiles vertically inside each column. */
 .qp-pg .qp-tiles {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.6mm 1.2mm;
+  flex-direction: column;
+  gap: 0.6mm;
 }
 
 .qp-pg .qp-tile {
-  flex: 1 1 40mm;
-  min-width: 36mm;
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
 }
 
 .qp-tile {

@@ -26,6 +26,19 @@ export interface CharacterPrintOptions {
  * Build the flat data object consumed by `character-print.hbs`.
  */
 export declare function buildCharacterPrintContext(actor: any, options?: CharacterPrintOptions): Record<string, unknown>;
+type CompactPowerGroup<T = unknown> = {
+    phase: string;
+    items: T[];
+};
+/**
+ * Pack Quick Play power phases into balanced columns.
+ * Tall Active lists split across columns so Passive / Buff / Reaction are not
+ * left with empty vertical space beside them. Phase headers repeat when a
+ * group continues in the next column.
+ */
+export declare function packCompactPowerColumns<T extends CompactPowerGroup>(groups: T[], maxCols?: number): {
+    groups: T[];
+}[];
 /**
  * One-page Quick Play context — same actor data as the full sheet.
  */
@@ -35,4 +48,5 @@ export declare function buildCharacterCompactPrintContext(actor: any): Record<st
  * triggers the browser print dialog (save as PDF).
  */
 export declare function openCharacterPrintSheet(actor: any, options?: CharacterPrintOptions): Promise<void>;
+export {};
 //# sourceMappingURL=character-print.d.ts.map
