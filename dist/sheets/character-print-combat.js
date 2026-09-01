@@ -243,8 +243,11 @@ function itemMatchesAttackType(item, attackType) {
     return false;
 }
 /**
- * Prefer the active Weapon Set's matching weapon, then the other prepared set,
- * then the live equipped resolver (unarmed fallback for melee).
+ * Resolve a weapon for print previews by attack type only.
+ * Melee powers never take a ranged weapon's WD (and vice versa). Looking at the
+ * inactive Weapon Set is only to find a *matching* melee/ranged weapon — a
+ * Longbow in Set 1 does not feed Melee Single Attack; without a Ranged attack
+ * power that bow is Basic Attack only.
  */
 function resolveWeaponForPrint(actor, items, attackType) {
     try {
@@ -297,6 +300,36 @@ function resolveWeaponBaseDamageString(weapon) {
         sys.roll?.damage ??
         '1d8';
     return cleanPowerDamage(raw);
+}
+/**
+ * Prepared set / equipped weapons available for Basic Attack, split by kind.
+ * A ranged set weapon appears here even when the character has no Ranged
+ * Single Attack power (that weapon is then Basic Attack only).
+ */
+export function listPreparedWeaponsByAttackType(actor, items) {
+    return {
+        melee: resolveWeaponForPrint(actor, items, 'melee'),
+        ranged: resolveWeaponForPrint(actor, items, 'ranged'),
+    };
+}
+/** Compact Basic Attack damage lines: one per prepared weapon kind. */
+export function buildBasicAttackCompactDamageLines(actor, items, mrBonusFormula) {
+    const { melee, ranged } = listPreparedWeaponsByAttackType(actor, items);
+    const lines = [];
+    if (melee) {
+        const wd = resolveWeaponBaseDamageString(melee);
+        if (parseD8Count(wd) > 0)
+            lines.push(`Melee: WD ${wd} + ${mrBonusFormula}`);
+    }
+    if (ranged) {
+        const wd = resolveWeaponBaseDamageString(ranged);
+        if (parseD8Count(wd) > 0)
+            lines.push(`Ranged: WD ${wd} + ${mrBonusFormula}`);
+    }
+    if (lines.length === 0) {
+        lines.push(`Melee: WD 1d8 + ${mrBonusFormula}`);
+    }
+    return lines;
 }
 function equippedWeaponSpecialsLabels(items) {
     const labels = [];

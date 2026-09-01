@@ -147,7 +147,7 @@
     <h2>Sets</h2>
     <div class="qp-tiles qp-set-tiles">
       {{#each weaponSetTiles}}
-      <article class="qp-tile qp-tile-Set{{#if active}} is-active{{/if}}">
+            <article class="qp-tile qp-tile-Set{{#if active}} is-active{{/if}}">
         <header>
           <strong>{{title}}</strong>
         </header>
@@ -155,6 +155,7 @@
         {{#if meta}}<p class="qp-set-meta">{{meta}}</p>{{/if}}
         {{#if specials}}<p class="qp-set-specials">{{specials}}</p>{{/if}}
         {{/each}}
+        {{#if pairing}}<p class="qp-set-pairing">{{pairing}}</p>{{/if}}
       </article>
       {{/each}}
     </div>
@@ -175,10 +176,11 @@
             <article class="qp-tile qp-tile-{{phaseClass}}">
               <header>
                 <strong>{{name}}</strong>
-                <span>{{phase}} · PL {{rank}}</span>
+                <span>{{#unless hideRank}}{{phase}} · PL {{rank}}{{else}}{{phase}}{{/unless}}</span>
               </header>
               {{#if attack}}<p>Attack: {{attack}}</p>{{/if}}
               {{#if damage}}<p>Damage: {{damage}}</p>{{/if}}
+              {{#each damageLines}}<p>Damage: {{this}}</p>{{/each}}
               {{#if effect}}<p>{{effect}}</p>{{/if}}
             </article>
             {{/each}}

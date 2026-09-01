@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.444] - 2026-09-01
+
+### Fixed
+
+- **Quick Play sheet:** Melee powers use only melee Weapon Set WD; Ranged powers use only ranged WD. A Longbow without Ranged Single Attack no longer pretends to feed melee Power cards — it shows under Basic Attack (Melee/Ranged lines) with a note that the ranged set needs a Ranged attack power.
+
 ## [0.9.443] - 2026-09-01
 
 ### Fixed

@@ -2377,6 +2377,13 @@ body.mastery-print.is-compact {
   color: #b7aea0;
 }
 
+.qp-set-pairing {
+  margin: 0.3mm 0 0;
+  font-size: 8px;
+  color: #8a8478;
+  font-style: italic;
+}
+
 .qp-powers {
   margin-bottom: 1.1mm;
 }

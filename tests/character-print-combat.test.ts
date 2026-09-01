@@ -192,6 +192,61 @@ describe('buildPrintCombatPreview', () => {
     expect(preview?.damage).toBe('WD 5d8 + 8d8');
   });
 
+  it('never feeds a ranged set weapon into a melee power (and vice versa)', () => {
+    const longbow = {
+      id: 'longbow-1',
+      type: 'weapon',
+      name: 'Longbow',
+      system: { weaponType: 'ranged', damage: '2d8', equipped: true },
+    };
+    const sword = {
+      id: 'sword-1',
+      type: 'weapon',
+      name: 'Longsword',
+      system: { weaponType: 'melee', damage: '4d8', equipped: false },
+    };
+    const actor = {
+      system: { attributes: { might: { value: 14 }, agility: { value: 14 } } },
+      items: [longbow, sword],
+      flags: {
+        'mastery-system': {
+          weaponSets: {
+            schemaVersion: 1,
+            active: 1,
+            sets: {
+              1: { mainhand: 'longbow-1', offhand: 'longbow-1' },
+              2: { mainhand: 'sword-1', offhand: 'sword-1' },
+            },
+          },
+        },
+      },
+    };
+    const melee = buildPrintCombatPreview(actor, meleeWeaponSinglePower(), [longbow, sword]);
+    expect(melee?.damage).toBe('WD 4d8 + 8d8');
+    expect(melee?.damage).not.toContain('2d8');
+
+    const rangedPower = {
+      type: 'power',
+      system: {
+        slot: 'attack',
+        cost: { action: 'attack' },
+        subfamily: 'weapon-attack',
+        templateId: 'active-ranged-weapon-single',
+        level: 4,
+        levels: {
+          '4': {
+            type: 'Ranged',
+            effect: { dice: '+7d8' },
+            mechanics: { damageRider: { flat: '+7d8' } },
+          },
+        },
+      },
+    };
+    const ranged = buildPrintCombatPreview(actor, rangedPower, [longbow, sword]);
+    expect(ranged?.damage).toBe('WD 2d8 + 7d8');
+    expect(ranged?.damage).not.toContain('4d8');
+  });
+
   it('includes weapon damage on weapon-attack powers even when mis-flagged as spell', () => {
     const weapon = moonlightGreatsword(4);
     const actor = mockActor({ intellect: 18, might: 14 }, [weapon]);

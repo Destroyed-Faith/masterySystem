@@ -53,7 +53,7 @@ import {
 import { deriveArtifactWeaponDamage, deriveBaseValueDisplay } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
+import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta, buildBasicAttackCompactDamageLines, listPreparedWeaponsByAttackType } from './character-print-combat.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
 import {
   basicAttackMrDamageFormula,
@@ -1286,6 +1286,8 @@ function formatCompactWeaponPiece(item: any): {
 
 /**
  * Quick Play weapon-set tiles — only weapons in prepared Sets 1/2.
+ * Each tile notes whether it pairs with Melee or Ranged Power attacks
+ * (otherwise that set is Basic Attack only for that kind).
  */
 function buildCompactWeaponSetTiles(actor: any): {
   index: WeaponSetIndex;
@@ -1293,6 +1295,7 @@ function buildCompactWeaponSetTiles(actor: any): {
   title: string;
   meta: string;
   specials: string;
+  pairing: string;
   lines: { meta: string; specials: string }[];
 }[] {
   const state = peekWeaponSets(actor);
@@ -1302,6 +1305,7 @@ function buildCompactWeaponSetTiles(actor: any): {
     title: string;
     meta: string;
     specials: string;
+    pairing: string;
     lines: { meta: string; specials: string }[];
   }[] = [];
 
@@ -1319,12 +1323,24 @@ function buildCompactWeaponSetTiles(actor: any): {
     if (weapons.length === 0) continue;
 
     const pieces = weapons.map((w) => formatCompactWeaponPiece(w));
+    const kinds = new Set(
+      weapons.map((w) => {
+        if (w.type === 'artifact') {
+          return resolveArtifactWeaponKind(w.system?.artifactWeapon, w.system?.baseProfile);
+        }
+        return w.system?.weaponType === 'ranged' ? 'ranged' : 'melee';
+      }),
+    );
+    const pairingParts: string[] = [];
+    if (kinds.has('melee')) pairingParts.push('Melee powers / Basic Attack');
+    if (kinds.has('ranged')) pairingParts.push('Ranged powers / Basic Attack');
     tiles.push({
       index,
       active: state.active === index,
       title: `SET ${index} — ${pieces.map((p) => p.name.toUpperCase()).join(' + ')}`,
       meta: pieces[0]?.meta ?? '',
       specials: pieces[0]?.specials ?? '',
+      pairing: pairingParts.join(' · '),
       lines: pieces.map((p) => ({ meta: p.meta, specials: p.specials })),
     });
   }
@@ -1553,13 +1569,61 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
   const powerItems = allItems.filter((i: any) => i?.type === 'power');
   const powers: Record<
     string,
-    { phase: string; phaseClass: string; name: string; rank: number; attack: string; damage: string; effect: string }[]
+    {
+      phase: string;
+      phaseClass: string;
+      name: string;
+      rank: number;
+      attack: string;
+      damage: string;
+      damageLines: string[];
+      effect: string;
+      hideRank?: boolean;
+    }[]
   > = {
     Active: [],
     'Active Buff': [],
     Reaction: [],
     Passive: [],
   };
+
+  // Universal Basic Attack — one damage line per prepared weapon kind.
+  // A Longbow without Ranged Single Attack still appears here (Basic only).
+  const mrBonus = basicAttackMrDamageFormula(actor);
+  const basicLines = buildBasicAttackCompactDamageLines(actor, allItems, mrBonus);
+  const preparedKinds = listPreparedWeaponsByAttackType(actor, allItems);
+  const hasRangedPower = powerItems.some((p: any) => {
+    const sys = p?.system ?? {};
+    const tid = String(sys.templateId ?? '');
+    const sub = String(sys.subfamily ?? '');
+    if (/ranged/i.test(tid) || /ranged/i.test(sub)) return true;
+    const levels = sys.levels;
+    if (levels && typeof levels === 'object') {
+      const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
+      const row = levels[String(rank)] ?? levels[rank];
+      if (row && /ranged/i.test(String(row.type ?? ''))) return true;
+    }
+    return false;
+  });
+  const basicNoteParts = [
+    'Universal — not a Power. Melee powers use melee WD only; Ranged powers use ranged WD only.',
+  ];
+  if (preparedKinds.ranged && !hasRangedPower) {
+    basicNoteParts.push(
+      'No Ranged attack power: the ranged set is Basic Attack only (add Ranged Single Attack to use it as a Power).',
+    );
+  }
+  powers.Active.push({
+    phase: 'Active',
+    phaseClass: 'Active',
+    name: 'Basic Attack',
+    rank: 0,
+    attack: '',
+    damage: '',
+    damageLines: basicLines,
+    effect: basicNoteParts.join(' '),
+    hideRank: true,
+  });
 
   for (const p of powerItems) {
     const sys = p?.system ?? {};
@@ -1580,6 +1644,7 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
       rank,
       attack: preview?.showAttack && preview.attackLabel ? String(preview.attackLabel) : '',
       damage: preview?.showDamage && preview.damage ? String(preview.damage) : '',
+      damageLines: [],
       effect: compactPlayText(powerEffectForRank(sys, rank)),
     });
   }

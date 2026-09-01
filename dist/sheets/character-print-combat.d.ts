@@ -29,6 +29,17 @@ export declare function buildArtifactRowSpellPrintMeta(row: {
     spellLabel?: string;
 };
 /**
+ * Prepared set / equipped weapons available for Basic Attack, split by kind.
+ * A ranged set weapon appears here even when the character has no Ranged
+ * Single Attack power (that weapon is then Basic Attack only).
+ */
+export declare function listPreparedWeaponsByAttackType(actor: any, items: any[]): {
+    melee: any | null;
+    ranged: any | null;
+};
+/** Compact Basic Attack damage lines: one per prepared weapon kind. */
+export declare function buildBasicAttackCompactDamageLines(actor: any, items: any[], mrBonusFormula: string): string[];
+/**
  * Build compact battle-sheet lines for a power item.
  */
 export declare function buildPrintCombatPreview(actor: any, powerItem: any, items: any[], slot?: BattlePrintSlot): PrintCombatPreview | null;

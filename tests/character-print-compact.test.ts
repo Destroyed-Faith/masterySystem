@@ -302,6 +302,7 @@ describe('Quick Play character print', () => {
       title: 'SET 1 — LONGBOW',
       meta: '2d8 · Ranged 32 m · Set',
       specials: 'Penetration(2) · Expose(4)',
+      pairing: 'Ranged powers / Basic Attack',
     });
     expect(ctx.weaponSetTiles[1]).toMatchObject({
       index: 2,
@@ -309,7 +310,27 @@ describe('Quick Play character print', () => {
       title: 'SET 2 — MOONLIGHT GREATSWORD',
       meta: '5d8 · Melee · Finesse · Artifact',
       specials: '',
+      pairing: 'Melee powers / Basic Attack',
     });
+  });
+
+  it('keeps melee WD on melee powers and lists Basic Attack for the ranged set without a Ranged power', () => {
+    const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
+    const active = ctx.powerGroups.find((g: any) => g.phase === 'Active')?.items ?? [];
+    const basic = active.find((i: any) => i.name === 'Basic Attack');
+    expect(basic.damageLines).toEqual([
+      'Melee: WD 5d8 + 4d8',
+      'Ranged: WD 2d8 + 4d8',
+    ]);
+    expect(basic.effect).toMatch(/No Ranged attack power/i);
+    expect(basic.effect).toMatch(/Ranged Single Attack/i);
+
+    const meleeSingle = active.find((i: any) => i.name === 'Melee Single Attack');
+    expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');
+    expect(meleeSingle.damage).not.toMatch(/2d8/);
+
+    const sundered = active.find((i: any) => String(i.name).includes('Sundered'));
+    expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
   });
 
   it('keeps Artifact powers on the Artifact, not in the general Power list', () => {
