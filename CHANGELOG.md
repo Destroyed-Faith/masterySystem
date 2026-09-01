@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.445] - 2026-09-01
+
+### Changed
+
+- **Quick Play sheet:** Weapon Sets sit side by side like Minor Expressions (title + kind in the header, one flowing stats line). Power tiles also pack horizontally when space allows.
+
 ## [0.9.444] - 2026-09-01
 
 ### Fixed

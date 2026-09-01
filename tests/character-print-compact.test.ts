@@ -300,17 +300,15 @@ describe('Quick Play character print', () => {
       index: 1,
       active: true,
       title: 'SET 1 — LONGBOW',
-      meta: '2d8 · Ranged 32 m · Set',
-      specials: 'Penetration(2) · Expose(4)',
-      pairing: 'Ranged powers / Basic Attack',
+      kindLabel: 'Ranged · Active',
+      body: '2d8 · Ranged 32 m · Set · Penetration(2) · Expose(4)',
     });
     expect(ctx.weaponSetTiles[1]).toMatchObject({
       index: 2,
       active: false,
       title: 'SET 2 — MOONLIGHT GREATSWORD',
-      meta: '5d8 · Melee · Finesse · Artifact',
-      specials: '',
-      pairing: 'Melee powers / Basic Attack',
+      kindLabel: 'Melee',
+      body: '5d8 · Melee · Finesse · Artifact',
     });
   });
 

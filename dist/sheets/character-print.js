@@ -1226,9 +1226,8 @@ function formatCompactWeaponPiece(item) {
     };
 }
 /**
- * Quick Play weapon-set tiles — only weapons in prepared Sets 1/2.
- * Each tile notes whether it pairs with Melee or Ranged Power attacks
- * (otherwise that set is Basic Attack only for that kind).
+ * Quick Play weapon-set tiles — same side-by-side tile language as Minor
+ * Expressions: title + kind in the header, one flowing stats line in the body.
  */
 function buildCompactWeaponSetTiles(actor) {
     const state = peekWeaponSets(actor);
@@ -1255,19 +1254,26 @@ function buildCompactWeaponSetTiles(actor) {
             }
             return w.system?.weaponType === 'ranged' ? 'ranged' : 'melee';
         }));
-        const pairingParts = [];
-        if (kinds.has('melee'))
-            pairingParts.push('Melee powers / Basic Attack');
-        if (kinds.has('ranged'))
-            pairingParts.push('Ranged powers / Basic Attack');
+        const kindLabel = [
+            kinds.has('melee') ? 'Melee' : null,
+            kinds.has('ranged') ? 'Ranged' : null,
+            state.active === index ? 'Active' : null,
+        ]
+            .filter(Boolean)
+            .join(' · ');
+        // One horizontal line per weapon (meta + specials), joined when dual-wield.
+        const body = pieces
+            .map((p) => [p.meta, p.specials].filter(Boolean).join(' · '))
+            .filter(Boolean)
+            .join('  ·  ');
         tiles.push({
             index,
             active: state.active === index,
             title: `SET ${index} — ${pieces.map((p) => p.name.toUpperCase()).join(' + ')}`,
+            kindLabel,
+            body,
             meta: pieces[0]?.meta ?? '',
             specials: pieces[0]?.specials ?? '',
-            pairing: pairingParts.join(' · '),
-            lines: pieces.map((p) => ({ meta: p.meta, specials: p.specials })),
         });
     }
     return tiles;
