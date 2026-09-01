@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.450] - 2026-09-01
+
+### Changed
+
+- **Quick Play sheet:** Attribute Stone Powers show T1–T3 cost boxes only (T1 one pip, T2 stacked pair, T3 2×2). Ramp powers start at T2; effect fluff is gone. Artifact Support still gold-fills prefilled tiers.
+
 ## [0.9.449] - 2026-09-01
 
 ### Changed

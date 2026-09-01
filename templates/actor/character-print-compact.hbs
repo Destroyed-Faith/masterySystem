@@ -96,11 +96,18 @@
         </header>
         <div class="qp-sp-grid">
           {{#each powers}}
-          <p class="qp-sp">
+          <p class="qp-sp{{#if supported}} is-supported{{/if}}">
             <span class="qp-sp-name">{{name}}</span>
-            <span class="qp-sp-tier">T{{tier}} · {{#each costPips}}<i class="qp-cost"></i>{{/each}}</span>
-            <span class="qp-sp-fx">{{effect}}</span>
-            {{#if supported}}<span class="qp-sp-support">{{supportSource}} · Support T{{supportTier}}</span>{{/if}}
+            <span class="qp-sp-tiers">
+              {{#each tiers}}
+              <span class="qp-sp-tg">
+                <span class="qp-sp-tl">{{label}}</span>
+                <span class="qp-sp-boxes is-{{layout}}">
+                  {{#each boxes}}<i class="qp-cost{{#if filled}} is-filled{{/if}}"></i>{{/each}}
+                </span>
+              </span>
+              {{/each}}
+            </span>
           </p>
           {{/each}}
         </div>
@@ -112,11 +119,18 @@
         </header>
         <div class="qp-sp-grid">
           {{#each generalStones.powers}}
-          <p class="qp-sp">
+          <p class="qp-sp{{#if supported}} is-supported{{/if}}">
             <span class="qp-sp-name">{{name}}</span>
-            <span class="qp-sp-tier">T{{tier}} · {{#each costPips}}<i class="qp-cost"></i>{{/each}}</span>
-            <span class="qp-sp-fx">{{effect}}</span>
-            {{#if supported}}<span class="qp-sp-support">{{supportSource}} · Support T{{supportTier}}</span>{{/if}}
+            <span class="qp-sp-tiers">
+              {{#each tiers}}
+              <span class="qp-sp-tg">
+                <span class="qp-sp-tl">{{label}}</span>
+                <span class="qp-sp-boxes is-{{layout}}">
+                  {{#each boxes}}<i class="qp-cost{{#if filled}} is-filled{{/if}}"></i>{{/each}}
+                </span>
+              </span>
+              {{/each}}
+            </span>
           </p>
           {{/each}}
         </div>

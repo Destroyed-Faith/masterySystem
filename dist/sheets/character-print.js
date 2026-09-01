@@ -22,7 +22,7 @@ import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { specialApplicationLimit } from '../combat/special-application.js';
-import { STONE_POWERS_BY_ATTRIBUTE, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, stonePowerSkipsFirstTier, stonePowerWaveCost, } from '../stones/stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, stonePowerSkipsFirstTier, } from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
 import { colorlessStoneInitiativeCost } from '../stones/colorless-stones.js';
@@ -1103,14 +1103,6 @@ function itemFlag(item, key) {
         return item.getFlag('mastery-system', key);
     return item?.flags?.['mastery-system']?.[key];
 }
-function compactOneLine(value, max = 108) {
-    const s = stripHtml(value);
-    if (!s)
-        return '';
-    if (s.length <= max)
-        return s;
-    return `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
-}
 /** Short play text without ellipsis — keep the existing compact mechanical lines. */
 function compactPlayText(value) {
     return stripHtml(value);
@@ -1377,18 +1369,31 @@ function buildCompactDefenseSources(kind, combat, actor, masteryRank) {
 function compactStoneRows(attrKey, supportByPowerId) {
     const list = STONE_POWERS_BY_ATTRIBUTE[attrKey] ?? [];
     return list.map((power) => {
-        const tier = firstEffectiveStonePowerTier(power.id);
-        const cost = stonePowerWaveCost(tier);
-        const first = power.tiers?.[0];
+        const firstPaid = firstEffectiveStonePowerTier(power.id);
+        const isRamp = stonePowerSkipsFirstTier(String(power.id));
         const sup = supportByPowerId?.get(String(power.id));
+        const supportTier = sup?.tier ?? 0;
+        // T1 = 1 pip (row), T2 = 2 pips (column), T3 = 4 pips (2×2). Ramp powers omit T1.
+        const tiers = [
+            { label: 'T1', tier: 1, layout: 't1', count: 1 },
+            { label: 'T2', tier: 2, layout: 't2', count: 2 },
+            { label: 'T3', tier: 3, layout: 't3', count: 4 },
+        ]
+            .filter((g) => !(isRamp && g.tier === 1))
+            .map((g) => ({
+            label: g.label,
+            tier: g.tier,
+            layout: g.layout,
+            boxes: Array.from({ length: g.count }, () => ({
+                filled: !!sup && g.tier > firstPaid && g.tier <= supportTier,
+            })),
+        }));
         return {
             name: power.name,
-            tier,
-            cost,
-            costPips: Array.from({ length: cost }, (_, i) => i + 1),
-            effect: compactOneLine(first?.label || first?.description || power.description, 42),
+            firstTier: firstPaid,
+            tiers,
             supported: !!sup,
-            supportTier: sup?.tier ?? 0,
+            supportTier,
             supportSource: sup ? compactArtifactName(sup.source) : '',
         };
     });
