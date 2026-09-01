@@ -228,8 +228,8 @@ function alarisActor() {
           equipped: true,
           currentLevel: 1,
           baseValues: [
-            { slot: 'a', type: 'bodyArmor', label: 'Light Armor', value: 4, armorWeightClass: 'light' },
-            { slot: 'b', type: 'evade', label: 'Evade (Silver Veil)', value: 2 },
+            { slot: 'a', type: 'bodyArmor', label: 'Light Armor', value: 0, armorWeightClass: 'light' },
+            { slot: 'a', type: 'evade', label: 'Evade (Silver Veil)', value: 2 },
           ],
           stoneFunction: {
             kind: 'stonePowerSupport',

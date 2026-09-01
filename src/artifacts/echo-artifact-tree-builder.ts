@@ -58,7 +58,7 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 49;
+export const ECHO_ARTIFACT_SEED_VERSION = 50;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -456,16 +456,17 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
       label: 'Light Armor',
       armorWeightClass: 'light',
       unlock: 1,
+      // Bonus over Light base 4 → totals 4/4/5/5/6/6/7/7/8/8 (Silver Veil table).
       valueAt: (l) => soulSigilArmorForLevel(l),
-      note: 'Light Armor: flat +4 Armor. No class drawbacks.',
+      note: 'Silver Veil Light Armor: totals 4→8 (paired bands). No extra Artifact Armor Bonus.',
     },
     {
-      slot: 'b',
+      slot: 'a',
       type: 'evade',
       label: 'Evade (Silver Veil)',
       unlock: 1,
       valueAt: (l) => soulSigilEvadeForLevel(l),
-      note: 'Silver Veil Evade scales +2 (L1) … +11 (L10).',
+      note: 'Silver Veil Evade +2 (L1) … +11 (L10), +1 per level.',
     },
   ],
   frostboundReturningAxe: [

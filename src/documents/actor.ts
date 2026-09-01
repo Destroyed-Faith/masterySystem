@@ -762,7 +762,9 @@ export class MasteryActor extends Actor {
       system.combat.armorTotal = (system.combat.armorTotal || 0) + totalArtifactArmor;
       for (const row of artifactBv.rows.armor) {
         const detail = row.typeLabel
-          ? `${row.typeLabel} · base ${row.baseArmor} + bonus ${row.bonusArmor}`
+          ? row.bonusArmor
+            ? `${row.typeLabel} · ${row.value} (base ${row.baseArmor} +${row.bonusArmor})`
+            : `${row.typeLabel} · ${row.value}`
           : `Artifact · ${row.label ?? row.type}`;
         (system.combat.armorBreakdownRows as any[]).push({
           label: row.source,

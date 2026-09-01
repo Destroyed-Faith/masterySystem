@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.457] - 2026-09-01
+
+### Fixed
+
+- **Soul Sigil (Silver Veil):** Armor follows the paired Light Armor table (4→8), not a flat +4 stacked on the Light base (which double-counted to 8). Evade stays +2…+11 from L1. Source rows show clean Light Armor totals; Evade is no longer parked on slot B (which suppressed it until L4).
+
 ## [0.9.456] - 2026-09-01
 
 ### Fixed

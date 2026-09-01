@@ -200,21 +200,25 @@ describe('Moonlight Greatsword', () => {
 describe('Soul Sigil', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('soulSigil')!);
 
-  it('is light body armor (+4) with Evade +2 → +11', () => {
+  it('is Silver Veil Light Armor (4→8 paired) with Evade +2 → +11', () => {
     const sys = sysAt(tree, 1);
     expect(sys.slot).toBe('body');
     expect(sys.baseProfile).toBe('bodyArmor');
+    const armorTotals = [4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
+    const lightArmorBase = 4;
     for (let lvl = 1; lvl <= 10; lvl++) {
       const bv = sysAt(tree, lvl).baseValues;
       expect(bv).toHaveLength(2);
       const armor = bv.find((b: any) => b.type === 'bodyArmor');
       const evade = bv.find((b: any) => b.type === 'evade');
-      expect(armor.value).toBe(4);
+      expect(armor.value).toBe(armorTotals[lvl - 1]! - lightArmorBase);
       expect(armor.armorWeightClass).toBe('light');
       expect(evade.value).toBe(1 + lvl);
     }
     expect(baseValue(tree, 1, 'Evade (Silver Veil)').value).toBe(2);
     expect(baseValue(tree, 10, 'Evade (Silver Veil)').value).toBe(11);
+    expect(baseValue(tree, 1, 'Light Armor').value).toBe(0);
+    expect(baseValue(tree, 10, 'Light Armor').value).toBe(4);
   });
 
   it('supports the Temporary HP Stone Power from L1', () => {

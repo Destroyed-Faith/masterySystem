@@ -80,13 +80,20 @@ export function bodyArmorBonusForLevel(level) {
     const l = clampLevel(level);
     return l <= 9 ? l + 3 : 14;
 }
-/** Soul Sigil Silver Veil Evade. L1=+2 … L10=+11 (+1 base, +1/level). */
+/** Soul Sigil Silver Veil Evade. L1=+2 … L10=+11 (+1 per level). */
 export function noArmorEvadeForLevel(level) {
     return 1 + clampLevel(level);
 }
-/** Flat Light Armor value on Soul Sigil (does not scale with level). */
-export function soulSigilArmorForLevel(_level) {
-    return 4;
+/**
+ * Soul Sigil Silver Veil Armor **bonus** over Light Armor base 4.
+ * Totals: L1–2=4, L3–4=5, L5–6=6, L7–8=7, L9–10=8 (no extra Artifact Armor Bonus).
+ */
+export function soulSigilArmorForLevel(level) {
+    return Math.floor((clampLevel(level) - 1) / 2);
+}
+/** Soul Sigil Silver Veil total Armor (Light base 4 + bonus). */
+export function soulSigilArmorTotalForLevel(level) {
+    return 4 + soulSigilArmorForLevel(level);
 }
 /** Feet Evade (Elorian Stride). L1–2=+1, L3–4=+2, … L9–10=+5. */
 export function feetEvadeForLevel(level) {
