@@ -2,10 +2,9 @@
  * Ranged attack targeting (Foundry v13) — same interaction model as melee-targeting,
  * but uses option.range (meters) and fires masterySystem.rangedTargetSelected.
  *
- * Players Guide: Short band ("Min" on NPC sheet) is the gifted full-pool range —
- * NOT a hard minimum. Any target within Long (max) may be selected. Closer than
- * Short still works at full Short pool; Threatened Ranged applies separately when
- * enemies are in melee reach.
+ * Players Guide: flat maximum only. Any target within Max may be selected at full
+ * pool; beyond Max the attack is not legal. Threatened Ranged applies separately
+ * when enemies are in melee reach.
  *
  * Click model (v0.9.274+):
  * - Per-target stage hit-pads bound to a concrete token id (no coordinate guessing).
@@ -33,8 +32,6 @@ interface RangedTargetingState {
   attackerToken: any;
   option: RadialCombatOption;
   rangeMeters: number;
-  /** Short-band ceiling (gifted full pool). Informational only for targeting. */
-  shortBandMeters: number;
   rangeGridUnits: number;
   highlightId: string;
   rings: Map<string, PIXI.Graphics>;
@@ -55,11 +52,6 @@ function getRangedMaxMeters(option: RadialCombatOption): number {
   return 30;
 }
 
-function getRangedShortMeters(option: RadialCombatOption): number {
-  const min = Math.floor(Number(option.rangeMinMeters));
-  return Number.isFinite(min) && min > 0 ? min : 0;
-}
-
 function computeValidTargets(attackerToken: any, rangeMeters: number): Set<string> {
   const inRange = new Set<string>();
   const tokens = canvas.tokens?.placeables ?? [];
@@ -71,7 +63,6 @@ function computeValidTargets(attackerToken: any, rangeMeters: number): Set<strin
     if (!token.actor) continue;
 
     const targetCenter = token.center;
-    // Only Long/max is a hard targeting limit. Short band is never an exclusion.
     if (!isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) continue;
     inRange.add(token.id);
   }
@@ -223,7 +214,7 @@ function measureMetersBetweenTokens(a: any, b: any): number | null {
   return Number.isFinite(dScene) ? dScene : null;
 }
 
-function logNearbyTokenDistances(attackerToken: any, shortM: number, maxM: number, validIds: Set<string>): void {
+function logNearbyTokenDistances(attackerToken: any, maxM: number, validIds: Set<string>): void {
   const attackerCenter = attackerToken?.center;
   if (!attackerCenter) return;
   const rows: Record<string, unknown>[] = [];
@@ -231,23 +222,19 @@ function logNearbyTokenDistances(attackerToken: any, shortM: number, maxM: numbe
     if (!token?.id || token.id === attackerToken.id || !token.center) continue;
     const dScene = measureSceneDistanceBetweenPoints(attackerCenter, token.center);
     const withinMax = isWithinRangeMeters(attackerCenter, token.center, maxM);
-    const inShort =
-      Number.isFinite(dScene) && shortM > 0 ? dScene <= shortM : withinMax;
     rows.push({
       name: token.name,
       id: token.id,
       distScene: Number.isFinite(dScene) ? Number(dScene.toFixed(2)) : null,
       withinMax,
-      inShortBand: inShort,
       selectable: validIds.has(token.id),
       center: { x: Math.round(token.center.x), y: Math.round(token.center.y) },
     });
   }
   rows.sort((a: any, b: any) => (a.distScene ?? 99) - (b.distScene ?? 99));
   console.log("[MS NPC Targeting] RANGED nearby token distances", {
-    shortBandM: shortM,
     maxM,
-    note: "Short band is gifted full pool — NOT a minimum distance to attack",
+    note: "Flat maximum only — full pool inside Max, illegal beyond",
     attacker: attackerToken.name,
     tokens: rows,
   });
@@ -271,12 +258,7 @@ function confirmRangedTarget(state: RangedTargetingState, clicked: any, via: str
       targetId: clicked.id,
       option: state.option?.name,
       distM,
-      shortBandM: state.shortBandMeters,
       maxM: state.rangeMeters,
-      inShortBand:
-        distM != null && state.shortBandMeters > 0
-          ? distM <= state.shortBandMeters
-          : true,
       validIds: [...state.validTargetIds].map((id) => {
         const t = canvas.tokens?.get(id);
         return t ? `${t.name}(${id})` : id;
@@ -379,13 +361,11 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   attackerToken?.control?.({ releaseOthers: false });
 
   const rangeMeters = getRangedMaxMeters(option);
-  const shortBandMeters = getRangedShortMeters(option);
 
   const state: RangedTargetingState = {
     attackerToken,
     option,
     rangeMeters,
-    shortBandMeters,
     rangeGridUnits: gridStepsFromMeters(rangeMeters),
     highlightId: "mastery-ranged",
     rings: new Map(),
@@ -402,12 +382,11 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   drawRangeArea(state);
   state.validTargetIds = computeValidTargets(attackerToken, rangeMeters);
   markValidTargets(state);
-  logNearbyTokenDistances(attackerToken, shortBandMeters, rangeMeters, state.validTargetIds);
+  logNearbyTokenDistances(attackerToken, rangeMeters, state.validTargetIds);
   console.log("[MS NPC Targeting] RANGED targeting started", {
     attacker: attackerToken.name,
     attackerId: attackerToken.id,
     option: option.name,
-    shortBandMeters,
     rangeMeters,
     validTargets: [...state.validTargetIds].map((id) => {
       const t = canvas.tokens?.get(id);
@@ -428,20 +407,17 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   canvas.stage.on("pointerdown", state.onPointerDown);
   window.addEventListener("keydown", state.onKeyDown);
 
-  const bandHint =
-    shortBandMeters > 0
-      ? `Short ≤${shortBandMeters} m (full pool), Long ≤${rangeMeters} m`
-      : `Long ≤${rangeMeters} m`;
+  const rangeHint = `Max ${rangeMeters} m`;
   if (state.validTargetIds.size) {
     ui.notifications?.info?.(
-      `Ranged targeting: ${bandHint}. Click any highlighted target within Long range.`,
+      `Ranged targeting: ${rangeHint}. Click any highlighted target within range.`,
     );
   } else {
     ui.notifications?.warn?.(
-      `Ranged targeting: ${bandHint}. No targets within ${rangeMeters} m.`,
+      `Ranged targeting: ${rangeHint}. No targets within ${rangeMeters} m.`,
     );
     console.warn(
-      "Mastery System | [RADIAL FLOW] ranged targeting: zero valid targets within Long range",
+      "Mastery System | [RADIAL FLOW] ranged targeting: zero valid targets within max range",
     );
   }
 }

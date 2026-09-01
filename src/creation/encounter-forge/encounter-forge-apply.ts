@@ -55,7 +55,7 @@ export function solvedAttackToNpcRow(attack: SolvedAttack): Record<string, unkno
   if (attack.delivery === 'ranged') {
     row.npcRangeKind = 'ranged';
     row.npcRangeMeters = Math.min(48, Math.max(8, attack.range || 24));
-    row.npcRangeMinMeters = 12;
+    row.npcRangeMinMeters = 0;
   } else {
     row.npcRangeKind = 'melee';
     row.npcRangeMeters = Math.min(8, Math.max(1, attack.range || 2));

@@ -79,7 +79,7 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
     expect(opts[0].meleeReachMeters).toBe(0);
   });
 
-  it('print sheet shows Short/Long range text, not the range() helper list', () => {
+  it('print sheet shows a flat maximum range, not Short/Long bands', () => {
     const ctx = buildNpcPrintContext({
       type: 'npc',
       name: 'Dummy',
@@ -103,13 +103,13 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
       },
     } as any) as any;
     const row = ctx.pages[0].attacks[0];
-    expect(row.rangeText).toMatch(/Short/i);
-    expect(row.rangeText).toMatch(/Long/i);
+    expect(row.rangeText).toBe('Ranged 24 m');
+    expect(row.rangeText).not.toMatch(/Short|Long/i);
     expect(row.rangeText).not.toContain('1,2,3');
     expect(row.aoe).toMatch(/2 m/);
   });
 
-  it('radial description uses Short/Long wording, not Min–Max exclusion', () => {
+  it('radial description uses flat maximum range only', () => {
     const opts = buildNpcAttackRadialOptions({
       type: 'npc',
       system: {
@@ -125,8 +125,8 @@ describe('NPC Fernkampf / AoE sheet persistence rules', () => {
         attackValues: [],
       },
     } as any);
-    expect(opts[0].description).toMatch(/Short ≤12/);
-    expect(opts[0].description).toMatch(/Long ≤24/);
+    expect(opts[0].description).toMatch(/Ranged 24 m/);
+    expect(opts[0].description).not.toMatch(/Short|Long/i);
     expect(opts[0].description).not.toMatch(/12–24/);
   });
 });

@@ -61,19 +61,7 @@ function buildNpcAttackDescription(atk: any): string {
   const hasAoe = aoeRad >= 2;
   if (isRanged) {
     const maxM = meters > 0 ? Math.min(48, Math.max(8, meters)) : 24;
-    const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
-    let shortM = 12;
-    if (Number.isFinite(minRaw)) {
-      if (minRaw <= 0) shortM = 0;
-      else shortM = Math.min(48, Math.max(2, minRaw));
-    }
-    if (shortM > maxM) shortM = maxM;
-    // Short = gifted full-pool band; Long = absolute max (not Min–Max exclusion).
-    parts.push(
-      shortM > 0
-        ? `Range Short ≤${shortM} / Long ≤${maxM} m`
-        : `Range Long ≤${maxM} m`,
-    );
+    parts.push(`Ranged ${maxM} m`);
   } else if (hasAoe) {
     parts.push('Melee around self');
   } else {
@@ -198,7 +186,7 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
         source: 'npc-attack' as const,
         range: targeting.rangeM,
         meleeReachMeters: targeting.isRanged ? undefined : targeting.reachM,
-        rangeMinMeters: targeting.isRanged ? targeting.rangedMinM : undefined,
+        rangeMinMeters: undefined,
         rangeMeters: targeting.rangeM,
         aoeShape: targeting.aoeShape as any,
         aoeRadiusMeters: targeting.hasAoe ? targeting.aoeRad : undefined,

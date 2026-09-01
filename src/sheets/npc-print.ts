@@ -68,11 +68,8 @@ function creatureTypeLabel(actor: any): string {
 function formatRangeLine(atk: AttackValue): string {
   const kind = String(atk.npcRangeKind || '').toLowerCase();
   if (kind === 'ranged') {
-    const longM = Math.floor(num(atk.npcRangeMeters, 24));
-    const shortM = Math.floor(num(atk.npcRangeMinMeters, 12));
-    return shortM > 0
-      ? `Range Short ≤${shortM} / Long ≤${longM} m`
-      : `Range Long ≤${longM} m`;
+    const maxM = Math.floor(num(atk.npcRangeMeters, 24));
+    return `Ranged ${maxM > 0 ? maxM : 24} m`;
   }
   const aoeM = Math.floor(num(atk.npcAoeRadiusM, 0));
   if (aoeM >= 2) return 'Melee around self';
@@ -105,9 +102,8 @@ function formatCompactRangeTag(atk: AttackValue): string {
   const kind = String(atk.npcRangeKind || '').toLowerCase();
   const aoeM = Math.floor(num(atk.npcAoeRadiusM, 0));
   if (kind === 'ranged') {
-    const longM = Math.floor(num(atk.npcRangeMeters, 24));
-    const shortM = Math.floor(num(atk.npcRangeMinMeters, 12));
-    return shortM > 0 ? `Short ≤${shortM} / Long ≤${longM} m` : `Ranged ≤${longM} m`;
+    const maxM = Math.floor(num(atk.npcRangeMeters, 24));
+    return `Ranged ${maxM > 0 ? maxM : 24} m`;
   }
   if (aoeM >= 2) return 'Melee around self';
   const reach = Math.floor(num(atk.npcRangeMeters, 2));

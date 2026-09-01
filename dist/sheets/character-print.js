@@ -1154,20 +1154,28 @@ function splitCompactTags(raw) {
         return formatted ? [formatted] : [];
     }
     return String(raw)
-        .split(/[,·;/|]+/)
+        // Do not split on `/` — legacy band strings like `10/16/32m` must stay one token
+        // so parseMaxRangeM can take the maximum (32), not leak `16` · `32m` as tags.
+        .split(/[,·;|]+/)
         .map((s) => s.trim())
         .filter((s) => s && s !== '—');
 }
 function extractRangedMetersFromTags(tags) {
     let max = null;
     for (const tag of tags) {
-        if (!/ranged|thrown/i.test(tag))
+        // Ranged/Thrown labels, or legacy short/mid/long band strings (`10/16/32m`).
+        if (!/ranged|thrown|\d+\s*\/\s*\d+/i.test(tag))
             continue;
         const parsed = parseMaxRangeM(tag);
         if (parsed != null && (max == null || parsed > max))
             max = parsed;
     }
     return max;
+}
+/** Bare `16` / `32m` leftovers after old band strings were split on `/`. */
+function isLegacyRangeBandToken(tag) {
+    const t = tag.trim();
+    return /^\d+\s*m?$/i.test(t) || /^\d+\s*\/\s*\d+(\s*\/\s*\d+)*\s*m?$/i.test(t);
 }
 function formatCompactWeaponPiece(item) {
     const sys = item?.system ?? {};
@@ -1193,7 +1201,10 @@ function formatCompactWeaponPiece(item) {
         tags = [
             ...splitCompactTags(aw.innateAbilities),
             ...splitCompactTags(sys.freeTrait),
-        ].filter((t) => !/^ranged\b/i.test(t) && !/^thrown\b/i.test(t) && !/^artifact$/i.test(t));
+        ].filter((t) => !/^ranged\b/i.test(t) &&
+            !/^thrown\b/i.test(t) &&
+            !/^artifact$/i.test(t) &&
+            !isLegacyRangeBandToken(t));
         tags.push('Artifact');
         specials = splitCompactTags(aw.specials);
     }
@@ -1201,12 +1212,18 @@ function formatCompactWeaponPiece(item) {
         damage = String(sys.damage ?? '').trim();
         const innates = splitCompactTags(sys.innateAbilities);
         // Always print the flat maximum (Players Guide). Prefer innate "Ranged (32 m)"
-        // over stale seed values like system.range = "10m"; never show short/long bands.
+        // / legacy "10/16/32m" over stale seed values like system.range = "10m".
+        const rawInnate = Array.isArray(sys.innateAbilities)
+            ? sys.innateAbilities.map((a) => String(a)).join(', ')
+            : String(sys.innateAbilities ?? '');
+        const fromRaw = parseMaxRangeM(rawInnate);
         const fromTags = extractRangedMetersFromTags(innates);
         const fromSys = parseMaxRangeM(String(sys.range ?? ''));
-        const rangedMeters = fromTags != null || fromSys != null
-            ? Math.max(fromTags ?? 0, fromSys ?? 0) || null
-            : null;
+        const rangedMeters = [fromRaw, fromTags, fromSys].reduce((acc, n) => {
+            if (n == null || n <= 0)
+                return acc;
+            return acc == null ? n : Math.max(acc, n);
+        }, null);
         if (sys.weaponType === 'ranged' || rangedMeters != null) {
             const meters = rangedMeters != null && rangedMeters > 0 ? rangedMeters : DEFAULT_WEAPON_RANGE_M;
             kindLabel = `Ranged ${meters} m`;
@@ -1214,7 +1231,7 @@ function formatCompactWeaponPiece(item) {
         else {
             kindLabel = 'Melee';
         }
-        tags = innates.filter((t) => !/^ranged\b/i.test(t) && !/^thrown\b/i.test(t));
+        tags = innates.filter((t) => !/^ranged\b/i.test(t) && !/^thrown\b/i.test(t) && !isLegacyRangeBandToken(t));
         specials = splitCompactTags(sys.specials);
     }
     const metaParts = [damage, kindLabel, ...tags].filter(Boolean);

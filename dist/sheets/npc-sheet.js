@@ -115,20 +115,8 @@ function normalizeNpcAttackRowForContext(row) {
         const n = Math.floor(Number(o.npcStressD8));
         o.npcStressD8 = Number.isFinite(n) && n >= 1 ? Math.min(4, n) : 0;
     }
-    // Short band may be 0 (= derive from Long) — keep it for the select.
-    {
-        const raw = o.npcRangeMinMeters;
-        if (raw === '' || raw === null || raw === undefined) {
-            delete o.npcRangeMinMeters;
-        }
-        else {
-            const n = Math.floor(Number(raw));
-            if (Number.isFinite(n) && n >= 0)
-                o.npcRangeMinMeters = n;
-            else
-                delete o.npcRangeMinMeters;
-        }
-    }
+    // Legacy Short/min band — ignored (Players Guide: flat maximum only).
+    o.npcRangeMinMeters = 0;
     if (o.npcSplitAttack === true || o.npcSplitAttack === 'true' || o.npcSplitAttack === 'on') {
         o.npcSplitAttack = true;
     }
@@ -149,26 +137,14 @@ function normalizeNpcAttackRowForContext(row) {
     const rk = String(o.npcRangeKind || '').toLowerCase();
     if (rk === 'ranged') {
         o.npcRangeKind = 'ranged';
-        // Range: Long 8–48 (absolute max); Short 0 (derive) or 2–48 (gifted full pool).
+        // Flat maximum 8–48 m.
         const maxRaw = Math.floor(Number(o.npcRangeMeters));
-        const minRaw = Math.floor(Number(o.npcRangeMinMeters));
-        const maxM = Number.isFinite(maxRaw) && maxRaw >= 8 ? Math.min(48, maxRaw) : 24;
-        let minM = 12;
-        if (Number.isFinite(minRaw)) {
-            if (minRaw <= 0)
-                minM = 0;
-            else
-                minM = Math.min(48, Math.max(2, minRaw));
-        }
-        if (minM > maxM)
-            minM = maxM;
-        o.npcRangeMeters = maxM;
-        o.npcRangeMinMeters = minM;
+        o.npcRangeMeters =
+            Number.isFinite(maxRaw) && maxRaw >= 8 ? Math.min(48, maxRaw) : 24;
     }
     else {
         // Persist explicit melee so empty FormData can't leave a stale "ranged" flag.
         o.npcRangeKind = 'melee';
-        delete o.npcRangeMinMeters;
     }
     // AoE is driven only by radius (≥ 2 m). Stale npcAoeShape alone must not keep AoE on.
     // "—" / 0 / 1 ⇒ normal single-target; shape is always derived (radius | none).
@@ -761,8 +737,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 ? {
                     npcRangeKind: 'ranged',
                     npcRangeMeters: 24,
-                    // Default Fern band; set Min to 0 on the sheet if targets stand closer.
-                    npcRangeMinMeters: 12,
+                    npcRangeMinMeters: 0,
                     npcAoeRadiusM: 0,
                     npcAoeShape: 'none',
                 }

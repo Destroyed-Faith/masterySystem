@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.454] - 2026-09-01
+
+### Fixed
+
+- **Range bands removed:** Only the flat maximum range remains (Players Guide). Quick Play no longer prints leftovers like `Ranged 10 m · 16 · 32m` from old `10/16/32m` strings. NPC sheet drops the Short field; print/radial/targeting show `Ranged X m` only.
+
 ## [0.9.453] - 2026-09-01
 
 ### Fixed

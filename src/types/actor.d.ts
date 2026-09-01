@@ -395,12 +395,11 @@ export interface AttackValue {
   npcRangeKind?: 'melee' | 'ranged' | '' | string;
   /**
    * Reach-Modus: Reach in Metern (1–8, Standard 2).
-   * Range-Modus: Long band / absolute max in Metern (8–48, Standard 24).
+   * Range-Modus: flat maximum in Metern (8–48, Standard 24).
    */
   npcRangeMeters?: number;
   /**
-   * Range-Modus: Short band in Metern (gifted full dice pool 0…Short).
-   * Not a minimum attack distance. 0 = derive Short from Long. Default 12.
+   * @deprecated Legacy Short/min band. Ignored — Players Guide uses flat maximum only.
    */
   npcRangeMinMeters?: number;
   /** AoE-Form für Nah-/Fern (Radial-Metadaten; Nah-Burst nutzt „radius“ + Radius). */

@@ -386,6 +386,44 @@ describe('Quick Play character print', () => {
     expect(bow.body).not.toMatch(/\d+\s*\/\s*\d+/);
   });
 
+  it('collapses legacy 10/16/32m band leftovers into one maximum', () => {
+    const actor = {
+      ...alarisActor(),
+      items: [
+        {
+          id: 'band-bow',
+          name: 'Band Bow',
+          type: 'weapon',
+          system: {
+            weaponType: 'ranged',
+            damage: '2d8',
+            range: '10m',
+            hands: 2,
+            innateAbilities: ['Ranged 10/16/32m', 'Set'],
+            specials: [],
+            equipped: true,
+          },
+        },
+      ],
+      flags: {
+        'mastery-system': {
+          weaponSets: {
+            sets: {
+              1: { mainhandItemId: 'band-bow', offhandItemId: null },
+              2: { mainhandItemId: null, offhandItemId: null },
+            },
+            activeSet: 1,
+          },
+        },
+      },
+    };
+    const ctx = buildCharacterCompactPrintContext(actor) as any;
+    const bow = ctx.weaponSetTiles.find((t: any) => /BAND BOW/i.test(t.title));
+    expect(bow.body).toBe('2d8 · Ranged 32 m · Set');
+    expect(bow.body).not.toMatch(/\b16\b/);
+    expect(bow.body).not.toMatch(/10\s*m/);
+  });
+
   it('lists prepared weapon Sets between Skills and Powers style tiles', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     expect(ctx.hasWeaponSets).toBe(true);

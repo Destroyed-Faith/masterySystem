@@ -207,7 +207,7 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
         inventorySize: getWeaponInventorySize(weapon.hands, ranged, weapon.name),
         weaponType,
         damage: weapon.weaponDamage,
-        range: ranged ? '10m' : '0m',
+        range: ranged ? '32m' : '0m',
         hands: weapon.hands,
         innateAbilities: weapon.innateAbilities,
         specials,

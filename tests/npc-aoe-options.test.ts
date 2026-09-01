@@ -206,7 +206,8 @@ describe('NPC AoE radial options', () => {
     expect(opts[0].aoeRadiusMeters).toBe(4);
     expect(opts[0].aoePlacementProfile).toBe('hostile-zone');
     expect(opts[0].burstMeleeAoE).toBeFalsy();
-    expect(opts[0].description).toContain('Range Short ≤12 / Long ≤24 m');
+    expect(opts[0].description).toContain('Ranged 24 m');
+    expect(opts[0].description).not.toMatch(/Short|Long/i);
     expect(opts[0].description).toContain('AoE 4 m');
   });
 

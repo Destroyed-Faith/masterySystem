@@ -140,17 +140,10 @@ export function resolveNpcAttackTargeting(atk: AttackValue | null | undefined): 
   const rangeKind = String(atk?.npcRangeKind || '').toLowerCase();
   const isRanged = rangeKind === 'ranged';
   const metersRaw = Math.floor(Number(atk?.npcRangeMeters));
-  // Long = absolute max selectable range. Short = gifted full-pool band (not a floor).
+  // Flat maximum only — short/min bands are gone from the Players Guide.
   const rangedMaxM =
     Number.isFinite(metersRaw) && metersRaw > 0 ? Math.min(48, Math.max(8, metersRaw)) : 24;
-  const minRaw = Math.floor(Number(atk?.npcRangeMinMeters));
-  // 0 = derive Short from Long at roll time; default when unset remains 12 m.
-  let rangedMinM = 12;
-  if (Number.isFinite(minRaw)) {
-    if (minRaw <= 0) rangedMinM = 0;
-    else rangedMinM = Math.min(48, Math.max(2, minRaw));
-  }
-  if (rangedMinM > rangedMaxM) rangedMinM = rangedMaxM;
+  const rangedMinM = 0;
   const aoeRad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
   const hasAoe = aoeRad >= 2;
   const burstMeleeAoE = !isRanged && hasAoe;
@@ -185,7 +178,7 @@ export function applyNpcAttackTargetingToOption<T extends Record<string, any>>(
     ...option,
     range: t.rangeM,
     meleeReachMeters: t.isRanged ? undefined : t.reachM,
-    rangeMinMeters: t.isRanged ? t.rangedMinM : undefined,
+    rangeMinMeters: undefined,
     rangeMeters: t.rangeM,
     aoeShape: t.aoeShape,
     aoeRadiusMeters: t.hasAoe ? t.aoeRad : undefined,
@@ -227,13 +220,9 @@ export function sanitizeNpcAttackTargetingFields<T extends Record<string, any>>(
   if (isRanged) {
     const maxM =
       Number.isFinite(metersRaw) && metersRaw >= 8 ? Math.min(48, metersRaw) : 24;
-    let minM = Math.floor(Number(out.npcRangeMinMeters));
-    // 0 = derive Short from Long; otherwise Short band 2–48, never above Long.
-    if (!Number.isFinite(minM) || minM < 0) minM = 12;
-    if (minM > 0) minM = Math.min(48, Math.max(2, minM));
-    if (minM > maxM) minM = maxM;
     out.npcRangeMeters = maxM;
-    out.npcRangeMinMeters = minM;
+    // Legacy Short/min field — ignored; only the flat maximum remains.
+    out.npcRangeMinMeters = 0;
   } else {
     // Melee burst is around self — no extra reach band.
     out.npcRangeMeters = hasAoe

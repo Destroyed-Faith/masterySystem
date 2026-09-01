@@ -30,8 +30,7 @@ export interface RadialCombatOption {
   range?: number; // numeric range in meters (always set for all options)
   meleeReachMeters?: number; // Optional override for melee reach in meters
   /**
-   * NPC ranged Short band in meters (gifted full-pool ceiling).
-   * Not a hard minimum distance — targets closer than this remain valid.
+   * @deprecated Legacy Short/min band. Ignored — flat maximum only.
    */
   rangeMinMeters?: number;
   // Utility targeting fields

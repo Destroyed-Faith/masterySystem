@@ -17,22 +17,14 @@
 
     {{#if (eq atk.npcRangeKind "ranged")}}
     <div class="npc-attack-field">
-      <label>Short</label>
-      <select name="{{path}}.npcRangeMinMeters" data-dtype="Number" class="npc-range-min" title="Short band (m): gifted full dice pool from 0 up to this distance. Not a minimum attack distance — close targets are always allowed. 0 = derive Short from Long.">
-        <option value="0" {{#unless atk.npcRangeMinMeters}}selected{{/unless}}>0 m</option>
-        {{#each (range 2 48)}}
-        <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMinMeters this)}}selected{{/if}}>{{this}} m</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="npc-attack-field">
-      <label>Long</label>
-      <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-max" title="Long band (m): absolute maximum range. Any target within this radius can be selected. Beyond Short, Medium/Long reduce the dice pool.">
+      <label>Max</label>
+      <select name="{{path}}.npcRangeMeters" data-dtype="Number" class="npc-range-max" title="Maximum range in meters. Full attack pool inside this distance; beyond it the attack is not legal.">
         {{#each (range 8 48)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcRangeMeters this)}}selected{{/if}}>{{this}} m</option>
         {{/each}}
       </select>
     </div>
+    <input type="hidden" name="{{path}}.npcRangeMinMeters" value="0" data-dtype="Number"/>
     {{else}}
     {{#if atk.npcAoeRadiusM}}
     <div class="npc-attack-field npc-attack-field--hint">

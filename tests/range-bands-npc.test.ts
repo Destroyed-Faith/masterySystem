@@ -41,14 +41,14 @@ describe('flat weapon ranges (PG Weapon Properties)', () => {
     expect(npcAttackKeepDice(null, 0)).toBe(1);
   });
 
-  it('resolveNpcAttackTargeting does not treat Short as exclusion for targeting metadata', () => {
+  it('resolveNpcAttackTargeting ignores legacy Short and uses flat maximum only', () => {
     const t = resolveNpcAttackTargeting({
       npcRangeKind: 'ranged',
       npcRangeMinMeters: 12,
       npcRangeMeters: 24,
     } as any);
     expect(t.isRanged).toBe(true);
-    expect(t.rangedMinM).toBe(12);
+    expect(t.rangedMinM).toBe(0);
     expect(t.rangedMaxM).toBe(24);
     expect(t.rangeM).toBe(24);
   });
