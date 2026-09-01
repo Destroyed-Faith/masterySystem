@@ -4,7 +4,7 @@ import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPrepar
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
 import { applyCarouselCompactClass, clearCarouselTopOffset, isCompactCarouselViewport, } from './combat-carousel-layout.js';
-import { buildEncounterSetupStatus, forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
+import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
@@ -303,7 +303,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 combatStrip,
                 hasToken: !!token,
                 tokenId: tokenId,
-                setupStatus: buildEncounterSetupStatus(combatant, combat),
             });
         }
         const preparing = isEncounterPreparing(combat);
@@ -360,6 +359,32 @@ export class CombatCarouselApp extends BaseCarousel {
         if (this.hookEntries.length === 0) {
             this.registerUpdateHooks();
         }
+        // Name click — Stone Powers (Passives live in that dialog).
+        root.querySelectorAll('.js-open-stone-powers').forEach((nameEl) => {
+            nameEl.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const portrait = nameEl.closest('.carousel-portrait');
+                const combatantId = portrait?.dataset.combatantId;
+                if (!combatantId)
+                    return;
+                const combat = game.combats?.active;
+                const combatant = combat?.combatants?.get(combatantId);
+                const actor = combatant?.actor;
+                if (!combatant || !actor || actor.type !== 'character')
+                    return;
+                if (game.user?.isGM) {
+                    await forceEncounterDialog('stones', combatant);
+                    return;
+                }
+                const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+                await StonePowersDialog.showForActor(actor, combatant);
+            };
+            nameEl.ondblclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+            };
+        });
         // Portrait click - pan to token; double-click - open actor sheet
         root.querySelectorAll('.carousel-portrait').forEach((portrait) => {
             portrait.onclick = async (_ev) => {

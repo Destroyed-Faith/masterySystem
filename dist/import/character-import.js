@@ -75,7 +75,7 @@ async function setEmbeddedArtifactToLevel(actor, emb, artifactKey, level, linked
 async function importArtifactSpec(actor, spec) {
     const key = String(spec.key).trim();
     const level = Math.max(1, Math.min(10, Math.floor(Number(spec.level) || 1)));
-    const activated = spec.activated === true;
+    const activated = spec.activated !== false;
     let emb = await grantArtifactTreeToActor(actor, key);
     if (!emb) {
         throw new Error(`Could not grant artifact "${key}". Ensure the GM has seeded the artifact library.`);
@@ -84,15 +84,22 @@ async function importArtifactSpec(actor, spec) {
         await setEmbeddedArtifactToLevel(actor, emb, key, level, activated);
         emb = actor.items.get(emb.id) ?? emb;
     }
+    const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
+    const root = rootWorldId ? game.items?.get(rootWorldId) : findEchoArtifactRootInWorld(key);
+    const nodeId = emb.getFlag?.('mastery-system', 'evolutionNodeId') ||
+        `${key}-l${level}`;
     if (activated) {
         await emb.setFlag('mastery-system', 'artifactActivated', true);
         await emb.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
-        const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
-        const root = rootWorldId ? game.items?.get(rootWorldId) : findEchoArtifactRootInWorld(key);
-        const nodeId = emb.getFlag?.('mastery-system', 'evolutionNodeId') ||
-            `${key}-l${level}`;
         if (root) {
             await upsertRootActorProgress(root, actor.id, { nodeId, linked: true });
+        }
+    }
+    else {
+        await emb.setFlag('mastery-system', 'artifactActivated', false);
+        await emb.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
+        if (root) {
+            await upsertRootActorProgress(root, actor.id, { nodeId, linked: false });
         }
     }
     if (spec.equipped !== false) {
@@ -159,8 +166,9 @@ async function importEchoArtifacts(actor, payload, warnings) {
     for (const item of grantedItems) {
         try {
             await equipEchoArtifact(actor, item);
-            if (item.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-                await item.setFlag('mastery-system', 'artifactActivated', false);
+            if (item.getFlag?.('mastery-system', 'artifactActivated') !== false) {
+                await item.setFlag('mastery-system', 'artifactActivated', true);
+                await item.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
             }
         }
         catch (err) {

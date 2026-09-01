@@ -92,8 +92,9 @@ export declare function getArtifactBindingKind(item: any): ArtifactBindingKind;
 export declare function isArtifactEquippedOnActor(item: any): boolean;
 /**
  * Read whether this embedded artifact is activated for the actor.
- * Echo artifacts use `artifactActivated` on the item; legacy world `linked`
- * alone does not activate Echo items (prevents auto-linked grant state).
+ * Level 1 is free and artifacts start active. `artifactActivated === false`
+ * is the player opt-out; a missing flag counts as active for echo / bound /
+ * equipped items.
  */
 export declare function isArtifactLinkedOnActor(actor: any, item: any): boolean;
 /** Equipped and activated — required for mechanical artifact benefits. */
@@ -102,11 +103,10 @@ export declare function isArtifactMechanicallyActive(actor: any, item: any): boo
  * True when the artifact's POWERS (level-progression actives, movement,
  * reactions, its own attack entry) are available to the actor.
  *
- * An inactive (not yet activated / linked) artifact keeps its passive weapon
- * damage — an inactive artifact greatsword still swings for its derived dice —
- * but grants none of its powers. Ad-hoc artifacts without activation tracking
- * (no `artifactActivated` flag and not wired to an evolution tree) stay fully
- * enabled for backwards compatibility.
+ * An explicitly inactive artifact keeps its passive weapon damage — an
+ * inactive artifact greatsword still swings for its derived dice — but grants
+ * none of its powers. Missing flags default to active (Level 1 is free).
+ * Ad-hoc artifacts without a tree stay fully enabled.
  */
 export declare function artifactPowersUnlocked(actor: any, item: any): boolean;
 /**

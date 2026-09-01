@@ -59,9 +59,9 @@ const SOUL_SIGIL = {
     name: 'Soul Sigil',
     echoKey: '',
     slot: 'body',
-    baseProfile: 'noArmorBody',
+    baseProfile: 'bodyArmor',
     description: 'A bound Body Artifact that appears as thin silver lines running across the bearer\u2019s skin. It pulls the bearer slightly out of harm\u2019s path, catches damage in a temporary soul shell, and slowly knits the body back together through silver soul-light.',
-    restriction: 'The Soul Sigil occupies the Body Slot. It counts as Body Armor for Slot purposes, but it grants no Armor. The Soul Sigil cannot be worn together with another Body Artifact. Silver Veil is not Armor: if the bearer is hit without Temporary HP, the Soul Sigil provides no Armor against that damage.',
+    restriction: 'The Soul Sigil occupies the Body Slot as Light Armor (+4 Armor). The Soul Sigil cannot be worn together with another Body Artifact.',
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'vitality',
@@ -70,7 +70,8 @@ const SOUL_SIGIL = {
         name: 'Soul Shell',
     },
     baseValues: [
-        { slot: 'a', label: 'Evade (Silver Veil)', note: '+7 to +16 Evade across levels; Armor stays 0.' },
+        { slot: 'a', label: 'Light Armor', note: 'Flat +4 Armor (Light Armor, no class drawbacks).' },
+        { slot: 'b', label: 'Evade (Silver Veil)', note: '+2 to +11 Evade across levels (+1 per level).' },
     ],
     // The three Level Progression lines are standard, not authored:
     //   L1 Soul Shell    → Temporary HP Stone Power Support (from `stoneFunction`),

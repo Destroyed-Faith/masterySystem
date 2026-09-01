@@ -9,9 +9,12 @@ import { clearSkillBucketsInUpdateBatch } from './reset-character.js';
 import { SKILLS } from './skills.js';
 export function getCreationSkillBudget() {
     const cfg = CONFIG?.MASTERY?.creation;
+    const maxPerSkill = Math.max(1, Math.floor(Number(cfg?.maxSkillAtCreation) || 4));
     return {
         total: Math.max(1, Math.floor(Number(cfg?.skillPoints) || 40)),
-        maxPerSkill: Math.max(1, Math.floor(Number(cfg?.maxSkillAtCreation) || 4)),
+        maxPerSkill,
+        /** One click buys a full creation rank (4). No 1/2/3 leftover ranks. */
+        step: maxPerSkill,
     };
 }
 export function sumActorSkillPoints(system) {
@@ -52,12 +55,34 @@ export function canStartSkillsRedistribute(actor) {
     return { ok: true };
 }
 /**
- * Creation / redistribute ranks (PG "Skill Point Buy"): the 40 points are
- * distributed FREELY, +1 per point; any rank 0..maxPerSkill (4) is legal.
+ * Creation / redistribute ranks: 40 points in clicks of 4.
+ * Legal values are 0 or the creation cap (4) — never 1, 2, or 3.
  */
 export function isValidCreationSkillRank(raw, maxPerSkill = getCreationSkillBudget().maxPerSkill) {
     const v = typeof raw === 'number' ? raw : Math.floor(Number(raw) || 0);
-    return Number.isInteger(v) && v >= 0 && v <= maxPerSkill;
+    const step = Math.max(1, maxPerSkill);
+    return Number.isInteger(v) && v >= 0 && v <= maxPerSkill && v % step === 0;
+}
+export function nextCreationSkillValue(current, remaining, maxPerSkill = getCreationSkillBudget().maxPerSkill) {
+    const cur = Math.max(0, Math.floor(Number(current) || 0));
+    const step = Math.max(1, maxPerSkill);
+    if (cur >= maxPerSkill) {
+        return { ok: false, reason: `This skill is already at the creation cap of ${maxPerSkill}.` };
+    }
+    const target = Math.min(maxPerSkill, Math.ceil((cur + 1) / step) * step);
+    const cost = target - cur;
+    if (cost > remaining) {
+        return { ok: false, reason: `Need ${cost} skill points remaining to raise this skill by ${cost}.` };
+    }
+    return { ok: true, value: target };
+}
+export function prevCreationSkillValue(current, maxPerSkill = getCreationSkillBudget().maxPerSkill) {
+    const cur = Math.max(0, Math.floor(Number(current) || 0));
+    if (cur <= 0) {
+        return { ok: false, reason: 'Skill cannot go below 0.' };
+    }
+    const step = Math.max(1, maxPerSkill);
+    return { ok: true, value: Math.max(0, Math.floor((cur - 1) / step) * step) };
 }
 export function validateCreationSkillAllocation(system) {
     const { total, maxPerSkill } = getCreationSkillBudget();
@@ -67,7 +92,7 @@ export function validateCreationSkillAllocation(system) {
         if (!isValidCreationSkillRank(v, maxPerSkill)) {
             return {
                 ok: false,
-                reason: `Skill "${key}" must be between 0 and ${maxPerSkill} during creation (got ${v}).`,
+                reason: `Skill "${key}" must be 0 or ${maxPerSkill} during creation (got ${v}).`,
             };
         }
     }

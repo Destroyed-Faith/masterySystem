@@ -92,8 +92,8 @@ export declare const RULES_EXPECTED_ARTIFACTS: ReadonlyArray<{
     id: string;
     source: 'echo' | 'general';
 }>;
-/** Expected Active Buff: Evade L1…L16 values (Rules). */
-export declare const RULES_AB_EVADE_CURVE: readonly [8, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86, 92, 98];
+/** Expected Active Buff: Evade L1…L16 values (15 PP / +1 → +2…+32). */
+export declare const RULES_AB_EVADE_CURVE: readonly [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Expected Active Buff: Armor L1…L16 values (Rules). */
 export declare const RULES_AB_ARMOR_CURVE: readonly [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
 /** Extract `Active Buff: X` / `Reaction: X` style titles from Rules markdown. */

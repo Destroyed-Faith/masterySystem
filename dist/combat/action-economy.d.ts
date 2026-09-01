@@ -6,6 +6,11 @@
  */
 export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 /**
+ * Players Guide: doubling costs reset each turn, unless the power is
+ * “cumulative per combat”. Exchange Passive uses that exception.
+ */
+export declare function stonePowerCostPersistsForCombat(abilityKey: string): boolean;
+/**
  * Nutzungszähler für General-Stonepowers (generic.*): ein Wert pro Macht/Zug — unabhängig davon,
  * welcher Pool bezahlt hat. Sonst startet jede Farbe wieder bei Kosten 1 und die UI bleibt leer.
  */

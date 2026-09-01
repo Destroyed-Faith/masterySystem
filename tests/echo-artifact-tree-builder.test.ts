@@ -387,13 +387,16 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(focusEffectAt(9)).not.toMatch(/Tier 1/);
   });
 
-  it('Elorian Stride Evade (+2..+12) and Movement (L4+) base values scale per spec', () => {
+  it('Elorian Stride Evade (+1..+5 paired bands) and Movement (L4+) base values scale per spec', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     const bvAt = (lvl: number, label: string) =>
       (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.label === label);
-    expect(bvAt(1, 'Evade').value).toBe(2);
-    expect(bvAt(9, 'Evade').value).toBe(10);
-    expect(bvAt(10, 'Evade').value).toBe(12);
+    expect(bvAt(1, 'Evade').value).toBe(1);
+    expect(bvAt(2, 'Evade').value).toBe(1);
+    expect(bvAt(3, 'Evade').value).toBe(2);
+    expect(bvAt(4, 'Evade').value).toBe(2);
+    expect(bvAt(9, 'Evade').value).toBe(5);
+    expect(bvAt(10, 'Evade').value).toBe(5);
     expect(bvAt(3, 'Movement')).toBeUndefined();
     expect(bvAt(4, 'Movement').value).toBe(1);
     expect(bvAt(6, 'Movement').value).toBe(2);

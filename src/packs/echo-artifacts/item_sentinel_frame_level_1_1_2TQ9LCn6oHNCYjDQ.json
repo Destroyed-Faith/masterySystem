@@ -38,6 +38,20 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [
+      {
+        "level": 5,
+        "name": "Special Reduction Support",
+        "kind": "stonePowerSupport",
+        "attribute": "resolve",
+        "stonePowerId": "resolve.ward",
+        "supportStages": [
+          5,
+          5,
+          9
+        ]
+      }
+    ],
     "progressionPicks": [
       {
         "level": 1,
@@ -49,7 +63,7 @@
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
-          "kind": "stoneBattery",
+          "kind": "stonePool",
           "attribute": "resolve"
         },
         "displayName": "Resolve Core"
@@ -77,6 +91,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "sentinelFrame-pw-1",
@@ -307,7 +322,7 @@
       "isRoot": true,
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "2TQ9LCn6oHNCYjDQ",

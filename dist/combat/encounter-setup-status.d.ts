@@ -13,7 +13,10 @@ export interface EncounterSetupStatus {
     isCharacter: boolean;
     combatantId: string;
     actorId: string;
+    /** Carousel no longer lists Passives/Stones; tracker gems still use done flags. */
     rows: EncounterPickRow[];
+    passivesDone: boolean;
+    stonesDone: boolean;
     canForce: boolean;
 }
 export declare function buildEncounterSetupStatus(combatant: Combatant, combat?: Combat | null): EncounterSetupStatus | null;

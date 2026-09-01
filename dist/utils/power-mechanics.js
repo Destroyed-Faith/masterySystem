@@ -143,6 +143,14 @@ export function resolvePowerMechanics(powerItem) {
     const sys = powerItem.system ?? {};
     const raw = Number(sys.rank ?? sys.level ?? 1);
     const rank = Math.max(1, Math.min(16, Number.isFinite(raw) ? Math.floor(raw) : 1));
+    // Prefer live catalog when templateId matches so template reprices (e.g. Evade)
+    // apply immediately without waiting for a baked-levels resync.
+    const templateId = sys.templateId ? String(sys.templateId).trim() : '';
+    if (templateId) {
+        const fromCatalog = resolveMechanicsFromCatalog(powerItem, rank);
+        if (fromCatalog)
+            return fromCatalog;
+    }
     const levels = sys.levels ?? {};
     const rankBlock = levels[String(rank)] ?? null;
     const rankMech = rankBlock?.mechanics;

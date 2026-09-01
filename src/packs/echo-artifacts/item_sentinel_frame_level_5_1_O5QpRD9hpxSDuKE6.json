@@ -39,12 +39,12 @@
       {
         "level": 5,
         "name": "Resolve Core II",
-        "type": "Stone Battery",
+        "type": "Stone Pool",
         "range": "Self",
         "aoe": "",
         "duration": "Passive",
-        "effect": "Gain a Resolve Stone Battery (capacity 20).",
-        "special": "stoneBattery"
+        "effect": "After each Safe Haven Rest, store 4 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions.",
+        "special": "stonePool"
       },
       {
         "level": 3,
@@ -58,6 +58,20 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [
+      {
+        "level": 5,
+        "name": "Special Reduction Support",
+        "kind": "stonePowerSupport",
+        "attribute": "resolve",
+        "stonePowerId": "resolve.ward",
+        "supportStages": [
+          5,
+          5,
+          9
+        ]
+      }
+    ],
     "progressionPicks": [
       {
         "level": 1,
@@ -69,7 +83,7 @@
         "level": 2,
         "kind": "stoneFunction",
         "stoneFunction": {
-          "kind": "stoneBattery",
+          "kind": "stonePool",
           "attribute": "resolve"
         },
         "displayName": "Resolve Core"
@@ -97,6 +111,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "sentinelFrame-pw-4",
@@ -308,7 +323,7 @@
       {
         "id": "sentinelFrame-pw-5",
         "name": "Resolve Core II",
-        "fluff": "Special: stoneBattery",
+        "fluff": "Special: stonePool",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -426,7 +441,7 @@
             "specials": []
           },
           "10": {
-            "type": "Stone Battery",
+            "type": "Stone Pool",
             "range": {
               "kind": "self"
             },
@@ -435,7 +450,7 @@
               "kind": "scene"
             },
             "effect": {
-              "text": "Gain a Resolve Stone Battery (capacity 20)."
+              "text": "After each Safe Haven Rest, store 4 Resolve Stones. These Stones may only be used for this Artifact's listed Resolve Stone functions."
             },
             "specials": [],
             "lvl": 5
@@ -746,7 +761,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "O5QpRD9hpxSDuKE6",

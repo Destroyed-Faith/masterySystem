@@ -43,12 +43,13 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+13 Evade**.",
+        "effect": "Gain **+8 Evade**.",
         "special": "",
         "powerTemplateId": "ab-evade"
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -95,6 +96,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "wyrmScalesLight-pw-1",
@@ -358,7 +360,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+13 Evade**."
+              "text": "Gain **+8 Evade**."
             },
             "specials": [],
             "lvl": 2
@@ -532,7 +534,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "keVEfCVHuMgCGuIV",

@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, unslotPassive } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, unslotPassive, canEditEncounterPassives, consumePendingPassiveSwap, getPendingPassiveSwaps, } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -18,6 +18,8 @@ export class PassiveSelectionDialog extends BaseDialog {
     resolve;
     readOnly = false;
     _outcomeResolved = false;
+    /** Slots emptied with a paid mid-combat swap; refilling them does not cost another token. */
+    freedSlots = new Set();
     static DEFAULT_OPTIONS = {
         id: "mastery-passive-selection",
         classes: ["mastery-system", "passive-selection"],
@@ -106,6 +108,7 @@ export class PassiveSelectionDialog extends BaseDialog {
         const available = getAvailablePassives(actor);
         const slottedIds = getSlottedPassiveIds(actor);
         const selectablePassives = available.filter((p) => !slottedIds.has(String(p.id)));
+        const canEdit = this.#canMutate();
         return {
             actor,
             slots,
@@ -113,8 +116,17 @@ export class PassiveSelectionDialog extends BaseDialog {
             isFirst: this.currentIndex === 0,
             isLast: this.currentIndex === this.pcs.length - 1,
             isGM: game.user?.isGM ?? false,
-            readOnly: this.readOnly
+            readOnly: !canEdit,
+            canEdit,
         };
+    }
+    #combatRound() {
+        return Math.max(1, Math.floor(Number(game?.combat?.round) || 1));
+    }
+    #canMutate() {
+        if (canEditEncounterPassives(game?.combat, this.currentActor))
+            return true;
+        return this.freedSlots.size > 0;
     }
     async _onRender(_context, _options) {
         const root = this.element;
@@ -123,8 +135,8 @@ export class PassiveSelectionDialog extends BaseDialog {
         const titleEl = root.querySelector?.('.window-title');
         if (titleEl)
             titleEl.textContent = this.title;
-        // If read-only, disable all interactive elements
-        if (this.readOnly) {
+        // After round 1 the loadout is locked unless Exchange Passive was paid.
+        if (!this.#canMutate()) {
             root.classList.add('read-only');
             root.querySelectorAll('.draggable-passive').forEach(el => {
                 el.draggable = false;
@@ -179,6 +191,18 @@ export class PassiveSelectionDialog extends BaseDialog {
                     const passiveId = ev.dataTransfer?.getData('text/plain') || '';
                     if (!passiveId || !slot.classList.contains('empty'))
                         return;
+                    if (!this.#canMutate())
+                        return;
+                    if (this.#combatRound() > 1) {
+                        if (this.freedSlots.has(slotIndex)) {
+                            this.freedSlots.delete(slotIndex);
+                        }
+                        else {
+                            if (getPendingPassiveSwaps(actor) <= 0)
+                                return;
+                            await consumePendingPassiveSwap(actor);
+                        }
+                    }
                     await slotPassive(actor, slotIndex, passiveId);
                     await this.render({ force: true });
                 };
@@ -234,12 +258,18 @@ export class PassiveSelectionDialog extends BaseDialog {
         // Close button removed from footer - use header close button instead
     }
     async #unslotClicked(btn) {
-        if (this.readOnly)
+        if (!this.#canMutate())
             return;
         const actor = this.currentActor;
         if (!actor)
             return;
         const slotIndex = Number(btn.dataset.slotIndex ?? 0);
+        if (this.#combatRound() > 1 && !this.freedSlots.has(slotIndex)) {
+            if (getPendingPassiveSwaps(actor) <= 0)
+                return;
+            await consumePendingPassiveSwap(actor);
+            this.freedSlots.add(slotIndex);
+        }
         try {
             await unslotPassive(actor, slotIndex);
         }

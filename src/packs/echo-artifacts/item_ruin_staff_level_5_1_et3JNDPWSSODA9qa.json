@@ -1,0 +1,787 @@
+{
+  "name": "Ruin Staff - Level 5-1",
+  "type": "artifact",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Ruin Staff.png",
+  "system": {
+    "level": 5,
+    "currentLevel": 5,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "weapon",
+    "gearSlot": "",
+    "slot": "bothHands",
+    "baseProfile": "twoHandedWeapon",
+    "binding": "echo",
+    "echoKey": "unbound",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "weaponDamage",
+        "label": "Staff Damage",
+        "value": "8d8",
+        "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "weaponSpecial",
+        "label": "Hex",
+        "value": 2,
+        "note": "Tradition Special (Hex) applies only on a legal Staff attack or Power.",
+        "isBaseline": true
+      },
+      {
+        "slot": "c",
+        "type": "spellFocus",
+        "label": "Spell Focus",
+        "value": "+9d8",
+        "note": "Spell Focus from Level 1. May be used with Intellect.",
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 4,
+        "name": "Witch Stone II",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
+        "special": "intellect.spellRaises"
+      },
+      {
+        "level": 5,
+        "name": "Covenant Overdrive II",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+2**.",
+        "special": "Hex(2)",
+        "powerTemplateId": "ab-special-overdrive",
+        "chosenSpecialKey": "hex"
+      },
+      {
+        "level": 3,
+        "name": "Ruinous Word I",
+        "type": "Ranged",
+        "range": "20m",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Deal **+2d8 damage** on hit.",
+        "special": "Hex(4)",
+        "powerTemplateId": "active-ranged-damage-t5",
+        "chosenSpecialKey": "hex"
+      }
+    ],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "intellect",
+      "stonePowerId": "intellect.spellRaises"
+    },
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "intellect",
+          "stonePowerId": "intellect.spellRaises"
+        },
+        "displayName": "Witch Stone"
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "ab-special-overdrive",
+        "displayName": "Covenant Overdrive",
+        "chosenSpecial": {
+          "key": "hex",
+          "tier": 5
+        }
+      },
+      {
+        "level": 3,
+        "kind": "power",
+        "powerTemplateId": "active-ranged-damage-t5",
+        "delivery": "ranged-single",
+        "chosenSpecial": {
+          "key": "hex",
+          "tier": 5
+        },
+        "displayName": "Ruinous Word"
+      }
+    ],
+    "lore": "Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Main Spell: Ruinous Word (Ranged Attack + Hex).",
+    "description": "Witch Unbound Echo Artifact of blackened wood, cracked bone, ash, and erased names. Tradition Special: Hex. Main Spell: Ruinous Word (Ranged Attack + Hex).\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "witchStaffRuin-pw-4",
+        "name": "Witch Stone II",
+        "fluff": "Special: intellect.spellRaises",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect."
+            },
+            "specials": [],
+            "lvl": 4
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "witchStaffRuin-pw-5",
+        "name": "Covenant Overdrive II",
+        "fluff": "Special: Hex(2)",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "rounds",
+              "rounds": 1
+            },
+            "effect": {
+              "text": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+2**."
+            },
+            "specials": [],
+            "lvl": 5
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "witchStaffRuin-pw-3",
+        "name": "Ruinous Word I",
+        "fluff": "Special: Hex(4)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Ranged",
+            "range": {
+              "kind": "distance",
+              "m": 20
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Deal **+2d8 damage** on hit."
+            },
+            "specials": [],
+            "lvl": 3
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactWeapon": {
+      "weaponType": "melee",
+      "damage": "8d8",
+      "range": "0m",
+      "hands": 2,
+      "innateAbilities": [],
+      "specials": []
+    },
+    "equipSlots": [
+      "mainhand",
+      "offhand"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "witchStaffRuin-l5",
+      "parentIds": [
+        "witchStaffRuin-l4"
+      ],
+      "childIds": [
+        "witchStaffRuin-l6"
+      ],
+      "echoBound": "unbound",
+      "echoArtifactKey": "witchStaffRuin",
+      "seedVersion": 49
+    }
+  },
+  "_id": "et3JNDPWSSODA9qa",
+  "folder": "PUTn1Der4e0DvjG4",
+  "_key": "!items!et3JNDPWSSODA9qa"
+}

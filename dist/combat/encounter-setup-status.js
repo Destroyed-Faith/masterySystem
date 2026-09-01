@@ -66,26 +66,14 @@ export function buildEncounterSetupStatus(combatant, combat = game.combat ?? nul
     const live = resolveLiveCombat(combat);
     const passives = passiveSummary(actor, combatant);
     const stones = stoneSummary(actor, combatant.id, live);
-    const row = (kind, label, done, parts, empty) => {
-        const summary = parts.length ? parts.join(', ') : done ? loc('confirmed', 'Bestätigt') : empty;
-        return {
-            kind,
-            label,
-            done,
-            summary,
-            tooltip: `${label}: ${done ? loc('chosen', 'gewählt') : loc('pending', 'offen')} — ${parts.length ? parts.join(', ') : empty}`,
-        };
-    };
-    const empty = loc('nothingYet', 'noch nichts');
     return {
         isCharacter: true,
         combatantId: combatant.id,
         actorId: actor.id ?? '',
         canForce: !!game.user?.isGM,
-        rows: [
-            row('passives', loc('passives', 'Passives'), passives.done, passives.names, empty),
-            row('stones', loc('stones', 'Steine'), stones.done, stones.parts, empty),
-        ],
+        passivesDone: passives.done,
+        stonesDone: stones.done,
+        rows: [],
     };
 }
 export async function openEncounterDialogLocally(kind, combatant, combat) {
@@ -93,8 +81,9 @@ export async function openEncounterDialogLocally(kind, combatant, combat) {
     if (!actor)
         return;
     if (kind === 'passives') {
+        const { canEditEncounterPassives } = await import('../powers/passives.js');
         const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
-        await PassiveSelectionDialog.showForCombatant(combatant, false);
+        await PassiveSelectionDialog.showForCombatant(combatant, !canEditEncounterPassives(combat, combatant.actor));
         return;
     }
     if (kind === 'stones') {

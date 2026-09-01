@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.456] - 2026-09-01
+
+### Fixed
+
+- **Evade reprice:** Passive / Reaction / Active Buff Evade curves corrected after a PP math error (pure Passive/Reaction Evade now +1…+16; Active Buff Evade +2…+32; combined lines halved accordingly). Catalog values win over stale baked item levels; opening a character sheet resyncs owned template-backed powers.
+- **Soul Sigil:** Light Armor (+4 flat) plus Silver Veil Evade starting at +2 (+1/level → +11 at L10).
+- **Elorian Stride:** Feet Evade uses paired bands (+1 L1–2, +2 L3–4, … +5 L9–10).
+
 ## [0.9.455] - 2026-09-01
 
 ### Fixed

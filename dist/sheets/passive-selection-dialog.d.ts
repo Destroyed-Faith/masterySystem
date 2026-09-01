@@ -19,6 +19,8 @@ export declare class PassiveSelectionDialog extends BaseDialog {
     private resolve?;
     private readOnly;
     private _outcomeResolved;
+    /** Slots emptied with a paid mid-combat swap; refilling them does not cost another token. */
+    private freedSlots;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

@@ -119,6 +119,17 @@ function validateOffense(phase, label, warnings) {
             });
         }
     }
+    for (const enemy of phase.enemies) {
+        for (const atk of enemy.attacks) {
+            if (!atk.poolAtCap)
+                continue;
+            warnings.push({
+                severity: 'strong',
+                code: 'attack-pool-cap',
+                message: `${label}, ${enemy.enemyName}: „${atk.name}" ${atk.attackPool}k${atk.keep} erreicht nur ${fmt(atk.achievedHitChance * 100, 0)}% Trefferchance (Ziel ${fmt(t.targetNpcHitChance * 100, 0)}%). Der Solver-Deckel von ${t.maxAttackPool} Würfeln reicht gegen die effektive Evade dieser Gruppe nicht — das Ergebnis ist außerhalb des aktuellen Suchraums.`,
+            });
+        }
+    }
     if (o.worstSingleHitQ90 > t.singleHitHealthFractionWarn) {
         warnings.push({
             severity: 'warn',

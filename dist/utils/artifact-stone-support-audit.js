@@ -1,15 +1,16 @@
 /**
- * Audit Artifact / Echo-Artifact Stone Power Supports against blank-T1 ramps.
+ * Audit Artifact / Echo-Artifact Stone Power Supports against T2-start
+ * abilities (Tier 1 does not exist).
  *
- * Support must never activate the first effective tier. Tables that begin
- * support at that tier (Elorian Focus / Ringchain Kept from Sight, and any
- * matching General Artifact) are flagged for a manual Level Progression
- * review — this file does not invent replacement values.
+ * Support must never activate Tier 2 for these abilities. Tables that begin
+ * support at T2 (Elorian Focus / Ringchain Kept from Sight, and any matching
+ * General Artifact) are flagged for a manual Level Progression review —
+ * this file does not invent replacement values.
  */
 import { ECHO_ARTIFACTS } from './echo-artifacts.js';
 import { GENERAL_ARTIFACTS } from './general-artifacts.js';
 import { getStonePowerSupportPrefillTier } from './artifact-rules.js';
-import { firstEffectiveStonePowerTier, stonePowerHasBlankFirstTier, } from '../stones/stone-powers.js';
+import { firstEffectiveStonePowerTier, stonePowerSkipsFirstTier, } from '../stones/stone-powers.js';
 function stagedSupportPrefill(level, stages) {
     if (level < stages[0])
         return 0;
@@ -19,9 +20,9 @@ function stagedSupportPrefill(level, stages) {
         return 3;
     return 4;
 }
-function recordIfBlankT1Bypass(out, def, stonePowerId, unlockLevel, firstPrefillTier) {
+function recordIfTier2StartBypass(out, def, stonePowerId, unlockLevel, firstPrefillTier) {
     const id = String(stonePowerId || '').trim();
-    if (!id || !stonePowerHasBlankFirstTier(id))
+    if (!id || !stonePowerSkipsFirstTier(id))
         return;
     const firstEffective = firstEffectiveStonePowerTier(id);
     if (firstPrefillTier <= 0 || firstPrefillTier > firstEffective)
@@ -33,7 +34,7 @@ function recordIfBlankT1Bypass(out, def, stonePowerId, unlockLevel, firstPrefill
         unlockLevel,
         firstPrefillTier,
         firstEffectiveTier: firstEffective,
-        reason: `${def.name} begins ${id} support at Tier ${firstPrefillTier}, which is the first effective tier. Level Progression needs a manual review before new values are implemented.`,
+        reason: `${def.name} begins ${id} support at Tier ${firstPrefillTier}, which is the first published tier. The player must pay Tier 2 themselves — Level Progression needs a manual review before new values are implemented.`,
     });
 }
 function inspectDefinition(def) {
@@ -41,7 +42,7 @@ function inspectDefinition(def) {
     const top = def.stoneFunction;
     if (top?.kind === 'stonePowerSupport' && top.stonePowerId) {
         const unlock = Math.max(1, Number(top.level) || 1);
-        recordIfBlankT1Bypass(out, def, top.stonePowerId, unlock, getStonePowerSupportPrefillTier(unlock));
+        recordIfTier2StartBypass(out, def, top.stonePowerId, unlock, getStonePowerSupportPrefillTier(unlock));
     }
     const specs = def.progressionPickSpecs || {};
     for (const key of [1, 2, 3]) {
@@ -52,7 +53,7 @@ function inspectDefinition(def) {
         const firstPrefill = stages
             ? stagedSupportPrefill(key, stages)
             : getStonePowerSupportPrefillTier(key);
-        recordIfBlankT1Bypass(out, def, fn.stonePowerId, key, firstPrefill);
+        recordIfTier2StartBypass(out, def, fn.stonePowerId, key, firstPrefill);
     }
     for (const extra of def.extraStoneFunctions || []) {
         if (extra.kind !== 'stonePowerSupport' || !extra.stonePowerId)
@@ -61,11 +62,11 @@ function inspectDefinition(def) {
         const firstPrefill = extra.supportStages
             ? stagedSupportPrefill(unlock, extra.supportStages)
             : getStonePowerSupportPrefillTier(unlock);
-        recordIfBlankT1Bypass(out, def, extra.stonePowerId, unlock, firstPrefill);
+        recordIfTier2StartBypass(out, def, extra.stonePowerId, unlock, firstPrefill);
     }
     return out;
 }
-export function auditBlankT1StonePowerSupports() {
+export function auditTier2StartStonePowerSupports() {
     const seen = new Set();
     const out = [];
     const catalogs = [
@@ -83,4 +84,6 @@ export function auditBlankT1StonePowerSupports() {
     }
     return out.sort((a, b) => a.artifactKey.localeCompare(b.artifactKey));
 }
+/** @deprecated Use auditTier2StartStonePowerSupports */
+export const auditBlankT1StonePowerSupports = auditTier2StartStonePowerSupports;
 //# sourceMappingURL=artifact-stone-support-audit.js.map

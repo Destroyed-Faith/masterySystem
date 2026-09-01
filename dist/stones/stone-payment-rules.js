@@ -38,11 +38,10 @@ export function shouldSettleStoneWave(args) {
     return Number(args.currentUses) === Number(args.usesInKey);
 }
 /**
- * Card order inside a power row. Every row holds exactly one ramp power whose
- * Tier 1 is a no-op, so its first activation costs 2 stones and the unused
- * Anchor lane is omitted (the card starts at the Mid / 2-stone segment). It
- * leads the row so the shorter cluster sits in one corner. The remaining
- * cards keep their order.
+ * Card order inside a power row. Every row holds exactly one T2-start power
+ * (Tier 1 does not exist). Its first activation costs 2 stones and the
+ * unused Anchor lane is omitted. It leads the row so the shorter cluster
+ * sits first. The remaining cards keep their order.
  */
 export function orderPowersRampFirst(powers, skipsFirstTier) {
     const lead = [];
@@ -69,8 +68,6 @@ export function stonePoolBlockedReason(pool) {
         return 'Attribute below 8 — no stone pool';
     if (pool.available > 0)
         return '';
-    if (pool.artifactBound > 0)
-        return 'bound to an artifact activation';
     if (pool.sustained > 0)
         return 'bound by Sustain';
     return 'spent this round';

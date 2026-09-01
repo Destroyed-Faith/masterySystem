@@ -1,77 +1,106 @@
 /**
- * Party Combat Analyzer — per-PC combat profiles from the actual selected
- * actors.
+ * Party Combat Analyzer — per-PC profiles from selected World Actors.
  *
- * The analyzer looks at what each selected character can really do: real
- * equipped/artifact weapons, attack powers, spells, specials, penetration,
- * stones, defenses (Evade, Armor, DR%, Spell Resistance, Parry, Phasing) and
- * the six-bar Health Level track.
+ * Values come from the same aggregation live Foundry combat uses
+ * (`getTargetEvade`, `getTargetArmor`, `getTargetSpellResistance`,
+ * mechanics breakdown, Basic Attack = weapon + MR×2d8).
  *
- * BASELINE NORMALIZATION: encounter generation uses a normalized baseline
- * combat state — healthy, no transient Temp HP, permanent equipment, current
- * legal Artifact Levels, full stone pools, no spent combat resources. Status
- * effects that are transient (Corrode / Expose stacks, ...) are stripped
- * from the derived totals; if the actor's stored state looks transient or
- * inconsistent, a warning is attached instead of silently using nonsense.
+ * Three bands:
+ *   Baseline  — always-on equipment/passives-in-totals, Basic Attack, 1 action
+ *   Sustained — Baseline + currently active buffs; legal repeatable attacks
+ *   Burst     — Sustained + stone extras / limited powers
  *
- * Pure and Foundry-free: reads plain actor-shaped data, never throws on
- * partial data, usable directly from tests.
+ * Inactive known buffs are listed separately and are NOT applied to solver
+ * numbers. Passive mechanics.evade/armor stay unused (live combat zeroes
+ * them) and are flagged for rules review.
  */
 export interface PcSpecialOnHit {
     id: string;
     value: number;
 }
+export type AttackRole = 'basic' | 'power-rider' | 'spell' | 'power-only';
 export interface PcAttackProfile {
     label: string;
+    role: AttackRole;
     kind: 'martial' | 'spell';
     delivery: 'melee' | 'ranged';
-    /** Attack pool = full attack attribute (weapon attacks; keep = MR). */
     pool: number;
     keep: number;
-    /** Plain-d8 damage dice per hit (weapon + power rider for martial). */
     damageDice: number;
-    /** Flat damage (Might melee bonus etc.). */
     flatDamage: number;
-    /** Armor ignored by this attack (explicit Penetration specials). */
     penetration: number;
-    /** Specials applied on hit. */
     specials: PcSpecialOnHit[];
-    /** Power level for spell Casting TN; null for martial attacks. */
     spellPowerLevel: number | null;
+    /** Caster MR for spell TN (8 × MR). */
+    casterMr: number;
+    isMental: boolean;
+    notes: string[];
+}
+export interface DefenseBand {
+    evade: number;
+    armor: number;
+    drPct: number;
+    spellResistance: number;
+    phasingCharges: number;
+    ward: number;
+    damageNegationDice: number;
+    notes: string[];
+}
+export interface OffenseBand {
+    attack: PcAttackProfile;
+    attacks: PcAttackProfile[];
+    attackActions: number;
+    notes: string[];
+}
+export interface KnownBuffPotential {
+    name: string;
+    evade?: number;
+    armor?: number;
+    drPct?: number;
+    spellResistance?: number;
+    ward?: number;
 }
 export interface PcCombatProfile {
     actorId: string;
     name: string;
     mr: number;
+    /** Solver reads Sustained defense (effective live values, transients stripped). */
     evade: number;
     armor: number;
     drPct: number;
     spellResistance: number;
-    /** Max parry pool if a parry stance is available to this PC, else 0. */
     parryPoolMax: number;
     phasingCharges: number;
+    ward: number;
+    damageNegationDice: number;
     reactionsPerRound: number;
-    /** Max HP per health bar (index 0 = Healthy ... 5 = Incapacitated). */
     healthBars: number[];
     totalHealth: number;
-    /** Size of one full health level (bar 0 max). */
     healthLevelSize: number;
     attacks: PcAttackProfile[];
-    /** The profile the PC repeats every round (sustainable primary attack). */
     bestAttack: PcAttackProfile;
     attackActionsPerRound: number;
     stonesTotal: number;
-    /** Stones needed for +1 attack action (ramp T1+T2 = 3). */
     extraAttackStoneCost: number;
-    /** Best affordable one-round melee damage-dice burst from stones. */
     burstBonusDamageDice: number;
+    burstExtraActions: number;
     canCleanse: boolean;
+    defense: {
+        baseline: DefenseBand;
+        sustained: DefenseBand;
+        burst: DefenseBand;
+    };
+    offense: {
+        baseline: OffenseBand;
+        sustained: OffenseBand;
+        burst: OffenseBand;
+    };
+    knownBuffs: KnownBuffPotential[];
     warnings: string[];
 }
 export interface PartyProfile {
     members: PcCombatProfile[];
     size: number;
-    /** Diagnostic only — never a balancing input. */
     medianMr: number;
     warnings: string[];
 }
@@ -80,12 +109,7 @@ export declare function parseDamageString(raw: unknown): {
     dice: number;
     flat: number;
 };
-/** Parse specials like ["Penetration(4)", "Lacerate(2)"] into id/value pairs. */
 export declare function parseSpecialStrings(list: unknown): PcSpecialOnHit[];
-/**
- * Build the combat profile for one character actor (prepared or plain data).
- */
 export declare function analyzePc(actor: any): PcCombatProfile;
-/** Analyze all selected party actors. */
 export declare function analyzePartyActors(actors: any[]): PartyProfile;
 //# sourceMappingURL=party-analyzer.d.ts.map

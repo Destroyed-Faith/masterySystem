@@ -80,16 +80,17 @@ export function bodyArmorBonusForLevel(level) {
     const l = clampLevel(level);
     return l <= 9 ? l + 3 : 14;
 }
-/** No-Armor Body Evade (Soul Sigil Silver Veil). L1=+7 … L10=+16 (+6 base, +1/level). */
+/** Soul Sigil Silver Veil Evade. L1=+2 … L10=+11 (+1 base, +1/level). */
 export function noArmorEvadeForLevel(level) {
-    return 6 + clampLevel(level);
+    return 1 + clampLevel(level);
 }
-/** Feet Evade (Elorian Stride). L1=+2 … L9=+10, L10=+12. */
+/** Flat Light Armor value on Soul Sigil (does not scale with level). */
+export function soulSigilArmorForLevel(_level) {
+    return 4;
+}
+/** Feet Evade (Elorian Stride). L1–2=+1, L3–4=+2, … L9–10=+5. */
 export function feetEvadeForLevel(level) {
-    const l = clampLevel(level);
-    if (l >= 10)
-        return 12;
-    return l + 1;
+    return Math.ceil(clampLevel(level) / 2);
 }
 /** Minor Armor (Head / Feet). L1-2=+1, L3-4=+2 … L9-10=+5. */
 export function minorArmorForLevel(level) {

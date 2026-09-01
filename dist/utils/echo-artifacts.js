@@ -165,7 +165,7 @@ const ELORIAN_STRIDE = {
         3: {
             name: 'Elorian Focus',
             stoneFunction: {
-                // Follow-up: support begins at T2, the first effective Crit tier.
+                // Follow-up: support begins at T2, the first published Crit tier.
                 // Do not invent replacement Level Progression values here.
                 kind: 'stonePowerSupport',
                 attribute: 'agility',
@@ -174,7 +174,7 @@ const ELORIAN_STRIDE = {
         },
     },
     baseValues: [
-        { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels; Level 10 grants True Elorian Stride.' },
+        { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants True Elorian Stride.' },
         { slot: 'b', label: 'Movement', note: '+1 to +4 m Movement from Level 4 onward.' },
     ],
     levelProgression: [
@@ -1399,8 +1399,8 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             kind: 'stonePowerSupport',
             attribute: 'influence',
             stonePowerId: 'influence.notATarget',
-            // Follow-up: T2 support at L1 is the first effective Not a Target tier.
-            // Do not invent replacement Level Progression values here.
+            // Follow-up: T2 support at L1 tries to activate the first published
+            // Not a Target tier. Do not invent replacement Level Progression values here.
             supportStages: [1, 5, 9],
         },
     ],

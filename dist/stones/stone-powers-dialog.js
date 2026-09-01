@@ -7,18 +7,19 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
-import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, stonePowerSkipsFirstTier, firstEffectiveStonePowerTier, } from './stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, stonePowerSkipsFirstTier, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, stoneSupportPrefillLanes, } from './stone-powers.js';
 import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, convertInitiativeToColorlessStones, getMasteryRank, getTempColorlessStones, isInitiativeBoostUsedThisCombat, maxConvertibleColorlessStones, } from './colorless-stones.js';
 import { orderPowersRampFirst, pickStoneFillAttribute, shouldSettleStoneWave, stoneDialogSectionStartsOpen, stonePoolBlockedReason, } from './stone-payment-rules.js';
 import { clampStoneRecoveryAllocation, planStoneRecovery, } from './stone-recovery.js';
-import { isStoneRegenDone } from '../combat/encounter-setup-flags.js';
+import { isPassivesReviewedThisEncounter, isStoneRegenDone, persistCombatantSetupStep, } from '../combat/encounter-setup-flags.js';
+import { canEditEncounterPassives, getPassiveSlots, getPendingPassiveSwaps, } from '../powers/passives.js';
 import { combatReflexesInitiativeState, spendCombatReflexesUse, undoCombatReflexesUse, } from '../combat/combat-reflexes.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
-import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
+import { getArtifactStoneFunctionStatus, getArtifactStoneSupportPrefill, } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 import { actorMasteryRank, changeNaturalRecoveryAllocation, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
@@ -100,10 +101,8 @@ function nextStoneSegmentToFill(occupied) {
     return null;
 }
 /**
- * Some powers have a no-op Tier 1 "ramp step" (e.g. Extra Attack), so their
- * first real activation is Tier 2 = the Mid segment (2 stones). Such powers
- * skip the leading segment(s): the Anchor is omitted and the first payable
- * wave is the Mid segment.
+ * Powers that start at Tier 2 have no Tier-1 slot. First activation is the
+ * Mid segment (2 stones): the Anchor is omitted, not rendered empty.
  */
 function rampSkipSegmentsForPower(powerId) {
     return stonePowerSkipsFirstTier(powerId) ? 1 : 0;
@@ -236,29 +235,15 @@ function escapeAttrValueInCssSelector(value) {
     return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 /**
- * Lanes pre-filled by Artifact Support Stones for a Stone Power Support of
- * `prefillTier` (2..8). T5+ support still only needs the player to pay
- * the anchor; extra 16/32 lanes are future UI.
- *
- * The support covers the tier's wave cost (2^(tier-1) stones) and sits
- * directly above the anchor: tier 2 → lanes [1,2], tier 3 → [1..4],
- * tier 4 → [1..8]. The player still primes the power by dropping a single
- * own stone into the anchor (lane 0); the support lanes are decorative and
- * are not part of the player `occupied` set. Returns `undefined` when there
- * is no support or it is no longer available this turn.
+ * Gold Artifact Support Stone lanes for this wave. Shown on the first unpaid
+ * activation so players can see the prefill and cannot drop into those slots.
+ * After the wave is used, the next climb is a normal paid segment.
  */
 function buildSupportLaneSet(prefillTier, usesThisTurn, powerId) {
-    if (!(prefillTier >= 2))
+    if (usesThisTurn >= 1)
         return undefined;
-    const firstEffective = powerId ? firstEffectiveStonePowerTier(powerId) : 1;
-    // Support only after the character has paid the first effective tier themselves.
-    if (usesThisTurn < firstEffective)
-        return undefined;
-    const count = Math.min(STONE_PAYMENT_LANE_COUNT - 1, Math.pow(2, prefillTier - 1));
-    const set = new Set();
-    for (let i = 1; i <= count; i++)
-        set.add(i);
-    return set;
+    const lanes = stoneSupportPrefillLanes(powerId ?? '', prefillTier);
+    return lanes.length ? new Set(lanes) : undefined;
 }
 /**
  * UI/Drop: Segment-Freigabe — erst Anchor (1), nach Stein die beiden Mitten (2), dann Quad (4), dann Oct (8).
@@ -433,6 +418,20 @@ export class StonePowersDialog extends BaseDialog {
                 console.warn('Mastery System | Could not roll initiative before Stone Powers', err);
             }
         }
+        try {
+            const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
+            await ensureDefaultPassiveSlots(actor);
+            const combat = game.combat;
+            const actorId = String(actor.id ?? '');
+            const round = Math.max(1, Number(combat?.round) || 1);
+            if (combat && actorId && round <= 1) {
+                const { handlePassiveSelectionComplete } = await import('../combat/encounter-start.js');
+                await handlePassiveSelectionComplete(combat, actorId, {});
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Could not apply default passives before Stone Powers', err);
+        }
         return new Promise(resolve => {
             const app = new _a(actor, combatant || null, resolve);
             app.render({ force: true });
@@ -480,7 +479,8 @@ export class StonePowersDialog extends BaseDialog {
                 if (attr && s.attribute !== attr)
                     continue;
                 const shift = STONE_POWER_SUPPORT_TIER_SHIFT[resolvedId] ?? 0;
-                const tier = Math.min(STONE_TIER_HARD_MAX, Math.max(0, s.value + shift));
+                const printed = Math.min(STONE_TIER_HARD_MAX, Math.max(0, s.value + shift));
+                const tier = effectiveStoneSupportPrefillTier(resolvedId, printed);
                 if (!best || tier > best.tier)
                     best = { tier, source: s.source };
             }
@@ -614,6 +614,9 @@ export class StonePowersDialog extends BaseDialog {
                 supportTier,
                 supportSource: support?.source ?? '',
                 supportActive: !!supportLanes,
+                supportHint: support
+                    ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
+                    : '',
                 boostUsed: power.id === 'wits.initiativeBoost' &&
                     !!this.combatant &&
                     isInitiativeBoostUsedThisCombat(this.combatant),
@@ -643,8 +646,7 @@ export class StonePowersDialog extends BaseDialog {
         const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
         const generalPowers = genericPowers.map((power) => {
             const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
-            // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher:
-            // first activation = Tier 2 (2 stones), Anchor omitted.
+            // T2-start powers have no Tier 1: first activation = Tier 2 (2 stones).
             const rampSkip = rampSkipSegmentsForPower(power.id);
             const leadLockedLanes = rampSkipLeadLanes(power.id);
             const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
@@ -671,6 +673,9 @@ export class StonePowersDialog extends BaseDialog {
                 supportTier,
                 supportSource: support?.source ?? '',
                 supportActive: !!supportLanes,
+                supportHint: support
+                    ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
+                    : '',
                 hideLeadSegment: rampSkip > 0,
                 ...laneSegs
             };
@@ -772,6 +777,7 @@ export class StonePowersDialog extends BaseDialog {
         return {
             actor: this.actor,
             pools,
+            passivesCta: this.#passivesCtaContext(combat),
             initiativeExchange,
             attributePowerMatrix,
             generalPowers,
@@ -825,6 +831,59 @@ export class StonePowersDialog extends BaseDialog {
             hint: hint === 'MASTERY.specials.naturalRecoveryHint' ? fallbackHint : hint,
             noneLabel: noneLabel === 'MASTERY.specials.naturalRecoveryNone' ? 'None' : noneLabel,
         };
+    }
+    #passivesCtaContext(combat) {
+        const actorType = this.actor.type;
+        const reviewed = isPassivesReviewedThisEncounter(combat, this.combatant);
+        const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
+        const pendingSwaps = getPendingPassiveSwaps(this.actor);
+        const canEdit = canEditEncounterPassives(combat, this.actor);
+        const show = !!this.combatant && actorType === 'character';
+        const names = getPassiveSlots(this.actor)
+            .map((slot) => String(slot.passive?.name ?? '').trim())
+            .filter(Boolean);
+        const i18n = game?.i18n;
+        const loc = (key, fallback) => {
+            const t = i18n?.localize?.(`MASTERY.encounterSetup.${key}`);
+            return !t || t === `MASTERY.encounterSetup.${key}` ? fallback : t;
+        };
+        const label = loc('assignPassives', 'Passives verteilen');
+        const hint = canEdit
+            ? pendingSwaps > 0
+                ? loc('assignPassivesHintSwap', 'Exchange Passive ist bezahlt — du kannst jetzt tauschen.')
+                : loc('assignPassivesHint', 'Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.')
+            : loc('assignPassivesHintView', 'Nur Ansicht. Passives bleiben, bis Exchange Passive bezahlt ist.');
+        return {
+            show,
+            glow: show && ((round <= 1 && !reviewed) || pendingSwaps > 0),
+            canEdit,
+            names,
+            namesLabel: names.length ? names.join(', ') : '—',
+            label,
+            hint,
+        };
+    }
+    async #openPassivesFromCta() {
+        if (!this.combatant)
+            return;
+        const combat = game.combat ?? null;
+        await persistCombatantSetupStep(this.combatant, combat, { passivesReviewed: true });
+        const readOnly = !canEditEncounterPassives(combat, this.actor);
+        const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
+        const outcome = await PassiveSelectionDialog.showForCombatant(this.combatant, readOnly);
+        if (outcome.alreadyOpen)
+            return;
+        const actorId = String(this.actor.id ?? '');
+        if (outcome.confirmed && combat && actorId) {
+            try {
+                const { handlePassiveSelectionComplete } = await import('../combat/encounter-start.js');
+                await handlePassiveSelectionComplete(combat, actorId, {});
+            }
+            catch (err) {
+                console.warn('Mastery System | Could not lock passives after picker', err);
+            }
+        }
+        await this.#renderKeepingScroll();
     }
     /** Stones a Mastery Rank buys back at the start of a round. */
     #stoneRecoveryPoints() {
@@ -1144,6 +1203,13 @@ export class StonePowersDialog extends BaseDialog {
         this.#bindInitiativeExchangeControls(root);
         this.#bindNaturalRecoveryControls(root);
         this.#bindSectionToggles(root);
+        const passivesCta = root.querySelector('.js-open-passives');
+        if (passivesCta) {
+            passivesCta.onclick = async (ev) => {
+                ev.preventDefault();
+                await this.#openPassivesFromCta();
+            };
+        }
         const convertBtn = root.querySelector('.js-convert-initiative-colorless');
         if (convertBtn) {
             convertBtn.onclick = async (ev) => {
@@ -1552,7 +1618,8 @@ export class StonePowersDialog extends BaseDialog {
             return;
         }
         const occSet = new Set(occ);
-        const emptyInSeg = lanesInStonePaymentSegment(seg).filter((l) => !occSet.has(l));
+        const supportSet = new Set(stoneSupportPrefillLanes(powerId, getArtifactStoneSupportPrefill(this.actor, powerId, isGeneric ? undefined : fixedPayAttr || undefined)));
+        const emptyInSeg = lanesInStonePaymentSegment(seg).filter((l) => !occSet.has(l) && !supportSet.has(l));
         emptyInSeg.sort((a, b) => a - b);
         for (const lane of emptyInSeg) {
             this.#pullSessionPartialsIntoInstance();
@@ -1781,8 +1848,12 @@ export class StonePowersDialog extends BaseDialog {
      */
     #reconcilePrimedSupportLanes(root) {
         root.querySelectorAll('.power-drop-slots').forEach((host) => {
-            const anchor = host.querySelector('.ms-stone-drop-slot[data-lane-index="0"]');
-            const primed = !!anchor && anchor.classList.contains('slot-filled');
+            const cluster = host.querySelector('.ms-stone-drop-slot-cluster');
+            const firstLanes = cluster?.classList.contains('is-ramp-skip') ? [1, 2] : [0];
+            const primed = firstLanes.every((lane) => {
+                const slot = host.querySelector(`.ms-stone-drop-slot[data-lane-index="${lane}"]`);
+                return !!slot && slot.classList.contains('slot-filled');
+            });
             host
                 .querySelectorAll('.ms-stone-drop-slot.slot-support')
                 .forEach((s) => s.classList.toggle('is-primed', primed));

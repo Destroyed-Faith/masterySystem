@@ -1,0 +1,319 @@
+{
+  "name": "Titan Scars - Level 1-1",
+  "type": "artifact",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Titan Scars.png",
+  "system": {
+    "level": 1,
+    "currentLevel": 1,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "",
+    "slot": "body",
+    "baseProfile": "bodyArmor",
+    "binding": "echo",
+    "echoKey": "titanborn",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "bodyArmor",
+        "label": "Medium Echo Armor",
+        "value": 4,
+        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "isBaseline": true,
+        "armorWeightClass": "medium"
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 1,
+        "name": "Titan Growth I",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+4d8 Damage** and **+8 Armor**. **Large Form** (3 hexes, +2 m Reach). Drawback: **-4 Evade**, **-4 Initiative**.",
+        "special": "",
+        "powerTemplateId": "ab-growth-form"
+      }
+    ],
+    "stoneFunction": null,
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "power",
+        "powerTemplateId": "ab-growth-form",
+        "displayName": "Titan Growth"
+      },
+      {
+        "level": 2,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.meleeDamage"
+        },
+        "displayName": "Titan Might"
+      },
+      {
+        "level": 3,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "vitality",
+          "stonePowerId": "vitality.removeScar"
+        },
+        "displayName": "Titan Healing"
+      }
+    ],
+    "lore": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
+    "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.\n\nA Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "titanScars-pw-1",
+        "name": "Titan Growth I",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "rounds",
+              "rounds": 1
+            },
+            "effect": {
+              "text": "Gain **+4d8 Damage** and **+8 Armor**. **Large Form** (3 hexes, +2 m Reach). Drawback: **-4 Evade**, **-4 Initiative**."
+            },
+            "specials": [],
+            "lvl": 1
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactArmor": {
+      "type": "medium",
+      "armorValue": 4,
+      "evadeModifier": -2,
+      "skillPenalty": "−1d8 to Physical Skill checks"
+    },
+    "equipSlots": [
+      "body"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "titanScars-l1",
+      "parentIds": [],
+      "childIds": [
+        "titanScars-l2"
+      ],
+      "isRoot": true,
+      "echoBound": "titanborn",
+      "echoArtifactKey": "titanScars",
+      "seedVersion": 49
+    }
+  },
+  "_id": "L62lRCaTedQCrLq2",
+  "folder": "QrI4PCBUhCRCubVn",
+  "_key": "!items!L62lRCaTedQCrLq2"
+}

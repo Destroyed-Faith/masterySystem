@@ -49,6 +49,7 @@ import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext, isOptInRadialManeuverId } from '../utils/radial-maneuver-prefs.js';
 import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
+import { resyncActorPowerTemplates } from '../migrations/power-template-resync-migration.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
@@ -107,6 +108,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #isRendering = false;
     /** One attribute-baseline migration attempt per sheet instance. */
     #attributeBaselinesMigrationDone = false;
+    /** Prevent overlapping catalog power resyncs from nested sheet renders. */
+    #powerCatalogResyncInFlight = false;
     /** Last pointer-down on equipment tile (for click vs drag distinction). */
     #itemInfoPointerDown = null;
     #equipSlotFillMenuAbort = null;
@@ -697,6 +700,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /** @override */
     async _prepareContext(options) {
+        // Refresh baked power levels from the live catalog when the sheet opens so
+        // template reprices (Evade etc.) show immediately. Idempotent / cheap when synced.
+        void this.#resyncOwnedPowerTemplatesFromCatalog();
         const context = this._buildV1BaseContext(options);
         const actorData = context.actor;
         // Add system data
@@ -1374,6 +1380,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         this.#closeEquipSlotFillMenu();
         this.activateListeners($(root));
+    }
+    /**
+     * Idempotent catalog → owned-power levels refresh. Re-renders once if anything changed.
+     */
+    async #resyncOwnedPowerTemplatesFromCatalog() {
+        if (this.#powerCatalogResyncInFlight)
+            return;
+        this.#powerCatalogResyncInFlight = true;
+        try {
+            const updated = await resyncActorPowerTemplates(this.actor);
+            if (updated > 0 && this.rendered) {
+                this.render(false);
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | sheet power catalog resync failed', err);
+        }
+        finally {
+            this.#powerCatalogResyncInFlight = false;
+        }
     }
     /**
      * Prepare items organized by type

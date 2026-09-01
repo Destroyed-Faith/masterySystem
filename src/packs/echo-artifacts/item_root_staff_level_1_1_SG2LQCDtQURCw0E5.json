@@ -1,0 +1,338 @@
+{
+  "name": "Root Staff - Level 1-1",
+  "type": "artifact",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Root Staff.png",
+  "system": {
+    "level": 1,
+    "currentLevel": 1,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "weapon",
+    "gearSlot": "",
+    "slot": "bothHands",
+    "baseProfile": "twoHandedWeapon",
+    "binding": "echo",
+    "echoKey": "unbound",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "weaponDamage",
+        "label": "Staff Damage",
+        "value": "4d8",
+        "isBaseline": true
+      },
+      {
+        "slot": "c",
+        "type": "spellFocus",
+        "label": "Spell Focus",
+        "value": "+5d8",
+        "note": "Spell Focus from Level 1. May be used with Intellect.",
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 1,
+        "name": "Witch Stone I",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "special": "intellect.spellRaises"
+      }
+    ],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "intellect",
+      "stonePowerId": "intellect.spellRaises"
+    },
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "intellect",
+          "stonePowerId": "intellect.spellRaises"
+        },
+        "displayName": "Witch Stone"
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "ab-special-overdrive",
+        "displayName": "Covenant Overdrive",
+        "chosenSpecial": {
+          "key": "slow",
+          "tier": 4
+        }
+      },
+      {
+        "level": 3,
+        "kind": "power",
+        "powerTemplateId": "active-ranged-damage-t4",
+        "delivery": "ranged-single",
+        "chosenSpecial": {
+          "key": "slow",
+          "tier": 4
+        },
+        "displayName": "Rootbinding"
+      }
+    ],
+    "lore": "Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Main Spell: Rootbinding (Ranged Attack + Slow).",
+    "description": "Witch Unbound Echo Artifact grown from buried wood, grave roots, thorn knots, and old circles. Tradition Special: Slow. Main Spell: Rootbinding (Ranged Attack + Slow).\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "witchStaffRoot-pw-1",
+        "name": "Witch Stone I",
+        "fluff": "Special: intellect.spellRaises",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
+            },
+            "specials": [],
+            "lvl": 1
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactWeapon": {
+      "weaponType": "melee",
+      "damage": "4d8",
+      "range": "0m",
+      "hands": 2,
+      "innateAbilities": [],
+      "specials": []
+    },
+    "equipSlots": [
+      "mainhand",
+      "offhand"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "witchStaffRoot-l1",
+      "parentIds": [],
+      "childIds": [
+        "witchStaffRoot-l2"
+      ],
+      "isRoot": true,
+      "echoBound": "unbound",
+      "echoArtifactKey": "witchStaffRoot",
+      "seedVersion": 49
+    }
+  },
+  "_id": "SG2LQCDtQURCw0E5",
+  "folder": "J0OrvYN0iunkbat2",
+  "_key": "!items!SG2LQCDtQURCw0E5"
+}

@@ -20,6 +20,21 @@
         "label": "Bite Weapon Damage",
         "value": "3d8",
         "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "headArmor",
+        "label": "Head Armor",
+        "value": 2,
+        "isBaseline": true
+      },
+      {
+        "slot": "c",
+        "type": "sense",
+        "label": "Predator Sense",
+        "value": "20 m",
+        "note": "Sense Slot option. Does not scale with Artifact Level.",
+        "isBaseline": true
       }
     ],
     "levelProgression": [
@@ -30,8 +45,8 @@
         "range": "20m",
         "aoe": "Radius 3m",
         "duration": "Instant",
-        "effect": "No damage. The chosen Special applies to every affected creature at half value.",
-        "special": "ruin(3) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)",
+        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.",
+        "special": "Ruin(4)",
         "powerTemplateId": "active-ranged-aoe-damage-t4",
         "chosenSpecialKey": "ruin"
       },
@@ -61,6 +76,7 @@
       "kind": "stoneRefresh",
       "attribute": "might"
     },
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -101,11 +117,12 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "dragonHead-pw-1",
         "name": "Breath Weapon I",
-        "fluff": "Special: ruin(3) bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)",
+        "fluff": "Special: Ruin(4)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -163,7 +180,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "No damage. The chosen Special applies to every affected creature at half value."
+              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload."
             },
             "specials": [],
             "lvl": 1
@@ -736,11 +753,17 @@
       }
     ],
     "inventorySize": "1x1",
+    "naturalWeapon": {
+      "name": "Bite",
+      "weaponType": "melee",
+      "hands": 0
+    },
     "artifactWeapon": {
       "weaponType": "melee",
       "damage": "3d8",
       "range": "0m",
       "hands": 0,
+      "isNatural": true,
       "innateAbilities": [],
       "specials": [],
       "name": "Bite"
@@ -760,7 +783,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonHead",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "YJgnbJw4vc23sWZn",

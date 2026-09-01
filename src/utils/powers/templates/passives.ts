@@ -33,11 +33,11 @@ const ARMOR_UNCOND      = [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 
 /** Conditional Armor (Stone Stance / Surrounded Bulwark; 7.5 PP / +1). */
 const ARMOR_COND        = [3, 5, 8, 10, 13, 16, 19, 21, 24, 27, 29, 32, 35, 37, 40, 43];
 
-/** Conditional Evade (Flowing Step / Duelist Footwork; 5 PP / +1). */
-const EVADE_COND        = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
+/** Conditional Evade (Flowing Step / Duelist Footwork; 15 PP / +1). */
+const EVADE_COND        = [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21];
 
-/** Unconditional Evade curve (10 PP / +1). */
-const EVADE_UNCOND      = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Unconditional Evade curve (20 PP / +1). */
+const EVADE_UNCOND      = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
 /** Initiative curve (10 PP / +1 Initiative). */
 const INITIATIVE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
@@ -241,13 +241,28 @@ function basePassive(def: {
 // ─── Combined Passive per-level tables (spec) ────────────────────────────
 
 // Combined passive half-axis tables (L1 often single-axis only; see Passives.md).
-const COMB_AXIS         = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Evade half for Evade+THP / Evade+Healing (20 PP / +1; L1 often Evade 0). */
+const COMB_EVADE_HALF   = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8];
+/** Evade half for Evade+Damage (starts at +1 Evade on L1). */
+const COMB_EVADE_DMG_EV = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 const THP_5             = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+/** Healing paired with Evade+Healing (half-budget 8 PP / HP). */
+const COMB_EVADE_HEAL_HP = [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20];
 const COMB_HEAL         = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
 const COMB_DMG_BANDED   = ['', '', '', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8', '+4d8', '+5d8', '+5d8', '+6d8', '+6d8', '+7d8', '+7d8', '+8d8'];
+/** Damage paired with Evade+Damage (40 PP / +1d8 half-budget). */
+const COMB_EVADE_DMG_DMG = ['', '', '', '+1d8', '+1d8', '+1d8', '+1d8', '+2d8', '+2d8', '+2d8', '+2d8', '+3d8', '+3d8', '+3d8', '+3d8', '+4d8'];
+/** Conditional-combined Evade half (15 PP / +1). Shared by Evade+THP/Healing CC (L1 = 0). */
+const CC_EVADE_HALF     = [0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10];
+/** Conditional Evade+Damage evade half — L1 starts at +1. */
+const CC_EVADE_DMG_EV   = [1, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10];
 const CC_HALF           = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 20, 21];
 const CC_HEAL           = [3, 6, 10, 13, 16, 20, 23, 26, 30, 33, 36, 40, 43, 46, 50, 53];
+/** Healing for conditional Evade+Healing (4 PP / HP half-budget). */
+const CC_EVADE_HEAL_HP  = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
 const CC_DMG_BANDED     = ['', '+1d8', '+2d8', '+2d8', '+3d8', '+4d8', '+4d8', '+5d8', '+6d8', '+6d8', '+7d8', '+8d8', '+8d8', '+9d8', '+10d8', '+10d8'];
+/** Damage for conditional Evade+Damage (20 PP / +1d8 half-budget). */
+const CC_EVADE_DMG_DMG  = ['', '+1d8', '+1d8', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8', '+4d8', '+5d8', '+5d8', '+6d8', '+6d8', '+7d8', '+7d8', '+8d8'];
 
 /** Rules/passives.md Armor + Healing / Armor + Temporary HP / Armor + Health. */
 const COMB_ARMOR_HALF   = [1, 1, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 9, 9, 10, 11];
@@ -256,12 +271,12 @@ const COMB_ARMOR_HEAL_HP = [1, 2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18,
 const COMB_ARMOR_THP = { armor: COMB_ARMOR_HALF, thp: THP_5 };
 const COMB_ARMOR_HEAL = { armor: COMB_ARMOR_HALF, heal: COMB_ARMOR_HEAL_HP };
 const COMB_ARMOR_HEALTH = { armor: COMB_ARMOR_HALF };
-const COMB_EVADE_THP = { evade: COMB_AXIS, thp: THP_5 };
-const COMB_EVADE_HEAL = { evade: COMB_AXIS, heal: COMB_HEAL };
-const COMB_EVADE_DMG = { evade: COMB_AXIS, dmg: COMB_DMG_BANDED };
+const COMB_EVADE_THP = { evade: COMB_EVADE_HALF, thp: THP_5 };
+const COMB_EVADE_HEAL = { evade: COMB_EVADE_HALF, heal: COMB_EVADE_HEAL_HP };
+const COMB_EVADE_DMG = { evade: COMB_EVADE_DMG_EV, dmg: COMB_EVADE_DMG_DMG };
 const COMB_DMG_HEAL = { dmg: COMB_DMG_BANDED, heal: COMB_HEAL };
 const COMB_DMG_THP = { dmg: COMB_DMG_BANDED, thp: THP_5 };
-const COMB_AWARE_EVADE = { evade: COMB_AXIS };
+const COMB_AWARE_EVADE = { evade: COMB_EVADE_HALF };
 const COMB_AWARE_DMG = { dmg: COMB_DMG_BANDED };
 const COMB_HEALTH_HEAL = { heal: COMB_HEAL };
 const COMB_HEALTH_THP = { thp: THP_5 };
@@ -269,12 +284,12 @@ const COMB_HEALTH_THP = { thp: THP_5 };
 const CC_ARMOR_THP = { armor: CC_HALF, thp: THP_5 };
 const CC_ARMOR_HEAL = { armor: CC_HALF, heal: CC_HEAL };
 const CC_ARMOR_HEALTH = { armor: CC_HALF };
-const CC_EVADE_THP = { evade: CC_HALF, thp: THP_5 };
-const CC_EVADE_HEAL = { evade: CC_HALF, heal: CC_HEAL };
-const CC_EVADE_DMG = { evade: CC_HALF, dmg: CC_DMG_BANDED };
+const CC_EVADE_THP = { evade: CC_EVADE_HALF, thp: THP_5 };
+const CC_EVADE_HEAL = { evade: CC_EVADE_HALF, heal: CC_EVADE_HEAL_HP };
+const CC_EVADE_DMG = { evade: CC_EVADE_DMG_EV, dmg: CC_EVADE_DMG_DMG };
 const CC_DMG_HEAL = { dmg: CC_DMG_BANDED, heal: CC_HEAL };
 const CC_DMG_THP = { dmg: CC_DMG_BANDED, thp: THP_5 };
-const CC_AWARE_EVADE = { evade: CC_HALF };
+const CC_AWARE_EVADE = { evade: CC_EVADE_HALF };
 const CC_AWARE_DMG = { dmg: CC_DMG_BANDED };
 const CC_HEALTH_HEAL = { heal: CC_HEAL };
 const CC_HEALTH_THP = { thp: THP_5 };
@@ -877,38 +892,53 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
     basePassive({
         id: 'conditional-passive-evade-temp-hp', name: 'Evade / Temporary HP (Conditional)', subfamily: 'conditional-combined',
         fluff: 'Motion buys you space and a heartbeat’s worth of armor.',
-        perLevel: (lvl) => ({
-            text: `If you moved at least **8 m** on your turn, gain **+${CC_EVADE_THP.evade[lvl - 1]} Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **${CC_EVADE_THP.thp[lvl - 1]} Temporary HP**.`,
-            mechanics: {
-                evade: CC_EVADE_THP.evade[lvl - 1],
-                triggers: { combatStart: { tempHP: String(CC_EVADE_THP.thp[lvl - 1]) } },
-                conditionExpr: 'self.turnMoved >= 8',
-            },
-        }),
+        perLevel: (lvl) => {
+            const ev = CC_EVADE_THP.evade[lvl - 1]!;
+            const thp = CC_EVADE_THP.thp[lvl - 1];
+            const evadeClause = ev > 0
+                ? `If you moved at least **8 m** on your turn, gain **+${ev} Evade** until the start of your next turn. `
+                : '';
+            return {
+                text: `${evadeClause}Once per combat, after you first move at least **8 m**, gain **${thp} Temporary HP**.`,
+                mechanics: {
+                    ...(ev > 0 ? { evade: ev } : {}),
+                    triggers: { combatStart: { tempHP: String(thp) } },
+                    conditionExpr: 'self.turnMoved >= 8',
+                },
+            };
+        },
     }),
     basePassive({
         id: 'conditional-passive-evade-healing', name: 'Evade / Healing (Conditional)', subfamily: 'conditional-combined',
         fluff: 'You move, you mend.',
-        perLevel: (lvl) => ({
-            text: `If you moved at least **8 m** on your last turn, gain **+${CC_EVADE_HEAL.evade[lvl - 1]} Evade** and heal **${CC_EVADE_HEAL.heal[lvl - 1]} HP** at the start of your turn.`,
-            mechanics: {
-                evade: CC_EVADE_HEAL.evade[lvl - 1],
-                regen: CC_EVADE_HEAL.heal[lvl - 1],
-                conditionExpr: 'self.lastTurnMoved >= 8',
-            },
-        }),
+        perLevel: (lvl) => {
+            const ev = CC_EVADE_HEAL.evade[lvl - 1]!;
+            const heal = CC_EVADE_HEAL.heal[lvl - 1];
+            const text = ev > 0
+                ? `If you moved at least **8 m** on your last turn, gain **+${ev} Evade** and heal **${heal} HP** at the start of your turn.`
+                : `If you moved at least **8 m** on your last turn, heal **${heal} HP** at the start of your turn.`;
+            return {
+                text,
+                mechanics: {
+                    ...(ev > 0 ? { evade: ev } : {}),
+                    regen: heal,
+                    conditionExpr: 'self.lastTurnMoved >= 8',
+                },
+            };
+        },
     }),
     basePassive({
         id: 'conditional-passive-evade-damage', name: 'Evade / Damage (Conditional)', subfamily: 'conditional-combined',
         fluff: 'Speed sharpens into a blade.',
         perLevel: (lvl) => {
+            const ev = CC_EVADE_DMG.evade[lvl - 1]!;
             const dmg = CC_EVADE_DMG.dmg[lvl - 1]!;
-            const base = `If you moved at least **8 m** this turn, gain **+${CC_EVADE_DMG.evade[lvl - 1]} Evade** until the start of your next turn`;
+            const base = `If you moved at least **8 m** this turn, gain **+${ev} Evade** until the start of your next turn`;
             const tail = dmg ? ` and **${dmg} Damage** on all damage rolls you make until the end of your turn` : '';
             return {
                 text: `${base}${tail}.`,
                 mechanics: {
-                    evade: CC_EVADE_DMG.evade[lvl - 1],
+                    evade: ev,
                     ...(dmg ? { damageRider: { flat: dmg } } : {}),
                     conditionExpr: 'self.turnMoved >= 8',
                 },

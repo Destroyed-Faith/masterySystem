@@ -100,19 +100,23 @@ export async function wireEmbeddedArtifactToWorldTree(actor, embeddedItem, optio
     if (artifactKey) {
         await embeddedItem.setFlag('mastery-system', 'echoArtifactKey', artifactKey);
     }
-    if (embeddedItem.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-        await embeddedItem.setFlag('mastery-system', 'artifactActivated', false);
+    const keepInactive = embeddedItem.getFlag?.('mastery-system', 'artifactActivated') === false;
+    if (!keepInactive) {
+        await embeddedItem.setFlag('mastery-system', 'artifactActivated', true);
+        if (typeof embeddedItem.unsetFlag === 'function') {
+            await embeddedItem.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+        }
     }
     const actorId = actor.id;
     const prev = readActorArtifactProgress((rootItem.getFlag?.('mastery-system', 'actorLevels') || {})[actorId], rootNodeId);
     await upsertRootActorProgress(rootItem, actorId, {
         nodeId,
-        linked: prev.linked === true ? true : false,
+        linked: keepInactive ? prev.linked === true : true,
     });
     const { syncEmbeddedArtifactFromWorldNode } = await import('./artifact-echo-repair.js');
     await syncEmbeddedArtifactFromWorldNode(embeddedItem, actor);
     if (options.notify !== false && typeof ui !== 'undefined') {
-        ui.notifications?.info(`${embeddedItem.name} linked to the artifact evolution tree. Complete the Attunement Ritual in Progression — Level 1 is free.`);
+        ui.notifications?.info(`${embeddedItem.name} linked to the artifact evolution tree. Level 1 is free and active.`);
     }
     return { ok: true };
 }
@@ -131,8 +135,11 @@ export async function grantArtifactTreeToActor(actor, artifactKey) {
         if (embeddedArtifactNeedsSync(emb)) {
             await syncEmbeddedArtifactFromWorldNode(emb, actor);
         }
-        if (emb.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-            await emb.setFlag('mastery-system', 'artifactActivated', false);
+        if (emb.getFlag?.('mastery-system', 'artifactActivated') !== false) {
+            await emb.setFlag('mastery-system', 'artifactActivated', true);
+            if (typeof emb.unsetFlag === 'function') {
+                await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+            }
         }
         return emb;
     }
@@ -159,12 +166,15 @@ export async function grantArtifactTreeToActor(actor, artifactKey) {
         return null;
     }
     await created.setFlag('mastery-system', 'echoArtifactKey', artifactKey);
-    await created.setFlag('mastery-system', 'artifactActivated', false);
+    await created.setFlag('mastery-system', 'artifactActivated', true);
+    if (typeof created.unsetFlag === 'function') {
+        await created.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    }
     const rootNodeId = rootItem.getFlag?.('mastery-system', 'nodeId');
     const actorId = actor.id;
     await upsertRootActorProgress(rootItem, actorId, {
         nodeId: rootNodeId,
-        linked: false,
+        linked: true,
     });
     return created;
 }

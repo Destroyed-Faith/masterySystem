@@ -1,0 +1,787 @@
+{
+  "name": "Blight Staff - Level 9-1",
+  "type": "artifact",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Blight Staff.png",
+  "system": {
+    "level": 9,
+    "currentLevel": 9,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "weapon",
+    "gearSlot": "",
+    "slot": "bothHands",
+    "baseProfile": "twoHandedWeapon",
+    "binding": "echo",
+    "echoKey": "unbound",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "weaponDamage",
+        "label": "Staff Damage",
+        "value": "12d8",
+        "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "weaponSpecial",
+        "label": "Corrode",
+        "value": 4,
+        "note": "Tradition Special (Corrode) applies only on a legal Staff attack or Power.",
+        "isBaseline": true
+      },
+      {
+        "slot": "c",
+        "type": "spellFocus",
+        "label": "Spell Focus",
+        "value": "+13d8",
+        "note": "Spell Focus from Level 1. May be used with Intellect.",
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 7,
+        "name": "Witch Stone III",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "special": "intellect.spellRaises"
+      },
+      {
+        "level": 8,
+        "name": "Covenant Overdrive III",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+4**.",
+        "special": "Corrode(4)",
+        "powerTemplateId": "ab-special-overdrive",
+        "chosenSpecialKey": "corrode"
+      },
+      {
+        "level": 9,
+        "name": "Blightcall III",
+        "type": "Ranged",
+        "range": "68m",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Deal **+2d8 damage** on hit.",
+        "special": "Corrode(10)",
+        "powerTemplateId": "active-ranged-damage-t5",
+        "chosenSpecialKey": "corrode"
+      }
+    ],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "intellect",
+      "stonePowerId": "intellect.spellRaises"
+    },
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "intellect",
+          "stonePowerId": "intellect.spellRaises"
+        },
+        "displayName": "Witch Stone"
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "ab-special-overdrive",
+        "displayName": "Covenant Overdrive",
+        "chosenSpecial": {
+          "key": "corrode",
+          "tier": 5
+        }
+      },
+      {
+        "level": 3,
+        "kind": "power",
+        "powerTemplateId": "active-ranged-damage-t5",
+        "delivery": "ranged-single",
+        "chosenSpecial": {
+          "key": "corrode",
+          "tier": 5
+        },
+        "displayName": "Blightcall"
+      }
+    ],
+    "lore": "Witch Unbound Echo Artifact swollen with fungus, rust, sour water, and living decay. Tradition Special: Corrode. Main Spell: Blightcall (Ranged Attack + Corrode).",
+    "description": "Witch Unbound Echo Artifact swollen with fungus, rust, sour water, and living decay. Tradition Special: Corrode. Main Spell: Blightcall (Ranged Attack + Corrode).\n\nWitch Staff occupies both hand Slots. A Witch cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Counts as a Spell Focus from Level 1. May be used with Intellect.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "witchStaffBlight-pw-7",
+        "name": "Witch Stone III",
+        "fluff": "Special: intellect.spellRaises",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+            },
+            "specials": [],
+            "lvl": 7
+          }
+        }
+      },
+      {
+        "id": "witchStaffBlight-pw-8",
+        "name": "Covenant Overdrive III",
+        "fluff": "Special: Corrode(4)",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "rounds",
+              "rounds": 1
+            },
+            "effect": {
+              "text": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+4**."
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "witchStaffBlight-pw-9",
+        "name": "Blightcall III",
+        "fluff": "Special: Corrode(10)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Ranged",
+            "range": {
+              "kind": "distance",
+              "m": 68
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Deal **+2d8 damage** on hit."
+            },
+            "specials": [],
+            "lvl": 9
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactWeapon": {
+      "weaponType": "melee",
+      "damage": "12d8",
+      "range": "0m",
+      "hands": 2,
+      "innateAbilities": [],
+      "specials": []
+    },
+    "equipSlots": [
+      "mainhand",
+      "offhand"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "witchStaffBlight-l9",
+      "parentIds": [
+        "witchStaffBlight-l8"
+      ],
+      "childIds": [
+        "witchStaffBlight-l10"
+      ],
+      "echoBound": "unbound",
+      "echoArtifactKey": "witchStaffBlight",
+      "seedVersion": 49
+    }
+  },
+  "_id": "oUPssCZ7n0tCKkC9",
+  "folder": "dTjIbsqKAa9iWZdO",
+  "_key": "!items!oUPssCZ7n0tCKkC9"
+}

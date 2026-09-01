@@ -3,6 +3,7 @@
  * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
 import type { RadialCombatOption } from "../token-radial-menu";
+export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
 /** Bookkeeping for a single strike of a split-attack pair. */
 interface SplitContext {
     splitPairId: string;
@@ -38,13 +39,6 @@ export declare function getAttributeValue(actor: any, attributeName: string): nu
  * Get mastery rank from actor
  */
 export declare function getMasteryRank(actor: any): number;
-/**
- * Get evade value from target actor
- * Uses evadeTotal if available (includes shield bonus), otherwise falls back to base evade
- */
-export declare function getTargetEvade(targetActor: any): number;
-/** Spell Resistance from Ward passives + active buffs + Intellect stone (vs Spell-tagged Powers). */
-export declare function getTargetSpellResistance(targetActor: any): number;
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
 export declare function weaponHasFinesse(weapon: any | null): boolean;
 export declare function getAttackAttribute(actor: any, weapon: any | null, option: RadialCombatOption, attackType: "melee" | "ranged"): string;
@@ -54,5 +48,4 @@ export declare function getAttackAttribute(actor: any, weapon: any | null, optio
 export declare function createAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: "melee" | "ranged", split?: SplitContext | null, burstVolley?: MeleeBurstVolleyContext | null, aoeMelee?: AoeMeleeWeaponContext | null): Promise<string | null>;
 export declare function createMeleeAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, burstVolley?: MeleeBurstVolleyContext | null, aoeMelee?: AoeMeleeWeaponContext | null): Promise<string | null>;
 export declare function createRangedAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, aoeZone?: AoeMeleeWeaponContext | null): Promise<string | null>;
-export {};
 //# sourceMappingURL=attack-executor.d.ts.map

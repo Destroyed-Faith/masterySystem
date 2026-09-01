@@ -11,9 +11,15 @@ import { buildLevels, activeBuffRow } from './_shared.js';
 
 // Level-scaled value tables derived from the L1..L16 calculations in the md.
 // Rules/active-buffs.md Armor: +5 at L1, +4/level → L16 = +65 (7.5 PP per Armor).
-// Rules/active-buffs.md Evade: +8 at L1, +6/level → L16 = +98 (5 PP per Evade).
+// Active Buff Evade reprice: 15 PP / +1 → L1..L16 = +2..+32 (was +8…+98).
 const AB_ARMOR = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
-const AB_EVADE = [8, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86, 92, 98];
+const AB_EVADE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Evade half of Evade+THP Active Buff (L1 = 0). Temp refresh curve unchanged. */
+const AB_EVADE_THP_EV = [0, 1, 2, 2, 3, 4, 4, 5, 5, 6, 7, 8, 8, 9, 9, 10];
+const AB_EVADE_THP_TEMP = [8, 12, 17, 22, 28, 32, 38, 42, 48, 52, 58, 62, 68, 72, 78, 82];
+/** Armor+Evade: armor unchanged; evade is +1..+16 (was +4…+49). */
+const AB_ARMOR_EVADE_ARMOR = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33];
+const AB_ARMOR_EVADE_EVADE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const AB_TEMP = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
 // Active Buff: Healing heals FLAT HP at the start of each turn (4 PP / 1 HP).
 const AB_HEAL = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
@@ -280,13 +286,19 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const ev = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32][lvl - 1];
-            const temp = [8, 12, 17, 22, 28, 32, 38, 42, 48, 52, 58, 62, 68, 72, 78, 82][lvl - 1];
+            const ev = AB_EVADE_THP_EV[lvl - 1]!;
+            const temp = AB_EVADE_THP_TEMP[lvl - 1]!;
+            const thpText =
+                `At the start of each of your turns, if you have less than **${temp} Temporary HP**, restore it up to **${temp} Temporary HP**.`;
+            const effectText = ev > 0 ? `Gain **+${ev} Evade**. ${thpText}` : thpText;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText:
-                    `Gain **+${ev} Evade**. At the start of each of your turns, if you have less than **${temp} Temporary HP**, restore it up to **${temp} Temporary HP**.`,
-                mechanics: { evade: ev, tempHP: String(temp), duration: 'masteryRankRounds' },
+                effectText,
+                mechanics: {
+                    ...(ev > 0 ? { evade: ev } : {}),
+                    tempHP: String(temp),
+                    duration: 'masteryRankRounds',
+                },
             });
         }),
     },
@@ -321,8 +333,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const armor = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33][lvl - 1];
-            const evade = [4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 40, 43, 46, 49][lvl - 1];
+            const armor = AB_ARMOR_EVADE_ARMOR[lvl - 1]!;
+            const evade = AB_ARMOR_EVADE_EVADE[lvl - 1]!;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Gain **+${armor} Armor** and **+${evade} Evade**.`,

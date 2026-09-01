@@ -18,7 +18,7 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 8,
+        "value": 4,
         "isBaseline": true
       },
       {
@@ -37,7 +37,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Gain **+32 Evade** against the triggering attack.",
+        "effect": "Gain **+16 Evade** against the triggering attack.",
         "special": "",
         "powerTemplateId": "reaction-evade"
       },
@@ -59,11 +59,12 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 2, 3 yourself. If Tiers 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect.",
         "special": "agility.crit"
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -100,6 +101,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "elorianStride-pw-7",
@@ -300,7 +302,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+32 Evade** against the triggering attack."
+              "text": "Gain **+16 Evade** against the triggering attack."
             },
             "specials": [],
             "lvl": 7
@@ -643,7 +645,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 2, 3 yourself. If Tiers 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect."
             },
             "specials": [],
             "lvl": 6
@@ -739,7 +741,7 @@
       ],
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "mEcdVEXr0lWEGzoM",

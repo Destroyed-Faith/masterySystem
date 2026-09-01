@@ -8,6 +8,7 @@
 export declare function getCreationSkillBudget(): {
     total: number;
     maxPerSkill: number;
+    step: number;
 };
 export declare function sumActorSkillPoints(system: any): number;
 /** True when no progression XP was ever earned or spent (creation-only premise). */
@@ -18,10 +19,20 @@ export declare function canStartSkillsRedistribute(actor: any): {
     reason?: string;
 };
 /**
- * Creation / redistribute ranks (PG "Skill Point Buy"): the 40 points are
- * distributed FREELY, +1 per point; any rank 0..maxPerSkill (4) is legal.
+ * Creation / redistribute ranks: 40 points in clicks of 4.
+ * Legal values are 0 or the creation cap (4) — never 1, 2, or 3.
  */
 export declare function isValidCreationSkillRank(raw: unknown, maxPerSkill?: number): boolean;
+export declare function nextCreationSkillValue(current: number, remaining: number, maxPerSkill?: number): {
+    ok: boolean;
+    value?: number;
+    reason?: string;
+};
+export declare function prevCreationSkillValue(current: number, maxPerSkill?: number): {
+    ok: boolean;
+    value?: number;
+    reason?: string;
+};
 export declare function validateCreationSkillAllocation(system: any): {
     ok: boolean;
     reason?: string;

@@ -23,6 +23,15 @@
  */
 export declare function registerPowerTemplateResyncMigrationSetting(): void;
 /**
+ * Resync every template-backed power item on a single actor from its current
+ * catalog template. Cheap when already in sync (signature compare only).
+ * Used on character-sheet open so Evade (and other) reprices reach owned items
+ * without waiting for a GM world-load migration.
+ */
+export declare function resyncActorPowerTemplates(actor: any, options?: {
+    force?: boolean;
+}): Promise<number>;
+/**
  * Resync every template-backed power item from its current template.
  * @param options.force ignore the diff check and rewrite every matched item.
  * @returns number of power items updated.

@@ -1,6 +1,6 @@
 {
-  "version": "0.9.455",
-  "generatedAt": "2026-08-31T18:14:57.242Z",
+  "version": "0.9.456",
+  "generatedAt": "2026-09-01T22:37:59.696Z",
   "summary": {
     "correct": 218,
     "corrected": 3,
@@ -651,7 +651,7 @@
       "id": "ab-evade",
       "name": "Active Buff: Evade",
       "status": "corrected",
-      "notes": "Evade curve +8…+98 matches Rules; Active Buff: Evade"
+      "notes": "Evade curve +2…+32 matches Rules; Active Buff: Evade"
     },
     {
       "category": "activeBuff",

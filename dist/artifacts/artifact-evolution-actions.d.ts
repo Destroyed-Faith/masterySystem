@@ -80,13 +80,11 @@ export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, 
  */
 export declare function resetArtifactActivationForActor(actor: Actor, rootWorldId: string, embeddedId: string): Promise<boolean>;
 /**
- * GM-only: hard-release ALL artifact activation Stones on an actor. Clears the
- * `artifactActivated` / `artifactActivationStoneAttr` flags on every embedded
- * artifact and marks the matching root progress as not-linked, so no stones
- * remain blocked in the Stone Powers menu. Use to recover from stale/duplicate
- * activations.
+ * GM-only: clear leftover Link-Stone reservation flags on an actor.
+ * Artifacts stay active (Level 1 is free). Use to recover from stale
+ * `artifactActivationStoneAttr` leftovers — never deactivates items.
  *
- * @returns the number of activation bindings released.
+ * @returns the number of reservation flags cleared.
  */
 export declare function releaseAllArtifactActivationStones(actor: Actor): Promise<number>;
 /** Upgrade an artifact one tree step — costs 8 XP (unless `gmFree`). */

@@ -375,7 +375,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
     },
   },
   baseValues: [
-    { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels; Level 10 grants True Elorian Stride.' },
+    { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants True Elorian Stride.' },
     { slot: 'b', label: 'Movement', note: '+1 to +4 m Movement from Level 4 onward.' },
   ],
   levelProgression: [

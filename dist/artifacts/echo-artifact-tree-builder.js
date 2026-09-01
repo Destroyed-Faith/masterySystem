@@ -16,7 +16,7 @@
  */
 import { ECHO_ARTIFACTS, buildEchoStoneFunction, buildEchoProgressionPicks, } from '../utils/echo-artifacts.js';
 import { GENERAL_ARTIFACTS } from '../utils/general-artifacts.js';
-import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, noArmorEvadeForLevel, weaponDamageForLevel, spellFocusForLevel, } from '../utils/artifact-base-derive.js';
+import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, noArmorEvadeForLevel, soulSigilArmorForLevel, weaponDamageForLevel, spellFocusForLevel, } from '../utils/artifact-base-derive.js';
 import { getArmorDefinitionForType } from '../utils/equipment.js';
 import { resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
@@ -26,7 +26,7 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 48;
+export const ECHO_ARTIFACT_SEED_VERSION = 49;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -111,7 +111,7 @@ function hexRankForLevel(level) {
         return 3;
     return 2;
 }
-/** Soul Sigil Silver Veil Evade — +7 (L1) … +16 (L10), +6 base +1/level. */
+/** Soul Sigil Silver Veil Evade — +2 (L1) … +11 (L10), +1 base +1/level. */
 function soulSigilEvadeForLevel(level) {
     return noArmorEvadeForLevel(level);
 }
@@ -409,11 +409,20 @@ const BASE_VALUE_TABLES = {
     soulSigil: [
         {
             slot: 'a',
+            type: 'bodyArmor',
+            label: 'Light Armor',
+            armorWeightClass: 'light',
+            unlock: 1,
+            valueAt: (l) => soulSigilArmorForLevel(l),
+            note: 'Light Armor: flat +4 Armor. No class drawbacks.',
+        },
+        {
+            slot: 'b',
             type: 'evade',
             label: 'Evade (Silver Veil)',
             unlock: 1,
             valueAt: (l) => soulSigilEvadeForLevel(l),
-            note: 'Silver Veil is not Armor; the Soul Sigil grants no Armor.',
+            note: 'Silver Veil Evade scales +2 (L1) … +11 (L10).',
         },
     ],
     frostboundReturningAxe: [

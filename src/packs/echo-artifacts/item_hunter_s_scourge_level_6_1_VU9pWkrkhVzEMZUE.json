@@ -1,0 +1,781 @@
+{
+  "name": "Hunter's Scourge - Level 6-1",
+  "type": "artifact",
+  "img": "systems/mastery-system/assets/icons/items/echo-artifacts/Hunter's Scourge.png",
+  "system": {
+    "level": 6,
+    "currentLevel": 6,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "weapon",
+    "gearSlot": "",
+    "slot": "bothHands",
+    "baseProfile": "twoHandedWeapon",
+    "binding": "echo",
+    "echoKey": "unbound",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "weaponDamage",
+        "label": "Scourge Damage",
+        "value": "9d8",
+        "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "weaponSpecial",
+        "label": "Reach",
+        "value": "+2 m",
+        "note": "Keeps Whip Finesse and Reach (+1 m). Extra reach from Level 4.",
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 4,
+        "name": "Exorcism Lash II",
+        "type": "Melee",
+        "range": "",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special.",
+        "special": "Exorcism(16)",
+        "powerTemplateId": "active-melee-targeted-special",
+        "chosenSpecialKey": "exorcism"
+      },
+      {
+        "level": 5,
+        "name": "Snap Chain II",
+        "type": "Reaction",
+        "range": "2m (triggering enemy)",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Deal **6d8 damage** to the triggering creature and pull it **8 m** directly toward you.",
+        "special": "Pull(8)",
+        "powerTemplateId": "reaction-counter-damage-pull"
+      },
+      {
+        "level": 6,
+        "name": "Whirling Scourge II",
+        "type": "Melee AoE",
+        "range": "Self",
+        "aoe": "Radius 6m",
+        "duration": "Instant",
+        "effect": "Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special.",
+        "special": "Exorcism(10)",
+        "powerTemplateId": "active-melee-aoe-targeted-special",
+        "chosenSpecialKey": "exorcism"
+      }
+    ],
+    "stoneFunction": null,
+    "extraStoneFunctions": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "power",
+        "powerTemplateId": "active-melee-targeted-special",
+        "displayName": "Exorcism Lash",
+        "chosenSpecial": {
+          "key": "exorcism",
+          "tier": 3
+        }
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "reaction-counter-damage-pull",
+        "displayName": "Snap Chain"
+      },
+      {
+        "level": 3,
+        "kind": "power",
+        "powerTemplateId": "active-melee-aoe-targeted-special",
+        "displayName": "Whirling Scourge",
+        "chosenSpecial": {
+          "key": "exorcism",
+          "tier": 3
+        }
+      }
+    ],
+    "lore": "Demon Hunter / Relic Hunter Echo Artifact: a two-handed chain-whip. Keeps Finesse and Reach from the Whip base. Exorcism Lash is Melee Attack + Exorcism. Snap Chain is Artifact Reaction: Damage + Pull. Whirling Scourge is Melee AoE Attack + Exorcism.",
+    "description": "Demon Hunter / Relic Hunter Echo Artifact: a two-handed chain-whip. Keeps Finesse and Reach from the Whip base. Exorcism Lash is Melee Attack + Exorcism. Snap Chain is Artifact Reaction: Damage + Pull. Whirling Scourge is Melee AoE Attack + Exorcism.\n\nHunter's Scourge occupies both hand Slots. A Relic Hunter cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "huntersScourge-pw-4",
+        "name": "Exorcism Lash II",
+        "fluff": "Special: Exorcism(16)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Melee",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Make one weapon attack. On hit, deal weapon damage. If the target qualifies, it also gains the chosen targeted Special."
+            },
+            "specials": [],
+            "lvl": 4
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "huntersScourge-pw-5",
+        "name": "Snap Chain II",
+        "fluff": "Special: Pull(8)",
+        "category": "reaction",
+        "tags": [],
+        "cost": {
+          "action": "reaction"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Reaction",
+            "range": {
+              "kind": "distance",
+              "m": 2
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Deal **6d8 damage** to the triggering creature and pull it **8 m** directly toward you."
+            },
+            "specials": [],
+            "lvl": 5
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "huntersScourge-pw-6",
+        "name": "Whirling Scourge II",
+        "fluff": "Special: Exorcism(10)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Melee AoE",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 6,
+              "radiusM": 6
+            },
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special."
+            },
+            "specials": [],
+            "lvl": 6
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactWeapon": {
+      "weaponType": "melee",
+      "damage": "9d8",
+      "range": "0m",
+      "hands": 2,
+      "innateAbilities": [
+        "Finesse",
+        "Reach (+1 m, +2 m)"
+      ],
+      "specials": [
+        {
+          "specialId": "finesse"
+        },
+        {
+          "specialId": "reach",
+          "value": 1
+        }
+      ]
+    },
+    "equipSlots": [
+      "mainhand",
+      "offhand"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "huntersScourge-l6",
+      "parentIds": [
+        "huntersScourge-l5"
+      ],
+      "childIds": [
+        "huntersScourge-l7"
+      ],
+      "echoBound": "unbound",
+      "echoArtifactKey": "huntersScourge",
+      "seedVersion": 49
+    }
+  },
+  "_id": "VU9pWkrkhVzEMZUE",
+  "folder": "XEDwoCmbonnC3T0C",
+  "_key": "!items!VU9pWkrkhVzEMZUE"
+}

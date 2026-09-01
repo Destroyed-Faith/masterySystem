@@ -1,25 +1,25 @@
 /**
- * Party Combat Analyzer — per-PC combat profiles from the actual selected
- * actors.
+ * Party Combat Analyzer — per-PC profiles from selected World Actors.
  *
- * The analyzer looks at what each selected character can really do: real
- * equipped/artifact weapons, attack powers, spells, specials, penetration,
- * stones, defenses (Evade, Armor, DR%, Spell Resistance, Parry, Phasing) and
- * the six-bar Health Level track.
+ * Values come from the same aggregation live Foundry combat uses
+ * (`getTargetEvade`, `getTargetArmor`, `getTargetSpellResistance`,
+ * mechanics breakdown, Basic Attack = weapon + MR×2d8).
  *
- * BASELINE NORMALIZATION: encounter generation uses a normalized baseline
- * combat state — healthy, no transient Temp HP, permanent equipment, current
- * legal Artifact Levels, full stone pools, no spent combat resources. Status
- * effects that are transient (Corrode / Expose stacks, ...) are stripped
- * from the derived totals; if the actor's stored state looks transient or
- * inconsistent, a warning is attached instead of silently using nonsense.
+ * Three bands:
+ *   Baseline  — always-on equipment/passives-in-totals, Basic Attack, 1 action
+ *   Sustained — Baseline + currently active buffs; legal repeatable attacks
+ *   Burst     — Sustained + stone extras / limited powers
  *
- * Pure and Foundry-free: reads plain actor-shaped data, never throws on
- * partial data, usable directly from tests.
+ * Inactive known buffs are listed separately and are NOT applied to solver
+ * numbers. Passive mechanics.evade/armor stay unused (live combat zeroes
+ * them) and are flagged for rules review.
  */
 import { isArtifactEquippedOnActor } from '../../utils/artifact-actor-rules.js';
 import { artifactToVirtualWeapon } from '../../utils/unarmed-fallback.js';
 import { canonicalSpecialId } from '../../utils/special-effects.js';
+import { getPowerDefinitionRank } from '../../utils/power-definition-rank.js';
+import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, collectMechanicsContributions, } from '../../utils/power-mechanics.js';
+import { getTargetArmor, getTargetEvade, getTargetSpellResistance, } from '../../combat/target-defenses.js';
 import { baseEvadeForMr, mightMeleeBonus, stonesForAttribute } from './combat-math.js';
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -33,26 +33,33 @@ export function parseDamageString(raw) {
     const t = String(raw ?? '').trim();
     if (!t)
         return { dice: 0, flat: 0 };
-    const dice = t.match(/(\d+)\s*d\s*8/i);
-    const flat = t.match(/([+-]\s*\d+)(?!\s*d)/);
+    const cleaned = t.replace(/^Weapon\s+(DMG|Damage)\s*\+\s*/i, '').trim();
+    const dice = cleaned.match(/(\d+)\s*d\s*8/i);
+    const flat = cleaned.match(/([+-]\s*\d+)(?!\s*d)/);
     const out = {
         dice: dice ? parseInt(dice[1], 10) : 0,
         flat: flat ? parseInt(flat[1].replace(/\s+/g, ''), 10) : 0,
     };
     if (out.dice === 0 && out.flat === 0) {
-        const bare = parseInt(t, 10);
-        // A lone number is Nd8 in Mastery damage notation (damage-dialog.ts).
+        const bare = parseInt(cleaned, 10);
         if (Number.isFinite(bare) && bare > 0)
             out.dice = bare;
     }
     return out;
 }
-/** Parse specials like ["Penetration(4)", "Lacerate(2)"] into id/value pairs. */
 export function parseSpecialStrings(list) {
     if (!Array.isArray(list))
         return [];
     const out = [];
     for (const entry of list) {
+        if (entry && typeof entry === 'object') {
+            const key = String(entry.key ?? entry.id ?? '').trim();
+            const value = num(entry.rank ?? entry.value ?? entry.tier, 0);
+            const id = canonicalSpecialId(key.toLowerCase());
+            if (id && value > 0)
+                out.push({ id, value });
+            continue;
+        }
         const m = String(entry ?? '').match(/^\s*([A-Za-zÄÖÜäöüß' -]+?)\s*\(\s*(\d+)\s*\)\s*$/);
         if (!m)
             continue;
@@ -80,12 +87,50 @@ function statusEffectValue(system, specialId) {
     }
     return total;
 }
+function isMentalPower(sys) {
+    const tags = Array.isArray(sys?.tags) ? sys.tags.map((t) => String(t).toLowerCase()) : [];
+    const tid = String(sys?.templateId ?? '').toLowerCase();
+    return (tags.includes('mental') ||
+        /mental/i.test(tid) ||
+        /mind-illusion|mind-probe|mental-control/i.test(tid));
+}
+function isSpellPower(sys) {
+    if (sys?.isSpell === true)
+        return true;
+    const tags = Array.isArray(sys?.tags) ? sys.tags.map((t) => String(t).toLowerCase()) : [];
+    return tags.includes('spell');
+}
+function isLimitedPower(sys) {
+    if (sys?.oncePerCombat === true || sys?.oncePerEncounter === true)
+        return true;
+    const freq = String(sys?.frequency ?? sys?.useLimit ?? '').toLowerCase();
+    if (freq.includes('encounter') || freq.includes('combat') || freq.includes('once'))
+        return true;
+    const uses = num(sys?.usesPerCombat ?? sys?.uses?.max, 0);
+    return uses > 0 && uses <= 2;
+}
+function isActiveBuffItem(it) {
+    const sys = it?.system ?? {};
+    const cat = String(sys.category ?? sys.powerType ?? sys.subfamily ?? '').toLowerCase();
+    return cat.includes('buff') || sys.isActiveBuff === true;
+}
+function powerLevelRow(sys) {
+    const level = Math.max(1, num(sys?.level ?? sys?.rank, 1));
+    const levels = sys?.levels;
+    if (!levels)
+        return null;
+    const rank = getPowerDefinitionRank(level, levels);
+    if (Array.isArray(levels)) {
+        return levels.find((row) => Number(row?.level) === rank) ?? levels[rank - 1] ?? null;
+    }
+    return levels[String(rank)] ?? levels[String(level)] ?? null;
+}
+function rawAttackScore(a) {
+    return a.damageDice + a.flatDamage / 4.5;
+}
 /* ------------------------------------------------------------------ */
 /* Extraction                                                          */
 /* ------------------------------------------------------------------ */
-/**
- * Build the combat profile for one character actor (prepared or plain data).
- */
 export function analyzePc(actor) {
     const system = actor?.system ?? {};
     const combat = system.combat ?? {};
@@ -94,16 +139,52 @@ export function analyzePc(actor) {
     const mr = Math.max(1, Math.min(8, Math.floor(num(system.mastery?.rank, 2))));
     const might = num(attributes.might?.value, 2);
     const agility = num(attributes.agility?.value, 2);
-    /* ---------------- Defense (normalized) ---------------- */
-    // Derived totals include transient status maluses (Expose/Corrode) and
-    // in-combat stone bonuses. Baseline = totals with transient specials
-    // stripped back out; warn when such state exists.
+    if (!system.mastery?.rank && !combat.evadeTotal && !system.health?.bars) {
+        warnings.push(`${actor?.name ?? '?'}: sieht nicht nach einem Mastery-Charakter aus — Fallbacks (MR ${mr}, Evade ${baseEvadeForMr(mr)}) werden verwendet.`);
+    }
     const exposeValue = statusEffectValue(system, 'expose');
     const corrodeValue = statusEffectValue(system, 'corrode');
-    const rawEvade = num(combat.evadeTotal, num(combat.evade, baseEvadeForMr(mr)));
-    const rawArmor = num(combat.armorTotal, num(combat.armor, mr));
-    const evade = Math.round(rawEvade + exposeValue);
-    const armor = Math.round(rawArmor + corrodeValue);
+    const stoneEvade = Math.max(0, num(combat.stoneEvadeBonus, 0));
+    const stoneArmor = Math.max(0, num(combat.stoneArmorBonus, 0));
+    const stoneDr = Math.max(0, num(combat.stoneDrBonusPct, 0));
+    const buffEvade = Math.max(0, num(combat.evadeFromActiveBuffs, 0));
+    const buffArmor = Math.max(0, num(combat.armorFromActiveBuffs, 0));
+    const buffSr = Math.max(0, num(combat.spellResistanceFromActiveBuffs, 0));
+    let mechWard = 0;
+    let mechAttackDice = 0;
+    let mechDamageDice = 0;
+    let mechDamageNegation = 0;
+    let passiveEvadeUnused = 0;
+    let passiveArmorUnused = 0;
+    let buffDr = 0;
+    try {
+        const all = buildActorMechanicsBreakdown(actor);
+        const buffs = buildBuffMechanicsBreakdown(actor);
+        mechWard = Math.max(0, num(all.totals.wardIncoming, 0));
+        mechAttackDice = Math.max(0, num(all.totals.rollDice?.attack, 0));
+        mechDamageDice = Math.max(0, num(all.totals.rollDice?.damage, 0));
+        passiveEvadeUnused = Math.max(0, num(all.totals.evade, 0) - num(buffs.totals.evade, 0));
+        passiveArmorUnused = Math.max(0, num(all.totals.armor, 0) - num(buffs.totals.armor, 0));
+        buffDr = Math.max(0, num(buffs.totals.damageReductionPct, 0));
+        for (const c of collectMechanicsContributions(actor)) {
+            const dn = num(c.mechanics?.damageNegationDice ?? c.mechanics?.damageNegation, 0);
+            if (dn > 0)
+                mechDamageNegation = Math.max(mechDamageNegation, dn);
+        }
+    }
+    catch {
+        /* tests / partial actors */
+    }
+    if (passiveEvadeUnused > 0 || passiveArmorUnused > 0) {
+        warnings.push(`${actor?.name ?? '?'}: Passive mechanics.evade/armor (${passiveEvadeUnused}/${passiveArmorUnused}) sind am Tisch nicht in evadeTotal/armorTotal — für Rules-Review vorgemerkt, Forge kalibriert nicht dagegen.`);
+    }
+    const liveEvade = getTargetEvade(actor);
+    const liveArmor = getTargetArmor(actor);
+    const liveSr = getTargetSpellResistance(actor);
+    const evadeEquip = Math.round(liveEvade - buffEvade - stoneEvade + exposeValue);
+    const armorEquip = Math.round(liveArmor - buffArmor - stoneArmor + corrodeValue);
+    const evadeSustained = Math.round(liveEvade - stoneEvade + exposeValue);
+    const armorSustained = Math.round(liveArmor - stoneArmor + corrodeValue);
     if (exposeValue > 0 || corrodeValue > 0) {
         warnings.push(`${actor?.name ?? '?'}: aktive Status-Effekte (Expose/Corrode) wurden für die Baseline herausgerechnet.`);
     }
@@ -111,9 +192,6 @@ export function analyzePc(actor) {
     if (statusCount > 0 && exposeValue === 0 && corrodeValue === 0) {
         warnings.push(`${actor?.name ?? '?'}: hat aktive Status-Effekte — Baseline ignoriert sie.`);
     }
-    const drPct = Math.max(0, Math.min(100, Math.round(num(combat.damageReductionPct, 0))));
-    const spellResistance = Math.max(0, Math.round(num(combat.spellResistanceTotal, 0)));
-    // Temp HP is transient — never part of baseline durability.
     const tempHP = num(system.health?.tempHP, 0);
     if (tempHP > 0) {
         warnings.push(`${actor?.name ?? '?'}: ${tempHP} Temp-HP im Datensatz — Baseline rechnet ohne Temp-HP.`);
@@ -121,7 +199,6 @@ export function analyzePc(actor) {
     if (system.creation?.skillsRedistributing === true) {
         warnings.push(`${actor?.name ?? '?'}: ist im Skill-Bearbeitungsmodus — Werte können transient sein.`);
     }
-    // Health bars: use MAX values (healthy baseline).
     const bars = Array.isArray(system.health?.bars) ? system.health.bars : [];
     const healthBars = bars.map((b) => Math.max(0, num(b?.max, 0)));
     if (healthBars.length === 0)
@@ -132,23 +209,77 @@ export function analyzePc(actor) {
     if (currentDamage > 0) {
         warnings.push(`${actor?.name ?? '?'}: aktuell verletzt — Baseline nutzt volle Gesundheit.`);
     }
-    // Parry: available if a parry passive/pool exists; cap = min(best attr, 5 × level).
     let parryPoolMax = 0;
-    for (const it of itemsOf(actor)) {
+    let canCleanse = false;
+    let damageNegationDice = 0;
+    const items = itemsOf(actor);
+    for (const it of items) {
         if (it?.type !== 'power')
             continue;
-        const tid = String(it?.system?.templateId ?? '').toLowerCase();
+        const sys = it?.system ?? {};
+        const tid = String(sys.templateId ?? '').toLowerCase();
+        const name = String(it?.name ?? '').toLowerCase();
+        const chosenKey = String(sys.chosenSpecial?.key ?? '').toLowerCase();
         if (tid.includes('parry')) {
-            const level = Math.max(1, num(it?.system?.level ?? it?.system?.rank, 1));
+            const level = Math.max(1, num(sys.level ?? sys.rank, 1));
             parryPoolMax = Math.max(parryPoolMax, Math.min(Math.max(might, agility), 5 * level));
         }
+        if (chosenKey === 'cleanse' || String(sys.subfamily ?? '').toLowerCase() === 'support-cleanse' || name.includes('cleanse')) {
+            canCleanse = true;
+        }
+        const dn = num(sys.mechanics?.damageNegationDice ?? sys.damageNegationDice, 0);
+        if (dn > 0)
+            damageNegationDice = Math.max(damageNegationDice, dn);
     }
-    // Phasing charges from passives (Ghostform curve) — read persisted flag max
-    // if present, else 0 (charges are granted per combat).
+    damageNegationDice = Math.max(damageNegationDice, mechDamageNegation);
     const phasingCharges = Math.max(0, num(actor?.flags?.['mastery-system']?.phasingCharges?.max, 0));
-    /* ---------------- Offense ---------------- */
-    const items = itemsOf(actor);
-    // Real weapon: equipped weapon, else equipped artifact weapon, else unarmed.
+    const sheetDr = Math.max(0, Math.min(100, Math.round(num(combat.damageReductionPct, 0))));
+    const drBaseline = Math.max(0, sheetDr - stoneDr - buffDr);
+    const drSustained = Math.max(0, sheetDr - stoneDr);
+    const srBaseline = Math.max(0, Math.round(num(combat.spellResistanceTotal, 0)));
+    const srSustained = Math.max(0, srBaseline + buffSr);
+    const srBurst = Math.max(0, Math.round(liveSr));
+    const fallbackEvade = baseEvadeForMr(mr);
+    const defenseBaseline = {
+        evade: Number.isFinite(evadeEquip) ? evadeEquip : fallbackEvade,
+        armor: Number.isFinite(armorEquip) ? armorEquip : mr,
+        drPct: drBaseline,
+        spellResistance: srBaseline,
+        phasingCharges,
+        ward: mechWard,
+        damageNegationDice,
+        notes: [
+            `Evade ${Number.isFinite(evadeEquip) ? evadeEquip : fallbackEvade} = evadeTotal − Buffs − Stones (Expose herausgerechnet)`,
+            `Armor ${Number.isFinite(armorEquip) ? armorEquip : mr} = armorTotal − Buffs − Stones (Corrode herausgerechnet)`,
+        ],
+    };
+    const defenseSustained = {
+        evade: Number.isFinite(evadeSustained) ? evadeSustained : defenseBaseline.evade,
+        armor: Number.isFinite(armorSustained) ? armorSustained : defenseBaseline.armor,
+        drPct: drSustained,
+        spellResistance: srSustained,
+        phasingCharges,
+        ward: mechWard,
+        damageNegationDice,
+        notes: [
+            `Evade ${Number.isFinite(evadeSustained) ? evadeSustained : defenseBaseline.evade} = getTargetEvade − Stones (aktive Buffs ${buffEvade >= 0 ? '+' : ''}${buffEvade})`,
+            `Armor ${Number.isFinite(armorSustained) ? armorSustained : defenseBaseline.armor} = getTargetArmor − Stones (aktive Buffs +${buffArmor})`,
+        ],
+    };
+    const defenseBurst = {
+        ...defenseSustained,
+        evade: defenseSustained.evade + stoneEvade,
+        armor: defenseSustained.armor + stoneArmor,
+        drPct: Math.min(100, defenseSustained.drPct + stoneDr),
+        spellResistance: srBurst,
+        notes: [
+            ...defenseSustained.notes,
+            stoneEvade || stoneArmor || stoneDr
+                ? `Burst addiert aktuelle Stone-Boni (Evade +${stoneEvade}, Armor +${stoneArmor}, DR +${stoneDr}%)`
+                : 'Keine Stone-Boni im Datensatz — Burst-Defense = Sustained',
+        ],
+    };
+    /* ---------------- Weapon ---------------- */
     let weapon = items.find((i) => i?.type === 'weapon' && i?.system?.equipped === true) ?? null;
     let weaponFromArtifact = false;
     for (const it of items) {
@@ -168,7 +299,7 @@ export function analyzePc(actor) {
             }
         }
         catch {
-            /* malformed artifact — ignore */
+            /* malformed artifact */
         }
     }
     if (!weapon) {
@@ -181,7 +312,7 @@ export function analyzePc(actor) {
     const weaponSys = weapon?.system ?? {};
     const weaponDamage = parseDamageString(weaponSys.damage ?? weaponSys.baseDamage);
     if (weaponDamage.dice === 0 && weaponDamage.flat === 0)
-        weaponDamage.dice = 1; // unarmed 1d8
+        weaponDamage.dice = 1;
     const weaponSpecials = parseSpecialStrings(weaponSys.specials);
     const isRangedWeapon = String(weaponSys.weaponType ?? '').toLowerCase().includes('ranged');
     const finesse = String(weaponSys.freeTrait ?? '').toLowerCase().includes('finesse') ||
@@ -198,99 +329,133 @@ export function analyzePc(actor) {
     else {
         attackAttrValue = might;
     }
-    // Best non-spell attack power rider and best standalone spell.
-    let bestRiderDice = 0;
-    let bestRiderSpecials = [];
-    let bestSpellDice = 0;
-    let bestSpellLevel = 1;
-    let bestSpellSpecials = [];
-    let castingAttrValue = Math.max(num(attributes.intellect?.value, 2), num(attributes.resolve?.value, 2), num(attributes.wits?.value, 2));
-    let canCleanse = false;
-    for (const it of items) {
-        if (it?.type !== 'power')
-            continue;
-        const sys = it?.system ?? {};
-        const subfamily = String(sys.subfamily ?? '').toLowerCase();
-        const chosenKey = String(sys.chosenSpecial?.key ?? '').toLowerCase();
-        const name = String(it?.name ?? '').toLowerCase();
-        if (chosenKey === 'cleanse' || subfamily === 'support-cleanse' || name.includes('cleanse')) {
-            canCleanse = true;
-        }
-        const level = Math.max(1, Math.min(16, num(sys.rank ?? sys.level, 1)));
-        const levelRow = sys.levels?.[String(level)] ?? null;
-        const dmgRaw = levelRow?.effect?.dice ?? levelRow?.roll?.damage ?? sys.roll?.damage;
-        const { dice } = parseDamageString(dmgRaw);
-        if (dice <= 0)
-            continue;
-        const chosenSpecial = chosenKey ? canonicalSpecialId(chosenKey) : null;
-        const chosenTier = Math.max(1, num(sys.chosenSpecial?.tier, 3));
-        const specials = chosenSpecial
-            ? [{ id: chosenSpecial, value: Math.max(1, Math.round(chosenTier / 2)) }]
-            : [];
-        if (sys.isSpell === true) {
-            if (dice > bestSpellDice) {
-                bestSpellDice = dice;
-                bestSpellLevel = level;
-                bestSpellSpecials = specials;
-                const castAttr = String(sys.castingAttribute ?? '').toLowerCase();
-                if (castAttr && num(attributes[castAttr]?.value, 0) > 0) {
-                    castingAttrValue = num(attributes[castAttr].value, 2);
-                }
-            }
-        }
-        else if (dice > bestRiderDice) {
-            bestRiderDice = dice;
-            bestRiderSpecials = specials;
-        }
-    }
     const meleeFlat = isRangedWeapon ? 0 : mightMeleeBonus(might);
     const penetration = weaponSpecials
         .filter((s) => s.id === 'penetration')
         .reduce((a, s) => a + s.value, 0);
-    const martialAttack = {
-        label: weapon?.name ? String(weapon.name) : 'Unbewaffnet',
+    const basicMrDice = mr * 2;
+    const pool = Math.max(mr, Math.floor(attackAttrValue)) + mechAttackDice;
+    const weaponName = weapon?.name ? String(weapon.name) : 'Unbewaffnet';
+    const basicAttack = {
+        label: weaponFromArtifact ? `${weaponName} (Artefakt)` : weaponName,
+        role: 'basic',
         kind: 'martial',
         delivery: isRangedWeapon ? 'ranged' : 'melee',
-        pool: Math.max(mr, Math.floor(attackAttrValue)),
+        pool,
         keep: mr,
-        damageDice: weaponDamage.dice + bestRiderDice,
+        damageDice: weaponDamage.dice + basicMrDice + mechDamageDice,
         flatDamage: Math.max(0, weaponDamage.flat) + meleeFlat,
         penetration,
-        specials: [
-            ...weaponSpecials.filter((s) => s.id !== 'penetration' && s.id !== 'finesse'),
-            ...bestRiderSpecials,
-        ],
+        specials: weaponSpecials.filter((s) => s.id !== 'penetration' && s.id !== 'finesse'),
         spellPowerLevel: null,
+        casterMr: mr,
+        isMental: false,
+        notes: [
+            `Basic Attack: ${weaponDamage.dice}d8 Waffe + ${basicMrDice}d8 (MR×2)`,
+            mechAttackDice ? `Passive/Buff Attack-Dice +${mechAttackDice}` : '',
+            mechDamageDice ? `Passive/Buff Damage-Dice +${mechDamageDice}` : '',
+        ].filter(Boolean),
     };
-    if (weaponFromArtifact)
-        martialAttack.label += ' (Artefakt)';
-    const attacks = [martialAttack];
-    if (bestSpellDice > 0) {
-        attacks.push({
-            label: 'Bester Zauber',
-            kind: 'spell',
-            delivery: 'ranged',
-            pool: Math.max(mr, Math.floor(castingAttrValue)),
-            keep: mr,
-            damageDice: bestSpellDice,
-            flatDamage: 0,
-            penetration: 0,
-            specials: bestSpellSpecials,
-            spellPowerLevel: bestSpellLevel,
-        });
+    const sustainedAttacks = [basicAttack];
+    const burstOnlyAttacks = [];
+    for (const it of items) {
+        if (it?.type !== 'power')
+            continue;
+        const sys = it?.system ?? {};
+        const row = powerLevelRow(sys);
+        const dmgRaw = row?.effect?.dice ?? row?.roll?.damage ?? sys.roll?.damage;
+        const { dice } = parseDamageString(dmgRaw);
+        if (dice <= 0)
+            continue;
+        const level = Math.max(1, Math.min(16, num(sys.level ?? sys.rank, 1)));
+        const specials = parseSpecialStrings(row?.specials ?? sys.specials);
+        if (sys.chosenSpecial?.key) {
+            const id = canonicalSpecialId(String(sys.chosenSpecial.key).toLowerCase());
+            const value = num(sys.chosenSpecial.rank ?? sys.chosenSpecial.value ?? sys.chosenSpecial.tier, 0);
+            if (id && value > 0 && !specials.some((s) => s.id === id))
+                specials.push({ id, value });
+        }
+        const limited = isLimitedPower(sys);
+        const spell = isSpellPower(sys);
+        const ignoreWeapon = sys.ignoreWeaponDamage === true || spell;
+        const mental = isMentalPower(sys);
+        let castAttr = Math.max(num(attributes.intellect?.value, 2), num(attributes.resolve?.value, 2), num(attributes.wits?.value, 2));
+        const castKey = String(sys.castingAttribute ?? '').toLowerCase();
+        if (castKey && num(attributes[castKey]?.value, 0) > 0) {
+            castAttr = num(attributes[castKey].value, 2);
+        }
+        let profile;
+        if (spell) {
+            profile = {
+                label: String(it.name ?? 'Zauber'),
+                role: 'spell',
+                kind: 'spell',
+                delivery: 'ranged',
+                pool: Math.max(mr, Math.floor(castAttr)) + mechAttackDice,
+                keep: mr,
+                damageDice: dice + mechDamageDice,
+                flatDamage: 0,
+                penetration: 0,
+                specials,
+                spellPowerLevel: level,
+                casterMr: mr,
+                isMental: mental,
+                notes: [
+                    `Spell ${dice}d8 · TN = 8×MR${mental ? '+4 Mental' : ''} (nicht Power Level)`,
+                    ignoreWeapon ? 'Ohne Waffe' : '',
+                ].filter(Boolean),
+            };
+        }
+        else if (ignoreWeapon) {
+            profile = {
+                label: String(it.name ?? 'Power'),
+                role: 'power-only',
+                kind: 'martial',
+                delivery: isRangedWeapon ? 'ranged' : 'melee',
+                pool,
+                keep: mr,
+                damageDice: dice + mechDamageDice,
+                flatDamage: meleeFlat,
+                penetration: 0,
+                specials,
+                spellPowerLevel: null,
+                casterMr: mr,
+                isMental: false,
+                notes: [`Unabhängige Power ${dice}d8 (ignoreWeaponDamage)`],
+            };
+        }
+        else {
+            profile = {
+                label: `${String(it.name ?? 'Power')} + ${weaponName}`,
+                role: 'power-rider',
+                kind: 'martial',
+                delivery: isRangedWeapon ? 'ranged' : 'melee',
+                pool,
+                keep: mr,
+                damageDice: weaponDamage.dice + dice + mechDamageDice,
+                flatDamage: Math.max(0, weaponDamage.flat) + meleeFlat,
+                penetration,
+                specials: [
+                    ...weaponSpecials.filter((s) => s.id !== 'penetration' && s.id !== 'finesse'),
+                    ...specials,
+                ],
+                spellPowerLevel: null,
+                casterMr: mr,
+                isMental: false,
+                notes: [`Power-Rider: Waffe ${weaponDamage.dice}d8 + Power ${dice}d8 (kein MR×2)`],
+            };
+        }
+        if (limited)
+            burstOnlyAttacks.push(profile);
+        else
+            sustainedAttacks.push(profile);
     }
-    // Sustainable primary = the attack with the best expected raw output.
-    // (Exact vs-defense choice happens in the simulator, which re-evaluates
-    // each attack against the concrete enemy configuration.)
-    const bestAttack = attacks.reduce((best, a) => a.damageDice + a.flatDamage / 4.5 > best.damageDice + best.flatDamage / 4.5 ? a : best);
-    /* ---------------- Burst resources ---------------- */
+    const pickBest = (list) => list.reduce((best, a) => (rawAttackScore(a) > rawAttackScore(best) ? a : best));
     let stonesTotal = 0;
     for (const key of ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits']) {
         stonesTotal += stonesForAttribute(num(attributes[key]?.value, 0));
     }
-    // Stone wave costs are 2^(tier-1); extra attack unlocks at T2 → ramp cost 1+2.
-    const extraAttackStoneCost = 3;
-    // might.meleeDamage tiers: +2 (1 stone), +4 (3), +8 (7), +16 (15 cumulative).
+    const extraAttackStoneCost = 2;
     let burstBonusDamageDice = 0;
     if (!isRangedWeapon) {
         if (stonesTotal >= 15)
@@ -302,27 +467,98 @@ export function analyzePc(actor) {
         else if (stonesTotal >= 1)
             burstBonusDamageDice = 2;
     }
+    let burstExtraActions = 0;
+    if (stonesTotal >= 14)
+        burstExtraActions = 3;
+    else if (stonesTotal >= 6)
+        burstExtraActions = 2;
+    else if (stonesTotal >= extraAttackStoneCost)
+        burstExtraActions = 1;
+    const burstAttacks = [...sustainedAttacks, ...burstOnlyAttacks].map((a) => ({
+        ...a,
+        damageDice: a.damageDice + burstBonusDamageDice,
+        notes: [...a.notes, burstBonusDamageDice ? `Burst +${burstBonusDamageDice}d8 Stones` : ''].filter(Boolean),
+    }));
+    const baselineBand = {
+        attack: basicAttack,
+        attacks: [basicAttack],
+        attackActions: 1,
+        notes: basicAttack.notes,
+    };
+    const sustainedBest = pickBest(sustainedAttacks);
+    const sustainedBand = {
+        attack: sustainedBest,
+        attacks: sustainedAttacks,
+        attackActions: 1,
+        notes: [
+            `Sustained-Pick: ${sustainedBest.label} (${sustainedBest.role})`,
+            'Extra-Attack aus Stones zählt nicht als Sustained',
+            ...sustainedBest.notes,
+        ],
+    };
+    const burstBest = pickBest(burstAttacks);
+    const burstBand = {
+        attack: burstBest,
+        attacks: burstAttacks,
+        attackActions: 1 + burstExtraActions,
+        notes: [
+            `Burst-Pick: ${burstBest.label}`,
+            burstExtraActions ? `+${burstExtraActions} Extra-Attack (Stones ≥ ${extraAttackStoneCost})` : 'Kein Extra-Attack',
+            ...burstBest.notes,
+        ],
+    };
+    const knownBuffs = [];
+    for (const it of items) {
+        if (it?.type !== 'power' || !isActiveBuffItem(it))
+            continue;
+        const row = powerLevelRow(it.system);
+        const mech = row?.mechanics ?? it.system?.mechanics ?? {};
+        const potential = { name: String(it.name ?? 'Buff') };
+        if (num(mech.evade, 0) > 0)
+            potential.evade = num(mech.evade, 0);
+        if (num(mech.armor, 0) > 0)
+            potential.armor = num(mech.armor, 0);
+        if (num(mech.damageReductionPct, 0) > 0)
+            potential.drPct = num(mech.damageReductionPct, 0);
+        if (num(mech.spellResistance, 0) > 0)
+            potential.spellResistance = num(mech.spellResistance, 0);
+        if (num(mech.wardIncoming, 0) > 0)
+            potential.ward = num(mech.wardIncoming, 0);
+        if (potential.evade ||
+            potential.armor ||
+            potential.drPct ||
+            potential.spellResistance ||
+            potential.ward) {
+            knownBuffs.push(potential);
+        }
+    }
     return {
         actorId: String(actor?.id ?? ''),
         name: String(actor?.name ?? 'Unbenannt'),
         mr,
-        evade,
-        armor,
-        drPct,
-        spellResistance,
+        evade: defenseSustained.evade,
+        armor: defenseSustained.armor,
+        drPct: defenseSustained.drPct,
+        spellResistance: defenseSustained.spellResistance,
         parryPoolMax,
-        phasingCharges,
+        phasingCharges: defenseSustained.phasingCharges,
+        ward: defenseSustained.ward,
+        damageNegationDice: defenseSustained.damageNegationDice,
         reactionsPerRound: 1,
         healthBars,
         totalHealth,
         healthLevelSize,
-        attacks,
-        bestAttack,
+        attacks: sustainedAttacks,
+        bestAttack: sustainedBest,
         attackActionsPerRound: 1,
         stonesTotal,
         extraAttackStoneCost,
         burstBonusDamageDice,
+        burstExtraActions,
         canCleanse,
+        defense: { baseline: defenseBaseline, sustained: defenseSustained, burst: defenseBurst },
+        offense: { baseline: baselineBand, sustained: sustainedBand, burst: burstBand },
+        knownBuffs,
         warnings,
     };
 }
@@ -333,7 +569,6 @@ function median(values) {
     const mid = Math.floor(sorted.length / 2);
     return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
-/** Analyze all selected party actors. */
 export function analyzePartyActors(actors) {
     const members = actors.map((a) => analyzePc(a));
     return {

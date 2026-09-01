@@ -37,20 +37,20 @@ function alarisActor() {
       minorExpressions: ['agility-light-fingers'],
       combat: {
         speed: 8,
-        evadeTotal: 17,
-        armorTotal: 2,
+        evadeTotal: 11,
+        armorTotal: 6,
         initiative: 0,
         initiativeMasteryRank: 2,
         evadeBreakdownRows: [
           { label: 'MR×4 base', detail: 'Mastery Rank 2', value: 8, display: '8' },
           { label: 'Shield', detail: 'Not equipped', value: 0, display: '—' },
           { label: 'Armor', detail: 'Not equipped', value: 0, display: '—' },
-          { label: 'Elorian Stride', detail: 'Artifact · Evade', value: 2, display: '+2' },
-          { label: 'Soul Sigil', detail: 'Artifact · Evade (Silver Veil)', value: 7, display: '+7' },
+          { label: 'Elorian Stride', detail: 'Artifact · Evade', value: 1, display: '+1' },
+          { label: 'Soul Sigil', detail: 'Artifact · Evade (Silver Veil)', value: 2, display: '+2' },
         ],
         armorBreakdownRows: [
           { label: 'Mastery Rank', detail: 'Always in soak total', value: 2, display: '2' },
-          { label: 'Armor', detail: 'Not equipped', value: null, display: '—' },
+          { label: 'Armor', detail: 'Soul Sigil · Light Armor', value: 4, display: '+4' },
           { label: 'Shield', detail: 'Not equipped', value: null, display: '—' },
         ],
       },
@@ -111,7 +111,7 @@ function alarisActor() {
           templateId: 'passive-evade',
           rank: 4,
           level: 4,
-          effect: 'Gain **+8 Evade**.',
+          effect: 'Gain **+4 Evade**.',
         },
       },
       {
@@ -206,13 +206,13 @@ function alarisActor() {
           binding: 'bound',
           equipped: true,
           currentLevel: 1,
-          baseValues: [{ slot: 'a', type: 'evade', label: 'Evade', value: 2 }],
+          baseValues: [{ slot: 'a', type: 'evade', label: 'Evade', value: 1 }],
           levelProgression: [
             {
               level: 1,
               name: 'Otherworld Reflex I',
               type: 'Reaction',
-              effect: 'Gain **+8 Evade** against the triggering attack.',
+              effect: 'Gain **+1 Evade** against the triggering attack.',
             },
           ],
         },
@@ -223,11 +223,14 @@ function alarisActor() {
         type: 'artifact',
         system: {
           artifactKind: 'armor',
-          baseProfile: 'noArmorBody',
+          baseProfile: 'bodyArmor',
           binding: 'bound',
           equipped: true,
           currentLevel: 1,
-          baseValues: [{ slot: 'a', type: 'evade', label: 'Evade (Silver Veil)', value: 7 }],
+          baseValues: [
+            { slot: 'a', type: 'bodyArmor', label: 'Light Armor', value: 4, armorWeightClass: 'light' },
+            { slot: 'b', type: 'evade', label: 'Evade (Silver Veil)', value: 2 },
+          ],
           stoneFunction: {
             kind: 'stonePowerSupport',
             attribute: 'vitality',
@@ -270,10 +273,10 @@ describe('Quick Play character print', () => {
     expect(ctx.hasPortrait).toBe(true);
     expect(ctx.portrait).toContain('Players/Alaris/Alaris.png');
     expect(ctx.movement).toBe('8 m');
-    expect(ctx.evade).toBe(25);
-    expect(ctx.armor).toBe(2);
-    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +2 · Soul Sigil +7 · Evade +8');
-    expect(ctx.armorSources).toBe('Base 2');
+    expect(ctx.evade).toBe(15);
+    expect(ctx.armor).toBe(6);
+    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +1 · Soul Sigil +2 · Evade +4');
+    expect(ctx.armorSources).toBe('Base 2 · Armor +4');
     expect(ctx.initiative).toBe('2d8');
     expect(ctx.faithFractures).toBe('8 / 8');
     expect(ctx.tempHp).toBe(0);
@@ -475,8 +478,9 @@ describe('Quick Play character print', () => {
       ],
     };
     const ctx = buildCharacterCompactPrintContext(actor) as any;
-    expect(ctx.armor).toBe(7); // Base 2 + Fortified Frame L4 (+5)
+    expect(ctx.armor).toBe(11); // Base 2 + Soul Sigil Light Armor +4 + Fortified Frame L4 (+5)
     expect(ctx.armorSources).toMatch(/Armor \+5/);
+    expect(ctx.armorSources).toMatch(/Armor \+4/);
   });
 
   it('prints Longbow as a single maximum range even when system.range is stale', () => {
@@ -627,16 +631,16 @@ describe('Quick Play character print', () => {
       formatCompactDefenseSources([
         { label: 'MR×4 base', value: 8, display: '8' },
         { label: 'Shield', value: 0, display: '—' },
-        { label: 'Elorian Stride', value: 2, display: '+2' },
-        { label: 'Soul Sigil', value: 7, display: '+7' },
+        { label: 'Elorian Stride', value: 1, display: '+1' },
+        { label: 'Soul Sigil', value: 2, display: '+2' },
       ]),
-    ).toBe('Base 8 · Elorian Stride +2 · Soul Sigil +7');
+    ).toBe('Base 8 · Elorian Stride +1 · Soul Sigil +2');
     expect(
       formatCompactDefenseSources([
         { label: 'Mastery Rank', value: 2, display: '2' },
-        { label: 'Armor', value: null, display: '—' },
+        { label: 'Armor', value: 4, display: '+4' },
       ]),
-    ).toBe('Base 2');
+    ).toBe('Base 2 · Armor +4');
   });
 
   it('splits oversized Active groups across columns to fill empty space', () => {

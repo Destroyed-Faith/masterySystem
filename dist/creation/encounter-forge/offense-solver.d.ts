@@ -17,10 +17,12 @@
 import type { AttackConcept } from './encounter-model.js';
 import type { PartyProfile, PcCombatProfile } from './party-analyzer.js';
 export interface PartyActionEconomy {
-    /** Baseline offensive actions per round (1 per PC). */
+    /** Sustained offensive actions per round (1 per PC). Stone extras are Burst-only. */
     offensiveActionsPerRound: number;
-    /** Amortized extra attack actions from stones over a typical encounter. */
+    /** Always 0 — extra stone actions are not treated as permanently available. */
     sustainableExtraActions: number;
+    /** Temporary extra attacks available in a Burst round. */
+    burstExtraActions: number;
     reactionsPerRound: number;
 }
 export declare function analyzePartyActionEconomy(party: PartyProfile): PartyActionEconomy;
@@ -58,6 +60,10 @@ export interface SolvedAttack {
     usesPerRound: number;
     /** Explicit occupancy assumptions for AoE review lines. */
     occupancy: AoeOccupancy | null;
+    /** True when pool 20 still cannot reach the target hit chance. */
+    poolAtCap: boolean;
+    /** Matrix-average connect chance the solver used (same TN as Review). */
+    achievedHitChance: number;
 }
 /** Occupancy cases when map geometry is unknown (explicit, never hidden). */
 export declare function aoeOccupancy(partySize: number): AoeOccupancy;
@@ -115,5 +121,7 @@ export interface OffenseSimulationResult {
  * accumulation with canonical tick/recovery/decay, expected Health-Level
  * loss and the resulting dice-pool penalties (injury feedback).
  */
-export declare function simulateNpcOffense(party: PartyProfile, attacks: SolvedAttack[], npcMr: number, phaseRounds: number): OffenseSimulationResult;
+export declare function simulateNpcOffense(party: PartyProfile, attacks: SolvedAttack[], npcMr: number, phaseRounds: number, 
+/** Must match the hostile-attack count `solveAttack` used for the TN. */
+solverHostileAttacks?: number): OffenseSimulationResult;
 //# sourceMappingURL=offense-solver.d.ts.map

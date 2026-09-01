@@ -338,13 +338,11 @@ export async function resetArtifactActivationForActor(actor, rootWorldId, embedd
     return true;
 }
 /**
- * GM-only: hard-release ALL artifact activation Stones on an actor. Clears the
- * `artifactActivated` / `artifactActivationStoneAttr` flags on every embedded
- * artifact and marks the matching root progress as not-linked, so no stones
- * remain blocked in the Stone Powers menu. Use to recover from stale/duplicate
- * activations.
+ * GM-only: clear leftover Link-Stone reservation flags on an actor.
+ * Artifacts stay active (Level 1 is free). Use to recover from stale
+ * `artifactActivationStoneAttr` leftovers — never deactivates items.
  *
- * @returns the number of activation bindings released.
+ * @returns the number of reservation flags cleared.
  */
 export async function releaseAllArtifactActivationStones(actor) {
     if (!game.user?.isGM) {
@@ -354,11 +352,6 @@ export async function releaseAllArtifactActivationStones(actor) {
     const A = actor;
     if (!A?.items?.filter)
         return 0;
-    // Phantom/duplicate embedded artifact copies (left over from earlier
-    // activate→reset cycles) each carry their own stale activation flag and so
-    // each block a Stone. The Evolution dialog only shows one card per tree, so
-    // these duplicates are invisible there but still inflate the bound count.
-    // Remove them first, keeping the best wired/slotted copy per artifact.
     let removedDuplicates = 0;
     try {
         const { dedupeEchoArtifactsOnActor } = await import('../utils/echo-artifact-equip.js');
@@ -369,35 +362,11 @@ export async function releaseAllArtifactActivationStones(actor) {
     }
     const artifacts = Array.from(A.items.filter((it) => it.type === 'artifact'));
     let released = 0;
-    const touchedRoots = new Set();
     for (const emb of artifacts) {
-        const wasActivated = emb.getFlag?.('mastery-system', 'artifactActivated') === true;
         const hadAttr = emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') != null;
-        if (wasActivated) {
-            await emb.setFlag('mastery-system', 'artifactActivated', false);
-            released += 1;
-        }
         if (hadAttr) {
             await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
-        }
-        const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
-        if (rootWorldId && !touchedRoots.has(rootWorldId)) {
-            touchedRoots.add(rootWorldId);
-            const root = game.items?.get(rootWorldId);
-            if (root) {
-                const rootNodeId = root.getFlag?.('mastery-system', 'nodeId');
-                const levels = { ...(root.getFlag?.('mastery-system', 'actorLevels') || {}) };
-                const prog = readActorArtifactProgress(levels[A.id], rootNodeId || '');
-                if (prog.linked) {
-                    levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
-                    try {
-                        await setRootActorLevels(root, levels);
-                    }
-                    catch (err) {
-                        console.warn('[mastery-system] could not clear root actorLevels on release', err);
-                    }
-                }
-            }
+            released += 1;
         }
     }
     const dupNote = removedDuplicates > 0

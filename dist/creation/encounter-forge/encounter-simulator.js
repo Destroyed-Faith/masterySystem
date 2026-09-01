@@ -34,7 +34,9 @@ function evaluateAttack(member, attack, body, stacks, ctx) {
     const penalty = Math.max(0, Math.min(1, ctx.poolPenaltyFraction));
     const pool = Math.max(member.mr, Math.floor(attack.pool - Math.floor(attack.pool * penalty)));
     const tn = attack.kind === 'spell'
-        ? pcSpellCastingTn(attack.spellPowerLevel ?? 1, body.defenses.spellResistance)
+        ? pcSpellCastingTn(attack.casterMr ?? member.mr, body.defenses.spellResistance, {
+            mental: attack.isMental,
+        })
         : Math.max(1, body.defenses.evade + evadeDelta(stacks));
     let connect = attackConnectChance({
         pool,
@@ -116,7 +118,7 @@ export function simulateFocusDamageCurve(party, body, options = {}) {
         });
         party.members.forEach((member, idx) => {
             const burstRound = options.burst === true && round === 1;
-            const extraAttacks = burstRound && member.stonesTotal >= member.extraAttackStoneCost ? 1 : 0;
+            const extraAttacks = burstRound ? (member.burstExtraActions ?? 0) : 0;
             const ctx = {
                 poolPenaltyFraction: options.poolPenaltyByRound?.[idx]?.[round - 1] ?? 0,
                 parryStrip: idx === strongestIdx ? body.defenses.parryStrip : 0,

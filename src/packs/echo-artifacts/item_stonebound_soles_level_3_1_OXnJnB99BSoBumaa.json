@@ -16,10 +16,17 @@
     "baseValues": [
       {
         "slot": "a",
+        "type": "headArmor",
+        "label": "Armor (Feet)",
+        "value": 2,
+        "isBaseline": true
+      },
+      {
+        "slot": "c",
         "type": "sense",
-        "label": "Tremorsense",
-        "value": 0,
-        "note": "Ground-contact detection; depth scales with level.",
+        "label": "Tremor Sense",
+        "value": "20 m",
+        "note": "Sense Slot option. Does not scale with Artifact Level; works through a shared solid surface.",
         "isBaseline": true
       }
     ],
@@ -32,7 +39,7 @@
         "aoe": "",
         "duration": "2 Rounds",
         "effect": "For **2 Rounds** you become **Immovable** and gain **40 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
-        "special": "immovable",
+        "special": "Immovable",
         "powerTemplateId": "ab-immovable-temp-hp"
       },
       {
@@ -59,6 +66,7 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -91,11 +99,12 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "stoneboundSoles-pw-1",
         "name": "Anchoring Stance I",
-        "fluff": "Special: immovable",
+        "fluff": "Special: Immovable",
         "category": "activeBuff",
         "tags": [],
         "cost": {
@@ -729,7 +738,7 @@
       ],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "OXnJnB99BSoBumaa",

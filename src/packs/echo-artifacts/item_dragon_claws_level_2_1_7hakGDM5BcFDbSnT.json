@@ -18,7 +18,7 @@
         "slot": "a",
         "type": "weaponDamage",
         "label": "Claw / Tail Damage",
-        "value": "6d8",
+        "value": "5d8",
         "isBaseline": true
       }
     ],
@@ -40,7 +40,7 @@
         "range": "Self",
         "aoe": "Radius 3m",
         "duration": "Instant",
-        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**.",
+        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **4d8 damage** and may use Dive for Cover before payload.",
         "special": "Lacerate(3)",
         "powerTemplateId": "active-melee-weapon-aoe",
         "chosenSpecialKey": "lacerate"
@@ -51,6 +51,7 @@
       "attribute": "might",
       "stonePowerId": "might.meleeDamage"
     },
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -95,6 +96,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "dragonClaws-pw-1",
@@ -365,7 +367,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**."
+              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **4d8 damage** and may use Dive for Cover before payload."
             },
             "specials": [],
             "lvl": 2
@@ -520,7 +522,7 @@
     "inventorySize": "1x1",
     "artifactWeapon": {
       "weaponType": "melee",
-      "damage": "6d8",
+      "damage": "5d8",
       "range": "0m",
       "hands": 2,
       "innateAbilities": [],
@@ -542,7 +544,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "7hakGDM5BcFDbSnT",

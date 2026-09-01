@@ -278,9 +278,9 @@ export const RULES_EXPECTED_ARTIFACTS = [
     { rulesName: 'Lantern of the Hollow Star', id: 'lanternOfTheHollowStar', source: 'general' },
     { rulesName: "Lor-Keth's Staff", id: 'lorKethsStaff', source: 'general' },
 ];
-/** Expected Active Buff: Evade L1…L16 values (Rules). */
+/** Expected Active Buff: Evade L1…L16 values (15 PP / +1 → +2…+32). */
 export const RULES_AB_EVADE_CURVE = [
-    8, 14, 20, 26, 32, 38, 44, 50, 56, 62, 68, 74, 80, 86, 92, 98,
+    2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
 ];
 /** Expected Active Buff: Armor L1…L16 values (Rules). */
 export const RULES_AB_ARMOR_CURVE = [
@@ -656,8 +656,8 @@ export function runCatalogRulesAudit(options = {}) {
                 const curve = readMechanicsCurve(tpl, 'evade');
                 const ok = RULES_AB_EVADE_CURVE.every((v, i) => curve[i] === v);
                 return ok
-                    ? `Evade curve +8…+98 matches Rules; Active Buff: ${rulesName}`
-                    : `Evade curve mismatch vs Rules +8…+98 (got ${curve.filter((x) => x != null).join(',')})`;
+                    ? `Evade curve +2…+32 matches Rules; Active Buff: ${rulesName}`
+                    : `Evade curve mismatch vs Rules +2…+32 (got ${curve.filter((x) => x != null).join(',')})`;
             }
             if (id === 'ab-armor') {
                 const tpl = abMap.get(id)?.template;

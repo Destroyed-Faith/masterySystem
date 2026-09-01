@@ -21,25 +21,23 @@ import { HEALTH_PENALTY_FRACTIONS } from './combat-math.js';
 export function analyzePartyActionEconomy(party) {
     let offensive = 0;
     let reactions = 0;
-    let extras = 0;
+    let burstExtras = 0;
     for (const m of party.members) {
         offensive += m.attackActionsPerRound;
         reactions += m.reactionsPerRound;
-        // A +1 attack wave costs 3 stones; amortize affordable waves over the
-        // burst amortization window (rules: stone costs; playtest: window).
-        const waves = Math.floor(m.stonesTotal / m.extraAttackStoneCost);
-        extras += Math.min(1, waves / ENCOUNTER_TUNING.burstAmortizationRounds);
+        burstExtras += m.burstExtraActions ?? 0;
     }
     return {
         offensiveActionsPerRound: offensive,
-        sustainableExtraActions: extras,
+        sustainableExtraActions: 0,
+        burstExtraActions: burstExtras,
         reactionsPerRound: reactions,
     };
 }
 export function recommendActionEconomy(party, bodyCount, attackingAdds) {
     const tuning = ENCOUNTER_TUNING;
     const pae = analyzePartyActionEconomy(party);
-    const partyActions = pae.offensiveActionsPerRound + pae.sustainableExtraActions;
+    const partyActions = pae.offensiveActionsPerRound;
     const totalTarget = Math.max(1, Math.round(partyActions * tuning.hostileActionRatio));
     // Attacking adds consume from the same envelope, weighted below full boss
     // actions because their solved attacks are individually weaker.
@@ -78,6 +76,9 @@ function pcDefenseView(pc) {
         spellResistance: pc.spellResistance,
         hlSize: pc.healthLevelSize,
         mr: pc.mr,
+        ward: pc.ward ?? 0,
+        damageNegationDice: pc.damageNegationDice ?? 0,
+        phasingCharges: pc.phasingCharges ?? 0,
     };
 }
 /**
@@ -102,6 +103,7 @@ function npcExpectedHitDamage(damageDice, penetration, pc, totalHostileAttacks) 
         penetration,
         armor: pc.armor + guardShare,
         drPct: pc.drPct,
+        damageNegationDice: pc.damageNegationDice,
     });
 }
 /* ------------------------------------------------------------------ */
@@ -185,7 +187,10 @@ export function solveAttack(concept, ctx) {
         attackPool = best;
     }
     const connects = views.map((v) => npcConnectChance(attackPool, ctx.npcMr, isSpell, v, ctx.totalHostileAttacks));
-    const avgConnect = connects.reduce((a, b) => a + b, 0) / connects.length;
+    const avgConnect = connects.length
+        ? connects.reduce((a, b) => a + b, 0) / connects.length
+        : 0;
+    const atCap = attackPool >= tuning.maxAttackPool && avgConnect + tuning.probabilityTolerance < tuning.targetNpcHitChance;
     // --- Damage dice: this attack's expected HL/round ≈ its budget share. ---
     const hasSpecial = Boolean(concept.specialId);
     const specialShare = hasSpecial ? tuning.specialShareOfAttackBudget : 0;
@@ -248,6 +253,8 @@ export function solveAttack(concept, ctx) {
         stress: concept.stress,
         usesPerRound: 1,
         occupancy,
+        poolAtCap: atCap,
+        achievedHitChance: avgConnect,
     };
 }
 /**
@@ -258,11 +265,13 @@ export function solveAttack(concept, ctx) {
  * accumulation with canonical tick/recovery/decay, expected Health-Level
  * loss and the resulting dice-pool penalties (injury feedback).
  */
-export function simulateNpcOffense(party, attacks, npcMr, phaseRounds) {
+export function simulateNpcOffense(party, attacks, npcMr, phaseRounds, 
+/** Must match the hostile-attack count `solveAttack` used for the TN. */
+solverHostileAttacks) {
     const rounds = Math.max(1, Math.ceil(phaseRounds));
     const members = party.members;
     const views = members.map(pcDefenseView);
-    const totalAttacks = attacks.reduce((a, atk) => a + atk.usesPerRound, 0);
+    const totalAttacks = Math.max(1, solverHostileAttacks ?? attacks.reduce((a, atk) => a + atk.usesPerRound, 0));
     const cumulativeDamage = members.map(() => 0);
     const stacks = members.map(() => new Map());
     const peakStacks = members.map(() => 0);
@@ -296,7 +305,7 @@ export function simulateNpcOffense(party, attacks, npcMr, phaseRounds) {
                 const uses = atk.usesPerRound * reach;
                 roundDamage += uses * threat.connectChance * threat.expectedDamageOnHit;
                 if (atk.specialId && atk.specialValue > 0) {
-                    applyExpectedSpecial(stacks[j], appliedThisRound[j], atk.specialId, uses * threat.connectChance * atk.specialValue, member.mr, 0);
+                    applyExpectedSpecial(stacks[j], appliedThisRound[j], atk.specialId, uses * threat.connectChance * atk.specialValue, member.mr, views[j].ward);
                 }
             }
             cumulativeDamage[j] += roundDamage;
@@ -335,7 +344,13 @@ export function simulateNpcOffense(party, attacks, npcMr, phaseRounds) {
     let worstAttack = '';
     members.forEach((member, j) => {
         for (const atk of attacks) {
-            const q90 = hitDamageQuantile({ dice: atk.damageDice, penetration: atk.penetration, armor: views[j].armor, drPct: views[j].drPct }, 0.9);
+            const q90 = hitDamageQuantile({
+                dice: atk.damageDice,
+                penetration: atk.penetration,
+                armor: views[j].armor,
+                drPct: views[j].drPct,
+                damageNegationDice: views[j].damageNegationDice,
+            }, 0.9);
             if (q90 / member.totalHealth > worstQ90) {
                 worstQ90 = q90 / member.totalHealth;
                 worstTarget = member.name;

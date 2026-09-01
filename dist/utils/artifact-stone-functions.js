@@ -23,7 +23,7 @@
  */
 import { getStonePoolStoredStones, getStonePowerSupportPrefillTier, getStoneRefreshAmount, getStoneBatteryCapacity, } from './artifact-rules.js';
 import { isArtifactMechanicallyActive } from './artifact-actor-rules.js';
-import { resolveStonePowerId, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, } from '../stones/stone-powers.js';
+import { resolveStonePowerId, effectiveStoneSupportPrefillTier, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, } from '../stones/stone-powers.js';
 function resolveStoneFunction(item) {
     const sys = item?.system || {};
     const fn = sys.stoneFunction;
@@ -190,7 +190,8 @@ export function getArtifactStoneSupportPrefill(actor, powerId, poolAttribute) {
         if (poolAttribute && s.attribute !== poolAttribute)
             continue;
         const shift = STONE_POWER_SUPPORT_TIER_SHIFT[resolvedId] ?? 0;
-        const value = Math.min(STONE_TIER_HARD_MAX, Math.max(0, s.value + shift));
+        const printed = Math.min(STONE_TIER_HARD_MAX, Math.max(0, s.value + shift));
+        const value = effectiveStoneSupportPrefillTier(resolvedId, printed);
         if (value > best)
             best = value;
     }

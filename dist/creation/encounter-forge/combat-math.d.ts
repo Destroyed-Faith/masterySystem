@@ -34,10 +34,13 @@ export declare function baseEvadeForMr(mr: number): number;
 /** NPC spell attack Casting TN: 8 × MR (+ target Spell Resistance). */
 export declare function npcSpellCastingTn(mr: number, targetSpellResistance?: number): number;
 /**
- * PC spell Casting TN: 8 × tier where tier = ceil(powerLevel / 2)
- * (spell-roll-handler.ts SPELL_TIER_TABLE), plus target Spell Resistance.
+ * PC spell Casting TN vs an NPC: 8 × caster Mastery Rank
+ * (`castingBaseTnForMasteryRank`), +4 if Mental, plus target Spell Resistance.
+ * Power Level does not set the TN.
  */
-export declare function pcSpellCastingTn(powerLevel: number, targetSpellResistance?: number): number;
+export declare function pcSpellCastingTn(casterMr: number, targetSpellResistance?: number, opts?: {
+    mental?: boolean;
+}): number;
 /** Melee flat damage bonus from Might: 2 × floor(Might / 8) (calculations.ts). */
 export declare function mightMeleeBonus(might: number): number;
 /** Stones per attribute pool: floor(attr / 8) (action-economy.ts). */

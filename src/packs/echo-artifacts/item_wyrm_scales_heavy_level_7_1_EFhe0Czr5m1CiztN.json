@@ -19,9 +19,11 @@
         "type": "bodyArmor",
         "label": "Heavy Echo Armor",
         "value": 10,
-        "note": "Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.",
+        "note": "Drawbacks: −2/−4/−6 Evade & Initiative (L1-3 / L4-6 / L7-10), −2d8 Physical Skills.",
         "isBaseline": true,
-        "armorWeightClass": "heavy"
+        "armorWeightClass": "heavy",
+        "evadeModifier": -6,
+        "initiativeModifier": -6
       }
     ],
     "levelProgression": [
@@ -43,7 +45,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+31 Armor**.",
+        "effect": "Gain **+12 Armor**. This replaces Wyrm Scales I.",
         "special": "",
         "powerTemplateId": "ab-armor"
       },
@@ -59,6 +61,7 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -70,7 +73,12 @@
         "level": 2,
         "kind": "power",
         "powerTemplateId": "ab-armor",
-        "displayName": "Wyrm Scales"
+        "displayName": "Wyrm Scales",
+        "stageEffectTexts": [
+          "Gain **+6 Armor**.",
+          "Gain **+12 Armor**. This replaces Wyrm Scales I.",
+          "Gain **+18 Armor**. This replaces Wyrm Scales II."
+        ]
       },
       {
         "level": 3,
@@ -95,6 +103,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "wyrmScalesHeavy-pw-7",
@@ -430,7 +439,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+31 Armor**."
+              "text": "Gain **+12 Armor**. This replaces Wyrm Scales I."
             },
             "specials": [],
             "lvl": 5
@@ -741,7 +750,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "EFhe0Czr5m1CiztN",

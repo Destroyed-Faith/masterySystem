@@ -18,14 +18,17 @@ const NEAR_2M: RangeSpec = { kind: 'distance', m: 2, note: 'triggering enemy' };
 
 // Curve tables (L1..L16). Source: Reaction.md level-by-level calculations.
 const ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-const EVADE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Pure Reaction Evade: 20 PP / +1 → L1..L16 = +1..+16. */
+const EVADE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const TEMP_HP = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
 
 const COMBO_A = { armor: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], temp: [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40] };
-const COMBO_E = { evade: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], temp: [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40] };
+/** Evade+THP: remaining budget after temp → half-band Evade (L1 = 0). Temp unchanged. */
+const COMBO_E = { evade: [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8], temp: [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40] };
 
 const ALLY_ARMOR = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31];
-const ALLY_EVADE = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31];
+/** Ally Evade: 10 PP ally premium first → L1 = 0 (—), then +1..+15. */
+const ALLY_EVADE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 const ALLY_TEMP = [2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57, 62, 67, 72, 77];
 
 const COUNTER_DMG = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
@@ -128,12 +131,20 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
         trigger: 'When you are targeted by an attack',
         cost: { action: 'reaction' },
         roll: { kind: 'none' },
-        levels: buildLevels((lvl) =>
-            reactionRow({
-                effectText: `Gain **+${COMBO_E.evade[lvl - 1]} Evade** against the triggering attack. If it still deals damage, gain **${COMBO_E.temp[lvl - 1]} Temporary HP**.`,
-                mechanics: { evade: COMBO_E.evade[lvl - 1], tempHP: String(COMBO_E.temp[lvl - 1]) },
-            }),
-        ),
+        levels: buildLevels((lvl) => {
+            const ev = COMBO_E.evade[lvl - 1]!;
+            const temp = COMBO_E.temp[lvl - 1]!;
+            const effectText = ev > 0
+                ? `Gain **+${ev} Evade** against the triggering attack. If it still deals damage, gain **${temp} Temporary HP**.`
+                : `If the triggering attack deals damage, gain **${temp} Temporary HP** against that damage instance.`;
+            return reactionRow({
+                effectText,
+                mechanics: {
+                    ...(ev > 0 ? { evade: ev } : {}),
+                    tempHP: String(temp),
+                },
+            });
+        }),
     },
     {
         templateId: 'reaction-ally-armor',
@@ -165,13 +176,21 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
         trigger: 'When an ally within 4 m is targeted by an attack',
         cost: { action: 'reaction' },
         roll: { kind: 'none' },
-        levels: buildLevels((lvl) =>
-            reactionRow({
+        levels: buildLevels((lvl) => {
+            const ev = ALLY_EVADE[lvl - 1]!;
+            if (ev <= 0) {
+                return reactionRow({
+                    range: ALLY_4M,
+                    effectText: '—',
+                    mechanics: {},
+                });
+            }
+            return reactionRow({
                 range: ALLY_4M,
-                effectText: `The ally gains **+${ALLY_EVADE[lvl - 1]} Evade** against the triggering attack.`,
-                mechanics: { evade: ALLY_EVADE[lvl - 1] },
-            }),
-        ),
+                effectText: `The ally gains **+${ev} Evade** against the triggering attack.`,
+                mechanics: { evade: ev },
+            });
+        }),
     },
     {
         templateId: 'reaction-ally-temp-hp',

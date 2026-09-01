@@ -95,6 +95,57 @@ function levelsSignature(levels) {
     return JSON.stringify(keys.map((k) => [k, obj[k]]));
 }
 /**
+ * Resync every template-backed power item on a single actor from its current
+ * catalog template. Cheap when already in sync (signature compare only).
+ * Used on character-sheet open so Evade (and other) reprices reach owned items
+ * without waiting for a GM world-load migration.
+ */
+export async function resyncActorPowerTemplates(actor, options = {}) {
+    if (!actor)
+        return 0;
+    try {
+        if (!actor.isOwner && !game.user?.isGM)
+            return 0;
+    }
+    catch {
+        /* unit tests / no game */
+    }
+    const force = options.force === true;
+    const items = Array.from(actor.items ?? []).filter((i) => i?.type === 'power');
+    let updated = 0;
+    for (const item of items) {
+        const sys = item.system ?? {};
+        const template = resolveTemplateForItem(item);
+        if (!template?.levels)
+            continue;
+        const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
+        const levels = bindLevels(template, chosenSpecialKey);
+        const rank = Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1)));
+        const levelRow = levels[String(rank)];
+        if (!levelRow)
+            continue;
+        if (!force && levelsSignature(sys.levels) === levelsSignature(levels))
+            continue;
+        try {
+            await item.update({
+                'system.levels': levels,
+                'system.fluff': template.fluff || '',
+                'system.description': template.fluff || '',
+                'system.range': renderRange(levelRow.range),
+                'system.aoe': renderAoe(levelRow.aoe),
+                'system.duration': renderDuration(levelRow.duration),
+                'system.effect': levelRow.effect?.text || '',
+                'system.specials': (levelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
+            });
+            updated++;
+        }
+        catch (err) {
+            console.warn(`Mastery System | power-resync: failed for "${item.name}" on ${actor.name}`, err);
+        }
+    }
+    return updated;
+}
+/**
  * Resync every template-backed power item from its current template.
  * @param options.force ignore the diff check and rewrite every matched item.
  * @returns number of power items updated.
@@ -107,44 +158,11 @@ export async function runPowerTemplateResyncMigration(options = {}) {
     let updated = 0;
     let actorsTouched = 0;
     for (const actor of actors) {
-        const items = Array.from(actor.items ?? []).filter((i) => i?.type === 'power');
-        if (items.length === 0)
-            continue;
-        let touchedThisActor = false;
-        for (const item of items) {
-            const sys = item.system ?? {};
-            const template = resolveTemplateForItem(item);
-            if (!template?.levels)
-                continue;
-            const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
-            const levels = bindLevels(template, chosenSpecialKey);
-            const rank = Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1)));
-            const levelRow = levels[String(rank)];
-            if (!levelRow)
-                continue;
-            // Idempotent: skip when the baked table already matches the template.
-            if (!force && levelsSignature(sys.levels) === levelsSignature(levels))
-                continue;
-            try {
-                await item.update({
-                    'system.levels': levels,
-                    'system.fluff': template.fluff || '',
-                    'system.description': template.fluff || '',
-                    'system.range': renderRange(levelRow.range),
-                    'system.aoe': renderAoe(levelRow.aoe),
-                    'system.duration': renderDuration(levelRow.duration),
-                    'system.effect': levelRow.effect?.text || '',
-                    'system.specials': (levelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
-                });
-                updated++;
-                touchedThisActor = true;
-            }
-            catch (err) {
-                console.warn(`Mastery System | power-resync migration: failed for "${item.name}" on ${actor.name}`, err);
-            }
-        }
-        if (touchedThisActor)
+        const n = await resyncActorPowerTemplates(actor, { force });
+        if (n > 0) {
+            updated += n;
             actorsTouched++;
+        }
     }
     if (updated > 0) {
         ui.notifications?.info(`Updated ${updated} Active/Active-Buff power(s) to the latest values.`);

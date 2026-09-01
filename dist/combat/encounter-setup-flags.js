@@ -38,6 +38,9 @@ export function isPassiveSelectionLocked(combat, actorId) {
         return true;
     return readCombatantSetupStep(findCombatantByActorId(combat, actorId), combat)?.passivesLocked === true;
 }
+export function isPassivesReviewedThisEncounter(combat, combatant) {
+    return readCombatantSetupStep(combatant, combat)?.passivesReviewed === true;
+}
 export function isStoneRegenDone(combat, combatantId, round) {
     const done = combat.flags?.['mastery-system']?.stonePowersState?.regenDone?.[combatantId];
     if (Number(done) === Number(round))

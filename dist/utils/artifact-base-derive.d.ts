@@ -26,9 +26,11 @@ export interface DerivedBaseValue {
 }
 /** Body Armor: Artifact Armor Bonus. L1=+4 … L9=+12, L10=+14. */
 export declare function bodyArmorBonusForLevel(level: number): number;
-/** No-Armor Body Evade (Soul Sigil Silver Veil). L1=+7 … L10=+16 (+6 base, +1/level). */
+/** Soul Sigil Silver Veil Evade. L1=+2 … L10=+11 (+1 base, +1/level). */
 export declare function noArmorEvadeForLevel(level: number): number;
-/** Feet Evade (Elorian Stride). L1=+2 … L9=+10, L10=+12. */
+/** Flat Light Armor value on Soul Sigil (does not scale with level). */
+export declare function soulSigilArmorForLevel(_level?: number): number;
+/** Feet Evade (Elorian Stride). L1–2=+1, L3–4=+2, … L9–10=+5. */
 export declare function feetEvadeForLevel(level: number): number;
 /** Minor Armor (Head / Feet). L1-2=+1, L3-4=+2 … L9-10=+5. */
 export declare function minorArmorForLevel(level: number): number;

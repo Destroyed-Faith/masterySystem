@@ -8,17 +8,19 @@
  */
 import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions, getActionEconomyActor, getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost } from '../combat/action-economy.js';
 // Import canonical stone powers definition
-import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, stonePowerSupportPrefillApplies, } from './stone-powers.js';
+import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, stonePowerSupportPrefillApplies, effectiveStoneSupportPrefillTier, } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
 import { isInitiativeBoostUsedThisCombat } from './colorless-stones.js';
 export function resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier) {
     const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
-    const supportApplies = stonePowerSupportPrefillApplies(abilityId, rawUsesBefore);
-    const prefillBaseline = supportApplies ? Math.max(0, prefillTier - 1) : 0;
-    const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
+    const effective = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
+    const supportApplies = stonePowerSupportPrefillApplies(abilityId, prefillTier);
+    const paidUses = Math.max(0, Math.floor(Number(rawUsesBefore) || 0));
+    const prefillBaseline = supportApplies ? Math.max(0, effective - 1) : 0;
+    const usesBefore = Math.max(paidUses + rampSkip, prefillBaseline);
     return {
         tier: tierForUseIndex(usesBefore),
-        cost: calculateStoneCost(rawUsesBefore + rampSkip),
+        cost: calculateStoneCost(paidUses + rampSkip),
         supportApplies,
     };
 }
@@ -59,14 +61,14 @@ export async function activateStonePower(options) {
         poolAttribute = power.attribute;
     }
     // Artifact Stone Power Support may only raise an already-activated ability.
-    // The character must pay through the first effective tier themselves;
-    // support never turns a blank T1 payment into the first real effect.
+    // The character must pay the first published tier themselves (T2 when T1
+    // does not exist). Support never activates that first tier.
     const combat = game.combat;
     const rawUsesBefore = abilityId.startsWith('generic.')
         ? getGenericStonePowerUsageCount(actor, abilityId, combat)
         : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
-    // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher: the
-    // first activation is Tier 2 and the player pays the Tier-2 cost.
+    // T2-start powers (no Tier 1, e.g. Extra Attack) start one segment higher:
+    // the first activation is Tier 2 and the player pays the Tier-2 cost.
     const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
     const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
     // Use the action economy system to handle stone spending

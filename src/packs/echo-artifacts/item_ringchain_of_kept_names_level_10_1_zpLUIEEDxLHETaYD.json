@@ -1,0 +1,1056 @@
+{
+  "name": "Ringchain of Kept Names - Level 10-1",
+  "type": "artifact",
+  "img": "https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Artefacts/Icons/Ringchain.png",
+  "system": {
+    "level": 10,
+    "currentLevel": 10,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "amulet",
+    "slot": "amulet",
+    "baseProfile": "noArmorBody",
+    "binding": "echo",
+    "echoKey": "halflings",
+    "baseValues": [],
+    "levelProgression": [
+      {
+        "level": 7,
+        "name": "Remembered Hands II",
+        "type": "Active, Support",
+        "range": "68 m",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I.",
+        "special": "Ranged Single Target Heal (PL 16)"
+      },
+      {
+        "level": 8,
+        "name": "Hearth Circle II",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "Radius 4 m",
+        "duration": "Mastery Rank Rounds",
+        "effect": "At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I.",
+        "special": "Active Buff: Healing Aura (PL 16)"
+      },
+      {
+        "level": 9,
+        "name": "Kept from Sight III",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.",
+        "special": "influence.notATarget"
+      },
+      {
+        "level": 10,
+        "name": "True Ringchain of Kept Names",
+        "type": "Ultimate",
+        "range": "As defined",
+        "duration": "As defined",
+        "effect": "Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded.",
+        "special": "Artifact Ultimate: GM-Defined Ringchain Effect"
+      }
+    ],
+    "stoneFunction": null,
+    "extraStoneFunctions": [
+      {
+        "level": 1,
+        "name": "Kept from Sight",
+        "kind": "stonePowerSupport",
+        "attribute": "influence",
+        "stonePowerId": "influence.notATarget",
+        "supportStages": [
+          1,
+          5,
+          9
+        ]
+      }
+    ],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 1,
+            "name": "Kept from Sight I",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Pre-fill Tier 2 of Influence Ability: Not a Target. Tier 1 must still be paid.",
+            "special": "influence.notATarget"
+          },
+          {
+            "level": 4,
+            "name": "Remembered Hands I",
+            "type": "Active, Support",
+            "range": "44 m",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Heal one creature for 13d8 HP. This profile has a pool of 2 Health Levels per Safe Haven Rest.",
+            "special": "Ranged Single Target Heal (PL 10)"
+          },
+          {
+            "level": 7,
+            "name": "Remembered Hands II",
+            "type": "Active, Support",
+            "range": "68 m",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I.",
+            "special": "Ranged Single Target Heal (PL 16)"
+          }
+        ]
+      },
+      {
+        "level": 2,
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 2,
+            "name": "Burden Lifted I",
+            "type": "Active, Support",
+            "range": "20 m",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Remove up to 6 total points of eligible negative Special value from one creature.",
+            "special": "Ranged Single Target Cleanse (PL 4)"
+          },
+          {
+            "level": 5,
+            "name": "Kept from Sight II",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Pre-fill Tier 3 of Influence Ability: Not a Target. Tiers 1 and 2 must still be paid.",
+            "special": "influence.notATarget"
+          },
+          {
+            "level": 8,
+            "name": "Hearth Circle II",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "Radius 4 m",
+            "duration": "Mastery Rank Rounds",
+            "effect": "At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I.",
+            "special": "Active Buff: Healing Aura (PL 16)"
+          }
+        ]
+      },
+      {
+        "level": 3,
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 3,
+            "name": "Hearth Circle I",
+            "type": "Active Buff",
+            "range": "Self",
+            "aoe": "Radius 2 m",
+            "duration": "Mastery Rank Rounds",
+            "effect": "At the end of each of your turns, allies inside the aura heal 3d8 HP. Each creature can be affected only once per Round.",
+            "special": "Active Buff: Healing Aura (PL 4)"
+          },
+          {
+            "level": 6,
+            "name": "Burden Lifted II",
+            "type": "Active, Support",
+            "range": "44 m",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Remove up to 10 total points of eligible negative Special value from one creature. This replaces Burden Lifted I.",
+            "special": "Ranged Single Target Cleanse (PL 10)"
+          },
+          {
+            "level": 9,
+            "name": "Kept from Sight III",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.",
+            "special": "influence.notATarget"
+          }
+        ]
+      }
+    ],
+    "lore": "Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Healing Aura, and Single Heal.",
+    "description": "Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Healing Aura, and Single Heal.\n\nThe Ringchain occupies the Amulet Slot. A Halfling with the Ringchain cannot wear another Amulet Artifact. Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "imgAlt": "",
+    "powers": [
+      {
+        "id": "ringchainOfKeptNames-pw-7",
+        "name": "Remembered Hands II",
+        "fluff": "Special: Ranged Single Target Heal (PL 16)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Active, Support",
+            "range": {
+              "kind": "distance",
+              "m": 68
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I."
+            },
+            "specials": [],
+            "lvl": 7
+          }
+        }
+      },
+      {
+        "id": "ringchainOfKeptNames-pw-8",
+        "name": "Hearth Circle II",
+        "fluff": "Special: Active Buff: Healing Aura (PL 16)",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 4,
+              "radiusM": 4
+            },
+            "duration": {
+              "kind": "masteryRankRounds"
+            },
+            "effect": {
+              "text": "At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I."
+            },
+            "specials": [],
+            "lvl": 8
+          }
+        }
+      },
+      {
+        "id": "ringchainOfKeptNames-pw-9",
+        "name": "Kept from Sight III",
+        "fluff": "Special: influence.notATarget",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid."
+            },
+            "specials": [],
+            "lvl": 9
+          }
+        }
+      },
+      {
+        "id": "ringchainOfKeptNames-pw-10",
+        "name": "True Ringchain of Kept Names",
+        "fluff": "Special: Artifact Ultimate: GM-Defined Ringchain Effect",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "Ultimate",
+            "range": {
+              "kind": "self",
+              "note": "As defined"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant",
+              "note": "As defined"
+            },
+            "effect": {
+              "text": "Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded."
+            },
+            "specials": [],
+            "lvl": 10
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactArmor": null,
+    "equipSlots": [
+      "amulet"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "ringchainOfKeptNames-l10",
+      "parentIds": [
+        "ringchainOfKeptNames-l9"
+      ],
+      "childIds": [],
+      "echoBound": "halflings",
+      "echoArtifactKey": "ringchainOfKeptNames",
+      "seedVersion": 49
+    }
+  },
+  "_id": "zpLUIEEDxLHETaYD",
+  "folder": "84EWPEthdeQEeK2m",
+  "_key": "!items!zpLUIEEDxLHETaYD"
+}

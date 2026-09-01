@@ -59,6 +59,7 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -105,6 +106,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "wyrmScalesLight-pw-7",
@@ -750,7 +752,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "Ydci4DJG1q5D2NpR",

@@ -58,7 +58,18 @@ const STONE_USAGE_ATTR_KEYS = [
     'resolve',
     'influence'
 ];
-function genericStoneUsageFlagKey(abilityKey, round, turn) {
+/**
+ * Players Guide: doubling costs reset each turn, unless the power is
+ * “cumulative per combat”. Exchange Passive uses that exception.
+ */
+export function stonePowerCostPersistsForCombat(abilityKey) {
+    return String(abilityKey || '').trim() === 'generic.exchangePassive';
+}
+function genericStoneUsageFlagKey(abilityKey, round, turn, combat) {
+    if (stonePowerCostPersistsForCombat(abilityKey)) {
+        const combatId = String(combat?.id ?? 'active');
+        return `generic:${abilityKey}:combat:${combatId}`;
+    }
     return `generic:${abilityKey}:${round}:${turn}`;
 }
 /**
@@ -69,10 +80,13 @@ export function getGenericStonePowerUsageCount(actor, abilityKey, combat) {
     const owner = getActionEconomyActor(actor) ?? actor;
     const round = combat?.round || 1;
     const turn = combat?.turn || 0;
-    const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn);
+    const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn, combat);
     const stoneUsage = owner.getFlag('mastery-system', 'stoneUsage');
     if (stoneUsage && Object.prototype.hasOwnProperty.call(stoneUsage, usageKey)) {
         return stoneUsage[usageKey] || 0;
+    }
+    if (stonePowerCostPersistsForCombat(abilityKey)) {
+        return 0;
     }
     let legacy = 0;
     for (const attr of STONE_USAGE_ATTR_KEYS) {
@@ -84,7 +98,7 @@ export async function incrementGenericStonePowerUsage(actor, abilityKey, combat)
     const owner = getActionEconomyActor(actor) ?? actor;
     const round = combat?.round || 1;
     const turn = combat?.turn || 0;
-    const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn);
+    const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn, combat);
     const stoneUsage = owner.getFlag('mastery-system', 'stoneUsage') || {};
     stoneUsage[usageKey] = (stoneUsage[usageKey] || 0) + 1;
     await owner.setFlag('mastery-system', 'stoneUsage', stoneUsage);

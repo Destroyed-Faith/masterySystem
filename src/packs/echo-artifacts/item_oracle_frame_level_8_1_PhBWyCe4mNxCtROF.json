@@ -58,6 +58,7 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -107,6 +108,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "oracleFrame-pw-7",
@@ -760,7 +762,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "PhBWyCe4mNxCtROF",

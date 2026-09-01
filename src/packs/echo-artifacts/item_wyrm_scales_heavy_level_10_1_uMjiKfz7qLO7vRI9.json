@@ -18,10 +18,12 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Heavy Echo Armor",
-        "value": 14,
-        "note": "Heavy Armor: Evade −4, Initiative −8, −2d8 Physical Skills.",
+        "value": 13,
+        "note": "Drawbacks: −2/−4/−6 Evade & Initiative (L1-3 / L4-6 / L7-10), −2d8 Physical Skills.",
         "isBaseline": true,
-        "armorWeightClass": "heavy"
+        "armorWeightClass": "heavy",
+        "evadeModifier": -6,
+        "initiativeModifier": -6
       }
     ],
     "levelProgression": [
@@ -43,7 +45,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+49 Armor**.",
+        "effect": "Gain **+18 Armor**. This replaces Wyrm Scales II.",
         "special": "",
         "powerTemplateId": "ab-armor"
       },
@@ -68,6 +70,7 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -79,7 +82,12 @@
         "level": 2,
         "kind": "power",
         "powerTemplateId": "ab-armor",
-        "displayName": "Wyrm Scales"
+        "displayName": "Wyrm Scales",
+        "stageEffectTexts": [
+          "Gain **+6 Armor**.",
+          "Gain **+12 Armor**. This replaces Wyrm Scales I.",
+          "Gain **+18 Armor**. This replaces Wyrm Scales II."
+        ]
       },
       {
         "level": 3,
@@ -104,6 +112,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "wyrmScalesHeavy-pw-7",
@@ -511,7 +520,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+49 Armor**."
+              "text": "Gain **+18 Armor**. This replaces Wyrm Scales II."
             },
             "specials": [],
             "lvl": 8
@@ -939,7 +948,7 @@
     "inventorySize": "1x1",
     "artifactArmor": {
       "type": "heavy",
-      "armorValue": 14,
+      "armorValue": 13,
       "evadeModifier": -4,
       "skillPenalty": "−2d8 to Physical Skill checks"
     },
@@ -956,7 +965,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "uMjiKfz7qLO7vRI9",

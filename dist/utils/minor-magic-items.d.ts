@@ -166,6 +166,27 @@ export declare function createMinorMagicItem(actor: any, opts: {
     ok: false;
     error: string;
 }>;
+export declare function isMinorMagicCreatedBy(flag: Pick<MinorMagicItemFlag, 'creatorId'> | null | undefined, actorId?: string): boolean;
+export declare function canGiveBackMinorMagic(actor: {
+    id?: string;
+}, item: any): boolean;
+export declare function listMinorMagicGiveTargets(excludeActorId?: string): any[];
+export declare function resolveMinorMagicCreator(flag: MinorMagicItemFlag, fallback?: any): Promise<any>;
+export declare function giveMinorMagicItemToActor(sourceActor: any, item: any, targetActor: any): Promise<{
+    ok: true;
+    item: any;
+} | {
+    ok: false;
+    error: string;
+}>;
+export declare function returnMinorMagicItemToCreator(holder: any, item: any): Promise<{
+    ok: true;
+    item: any;
+    creator: any;
+} | {
+    ok: false;
+    error: string;
+}>;
 export declare function releaseMinorMagicItem(actor: any, item: any): Promise<{
     ok: true;
 } | {
@@ -214,7 +235,11 @@ export declare function minorMagicSheetView(actor: any): {
         summary: string;
         actionCost: string;
         givenAway?: boolean;
+        received?: boolean;
         canGive?: boolean;
+        canGiveBack?: boolean;
+        canDismiss?: boolean;
+        creatorName?: string;
     }>;
 };
 //# sourceMappingURL=minor-magic-items.d.ts.map

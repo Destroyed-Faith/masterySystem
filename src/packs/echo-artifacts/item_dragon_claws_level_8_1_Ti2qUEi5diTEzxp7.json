@@ -18,21 +18,21 @@
         "slot": "a",
         "type": "weaponDamage",
         "label": "Claw / Tail Damage",
-        "value": "12d8",
+        "value": "14d8",
         "isBaseline": true
       },
       {
         "slot": "b",
         "type": "weaponSpecial",
         "label": "Penetration",
-        "value": 6,
+        "value": 4,
         "isBaseline": true
       },
       {
         "slot": "c",
         "type": "weaponSpecial",
         "label": "Brutal Impact",
-        "value": 7,
+        "value": 4,
         "isBaseline": true
       }
     ],
@@ -54,7 +54,7 @@
         "range": "Self",
         "aoe": "Radius 8m",
         "duration": "Instant",
-        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**.",
+        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **13d8 damage** and may use Dive for Cover before payload.",
         "special": "Lacerate(7)",
         "powerTemplateId": "active-melee-weapon-aoe",
         "chosenSpecialKey": "lacerate"
@@ -66,7 +66,7 @@
         "range": "Self",
         "aoe": "Radius 6m",
         "duration": "Instant",
-        "effect": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**.",
+        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **7d8 damage** and may use Dive for Cover before payload.",
         "special": "Push(6)",
         "powerTemplateId": "active-melee-weapon-aoe",
         "chosenSpecialKey": "push"
@@ -77,6 +77,7 @@
       "attribute": "might",
       "stonePowerId": "might.meleeDamage"
     },
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -121,6 +122,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "dragonClaws-pw-7",
@@ -535,7 +537,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **8d8 damage**."
+              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **13d8 damage** and may use Dive for Cover before payload."
             },
             "specials": [],
             "lvl": 8
@@ -674,7 +676,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make a melee AoE attack. Affected creatures take weapon damage + **2d8 damage**."
+              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **7d8 damage** and may use Dive for Cover before payload."
             },
             "specials": [],
             "lvl": 6
@@ -757,7 +759,7 @@
     "inventorySize": "1x1",
     "artifactWeapon": {
       "weaponType": "melee",
-      "damage": "12d8",
+      "damage": "14d8",
       "range": "0m",
       "hands": 2,
       "innateAbilities": [],
@@ -779,7 +781,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "Ti2qUEi5diTEzxp7",

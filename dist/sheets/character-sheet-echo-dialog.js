@@ -360,8 +360,9 @@ export async function showEchoCreationDialog(actor) {
                         for (const item of grantedItems) {
                             try {
                                 await equipEchoArtifact(actor, item);
-                                if (item.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-                                    await item.setFlag('mastery-system', 'artifactActivated', false);
+                                if (item.getFlag?.('mastery-system', 'artifactActivated') !== false) {
+                                    await item.setFlag('mastery-system', 'artifactActivated', true);
+                                    await item.unsetFlag?.('mastery-system', 'artifactActivationStoneAttr');
                                 }
                             }
                             catch (err) {
@@ -369,7 +370,7 @@ export async function showEchoCreationDialog(actor) {
                             }
                         }
                         await dedupeEchoArtifactsOnActor(actor);
-                        ui.notifications?.info(`Echo set to ${def.name}${unboundIdentity ? ` — ${unboundIdentity.name}` : ''}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Attune via Artifacts — Level 1 is free.`);
+                        ui.notifications?.info(`Echo set to ${def.name}${unboundIdentity ? ` — ${unboundIdentity.name}` : ''}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Artifacts start active at Level 1.`);
                         return true;
                     }
                 },

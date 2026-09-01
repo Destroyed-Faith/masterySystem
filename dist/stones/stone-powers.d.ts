@@ -1,15 +1,10 @@
 /**
  * Canonical Stone Powers Definition — new tier-based spec.
  *
- * Each Stone Power has a published T1–T4 table (what the UI shows).
- * Tiers continue past that — T5 costs 16, T6 costs 32, up to T8.
- * Dumping every Stone in the game (80) pays through T6 (1+2+4+8+16+32=63).
- * Extra payment lanes for T5+ are future UI; Artifact Support can already
- * prefill T5+ so Elorian Crit at L7–10 keeps the old 4-charge effect.
- *
- * Some tiers are intentionally blank (`label === null`). Spending the
- * stones is still required, but no effect triggers — this is the "ramp"
- * mechanic that prevents trivial low-tier spam of the strongest effects.
+ * Most powers publish T1–T4. A listed set starts at Tier 2: Tier 1 does
+ * not exist in data, UI, spending, validation, or serialization. First
+ * purchase is T2 (2 Stones total), then T3 (6 total), then T4 (14 total).
+ * Tiers continue past the printed table — T5 costs 16, T6 costs 32, up to T8.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
  * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
@@ -21,8 +16,8 @@
 import { type AttributeKey } from '../combat/action-economy.js';
 export type StonePowerAttribute = AttributeKey | 'generic';
 export interface StoneTier {
-    /** Short rules label. `null` ⇒ tier has no effect (still paid for as a ramp step). */
-    label: string | null;
+    /** Short rules label for a published tier. */
+    label: string;
     /** Long-form description used in the dialog tooltip / chat audit. */
     description: string;
     /** Optional numeric scale (used by apply()). Meaning varies per power. */
@@ -45,8 +40,10 @@ export interface StonePower {
     description: string;
     /** Compiled multi-tier tooltip — generated on module load. */
     effect: string;
-    /** Published Tier 1..4 effects. Higher tiers continue the same scale. */
-    tiers: [StoneTier, StoneTier, StoneTier, StoneTier];
+    /** First published tier. `2` means Tier 1 does not exist for this ability. */
+    startsAtTier: 1 | 2;
+    /** Published effects starting at `startsAtTier` (T1–T4 or T2–T4). */
+    tiers: StoneTier[];
     /** Apply the effect for the given tier. */
     apply: (ctx: StonePowerContext) => Promise<void>;
 }
@@ -61,6 +58,10 @@ export declare const STONE_TIER_HARD_MAX = 8;
  * Doubling sequences keep doubling; otherwise the last delta repeats.
  */
 export declare function scaleStoneTier(seq: readonly number[], tier: number): number;
+/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8, … */
+export declare function stonePowerWaveCost(tier: number): number;
+/** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
+export declare function cumulativeStoneCostForTier(tier: number, startsAtTier?: 1 | 2): number;
 export declare const STONE_POWERS: Record<string, StonePower>;
 export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]>;
 /**
@@ -69,31 +70,34 @@ export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic',
  */
 export declare function tierForUseIndex(usesBefore: number): number;
 /**
- * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
- * its first real effect is Tier 2 (Extra Attack, Spell Action, Damage
- * Reduction, Phasing, Crit, Parry, Damage Negation, Not a Target).
- *
- * Players Guide "Spending Stones" (cost ladder 1/2/4/8): the blank Tier 1 is
- * a REAL, payable step — the 1st use costs 1 Stone and has no effect; the
- * 2nd use costs 2 Stones and resolves Tier 2. The lane is therefore rendered
- * and charged like any other Anchor segment, never skipped.
+ * Abilities whose first published tier is T2. Tier 1 does not exist.
+ * Extra Attack (generic) uses the same start.
  */
-export declare function stonePowerSkipsFirstTier(_powerId: string): boolean;
-/** Whether a power's printed Tier 1 is a blank ramp step (no effect). */
-export declare function stonePowerHasBlankFirstTier(powerId: string): boolean;
-/**
- * One Ramp Stone Ability per Attribute whose Tier 1 is intentionally blank.
- * Extra Attack (generic) is also a blank-T1 ramp and uses the same gate.
- */
-export declare const BLANK_T1_STONE_POWER_IDS: readonly ["might.parry", "agility.crit", "vitality.damageNegation", "intellect.spellAction", "resolve.damageReduction", "influence.notATarget", "wits.phasing"];
-/** First tier that produces an effect (T2 for blank-T1 ramps, otherwise T1). */
+export declare const TIER2_START_STONE_POWER_IDS: readonly ["might.parry", "agility.crit", "vitality.damageNegation", "intellect.spellAction", "resolve.damageReduction", "influence.notATarget", "wits.phasing", "generic.extraAttack"];
+export declare function stonePowerStartsAtTier(powerId: string): 1 | 2;
+/** True when the ability begins at Tier 2 (no Tier-1 slot). */
+export declare function stonePowerSkipsFirstTier(powerId: string): boolean;
+/** First published tier (2 when Tier 1 does not exist, otherwise 1). */
 export declare function firstEffectiveStonePowerTier(powerId: string): number;
 /**
- * Support may only improve an already-activated ability. The character must
- * pay through the first effective tier themselves before a prefill applies.
- * `rawUsesBefore` is the number of completed activations this turn.
+ * Printed Support that would land on (or below) the first published tier is
+ * lifted one step so the player still pays that tier and the gold prefills
+ * sit above it. Crit + Elorian Focus I (printed T2) → T3.
  */
-export declare function stonePowerSupportPrefillApplies(powerId: string, rawUsesBefore: number): boolean;
+export declare function effectiveStoneSupportPrefillTier(powerId: string, printedTier: number): number;
+/** Lane indices for one published tier (T1=anchor, T2=mid, T3=quad, T4=oct). */
+export declare function stonePaymentLanesForTier(tier: number): number[];
+/**
+ * Gold Artifact Support Stone lanes: every published tier above the one the
+ * player must pay, up through the effective prefill. Empty when Support
+ * cannot raise the first published tier.
+ */
+export declare function stoneSupportPrefillLanes(powerId: string, printedTier: number): number[];
+/**
+ * Support may raise the first paid activation to a higher tier. It never
+ * grants the first published tier for free (T1, or T2 when T1 does not exist).
+ */
+export declare function stonePowerSupportPrefillApplies(powerId: string, printedTier: number): boolean;
 /** Retired ids that still resolve to a current Stone Power. */
 export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
 /**

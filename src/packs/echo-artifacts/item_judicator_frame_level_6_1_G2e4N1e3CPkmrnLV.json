@@ -58,6 +58,7 @@
       }
     ],
     "stoneFunction": null,
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -97,6 +98,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "judicatorFrame-pw-4",
@@ -745,7 +747,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "G2e4N1e3CPkmrnLV",

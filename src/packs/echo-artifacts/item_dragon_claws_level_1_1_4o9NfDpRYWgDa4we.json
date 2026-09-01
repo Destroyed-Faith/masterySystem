@@ -18,7 +18,7 @@
         "slot": "a",
         "type": "weaponDamage",
         "label": "Claw / Tail Damage",
-        "value": "5d8",
+        "value": "4d8",
         "isBaseline": true
       }
     ],
@@ -39,6 +39,7 @@
       "attribute": "might",
       "stonePowerId": "might.meleeDamage"
     },
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -83,6 +84,7 @@
       "stones": 0,
       "masteryRank": 1
     },
+    "imgAlt": "",
     "powers": [
       {
         "id": "dragonClaws-pw-1",
@@ -297,7 +299,7 @@
     "inventorySize": "1x1",
     "artifactWeapon": {
       "weaponType": "melee",
-      "damage": "5d8",
+      "damage": "4d8",
       "range": "0m",
       "hands": 2,
       "innateAbilities": [],
@@ -318,7 +320,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 41
+      "seedVersion": 49
     }
   },
   "_id": "4o9NfDpRYWgDa4we",

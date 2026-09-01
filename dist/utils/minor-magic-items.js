@@ -629,11 +629,81 @@ async function releaseOnCreator(creator, ledgerKey) {
     await setActorMinorMagicLedger(creator, next);
     return true;
 }
-async function resolveCreator(flag, fallback) {
+export function isMinorMagicCreatedBy(flag, actorId) {
+    const creator = String(flag?.creatorId || '').trim();
+    const id = String(actorId || '').trim();
+    return !!creator && !!id && creator === id;
+}
+export function canGiveBackMinorMagic(actor, item) {
+    const flag = readMinorMagicFlag(item);
+    if (!flag)
+        return false;
+    return !isMinorMagicCreatedBy(flag, actor?.id);
+}
+export function listMinorMagicGiveTargets(excludeActorId) {
+    const skip = String(excludeActorId || '').trim();
+    const actors = globalThis.game?.actors;
+    const list = actors && typeof actors[Symbol.iterator] === 'function' ? Array.from(actors) : [];
+    return list.filter((a) => {
+        if (!a || String(a.id || '') === skip)
+            return false;
+        return isPlayerCharacterActor(a);
+    });
+}
+export async function resolveMinorMagicCreator(flag, fallback) {
     if (fallback?.id && String(fallback.id) === flag.creatorId)
         return fallback;
     const fromWorld = globalThis.game?.actors?.get?.(flag.creatorId);
-    return fromWorld || fallback;
+    return fromWorld || fallback || null;
+}
+export async function giveMinorMagicItemToActor(sourceActor, item, targetActor) {
+    if (!item || !readMinorMagicFlag(item))
+        return { ok: false, error: 'Not a Minor Magic Item.' };
+    if (!targetActor)
+        return { ok: false, error: 'Choose who receives the item.' };
+    if (sourceActor?.id && String(sourceActor.id) === String(targetActor.id)) {
+        return { ok: false, error: 'That character already has this item.' };
+    }
+    const slot = findInventorySlotForMinorMagic(targetActor);
+    if (!slot) {
+        return {
+            ok: false,
+            error: `${String(targetActor.name || 'That character')} has no inventory space for a 1×1 item.`,
+        };
+    }
+    const { transferConsumableToActor } = await import('./consumable-slots.js');
+    const moved = await transferConsumableToActor(targetActor, item);
+    if (!moved)
+        return { ok: false, error: `Could not give ${item.name} to ${targetActor.name}.` };
+    try {
+        await moved.update?.({
+            'flags.mastery-system.equipment': {
+                container: 'inventory',
+                band: slot.band,
+                grid: { x: slot.x, y: slot.y },
+            },
+        });
+    }
+    catch {
+        /* item is on the other sheet even if the grid stamp fails */
+    }
+    return { ok: true, item: moved };
+}
+export async function returnMinorMagicItemToCreator(holder, item) {
+    const flag = readMinorMagicFlag(item);
+    if (!flag)
+        return { ok: false, error: 'Not a Minor Magic Item.' };
+    if (isMinorMagicCreatedBy(flag, holder?.id)) {
+        return { ok: false, error: 'This item is already with its creator.' };
+    }
+    const creator = await resolveMinorMagicCreator(flag);
+    if (!creator || String(creator.id || '') === String(holder?.id || '')) {
+        return { ok: false, error: 'The creator is not available.' };
+    }
+    const given = await giveMinorMagicItemToActor(holder, item, creator);
+    if (!given.ok)
+        return given;
+    return { ok: true, item: given.item, creator };
 }
 export async function releaseMinorMagicItem(actor, item) {
     const flag = readMinorMagicFlag(item);
@@ -641,7 +711,7 @@ export async function releaseMinorMagicItem(actor, item) {
         return { ok: false, error: 'Not a Minor Magic Item.' };
     if (flag.released)
         return { ok: true };
-    const creator = await resolveCreator(flag, actor);
+    const creator = await resolveMinorMagicCreator(flag, actor);
     await releaseOnCreator(creator, ledgerKeyForMinorMagic(flag, item.id));
     try {
         await item.update?.({ 'flags.mastery-system.minorMagic.released': true });
@@ -795,7 +865,7 @@ export async function onMinorMagicItemDeleted(item, options) {
     if (!flag || !shouldReleaseMinorMagicOnDelete(flag, options))
         return;
     const parent = item.parent;
-    const creator = await resolveCreator(flag, parent);
+    const creator = await resolveMinorMagicCreator(flag, parent);
     if (!creator)
         return;
     await releaseOnCreator(creator, ledgerKeyForMinorMagic(flag, item.id));
@@ -804,10 +874,12 @@ export function minorMagicSheetView(actor) {
     const ledger = getActorMinorMagicLedger(actor);
     const limit = minorMagicLimit(actor);
     const held = countHeldMinorMagicItems(ledger);
+    const canManage = canManageMinorMagic(actor);
     const localKeys = new Set();
     const items = listMinorMagicItemsOnActor(actor).map((it) => {
         const flag = readMinorMagicFlag(it);
         localKeys.add(ledgerKeyForMinorMagic(flag, it.id));
+        const mine = isMinorMagicCreatedBy(flag, actor?.id);
         return {
             id: it.id,
             name: it.name,
@@ -816,7 +888,11 @@ export function minorMagicSheetView(actor) {
             summary: snapshotSummaryLines(flag.snapshot).slice(0, 3).join(' · '),
             actionCost: flag.snapshot.actionCost,
             givenAway: false,
+            received: !mine,
             canGive: true,
+            canGiveBack: !mine,
+            canDismiss: canManage && mine,
+            creatorName: flag.creatorName || '',
         };
     });
     for (const key of ledger.itemIds) {
@@ -830,7 +906,11 @@ export function minorMagicSheetView(actor) {
             summary: 'Carried by another character — still counts against your limit until it is used or dismissed.',
             actionCost: '',
             givenAway: true,
+            received: false,
             canGive: false,
+            canGiveBack: false,
+            canDismiss: false,
+            creatorName: '',
         });
     }
     return {
@@ -838,7 +918,7 @@ export function minorMagicSheetView(actor) {
         held,
         remaining: Math.max(0, limit - held),
         givenAway: Math.max(0, held - localKeys.size),
-        canManage: canManageMinorMagic(actor),
+        canManage,
         items,
     };
 }

@@ -15,6 +15,8 @@ import { parseD8Count } from "../utils/dice-formula.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
+import { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, formatSnapshotSummary, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, previewAfterRaiseCost, } from "./raise-resolution.js";
 function newSplitPairId() {
     try {
@@ -138,36 +140,6 @@ export function getMasteryRank(actor) {
         return Math.min(8, rank);
     const defaultMasteryRank = game.settings?.get('mastery-system', 'defaultMasteryRank') || 2;
     return Math.max(1, Math.min(8, Math.floor(Number(defaultMasteryRank) || 2)));
-}
-/**
- * Get evade value from target actor
- * Uses evadeTotal if available (includes shield bonus), otherwise falls back to base evade
- */
-export function getTargetEvade(targetActor) {
-    if (!targetActor || !targetActor.system)
-        return 6; // Default
-    const system = targetActor.system;
-    const combat = system.combat || {};
-    const base = combat.evadeTotal ?? combat.evade ?? 6;
-    const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
-    return base + buffBonus;
-}
-/** Spell Resistance from Ward passives + active buffs + Intellect stone (vs Spell-tagged Powers). */
-export function getTargetSpellResistance(targetActor) {
-    if (!targetActor?.system)
-        return 0;
-    const combat = targetActor.system.combat ?? {};
-    let stoneBonus = 0;
-    try {
-        const rs = targetActor.getFlag?.('mastery-system', 'roundState');
-        stoneBonus = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellResistanceBonus ?? 0) || 0));
-    }
-    catch {
-        /* ignore */
-    }
-    return Math.max(0, Math.floor(Number(combat.spellResistanceTotal ?? 0) || 0)
-        + Math.floor(Number(combat.spellResistanceFromActiveBuffs ?? 0) || 0)
-        + stoneBonus);
 }
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
 export function weaponHasFinesse(weapon) {
