@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.448] - 2026-09-01
+
+### Changed
+
+- **Quick Play sheet:** The Sets block is labeled **Weapon Sets**.
+
 ## [0.9.447] - 2026-09-01
 
 ### Changed
