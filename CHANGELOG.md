@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.452] - 2026-09-01
+
+### Changed
+
+- **NPC print sheet:** Full page and compact Kampfstreifen use the same dark Quick Play palette (#141210 / #e6e1d6) instead of white/cream.
+
 ## [0.9.451] - 2026-09-01
 
 ### Fixed

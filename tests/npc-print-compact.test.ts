@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -5,7 +8,17 @@ import {
   formatNpcCompactAttackPlayLine,
 } from '../src/sheets/npc-print.js';
 
+const npcPrintCss = readFileSync(resolve('styles/npc-print.css'), 'utf8');
+
 describe('NPC compact combat strip', () => {
+  it('uses the dark Quick Play palette for full and compact NPC print', () => {
+    expect(npcPrintCss).toContain('background: #141210');
+    expect(npcPrintCss).toContain('color: #e6e1d6');
+    expect(npcPrintCss).toContain('.mastery-npc-print.is-compact');
+    expect(npcPrintCss).not.toMatch(/\.mastery-npc-print\.is-compact\s*\{[^}]*background:\s*#f4f1ea/s);
+    expect(npcPrintCss).not.toMatch(/\.mastery-npc-print\s*\{[^}]*background:\s*#ffffff/s);
+  });
+
   it('formats a ready-to-play attack line with keep, damage, range, and specials', () => {
     const line = formatNpcCompactAttackPlayLine(
       {
