@@ -53,7 +53,7 @@ import {
 import { deriveArtifactWeaponDamage, deriveBaseValueDisplay } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta, buildBasicAttackCompactDamageLines, listPreparedWeaponsByAttackType } from './character-print-combat.js';
+import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
 import {
   basicAttackMrDamageFormula,
@@ -1596,44 +1596,6 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     Reaction: [],
     Passive: [],
   };
-
-  // Universal Basic Attack — one damage line per prepared weapon kind.
-  // A Longbow without Ranged Single Attack still appears here (Basic only).
-  const mrBonus = basicAttackMrDamageFormula(actor);
-  const basicLines = buildBasicAttackCompactDamageLines(actor, allItems, mrBonus);
-  const preparedKinds = listPreparedWeaponsByAttackType(actor, allItems);
-  const hasRangedPower = powerItems.some((p: any) => {
-    const sys = p?.system ?? {};
-    const tid = String(sys.templateId ?? '');
-    const sub = String(sys.subfamily ?? '');
-    if (/ranged/i.test(tid) || /ranged/i.test(sub)) return true;
-    const levels = sys.levels;
-    if (levels && typeof levels === 'object') {
-      const rank = Math.max(1, Math.floor(Number(sys.level ?? sys.rank) || 1));
-      const row = levels[String(rank)] ?? levels[rank];
-      if (row && /ranged/i.test(String(row.type ?? ''))) return true;
-    }
-    return false;
-  });
-  const basicNoteParts = [
-    'Universal — not a Power. Melee powers use melee WD only; Ranged powers use ranged WD only.',
-  ];
-  if (preparedKinds.ranged && !hasRangedPower) {
-    basicNoteParts.push(
-      'No Ranged attack power: the ranged set is Basic Attack only (add Ranged Single Attack to use it as a Power).',
-    );
-  }
-  powers.Active.push({
-    phase: 'Active',
-    phaseClass: 'Active',
-    name: 'Basic Attack',
-    rank: 0,
-    attack: '',
-    damage: '',
-    damageLines: basicLines,
-    effect: basicNoteParts.join(' '),
-    hideRank: true,
-  });
 
   for (const p of powerItems) {
     const sys = p?.system ?? {};

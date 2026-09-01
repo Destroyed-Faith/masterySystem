@@ -312,16 +312,10 @@ describe('Quick Play character print', () => {
     });
   });
 
-  it('keeps melee WD on melee powers and lists Basic Attack for the ranged set without a Ranged power', () => {
+  it('keeps melee WD on melee powers and omits Basic Attack from Quick Play', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     const active = ctx.powerGroups.find((g: any) => g.phase === 'Active')?.items ?? [];
-    const basic = active.find((i: any) => i.name === 'Basic Attack');
-    expect(basic.damageLines).toEqual([
-      'Melee: WD 5d8 + 4d8',
-      'Ranged: WD 2d8 + 4d8',
-    ]);
-    expect(basic.effect).toMatch(/No Ranged attack power/i);
-    expect(basic.effect).toMatch(/Ranged Single Attack/i);
+    expect(active.some((i: any) => i.name === 'Basic Attack')).toBe(false);
 
     const meleeSingle = active.find((i: any) => i.name === 'Melee Single Attack');
     expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');

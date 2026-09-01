@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.446] - 2026-09-01
+
+### Changed
+
+- **Quick Play sheet:** Basic Attack is no longer printed on the compact sheet (full sheet / battle page can still include it).
+- **Token radial:** Basic Attack is hidden by default. Players must uncheck it under Token-Radial → Standard-Manöver to show it.
+
 ## [0.9.445] - 2026-09-01
 
 ### Changed

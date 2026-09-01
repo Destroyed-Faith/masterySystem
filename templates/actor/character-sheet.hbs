@@ -1439,7 +1439,7 @@
             <input type="checkbox" class="radial-maneuver-hide-all" {{#if radialManeuverPrefsPanel.hideAllStandard}}checked{{/if}} {{#unless @root.editable}}disabled{{/unless}} />
             <span>Alle Standard-Manöver im Token-Radial ausblenden</span>
           </label>
-          <p class="radial-maneuver-prefs-hint">Änderungen werden <strong>sofort</strong> am Akteur gespeichert. Pro Eintrag: angehakt = erscheint <strong>nicht</strong> im Radialmenü (Move, Dash, Stances, Reaktionen, …).</p>
+          <p class="radial-maneuver-prefs-hint">Änderungen werden <strong>sofort</strong> am Akteur gespeichert. Pro Eintrag: angehakt = erscheint <strong>nicht</strong> im Radialmenü (Move, Dash, Stances, Reaktionen, …). <strong>Basic Attack</strong> ist standardmäßig ausgeblendet — Haken entfernen, um sie anzuzeigen.</p>
           {{#each radialManeuverPrefsPanel.rowsByGroup}}
           <div class="radial-maneuver-prefs-group">
             <span class="radial-maneuver-prefs-group-label">{{this.group}}</span>

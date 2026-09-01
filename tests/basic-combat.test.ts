@@ -9,6 +9,11 @@ import {
 } from '../src/combat/basic-combat.js';
 import { COMBAT_MANEUVERS } from '../src/system/combat-maneuvers.js';
 import { RADIAL_STANDARD_MANEUVER_IDS } from '../src/utils/radial-maneuver-prefs.js';
+import {
+  isManeuverHiddenFromActorRadial,
+  isOptInRadialManeuverId,
+  buildRadialManeuverPrefsContext,
+} from '../src/utils/radial-maneuver-prefs.js';
 
 describe('basic-combat helpers', () => {
   it('clamps Mastery Rank and derives MR×2 / MR×2d8', () => {
@@ -52,6 +57,21 @@ describe('basic combat maneuvers catalog', () => {
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('flee');
     expect(RADIAL_STANDARD_MANEUVER_IDS).not.toContain('initiative-delay');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-attack');
+  });
+
+  it('hides Basic Attack in the radial by default until the player opts in', () => {
+    expect(isOptInRadialManeuverId('weapon-attack')).toBe(true);
+    expect(isManeuverHiddenFromActorRadial({ system: {} }, 'weapon-attack')).toBe(true);
+    expect(isManeuverHiddenFromActorRadial({ system: {} }, 'move')).toBe(false);
+    expect(
+      isManeuverHiddenFromActorRadial(
+        { system: { radialManeuverPrefs: { showIds: { 'weapon-attack': true } } } },
+        'weapon-attack',
+      ),
+    ).toBe(false);
+    const panel = buildRadialManeuverPrefsContext({});
+    const basic = panel.rows.find((r) => r.id === 'weapon-attack');
+    expect(basic?.hideFromRadial).toBe(true);
   });
 
   it('Flee / Dash / Dive texts match current Basic Maneuver rules', () => {

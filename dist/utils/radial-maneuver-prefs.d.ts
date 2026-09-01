@@ -3,7 +3,10 @@
  */
 /** Maneuver IDs the radial menu can show (subset of COMBAT_MANEUVERS + weapon-attack). */
 export declare const RADIAL_STANDARD_MANEUVER_IDS: readonly string[];
+/** Maneuver IDs hidden by default; only appear when the player opts in. */
+export declare const OPT_IN_RADIAL_MANEUVER_IDS: readonly string[];
 export declare function isStandardRadialManeuverId(id: string): boolean;
+export declare function isOptInRadialManeuverId(id: string): boolean;
 export declare function isManeuverHiddenFromActorRadial(actor: any, maneuverId: string): boolean;
 export type RadialManeuverPrefsRow = {
     id: string;

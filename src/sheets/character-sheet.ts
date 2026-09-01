@@ -126,7 +126,7 @@ import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
-import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
+import { buildRadialManeuverPrefsContext, isOptInRadialManeuverId } from '../utils/radial-maneuver-prefs.js';
 import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
 import type { CombatSenseId } from '../combat/combat-senses.js';
 import { getActiveBuffs } from '../utils/active-buffs.js';
@@ -552,6 +552,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (el.disabled) return;
     const id = el.dataset.maneuverId;
     if (!id) return;
+    // Opt-in maneuvers (Basic Attack): shown only via showIds; checkbox remains "ausblenden".
+    if (isOptInRadialManeuverId(id)) {
+      if (el.checked) {
+        await this.actor.update({
+          [`system.radialManeuverPrefs.showIds.-=${id}`]: null,
+        });
+      } else {
+        await this.actor.update({
+          [`system.radialManeuverPrefs.showIds.${id}`]: true,
+        });
+      }
+      this.render();
+      return;
+    }
     // Foundry verschachtelte Updates mergen hideIds — einzelne Keys per -= entfernen, sonst bleibt „ausblenden“ aktiv.
     if (el.checked) {
       await this.actor.update({
