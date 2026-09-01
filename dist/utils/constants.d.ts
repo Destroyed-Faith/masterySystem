@@ -54,8 +54,10 @@ export declare const MAX_POWER_LEVEL = 16;
  *       "Power Costs": Level 1 = 2 XP … Level 16 = 32 XP). POWER_LEVEL[i] is
  *       the cost for buying level `i + 1`. `powerLevelCost(level)` is the helper.
  *
- *   Artifacts — flat 8 XP per +1 level (`ARTIFACT_LEVEL`). MR gating still
- *       limits the maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
+ *   Artifacts — cost by the **new** Artifact Level reached
+ *       (`artifactLevelXpCost`): L1 free; L2–3 = 8; L4–6 = 16; L7–9 = 32;
+ *       L10 = 64. One level per Upgrade Step. MR gating still limits the
+ *       maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
  */
 export declare const XP_COSTS: {
     ATTRIBUTE: {
@@ -69,12 +71,20 @@ export declare const XP_COSTS: {
         cost: number;
     }[];
     POWER_LEVEL: number[];
+    /** @deprecated Use `artifactLevelXpCost(newLevel)`. L2/L3 band cost. */
     ARTIFACT_LEVEL: number;
 };
 /** XP cost to raise an Attribute (or Skill) to `nextValue` (1..80). */
 export declare function attributeBandCost(nextValue: number): number;
 /** XP cost to raise a Power to `level` (1..16); `cost = 2 × level`. */
 export declare function powerLevelCost(level: number): number;
+/**
+ * XP cost to raise an Artifact to `newLevel` (cost of the level reached).
+ * L1 free; L2–3 = 8; L4–6 = 16; L7–9 = 32; L10 = 64.
+ */
+export declare function artifactLevelXpCost(newLevel: number): number;
+/** Total XP invested to bring an Artifact from Level 1 to `level`. */
+export declare function totalArtifactXpToLevel(level: number): number;
 /**
  * Mastery Rank Advancement (new spec — based on total Stone count).
  *

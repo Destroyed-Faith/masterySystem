@@ -3,6 +3,8 @@ import {
   ARTIFACT_LINK_STONE_COST,
   ARTIFACT_MAX_SYSTEM_LEVEL,
   ARTIFACT_UPGRADE_XP_COST,
+  artifactLevelXpCost,
+  totalArtifactXpToLevel,
   actorStonesCurrent,
   artifactPowersUnlocked,
   canArtifactLink,
@@ -25,8 +27,19 @@ describe('Artifact constants (new spec)', () => {
     expect(ARTIFACT_LINK_STONE_COST).toBe(0);
   });
 
-  it('upgrade costs flat 8 XP per +1', () => {
-    expect(ARTIFACT_UPGRADE_XP_COST).toBe(8);
+  it('uses banded XP costs by target level (L2–3=8, L4–6=16, L7–9=32, L10=64)', () => {
+    expect(ARTIFACT_UPGRADE_XP_COST).toBe(8); // deprecated L2/L3 alias
+    expect(artifactLevelXpCost(1)).toBe(0);
+    expect(artifactLevelXpCost(2)).toBe(8);
+    expect(artifactLevelXpCost(3)).toBe(8);
+    expect(artifactLevelXpCost(4)).toBe(16);
+    expect(artifactLevelXpCost(6)).toBe(16);
+    expect(artifactLevelXpCost(7)).toBe(32);
+    expect(artifactLevelXpCost(9)).toBe(32);
+    expect(artifactLevelXpCost(10)).toBe(64);
+    expect(totalArtifactXpToLevel(3)).toBe(16);
+    expect(totalArtifactXpToLevel(6)).toBe(64); // L2–3=8+8, L4–6=16×3
+    expect(totalArtifactXpToLevel(10)).toBe(8 + 8 + 16 + 16 + 16 + 32 + 32 + 32 + 64);
   });
 
   it('hard caps system level at 10', () => {

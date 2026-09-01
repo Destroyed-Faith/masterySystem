@@ -12,6 +12,8 @@ import {
   XP_COSTS,
   attributeBandCost,
   powerLevelCost,
+  artifactLevelXpCost,
+  totalArtifactXpToLevel,
   MR_ADVANCEMENT,
   getDivineScale,
   ECHO_SPEEDS,
@@ -136,8 +138,19 @@ describe('XP Cost Tables (new spec)', () => {
     expect(MAX_POWER_LEVEL).toBe(16);
   });
 
-  it('artifact level costs 8 XP per +1', () => {
-    expect(XP_COSTS.ARTIFACT_LEVEL).toBe(8);
+  it('artifact level XP is banded by the new level reached', () => {
+    expect(XP_COSTS.ARTIFACT_LEVEL).toBe(8); // deprecated L2/L3 alias
+    expect(artifactLevelXpCost(1)).toBe(0);
+    expect(artifactLevelXpCost(2)).toBe(8);
+    expect(artifactLevelXpCost(3)).toBe(8);
+    expect(artifactLevelXpCost(4)).toBe(16);
+    expect(artifactLevelXpCost(5)).toBe(16);
+    expect(artifactLevelXpCost(6)).toBe(16);
+    expect(artifactLevelXpCost(7)).toBe(32);
+    expect(artifactLevelXpCost(8)).toBe(32);
+    expect(artifactLevelXpCost(9)).toBe(32);
+    expect(artifactLevelXpCost(10)).toBe(64);
+    expect(totalArtifactXpToLevel(10)).toBe(224);
   });
 
   it('retired tree / artifact-access constants are gone', () => {

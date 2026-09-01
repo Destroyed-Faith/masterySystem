@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.458] - 2026-09-01
+
+### Changed
+
+- **Artifact XP costs:** Banded by the **new** level reached — L1 free after Attunement; L2–3 = 8 XP; L4–6 = 16 XP; L7–9 = 32 XP; L10 = 64 XP. One level per Upgrade Step. Spend, refund, XP recalc/history, Evolution dialog, Progression Hub, and Artifact sheet all use the banded table.
+
 ## [0.9.457] - 2026-09-01
 
 ### Fixed

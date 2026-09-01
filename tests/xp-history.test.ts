@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { attributeBandCost, powerLevelCost } from '../src/utils/constants.js';
-import { ARTIFACT_UPGRADE_XP_COST } from '../src/utils/artifact-actor-rules.js';
+import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from '../src/utils/constants.js';
 import {
   appendXpHistory,
   buildBandedStepEntries,
@@ -46,13 +45,13 @@ describe('expandHistoryRows', () => {
     expect(rows[2].signedAmount).toBe(-attributeBandCost(7));
   });
 
-  it('shows an artifact upgrade as its own row', () => {
+  it('shows an artifact upgrade as its own row with banded cost', () => {
     const rows = expandHistoryRows([
       {
         ts: 20,
         kind: 'spend',
         category: 'artifact',
-        amount: ARTIFACT_UPGRADE_XP_COST,
+        amount: artifactLevelXpCost(2),
         note: 'Dragon Claws 1 → 2',
         details: { name: 'Dragon Claws', from: 1, to: 2 },
       },
@@ -62,8 +61,22 @@ describe('expandHistoryRows', () => {
     expect(rows[0].key).toBe('');
     expect(rows[0].from).toBe(1);
     expect(rows[0].to).toBe(2);
-    expect(rows[0].signedAmount).toBe(-ARTIFACT_UPGRADE_XP_COST);
+    expect(rows[0].signedAmount).toBe(-artifactLevelXpCost(2));
     expect(rows[0].category).toBe('artifact');
+  });
+
+  it('uses the new-level band cost when expanding artifact history', () => {
+    const rows = expandHistoryRows([
+      {
+        ts: 21,
+        kind: 'spend',
+        category: 'artifact',
+        amount: artifactLevelXpCost(4),
+        note: 'Dragon Claws 3 → 4',
+        details: { name: 'Dragon Claws', from: 3, to: 4 },
+      },
+    ]);
+    expect(rows[0].signedAmount).toBe(-16);
   });
 });
 
@@ -137,14 +150,22 @@ describe('inferMissingArtifactHistoryEntries', () => {
     };
   }
 
-  it('synthesizes one 8 XP spend per level above 1', () => {
+  it('synthesizes one banded XP spend per level above 1', () => {
     const actor = actorWithArtifacts([{ id: 'art1', name: 'Dragon Claws', level: 3 }]);
     const missing = inferMissingArtifactHistoryEntries(actor);
     expect(missing).toHaveLength(2);
     expect(missing.map(e => `${e.details.from}→${e.details.to}`)).toEqual(['1→2', '2→3']);
     expect(missing.every(e => e.kind === 'spend' && e.category === 'artifact')).toBe(true);
-    expect(missing.every(e => e.amount === ARTIFACT_UPGRADE_XP_COST)).toBe(true);
+    expect(missing[0].amount).toBe(artifactLevelXpCost(2));
+    expect(missing[1].amount).toBe(artifactLevelXpCost(3));
     expect(missing[0].details.artifactId).toBe('art1');
+  });
+
+  it('uses higher bands when inferring L4+ history', () => {
+    const actor = actorWithArtifacts([{ id: 'art1', name: 'Dragon Claws', level: 4 }]);
+    const missing = inferMissingArtifactHistoryEntries(actor);
+    expect(missing).toHaveLength(3);
+    expect(missing.map(e => e.amount)).toEqual([8, 8, 16]);
   });
 
   it('skips steps that are already in the history log', () => {
@@ -155,7 +176,7 @@ describe('inferMissingArtifactHistoryEntries', () => {
           ts: 1,
           kind: 'spend',
           category: 'artifact',
-          amount: ARTIFACT_UPGRADE_XP_COST,
+          amount: artifactLevelXpCost(2),
           details: { artifactId: 'art1', name: 'Dragon Claws', from: 1, to: 2 },
         },
       ],
@@ -174,7 +195,7 @@ describe('inferMissingArtifactHistoryEntries', () => {
           ts: 1,
           kind: 'spend',
           category: 'artifact',
-          amount: ARTIFACT_UPGRADE_XP_COST,
+          amount: artifactLevelXpCost(2),
           details: { artifactId: 'art1', name: 'Dragon Claws', from: 1, to: 2 },
         },
       ],
@@ -190,7 +211,7 @@ describe('inferMissingArtifactHistoryEntries', () => {
           ts: 1,
           kind: 'spend',
           category: 'artifact',
-          amount: ARTIFACT_UPGRADE_XP_COST,
+          amount: artifactLevelXpCost(2),
           note: 'Dragon Claws 1 → 2',
           details: { name: 'Dragon Claws', from: 1, to: 2 },
         },

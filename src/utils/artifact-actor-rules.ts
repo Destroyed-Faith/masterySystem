@@ -2,11 +2,14 @@
  * Rules for upgrading artifact evolution items on actors (Mastery Rank gates, costs)
  * AND binding rules (Artifact Capacity, Echo-bound, slot blocking).
  *
- * XP spec — Artifacts:
- *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
- *   • Attunement / Binding Ritual is one-time and free (no Stone Bind/Seal/Burn).
- *   • Artifact Level 1 is free after Attunement. Further levels cost 8 XP.
- *   • Mastery-Rank Artifact Level Gate: min(10, max(1, (MR − 1) × 2)).
+ * XP spec — Artifacts (cost of the **new** level reached):
+ *   • Level 1 after Attunement: free
+ *   • Levels 2–3: 8 XP each
+ *   • Levels 4–6: 16 XP each
+ *   • Levels 7–9: 32 XP each
+ *   • Level 10: 64 XP
+ *   • One Artifact Level per Upgrade Step
+ *   • Mastery-Rank Artifact Level Gate: min(10, max(1, (MR − 1) × 2))
  *
  * New Artifact spec (Artefacts.md):
  *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
@@ -25,7 +28,9 @@ import {
   ARTIFACT_MAX_LEVEL as SPEC_ARTIFACT_MAX_LEVEL,
   type ArtifactSlot,
 } from './artifact-rules.js';
+import { artifactLevelXpCost, totalArtifactXpToLevel } from './constants.js';
 
+export { artifactLevelXpCost, totalArtifactXpToLevel };
 const STONE_POOL_LABELS: Record<string, string> = {
   might: 'Might',
   agility: 'Agility',
@@ -45,6 +50,7 @@ export interface ArtifactStonePoolOption {
   canSpend: boolean;
 }
 
+/** @deprecated Prefer `artifactLevelXpCost(newLevel)`. Cost for L2/L3 upgrades. */
 export const ARTIFACT_UPGRADE_XP_COST = 8;
 /** Attunement / Binding Ritual does not Bind, Seal, Burn, or reserve a Stone. */
 export const ARTIFACT_LINK_STONE_COST = 0;

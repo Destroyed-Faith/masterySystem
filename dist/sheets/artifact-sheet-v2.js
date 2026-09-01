@@ -13,7 +13,7 @@
  * happens in the Artifact Builder / Node Editor, never on this sheet.
  */
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, } from '../utils/artifact-rules.js';
-import { ARTIFACT_UPGRADE_XP_COST, isArtifactLinkedOnActor, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
+import { artifactLevelXpCost, isArtifactLinkedOnActor, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { displayFromArtifactSystem, resolveNextArtifactPreviews, } from '../utils/artifact-sheet-preview.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { openFoundryImagePopout } from '../ui/image-url-share.js';
@@ -71,6 +71,13 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
                 return fallback;
             return fallback.replace(/\{(\w+)\}/g, (_, k) => data[k] ?? '');
         };
+        const card = parentActor
+            ? buildArtifactEvolutionCards(parentActor).find((c) => c.embeddedId === item.id)
+            : undefined;
+        const usesPools = parentActor ? usesStonePoolEconomy(parentActor) : false;
+        const defaultPath = card?.nextUpgrade || card?.nextGmUpgrade || card?.paths?.[0] || null;
+        const nextXpCost = defaultPath?.xpCost ??
+            artifactLevelXpCost(Math.min(10, Math.max(1, currentLevel) + 1));
         context.item = item;
         context.system = system;
         context.cssClass = item.isOwner ? 'editable' : 'locked';
@@ -84,7 +91,7 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
             nextLevelHint: loc('MASTERY.artifact.sheet.nextLevelHint', 'Unlocked when you raise this artifact.'),
             imgAlt: loc('MASTERY.artifact.sheet.imgAlt', 'Alternative image'),
             upgrade: loc('MASTERY.artifact.sheet.upgrade', 'Upgrade ({xp} XP)', {
-                xp: String(ARTIFACT_UPGRADE_XP_COST),
+                xp: String(nextXpCost),
             }),
             upgradeGm: loc('MASTERY.artifact.sheet.upgradeGm', 'GM: Upgrade (no XP)'),
             activate: loc('MASTERY.artifact.sheet.activate', 'Attunement Ritual'),
@@ -111,11 +118,6 @@ export class ArtifactSheetV2 extends BaseArtifactSheet {
         }));
         context.hasNextPreview = nextPreviews.length > 0;
         context.hasActivationPreview = !mechanicallyActive && (activation.hasBaseValues || activation.hasAbilities);
-        const card = parentActor
-            ? buildArtifactEvolutionCards(parentActor).find((c) => c.embeddedId === item.id)
-            : undefined;
-        const usesPools = parentActor ? usesStonePoolEconomy(parentActor) : false;
-        const defaultPath = card?.nextUpgrade || card?.nextGmUpgrade || card?.paths?.[0] || null;
         context.actorActions = parentActor
             ? {
                 show: true,

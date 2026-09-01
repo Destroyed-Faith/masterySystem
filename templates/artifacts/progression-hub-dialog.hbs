@@ -98,7 +98,7 @@
         </p>
         <ul class="ae-rules-facts">
           <li><strong>Attunement / Binding Ritual</strong> is one-time and free (no Stone reserved)</li>
-          <li><strong>Level 1</strong> is free after Attunement. <strong>Level 2+</strong> costs {{constants.upXp}} XP per upgrade</li>
+          <li><strong>Level 1</strong> is free after Attunement. Further levels: L2–3 = 8 XP, L4–6 = 16 XP, L7–9 = 32 XP, L10 = 64 XP (cost of the new level)</li>
           <li>Max Artifact Level = (MR − 1) × 2, cap {{constants.maxLevel}} · one upgrade per step</li>
           <li class="{{#if capacity.full}}ae-warn{{/if}}">Capacity {{capacity.bound}} / {{capacity.max}}{{#if capacity.full}} — full{{/if}}</li>
         </ul>
@@ -192,14 +192,14 @@
                 {{#if disabledReason}}{{#unless @root.isGM}}disabled{{/unless}}{{/if}}
                 {{#if gmDisabledReason}}{{#if @root.isGM}}disabled{{/if}}{{/if}}
                 title="{{#if @root.isGM}}{{#if gmDisabledReason}}{{gmDisabledReason}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}{{else}}{{#if disabledReason}}{{disabledReason}}{{/if}}{{/if}}">
-                {{label}} (L{{targetLevel}}{{#unless @root.isGM}}, {{@root.constants.upXp}} XP{{/unless}}){{#if disabledReason}}{{#unless @root.isGM}} — {{disabledReason}}{{/unless}}{{/if}}
+                {{label}} (L{{targetLevel}}{{#unless @root.isGM}}, {{xpCost}} XP{{/unless}}){{#if disabledReason}}{{#unless @root.isGM}} — {{disabledReason}}{{/unless}}{{/if}}
               </option>
               {{/each}}
             </select>
             <button type="button" class="ae-btn ae-btn-primary" data-action="ae-upgrade-selected"
               data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
               {{#unless canUpgrade}}disabled title="{{upgradeDisabledReason}}"{{/unless}}>
-              Upgraden ({{@root.constants.upXp}} XP)
+              Upgraden ({{#if nextUpgrade}}{{nextUpgrade.xpCost}}{{else}}{{#each paths}}{{#if @first}}{{xpCost}}{{/if}}{{/each}}{{/if}} XP)
             </button>
             {{#if @root.isGM}}
             <button type="button" class="ae-btn ae-btn-gm" data-action="ae-gm-upgrade-selected"

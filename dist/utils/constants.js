@@ -74,8 +74,10 @@ export const MAX_POWER_LEVEL = 16;
  *       "Power Costs": Level 1 = 2 XP … Level 16 = 32 XP). POWER_LEVEL[i] is
  *       the cost for buying level `i + 1`. `powerLevelCost(level)` is the helper.
  *
- *   Artifacts — flat 8 XP per +1 level (`ARTIFACT_LEVEL`). MR gating still
- *       limits the maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
+ *   Artifacts — cost by the **new** Artifact Level reached
+ *       (`artifactLevelXpCost`): L1 free; L2–3 = 8; L4–6 = 16; L7–9 = 32;
+ *       L10 = 64. One level per Upgrade Step. MR gating still limits the
+ *       maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
  */
 export const XP_COSTS = {
     ATTRIBUTE: [
@@ -95,6 +97,7 @@ export const XP_COSTS = {
         2, 4, 6, 8, 10, 12, 14, 16,
         18, 20, 22, 24, 26, 28, 30, 32
     ], // Levels 1-16, cost = 2 × newLevel
+    /** @deprecated Use `artifactLevelXpCost(newLevel)`. L2/L3 band cost. */
     ARTIFACT_LEVEL: 8
 };
 /** XP cost to raise an Attribute (or Skill) to `nextValue` (1..80). */
@@ -108,6 +111,32 @@ export function powerLevelCost(level) {
     if (l <= 0 || l > MAX_POWER_LEVEL)
         return 0;
     return 2 * l;
+}
+/**
+ * XP cost to raise an Artifact to `newLevel` (cost of the level reached).
+ * L1 free; L2–3 = 8; L4–6 = 16; L7–9 = 32; L10 = 64.
+ */
+export function artifactLevelXpCost(newLevel) {
+    const l = Math.max(0, Math.floor(Number(newLevel) || 0));
+    if (l <= 1)
+        return 0;
+    if (l <= 3)
+        return 8;
+    if (l <= 6)
+        return 16;
+    if (l <= 9)
+        return 32;
+    if (l === 10)
+        return 64;
+    return 0;
+}
+/** Total XP invested to bring an Artifact from Level 1 to `level`. */
+export function totalArtifactXpToLevel(level) {
+    const cap = Math.max(1, Math.min(10, Math.floor(Number(level) || 1)));
+    let sum = 0;
+    for (let l = 2; l <= cap; l++)
+        sum += artifactLevelXpCost(l);
+    return sum;
 }
 /**
  * Mastery Rank Advancement (new spec — based on total Stone count).

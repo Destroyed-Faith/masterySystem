@@ -8,6 +8,8 @@ export interface ArtifactEvolutionPath {
     nodeId: string;
     label: string;
     targetLevel: number;
+    /** XP cost of reaching `targetLevel` (0 for L1). */
+    xpCost: number;
     /** Player upgrade blockers (XP, step rule, MR cap, …). */
     disabledReason: string;
     /** GM free-upgrade blockers (activation + valid tree step only). */
@@ -87,9 +89,9 @@ export declare function resetArtifactActivationForActor(actor: Actor, rootWorldI
  * @returns the number of reservation flags cleared.
  */
 export declare function releaseAllArtifactActivationStones(actor: Actor): Promise<number>;
-/** Upgrade an artifact one tree step — costs 8 XP (unless `gmFree`). */
+/** Upgrade an artifact one tree step — costs XP by the new level (unless `gmFree`). */
 export declare function upgradeArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, targetWorldItemId: string, targetNodeId: string, options?: UpgradeArtifactOptions): Promise<boolean>;
-/** Walk the evolution tree back to `targetLevel` and refund 8 XP per dropped level. */
+/** Walk the evolution tree back to `targetLevel` and refund banded XP per dropped level. */
 export declare function downgradeArtifactForActor(actor: Actor, embeddedId: string, targetLevel: number): Promise<{
     ok: boolean;
     error?: string;

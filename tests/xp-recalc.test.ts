@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ARTIFACT_UPGRADE_XP_COST } from '../src/utils/artifact-actor-rules.js';
+import { totalArtifactXpToLevel } from '../src/utils/artifact-actor-rules.js';
 import { computeGroundTruthXp } from '../src/utils/xp-recalc.js';
 
 const ATTRS = {
@@ -39,13 +39,20 @@ function actor(opts: { artifactLevel: number; freeEarned?: number; xp?: number; 
 }
 
 describe('computeGroundTruthXp artifacts', () => {
-  it('counts 8 XP per artifact level above 1', () => {
+  it('sums banded XP for levels above 1 (L2–3 = 8 each)', () => {
     const result = computeGroundTruthXp(actor({ artifactLevel: 3, freeEarned: 24 }));
     expect(result.ok).toBe(true);
-    expect(result.artifactSpent).toBe(2 * ARTIFACT_UPGRADE_XP_COST);
+    expect(result.artifactSpent).toBe(totalArtifactXpToLevel(3));
     expect(result.totalInvested).toBe(16);
     expect(result.freeSpent).toBe(16);
     expect(result.freeAvailable).toBe(8);
+  });
+
+  it('applies higher bands at L4+ and L7+', () => {
+    const at6 = computeGroundTruthXp(actor({ artifactLevel: 6, freeEarned: 200 }));
+    expect(at6.artifactSpent).toBe(totalArtifactXpToLevel(6)); // 8+8+16+16+16 = 64
+    const at10 = computeGroundTruthXp(actor({ artifactLevel: 10, freeEarned: 300 }));
+    expect(at10.artifactSpent).toBe(totalArtifactXpToLevel(10)); // 224
   });
 
   it('counts nothing for a level-1 artifact', () => {

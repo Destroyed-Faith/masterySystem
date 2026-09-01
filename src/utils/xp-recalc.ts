@@ -12,7 +12,7 @@
  * Package Wizard "power upgrade refund" over-refund).
  */
 
-import { ARTIFACT_UPGRADE_XP_COST } from './artifact-actor-rules.js';
+import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
 import { attributeBandCost } from './constants.js';
 import { calculatePowersUpgradeRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot, type PostCreationProgress } from './xp-post-creation.js';
@@ -141,7 +141,7 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
   let artifactSpent = 0;
   for (const item of artifactItems) {
     const level = Math.max(1, Math.floor(Number(item?.system?.level) || 1));
-    if (level > 1) artifactSpent += (level - 1) * ARTIFACT_UPGRADE_XP_COST;
+    if (level > 1) artifactSpent += totalArtifactXpToLevel(level);
   }
 
   const totalInvested = attributeSpent + skillSpent + powerSpent + artifactSpent;

@@ -6,7 +6,6 @@ import {
   ARTIFACT_CAPACITY_DEFAULT,
   ARTIFACT_LINK_STONE_COST,
   ARTIFACT_MAX_SYSTEM_LEVEL,
-  ARTIFACT_UPGRADE_XP_COST,
   listArtifactSpendableStonePools,
   usesStonePoolEconomy,
 } from '../utils/artifact-actor-rules.js';
@@ -105,7 +104,6 @@ export class ProgressionHubDialog extends BaseDialog {
       hasUnwiredArtifacts: hub.unwiredArtifacts.length > 0,
       constants: {
         linkStone: ARTIFACT_LINK_STONE_COST,
-        upXp: ARTIFACT_UPGRADE_XP_COST,
         maxLevel: ARTIFACT_MAX_SYSTEM_LEVEL,
         capacityMax: ARTIFACT_CAPACITY_DEFAULT,
       },

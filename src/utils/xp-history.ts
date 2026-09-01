@@ -5,10 +5,7 @@
  * so existing logs still read as individual steps.
  */
 
-import { attributeBandCost, powerLevelCost } from './constants.js';
-
-/** Same flat cost as `ARTIFACT_UPGRADE_XP_COST` — kept local to avoid a combat import. */
-const ARTIFACT_STEP_XP = 8;
+import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
 
 export type XpHistoryKind = 'grant' | 'spend' | 'adjust' | 'step' | 'step-end';
 export type XpHistoryCategory = 'xp' | 'attribute' | 'skill' | 'power' | 'artifact';
@@ -118,7 +115,8 @@ function stepCost(category: string, from: number, to: number): number {
     return rising ? cost : -cost;
   }
   if (category === 'artifact') {
-    return rising ? ARTIFACT_STEP_XP : -ARTIFACT_STEP_XP;
+    const cost = artifactLevelXpCost(rising ? to : from);
+    return rising ? cost : -cost;
   }
   const cost = attributeBandCost(rising ? to : from);
   return rising ? cost : -cost;
@@ -285,9 +283,9 @@ export function inferMissingArtifactHistoryEntries(actor: any, existing?: XpHist
         ts: ts++,
         kind: 'spend',
         category: 'artifact',
-        amount: ARTIFACT_STEP_XP,
+        amount: artifactLevelXpCost(to),
         note,
-        details: { key: id, artifactId: id, name, from, to, cost: ARTIFACT_STEP_XP, inferred: true },
+        details: { key: id, artifactId: id, name, from, to, cost: artifactLevelXpCost(to), inferred: true },
       });
     }
   }

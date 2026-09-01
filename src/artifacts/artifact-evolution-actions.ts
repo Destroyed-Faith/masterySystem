@@ -5,8 +5,8 @@
 
 import {
   ARTIFACT_CAPACITY_DEFAULT,
-  ARTIFACT_UPGRADE_XP_COST,
   artifactExceedsMasteryRankCap,
+  artifactLevelXpCost,
   canArtifactLink,
   canBindMoreArtifacts,
   countBoundArtifacts,
@@ -37,6 +37,8 @@ export interface ArtifactEvolutionPath {
   nodeId: string;
   label: string;
   targetLevel: number;
+  /** XP cost of reaching `targetLevel` (0 for L1). */
+  xpCost: number;
   /** Player upgrade blockers (XP, step rule, MR cap, …). */
   disabledReason: string;
   /** GM free-upgrade blockers (activation + valid tree step only). */
@@ -233,6 +235,7 @@ export function buildArtifactEvolutionCards(
     const paths = childItems.map((child) => {
       const cid = (child as any).getFlag('mastery-system', 'nodeId') as string;
       const tl = (child.system as any)?.level ?? currentSysLevel + 1;
+      const xpCost = artifactLevelXpCost(tl);
       let disabledReason = '';
       let gmDisabledReason = '';
       if (!linked) {
@@ -240,8 +243,8 @@ export function buildArtifactEvolutionCards(
         gmDisabledReason = disabledReason;
       } else if (tl > maxSys) {
         disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
-      } else if (xpAvailable < ARTIFACT_UPGRADE_XP_COST) {
-        disabledReason = `Not enough XP (${ARTIFACT_UPGRADE_XP_COST} needed for level 2+).`;
+      } else if (xpAvailable < xpCost) {
+        disabledReason = `Not enough XP (${xpCost} needed for Level ${tl}).`;
       } else if (alreadyBumped) {
         disabledReason = 'Already upgraded this session. Use Free XP to raise it again.';
       }
@@ -252,6 +255,7 @@ export function buildArtifactEvolutionCards(
         nodeId: cid,
         label: labels.get(cid) || ch.name,
         targetLevel: tl,
+        xpCost,
         disabledReason,
         gmDisabledReason,
       };
@@ -381,7 +385,7 @@ export async function linkArtifactForActor(
   }
 
   ui.notifications?.info(
-    'Attunement complete. The artifact awakens at Level 1 (no XP) and occupies its Artifact Capacity. Further levels cost 8 XP each.',
+    'Attunement complete. The artifact awakens at Level 1 (no XP) and occupies its Artifact Capacity. Further levels cost 8 / 16 / 32 / 64 XP by the level reached.',
   );
   return true;
 }
@@ -510,7 +514,7 @@ export async function releaseAllArtifactActivationStones(actor: Actor): Promise<
   return released;
 }
 
-/** Upgrade an artifact one tree step — costs 8 XP (unless `gmFree`). */
+/** Upgrade an artifact one tree step — costs XP by the new level (unless `gmFree`). */
 export async function upgradeArtifactForActor(
   actor: Actor,
   rootWorldId: string,
@@ -545,6 +549,7 @@ export async function upgradeArtifactForActor(
   const prog = readActorArtifactProgress(levels[A.id], rootNodeId);
 
   const tl = (targetWorld.system as any)?.level ?? 1;
+  const xpCost = artifactLevelXpCost(tl);
   if (!gmFree && tl > maxSys) {
     ui.notifications?.warn(`Your Mastery Rank allows artifact level up to ${maxSys} only.`);
     return false;
@@ -578,9 +583,9 @@ export async function upgradeArtifactForActor(
       return false;
     }
 
-    const spend = await spendActorXp(actor, ARTIFACT_UPGRADE_XP_COST);
+    const spend = await spendActorXp(actor, xpCost);
     if (!spend.ok) {
-      ui.notifications?.warn(`Not enough XP (need ${ARTIFACT_UPGRADE_XP_COST}).`);
+      ui.notifications?.warn(`Not enough XP (need ${xpCost}).`);
       return false;
     }
 
@@ -593,7 +598,7 @@ export async function upgradeArtifactForActor(
         userName: user.userName,
         kind: 'spend',
         category: 'artifact',
-        amount: ARTIFACT_UPGRADE_XP_COST,
+        amount: xpCost,
         note: `${emb.name} ${fromLevel} → ${tl}`,
         details: {
           artifactId: embeddedId,
@@ -701,7 +706,7 @@ async function refundActorXp(
   };
 }
 
-/** Walk the evolution tree back to `targetLevel` and refund 8 XP per dropped level. */
+/** Walk the evolution tree back to `targetLevel` and refund banded XP per dropped level. */
 export async function downgradeArtifactForActor(
   actor: Actor,
   embeddedId: string,
@@ -754,7 +759,7 @@ export async function downgradeArtifactForActor(
     return { ok: false, error: `Cannot revert this artifact to level ${want}.` };
   }
 
-  const refundAmount = drops.length * ARTIFACT_UPGRADE_XP_COST;
+  const refundAmount = drops.reduce((sum, drop) => sum + artifactLevelXpCost(drop.from), 0);
   const xp = await refundActorXp(actor, refundAmount);
   const user = currentXpUser();
   const historyEntries = drops.map((drop, i) => ({
@@ -763,7 +768,7 @@ export async function downgradeArtifactForActor(
     userName: user.userName,
     kind: 'adjust' as const,
     category: 'artifact' as const,
-    amount: ARTIFACT_UPGRADE_XP_COST,
+    amount: artifactLevelXpCost(drop.from),
     note: `refund: ${drop.fromName} ${drop.from} → ${drop.to}`,
     details: {
       artifactId: embeddedId,

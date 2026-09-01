@@ -2,7 +2,7 @@
  * Actor-facing artifact evolution: Attunement ritual, then upgrade along tree.
  *
  *   • Attunement / Binding Ritual: one-time, no Stone reservation.
- *   • Level 1 is free after Attunement. Further levels cost 8 XP each.
+ *   • Level 1 free after Attunement; L2–3 = 8 XP, L4–6 = 16, L7–9 = 32, L10 = 64.
  *   • Maximum reachable level = min(10, max(1, (MR − 1) × 2)).
  *   • Each Artifact may only be upgraded once per Upgrade Step.
  */

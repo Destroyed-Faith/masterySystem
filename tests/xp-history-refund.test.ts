@@ -47,8 +47,11 @@ describe('liveRefundXp', () => {
     expect(liveRefundXp('power', 5, 2)).toBe(powerLevelCost(5) + powerLevelCost(4) + powerLevelCost(3));
   });
 
-  it('charges 8 XP per artifact level dropped', () => {
-    expect(liveRefundXp('artifact', 3, 1)).toBe(16);
+  it('refunds banded artifact XP for each level dropped', () => {
+    expect(liveRefundXp('artifact', 3, 1)).toBe(16); // L3+L2 = 8+8
+    expect(liveRefundXp('artifact', 4, 3)).toBe(16); // dropping L4
+    expect(liveRefundXp('artifact', 10, 9)).toBe(64); // dropping L10
+    expect(liveRefundXp('artifact', 10, 6)).toBe(64 + 32 + 32 + 32); // L10..L7
   });
 });
 
