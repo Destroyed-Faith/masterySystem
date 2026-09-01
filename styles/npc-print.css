@@ -280,3 +280,134 @@
   color: #b0b0b0;
   font-weight: 500;
 }
+
+/* ========== Compact combat strips (Kampfstreifen) ========== */
+
+.mastery-npc-print.is-compact {
+  padding: 4mm;
+  background: #f4f1ea;
+}
+
+.mastery-npc-print.is-compact .npc-strip {
+  width: 190mm;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0 auto 3.5mm;
+  padding: 2.2mm 3mm 2.6mm;
+  background: #fffef9;
+  border: 1px solid #2c2a26;
+  border-radius: 2px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.mastery-npc-print.is-compact .npc-strip + .npc-strip {
+  border-top: 1px solid #2c2a26;
+}
+
+.ncs-head {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4mm;
+  margin-bottom: 1.8mm;
+  padding-bottom: 1.4mm;
+  border-bottom: 1px solid #d7d0c4;
+}
+
+.ncs-id {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1.5mm 3mm;
+}
+
+.ncs-name {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #1a1814;
+}
+
+.ncs-meta {
+  font-size: 9.5px;
+  color: #6a645a;
+}
+
+.ncs-cores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm 2.5mm;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ncs-cores li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1mm;
+  font-size: 9.5px;
+  color: #4a453c;
+}
+
+.ncs-cores span {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 8px;
+  color: #8a8478;
+}
+
+.ncs-cores b {
+  font-weight: 700;
+  color: #1a1814;
+  font-variant-numeric: tabular-nums;
+}
+
+.ncs-attacks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+}
+
+.ncs-attacks li {
+  margin: 0;
+  padding: 0.7mm 1.2mm;
+  border-left: 2px solid #5d4037;
+  background: #f7f3ea;
+  font-size: 10px;
+  line-height: 1.3;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.ncs-attacks li.is-spell {
+  border-left-color: #1565c0;
+  background: #eef4fb;
+}
+
+.ncs-attacks li.is-split {
+  border-left-style: double;
+}
+
+.ncs-empty {
+  margin: 0;
+  font-size: 9.5px;
+  color: #8a8478;
+  font-style: italic;
+}
+
+@media print {
+  .mastery-npc-print.is-compact {
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .mastery-npc-print.is-compact .npc-strip {
+    margin-bottom: 3mm;
+    box-shadow: none;
+  }
+}

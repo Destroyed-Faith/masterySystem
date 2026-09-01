@@ -286,6 +286,11 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           action: 'msNpcPrintSheet',
         },
         {
+          icon: 'fas fa-compress',
+          label: 'Kampfstreifen',
+          action: 'msNpcPrintCompactSheet',
+        },
+        {
           icon: 'fas fa-link',
           label: 'MASTERY.image.copyLink',
           action: 'msCopyPictureLink',
@@ -295,6 +300,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     actions: {
       msNpcPrintSheet: function (this: any) {
         void openNpcPrintSheet(this.actor);
+      },
+      msNpcPrintCompactSheet: function (this: any) {
+        void openNpcPrintSheet(this.actor, { layout: 'compact' });
       },
       msCopyPictureLink: function (this: any) {
         void copyDocumentImageLink(this.actor);

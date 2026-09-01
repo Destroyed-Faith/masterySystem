@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.442] - 2026-09-01
+
+### Added
+
+- **NPC Kampfstreifen:** Compact printable combat strips with precalculated attack lines (pool+keep, damage, range, Spell TN, specials, ×/R). No skills or attributes — just defenses and ready-to-use attacks. One strip per boss phase; open from the NPC sheet header.
+
 ## [0.9.441] - 2026-09-01
 
 ### Added

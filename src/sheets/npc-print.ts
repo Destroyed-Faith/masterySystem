@@ -11,15 +11,26 @@ import { CREATURE_TYPE_OPTIONS, resolveCreatureType } from '../utils/creature-ty
 import {
   formatNpcAttackSpecialsLine,
   npcAttackDiceCount,
+  npcAttackKeepDice,
   npcAttacksPerRoundCap,
   npcDamageDiceFormula,
   resolveNpcAttackList,
   sumNpcAttackSlotsFromPowers,
 } from '../utils/npc-attack-model.js';
+import {
+  clampNpcInitiativeModifier,
+  formatNpcInitiativeSigned,
+} from '../utils/npc-initiative.js';
 import { specialApplicationLimit } from '../combat/special-application.js';
 
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/npc-print.hbs';
+const PRINT_TEMPLATE_COMPACT = 'systems/mastery-system/templates/actor/npc-print-compact.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/npc-print.css';
+
+export type NpcPrintOptions = {
+  /** Dense combat strip with precalculated attack lines (no skills/attributes). */
+  layout?: 'full' | 'compact';
+};
 
 function routed(path: string): string {
   try {
@@ -87,6 +98,51 @@ function formatFlags(atk: AttackValue): string {
 function formatStress(atk: AttackValue): string {
   const n = Math.floor(num(atk.npcStressD8, 0));
   return n > 0 ? `${n}d8` : '—';
+}
+
+/** Compact range tag for the combat strip (shorter than the full print table). */
+function formatCompactRangeTag(atk: AttackValue): string {
+  const kind = String(atk.npcRangeKind || '').toLowerCase();
+  const aoeM = Math.floor(num(atk.npcAoeRadiusM, 0));
+  if (kind === 'ranged') {
+    const longM = Math.floor(num(atk.npcRangeMeters, 24));
+    const shortM = Math.floor(num(atk.npcRangeMinMeters, 12));
+    return shortM > 0 ? `Short ≤${shortM} / Long ≤${longM} m` : `Ranged ≤${longM} m`;
+  }
+  if (aoeM >= 2) return 'Melee around self';
+  const reach = Math.floor(num(atk.npcRangeMeters, 2));
+  return `Melee ${reach > 0 ? reach : 2} m`;
+}
+
+/**
+ * One ready-to-play attack line: pool+keep, damage, range, flags, specials, ×/R.
+ * Example: `Speer — 6k3 · 4d8 · Melee 3 m · ×2`
+ */
+export function formatNpcCompactAttackPlayLine(
+  atk: AttackValue,
+  opts: { masteryRank: number; castingTn: number; index?: number },
+): string {
+  const index = opts.index ?? 0;
+  const name =
+    String(atk.name || '').trim() || (index === 0 ? 'Waffenangriff' : `Power ${index + 1}`);
+  const pool = npcAttackDiceCount(atk);
+  const keep = npcAttackKeepDice(atk, opts.masteryRank);
+  const damage = npcDamageDiceFormula(atk);
+  const apr = npcAttacksPerRoundCap(atk);
+  const parts: string[] = [];
+  parts.push(pool > 0 ? `${pool}k${keep}` : '—');
+  parts.push(damage && damage !== '0' ? damage : '—');
+  parts.push(formatCompactRangeTag(atk));
+  const aoe = formatAoeLine(atk);
+  if (aoe !== '—') parts.push(aoe);
+  if (atk.npcIsSpell) parts.push(`Spell TN ${opts.castingTn}`);
+  if (atk.npcSplitAttack) parts.push('Split');
+  const stress = Math.floor(num(atk.npcStressD8, 0));
+  if (stress > 0) parts.push(`Stress ${stress}d8`);
+  const specials = formatNpcAttackSpecialsLine(atk);
+  if (specials) parts.push(specials.replace(/,\s*/g, ' · '));
+  if (apr > 1) parts.push(`×${apr}`);
+  return `${name} — ${parts.join(' · ')}`;
 }
 
 function buildAttackRows(attacks: AttackValue[]): Record<string, unknown>[] {
@@ -273,19 +329,90 @@ export function buildNpcPrintContext(actor: any): Record<string, unknown> {
 }
 
 /**
+ * Compact combat strip — precalculated attack lines, no skills/attributes.
+ * One strip per boss phase (or a single strip for phase-less NPCs).
+ */
+export function buildNpcCompactPrintContext(actor: any): Record<string, unknown> {
+  const system = actor?.system ?? {};
+  const name = String(actor?.name ?? system?.bio?.name ?? 'NPC').trim() || 'NPC';
+  const masteryRank = Math.max(1, Math.floor(num(system?.mastery?.rank, 1)));
+  const castingTn = 8 * masteryRank;
+  const creatureType = creatureTypeLabel(actor);
+  const movementSlots = Math.max(1, Math.floor(num(system?.npcMovementSlots, 1)));
+  const faction = String(system?.bio?.faction ?? '').trim();
+
+  const strips = collectPhaseSources(system).map((src) => {
+    const health = buildHealthRows(asHealthBars(src.health?.bars));
+    const iniNet = clampNpcInitiativeModifier(src.combat?.initiative);
+    const iniSigned = formatNpcInitiativeSigned(iniNet);
+    const initiative =
+      iniNet === 0 ? `${masteryRank}d8` : `${masteryRank}d8 ${iniSigned}`;
+    const attacks = src.attacks.map((atk, index) => ({
+      line: formatNpcCompactAttackPlayLine(atk, { masteryRank, castingTn, index }),
+      isSpell: !!atk.npcIsSpell,
+      isSplit: !!atk.npcSplitAttack,
+    }));
+    const cores = [
+      { label: 'Evade', value: String(Math.floor(num(src.combat?.evade, 0))) },
+      { label: 'Armor', value: String(Math.floor(num(src.combat?.armor, 0))) },
+      { label: 'Speed', value: `${Math.floor(num(src.combat?.speed, 6))} m` },
+      { label: 'HP', value: health.summary },
+      { label: 'Init', value: initiative },
+      { label: 'ATK', value: String(src.attackSlots) },
+      { label: 'Move', value: String(movementSlots) },
+      { label: 'Spell TN', value: String(castingTn) },
+    ];
+    const dr = Math.floor(num(src.combat?.damageReduction, 0));
+    if (dr > 0) cores.push({ label: 'DR', value: `${dr}%` });
+    const spellRes = Math.floor(num(src.combat?.spellResistance, 0));
+    if (spellRes > 0) cores.push({ label: 'Spell Res', value: String(spellRes) });
+
+    return {
+      name,
+      masteryRank,
+      creatureType,
+      faction,
+      phaseName: src.phaseName,
+      phaseNumber: src.phaseNumber,
+      phaseCount: src.phaseCount,
+      hasPhases: src.phaseCount > 0,
+      cores,
+      attacks,
+      hasAttacks: attacks.length > 0,
+      title: src.phaseName ? `${name} — ${src.phaseName}` : name,
+    };
+  });
+
+  return {
+    name,
+    masteryRank,
+    creatureType,
+    stripCount: strips.length,
+    strips,
+  };
+}
+
+/**
  * Render the printable NPC sheet and open it in a new window that triggers
  * the browser print dialog (save as PDF).
  */
-export async function openNpcPrintSheet(actor: any): Promise<void> {
+export async function openNpcPrintSheet(
+  actor: any,
+  options: NpcPrintOptions = {},
+): Promise<void> {
   if (!actor || actor.type !== 'npc') {
     (ui as any)?.notifications?.warn('Druck-Export ist nur für NPCs verfügbar.');
     return;
   }
 
+  const compact = options.layout === 'compact';
   let body = '';
   try {
-    const context = buildNpcPrintContext(actor);
-    body = await (foundry as any).applications.handlebars.renderTemplate(PRINT_TEMPLATE, context);
+    const context = compact
+      ? buildNpcCompactPrintContext(actor)
+      : buildNpcPrintContext(actor);
+    const template = compact ? PRINT_TEMPLATE_COMPACT : PRINT_TEMPLATE;
+    body = await (foundry as any).applications.handlebars.renderTemplate(template, context);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('Mastery System | Failed to build NPC print sheet', message, error);
@@ -293,7 +420,7 @@ export async function openNpcPrintSheet(actor: any): Promise<void> {
     return;
   }
 
-  const win = window.open('', '_blank', 'width=900,height=1200');
+  const win = window.open('', '_blank', compact ? 'width=720,height=640' : 'width=900,height=1200');
   if (!win) {
     (ui as any)?.notifications?.warn(
       'Druckfenster wurde blockiert. Bitte Pop-ups für Foundry erlauben.',
@@ -304,6 +431,7 @@ export async function openNpcPrintSheet(actor: any): Promise<void> {
   const cssVersion = String((game as any)?.system?.version ?? Date.now());
   const cssHref = `${routed(PRINT_CSS)}?v=${encodeURIComponent(cssVersion)}`;
   const title = String(actor?.name ?? 'NPC');
+  const bodyClass = compact ? 'mastery-npc-print is-compact' : 'mastery-npc-print';
   const doc = `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -311,7 +439,7 @@ export async function openNpcPrintSheet(actor: any): Promise<void> {
   <title>${title}</title>
   <link rel="stylesheet" href="${cssHref}" />
 </head>
-<body class="mastery-npc-print">
+<body class="${bodyClass}">
 ${body}
 <script>
   window.addEventListener('load', function () {

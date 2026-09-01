@@ -2037,6 +2037,7 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/actor/character-print.hbs',
         'systems/mastery-system/templates/actor/character-print-compact.hbs',
         'systems/mastery-system/templates/actor/npc-print.hbs',
+        'systems/mastery-system/templates/actor/npc-print-compact.hbs',
         'systems/mastery-system/templates/actor/npc-sheet.hbs',
         'systems/mastery-system/templates/actor/summon-sheet.hbs',
         // Item sheets (only load existing templates)

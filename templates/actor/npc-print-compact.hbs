@@ -1,0 +1,26 @@
+{{!-- Compact NPC combat strips — precalculated attacks, one strip per phase. --}}
+
+{{#each strips}}
+<section class="npc-strip">
+  <header class="ncs-head">
+    <div class="ncs-id">
+      <strong class="ncs-name">{{title}}</strong>
+      <span class="ncs-meta">MR {{masteryRank}}{{#if creatureType}} · {{creatureType}}{{/if}}{{#if faction}} · {{faction}}{{/if}}</span>
+    </div>
+    <ul class="ncs-cores">
+      {{#each cores}}
+      <li><span>{{label}}</span><b>{{value}}</b></li>
+      {{/each}}
+    </ul>
+  </header>
+  {{#if hasAttacks}}
+  <ul class="ncs-attacks">
+    {{#each attacks}}
+    <li class="{{#if isSpell}}is-spell{{/if}}{{#if isSplit}} is-split{{/if}}">{{line}}</li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <p class="ncs-empty">Keine Angriffe hinterlegt.</p>
+  {{/if}}
+</section>
+{{/each}}
