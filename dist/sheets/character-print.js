@@ -16,20 +16,23 @@ import { SKILLS } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
-import { countArtifactActivationStones, artifactBindingNamesByAttr } from '../utils/artifact-stone-bound.js';
 import { isArtifactMechanicallyActive } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { specialApplicationLimit } from '../combat/special-application.js';
-import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, stonePowerSkipsFirstTier, stonePowerWaveCost, } from '../stones/stone-powers.js';
+import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
-import { getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
+import { colorlessStoneInitiativeCost } from '../stones/colorless-stones.js';
+import { getTemplate } from '../utils/powers/index.js';
+import { getEcho, getEchoCard, getLicensedEchoCardIds } from '../utils/echos/index.js';
 import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../utils/inventory-grid.js';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
+import { peekWeaponSets } from '../utils/weapon-sets.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
-import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
+import { deriveArtifactWeaponDamage, deriveBaseValueDisplay } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
@@ -55,6 +58,7 @@ const STONE_GROUPS = [
     { key: 'wits', label: 'Wits' },
 ];
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/character-print.hbs';
+const PRINT_TEMPLATE_COMPACT = 'systems/mastery-system/templates/actor/character-print-compact.hbs';
 const PRINT_CSS = 'systems/mastery-system/styles/character-print.css';
 const ATTR_ORDER = [
     'might',
@@ -238,6 +242,17 @@ function prettyPowerName(item, rank) {
  * damage dice) always reflects the power's current Stufe.
  */
 function powerEffectForRank(sys, level) {
+    const tid = String(sys?.templateId ?? '').trim();
+    if (tid) {
+        const tmpl = getTemplate(tid);
+        const catalogLevels = tmpl?.levels;
+        if (catalogLevels && typeof catalogLevels === 'object') {
+            const ckey = String(getPowerDefinitionRank(level, catalogLevels));
+            const catalogText = catalogLevels[ckey]?.effect?.text;
+            if (typeof catalogText === 'string' && catalogText.trim())
+                return catalogText;
+        }
+    }
     const levels = sys?.levels;
     if (levels && typeof levels === 'object' && !Array.isArray(levels)) {
         const key = String(getPowerDefinitionRank(level, levels));
@@ -445,23 +460,19 @@ function buildPrintEquipment(allItems) {
 export function buildCharacterPrintContext(actor, options = {}) {
     const system = actor?.system ?? {};
     const masteryRank = num(system?.mastery?.rank, 2);
-    // Stones bound into artifacts (blocked) — used to show real availability.
-    const bindingNamesByAttr = artifactBindingNamesByAttr(actor);
     // ── Abilities ─────────────────────────────────────────────────────────
     const abilities = ATTR_ORDER.map((key) => {
         const value = num(system?.attributes?.[key]?.value, 0);
         const stoneCapacity = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
-        const bound = countArtifactActivationStones(actor, key);
-        const stoneAvailable = Math.max(0, stoneCapacity - bound);
-        const blockedBy = bindingNamesByAttr[key] ?? [];
+        const stoneAvailable = Math.max(0, stoneCapacity);
         return {
             key,
             label: cap(key).toUpperCase(),
             value,
             stoneCapacity,
             stoneAvailable,
-            blocked: blockedBy.length > 0,
-            blockedBy: blockedBy.join(', '),
+            blocked: false,
+            blockedBy: '',
             slots: Array.from({ length: stoneAvailable }, (_, i) => i + 1),
             ladder: ABILITY_LADDER.map((n) => ({ n, filled: value >= n })),
             poolTiers: HEALTH_POOL_TIERS.map((t) => ({
@@ -473,8 +484,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
     // ── Stone Powers (per-attribute capacity overview) ────────────────────
     const stonePools = ATTR_ORDER.map((key) => {
         const max = num(system?.stonePools?.[key]?.max, Math.floor(num(system?.attributes?.[key]?.value, 0) / 8));
-        const bound = countArtifactActivationStones(actor, key);
-        return { key, label: cap(key).toUpperCase(), max, available: Math.max(0, max - bound) };
+        return { key, label: cap(key).toUpperCase(), max, available: Math.max(0, max) };
     });
     const attrVal = (k) => num(system?.attributes?.[k]?.value, 0);
     // ── Combat / defenses ─────────────────────────────────────────────────
@@ -936,8 +946,9 @@ export function buildCharacterPrintContext(actor, options = {}) {
     const supportByPowerId = new Map();
     for (const s of stoneStatus.supports ?? []) {
         if (s?.stonePowerId) {
-            supportByPowerId.set(String(s.stonePowerId), {
-                tier: num(s.value),
+            const powerId = String(s.stonePowerId);
+            supportByPowerId.set(powerId, {
+                tier: effectiveStoneSupportPrefillTier(powerId, num(s.value)),
                 source: String(s.source ?? ''),
             });
         }
@@ -951,13 +962,11 @@ export function buildCharacterPrintContext(actor, options = {}) {
             boostsByAttr.set(attr, arr);
         }
     }
-    // Free stones a pool can actually hold = capacity (max) − stones bound into
-    // artifacts. A pool reads 0 when the attribute is below 8 (max 0) and/or all
-    // its stones are locked into artifacts.
+    // Free stones a pool can actually hold = capacity. Attunement no longer
+    // reserves a Stone, so leftover activation flags never shrink the printout.
     const freeStonesForAttr = (attr) => {
         const poolMax = num(system?.stonePools?.[attr]?.max, Math.floor(attrVal(attr) / 8));
-        const bound = countArtifactActivationStones(actor, attr);
-        return Math.max(0, poolMax - bound);
+        return Math.max(0, poolMax);
     };
     const allStoneGroups = STONE_GROUPS.map(({ key, label }) => {
         const list = STONE_POWERS_BY_ATTRIBUTE[key] ?? [];
@@ -970,23 +979,24 @@ export function buildCharacterPrintContext(actor, options = {}) {
             freeStones,
             slots: Array.from({ length: freeStones }, (_, i) => i + 1),
             boosts: boostsByAttr.get(key) ?? [],
-            powers: list.map((p) => {
+            powers: orderPowersRampFirst(list, (p) => stonePowerSkipsFirstTier(String(p.id))).map((p) => {
                 const sup = supportByPowerId.get(String(p.id));
                 const supportTier = sup?.tier ?? 0;
-                // Ramp powers (e.g. Extra Attack) have a no-op Tier 1 step — their
-                // first usable effect starts at Tier 2 (2 stones), so hide the T1 box.
-                const isRamp = Array.isArray(p?.tiers) && p.tiers.length > 0 && p.tiers[0]?.label == null;
-                // Tier placement areas (T1=1, T2=2, T3=4). When an artifact Support
-                // pre-fills a tier, those boxes are shown already filled.
+                // T2-start powers have no Tier-1 slot — do not render an empty T1 box.
+                const isRamp = stonePowerSkipsFirstTier(String(p.id));
+                const firstPaid = firstEffectiveStonePowerTier(String(p.id));
+                // Tier placement areas (T1=1, T2=2, T3=4). Support gold-fills every
+                // published tier above the one the player must pay, up through the
+                // effective prefill (Crit + Focus I → T3 filled, T2 empty).
                 const tiers = [
                     { label: 'T1', tier: 1, count: 1 },
                     { label: 'T2', tier: 2, count: 2 },
                     { label: 'T3', tier: 3, count: 4 },
                 ].filter((g) => !(isRamp && g.tier === 1)).map((g) => ({
                     label: g.label,
-                    // Only the supported tier is pre-filled — the player still pays the
-                    // lower tiers themselves.
-                    boxes: Array.from({ length: g.count }, () => ({ filled: !!sup && g.tier === supportTier })),
+                    boxes: Array.from({ length: g.count }, () => ({
+                        filled: !!sup && g.tier > firstPaid && g.tier <= supportTier,
+                    })),
                 }));
                 return {
                     name: String(p?.name ?? ''),
@@ -1072,6 +1082,495 @@ function routed(path) {
     }
     return `${window.location.origin}/${path.replace(/^\//, '')}`;
 }
+function actorItemList(actor) {
+    if (!actor?.items)
+        return [];
+    if (typeof actor.items.values === 'function')
+        return Array.from(actor.items.values());
+    if (Array.isArray(actor.items))
+        return actor.items;
+    try {
+        return Array.from(actor.items);
+    }
+    catch {
+        return [];
+    }
+}
+function itemFlag(item, key) {
+    if (typeof item?.getFlag === 'function')
+        return item.getFlag('mastery-system', key);
+    return item?.flags?.['mastery-system']?.[key];
+}
+function compactOneLine(value, max = 108) {
+    const s = stripHtml(value);
+    if (!s)
+        return '';
+    if (s.length <= max)
+        return s;
+    return `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
+}
+/** Short play text without ellipsis — keep the existing compact mechanical lines. */
+function compactPlayText(value) {
+    return stripHtml(value);
+}
+function actorItemById(actor, id) {
+    if (!id)
+        return null;
+    const key = String(id);
+    if (typeof actor?.items?.get === 'function') {
+        const hit = actor.items.get(key);
+        if (hit)
+            return hit;
+    }
+    return actorItemList(actor).find((i) => String(i?.id) === key) ?? null;
+}
+/** True for printable set weapons (plain weapons + wieldable artifact weapons). */
+function isCompactSetWeaponItem(item) {
+    if (!item)
+        return false;
+    if (item.type === 'weapon') {
+        return !isLegacyUnarmedItem(item) && item.system?.virtualUnarmed !== true;
+    }
+    if (item.type !== 'artifact')
+        return false;
+    if (itemFlag(item, 'artifactActivated') === false)
+        return false;
+    const sys = item.system ?? {};
+    if (sys.artifactWeapon)
+        return true;
+    if (String(sys.artifactKind ?? '') === 'weapon')
+        return true;
+    if (String(sys.baseTypeKey ?? '').startsWith('weapon:'))
+        return true;
+    const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+    return deriveArtifactWeaponDamage(sys.baseProfile, level) != null;
+}
+function splitCompactTags(raw) {
+    if (raw == null)
+        return [];
+    if (Array.isArray(raw)) {
+        return raw.flatMap((entry) => splitCompactTags(entry));
+    }
+    if (typeof raw === 'object') {
+        const formatted = formatEffectReference({
+            specialId: String(raw.specialId ?? raw.key ?? ''),
+            value: raw.value,
+        });
+        return formatted ? [formatted] : [];
+    }
+    return String(raw)
+        .split(/[,·;/|]+/)
+        .map((s) => s.trim())
+        .filter((s) => s && s !== '—');
+}
+function extractRangedMetersFromTags(tags) {
+    for (const tag of tags) {
+        const m = tag.match(/^ranged\s*\(?\s*(\d+)\s*m\s*\)?$/i);
+        if (m)
+            return Number(m[1]);
+    }
+    return null;
+}
+function formatCompactWeaponPiece(item) {
+    const sys = item?.system ?? {};
+    const isArtifact = item?.type === 'artifact';
+    const name = String(item?.name ?? '')
+        .replace(/\s*-\s*Level.*$/i, '')
+        .trim() || '[CHECK]';
+    let damage = '';
+    let kindLabel = 'Melee';
+    let tags = [];
+    let specials = [];
+    if (isArtifact) {
+        const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+        const aw = sys.artifactWeapon ?? {};
+        const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
+        const focusDice = spellFocusDiceFromSystem(sys);
+        const isSpellFocus = artifactSystemHasSpellFocus(sys);
+        damage = isSpellFocus
+            ? `Spell Focus +${focusDice}d8`
+            : derived || String(aw.damage ?? '').trim() || String(sys.damage ?? '').trim();
+        const range = formatArtifactWeaponRangeDisplay(aw, sys.baseProfile);
+        kindLabel = range.kind === 'ranged' ? `Ranged ${range.label}` : 'Melee';
+        tags = [
+            ...splitCompactTags(aw.innateAbilities),
+            ...splitCompactTags(sys.freeTrait),
+        ].filter((t) => !/^ranged\b/i.test(t) && !/^artifact$/i.test(t));
+        tags.push('Artifact');
+        specials = splitCompactTags(aw.specials);
+    }
+    else {
+        damage = String(sys.damage ?? '').trim();
+        const innates = splitCompactTags(sys.innateAbilities);
+        const rangedMeters = extractRangedMetersFromTags(innates) ??
+            (sys.weaponType === 'ranged'
+                ? (() => {
+                    const m = String(sys.range ?? '').match(/(\d+)\s*m/i);
+                    return m ? Number(m[1]) : null;
+                })()
+                : null);
+        if (sys.weaponType === 'ranged' || rangedMeters != null) {
+            kindLabel = `Ranged ${rangedMeters != null ? rangedMeters : 24} m`;
+        }
+        else {
+            kindLabel = 'Melee';
+        }
+        tags = innates.filter((t) => !/^ranged\b/i.test(t));
+        specials = splitCompactTags(sys.specials);
+    }
+    const metaParts = [damage, kindLabel, ...tags].filter(Boolean);
+    return {
+        name,
+        meta: metaParts.join(' · '),
+        specials: specials.join(' · '),
+    };
+}
+/**
+ * Quick Play weapon-set tiles — only weapons in prepared Sets 1/2.
+ */
+function buildCompactWeaponSetTiles(actor) {
+    const state = peekWeaponSets(actor);
+    const tiles = [];
+    for (const index of [1, 2]) {
+        const hands = state.sets[index] || { mainhand: null, offhand: null };
+        const orderedIds = [];
+        for (const id of [hands.mainhand, hands.offhand]) {
+            if (!id)
+                continue;
+            const key = String(id);
+            if (!orderedIds.includes(key))
+                orderedIds.push(key);
+        }
+        const weapons = orderedIds
+            .map((id) => actorItemById(actor, id))
+            .filter((item) => isCompactSetWeaponItem(item));
+        if (weapons.length === 0)
+            continue;
+        const pieces = weapons.map((w) => formatCompactWeaponPiece(w));
+        tiles.push({
+            index,
+            active: state.active === index,
+            title: `SET ${index} — ${pieces.map((p) => p.name.toUpperCase()).join(' + ')}`,
+            meta: pieces[0]?.meta ?? '',
+            specials: pieces[0]?.specials ?? '',
+            lines: pieces.map((p) => ({ meta: p.meta, specials: p.specials })),
+        });
+    }
+    return tiles;
+}
+function missingMark(value, fallback) {
+    if (value == null)
+        return '[CHECK]';
+    const s = String(value).trim();
+    if (!s)
+        return fallback || '[CHECK]';
+    return s;
+}
+function compactStoneRows(attrKey) {
+    const list = STONE_POWERS_BY_ATTRIBUTE[attrKey] ?? [];
+    return list.map((power) => {
+        const tier = firstEffectiveStonePowerTier(power.id);
+        const cost = stonePowerWaveCost(tier);
+        const first = power.tiers?.[0];
+        return {
+            name: power.name,
+            tier,
+            cost,
+            costPips: Array.from({ length: cost }, (_, i) => i + 1),
+            effect: compactOneLine(first?.label || first?.description || power.description, 42),
+        };
+    });
+}
+function compactArtifactBases(sys, level) {
+    const rows = Array.isArray(sys?.baseValues) ? sys.baseValues : [];
+    const profile = String(sys?.baseProfile ?? '');
+    const out = [];
+    for (const bv of rows) {
+        if (!bv)
+            continue;
+        const type = String(bv.type ?? '');
+        if (type === 'weaponDamage')
+            continue;
+        const label = String(bv.label ?? '').trim();
+        const raw = bv.value;
+        let display = '';
+        if (raw != null && String(raw) !== '') {
+            const n = Number(raw);
+            if (Number.isFinite(n)) {
+                if (type === 'evade' || /evade/i.test(label))
+                    display = `+${n} Evade`;
+                else if (type === 'movement' || /move/i.test(label))
+                    display = `+${n} m`;
+                else if (type === 'bodyArmor' || type === 'headArmor' || type === 'shieldValue' || /armor/i.test(label)) {
+                    display = `+${n} Armor`;
+                }
+                else {
+                    display = String(raw);
+                }
+            }
+            else {
+                display = String(raw);
+            }
+        }
+        else {
+            display = deriveBaseValueDisplay(type, level, profile).display;
+        }
+        if (!display)
+            continue;
+        out.push(compactOneLine(display, 48));
+    }
+    return out;
+}
+const HEALTH_TRACK_PENALTY = {
+    bruised: '−10%',
+    injured: '−20%',
+    wounded: '−40%',
+    broken: '−50%',
+};
+function compactTrackBars(bars, names, skipNames = []) {
+    const skip = new Set(skipNames.map((n) => n.toLowerCase()));
+    return bars
+        .filter((b) => !skip.has(String(b?.name ?? '').toLowerCase()))
+        .map((b, i) => {
+        const max = num(b?.max);
+        const current = num(b?.current);
+        const name = String(b?.name ?? names[i] ?? `Bar ${i + 1}`);
+        const available = current > 0 ? current : max;
+        return {
+            name,
+            available,
+            max,
+            penalty: HEALTH_TRACK_PENALTY[name.toLowerCase()] ?? '',
+        };
+    });
+}
+function compactPhasingBoxes(items) {
+    let base = 0;
+    let bonus = 0;
+    let cap = 0;
+    for (const p of items) {
+        if (p?.type !== 'power')
+            continue;
+        const sys = p?.system ?? {};
+        const rank = num(sys?.level ?? sys?.rank, 1);
+        const tid = String(sys?.templateId ?? '').trim();
+        const tmpl = tid ? getTemplate(tid) : undefined;
+        const catalogRow = tmpl?.levels
+            ? tmpl.levels[String(getPowerDefinitionRank(rank, tmpl.levels))]
+            : null;
+        const bakedRow = sys?.levels?.[String(getPowerDefinitionRank(rank, sys.levels))];
+        const ph = catalogRow?.mechanics?.phasing ?? bakedRow?.mechanics?.phasing;
+        const start = num(ph?.combatStart?.charges);
+        if (start > 0)
+            base = Math.max(base, start);
+        const add = num(ph?.augment?.addCharges);
+        if (add > 0) {
+            bonus += add;
+            if (tid === 'ab-phasing') {
+                cap = rank >= 15 ? 4 : rank >= 8 ? 3 : rank >= 4 ? 2 : 0;
+            }
+        }
+    }
+    const max = cap > 0 ? cap : base + bonus;
+    if (max <= 0)
+        return [];
+    return Array.from({ length: max }, (_, i) => ({ n: i + 1 }));
+}
+/**
+ * One-page Quick Play context — same actor data as the full sheet.
+ */
+export function buildCharacterCompactPrintContext(actor) {
+    const system = actor?.system ?? {};
+    const masteryRank = num(system?.mastery?.rank);
+    const combat = system?.combat ?? {};
+    const allItems = actorItemList(actor);
+    const echoKey = String(system?.echo?.key ?? '').trim();
+    const echoDef = getEcho(echoKey);
+    const echoName = echoDef?.name || missingMark(system?.bio?.echo || echoKey);
+    const healthBars = compactTrackBars(Array.isArray(system?.health?.bars) ? system.health.bars : [], ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Broken'], ['Incapacitated']);
+    const stressFallback = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
+    const stressBars = compactTrackBars(Array.isArray(system?.stress?.bars) ? system.stress.bars : [], stressFallback);
+    const initMr = num(combat?.initiativeMasteryRank, masteryRank);
+    const initD8Mech = num(combat?.initiativeD8FromMechanics);
+    const initDiceCount = Math.max(0, (initMr > 0 ? initMr : masteryRank) + initD8Mech);
+    const initiative = initDiceCount > 0 ? `${initDiceCount}d8` : '[CHECK]';
+    const colorlessCost = colorlessStoneInitiativeCost(initMr > 0 ? initMr : masteryRank || 2);
+    const faithCurrent = num(system?.faithFractures?.current);
+    const faithMax = num(system?.faithFractures?.maximum, faithCurrent);
+    const tempHp = num(system?.health?.tempHP);
+    const minorExpressionTiles = (Array.isArray(system?.minorExpressions) ? system.minorExpressions : [])
+        .map((rawId) => {
+        const def = getMinorExpressionDefinition(String(rawId ?? '').trim());
+        if (!def)
+            return null;
+        const attrVal = num(system?.attributes?.[def.attribute]?.value);
+        return {
+            name: def.name,
+            phase: 'Minor Expression',
+            phaseClass: 'Minor',
+            attr: cap(def.attribute),
+            effect: compactPlayText(tierBodyForExpression(def, attrVal)),
+        };
+    })
+        .filter(Boolean);
+    const phasingBoxes = compactPhasingBoxes(allItems);
+    const attributeModules = ATTR_ORDER.map((key) => {
+        const value = num(system?.attributes?.[key]?.value);
+        const max = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
+        const current = num(system?.stonePools?.[key]?.current, max);
+        const ready = Math.max(0, Math.min(max, current));
+        return {
+            key,
+            label: cap(key),
+            value,
+            stoneMax: max,
+            stoneReady: ready,
+            hasStones: max > 0,
+            stones: Array.from({ length: max }, (_, i) => ({ ready: i < ready })),
+            powers: compactStoneRows(key),
+        };
+    });
+    const generalStones = {
+        key: 'generic',
+        label: 'General',
+        powers: compactStoneRows('generic'),
+    };
+    const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
+    const skills = [];
+    const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
+    for (const [key, raw] of Object.entries(skillMap)) {
+        const rating = num(raw);
+        if (rating <= 0)
+            continue;
+        const def = SKILLS[key];
+        const attrKey = def?.attributes?.[0];
+        const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
+        const boxes = buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1)
+            .map((b) => ({ size: b.size, state: b.state }));
+        skills.push({
+            name: def?.name || cap(key),
+            attr: attrKey ? cap(attrKey) : '[CHECK]',
+            pool: pool > 0 ? pool : '[CHECK]',
+            keep: masteryRank > 0 ? `k${masteryRank}` : '[CHECK]',
+            rating,
+            boxes,
+        });
+    }
+    skills.sort((a, b) => a.name.localeCompare(b.name));
+    const weaponSetTiles = buildCompactWeaponSetTiles(actor);
+    const powerItems = allItems.filter((i) => i?.type === 'power');
+    const powers = {
+        Active: [],
+        'Active Buff': [],
+        Reaction: [],
+        Passive: [],
+    };
+    for (const p of powerItems) {
+        const sys = p?.system ?? {};
+        const category = resolvePowerCategoryFromItem(p);
+        const rank = num(sys?.level ?? sys?.rank, 1);
+        const phase = powerPhaseLabel(category);
+        if (!phase || !powers[phase])
+            continue;
+        const slot = category === 'activeBuff' ? 'activeBuff' : category === 'reaction' ? 'reaction' : 'active';
+        const preview = buildPrintCombatPreview(actor, p, allItems, slot);
+        powers[phase].push({
+            phase,
+            phaseClass: phaseCssClass(phase),
+            name: prettyPowerName(p, rank).replace(/^(Passive|Active Buff|Reaction|Active|Movement):\s*/i, ''),
+            rank,
+            attack: preview?.showAttack && preview.attackLabel ? String(preview.attackLabel) : '',
+            damage: preview?.showDamage && preview.damage ? String(preview.damage) : '',
+            effect: compactPlayText(powerEffectForRank(sys, rank)),
+        });
+    }
+    const artifacts = [];
+    for (const a of allItems.filter((i) => i?.type === 'artifact')) {
+        if (itemFlag(a, 'artifactActivated') === false)
+            continue;
+        const sys = a?.system ?? {};
+        const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+        const isWeapon = sys.artifactKind === 'weapon' || String(sys.baseTypeKey ?? '').startsWith('weapon:');
+        let damage = '';
+        let kind = '';
+        if (isWeapon) {
+            const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
+            damage = derived || String(sys.artifactWeapon?.damage ?? '').trim();
+            const weapKind = resolveArtifactWeaponKind(sys.artifactWeapon, sys.baseProfile);
+            kind = weapKind === 'ranged' ? 'Ranged' : 'Melee';
+        }
+        else {
+            const slot = String(sys.gearSlot || sys.slot || '').trim();
+            if (slot)
+                kind = cap(slot);
+        }
+        const bases = compactArtifactBases(sys, level);
+        const rows = visibleAbilityRows(Array.isArray(sys.levelProgression) ? sys.levelProgression : [], level);
+        const artPowers = rows.map((row) => ({
+            name: String(row?.name ?? '').trim() || '[CHECK]',
+            type: String(row?.type ?? '').trim(),
+            effect: compactPlayText(row?.effect),
+        }));
+        artifacts.push({
+            name: String(a?.name ?? '').replace(/\s*-\s*Level.*$/i, '').trim() || missingMark(a?.name),
+            level,
+            kind,
+            damage,
+            trait: String(sys.freeTrait ?? '').trim(),
+            bases,
+            powers: artPowers,
+        });
+    }
+    const powerGroups = ['Active', 'Active Buff', 'Passive', 'Reaction']
+        .map((phase) => ({ phase, items: powers[phase] ?? [] }))
+        .filter((g) => g.items.length > 0);
+    const powerColumns = [];
+    const tallGroups = powerGroups.filter((g) => g.items.length >= 2);
+    const shortGroups = powerGroups.filter((g) => g.items.length < 2);
+    for (const group of tallGroups)
+        powerColumns.push({ groups: [group] });
+    for (let i = 0; i < shortGroups.length; i += 2) {
+        powerColumns.push({ groups: shortGroups.slice(i, i + 2) });
+    }
+    const rawImg = String(actor?.img ?? '').trim();
+    const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
+    const portrait = absImg(portraitSrc);
+    return {
+        name: missingMark(actor?.name, '[CHECK]'),
+        echoName,
+        masteryRank: masteryRank > 0 ? masteryRank : '[CHECK]',
+        portrait,
+        hasPortrait: !!portrait,
+        movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '[CHECK]',
+        evade: combat?.evadeTotal != null ? num(combat.evadeTotal) : '[CHECK]',
+        armor: combat?.armorTotal != null ? num(combat.armorTotal) : '[CHECK]',
+        initiative,
+        faithFractures: `${faithMax > 0 || faithCurrent > 0 ? faithCurrent : 0} / ${faithMax > 0 ? faithMax : 8}`,
+        hasFaithFractures: faithMax > 0 || faithCurrent > 0,
+        tempHp,
+        colorlessCost: colorlessCost > 0 ? colorlessCost : 8,
+        colorlessBoxes: Array.from({ length: 4 }, (_, i) => i + 1),
+        phasingBoxes,
+        hasPhasing: phasingBoxes.length > 0,
+        minorExpressionTiles,
+        hasMinorExpressions: minorExpressionTiles.length > 0,
+        healthBars,
+        hasHealth: healthBars.length > 0,
+        stressBars,
+        hasStress: stressBars.length > 0,
+        attributeModules,
+        generalStones,
+        skills,
+        hasSkills: skills.length > 0,
+        weaponSetTiles,
+        hasWeaponSets: weaponSetTiles.length > 0,
+        powerGroups,
+        powerColumns,
+        hasPowerArea: powerGroups.length > 0,
+        artifacts,
+        hasArtifacts: artifacts.length > 0,
+    };
+}
 /**
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
@@ -1081,10 +1580,14 @@ export async function openCharacterPrintSheet(actor, options = {}) {
         ui?.notifications?.warn('Druck-Export ist nur für Charaktere verfügbar.');
         return;
     }
+    const compact = options.layout === 'compact';
     let body = '';
     try {
-        const context = buildCharacterPrintContext(actor, options);
-        body = await foundry.applications.handlebars.renderTemplate(PRINT_TEMPLATE, context);
+        const context = compact
+            ? buildCharacterCompactPrintContext(actor)
+            : buildCharacterPrintContext(actor, options);
+        const template = compact ? PRINT_TEMPLATE_COMPACT : PRINT_TEMPLATE;
+        body = await foundry.applications.handlebars.renderTemplate(template, context);
     }
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -1102,6 +1605,7 @@ export async function openCharacterPrintSheet(actor, options = {}) {
     const cssVersion = String(game?.system?.version ?? Date.now());
     const cssHref = `${routed(PRINT_CSS)}?v=${encodeURIComponent(cssVersion)}`;
     const title = String(actor?.name ?? 'Character');
+    const bodyClass = compact ? 'mastery-print is-compact' : 'mastery-print';
     const doc = `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -1109,7 +1613,7 @@ export async function openCharacterPrintSheet(actor, options = {}) {
   <title>${title}</title>
   <link rel="stylesheet" href="${cssHref}" />
 </head>
-<body class="mastery-print">
+<body class="${bodyClass}">
 ${body}
 <script>
   window.addEventListener('load', function () {

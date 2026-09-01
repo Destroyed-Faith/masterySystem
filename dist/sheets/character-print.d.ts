@@ -19,11 +19,17 @@ export interface CharacterPrintOptions {
      * battle page (same universal options as radial / Reaction Window).
      */
     includeStandardManeuvers?: boolean;
+    /** One-page Quick Play view of the same character data. */
+    layout?: 'full' | 'compact';
 }
 /**
  * Build the flat data object consumed by `character-print.hbs`.
  */
 export declare function buildCharacterPrintContext(actor: any, options?: CharacterPrintOptions): Record<string, unknown>;
+/**
+ * One-page Quick Play context — same actor data as the full sheet.
+ */
+export declare function buildCharacterCompactPrintContext(actor: any): Record<string, unknown>;
 /**
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).

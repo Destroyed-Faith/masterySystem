@@ -2345,6 +2345,38 @@ body.mastery-print.is-compact {
 .qp-sk-box.is-spent { background: #4a453c; color: #8a8478; }
 .qp-sk-box.is-locked { background: transparent; border-color: #5a544c; }
 
+.qp-sets {
+  margin-bottom: 1.2mm;
+}
+
+.qp-set-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8mm 1.4mm;
+}
+
+.qp-set-tiles .qp-tile {
+  flex: 1 1 42mm;
+  min-width: 36mm;
+}
+
+.qp-tile-Set {
+  border-left-color: #8d6e63;
+}
+
+.qp-set-tiles .qp-tile.is-active {
+  border-color: #a1887f;
+}
+
+.qp-set-meta,
+.qp-set-specials {
+  margin: 0;
+}
+
+.qp-set-specials {
+  color: #b7aea0;
+}
+
 .qp-powers {
   margin-bottom: 1.1mm;
 }

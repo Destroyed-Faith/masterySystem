@@ -73,6 +73,20 @@ function alarisActor() {
     },
     items: [
       {
+        id: 'longbow-1',
+        name: 'Longbow',
+        type: 'weapon',
+        system: {
+          weaponType: 'ranged',
+          damage: '2d8',
+          range: '10m',
+          hands: 2,
+          innateAbilities: ['Ranged (32 m)', 'Set'],
+          specials: ['Penetration(2), Expose(4)'],
+          equipped: true,
+        },
+      },
+      {
         name: 'Passive: Evade',
         type: 'power',
         system: { category: 'passive', rank: 4, level: 4, effect: 'Gain **+8 Evade**.' },
@@ -129,6 +143,7 @@ function alarisActor() {
         },
       },
       {
+        id: 'moonlight-1',
         name: 'Moonlight Greatsword - Level 1-1',
         type: 'artifact',
         system: {
@@ -190,6 +205,18 @@ function alarisActor() {
         flags: { 'mastery-system': { artifactActivated: true } },
       },
     ],
+    flags: {
+      'mastery-system': {
+        weaponSets: {
+          schemaVersion: 1,
+          active: 1,
+          sets: {
+            1: { mainhand: 'longbow-1', offhand: 'longbow-1' },
+            2: { mainhand: 'moonlight-1', offhand: 'moonlight-1' },
+          },
+        },
+      },
+    },
   };
 }
 
@@ -265,6 +292,26 @@ describe('Quick Play character print', () => {
       'locked',
     ]);
     expect(ctx.skills.every((s: any) => s.boxes.length === 4)).toBe(true);
+  });
+
+  it('lists prepared weapon Sets between Skills and Powers style tiles', () => {
+    const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
+    expect(ctx.hasWeaponSets).toBe(true);
+    expect(ctx.weaponSetTiles).toHaveLength(2);
+    expect(ctx.weaponSetTiles[0]).toMatchObject({
+      index: 1,
+      active: true,
+      title: 'SET 1 — LONGBOW',
+      meta: '2d8 · Ranged 32 m · Set',
+      specials: 'Penetration(2) · Expose(4)',
+    });
+    expect(ctx.weaponSetTiles[1]).toMatchObject({
+      index: 2,
+      active: false,
+      title: 'SET 2 — MOONLIGHT GREATSWORD',
+      meta: '5d8 · Melee · Finesse · Artifact',
+      specials: '',
+    });
   });
 
   it('keeps Artifact powers on the Artifact, not in the general Power list', () => {

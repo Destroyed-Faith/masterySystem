@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.441] - 2026-09-01
+
+### Added
+
+- **Quick Play sheet:** Prepared weapon Sets sit between Skills and Powers as compact tiles (damage, range/melee, traits, specials) — weapons only for now.
+
 ## [0.9.440] - 2026-09-01
 
 ### Fixed

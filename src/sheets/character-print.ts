@@ -43,6 +43,7 @@ import {
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
+import { peekWeaponSets, type WeaponSetIndex } from '../utils/weapon-sets.js';
 import {
   formatArtifactWeaponRangeDisplay,
   resolveArtifactWeaponKind,
@@ -1170,6 +1171,166 @@ function compactPlayText(value: unknown): string {
   return stripHtml(value);
 }
 
+function actorItemById(actor: any, id: string | null | undefined): any | null {
+  if (!id) return null;
+  const key = String(id);
+  if (typeof actor?.items?.get === 'function') {
+    const hit = actor.items.get(key);
+    if (hit) return hit;
+  }
+  return actorItemList(actor).find((i: any) => String(i?.id) === key) ?? null;
+}
+
+/** True for printable set weapons (plain weapons + wieldable artifact weapons). */
+function isCompactSetWeaponItem(item: any): boolean {
+  if (!item) return false;
+  if (item.type === 'weapon') {
+    return !isLegacyUnarmedItem(item) && item.system?.virtualUnarmed !== true;
+  }
+  if (item.type !== 'artifact') return false;
+  if (itemFlag(item, 'artifactActivated') === false) return false;
+  const sys = item.system ?? {};
+  if (sys.artifactWeapon) return true;
+  if (String(sys.artifactKind ?? '') === 'weapon') return true;
+  if (String(sys.baseTypeKey ?? '').startsWith('weapon:')) return true;
+  const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+  return deriveArtifactWeaponDamage(sys.baseProfile, level) != null;
+}
+
+function splitCompactTags(raw: unknown): string[] {
+  if (raw == null) return [];
+  if (Array.isArray(raw)) {
+    return raw.flatMap((entry) => splitCompactTags(entry));
+  }
+  if (typeof raw === 'object') {
+    const formatted = formatEffectReference({
+      specialId: String((raw as any).specialId ?? (raw as any).key ?? ''),
+      value: (raw as any).value,
+    });
+    return formatted ? [formatted] : [];
+  }
+  return String(raw)
+    .split(/[,·;/|]+/)
+    .map((s) => s.trim())
+    .filter((s) => s && s !== '—');
+}
+
+function extractRangedMetersFromTags(tags: string[]): number | null {
+  for (const tag of tags) {
+    const m = tag.match(/^ranged\s*\(?\s*(\d+)\s*m\s*\)?$/i);
+    if (m) return Number(m[1]);
+  }
+  return null;
+}
+
+function formatCompactWeaponPiece(item: any): {
+  name: string;
+  meta: string;
+  specials: string;
+} {
+  const sys = item?.system ?? {};
+  const isArtifact = item?.type === 'artifact';
+  const name = String(item?.name ?? '')
+    .replace(/\s*-\s*Level.*$/i, '')
+    .trim() || '[CHECK]';
+
+  let damage = '';
+  let kindLabel = 'Melee';
+  let tags: string[] = [];
+  let specials: string[] = [];
+
+  if (isArtifact) {
+    const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
+    const aw = sys.artifactWeapon ?? {};
+    const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
+    const focusDice = spellFocusDiceFromSystem(sys);
+    const isSpellFocus = artifactSystemHasSpellFocus(sys);
+    damage = isSpellFocus
+      ? `Spell Focus +${focusDice}d8`
+      : derived || String(aw.damage ?? '').trim() || String(sys.damage ?? '').trim();
+    const range = formatArtifactWeaponRangeDisplay(aw, sys.baseProfile);
+    kindLabel = range.kind === 'ranged' ? `Ranged ${range.label}` : 'Melee';
+    tags = [
+      ...splitCompactTags(aw.innateAbilities),
+      ...splitCompactTags(sys.freeTrait),
+    ].filter((t) => !/^ranged\b/i.test(t) && !/^artifact$/i.test(t));
+    tags.push('Artifact');
+    specials = splitCompactTags(aw.specials);
+  } else {
+    damage = String(sys.damage ?? '').trim();
+    const innates = splitCompactTags(sys.innateAbilities);
+    const rangedMeters =
+      extractRangedMetersFromTags(innates) ??
+      (sys.weaponType === 'ranged'
+        ? (() => {
+            const m = String(sys.range ?? '').match(/(\d+)\s*m/i);
+            return m ? Number(m[1]) : null;
+          })()
+        : null);
+    if (sys.weaponType === 'ranged' || rangedMeters != null) {
+      kindLabel = `Ranged ${rangedMeters != null ? rangedMeters : 24} m`;
+    } else {
+      kindLabel = 'Melee';
+    }
+    tags = innates.filter((t) => !/^ranged\b/i.test(t));
+    specials = splitCompactTags(sys.specials);
+  }
+
+  const metaParts = [damage, kindLabel, ...tags].filter(Boolean);
+  return {
+    name,
+    meta: metaParts.join(' · '),
+    specials: specials.join(' · '),
+  };
+}
+
+/**
+ * Quick Play weapon-set tiles — only weapons in prepared Sets 1/2.
+ */
+function buildCompactWeaponSetTiles(actor: any): {
+  index: WeaponSetIndex;
+  active: boolean;
+  title: string;
+  meta: string;
+  specials: string;
+  lines: { meta: string; specials: string }[];
+}[] {
+  const state = peekWeaponSets(actor);
+  const tiles: {
+    index: WeaponSetIndex;
+    active: boolean;
+    title: string;
+    meta: string;
+    specials: string;
+    lines: { meta: string; specials: string }[];
+  }[] = [];
+
+  for (const index of [1, 2] as WeaponSetIndex[]) {
+    const hands = state.sets[index] || { mainhand: null, offhand: null };
+    const orderedIds: string[] = [];
+    for (const id of [hands.mainhand, hands.offhand]) {
+      if (!id) continue;
+      const key = String(id);
+      if (!orderedIds.includes(key)) orderedIds.push(key);
+    }
+    const weapons = orderedIds
+      .map((id) => actorItemById(actor, id))
+      .filter((item) => isCompactSetWeaponItem(item));
+    if (weapons.length === 0) continue;
+
+    const pieces = weapons.map((w) => formatCompactWeaponPiece(w));
+    tiles.push({
+      index,
+      active: state.active === index,
+      title: `SET ${index} — ${pieces.map((p) => p.name.toUpperCase()).join(' + ')}`,
+      meta: pieces[0]?.meta ?? '',
+      specials: pieces[0]?.specials ?? '',
+      lines: pieces.map((p) => ({ meta: p.meta, specials: p.specials })),
+    });
+  }
+  return tiles;
+}
+
 function missingMark(value: unknown, fallback?: string): string {
   if (value == null) return '[CHECK]';
   const s = String(value).trim();
@@ -1387,6 +1548,8 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
   }
   skills.sort((a, b) => a.name.localeCompare(b.name));
 
+  const weaponSetTiles = buildCompactWeaponSetTiles(actor);
+
   const powerItems = allItems.filter((i: any) => i?.type === 'power');
   const powers: Record<
     string,
@@ -1511,6 +1674,8 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     generalStones,
     skills,
     hasSkills: skills.length > 0,
+    weaponSetTiles,
+    hasWeaponSets: weaponSetTiles.length > 0,
     powerGroups,
     powerColumns,
     hasPowerArea: powerGroups.length > 0,

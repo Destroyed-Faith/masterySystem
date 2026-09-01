@@ -142,6 +142,25 @@
   </section>
   {{/if}}
 
+  {{#if hasWeaponSets}}
+  <section class="qp-block qp-sets">
+    <h2>Sets</h2>
+    <div class="qp-tiles qp-set-tiles">
+      {{#each weaponSetTiles}}
+      <article class="qp-tile qp-tile-Set{{#if active}} is-active{{/if}}">
+        <header>
+          <strong>{{title}}</strong>
+        </header>
+        {{#each lines}}
+        {{#if meta}}<p class="qp-set-meta">{{meta}}</p>{{/if}}
+        {{#if specials}}<p class="qp-set-specials">{{specials}}</p>{{/if}}
+        {{/each}}
+      </article>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
+
   {{#if hasPowerArea}}
   <section class="qp-block qp-powers">
     <h2>Powers</h2>
