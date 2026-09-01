@@ -10,10 +10,24 @@
       <p class="qp-faith">Faith Fractures <b>{{faithFractures}}</b></p>
       {{/if}}
       <div class="qp-cores">
-        <div class="qp-core"><span>Move</span><b>{{movement}}</b></div>
-        <div class="qp-core"><span>Init</span><b>{{initiative}}</b></div>
-        <div class="qp-core"><span>Evade</span><b>{{evade}}</b></div>
-        <div class="qp-core"><span>Armor</span><b>{{armor}}</b></div>
+        <div class="qp-core qp-core-narrow">
+          <span>Move</span>
+          <b>{{movement}}</b>
+        </div>
+        <div class="qp-core qp-core-wide">
+          <span>Evade</span>
+          <b>{{evade}}</b>
+          {{#if hasEvadeSources}}<p class="qp-core-sources">{{evadeSources}}</p>{{/if}}
+        </div>
+        <div class="qp-core qp-core-narrow">
+          <span>Init</span>
+          <b>{{initiative}}</b>
+        </div>
+        <div class="qp-core qp-core-wide">
+          <span>Armor</span>
+          <b>{{armor}}</b>
+          {{#if hasArmorSources}}<p class="qp-core-sources">{{armorSources}}</p>{{/if}}
+        </div>
       </div>
     </div>
     <div class="qp-tracks">
@@ -86,6 +100,7 @@
             <span class="qp-sp-name">{{name}}</span>
             <span class="qp-sp-tier">T{{tier}} · {{#each costPips}}<i class="qp-cost"></i>{{/each}}</span>
             <span class="qp-sp-fx">{{effect}}</span>
+            {{#if supported}}<span class="qp-sp-support">{{supportSource}} · Support T{{supportTier}}</span>{{/if}}
           </p>
           {{/each}}
         </div>
@@ -101,6 +116,7 @@
             <span class="qp-sp-name">{{name}}</span>
             <span class="qp-sp-tier">T{{tier}} · {{#each costPips}}<i class="qp-cost"></i>{{/each}}</span>
             <span class="qp-sp-fx">{{effect}}</span>
+            {{#if supported}}<span class="qp-sp-support">{{supportSource}} · Support T{{supportTier}}</span>{{/if}}
           </p>
           {{/each}}
         </div>
@@ -175,6 +191,7 @@
                 <strong>{{name}}</strong>
                 <span>{{#unless hideRank}}{{phase}} · PL {{rank}}{{else}}{{phase}}{{/unless}}</span>
               </header>
+              {{#if source}}<p class="qp-power-source">{{source}}</p>{{/if}}
               {{#if attack}}<p>Attack: {{attack}}</p>{{/if}}
               {{#if damage}}<p>Damage: {{damage}}</p>{{/if}}
               {{#each damageLines}}<p>Damage: {{this}}</p>{{/each}}
@@ -185,30 +202,6 @@
         </div>
         {{/each}}
       </div>
-      {{/each}}
-    </div>
-  </section>
-  {{/if}}
-
-  {{#if hasArtifacts}}
-  <section class="qp-block">
-    <h2>Artifacts</h2>
-    <div class="qp-arts">
-      {{#each artifacts}}
-      <article class="qp-art">
-        <header>
-          <strong>{{name}}</strong>
-          <span>L{{level}}{{#if kind}} · {{kind}}{{/if}}{{#if damage}} · {{damage}}{{/if}}{{#if trait}} · {{trait}}{{/if}}</span>
-        </header>
-        {{#each bases}}<p class="qp-art-base">{{this}}</p>{{/each}}
-        {{#if powers.length}}
-        <div class="qp-art-powers">
-          {{#each powers}}
-          <p><strong>{{name}}</strong>{{#if type}} <em>{{type}}</em>{{/if}}{{#if effect}} — {{effect}}{{/if}}</p>
-          {{/each}}
-        </div>
-        {{/if}}
-      </article>
       {{/each}}
     </div>
   </section>

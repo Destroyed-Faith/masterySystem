@@ -13,6 +13,8 @@
  * "may be used once per round".
  */
 
+import { calculateBaseEvade } from '../utils/calculations.js';
+import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { SKILLS } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
@@ -50,7 +52,7 @@ import {
   artifactSystemHasSpellFocus,
   spellFocusDiceFromSystem,
 } from '../utils/artifact-rules.js';
-import { deriveArtifactWeaponDamage, deriveBaseValueDisplay } from '../utils/artifact-base-derive.js';
+import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, type BattlePrintSlot, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
@@ -1364,53 +1366,117 @@ function missingMark(value: unknown, fallback?: string): string {
   return s;
 }
 
-function compactStoneRows(attrKey: 'generic' | (typeof ATTR_ORDER)[number]) {
+function compactArtifactName(name: unknown): string {
+  return String(name ?? '')
+    .replace(/\s*-\s*Level.*$/i, '')
+    .trim();
+}
+
+/** Map an artifact level-progression type onto a Quick Play power phase. */
+function compactPhaseForArtifactRow(type: string): string | null {
+  const t = String(type ?? '')
+    .trim()
+    .toLowerCase();
+  if (!t) return 'Active';
+  if (/stone|support/.test(t) || t === 'ultimate') return null;
+  if (t.includes('passive')) return 'Passive';
+  if (t.includes('buff')) return 'Active Buff';
+  if (t.includes('reaction')) return 'Reaction';
+  if (t.includes('movement')) return null;
+  return 'Active';
+}
+
+type CompactDefenseRow = {
+  label?: string;
+  detail?: string;
+  value?: number | null;
+  display?: string;
+};
+
+/**
+ * Compact source line for Evade / Armor from live breakdown rows.
+ * Skips empty / zero / "—" rows; renames MR base rows to "Base N".
+ */
+export function formatCompactDefenseSources(rows: CompactDefenseRow[] | null | undefined): string {
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const parts: string[] = [];
+  for (const row of rows) {
+    const display = String(row?.display ?? '').trim();
+    if (!display || display === '—') continue;
+    const rawVal = row?.value;
+    const n =
+      typeof rawVal === 'number' && Number.isFinite(rawVal)
+        ? rawVal
+        : Number(String(display).replace(/^[+]*/, ''));
+    if (!Number.isFinite(n) || n === 0) continue;
+    const label = String(row?.label ?? '').trim();
+    const isBase = /^(MR×4 base|Mastery Rank|Base)$/i.test(label);
+    if (isBase) {
+      parts.push(`Base ${Math.abs(n)}`);
+      continue;
+    }
+    const name = compactArtifactName(label) || label;
+    parts.push(`${name} ${n > 0 ? `+${n}` : String(n)}`);
+  }
+  return parts.join(' · ');
+}
+
+/** Prefer live combat breakdown rows; otherwise synthesize Base + artifact contribs. */
+function buildCompactDefenseSources(
+  kind: 'evade' | 'armor',
+  combat: any,
+  actor: any,
+  masteryRank: number,
+): string {
+  const live =
+    kind === 'evade'
+      ? formatCompactDefenseSources(combat?.evadeBreakdownRows)
+      : formatCompactDefenseSources(combat?.armorBreakdownRows);
+  if (live) return live;
+
+  const parts: string[] = [];
+  if (kind === 'evade') {
+    const base = calculateBaseEvade(masteryRank > 0 ? masteryRank : 0);
+    if (base > 0) parts.push(`Base ${base}`);
+    const bv = buildArtifactBaseValueBreakdown(actor);
+    for (const row of bv.rows.evade) {
+      if (!row?.value) continue;
+      const name = compactArtifactName(row.source) || 'Artifact';
+      parts.push(`${name} ${row.value > 0 ? `+${row.value}` : String(row.value)}`);
+    }
+  } else {
+    if (masteryRank > 0) parts.push(`Base ${masteryRank}`);
+    const bv = buildArtifactBaseValueBreakdown(actor);
+    for (const row of [...bv.rows.armor, ...bv.rows.headArmor, ...bv.rows.minorArmor]) {
+      if (!row?.value) continue;
+      const name = compactArtifactName(row.source) || 'Artifact';
+      parts.push(`${name} ${row.value > 0 ? `+${row.value}` : String(row.value)}`);
+    }
+  }
+  return parts.join(' · ');
+}
+
+function compactStoneRows(
+  attrKey: 'generic' | (typeof ATTR_ORDER)[number],
+  supportByPowerId?: Map<string, { tier: number; source: string }>,
+) {
   const list = STONE_POWERS_BY_ATTRIBUTE[attrKey] ?? [];
   return list.map((power) => {
     const tier = firstEffectiveStonePowerTier(power.id);
     const cost = stonePowerWaveCost(tier);
     const first = power.tiers?.[0];
+    const sup = supportByPowerId?.get(String(power.id));
     return {
       name: power.name,
       tier,
       cost,
       costPips: Array.from({ length: cost }, (_, i) => i + 1),
       effect: compactOneLine(first?.label || first?.description || power.description, 42),
+      supported: !!sup,
+      supportTier: sup?.tier ?? 0,
+      supportSource: sup ? compactArtifactName(sup.source) : '',
     };
   });
-}
-
-function compactArtifactBases(sys: any, level: number): string[] {
-  const rows = Array.isArray(sys?.baseValues) ? sys.baseValues : [];
-  const profile = String(sys?.baseProfile ?? '');
-  const out: string[] = [];
-  for (const bv of rows) {
-    if (!bv) continue;
-    const type = String(bv.type ?? '');
-    if (type === 'weaponDamage') continue;
-    const label = String(bv.label ?? '').trim();
-    const raw = bv.value;
-    let display = '';
-    if (raw != null && String(raw) !== '') {
-      const n = Number(raw);
-      if (Number.isFinite(n)) {
-        if (type === 'evade' || /evade/i.test(label)) display = `+${n} Evade`;
-        else if (type === 'movement' || /move/i.test(label)) display = `+${n} m`;
-        else if (type === 'bodyArmor' || type === 'headArmor' || type === 'shieldValue' || /armor/i.test(label)) {
-          display = `+${n} Armor`;
-        } else {
-          display = String(raw);
-        }
-      } else {
-        display = String(raw);
-      }
-    } else {
-      display = deriveBaseValueDisplay(type as any, level, profile).display;
-    }
-    if (!display) continue;
-    out.push(compactOneLine(display, 48));
-  }
-  return out;
 }
 
 const HEALTH_TRACK_PENALTY: Record<string, string> = {
@@ -1576,6 +1642,17 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
 
   const phasingBoxes = compactPhasingBoxes(allItems);
 
+  const stoneStatus = getArtifactStoneFunctionStatus(actor);
+  const supportByPowerId = new Map<string, { tier: number; source: string }>();
+  for (const s of stoneStatus.supports ?? []) {
+    if (!s?.stonePowerId) continue;
+    const powerId = String(s.stonePowerId);
+    supportByPowerId.set(powerId, {
+      tier: effectiveStoneSupportPrefillTier(powerId, num(s.value)),
+      source: String(s.source ?? ''),
+    });
+  }
+
   const attributeModules = ATTR_ORDER.map((key) => {
     const value = num(system?.attributes?.[key]?.value);
     const max = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
@@ -1589,14 +1666,14 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
       stoneReady: ready,
       hasStones: max > 0,
       stones: Array.from({ length: max }, (_, i) => ({ ready: i < ready })),
-      powers: compactStoneRows(key),
+      powers: compactStoneRows(key, supportByPowerId),
     };
   });
 
   const generalStones = {
     key: 'generic',
     label: 'General',
-    powers: compactStoneRows('generic'),
+    powers: compactStoneRows('generic', supportByPowerId),
   };
 
   const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
@@ -1643,6 +1720,7 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
       damageLines: string[];
       effect: string;
       hideRank?: boolean;
+      source?: string;
     }[]
   > = {
     Active: [],
@@ -1675,58 +1753,46 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     });
   }
 
-  const artifacts: {
-    name: string;
-    level: number;
-    kind: string;
-    damage: string;
-    trait: string;
-    bases: string[];
-    powers: { name: string; type: string; effect: string }[];
-  }[] = [];
-
+  // Artifact-granted powers fold into POWERS with a source label — no separate
+  // Artifacts inventory block on Quick Play.
   for (const a of allItems.filter((i: any) => i?.type === 'artifact')) {
     if (itemFlag(a, 'artifactActivated') === false) continue;
     const sys = a?.system ?? {};
     const level = Math.max(1, Math.min(10, num(sys.currentLevel) || num(sys.level) || 1));
-    const isWeapon =
-      sys.artifactKind === 'weapon' || String(sys.baseTypeKey ?? '').startsWith('weapon:');
-    let damage = '';
-    let kind = '';
-    if (isWeapon) {
-      const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
-      damage = derived || String(sys.artifactWeapon?.damage ?? '').trim();
-      const weapKind = resolveArtifactWeaponKind(sys.artifactWeapon, sys.baseProfile);
-      kind = weapKind === 'ranged' ? 'Ranged' : 'Melee';
-    } else {
-      const slot = String(sys.gearSlot || sys.slot || '').trim();
-      if (slot) kind = cap(slot);
-    }
-    const bases = compactArtifactBases(sys, level);
+    const source = compactArtifactName(a?.name) || missingMark(a?.name);
     const rows = visibleAbilityRows(
       Array.isArray(sys.levelProgression) ? sys.levelProgression : [],
       level,
     );
-    const artPowers = rows.map((row) => ({
-      name: String(row?.name ?? '').trim() || '[CHECK]',
-      type: String(row?.type ?? '').trim(),
-      effect: compactPlayText(row?.effect),
-    }));
-    artifacts.push({
-      name: String(a?.name ?? '').replace(/\s*-\s*Level.*$/i, '').trim() || missingMark(a?.name),
-      level,
-      kind,
-      damage,
-      trait: String(sys.freeTrait ?? '').trim(),
-      bases,
-      powers: artPowers,
-    });
+    for (const row of rows) {
+      const type = String(row?.type ?? '').trim();
+      const phase = compactPhaseForArtifactRow(type);
+      if (!phase || !powers[phase]) continue;
+      const slot: BattlePrintSlot =
+        phase === 'Active Buff' ? 'activeBuff' : phase === 'Reaction' ? 'reaction' : 'active';
+      const preview = buildPrintCombatPreviewForArtifactRow(actor, row, allItems, slot);
+      powers[phase]!.push({
+        phase,
+        phaseClass: phaseCssClass(phase),
+        name: String(row?.name ?? '').trim() || '[CHECK]',
+        rank: 1,
+        hideRank: true,
+        source,
+        attack: preview?.showAttack && preview.attackLabel ? String(preview.attackLabel) : '',
+        damage: preview?.showDamage && preview.damage ? String(preview.damage) : '',
+        damageLines: [],
+        effect: compactPlayText(row?.effect),
+      });
+    }
   }
 
   const powerGroups = (['Active', 'Active Buff', 'Passive', 'Reaction'] as const)
     .map((phase) => ({ phase, items: powers[phase] ?? [] }))
     .filter((g) => g.items.length > 0);
   const powerColumns = packCompactPowerColumns(powerGroups);
+
+  const evadeSources = buildCompactDefenseSources('evade', combat, actor, masteryRank);
+  const armorSources = buildCompactDefenseSources('armor', combat, actor, masteryRank);
 
   const rawImg = String(actor?.img ?? '').trim();
   const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
@@ -1741,6 +1807,10 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '[CHECK]',
     evade: combat?.evadeTotal != null ? num(combat.evadeTotal) : '[CHECK]',
     armor: combat?.armorTotal != null ? num(combat.armorTotal) : '[CHECK]',
+    evadeSources,
+    armorSources,
+    hasEvadeSources: !!evadeSources,
+    hasArmorSources: !!armorSources,
     initiative,
     faithFractures: `${faithMax > 0 || faithCurrent > 0 ? faithCurrent : 0} / ${faithMax > 0 ? faithMax : 8}`,
     hasFaithFractures: faithMax > 0 || faithCurrent > 0,
@@ -1764,8 +1834,6 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     powerGroups,
     powerColumns,
     hasPowerArea: powerGroups.length > 0,
-    artifacts,
-    hasArtifacts: artifacts.length > 0,
   };
 }
 

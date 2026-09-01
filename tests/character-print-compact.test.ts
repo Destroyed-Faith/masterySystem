@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 import {
   buildCharacterCompactPrintContext,
   packCompactPowerColumns,
+  formatCompactDefenseSources,
 } from '../src/sheets/character-print';
 
 function alarisActor() {
   return {
+    id: 'alaris',
     type: 'character',
     name: 'Alaris',
     img: 'https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Players/Alaris.png',
@@ -39,6 +41,18 @@ function alarisActor() {
         armorTotal: 2,
         initiative: 0,
         initiativeMasteryRank: 2,
+        evadeBreakdownRows: [
+          { label: 'MR×4 base', detail: 'Mastery Rank 2', value: 8, display: '8' },
+          { label: 'Shield', detail: 'Not equipped', value: 0, display: '—' },
+          { label: 'Armor', detail: 'Not equipped', value: 0, display: '—' },
+          { label: 'Elorian Stride', detail: 'Artifact · Evade', value: 2, display: '+2' },
+          { label: 'Soul Sigil', detail: 'Artifact · Evade (Silver Veil)', value: 7, display: '+7' },
+        ],
+        armorBreakdownRows: [
+          { label: 'Mastery Rank', detail: 'Always in soak total', value: 2, display: '2' },
+          { label: 'Armor', detail: 'Not equipped', value: null, display: '—' },
+          { label: 'Shield', detail: 'Not equipped', value: null, display: '—' },
+        ],
       },
       health: {
         tempHP: 0,
@@ -152,6 +166,7 @@ function alarisActor() {
           baseTypeKey: 'weapon:greatsword',
           baseProfile: 'twoHandedWeapon',
           binding: 'bound',
+          equipped: true,
           freeTrait: 'Finesse',
           currentLevel: 1,
           artifactWeapon: { damage: '5d8', weaponType: 'melee' },
@@ -172,6 +187,8 @@ function alarisActor() {
         system: {
           artifactKind: 'gear',
           baseProfile: 'feet',
+          binding: 'bound',
+          equipped: true,
           currentLevel: 1,
           baseValues: [{ slot: 'a', type: 'evade', label: 'Evade', value: 2 }],
           levelProgression: [
@@ -191,8 +208,15 @@ function alarisActor() {
         system: {
           artifactKind: 'armor',
           baseProfile: 'noArmorBody',
+          binding: 'bound',
+          equipped: true,
           currentLevel: 1,
           baseValues: [{ slot: 'a', type: 'evade', label: 'Evade (Silver Veil)', value: 7 }],
+          stoneFunction: {
+            kind: 'stonePowerSupport',
+            attribute: 'vitality',
+            stonePowerId: 'vitality.tempHp',
+          },
           levelProgression: [
             {
               level: 1,
@@ -232,6 +256,8 @@ describe('Quick Play character print', () => {
     expect(ctx.movement).toBe('8 m');
     expect(ctx.evade).toBe(17);
     expect(ctx.armor).toBe(2);
+    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +2 · Soul Sigil +7');
+    expect(ctx.armorSources).toBe('Base 2');
     expect(ctx.initiative).toBe('2d8');
     expect(ctx.faithFractures).toBe('8 / 8');
     expect(ctx.tempHp).toBe(0);
@@ -328,32 +354,41 @@ describe('Quick Play character print', () => {
     expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
   });
 
-  it('keeps Artifact powers on the Artifact, not in the general Power list', () => {
+  it('folds Artifact powers into POWERS with source labels and drops the Artifacts block', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
-    const sword = ctx.artifacts.find((a: any) => a.name === 'Moonlight Greatsword');
-    expect(sword.damage).toBe('5d8');
-    expect(sword.trait).toBe('Finesse');
-    expect(sword.powers.some((p: any) => p.name === 'Moonlight Mending I')).toBe(true);
-    const allPowerNames = ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.name));
-    expect(allPowerNames.join(' ')).not.toMatch(/Moonlight Mending/);
+    expect(ctx.artifacts).toBeUndefined();
+    expect(ctx.hasArtifacts).toBeUndefined();
+
+    const allPowers = ctx.powerGroups.flatMap((g: any) => g.items);
+    const allPowerNames = allPowers.map((i: any) => i.name);
     expect(allPowerNames).toContain('Melee Single Attack');
     expect(allPowerNames).toContain('Evade');
     expect(allPowerNames).not.toContain('Passive: Evade');
-    const stride = ctx.artifacts.find((a: any) => a.name === 'Elorian Stride');
-    expect(stride.bases).toContain('+2 Evade');
-    expect(stride.powers.some((p: any) => p.name === 'Otherworld Reflex I')).toBe(true);
-    const sigil = ctx.artifacts.find((a: any) => a.name === 'Soul Sigil');
-    expect(sigil.bases).toContain('+7 Evade');
-    const shell = sigil.powers.find((p: any) => p.name === 'Soul Shell I');
-    expect(shell.effect).toMatch(/Temporary HP/);
-    expect(shell.effect).not.toMatch(/…/);
-    const sundered = ctx.powerGroups
-      .flatMap((g: any) => g.items)
-      .find((i: any) => String(i.name).includes('Sundered'));
+    expect(allPowerNames).toContain('Moonlight Mending I');
+    expect(allPowerNames).toContain('Otherworld Reflex I');
+    expect(allPowerNames).not.toContain('Soul Shell I');
+
+    const mending = allPowers.find((i: any) => i.name === 'Moonlight Mending I');
+    expect(mending.source).toBe('Moonlight Greatsword');
+    expect(mending.phase).toBe('Active');
+    expect(mending.effect).toMatch(/10d8/);
+    expect(mending.effect).not.toMatch(/…/);
+
+    const reflex = allPowers.find((i: any) => i.name === 'Otherworld Reflex I');
+    expect(reflex.source).toBe('Elorian Stride');
+    expect(reflex.phase).toBe('Reaction');
+
+    const vitality = ctx.attributeModules.find((m: any) => m.key === 'vitality');
+    const tempHp = vitality.powers.find((p: any) => p.name === 'Temporary HP');
+    expect(tempHp.supported).toBe(true);
+    expect(tempHp.supportSource).toBe('Soul Sigil');
+    expect(tempHp.supportTier).toBeGreaterThanOrEqual(2);
+
+    expect(ctx.weaponSetTiles.some((t: any) => /Moonlight Greatsword/i.test(t.title))).toBe(true);
+
+    const sundered = allPowers.find((i: any) => String(i.name).includes('Sundered'));
     expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
-    const meleeSingle = ctx.powerGroups
-      .flatMap((g: any) => g.items)
-      .find((i: any) => i.name === 'Melee Single Attack');
+    const meleeSingle = allPowers.find((i: any) => i.name === 'Melee Single Attack');
     expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');
     expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);
     expect(allPowerNames).not.toContain('Bounding Leap');
@@ -362,7 +397,6 @@ describe('Quick Play character print', () => {
     expect(
       [...new Set(ctx.powerColumns.flatMap((c: any) => c.groups.map((g: any) => g.phase)))].sort(),
     ).toEqual(ctx.powerGroups.map((g: any) => g.phase).sort());
-    // Every power item still appears exactly once across the balanced columns.
     const colNames = ctx.powerColumns.flatMap((c: any) =>
       c.groups.flatMap((g: any) => g.items.map((i: any) => `${g.phase}:${i.name}`)),
     );
@@ -370,18 +404,31 @@ describe('Quick Play character print', () => {
       g.items.map((i: any) => `${g.phase}:${i.name}`),
     );
     expect(colNames.sort()).toEqual(groupNames.sort());
-    // Column heights stay within one item of each other.
     if (ctx.powerColumns.length >= 2) {
       const counts = ctx.powerColumns.map((c: any) =>
         c.groups.reduce((n: number, g: any) => n + g.items.length, 0),
       );
       expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
     }
-    const allEffects = [
-      ...ctx.powerGroups.flatMap((g: any) => g.items.map((i: any) => i.effect)),
-      ...ctx.artifacts.flatMap((a: any) => a.powers.map((p: any) => p.effect)),
-    ].join('\n');
+    const allEffects = allPowers.map((i: any) => i.effect).join('\n');
     expect(allEffects).not.toMatch(/…/);
+  });
+
+  it('formats Evade / Armor source lines from live breakdown rows', () => {
+    expect(
+      formatCompactDefenseSources([
+        { label: 'MR×4 base', value: 8, display: '8' },
+        { label: 'Shield', value: 0, display: '—' },
+        { label: 'Elorian Stride', value: 2, display: '+2' },
+        { label: 'Soul Sigil', value: 7, display: '+7' },
+      ]),
+    ).toBe('Base 8 · Elorian Stride +2 · Soul Sigil +7');
+    expect(
+      formatCompactDefenseSources([
+        { label: 'Mastery Rank', value: 2, display: '2' },
+        { label: 'Armor', value: null, display: '—' },
+      ]),
+    ).toBe('Base 2');
   });
 
   it('splits oversized Active groups across columns to fill empty space', () => {

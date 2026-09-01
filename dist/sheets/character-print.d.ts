@@ -26,6 +26,17 @@ export interface CharacterPrintOptions {
  * Build the flat data object consumed by `character-print.hbs`.
  */
 export declare function buildCharacterPrintContext(actor: any, options?: CharacterPrintOptions): Record<string, unknown>;
+type CompactDefenseRow = {
+    label?: string;
+    detail?: string;
+    value?: number | null;
+    display?: string;
+};
+/**
+ * Compact source line for Evade / Armor from live breakdown rows.
+ * Skips empty / zero / "—" rows; renames MR base rows to "Base N".
+ */
+export declare function formatCompactDefenseSources(rows: CompactDefenseRow[] | null | undefined): string;
 type CompactPowerGroup<T = unknown> = {
     phase: string;
     items: T[];

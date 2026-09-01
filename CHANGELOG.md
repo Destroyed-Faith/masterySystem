@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.449] - 2026-09-01
+
+### Changed
+
+- **Quick Play sheet:** Removed the Artifacts inventory block. Artifact-granted powers sit under Powers with a source label; weapons stay in Weapon Sets; Evade/Armor cores show live calculation sources; Stone Power Support appears on the supported Stone Power (e.g. Soul Sigil on Vitality Temporary HP). Move/Init stay compact; Evade/Armor get the wider columns for their breakdowns.
+
 ## [0.9.448] - 2026-09-01
 
 ### Changed
