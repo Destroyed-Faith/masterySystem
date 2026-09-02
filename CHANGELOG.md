@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.460] - 2026-09-02
+
+### Changed
+
+- **Light Armor Artifact Evade:** +3 → +12 (was +2 → +11). Armor totals unchanged (4→8). Seed version **52**.
+
 ## [0.9.459] - 2026-09-02
 
 ### Changed

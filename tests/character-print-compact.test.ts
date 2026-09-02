@@ -37,7 +37,7 @@ function alarisActor() {
       minorExpressions: ['agility-light-fingers'],
       combat: {
         speed: 8,
-        evadeTotal: 11,
+        evadeTotal: 12,
         armorTotal: 6,
         initiative: 0,
         initiativeMasteryRank: 2,
@@ -46,7 +46,7 @@ function alarisActor() {
           { label: 'Shield', detail: 'Not equipped', value: 0, display: '—' },
           { label: 'Armor', detail: 'Not equipped', value: 0, display: '—' },
           { label: 'Elorian Stride', detail: 'Artifact · Evade', value: 1, display: '+1' },
-          { label: 'Soul Sigil', detail: 'Artifact · Evade (Silver Veil)', value: 2, display: '+2' },
+          { label: 'Soul Sigil', detail: 'Artifact · Evade (Silver Veil)', value: 3, display: '+3' },
         ],
         armorBreakdownRows: [
           { label: 'Mastery Rank', detail: 'Always in soak total', value: 2, display: '2' },
@@ -229,7 +229,7 @@ function alarisActor() {
           currentLevel: 1,
           baseValues: [
             { slot: 'a', type: 'bodyArmor', label: 'Light Armor', value: 0, armorWeightClass: 'light' },
-            { slot: 'a', type: 'evade', label: 'Evade (Silver Veil)', value: 2 },
+            { slot: 'a', type: 'evade', label: 'Evade (Silver Veil)', value: 3 },
           ],
           stoneFunction: {
             kind: 'stonePowerSupport',
@@ -273,9 +273,9 @@ describe('Quick Play character print', () => {
     expect(ctx.hasPortrait).toBe(true);
     expect(ctx.portrait).toContain('Players/Alaris/Alaris.png');
     expect(ctx.movement).toBe('8 m');
-    expect(ctx.evade).toBe(15);
+    expect(ctx.evade).toBe(16);
     expect(ctx.armor).toBe(6);
-    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +1 · Soul Sigil +2 · Evade +4');
+    expect(ctx.evadeSources).toBe('Base 8 · Elorian Stride +1 · Soul Sigil +3 · Evade +4');
     expect(ctx.armorSources).toBe('Base 2 · Armor +4');
     expect(ctx.initiative).toBe('2d8');
     expect(ctx.faithFractures).toBe('8 / 8');
@@ -632,9 +632,9 @@ describe('Quick Play character print', () => {
         { label: 'MR×4 base', value: 8, display: '8' },
         { label: 'Shield', value: 0, display: '—' },
         { label: 'Elorian Stride', value: 1, display: '+1' },
-        { label: 'Soul Sigil', value: 2, display: '+2' },
+        { label: 'Soul Sigil', value: 3, display: '+3' },
       ]),
-    ).toBe('Base 8 · Elorian Stride +1 · Soul Sigil +2');
+    ).toBe('Base 8 · Elorian Stride +1 · Soul Sigil +3');
     expect(
       formatCompactDefenseSources([
         { label: 'Mastery Rank', value: 2, display: '2' },

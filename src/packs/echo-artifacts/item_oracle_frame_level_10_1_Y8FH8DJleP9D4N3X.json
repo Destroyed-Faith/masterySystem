@@ -18,10 +18,18 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Light Echo Armor",
-        "value": 14,
-        "note": "Light Armor: no class drawbacks.",
+        "value": 4,
+        "note": "Light Armor Artifact: Armor + Evade on slot A. No Initiative or Physical Skill penalty.",
         "isBaseline": true,
         "armorWeightClass": "light"
+      },
+      {
+        "slot": "a",
+        "type": "evade",
+        "label": "Evade",
+        "value": 11,
+        "note": "Final Evade Modifier for this Artifact armor weight class (slot A).",
+        "isBaseline": true
       }
     ],
     "levelProgression": [
@@ -960,8 +968,8 @@
     "inventorySize": "1x1",
     "artifactArmor": {
       "type": "light",
-      "armorValue": 14,
-      "evadeModifier": 0,
+      "armorValue": 4,
+      "evadeModifier": 11,
       "skillPenalty": ""
     },
     "equipSlots": [
@@ -977,7 +985,7 @@
       "childIds": [],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 50
+      "seedVersion": 51
     }
   },
   "_id": "Y8FH8DJleP9D4N3X",

@@ -15,7 +15,7 @@ import { getEchoArtifact } from '../src/utils/echo-artifacts';
 import { getGeneralArtifact } from '../src/utils/general-artifacts';
 
 const LIGHT_ARMOR = [4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
-const LIGHT_EVADE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const LIGHT_EVADE = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 const MEDIUM_ARMOR = [8, 8, 9, 9, 10, 10, 11, 11, 12, 12];
 const MEDIUM_EVADE = [-1, -1, 0, 0, 1, 1, 2, 2, 3, 3];
 const HEAVY_ARMOR = [12, 12, 13, 13, 14, 14, 15, 15, 16, 16];
@@ -174,10 +174,10 @@ describe('Runtime breakdown — Armor + Evade on A, Init/Skills from class', () 
     };
   }
 
-  it('Light L1 → Armor 4, Evade +2, no Init/Skill penalty', () => {
+  it('Light L1 → Armor 4, Evade +3, no Init/Skill penalty', () => {
     const bd = buildArtifactBaseValueBreakdown(equippedBody('light', 1, 'Light Suit'));
     expect(bd.armorBonus).toBe(4);
-    expect(bd.evadeBonus).toBe(2);
+    expect(bd.evadeBonus).toBe(3);
     expect(bd.bodyArmorClassPenalty).toBeNull();
     expect(bd.rows.notes.some((n) => /suppressed/i.test(String(n.label)))).toBe(false);
   });

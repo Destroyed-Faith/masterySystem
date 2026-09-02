@@ -200,7 +200,7 @@ describe('Moonlight Greatsword', () => {
 describe('Soul Sigil', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('soulSigil')!);
 
-  it('is Silver Veil Light Armor (4→8 paired) with Evade +2 → +11', () => {
+  it('is Silver Veil Light Armor (4→8 paired) with Evade +3 → +12', () => {
     const sys = sysAt(tree, 1);
     expect(sys.slot).toBe('body');
     expect(sys.baseProfile).toBe('bodyArmor');
@@ -213,10 +213,10 @@ describe('Soul Sigil', () => {
       const evade = bv.find((b: any) => b.type === 'evade');
       expect(armor.value).toBe(armorTotals[lvl - 1]! - lightArmorBase);
       expect(armor.armorWeightClass).toBe('light');
-      expect(evade.value).toBe(1 + lvl);
+      expect(evade.value).toBe(2 + lvl);
     }
-    expect(baseValue(tree, 1, 'Evade (Silver Veil)').value).toBe(2);
-    expect(baseValue(tree, 10, 'Evade (Silver Veil)').value).toBe(11);
+    expect(baseValue(tree, 1, 'Evade (Silver Veil)').value).toBe(3);
+    expect(baseValue(tree, 10, 'Evade (Silver Veil)').value).toBe(12);
     expect(baseValue(tree, 1, 'Light Armor').value).toBe(0);
     expect(baseValue(tree, 10, 'Light Armor').value).toBe(4);
   });
@@ -546,9 +546,9 @@ describe('Falcon Wide Brim', () => {
 describe('Shadowgrave Armor', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('shadowgraveArmor')!);
 
-  it('uses Light Armor Artifact tables: Armor 4→8 and Evade +2→+11, both from L1', () => {
+  it('uses Light Armor Artifact tables: Armor 4→8 and Evade +3→+12, both from L1', () => {
     const armorTotalTable = [4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
-    const evadeTable = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    const evadeTable = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     const lightArmorBase = 4;
     for (let lvl = 1; lvl <= 10; lvl++) {
       const armorRow = baseValue(tree, lvl, 'Hybrid Defense (Armor)');

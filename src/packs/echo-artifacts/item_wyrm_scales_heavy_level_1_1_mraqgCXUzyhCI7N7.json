@@ -18,12 +18,18 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Heavy Echo Armor",
-        "value": 4,
-        "note": "Drawbacks: −2/−4/−6 Evade & Initiative (L1-3 / L4-6 / L7-10), −2d8 Physical Skills.",
+        "value": 0,
+        "note": "Heavy Armor Artifact: Armor + Final Evade on slot A (Final includes −4). Keeps −8 Initiative and −2d8 Physical Skills.",
         "isBaseline": true,
-        "armorWeightClass": "heavy",
-        "evadeModifier": -2,
-        "initiativeModifier": -2
+        "armorWeightClass": "heavy"
+      },
+      {
+        "slot": "a",
+        "type": "evade",
+        "label": "Evade",
+        "value": -4,
+        "note": "Final Evade Modifier for this Artifact armor weight class (slot A).",
+        "isBaseline": true
       }
     ],
     "levelProgression": [
@@ -294,7 +300,7 @@
     "inventorySize": "1x1",
     "artifactArmor": {
       "type": "heavy",
-      "armorValue": 4,
+      "armorValue": 0,
       "evadeModifier": -4,
       "skillPenalty": "−2d8 to Physical Skill checks"
     },
@@ -312,7 +318,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesHeavy",
-      "seedVersion": 50
+      "seedVersion": 51
     }
   },
   "_id": "mraqgCXUzyhCI7N7",

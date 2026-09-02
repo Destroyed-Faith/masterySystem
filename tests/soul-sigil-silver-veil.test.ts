@@ -10,12 +10,12 @@ import {
 import { resolveArtifactBodyArmor } from '../src/utils/artifact-armor-weight';
 
 describe('Soul Sigil Silver Veil curves', () => {
-  it('Armor totals 4→8 in paired bands; Evade +2→+11', () => {
+  it('Armor totals 4→8 in paired bands; Evade +3→+12', () => {
     const armorTotals = [4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
     for (let lvl = 1; lvl <= 10; lvl++) {
       expect(soulSigilArmorTotalForLevel(lvl)).toBe(armorTotals[lvl - 1]);
       expect(soulSigilArmorForLevel(lvl)).toBe(armorTotals[lvl - 1]! - 4);
-      expect(noArmorEvadeForLevel(lvl)).toBe(1 + lvl);
+      expect(noArmorEvadeForLevel(lvl)).toBe(2 + lvl);
     }
   });
 
@@ -35,7 +35,7 @@ describe('Soul Sigil Silver Veil curves', () => {
     expect(resolved?.totalArmor).toBe(4);
   });
 
-  it('equipped L1 Soul Sigil contributes Armor 4 and Evade +2 to breakdown', () => {
+  it('equipped L1 Soul Sigil contributes Armor 4 and Evade +3 to breakdown', () => {
     const tree = buildEchoArtifactTree(getGeneralArtifact('soulSigil')!);
     const node = tree.nodes[0]!.itemData;
     const actor = {
@@ -55,9 +55,9 @@ describe('Soul Sigil Silver Veil curves', () => {
     };
     const bv = buildArtifactBaseValueBreakdown(actor);
     expect(bv.armorBonus).toBe(4);
-    expect(bv.evadeBonus).toBe(2);
+    expect(bv.evadeBonus).toBe(3);
     expect(bv.rows.armor[0]?.typeLabel).toMatch(/Light/i);
-    expect(bv.rows.evade[0]?.value).toBe(2);
+    expect(bv.rows.evade[0]?.value).toBe(3);
     expect(bv.rows.notes.some((n) => /suppressed/i.test(String(n.label)))).toBe(false);
   });
 });

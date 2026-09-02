@@ -98,7 +98,7 @@ const ARTIFACT_ARMOR_TOTAL_TABLE = {
  * Medium/Heavy values already include the mundane −2 / −4 Evade drawbacks.
  */
 const ARTIFACT_ARMOR_EVADE_TABLE = {
-    light: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    light: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     medium: [-1, -1, 0, 0, 1, 1, 2, 2, 3, 3],
     heavy: [-4, -4, -4, -4, -4, -2, -2, -2, -2, -2],
 };

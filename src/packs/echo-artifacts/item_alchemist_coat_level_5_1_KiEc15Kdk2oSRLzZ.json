@@ -18,10 +18,18 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Medium Armor",
-        "value": 8,
-        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "value": 2,
+        "note": "Medium Armor Artifact: Armor + Final Evade on slot A (Final includes −2). Keeps −4 Initiative and −1d8 Physical Skills.",
         "isBaseline": true,
         "armorWeightClass": "medium"
+      },
+      {
+        "slot": "a",
+        "type": "evade",
+        "label": "Evade",
+        "value": 1,
+        "note": "Final Evade Modifier for this Artifact armor weight class (slot A).",
+        "isBaseline": true
       }
     ],
     "levelProgression": [
@@ -729,8 +737,8 @@
     "inventorySize": "1x1",
     "artifactArmor": {
       "type": "medium",
-      "armorValue": 8,
-      "evadeModifier": -2,
+      "armorValue": 2,
+      "evadeModifier": 1,
       "skillPenalty": "−1d8 to Physical Skill checks"
     },
     "equipSlots": [
@@ -748,7 +756,7 @@
       ],
       "echoBound": "unbound",
       "echoArtifactKey": "alchemistCoat",
-      "seedVersion": 50
+      "seedVersion": 51
     }
   },
   "_id": "KiEc15Kdk2oSRLzZ",

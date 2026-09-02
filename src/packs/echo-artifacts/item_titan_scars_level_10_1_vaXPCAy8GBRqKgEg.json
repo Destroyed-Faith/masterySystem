@@ -18,10 +18,18 @@
         "slot": "a",
         "type": "bodyArmor",
         "label": "Medium Echo Armor",
-        "value": 14,
-        "note": "Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.",
+        "value": 4,
+        "note": "Medium Armor Artifact: Armor + Final Evade on slot A (Final includes −2). Keeps −4 Initiative and −1d8 Physical Skills.",
         "isBaseline": true,
         "armorWeightClass": "medium"
+      },
+      {
+        "slot": "a",
+        "type": "evade",
+        "label": "Evade",
+        "value": 3,
+        "note": "Final Evade Modifier for this Artifact armor weight class (slot A).",
+        "isBaseline": true
       }
     ],
     "levelProgression": [
@@ -946,8 +954,8 @@
     "inventorySize": "1x1",
     "artifactArmor": {
       "type": "medium",
-      "armorValue": 14,
-      "evadeModifier": -2,
+      "armorValue": 4,
+      "evadeModifier": 3,
       "skillPenalty": "−1d8 to Physical Skill checks"
     },
     "equipSlots": [
@@ -963,7 +971,7 @@
       "childIds": [],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScars",
-      "seedVersion": 50
+      "seedVersion": 51
     }
   },
   "_id": "vaXPCAy8GBRqKgEg",

@@ -98,9 +98,9 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
       (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.type === 'evade');
     expect(armor(1).value).toBe(0);
     expect(armor(1).armorWeightClass).toBe('light');
-    expect(evade(1).value).toBe(2);
+    expect(evade(1).value).toBe(3);
     expect(armor(10).value).toBe(4);
-    expect(evade(10).value).toBe(11);
+    expect(evade(10).value).toBe(12);
   });
 
   it('Dragon Claws unlock weapon specials at L4 / L7', () => {
