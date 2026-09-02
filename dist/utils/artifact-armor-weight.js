@@ -56,7 +56,13 @@ function readWeightClass(bv, itemSystem) {
 }
 /**
  * Resolve one artifact `bodyArmor` base value into total armor + class drawbacks.
- * Returns null when no weight class can be determined (flat legacy bonus).
+ *
+ * Evade is **not** taken from the mundane weight-class table anymore: every
+ * Artifact Body Armor contributes its Final Evade Modifier via a separate
+ * Evade Base Value on slot A. This helper still returns Initiative / Physical
+ * Skill drawbacks from the weight class (Medium −4 Init / −1d8, Heavy −8 / −2d8).
+ * An explicit `evadeModifier` / `initiativeModifier` on the BV remains an override
+ * for legacy printed exceptions.
  */
 export function resolveArtifactBodyArmor(bv, itemSystem) {
     if (bv.type !== 'bodyArmor')
@@ -70,8 +76,6 @@ export function resolveArtifactBodyArmor(bv, itemSystem) {
     const rawValue = numericValueOf(bv);
     const bonusArmor = bv.armorWeightClass ? rawValue : Math.max(0, rawValue - def.armorValue);
     const skillPenalty = def.skillPenalty === '—' ? '' : def.skillPenalty;
-    // Printed per-level drawback overrides (e.g. Wyrm Scales' escalating
-    // −2/−4/−6 Evade & Initiative) take precedence over the class defaults.
     const evadeOverride = Number.isFinite(Number(bv.evadeModifier))
         ? Number(bv.evadeModifier)
         : null;
@@ -84,7 +88,8 @@ export function resolveArtifactBodyArmor(bv, itemSystem) {
         baseArmor: def.armorValue,
         bonusArmor,
         totalArmor: def.armorValue + bonusArmor,
-        evadeModifier: evadeOverride ?? def.evadeModifier,
+        // Default 0: Final Evade comes from the Evade Base Value on slot A.
+        evadeModifier: evadeOverride ?? 0,
         initiativeModifier: initiativeOverride ?? def.initiativeModifier ?? 0,
         skillPenalty,
         skillPenaltyDice: parseSkillPenaltyDice(skillPenalty),

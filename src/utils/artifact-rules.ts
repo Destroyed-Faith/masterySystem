@@ -277,9 +277,13 @@ export function spellFocusDiceFromSystem(system: any): number {
 
 /**
  * Max number of Base Values per slot (Artefacts.md "Base Values" table):
- *   Main Hand / Off Hand: 2 · Both Hands: 3 · Body: 1 · Head: 2 · Feet: 2
- *   Ring / Amulet: 3 each — but an equipped Ring + Amulet share a combined
- *   maximum of 4 printed Base Values (see ringAmuletCombinedBaseValueError).
+ *   Main Hand / Off Hand: 2 · Both Hands: 3 · Body: 2 (Armor + Evade on A)
+ *   Head: 2 · Feet: 2 · Ring / Amulet: 3 each — but an equipped Ring + Amulet
+ *   share a combined maximum of 4 printed Base Values
+ *   (see ringAmuletCombinedBaseValueError).
+ *
+ * Body is the exception to the old "one Base Value" rule: every Artifact Body
+ * Armor always contributes **Armor** and **Evade** as two modifiers on slot A.
  */
 export const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number> = {
   mainHand: 2,
@@ -287,7 +291,7 @@ export const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number> = {
   // Two-handed weapons may carry Weapon Damage + two Weapon Specials
   // (e.g. Dragon Claws: Damage A, Penetration B, Brutal Impact C).
   bothHands: 3,
-  body: 1,
+  body: 2,
   head: 2,
   feet: 2,
   amulet: 3,

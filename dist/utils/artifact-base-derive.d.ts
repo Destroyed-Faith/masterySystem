@@ -19,21 +19,36 @@ export declare function scaleWeaponSpecial(idOrLabel: string, level: number): nu
 /** Is this Special value-based (scales) vs qualitative (no number)? */
 export declare function isScalingWeaponSpecial(idOrLabel: string): boolean;
 export interface DerivedBaseValue {
-    /** Human-readable derived value, e.g. "4d8", "+7 Armor", "+14 Evade". */
+    /** Human-readable or parseable derived value (stored when no override). */
     display: string;
+    /** Optional richer label for UI (e.g. "Armor 4 (Light)"); falls back to display. */
+    label?: string;
     /** Whether this type derives a value at all (false ⇒ free-form qualitative). */
     derivable: boolean;
 }
-/** Body Armor: Artifact Armor Bonus. L1=+4 … L9=+12, L10=+14. */
-export declare function bodyArmorBonusForLevel(level: number): number;
-/** Soul Sigil Silver Veil Evade. L1=+2 … L10=+11 (+1 per level). */
-export declare function noArmorEvadeForLevel(level: number): number;
+export type ArtifactArmorWeightClass = 'light' | 'medium' | 'heavy';
+/** Mundane armor base (Light 4 / Medium 8 / Heavy 12). */
+export declare const ARTIFACT_ARMOR_MUNDANE_BASE: Record<ArtifactArmorWeightClass, number>;
+export declare function normalizeArtifactArmorWeight(raw: string | null | undefined): ArtifactArmorWeightClass | null;
+/** Absolute Armor total for an Artifact Body Armor at the given level. */
+export declare function artifactArmorTotalForLevel(weight: ArtifactArmorWeightClass, level: number): number;
 /**
- * Soul Sigil Silver Veil Armor **bonus** over Light Armor base 4.
- * Totals: L1–2=4, L3–4=5, L5–6=6, L7–8=7, L9–10=8 (no extra Artifact Armor Bonus).
+ * Artifact Armor Bonus stored on the `bodyArmor` Base Value
+ * (absolute total minus mundane Light/Medium/Heavy base).
  */
+export declare function artifactArmorBonusForLevel(weight: ArtifactArmorWeightClass, level: number): number;
+/** Final Evade Modifier for an Artifact Body Armor at the given level. */
+export declare function artifactArmorEvadeForLevel(weight: ArtifactArmorWeightClass, level: number): number;
+/**
+ * @deprecated Old shared +4…+14 Artifact Armor Bonus. All Artifact Body Armors
+ * now use `artifactArmorBonusForLevel(weight, level)` instead.
+ */
+export declare function bodyArmorBonusForLevel(level: number): number;
+/** @deprecated Alias of Light Armor Artifact Evade (`artifactArmorEvadeForLevel('light', …)`). */
+export declare function noArmorEvadeForLevel(level: number): number;
+/** @deprecated Alias of Light Armor Artifact bonus. */
 export declare function soulSigilArmorForLevel(level: number): number;
-/** Soul Sigil Silver Veil total Armor (Light base 4 + bonus). */
+/** @deprecated Alias of Light Armor Artifact total. */
 export declare function soulSigilArmorTotalForLevel(level: number): number;
 /** Feet Evade (Elorian Stride). L1–2=+1, L3–4=+2, … L9–10=+5. */
 export declare function feetEvadeForLevel(level: number): number;

@@ -90,13 +90,17 @@ describe('Echo Artifact tree builder — structure', () => {
 });
 
 describe('Echo Artifact tree builder — exact Base Values', () => {
-  it('Light Wyrm Scales stores artifact bonus + light weight class', () => {
+  it('Light Wyrm Scales stores Light Armor bonus + Evade on A', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScalesLight')!);
-    const bv = (lvl: number) =>
+    const armor = (lvl: number) =>
       (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.type === 'bodyArmor');
-    expect(bv(1).value).toBe(4);
-    expect(bv(1).armorWeightClass).toBe('light');
-    expect(bv(10).value).toBe(14);
+    const evade = (lvl: number) =>
+      (tree.nodes[lvl - 1].itemData.system as any).baseValues.find((b: any) => b.type === 'evade');
+    expect(armor(1).value).toBe(0);
+    expect(armor(1).armorWeightClass).toBe('light');
+    expect(evade(1).value).toBe(2);
+    expect(armor(10).value).toBe(4);
+    expect(evade(10).value).toBe(11);
   });
 
   it('Dragon Claws unlock weapon specials at L4 / L7', () => {
@@ -406,12 +410,16 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
 });
 
 describe('Echo Artifact tree builder — Titan Scars', () => {
-  it('Medium Echo Armor stores artifact bonus + weight class (L1 bonus +4 → total 12 with medium base 8)', () => {
+  it('Medium Echo Armor stores artifact bonus + weight class + Evade on A (L1 total 8)', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
-    const bv = (tree.nodes[0].itemData.system as any).baseValues[0];
-    expect(bv.value).toBe(4);
-    expect(bv.armorWeightClass).toBe('medium');
-    expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe(14);
+    const bvs = (tree.nodes[0].itemData.system as any).baseValues;
+    const armor = bvs.find((b: any) => b.type === 'bodyArmor');
+    const evade = bvs.find((b: any) => b.type === 'evade');
+    expect(armor.value).toBe(0);
+    expect(armor.armorWeightClass).toBe('medium');
+    expect(evade.value).toBe(-1);
+    expect(evade.slot).toBe('a');
+    expect((tree.nodes[9].itemData.system as any).baseValues.find((b: any) => b.type === 'bodyArmor').value).toBe(4);
     expect((tree.nodes[0].itemData.system as any).artifactArmor.type).toBe('medium');
   });
 

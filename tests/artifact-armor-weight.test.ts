@@ -6,7 +6,7 @@ import {
 import { buildArtifactBaseValueBreakdown } from '../src/utils/artifact-base-values';
 
 describe('resolveArtifactBodyArmor', () => {
-  it('adds medium base 8 to artifact bonus (new format)', () => {
+  it('adds medium base 8 to artifact bonus (new format) without class Evade', () => {
     const resolved = resolveArtifactBodyArmor({
       slot: 'a',
       type: 'bodyArmor',
@@ -19,7 +19,7 @@ describe('resolveArtifactBodyArmor', () => {
       baseArmor: 8,
       bonusArmor: 5,
       totalArmor: 13,
-      evadeModifier: -2,
+      evadeModifier: 0,
       initiativeModifier: -4,
       skillPenaltyDice: 1,
     });
@@ -34,12 +34,12 @@ describe('resolveArtifactBodyArmor', () => {
     });
     expect(resolved?.totalArmor).toBe(17);
     expect(resolved?.bonusArmor).toBe(5);
-    expect(resolved?.evadeModifier).toBe(-4);
+    expect(resolved?.evadeModifier).toBe(0);
   });
 });
 
 describe('buildArtifactBaseValueBreakdown — armor class', () => {
-  it('applies medium drawbacks for Titan-style body artifact', () => {
+  it('applies medium Init/Skill drawbacks; Final Evade comes from Evade BV', () => {
     const actor = {
       items: [
         {
@@ -54,8 +54,14 @@ describe('buildArtifactBaseValueBreakdown — armor class', () => {
                 slot: 'a',
                 type: 'bodyArmor',
                 label: 'Medium Echo Armor',
-                value: 5,
+                value: 0,
                 armorWeightClass: 'medium',
+              },
+              {
+                slot: 'a',
+                type: 'evade',
+                label: 'Evade',
+                value: -1,
               },
             ],
           },
@@ -64,10 +70,11 @@ describe('buildArtifactBaseValueBreakdown — armor class', () => {
       ],
     };
     const bd = buildArtifactBaseValueBreakdown(actor);
-    expect(bd.armorBonus).toBe(13);
+    expect(bd.armorBonus).toBe(8);
+    expect(bd.evadeBonus).toBe(-1);
     expect(bd.bodyArmorClassPenalty).toMatchObject({
       weightClass: 'medium',
-      evade: -2,
+      evade: 0,
       initiative: -4,
       skillPenaltyDice: 1,
     });

@@ -14,7 +14,8 @@ import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import { buildArtifactNodeIdMap, findRootItem, getAncestorChainRootFirst, getLockedWeaponBasics, getTreeDepth, isLineageRootItem, mergeInnatesFromAncestors, mergeSpecialRefsFromAncestors, specialRefKey } from '../utils/artifact-tree-lineage.js';
 import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
-import { deriveBaseValueDisplay, scaleWeaponSpecial, isScalingWeaponSpecial, } from '../utils/artifact-base-derive.js';
+import { artifactArmorBonusForLevel, artifactArmorEvadeForLevel, deriveBaseValueDisplay, normalizeArtifactArmorWeight, scaleWeaponSpecial, isScalingWeaponSpecial, } from '../utils/artifact-base-derive.js';
+import { getArmorDefinitionForType } from '../utils/equipment.js';
 import { catalogSpecialTierForTemplate, catalogTemplateRequiresSpecial, listCatalogSpecialOptions, } from '../utils/artifact-catalog-pick.js';
 import { artifactPickCanBeSpell, uiTemplateIdCanBeSpell } from '../utils/artifact-spell-pick.js';
 import { getArtifactBaseTypeGroups, resolveArtifactBaseType, } from '../utils/artifact-base-type-catalog.js';
@@ -186,8 +187,19 @@ const BV_LETTER_LABELS = {
 };
 const BV_UNLOCK_LEVEL = { a: 1, b: 4, c: 7 };
 const BV_LETTERS = ['a', 'b', 'c'];
+/** Body Armor always uses two slot-A rows (Armor + Evade), both from Level 1. */
+function lettersForSpecSlot(slot, limit) {
+    if (slot === 'body')
+        return ['a', 'a'];
+    return BV_LETTERS.slice(0, Math.max(1, limit));
+}
 function isBaseValueSlotUnlocked(slot, artifactLevel) {
     return artifactLevel >= (BV_UNLOCK_LEVEL[slot] ?? 1);
+}
+function readArmorWeightForEditor(system, armorProfile) {
+    return (normalizeArtifactArmorWeight(armorProfile?.type) ||
+        normalizeArtifactArmorWeight(system?.baseProfile) ||
+        'light');
 }
 /** Inventory grid presets (aligned with item-info-dialog gear sizes). */
 const INVENTORY_SIZE_PRESETS = [
@@ -497,10 +509,20 @@ export class NodeEditor extends BaseDialog {
         // is computed. A small override is allowed for fairness tuning.
         const nodeLevel = Math.max(1, Math.min(10, Number(system.level) || 1));
         const specialOptions = data.specialSelectOptions || [];
+        const armorWeight = readArmorWeightForEditor(system, armor);
+        const bodyDeriveProfile = armorWeight; // light|medium|heavy for Armor/Evade tables
         // Map: base-value type → derived display at this level/profile (for JS recompute).
         const typeDerivedMap = {};
+        const typeDerivedLabelMap = {};
         for (const type of Object.keys(BASE_VALUE_TYPE_LABELS)) {
-            typeDerivedMap[type] = deriveBaseValueDisplay(type, nodeLevel, specBaseProfile || undefined).display;
+            const profileForType = type === 'bodyArmor' || type === 'evade'
+                ? specSlot === 'body'
+                    ? bodyDeriveProfile
+                    : specBaseProfile || undefined
+                : specBaseProfile || undefined;
+            const derived = deriveBaseValueDisplay(type, nodeLevel, profileForType);
+            typeDerivedMap[type] = derived.display;
+            typeDerivedLabelMap[type] = derived.label || derived.display;
         }
         // Map: special option id → derived numeric value at this level ('' if qualitative).
         const specialValueMap = {};
@@ -509,8 +531,10 @@ export class NodeEditor extends BaseDialog {
             specialValueMap[opt.id] = v == null ? '' : String(v);
         }
         this._typeDerivedMap = typeDerivedMap;
+        this._typeDerivedLabelMap = typeDerivedLabelMap;
         this._specialValueMap = specialValueMap;
         this._nodeLevel = nodeLevel;
+        this._armorWeight = armorWeight;
         const deriveRowDisplay = (slot, type, specialId) => {
             if (!isBaseValueSlotUnlocked(slot, nodeLevel))
                 return '';
@@ -518,34 +542,53 @@ export class NodeEditor extends BaseDialog {
                 return specialValueMap[specialId] || '';
             return typeDerivedMap[type] || '';
         };
+        const deriveRowLabel = (slot, type, specialId) => {
+            if (!isBaseValueSlotUnlocked(slot, nodeLevel))
+                return '';
+            if (type === 'weaponSpecial')
+                return specialValueMap[specialId] || '';
+            return typeDerivedLabelMap[type] || typeDerivedMap[type] || '';
+        };
         // The Slot fixes how many Base Value slots exist (A=Level 1, B=Level 4,
-        // C=Level 7). We render exactly that many rows with fixed letters — the GM
-        // only picks what each slot does (or leaves it as "None"). No add/remove and
-        // no duplicate letters.
+        // C=Level 7). Body is special: two modifiers on A (Armor + Evade).
         const bvLimit = specSlot ? BASE_VALUE_LIMIT_BY_SLOT[specSlot] : BASE_VALUE_HARD_CAP;
         data.specBaseValueLimit = bvLimit;
-        const bvLetters = ['a', 'b', 'c'].slice(0, Math.max(1, bvLimit));
-        const bvByLetter = new Map();
-        for (const bv of baseValues) {
-            const letter = bv.slot === 'b' || bv.slot === 'c' ? bv.slot : 'a';
-            if (!bvByLetter.has(letter))
-                bvByLetter.set(letter, bv);
-        }
-        data.specBaseValueRows = bvLetters.map((letter) => {
-            const slotLabel = BV_LETTER_LABELS[letter];
+        const bvLetters = lettersForSpecSlot(specSlot || '', bvLimit);
+        // Prefer matching existing rows by type for body (both may be letter A).
+        const remainingBvs = [...baseValues];
+        const takeBvForLetter = (letter, preferredType) => {
+            let idx = -1;
+            if (preferredType) {
+                idx = remainingBvs.findIndex((bv) => (bv.slot === 'b' || bv.slot === 'c' ? bv.slot : 'a') === letter && bv.type === preferredType);
+            }
+            if (idx < 0) {
+                idx = remainingBvs.findIndex((bv) => (bv.slot === 'b' || bv.slot === 'c' ? bv.slot : 'a') === letter);
+            }
+            if (idx < 0)
+                return undefined;
+            return remainingBvs.splice(idx, 1)[0];
+        };
+        data.specBaseValueRows = bvLetters.map((letter, index) => {
+            const preferredType = specSlot === 'body' ? (index === 0 ? 'bodyArmor' : 'evade') : undefined;
+            const slotLabel = specSlot === 'body'
+                ? index === 0
+                    ? 'A · Armor'
+                    : 'A · Evade'
+                : BV_LETTER_LABELS[letter];
             const unlocked = isBaseValueSlotUnlocked(letter, nodeLevel);
-            const bv = bvByLetter.get(letter);
+            const bv = takeBvForLetter(letter, preferredType);
             if (!bv) {
                 return {
                     slot: letter,
                     slotLabel,
                     unlocked,
                     unlockLevel: BV_UNLOCK_LEVEL[letter],
-                    type: 'none',
-                    isNone: true,
+                    type: preferredType || 'none',
+                    isNone: !preferredType,
                     isSpecial: false,
                     specialId: '',
-                    derivedDisplay: '',
+                    derivedDisplay: preferredType ? deriveRowLabel(letter, preferredType, '') : '',
+                    derivedValue: preferredType ? deriveRowDisplay(letter, preferredType, '') : '',
                     overrideStr: '',
                 };
             }
@@ -557,10 +600,13 @@ export class NodeEditor extends BaseDialog {
                 ? specialOptions.find((o) => o.id === storedLabel || o.label === storedLabel)
                 : undefined;
             const specialId = matched?.id || '';
-            const derivedDisplay = deriveRowDisplay(letter, type, specialId);
+            const derivedDisplay = deriveRowLabel(letter, type, specialId);
+            const derivedValue = deriveRowDisplay(letter, type, specialId);
             const storedValue = bv.value != null ? String(bv.value) : '';
             // Treat a stored value that differs from the derived one as a manual override.
-            const overrideStr = storedValue && storedValue !== derivedDisplay ? storedValue : '';
+            const overrideStr = storedValue && storedValue !== derivedValue && storedValue !== derivedDisplay
+                ? storedValue
+                : '';
             return {
                 slot: letter,
                 slotLabel,
@@ -571,9 +617,27 @@ export class NodeEditor extends BaseDialog {
                 isSpecial,
                 specialId,
                 derivedDisplay,
+                derivedValue,
                 overrideStr,
             };
         });
+        // Armor profile preview — always mirrors the canonical Light/Medium/Heavy tables.
+        const armorTotal = artifactArmorBonusForLevel(armorWeight, nodeLevel) +
+            (getArmorDefinitionForType(armorWeight)?.armorValue ?? 0);
+        data.armorProfile = {
+            ...armor,
+            type: armorWeight,
+            armorValue: artifactArmorBonusForLevel(armorWeight, nodeLevel),
+            armorTotal,
+            evadeModifier: artifactArmorEvadeForLevel(armorWeight, nodeLevel),
+            skillPenalty: armor.skillPenalty ||
+                (getArmorDefinitionForType(armorWeight)?.skillPenalty === '—'
+                    ? ''
+                    : getArmorDefinitionForType(armorWeight)?.skillPenalty || ''),
+            autoFromTables: true,
+        };
+        data.bodyArmorHint =
+            'Artifact Body Armor always grants Armor + Evade on slot A. Values follow the Light / Medium / Heavy Artifact tables for this node level.';
         data.specSpecialOptions = specialOptions.map((o) => ({
             id: o.id,
             label: isScalingWeaponSpecial(o.label) ? o.label : `${o.label} (qualitative)`,
@@ -722,6 +786,7 @@ export class NodeEditor extends BaseDialog {
         const $specSlotHint = html.find('#node-spec-slot-power-hint');
         // --- Base Values: auto-derived value + Special picker (no free-text math) ---
         const typeDerivedMap = (this._typeDerivedMap || {});
+        const typeDerivedLabelMap = (this._typeDerivedLabelMap || {});
         const specialValueMap = (this._specialValueMap || {});
         const syncBvRow = ($row) => {
             const slotLetter = (String($row.attr('data-bv-slot') || 'a').toLowerCase() || 'a');
@@ -742,23 +807,27 @@ export class NodeEditor extends BaseDialog {
             }
             $row.find('.node-spec-bv-override').attr('placeholder', 'Value');
             let derived = '';
+            let derivedLabel = '';
             if (isSpecial) {
                 const sid = String($row.find('.node-spec-bv-special').val() || '');
                 derived = specialValueMap[sid] || '';
+                derivedLabel = derived;
             }
             else if (!isNone) {
                 derived = typeDerivedMap[type] || '';
+                derivedLabel = typeDerivedLabelMap[type] || derived;
             }
             $row
                 .find('.node-spec-bv-derived')
-                .text(derived ? `auto: ${derived}` : '—')
+                .text(derivedLabel ? `auto: ${derivedLabel}` : '—')
                 .attr('data-derived', derived);
         };
         // Render exactly the Base Value slots this Slot grants (A / B / C up to the
-        // slot limit), each with a fixed letter — no add/remove, no duplicates.
+        // slot limit). Body always gets two slot-A rows (Armor + Evade).
         const rebuildBaseValueRows = (slot) => {
             const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : BASE_VALUE_HARD_CAP;
-            const count = Math.max(1, limit);
+            const letters = lettersForSpecSlot(slot || '', limit);
+            const count = letters.length;
             const allowedTypes = Object.keys(BASE_VALUE_TYPE_LABELS).filter((t) => (slot ? isBaseValueTypeAllowedForSlot(slot, t) : true));
             $specBvContainer.find('.node-spec-bv-row').each((_i, el) => {
                 const cur = String($(el).find('.node-spec-bv-type').val() || '').trim();
@@ -778,14 +847,18 @@ export class NodeEditor extends BaseDialog {
                 $specBvContainer.find('.node-spec-bv-row').last().remove();
             }
             // Fix the letter label + repopulate the type dropdown (keeping the choice
-            // if it is still legal, otherwise falling back to None).
+            // if it is still legal, otherwise falling back to None / body defaults).
             $specBvContainer.find('.node-spec-bv-row').each((i, el) => {
                 const $row = $(el);
-                const letter = BV_LETTERS[i] || 'a';
+                const letter = letters[i] || 'a';
                 $row.attr('data-bv-slot', letter);
-                $row.find('.node-spec-bv-slot-label').text(BV_LETTER_LABELS[letter]);
+                const bodyLabel = slot === 'body' ? (i === 0 ? 'A · Armor' : 'A · Evade') : BV_LETTER_LABELS[letter];
+                $row.find('.node-spec-bv-slot-label').text(bodyLabel);
                 const $type = $row.find('.node-spec-bv-type');
-                const prev = String($type.val() || 'none');
+                let prev = String($type.val() || 'none');
+                if (slot === 'body' && (prev === 'none' || prev === '')) {
+                    prev = i === 0 ? 'bodyArmor' : 'evade';
+                }
                 $type.empty();
                 $type.append('<option value="none">— None —</option>');
                 for (const t of allowedTypes) {
@@ -797,7 +870,10 @@ export class NodeEditor extends BaseDialog {
                     $type.append(`<option value="${t}"${sel}>${label}</option>`);
                 }
                 if (prev !== 'none' && !allowedTypes.includes(prev)) {
-                    $type.val('none');
+                    $type.val(slot === 'body' ? (i === 0 ? 'bodyArmor' : 'evade') : 'none');
+                }
+                else {
+                    $type.val(prev);
                 }
                 syncBvRow($row);
             });
@@ -936,10 +1012,22 @@ export class NodeEditor extends BaseDialog {
                 }, res.specials);
             }
             else if (res.kind === 'armor') {
-                html.find('#node-armor-type').val(res.armorType);
-                html.find('#node-armor-value').val(String(res.armorValue));
-                html.find('#node-armor-evade').val(String(res.evadeModifier));
-                html.find('#node-armor-skill-penalty').val(res.skillPenalty);
+                const weight = normalizeArtifactArmorWeight(res.armorType) || 'light';
+                const lvl = Math.max(1, Math.min(10, Number(this._nodeLevel) || 1));
+                const def = getArmorDefinitionForType(weight);
+                html.find('#node-armor-type').val(weight);
+                html.find('#node-armor-value').val(String(artifactArmorBonusForLevel(weight, lvl)));
+                html.find('#node-armor-total').val(String(artifactArmorBonusForLevel(weight, lvl) + (def?.armorValue ?? 0)));
+                html.find('#node-armor-evade').val(String(artifactArmorEvadeForLevel(weight, lvl)));
+                html.find('#node-armor-skill-penalty').val(def?.skillPenalty === '—' ? '' : def?.skillPenalty || '');
+                // Refresh Armor/Evade derived displays for the new weight class.
+                this._armorWeight = weight;
+                for (const type of ['bodyArmor', 'evade']) {
+                    const derived = deriveBaseValueDisplay(type, lvl, weight);
+                    typeDerivedMap[type] = derived.display;
+                    typeDerivedLabelMap[type] = derived.label || derived.display;
+                }
+                $specBvContainer.find('.node-spec-bv-row').each((_i, el) => syncBvRow($(el)));
             }
             else if (res.kind === 'shield') {
                 html.find('#node-shield-type').val(res.shieldType);
@@ -1170,6 +1258,25 @@ export class NodeEditor extends BaseDialog {
             syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
             syncBaseValueExclusivity();
         });
+        // Armor type drives the canonical Light/Medium/Heavy Armor + Evade tables.
+        html.on('change', '#node-armor-type', () => {
+            const weight = normalizeArtifactArmorWeight(String(html.find('#node-armor-type').val() || '')) || 'light';
+            const lvl = Math.max(1, Math.min(10, Number(this._nodeLevel) || 1));
+            const def = getArmorDefinitionForType(weight);
+            const bonus = artifactArmorBonusForLevel(weight, lvl);
+            const evade = artifactArmorEvadeForLevel(weight, lvl);
+            html.find('#node-armor-value').val(String(bonus));
+            html.find('#node-armor-total').val(String(bonus + (def?.armorValue ?? 0)));
+            html.find('#node-armor-evade').val(String(evade));
+            html.find('#node-armor-skill-penalty').val(def?.skillPenalty === '—' ? '' : def?.skillPenalty || '');
+            this._armorWeight = weight;
+            for (const type of ['bodyArmor', 'evade']) {
+                const derived = deriveBaseValueDisplay(type, lvl, weight);
+                typeDerivedMap[type] = derived.display;
+                typeDerivedLabelMap[type] = derived.label || derived.display;
+            }
+            $specBvContainer.find('.node-spec-bv-row').each((_i, el) => syncBvRow($(el)));
+        });
         // No "+ Add" for innates/specials anymore: the Base Type prefill is the
         // full kit, the GM may only remove rows. The one Free Trait dropdown next
         // to Base Type is the single allowed addition; new Specials come from the
@@ -1332,11 +1439,14 @@ export class NodeEditor extends BaseDialog {
             armorType = lineage.rootArmorType;
             shieldType = lineage.rootShieldType;
         }
+        const armorWeight = normalizeArtifactArmorWeight(armorType) || 'light';
+        const nodeLevelForArmor = Math.max(1, Math.min(10, Number(this.item.system.level) || 1));
+        const armorDef = getArmorDefinitionForType(armorWeight);
         const artifactArmor = {
-            type: armorType,
-            armorValue: parseInt(html.find('#node-armor-value').val(), 10) || 0,
-            evadeModifier: parseInt(html.find('#node-armor-evade').val(), 10) || 0,
-            skillPenalty: String(html.find('#node-armor-skill-penalty').val() || '').trim()
+            type: armorWeight,
+            armorValue: artifactArmorBonusForLevel(armorWeight, nodeLevelForArmor),
+            evadeModifier: artifactArmorEvadeForLevel(armorWeight, nodeLevelForArmor),
+            skillPenalty: armorDef?.skillPenalty === '—' ? '' : armorDef?.skillPenalty || '',
         };
         const artifactShield = {
             type: shieldType,
@@ -1381,8 +1491,9 @@ export class NodeEditor extends BaseDialog {
             const $row = $(row);
             const slotLetterRaw = String($row.attr('data-bv-slot') || 'a').trim().toLowerCase();
             const slotLetter = slotLetterRaw === 'b' || slotLetterRaw === 'c' ? slotLetterRaw : 'a';
-            if (usedLetters.has(slotLetter))
-                continue; // never emit duplicate letters
+            // Body Armor intentionally stores Armor + Evade as two slot-A rows.
+            if (usedLetters.has(slotLetter) && specSlot !== 'body')
+                continue;
             const typeRaw = String($row.find('.node-spec-bv-type').val() || '').trim();
             if (!typeRaw || typeRaw === 'none')
                 continue; // "None" slots are not stored
@@ -1416,12 +1527,16 @@ export class NodeEditor extends BaseDialog {
                 : '';
             const valueStr = overrideStr || derivedStr;
             const valueNum = Number(valueStr);
-            baseValues.push({
+            const entry = {
                 slot: slotLetter,
                 type: typeRaw,
                 label,
                 value: valueStr === '' || Number.isNaN(valueNum) ? valueStr : valueNum,
-            });
+            };
+            if (typeRaw === 'bodyArmor' && specSlot === 'body') {
+                entry.armorWeightClass = armorWeight;
+            }
+            baseValues.push(entry);
         }
         // ---- Level Progression picks (Level 1/2/3 = Power or Stone Function) ----
         const stoneFnKinds = [

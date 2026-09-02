@@ -77,7 +77,14 @@
 
       <div class="form-group">
         <label>Base Values <span class="node-editor-hint-inline" id="node-spec-bv-limit-hint">(values auto-scale with the Artifact's level)</span></label>
-        <p class="node-editor-hint">This Slot grants a fixed set of Base Value slots — <strong>A</strong> (from Artifact Level 1), <strong>B</strong> (from Level 4) and <strong>C</strong> (from Level 7). You only choose <em>what</em> each slot does; set its type to <strong>— None —</strong> to leave it unused.</p>
+        <p class="node-editor-hint">
+          This Slot grants fixed Base Value slots — <strong>A</strong> (from Artifact Level 1), <strong>B</strong> (from Level 4) and <strong>C</strong> (from Level 7).
+          {{#if (eq specSlot "body")}}
+          <strong>Body Armor is special:</strong> it always has <em>two</em> modifiers on slot <strong>A</strong> — <strong>Armor</strong> and <strong>Evade</strong> — following the Light / Medium / Heavy Artifact tables.
+          {{else}}
+          You only choose <em>what</em> each slot does; set its type to <strong>— None —</strong> to leave it unused.
+          {{/if}}
+        </p>
         <div id="node-spec-base-values" class="node-multi-select">
           {{#each specBaseValueRows as |row|}}
           <div class="node-select-row node-spec-bv-row" data-bv-slot="{{row.slot}}">
@@ -94,7 +101,7 @@
               <option value="{{opt.id}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <span class="node-spec-bv-derived" data-derived="{{row.derivedDisplay}}" title="Auto-calculated from Base Profile + Artifact Level">{{#unless row.unlocked}}— (unlocks L{{row.unlockLevel}}){{else}}{{#if row.derivedDisplay}}auto: {{row.derivedDisplay}}{{else}}—{{/if}}{{/unless}}</span>
+            <span class="node-spec-bv-derived" data-derived="{{row.derivedValue}}" title="Auto-calculated from Armor type + Artifact Level">{{#unless row.unlocked}}— (unlocks L{{row.unlockLevel}}){{else}}{{#if row.derivedDisplay}}auto: {{row.derivedDisplay}}{{else}}—{{/if}}{{/unless}}</span>
             <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="{{#unless row.unlocked}}Unlocks at L{{row.unlockLevel}}{{else}}Value{{/unless}}" title="The Base Value for this slot. Leave blank to use the auto-scaled value shown on the left." {{#unless row.unlocked}}disabled{{/unless}} />
           </div>
           {{/each}}
@@ -306,7 +313,8 @@
     </div>
 
     <div class="node-profile-block node-editor-span2 {{#unless (eq artifactKind "armor")}}hidden{{/unless}}" data-profile="armor">
-      <h4 class="node-profile-title">Armor</h4>
+      <h4 class="node-profile-title">Armor (Artifact Body Armor tables)</h4>
+      <p class="node-editor-hint">{{bodyArmorHint}}</p>
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Armor type</label>
@@ -317,16 +325,17 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Armor value</label>
-          <input type="number" id="node-armor-value" value="{{armorProfile.armorValue}}" min="0" step="1" />
+          <label>Armor total <span class="node-editor-hint-inline">(auto)</span></label>
+          <input type="number" id="node-armor-total" value="{{armorProfile.armorTotal}}" min="0" step="1" readonly />
+          <input type="hidden" id="node-armor-value" value="{{armorProfile.armorValue}}" />
         </div>
         <div class="form-group">
-          <label>Evade modifier</label>
-          <input type="number" id="node-armor-evade" value="{{armorProfile.evadeModifier}}" step="1" />
+          <label>Final Evade <span class="node-editor-hint-inline">(auto · Medium/Heavy include class −2/−4)</span></label>
+          <input type="number" id="node-armor-evade" value="{{armorProfile.evadeModifier}}" step="1" readonly />
         </div>
         <div class="form-group node-editor-span2">
-          <label>Skill penalty <span class="node-editor-hint-inline">(empty = type default)</span></label>
-          <input type="text" id="node-armor-skill-penalty" value="{{armorProfile.skillPenalty}}" placeholder="e.g. −1d8 to Physical Skill checks" />
+          <label>Skill / Initiative penalty <span class="node-editor-hint-inline">(from type · Medium −4 Init / −1d8 · Heavy −8 Init / −2d8)</span></label>
+          <input type="text" id="node-armor-skill-penalty" value="{{armorProfile.skillPenalty}}" readonly placeholder="None for Light" />
         </div>
       </div>
     </div>

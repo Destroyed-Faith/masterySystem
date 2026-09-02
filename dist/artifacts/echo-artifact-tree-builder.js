@@ -16,7 +16,7 @@
  */
 import { ECHO_ARTIFACTS, buildEchoStoneFunction, buildEchoProgressionPicks, } from '../utils/echo-artifacts.js';
 import { GENERAL_ARTIFACTS } from '../utils/general-artifacts.js';
-import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, noArmorEvadeForLevel, soulSigilArmorForLevel, weaponDamageForLevel, spellFocusForLevel, } from '../utils/artifact-base-derive.js';
+import { artifactArmorBonusForLevel, artifactArmorEvadeForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, spellFocusForLevel, } from '../utils/artifact-base-derive.js';
 import { getArmorDefinitionForType } from '../utils/equipment.js';
 import { resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
@@ -26,7 +26,7 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 50;
+export const ECHO_ARTIFACT_SEED_VERSION = 51;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -37,20 +37,6 @@ const ALL_POWER_LEVEL_KEYS = [
 /** Two-handed weapon damage — 4d8 base + 1d8 per level (5d8 L1 … 14d8 L10). */
 function twoHandedEchoDamageForLevel(level) {
     return weaponDamageForLevel(level, 'twoHandedWeapon');
-}
-/** Wyrm Scales armor bonus over the Heavy base 12 — totals +16 (L1) … +25 (L10). */
-function wyrmScalesArmorBonusForLevel(level) {
-    const l = clampLevel(level);
-    return l >= 10 ? 13 : l + 3;
-}
-/** Wyrm Scales printed Evade/Initiative drawback — −2 (L1-3), −4 (L4-6), −6 (L7-10). */
-function wyrmScalesDrawbackForLevel(level) {
-    const l = clampLevel(level);
-    if (l >= 7)
-        return -6;
-    if (l >= 4)
-        return -4;
-    return -2;
 }
 /** Dragon Claws printed damage table — 4d8 L1 … 16d8 L10 (PG "Claw / Tail Base"). */
 const DRAGON_CLAWS_DAMAGE_TABLE = [4, 5, 6, 8, 9, 10, 12, 14, 15, 16];
@@ -110,19 +96,6 @@ function hexRankForLevel(level) {
     if (l >= 6)
         return 3;
     return 2;
-}
-/** Soul Sigil Silver Veil Evade — +2 (L1) … +11 (L10), +1 base +1/level. */
-function soulSigilEvadeForLevel(level) {
-    return noArmorEvadeForLevel(level);
-}
-/** Shadowgrave Armor hybrid Armor — 4,4,5,5,6,6,7,7,8,9. */
-const SHADOWGRAVE_ARMOR_TABLE = [4, 4, 5, 5, 6, 6, 7, 7, 8, 9];
-function shadowgraveArmorForLevel(level) {
-    return SHADOWGRAVE_ARMOR_TABLE[clampLevel(level) - 1];
-}
-/** Shadowgrave Armor hybrid Evade — +4 (L1) … +13 (L10), +1 per level. */
-function shadowgraveEvadeForLevel(level) {
-    return 3 + clampLevel(level);
 }
 /** Starfallen Forceshield Shield Value — +4,+4,+4,+5,+5,+5,+6,+6,+6,+8. */
 const STARFALLEN_SHIELD_TABLE = [4, 4, 4, 5, 5, 5, 6, 6, 6, 8];
@@ -202,10 +175,43 @@ function huntersScourgeExtraReachForLevel(level) {
         return '+2 m';
     return '+1 m';
 }
+const BODY_ARMOR_CLASS_NOTE = {
+    light: 'Light Armor Artifact: Armor + Evade on slot A. No Initiative or Physical Skill penalty.',
+    medium: 'Medium Armor Artifact: Armor + Final Evade on slot A (Final includes −2). Keeps −4 Initiative and −1d8 Physical Skills.',
+    heavy: 'Heavy Armor Artifact: Armor + Final Evade on slot A (Final includes −4). Keeps −8 Initiative and −2d8 Physical Skills.',
+};
+const BODY_ARMOR_LABEL = {
+    light: 'Light Armor',
+    medium: 'Medium Armor',
+    heavy: 'Heavy Armor',
+};
+/** Canonical Body Armor Base Values: Armor + Evade, both on slot A from Level 1. */
+function bodyArmorBaseValueSpecs(weight, opts) {
+    return [
+        {
+            slot: 'a',
+            type: 'bodyArmor',
+            label: opts?.armorLabel || BODY_ARMOR_LABEL[weight],
+            armorWeightClass: weight,
+            unlock: 1,
+            valueAt: (l) => artifactArmorBonusForLevel(weight, l),
+            note: BODY_ARMOR_CLASS_NOTE[weight],
+        },
+        {
+            slot: 'a',
+            type: 'evade',
+            label: opts?.evadeLabel || 'Evade',
+            unlock: 1,
+            valueAt: (l) => artifactArmorEvadeForLevel(weight, l),
+            note: 'Final Evade Modifier for this Artifact armor weight class (slot A).',
+        },
+    ];
+}
 /**
  * Per-echo-artifact Base Value tables. The numbers are the system's canonical
  * baselines (see `artifact-base-derive.ts` / Artefacts.md). Echo body armor
  * stores the artifact bonus only; mundane Light/Medium/Heavy base is added at runtime.
+ * Every Artifact Body Armor also stores Final Evade as a second slot-A Base Value.
  */
 const BASE_VALUE_TABLES = {
     // PG "Stonebound Soles Base": A = Armor (+1 L1 … +5 L9-10), B = Tunneling
@@ -233,45 +239,11 @@ const BASE_VALUE_TABLES = {
         { slot: 'a', type: 'evade', label: 'Evade', unlock: 1, valueAt: (l) => feetEvadeForLevel(l) },
         { slot: 'b', type: 'movement', label: 'Movement', unlock: 4, valueAt: (l) => getMinorMovementBaselineB(l) },
     ],
-    titanScars: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Medium Echo Armor',
-            armorWeightClass: 'medium',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
-        },
-    ],
+    titanScars: bodyArmorBaseValueSpecs('medium', { armorLabel: 'Medium Echo Armor' }),
     ringchainOfKeptNames: [],
-    // PG "Wyrm Scales Base Item": total Armor +16 (L1) … +25 (L10) with
-    // escalating drawbacks −2/−2 (L1-3), −4/−4 (L4-6), −6/−6 (L7-10) and always
-    // −2d8 Physical Skill Checks. Stored value = bonus over the Heavy base 12.
-    wyrmScalesHeavy: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Heavy Echo Armor',
-            armorWeightClass: 'heavy',
-            unlock: 1,
-            valueAt: (l) => wyrmScalesArmorBonusForLevel(l),
-            evadeModifierAt: (l) => wyrmScalesDrawbackForLevel(l),
-            initiativeModifierAt: (l) => wyrmScalesDrawbackForLevel(l),
-            note: 'Drawbacks: −2/−4/−6 Evade & Initiative (L1-3 / L4-6 / L7-10), −2d8 Physical Skills.',
-        },
-    ],
-    wyrmScalesLight: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Light Echo Armor',
-            armorWeightClass: 'light',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Light Armor: no class drawbacks.',
-        },
-    ],
+    // Heavy Artifact Armor progression (Armor 12→16, Final Evade −4→−2).
+    wyrmScalesHeavy: bodyArmorBaseValueSpecs('heavy', { armorLabel: 'Heavy Echo Armor' }),
+    wyrmScalesLight: bodyArmorBaseValueSpecs('light', { armorLabel: 'Light Echo Armor' }),
     // PG "Claw / Tail Base": printed per-level table (4d8 L1 … 16d8 L10;
     // Penetration 2→5 from L4; Brutal Impact 4→5 from L7).
     dragonClaws: [
@@ -279,39 +251,9 @@ const BASE_VALUE_TABLES = {
         { slot: 'b', type: 'weaponSpecial', label: 'Penetration', unlock: 4, valueAt: (l) => dragonClawsPenetrationForLevel(l) },
         { slot: 'c', type: 'weaponSpecial', label: 'Brutal Impact', unlock: 7, valueAt: (l) => dragonClawsBrutalForLevel(l) },
     ],
-    sentinelFrame: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Light Echo Armor',
-            armorWeightClass: 'light',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Light Armor: no class drawbacks.',
-        },
-    ],
-    judicatorFrame: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Light Echo Armor',
-            armorWeightClass: 'light',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Light Armor: no class drawbacks.',
-        },
-    ],
-    oracleFrame: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Light Echo Armor',
-            armorWeightClass: 'light',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Light Armor: no class drawbacks.',
-        },
-    ],
+    sentinelFrame: bodyArmorBaseValueSpecs('light', { armorLabel: 'Light Echo Armor' }),
+    judicatorFrame: bodyArmorBaseValueSpecs('light', { armorLabel: 'Light Echo Armor' }),
+    oracleFrame: bodyArmorBaseValueSpecs('light', { armorLabel: 'Light Echo Armor' }),
     // PG "Bite and Head Armor Base": A = Bite 1d8/level, B = Head Armor (+1 L1
     // … +5 L9-10). Predator Sense is a Sense Slot option, not a Base Value.
     dragonHead: [
@@ -367,28 +309,8 @@ const BASE_VALUE_TABLES = {
             },
         ],
     ])),
-    alchemistCoat: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Medium Armor',
-            armorWeightClass: 'medium',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
-        },
-    ],
-    greenWardenMantle: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Medium Armor',
-            armorWeightClass: 'medium',
-            unlock: 1,
-            valueAt: (l) => bodyArmorBonusForLevel(l),
-            note: 'Medium Armor: Evade −2, Initiative −4, −1d8 Physical Skills.',
-        },
-    ],
+    alchemistCoat: bodyArmorBaseValueSpecs('medium'),
+    greenWardenMantle: bodyArmorBaseValueSpecs('medium'),
     huntersScourge: [
         { slot: 'a', type: 'weaponDamage', label: 'Scourge Damage', unlock: 1, valueAt: (l) => unboundGuideDamageForLevel(l) },
         {
@@ -406,26 +328,10 @@ const BASE_VALUE_TABLES = {
         { slot: 'b', type: 'weaponSpecial', label: 'Requiem', unlock: 4, valueAt: (l) => weaponSpecialRankForLevel([0, 4, 8, 8], l) },
         { slot: 'c', type: 'weaponSpecial', label: 'Expose', unlock: 7, valueAt: (l) => weaponSpecialRankForLevel([0, 0, 4, 8], l) },
     ],
-    soulSigil: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Light Armor',
-            armorWeightClass: 'light',
-            unlock: 1,
-            // Bonus over Light base 4 → totals 4/4/5/5/6/6/7/7/8/8 (Silver Veil table).
-            valueAt: (l) => soulSigilArmorForLevel(l),
-            note: 'Silver Veil Light Armor: totals 4→8 (paired bands). No extra Artifact Armor Bonus.',
-        },
-        {
-            slot: 'a',
-            type: 'evade',
-            label: 'Evade (Silver Veil)',
-            unlock: 1,
-            valueAt: (l) => soulSigilEvadeForLevel(l),
-            note: 'Silver Veil Evade +2 (L1) … +11 (L10), +1 per level.',
-        },
-    ],
+    soulSigil: bodyArmorBaseValueSpecs('light', {
+        armorLabel: 'Light Armor',
+        evadeLabel: 'Evade (Silver Veil)',
+    }),
     frostboundReturningAxe: [
         { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => oneHandedGeneralDamageForLevel(l) },
         {
@@ -437,24 +343,10 @@ const BASE_VALUE_TABLES = {
             note: 'Returning: the Axe returns to the wielder after the attack resolves.',
         },
     ],
-    shadowgraveArmor: [
-        {
-            slot: 'a',
-            type: 'bodyArmor',
-            label: 'Hybrid Defense (Armor)',
-            armorWeightClass: 'light',
-            unlock: 1,
-            valueAt: (l) => shadowgraveArmorForLevel(l) - 4,
-            note: 'Light Armor base + hybrid bonus. No Damage Reduction, no Phasing.',
-        },
-        {
-            slot: 'a',
-            type: 'evade',
-            label: 'Hybrid Defense (Evade)',
-            unlock: 1,
-            valueAt: (l) => shadowgraveEvadeForLevel(l),
-        },
-    ],
+    shadowgraveArmor: bodyArmorBaseValueSpecs('light', {
+        armorLabel: 'Hybrid Defense (Armor)',
+        evadeLabel: 'Hybrid Defense (Evade)',
+    }),
     staffOfTheDark: [
         {
             slot: 'a',
@@ -826,7 +718,7 @@ function shieldProfileAtLevel(def, level) {
     const shieldValue = shieldBv ? Number(shieldBv.valueAt(level)) || 0 : 0;
     return { type: 'medium', shieldValue, evadeBonus: 0, skillPenalty: '-2d8 Physical Skill Checks' };
 }
-/** Body armor profile for armor-kind artifacts (weight class + artifact bonus). */
+/** Body armor profile for armor-kind artifacts (weight class + level progression). */
 function armorProfileAtLevel(def, level) {
     const bodySpec = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'bodyArmor');
     if (!bodySpec?.armorWeightClass)
@@ -834,11 +726,11 @@ function armorProfileAtLevel(def, level) {
     const armorDef = getArmorDefinitionForType(bodySpec.armorWeightClass);
     if (!armorDef)
         return null;
-    const bonus = Number(bodySpec.valueAt(level)) || 0;
+    const weight = bodySpec.armorWeightClass;
     return {
-        type: bodySpec.armorWeightClass,
-        armorValue: bonus,
-        evadeModifier: armorDef.evadeModifier,
+        type: weight,
+        armorValue: artifactArmorBonusForLevel(weight, level),
+        evadeModifier: artifactArmorEvadeForLevel(weight, level),
         skillPenalty: armorDef.skillPenalty === '—' ? '' : armorDef.skillPenalty,
     };
 }

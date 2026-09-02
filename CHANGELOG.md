@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.459] - 2026-09-02
+
+### Changed
+
+- **Artifact Body Armor:** Every Artifact Body Armor now grants **Armor + Evade on slot A** (two modifiers). Progressions follow the new Light / Medium / Heavy tables (Light Armor 4→8 & Evade +2→+11; Medium Armor 8→12 & Final Evade −1→+3; Heavy Armor 12→16 & Final Evade −4→−2). Medium/Heavy keep Initiative and Physical Skill penalties; Final Evade already includes the class −2/−4. Edit Artifact Node shows both A rows and auto Armor/Evade from the weight-class tables. Seed version **51**.
+
 ## [0.9.458] - 2026-09-01
 
 ### Changed

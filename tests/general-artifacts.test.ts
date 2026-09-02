@@ -546,16 +546,15 @@ describe('Falcon Wide Brim', () => {
 describe('Shadowgrave Armor', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('shadowgraveArmor')!);
 
-  it('hybrid defense: Armor 4→9 total and Evade +4→+13, both from L1', () => {
-    // Since armor weight classes (v0.9.125), the base value stores only the
-    // hybrid BONUS on top of the Light-Armor base (4); the total stays 4→9.
-    const armorTotalTable = [4, 4, 5, 5, 6, 6, 7, 7, 8, 9];
+  it('uses Light Armor Artifact tables: Armor 4→8 and Evade +2→+11, both from L1', () => {
+    const armorTotalTable = [4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
+    const evadeTable = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
     const lightArmorBase = 4;
     for (let lvl = 1; lvl <= 10; lvl++) {
       const armorRow = baseValue(tree, lvl, 'Hybrid Defense (Armor)');
-      expect(armorRow.value).toBe(armorTotalTable[lvl - 1] - lightArmorBase);
+      expect(armorRow.value).toBe(armorTotalTable[lvl - 1]! - lightArmorBase);
       expect(armorRow.armorWeightClass).toBe('light');
-      expect(baseValue(tree, lvl, 'Hybrid Defense (Evade)').value).toBe(lvl + 3);
+      expect(baseValue(tree, lvl, 'Hybrid Defense (Evade)').value).toBe(evadeTable[lvl - 1]);
     }
   });
 

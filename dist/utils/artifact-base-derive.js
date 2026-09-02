@@ -75,25 +75,81 @@ export function scaleWeaponSpecial(idOrLabel, level) {
 export function isScalingWeaponSpecial(idOrLabel) {
     return WEAPON_SPECIAL_BASELINE[normalizeSpecialKey(idOrLabel)] !== undefined;
 }
-/** Body Armor: Artifact Armor Bonus. L1=+4 … L9=+12, L10=+14. */
-export function bodyArmorBonusForLevel(level) {
-    const l = clampLevel(level);
-    return l <= 9 ? l + 3 : 14;
+/** Mundane armor base (Light 4 / Medium 8 / Heavy 12). */
+export const ARTIFACT_ARMOR_MUNDANE_BASE = {
+    light: 4,
+    medium: 8,
+    heavy: 12,
+};
+/**
+ * Artifact Body Armor — absolute Armor totals by weight class and level.
+ * Both Armor and Evade live on Base Value slot A (two modifiers).
+ */
+const ARTIFACT_ARMOR_TOTAL_TABLE = {
+    // Light: strongest Evade path, modest Armor layer
+    light: [4, 4, 5, 5, 6, 6, 7, 7, 8, 8],
+    // Medium: balanced Armor, slower Evade recovery
+    medium: [8, 8, 9, 9, 10, 10, 11, 11, 12, 12],
+    // Heavy: strongest Armor path
+    heavy: [12, 12, 13, 13, 14, 14, 15, 15, 16, 16],
+};
+/**
+ * Final Evade Modifier contributed by an Artifact Body Armor (slot A).
+ * Medium/Heavy values already include the mundane −2 / −4 Evade drawbacks.
+ */
+const ARTIFACT_ARMOR_EVADE_TABLE = {
+    light: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    medium: [-1, -1, 0, 0, 1, 1, 2, 2, 3, 3],
+    heavy: [-4, -4, -4, -4, -4, -2, -2, -2, -2, -2],
+};
+export function normalizeArtifactArmorWeight(raw) {
+    const t = String(raw || '')
+        .toLowerCase()
+        .trim();
+    if (t === 'light' || t === 'medium' || t === 'heavy')
+        return t;
+    if (t.includes('heavy'))
+        return 'heavy';
+    if (t.includes('medium'))
+        return 'medium';
+    if (t.includes('light') || t.includes('hybrid') || t.includes('robe') || t.includes('noarmor')) {
+        return 'light';
+    }
+    return null;
 }
-/** Soul Sigil Silver Veil Evade. L1=+2 … L10=+11 (+1 per level). */
-export function noArmorEvadeForLevel(level) {
-    return 1 + clampLevel(level);
+/** Absolute Armor total for an Artifact Body Armor at the given level. */
+export function artifactArmorTotalForLevel(weight, level) {
+    return ARTIFACT_ARMOR_TOTAL_TABLE[weight][clampLevel(level) - 1];
 }
 /**
- * Soul Sigil Silver Veil Armor **bonus** over Light Armor base 4.
- * Totals: L1–2=4, L3–4=5, L5–6=6, L7–8=7, L9–10=8 (no extra Artifact Armor Bonus).
+ * Artifact Armor Bonus stored on the `bodyArmor` Base Value
+ * (absolute total minus mundane Light/Medium/Heavy base).
  */
-export function soulSigilArmorForLevel(level) {
-    return Math.floor((clampLevel(level) - 1) / 2);
+export function artifactArmorBonusForLevel(weight, level) {
+    return artifactArmorTotalForLevel(weight, level) - ARTIFACT_ARMOR_MUNDANE_BASE[weight];
 }
-/** Soul Sigil Silver Veil total Armor (Light base 4 + bonus). */
+/** Final Evade Modifier for an Artifact Body Armor at the given level. */
+export function artifactArmorEvadeForLevel(weight, level) {
+    return ARTIFACT_ARMOR_EVADE_TABLE[weight][clampLevel(level) - 1];
+}
+/**
+ * @deprecated Old shared +4…+14 Artifact Armor Bonus. All Artifact Body Armors
+ * now use `artifactArmorBonusForLevel(weight, level)` instead.
+ */
+export function bodyArmorBonusForLevel(level) {
+    return artifactArmorBonusForLevel('light', level);
+}
+/** @deprecated Alias of Light Armor Artifact Evade (`artifactArmorEvadeForLevel('light', …)`). */
+export function noArmorEvadeForLevel(level) {
+    return artifactArmorEvadeForLevel('light', level);
+}
+/** @deprecated Alias of Light Armor Artifact bonus. */
+export function soulSigilArmorForLevel(level) {
+    return artifactArmorBonusForLevel('light', level);
+}
+/** @deprecated Alias of Light Armor Artifact total. */
 export function soulSigilArmorTotalForLevel(level) {
-    return 4 + soulSigilArmorForLevel(level);
+    return artifactArmorTotalForLevel('light', level);
 }
 /** Feet Evade (Elorian Stride). L1–2=+1, L3–4=+2, … L9–10=+5. */
 export function feetEvadeForLevel(level) {
@@ -174,8 +230,23 @@ export function deriveBaseValueDisplay(type, level, profile) {
             return { display: `${spellFocusForLevel(level, profile)} to Spells`, derivable: true };
         case 'thrownRange':
             return { display: `${thrownRangeForLevel(level)} m`, derivable: true };
-        case 'bodyArmor':
-            return { display: `+${bodyArmorBonusForLevel(level)} Armor`, derivable: true };
+        case 'bodyArmor': {
+            const weight = normalizeArtifactArmorWeight(profile) ||
+                (profile === 'bodyArmor' || profile === 'robe' || profile === 'noArmorBody'
+                    ? 'light'
+                    : null);
+            if (weight) {
+                const total = artifactArmorTotalForLevel(weight, level);
+                const bonus = artifactArmorBonusForLevel(weight, level);
+                // data-derived must parse as the stored bonus; visible text is richer.
+                return {
+                    display: String(bonus),
+                    label: `Armor ${total} (${weight[0].toUpperCase()}${weight.slice(1)})`,
+                    derivable: true,
+                };
+            }
+            return { display: String(artifactArmorBonusForLevel('light', level)), derivable: true };
+        }
         case 'headArmor':
             return { display: `+${minorArmorForLevel(level)} Armor`, derivable: true };
         case 'shieldValue':
@@ -189,8 +260,18 @@ export function deriveBaseValueDisplay(type, level, profile) {
             if (profile === 'headArmor') {
                 return { display: `+${minorArmorForLevel(level)} Evade`, derivable: true };
             }
-            const val = noArmorEvadeForLevel(level);
-            return { display: `+${val} Evade`, derivable: true };
+            const weight = normalizeArtifactArmorWeight(profile) ||
+                (profile === 'bodyArmor' || profile === 'robe' || profile === 'noArmorBody'
+                    ? 'light'
+                    : null);
+            if (weight) {
+                const val = artifactArmorEvadeForLevel(weight, level);
+                const signed = val > 0 ? `+${val}` : String(val);
+                return { display: String(val), label: `${signed} Evade`, derivable: true };
+            }
+            const val = artifactArmorEvadeForLevel('light', level);
+            const signed = val > 0 ? `+${val}` : String(val);
+            return { display: signed + ' Evade', derivable: true };
         }
         case 'movement':
             return { display: `+${feetMovementForLevel(level)} m`, derivable: true };

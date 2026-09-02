@@ -30,7 +30,13 @@ export interface ArtifactBodyArmorClassPenalty {
 }
 /**
  * Resolve one artifact `bodyArmor` base value into total armor + class drawbacks.
- * Returns null when no weight class can be determined (flat legacy bonus).
+ *
+ * Evade is **not** taken from the mundane weight-class table anymore: every
+ * Artifact Body Armor contributes its Final Evade Modifier via a separate
+ * Evade Base Value on slot A. This helper still returns Initiative / Physical
+ * Skill drawbacks from the weight class (Medium −4 Init / −1d8, Heavy −8 / −2d8).
+ * An explicit `evadeModifier` / `initiativeModifier` on the BV remains an override
+ * for legacy printed exceptions.
  */
 export declare function resolveArtifactBodyArmor(bv: ArtifactBaseValue, itemSystem?: any): ResolvedArtifactBodyArmor | null;
 /**

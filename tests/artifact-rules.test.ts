@@ -54,7 +54,7 @@ describe('Artifact rules — slot vocabulary', () => {
     });
 
     it('limits the body slot to one base value (spec)', () => {
-        expect(BASE_VALUE_LIMIT_BY_SLOT.body).toBe(1);
+        expect(BASE_VALUE_LIMIT_BY_SLOT.body).toBe(2);
     });
 
     it('mainHand and offHand allow two base values', () => {
