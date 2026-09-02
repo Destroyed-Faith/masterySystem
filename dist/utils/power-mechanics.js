@@ -1,9 +1,9 @@
 /**
  * Power Mechanics Engine — Aggregator
  *
- * Reads structured `mechanics` blocks from slot-activated passives and
+ * Reads structured `mechanics` blocks from owned Passive powers (always-on) and
  * active-buff effects, sums them into per-actor totals, and builds a
- * breakdown list ("Armor +1 from Dragon Scales (slotted)") that the
+ * breakdown list ("Armor +1 from Dragon Scales") that the
  * character sheet renders as transparent tooltips.
  *
  * Powers that do not carry a `mechanics` block are ignored here (they are
@@ -335,45 +335,29 @@ export function isSanctionedPhasingName(powerName, sourceKind) {
 }
 /**
  * Enumerate every active mechanics contribution for an actor:
- * - slot-activated passives (system.passives.slotN where active=true) with a mechanics block
+ * - owned Passive powers (always-on; Passive Slot Manager removed)
  * - live ActiveEffects flagged as activeBuff whose source power has a mechanics block
+ *
+ * Conditional passives still flow through; `aggregateMechanics` gates them via
+ * `condition` / `conditionExpr`. Active Buffs stay combat-time only.
  */
 export function collectMechanicsContributions(actor) {
     const out = [];
     const system = actor?.system ?? {};
     const items = actor?.items;
-    // 1) Slot-activated passives
-    const passives = system.passives ?? {};
-    for (const slotKey of Object.keys(passives)) {
-        if (!/^slot\d+$/.test(slotKey))
-            continue;
-        const slot = passives[slotKey];
-        if (!slot || !slot.passive)
-            continue;
-        const pid = slot.passive.id;
-        if (!pid)
-            continue;
-        let powerItem = findPowerItemOnActor(actor, pid);
-        if (!powerItem && slot.passive?.name) {
-            const nm = String(slot.passive.name).trim();
-            try {
-                for (const it of items ?? []) {
-                    if (it?.type === 'power' && String(it.name ?? '').trim() === nm) {
-                        powerItem = it;
-                        break;
-                    }
-                }
-            }
-            catch {
-                powerItem = null;
-            }
+    const seenPassiveIds = new Set();
+    const pushOwnedPassive = (powerItem, displayName) => {
+        if (!powerItem || powerItem.type !== 'power')
+            return;
+        const pid = String(powerItem.id || powerItem._id || '').trim();
+        if (pid) {
+            if (seenPassiveIds.has(pid))
+                return;
+            seenPassiveIds.add(pid);
         }
         const mech = resolvePowerMechanics(powerItem);
         if (!mech)
-            continue;
-        // Slotted passives use `passive-slotted-active` from the template helper, but
-        // legacy / migrated items may omit `applyWhen` entirely while still carrying
-        // numeric `armor` / `evade` / … keys — those must still aggregate.
+            return;
         const aw = mech.applyWhen;
         const passiveCat = String(powerItem?.system?.category ?? powerItem?.system?.powerType ?? '').toLowerCase();
         const passiveSheetStats = typeof mech.armor === 'number' ||
@@ -385,22 +369,84 @@ export function collectMechanicsContributions(actor) {
             typeof mech.wardIncoming === 'number' ||
             typeof mech.initiative === 'number' ||
             typeof mech.initiativeD8 === 'number' ||
+            typeof mech.rollDice?.attack === 'number' ||
+            typeof mech.rollDice?.skill === 'number' ||
+            typeof mech.rollDice?.damage === 'number' ||
+            !!mech.damageRider ||
             !!mech.phasing?.combatStart;
-        const allowSlottedPassive = !aw ||
+        const looksPassive = passiveCat === 'passive' ||
             aw === 'passive-slotted-active' ||
-            (passiveCat === 'passive' && passiveSheetStats);
-        if (!allowSlottedPassive)
-            continue;
-        const pname = slot.passive.name ?? 'Passive';
+            (!aw && passiveSheetStats && passiveCat !== 'activebuff' && passiveCat !== 'buff');
+        if (!looksPassive)
+            return;
+        // Explicit non-passive applyWhen (e.g. activeBuff-active) must not leak in.
+        if (aw && aw !== 'passive-slotted-active')
+            return;
+        const pname = String(displayName || powerItem.name || 'Passive')
+            .replace(/^passive:\s*/i, '')
+            .trim() || 'Passive';
         out.push({
-            source: `${pname} (slotted)`,
+            source: pname,
             powerName: pname,
             sourceKind: 'passive',
             mechanics: mech,
             powerTemplateId: powerItem?.system?.templateId ? String(powerItem.system.templateId) : null,
         });
+    };
+    // 1) Owned Passive powers (always on) — Foundry Collections are iterable.
+    const itemList = (() => {
+        if (!items)
+            return [];
+        if (Array.isArray(items))
+            return items;
+        if (typeof items[Symbol.iterator] === 'function') {
+            try {
+                return Array.from(items);
+            }
+            catch {
+                return [];
+            }
+        }
+        if (typeof items.values === 'function') {
+            try {
+                return Array.from(items.values());
+            }
+            catch {
+                return [];
+            }
+        }
+        return [];
+    })();
+    for (const powerItem of itemList) {
+        pushOwnedPassive(powerItem);
     }
-    // 2) Active Buff effects
+    // 2) Legacy Passive slots — still honor references when items aren't iterable
+    //    (unit fixtures) or a slot points at an owned power we haven't seen.
+    const passives = system.passives ?? {};
+    for (const slotKey of Object.keys(passives)) {
+        if (!/^slot\d+$/.test(slotKey))
+            continue;
+        const slot = passives[slotKey];
+        if (!slot || !slot.passive)
+            continue;
+        const pid = slot.passive.id;
+        if (!pid)
+            continue;
+        if (seenPassiveIds.has(String(pid)))
+            continue;
+        let powerItem = findPowerItemOnActor(actor, pid);
+        if (!powerItem && slot.passive?.name) {
+            const nm = String(slot.passive.name).trim();
+            for (const it of itemList) {
+                if (it?.type === 'power' && String(it.name ?? '').trim() === nm) {
+                    powerItem = it;
+                    break;
+                }
+            }
+        }
+        pushOwnedPassive(powerItem, slot.passive.name);
+    }
+    // 3) Active Buff effects
     const effects = actor?.effects;
     if (effects) {
         const iter = typeof effects[Symbol.iterator] === 'function'
@@ -429,11 +475,11 @@ export function collectMechanicsContributions(actor) {
             const pname = flags.powerName ?? effect.name ?? 'Active Buff';
             const buffTemplateId = flags.powerTemplateId ||
                 (() => {
-                    const pid = flags.powerId;
-                    if (!pid || !actor?.items?.get)
+                    const bpid = flags.powerId;
+                    if (!bpid || !actor?.items?.get)
                         return null;
                     try {
-                        const it = actor.items.get(pid) ?? null;
+                        const it = actor.items.get(bpid) ?? null;
                         const tid = it?.system?.templateId;
                         return tid ? String(tid) : null;
                     }
@@ -602,7 +648,7 @@ export function buildActorMechanicsBreakdown(actor) {
     const contributions = collectMechanicsContributions(actor);
     return aggregateMechanics(contributions, actor);
 }
-/** Slotted passive powers only (excludes active-buff ActiveEffects). */
+/** Owned Passive powers only (excludes active-buff ActiveEffects). */
 export function buildPassiveMechanicsBreakdown(actor) {
     const contributions = collectMechanicsContributions(actor).filter((c) => c.sourceKind === 'passive');
     return aggregateMechanics(contributions, actor);

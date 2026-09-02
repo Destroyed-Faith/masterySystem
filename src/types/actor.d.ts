@@ -52,9 +52,20 @@ export interface CombatData {
   activeWeaponId?: string;
   armorId?: string;
   shieldId?: string;
-  /** Reserved; passive armor/evade no longer feeds sheet totals. */
+  /** Always-on Passive Armor already folded into armorTotal. */
   armorFromMechanics?: number;
+  /** Always-on Passive Evade already folded into evadeTotal. */
   evadeFromMechanics?: number;
+  /** True when prepareDerivedData includes owned Passives in defense totals. */
+  passivesInDefenseTotals?: boolean;
+  /** Parry pool size from owned Passive: Parry (0 if none). */
+  parryPool?: number;
+  /** Damage Negation reserve from owned Passive (0 if none). */
+  damageNegationReserve?: number;
+  /** Phasing combat-start charges from owned Passive (0 if none). */
+  phasingCharges?: number;
+  /** Compact Passive specials for Combat Statistics (DR / Phasing / Negation / Parry). */
+  passiveDefenseSpecialRows?: Array<{ label: string; detail: string; value: number; display: string }>;
   /** Active-buff armor bonus (not in sheet base total; applied at hit resolution). */
   armorFromActiveBuffs?: number;
   /** Active-buff evade bonus (not in sheet base total; applied at hit resolution). */

@@ -920,7 +920,7 @@
           <!-- Evade -->
           <div class="combat-stat-card combat-stat-card--tooltip">
             <div class="combat-stat-tooltip" role="tooltip">
-              <p class="stat-summary-hint">Only equipped armor &amp; shield count toward Shield / Armor lines.</p>
+              <p class="stat-summary-hint">Equipment, artifacts, and always-on Passives. Active Buffs apply in combat only.</p>
               {{#if system.combat.evadeBreakdownRows}}
               <ul class="combat-stat-breakdown">
                 {{#each system.combat.evadeBreakdownRows}}
@@ -948,7 +948,7 @@
           <!-- Armor -->
           <div class="combat-stat-card combat-stat-card--tooltip">
             <div class="combat-stat-tooltip" role="tooltip">
-              <p class="stat-summary-hint">MR + values on equipped chest armor + equipped shield.</p>
+              <p class="stat-summary-hint">MR + equipped armor/shield + always-on Passives.</p>
               {{#if system.combat.armorBreakdownRows}}
               <ul class="combat-stat-breakdown">
                 {{#each system.combat.armorBreakdownRows}}
@@ -1016,7 +1016,7 @@
           <!-- Initiative -->
           <div class="combat-stat-card combat-stat-card--tooltip">
             <div class="combat-stat-tooltip" role="tooltip">
-              <p class="stat-summary-hint">Roll: sum of exploding d8s + optional Combat Reflexes + equipment modifier below.</p>
+              <p class="stat-summary-hint">Roll: sum of exploding d8s + optional Combat Reflexes + equipment / Passive modifier below.</p>
               {{#if system.combat.initiativeEquipmentRows}}
               <ul class="combat-stat-breakdown">
                 {{#each system.combat.initiativeEquipmentRows}}
@@ -1026,7 +1026,7 @@
                 </li>
                 {{/each}}
                 <li class="combat-bd-total">
-                  <span class="bd-main"><span class="bd-label">Equipment total</span><span class="bd-val">{{default system.combat.initiativeEquipmentTotalDisplay "0"}}</span></span>
+                  <span class="bd-main"><span class="bd-label">Equipment / Passive total</span><span class="bd-val">{{default system.combat.initiativeEquipmentTotalDisplay "0"}}</span></span>
                   <span class="bd-detail">Applied on initiative roll (before Initiative Shop)</span>
                 </li>
               </ul>
@@ -1036,16 +1036,6 @@
               <p class="stat-footnote-wits">Wits scaling: +{{default system.scaling.witsInitiativeBonus 0}} (reference only — not added by the system roll yet)</p>
               {{/if}}
               {{/if}}
-              {{#if system.derived.mechanicsBreakdown.initiativeD8.length}}
-              <p class="stat-summary-hint mechanics-summary-hint">From active passives &amp; buffs</p>
-              <ul class="combat-stat-breakdown mechanics-breakdown-list">
-                {{#each system.derived.mechanicsBreakdown.initiativeD8}}
-                <li>
-                  <span class="bd-main"><span class="bd-label">{{this.source}}</span><span class="bd-val">{{#if (gte this.value 0)}}+{{/if}}{{this.value}}d8</span></span>
-                </li>
-                {{/each}}
-              </ul>
-              {{/if}}
             </div>
             <div class="stat-icon initiative-icon"><i class="fas fa-bolt"></i></div>
             <div class="stat-content">
@@ -1053,6 +1043,32 @@
               <div class="stat-value">{{default system.combat.initiativeMasteryRank 2}}d8</div>
             </div>
           </div>
+
+          {{#if system.combat.passiveDefenseSpecialRows.length}}
+          <!-- Passive specials: DR / Phasing / Damage Negation / Parry -->
+          <div class="combat-stat-card combat-stat-card--tooltip combat-stat-card--wide">
+            <div class="combat-stat-tooltip" role="tooltip">
+              <p class="stat-summary-hint">Always-on Passive defenses (not Active Buffs).</p>
+              <ul class="combat-stat-breakdown">
+                {{#each system.combat.passiveDefenseSpecialRows}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.label}}</span><span class="bd-val">{{this.display}}</span></span>
+                  <span class="bd-detail">{{this.detail}}</span>
+                </li>
+                {{/each}}
+              </ul>
+            </div>
+            <div class="stat-icon armor-icon"><i class="fas fa-layer-group"></i></div>
+            <div class="stat-content">
+              <label>Passive Defenses <i class="fas fa-info-circle combat-stat-hint-icon" aria-hidden="true"></i></label>
+              <div class="stat-value combat-stat-value--multi">
+                {{#each system.combat.passiveDefenseSpecialRows}}
+                <span class="combat-stat-chip">{{this.label}} {{this.display}}</span>
+                {{/each}}
+              </div>
+            </div>
+          </div>
+          {{/if}}
         </div>
       </div>
       

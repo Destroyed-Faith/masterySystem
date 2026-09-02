@@ -286,11 +286,9 @@ export function analyzePc(actor: any): PcCombatProfile {
     /* tests / partial actors */
   }
 
-  if (passiveEvadeUnused > 0 || passiveArmorUnused > 0) {
-    warnings.push(
-      `${actor?.name ?? '?'}: Passive mechanics.evade/armor (${passiveEvadeUnused}/${passiveArmorUnused}) sind am Tisch nicht in evadeTotal/armorTotal — für Rules-Review vorgemerkt, Forge kalibriert nicht dagegen.`,
-    );
-  }
+  // Owned Passives now fold into evadeTotal/armorTotal — no longer warn as unused.
+  void passiveEvadeUnused;
+  void passiveArmorUnused;
 
   const liveEvade = getTargetEvade(actor);
   const liveArmor = getTargetArmor(actor);

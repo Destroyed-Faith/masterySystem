@@ -21,7 +21,16 @@ import {
   calculateBaseEvade
 } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier, getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
-import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown } from '../utils/power-mechanics.js';
+import {
+  buildActorMechanicsBreakdown,
+  buildBuffMechanicsBreakdown,
+  buildPassiveMechanicsBreakdown,
+  resolvePowerMechanics,
+} from '../utils/power-mechanics.js';
+import {
+  passiveDamageNegationReserveForLevel,
+  passiveParryPoolForLevel,
+} from '../utils/powers/templates/passives.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
@@ -614,9 +623,10 @@ export class MasteryActor extends Actor {
     system.combat.initiativeMasteryRank = masteryRank;
 
     // Power Mechanics Engine — Aggregator
-    // Armor/evade base totals are equipment-only; active buff bonuses apply at
-    // hit resolution. Other mechanics (DR %, initiative d8, roll dice) unchanged.
+    // Owned Passives (always-on) feed Armor / Evade / Initiative / DR into sheet
+    // totals. Active Buff armor/evade still apply only at hit resolution.
     const mechBreakdown = buildActorMechanicsBreakdown(this);
+    const passiveMechBreakdown = buildPassiveMechanicsBreakdown(this);
     const buffMechBreakdown = buildBuffMechanicsBreakdown(this);
     if (!system.derived) system.derived = {};
     system.derived.mechanicsBreakdown = mechBreakdown;
@@ -624,14 +634,42 @@ export class MasteryActor extends Actor {
 
     const iniD8MechBonus = mechBreakdown.totals.initiativeD8;
     const iniFlatMechBonus = mechBreakdown.totals.initiative;
-    system.combat.armorFromMechanics = 0;
-    system.combat.evadeFromMechanics = 0;
+    const armorPassive = Math.max(0, Math.floor(Number(passiveMechBreakdown.totals.armor) || 0));
+    const evadePassive = Math.floor(Number(passiveMechBreakdown.totals.evade) || 0);
+    system.combat.armorFromMechanics = armorPassive;
+    system.combat.evadeFromMechanics = evadePassive;
+    system.combat.passivesInDefenseTotals = true;
     system.combat.armorFromActiveBuffs = buffMechBreakdown.totals.armor;
     system.combat.evadeFromActiveBuffs = buffMechBreakdown.totals.evade;
     system.combat.spellResistanceTotal = mechBreakdown.totals.spellResistance;
     system.combat.spellResistanceFromActiveBuffs = buffMechBreakdown.totals.spellResistance;
     system.combat.initiativeD8FromMechanics = iniD8MechBonus;
     system.combat.initiativeFromMechanics = iniFlatMechBonus;
+
+    if (armorPassive !== 0) {
+      system.combat.armorTotal = (system.combat.armorTotal || 0) + armorPassive;
+      const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
+      for (const entry of passiveMechBreakdown.armor) {
+        (system.combat.armorBreakdownRows as any[]).push({
+          label: entry.source,
+          detail: 'Passive',
+          value: entry.value,
+          display: fmt(entry.value),
+        });
+      }
+    }
+    if (evadePassive !== 0) {
+      system.combat.evadeTotal = (system.combat.evadeTotal || 0) + evadePassive;
+      const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
+      for (const entry of passiveMechBreakdown.evade) {
+        (system.combat.evadeBreakdownRows as any[]).push({
+          label: entry.source,
+          detail: 'Passive',
+          value: entry.value,
+          display: fmt(entry.value),
+        });
+      }
+    }
 
     // Damage Reduction % (passive + buff in aggregateMechanics; reaction rows
     // are per-hit only). Sheet rows mirror aggregated contributions.
@@ -648,12 +686,93 @@ export class MasteryActor extends Actor {
       drRows.push({ label: r.source, detail: 'DR Reaction (per-hit)', value: r.value, display: fmtPct(r.value) });
     }
     system.combat.damageReductionRows = drRows;
+
+    // Parry / Damage Negation / Phasing — always-on Passive specials for Combat Statistics.
+    let parryPool = 0;
+    let damageNegationReserve = 0;
+    let phasingCharges = 0;
+    let parrySource = '';
+    let negationSource = '';
+    let phasingSource = '';
+    try {
+      const owned: any[] = Array.from((this as any).items ?? []);
+      for (const p of owned) {
+        if (p?.type !== 'power') continue;
+        const cat = String(p?.system?.category ?? p?.system?.powerType ?? '').toLowerCase();
+        if (cat !== 'passive') continue;
+        const tid = String(p?.system?.templateId ?? '').trim().toLowerCase();
+        const name = String(p?.name ?? '');
+        const nameLc = name.toLowerCase();
+        const rank = Math.max(
+          1,
+          Math.min(16, Math.floor(Number(p?.system?.rank ?? p?.system?.level ?? 1) || 1)),
+        );
+        const label = name.replace(/^passive:\s*/i, '').trim() || 'Passive';
+        if (
+          tid === 'passive-parry' ||
+          (/\bparry\b/i.test(nameLc) && !/riposte|reflection|reinforced/i.test(nameLc))
+        ) {
+          const pool = passiveParryPoolForLevel(rank);
+          if (pool > parryPool) {
+            parryPool = pool;
+            parrySource = label;
+          }
+        }
+        if (tid === 'passive-damage-negation' || /damage\s*negation/i.test(nameLc)) {
+          const reserve = passiveDamageNegationReserveForLevel(rank);
+          if (reserve > damageNegationReserve) {
+            damageNegationReserve = reserve;
+            negationSource = label;
+          }
+        }
+        const mech = resolvePowerMechanics(p);
+        const charges = Math.max(0, Math.floor(Number(mech?.phasing?.combatStart?.charges) || 0));
+        if (charges > phasingCharges) {
+          phasingCharges = charges;
+          phasingSource = label;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    system.combat.parryPool = parryPool;
+    system.combat.damageNegationReserve = damageNegationReserve;
+    system.combat.phasingCharges = phasingCharges;
+    system.combat.passiveDefenseSpecialRows = [
+      ...(system.combat.damageReductionPct > 0
+        ? [
+            {
+              label: 'Damage Reduction',
+              detail: 'Passive',
+              value: system.combat.damageReductionPct,
+              display: `${system.combat.damageReductionPct}%`,
+            },
+          ]
+        : []),
+      ...(phasingCharges > 0
+        ? [{ label: phasingSource || 'Phasing', detail: 'Passive · charges / combat', value: phasingCharges, display: String(phasingCharges) }]
+        : []),
+      ...(damageNegationReserve > 0
+        ? [
+            {
+              label: negationSource || 'Damage Negation',
+              detail: 'Passive · reserve / combat',
+              value: damageNegationReserve,
+              display: String(damageNegationReserve),
+            },
+          ]
+        : []),
+      ...(parryPool > 0
+        ? [{ label: parrySource || 'Parry', detail: 'Passive · pool', value: parryPool, display: String(parryPool) }]
+        : []),
+    ];
+
     if (iniD8MechBonus !== 0) {
       const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
       for (const entry of mechBreakdown.initiativeD8) {
         (system.combat.initiativeEquipmentRows as any[]).push({
           label: entry.source,
-          detail: 'Power Mechanics (d8)',
+          detail: 'Passive (d8)',
           value: entry.value,
           display: fmt(entry.value),
         });
@@ -673,7 +792,7 @@ export class MasteryActor extends Actor {
       for (const entry of mechBreakdown.initiative) {
         (system.combat.initiativeEquipmentRows as any[]).push({
           label: entry.source,
-          detail: 'Power Mechanics (Initiative)',
+          detail: 'Passive (Initiative)',
           value: entry.value,
           display: fmt(entry.value),
         });

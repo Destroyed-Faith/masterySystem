@@ -1,9 +1,9 @@
 /**
  * Power Mechanics Engine — Aggregator
  *
- * Reads structured `mechanics` blocks from slot-activated passives and
+ * Reads structured `mechanics` blocks from owned Passive powers (always-on) and
  * active-buff effects, sums them into per-actor totals, and builds a
- * breakdown list ("Armor +1 from Dragon Scales (slotted)") that the
+ * breakdown list ("Armor +1 from Dragon Scales") that the
  * character sheet renders as transparent tooltips.
  *
  * Powers that do not carry a `mechanics` block are ignored here (they are
@@ -61,8 +61,11 @@ interface MechanicsContribution {
 export declare function isSanctionedPhasingName(powerName: string, sourceKind: 'passive' | 'buff' | 'reaction'): boolean;
 /**
  * Enumerate every active mechanics contribution for an actor:
- * - slot-activated passives (system.passives.slotN where active=true) with a mechanics block
+ * - owned Passive powers (always-on; Passive Slot Manager removed)
  * - live ActiveEffects flagged as activeBuff whose source power has a mechanics block
+ *
+ * Conditional passives still flow through; `aggregateMechanics` gates them via
+ * `condition` / `conditionExpr`. Active Buffs stay combat-time only.
  */
 export declare function collectMechanicsContributions(actor: any): MechanicsContribution[];
 /**
@@ -76,7 +79,7 @@ export declare function collectMechanicsContributions(actor: any): MechanicsCont
 export declare function aggregateMechanics(contributions: MechanicsContribution[], actor?: any): MechanicsBreakdown;
 /** High-level convenience: contributions + aggregation in one call. */
 export declare function buildActorMechanicsBreakdown(actor: any): MechanicsBreakdown;
-/** Slotted passive powers only (excludes active-buff ActiveEffects). */
+/** Owned Passive powers only (excludes active-buff ActiveEffects). */
 export declare function buildPassiveMechanicsBreakdown(actor: any): MechanicsBreakdown;
 /** Active buff ActiveEffects only (combat-time bonuses, not sheet base totals). */
 export declare function buildBuffMechanicsBreakdown(actor: any): MechanicsBreakdown;

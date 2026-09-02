@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.461] - 2026-09-02
+
+### Fixed
+
+- **Combat Statistics (Attributes):** Always-on **Passives** now fold into Evade, Armor, and Initiative totals and breakdowns (not Active Buffs). Parry, Damage Reduction, Damage Negation, and Phasing appear as Passive Defenses when owned.
+
 ## [0.9.460] - 2026-09-02
 
 ### Changed

@@ -1396,8 +1396,8 @@ function buildCompactDefenseSources(kind, combat, actor, masteryRank, passiveExt
     return parts.filter(Boolean).join(' · ');
 }
 /**
- * Always-on Passive Armor / Evade for Quick Play (no conditionExpr).
- * Sheet combat totals intentionally omit these; the print sheet must show them.
+ * Always-on Passive Armor / Evade for Quick Play fallback when sheet totals
+ * do not yet fold Passives in (`passivesInDefenseTotals`).
  */
 function compactAlwaysOnPassiveDefense(items, kind) {
     const rows = [];
@@ -1852,8 +1852,12 @@ export function buildCharacterCompactPrintContext(actor) {
         .map((phase) => ({ phase, items: powers[phase] ?? [] }))
         .filter((g) => g.items.length > 0);
     const powerColumns = packCompactPowerColumns(powerGroups);
-    const passiveEvadeRows = compactAlwaysOnPassiveDefense(allItems, 'evade');
-    const passiveArmorRows = compactAlwaysOnPassiveDefense(allItems, 'armor');
+    const passiveEvadeRows = combat?.passivesInDefenseTotals
+        ? []
+        : compactAlwaysOnPassiveDefense(allItems, 'evade');
+    const passiveArmorRows = combat?.passivesInDefenseTotals
+        ? []
+        : compactAlwaysOnPassiveDefense(allItems, 'armor');
     const passiveEvadeBonus = passiveEvadeRows.reduce((s, r) => s + r.value, 0);
     const passiveArmorBonus = passiveArmorRows.reduce((s, r) => s + r.value, 0);
     const evadeSources = buildCompactDefenseSources('evade', combat, actor, masteryRank, passiveEvadeRows);

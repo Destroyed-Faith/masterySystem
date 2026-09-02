@@ -26,6 +26,7 @@ function makePassivePower(id: string, name: string, rank: number, mechanics: Pow
     name,
     type: 'power',
     system: {
+      category: 'passive',
       rank,
       levels: {
         [String(rank)]: { mechanics },
@@ -41,6 +42,7 @@ function makePassivePowerWithTopLevelMechanics(id: string, name: string, mechani
     name,
     type: 'power',
     system: {
+      category: 'passive',
       rank: 2,
       mechanics,
     },
@@ -60,6 +62,10 @@ function makeActor(opts: {
     },
     items: {
       get: (id: string) => items.find((i) => i.id === id || i._id === id) ?? null,
+      [Symbol.iterator]: function* () {
+        yield* items;
+      },
+      values: () => items.values?.() ?? items[Symbol.iterator](),
     },
     effects,
   };
@@ -332,7 +338,7 @@ describe('aggregateMechanics — pure summing', () => {
   });
 });
 
-describe('collectMechanicsContributions — slot-activated passives', () => {
+describe('collectMechanicsContributions — owned Passives (always-on)', () => {
   const dragonScales = makePassivePower('p-dragon', 'Dragon Scales', 2, {
     armor: 1,
     applyWhen: 'passive-slotted-active',
@@ -342,13 +348,10 @@ describe('collectMechanicsContributions — slot-activated passives', () => {
     applyWhen: 'passive-slotted-active',
   });
 
-  it('all slotted passives contribute (slotted = active; legacy active=false ignored)', () => {
+  it('owned Passives contribute without Passive slots', () => {
     const actor = makeActor({
       items: [dragonScales, stormVeil],
-      slots: {
-        slot0: { active: true, passive: { id: 'p-dragon', name: 'Dragon Scales' } },
-        slot1: { active: false, passive: { id: 'p-storm', name: 'Storm Veil' } },
-      },
+      slots: {},
     });
     const contribs = collectMechanicsContributions(actor);
     expect(contribs.length).toBe(2);
@@ -357,16 +360,17 @@ describe('collectMechanicsContributions — slot-activated passives', () => {
     );
   });
 
-  it('empty slots are skipped', () => {
+  it('legacy slots are ignored when the Passive is already owned (no double-count)', () => {
     const actor = makeActor({
       items: [dragonScales],
       slots: {
-        slot0: { active: true, passive: null },
-        slot1: { active: true, passive: { id: 'does-not-exist', name: 'Ghost' } },
+        slot0: { active: true, passive: { id: 'p-dragon', name: 'Dragon Scales' } },
+        slot1: { active: true, passive: { id: 'p-dragon', name: 'Dragon Scales' } },
       },
     });
     const contribs = collectMechanicsContributions(actor);
-    expect(contribs.length).toBe(0);
+    expect(contribs.length).toBe(1);
+    expect(contribs[0].mechanics.armor).toBe(1);
   });
 
   it('powers whose applyWhen is not passive-slotted-active are rejected', () => {
@@ -390,9 +394,7 @@ describe('collectMechanicsContributions — slot-activated passives', () => {
     });
     const actor = makeActor({
       items: [topLevel],
-      slots: {
-        slot0: { active: true, passive: { id: 'p-top', name: 'TopLevel Mech' } },
-      },
+      slots: {},
     });
     const contribs = collectMechanicsContributions(actor);
     expect(contribs.length).toBe(1);
