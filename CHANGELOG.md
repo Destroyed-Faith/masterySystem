@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.477] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1 Core Combat:** Move Invisibility to the end of the enumeration strip.
+
 ## [0.9.476] - 2026-09-03
 
 ### Changed
