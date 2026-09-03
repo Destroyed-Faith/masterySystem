@@ -838,56 +838,75 @@
 }
 
 .cp-core-combat {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
   margin-top: 4px;
-}
-
-.cp-core-cell {
   border: 1.5px solid #222;
   border-radius: 3px;
-  padding: 3px 4px;
-  text-align: center;
   background: #f7f7f7;
+  overflow: hidden;
+  min-height: 11mm;
+}
+
+.cp-core-cell,
+.cp-core-stat {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  padding: 3px 3px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  box-sizing: border-box;
+}
+
+/* Hard separator — unrelated stats in one enumeration strip */
+.cp-core-stat + .cp-core-stat,
+.cp-core-cell + .cp-core-cell {
+  border-left: 1.5px solid #222;
+}
+
+.cp-core-stat-check {
+  flex: 0.7 1 0;
 }
 
 .cp-core-label {
   display: block;
-  font-size: 7px;
-  font-weight: 700;
+  font-size: 5.5px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.03em;
   color: #555;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .cp-core-value {
   display: block;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1.2;
-  margin-top: 1px;
-}
-
-.cp-core-sublabel {
-  display: block;
-  margin-top: 3px;
-  padding-top: 2px;
-  border-top: 1px dotted #999;
-  font-size: 6px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #666;
-  line-height: 1.1;
-}
-
-.cp-core-subvalue {
-  display: block;
   font-size: 11px;
   font-weight: 800;
   line-height: 1.15;
-  color: #1a1a1a;
+  margin-top: 0;
+}
+
+.cp-core-check {
+  display: inline-block;
+  width: 4.2mm;
+  height: 4.2mm;
+  border: 1.35px solid #222;
+  border-radius: 1px;
+  background: #fff;
+  box-sizing: border-box;
+  margin-top: 1px;
+}
+
+/* Legacy nested sub-rows removed — keep empty rules harmless if referenced */
+.cp-core-sublabel,
+.cp-core-subvalue {
+  display: none;
 }
 
 /* Learned skills */

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.476] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1 Core Combat:** One enumeration strip with hard separators (Attack, Weapon Damage, Evade, Armor, Invisibility checkbox, Movement, Damage Negation, Damage Reduction, Parry). No nested pairings / dotted sub-rows; absent defenses still print as `0` / `0%`.
+
 ## [0.9.475] - 2026-09-03
 
 ### Changed

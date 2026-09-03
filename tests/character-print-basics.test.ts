@@ -136,6 +136,23 @@ describe('character print table sheet', () => {
     expect(ctx.coreCombat.parry).toBe(3);
   });
 
+  it('keeps Core Combat defenses as flat totals (not nested under Attack/Evade)', () => {
+    const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
+    // Enumeration strip values — always present for table play pencil marks.
+    expect(ctx.coreCombat).toEqual(
+      expect.objectContaining({
+        attack: expect.any(String),
+        damage: expect.any(String),
+        evade: expect.any(Number),
+        armor: expect.any(Number),
+        movement: expect.any(String),
+        damageNegation: expect.any(Number),
+        damageReduction: expect.any(String),
+        parry: expect.any(Number),
+      }),
+    );
+  });
+
   it('exposes Reroll Points (Faith Fractures) with strike-off boxes', () => {
     const ctx = buildCharacterPrintContext(
       mockCharacter(2, { faithFractures: { current: 5, maximum: 8 } }),
