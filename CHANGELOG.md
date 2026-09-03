@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.463] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 2:** Stone Dashboard is now a compact Initiative / Attribute-pool / Exhausted header plus a full Stone Power reference (~75% of the landscape page). Ready/Burned/Sealed drop zones removed; physical ~8 mm cube slots sit on attribute pools and Exhausted. Powers list published T1–T4 effects with wave costs (no phantom T1 on ramp powers).
+
 ## [0.9.462] - 2026-09-03
 
 ### Changed

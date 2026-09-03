@@ -202,87 +202,93 @@
 {{!-- ====================== PAGE 2 — Stone Dashboard (landscape) ====================== --}}
 <section class="print-page print-page-stones print-page-table">
 
-  <h2 class="cp-section-title cp-stones-title">Stones <span class="cp-subtle">move cubes — do not track stones on paper</span></h2>
+  {{!-- 1. Initiative — narrow header --}}
+  <header class="cp-sd-ini" aria-label="Initiative">
+    <div class="cp-sd-ini-roll">
+      <span class="cp-sd-ini-kicker">Initiative</span>
+      <span class="cp-sd-ini-roll-line">Roll: <b>{{stoneDashboard.initiative}}</b></span>
+    </div>
+    <div class="cp-sd-ini-exchange">
+      <span class="cp-sd-ini-kicker">Initiative Exchange</span>
+      <span class="cp-sd-ini-rate"><b>{{stoneDashboard.iniStoneCost}}</b> Initiative = 1 Colorless Stone</span>
+    </div>
+    <div class="cp-sd-ini-left">
+      <span class="cp-sd-ini-kicker">Initiative Left</span>
+      <span class="cp-sd-ini-writein"></span>
+    </div>
+    <div class="cp-sd-ini-colorless">
+      <span class="cp-sd-ini-kicker">Colorless Stones</span>
+      <span class="cp-sd-cube-row">
+        {{#each stoneDashboard.colorlessBoxes}}<i class="cp-sd-cube"></i>{{/each}}
+      </span>
+    </div>
+  </header>
 
-  <div class="cp-stone-zones" aria-label="Stone cube zones">
-    <div class="cp-stone-zone cp-stone-zone-ready">
-      <div class="cp-stone-zone-head">Available / Ready</div>
-      <div class="cp-stone-zone-drop"></div>
+  {{!-- 2. Attribute Stone Pools — compact row --}}
+  <section class="cp-sd-pools" aria-label="Attribute Stone Pools">
+    {{#each stoneDashboard.pools}}
+    <div class="cp-sd-pool" data-attr="{{key}}">
+      <div class="cp-sd-pool-head">{{label}} <b>{{max}}</b></div>
+      <div class="cp-sd-cube-row">
+        {{#each slots}}<i class="cp-sd-cube"></i>{{/each}}
+        {{#unless slots.length}}<span class="cp-sd-pool-empty">—</span>{{/unless}}
+      </div>
     </div>
-    <div class="cp-stone-zone cp-stone-zone-exhausted">
-      <div class="cp-stone-zone-head">Exhausted / Regenerating</div>
-      <div class="cp-stone-zone-drop"></div>
-      <p class="cp-stone-zone-note">End of round: regenerate {{stoneDashboard.regeneration}} (MR).</p>
-    </div>
-    <div class="cp-stone-zone cp-stone-zone-burned">
-      <div class="cp-stone-zone-head">Burned</div>
-      <div class="cp-stone-zone-drop"></div>
-      <p class="cp-stone-zone-note">{{stoneDashboard.burnedHint}}</p>
-    </div>
-    <div class="cp-stone-zone cp-stone-zone-sealed">
-      <div class="cp-stone-zone-head">Sealed</div>
-      <div class="cp-stone-zone-drop"></div>
-      <p class="cp-stone-zone-note">{{stoneDashboard.sealedHint}}</p>
-    </div>
-    <div class="cp-stone-zone cp-stone-zone-colorless">
-      <div class="cp-stone-zone-head">Colorless</div>
-      <div class="cp-stone-zone-drop"></div>
-      <p class="cp-stone-zone-note">Temporary. Spend → gone. Vanish at end of combat.</p>
-    </div>
-  </div>
+    {{/each}}
+  </section>
 
-  <div class="cp-stone-dash-lower">
-    <div class="cp-block cp-attr-pools">
-      <h3 class="cp-block-title">Attribute Stone Pools</h3>
-      <div class="cp-attr-pool-grid">
-        {{#each stoneDashboard.pools}}
-        <div class="cp-attr-pool" data-attr="{{key}}">
-          <span class="cp-attr-pool-name">{{label}}</span>
-          <span class="cp-attr-pool-val">{{value}}</span>
-          <span class="cp-attr-pool-cap">Pool {{max}}</span>
-          <span class="cp-attr-pool-gen">Gen {{generation}}</span>
+  {{!-- 3. Exhausted / Regeneration — very compact --}}
+  <section class="cp-sd-exhausted" aria-label="Exhausted Stones">
+    <span class="cp-sd-exhausted-label">Regenerating <b>{{stoneDashboard.regeneration}}</b> Stones per Round</span>
+    <span class="cp-sd-cube-row cp-sd-exhausted-cubes">
+      {{#each stoneDashboard.exhaustedSlots}}<i class="cp-sd-cube"></i>{{/each}}
+    </span>
+    <span class="cp-sd-exhausted-hint">At end of Round: regenerate {{stoneDashboard.regeneration}} Exhausted Stones.</span>
+  </section>
+
+  {{!-- 4. Stone Powers — dominant reference (~75%) --}}
+  <section class="cp-sd-powers" aria-label="Stone Powers">
+    <h2 class="cp-sd-powers-title">Stone Powers</h2>
+    {{#if stoneDashboard.hasStonePowers}}
+    <div class="cp-sd-power-groups">
+      {{#each stoneDashboard.powerGroups}}
+      <div class="cp-sd-power-group" data-attr="{{key}}">
+        <div class="cp-sd-power-group-head">
+          <span class="cp-sd-power-group-name">{{label}}</span>
+          {{#unless isGeneral}}<span class="cp-sd-power-group-cap">{{freeStones}}</span>{{/unless}}
+          {{#if isGeneral}}<span class="cp-sd-power-group-note">Pay from any pool</span>{{/if}}
+          {{#each boosts}}<span class="cp-sd-power-boost">{{kind}} +{{value}}{{#if source}} · {{source}}{{/if}}</span>{{/each}}
         </div>
-        {{/each}}
-      </div>
-      <p class="cp-stone-limits">Stone limit per Attribute = floor(Attribute ÷ 8). Bound Stones are invested off-sheet and do not sit in these zones.</p>
-    </div>
-
-    <div class="cp-block cp-stone-rules">
-      <h3 class="cp-block-title">Generation · Regeneration · Limits</h3>
-      <ul class="cp-stone-rule-list">
-        <li><strong>Generation:</strong> Pool capacity = Attribute ÷ 8 (floor).</li>
-        <li><strong>Regeneration:</strong> {{stoneDashboard.regeneration}} Exhausted → Ready at end of each round (any pools).</li>
-        <li><strong>Burned:</strong> {{stoneDashboard.burnedHint}}</li>
-        <li><strong>Sealed:</strong> {{stoneDashboard.sealedHint}}</li>
-        <li><strong>Colorless:</strong> Pay any pool; disappear when spent or at combat end.</li>
-      </ul>
-    </div>
-
-    <div class="cp-block cp-ini-panel">
-      <h3 class="cp-block-title">Initiative</h3>
-      <div class="cp-ini-roll">
-        <span class="cp-ini-roll-label">Roll</span>
-        <span class="cp-ini-roll-value">{{stoneDashboard.initiative}}</span>
-      </div>
-      <div class="cp-ini-exchange">
-        <h4 class="cp-ini-exchange-title">Initiative Exchange</h4>
-        <p class="cp-ini-exchange-rate">{{stoneDashboard.iniStoneCost}} Initiative = 1 Colorless Stone (4 × MR {{masteryRank}})</p>
-        <div class="cp-ini-exchange-row">
-          <div class="cp-ini-exchange-field">
-            <span class="cp-ini-exchange-label">Initiative left</span>
-            <span class="cp-ini-writein"></span>
-          </div>
-          <div class="cp-ini-exchange-field cp-ini-exchange-field--stones">
-            <span class="cp-ini-exchange-label">Convert → Colorless</span>
-            <span class="cp-ini-exchange-boxes">
-              {{#each stoneDashboard.colorlessBoxes}}<span class="cp-use-box"></span>{{/each}}
-            </span>
-          </div>
+        <div class="cp-sd-power-list">
+          {{#each powers}}
+          <article class="cp-sd-power{{#if supported}} is-supported{{/if}}">
+            <header class="cp-sd-power-head">
+              <span class="cp-sd-power-name">{{name}}</span>
+              <span class="cp-sd-power-cat">{{categoryUpper}}</span>
+              {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
+            </header>
+            {{#if effect}}<p class="cp-sd-power-effect">{{effect}}</p>{{/if}}
+            <ul class="cp-sd-tier-list">
+              {{#each effectTiers}}
+              <li class="cp-sd-tier">
+                <span class="cp-sd-tier-text"><b>{{label}}</b> — {{effect}} — {{costLabel}}</span>
+                <span class="cp-sd-tier-boxes">
+                  {{#each boxes}}<i class="cp-sd-tier-box{{#if filled}} is-filled{{/if}}"></i>{{/each}}
+                  {{#if costMark}}<span class="cp-sd-tier-costmark">{{costMark}}</span>{{/if}}
+                </span>
+              </li>
+              {{/each}}
+            </ul>
+          </article>
+          {{/each}}
         </div>
-        <p class="cp-ini-exchange-hint">Place converted Colorless cubes in the Colorless zone above.</p>
       </div>
+      {{/each}}
     </div>
-  </div>
+    {{else}}
+    <p class="cp-sd-powers-empty">No stones available — attributes below 8 or pools empty.</p>
+    {{/if}}
+  </section>
 
   <div class="cp-page-footer">Stone Dashboard · 2 of 3</div>
 </section>

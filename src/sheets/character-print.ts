@@ -30,6 +30,7 @@ import {
   effectiveStoneSupportPrefillTier,
   firstEffectiveStonePowerTier,
   stonePowerSkipsFirstTier,
+  stonePowerWaveCost,
 } from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
@@ -1093,6 +1094,7 @@ export function buildCharacterPrintContext(
         // T2-start powers have no Tier-1 slot — do not render an empty T1 box.
         const isRamp = stonePowerSkipsFirstTier(String(p.id));
         const firstPaid = firstEffectiveStonePowerTier(String(p.id));
+        const startsAt = firstPaid === 2 ? 2 : 1;
         // Tier placement areas (T1=1, T2=2, T3=4). Support gold-fills every
         // published tier above the one the player must pay, up through the
         // effective prefill (Crit + Focus I → T3 filled, T2 empty).
@@ -1106,14 +1108,41 @@ export function buildCharacterPrintContext(
             filled: !!sup && g.tier > firstPaid && g.tier <= supportTier,
           })),
         }));
+        // Full published tier lines for the table Stone Power reference (T1–T4 / T2–T4).
+        const publishedTiers = Array.isArray(p?.tiers) ? p.tiers : [];
+        const effectTiers = publishedTiers.map((t: any, i: number) => {
+          const tierNum = startsAt + i;
+          const cost = stonePowerWaveCost(tierNum);
+          const effectLabel = String(t?.label ?? t?.description ?? '').trim();
+          return {
+            label: `T${tierNum}`,
+            tier: tierNum,
+            effect: effectLabel,
+            cost,
+            costLabel: cost === 1 ? '1 Stone' : `${cost} Stones`,
+            line: `T${tierNum} — ${effectLabel} — ${cost === 1 ? '1 Stone' : `${cost} Stones`}`,
+            boxes:
+              cost <= 4
+                ? Array.from({ length: cost }, () => ({
+                    filled: !!sup && tierNum > firstPaid && tierNum <= supportTier,
+                  }))
+                : [],
+            costMark: cost > 4 ? String(cost) : '',
+          };
+        });
         return {
           name: String(p?.name ?? ''),
           category: cap(String(p?.category ?? '')),
+          categoryUpper: String(p?.category ?? '').toUpperCase(),
           effect: String(p?.description ?? ''),
           supported: !!sup,
           tier: supportTier,
-          source: sup?.source ?? '',
+          source: compactArtifactName(sup?.source ?? ''),
+          supportLabel: sup
+            ? `Support T${supportTier}${sup.source ? ` — ${compactArtifactName(sup.source)}` : ''}`
+            : '',
           tiers,
+          effectTiers,
         };
       }),
     };
@@ -1168,24 +1197,30 @@ export function buildCharacterPrintContext(
   const initD8Mech = num(combat?.initiativeD8FromMechanics);
   const initDiceCount = Math.max(0, (initMr > 0 ? initMr : masteryRank) + initD8Mech);
   const initiativeLabel = initDiceCount > 0 ? `${initDiceCount}d8` : `${masteryRank || 2}d8`;
+  const dashboardPools = ATTR_ORDER.map((key) => {
+    const value = num(system?.attributes?.[key]?.value, 0);
+    const max = Math.max(0, num(system?.stonePools?.[key]?.max, Math.floor(value / 8)));
+    return {
+      key,
+      label: cap(key),
+      value,
+      max,
+      generation: Math.max(0, Math.floor(value / 8)),
+      // Physical ~8 mm cube slots — one per max capacity.
+      slots: Array.from({ length: max }, (_, i) => i + 1),
+    };
+  });
+  const totalPoolStones = dashboardPools.reduce((s, p) => s + p.max, 0);
+  const exhaustedSlots = Math.max(masteryRank * 2, Math.min(12, Math.max(6, totalPoolStones)));
   const stoneDashboard = {
     regeneration: masteryRank,
-    burnedHint: 'Lost until a Safe Haven Rest — does not regenerate.',
-    sealedHint: 'Ritual lock — no round regen; returns after Safe Haven Rest.',
     initiative: initiativeLabel,
     iniStoneCost,
-    colorlessBoxes: Array.from({ length: 8 }, (_, i) => i + 1),
-    pools: ATTR_ORDER.map((key) => {
-      const value = num(system?.attributes?.[key]?.value, 0);
-      const max = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
-      return {
-        key,
-        label: cap(key),
-        value,
-        max: Math.max(0, max),
-        generation: Math.max(0, Math.floor(value / 8)),
-      };
-    }),
+    colorlessBoxes: Array.from({ length: 6 }, (_, i) => i + 1),
+    pools: dashboardPools,
+    exhaustedSlots: Array.from({ length: exhaustedSlots }, (_, i) => i + 1),
+    powerGroups: stonePowerGroups,
+    hasStonePowers: stonePowerGroups.length > 0,
   };
 
   const rawImg = String(actor?.img ?? '').trim();

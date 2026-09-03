@@ -910,172 +910,372 @@
   font-size: 8px;
 }
 
-/* ── Stone Dashboard (landscape) ──────────────────────────────────────── */
+/* ── Stone Dashboard (landscape) — compact header + dominant Stone Powers ─ */
 .print-page-stones {
   width: 277mm;
   min-height: 190mm;
+  height: 190mm;
   page: cp-landscape;
   display: flex;
   flex-direction: column;
-  padding-bottom: 10mm;
+  padding-bottom: 8mm;
+  overflow: hidden;
 }
 
-.cp-stones-title {
-  text-align: center;
-  margin-bottom: 3mm;
-  font-size: 15px;
+/* ~8 mm physical cube slots */
+.cp-sd-cube {
+  display: inline-block;
+  width: 8mm;
+  height: 8mm;
+  border: 1.25px solid #222;
+  border-radius: 1px;
+  background: #fff;
+  flex: 0 0 auto;
+  box-sizing: border-box;
 }
 
-.cp-stone-zones {
+.cp-sd-cube-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1.5px;
+  align-items: center;
+}
+
+/* 1. Initiative header (~6%) */
+.cp-sd-ini {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 4px;
-  margin-bottom: 4mm;
+  grid-template-columns: 1fr 1.4fr 1fr 1.2fr;
+  gap: 4px 8px;
+  align-items: center;
+  border: 1px solid #222;
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin-bottom: 2mm;
+  flex: 0 0 auto;
+  font-size: 10px;
+}
+
+.cp-sd-ini-kicker {
+  display: block;
+  font-size: 7px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+  line-height: 1.1;
+}
+
+.cp-sd-ini-roll-line,
+.cp-sd-ini-rate {
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.cp-sd-ini-writein {
+  display: block;
+  height: 9mm;
+  border-bottom: 1.5px solid #222;
+  margin-top: 1px;
+}
+
+.cp-sd-ini-colorless .cp-sd-cube {
+  width: 7mm;
+  height: 7mm;
+}
+
+/* 2. Attribute pools (~9%) */
+.cp-sd-pools {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 2mm;
   flex: 0 0 auto;
 }
 
-.cp-stone-zone {
-  border: 2px solid #222;
-  border-radius: 4px;
+.cp-sd-pool {
+  border: 1px solid #999;
+  border-radius: 2px;
+  padding: 2px 3px 3px;
+  min-height: 14mm;
+}
+
+.cp-sd-pool-head {
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--attr-color, #222);
+  margin-bottom: 2px;
+  padding-bottom: 1px;
+  line-height: 1.15;
+}
+
+.cp-sd-pool-head b {
+  float: right;
+  font-size: 10px;
+}
+
+.cp-sd-pool[data-attr="might"] { --attr-color: #1a1a1a; }
+.cp-sd-pool[data-attr="agility"] { --attr-color: #2e7d32; }
+.cp-sd-pool[data-attr="vitality"] { --attr-color: #c62828; }
+.cp-sd-pool[data-attr="intellect"] { --attr-color: #1565c0; }
+.cp-sd-pool[data-attr="resolve"] { --attr-color: #6a1b9a; }
+.cp-sd-pool[data-attr="influence"] { --attr-color: #ef6c00; }
+.cp-sd-pool[data-attr="wits"] { --attr-color: #f9a825; }
+
+.cp-sd-pool-empty {
+  font-size: 9px;
+  color: #999;
+}
+
+/* 3. Exhausted strip (~5%) */
+.cp-sd-exhausted {
   display: flex;
-  flex-direction: column;
-  min-height: 48mm;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  border: 1px solid #666;
+  border-radius: 2px;
+  padding: 2px 6px;
+  margin-bottom: 2mm;
+  flex: 0 0 auto;
   background: #fafafa;
 }
 
-.cp-stone-zone-head {
-  font-size: 10px;
-  font-weight: 800;
+.cp-sd-exhausted-label {
+  font-size: 9px;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  text-align: center;
-  padding: 3px 4px;
-  border-bottom: 1px solid #333;
-  background: #222;
-  color: #fff;
 }
 
-.cp-stone-zone-drop {
-  flex: 1;
-  min-height: 32mm;
-  margin: 3px;
-  border: 1.5px dashed #999;
-  border-radius: 3px;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      transparent,
-      transparent 6px,
-      rgba(0, 0, 0, 0.03) 6px,
-      rgba(0, 0, 0, 0.03) 12px
-    );
-}
-
-.cp-stone-zone-note {
-  margin: 0 4px 4px;
-  font-size: 7.5px;
-  line-height: 1.25;
-  color: #444;
-  text-align: center;
-}
-
-.cp-stone-zone-ready .cp-stone-zone-head { background: #1b5e20; }
-.cp-stone-zone-exhausted .cp-stone-zone-head { background: #5d4037; }
-.cp-stone-zone-burned .cp-stone-zone-head { background: #b71c1c; }
-.cp-stone-zone-sealed .cp-stone-zone-head { background: #1565c0; }
-.cp-stone-zone-colorless .cp-stone-zone-head { background: #546e7a; }
-
-.cp-stone-dash-lower {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1.1fr;
-  gap: 5px;
-  flex: 1;
-  align-items: stretch;
-}
-
-.cp-attr-pool-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3px;
-}
-
-.cp-attr-pool {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 0 6px;
-  border: 1px solid #999;
-  border-radius: 3px;
-  padding: 3px 5px;
-  font-size: 10px;
-}
-
-.cp-attr-pool-name {
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 9px;
-}
-
-.cp-attr-pool-val {
-  font-weight: 800;
-  font-size: 14px;
-  text-align: right;
-}
-
-.cp-attr-pool-cap,
-.cp-attr-pool-gen {
+.cp-sd-exhausted-hint {
   font-size: 8px;
   color: #555;
+  margin-left: auto;
 }
 
-.cp-stone-limits {
-  margin: 4px 0 0;
-  font-size: 8px;
-  color: #555;
+.cp-sd-exhausted-cubes .cp-sd-cube {
+  width: 7.5mm;
+  height: 7.5mm;
 }
 
-.cp-stone-rule-list {
-  margin: 0;
-  padding-left: 14px;
-  font-size: 9px;
-  line-height: 1.35;
-}
-
-.cp-stone-rule-list li {
-  margin-bottom: 3px;
-}
-
-.cp-ini-panel .cp-ini-roll {
+/* 4. Stone Powers (~75%) */
+.cp-sd-powers {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 4px;
+  flex-direction: column;
+  border: 1px solid #222;
+  border-radius: 3px;
+  padding: 2px 4px 3px;
+  overflow: hidden;
 }
 
-.cp-ini-roll-label {
-  font-size: 9px;
-  font-weight: 700;
+.cp-sd-powers-title {
+  margin: 0 0 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-align: center;
+  border-bottom: 1px solid #bbb;
+  padding-bottom: 1px;
+}
+
+.cp-sd-power-groups {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cp-sd-power-group {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  padding: 1px 2px 2px;
+  min-width: 0;
+  min-height: 0;
+  border-top: 2.5px solid var(--attr-color, #333);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cp-sd-power-group[data-attr="generic"] { --attr-color: #455a64; }
+.cp-sd-power-group[data-attr="might"] { --attr-color: #1a1a1a; }
+.cp-sd-power-group[data-attr="agility"] { --attr-color: #2e7d32; }
+.cp-sd-power-group[data-attr="vitality"] { --attr-color: #c62828; }
+.cp-sd-power-group[data-attr="intellect"] { --attr-color: #1565c0; }
+.cp-sd-power-group[data-attr="resolve"] { --attr-color: #6a1b9a; }
+.cp-sd-power-group[data-attr="influence"] { --attr-color: #ef6c00; }
+.cp-sd-power-group[data-attr="wits"] { --attr-color: #f9a825; }
+
+.cp-sd-power-group-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 6px;
+  margin-bottom: 1px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid #ddd;
+}
+
+.cp-sd-power-group-name {
+  font-size: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cp-sd-power-group-cap {
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.cp-sd-power-group-note,
+.cp-sd-power-boost {
+  font-size: 6.5px;
   color: #555;
 }
 
-.cp-ini-roll-value {
-  font-size: 22px;
+.cp-sd-power-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cp-sd-power {
+  padding: 1px 0;
+  border-bottom: 1px dotted #ddd;
+}
+
+.cp-sd-power:last-child {
+  border-bottom: none;
+}
+
+.cp-sd-power-effect {
+  margin: 0;
+  font-size: 6.5px;
+  line-height: 1.15;
+  color: #222;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cp-sd-power.is-supported {
+  background: rgba(255, 193, 7, 0.12);
+  margin: 0 -2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  border-radius: 2px;
+}
+
+.cp-sd-power-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 4px;
+  line-height: 1.1;
+}
+
+.cp-sd-power-name {
+  font-size: 8px;
   font-weight: 800;
-  letter-spacing: 0.02em;
-}
-
-.cp-ini-exchange-title {
-  margin: 4px 0 2px;
-  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
-.cp-ini-exchange-rate {
-  margin: 0 0 4px;
-  font-size: 9px;
+.cp-sd-power-cat {
+  font-size: 6.5px;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #555;
+  border: 1px solid #999;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.cp-sd-power-support {
+  font-size: 6.5px;
+  font-weight: 700;
+  color: #8a6d00;
+}
+
+.cp-sd-power-effect {
+  margin: 0 0 1px;
+  font-size: 7px;
+  line-height: 1.15;
+  color: #222;
+}
+
+.cp-sd-tier-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cp-sd-tier {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  font-size: 6.5px;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.cp-sd-tier-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-sd-tier-boxes {
+  display: inline-flex;
+  gap: 0.5px;
+  flex: 0 0 auto;
+}
+
+.cp-sd-tier-box {
+  display: inline-block;
+  width: 2.4mm;
+  height: 2.4mm;
+  border: 1px solid #333;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.cp-sd-tier-box.is-filled {
+  background: #f9a825;
+  border-color: #c17900;
+}
+
+.cp-sd-tier-costmark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4mm;
+  height: 3mm;
+  padding: 0 2px;
+  border: 1px solid #333;
+  font-size: 6px;
+  font-weight: 800;
+  font-style: normal;
+  line-height: 1;
+}
+
+.cp-sd-powers-empty {
+  margin: 8px;
+  font-size: 10px;
+  color: #777;
+  text-align: center;
 }
 
 /* ── Powers & Combat extras ───────────────────────────────────────────── */

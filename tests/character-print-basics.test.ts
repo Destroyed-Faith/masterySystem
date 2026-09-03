@@ -104,11 +104,27 @@ describe('character print table sheet', () => {
     expect(ctx.stoneDashboard.regeneration).toBe(3);
     expect(ctx.stoneDashboard.iniStoneCost).toBe(12);
     expect(ctx.stoneDashboard.initiative).toBe('3d8');
-    expect(ctx.stoneDashboard.burnedHint).toMatch(/Safe Haven/);
-    expect(ctx.stoneDashboard.sealedHint).toMatch(/Ritual|Safe Haven/);
+    expect(ctx.stoneDashboard.exhaustedSlots.length).toBeGreaterThanOrEqual(6);
     const might = ctx.stoneDashboard.pools.find((p: any) => p.key === 'might');
     expect(might.max).toBe(2);
+    expect(might.slots.length).toBe(2);
     expect(might.generation).toBe(2);
+    expect(ctx.stoneDashboard.hasStonePowers).toBe(true);
+    expect(ctx.stoneDashboard.powerGroups.length).toBeGreaterThan(0);
+    const mightGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'might');
+    expect(mightGroup).toBeTruthy();
+    const melee = mightGroup.powers.find((p: any) => /melee damage/i.test(p.name));
+    expect(melee?.effectTiers?.length).toBe(4);
+    expect(melee.effectTiers[0].label).toBe('T1');
+    expect(melee.effectTiers[0].cost).toBe(1);
+    expect(melee.effectTiers[3].label).toBe('T4');
+    expect(melee.effectTiers[3].cost).toBe(8);
+    // Ramp powers (e.g. Extra Attack) must not invent a T1 line.
+    const extra = mightGroup.powers.find((p: any) => /extra attack/i.test(p.name));
+    if (extra) {
+      expect(extra.effectTiers[0].label).toBe('T2');
+      expect(extra.effectTiers.every((t: any) => t.label !== 'T1')).toBe(true);
+    }
   });
 
   it('uses empty pencil Health / Stress boxes', () => {
