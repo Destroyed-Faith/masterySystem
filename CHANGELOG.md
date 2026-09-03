@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.465] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 3:** Title hint in parentheses; Passives get tick boxes; Specials Affecting You enlarged with in-field Start-of-Turn reminder (Tick / Natural Special Recovery MR / Decay 1); Same-Special cap under the tray; Combat Reminders box removed.
+
 ## [0.9.464] - 2026-09-03
 
 ### Changed

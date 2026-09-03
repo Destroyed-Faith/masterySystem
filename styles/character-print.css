@@ -1304,43 +1304,63 @@
 }
 
 .cp-specials-tray {
-  min-height: 42mm;
-  width: 64mm;
+  min-height: 58mm;
+  width: 95mm;
+  flex: 1 1 auto;
 }
 
 .cp-specials-tray .cp-status-tray-drop {
-  min-height: 28mm;
-  height: 28mm;
+  min-height: 48mm;
+  height: 48mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.cp-status-tray-hint {
-  margin: 4px;
-  font-size: 8px;
-  color: #666;
+.cp-specials-sot {
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
 }
 
-.cp-special-recovery {
-  margin: 2px 6px 4px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.cp-battle-reminders {
-  border: 1px solid #444;
-  border-radius: 4px;
-  padding: 4px 6px;
-  flex: 0 0 58mm;
-}
-
-.cp-reminder-list {
-  margin: 2px 0 0;
-  padding-left: 14px;
-  font-size: 9px;
-  line-height: 1.35;
-}
-
-.cp-reminder-list li {
+.cp-specials-sot-title {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #263238;
   margin-bottom: 2px;
+}
+
+.cp-specials-sot-line {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #37474f;
+  line-height: 1.25;
+}
+
+.cp-specials-cap {
+  margin: 3px 0 0;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: #455a64;
+}
+
+.cp-battle-title {
+  text-align: center;
+  margin-bottom: 3mm;
+  font-size: 15px;
+}
+
+.cp-battle-title-hint {
+  font-weight: 400;
+  font-size: 9px;
+  color: #888;
+  letter-spacing: 0.02em;
+  text-transform: none;
 }
 
 /* ── Battle Cheat (landscape rotation planner) ────────────────────────── */
@@ -1359,12 +1379,6 @@
   height: 14px;
   border-width: 2px;
   border-radius: 3px;
-}
-
-.cp-battle-title {
-  text-align: center;
-  margin-bottom: 3mm;
-  font-size: 15px;
 }
 
 /* One rotation line — top-aligned so Movement / Active / Buffs / Reactions
@@ -1562,6 +1576,12 @@
   flex-direction: column;
 }
 
+.cp-status-tray.cp-specials-tray {
+  width: 95mm;
+  flex: 1 1 auto;
+  max-width: 120mm;
+}
+
 .cp-status-tray-head {
   font-size: 10px;
   font-weight: 800;
@@ -1644,13 +1664,13 @@
   line-height: 1.25;
 }
 
-/* Passives — always-on, so the cards carry no tick box. */
+/* Passives — tick boxes mark which Passives are active this combat. */
 .cp-battle-passives {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 0;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
 }
 
 .cp-battle-passive-cards {
@@ -1662,7 +1682,9 @@
 }
 
 .cp-battle-card-passive {
-  width: 52mm;
+  width: auto;
+  min-width: 52mm;
+  max-width: 70mm;
   background: #f1ecf6;
   border-color: #6a1b9a;
   padding: 4px 7px;
