@@ -1,5 +1,7 @@
-/* Printable / exportable character sheet (5 pages; page 3 = Stone Powers,
-   page 5 = Battle Cheat in landscape).
+/* Printable / exportable character sheet — Destroyed Faith Table Character Sheet
+   (3 core pages: portrait Character · landscape Stones · landscape Powers & Combat).
+   Optional Equipment / Summons modules append when includeModules is set.
+   Quick Play is a separate compact layout (.is-compact).
    Scoped under .mastery-print so it never leaks into the Foundry UI. */
 
 /* Per-page orientation: portrait pages explicitly request portrait, the Battle
@@ -724,6 +726,423 @@
 }
 
 .cp-phase-Buff { background: #00838f; }
+
+/* ── Table Character Sheet — large pencil Health / Stress ─────────────── */
+.print-page-1.print-page-table .cp-health-box {
+  width: 12px;
+  height: 12px;
+  border-width: 1.5px;
+  border-radius: 2px;
+}
+
+.print-page-1.print-page-table .cp-health-boxes {
+  gap: 3px;
+  margin-top: 3px;
+}
+
+.print-page-1.print-page-table .cp-health-level {
+  padding: 3px 5px;
+  margin-bottom: 2px;
+}
+
+.print-page-1.print-page-table .cp-health-level-name {
+  font-size: 10px;
+}
+
+.print-page-1.print-page-table .cp-health-level-penalty {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.print-page-1.print-page-table .cp-vitals-large {
+  padding: 5px 7px;
+}
+
+.print-page-1.print-page-table .cp-col-right {
+  flex: 1.15;
+}
+
+/* Identity + core combat strip */
+.cp-table-id {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+  margin-bottom: 6px;
+}
+
+.cp-table-portrait {
+  width: 28mm;
+  height: 28mm;
+  object-fit: cover;
+  border: 1px solid #333;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+
+.cp-table-id-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-core-combat {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.cp-core-cell {
+  border: 1.5px solid #222;
+  border-radius: 3px;
+  padding: 3px 4px;
+  text-align: center;
+  background: #f7f7f7;
+}
+
+.cp-core-label {
+  display: block;
+  font-size: 7px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+}
+
+.cp-core-value {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+/* Learned skills */
+.cp-learned-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cp-learned-list li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  border-bottom: 1px dotted #ccc;
+  padding: 1px 0;
+}
+
+.cp-learned-list .cp-sk-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.cp-learned-list .cp-sk-name em {
+  font-style: normal;
+  color: #666;
+  font-size: 8px;
+}
+
+.cp-learned-list .cp-sk-keep {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cp-sk-boxes {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.cp-sk-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #333;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.cp-sk-box.is-spent {
+  background: #333;
+  color: #fff;
+}
+
+.cp-skill-reminder {
+  margin: 4px 0 0;
+  font-size: 8px;
+  font-style: italic;
+  color: #555;
+}
+
+.cp-learned-empty {
+  margin: 2px 0;
+  font-size: 9px;
+  color: #777;
+}
+
+/* Compact disadvantages */
+.cp-disadvantages-compact .cp-disadv-compact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cp-disadvantages-compact .cp-disadv-compact-list li {
+  font-size: 9px;
+  margin-bottom: 3px;
+  line-height: 1.25;
+}
+
+.cp-disadvantages-compact .cp-disadv-pts {
+  color: #555;
+  font-weight: 700;
+}
+
+.cp-disadvantages-compact .cp-disadv-desc {
+  display: block;
+  color: #444;
+  font-size: 8px;
+}
+
+/* ── Stone Dashboard (landscape) ──────────────────────────────────────── */
+.print-page-stones {
+  width: 277mm;
+  min-height: 190mm;
+  page: cp-landscape;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 10mm;
+}
+
+.cp-stones-title {
+  text-align: center;
+  margin-bottom: 3mm;
+  font-size: 15px;
+}
+
+.cp-stone-zones {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-bottom: 4mm;
+  flex: 0 0 auto;
+}
+
+.cp-stone-zone {
+  border: 2px solid #222;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  min-height: 48mm;
+  background: #fafafa;
+}
+
+.cp-stone-zone-head {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 3px 4px;
+  border-bottom: 1px solid #333;
+  background: #222;
+  color: #fff;
+}
+
+.cp-stone-zone-drop {
+  flex: 1;
+  min-height: 32mm;
+  margin: 3px;
+  border: 1.5px dashed #999;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 6px,
+      rgba(0, 0, 0, 0.03) 6px,
+      rgba(0, 0, 0, 0.03) 12px
+    );
+}
+
+.cp-stone-zone-note {
+  margin: 0 4px 4px;
+  font-size: 7.5px;
+  line-height: 1.25;
+  color: #444;
+  text-align: center;
+}
+
+.cp-stone-zone-ready .cp-stone-zone-head { background: #1b5e20; }
+.cp-stone-zone-exhausted .cp-stone-zone-head { background: #5d4037; }
+.cp-stone-zone-burned .cp-stone-zone-head { background: #b71c1c; }
+.cp-stone-zone-sealed .cp-stone-zone-head { background: #1565c0; }
+.cp-stone-zone-colorless .cp-stone-zone-head { background: #546e7a; }
+
+.cp-stone-dash-lower {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.1fr;
+  gap: 5px;
+  flex: 1;
+  align-items: stretch;
+}
+
+.cp-attr-pool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3px;
+}
+
+.cp-attr-pool {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0 6px;
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 3px 5px;
+  font-size: 10px;
+}
+
+.cp-attr-pool-name {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 9px;
+}
+
+.cp-attr-pool-val {
+  font-weight: 800;
+  font-size: 14px;
+  text-align: right;
+}
+
+.cp-attr-pool-cap,
+.cp-attr-pool-gen {
+  font-size: 8px;
+  color: #555;
+}
+
+.cp-stone-limits {
+  margin: 4px 0 0;
+  font-size: 8px;
+  color: #555;
+}
+
+.cp-stone-rule-list {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.cp-stone-rule-list li {
+  margin-bottom: 3px;
+}
+
+.cp-ini-panel .cp-ini-roll {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.cp-ini-roll-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.cp-ini-roll-value {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.cp-ini-exchange-title {
+  margin: 4px 0 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cp-ini-exchange-rate {
+  margin: 0 0 4px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* ── Powers & Combat extras ───────────────────────────────────────────── */
+.cp-active-marker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  padding: 2px 4px;
+  border: 1px dashed #00838f;
+  border-radius: 3px;
+}
+
+.cp-active-marker-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #00838f;
+}
+
+.cp-active-marker-slot {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #00838f;
+  border-radius: 50%;
+  background: #e0f7fa;
+}
+
+.cp-specials-tray {
+  min-height: 42mm;
+  width: 64mm;
+}
+
+.cp-specials-tray .cp-status-tray-drop {
+  min-height: 28mm;
+  height: 28mm;
+}
+
+.cp-status-tray-hint {
+  margin: 4px;
+  font-size: 8px;
+  color: #666;
+}
+
+.cp-special-recovery {
+  margin: 2px 6px 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cp-battle-reminders {
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 6px;
+  flex: 0 0 58mm;
+}
+
+.cp-reminder-list {
+  margin: 2px 0 0;
+  padding-left: 14px;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.cp-reminder-list li {
+  margin-bottom: 2px;
+}
 
 /* ── Battle Cheat (landscape rotation planner) ────────────────────────── */
 .print-page-battle {

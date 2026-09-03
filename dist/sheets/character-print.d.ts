@@ -1,12 +1,13 @@
 /**
  * Character Print / Export
  *
- * Builds a flat, print-friendly context from a `character` actor and renders it
- * into the 4-page printable sheet (`templates/actor/character-print.hbs`); page
- * 4 is a purely technical, fluff-free summary of powers + weapon attacks +
- * artifacts and the Stone Powers that active artifacts support / discount. The
- * rendered HTML is opened in a new window that links the print stylesheet and
- * triggers `window.print()` so the user can save it as a PDF.
+ * Builds a flat, print-friendly context from a `character` actor and renders the
+ * standard **Table Character Sheet** (`templates/actor/character-print.hbs`):
+ *   1. Portrait Character Sheet (attributes, core combat, HP/Stress, skills)
+ *   2. Landscape Stone Dashboard (physical cube zones + initiative)
+ *   3. Landscape Powers & Combat (precomputed attack/damage, specials tray)
+ * Optional Equipment / Summons modules print only when `includeModules` is set.
+ * Quick Play remains a separate one-page layout (`layout: 'compact'`).
  *
  * Power blocks show each power as a "tile" (Plättchen): a phase label
  * (Movement / Active / Reaction) plus an empty check-box meaning
@@ -17,8 +18,14 @@ export interface CharacterPrintOptions {
     /**
      * When true, seed Basic Attack + Guard / Evade / Counterattack onto the
      * battle page (same universal options as radial / Reaction Window).
+     * Defaults to true for the table sheet (layout `full`).
      */
     includeStandardManeuvers?: boolean;
+    /**
+     * Append optional Equipment (+ Summons when bound) module pages after the
+     * three core table pages. Default false — those are personal/table refs.
+     */
+    includeModules?: boolean;
     /** One-page Quick Play view of the same character data. */
     layout?: 'full' | 'compact';
 }

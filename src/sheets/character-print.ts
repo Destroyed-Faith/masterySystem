@@ -1,12 +1,13 @@
 /**
  * Character Print / Export
  *
- * Builds a flat, print-friendly context from a `character` actor and renders it
- * into the 4-page printable sheet (`templates/actor/character-print.hbs`); page
- * 4 is a purely technical, fluff-free summary of powers + weapon attacks +
- * artifacts and the Stone Powers that active artifacts support / discount. The
- * rendered HTML is opened in a new window that links the print stylesheet and
- * triggers `window.print()` so the user can save it as a PDF.
+ * Builds a flat, print-friendly context from a `character` actor and renders the
+ * standard **Table Character Sheet** (`templates/actor/character-print.hbs`):
+ *   1. Portrait Character Sheet (attributes, core combat, HP/Stress, skills)
+ *   2. Landscape Stone Dashboard (physical cube zones + initiative)
+ *   3. Landscape Powers & Combat (precomputed attack/damage, specials tray)
+ * Optional Equipment / Summons modules print only when `includeModules` is set.
+ * Quick Play remains a separate one-page layout (`layout: 'compact'`).
  *
  * Power blocks show each power as a "tile" (Plättchen): a phase label
  * (Movement / Active / Reaction) plus an empty check-box meaning
@@ -74,8 +75,14 @@ export interface CharacterPrintOptions {
   /**
    * When true, seed Basic Attack + Guard / Evade / Counterattack onto the
    * battle page (same universal options as radial / Reaction Window).
+   * Defaults to true for the table sheet (layout `full`).
    */
   includeStandardManeuvers?: boolean;
+  /**
+   * Append optional Equipment (+ Summons when bound) module pages after the
+   * three core table pages. Default false — those are personal/table refs.
+   */
+  includeModules?: boolean;
   /** One-page Quick Play view of the same character data. */
   layout?: 'full' | 'compact';
 }
@@ -505,6 +512,9 @@ export function buildCharacterPrintContext(
 ): Record<string, unknown> {
   const system = actor?.system ?? {};
   const masteryRank = num(system?.mastery?.rank, 2);
+  // Table sheet always includes Basic Attack / Basic Reactions unless explicitly off.
+  const includeStandardManeuvers = options.includeStandardManeuvers !== false;
+  const includeModules = options.includeModules === true;
 
   // ── Abilities ─────────────────────────────────────────────────────────
   const abilities = ATTR_ORDER.map((key) => {
@@ -597,9 +607,8 @@ export function buildCharacterPrintContext(
           current,
           penalty: num(b?.penalty),
           penaltyLabel: healthPenaltyLabel(num(b?.penalty)),
-          // Physical checkboxes for the printout — one per box, pre-filled to
-          // mirror the actor's current HP in that level.
-          boxes: Array.from({ length: Math.max(0, max) }, (_unused, i) => ({ filled: i < current }))
+          // Empty pencil boxes — one per box in the bar (table play).
+          boxes: Array.from({ length: Math.max(0, max) }, () => ({ filled: false }))
         };
       })
     : [];
@@ -619,7 +628,7 @@ export function buildCharacterPrintContext(
           max,
           current,
           penaltyLabel: 'No penalty',
-          boxes: Array.from({ length: Math.max(0, max) }, (_unused, i) => ({ filled: i < current }))
+          boxes: Array.from({ length: Math.max(0, max) }, () => ({ filled: false }))
         };
       })
     : [];
@@ -807,7 +816,8 @@ export function buildCharacterPrintContext(
   const battleReactions: any[] = [];
 
   // Optional: universal Basic Attack + Basic Reactions (radial / Reaction Window).
-  if (options.includeStandardManeuvers) {
+  // Table sheet defaults these on so Reactions always include Guard / Evade / Counter.
+  if (includeStandardManeuvers) {
     const mrDice = basicAttackMrDamageFormula(actor);
     const mr2 = basicCombatMrTimesTwo(actor);
     battleActive.push({
@@ -888,10 +898,44 @@ export function buildCharacterPrintContext(
     hasBuffs: battleBuffs.length > 0,
     hasReactions: battleReactions.length > 0,
     hasPassives: passivePowers.length > 0,
-    includeStandardManeuvers: !!options.includeStandardManeuvers,
+    includeStandardManeuvers,
   };
 
-  // ── Skills ────────────────────────────────────────────────────────────
+  // ── Skills (learned only on the table sheet) ──────────────────────────
+  const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
+  const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
+  const learnedSkills: {
+    key: string;
+    name: string;
+    attrs: string;
+    pool: number | string;
+    keep: string;
+    rating: number;
+    boxes: { size: number; state: string }[];
+  }[] = [];
+  for (const [key, raw] of Object.entries(skillMap)) {
+    const rating = num(raw);
+    if (rating <= 0) continue;
+    const def = SKILLS[key];
+    const attrKey = def?.attributes?.[0];
+    const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
+    const boxes = buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1).map((b) => ({
+      size: b.size,
+      state: b.state,
+    }));
+    learnedSkills.push({
+      key,
+      name: def?.name || cap(key),
+      attrs: formatAttrs(def?.attributes),
+      pool: pool > 0 ? pool : '—',
+      keep: masteryRank > 0 ? `k${masteryRank}` : '',
+      rating,
+      boxes,
+    });
+  }
+  learnedSkills.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Legacy full catalog (kept for tests / optional tooling; not printed on core pages).
   const skillsByGroup = SKILL_GROUPS.map((group) => ({
     key: group.key,
     label: group.label,
@@ -1091,6 +1135,63 @@ export function buildCharacterPrintContext(
     colorlessBoxes: Array.from({ length: 10 }, (_, i) => i + 1),
   };
 
+  // ── Core Combat (finished values only — page 1) ───────────────────────
+  const weaponSetTiles = buildCompactWeaponSetTiles(actor);
+  const activeSet = weaponSetTiles.find((t) => t.active) ?? weaponSetTiles[0];
+  const mrDice = basicAttackMrDamageFormula(actor);
+  const combatAttackSkills = ['meleeWeapons', 'handToHand', 'rangedWeapons', 'combatReflexes'] as const;
+  let bestAttack = '';
+  let bestAttackRating = -1;
+  for (const sk of combatAttackSkills) {
+    const rating = num(skillMap[sk]);
+    if (rating <= 0) continue;
+    const def = SKILLS[sk];
+    const attrKey = def?.attributes?.[0];
+    const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
+    if (rating > bestAttackRating && pool > 0) {
+      bestAttackRating = rating;
+      bestAttack = `${pool}k${masteryRank}`;
+    }
+  }
+  const coreCombat = {
+    attack: bestAttack || '—',
+    damage: activeSet?.meta
+      ? `${activeSet.meta.split(' · ')[0] || activeSet.meta} + ${mrDice}`
+      : `Weapon + ${mrDice}`,
+    evade: num(combat?.evadeTotal, masteryRank * 4),
+    armor: num(combat?.armorTotal),
+    movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '—',
+  };
+
+  // ── Stone Dashboard (page 2) ──────────────────────────────────────────
+  const initMr = num(combat?.initiativeMasteryRank, masteryRank);
+  const initD8Mech = num(combat?.initiativeD8FromMechanics);
+  const initDiceCount = Math.max(0, (initMr > 0 ? initMr : masteryRank) + initD8Mech);
+  const initiativeLabel = initDiceCount > 0 ? `${initDiceCount}d8` : `${masteryRank || 2}d8`;
+  const stoneDashboard = {
+    regeneration: masteryRank,
+    burnedHint: 'Lost until a Safe Haven Rest — does not regenerate.',
+    sealedHint: 'Ritual lock — no round regen; returns after Safe Haven Rest.',
+    initiative: initiativeLabel,
+    iniStoneCost,
+    colorlessBoxes: Array.from({ length: 8 }, (_, i) => i + 1),
+    pools: ATTR_ORDER.map((key) => {
+      const value = num(system?.attributes?.[key]?.value, 0);
+      const max = num(system?.stonePools?.[key]?.max, Math.floor(value / 8));
+      return {
+        key,
+        label: cap(key),
+        value,
+        max: Math.max(0, max),
+        generation: Math.max(0, Math.floor(value / 8)),
+      };
+    }),
+  };
+
+  const rawImg = String(actor?.img ?? '').trim();
+  const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
+  const portrait = absImg(portraitSrc);
+
   return {
     name: String(actor?.name ?? ''),
     player: resolvePlayerName(actor),
@@ -1105,6 +1206,8 @@ export function buildCharacterPrintContext(
     abilities,
     stonePools,
     defense,
+    coreCombat,
+    stoneDashboard,
     healthBars,
     tempHP,
     stressBars,
@@ -1117,6 +1220,8 @@ export function buildCharacterPrintContext(
     battle,
     combatSensesDisplay: buildCombatSensesDisplayContext(actor),
     skillsByGroup,
+    learnedSkills,
+    hasLearnedSkills: learnedSkills.length > 0,
     disadvantages,
     disadvantagePoints,
     // One strike-off square per Disadvantage point (rerolls earned).
@@ -1130,8 +1235,11 @@ export function buildCharacterPrintContext(
     hasEchoCards: echoCards.length > 0,
     familiars,
     hasFamiliars,
-    // 6 pages with a summon (equip + stone + summons + battle), 5 without.
-    pageTotal: hasFamiliars ? 6 : 5,
+    // Three core table pages; optional modules do not change the core footer.
+    pageTotal: 3,
+    includeModules,
+    portrait,
+    hasPortrait: !!portrait,
     gear,
     equipment,
     consumableSlots: buildConsumablePrintSlots(actor),
@@ -2104,7 +2212,10 @@ export async function openCharacterPrintSheet(
   try {
     const context = compact
       ? buildCharacterCompactPrintContext(actor)
-      : buildCharacterPrintContext(actor, options);
+      : buildCharacterPrintContext(actor, {
+          includeStandardManeuvers: options.includeStandardManeuvers !== false,
+          includeModules: options.includeModules === true,
+        });
     const template = compact ? PRINT_TEMPLATE_COMPACT : PRINT_TEMPLATE;
     body = await (foundry as any).applications.handlebars.renderTemplate(template, context);
   } catch (error) {

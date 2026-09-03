@@ -217,12 +217,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             controls: [
                 {
                     icon: 'fas fa-print',
-                    label: 'Bogen drucken',
+                    label: 'Charakterbogen',
                     action: 'msPrintSheet',
                 },
                 {
-                    icon: 'fas fa-scroll',
-                    label: 'Bogen + Standardmanöver',
+                    icon: 'fas fa-suitcase',
+                    label: 'Equipment-Modul',
                     action: 'msPrintSheetWithBasics',
                 },
                 {
@@ -243,7 +243,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 void openCharacterPrintSheet(this.actor);
             },
             msPrintSheetWithBasics: function () {
-                void openCharacterPrintSheet(this.actor, { includeStandardManeuvers: true });
+                // Optional Equipment (+ Summons) module pages after the three core pages.
+                void openCharacterPrintSheet(this.actor, { includeModules: true });
             },
             msPrintCompactSheet: function () {
                 void openCharacterPrintSheet(this.actor, { layout: 'compact' });

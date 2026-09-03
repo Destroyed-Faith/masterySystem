@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.462] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet:** The standard printable character sheet is now a three-page table sheet — (1) cleaned portrait Character Sheet with Core Combat, large pencil Health/Stress, learned-only Skills, and compact Disadvantages; (2) landscape Stone Dashboard with physical cube zones (Ready / Exhausted / Burned / Sealed / Colorless), Attribute pools, and Initiative Exchange; (3) landscape Powers & Combat with precomputed Attack/Damage, Active Buff marker, Basic Reactions, large Specials token tray, and short combat reminders. Equipment and Summons are optional modules (header: Equipment-Modul), not part of the three core pages. Quick Play remains the separate one-page print.
+
 ## [0.9.461] - 2026-09-02
 
 ### Fixed
