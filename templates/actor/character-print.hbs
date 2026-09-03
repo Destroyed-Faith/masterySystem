@@ -202,29 +202,31 @@
 {{!-- ====================== PAGE 2 — Stone Dashboard (landscape) ====================== --}}
 <section class="print-page print-page-stones print-page-table">
 
-  {{!-- 1. Initiative — narrow header --}}
+  {{!-- 1. Initiative — single compact row --}}
   <header class="cp-sd-ini" aria-label="Initiative">
     <div class="cp-sd-ini-roll">
       <span class="cp-sd-ini-kicker">Initiative</span>
-      <span class="cp-sd-ini-roll-line">Roll: <b>{{stoneDashboard.initiative}}</b></span>
-      {{#if stoneDashboard.combatReflexes}}
-      <div class="cp-sd-ini-cr">
-        <span class="cp-sd-ini-cr-label">{{stoneDashboard.combatReflexes.label}} {{stoneDashboard.combatReflexes.rating}}</span>
-        <span class="cp-sd-ini-cr-boxes">
-          {{#each stoneDashboard.combatReflexes.boxes}}
-          <i class="cp-sd-ini-cr-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>
-          {{/each}}
+      <span class="cp-sd-ini-roll-line">
+        Roll: <b>{{stoneDashboard.initiative}}</b>
+        {{#if stoneDashboard.combatReflexes}}
+        <span class="cp-sd-ini-cr">
+          <span class="cp-sd-ini-cr-label">{{stoneDashboard.combatReflexes.label}} {{stoneDashboard.combatReflexes.rating}}</span>
+          <span class="cp-sd-ini-cr-boxes">
+            {{#each stoneDashboard.combatReflexes.boxes}}
+            <i class="cp-sd-ini-cr-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>
+            {{/each}}
+          </span>
         </span>
-      </div>
-      {{/if}}
+        {{/if}}
+      </span>
     </div>
     <div class="cp-sd-ini-exchange">
       <span class="cp-sd-ini-kicker">Initiative Exchange</span>
-      <span class="cp-sd-ini-rate"><b>{{stoneDashboard.iniStoneCost}}</b> Initiative = 1 Colorless Stone</span>
+      <span class="cp-sd-ini-rate"><b>{{stoneDashboard.iniStoneCost}}</b> Init = 1 Colorless</span>
     </div>
     <div class="cp-sd-ini-left">
       <span class="cp-sd-ini-kicker">Initiative Left</span>
-      <span class="cp-sd-ini-writein"></span>
+      <span class="cp-sd-ini-box" aria-hidden="true"></span>
     </div>
     <div class="cp-sd-ini-colorless">
       <span class="cp-sd-ini-kicker">Colorless Stones</span>

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.472] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 2 Initiative:** Single compact row — Combat Reflexes sits inline after the roll; Initiative Left is a write-in box; less vertical padding so the strip uses less height.
+
 ## [0.9.471] - 2026-09-03
 
 ### Changed
