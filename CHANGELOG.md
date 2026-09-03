@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.473] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 3:** Passives and Specials Affecting You share one bottom row (Specials ~⅓ width keeping token height, Passives ~⅔). Pinned to the page bottom so Active/Reaction areas keep room above.
+
 ## [0.9.472] - 2026-09-03
 
 ### Changed

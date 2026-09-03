@@ -412,6 +412,19 @@
   </div>
 
   <div class="cp-battle-bottom">
+    <section class="cp-status-tray cp-specials-tray" aria-label="Specials affecting you">
+      <div class="cp-status-tray-head">Specials Affecting You</div>
+      <div class="cp-status-tray-drop">
+        <div class="cp-specials-sot" aria-label="Start of turn">
+          <div class="cp-specials-sot-title">Start of Turn</div>
+          <div class="cp-specials-sot-line">Tick</div>
+          <div class="cp-specials-sot-line">Natural Special Recovery {{specialRecovery}}</div>
+          <div class="cp-specials-sot-line">Decay 1</div>
+        </div>
+      </div>
+      <p class="cp-specials-cap">Same Special this Round: max {{specialCap}} (4 × MR)</p>
+    </section>
+
     <div class="cp-battle-passives">
       <div class="cp-battle-group-title">Passives</div>
       {{#if battle.hasPassives}}
@@ -429,19 +442,6 @@
       <div class="cp-battle-empty">No passive powers.</div>
       {{/if}}
     </div>
-
-    <section class="cp-status-tray cp-specials-tray" aria-label="Specials affecting you">
-      <div class="cp-status-tray-head">Specials Affecting You</div>
-      <div class="cp-status-tray-drop">
-        <div class="cp-specials-sot" aria-label="Start of turn">
-          <div class="cp-specials-sot-title">Start of Turn</div>
-          <div class="cp-specials-sot-line">Tick</div>
-          <div class="cp-specials-sot-line">Natural Special Recovery {{specialRecovery}}</div>
-          <div class="cp-specials-sot-line">Decay 1</div>
-        </div>
-      </div>
-      <p class="cp-specials-cap">Same Special this Round: max {{specialCap}} (4 × MR)</p>
-    </section>
   </div>
 
   <div class="cp-page-footer">Powers &amp; Combat · 3 of 3</div>
