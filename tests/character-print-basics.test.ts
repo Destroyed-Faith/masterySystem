@@ -255,26 +255,29 @@ describe('character print table sheet', () => {
     expect(ctx.stressBreakdown).toEqual({ name: 'Breakdown', max: 1 });
   });
 
-  it('places Expressions and Disadvantages under Attributes; Learned Skills below', () => {
+  it('places Disadvantages under Attributes, Expressions under Health; Learned Skills full width', () => {
     const { readFileSync } = require('node:fs');
     const { join } = require('node:path');
     const hbs = readFileSync(join(process.cwd(), 'templates/actor/character-print.hbs'), 'utf8');
-    const left = hbs.indexOf('cp-col-left');
-    const right = hbs.indexOf('cp-col-right');
-    const abilities = hbs.indexOf('cp-abilities');
-    const expertise = hbs.indexOf('cp-expertise-row');
-    const exprs = hbs.indexOf('cp-minor-expressions');
-    const disadv = hbs.indexOf('cp-disadvantages');
-    const learned = hbs.indexOf('cp-learned-skills');
-    const vitals = hbs.indexOf('cp-vitals');
-    expect(left).toBeGreaterThan(-1);
+    const page1End = hbs.indexOf('print-page-stones');
+    const page1 = hbs.slice(0, page1End);
+    const body = page1.indexOf('cp-page1-body');
+    const left = page1.indexOf('cp-col-left');
+    const right = page1.indexOf('cp-col-right');
+    const abilities = page1.indexOf('cp-abilities');
+    const disadv = page1.indexOf('cp-disadvantages');
+    const vitals = page1.indexOf('cp-vitals-compact');
+    const exprs = page1.indexOf('cp-minor-expressions');
+    const learned = page1.indexOf('cp-learned-skills-full');
+    expect(body).toBeGreaterThan(-1);
+    expect(left).toBeGreaterThan(body);
     expect(abilities).toBeGreaterThan(left);
-    expect(expertise).toBeGreaterThan(abilities);
-    expect(exprs).toBeGreaterThan(expertise);
-    expect(disadv).toBeGreaterThan(exprs);
-    expect(learned).toBeGreaterThan(disadv);
-    expect(right).toBeGreaterThan(learned);
+    expect(disadv).toBeGreaterThan(abilities);
+    expect(right).toBeGreaterThan(left);
     expect(vitals).toBeGreaterThan(right);
+    expect(exprs).toBeGreaterThan(vitals);
+    expect(learned).toBeGreaterThan(exprs);
+    expect(page1.indexOf('cp-expertise-row')).toBe(-1);
     expect(hbs).toContain('cp-vital-total');
     expect(hbs).toContain('Lost Health Points');
     expect(hbs).toContain('Lost Stress');

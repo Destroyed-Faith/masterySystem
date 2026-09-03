@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.481] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1 layout:** Health/Stress vitals no longer stretch to the page bottom — the block closes at content height. Disadvantages sit under Attributes (left); Minor Expressions under Health/Stress (right). Learned Skills spans full page width below whichever side ends lower.
+- **Table Character Sheet · Page 1 Temp HP:** Larger write-in box in the Health header (width and height).
+
 ## [0.9.480] - 2026-09-03
 
 ### Changed

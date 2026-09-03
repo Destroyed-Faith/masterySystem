@@ -70,7 +70,7 @@
     </div>
   </header>
 
-  <div class="cp-columns cp-table-main">
+  <div class="cp-page1-body">
 
     <div class="cp-col cp-col-left">
       <h2 class="cp-section-title">Attributes</h2>
@@ -99,78 +99,34 @@
         {{/each}}
       </div>
 
-      <div class="cp-expertise-row">
-        {{#if hasMinorExpressions}}
-        <div class="cp-block cp-minor-expressions">
-          <div class="cp-minor-header">
-            <h3 class="cp-block-title">Minor Expressions</h3>
-            <span class="cp-minor-uses">
-              <span class="cp-minor-uses-label">Uses / Rest</span>
-              <span class="cp-minor-uses-boxes">
-                {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
-              </span>
-            </span>
-          </div>
-          <ul class="cp-minor-list">
-            {{#each minorExpressions}}
-            <li class="cp-minor-item">
-              <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
-              <span class="cp-minor-body">{{body}}</span>
-            </li>
-            {{/each}}
-          </ul>
-        </div>
-        {{/if}}
-
-        <div class="cp-block cp-disadvantages cp-disadvantages-compact">
-          <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">{{disadvantagePoints}} pts</span></h3>
-          {{#if disadvantages.length}}
-          <ul class="cp-disadv-compact-list">
-            {{#each disadvantages}}
-            <li>
-              <strong>{{label}}</strong>{{#if points}} <span class="cp-disadv-pts">{{points}}</span>{{/if}}
-              {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
-            </li>
-            {{/each}}
-          </ul>
-          {{else}}
-          <p class="cp-learned-empty">None.</p>
-          {{/if}}
-          <div class="cp-rerolls">
-            <span class="cp-defense-label">Rerolls</span>
-            <span class="cp-reroll-boxes">
-              {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
-              {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="cp-block cp-learned-skills">
-        <h3 class="cp-block-title">Learned Skills</h3>
-        {{#if hasLearnedSkills}}
-        <ul class="cp-learned-list">
-          {{#each learnedSkills}}
+      <div class="cp-block cp-disadvantages cp-disadvantages-compact">
+        <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">{{disadvantagePoints}} pts</span></h3>
+        {{#if disadvantages.length}}
+        <ul class="cp-disadv-compact-list">
+          {{#each disadvantages}}
           <li>
-            <span class="cp-sk-name">{{name}} <em>({{attrs}})</em></span>
-            <span class="cp-sk-keep">{{pool}}{{keep}}</span>
-            <span class="cp-sk-boxes">
-              {{#each boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
-            </span>
+            <strong>{{label}}</strong>{{#if points}} <span class="cp-disadv-pts">{{points}}</span>{{/if}}
+            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
           </li>
           {{/each}}
         </ul>
         {{else}}
-        <p class="cp-learned-empty">No trained skills yet.</p>
+        <p class="cp-learned-empty">None.</p>
         {{/if}}
-        <p class="cp-skill-reminder">Unlearned Skills use half the relevant Attribute.</p>
+        <div class="cp-rerolls">
+          <span class="cp-defense-label">Rerolls</span>
+          <span class="cp-reroll-boxes">
+            {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
+            {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
+          </span>
+        </div>
       </div>
     </div>
 
     <div class="cp-col cp-col-right">
-      <div class="cp-block cp-vitals cp-vitals-large">
+      <div class="cp-block cp-vitals cp-vitals-compact">
         <div class="cp-health">
-          <h3 class="cp-block-title">Health <span class="cp-temphp">Temp HP <span class="cp-temphp-box">{{#if tempHP}}{{tempHP}}{{/if}}</span></span></h3>
+          <h3 class="cp-block-title cp-health-title">Health <span class="cp-temphp">Temp HP <span class="cp-temphp-box">{{#if tempHP}}{{tempHP}}{{/if}}</span></span></h3>
           <div class="cp-health-track">
             {{#each healthBars}}
             <div class="cp-health-level">
@@ -226,6 +182,48 @@
           {{/if}}
         </div>
       </div>
+
+      {{#if hasMinorExpressions}}
+      <div class="cp-block cp-minor-expressions">
+        <div class="cp-minor-header">
+          <h3 class="cp-block-title">Minor Expressions</h3>
+          <span class="cp-minor-uses">
+            <span class="cp-minor-uses-label">Uses / Rest</span>
+            <span class="cp-minor-uses-boxes">
+              {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
+            </span>
+          </span>
+        </div>
+        <ul class="cp-minor-list">
+          {{#each minorExpressions}}
+          <li class="cp-minor-item">
+            <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
+            <span class="cp-minor-body">{{body}}</span>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="cp-block cp-learned-skills cp-learned-skills-full">
+      <h3 class="cp-block-title">Learned Skills</h3>
+      {{#if hasLearnedSkills}}
+      <ul class="cp-learned-list">
+        {{#each learnedSkills}}
+        <li>
+          <span class="cp-sk-name">{{name}} <em>({{attrs}})</em></span>
+          <span class="cp-sk-keep">{{pool}}{{keep}}</span>
+          <span class="cp-sk-boxes">
+            {{#each boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
+          </span>
+        </li>
+        {{/each}}
+      </ul>
+      {{else}}
+      <p class="cp-learned-empty">No trained skills yet.</p>
+      {{/if}}
+      <p class="cp-skill-reminder">Unlearned Skills use half the relevant Attribute.</p>
     </div>
   </div>
 
