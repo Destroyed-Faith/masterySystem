@@ -253,4 +253,22 @@ describe('character print table sheet', () => {
     expect(ctx.includeModules).toBe(true);
     expect(ctx.pageTotal).toBe(3);
   });
+
+  it('places Expressions and Disadvantages under Learned Skills (left of Health/Stress)', () => {
+    const { readFileSync } = require('node:fs');
+    const { join } = require('node:path');
+    const hbs = readFileSync(join(process.cwd(), 'templates/actor/character-print.hbs'), 'utf8');
+    const left = hbs.indexOf('cp-col-left');
+    const right = hbs.indexOf('cp-col-right');
+    const learned = hbs.indexOf('cp-learned-skills');
+    const exprs = hbs.indexOf('cp-minor-expressions');
+    const disadv = hbs.indexOf('cp-disadvantages');
+    const vitals = hbs.indexOf('cp-vitals');
+    expect(left).toBeGreaterThan(-1);
+    expect(learned).toBeGreaterThan(left);
+    expect(exprs).toBeGreaterThan(learned);
+    expect(disadv).toBeGreaterThan(exprs);
+    expect(right).toBeGreaterThan(disadv);
+    expect(vitals).toBeGreaterThan(right);
+  });
 });

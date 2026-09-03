@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.479] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1:** Move Minor Expressions and Disadvantages under Learned Skills (left column) so Health and Stress can use the full right column.
+
 ## [0.9.478] - 2026-09-03
 
 ### Changed

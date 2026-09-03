@@ -782,8 +782,8 @@
 
 /* ── Table Character Sheet — large pencil Health / Stress ─────────────── */
 .print-page-1.print-page-table .cp-health-box {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-width: 1.5px;
   border-radius: 2px;
 }
@@ -794,8 +794,8 @@
 }
 
 .print-page-1.print-page-table .cp-health-level {
-  padding: 3px 5px;
-  margin-bottom: 2px;
+  padding: 4px 6px;
+  margin-bottom: 3px;
 }
 
 .print-page-1.print-page-table .cp-health-level-name {
@@ -809,10 +809,30 @@
 
 .print-page-1.print-page-table .cp-vitals-large {
   padding: 5px 7px;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
 }
 
 .print-page-1.print-page-table .cp-col-right {
   flex: 1.15;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  min-height: 0;
+}
+
+/* Expressions + Disadvantages sit under Learned Skills (left); give Health /
+   Stress more pencil room on the right. */
+.print-page-1.print-page-table .cp-columns.cp-table-main {
+  align-items: stretch;
+}
+
+.print-page-1.print-page-table .cp-col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
 
 /* Identity + core combat strip */

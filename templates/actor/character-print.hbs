@@ -118,6 +118,51 @@
         {{/if}}
         <p class="cp-skill-reminder">Unlearned Skills use half the relevant Attribute.</p>
       </div>
+
+      {{#if hasMinorExpressions}}
+      <div class="cp-block cp-minor-expressions">
+        <div class="cp-minor-header">
+          <h3 class="cp-block-title">Minor Expressions</h3>
+          <span class="cp-minor-uses">
+            <span class="cp-minor-uses-label">Uses / Rest</span>
+            <span class="cp-minor-uses-boxes">
+              {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
+            </span>
+          </span>
+        </div>
+        <ul class="cp-minor-list">
+          {{#each minorExpressions}}
+          <li class="cp-minor-item">
+            <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
+            <span class="cp-minor-body">{{body}}</span>
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/if}}
+
+      <div class="cp-block cp-disadvantages cp-disadvantages-compact">
+        <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">{{disadvantagePoints}} pts</span></h3>
+        {{#if disadvantages.length}}
+        <ul class="cp-disadv-compact-list">
+          {{#each disadvantages}}
+          <li>
+            <strong>{{label}}</strong>{{#if points}} <span class="cp-disadv-pts">{{points}}</span>{{/if}}
+            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
+          </li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <p class="cp-learned-empty">None.</p>
+        {{/if}}
+        <div class="cp-rerolls">
+          <span class="cp-defense-label">Rerolls</span>
+          <span class="cp-reroll-boxes">
+            {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
+            {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="cp-col cp-col-right">
@@ -174,51 +219,6 @@
             <span class="cp-defense-value">{{stress.current}} / {{stress.maximum}}</span>
           </div>
           {{/if}}
-        </div>
-      </div>
-
-      {{#if hasMinorExpressions}}
-      <div class="cp-block cp-minor-expressions">
-        <div class="cp-minor-header">
-          <h3 class="cp-block-title">Minor Expressions</h3>
-          <span class="cp-minor-uses">
-            <span class="cp-minor-uses-label">Uses / Rest</span>
-            <span class="cp-minor-uses-boxes">
-              {{#each minorExpressionUseBoxes}}<span class="cp-use-box"></span>{{/each}}
-            </span>
-          </span>
-        </div>
-        <ul class="cp-minor-list">
-          {{#each minorExpressions}}
-          <li class="cp-minor-item">
-            <span class="cp-minor-name">{{name}} <em class="cp-minor-attr">{{attribute}}</em></span>
-            <span class="cp-minor-body">{{body}}</span>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/if}}
-
-      <div class="cp-block cp-disadvantages cp-disadvantages-compact">
-        <h3 class="cp-block-title">Disadvantages <span class="cp-subtle">{{disadvantagePoints}} pts</span></h3>
-        {{#if disadvantages.length}}
-        <ul class="cp-disadv-compact-list">
-          {{#each disadvantages}}
-          <li>
-            <strong>{{label}}</strong>{{#if points}} <span class="cp-disadv-pts">{{points}}</span>{{/if}}
-            {{#if description}}<span class="cp-disadv-desc">{{description}}</span>{{/if}}
-          </li>
-          {{/each}}
-        </ul>
-        {{else}}
-        <p class="cp-learned-empty">None.</p>
-        {{/if}}
-        <div class="cp-rerolls">
-          <span class="cp-defense-label">Rerolls</span>
-          <span class="cp-reroll-boxes">
-            {{#each rerollBoxes}}<span class="cp-use-box"></span>{{/each}}
-            {{#unless rerollBoxes.length}}<span class="cp-reroll-empty">—</span>{{/unless}}
-          </span>
         </div>
       </div>
     </div>

@@ -1085,7 +1085,8 @@ export function buildCharacterPrintContext(
   const disadvantagePoints = disadvantages.reduce((sum: number, d: any) => sum + num(d.points), 0);
 
   // ── Minor Expressions (cantrips) — only the ones the character owns ────
-  // Printed above the Disadvantages on page 1. Each shows its current-tier
+  // Printed under Learned Skills (left column) with Disadvantages so Health /
+  // Stress can use the full right column. Each shows its current-tier
   // effect text (resolved from the governing attribute value).
   const minorExpressions = (Array.isArray(system?.minorExpressions) ? system.minorExpressions : [])
     .map((rawId: any) => {
