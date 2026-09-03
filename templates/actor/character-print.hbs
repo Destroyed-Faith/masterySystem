@@ -333,37 +333,31 @@
 
     <div class="cp-battle-attack">
       <div class="cp-battle-group-title">Active / Attack Actions</div>
-      <div class="cp-battle-attack-cols">
+      <div class="cp-battle-attack-layout">
+        <div class="cp-battle-active-title cp-battle-col-title">Active</div>
+        <div class="cp-battle-buffs-title cp-battle-col-title">Active Buffs</div>
 
-        <div class="cp-battle-col cp-battle-col-active">
-          <div class="cp-battle-col-title">Active</div>
+        <div class="cp-battle-cards-active">
           {{#if battle.hasActive}}
-          <div class="cp-battle-cards cp-battle-cards-active">
-            {{#each battle.active}}
-            <div class="cp-battle-card{{#if baseline}} is-baseline{{/if}}">
-              <span class="cp-battle-card-body">
-                <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}{{#if baseline}} <span class="cp-power-baseline" title="Standardmanöver">Basis</span>{{/if}} <span class="cp-use-box" aria-hidden="true"></span></span>
-                {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
-                {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
-                {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
-                {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>{{#if rollLabel}}{{rollLabel}}{{else}}Damage{{/if}}:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
-                {{#if fromConsumable}}<span class="cp-power-consumable" title="{{localize "MASTERY.consumable.badge"}}">{{localize "MASTERY.consumable.badge"}}</span>{{/if}}
-                {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
-              </span>
-            </div>
-            {{/each}}
+          {{#each battle.active}}
+          <div class="cp-battle-card{{#if baseline}} is-baseline{{/if}}">
+            <span class="cp-battle-card-body">
+              <span class="cp-battle-card-name">{{name}}{{#unless fromArtifact}}{{#unless hideRank}}{{#if rank}} <span class="cp-battle-card-rank">Stufe {{rank}}</span>{{/if}}{{/unless}}{{/unless}}{{#if isSpell}} <span class="cp-power-spell" title="{{spellLabel}}">Spell</span>{{/if}}{{#if fromArtifact}} <span class="cp-power-artifact" title="From artifact: {{source}}">&#9733; {{source}}</span>{{/if}}{{#if baseline}} <span class="cp-power-baseline" title="Standardmanöver">Basis</span>{{/if}} <span class="cp-use-box" aria-hidden="true"></span></span>
+              {{#if attackKind}}<span class="cp-battle-card-kind">{{attackKind}}</span>{{/if}}
+              {{#unless battleCompact}}{{#if effect}}<span class="cp-battle-card-eff">{{effect}}</span>{{/if}}{{/unless}}
+              {{#if attackRoll}}<span class="cp-battle-card-roll"><strong>Attack:</strong> {{attackRoll}}</span>{{/if}}
+              {{#if damageRoll}}{{#if (eq rollKind "heal")}}<span class="cp-battle-card-roll"><strong>Heal:</strong> {{damageRoll}}</span>{{else}}<span class="cp-battle-card-roll"><strong>{{#if rollLabel}}{{rollLabel}}{{else}}Damage{{/if}}:</strong> {{damageRoll}}</span>{{/if}}{{/if}}
+              {{#if fromConsumable}}<span class="cp-power-consumable" title="{{localize "MASTERY.consumable.badge"}}">{{localize "MASTERY.consumable.badge"}}</span>{{/if}}
+              {{#if battleFootnote}}<span class="cp-battle-card-footnote">{{battleFootnote}}</span>{{/if}}
+            </span>
           </div>
+          {{/each}}
           {{else}}
-          <div class="cp-battle-empty">No active powers.</div>
+          <div class="cp-battle-empty cp-battle-empty-active">No active powers.</div>
           {{/if}}
         </div>
 
-        <div class="cp-battle-col cp-battle-col-buffs">
-          <div class="cp-battle-col-title">Active Buffs</div>
-          <div class="cp-active-marker" aria-label="Active buff marker">
-            <span class="cp-active-marker-label">ACTIVE</span>
-            <span class="cp-active-marker-slot"></span>
-          </div>
+        <div class="cp-battle-buffs-block">
           {{#if battle.hasBuffs}}
           <div class="cp-battle-cards cp-battle-cards-stack">
             {{#each battle.activeBuffs}}
@@ -385,7 +379,6 @@
           <div class="cp-battle-empty">No active buffs.</div>
           {{/if}}
         </div>
-
       </div>
     </div>
 

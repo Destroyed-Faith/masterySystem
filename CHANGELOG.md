@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.471] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 3:** Removed the dashed ACTIVE circle marker above Active Buffs. Active cards share a 3-column grid with Buffs — a third Active column sits above the Buff stack instead of wasting that strip.
+
 ## [0.9.470] - 2026-09-03
 
 ### Changed

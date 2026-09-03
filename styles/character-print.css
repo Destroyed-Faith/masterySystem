@@ -1350,31 +1350,6 @@
 }
 
 /* ── Powers & Combat extras ───────────────────────────────────────────── */
-.cp-active-marker {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-  padding: 2px 4px;
-  border: 1px dashed #00838f;
-  border-radius: 3px;
-}
-
-.cp-active-marker-label {
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #00838f;
-}
-
-.cp-active-marker-slot {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #00838f;
-  border-radius: 50%;
-  background: #e0f7fa;
-}
-
 .cp-specials-tray {
   min-height: 38mm;
   width: 100%;
@@ -1531,6 +1506,51 @@
   width: 100%;
 }
 
+/* Active cards share a 3-column grid with Buffs: cols 1–2 beside Buffs,
+   overflow into col 3 sits above the Buff stack. */
+.cp-battle-attack-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px 2.5mm;
+  align-items: start;
+  width: 100%;
+}
+
+.cp-battle-active-title {
+  grid-column: 1 / 3;
+  grid-row: 1;
+  justify-self: stretch;
+  text-align: center;
+}
+
+.cp-battle-buffs-title {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: stretch;
+  text-align: center;
+}
+
+.cp-battle-cards-active {
+  display: contents;
+}
+
+.cp-battle-cards-active > .cp-battle-card {
+  min-width: 0;
+  width: auto;
+  max-width: none;
+}
+
+.cp-battle-empty-active {
+  grid-column: 1 / 3;
+}
+
+.cp-battle-buffs-block {
+  grid-column: 3;
+  /* Row 3+: leave row 2 free so a third Active column can sit above Buffs. */
+  grid-row: 3 / span 40;
+  min-width: 0;
+}
+
 .cp-battle-col-active {
   flex: 1 1 58%;
   min-width: 0;
@@ -1546,19 +1566,6 @@
   flex-direction: column;
   gap: 3px;
   align-items: stretch;
-}
-
-/* Active list flows into columns as needed — not a fixed empty grid. */
-.cp-battle-cards-active {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  align-content: flex-start;
-}
-
-.cp-battle-cards-active .cp-battle-card {
-  flex: 1 1 52mm;
-  max-width: 62mm;
 }
 
 .cp-battle-card {
