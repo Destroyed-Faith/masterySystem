@@ -30,7 +30,6 @@ import {
   effectiveStoneSupportPrefillTier,
   firstEffectiveStonePowerTier,
   stonePowerSkipsFirstTier,
-  stonePowerWaveCost,
 } from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
@@ -70,6 +69,77 @@ import {
   buildBasicReactionItems,
 } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
+
+/**
+ * Short table-sheet blurb for a Stone Power (Quick Play style).
+ * Linear tiers → "+N per Tier"; irregular → values listed at the end.
+ */
+export function summarizeStonePowerPrint(power: {
+  id?: string;
+  name?: string;
+  description?: string;
+  tiers?: { label?: string; description?: string; value?: number }[];
+}): string {
+  const id = String(power?.id ?? '');
+  // A few powers read better with a fixed one-liner.
+  if (id === 'agility.crit') {
+    return 'One attack per Tier can have Crit(1). Decide before each Attack Roll.';
+  }
+  if (id === 'vitality.removeScar') {
+    return 'Recover 1 Scarred Health Bar. Burns 1 Vitality Stone.';
+  }
+
+  const tiers = Array.isArray(power?.tiers) ? power.tiers : [];
+  const values = tiers
+    .map((t) => Number(t?.value))
+    .filter((n) => Number.isFinite(n)) as number[];
+
+  let base = String(power?.description || tiers[0]?.description || '').trim();
+  base = base.replace(/\s*\([^)]*\)/g, ' ');
+  base = base.replace(/\s*\+?\d+(?:\s*\/\s*\+?\d+)+\s*/g, ' ');
+  base = base.split(/(?<=\.)\s+/)[0] || base;
+  base = base.replace(/\s+/g, ' ').trim().replace(/[.]+$/, '');
+
+  if (!base) base = String(power?.name || 'Stone Power');
+  if (!values.length) return `${base}.`;
+
+  const allSame = values.every((v) => v === values[0]);
+  if (allSame) return `${base}.`;
+
+  let linearDelta: number | null = null;
+  if (values.length >= 2) {
+    const d0 = values[1]! - values[0]!;
+    if (d0 !== 0 && values.every((v, i) => i === 0 || v - values[i - 1]! === d0)) {
+      linearDelta = d0;
+    }
+  }
+
+  if (linearDelta != null) {
+    return `${base} +${linearDelta} per Tier.`.replace(/\s+/g, ' ').trim();
+  }
+  return `${base} (${values.join('/')}).`.replace(/\s+/g, ' ').trim();
+}
+
+/** Quick Play–style payment lanes: T1=1, T2=2 stacked, T3=2×2 (no T4 — 8 cubes too wide). */
+function stonePowerPaymentTiersForPrint(
+  powerId: string,
+  supportTier: number,
+): { label: string; tier: number; layout: string; count: number; boxes: { filled: boolean }[] }[] {
+  const isRamp = stonePowerSkipsFirstTier(powerId);
+  const firstPaid = firstEffectiveStonePowerTier(powerId);
+  return [
+    { label: 'T1', tier: 1, layout: 't1', count: 1 },
+    { label: 'T2', tier: 2, layout: 't2', count: 2 },
+    { label: 'T3', tier: 3, layout: 't3', count: 4 },
+  ]
+    .filter((g) => !(isRamp && g.tier === 1))
+    .map((g) => ({
+      ...g,
+      boxes: Array.from({ length: g.count }, () => ({
+        filled: supportTier > 0 && g.tier > firstPaid && g.tier <= supportTier,
+      })),
+    }));
+}
 
 /** Options for the printable character sheet. */
 export interface CharacterPrintOptions {
@@ -1089,52 +1159,21 @@ export function buildCharacterPrintContext(
       slots: Array.from({ length: freeStones }, (_, i) => i + 1),
       boosts: boostsByAttr.get(key) ?? [],
       powers: orderPowersRampFirst(list, (p: any) => stonePowerSkipsFirstTier(String(p.id))).map((p: any) => {
-        const sup = supportByPowerId.get(String(p.id));
+        const powerId = String(p.id);
+        const sup = supportByPowerId.get(powerId);
         const supportTier = sup?.tier ?? 0;
-        // T2-start powers have no Tier-1 slot — do not render an empty T1 box.
-        const isRamp = stonePowerSkipsFirstTier(String(p.id));
-        const firstPaid = firstEffectiveStonePowerTier(String(p.id));
-        const startsAt = firstPaid === 2 ? 2 : 1;
-        // Tier placement areas (T1=1, T2=2, T3=4). Support gold-fills every
-        // published tier above the one the player must pay, up through the
-        // effective prefill (Crit + Focus I → T3 filled, T2 empty).
-        const tiers = [
-          { label: 'T1', tier: 1, count: 1 },
-          { label: 'T2', tier: 2, count: 2 },
-          { label: 'T3', tier: 3, count: 4 },
-        ].filter((g) => !(isRamp && g.tier === 1)).map((g) => ({
+        const paymentTiers = stonePowerPaymentTiersForPrint(powerId, supportTier);
+        // Legacy `tiers` shape (technical / older templates) — same payment lanes.
+        const tiers = paymentTiers.map((g) => ({
           label: g.label,
-          boxes: Array.from({ length: g.count }, () => ({
-            filled: !!sup && g.tier > firstPaid && g.tier <= supportTier,
-          })),
+          boxes: g.boxes,
         }));
-        // Full published tier lines for the table Stone Power reference (T1–T4 / T2–T4).
-        const publishedTiers = Array.isArray(p?.tiers) ? p.tiers : [];
-        const effectTiers = publishedTiers.map((t: any, i: number) => {
-          const tierNum = startsAt + i;
-          const cost = stonePowerWaveCost(tierNum);
-          const effectLabel = String(t?.label ?? t?.description ?? '').trim();
-          return {
-            label: `T${tierNum}`,
-            tier: tierNum,
-            effect: effectLabel,
-            cost,
-            costLabel: cost === 1 ? '1 Stone' : `${cost} Stones`,
-            line: `T${tierNum} — ${effectLabel} — ${cost === 1 ? '1 Stone' : `${cost} Stones`}`,
-            boxes:
-              cost <= 4
-                ? Array.from({ length: cost }, () => ({
-                    filled: !!sup && tierNum > firstPaid && tierNum <= supportTier,
-                  }))
-                : [],
-            costMark: cost > 4 ? String(cost) : '',
-          };
-        });
         return {
           name: String(p?.name ?? ''),
           category: cap(String(p?.category ?? '')),
           categoryUpper: String(p?.category ?? '').toUpperCase(),
-          effect: String(p?.description ?? ''),
+          summary: summarizeStonePowerPrint(p),
+          effect: summarizeStonePowerPrint(p),
           supported: !!sup,
           tier: supportTier,
           source: compactArtifactName(sup?.source ?? ''),
@@ -1142,7 +1181,7 @@ export function buildCharacterPrintContext(
             ? `Support T${supportTier}${sup.source ? ` — ${compactArtifactName(sup.source)}` : ''}`
             : '',
           tiers,
-          effectTiers,
+          paymentTiers,
         };
       }),
     };

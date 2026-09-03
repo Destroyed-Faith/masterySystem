@@ -13,6 +13,20 @@
  * (Movement / Active / Reaction) plus an empty check-box meaning
  * "may be used once per round".
  */
+/**
+ * Short table-sheet blurb for a Stone Power (Quick Play style).
+ * Linear tiers → "+N per Tier"; irregular → values listed at the end.
+ */
+export declare function summarizeStonePowerPrint(power: {
+    id?: string;
+    name?: string;
+    description?: string;
+    tiers?: {
+        label?: string;
+        description?: string;
+        value?: number;
+    }[];
+}): string;
 /** Options for the printable character sheet. */
 export interface CharacterPrintOptions {
     /**

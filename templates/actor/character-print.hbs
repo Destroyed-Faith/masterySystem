@@ -262,23 +262,24 @@
         <div class="cp-sd-power-list">
           {{#each powers}}
           <article class="cp-sd-power{{#if supported}} is-supported{{/if}}">
-            <header class="cp-sd-power-head">
-              <span class="cp-sd-power-name">{{name}}</span>
-              <span class="cp-sd-power-cat">{{categoryUpper}}</span>
-              {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
-            </header>
-            {{#if effect}}<p class="cp-sd-power-effect">{{effect}}</p>{{/if}}
-            <ul class="cp-sd-tier-list">
-              {{#each effectTiers}}
-              <li class="cp-sd-tier">
-                <span class="cp-sd-tier-text"><b>{{label}}</b> — {{effect}} — {{costLabel}}</span>
-                <span class="cp-sd-tier-boxes">
-                  {{#each boxes}}<i class="cp-sd-tier-box{{#if filled}} is-filled{{/if}}"></i>{{/each}}
-                  {{#if costMark}}<span class="cp-sd-tier-costmark">{{costMark}}</span>{{/if}}
+            <div class="cp-sd-power-main">
+              <header class="cp-sd-power-head">
+                <span class="cp-sd-power-name">{{name}}</span>
+                <span class="cp-sd-power-cat">{{categoryUpper}}</span>
+                {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
+              </header>
+              {{#if summary}}<p class="cp-sd-power-summary">{{summary}}</p>{{/if}}
+            </div>
+            <div class="cp-sd-power-tiers" aria-label="Stone cost tiers">
+              {{#each paymentTiers}}
+              <span class="cp-sd-tg">
+                <span class="cp-sd-tl">{{label}}</span>
+                <span class="cp-sd-boxes is-{{layout}}">
+                  {{#each boxes}}<i class="cp-sd-cost{{#if filled}} is-filled{{/if}}"></i>{{/each}}
                 </span>
-              </li>
+              </span>
               {{/each}}
-            </ul>
+            </div>
           </article>
           {{/each}}
         </div>

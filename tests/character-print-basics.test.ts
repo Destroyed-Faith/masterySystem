@@ -114,17 +114,38 @@ describe('character print table sheet', () => {
     const mightGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'might');
     expect(mightGroup).toBeTruthy();
     const melee = mightGroup.powers.find((p: any) => /melee damage/i.test(p.name));
-    expect(melee?.effectTiers?.length).toBe(4);
-    expect(melee.effectTiers[0].label).toBe('T1');
-    expect(melee.effectTiers[0].cost).toBe(1);
-    expect(melee.effectTiers[3].label).toBe('T4');
-    expect(melee.effectTiers[3].cost).toBe(8);
-    // Ramp powers (e.g. Extra Attack) must not invent a T1 line.
-    const extra = mightGroup.powers.find((p: any) => /extra attack/i.test(p.name));
-    if (extra) {
-      expect(extra.effectTiers[0].label).toBe('T2');
-      expect(extra.effectTiers.every((t: any) => t.label !== 'T1')).toBe(true);
-    }
+    expect(melee.summary).toMatch(/2\/4\/8\/16/);
+    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3']);
+    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4]);
+    const parry = mightGroup.powers.find((p: any) => /parry/i.test(p.name));
+    expect(parry.summary).toMatch(/\+4 per Tier/i);
+    expect(parry.paymentTiers[0].label).toBe('T2');
+    expect(parry.paymentTiers.every((t: any) => t.label !== 'T1')).toBe(true);
+  });
+
+  it('summarizes stone powers like Quick Play (short + per Tier / list)', async () => {
+    const { summarizeStonePowerPrint } = await import('../src/sheets/character-print');
+    expect(
+      summarizeStonePowerPrint({
+        id: 'generic.extraAttack',
+        name: 'Extra Attack',
+        description: 'Gain additional Attack Actions this round (T2: +1, T3: +2, T4: +3).',
+        tiers: [
+          { value: 1, description: 'Gain 1 additional Attack Action this round.' },
+          { value: 2 },
+          { value: 3 },
+        ],
+      }),
+    ).toMatch(/\+1 per Tier/i);
+    expect(
+      summarizeStonePowerPrint({
+        id: 'agility.crit',
+        name: 'Crit',
+        description: 'A number of your attacks…',
+        tiers: [{ value: 1 }, { value: 2 }, { value: 3 }],
+      }),
+    ).toMatch(/One attack per Tier/i);
   });
 
   it('uses empty pencil Health / Stress boxes', () => {

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.464] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 2 Stone Powers:** Quick Play style — one short summary (`+N per Tier` or listed values), then T1/T2/T3 cube lanes (1 / 2 stacked / 2×2). No repeated T1/T2/T3 text lines. Cube slots ~6 mm. T4 omitted (eight cubes too wide).
+
 ## [0.9.463] - 2026-09-03
 
 ### Changed
