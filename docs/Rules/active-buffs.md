@@ -355,28 +355,29 @@ You reinforce your body, armor, stance, magic, skin, or guard with a temporary d
     <span class="tooltiptext">
       BASELINES<br>
       Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1 Evade = 5 PP.<br><br>
+      +1 Evade = 15 PP.<br><br>
       DESIGN STRUCTURE<br>
       This is a pure Defensive Active Buff with exactly one axis: Evade.<br>
       The full Active Buff budget is spent on avoidance.<br>
-      Because Evade is priced in 5 PP steps and the Active Buff curve increases by 30 PP per level, this progression matches the curve exactly.<br><br>
+      Because Evade is priced in 15 PP steps, values are rounded down to whole Evade to avoid exceeding the Active Buff curve.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +8 Evade = 40 PP, exactly on target.<br>
-      L2 target 70 PP → +14 Evade = 70 PP, exactly on target.<br>
-      L3 target 100 PP → +20 Evade = 100 PP, exactly on target.<br>
-      L4 target 130 PP → +26 Evade = 130 PP, exactly on target.<br>
-      L5 target 160 PP → +32 Evade = 160 PP, exactly on target.<br>
-      L6 target 190 PP → +38 Evade = 190 PP, exactly on target.<br>
-      L7 target 220 PP → +44 Evade = 220 PP, exactly on target.<br>
-      L8 target 250 PP → +50 Evade = 250 PP, exactly on target.<br>
-      L9 target 280 PP → +56 Evade = 280 PP, exactly on target.<br>
-      L10 target 310 PP → +62 Evade = 310 PP, exactly on target.<br>
-      L11 target 340 PP → +68 Evade = 340 PP, exactly on target.<br>
-      L12 target 370 PP → +74 Evade = 370 PP, exactly on target.<br>
-      L13 target 400 PP → +80 Evade = 400 PP, exactly on target.<br>
-      L14 target 430 PP → +86 Evade = 430 PP, exactly on target.<br>
-      L15 target 460 PP → +92 Evade = 460 PP, exactly on target.<br>
-      L16 target 490 PP → +98 Evade = 490 PP, exactly on target.<br><br>
+      L1 target 40 PP → +2 Evade = 30 PP, 10 PP below target.<br>
+      L2 target 70 PP → +4 Evade = 60 PP, 10 PP below target.<br>
+      L3 target 100 PP → +6 Evade = 90 PP, 10 PP below target.<br>
+      L4 target 130 PP → +8 Evade = 120 PP, 10 PP below target.<br>
+      L5 target 160 PP → +10 Evade = 150 PP, 10 PP below target.<br>
+      L6 target 190 PP → +12 Evade = 180 PP, 10 PP below target.<br>
+      L7 target 220 PP → +14 Evade = 210 PP, 10 PP below target.<br>
+      L8 target 250 PP → +16 Evade = 240 PP, 10 PP below target.<br>
+      L9 target 280 PP → +18 Evade = 270 PP, 10 PP below target.<br>
+      L10 target 310 PP → +20 Evade = 300 PP, 10 PP below target.<br>
+      L11 target 340 PP → +22 Evade = 330 PP, 10 PP below target.<br>
+      L12 target 370 PP → +24 Evade = 360 PP, 10 PP below target.<br>
+      L13 target 400 PP → +26 Evade = 390 PP, 10 PP below target.<br>
+      L14 target 430 PP → +28 Evade = 420 PP, 10 PP below target.<br>
+      L15 target 460 PP → +30 Evade = 450 PP, 10 PP below target.<br>
+      L16 target 490 PP → +32 Evade = 480 PP, 10 PP below target.<br>
+<br>
       NOTES<br>
       This is the cleanest avoidance buff in the catalogue.<br>
       It grants no Armor, no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no secondary rider.<br>
@@ -389,29 +390,24 @@ You become harder to target, harder to read, harder to pin down, or harder to st
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Evade**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+20 Evade**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+26 Evade**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+32 Evade**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+38 Evade**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+44 Evade**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+50 Evade**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+56 Evade**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+62 Evade**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+68 Evade**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+74 Evade**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+80 Evade**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+86 Evade**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+92 Evade**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+98 Evade**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Evade**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Evade**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Evade**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Evade**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Evade**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Evade**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+18 Evade**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+20 Evade**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+22 Evade**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+24 Evade**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+26 Evade**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+28 Evade**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+30 Evade**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+32 Evade**. |
 
 ---
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 <h3 id="active-buff-armor-aura">
   Active Buff: Armor Aura
@@ -860,31 +856,32 @@ You reinforce yourself with both a hardened defensive layer and a temporary dama
     <span class="tooltiptext">
       BASELINES<br>
       Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1 Evade = 5 PP.<br>
+      +1 Evade = 15 PP.<br>
       Refreshing Temporary HP in combat = 4 PP per 1 Temporary HP.<br><br>
       DESIGN STRUCTURE<br>
       This is a Defensive Combination Active Buff with exactly two axes: Evade and refreshing Temporary HP.<br>
-      Evade is the primary avoidance axis and increases by +2 per level.<br>
-      Remaining PP is spent on a refreshing Temporary HP buffer.<br>
+      The listed refreshing Temporary HP progression remains unchanged.<br>
+      Remaining PP is spent on Evade using the premium Evade price.<br>
       At the start of each of your turns, if your Temporary HP from this buff is below the listed value, restore it up to that value.<br>
       This creates a hybrid defense: Evade prevents clean hits, while the buffer absorbs damage that still connects.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +2 Evade (10) + refresh up to 8 Temporary HP (32) = 42 PP, slightly above target.<br>
-      L2 target 70 PP → +4 Evade (20) + refresh up to 12 Temporary HP (48) = 68 PP, close to target.<br>
-      L3 target 100 PP → +6 Evade (30) + refresh up to 17 Temporary HP (68) = 98 PP, close to target.<br>
-      L4 target 130 PP → +8 Evade (40) + refresh up to 22 Temporary HP (88) = 128 PP, close to target.<br>
-      L5 target 160 PP → +10 Evade (50) + refresh up to 28 Temporary HP (112) = 162 PP, close to target.<br>
-      L6 target 190 PP → +12 Evade (60) + refresh up to 32 Temporary HP (128) = 188 PP, close to target.<br>
-      L7 target 220 PP → +14 Evade (70) + refresh up to 38 Temporary HP (152) = 222 PP, close to target.<br>
-      L8 target 250 PP → +16 Evade (80) + refresh up to 42 Temporary HP (168) = 248 PP, close to target.<br>
-      L9 target 280 PP → +18 Evade (90) + refresh up to 48 Temporary HP (192) = 282 PP, close to target.<br>
-      L10 target 310 PP → +20 Evade (100) + refresh up to 52 Temporary HP (208) = 308 PP, close to target.<br>
-      L11 target 340 PP → +22 Evade (110) + refresh up to 58 Temporary HP (232) = 342 PP, close to target.<br>
-      L12 target 370 PP → +24 Evade (120) + refresh up to 62 Temporary HP (248) = 368 PP, close to target.<br>
-      L13 target 400 PP → +26 Evade (130) + refresh up to 68 Temporary HP (272) = 402 PP, close to target.<br>
-      L14 target 430 PP → +28 Evade (140) + refresh up to 72 Temporary HP (288) = 428 PP, close to target.<br>
-      L15 target 460 PP → +30 Evade (150) + refresh up to 78 Temporary HP (312) = 462 PP, close to target.<br>
-      L16 target 490 PP → +32 Evade (160) + refresh up to 82 Temporary HP (328) = 488 PP, close to target.<br><br>
+      L1 target 40 PP → no Evade (0) + refresh up to 8 Temporary HP (32) = 32 PP, 8 PP below target.<br>
+      L2 target 70 PP → +1 Evade (15) + refresh up to 12 Temporary HP (48) = 63 PP, 7 PP below target.<br>
+      L3 target 100 PP → +2 Evade (30) + refresh up to 17 Temporary HP (68) = 98 PP, 2 PP below target.<br>
+      L4 target 130 PP → +2 Evade (30) + refresh up to 22 Temporary HP (88) = 118 PP, 12 PP below target.<br>
+      L5 target 160 PP → +3 Evade (45) + refresh up to 28 Temporary HP (112) = 157 PP, 3 PP below target.<br>
+      L6 target 190 PP → +4 Evade (60) + refresh up to 32 Temporary HP (128) = 188 PP, 2 PP below target.<br>
+      L7 target 220 PP → +4 Evade (60) + refresh up to 38 Temporary HP (152) = 212 PP, 8 PP below target.<br>
+      L8 target 250 PP → +5 Evade (75) + refresh up to 42 Temporary HP (168) = 243 PP, 7 PP below target.<br>
+      L9 target 280 PP → +5 Evade (75) + refresh up to 48 Temporary HP (192) = 267 PP, 13 PP below target.<br>
+      L10 target 310 PP → +6 Evade (90) + refresh up to 52 Temporary HP (208) = 298 PP, 12 PP below target.<br>
+      L11 target 340 PP → +7 Evade (105) + refresh up to 58 Temporary HP (232) = 337 PP, 3 PP below target.<br>
+      L12 target 370 PP → +8 Evade (120) + refresh up to 62 Temporary HP (248) = 368 PP, 2 PP below target.<br>
+      L13 target 400 PP → +8 Evade (120) + refresh up to 68 Temporary HP (272) = 392 PP, 8 PP below target.<br>
+      L14 target 430 PP → +9 Evade (135) + refresh up to 72 Temporary HP (288) = 423 PP, 7 PP below target.<br>
+      L15 target 460 PP → +9 Evade (135) + refresh up to 78 Temporary HP (312) = 447 PP, 13 PP below target.<br>
+      L16 target 490 PP → +10 Evade (150) + refresh up to 82 Temporary HP (328) = 478 PP, 12 PP below target.<br>
+<br>
       NOTES<br>
       This buff grants refreshing Temporary HP, not real healing.<br>
       It grants no Armor, no Healing, no Damage Reduction, no Phasing, and no offensive rider.<br>
@@ -897,29 +894,25 @@ You avoid the cleanest hits, and what still connects is swallowed by a temporary
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Evade**. At the start of each of your turns, if you have less than **8 Temporary HP**, restore it up to **8 Temporary HP**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Evade**. At the start of each of your turns, if you have less than **12 Temporary HP**, restore it up to **12 Temporary HP**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. At the start of each of your turns, if you have less than **17 Temporary HP**, restore it up to **17 Temporary HP**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. At the start of each of your turns, if you have less than **22 Temporary HP**, restore it up to **22 Temporary HP**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Evade**. At the start of each of your turns, if you have less than **28 Temporary HP**, restore it up to **28 Temporary HP**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Evade**. At the start of each of your turns, if you have less than **32 Temporary HP**, restore it up to **32 Temporary HP**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Evade**. At the start of each of your turns, if you have less than **38 Temporary HP**, restore it up to **38 Temporary HP**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Evade**. At the start of each of your turns, if you have less than **42 Temporary HP**, restore it up to **42 Temporary HP**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+18 Evade**. At the start of each of your turns, if you have less than **48 Temporary HP**, restore it up to **48 Temporary HP**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+20 Evade**. At the start of each of your turns, if you have less than **52 Temporary HP**, restore it up to **52 Temporary HP**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+22 Evade**. At the start of each of your turns, if you have less than **58 Temporary HP**, restore it up to **58 Temporary HP**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+24 Evade**. At the start of each of your turns, if you have less than **62 Temporary HP**, restore it up to **62 Temporary HP**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+26 Evade**. At the start of each of your turns, if you have less than **68 Temporary HP**, restore it up to **68 Temporary HP**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+28 Evade**. At the start of each of your turns, if you have less than **72 Temporary HP**, restore it up to **72 Temporary HP**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+30 Evade**. At the start of each of your turns, if you have less than **78 Temporary HP**, restore it up to **78 Temporary HP**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+32 Evade**. At the start of each of your turns, if you have less than **82 Temporary HP**, restore it up to **82 Temporary HP**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **8 Temporary HP**, restore it up to **8 Temporary HP**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+1 Evade**. At the start of each of your turns, if you have less than **12 Temporary HP**, restore it up to **12 Temporary HP**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Evade**. At the start of each of your turns, if you have less than **17 Temporary HP**, restore it up to **17 Temporary HP**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Evade**. At the start of each of your turns, if you have less than **22 Temporary HP**, restore it up to **22 Temporary HP**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Evade**. At the start of each of your turns, if you have less than **28 Temporary HP**, restore it up to **28 Temporary HP**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Evade**. At the start of each of your turns, if you have less than **32 Temporary HP**, restore it up to **32 Temporary HP**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Evade**. At the start of each of your turns, if you have less than **38 Temporary HP**, restore it up to **38 Temporary HP**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Evade**. At the start of each of your turns, if you have less than **42 Temporary HP**, restore it up to **42 Temporary HP**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Evade**. At the start of each of your turns, if you have less than **48 Temporary HP**, restore it up to **48 Temporary HP**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. At the start of each of your turns, if you have less than **52 Temporary HP**, restore it up to **52 Temporary HP**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Evade**. At the start of each of your turns, if you have less than **58 Temporary HP**, restore it up to **58 Temporary HP**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. At the start of each of your turns, if you have less than **62 Temporary HP**, restore it up to **62 Temporary HP**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. At the start of each of your turns, if you have less than **68 Temporary HP**, restore it up to **68 Temporary HP**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Evade**. At the start of each of your turns, if you have less than **72 Temporary HP**, restore it up to **72 Temporary HP**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Evade**. At the start of each of your turns, if you have less than **78 Temporary HP**, restore it up to **78 Temporary HP**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Evade**. At the start of each of your turns, if you have less than **82 Temporary HP**, restore it up to **82 Temporary HP**. |
+
 
 ---
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 <h3 id="active-buff-temporary-hp-healing">
   Active Buff: Temporary HP + Healing
@@ -997,33 +990,34 @@ A protective buffer rebuilds around you while your real wounds recover beneath i
       BASELINES<br>
       Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
       +1 Armor = 7.5 PP.<br>
-      +1 Evade = 5 PP.<br><br>
+      +1 Evade = 15 PP.<br><br>
       DESIGN STRUCTURE<br>
       This is a Defensive Combination Active Buff with exactly two axes: Armor and Evade.<br>
       Armor is the mitigation axis.<br>
       Evade is the avoidance axis.<br>
-      The progression uses a stable pattern: Armor increases by +2 per level, and Evade increases by +3 per level.<br>
+      The progression uses a stable pattern: Armor increases by +2 per level, and Evade increases by +1 per level.<br>
       This creates a clean mixed-defense profile that stays close to the Active Buff curve across all levels.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +3 Armor (22.5) + +4 Evade (20) = 42.5 PP, slightly above target.<br>
-      L2 target 70 PP → +5 Armor (37.5) + +7 Evade (35) = 72.5 PP, slightly above target.<br>
-      L3 target 100 PP → +7 Armor (52.5) + +10 Evade (50) = 102.5 PP, slightly above target.<br>
-      L4 target 130 PP → +9 Armor (67.5) + +13 Evade (65) = 132.5 PP, slightly above target.<br>
-      L5 target 160 PP → +11 Armor (82.5) + +16 Evade (80) = 162.5 PP, slightly above target.<br>
-      L6 target 190 PP → +13 Armor (97.5) + +19 Evade (95) = 192.5 PP, slightly above target.<br>
-      L7 target 220 PP → +15 Armor (112.5) + +22 Evade (110) = 222.5 PP, slightly above target.<br>
-      L8 target 250 PP → +17 Armor (127.5) + +25 Evade (125) = 252.5 PP, slightly above target.<br>
-      L9 target 280 PP → +19 Armor (142.5) + +28 Evade (140) = 282.5 PP, slightly above target.<br>
-      L10 target 310 PP → +21 Armor (157.5) + +31 Evade (155) = 312.5 PP, slightly above target.<br>
-      L11 target 340 PP → +23 Armor (172.5) + +34 Evade (170) = 342.5 PP, slightly above target.<br>
-      L12 target 370 PP → +25 Armor (187.5) + +37 Evade (185) = 372.5 PP, slightly above target.<br>
-      L13 target 400 PP → +27 Armor (202.5) + +40 Evade (200) = 402.5 PP, slightly above target.<br>
-      L14 target 430 PP → +29 Armor (217.5) + +43 Evade (215) = 432.5 PP, slightly above target.<br>
-      L15 target 460 PP → +31 Armor (232.5) + +46 Evade (230) = 462.5 PP, slightly above target.<br>
-      L16 target 490 PP → +33 Armor (247.5) + +49 Evade (245) = 492.5 PP, slightly above target.<br><br>
+      L1 target 40 PP → +3 Armor (22.5) + +1 Evade (15) = 37.5 PP, 2.5 PP below target.<br>
+      L2 target 70 PP → +5 Armor (37.5) + +2 Evade (30) = 67.5 PP, 2.5 PP below target.<br>
+      L3 target 100 PP → +7 Armor (52.5) + +3 Evade (45) = 97.5 PP, 2.5 PP below target.<br>
+      L4 target 130 PP → +9 Armor (67.5) + +4 Evade (60) = 127.5 PP, 2.5 PP below target.<br>
+      L5 target 160 PP → +11 Armor (82.5) + +5 Evade (75) = 157.5 PP, 2.5 PP below target.<br>
+      L6 target 190 PP → +13 Armor (97.5) + +6 Evade (90) = 187.5 PP, 2.5 PP below target.<br>
+      L7 target 220 PP → +15 Armor (112.5) + +7 Evade (105) = 217.5 PP, 2.5 PP below target.<br>
+      L8 target 250 PP → +17 Armor (127.5) + +8 Evade (120) = 247.5 PP, 2.5 PP below target.<br>
+      L9 target 280 PP → +19 Armor (142.5) + +9 Evade (135) = 277.5 PP, 2.5 PP below target.<br>
+      L10 target 310 PP → +21 Armor (157.5) + +10 Evade (150) = 307.5 PP, 2.5 PP below target.<br>
+      L11 target 340 PP → +23 Armor (172.5) + +11 Evade (165) = 337.5 PP, 2.5 PP below target.<br>
+      L12 target 370 PP → +25 Armor (187.5) + +12 Evade (180) = 367.5 PP, 2.5 PP below target.<br>
+      L13 target 400 PP → +27 Armor (202.5) + +13 Evade (195) = 397.5 PP, 2.5 PP below target.<br>
+      L14 target 430 PP → +29 Armor (217.5) + +14 Evade (210) = 427.5 PP, 2.5 PP below target.<br>
+      L15 target 460 PP → +31 Armor (232.5) + +15 Evade (225) = 457.5 PP, 2.5 PP below target.<br>
+      L16 target 490 PP → +33 Armor (247.5) + +16 Evade (240) = 487.5 PP, 2.5 PP below target.<br>
+<br>
       DESIGN NOTE<br>
-      This buff is intentionally slightly above the exact curve by 2.5 PP at every level.<br>
-      That small overage is accepted because the values create a perfectly clean repeating pattern and remain within normal tolerance.<br><br>
+      This buff is intentionally slightly below the exact curve by 2.5 PP at every level.<br>
+      That small remainder is left unused because the values create a perfectly clean repeating pattern without exceeding the curve.<br><br>
       NOTES<br>
       This is the standard mixed mitigation-and-avoidance buff.<br>
       It grants no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no offensive rider.
@@ -1035,63 +1029,24 @@ You reinforce both your ability to absorb hits and your ability to avoid clean c
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Armor** and **+4 Evade**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Armor** and **+7 Evade**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Armor** and **+10 Evade**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Armor** and **+13 Evade**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Armor** and **+16 Evade**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Armor** and **+19 Evade**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Armor** and **+22 Evade**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+17 Armor** and **+25 Evade**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+19 Armor** and **+28 Evade**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+21 Armor** and **+31 Evade**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+23 Armor** and **+34 Evade**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+25 Armor** and **+37 Evade**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+27 Armor** and **+40 Evade**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+29 Armor** and **+43 Evade**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+31 Armor** and **+46 Evade**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+33 Armor** and **+49 Evade**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Armor** and **+1 Evade**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Armor** and **+2 Evade**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Armor** and **+3 Evade**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Armor** and **+4 Evade**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Armor** and **+5 Evade**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Armor** and **+6 Evade**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Armor** and **+7 Evade**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+17 Armor** and **+8 Evade**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+19 Armor** and **+9 Evade**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+21 Armor** and **+10 Evade**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+23 Armor** and **+11 Evade**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+25 Armor** and **+12 Evade**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+27 Armor** and **+13 Evade**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+29 Armor** and **+14 Evade**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+31 Armor** and **+15 Evade**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+33 Armor** and **+16 Evade**. |
 
 ---
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Active Buffs — Pure Offensive
-
-Pure Offensive Active Buffs improve the user's own offensive output for a limited time.
-
-They do not deal damage when activated.  
-Instead, they enhance attacks or offensive Powers made while the buff lasts.
-
-Unless an entry says otherwise, a Pure Offensive Active Buff applies only to the user's own attacks.
-
-Pure Offensive Active Buffs should remain clean and focused.
-
-They may improve:
-
-- damage,
-- Critical value,
-- Penetration,
-- or one other clearly defined offensive axis.
-
-They may not grant Attack Dice.
-
-They may not grant extra attacks.
-
-They may not grant free actions.
-
-They may not apply detection, reveal, awareness, or sensor effects.
-
-They may not add defensive benefits unless the entry is built as a separate Offensive Combination Active Buff and explicitly pays for both axes.
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 
 <h3 id="active-buff-damage">
   Active Buff: Damage

@@ -27,7 +27,7 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 4,
+        "value": 5,
         "note": "Final Evade Modifier for this Artifact armor weight class (slot A).",
         "isBaseline": true
       }
@@ -51,7 +51,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Gain **+8 Evade**.",
+        "effect": "Gain **+6 Evade**.",
         "special": "",
         "powerTemplateId": "ab-evade"
       },
@@ -80,6 +80,11 @@
         "kind": "power",
         "powerTemplateId": "ab-evade",
         "displayName": "Serpent Evasion",
+        "stagePowerLevels": [
+          "3",
+          "10",
+          "16"
+        ],
         "stageTemplateIds": [
           "ab-evade",
           "extend-buff-mobility",
@@ -378,7 +383,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Gain **+8 Evade**."
+              "text": "Gain **+6 Evade**."
             },
             "specials": [],
             "lvl": 2
@@ -743,7 +748,7 @@
     "artifactArmor": {
       "type": "light",
       "armorValue": 1,
-      "evadeModifier": 4,
+      "evadeModifier": 5,
       "skillPenalty": ""
     },
     "equipSlots": [
@@ -761,7 +766,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScalesLight",
-      "seedVersion": 51
+      "seedVersion": 53
     }
   },
   "_id": "n8Y5z2VAxyJOMM2Y",

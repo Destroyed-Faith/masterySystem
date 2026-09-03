@@ -30,7 +30,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Gain **+4 Evade** against the triggering attack.",
+        "effect": "Gain **+2 Evade** against the triggering attack.",
         "special": "",
         "powerTemplateId": "reaction-evade"
       },
@@ -53,7 +53,12 @@
         "level": 1,
         "kind": "power",
         "powerTemplateId": "reaction-evade",
-        "displayName": "Otherworld Reflex"
+        "displayName": "Otherworld Reflex",
+        "stagePowerLevels": [
+          "2",
+          "4",
+          "6"
+        ]
       },
       {
         "level": 2,
@@ -141,7 +146,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Gain **+4 Evade** against the triggering attack."
+              "text": "Gain **+2 Evade** against the triggering attack."
             },
             "specials": [],
             "lvl": 1
@@ -515,7 +520,7 @@
       ],
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 51
+      "seedVersion": 53
     }
   },
   "_id": "dkeWNEs7FOME7UrF",

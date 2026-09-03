@@ -1,6 +1,7 @@
 {
   "order": [
     "humans",
+    "halflings",
     "dwarfs",
     "elorians",
     "sentinels",
@@ -22,7 +23,7 @@
       "summary": "The most widespread people of the shattered world. Adaptable, resilient, painfully easy to use. Bearers of demonic marks, keepers of small fires in dark places.",
       "creatureType": "Humanoid",
       "size": "medium",
-      "speed": 10,
+      "speed": 8,
       "coreTraits": [],
       "deck": [
         {
@@ -151,6 +152,143 @@
         }
       ]
     },
+    "halflings": {
+      "key": "halflings",
+      "name": "Halflings",
+      "tagline": "The hearth is not a place. It is whoever still shares the last crust.",
+      "theme": "Hunted remnants of ordinary joy — fugitives who survive through kinship, hidden paths, quick hands, and the refusal to let Hell turn hunger into identity.",
+      "summary": "The hearthfolk of Tyhra: nearly extinct survivors whose warmth, memory, and soul-rich blood are prized as demonic delicacies. Most live on the run; others survive in locked cellars and feast-prisons, waiting to be served.",
+      "creatureType": "Humanoid",
+      "size": "small",
+      "speed": 8,
+      "coreTraits": [],
+      "deck": [
+        {
+          "id": "hearth-ties",
+          "name": "Hearth Ties",
+          "trigger": "Strangers must trust one another, or a scattered group must act as one.",
+          "options": [
+            {
+              "id": "share-the-last-crumb",
+              "label": "I — Share the Last Crumb",
+              "skill": "persuasion",
+              "description": "You offer food, shelter, truth, or vulnerability and make cooperation safer than suspicion."
+            },
+            {
+              "id": "fair-trade",
+              "label": "II — Fair Trade",
+              "skill": "negotiation",
+              "description": "You set terms both sides can accept and make breaking them costlier than keeping them."
+            },
+            {
+              "id": "read-the-empty-bowl",
+              "label": "III — Read the Empty Bowl",
+              "skill": "empathy",
+              "description": "You recognize the hunger beneath anger or pride and speak to what they fear losing."
+            },
+            {
+              "id": "keep-the-fire-together",
+              "label": "IV — Keep the Fire Together",
+              "skill": "leadership",
+              "description": "You give everyone one task and one reason. Panic becomes a plan."
+            }
+          ]
+        },
+        {
+          "id": "too-small-to-keep",
+          "name": "Too Small to Keep",
+          "trigger": "A larger enemy, cage, crowd, or collapsing route tries to contain you.",
+          "options": [
+            {
+              "id": "through-the-gap",
+              "label": "I — Through the Gap",
+              "skill": "acrobatics",
+              "description": "You fold, climb, and slip through an opening never meant to be a path."
+            },
+            {
+              "id": "not-worth-seeing",
+              "label": "II — Not Worth Seeing",
+              "skill": "concealment",
+              "description": "You become part of clutter, shadow, furniture, or crowd until attention moves on."
+            },
+            {
+              "id": "move-with-the-noise",
+              "label": "III — Move with the Noise",
+              "skill": "stealth",
+              "description": "You cross the dangerous space inside noise, footsteps, or another creature's distraction."
+            },
+            {
+              "id": "key-in-the-palm",
+              "label": "IV — Key in the Palm",
+              "skill": "sleightOfHand",
+              "description": "A latch opens, a key changes hands, or a chain quietly loosens."
+            }
+          ]
+        },
+        {
+          "id": "cellar-born-lessons",
+          "name": "Cellar-Born Lessons",
+          "trigger": "You face captivity, scarcity, guarded stores, kitchens, or hidden passages.",
+          "options": [
+            {
+              "id": "count-the-guards",
+              "label": "I — Count the Guards",
+              "skill": "investigation",
+              "description": "You map routines, keys, blind moments, and the mistake repeated each day."
+            },
+            {
+              "id": "know-who-takes-bribes",
+              "label": "II — Know Who Takes Bribes",
+              "skill": "streetwise",
+              "description": "You identify who can be moved without alerting the whole structure."
+            },
+            {
+              "id": "live-on-less",
+              "label": "III — Live on Less",
+              "skill": "survival",
+              "description": "You stretch crumbs, water, warmth, and time far beyond expectation."
+            },
+            {
+              "id": "keep-them-breathing",
+              "label": "IV — Keep Them Breathing",
+              "skill": "medicine",
+              "description": "You stabilize someone with almost nothing until escape is possible."
+            }
+          ]
+        },
+        {
+          "id": "the-hunger-hunts",
+          "name": "The Hunger Hunts",
+          "trigger": "Demons or their servants track, corner, or select someone for consumption.",
+          "options": [
+            {
+              "id": "smell-them-first",
+              "label": "I — Smell Them First",
+              "skill": "perception",
+              "description": "You notice the appetite first: changed breath, a fixed stare, sudden silence."
+            },
+            {
+              "id": "read-the-old-feasts",
+              "label": "II — Read the Old Feasts",
+              "skill": "lore",
+              "description": "You recall a demon's tastes, feast rites, and the taboo that may interrupt them."
+            },
+            {
+              "id": "spoil-the-course",
+              "label": "III — Spoil the Course",
+              "skill": "alchemy",
+              "description": "You spoil food, scent, blood, or preparation so the hunters hesitate."
+            },
+            {
+              "id": "follow-the-cart-back",
+              "label": "IV — Follow the Cart Back",
+              "skill": "tracking",
+              "description": "You read wheel ruts, kitchen waste, chains, and supply routes to find the missing."
+            }
+          ]
+        }
+      ]
+    },
     "dwarfs": {
       "key": "dwarfs",
       "name": "Dwarfs",
@@ -159,7 +297,7 @@
       "summary": "A dying, proud people hated by the powers of Hell. Their flesh resists demonic marks; their souls do not open willingly. Guardians of old crafts, buried names, and weapons fit to wound Hell.",
       "creatureType": "Humanoid",
       "size": "medium",
-      "speed": 9,
+      "speed": 8,
       "coreTraits": [],
       "deck": [
         {
@@ -296,7 +434,7 @@
       "summary": "Children of the Otherworld, Eloria. Stranded when the Four Stone Gates were sealed. Demonic marks catch like thorns in them, never fully sinking — but that resistance is its own private war.",
       "creatureType": "Humanoid",
       "size": "medium",
-      "speed": 12,
+      "speed": 8,
       "coreTraits": [],
       "deck": [
         {
@@ -433,41 +571,38 @@
       "summary": "Divinely-forged engines of judgment: ancient, deathless, built for obedience. Their radiant divine cores are hunted by demons. Some remain, some doubt, some chose to defend mortals instead of ruling them.",
       "creatureType": "Humanoid",
       "size": "medium",
-      "speed": 10,
+      "speed": 8,
       "coreTraits": [],
       "subChoiceLabel": "Order Protocol",
       "subChoices": [
         {
-          "key": "judicators",
-          "name": "Judicators — Sentence Engine",
+          "key": "judicator",
+          "name": "Judicator",
           "trait": {
-            "id": "sentence-engine",
-            "name": "Sentence Engine",
-            "effect": "Mastery Rank per Safe Haven Rest: when you openly pronounce a Verdict on a target you can see (guilty, condemned, spared, warned), your next roll against that target this scene that succeeds gains +1 Raise. Cannot turn a failure into a success.",
-            "flavor": "Law made sharp.",
-            "usage": "mr-per-rest"
+            "id": "judicator-order",
+            "name": "Judicator",
+            "effect": "Order protocol: Judicator Frame.",
+            "usage": "passive"
           }
         },
         {
-          "key": "sentinels",
-          "name": "Sentinels — Bulwark Overdrive",
+          "key": "sentinel",
+          "name": "Sentinel",
           "trait": {
-            "id": "bulwark-overdrive",
-            "name": "Bulwark Overdrive",
-            "effect": "Mastery Rank per Safe Haven Rest: as a reaction when you would take damage (or at the start of your turn), increase your Armor by your Mastery Rank until the start of your next turn.",
-            "flavor": "A wall that remembers how to hold.",
-            "usage": "mr-per-rest"
+            "id": "sentinel-order",
+            "name": "Sentinel",
+            "effect": "Order protocol: Sentinel Frame.",
+            "usage": "passive"
           }
         },
         {
-          "key": "oracles",
-          "name": "Oracles — Oracular Overclock",
+          "key": "oracle",
+          "name": "Oracle",
           "trait": {
-            "id": "oracular-overclock",
-            "name": "Oracular Overclock",
-            "effect": "Mastery Rank per Safe Haven Rest: after you roll Occultism, Investigation, Lore, Engineering, or any spell/arcane roll, you may mark 1 Stress to reroll one die. A die can’t be rerolled twice.",
-            "flavor": "The gods are gone. The signal remains.",
-            "usage": "mr-per-rest"
+            "id": "oracle-order",
+            "name": "Oracle",
+            "effect": "Order protocol: Oracle Frame.",
+            "usage": "passive"
           }
         }
       ],
@@ -606,81 +741,8 @@
       "summary": "Awakened fury of the godless age. Where others break, Titanborn endure. Where others retreat, they advance. Their greatest struggle is often against the ancient hunger within them, the part that does not want the war to end.",
       "creatureType": "Humanoid",
       "size": "medium",
-      "speed": 12,
+      "speed": 8,
       "coreTraits": [],
-      "subChoiceLabel": "Titan Stone Affinity",
-      "subChoices": [
-        {
-          "key": "might",
-          "name": "Might Affinity",
-          "trait": {
-            "id": "titan-stone-might",
-            "name": "Titan Stone: Might",
-            "effect": "Your Titan Stone Pool feeds Might: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Might Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        },
-        {
-          "key": "agility",
-          "name": "Agility Affinity",
-          "trait": {
-            "id": "titan-stone-agility",
-            "name": "Titan Stone: Agility",
-            "effect": "Your Titan Stone Pool feeds Agility: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Agility Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        },
-        {
-          "key": "vitality",
-          "name": "Vitality Affinity",
-          "trait": {
-            "id": "titan-stone-vitality",
-            "name": "Titan Stone: Vitality",
-            "effect": "Your Titan Stone Pool feeds Vitality: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Vitality Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        },
-        {
-          "key": "intellect",
-          "name": "Intellect Affinity",
-          "trait": {
-            "id": "titan-stone-intellect",
-            "name": "Titan Stone: Intellect",
-            "effect": "Your Titan Stone Pool feeds Intellect: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Intellect Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        },
-        {
-          "key": "resolve",
-          "name": "Resolve Affinity",
-          "trait": {
-            "id": "titan-stone-resolve",
-            "name": "Titan Stone: Resolve",
-            "effect": "Your Titan Stone Pool feeds Resolve: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Resolve Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        },
-        {
-          "key": "influence",
-          "name": "Influence Affinity",
-          "trait": {
-            "id": "titan-stone-influence",
-            "name": "Titan Stone: Influence",
-            "effect": "Your Titan Stone Pool feeds Influence: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Influence Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        },
-        {
-          "key": "wits",
-          "name": "Wits Affinity",
-          "trait": {
-            "id": "titan-stone-wits",
-            "name": "Titan Stone: Wits",
-            "effect": "Your Titan Stone Pool feeds Wits: after each Safe Haven Rest, Titan Scars gift you 2 / 4 / 8 Wits Stones at Stages I / II / III (Artifact Levels 2 / 5 / 8).",
-            "usage": "passive"
-          }
-        }
-      ],
       "deck": [
         {
           "id": "giantblood-portent",

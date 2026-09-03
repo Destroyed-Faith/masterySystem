@@ -361,7 +361,12 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
   restriction:
     'An Elorian with Elorian Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact. Elorian Stride is Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
   progressionPickSpecs: {
-    1: { templateId: 'reaction-evade', name: 'Otherworld Reflex' },
+    // Players' Guide: Reaction: Evade at PL 2 / 4 / 6 → +2 / +4 / +6 Evade.
+    1: {
+      templateId: 'reaction-evade',
+      name: 'Otherworld Reflex',
+      stagePowerLevels: ['2', '4', '6'],
+    },
     2: { templateId: 'movement-wall-walk', name: 'Elorian Cling' },
     3: {
       name: 'Elorian Focus',
@@ -385,7 +390,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       type: 'Reaction',
       range: 'Self',
       duration: 'Triggering attack only',
-      effect: 'Gain +4 Evade against the triggering attack.',
+      effect: 'Gain +2 Evade against the triggering attack.',
       special: 'Otherworld Reflex',
     },
     {
@@ -413,7 +418,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       type: 'Reaction',
       range: 'Self',
       duration: 'Triggering attack only',
-      effect: 'Gain +8 Evade against the triggering attack.',
+      effect: 'Gain +4 Evade against the triggering attack.',
       special: 'Otherworld Reflex',
     },
     {
@@ -441,7 +446,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       type: 'Reaction',
       range: 'Self',
       duration: 'Triggering attack only',
-      effect: 'Gain +12 Evade against the triggering attack.',
+      effect: 'Gain +6 Evade against the triggering attack.',
       special: 'Otherworld Reflex',
     },
     {
@@ -808,6 +813,8 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
     2: {
       name: 'Serpent Evasion',
       templateId: 'ab-evade',
+      // Stage I only uses ab-evade; guide prints +6 Evade → AB Evade PL 3.
+      stagePowerLevels: ['3', '10', '16'],
       stageTemplateIds: ['ab-evade', 'extend-buff-mobility', 'extend-buff-mobility'],
       stageNames: ['Serpent Evasion I', 'Mobility Buff Extension II', 'Mobility Buff Extension III'],
     },
@@ -843,7 +850,7 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       type: 'Active Buff',
       range: 'Self',
       duration: 'Mastery Rank Rounds',
-      effect: 'You gain +6 Evade.',
+      effect: 'Gain +6 Evade.',
       special: 'Evade',
       powerTemplateId: 'ab-evade',
     },

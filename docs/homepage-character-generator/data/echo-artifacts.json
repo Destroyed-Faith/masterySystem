@@ -37,24 +37,15 @@
       "requiredAtCreation": 1,
       "maxAtCreation": 1,
       "availableKeys": [
-        "titanScarsMight",
-        "titanScarsAgility",
-        "titanScarsVitality",
-        "titanScarsIntellect",
-        "titanScarsResolve",
-        "titanScarsInfluence",
-        "titanScarsWits"
-      ],
-      "exclusiveGroups": [
-        [
-          "titanScarsMight",
-          "titanScarsAgility",
-          "titanScarsVitality",
-          "titanScarsIntellect",
-          "titanScarsResolve",
-          "titanScarsInfluence",
-          "titanScarsWits"
-        ]
+        "titanScars"
+      ]
+    },
+    "halflings": {
+      "echoKey": "halflings",
+      "requiredAtCreation": 0,
+      "maxAtCreation": 1,
+      "availableKeys": [
+        "ringchainOfKeptNames"
       ]
     },
     "dragonborn": {
@@ -124,13 +115,18 @@
       "baseValues": [
         {
           "slot": "a",
-          "label": "Tremorsense",
-          "note": "Ground-contact detection within 4–16 m."
+          "label": "Armor (Feet)",
+          "note": "+1 Armor at Level 1 up to +5 Armor at Levels 9–10."
         },
         {
           "slot": "b",
-          "label": "Armor (Feet)",
-          "note": "+1 to +4 Armor at higher levels."
+          "label": "Tunneling",
+          "note": "+1 m Tunneling at Levels 4–5 up to +4 m at Level 10 (not Burrow)."
+        },
+        {
+          "slot": "c",
+          "label": "Tremor Sense (Sense Option)",
+          "note": "Slot instead of Normal Combat Awareness; 20 m, shared solid surface. Does not scale."
         }
       ],
       "levelProgression": [
@@ -237,7 +233,12 @@
       "progressionPickSpecs": {
         "1": {
           "templateId": "reaction-evade",
-          "name": "Otherworld Reflex"
+          "name": "Otherworld Reflex",
+          "stagePowerLevels": [
+            "2",
+            "4",
+            "6"
+          ]
         },
         "2": {
           "templateId": "movement-wall-walk",
@@ -256,7 +257,7 @@
         {
           "slot": "a",
           "label": "Evade",
-          "note": "+2 to +12 Evade across levels; Level 10 grants True Elorian Stride."
+          "note": "+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants True Elorian Stride."
         },
         {
           "slot": "b",
@@ -271,7 +272,7 @@
           "type": "Reaction",
           "range": "Self",
           "duration": "Triggering attack only",
-          "effect": "Gain +4 Evade against the triggering attack.",
+          "effect": "Gain +2 Evade against the triggering attack.",
           "special": "Otherworld Reflex"
         },
         {
@@ -289,7 +290,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tier 2 yourself. If Tier 2 is not paid, the pre-filled Tier 3 has no effect.",
+          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
           "special": "agility.crit"
         },
         {
@@ -298,7 +299,7 @@
           "type": "Reaction",
           "range": "Self",
           "duration": "Triggering attack only",
-          "effect": "Gain +8 Evade against the triggering attack.",
+          "effect": "Gain +4 Evade against the triggering attack.",
           "special": "Otherworld Reflex"
         },
         {
@@ -316,7 +317,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 2, 3 yourself. If Tiers 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
           "special": "agility.crit"
         },
         {
@@ -325,7 +326,7 @@
           "type": "Reaction",
           "range": "Self",
           "duration": "Triggering attack only",
-          "effect": "Gain +12 Evade against the triggering attack.",
+          "effect": "Gain +6 Evade against the triggering attack.",
           "special": "Otherworld Reflex"
         },
         {
@@ -343,7 +344,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 5. You must still pay Tiers 2, 3, 4 yourself. If Tiers 2, 3, 4 are not paid, the pre-filled Tier 5 has no effect.",
+          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
           "special": "agility.crit"
         },
         {
@@ -357,30 +358,34 @@
         }
       ]
     },
-    "titanScarsMight": {
-      "key": "titanScarsMight",
+    "titanScars": {
+      "key": "titanScars",
       "name": "Titan Scars",
       "echoKey": "titanborn",
       "slot": "body",
       "baseProfile": "bodyArmor",
-      "requiresSubChoice": "might",
       "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
       "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
       "progressionPickSpecs": {
         "1": {
-          "templateId": "ab-armor-temp-hp",
+          "templateId": "ab-growth-form",
           "name": "Titan Growth"
         },
         "2": {
-          "name": "Titan Might Pool",
+          "name": "Titan Might",
           "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "might"
+            "kind": "stonePowerSupport",
+            "attribute": "might",
+            "stonePowerId": "might.meleeDamage"
           }
         },
         "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
+          "name": "Titan Healing",
+          "stoneFunction": {
+            "kind": "stonePowerSupport",
+            "attribute": "vitality",
+            "stonePowerId": "vitality.removeScar"
+          }
         }
       },
       "baseValues": [
@@ -397,26 +402,26 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
+          "effect": "Use Active Buff: Size + Damage + Armor at Power Level 4.",
           "special": "Titan Growth"
         },
         {
           "level": 2,
-          "name": "Titan Might Pool I",
-          "type": "Stone Pool",
+          "name": "Titan Might I",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Might Stones.",
-          "special": "Might Stones"
+          "duration": "Instant",
+          "effect": "Supports Might Ability: Melee Damage and pre-fills Tier 2. Tier 1 must still be paid.",
+          "special": "might.meleeDamage"
         },
         {
           "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
+          "name": "Titan Healing I",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
+          "duration": "Instant",
+          "effect": "Use Remove Scar through Titan Scars and pay its normal Stone cost.",
+          "special": "vitality.removeScar"
         },
         {
           "level": 4,
@@ -424,26 +429,26 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
+          "effect": "Use Active Buff: Size + Damage + Armor at Power Level 10. This replaces Titan Growth I.",
           "special": "Titan Growth"
         },
         {
           "level": 5,
-          "name": "Titan Might Pool II",
-          "type": "Stone Pool",
+          "name": "Titan Might II",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Might Stones.",
-          "special": "Might Stones"
+          "duration": "Instant",
+          "effect": "Pre-fill Tier 3. Tiers 1 and 2 must still be paid.",
+          "special": "might.meleeDamage"
         },
         {
           "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
+          "name": "Titan Healing II",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
+          "duration": "Instant",
+          "effect": "Remove Scar used through Titan Scars may recover 1 Scarred Health Bar, as written by the Stone Power. Pay its normal Stone cost.",
+          "special": "vitality.removeScar"
         },
         {
           "level": 7,
@@ -451,790 +456,34 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
+          "effect": "Use Active Buff: Size + Damage + Armor at Power Level 16. This replaces Titan Growth II.",
           "special": "Titan Growth"
         },
         {
           "level": 8,
-          "name": "Titan Might Pool III",
-          "type": "Stone Pool",
+          "name": "Titan Might III",
+          "type": "Stone Power Support",
           "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Might Stones.",
-          "special": "Might Stones"
+          "duration": "Instant",
+          "effect": "Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.",
+          "special": "might.meleeDamage"
         },
         {
           "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
+          "name": "Titan Healing III",
+          "type": "Stone Power Support",
+          "range": "Self / Touch",
+          "duration": "Instant",
+          "effect": "Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost.",
+          "special": "vitality.removeScar"
         },
         {
           "level": 10,
           "name": "True Titan Scars",
           "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
-          "special": "True Titan Scars"
-        }
-      ]
-    },
-    "titanScarsAgility": {
-      "key": "titanScarsAgility",
-      "name": "Titan Scars",
-      "echoKey": "titanborn",
-      "slot": "body",
-      "baseProfile": "bodyArmor",
-      "requiresSubChoice": "agility",
-      "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-      "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
-      "progressionPickSpecs": {
-        "1": {
-          "templateId": "ab-armor-temp-hp",
-          "name": "Titan Growth"
-        },
-        "2": {
-          "name": "Titan Agility Pool",
-          "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "agility"
-          }
-        },
-        "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
-        }
-      },
-      "baseValues": [
-        {
-          "slot": "a",
-          "label": "Medium Armor",
-          "note": "+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical)."
-        }
-      ],
-      "levelProgression": [
-        {
-          "level": 1,
-          "name": "Titan Growth I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 2,
-          "name": "Titan Agility Pool I",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Agility Stones.",
-          "special": "Agility Stones"
-        },
-        {
-          "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 4,
-          "name": "Titan Growth II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 5,
-          "name": "Titan Agility Pool II",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Agility Stones.",
-          "special": "Agility Stones"
-        },
-        {
-          "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 7,
-          "name": "Titan Growth III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 8,
-          "name": "Titan Agility Pool III",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Agility Stones.",
-          "special": "Agility Stones"
-        },
-        {
-          "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 10,
-          "name": "True Titan Scars",
-          "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
-          "special": "True Titan Scars"
-        }
-      ]
-    },
-    "titanScarsVitality": {
-      "key": "titanScarsVitality",
-      "name": "Titan Scars",
-      "echoKey": "titanborn",
-      "slot": "body",
-      "baseProfile": "bodyArmor",
-      "requiresSubChoice": "vitality",
-      "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-      "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
-      "progressionPickSpecs": {
-        "1": {
-          "templateId": "ab-armor-temp-hp",
-          "name": "Titan Growth"
-        },
-        "2": {
-          "name": "Titan Vitality Pool",
-          "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "vitality"
-          }
-        },
-        "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
-        }
-      },
-      "baseValues": [
-        {
-          "slot": "a",
-          "label": "Medium Armor",
-          "note": "+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical)."
-        }
-      ],
-      "levelProgression": [
-        {
-          "level": 1,
-          "name": "Titan Growth I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 2,
-          "name": "Titan Vitality Pool I",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Vitality Stones.",
-          "special": "Vitality Stones"
-        },
-        {
-          "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 4,
-          "name": "Titan Growth II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 5,
-          "name": "Titan Vitality Pool II",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Vitality Stones.",
-          "special": "Vitality Stones"
-        },
-        {
-          "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 7,
-          "name": "Titan Growth III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 8,
-          "name": "Titan Vitality Pool III",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Vitality Stones.",
-          "special": "Vitality Stones"
-        },
-        {
-          "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 10,
-          "name": "True Titan Scars",
-          "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
-          "special": "True Titan Scars"
-        }
-      ]
-    },
-    "titanScarsIntellect": {
-      "key": "titanScarsIntellect",
-      "name": "Titan Scars",
-      "echoKey": "titanborn",
-      "slot": "body",
-      "baseProfile": "bodyArmor",
-      "requiresSubChoice": "intellect",
-      "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-      "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
-      "progressionPickSpecs": {
-        "1": {
-          "templateId": "ab-armor-temp-hp",
-          "name": "Titan Growth"
-        },
-        "2": {
-          "name": "Titan Intellect Pool",
-          "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "intellect"
-          }
-        },
-        "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
-        }
-      },
-      "baseValues": [
-        {
-          "slot": "a",
-          "label": "Medium Armor",
-          "note": "+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical)."
-        }
-      ],
-      "levelProgression": [
-        {
-          "level": 1,
-          "name": "Titan Growth I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 2,
-          "name": "Titan Intellect Pool I",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Intellect Stones.",
-          "special": "Intellect Stones"
-        },
-        {
-          "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 4,
-          "name": "Titan Growth II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 5,
-          "name": "Titan Intellect Pool II",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Intellect Stones.",
-          "special": "Intellect Stones"
-        },
-        {
-          "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 7,
-          "name": "Titan Growth III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 8,
-          "name": "Titan Intellect Pool III",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Intellect Stones.",
-          "special": "Intellect Stones"
-        },
-        {
-          "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 10,
-          "name": "True Titan Scars",
-          "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
-          "special": "True Titan Scars"
-        }
-      ]
-    },
-    "titanScarsResolve": {
-      "key": "titanScarsResolve",
-      "name": "Titan Scars",
-      "echoKey": "titanborn",
-      "slot": "body",
-      "baseProfile": "bodyArmor",
-      "requiresSubChoice": "resolve",
-      "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-      "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
-      "progressionPickSpecs": {
-        "1": {
-          "templateId": "ab-armor-temp-hp",
-          "name": "Titan Growth"
-        },
-        "2": {
-          "name": "Titan Resolve Pool",
-          "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "resolve"
-          }
-        },
-        "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
-        }
-      },
-      "baseValues": [
-        {
-          "slot": "a",
-          "label": "Medium Armor",
-          "note": "+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical)."
-        }
-      ],
-      "levelProgression": [
-        {
-          "level": 1,
-          "name": "Titan Growth I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 2,
-          "name": "Titan Resolve Pool I",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Resolve Stones.",
-          "special": "Resolve Stones"
-        },
-        {
-          "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 4,
-          "name": "Titan Growth II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 5,
-          "name": "Titan Resolve Pool II",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Resolve Stones.",
-          "special": "Resolve Stones"
-        },
-        {
-          "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 7,
-          "name": "Titan Growth III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 8,
-          "name": "Titan Resolve Pool III",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Resolve Stones.",
-          "special": "Resolve Stones"
-        },
-        {
-          "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 10,
-          "name": "True Titan Scars",
-          "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
-          "special": "True Titan Scars"
-        }
-      ]
-    },
-    "titanScarsInfluence": {
-      "key": "titanScarsInfluence",
-      "name": "Titan Scars",
-      "echoKey": "titanborn",
-      "slot": "body",
-      "baseProfile": "bodyArmor",
-      "requiresSubChoice": "influence",
-      "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-      "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
-      "progressionPickSpecs": {
-        "1": {
-          "templateId": "ab-armor-temp-hp",
-          "name": "Titan Growth"
-        },
-        "2": {
-          "name": "Titan Influence Pool",
-          "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "influence"
-          }
-        },
-        "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
-        }
-      },
-      "baseValues": [
-        {
-          "slot": "a",
-          "label": "Medium Armor",
-          "note": "+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical)."
-        }
-      ],
-      "levelProgression": [
-        {
-          "level": 1,
-          "name": "Titan Growth I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 2,
-          "name": "Titan Influence Pool I",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Influence Stones.",
-          "special": "Influence Stones"
-        },
-        {
-          "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 4,
-          "name": "Titan Growth II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 5,
-          "name": "Titan Influence Pool II",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Influence Stones.",
-          "special": "Influence Stones"
-        },
-        {
-          "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 7,
-          "name": "Titan Growth III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 8,
-          "name": "Titan Influence Pool III",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Influence Stones.",
-          "special": "Influence Stones"
-        },
-        {
-          "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 10,
-          "name": "True Titan Scars",
-          "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
-          "special": "True Titan Scars"
-        }
-      ]
-    },
-    "titanScarsWits": {
-      "key": "titanScarsWits",
-      "name": "Titan Scars",
-      "echoKey": "titanborn",
-      "slot": "body",
-      "baseProfile": "bodyArmor",
-      "requiresSubChoice": "wits",
-      "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
-      "restriction": "A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact. Titan Scars are Echo-bound and cannot normally be removed, replaced, sold, stolen, unequipped, or unbound.",
-      "progressionPickSpecs": {
-        "1": {
-          "templateId": "ab-armor-temp-hp",
-          "name": "Titan Growth"
-        },
-        "2": {
-          "name": "Titan Wits Pool",
-          "stoneFunction": {
-            "kind": "stonePool",
-            "attribute": "wits"
-          }
-        },
-        "3": {
-          "templateId": "ab-healing",
-          "name": "Titan Regeneration"
-        }
-      },
-      "baseValues": [
-        {
-          "slot": "a",
-          "label": "Medium Armor",
-          "note": "+12 to +22 Armor; counts as Medium Armor (Evade −2, Initiative −4, −1d8 Physical)."
-        }
-      ],
-      "levelProgression": [
-        {
-          "level": 1,
-          "name": "Titan Growth I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Growth (Active Buff: Armor + Temporary HP) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 2,
-          "name": "Titan Wits Pool I",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 2 Wits Stones.",
-          "special": "Wits Stones"
-        },
-        {
-          "level": 3,
-          "name": "Titan Regeneration I",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Activate Titan Regeneration (Active Buff: Healing) at Power Level 4. Uses your maintained Active Buff slot.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 4,
-          "name": "Titan Growth II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 10.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 5,
-          "name": "Titan Wits Pool II",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 4 Wits Stones.",
-          "special": "Wits Stones"
-        },
-        {
-          "level": 6,
-          "name": "Titan Regeneration II",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 10.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 7,
-          "name": "Titan Growth III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Growth improves to Power Level 16.",
-          "special": "Titan Growth"
-        },
-        {
-          "level": 8,
-          "name": "Titan Wits Pool III",
-          "type": "Stone Pool",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "After each Safe Haven Rest, Titan Scars gift you 8 Wits Stones.",
-          "special": "Wits Stones"
-        },
-        {
-          "level": 9,
-          "name": "Titan Regeneration III",
-          "type": "Active Buff",
-          "range": "Self",
-          "duration": "Mastery Rank Rounds",
-          "effect": "Titan Regeneration improves to Power Level 16.",
-          "special": "Titan Regeneration"
-        },
-        {
-          "level": 10,
-          "name": "True Titan Scars",
-          "type": "Ultimate",
-          "range": "Self",
-          "duration": "Special",
-          "effect": "Once per Safe Haven Rest, you may have both Titan Growth and Titan Regeneration active at once without either occupying your maintained Active Buff slot, until the end of your next turn.",
+          "range": "Self / Touch",
+          "duration": "Instant",
+          "effect": "Once per Safe Haven Rest, use Remove Scar through Titan Scars without paying its Stone cost. This can recover 1 Scarred Health Bar and follows all normal limits.",
           "special": "True Titan Scars"
         }
       ]
@@ -1262,7 +511,12 @@
         },
         "2": {
           "name": "Wyrm Scales",
-          "templateId": "ab-armor"
+          "templateId": "ab-armor",
+          "stageEffectTexts": [
+            "Gain **+6 Armor**.",
+            "Gain **+12 Armor**. This replaces Wyrm Scales I.",
+            "Gain **+18 Armor**. This replaces Wyrm Scales II."
+          ]
         },
         "3": {
           "name": "Armor Stone Support",
@@ -1277,7 +531,7 @@
         {
           "slot": "a",
           "label": "Heavy Echo Armor",
-          "note": "Heavy Armor base + artifact bonus; Evade −4, Initiative −8, −2d8 Physical Skills."
+          "note": "Heavy Armor +16 (L1) … +25 (L10). Drawbacks −2/−4/−6 Evade & Initiative; −2d8 Physical Skills."
         }
       ],
       "levelProgression": [
@@ -1296,7 +550,7 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "You gain +13 Armor.",
+          "effect": "You gain +6 Armor.",
           "special": "Armor"
         },
         {
@@ -1323,7 +577,7 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "You gain +31 Armor.",
+          "effect": "You gain +12 Armor.",
           "special": "Armor"
         },
         {
@@ -1350,7 +604,7 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "You gain +49 Armor.",
+          "effect": "You gain +18 Armor.",
           "special": "Armor"
         },
         {
@@ -1397,6 +651,11 @@
         "2": {
           "name": "Serpent Evasion",
           "templateId": "ab-evade",
+          "stagePowerLevels": [
+            "3",
+            "10",
+            "16"
+          ],
           "stageTemplateIds": [
             "ab-evade",
             "extend-buff-mobility",
@@ -1440,7 +699,7 @@
           "type": "Active Buff",
           "range": "Self",
           "duration": "Mastery Rank Rounds",
-          "effect": "You gain +6 Evade.",
+          "effect": "Gain +6 Evade.",
           "special": "Evade",
           "powerTemplateId": "ab-evade"
         },
@@ -1551,17 +810,17 @@
         {
           "slot": "a",
           "label": "Claw / Tail Damage",
-          "note": "5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level)."
+          "note": "4d8 at Level 1 up to 16d8 at Level 10 (printed per-level table)."
         },
         {
           "slot": "b",
           "label": "Weapon Special",
-          "note": "Penetration scaling from L4."
+          "note": "Penetration(2) at L4 up to Penetration(5) at L9–10."
         },
         {
           "slot": "c",
           "label": "Weapon Special",
-          "note": "Brutal Impact scaling from L7."
+          "note": "Brutal Impact(4) at L7–8, Brutal Impact(5) at L9–10."
         }
       ],
       "levelProgression": [
@@ -1582,7 +841,7 @@
           "aoe": "Radius 3 m",
           "duration": "Instant",
           "effect": "Affected creatures take your current Claw / Tail Weapon Damage.",
-          "special": "Lacerate(3)"
+          "special": "Lacerate(5)"
         },
         {
           "level": 3,
@@ -1611,7 +870,7 @@
           "aoe": "Radius 6 m",
           "duration": "Instant",
           "effect": "Affected creatures take Claw / Tail Damage.",
-          "special": "Lacerate(5)"
+          "special": "Lacerate(7)"
         },
         {
           "level": 6,
@@ -1640,7 +899,7 @@
           "aoe": "Radius 7 m",
           "duration": "Instant",
           "effect": "Affected creatures take Claw / Tail Damage.",
-          "special": "Lacerate(7)"
+          "special": "Lacerate(10)"
         },
         {
           "level": 9,
@@ -1701,8 +960,13 @@
         },
         {
           "slot": "b",
-          "label": "Scent of Blood",
-          "note": "Detect from L4, Locate from L7, Identify at L10."
+          "label": "Head Armor",
+          "note": "+1 Armor at Level 1 up to +5 Armor at Levels 9–10 (minor Armor, stacks normally)."
+        },
+        {
+          "slot": "c",
+          "label": "Predator Sense (Sense Option)",
+          "note": "Sense Slot option, 20 m. Does not scale with Artifact Level."
         }
       ],
       "levelProgression": [
@@ -1821,7 +1085,7 @@
         "2": {
           "name": "Resolve Core",
           "stoneFunction": {
-            "kind": "stoneBattery",
+            "kind": "stonePool",
             "attribute": "resolve"
           }
         },
@@ -1834,6 +1098,20 @@
           }
         }
       },
+      "extraStoneFunctions": [
+        {
+          "level": 5,
+          "name": "Special Reduction Support",
+          "kind": "stonePowerSupport",
+          "attribute": "resolve",
+          "stonePowerId": "resolve.ward",
+          "supportStages": [
+            5,
+            5,
+            9
+          ]
+        }
+      ],
       "baseValues": [
         {
           "slot": "a",
@@ -1854,10 +1132,10 @@
         {
           "level": 2,
           "name": "Resolve Core I",
-          "type": "Stone Battery",
+          "type": "Stone Pool",
           "range": "Self",
           "duration": "Passive",
-          "effect": "Sentinel Frame gains a Resolve Stone Battery (capacity 10).",
+          "effect": "Store 2 Resolve Stones after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions.",
           "special": "Resolve Stones"
         },
         {
@@ -1880,21 +1158,21 @@
         },
         {
           "level": 5,
-          "name": "Resolve Core II",
-          "type": "Stone Battery",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "Resolve Stone Battery capacity increases to 20.",
-          "special": "Resolve Stones"
-        },
-        {
-          "level": 6,
-          "name": "Healing Support II",
+          "name": "Special Reduction Support I",
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Sentinel Frame pre-fills Tier 3 of the Resolve Ability: Healing Stone Power.",
-          "special": "Healing Stone Power"
+          "effect": "Supports Resolve Ability: Special Reduction and pre-fills Tier 3. Tiers 1 and 2 must still be paid.",
+          "special": "resolve.ward"
+        },
+        {
+          "level": 6,
+          "name": "Resolve Core II",
+          "type": "Stone Pool",
+          "range": "Self",
+          "duration": "Passive",
+          "effect": "Store 4 Resolve Stones after each Safe Haven Rest. They may be spent only on Sentinel Frame's listed Resolve Stone functions.",
+          "special": "Resolve Stones"
         },
         {
           "level": 7,
@@ -1907,21 +1185,21 @@
         },
         {
           "level": 8,
-          "name": "Resolve Core III",
-          "type": "Stone Battery",
-          "range": "Self",
-          "duration": "Passive",
-          "effect": "Resolve Stone Battery capacity increases to 40.",
-          "special": "Resolve Stones"
-        },
-        {
-          "level": 9,
-          "name": "Healing Support III",
+          "name": "Healing Support II",
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Sentinel Frame pre-fills Tier 4 of the Resolve Ability: Healing Stone Power.",
+          "effect": "Pre-fill Tier 4 of Resolve Ability: Healing. Tiers 1, 2, and 3 must still be paid.",
           "special": "Healing Stone Power"
+        },
+        {
+          "level": 9,
+          "name": "Special Reduction Support II",
+          "type": "Stone Power Support",
+          "range": "Self",
+          "duration": "Instant",
+          "effect": "Pre-fill Tier 4 of Resolve Ability: Special Reduction. Tiers 1, 2, and 3 must still be paid.",
+          "special": "resolve.ward"
         },
         {
           "level": 10,
@@ -2175,7 +1453,7 @@
           "range": "Self",
           "aoe": "Radius 10 m",
           "duration": "Mastery Rank Rounds",
-          "effect": "You and allies in the area gain +15 Armor.",
+          "effect": "You and allies in the area gain +14 Armor.",
           "special": "Armor Aura"
         },
         {
@@ -2204,6 +1482,130 @@
           "duration": "Special",
           "effect": "Once per Safe Haven Rest, when you use Aid Roll through Oracle Frame, you may treat one required lower Tier as already paid.",
           "special": "Aid Roll Stone Power"
+        }
+      ]
+    },
+    "ringchainOfKeptNames": {
+      "key": "ringchainOfKeptNames",
+      "name": "Ringchain of Kept Names",
+      "echoKey": "halflings",
+      "slot": "amulet",
+      "baseProfile": "noArmorBody",
+      "description": "Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Healing Aura, and Single Heal.",
+      "restriction": "The Ringchain occupies the Amulet Slot. A Halfling with the Ringchain cannot wear another Amulet Artifact. Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
+      "extraStoneFunctions": [
+        {
+          "level": 1,
+          "name": "Kept from Sight",
+          "kind": "stonePowerSupport",
+          "attribute": "influence",
+          "stonePowerId": "influence.notATarget",
+          "supportStages": [
+            1,
+            5,
+            9
+          ]
+        }
+      ],
+      "baseValues": [
+        {
+          "slot": "a",
+          "label": "No numeric Base Values",
+          "note": "Grants no Armor, Evade, Movement, or weapon value. Power comes from Level Progression."
+        }
+      ],
+      "levelProgression": [
+        {
+          "level": 1,
+          "name": "Kept from Sight I",
+          "type": "Stone Power Support",
+          "range": "Self",
+          "duration": "Instant",
+          "effect": "Pre-fill Tier 2 of Influence Ability: Not a Target. Tier 1 must still be paid.",
+          "special": "influence.notATarget"
+        },
+        {
+          "level": 2,
+          "name": "Burden Lifted I",
+          "type": "Active, Support",
+          "range": "20 m",
+          "duration": "Instant",
+          "effect": "Remove up to 6 total points of eligible negative Special value from one creature.",
+          "special": "Ranged Single Target Cleanse (PL 4)"
+        },
+        {
+          "level": 3,
+          "name": "Hearth Circle I",
+          "type": "Active Buff",
+          "range": "Self",
+          "aoe": "Radius 2 m",
+          "duration": "Mastery Rank Rounds",
+          "effect": "At the end of each of your turns, allies inside the aura heal 3d8 HP. Each creature can be affected only once per Round.",
+          "special": "Active Buff: Healing Aura (PL 4)"
+        },
+        {
+          "level": 4,
+          "name": "Remembered Hands I",
+          "type": "Active, Support",
+          "range": "44 m",
+          "duration": "Instant",
+          "effect": "Heal one creature for 13d8 HP. This profile has a pool of 2 Health Levels per Safe Haven Rest.",
+          "special": "Ranged Single Target Heal (PL 10)"
+        },
+        {
+          "level": 5,
+          "name": "Kept from Sight II",
+          "type": "Stone Power Support",
+          "range": "Self",
+          "duration": "Instant",
+          "effect": "Pre-fill Tier 3 of Influence Ability: Not a Target. Tiers 1 and 2 must still be paid.",
+          "special": "influence.notATarget"
+        },
+        {
+          "level": 6,
+          "name": "Burden Lifted II",
+          "type": "Active, Support",
+          "range": "44 m",
+          "duration": "Instant",
+          "effect": "Remove up to 10 total points of eligible negative Special value from one creature. This replaces Burden Lifted I.",
+          "special": "Ranged Single Target Cleanse (PL 10)"
+        },
+        {
+          "level": 7,
+          "name": "Remembered Hands II",
+          "type": "Active, Support",
+          "range": "68 m",
+          "duration": "Instant",
+          "effect": "Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I.",
+          "special": "Ranged Single Target Heal (PL 16)"
+        },
+        {
+          "level": 8,
+          "name": "Hearth Circle II",
+          "type": "Active Buff",
+          "range": "Self",
+          "aoe": "Radius 4 m",
+          "duration": "Mastery Rank Rounds",
+          "effect": "At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I.",
+          "special": "Active Buff: Healing Aura (PL 16)"
+        },
+        {
+          "level": 9,
+          "name": "Kept from Sight III",
+          "type": "Stone Power Support",
+          "range": "Self",
+          "duration": "Instant",
+          "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.",
+          "special": "influence.notATarget"
+        },
+        {
+          "level": 10,
+          "name": "True Ringchain of Kept Names",
+          "type": "Ultimate",
+          "range": "As defined",
+          "duration": "As defined",
+          "effect": "Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded.",
+          "special": "Artifact Ultimate: GM-Defined Ringchain Effect"
         }
       ]
     },
@@ -2666,13 +2068,13 @@
         },
         {
           "slot": "b",
-          "label": "Spell Focus",
-          "note": "Spell Focus from Level 1. Boosts Spells cast through the Staff."
+          "label": "Tradition Special (Slow)",
+          "note": "Root Witch: Slow from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5)."
         },
         {
           "slot": "c",
-          "label": "Tradition Special (Slow)",
-          "note": "Root Witch: Slow from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5)."
+          "label": "Spell Focus",
+          "note": "Spell Focus from Level 1. Boosts Spells cast through the Staff."
         }
       ],
       "levelProgression": [
@@ -2807,13 +2209,13 @@
         },
         {
           "slot": "b",
-          "label": "Spell Focus",
-          "note": "Spell Focus from Level 1. Boosts Spells cast through the Staff."
+          "label": "Tradition Special (Hex)",
+          "note": "Ruin Witch: Hex from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5)."
         },
         {
           "slot": "c",
-          "label": "Tradition Special (Hex)",
-          "note": "Ruin Witch: Hex from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5)."
+          "label": "Spell Focus",
+          "note": "Spell Focus from Level 1. Boosts Spells cast through the Staff."
         }
       ],
       "levelProgression": [
@@ -2948,13 +2350,13 @@
         },
         {
           "slot": "b",
-          "label": "Spell Focus",
-          "note": "Spell Focus from Level 1. Boosts Spells cast through the Staff."
+          "label": "Tradition Special (Corrode)",
+          "note": "Blight Witch: Corrode from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5)."
         },
         {
           "slot": "c",
-          "label": "Tradition Special (Corrode)",
-          "note": "Blight Witch: Corrode from Level 4 (2 / 2 / 3 / 3 / 4 / 4 / 5)."
+          "label": "Spell Focus",
+          "note": "Spell Focus from Level 1. Boosts Spells cast through the Staff."
         }
       ],
       "levelProgression": [
@@ -3322,7 +2724,7 @@
         },
         "2": {
           "name": "Snap Chain",
-          "templateId": "reaction-counter-damage-push"
+          "templateId": "reaction-counter-damage-pull"
         },
         "3": {
           "name": "Whirling Scourge",

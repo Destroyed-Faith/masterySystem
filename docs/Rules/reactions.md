@@ -372,30 +372,28 @@ Choose one of these Triggers when you learn this Reaction Effect.
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      +1 Evade = 10 PP.<br><br>
-
+      +1 Evade = 20 PP.<br><br>
       DESIGN STRUCTURE<br>
       This is a pure Defensive Reaction with exactly one axis: Evade.<br>
       The Evade bonus applies only against the triggering attack.<br>
-      Since Evade costs 10 PP per point and the Reaction curve increases by 20 PP per level, this progression matches the curve exactly.<br><br>
-
+      Since Evade costs 20 PP per point and the Reaction curve increases by 20 PP per level, this progression matches the curve exactly.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → +2 Evade = 20 PP, exactly on target.<br>
-      L2 target 40 PP → +4 Evade = 40 PP, exactly on target.<br>
-      L3 target 60 PP → +6 Evade = 60 PP, exactly on target.<br>
-      L4 target 80 PP → +8 Evade = 80 PP, exactly on target.<br>
-      L5 target 100 PP → +10 Evade = 100 PP, exactly on target.<br>
-      L6 target 120 PP → +12 Evade = 120 PP, exactly on target.<br>
-      L7 target 140 PP → +14 Evade = 140 PP, exactly on target.<br>
-      L8 target 160 PP → +16 Evade = 160 PP, exactly on target.<br>
-      L9 target 180 PP → +18 Evade = 180 PP, exactly on target.<br>
-      L10 target 200 PP → +20 Evade = 200 PP, exactly on target.<br>
-      L11 target 220 PP → +22 Evade = 220 PP, exactly on target.<br>
-      L12 target 240 PP → +24 Evade = 240 PP, exactly on target.<br>
-      L13 target 260 PP → +26 Evade = 260 PP, exactly on target.<br>
-      L14 target 280 PP → +28 Evade = 280 PP, exactly on target.<br>
-      L15 target 300 PP → +30 Evade = 300 PP, exactly on target.<br>
-      L16 target 320 PP → +32 Evade = 320 PP, exactly on target.<br>
+      L1 target 20 PP → +1 Evade = 20 PP, exactly on target.<br>
+      L2 target 40 PP → +2 Evade = 40 PP, exactly on target.<br>
+      L3 target 60 PP → +3 Evade = 60 PP, exactly on target.<br>
+      L4 target 80 PP → +4 Evade = 80 PP, exactly on target.<br>
+      L5 target 100 PP → +5 Evade = 100 PP, exactly on target.<br>
+      L6 target 120 PP → +6 Evade = 120 PP, exactly on target.<br>
+      L7 target 140 PP → +7 Evade = 140 PP, exactly on target.<br>
+      L8 target 160 PP → +8 Evade = 160 PP, exactly on target.<br>
+      L9 target 180 PP → +9 Evade = 180 PP, exactly on target.<br>
+      L10 target 200 PP → +10 Evade = 200 PP, exactly on target.<br>
+      L11 target 220 PP → +11 Evade = 220 PP, exactly on target.<br>
+      L12 target 240 PP → +12 Evade = 240 PP, exactly on target.<br>
+      L13 target 260 PP → +13 Evade = 260 PP, exactly on target.<br>
+      L14 target 280 PP → +14 Evade = 280 PP, exactly on target.<br>
+      L15 target 300 PP → +15 Evade = 300 PP, exactly on target.<br>
+      L16 target 320 PP → +16 Evade = 320 PP, exactly on target.<br>
       <br>
       NOTES<br>
       This Reaction grants no Armor, no Temporary HP, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.<br>
@@ -411,22 +409,23 @@ You slip, twist, blur, or move just enough to make one attack fail to find you c
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. |
-| **2** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. |
-| **3** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. |
-| **4** | Reaction | Attack Trigger | Self | — | Gain **+8 Evade** against the triggering attack. |
-| **5** | Reaction | Attack Trigger | Self | — | Gain **+10 Evade** against the triggering attack. |
-| **6** | Reaction | Attack Trigger | Self | — | Gain **+12 Evade** against the triggering attack. |
-| **7** | Reaction | Attack Trigger | Self | — | Gain **+14 Evade** against the triggering attack. |
-| **8** | Reaction | Attack Trigger | Self | — | Gain **+16 Evade** against the triggering attack. |
-| **9** | Reaction | Attack Trigger | Self | — | Gain **+18 Evade** against the triggering attack. |
-| **10** | Reaction | Attack Trigger | Self | — | Gain **+20 Evade** against the triggering attack. |
-| **11** | Reaction | Attack Trigger | Self | — | Gain **+22 Evade** against the triggering attack. |
-| **12** | Reaction | Attack Trigger | Self | — | Gain **+24 Evade** against the triggering attack. |
-| **13** | Reaction | Attack Trigger | Self | — | Gain **+26 Evade** against the triggering attack. |
-| **14** | Reaction | Attack Trigger | Self | — | Gain **+28 Evade** against the triggering attack. |
-| **15** | Reaction | Attack Trigger | Self | — | Gain **+30 Evade** against the triggering attack. |
-| **16** | Reaction | Attack Trigger | Self | — | Gain **+32 Evade** against the triggering attack. |
+| **1** | Reaction | Attack Trigger | Self | — | Gain **+1 Evade** against the triggering attack. |
+| **2** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. |
+| **3** | Reaction | Attack Trigger | Self | — | Gain **+3 Evade** against the triggering attack. |
+| **4** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. |
+| **5** | Reaction | Attack Trigger | Self | — | Gain **+5 Evade** against the triggering attack. |
+| **6** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. |
+| **7** | Reaction | Attack Trigger | Self | — | Gain **+7 Evade** against the triggering attack. |
+| **8** | Reaction | Attack Trigger | Self | — | Gain **+8 Evade** against the triggering attack. |
+| **9** | Reaction | Attack Trigger | Self | — | Gain **+9 Evade** against the triggering attack. |
+| **10** | Reaction | Attack Trigger | Self | — | Gain **+10 Evade** against the triggering attack. |
+| **11** | Reaction | Attack Trigger | Self | — | Gain **+11 Evade** against the triggering attack. |
+| **12** | Reaction | Attack Trigger | Self | — | Gain **+12 Evade** against the triggering attack. |
+| **13** | Reaction | Attack Trigger | Self | — | Gain **+13 Evade** against the triggering attack. |
+| **14** | Reaction | Attack Trigger | Self | — | Gain **+14 Evade** against the triggering attack. |
+| **15** | Reaction | Attack Trigger | Self | — | Gain **+15 Evade** against the triggering attack. |
+| **16** | Reaction | Attack Trigger | Self | — | Gain **+16 Evade** against the triggering attack. |
+
 
 ---
 :
@@ -594,32 +593,30 @@ Choose one of these Triggers when you learn this Reaction Effect.
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      +1 Evade = 10 PP.<br>
+      +1 Evade = 20 PP.<br>
       Temporary HP against a triggering damage instance = 4 PP per 1 Temporary HP.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a Defensive Combination Reaction with exactly two axes: Evade and Temporary HP.<br>
-      Evade increases by +1 per level.<br>
-      The remaining PP is spent on Temporary HP.<br>
+      The listed Temporary HP progression remains unchanged.<br>
+      Remaining PP is spent on Evade using the premium Evade price.<br>
       This creates a one-hit avoidance-and-buffer response: Evade may cause the attack to miss, while Temporary HP protects you if the attack still connects.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → +1 Evade (10) + 2 Temporary HP (8) = 18 PP, close to target.<br>
-      L2 target 40 PP → +2 Evade (20) + 5 Temporary HP (20) = 40 PP, exactly on target.<br>
-      L3 target 60 PP → +3 Evade (30) + 7 Temporary HP (28) = 58 PP, close to target.<br>
-      L4 target 80 PP → +4 Evade (40) + 10 Temporary HP (40) = 80 PP, exactly on target.<br>
-      L5 target 100 PP → +5 Evade (50) + 12 Temporary HP (48) = 98 PP, close to target.<br>
-      L6 target 120 PP → +6 Evade (60) + 15 Temporary HP (60) = 120 PP, exactly on target.<br>
-      L7 target 140 PP → +7 Evade (70) + 17 Temporary HP (68) = 138 PP, close to target.<br>
-      L8 target 160 PP → +8 Evade (80) + 20 Temporary HP (80) = 160 PP, exactly on target.<br>
-      L9 target 180 PP → +9 Evade (90) + 22 Temporary HP (88) = 178 PP, close to target.<br>
-      L10 target 200 PP → +10 Evade (100) + 25 Temporary HP (100) = 200 PP, exactly on target.<br>
-      L11 target 220 PP → +11 Evade (110) + 27 Temporary HP (108) = 218 PP, close to target.<br>
-      L12 target 240 PP → +12 Evade (120) + 30 Temporary HP (120) = 240 PP, exactly on target.<br>
-      L13 target 260 PP → +13 Evade (130) + 32 Temporary HP (128) = 258 PP, close to target.<br>
-      L14 target 280 PP → +14 Evade (140) + 35 Temporary HP (140) = 280 PP, exactly on target.<br>
-      L15 target 300 PP → +15 Evade (150) + 37 Temporary HP (148) = 298 PP, close to target.<br>
-      L16 target 320 PP → +16 Evade (160) + 40 Temporary HP (160) = 320 PP, exactly on target.<br>
+      L1 target 20 PP → no Evade (0) + 2 Temporary HP (8) = 8 PP, 12 PP below target.<br>
+      L2 target 40 PP → +1 Evade (20) + 5 Temporary HP (20) = 40 PP, exactly on target.<br>
+      L3 target 60 PP → +1 Evade (20) + 7 Temporary HP (28) = 48 PP, 12 PP below target.<br>
+      L4 target 80 PP → +2 Evade (40) + 10 Temporary HP (40) = 80 PP, exactly on target.<br>
+      L5 target 100 PP → +2 Evade (40) + 12 Temporary HP (48) = 88 PP, 12 PP below target.<br>
+      L6 target 120 PP → +3 Evade (60) + 15 Temporary HP (60) = 120 PP, exactly on target.<br>
+      L7 target 140 PP → +3 Evade (60) + 17 Temporary HP (68) = 128 PP, 12 PP below target.<br>
+      L8 target 160 PP → +4 Evade (80) + 20 Temporary HP (80) = 160 PP, exactly on target.<br>
+      L9 target 180 PP → +4 Evade (80) + 22 Temporary HP (88) = 168 PP, 12 PP below target.<br>
+      L10 target 200 PP → +5 Evade (100) + 25 Temporary HP (100) = 200 PP, exactly on target.<br>
+      L11 target 220 PP → +5 Evade (100) + 27 Temporary HP (108) = 208 PP, 12 PP below target.<br>
+      L12 target 240 PP → +6 Evade (120) + 30 Temporary HP (120) = 240 PP, exactly on target.<br>
+      L13 target 260 PP → +6 Evade (120) + 32 Temporary HP (128) = 248 PP, 12 PP below target.<br>
+      L14 target 280 PP → +7 Evade (140) + 35 Temporary HP (140) = 280 PP, exactly on target.<br>
+      L15 target 300 PP → +7 Evade (140) + 37 Temporary HP (148) = 288 PP, 12 PP below target.<br>
+      L16 target 320 PP → +8 Evade (160) + 40 Temporary HP (160) = 320 PP, exactly on target.<br>
       <br>
       NOTES<br>
       The Evade applies only against the triggering attack. The Temporary HP applies only to the triggering damage instance.<br>
@@ -636,46 +633,25 @@ You slip the worst angle of the attack and form a sudden buffer against whatever
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Attack Trigger | Self | — | Gain **+1 Evade** against the triggering attack. If it still deals damage, gain **2 Temporary HP** against that damage instance.  |
-| **2** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. If it still deals damage, gain **5 Temporary HP** against that damage instance.  |
-| **3** | Reaction | Attack Trigger | Self | — | Gain **+3 Evade** against the triggering attack. If it still deals damage, gain **7 Temporary HP** against that damage instance.  |
-| **4** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. If it still deals damage, gain **10 Temporary HP** against that damage instance.  |
-| **5** | Reaction | Attack Trigger | Self | — | Gain **+5 Evade** against the triggering attack. If it still deals damage, gain **12 Temporary HP** against that damage instance.  |
-| **6** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. If it still deals damage, gain **15 Temporary HP** against that damage instance.  |
-| **7** | Reaction | Attack Trigger | Self | — | Gain **+7 Evade** against the triggering attack. If it still deals damage, gain **17 Temporary HP** against that damage instance.  |
-| **8** | Reaction | Attack Trigger | Self | — | Gain **+8 Evade** against the triggering attack. If it still deals damage, gain **20 Temporary HP** against that damage instance.  |
-| **9** | Reaction | Attack Trigger | Self | — | Gain **+9 Evade** against the triggering attack. If it still deals damage, gain **22 Temporary HP** against that damage instance.  |
-| **10** | Reaction | Attack Trigger | Self | — | Gain **+10 Evade** against the triggering attack. If it still deals damage, gain **25 Temporary HP** against that damage instance.  |
-| **11** | Reaction | Attack Trigger | Self | — | Gain **+11 Evade** against the triggering attack. If it still deals damage, gain **27 Temporary HP** against that damage instance.  |
-| **12** | Reaction | Attack Trigger | Self | — | Gain **+12 Evade** against the triggering attack. If it still deals damage, gain **30 Temporary HP** against that damage instance.  |
-| **13** | Reaction | Attack Trigger | Self | — | Gain **+13 Evade** against the triggering attack. If it still deals damage, gain **32 Temporary HP** against that damage instance.  |
-| **14** | Reaction | Attack Trigger | Self | — | Gain **+14 Evade** against the triggering attack. If it still deals damage, gain **35 Temporary HP** against that damage instance.  |
-| **15** | Reaction | Attack Trigger | Self | — | Gain **+15 Evade** against the triggering attack. If it still deals damage, gain **37 Temporary HP** against that damage instance.  |
-| **16** | Reaction | Attack Trigger | Self | — | Gain **+16 Evade** against the triggering attack. If it still deals damage, gain **40 Temporary HP** against that damage instance.  |
+| **1** | Reaction | Attack Trigger | Self | — | If the triggering attack deals damage, gain **2 Temporary HP** against that damage instance.  |
+| **2** | Reaction | Attack Trigger | Self | — | Gain **+1 Evade** against the triggering attack. If it still deals damage, gain **5 Temporary HP** against that damage instance.  |
+| **3** | Reaction | Attack Trigger | Self | — | Gain **+1 Evade** against the triggering attack. If it still deals damage, gain **7 Temporary HP** against that damage instance.  |
+| **4** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. If it still deals damage, gain **10 Temporary HP** against that damage instance.  |
+| **5** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. If it still deals damage, gain **12 Temporary HP** against that damage instance.  |
+| **6** | Reaction | Attack Trigger | Self | — | Gain **+3 Evade** against the triggering attack. If it still deals damage, gain **15 Temporary HP** against that damage instance.  |
+| **7** | Reaction | Attack Trigger | Self | — | Gain **+3 Evade** against the triggering attack. If it still deals damage, gain **17 Temporary HP** against that damage instance.  |
+| **8** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. If it still deals damage, gain **20 Temporary HP** against that damage instance.  |
+| **9** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. If it still deals damage, gain **22 Temporary HP** against that damage instance.  |
+| **10** | Reaction | Attack Trigger | Self | — | Gain **+5 Evade** against the triggering attack. If it still deals damage, gain **25 Temporary HP** against that damage instance.  |
+| **11** | Reaction | Attack Trigger | Self | — | Gain **+5 Evade** against the triggering attack. If it still deals damage, gain **27 Temporary HP** against that damage instance.  |
+| **12** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. If it still deals damage, gain **30 Temporary HP** against that damage instance.  |
+| **13** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. If it still deals damage, gain **32 Temporary HP** against that damage instance.  |
+| **14** | Reaction | Attack Trigger | Self | — | Gain **+7 Evade** against the triggering attack. If it still deals damage, gain **35 Temporary HP** against that damage instance.  |
+| **15** | Reaction | Attack Trigger | Self | — | Gain **+7 Evade** against the triggering attack. If it still deals damage, gain **37 Temporary HP** against that damage instance.  |
+| **16** | Reaction | Attack Trigger | Self | — | Gain **+8 Evade** against the triggering attack. If it still deals damage, gain **40 Temporary HP** against that damage instance.  |
+
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Reactions — Ally Protection
-
-Ally Protection Reactions allow you to protect one nearby ally against a triggering attack, hit, or damage instance.
-
-These Reactions do not make you attack.  
-They do not punish the attacker.  
-They do not apply Specials.  
-They simply let you spend your Reaction to defend someone else.
-
-Ally Protection is priced with a small protection premium because it allows the user to answer the most dangerous incoming hit against the team.
-
-Unless an entry says otherwise, the protected ally must be within **4 m**.
-
-Each Ally Protection Reaction lists its Allowed Trigger. This Trigger is part of the Reaction Effect when you learn it.
-
----
-
 
 <h3 id="reaction-ally-armor">
   Reaction: Ally Armor
@@ -753,32 +729,30 @@ You interpose protection, force, shieldwork, magic, or a guarding stance between
     <span class="tooltiptext">
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      +1 Evade = 10 PP.<br>
+      +1 Evade = 20 PP.<br>
       Ally Protection premium = 10 PP for protecting one ally within 4 m.<br><br>
-
       DESIGN STRUCTURE<br>
       This is an Ally Protection Reaction with one axis: Evade granted to a nearby ally.<br>
       The 10 PP protection premium is paid first.<br>
       Remaining PP is spent on Evade.<br>
       The Evade applies only against the triggering attack.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → Ally premium (10) + +1 Evade (10) = 20 PP, exactly on target.<br>
-      L2 target 40 PP → Ally premium (10) + +3 Evade (30) = 40 PP, exactly on target.<br>
-      L3 target 60 PP → Ally premium (10) + +5 Evade (50) = 60 PP, exactly on target.<br>
-      L4 target 80 PP → Ally premium (10) + +7 Evade (70) = 80 PP, exactly on target.<br>
-      L5 target 100 PP → Ally premium (10) + +9 Evade (90) = 100 PP, exactly on target.<br>
-      L6 target 120 PP → Ally premium (10) + +11 Evade (110) = 120 PP, exactly on target.<br>
-      L7 target 140 PP → Ally premium (10) + +13 Evade (130) = 140 PP, exactly on target.<br>
-      L8 target 160 PP → Ally premium (10) + +15 Evade (150) = 160 PP, exactly on target.<br>
-      L9 target 180 PP → Ally premium (10) + +17 Evade (170) = 180 PP, exactly on target.<br>
-      L10 target 200 PP → Ally premium (10) + +19 Evade (190) = 200 PP, exactly on target.<br>
-      L11 target 220 PP → Ally premium (10) + +21 Evade (210) = 220 PP, exactly on target.<br>
-      L12 target 240 PP → Ally premium (10) + +23 Evade (230) = 240 PP, exactly on target.<br>
-      L13 target 260 PP → Ally premium (10) + +25 Evade (250) = 260 PP, exactly on target.<br>
-      L14 target 280 PP → Ally premium (10) + +27 Evade (270) = 280 PP, exactly on target.<br>
-      L15 target 300 PP → Ally premium (10) + +29 Evade (290) = 300 PP, exactly on target.<br>
-      L16 target 320 PP → Ally premium (10) + +31 Evade (310) = 320 PP, exactly on target.<br>
+      L1 target 20 PP → Ally premium (10) + no Evade (0) = 10 PP, 10 PP below target.<br>
+      L2 target 40 PP → Ally premium (10) + +1 Evade (20) = 30 PP, 10 PP below target.<br>
+      L3 target 60 PP → Ally premium (10) + +2 Evade (40) = 50 PP, 10 PP below target.<br>
+      L4 target 80 PP → Ally premium (10) + +3 Evade (60) = 70 PP, 10 PP below target.<br>
+      L5 target 100 PP → Ally premium (10) + +4 Evade (80) = 90 PP, 10 PP below target.<br>
+      L6 target 120 PP → Ally premium (10) + +5 Evade (100) = 110 PP, 10 PP below target.<br>
+      L7 target 140 PP → Ally premium (10) + +6 Evade (120) = 130 PP, 10 PP below target.<br>
+      L8 target 160 PP → Ally premium (10) + +7 Evade (140) = 150 PP, 10 PP below target.<br>
+      L9 target 180 PP → Ally premium (10) + +8 Evade (160) = 170 PP, 10 PP below target.<br>
+      L10 target 200 PP → Ally premium (10) + +9 Evade (180) = 190 PP, 10 PP below target.<br>
+      L11 target 220 PP → Ally premium (10) + +10 Evade (200) = 210 PP, 10 PP below target.<br>
+      L12 target 240 PP → Ally premium (10) + +11 Evade (220) = 230 PP, 10 PP below target.<br>
+      L13 target 260 PP → Ally premium (10) + +12 Evade (240) = 250 PP, 10 PP below target.<br>
+      L14 target 280 PP → Ally premium (10) + +13 Evade (260) = 270 PP, 10 PP below target.<br>
+      L15 target 300 PP → Ally premium (10) + +14 Evade (280) = 290 PP, 10 PP below target.<br>
+      L16 target 320 PP → Ally premium (10) + +15 Evade (300) = 310 PP, 10 PP below target.<br>
       <br>
       NOTES<br>
       This Reaction protects one ally only.<br>
@@ -794,28 +768,24 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+1 Evade** against the triggering attack. |
-| **2** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+3 Evade** against the triggering attack. |
-| **3** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+5 Evade** against the triggering attack. |
-| **4** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+7 Evade** against the triggering attack. |
-| **5** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+9 Evade** against the triggering attack. |
-| **6** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+11 Evade** against the triggering attack. |
-| **7** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+13 Evade** against the triggering attack. |
-| **8** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+15 Evade** against the triggering attack. |
-| **9** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+17 Evade** against the triggering attack. |
-| **10** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+19 Evade** against the triggering attack. |
-| **11** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+21 Evade** against the triggering attack. |
-| **12** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+23 Evade** against the triggering attack. |
-| **13** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+25 Evade** against the triggering attack. |
-| **14** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+27 Evade** against the triggering attack. |
-| **15** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+29 Evade** against the triggering attack. |
-| **16** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+31 Evade** against the triggering attack. |
+| **1** | Reaction | Ally Attack Trigger | 4 m | — | — |
+| **2** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+1 Evade** against the triggering attack. |
+| **3** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+2 Evade** against the triggering attack. |
+| **4** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+3 Evade** against the triggering attack. |
+| **5** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+4 Evade** against the triggering attack. |
+| **6** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+5 Evade** against the triggering attack. |
+| **7** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+6 Evade** against the triggering attack. |
+| **8** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+7 Evade** against the triggering attack. |
+| **9** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+8 Evade** against the triggering attack. |
+| **10** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+9 Evade** against the triggering attack. |
+| **11** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+10 Evade** against the triggering attack. |
+| **12** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+11 Evade** against the triggering attack. |
+| **13** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+12 Evade** against the triggering attack. |
+| **14** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+13 Evade** against the triggering attack. |
+| **15** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+14 Evade** against the triggering attack. |
+| **16** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+15 Evade** against the triggering attack. |
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
 
 <h3 id="reaction-ally-temporary-hp">
   Reaction: Ally Temporary HP

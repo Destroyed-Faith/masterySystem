@@ -27,7 +27,7 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 3,
+        "value": 4,
         "note": "Final Evade Modifier for this Artifact armor weight class (slot A).",
         "isBaseline": true
       }
@@ -533,7 +533,7 @@
     "artifactArmor": {
       "type": "light",
       "armorValue": 0,
-      "evadeModifier": 3,
+      "evadeModifier": 4,
       "skillPenalty": ""
     },
     "equipSlots": [
@@ -551,7 +551,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 51
+      "seedVersion": 53
     }
   },
   "_id": "lhdcCE04EUBEHxQt",

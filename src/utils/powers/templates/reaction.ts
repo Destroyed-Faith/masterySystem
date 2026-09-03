@@ -135,8 +135,8 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
             const ev = COMBO_E.evade[lvl - 1]!;
             const temp = COMBO_E.temp[lvl - 1]!;
             const effectText = ev > 0
-                ? `Gain **+${ev} Evade** against the triggering attack. If it still deals damage, gain **${temp} Temporary HP**.`
-                : `If the triggering attack deals damage, gain **${temp} Temporary HP** against that damage instance.`;
+                ? `Gain **+${ev} Evade** against the triggering attack. If it still deals damage, gain **${temp} Temporary HP** against that damage instance. Any remaining Temporary HP from this Reaction disappears at the end of your next turn.`
+                : `If the triggering attack deals damage, gain **${temp} Temporary HP** against that damage instance. Any remaining Temporary HP from this Reaction disappears at the end of your next turn.`;
             return reactionRow({
                 effectText,
                 mechanics: {

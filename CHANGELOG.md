@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.478] - 2026-09-03
+
+### Changed
+
+- **Evade rules sync:** Reactions / Active Buffs docs and catalog curves aligned to the post-reprice Evade math (+1 Evade = 20 PP Reaction / 15 PP Active Buff).
+- **Elorian Stride · Otherworld Reflex:** Stages now pull Reaction: Evade at PL **2 / 4 / 6** (+2 / +4 / +6) instead of the default Basic/Improved/Greater 4/10/16 band.
+- **Serpent Scales · Serpent Evasion I:** Stages at Active Buff: Evade PL **3** (+6 Evade) to match the Players' Guide exclusive profile.
+
 ## [0.9.477] - 2026-09-03
 
 ### Changed

@@ -4814,13 +4814,13 @@ The Crit Stone Ability then resolves normally and grants **Crit(1)** to the numb
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Otherworld Reflex I**<span class="artifactTechnicalReference">Reaction: Evade (PL 2)</span> | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. |
+| **1** | **Otherworld Reflex I**<span class="artifactTechnicalReference">Reaction: Evade (PL 2)</span> | Reaction | Self | — | Triggering attack only | Gain **+2 Evade** against the triggering attack. |
 | **2** | **Elorian Cling I**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 4)</span> | Movement | Self | — | Instant | Move up to **10 m** along walls, ceilings, or similar solid surfaces. |
 | **3** | **Elorian Focus I**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
-| **4** | **Otherworld Reflex II**<span class="artifactTechnicalReference">Reaction: Evade (PL 4)</span> | Reaction | Self | — | Triggering attack only | Gain **+8 Evade** against the triggering attack. This replaces Otherworld Reflex I. |
+| **4** | **Otherworld Reflex II**<span class="artifactTechnicalReference">Reaction: Evade (PL 4)</span> | Reaction | Self | — | Triggering attack only | Gain **+4 Evade** against the triggering attack. This replaces Otherworld Reflex I. |
 | **5** | **Elorian Cling II**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 10)</span> | Movement | Self | — | Instant | Move up to **25 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling I. |
 | **6** | **Elorian Focus II**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
-| **7** | **Otherworld Reflex III**<span class="artifactTechnicalReference">Reaction: Evade (PL 6)</span> | Reaction | Self | — | Triggering attack only | Gain **+12 Evade** against the triggering attack. This replaces Otherworld Reflex II. |
+| **7** | **Otherworld Reflex III**<span class="artifactTechnicalReference">Reaction: Evade (PL 6)</span> | Reaction | Self | — | Triggering attack only | Gain **+6 Evade** against the triggering attack. This replaces Otherworld Reflex II. |
 | **8** | **Elorian Cling III**<span class="artifactTechnicalReference">Movement: Wall Walk (PL 16)</span> | Movement | Self | — | Instant | Move up to **28 m** along walls, ceilings, or similar solid surfaces. This replaces Elorian Cling II. |
 | **9** | **Elorian Focus III**<span class="artifactTechnicalReference">Agility Ability: Crit (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
 | **10** | **True Elorian Stride**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Elorian Stride Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
@@ -5821,7 +5821,7 @@ Serpent Scales are Echo-bound and cannot normally be removed or replaced.
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :---: | --- | --- | :---: | :---: | --- | --- |
 | **1** | **Dragon Wings I**<span class="artifactTechnicalReference">Movement: Flight (PL 4)</span> | Movement | Self | — | Instant | Fly up to **6 m**. |
-| **2** | **Serpent Evasion I**<span class="artifactTechnicalReference">Artifact Active Buff: Evade (PL 4)</span> | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. |
+| **2** | **Serpent Evasion I**<span class="artifactTechnicalReference">Artifact Active Buff: Evade (PL 3)</span> | Artifact Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. |
 | **3** | **Evasion Stone Support I**<span class="artifactTechnicalReference">Agility Ability: Evade (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
 | **4** | **Dragon Wings II**<span class="artifactTechnicalReference">Movement: Flight (PL 10)</span> | Movement | Self | — | Instant | Fly up to **15 m**. This replaces Dragon Wings I. |
 | **5** | **Mobility Buff Extension II**<span class="artifactTechnicalReference">Artifact Function: Evade or Movement Active Buff Extension II</span> | Artifact Function | Self | — | Passive | An Active Buff you activate that grants Evade or Movement lasts **+2 rounds**. It gains no value and does not create another maintained Active Buff slot. |

@@ -25,7 +25,7 @@
         "slot": "c",
         "type": "spellFocus",
         "label": "Spell Focus",
-        "value": "+5d8",
+        "value": "+4d8",
         "note": "Spell Focus from Level 1. May be used with Intellect.",
         "isBaseline": true
       }
@@ -329,7 +329,7 @@
       "isRoot": true,
       "echoBound": "unbound",
       "echoArtifactKey": "witchStaffRoot",
-      "seedVersion": 51
+      "seedVersion": 53
     }
   },
   "_id": "SG2LQCDtQURCw0E5",

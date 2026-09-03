@@ -365,9 +365,18 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     const byLevel = (lvl: number) => picks.find((p) => p.level === lvl);
     expect(byLevel(1).kind).toBe('power');
     expect(byLevel(1).powerTemplateId).toBe('reaction-evade');
+    expect(byLevel(1).stagePowerLevels).toEqual(['2', '4', '6']);
     expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
     expect(byLevel(3).kind).toBe('stoneFunction');
     expect(byLevel(3).stoneFunction.stonePowerId).toBe('agility.crit');
+
+    const reflexEffectAt = (nodeLevel: number) =>
+      ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
+        /Otherworld Reflex/.test(r.name),
+      )?.effect as string) || '';
+    expect(reflexEffectAt(1)).toMatch(/\+2 Evade/);
+    expect(reflexEffectAt(4)).toMatch(/\+4 Evade/);
+    expect(reflexEffectAt(7)).toMatch(/\+6 Evade/);
 
     const clingEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>

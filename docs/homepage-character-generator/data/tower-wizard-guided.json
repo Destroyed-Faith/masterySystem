@@ -232,7 +232,7 @@
               "label": "Evade + Temporary HP",
               "explanation": "Slip hits and buffer what gets through.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +8 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
+              "rankPreview": "Gain +2 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             },
             {
@@ -248,7 +248,7 @@
               "label": "Armor + Evade",
               "explanation": "Hybrid defensive profile for unpredictable threats.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +9 Armor and +13 Evade.",
+              "rankPreview": "Gain +9 Armor and +4 Evade.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             }
           ]
@@ -455,35 +455,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -626,14 +626,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -649,28 +649,28 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 }
               ]
             },
@@ -794,14 +794,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -817,35 +817,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -988,14 +988,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -1011,35 +1011,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -1182,14 +1182,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -1205,28 +1205,28 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 }
               ]
             },
@@ -1350,14 +1350,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -1373,28 +1373,28 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -1530,14 +1530,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -1553,35 +1553,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -1698,14 +1698,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -1801,7 +1801,7 @@
       "defaultActiveBuffPreview": {
         "id": "ab-evade",
         "name": "Evade",
-        "rankPreview": "Gain +26 Evade.",
+        "rankPreview": "Gain +8 Evade.",
         "fluff": "You become harder to target, harder to read, harder to pin down, or harder to strike cleanly."
       },
       "defaultActiveBuffName": "Evade",
@@ -1894,7 +1894,7 @@
               "label": "Evade + Temporary HP",
               "explanation": "Slip hits and buffer what gets through.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +8 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
+              "rankPreview": "Gain +2 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             },
             {
@@ -1910,7 +1910,7 @@
               "label": "Armor + Evade",
               "explanation": "Hybrid defensive profile for unpredictable threats.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +9 Armor and +13 Evade.",
+              "rankPreview": "Gain +9 Armor and +4 Evade.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             }
           ]
@@ -2345,14 +2345,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -2546,14 +2546,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -2747,14 +2747,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -2922,14 +2922,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -3109,14 +3109,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -3466,14 +3466,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -3653,14 +3653,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -3959,7 +3959,7 @@
               "label": "Evade + Temporary HP",
               "explanation": "Slip hits and buffer what gets through.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +8 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
+              "rankPreview": "Gain +2 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             },
             {
@@ -3975,7 +3975,7 @@
               "label": "Armor + Evade",
               "explanation": "Hybrid defensive profile for unpredictable threats.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +9 Armor and +13 Evade.",
+              "rankPreview": "Gain +9 Armor and +4 Evade.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             }
           ]
@@ -4079,35 +4079,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -4238,14 +4238,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -4362,7 +4362,7 @@
               "label": "Evade + Temporary HP",
               "explanation": "Slip hits and buffer what gets through.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +8 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
+              "rankPreview": "Gain +2 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             },
             {
@@ -4378,7 +4378,7 @@
               "label": "Armor + Evade",
               "explanation": "Hybrid defensive profile for unpredictable threats.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +9 Armor and +13 Evade.",
+              "rankPreview": "Gain +9 Armor and +4 Evade.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             }
           ]
@@ -4482,35 +4482,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -4641,14 +4641,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -4765,7 +4765,7 @@
               "label": "Evade + Temporary HP",
               "explanation": "Slip hits and buffer what gets through.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +8 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
+              "rankPreview": "Gain +2 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             },
             {
@@ -4781,7 +4781,7 @@
               "label": "Armor + Evade",
               "explanation": "Hybrid defensive profile for unpredictable threats.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +9 Armor and +13 Evade.",
+              "rankPreview": "Gain +9 Armor and +4 Evade.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             }
           ]
@@ -4885,35 +4885,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -5044,14 +5044,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -5168,7 +5168,7 @@
               "label": "Evade + Temporary HP",
               "explanation": "Slip hits and buffer what gets through.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +8 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
+              "rankPreview": "Gain +2 Evade. At the start of each of your turns, if you have less than 22 Temporary HP, restore it up to 22 Temporary HP.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             },
             {
@@ -5184,7 +5184,7 @@
               "label": "Armor + Evade",
               "explanation": "Hybrid defensive profile for unpredictable threats.",
               "groupLabel": "Combined utility",
-              "rankPreview": "Gain +9 Armor and +13 Evade.",
+              "rankPreview": "Gain +9 Armor and +4 Evade.",
               "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
             }
           ]
@@ -5288,35 +5288,35 @@
                   "label": "Evade",
                   "hint": "Permanent Evade.",
                   "powerName": "Evade",
-                  "mechanicsPreview": "Gain +8 Evade."
+                  "mechanicsPreview": "Gain +4 Evade."
                 },
                 {
                   "id": "passive-duelist-footwork",
                   "label": "Evade (Exactly 1 Adjacent Enemy)",
                   "hint": "Evade while exactly one enemy is adjacent.",
                   "powerName": "Evade (Exactly 1 Adjacent Enemy)",
-                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +16 Evade."
+                  "mechanicsPreview": "While exactly one enemy is adjacent to you, gain +5 Evade."
                 },
                 {
                   "id": "passive-flowing-step",
                   "label": "Evade (Moved 8+ m This Turn)",
                   "hint": "Evade after you move at least 8 m on your turn.",
                   "powerName": "Evade (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +16 Evade until the start of your next turn."
+                  "mechanicsPreview": "If you moved at least 8 m on your turn, gain +5 Evade until the start of your next turn."
                 },
                 {
                   "id": "passive-evade-healing",
                   "label": "Evade + Healing",
                   "hint": "Permanent Evade plus start-of-turn Healing.",
                   "powerName": "Evade + Healing",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of your turn, heal 10 HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of your turn, heal 5 HP."
                 },
                 {
                   "id": "passive-evade-temp-hp",
                   "label": "Evade + Temporary HP",
                   "hint": "Permanent Evade plus Temporary HP at combat start.",
                   "powerName": "Evade + Temporary HP",
-                  "mechanicsPreview": "Gain +4 Evade. At the start of combat, gain 20 Temporary HP."
+                  "mechanicsPreview": "Gain +2 Evade. At the start of combat, gain 20 Temporary HP."
                 }
               ]
             },
@@ -5447,14 +5447,14 @@
                   "label": "Damage",
                   "hint": "Extra Damage on all damage rolls you make.",
                   "powerName": "Damage",
-                  "mechanicsPreview": "Gain +2d6 Damage on all damage rolls you make."
+                  "mechanicsPreview": "Gain +2d8 Damage on all damage rolls you make."
                 },
                 {
                   "id": "passive-momentum",
                   "label": "Damage (Moved 8+ m This Turn)",
                   "hint": "Extra Damage after you move at least 8 m this turn.",
                   "powerName": "Damage (Moved 8+ m This Turn)",
-                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d6 Damage on all damage rolls you make until the end of your turn."
+                  "mechanicsPreview": "If you moved at least 8 m this turn, gain +4d8 Damage on all damage rolls you make until the end of your turn."
                 }
               ]
             }
@@ -5541,7 +5541,7 @@
               "explanation": "Focus pressure on one enemy when the party can pile onto that target.",
               "whenToUse": "",
               "powerName": "Mark",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Mark (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Mark (4)",
               "isSelected": false
             },
             {
@@ -5552,7 +5552,7 @@
               "explanation": "Lower the target's Evade so the party can burst it down.",
               "whenToUse": "",
               "powerName": "Expose",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Expose (3)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Expose (3)",
               "isSelected": false
             },
             {
@@ -5563,7 +5563,7 @@
               "explanation": "Anyone who hits this target with a non-Spell attack deals extra damage.",
               "whenToUse": "",
               "powerName": "Sundered",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Sundered (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Sundered (3)",
               "isSelected": false
             }
           ]
@@ -5581,7 +5581,7 @@
               "explanation": "Strip Armor from heavily defended enemies.",
               "whenToUse": "",
               "powerName": "Corrode",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (3)",
               "isSelected": false
             }
           ]
@@ -5599,7 +5599,7 @@
               "explanation": "Keep enemies from reaching allies, escaping, or controlling space.",
               "whenToUse": "",
               "powerName": "Slow",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Slow (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Slow (4)",
               "isSelected": false
             },
             {
@@ -5610,7 +5610,7 @@
               "explanation": "Pin a key target so it cannot move.",
               "whenToUse": "",
               "powerName": "Root",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (3)",
               "isSelected": false
             },
             {
@@ -5621,7 +5621,7 @@
               "explanation": "The target takes damage when it chooses to move.",
               "whenToUse": "",
               "powerName": "Lacerate",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Lacerate (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Lacerate (4)",
               "isSelected": false
             }
           ]
@@ -5639,7 +5639,7 @@
               "explanation": "The target takes damage at Tick. Ruin ignores Armor.",
               "whenToUse": "",
               "powerName": "Ruin",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Ruin (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Ruin (4)",
               "isSelected": false
             },
             {
@@ -5668,7 +5668,7 @@
               "explanation": "The target loses dice from Might, Agility, and Intellect pools.",
               "whenToUse": "",
               "powerName": "Weaken",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Weaken (3)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Weaken (3)",
               "isSelected": false
             },
             {
@@ -5679,7 +5679,7 @@
               "explanation": "Enemies lose Attack Dice unless they include you as a target.",
               "whenToUse": "",
               "powerName": "Challenge",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (3)",
               "isSelected": false
             }
           ]
@@ -5771,7 +5771,7 @@
               "explanation": "Lower the target's Evade so the party can burst it down.",
               "whenToUse": "",
               "powerName": "Expose",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Expose (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Expose (2)",
               "isSelected": false
             },
             {
@@ -5782,7 +5782,7 @@
               "explanation": "Anyone who hits this target with a non-Spell attack deals extra damage.",
               "whenToUse": "",
               "powerName": "Sundered",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Sundered (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Sundered (2)",
               "isSelected": false
             }
           ]
@@ -5800,7 +5800,7 @@
               "explanation": "Strip Armor from heavily defended enemies.",
               "whenToUse": "",
               "powerName": "Corrode",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (2)",
               "isSelected": false
             }
           ]
@@ -5829,7 +5829,7 @@
               "explanation": "Pin a key target so it cannot move.",
               "whenToUse": "",
               "powerName": "Root",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (2)",
               "isSelected": false
             },
             {
@@ -5869,7 +5869,7 @@
               "explanation": "Healing the target receives is reduced, and it takes Stress over time.",
               "whenToUse": "",
               "powerName": "Blight",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Blight (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Blight (4)",
               "isSelected": false
             }
           ]
@@ -5887,7 +5887,7 @@
               "explanation": "The target loses dice from Might, Agility, and Intellect pools.",
               "whenToUse": "",
               "powerName": "Weaken",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Weaken (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Weaken (2)",
               "isSelected": false
             },
             {
@@ -5898,7 +5898,7 @@
               "explanation": "Enemies lose Attack Dice unless they include you as a target.",
               "whenToUse": "",
               "powerName": "Challenge",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (2)",
               "isSelected": false
             }
           ]
@@ -5990,7 +5990,7 @@
               "explanation": "Lower the target's Evade so the party can burst it down.",
               "whenToUse": "",
               "powerName": "Expose",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Expose (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Expose (2)",
               "isSelected": false
             },
             {
@@ -6001,7 +6001,7 @@
               "explanation": "Spells that hit this target deal extra damage.",
               "whenToUse": "",
               "powerName": "Hex",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Hex (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Hex (2)",
               "isSelected": false
             }
           ]
@@ -6019,7 +6019,7 @@
               "explanation": "Strip Armor from heavily defended enemies.",
               "whenToUse": "",
               "powerName": "Corrode",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (2)",
               "isSelected": false
             }
           ]
@@ -6048,7 +6048,7 @@
               "explanation": "Pin a key target so it cannot move.",
               "whenToUse": "",
               "powerName": "Root",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (2)",
               "isSelected": false
             },
             {
@@ -6088,7 +6088,7 @@
               "explanation": "Healing the target receives is reduced, and it takes Stress over time.",
               "whenToUse": "",
               "powerName": "Blight",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Blight (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Blight (4)",
               "isSelected": false
             }
           ]
@@ -6106,7 +6106,7 @@
               "explanation": "The target loses dice from Might, Agility, and Intellect pools.",
               "whenToUse": "",
               "powerName": "Weaken",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Weaken (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Weaken (2)",
               "isSelected": false
             },
             {
@@ -6117,7 +6117,7 @@
               "explanation": "Enemies lose Attack Dice unless they include you as a target.",
               "whenToUse": "",
               "powerName": "Challenge",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (3)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (2)",
               "isSelected": false
             }
           ]
@@ -6198,7 +6198,7 @@
               "explanation": "Focus pressure on one enemy when the party can pile onto that target.",
               "whenToUse": "",
               "powerName": "Mark",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Mark (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Mark (4)",
               "isSelected": false
             },
             {
@@ -6209,7 +6209,7 @@
               "explanation": "Lower the target's Evade so the party can burst it down.",
               "whenToUse": "",
               "powerName": "Expose",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Expose (3)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Expose (3)",
               "isSelected": false
             },
             {
@@ -6220,7 +6220,7 @@
               "explanation": "Anyone who hits this target with a non-Spell attack deals extra damage.",
               "whenToUse": "",
               "powerName": "Sundered",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Sundered (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Sundered (3)",
               "isSelected": false
             }
           ]
@@ -6238,7 +6238,7 @@
               "explanation": "Strip Armor from heavily defended enemies.",
               "whenToUse": "",
               "powerName": "Corrode",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Corrode (3)",
               "isSelected": false
             }
           ]
@@ -6256,7 +6256,7 @@
               "explanation": "Keep enemies from reaching allies, escaping, or controlling space.",
               "whenToUse": "",
               "powerName": "Slow",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Slow (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Slow (4)",
               "isSelected": false
             },
             {
@@ -6267,7 +6267,7 @@
               "explanation": "Pin a key target so it cannot move.",
               "whenToUse": "",
               "powerName": "Root",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Root (3)",
               "isSelected": false
             },
             {
@@ -6278,7 +6278,7 @@
               "explanation": "The target takes damage when it chooses to move.",
               "whenToUse": "",
               "powerName": "Lacerate",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Lacerate (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Lacerate (4)",
               "isSelected": false
             }
           ]
@@ -6296,7 +6296,7 @@
               "explanation": "The target takes damage at Tick. Ruin ignores Armor.",
               "whenToUse": "",
               "powerName": "Ruin",
-              "mechanicsPreview": "Deal +1d8 damage on hit. — Ruin (5)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Ruin (4)",
               "isSelected": false
             },
             {
@@ -6325,7 +6325,7 @@
               "explanation": "The target loses dice from Might, Agility, and Intellect pools.",
               "whenToUse": "",
               "powerName": "Weaken",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Weaken (3)",
+              "mechanicsPreview": "Deal +1d8 damage on hit. — Weaken (3)",
               "isSelected": false
             },
             {
@@ -6336,7 +6336,7 @@
               "explanation": "Enemies lose Attack Dice unless they include you as a target.",
               "whenToUse": "",
               "powerName": "Challenge",
-              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (4)",
+              "mechanicsPreview": "Deal +2d8 damage on hit. — Challenge (3)",
               "isSelected": false
             }
           ]
