@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.482] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1 Health / Stress:** Vitals block stretches to the full width of the right column (Attributes edge → page margin). Height unchanged.
+- **Table Character Sheet · Page 1 Learned Skills:** Print the full skill catalog (trained and untrained) in a **3-column** grid so entries wrap on page 1 instead of spilling to the next page.
+
 ## [0.9.481] - 2026-09-03
 
 ### Changed

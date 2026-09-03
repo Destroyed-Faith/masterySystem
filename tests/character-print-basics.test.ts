@@ -93,14 +93,17 @@ describe('character print table sheet', () => {
     expect(ctx.battle?.showBasicAttack).toBe(true);
   });
 
-  it('prints only learned skills and core combat finished values', () => {
+  it('prints the full skill catalog and core combat finished values', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
     expect(ctx.hasLearnedSkills).toBe(true);
+    expect(ctx.learnedSkills.length).toBe(35);
     expect(ctx.learnedSkills.map((s: any) => s.name)).toEqual(
-      expect.arrayContaining(['Melee Weapons', 'Athletics']),
+      expect.arrayContaining(['Melee Weapons', 'Athletics', 'Lore']),
     );
-    expect(ctx.learnedSkills.every((s: any) => s.rating > 0)).toBe(true);
-    expect(ctx.learnedSkills.some((s: any) => /lore/i.test(s.name))).toBe(false);
+    const melee = ctx.learnedSkills.find((s: any) => s.key === 'meleeWeapons');
+    expect(melee?.rating).toBe(2);
+    const lore = ctx.learnedSkills.find((s: any) => s.key === 'lore');
+    expect(lore?.rating).toBe(0);
 
     expect(ctx.coreCombat.evade).toBe(12);
     expect(ctx.coreCombat.armor).toBe(4);

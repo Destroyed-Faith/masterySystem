@@ -834,7 +834,7 @@
 /* ── Table Character Sheet — Page 1 vitals + column layout ─────────────── */
 .print-page-1.print-page-table .cp-page1-body {
   display: grid;
-  grid-template-columns: 44% 1fr;
+  grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
   gap: 8px;
   align-items: start;
 }
@@ -845,23 +845,33 @@
   flex-direction: column;
   gap: 6px;
   min-width: 0;
-  align-self: start;
+  align-self: stretch;
+  width: 100%;
 }
 
 .print-page-1.print-page-table .cp-col-right {
-  flex: none;
+  grid-column: 2;
 }
 
 .print-page-1.print-page-table .cp-vitals-compact {
   flex: 0 0 auto;
-  align-self: start;
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 0;
   padding: 5px 7px;
 }
 
+.print-page-1.print-page-table .cp-vitals-compact.cp-vitals {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+}
+
 .print-page-1.print-page-table .cp-vitals-compact .cp-health,
 .print-page-1.print-page-table .cp-vitals-compact .cp-stress {
-  flex: 0 0 auto;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .print-page-1.print-page-table .cp-health-title {
@@ -929,6 +939,21 @@
   grid-column: 1 / -1;
   margin-bottom: 0;
   min-height: 0;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.print-page-1.print-page-table .cp-learned-skills-full .cp-learned-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px 10px;
+  align-content: start;
+}
+
+.print-page-1.print-page-table .cp-learned-skills-full .cp-learned-list li {
+  font-size: 9px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 /* Identity + core combat strip */

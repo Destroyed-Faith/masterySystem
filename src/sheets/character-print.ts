@@ -987,7 +987,7 @@ export function buildCharacterPrintContext(
     activeBuffDuration: activeBuffRoundBoxes.length,
   };
 
-  // ── Skills (learned only on the table sheet) ──────────────────────────
+  // ── Skills (full catalog on the table sheet — 3-column wrap) ─────────
   const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
   const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
   const learnedSkills: {
@@ -1000,9 +1000,9 @@ export function buildCharacterPrintContext(
     boxes: { size: number; state: string }[];
     omitUseBoxes?: boolean;
   }[] = [];
-  for (const [key, raw] of Object.entries(skillMap)) {
-    const rating = num(raw);
-    if (rating <= 0) continue;
+  const allSkillKeys = SKILL_GROUPS.flatMap((g) => g.skills).filter((sk) => !!SKILLS[sk]);
+  for (const key of allSkillKeys) {
+    const rating = num(skillMap[key]);
     const def = SKILLS[key];
     const attrKey = def?.attributes?.[0];
     const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
@@ -1025,7 +1025,6 @@ export function buildCharacterPrintContext(
       omitUseBoxes: key === 'combatReflexes',
     });
   }
-  learnedSkills.sort((a, b) => a.name.localeCompare(b.name));
 
   // Legacy full catalog (kept for tests / optional tooling; not printed on core pages).
   const skillsByGroup = SKILL_GROUPS.map((group) => ({
