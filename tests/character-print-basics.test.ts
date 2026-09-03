@@ -102,8 +102,12 @@ describe('character print table sheet', () => {
     );
     const melee = ctx.learnedSkills.find((s: any) => s.key === 'meleeWeapons');
     expect(melee?.rating).toBe(2);
+    expect(melee?.halfPool).toBe(true);
+    expect(melee?.poolLabel).toBe('8k2');
     const lore = ctx.learnedSkills.find((s: any) => s.key === 'lore');
     expect(lore?.rating).toBe(0);
+    expect(lore?.halfPool).toBe(true);
+    expect(lore?.poolLabel).toBe('4k2');
 
     expect(ctx.coreCombat.evade).toBe(12);
     expect(ctx.coreCombat.armor).toBe(4);
@@ -115,6 +119,18 @@ describe('character print table sheet', () => {
     expect(ctx.coreCombat.damageNegation).toBe(0);
     expect(ctx.coreCombat.damageReduction).toBe('0%');
     expect(ctx.coreCombat.parry).toBe(0);
+  });
+
+  it('uses full skill pool when rating reaches 2× Mastery Rank', () => {
+    const ctx = buildCharacterPrintContext(
+      mockCharacter(2, { skills: { meleeWeapons: 4, athletics: 1, lore: 0 } }),
+    ) as any;
+    const melee = ctx.learnedSkills.find((s: any) => s.key === 'meleeWeapons');
+    expect(melee?.halfPool).toBe(false);
+    expect(melee?.poolLabel).toBe('16k2');
+    const athletics = ctx.learnedSkills.find((s: any) => s.key === 'athletics');
+    expect(athletics?.halfPool).toBe(true);
+    expect(athletics?.poolLabel).toBe('8k2');
   });
 
   it('prints Damage Negation, Damage Reduction, and Parry from combat totals', () => {

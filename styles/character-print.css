@@ -1085,6 +1085,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+.print-page-1.print-page-table .cp-learned-list .cp-sk-keep.is-half-pool {
+  color: #8a5a20;
+}
+
 .cp-sk-boxes {
   display: inline-flex;
   gap: 2px;

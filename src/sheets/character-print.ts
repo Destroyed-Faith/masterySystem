@@ -69,6 +69,7 @@ import {
   buildBasicReactionItems,
 } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
+import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
 
 /**
  * Short table-sheet blurb for a Stone Power (Quick Play style).
@@ -271,6 +272,28 @@ function num(value: unknown, fallback = 0): number {
 function formatAttrs(attrs: string[] | undefined): string {
   if (!attrs || attrs.length === 0) return '';
   return attrs.map((a) => cap(a)).join(' / ');
+}
+
+function buildPrintSkillPoolFields(
+  actor: Actor,
+  skillKey: string,
+  attributes: string[] | undefined,
+  rating: number,
+): { poolLabel: string; halfPool: boolean; pool: number | string; keep: string } {
+  const attributeKeys = attributes?.length ? attributes : [];
+  if (!attributeKeys.length) {
+    return { poolLabel: '—', halfPool: false, pool: '—', keep: '' };
+  }
+  const previews = attributeKeys.map((attributeKey) =>
+    buildSkillRollPoolPreview(actor, skillKey, attributeKey, rating),
+  );
+  const primary = previews[0]!;
+  return {
+    poolLabel: previews.map((p) => p.rollLabel).join(' · '),
+    halfPool: previews.some((p) => p.halfPool),
+    pool: primary.numDice > 0 ? primary.numDice : '—',
+    keep: primary.keepDice > 0 ? `k${primary.keepDice}` : '',
+  };
 }
 
 function powerPhaseLabel(category: string | null): string {
@@ -995,6 +1018,8 @@ export function buildCharacterPrintContext(
     name: string;
     attrs: string;
     pool: number | string;
+    poolLabel: string;
+    halfPool: boolean;
     keep: string;
     rating: number;
     boxes: { size: number; state: string }[];
@@ -1004,8 +1029,7 @@ export function buildCharacterPrintContext(
   for (const key of allSkillKeys) {
     const rating = num(skillMap[key]);
     const def = SKILLS[key];
-    const attrKey = def?.attributes?.[0];
-    const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
+    const poolFields = buildPrintSkillPoolFields(actor as Actor, key, def?.attributes, rating);
     // Combat Reflexes usage boxes live on Page 2 Initiative — name only here.
     const boxes =
       key === 'combatReflexes'
@@ -1018,8 +1042,7 @@ export function buildCharacterPrintContext(
       key,
       name: def?.name || cap(key),
       attrs: formatAttrs(def?.attributes),
-      pool: pool > 0 ? pool : '—',
-      keep: masteryRank > 0 ? `k${masteryRank}` : '',
+      ...poolFields,
       rating,
       boxes,
       omitUseBoxes: key === 'combatReflexes',

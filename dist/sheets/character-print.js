@@ -45,6 +45,7 @@ import { buildPrintCombatPreview, buildPrintCombatPreviewForArtifactRow, buildAr
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
 import { basicAttackMrDamageFormula, basicCombatMrTimesTwo, buildBasicReactionItems, } from '../combat/basic-combat.js';
 import { buildConsumablePrintEntries, buildConsumablePrintSlots } from '../utils/consumable-slots.js';
+import { buildSkillRollPoolPreview } from '../dice/roll-context-build.js';
 /**
  * Short table-sheet blurb for a Stone Power (Quick Play style).
  * Linear tiers → "+N per Tier"; irregular → values listed at the end.
@@ -203,6 +204,20 @@ function formatAttrs(attrs) {
     if (!attrs || attrs.length === 0)
         return '';
     return attrs.map((a) => cap(a)).join(' / ');
+}
+function buildPrintSkillPoolFields(actor, skillKey, attributes, rating) {
+    const attributeKeys = attributes?.length ? attributes : [];
+    if (!attributeKeys.length) {
+        return { poolLabel: '—', halfPool: false, pool: '—', keep: '' };
+    }
+    const previews = attributeKeys.map((attributeKey) => buildSkillRollPoolPreview(actor, skillKey, attributeKey, rating));
+    const primary = previews[0];
+    return {
+        poolLabel: previews.map((p) => p.rollLabel).join(' · '),
+        halfPool: previews.some((p) => p.halfPool),
+        pool: primary.numDice > 0 ? primary.numDice : '—',
+        keep: primary.keepDice > 0 ? `k${primary.keepDice}` : '',
+    };
 }
 function powerPhaseLabel(category) {
     switch (category) {
@@ -909,8 +924,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
     for (const key of allSkillKeys) {
         const rating = num(skillMap[key]);
         const def = SKILLS[key];
-        const attrKey = def?.attributes?.[0];
-        const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
+        const poolFields = buildPrintSkillPoolFields(actor, key, def?.attributes, rating);
         // Combat Reflexes usage boxes live on Page 2 Initiative — name only here.
         const boxes = key === 'combatReflexes'
             ? []
@@ -922,8 +936,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
             key,
             name: def?.name || cap(key),
             attrs: formatAttrs(def?.attributes),
-            pool: pool > 0 ? pool : '—',
-            keep: masteryRank > 0 ? `k${masteryRank}` : '',
+            ...poolFields,
             rating,
             boxes,
             omitUseBoxes: key === 'combatReflexes',

@@ -213,7 +213,7 @@
         {{#each learnedSkills}}
         <li>
           <span class="cp-sk-name">{{name}} <em>({{attrs}})</em></span>
-          <span class="cp-sk-keep">{{pool}}{{keep}}</span>
+          <span class="cp-sk-keep{{#if halfPool}} is-half-pool{{/if}}"{{#if halfPool}} title="Half attribute pool — skill rating below 2× Mastery Rank"{{/if}}>{{#if halfPool}}½ {{/if}}{{poolLabel}}</span>
           <span class="cp-sk-boxes">
             {{#each boxes}}<i class="cp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
           </span>

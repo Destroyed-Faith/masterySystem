@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.483] - 2026-09-03
+
+### Fixed
+
+- **Table Character Sheet · Page 1 Learned Skills:** Skill dice pools now use the same full-/half-pool rule as the live sheet (rating ≥ 2×MR → full attribute pool; otherwise floor(attr/2)). Half-pool entries are marked with **½** and distinct styling.
+
 ## [0.9.482] - 2026-09-03
 
 ### Changed
