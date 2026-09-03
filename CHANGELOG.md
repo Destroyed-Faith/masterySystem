@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.480] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1 Health / Stress:** Replace per-HP checkbox grids with a compact **Total** field (pre-printed max per level) plus a larger **Lost** write-in box with a faint watermark (`Lost Health Points` / `Lost Stress`), including Breakdown.
+- **Table Character Sheet · Page 1 layout:** Minor Expressions and Disadvantages sit side-by-side directly under Attributes; Learned Skills fills the remaining left-column space below.
+
 ## [0.9.479] - 2026-09-03
 
 ### Changed

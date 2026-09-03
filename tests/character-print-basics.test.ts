@@ -241,34 +241,42 @@ describe('character print table sheet', () => {
     ).toMatch(/One attack per Tier/i);
   });
 
-  it('uses empty pencil Health / Stress boxes', () => {
-    const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
-    expect(ctx.healthBars[0].boxes.length).toBe(8);
-    expect(ctx.healthBars[0].boxes.every((b: any) => b.filled === false)).toBe(true);
-    expect(ctx.stressBars[0].boxes.every((b: any) => b.filled === false)).toBe(true);
-  });
-
   it('opts into equipment modules when requested', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2), { includeModules: true }) as any;
     expect(ctx.includeModules).toBe(true);
     expect(ctx.pageTotal).toBe(3);
   });
 
-  it('places Expressions and Disadvantages under Learned Skills (left of Health/Stress)', () => {
+  it('prints Health / Stress totals with write-in lost fields', () => {
+    const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
+    expect(ctx.healthBars[0].max).toBe(8);
+    expect(ctx.healthBars[0].boxes).toBeUndefined();
+    expect(ctx.stressBars[0].max).toBe(4);
+    expect(ctx.stressBreakdown).toEqual({ name: 'Breakdown', max: 1 });
+  });
+
+  it('places Expressions and Disadvantages under Attributes; Learned Skills below', () => {
     const { readFileSync } = require('node:fs');
     const { join } = require('node:path');
     const hbs = readFileSync(join(process.cwd(), 'templates/actor/character-print.hbs'), 'utf8');
     const left = hbs.indexOf('cp-col-left');
     const right = hbs.indexOf('cp-col-right');
-    const learned = hbs.indexOf('cp-learned-skills');
+    const abilities = hbs.indexOf('cp-abilities');
+    const expertise = hbs.indexOf('cp-expertise-row');
     const exprs = hbs.indexOf('cp-minor-expressions');
     const disadv = hbs.indexOf('cp-disadvantages');
+    const learned = hbs.indexOf('cp-learned-skills');
     const vitals = hbs.indexOf('cp-vitals');
     expect(left).toBeGreaterThan(-1);
-    expect(learned).toBeGreaterThan(left);
-    expect(exprs).toBeGreaterThan(learned);
+    expect(abilities).toBeGreaterThan(left);
+    expect(expertise).toBeGreaterThan(abilities);
+    expect(exprs).toBeGreaterThan(expertise);
     expect(disadv).toBeGreaterThan(exprs);
-    expect(right).toBeGreaterThan(disadv);
+    expect(learned).toBeGreaterThan(disadv);
+    expect(right).toBeGreaterThan(learned);
     expect(vitals).toBeGreaterThan(right);
+    expect(hbs).toContain('cp-vital-total');
+    expect(hbs).toContain('Lost Health Points');
+    expect(hbs).toContain('Lost Stress');
   });
 });

@@ -591,7 +591,7 @@
   font-weight: 600;
 }
 
-/* Six-level health track (printable wound boxes) */
+/* Six-level health track (total + lost write-in fields) */
 .cp-health-track {
   display: flex;
   flex-direction: column;
@@ -621,6 +621,57 @@
   color: #555;
 }
 
+.cp-vital-track-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px;
+  align-items: stretch;
+  margin-top: 3px;
+}
+
+.cp-vital-total {
+  box-sizing: border-box;
+  width: 48px;
+  min-height: 31px;
+  border: 1.5px solid #333;
+  border-radius: 2px;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #222;
+}
+
+.cp-vital-lost {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 31px;
+  border: 1.5px solid #333;
+  border-radius: 2px;
+  background: #fff;
+}
+
+.cp-vital-lost-watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(0, 0, 0, 0.11);
+  pointer-events: none;
+  text-align: center;
+  padding: 2px 6px;
+  line-height: 1.2;
+}
+
+/* Legacy per-HP checkbox grid (compact sheet / older references) */
 .cp-health-boxes {
   display: flex;
   flex-wrap: wrap;
@@ -780,17 +831,20 @@
 
 .cp-phase-Buff { background: #00838f; }
 
-/* ── Table Character Sheet — large pencil Health / Stress ─────────────── */
-.print-page-1.print-page-table .cp-health-box {
-  width: 14px;
-  height: 14px;
-  border-width: 1.5px;
-  border-radius: 2px;
+/* ── Table Character Sheet — Page 1 vitals + column layout ─────────────── */
+.print-page-1.print-page-table .cp-vital-total {
+  width: 52px;
+  min-height: 34px;
+  font-size: 15px;
 }
 
-.print-page-1.print-page-table .cp-health-boxes {
-  gap: 3px;
-  margin-top: 3px;
+.print-page-1.print-page-table .cp-vital-lost {
+  min-height: 34px;
+}
+
+.print-page-1.print-page-table .cp-vital-lost-watermark {
+  font-size: 8px;
+  color: rgba(0, 0, 0, 0.1);
 }
 
 .print-page-1.print-page-table .cp-health-level {
@@ -822,10 +876,10 @@
   min-height: 0;
 }
 
-/* Expressions + Disadvantages sit under Learned Skills (left); give Health /
-   Stress more pencil room on the right. */
 .print-page-1.print-page-table .cp-columns.cp-table-main {
   align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .print-page-1.print-page-table .cp-col-left {
@@ -833,6 +887,35 @@
   flex-direction: column;
   gap: 6px;
   min-width: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+.print-page-1.print-page-table .cp-expertise-row {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+  align-items: stretch;
+}
+
+.print-page-1.print-page-table .cp-expertise-row .cp-minor-expressions,
+.print-page-1.print-page-table .cp-expertise-row .cp-disadvantages {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.print-page-1.print-page-table .cp-learned-skills {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+
+.print-page-1.print-page-table .cp-learned-skills .cp-learned-list {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Identity + core combat strip */

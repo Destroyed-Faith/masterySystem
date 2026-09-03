@@ -684,8 +684,6 @@ export function buildCharacterPrintContext(
           current,
           penalty: num(b?.penalty),
           penaltyLabel: healthPenaltyLabel(num(b?.penalty)),
-          // Empty pencil boxes — one per box in the bar (table play).
-          boxes: Array.from({ length: Math.max(0, max) }, () => ({ filled: false }))
         };
       })
     : [];
@@ -705,11 +703,10 @@ export function buildCharacterPrintContext(
           max,
           current,
           penaltyLabel: 'No penalty',
-          boxes: Array.from({ length: Math.max(0, max) }, () => ({ filled: false }))
         };
       })
     : [];
-  const stressBreakdown = { name: 'Breakdown', boxes: [{ filled: false }] };
+  const stressBreakdown = { name: 'Breakdown', max: 1 };
   const stress = {
     current: num(system?.stress?.current),
     maximum: num(system?.stress?.maximum)
