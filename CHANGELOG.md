@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.474] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1:** Character portrait no longer has a border frame.
+- **Table Character Sheet · Page 2 Stone Powers:** Removed group/section frames; stop clipping the power lists so all four abilities per pool can show in the remaining page space.
+
 ## [0.9.473] - 2026-09-03
 
 ### Changed

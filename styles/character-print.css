@@ -774,8 +774,8 @@
   width: 28mm;
   height: 28mm;
   object-fit: cover;
-  border: 1px solid #333;
-  border-radius: 2px;
+  border: none;
+  border-radius: 0;
   flex: 0 0 auto;
 }
 
@@ -918,8 +918,8 @@
   page: cp-landscape;
   display: flex;
   flex-direction: column;
-  padding-bottom: 8mm;
-  overflow: hidden;
+  padding-bottom: 3mm;
+  overflow: visible;
 }
 
 /* ~6 mm physical cube slots (room to nudge ~8 mm cubes) */
@@ -1066,7 +1066,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 3px;
-  margin-bottom: 2mm;
+  margin-bottom: 1.2mm;
   flex: 0 0 auto;
 }
 
@@ -1115,7 +1115,7 @@
   border: 1px solid #666;
   border-radius: 2px;
   padding: 2px 6px;
-  margin-bottom: 2mm;
+  margin-bottom: 1.2mm;
   flex: 0 0 auto;
   background: #fafafa;
 }
@@ -1138,16 +1138,16 @@
   height: 6mm;
 }
 
-/* 4. Stone Powers (~75%) */
+/* 4. Stone Powers — fill remaining page; no frame, no clipping */
 .cp-sd-powers {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  border: 1px solid #222;
-  border-radius: 3px;
-  padding: 2px 4px 3px;
-  overflow: hidden;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  overflow: visible;
 }
 
 .cp-sd-powers-title {
@@ -1159,28 +1159,29 @@
   text-align: center;
   border-bottom: 1px solid #bbb;
   padding-bottom: 1px;
+  flex: 0 0 auto;
 }
 
 .cp-sd-power-groups {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 3px;
-  flex: 1;
+  grid-template-rows: repeat(2, auto);
+  gap: 2px 4px;
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  align-content: stretch;
+  overflow: visible;
 }
 
 .cp-sd-power-group {
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  padding: 1px 2px 2px;
+  border: none;
+  border-radius: 0;
+  padding: 0 1px 1px;
   min-width: 0;
   min-height: 0;
-  border-top: 2.5px solid var(--attr-color, #333);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .cp-sd-power-group[data-attr="generic"] { --attr-color: #455a64; }
@@ -1199,7 +1200,7 @@
   gap: 3px 6px;
   margin-bottom: 1px;
   padding-bottom: 1px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1.5px solid var(--attr-color, #333);
 }
 
 .cp-sd-power-group-name {
@@ -1207,6 +1208,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  color: var(--attr-color, #1a1a1a);
 }
 
 .cp-sd-power-group-cap {
@@ -1224,9 +1226,9 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .cp-sd-power {
