@@ -42,11 +42,13 @@ describe('character sheet combat senses regression', () => {
     expect(partial).not.toMatch(/\{\{#unless[^}]+\}\}[^{]*\{\{\/if\}\}/);
   });
 
-  it('compiles print battle sheet with compact combat senses display', () => {
-    expect(printTemplate).toMatch(/combatSensesDisplay\.primary/);
+  it('print table battle sheet omits combat senses (config stays on interactive sheet)', () => {
+    // Table Character Sheet page 3 is Powers & Combat only — no Sense Slot print block.
+    expect(printTemplate).not.toMatch(/combatSensesDisplay/);
     expect(printTemplate).not.toMatch(/pick exactly one/i);
     expect(printTemplate).not.toMatch(/cp-battle-senses-grid/);
     expect(printTemplate).toMatch(/cp-battle-secondary/);
+    expect(printTemplate).toMatch(/Powers &amp; Combat/);
   });
 
   it('defers combat senses config to a post-mount partial (not in the main form template)', () => {

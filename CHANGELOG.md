@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.468] - 2026-09-03
+
+### Fixed
+
+- **Release CI:** Updated Combat Senses print regression — Table Character Sheet page 3 no longer prints a Sense Slot block (config remains on the interactive sheet). Unblocks GitHub Release for the table-sheet line (v0.9.465–v0.9.467 tags existed but releases failed this test).
+
 ## [0.9.467] - 2026-09-03
 
 ### Changed
