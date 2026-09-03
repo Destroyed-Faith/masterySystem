@@ -59,6 +59,14 @@ describe('character print table sheet', () => {
     expect(ctx.specialCap).toBe(8);
     expect(ctx.pageTotal).toBe(3);
     expect(ctx.includeModules).toBe(false);
+    expect(ctx.battle.activeBuffDuration).toBe(2);
+    expect(ctx.battle.activeBuffRoundBoxes).toEqual([1, 2]);
+  });
+
+  it('scales Active Buff round boxes to Mastery Rank', () => {
+    const ctx = buildCharacterPrintContext(mockCharacter(4)) as any;
+    expect(ctx.battle.activeBuffDuration).toBe(4);
+    expect(ctx.battle.activeBuffRoundBoxes).toEqual([1, 2, 3, 4]);
   });
 
   it('can omit standard maneuvers when explicitly disabled', () => {

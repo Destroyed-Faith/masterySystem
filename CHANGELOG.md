@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.470] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 3 Active Buffs:** Use checkbox sits after the Power name; each Active Buff card adds a compact `ROUNDS:` tick row with one box per Mastery Rank (standard Active Buff duration). Same inline checkbox placement on other Power cards.
+
 ## [0.9.469] - 2026-09-03
 
 ### Changed

@@ -1589,20 +1589,59 @@
   border-color: #ef6c00;
 }
 
-.cp-battle-card .cp-use-box {
-  margin-top: 2px;
+.cp-battle-card .cp-use-box,
+.cp-battle-card-name .cp-use-box {
+  margin-top: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  width: 3mm;
+  height: 3mm;
+  border-width: 1px;
 }
 
 .cp-battle-card-body {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  width: 100%;
+  min-width: 0;
 }
 
 .cp-battle-card-name {
   font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 3px;
+}
+
+.cp-buff-rounds {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2mm;
+  margin-top: 1px;
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #006064;
+  line-height: 1.05;
+}
+
+.cp-buff-rounds-label {
+  flex: 0 0 auto;
+}
+
+.cp-buff-round {
+  display: inline-block;
+  width: 2.4mm;
+  height: 2.4mm;
+  border: 0.7px solid #006064;
+  box-sizing: border-box;
+  background: #fff;
+  flex: 0 0 auto;
 }
 
 .cp-battle-card-kind {

@@ -870,7 +870,10 @@ export function buildCharacterPrintContext(actor, options = {}) {
                 break;
             case 'activeBuff':
                 attachBattlePreview(p, powerItem, 'activeBuff', artifactRow);
-                battleBuffs.push(p);
+                battleBuffs.push({
+                    ...p,
+                    roundBoxes: Array.from({ length: Math.max(1, masteryRank) }, (_, i) => i + 1),
+                });
                 break;
             case 'reaction':
                 attachBattlePreview(p, powerItem, 'reaction', artifactRow);
@@ -884,6 +887,8 @@ export function buildCharacterPrintContext(actor, options = {}) {
     for (const entry of buildConsumablePrintEntries(actor)) {
         battleActive.push(entry);
     }
+    // Standard Active Buff duration = Mastery Rank rounds (tabletop tick boxes).
+    const activeBuffRoundBoxes = Array.from({ length: Math.max(1, masteryRank) }, (_, i) => i + 1);
     const battle = {
         movement: battleMovement,
         active: battleActive,
@@ -896,6 +901,8 @@ export function buildCharacterPrintContext(actor, options = {}) {
         hasPassives: passivePowers.length > 0,
         includeStandardManeuvers,
         showBasicAttack,
+        activeBuffRoundBoxes,
+        activeBuffDuration: activeBuffRoundBoxes.length,
     };
     // ── Skills (learned only on the table sheet) ──────────────────────────
     const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
