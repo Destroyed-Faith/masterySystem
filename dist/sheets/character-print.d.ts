@@ -30,11 +30,16 @@ export declare function summarizeStonePowerPrint(power: {
 /** Options for the printable character sheet. */
 export interface CharacterPrintOptions {
     /**
-     * When true, seed Basic Attack + Guard / Evade / Counterattack onto the
-     * battle page (same universal options as radial / Reaction Window).
+     * When true, seed Guard / Evade / Counterattack onto the battle page
+     * (same universal options as radial / Reaction Window).
      * Defaults to true for the table sheet (layout `full`).
      */
     includeStandardManeuvers?: boolean;
+    /**
+     * When true, also seed Basic Attack into Active / Attack Actions.
+     * Defaults to false on the table sheet — frees a card slot for powers.
+     */
+    showBasicAttack?: boolean;
     /**
      * Append optional Equipment (+ Summons when bound) module pages after the
      * three core table pages. Default false — those are personal/table refs.

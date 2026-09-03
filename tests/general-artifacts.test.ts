@@ -140,8 +140,8 @@ describe('Moonlight Greatsword', () => {
     expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
   });
 
-  it('damage scales 5d8 → 14d8 (4d8 two-handed base + 1d8/level)', () => {
-    const expected = ['5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8', '14d8'];
+  it('damage scales 4d8 → 13d8 (4d8 two-handed base + 1d8 per level above 1)', () => {
+    const expected = ['4d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8'];
     for (let lvl = 1; lvl <= 10; lvl++) {
       expect(baseValue(tree, lvl, 'Weapon Damage').value).toBe(expected[lvl - 1]);
       expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(expected[lvl - 1]);
@@ -255,13 +255,13 @@ describe('Soul Sigil', () => {
 describe('Frostbound Returning Axe', () => {
   const tree = buildEchoArtifactTree(getGeneralArtifact('frostboundReturningAxe')!);
 
-  it('is a one-handed main-hand weapon with 3d8 → 12d8 damage (2d8 base + 1d8/level)', () => {
+  it('is a one-handed main-hand weapon with 2d8 → 11d8 damage (2d8 base + 1d8 per level above 1)', () => {
     const sys = sysAt(tree, 1);
     expect(sys.slot).toBe('mainHand');
     expect(sys.baseProfile).toBe('oneHandedWeapon');
     expect(sys.equipSlots).toEqual(['mainhand']);
     for (let lvl = 1; lvl <= 10; lvl++) {
-      expect(baseValue(tree, lvl, 'Weapon Damage').value).toBe(`${lvl + 2}d8`);
+      expect(baseValue(tree, lvl, 'Weapon Damage').value).toBe(`${lvl + 1}d8`);
     }
   });
 
@@ -416,8 +416,8 @@ describe('Heartseeker', () => {
     ]);
   });
 
-  it('damage scales 5d8 → 14d8 and Precision bonus unlocks at L4', () => {
-    const expected = ['5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8', '14d8'];
+  it('damage scales 4d8 → 13d8 and Precision bonus unlocks at L4', () => {
+    const expected = ['4d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '11d8', '12d8', '13d8'];
     for (let lvl = 1; lvl <= 10; lvl++) {
       expect(baseValue(tree, lvl, 'Weapon Damage').value).toBe(expected[lvl - 1]);
       expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(expected[lvl - 1]);
@@ -634,10 +634,10 @@ describe('Staff of the Dark', () => {
     }
   });
 
-  it('Spell Focus Bonus scales +3d8 (L1) → +12d8 (L10), 1:1 one-handed weapon damage', () => {
-    expect(baseValue(tree, 1, 'Spell Focus Bonus').value).toBe('+3d8');
-    expect(baseValue(tree, 5, 'Spell Focus Bonus').value).toBe('+7d8');
-    expect(baseValue(tree, 10, 'Spell Focus Bonus').value).toBe('+12d8');
+  it('Spell Focus Bonus scales +2d8 (L1) → +11d8 (L10), 1:1 one-handed weapon damage', () => {
+    expect(baseValue(tree, 1, 'Spell Focus Bonus').value).toBe('+2d8');
+    expect(baseValue(tree, 5, 'Spell Focus Bonus').value).toBe('+6d8');
+    expect(baseValue(tree, 10, 'Spell Focus Bonus').value).toBe('+11d8');
   });
 
   it('Hex (Focus Special) uses its own breakpoints: 2 at L4-5, 3 at L6-7, 4 at L8-9, 5 at L10', () => {
@@ -794,10 +794,10 @@ describe("Lor-Keth's Staff", () => {
     expect(sys.artifactWeapon.hands).toBe(2);
   });
 
-  it('staff damage scales 5d8 → 14d8 (4d8 two-handed base + 1d8/level)', () => {
+  it('staff damage scales 4d8 → 13d8 (4d8 two-handed base + 1d8 per level above 1)', () => {
     for (let lvl = 1; lvl <= 10; lvl++) {
-      expect(baseValue(tree, lvl, 'Staff Damage').value).toBe(`${lvl + 4}d8`);
-      expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(`${lvl + 4}d8`);
+      expect(baseValue(tree, lvl, 'Staff Damage').value).toBe(`${lvl + 3}d8`);
+      expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(`${lvl + 3}d8`);
     }
   });
 

@@ -23,7 +23,7 @@
           <span class="cp-core-value">{{coreCombat.attack}}</span>
         </div>
         <div class="cp-core-cell">
-          <span class="cp-core-label">Damage</span>
+          <span class="cp-core-label">Weapon Damage</span>
           <span class="cp-core-value">{{coreCombat.damage}}</span>
         </div>
         <div class="cp-core-cell">
@@ -207,6 +207,16 @@
     <div class="cp-sd-ini-roll">
       <span class="cp-sd-ini-kicker">Initiative</span>
       <span class="cp-sd-ini-roll-line">Roll: <b>{{stoneDashboard.initiative}}</b></span>
+      {{#if stoneDashboard.combatReflexes}}
+      <div class="cp-sd-ini-cr">
+        <span class="cp-sd-ini-cr-label">{{stoneDashboard.combatReflexes.label}} {{stoneDashboard.combatReflexes.rating}}</span>
+        <span class="cp-sd-ini-cr-boxes">
+          {{#each stoneDashboard.combatReflexes.boxes}}
+          <i class="cp-sd-ini-cr-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>
+          {{/each}}
+        </span>
+      </div>
+      {{/if}}
     </div>
     <div class="cp-sd-ini-exchange">
       <span class="cp-sd-ini-kicker">Initiative Exchange</span>
@@ -406,20 +416,7 @@
 
   </div>
 
-  <div class="cp-battle-secondary">
-    <section class="cp-status-tray cp-specials-tray" aria-label="Specials affecting you">
-      <div class="cp-status-tray-head">Specials Affecting You</div>
-      <div class="cp-status-tray-drop">
-        <div class="cp-specials-sot" aria-label="Start of turn">
-          <div class="cp-specials-sot-title">Start of Turn</div>
-          <div class="cp-specials-sot-line">Tick</div>
-          <div class="cp-specials-sot-line">Natural Special Recovery {{specialRecovery}}</div>
-          <div class="cp-specials-sot-line">Decay 1</div>
-        </div>
-      </div>
-      <p class="cp-specials-cap">Same Special this Round: max {{specialCap}} (4 × MR)</p>
-    </section>
-
+  <div class="cp-battle-bottom">
     <div class="cp-battle-passives">
       <div class="cp-battle-group-title">Passives</div>
       {{#if battle.hasPassives}}
@@ -438,6 +435,19 @@
       <div class="cp-battle-empty">No passive powers.</div>
       {{/if}}
     </div>
+
+    <section class="cp-status-tray cp-specials-tray" aria-label="Specials affecting you">
+      <div class="cp-status-tray-head">Specials Affecting You</div>
+      <div class="cp-status-tray-drop">
+        <div class="cp-specials-sot" aria-label="Start of turn">
+          <div class="cp-specials-sot-title">Start of Turn</div>
+          <div class="cp-specials-sot-line">Tick</div>
+          <div class="cp-specials-sot-line">Natural Special Recovery {{specialRecovery}}</div>
+          <div class="cp-specials-sot-line">Decay 1</div>
+        </div>
+      </div>
+      <p class="cp-specials-cap">Same Special this Round: max {{specialCap}} (4 × MR)</p>
+    </section>
   </div>
 
   <div class="cp-page-footer">Powers &amp; Combat · 3 of 3</div>

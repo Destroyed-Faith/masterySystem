@@ -552,20 +552,24 @@ describe('stonePowerSkipsFirstTier', () => {
 });
 
 describe('Wits — Phasing', () => {
-  it('has no Tier 1; T2/T3 grant 1, T4/T5 grant 2, T6 grants 3', async () => {
+  it('has no Tier 1; once per combat; T2/T3/T4 grant 1/2/3 charges', async () => {
     const power = STONE_POWERS['wits.phasing'];
     expect(power.startsAtTier).toBe(2);
-    expect(power.tiers).toHaveLength(3);
+    expect(power.oncePerCombat).toBe(true);
+    expect(power.tiers.map((t) => t.value)).toEqual([1, 2, 3]);
 
-    for (const [tier, charges] of [[2, 1], [3, 1], [4, 2], [5, 2], [6, 3]] as const) {
+    for (const [tier, charges] of [[2, 1], [3, 2], [4, 3], [5, 4], [6, 5]] as const) {
       const actor = makeMockActor();
+      const combatant = makeMockCombatant();
       await power.apply({
         actor: actor as any,
-        combatant: makeMockCombatant() as any,
+        combatant: combatant as any,
         tier,
         cost: 2 ** (tier - 1),
       });
-      expect(actor._roundState.stoneBonuses.phasingChargesFromStones).toBe(charges);
+      const state = (actor as any).flags?.['mastery-system']?.phasingCharges;
+      expect(state?.current).toBe(charges);
+      expect(state?.max).toBe(charges);
     }
   });
 });

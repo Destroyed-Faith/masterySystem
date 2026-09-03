@@ -545,7 +545,7 @@ describe('Quick Play character print', () => {
       active: false,
       title: 'SET 2 — MOONLIGHT GREATSWORD',
       kindLabel: 'Melee',
-      body: '5d8 · Melee · Finesse · Artifact',
+      body: '4d8 · Melee · Finesse · Artifact',
     });
   });
 
@@ -555,11 +555,11 @@ describe('Quick Play character print', () => {
     expect(active.some((i: any) => i.name === 'Basic Attack')).toBe(false);
 
     const meleeSingle = active.find((i: any) => i.name === 'Melee Single Attack');
-    expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');
+    expect(meleeSingle.damage).toBe('WD 4d8 + 8d8');
     expect(meleeSingle.damage).not.toMatch(/2d8/);
 
     const sundered = active.find((i: any) => String(i.name).includes('Sundered'));
-    expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
+    expect(sundered.damage).toBe('WD 4d8 + 2d8 + Sundered(5)');
   });
 
   it('folds Artifact powers into POWERS with source labels and drops the Artifacts block', () => {
@@ -599,9 +599,9 @@ describe('Quick Play character print', () => {
     expect(ctx.weaponSetTiles.some((t: any) => /Moonlight Greatsword/i.test(t.title))).toBe(true);
 
     const sundered = allPowers.find((i: any) => String(i.name).includes('Sundered'));
-    expect(sundered.damage).toBe('WD 5d8 + 2d8 + Sundered(5)');
+    expect(sundered.damage).toBe('WD 4d8 + 2d8 + Sundered(5)');
     const meleeSingle = allPowers.find((i: any) => i.name === 'Melee Single Attack');
-    expect(meleeSingle.damage).toBe('WD 5d8 + 8d8');
+    expect(meleeSingle.damage).toBe('WD 4d8 + 8d8');
     expect(ctx.minorExpressionTiles.some((t: any) => t.name === 'Bounding Leap')).toBe(true);
     expect(allPowerNames).not.toContain('Bounding Leap');
     expect(ctx.powerGroups.every((g: any) => g.phase !== 'Minor Expression')).toBe(true);

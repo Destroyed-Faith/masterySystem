@@ -47,13 +47,14 @@ function mockCharacter(mr = 2, overrides: Record<string, unknown> = {}) {
 }
 
 describe('character print table sheet', () => {
-  it('defaults Basic Attack / Guard / Evade / Counterattack on', () => {
+  it('defaults Basic Reactions on and Basic Attack off', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
     const activeNames = (ctx.battle?.active ?? []).map((p: any) => p.name);
     const reactionNames = (ctx.battle?.reactions ?? []).map((p: any) => p.name);
-    expect(activeNames).toContain('Basic Attack');
+    expect(activeNames).not.toContain('Basic Attack');
     expect(reactionNames).toEqual(expect.arrayContaining(['Guard', 'Evade', 'Counterattack']));
     expect(ctx.battle?.includeStandardManeuvers).toBe(true);
+    expect(ctx.battle?.showBasicAttack).toBe(false);
     expect(ctx.specialRecovery).toBe(2);
     expect(ctx.specialCap).toBe(8);
     expect(ctx.pageTotal).toBe(3);
@@ -71,8 +72,8 @@ describe('character print table sheet', () => {
     expect(ctx.battle?.includeStandardManeuvers).toBe(false);
   });
 
-  it('seeds Basic Attack values at MR 3', () => {
-    const ctx = buildCharacterPrintContext(mockCharacter(3)) as any;
+  it('seeds Basic Attack when showBasicAttack is enabled', () => {
+    const ctx = buildCharacterPrintContext(mockCharacter(3), { showBasicAttack: true }) as any;
     const active = ctx.battle?.active ?? [];
     expect(active[0]?.name).toBe('Basic Attack');
     expect(active[0]?.damageRoll).toBe('Weapon + 6d8');
@@ -81,6 +82,7 @@ describe('character print table sheet', () => {
     expect(reactions[0]?.damageRoll).toBe('+6 Armor');
     expect(reactions[1]?.damageRoll).toBe('+6 Evade');
     expect(reactions[2]?.damageRoll).toBe('Weapon + 6d8');
+    expect(ctx.battle?.showBasicAttack).toBe(true);
   });
 
   it('prints only learned skills and core combat finished values', () => {
@@ -96,7 +98,8 @@ describe('character print table sheet', () => {
     expect(ctx.coreCombat.armor).toBe(4);
     expect(ctx.coreCombat.movement).toBe('8 m');
     expect(ctx.coreCombat.attack).toMatch(/16k2/);
-    expect(String(ctx.coreCombat.damage)).toMatch(/4d8|Weapon/);
+    // No equipped weapon on the mock — Weapon Damage is empty, not MR bonus dice.
+    expect(String(ctx.coreCombat.damage)).toBe('—');
   });
 
   it('builds a stone dashboard with cube-zone copy and pools', () => {
@@ -127,10 +130,28 @@ describe('character print table sheet', () => {
     const witsGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'wits');
     const initiativeBoost = witsGroup.powers.find((p: any) => /initiative boost/i.test(p.name));
     expect(initiativeBoost.oncePerCombat).toBe(true);
+    const phasing = witsGroup.powers.find((p: any) => /^phasing$/i.test(p.name));
+    expect(phasing.oncePerCombat).toBe(true);
+    expect(phasing.paymentTiers[0].label).toBe('T2');
+    expect(phasing.summary).toMatch(/\+1 per Tier/i);
     const onceCount = ctx.stoneDashboard.powerGroups
       .flatMap((g: any) => g.powers)
       .filter((p: any) => p.oncePerCombat).length;
-    expect(onceCount).toBe(1);
+    expect(onceCount).toBe(2);
+    expect(ctx.stoneDashboard.combatReflexes).toBeNull();
+  });
+
+  it('puts Combat Reflexes usage boxes on Page 2 Initiative only', () => {
+    const ctx = buildCharacterPrintContext(
+      mockCharacter(2, { skills: { meleeWeapons: 2, combatReflexes: 4 } }),
+    ) as any;
+    const crSkill = ctx.learnedSkills.find((s: any) => s.key === 'combatReflexes');
+    expect(crSkill).toBeTruthy();
+    expect(crSkill.omitUseBoxes).toBe(true);
+    expect(crSkill.boxes).toEqual([]);
+    expect(ctx.stoneDashboard.combatReflexes).toBeTruthy();
+    expect(ctx.stoneDashboard.combatReflexes.rating).toBe(4);
+    expect(ctx.stoneDashboard.combatReflexes.boxes.length).toBe(4);
   });
 
   it('summarizes stone powers like Quick Play (short + per Tier / list)', async () => {

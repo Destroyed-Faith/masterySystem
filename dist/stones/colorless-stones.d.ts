@@ -22,6 +22,8 @@ export declare function spendTempColorlessStones(actor: any, amount: number): Pr
 export declare function clearTempColorlessStones(actor: any): Promise<void>;
 export declare function isInitiativeBoostUsedThisCombat(combatant: any): boolean;
 export declare function markInitiativeBoostUsedThisCombat(combatant: any): Promise<void>;
+export declare function isPhasingStoneUsedThisCombat(combatant: any): boolean;
+export declare function markPhasingStoneUsedThisCombat(combatant: any): Promise<void>;
 /** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank (then keep doubling). */
 export declare function initiativeBoostAmount(tier: number, masteryRank: number): number;
 export declare function maxConvertibleColorlessStones(initiative: number, masteryRank: number): number;

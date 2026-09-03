@@ -78,11 +78,11 @@ function clampLevel(level) {
 }
 /** Scent of Blood tier — Detect L4, Locate L7, Identify L10. */
 // --- General-artifact per-level tables (Artifact Examples, Player's Guide) ---
-/** One-handed weapon damage — 2d8 base + 1d8 per level (3d8 L1 … 12d8 L10). */
+/** One-handed weapon damage — 2d8 at Level 1, then +1d8 per level (2d8 … 11d8). */
 function oneHandedGeneralDamageForLevel(level) {
     return weaponDamageForLevel(level, 'oneHandedWeapon');
 }
-/** Staff of the Dark Spell Focus Bonus — one-handed: 1:1 weapon damage (+3d8 L1 … +12d8 L10). */
+/** Staff of the Dark Spell Focus Bonus — one-handed: 1:1 weapon damage (+2d8 L1 … +11d8 L10). */
 function staffSpellFocusBonusForLevel(level) {
     return spellFocusForLevel(level, 'oneHandedWeapon');
 }
@@ -392,7 +392,7 @@ const BASE_VALUE_TABLES = {
             label: 'Weapon Damage',
             unlock: 1,
             valueAt: (l) => weaponDamageForLevel(l, 'twoHandedWeaponRanged'),
-            note: 'Includes Heavy Crossbow 4d8 base + 1d8/level.',
+            note: 'Includes Heavy Crossbow 4d8 at Level 1, then +1d8 per level.',
         },
         {
             slot: 'b',

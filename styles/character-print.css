@@ -971,6 +971,53 @@
   line-height: 1.2;
 }
 
+.cp-sd-ini-cr {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  margin-top: 1.5px;
+  flex-wrap: wrap;
+}
+
+.cp-sd-ini-cr-label {
+  font-size: 7.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+}
+
+.cp-sd-ini-cr-boxes {
+  display: inline-flex;
+  gap: 1.5px;
+  align-items: center;
+}
+
+.cp-sd-ini-cr-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5mm;
+  height: 4.5mm;
+  border: 1px solid #333;
+  box-sizing: border-box;
+  font-size: 6px;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 1;
+}
+
+.cp-sd-ini-cr-box.is-spent {
+  background: #ddd;
+  text-decoration: line-through;
+}
+
+.cp-sd-ini-cr-box.is-empty,
+.cp-sd-ini-cr-box.is-unavailable {
+  border-style: dashed;
+  color: #999;
+}
+
 .cp-sd-ini-writein {
   display: block;
   height: 9mm;
@@ -1329,14 +1376,14 @@
 }
 
 .cp-specials-tray {
-  min-height: 30mm;
-  width: 72mm;
+  min-height: 38mm;
+  width: 100%;
   flex: 0 0 auto;
 }
 
 .cp-specials-tray .cp-status-tray-drop {
-  min-height: 24mm;
-  height: 24mm;
+  min-height: 32mm;
+  height: 32mm;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1408,12 +1455,12 @@
 }
 
 /* One rotation line — top-aligned so Movement / Active / Buffs / Reactions
-   share a start line and leftover space sits below for tokens. */
+   share a start line and leftover space sits below for passives + tokens. */
 .cp-battle-flow {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  gap: 6mm;
+  justify-content: stretch;
+  gap: 4mm;
   flex: 1 1 auto;
   min-height: 0;
 }
@@ -1421,39 +1468,55 @@
 .cp-battle-col {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
+  align-items: stretch;
+  gap: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.cp-battle-col-movement {
+  flex: 0 1 18%;
+  max-width: 58mm;
+}
+
+.cp-battle-col-reactions {
+  flex: 0 1 22%;
+  max-width: 64mm;
+}
+
+.cp-battle-attack {
+  flex: 1 1 48%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
 .cp-battle-col-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #444;
   border-bottom: 2px solid #444;
-  padding-bottom: 3px;
-  margin-bottom: 6px;
-}
-
-/* "Attack Action" — one heading spanning the Active + Active Buffs columns */
-.cp-battle-attack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding-bottom: 2px;
+  margin-bottom: 3px;
+  text-align: center;
 }
 
 .cp-battle-group-title,
 .cp-battle-col-spacer {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #1a1a1a;
   border: 2px solid #1a1a1a;
   border-radius: 4px;
-  padding: 4px 12px;
-  margin-bottom: 6px;
+  padding: 3px 10px;
+  margin-bottom: 3px;
+  text-align: center;
+  align-self: center;
 }
 
 .cp-battle-col-spacer {
@@ -1463,37 +1526,52 @@
 .cp-battle-attack-cols {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  gap: 6mm;
+  justify-content: stretch;
+  gap: 3mm;
+  width: 100%;
+}
+
+.cp-battle-col-active {
+  flex: 1 1 58%;
+  min-width: 0;
+}
+
+.cp-battle-col-buffs {
+  flex: 0 1 38%;
+  max-width: 62mm;
 }
 
 .cp-battle-cards-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 3px;
   align-items: stretch;
 }
 
-/* Active list fills 4 cards top-to-bottom, then wraps into a 2nd column */
+/* Active list flows into columns as needed — not a fixed empty grid. */
 .cp-battle-cards-active {
-  display: grid;
-  grid-template-rows: repeat(4, auto);
-  grid-auto-flow: column;
-  grid-column-gap: 8px;
-  grid-row-gap: 8px;
-  align-content: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-content: flex-start;
+}
+
+.cp-battle-cards-active .cp-battle-card {
+  flex: 1 1 52mm;
+  max-width: 62mm;
 }
 
 .cp-battle-card {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 6px;
   border: 1.5px solid #888;
-  border-radius: 5px;
+  border-radius: 4px;
   background: #f4f4f4;
-  padding: 8px 10px;
-  width: 58mm;
-  min-height: 14mm;
+  padding: 4px 6px;
+  width: 100%;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .cp-battle-card.is-baseline {
@@ -1518,17 +1596,17 @@
 .cp-battle-card-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
 }
 
 .cp-battle-card-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.2;
 }
 
 .cp-battle-card-kind {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1546,26 +1624,26 @@
 }
 
 .cp-battle-card-eff {
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: #444;
-  line-height: 1.35;
+  line-height: 1.25;
 }
 
 .cp-battle-card-roll {
   display: block;
-  font-size: 11.5px;
+  font-size: 10.5px;
   color: #1a237e;
-  line-height: 1.4;
-  margin-top: 2px;
+  line-height: 1.3;
+  margin-top: 1px;
 }
 
 .cp-battle-card-footnote {
   display: block;
-  font-size: 9.5px;
+  font-size: 8.5px;
   color: #555;
   font-style: italic;
-  line-height: 1.35;
-  margin-top: 2px;
+  line-height: 1.25;
+  margin-top: 1px;
 }
 
 .cp-battle-card-roll strong {
@@ -1574,11 +1652,12 @@
 }
 
 .cp-battle-arrow {
-  font-size: 24px;
+  font-size: 18px;
   line-height: 1;
   color: #555;
   flex: 0 0 auto;
-  margin-top: 38px;
+  margin-top: 28px;
+  align-self: flex-start;
 }
 
 .cp-battle-empty {
@@ -1588,8 +1667,17 @@
   font-style: italic;
 }
 
-/* Combat Senses + token drop + Passives — compact row under Movement. */
-/* Specials + Passives pinned to the page bottom — under Movement, not mid-page. */
+/* Passives (horizontal) + Specials tray — pinned under the action flow. */
+.cp-battle-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2mm;
+  margin-top: auto;
+  flex: 0 0 auto;
+  padding-top: 1.5mm;
+}
+
 .cp-battle-secondary {
   display: flex;
   align-items: flex-end;
@@ -1607,10 +1695,12 @@
   flex-direction: column;
 }
 
-.cp-status-tray.cp-specials-tray {
-  width: 72mm;
+.cp-status-tray.cp-specials-tray,
+.cp-battle-bottom .cp-specials-tray {
+  width: 100%;
+  max-width: none;
   flex: 0 0 auto;
-  max-width: 72mm;
+  min-height: 38mm;
 }
 
 .cp-status-tray-head {
@@ -1620,7 +1710,7 @@
   text-transform: uppercase;
   color: #455a64;
   text-align: center;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .cp-status-tray-drop {
@@ -1638,6 +1728,14 @@
   );
 }
 
+.cp-battle-bottom .cp-status-tray-drop {
+  min-height: 32mm;
+  height: 32mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .cp-status-tray-rules {
   margin: 0;
   padding: 2mm 2.5mm;
@@ -1647,10 +1745,12 @@
   font-weight: 500;
 }
 
+.cp-battle-bottom .cp-battle-group-title,
 .cp-battle-secondary .cp-battle-group-title {
-  font-size: 11px;
+  font-size: 10px;
   padding: 2px 8px;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
+  align-self: flex-start;
 }
 
 .cp-battle-col-senses {
@@ -1681,12 +1781,12 @@
 
 .cp-battle-card-sense .cp-battle-card-name,
 .cp-battle-card-passive .cp-battle-card-name {
-  font-size: 10px;
+  font-size: 9.5px;
 }
 
 .cp-battle-card-sense .cp-battle-card-eff,
 .cp-battle-card-passive .cp-battle-card-eff {
-  font-size: 8.5px;
+  font-size: 8px;
 }
 
 .cp-battle-card-meta {
@@ -1699,26 +1799,28 @@
 .cp-battle-passives {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   margin-top: 0;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
+  width: 100%;
 }
 
 .cp-battle-passive-cards {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 3px;
-  margin-top: 3px;
+  justify-content: flex-start;
+  gap: 2px;
+  margin-top: 1px;
 }
 
 .cp-battle-card-passive {
   width: auto;
-  min-width: 52mm;
-  max-width: 70mm;
+  flex: 1 1 42mm;
+  min-width: 40mm;
+  max-width: 58mm;
   background: #f1ecf6;
   border-color: #6a1b9a;
-  padding: 4px 7px;
+  padding: 3px 5px;
 }
 
 .cp-ini-exchange {

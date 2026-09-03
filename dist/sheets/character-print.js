@@ -524,8 +524,9 @@ function buildPrintEquipment(allItems) {
 export function buildCharacterPrintContext(actor, options = {}) {
     const system = actor?.system ?? {};
     const masteryRank = num(system?.mastery?.rank, 2);
-    // Table sheet always includes Basic Attack / Basic Reactions unless explicitly off.
+    // Basic Reactions default on; Basic Attack is opt-in (frees an Active card slot).
     const includeStandardManeuvers = options.includeStandardManeuvers !== false;
+    const showBasicAttack = options.showBasicAttack === true;
     const includeModules = options.includeModules === true;
     // ── Abilities ─────────────────────────────────────────────────────────
     const abilities = ATTR_ORDER.map((key) => {
@@ -809,25 +810,26 @@ export function buildCharacterPrintContext(actor, options = {}) {
     const battleActive = [];
     const battleBuffs = [];
     const battleReactions = [];
-    // Optional: universal Basic Attack + Basic Reactions (radial / Reaction Window).
-    // Table sheet defaults these on so Reactions always include Guard / Evade / Counter.
+    // Optional: universal Basic Attack (opt-in) + Basic Reactions (default on).
     if (includeStandardManeuvers) {
         const mrDice = basicAttackMrDamageFormula(actor);
         const mr2 = basicCombatMrTimesTwo(actor);
-        battleActive.push({
-            name: 'Basic Attack',
-            effect: `Weapon Damage + ${mrDice} (MR × 2d8). No Active Power effects. ` +
-                `Weapon properties and eligible Passives / Buffs still apply.`,
-            phase: 'Active',
-            baseline: true,
-            battleCompact: true,
-            attackKind: 'Melee / Ranged',
-            damageRoll: `Weapon + ${mrDice}`,
-            rollKind: 'damage',
-            rollLabel: 'Damage',
-            battleFootnote: 'Universal — not a Power; usable every round.',
-            hideRank: true,
-        });
+        if (showBasicAttack) {
+            battleActive.push({
+                name: 'Basic Attack',
+                effect: `Weapon Damage + ${mrDice} (MR × 2d8). No Active Power effects. ` +
+                    `Weapon properties and eligible Passives / Buffs still apply.`,
+                phase: 'Active',
+                baseline: true,
+                battleCompact: true,
+                attackKind: 'Melee / Ranged',
+                damageRoll: `Weapon + ${mrDice}`,
+                rollKind: 'damage',
+                rollLabel: 'Damage',
+                battleFootnote: 'Universal — not a Power; usable every round.',
+                hideRank: true,
+            });
+        }
         for (const r of buildBasicReactionItems(actor)) {
             const key = String(r.basicReaction || '');
             const entry = {
@@ -893,6 +895,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
         hasReactions: battleReactions.length > 0,
         hasPassives: passivePowers.length > 0,
         includeStandardManeuvers,
+        showBasicAttack,
     };
     // ── Skills (learned only on the table sheet) ──────────────────────────
     const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
@@ -905,10 +908,13 @@ export function buildCharacterPrintContext(actor, options = {}) {
         const def = SKILLS[key];
         const attrKey = def?.attributes?.[0];
         const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
-        const boxes = buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1).map((b) => ({
-            size: b.size,
-            state: b.state,
-        }));
+        // Combat Reflexes usage boxes live on Page 2 Initiative — name only here.
+        const boxes = key === 'combatReflexes'
+            ? []
+            : buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1).map((b) => ({
+                size: b.size,
+                state: b.state,
+            }));
         learnedSkills.push({
             key,
             name: def?.name || cap(key),
@@ -917,6 +923,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
             keep: masteryRank > 0 ? `k${masteryRank}` : '',
             rating,
             boxes,
+            omitUseBoxes: key === 'combatReflexes',
         });
     }
     learnedSkills.sort((a, b) => a.name.localeCompare(b.name));
@@ -1117,7 +1124,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
     // ── Core Combat (finished values only — page 1) ───────────────────────
     const weaponSetTiles = buildCompactWeaponSetTiles(actor);
     const activeSet = weaponSetTiles.find((t) => t.active) ?? weaponSetTiles[0];
-    const mrDice = basicAttackMrDamageFormula(actor);
+    const weaponDamageOnly = String(activeSet?.meta?.split(' · ')[0] || '').trim() || '—';
     const combatAttackSkills = ['meleeWeapons', 'handToHand', 'rangedWeapons', 'combatReflexes'];
     let bestAttack = '';
     let bestAttackRating = -1;
@@ -1135,9 +1142,9 @@ export function buildCharacterPrintContext(actor, options = {}) {
     }
     const coreCombat = {
         attack: bestAttack || '—',
-        damage: activeSet?.meta
-            ? `${activeSet.meta.split(' · ')[0] || activeSet.meta} + ${mrDice}`
-            : `Weapon + ${mrDice}`,
+        /** Equipped weapon damage only — no Character Power / Basic Attack MR dice. */
+        damage: weaponDamageOnly,
+        weaponDamage: weaponDamageOnly,
         evade: num(combat?.evadeTotal, masteryRank * 4),
         armor: num(combat?.armorTotal),
         movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '—',
@@ -1162,6 +1169,17 @@ export function buildCharacterPrintContext(actor, options = {}) {
     });
     const totalPoolStones = dashboardPools.reduce((s, p) => s + p.max, 0);
     const exhaustedSlots = Math.max(masteryRank * 2, Math.min(12, Math.max(6, totalPoolStones)));
+    const crRating = num(skillMap.combatReflexes);
+    const combatReflexes = crRating > 0
+        ? {
+            rating: crRating,
+            label: SKILLS.combatReflexes?.name || 'Combat Reflexes',
+            boxes: buildSkillUseBoxes(crRating, num(skillsSpent.combatReflexes), masteryRank || 1).map((b) => ({
+                size: b.size,
+                state: b.state,
+            })),
+        }
+        : null;
     const stoneDashboard = {
         regeneration: masteryRank,
         initiative: initiativeLabel,
@@ -1171,6 +1189,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
         exhaustedSlots: Array.from({ length: exhaustedSlots }, (_, i) => i + 1),
         powerGroups: stonePowerGroups,
         hasStonePowers: stonePowerGroups.length > 0,
+        combatReflexes,
     };
     const rawImg = String(actor?.img ?? '').trim();
     const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');
@@ -2078,6 +2097,7 @@ export async function openCharacterPrintSheet(actor, options = {}) {
             ? buildCharacterCompactPrintContext(actor)
             : buildCharacterPrintContext(actor, {
                 includeStandardManeuvers: options.includeStandardManeuvers !== false,
+                showBasicAttack: options.showBasicAttack === true,
                 includeModules: options.includeModules === true,
             });
         const template = compact ? PRINT_TEMPLATE_COMPACT : PRINT_TEMPLATE;

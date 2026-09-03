@@ -11,7 +11,7 @@ import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_H
 import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, convertInitiativeToColorlessStones, getMasteryRank, getTempColorlessStones, isInitiativeBoostUsedThisCombat, maxConvertibleColorlessStones, } from './colorless-stones.js';
+import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, convertInitiativeToColorlessStones, getMasteryRank, getTempColorlessStones, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, maxConvertibleColorlessStones, } from './colorless-stones.js';
 import { orderPowersRampFirst, pickStoneFillAttribute, shouldSettleStoneWave, stoneDialogSectionStartsOpen, stonePoolBlockedReason, } from './stone-payment-rules.js';
 import { clampStoneRecoveryAllocation, planStoneRecovery, } from './stone-recovery.js';
 import { isPassivesReviewedThisEncounter, isStoneRegenDone, persistCombatantSetupStep, } from '../combat/encounter-setup-flags.js';
@@ -617,9 +617,13 @@ export class StonePowersDialog extends BaseDialog {
                 supportHint: support
                     ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
                     : '',
-                boostUsed: power.id === 'wits.initiativeBoost' &&
+                boostUsed: !!power.oncePerCombat &&
                     !!this.combatant &&
-                    isInitiativeBoostUsedThisCombat(this.combatant),
+                    (power.id === 'wits.initiativeBoost'
+                        ? isInitiativeBoostUsedThisCombat(this.combatant)
+                        : power.id === 'wits.phasing'
+                            ? isPhasingStoneUsedThisCombat(this.combatant)
+                            : false),
                 hideLeadSegment: rampSkip > 0,
                 ...laneSegs
             };

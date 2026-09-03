@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.469] - 2026-09-03
+
+### Changed
+
+- **Weapon Damage formula:** Artifact weapons are now `profile base + (level − 1)` — one-handed L1 = 2d8 / L2 = 3d8; two-handed L1 = 4d8 / L2 = 5d8 (fixes the previous off-by-one that showed 4d8 for a L2 hand weapon).
+- **Table Character Sheet · Page 1:** Core combat label is **Weapon Damage** and shows equipped weapon damage only (no Power / Basic Attack MR dice).
+- **Table Character Sheet · Page 3:** Basic Attack is off by default (`showBasicAttack: false`); Basic Reactions remain. Passives flow horizontally above a larger Specials tray; Active/Reaction columns use space more densely.
+- **Stone Power · Phasing:** Starts at T2 (no T1), charges **1 / 2 / 3** at T2 / T3 / T4, **once per combat**, charges persist until spent (not per-round). Print shows `ONCE PER COMBAT □`.
+- **Table Character Sheet · Page 2:** Learned Combat Reflexes usage boxes sit in the Initiative header (not duplicated on Page 1 Learned Skills).
+
 ## [0.9.468] - 2026-09-03
 
 ### Fixed

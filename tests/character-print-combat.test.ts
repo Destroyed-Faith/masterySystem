@@ -111,7 +111,7 @@ describe('buildPrintCombatPreview', () => {
     const actor = mockActor({ might: 14, agility: 14 }, [weapon]);
     const preview = buildPrintCombatPreview(actor, meleeWeaponSinglePower(), [weapon]);
     expect(preview?.attackLabel).toBe('Might / Agility');
-    expect(preview?.damage).toBe('WD 8d8 + 8d8');
+    expect(preview?.damage).toBe('WD 7d8 + 8d8');
   });
 
   it('prefers bound artifact weapon over legacy equipped Unarmed item', () => {
@@ -141,7 +141,7 @@ describe('buildPrintCombatPreview', () => {
       },
     };
     const preview = buildPrintCombatPreview(actor, ruin, [weapon, legacyUnarmed]);
-    expect(preview?.damage).toBe('WD 8d8 + 1d8 + Ruin(7)');
+    expect(preview?.damage).toBe('WD 7d8 + 1d8 + Ruin(7)');
   });
 
   it('resolves melee WD from the prepared melee Weapon Set even when the active set is ranged', () => {
@@ -189,7 +189,7 @@ describe('buildPrintCombatPreview', () => {
       },
     };
     const preview = buildPrintCombatPreview(actor, meleeWeaponSinglePower(), [longbow, sword]);
-    expect(preview?.damage).toBe('WD 5d8 + 8d8');
+    expect(preview?.damage).toBe('WD 4d8 + 8d8');
   });
 
   it('never feeds a ranged set weapon into a melee power (and vice versa)', () => {
@@ -255,7 +255,7 @@ describe('buildPrintCombatPreview', () => {
       meleeWeaponSinglePower({ isSpell: true, castingAttribute: 'intellect' }),
       [weapon],
     );
-    expect(preview?.damage).toBe('WD 8d8 + 8d8');
+    expect(preview?.damage).toBe('WD 7d8 + 8d8');
   });
 
   it('shows attribute pool for melee martial power (unarmed when no weapon)', () => {
@@ -269,7 +269,7 @@ describe('buildPrintCombatPreview', () => {
     const weapon = meleeArtifact(4);
     const actor = mockActor({ might: 14 }, [weapon]);
     const preview = buildPrintCombatPreview(actor, meleePower(), [weapon]);
-    expect(preview?.damage).toBe('WD 6d8 + 6d8');
+    expect(preview?.damage).toBe('WD 5d8 + 6d8');
   });
 
   it('excludes weapon damage for ranged spells', () => {
@@ -388,7 +388,7 @@ describe('buildPrintCombatPreview', () => {
     const preview = buildPrintCombatPreview(actor, reaction, [weapon], 'reaction');
     expect(preview?.attackKind).toBeUndefined();
     expect(preview?.showAttack).toBe(false);
-    expect(preview?.damage).toBe('WD 6d8 + 4d8');
+    expect(preview?.damage).toBe('WD 5d8 + 4d8');
   });
 
   it('labels ranged AoE attacks', () => {

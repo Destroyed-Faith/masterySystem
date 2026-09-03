@@ -66,8 +66,10 @@ export declare function feetMovementForLevel(level: number): number;
 export declare function baseProfileWeaponDice(profile?: string | null): number;
 /**
  * Weapon Damage. A weapon deals its Base Profile dice (2d8 one-handed / 4d8
- * two-handed) plus +1d8 per artifact level. So a two-handed artifact at L2 is
- * 4 + 2 = 6d8; a one-handed at L2 is 2 + 2 = 4d8.
+ * two-handed) plus +1d8 for each Artifact Level above 1.
+ * One-handed L1 = 2d8, L2 = 3d8; two-handed L1 = 4d8, L2 = 5d8.
+ * Profiles without a base (natural / unknown) use the flat Damage Baseline:
+ * Level N → Nd8.
  */
 export declare function weaponDamageForLevel(level: number, profile?: string | null): string;
 /**
@@ -78,7 +80,7 @@ export declare function spellFocusForLevel(level: number, profile?: string | nul
 /**
  * Canonical weapon damage for a standard one/two-handed (melee or ranged)
  * Artifact Weapon, derived live from its physical Base Profile + Artifact
- * level: 2d8 (one-handed) / 4d8 (two-handed) base + 1d8 per level.
+ * level: 2d8 (one-handed) / 4d8 (two-handed) at Level 1, then +1d8 per level.
  *
  * Returns `null` for non-weapon / custom / natural / Spell-Focus profiles
  * (base dice 0) so callers fall back to the value stored on the item. Deriving

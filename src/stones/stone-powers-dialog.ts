@@ -45,6 +45,7 @@ import {
   getMasteryRank,
   getTempColorlessStones,
   isInitiativeBoostUsedThisCombat,
+  isPhasingStoneUsedThisCombat,
   maxConvertibleColorlessStones,
 } from './colorless-stones.js';
 import {
@@ -803,9 +804,13 @@ export class StonePowersDialog extends BaseDialog {
           ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
           : '',
         boostUsed:
-          power.id === 'wits.initiativeBoost' &&
+          !!power.oncePerCombat &&
           !!this.combatant &&
-          isInitiativeBoostUsedThisCombat(this.combatant),
+          (power.id === 'wits.initiativeBoost'
+            ? isInitiativeBoostUsedThisCombat(this.combatant)
+            : power.id === 'wits.phasing'
+              ? isPhasingStoneUsedThisCombat(this.combatant)
+              : false),
         hideLeadSegment: rampSkip > 0,
         ...laneSegs
       };

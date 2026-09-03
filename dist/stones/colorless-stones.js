@@ -55,6 +55,13 @@ export function isInitiativeBoostUsedThisCombat(combatant) {
 export async function markInitiativeBoostUsedThisCombat(combatant) {
     await combatant?.setFlag?.('mastery-system', FLAG_BOOST_USED, true);
 }
+const FLAG_PHASING_STONE = 'msPhasingStoneUsed';
+export function isPhasingStoneUsedThisCombat(combatant) {
+    return !!combatant?.getFlag?.('mastery-system', FLAG_PHASING_STONE);
+}
+export async function markPhasingStoneUsedThisCombat(combatant) {
+    await combatant?.setFlag?.('mastery-system', FLAG_PHASING_STONE, true);
+}
 /** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank (then keep doubling). */
 export function initiativeBoostAmount(tier, masteryRank) {
     const t = Math.max(1, Math.floor(Number(tier) || 1));

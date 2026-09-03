@@ -15,7 +15,8 @@
  */
 import { getRoundState, setRoundState, } from '../combat/action-economy.js';
 import { healStressFromBars } from '../utils/calculations.js';
-import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, markInitiativeBoostUsedThisCombat, } from './colorless-stones.js';
+import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, } from './colorless-stones.js';
+import { augmentPhasingCharges } from '../combat/phasing.js';
 /** Tiers shown in the dialog / Players Guide. */
 export const STONE_TIER_VISIBLE = 4;
 /** Last wave you can fully pay with 80 Stones (1+2+4+8+16+32 = 63). */
@@ -845,26 +846,33 @@ const WITS_POWERS_RAW = [
         name: 'Phasing',
         attribute: 'wits',
         category: 'reaction',
-        description: 'Gain Phasing Charges until the start of your next turn (T2: 1, T3: 1, T4: 2).',
+        oncePerCombat: true,
+        description: 'Once per combat, gain Phasing Charges that persist until spent or combat ends (T2: 1, T3: 2, T4: 3).',
         startsAtTier: 2,
         tiers: [
-            { label: '1 Phasing Charge', description: 'Gain 1 Phasing Charge until the start of your next turn.', value: 1 },
-            { label: '1 Phasing Charge', description: 'Gain 1 Phasing Charge until the start of your next turn.', value: 1 },
-            { label: '2 Phasing Charges', description: 'Gain 2 Phasing Charges until the start of your next turn.', value: 2 },
+            { label: '1 Phasing Charge', description: 'Gain 1 Phasing Charge (once per combat).', value: 1 },
+            { label: '2 Phasing Charges', description: 'Gain 2 Phasing Charges (once per combat).', value: 2 },
+            { label: '3 Phasing Charges', description: 'Gain 3 Phasing Charges (once per combat).', value: 3 },
         ],
-        apply: async ({ actor, tier }) => {
+        apply: async ({ actor, combatant, tier }) => {
             if (tier < 2)
                 return;
-            const combat = game.combat;
-            const charges = Math.ceil((tier - 1) / 2);
+            if (combatant && isPhasingStoneUsedThisCombat(combatant)) {
+                ui.notifications?.warn(`${actor.name}: Phasing already used this combat.`);
+                return;
+            }
+            const charges = Math.max(1, Math.floor(Number(tier) || 2) - 1);
             if (charges <= 0)
                 return;
-            const roundState = getRoundState(actor, combat);
-            const sb = ensureStoneBonuses(roundState);
-            sb.phasingChargesFromStones = (sb.phasingChargesFromStones ?? 0) + charges;
-            await setRoundState(actor, roundState);
-            const prior = Number(actor.getFlag?.('mastery-system', 'phasingChargesPending') ?? 0) || 0;
-            await actor.setFlag?.('mastery-system', 'phasingChargesPending', prior + charges);
+            const combat = game.combat;
+            await augmentPhasingCharges(actor, combat, charges, {
+                ownerKind: 'reaction',
+                ownerId: 'wits.phasing',
+                name: 'Phasing (Stone Power)',
+            });
+            if (combatant)
+                await markPhasingStoneUsedThisCombat(combatant);
+            ui.notifications?.info(`${actor.name}: Phasing — ${charges} charge(s) (once per combat).`);
         },
     },
     {

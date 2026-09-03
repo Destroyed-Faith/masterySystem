@@ -47,7 +47,7 @@ describe('character sheet combat senses regression', () => {
     expect(printTemplate).not.toMatch(/combatSensesDisplay/);
     expect(printTemplate).not.toMatch(/pick exactly one/i);
     expect(printTemplate).not.toMatch(/cp-battle-senses-grid/);
-    expect(printTemplate).toMatch(/cp-battle-secondary/);
+    expect(printTemplate).toMatch(/cp-battle-bottom/);
     expect(printTemplate).toMatch(/Powers &amp; Combat/);
   });
 

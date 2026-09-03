@@ -180,23 +180,29 @@ export function baseProfileWeaponDice(profile) {
 }
 /**
  * Weapon Damage. A weapon deals its Base Profile dice (2d8 one-handed / 4d8
- * two-handed) plus +1d8 per artifact level. So a two-handed artifact at L2 is
- * 4 + 2 = 6d8; a one-handed at L2 is 2 + 2 = 4d8.
+ * two-handed) plus +1d8 for each Artifact Level above 1.
+ * One-handed L1 = 2d8, L2 = 3d8; two-handed L1 = 4d8, L2 = 5d8.
+ * Profiles without a base (natural / unknown) use the flat Damage Baseline:
+ * Level N → Nd8.
  */
 export function weaponDamageForLevel(level, profile) {
-    return `${baseProfileWeaponDice(profile) + clampLevel(level)}d8`;
+    const base = baseProfileWeaponDice(profile);
+    const lvl = clampLevel(level);
+    if (base > 0)
+        return `${base + (lvl - 1)}d8`;
+    return `${lvl}d8`;
 }
 /**
  * Spell Focus baseline — 1:1 the same value as Weapon Damage for the profile,
  * but the dice boost Spell damage instead of dealing weapon damage.
  */
 export function spellFocusForLevel(level, profile) {
-    return `+${baseProfileWeaponDice(profile) + clampLevel(level)}d8`;
+    return `+${weaponDamageForLevel(level, profile)}`;
 }
 /**
  * Canonical weapon damage for a standard one/two-handed (melee or ranged)
  * Artifact Weapon, derived live from its physical Base Profile + Artifact
- * level: 2d8 (one-handed) / 4d8 (two-handed) base + 1d8 per level.
+ * level: 2d8 (one-handed) / 4d8 (two-handed) at Level 1, then +1d8 per level.
  *
  * Returns `null` for non-weapon / custom / natural / Spell-Focus profiles
  * (base dice 0) so callers fall back to the value stored on the item. Deriving
@@ -207,7 +213,7 @@ export function deriveArtifactWeaponDamage(profile, level) {
     const base = baseProfileWeaponDice(profile);
     if (base <= 0)
         return null;
-    return `${base + clampLevel(level)}d8`;
+    return weaponDamageForLevel(level, profile);
 }
 /** Thrown Range baseline. L1=6 m … L10=15 m. */
 export function thrownRangeForLevel(level) {

@@ -10,7 +10,7 @@ import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions, 
 // Import canonical stone powers definition
 import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, stonePowerSupportPrefillApplies, effectiveStoneSupportPrefillTier, } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
-import { isInitiativeBoostUsedThisCombat } from './colorless-stones.js';
+import { isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat } from './colorless-stones.js';
 export function resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier) {
     const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
     const effective = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
@@ -46,6 +46,10 @@ export async function activateStonePower(options) {
     }
     if (power.id === 'wits.initiativeBoost' && isInitiativeBoostUsedThisCombat(combatant)) {
         ui.notifications?.warn('Initiative Boost may be used only once per combat.');
+        return false;
+    }
+    if (power.id === 'wits.phasing' && isPhasingStoneUsedThisCombat(combatant)) {
+        ui.notifications?.warn('Phasing may be used only once per combat.');
         return false;
     }
     // Determine which attribute pool to use
