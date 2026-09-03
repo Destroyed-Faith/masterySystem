@@ -108,6 +108,44 @@ describe('character print table sheet', () => {
     expect(ctx.coreCombat.attack).toMatch(/16k2/);
     // No equipped weapon on the mock — Weapon Damage is empty, not MR bonus dice.
     expect(String(ctx.coreCombat.damage)).toBe('—');
+    // Defensive secondaries always print (0 / 0% when passives are absent).
+    expect(ctx.coreCombat.damageNegation).toBe(0);
+    expect(ctx.coreCombat.damageReduction).toBe('0%');
+    expect(ctx.coreCombat.parry).toBe(0);
+  });
+
+  it('prints Damage Negation, Damage Reduction, and Parry from combat totals', () => {
+    const ctx = buildCharacterPrintContext(
+      mockCharacter(2, {
+        combat: {
+          speed: 8,
+          armor: 0,
+          evade: 10,
+          evadeTotal: 12,
+          armorTotal: 4,
+          initiativeMasteryRank: 2,
+          initiativeD8FromMechanics: 0,
+          damageNegationReserve: 4,
+          damageReductionPct: 20,
+          parryPool: 3,
+        },
+      }),
+    ) as any;
+    expect(ctx.coreCombat.damageNegation).toBe(4);
+    expect(ctx.coreCombat.damageReduction).toBe('20%');
+    expect(ctx.coreCombat.parry).toBe(3);
+  });
+
+  it('exposes Reroll Points (Faith Fractures) with strike-off boxes', () => {
+    const ctx = buildCharacterPrintContext(
+      mockCharacter(2, { faithFractures: { current: 5, maximum: 8 } }),
+    ) as any;
+    expect(ctx.rerollPoints.current).toBe(5);
+    expect(ctx.rerollPoints.maximum).toBe(8);
+    expect(ctx.rerollPoints.boxes).toHaveLength(8);
+    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'spent')).toHaveLength(3);
+    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'available')).toHaveLength(5);
+    expect(ctx.faithFractures).toEqual({ current: 5, maximum: 8 });
   });
 
   it('builds a stone dashboard with cube-zone copy and pools', () => {

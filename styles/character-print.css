@@ -146,28 +146,81 @@
 }
 
 .cp-meta {
-  margin-bottom: 6px;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 4px;
+  margin-bottom: 5px;
 }
 
-.cp-meta-box {
+.cp-meta-box,
+.cp-meta-item {
   display: flex;
-  flex-direction: column;
-  border: 1px solid #444;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 5px;
+  border: 1.5px solid #222;
   border-radius: 3px;
-  padding: 2px 6px;
-  min-width: 80px;
+  padding: 4px 7px;
+  min-height: 9mm;
+  box-sizing: border-box;
+  background: #f7f7f7;
+  min-width: 0;
+}
+
+.cp-meta-item {
+  flex: 1 1 0;
+}
+
+.cp-meta-rerolls {
+  flex: 1.6 1 0;
 }
 
 .cp-meta-label {
-  font-size: 7px;
+  font-size: 7.5px;
+  font-weight: 800;
   text-transform: uppercase;
-  color: #666;
-  letter-spacing: 0.04em;
+  color: #444;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  line-height: 1;
 }
 
 .cp-meta-value {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cp-meta-reroll-boxes {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 1.5px;
+  align-items: center;
+  margin-left: 2px;
+}
+
+.cp-meta-reroll-box {
+  display: inline-block;
+  width: 3.6mm;
+  height: 3.6mm;
+  border: 1.15px solid #333;
+  box-sizing: border-box;
+  background: #fff;
+  flex: 0 0 auto;
+}
+
+.cp-meta-reroll-box.is-spent {
+  background: #ddd;
+  background-image: linear-gradient(
+    to top left,
+    transparent 44%,
+    #333 46%,
+    #333 54%,
+    transparent 56%
+  );
 }
 
 /* ── Two-column main area ─────────────────────────────────────────────── */
@@ -816,6 +869,27 @@
   margin-top: 1px;
 }
 
+.cp-core-sublabel {
+  display: block;
+  margin-top: 3px;
+  padding-top: 2px;
+  border-top: 1px dotted #999;
+  font-size: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+  line-height: 1.1;
+}
+
+.cp-core-subvalue {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #1a1a1a;
+}
+
 /* Learned skills */
 .cp-learned-list {
   list-style: none;
@@ -941,22 +1015,47 @@
   align-items: center;
 }
 
-/* 1. Initiative header — one compact horizontal strip */
+/* 1. Initiative header — forced single horizontal strip */
 .cp-sd-ini {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr) auto minmax(0, 1fr);
-  gap: 0 5px;
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
+  gap: 0 6px;
   border: 1px solid #222;
   border-radius: 2px;
-  padding: 1px 5px;
+  padding: 2px 5px;
   margin-bottom: 1.5mm;
   flex: 0 0 auto;
   font-size: 9px;
-  min-height: 0;
-  line-height: 1.15;
+  min-height: 7mm;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
+.cp-sd-ini-seg {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.cp-sd-ini-seg-roll {
+  flex: 0 1 auto;
+}
+
+.cp-sd-ini-seg-left {
+  flex: 0 0 auto;
+}
+
+.cp-sd-ini-seg-colorless {
+  flex: 0 0 auto;
+  margin-left: 4px;
+}
+
+.cp-sd-ini-k,
 .cp-sd-ini-kicker {
   display: inline;
   font-size: 6.5px;
@@ -965,18 +1064,19 @@
   letter-spacing: 0.05em;
   color: #555;
   line-height: 1;
-  margin-right: 3px;
+  margin-right: 1px;
 }
 
 .cp-sd-ini-roll,
 .cp-sd-ini-exchange,
 .cp-sd-ini-left,
 .cp-sd-ini-colorless {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   flex-wrap: nowrap;
   gap: 3px;
   min-width: 0;
+  white-space: nowrap;
 }
 
 .cp-sd-ini-roll-line,
@@ -994,8 +1094,10 @@
   display: inline-flex;
   align-items: center;
   gap: 1.5mm;
-  margin-top: 0;
+  margin: 0;
+  padding: 0;
   flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .cp-sd-ini-cr-label {
@@ -1011,20 +1113,22 @@
   display: inline-flex;
   gap: 1px;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .cp-sd-ini-cr-box {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 3.8mm;
-  height: 3.8mm;
+  width: 3.6mm;
+  height: 3.6mm;
   border: 1px solid #333;
   box-sizing: border-box;
   font-size: 5.5px;
   font-weight: 700;
   font-style: normal;
   line-height: 1;
+  flex: 0 0 auto;
 }
 
 .cp-sd-ini-cr-box.is-spent {
@@ -1038,27 +1142,32 @@
   color: #999;
 }
 
-/* Pencil box for remaining Initiative (not a bare underline) */
+/* Pencil box for remaining Initiative (real write-in square) */
 .cp-sd-ini-box,
 .cp-sd-ini-writein {
   display: inline-block;
-  width: 14mm;
+  width: 12mm;
   height: 5mm;
-  border: 1.25px solid #222;
+  border: 1.5px solid #222;
   border-radius: 1px;
   background: #fff;
   box-sizing: border-box;
   flex: 0 0 auto;
-  margin-top: 0;
+  margin: 0;
+  vertical-align: middle;
 }
 
-.cp-sd-ini-colorless .cp-sd-cube {
+.cp-sd-ini-colorless .cp-sd-cube,
+.cp-sd-ini-seg-colorless .cp-sd-cube {
   width: 4.5mm;
   height: 4.5mm;
 }
 
-.cp-sd-ini-colorless .cp-sd-cube-row {
+.cp-sd-ini-colorless .cp-sd-cube-row,
+.cp-sd-ini-seg-colorless .cp-sd-cube-row {
   gap: 1px;
+  display: inline-flex;
+  flex-wrap: nowrap;
 }
 
 /* 2. Attribute pools (~9%) */

@@ -13,22 +13,40 @@
         <div class="cp-field cp-player"><span class="cp-field-label">Player</span><span class="cp-field-value">{{player}}</span></div>
       </div>
       <div class="cp-row cp-meta">
-        <div class="cp-meta-box"><span class="cp-meta-label">Echo</span><span class="cp-meta-value">{{echo}}</span></div>
-        <div class="cp-meta-box"><span class="cp-meta-label">Mastery Rank</span><span class="cp-meta-value">{{masteryRank}}</span></div>
-        <div class="cp-meta-box"><span class="cp-meta-label">Faith Fractures</span><span class="cp-meta-value">{{faithFractures.current}} / {{faithFractures.maximum}}</span></div>
+        <div class="cp-meta-item">
+          <span class="cp-meta-label">Echo</span>
+          <span class="cp-meta-value">{{echo}}</span>
+        </div>
+        <div class="cp-meta-item">
+          <span class="cp-meta-label">Mastery Rank</span>
+          <span class="cp-meta-value">{{masteryRank}}</span>
+        </div>
+        <div class="cp-meta-item cp-meta-rerolls">
+          <span class="cp-meta-label">Reroll Points</span>
+          <span class="cp-meta-value">{{rerollPoints.current}} / {{rerollPoints.maximum}}</span>
+          <span class="cp-meta-reroll-boxes" aria-label="Reroll point uses">
+            {{#each rerollPoints.boxes}}<i class="cp-meta-reroll-box is-{{state}}"></i>{{/each}}
+          </span>
+        </div>
       </div>
       <div class="cp-core-combat" aria-label="Core Combat">
         <div class="cp-core-cell">
           <span class="cp-core-label">Attack</span>
           <span class="cp-core-value">{{coreCombat.attack}}</span>
+          <span class="cp-core-sublabel">Damage Negation</span>
+          <span class="cp-core-subvalue">{{coreCombat.damageNegation}}</span>
         </div>
         <div class="cp-core-cell">
           <span class="cp-core-label">Weapon Damage</span>
           <span class="cp-core-value">{{coreCombat.damage}}</span>
+          <span class="cp-core-sublabel">Damage Reduction</span>
+          <span class="cp-core-subvalue">{{coreCombat.damageReduction}}</span>
         </div>
         <div class="cp-core-cell">
           <span class="cp-core-label">Evade</span>
           <span class="cp-core-value">{{coreCombat.evade}}</span>
+          <span class="cp-core-sublabel">Parry</span>
+          <span class="cp-core-subvalue">{{coreCombat.parry}}</span>
         </div>
         <div class="cp-core-cell">
           <span class="cp-core-label">Armor</span>
@@ -202,38 +220,36 @@
 {{!-- ====================== PAGE 2 — Stone Dashboard (landscape) ====================== --}}
 <section class="print-page print-page-stones print-page-table">
 
-  {{!-- 1. Initiative — single compact row --}}
+  {{!-- 1. Initiative — one forced single line --}}
   <header class="cp-sd-ini" aria-label="Initiative">
-    <div class="cp-sd-ini-roll">
-      <span class="cp-sd-ini-kicker">Initiative</span>
-      <span class="cp-sd-ini-roll-line">
-        Roll: <b>{{stoneDashboard.initiative}}</b>
-        {{#if stoneDashboard.combatReflexes}}
-        <span class="cp-sd-ini-cr">
-          <span class="cp-sd-ini-cr-label">{{stoneDashboard.combatReflexes.label}} {{stoneDashboard.combatReflexes.rating}}</span>
-          <span class="cp-sd-ini-cr-boxes">
-            {{#each stoneDashboard.combatReflexes.boxes}}
-            <i class="cp-sd-ini-cr-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>
-            {{/each}}
-          </span>
+    <span class="cp-sd-ini-seg cp-sd-ini-seg-roll">
+      <b class="cp-sd-ini-k">Initiative</b>
+      Roll: <b>{{stoneDashboard.initiative}}</b>
+      {{#if stoneDashboard.combatReflexes}}
+      <span class="cp-sd-ini-cr">
+        <span class="cp-sd-ini-cr-label">{{stoneDashboard.combatReflexes.label}} {{stoneDashboard.combatReflexes.rating}}</span>
+        <span class="cp-sd-ini-cr-boxes">
+          {{#each stoneDashboard.combatReflexes.boxes}}
+          <i class="cp-sd-ini-cr-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>
+          {{/each}}
         </span>
-        {{/if}}
       </span>
-    </div>
-    <div class="cp-sd-ini-exchange">
-      <span class="cp-sd-ini-kicker">Initiative Exchange</span>
-      <span class="cp-sd-ini-rate"><b>{{stoneDashboard.iniStoneCost}}</b> Init = 1 Colorless</span>
-    </div>
-    <div class="cp-sd-ini-left">
-      <span class="cp-sd-ini-kicker">Initiative Left</span>
-      <span class="cp-sd-ini-box" aria-hidden="true"></span>
-    </div>
-    <div class="cp-sd-ini-colorless">
-      <span class="cp-sd-ini-kicker">Colorless Stones</span>
+      {{/if}}
+    </span>
+    <span class="cp-sd-ini-seg">
+      <b class="cp-sd-ini-k">Exchange</b>
+      <b>{{stoneDashboard.iniStoneCost}}</b> Init = 1 Colorless
+    </span>
+    <span class="cp-sd-ini-seg cp-sd-ini-seg-left">
+      <b class="cp-sd-ini-k">Init Left</b>
+      <span class="cp-sd-ini-box" title="Initiative remaining">&nbsp;</span>
+    </span>
+    <span class="cp-sd-ini-seg cp-sd-ini-seg-colorless">
+      <b class="cp-sd-ini-k">Colorless</b>
       <span class="cp-sd-cube-row">
         {{#each stoneDashboard.colorlessBoxes}}<i class="cp-sd-cube"></i>{{/each}}
       </span>
-    </div>
+    </span>
   </header>
 
   {{!-- 2. Attribute Stone Pools — compact row --}}

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.475] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 1 Core Combat:** Always show Damage Negation under Attack, Damage Reduction under Weapon Damage, and Parry under Evade (print `0` / `0%` when the passive is absent).
+- **Table Character Sheet · Page 1 meta:** Echo, Mastery Rank, and Reroll Points (renamed from Faith Fractures) share one thick horizontal strip; Reroll Points include strike-off boxes.
+- **Table Character Sheet · Page 2 Initiative:** Force a single-line strip — Combat Reflexes stays inline after the roll; Init Left is a real write-in box.
+
 ## [0.9.474] - 2026-09-03
 
 ### Changed

@@ -1246,6 +1246,9 @@ export function buildCharacterPrintContext(
       bestAttack = `${pool}k${masteryRank}`;
     }
   }
+  const damageNegation = Math.max(0, num(combat?.damageNegationReserve));
+  const damageReductionPct = Math.max(0, Math.min(100, num(combat?.damageReductionPct)));
+  const parry = Math.max(0, num(combat?.parryPool));
   const coreCombat = {
     attack: bestAttack || '—',
     /** Equipped weapon damage only — no Character Power / Basic Attack MR dice. */
@@ -1254,6 +1257,21 @@ export function buildCharacterPrintContext(
     evade: num(combat?.evadeTotal, masteryRank * 4),
     armor: num(combat?.armorTotal),
     movement: num(combat?.speed) > 0 ? `${num(combat.speed)} m` : '—',
+    /** Always printed (0 when the passive is absent). */
+    damageNegation,
+    damageReduction: `${damageReductionPct}%`,
+    parry,
+  };
+
+  const faithCurrent = Math.max(0, num(system?.faithFractures?.current));
+  const faithMax = Math.max(0, num(system?.faithFractures?.maximum, 8));
+  const faithSpent = Math.max(0, faithMax - faithCurrent);
+  const rerollPoints = {
+    current: faithCurrent,
+    maximum: faithMax,
+    boxes: Array.from({ length: faithMax }, (_, i) => ({
+      state: i < faithSpent ? 'spent' : 'available',
+    })),
   };
 
   // ── Stone Dashboard (page 2) ──────────────────────────────────────────
@@ -1312,9 +1330,10 @@ export function buildCharacterPrintContext(
     specialRecovery: masteryRank,
     specialCap: specialApplicationLimit(masteryRank),
     faithFractures: {
-      current: num(system?.faithFractures?.current),
-      maximum: num(system?.faithFractures?.maximum, 8)
+      current: faithCurrent,
+      maximum: faithMax,
     },
+    rerollPoints,
     abilities,
     stonePools,
     defense,
