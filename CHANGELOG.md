@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.466] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 3:** Specials Affecting You roughly half height, pinned to the bottom under Movement so Active cards keep vertical room; Passives sit beside it.
+
 ## [0.9.465] - 2026-09-03
 
 ### Changed

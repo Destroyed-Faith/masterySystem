@@ -1304,14 +1304,14 @@
 }
 
 .cp-specials-tray {
-  min-height: 58mm;
-  width: 95mm;
-  flex: 1 1 auto;
+  min-height: 30mm;
+  width: 72mm;
+  flex: 0 0 auto;
 }
 
 .cp-specials-tray .cp-status-tray-drop {
-  min-height: 48mm;
-  height: 48mm;
+  min-height: 24mm;
+  height: 24mm;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1324,21 +1324,21 @@
 }
 
 .cp-specials-sot-title {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #263238;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .cp-specials-sot-line {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #37474f;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .cp-specials-cap {
@@ -1367,11 +1367,12 @@
 .print-page-battle {
   width: 277mm; /* A4 landscape content width (297mm − 2×10mm) */
   min-height: 190mm; /* A4 landscape content height (210mm − 2×10mm) */
+  height: 190mm;
   page: cp-landscape;
   font-size: 13px;
   display: flex;
   flex-direction: column;
-  padding-bottom: 10mm;
+  padding-bottom: 8mm;
 }
 
 .print-page-battle .cp-use-box {
@@ -1388,6 +1389,8 @@
   align-items: flex-start;
   justify-content: center;
   gap: 6mm;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .cp-battle-col {
@@ -1561,12 +1564,15 @@
 }
 
 /* Combat Senses + token drop + Passives — compact row under Movement. */
+/* Specials + Passives pinned to the page bottom — under Movement, not mid-page. */
 .cp-battle-secondary {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: flex-start;
   gap: 5mm;
-  margin-top: 3mm;
+  margin-top: auto;
+  flex: 0 0 auto;
+  padding-top: 2mm;
 }
 
 .cp-status-tray {
@@ -1577,9 +1583,9 @@
 }
 
 .cp-status-tray.cp-specials-tray {
-  width: 95mm;
-  flex: 1 1 auto;
-  max-width: 120mm;
+  width: 72mm;
+  flex: 0 0 auto;
+  max-width: 72mm;
 }
 
 .cp-status-tray-head {
