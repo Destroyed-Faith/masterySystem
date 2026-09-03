@@ -1214,6 +1214,31 @@
   color: #222;
 }
 
+/* Once-per-combat flag — under summary only; compact, not a badge/box */
+.cp-sd-power-once {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2mm;
+  margin: 0.5px 0 0;
+  padding: 0;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #111;
+}
+
+.cp-sd-power-once-box {
+  display: inline-block;
+  width: 2.2mm;
+  height: 2.2mm;
+  border: 0.7px solid #222;
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  background: transparent;
+}
+
 .cp-sd-power-tiers {
   display: flex;
   align-items: center;

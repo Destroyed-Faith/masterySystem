@@ -1174,6 +1174,7 @@ export function buildCharacterPrintContext(
           categoryUpper: String(p?.category ?? '').toUpperCase(),
           summary: summarizeStonePowerPrint(p),
           effect: summarizeStonePowerPrint(p),
+          oncePerCombat: !!p?.oncePerCombat,
           supported: !!sup,
           tier: supportTier,
           source: compactArtifactName(sup?.source ?? ''),

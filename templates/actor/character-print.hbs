@@ -269,6 +269,9 @@
                 {{#if supported}}<span class="cp-sd-power-support">{{supportLabel}}</span>{{/if}}
               </header>
               {{#if summary}}<p class="cp-sd-power-summary">{{summary}}</p>{{/if}}
+              {{#if oncePerCombat}}
+              <p class="cp-sd-power-once">Once per combat <span class="cp-sd-power-once-box" aria-hidden="true"></span></p>
+              {{/if}}
             </div>
             <div class="cp-sd-power-tiers" aria-label="Stone cost tiers">
               {{#each paymentTiers}}

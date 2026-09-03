@@ -44,6 +44,11 @@ export interface StonePower {
     startsAtTier: 1 | 2;
     /** Published effects starting at `startsAtTier` (T1–T4 or T2–T4). */
     tiers: StoneTier[];
+    /**
+     * When true, this power may be used only once per combat.
+     * Driven by power data / rules — never inferred from category alone.
+     */
+    oncePerCombat?: boolean;
     /** Apply the effect for the given tier. */
     apply: (ctx: StonePowerContext) => Promise<void>;
 }

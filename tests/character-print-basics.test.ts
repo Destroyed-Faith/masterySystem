@@ -122,6 +122,15 @@ describe('character print table sheet', () => {
     expect(parry.summary).toMatch(/\+4 per Tier/i);
     expect(parry.paymentTiers[0].label).toBe('T2');
     expect(parry.paymentTiers.every((t: any) => t.label !== 'T1')).toBe(true);
+    expect(parry.oncePerCombat).toBe(false);
+
+    const witsGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'wits');
+    const initiativeBoost = witsGroup.powers.find((p: any) => /initiative boost/i.test(p.name));
+    expect(initiativeBoost.oncePerCombat).toBe(true);
+    const onceCount = ctx.stoneDashboard.powerGroups
+      .flatMap((g: any) => g.powers)
+      .filter((p: any) => p.oncePerCombat).length;
+    expect(onceCount).toBe(1);
   });
 
   it('summarizes stone powers like Quick Play (short + per Tier / list)', async () => {

@@ -809,6 +809,7 @@ const WITS_POWERS_RAW = [
         name: 'Initiative Boost',
         attribute: 'wits',
         category: 'reaction',
+        oncePerCombat: true,
         description: 'During Initiative Exchange, once per combat, gain Initiative equal to 1 / 2 / 4 / 8 × your Mastery Rank. Add it before converting Initiative into Temporary Colorless Stones.',
         tiers: [
             { label: '+1 × MR Initiative', description: 'Gain Initiative equal to your Mastery Rank.', value: 1 },

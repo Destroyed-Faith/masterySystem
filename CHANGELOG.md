@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.467] - 2026-09-03
+
+### Changed
+
+- **Table Character Sheet · Page 2 Stone Powers:** Powers with a real once-per-combat restriction (currently Initiative Boost only) show a compact `ONCE PER COMBAT □` line under the summary for table tracking. Powers without that restriction are unchanged.
+
 ## [0.9.466] - 2026-09-03
 
 ### Changed

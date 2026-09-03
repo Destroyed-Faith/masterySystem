@@ -59,6 +59,11 @@ export interface StonePower {
   startsAtTier: 1 | 2;
   /** Published effects starting at `startsAtTier` (T1–T4 or T2–T4). */
   tiers: StoneTier[];
+  /**
+   * When true, this power may be used only once per combat.
+   * Driven by power data / rules — never inferred from category alone.
+   */
+  oncePerCombat?: boolean;
   /** Apply the effect for the given tier. */
   apply: (ctx: StonePowerContext) => Promise<void>;
 }
@@ -885,6 +890,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
     name: 'Initiative Boost',
     attribute: 'wits',
     category: 'reaction',
+    oncePerCombat: true,
     description:
       'During Initiative Exchange, once per combat, gain Initiative equal to 1 / 2 / 4 / 8 × your Mastery Rank. Add it before converting Initiative into Temporary Colorless Stones.',
     tiers: [
