@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.485] - 2026-09-04
+
+### Added
+
+- **Table Character Sheet · Print themes:** Choose **weiß** or **schwarz** from the sheet header menu (same charcoal look as Quick Play). Equipment-Modul is available in both themes too.
+
 ## [0.9.484] - 2026-09-04
 
 ### Fixed

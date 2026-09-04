@@ -3833,3 +3833,235 @@ body.mastery-print.is-compact {
     display: none !important;
   }
 }
+
+/* ── Full table sheet · dark theme (Quick Play charcoal) ───────────────── */
+@page cp-portrait-dark {
+  size: A4 portrait;
+  margin: 10mm;
+  background: #141210;
+}
+
+@page cp-landscape-dark {
+  size: A4 landscape;
+  margin: 10mm;
+  background: #141210;
+}
+
+html:has(body.mastery-print.is-dark:not(.is-compact)),
+body.mastery-print.is-dark:not(.is-compact) {
+  margin: 0;
+  background: #141210;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) {
+  background: #141210;
+  color: #e6e1d6;
+  --attr-might: #e6e1d6;
+  --attr-agility: #7dcea0;
+  --attr-vitality: #e57373;
+  --attr-intellect: #64b5f6;
+  --attr-resolve: #ce93d8;
+  --attr-influence: #ffb74d;
+  --attr-wits: #fff176;
+}
+
+.mastery-print.is-dark:not(.is-compact) .print-page {
+  background: #141210;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .print-page-1,
+.mastery-print.is-dark:not(.is-compact) .print-page-table {
+  page: cp-portrait-dark;
+}
+
+.mastery-print.is-dark:not(.is-compact) .print-page-stones,
+.mastery-print.is-dark:not(.is-compact) .print-page-battle {
+  page: cp-landscape-dark;
+}
+
+.mastery-print.is-dark:not(.is-compact) .print-page + .print-page {
+  border-top-color: #3c3832;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-page-footer {
+  color: #9a9286;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-block,
+.mastery-print.is-dark:not(.is-compact) .cp-ability,
+.mastery-print.is-dark:not(.is-compact) .cp-health-level,
+.mastery-print.is-dark:not(.is-compact) .cp-meta-item,
+.mastery-print.is-dark:not(.is-compact) .cp-core-combat,
+.mastery-print.is-dark:not(.is-compact) .cp-minor-item,
+.mastery-print.is-dark:not(.is-compact) .cp-perception-skill,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-ini,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-card,
+.mastery-print.is-dark:not(.is-compact) .cp-status-tray,
+.mastery-print.is-dark:not(.is-compact) .cp-equip-slot,
+.mastery-print.is-dark:not(.is-compact) .cp-grid-cell {
+  background: #1c1916;
+  border-color: #3c3832;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-section-title,
+.mastery-print.is-dark:not(.is-compact) .cp-block-title,
+.mastery-print.is-dark:not(.is-compact) .cp-skill-cat-title,
+.mastery-print.is-dark:not(.is-compact) .cp-perception-name,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-powers-title,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-title,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-col-title,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-group-title,
+.mastery-print.is-dark:not(.is-compact) .cp-ability-name,
+.mastery-print.is-dark:not(.is-compact) .cp-health-level-name,
+.mastery-print.is-dark:not(.is-compact) .cp-field-value,
+.mastery-print.is-dark:not(.is-compact) .cp-meta-value,
+.mastery-print.is-dark:not(.is-compact) .cp-core-value,
+.mastery-print.is-dark:not(.is-compact) .cp-sk-name,
+.mastery-print.is-dark:not(.is-compact) .cp-sk-keep,
+.mastery-print.is-dark:not(.is-compact) .cp-minor-name,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-name {
+  color: #e6e1d6;
+  border-color: #5c564c;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-field-label,
+.mastery-print.is-dark:not(.is-compact) .cp-meta-label,
+.mastery-print.is-dark:not(.is-compact) .cp-core-label,
+.mastery-print.is-dark:not(.is-compact) .cp-subtle,
+.mastery-print.is-dark:not(.is-compact) .cp-sk-attrs,
+.mastery-print.is-dark:not(.is-compact) .cp-health-level-penalty,
+.mastery-print.is-dark:not(.is-compact) .cp-skill-reminder,
+.mastery-print.is-dark:not(.is-compact) .cp-temphp,
+.mastery-print.is-dark:not(.is-compact) .cp-minor-attr,
+.mastery-print.is-dark:not(.is-compact) .cp-minor-body,
+.mastery-print.is-dark:not(.is-compact) .cp-disadv-desc,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-summary,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-card-eff,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-title-hint {
+  color: #c4b8a4;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-field,
+.mastery-print.is-dark:not(.is-compact) .cp-block-title,
+.mastery-print.is-dark:not(.is-compact) .cp-skill-cat-title,
+.mastery-print.is-dark:not(.is-compact) .cp-learned-list li,
+.mastery-print.is-dark:not(.is-compact) .cp-core-stat + .cp-core-stat,
+.mastery-print.is-dark:not(.is-compact) .cp-ability {
+  border-color: #3c3832;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-ability {
+  border-left-color: var(--attr-color, #e6e1d6);
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-ability-value,
+.mastery-print.is-dark:not(.is-compact) .cp-ladder-cell,
+.mastery-print.is-dark:not(.is-compact) .cp-vital-total,
+.mastery-print.is-dark:not(.is-compact) .cp-vital-lost,
+.mastery-print.is-dark:not(.is-compact) .cp-temphp-box,
+.mastery-print.is-dark:not(.is-compact) .cp-use-box,
+.mastery-print.is-dark:not(.is-compact) .cp-sk-box,
+.mastery-print.is-dark:not(.is-compact) .cp-pool-chip,
+.mastery-print.is-dark:not(.is-compact) .cp-core-check,
+.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-cube,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-ini-box,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-cost,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-ini-cr-box,
+.mastery-print.is-dark:not(.is-compact) .cp-buff-round {
+  background: #2a2622;
+  border-color: #8a8478;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-vital-total {
+  background: #24201c;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-vital-lost {
+  background: #1a1714;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-vital-lost-watermark {
+  color: rgba(230, 225, 214, 0.14);
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-pool-chip.is-half-pool,
+.mastery-print.is-dark:not(.is-compact) .cp-sk-keep.is-half-pool {
+  color: #e0b878;
+  border-color: #a67c4a;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-perception-skill {
+  border-color: #8a8478;
+  background: #1a1714;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-ladder-cell.is-filled {
+  background: var(--attr-color, #e6e1d6);
+  color: #141210;
+  border-color: var(--attr-color, #e6e1d6);
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sk-box.is-spent,
+.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box.is-spent {
+  background: #8a8478;
+  color: #141210;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-weapons-table th {
+  background: #2a2622;
+  color: #e6e1d6;
+  border-color: #5c564c;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-weapons-table td {
+  border-color: #3c3832;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted,
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group-head,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-empty,
+.mastery-print.is-dark:not(.is-compact) .cp-learned-empty {
+  color: #c4b8a4;
+  border-color: #3c3832;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-power-artifact {
+  color: #ce93d8;
+  background: #2a2030;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-power-spell {
+  color: #64b5f6;
+  background: #1a2838;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-power-baseline {
+  color: #7dcea0;
+  background: #1a2820;
+}
+
+@media print {
+  html:has(body.mastery-print.is-dark:not(.is-compact)),
+  body.mastery-print.is-dark:not(.is-compact) {
+    background: #141210 !important;
+    color: #e6e1d6 !important;
+  }
+
+  .mastery-print.is-dark:not(.is-compact),
+  .mastery-print.is-dark:not(.is-compact) * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .mastery-print.is-dark:not(.is-compact) .print-page {
+    background: #141210 !important;
+  }
+}

@@ -216,14 +216,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             resizable: true,
             controls: [
                 {
-                    icon: 'fas fa-print',
-                    label: 'Charakterbogen',
+                    icon: 'fas fa-file-alt',
+                    label: 'Charakterbogen (weiß)',
                     action: 'msPrintSheet',
                 },
                 {
+                    icon: 'fas fa-moon',
+                    label: 'Charakterbogen (schwarz)',
+                    action: 'msPrintSheetDark',
+                },
+                {
                     icon: 'fas fa-suitcase',
-                    label: 'Equipment-Modul',
+                    label: 'Equipment-Modul (weiß)',
                     action: 'msPrintSheetWithBasics',
+                },
+                {
+                    icon: 'fas fa-suitcase',
+                    label: 'Equipment-Modul (schwarz)',
+                    action: 'msPrintSheetWithBasicsDark',
                 },
                 {
                     icon: 'fas fa-compress',
@@ -240,11 +250,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         form: { submitOnChange: true, closeOnSubmit: false },
         actions: {
             msPrintSheet: function () {
-                void openCharacterPrintSheet(this.actor);
+                void openCharacterPrintSheet(this.actor, { theme: 'light' });
+            },
+            msPrintSheetDark: function () {
+                void openCharacterPrintSheet(this.actor, { theme: 'dark' });
             },
             msPrintSheetWithBasics: function () {
                 // Optional Equipment (+ Summons) module pages after the three core pages.
-                void openCharacterPrintSheet(this.actor, { includeModules: true });
+                void openCharacterPrintSheet(this.actor, { includeModules: true, theme: 'light' });
+            },
+            msPrintSheetWithBasicsDark: function () {
+                void openCharacterPrintSheet(this.actor, { includeModules: true, theme: 'dark' });
             },
             msPrintCompactSheet: function () {
                 void openCharacterPrintSheet(this.actor, { layout: 'compact' });
@@ -270,7 +286,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (this.actor?.type === 'character')
             return controls;
         return controls.filter((c) => c?.action !== 'msPrintSheet' &&
+            c?.action !== 'msPrintSheetDark' &&
             c?.action !== 'msPrintSheetWithBasics' &&
+            c?.action !== 'msPrintSheetWithBasicsDark' &&
             c?.action !== 'msPrintCompactSheet');
     }
     /**

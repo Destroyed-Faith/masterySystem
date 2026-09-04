@@ -313,4 +313,12 @@ describe('character print table sheet', () => {
     expect(hbs).toContain('Lost Health Points');
     expect(hbs).toContain('Lost Stress');
   });
+
+  it('exposes light and dark body classes for the table sheet', async () => {
+    const { characterPrintBodyClass } = await import('../src/sheets/character-print');
+    expect(characterPrintBodyClass()).toBe('mastery-print is-light');
+    expect(characterPrintBodyClass({ theme: 'light' })).toBe('mastery-print is-light');
+    expect(characterPrintBodyClass({ theme: 'dark' })).toBe('mastery-print is-dark');
+    expect(characterPrintBodyClass({ layout: 'compact' })).toBe('mastery-print is-compact is-dark');
+  });
 });

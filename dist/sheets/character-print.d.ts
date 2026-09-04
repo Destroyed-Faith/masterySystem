@@ -47,6 +47,11 @@ export interface CharacterPrintOptions {
     includeModules?: boolean;
     /** One-page Quick Play view of the same character data. */
     layout?: 'full' | 'compact';
+    /**
+     * Ink theme for the full table sheet. Quick Play stays dark by design.
+     * Default: `light` (white paper). `dark` matches the Quick Play charcoal look.
+     */
+    theme?: 'light' | 'dark';
 }
 /**
  * Build the flat data object consumed by `character-print.hbs`.
@@ -84,6 +89,7 @@ export declare function buildCharacterCompactPrintContext(actor: any): Record<st
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
  */
+export declare function characterPrintBodyClass(options?: CharacterPrintOptions): string;
 export declare function openCharacterPrintSheet(actor: any, options?: CharacterPrintOptions): Promise<void>;
 export {};
 //# sourceMappingURL=character-print.d.ts.map

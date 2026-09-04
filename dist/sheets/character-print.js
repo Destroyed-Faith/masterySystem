@@ -2133,6 +2133,13 @@ export function buildCharacterCompactPrintContext(actor) {
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
  */
+export function characterPrintBodyClass(options = {}) {
+    const compact = options.layout === 'compact';
+    const dark = compact || options.theme === 'dark';
+    return ['mastery-print', compact ? 'is-compact' : '', dark ? 'is-dark' : 'is-light']
+        .filter(Boolean)
+        .join(' ');
+}
 export async function openCharacterPrintSheet(actor, options = {}) {
     if (!actor || actor.type !== 'character') {
         ui?.notifications?.warn('Druck-Export ist nur für Charaktere verfügbar.');
@@ -2167,7 +2174,7 @@ export async function openCharacterPrintSheet(actor, options = {}) {
     const cssVersion = String(game?.system?.version ?? Date.now());
     const cssHref = `${routed(PRINT_CSS)}?v=${encodeURIComponent(cssVersion)}`;
     const title = String(actor?.name ?? 'Character');
-    const bodyClass = compact ? 'mastery-print is-compact' : 'mastery-print';
+    const bodyClass = characterPrintBodyClass(options);
     const doc = `<!DOCTYPE html>
 <html lang="de">
 <head>

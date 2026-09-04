@@ -162,6 +162,11 @@ export interface CharacterPrintOptions {
   includeModules?: boolean;
   /** One-page Quick Play view of the same character data. */
   layout?: 'full' | 'compact';
+  /**
+   * Ink theme for the full table sheet. Quick Play stays dark by design.
+   * Default: `light` (white paper). `dark` matches the Quick Play charcoal look.
+   */
+  theme?: 'light' | 'dark';
 }
 
 /** Human-readable label per Stone Function kind (technical summary). */
@@ -2400,6 +2405,14 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
  * Render the printable sheet for `actor` and open it in a new window that
  * triggers the browser print dialog (save as PDF).
  */
+export function characterPrintBodyClass(options: CharacterPrintOptions = {}): string {
+  const compact = options.layout === 'compact';
+  const dark = compact || options.theme === 'dark';
+  return ['mastery-print', compact ? 'is-compact' : '', dark ? 'is-dark' : 'is-light']
+    .filter(Boolean)
+    .join(' ');
+}
+
 export async function openCharacterPrintSheet(
   actor: any,
   options: CharacterPrintOptions = {},
@@ -2441,7 +2454,7 @@ export async function openCharacterPrintSheet(
   const cssVersion = String((game as any)?.system?.version ?? Date.now());
   const cssHref = `${routed(PRINT_CSS)}?v=${encodeURIComponent(cssVersion)}`;
   const title = String(actor?.name ?? 'Character');
-  const bodyClass = compact ? 'mastery-print is-compact' : 'mastery-print';
+  const bodyClass = characterPrintBodyClass(options);
   const doc = `<!DOCTYPE html>
 <html lang="de">
 <head>
