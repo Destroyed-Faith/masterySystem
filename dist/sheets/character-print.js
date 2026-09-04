@@ -39,7 +39,7 @@ import { peekWeaponSets } from '../utils/weapon-sets.js';
 import { parseMaxRangeM, DEFAULT_WEAPON_RANGE_M } from '../utils/range-bands.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
-import { getDisadvantageDefinition } from '../system/disadvantages.js';
+import { calculateDisadvantagePoints, getDisadvantageDefinition } from '../system/disadvantages.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { buildPrintCombatPreview, buildPrintCombatPreviewForArtifactRow, buildArtifactRowSpellPrintMeta, buildSpellPrintMeta } from './character-print-combat.js';
 import { buildCombatSensesDisplayContext } from '../combat/combat-sense-collection.js';
@@ -983,7 +983,8 @@ export function buildCharacterPrintContext(actor, options = {}) {
     // actually does at the table.
     const disadvantages = Array.isArray(system?.disadvantages)
         ? system.disadvantages.map((d) => {
-            const def = getDisadvantageDefinition(String(d?.id ?? ''));
+            const id = String(d?.id ?? '');
+            const def = getDisadvantageDefinition(id);
             const details = (d?.details ?? {});
             const detailParts = [];
             const title = String(details?.sheetTitle ?? '').trim();
@@ -1004,9 +1005,13 @@ export function buildCharacterPrintContext(actor, options = {}) {
             const detail = detailParts.join(' — ');
             const effect = stripHtml(def?.effect ?? def?.description ?? '').trim();
             const description = [detail, effect].filter(Boolean).join(' · ');
+            // Prefer live calculation from id+details so ranks/tiers stay correct;
+            // fall back to the stored points field for legacy rows.
+            const calculated = id ? calculateDisadvantagePoints(id, details) : 0;
+            const points = calculated > 0 ? calculated : Math.max(0, num(d?.points));
             return {
                 label: String(d?.label ?? d?.name ?? def?.name ?? ''),
-                points: num(d?.points),
+                points,
                 detail,
                 effect,
                 description,
@@ -1187,13 +1192,18 @@ export function buildCharacterPrintContext(actor, options = {}) {
         damageReduction: `${damageReductionPct}%`,
         parry,
     };
+    // Reroll Points = Disadvantage points. Remaining uses come from
+    // faithFractures.current; the printed maximum always mirrors disadvantages
+    // (not a stale faithFractures.maximum default of 8).
     const faithCurrent = Math.max(0, num(system?.faithFractures?.current));
-    const faithMax = Math.max(0, num(system?.faithFractures?.maximum, 8));
-    const faithSpent = Math.max(0, faithMax - faithCurrent);
+    const faithStoredMax = Math.max(0, num(system?.faithFractures?.maximum));
+    const rerollMax = disadvantagePoints > 0 ? disadvantagePoints : faithStoredMax;
+    const rerollCurrent = Math.max(0, Math.min(faithCurrent, rerollMax));
+    const faithSpent = Math.max(0, rerollMax - rerollCurrent);
     const rerollPoints = {
-        current: faithCurrent,
-        maximum: faithMax,
-        boxes: Array.from({ length: faithMax }, (_, i) => ({
+        current: rerollCurrent,
+        maximum: rerollMax,
+        boxes: Array.from({ length: rerollMax }, (_, i) => ({
             state: i < faithSpent ? 'spent' : 'available',
         })),
     };
@@ -1250,8 +1260,8 @@ export function buildCharacterPrintContext(actor, options = {}) {
         specialRecovery: masteryRank,
         specialCap: specialApplicationLimit(masteryRank),
         faithFractures: {
-            current: faithCurrent,
-            maximum: faithMax,
+            current: rerollCurrent,
+            maximum: rerollMax,
         },
         rerollPoints,
         abilities,

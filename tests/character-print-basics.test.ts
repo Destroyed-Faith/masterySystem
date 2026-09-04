@@ -184,16 +184,38 @@ describe('character print table sheet', () => {
     );
   });
 
-  it('exposes Reroll Points (Faith Fractures) with strike-off boxes', () => {
+  it('derives Reroll Points from Disadvantages (not a stale Faith Fractures max)', () => {
     const ctx = buildCharacterPrintContext(
-      mockCharacter(2, { faithFractures: { current: 5, maximum: 8 } }),
+      mockCharacter(2, {
+        disadvantages: [
+          { id: 'hunted', points: 1, details: { rank: '2' } },
+          { id: 'unluck', points: 1, details: { rank: '1' } },
+        ],
+        // Stale / default pool — print must ignore this when disadvantages exist.
+        faithFractures: { current: 2, maximum: 8 },
+      }),
     ) as any;
+    // hunted rank 2 = 2 pts, unluck rank 1 = 1 pt → 3 total
+    expect(ctx.disadvantagePoints).toBe(3);
+    expect(ctx.rerollPoints.maximum).toBe(3);
+    expect(ctx.rerollPoints.current).toBe(2);
+    expect(ctx.rerollPoints.boxes).toHaveLength(3);
+    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'spent')).toHaveLength(1);
+    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'available')).toHaveLength(2);
+    expect(ctx.rerollBoxes).toHaveLength(3);
+    expect(ctx.faithFractures).toEqual({ current: 2, maximum: 3 });
+  });
+
+  it('falls back to Faith Fractures when no disadvantages are present', () => {
+    const ctx = buildCharacterPrintContext(
+      mockCharacter(2, { faithFractures: { current: 5, maximum: 8 }, disadvantages: [] }),
+    ) as any;
+    expect(ctx.disadvantagePoints).toBe(0);
     expect(ctx.rerollPoints.current).toBe(5);
     expect(ctx.rerollPoints.maximum).toBe(8);
     expect(ctx.rerollPoints.boxes).toHaveLength(8);
     expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'spent')).toHaveLength(3);
     expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'available')).toHaveLength(5);
-    expect(ctx.faithFractures).toEqual({ current: 5, maximum: 8 });
   });
 
   it('builds a stone dashboard with cube-zone copy and pools', () => {
