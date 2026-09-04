@@ -386,12 +386,12 @@ const AGILITY_POWERS_RAW: StonePowerDraft[] = [
     name: 'Safe Movement',
     attribute: 'agility',
     category: 'action',
-    description: 'Move some distance without provoking opportunity attacks (4 / 8 / 12 / 16 m).',
+    description: 'Move some distance without provoking movement-triggered Attacks / Reactions (4 / 8 / 12 / 16 m).',
     tiers: [
-      { label: 'Move 4 m, no reactions', description: 'Move up to 4 m. This movement does not provoke reactions.', value: 4 },
-      { label: 'Move 8 m, no reactions', description: 'Move up to 8 m. This movement does not provoke reactions.', value: 8 },
-      { label: 'Move 12 m, no reactions', description: 'Move up to 12 m. This movement does not provoke reactions.', value: 12 },
-      { label: 'Move 16 m, no reactions', description: 'Move up to 16 m. This movement does not provoke reactions.', value: 16 },
+      { label: 'Move 4 m, no movement-triggered Reactions', description: 'Move up to 4 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 4 },
+      { label: 'Move 8 m, no movement-triggered Reactions', description: 'Move up to 8 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 8 },
+      { label: 'Move 12 m, no movement-triggered Reactions', description: 'Move up to 12 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 12 },
+      { label: 'Move 16 m, no movement-triggered Reactions', description: 'Move up to 16 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 16 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;

@@ -39,7 +39,7 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: M,
     name: 'Hold the Door',
     tagline:
-      'You can hold something back for a moment that really should not be holdable.',
+      'You can briefly hold back something that should not be stoppable.',
     tiers: {
       8: 'You hold a door, a gate, a heavy beam, or a falling load just long enough to buy a moment.',
       16: 'You hold stronger pressure, heavier gates, or a failing barrier long enough for 1–2 people to react or escape.',
