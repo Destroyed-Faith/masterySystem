@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.489] - 2026-09-04
+
+### Fixed
+
+- **Safe Haven Rest · Reroll Points:** Rest restores Reroll Points from the **Disadvantage total** (and syncs `faithFractures.maximum`). Previously a stale/zero maximum skipped the refresh, so points stayed spent after rest.
+
+### Changed
+
+- **Table Character Sheet:** Removed duplicate Reroll boxes under Disadvantages (header only). Minor Expressions use label is just **Uses**. Attribute value boxes and ladders share one left edge (fixed 18mm label column) so rows no longer shift with name length. Reroll tick boxes on the printout stay empty for table marking; remaining uses are the number above.
+
 ## [0.9.488] - 2026-09-04
 
 ### Fixed

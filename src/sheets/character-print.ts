@@ -1343,13 +1343,11 @@ export function buildCharacterPrintContext(
   const faithStoredMax = Math.max(0, num(system?.faithFractures?.maximum));
   const rerollMax = disadvantagePoints > 0 ? disadvantagePoints : faithStoredMax;
   const rerollCurrent = Math.max(0, Math.min(faithCurrent, rerollMax));
-  const faithSpent = Math.max(0, rerollMax - rerollCurrent);
   const rerollPoints = {
     current: rerollCurrent,
     maximum: rerollMax,
-    boxes: Array.from({ length: rerollMax }, (_, i) => ({
-      state: i < faithSpent ? 'spent' : 'available',
-    })),
+    // Table sheet: empty tick boxes for play. Spent/remaining is the number above.
+    boxes: Array.from({ length: rerollMax }, () => ({ state: 'available' })),
   };
 
   // ── Stone Dashboard (page 2) ──────────────────────────────────────────

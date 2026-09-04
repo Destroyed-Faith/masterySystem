@@ -200,8 +200,7 @@ describe('character print table sheet', () => {
     expect(ctx.rerollPoints.maximum).toBe(3);
     expect(ctx.rerollPoints.current).toBe(2);
     expect(ctx.rerollPoints.boxes).toHaveLength(3);
-    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'spent')).toHaveLength(1);
-    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'available')).toHaveLength(2);
+    expect(ctx.rerollPoints.boxes.every((b: any) => b.state === 'available')).toBe(true);
     expect(ctx.rerollBoxes).toHaveLength(3);
     expect(ctx.faithFractures).toEqual({ current: 2, maximum: 3 });
   });
@@ -214,8 +213,7 @@ describe('character print table sheet', () => {
     expect(ctx.rerollPoints.current).toBe(5);
     expect(ctx.rerollPoints.maximum).toBe(8);
     expect(ctx.rerollPoints.boxes).toHaveLength(8);
-    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'spent')).toHaveLength(3);
-    expect(ctx.rerollPoints.boxes.filter((b: any) => b.state === 'available')).toHaveLength(5);
+    expect(ctx.rerollPoints.boxes.every((b: any) => b.state === 'available')).toBe(true);
   });
 
   it('builds a stone dashboard with cube-zone copy and pools', () => {
@@ -335,7 +333,9 @@ describe('character print table sheet', () => {
     expect(hbs).toContain('Lost Health Points');
     expect(hbs).toContain('Lost Stress');
     expect(hbs).toContain('Kleinere Expressionen');
-    expect(hbs).toContain('Nutzungen / Rast');
+    expect(hbs).toContain('>Uses</span>');
+    expect(hbs).not.toContain('Nutzungen / Rast');
+    expect(hbs).not.toContain('cp-rerolls');
   });
 
   it('keeps Minor Expressions as a compact shared row in table CSS', () => {

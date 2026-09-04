@@ -30,6 +30,7 @@ describe('buildSafeHavenRestUpdates', () => {
 
     expect(updates['system.skillsSpent']).toMatchObject({ athletics: 0 });
     expect(updates['system.faithFractures.current']).toBe(3);
+    expect(updates['system.faithFractures.maximum']).toBe(3);
     expect(updates['system.mastery.charges']).toBe(4);
     expect(updates['system.health.tempHP']).toBe(0);
     // Active bar (Critical) refilled + the most recent Scarred bar (Wounded)
@@ -56,6 +57,27 @@ describe('buildSafeHavenRestUpdates', () => {
     const updates = buildSafeHavenRestUpdates({ mastery: { rank: 2 } });
     expect(updates['system.health.bars']).toBeUndefined();
     expect(updates['system.mastery.charges']).toBeUndefined();
+  });
+
+  it('restores Reroll Points from Disadvantages when faithFractures.maximum is 0/stale', () => {
+    const updates = buildSafeHavenRestUpdates({
+      faithFractures: { current: 0, maximum: 0 },
+      disadvantages: [
+        { id: 'hunted', points: 2, details: { rank: '2' } },
+        { id: 'unluck', points: 1, details: { rank: '1' } },
+      ],
+    });
+    expect(updates['system.faithFractures.current']).toBe(3);
+    expect(updates['system.faithFractures.maximum']).toBe(3);
+  });
+
+  it('syncs faithFractures.maximum down to Disadvantage total on rest', () => {
+    const updates = buildSafeHavenRestUpdates({
+      faithFractures: { current: 0, maximum: 8 },
+      disadvantages: [{ id: 'hunted', points: 2, details: { rank: '2' } }],
+    });
+    expect(updates['system.faithFractures.current']).toBe(2);
+    expect(updates['system.faithFractures.maximum']).toBe(2);
   });
 });
 

@@ -7,6 +7,24 @@ import { SKILLS } from './skills.js';
 import { buildFreshTraitUses } from './echos/index.js';
 import { beginMinorMagicRest } from './minor-magic-items.js';
 import { clearLastBreathOnRest } from '../stones/last-breath.js';
+import {
+  calculateDisadvantagePoints,
+} from '../system/disadvantages.js';
+
+/** Reroll Point pool size = Disadvantage points (fallback: stored faithFractures.maximum). */
+export function rerollPointsMaximumFromSystem(system: any): number {
+  const rows = Array.isArray(system?.disadvantages) ? system.disadvantages : [];
+  let fromDisadvantages = 0;
+  for (const row of rows) {
+    const id = String(row?.id ?? '').trim();
+    const details = (row?.details ?? {}) as Record<string, unknown>;
+    const calculated = id ? calculateDisadvantagePoints(id, details) : 0;
+    const points = calculated > 0 ? calculated : Math.max(0, Number(row?.points) || 0);
+    fromDisadvantages += points;
+  }
+  const storedMax = Math.max(0, Number(system?.faithFractures?.maximum) || 0);
+  return fromDisadvantages > 0 ? fromDisadvantages : storedMax;
+}
 
 export const SAFE_HAVEN_REST_INFO =
   'Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Skill Points, Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.';
@@ -87,7 +105,10 @@ export function buildSafeHavenRestUpdates(
     }
   }
 
-  const faithMax = Math.max(0, Number(system?.faithFractures?.maximum) || 0);
+  // Reroll Points: restore to Disadvantage total (source of truth). Also sync
+  // faithFractures.maximum when it drifted (e.g. still 0/8 while disadvantages
+  // grant 5) — otherwise current stays spent and the print sheet looks empty.
+  const faithMax = rerollPointsMaximumFromSystem(system);
   const echo = system?.echo || {};
   const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
   const echoUpdates: Record<string, unknown> = {};
@@ -102,9 +123,12 @@ export function buildSafeHavenRestUpdates(
 
   const updates: Record<string, unknown> = {
     'system.skillsSpent': skillsSpent,
-    ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {}),
     ...echoUpdates,
   };
+  if (faithMax > 0) {
+    updates['system.faithFractures.current'] = faithMax;
+    updates['system.faithFractures.maximum'] = faithMax;
+  }
 
   // Health: restore the active Health Bar to full and reopen ONE Scarred Bar
   // (Players Guide "Safe Haven Rest" benefits 3 + 4). No full-track reset,

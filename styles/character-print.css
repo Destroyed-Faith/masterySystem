@@ -273,10 +273,10 @@
 .cp-ability[data-attr='wits'] { --attr-color: var(--attr-wits); }
 
 .cp-ability-head {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 18mm minmax(0, 1fr);
   align-items: center;
-  gap: 6px;
+  column-gap: 6px;
 }
 
 .cp-ability-name {
@@ -284,16 +284,19 @@
   font-weight: 700;
   color: var(--attr-color, #1a1a1a);
   letter-spacing: 0.04em;
+  width: 18mm;
+  min-width: 18mm;
+  max-width: 18mm;
   flex-shrink: 0;
+  line-height: 1.1;
 }
 
 .cp-ability-value-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
-  justify-content: flex-end;
   min-width: 0;
+  justify-content: flex-start;
 }
 
 .cp-ability-value {
@@ -331,7 +334,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
-  margin: 2px 0;
+  margin: 2px 0 2px 18mm; /* align with value boxes under the fixed label column */
+  padding-left: 6px;
 }
 
 .cp-ladder-cell {
