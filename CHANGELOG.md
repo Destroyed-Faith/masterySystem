@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.486] - 2026-09-04
+
+### Fixed
+
+- **Table Character Sheet · Reroll Points:** Header Reroll Points are derived from **Disadvantage points** (live calculation from id + details), not a stale `faithFractures.maximum` (often stuck at 8). Remaining uses still come from `faithFractures.current`. Boxes no longer overflow/wrap awkwardly in the meta strip.
+
 ## [0.9.485] - 2026-09-04
 
 ### Added
