@@ -306,7 +306,7 @@ describe('character print table sheet', () => {
     expect(ctx.stressBreakdown).toEqual({ name: 'Breakdown', max: 1 });
   });
 
-  it('places Disadvantages under Attributes, Expressions under Health; Learned Skills full width', () => {
+  it('places Disadvantages under Attributes, Expressions under Health; Skills full width', () => {
     const { readFileSync } = require('node:fs');
     const { join } = require('node:path');
     const hbs = readFileSync(join(process.cwd(), 'templates/actor/character-print.hbs'), 'utf8');
@@ -332,7 +332,7 @@ describe('character print table sheet', () => {
     expect(hbs).toContain('cp-vital-total');
     expect(hbs).toContain('Lost Health Points');
     expect(hbs).toContain('Lost Stress');
-    expect(hbs).toContain('Kleinere Expressionen');
+    expect(hbs).toContain('Minor Expressions');
     expect(hbs).toContain('>Uses</span>');
     expect(hbs).not.toContain('Nutzungen / Rast');
     expect(hbs).not.toContain('cp-rerolls');

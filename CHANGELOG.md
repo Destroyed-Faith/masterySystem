@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.490] - 2026-09-04
+
+### Changed
+
+- **Table Character Sheet:** Section title **Skills** (was Learned Skills). Power ranks print as **Rank** (was Stufe); baseline tag is **Basic** / Standard Maneuver. Minor Expressions header is English-only.
+- **Minor Expressions catalog + UI:** Full English translation of taglines and tier text; dialog/sheet labels (Tier, Save, Cancel, etc.) are English.
+- **Safe Movement:** Copy now says it does not provoke **movement-triggered Attacks / Reactions** (no longer “opportunity attacks”).
+
 ## [0.9.489] - 2026-09-04
 
 ### Fixed

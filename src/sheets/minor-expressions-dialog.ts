@@ -41,15 +41,15 @@ function tierScaleBlock(def: MinorExpressionDefinition, attrVal: number, eligibl
   const options = MINOR_EXPRESSION_TIERS.map((t) => {
     const sel = t === defaultTier ? ' selected' : '';
     const unlocked = isTierUnlocked(attrVal, t);
-    const hint = unlocked ? '' : ` — gesperrt bis Attribut ${t}`;
-    return `<option value="${t}"${sel}>Stufe ${t}${hint}</option>`;
+    const hint = unlocked ? '' : ` — locked until attribute ${t}`;
+    return `<option value="${t}"${sel}>Tier ${t}${hint}</option>`;
   }).join('');
   const previewText = escapeHtml(def.tiers[defaultTier]);
   const lockedClass = isTierUnlocked(attrVal, defaultTier) ? '' : ' me-tier-scale-preview--locked';
   return `
     <div class="me-tier-scale-block">
-      <label class="me-tier-scale-label">Stufen (Vorschau)</label>
-      <select class="me-tier-scale" data-attr-val="${attrVal}" aria-label="Stufen für ${escapeHtml(def.name)}">
+      <label class="me-tier-scale-label">Tiers (Preview)</label>
+      <select class="me-tier-scale" data-attr-val="${attrVal}" aria-label="Tiers for ${escapeHtml(def.name)}">
         ${options}
       </select>
       <p class="me-tier-scale-preview${lockedClass}">${previewText}</p>
@@ -71,7 +71,7 @@ function buildSingleAttributeSection(
   html += `<section class="me-attr-section" id="me-section-${attr}" data-attr="${attr}">`;
   html += `<h4 class="me-attr-heading">${ATTR_LABEL[attr]} <span class="me-attr-value">(${val})</span></h4>`;
   if (!eligible) {
-    html += `<p class="me-attr-locked">Minor Expressions für dieses Attribut ab Wert ${MINOR_EXPRESSION_MIN_ATTRIBUTE} verfügbar.</p>`;
+    html += `<p class="me-attr-locked">Minor Expressions for this attribute are available from value ${MINOR_EXPRESSION_MIN_ATTRIBUTE}.</p>`;
   }
   for (const def of defs) {
     const checked = selected.has(def.id) ? 'checked' : '';
@@ -88,7 +88,7 @@ function buildSingleAttributeSection(
             <span class="me-name">${escapeHtml(def.name)}</span>
             <span class="me-tagline">${escapeHtml(def.tagline)}</span>
             ${constraints}
-            <span class="me-tier-text"><strong>Aktuell:</strong> ${escapeHtml(body)}</span>
+            <span class="me-tier-text"><strong>Current:</strong> ${escapeHtml(body)}</span>
           </span>
         </label>
         ${tierScaleBlock(def, val, eligible)}
@@ -125,8 +125,8 @@ export async function showMinorExpressionsDialog(
   const initialTotal = picksFromOtherAttrs.length + defs.filter((d) => selected.has(d.id)).length;
 
   const content = `
-    <p class="me-slots-summary"><strong><span id="me-count">${initialTotal}</span></strong> von <strong>${mr}</strong> ausgewählt</p>
-    <p class="me-hint">Minor Expressions unterstützen und färben — sie ersetzen keine Powers.</p>
+    <p class="me-slots-summary"><strong><span id="me-count">${initialTotal}</span></strong> of <strong>${mr}</strong> selected</p>
+    <p class="me-hint">Minor Expressions support and color scenes — they do not replace Powers.</p>
     ${buildSingleAttributeSection(focusAttribute, val, defs, selected)}
   `;
 
@@ -137,7 +137,7 @@ export async function showMinorExpressionsDialog(
         content,
         buttons: {
           save: {
-            label: 'Speichern',
+            label: 'Save',
             icon: '<i class="fas fa-save"></i>',
             callback: async (html: JQuery) => {
               const checkedHere: string[] = [];
@@ -151,7 +151,7 @@ export async function showMinorExpressionsDialog(
               const next = JSON.stringify(cleaned);
               if (prev !== next && sanitized.length > cleaned.length) {
                 (globalThis as any).ui?.notifications?.info(
-                  'Minor Expressions wurden an Mastery Rank oder Attributwerte angepasst.'
+                  'Minor Expressions were adjusted to Mastery Rank or attribute values.'
                 );
               }
 
@@ -173,7 +173,7 @@ export async function showMinorExpressionsDialog(
                   const afterRefund = Math.min(ffMax, current + removed);
                   if (afterRefund < added) {
                     (globalThis as any).ui?.notifications?.warn(
-                      `Nicht genug Reroll Points: ${added} neue Minor Expression${added === 1 ? '' : 's'} kosten je 1 Reroll Point (verfügbar: ${afterRefund}).`
+                      `Not enough Reroll Points: ${added} new Minor Expression${added === 1 ? '' : 's'} cost 1 Reroll Point each (available: ${afterRefund}).`
                     );
                     resolve();
                     return true;
@@ -181,7 +181,7 @@ export async function showMinorExpressionsDialog(
                   const newCurrent = afterRefund - added;
                   updateData['system.faithFractures.current'] = newCurrent;
                   (globalThis as any).ui?.notifications?.info(
-                    `Reroll Points: ${current} → ${newCurrent} (${added ? `−${added} neu` : ''}${added && removed ? ', ' : ''}${removed ? `+${removed} erstattet` : ''}).`
+                    `Reroll Points: ${current} → ${newCurrent} (${added ? `−${added} new` : ''}${added && removed ? ', ' : ''}${removed ? `+${removed} refunded` : ''}).`
                   );
                 }
               }
@@ -192,7 +192,7 @@ export async function showMinorExpressionsDialog(
             }
           },
           cancel: {
-            label: 'Abbrechen',
+            label: 'Cancel',
             callback: () => resolve()
           }
         },

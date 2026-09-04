@@ -2389,7 +2389,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.minor-expressions-open').on('click', async (ev: JQuery.ClickEvent) => {
       ev.preventDefault();
       if (!this.actor.isOwner) {
-        (ui as any).notifications?.warn('Nur der Besitzer kann Minor Expressions wählen.');
+        (ui as any).notifications?.warn('Only the owner can choose Minor Expressions.');
         return;
       }
       const attr = (ev.currentTarget as HTMLElement).dataset.attribute as MinorExpressionAttribute | undefined;
