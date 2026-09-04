@@ -42,14 +42,14 @@ function tierScaleBlock(def: MinorExpressionDefinition, attrVal: number, eligibl
     const sel = t === defaultTier ? ' selected' : '';
     const unlocked = isTierUnlocked(attrVal, t);
     const hint = unlocked ? '' : ` — gesperrt bis Attribut ${t}`;
-    return `<option value="${t}"${sel}>Stufe ${t}${hint}</option>`;
+    return `<option value="${t}"${sel}>Tier ${t}${hint}</option>`;
   }).join('');
   const previewText = escapeHtml(def.tiers[defaultTier]);
   const lockedClass = isTierUnlocked(attrVal, defaultTier) ? '' : ' me-tier-scale-preview--locked';
   return `
     <div class="me-tier-scale-block">
-      <label class="me-tier-scale-label">Stufen (Vorschau)</label>
-      <select class="me-tier-scale" data-attr-val="${attrVal}" aria-label="Stufen für ${escapeHtml(def.name)}">
+      <label class="me-tier-scale-label">Tiers (Preview)</label>
+      <select class="me-tier-scale" data-attr-val="${attrVal}" aria-label="Tiers for ${escapeHtml(def.name)}">
         ${options}
       </select>
       <p class="me-tier-scale-preview${lockedClass}">${previewText}</p>
@@ -137,7 +137,7 @@ export async function showMinorExpressionsDialog(
         content,
         buttons: {
           save: {
-            label: 'Speichern',
+            label: 'Save',
             icon: '<i class="fas fa-save"></i>',
             callback: async (html: JQuery) => {
               const checkedHere: string[] = [];
@@ -192,7 +192,7 @@ export async function showMinorExpressionsDialog(
             }
           },
           cancel: {
-            label: 'Abbrechen',
+            label: 'Cancel',
             callback: () => resolve()
           }
         },

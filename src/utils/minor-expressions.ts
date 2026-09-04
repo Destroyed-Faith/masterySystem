@@ -39,39 +39,39 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: M,
     name: 'Hold the Door',
     tagline:
-      'Du kannst für einen Moment etwas aufhalten, das eigentlich nicht aufzuhalten sein sollte.',
+      'You can hold something back for a moment that really should not be holdable.',
     tiers: {
-      8: 'Du hältst eine Tür, ein Tor, einen schweren Balken oder eine fallende Last kurz genug auf, um einen Moment zu gewinnen.',
-      16: 'Du hältst stärkeren Druck, schwerere Tore oder ein nachgebendes Hindernis lange genug auf, dass 1–2 Leute reagieren oder entkommen können.',
-      24: 'Du fängst einen kleinen Einsturz, massiven Druck oder ein brechendes Hindernis für einen klar heroischen Moment ab.',
-      32: 'Du verschaffst einer kleinen Gruppe Zeit gegen etwas, das eigentlich zu viel für einen Einzelnen wäre.',
-      40: 'Du erzeugst einen legendären „Hold the Door“-Moment und hältst kurz etwas auf, das alle anderen längst aufgegeben hätten.'
+      8: 'You hold a door, a gate, a heavy beam, or a falling load just long enough to buy a moment.',
+      16: 'You hold stronger pressure, heavier gates, or a failing barrier long enough for 1–2 people to react or escape.',
+      24: 'You catch a small collapse, massive pressure, or a breaking obstacle for a clearly heroic moment.',
+      32: 'You buy a small group time against something that should be too much for one person alone.',
+      40: 'You create a legendary “Hold the Door” moment and briefly hold back something everyone else would have given up on long ago.'
     }
   },
   {
     id: 'might-force-open',
     attribute: M,
     name: 'Iron Grip',
-    tagline: 'Wenn du etwas hältst, hältst du es wirklich.',
+    tagline: 'When you hold something, you really hold it.',
     tiers: {
-      8: 'Du verlierst Seil, Kante, Griff oder Träger nicht so leicht.',
-      16: 'Du kannst jemanden sicher halten, etwas zuverlässig festziehen oder ein wegrutschendes Objekt stabilisieren.',
-      24: 'Selbst unter starkem Zug, Nässe, Gewicht oder Panik bleibt dein Griff erstaunlich sicher.',
-      32: 'Du hältst Dinge fest, die anderen längst entglitten wären, und kannst andere dabei mit sichern.',
-      40: 'Dein Griff wirkt wie ein Schraubstock; sobald du etwas wirklich packst, fühlt es sich an, als müsste eher die Welt nachgeben als deine Hand.'
+      8: 'You do not lose rope, edge, grip, or support so easily.',
+      16: 'You can hold someone securely, cinch something down reliably, or stabilize a slipping object.',
+      24: 'Even under hard pull, wetness, weight, or panic, your grip stays astonishingly sure.',
+      32: 'You hold things that would have slipped from others long ago, and can secure others with you.',
+      40: 'Your grip feels like a vise; once you truly seize something, it feels as if the world would have to give before your hand does.'
     }
   },
   {
     id: 'might-clear-path',
     attribute: M,
     name: 'Break Through',
-    tagline: 'Du gehst nicht um ein Hindernis herum — du gehst durch.',
+    tagline: 'You do not go around an obstacle — you go through.',
     tiers: {
-      8: 'Du drückst dich durch leichte Barrikaden, lose Möbel, blockierte Türen oder dichte Menschenmengen.',
-      16: 'Du durchbrichst ernstere Blockaden aus Holz, Gerümpel, Möbeln oder dichtem Widerstand.',
-      24: 'Du erzwingst dir einen Weg durch massive Hindernisse, provisorische Sperren oder chaotisch verbarrikadierte Passagen.',
-      32: 'Du schaffst Öffnungen oder Wege durch Dinge, die andere erst mühsam räumen müssten.',
-      40: 'Du wirkst wie Naturgewalt in Bewegung und gehst durch fast alles Physische hindurch, das nicht explizit dafür gebaut wurde, dich aufzuhalten.'
+      8: 'You push through light barricades, loose furniture, blocked doors, or dense crowds.',
+      16: 'You break through more serious blockades of wood, clutter, furniture, or dense resistance.',
+      24: 'You force a path through massive obstacles, makeshift barriers, or chaotically barricaded passages.',
+      32: 'You create openings or paths through things others would first have to clear the hard way.',
+      40: 'You move like a force of nature and go through almost anything physical that was not explicitly built to stop you.'
     }
   },
   {
@@ -79,52 +79,52 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: M,
     name: 'Titan Carry',
     tagline:
-      'Du trägst Menschen, Lasten oder sperrige Dinge so, als wären sie für dich weniger relevant als für andere.',
+      'You carry people, loads, or bulky things as if they mattered less to you than to others.',
     tiers: {
-      8: 'Du trägst eine verletzte Person oder schwere Last über kurze Distanz sicher.',
-      16: 'Du schultersch jemanden samt Ausrüstung oder bewegst schwere Lasten über ordentliche Distanz.',
-      24: 'Du transportierst Verwundete, sperrige Lasten oder mehrere schwere Dinge unter schlechten Bedingungen weiter, als andere könnten.',
-      32: 'Du bewegst schwere Lasten oder Personen auch durch Treppen, Schlamm, Trümmer oder chaotische Wege mit beeindruckender Ausdauer.',
-      40: 'Du wirkst beim Tragen beinahe monströs verlässlich und bringst Menschen oder Lasten dorthin, wo sie hinmüssen, egal wie hart der Weg ist.'
+      8: 'You carry an injured person or heavy load a short distance safely.',
+      16: 'You shoulder someone with their gear or move heavy loads a solid distance.',
+      24: 'You haul wounded, bulky loads, or several heavy things farther under bad conditions than others could.',
+      32: 'You move heavy loads or people through stairs, mud, rubble, or chaotic paths with impressive endurance.',
+      40: 'You seem almost monstrously reliable when carrying, and get people or loads where they need to go no matter how hard the path is.'
     }
   },
   {
     id: 'might-menace-of-flesh',
     attribute: M,
     name: "Tyrant's Aura",
-    tagline: 'Du betrittst einen Raum und Leute merken körperlich, dass du gefährlich bist.',
+    tagline: 'You enter a room and people physically sense that you are dangerous.',
     tiers: {
-      8: 'Einzelne Menschen nehmen deine körperliche Gefährlichkeit sofort wahr.',
-      16: 'Kleine Gruppen werden stiller, vorsichtiger oder treten intuitiv zurück.',
-      24: 'Deine Präsenz färbt einen Raum körperlich; Leute rechnen instinktiv mit Gewalt, auch wenn du ruhig bleibst.',
-      32: 'Selbst harte Leute merken, dass sie dich lieber ernst nehmen sollten.',
-      40: 'Deine bloße Anwesenheit kippt die Luft im Raum; Körper reagieren vor Gedanken.'
+      8: 'Individual people register your physical danger immediately.',
+      16: 'Small groups grow quieter, more careful, or intuitively step back.',
+      24: 'Your presence colors a room physically; people instinctively expect violence even if you stay calm.',
+      32: 'Even hard people realize they should take you seriously.',
+      40: 'Your mere presence tips the air in the room; bodies react before thoughts.'
     }
   },
   {
     id: 'might-set-your-feet',
     attribute: M,
     name: 'Immovable',
-    tagline: 'Du kannst dich setzen wie ein Anker.',
+    tagline: 'You can set yourself like an anchor.',
     tiers: {
-      8: 'Du hältst auf unangenehmem, rutschigem oder drängendem Untergrund überraschend gut Stand.',
-      16: 'Du wirst nicht leicht aus Haltung, Griff oder Position gebracht.',
-      24: 'Selbst mehrere störende Faktoren gleichzeitig verschieben dich kaum, wenn du dich einmal gesetzt hast.',
-      32: 'Andere müssen mit dir rechnen wie mit einem Pfeiler; du hältst Linien, Durchgänge oder Positionen körperlich.',
-      40: 'Wenn du dich stellst, wirkt es fast, als müsse alles um dich herum einen Umweg um dich machen.'
+      8: 'You hold your footing surprisingly well on awkward, slippery, or pressing ground.',
+      16: 'You are not easily shifted from stance, grip, or position.',
+      24: 'Even several disrupting factors at once barely move you once you have set yourself.',
+      32: 'Others have to reckon with you like a pillar; you hold lines, passages, or positions with your body.',
+      40: 'When you plant yourself, it almost feels as if everything around you has to go the long way around.'
     }
   },
   {
     id: 'agility-soft-step',
     attribute: A,
     name: 'Feather Step',
-    tagline: 'Deine Schritte und Landungen sind so leicht, dass du kaum Gewicht erzeugst.',
+    tagline: 'Your steps and landings are so light that you barely create weight.',
     tiers: {
-      8: 'Du gehst deutlich leiser und hinterlässt nur wenig spürbares Gewicht.',
-      16: 'Dielen, Schutt, Stoff, Laub oder leicht empfindliche Flächen reagieren viel weniger auf dich.',
-      24: 'Du bewegst dich mit beinahe unnatürlich leichtem Tritt durch problematischen Untergrund.',
-      32: 'Deine Schritte wirken oft, als würdest du den Boden kaum wirklich belasten.',
-      40: 'Du scheinst fast ohne Gewicht zu gehen; Schritt, Landung und Kontakt sind minimal.'
+      8: 'You walk clearly quieter and leave only little noticeable weight.',
+      16: 'Floorboards, rubble, cloth, leaves, or lightly sensitive surfaces react much less to you.',
+      24: 'You move with an almost unnaturally light tread through problematic ground.',
+      32: 'Your steps often feel as if you barely truly load the ground.',
+      40: 'You seem to walk almost without weight; step, landing, and contact are minimal.'
     }
   },
   {
@@ -132,13 +132,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: A,
     name: 'Bounding Leap',
     tagline:
-      'Du kannst deutlich weiter und höher springen, als normale Bewegung erwarten ließe.',
+      'You can jump clearly farther and higher than normal movement would suggest.',
     tiers: {
-      8: 'Du überwindest kleine Gräben, Mauerkanten und Höhenunterschiede deutlich besser als gewöhnlich.',
-      16: 'Deine Sprünge tragen dich weit genug, um Orte zu erreichen, die andere nur mit Hilfe schaffen.',
-      24: 'Du überbrückst eindrucksvolle Distanzen oder Höhen und machst Bewegung vertikal viel freier.',
-      32: 'Deine Sprünge wirken klar übermenschlich in Reichweite und Sicherheit.',
-      40: 'Du bewegst dich mit Sätzen, die fast wie kurze Flugmomente aussehen.'
+      8: 'You clear small gaps, wall edges, and height differences clearly better than usual.',
+      16: 'Your jumps carry you far enough to reach places others only manage with help.',
+      24: 'You bridge impressive distances or heights and make movement much freer vertically.',
+      32: 'Your jumps feel clearly superhuman in range and safety.',
+      40: 'You move in bounds that look almost like brief moments of flight.'
     }
   },
   {
@@ -146,13 +146,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: A,
     name: 'Catfall',
     tagline:
-      'Du kannst große Stürze oder Sprünge extrem weich, rollend oder federnd abfangen.',
+      'You can catch large falls or jumps extremely softly, rolling or springing.',
     tiers: {
-      8: 'Du fängst Sprünge, Stufen, Kanten und kleinere Stürze sauber ab.',
-      16: 'Auch deutliche Höhenunterschiede oder harte Landungen wirken bei dir kontrolliert und weich.',
-      24: 'Du kannst große Sprünge oder tiefe Abstiege rollend oder federnd entschärfen.',
-      32: 'Selbst gefährlich wirkende Höhen lassen sich von dir oft überraschend elegant abfangen.',
-      40: 'Du landest aus absurden Höhen oder Distanzen mit einer Unwirklichkeit, die andere wie Schwerfällige aussehen lässt.'
+      8: 'You catch jumps, steps, edges, and smaller falls cleanly.',
+      16: 'Even clear height differences or hard landings feel controlled and soft on you.',
+      24: 'You can blunt large jumps or deep descents by rolling or springing.',
+      32: 'Even heights that look dangerous can often be caught by you with surprising elegance.',
+      40: 'You land from absurd heights or distances with an unreality that makes others look clumsy.'
     }
   },
   {
@@ -160,26 +160,26 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: A,
     name: 'Wall Spring',
     tagline:
-      'Du kannst Wände, Vorsprünge oder schräge Flächen für einen zusätzlichen Satz oder Richtungswechsel nutzen.',
+      'You can use walls, ledges, or angled surfaces for an extra bound or change of direction.',
     tiers: {
-      8: 'Du nutzt Kanten, niedrige Wände oder schräge Flächen für kleine Korrekturen oder Zusatzsätze.',
-      16: 'Du holst sichtbar extra Bewegung oder Höhe aus Wänden und Vorsprüngen.',
-      24: 'Du kannst komplexere Richtungswechsel oder Folgebewegungen über vertikale Flächen machen.',
-      32: 'Enge Räume, Dächer, Mauern und vertikale Hindernisse werden zu spielbaren Bewegungsflächen für dich.',
-      40: 'Du wirkst in vertikaler Bewegung beinahe unmöglich frei, solange irgendwo noch eine Fläche zum Abstoßen existiert.'
+      8: 'You use edges, low walls, or angled surfaces for small corrections or extra bounds.',
+      16: 'You visibly gain extra movement or height from walls and ledges.',
+      24: 'You can make more complex direction changes or follow-up moves across vertical surfaces.',
+      32: 'Tight spaces, roofs, walls, and vertical obstacles become playable movement surfaces for you.',
+      40: 'You feel almost impossibly free in vertical movement as long as some surface still exists to push off from.'
     }
   },
   {
     id: 'agility-perfect-balance',
     attribute: A,
     name: 'Reed on the Wind',
-    tagline: 'Du kannst auf absurd kleinen, schmalen oder instabilen Flächen sicher stehen.',
+    tagline: 'You can stand securely on absurdly small, narrow, or unstable surfaces.',
     tiers: {
-      8: 'Du hältst sicher auf schmalen Kanten, Balken oder instabilem Untergrund.',
-      16: 'Du kannst auf kleinen, wackligen oder unangenehmen Flächen ruhig stehen oder dich vorsichtig bewegen.',
-      24: 'Du balancierst auf absurden kleinen oder problematischen Flächen, solange noch physisch Platz da ist.',
-      32: 'Selbst nasse, lose oder stark schwankende Flächen bringen dich erstaunlich wenig aus dem Gleichgewicht.',
-      40: 'Deine Balance wirkt fast schwerelos; wo andere nicht einmal treten würden, kannst du sicher stehen.'
+      8: 'You hold securely on narrow edges, beams, or unstable ground.',
+      16: 'You can stand calmly or move carefully on small, wobbly, or awkward surfaces.',
+      24: 'You balance on absurdly small or problematic surfaces as long as there is still physical room.',
+      32: 'Even wet, loose, or strongly swaying surfaces throw you off balance astonishingly little.',
+      40: 'Your balance feels almost weightless; where others would not even step, you can stand securely.'
     }
   },
   {
@@ -187,13 +187,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: A,
     name: 'Flow Through',
     tagline:
-      'Du kannst dich durch enge, chaotische oder vertikale Umgebungen fast fließend bewegen.',
+      'You can move through tight, chaotic, or vertical environments almost like flowing water.',
     tiers: {
-      8: 'Du kommst sauber durch Engstellen, Hindernisse oder chaotische Räume.',
-      16: 'Du verlierst beim Klettern, Zwängen, Ducken oder Umgehen von Hindernissen kaum deinen Rhythmus.',
-      24: 'Selbst vertikale, enge oder unordentliche Umgebungen bremsen dich nur wenig aus.',
-      32: 'Du bewegst dich durch schwierige Räume wie Wasser durch Ritzen.',
-      40: 'Hindernisreiche Umgebungen scheinen für dich eher Wege als Probleme zu sein.'
+      8: 'You get cleanly through choke points, obstacles, or chaotic spaces.',
+      16: 'When climbing, squeezing, ducking, or weaving past obstacles, you barely lose your rhythm.',
+      24: 'Even vertical, tight, or messy environments slow you only a little.',
+      32: 'You move through difficult spaces like water through cracks.',
+      40: 'Obstacle-rich environments seem more like paths than problems for you.'
     }
   },
   {
@@ -201,13 +201,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: I,
     name: 'Mage Hand',
     tagline:
-      'Du erschaffst eine kleine magische Kraft/Hand, die leichte Gegenstände auf kurze Distanz bewegen, holen oder kippen kann.',
+      'You create a small magical force/hand that can move, fetch, or tip light objects at short range.',
     tiers: {
-      8: 'Du bewegst, holst oder kippst kleine leichte Objekte in kurzer Distanz.',
-      16: 'Du manipulierst Objekte verlässlicher, präziser und etwas weiter entfernt.',
-      24: 'Du führst mehrere kleine Fern-Handgriffe nacheinander sauber aus.',
-      32: 'Deine magische Hand wird deutlich geschickter, weiter und vielseitiger.',
-      40: 'Deine Fernmanipulation leichter Dinge wirkt fast wie eine natürliche Verlängerung deiner eigenen Hand.'
+      8: 'You move, fetch, or tip small light objects at short range.',
+      16: 'You manipulate objects more reliably, more precisely, and a bit farther away.',
+      24: 'You carry out several small remote hand actions cleanly in succession.',
+      32: 'Your magical hand becomes clearly more skilled, farther-reaching, and more versatile.',
+      40: 'Your remote manipulation of light things feels almost like a natural extension of your own hand.'
     }
   },
   {
@@ -215,13 +215,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: I,
     name: 'Message',
     tagline:
-      'Du kannst einer Person in kurzer Distanz eine leise, gezielte Botschaft zuflüstern, die nur sie hört.',
+      'You can whisper a quiet, targeted message to a person at short range that only they hear.',
     tiers: {
-      8: 'Ein kurzer Flüstersatz an eine Person in der Nähe.',
-      16: 'Mehr Reichweite, mehr Klarheit, kurze Antwort möglich.',
-      24: 'Ein kurzer Hin-und-her-Austausch über brauchbare Distanz.',
-      32: 'Mehrere kurze Botschaften auch über Störgeräusche oder einfache Hindernisse hinweg.',
-      40: 'Fast wie ein diskretes unsichtbares Gespräch im kleinen Rahmen.'
+      8: 'A short whispered sentence to a person nearby.',
+      16: 'More range, more clarity, a short reply possible.',
+      24: 'A short back-and-forth exchange over usable distance.',
+      32: 'Several short messages even across noise or simple obstacles.',
+      40: 'Almost like a discreet invisible conversation on a small scale.'
     }
   },
   {
@@ -229,13 +229,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: I,
     name: 'Arcane Spark',
     tagline:
-      'Du erzeugst kleine Lichtpunkte, Funken, Glyphenflackern oder sichtbare arkane Markierungen.',
+      'You create small points of light, sparks, glyph flicker, or visible arcane marks.',
     tiers: {
-      8: 'Ein kleiner Lichtpunkt, Funke oder glimmendes Zeichen.',
-      16: 'Mehrere kleine Lichter oder kurze magische Markierungen.',
-      24: 'Bewegliche Lichtpunkte, kleine Symbole oder stabilere Zeichen.',
-      32: 'Saubere arkane Anzeigen, längere Leuchtdauer und komplexere kleine Lichtmuster.',
-      40: 'Eine meisterhafte kleine Licht- und Glyphensprache, die sich wie ein echtes Werkzeug anfühlt.'
+      8: 'A small point of light, spark, or glowing mark.',
+      16: 'Several small lights or brief magical marks.',
+      24: 'Moving points of light, small symbols, or more stable signs.',
+      32: 'Clean arcane displays, longer glow duration, and more complex small light patterns.',
+      40: 'A masterful small language of light and glyphs that feels like a real tool.'
     }
   },
   {
@@ -243,13 +243,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: I,
     name: 'Detect Trace',
     tagline:
-      'Du kannst schwache magische Rückstände, Resonanzen oder Ritualspuren wahrnehmen.',
+      'You can sense faint magical residue, resonances, or ritual traces.',
     tiers: {
-      8: 'Du spürst, dass hier Magie oder etwas Unnatürliches war.',
-      16: 'Grobe Richtung, Frische oder Stärke wird erkennbar.',
-      24: 'Du kannst besser unterscheiden, ob der Rückstand eher von Ritual, Objekt oder Person stammt.',
-      32: 'Schwache Unterschiede und feinere Reste werden zuverlässig wahrnehmbar.',
-      40: 'Du liest selbst zarte arkane Nachbilder erstaunlich sicher, ohne echte Analyse zu ersetzen.'
+      8: 'You sense that magic or something unnatural was here.',
+      16: 'Rough direction, freshness, or strength becomes recognizable.',
+      24: 'You can better tell whether the residue came more from a ritual, an object, or a person.',
+      32: 'Subtle differences and finer remnants become reliably perceptible.',
+      40: 'You read even delicate arcane afterimages with surprising certainty, without replacing true analysis.'
     }
   },
   {
@@ -257,13 +257,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: I,
     name: 'Script Whisper',
     tagline:
-      'Du erschaffst geheime, unsichtbare Runen oder Zeichen, die nur unter den richtigen Umständen lesbar werden.',
+      'You create secret, invisible runes or marks that become readable only under the right circumstances.',
     tiers: {
-      8: 'Du kannst ein einzelnes kurzes verborgenes Zeichen, Wort oder Symbol hinterlassen.',
-      16: 'Du hinterlässt kurze geheime Botschaften oder kleine Runenfolgen, die gezielt sichtbar gemacht werden können.',
-      24: 'Deine verborgenen Runen können kleine Absätze, mehrere Markierungen oder einfache strukturierte Hinweise tragen.',
-      32: 'Du legst komplexere geheime Schriftlagen, Zeichenpfade oder verschachtelte Runen an, die zuverlässig verborgen bleiben.',
-      40: 'Du erschaffst meisterhafte unsichtbare Schrift und Runenwerke, die großflächig, fein und schwer zu entdecken sind.'
+      8: 'You can leave a single short hidden mark, word, or symbol.',
+      16: 'You leave short secret messages or small rune sequences that can be made visible on purpose.',
+      24: 'Your hidden runes can carry small paragraphs, several marks, or simple structured clues.',
+      32: 'You lay down more complex secret script layers, mark paths, or nested runes that stay reliably hidden.',
+      40: 'You create masterful invisible writing and rune-work that is wide-ranging, fine, and hard to discover.'
     }
   },
   {
@@ -271,15 +271,15 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: I,
     name: 'Minor Conjuration',
     tagline:
-      'Du erschaffst eine kleine Menge einfacher Materie oder Substanz für kurze Zeit.',
+      'You create a small amount of simple matter or substance for a short time.',
     constraints:
-      'Wichtige Grenze: nur einfache Materie; nichts Präzisionsgebautes; nichts Komplexlebendiges; nichts, was echte Herstellung, Rituale oder Powers ersetzen soll.',
+      'Important limit: only simple matter; nothing precision-built; nothing complexly living; nothing meant to replace real crafting, rituals, or Powers.',
     tiers: {
-      8: 'Eine Handvoll einer einfachen Substanz: Wasser, Erde, Sand, Asche, Metallspäne, Kies, Lehm oder ähnliches.',
-      16: 'Etwa ein Eimer voll einer einfachen Substanz.',
-      24: 'Etwa eine Badewanne voll einer einfachen Substanz.',
-      32: 'Eine große Truhe, Wanne oder kleine Wagenladung einer einfachen Substanz.',
-      40: 'Eine beeindruckend große Menge einfacher Materie, groß genug, um einen kleinen Bereich sichtbar zu füllen oder deutlich zu verändern.'
+      8: 'A handful of a simple substance: water, earth, sand, ash, metal shavings, gravel, clay, or similar.',
+      16: 'About a bucketful of a simple substance.',
+      24: 'About a bathtub full of a simple substance.',
+      32: 'A large chest, tub, or small cartload of a simple substance.',
+      40: 'An impressively large amount of simple matter, big enough to visibly fill or clearly change a small area.'
     }
   },
   {
@@ -287,13 +287,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: R,
     name: 'Alarm',
     tagline:
-      'Du setzt auf einen Gegenstand, Schlafplatz, Zugang oder kleinen Bereich eine stille Warnung, die dich aufmerksam macht, wenn sie gebrochen wird.',
+      'You set a silent warning on an object, sleeping place, entrance, or small area that alerts you when it is broken.',
     tiers: {
-      8: 'Ein Gegenstand, Rucksack, Bettrolle oder persönlicher Platz.',
-      16: 'Ein Zugang, Fenster, Tür oder kleine Lagerstelle.',
-      24: 'Ein kleiner Raum oder klarer Radius.',
-      32: 'Mehrere Zugänge oder ein größerer Bereich.',
-      40: 'Ein ganzes Lager, eine Halle oder ein sauber gesetzter kleiner Schutzraum.'
+      8: 'An object, pack, bedroll, or personal spot.',
+      16: 'An entrance, window, door, or small campsite.',
+      24: 'A small room or clear radius.',
+      32: 'Several entrances or a larger area.',
+      40: 'An entire camp, a hall, or a cleanly set small safe space.'
     }
   },
   {
@@ -301,13 +301,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: R,
     name: 'Still Mind',
     tagline:
-      'Du kannst deinen Geist in kurzer Zeit sammeln, ordnen und gegen Panik, Verwirrung oder aufsteigende Unruhe abschirmen.',
+      'You can gather, order, and shield your mind in a short time against panic, confusion, or rising unrest.',
     tiers: {
-      8: 'Du findest rasch Ruhe und Fokus.',
-      16: 'Du schiebst starke Unruhe oder geistigen Druck für eine Weile zurück.',
-      24: 'Selbst heftige innere Turbulenz lässt sich klarer ordnen.',
-      32: 'Du kannst dich fast sofort wieder sammeln und handlungsfähig machen.',
-      40: 'Deine innere Ordnung wirkt außergewöhnlich fest und schwer zu erschüttern.'
+      8: 'You quickly find calm and focus.',
+      16: 'You push strong unrest or mental pressure back for a while.',
+      24: 'Even fierce inner turbulence can be ordered more clearly.',
+      32: 'You can gather yourself again almost immediately and become ready to act.',
+      40: 'Your inner order feels exceptionally firm and hard to shake.'
     }
   },
   {
@@ -315,13 +315,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: R,
     name: 'Read Omen',
     tagline:
-      'Du kannst aus Stimmung, Zeichen, Zufällen, Tierverhalten, Wind, Stille oder kleinen Unstimmigkeiten ein gutes oder ungutes Vorzeichen lesen.',
+      'You can read a good or ill omen from mood, signs, chance, animal behavior, wind, silence, or small dissonances.',
     tiers: {
-      8: 'Ein grobes Gefühl: gut, schlecht, falsch, unruhig.',
-      16: 'Klarere Tendenzen bezogen auf Ort, Reise, Handlung oder Begegnung.',
-      24: 'Mehrere kleine Zeichen lassen sich zu einem brauchbaren Vorzeichenbild zusammensetzen.',
-      32: 'Deine Deutung wird erstaunlich konkret in ihrer Richtung.',
-      40: 'Du liest aus kleinsten Brüchen in der Welt belastbare Warnungen oder Hoffnungszeichen.'
+      8: 'A rough feeling: good, bad, wrong, uneasy.',
+      16: 'Clearer tendencies tied to place, travel, action, or encounter.',
+      24: 'Several small signs can be assembled into a usable omen-picture.',
+      32: 'Your reading becomes astonishingly concrete in its direction.',
+      40: 'You read reliable warnings or signs of hope from the smallest breaks in the world.'
     }
   },
   {
@@ -329,13 +329,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: R,
     name: 'Cold Comfort',
     tagline:
-      'Du kannst jemandem mit ruhiger Gewissheit, dunkler Ehrlichkeit oder stiller Zuversicht Halt geben, ohne falsche Hoffnung zu machen.',
+      'You can give someone steadiness with quiet certainty, dark honesty, or silent confidence, without offering false hope.',
     tiers: {
-      8: 'Eine Person beruhigt sich durch deine Worte oder Anwesenheit.',
-      16: 'Jemand, der innerlich kippt, findet durch dich wieder Halt.',
-      24: 'Deine Ruhe kann kleine Gruppen mit stabilisieren.',
-      32: 'Selbst in düsteren Situationen schaffst du tragfähige emotionale Ruhe.',
-      40: 'Du wirkst wie ein dunkler Anker, an dem andere sich festhalten können.'
+      8: 'One person settles through your words or presence.',
+      16: 'Someone tipping inside finds their footing again through you.',
+      24: 'Your calm can help stabilize small groups as well.',
+      32: 'Even in bleak situations you create durable emotional quiet.',
+      40: 'You feel like a dark anchor others can hold onto.'
     }
   },
   {
@@ -343,13 +343,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: R,
     name: 'Sense Taint',
     tagline:
-      'Du kannst an Orten, Dingen oder Personen spüren, ob etwas verdorben, falsch, unheilvoll oder geistig „schmutzig“ ist.',
+      'You can sense on places, things, or people whether something is spoiled, wrong, ill-omened, or mentally “dirty.”',
     tiers: {
-      8: 'Du spürst dumpf, dass etwas nicht stimmt.',
-      16: 'Du kannst Person, Objekt oder Bereich als Quelle besser unterscheiden.',
-      24: 'Frische, Stärke oder Art der Verdorbenheit werden deutlicher.',
-      32: 'Selbst subtile Unreinheit oder geistige Fäulnis werden spürbar.',
-      40: 'Dein Gespür für falsche Präsenz, Verderbnis und geistige Schwere ist außergewöhnlich fein.'
+      8: 'You dimly sense that something is off.',
+      16: 'You can better tell whether a person, object, or area is the source.',
+      24: 'Freshness, strength, or kind of taint become clearer.',
+      32: 'Even subtle impurity or mental rot becomes perceptible.',
+      40: 'Your sense for false presence, corruption, and mental weight is exceptionally fine.'
     }
   },
   {
@@ -357,13 +357,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: R,
     name: 'Keep Watch',
     tagline:
-      'Du kannst in stiller Konzentration über lange Zeit wach, aufmerksam und innerlich gespannt bleiben, fast als würdest du auf etwas Unsichtbares lauschen.',
+      'You can stay awake, attentive, and inwardly taut in quiet concentration for a long time, almost as if listening for something invisible.',
     tiers: {
-      8: 'Du hältst verlässlicher Wache als andere.',
-      16: 'Müdigkeit, Monotonie und lange Stille stumpfen dich viel weniger ab.',
-      24: 'Feine Veränderungen in Geräusch, Luft oder Stimmung fallen dir eher auf.',
-      32: 'Über lange Wachen bleibst du bemerkenswert klar und gespannt.',
-      40: 'Deine Wachsamkeit wirkt fast unnatürlich gesammelt, als würdest du auch das Unsichtbare mithören.'
+      8: 'You keep watch more reliably than others.',
+      16: 'Tiredness, monotony, and long silence dull you much less.',
+      24: 'Fine changes in sound, air, or mood are more likely to catch your notice.',
+      32: 'Over long watches you stay remarkably clear and taut.',
+      40: 'Your vigilance feels almost unnaturally gathered, as if you were listening along even for the invisible.'
     }
   },
   {
@@ -371,52 +371,52 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: F,
     name: 'Mirror Shade',
     tagline:
-      'Du erzeugst einen kurzen Verwechslungs- oder Doppelbild-Effekt um dich herum.',
+      'You create a brief mix-up or double-image effect around yourself.',
     tiers: {
-      8: 'Ein kurzer falscher Eindruck, eine Blicktäuschung oder ein verwechselbarer Nachhall von dir.',
-      16: 'Beobachter hängen für einen Moment an einer falschen Position oder Version von dir fest.',
-      24: 'In Gruppen oder bewegten Szenen entsteht spürbare Verwirrung darüber, wo genau du gerade bist.',
-      32: 'Verfolger, Beobachter oder flüchtige Zeugen erinnern sich oft zuerst an die falsche Version von dir.',
-      40: 'Dein Bild kann sich sozial fast wie ein geisterhafter Zwilling vom eigentlichen Moment lösen.'
+      8: 'A brief false impression, a glance-trick, or a mixable afterimage of you.',
+      16: 'Observers hang for a moment on a false position or version of you.',
+      24: 'In groups or moving scenes, clear confusion arises about exactly where you are.',
+      32: 'Pursuers, observers, or fleeting witnesses often remember the false version of you first.',
+      40: 'Your image can socially detach from the actual moment almost like a ghostly twin.'
     }
   },
   {
     id: 'influence-read-the-room',
     attribute: F,
     name: 'Read the Room',
-    tagline: 'Du liest nicht nur die Stimmung, sondern die verborgene soziale Wahrheit einer Szene.',
+    tagline: 'You read not only the mood, but the hidden social truth of a scene.',
     tiers: {
-      8: 'Du spürst Grundstimmung und offensichtliche Spannung.',
-      16: 'Du erkennst, wer nur mitspielt, wer gleich kippt und wo Bruchlinien liegen.',
-      24: 'Macht, Angst, Unsicherheit und emotionale Trigger einer kleinen Gruppe werden klar lesbar.',
-      32: 'Selbst verdeckte Spannungen oder unausgesprochene soziale Rollen entgehen dir selten.',
-      40: 'Du liest soziale Räume fast so, als würdest du den unausgesprochenen Untertext hören.'
+      8: 'You sense the basic mood and obvious tension.',
+      16: 'You recognize who is only playing along, who is about to tip, and where the fault lines lie.',
+      24: 'Power, fear, insecurity, and emotional triggers of a small group become clearly readable.',
+      32: 'Even veiled tensions or unspoken social roles rarely escape you.',
+      40: 'You read social spaces almost as if you could hear the unspoken subtext.'
     }
   },
   {
     id: 'influence-ease-tension',
     attribute: F,
     name: 'Glamour',
-    tagline: 'Du legst ein trügerisches Erscheinungsbild über dich.',
+    tagline: 'You lay a deceptive appearance over yourself.',
     tiers: {
-      8: 'Kleidung, Stil, Auftreten oder soziale Anmutung lassen sich sichtbar verschieben.',
-      16: 'Du wirkst glaubhaft wie eine andere Herkunft, Rolle, Klasse oder Altersstufe.',
-      24: 'Das Erscheinungsbild wird deutlich flexibler und kann ganze soziale Eindrücke neu schreiben.',
-      32: 'Du kannst deine wahrgenommene äußere Erscheinung stark verändern.',
-      40: 'Dein Glamour kann fast eine vollständige äußere Neuinterpretation deiner Person erzeugen.'
+      8: 'Clothing, style, bearing, or social impression can be visibly shifted.',
+      16: 'You come across credibly as another origin, role, class, or age.',
+      24: 'The appearance becomes clearly more flexible and can rewrite whole social impressions.',
+      32: 'You can strongly change your perceived outward appearance.',
+      40: 'Your glamour can produce almost a complete outer reinterpretation of your person.'
     }
   },
   {
     id: 'influence-command-presence',
     attribute: F,
     name: 'Vanish',
-    tagline: 'Du kannst dich sozial und visuell aus dem Moment lösen und „weg“ sein.',
+    tagline: 'You can slip out of the moment socially and visually and be “gone.”',
     tiers: {
-      8: 'Du nutzt einen kurzen Bruch der Aufmerksamkeit, um aus dem Fokus zu verschwinden.',
-      16: 'In Menge, Unruhe oder Bewegung bist du schnell nicht mehr dort, wo man dich erwartet.',
-      24: 'Beobachter verlieren dich spürbar leichter aus Blick und Gedächtnis der Szene.',
-      32: 'Du bist oft schon „weg“, bevor andere ihren Blick sortiert haben.',
-      40: 'Dein Verschwinden wirkt wie ein kleiner sozialer Blink-Effekt, ohne echter Teleport zu sein.'
+      8: 'You use a brief break in attention to leave the focus.',
+      16: 'In a crowd, unrest, or motion you are quickly no longer where people expect you.',
+      24: 'Observers lose you noticeably more easily from sight and from the scene’s memory.',
+      32: 'You are often already “gone” before others have sorted their gaze.',
+      40: 'Your vanishing feels like a small social blink effect, without being true teleportation.'
     }
   },
   {
@@ -424,26 +424,26 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: F,
     name: 'Silver Tongue',
     tagline:
-      'Deine Worte können andere für einen kurzen Moment ihre eigenen Interessen, Vorbehalte, Verletzungen oder Vorsicht vergessen lassen.',
+      'Your words can make others forget their own interests, reservations, wounds, or caution for a short moment.',
     tiers: {
-      8: 'Man hört dir merklich eher zu als gewöhnlich.',
-      16: 'Einzelne Personen lassen sich für einen Moment aus ihrer Vorsicht oder Agenda herausziehen.',
-      24: 'Gespräche laufen spürbar eher auf deinem Frame als auf ihrem.',
-      32: 'Selbst schwierige Gegenüber kommen dir weiter entgegen, als sie ursprünglich wollten.',
-      40: 'Deine Worte können für kurze Zeit beinahe die Prioritäten im Raum neu sortieren.'
+      8: 'People listen to you noticeably more than usual.',
+      16: 'Individuals can be pulled for a moment out of their caution or agenda.',
+      24: 'Conversations run noticeably more on your frame than on theirs.',
+      32: 'Even difficult counterparts come farther toward you than they originally meant to.',
+      40: 'Your words can briefly almost resort the priorities in the room.'
     }
   },
   {
     id: 'influence-silken-barb',
     attribute: F,
     name: 'Silken Barb',
-    tagline: 'Du setzt einen eleganten, subtilen Satz, der im Kopf hängen bleibt und nachwirkt.',
+    tagline: 'You set an elegant, subtle line that sticks in the mind and keeps working.',
     tiers: {
-      8: 'Ein Zweifel oder kleiner Stachel bleibt bei einer Person zurück.',
-      16: 'Die Bemerkung färbt sichtbar die Nachwirkung eines Gesprächs.',
-      24: 'Der gesetzte Gedanke arbeitet länger und tiefer an Selbstbild, Unsicherheit oder Haltung.',
-      32: 'Auch kleine Gruppen können durch einen gesetzten Satz jemanden oder etwas anders sehen.',
-      40: 'Deine feinen sozialen Klingen hinterlassen elegante, lang anhaltende mentale Nachwirkungen.'
+      8: 'A doubt or small barb is left with one person.',
+      16: 'The remark visibly colors the aftereffect of a conversation.',
+      24: 'The planted thought works longer and deeper on self-image, insecurity, or stance.',
+      32: 'Even small groups can come to see someone or something differently through a planted line.',
+      40: 'Your fine social blades leave elegant, long-lasting mental aftereffects.'
     }
   },
   {
@@ -451,13 +451,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: W,
     name: 'Nose for Trouble',
     tagline:
-      'Du spürst schnell, wenn eine Situation kippt, etwas faul ist oder Ärger in der Luft liegt.',
+      'You quickly sense when a situation is tipping, something is rotten, or trouble is in the air.',
     tiers: {
-      8: 'Du merkst früh, dass etwas nicht stimmt.',
-      16: 'Du nimmst kipplige Situationen, Hinterhalte oder Ärgerquellen klarer wahr.',
-      24: 'Du spürst oft, wo Ärger gleich herkommen wird.',
-      32: 'Selbst gut getarnte schlechte Stimmung oder drohende Probleme entgehen dir selten.',
-      40: 'Dein Instinkt für Trouble wirkt fast unheimlich zuverlässig.'
+      8: 'You notice early that something is off.',
+      16: 'You perceive tipping situations, ambushes, or sources of trouble more clearly.',
+      24: 'You often sense where trouble is about to come from.',
+      32: 'Even well-camouflaged bad mood or looming problems rarely escape you.',
+      40: 'Your instinct for trouble feels almost uncannily reliable.'
     }
   },
   {
@@ -465,13 +465,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: W,
     name: 'Quick Read',
     tagline:
-      'Du kannst eine Person, ein Objekt oder eine Situation in wenigen Augenblicken grob, aber oft treffsicher einschätzen.',
+      'You can size up a person, object, or situation in a few moments roughly, but often accurately.',
     tiers: {
-      8: 'Erste brauchbare Einschätzung in Sekunden.',
-      16: 'Charakter, Zustand oder Haken einer Sache werden rasch klar.',
-      24: 'Du liest Situationen oder Menschen mit auffälliger Sicherheit an.',
-      32: 'Selbst komplexere Lagen ergeben für dich schnell ein stimmiges Bild.',
-      40: 'Deine ersten Eindrücke sind erschreckend oft treffsicher.'
+      8: 'A first usable read in seconds.',
+      16: 'Character, condition, or the catch in a thing become clear quickly.',
+      24: 'You read situations or people with striking certainty.',
+      32: 'Even more complex setups quickly form a coherent picture for you.',
+      40: 'Your first impressions are frighteningly often on target.'
     }
   },
   {
@@ -479,13 +479,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: W,
     name: 'Find the Angle',
     tagline:
-      'Du erkennst rasch den einfachsten, cleversten oder praktischsten Ansatzpunkt in einer Situation.',
+      'You quickly spot the simplest, cleverest, or most practical point of attack in a situation.',
     tiers: {
-      8: 'Du findest schnell den naheliegenden praktikablen Weg.',
-      16: 'Du entdeckst oft den besseren Hebel, Zugang oder Trick.',
-      24: 'Selbst chaotische Situationen haben für dich meist irgendwo einen funktionierenden Winkel.',
-      32: 'Du siehst in schwierigen Lagen schnell, wo man wirklich ansetzen muss.',
-      40: 'Fast jede festgefahrene Szene zeigt dir irgendeinen nutzbaren Angle.'
+      8: 'You quickly find the obvious workable path.',
+      16: 'You often discover the better lever, access, or trick.',
+      24: 'Even chaotic situations usually have some working angle for you somewhere.',
+      32: 'In hard spots you quickly see where you really need to apply pressure.',
+      40: 'Almost every stuck scene shows you some usable angle.'
     }
   },
   {
@@ -493,26 +493,26 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: W,
     name: 'Keep the Thread',
     tagline:
-      'Du verlierst in chaotischen Gesprächen, Szenen oder Suchmomenten nicht so leicht den Faden.',
+      'In chaotic conversations, scenes, or search moments you do not lose the thread so easily.',
     tiers: {
-      8: 'Du behältst das Wesentliche leichter im Kopf.',
-      16: 'Auch bei Ablenkung oder Chaos bleibt die zentrale Linie für dich erhalten.',
-      24: 'Mehrere Spuren, Verdachte oder Gesprächsstränge kannst du sauberer zusammenhalten.',
-      32: 'Selbst in unübersichtlichen Szenen verlierst du kaum die eigentliche Sache.',
-      40: 'Wo andere geistig zerfasern, hältst du die innere Linie fast mühelos.'
+      8: 'You keep the essentials more easily in mind.',
+      16: 'Even with distraction or chaos, the central line stays intact for you.',
+      24: 'You can hold several trails, suspicions, or conversation threads together more cleanly.',
+      32: 'Even in messy scenes you barely lose the actual matter at hand.',
+      40: 'Where others fray mentally, you hold the inner line almost effortlessly.'
     }
   },
   {
     id: 'wits-improvised-solution',
     attribute: W,
     name: 'Improvised Solution',
-    tagline: 'Du kannst aus einfachen Dingen schnell eine brauchbare kleine Zwecklösung machen.',
+    tagline: 'You can quickly turn simple things into a usable small makeshift solution.',
     tiers: {
-      8: 'Einfache provisorische Hilfen, Keile, Haken, Marker oder Behelfslösungen.',
-      16: 'Nützlichere kleine Konstruktionen aus dem, was gerade da ist.',
-      24: 'Überraschend verlässliche Improvisationen mit klar erkennbarem Nutzen.',
-      32: 'Aus fast jeder Umgebung lässt sich schnell etwas Brauchbares ziehen.',
-      40: 'Deine Improvisationen wirken im Kleinen fast wie ein eigener Handwerksstil.'
+      8: 'Simple provisional aids, wedges, hooks, markers, or stopgaps.',
+      16: 'More useful small constructions from whatever is at hand.',
+      24: 'Surprisingly reliable improvisations with clearly recognizable use.',
+      32: 'From almost any environment something usable can be pulled quickly.',
+      40: 'Your improvisations feel, in the small scale, almost like a craft style of their own.'
     }
   },
   {
@@ -520,13 +520,13 @@ export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
     attribute: W,
     name: 'Street Sense',
     tagline:
-      'Du findest dich in Gassen, Märkten, Lagern, Tavernen und unübersichtlichen Alltagsräumen schnell zurecht.',
+      'You find your way quickly in alleys, markets, camps, taverns, and cluttered everyday spaces.',
     tiers: {
-      8: 'Du erkennst schnell Ausgänge, Engstellen und nützliche Punkte.',
-      16: 'Du verstehst rasch, wie ein Ort sozial und praktisch funktioniert.',
-      24: 'Selbst fremde Alltagsräume werden zügig lesbar und nutzbar für dich.',
-      32: 'Du findest fast immer die richtigen Leute, Wege oder Orte zum Untertauchen, Beobachten oder Durchkommen.',
-      40: 'In menschlichen Alltagsräumen bist du fast nie wirklich verloren.'
+      8: 'You quickly spot exits, choke points, and useful spots.',
+      16: 'You quickly understand how a place works socially and practically.',
+      24: 'Even unfamiliar everyday spaces become quickly readable and usable for you.',
+      32: 'You almost always find the right people, paths, or places to vanish, watch, or get through.',
+      40: 'In human everyday spaces you are almost never truly lost.'
     }
   }
 ];
