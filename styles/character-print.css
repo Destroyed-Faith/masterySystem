@@ -943,6 +943,67 @@
   break-inside: avoid;
 }
 
+.print-page-1.print-page-table .cp-perception-skill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  margin: 0 0 6px;
+  border: 1.5px solid #333;
+  border-radius: 3px;
+  background: #f3f3f3;
+}
+
+.print-page-1.print-page-table .cp-perception-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex: 0 0 auto;
+}
+
+.print-page-1.print-page-table .cp-perception-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.print-page-1.print-page-table .cp-pool-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px 6px;
+  border: 1.25px solid #333;
+  border-radius: 2px;
+  background: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-page-1.print-page-table .cp-pool-chip.is-half-pool {
+  color: #8a5a20;
+  border-color: #a67c4a;
+}
+
+.print-page-1.print-page-table .cp-skill-category {
+  margin-bottom: 4px;
+}
+
+.print-page-1.print-page-table .cp-skill-cat-title {
+  margin: 0 0 2px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #444;
+  border-bottom: 1px solid #bbb;
+  padding-bottom: 1px;
+}
+
 .print-page-1.print-page-table .cp-learned-skills-full .cp-learned-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -954,6 +1015,12 @@
   font-size: 9px;
   page-break-inside: avoid;
   break-inside: avoid;
+}
+
+.print-page-1.print-page-table .cp-sk-attrs {
+  font-style: normal;
+  color: #666;
+  font-size: 8px;
 }
 
 /* Identity + core combat strip */
@@ -1074,7 +1141,7 @@
   min-width: 0;
 }
 
-.cp-learned-list .cp-sk-name em {
+.cp-learned-list .cp-sk-attrs {
   font-style: normal;
   color: #666;
   font-size: 8px;
@@ -3516,6 +3583,7 @@ body.mastery-print.is-compact {
   font-size: 9.5px;
 }
 
+.qp-sk-name .qp-sk-attrs,
 .qp-sk-name em {
   font-style: normal;
   color: #9a9286;
@@ -3524,6 +3592,61 @@ body.mastery-print.is-compact {
 .qp-sk-keep {
   font-weight: 700;
   color: #c4b8a4;
+}
+
+.qp-sk-keep.is-half-pool {
+  color: #c49a6c;
+}
+
+.qp-perception-skill {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  margin-bottom: 1.5mm;
+  padding: 1mm 1.5mm;
+  border: 1px solid #8a8074;
+  border-radius: 2px;
+}
+
+.qp-perception-name {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 9px;
+}
+
+.qp-perception-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1mm;
+  flex: 1;
+}
+
+.qp-pool-chip {
+  display: inline-flex;
+  padding: 0.4mm 1.2mm;
+  border: 1px solid #8a8074;
+  border-radius: 1px;
+  font-weight: 800;
+  font-size: 9px;
+}
+
+.qp-pool-chip.is-half-pool {
+  color: #c49a6c;
+}
+
+.qp-skill-category {
+  margin-bottom: 1.2mm;
+}
+
+.qp-skill-cat-title {
+  margin: 0 0 0.6mm;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9a9286;
+  border-bottom: 1px solid rgba(154, 146, 134, 0.35);
 }
 
 .qp-sk-boxes {

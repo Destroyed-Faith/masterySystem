@@ -15,6 +15,56 @@ import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, sumNpcAttackSlotsFromPowers, } from '../utils/npc-attack-model.js';
+import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
+/** Clamp skill ranks in an actor update to MR × 4 (and ≥ 0). */
+function clampSkillRanksInUpdate(actor, changed) {
+    if (actor.type !== 'character')
+        return;
+    const systemChange = changed?.system;
+    if (!systemChange || typeof systemChange !== 'object')
+        return;
+    const currentMr = Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 1));
+    const nextMrRaw = systemChange.mastery?.rank;
+    const nextMr = nextMrRaw != null && Number.isFinite(Number(nextMrRaw))
+        ? Math.max(1, Math.floor(Number(nextMrRaw)))
+        : currentMr;
+    const maxSkill = calculateMaxSkillRank(nextMr);
+    const masteryDropped = nextMr < currentMr;
+    const skillPatch = systemChange.skills && typeof systemChange.skills === 'object'
+        ? { ...systemChange.skills }
+        : null;
+    if (skillPatch) {
+        for (const [key, raw] of Object.entries(skillPatch)) {
+            if (raw == null)
+                continue;
+            const n = Math.floor(Number(raw));
+            if (!Number.isFinite(n))
+                continue;
+            skillPatch[key] = validateSkillValue(Math.max(0, n), nextMr);
+        }
+        systemChange.skills = skillPatch;
+    }
+    // When MR drops, also clamp skills that are not part of this write.
+    if (masteryDropped) {
+        const currentSkills = actor.system?.skills && typeof actor.system.skills === 'object'
+            ? actor.system.skills
+            : {};
+        const merged = { ...(systemChange.skills || {}) };
+        let changedAny = false;
+        for (const [key, raw] of Object.entries(currentSkills)) {
+            if (Object.prototype.hasOwnProperty.call(merged, key))
+                continue;
+            const n = Math.max(0, Math.floor(Number(raw) || 0));
+            if (n > maxSkill) {
+                merged[key] = maxSkill;
+                changedAny = true;
+            }
+        }
+        if (changedAny) {
+            systemChange.skills = merged;
+        }
+    }
+}
 export class MasteryActor extends Actor {
     // NOTE: Do NOT override prepareData() here. Core v13 already runs
     // prepareBaseData → prepareEmbeddedDocuments (ActiveEffects phase "initial")
@@ -23,6 +73,11 @@ export class MasteryActor extends Actor {
     // which corrupted the v13 effect-phase tracking on synthetic (unlinked
     // token) actors — "ActiveEffect application phase … has already completed"
     // — and silently overwrote any ActiveEffect changes to derived values.
+    /** Enforce the skill rank ceiling (MR × 4) on every write path. */
+    async _preUpdate(changed, options, user) {
+        clampSkillRanksInUpdate(this, changed);
+        return super._preUpdate(changed, options, user);
+    }
     /**
      * Prepare base data for the actor (attributes, stones, etc.)
      */

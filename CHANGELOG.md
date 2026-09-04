@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.484] - 2026-09-04
+
+### Fixed
+
+- **Skill rank ceiling:** Character skill ranks are clamped to **MR × 4** on every actor write (`_preUpdate`), so Free XP, imports, and other paths cannot push a skill past the cap.
+- **Table / Quick Play Character Sheet · Skills:** Combat Reflexes now shows use boxes on Page 1 (no longer italic-only name). Attribute labels use normal style instead of `<em>`.
+
+### Changed
+
+- **Table / Quick Play Character Sheet · Skills:** Skills are grouped by category (Physical, Knowledge & Craft, Social, Survival, Martial). **Perception** sits elevated at the top with its three dice pools (Wits / Intellect / Resolve) as separate chips.
+- **Interactive Character Sheet · Perception:** Perception category is visually elevated at the top of the skills tab.
+
 ## [0.9.483] - 2026-09-03
 
 ### Fixed

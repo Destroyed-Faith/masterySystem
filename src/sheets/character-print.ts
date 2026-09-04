@@ -14,9 +14,9 @@
  * "may be used once per round".
  */
 
-import { calculateBaseEvade } from '../utils/calculations.js';
+import { calculateBaseEvade, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
-import { SKILLS } from '../utils/skills.js';
+import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
@@ -219,45 +219,48 @@ function poolAtHealthFraction(pool: number, fraction: number): number {
   return Math.max(1, Math.floor(pool * (1 - fraction)));
 }
 
-/** Skill groups in the order they appear on the printed sheet. */
+/** Skill groups in catalog order (Perception is printed separately at the top). */
 const SKILL_GROUPS: { key: string; label: string; skills: string[] }[] = [
   {
-    key: 'martial',
-    label: 'Martial Skills',
-    skills: ['combatReflexes', 'defensiveCombat', 'handToHand', 'meleeWeapons', 'rangedWeapons']
-  },
-  {
     key: 'physical',
-    label: 'Physical Skills',
-    skills: ['athletics', 'acrobatics', 'stealth', 'concealment', 'ride', 'sleightOfHand']
+    label: SKILL_CATEGORIES.PHYSICAL,
+    skills: Object.entries(SKILLS)
+      .filter(([, def]) => def.category === SKILL_CATEGORIES.PHYSICAL)
+      .map(([key]) => key)
+      .sort((a, b) => SKILLS[a]!.name.localeCompare(SKILLS[b]!.name)),
   },
   {
     key: 'knowledge',
-    label: 'Knowledge & Craft Skills',
-    skills: ['lore', 'alchemy', 'crafting', 'engineering', 'medicine', 'navigation', 'occultism']
-  },
-  {
-    key: 'survival',
-    label: 'Survival Skills',
-    skills: ['perception', 'survival', 'animalHandling', 'tracking', 'herbalism', 'weatherSense']
+    label: SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
+    skills: Object.entries(SKILLS)
+      .filter(([, def]) => def.category === SKILL_CATEGORIES.KNOWLEDGE_CRAFT)
+      .map(([key]) => key)
+      .sort((a, b) => SKILLS[a]!.name.localeCompare(SKILLS[b]!.name)),
   },
   {
     key: 'social',
-    label: 'Social Skills',
-    skills: [
-      'persuasion',
-      'deception',
-      'intimidation',
-      'leadership',
-      'performance',
-      'empathy',
-      'negotiation',
-      'seduction',
-      'investigation',
-      'etiquette',
-      'streetwise'
-    ]
-  }
+    label: SKILL_CATEGORIES.SOCIAL,
+    skills: Object.entries(SKILLS)
+      .filter(([, def]) => def.category === SKILL_CATEGORIES.SOCIAL)
+      .map(([key]) => key)
+      .sort((a, b) => SKILLS[a]!.name.localeCompare(SKILLS[b]!.name)),
+  },
+  {
+    key: 'survival',
+    label: SKILL_CATEGORIES.SURVIVAL,
+    skills: Object.entries(SKILLS)
+      .filter(([, def]) => def.category === SKILL_CATEGORIES.SURVIVAL)
+      .map(([key]) => key)
+      .sort((a, b) => SKILLS[a]!.name.localeCompare(SKILLS[b]!.name)),
+  },
+  {
+    key: 'martial',
+    label: SKILL_CATEGORIES.MARTIAL,
+    skills: Object.entries(SKILLS)
+      .filter(([, def]) => def.category === SKILL_CATEGORIES.MARTIAL)
+      .map(([key]) => key)
+      .sort((a, b) => SKILLS[a]!.name.localeCompare(SKILLS[b]!.name)),
+  },
 ];
 
 function cap(s: string): string {
@@ -274,15 +277,34 @@ function formatAttrs(attrs: string[] | undefined): string {
   return attrs.map((a) => cap(a)).join(' / ');
 }
 
+type PrintSkillRow = {
+  key: string;
+  name: string;
+  attrs: string;
+  pool: number | string;
+  poolLabel: string;
+  poolChips: { attributeKey: string; attributeLabel: string; rollLabel: string; halfPool: boolean }[];
+  halfPool: boolean;
+  keep: string;
+  rating: number;
+  boxes: { size: number; state: string }[];
+};
+
 function buildPrintSkillPoolFields(
   actor: Actor,
   skillKey: string,
   attributes: string[] | undefined,
   rating: number,
-): { poolLabel: string; halfPool: boolean; pool: number | string; keep: string } {
+): {
+  poolLabel: string;
+  halfPool: boolean;
+  pool: number | string;
+  keep: string;
+  poolChips: PrintSkillRow['poolChips'];
+} {
   const attributeKeys = attributes?.length ? attributes : [];
   if (!attributeKeys.length) {
-    return { poolLabel: '—', halfPool: false, pool: '—', keep: '' };
+    return { poolLabel: '—', halfPool: false, pool: '—', keep: '', poolChips: [] };
   }
   const previews = attributeKeys.map((attributeKey) =>
     buildSkillRollPoolPreview(actor, skillKey, attributeKey, rating),
@@ -293,6 +315,35 @@ function buildPrintSkillPoolFields(
     halfPool: previews.some((p) => p.halfPool),
     pool: primary.numDice > 0 ? primary.numDice : '—',
     keep: primary.keepDice > 0 ? `k${primary.keepDice}` : '',
+    poolChips: previews.map((p, i) => ({
+      attributeKey: attributeKeys[i]!,
+      attributeLabel: cap(attributeKeys[i]!),
+      rollLabel: p.rollLabel,
+      halfPool: p.halfPool,
+    })),
+  };
+}
+
+function buildPrintSkillRow(
+  actor: Actor,
+  key: string,
+  rating: number,
+  spent: number,
+  masteryRank: number,
+): PrintSkillRow {
+  const def = SKILLS[key];
+  const poolFields = buildPrintSkillPoolFields(actor, key, def?.attributes, rating);
+  const boxes = buildSkillUseBoxes(rating, spent, masteryRank || 1).map((b) => ({
+    size: b.size,
+    state: b.state,
+  }));
+  return {
+    key,
+    name: def?.name || cap(key),
+    attrs: formatAttrs(def?.attributes),
+    ...poolFields,
+    rating,
+    boxes,
   };
 }
 
@@ -1010,44 +1061,36 @@ export function buildCharacterPrintContext(
     activeBuffDuration: activeBuffRoundBoxes.length,
   };
 
-  // ── Skills (full catalog on the table sheet — 3-column wrap) ─────────
+  // ── Skills: Perception elevated, then categories (full catalog) ──────
   const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
   const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-  const learnedSkills: {
-    key: string;
-    name: string;
-    attrs: string;
-    pool: number | string;
-    poolLabel: string;
-    halfPool: boolean;
-    keep: string;
-    rating: number;
-    boxes: { size: number; state: string }[];
-    omitUseBoxes?: boolean;
-  }[] = [];
-  const allSkillKeys = SKILL_GROUPS.flatMap((g) => g.skills).filter((sk) => !!SKILLS[sk]);
-  for (const key of allSkillKeys) {
-    const rating = num(skillMap[key]);
-    const def = SKILLS[key];
-    const poolFields = buildPrintSkillPoolFields(actor as Actor, key, def?.attributes, rating);
-    // Combat Reflexes usage boxes live on Page 2 Initiative — name only here.
-    const boxes =
-      key === 'combatReflexes'
-        ? []
-        : buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1).map((b) => ({
-            size: b.size,
-            state: b.state,
-          }));
-    learnedSkills.push({
-      key,
-      name: def?.name || cap(key),
-      attrs: formatAttrs(def?.attributes),
-      ...poolFields,
-      rating,
-      boxes,
-      omitUseBoxes: key === 'combatReflexes',
-    });
-  }
+  const perceptionSkill = buildPrintSkillRow(
+    actor as Actor,
+    'perception',
+    num(skillMap.perception),
+    num(skillsSpent.perception),
+    masteryRank || 1,
+  );
+  const skillCategories = SKILL_GROUPS.map((group) => ({
+    key: group.key,
+    label: group.label,
+    skills: group.skills
+      .filter((sk) => !!SKILLS[sk] && sk !== 'perception')
+      .map((sk) =>
+        buildPrintSkillRow(
+          actor as Actor,
+          sk,
+          num(skillMap[sk]),
+          num(skillsSpent[sk]),
+          masteryRank || 1,
+        ),
+      ),
+  })).filter((g) => g.skills.length > 0);
+  // Flat list kept for tests / tooling (includes Perception + every catalog skill).
+  const learnedSkills = [
+    perceptionSkill,
+    ...skillCategories.flatMap((g) => g.skills),
+  ];
 
   // Legacy full catalog (kept for tests / optional tooling; not printed on core pages).
   const skillsByGroup = SKILL_GROUPS.map((group) => ({
@@ -1371,6 +1414,8 @@ export function buildCharacterPrintContext(
     battle,
     combatSensesDisplay: buildCombatSensesDisplayContext(actor),
     skillsByGroup,
+    perceptionSkill,
+    skillCategories,
     learnedSkills,
     hasLearnedSkills: learnedSkills.length > 0,
     disadvantages,
@@ -2159,33 +2204,37 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
   };
 
   const skillsSpent = system?.skillsSpent && typeof system.skillsSpent === 'object' ? system.skillsSpent : {};
-  const skills: {
-    name: string;
-    attr: string;
-    pool: number | string;
-    keep: string;
-    rating: number;
-    boxes: { size: number; state: string }[];
-  }[] = [];
   const skillMap = system?.skills && typeof system.skills === 'object' ? system.skills : {};
-  for (const [key, raw] of Object.entries(skillMap)) {
-    const rating = num(raw);
-    if (rating <= 0) continue;
-    const def = SKILLS[key];
-    const attrKey = def?.attributes?.[0];
-    const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
-    const boxes = buildSkillUseBoxes(rating, num(skillsSpent[key]), masteryRank || 1)
-      .map((b) => ({ size: b.size, state: b.state }));
-    skills.push({
-      name: def?.name || cap(key),
-      attr: attrKey ? cap(attrKey) : '[CHECK]',
-      pool: pool > 0 ? pool : '[CHECK]',
-      keep: masteryRank > 0 ? `k${masteryRank}` : '[CHECK]',
-      rating,
-      boxes,
-    });
-  }
-  skills.sort((a, b) => a.name.localeCompare(b.name));
+  const perceptionRating = num(skillMap.perception);
+  const perceptionSkill =
+    perceptionRating > 0
+      ? buildPrintSkillRow(
+          actor as Actor,
+          'perception',
+          perceptionRating,
+          num(skillsSpent.perception),
+          masteryRank || 1,
+        )
+      : null;
+  const skillCategories = SKILL_GROUPS.map((group) => ({
+    key: group.key,
+    label: group.label,
+    skills: group.skills
+      .filter((sk) => sk !== 'perception' && num(skillMap[sk]) > 0)
+      .map((sk) =>
+        buildPrintSkillRow(
+          actor as Actor,
+          sk,
+          num(skillMap[sk]),
+          num(skillsSpent[sk]),
+          masteryRank || 1,
+        ),
+      ),
+  })).filter((g) => g.skills.length > 0);
+  const skills = [
+    ...(perceptionSkill ? [perceptionSkill] : []),
+    ...skillCategories.flatMap((g) => g.skills),
+  ];
 
   const weaponSetTiles = buildCompactWeaponSetTiles(actor);
 
@@ -2337,6 +2386,8 @@ export function buildCharacterCompactPrintContext(actor: any): Record<string, un
     generalStones,
     skills,
     hasSkills: skills.length > 0,
+    perceptionSkill,
+    skillCategories,
     weaponSetTiles,
     hasWeaponSets: weaponSetTiles.length > 0,
     powerGroups,

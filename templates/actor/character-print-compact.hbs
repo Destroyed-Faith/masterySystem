@@ -158,17 +158,35 @@
   {{#if hasSkills}}
   <section class="qp-block">
     <h2>Skills</h2>
-    <ul class="qp-skills">
-      {{#each skills}}
-      <li>
-        <span class="qp-sk-name">{{name}} <em>({{attr}})</em></span>
-        <span class="qp-sk-keep">{{pool}}{{keep}}</span>
-        <span class="qp-sk-boxes">
-          {{#each boxes}}<i class="qp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
-        </span>
-      </li>
-      {{/each}}
-    </ul>
+    {{#if perceptionSkill}}
+    <div class="qp-perception-skill">
+      <span class="qp-perception-name">{{perceptionSkill.name}}</span>
+      <span class="qp-perception-chips">
+        {{#each perceptionSkill.poolChips}}
+        <span class="qp-pool-chip{{#if halfPool}} is-half-pool{{/if}}" title="{{attributeLabel}}">{{rollLabel}}</span>
+        {{/each}}
+      </span>
+      <span class="qp-sk-boxes">
+        {{#each perceptionSkill.boxes}}<i class="qp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
+      </span>
+    </div>
+    {{/if}}
+    {{#each skillCategories}}
+    <div class="qp-skill-category">
+      <h3 class="qp-skill-cat-title">{{label}}</h3>
+      <ul class="qp-skills">
+        {{#each skills}}
+        <li>
+          <span class="qp-sk-name">{{name}} <span class="qp-sk-attrs">({{attrs}})</span></span>
+          <span class="qp-sk-keep{{#if halfPool}} is-half-pool{{/if}}">{{#if halfPool}}½ {{/if}}{{poolLabel}}</span>
+          <span class="qp-sk-boxes">
+            {{#each boxes}}<i class="qp-sk-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>{{/each}}
+          </span>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/each}}
   </section>
   {{/if}}
 

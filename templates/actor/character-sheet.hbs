@@ -1362,7 +1362,7 @@
       </div>
       
       {{#each skills}}
-        <div class="skill-category-compact">
+        <div class="skill-category-compact{{#if (eq this.category "Perception")}} skill-category-compact--perception{{/if}}">
           <h4 class="category-header-compact">
             {{#if (eq this.category "Perception")}}<i class="fas fa-eye"></i>{{/if}}
             {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}

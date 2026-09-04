@@ -336,13 +336,16 @@ describe('Quick Play character print', () => {
     expect(extraAttack.tiers.map((t: any) => t.label)).toEqual(['T2', 'T3']);
   });
 
-  it('shows only trained skills with Keep and existing skill-use boxes', () => {
+  it('shows only trained skills by category with Keep and existing skill-use boxes', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     expect(ctx.skills.map((s: any) => s.name)).not.toContain('Athletics');
+    expect(ctx.skillCategories.some((c: any) => c.label === 'Physical')).toBe(true);
     const acro = ctx.skills.find((s: any) => s.name === 'Acrobatics');
-    expect(acro.attr).toBe('Agility');
+    expect(acro.attrs).toBe('Agility');
     expect(acro.pool).toBe(10);
     expect(acro.keep).toBe('k2');
+    expect(acro.poolLabel).toBe('10k2');
+    expect(acro.halfPool).toBe(false);
     expect(acro.boxes.map((b: any) => b.size)).toEqual([2, 2, 0, 0]);
     expect(acro.boxes.map((b: any) => b.state)).toEqual([
       'available',

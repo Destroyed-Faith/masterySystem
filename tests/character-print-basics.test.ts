@@ -93,12 +93,24 @@ describe('character print table sheet', () => {
     expect(ctx.battle?.showBasicAttack).toBe(true);
   });
 
-  it('prints the full skill catalog and core combat finished values', () => {
+  it('prints the full skill catalog by category with Perception elevated', () => {
     const ctx = buildCharacterPrintContext(mockCharacter(2)) as any;
     expect(ctx.hasLearnedSkills).toBe(true);
-    expect(ctx.learnedSkills.length).toBe(35);
+    expect(ctx.perceptionSkill?.key).toBe('perception');
+    expect(ctx.perceptionSkill?.poolChips).toHaveLength(3);
+    expect(ctx.skillCategories.map((c: any) => c.label)).toEqual([
+      'Physical',
+      'Knowledge & Craft',
+      'Social',
+      'Survival',
+      'Martial',
+    ]);
+    expect(ctx.learnedSkills.length).toBe(36);
     expect(ctx.learnedSkills.map((s: any) => s.name)).toEqual(
-      expect.arrayContaining(['Melee Weapons', 'Athletics', 'Lore']),
+      expect.arrayContaining(['Melee Weapons', 'Athletics', 'Lore', 'Perception', 'Artisanry']),
+    );
+    expect(ctx.learnedSkills.every((s: any) => s.key !== 'perception' || s === ctx.perceptionSkill)).toBe(
+      true,
     );
     const melee = ctx.learnedSkills.find((s: any) => s.key === 'meleeWeapons');
     expect(melee?.rating).toBe(2);
@@ -223,14 +235,14 @@ describe('character print table sheet', () => {
     expect(ctx.stoneDashboard.combatReflexes).toBeNull();
   });
 
-  it('puts Combat Reflexes usage boxes on Page 2 Initiative only', () => {
+  it('shows Combat Reflexes use boxes on Page 1 and Page 2 Initiative', () => {
     const ctx = buildCharacterPrintContext(
       mockCharacter(2, { skills: { meleeWeapons: 2, combatReflexes: 4 } }),
     ) as any;
     const crSkill = ctx.learnedSkills.find((s: any) => s.key === 'combatReflexes');
     expect(crSkill).toBeTruthy();
-    expect(crSkill.omitUseBoxes).toBe(true);
-    expect(crSkill.boxes).toEqual([]);
+    expect(crSkill.omitUseBoxes).toBeUndefined();
+    expect(crSkill.boxes.length).toBe(4);
     expect(ctx.stoneDashboard.combatReflexes).toBeTruthy();
     expect(ctx.stoneDashboard.combatReflexes.rating).toBe(4);
     expect(ctx.stoneDashboard.combatReflexes.boxes.length).toBe(4);

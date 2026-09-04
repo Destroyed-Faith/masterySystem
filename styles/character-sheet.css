@@ -3464,6 +3464,19 @@
   box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
 }
 
+.mastery-system.sheet.actor.character .skill-category-compact--perception {
+  border-color: var(--df-accent, #c4a574);
+  background: linear-gradient(180deg, rgba(196, 165, 116, 0.12), var(--df-bg-panel, #2a3136) 55%);
+}
+
+.mastery-system.sheet.actor.character .skill-category-compact--perception .category-header-compact {
+  color: var(--df-accent, #c4a574);
+}
+
+.mastery-system.sheet.actor.character .skill-category-compact--perception .skill-roll-lead-group--multi {
+  gap: 6px;
+}
+
 .mastery-system.sheet.actor.character .category-header-compact {
   margin: 0 0 12px 0;
   font-size: 16px;
