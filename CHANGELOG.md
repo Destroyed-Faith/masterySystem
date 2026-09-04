@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.487] - 2026-09-04
+
+### Fixed
+
+- **Table Character Sheet · Dark theme contrast:** Attack/Damage roll lines on Powers & Combat use light heading labels plus a brighter blue value color (readable on charcoal). Stone Dashboard “Regenerating X Stones per Round” uses a dark panel with light text instead of near-white-on-white. Attribute color accents on the Stone Dashboard are lifted for dark backgrounds.
+
+### Changed
+
+- **Table Character Sheet · Minor Expressions:** Expressions sit side-by-side in one compact row (single-line ellipsis), with bilingual EN/DE titles (`Minor Expressions · Kleinere Expressionen`, `Uses / Rest · Nutzungen / Rast`). Perception and skill category spacing tightened so Page 1 fits better after the larger skills block.
+
 ## [0.9.486] - 2026-09-04
 
 ### Fixed

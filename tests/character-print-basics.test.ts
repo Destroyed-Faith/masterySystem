@@ -334,8 +334,21 @@ describe('character print table sheet', () => {
     expect(hbs).toContain('cp-vital-total');
     expect(hbs).toContain('Lost Health Points');
     expect(hbs).toContain('Lost Stress');
+    expect(hbs).toContain('Kleinere Expressionen');
+    expect(hbs).toContain('Nutzungen / Rast');
   });
 
+  it('keeps Minor Expressions as a compact shared row in table CSS', () => {
+    const { readFileSync } = require('node:fs');
+    const { join } = require('node:path');
+    const css = readFileSync(join(process.cwd(), 'styles/character-print.css'), 'utf8');
+    expect(css).toContain('.print-page-1.print-page-table .cp-minor-list');
+    expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-minor-list\s*\{[^}]*flex-direction:\s*row/s);
+    expect(css).toMatch(/\.print-page-1\.print-page-table \.cp-minor-body\s*\{[^}]*white-space:\s*nowrap/s);
+    expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-battle-card-roll\s*\{[^}]*color:\s*#9ec5f5/s);
+    expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-sd-exhausted\s*\{[^}]*background:\s*#1c1916/s);
+    expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-sd-exhausted-label\s*\{[^}]*color:\s*#e6e1d6/s);
+  });
   it('exposes light and dark body classes for the table sheet', async () => {
     const { characterPrintBodyClass } = await import('../src/sheets/character-print');
     expect(characterPrintBodyClass()).toBe('mastery-print is-light');

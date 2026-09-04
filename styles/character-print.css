@@ -939,6 +939,69 @@
   margin-bottom: 0;
 }
 
+.print-page-1.print-page-table .cp-minor-expressions .cp-block-title {
+  font-size: 10px;
+}
+
+.print-page-1.print-page-table .cp-title-alt {
+  font-weight: 600;
+  font-size: 8.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #666;
+}
+
+.print-page-1.print-page-table .cp-minor-header {
+  margin-bottom: 2px;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.print-page-1.print-page-table .cp-minor-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2px 4px;
+  align-items: stretch;
+}
+
+.print-page-1.print-page-table .cp-minor-item {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  gap: 3px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.print-page-1.print-page-table .cp-minor-name {
+  flex: 0 1 auto;
+  font-size: 8.5px;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.print-page-1.print-page-table .cp-minor-attr {
+  font-size: 7px;
+}
+
+.print-page-1.print-page-table .cp-minor-body {
+  display: inline;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 7.5px;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #444;
+}
+
 .print-page-1.print-page-table .cp-learned-skills-full {
   grid-column: 1 / -1;
   margin-bottom: 0;
@@ -950,9 +1013,9 @@
 .print-page-1.print-page-table .cp-perception-skill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 6px;
-  margin: 0 0 6px;
+  gap: 6px;
+  padding: 2px 5px;
+  margin: 0 0 3px;
   border: 1.5px solid #333;
   border-radius: 3px;
   background: #f3f3f3;
@@ -994,18 +1057,18 @@
 }
 
 .print-page-1.print-page-table .cp-skill-category {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .print-page-1.print-page-table .cp-skill-cat-title {
-  margin: 0 0 2px;
-  font-size: 9px;
+  margin: 0 0 1px;
+  font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #444;
   border-bottom: 1px solid #bbb;
-  padding-bottom: 1px;
+  padding-bottom: 0;
 }
 
 .print-page-1.print-page-table .cp-learned-skills-full .cp-learned-list {
@@ -3943,11 +4006,24 @@ body.mastery-print.is-dark:not(.is-compact) {
 .mastery-print.is-dark:not(.is-compact) .cp-temphp,
 .mastery-print.is-dark:not(.is-compact) .cp-minor-attr,
 .mastery-print.is-dark:not(.is-compact) .cp-minor-body,
+.mastery-print.is-dark:not(.is-compact) .cp-title-alt,
+.mastery-print.is-dark:not(.is-compact) .cp-minor-uses-label,
 .mastery-print.is-dark:not(.is-compact) .cp-disadv-desc,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-power-summary,
 .mastery-print.is-dark:not(.is-compact) .cp-battle-card-eff,
-.mastery-print.is-dark:not(.is-compact) .cp-battle-title-hint {
+.mastery-print.is-dark:not(.is-compact) .cp-battle-title-hint,
+.mastery-print.is-dark:not(.is-compact) .cp-battle-card-footnote {
   color: #c4b8a4;
+}
+
+/* Attack / Damage rolls: light heading labels + brighter blue values on charcoal */
+.mastery-print.is-dark:not(.is-compact) .cp-battle-card-roll {
+  color: #9ec5f5;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-battle-card-roll strong {
+  color: #e6e1d6;
+  font-weight: 800;
 }
 
 .mastery-print.is-dark:not(.is-compact) .cp-field,
@@ -4012,6 +4088,39 @@ body.mastery-print.is-dark:not(.is-compact) {
   border-color: var(--attr-color, #e6e1d6);
 }
 
+/* Stone Dashboard attribute colors: lift dark blues/purples for charcoal bg */
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="might"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="might"] {
+  --attr-color: #e6e1d6;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="agility"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="agility"] {
+  --attr-color: #7dcea0;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="vitality"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="vitality"] {
+  --attr-color: #e57373;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="intellect"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="intellect"] {
+  --attr-color: #90caf9;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="resolve"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="resolve"] {
+  --attr-color: #ce93d8;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="influence"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="influence"] {
+  --attr-color: #ffb74d;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-pool[data-attr="wits"],
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="wits"] {
+  --attr-color: #fff176;
+}
+.mastery-print.is-dark:not(.is-compact) .cp-sd-power-group[data-attr="generic"] {
+  --attr-color: #90a4ae;
+}
+
 .mastery-print.is-dark:not(.is-compact) .cp-sk-box.is-spent,
 .mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box.is-spent {
   background: #8a8478;
@@ -4029,12 +4138,31 @@ body.mastery-print.is-dark:not(.is-compact) {
   color: #e6e1d6;
 }
 
-.mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-power-group-head,
 .mastery-print.is-dark:not(.is-compact) .cp-battle-empty,
 .mastery-print.is-dark:not(.is-compact) .cp-learned-empty {
   color: #c4b8a4;
   border-color: #3c3832;
+}
+
+/* Regeneration strip: dark panel + light text (was near-white on near-white) */
+.mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted {
+  background: #1c1916;
+  border-color: #5c564c;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted-label {
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted-label b {
+  color: #fff;
+  font-weight: 800;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-sd-exhausted-hint {
+  color: #c4b8a4;
 }
 
 .mastery-print.is-dark:not(.is-compact) .cp-power-artifact {

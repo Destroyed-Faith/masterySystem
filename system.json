@@ -3,7 +3,7 @@
   "type": "system",
   "title": "Mastery System / Destroyed Faith",
   "description": "A classless dark-fantasy tabletop RPG powered by the Mastery System. Build characters freely, master Stones and Powers, perform rituals, summon allies, and play through a deeply integrated Foundry VTT experience.<p><a href=\"https://destroyedfaith.com/\">Official Website</a> · <a href=\"https://www.youtube.com/@destroyed-faith\">YouTube</a></p>",
-  "version": "0.9.486",
+  "version": "0.9.487",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -122,7 +122,7 @@
   "secondaryTokenAttribute": "stress",
   "url": "https://destroyedfaith.com/",
   "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json",
-  "download": "https://github.com/Destroyed-Faith/masterySystem/releases/download/v0.9.486/mastery-system-0.9.486.zip",
+  "download": "https://github.com/Destroyed-Faith/masterySystem/releases/download/v0.9.487/mastery-system-0.9.487.zip",
   "license": "LICENSE.md",
   "readme": "README.md",
   "bugs": "https://github.com/Destroyed-Faith/masterySystem/issues",
