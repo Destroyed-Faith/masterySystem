@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.488] - 2026-09-04
+
+### Fixed
+
+- **Table Character Sheet · Reroll Points boxes:** Empty checkbox squares with clear gaps and borders (no more solid fill / diagonal slash that looked like “two lines”). Spent points show a plain **×** inside the box; dark theme uses a bright border so each field stays readable on charcoal.
+
 ## [0.9.487] - 2026-09-04
 
 ### Fixed

@@ -348,6 +348,8 @@ describe('character print table sheet', () => {
     expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-battle-card-roll\s*\{[^}]*color:\s*#9ec5f5/s);
     expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-sd-exhausted\s*\{[^}]*background:\s*#1c1916/s);
     expect(css).toMatch(/\.mastery-print\.is-dark:not\(\.is-compact\) \.cp-sd-exhausted-label\s*\{[^}]*color:\s*#e6e1d6/s);
+    expect(css).toMatch(/\.cp-meta-reroll-box\.is-spent::after\s*\{[^}]*content:\s*"×"/s);
+    expect(css).not.toMatch(/\.cp-meta-reroll-box\.is-spent\s*\{[^}]*linear-gradient/s);
   });
   it('exposes light and dark body classes for the table sheet', async () => {
     const { characterPrintBodyClass } = await import('../src/sheets/character-print');

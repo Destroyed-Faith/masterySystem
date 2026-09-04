@@ -200,31 +200,39 @@
 .cp-meta-reroll-boxes {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 1.5px;
+  gap: 3px;
   align-items: center;
-  margin-left: 2px;
+  margin-left: 3px;
   max-width: 100%;
 }
 
 .cp-meta-reroll-box {
-  display: inline-block;
-  width: 3.6mm;
-  height: 3.6mm;
-  border: 1.15px solid #333;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5mm;
+  height: 4.5mm;
+  border: 1.75px solid #111;
+  border-radius: 1px;
   box-sizing: border-box;
   background: #fff;
   flex: 0 0 auto;
+  font-style: normal;
+  line-height: 1;
+  position: relative;
 }
 
+/* Spent = clear × in an empty box — no solid fill, no diagonal slash */
 .cp-meta-reroll-box.is-spent {
-  background: #ddd;
-  background-image: linear-gradient(
-    to top left,
-    transparent 44%,
-    #333 46%,
-    #333 54%,
-    transparent 56%
-  );
+  background: #fff;
+}
+
+.cp-meta-reroll-box.is-spent::after {
+  content: "×";
+  font-size: 3.4mm;
+  font-weight: 800;
+  color: #111;
+  line-height: 1;
 }
 
 /* ── Two-column main area ─────────────────────────────────────────────── */
@@ -4048,7 +4056,6 @@ body.mastery-print.is-dark:not(.is-compact) {
 .mastery-print.is-dark:not(.is-compact) .cp-sk-box,
 .mastery-print.is-dark:not(.is-compact) .cp-pool-chip,
 .mastery-print.is-dark:not(.is-compact) .cp-core-check,
-.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-cube,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-ini-box,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-cost,
@@ -4121,10 +4128,24 @@ body.mastery-print.is-dark:not(.is-compact) {
   --attr-color: #90a4ae;
 }
 
-.mastery-print.is-dark:not(.is-compact) .cp-sk-box.is-spent,
-.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box.is-spent {
+.mastery-print.is-dark:not(.is-compact) .cp-sk-box.is-spent {
   background: #8a8478;
   color: #141210;
+}
+
+/* Reroll boxes stay empty checkboxes on charcoal — bright border, × when spent */
+.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box {
+  background: #1c1916;
+  border: 1.75px solid #e6e1d6;
+  color: #e6e1d6;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box.is-spent {
+  background: #1c1916;
+}
+
+.mastery-print.is-dark:not(.is-compact) .cp-meta-reroll-box.is-spent::after {
+  color: #e6e1d6;
 }
 
 .mastery-print.is-dark:not(.is-compact) .cp-weapons-table th {
