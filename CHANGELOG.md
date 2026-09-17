@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.491] - 2026-09-17
+
+### Fixed
+
+- **Scene Editor · Wall / Door drawing:** Click–click chaining no longer overwrites the start point; canvas pointer capture keeps the second point committing when the cursor leaves the board; door/window width is clamped to the host wall. Toolbar Application `.window-content` no longer steals hover/clicks over the map.
+
+### Added
+
+- **Scene Editor · Hover Probe:** Opt-in GM debug HUD listing `elementsFromPoint` under the cursor (z-index / pointer-events).
+- **Scene Editor · Wall lesson JSON:** Export describing prepared walls/doors (normalized geometry, openings on hosts, clustering, drawer recommendations) for algorithm/UX tuning.
+
 ## [0.9.490] - 2026-09-04
 
 ### Changed
