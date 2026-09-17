@@ -165,4 +165,74 @@ describe('faded-ui chrome unlock', () => {
     expect(chrome.style.getPropertyValue('pointer-events')).toBe('auto');
     expect(click).toHaveBeenCalled();
   });
+
+  it('unlocks inert folder-header create buttons in the sidebar directory', () => {
+    const sidebar = document.createElement('div');
+    sidebar.id = 'sidebar';
+    const header = document.createElement('header');
+    header.className = 'folder-header';
+    const createFolder = document.createElement('button');
+    createFolder.className = 'create-button create-folder';
+    createFolder.dataset.action = 'createFolder';
+    createFolder.setAttribute('inert', '');
+    createFolder.setAttribute('aria-hidden', 'true');
+    createFolder.style.pointerEvents = 'none';
+    createFolder.setAttribute('aria-label', 'Create Folder');
+    header.appendChild(createFolder);
+    sidebar.appendChild(header);
+    document.body.appendChild(sidebar);
+
+    vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({
+      left: 900,
+      top: 100,
+      right: 1200,
+      bottom: 140,
+      width: 300,
+      height: 40,
+      x: 900,
+      y: 100,
+      toJSON() {
+        return {};
+      },
+    } as DOMRect);
+    vi.spyOn(createFolder, 'getBoundingClientRect').mockReturnValue({
+      left: 1100,
+      top: 105,
+      right: 1132,
+      bottom: 137,
+      width: 32,
+      height: 32,
+      x: 1100,
+      y: 105,
+      toJSON() {
+        return {};
+      },
+    } as DOMRect);
+
+    Object.defineProperty(document, 'elementsFromPoint', {
+      configurable: true,
+      writable: true,
+      value: vi.fn().mockReturnValue([header, sidebar, document.body]),
+    });
+
+    const click = vi.fn();
+    createFolder.addEventListener('click', click);
+
+    installFadedUiUnlock();
+
+    document.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 1110,
+        clientY: 120,
+        button: 0,
+      }),
+    );
+
+    expect(createFolder.hasAttribute('inert')).toBe(false);
+    expect(createFolder.getAttribute('aria-hidden')).not.toBe('true');
+    expect(createFolder.style.getPropertyValue('pointer-events')).toBe('auto');
+    expect(click).toHaveBeenCalled();
+  });
 });

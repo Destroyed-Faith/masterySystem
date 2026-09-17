@@ -1,13 +1,16 @@
 /**
- * Foundry chrome (`#sidebar-tabs`, `#scene-controls`) uses faded-ui:
- * the chrome root often has CSS `pointer-events: none` + low opacity until
- * hover. Listeners bound ON that root never fire while it is faded — the
- * canvas under it receives the event instead. Unlock must be geometric on
- * `document` (capture), and must override stylesheet pe with an inline value.
+ * Foundry faded-ui locks chrome and directory controls with CSS/inline
+ * `pointer-events: none`, `inert`, and `aria-hidden` until hover. When hover
+ * never sticks (tooltip steal, or the faded root itself ignores pointers),
+ * clicks fall through to the canvas / header toggle only.
  *
- * Stuck Mastery overlays are cleared on ready / Escape.
+ * Unlock runs on `document` capture by geometry so it works even when the
+ * faded node cannot receive events. Covers:
+ *   - #scene-controls / #sidebar-tabs
+ *   - Sidebar directory create buttons (Actors / Scenes / Items / …)
+ *   - Per-folder header create buttons
  */
-/** Capture-phase unlock for Foundry sidebar tabs and scene controls. */
+/** Capture-phase unlock for Foundry chrome + sidebar directory create buttons. */
 export declare function installFadedUiUnlock(): void;
 /**
  * Remove a leftover epic-roll full-screen root that blocks the UI, and end
