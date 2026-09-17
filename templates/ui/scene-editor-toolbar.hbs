@@ -41,9 +41,16 @@
     <button type="button" class="ms-se-btn js-export" title="{{localize 'MASTERY.sceneEditor.exportJson'}}">
       <i class="fas fa-file-export"></i>
     </button>
+    <button type="button" class="ms-se-btn js-export-lesson" title="{{localize 'MASTERY.sceneEditor.exportLesson'}}">
+      <i class="fas fa-graduation-cap"></i>
+    </button>
     <button type="button" class="ms-se-btn js-import" title="{{localize 'MASTERY.sceneEditor.importJson'}}">
       <i class="fas fa-file-import"></i>
     </button>
+    <label class="ms-se-probe-label" title="{{localize 'MASTERY.sceneEditor.hoverProbeHint'}}">
+      <input type="checkbox" class="js-hover-probe" {{#if hoverProbe}}checked{{/if}} />
+      {{localize "MASTERY.sceneEditor.hoverProbe"}}
+    </label>
   </div>
 
   <div class="ms-se-layers" title="{{localize 'MASTERY.sceneEditor.analysisView'}}">

@@ -9,6 +9,7 @@ export declare class SceneEditorPointer {
     private onMove;
     private onDown;
     private onUp;
+    private onCancel;
     private onDbl;
     private onKey;
     private onKeyUp;

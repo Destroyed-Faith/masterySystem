@@ -4,23 +4,31 @@
 import { createHint } from './analyzer/hints.js';
 import { loadSceneImage, localAnalyzer } from './analyzer/local-analyzer.js';
 import { CommandStack } from './commands.js';
-import { DEFAULT_OPENING_WIDTH, DEFAULT_SNAP_WORLD, clonePoint, distance, distanceToSegment, planOpening, projectPointOnSegment, rectFromPoints, segmentHitsRect, snapMagnetic, translateSegment, } from './geometry.js';
+import { clampOpeningWidth, resolveChainPointerDown, resolveChainPointerUp } from './draw-contract.js';
+import { DEFAULT_OPENING_WIDTH, DEFAULT_SNAP_WORLD, clonePoint, distance, distanceToSegment, planOpening, projectPointOnSegment, rectFromPoints, segmentHitsRect, segmentLength, snapMagnetic, translateSegment, } from './geometry.js';
+import { HoverProbe } from './hover-probe.js';
 import { t } from './i18n.js';
 import { SceneEditorOverlay, hitHandle, screenHandleRadius, worldFromEvent } from './overlay.js';
 import { Autosave, applyBackgroundWatch, backgroundFingerprint, fromPortable, parsePortable, readStored, sceneBox, toPortable, writeStored, } from './persistence.js';
 import { SceneEditorPointer } from './pointer.js';
 import { SceneEditorToolbarApp } from './toolbar-app.js';
 import { emptyStored } from './types.js';
+import { buildWallLesson } from './wall-lesson.js';
 import { activeScene, coordPatch, createWalls, deleteWalls, doorStatePatch, readSceneWalls, snapshotWall, typeChangePatch, updateWalls, wallPayload, } from './wall-adapter.js';
 export class SceneEditorController {
     overlay = new SceneEditorOverlay();
     commands = new CommandStack();
     pointer = new SceneEditorPointer(this);
+    hoverProbe = new HoverProbe();
     toolbar = null;
     autosave = null;
     tokensInteractive = null;
     abort = null;
     lastDebug = null;
+    captureEl = null;
+    capturePointerId = null;
+    /** Last snapped world point from move/down — used when pointerup lacks coordinates. */
+    lastWorld = null;
     active = false;
     tool = 'select';
     snapMode = 'magnetic';
@@ -38,6 +46,7 @@ export class SceneEditorController {
     shiftHeld = false;
     altHeld = false;
     liveSyncNoted = false;
+    hoverProbeEnabled = false;
     get walls() {
         return readSceneWalls(activeScene());
     }
@@ -97,6 +106,8 @@ export class SceneEditorController {
         this.preview = null;
         this.openingDraft = null;
         this.dragging = null;
+        this.releasePointerCapture();
+        this.setHoverProbe(false);
         await this.autosave?.flush();
         this.autosave?.cancel();
         this.autosave = null;
@@ -113,6 +124,8 @@ export class SceneEditorController {
         this.refreshButton();
     }
     teardownCanvas() {
+        this.releasePointerCapture();
+        this.hoverProbe.destroy();
         this.pointer.unbind();
         this.overlay.detach();
         this.suppressTokens(false);
@@ -158,6 +171,11 @@ export class SceneEditorController {
         this.queueSave();
         this.toolbar?.refresh();
     }
+    setHoverProbe(on) {
+        this.hoverProbeEnabled = on;
+        this.hoverProbe.setEnabled(on);
+        this.toolbar?.refresh();
+    }
     setLayer(key, value) {
         this.stored = {
             ...this.stored,
@@ -186,16 +204,20 @@ export class SceneEditorController {
     onPointerMove(event) {
         if (!this.active)
             return;
+        if (this.hoverProbeEnabled)
+            this.hoverProbe.onPointerMove(event);
         const raw = worldFromEvent(event);
         if (!raw)
             return;
         const snapped = this.snap(raw);
         this.snapPoint = snapped.kind === 'free' ? null : snapped.point;
         const p = snapped.point;
+        this.lastWorld = clonePoint(p);
         if (this.openingDraft) {
             const wall = this.walls.find((w) => w.id === this.openingDraft.wallId);
             if (wall) {
-                const width = Math.max(24, distance(this.openingDraft.center, p) * 2);
+                const hostLen = segmentLength({ a: wall.a, b: wall.b });
+                const width = clampOpeningWidth(hostLen, Math.max(24, distance(this.openingDraft.center, p) * 2));
                 this.openingDraft.width = width;
                 this.hoverOpening = planOpening({ a: wall.a, b: wall.b }, this.openingDraft.center, width).opening;
             }
@@ -230,8 +252,9 @@ export class SceneEditorController {
         if (!raw)
             return;
         const p = this.snap(raw).point;
+        this.lastWorld = clonePoint(p);
+        this.acquirePointerCapture(event);
         event.preventDefault();
-        event.stopPropagation();
         if (this.tool === 'select') {
             this.beginSelect(p, event.shiftKey);
             return;
@@ -247,25 +270,41 @@ export class SceneEditorController {
         if (this.tool === 'door' || this.tool === 'window') {
             const wall = this.nearestWall(p, 18);
             if (wall && wall.kind === 'wall') {
-                this.openingDraft = { wallId: wall.id, center: projectPointOnSegment(p, wall).point, width: DEFAULT_OPENING_WIDTH, kind: this.tool };
+                const hostLen = segmentLength({ a: wall.a, b: wall.b });
+                this.openingDraft = {
+                    wallId: wall.id,
+                    center: projectPointOnSegment(p, wall).point,
+                    width: clampOpeningWidth(hostLen, DEFAULT_OPENING_WIDTH),
+                    kind: this.tool,
+                };
                 this.hoverOpening = planOpening({ a: wall.a, b: wall.b }, this.openingDraft.center, this.openingDraft.width).opening;
                 this.redraw();
                 return;
             }
-            this.drawStart = p;
+            // Free door/window: click–click like walls (do not overwrite an active chain start).
+            const chain = resolveChainPointerDown(this.drawStart, p);
+            this.drawStart = chain.drawStart;
             return;
         }
-        this.drawStart = p;
+        // Wall tool: click–click chaining — first down places start; later downs keep it.
+        const chain = resolveChainPointerDown(this.drawStart, p);
+        this.drawStart = chain.drawStart;
     }
     async onPointerUp(event) {
         if (!this.active)
             return;
+        this.releasePointerCapture(event);
         const raw = worldFromEvent(event);
-        const p = raw ? this.snap(raw).point : null;
-        if (this.openingDraft && p) {
+        const p = raw ? this.snap(raw).point : this.lastWorld;
+        if (p)
+            this.lastWorld = clonePoint(p);
+        if (this.openingDraft) {
             const draft = this.openingDraft;
             this.openingDraft = null;
-            await this.commitOpening(draft.wallId, draft.center, draft.width, draft.kind);
+            const wall = this.walls.find((w) => w.id === draft.wallId);
+            const hostLen = wall ? segmentLength({ a: wall.a, b: wall.b }) : draft.width;
+            const width = clampOpeningWidth(hostLen, draft.width);
+            await this.commitOpening(draft.wallId, draft.center, width, draft.kind);
             return;
         }
         if (this.dragging) {
@@ -288,15 +327,34 @@ export class SceneEditorController {
             await this.analyze({ region });
             return;
         }
-        if (distance(this.drawStart, p) < 4) {
-            this.drawStart = p;
+        const resolved = resolveChainPointerUp(this.drawStart, p);
+        if (resolved.action === 'hold-start') {
+            this.drawStart = resolved.point;
+            this.preview = null;
+            this.redraw();
             return;
         }
         const kind = this.tool === 'door' ? 'door' : this.tool === 'window' ? 'window' : 'wall';
-        await this.createSegment(this.drawStart, p, kind);
-        this.drawStart = clonePoint(p);
+        await this.createSegment(resolved.a, resolved.b, kind);
+        this.drawStart = resolved.nextStart;
         this.preview = null;
         this.redraw();
+    }
+    async onPointerCancel(event) {
+        if (!this.active)
+            return;
+        this.releasePointerCapture(event);
+        if (this.openingDraft) {
+            const draft = this.openingDraft;
+            this.openingDraft = null;
+            const wall = this.walls.find((w) => w.id === draft.wallId);
+            const hostLen = wall ? segmentLength({ a: wall.a, b: wall.b }) : draft.width;
+            await this.commitOpening(draft.wallId, draft.center, clampOpeningWidth(hostLen, draft.width), draft.kind);
+            return;
+        }
+        if (this.dragging) {
+            await this.finishDrag();
+        }
     }
     async onDoubleClick() {
         this.finishChain();
@@ -311,6 +369,7 @@ export class SceneEditorController {
             this.preview = null;
             this.openingDraft = null;
             this.dragging = null;
+            this.releasePointerCapture();
             this.redraw();
             event.preventDefault();
         }
@@ -339,6 +398,38 @@ export class SceneEditorController {
         this.drawStart = null;
         this.preview = null;
         this.redraw();
+    }
+    acquirePointerCapture(event) {
+        const canvas = globalThis.canvas;
+        const el = event.currentTarget ??
+            canvas?.app?.view ??
+            canvas?.element ??
+            document.getElementById('board');
+        if (!el || typeof el.setPointerCapture !== 'function')
+            return;
+        try {
+            el.setPointerCapture(event.pointerId);
+            this.captureEl = el;
+            this.capturePointerId = event.pointerId;
+        }
+        catch {
+            /* capture can fail if the pointer was already released */
+        }
+    }
+    releasePointerCapture(event) {
+        const el = this.captureEl;
+        const id = event?.pointerId ?? this.capturePointerId;
+        if (el && id != null && typeof el.releasePointerCapture === 'function') {
+            try {
+                if (el.hasPointerCapture?.(id))
+                    el.releasePointerCapture(id);
+            }
+            catch {
+                /* ignore */
+            }
+        }
+        this.captureEl = null;
+        this.capturePointerId = null;
     }
     beginSelect(p, additive) {
         const r = screenHandleRadius();
@@ -470,7 +561,9 @@ export class SceneEditorController {
         const wall = this.walls.find((w) => w.id === wallId);
         if (!scene || !wall || !wallDoc)
             return;
-        const plan = planOpening({ a: wall.a, b: wall.b }, center, width);
+        const hostLen = segmentLength({ a: wall.a, b: wall.b });
+        const clamped = clampOpeningWidth(hostLen, width);
+        const plan = planOpening({ a: wall.a, b: wall.b }, center, clamped);
         const snap = snapshotWall(wallDoc);
         const leftovers = plan.leftovers.map((seg) => wallPayload(seg.a, seg.b, 'wall', { origin: 'manual' }));
         const opening = wallPayload(plan.opening.a, plan.opening.b, kind, { origin: 'manual' });
@@ -748,6 +841,31 @@ export class SceneEditorController {
         a.download = name;
         a.click();
         URL.revokeObjectURL(a.href);
+    }
+    /** GM export describing how prepared walls/doors are structured (learning JSON). */
+    async exportWallLesson() {
+        const scene = activeScene();
+        if (!scene)
+            return;
+        const box = sceneBox(scene);
+        const bg = backgroundFingerprint(scene);
+        const gridSize = Number(globalThis.canvas?.grid?.size ?? scene?.grid?.size ?? 0) || 0;
+        const doc = buildWallLesson({
+            sceneName: String(scene.name ?? 'scene'),
+            fingerprint: bg.fingerprint,
+            origin: box.origin,
+            size: box.size,
+            gridSize,
+            walls: this.walls.map((w) => ({ id: w.id, kind: w.kind, a: w.a, b: w.b })),
+        });
+        const name = `${String(scene.name ?? 'scene').replace(/[^\w\-]+/g, '_')}.wall-lesson.json`;
+        const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        ui.notifications?.info(t('exportLessonDone', 'Wall lesson JSON downloaded.'));
     }
     async importJson() {
         const scene = activeScene();

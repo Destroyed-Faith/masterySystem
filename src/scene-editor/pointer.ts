@@ -14,6 +14,9 @@ export class SceneEditorPointer {
   private onUp = (ev: PointerEvent) => {
     void this.controller.onPointerUp(ev);
   };
+  private onCancel = (ev: PointerEvent) => {
+    void this.controller.onPointerCancel(ev);
+  };
   private onDbl = () => {
     void this.controller.onDoubleClick();
   };
@@ -30,6 +33,7 @@ export class SceneEditorPointer {
     el.addEventListener('pointermove', this.onMove);
     el.addEventListener('pointerdown', this.onDown, true);
     window.addEventListener('pointerup', this.onUp);
+    window.addEventListener('pointercancel', this.onCancel);
     el.addEventListener('dblclick', this.onDbl);
     window.addEventListener('keydown', this.onKey);
     window.addEventListener('keyup', this.onKeyUp);
@@ -43,6 +47,7 @@ export class SceneEditorPointer {
     el?.removeEventListener('pointermove', this.onMove);
     el?.removeEventListener('pointerdown', this.onDown, true);
     window.removeEventListener('pointerup', this.onUp);
+    window.removeEventListener('pointercancel', this.onCancel);
     el?.removeEventListener('dblclick', this.onDbl);
     window.removeEventListener('keydown', this.onKey);
     window.removeEventListener('keyup', this.onKeyUp);

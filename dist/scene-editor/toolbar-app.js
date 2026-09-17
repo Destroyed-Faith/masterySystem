@@ -91,6 +91,7 @@ export class SceneEditorToolbarApp extends BaseToolbar {
             canUndo: ed.commands.canUndo,
             canRedo: ed.commands.canRedo,
             analyzing: ed.status === 'analyzing',
+            hoverProbe: ed.hoverProbeEnabled,
             layers: Object.keys(ed.layers).map((id) => ({
                 id,
                 label: t(`layer.${id}`, id),
@@ -140,7 +141,12 @@ export class SceneEditorToolbarApp extends BaseToolbar {
         this.bind(root, '.js-cancel-analyze', () => this.editor.cancelAnalyze());
         this.bind(root, '.js-save', () => this.editor.saveNow());
         this.bind(root, '.js-export', () => this.editor.exportJson());
+        this.bind(root, '.js-export-lesson', () => this.editor.exportWallLesson());
         this.bind(root, '.js-import', () => this.editor.importJson());
+        const probe = root.querySelector('.js-hover-probe');
+        if (probe) {
+            probe.onchange = () => this.editor.setHoverProbe(probe.checked);
+        }
         this.bind(root, '.js-to-wall', () => this.editor.convertSelection('wall'));
         this.bind(root, '.js-to-door', () => this.editor.convertSelection('door'));
         this.bind(root, '.js-to-window', () => this.editor.convertSelection('window'));

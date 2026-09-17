@@ -66,9 +66,69 @@
   right: auto !important;
 }
 
-#mastery-scene-editor-toolbar .window-content,
-#mastery-scene-editor-toolbar .ms-se-toolbar {
+/* ApplicationV2 still mounts a .window-content box — never let that empty chrome
+   steal hover/clicks over the map. Only real interactive children receive events. */
+#mastery-scene-editor-toolbar .window-content {
+  pointer-events: none !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+#mastery-scene-editor-toolbar .ms-se-toolbar,
+#mastery-scene-editor-toolbar .ms-se-toolbar .ms-se-drag,
+#mastery-scene-editor-toolbar .ms-se-toolbar .ms-se-btn,
+#mastery-scene-editor-toolbar .ms-se-toolbar label,
+#mastery-scene-editor-toolbar .ms-se-toolbar input,
+#mastery-scene-editor-toolbar .ms-se-toolbar button {
   pointer-events: auto;
+}
+
+.ms-se-hover-probe {
+  position: fixed;
+  z-index: 10000;
+  max-width: 22rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #e94560;
+  border-radius: 6px;
+  background: rgba(8, 12, 24, 0.94);
+  color: #f0f0f0;
+  font: 11px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+.ms-se-hover-probe-title {
+  margin-bottom: 0.25rem;
+  color: #ffd54f;
+  font-weight: 600;
+}
+
+.ms-se-hover-probe-row {
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-se-hover-probe-row.is-top {
+  opacity: 1;
+  color: #81c784;
+}
+
+.ms-se-probe-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.15rem;
+  opacity: 0.85;
+  cursor: pointer;
 }
 
 .ms-se-toolbar {

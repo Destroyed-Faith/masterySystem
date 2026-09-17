@@ -2,6 +2,7 @@
  * Owns the edit session: tool, selection, drawing, analysis, persistence.
  */
 import { CommandStack } from './commands.js';
+import { HoverProbe } from './hover-probe.js';
 import { SceneEditorOverlay } from './overlay.js';
 import { SceneEditorPointer } from './pointer.js';
 import type { AnalysisLayerVisibility, DoorState, EditorStatus, EditorTool, EditorWallView, GeometryKind, Hint, HintKind, Point, SceneEditorStored, Segment, SnapMode, Suggestion } from './types.js';
@@ -9,11 +10,16 @@ export declare class SceneEditorController {
     readonly overlay: SceneEditorOverlay;
     readonly commands: CommandStack;
     readonly pointer: SceneEditorPointer;
+    readonly hoverProbe: HoverProbe;
     private toolbar;
     private autosave;
     private tokensInteractive;
     private abort;
     private lastDebug;
+    private captureEl;
+    private capturePointerId;
+    /** Last snapped world point from move/down — used when pointerup lacks coordinates. */
+    private lastWorld;
     active: boolean;
     tool: EditorTool;
     snapMode: SnapMode;
@@ -42,6 +48,7 @@ export declare class SceneEditorController {
     shiftHeld: boolean;
     altHeld: boolean;
     liveSyncNoted: boolean;
+    hoverProbeEnabled: boolean;
     get walls(): EditorWallView[];
     get layers(): AnalysisLayerVisibility;
     get confirmedSegments(): Segment[];
@@ -54,6 +61,7 @@ export declare class SceneEditorController {
     refreshButton(): void;
     setTool(tool: EditorTool): void;
     setSnap(mode: SnapMode): void;
+    setHoverProbe(on: boolean): void;
     setLayer(key: keyof AnalysisLayerVisibility, value: boolean): void;
     snap(p: Point): {
         point: Point;
@@ -62,10 +70,13 @@ export declare class SceneEditorController {
     onPointerMove(event: PointerEvent): void;
     onPointerDown(event: PointerEvent): Promise<void>;
     onPointerUp(event: PointerEvent): Promise<void>;
+    onPointerCancel(event: PointerEvent): Promise<void>;
     onDoubleClick(): Promise<void>;
     onKey(event: KeyboardEvent): void;
     onKeyUp(event: KeyboardEvent): void;
     finishChain(): void;
+    private acquirePointerCapture;
+    private releasePointerCapture;
     private beginSelect;
     private applyDrag;
     private finishDrag;
@@ -89,6 +100,8 @@ export declare class SceneEditorController {
     acceptAll(): Promise<void>;
     saveNow(): Promise<void>;
     exportJson(): Promise<void>;
+    /** GM export describing how prepared walls/doors are structured (learning JSON). */
+    exportWallLesson(): Promise<void>;
     importJson(): Promise<void>;
     openAdvanced(): void;
     undo(): Promise<void>;
