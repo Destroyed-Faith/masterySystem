@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.494] - 2026-09-17
+
+### Fixed
+
+- **Sidebar Create Folder / Create Actor / Create Scene / Create Item:** Folder-header and directory create buttons stuck with Foundry `inert` + `pointer-events: none` (header toggle still worked). Faded-ui unlock now covers `#sidebar` directory/folder create controls the same way as scene-controls. Explains why Mastery-injected Artifact Builder buttons still worked (they never got `inert`).
+
 ## [0.9.493] - 2026-09-17
 
 ### Fixed
