@@ -73,6 +73,7 @@ import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { findShutdownCombat } from './combat/combat-shutdown.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { initializeSceneEditor } from './scene-editor/register.js';
+import { initializeHitBlockerProbe } from './debug/hit-blocker-probe.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
@@ -299,6 +300,7 @@ Hooks.once('init', async function() {
   initializeSceneControls();
   initializeTokenHUDButton();
   initializeSceneEditor();
+  initializeHitBlockerProbe();
   initializeKnownNpcsBar();
   initializeSpecialTokenArea();
 

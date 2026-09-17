@@ -131,6 +131,11 @@
   overflow: visible !important;
   height: auto !important;
   min-height: 0 !important;
+  pointer-events: none !important;
+}
+
+#mastery-combat-carousel .mastery-carousel {
+  pointer-events: auto;
 }
 
 /* ========================================

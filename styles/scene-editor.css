@@ -104,6 +104,43 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
+.ms-hit-blocker-probe {
+  position: fixed;
+  z-index: 10001;
+  max-width: 26rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid #ffd54f;
+  border-radius: 6px;
+  background: rgba(8, 12, 24, 0.96);
+  color: #f0f0f0;
+  font: 11px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.ms-hit-blocker-probe-title {
+  margin-bottom: 0.3rem;
+  color: #ffd54f;
+  font-weight: 700;
+}
+
+.ms-hit-blocker-probe-row {
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-hit-blocker-probe-row.is-top {
+  opacity: 1;
+  color: #81c784;
+}
+
+.ms-hit-blocker-probe-row.is-bad {
+  opacity: 1;
+  color: #ff8a80;
+}
+
 .ms-se-hover-probe-title {
   margin-bottom: 0.25rem;
   color: #ffd54f;

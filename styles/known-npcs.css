@@ -15,6 +15,20 @@
   pointer-events: none;
 }
 
+/* ApplicationV2 mounts a .window-content box — never let empty chrome steal clicks. */
+#mastery-known-npcs-bar .window-content {
+  pointer-events: none !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
 .known-npcs-bar.is-dragging {
   user-select: none;
 }

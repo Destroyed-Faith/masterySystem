@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.492] - 2026-09-17
+
+### Removed
+
+- **Scene Editor · EDIT SCENE button:** Temporarily removed from the Scenes sidebar so Create Scene / Create Folder stay clickable. Scene editor UI stays disabled until a separate pass.
+
+### Added
+
+- **Hit Blocker Probe:** Global overlay logger (Ctrl+Alt+H or `game.masteryHitProbe.enable()`). Shows `elementsFromPoint` under the cursor, red-outlines suspicious transparent `.window-content` hosts, and logs on click who received the event vs who sits on top.
+
+### Fixed
+
+- **Known NPCs bar / Combat Carousel:** Application `.window-content` chrome no longer receives pointer events (same empty-hitbox class as the scene editor toolbar).
+
 ## [0.9.491] - 2026-09-17
 
 ### Fixed
