@@ -235,4 +235,74 @@ describe('faded-ui chrome unlock', () => {
     expect(createFolder.style.getPropertyValue('pointer-events')).toBe('auto');
     expect(click).toHaveBeenCalled();
   });
+
+  it('unlocks inert Application window-header close / UUID controls', () => {
+    const app = document.createElement('div');
+    app.className = 'application mastery-system';
+    const header = document.createElement('header');
+    header.className = 'window-header';
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'header-control icon fa-solid fa-xmark';
+    close.dataset.action = 'close';
+    close.setAttribute('inert', '');
+    close.setAttribute('aria-hidden', 'true');
+    close.style.pointerEvents = 'none';
+    close.setAttribute('aria-label', 'Close Window');
+    header.appendChild(close);
+    app.appendChild(header);
+    document.body.appendChild(app);
+
+    vi.spyOn(header, 'getBoundingClientRect').mockReturnValue({
+      left: 200,
+      top: 40,
+      right: 700,
+      bottom: 80,
+      width: 500,
+      height: 40,
+      x: 200,
+      y: 40,
+      toJSON() {
+        return {};
+      },
+    } as DOMRect);
+    vi.spyOn(close, 'getBoundingClientRect').mockReturnValue({
+      left: 660,
+      top: 48,
+      right: 692,
+      bottom: 80,
+      width: 32,
+      height: 32,
+      x: 660,
+      y: 48,
+      toJSON() {
+        return {};
+      },
+    } as DOMRect);
+
+    Object.defineProperty(document, 'elementsFromPoint', {
+      configurable: true,
+      writable: true,
+      value: vi.fn().mockReturnValue([header, app, document.body]),
+    });
+
+    const click = vi.fn();
+    close.addEventListener('click', click);
+
+    installFadedUiUnlock();
+
+    document.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        clientX: 670,
+        clientY: 60,
+        button: 0,
+      }),
+    );
+
+    expect(close.hasAttribute('inert')).toBe(false);
+    expect(close.style.getPropertyValue('pointer-events')).toBe('auto');
+    expect(click).toHaveBeenCalled();
+  });
 });

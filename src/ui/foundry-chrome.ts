@@ -2,13 +2,14 @@
  * Foundry faded-ui locks chrome and directory controls with CSS/inline
  * `pointer-events: none`, `inert`, and `aria-hidden` until hover. When hover
  * never sticks (tooltip steal, or the faded root itself ignores pointers),
- * clicks fall through to the canvas / header toggle only.
+ * clicks fall through — window drag cursor (hand) is all that remains.
  *
  * Unlock runs on `document` capture by geometry so it works even when the
  * faded node cannot receive events. Covers:
  *   - #scene-controls / #sidebar-tabs
  *   - Sidebar directory create buttons (Actors / Scenes / Items / …)
  *   - Per-folder header create buttons
+ *   - Application .window-header controls (close / UUID / ⋮)
  */
 
 import { makeFoundryTooltipInert } from './tooltip-passthrough.js';
@@ -29,6 +30,17 @@ const DIRECTORY_CREATE_SELECTOR = [
   '#sidebar .action-buttons button',
 ].join(', ');
 
+const WINDOW_HEADER_CONTROL_SELECTOR = [
+  '.application .window-header button.header-control',
+  '.application .window-header button[data-action="close"]',
+  '.application .window-header button[data-action="toggleControls"]',
+  '.application .window-header button[data-action="copyUuid"]',
+  '.window-app .window-header button.header-control',
+  '.window-app .window-header button[data-action="close"]',
+  '.window-app .window-header button[data-action="toggleControls"]',
+  '.window-app .window-header button[data-action="copyUuid"]',
+].join(', ');
+
 const CONTROL_CLICK_SELECTOR = [
   '#sidebar-tabs button',
   '#sidebar-tabs .item',
@@ -39,6 +51,7 @@ const CONTROL_CLICK_SELECTOR = [
   '#scene-controls [data-tool]',
   '#scene-controls li',
   DIRECTORY_CREATE_SELECTOR,
+  WINDOW_HEADER_CONTROL_SELECTOR,
 ].join(', ');
 
 let fadedUnlockInstalled = false;
@@ -51,7 +64,9 @@ function forceClickable(el: HTMLElement): void {
   if (el.hasAttribute('inert')) el.removeAttribute('inert');
   if (
     el.getAttribute('aria-hidden') === 'true' &&
-    el.matches('button, .control-tool, [data-tool], a.item, .create-button, .create-folder, .create-entry')
+    el.matches(
+      'button, .control-tool, [data-tool], a.item, .create-button, .create-folder, .create-entry, .header-control',
+    )
   ) {
     el.removeAttribute('aria-hidden');
   }
@@ -60,7 +75,7 @@ function forceClickable(el: HTMLElement): void {
 
 function unlockFadedControls(root: ParentNode): void {
   const nodes = root.querySelectorAll<HTMLElement>(
-    '[inert], [aria-hidden="true"], button, .control-tool, [data-tool], a.item, li, menu, .create-button',
+    '[inert], [aria-hidden="true"], button, .control-tool, [data-tool], a.item, li, menu, .create-button, .header-control',
   );
   nodes.forEach((el) => forceClickable(el));
   if (root instanceof HTMLElement) forceClickable(root);
@@ -73,7 +88,7 @@ function pointInRect(x: number, y: number, r: DOMRect): boolean {
 function releaseUnlock(el: HTMLElement): void {
   el.style.removeProperty('pointer-events');
   el.querySelectorAll<HTMLElement>(
-    'menu, button, .control-tool, [data-tool], a.item, li, .create-button',
+    'menu, button, .control-tool, [data-tool], a.item, li, .create-button, .header-control',
   ).forEach((child) => {
     child.style.removeProperty('pointer-events');
   });
@@ -100,6 +115,16 @@ function directoryHeadersAtPoint(x: number, y: number): HTMLElement[] {
   const hits: HTMLElement[] = [];
   for (const header of Array.from(
     sidebar.querySelectorAll<HTMLElement>('.folder-header, .directory-header, .header-actions, .action-buttons'),
+  )) {
+    if (pointInRect(x, y, header.getBoundingClientRect())) hits.push(header);
+  }
+  return hits;
+}
+
+function windowHeadersAtPoint(x: number, y: number): HTMLElement[] {
+  const hits: HTMLElement[] = [];
+  for (const header of Array.from(
+    document.querySelectorAll<HTMLElement>('.application .window-header, .window-app .window-header'),
   )) {
     if (pointInRect(x, y, header.getBoundingClientRect())) hits.push(header);
   }
@@ -134,12 +159,18 @@ function unlockAtPoint(x: number, y: number): HTMLElement[] {
     active.add(header);
   }
 
-  // Direct hit on a create button whose header rect is odd / zero-sized.
+  for (const header of windowHeadersAtPoint(x, y)) {
+    trackUnlock(header);
+    active.add(header);
+  }
+
+  // Direct hit on a control whose host rect is odd / zero-sized.
   const control = controlUnderPoint(x, y);
   if (control) {
     const host =
-      (control.closest('.folder-header, .directory-header, .header-actions, .action-buttons') as HTMLElement | null) ??
-      control;
+      (control.closest(
+        '.folder-header, .directory-header, .header-actions, .action-buttons, .window-header',
+      ) as HTMLElement | null) ?? control;
     trackUnlock(host);
     forceClickable(control);
     active.add(host);
@@ -172,14 +203,14 @@ function onDocumentPointerDown(ev: PointerEvent): void {
     target instanceof Node && (control === target || control.contains(target));
   if (alreadyOnControl) return;
 
-  // Click landed on canvas/header while a faded create/tool button sits under
-  // the pointer — fire the real control.
+  // Click landed on drag-chrome / canvas while a faded control sits under the
+  // pointer — fire the real control.
   ev.preventDefault();
   ev.stopPropagation();
   control.click();
 }
 
-/** Capture-phase unlock for Foundry chrome + sidebar directory create buttons. */
+/** Capture-phase unlock for Foundry chrome, sidebar creates, window headers. */
 export function installFadedUiUnlock(): void {
   if (fadedUnlockInstalled) return;
   fadedUnlockInstalled = true;

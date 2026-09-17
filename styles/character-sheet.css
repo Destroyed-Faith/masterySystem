@@ -9203,7 +9203,16 @@ aside#tooltip,
 .mastery-system.sheet.actor.character .window-header,
 .mastery-system.sheet.actor.character .window-header .header-control,
 .mastery-system.sheet.actor.character .window-header button {
-  pointer-events: auto;
+  pointer-events: auto !important;
+}
+
+/* Foundry ApplicationV2 fades header controls to inert+pe:none; keep them
+   clickable on Mastery windows even when faded-ui races the tooltip. */
+.mastery-system.application .window-header .header-control,
+.mastery-system.application .window-header button[data-action="close"],
+.mastery-system.application .window-header button[data-action="toggleControls"],
+.mastery-system.application .window-header button[data-action="copyUuid"] {
+  pointer-events: auto !important;
 }
 
 /* ========== Disadvantages Tab ========== */

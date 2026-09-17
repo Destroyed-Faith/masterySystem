@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.495] - 2026-09-17
+
+### Fixed
+
+- **Application window header (Close / UUID / ⋮):** Same Foundry faded-ui lock (`inert` + `pointer-events: none`) left only the drag-hand cursor on Character sheets and other apps. Unlock now covers `.window-header` controls; Mastery sheets force `pointer-events: auto !important` on those buttons.
+
 ## [0.9.494] - 2026-09-17
 
 ### Fixed
