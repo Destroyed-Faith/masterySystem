@@ -54,7 +54,17 @@
       "reactionUseWhenDamaged": "Reaktions-Powers wählst du bei eingehendem Schaden (Dialog nach Phasing). Sie starten nicht über das Radial in deinem Zug."
     },
     "carousel": {
-      "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768."
+      "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768.",
+      "reactionsHint": "Verbleibende Reactions diese Runde (Steine können das Maximum erhöhen).",
+      "refundHint": "GM-Absicherung: eine verbrauchte Attack-/Movement-/Reaction-Aktion dieser Runde zurückgeben.",
+      "attackActions": "Attack",
+      "movementActions": "Movement",
+      "reactionActions": "Reaction",
+      "refundAttack": "1 Attack-Aktion zurückgeben",
+      "refundMovement": "1 Movement-Aktion zurückgeben",
+      "refundReaction": "1 Reaction zurückgeben",
+      "refundNone": "Für diese Aktion ist diese Runde nichts zu erstatten.",
+      "refundDone": "1 {kind} an {name} zurückgegeben."
     },
     "startEncounter": {
       "start": "Kampf vorbereiten",

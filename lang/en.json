@@ -54,7 +54,17 @@
       "reactionUseWhenDamaged": "Reaction powers are chosen when you take damage from an attack (dialog after phasing). They are not fired from the radial during your turn."
     },
     "carousel": {
-      "compactHint": "Compact carousel — window or zoom is below 1024×768."
+      "compactHint": "Compact carousel — window or zoom is below 1024×768.",
+      "reactionsHint": "Reactions remaining this round (stones may raise total).",
+      "refundHint": "GM recovery: refund one spent Attack / Movement / Reaction this round.",
+      "attackActions": "Attack",
+      "movementActions": "Movement",
+      "reactionActions": "Reaction",
+      "refundAttack": "Refund 1 Attack action",
+      "refundMovement": "Refund 1 Movement action",
+      "refundReaction": "Refund 1 Reaction",
+      "refundNone": "Nothing to refund for that action this round.",
+      "refundDone": "Refunded 1 {kind} to {name}."
     },
     "startEncounter": {
       "start": "Prepare Combat",

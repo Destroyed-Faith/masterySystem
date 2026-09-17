@@ -280,6 +280,16 @@ export declare function consumeMovementAction(actor: Actor, combat: Combat | nul
  * Refund one movement action if any were spent this round.
  */
 export declare function refundMovementAction(actor: Actor, combat: Combat | null): Promise<void>;
+/**
+ * Refund one reaction action if any were spent this round.
+ */
+export declare function refundReactionAction(actor: Actor, combat: Combat | null): Promise<void>;
+export type CombatActionRefundKind = 'attack' | 'movement' | 'reaction';
+/**
+ * GM recovery: refund one spent combat action of the given kind this round.
+ * Returns false when nothing was spent (nothing to give back).
+ */
+export declare function gmRefundCombatAction(actor: Actor, combat: Combat | null, kind: CombatActionRefundKind): Promise<boolean>;
 /** Quick Load Reload(1) spent so far this Turn (capped at Mastery Rank). */
 export declare function getQuickLoadReloadThisTurn(actor: Actor, combat: Combat | null): number;
 /** Record one Quick Load Reload(1). Returns false if already at Mastery Rank cap. */

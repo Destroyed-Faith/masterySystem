@@ -51,8 +51,21 @@
           <div class="initiative-badge">{{combatant.initiative}}</div>
 
           {{#if combatant.reactionTotal}}
-          <div class="ms-carousel-reactions" title="Reactions remaining this round (stones may raise total)">
+          {{#unless combatant.showGmActionRefund}}
+          <div class="ms-carousel-reactions" title="{{localize 'MASTERY.carousel.reactionsHint'}}">
             R <strong>{{combatant.reactionRemaining}}</strong>/{{combatant.reactionTotal}}
+          </div>
+          {{/unless}}
+          {{/if}}
+
+          {{#if combatant.showGmActionRefund}}
+          <div class="ms-carousel-action-refund" title="{{localize 'MASTERY.carousel.refundHint'}}">
+            <span class="ms-car-act" title="{{localize 'MASTERY.carousel.attackActions'}}">A <strong>{{combatant.attackRemaining}}</strong>/{{combatant.attackTotal}}</span>
+            <span class="ms-car-act" title="{{localize 'MASTERY.carousel.movementActions'}}">M <strong>{{combatant.movementRemaining}}</strong>/{{combatant.movementTotal}}</span>
+            <span class="ms-car-act" title="{{localize 'MASTERY.carousel.reactionActions'}}">R <strong>{{combatant.reactionRemaining}}</strong>/{{combatant.reactionTotal}}</span>
+            <button type="button" class="ms-car-refund js-refund-action" data-kind="attack" {{#unless combatant.canRefundAttack}}disabled{{/unless}} title="{{localize 'MASTERY.carousel.refundAttack'}}" aria-label="{{localize 'MASTERY.carousel.refundAttack'}}">+A</button>
+            <button type="button" class="ms-car-refund js-refund-action" data-kind="movement" {{#unless combatant.canRefundMovement}}disabled{{/unless}} title="{{localize 'MASTERY.carousel.refundMovement'}}" aria-label="{{localize 'MASTERY.carousel.refundMovement'}}">+M</button>
+            <button type="button" class="ms-car-refund js-refund-action" data-kind="reaction" {{#unless combatant.canRefundReaction}}disabled{{/unless}} title="{{localize 'MASTERY.carousel.refundReaction'}}" aria-label="{{localize 'MASTERY.carousel.refundReaction'}}">+R</button>
           </div>
           {{/if}}
 

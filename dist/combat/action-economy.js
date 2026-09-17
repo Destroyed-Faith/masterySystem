@@ -728,6 +728,40 @@ export async function refundMovementAction(actor, combat) {
     roundState.movementActions.used -= 1;
     await setRoundState(actor, roundState);
 }
+/**
+ * Refund one reaction action if any were spent this round.
+ */
+export async function refundReactionAction(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    if (roundState.reactionActions.used <= 0)
+        return;
+    roundState.reactionActions.used -= 1;
+    await setRoundState(actor, roundState);
+}
+/**
+ * GM recovery: refund one spent combat action of the given kind this round.
+ * Returns false when nothing was spent (nothing to give back).
+ */
+export async function gmRefundCombatAction(actor, combat, kind) {
+    const economyActor = getActionEconomyActor(actor) ?? actor;
+    const rs = getRoundState(economyActor, combat);
+    if (kind === 'attack') {
+        if (rs.attackActions.used <= 0)
+            return false;
+        await refundAttackAction(economyActor, combat);
+        return true;
+    }
+    if (kind === 'movement') {
+        if (rs.movementActions.used <= 0)
+            return false;
+        await refundMovementAction(economyActor, combat);
+        return true;
+    }
+    if (rs.reactionActions.used <= 0)
+        return false;
+    await refundReactionAction(economyActor, combat);
+    return true;
+}
 /** Quick Load Reload(1) spent so far this Turn (capped at Mastery Rank). */
 export function getQuickLoadReloadThisTurn(actor, combat) {
     return Math.max(0, Math.floor(Number(getRoundState(actor, combat).quickLoadReloadThisTurn) || 0));

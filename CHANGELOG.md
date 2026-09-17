@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.497] - 2026-09-17
+
+### Added
+
+- **Combat Carousel · GM action refund:** Per combatant `+A` / `+M` / `+R` (GM only) refunds one spent Attack, Movement, or Reaction this round — safety net when a flow fails mid-combat.
+
 ## [0.9.496] - 2026-09-17
 
 ### Fixed

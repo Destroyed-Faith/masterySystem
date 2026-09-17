@@ -1,6 +1,11 @@
 import {
   getActionEconomyActor,
+  getAvailableAttackActions,
+  getAvailableMovementActions,
   getReactionActionsSummary,
+  getRoundState,
+  gmRefundCombatAction,
+  type CombatActionRefundKind,
 } from '../combat/action-economy.js';
 import { canViewerSeeEndTurn, requestEndTurn } from '../combat/end-turn.js';
 import {
@@ -131,7 +136,8 @@ export class CombatCarouselApp extends BaseCarousel {
 
     const currentCombatantId =
       (combat as any).combatant?.id ?? (combat as any).current?.combatantId ?? null;
-    
+    const isGM = game.user?.isGM || false;
+
     for (const combatant of turns) {
       const actor = combatant.actor;
       if (!actor) continue;
@@ -332,7 +338,18 @@ export class CombatCarouselApp extends BaseCarousel {
         combatStrip = null;
       }
       
-      const reactSum = getReactionActionsSummary((getActionEconomyActor(actor) ?? actor) as any, combat);
+      const economyActor = (getActionEconomyActor(actor) ?? actor) as any;
+      const reactSum = getReactionActionsSummary(economyActor, combat);
+      const attackRemaining = getAvailableAttackActions(economyActor, combat);
+      const movementRemaining = getAvailableMovementActions(economyActor, combat);
+      const roundState = getRoundState(economyActor, combat);
+      const attackUsed = Math.max(0, Math.floor(Number(roundState.attackActions?.used) || 0));
+      const movementUsed = Math.max(0, Math.floor(Number(roundState.movementActions?.used) || 0));
+      const attackTotal = Math.max(attackRemaining + attackUsed, Math.floor(Number(roundState.attackActions?.total) || 0));
+      const movementTotal = Math.max(
+        movementRemaining + movementUsed,
+        Math.floor(Number(roundState.movementActions?.total) || 0),
+      );
 
       combatants.push({
         id: combatant.id,
@@ -341,6 +358,14 @@ export class CombatCarouselApp extends BaseCarousel {
         initiative: combatant.initiative ?? 0,
         reactionRemaining: reactSum.remaining,
         reactionTotal: reactSum.total,
+        attackRemaining,
+        attackTotal,
+        movementRemaining,
+        movementTotal,
+        canRefundAttack: isGM && attackUsed > 0,
+        canRefundMovement: isGM && movementUsed > 0,
+        canRefundReaction: isGM && reactSum.used > 0,
+        showGmActionRefund: isGM && !isEncounterPreparing(combat),
         isCurrent:
           !isEncounterPreparing(combat) &&
           arePlayerStonesReadyForRound(combat) &&
@@ -372,7 +397,6 @@ export class CombatCarouselApp extends BaseCarousel {
     const startBlockedTpl =
       game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
     const round = Math.max(1, Number(combat.round) || 1);
-    const isGM = game.user?.isGM || false;
     const fill = (key: string, fallback: string) =>
       (game.i18n?.localize(key) || fallback).replace('{n}', String(round));
     // Between rounds the carousel used to go silent for the GM: turn controls are
@@ -612,6 +636,48 @@ export class CombatCarouselApp extends BaseCarousel {
         if (!game.user?.isGM && !actor?.isOwner) return;
 
         await combatant.update({ defeated: !combatant.defeated });
+      };
+    });
+
+    // GM recovery: refund one spent Attack / Movement / Reaction this round.
+    root.querySelectorAll('.js-refund-action').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        if ((btn as HTMLButtonElement).disabled) return;
+
+        const portrait = btn.closest('.carousel-portrait') as HTMLElement | null;
+        const combatantId = portrait?.dataset.combatantId;
+        const kind = (btn.dataset.kind || '') as CombatActionRefundKind;
+        if (!combatantId || !['attack', 'movement', 'reaction'].includes(kind)) return;
+
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        const actor = combatant?.actor;
+        if (!combat || !actor) return;
+
+        const ok = await gmRefundCombatAction(actor, combat, kind);
+        const name = String(combatant.name || actor.name || 'combatant');
+        if (!ok) {
+          ui.notifications?.warn(
+            game.i18n?.localize('MASTERY.carousel.refundNone') ||
+              `Nothing to refund for ${name} (${kind}).`,
+          );
+          return;
+        }
+        const label =
+          kind === 'attack'
+            ? game.i18n?.localize('MASTERY.carousel.attackActions') || 'Attack'
+            : kind === 'movement'
+              ? game.i18n?.localize('MASTERY.carousel.movementActions') || 'Movement'
+              : game.i18n?.localize('MASTERY.carousel.reactionActions') || 'Reaction';
+        ui.notifications?.info(
+          (game.i18n?.localize('MASTERY.carousel.refundDone') || 'Refunded 1 {kind} to {name}.')
+            .replace('{kind}', String(label))
+            .replace('{name}', name),
+        );
+        await this.render({ force: true });
       };
     });
 

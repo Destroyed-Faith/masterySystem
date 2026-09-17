@@ -272,6 +272,46 @@
   color: #9df;
 }
 
+.ms-carousel-action-refund {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem 0.25rem;
+  margin: 0.15rem 0 0;
+  font-size: 0.62rem;
+  color: #cce;
+  line-height: 1.2;
+}
+
+.ms-carousel-action-refund .ms-car-act strong {
+  color: #9df;
+}
+
+.ms-carousel-action-refund .ms-car-refund {
+  margin: 0;
+  padding: 0.05rem 0.28rem;
+  border: 1px solid #0f3460;
+  border-radius: 3px;
+  background: #16213e;
+  color: #ffd54f;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.ms-carousel-action-refund .ms-car-refund:hover:not(:disabled) {
+  border-color: #e94560;
+  background: #1f2d52;
+}
+
+.ms-carousel-action-refund .ms-car-refund:disabled {
+  opacity: 0.35;
+  cursor: default;
+  color: #99a;
+}
+
 /* Portrait Name — click opens Stone Powers */
 .portrait-name {
   font-size: 0.85rem;
@@ -729,6 +769,7 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
 .mastery-carousel.is-compact .ms-hp-bar-track,
 .mastery-carousel.is-compact .ms-carousel-combat-strip,
 .mastery-carousel.is-compact .ms-carousel-reactions,
+.mastery-carousel.is-compact .ms-carousel-action-refund,
 .mastery-carousel.is-compact .status-icons,
 .mastery-carousel.is-compact .portrait-end-turn span,
 .mastery-carousel.is-compact .ms-setup-label,
