@@ -155,6 +155,12 @@ export function initializeTokenActionSelector() {
       return;
     }
 
+    // Out of combat: free movement, no Movement-action gate / warning.
+    const combat = game.combat as any;
+    if (!combat || combat.started !== true) {
+      return;
+    }
+
     // If guided movement is active, allow the movement (it's already validated)
     if (activeMovementState && activeMovementState.token.document.id === tokenDoc.id) {
       return; // Allow movement

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.496] - 2026-09-17
+
+### Fixed
+
+- **Token movement out of combat:** No more yellow warning „Bitte zuerst im Token-HUD eine Movement-Aktion wählen“ when dragging tokens while no combat is started. The Movement-action gate only applies during an active combat.
+
 ## [0.9.495] - 2026-09-17
 
 ### Fixed
