@@ -1,11 +1,11 @@
 /**
  * Foundry chrome (`#sidebar-tabs`, `#scene-controls`) uses faded-ui:
- * child buttons stay `inert` + `pointer-events: none` until the parent
- * `menu` receives hover. When `#tooltip` / an overlay steals hover, those
- * buttons never unlock and clicks are ignored (tooltips may still show).
+ * the chrome root often has CSS `pointer-events: none` + low opacity until
+ * hover. Listeners bound ON that root never fire while it is faded — the
+ * canvas under it receives the event instead. Unlock must be geometric on
+ * `document` (capture), and must override stylesheet pe with an inline value.
  *
- * Capture-phase unlock restores clickability; stuck Mastery overlays are
- * cleared on ready / Escape so they cannot sit above the chrome forever.
+ * Stuck Mastery overlays are cleared on ready / Escape.
  */
 /** Capture-phase unlock for Foundry sidebar tabs and scene controls. */
 export declare function installFadedUiUnlock(): void;

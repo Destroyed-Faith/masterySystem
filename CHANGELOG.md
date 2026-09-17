@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.493] - 2026-09-17
+
+### Fixed
+
+- **Foundry faded-ui / Scene Controls:** `#scene-controls` (and sidebar tabs) often sit at `pointer-events: none` + low opacity. Listeners on that root never fired, so clicks fell through to `#board`. Unlock now runs on `document` capture by geometry and forces `pointer-events: auto` while the cursor is over the chrome.
+
 ## [0.9.492] - 2026-09-17
 
 ### Removed

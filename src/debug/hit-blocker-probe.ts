@@ -43,7 +43,11 @@ function describe(el: Element): HitSample {
     /^rgba\(\s*0\s*,\s*0\s*,\s*0\s*,\s*0\s*\)$/i.test(bg);
   let reason: string | null = null;
   if (pointerEvents !== 'none') {
-    if (el.id === 'tooltip' || el.classList.contains('toolclip')) reason = 'Foundry tooltip/toolclip';
+    if (el.id === 'board' || el.tagName === 'CANVAS') {
+      reason = null; // canvas is supposed to receive map clicks — not a blocker
+    } else if (el.id === 'tooltip' || el.classList.contains('toolclip')) reason = 'Foundry tooltip/toolclip';
+    else if (el.id === 'scene-controls' || el.id === 'sidebar-tabs')
+      reason = 'Foundry chrome (check faded-ui / pointer-events)';
     else if (el.classList.contains('window-content') && (transparentBg || area > 40_000))
       reason = 'Application .window-content (often empty chrome over UI)';
     else if (el.classList.contains('application') && transparentBg && area > 40_000)
@@ -53,6 +57,8 @@ function describe(el: Element): HitSample {
       reason = 'large empty transparent hitbox';
     else if (el.id?.startsWith('mastery-') && transparentBg && area > 20_000)
       reason = 'Mastery floating host';
+  } else if (el.id === 'scene-controls' || el.id === 'sidebar-tabs') {
+    reason = 'faded-ui chrome is pointer-events:none (clicks fall through to canvas)';
   }
   return {
     tag: el.tagName.toLowerCase(),

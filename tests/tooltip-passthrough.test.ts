@@ -94,52 +94,75 @@ describe('faded-ui chrome unlock', () => {
     delete (globalThis as any).Hooks;
   });
 
-  it('clears inert and pointer-events:none on sidebar menu buttons at pointerdown', () => {
-    const sidebar = document.createElement('nav');
-    sidebar.id = 'sidebar-tabs';
-    const menu = document.createElement('menu');
-    menu.className = 'flexcol';
-    const btn = document.createElement('button');
-    btn.setAttribute('inert', '');
-    btn.setAttribute('aria-hidden', 'true');
-    btn.style.pointerEvents = 'none';
-    btn.textContent = 'Journal';
-    menu.appendChild(btn);
-    sidebar.appendChild(menu);
-    document.body.appendChild(sidebar);
+  it('unlocks CSS-faded #scene-controls from document pointerdown over its rect', () => {
+    const canvas = document.createElement('canvas');
+    canvas.id = 'board';
+    document.body.appendChild(canvas);
 
-    vi.spyOn(menu, 'getBoundingClientRect').mockReturnValue({
-      left: 0,
-      top: 0,
-      right: 40,
-      bottom: 200,
-      width: 40,
-      height: 200,
-      x: 0,
-      y: 0,
+    const chrome = document.createElement('nav');
+    chrome.id = 'scene-controls';
+    // Stylesheet-like fade: computed pe is none without an inline value.
+    const style = document.createElement('style');
+    style.textContent = '#scene-controls { pointer-events: none; opacity: 0.4; }';
+    document.head.appendChild(style);
+
+    const btn = document.createElement('button');
+    btn.className = 'control ui-control tool';
+    btn.setAttribute('aria-label', 'Draw Wall');
+    btn.setAttribute('data-tool', 'wall');
+    chrome.appendChild(btn);
+    document.body.appendChild(chrome);
+
+    vi.spyOn(chrome, 'getBoundingClientRect').mockReturnValue({
+      left: 16,
+      top: 16,
+      right: 88,
+      bottom: 800,
+      width: 72,
+      height: 784,
+      x: 16,
+      y: 16,
       toJSON() {
         return {};
       },
     } as DOMRect);
+    vi.spyOn(btn, 'getBoundingClientRect').mockReturnValue({
+      left: 20,
+      top: 60,
+      right: 52,
+      bottom: 92,
+      width: 32,
+      height: 32,
+      x: 20,
+      y: 60,
+      toJSON() {
+        return {};
+      },
+    } as DOMRect);
+
+    // While faded, hit-testing only sees the canvas.
     Object.defineProperty(document, 'elementsFromPoint', {
       configurable: true,
       writable: true,
-      value: vi.fn().mockReturnValue([btn, menu, sidebar, document.body]),
+      value: vi.fn().mockReturnValue([canvas, document.body]),
     });
+
+    const click = vi.fn();
+    btn.addEventListener('click', click);
 
     installFadedUiUnlock();
 
-    sidebar.dispatchEvent(
+    document.dispatchEvent(
       new PointerEvent('pointerdown', {
         bubbles: true,
         cancelable: true,
-        clientX: 10,
-        clientY: 20,
+        clientX: 36,
+        clientY: 76,
         button: 0,
       }),
     );
 
-    expect(btn.hasAttribute('inert')).toBe(false);
-    expect(btn.style.pointerEvents).toBe('');
+    expect(chrome.style.getPropertyValue('pointer-events')).toBe('auto');
+    expect(click).toHaveBeenCalled();
   });
 });
