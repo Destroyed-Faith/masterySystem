@@ -108,6 +108,17 @@ export declare function isValidNpcAttackWritePath(path: string): boolean;
  * phase rows. Non-numeric keys (e.g. `""` from `system.phases..*`) are ignored.
  */
 export declare function coerceNpcPhasesArray(raw: unknown): any[];
+/**
+ * Actor update that replaces `system.phases` and deletes leftover numeric keys.
+ * Foundry stores object-shaped phases after form expands; writing a shorter
+ * array alone merges and leaves deleted phases behind.
+ */
+export declare function buildNpcPhasesReplacePatch(previousRaw: unknown, nextPhases: any[]): Record<string, unknown>;
+/**
+ * Same for attackValues (extras) lists that may be object-shaped.
+ * `pathPrefix` is e.g. `system.attackValues` or `system.phases.0.attackValues`.
+ */
+export declare function buildNpcAttackValuesReplacePatch(pathPrefix: string, previousRaw: unknown, nextRows: any[]): Record<string, unknown>;
 /** Default single-bar NPC / phase HP block (editable current/max). */
 export declare function defaultNpcHealth(): {
     bars: Array<{

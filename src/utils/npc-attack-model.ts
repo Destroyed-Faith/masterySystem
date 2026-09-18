@@ -559,6 +559,59 @@ export function coerceNpcPhasesArray(raw: unknown): any[] {
   return [];
 }
 
+/**
+ * Numeric keys present on an array or object-shaped list (Foundry form expand).
+ */
+function numericListKeys(raw: unknown): number[] {
+  if (Array.isArray(raw)) return raw.map((_, i) => i);
+  if (raw && typeof raw === 'object') {
+    return Object.keys(raw as object)
+      .filter((k) => /^\d+$/.test(k))
+      .map((k) => Number(k));
+  }
+  return [];
+}
+
+/**
+ * Actor update that replaces `system.phases` and deletes leftover numeric keys.
+ * Foundry stores object-shaped phases after form expands; writing a shorter
+ * array alone merges and leaves deleted phases behind.
+ */
+export function buildNpcPhasesReplacePatch(
+  previousRaw: unknown,
+  nextPhases: any[],
+): Record<string, unknown> {
+  const patch: Record<string, unknown> = {
+    'system.phases': nextPhases.length ? nextPhases : null,
+  };
+  const prevKeys = numericListKeys(previousRaw);
+  const prevMax = prevKeys.length ? Math.max(...prevKeys) : -1;
+  for (let i = nextPhases.length; i <= prevMax; i++) {
+    patch[`system.phases.-=${i}`] = null;
+  }
+  return patch;
+}
+
+/**
+ * Same for attackValues (extras) lists that may be object-shaped.
+ * `pathPrefix` is e.g. `system.attackValues` or `system.phases.0.attackValues`.
+ */
+export function buildNpcAttackValuesReplacePatch(
+  pathPrefix: string,
+  previousRaw: unknown,
+  nextRows: any[],
+): Record<string, unknown> {
+  const patch: Record<string, unknown> = {
+    [pathPrefix]: nextRows,
+  };
+  const prevKeys = numericListKeys(previousRaw);
+  const prevMax = prevKeys.length ? Math.max(...prevKeys) : -1;
+  for (let i = nextRows.length; i <= prevMax; i++) {
+    patch[`${pathPrefix}.-=${i}`] = null;
+  }
+  return patch;
+}
+
 /** Default single-bar NPC / phase HP block (editable current/max). */
 export function defaultNpcHealth(): {
   bars: Array<{ name: string; max: number; current: number; penalty: number }>;

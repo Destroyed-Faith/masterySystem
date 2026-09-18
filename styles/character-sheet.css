@@ -4824,6 +4824,13 @@
   font-size: 0.95rem;
 }
 
+.mastery-system.sheet.actor.npc .npc-phase-tabs .npc-phase-tab-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  max-width: 260px;
+}
+
 .mastery-system.sheet.actor.npc .npc-phase-tabs .npc-phase-tab {
   display: inline-flex;
   align-items: center;

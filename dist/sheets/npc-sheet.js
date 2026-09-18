@@ -4,7 +4,7 @@
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
-import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, } from '../utils/npc-attack-model.js';
+import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
 import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
@@ -1117,22 +1117,28 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const extraOpt = { [NPC_EXTRA_POWERS_UPDATE]: true };
         if (phaseIndex !== undefined && phaseIndex !== null && String(phaseIndex) !== '') {
             const pi = Number(phaseIndex);
-            const phases = dup(coerceNpcPhasesArray(system.phases));
+            const previousRaw = system.phases;
+            const phases = dup(coerceNpcPhasesArray(previousRaw));
             if (!Number.isFinite(pi) || !phases[pi]) {
                 return;
             }
-            const pav = normalizeAttackValuesArray(phases[pi].attackValues);
+            const previousAv = phases[pi].attackValues;
+            const pav = normalizeAttackValuesArray(previousAv);
             if (index >= 0 && index < pav.length) {
                 pav.splice(index, 1);
                 phases[pi].attackValues = pav;
-                await this.actor.update({ 'system.phases': phases }, extraOpt);
+                await this.actor.update({
+                    ...buildNpcPhasesReplacePatch(previousRaw, phases),
+                    ...buildNpcAttackValuesReplacePatch(`system.phases.${pi}.attackValues`, previousAv, pav),
+                }, extraOpt);
             }
         }
         else {
-            const av = normalizeAttackValuesArray(system.attackValues);
+            const previousAv = system.attackValues;
+            const av = normalizeAttackValuesArray(previousAv);
             if (index >= 0 && index < av.length) {
                 av.splice(index, 1);
-                await this.actor.update({ 'system.attackValues': av }, extraOpt);
+                await this.actor.update(buildNpcAttackValuesReplacePatch('system.attackValues', previousAv, av), extraOpt);
             }
         }
     }
@@ -1582,14 +1588,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     async #onPhaseDelete(event) {
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
         const phaseIndex = parseInt($(event.currentTarget).data('phase-index') || '0', 10);
         const system = this.actor.system;
-        const phases = dup(coerceNpcPhasesArray(system.phases));
+        const previousRaw = system.phases;
+        const phases = dup(coerceNpcPhasesArray(previousRaw));
         if (!phases.length)
             return;
         if (phaseIndex >= 0 && phaseIndex < phases.length) {
             phases.splice(phaseIndex, 1);
-            const patch = { 'system.phases': phases.length ? phases : null };
+            const patch = buildNpcPhasesReplacePatch(previousRaw, phases);
             if (!phases.length) {
                 patch['system.npcActivePhaseIndex'] = 0;
                 this.activeTab = undefined;

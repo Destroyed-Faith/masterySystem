@@ -100,15 +100,17 @@
   {{#if system.phases}}
   <nav class="sheet-tabs tabs npc-phase-tabs" data-group="primary">
     {{#each system.phases as |phase index|}}
-    <a class="item npc-phase-tab {{#if (eq ../system.npcActivePhaseIndex index)}}npc-phase-tab--active-radial{{/if}}" data-tab="phase-{{index}}" data-phase-index="{{index}}" title="{{phase.name}} — Klick = aktive Phase für Radial">
-      <span class="npc-phase-tab__label">{{phase.name}}</span>
-      {{#if (eq ../system.npcActivePhaseIndex index)}}
-      <span class="npc-phase-tab__radial" title="Aktive Phase (Radial / Angriffe)">ATK</span>
-      {{/if}}
+    <div class="npc-phase-tab-wrap {{#if (eq ../system.npcActivePhaseIndex index)}}npc-phase-tab-wrap--active-radial{{/if}}">
+      <a class="item npc-phase-tab {{#if (eq ../system.npcActivePhaseIndex index)}}npc-phase-tab--active-radial{{/if}}" data-tab="phase-{{index}}" data-phase-index="{{index}}" title="{{phase.name}} — Klick = aktive Phase für Radial">
+        <span class="npc-phase-tab__label">{{phase.name}}</span>
+        {{#if (eq ../system.npcActivePhaseIndex index)}}
+        <span class="npc-phase-tab__radial" title="Aktive Phase (Radial / Angriffe)">ATK</span>
+        {{/if}}
+      </a>
       <button type="button" class="phase-delete-btn" data-phase-index="{{index}}" title="Phase löschen" aria-label="Phase löschen">
         <i class="fas fa-trash"></i>
       </button>
-    </a>
+    </div>
     {{/each}}
     <button type="button" class="phase-add-btn" title="Weitere Phase hinzufügen">
       <i class="fas fa-layer-group"></i> Phase

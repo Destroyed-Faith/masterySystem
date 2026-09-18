@@ -81,6 +81,50 @@ describe('coerceNpcPhasesArray', () => {
   });
 });
 
+describe('buildNpcPhasesReplacePatch / buildNpcAttackValuesReplacePatch', () => {
+  it('deletes leftover object-shaped phase keys after shrink', async () => {
+    const { buildNpcPhasesReplacePatch } = await import('../src/utils/npc-attack-model.js');
+    const previous = {
+      0: { name: 'Phase 1' },
+      1: { name: 'Phase 2' },
+      2: { name: 'Phase 3' },
+    };
+    const next = [{ name: 'Phase 1' }, { name: 'Phase 3' }];
+    const patch = buildNpcPhasesReplacePatch(previous, next);
+    expect(patch['system.phases']).toEqual(next);
+    expect(patch['system.phases.-=2']).toBeNull();
+    expect(patch['system.phases.-=1']).toBeUndefined();
+  });
+
+  it('nulls phases and clears all keys when empty', async () => {
+    const { buildNpcPhasesReplacePatch } = await import('../src/utils/npc-attack-model.js');
+    const patch = buildNpcPhasesReplacePatch([{ name: 'A' }, { name: 'B' }], []);
+    expect(patch['system.phases']).toBeNull();
+    expect(patch['system.phases.-=0']).toBeNull();
+    expect(patch['system.phases.-=1']).toBeNull();
+  });
+
+  it('deletes leftover attackValues keys on root and nested paths', async () => {
+    const { buildNpcAttackValuesReplacePatch } = await import('../src/utils/npc-attack-model.js');
+    const root = buildNpcAttackValuesReplacePatch(
+      'system.attackValues',
+      { 0: { name: 'A' }, 1: { name: 'B' } },
+      [{ name: 'A' }],
+    );
+    expect(root['system.attackValues']).toEqual([{ name: 'A' }]);
+    expect(root['system.attackValues.-=1']).toBeNull();
+
+    const nested = buildNpcAttackValuesReplacePatch(
+      'system.phases.0.attackValues',
+      [{ name: 'A' }, { name: 'B' }, { name: 'C' }],
+      [{ name: 'A' }],
+    );
+    expect(nested['system.phases.0.attackValues']).toEqual([{ name: 'A' }]);
+    expect(nested['system.phases.0.attackValues.-=1']).toBeNull();
+    expect(nested['system.phases.0.attackValues.-=2']).toBeNull();
+  });
+});
+
 describe('isValidNpcAttackWritePath', () => {
   it('rejects empty phase index paths that wipe powers', async () => {
     const { isValidNpcAttackWritePath } = await import('../src/utils/npc-attack-model.js');

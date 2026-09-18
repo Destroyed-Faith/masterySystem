@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.502] - 2026-09-18
+
+### Fixed
+
+- **NPC sheet · Phase / Power trash:** Deleting a boss phase (or an extra power) no longer left ghost entries behind. Foundry merges object-shaped `phases` / `attackValues`, so the trash now writes Foundry `-=` delete keys for leftover indices. Phase-tab trash sits outside the tab link so the click reliably hits delete.
+
 ## [0.9.501] - 2026-09-18
 
 ### Changed

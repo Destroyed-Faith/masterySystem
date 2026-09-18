@@ -23,6 +23,8 @@ import {
   mergeNpcAttackValueLists,
   mergeNpcAttackRowSpecials,
   isValidNpcAttackWritePath,
+  buildNpcPhasesReplacePatch,
+  buildNpcAttackValuesReplacePatch,
   NPC_EXTRA_POWERS_UPDATE,
   NPC_ATTACK_SPECIALS_UPDATE,
 } from '../utils/npc-attack-model.js';
@@ -1252,21 +1254,37 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
     if (phaseIndex !== undefined && phaseIndex !== null && String(phaseIndex) !== '') {
       const pi = Number(phaseIndex);
-      const phases = dup(coerceNpcPhasesArray(system.phases));
+      const previousRaw = system.phases;
+      const phases = dup(coerceNpcPhasesArray(previousRaw));
       if (!Number.isFinite(pi) || !phases[pi]) {
         return;
       }
-      const pav = normalizeAttackValuesArray(phases[pi].attackValues);
+      const previousAv = phases[pi].attackValues;
+      const pav = normalizeAttackValuesArray(previousAv);
       if (index >= 0 && index < pav.length) {
         pav.splice(index, 1);
         phases[pi].attackValues = pav;
-        await (this.actor as any).update({ 'system.phases': phases }, extraOpt);
+        await (this.actor as any).update(
+          {
+            ...buildNpcPhasesReplacePatch(previousRaw, phases),
+            ...buildNpcAttackValuesReplacePatch(
+              `system.phases.${pi}.attackValues`,
+              previousAv,
+              pav,
+            ),
+          },
+          extraOpt,
+        );
       }
     } else {
-      const av = normalizeAttackValuesArray(system.attackValues);
+      const previousAv = system.attackValues;
+      const av = normalizeAttackValuesArray(previousAv);
       if (index >= 0 && index < av.length) {
         av.splice(index, 1);
-        await (this.actor as any).update({ 'system.attackValues': av }, extraOpt);
+        await (this.actor as any).update(
+          buildNpcAttackValuesReplacePatch('system.attackValues', previousAv, av),
+          extraOpt,
+        );
       }
     }
   }
@@ -1733,15 +1751,17 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   async #onPhaseDelete(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    event.stopImmediatePropagation();
     const phaseIndex = parseInt($(event.currentTarget).data('phase-index') || '0', 10);
 
     const system = (this.actor as any).system;
-    const phases = dup(coerceNpcPhasesArray(system.phases));
+    const previousRaw = system.phases;
+    const phases = dup(coerceNpcPhasesArray(previousRaw));
     if (!phases.length) return;
 
     if (phaseIndex >= 0 && phaseIndex < phases.length) {
       phases.splice(phaseIndex, 1);
-      const patch: Record<string, unknown> = { 'system.phases': phases.length ? phases : null };
+      const patch = buildNpcPhasesReplacePatch(previousRaw, phases);
       if (!phases.length) {
         patch['system.npcActivePhaseIndex'] = 0;
         (this as any).activeTab = undefined;
