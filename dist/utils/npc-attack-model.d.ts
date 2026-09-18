@@ -83,9 +83,18 @@ export declare function npcAttacksPerRoundCap(attack: AttackValue | null | undef
 /** Stable usage key for an NPC attack row (shared by all radial copies). */
 export declare function npcAttackUsageKey(phaseIndex: number | null | undefined, attackIndex: number): string;
 /**
- * Sum of Angriffe/Runde across the active attack list (= ATK / attackSlots).
+ * Sum of Angriffe/Runde (radial copies) across the active attack list.
+ * Used as a fallback when no explicit `attackSlots` is stored on the phase / NPC.
  */
 export declare function sumNpcAttackSlotsFromPowers(system: any): number;
+/** Clamp NPC ATK budget to the sheet / economy range. */
+export declare function clampNpcAttackSlots(raw: unknown): number;
+/**
+ * Combat ATK budget for the active phase (or root NPC).
+ * Prefers an explicit stored `attackSlots` value so GMs can set attacks
+ * freely per phase; falls back to the Angriffe/Runde copy sum for legacy data.
+ */
+export declare function resolveNpcAttackSlots(system: any): number;
 /**
  * Valid actor update paths for NPC attack targeting writes.
  * Rejects empty segments (`system.phases..attackValues.0`) which Foundry

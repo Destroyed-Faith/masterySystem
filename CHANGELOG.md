@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.499] - 2026-09-18
+
+### Fixed
+
+- **NPC sheet · Attacks / Round per phase:** ATK was a global readonly field derived from power copies, so you could not set attack actions freely per boss phase. Each phase (and root NPCs) now has an editable Attacks/Round (1–20). Combat uses that value for the active phase; per-power Angriffe/Runde stays the radial-copy limit.
+
 ## [0.9.498] - 2026-09-18
 
 ### Fixed

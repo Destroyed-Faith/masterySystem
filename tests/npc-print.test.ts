@@ -74,6 +74,7 @@ describe('buildNpcPrintContext', () => {
               damageDiceCount: 6,
               npcAttacksPerRound: 2,
             },
+            attackSlots: 2,
             attackValues: [],
           },
           {
@@ -92,6 +93,7 @@ describe('buildNpcPrintContext', () => {
               npcAttacksPerRound: 3,
               npcSplitAttack: true,
             },
+            attackSlots: 4,
             attackValues: [
               {
                 name: 'Höllenfeuer',

@@ -155,6 +155,7 @@ export function buildForgeNpcSystem(design, enemy, phases) {
                 combat: combatBlock(solved, speed),
                 npcBaseAttack: rows[0] ?? system.npcBaseAttack,
                 attackValues: rows.slice(1),
+                attackSlots: Math.max(1, solved.offensiveActions),
                 npcReactionSlots: reactions.length,
                 npcReactions: reactions,
                 statusEffects: [],

@@ -127,8 +127,8 @@
       </select>
     </div>
     <div class="npc-phase-toolbar__field">
-      <label>Attacks / Round</label>
-      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Sum of Attacks/Round copies (active phase) — shown as ATK in combat"/>
+      <label>ATK (active)</label>
+      <input type="number" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Attack actions of the active phase — edit Attacks/Round inside that phase tab"/>
     </div>
     <div class="npc-phase-toolbar__field">
       <label>Move Actions / Round</label>
@@ -181,6 +181,10 @@
             <div class="npc-combat-chip">
               <span class="npc-combat-chip__label">DR %</span>
               <input type="number" name="system.phases.{{phaseIndex}}.combat.damageReduction" value="{{default phase.combat.damageReduction 0}}" min="0" max="100" step="5" data-dtype="Number" title="Damage Reduction percent — applied after Armor"/>
+            </div>
+            <div class="npc-combat-chip">
+              <span class="npc-combat-chip__label">Attacks / Round</span>
+              <input type="number" name="system.phases.{{phaseIndex}}.attackSlots" value="{{default phase.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack actions this phase has per round (ATK). Set freely per phase."/>
             </div>
           </div>
         </section>
@@ -418,7 +422,7 @@
           </div>
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Attacks / Round</span>
-            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Sum of Attacks/Round copies — shown as ATK in combat"/>
+            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack actions per round (ATK). Set freely — independent of radial copies on each power."/>
           </div>
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Move Actions / Round</span>

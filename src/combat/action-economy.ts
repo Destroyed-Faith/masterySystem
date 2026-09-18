@@ -9,17 +9,21 @@
 
 import { healStressFromBars } from '../utils/calculations.js';
 import { getStunnedRank } from '../system/auto-fail.js';
-import { sumNpcAttackSlotsFromPowers } from '../utils/npc-attack-model.js';
+import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc-attack-model.js';
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 
-/** NPC ATK total = sum of Angriffe/Runde copies (falls back to attackSlots). */
+/** NPC ATK total = explicit per-phase/root slots (falls back to APR sum). */
 function npcAttackSlotsForEconomy(owner: any): number {
   if (!owner || owner.type !== 'npc') return 1;
   try {
-    return sumNpcAttackSlotsFromPowers(owner.system);
+    return resolveNpcAttackSlots(owner.system);
   } catch {
-    return Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)));
+    try {
+      return sumNpcAttackSlotsFromPowers(owner.system);
+    } catch {
+      return Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)));
+    }
   }
 }
 

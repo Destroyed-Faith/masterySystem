@@ -47,7 +47,7 @@ import { getDivineScale } from '../utils/constants.js';
 import {
   coerceNpcPhasesArray,
   ensureNpcHealthState,
-  sumNpcAttackSlotsFromPowers,
+  resolveNpcAttackSlots,
 } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
 
@@ -594,9 +594,9 @@ export class MasteryActor extends Actor {
       ];
       system.combat.evadeBreakdownHint = `${detail}: ${blockEvade}`;
 
-      // NPC ATK slots = sum of Angriffe/Runde copies on the active attack list.
+      // NPC ATK slots: explicit per-phase / root value (APR sum only as fallback).
       if (actorType === 'npc') {
-        system.attackSlots = sumNpcAttackSlotsFromPowers(system);
+        system.attackSlots = resolveNpcAttackSlots(system);
       }
     } else {
       // Character: armorTotal = Mastery Rank + Armor Value + Shield Value

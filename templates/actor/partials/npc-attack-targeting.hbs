@@ -76,7 +76,7 @@
     </div>
     <div class="npc-attack-field">
       <label>Attacks/Round</label>
-      <select name="{{path}}.npcAttacksPerRound" data-dtype="Number" title="Radial copies (1–5). Sum = ATK.">
+      <select name="{{path}}.npcAttacksPerRound" data-dtype="Number" title="How often this power appears in the radial menu (1–5). Phase Attacks/Round (ATK) is the total action budget.">
         {{#each (range 1 5)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcAttacksPerRound this)}}selected{{/if}}>{{this}}</option>
         {{/each}}

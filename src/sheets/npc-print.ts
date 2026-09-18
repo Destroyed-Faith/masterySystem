@@ -15,7 +15,7 @@ import {
   npcAttacksPerRoundCap,
   npcDamageDiceFormula,
   resolveNpcAttackList,
-  sumNpcAttackSlotsFromPowers,
+  resolveNpcAttackSlots,
 } from '../utils/npc-attack-model.js';
 import {
   clampNpcInitiativeModifier,
@@ -238,7 +238,7 @@ function collectPhaseSources(system: any): PhaseSource[] {
         health: phase?.health ?? {},
         attacks,
         statusEffects: phase?.statusEffects,
-        attackSlots: sumNpcAttackSlotsFromPowers({
+        attackSlots: resolveNpcAttackSlots({
           ...system,
           npcActivePhaseIndex: i,
           phases,
@@ -258,7 +258,7 @@ function collectPhaseSources(system: any): PhaseSource[] {
       health: system?.health ?? {},
       attacks,
       statusEffects: system?.statusEffects,
-      attackSlots: sumNpcAttackSlotsFromPowers(system),
+      attackSlots: resolveNpcAttackSlots(system),
     },
   ];
 }

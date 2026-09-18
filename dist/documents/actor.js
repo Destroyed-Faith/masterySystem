@@ -14,7 +14,7 @@ import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
-import { coerceNpcPhasesArray, ensureNpcHealthState, sumNpcAttackSlotsFromPowers, } from '../utils/npc-attack-model.js';
+import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
 /** Clamp skill ranks in an actor update to MR × 4 (and ≥ 0). */
 function clampSkillRanksInUpdate(actor, changed) {
@@ -529,9 +529,9 @@ export class MasteryActor extends Actor {
                 { label: 'Evade', detail, value: blockEvade, display: String(blockEvade) },
             ];
             system.combat.evadeBreakdownHint = `${detail}: ${blockEvade}`;
-            // NPC ATK slots = sum of Angriffe/Runde copies on the active attack list.
+            // NPC ATK slots: explicit per-phase / root value (APR sum only as fallback).
             if (actorType === 'npc') {
-                system.attackSlots = sumNpcAttackSlotsFromPowers(system);
+                system.attackSlots = resolveNpcAttackSlots(system);
             }
         }
         else {

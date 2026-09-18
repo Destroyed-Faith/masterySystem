@@ -6,7 +6,7 @@
  * window that triggers `window.print()` (save as PDF).
  */
 import { CREATURE_TYPE_OPTIONS, resolveCreatureType } from '../utils/creature-type.js';
-import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttackKeepDice, npcAttacksPerRoundCap, npcDamageDiceFormula, resolveNpcAttackList, sumNpcAttackSlotsFromPowers, } from '../utils/npc-attack-model.js';
+import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttackKeepDice, npcAttacksPerRoundCap, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { clampNpcInitiativeModifier, formatNpcInitiativeSigned, } from '../utils/npc-initiative.js';
 import { specialApplicationLimit } from '../combat/special-application.js';
 const PRINT_TEMPLATE = 'systems/mastery-system/templates/actor/npc-print.hbs';
@@ -201,7 +201,7 @@ function collectPhaseSources(system) {
                 health: phase?.health ?? {},
                 attacks,
                 statusEffects: phase?.statusEffects,
-                attackSlots: sumNpcAttackSlotsFromPowers({
+                attackSlots: resolveNpcAttackSlots({
                     ...system,
                     npcActivePhaseIndex: i,
                     phases,
@@ -220,7 +220,7 @@ function collectPhaseSources(system) {
             health: system?.health ?? {},
             attacks,
             statusEffects: system?.statusEffects,
-            attackSlots: sumNpcAttackSlotsFromPowers(system),
+            attackSlots: resolveNpcAttackSlots(system),
         },
     ];
 }

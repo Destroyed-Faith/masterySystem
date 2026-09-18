@@ -476,6 +476,11 @@ export interface BossPhase {
   attackValues?: AttackValue[];
   /** Basis-Waffenangriff (immer verfügbar); attackValues = weitere Powers. */
   npcBaseAttack?: NpcBaseAttack;
+  /**
+   * Attack actions this phase has per round (ATK). Editable on the sheet.
+   * When unset, combat falls back to the sum of Angriffe/Runde copies.
+   */
+  attackSlots?: number;
   /** Opt-in Reactions for this phase (0 = none). */
   npcReactionSlots?: number;
   npcReactions?: NpcReactionRow[];
@@ -525,7 +530,10 @@ export interface NpcData {
   phases?: BossPhase[]; // For boss NPCs with multiple phases
   /** Which phase is active for radial attacks / shared lists (0-based). */
   npcActivePhaseIndex?: number;
-  /** How many attack actions this NPC has per round (minimum 1). */
+  /**
+   * Attack actions per round (ATK). Editable on the sheet for non-phased NPCs;
+   * for bosses the active phase's `attackSlots` is mirrored here for combat.
+   */
   attackSlots?: number;
   /** Movement actions per round in combat (default 1). */
   npcMovementSlots?: number;

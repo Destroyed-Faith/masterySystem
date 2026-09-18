@@ -17,6 +17,8 @@ import {
   ensureNpcHealthState,
   npcHealthHasBars,
   sumNpcAttackSlotsFromPowers,
+  resolveNpcAttackSlots,
+  clampNpcAttackSlots,
   sanitizeNpcSystemAttackTargeting,
   mergeNpcAttackValueLists,
   mergeNpcAttackRowSpecials,
@@ -450,13 +452,21 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           ) {
             context.system.npcActivePhaseIndex = 0;
           }
-          context.system.phases = phases.map((phase: any) => ({
+          context.system.phases = phases.map((phase: any, i: number) => ({
             ...phase,
             combat: withNpcIniUi(phase?.combat),
             npcBaseAttack: ensureNpcBaseShape(phase?.npcBaseAttack),
             health: ensureNpcHealthState(phase?.health ?? context.system.health),
             npcReactions: coerceNpcReactionsArray(phase?.npcReactions),
             npcReactionSlots: clampNpcReactionSlots(phase?.npcReactionSlots),
+            attackSlots: clampNpcAttackSlots(
+              phase?.attackSlots ??
+                sumNpcAttackSlotsFromPowers({
+                  ...context.system,
+                  npcActivePhaseIndex: i,
+                  phases,
+                }),
+            ),
             attackValues: Array.isArray(phase?.attackValues)
               ? phase.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r))
               : normalizeAttackValuesArray(phase?.attackValues).map((r) =>
@@ -514,9 +524,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           npcReactionSlots: clampNpcReactionSlots(ph.npcReactionSlots),
         }));
       }
-      // NPC ATK = Summe der Angriffe/Runde-Kopien. Summons keep Bond attackSlots.
+      // NPC ATK = explicit slots (active phase / root). Summons keep Bond attackSlots.
       if (!isSummon) {
-        context.system.attackSlots = sumNpcAttackSlotsFromPowers(context.system);
+        context.system.attackSlots = resolveNpcAttackSlots(context.system);
       }
 
       // Combat applies Specials to root system.statusEffects. Phase tabs used to
@@ -835,8 +845,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             return nextRows.map((row, ri) => mergeNpcAttackRowSpecials(prevRows[ri], row));
           })(),
           npcReactionSlots: clampNpcReactionSlots(phase.npcReactionSlots ?? prev.npcReactionSlots),
+          attackSlots: clampNpcAttackSlots(
+            phase.attackSlots ?? prev.attackSlots ?? existingSystem.attackSlots,
+          ),
         };
       });
+    }
+    if (data.system.attackSlots != null || existingSystem.attackSlots != null) {
+      data.system.attackSlots = clampNpcAttackSlots(
+        data.system.attackSlots ?? existingSystem.attackSlots,
+      );
     }
     if (data.system.attackValues != null || existingSystem.attackValues != null) {
       data.system.attackValues = mergeNpcAttackValueLists(
@@ -1593,12 +1611,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     // First phase: migrate the current (root) stats so adding phases does not
     // wipe Evade / Armor / Speed / HP that were already tuned on the sheet.
     if (phases.length === 0) {
+      const rootSlots = clampNpcAttackSlots(
+        system.attackSlots ?? sumNpcAttackSlotsFromPowers(system),
+      );
       phases.push({
         name: 'Phase 1',
         health: ensureNpcHealthState(dup(system.health) || defaultHealth),
         combat: { ...defaultCombat, ...(dup(system.combat) || {}) },
         npcBaseAttack: dup(system.npcBaseAttack) || defaultAttack,
         attackValues: Array.isArray(system.attackValues) ? dup(system.attackValues) : [],
+        attackSlots: rootSlots,
         npcReactions: coerceNpcReactionsArray(system.npcReactions),
         npcReactionSlots: clampNpcReactionSlots(system.npcReactionSlots),
         statusEffects: [],
@@ -1606,12 +1628,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       await (this.actor as any).update({
         'system.phases': phases,
         'system.npcActivePhaseIndex': 0,
+        'system.attackSlots': rootSlots,
       });
       return;
     }
 
     // Further phases: copy the previous phase as a starting point.
     const prev = phases[phases.length - 1] || {};
+    const prevSlots = clampNpcAttackSlots(
+      prev.attackSlots ?? system.attackSlots ?? sumNpcAttackSlotsFromPowers(system),
+    );
     phases.push({
       name: `Phase ${phases.length + 1}`,
       health: ensureNpcHealthState(dup(prev.health) || dup(system.health) || defaultHealth),
@@ -1622,6 +1648,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         : Array.isArray(system.attackValues)
           ? dup(system.attackValues)
           : [],
+      attackSlots: prevSlots,
       npcReactions: coerceNpcReactionsArray(prev.npcReactions ?? system.npcReactions),
       npcReactionSlots: clampNpcReactionSlots(prev.npcReactionSlots ?? system.npcReactionSlots),
       statusEffects: [],

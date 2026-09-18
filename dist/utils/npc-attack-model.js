@@ -373,7 +373,8 @@ export function npcAttackUsageKey(phaseIndex, attackIndex) {
     return `npc-attack-${phaseKey}-${Math.max(0, Math.floor(Number(attackIndex) || 0))}`;
 }
 /**
- * Sum of Angriffe/Runde across the active attack list (= ATK / attackSlots).
+ * Sum of Angriffe/Runde (radial copies) across the active attack list.
+ * Used as a fallback when no explicit `attackSlots` is stored on the phase / NPC.
  */
 export function sumNpcAttackSlotsFromPowers(system) {
     const { attacks } = resolveNpcAttackList(system);
@@ -381,6 +382,33 @@ export function sumNpcAttackSlotsFromPowers(system) {
         return Math.max(1, Math.floor(Number(system?.attackSlots) || 1));
     const sum = attacks.reduce((acc, atk) => acc + npcAttacksPerRoundCap(atk), 0);
     return Math.max(1, Math.min(20, sum));
+}
+/** Clamp NPC ATK budget to the sheet / economy range. */
+export function clampNpcAttackSlots(raw) {
+    const n = Math.floor(Number(raw));
+    if (!Number.isFinite(n) || n < 1)
+        return 1;
+    return Math.min(20, n);
+}
+/**
+ * Combat ATK budget for the active phase (or root NPC).
+ * Prefers an explicit stored `attackSlots` value so GMs can set attacks
+ * freely per phase; falls back to the Angriffe/Runde copy sum for legacy data.
+ */
+export function resolveNpcAttackSlots(system) {
+    const phases = coerceNpcPhasesArray(system?.phases);
+    if (phases.length > 0) {
+        const pi = Math.max(0, Math.min(phases.length - 1, Math.floor(Number(system?.npcActivePhaseIndex) || 0)));
+        const phase = phases[pi] || {};
+        const explicit = Math.floor(Number(phase.attackSlots));
+        if (Number.isFinite(explicit) && explicit >= 1)
+            return clampNpcAttackSlots(explicit);
+        return sumNpcAttackSlotsFromPowers(system);
+    }
+    const explicit = Math.floor(Number(system?.attackSlots));
+    if (Number.isFinite(explicit) && explicit >= 1)
+        return clampNpcAttackSlots(explicit);
+    return sumNpcAttackSlotsFromPowers(system);
 }
 function npcBaseAttackRow(raw) {
     if (!raw || typeof raw !== 'object')
