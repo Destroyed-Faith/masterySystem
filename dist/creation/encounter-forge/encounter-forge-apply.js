@@ -66,6 +66,7 @@ function combatBlock(solved, speed) {
         speed,
         spellResistance: Math.round(d.spellResistance),
         damageReduction: Math.round(d.drPct),
+        damageNegation: Math.round(d.damageNegationDice),
     };
 }
 function reactionRows(enemy, solved) {
@@ -172,7 +173,7 @@ export function buildForgeAddSystem(add, npcMr) {
     return {
         mastery: { rank: Math.max(1, npcMr - 1), points: 0, experience: 0 },
         health: healthBlock(add.healthPerAdd),
-        combat: { initiative: 0, evade: 8, armor: 2, speed: 8, spellResistance: 0, damageReduction: 0 },
+        combat: { initiative: 0, evade: 8, armor: 2, speed: 8, spellResistance: 0, damageReduction: 0, damageNegation: 0 },
         npcBaseAttack: row,
         attackValues: [],
         attackSlots: 1,

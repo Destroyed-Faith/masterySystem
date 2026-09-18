@@ -85,6 +85,18 @@ export interface CombatData {
   damageReductionPct?: number;
   /** Per-source rows for the DR breakdown UI. */
   damageReductionRows?: Array<{ label: string; detail: string; value: number; display: string }>;
+  /**
+   * NPC/summon stat-block Damage Reduction % (sheet field). Copied into
+   * `damageReductionPct` during prepareDerivedData.
+   */
+  damageReduction?: number;
+  /** NPC/summon Spell Resistance (raises Casting TN against this actor). */
+  spellResistance?: number;
+  /**
+   * NPC/summon Damage Negation: Damage Dice removed automatically from every
+   * incoming Damage Pool before the roll (half-pool cap still applies).
+   */
+  damageNegation?: number;
   /** Equipped artifact body armor weight class (light / medium / heavy). */
   artifactBodyArmorClass?: 'light' | 'medium' | 'heavy';
   artifactBodyArmorTypeLabel?: string;

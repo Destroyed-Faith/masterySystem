@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.503] - 2026-09-18
+
+### Added
+
+- **NPC sheet · Damage Negation (DN d8):** Stat-block field (root + boss phases). Every incoming Damage Pool automatically loses that many Damage Dice before the roll (same Half-Pool Cap as PC DN: max floor(dice/2)). Encounter Forge can now assign DN to generated NPCs.
+
+### Fixed
+
+- **NPC sheet · DR % / Spell Resistance:** Stat-block DR% and Spell Res were wiped by Passive mechanics aggregation in `prepareDerivedData`, so sheet DR often never reached Armor→DR mitigation. Block values are re-applied after aggregation.
+
 ## [0.9.502] - 2026-09-18
 
 ### Fixed

@@ -19,9 +19,9 @@
  *  4. Health is solved LAST as the residual durability value: the cumulative
  *     expected damage curve, evaluated at the target phase duration.
  *
- * Absorption and Damage Negation cannot be represented on generated NPCs
- * (no NPC stone pools; DN is not consumed by the live damage pipeline) —
- * they are reported as unsupported instead of silently redefined.
+ * Absorption cannot be represented on generated NPCs (no NPC stone pools) —
+ * it is reported as unsupported instead of silently redefined. Damage
+ * Negation maps to sheet `combat.damageNegation` (auto dice removal).
  */
 import { ENCOUNTER_TUNING } from './encounter-tuning.js';
 import { emptySolvedDefenses, simulateFocusDamageCurve, solveFocusTimeline, } from './encounter-simulator.js';
@@ -50,8 +50,8 @@ export const NPC_DEFENSE_SUPPORT = {
         note: 'Reduziert eingehende Special-Werte; im Solver simuliert, auf dem Bogen als Stat-Block-Notiz geführt (Engine-seitig gibt es kein NPC-Ward-Feld).',
     },
     damageNegation: {
-        supported: false,
-        note: 'Damage Negation wird von der automatisierten Damage-Pipeline derzeit nicht konsumiert (bekannte Engine-Lücke) — für generierte NPCs deaktiviert statt still anders interpretiert.',
+        supported: true,
+        note: 'Sheet-Feld combat.damageNegation — entfernt N Schadenwürfel vor dem Wurf (Half-Pool-Cap), automatisch bei jedem Treffer.',
     },
     damageReduction: {
         supported: true,

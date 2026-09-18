@@ -500,16 +500,16 @@ export class MasteryActor extends Actor {
             system.combat.evadeTotal = blockEvade;
             // Optional stat-block defenses (written by the Encounter Forge, editable
             // on the sheet): Spell Resistance raises the Casting TN against this
-            // NPC; DR% enters the damage mitigation pipeline.
+            // NPC; DR% enters the damage mitigation pipeline; Damage Negation dice
+            // are removed before the roll (see damage-negation.ts).
             const blockSpellResistance = Math.max(0, Number(block.spellResistance) || 0);
-            if (blockSpellResistance > 0) {
-                system.combat.spellResistanceTotal =
-                    (Number(system.combat.spellResistanceTotal) || 0) + blockSpellResistance;
-            }
             const blockDrPct = Math.max(0, Math.min(100, Number(block.damageReduction) || 0));
-            if (blockDrPct > 0) {
-                system.combat.damageReductionPct = Math.max(Number(system.combat.damageReductionPct) || 0, blockDrPct);
-            }
+            const blockDamageNegation = Math.max(0, Math.min(20, Math.floor(Number(block.damageNegation) || 0)));
+            // Stashed until after mechanics aggregation — that step replaces SR/DR
+            // totals from owned Passives and would otherwise wipe the stat block.
+            system.combat._npcBlockSpellResistance = blockSpellResistance;
+            system.combat._npcBlockDrPct = blockDrPct;
+            system.combat._npcBlockDamageNegation = blockDamageNegation;
             if (phaseIndex != null) {
                 if (block.speed != null) {
                     system.combat.speed = Number(block.speed) || system.combat.speed;
@@ -673,6 +673,30 @@ export class MasteryActor extends Actor {
         }
         for (const r of mechBreakdown.damageReductionPct.reaction) {
             drRows.push({ label: r.source, detail: 'DR Reaction (per-hit)', value: r.value, display: fmtPct(r.value) });
+        }
+        // NPC/summon stat-block SR / DR / DN survive mechanics overwrite.
+        if (actorType === 'npc' || actorType === 'summon') {
+            const blockSr = Math.max(0, Number(system.combat._npcBlockSpellResistance) || 0);
+            const blockDr = Math.max(0, Math.min(100, Number(system.combat._npcBlockDrPct) || 0));
+            const blockDn = Math.max(0, Math.min(20, Math.floor(Number(system.combat._npcBlockDamageNegation) || 0)));
+            delete system.combat._npcBlockSpellResistance;
+            delete system.combat._npcBlockDrPct;
+            delete system.combat._npcBlockDamageNegation;
+            if (blockSr > 0) {
+                system.combat.spellResistanceTotal =
+                    (Number(system.combat.spellResistanceTotal) || 0) + blockSr;
+            }
+            if (blockDr > 0) {
+                system.combat.damageReductionPct = Math.max(Number(system.combat.damageReductionPct) || 0, blockDr);
+                drRows.unshift({
+                    label: 'Stat block',
+                    detail: 'NPC DR %',
+                    value: blockDr,
+                    display: fmtPct(blockDr),
+                });
+            }
+            // Mirror sheet DN onto combat for print/UI; live spend reads the block.
+            system.combat.damageNegation = blockDn;
         }
         system.combat.damageReductionRows = drRows;
         // Parry / Damage Negation / Phasing — always-on Passive specials for Combat Statistics.

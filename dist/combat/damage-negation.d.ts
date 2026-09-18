@@ -28,9 +28,19 @@ export interface DamageNegationSpend {
     note: string;
 }
 /**
- * PG attack sequence step 11: before the Damage Pool is rolled, offer the
- * defender to spend Damage Negation. Returns the number of Damage Dice to
- * remove (0 when declined/unavailable). Never exceeds the Half-Pool Limit.
+ * Active combat block for an NPC/summon (active boss phase, else root combat).
+ */
+export declare function resolveNpcActiveCombatBlock(actor: any): Record<string, unknown>;
+/**
+ * NPC/summon sheet Damage Negation (dice removed automatically per incoming
+ * Damage Pool). Characters use the Passive reserve + spend dialog instead.
+ */
+export declare function getNpcDamageNegationDice(actor: any): number;
+/**
+ * PG attack sequence step 11: before the Damage Pool is rolled, apply Damage
+ * Negation. NPCs/summons with sheet DN auto-remove that many dice (no dialog,
+ * no depleting reserve — every eligible hit). Characters keep the spend prompt
+ * against Passive Reserve + temporary stone DN. Never exceeds the Half-Pool Limit.
  */
 export declare function promptDamageNegationSpend(target: any, opts: {
     attacker?: any;

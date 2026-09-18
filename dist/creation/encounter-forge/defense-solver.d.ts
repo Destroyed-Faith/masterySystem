@@ -19,9 +19,9 @@
  *  4. Health is solved LAST as the residual durability value: the cumulative
  *     expected damage curve, evaluated at the target phase duration.
  *
- * Absorption and Damage Negation cannot be represented on generated NPCs
- * (no NPC stone pools; DN is not consumed by the live damage pipeline) —
- * they are reported as unsupported instead of silently redefined.
+ * Absorption cannot be represented on generated NPCs (no NPC stone pools) —
+ * it is reported as unsupported instead of silently redefined. Damage
+ * Negation maps to sheet `combat.damageNegation` (auto dice removal).
  */
 import type { DefenseKind, DefenseSelection } from './encounter-model.js';
 import type { PartyProfile } from './party-analyzer.js';

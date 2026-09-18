@@ -59,7 +59,10 @@
           "armorName": "",
           "shield": 0,
           "shieldName": "",
-          "speed": 8
+          "speed": 8,
+          "spellResistance": 0,
+          "damageReduction": 0,
+          "damageNegation": 0
         },
         "combatSenses": {
           "activeSenseId": "normalCombatAwareness",

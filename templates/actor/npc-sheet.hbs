@@ -185,6 +185,10 @@
               <span class="npc-combat-chip__label">DR %</span>
               <input type="number" name="system.phases.{{phaseIndex}}.combat.damageReduction" value="{{default phase.combat.damageReduction 0}}" min="0" max="100" step="5" data-dtype="Number" title="Damage Reduction percent — applied after Armor"/>
             </div>
+            <div class="npc-combat-chip">
+              <span class="npc-combat-chip__label">DN (d8)</span>
+              <input type="number" name="system.phases.{{phaseIndex}}.combat.damageNegation" value="{{default phase.combat.damageNegation 0}}" min="0" max="20" step="1" data-dtype="Number" title="Damage Negation — removes this many Damage Dice from every incoming pool before the roll (max half the pool)"/>
+            </div>
           </div>
         </section>
 
@@ -434,6 +438,10 @@
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">DR %</span>
             <input type="number" name="system.combat.damageReduction" value="{{default system.combat.damageReduction 0}}" min="0" max="100" step="5" data-dtype="Number" title="Damage Reduction percent — applied after Armor"/>
+          </div>
+          <div class="npc-combat-chip">
+            <span class="npc-combat-chip__label">DN (d8)</span>
+            <input type="number" name="system.combat.damageNegation" value="{{default system.combat.damageNegation 0}}" min="0" max="20" step="1" data-dtype="Number" title="Damage Negation — removes this many Damage Dice from every incoming pool before the roll (max half the pool)"/>
           </div>
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Attacks / Round</span>

@@ -360,6 +360,8 @@ export function buildNpcCompactPrintContext(actor: any): Record<string, unknown>
     ];
     const dr = Math.floor(num(src.combat?.damageReduction, 0));
     if (dr > 0) cores.push({ label: 'DR', value: `${dr}%` });
+    const dn = Math.floor(num(src.combat?.damageNegation, 0));
+    if (dn > 0) cores.push({ label: 'DN', value: `${dn}d8` });
     const spellRes = Math.floor(num(src.combat?.spellResistance, 0));
     if (spellRes > 0) cores.push({ label: 'Spell Res', value: String(spellRes) });
 

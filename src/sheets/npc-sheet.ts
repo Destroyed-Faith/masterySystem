@@ -1697,7 +1697,15 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       damageDiceCount: 4,
       specials: [] as { special?: string; specialValue?: number }[],
     };
-    const defaultCombat = { initiative: 0, evade: 10, armor: 0, speed: 8 };
+    const defaultCombat = {
+      initiative: 0,
+      evade: 10,
+      armor: 0,
+      speed: 8,
+      spellResistance: 0,
+      damageReduction: 0,
+      damageNegation: 0,
+    };
     const defaultHealth = defaultNpcHealth();
 
     // First phase: migrate the current (root) stats so adding phases does not

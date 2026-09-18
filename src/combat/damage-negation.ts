@@ -96,9 +96,40 @@ export interface DamageNegationSpend {
 }
 
 /**
- * PG attack sequence step 11: before the Damage Pool is rolled, offer the
- * defender to spend Damage Negation. Returns the number of Damage Dice to
- * remove (0 when declined/unavailable). Never exceeds the Half-Pool Limit.
+ * Active combat block for an NPC/summon (active boss phase, else root combat).
+ */
+export function resolveNpcActiveCombatBlock(actor: any): Record<string, unknown> {
+  const system = actor?.system ?? {};
+  const phases = Array.isArray(system.phases) ? system.phases : [];
+  if (phases.length > 0) {
+    const pi = Math.max(
+      0,
+      Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)),
+    );
+    const phaseCombat = phases[pi]?.combat;
+    if (phaseCombat && typeof phaseCombat === 'object') return phaseCombat as Record<string, unknown>;
+  }
+  return (system.combat && typeof system.combat === 'object'
+    ? system.combat
+    : {}) as Record<string, unknown>;
+}
+
+/**
+ * NPC/summon sheet Damage Negation (dice removed automatically per incoming
+ * Damage Pool). Characters use the Passive reserve + spend dialog instead.
+ */
+export function getNpcDamageNegationDice(actor: any): number {
+  const type = String(actor?.type || '');
+  if (type !== 'npc' && type !== 'summon') return 0;
+  const block = resolveNpcActiveCombatBlock(actor);
+  return Math.max(0, Math.min(20, Math.floor(Number(block.damageNegation) || 0)));
+}
+
+/**
+ * PG attack sequence step 11: before the Damage Pool is rolled, apply Damage
+ * Negation. NPCs/summons with sheet DN auto-remove that many dice (no dialog,
+ * no depleting reserve — every eligible hit). Characters keep the spend prompt
+ * against Passive Reserve + temporary stone DN. Never exceeds the Half-Pool Limit.
  */
 export async function promptDamageNegationSpend(
   target: any,
@@ -110,6 +141,16 @@ export async function promptDamageNegationSpend(
     const combat = (globalThis as any).game?.combat ?? null;
     const halfCap = damageNegationHalfPoolCap(opts.totalDice);
     if (halfCap <= 0) return none;
+
+    const npcDn = getNpcDamageNegationDice(owner);
+    if (npcDn > 0) {
+      const remove = Math.min(halfCap, npcDn);
+      if (remove <= 0) return none;
+      return {
+        diceRemoved: remove,
+        note: `Damage Negation −${remove} Damage Dice (NPC auto, before roll, half-pool cap ${halfCap})`,
+      };
+    }
 
     const reserve = getDamageNegationRemaining(owner, combat);
     const tempDn = getTempDamageNegation(owner, combat);
