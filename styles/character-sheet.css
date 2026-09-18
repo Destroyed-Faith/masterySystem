@@ -4776,6 +4776,136 @@
   color: #f0ebe3;
 }
 
+.mastery-system.sheet.actor.npc .npc-phase-economy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: flex-end;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-economy__name {
+  flex: 1 1 160px;
+  min-width: 140px;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-economy__name label,
+.mastery-system.sheet.actor.npc .npc-phase-economy__chip label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 4px;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-economy__chip {
+  flex: 0 0 auto;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-economy__chip input {
+  width: 4.5rem;
+  font-size: 0.9rem;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.4);
+  color: #f0ebe3;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-economy__name .phase-name-input {
+  width: 100%;
+  margin-right: 0;
+  font-size: 0.95rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-tabs .npc-phase-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-tabs .npc-phase-tab__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-tabs .npc-phase-tab__radial {
+  flex: 0 0 auto;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(180, 90, 40, 0.85);
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-tabs .phase-delete-btn {
+  flex: 0 0 auto;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  border: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-tabs .phase-delete-btn:hover {
+  background: rgba(220, 53, 69, 0.85);
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-add--below {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.18);
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-add--below:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mastery-system.sheet.actor.npc .npc-power-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 6px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mastery-system.sheet.actor.npc .npc-power-copy select {
+  max-width: 7.5rem;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f0ebe3;
+}
+
 .mastery-system.sheet.actor.npc .npc-attack-field label {
   font-size: 0.65rem;
   font-weight: 700;
@@ -5449,13 +5579,7 @@
 }
 
 .mastery-system.sheet.actor.npc .phase-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background: var(--df-bg-panel, #2a3136);
-  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
-  margin-bottom: 10px;
+  display: none;
 }
 
 .mastery-system.sheet.actor.npc .phase-name-input {
@@ -5467,7 +5591,6 @@
   font-weight: 700;
   color: var(--df-text-primary, #d0d0d0);
   background: rgba(0, 0, 0, 0.3);
-  margin-right: 10px;
 }
 
 .mastery-system.sheet.actor.npc .phase-delete-btn {

@@ -349,6 +349,12 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     };
     /** @override */
     get _initialTab() {
+        const pi = Math.floor(Number(this.actor?.system?.npcActivePhaseIndex) || 0);
+        const phases = coerceNpcPhasesArray(this.actor?.system?.phases);
+        if (phases.length > 0) {
+            const clamped = Math.max(0, Math.min(phases.length - 1, pi));
+            return `phase-${clamped}`;
+        }
         return 'phase-0';
     }
     /**
@@ -456,6 +462,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                     npcReactions: coerceNpcReactionsArray(ph.npcReactions),
                     npcReactionSlots: clampNpcReactionSlots(ph.npcReactionSlots),
                 }));
+                context.npcPhaseCopyTargets =
+                    context.system.phases.length > 1
+                        ? context.system.phases.map((ph, i) => ({
+                            index: i,
+                            name: String(ph?.name || '').trim() || `Phase ${i + 1}`,
+                        }))
+                        : [];
+            }
+            else {
+                context.npcPhaseCopyTargets = [];
             }
             // NPC ATK = explicit slots (active phase / root). Summons keep Bond attackSlots.
             if (!isSummon) {
@@ -949,8 +965,33 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         html.find('.effect-reduce').on('click', this.#onReduceStatusEffect.bind(this));
         html.find('.attack-value-add').on('click', this.#onAttackValueAdd.bind(this));
         html.find('.attack-value-delete').on('click', this.#onAttackValueDelete.bind(this));
+        html.find('select.npc-power-copy-select').on('change', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            void this.#onNpcPowerCopyToPhase(ev);
+        });
         html.find('.phase-add-btn').on('click', this.#onPhaseAdd.bind(this));
-        html.find('.phase-delete-btn').on('click', this.#onPhaseDelete.bind(this));
+        html.find('.phase-delete-btn').on('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            void this.#onPhaseDelete(ev);
+        });
+        // Tab click = view that phase AND set it as the radial/combat active phase.
+        html.find('nav.npc-phase-tabs a.npc-phase-tab[data-tab^="phase-"]').on('click', (ev) => {
+            const tab = String(ev.currentTarget.dataset.tab || '');
+            const m = /^phase-(\d+)$/.exec(tab);
+            if (!m)
+                return;
+            const pi = Number(m[1]);
+            if (!Number.isFinite(pi))
+                return;
+            this.activeTab = tab;
+            const current = Math.floor(Number(this.actor.system?.npcActivePhaseIndex) || 0);
+            if (pi !== current) {
+                void this.actor.update({ 'system.npcActivePhaseIndex': pi });
+            }
+        });
         html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
         html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
         // Native <select> change must not race a full form submit that expands
@@ -1094,6 +1135,38 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 await this.actor.update({ 'system.attackValues': av }, extraOpt);
             }
         }
+    }
+    /** Copy one extra power from its phase into another phase's extras list. */
+    async #onNpcPowerCopyToPhase(event) {
+        const select = event.currentTarget;
+        const toRaw = String(select.value || '').trim();
+        if (toRaw === '')
+            return;
+        const toPi = Number(toRaw);
+        const fromPi = Number(select.dataset.phaseIndex);
+        const ai = Number(select.dataset.attackIndex);
+        select.value = '';
+        if (!Number.isFinite(toPi) || !Number.isFinite(fromPi) || !Number.isFinite(ai) || toPi === fromPi) {
+            return;
+        }
+        const system = this.actor.system;
+        const phases = dup(coerceNpcPhasesArray(system.phases));
+        if (!phases[fromPi] || !phases[toPi])
+            return;
+        const fromRows = normalizeAttackValuesArray(phases[fromPi].attackValues);
+        if (!fromRows[ai])
+            return;
+        const copy = dup(fromRows[ai]);
+        const toRows = normalizeAttackValuesArray(phases[toPi].attackValues);
+        toRows.push(copy);
+        phases[toPi].attackValues = toRows;
+        const extraOpt = { [NPC_EXTRA_POWERS_UPDATE]: true };
+        const patch = {
+            'system.phases': phases,
+            'system.npcActivePhaseIndex': toPi,
+        };
+        this.activeTab = `phase-${toPi}`;
+        await this.actor.update(patch, extraOpt);
     }
     async #onNpcPowerSpecialAdd(event) {
         event.preventDefault();
@@ -1508,15 +1581,31 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     }
     async #onPhaseDelete(event) {
         event.preventDefault();
+        event.stopPropagation();
         const phaseIndex = parseInt($(event.currentTarget).data('phase-index') || '0', 10);
         const system = this.actor.system;
-        if (!system.phases || !Array.isArray(system.phases)) {
+        const phases = dup(coerceNpcPhasesArray(system.phases));
+        if (!phases.length)
             return;
-        }
-        if (phaseIndex >= 0 && phaseIndex < system.phases.length) {
-            const phases = dup(system.phases);
+        if (phaseIndex >= 0 && phaseIndex < phases.length) {
             phases.splice(phaseIndex, 1);
-            await this.actor.update({ 'system.phases': phases });
+            const patch = { 'system.phases': phases.length ? phases : null };
+            if (!phases.length) {
+                patch['system.npcActivePhaseIndex'] = 0;
+                this.activeTab = undefined;
+            }
+            else {
+                const prevActive = Math.floor(Number(system.npcActivePhaseIndex) || 0);
+                let nextActive = prevActive;
+                if (prevActive === phaseIndex)
+                    nextActive = Math.min(phaseIndex, phases.length - 1);
+                else if (prevActive > phaseIndex)
+                    nextActive = prevActive - 1;
+                nextActive = Math.max(0, Math.min(phases.length - 1, nextActive));
+                patch['system.npcActivePhaseIndex'] = nextActive;
+                this.activeTab = `phase-${nextActive}`;
+            }
+            await this.actor.update(patch);
         }
     }
     async #onToggleKnownNpc() {

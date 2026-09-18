@@ -2,10 +2,12 @@
   <div class="attack-values-header">
     <h3 class="npc-section__title"><i class="fas fa-reply"></i> Reactions</h3>
     <div class="npc-reactions-toolbar">
+      {{#unless hideSlots}}
       <label class="npc-reactions-slots" title="Reactions pro Runde. 0 = keine Reactions im Kampf.">
         / Runde
         <input type="number" name="{{path}}.npcReactionSlots" value="{{default slots 0}}" min="0" max="10" step="1" data-dtype="Number"/>
       </label>
+      {{/unless}}
       <button type="button" class="npc-reaction-add-custom" data-phase-index="{{phaseIndex}}" title="Eigene Reaction mit Specials">
         <i class="fas fa-plus"></i> Eigene
       </button>

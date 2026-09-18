@@ -98,11 +98,19 @@
   {{!-- Phase Tabs Navigation (if phases exist). Summons never have phases. --}}
   {{#unless isSummon}}
   {{#if system.phases}}
-  <nav class="sheet-tabs tabs" data-group="primary">
+  <nav class="sheet-tabs tabs npc-phase-tabs" data-group="primary">
     {{#each system.phases as |phase index|}}
-    <a class="item" data-tab="phase-{{index}}">{{phase.name}}</a>
+    <a class="item npc-phase-tab {{#if (eq ../system.npcActivePhaseIndex index)}}npc-phase-tab--active-radial{{/if}}" data-tab="phase-{{index}}" data-phase-index="{{index}}" title="{{phase.name}} — Klick = aktive Phase für Radial">
+      <span class="npc-phase-tab__label">{{phase.name}}</span>
+      {{#if (eq ../system.npcActivePhaseIndex index)}}
+      <span class="npc-phase-tab__radial" title="Aktive Phase (Radial / Angriffe)">ATK</span>
+      {{/if}}
+      <button type="button" class="phase-delete-btn" data-phase-index="{{index}}" title="Phase löschen" aria-label="Phase löschen">
+        <i class="fas fa-trash"></i>
+      </button>
+    </a>
     {{/each}}
-    <button type="button" class="phase-add-btn" title="Boss mit Phasen">
+    <button type="button" class="phase-add-btn" title="Weitere Phase hinzufügen">
       <i class="fas fa-layer-group"></i> Phase
     </button>
   </nav>
@@ -115,42 +123,35 @@
   {{/if}}
   {{/unless}}
 
-  {{#if system.phases}}
-  {{#unless isSummon}}
-  <div class="npc-phase-toolbar npc-section">
-    <div class="npc-phase-toolbar__field">
-      <label>Active Phase (Radial / Attacks)</label>
-      <select name="system.npcActivePhaseIndex" data-dtype="Number">
-        {{#each system.phases as |ph idx|}}
-        <option value="{{idx}}" {{#if (eq ../system.npcActivePhaseIndex idx)}}selected{{/if}}>{{ph.name}}</option>
-        {{/each}}
-      </select>
-    </div>
-    <div class="npc-phase-toolbar__field">
-      <label>ATK (active)</label>
-      <input type="number" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" readonly title="Attack actions of the active phase — edit Attacks/Round inside that phase tab"/>
-    </div>
-    <div class="npc-phase-toolbar__field">
-      <label>Move Actions / Round</label>
-      <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement actions per round"/>
-    </div>
-  </div>
-  {{/unless}}
-  {{/if}}
-
   {{!-- Sheet Body --}}
   <section class="sheet-body">
     {{#if system.phases}}
       {{!-- Phase Tabs Content --}}
       {{#each system.phases as |phase phaseIndex|}}
       <div class="tab phase-content" data-group="primary" data-tab="phase-{{phaseIndex}}">
-        
-        {{!-- Phase Header --}}
-        <div class="phase-header">
-          <input type="text" name="system.phases.{{phaseIndex}}.name" value="{{phase.name}}" placeholder="Phase Name" class="phase-name-input"/>
-          <button type="button" class="phase-delete-btn" data-phase-index="{{phaseIndex}}" title="Delete Phase">
-            <i class="fas fa-trash"></i> Delete Phase
-          </button>
+
+        {{!-- Attack / Move / Reaction for this phase (tab click also sets radial active phase) --}}
+        <div class="npc-phase-economy npc-section">
+          <div class="npc-phase-economy__name">
+            <label>Phase</label>
+            <input type="text" name="system.phases.{{phaseIndex}}.name" value="{{phase.name}}" placeholder="Phase Name" class="phase-name-input"/>
+          </div>
+          <div class="npc-phase-economy__chip">
+            <label title="Attack actions this phase has per round (ATK)">Attack</label>
+            <input type="number" name="system.phases.{{phaseIndex}}.attackSlots" value="{{default phase.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number"/>
+          </div>
+          <div class="npc-phase-economy__chip">
+            <label title="Movement actions per round (shared across phases)">Move</label>
+            {{#if (eq phaseIndex @root.system.npcActivePhaseIndex)}}
+            <input type="number" name="system.npcMovementSlots" value="{{default @root.system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number"/>
+            {{else}}
+            <input type="number" value="{{default @root.system.npcMovementSlots 1}}" min="1" max="10" step="1" disabled title="Switch to this phase (tab) to edit Move"/>
+            {{/if}}
+          </div>
+          <div class="npc-phase-economy__chip">
+            <label title="Reactions pro Runde in dieser Phase. 0 = keine.">Reaction</label>
+            <input type="number" name="system.phases.{{phaseIndex}}.npcReactionSlots" value="{{default phase.npcReactionSlots 0}}" min="0" max="10" step="1" data-dtype="Number"/>
+          </div>
         </div>
         
         <section class="npc-section npc-section--combat">
@@ -181,10 +182,6 @@
             <div class="npc-combat-chip">
               <span class="npc-combat-chip__label">DR %</span>
               <input type="number" name="system.phases.{{phaseIndex}}.combat.damageReduction" value="{{default phase.combat.damageReduction 0}}" min="0" max="100" step="5" data-dtype="Number" title="Damage Reduction percent — applied after Armor"/>
-            </div>
-            <div class="npc-combat-chip">
-              <span class="npc-combat-chip__label">Attacks / Round</span>
-              <input type="number" name="system.phases.{{phaseIndex}}.attackSlots" value="{{default phase.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack actions this phase has per round (ATK). Set freely per phase."/>
             </div>
           </div>
         </section>
@@ -311,7 +308,6 @@
         <div class="attack-values-panel npc-section">
           <div class="attack-values-header">
             <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Weitere Powers (Extras)</h3>
-            <button type="button" class="attack-value-add" data-phase-index="{{phaseIndex}}"><i class="fas fa-plus"></i> Power</button>
           </div>
           <div class="attack-values-list">
             {{#if phase.attackValues}}
@@ -320,6 +316,19 @@
               <div class="npc-attack-card attack-value-item" data-attack-index="{{index}}" data-phase-index="{{phaseIndex}}">
                 <div class="npc-attack-card__head">
                   <input type="text" class="npc-attack-name" name="system.phases.{{phaseIndex}}.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Power-Name"/>
+                  {{#if @root.npcPhaseCopyTargets.length}}
+                  <label class="npc-power-copy" title="Power in eine andere Phase kopieren">
+                    <span>→</span>
+                    <select class="npc-power-copy-select" data-phase-index="{{phaseIndex}}" data-attack-index="{{index}}">
+                      <option value="">Phase…</option>
+                      {{#each @root.npcPhaseCopyTargets as |tgt|}}
+                      {{#unless (eq tgt.index phaseIndex)}}
+                      <option value="{{tgt.index}}">{{tgt.name}}</option>
+                      {{/unless}}
+                      {{/each}}
+                    </select>
+                  </label>
+                  {{/if}}
                   <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" data-phase-index="{{phaseIndex}}" title="Entfernen">
                     <i class="fas fa-trash"></i>
                   </button>
@@ -380,13 +389,17 @@
               <div class="no-attack-values">No extra powers yet.</div>
             {{/if}}
           </div>
+          <button type="button" class="attack-value-add attack-value-add--below" data-phase-index="{{phaseIndex}}">
+            <i class="fas fa-plus"></i> Neue Power
+          </button>
         </div>
 
         {{> "systems/mastery-system/templates/actor/partials/npc-reactions.hbs"
           path=(concat "system.phases." phaseIndex)
           slots=phase.npcReactionSlots
           rows=phase.npcReactions
-          phaseIndex=phaseIndex}}
+          phaseIndex=phaseIndex
+          hideSlots=true}}
       </div>
       {{/each}}
     {{else}}
@@ -550,7 +563,6 @@
       <div class="attack-values-panel npc-section">
         <div class="attack-values-header">
           <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Weitere Powers (Extras)</h3>
-          <button type="button" class="attack-value-add"><i class="fas fa-plus"></i> Power</button>
         </div>
         <div class="attack-values-list">
           {{#if system.attackValues}}
@@ -618,6 +630,9 @@
             <div class="no-attack-values">No extra powers yet.</div>
           {{/if}}
         </div>
+        <button type="button" class="attack-value-add attack-value-add--below">
+          <i class="fas fa-plus"></i> Neue Power
+        </button>
       </div>
       {{/unless}}
 
