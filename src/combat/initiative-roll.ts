@@ -14,6 +14,7 @@ import {
   getNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
 import { resetCombatReflexesRoundUsage } from './combat-reflexes.js';
+import { actorHasSurprise, pinSurprisedInitiative } from './surprise.js';
 
 export { getCombatReflexesInitiativeLimits } from './combat-reflexes.js';
 
@@ -67,6 +68,20 @@ export async function rollInitiativeForCombatant(
       equipmentInitiativeModifier: 0,
       masteryRank: 2,
       rollResult: null
+    };
+  }
+
+  // Surprise pins Initiative at 0 so the surprisers (normal scores) act first.
+  // A later roll must not overwrite that pin.
+  if (actorHasSurprise(actor)) {
+    await pinSurprisedInitiative(actor);
+    return {
+      diceTotal: 0,
+      combatReflexesSpent: 0,
+      totalInitiative: 0,
+      equipmentInitiativeModifier: 0,
+      masteryRank: getMasteryRank(actor),
+      rollResult: null,
     };
   }
 
@@ -185,6 +200,7 @@ export async function rollInitiativeForCombatant(
 export function needsNpcInitiativeRoll(combatant: Combatant, force = false): boolean {
   const t = combatant.actor?.type;
   if (t !== 'npc' && t !== 'summon' && t !== 'divine') return false;
+  if (actorHasSurprise(combatant.actor)) return false;
   if (force) return true;
   if (combatant.getFlag?.('mastery-system', 'npcInitiativeRolled')) return false;
   const ini = combatant.initiative;
@@ -216,6 +232,15 @@ export async function rollNpcInitiativeOnly(combat: Combat, opts: { force?: bool
  */
 export async function executeInitiativePhase(combat: Combat): Promise<void> {
   if (!game.user?.isGM) return;
+  const seen = new Set<string>();
+  for (const combatant of combat.combatants) {
+    const actor = combatant.actor;
+    const id = String(actor?.id ?? '');
+    if (!actor || !id || seen.has(id)) continue;
+    if (!actorHasSurprise(actor)) continue;
+    seen.add(id);
+    await pinSurprisedInitiative(actor, combat);
+  }
   await rollNpcInitiativeOnly(combat);
 
   // Combatants with null initiative are omitted from `combat.turns`. Pin leftovers.

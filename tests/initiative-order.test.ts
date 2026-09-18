@@ -121,4 +121,11 @@ describe('needsNpcInitiativeRoll', () => {
   it('does not roll player characters', () => {
     expect(needsNpcInitiativeRoll(npc({ initiative: 0, type: 'character' }))).toBe(false);
   });
+
+  it('does not reroll a surprised NPC, even when forced', () => {
+    const surprised = npc({ initiative: 0 });
+    (surprised.actor as any).system = { statusEffects: [{ id: 'surprise' }] };
+    expect(needsNpcInitiativeRoll(surprised)).toBe(false);
+    expect(needsNpcInitiativeRoll(surprised, true)).toBe(false);
+  });
 });

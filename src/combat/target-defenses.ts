@@ -8,6 +8,8 @@
  * bonuses still stack on top via `*FromActiveBuffs`.
  */
 
+import { actorHasSurprise, evadeAfterSurprise } from './surprise.js';
+
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
 export function getTargetEvade(targetActor: any): number {
   if (!targetActor || !targetActor.system) return 6;
@@ -16,7 +18,7 @@ export function getTargetEvade(targetActor: any): number {
   const combat = system.combat || {};
   const base = combat.evadeTotal ?? combat.evade ?? 6;
   const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
-  return base + buffBonus;
+  return evadeAfterSurprise(base + buffBonus, actorHasSurprise(targetActor));
 }
 
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */

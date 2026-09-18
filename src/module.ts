@@ -20,6 +20,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { initializeBloodPoolHooks } from './utils/blood-pool.js';
 import { initializeInitiativeOrder } from './combat/initiative-roll.js';
+import { actorHasSurprise, effectCarriesSurprise, pinSurprisedInitiative, statusListHasSurprise } from './combat/surprise.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
@@ -473,10 +474,15 @@ Hooks.once('init', async function() {
   }
 
   // Update carousel when combatants change
-  Hooks.on('createCombatant', () => {
+  Hooks.on('createCombatant', (combatant: any) => {
     const carousel = CombatCarouselApp.instance;
     if (carousel && (carousel as any).rendered) {
       (carousel as any).render({ force: false });
+    }
+    const actor = combatant?.actor;
+    if (actor && actorHasSurprise(actor)) {
+      const parent = combatant.parent ?? combatant.combat;
+      void pinSurprisedInitiative(actor, parent);
     }
   });
 
@@ -1017,6 +1023,13 @@ Hooks.once('init', async function() {
   // round 3 never materialises its Temp HP pool until the next turn/combat.
   Hooks.on('createActiveEffect', async (effect: any) => {
     try {
+      if (effectCarriesSurprise(effect)) {
+        await pinSurprisedInitiative(effect.parent);
+      }
+    } catch (err) {
+      console.error('Mastery System | surprise createActiveEffect failed', err);
+    }
+    try {
       const flags = effect?.flags?.['mastery-system'];
       if (!flags || flags.activeBuff !== true) return;
       const actor = effect.parent;
@@ -1068,6 +1081,9 @@ Hooks.once('init', async function() {
   Hooks.on('updateActor', (actor: Actor, changed: any) => {
     if (changed.flags?.['mastery-system'] !== undefined) {
       void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+    }
+    if (statusListHasSurprise(changed?.system?.statusEffects)) {
+      void pinSurprisedInitiative(actor);
     }
     if (changed.system?.mastery?.rank !== undefined) {
       void import('./utils/consumable-slots.js').then(async ({ syncConsumableSlotsToMasteryRank, rankChangeNotification }) => {

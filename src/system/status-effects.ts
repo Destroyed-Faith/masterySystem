@@ -51,6 +51,7 @@ export const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[] = [
 
   { id: 'stunned',      name: 'Stunned',      img: ICON('daze') },
   { id: 'prone',        name: 'Prone',        img: ICON('falling') },
+  { id: 'surprise',     name: 'Surprise',     img: ICON('terror') },
   { id: 'entangled',    name: 'Entangled',    img: ICON('net') },
   { id: 'grappled',     name: 'Grappled',     img: ICON('net') },
   { id: 'charmed',      name: 'Charmed',      img: ICON('ice-aura') },

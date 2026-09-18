@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.507] - 2026-09-18
+
+### Added
+
+- **Surprise (token status):** Right-click a token and set Surprise. While it is on, Evade is halved. Initiative is pinned at 0 so anyone with a normal score acts first. Removing the icon restores Evade; Initiative stays 0 until you roll again. The same status works on player characters and NPCs. The sheet status list (`surprise`) counts too.
+
 ## [0.9.506] - 2026-09-18
 
 ### Added

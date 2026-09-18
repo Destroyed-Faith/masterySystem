@@ -29,6 +29,7 @@ import { RAISE_INCREMENT } from "../utils/constants.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+import { actorHasSurprise } from "./surprise.js";
 
 export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
 import {
@@ -896,6 +897,13 @@ export async function createAttackCard(
       : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.${
           aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Evade.' : ''
         }`;
+
+  const evadeNoteParts: string[] = [];
+  if (actorHasSurprise(target)) evadeNoteParts.push('half — Surprise');
+  if (evadeVsInvisible.evadeMultiplier < 1) {
+    evadeNoteParts.push('half — failed Perception vs invisible attacker');
+  }
+  const evadeNote = evadeNoteParts.length ? ` (${evadeNoteParts.join('; ')})` : '';
   
   const content = `
     <div class="mastery-attack-card">
@@ -934,7 +942,7 @@ export async function createAttackCard(
         </div>`
             : `<div class="detail-row">
           <span class="detail-label">${aoeMelee ? 'Anchor Evade' : 'Target Evade'}:</span>
-          <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}${
+          <span class="detail-value">${normalTn}${evadeNote}${
               aoeMelee ? ' — each creature checked separately' : ''
             }</span>
         </div>`
