@@ -1098,6 +1098,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     async #onNpcPowerSpecialAdd(event) {
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
         const $t = $(event.currentTarget);
         const scope = String($t.data('scope') || '');
         const phaseRaw = $t.data('phase-index');
@@ -1113,9 +1114,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         }
         if (scope === 'phase-base') {
             const pi = Number(phaseRaw);
-            if (!Number.isFinite(pi) || !system.phases?.[pi])
+            const phases = dup(coerceNpcPhasesArray(system.phases));
+            if (!Number.isFinite(pi) || !phases[pi])
                 return;
-            const phases = dup(system.phases);
             const base = ensureNpcBaseShape(phases[pi].npcBaseAttack);
             base.specials = [...coerceNpcAttackSpecials(base.specials), entry];
             phases[pi].npcBaseAttack = base;
@@ -1141,20 +1142,24 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             const ai = Number(attackRaw);
             if (!Number.isFinite(ai))
                 return;
-            if (phaseRaw !== undefined && phaseRaw !== null && phaseRaw !== '') {
+            if (phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== '') {
                 const pi = Number(phaseRaw);
-                if (!Number.isFinite(pi) || !system.phases?.[pi]?.attackValues?.[ai])
+                const phases = dup(coerceNpcPhasesArray(system.phases));
+                if (!Number.isFinite(pi) || !phases[pi])
                     return;
-                const phases = dup(system.phases);
-                const att = dup(phases[pi].attackValues[ai]);
+                const pav = normalizeAttackValuesArray(phases[pi].attackValues);
+                if (!pav[ai])
+                    return;
+                const att = dup(pav[ai]);
                 att.specials = [...coerceNpcAttackSpecials(att.specials), entry];
-                phases[pi].attackValues[ai] = att;
+                pav[ai] = att;
+                phases[pi].attackValues = pav;
                 await this.actor.update({ 'system.phases': phases }, specialsOpt);
             }
             else {
-                if (!system.attackValues?.[ai])
+                const av = normalizeAttackValuesArray(system.attackValues);
+                if (!av[ai])
                     return;
-                const av = dup(system.attackValues);
                 const att = dup(av[ai]);
                 att.specials = [...coerceNpcAttackSpecials(att.specials), entry];
                 av[ai] = att;

@@ -151,3 +151,48 @@ describe('mergeNpcAttackRowSpecials', () => {
     expect(merged.specials).toEqual([{ special: 'stun' }]);
   });
 });
+
+describe('mergeNpcAttackValueLists specials growth', () => {
+  it('keeps a newly appended specials row when submit is longer than existing', async () => {
+    const { mergeNpcAttackValueLists } = await import('../src/utils/npc-attack-model.js');
+    const existing = [
+      {
+        name: 'Ruinous Pulse',
+        attackDiceCount: 6,
+        damageDiceCount: 4,
+        specials: [{ special: 'ruin', specialValue: 2 }],
+      },
+    ];
+    const submitted = [
+      {
+        name: 'Ruinous Pulse',
+        attackDiceCount: 6,
+        damageDiceCount: 4,
+        specials: [{ special: 'ruin', specialValue: 2 }, { special: '' }],
+      },
+    ];
+    const merged = mergeNpcAttackValueLists(existing, submitted);
+    expect(merged[0].specials).toHaveLength(2);
+    expect(merged[0].specials[0].special).toBe('ruin');
+    expect(merged[0].specials[1].special).toBe('');
+  });
+
+  it('still keeps existing length when a stale submit omits a specials row', async () => {
+    const { mergeNpcAttackValueLists } = await import('../src/utils/npc-attack-model.js');
+    const existing = [
+      {
+        name: 'Pulse',
+        specials: [{ special: 'ruin' }, { special: 'bleed' }],
+      },
+    ];
+    const submitted = [
+      {
+        name: 'Pulse',
+        specials: [{ special: 'ruin' }],
+      },
+    ];
+    const merged = mergeNpcAttackValueLists(existing, submitted);
+    expect(merged[0].specials).toHaveLength(2);
+    expect(merged[0].specials[1].special).toBe('bleed');
+  });
+});

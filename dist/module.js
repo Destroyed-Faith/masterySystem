@@ -2138,7 +2138,12 @@ Hooks.on('preUpdateActor', (actor, updateData, options, _userId) => {
         // Form submitOnChange replaces `system.phases` as a whole. A click on
         // "+ Power" can race a stale submit that omits the new extra — keep the
         // actor's extras unless this write *is* the add/delete.
-        if (updateData.system && !options?.[NPC_EXTRA_POWERS_UPDATE]) {
+        // Also skip when this write *is* a specials add/delete: extras preserve
+        // deep-merges attack rows and would truncate newly appended specials
+        // back to the pre-click length via mergeNpcAttackSpecials.
+        if (updateData.system &&
+            !options?.[NPC_EXTRA_POWERS_UPDATE] &&
+            !options?.[NPC_ATTACK_SPECIALS_UPDATE]) {
             preserveNpcExtraPowersInSystemUpdate(actor.system, updateData.system);
         }
         // Same race for attack specials (form expands specials.0 as an object /

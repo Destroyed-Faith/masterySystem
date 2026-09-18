@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.500] - 2026-09-18
+
+### Fixed
+
+- **NPC sheet · Extra-Power Specials:** Clicking „+“ to add further specials on extras (or phase powers) was silently reverted — extras-list preserve still ran on specials writes and truncated the new row via `mergeNpcAttackSpecials`. Specials updates now skip that preserve, and attack-row merges keep a longer specials list when the submit grew.
+
 ## [0.9.499] - 2026-09-18
 
 ### Fixed

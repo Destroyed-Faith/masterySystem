@@ -274,9 +274,24 @@ export function mergeNpcAttackValueLists(existing: unknown, submitted: unknown):
   return ex.map((row, i) => {
     const overlay = sub[i] && typeof sub[i] === 'object' ? sub[i] : null;
     if (!overlay) return sanitizeNpcAttackTargetingFields({ ...row });
-    return sanitizeNpcAttackTargetingFields(
-      mergeNpcAttackRowSpecials(row, { ...row, ...overlay }),
-    );
+    // Overlay row fields, but do not let specials length shrink when the
+    // submit is longer (specials "+"-button write) or when a stale submit
+    // omits a just-added empty specials row.
+    const { specials: overlaySpecials, ...overlayRest } = overlay as Record<string, unknown>;
+    const merged: Record<string, any> = { ...row, ...overlayRest };
+    if (Object.prototype.hasOwnProperty.call(overlay, 'specials')) {
+      const prevSp = coerceNpcAttackSpecials(row.specials);
+      const nextSp = coerceNpcAttackSpecials(overlaySpecials);
+      if (nextSp.length > prevSp.length) {
+        merged.specials = nextSp.map((s, si) => ({
+          ...(prevSp[si] || { special: '' }),
+          ...s,
+        }));
+      } else {
+        merged.specials = mergeNpcAttackSpecials(prevSp, nextSp);
+      }
+    }
+    return sanitizeNpcAttackTargetingFields(merged);
   });
 }
 
