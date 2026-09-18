@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.509] - 2026-09-18
+
+### Changed
+
+- **Initiative:** Opening the stone dialog no longer rolls by itself. The Initiative line has a button, **Würfel deine Initiative**. After the click the same line shows the rolled number, then Combat Reflexes and the stone trade. Confirm stays blocked until that roll. Surprised characters stay at 0 and do not roll. NPCs still roll in the GM initiative phase.
+
 ## [0.9.508] - 2026-09-18
 
 ### Changed

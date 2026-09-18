@@ -47,11 +47,27 @@
   {{#if initiativeExchange.show}}
   <div class="initiative-exchange-bar{{#if initiativeExchange.locked}} is-locked{{/if}}">
     <div class="initiative-exchange-copy">
-      <strong>Initiative Exchange</strong>
-      <span>Initiative <b>{{initiativeExchange.initiative}}</b> · {{initiativeExchange.costPerStone}} Ini / Colorless Stone (MR {{initiativeExchange.masteryRank}})</span>
+      <div class="initiative-exchange-heading">
+        <strong>Initiative</strong>
+        {{#unless initiativeExchange.needsRoll}}
+        <span class="initiative-exchange-score">{{initiativeExchange.initiative}}</span>
+        {{/unless}}
+      </div>
+      {{#if initiativeExchange.needsRoll}}
+      <span>Noch nicht gewürfelt. Knopf drücken, dann siehst du die Zahl und entscheidest, was du drauflegst.</span>
+      {{else if initiativeExchange.surprised}}
+      <span>Überraschung: Initiative 0. Du würfelst nicht.</span>
+      {{else}}
+      <span>{{initiativeExchange.summary}}</span>
+      {{/if}}
       {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Initiative Boost already used this combat.</span>{{/if}}
     </div>
     <div class="initiative-exchange-actions">
+      {{#if initiativeExchange.needsRoll}}
+      <button type="button" class="dialog-btn dialog-btn-secondary js-roll-initiative">
+        <i class="fas fa-dice"></i> Würfel deine Initiative
+      </button>
+      {{else}}
       {{#if initiativeExchange.combatReflexes.show}}
       <div class="initiative-exchange-uses" title="Combat Reflexes: 4 uses per Safe Haven Rest, each use applies {{initiativeExchange.combatReflexes.pointsPerUse}} points (Mastery Rank) as Initiative. {{initiativeExchange.combatReflexes.remainingPool}} points left.">
         <span class="initiative-exchange-stepper-label">Combat Reflexes</span>
@@ -82,6 +98,7 @@
       <button type="button" class="dialog-btn dialog-btn-secondary js-convert-initiative-colorless" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.convertCount}}disabled{{/unless}}>
         <i class="fas fa-arrows-rotate"></i> Initiative zu Colorless Stones umwandeln
       </button>
+      {{/if}}
     </div>
   </div>
   {{/if}}

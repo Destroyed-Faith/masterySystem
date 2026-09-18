@@ -41,6 +41,12 @@ import {
   getActionEconomyActor
 } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
+import { actorHasSurprise } from '../combat/surprise.js';
+import {
+  INITIATIVE_ROLLED_FLAG,
+  formatInitiativeExchangeSummary,
+  pcNeedsManualInitiativeRoll,
+} from '../combat/initiative-roll.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import {
   COLORLESS_GEM_STYLE,
@@ -593,14 +599,6 @@ export class StonePowersDialog extends BaseDialog {
    * Show stone powers dialog for an actor
    */
   static async showForActor(actor: Actor, combatant?: Combatant | null): Promise<boolean> {
-    if (combatant && (combatant.initiative === null || combatant.initiative === undefined)) {
-      try {
-        const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
-        await rollInitiativeForCombatant(combatant, { promptCombatReflexes: true });
-      } catch (err) {
-        console.warn('Mastery System | Could not roll initiative before Stone Powers', err);
-      }
-    }
     try {
       const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
       await ensureDefaultPassiveSlots(actor);
@@ -991,13 +989,42 @@ export class StonePowersDialog extends BaseDialog {
     const mr = getMasteryRank(poolOwner);
     const initiativeScore = Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0));
     const stoneIniCost = colorlessStoneInitiativeCost(mr);
-    const maxConvert = maxConvertibleColorlessStones(initiativeScore, mr);
-    const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active;
+    const rolledFlag = ((this.actor as any).getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG) ??
+      (poolOwner as any).getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG)) as
+      | { combatId?: string; total?: number; diceTotal?: number }
+      | null
+      | undefined;
+    const surprised = actorHasSurprise(this.actor) || actorHasSurprise(poolOwner);
+    const needsRoll = pcNeedsManualInitiativeRoll({
+      actorType: (this.actor as any).type,
+      surprised,
+      combatId: combat?.id ?? null,
+      recordedCombatId: rolledFlag?.combatId ?? null,
+      recordedTotal: rolledFlag?.total ?? null,
+      initiative: this.combatant?.initiative ?? null,
+      combatantHasRecordedValue:
+        this.combatant?.getFlag?.('mastery-system', 'msInitiativeValue') != null,
+    });
+    const maxConvert = needsRoll ? 0 : maxConvertibleColorlessStones(initiativeScore, mr);
+    const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active || needsRoll;
     const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? maxConvert));
     this._colorlessConvertCount = convertCount;
     const cr = combatReflexesInitiativeState(this.actor, this.combatant, mr);
+    const diceTotal = Number.isFinite(Number(rolledFlag?.diceTotal))
+      ? Math.floor(Number(rolledFlag?.diceTotal))
+      : null;
     const initiativeExchange = {
       show: !!this.combatant,
+      needsRoll,
+      surprised: surprised && (this.actor as any).type === 'character',
+      summary: needsRoll
+        ? ''
+        : formatInitiativeExchangeSummary({
+            diceTotal,
+            initiative: initiativeScore,
+            combatReflexesNext: cr.nextUse,
+            costPerStone: stoneIniCost,
+          }),
       initiative: initiativeScore,
       masteryRank: mr,
       costPerStone: stoneIniCost,
@@ -1008,9 +1035,7 @@ export class StonePowersDialog extends BaseDialog {
       locked: exchangeLocked,
       boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
       combatReflexes: {
-        // Four use boxes like on the sheet: one use applies the Mastery Rank.
-        // The roll no longer stops for a popup nobody had context for.
-        show: (this.actor as any).type === 'character' && cr.rating > 0,
+        show: (this.actor as any).type === 'character' && cr.rating > 0 && !needsRoll && !surprised,
         pointsPerUse: cr.pointsPerUse,
         remainingPool: cr.remainingPool,
         nextUse: cr.nextUse,
@@ -1366,7 +1391,57 @@ export class StonePowersDialog extends BaseDialog {
     await this.#renderKeepingScroll();
   }
 
+  #dialogNeedsInitiativeRoll(): boolean {
+    const combat = (game as any).combat as Combat | null;
+    const actor = this.actor as any;
+    const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+    const rolledFlag = (actor.getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG) ??
+      (poolOwner as any).getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG)) as
+      | { combatId?: string; total?: number }
+      | null
+      | undefined;
+    return pcNeedsManualInitiativeRoll({
+      actorType: actor.type,
+      surprised: actorHasSurprise(actor) || actorHasSurprise(poolOwner),
+      combatId: combat?.id ?? null,
+      recordedCombatId: rolledFlag?.combatId ?? null,
+      recordedTotal: rolledFlag?.total ?? null,
+      initiative: this.combatant?.initiative ?? null,
+      combatantHasRecordedValue: this.combatant?.getFlag?.('mastery-system', 'msInitiativeValue') != null,
+    });
+  }
+
+  async #rollInitiativeFromDialog(button: HTMLButtonElement): Promise<void> {
+    if (!this.combatant || button.disabled) return;
+    button.disabled = true;
+    try {
+      const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
+      const breakdown = await rollInitiativeForCombatant(this.combatant, { promptCombatReflexes: false });
+      const rolled = Math.floor(Number(breakdown.diceTotal) || 0);
+      const now = Math.floor(Number(breakdown.totalInitiative) || 0);
+      ui.notifications?.info(
+        rolled === now
+          ? `${(this.actor as any).name}: Wurf hat ${rolled} gebracht.`
+          : `${(this.actor as any).name}: Wurf hat ${rolled} gebracht. Initiative jetzt ${now}.`,
+      );
+      this._colorlessConvertCount = null;
+      await this.#renderKeepingScroll();
+    } catch (err) {
+      console.warn('Mastery System | Initiative roll from dialog failed', err);
+      ui.notifications?.warn('Initiative konnte nicht gewürfelt werden.');
+      button.disabled = false;
+    }
+  }
+
   #bindInitiativeExchangeControls(root: HTMLElement): void {
+    const rollBtn = root.querySelector('.js-roll-initiative') as HTMLButtonElement | null;
+    if (rollBtn) {
+      rollBtn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        void this.#rollInitiativeFromDialog(rollBtn);
+      });
+    }
+
     const stepConvert = async (delta: number) => {
       const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
       const max = maxConvertibleColorlessStones(
@@ -1528,6 +1603,10 @@ export class StonePowersDialog extends BaseDialog {
         ev.preventDefault();
         if (this._recoveryActive) {
           ui.notifications?.warn('Finish Stone Recovery first, then assign your stones.');
+          return;
+        }
+        if (this.#dialogNeedsInitiativeRoll()) {
+          ui.notifications?.warn('Erst Initiative würfeln — der Knopf steht in der Initiative-Zeile.');
           return;
         }
         // `_onClose` resolves the caller's promise once payment and the round

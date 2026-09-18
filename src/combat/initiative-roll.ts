@@ -50,7 +50,7 @@ export interface InitiativeRollBreakdown {
   rollResult?: any;
 }
 
-const INITIATIVE_ROLLED_FLAG = 'initiativeRolledFor';
+export const INITIATIVE_ROLLED_FLAG = 'initiativeRolledFor';
 const initiativeRollInFlight = new Set<string>();
 
 /** True when this combatant already kept an initiative total for this combat round. */
@@ -63,6 +63,61 @@ export function initiativeRollAlreadyRecorded(
   if (String(flag.combatId) !== String(combatId)) return false;
   if (Number(flag.round) !== Number(round)) return false;
   return Number.isFinite(Number(flag.total));
+}
+
+/**
+ * Player characters roll from the Initiative line in Stone Powers, not when
+ * the dialog opens. A stored total for this combat counts as already rolled,
+ * even on a later round. Foundry's seeded 0 does not.
+ */
+export function pcNeedsManualInitiativeRoll(input: {
+  actorType?: string;
+  surprised?: boolean;
+  combatId?: string | null;
+  recordedCombatId?: string | null;
+  recordedTotal?: number | null;
+  initiative?: number | null;
+  combatantHasRecordedValue?: boolean;
+}): boolean {
+  if (input.actorType !== 'character') return false;
+  if (input.surprised) return false;
+  if (!input.combatId) return false;
+  if (
+    input.recordedCombatId &&
+    String(input.recordedCombatId) === String(input.combatId) &&
+    Number.isFinite(Number(input.recordedTotal))
+  ) {
+    return false;
+  }
+  if (input.initiative == null) return true;
+  if (Number(input.initiative) === 0 && !input.combatantHasRecordedValue) return true;
+  return false;
+}
+
+/** One line for the Initiative row after the player has rolled. */
+export function formatInitiativeExchangeSummary(input: {
+  diceTotal: number | null;
+  initiative: number;
+  combatReflexesNext: number;
+  costPerStone: number;
+}): string {
+  const initiative = Math.floor(Number(input.initiative) || 0);
+  const dice = input.diceTotal == null ? null : Math.floor(Number(input.diceTotal));
+  const lead =
+    dice != null && dice !== initiative
+      ? `Wurf hat ${dice} gebracht. Initiative jetzt ${initiative}.`
+      : `Wurf hat ${initiative} gebracht.`;
+  const extra: string[] = [];
+  const cr = Math.max(0, Math.floor(Number(input.combatReflexesNext) || 0));
+  if (cr > 0) extra.push(`Jetzt kannst du noch +${cr} aus Combat Reflexes drauflegen`);
+  const cost = Math.max(0, Math.floor(Number(input.costPerStone) || 0));
+  if (initiative > 0 && cost > 0) {
+    extra.push(
+      cr > 0 ? `oder ${cost} Initiative pro Stein tauschen` : `Du kannst ${cost} Initiative pro Stein tauschen`,
+    );
+  }
+  if (!extra.length) return lead;
+  return `${lead} ${extra.join(', ')}.`;
 }
 
 async function writeCombatantInitiative(
