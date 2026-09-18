@@ -3,6 +3,8 @@
  * Applied on top of Mastery Rank d8 at combat start (no Combat Reflexes).
  */
 
+import { coerceNpcPhasesArray } from './npc-attack-model.js';
+
 export function clampNpcInitiativeModifier(raw: unknown): number {
   const n = Math.floor(Number(raw));
   if (!Number.isFinite(n)) return 0;
@@ -33,7 +35,7 @@ export function formatNpcInitiativeSigned(net: number): string {
 export function getNpcInitiativeModifier(actor: any): number {
   if (!actor?.system) return 0;
   const system = actor.system as any;
-  const phases = Array.isArray(system.phases) ? system.phases : [];
+  const phases = coerceNpcPhasesArray(system.phases);
   let raw = system.combat?.initiative;
   if (phases.length > 0) {
     const idx = Math.max(

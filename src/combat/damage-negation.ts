@@ -10,6 +10,7 @@
  */
 
 import { getActionEconomyActor, getRoundState } from './action-economy.js';
+import { coerceNpcPhasesArray } from '../utils/npc-attack-model.js';
 
 const FLAG_SCOPE = 'mastery-system';
 const FLAG_RESERVE = 'dnReserve';
@@ -100,7 +101,7 @@ export interface DamageNegationSpend {
  */
 export function resolveNpcActiveCombatBlock(actor: any): Record<string, unknown> {
   const system = actor?.system ?? {};
-  const phases = Array.isArray(system.phases) ? system.phases : [];
+  const phases = coerceNpcPhasesArray(system.phases);
   if (phases.length > 0) {
     const pi = Math.max(
       0,

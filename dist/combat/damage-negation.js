@@ -9,6 +9,7 @@
  * refresh mid-combat and is lost when the combat ends.
  */
 import { getActionEconomyActor, getRoundState } from './action-economy.js';
+import { coerceNpcPhasesArray } from '../utils/npc-attack-model.js';
 const FLAG_SCOPE = 'mastery-system';
 const FLAG_RESERVE = 'dnReserve';
 function actorItems(actor) {
@@ -91,7 +92,7 @@ export function getTempDamageNegation(actor, combat) {
  */
 export function resolveNpcActiveCombatBlock(actor) {
     const system = actor?.system ?? {};
-    const phases = Array.isArray(system.phases) ? system.phases : [];
+    const phases = coerceNpcPhasesArray(system.phases);
     if (phases.length > 0) {
         const pi = Math.max(0, Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)));
         const phaseCombat = phases[pi]?.combat;

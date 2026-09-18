@@ -978,6 +978,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             void this.#onPhaseDelete(ev);
         });
         // Tab click = view that phase AND set it as the radial/combat active phase.
+        // If live HP is already 0 and the clicked phase still has a pool, load it
+        // (safety net when auto-advance was skipped).
         html.find('nav.npc-phase-tabs a.npc-phase-tab[data-tab^="phase-"]').on('click', (ev) => {
             const tab = String(ev.currentTarget.dataset.tab || '');
             const m = /^phase-(\d+)$/.exec(tab);
@@ -989,7 +991,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             this.activeTab = tab;
             const current = Math.floor(Number(this.actor.system?.npcActivePhaseIndex) || 0);
             if (pi !== current) {
-                void this.actor.update({ 'system.npcActivePhaseIndex': pi });
+                void (async () => {
+                    const { activateNpcBossPhaseFromSheet } = await import('../combat/npc-phase-advance.js');
+                    await activateNpcBossPhaseFromSheet(this.actor, pi);
+                })();
             }
         });
         html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));

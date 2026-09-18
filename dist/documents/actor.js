@@ -489,7 +489,7 @@ export class MasteryActor extends Actor {
             // fields on the sheet — per-phase for phased bosses), NOT from
             // MR + equipment items. Derived here on every data-prep so mid-combat
             // edits and phase switches reach the hit/damage pipeline immediately.
-            const phases = Array.isArray(system.phases) ? system.phases : [];
+            const phases = coerceNpcPhasesArray(system.phases);
             const phaseIndex = phases.length > 0
                 ? Math.max(0, Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)))
                 : null;
@@ -1183,6 +1183,13 @@ export class MasteryActor extends Actor {
             if (currentBar) {
                 currentBar.current = Math.max(currentBar.current - amount, 0);
                 await this.update({ 'system.health': system.health });
+                try {
+                    const { maybeAdvanceNpcBossPhase } = await import('../combat/npc-phase-advance.js');
+                    await maybeAdvanceNpcBossPhase(this);
+                }
+                catch (phaseErr) {
+                    console.warn('Mastery System | NPC phase advance failed', phaseErr);
+                }
             }
         }
     }

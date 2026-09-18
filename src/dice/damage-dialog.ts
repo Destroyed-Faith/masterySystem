@@ -1853,6 +1853,14 @@ export async function applyDamageToTarget(
         }
         throw e;
       }
+
+      // Boss phases: empty Health pool → next phase with a fresh pool.
+      try {
+        const { maybeAdvanceNpcBossPhase } = await import('../combat/npc-phase-advance.js');
+        await maybeAdvanceNpcBossPhase(target);
+      } catch (phaseErr) {
+        console.warn('Mastery System | NPC phase advance failed', phaseErr);
+      }
     } else if (Object.keys(tempHPConsumption.patch).length > 0) {
       // Only tempHP was reduced, no bar damage
       try {

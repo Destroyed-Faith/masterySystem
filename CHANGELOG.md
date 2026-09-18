@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.504] - 2026-09-18
+
+### Fixed
+
+- **NPC boss · Phase advance at 0 HP:** Dropping the live Health pool to 0 now automatically activates the next boss phase with that phase’s Health pool (Powers / Armor / DR / DN follow `npcActivePhaseIndex`). Last phase at 0 stays defeated. Manual phase-tab click still switches the kit; if live HP is already empty it also loads the clicked phase’s pool. Object-shaped `phases` are coerced for defenses, DN, and initiative the same way as attacks.
+
 ## [0.9.503] - 2026-09-18
 
 ### Added
