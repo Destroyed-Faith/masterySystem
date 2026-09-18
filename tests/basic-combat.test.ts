@@ -59,19 +59,19 @@ describe('basic combat maneuvers catalog', () => {
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-attack');
   });
 
-  it('hides Basic Attack in the radial by default until the player opts in', () => {
-    expect(isOptInRadialManeuverId('weapon-attack')).toBe(true);
-    expect(isManeuverHiddenFromActorRadial({ system: {} }, 'weapon-attack')).toBe(true);
+  it('shows Basic Attack in the radial by default', () => {
+    expect(isOptInRadialManeuverId('weapon-attack')).toBe(false);
+    expect(isManeuverHiddenFromActorRadial({ system: {} }, 'weapon-attack')).toBe(false);
     expect(isManeuverHiddenFromActorRadial({ system: {} }, 'move')).toBe(false);
     expect(
       isManeuverHiddenFromActorRadial(
-        { system: { radialManeuverPrefs: { showIds: { 'weapon-attack': true } } } },
+        { system: { radialManeuverPrefs: { hideIds: { 'weapon-attack': true } } } },
         'weapon-attack',
       ),
-    ).toBe(false);
+    ).toBe(true);
     const panel = buildRadialManeuverPrefsContext({});
     const basic = panel.rows.find((r) => r.id === 'weapon-attack');
-    expect(basic?.hideFromRadial).toBe(true);
+    expect(basic?.hideFromRadial).toBe(false);
   });
 
   it('Flee / Dash / Dive texts match current Basic Maneuver rules', () => {

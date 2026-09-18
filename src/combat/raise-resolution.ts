@@ -10,6 +10,7 @@ import { clampAtZero, formatD8Count, parseD8Count } from '../utils/dice-formula.
 import type { AoeSpec, DurationSpec, PowerSpecial, RangeSpec } from '../types/item.js';
 import type { RadialCombatOption } from '../radial-menu/types.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
+import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 
 export type RaiseEffectKind =
   | 'damage'
@@ -289,7 +290,10 @@ export function buildAvailableRaiseOptions(
   });
 
   for (const sp of snapshot.specials) {
-    const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
+    const effect = getEffectById(sp.key) ?? getEffect(sp.key);
+    const name = effect
+      ? getEffectBaseName(effect.name)
+      : sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
     options.push({
       id: `special:${sp.key}`,
       label: `Increase ${name}(${sp.rank}) by +MR`,
@@ -478,7 +482,10 @@ export function snapshotToDamageFormula(snapshot: PowerSnapshot): string {
 
 export function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[] {
   return snapshot.specials.map((sp) => {
-    const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
+    const effect = getEffectById(sp.key) ?? getEffect(sp.key);
+    const name = effect
+      ? getEffectBaseName(effect.name)
+      : sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
     return `${name}(${sp.rank})`;
   });
 }

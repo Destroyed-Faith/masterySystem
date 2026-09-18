@@ -38,6 +38,7 @@ import { RAISE_INCREMENT } from '../utils/constants.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
 import { formatEffectReference, getEffectById } from '../utils/special-effects.js';
+import { selectOnHitSpecialEffects } from '../utils/weapon-specials.js';
 
 /**
  * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
@@ -770,6 +771,7 @@ export async function showDamageDialog(
   if (
     !isNpcAttackFlow &&
     !selectedPowerId &&
+    !flags?.basePowerSnapshot &&
     basicAttackMrDamage &&
     basicAttackMrDamage !== '0' &&
     (!powerDamage || powerDamage === '0')
@@ -2487,18 +2489,9 @@ async function calculateDamageResult(
   let raiseDiceCount = 0;
 
   // Base power specials from the resolved snapshot apply on every successful hit.
-  for (const special of availableSpecials) {
-    if (special.type === 'power-special' && special.effect) {
-      specialsUsed.push(special.effect);
-    }
-    // Weapon Exorcism/Requiem ride as on-hit Specials (tag-gated at apply).
-    if (special.type === 'weapon' && special.effect) {
-      const effect = String(special.effect).trim();
-      if (/^(exorcism|requiem)\s*\(/i.test(effect)) {
-        specialsUsed.push(effect);
-      }
-    }
-  }
+  // Weapon Specials apply too, unless the snapshot already carries that Special
+  // (a Raise then changes the rank once, instead of stacking the printed value).
+  specialsUsed.push(...selectOnHitSpecialEffects(availableSpecials));
   
   for (let i = 0; i < raises; i++) {
     const selection = raiseSelections.get(i);

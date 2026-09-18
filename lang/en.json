@@ -452,6 +452,11 @@
       "actionName": "Weapon Swap",
       "actionDescription": "Switch to your other prepared Weapon Set.",
       "switchTitle": "Weaponslots {n}",
+      "emptyHands": "empty (Unarmed)",
+      "bothHands": "both hands",
+      "swapDetail": "Set {fromN}: {from} → Set {toN}: {to}. Costs 1 Movement in combat.",
+      "swappedCombat": "Movement spent.",
+      "swappedFree": "Free — not in combat.",
       "noMovement": "No Movement Action available to switch Weapon Sets.",
       "movementReplaced": "A Movement Power already replaced your normal Movement this round."
     },

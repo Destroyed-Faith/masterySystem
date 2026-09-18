@@ -2046,6 +2046,11 @@
               <button type="button" class="df-weapon-set-switch{{#if this.active}} is-active{{/if}}" data-action="switchWeaponSet" data-weapon-set="{{this.index}}" title="{{this.title}}" aria-pressed="{{#if this.active}}true{{else}}false{{/if}}">{{this.label}}</button>
               {{/each}}
             </div>
+            <ul class="df-weapon-set-preview">
+              {{#each equipmentUi.weaponSets.buttons}}
+              <li class="df-weapon-set-line{{#if this.active}} is-active{{/if}}"><strong>{{this.label}}</strong> {{this.summary}}</li>
+              {{/each}}
+            </ul>
             {{/if}}
             <div class="df-equipped-grid">
               {{#each equipmentUi.equipSlots}}

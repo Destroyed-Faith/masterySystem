@@ -32,6 +32,7 @@ import {
 } from '../utils/echo-artifacts.js';
 import { GENERAL_ARTIFACTS } from '../utils/general-artifacts.js';
 import type { GeneralArtifactDefinition } from '../utils/general-artifacts.js';
+import { specialRefsFromBaseValueRows } from '../utils/weapon-specials.js';
 import type { ArtifactProgressionPick } from '../types/item.js';
 import {
   artifactArmorBonusForLevel,
@@ -734,7 +735,10 @@ function weaponProfileAtLevel(def: EchoArtifactDefinition, level: number): Recor
       ],
     };
   }
-  return base;
+  return {
+    ...base,
+    specials: specialRefsFromBaseValueRows(baseValuesAtLevel(def.key, level)),
+  };
 }
 
 /**

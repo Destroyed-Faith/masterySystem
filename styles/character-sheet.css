@@ -10415,8 +10415,27 @@ aside#tooltip,
 
 .df-weapon-set-switch.is-active {
   background: var(--df-accent, #c9a227);
-  border-color: var(--df-accent, #c9a227);
-  color: #1a1408;
+  color: #1a1a1a;
+}
+
+.df-weapon-set-preview {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.df-weapon-set-line {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.df-weapon-set-line.is-active {
+  color: var(--df-text, #f2f2f2);
+  font-weight: 600;
 }
 
 .df-equip-trash {

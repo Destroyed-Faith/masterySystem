@@ -33,6 +33,9 @@ vi.mock('../src/utils/consumable-slots.js', () => ({
 import { COMBAT_MANEUVERS, getAvailableManeuvers } from '../src/system/combat-maneuvers.js';
 import { RADIAL_STANDARD_MANEUVER_IDS } from '../src/utils/radial-maneuver-prefs.js';
 import {
+  describeWeaponSetHands,
+  describeWeaponSwap,
+  describeActiveWeaponProfile,
   applyWeaponSetHands,
   buildInitialWeaponSets,
   ensureWeaponSets,
@@ -390,9 +393,9 @@ describe('weapon set apply + swap', () => {
 });
 
 describe('Weapon Swap action catalog', () => {
-  it('is an Attack Action and still appears as a standard radial maneuver', () => {
+  it('is a Movement action and still appears as a standard radial maneuver', () => {
     const maneuver = COMBAT_MANEUVERS.find((m) => m.id === WEAPON_SWAP_ID);
-    expect(maneuver).toMatchObject({ id: 'weapon-swap', name: 'Weapon Swap', slot: 'attack' });
+    expect(maneuver).toMatchObject({ id: 'weapon-swap', name: 'Weapon Swap', slot: 'movement' });
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-swap');
     const available = getAvailableManeuvers({
       system: {},
@@ -414,5 +417,31 @@ describe('applyWeaponSetHands dual-wield / two-item sets', () => {
     expect(right.system.equipped).toBe(true);
     expect(left.getFlag('mastery-system', 'equipment').slot).toBe('mainhand');
     expect(right.getFlag('mastery-system', 'equipment').slot).toBe('offhand');
+  });
+});
+
+describe('weapon set labels', () => {
+  it('names the active weapon and the set Weapon Swap will switch to', () => {
+    const bow = makeItem('bow', { type: 'weapon', equipped: true, slot: 'mainhand' });
+    bow.name = 'Heartseeker';
+    const actor = makeActor([bow], {
+      schemaVersion: 1,
+      active: 1,
+      sets: {
+        1: { mainhand: 'bow', offhand: 'bow' },
+        2: { mainhand: null, offhand: null },
+      },
+    });
+    expect(describeWeaponSetHands(actor, { mainhand: 'bow', offhand: 'bow' })).toBe(
+      'Heartseeker (both hands)',
+    );
+    expect(describeWeaponSetHands(actor, { mainhand: null, offhand: null })).toBe('empty (Unarmed)');
+    const swap = describeWeaponSwap(actor);
+    expect(swap.active).toBe(1);
+    expect(swap.next).toBe(2);
+    expect(swap.from).toContain('Heartseeker');
+    expect(swap.to).toBe('empty (Unarmed)');
+    expect(describeActiveWeaponProfile(actor).name).toBe('Heartseeker');
+    expect(describeActiveWeaponProfile(actor).unarmed).toBe(false);
   });
 });

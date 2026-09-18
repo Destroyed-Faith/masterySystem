@@ -103,6 +103,7 @@ import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
 import {
   canMarkTwoHandedGrip,
+  describeWeaponSetHands,
   ensureWeaponSets,
   isHiddenInInactiveWeaponSet,
   isNaturallyTwoHandedItem,
@@ -2002,13 +2003,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         active: weaponSets.active,
         buttons: ([1, 2] as const).map((index) => {
           const roman = index === 2 ? 'II' : 'I';
+          const summary = describeWeaponSetHands(this.actor, weaponSets.sets[index]);
           return {
             index,
             label: roman,
+            summary,
             active: weaponSets.active === index,
-            title:
-              (globalThis as any).game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: roman }) ||
-              `Weaponslots ${roman}`,
+            title: `Set ${roman}: ${summary}`,
           };
         }),
       },

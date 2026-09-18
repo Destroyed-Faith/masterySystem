@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.506] - 2026-09-18
+
+### Added
+
+- **Basic Attack** is in the token radial by default. It uses the active Weapon Set: that weapon's damage + MR × 2d8, or Unarmed 1d8 + MR × 2d8 when the set is empty. Weapon Specials on that weapon can be Raised; Unarmed has none.
+- **Weapon Swap** sits in the Movement segment. The radial line and the character sheet list both sets (what is in hand, what you switch to). A chat note shows the same switch to the table. In combat it still costs 1 Movement.
+
+### Fixed
+
+- **Artifact weapon Specials:** Crossbows and other weapon artifacts can Raise Penetration, Precision, and the other printed Specials, not only damage. Empty weapon blobs pick those Specials up from the artifact's Base Values, or from the mundane base type when one is set. They apply once on the hit.
+
 ## [0.9.505] - 2026-09-18
 
 ### Fixed

@@ -20,6 +20,11 @@ import {
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { formatEffectReference } from "../utils/special-effects.js";
 import { parseD8Count } from "../utils/dice-formula.js";
+import { basicAttackMrDamageFormula } from "./basic-combat.js";
+import {
+  mergeWeaponSpecialsIntoSnapshot,
+  weaponSpecialEntries,
+} from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
@@ -575,6 +580,55 @@ export async function createAttackCard(
       raiseOptions: buildAvailableRaiseOptions(snap, npcIsSpell),
       waiveRaiseCost: true,
     };
+  }
+
+  if (raiseContext && !raiseContext.isSpell && !option.ignoreWeaponDamage && weapon) {
+    raiseContext.baseSnapshot = mergeWeaponSpecialsIntoSnapshot(
+      raiseContext.baseSnapshot,
+      weaponSpecialEntries(weapon),
+    );
+    raiseContext.raiseOptions = buildAvailableRaiseOptions(raiseContext.baseSnapshot, false);
+  }
+
+  if (!raiseContext && !isNpcAttack && !option.ignoreWeaponDamage && option.id === 'weapon-attack') {
+    const snap: PowerSnapshot = {
+      damageDice: parseD8Count(basicAttackMrDamageFormula(attacker)),
+      specials: weapon && !isVirtualUnarmedWeapon(weapon) ? weaponSpecialEntries(weapon) : [],
+      rangeM: null,
+      aoeRadiusM: null,
+      durationSteps: 0,
+      hasRange: false,
+      hasAoe: false,
+      hasDuration: false,
+    };
+    raiseContext = {
+      masteryRank,
+      isSpell: false,
+      baseSnapshot: snap,
+      raiseOptions: buildAvailableRaiseOptions(snap, false),
+    };
+  }
+
+  if (!raiseContext && !isNpcAttack && !option.ignoreWeaponDamage && weapon && !isVirtualUnarmedWeapon(weapon)) {
+    const entries = weaponSpecialEntries(weapon);
+    if (entries.length > 0) {
+      const snap: PowerSnapshot = {
+        damageDice: 0,
+        specials: entries,
+        rangeM: null,
+        aoeRadiusM: null,
+        durationSteps: 0,
+        hasRange: false,
+        hasAoe: false,
+        hasDuration: false,
+      };
+      raiseContext = {
+        masteryRank,
+        isSpell: false,
+        baseSnapshot: snap,
+        raiseOptions: buildAvailableRaiseOptions(snap, false),
+      };
+    }
   }
 
   // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll

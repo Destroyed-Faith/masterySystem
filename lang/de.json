@@ -452,6 +452,11 @@
       "actionName": "Waffenwechsel",
       "actionDescription": "Wechsle zum anderen vorbereiteten Waffenset.",
       "switchTitle": "Waffenslots {n}",
+      "emptyHands": "leer (Unarmed)",
+      "bothHands": "beide Hände",
+      "swapDetail": "Set {fromN}: {from} → Set {toN}: {to}. Kostet im Kampf 1 Movement.",
+      "swappedCombat": "Movement ausgegeben.",
+      "swappedFree": "Kostenlos — nicht im Kampf.",
       "noMovement": "Keine Movement Action verfügbar, um das Waffenset zu wechseln.",
       "movementReplaced": "Eine Movement Power hat die normale Bewegung in dieser Runde bereits ersetzt."
     },

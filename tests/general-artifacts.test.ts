@@ -153,6 +153,11 @@ describe('Moonlight Greatsword', () => {
     expect(baseValue(tree, 4, 'Requiem').value).toBe(4);
     expect(baseValue(tree, 7, 'Requiem').value).toBe(8);
     expect(baseValue(tree, 10, 'Requiem').value).toBe(8);
+    expect(sysAt(tree, 4).artifactWeapon.specials).toEqual([{ specialId: 'requiem', value: 4 }]);
+    expect(sysAt(tree, 7).artifactWeapon.specials).toEqual([
+      { specialId: 'requiem', value: 8 },
+      { specialId: 'expose', value: 4 },
+    ]);
   });
 
   it('Expose unlocks at L7 (rank 4) and upgrades at L10 (rank 8)', () => {

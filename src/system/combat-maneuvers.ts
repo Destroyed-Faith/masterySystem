@@ -132,11 +132,11 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
     id: "weapon-swap",
     name: "Weapon Swap",
     description: "Switch to your other prepared Weapon Set.",
-    slot: "attack",
-    category: "combat-action",
-    tags: ["attack", "basic", "weapon-swap"],
+    slot: "movement",
+    category: "movement",
+    tags: ["movement", "basic", "weapon-swap"],
     effect:
-      "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs 1 Attack Action. Out of combat it is free. The inactive set may be empty.",
+      "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs 1 Movement. Out of combat it is free. The inactive set may be empty — that is Unarmed.",
   },
   {
     id: "stand-up",
