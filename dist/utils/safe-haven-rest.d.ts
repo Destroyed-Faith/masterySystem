@@ -2,6 +2,8 @@
  * Safe Haven Rest — restore per-rest resources on a character.
  * Players Guide: one night rest in a Safe Haven (secure + comfortable).
  */
+/** Reroll Point pool size = Disadvantage points (fallback: stored faithFractures.maximum). */
+export declare function rerollPointsMaximumFromSystem(system: any): number;
 export declare const SAFE_HAVEN_REST_INFO = "Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Skill Points, Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.";
 /**
  * Health-bar updates for a rest (Players Guide "Rests"):

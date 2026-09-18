@@ -20,6 +20,7 @@ import {
   sanitizeNpcSystemAttackTargeting,
   mergeNpcAttackValueLists,
   mergeNpcAttackRowSpecials,
+  isValidNpcAttackWritePath,
   NPC_EXTRA_POWERS_UPDATE,
   NPC_ATTACK_SPECIALS_UPDATE,
 } from '../utils/npc-attack-model.js';
@@ -129,6 +130,76 @@ function normalizeAttackValuesArray(raw: unknown): Record<string, unknown>[] {
       .map((k) => dup(o[k])) as Record<string, unknown>[];
   }
   return [];
+}
+
+/** Prefer data-npc-attack-path; fall back to card phase/attack indices. */
+function resolveNpcAttackWritePath(el: HTMLElement | null | undefined): string {
+  if (!el) return '';
+  const fromData = String(el.dataset?.npcAttackPath || '').trim();
+  if (isValidNpcAttackWritePath(fromData)) return fromData;
+  const fromName = String((el as HTMLInputElement | HTMLSelectElement).name || '')
+    .replace(/\.npcRangeKind$/, '')
+    .replace(/\.npcAoeRadiusM$/, '')
+    .replace(/\.npcRangeMeters$/, '')
+    .replace(/\.npcAoeShape$/, '')
+    .trim();
+  if (isValidNpcAttackWritePath(fromName)) return fromName;
+  const card = el.closest?.('.npc-attack-card') as HTMLElement | null;
+  if (!card) return '';
+  const phaseRaw = card.dataset.phaseIndex;
+  const attackRaw = card.dataset.attackIndex;
+  const hasPhase = phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== '';
+  const pi = Number(phaseRaw);
+  const ai = Number(attackRaw);
+  if (card.classList.contains('npc-attack-card--base')) {
+    if (hasPhase && Number.isFinite(pi)) return `system.phases.${pi}.npcBaseAttack`;
+    return 'system.npcBaseAttack';
+  }
+  if (attackRaw !== undefined && attackRaw !== null && String(attackRaw) !== '' && Number.isFinite(ai)) {
+    if (hasPhase && Number.isFinite(pi)) return `system.phases.${pi}.attackValues.${ai}`;
+    return `system.attackValues.${ai}`;
+  }
+  return '';
+}
+
+/**
+ * Pull live (possibly unsaved) form values for one attack row so Melee/Range
+ * toggles don't wipe a name/pool the user just typed before blur/submit.
+ */
+function readLiveNpcAttackFormFields(
+  root: HTMLElement | null | undefined,
+  path: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if (!root || !path) return out;
+  const pick = (suffix: string, asNumber = false) => {
+    const el = root.querySelector(`[name="${path}.${suffix}"]`) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | null;
+    if (!el) return;
+    if (el instanceof HTMLInputElement && el.type === 'checkbox') {
+      out[suffix] = el.checked;
+      return;
+    }
+    const raw = String(el.value ?? '');
+    if (asNumber) {
+      if (raw === '') return;
+      const n = Math.floor(Number(raw));
+      if (Number.isFinite(n)) out[suffix] = n;
+      return;
+    }
+    out[suffix] = raw;
+  };
+  pick('name');
+  pick('attackDiceCount', true);
+  pick('keepDice', true);
+  pick('damageDiceCount', true);
+  pick('npcAttacksPerRound', true);
+  pick('npcStressD8', true);
+  pick('npcIsSpell');
+  pick('npcSplitAttack');
+  return out;
 }
 
 /** Coerce sheet / FormData strings so attack & damage pool &lt;select&gt; `eq` matches. */
@@ -368,7 +439,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       if (isSummon) {
         context.system.phases = null;
       } else {
-        const phases = coerceNpcPhasesArray(context.system.phases);
+        const rawPhases = context.system.phases;
+        const phases = coerceNpcPhasesArray(rawPhases);
+        // Always replace object-shaped / corrupt phases (`{"": …}` from
+        // system.phases..* writes) so the sheet never iterates empty keys.
         if (phases.length > 0) {
           if (
             context.system.npcActivePhaseIndex == null ||
@@ -383,7 +457,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             health: ensureNpcHealthState(phase?.health ?? context.system.health),
             npcReactions: coerceNpcReactionsArray(phase?.npcReactions),
             npcReactionSlots: clampNpcReactionSlots(phase?.npcReactionSlots),
+            attackValues: Array.isArray(phase?.attackValues)
+              ? phase.attackValues.map((r: any) => normalizeNpcAttackRowForContext(r))
+              : normalizeAttackValuesArray(phase?.attackValues).map((r) =>
+                  normalizeNpcAttackRowForContext(r),
+                ),
           }));
+        } else if (rawPhases != null && typeof rawPhases === 'object') {
+          context.system.phases = null;
         }
       }
       context.system.combat = withNpcIniUi(context.system.combat);
@@ -462,6 +543,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     reason: string
   ): Promise<void> {
     if (!path || !this.actor) return;
+    if (!isValidNpcAttackWritePath(path)) {
+      console.warn('[MS NPC Targeting] SHEET WRITE aborted — invalid attack path (refusing empty phase index)', {
+        path,
+        reason,
+        patch,
+      });
+      return;
+    }
     const actor = this.actor as any;
     const dup = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
     const {
@@ -511,6 +600,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const phaseBase = /^system\.phases\.(\d+)\.npcBaseAttack$/.exec(path);
     const phaseExtra = /^system\.phases\.(\d+)\.attackValues\.(\d+)$/.exec(path);
     const rootExtra = /^system\.attackValues\.(\d+)$/.exec(path);
+    const liveFields = readLiveNpcAttackFormFields(this.element as HTMLElement | null, path);
+    const rowPatch = { ...liveFields, ...patch };
 
     let usageKey = 'npc-attack-root-0';
     let update: Record<string, unknown> = {};
@@ -521,7 +612,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       const phase = { ...(phases[pi] || {}) };
       phase.npcBaseAttack = sanitizeNpcAttackTargetingFields({
         ...(phase.npcBaseAttack || {}),
-        ...patch,
+        ...rowPatch,
       });
       phases[pi] = phase;
       update['system.phases'] = phases;
@@ -530,7 +621,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       if (pi === activePi) {
         update['system.npcBaseAttack'] = sanitizeNpcAttackTargetingFields({
           ...(actor.system?.npcBaseAttack || {}),
-          ...patch,
+          ...rowPatch,
         });
         logNpcTargeting('SHEET WRITE also mirroring to system.npcBaseAttack (active phase)', {
           pi,
@@ -554,7 +645,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       while (attackValues.length <= ai) attackValues.push({});
       attackValues[ai] = sanitizeNpcAttackTargetingFields({
         ...(attackValues[ai] || {}),
-        ...patch,
+        ...rowPatch,
       });
       phase.attackValues = attackValues;
       phases[pi] = phase;
@@ -577,7 +668,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       while (attackValues.length <= ai) attackValues.push({});
       attackValues[ai] = sanitizeNpcAttackTargetingFields({
         ...(attackValues[ai] || {}),
-        ...patch,
+        ...rowPatch,
       });
       update['system.attackValues'] = attackValues;
       {
@@ -591,12 +682,18 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     } else if (path === 'system.npcBaseAttack') {
       update['system.npcBaseAttack'] = sanitizeNpcAttackTargetingFields({
         ...(actor.system?.npcBaseAttack || {}),
-        ...patch,
+        ...rowPatch,
       });
       usageKey = npcAttackUsageKey(null, 0);
     } else {
-      for (const [key, value] of Object.entries(patch)) update[`${path}.${key}`] = value;
-      usageKey = `npc-attack-path-${path}`;
+      // Never fall through to dotted `system.phases..*` writes — they turn
+      // phases into an object and wipe power names / collapse the sheet.
+      console.warn('[MS NPC Targeting] SHEET WRITE aborted — unmatched path (no dotted fallback)', {
+        path,
+        reason,
+        patch,
+      });
+      return;
     }
 
     logNpcTargeting(`SHEET WRITE payload — ${reason}`, {
@@ -693,7 +790,22 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     }
     if (data.system.phases != null) {
       const existingPhases = coerceNpcPhasesArray(existingSystem.phases);
-      const submitPhases = coerceNpcPhasesArray(data.system.phases);
+      let submitPhases = coerceNpcPhasesArray(data.system.phases);
+      // Bad field names (`system.phases..*`) expand to a non-numeric object key;
+      // coerce then yields []. Keep existing phases instead of wiping the boss.
+      if (submitPhases.length === 0 && existingPhases.length > 0) {
+        console.warn('[MS NPC Targeting] FORM SUBMIT — empty coerced phases; keeping existing', {
+          actorId: this.actor?.id,
+          existingLen: existingPhases.length,
+          rawType:
+            data.system.phases == null
+              ? 'null'
+              : Array.isArray(data.system.phases)
+                ? 'array'
+                : typeof data.system.phases,
+        });
+        submitPhases = existingPhases.map((p: any) => dup(p));
+      }
       data.system.phases = submitPhases.map((phase: any, i: number) => {
         if (!phase || typeof phase !== 'object') return phase;
         const prev = existingPhases[i] || {};
@@ -832,10 +944,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       ev.preventDefault();
       ev.stopPropagation();
       const select = ev.currentTarget as HTMLSelectElement;
-      const path =
-        select.dataset.npcAttackPath ||
-        String(select.name || '').replace(/\.npcRangeKind$/, '');
-      if (!path) return;
+      const path = resolveNpcAttackWritePath(select);
+      if (!path) {
+        console.warn('[MS NPC Targeting] range-kind change ignored — could not resolve attack path', {
+          name: select.name,
+          dataPath: select.dataset?.npcAttackPath,
+        });
+        return;
+      }
       const kind = String(select.value || '').toLowerCase() === 'ranged' ? 'ranged' : 'melee';
       const patch: Record<string, unknown> =
         kind === 'ranged'
@@ -865,10 +981,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       ev.preventDefault();
       ev.stopPropagation();
       const radEl = ev.currentTarget as HTMLInputElement | HTMLSelectElement;
-      const path =
-        (radEl as HTMLElement).dataset?.npcAttackPath ||
-        String(radEl.name || '').replace(/\.npcAoeRadiusM$/, '');
-      if (!path) return;
+      const path = resolveNpcAttackWritePath(radEl);
+      if (!path) {
+        console.warn('[MS NPC Targeting] AoE change ignored — could not resolve attack path', {
+          name: radEl.name,
+          dataPath: (radEl as HTMLElement).dataset?.npcAttackPath,
+        });
+        return;
+      }
       const rad = Math.floor(Number(radEl.value));
       const hasAoe = Number.isFinite(rad) && rad >= 2;
       const patch: Record<string, unknown> = hasAoe
@@ -1175,6 +1295,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const match = /^(.*?)\.specials\.(\d+)\.(special|specialValue)$/.exec(name);
     if (!match) return;
     const basePath = match[1];
+    if (basePath.includes('..') || (!isValidNpcAttackWritePath(basePath) && !/^system(\.phases\.\d+)?\.npcReactions\.\d+$/.test(basePath))) {
+      console.warn('[MS NPC Targeting] special field change ignored — invalid path', { name, basePath });
+      return;
+    }
     const si = Number(match[2]);
     const field = match[3] as 'special' | 'specialValue';
     if (!Number.isFinite(si) || si < 0) return;

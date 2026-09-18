@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.498] - 2026-09-18
+
+### Fixed
+
+- **NPC sheet · Melee/Range wipe:** Nested Handlebars `../phaseIndex` inside phase attack/specials/#each was empty, so Range/AoE writes hit `system.phases..attackValues.N`, turned `phases` into a corrupt object, collapsed the sheet, and replaced power names (e.g. Ruinous Pulse → Waffenangriff). Templates now use the block-param `phaseIndex`; targeting writes reject empty path segments and no longer fall back to dotted updates; live name/pool fields are flushed with Range/AoE toggles; form submit keeps existing phases if a bad expand would empty them.
+
 ## [0.9.497] - 2026-09-17
 
 ### Added

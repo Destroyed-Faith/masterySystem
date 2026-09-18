@@ -244,7 +244,7 @@
         <div class="attack-values-panel npc-section">
           <h3 class="npc-section__title"><i class="fas fa-sword"></i> Base: Weapon Attack</h3>
           <p class="hint">Always in the radial menu; rows below are extras. First line: attack <strong>d8</strong> pool, second: damage <strong>d8</strong> pool.</p>
-          <div class="npc-attack-card npc-attack-card--base">
+          <div class="npc-attack-card npc-attack-card--base" data-phase-index="{{phaseIndex}}">
             <div class="npc-attack-card__grid npc-attack-card__grid--simple">
               <div class="npc-attack-field">
                 <label>Name</label>
@@ -279,7 +279,8 @@
               </div>
               {{#each phase.npcBaseAttack.specials as |sp si|}}
               <div class="npc-attack-special-row">
-                <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.special" class="special-select">
+                {{!-- Bare phaseIndex (block param), not ../phaseIndex — nested #each empties ../ lookup. --}}
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.specials.{{si}}.special" class="special-select">
                   <option value="">—</option>
                   {{#each @root.npcSpecialSelectGroups as |grp|}}
                   <optgroup label="{{grp.label}}">
@@ -289,13 +290,13 @@
                   </optgroup>
                   {{/each}}
                 </select>
-                <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 1 10)}}
                   <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
                   {{/each}}
                 </select>
-                <button type="button" class="npc-power-special-del" data-scope="phase-base" data-phase-index="{{../phaseIndex}}" data-special-index="{{si}}" title="Entfernen"><i class="fas fa-trash"></i></button>
+                <button type="button" class="npc-power-special-del" data-scope="phase-base" data-phase-index="{{phaseIndex}}" data-special-index="{{si}}" title="Entfernen"><i class="fas fa-trash"></i></button>
               </div>
               {{/each}}
             </div>
@@ -311,10 +312,11 @@
           <div class="attack-values-list">
             {{#if phase.attackValues}}
               {{#each phase.attackValues as |attack index|}}
-              <div class="npc-attack-card attack-value-item" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}">
+              {{!-- Bare phaseIndex (not ../phaseIndex): nested #each blanks ../ → system.phases..attackValues.N --}}
+              <div class="npc-attack-card attack-value-item" data-attack-index="{{index}}" data-phase-index="{{phaseIndex}}">
                 <div class="npc-attack-card__head">
-                  <input type="text" class="npc-attack-name" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Power-Name"/>
-                  <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Entfernen">
+                  <input type="text" class="npc-attack-name" name="system.phases.{{phaseIndex}}.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Power-Name"/>
+                  <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" data-phase-index="{{phaseIndex}}" title="Entfernen">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
@@ -322,33 +324,33 @@
                   <div class="npc-attack-field">
                     <label>Attack (Pool)</label>
                     <div class="npc-dice-input">
-                      <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" value="{{default attack.attackDiceCount 6}}" min="1" max="80" step="1" data-dtype="Number" title="Attack pool (1–80 d8)"/>
+                      <input type="number" name="system.phases.{{phaseIndex}}.attackValues.{{index}}.attackDiceCount" value="{{default attack.attackDiceCount 6}}" min="1" max="80" step="1" data-dtype="Number" title="Attack pool (1–80 d8)"/>
                       <span class="npc-dice-suffix">d8</span>
                     </div>
                   </div>
                   <div class="npc-attack-field">
                     <label>Keep</label>
                     <div class="npc-dice-input">
-                      <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.keepDice" value="{{attack.keepDice}}" min="1" max="10" step="1" data-dtype="Number" placeholder="MR" title="Keep value (statblock, e.g. 6d8 Keep 1). Empty = Mastery Rank."/>
+                      <input type="number" name="system.phases.{{phaseIndex}}.attackValues.{{index}}.keepDice" value="{{attack.keepDice}}" min="1" max="10" step="1" data-dtype="Number" placeholder="MR" title="Keep value (statblock, e.g. 6d8 Keep 1). Empty = Mastery Rank."/>
                     </div>
                   </div>
                   <div class="npc-attack-field">
                     <label>Damage</label>
                     <div class="npc-dice-input">
-                      <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" value="{{default attack.damageDiceCount 4}}" min="1" max="80" step="1" data-dtype="Number" title="Damage (1–80 d8)"/>
+                      <input type="number" name="system.phases.{{phaseIndex}}.attackValues.{{index}}.damageDiceCount" value="{{default attack.damageDiceCount 4}}" min="1" max="80" step="1" data-dtype="Number" title="Damage (1–80 d8)"/>
                       <span class="npc-dice-suffix">d8</span>
                     </div>
                   </div>
                 </div>
-                {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." ../phaseIndex ".attackValues." index) atk=attack}}
+                {{> "systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs" path=(concat "system.phases." phaseIndex ".attackValues." index) atk=attack}}
                 <div class="npc-attack-specials-block">
                   <div class="npc-attack-specials-header">
                     <span>Specials</span>
-                    <button type="button" class="npc-power-special-add" data-scope="extra" data-phase-index="{{../phaseIndex}}" data-attack-index="{{index}}"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="npc-power-special-add" data-scope="extra" data-phase-index="{{phaseIndex}}" data-attack-index="{{index}}"><i class="fas fa-plus"></i></button>
                   </div>
                   {{#each attack.specials as |sp si|}}
                   <div class="npc-attack-special-row">
-                    <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
+                    <select name="system.phases.{{phaseIndex}}.attackValues.{{index}}.specials.{{si}}.special" class="special-select">
                       <option value="">—</option>
                       {{#each @root.npcSpecialSelectGroups as |grp|}}
                   <optgroup label="{{grp.label}}">
@@ -358,13 +360,13 @@
                   </optgroup>
                   {{/each}}
                     </select>
-                    <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
+                    <select name="system.phases.{{phaseIndex}}.attackValues.{{index}}.specials.{{si}}.specialValue" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 1 10)}}
                       <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
                       {{/each}}
                     </select>
-                    <button type="button" class="npc-power-special-del" data-scope="extra" data-phase-index="{{../../phaseIndex}}" data-attack-index="{{../index}}" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
+                    <button type="button" class="npc-power-special-del" data-scope="extra" data-phase-index="{{phaseIndex}}" data-attack-index="{{index}}" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
                   </div>
                   {{/each}}
                 </div>

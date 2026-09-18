@@ -67,6 +67,31 @@ describe('coerceNpcPhasesArray', () => {
     expect(attacks[0].name).toBe('Slash');
     expect(attacks[0].npcAoeRadiusM).toBe(0);
   });
+
+  it('ignores empty-string keys from system.phases..* form paths', async () => {
+    const { coerceNpcPhasesArray } = await import('../src/utils/npc-attack-model.js');
+    const corrupted = {
+      '': { attackValues: { 0: { name: 'orphan', npcRangeKind: 'ranged' } } },
+      0: { name: 'Phase 1', attackValues: [{ name: 'Ruinous Pulse' }] },
+    };
+    const phases = coerceNpcPhasesArray(corrupted);
+    expect(phases).toHaveLength(1);
+    expect(phases[0].name).toBe('Phase 1');
+    expect(phases[0].attackValues[0].name).toBe('Ruinous Pulse');
+  });
+});
+
+describe('isValidNpcAttackWritePath', () => {
+  it('rejects empty phase index paths that wipe powers', async () => {
+    const { isValidNpcAttackWritePath } = await import('../src/utils/npc-attack-model.js');
+    expect(isValidNpcAttackWritePath('system.phases..attackValues.0')).toBe(false);
+    expect(isValidNpcAttackWritePath('system.phases..npcBaseAttack')).toBe(false);
+    expect(isValidNpcAttackWritePath('')).toBe(false);
+    expect(isValidNpcAttackWritePath('system.phases.0.attackValues.0')).toBe(true);
+    expect(isValidNpcAttackWritePath('system.phases.0.npcBaseAttack')).toBe(true);
+    expect(isValidNpcAttackWritePath('system.attackValues.1')).toBe(true);
+    expect(isValidNpcAttackWritePath('system.npcBaseAttack')).toBe(true);
+  });
 });
 
 describe('resolveNpcAttackTargeting', () => {

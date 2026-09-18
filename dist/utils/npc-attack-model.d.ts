@@ -87,10 +87,16 @@ export declare function npcAttackUsageKey(phaseIndex: number | null | undefined,
  */
 export declare function sumNpcAttackSlotsFromPowers(system: any): number;
 /**
+ * Valid actor update paths for NPC attack targeting writes.
+ * Rejects empty segments (`system.phases..attackValues.0`) which Foundry
+ * expands into object-shaped phases and wipes power rows.
+ */
+export declare function isValidNpcAttackWritePath(path: string): boolean;
+/**
  * Foundry often stores `system.phases` as a plain object `{ "0": {...} }` after
  * dotted-path updates. Combat must treat that the same as an array, otherwise
  * it falls back to root `npcBaseAttack` (stale Melee AoE) while the sheet edits
- * phase rows.
+ * phase rows. Non-numeric keys (e.g. `""` from `system.phases..*`) are ignored.
  */
 export declare function coerceNpcPhasesArray(raw: unknown): any[];
 /** Default single-bar NPC / phase HP block (editable current/max). */

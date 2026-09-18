@@ -482,10 +482,26 @@ function mergeAttackLists(baseRaw: unknown, extras: AttackValue[] | undefined): 
 }
 
 /**
+ * Valid actor update paths for NPC attack targeting writes.
+ * Rejects empty segments (`system.phases..attackValues.0`) which Foundry
+ * expands into object-shaped phases and wipes power rows.
+ */
+export function isValidNpcAttackWritePath(path: string): boolean {
+  const p = String(path || '').trim();
+  if (!p || p.includes('..')) return false;
+  return (
+    p === 'system.npcBaseAttack' ||
+    /^system\.phases\.\d+\.npcBaseAttack$/.test(p) ||
+    /^system\.phases\.\d+\.attackValues\.\d+$/.test(p) ||
+    /^system\.attackValues\.\d+$/.test(p)
+  );
+}
+
+/**
  * Foundry often stores `system.phases` as a plain object `{ "0": {...} }` after
  * dotted-path updates. Combat must treat that the same as an array, otherwise
  * it falls back to root `npcBaseAttack` (stale Melee AoE) while the sheet edits
- * phase rows.
+ * phase rows. Non-numeric keys (e.g. `""` from `system.phases..*`) are ignored.
  */
 export function coerceNpcPhasesArray(raw: unknown): any[] {
   if (Array.isArray(raw)) return raw;
