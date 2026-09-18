@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.505] - 2026-09-18
+
+### Fixed
+
+- **Blood pools:** Stains were drawn only on the client that applied damage. Other players now get the same pool over the encounter socket.
+- **Next turn / delay initiative:** Players cannot write the Combat document. Next Turn and Initiative verzögern (hourglass on the current combatant) are relayed to the GM. Delay drops this combatant just below the next entry, then advances.
+- **Damage and Specials on targets:** Health, status effects, and boss-phase advances from a player client are applied by the GM when the attacker does not own the target. NPC specials stored as objects (not arrays) are coerced before they are written onto the target.
+
+### Added
+
+- **Raises · Kostenlos:** Attack cards have a „Kostenlos“ checkbox so a Raise does not strip damage or Special value. NPC attacks start with it on.
+
 ## [0.9.504] - 2026-09-18
 
 ### Fixed

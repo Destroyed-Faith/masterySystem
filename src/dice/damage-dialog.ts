@@ -9,6 +9,8 @@ import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
 import {
+  coerceNpcAttackSpecials,
+  displayNpcSpecialName,
   getNpcAttackByIndex,
   npcDamageDiceFormula,
   npcSpecialEffectString
@@ -704,6 +706,7 @@ export async function showDamageDialog(
       isSpell,
       stoneBonusRaises: Math.max(0, Number(flags.stoneBonusRaises) || 0),
       spellCostOverride: flags.spellCostOverride as RaiseCostAllocation | undefined,
+      waiveRaiseCost: !!flags.waiveRaiseCost,
     });
     powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
     const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
@@ -734,15 +737,15 @@ export async function showDamageDialog(
     npcAutoDamageDice += 0; // legacy npc autoRaises removed with new Raise rules
     const atkName = String(flags?.npcAttackName || atk?.name || 'NSC-Angriff');
     // Speziale sitzen an der Power (specials[]), mit Legacy-Fallback.
-    const specialRows =
-      Array.isArray(atk?.specials) && atk!.specials!.length
-        ? atk!.specials!
-        : atk?.special
-          ? [{ special: atk.special, specialValue: atk.specialValue }]
-          : [];
+    const specialRows = coerceNpcAttackSpecials(atk?.specials);
+    const legacyOnly =
+      specialRows.length === 0 && atk?.special
+        ? [{ special: atk.special, specialValue: atk.specialValue }]
+        : specialRows;
     const inlineSpecials: string[] = [];
-    for (const row of specialRows) {
-      const eff = npcSpecialEffectString(String(row.special || ''), row.specialValue);
+    for (const row of legacyOnly) {
+      const label = displayNpcSpecialName(String(row.special || '')) || String(row.special || '');
+      const eff = npcSpecialEffectString(label, row.specialValue);
       if (eff) inlineSpecials.push(eff);
     }
     // Legacy single-special auto-apply (pre-specials[] rows).
@@ -1286,7 +1289,7 @@ async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
       })
       .filter((e) => !((e?.id === 'mark' || String(e?.name ?? '').toLowerCase() === 'mark') && Math.floor(Number(e.value ?? 0)) <= 0));
     if (changed) {
-      await (target as any).update({ 'system.statusEffects': next });
+      await (await import('../combat/gm-relay.js')).updateActorViaGm(target, { 'system.statusEffects': next });
     }
   } catch (err) {
     console.warn('Mastery System | consumeTargetMark failed', err);
@@ -1476,7 +1479,10 @@ async function applyStatusEffectsToTarget(
     }
     
     // Update target actor
-    await (target as any).update({ 'system.statusEffects': list, ...appsUpdate });
+    await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
+      'system.statusEffects': list,
+      ...appsUpdate,
+    });
 
     // Reactive Cleanse — status surface (not the attack Reaction Window).
     try {
@@ -1751,7 +1757,9 @@ export async function applyDamageToTarget(
                   const cur = Math.max(0, Math.floor(Number(listNow[idx]?.value ?? 0)));
                   if (cur > 1) listNow[idx] = { ...listNow[idx], value: cur - 1 };
                   else listNow.splice(idx, 1);
-                  await (target as any).update({ 'system.statusEffects': listNow });
+                  await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
+                    'system.statusEffects': listNow,
+                  });
                 }
                 bulwarkNote = `Bulwark −50% (${mitigated} → ${halved})`;
                 mitigated = halved;
@@ -1832,7 +1840,8 @@ export async function applyDamageToTarget(
 
       // Merge tempHP pool updates with bar updates for a single write.
       try {
-        await (target as any).update(
+        await (await import('../combat/gm-relay.js')).updateActorViaGm(
+          target,
           {
             ...tempHPConsumption.patch,
             'system.health.currentBar': barIndex,
@@ -1864,7 +1873,7 @@ export async function applyDamageToTarget(
     } else if (Object.keys(tempHPConsumption.patch).length > 0) {
       // Only tempHP was reduced, no bar damage
       try {
-        await (target as any).update(tempHPConsumption.patch);
+        await (await import('../combat/gm-relay.js')).updateActorViaGm(target, tempHPConsumption.patch);
       } catch (e) {
         if (mitigated > 0) {
           console.warn('Mastery System | [APPLY DAMAGE] actor.update (tempHP) failed with mitigation > 0', {

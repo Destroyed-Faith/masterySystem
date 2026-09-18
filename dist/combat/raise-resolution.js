@@ -127,12 +127,12 @@ function applyStoneBonusRaises(snap, count, masteryRank, isSpell) {
  * Resolve final power snapshot from base, declared raises, outcome, and stone bonus.
  */
 export function resolvePowerSnapshot(params) {
-    const { base, declaredRaises, outcome, masteryRank, isSpell, stoneBonusRaises = 0, spellCostOverride, } = params;
+    const { base, declaredRaises, outcome, masteryRank, isSpell, stoneBonusRaises = 0, spellCostOverride, waiveRaiseCost = false, } = params;
     if (outcome === 'fail') {
         return cloneSnapshot(base);
     }
     const slots = countRaiseSlots(declaredRaises);
-    const costValue = computeTotalRaiseCost(slots, masteryRank);
+    const costValue = waiveRaiseCost ? 0 : computeTotalRaiseCost(slots, masteryRank);
     const costAlloc = isSpell
         ? spellCostOverride ?? defaultSpellCostAllocation(base, costValue)
         : { damageDice: costValue, specialByKey: {} };

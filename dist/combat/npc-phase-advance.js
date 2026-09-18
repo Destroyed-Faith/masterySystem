@@ -82,7 +82,7 @@ export async function maybeAdvanceNpcBossPhase(actor) {
     const patch = buildNpcPhaseActivatePatch(actor, toIndex, { persistCurrentHealth: true });
     if (!patch)
         return null;
-    await actor.update(patch);
+    await (await import('./gm-relay.js')).updateActorViaGm(actor, patch);
     const result = {
         fromIndex,
         toIndex,
@@ -127,7 +127,7 @@ export async function activateNpcBossPhaseFromSheet(actor, toIndex) {
         const patch = buildNpcPhaseActivatePatch(actor, next, { persistCurrentHealth: true });
         if (!patch)
             return null;
-        await actor.update(patch);
+        await (await import('./gm-relay.js')).updateActorViaGm(actor, patch);
         return {
             fromIndex,
             toIndex: next,
@@ -136,7 +136,7 @@ export async function activateNpcBossPhaseFromSheet(actor, toIndex) {
             defeated: false,
         };
     }
-    await actor.update({ 'system.npcActivePhaseIndex': next });
+    await (await import('./gm-relay.js')).updateActorViaGm(actor, { 'system.npcActivePhaseIndex': next });
     return {
         fromIndex,
         toIndex: next,

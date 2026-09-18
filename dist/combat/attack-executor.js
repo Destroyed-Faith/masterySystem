@@ -440,6 +440,32 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             console.warn('Mastery System | raise context load failed', err);
         }
     }
+    if (!raiseContext && isNpcAttack && npcAttackRow) {
+        const rows = Array.isArray(npcAttackRow.specials) ? npcAttackRow.specials : [];
+        const specials = rows
+            .map((s) => ({
+            key: String(s?.special || '').trim().toLowerCase(),
+            rank: Math.max(0, Math.floor(Number(s?.specialValue) || 0)),
+        }))
+            .filter((s) => s.key);
+        const snap = {
+            damageDice: Math.max(0, Math.floor(Number(npcAttackRow.damageDiceCount) || 0)),
+            specials,
+            rangeM: null,
+            aoeRadiusM: null,
+            durationSteps: 0,
+            hasRange: false,
+            hasAoe: false,
+            hasDuration: false,
+        };
+        raiseContext = {
+            masteryRank,
+            isSpell: npcIsSpell,
+            baseSnapshot: snap,
+            raiseOptions: buildAvailableRaiseOptions(snap, npcIsSpell),
+            waiveRaiseCost: true,
+        };
+    }
     // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
     // on top of the power's bonus dice, so the preview can show the real total.
     if (raiseContext && !raiseContext.isSpell) {
@@ -657,6 +683,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         </div>`
             : ''}
       ${''}
+      <label class="raise-waive-row" title="Raise-Cost nicht vom Schaden/Special abziehen">
+        <input type="checkbox" class="raise-cost-waive" ${raiseContext.waiveRaiseCost ? 'checked' : ''}/>
+        Kostenlos
+      </label>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -902,7 +932,8 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
                 button.removeAttr('data-spell-cost');
             }
         }
-        const preview = previewAfterRaiseCost(raiseContext.baseSnapshot, plan, raiseContext.masteryRank, raiseContext.isSpell, spellCostOverride);
+        const waived = panel.find('.raise-cost-waive').is(':checked');
+        const preview = previewAfterRaiseCost(raiseContext.baseSnapshot, waived ? [] : plan, raiseContext.masteryRank, raiseContext.isSpell, spellCostOverride);
         panel.find('.raise-tn-display').text(String(raiseTn));
         panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext.weaponDamageDice));
         button.attr('data-raise-tn', String(raiseTn));
@@ -910,6 +941,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         button.attr('data-raise-plan', JSON.stringify(plan));
         button.attr('data-raises', String(slots));
         button.attr('data-blood-raises', '0');
+        button.attr('data-raise-cost-waived', waived ? '1' : '0');
     };
     const addRow = () => {
         const currentSlots = countRaiseSlots(collectPlan());
@@ -946,6 +978,9 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     panel.find('.spell-cost-select')
         .off('input.masteryRaisePlan change.masteryRaisePlan')
         .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
+    panel.find('.raise-cost-waive')
+        .off('change.masteryRaisePlan')
+        .on('change.masteryRaisePlan', () => updatePreview());
     void messageId;
     updatePreview();
 }

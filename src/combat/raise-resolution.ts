@@ -68,6 +68,8 @@ export interface ResolvePowerSnapshotParams {
   stoneBonusRaises?: number;
   /** Player-chosen spell raise cost split (from attack card). */
   spellCostOverride?: RaiseCostAllocation;
+  /** GM / NPC: do not strip damage or specials to pay Raise Cost. */
+  waiveRaiseCost?: boolean;
 }
 
 function cloneSnapshot(s: PowerSnapshot): PowerSnapshot {
@@ -226,6 +228,7 @@ export function resolvePowerSnapshot(params: ResolvePowerSnapshotParams): PowerS
     isSpell,
     stoneBonusRaises = 0,
     spellCostOverride,
+    waiveRaiseCost = false,
   } = params;
 
   if (outcome === 'fail') {
@@ -233,7 +236,7 @@ export function resolvePowerSnapshot(params: ResolvePowerSnapshotParams): PowerS
   }
 
   const slots = countRaiseSlots(declaredRaises);
-  const costValue = computeTotalRaiseCost(slots, masteryRank);
+  const costValue = waiveRaiseCost ? 0 : computeTotalRaiseCost(slots, masteryRank);
   const costAlloc = isSpell
     ? spellCostOverride ?? defaultSpellCostAllocation(base, costValue)
     : { damageDice: costValue, specialByKey: {} as Record<string, number> };

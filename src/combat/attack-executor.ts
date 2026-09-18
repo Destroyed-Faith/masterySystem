@@ -515,6 +515,8 @@ export async function createAttackCard(
     raiseOptions: RaiseOption[];
     /** Wielded weapon's d8 count — shown as part of the on-hit total preview. */
     weaponDamageDice?: number;
+    /** NPC raises do not pay a power-pool cost. */
+    waiveRaiseCost?: boolean;
   } | null = null;
 
   if (option.source === 'power' && option.item && !isNpcAttack) {
@@ -546,6 +548,33 @@ export async function createAttackCard(
     } catch (err) {
       console.warn('Mastery System | raise context load failed', err);
     }
+  }
+
+  if (!raiseContext && isNpcAttack && npcAttackRow) {
+    const rows = Array.isArray(npcAttackRow.specials) ? npcAttackRow.specials : [];
+    const specials = rows
+      .map((s: any) => ({
+        key: String(s?.special || '').trim().toLowerCase(),
+        rank: Math.max(0, Math.floor(Number(s?.specialValue) || 0)),
+      }))
+      .filter((s) => s.key);
+    const snap: PowerSnapshot = {
+      damageDice: Math.max(0, Math.floor(Number(npcAttackRow.damageDiceCount) || 0)),
+      specials,
+      rangeM: null,
+      aoeRadiusM: null,
+      durationSteps: 0,
+      hasRange: false,
+      hasAoe: false,
+      hasDuration: false,
+    };
+    raiseContext = {
+      masteryRank,
+      isSpell: npcIsSpell,
+      baseSnapshot: snap,
+      raiseOptions: buildAvailableRaiseOptions(snap, npcIsSpell),
+      waiveRaiseCost: true,
+    };
   }
 
   // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
@@ -796,6 +825,10 @@ export async function createAttackCard(
           : ''
       }
       ${''}
+      <label class="raise-waive-row" title="Raise-Cost nicht vom Schaden/Special abziehen">
+        <input type="checkbox" class="raise-cost-waive" ${raiseContext.waiveRaiseCost ? 'checked' : ''}/>
+        Kostenlos
+      </label>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -1088,9 +1121,10 @@ function setupRaisesHandler(
         button.removeAttr('data-spell-cost');
       }
     }
+    const waived = panel.find('.raise-cost-waive').is(':checked');
     const preview = previewAfterRaiseCost(
       raiseContext!.baseSnapshot,
-      plan,
+      waived ? [] : plan,
       raiseContext!.masteryRank,
       raiseContext!.isSpell,
       spellCostOverride,
@@ -1102,6 +1136,7 @@ function setupRaisesHandler(
     button.attr('data-raise-plan', JSON.stringify(plan));
     button.attr('data-raises', String(slots));
     button.attr('data-blood-raises', '0');
+    button.attr('data-raise-cost-waived', waived ? '1' : '0');
   };
 
   const addRow = (): void => {
@@ -1141,6 +1176,10 @@ function setupRaisesHandler(
   panel.find('.spell-cost-select')
     .off('input.masteryRaisePlan change.masteryRaisePlan')
     .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
+
+  panel.find('.raise-cost-waive')
+    .off('change.masteryRaisePlan')
+    .on('change.masteryRaisePlan', () => updatePreview());
 
   void messageId;
   updatePreview();

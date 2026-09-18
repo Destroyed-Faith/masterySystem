@@ -51,6 +51,8 @@ export interface ResolvePowerSnapshotParams {
     stoneBonusRaises?: number;
     /** Player-chosen spell raise cost split (from attack card). */
     spellCostOverride?: RaiseCostAllocation;
+    /** GM / NPC: do not strip damage or specials to pay Raise Cost. */
+    waiveRaiseCost?: boolean;
 }
 export declare function computeRaiseTns(normalTn: number, declaredRaiseSlots: number): {
     normalTn: number;

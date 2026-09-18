@@ -29,6 +29,8 @@ export interface BloodEffectOptions {
      * support animation and avoid Foundry tile quirks.
      */
     persistent?: boolean;
+    /** Remote clients already received this stain — do not emit again. */
+    skipBroadcast?: boolean;
 }
 /** Trail art points bottom-left → top-right in canvas space. */
 export declare const BLOOD_TRAIL_TEXTURE_ANGLE: number;
@@ -97,12 +99,13 @@ export declare function didLoseHealthLevel(opts: {
  * Back-compat: createBloodPool(token, damage, persistent?, bloodColor?)
  */
 export declare function createBloodPool(token: any, damageOrOptions?: number | BloodEffectOptions, persistent?: boolean, bloodColor?: string): Promise<void>;
-/** Convenience wrapper used by the damage pipeline. */
+/** Convenience wrapper used by the damage pipeline. Draws locally and tells other clients. */
 export declare function showDamageBloodEffect(token: any, opts: {
     barDamage: number;
     healthLevelLost: boolean;
     bloodColor?: string;
     barMax?: number;
+    skipBroadcast?: boolean;
 }): Promise<void>;
 /** Drag smear under a badly wounded token. `fromTopLeft` is the pre-move document xy. */
 export declare function showBloodTrailForToken(tokenDoc: any, fromTopLeft: {

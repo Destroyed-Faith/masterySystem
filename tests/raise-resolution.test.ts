@@ -78,6 +78,18 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(snap.specials[0].rank).toBe(3);
   });
 
+  it('waived raise cost keeps the full pool on a partial', () => {
+    const snap = resolvePowerSnapshot({
+      base,
+      declaredRaises: raises,
+      outcome: 'partial',
+      masteryRank: 3,
+      isSpell: false,
+      waiveRaiseCost: true,
+    });
+    expect(snapshotToDamageFormula(snap)).toBe('8d8');
+  });
+
   it('full success with damage raise restores cost and adds +MR d8 → 11d8', () => {
     const snap = resolvePowerSnapshot({
       base,

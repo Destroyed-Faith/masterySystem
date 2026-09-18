@@ -768,6 +768,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             isSpell: isSpellPower,
                             stoneBonusRaises,
                             spellCostOverride,
+                            waiveRaiseCost: button.attr('data-raise-cost-waived') === '1',
                         });
                     }
                     if (resolvedPowerSnapshot) {
@@ -803,6 +804,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         // Needed so Reaction: Evade can compare Evade+bonus vs this total.
                         attackTotal: Math.floor(Number(result?.total) || 0),
                         ...(spellCostOverride ? { spellCostOverride } : {}),
+                        waiveRaiseCost: button.attr('data-raise-cost-waived') === '1',
                     };
                     // Import and show damage dialog - pass only IDs, not full objects
                     // Debug log before calling showDamageDialog

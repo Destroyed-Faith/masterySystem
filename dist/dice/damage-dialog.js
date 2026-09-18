@@ -7,7 +7,7 @@ import { collectMechanicsContributions } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
-import { getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
+import { coerceNpcAttackSpecials, displayNpcSpecialName, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
@@ -601,6 +601,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             isSpell,
             stoneBonusRaises: Math.max(0, Number(flags.stoneBonusRaises) || 0),
             spellCostOverride: flags.spellCostOverride,
+            waiveRaiseCost: !!flags.waiveRaiseCost,
         });
         powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
         const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
@@ -629,14 +630,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         npcAutoDamageDice += 0; // legacy npc autoRaises removed with new Raise rules
         const atkName = String(flags?.npcAttackName || atk?.name || 'NSC-Angriff');
         // Speziale sitzen an der Power (specials[]), mit Legacy-Fallback.
-        const specialRows = Array.isArray(atk?.specials) && atk.specials.length
-            ? atk.specials
-            : atk?.special
-                ? [{ special: atk.special, specialValue: atk.specialValue }]
-                : [];
+        const specialRows = coerceNpcAttackSpecials(atk?.specials);
+        const legacyOnly = specialRows.length === 0 && atk?.special
+            ? [{ special: atk.special, specialValue: atk.specialValue }]
+            : specialRows;
         const inlineSpecials = [];
-        for (const row of specialRows) {
-            const eff = npcSpecialEffectString(String(row.special || ''), row.specialValue);
+        for (const row of legacyOnly) {
+            const label = displayNpcSpecialName(String(row.special || '')) || String(row.special || '');
+            const eff = npcSpecialEffectString(label, row.specialValue);
             if (eff)
                 inlineSpecials.push(eff);
         }
@@ -1106,7 +1107,7 @@ async function consumeTargetMark(target, spend) {
         })
             .filter((e) => !((e?.id === 'mark' || String(e?.name ?? '').toLowerCase() === 'mark') && Math.floor(Number(e.value ?? 0)) <= 0));
         if (changed) {
-            await target.update({ 'system.statusEffects': next });
+            await (await import('../combat/gm-relay.js')).updateActorViaGm(target, { 'system.statusEffects': next });
         }
     }
     catch (err) {
@@ -1274,7 +1275,10 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
             }
         }
         // Update target actor
-        await target.update({ 'system.statusEffects': list, ...appsUpdate });
+        await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
+            'system.statusEffects': list,
+            ...appsUpdate,
+        });
         // Reactive Cleanse — status surface (not the attack Reaction Window).
         try {
             const { maybeOfferReactiveCleanseChat } = await import('../combat/reaction-followups.js');
@@ -1477,7 +1481,9 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                                         listNow[idx] = { ...listNow[idx], value: cur - 1 };
                                     else
                                         listNow.splice(idx, 1);
-                                    await target.update({ 'system.statusEffects': listNow });
+                                    await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
+                                        'system.statusEffects': listNow,
+                                    });
                                 }
                                 bulwarkNote = `Bulwark −50% (${mitigated} → ${halved})`;
                                 mitigated = halved;
@@ -1554,7 +1560,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             barsAfter = bars.map((b) => ({ current: Number(b?.current) || 0 }));
             // Merge tempHP pool updates with bar updates for a single write.
             try {
-                await target.update({
+                await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
                     ...tempHPConsumption.patch,
                     'system.health.currentBar': barIndex,
                     'system.health.bars': bars,
@@ -1585,7 +1591,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         else if (Object.keys(tempHPConsumption.patch).length > 0) {
             // Only tempHP was reduced, no bar damage
             try {
-                await target.update(tempHPConsumption.patch);
+                await (await import('../combat/gm-relay.js')).updateActorViaGm(target, tempHPConsumption.patch);
             }
             catch (e) {
                 if (mitigated > 0) {

@@ -528,7 +528,7 @@ Hooks.once('init', async function () {
                 return;
             }
             // Remove existing buttons to prevent duplicates
-            $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn, .ms-end-turn-btn, .ms-stone-powers-btn').remove();
+            $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn, .ms-end-turn-btn, .ms-delay-turn-btn, .ms-stone-powers-btn').remove();
             // Get combatant data
             const combat = game.combat;
             if (!combat)
@@ -548,12 +548,20 @@ Hooks.once('init', async function () {
             // Players never see it on NPCs — they cannot use it and it only confuses.
             if (isCurrent && (game.user?.isGM || (combatant.actor && combatant.actor.type !== 'npc' && combatant.actor.isOwner))) {
                 const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
+                const delayBtn = $('<button type="button" class="combatant-control ms-delay-turn-btn" data-action="delayTurn" data-combatant-id="' + combatantId + '" data-tooltip="Initiative verzögern — direkt nach dem nächsten Eintrag handeln." aria-label="Initiative verzögern" title="Initiative verzögern"><i class="fa-solid fa-hourglass-half"></i></button>');
+                $initiativeDiv.append(delayBtn);
                 $initiativeDiv.append(endTurnBtn);
                 endTurnBtn.off('click.ms-end-turn').on('click.ms-end-turn', async (ev) => {
                     ev.preventDefault();
                     ev.stopPropagation();
                     const { requestEndTurn } = await import('./combat/end-turn.js');
                     await requestEndTurn();
+                });
+                delayBtn.off('click.ms-delay-turn').on('click.ms-delay-turn', async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const { requestDelayTurn } = await import('./combat/end-turn.js');
+                    await requestDelayTurn();
                 });
             }
             const msFlagsRow = combat.flags?.['mastery-system'] || {};

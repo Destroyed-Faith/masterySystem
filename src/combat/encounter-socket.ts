@@ -8,6 +8,36 @@ import {
   resolveLiveCombat,
   shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
+import { isRelayableActorUpdate } from './gm-relay.js';
+
+function requesterMayAdvanceTurn(combat: any, userId: string): boolean {
+  const user = game.users?.get?.(userId);
+  if (!user) return false;
+  if (user.isGM) return true;
+  const actor = combat?.combatant?.actor;
+  if (!actor || String(actor.type || '') === 'npc') return false;
+  if (typeof actor.testUserPermission === 'function') return !!actor.testUserPermission(user, 'OWNER');
+  return false;
+}
+
+async function applyRelayedActorUpdate(payload: any): Promise<boolean> {
+  if (!isRelayableActorUpdate(payload.update)) return false;
+  let actor: any = null;
+  const uuid = String(payload.tokenActorUuid || '');
+  if (uuid && typeof (globalThis as any).fromUuid === 'function') {
+    try {
+      actor = await (globalThis as any).fromUuid(uuid);
+    } catch {
+      actor = null;
+    }
+  }
+  if (!actor && payload.actorId) {
+    actor = game.actors?.get?.(payload.actorId) ?? null;
+  }
+  if (!actor || typeof actor.update !== 'function') return false;
+  await actor.update(payload.update, payload.options || {});
+  return true;
+}
 
 let socketRegistered = false;
 
@@ -26,6 +56,75 @@ async function handleEncounterSocket(payload: any): Promise<void> {
   if (payload.action) return;
 
   const { type, combatId, combatantId, actorId, userId, data, finalInitiative, round } = payload;
+
+  if (type === 'gmRelayResult') {
+    if (payload.replyTo && payload.replyTo !== game.user?.id && userId !== game.user?.id) return;
+    const { settleGmRelay } = await import('./gm-relay.js');
+    settleGmRelay(String(payload.requestId || ''), !!payload.ok);
+    return;
+  }
+
+  if (type === 'showBlood') {
+    if (payload.fromUserId && payload.fromUserId === game.user?.id) return;
+    try {
+      const { showDamageBloodEffect } = await import('../utils/blood-pool.js');
+      const scene = canvas?.scene;
+      if (payload.sceneId && scene?.id && payload.sceneId !== scene.id) return;
+      const tokenDoc = scene?.tokens?.get?.(payload.tokenId);
+      const token = tokenDoc?.object ?? tokenDoc;
+      if (!token) return;
+      await showDamageBloodEffect(token, {
+        barDamage: Number(payload.barDamage) || 0,
+        healthLevelLost: !!payload.healthLevelLost,
+        bloodColor: payload.bloodColor,
+        barMax: payload.barMax,
+        skipBroadcast: true,
+      });
+    } catch (err) {
+      console.warn('Mastery System | remote blood FX failed', err);
+    }
+    return;
+  }
+
+  if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative') {
+    if (!game.user?.isGM) return;
+    let ok = false;
+    try {
+      if (type === 'gmActorUpdate') {
+        ok = await applyRelayedActorUpdate(payload);
+      } else if (type === 'gmNextTurn') {
+        const combat = resolveLiveCombat(payload.combatId);
+        if (combat && requesterMayAdvanceTurn(combat, payload.replyTo)) {
+          await combat.nextTurn();
+          ok = true;
+        }
+      } else if (type === 'gmDelayInitiative') {
+        const combat = resolveLiveCombat(payload.combatId);
+        const combatant = combat?.combatants?.get?.(payload.combatantId) ?? combat?.combatant;
+        if (
+          combat &&
+          combatant &&
+          requesterMayAdvanceTurn(combat, payload.replyTo) &&
+          Number.isFinite(Number(payload.initiative))
+        ) {
+          await combatant.update({ initiative: Number(payload.initiative) });
+          await combat.nextTurn();
+          ok = true;
+        }
+      }
+    } catch (err) {
+      console.error('Mastery System | GM relay failed', err);
+      ok = false;
+    }
+    game.socket?.emit(ENCOUNTER_SOCKET, {
+      type: 'gmRelayResult',
+      requestId: payload.requestId,
+      ok,
+      userId: payload.replyTo,
+      replyTo: payload.replyTo,
+    });
+    return;
+  }
 
   if (userId && userId !== game.user?.id) return;
 

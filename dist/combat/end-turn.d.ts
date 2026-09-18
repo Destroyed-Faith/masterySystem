@@ -5,4 +5,6 @@ export declare function canViewerSeeEndTurn(actor: any, user: any): boolean;
  * If user is GM or owns the current combatant, advance turn.
  */
 export declare function requestEndTurn(): Promise<void>;
+/** Hold this turn: drop just below the next combatant, then advance. */
+export declare function requestDelayTurn(): Promise<void>;
 //# sourceMappingURL=end-turn.d.ts.map

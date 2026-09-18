@@ -31,6 +31,8 @@ export interface BloodEffectOptions {
    * support animation and avoid Foundry tile quirks.
    */
   persistent?: boolean;
+  /** Remote clients already received this stain — do not emit again. */
+  skipBroadcast?: boolean;
 }
 
 const DEFAULT_BLOOD = '#8b0000';
@@ -428,7 +430,7 @@ export async function createBloodPool(
   }
 }
 
-/** Convenience wrapper used by the damage pipeline. */
+/** Convenience wrapper used by the damage pipeline. Draws locally and tells other clients. */
 export async function showDamageBloodEffect(
   token: any,
   opts: {
@@ -436,6 +438,7 @@ export async function showDamageBloodEffect(
     healthLevelLost: boolean;
     bloodColor?: string;
     barMax?: number;
+    skipBroadcast?: boolean;
   },
 ): Promise<void> {
   const intensity = resolveBloodIntensity({
@@ -451,7 +454,28 @@ export async function showDamageBloodEffect(
     healthLevelLost: opts.healthLevelLost,
     barMax: opts.barMax ?? resolveBarMax(token),
     persistent: false,
+    skipBroadcast: true,
   });
+  if (opts.skipBroadcast) return;
+  try {
+    const g = globalThis as any;
+    const sceneId = g.canvas?.scene?.id ?? token?.document?.parent?.id ?? null;
+    const tokenId = token?.document?.id ?? token?.id ?? null;
+    if (!g.game?.socket || !tokenId) return;
+    const { ENCOUNTER_SOCKET } = await import('../combat/combat-permissions.js');
+    g.game.socket.emit(ENCOUNTER_SOCKET, {
+      type: 'showBlood',
+      fromUserId: g.game.user?.id,
+      sceneId,
+      tokenId,
+      barDamage: opts.barDamage,
+      healthLevelLost: !!opts.healthLevelLost,
+      bloodColor: opts.bloodColor,
+      barMax: opts.barMax,
+    });
+  } catch (err) {
+    console.warn('Mastery System | blood broadcast failed', err);
+  }
 }
 
 async function createPersistentBloodTile(

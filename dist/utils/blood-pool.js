@@ -346,7 +346,7 @@ export async function createBloodPool(token, damageOrOptions = 0, persistent = f
         createFallbackGraphic(token, center, intensity, damage, gridSize, pixi, dark);
     }
 }
-/** Convenience wrapper used by the damage pipeline. */
+/** Convenience wrapper used by the damage pipeline. Draws locally and tells other clients. */
 export async function showDamageBloodEffect(token, opts) {
     const intensity = resolveBloodIntensity({
         barDamage: opts.barDamage,
@@ -362,7 +362,31 @@ export async function showDamageBloodEffect(token, opts) {
         healthLevelLost: opts.healthLevelLost,
         barMax: opts.barMax ?? resolveBarMax(token),
         persistent: false,
+        skipBroadcast: true,
     });
+    if (opts.skipBroadcast)
+        return;
+    try {
+        const g = globalThis;
+        const sceneId = g.canvas?.scene?.id ?? token?.document?.parent?.id ?? null;
+        const tokenId = token?.document?.id ?? token?.id ?? null;
+        if (!g.game?.socket || !tokenId)
+            return;
+        const { ENCOUNTER_SOCKET } = await import('../combat/combat-permissions.js');
+        g.game.socket.emit(ENCOUNTER_SOCKET, {
+            type: 'showBlood',
+            fromUserId: g.game.user?.id,
+            sceneId,
+            tokenId,
+            barDamage: opts.barDamage,
+            healthLevelLost: !!opts.healthLevelLost,
+            bloodColor: opts.bloodColor,
+            barMax: opts.barMax,
+        });
+    }
+    catch (err) {
+        console.warn('Mastery System | blood broadcast failed', err);
+    }
 }
 async function createPersistentBloodTile(center, intensity, path, size, pixiColor, hex) {
     try {

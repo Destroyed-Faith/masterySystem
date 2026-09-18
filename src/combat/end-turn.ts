@@ -1,4 +1,5 @@
 import { warnIfPlayerStonesPending } from './stone-round-gate.js';
+import { requestCombatNextTurn, requestDelayInitiative } from './gm-relay.js';
 
 let requestEndTurnInFlight = false;
 
@@ -44,12 +45,41 @@ export async function requestEndTurn(): Promise<void> {
   }
   requestEndTurnInFlight = true;
   try {
-    await combat.nextTurn();
+    const ok = await requestCombatNextTurn();
+    if (!ok) ui.notifications?.error?.('Nächster Zug fehlgeschlagen');
   } catch (error) {
     console.error('Mastery System | Error ending turn', error);
     ui.notifications.error('Failed to end turn');
   } finally {
     requestEndTurnInFlight = false;
+  }
+}
+
+let delayInFlight = false;
+
+/** Hold this turn: drop just below the next combatant, then advance. */
+export async function requestDelayTurn(): Promise<void> {
+  if (delayInFlight) return;
+  const combat = game.combat;
+  if (!combat?.combatant) {
+    ui.notifications?.warn?.('Kein aktiver Zug.');
+    return;
+  }
+  const user = game.user;
+  const actor = combat.combatant.actor;
+  if (!canViewerSeeEndTurn(actor, user)) {
+    ui.notifications?.warn?.('Nur der eigene Zug kann verzögert werden.');
+    return;
+  }
+  delayInFlight = true;
+  try {
+    const ok = await requestDelayInitiative();
+    if (!ok) ui.notifications?.warn?.('Initiative verzögern fehlgeschlagen.');
+  } catch (error) {
+    console.error('Mastery System | delay initiative failed', error);
+    ui.notifications?.error?.('Initiative verzögern fehlgeschlagen.');
+  } finally {
+    delayInFlight = false;
   }
 }
 
