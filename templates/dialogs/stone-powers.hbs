@@ -27,6 +27,14 @@
   </div>
   {{/if}}
 
+  {{#if gmCanResetStones}}
+  <div class="stone-gm-reset-row">
+    <button type="button" class="js-gm-reset-stones" title="Bezahlte Steine dieser Runde zurück in die Pools, Zuordnung wieder offen">
+      Steinzuordnung zurücksetzen
+    </button>
+  </div>
+  {{/if}}
+
   {{#if passivesCta.show}}
   <button type="button"
           class="passives-cta js-open-passives{{#if passivesCta.glow}} is-glow{{/if}}"

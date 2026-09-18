@@ -2423,6 +2423,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     bindReliableControlClick(html, '.gm-restore-stress-bar', this.#onGmRestoreStressBar.bind(this));
     bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
     bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
+    bindReliableControlClick(html, '.gm-reset-reroll-points', this.#onGmResetRerollPoints.bind(this));
     bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
     
     // Point spending buttons (JavaScript will check permissions)
@@ -5012,6 +5013,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     await this.actor.update({ 'system.faithFractures.current': cur + 1 });
     (ui as any).notifications?.info(`${this.actor.name}: +1 Reroll Point (${cur + 1}/${max}).`);
+    this.render();
+  }
+
+  /** GM: put current Reroll Points back to the sheet maximum after an accidental spend. */
+  async #onGmResetRerollPoints(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can reset Reroll Points.');
+      return;
+    }
+    const system = (this.actor as any).system;
+    const max = Math.max(0, Number(system.faithFractures?.maximum) || 0);
+    const cur = Math.max(0, Number(system.faithFractures?.current) || 0);
+    if (max <= 0) {
+      (ui as any).notifications?.warn('This actor has no Reroll Point pool (maximum is 0).');
+      return;
+    }
+    if (cur === max) {
+      (ui as any).notifications?.info(`${this.actor.name} is already at ${cur}/${max} Reroll Points.`);
+      return;
+    }
+    await this.actor.update({ 'system.faithFractures.current': max });
+    (ui as any).notifications?.info(`${this.actor.name}: Reroll Points ${cur} → ${max}.`);
     this.render();
   }
 

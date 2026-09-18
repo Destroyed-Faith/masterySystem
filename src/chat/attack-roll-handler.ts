@@ -525,7 +525,7 @@ export async function executeAttackRollFromCard(
               declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
             })${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
       const rollFlavor = opts.faithReroll
-        ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Faith Fracture.`
+        ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Reroll Point.`
         : rollFlavorBase;
       const rollLabel =
         tnKind === 'casting'

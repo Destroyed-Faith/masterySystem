@@ -29,6 +29,7 @@ import {
   snapshotToDamageFormula,
   snapshotToSpecialStrings,
   formatSnapshotSummary,
+  formatRaiseOutcomeBody,
   type DeclaredRaise,
   type PowerSnapshot,
   type RaiseCostAllocation,
@@ -718,12 +719,13 @@ export async function showDamageDialog(
     powerSpecials.length = 0;
     powerSpecials.push(...resolvedSpecials);
     const lostCost = computeTotalRaiseCost(countRaiseSlots(declaredRaises), masteryRank);
-    const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8`;
+    const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8 Schaden`;
+    const after = formatRaiseOutcomeBody(resolvedPowerSnapshot);
     raiseOutcomeLine =
       outcome === 'partial'
-        ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (Raise cost of ${lostCostLabel} lost)`
+        ? `Raise verfehlt — Kosten von ${lostCostLabel} bleiben weg. Es gilt: ${after}`
         : outcome === 'full'
-          ? `Raise succeeded — ${formatSnapshotSummary(resolvedPowerSnapshot)}`
+          ? `Raise gelungen — danach: ${after}`
           : '';
   }
 
@@ -2056,10 +2058,10 @@ function buildDamageFaithGateHtml(opts: {
         <div class="mastery-damage-mitigation-title"><i class="fas fa-hourglass-half"></i> Keep or Reroll?</div>
         <div class="mastery-damage-mitigation-breakdown">Roh ${opts.totalDamage} — HP not applied yet</div>
       </div>
-      <p class="ms-damage-faith-hint">Spend <strong>1 Faith Fracture</strong> (${opts.fracturesLeft} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>
+      <p class="ms-damage-faith-hint">Spend <strong>1 Reroll Point</strong> (${opts.fracturesLeft} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>
       <div class="ms-damage-faith-buttons">
         <button type="button" class="ms-damage-faith-keep-btn"><i class="fas fa-check"></i> Keep</button>
-        <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (1 Faith Fracture)</button>
+        <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)</button>
       </div>
     </div>`;
 }
@@ -2197,6 +2199,7 @@ async function promptDamageFaithReroll(
     if (cur < 1) return skip;
     const user = (game as any).user;
     if (!user?.isGM && !(attacker as any).isOwner) return skip;
+    if (user?.isGM && String(user.character?.id || '') !== String((attacker as any).id || '')) return skip;
 
     registerDamageFaithRerollChatHooks();
 
@@ -2722,7 +2725,7 @@ async function calculateDamageResult(
       const cur = Number((attacker as any)?.system?.faithFractures?.current ?? 0) || 0;
       await (attacker as any).update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
       ui.notifications?.info(
-        `${(attacker as any).name} spent 1 Faith Fracture — rerolling damage (was ${prevTotal}).`,
+        `${(attacker as any).name} spent 1 Reroll Point — rerolling damage (was ${prevTotal}).`,
       );
       const rerolled = await calculateDamageResult(
         baseDamage,
@@ -2745,7 +2748,7 @@ async function calculateDamageResult(
         true, // phasing was already offered before the first roll
       );
       rerolled.rollDetails = [
-        `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
+        `Reroll — 1 Reroll Point spent (previous total: ${prevTotal})`,
         ...(rerolled.rollDetails ?? []),
       ];
       return rerolled;

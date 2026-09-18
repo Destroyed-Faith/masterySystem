@@ -32,7 +32,12 @@ import {
   getGenericStonePowerUsageCount,
   calculateStoneCost,
   getStonePool,
+  setStonePool,
+  getRoundState,
+  setRoundState,
   isStonePowersConfigurationLocked,
+  clearStonePowersConfigurationLock,
+  clearCombatStoneTurnBonusesForActor,
   getActionEconomyActor
 } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
@@ -41,6 +46,7 @@ import {
   COLORLESS_GEM_STYLE,
   COLORLESS_STONE_ATTR,
   colorlessStoneInitiativeCost,
+  addTempColorlessStones,
   convertInitiativeToColorlessStones,
   getMasteryRank,
   getTempColorlessStones,
@@ -67,8 +73,10 @@ import {
 } from '../combat/encounter-setup-flags.js';
 import {
   canEditEncounterPassives,
+  getAvailablePassives,
   getPassiveSlots,
   getPendingPassiveSwaps,
+  passiveSlotsHaveOpenChoice,
 } from '../powers/passives.js';
 import {
   combatReflexesInitiativeState,
@@ -224,6 +232,24 @@ function parseStonePowerAccKey(accKey: string): { powerId: string; middle: strin
   const i = rest.lastIndexOf(':');
   if (i <= 0) return null;
   return { powerId: rest.slice(0, i), middle: rest.slice(i + 1), uses };
+}
+
+function stonesPaidInLane(accKey: string, value: unknown): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (!Array.isArray(value) || value.length === 0) return out;
+  const first = value[0];
+  if (first && typeof first === 'object') {
+    for (const occ of value as GenericLaneOcc[]) {
+      const attr = String(occ?.attr || '');
+      if (!attr) continue;
+      out[attr] = (out[attr] || 0) + 1;
+    }
+    return out;
+  }
+  const attr = parseStonePowerAccKey(accKey)?.middle || '';
+  if (!attr) return out;
+  out[attr] = value.length;
+  return out;
 }
 
 function stonePowerAccKeyPowerId(accKey: string): string | null {
@@ -1012,6 +1038,7 @@ export class StonePowersDialog extends BaseDialog {
       hasCombat,
       stonePlanLocked,
       stoneReviewMode,
+      gmCanResetStones: !!(game as any).user?.isGM && !!this.combatant,
       recovery,
       /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
       dragStonesEnabled: !stonePlanLocked && !recovery.active,
@@ -1067,9 +1094,13 @@ export class StonePowersDialog extends BaseDialog {
     const pendingSwaps = getPendingPassiveSwaps(this.actor);
     const canEdit = canEditEncounterPassives(combat, this.actor);
     const show = !!this.combatant && actorType === 'character';
-    const names = getPassiveSlots(this.actor)
+    const slots = getPassiveSlots(this.actor);
+    const names = slots
       .map((slot) => String(slot.passive?.name ?? '').trim())
       .filter(Boolean);
+    const needsPrompt =
+      show &&
+      passiveSlotsHaveOpenChoice(slots, getAvailablePassives(this.actor).length, pendingSwaps);
     const i18n = (game as any)?.i18n;
     const loc = (key: string, fallback: string) => {
       const t = i18n?.localize?.(`MASTERY.encounterSetup.${key}`);
@@ -1082,8 +1113,8 @@ export class StonePowersDialog extends BaseDialog {
         : loc('assignPassivesHint', 'Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.')
       : loc('assignPassivesHintView', 'Nur Ansicht. Passives bleiben, bis Exchange Passive bezahlt ist.');
     return {
-      show,
-      glow: show && ((round <= 1 && !reviewed) || pendingSwaps > 0),
+      show: needsPrompt,
+      glow: needsPrompt && ((round <= 1 && !reviewed) || pendingSwaps > 0),
       canEdit,
       names,
       namesLabel: names.length ? names.join(', ') : '—',
@@ -1456,6 +1487,19 @@ export class StonePowersDialog extends BaseDialog {
         await this.#openPassivesFromCta();
       };
     }
+    const resetStones = root.querySelector('.js-gm-reset-stones') as HTMLButtonElement | null;
+    if (resetStones) {
+      resetStones.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (resetStones.disabled) return;
+        resetStones.disabled = true;
+        try {
+          await this.#gmResetStoneAssignment();
+        } finally {
+          resetStones.disabled = false;
+        }
+      };
+    }
 
     const convertBtn = root.querySelector('.js-convert-initiative-colorless') as HTMLButtonElement | null;
     if (convertBtn) {
@@ -1715,6 +1759,93 @@ export class StonePowersDialog extends BaseDialog {
 
   #sessionLaneCompositeKey(accKey: string): string {
     return `${this.#stoneLaneOwnerActorId()}\0${accKey}`;
+  }
+
+  async #gmResetStoneAssignment(): Promise<void> {
+    if (!(game as any).user?.isGM) return;
+    const combat = (game as any).combat as Combat | null;
+    if (!combat || !this.combatant) return;
+    const owner = (getActionEconomyActor(this.actor) ?? this.actor) as any;
+    const plan = owner.getFlag?.('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG) as
+      | StonePowersRoundPlanStored
+      | undefined;
+    const refund: Record<string, number> = {};
+    for (const row of plan?.receipt ?? []) {
+      for (const [attr, n] of Object.entries(stonesPaidInLane(row.accKey, row.value))) {
+        refund[attr] = (refund[attr] || 0) + n;
+      }
+    }
+    for (const [attr, n] of Object.entries(refund)) {
+      if (n <= 0) continue;
+      if (attr === COLORLESS_STONE_ATTR) {
+        await addTempColorlessStones(owner, n);
+        continue;
+      }
+      const pool = getStonePool(owner, attr as AttributeKey);
+      const cap = Math.max(pool.current, Math.floor(Number(pool.max) || pool.current));
+      await setStonePool(owner, attr as AttributeKey, Math.min(cap, pool.current + n));
+    }
+
+    const round = Math.max(1, Number(combat.round) || 1);
+    const usage = {
+      ...((owner.getFlag?.('mastery-system', 'stoneUsage') as Record<string, number>) || {}),
+    };
+    for (const key of Object.keys(usage)) {
+      if (key.includes(`:${round}:`)) delete usage[key];
+    }
+    try {
+      await owner.setFlag('mastery-system', 'stoneUsage', usage);
+    } catch {
+      /* best-effort */
+    }
+    try {
+      await clearCombatStoneTurnBonusesForActor(owner, combat);
+    } catch {
+      /* best-effort */
+    }
+    try {
+      const roundState = getRoundState(owner, combat);
+      if (roundState.stoneBonuses) {
+        roundState.stoneBonuses.extraAttacks = 0;
+        roundState.stoneBonuses.extraReactions = 0;
+        roundState.stoneBonuses.extraMoveMeters = 0;
+        await setRoundState(owner, roundState);
+      }
+    } catch {
+      /* best-effort */
+    }
+    try {
+      await owner.unsetFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
+    } catch {
+      /* best-effort */
+    }
+    try {
+      await clearStonePowersConfigurationLock(owner);
+    } catch {
+      /* best-effort */
+    }
+
+    const state = ((combat as any).getFlag?.('mastery-system', 'stonePowersState') as any) || {};
+    const stonesDone = { ...(state.stonesDone || {}) };
+    delete stonesDone[this.combatant.id];
+    try {
+      await (combat as any).setFlag('mastery-system', 'stonePowersState', { ...state, stonesDone });
+    } catch {
+      /* best-effort */
+    }
+    try {
+      await persistCombatantSetupStep(this.combatant, combat, { stonesDoneRound: 0 });
+    } catch {
+      /* best-effort */
+    }
+
+    this.#clearSessionStoneLanesForOwner();
+    this._stonePaidLanes.clear();
+    this._stoneReviewMode = false;
+    ui.notifications?.info(
+      `${String(owner.name || 'Charakter')}: Steinzuordnung zurückgesetzt. Bezahlte Steine sind wieder im Pool.`,
+    );
+    await this.#renderKeepingScroll();
   }
 
   #clearSessionStoneLanesForOwner(): void {

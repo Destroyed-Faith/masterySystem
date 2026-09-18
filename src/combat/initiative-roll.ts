@@ -15,6 +15,7 @@ import {
 } from '../utils/npc-initiative.js';
 import { resetCombatReflexesRoundUsage } from './combat-reflexes.js';
 import { actorHasSurprise, pinSurprisedInitiative } from './surprise.js';
+import { requestSetCombatantInitiative } from './gm-relay.js';
 
 export { getCombatReflexesInitiativeLimits } from './combat-reflexes.js';
 
@@ -47,6 +48,41 @@ export interface InitiativeRollBreakdown {
   masteryRank: number;
   /** Present after a local roll; omitted when the shop opens over the socket. */
   rollResult?: any;
+}
+
+const INITIATIVE_ROLLED_FLAG = 'initiativeRolledFor';
+const initiativeRollInFlight = new Set<string>();
+
+/** True when this combatant already kept an initiative total for this combat round. */
+export function initiativeRollAlreadyRecorded(
+  flag: { combatId?: string; round?: number; total?: number } | null | undefined,
+  combatId: string | null | undefined,
+  round: number,
+): boolean {
+  if (!flag || !combatId) return false;
+  if (String(flag.combatId) !== String(combatId)) return false;
+  if (Number(flag.round) !== Number(round)) return false;
+  return Number.isFinite(Number(flag.total));
+}
+
+async function writeCombatantInitiative(
+  combatant: any,
+  initiative: number,
+  flags: Record<string, unknown>,
+): Promise<void> {
+  const game = (globalThis as any).game;
+  const canWrite =
+    !!game?.user?.isGM ||
+    (typeof combatant?.canUserModify === 'function' && combatant.canUserModify(game?.user, 'update'));
+  if (canWrite) {
+    await combatant.update({ initiative });
+    for (const [key, value] of Object.entries(flags)) {
+      if (value == null) await combatant.unsetFlag?.('mastery-system', key);
+      else await combatant.setFlag?.('mastery-system', key, value);
+    }
+    return;
+  }
+  await requestSetCombatantInitiative(combatant, initiative, flags);
 }
 
 /**
@@ -84,6 +120,42 @@ export async function rollInitiativeForCombatant(
       rollResult: null,
     };
   }
+
+  const gameAny = (globalThis as any).game;
+  const combat = gameAny?.combat;
+  const combatId = combat?.id ? String(combat.id) : '';
+  const round = Math.max(1, Number(combat?.round) || 1);
+  const flightKey = String((combatant as { id?: string }).id || (actor as { id?: string }).id || '');
+  const prior = (actor as any).getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG) as
+    | { combatId?: string; round?: number; total?: number; diceTotal?: number; masteryRank?: number }
+    | null
+    | undefined;
+  if (initiativeRollAlreadyRecorded(prior, combatId, round)) {
+    const kept = Number(prior?.total);
+    if ((combatant.initiative == null || combatant.initiative === undefined) && Number.isFinite(kept)) {
+      await writeCombatantInitiative(combatant, kept, { msInitiativeValue: kept });
+    }
+    return {
+      diceTotal: Number(prior?.diceTotal) || 0,
+      combatReflexesSpent: 0,
+      totalInitiative: Number.isFinite(kept) ? kept : 0,
+      equipmentInitiativeModifier: 0,
+      masteryRank: Number(prior?.masteryRank) || getMasteryRank(actor),
+      rollResult: null,
+    };
+  }
+  if (flightKey && initiativeRollInFlight.has(flightKey)) {
+    return {
+      diceTotal: 0,
+      combatReflexesSpent: 0,
+      totalInitiative: 0,
+      equipmentInitiativeModifier: 0,
+      masteryRank: getMasteryRank(actor),
+      rollResult: null,
+    };
+  }
+  if (flightKey) initiativeRollInFlight.add(flightKey);
+  try {
 
   const masteryRank = getMasteryRank(actor);
   const equipmentInitiativeModifier = getEquippedEquipmentInitiativeModifier(actor);
@@ -172,19 +244,31 @@ export async function rollInitiativeForCombatant(
     witsInitBonus +
     stoneInitiativeBonus +
     npcInitiativeModifier;
-  await combatant.update({ initiative: totalInitiative });
-
-  await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
-  await combatant.setFlag('mastery-system', 'msInitiativeBoostThisRound', stoneInitiativeBonus);
-
-  if (isPc) {
-    await combatant.setFlag('mastery-system', 'pendingInitiativeShop', {
+  const initiativeFlags: Record<string, unknown> = {
+    msInitiativeValue: totalInitiative,
+    msInitiativeBoostThisRound: stoneInitiativeBonus,
+    pendingInitiativeShop: isPc
+      ? {
+          diceTotal,
+          combatReflexesSpent,
+          totalInitiative,
+          equipmentInitiativeModifier,
+          masteryRank,
+        }
+      : null,
+  };
+  if (!isPc) initiativeFlags.npcInitiativeRolled = true;
+  await writeCombatantInitiative(combatant, totalInitiative, initiativeFlags);
+  try {
+    await (actor as any).setFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG, {
+      combatId,
+      round,
+      total: totalInitiative,
       diceTotal,
-      combatReflexesSpent,
-      totalInitiative,
-      equipmentInitiativeModifier,
-      masteryRank
+      masteryRank,
     });
+  } catch {
+    /* actor flag is best-effort; the in-flight lock still stops this client */
   }
   return {
     diceTotal,
@@ -194,6 +278,9 @@ export async function rollInitiativeForCombatant(
     masteryRank,
     rollResult
   };
+  } finally {
+    if (flightKey) initiativeRollInFlight.delete(flightKey);
+  }
 }
 
 /** True when an NPC still needs a real initiative roll (Foundry often seeds 0). */

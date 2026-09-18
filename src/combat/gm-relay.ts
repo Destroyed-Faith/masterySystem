@@ -97,6 +97,35 @@ export async function requestCombatNextTurn(): Promise<boolean> {
   return askGm({ type: 'gmNextTurn', combatId: combat.id });
 }
 
+/** Write a combatant's initiative. Players cannot update the Combat document. */
+export async function requestSetCombatantInitiative(
+  combatant: { id?: string; parent?: { id?: string }; combat?: { id?: string } },
+  initiative: number,
+  flags: Record<string, unknown> = {},
+): Promise<boolean> {
+  const g = globalThis as any;
+  const combat = g.game?.combat;
+  const combatId = String(combat?.id || combatant.parent?.id || combatant.combat?.id || '');
+  const combatantId = String(combatant.id || '');
+  if (!combatId || !combatantId || !Number.isFinite(Number(initiative))) return false;
+  if (g.game?.user?.isGM) {
+    const live = combat?.combatants?.get?.(combatantId) ?? combatant;
+    await live.update?.({ initiative: Number(initiative) });
+    for (const [key, value] of Object.entries(flags)) {
+      if (value == null) await live.unsetFlag?.('mastery-system', key);
+      else await live.setFlag?.('mastery-system', key, value);
+    }
+    return true;
+  }
+  return askGm({
+    type: 'gmSetInitiative',
+    combatId,
+    combatantId,
+    initiative: Number(initiative),
+    flags,
+  });
+}
+
 /**
  * Yield to the next combatant: set this initiative just below theirs, then advance.
  * Returns false when already last in the round.

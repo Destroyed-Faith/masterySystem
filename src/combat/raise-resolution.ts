@@ -352,6 +352,19 @@ export function formatSnapshotSummary(snapshot: PowerSnapshot): string {
   return parts.length ? parts.join(', ') : '—';
 }
 
+/** Labeled result so "3d8, Range 12m" is not read as the Raise itself. */
+export function formatRaiseOutcomeBody(snapshot: PowerSnapshot): string {
+  const parts: string[] = [`${Math.max(0, Math.floor(snapshot.damageDice))}d8 Schaden`];
+  for (const sp of snapshot.specials) {
+    const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
+    parts.push(`${name}(${sp.rank})`);
+  }
+  if (snapshot.hasRange && snapshot.rangeM != null) parts.push(`Reichweite ${snapshot.rangeM} m`);
+  if (snapshot.hasAoe && snapshot.aoeRadiusM != null) parts.push(`AoE ${snapshot.aoeRadiusM} m`);
+  if (snapshot.hasDuration && snapshot.durationSteps > 0) parts.push(`Dauer +${snapshot.durationSteps}`);
+  return parts.join(', ');
+}
+
 /** Build a PowerSnapshot from level row data (attack card / damage dialog). */
 export function buildPowerSnapshotFromLevelData(
   levelData: {

@@ -122,6 +122,23 @@
   font-weight: 700;
 }
 
+.stone-powers-dialog .stone-gm-reset-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 0.45rem;
+}
+
+.stone-powers-dialog .js-gm-reset-stones {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.28rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 183, 77, 0.7);
+  background: rgba(255, 183, 77, 0.12);
+  color: inherit;
+  cursor: pointer;
+}
+
 .stone-powers-dialog .passives-cta {
   position: relative;
   isolation: isolate;

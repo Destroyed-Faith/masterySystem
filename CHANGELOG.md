@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.508] - 2026-09-18
+
+### Changed
+
+- **NPC HP:** The sheet labels the two fields **Aktuell** and **Maximum**. The combat carousel shows the same for the GM, including hostile NPCs. Players still do not see exact HP on hostile cards.
+- **Raises:** The result line names what is left (`3d8 Schaden, Reichweite 12 m`) instead of looking like the Raise itself is 3d8. After you declare a Raise, the preview says the cost is already taken. The cost is still Mastery Rank d8.
+- **Passives prompt:** The rainbow “Passives verteilen” bar only appears when a slot is still empty and there is a passive left to put in it, or Exchange Passive paid a swap.
+- **Rerolls:** The buttons say Reroll Points, not Faith Fractures. A roll spends that character’s points. You cannot pay with someone else’s. The GM can set the sheet counter back to maximum without a Safe Haven Rest.
+
+### Fixed
+
+- **Initiative:** One roll per character per round. Opening the stone dialog again does not roll a second time, and a player’s score is written by the GM when the player cannot update the tracker.
+- **Stone assignment:** The GM can reset this round’s assignment from the stone overlay. Paid stones go back to the pools and the lock opens.
+
 ## [0.9.507] - 2026-09-18
 
 ### Added

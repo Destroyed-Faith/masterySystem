@@ -382,7 +382,7 @@ export class CombatCarouselApp extends BaseCarousel {
         hpTotalMax,
         tempHP,
         hpSegments,
-        hideHpNumbers: hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
+        hideHpNumbers: !isGM && hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
         stressTotalCurrent,
         stressTotalMax,
         stressSegments,

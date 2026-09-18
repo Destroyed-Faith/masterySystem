@@ -73,6 +73,11 @@
         <div class="points-display faith-fractures-display">
           <span class="points-value" id="sheet-faith-current">{{default system.faithFractures.current 0}}</span>
           <span class="points-label">/ {{default system.faithFractures.maximum 0}}</span>
+          {{#if (userIsGM)}}
+          <button type="button" class="gm-reset-reroll-points" title="Reroll Points auf das Maximum zurücksetzen" aria-label="Reroll Points zurücksetzen">
+            <i class="fas fa-undo"></i>
+          </button>
+          {{/if}}
         </div>
       </div>
       {{#if skillsRedistributing}}

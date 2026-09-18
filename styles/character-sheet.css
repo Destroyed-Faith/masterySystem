@@ -4976,11 +4976,11 @@
 }
 
 .mastery-system.sheet.actor.npc .health-panel .npc-hp-field span {
-  font-size: 0.65rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .mastery-system.sheet.actor.npc .health-panel .npc-hp-sep {

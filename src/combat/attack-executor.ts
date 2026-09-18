@@ -868,7 +868,7 @@ export async function createAttackCard(
         <span>Normal TN: <strong>${normalTn}</strong></span>
         <span>Raise TN: <strong class="raise-tn-display">${normalTn}</strong></span>
       </div>
-      <div class="raise-preview-row">On hit (before raises): <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
+      <div class="raise-preview-row"><span class="raise-preview-label">Treffer, vor Raises:</span> <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
       ${
         raiseContext.isSpell
           ? `<div class="spell-cost-split-row md-sublabel">
@@ -1192,6 +1192,9 @@ function setupRaisesHandler(
       spellCostOverride,
     );
     panel.find('.raise-tn-display').text(String(raiseTn));
+    panel.find('.raise-preview-label').text(
+      slots > 0 ? 'Nach Raise-Kosten (vor dem Wurf):' : 'Treffer, vor Raises:',
+    );
     panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext!.weaponDamageDice));
     button.attr('data-raise-tn', String(raiseTn));
     button.attr('data-raise-slots', String(slots));

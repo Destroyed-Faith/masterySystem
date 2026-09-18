@@ -86,7 +86,7 @@ async function handleEncounterSocket(payload: any): Promise<void> {
     return;
   }
 
-  if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative') {
+  if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative') {
     if (!game.user?.isGM) return;
     let ok = false;
     try {
@@ -109,6 +109,28 @@ async function handleEncounterSocket(payload: any): Promise<void> {
         ) {
           await combatant.update({ initiative: Number(payload.initiative) });
           await combat.nextTurn();
+          ok = true;
+        }
+      } else if (type === 'gmSetInitiative') {
+        const combat = resolveLiveCombat(payload.combatId);
+        const combatant = combat?.combatants?.get?.(payload.combatantId);
+        const requester = (game as any).users?.get?.(payload.replyTo);
+        const actor = combatant?.actor;
+        const owns =
+          !!requester &&
+          !!actor &&
+          (requester.isGM ||
+            (typeof actor.testUserPermission === 'function' &&
+              actor.testUserPermission(requester, 'OWNER')));
+        if (combatant && owns && Number.isFinite(Number(payload.initiative))) {
+          await combatant.update({ initiative: Number(payload.initiative) });
+          const flags = payload.flags;
+          if (flags && typeof flags === 'object') {
+            for (const [key, value] of Object.entries(flags as Record<string, unknown>)) {
+              if (value == null) await combatant.unsetFlag?.('mastery-system', key);
+              else await combatant.setFlag?.('mastery-system', key, value);
+            }
+          }
           ok = true;
         }
       }

@@ -199,14 +199,14 @@
             {{#each phase.health.bars as |bar index|}}
             <div class="health-bar npc-hp-row {{#if (eq phase.health.currentBar index)}}active{{/if}}">
               {{!-- Use block-param phaseIndex (not ../phaseIndex): nested #each breaks ../ lookup and orphaned HP on submit. --}}
-              <label class="npc-hp-field" title="Current HP on this bar">
-                <span>Current</span>
-                <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/>
+              <label class="npc-hp-field" title="Aktuelle Trefferpunkte auf diesem Balken">
+                <span>Aktuell</span>
+                <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" placeholder="Aktuell"/>
               </label>
               <span class="npc-hp-sep">/</span>
-              <label class="npc-hp-field" title="Maximum HP on this bar">
-                <span>Max</span>
-                <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+              <label class="npc-hp-field" title="Maximum auf diesem Balken">
+                <span>Maximum</span>
+                <input type="number" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number" placeholder="Maximum"/>
               </label>
               <input type="hidden" name="system.phases.{{phaseIndex}}.health.bars.{{index}}.penalty" value="{{default bar.penalty 0}}" data-dtype="Number"/>
             </div>
@@ -460,14 +460,14 @@
         <div class="health-display">
           {{#each system.health.bars as |bar index|}}
           <div class="health-bar npc-hp-row {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
-              <label class="npc-hp-field" title="Current HP on this bar">
-              <span>Current</span>
-              <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/>
+              <label class="npc-hp-field" title="Aktuelle Trefferpunkte auf diesem Balken">
+              <span>Aktuell</span>
+              <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" placeholder="Aktuell"/>
             </label>
             <span class="npc-hp-sep">/</span>
-            <label class="npc-hp-field" title="Maximum HP on this bar">
-              <span>Max</span>
-              <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+            <label class="npc-hp-field" title="Maximum auf diesem Balken">
+              <span>Maximum</span>
+              <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number" placeholder="Maximum"/>
             </label>
             <input type="hidden" name="system.health.bars.{{index}}.penalty" value="{{default bar.penalty 0}}" data-dtype="Number"/>
           </div>
