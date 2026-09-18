@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.501] - 2026-09-18
+
+### Changed
+
+- **NPC sheet · Boss phases UX:** „Neue Power“ sits under the extras list (not beside the header). Phase tabs carry a trash icon (no Delete-Phase bar). Clicking a phase tab sets the radial active phase; each phase opens with Attack / Move / Reaction on top. Extra powers can be copied to another phase via → Phase….
+
 ## [0.9.500] - 2026-09-18
 
 ### Fixed
