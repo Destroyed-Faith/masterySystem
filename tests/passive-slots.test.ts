@@ -147,6 +147,21 @@ describe('mid-combat passive edits', () => {
     expect(canEditEncounterPassives({ round: 2 } as Combat, actorWithSwaps(1))).toBe(true);
   });
 
+  it('allows edits again after the GM releases passives', () => {
+    const actor = { id: 'a1', getFlag: () => null } as unknown as Actor;
+    const combatant = {
+      actor,
+      getFlag: (_scope: string, key: string) =>
+        key === 'encounterSetupStep' ? { combatId: 'c1', passivesGmOpen: true } : null,
+    };
+    const combat = {
+      id: 'c1',
+      round: 3,
+      combatants: [combatant],
+    };
+    expect(canEditEncounterPassives(combat as unknown as Combat, actor)).toBe(true);
+  });
+
   it('consumes one paid swap token at a time', async () => {
     const actor = actorWithSwaps(2);
     expect(getPendingPassiveSwaps(actor)).toBe(2);

@@ -73,28 +73,22 @@ describe('pcNeedsManualInitiativeRoll', () => {
 });
 
 describe('formatInitiativeExchangeSummary', () => {
-  it('names the roll and what can still be added', () => {
+  it('names only the roll, not what can still be added', () => {
     expect(
       formatInitiativeExchangeSummary({
         diceTotal: 7,
         initiative: 7,
-        combatReflexesNext: 2,
-        costPerStone: 2,
       }),
-    ).toBe(
-      'Wurf hat 7 gebracht. Jetzt kannst du noch +2 aus Combat Reflexes drauflegen, oder 2 Initiative pro Stein tauschen.',
-    );
+    ).toBe('Wurf hat 7 gebracht.');
   });
 
-  it('keeps the dice result when Combat Reflexes already changed the score', () => {
+  it('keeps the dice result when the score has already changed', () => {
     expect(
       formatInitiativeExchangeSummary({
         diceTotal: 7,
         initiative: 9,
-        combatReflexesNext: 0,
-        costPerStone: 2,
       }),
-    ).toBe('Wurf hat 7 gebracht. Initiative jetzt 9. Du kannst 2 Initiative pro Stein tauschen.');
+    ).toBe('Wurf hat 7 gebracht. Initiative jetzt 9.');
   });
 });
 

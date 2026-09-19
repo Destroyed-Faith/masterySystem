@@ -46,6 +46,7 @@ import {
   INITIATIVE_ROLLED_FLAG,
   formatInitiativeExchangeSummary,
   pcNeedsManualInitiativeRoll,
+  releasePcInitiativeRoll,
 } from '../combat/initiative-roll.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import {
@@ -76,6 +77,7 @@ import {
   isPassivesReviewedThisEncounter,
   isStoneRegenDone,
   persistCombatantSetupStep,
+  readCombatantSetupStep,
 } from '../combat/encounter-setup-flags.js';
 import {
   canEditEncounterPassives,
@@ -1022,8 +1024,6 @@ export class StonePowersDialog extends BaseDialog {
         : formatInitiativeExchangeSummary({
             diceTotal,
             initiative: initiativeScore,
-            combatReflexesNext: cr.nextUse,
-            costPerStone: stoneIniCost,
           }),
       initiative: initiativeScore,
       masteryRank: mr,
@@ -1063,7 +1063,10 @@ export class StonePowersDialog extends BaseDialog {
       hasCombat,
       stonePlanLocked,
       stoneReviewMode,
-      gmCanResetStones: !!(game as any).user?.isGM && !!this.combatant,
+      gmTools: {
+        show: !!(game as any).user?.isGM && !!this.combatant,
+        passives: (this.actor as any).type === 'character',
+      },
       recovery,
       /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
       dragStonesEnabled: !stonePlanLocked && !recovery.active,
@@ -1123,9 +1126,11 @@ export class StonePowersDialog extends BaseDialog {
     const names = slots
       .map((slot) => String(slot.passive?.name ?? '').trim())
       .filter(Boolean);
+    const gmOpen = readCombatantSetupStep(this.combatant, combat)?.passivesGmOpen === true;
     const needsPrompt =
       show &&
-      passiveSlotsHaveOpenChoice(slots, getAvailablePassives(this.actor).length, pendingSwaps);
+      (gmOpen ||
+        passiveSlotsHaveOpenChoice(slots, getAvailablePassives(this.actor).length, pendingSwaps));
     const i18n = (game as any)?.i18n;
     const loc = (key: string, fallback: string) => {
       const t = i18n?.localize?.(`MASTERY.encounterSetup.${key}`);
@@ -1139,7 +1144,7 @@ export class StonePowersDialog extends BaseDialog {
       : loc('assignPassivesHintView', 'Nur Ansicht. Passives bleiben, bis Exchange Passive bezahlt ist.');
     return {
       show: needsPrompt,
-      glow: needsPrompt && ((round <= 1 && !reviewed) || pendingSwaps > 0),
+      glow: gmOpen || (needsPrompt && ((round <= 1 && !reviewed) || pendingSwaps > 0)),
       canEdit,
       names,
       namesLabel: names.length ? names.join(', ') : '—',
@@ -1575,6 +1580,32 @@ export class StonePowersDialog extends BaseDialog {
         }
       };
     }
+    const releasePassives = root.querySelector('.js-gm-release-passives') as HTMLButtonElement | null;
+    if (releasePassives) {
+      releasePassives.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (releasePassives.disabled) return;
+        releasePassives.disabled = true;
+        try {
+          await this.#gmReleasePassives();
+        } finally {
+          releasePassives.disabled = false;
+        }
+      };
+    }
+    const releaseInitiative = root.querySelector('.js-gm-release-initiative') as HTMLButtonElement | null;
+    if (releaseInitiative) {
+      releaseInitiative.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (releaseInitiative.disabled) return;
+        releaseInitiative.disabled = true;
+        try {
+          await this.#gmReleaseInitiative();
+        } finally {
+          releaseInitiative.disabled = false;
+        }
+      };
+    }
 
     const convertBtn = root.querySelector('.js-convert-initiative-colorless') as HTMLButtonElement | null;
     if (convertBtn) {
@@ -1838,6 +1869,44 @@ export class StonePowersDialog extends BaseDialog {
 
   #sessionLaneCompositeKey(accKey: string): string {
     return `${this.#stoneLaneOwnerActorId()}\0${accKey}`;
+  }
+
+  async #gmReleasePassives(): Promise<void> {
+    if (!(game as any).user?.isGM) return;
+    const combat = (game as any).combat as Combat | null;
+    if (!combat || !this.combatant) return;
+    const actorId = String((this.actor as { id?: string }).id ?? '');
+    await persistCombatantSetupStep(this.combatant, combat, {
+      passivesLocked: false,
+      passivesGmOpen: true,
+      passivesReviewed: false,
+    });
+    try {
+      const setup = ((combat as any).getFlag?.('mastery-system', 'encounterSetup') ?? {}) as {
+        passives?: Record<string, { locked?: boolean; data?: unknown }>;
+      };
+      const passives = { ...(setup.passives || {}) };
+      if (actorId && passives[actorId]) {
+        passives[actorId] = { ...passives[actorId], locked: false };
+        await (combat as any).setFlag('mastery-system', 'encounterSetup', { ...setup, passives });
+      }
+    } catch {
+      /* combat flag is best-effort; the combatant flag is enough to edit */
+    }
+    ui.notifications?.info(`${(this.actor as any).name}: Passives sind wieder offen.`);
+    await this.#renderKeepingScroll();
+  }
+
+  async #gmReleaseInitiative(): Promise<void> {
+    if (!(game as any).user?.isGM || !this.combatant) return;
+    const owner = getActionEconomyActor(this.actor) ?? this.actor;
+    await releasePcInitiativeRoll(owner, this.combatant);
+    if (owner !== this.actor) await releasePcInitiativeRoll(this.actor, this.combatant);
+    this._colorlessConvertCount = null;
+    ui.notifications?.info(
+      `${(this.actor as any).name}: Initiative ist wieder offen. Würfel sie neu.`,
+    );
+    await this.#renderKeepingScroll();
   }
 
   async #gmResetStoneAssignment(): Promise<void> {

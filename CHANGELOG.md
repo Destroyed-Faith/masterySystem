@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.511] - 2026-09-19
+
+### Changed
+
+- **Initiative line:** After the roll it only says what was rolled (`Wurf hat 15 gebracht`). Combat Reflexes, Stones, and the Colorless conversion sit on that same line.
+- **GM tools:** The stone dialog has three buttons: **Passives neu freigeben**, **Steinzuordnung zurücksetzen**, and **Initiative neu freigeben**. Releasing initiative does not roll; the dice button comes back.
+
 ## [0.9.510] - 2026-09-19
 
 ### Changed

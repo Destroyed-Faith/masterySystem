@@ -71,7 +71,7 @@ export async function handlePassiveSelectionComplete(combat: Combat, actorId: st
   const live = resolveLiveCombat(combat);
   if (!live) return;
   const combatant = findCombatantByActorId(live, actorId);
-  await persistCombatantSetupStep(combatant, live, { passivesLocked: true });
+  await persistCombatantSetupStep(combatant, live, { passivesLocked: true, passivesGmOpen: false });
   if (!canCurrentUserUpdateCombat(live)) {
     game.socket?.emit(ENCOUNTER_SOCKET, {
       type: 'passiveSelectionComplete',

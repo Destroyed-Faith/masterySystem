@@ -27,10 +27,18 @@
   </div>
   {{/if}}
 
-  {{#if gmCanResetStones}}
+  {{#if gmTools.show}}
   <div class="stone-gm-reset-row">
-    <button type="button" class="js-gm-reset-stones" title="Bezahlte Steine dieser Runde zurück in die Pools, Zuordnung wieder offen">
+    {{#if gmTools.passives}}
+    <button type="button" class="stone-gm-tool js-gm-release-passives" title="Passives dieser Figur wieder ändern">
+      Passives neu freigeben
+    </button>
+    {{/if}}
+    <button type="button" class="stone-gm-tool js-gm-reset-stones" title="Bezahlte Steine dieser Runde zurück in die Pools, Zuordnung wieder offen">
       Steinzuordnung zurücksetzen
+    </button>
+    <button type="button" class="stone-gm-tool js-gm-release-initiative" title="Gespeicherte Initiative löschen, damit neu gewürfelt werden kann">
+      Initiative neu freigeben
     </button>
   </div>
   {{/if}}
@@ -47,24 +55,22 @@
   {{#if initiativeExchange.show}}
   <div class="initiative-exchange-bar{{#if initiativeExchange.locked}} is-locked{{/if}}">
     <div class="initiative-exchange-copy">
-      <div class="initiative-exchange-heading">
-        <strong>Initiative</strong>
-        {{#unless initiativeExchange.needsRoll}}
-        <span class="initiative-exchange-score">{{initiativeExchange.initiative}}</span>
-        {{/unless}}
-      </div>
+      <strong>Initiative</strong>
+      {{#unless initiativeExchange.needsRoll}}
+      <span class="initiative-exchange-score">{{initiativeExchange.initiative}}</span>
+      {{/unless}}
       {{#if initiativeExchange.needsRoll}}
-      <span>Noch nicht gewürfelt. Knopf drücken, dann siehst du die Zahl und entscheidest, was du drauflegst.</span>
+      <span class="initiative-exchange-note">Erst würfeln.</span>
       {{else if initiativeExchange.surprised}}
-      <span>Überraschung: Initiative 0. Du würfelst nicht.</span>
+      <span class="initiative-exchange-note">Überraschung: 0</span>
       {{else}}
-      <span>{{initiativeExchange.summary}}</span>
+      <span class="initiative-exchange-note">{{initiativeExchange.summary}}</span>
       {{/if}}
       {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Initiative Boost already used this combat.</span>{{/if}}
     </div>
     <div class="initiative-exchange-actions">
       {{#if initiativeExchange.needsRoll}}
-      <button type="button" class="dialog-btn dialog-btn-secondary js-roll-initiative">
+      <button type="button" class="dialog-btn initiative-inline-btn js-roll-initiative">
         <i class="fas fa-dice"></i> Würfel deine Initiative
       </button>
       {{else}}
@@ -95,8 +101,8 @@
           <i class="fas fa-plus"></i>
         </button>
       </div>
-      <button type="button" class="dialog-btn dialog-btn-secondary js-convert-initiative-colorless" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.convertCount}}disabled{{/unless}}>
-        <i class="fas fa-arrows-rotate"></i> Initiative zu Colorless Stones umwandeln
+      <button type="button" class="dialog-btn initiative-inline-btn js-convert-initiative-colorless" title="Initiative zu Colorless Stones umwandeln" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.convertCount}}disabled{{/unless}}>
+        <i class="fas fa-arrows-rotate"></i> Zu Colorless Stones
       </button>
       {{/if}}
     </div>

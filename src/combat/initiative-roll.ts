@@ -98,26 +98,51 @@ export function pcNeedsManualInitiativeRoll(input: {
 export function formatInitiativeExchangeSummary(input: {
   diceTotal: number | null;
   initiative: number;
-  combatReflexesNext: number;
-  costPerStone: number;
 }): string {
   const initiative = Math.floor(Number(input.initiative) || 0);
   const dice = input.diceTotal == null ? null : Math.floor(Number(input.diceTotal));
-  const lead =
-    dice != null && dice !== initiative
-      ? `Wurf hat ${dice} gebracht. Initiative jetzt ${initiative}.`
-      : `Wurf hat ${initiative} gebracht.`;
-  const extra: string[] = [];
-  const cr = Math.max(0, Math.floor(Number(input.combatReflexesNext) || 0));
-  if (cr > 0) extra.push(`Jetzt kannst du noch +${cr} aus Combat Reflexes drauflegen`);
-  const cost = Math.max(0, Math.floor(Number(input.costPerStone) || 0));
-  if (initiative > 0 && cost > 0) {
-    extra.push(
-      cr > 0 ? `oder ${cost} Initiative pro Stein tauschen` : `Du kannst ${cost} Initiative pro Stein tauschen`,
-    );
+  if (dice != null && dice !== initiative) {
+    return `Wurf hat ${dice} gebracht. Initiative jetzt ${initiative}.`;
   }
-  if (!extra.length) return lead;
-  return `${lead} ${extra.join(', ')}.`;
+  return `Wurf hat ${initiative} gebracht.`;
+}
+
+/** Drop the stored roll so the Initiative button shows again. Does not roll. */
+export async function releasePcInitiativeRoll(actor: any, combatant: any): Promise<void> {
+  const actors = [actor, combatant?.actor].filter(Boolean);
+  const seen = new Set<string>();
+  for (const candidate of actors) {
+    const id = String(candidate?.id ?? '');
+    if (id && seen.has(id)) continue;
+    if (id) seen.add(id);
+    try {
+      await candidate.unsetFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG);
+    } catch {
+      /* best-effort */
+    }
+  }
+  if (!combatant) return;
+  try {
+    await combatant.update?.({ initiative: null });
+  } catch {
+    /* best-effort */
+  }
+  try {
+    await combatant.unsetFlag?.('mastery-system', 'msInitiativeValue');
+  } catch {
+    /* best-effort */
+  }
+  try {
+    await combatant.unsetFlag?.('mastery-system', 'pendingInitiativeShop');
+  } catch {
+    /* best-effort */
+  }
+  try {
+    const { resetCombatReflexesRoundUsage } = await import('./combat-reflexes.js');
+    await resetCombatReflexesRoundUsage(combatant);
+  } catch {
+    /* best-effort */
+  }
 }
 
 async function writeCombatantInitiative(

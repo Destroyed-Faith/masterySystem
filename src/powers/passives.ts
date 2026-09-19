@@ -3,6 +3,8 @@
  * Handles passive ability slots, activation, and management
  */
 
+import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
+
 /** Mastery Rank at which each passive slot unlocks (max 4 slots). */
 export const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[] = [1, 2, 4, 6];
 
@@ -329,6 +331,11 @@ export function canEditEncounterPassives(
 ): boolean {
   const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
   if (round <= 1) return true;
-  return getPendingPassiveSwaps(actor) > 0;
+  if (getPendingPassiveSwaps(actor) > 0) return true;
+  const bag = (combat as { combatants?: unknown } | null | undefined)?.combatants;
+  const actorId = String((actor as { id?: string } | null | undefined)?.id ?? '');
+  if (!combat || !bag || !actorId) return false;
+  const combatant = findCombatantByActorId(combat, actorId);
+  return readCombatantSetupStep(combatant, combat)?.passivesGmOpen === true;
 }
 
