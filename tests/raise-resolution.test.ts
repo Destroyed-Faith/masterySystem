@@ -10,6 +10,7 @@ import {
   formatDeclaredRaiseList,
   paidRaiseSlots,
   previewAfterRaiseCost,
+  dedupeDeclaredRaises,
   resolvePowerSnapshot,
   resolveRaiseOutcome,
   snapshotToDamageFormula,
@@ -137,6 +138,38 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     });
     expect(snapshotToDamageFormula(snap)).toBe('8d8');
     expect(snap.specials[0].rank).toBe(6);
+  });
+
+  it('a Special Raise is once per attack; damage Raises still stack', () => {
+    const raises: DeclaredRaise[] = [
+      { effect: 'specialPlus', targetSpecialKey: 'penetration', slots: 1, label: 'Increase Penetration(3) by +MR' },
+      { effect: 'specialPlus', targetSpecialKey: 'penetration', slots: 1, label: 'Increase Penetration(3) by +MR' },
+      { effect: 'specialPlus', targetSpecialKey: 'precision', slots: 1 },
+      { effect: 'damage', slots: 1 },
+      { effect: 'damage', slots: 1 },
+    ];
+    expect(dedupeDeclaredRaises(raises).map((r) => r.targetSpecialKey ?? r.effect)).toEqual([
+      'penetration',
+      'precision',
+      'damage',
+      'damage',
+    ]);
+    const base = examplePower();
+    base.specials = [
+      { key: 'penetration', rank: 3 },
+      { key: 'precision', rank: 4 },
+    ];
+    const snap = resolvePowerSnapshot({
+      base,
+      declaredRaises: raises,
+      outcome: 'full',
+      masteryRank: 2,
+      isSpell: false,
+    });
+    expect(snap.specials.find((s) => s.key === 'penetration')?.rank).toBe(5);
+    expect(snap.specials.find((s) => s.key === 'precision')?.rank).toBe(6);
+    expect(snap.damageDice).toBe(8 + 2 + 2);
+    expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(4);
   });
 });
 

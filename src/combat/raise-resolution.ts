@@ -117,6 +117,21 @@ export function resolveRaiseOutcome(
   return t + raiseBonus >= raiseTn ? 'full' : 'partial';
 }
 
+/** Damage Raises stack. Each Special (Penetration, Precision, …) only once per attack. */
+export function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[] {
+  const seen = new Set<string>();
+  const out: DeclaredRaise[] = [];
+  for (const raise of raises) {
+    if (raise.effect === 'specialPlus') {
+      const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+    }
+    out.push(raise);
+  }
+  return out;
+}
+
 /** Total raise slots from declared raise plan. */
 export function countRaiseSlots(raises: DeclaredRaise[]): number {
   return raises.reduce((sum, r) => sum + (r.slots === 2 ? 2 : 1), 0);
@@ -271,11 +286,13 @@ export function resolvePowerSnapshot(params: ResolvePowerSnapshotParams): PowerS
     waiveRaiseCost = false,
   } = params;
 
+  const raises = dedupeDeclaredRaises(declaredRaises);
+
   if (outcome === 'fail') {
     return cloneSnapshot(base);
   }
 
-  const slots = waiveRaiseCost ? 0 : paidRaiseSlots(declaredRaises);
+  const slots = waiveRaiseCost ? 0 : paidRaiseSlots(raises);
   const costValue = computeTotalRaiseCost(slots, masteryRank);
   const costAlloc = isSpell
     ? spellCostOverride ?? defaultSpellCostAllocation(base, costValue)
@@ -287,7 +304,7 @@ export function resolvePowerSnapshot(params: ResolvePowerSnapshotParams): PowerS
 
   // Full success: cost restored (start from base), then apply raise effects + stones.
   const snap = cloneSnapshot(base);
-  for (const r of declaredRaises) {
+  for (const r of raises) {
     applyOneRaiseEffect(snap, r, masteryRank, isSpell);
   }
   if (stoneBonusRaises > 0) {
@@ -304,7 +321,8 @@ export function previewAfterRaiseCost(
   isSpell: boolean,
   spellCostOverride?: RaiseCostAllocation,
 ): PowerSnapshot {
-  const slots = paidRaiseSlots(declaredRaises);
+  const unique = dedupeDeclaredRaises(declaredRaises);
+  const slots = paidRaiseSlots(unique);
   if (slots <= 0) return cloneSnapshot(base);
   const costValue = computeTotalRaiseCost(slots, masteryRank);
   const cost =

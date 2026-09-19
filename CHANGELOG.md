@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.515] - 2026-09-19
+
+### Changed
+
+- **Raises:** Waffenschaden kannst du weiter stapeln. Penetration, Precision und die anderen Specials nur einmal pro Angriff. Ein zweites Mal steht nicht mehr in der Liste.
+
 ## [0.9.514] - 2026-09-19
 
 ### Changed

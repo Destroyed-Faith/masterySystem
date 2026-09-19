@@ -38,6 +38,7 @@ import {
   computeRaiseTns,
   countRaiseSlots,
   declaredRaiseFromOptionId,
+  dedupeDeclaredRaises,
   describeDeclaredRaise,
   formatSnapshotSummary,
   loadPowerSnapshotForArtifactOption,
@@ -884,6 +885,7 @@ export async function createAttackCard(
       }
       ${''}
       <div class="raise-plan-live">Noch kein Raise gewählt.</div>
+      <p class="raise-once-hint">Schaden beliebig oft. Penetration, Precision und die anderen Specials nur einmal pro Angriff.</p>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -1145,14 +1147,22 @@ function setupRaisesHandler(
 
   const maxSlots = 8;
 
-  const buildOptionHtml = (): string => {
+  const buildOptionHtml = (currentId: string, takenSpecialIds: Set<string>): string => {
     const opts = raiseContext!.raiseOptions
+      .filter((o) => o.effect === 'damage' || o.id === currentId || !takenSpecialIds.has(o.id))
       .map(
         (o) =>
           `<option value="${o.id}">${o.label} (${o.slots} slot${o.slots > 1 ? 's' : ''})</option>`,
       )
       .join('');
     return `<option value="">— Raise effect —</option>${opts}`;
+  };
+
+  const specialName = (optionId: string): string => {
+    const opt = raiseContext!.raiseOptions.find((o) => o.id === optionId);
+    if (!opt) return 'Dieses Special';
+    const match = opt.label.match(/^Increase (.+) by \+MR$/);
+    return match?.[1] || opt.label;
   };
 
   const isGM = !!(globalThis as any).game?.user?.isGM;
@@ -1177,7 +1187,7 @@ function setupRaisesHandler(
       if (row.free) dr.free = true;
       plan.push(dr);
     }
-    return plan;
+    return dedupeDeclaredRaises(plan);
   };
 
   const summaryFor = (draft: RaiseDraftRow[]): string => {
@@ -1259,7 +1269,40 @@ function setupRaisesHandler(
     return spellAllocFromParts(d8Paid, spPaid);
   };
 
-  const updatePreview = (broadcast = false): void => {
+  const lockSpecialRaises = (): string | null => {
+    const rows = panel.find('.raise-plan-row').toArray() as HTMLElement[];
+    const owner = new Map<string, HTMLElement>();
+    let cleared: string | null = null;
+    for (const rowEl of rows) {
+      const select = $(rowEl).find('.raise-effect-select');
+      const id = String(select.val() || '');
+      const opt = raiseContext!.raiseOptions.find((o) => o.id === id);
+      if (!opt || opt.effect !== 'specialPlus') continue;
+      const prev = owner.get(opt.id);
+      if (prev && prev !== rowEl) {
+        select.val('');
+        cleared = specialName(opt.id);
+      } else {
+        owner.set(opt.id, rowEl);
+      }
+    }
+    const taken = new Set(owner.keys());
+    for (const rowEl of rows) {
+      const select = $(rowEl).find('.raise-effect-select');
+      const current = String(select.val() || '');
+      select.html(buildOptionHtml(current, taken));
+      if (current) select.val(current);
+    }
+    return cleared;
+  };
+
+  const updatePreview = (broadcast = false, announceDuplicate = false): void => {
+    const cleared = lockSpecialRaises();
+    if (announceDuplicate && cleared && !applyingRemote) {
+      ui.notifications?.warn?.(
+        `${cleared} nur einmal pro Angriff. Schaden kannst du weiter stapeln.`,
+      );
+    }
     const draft = readDraft();
     const plan = collectPlan();
     const slots = countRaiseSlots(plan);
@@ -1309,7 +1352,7 @@ function setupRaisesHandler(
         ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
         row.find('.raise-effect-select').val('');
       }
-      updatePreview(true);
+      updatePreview(true, true);
     });
     row.find('.raise-free').on('change', () => {
       row.attr('data-free', row.find('.raise-free').is(':checked') ? '1' : '0');
@@ -1333,7 +1376,7 @@ function setupRaisesHandler(
       : '';
     const row = $(`
       <div class="raise-plan-row" data-free="${initial?.free ? '1' : '0'}">
-        <select class="raise-effect-select">${buildOptionHtml()}</select>
+        <select class="raise-effect-select">${buildOptionHtml('', new Set())}</select>
         ${freeBox}
         <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
       </div>
