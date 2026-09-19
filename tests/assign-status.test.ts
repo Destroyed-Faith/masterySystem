@@ -7,6 +7,7 @@ import {
   upsertStatusEntry,
 } from '../src/system/assign-status.js';
 import { encodeStatusFlag, readActorStatusEffects } from '../src/system/active-specials.js';
+import { resolveLiveActor, tokenIdOfActor } from '../src/system/status-target.js';
 import { statusIdFromHudTarget } from '../src/system/status-hud.js';
 
 function applyDotted(target: any, patch: Record<string, unknown>) {
@@ -38,27 +39,33 @@ function mockActor(statusEffects: unknown[] = []) {
   return actor;
 }
 
-/** Same as a Foundry ActorDelta that strips `{ id: ... }` arrays. */
+/** Unlinked scene token: ActorDelta drops actor writes; TokenDocument flags stay. */
 function mockUnlinkedNpc() {
+  const token = {
+    id: 'tok-dog-2',
+    documentName: 'Token',
+    parent: { documentName: 'Scene' },
+    flags: { 'mastery-system': {} as Record<string, unknown> },
+    getFlag(ns: string, key: string) {
+      return token.flags[ns]?.[key];
+    },
+    setFlag: async (ns: string, key: string, value: unknown) => {
+      token.flags[ns] = token.flags[ns] || {};
+      token.flags[ns][key] = value;
+    },
+  };
   const actor = {
     id: 'dog1',
     name: 'Dog',
+    isToken: true,
+    token,
     system: { statusEffects: [] as unknown[] },
     flags: { 'mastery-system': {} as Record<string, unknown> },
     getFlag(ns: string, key: string) {
       return actor.flags[ns]?.[key];
     },
-    update: async (patch: Record<string, unknown>) => {
-      const next = { ...patch };
-      const dropped = next['system.statusEffects'];
-      if (Array.isArray(dropped) && dropped.some((row: any) => row && row.id)) {
-        delete next['system.statusEffects'];
-      }
-      const flagged = next['flags.mastery-system.statusEffects'];
-      if (Array.isArray(flagged) && flagged.some((row: any) => row && row.id)) {
-        delete next['flags.mastery-system.statusEffects'];
-      }
-      applyDotted(actor, next);
+    update: async () => {
+      /* ActorDelta drops system + actor flags on this token */
     },
   };
   return actor;
@@ -115,11 +122,36 @@ describe('assign catalog status', () => {
     expect(readActorStatusEffects(actor)).toEqual([{ id: 'slow', name: 'Slow', value: 6 }]);
   });
 
-  it('keeps a manual status on an unlinked NPC when ActorDelta drops id arrays', async () => {
+  it('keeps a manual status on an unlinked NPC when ActorDelta drops actor writes', async () => {
     const actor = mockUnlinkedNpc();
     await setActorCatalogStatus(actor, 'slow', true, 6);
     expect(actor.system.statusEffects).toEqual([]);
+    expect(actor.flags['mastery-system'].statusJson).toBeUndefined();
+    expect(actor.token.flags['mastery-system'].statusJson).toBe(
+      encodeStatusFlag([{ id: 'slow', name: 'Slow', value: 6 }]),
+    );
     expect(readActorStatusEffects(actor)).toEqual([{ id: 'slow', name: 'Slow', value: 6 }]);
+  });
+});
+
+describe('live token target', () => {
+  it('keeps the attack-card token id instead of the first actor.id match', () => {
+    const actor = { id: 'dog1', isToken: true, token: { id: 'tok-b', documentName: 'Token', parent: { documentName: 'Scene' } } };
+    expect(tokenIdOfActor(actor, 'tok-from-card')).toBe('tok-from-card');
+    expect(tokenIdOfActor(actor)).toBe('tok-b');
+  });
+
+  it('resolves the placed token actor, not the world prototype', () => {
+    const tokenActor = { id: 'dog1', name: 'Dogs', isToken: true };
+    const world = { id: 'dog1', name: 'Dogs prototype' };
+    (globalThis as any).canvas = {
+      scene: { tokens: { get: (id: string) => (id === 'tok-b' ? { actor: tokenActor } : null) } },
+    };
+    (globalThis as any).game = { actors: { get: () => world }, scenes: {}, combat: null };
+    expect(resolveLiveActor('dog1', 'tok-b')).toBe(tokenActor);
+    expect(resolveLiveActor('dog1')).toBe(world);
+    delete (globalThis as any).canvas;
+    delete (globalThis as any).game;
   });
 });
 

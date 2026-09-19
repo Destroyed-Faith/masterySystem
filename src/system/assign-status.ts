@@ -17,6 +17,7 @@ import {
   type RawStatusEntry,
 } from './active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from './status-effects.js';
+import { tokenDocOfActor } from './status-target.js';
 
 export interface StatusAddChoice {
   id: string;
@@ -224,15 +225,40 @@ async function applyStatusUpdate(
   await updateActorViaGm(actor, update, options);
 }
 
+export async function writeTokenStatusJson(token: any, encoded: string): Promise<void> {
+  if (!token) return;
+  if (typeof token.setFlag === 'function') {
+    await token.setFlag('mastery-system', 'statusJson', encoded);
+    return;
+  }
+  token.flags = token.flags || {};
+  token.flags['mastery-system'] = {
+    ...(token.flags['mastery-system'] || {}),
+    statusJson: encoded,
+  };
+}
+
 async function persistStatusList(
   actor: any,
   list: RawStatusEntry[],
   extra: Record<string, unknown> = {},
 ): Promise<void> {
-  // JSON flag first, alone. Putting `{ id: 'slow' }` arrays on system or flags
-  // in the same patch lets ActorDelta reject the whole write on unlinked NPCs.
+  const encoded = encodeStatusFlag(list);
+  const token = tokenDocOfActor(actor);
+  const g = globalThis as any;
+  const noGame = typeof g.game === 'undefined' || !g.game?.user;
+  if (token && (noGame || canCurrentUserUpdateDocument(token))) {
+    try {
+      await writeTokenStatusJson(token, encoded);
+    } catch (err) {
+      console.warn('Mastery System | token status flag write failed', err);
+    }
+  }
+
+  // Actor flags next. ActorDelta may still drop this on unlinked tokens;
+  // the token flag above is what the carousel and token sheet read.
   await applyStatusUpdate(actor, {
-    'flags.mastery-system.statusJson': encodeStatusFlag(list),
+    'flags.mastery-system.statusJson': encoded,
     ...extra,
   });
   try {

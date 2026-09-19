@@ -160,7 +160,8 @@ export class CombatCarouselApp extends BaseCarousel {
       // "Name (X)" so the table sees each combatant's Specials at a glance.
       const statusIcons: Array<{ icon: string; name?: string; tooltip?: string; kind?: string; cssClass?: string }> = [];
       try {
-        const effectList = readActorStatusEffects(actor);
+        const tokenDoc = (combatant as any).token?.document ?? (combatant as any).token ?? token?.document ?? token;
+        const effectList = readActorStatusEffects(actor, tokenDoc);
         for (const entry of effectList) {
           const rawId = String(entry?.id ?? '').trim().toLowerCase();
           const rawName = String(entry?.name ?? '').replace(/\(x\)/gi, '').trim();

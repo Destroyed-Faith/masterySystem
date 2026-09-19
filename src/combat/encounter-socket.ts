@@ -35,7 +35,23 @@ async function applyRelayedActorUpdate(payload: any): Promise<boolean> {
     actor = actor.actor;
   }
   if (!actor || typeof actor.update !== 'function') return false;
-  await actor.update(payload.update, payload.options || {});
+  const encoded = (payload.update as any)?.['flags.mastery-system.statusJson'];
+  if (encoded !== undefined) {
+    try {
+      const { tokenDocOfActor } = await import('../system/status-target.js');
+      const { writeTokenStatusJson } = await import('../system/assign-status.js');
+      const token = tokenDocOfActor(actor);
+      if (token) await writeTokenStatusJson(token, String(encoded));
+    } catch (err) {
+      console.warn('Mastery System | relay token status flag failed', err);
+    }
+  }
+  try {
+    await actor.update(payload.update, payload.options || {});
+  } catch (err) {
+    if (encoded === undefined) throw err;
+    console.warn('Mastery System | relay actor update dropped after token status write', err);
+  }
   return true;
 }
 

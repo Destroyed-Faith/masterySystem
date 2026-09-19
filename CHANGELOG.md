@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.529] - 2026-09-19
+
+### Fixed
+
+- **Status auf NSCs:** Mark, Slow und manuell gesetzte Specials landen auf dem getroffenen Token, nicht auf dem Welt-Akteur. Unlinked Hunde teilen sich dieselbe Actor-Id — der Schaden ging schon an den Token, der Status nicht. Der Status liegt jetzt auf dem Token-Dokument. Bogen und Karussell lesen dort.
+
 ## [0.9.528] - 2026-09-19
 
 ### Fixed

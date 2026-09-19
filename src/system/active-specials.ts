@@ -9,6 +9,7 @@
  */
 
 import { getEffect, getEffectById, canonicalSpecialId } from '../utils/special-effects.js';
+import { tokenDocOfActor } from './status-target.js';
 
 export interface ActiveSpecial {
   id: string;
@@ -109,10 +110,13 @@ export function decodeStatusFlag(raw: unknown): RawStatusEntry[] | undefined {
 }
 
 /**
- * Live Specials on a creature. The JSON flag survives unlinked NPC tokens;
- * `system.statusEffects` is only a fallback for older actors.
+ * Live Specials on a creature. Scene-token flags survive unlinked NPCs;
+ * actor flags and `system.statusEffects` are fallbacks.
  */
-export function readActorStatusEffects(actor: any): RawStatusEntry[] {
+export function readActorStatusEffects(actor: any, tokenHint?: any): RawStatusEntry[] {
+  const token = tokenDocOfActor(actor) ?? tokenDocOfActor(tokenHint);
+  const fromToken = decodeStatusFlag(readMasteryFlag(token, 'statusJson'));
+  if (fromToken !== undefined) return coerceStatusEffectsArray(fromToken);
   const fromJson = decodeStatusFlag(readMasteryFlag(actor, 'statusJson'));
   if (fromJson !== undefined) return coerceStatusEffectsArray(fromJson);
   const fromFlag = decodeStatusFlag(readMasteryFlag(actor, 'statusEffects'));

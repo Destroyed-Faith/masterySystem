@@ -857,21 +857,8 @@ export async function showDamageDialog(
       },
     );
     
-    // Get targetTokenId if target is a token actor (for unlinked tokens)
-    let targetTokenId: string | null = null;
-    if ((target as any).isToken) {
-      // Target is already a token actor, find the token document
-      const tokenDoc = canvas?.scene?.tokens?.find((t: any) => t.actor?.id === (target as any).id);
-      if (tokenDoc) {
-        targetTokenId = tokenDoc.id;
-      }
-    } else {
-      // Target is base actor, try to find token on canvas
-      const tokenDoc = canvas?.scene?.tokens?.find((t: any) => t.actor?.id === (target as any).id);
-      if (tokenDoc) {
-        targetTokenId = tokenDoc.id;
-      }
-    }
+    const { tokenIdOfActor } = await import('../system/status-target.js');
+    const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
     
     const chatData: any = {
       user: (game as any).user?.id,
@@ -1072,22 +1059,9 @@ export function attachDamageCardHandlers(messageId: string): void {
 
     const attackerId = $btn.data('attacker-id');
     const targetId = $btn.data('target-id');
-    const attacker = (game as any).actors?.get(attackerId);
-    
-    // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
-    let target: any = null;
-    if (flags?.targetTokenId) {
-      // Try to get token document from current scene
-      const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
-      if (tokenDoc?.actor) {
-        target = tokenDoc.actor;
-      }
-    }
-    
-    // Fallback to base actor if token not found
-    if (!target) {
-      target = (game as any).actors?.get(targetId);
-    }
+    const { resolveLiveActor } = await import('../system/status-target.js');
+    const attacker = resolveLiveActor(attackerId, flags?.attackerTokenId) || (game as any).actors?.get(attackerId);
+    const target = resolveLiveActor(targetId, flags?.targetTokenId);
     
     if (!attacker || !target) {
       console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {

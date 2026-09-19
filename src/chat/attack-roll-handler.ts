@@ -704,20 +704,8 @@ export async function executeAttackRollFromCard(
         // NOT re-fetch via game.actors.get() — that loses the token actor.
         const freshAttackerForDialog = freshAttacker;
         
-        // Resolve target: prefer token actor if targetTokenId exists (for unlinked tokens)
-        let target: any = null;
-        if (flags.targetTokenId) {
-          // Try to get token document from current scene
-          const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
-          if (tokenDoc?.actor) {
-            target = tokenDoc.actor;
-          }
-        }
-        
-        // Fallback to base actor if token not found
-        if (!target) {
-          target = (game as any).actors?.get(flags.targetId) || null;
-        }
+        const { resolveLiveActor } = await import('../system/status-target.js');
+        const target = resolveLiveActor(flags.targetId, flags.targetTokenId);
         
         if (target) {
           // Re-read flags from message to get updated power selection
