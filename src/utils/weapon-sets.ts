@@ -436,14 +436,14 @@ export function describeWeaponSetHands(actor: any, hands: WeaponSetHands | null 
   const set = hands || emptyHands();
   const main = itemById(actor, set.mainhand);
   const off = itemById(actor, set.offhand);
-  if (!main && !off) return loc('emptyHands', 'empty (Unarmed)');
+  if (!main && !off) return loc('emptyHands', 'empty');
   if (main && set.mainhand && set.mainhand === set.offhand) {
     return `${cleanItemName(main)} (${loc('bothHands', 'both hands')})`;
   }
   const parts: string[] = [];
   if (main) parts.push(cleanItemName(main));
   if (off && off !== main) parts.push(cleanItemName(off));
-  return parts.join(' + ') || loc('emptyHands', 'empty (Unarmed)');
+  return parts.join(' + ') || loc('emptyHands', 'empty');
 }
 
 export interface WeaponSwapPreview {
@@ -520,17 +520,30 @@ function unarmedChoice(state: WeaponSetsState): WeaponSwapChoice {
   };
 }
 
+function setHasGear(actor: any, hands: WeaponSetHands | null | undefined): boolean {
+  const set = hands || emptyHands();
+  return !!(itemById(actor, set.mainhand) || itemById(actor, set.offhand));
+}
+
 /**
- * What is in hand, then where you can switch: the other set, then Unarmed.
- * When already unarmed, Fists is first and both sets are listed under it.
+ * Filled sets, then Fists. An empty set is not a button — if Set II is empty
+ * the card offers the worn set and Fists, not an empty Set II as well.
+ * Fists stays on the card whenever another set still has a weapon.
  */
 export function listWeaponSwapChoices(actor: any): WeaponSwapChoice[] {
   const state = peekWeaponSets(actor);
+  const filled = ([1, 2] as WeaponSetIndex[]).filter((index) => setHasGear(actor, state.sets[index]));
+  const fists = unarmedChoice(state);
   if (state.stowed) {
-    return [unarmedChoice(state), setChoice(actor, state, 1), setChoice(actor, state, 2)];
+    return [fists, ...filled.map((index) => setChoice(actor, state, index))];
   }
-  const other: WeaponSetIndex = state.active === 1 ? 2 : 1;
-  return [setChoice(actor, state, state.active), setChoice(actor, state, other), unarmedChoice(state)];
+  const worn = filled
+    .filter((index) => index === state.active)
+    .map((index) => setChoice(actor, state, index));
+  const others = filled
+    .filter((index) => index !== state.active)
+    .map((index) => setChoice(actor, state, index));
+  return [...worn, ...others, fists];
 }
 
 function fmt(key: string, data: Record<string, string | number>, fallback: string): string {
@@ -576,13 +589,14 @@ function profileFromItem(item: any): { attackType: 'melee' | 'ranged'; rangeM: n
 export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
   const state = peekWeaponSets(actor);
   if (state.stowed) {
+    const fists = loc('stowName', 'Fists');
     return {
       unarmed: true,
-      name: 'Unarmed',
+      name: fists,
       damage: '1d8',
       attackType: 'melee',
       rangeM: 2,
-      summary: 'Unarmed · 1d8 + MR × 2d8. No weapon Specials.',
+      summary: `${fists} · 1d8 + MR × 2d8. No weapon Specials.`,
     };
   }
   const hands = state.sets[state.active] || emptyHands();
@@ -592,13 +606,14 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
     (main.type === 'weapon' ||
       main.type === 'artifact' && (main.system?.artifactWeapon || main.system?.artifactKind === 'weapon'));
   if (!carriesWeapon) {
+    const fists = loc('stowName', 'Fists');
     return {
       unarmed: true,
-      name: 'Unarmed',
+      name: fists,
       damage: '1d8',
       attackType: 'melee',
       rangeM: 2,
-      summary: 'Unarmed · 1d8 + MR × 2d8. No weapon Specials.',
+      summary: `${fists} · 1d8 + MR × 2d8. No weapon Specials.`,
     };
   }
   const spec = profileFromItem(main);

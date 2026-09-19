@@ -19,7 +19,8 @@ import {
   masteryAoERadiusPixels,
   masteryPowerMaxSteps
 } from './utils/grid-range.js';
-import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+import { clearHexHighlight, highlightGridOffsets, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+import { bestDirectionIndex, wideningConeCells, type GridOffset } from './utils/cone-template.js';
 import {
   eventWorldPoint,
   resolveOverlayContainer,
@@ -993,6 +994,267 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
 /**
  * End utility targeting mode
  */
+/**
+ * Cone attack from the figure. The mouse picks the facing. The first cell is
+ * the one in front, then the row widens 1, 2, 3 … for the printed length.
+ */
+export function startConeAttackMode(token: any, option: RadialCombatOption): void {
+  endUtilityTargeting(false);
+
+  token.control?.({ releaseOthers: false });
+
+  const lengthSteps = Math.max(1, masteryPowerMaxSteps(option.aoeRadiusMeters || 0));
+  const targetGroup = option.defaultTargetGroup || 'enemy';
+  const previewGraphics = new PIXI.Graphics();
+  const effectsContainer = resolveOverlayContainer();
+  if (effectsContainer) effectsContainer.addChild(previewGraphics);
+
+  const highlightId = `mastery-cone-${option.id}`;
+  const placement = placementColorsFromOption(option);
+
+  const state: UtilityTargetingState = {
+    casterToken: token,
+    option,
+    rangeMeters: 0,
+    radiusMeters: lengthSteps,
+    center: null,
+    candidates: new Map(),
+    selectedTargets: new Set(),
+    highlightId,
+    placement,
+    previewGraphics,
+    rangeLineGraphics: null,
+    panelApp: null,
+    onPointerMove: () => {},
+    onPointerDown: () => {},
+    onKeyDown: () => {},
+    manualMode: option.allowManualTargetSelection !== false,
+    excludeAllies: true,
+  };
+
+  const paint = (world: { x: number; y: number }): GridOffset[] => {
+    const cells = coneCellsToward(token, world, lengthSteps);
+    const grid: any = canvas.grid;
+    const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+    if (gridless) {
+      clearHexHighlight(highlightId);
+      drawGridlessCone(previewGraphics, token.center, world, lengthSteps, placement);
+      return cells;
+    }
+    previewGraphics.clear();
+    highlightGridOffsets(cells, highlightId, placement.hex, placement.hexAlpha);
+    return cells;
+  };
+
+  state.onPointerMove = (ev: PIXI.FederatedPointerEvent) => {
+    if (state.center) return;
+    try {
+      paint(eventWorldPoint(ev));
+    } catch (err) {
+      console.error('Mastery System | cone aim failed', err);
+    }
+  };
+
+  state.onPointerDown = (ev: PIXI.FederatedPointerEvent) => {
+    if (ev.button === 2 || ev.button === 1) {
+      endUtilityTargeting(false);
+      return;
+    }
+    if (ev.button !== 0) return;
+    try {
+      if (!state.center) {
+        const world = eventWorldPoint(ev);
+        const cells = paint(world);
+        state.candidates = candidatesInCone(token, cells, world, lengthSteps, targetGroup);
+        if (state.candidates.size === 0) {
+          ui.notifications?.info('Niemand im Kegel.');
+          return;
+        }
+        for (const [tokenId, candidate] of state.candidates.entries()) {
+          if (state.excludeAllies && candidate.isAlly) {
+            candidate.selected = false;
+            continue;
+          }
+          if (candidate.selected) state.selectedTargets.add(tokenId);
+        }
+        state.center = { x: token.center.x, y: token.center.y };
+        updateCandidateVisuals(state);
+        const panel = createTargetSelectionPanel(state);
+        state.panelApp = panel;
+        panel.render(true);
+        return;
+      }
+      if (!state.manualMode) return;
+      const worldPos = eventWorldPoint(ev);
+      const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+        onlyIds: state.candidates.keys(),
+        noCenterFallback: true,
+      });
+      if (!clickedToken || !state.candidates.has(clickedToken.id)) return;
+      const candidate = state.candidates.get(clickedToken.id)!;
+      if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+        ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
+        return;
+      }
+      candidate.selected = !candidate.selected;
+      if (candidate.selected) state.selectedTargets.add(clickedToken.id);
+      else state.selectedTargets.delete(clickedToken.id);
+      updateCandidateVisuals(state);
+      if (state.panelApp) {
+        const html = $(state.panelApp.element);
+        html.find('#selected-count').text(state.selectedTargets.size);
+      }
+    } catch (err) {
+      console.error('Mastery System | cone click failed', err);
+    }
+  };
+
+  state.onKeyDown = (ev: KeyboardEvent) => {
+    if (ev.key === 'Escape') endUtilityTargeting(false);
+  };
+
+  activeUtilityTargeting = state;
+  const allTokens = canvas.tokens?.placeables || [];
+  for (const t of allTokens) {
+    (t as any)._originalAlpha = t.alpha;
+  }
+  canvas.stage.on('pointermove', state.onPointerMove);
+  canvas.stage.on('pointerdown', state.onPointerDown);
+  window.addEventListener('keydown', state.onKeyDown);
+  ui.notifications?.info(`Kegel ${lengthSteps} m — Maus zeigt die Richtung, Klick setzt sie.`);
+}
+
+function readGridOffset(raw: any): GridOffset | null {
+  if (!raw) return null;
+  if (raw.i !== undefined && raw.j !== undefined) return { i: Number(raw.i), j: Number(raw.j) };
+  if (raw.col !== undefined && raw.row !== undefined) return { i: Number(raw.col), j: Number(raw.row) };
+  if (raw.x !== undefined && raw.y !== undefined) return { i: Number(raw.x), j: Number(raw.y) };
+  return null;
+}
+
+function gridNeighborOffsets(cell: GridOffset): GridOffset[] {
+  const grid: any = canvas.grid;
+  const fn = grid?.getAdjacentOffsets ?? grid?.getNeighbors;
+  if (typeof fn !== 'function') return [];
+  return (fn.call(grid, cell) ?? []).map(readGridOffset).filter((cell: GridOffset | null): cell is GridOffset => !!cell);
+}
+
+function offsetCenter(cell: GridOffset): { x: number; y: number } | null {
+  const grid: any = canvas.grid;
+  const center = grid?.getCenterPoint?.(cell);
+  if (center && Number.isFinite(center.x) && Number.isFinite(center.y)) return center;
+  const tl = grid?.getTopLeftPoint?.(cell);
+  const size = Number(grid?.size) || 100;
+  if (!tl || tl.x === undefined) return null;
+  return { x: tl.x + size / 2, y: tl.y + size / 2 };
+}
+
+function coneCellsToward(token: any, world: { x: number; y: number }, lengthSteps: number): GridOffset[] {
+  const grid: any = canvas.grid;
+  if (!grid || grid.type === CONST.GRID_TYPES.GRIDLESS) return [];
+  const origin = readGridOffset(grid.getOffset?.(token.center));
+  if (!origin) return [];
+  const neighbors = gridNeighborOffsets(origin);
+  const centers = neighbors
+    .map((cell, index) => {
+      const center = offsetCenter(cell);
+      if (!center) return null;
+      return { index, x: center.x - token.center.x, y: center.y - token.center.y };
+    })
+    .filter((row): row is { index: number; x: number; y: number } => !!row);
+  if (!centers.length) return [];
+  const dir = bestDirectionIndex(world.x - token.center.x, world.y - token.center.y, centers);
+  return wideningConeCells(origin, dir, lengthSteps, gridNeighborOffsets);
+}
+
+function candidatesInCone(
+  casterToken: any,
+  cells: GridOffset[],
+  world: { x: number; y: number },
+  lengthSteps: number,
+  targetGroup: TargetGroup,
+): Map<string, UtilityTargetState> {
+  const candidates = new Map<string, UtilityTargetState>();
+  const keys = new Set(cells.map((cell) => `${cell.i},${cell.j}`));
+  const grid: any = canvas.grid;
+  const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+  const allTokens = canvas.tokens?.placeables || [];
+  for (const token of allTokens) {
+    if (token.id === casterToken.id) continue;
+    let inside = false;
+    if (gridless) {
+      inside = pointInGridlessCone(casterToken.center, world, token.center, lengthSteps);
+    } else {
+      const off = readGridOffset(grid.getOffset?.(token.center));
+      inside = !!off && keys.has(`${off.i},${off.j}`);
+    }
+    if (!inside) continue;
+    const matches = matchesTargetGroup(casterToken, token, targetGroup);
+    candidates.set(token.id, {
+      token,
+      inRadius: true,
+      selected: matches,
+      isAlly: isAlly(casterToken, token),
+      isEnemy: isEnemy(casterToken, token),
+      originalAlpha: token.alpha,
+    });
+  }
+  return candidates;
+}
+
+function drawGridlessCone(
+  graphics: PIXI.Graphics,
+  origin: { x: number; y: number },
+  aim: { x: number; y: number },
+  lengthSteps: number,
+  colors: PlacementColors,
+): void {
+  const size = Number((canvas as any).grid?.size) || 100;
+  const dx = aim.x - origin.x;
+  const dy = aim.y - origin.y;
+  const mag = Math.hypot(dx, dy) || 1;
+  const ux = dx / mag;
+  const uy = dy / mag;
+  const px = -uy;
+  const py = ux;
+  const len = Math.max(1, lengthSteps) * size;
+  const half = len / 2;
+  const tipX = origin.x + ux * size * 0.55;
+  const tipY = origin.y + uy * size * 0.55;
+  const farX = origin.x + ux * (len + size * 0.45);
+  const farY = origin.y + uy * (len + size * 0.45);
+  graphics.clear();
+  graphics.lineStyle(2, colors.previewLine, 0.85);
+  graphics.beginFill(colors.previewFill, 0.14);
+  graphics.moveTo(tipX, tipY);
+  graphics.lineTo(farX + px * half, farY + py * half);
+  graphics.lineTo(farX - px * half, farY - py * half);
+  graphics.closePath();
+  graphics.endFill();
+}
+
+function pointInGridlessCone(
+  origin: { x: number; y: number },
+  aim: { x: number; y: number },
+  point: { x: number; y: number },
+  lengthSteps: number,
+): boolean {
+  const size = Number((canvas as any).grid?.size) || 100;
+  const dx = aim.x - origin.x;
+  const dy = aim.y - origin.y;
+  const mag = Math.hypot(dx, dy) || 1;
+  const ux = dx / mag;
+  const uy = dy / mag;
+  const vx = point.x - origin.x;
+  const vy = point.y - origin.y;
+  const along = vx * ux + vy * uy;
+  const lateral = Math.abs(vx * -uy + vy * ux);
+  const len = Math.max(1, lengthSteps) * size;
+  if (along < size * 0.4 || along > len + size * 0.45) return false;
+  const half = (along / len) * (len / 2);
+  return lateral <= half + size * 0.2;
+}
+
 export function endUtilityTargeting(success: boolean): void {
   const state = activeUtilityTargeting;
   if (!state) return;
@@ -1049,9 +1311,11 @@ export function endUtilityTargeting(success: boolean): void {
   
   if (!success) {
     const msg =
-      state.option.aoePlacementProfile === 'hostile-zone'
-        ? 'Zonenwahl abgebrochen'
-        : 'Utility targeting cancelled';
+      state.option.aoeShape === 'cone'
+        ? 'Kegel abgebrochen'
+        : state.option.aoePlacementProfile === 'hostile-zone'
+          ? 'Zonenwahl abgebrochen'
+          : 'Utility targeting cancelled';
     ui.notifications?.info(msg);
   }
 

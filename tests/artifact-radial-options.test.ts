@@ -115,6 +115,40 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(opts[0].tags).toContain('natural-weapon');
   });
 
+  it('aims Breath Weapon as a cone in front of the figure, not a placed radius', () => {
+    const head = {
+      id: 'dh2',
+      type: 'artifact',
+      name: 'Dragon Head - Level 1-1',
+      system: {
+        equipped: true,
+        binding: 'echo',
+        artifactKind: 'gear',
+        baseProfile: 'headArmor',
+        currentLevel: 1,
+        naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
+        artifactWeapon: { damage: '1d8', name: 'Bite', isNatural: true },
+        levelProgression: [
+          {
+            level: 1,
+            name: 'Breath Weapon I',
+            type: 'Ranged AoE',
+            range: '20m',
+            aoe: 'Radius 3m',
+            effect: 'payload',
+          },
+        ],
+      },
+      getFlag: flag({ artifactActivated: true }),
+    };
+    const opts = buildArtifactRadialOptions(actor([head]));
+    const breath = opts.find((option) => option.name === 'Breath Weapon I');
+    expect(breath?.aoeShape).toBe('cone');
+    expect(breath?.aoeRadiusMeters).toBe(6);
+    expect(breath?.burstMeleeAoE).toBe(false);
+    expect(opts.some((option) => option.name === 'Bite')).toBe(true);
+  });
+
   it('ignores leftover 1d8 blobs on staff, lantern, feet, and items with no kind', () => {
     const leftover = { damage: '1d8' };
     const cases = [

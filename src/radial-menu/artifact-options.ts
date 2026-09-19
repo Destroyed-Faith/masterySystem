@@ -26,6 +26,7 @@ import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifac
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
+import { breathConeMeters, isBreathWeaponName } from '../utils/breath-weapon.js';
 
 const REACTION_TYPES = new Set(['Reaction']);
 
@@ -346,6 +347,21 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 if (row.duration) option.zoneDurationNote = row.duration;
             } else {
                 option.defaultTargetGroup = 'enemy';
+            }
+            // Dragon Head Breath is a cone from the figure, not the generic
+            // ranged radius the catalog template prints (Radius 3 m / 20 m).
+            if (isBreathWeaponName(name)) {
+                const coneM = breathConeMeters(currentLevel);
+                option.aoeShape = 'cone';
+                option.aoeRadiusMeters = coneM;
+                option.range = 0;
+                option.rangeMeters = 0;
+                option.burstMeleeAoE = false;
+                option.burstMeleeRadiusMeters = undefined;
+                option.defaultTargetGroup = 'enemy';
+                option.allowManualTargetSelection = true;
+                option.aoePlacementProfile = 'hostile-zone';
+                option.description = `${description} · Kegel ${coneM} m`;
             }
             out.push(option);
         }

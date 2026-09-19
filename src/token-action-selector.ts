@@ -13,7 +13,7 @@ import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-t
 import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting';
-import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
+import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
 import {
   getRoundState,
   getMovementRangeBonusMeters,
@@ -1174,6 +1174,19 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   // Exclude active buffs (they're handled above)
   const isNpcMelee =
     option.source === 'npc-attack' && !option.tags?.includes('ranged');
+  if (option.slot === 'attack' && option.aoeShape === 'cone') {
+    if (option.costsAction) {
+      const atkAvail = getAvailableAttackActions(actor, combat);
+      if (atkAvail <= 0) {
+        ui.notifications?.warn('No Actions left this round.');
+        return;
+      }
+    }
+    closeRadialMenu();
+    startConeAttackMode(token, option);
+    return;
+  }
+
   const isMeleeAttack =
     segmentId !== 'active-buff' &&
     option.slot === 'attack' &&

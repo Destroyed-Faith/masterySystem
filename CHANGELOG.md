@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.523] - 2026-09-19
+
+### Fixed
+
+- **Waffenwechsel:** Der Knopf heißt wieder Fäuste, nicht Unarmed. Ist Set II leer, gibt es nur das gefüllte Set und Fäuste, nicht noch ein leeres Set dazu. Liegt in Set II etwas, bleibt Fäuste dabei.
+- **Breath Weapon:** Der Atem ist ein Kegel vor der Figur. Das erste Feld direkt davor, dann 2, dann 3, dann 4, so weit die Meter reichen (6 / 10 / 14). Die Maus dreht ihn, der Klick setzt ihn.
+
 ## [0.9.522] - 2026-09-19
 
 ### Fixed

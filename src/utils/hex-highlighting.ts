@@ -188,3 +188,22 @@ export function highlightHexesWithinStepsFromPoint(
     gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
   }
 }
+
+/** Paint an explicit list of grid offsets (cone rows). */
+export function highlightGridOffsets(
+  cells: Array<{ i: number; j: number }>,
+  highlightLayerId: string,
+  color: number = 0xff8833,
+  alpha: number = 0.35,
+): void {
+  const grid: any = canvas.grid;
+  const gridUI: any = canvas.interface?.grid;
+  if (!grid || !gridUI) return;
+  gridUI.addHighlightLayer?.(highlightLayerId);
+  gridUI.clearHighlightLayer?.(highlightLayerId);
+  for (const cell of cells) {
+    const tl = grid.getTopLeftPoint(cell);
+    if (!tl || tl.x === undefined || tl.y === undefined) continue;
+    gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
+  }
+}

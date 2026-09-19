@@ -437,12 +437,12 @@ describe('weapon set labels', () => {
     expect(describeWeaponSetHands(actor, { mainhand: 'bow', offhand: 'bow' })).toBe(
       'Heartseeker (both hands)',
     );
-    expect(describeWeaponSetHands(actor, { mainhand: null, offhand: null })).toBe('empty (Unarmed)');
+    expect(describeWeaponSetHands(actor, { mainhand: null, offhand: null })).toBe('empty');
     const swap = describeWeaponSwap(actor);
     expect(swap.active).toBe(1);
     expect(swap.next).toBe(2);
     expect(swap.from).toContain('Heartseeker');
-    expect(swap.to).toBe('empty (Unarmed)');
+    expect(swap.to).toBe('empty');
     expect(describeActiveWeaponProfile(actor).name).toBe('Heartseeker');
     expect(describeActiveWeaponProfile(actor).unarmed).toBe(false);
   });
@@ -466,6 +466,17 @@ describe('weapon set labels', () => {
     expect(choices[0].name).toContain('Sword');
     expect(choices[1].name).toContain('Bow');
     expect(choices[2].active).toBe(false);
+    expect(choices[2].name).toBe('Fists');
+
+    const emptySecond = makeActor([sword], {
+      schemaVersion: 1,
+      active: 1,
+      sets: {
+        1: { mainhand: 'sword', offhand: null },
+        2: { mainhand: null, offhand: null },
+      },
+    });
+    expect(listWeaponSwapChoices(emptySecond).map((choice) => choice.target)).toEqual([1, 'unarmed']);
 
     const stowed = await swapWeaponSet(actor, 'unarmed');
     expect(stowed).toMatchObject({ ok: true, swapped: true, active: 1 });
