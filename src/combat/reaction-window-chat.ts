@@ -1001,9 +1001,8 @@ async function executeReactionSpend(params: {
           }
           if (chosenIdx >= 0 && chosenIdx < list.length) {
             const chosen = list[chosenIdx]!;
-            const raw = Array.isArray((attacker as any).system?.statusEffects)
-              ? [...(attacker as any).system.statusEffects]
-              : [];
+            const { readActorStatusEffects } = await import('../system/active-specials.js');
+            const raw = readActorStatusEffects(attacker).map((entry) => ({ ...entry }));
             let updated = false;
             for (let i = 0; i < raw.length; i++) {
               const entry = raw[i];
@@ -1015,7 +1014,8 @@ async function executeReactionSpend(params: {
               }
             }
             if (updated) {
-              await (attacker as any).update?.({ 'system.statusEffects': raw });
+              const { writeActorStatusList } = await import('../system/assign-status.js');
+              await writeActorStatusList(attacker, raw);
               note += ` <em>(Special Increase — ${chosen.id} ${chosen.value}→${chosen.value + amount}.)</em>`;
             } else {
               note += ` <em>(Special Increase +${amount} on ${chosen.id} — apply manually.)</em>`;

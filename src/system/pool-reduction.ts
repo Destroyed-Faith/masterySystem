@@ -19,7 +19,7 @@
  * challenger is included, the pool is not reduced.
  */
 
-import { getActiveSpecialValue, readActiveSpecials } from './active-specials.js';
+import { getActiveSpecialValue, readActiveSpecials, readActorStatusEffects } from './active-specials.js';
 import { SPECIAL_EFFECTS_BY_ID } from '../utils/special-effects.js';
 
 /** Attributes whose rolled pools are reduced by Weaken(X). */
@@ -400,23 +400,23 @@ export async function applyCleanseToActor(
   cleanseX: number,
   chosenId?: string | null,
 ): Promise<CleanseApplyResult> {
-  const list: any[] = Array.isArray(actor?.system?.statusEffects)
-    ? [...actor.system.statusEffects]
-    : [];
+  const list: any[] = readActorStatusEffects(actor).map((entry) => ({ ...entry }));
 
   // Explicit single-target pick (legacy callers / Reactive Cleanse).
   if (chosenId) {
     const result = applyCleanseToList(list, cleanseX, chosenId);
-    if (result.applied && actor?.update) {
-      await actor.update({ 'system.statusEffects': result.statusEffects });
+    if (result.applied && typeof actor?.update === 'function') {
+      const { writeActorStatusList } = await import('./assign-status.js');
+      await writeActorStatusList(actor, result.statusEffects);
     }
     return result;
   }
 
   // Free distribution across all eligible Specials (rulebook default).
   const distributed = distributeCleanseAcrossList(list, cleanseX);
-  if (distributed.applied && actor?.update) {
-    await actor.update({ 'system.statusEffects': distributed.statusEffects });
+  if (distributed.applied && typeof actor?.update === 'function') {
+    const { writeActorStatusList } = await import('./assign-status.js');
+    await writeActorStatusList(actor, distributed.statusEffects);
   }
   const first = distributed.steps[0] ?? null;
   return {

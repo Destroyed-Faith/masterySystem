@@ -903,8 +903,11 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         initiative: clampNpcInitiativeModifier(data.system.combat.initiative),
       };
     }
-    // Status UI is button-driven — form submit must not overwrite the live list.
-    data.system.statusEffects = readActorStatusEffects(this.actor);
+    // Status lives in flags. A form rewrite of `{ id: 'slow' }` arrays is what
+    // ActorDelta drops on unlinked tokens — leave the live list alone.
+    if (data.system && Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
+      delete data.system.statusEffects;
+    }
 
     data.system = sanitizeNpcSystemAttackTargeting(data.system);
     console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {

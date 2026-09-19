@@ -11,7 +11,7 @@
  */
 
 import { getEffectById } from './special-effects.js';
-import { statusEntryId } from '../system/active-specials.js';
+import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
 
 const FIRST_AID_FLAG = 'firstAidReceived';
 
@@ -26,9 +26,7 @@ function isNegativeSpecialEntry(entry: any): boolean {
 /** Remove all negative Specials from the target; returns names removed. */
 export async function applyFirstAidTo(target: any): Promise<string[]> {
   if (!target) return [];
-  const list: any[] = Array.isArray(target.system?.statusEffects)
-    ? target.system.statusEffects
-    : [];
+  const list: any[] = readActorStatusEffects(target);
   const removed: string[] = [];
   const kept: any[] = [];
   for (const entry of list) {
@@ -40,7 +38,8 @@ export async function applyFirstAidTo(target: any): Promise<string[]> {
     }
   }
   if (removed.length > 0) {
-    await target.update({ 'system.statusEffects': kept });
+    const { writeActorStatusList } = await import('../system/assign-status.js');
+    await writeActorStatusList(target, kept);
   }
   await target.setFlag?.('mastery-system', FIRST_AID_FLAG, true);
   return removed;

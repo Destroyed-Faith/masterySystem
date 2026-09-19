@@ -1139,10 +1139,16 @@ Hooks.once('init', async function() {
     if (changed.flags?.['mastery-system'] !== undefined) {
       void refreshRadialMenuActionLabelsIfOpenForActor(actor);
     }
-    if (statusListHasSurprise(changed?.system?.statusEffects)) {
+    const statusTouched =
+      (changed?.system && Object.prototype.hasOwnProperty.call(changed.system, 'statusEffects')) ||
+      changed?.flags?.['mastery-system']?.statusJson !== undefined ||
+      changed?.flags?.['mastery-system']?.statusEffects !== undefined ||
+      changed?.['flags.mastery-system.statusJson'] !== undefined ||
+      changed?.['flags.mastery-system.statusEffects'] !== undefined;
+    if (statusListHasSurprise(changed?.system?.statusEffects) || (statusTouched && actorHasSurprise(actor))) {
       void pinSurprisedInitiative(actor);
     }
-    if (changed?.system && Object.prototype.hasOwnProperty.call(changed.system, 'statusEffects')) {
+    if (statusTouched) {
       void import('./system/assign-status.js').then(({ syncTokenStatusIcons }) => syncTokenStatusIcons(actor));
     }
     if (changed.system?.mastery?.rank !== undefined) {

@@ -213,6 +213,15 @@ export async function applySafeHavenRest(actor: any): Promise<void> {
   } catch (err) {
     console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
   }
+  try {
+    const { encodeStatusFlag, readActorStatusEffects } = await import('../system/active-specials.js');
+    if (readActorStatusEffects(actor).length) {
+      updates['system.statusEffects'] = [];
+      updates['flags.mastery-system.statusJson'] = encodeStatusFlag([]);
+    }
+  } catch (err) {
+    console.warn('Mastery System | Safe Haven status clear failed', err);
+  }
   await actor.update(updates);
   await beginMinorMagicRest(actor);
   await clearLastBreathOnRest(actor);

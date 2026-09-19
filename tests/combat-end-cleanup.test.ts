@@ -43,6 +43,9 @@ function mockActor(id: string, type: string, options: { tempHP?: number; special
       if ('system.statusEffects' in patch) {
         actor.system.statusEffects = patch['system.statusEffects'];
       }
+      if ('flags.mastery-system.statusJson' in patch) {
+        own.statusJson = patch['flags.mastery-system.statusJson'];
+      }
     },
     deleteEmbeddedDocuments: async (_type: string, ids: string[]) => {
       actor.deleted.push(...ids);

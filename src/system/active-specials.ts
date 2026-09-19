@@ -25,25 +25,98 @@ export interface RawStatusEntry {
   timestamp?: number;
 }
 
-function flagStatusList(actor: any): unknown {
+function readMasteryFlag(actor: any, key: string): unknown {
   if (!actor) return undefined;
   if (typeof actor.getFlag === 'function') {
     try {
-      return actor.getFlag('mastery-system', 'statusEffects');
+      const flagged = actor.getFlag('mastery-system', key);
+      if (flagged !== undefined) return flagged;
     } catch {
       /* fall through */
     }
   }
-  return actor.flags?.['mastery-system']?.statusEffects;
+  return actor.flags?.['mastery-system']?.[key];
+}
+
+type StatusFlagRow = {
+  k?: string;
+  n?: string;
+  v?: number | null;
+  s?: string;
+  u?: string;
+  m?: number;
+  t?: number;
+};
+
+/**
+ * Persist without `{ id: ... }` arrays. Foundry ActorDelta treats those as
+ * embedded documents and drops them on unlinked NPC tokens.
+ */
+export function encodeStatusFlag(list: unknown): string {
+  return JSON.stringify(
+    coerceStatusEffectsArray(list).map((entry) => {
+      const row: StatusFlagRow = {
+        k: String(entry?.id ?? ''),
+        n: String(entry?.name ?? ''),
+        v: entry?.value ?? null,
+      };
+      if (entry?.source) row.s = String(entry.source);
+      if (entry?.sourceUuid) row.u = String(entry.sourceUuid);
+      if (entry?.sourceMasteryRank != null) row.m = Number(entry.sourceMasteryRank);
+      if (entry?.timestamp != null) row.t = Number(entry.timestamp);
+      return row;
+    }),
+  );
+}
+
+function rowFromFlag(entry: StatusFlagRow): RawStatusEntry {
+  return {
+    id: String(entry.k || ''),
+    name: String(entry.n || ''),
+    value: entry.v,
+    source: entry.s,
+    sourceUuid: entry.u,
+    sourceMasteryRank: entry.m,
+    timestamp: entry.t,
+  };
+}
+
+/** Read the JSON flag, a leftover array flag, or a raw list. */
+export function decodeStatusFlag(raw: unknown): RawStatusEntry[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  let parsed: unknown = raw;
+  if (typeof raw === 'string') {
+    const text = raw.trim();
+    if (!text) return undefined;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      return undefined;
+    }
+  }
+  if (Array.isArray(parsed)) {
+    return parsed.map((entry: any) => {
+      if (entry && typeof entry === 'object' && entry.id == null && (entry.k != null || entry.n != null)) {
+        return rowFromFlag(entry as StatusFlagRow);
+      }
+      return entry as RawStatusEntry;
+    });
+  }
+  if (parsed && typeof parsed === 'object') {
+    return coerceStatusEffectsArray(parsed);
+  }
+  return undefined;
 }
 
 /**
- * Live Specials on a creature. Flags survive unlinked NPC tokens; the sheet
- * field is the fallback for older actors.
+ * Live Specials on a creature. The JSON flag survives unlinked NPC tokens;
+ * `system.statusEffects` is only a fallback for older actors.
  */
 export function readActorStatusEffects(actor: any): RawStatusEntry[] {
-  const flagged = flagStatusList(actor);
-  if (flagged !== undefined && flagged !== null) return coerceStatusEffectsArray(flagged);
+  const fromJson = decodeStatusFlag(readMasteryFlag(actor, 'statusJson'));
+  if (fromJson !== undefined) return coerceStatusEffectsArray(fromJson);
+  const fromFlag = decodeStatusFlag(readMasteryFlag(actor, 'statusEffects'));
+  if (fromFlag !== undefined) return coerceStatusEffectsArray(fromFlag);
   return coerceStatusEffectsArray(actor?.system?.statusEffects);
 }
 

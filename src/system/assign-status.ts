@@ -10,6 +10,7 @@ import { canCurrentUserUpdateDocument, hasActiveGm } from '../combat/combat-perm
 import { getEffectById } from '../utils/special-effects.js';
 import {
   coerceStatusEffectsArray,
+  encodeStatusFlag,
   hasActiveSpecial,
   readActorStatusEffects,
   statusEntryId,
@@ -209,23 +210,36 @@ export function isMirroringStatusIcons(actor: any): boolean {
   return mirroring.has(String(actor?.id || ''));
 }
 
+async function applyStatusUpdate(
+  actor: any,
+  update: Record<string, unknown>,
+  options?: Record<string, unknown>,
+): Promise<void> {
+  const g = globalThis as any;
+  if (typeof g.game === 'undefined' || !g.game?.user) {
+    await actor.update(update, options);
+    return;
+  }
+  const { updateActorViaGm } = await import('../combat/gm-relay.js');
+  await updateActorViaGm(actor, update, options);
+}
+
 async function persistStatusList(
   actor: any,
   list: RawStatusEntry[],
   extra: Record<string, unknown> = {},
 ): Promise<void> {
-  const update: Record<string, unknown> = {
-    'system.statusEffects': list,
-    'flags.mastery-system.statusEffects': list,
+  // JSON flag first, alone. Putting `{ id: 'slow' }` arrays on system or flags
+  // in the same patch lets ActorDelta reject the whole write on unlinked NPCs.
+  await applyStatusUpdate(actor, {
+    'flags.mastery-system.statusJson': encodeStatusFlag(list),
     ...extra,
-  };
-  const g = globalThis as any;
-  if (typeof g.game === 'undefined' || !g.game?.user) {
-    await actor.update(update, { diff: false });
-    return;
+  });
+  try {
+    await applyStatusUpdate(actor, { 'system.statusEffects': list }, { diff: false });
+  } catch (err) {
+    console.warn('Mastery System | system.statusEffects write dropped', err);
   }
-  const { updateActorViaGm } = await import('../combat/gm-relay.js');
-  await updateActorViaGm(actor, update, { diff: false });
 }
 
 export async function writeActorStatusList(
@@ -323,12 +337,17 @@ export function bindStatusAddControls(html: { find: (sel: string) => any }, acto
       input.hidden = !selectedHasValue(select);
     });
   };
-  rows.find('select.js-status-add-pick').on('change', syncValueFields);
+  rows.find('select.js-status-add-pick').on('change', (ev: any) => {
+    ev.preventDefault?.();
+    ev.stopPropagation?.();
+    syncValueFields();
+  });
   syncValueFields();
 
   rows.find('.js-status-add').on('click', async (ev: any) => {
     ev.preventDefault?.();
     ev.stopPropagation?.();
+    ev.stopImmediatePropagation?.();
     const row = ev.currentTarget?.closest?.('.status-add-row') as HTMLElement | null;
     const select = row?.querySelector('select.js-status-add-pick') as HTMLSelectElement | null;
     const input = row?.querySelector('input.js-status-add-value') as HTMLInputElement | null;

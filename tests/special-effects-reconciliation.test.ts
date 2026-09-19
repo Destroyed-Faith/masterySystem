@@ -16,6 +16,9 @@ import {
   statusEntryId,
   reduceStatusEffectAt,
   coerceStatusEffectsArray,
+  encodeStatusFlag,
+  decodeStatusFlag,
+  readActorStatusEffects,
 } from '../src/system/active-specials';
 
 describe('special-effects rename + aliases', () => {
@@ -119,6 +122,20 @@ describe('active-specials readers', () => {
       coerceStatusEffectsArray({ 0: { id: 'ruin', value: 1 }, 1: { id: 'slow', value: 2 } }),
     ).toHaveLength(2);
   });
+
+  it('round-trips status through the JSON flag without an id array', () => {
+    const encoded = encodeStatusFlag([{ id: 'slow', name: 'Slow', value: 6, source: 'Frost Throw' }]);
+    expect(encoded.includes('"id"')).toBe(false);
+    expect(decodeStatusFlag(encoded)).toEqual([
+      expect.objectContaining({ id: 'slow', name: 'Slow', value: 6, source: 'Frost Throw' }),
+    ]);
+    expect(
+      readActorStatusEffects({
+        system: { statusEffects: [] },
+        flags: { 'mastery-system': { statusJson: encoded } },
+      }),
+    ).toEqual([expect.objectContaining({ id: 'slow', value: 6 })]);
+  });
 });
 
 describe('status-tick Tick + Decay engine', () => {
@@ -150,8 +167,12 @@ describe('status-tick Tick + Decay engine', () => {
         for (const [k, v] of Object.entries(u)) {
           const parts = k.split('.');
           let obj: any = actor;
-          for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
-          obj[parts[parts.length - 1]] = v;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const key = parts[i]!;
+            if (obj[key] == null || typeof obj[key] !== 'object') obj[key] = {};
+            obj = obj[key];
+          }
+          obj[parts[parts.length - 1]!] = v;
         }
       },
     };

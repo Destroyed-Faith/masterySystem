@@ -6,8 +6,21 @@ import {
   setActorCatalogStatus,
   upsertStatusEntry,
 } from '../src/system/assign-status.js';
-import { readActorStatusEffects } from '../src/system/active-specials.js';
+import { encodeStatusFlag, readActorStatusEffects } from '../src/system/active-specials.js';
 import { statusIdFromHudTarget } from '../src/system/status-hud.js';
+
+function applyDotted(target: any, patch: Record<string, unknown>) {
+  for (const [k, v] of Object.entries(patch)) {
+    const parts = k.split('.');
+    let obj = target;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const key = parts[i]!;
+      if (obj[key] == null || typeof obj[key] !== 'object') obj[key] = {};
+      obj = obj[key];
+    }
+    obj[parts[parts.length - 1]!] = v;
+  }
+}
 
 function mockActor(statusEffects: unknown[] = []) {
   const actor = {
@@ -19,12 +32,33 @@ function mockActor(statusEffects: unknown[] = []) {
       return actor.flags[ns]?.[key];
     },
     update: async (patch: Record<string, unknown>) => {
-      if (patch['system.statusEffects']) {
-        actor.system.statusEffects = patch['system.statusEffects'] as unknown[];
+      applyDotted(actor, patch);
+    },
+  };
+  return actor;
+}
+
+/** Same as a Foundry ActorDelta that strips `{ id: ... }` arrays. */
+function mockUnlinkedNpc() {
+  const actor = {
+    id: 'dog1',
+    name: 'Dog',
+    system: { statusEffects: [] as unknown[] },
+    flags: { 'mastery-system': {} as Record<string, unknown> },
+    getFlag(ns: string, key: string) {
+      return actor.flags[ns]?.[key];
+    },
+    update: async (patch: Record<string, unknown>) => {
+      const next = { ...patch };
+      const dropped = next['system.statusEffects'];
+      if (Array.isArray(dropped) && dropped.some((row: any) => row && row.id)) {
+        delete next['system.statusEffects'];
       }
-      if (patch['flags.mastery-system.statusEffects']) {
-        actor.flags['mastery-system'].statusEffects = patch['flags.mastery-system.statusEffects'];
+      const flagged = next['flags.mastery-system.statusEffects'];
+      if (Array.isArray(flagged) && flagged.some((row: any) => row && row.id)) {
+        delete next['flags.mastery-system.statusEffects'];
       }
+      applyDotted(actor, next);
     },
   };
   return actor;
@@ -68,16 +102,23 @@ describe('assign catalog status', () => {
     const actor = mockActor();
     await setActorCatalogStatus(actor, 'stunned', true);
     expect(actor.system.statusEffects).toEqual([{ id: 'stunned', name: 'Stunned' }]);
-    expect(actor.flags['mastery-system'].statusEffects).toEqual([{ id: 'stunned', name: 'Stunned' }]);
+    expect(actor.flags['mastery-system'].statusJson).toBe(encodeStatusFlag([{ id: 'stunned', name: 'Stunned' }]));
     await setActorCatalogStatus(actor, 'stunned', false);
     expect(actor.system.statusEffects).toEqual([]);
-    expect(actor.flags['mastery-system'].statusEffects).toEqual([]);
+    expect(actor.flags['mastery-system'].statusJson).toBe(encodeStatusFlag([]));
   });
 
   it('reads flags when the sheet field was dropped', () => {
     const actor = mockActor();
     actor.system.statusEffects = [];
-    actor.flags['mastery-system'].statusEffects = [{ id: 'slow', name: 'Slow', value: 6 }];
+    actor.flags['mastery-system'].statusJson = encodeStatusFlag([{ id: 'slow', name: 'Slow', value: 6 }]);
+    expect(readActorStatusEffects(actor)).toEqual([{ id: 'slow', name: 'Slow', value: 6 }]);
+  });
+
+  it('keeps a manual status on an unlinked NPC when ActorDelta drops id arrays', async () => {
+    const actor = mockUnlinkedNpc();
+    await setActorCatalogStatus(actor, 'slow', true, 6);
+    expect(actor.system.statusEffects).toEqual([]);
     expect(readActorStatusEffects(actor)).toEqual([{ id: 'slow', name: 'Slow', value: 6 }]);
   });
 });

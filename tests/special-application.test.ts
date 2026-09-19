@@ -249,12 +249,16 @@ describe('natural special recovery', () => {
       },
       flags: {},
       update: async (u: any) => {
-        actor.system.statusEffects = u['system.statusEffects'];
-        actor.flags = actor.flags || {};
-        actor.flags['mastery-system'] = {
-          ...(actor.flags['mastery-system'] || {}),
-          naturalSpecialRecovery: u['flags.mastery-system.naturalSpecialRecovery'],
-        };
+        for (const [k, v] of Object.entries(u)) {
+          const parts = k.split('.');
+          let obj: any = actor;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const key = parts[i]!;
+            if (obj[key] == null || typeof obj[key] !== 'object') obj[key] = {};
+            obj = obj[key];
+          }
+          obj[parts[parts.length - 1]!] = v;
+        }
       },
     };
     combat.combatant.actor = actor;
@@ -283,10 +287,16 @@ describe('natural special recovery', () => {
       },
       flags: {},
       update: async (u: any) => {
-        actor.system.statusEffects = u['system.statusEffects'];
-        actor.flags['mastery-system'] = {
-          naturalSpecialRecovery: u['flags.mastery-system.naturalSpecialRecovery'],
-        };
+        for (const [k, v] of Object.entries(u)) {
+          const parts = k.split('.');
+          let obj: any = actor;
+          for (let i = 0; i < parts.length - 1; i++) {
+            const key = parts[i]!;
+            if (obj[key] == null || typeof obj[key] !== 'object') obj[key] = {};
+            obj = obj[key];
+          }
+          obj[parts[parts.length - 1]!] = v;
+        }
       },
     };
     actor.flags = {};

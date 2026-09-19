@@ -22,6 +22,15 @@ function mockActor(opts: { statusEffects?: unknown[]; tempHP?: number }): Actor 
         opts.statusEffects = patch['system.statusEffects'] as unknown[];
         actor.system.statusEffects = opts.statusEffects;
       }
+      if (patch['flags.mastery-system.statusJson'] !== undefined) {
+        actor.flags = actor.flags || { 'mastery-system': {} };
+        actor.flags['mastery-system'] = actor.flags['mastery-system'] || {};
+        actor.flags['mastery-system'].statusJson = patch['flags.mastery-system.statusJson'];
+      }
+    },
+    flags: { 'mastery-system': {} as Record<string, unknown> },
+    getFlag(ns: string, key: string) {
+      return (actor as any).flags?.[ns]?.[key];
     },
     _updates: updates,
   };

@@ -266,9 +266,8 @@ export async function applyNpcReactionSpecialsToTarget(
 ): Promise<string[]> {
   const limitNotes: string[] = [];
   if (!target || !specials?.length) return limitNotes;
-  const list: any[] = Array.isArray(target.system?.statusEffects)
-    ? [...target.system.statusEffects]
-    : [];
+  const { readActorStatusEffects } = await import('../system/active-specials.js');
+  const list: any[] = readActorStatusEffects(target).map((entry) => ({ ...entry }));
   const sourceName = String(sourceActor?.name ?? 'NPC');
   const combat = (globalThis as any).game?.combat ?? null;
   const {
@@ -313,7 +312,8 @@ export async function applyNpcReactionSpecialsToTarget(
       });
     }
   }
-  await target.update?.({ 'system.statusEffects': list, ...appsUpdate });
+  const { writeActorStatusList } = await import('../system/assign-status.js');
+  await writeActorStatusList(target, list, appsUpdate);
   return limitNotes;
 }
 

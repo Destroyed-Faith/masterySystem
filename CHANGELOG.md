@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- **Status auf NSCs:** Slow und manuell gesetzte Status bleiben jetzt auf der Figur. Foundry hat die Liste auf unlinked Tokens verschluckt. Der Status liegt zusätzlich in den Actor-Flags, Bogen und Karussell lesen dort zuerst.
+- **Status auf NSCs:** Slow und manuell gesetzte Status bleiben auf der Figur. Foundry ActorDelta hat Listen mit `{ id: … }` auf unlinked Tokens verworfen — auch im selben Update wie die Flags. Der Status liegt jetzt als JSON-Flag auf dem Token. Bogen, Karussell und „Hinzufügen“ lesen dort zuerst. Form-Submit überschreibt die Liste nicht mehr.
 
 ## [0.9.527] - 2026-09-19
 

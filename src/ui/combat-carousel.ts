@@ -937,14 +937,20 @@ export class CombatCarouselApp extends BaseCarousel {
     if (source === 'actor') {
       return (
         updateData.system !== undefined ||
-        updateData.flags?.['mastery-system'] !== undefined
+        updateData.flags?.['mastery-system'] !== undefined ||
+        updateData['flags.mastery-system.statusJson'] !== undefined ||
+        updateData['flags.mastery-system.statusEffects'] !== undefined
       );
-    } else {
-      // For tokens, check delta.system or actorData.system
-      return updateData.delta?.system !== undefined || 
-             updateData.actorData?.system !== undefined ||
-             updateData.system !== undefined;
     }
+    const delta = updateData.delta ?? updateData.actorData ?? {};
+    return (
+      updateData.system !== undefined ||
+      updateData.flags !== undefined ||
+      delta.system !== undefined ||
+      delta.flags !== undefined ||
+      updateData['flags.mastery-system.statusJson'] !== undefined ||
+      updateData['flags.mastery-system.statusEffects'] !== undefined
+    );
   }
 
   /**
