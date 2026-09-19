@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.516] - 2026-09-19
+
+### Changed
+
+- **Raises:** +4 m Reichweite ist raus. Die Karte sagt jetzt, was der Raise ändert, und was schon auf der Waffe stand. Schaden kannst du weiter stapeln. Jedes Special nur einmal.
+
 ## [0.9.515] - 2026-09-19
 
 ### Changed

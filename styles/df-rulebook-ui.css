@@ -1010,6 +1010,14 @@
   color: #ffb74d;
 }
 
+#chat-log .mastery-attack-card .raise-success-row {
+  color: #c8e6c9;
+}
+
+#chat-log .mastery-attack-card .raise-success-row[hidden] {
+  display: none;
+}
+
 #chat-log .mastery-attack-card .raise-plan-row {
   display: flex;
   flex-wrap: wrap;

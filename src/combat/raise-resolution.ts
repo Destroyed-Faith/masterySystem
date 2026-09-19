@@ -338,7 +338,7 @@ export function buildAvailableRaiseOptions(
   isSpell: boolean,
 ): RaiseOption[] {
   const options: RaiseOption[] = [];
-  const damageLabel = isSpell ? '+1d8 Spell Damage' : '+MR Damage Dice';
+  const damageLabel = isSpell ? '+1d8 Zauberschaden' : '+MR Schaden';
   options.push({
     id: 'damage',
     label: damageLabel,
@@ -347,24 +347,12 @@ export function buildAvailableRaiseOptions(
   });
 
   for (const sp of snapshot.specials) {
-    const effect = getEffectById(sp.key) ?? getEffect(sp.key);
-    const name = effect
-      ? getEffectBaseName(effect.name)
-      : sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
+    const name = displaySpecialName(sp.key);
     options.push({
       id: `special:${sp.key}`,
-      label: `Increase ${name}(${sp.rank}) by +MR`,
+      label: `${name} +MR`,
       effect: 'specialPlus',
       targetSpecialKey: sp.key,
-      slots: 1,
-    });
-  }
-
-  if (snapshot.hasRange) {
-    options.push({
-      id: 'range',
-      label: '+4 m Range',
-      effect: 'rangePlus',
       slots: 1,
     });
   }
@@ -388,6 +376,83 @@ export function buildAvailableRaiseOptions(
   }
 
   return options;
+}
+
+function displaySpecialName(key: string): string {
+  const effect = getEffectById(key) ?? getEffect(key);
+  if (effect) return getEffectBaseName(effect.name);
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+/** Weapon dice plus power dice, so 4d8 total is not read as the Raise itself. */
+export function formatAttackDiceLine(powerDice: number, weaponDice?: number): string {
+  const w = Math.max(0, Math.floor(weaponDice ?? 0));
+  const p = Math.max(0, Math.floor(powerDice));
+  if (w <= 0) return `${p}d8 Power`;
+  if (p <= 0) return `${w}d8 gesamt (nur die Waffe)`;
+  return `${w + p}d8 gesamt (${w}d8 Waffe + ${p}d8 Power)`;
+}
+
+/**
+ * What a full Raise actually changes. Specials that stay put are named, so
+ * Penetration on the weapon is not mistaken for a Raise the player took.
+ */
+export function describeSnapshotDelta(
+  base: PowerSnapshot,
+  resolved: PowerSnapshot,
+  weaponDice?: number,
+): string {
+  const parts: string[] = [];
+  if (resolved.damageDice !== base.damageDice) {
+    parts.push(
+      `Schaden ${formatAttackDiceLine(base.damageDice, weaponDice)} → ${formatAttackDiceLine(resolved.damageDice, weaponDice)}`,
+    );
+  } else {
+    parts.push(`Schaden bleibt ${formatAttackDiceLine(resolved.damageDice, weaponDice)}`);
+  }
+
+  const baseRanks = new Map(base.specials.map((sp) => [sp.key, sp.rank]));
+  const seen = new Set<string>();
+  for (const sp of resolved.specials) {
+    seen.add(sp.key);
+    const from = baseRanks.get(sp.key);
+    const name = displaySpecialName(sp.key);
+    if (from == null) parts.push(`${name} neu (${sp.rank})`);
+    else if (from !== sp.rank) parts.push(`${name} ${from} → ${sp.rank}`);
+  }
+  for (const sp of base.specials) {
+    if (seen.has(sp.key) || sp.rank <= 0) continue;
+    parts.push(`${displaySpecialName(sp.key)} ${sp.rank} → 0`);
+  }
+
+  const unchanged = resolved.specials
+    .filter((sp) => baseRanks.get(sp.key) === sp.rank && sp.rank > 0)
+    .map((sp) => `${displaySpecialName(sp.key)}(${sp.rank})`);
+  if (unchanged.length) {
+    parts.push(`schon vorher drauf, kein Raise: ${unchanged.join(', ')}`);
+  }
+  return `${parts.join('. ')}.`;
+}
+
+export function formatRaiseResultLine(params: {
+  outcome: 'full' | 'partial';
+  base: PowerSnapshot;
+  resolved: PowerSnapshot;
+  declared: DeclaredRaise[];
+  lostCostLabel?: string;
+  weaponDice?: number;
+}): string {
+  const delta = describeSnapshotDelta(params.base, params.resolved, params.weaponDice);
+  const picked = params.declared.length
+    ? ` Gewählt: ${formatDeclaredRaiseList(params.declared)}.`
+    : '';
+  if (params.outcome === 'partial') {
+    const cost = params.lostCostLabel
+      ? ` Die Kosten von ${params.lostCostLabel} bleiben weg.`
+      : '';
+    return `Raise verfehlt.${cost} ${delta}${picked}`;
+  }
+  return `Raise gelungen. ${delta}${picked}`;
 }
 
 export function formatSnapshotSummary(snapshot: PowerSnapshot): string {

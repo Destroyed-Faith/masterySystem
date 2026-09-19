@@ -40,11 +40,13 @@ import {
   declaredRaiseFromOptionId,
   dedupeDeclaredRaises,
   describeDeclaredRaise,
-  formatSnapshotSummary,
+  describeSnapshotDelta,
+  formatAttackDiceLine,
   loadPowerSnapshotForArtifactOption,
   loadPowerSnapshotForItem,
   paidRaiseSlots,
   previewAfterRaiseCost,
+  resolvePowerSnapshot,
   type DeclaredRaise,
   type PowerSnapshot,
   type RaiseCostAllocation,
@@ -150,16 +152,15 @@ function resolveWeaponForAttack(items: any[], attackType: "melee" | "ranged"): a
  * dice (spells, unarmed flat damage) this is the plain power snapshot summary.
  */
 function formatOnHitSummary(snapshot: PowerSnapshot, weaponDice: number | undefined): string {
-  const summary = formatSnapshotSummary(snapshot);
-  const w = Math.max(0, Math.floor(weaponDice ?? 0));
-  if (w <= 0) return summary;
-  const p = Math.max(0, Math.floor(snapshot.damageDice));
-  const totalPart = `${w + p}d8 total (${w}d8 weapon${p > 0 ? ` + ${p}d8 power` : ''})`;
-  let rest = summary === '—' ? '' : summary;
-  if (p > 0 && rest.startsWith(`${p}d8`)) {
-    rest = rest.slice(`${p}d8`.length).replace(/^,\s*/, '');
-  }
-  return rest ? `${totalPart}, ${rest}` : totalPart;
+  const dice = formatAttackDiceLine(snapshot.damageDice, weaponDice);
+  const specials = snapshot.specials
+    .filter((sp) => sp.rank > 0)
+    .map((sp) => {
+      const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
+      return `${name}(${sp.rank})`;
+    });
+  if (!specials.length) return `${dice}.`;
+  return `${dice}. Schon auf dem Angriff, auch ohne Raise: ${specials.join(', ')}.`;
 }
 
 /**
@@ -872,7 +873,8 @@ export async function createAttackCard(
         <span>Normal TN: <strong>${normalTn}</strong></span>
         <span>Raise TN: <strong class="raise-tn-display">${normalTn}</strong></span>
       </div>
-      <div class="raise-preview-row"><span class="raise-preview-label">Treffer, vor Raises:</span> <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
+      <div class="raise-preview-row"><span class="raise-preview-label">Wenn du triffst:</span> <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
+      <div class="raise-preview-row raise-success-row" hidden><span class="raise-success-label">Wenn der Raise gelingt:</span> <strong class="raise-success-display"></strong></div>
       ${
         raiseContext.isSpell
           ? `<div class="spell-cost-split-row md-sublabel">
@@ -885,7 +887,7 @@ export async function createAttackCard(
       }
       ${''}
       <div class="raise-plan-live">Noch kein Raise gewählt.</div>
-      <p class="raise-once-hint">Schaden beliebig oft. Penetration, Precision und die anderen Specials nur einmal pro Angriff.</p>
+      <p class="raise-once-hint">Schaden kannst du stapeln. Jedes Special nur einmal. Was schon auf der Waffe steht, ist kein Raise.</p>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -893,11 +895,11 @@ export async function createAttackCard(
   
   const raisesTitle =
     tnKind === 'casting'
-      ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.${
-          aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Final Spell TN.' : ''
+      ? `Ein Raise vor dem Wurf. Jeder macht die Raise TN um +${RAISE_INCREMENT} schwerer. Die Kosten gehen vorher von der Power weg und kommen nur zurück, wenn die Raise TN fällt.${
+          aoeMelee ? ' AoE: derselbe Wurf gilt einzeln gegen jede Final Spell TN.' : ''
         }`
-      : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.${
-          aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Evade.' : ''
+      : `Ein Raise vor dem Wurf. Jeder macht die Raise TN um +${RAISE_INCREMENT} schwerer. Die normale TN bleibt ${normalTn}. Kosten vorher weg, Bonus nur wenn die Raise TN fällt.${
+          aoeMelee ? ' AoE: derselbe Wurf gilt einzeln gegen jedes Evade.' : ''
         }`;
 
   const evadeNoteParts: string[] = [];
@@ -1161,8 +1163,10 @@ function setupRaisesHandler(
   const specialName = (optionId: string): string => {
     const opt = raiseContext!.raiseOptions.find((o) => o.id === optionId);
     if (!opt) return 'Dieses Special';
-    const match = opt.label.match(/^Increase (.+) by \+MR$/);
-    return match?.[1] || opt.label;
+    if (opt.targetSpecialKey) {
+      return opt.targetSpecialKey.charAt(0).toUpperCase() + opt.targetSpecialKey.slice(1);
+    }
+    return opt.label;
   };
 
   const isGM = !!(globalThis as any).game?.user?.isGM;
@@ -1332,9 +1336,27 @@ function setupRaisesHandler(
     panel.find('.raise-plan-live').text(summary);
     panel.find('.raise-tn-display').text(String(raiseTn));
     panel.find('.raise-preview-label').text(
-      paid > 0 ? 'Nach Raise-Kosten (vor dem Wurf):' : 'Treffer, vor Raises:',
+      paid > 0 ? 'Wenn du triffst, der Raise aber nicht:' : 'Wenn du triffst:',
     );
     panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext!.weaponDamageDice));
+    const successRow = panel.find('.raise-success-row');
+    if (plan.length > 0) {
+      const full = resolvePowerSnapshot({
+        base: raiseContext!.baseSnapshot,
+        declaredRaises: plan,
+        outcome: 'full',
+        masteryRank: raiseContext!.masteryRank,
+        isSpell: raiseContext!.isSpell,
+        spellCostOverride,
+      });
+      successRow.prop('hidden', false);
+      panel.find('.raise-success-display').text(
+        describeSnapshotDelta(raiseContext!.baseSnapshot, full, raiseContext!.weaponDamageDice),
+      );
+    } else {
+      successRow.prop('hidden', true);
+      panel.find('.raise-success-display').text('');
+    }
     button.attr('data-raise-tn', String(raiseTn));
     button.attr('data-raise-slots', String(slots));
     button.attr('data-raise-plan', JSON.stringify(plan));

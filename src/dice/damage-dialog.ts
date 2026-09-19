@@ -25,13 +25,11 @@ import {
   bindChosenSpecialIntoLevelData,
   countRaiseSlots,
   computeTotalRaiseCost,
-  formatDeclaredRaiseList,
   paidRaiseSlots,
   resolvePowerSnapshot,
   snapshotToDamageFormula,
   snapshotToSpecialStrings,
-  formatSnapshotSummary,
-  formatRaiseOutcomeBody,
+  formatRaiseResultLine,
   type DeclaredRaise,
   type PowerSnapshot,
   type RaiseCostAllocation,
@@ -724,17 +722,18 @@ export async function showDamageDialog(
       ? 0
       : computeTotalRaiseCost(paidRaiseSlots(declaredRaises), masteryRank);
     const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8 Schaden`;
-    const after = formatRaiseOutcomeBody(resolvedPowerSnapshot);
-    const picked = formatDeclaredRaiseList(declaredRaises);
-    const pickedLine = declaredRaises.length ? ` Gewählt: ${picked}.` : '';
+    const weaponDice = Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0));
     raiseOutcomeLine =
-      outcome === 'partial'
-        ? lostCost > 0
-          ? `Raise verfehlt — Kosten von ${lostCostLabel} bleiben weg. Es gilt: ${after}.${pickedLine}`
-          : `Raise verfehlt — keine Kosten abgezogen. Es gilt: ${after}.${pickedLine}`
-        : outcome === 'full'
-          ? `Raise gelungen — danach: ${after}.${pickedLine}`
-          : '';
+      outcome === 'partial' || outcome === 'full'
+        ? formatRaiseResultLine({
+            outcome,
+            base: flags.basePowerSnapshot as PowerSnapshot,
+            resolved: resolvedPowerSnapshot,
+            declared: declaredRaises,
+            lostCostLabel: outcome === 'partial' && lostCost > 0 ? lostCostLabel : undefined,
+            weaponDice,
+          })
+        : '';
   }
 
   let npcAutoDamageDice = 0;

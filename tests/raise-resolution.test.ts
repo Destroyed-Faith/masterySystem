@@ -2,12 +2,14 @@ import { describe, it, expect } from 'vitest';
 import {
   applyRaiseCost,
   bindChosenSpecialIntoLevelData,
+  buildAvailableRaiseOptions,
   buildPowerSnapshotFromLevelData,
   computeRaiseTns,
   computeTotalRaiseCost,
   countRaiseSlots,
   defaultSpellCostAllocation,
   formatDeclaredRaiseList,
+  formatRaiseResultLine,
   paidRaiseSlots,
   previewAfterRaiseCost,
   dedupeDeclaredRaises,
@@ -170,6 +172,43 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(snap.specials.find((s) => s.key === 'precision')?.rank).toBe(6);
     expect(snap.damageDice).toBe(8 + 2 + 2);
     expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(4);
+  });
+
+  it('does not offer a +4 m range Raise', () => {
+    const options = buildAvailableRaiseOptions(
+      { ...examplePower(), hasRange: true, rangeM: 12 },
+      false,
+    );
+    expect(options.map((o) => o.id)).not.toContain('range');
+    expect(options.map((o) => o.effect)).not.toContain('rangePlus');
+  });
+
+  it('a damage Raise does not invent the weapon specials', () => {
+    const base = examplePower();
+    base.specials = [
+      { key: 'penetration', rank: 4 },
+      { key: 'precision', rank: 4 },
+    ];
+    const declared: DeclaredRaise[] = [{ effect: 'damage', slots: 1, label: '+MR Schaden' }];
+    const resolved = resolvePowerSnapshot({
+      base,
+      declaredRaises: declared,
+      outcome: 'full',
+      masteryRank: 2,
+      isSpell: false,
+    });
+    const line = formatRaiseResultLine({
+      outcome: 'full',
+      base,
+      resolved,
+      declared,
+      weaponDice: 4,
+    });
+    expect(line).toContain('Raise gelungen');
+    expect(line).toContain('4d8 Waffe + 8d8 Power');
+    expect(line).toContain('4d8 Waffe + 10d8 Power');
+    expect(line).toContain('schon vorher drauf, kein Raise: Penetration(4), Precision(4)');
+    expect(line).not.toContain('Penetration 4 →');
   });
 });
 
