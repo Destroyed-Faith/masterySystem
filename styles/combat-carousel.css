@@ -116,7 +116,7 @@
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
-  z-index: 70 !important;
+  z-index: 300 !important;
   pointer-events: none !important;
 }
 
@@ -136,15 +136,20 @@
   pointer-events: none !important;
 }
 
-#mastery-combat-carousel .mastery-carousel {
+#mastery-combat-carousel .window-content > *,
+#mastery-combat-carousel [data-application-part],
+#mastery-combat-carousel .mastery-carousel,
+#mastery-combat-carousel .carousel-portrait,
+#mastery-combat-carousel button {
   pointer-events: auto !important;
 }
 
 .portrait-end-turn,
 #mastery-combat-carousel .portrait-end-turn,
-#mastery-combat-carousel .js-end-turn {
+#mastery-combat-carousel .js-end-turn,
+#mastery-combat-carousel .js-next-turn {
   position: relative;
-  z-index: 30;
+  z-index: 40;
   pointer-events: auto !important;
 }
 

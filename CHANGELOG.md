@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.524] - 2026-09-19
+
+### Fixed
+
+- **Nächster Zug:** Spieler können den eigenen Zug beenden. Der Knopf unter dem Porträt und der Pfeil rechts gehen über den GM-Socket, nicht über Foundrys graue Next-Turn-Knöpfe. Next Round bleibt beim GM. Den Zug eines anderen beendet niemand außer dem GM.
+
 ## [0.9.523] - 2026-09-19
 
 ### Fixed

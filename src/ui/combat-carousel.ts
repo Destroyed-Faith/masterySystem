@@ -7,7 +7,7 @@ import {
   gmRefundCombatAction,
   type CombatActionRefundKind,
 } from '../combat/action-economy.js';
-import { canViewerSeeEndTurn, requestEndTurn } from '../combat/end-turn.js';
+import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../combat/end-turn.js';
 import {
   arePlayerStonesReadyForRound,
   encounterStartBlockers,
@@ -61,7 +61,7 @@ export class CombatCarouselApp extends BaseCarousel {
       minimizable: false
     },
     actions: {
-      endTurn: function (this: CombatCarouselApp, event: Event) {
+      msEndTurn: function (this: CombatCarouselApp, event: Event) {
         event.preventDefault();
         event.stopPropagation();
         void requestEndTurn();
@@ -432,6 +432,7 @@ export class CombatCarouselApp extends BaseCarousel {
       compact: isCompactCarouselViewport(),
       combatants,
       controlsAllowed: isGM,
+      showPlayerEndTurn: !isGM && userMayEndCurrentTurn(game.user, combat),
       currentRound: combat.round || 1,
       currentTurn: combat.turn || 0,
       preparing,
@@ -528,6 +529,7 @@ export class CombatCarouselApp extends BaseCarousel {
     root.querySelectorAll('.js-prev-turn').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        if (!game.user?.isGM) return;
         if (CombatCarouselApp._turnNavigationBusy) return;
         const combat = game.combats?.active;
         if (!combat) return;
@@ -544,13 +546,15 @@ export class CombatCarouselApp extends BaseCarousel {
     root.querySelectorAll('.js-next-turn').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        ev.stopPropagation();
         if (CombatCarouselApp._turnNavigationBusy) return;
         const combat = game.combats?.active;
         if (!combat) return;
         if (warnIfPlayerStonesPending(combat)) return;
         CombatCarouselApp._turnNavigationBusy = true;
         try {
-          await combat.nextTurn();
+          if (game.user?.isGM) await combat.nextTurn();
+          else await requestEndTurn();
         } finally {
           CombatCarouselApp._turnNavigationBusy = false;
         }
@@ -561,6 +565,7 @@ export class CombatCarouselApp extends BaseCarousel {
     root.querySelectorAll('.js-next-round').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        if (!game.user?.isGM) return;
         const combat = game.combats?.active;
         if (combat) {
           if (warnIfPlayerStonesPending(combat)) return;
@@ -770,10 +775,12 @@ export class CombatCarouselApp extends BaseCarousel {
 
     // End Turn button (on current combatant card)
     root.querySelectorAll('.js-end-turn').forEach((btn: HTMLElement) => {
-      btn.onclick = async (ev: MouseEvent) => {
+      const button = btn as HTMLButtonElement;
+      button.disabled = false;
+      button.removeAttribute('disabled');
+      button.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         ev.stopPropagation();
-        
         await requestEndTurn();
       };
     });

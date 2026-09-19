@@ -3,13 +3,26 @@ import { requestCombatNextTurn, requestDelayInitiative } from './gm-relay.js';
 
 let requestEndTurnInFlight = false;
 
-/** Players never see/use Next Turn on NPCs — it only confuses them. */
+/** The assigned character, an owned PC, or the GM. Not an NPC. */
 export function canViewerSeeEndTurn(actor: any, user: any): boolean {
   if (!user) return false;
   if (user.isGM) return true;
   if (!actor) return false;
   if (String(actor.type || '') === 'npc') return false;
-  return actor.isOwner === true;
+  if (actor.isOwner === true) return true;
+  if (typeof actor.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER')) {
+    return true;
+  }
+  const assigned = user.character;
+  const assignedId = assigned && typeof assigned === 'object' ? assigned.id : assigned;
+  return !!assignedId && String(assignedId) === String(actor.id);
+}
+
+/** Current combatant is this viewer's own turn. */
+export function userMayEndCurrentTurn(user: any, combat: any): boolean {
+  if (!user || !combat?.combatant) return false;
+  if (!combat.started) return false;
+  return canViewerSeeEndTurn(combat.combatant.actor, user);
 }
 
 /**

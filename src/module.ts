@@ -21,6 +21,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { initializeBloodPoolHooks } from './utils/blood-pool.js';
 import { initializeInitiativeOrder } from './combat/initiative-roll.js';
+import { canViewerSeeEndTurn, userMayEndCurrentTurn } from './combat/end-turn.js';
 import { actorHasSurprise, effectCarriesSurprise, pinSurprisedInitiative, statusListHasSurprise } from './combat/surprise.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
@@ -561,8 +562,11 @@ Hooks.once('init', async function() {
       'click',
       (ev) => {
         const target = ev.target as HTMLElement | null;
-        const btn = target?.closest?.('.js-end-turn, .ms-end-turn-btn') as HTMLButtonElement | null;
-        if (!btn || btn.disabled) return;
+        const btn = target?.closest?.(
+          '.js-end-turn, .ms-end-turn-btn, .js-next-turn, [data-action="msEndTurn"], [data-action="nextTurn"]',
+        ) as HTMLButtonElement | null;
+        if (!btn) return;
+        if (btn.closest?.('[data-action="nextRound"], .js-next-round')) return;
         ev.preventDefault();
         ev.stopPropagation();
         ev.stopImmediatePropagation();
@@ -684,8 +688,8 @@ Hooks.once('init', async function() {
       
       // Add End Turn button for current combatant only after every PC set stones.
       // Players never see it on NPCs — they cannot use it and it only confuses.
-      if (isCurrent && (game.user?.isGM || (combatant.actor && combatant.actor.type !== 'npc' && combatant.actor.isOwner))) {
-        const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
+      if (isCurrent && canViewerSeeEndTurn(combatant.actor, game.user)) {
+        const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="msEndTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
         const delayBtn = $('<button type="button" class="combatant-control ms-delay-turn-btn" data-action="delayTurn" data-combatant-id="' + combatantId + '" data-tooltip="Initiative verzögern — direkt nach dem nächsten Eintrag handeln." aria-label="Initiative verzögern" title="Initiative verzögern"><i class="fa-solid fa-hourglass-half"></i></button>');
         $initiativeDiv.append(delayBtn);
         $initiativeDiv.append(endTurnBtn);
@@ -806,6 +810,19 @@ Hooks.once('init', async function() {
         }
       });
     });
+
+    const unlockPlayerTurnAdvance = ($root: JQuery<HTMLElement>): void => {
+      if (!userMayEndCurrentTurn(game.user, game.combat)) return;
+      $root.find('[data-action="nextTurn"], [data-action="endTurn"], .ms-end-turn-btn').each((_i, el) => {
+        const btn = el as HTMLButtonElement;
+        btn.disabled = false;
+        btn.removeAttribute('disabled');
+        btn.classList.remove('disabled');
+        btn.setAttribute('aria-disabled', 'false');
+      });
+    };
+    unlockPlayerTurnAdvance($html);
+    requestAnimationFrame(() => unlockPlayerTurnAdvance($html));
 
     // Add "Begin Encounter" and "Select Passives" buttons to encounter controls
     const encounterControls = $html.find('.encounter-controls');

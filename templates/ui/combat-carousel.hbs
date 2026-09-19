@@ -25,12 +25,14 @@
     {{/if}}
     {{#unless preparing}}
     {{#if stonesReady}}
-    <!-- Left Controls (shown on hover) -->
+    {{#if controlsAllowed}}
+    <!-- Left Controls (shown on hover) — GM only -->
     <div class="carousel-controls carousel-controls-left">
       <button type="button" class="carousel-control-btn js-prev-turn" data-tooltip="Previous Turn" aria-label="Previous Turn">
         <i class="fas fa-chevron-left"></i>
       </button>
     </div>
+    {{/if}}
     {{/if}}
     {{/unless}}
 
@@ -154,7 +156,7 @@
 
           <!-- Advance initiative one step (next combatant) -->
           {{#if combatant.showEndTurn}}
-            <button type="button" class="portrait-end-turn js-end-turn" data-action="endTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
+            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
               <i class="fas fa-forward"></i>
               <span>Nächster Zug</span>
             </button>
@@ -186,12 +188,18 @@
     <div class="carousel-controls carousel-controls-right">
       {{#unless preparing}}
       {{#if stonesReady}}
+      {{#if controlsAllowed}}
       <button type="button" class="carousel-control-btn js-next-turn" data-tooltip="Next Turn" aria-label="Next Turn">
         <i class="fas fa-chevron-right"></i>
       </button>
       <button type="button" class="carousel-control-btn js-next-round" data-tooltip="Next Round" aria-label="Next Round">
         <i class="fas fa-forward"></i>
       </button>
+      {{else if showPlayerEndTurn}}
+      <button type="button" class="carousel-control-btn js-next-turn js-end-turn" data-action="msEndTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      {{/if}}
       {{/if}}
       {{/unless}}
       {{#if controlsAllowed}}

@@ -49,7 +49,7 @@ export function listActiveUsers(): Array<{ id: string; isGM?: boolean; active?: 
 }
 
 export function hasActiveGm(): boolean {
-  return listActiveUsers().some((u) => !!u?.isGM && !!u?.active);
+  return listActiveUsers().some((u) => !!u?.isGM && u.active !== false);
 }
 
 export function canCurrentUserCreateCombat(): boolean {

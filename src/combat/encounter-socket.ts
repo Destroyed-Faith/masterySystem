@@ -9,15 +9,12 @@ import {
   shouldShowEncounterDialogLocally,
 } from './combat-permissions.js';
 import { isRelayableActorUpdate } from './gm-relay.js';
+import { canViewerSeeEndTurn } from './end-turn.js';
 
 function requesterMayAdvanceTurn(combat: any, userId: string): boolean {
   const user = game.users?.get?.(userId);
   if (!user) return false;
-  if (user.isGM) return true;
-  const actor = combat?.combatant?.actor;
-  if (!actor || String(actor.type || '') === 'npc') return false;
-  if (typeof actor.testUserPermission === 'function') return !!actor.testUserPermission(user, 'OWNER');
-  return false;
+  return canViewerSeeEndTurn(combat?.combatant?.actor, user);
 }
 
 async function applyRelayedActorUpdate(payload: any): Promise<boolean> {
