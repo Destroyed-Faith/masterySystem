@@ -38,6 +38,7 @@ import {
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
+import { resolveLiveActor, tokenIdOfActor } from '../system/status-target.js';
 import { formatEffectReference, getEffectById } from '../utils/special-effects.js';
 import { selectOnHitSpecialEffects } from '../utils/weapon-specials.js';
 
@@ -857,7 +858,6 @@ export async function showDamageDialog(
       },
     );
     
-    const { tokenIdOfActor } = await import('../system/status-target.js');
     const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
     
     const chatData: any = {
@@ -1059,7 +1059,6 @@ export function attachDamageCardHandlers(messageId: string): void {
 
     const attackerId = $btn.data('attacker-id');
     const targetId = $btn.data('target-id');
-    const { resolveLiveActor } = await import('../system/status-target.js');
     const attacker = resolveLiveActor(attackerId, flags?.attackerTokenId) || (game as any).actors?.get(attackerId);
     const target = resolveLiveActor(targetId, flags?.targetTokenId);
     

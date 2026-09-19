@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.530] - 2026-09-19
+
+### Fixed
+
+- **Release:** 0.9.529 hat nicht gebaut. Status auf dem getroffenen NSC-Token ist derselbe Fix, jetzt mit gültigem Build.
+
 ## [0.9.529] - 2026-09-19
 
 ### Fixed
