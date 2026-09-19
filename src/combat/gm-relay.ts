@@ -94,6 +94,14 @@ export async function requestCombatNextTurn(): Promise<boolean> {
     await combat.nextTurn();
     return true;
   }
+  const beforeTurn = combat.turn;
+  const beforeRound = combat.round;
+  try {
+    await combat.nextTurn();
+    if (combat.turn !== beforeTurn || combat.round !== beforeRound) return true;
+  } catch (err) {
+    console.warn('Mastery System | player nextTurn local failed, asking GM', err);
+  }
   return askGm({ type: 'gmNextTurn', combatId: combat.id });
 }
 

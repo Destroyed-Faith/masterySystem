@@ -1,5 +1,6 @@
 import { MasteryActor } from './documents/actor.js';
 import { MasteryItem } from './documents/item.js';
+import { registerMasteryCombatDocument } from './documents/combat.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasterySummonSheet } from './sheets/summon-sheet.js';
@@ -211,6 +212,7 @@ Hooks.once('init', async function() {
   // Register custom Document classes
   CONFIG.Actor.documentClass = MasteryActor;
   CONFIG.Item.documentClass = MasteryItem;
+  registerMasteryCombatDocument();
 
   // Register custom sheet application classes before optional init steps that
   // may throw on v14 (status effects, legacy shims, etc.).

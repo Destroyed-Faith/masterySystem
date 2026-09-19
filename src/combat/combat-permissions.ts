@@ -25,31 +25,64 @@ export function canCurrentUserUpdateCombat(combat: unknown): boolean {
   return canCurrentUserUpdateDocument(combat);
 }
 
-export function listActiveUsers(): Array<{ id: string; isGM?: boolean; active?: boolean }> {
+function userLooksLikeGm(u: { isGM?: boolean; role?: number } | null | undefined): boolean {
+  if (!u) return false;
+  if (u.isGM === true) return true;
+  const role = Number(u.role);
+  return Number.isFinite(role) && role >= 3;
+}
+
+export function listActiveUsers(): Array<{ id: string; isGM?: boolean; active?: boolean; role?: number }> {
   const raw = typeof game !== 'undefined' ? (game as any).users : null;
   if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (Array.isArray(raw.contents)) return raw.contents;
-  if (typeof raw.filter === 'function') {
+  const out: Array<{ id: string; isGM?: boolean; active?: boolean; role?: number }> = [];
+  const seen = new Set<string>();
+  const add = (u: any): void => {
+    if (!u || typeof u !== 'object' || Array.isArray(u)) return;
+    const id = String(u.id || u._id || '');
+    if (id) {
+      if (seen.has(id)) return;
+      seen.add(id);
+    }
+    out.push(u);
+  };
+  if (raw.activeGM) add(raw.activeGM);
+  if (Array.isArray(raw)) {
+    for (const u of raw) add(u);
+    return out;
+  }
+  if (Array.isArray(raw.contents)) {
+    for (const u of raw.contents) add(u);
+  }
+  if (typeof raw.forEach === 'function') {
+    try {
+      raw.forEach((u: unknown) => add(u));
+    } catch {
+      /* Collection.forEach may expect a different signature */
+    }
+  }
+  if (out.length === 0 && typeof raw.filter === 'function') {
     try {
       const filtered = raw.filter((u: unknown) => !!u && typeof u === 'object' && !Array.isArray(u));
-      if (Array.isArray(filtered) && filtered.length) return filtered;
+      if (Array.isArray(filtered)) for (const u of filtered) add(u);
     } catch {
-      /* Collection.filter may expect a different signature */
+      /* ignore */
     }
   }
   if (typeof raw.values === 'function') {
-    return Array.from(raw.values()).filter((u: unknown) => !!u && typeof u === 'object' && !Array.isArray(u)) as Array<{
-      id: string;
-      isGM?: boolean;
-      active?: boolean;
-    }>;
+    try {
+      for (const u of raw.values()) add(u);
+    } catch {
+      /* ignore */
+    }
   }
-  return [];
+  return out;
 }
 
 export function hasActiveGm(): boolean {
-  return listActiveUsers().some((u) => !!u?.isGM && u.active !== false);
+  const users = typeof game !== 'undefined' ? (game as any).users : null;
+  if (users?.activeGM) return true;
+  return listActiveUsers().some((u) => userLooksLikeGm(u) && u.active !== false);
 }
 
 export function canCurrentUserCreateCombat(): boolean {

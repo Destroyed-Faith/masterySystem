@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.525] - 2026-09-19
+
+### Fixed
+
+- **Nächster Zug:** Als Spieler geht der eigene Zug jetzt auch, wenn Foundry keinen aktiven GM sieht (Join Game As). Der Client schreibt nur den nächsten Eintrag, nicht die ganze Runde.
+
 ## [0.9.524] - 2026-09-19
 
 ### Fixed
