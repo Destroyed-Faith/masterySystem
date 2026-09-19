@@ -113,11 +113,11 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     const base = examplePower();
     const raises: DeclaredRaise[] = [
       { effect: 'damage', slots: 1, free: true, label: '+MR Damage Dice' },
-      { effect: 'damage', slots: 1, label: '+MR Damage Dice' },
+      { effect: 'specialPlus', targetSpecialKey: 'ignite', slots: 1, label: 'Ignite' },
     ];
     expect(countRaiseSlots(raises)).toBe(2);
     expect(paidRaiseSlots(raises)).toBe(1);
-    expect(formatDeclaredRaiseList(raises)).toBe('1. +MR Damage Dice — kostenlos · 2. +MR Damage Dice');
+    expect(formatDeclaredRaiseList(raises)).toBe('1. +MR Damage Dice — kostenlos · 2. Ignite');
     expect(snapshotToDamageFormula(previewAfterRaiseCost(base, raises, 3, false))).toBe('5d8');
     const partial = resolvePowerSnapshot({
       base,
@@ -172,7 +172,7 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(snap.damageDice).toBe(4);
   });
 
-  it('a Special Raise is once per attack; damage Raises still stack', () => {
+  it('a damage Raise and a Special Raise are each once per attack', () => {
     const raises: DeclaredRaise[] = [
       { effect: 'specialPlus', targetSpecialKey: 'penetration', slots: 1, label: 'Increase Penetration(3) by +MR' },
       { effect: 'specialPlus', targetSpecialKey: 'penetration', slots: 1, label: 'Increase Penetration(3) by +MR' },
@@ -183,7 +183,6 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(dedupeDeclaredRaises(raises).map((r) => r.targetSpecialKey ?? r.effect)).toEqual([
       'penetration',
       'precision',
-      'damage',
       'damage',
     ]);
     const base = examplePower();
@@ -200,8 +199,8 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     });
     expect(snap.specials.find((s) => s.key === 'penetration')?.rank).toBe(5);
     expect(snap.specials.find((s) => s.key === 'precision')?.rank).toBe(6);
-    expect(snap.damageDice).toBe(8 + 2 + 2);
-    expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(4);
+    expect(snap.damageDice).toBe(8 + 2);
+    expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(3);
   });
 
   it('writes the hit as weapon plus power plus raise', () => {

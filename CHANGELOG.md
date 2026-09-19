@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.520] - 2026-09-19
+
+### Changed
+
+- **Raises:** +MR Schaden nur noch einmal pro Angriff. Precision und die anderen Specials bleiben daneben, auch nur einmal. Zwei Schaden-Raises sind dann +MR Schaden plus Precision, nicht zweimal derselbe Schaden.
+
 ## [0.9.519] - 2026-09-19
 
 ### Changed

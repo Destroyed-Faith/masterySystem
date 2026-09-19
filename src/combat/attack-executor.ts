@@ -1122,7 +1122,11 @@ function setupRaisesHandler(
 
   const buildOptionHtml = (currentId: string, takenSpecialIds: Set<string>): string => {
     const opts = raiseContext!.raiseOptions
-      .filter((o) => o.effect === 'damage' || o.id === currentId || !takenSpecialIds.has(o.id))
+      .filter((o) => {
+        if (o.id === currentId) return true;
+        if (o.effect === 'damage' || o.effect === 'specialPlus') return !takenSpecialIds.has(o.id);
+        return true;
+      })
       .map(
         (o) =>
           `<option value="${o.id}">${o.label} (${o.slots} slot${o.slots > 1 ? 's' : ''})</option>`,
@@ -1252,7 +1256,7 @@ function setupRaisesHandler(
       const select = $(rowEl).find('.raise-effect-select');
       const id = String(select.val() || '');
       const opt = raiseContext!.raiseOptions.find((o) => o.id === id);
-      if (!opt || opt.effect !== 'specialPlus') continue;
+      if (!opt || (opt.effect !== 'specialPlus' && opt.effect !== 'damage')) continue;
       const prev = owner.get(opt.id);
       if (prev && prev !== rowEl) {
         select.val('');
@@ -1275,7 +1279,7 @@ function setupRaisesHandler(
     const cleared = lockSpecialRaises();
     if (announceDuplicate && cleared && !applyingRemote) {
       ui.notifications?.warn?.(
-        `${cleared} nur einmal pro Angriff. Schaden kannst du weiter stapeln.`,
+        `${cleared} nur einmal pro Angriff.`,
       );
     }
     const draft = readDraft();

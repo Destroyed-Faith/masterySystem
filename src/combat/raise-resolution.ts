@@ -121,15 +121,18 @@ export function resolveRaiseOutcome(
   return t + raiseBonus >= raiseTn ? 'full' : 'partial';
 }
 
-/** Damage Raises stack. Each Special (Penetration, Precision, …) only once per attack. */
+/** +MR Schaden once per attack. Each Special (Penetration, Precision, …) once as well. */
 export function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[] {
   const seen = new Set<string>();
   const out: DeclaredRaise[] = [];
   for (const raise of raises) {
     if (raise.effect === 'specialPlus') {
       const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
-      if (!key || seen.has(key)) continue;
-      seen.add(key);
+      if (!key || seen.has(`special:${key}`)) continue;
+      seen.add(`special:${key}`);
+    } else if (raise.effect === 'damage') {
+      if (seen.has('damage')) continue;
+      seen.add('damage');
     }
     out.push(raise);
   }
