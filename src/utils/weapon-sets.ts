@@ -618,7 +618,11 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
  * set 1, set 2, or `unarmed` (stow both sets and fight with fists).
  * `target` omitted = toggle to the other set.
  */
-export async function swapWeaponSet(actor: any, target?: WeaponSwapTarget): Promise<SwapWeaponSetResult> {
+export async function swapWeaponSet(
+  actor: any,
+  target?: WeaponSwapTarget,
+  options?: { quiet?: boolean },
+): Promise<SwapWeaponSetResult> {
   if (!actor) return { ok: false, reason: 'apply-failed' };
   const key = actorKey(actor);
   if (key && swapLocks.has(key)) return { ok: false, reason: 'busy' };
@@ -696,7 +700,7 @@ export async function swapWeaponSet(actor: any, target?: WeaponSwapTarget): Prom
     await refreshWeaponSetSurfaces(actor);
     try {
       const ChatMessage = (globalThis as any).ChatMessage;
-      if (typeof ChatMessage?.create === 'function') {
+      if (!options?.quiet && typeof ChatMessage?.create === 'function') {
         const note = spentMovement
           ? loc('swappedCombat', 'Movement spent.')
           : loc('swappedFree', 'Free — not in combat.');

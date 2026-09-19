@@ -5,7 +5,7 @@
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
-import { describeActiveWeaponProfile, describeWeaponSwap, listWeaponSwapChoices } from '../utils/weapon-sets.js';
+import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1017,32 +1017,14 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
 
-    if (maneuver.id === 'weapon-swap') {
-      for (const choice of listWeaponSwapChoices(actor)) {
-        allManeuvers.push({
-          id: choice.target === 'unarmed' ? 'weapon-swap-unarmed' : `weapon-swap-${choice.target}`,
-          name: choice.name,
-          description: choice.description,
-          slot: maneuver.slot,
-          source: 'maneuver',
-          range: maneuverRange,
-          maneuver,
-          tags: maneuver.tags || [],
-          costsMovement: false,
-          costsAction: false,
-          disabled: choice.active,
-        });
-      }
-      continue;
-    }
-
     const maneuverName =
       maneuver.id === 'weapon-swap'
         ? ((globalThis as any).game?.i18n?.localize?.('MASTERY.weaponSets.actionName') || maneuver.name)
         : maneuver.name;
     const maneuverDescription =
       maneuver.id === 'weapon-swap'
-        ? describeWeaponSwap(actor).line
+        ? ((globalThis as any).game?.i18n?.localize?.('MASTERY.weaponSets.pickPrompt') ||
+            'Pick in chat what you want to wear. Costs 1 Movement in combat.')
         : (maneuver.description || (maneuver.effect || ''));
 
     const maneuverOption: RadialCombatOption = {

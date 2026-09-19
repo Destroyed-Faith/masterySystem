@@ -1075,3 +1075,39 @@ prose-mirror#chat-message.chat-input > .editor-container {
   gap: 0.35em;
   margin-top: 0.35em;
 }
+
+#chat-log .ms-weapon-swap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+#chat-log .ms-weapon-swap-title {
+  font-weight: 700;
+}
+
+#chat-log .ms-weapon-swap-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+#chat-log .ms-weapon-swap-btn,
+.ms-theme-rulebook #chat-log .ms-weapon-swap-btn {
+  width: 100%;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  padding: 0.35rem 0.55rem;
+}
+
+#chat-log .ms-weapon-swap-btn.is-wearing,
+#chat-log .ms-weapon-swap-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+#chat-log .ms-weapon-swap.is-done p {
+  margin: 0;
+}

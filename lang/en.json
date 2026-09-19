@@ -451,6 +451,8 @@
       "groupLabel": "Weaponslots",
       "actionName": "Weapon Swap",
       "actionDescription": "Switch to your other prepared Weapon Set.",
+      "pickPrompt": "Click in chat what you want to wear. Costs 1 Movement in combat.",
+      "pickDenied": "Only the owner can switch here.",
       "switchTitle": "Weaponslots {n}",
       "emptyHands": "empty (Unarmed)",
       "bothHands": "both hands",

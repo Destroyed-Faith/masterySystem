@@ -760,10 +760,15 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       return;
     }
     closeRadialMenu();
-    const { swapWeaponSet } = await import('./utils/weapon-sets.js');
     const target =
       option.id === 'weapon-swap-unarmed' ? 'unarmed' : option.id === 'weapon-swap-2' ? 2 : option.id === 'weapon-swap-1' ? 1 : undefined;
-    await swapWeaponSet(actor, target);
+    if (target !== undefined) {
+      const { swapWeaponSet } = await import('./utils/weapon-sets.js');
+      await swapWeaponSet(actor, target);
+      return;
+    }
+    const { postWeaponSwapCard } = await import('./chat/weapon-swap-card.js');
+    await postWeaponSwapCard(actor, token);
     return;
   }
 

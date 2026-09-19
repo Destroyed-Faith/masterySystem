@@ -32,6 +32,7 @@ vi.mock('../src/utils/consumable-slots.js', () => ({
 
 import { COMBAT_MANEUVERS, getAvailableManeuvers } from '../src/system/combat-maneuvers.js';
 import { RADIAL_STANDARD_MANEUVER_IDS } from '../src/utils/radial-maneuver-prefs.js';
+import { buildWeaponSwapCardHtml } from '../src/chat/weapon-swap-card.js';
 import {
   describeWeaponSetHands,
   describeWeaponSwap,
@@ -474,6 +475,13 @@ describe('weapon set labels', () => {
     expect(peekWeaponSets(actor).sets[2].mainhand).toBe('bow');
     expect(describeActiveWeaponProfile(actor).unarmed).toBe(true);
     expect(listWeaponSwapChoices(actor)[0].target).toBe('unarmed');
+
+    const html = buildWeaponSwapCardHtml(actor);
+    expect(html.match(/data-action="weapon-swap-pick"/g)).toHaveLength(2);
+    expect(html).toContain('data-target="1"');
+    expect(html).toContain('data-target="2"');
+    expect(html).not.toContain('data-target="unarmed"');
+    expect(html).toContain('disabled');
 
     const back = await swapWeaponSet(actor, 2);
     expect(back).toMatchObject({ ok: true, swapped: true, active: 2 });

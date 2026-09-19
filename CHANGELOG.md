@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.521] - 2026-09-19
+
+### Changed
+
+- **Waffenwechsel:** Im Move-Menü nur noch ein Knopf. Der legt eine Chatnachricht hin, und dort klickst du Set I, Set II oder Fäuste.
+
 ## [0.9.520] - 2026-09-19
 
 ### Changed

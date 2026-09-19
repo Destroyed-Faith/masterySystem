@@ -451,6 +451,8 @@
       "groupLabel": "Waffenslots",
       "actionName": "Waffenwechsel",
       "actionDescription": "Wechsle zum anderen vorbereiteten Waffenset.",
+      "pickPrompt": "Klick im Chat, was du anlegen willst. Kostet im Kampf 1 Movement.",
+      "pickDenied": "Nur der Besitzer kann hier wechseln.",
       "switchTitle": "Waffenslots {n}",
       "emptyHands": "leer (Unarmed)",
       "bothHands": "beide Hände",
