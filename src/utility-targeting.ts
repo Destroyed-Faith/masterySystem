@@ -27,6 +27,7 @@ import {
   snapWorldCenter,
 } from './utils/grid-snap.js';
 import { pickTokenAtPoint } from './utils/token-pick.js';
+import { tokenIsExcludedAsTarget } from './combat/defeated-token.js';
 type PlacementColors = {
   hex: number;
   hexAlpha: number;
@@ -186,6 +187,7 @@ function findCandidatesInRadius(
   const allTokens = canvas.tokens?.placeables || [];
 
   for (const token of allTokens) {
+    if (tokenIsExcludedAsTarget(token)) continue;
     const tokenCenter = token.center;
 
     if (isWithinMasteryPowerRange(center, tokenCenter, radiusMeters)) {
@@ -482,6 +484,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
       const allTokens = canvas.tokens?.placeables || [];
       for (const targetToken of allTokens) {
         if (targetToken.id === token.id) continue;
+        if (tokenIsExcludedAsTarget(targetToken)) continue;
 
         const targetCenter = targetToken.center;
         const isInRange = isWithinMasteryPowerRange(casterCenter, targetCenter, rangeMeters);
@@ -526,7 +529,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
         noCenterFallback: true,
       });
       
-      if (clickedToken && clickedToken.id !== token.id) {
+      if (clickedToken && clickedToken.id !== token.id && !tokenIsExcludedAsTarget(clickedToken)) {
         const casterCenter = token.center;
         const matches = matchesTargetGroup(token, clickedToken, targetGroup);
         
@@ -902,7 +905,7 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
   const targets = Array.from(state.selectedTargets).map(id => {
     const candidate = state.candidates.get(id);
     return candidate?.token;
-  }).filter(t => t !== undefined);
+  }).filter(t => t !== undefined && !tokenIsExcludedAsTarget(t));
   
   const combat = game.combat;
   const actor = state.casterToken?.actor;
@@ -1181,6 +1184,7 @@ function candidatesInCone(
   const allTokens = canvas.tokens?.placeables || [];
   for (const token of allTokens) {
     if (token.id === casterToken.id) continue;
+    if (tokenIsExcludedAsTarget(token)) continue;
     let inside = false;
     if (gridless) {
       inside = pointInGridlessCone(casterToken.center, world, token.center, lengthSteps);

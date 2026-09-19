@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.532] - 2026-09-19
+
+### Changed
+
+- **Gefallene Gegner:** Wenn das letzte Health-Pool eines NSC auf 0 fällt, bleibt der Token liegen — durchsichtig, im Karussell als defeated, nicht mehr als Nah-, Fern- oder Utility-Ziel wählbar. Token werden nicht gelöscht (Leiche, Loot, nächste Boss-Phase). Spieler bei 0 HP bleiben anvisierbar (Last Breath). Heilen oder das Karussell-Defeated-Toggle stellt die Figur wieder her.
+
 ## [0.9.531] - 2026-09-19
 
 ### Changed

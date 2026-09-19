@@ -11,6 +11,7 @@ import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighti
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
 import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 import { filterPerceivableTargetIds } from "./combat/perception-gate.js";
+import { tokenIsExcludedAsTarget } from "./combat/defeated-token.js";
 import {
   pickTokenFromPointerEvent,
   pointerEventIsOnToken,
@@ -74,6 +75,7 @@ export function collectMeleeBurstHostileTokenIds(
   const tokens = canvas.tokens?.placeables ?? [];
   for (const token of tokens) {
     if (!token?.id || token.id === attackerToken.id || !token.actor) continue;
+    if (tokenIsExcludedAsTarget(token)) continue;
     if (!tokenIsHostileTo(attackerToken, token)) continue;
     const targetCenter = token.center;
     if (!targetCenter) continue;

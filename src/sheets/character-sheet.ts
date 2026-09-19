@@ -4917,6 +4917,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       },
       { render: false },
     );
+    try {
+      const { syncNpcDefeatedPresentationAfterHpChange } = await import(
+        '../combat/defeated-token.js'
+      );
+      await syncNpcDefeatedPresentationAfterHpChange(this.actor);
+    } catch (downErr) {
+      console.warn('Mastery System | defeated token presentation failed', downErr);
+    }
 
     const startName = String(hpBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
     (ui as any).notifications?.info?.(

@@ -651,7 +651,12 @@ export class CombatCarouselApp extends BaseCarousel {
         const actor = combatant.actor;
         if (!game.user?.isGM && !actor?.isOwner) return;
 
-        await combatant.update({ defeated: !combatant.defeated });
+        const { applyDefeatedPresentation } = await import('../combat/defeated-token.js');
+        await applyDefeatedPresentation({
+          actor: combatant.actor,
+          tokenId: String(combatant.tokenId || combatant.token?.id || ''),
+          defeated: !combatant.defeated,
+        });
       };
     });
 

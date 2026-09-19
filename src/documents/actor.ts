@@ -1274,6 +1274,14 @@ export class MasteryActor extends Actor {
       if (currentBar) {
         currentBar.current = Math.min(currentBar.current + amount, currentBar.max);
         await (this as any).update({ 'system.health': system.health });
+        try {
+          const { syncNpcDefeatedPresentationAfterHpChange } = await import(
+            '../combat/defeated-token.js'
+          );
+          await syncNpcDefeatedPresentationAfterHpChange(this);
+        } catch (downErr) {
+          console.warn('Mastery System | defeated token presentation failed', downErr);
+        }
       }
     }
   }
@@ -1293,6 +1301,14 @@ export class MasteryActor extends Actor {
           await maybeAdvanceNpcBossPhase(this);
         } catch (phaseErr) {
           console.warn('Mastery System | NPC phase advance failed', phaseErr);
+        }
+        try {
+          const { syncNpcDefeatedPresentationAfterHpChange } = await import(
+            '../combat/defeated-token.js'
+          );
+          await syncNpcDefeatedPresentationAfterHpChange(this);
+        } catch (downErr) {
+          console.warn('Mastery System | defeated token presentation failed', downErr);
         }
       }
     }

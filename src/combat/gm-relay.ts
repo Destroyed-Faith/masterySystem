@@ -144,6 +144,27 @@ export function initiativeAfterDelay(nextInitiative: number): number {
   return Math.round((next - 0.01) * 100) / 100;
 }
 
+/** Ghost / restore a defeated enemy token + combatant. Players cannot write these. */
+export async function requestDefeatedPresentation(args: {
+  actor?: { id?: string; uuid?: string };
+  tokenId?: string;
+  defeated: boolean;
+}): Promise<boolean> {
+  const g = globalThis as any;
+  if (g.game?.user?.isGM) {
+    const { writeDefeatedPresentation } = await import('./defeated-token.js');
+    await writeDefeatedPresentation(args);
+    return true;
+  }
+  return askGm({
+    type: 'gmDefeatedPresentation',
+    actorId: String(args.actor?.id || ''),
+    tokenActorUuid: String(args.actor?.uuid || ''),
+    tokenId: String(args.tokenId || ''),
+    defeated: !!args.defeated,
+  });
+}
+
 export async function requestDelayInitiative(): Promise<boolean> {
   const g = globalThis as any;
   const combat = g.game?.combat;

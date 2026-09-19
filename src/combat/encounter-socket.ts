@@ -108,12 +108,35 @@ async function handleEncounterSocket(payload: any): Promise<void> {
     return;
   }
 
-  if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative') {
+  if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative' || type === 'gmDefeatedPresentation') {
     if (!game.user?.isGM) return;
     let ok = false;
     try {
       if (type === 'gmActorUpdate') {
         ok = await applyRelayedActorUpdate(payload);
+      } else if (type === 'gmDefeatedPresentation') {
+        const { writeDefeatedPresentation } = await import('./defeated-token.js');
+        let actor: any = null;
+        const uuid = String(payload.tokenActorUuid || '');
+        if (uuid && typeof (globalThis as any).fromUuid === 'function') {
+          try {
+            actor = await (globalThis as any).fromUuid(uuid);
+          } catch {
+            actor = null;
+          }
+        }
+        if (!actor && payload.actorId) {
+          actor = game.actors?.get?.(payload.actorId) ?? null;
+        }
+        if (actor?.documentName === 'Token' && actor.actor) {
+          actor = actor.actor;
+        }
+        await writeDefeatedPresentation({
+          actor,
+          tokenId: String(payload.tokenId || ''),
+          defeated: !!payload.defeated,
+        });
+        ok = true;
       } else if (type === 'gmNextTurn') {
         const combat = resolveLiveCombat(payload.combatId);
         if (combat && requesterMayAdvanceTurn(combat, payload.replyTo)) {

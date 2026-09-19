@@ -224,6 +224,21 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
     return '';
   }
 
+  if (ruinDamage > 0 || regenHeal > 0) {
+    try {
+      const { maybeAdvanceNpcBossPhase } = await import('./npc-phase-advance.js');
+      await maybeAdvanceNpcBossPhase(actor);
+    } catch (phaseErr) {
+      console.warn('Mastery System | NPC phase advance failed', phaseErr);
+    }
+    try {
+      const { syncNpcDefeatedPresentationAfterHpChange } = await import('./defeated-token.js');
+      await syncNpcDefeatedPresentationAfterHpChange(actor);
+    } catch (downErr) {
+      console.warn('Mastery System | defeated token presentation failed', downErr);
+    }
+  }
+
   return notes.join(', ');
 }
 

@@ -1878,6 +1878,16 @@ export async function applyDamageToTarget(
       } catch (phaseErr) {
         console.warn('Mastery System | NPC phase advance failed', phaseErr);
       }
+      try {
+        const { syncNpcDefeatedPresentationAfterHpChange } = await import(
+          '../combat/defeated-token.js'
+        );
+        await syncNpcDefeatedPresentationAfterHpChange(target, {
+          tokenId: tokenIdOfActor(target),
+        });
+      } catch (downErr) {
+        console.warn('Mastery System | defeated token presentation failed', downErr);
+      }
     } else if (Object.keys(tempHPConsumption.patch).length > 0) {
       // Only tempHP was reduced, no bar damage
       try {

@@ -17,6 +17,7 @@ import {
   markLocatedTarget,
 } from './perception-state.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
+import { tokenIsExcludedAsTarget } from './defeated-token.js';
 
 export interface PerceptionGateResult {
   canTarget: boolean;
@@ -160,6 +161,7 @@ export function filterPerceivableTargetIds(
     const tok = byId.get(tid);
     const targetActor = tok?.actor;
     if (!targetActor) continue;
+    if (tokenIsExcludedAsTarget(tok)) continue;
     const gate = evaluatePerceptionGate(attackerActor, targetActor, {
       observerToken: attackerToken,
       targetToken: tok,
