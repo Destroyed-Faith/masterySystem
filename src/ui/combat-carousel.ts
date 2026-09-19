@@ -15,6 +15,7 @@ import {
   pendingStonePlayerNames,
   warnIfPlayerStonesPending,
 } from '../combat/stone-round-gate.js';
+import { coerceStatusEffectsArray } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
 import {
@@ -159,9 +160,7 @@ export class CombatCarouselApp extends BaseCarousel {
       // "Name (X)" so the table sees each combatant's Specials at a glance.
       const statusIcons: Array<{ icon: string; name?: string; tooltip?: string; kind?: string; cssClass?: string }> = [];
       try {
-        const effectList: any[] = Array.isArray((actor.system as any)?.statusEffects)
-          ? (actor.system as any).statusEffects
-          : [];
+        const effectList = coerceStatusEffectsArray((actor.system as any)?.statusEffects);
         for (const entry of effectList) {
           const rawId = String(entry?.id ?? '').trim().toLowerCase();
           const rawName = String(entry?.name ?? '').replace(/\(x\)/gi, '').trim();

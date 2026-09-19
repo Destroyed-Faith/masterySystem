@@ -11,6 +11,7 @@ import {
   formatDeclaredRaiseList,
   formatHitBreakdown,
   formatRaiseResultLine,
+  loadPowerSnapshotForArtifactOption,
   paidRaiseSlots,
   previewAfterRaiseCost,
   declaredRaiseFromOptionId,
@@ -377,5 +378,28 @@ describe('stone bonus raises on full success', () => {
       stoneBonusRaises: 2,
     });
     expect(snapshotToDamageFormula(snap)).toBe('10d8');
+  });
+});
+
+describe('artifact catalog snapshot', () => {
+  it('Frost Throw I puts Slow on the hit without a Raise', async () => {
+    const loaded = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-ranged-damage-t4',
+      artifactChosenSpecialKey: 'slow',
+      artifactRowLevel: 2,
+      artifactIsSpell: false,
+    } as any);
+    expect(loaded?.isSpell).toBe(false);
+    expect(loaded?.snapshot.specials).toEqual([{ key: 'slow', rank: 6 }]);
+    expect(snapshotToSpecialStrings(loaded!.snapshot)).toEqual(['Slow(6)']);
+    expect(snapshotToDamageFormula(loaded!.snapshot)).toBe('1d8');
+    const resolved = resolvePowerSnapshot({
+      base: loaded!.snapshot,
+      declaredRaises: [],
+      outcome: 'full',
+      masteryRank: 2,
+      isSpell: false,
+    });
+    expect(snapshotToSpecialStrings(resolved)).toEqual(['Slow(6)']);
   });
 });

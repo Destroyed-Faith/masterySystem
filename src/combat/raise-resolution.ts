@@ -660,11 +660,11 @@ export function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[] {
   });
 }
 
-/** Load template level data for an artifact radial option flagged as a Spell. */
+/** Load catalog level data for an artifact Active (Frost Throw, spells, …). */
 export async function loadPowerSnapshotForArtifactOption(
   option: RadialCombatOption,
 ): Promise<{ snapshot: PowerSnapshot; isSpell: boolean; levelData: any | null } | null> {
-  if (!option.artifactIsSpell || !option.artifactPowerTemplateId) return null;
+  if (!option.artifactPowerTemplateId) return null;
   const templateId = option.artifactPowerTemplateId;
   const pl = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
   const chosenKey = option.artifactChosenSpecialKey;
@@ -691,7 +691,7 @@ export async function loadPowerSnapshotForArtifactOption(
     s.rank != null ? `${s.key}(${s.rank})` : s.key,
   );
   const snapshot = buildPowerSnapshotFromLevelData(levelData, '0', fallbackSpecials);
-  return { snapshot, isSpell: true, levelData };
+  return { snapshot, isSpell: option.artifactIsSpell === true, levelData };
 }
 
 /** Load template level data for a power item (attack card / damage dialog). */

@@ -75,6 +75,24 @@ export function weaponSpecialEntries(weapon: any): WeaponSpecialEntry[] {
  * Add weapon Specials that the power snapshot does not already list.
  * Existing power ranks are left alone so a chosen Special is not doubled.
  */
+/**
+ * Power Specials stay on the hit. Weapon Specials stay off until a Raise.
+ */
+export function parkWeaponSpecialsForRaises(
+  snapshot: PowerSnapshot,
+  onHitKeys: Iterable<string>,
+): { onHit: PowerSnapshot; raiseSource: PowerSnapshot } {
+  const keepKeys = new Set(
+    [...onHitKeys].map((k) => String(k || '').trim().toLowerCase()).filter(Boolean),
+  );
+  const keep = snapshot.specials.filter((sp) => keepKeys.has(sp.key));
+  const latent = snapshot.specials.filter((sp) => !keepKeys.has(sp.key));
+  return {
+    onHit: { ...snapshot, specials: keep },
+    raiseSource: { ...snapshot, specials: latent },
+  };
+}
+
 export function mergeWeaponSpecialsIntoSnapshot(
   snapshot: PowerSnapshot,
   entries: WeaponSpecialEntry[],
@@ -136,8 +154,8 @@ function effectKey(text: string): string | null {
 }
 
 /**
- * On-hit Specials are only the ones the resolved snapshot already lists.
- * Weapon and Power Specials stay off until a Raise turns that printed rank on.
+ * On-hit Specials are the ones the resolved power snapshot already lists.
+ * A printed weapon Special stays off until a Raise turns that rank on.
  */
 export function selectOnHitSpecialEffects(
   available: Array<{ type?: string; effect?: string }>,

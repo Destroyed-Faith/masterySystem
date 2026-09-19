@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
+import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-compiler.js';
 import {
   buildAllEchoArtifactTrees,
   buildAllGeneralArtifactTrees,
 } from '../src/artifacts/echo-artifact-tree-builder.js';
 import { buildArtifactRadialOptions } from '../src/radial-menu/artifact-options.js';
+import { getGeneralArtifact } from '../src/utils/general-artifacts.js';
+import { buildEchoProgressionPicks } from '../src/utils/echo-artifacts.js';
 
 function flag(data: Record<string, unknown>) {
   return (_ns: string, key: string) => data[key];
@@ -197,6 +200,28 @@ describe('catalog: no leftover artifact swings next to Single Attack', () => {
       getFlag: (_ns: string, key: string) => (key === 'artifactActivated' ? true : flags[key]),
     };
   }
+
+  it('Frost Throw carries the catalog Slow keys so the hit can apply the status', () => {
+    const def = getGeneralArtifact('frostboundReturningAxe')!;
+    const rows = deriveLevelProgressionFromPicks(buildEchoProgressionPicks(def) as any);
+    const frost = rows.find((r) => /Frost Throw/.test(String(r.name)) && r.level === 2);
+    expect(frost?.powerTemplateId).toBe('active-ranged-damage-t4');
+    expect(frost?.chosenSpecialKey).toBe('slow');
+    const item = artifact({
+      id: 'axe',
+      name: 'Frostbound Returning Axe - Level 2-1',
+      kind: 'weapon',
+      damage: '4d8',
+    });
+    item.system.currentLevel = 2;
+    item.system.level = 2;
+    item.system.levelProgression = rows.filter((r) => r.level <= 2);
+    const opts = buildArtifactRadialOptions(actor([item, single]));
+    const throwOpt = opts.find((o) => /Frost Throw/.test(String(o.name)));
+    expect(throwOpt?.artifactPowerTemplateId).toBe('active-ranged-damage-t4');
+    expect(throwOpt?.artifactChosenSpecialKey).toBe('slow');
+    expect(throwOpt?.artifactIsSpell).toBeFalsy();
+  });
 
   it('general and echo L1 nodes never add a basic weapon button when Single Attack exists, except Dragon Head Bite', () => {
     const trees = [...buildAllGeneralArtifactTrees(), ...buildAllEchoArtifactTrees()];

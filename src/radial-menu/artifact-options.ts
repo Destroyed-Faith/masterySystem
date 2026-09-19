@@ -317,12 +317,15 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             if (!(row.isSpell && row.powerTemplateId) && artifactCarriesWeaponProfile(item)) {
                 option.forcedWeaponItemId = item.id;
             }
+            if (row.powerTemplateId) {
+                option.artifactPowerTemplateId = row.powerTemplateId;
+                option.artifactChosenSpecialKey = row.chosenSpecialKey;
+                option.artifactRowSpecial = row.special || '';
+            }
             if (row.isSpell && row.powerTemplateId) {
                 option.artifactIsSpell = true;
                 option.artifactCastingAttribute = row.castingAttribute || 'intellect';
                 option.artifactSpellResolution = row.spellResolution || 'spellAttack';
-                option.artifactPowerTemplateId = row.powerTemplateId;
-                option.artifactChosenSpecialKey = row.chosenSpecialKey;
             }
             if (aoe.shape !== 'none' && (aoe.radiusM ?? 0) > 0) {
                 option.aoeShape = aoe.shape;

@@ -715,7 +715,15 @@ export async function showDamageDialog(
     });
     powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
     const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
-    if (selectedPowerData) {
+    if (!selectedPowerData) {
+      selectedPowerData = {
+        id: selectedPowerId || 'artifact-power',
+        name: String(flags?.selectedPowerName || flags?.npcAttackName || 'Power'),
+        level: Math.max(1, Number(flags?.selectedPowerLevel) || 1),
+        specials: resolvedSpecials,
+        damage: powerDamage,
+      };
+    } else {
       selectedPowerData.damage = powerDamage;
       selectedPowerData.specials = resolvedSpecials;
     }
@@ -1381,10 +1389,8 @@ async function applyStatusEffectsToTarget(
   try {
     // Get current status effects from target
     const system = (target as any).system;
-    if (!system.statusEffects) {
-      system.statusEffects = [];
-    }
-    let list: any[] = Array.isArray(system.statusEffects) ? [...system.statusEffects] : [];
+    const { coerceStatusEffectsArray } = await import('../system/active-specials.js');
+    let list: any[] = coerceStatusEffectsArray(system?.statusEffects).map((e) => ({ ...e }));
     const { getEffect } = await import('../utils/special-effects.js');
     const { mergeChallengeEntry } = await import('../system/pool-reduction.js');
     const {
@@ -1442,9 +1448,12 @@ async function applyStatusEffectsToTarget(
           continue;
         }
 
-        const wardReduced = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
-        if (wardReduced === null) continue;
-        let wardedValue = wardReduced;
+        let wardedValue = effectValue;
+        if (effectValue != null) {
+          const wardReduced = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
+          if (wardReduced === null) continue;
+          wardedValue = wardReduced;
+        }
 
         // Root has a minimum applied value of 2 — Root(1) is not a valid
         // application (Players Guide "Root(X)").

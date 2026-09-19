@@ -3,6 +3,7 @@ import { buildAvailableRaiseOptions } from '../src/combat/raise-resolution.js';
 import {
   backfillArtifactWeaponSpecials,
   mergeWeaponSpecialsIntoSnapshot,
+  parkWeaponSpecialsForRaises,
   selectOnHitSpecialEffects,
   weaponSpecialEntries,
 } from '../src/utils/weapon-specials.js';
@@ -51,6 +52,27 @@ describe('weapon specials', () => {
     expect(labels).toContain('damage');
     expect(labels).toContain('special:penetration');
     expect(labels).toContain('special:precision');
+  });
+
+  it('keeps the power Special on the hit and parks the weapon Special for a Raise', () => {
+    const parked = parkWeaponSpecialsForRaises(
+      {
+        damageDice: 1,
+        specials: [
+          { key: 'slow', rank: 6 },
+          { key: 'precision', rank: 2 },
+        ],
+        rangeM: null,
+        aoeRadiusM: null,
+        durationSteps: 0,
+        hasRange: false,
+        hasAoe: false,
+        hasDuration: false,
+      },
+      ['slow'],
+    );
+    expect(parked.onHit.specials).toEqual([{ key: 'slow', rank: 6 }]);
+    expect(parked.raiseSource.specials).toEqual([{ key: 'precision', rank: 2 }]);
   });
 
   it('does not turn a weapon Special on unless the snapshot already lists it', () => {

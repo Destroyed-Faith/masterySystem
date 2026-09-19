@@ -22,6 +22,7 @@ import { parseD8Count } from "../utils/dice-formula.js";
 import { basicAttackMrDamageFormula } from "./basic-combat.js";
 import {
   mergeWeaponSpecialsIntoSnapshot,
+  parkWeaponSpecialsForRaises,
   weaponSpecialEntries,
 } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
@@ -44,6 +45,8 @@ import {
   loadPowerSnapshotForItem,
   paidRaiseSlots,
   resolvePowerSnapshot,
+  snapshotToDamageFormula,
+  snapshotToSpecialStrings,
   type DeclaredRaise,
   type PowerSnapshot,
   type RaiseCostAllocation,
@@ -467,7 +470,7 @@ export async function createAttackCard(
     selectedPowerId = option.item.id;
     const powerSystem = (option.item.system as any) || {};
     const artifactIsSpell = option.artifactIsSpell === true;
-    selectedPowerLevel = artifactIsSpell
+    selectedPowerLevel = option.artifactPowerTemplateId
       ? Number(artifactLevelToTemplateRank(option.artifactRowLevel || 1))
       : (powerSystem.level || null);
 
@@ -530,15 +533,23 @@ export async function createAttackCard(
     waiveRaiseCost?: boolean;
   } | null = null;
 
+  const powerOnHitKeys = new Set<string>();
   if (option.source === 'power' && option.item && !isNpcAttack) {
     try {
       let loaded: { snapshot: PowerSnapshot; isSpell: boolean; levelData: any | null } | null = null;
-      if (option.artifactIsSpell && option.artifactPowerTemplateId) {
+      if (option.artifactPowerTemplateId) {
         loaded = await loadPowerSnapshotForArtifactOption(option);
       } else if (option.item.type === 'power') {
         loaded = await loadPowerSnapshotForItem(option.item);
       }
       if (loaded) {
+        for (const sp of loaded.snapshot.specials) {
+          if (sp.key) powerOnHitKeys.add(sp.key);
+        }
+        selectedPowerSpecials = snapshotToSpecialStrings(loaded.snapshot);
+        if (!selectedPowerDamage) {
+          selectedPowerDamage = snapshotToDamageFormula(loaded.snapshot);
+        }
         const opts = buildAvailableRaiseOptions(loaded.snapshot, loaded.isSpell);
         if (opts.length > 0) {
           raiseContext = {
@@ -555,6 +566,11 @@ export async function createAttackCard(
             raiseOptions: [],
           };
         }
+      } else if (option.artifactRowSpecial) {
+        selectedPowerSpecials = String(option.artifactRowSpecial)
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s && s !== '—' && s !== '-');
       }
     } catch (err) {
       console.warn('Mastery System | raise context load failed', err);
@@ -637,12 +653,9 @@ export async function createAttackCard(
   }
 
   if (raiseContext && !raiseContext.isSpell && !isNpcAttack) {
-    const latent = raiseContext.baseSnapshot.specials.map((sp) => ({ ...sp }));
-    raiseContext.baseSnapshot = { ...raiseContext.baseSnapshot, specials: [] };
-    raiseContext.raiseOptions = buildAvailableRaiseOptions(
-      { ...raiseContext.baseSnapshot, specials: latent },
-      false,
-    );
+    const parked = parkWeaponSpecialsForRaises(raiseContext.baseSnapshot, powerOnHitKeys);
+    raiseContext.baseSnapshot = parked.onHit;
+    raiseContext.raiseOptions = buildAvailableRaiseOptions(parked.raiseSource, false);
   }
 
   // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
@@ -699,6 +712,7 @@ export async function createAttackCard(
     forcedWeaponItemId: forcedWeaponItemId ?? null,
     selectedPowerId: selectedPowerId,
     selectedPowerLevel: selectedPowerLevel,
+    selectedPowerName: option.source === 'power' ? String(option.name || '') : '',
     selectedPowerSpecials: selectedPowerSpecials,
     selectedPowerDamage: selectedPowerDamage || "",
     consumableItemId: option.consumableItemId || null,

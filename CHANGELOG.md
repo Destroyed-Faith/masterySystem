@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.527] - 2026-09-19
+
+### Fixed
+
+- **Frost Throw / Status:** Artefakt-Aktives wie Frost Throw legen Slow wieder auf den Treffer, ohne Raise. Die Karte zeigt die Special. Waffen-Specials (Precision, Penetration) bleiben aus, bis jemand sie raiset. Status-Icons auf der Karussellkarte lesen auch Foundrys Objekt-Listen, damit Slow auf NSCs sichtbar bleibt.
+
 ## [0.9.526] - 2026-09-19
 
 ### Fixed
