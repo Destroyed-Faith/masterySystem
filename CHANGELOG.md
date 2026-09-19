@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.512] - 2026-09-19
+
+### Changed
+
+- **Status setzen:** Auf dem SC- und NSC-Bogen gibt es **Hinzufügen**. Ein Status, der nicht von selbst ausgelöst hat, kann gesetzt werden, nicht nur weggenommen. Stufe bei Slow und den anderen mit Wert.
+- **Token-Leiste:** Rechtsklick oder Doppelklick in Assign Status Effects legt denselben Status auf die Statusleiste. Der Bogen, der Kampf und das Token zeigen dieselbe Liste. Linksklick schaltet ihn wieder aus.
+
 ## [0.9.511] - 2026-09-19
 
 ### Changed

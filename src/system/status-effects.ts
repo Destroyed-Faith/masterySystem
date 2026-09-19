@@ -103,13 +103,19 @@ function upsertV14StatusEffect(
     existing.name = effect.name;
     existing.img = effect.img;
     existing.order = order;
+    existing.hud = true;
+    try {
+      existing.statuses = new Set([effect.id]);
+    } catch {
+      // v14 config objects sometimes freeze `statuses`; id alone is enough.
+    }
     return true;
   }
 
   const attempts: Record<string, unknown>[] = [
-    { id: effect.id, name: effect.name, img: effect.img, order },
-    { id: effect.id, name: effect.name, img: effect.img, order, statuses: new Set([effect.id]) },
-    { id: effect.id, name: effect.name, img: effect.img, order },
+    { id: effect.id, name: effect.name, img: effect.img, order, hud: true, statuses: new Set([effect.id]) },
+    { id: effect.id, name: effect.name, img: effect.img, order, hud: true, statuses: [effect.id] },
+    { id: effect.id, name: effect.name, img: effect.img, order, hud: true },
   ];
 
   for (const data of attempts) {

@@ -219,6 +219,17 @@
              phase object (same class of bug as nested ../phaseIndex for HP). --}}
         <div class="status-effects-panel npc-section">
           <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
+          {{#if @root.canEditCharacterStatus}}
+          <div class="status-add-row">
+            <select class="js-status-add-pick" aria-label="Status hinzufügen">
+              {{#each @root.statusAddChoices as |choice|}}
+              <option value="{{choice.id}}" data-has-value="{{#if choice.hasValue}}1{{else}}0{{/if}}">{{choice.name}}</option>
+              {{/each}}
+            </select>
+            <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe" aria-label="Stufe"/>
+            <button type="button" class="js-status-add" title="Status setzen, auch wenn er nicht von selbst ausgelöst hat">Hinzufügen</button>
+          </div>
+          {{/if}}
           <div class="status-effects-list">
             {{#if @root.hasNpcStatusEffects}}
               {{#each @root.npcStatusEffects as |effect|}}
@@ -478,6 +489,17 @@
       {{!-- Status Effects (root system.statusEffects) --}}
       <div class="status-effects-panel npc-section">
         <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
+        {{#if @root.canEditCharacterStatus}}
+        <div class="status-add-row">
+          <select class="js-status-add-pick" aria-label="Status hinzufügen">
+            {{#each @root.statusAddChoices as |choice|}}
+            <option value="{{choice.id}}" data-has-value="{{#if choice.hasValue}}1{{else}}0{{/if}}">{{choice.name}}</option>
+            {{/each}}
+          </select>
+          <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe" aria-label="Stufe"/>
+          <button type="button" class="js-status-add" title="Status setzen, auch wenn er nicht von selbst ausgelöst hat">Hinzufügen</button>
+        </div>
+        {{/if}}
         <div class="status-effects-list">
           {{#if @root.hasNpcStatusEffects}}
             {{#each @root.npcStatusEffects as |effect|}}

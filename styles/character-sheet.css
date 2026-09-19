@@ -5238,6 +5238,60 @@
   gap: 6px;
 }
 
+.mastery-system.sheet.actor.npc .status-add-row,
+.mastery-system.sheet.actor.character .status-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.mastery-system.sheet.actor.npc .status-add-row select,
+.mastery-system.sheet.actor.character .status-add-row select {
+  flex: 1 1 9rem;
+  min-width: 0;
+  max-width: 16rem;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+
+.mastery-system.sheet.actor.npc .status-add-row input[type="number"],
+.mastery-system.sheet.actor.character .status-add-row input[type="number"] {
+  width: 4.2rem;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 3px 6px;
+}
+
+.mastery-system.sheet.actor.npc .status-add-row input[hidden],
+.mastery-system.sheet.actor.character .status-add-row input[hidden] {
+  display: none !important;
+}
+
+.mastery-system.sheet.actor.npc .status-add-row .js-status-add,
+.mastery-system.sheet.actor.character .status-add-row .js-status-add {
+  background: rgba(201, 162, 39, 0.25);
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  color: #ffe9a8;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.mastery-system.sheet.actor.npc .status-add-row .js-status-add:hover,
+.mastery-system.sheet.actor.character .status-add-row .js-status-add:hover {
+  background: rgba(201, 162, 39, 0.45);
+  color: #fff;
+}
+
 .mastery-system.sheet.actor.npc .status-effect-item,
 .mastery-system.sheet.actor.character .status-effect-item {
   display: flex;

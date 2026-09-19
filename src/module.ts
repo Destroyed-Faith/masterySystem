@@ -16,6 +16,7 @@ import {
   preserveNpcAttackSpecialsInSystemUpdate,
 } from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
+import { registerStatusHud } from './system/status-hud.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { initializeBloodPoolHooks } from './utils/blood-pool.js';
@@ -1031,6 +1032,12 @@ Hooks.once('init', async function() {
       console.error('Mastery System | surprise createActiveEffect failed', err);
     }
     try {
+      const { adoptEffectStatus } = await import('./system/assign-status.js');
+      await adoptEffectStatus(effect?.parent, effect, true);
+    } catch (err) {
+      console.error('Mastery System | status adopt failed', err);
+    }
+    try {
       const flags = effect?.flags?.['mastery-system'];
       if (!flags || flags.activeBuff !== true) return;
       const actor = effect.parent;
@@ -1041,6 +1048,12 @@ Hooks.once('init', async function() {
     }
   });
   Hooks.on('deleteActiveEffect', async (effect: any) => {
+    try {
+      const { adoptEffectStatus } = await import('./system/assign-status.js');
+      await adoptEffectStatus(effect?.parent, effect, false);
+    } catch (err) {
+      console.error('Mastery System | status clear failed', err);
+    }
     try {
       const flags = effect?.flags?.['mastery-system'];
       if (!flags || flags.activeBuff !== true) return;
@@ -1071,6 +1084,7 @@ Hooks.once('init', async function() {
   registerImageUrlShareHooks();
   // Initialize token action selector
   initializeTokenActionSelector();
+  registerStatusHud();
 
   // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)
   Hooks.on('masterySystem.roundStateUpdated', ({ actorId }: { actorId: string }) => {
@@ -1085,6 +1099,9 @@ Hooks.once('init', async function() {
     }
     if (statusListHasSurprise(changed?.system?.statusEffects)) {
       void pinSurprisedInitiative(actor);
+    }
+    if (changed?.system && Object.prototype.hasOwnProperty.call(changed.system, 'statusEffects')) {
+      void import('./system/assign-status.js').then(({ syncTokenStatusIcons }) => syncTokenStatusIcons(actor));
     }
     if (changed.system?.mastery?.rank !== undefined) {
       void import('./utils/consumable-slots.js').then(async ({ syncConsumableSlotsToMasteryRank, rankChangeNotification }) => {

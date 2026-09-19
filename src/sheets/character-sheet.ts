@@ -156,6 +156,7 @@ import {
   reduceCharacterStatusRow,
   removeCharacterStatusRow,
 } from './character-status-panel.js';
+import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 import { coerceStatusEffectsArray } from '../system/active-specials.js';
 
@@ -1363,6 +1364,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.characterStatusRows = statusRows;
     context.hasCharacterStatusRows = statusRows.length > 0;
     context.canEditCharacterStatus = canCurrentUserUpdateDocument(this.actor);
+    context.statusAddChoices = listAssignableStatuses();
+    context.showCharacterStatusPanel = context.canEditCharacterStatus || statusRows.length > 0;
     
     // Passive slotting happens exclusively in combat (Combat-Start dialog).
     // The character-sheet "Passive Slots" manager was removed: it implied a
@@ -2474,6 +2477,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     html.find('.js-character-status-remove').on('click', this.#onRemoveCharacterStatus.bind(this));
     html.find('.js-character-status-reduce').on('click', this.#onReduceCharacterStatus.bind(this));
+    bindStatusAddControls(html, this.actor);
 
     html.find('[data-action="forceEncounterSetup"]').on('click', async (ev: JQuery.ClickEvent) => {
       ev.preventDefault();

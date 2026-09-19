@@ -4,6 +4,7 @@
  */
 
 import { MasteryCharacterSheet } from './character-sheet';
+import { writeActorStatusList } from '../system/assign-status.js';
 import {
   ALL_SPECIAL_EFFECTS,
   getEffectBaseName,
@@ -1205,7 +1206,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const list = coerceStatusEffectsArray((this.actor as any).system?.statusEffects);
     if (!Number.isFinite(index) || index < 0 || index >= list.length) return;
     const next = list.filter((_, i) => i !== index);
-    await (this.actor as any).update({ 'system.statusEffects': next });
+    await writeActorStatusList(this.actor, next);
   }
 
   async #onReduceStatusEffect(event: JQuery.ClickEvent) {
@@ -1217,7 +1218,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const list = coerceStatusEffectsArray((this.actor as any).system?.statusEffects);
     if (!Number.isFinite(index) || index < 0 || index >= list.length) return;
     const next = reduceStatusEffectAt(list, index, steps);
-    await (this.actor as any).update({ 'system.statusEffects': next });
+    await writeActorStatusList(this.actor, next);
   }
 
   async #onAttackValueAdd(event: JQuery.ClickEvent) {

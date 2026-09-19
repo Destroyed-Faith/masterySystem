@@ -8,6 +8,7 @@ import {
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
+import { writeActorStatusList } from '../system/assign-status.js';
 
 export type CharacterStatusKind = 'special' | 'tempHP';
 
@@ -69,12 +70,12 @@ export async function removeCharacterStatusRow(actor: Actor, row: CharacterStatu
   }
   const list = coerceStatusEffectsArray((actor as any).system?.statusEffects);
   if (row.index < 0 || row.index >= list.length) return;
-  await (actor as any).update({ 'system.statusEffects': list.filter((_, i) => i !== row.index) });
+  await writeActorStatusList(actor, list.filter((_, i) => i !== row.index));
 }
 
 export async function reduceCharacterStatusRow(actor: Actor, row: CharacterStatusRow, steps: number): Promise<void> {
   if (row.kind !== 'special') return;
   const list = coerceStatusEffectsArray((actor as any).system?.statusEffects);
   if (row.index < 0 || row.index >= list.length) return;
-  await (actor as any).update({ 'system.statusEffects': reduceStatusEffectAt(list, row.index, steps) });
+  await writeActorStatusList(actor, reduceStatusEffectAt(list, row.index, steps));
 }

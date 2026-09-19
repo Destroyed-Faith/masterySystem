@@ -742,6 +742,16 @@
   font-size: 1.2em;
 }
 
+/* Status palette must receive right-click and double-click, not the canvas. */
+#token-hud .status-effects,
+.placeable-hud .status-effects,
+.placeable-hud .palette.status-effects,
+#token-hud .status-effects .effect-control,
+.placeable-hud .status-effects .effect-control,
+.placeable-hud .status-effects [data-action="effect"] {
+  pointer-events: auto;
+}
+
 /* ========================================
    Radial Menu Info Panel
    ======================================== */
