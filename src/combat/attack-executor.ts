@@ -395,6 +395,18 @@ export async function createAttackCard(
         (option as any).npcPhaseIndex
       )
     : null;
+  const isNpcActor = attacker?.type === 'npc' || attacker?.type === 'summon';
+  // Basic Attack on an NPC still hits with the sheet row (index 0), not Might.
+  // isNpcAttack stays false so weapon damage is not stripped.
+  const sheetAttackRow =
+    npcAttackRow ??
+    (isNpcActor ? getNpcAttackByIndex(attacker.system, 0, null) : null);
+  const poolFromNpc = sheetAttackRow
+    ? npcAttackDiceCount(sheetAttackRow)
+    : attacker?.type === 'npc'
+      ? 6
+      : 0;
+  const useSheetPool = isNpcActor && (sheetAttackRow != null || attacker?.type === 'npc');
 
   if (isNpcAttack || option.ignoreWeaponDamage) {
     weapon = null;
@@ -408,11 +420,10 @@ export async function createAttackCard(
   let weaponId = weapon && !isVirtualUnarmedWeapon(weapon) ? weapon.id ?? null : null;
   // Determine attack attribute
   const attribute = getAttackAttribute(attacker, weapon, option, attackType);
-  const poolFromNpc = npcAttackDiceCount(npcAttackRow);
   let attributeValue =
     option.storedAttackPool && Number(option.storedAttackPool.numDice) > 0
       ? Math.max(0, Math.floor(Number(option.storedAttackPool.numDice)))
-      : isNpcAttack && poolFromNpc > 0
+      : useSheetPool
         ? poolFromNpc
         : getAttributeValue(attacker, attribute);
   const masteryRank = getMasteryRank(attacker);
@@ -726,15 +737,15 @@ export async function createAttackCard(
             npcMaxRangeM(Math.floor(Number((option as any).rangeMeters ?? option.range) || 0)),
           )
         : undefined,
-    useNpcAttackDicePool: isNpcAttack,
-    npcAttackDicePool: isNpcAttack ? attributeValue : undefined,
+    useNpcAttackDicePool: useSheetPool,
+    npcAttackDicePool: useSheetPool ? attributeValue : undefined,
     // PG statblocks print the Keep per attack ("6d8, Keep 1"); unset ⇒ MR.
-    npcAttackKeepDice: isNpcAttack ? npcAttackKeepDice(npcAttackRow, masteryRank) : undefined,
+    npcAttackKeepDice: useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : undefined,
     npcAttackSource: isNpcAttack,
     npcAttackIndex: isNpcAttack ? ((option as any).npcAttackIndex ?? 0) : undefined,
     npcPhaseIndex: isNpcAttack ? ((option as any).npcPhaseIndex ?? null) : undefined,
-    npcAttackName: isNpcAttack
-      ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
+    npcAttackName: useSheetPool
+      ? (sheetAttackRow?.name?.trim() || (isNpcAttack ? option.name : '') || "Waffenangriff")
       : undefined,
     npcAttackOptionId: isNpcAttack
       ? String((option as any).npcAttackUsageKey || option.id || '')
@@ -877,9 +888,12 @@ export async function createAttackCard(
   }
   const evadeNote = evadeNoteParts.length ? ` (${evadeNoteParts.join('; ')})` : '';
   
-  const keepShown = isNpcAttack ? npcAttackKeepDice(npcAttackRow, masteryRank) : masteryRank;
+  const keepShown = useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : masteryRank;
   const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
-  const wurfLine = `${attributeValue}k${keepShown} (${attrLabel})`;
+  const poolLabel = useSheetPool
+    ? (sheetAttackRow?.name?.trim() || 'Angriff')
+    : attrLabel;
+  const wurfLine = `${attributeValue}k${keepShown} (${poolLabel})`;
   const tnLabel =
     tnKind === 'casting'
       ? aoeMelee

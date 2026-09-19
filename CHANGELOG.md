@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.522] - 2026-09-19
+
+### Fixed
+
+- **Nächster Zug:** Der Knopf unter dem Porträt geht wieder. GM und der Besitzer des aktuellen Charakters kommen einen Zug weiter.
+- **NSC-Angriff:** Der Wurf nimmt die Angriffswürfel vom Bogen (leeres Feld = 6), nicht Might. Keep bleibt der eingetragene Wert, sonst der MR.
+
 ## [0.9.521] - 2026-09-19
 
 ### Changed

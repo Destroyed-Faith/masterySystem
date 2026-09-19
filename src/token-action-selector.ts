@@ -1314,29 +1314,31 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
           await import('./combat/attack-executor.js');
         const mr = getMasteryRank(actor);
         const attribute = getAttackAttribute(actor, null, option, 'melee');
-        let numDice = Math.max(1, getAttributeValue(actor, attribute));
-        if (option.source === 'npc-attack') {
-          const { getNpcAttackByIndex, npcAttackDiceCount } = await import(
-            './utils/npc-attack-model.js'
-          );
-          const row = getNpcAttackByIndex(
-            actor.system,
-            (option as any).npcAttackIndex ?? 0,
-            (option as any).npcPhaseIndex,
-          );
-          const pool = npcAttackDiceCount(row);
-          if (pool > 0) numDice = pool;
-        }
+        const { resolveNpcSheetToHit } = await import('./utils/npc-attack-model.js');
+        const sheetHit = resolveNpcSheetToHit({
+          actorType: actor?.type,
+          system: actor?.system,
+          masteryRank: mr,
+          attackIndex: option.source === 'npc-attack' ? ((option as any).npcAttackIndex ?? 0) : 0,
+          phaseIndex: (option as any).npcPhaseIndex ?? null,
+        });
+        let numDice =
+          sheetHit && sheetHit.dice > 0
+            ? sheetHit.dice
+            : Math.max(1, getAttributeValue(actor, attribute));
+        const keepDice = sheetHit && sheetHit.keep > 0 ? sheetHit.keep : mr;
         const firstTok = canvas.tokens?.get(effectiveBurstIds[0]);
         const anchorTn = getTargetEvade(firstTok?.actor) || 6;
         const { masteryRoll } = await import('./dice/roll-handler.js');
         const areaRoll = await masteryRoll({
           numDice,
-          keepDice: mr,
+          keepDice,
           skill: 0,
           tn: anchorTn,
-          label: `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
-          flavor: `Roll ${numDice}d8 keep ${mr} — AoE: same result compared separately against each creature's Evade`,
+          label: sheetHit?.name
+            ? sheetHit.name
+            : `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
+          flavor: `Roll ${numDice}d8 keep ${keepDice} — AoE: same result compared separately against each creature's Evade`,
           actorId: (actor as any).id,
           rollKind: 'attack',
           autoFailIntent: 'attack',

@@ -553,6 +553,29 @@ Hooks.once('init', async function() {
   }
   bindShutdownCombatClick();
 
+  function bindEndTurnClick(): void {
+    const w = window as unknown as { _msEndTurnClickBound?: boolean };
+    if (w._msEndTurnClickBound) return;
+    w._msEndTurnClickBound = true;
+    document.addEventListener(
+      'click',
+      (ev) => {
+        const target = ev.target as HTMLElement | null;
+        const btn = target?.closest?.('.js-end-turn, .ms-end-turn-btn') as HTMLButtonElement | null;
+        if (!btn || btn.disabled) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+        void (async () => {
+          const { requestEndTurn } = await import('./combat/end-turn.js');
+          await requestEndTurn();
+        })();
+      },
+      true,
+    );
+  }
+  bindEndTurnClick();
+
   // Hide initiative roll button (d20) and add passive selection button in combat tracker
   // Also add End Turn button for current combatant
   Hooks.on('renderCombatTracker', (_app: any, html: any) => {

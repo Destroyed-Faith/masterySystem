@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import {
   npcAttacksPerRoundCap,
   npcAttackUsageKey,
+  npcAttackDiceCount,
+  resolveNpcSheetToHit,
   resolveNpcAttackSlots,
   sumNpcAttackSlotsFromPowers,
 } from '../src/utils/npc-attack-model.js';
@@ -123,5 +125,75 @@ describe('resolveNpcAttackSlots (explicit per phase)', () => {
       ],
     };
     expect(resolveNpcAttackSlots(system)).toBe(3);
+  });
+});
+
+describe('npc attack dice pool', () => {
+  it('uses the sheet count, and an empty field is 6 not Might', () => {
+    expect(npcAttackDiceCount(null)).toBe(0);
+    expect(npcAttackDiceCount({ attackDiceCount: 0 } as any)).toBe(0);
+    expect(npcAttackDiceCount({ attackDiceCount: 2 } as any)).toBe(2);
+    expect(npcAttackDiceCount({} as any)).toBe(6);
+    expect(npcAttackDiceCount({ attackDiceCount: '' } as any)).toBe(6);
+    expect(npcAttackDiceCount({ attackDiceCount: 6 } as any)).toBe(6);
+  });
+
+  it('keeps an explicit token count and only reads the prototype when the token field is blank', () => {
+    const tokenTwo = {
+      npcBaseAttack: { name: 'Hieb', attackDiceCount: 2, damageDiceCount: 4 },
+    };
+    const protoSix = {
+      npcBaseAttack: { name: 'Waffenangriff', attackDiceCount: 6, damageDiceCount: 4 },
+    };
+    expect(
+      resolveNpcSheetToHit({
+        actorType: 'npc',
+        system: tokenTwo,
+        masteryRank: 2,
+        prototypeSystem: protoSix,
+      }),
+    ).toEqual({ dice: 2, keep: 2, name: 'Hieb' });
+
+    expect(
+      resolveNpcSheetToHit({
+        actorType: 'npc',
+        system: { npcBaseAttack: { name: 'Waffenangriff' } },
+        masteryRank: 2,
+        prototypeSystem: protoSix,
+      }),
+    ).toEqual({ dice: 6, keep: 2, name: 'Waffenangriff' });
+
+    expect(
+      resolveNpcSheetToHit({
+        actorType: 'npc',
+        system: {},
+        masteryRank: 2,
+      }),
+    ).toEqual({ dice: 6, keep: 2, name: '' });
+
+    expect(
+      resolveNpcSheetToHit({
+        actorType: 'summon',
+        system: { npcBaseAttack: { name: 'Summon Attack', attackDiceCount: 2 } },
+        masteryRank: 1,
+        prototypeSystem: protoSix,
+      }),
+    ).toEqual({ dice: 2, keep: 1, name: 'Summon Attack' });
+
+    expect(
+      resolveNpcSheetToHit({
+        actorType: 'summon',
+        system: {},
+        masteryRank: 1,
+      }),
+    ).toBeNull();
+
+    expect(
+      resolveNpcSheetToHit({
+        actorType: 'character',
+        system: protoSix,
+        masteryRank: 4,
+      }),
+    ).toBeNull();
   });
 });

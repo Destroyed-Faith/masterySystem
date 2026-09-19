@@ -116,6 +116,8 @@
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
+  z-index: 70 !important;
+  pointer-events: none !important;
 }
 
 #mastery-combat-carousel .window-header,
@@ -135,7 +137,15 @@
 }
 
 #mastery-combat-carousel .mastery-carousel {
-  pointer-events: auto;
+  pointer-events: auto !important;
+}
+
+.portrait-end-turn,
+#mastery-combat-carousel .portrait-end-turn,
+#mastery-combat-carousel .js-end-turn {
+  position: relative;
+  z-index: 30;
+  pointer-events: auto !important;
 }
 
 /* ========================================

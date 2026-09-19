@@ -59,7 +59,14 @@ export class CombatCarouselApp extends BaseCarousel {
       positioned: false, // Let CSS handle positioning
       resizable: false,
       minimizable: false
-    }
+    },
+    actions: {
+      endTurn: function (this: CombatCarouselApp, event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+        void requestEndTurn();
+      },
+    },
   };
 
   static PARTS = {
@@ -477,7 +484,9 @@ export class CombatCarouselApp extends BaseCarousel {
 
     // Portrait click - pan to token; double-click - open actor sheet
     root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {
-      portrait.onclick = async (_ev: MouseEvent) => {
+      portrait.onclick = async (ev: MouseEvent) => {
+        const hit = ev.target as HTMLElement | null;
+        if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers')) return;
         const combatantId = portrait.dataset.combatantId;
         if (!combatantId) return;
 
@@ -503,6 +512,8 @@ export class CombatCarouselApp extends BaseCarousel {
       portrait.ondblclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         ev.stopPropagation();
+        const hit = ev.target as HTMLElement | null;
+        if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button')) return;
         const combatantId = portrait.dataset.combatantId;
         if (!combatantId) return;
         const combat = game.combats?.active;

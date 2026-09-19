@@ -15,6 +15,7 @@ import {
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
+import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
 
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number): number {
@@ -324,7 +325,19 @@ export async function executeAttackRollFromCard(
       
       const attributeKey = flags.attribute?.toLowerCase();
       const liveAttr = attackerForRoll?.system?.attributes?.[attributeKey]?.value;
+      const protoId = attackerForRoll?.isToken ? attackerForRoll.token?.actorId : null;
+      const prototypeActor = protoId ? (game as any).actors?.get?.(protoId) : null;
+      const sheetToHit = resolveNpcSheetToHit({
+        actorType: attackerForRoll?.type,
+        system: attackerForRoll?.system,
+        masteryRank: Number(flags.masteryRank ?? attackerForRoll?.system?.mastery?.rank ?? 2),
+        attackIndex: flags.npcAttackIndex != null ? Number(flags.npcAttackIndex) : 0,
+        phaseIndex: flags.npcPhaseIndex ?? null,
+        prototypeSystem:
+          prototypeActor && prototypeActor !== attackerForRoll ? prototypeActor.system : null,
+      });
       const npcPool =
+        !sheetToHit &&
         flags.useNpcAttackDicePool &&
         Number.isFinite(Number(flags.npcAttackDicePool)) &&
         Number(flags.npcAttackDicePool) > 0
@@ -333,8 +346,12 @@ export async function executeAttackRollFromCard(
       // Split-Attack: the executor pre-halved the pool and stored it in
       // flags.attributeValue. Do NOT fall back to the live attribute value for
       // split-attack strikes, because that would bypass the pool halving.
+      // NPC/summon clicks re-read the sheet row so a stale card cannot keep Might 2.
       let numDice: number;
-      if (npcPool > 0) {
+      if (sheetToHit) {
+        numDice = sheetToHit.dice;
+        if (flags.splitAttack === true) numDice = Math.max(0, Math.floor(numDice / 2));
+      } else if (npcPool > 0) {
         numDice = npcPool;
       } else if (flags.splitAttack === true && Number.isFinite(Number(flags.attributeValue)) && Number(flags.attributeValue) > 0) {
         numDice = Number(flags.attributeValue);
@@ -475,9 +492,11 @@ export async function executeAttackRollFromCard(
       const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;
       
       // NPC attacks carry their printed Keep value ("6d8, Keep 1"); PCs keep MR.
-      const npcKeep = Math.floor(Number(flags.npcAttackKeepDice) || 0);
+      const npcKeep = sheetToHit
+        ? sheetToHit.keep
+        : Math.floor(Number(flags.npcAttackKeepDice) || 0);
       let keepDice =
-        flags.npcAttackSource && npcKeep > 0
+        npcKeep > 0
           ? npcKeep
           : (flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2));
       const baseKeepDice = keepDice;
@@ -492,7 +511,7 @@ export async function executeAttackRollFromCard(
       const isSpellcasting = tnKind === 'casting';
       // Warn if values don't match (for debugging) — but split-attack is
       // expected to differ (flags holds half of live attribute), so skip then.
-      if (flags.attributeValue !== numDice && flags.attributeValue > 0 && flags.splitAttack !== true) {
+      if (!sheetToHit && flags.attributeValue !== numDice && flags.attributeValue > 0 && flags.splitAttack !== true) {
         console.warn('Mastery System | [ATTACK ROLL] Using live attribute value instead of flags', {
           flagsValue: flags.attributeValue,
           liveValue: numDice,
@@ -527,10 +546,13 @@ export async function executeAttackRollFromCard(
       const rollFlavor = opts.faithReroll
         ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Reroll Point.`
         : rollFlavorBase;
+      const sheetAttackName = String(sheetToHit?.name || flags.npcAttackName || '').trim();
       const rollLabel =
         tnKind === 'casting'
           ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
-          : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
+          : sheetAttackName
+            ? sheetAttackName
+            : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
 
       const actionEco = await import('../combat/action-economy.js');
       const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
