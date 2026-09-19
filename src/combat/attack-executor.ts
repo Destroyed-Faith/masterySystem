@@ -18,7 +18,6 @@ import {
   npcDamageDiceFormula
 } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
-import { formatEffectReference } from "../utils/special-effects.js";
 import { parseD8Count } from "../utils/dice-formula.js";
 import { basicAttackMrDamageFormula } from "./basic-combat.js";
 import {
@@ -40,12 +39,10 @@ import {
   declaredRaiseFromOptionId,
   dedupeDeclaredRaises,
   describeDeclaredRaise,
-  describeSnapshotDelta,
-  formatAttackDiceLine,
+  formatHitBreakdown,
   loadPowerSnapshotForArtifactOption,
   loadPowerSnapshotForItem,
   paidRaiseSlots,
-  previewAfterRaiseCost,
   resolvePowerSnapshot,
   type DeclaredRaise,
   type PowerSnapshot,
@@ -152,15 +149,7 @@ function resolveWeaponForAttack(items: any[], attackType: "melee" | "ranged"): a
  * dice (spells, unarmed flat damage) this is the plain power snapshot summary.
  */
 function formatOnHitSummary(snapshot: PowerSnapshot, weaponDice: number | undefined): string {
-  const dice = formatAttackDiceLine(snapshot.damageDice, weaponDice);
-  const specials = snapshot.specials
-    .filter((sp) => sp.rank > 0)
-    .map((sp) => {
-      const name = sp.key.charAt(0).toUpperCase() + sp.key.slice(1);
-      return `${name}(${sp.rank})`;
-    });
-  if (!specials.length) return `${dice}.`;
-  return `${dice}. Schon auf dem Angriff, auch ohne Raise: ${specials.join(', ')}.`;
+  return formatHitBreakdown(weaponDice, snapshot.damageDice, { specials: snapshot.specials });
 }
 
 /**
@@ -784,27 +773,6 @@ export async function createAttackCard(
         ? `${baseOptionName} (AoE)`
         : baseOptionName;
   const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
-  const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
-
-  const innateLines: string[] = weapon
-    ? ([] as unknown[]).concat((weapon.system as any)?.innateAbilities || []).map((x) => String(x))
-    : [];
-  // Artifact virtual weapons carry specials as `{ specialId, value }` refs;
-  // conventional weapons as plain strings. Format both readably.
-  const weaponSpecialLines: string[] = weapon
-    ? ([] as unknown[])
-        .concat((weapon.system as any)?.specials || [])
-        .map((x: any) => (x && typeof x === 'object' ? formatEffectReference(x) : String(x ?? '').trim()))
-        .filter(Boolean)
-    : [];
-  const innatesHtml =
-    innateLines.length > 0
-      ? `<div class="detail-row"><span class="detail-label">Weapon innates:</span><span class="detail-value">${innateLines.map(attackCardEsc).join(", ")}</span></div>`
-      : "";
-  const weaponSpecialsHtml =
-    weaponSpecialLines.length > 0
-      ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")} (nur per Raise)</span></div>`
-      : "";
 
   const npcSpecialsLine =
     isNpcAttack && npcAttackRow ? formatNpcAttackSpecialsLine(npcAttackRow) : "";
@@ -878,12 +846,6 @@ export async function createAttackCard(
   const raisePlanHtml = raiseContext
     ? `
     <div class="raise-plan-panel">
-      <div class="raise-tn-row">
-        <span>Normal TN: <strong>${normalTn}</strong></span>
-        <span>Raise TN: <strong class="raise-tn-display">${normalTn}</strong></span>
-      </div>
-      <div class="raise-preview-row"><span class="raise-preview-label">Wenn du triffst:</span> <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
-      <div class="raise-preview-row raise-success-row" hidden><span class="raise-success-label">Wenn der Raise gelingt:</span> <strong class="raise-success-display"></strong></div>
       ${
         raiseContext.isSpell
           ? `<div class="spell-cost-split-row md-sublabel">
@@ -894,9 +856,6 @@ export async function createAttackCard(
         </div>`
           : ''
       }
-      ${''}
-      <div class="raise-plan-live">Noch kein Raise gewählt.</div>
-      <p class="raise-once-hint">Schaden kannst du stapeln. Ein Special ist aus, bis du es raisst, und jedes nur einmal.</p>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -918,6 +877,22 @@ export async function createAttackCard(
   }
   const evadeNote = evadeNoteParts.length ? ` (${evadeNoteParts.join('; ')})` : '';
   
+  const keepShown = isNpcAttack ? npcAttackKeepDice(npcAttackRow, masteryRank) : masteryRank;
+  const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
+  const wurfLine = `${attributeValue}k${keepShown} (${attrLabel})`;
+  const tnLabel =
+    tnKind === 'casting'
+      ? aoeMelee
+        ? 'Anchor TN'
+        : 'Casting TN'
+      : aoeMelee
+        ? 'Anchor Evade'
+        : 'Target Evade';
+  const tnValue = tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : normalTn;
+  const hitLine = raiseContext
+    ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice)
+    : '';
+
   const content = `
     <div class="mastery-attack-card">
       <div class="attack-header">
@@ -927,44 +902,31 @@ export async function createAttackCard(
       ${threatenedHtml}
       <div class="attack-details">
         <div class="detail-row">
-          <span class="detail-label">Attack:</span>
-          <span class="detail-value">${attackKindLabel}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Attribute:</span>
-          <span class="detail-value">${attribute.charAt(0).toUpperCase() + attribute.slice(1)} (${attributeValue})</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Mastery Rank:</span>
-          <span class="detail-value">${masteryRank}</span>
+          <span class="detail-label">Wurf:</span>
+          <span class="detail-value">${wurfLine}</span>
         </div>
         ${
           tr.rollDisadvantage
-            ? `<div class="detail-row"><span class="detail-label">Disadvantage:</span><span class="detail-value">Yes (Threatened Ranged)</span></div>`
+            ? `<div class="detail-row"><span class="detail-label">Nachteil:</span><span class="detail-value">nur eine 8 explodiert</span></div>`
             : ""
         }
-        ${
-          tnKind === 'casting' && castingBaseTn != null
-            ? `<div class="detail-row">
-          <span class="detail-label">${aoeMelee ? 'Anchor Final Spell TN' : 'Casting TN'}:</span>
-          <span class="detail-value">${castingBaseTn}${
-              npcIsSpell
-                ? ` (8 × Mastery Rank ${masteryRank})`
-                : ` (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})`
-            }${aoeMelee ? ' — each creature checked separately' : ''}</span>
-        </div>`
-            : `<div class="detail-row">
-          <span class="detail-label">${aoeMelee ? 'Anchor Evade' : 'Target Evade'}:</span>
-          <span class="detail-value">${normalTn}${evadeNote}${
-              aoeMelee ? ' — each creature checked separately' : ''
-            }</span>
-        </div>`
-        }
+        <div class="detail-row">
+          <span class="detail-label">${tnLabel}:</span>
+          <span class="detail-value">${tnValue}${evadeNote}${
+            aoeMelee ? ' — jede Kreatur extra' : ''
+          }${
+            raiseContext
+              ? ` · Raise TN <strong class="raise-tn-display">${normalTn}</strong>`
+              : ''
+          }</span>
+        </div>
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
-        ${innatesHtml}
-        ${weaponSpecialsHtml}
         ${npcAttackDetailHtml}
-        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${attackCardEsc(option.name)}</span></div>` : ""}
+        ${
+          hitLine
+            ? `<div class="detail-row"><span class="detail-label">Wenn du triffst:</span><span class="detail-value raise-cost-display">${attackCardEsc(hitLine)}</span></div>`
+            : ''
+        }
       </div>
       <div class="attack-controls">
         ${raisePlanHtml ? `<div class="raises-input-group" title="${attackCardEsc(raisesTitle)}">${raisePlanHtml}</div>` : ''}
@@ -1334,38 +1296,26 @@ function setupRaisesHandler(
         button.removeAttr('data-spell-cost');
       }
     }
-    const preview = previewAfterRaiseCost(
-      raiseContext!.baseSnapshot,
-      plan,
-      raiseContext!.masteryRank,
-      raiseContext!.isSpell,
-      spellCostOverride,
-    );
     const summary = summaryFor(draft);
     panel.find('.raise-plan-live').text(summary);
-    panel.find('.raise-tn-display').text(String(raiseTn));
-    panel.find('.raise-preview-label').text(
-      paid > 0 ? 'Wenn du triffst, der Raise aber nicht:' : 'Wenn du triffst:',
+    messageElement.find('.raise-tn-display').text(String(raiseTn));
+    const full = plan.length
+      ? resolvePowerSnapshot({
+          base: raiseContext!.baseSnapshot,
+          declaredRaises: plan,
+          outcome: 'full',
+          masteryRank: raiseContext!.masteryRank,
+          isSpell: raiseContext!.isSpell,
+          spellCostOverride,
+        })
+      : raiseContext!.baseSnapshot;
+    const raiseDice = Math.max(0, full.damageDice - raiseContext!.baseSnapshot.damageDice);
+    messageElement.find('.raise-cost-display').text(
+      formatHitBreakdown(raiseContext!.weaponDamageDice, raiseContext!.baseSnapshot.damageDice, {
+        raiseDice,
+        specials: full.specials,
+      }),
     );
-    panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext!.weaponDamageDice));
-    const successRow = panel.find('.raise-success-row');
-    if (plan.length > 0) {
-      const full = resolvePowerSnapshot({
-        base: raiseContext!.baseSnapshot,
-        declaredRaises: plan,
-        outcome: 'full',
-        masteryRank: raiseContext!.masteryRank,
-        isSpell: raiseContext!.isSpell,
-        spellCostOverride,
-      });
-      successRow.prop('hidden', false);
-      panel.find('.raise-success-display').text(
-        describeSnapshotDelta(raiseContext!.baseSnapshot, full, raiseContext!.weaponDamageDice),
-      );
-    } else {
-      successRow.prop('hidden', true);
-      panel.find('.raise-success-display').text('');
-    }
     button.attr('data-raise-tn', String(raiseTn));
     button.attr('data-raise-slots', String(slots));
     button.attr('data-raise-plan', JSON.stringify(plan));

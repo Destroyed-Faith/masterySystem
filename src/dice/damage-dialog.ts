@@ -29,7 +29,6 @@ import {
   resolvePowerSnapshot,
   snapshotToDamageFormula,
   snapshotToSpecialStrings,
-  formatRaiseResultLine,
   type DeclaredRaise,
   type PowerSnapshot,
   type RaiseCostAllocation,
@@ -676,6 +675,9 @@ export async function showDamageDialog(
     }
   }
   let raiseOutcomeLine = '';
+  let shownPowerDamage = '';
+  let shownRaiseDamage = '';
+  let shownSpecials = '';
   let resolvedPowerSnapshot: PowerSnapshot | null = null;
   if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
     const masteryRank = Math.max(
@@ -718,22 +720,24 @@ export async function showDamageDialog(
     }
     powerSpecials.length = 0;
     powerSpecials.push(...resolvedSpecials);
-    const lostCost = flags.waiveRaiseCost
-      ? 0
-      : computeTotalRaiseCost(paidRaiseSlots(declaredRaises), masteryRank);
-    const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8 Schaden`;
-    const weaponDice = Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0));
-    raiseOutcomeLine =
-      outcome === 'partial' || outcome === 'full'
-        ? formatRaiseResultLine({
-            outcome,
-            base: flags.basePowerSnapshot as PowerSnapshot,
-            resolved: resolvedPowerSnapshot,
-            declared: declaredRaises,
-            lostCostLabel: outcome === 'partial' && lostCost > 0 ? lostCostLabel : undefined,
-            weaponDice,
-          })
-        : '';
+    const basePowerDice = Math.max(
+      0,
+      Math.floor(Number((flags.basePowerSnapshot as PowerSnapshot).damageDice) || 0),
+    );
+    const resolvedPowerDice = Math.max(0, Math.floor(resolvedPowerSnapshot.damageDice));
+    if (outcome === 'full') {
+      shownPowerDamage = `${basePowerDice}d8`;
+      const extra = resolvedPowerDice - basePowerDice;
+      if (extra > 0) shownRaiseDamage = `+${extra}d8`;
+      shownSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot).join(', ');
+      raiseOutcomeLine = '';
+    } else if (outcome === 'partial') {
+      const lostCost = flags.waiveRaiseCost
+        ? 0
+        : computeTotalRaiseCost(paidRaiseSlots(declaredRaises), masteryRank);
+      shownPowerDamage = `${resolvedPowerDice}d8`;
+      raiseOutcomeLine = lostCost > 0 ? `Raise verfehlt, −${lostCost}d8` : 'Raise verfehlt';
+    }
   }
 
   let npcAutoDamageDice = 0;
@@ -833,6 +837,15 @@ export async function showDamageDialog(
       npcAutoNoteLines,
       raiseOutcomeLine,
       targetMarkValue,
+      {
+        power: shownPowerDamage,
+        raise: shownRaiseDamage,
+        specials: shownSpecials,
+        might:
+          flags?.attackType === 'melee'
+            ? Math.max(0, Math.floor(Number((actorToUse as any)?.system?.scaling?.mightDamageBonus) || 0))
+            : 0,
+      },
     );
     
     // Get targetTokenId if target is a token actor (for unlinked tokens)
@@ -922,6 +935,7 @@ function createDamageCardContent(
   npcAutoNoteLines: string[] = [],
   raiseOutcomeLine: string = '',
   targetMarkValue: number = 0,
+  hitSplit: { power?: string; raise?: string; specials?: string; might?: number } = {},
 ): string {
   const raisesSection = raiseOutcomeLine
     ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
@@ -956,37 +970,45 @@ function createDamageCardContent(
             : ''
         }
         <div class="damage-row">
-          <span class="damage-label">Base Weapon Damage:</span>
+          <span class="damage-label">Waffe:</span>
           <span class="damage-value">${baseDamage || '0'}</span>
         </div>
+        <div class="damage-row">
+          <span class="damage-label">Power:</span>
+          <span class="damage-value">${hitSplit.power || powerDamage || '0'}</span>
+        </div>
         ${
-          weaponInnateLines.length > 0
+          hitSplit.raise
             ? `<div class="damage-row">
-          <span class="damage-label">Weapon innates (reference):</span>
-          <span class="damage-value">${weaponInnateLines.map(damageCardHtmlEsc).join(', ')}</span>
+          <span class="damage-label">Raise:</span>
+          <span class="damage-value">${damageCardHtmlEsc(hitSplit.raise)}</span>
         </div>`
             : ''
         }
-        ${selectedPower ? `
-          <div class="damage-row">
-            <span class="damage-label">Power:</span>
-            <span class="damage-value">${selectedPower.name} (Level ${selectedPower.level})</span>
-          </div>
-          ${selectedPower.specials && selectedPower.specials.length > 0 ? `
-            <div class="damage-row">
-              <span class="damage-label">Power Special Effects:</span>
-              <span class="damage-value">${selectedPower.specials.join(', ')}</span>
-            </div>
-          ` : ''}
-        ` : ''}
-        <div class="damage-row">
-          <span class="damage-label">Power Damage:</span>
-          <span class="damage-value">${powerDamage || '0'}</span>
-        </div>
-        <div class="damage-row">
-          <span class="damage-label">Passive Damage:</span>
-          <span class="damage-value">${passiveDamage || '0'}</span>
-        </div>
+        ${
+          hitSplit.specials
+            ? `<div class="damage-row">
+          <span class="damage-label">Special:</span>
+          <span class="damage-value">${damageCardHtmlEsc(hitSplit.specials)}</span>
+        </div>`
+            : ''
+        }
+        ${
+          (hitSplit.might || 0) > 0
+            ? `<div class="damage-row">
+          <span class="damage-label">Might/8:</span>
+          <span class="damage-value">+${hitSplit.might}, fest</span>
+        </div>`
+            : ''
+        }
+        ${
+          passiveDamage && passiveDamage !== '0'
+            ? `<div class="damage-row">
+          <span class="damage-label">Passive:</span>
+          <span class="damage-value">${passiveDamage}</span>
+        </div>`
+            : ''
+        }
       </div>
       ${raisesSection}
       ${markSpendSection}
@@ -2658,7 +2680,7 @@ async function calculateDamageResult(
       const mb = Number((attacker as any)?.system?.scaling?.mightDamageBonus ?? 0) || 0;
       if (mb > 0) {
         mightMeleeBonus = mb;
-        rollDetails.push(`Might melee bonus: +${mb}`);
+        rollDetails.push(`Might/8: +${mb}, fest`);
       }
     } catch {
       mightMeleeBonus = 0;

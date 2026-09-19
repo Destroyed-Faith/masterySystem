@@ -395,6 +395,27 @@ function displaySpecialName(key: string): string {
   return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
+/** One line: 11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise). */
+export function formatHitBreakdown(
+  weaponDice: number | undefined,
+  powerDice: number,
+  extra?: { raiseDice?: number; specials?: PowerSpecialEntry[] },
+): string {
+  const w = Math.max(0, Math.floor(weaponDice ?? 0));
+  const p = Math.max(0, Math.floor(powerDice));
+  const r = Math.max(0, Math.floor(extra?.raiseDice ?? 0));
+  const total = w + p + r;
+  const parts: string[] = [];
+  if (w > 0) parts.push(`${w}d8 Waffe`);
+  if (p > 0 || w > 0) parts.push(`${p}d8 Power`);
+  if (r > 0) parts.push(`${r}d8 Raise`);
+  const head = parts.length ? `${total}d8 (${parts.join(' + ')})` : `${total}d8`;
+  const specs = (extra?.specials ?? [])
+    .filter((sp) => sp.rank > 0)
+    .map((sp) => `${displaySpecialName(sp.key)}(${sp.rank})`);
+  return specs.length ? `${head} + ${specs.join(', ')}` : head;
+}
+
 /** Weapon dice plus power dice, so 4d8 total is not read as the Raise itself. */
 export function formatAttackDiceLine(powerDice: number, weaponDice?: number): string {
   const w = Math.max(0, Math.floor(weaponDice ?? 0));

@@ -9,6 +9,7 @@ import {
   countRaiseSlots,
   defaultSpellCostAllocation,
   formatDeclaredRaiseList,
+  formatHitBreakdown,
   formatRaiseResultLine,
   paidRaiseSlots,
   previewAfterRaiseCost,
@@ -201,6 +202,11 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(snap.specials.find((s) => s.key === 'precision')?.rank).toBe(6);
     expect(snap.damageDice).toBe(8 + 2 + 2);
     expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(4);
+  });
+
+  it('writes the hit as weapon plus power plus raise', () => {
+    expect(formatHitBreakdown(5, 4, { raiseDice: 2 })).toBe('11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise)');
+    expect(formatHitBreakdown(5, 4)).toBe('9d8 (5d8 Waffe + 4d8 Power)');
   });
 
   it('does not offer a +4 m range Raise', () => {
