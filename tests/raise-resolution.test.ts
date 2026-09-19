@@ -12,6 +12,7 @@ import {
   formatRaiseResultLine,
   paidRaiseSlots,
   previewAfterRaiseCost,
+  declaredRaiseFromOptionId,
   dedupeDeclaredRaises,
   resolvePowerSnapshot,
   resolveRaiseOutcome,
@@ -140,6 +141,34 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     });
     expect(snapshotToDamageFormula(snap)).toBe('8d8');
     expect(snap.specials[0].rank).toBe(6);
+  });
+
+  it('a Special Raise turns the printed rank on; it does not add MR on top', () => {
+    const latent = buildAvailableRaiseOptions(
+      {
+        ...examplePower(),
+        damageDice: 4,
+        specials: [{ key: 'precision', rank: 2 }],
+      },
+      false,
+    );
+    const precision = latent.find((o) => o.id === 'special:precision');
+    expect(precision?.label).toBe('Precision(2)');
+    expect(precision?.printedRank).toBe(2);
+    const base = examplePower();
+    base.damageDice = 4;
+    base.specials = [];
+    const declared = declaredRaiseFromOptionId('special:precision', latent);
+    expect(declared?.printedRank).toBe(2);
+    const snap = resolvePowerSnapshot({
+      base,
+      declaredRaises: declared ? [declared] : [],
+      outcome: 'full',
+      masteryRank: 2,
+      isSpell: false,
+    });
+    expect(snap.specials).toEqual([{ key: 'precision', rank: 2 }]);
+    expect(snap.damageDice).toBe(4);
   });
 
   it('a Special Raise is once per attack; damage Raises still stack', () => {

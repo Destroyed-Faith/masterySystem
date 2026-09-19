@@ -636,6 +636,15 @@ export async function createAttackCard(
     }
   }
 
+  if (raiseContext && !raiseContext.isSpell && !isNpcAttack) {
+    const latent = raiseContext.baseSnapshot.specials.map((sp) => ({ ...sp }));
+    raiseContext.baseSnapshot = { ...raiseContext.baseSnapshot, specials: [] };
+    raiseContext.raiseOptions = buildAvailableRaiseOptions(
+      { ...raiseContext.baseSnapshot, specials: latent },
+      false,
+    );
+  }
+
   // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
   // on top of the power's bonus dice, so the preview can show the real total.
   if (raiseContext && !raiseContext.isSpell) {
@@ -794,7 +803,7 @@ export async function createAttackCard(
       : "";
   const weaponSpecialsHtml =
     weaponSpecialLines.length > 0
-      ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")}</span></div>`
+      ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")} (nur per Raise)</span></div>`
       : "";
 
   const npcSpecialsLine =
@@ -887,7 +896,7 @@ export async function createAttackCard(
       }
       ${''}
       <div class="raise-plan-live">Noch kein Raise gewählt.</div>
-      <p class="raise-once-hint">Schaden kannst du stapeln. Jedes Special nur einmal. Was schon auf der Waffe steht, ist kein Raise.</p>
+      <p class="raise-once-hint">Schaden kannst du stapeln. Ein Special ist aus, bis du es raisst, und jedes nur einmal.</p>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`

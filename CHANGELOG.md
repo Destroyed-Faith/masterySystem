@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.517] - 2026-09-19
+
+### Changed
+
+- **Raises:** Ein Special auf Waffe oder Power ist aus, bis du es raisst. Der Raise schaltet den gedruckten Wert ein, zum Beispiel Precision(2), und legt nicht noch den MR obendrauf.
+- **Artefakt-Waffenschaden:** Basis plus 1d8 pro Stufe. Die Moonlight Greatsword auf Level 1 macht 5d8, nicht 4d8.
+
 ## [0.9.516] - 2026-09-19
 
 ### Changed

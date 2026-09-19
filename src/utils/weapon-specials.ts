@@ -1,9 +1,9 @@
 /**
  * Weapon Specials shared by artifacts, raise options, and the damage pipeline.
  *
- * Catalog Specials (Penetration, Precision, …) ride the wielded weapon. They
- * always apply on a hit, and they are legal Raise targets. The same Special
- * must not be applied twice when the raise snapshot already carries it.
+ * Catalog Specials (Penetration, Precision, …) ride the wielded weapon as a
+ * printed rank. They are off until a Raise turns that rank on. The same
+ * Special must not be applied twice.
  */
 
 import type { PowerSnapshot, PowerSpecialEntry } from '../combat/raise-resolution.js';
@@ -136,8 +136,8 @@ function effectKey(text: string): string | null {
 }
 
 /**
- * On-hit Specials: power snapshot first, then weapon Specials that are not
- * already in that snapshot (so a Raise does not stack the printed rank twice).
+ * On-hit Specials are only the ones the resolved snapshot already lists.
+ * Weapon and Power Specials stay off until a Raise turns that printed rank on.
  */
 export function selectOnHitSpecialEffects(
   available: Array<{ type?: string; effect?: string }>,
@@ -146,15 +146,10 @@ export function selectOnHitSpecialEffects(
   const covered = new Set<string>();
   for (const special of available) {
     if (special.type !== 'power-special' || !special.effect) continue;
-    used.push(special.effect);
     const key = effectKey(special.effect);
+    if (key && covered.has(key)) continue;
+    used.push(special.effect);
     if (key) covered.add(key);
-  }
-  for (const special of available) {
-    if (special.type !== 'weapon' || !special.effect) continue;
-    const key = effectKey(special.effect);
-    if (!key || covered.has(key)) continue;
-    used.push(special.effect);
   }
   return used;
 }

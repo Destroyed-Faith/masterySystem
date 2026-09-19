@@ -337,9 +337,9 @@ function resolveWeaponBaseDamage(weapon: any | null): string {
   // Artifact weapons (e.g. Dragon Claws) keep their dice on
   // `system.artifactWeapon.damage` (e.g. "4d8"), NOT on `system.damage`.
   // Prefer it when present so artifacts don't fall back to the 1d8 default.
-  // For standard one/two-handed profiles, derive the canonical base+level dice
-  // live (2d8/4d8 base + 1d8/level) so existing artifacts always reflect the
-  // current rule even when their baked damage string is stale.
+  // For standard one/two-handed profiles, derive the canonical dice live
+  // (base + 1d8 per level, so two-handed Level 1 is 5d8) even when a baked
+  // damage string is stale.
   const artifactLevel = Math.max(1, Math.min(10, Number(weaponSystem.currentLevel) || Number(weaponSystem.level) || 1));
   const derivedArtifactDamage =
     weapon.type === 'artifact' ? deriveArtifactWeaponDamage(weaponSystem.baseProfile, artifactLevel) : null;
@@ -2498,9 +2498,8 @@ async function calculateDamageResult(
   const specialsUsed: string[] = [];
   let raiseDiceCount = 0;
 
-  // Base power specials from the resolved snapshot apply on every successful hit.
-  // Weapon Specials apply too, unless the snapshot already carries that Special
-  // (a Raise then changes the rank once, instead of stacking the printed value).
+  // Only Specials the Raise resolution put on the power snapshot apply.
+  // A printed weapon Special stays off until that Raise is chosen.
   specialsUsed.push(...selectOnHitSpecialEffects(availableSpecials));
   
   for (let i = 0; i < raises; i++) {

@@ -1025,6 +1025,10 @@
   gap: 0.35rem;
 }
 
+#chat-log .mastery-attack-card .raise-effect-select {
+  flex: 1 1 100%;
+}
+
 #chat-log .mastery-attack-card .raise-free-label {
   display: inline-flex;
   align-items: center;

@@ -53,7 +53,7 @@ describe('weapon specials', () => {
     expect(labels).toContain('special:precision');
   });
 
-  it('applies weapon specials once when the snapshot already lists them', () => {
+  it('does not turn a weapon Special on unless the snapshot already lists it', () => {
     expect(
       selectOnHitSpecialEffects([
         { type: 'power-special', effect: 'Penetration(6)' },
@@ -61,7 +61,7 @@ describe('weapon specials', () => {
         { type: 'weapon', effect: 'Precision(2)' },
         { type: 'weapon', effect: 'Finesse' },
       ]),
-    ).toEqual(['Penetration(6)', 'Precision(2)']);
+    ).toEqual(['Penetration(6)']);
   });
 
   it('backfills an empty crossbow artifact from its base type', () => {

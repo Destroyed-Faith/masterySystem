@@ -44,6 +44,8 @@ export interface DeclaredRaise {
   slots: 1 | 2;
   /** GM marked this one Raise free. The others still pay. */
   free?: boolean;
+  /** Printed rank turned on by a Special Raise. Not added on top of MR. */
+  printedRank?: number;
   /** Attack-card label, so the table can see which Raise was picked. */
   label?: string;
 }
@@ -60,6 +62,8 @@ export interface RaiseOption {
   label: string;
   effect: RaiseEffectKind;
   targetSpecialKey?: string;
+  /** Printed rank this Raise turns on. A Special is off until this Raise. */
+  printedRank?: number;
   slots: 1 | 2;
 }
 
@@ -237,9 +241,15 @@ function applyOneRaiseEffect(
       snap.damageDice += isSpell ? 1 : mr;
       break;
     case 'specialPlus': {
-      const key = raise.targetSpecialKey;
+      const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
       if (!key) break;
+      const printed = Math.max(0, Math.floor(Number(raise.printedRank) || 0));
       const sp = snap.specials.find((s) => s.key === key);
+      if (printed > 0) {
+        if (sp) sp.rank = printed;
+        else snap.specials.push({ key, rank: printed });
+        break;
+      }
       if (sp) sp.rank += mr;
       break;
     }
@@ -350,9 +360,10 @@ export function buildAvailableRaiseOptions(
     const name = displaySpecialName(sp.key);
     options.push({
       id: `special:${sp.key}`,
-      label: `${name} +MR`,
+      label: `${name}(${sp.rank})`,
       effect: 'specialPlus',
       targetSpecialKey: sp.key,
+      printedRank: sp.rank,
       slots: 1,
     });
   }
@@ -417,7 +428,7 @@ export function describeSnapshotDelta(
     seen.add(sp.key);
     const from = baseRanks.get(sp.key);
     const name = displaySpecialName(sp.key);
-    if (from == null) parts.push(`${name} neu (${sp.rank})`);
+    if (from == null) parts.push(`${name}(${sp.rank}) aktiv`);
     else if (from !== sp.rank) parts.push(`${name} ${from} → ${sp.rank}`);
   }
   for (const sp of base.specials) {
@@ -720,5 +731,6 @@ export function declaredRaiseFromOptionId(
     targetSpecialKey: opt.targetSpecialKey,
     slots: opt.slots,
     label: opt.label,
+    ...(opt.printedRank ? { printedRank: opt.printedRank } : {}),
   };
 }
