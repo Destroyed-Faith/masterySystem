@@ -86,7 +86,7 @@ describe('combat end cleanup', () => {
     expect(npc.getFlag('mastery-system', 'tempColorlessStones')).toBeUndefined();
   });
 
-  it('keeps ongoing Specials on players and wipes them on NPCs', async () => {
+  it('wipes ongoing Specials on players and NPCs after combat', async () => {
     const pc = mockActor('pc', 'character', {
       specials: [{ id: 'ruin', value: 4 }],
       buff: true,
@@ -99,7 +99,7 @@ describe('combat end cleanup', () => {
 
     await runCombatEndCleanup(combat);
 
-    expect(pc.system.statusEffects).toEqual([{ id: 'ruin', value: 4 }]);
+    expect(pc.system.statusEffects).toEqual([]);
     expect(pc.deleted).toEqual([]);
     expect(npc.system.statusEffects).toEqual([]);
     expect(npc.deleted).toEqual(['eff-npc']);

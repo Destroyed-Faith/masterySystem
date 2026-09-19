@@ -286,10 +286,15 @@
   flex: 1 1 auto;
   min-width: 100px;
   max-width: min(260px, 38vw);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .mastery-system.sheet.actor.character .character-name-box input {
-  width: 100%;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
   background: transparent;
   border: none;
   border-bottom: 2px solid var(--df-border-subtle, rgba(255, 255, 255, 0.1));
@@ -5234,20 +5239,49 @@
 }
 
 .mastery-system.sheet.actor.character .character-status-panel {
-  margin: 8px 18px 0;
+  margin: 6px 18px 0;
+  padding: 6px 10px;
 }
 
 .mastery-system.sheet.actor.npc .status-effects-panel h3,
 .mastery-system.sheet.actor.character .status-effects-panel h3,
 .mastery-system.sheet.actor.npc .saves-panel h3 {
-  margin: 0 0 10px 0;
+  margin: 0;
   font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #c9a227;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 8px;
+  padding-bottom: 6px;
+}
+
+.mastery-system.sheet.actor.npc .status-heading,
+.mastery-system.sheet.actor.character .character-status-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mastery-system.sheet .status-add-icon {
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  line-height: 1.2rem;
+  border-radius: 4px;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  background: rgba(201, 162, 39, 0.22);
+  color: #ffe9a8;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mastery-system.sheet .status-add-icon:hover {
+  background: rgba(201, 162, 39, 0.45);
+  color: #fff;
 }
 
 .mastery-system.sheet.actor.npc .status-effects-list,
@@ -5255,6 +5289,47 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.mastery-system.sheet.actor.npc .status-effects-list--chips,
+.mastery-system.sheet.actor.character .status-effects-list--chips {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-chip,
+.mastery-system.sheet.actor.character .status-effect-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  border-radius: 999px;
+  border-left: 0;
+  font-size: 0.75rem;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-chip .effect-name,
+.mastery-system.sheet.actor.character .status-effect-chip .effect-name {
+  gap: 0;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-chip .effect-actions,
+.mastery-system.sheet.actor.character .status-effect-chip .effect-actions {
+  gap: 2px;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-chip .effect-reduce,
+.mastery-system.sheet.actor.character .status-effect-chip .effect-reduce,
+.mastery-system.sheet.actor.npc .status-effect-chip .effect-remove,
+.mastery-system.sheet.actor.character .status-effect-chip .effect-remove {
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 3px;
+  font-size: 0.7rem;
 }
 
 .mastery-system.sheet.actor.npc .status-add-row,
@@ -7068,6 +7143,29 @@ aside#tooltip,
 .mastery-system.sheet.actor.character .creation-lock-banner .force-unlock-creation:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.ms-status-add-app .ms-status-add-dialog,
+.mastery-system .ms-status-add-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ms-status-add-dialog__hint {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.ms-status-add-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ms-status-add-dialog__field select,
+.ms-status-add-dialog__field input {
+  width: 100%;
 }
 
 /* ========================================

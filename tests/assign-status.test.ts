@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   isAssignableStatusId,
   listAssignableStatuses,
+  openStatusAddDialog,
   removeStatusById,
   setActorCatalogStatus,
   upsertStatusEntry,
@@ -120,6 +121,10 @@ describe('assign catalog status', () => {
     actor.system.statusEffects = [];
     actor.flags['mastery-system'].statusJson = encodeStatusFlag([{ id: 'slow', name: 'Slow', value: 6 }]);
     expect(readActorStatusEffects(actor)).toEqual([{ id: 'slow', name: 'Slow', value: 6 }]);
+  });
+
+  it('opens no dialog when Foundry Dialog is missing', async () => {
+    await expect(openStatusAddDialog(mockActor())).resolves.toBeUndefined();
   });
 
   it('keeps a manual status on an unlinked NPC when ActorDelta drops actor writes', async () => {

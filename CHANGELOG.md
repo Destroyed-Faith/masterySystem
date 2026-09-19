@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.531] - 2026-09-19
+
+### Changed
+
+- **Status auf dem Bogen:** Kein breites Hinzufügen-Feld mehr auf jeder Seite. Beim Spieler sitzt ein kleines Plus neben dem Namen, beim NSC neben der Status-Überschrift. Beides öffnet einen Dialog (Status + Stufe). Die Leiste erscheint nur, wenn wirklich ein Status liegt, als kleine Chips.
+- **Kampfende:** Alle Stati der Beteiligten werden abgeräumt — Spieler und NSCs, auch wenn der NSC noch steht.
+
 ## [0.9.530] - 2026-09-19
 
 ### Fixed

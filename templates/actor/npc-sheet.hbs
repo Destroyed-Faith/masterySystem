@@ -217,44 +217,27 @@
              Must use @root: inside #each phases, unbound lookups resolve on the
              phase object (same class of bug as nested ../phaseIndex for HP). --}}
         <div class="status-effects-panel npc-section">
-          <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
-          {{#if @root.canEditCharacterStatus}}
-          <div class="status-add-row">
-            <select class="js-status-add-pick" aria-label="Status hinzufügen">
-              {{#each @root.statusAddChoices as |choice|}}
-              <option value="{{choice.id}}" data-has-value="{{#if choice.hasValue}}1{{else}}0{{/if}}">{{choice.name}}</option>
-              {{/each}}
-            </select>
-            <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe" aria-label="Stufe"/>
-            <button type="button" class="js-status-add" title="Status setzen, auch wenn er nicht von selbst ausgelöst hat">Hinzufügen</button>
+          <h3 class="npc-section__title status-heading">
+            <span><i class="fas fa-bolt"></i> Status</span>
+            {{#if @root.canEditCharacterStatus}}
+            <button type="button" class="js-status-add-open status-add-icon" title="Status hinzufügen" aria-label="Status hinzufügen">+</button>
+            {{/if}}
+          </h3>
+          {{#if @root.hasNpcStatusEffects}}
+          <div class="status-effects-list status-effects-list--chips">
+            {{#each @root.npcStatusEffects as |effect|}}
+            <div class="status-effect-item status-effect-chip" data-effect-index="{{effect.index}}">
+              <span class="effect-name">{{effect.name}}{{#if effect.hasValue}} {{effect.value}}{{/if}}</span>
+              <div class="effect-actions">
+                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−</button>
+                <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            {{/each}}
           </div>
           {{/if}}
-          <div class="status-effects-list">
-            {{#if @root.hasNpcStatusEffects}}
-              {{#each @root.npcStatusEffects as |effect|}}
-              <div class="status-effect-item" data-effect-index="{{effect.index}}">
-                <span class="effect-name">
-                  <i class="fas fa-exclamation-triangle"></i>
-                  {{effect.name}}
-                  {{#if effect.hasValue}}
-                    <span class="effect-value">({{effect.value}})</span>
-                  {{/if}}
-                </span>
-                <div class="effect-actions">
-                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−1</button>
-                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="2" title="−2 Stufen">−2</button>
-                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="3" title="−3 Stufen">−3</button>
-                  <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="4" title="−4 Stufen">−4</button>
-                  <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </div>
-              </div>
-              {{/each}}
-            {{else}}
-              <div class="no-status-effects">No active effects</div>
-            {{/if}}
-          </div>
         </div>
 
         {{!-- Basis: Waffenangriff (Phase) --}}
@@ -486,44 +469,27 @@
 
       {{!-- Status Effects (root system.statusEffects) --}}
       <div class="status-effects-panel npc-section">
-        <h3 class="npc-section__title"><i class="fas fa-bolt"></i> Status</h3>
-        {{#if @root.canEditCharacterStatus}}
-        <div class="status-add-row">
-          <select class="js-status-add-pick" aria-label="Status hinzufügen">
-            {{#each @root.statusAddChoices as |choice|}}
-            <option value="{{choice.id}}" data-has-value="{{#if choice.hasValue}}1{{else}}0{{/if}}">{{choice.name}}</option>
-            {{/each}}
-          </select>
-          <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe" aria-label="Stufe"/>
-          <button type="button" class="js-status-add" title="Status setzen, auch wenn er nicht von selbst ausgelöst hat">Hinzufügen</button>
+        <h3 class="npc-section__title status-heading">
+          <span><i class="fas fa-bolt"></i> Status</span>
+          {{#if @root.canEditCharacterStatus}}
+          <button type="button" class="js-status-add-open status-add-icon" title="Status hinzufügen" aria-label="Status hinzufügen">+</button>
+          {{/if}}
+        </h3>
+        {{#if @root.hasNpcStatusEffects}}
+        <div class="status-effects-list status-effects-list--chips">
+          {{#each @root.npcStatusEffects as |effect|}}
+          <div class="status-effect-item status-effect-chip" data-effect-index="{{effect.index}}">
+            <span class="effect-name">{{effect.name}}{{#if effect.hasValue}} {{effect.value}}{{/if}}</span>
+            <div class="effect-actions">
+              <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−</button>
+              <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          {{/each}}
         </div>
         {{/if}}
-        <div class="status-effects-list">
-          {{#if @root.hasNpcStatusEffects}}
-            {{#each @root.npcStatusEffects as |effect|}}
-            <div class="status-effect-item" data-effect-index="{{effect.index}}">
-              <span class="effect-name">
-                <i class="fas fa-exclamation-triangle"></i>
-                {{effect.name}}
-                {{#if effect.hasValue}}
-                  <span class="effect-value">({{effect.value}})</span>
-                {{/if}}
-              </span>
-              <div class="effect-actions">
-                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="1" title="−1 Stufe">−1</button>
-                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="2" title="−2 Stufen">−2</button>
-                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="3" title="−3 Stufen">−3</button>
-                <button type="button" class="effect-reduce" data-effect-index="{{effect.index}}" data-steps="4" title="−4 Stufen">−4</button>
-                <button type="button" class="effect-remove" data-effect-index="{{effect.index}}" title="Status entfernen">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-            </div>
-            {{/each}}
-          {{else}}
-            <div class="no-status-effects">No active effects</div>
-          {{/if}}
-        </div>
       </div>
 
       {{!-- Basis: Waffenangriff --}}

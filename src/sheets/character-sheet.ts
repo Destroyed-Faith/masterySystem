@@ -1365,7 +1365,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.hasCharacterStatusRows = statusRows.length > 0;
     context.canEditCharacterStatus = canCurrentUserUpdateDocument(this.actor);
     context.statusAddChoices = listAssignableStatuses();
-    context.showCharacterStatusPanel = context.canEditCharacterStatus || statusRows.length > 0;
+    context.showCharacterStatusPanel = statusRows.length > 0;
     
     // Passive slotting happens exclusively in combat (Combat-Start dialog).
     // The character-sheet "Passive Slots" manager was removed: it implied a

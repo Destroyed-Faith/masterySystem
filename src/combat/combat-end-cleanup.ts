@@ -6,9 +6,9 @@
  *     mirror is zeroed here so stone-granted / manual Temp HP cannot survive).
  *   - Temporary Colorless Stones (also on the action-economy owner document).
  *
- * Ongoing Special Effects are treated asymmetrically on purpose: NPC-side
- * creatures are wiped, player characters keep theirs. Players must resolve
- * their own stacks after the fight — that is part of the rules, not a bug.
+ * Ongoing Special Effects are wiped from every combatant when the fight
+ * ends — PCs and NPCs. Leftover stacks on the sheet were too noisy, and
+ * leftover NPC tokens (dead or not) must not keep Mark / Slow / etc.
  */
 
 import { getActionEconomyActor } from './action-economy.js';
@@ -16,7 +16,7 @@ import { getCombatActors } from './passive-triggers.js';
 import { deleteAllMasteryActiveBuffEffects } from '../utils/active-buffs.js';
 import { clearTempColorlessStones } from '../stones/colorless-stones.js';
 
-/** Actors whose ongoing effects are cleaned up automatically after the fight. */
+/** Non-player combatants also lose Mastery active buffs after the fight. */
 function isNpcSide(actor: any): boolean {
   return String(actor?.type ?? '') !== 'character';
 }
@@ -30,14 +30,39 @@ function actorWithEconomyOwner(actor: any): any[] {
   return [actor, owner];
 }
 
+function combatantActors(combat: any): any[] {
+  const combatants = combat?.combatants;
+  if (!combatants) return getCombatActors(combat);
+  const iter: any[] =
+    typeof combatants[Symbol.iterator] === 'function'
+      ? Array.from(combatants)
+      : Array.isArray(combatants)
+        ? combatants
+        : [];
+  const out: any[] = [];
+  const seen = new Set<string>();
+  for (const combatant of iter) {
+    const actor = combatant?.actor;
+    if (!actor) continue;
+    const tokenId = String(combatant.tokenId || combatant.token?.id || actor.token?.id || '');
+    const key = tokenId ? `t:${tokenId}` : `a:${actor.id ?? actor._id ?? ''}`;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(actor);
+  }
+  return out;
+}
+
 function collectCleanupActors(combat: any): any[] {
   const out: any[] = [];
   const seen = new Set<string>();
-  for (const actor of getCombatActors(combat)) {
+  for (const actor of combatantActors(combat)) {
     for (const doc of actorWithEconomyOwner(actor)) {
+      const tokenId = String(doc?.token?.id || '');
       const id = String(doc?.id ?? doc?._id ?? '');
-      if (id && seen.has(id)) continue;
-      if (id) seen.add(id);
+      const key = tokenId ? `t:${tokenId}` : `a:${id}`;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
       out.push(doc);
     }
   }
@@ -69,26 +94,26 @@ export async function clearColorlessStonesAfterCombat(combat: any): Promise<void
 }
 
 /**
- * Drop ongoing Special Effects and Mastery active buffs from NPC-side
- * creatures. Player characters keep both so they have to resolve them
- * themselves after the encounter.
+ * Drop ongoing Special Effects from everyone who was in the fight.
+ * Mastery active buffs are still NPC-only — those are slotted powers, not Stati.
  */
 export async function clearNpcOngoingEffectsAfterCombat(combat: any): Promise<void> {
-  for (const actor of getCombatActors(combat)) {
-    if (!isNpcSide(actor)) continue;
-    try {
-      await deleteAllMasteryActiveBuffEffects(actor);
-    } catch (err) {
-      console.warn('Mastery System | NPC active buff cleanup after combat failed', err);
+  const { readActorStatusEffects } = await import('../system/active-specials.js');
+  const { writeActorStatusList } = await import('../system/assign-status.js');
+  for (const actor of collectCleanupActors(combat)) {
+    if (isNpcSide(actor)) {
+      try {
+        await deleteAllMasteryActiveBuffEffects(actor);
+      } catch (err) {
+        console.warn('Mastery System | NPC active buff cleanup after combat failed', err);
+      }
     }
-    const { readActorStatusEffects } = await import('../system/active-specials.js');
-    const { writeActorStatusList } = await import('../system/assign-status.js');
     const list = readActorStatusEffects(actor);
     if (!list.length) continue;
     try {
       await writeActorStatusList(actor, []);
     } catch (err) {
-      console.warn('Mastery System | NPC special effect cleanup after combat failed', err);
+      console.warn('Mastery System | special effect cleanup after combat failed', err);
     }
   }
 }

@@ -350,8 +350,99 @@ function selectedHasValue(select: { selectedOptions?: ArrayLike<{ dataset?: { ha
   return String(opt?.dataset?.hasValue || '').includes('1');
 }
 
-/** Sheet control: pick a status and add it, on characters and NPCs. */
+function escHtml(text: string): string {
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function asJquery(root: any): any {
+  if (root?.find) return root;
+  const jq = (globalThis as any).$;
+  return typeof jq === 'function' ? jq(root) : null;
+}
+
+function readPickedStatus(root: any): { id: string; value: number | null } {
+  const $root = asJquery(root);
+  const select = $root?.find?.('select.js-status-add-pick')?.[0] as HTMLSelectElement | null;
+  const input = $root?.find?.('input.js-status-add-value')?.[0] as HTMLInputElement | null;
+  const id = String(select?.value || '').trim();
+  const hasValue = selectedHasValue(select);
+  const value = hasValue ? Math.max(1, Math.floor(Number(input?.value) || 1)) : null;
+  return { id, value };
+}
+
+/** Dialog: pick a catalog status and optional rank, then write it. */
+export async function openStatusAddDialog(actor: any): Promise<void> {
+  if (!actor) return;
+  const choices = listAssignableStatuses();
+  if (!choices.length) return;
+  const DialogCtor = (globalThis as any).Dialog;
+  if (typeof DialogCtor !== 'function') return;
+  const options = choices
+    .map(
+      (choice) =>
+        `<option value="${escHtml(choice.id)}" data-has-value="${choice.hasValue ? '1' : '0'}">${escHtml(choice.name)}</option>`,
+    )
+    .join('');
+  const who = escHtml(String(actor.name || 'Ziel'));
+  await new Promise<void>((resolve) => {
+    const dialog = new DialogCtor({
+      title: `Status — ${who}`,
+      content: `<form class="ms-status-add-dialog">
+        <p class="ms-status-add-dialog__hint">Status auf ${who} setzen.</p>
+        <label class="ms-status-add-dialog__field">
+          <span>Status</span>
+          <select class="js-status-add-pick" aria-label="Status">${options}</select>
+        </label>
+        <label class="ms-status-add-dialog__field js-status-add-value-wrap">
+          <span>Stufe</span>
+          <input type="number" class="js-status-add-value" min="1" max="30" step="1" value="1" title="Stufe"/>
+        </label>
+      </form>`,
+      buttons: {
+        add: {
+          label: 'Setzen',
+          callback: async (html: any) => {
+            const { id, value } = readPickedStatus(html);
+            if (!id) return;
+            await setActorCatalogStatus(actor, id, true, value, { notify: true });
+          },
+        },
+        cancel: { label: 'Abbrechen' },
+      },
+      default: 'add',
+      close: () => resolve(),
+      render: (html: any) => {
+        const $html = asJquery(html);
+        $html?.closest?.('.window-app.dialog')?.addClass?.('mastery-system ms-status-add-app');
+        const sync = () => {
+          const wrap = $html?.find?.('.js-status-add-value-wrap');
+          const select = $html?.find?.('select.js-status-add-pick')?.[0];
+          if (wrap?.length) wrap.toggle(selectedHasValue(select));
+        };
+        $html?.find?.('select.js-status-add-pick')?.on?.('change', sync);
+        sync();
+      },
+    });
+    dialog.render(true);
+  });
+}
+
+/** Sheet control: plus next to the Status heading opens the add dialog. */
 export function bindStatusAddControls(html: { find: (sel: string) => any }, actor: any): void {
+  const openers = html.find('.js-status-add-open');
+  if (openers?.length) {
+    openers.on('click', async (ev: any) => {
+      ev.preventDefault?.();
+      ev.stopPropagation?.();
+      ev.stopImmediatePropagation?.();
+      await openStatusAddDialog(actor);
+    });
+  }
+
   const rows = html.find('.status-add-row');
   if (!rows?.length) return;
 
@@ -379,8 +470,9 @@ export function bindStatusAddControls(html: { find: (sel: string) => any }, acto
     const input = row?.querySelector('input.js-status-add-value') as HTMLInputElement | null;
     const id = String(select?.value || '').trim();
     if (!id) return;
-    const hasValue = selectedHasValue(select);
-    const value = hasValue ? Math.max(1, Math.floor(Number(input?.value) || 1)) : null;
+    const value = selectedHasValue(select)
+      ? Math.max(1, Math.floor(Number(input?.value) || 1))
+      : null;
     await setActorCatalogStatus(actor, id, true, value, { notify: true });
   });
 }
