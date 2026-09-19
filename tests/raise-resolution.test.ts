@@ -7,6 +7,8 @@ import {
   computeTotalRaiseCost,
   countRaiseSlots,
   defaultSpellCostAllocation,
+  formatDeclaredRaiseList,
+  paidRaiseSlots,
   previewAfterRaiseCost,
   resolvePowerSnapshot,
   resolveRaiseOutcome,
@@ -100,6 +102,26 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     });
     expect(snapshotToDamageFormula(snap)).toBe('11d8');
     expect(snap.specials[0].rank).toBe(3);
+  });
+
+  it('a free Raise does not pay; the next one still does', () => {
+    const base = examplePower();
+    const raises: DeclaredRaise[] = [
+      { effect: 'damage', slots: 1, free: true, label: '+MR Damage Dice' },
+      { effect: 'damage', slots: 1, label: '+MR Damage Dice' },
+    ];
+    expect(countRaiseSlots(raises)).toBe(2);
+    expect(paidRaiseSlots(raises)).toBe(1);
+    expect(formatDeclaredRaiseList(raises)).toBe('1. +MR Damage Dice — kostenlos · 2. +MR Damage Dice');
+    expect(snapshotToDamageFormula(previewAfterRaiseCost(base, raises, 3, false))).toBe('5d8');
+    const partial = resolvePowerSnapshot({
+      base,
+      declaredRaises: raises,
+      outcome: 'partial',
+      masteryRank: 3,
+      isSpell: false,
+    });
+    expect(snapshotToDamageFormula(partial)).toBe('5d8');
   });
 
   it('full success with special raise → 8d8 Ignite(6)', () => {

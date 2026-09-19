@@ -53,6 +53,12 @@ export function registerEncounterSocket(): void {
 
 async function handleEncounterSocket(payload: any): Promise<void> {
   if (!payload || typeof payload !== 'object') return;
+  if (payload.type === 'raisePlanLive') {
+    if (payload.fromUserId && payload.fromUserId === game.user?.id) return;
+    const { applyRemoteRaisePlan } = await import('./attack-executor.js');
+    applyRemoteRaisePlan(payload);
+    return;
+  }
   if (payload.action) return;
 
   const { type, combatId, combatantId, actorId, userId, data, finalInitiative, round } = payload;

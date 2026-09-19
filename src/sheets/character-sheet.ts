@@ -103,11 +103,11 @@ import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
 import {
   canMarkTwoHandedGrip,
-  describeWeaponSetHands,
   ensureWeaponSets,
   isHiddenInInactiveWeaponSet,
   isNaturallyTwoHandedItem,
   peekWeaponSets,
+  listWeaponSwapChoices,
   swapWeaponSet,
   syncActiveWeaponSetFromHands,
 } from '../utils/weapon-sets.js';
@@ -2001,17 +2001,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }),
       weaponSets: {
         active: weaponSets.active,
-        buttons: ([1, 2] as const).map((index) => {
-          const roman = index === 2 ? 'II' : 'I';
-          const summary = describeWeaponSetHands(this.actor, weaponSets.sets[index]);
-          return {
-            index,
-            label: roman,
-            summary,
-            active: weaponSets.active === index,
-            title: `Set ${roman}: ${summary}`,
-          };
-        }),
+        stowed: weaponSets.stowed === true,
+        choices: listWeaponSwapChoices(this.actor).map((choice) => ({
+          target: choice.target,
+          label: choice.shortLabel,
+          summary: choice.summary,
+          active: choice.active,
+          title: choice.description,
+        })),
       },
     };
   }
@@ -2531,8 +2528,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ev.preventDefault();
       ev.stopPropagation();
       if (!canCurrentUserUpdateDocument(this.actor)) return;
-      const raw = Number((ev.currentTarget as HTMLElement)?.dataset?.weaponSet);
-      const target = raw === 2 ? 2 : raw === 1 ? 1 : null;
+      const raw = String((ev.currentTarget as HTMLElement)?.dataset?.weaponSet || '');
+      const target = raw === 'unarmed' ? 'unarmed' : raw === '2' ? 2 : raw === '1' ? 1 : null;
       if (!target) return;
       await swapWeaponSet(this.actor, target);
     });

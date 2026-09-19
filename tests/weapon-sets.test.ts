@@ -40,6 +40,7 @@ import {
   buildInitialWeaponSets,
   ensureWeaponSets,
   isNaturallyTwoHandedItem,
+  listWeaponSwapChoices,
   peekWeaponSets,
   pruneWeaponSetRefs,
   readHandsFromEquippedItems,
@@ -443,5 +444,41 @@ describe('weapon set labels', () => {
     expect(swap.to).toBe('empty (Unarmed)');
     expect(describeActiveWeaponProfile(actor).name).toBe('Heartseeker');
     expect(describeActiveWeaponProfile(actor).unarmed).toBe(false);
+  });
+
+  it('lists the worn set, the other set, and Unarmed, and stowing keeps both sets', async () => {
+    const sword = makeItem('sword', { type: 'weapon', equipped: true, slot: 'mainhand' });
+    sword.name = 'Sword';
+    const bow = makeItem('bow', { type: 'weapon', equipped: false, slot: null });
+    bow.name = 'Bow';
+    const actor = makeActor([sword, bow], {
+      schemaVersion: 1,
+      active: 1,
+      sets: {
+        1: { mainhand: 'sword', offhand: null },
+        2: { mainhand: 'bow', offhand: null },
+      },
+    });
+    const choices = listWeaponSwapChoices(actor);
+    expect(choices.map((choice) => choice.target)).toEqual([1, 2, 'unarmed']);
+    expect(choices[0].active).toBe(true);
+    expect(choices[0].name).toContain('Sword');
+    expect(choices[1].name).toContain('Bow');
+    expect(choices[2].active).toBe(false);
+
+    const stowed = await swapWeaponSet(actor, 'unarmed');
+    expect(stowed).toMatchObject({ ok: true, swapped: true, active: 1 });
+    expect(sword.system.equipped).toBe(false);
+    expect(peekWeaponSets(actor).stowed).toBe(true);
+    expect(peekWeaponSets(actor).sets[1].mainhand).toBe('sword');
+    expect(peekWeaponSets(actor).sets[2].mainhand).toBe('bow');
+    expect(describeActiveWeaponProfile(actor).unarmed).toBe(true);
+    expect(listWeaponSwapChoices(actor)[0].target).toBe('unarmed');
+
+    const back = await swapWeaponSet(actor, 2);
+    expect(back).toMatchObject({ ok: true, swapped: true, active: 2 });
+    expect(peekWeaponSets(actor).stowed).toBe(false);
+    expect(bow.system.equipped).toBe(true);
+    expect(sword.system.equipped).toBe(false);
   });
 });

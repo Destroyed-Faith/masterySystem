@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.510] - 2026-09-19
+
+### Changed
+
+- **Raises:** The attack card shows a line everyone can read as soon as a Raise is picked (`1. +MR Damage Dice`). **Kostenlos** is no longer one switch for every Raise. The GM gets a checkbox on each Raise row, next to the remove button, and only that Raise is free. Other Raises still pay.
+- **Weapon Swap:** The radial and the sheet list what is in hand (marked), the other set by name, and **Fäuste** — stow both sets and fight unarmed. The sets stay saved. Switching still costs 1 Movement in combat.
+
 ## [0.9.509] - 2026-09-18
 
 ### Changed

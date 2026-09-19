@@ -30,6 +30,7 @@ import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
 import { actorHasSurprise } from "./surprise.js";
+import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 
 export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
 import {
@@ -37,9 +38,11 @@ import {
   computeRaiseTns,
   countRaiseSlots,
   declaredRaiseFromOptionId,
+  describeDeclaredRaise,
   formatSnapshotSummary,
   loadPowerSnapshotForArtifactOption,
   loadPowerSnapshotForItem,
+  paidRaiseSlots,
   previewAfterRaiseCost,
   type DeclaredRaise,
   type PowerSnapshot,
@@ -521,7 +524,7 @@ export async function createAttackCard(
     raiseOptions: RaiseOption[];
     /** Wielded weapon's d8 count — shown as part of the on-hit total preview. */
     weaponDamageDice?: number;
-    /** NPC raises do not pay a power-pool cost. */
+    /** NPC raises do not start free. The GM marks single Raises. */
     waiveRaiseCost?: boolean;
   } | null = null;
 
@@ -579,7 +582,6 @@ export async function createAttackCard(
       isSpell: npcIsSpell,
       baseSnapshot: snap,
       raiseOptions: buildAvailableRaiseOptions(snap, npcIsSpell),
-      waiveRaiseCost: true,
     };
   }
 
@@ -743,6 +745,7 @@ export async function createAttackCard(
           powerIsSpell: raiseContext.isSpell,
           basePowerSnapshot: raiseContext.baseSnapshot,
           raiseOptions: raiseContext.raiseOptions,
+          weaponDamageDice: raiseContext.weaponDamageDice ?? 0,
         }
       : npcIsSpell
         ? { powerIsSpell: true }
@@ -880,10 +883,7 @@ export async function createAttackCard(
           : ''
       }
       ${''}
-      <label class="raise-waive-row" title="Raise-Cost nicht vom Schaden/Special abziehen">
-        <input type="checkbox" class="raise-cost-waive" ${raiseContext.waiveRaiseCost ? 'checked' : ''}/>
-        Kostenlos
-      </label>
+      <div class="raise-plan-live">Noch kein Raise gewählt.</div>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
@@ -1053,7 +1053,71 @@ export async function createRangedAttackCard(
 
 /**
  * Setup raise-plan editor on attack cards (new Raise rules).
+ * The chosen Raises are broadcast so the GM sees them without a chat re-render.
  */
+type RaiseDraftRow = { optionId: string; free: boolean };
+
+const raisePlanAppliers = new Map<string, (draft: RaiseDraftRow[], summary: string) => void>();
+
+export function applyRemoteRaisePlan(payload: {
+  messageId?: string;
+  draft?: RaiseDraftRow[];
+  summary?: string;
+}): void {
+  const id = String(payload?.messageId || '');
+  const apply = raisePlanAppliers.get(id);
+  if (apply) {
+    apply(Array.isArray(payload.draft) ? payload.draft : [], String(payload.summary || ''));
+    return;
+  }
+  const live = (globalThis as any).document?.querySelector?.(
+    `.message[data-message-id="${CSS.escape(id)}"] .raise-plan-live`,
+  );
+  if (live) live.textContent = String(payload.summary || '');
+}
+
+function broadcastRaisePlan(messageId: string, draft: RaiseDraftRow[], summary: string): void {
+  const gameAny = (globalThis as any).game;
+  gameAny?.socket?.emit?.(ENCOUNTER_SOCKET, {
+    type: 'raisePlanLive',
+    messageId,
+    fromUserId: gameAny.user?.id ?? null,
+    draft,
+    summary,
+  });
+}
+
+let raisePlanHooksRegistered = false;
+
+export function registerRaisePlanChatHooks(): void {
+  if (raisePlanHooksRegistered) return;
+  raisePlanHooksRegistered = true;
+  const HooksAny = (globalThis as any).Hooks;
+  if (!HooksAny?.on) return;
+  HooksAny.on('renderChatMessageHTML', (message: any, htmlRaw: HTMLElement | any) => {
+    try {
+      const flags = message?.flags?.['mastery-system'];
+      if (!flags?.raiseOptions || !Array.isArray(flags.raiseOptions) || !flags.basePowerSnapshot) return;
+      const jq = (globalThis as any).$;
+      if (!jq) return;
+      const $root = htmlRaw instanceof HTMLElement ? jq(htmlRaw) : htmlRaw;
+      if (!$root?.find) return;
+      const panel = $root.find('.raise-plan-panel');
+      if (!panel.length) return;
+      const host = panel.closest('.message');
+      setupRaisesHandler(host.length ? host : $root, String(message.id), Number(flags.normalTn) || 0, {
+        masteryRank: Math.max(1, Math.floor(Number(flags.masteryRank) || 1)),
+        isSpell: !!flags.powerIsSpell,
+        baseSnapshot: flags.basePowerSnapshot,
+        raiseOptions: flags.raiseOptions,
+        weaponDamageDice: Number(flags.weaponDamageDice) || 0,
+      });
+    } catch (err) {
+      console.warn('Mastery System | raise plan chat hook failed', err);
+    }
+  });
+}
+
 function setupRaisesHandler(
   messageElement: JQuery,
   messageId: string,
@@ -1066,6 +1130,8 @@ function setupRaisesHandler(
     weaponDamageDice?: number;
   } | null,
 ): void {
+  const panel = messageElement.find('.raise-plan-panel');
+  if (panel.attr('data-raise-bound') === '1') return;
   const button = messageElement.find('.roll-attack-btn');
   button.attr('data-normal-tn', String(normalTn));
   button.attr('data-target-evade', String(normalTn));
@@ -1074,9 +1140,9 @@ function setupRaisesHandler(
   button.attr('data-raise-slots', '0');
   button.attr('data-raise-plan', '[]');
 
-  if (!raiseContext) return;
+  if (!raiseContext || !panel.length) return;
+  panel.attr('data-raise-bound', '1');
 
-  const panel = messageElement.find('.raise-plan-panel');
   const maxSlots = 8;
 
   const buildOptionHtml = (): string => {
@@ -1089,15 +1155,42 @@ function setupRaisesHandler(
     return `<option value="">— Raise effect —</option>${opts}`;
   };
 
+  const isGM = !!(globalThis as any).game?.user?.isGM;
+  let applyingRemote = false;
+
+  const readDraft = (): RaiseDraftRow[] => {
+    const draft: RaiseDraftRow[] = [];
+    panel.find('.raise-plan-row').each((_i, row) => {
+      const optionId = String($(row).find('.raise-effect-select').val() || '');
+      const free = $(row).find('.raise-free').is(':checked') || $(row).attr('data-free') === '1';
+      draft.push({ optionId, free });
+    });
+    return draft;
+  };
+
   const collectPlan = (): DeclaredRaise[] => {
     const plan: DeclaredRaise[] = [];
-    panel.find('.raise-plan-row').each((_i, row) => {
-      const id = $(row).find('.raise-effect-select').val() as string;
-      if (!id) return;
-      const dr = declaredRaiseFromOptionId(id, raiseContext!.raiseOptions);
-      if (dr) plan.push(dr);
-    });
+    for (const row of readDraft()) {
+      if (!row.optionId) continue;
+      const dr = declaredRaiseFromOptionId(row.optionId, raiseContext!.raiseOptions);
+      if (!dr) continue;
+      if (row.free) dr.free = true;
+      plan.push(dr);
+    }
     return plan;
+  };
+
+  const summaryFor = (draft: RaiseDraftRow[]): string => {
+    if (!draft.length) return 'Noch kein Raise gewählt.';
+    const parts = draft.map((row, index) => {
+      const dr = row.optionId
+        ? declaredRaiseFromOptionId(row.optionId, raiseContext!.raiseOptions)
+        : null;
+      if (dr && row.free) dr.free = true;
+      const name = dr ? describeDeclaredRaise(dr) : 'noch offen';
+      return `${index + 1}. ${name}${row.free ? ' — kostenlos' : ''}`;
+    });
+    return `Raises: ${parts.join(' · ')}`;
   };
 
   const totalSpecialRank = raiseContext.baseSnapshot.specials.reduce(
@@ -1166,15 +1259,17 @@ function setupRaisesHandler(
     return spellAllocFromParts(d8Paid, spPaid);
   };
 
-  const updatePreview = (): void => {
+  const updatePreview = (broadcast = false): void => {
+    const draft = readDraft();
     const plan = collectPlan();
     const slots = countRaiseSlots(plan);
+    const paid = paidRaiseSlots(plan);
     const { raiseTn } = computeRaiseTns(normalTn, slots);
     let spellCostOverride: RaiseCostAllocation | undefined;
     if (raiseContext!.isSpell) {
-      const costTotal = slots > 0 ? raiseContext!.masteryRank * slots : 0;
+      const costTotal = paid > 0 ? raiseContext!.masteryRank * paid : 0;
       rebuildSpellCostSelect(costTotal);
-      if (slots > 0) {
+      if (paid > 0) {
         spellCostOverride = readSpellCostSelection(costTotal);
       }
       if (spellCostOverride) {
@@ -1183,17 +1278,18 @@ function setupRaisesHandler(
         button.removeAttr('data-spell-cost');
       }
     }
-    const waived = panel.find('.raise-cost-waive').is(':checked');
     const preview = previewAfterRaiseCost(
       raiseContext!.baseSnapshot,
-      waived ? [] : plan,
+      plan,
       raiseContext!.masteryRank,
       raiseContext!.isSpell,
       spellCostOverride,
     );
+    const summary = summaryFor(draft);
+    panel.find('.raise-plan-live').text(summary);
     panel.find('.raise-tn-display').text(String(raiseTn));
     panel.find('.raise-preview-label').text(
-      slots > 0 ? 'Nach Raise-Kosten (vor dem Wurf):' : 'Treffer, vor Raises:',
+      paid > 0 ? 'Nach Raise-Kosten (vor dem Wurf):' : 'Treffer, vor Raises:',
     );
     panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext!.weaponDamageDice));
     button.attr('data-raise-tn', String(raiseTn));
@@ -1201,37 +1297,62 @@ function setupRaisesHandler(
     button.attr('data-raise-plan', JSON.stringify(plan));
     button.attr('data-raises', String(slots));
     button.attr('data-blood-raises', '0');
-    button.attr('data-raise-cost-waived', waived ? '1' : '0');
+    button.removeAttr('data-raise-cost-waived');
+    if (broadcast && !applyingRemote) broadcastRaisePlan(messageId, draft, summary);
   };
 
-  const addRow = (): void => {
-    const currentSlots = countRaiseSlots(collectPlan());
-    if (currentSlots >= maxSlots) {
-      ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
-      return;
-    }
-    const row = $(`
-      <div class="raise-plan-row">
-        <select class="raise-effect-select">${buildOptionHtml()}</select>
-        <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
-      </div>
-    `);
-    panel.find('.raise-plan-rows').append(row);
+  const bindRow = (row: JQuery, initial?: RaiseDraftRow): void => {
+    if (initial?.optionId) row.find('.raise-effect-select').val(initial.optionId);
     row.find('.raise-effect-select').on('change', () => {
       const slots = countRaiseSlots(collectPlan());
       if (slots > maxSlots) {
         ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
         row.find('.raise-effect-select').val('');
       }
-      updatePreview();
+      updatePreview(true);
+    });
+    row.find('.raise-free').on('change', () => {
+      row.attr('data-free', row.find('.raise-free').is(':checked') ? '1' : '0');
+      updatePreview(true);
     });
     row.find('.remove-raise-btn').on('click', (ev) => {
       ev.preventDefault();
       row.remove();
-      updatePreview();
+      updatePreview(true);
     });
-    updatePreview();
   };
+
+  const addRow = (initial?: RaiseDraftRow, broadcast = true): void => {
+    const currentSlots = countRaiseSlots(collectPlan());
+    if (!initial && currentSlots >= maxSlots) {
+      ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
+      return;
+    }
+    const freeBox = isGM
+      ? `<label class="raise-free-label" title="Nur dieser Raise ist kostenlos"><input type="checkbox" class="raise-free"${initial?.free ? ' checked' : ''}/> Kostenlos</label>`
+      : '';
+    const row = $(`
+      <div class="raise-plan-row" data-free="${initial?.free ? '1' : '0'}">
+        <select class="raise-effect-select">${buildOptionHtml()}</select>
+        ${freeBox}
+        <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
+      </div>
+    `);
+    panel.find('.raise-plan-rows').append(row);
+    bindRow(row, initial);
+    updatePreview(broadcast);
+  };
+
+  raisePlanAppliers.set(messageId, (draft, summary) => {
+    applyingRemote = true;
+    try {
+      panel.find('.raise-plan-rows').empty();
+      for (const row of draft) addRow(row, false);
+      if (!draft.length) panel.find('.raise-plan-live').text(summary || 'Noch kein Raise gewählt.');
+    } finally {
+      applyingRemote = false;
+    }
+  });
 
   panel.find('.add-raise-btn').off('click.masteryRaisePlan').on('click.masteryRaisePlan', (ev) => {
     ev.preventDefault();
@@ -1240,13 +1361,8 @@ function setupRaisesHandler(
 
   panel.find('.spell-cost-select')
     .off('input.masteryRaisePlan change.masteryRaisePlan')
-    .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
+    .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview(true));
 
-  panel.find('.raise-cost-waive')
-    .off('change.masteryRaisePlan')
-    .on('change.masteryRaisePlan', () => updatePreview());
-
-  void messageId;
-  updatePreview();
+  updatePreview(false);
 }
 

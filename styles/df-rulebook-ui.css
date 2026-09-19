@@ -989,6 +989,37 @@
   gap: 8px;
 }
 
+#chat-log .mastery-attack-card .raise-plan-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+#chat-log .mastery-attack-card .raise-plan-live {
+  font-weight: 700;
+  color: #ffd166;
+  line-height: 1.35;
+}
+
+#chat-log .mastery-attack-card .raise-plan-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+#chat-log .mastery-attack-card .raise-free-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
 #chat-log .mastery-attack-card .raises-input-group label {
   color: var(--df-text-muted);
   font-family: var(--df-font-head);

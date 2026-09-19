@@ -36,8 +36,12 @@ export interface WeaponSetHands {
 export interface WeaponSetsState {
   schemaVersion: number;
   active: WeaponSetIndex;
+  /** Weapons put away. Both sets stay stored; Basic Attack is Unarmed. */
+  stowed?: boolean;
   sets: Record<WeaponSetIndex, WeaponSetHands>;
 }
+
+export type WeaponSwapTarget = WeaponSetIndex | 'unarmed';
 
 export type SwapWeaponSetResult =
   | { ok: true; swapped: false; active: WeaponSetIndex }
@@ -72,6 +76,7 @@ export function emptyWeaponSetsState(): WeaponSetsState {
   return {
     schemaVersion: WEAPON_SETS_SCHEMA,
     active: 1,
+    stowed: false,
     sets: { 1: emptyHands(), 2: emptyHands() },
   };
 }
@@ -188,6 +193,7 @@ export function pruneWeaponSetRefs(state: WeaponSetsState, validIds: Set<string>
   return {
     schemaVersion: WEAPON_SETS_SCHEMA,
     active: state.active === 2 ? 2 : 1,
+    stowed: state.stowed === true,
     sets: {
       1: clean(state.sets[1] || emptyHands()),
       2: clean(state.sets[2] || emptyHands()),
@@ -199,6 +205,7 @@ export function buildInitialWeaponSets(currentHands: WeaponSetHands): WeaponSets
   return {
     schemaVersion: WEAPON_SETS_SCHEMA,
     active: 1,
+    stowed: false,
     sets: { 1: { ...currentHands }, 2: emptyHands() },
   };
 }
@@ -289,10 +296,14 @@ export async function pruneDeletedWeaponSetRefs(actor: any): Promise<WeaponSetsS
 }
 
 export async function syncActiveWeaponSetFromHands(actor: any): Promise<WeaponSetsState> {
+  if (swapLocks.has(actorKey(actor))) return peekWeaponSets(actor);
   const state = await ensureWeaponSets(actor);
   const hands = readHandsFromEquippedItems(actor);
+  const handsEmpty = !hands.mainhand && !hands.offhand;
+  if (state.stowed && handsEmpty) return state;
   const next: WeaponSetsState = {
     ...state,
+    stowed: false,
     sets: {
       ...state.sets,
       [state.active]: hands,
@@ -463,6 +474,70 @@ export function describeWeaponSwap(actor: any): WeaponSwapPreview {
   return { active: state.active, next, from, to, line };
 }
 
+export interface WeaponSwapChoice {
+  target: WeaponSwapTarget;
+  /** Roman numeral or Fists, for the sheet button. */
+  shortLabel: string;
+  summary: string;
+  /** Full radial title. */
+  name: string;
+  description: string;
+  active: boolean;
+}
+
+function setChoice(actor: any, state: WeaponSetsState, index: WeaponSetIndex): WeaponSwapChoice {
+  const summary = describeWeaponSetHands(actor, state.sets[index]);
+  const active = state.stowed !== true && state.active === index;
+  const roman = index === 1 ? 'I' : 'II';
+  const name = active
+    ? fmt('choiceWearing', { n: roman, hands: summary }, `Wearing · Set ${roman}: ${summary}`)
+    : fmt('choiceSwitch', { n: roman, hands: summary }, `Set ${roman}: ${summary}`);
+  const description = active
+    ? fmt('choiceWearingDetail', { n: roman, hands: summary }, `Wearing this. Set ${roman}: ${summary}.`)
+    : fmt(
+        'choiceSwitchDetail',
+        { n: roman, hands: summary },
+        `Switch to Set ${roman}: ${summary}. Costs 1 Movement in combat.`,
+      );
+  return { target: index, shortLabel: roman, summary, name, description, active };
+}
+
+function unarmedChoice(state: WeaponSetsState): WeaponSwapChoice {
+  const active = state.stowed === true;
+  const summary = loc('stowSummary', 'Stow weapons and fight unarmed');
+  return {
+    target: 'unarmed',
+    shortLabel: loc('stowName', 'Fists'),
+    summary,
+    name: active ? loc('stowWearing', 'Wearing · Fists') : loc('stowName', 'Fists'),
+    description: active
+      ? loc('stowWearingDetail', 'Wearing this. Unarmed.')
+      : loc(
+          'stowDetail',
+          'Stow weapons and fight unarmed. Both sets stay saved. Costs 1 Movement in combat.',
+        ),
+    active,
+  };
+}
+
+/**
+ * What is in hand, then where you can switch: the other set, then Unarmed.
+ * When already unarmed, Fists is first and both sets are listed under it.
+ */
+export function listWeaponSwapChoices(actor: any): WeaponSwapChoice[] {
+  const state = peekWeaponSets(actor);
+  if (state.stowed) {
+    return [unarmedChoice(state), setChoice(actor, state, 1), setChoice(actor, state, 2)];
+  }
+  const other: WeaponSetIndex = state.active === 1 ? 2 : 1;
+  return [setChoice(actor, state, state.active), setChoice(actor, state, other), unarmedChoice(state)];
+}
+
+function fmt(key: string, data: Record<string, string | number>, fallback: string): string {
+  const formatted = (globalThis as any).game?.i18n?.format?.(`MASTERY.weaponSets.${key}`, data);
+  return formatted && formatted !== `MASTERY.weaponSets.${key}` ? formatted : fallback;
+}
+
 export interface ActiveWeaponProfile {
   unarmed: boolean;
   name: string;
@@ -500,6 +575,16 @@ function profileFromItem(item: any): { attackType: 'melee' | 'ranged'; rangeM: n
  */
 export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
   const state = peekWeaponSets(actor);
+  if (state.stowed) {
+    return {
+      unarmed: true,
+      name: 'Unarmed',
+      damage: '1d8',
+      attackType: 'melee',
+      rangeM: 2,
+      summary: 'Unarmed · 1d8 + MR × 2d8. No weapon Specials.',
+    };
+  }
   const hands = state.sets[state.active] || emptyHands();
   const main = itemById(actor, hands.mainhand);
   const carriesWeapon =
@@ -529,10 +614,11 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
 }
 
 /**
- * Shared Weapon Swap. Used by the [1]/[2] sheet switches and the movement action.
- * `target` omitted = toggle to the inactive set.
+ * Shared Weapon Swap. Sheet buttons and the radial pass a target:
+ * set 1, set 2, or `unarmed` (stow both sets and fight with fists).
+ * `target` omitted = toggle to the other set.
  */
-export async function swapWeaponSet(actor: any, target?: WeaponSetIndex): Promise<SwapWeaponSetResult> {
+export async function swapWeaponSet(actor: any, target?: WeaponSwapTarget): Promise<SwapWeaponSetResult> {
   if (!actor) return { ok: false, reason: 'apply-failed' };
   const key = actorKey(actor);
   if (key && swapLocks.has(key)) return { ok: false, reason: 'busy' };
@@ -544,11 +630,17 @@ export async function swapWeaponSet(actor: any, target?: WeaponSetIndex): Promis
     }
 
     const state = await ensureWeaponSets(actor);
-    const next = resolveSwapTarget(state.active, target);
-    if (next == null) {
+    const next: WeaponSwapTarget =
+      target === 'unarmed' || target === 1 || target === 2
+        ? target
+        : state.active === 1
+          ? 2
+          : 1;
+    const alreadyThere =
+      next === 'unarmed' ? state.stowed === true : state.stowed !== true && state.active === next;
+    if (alreadyThere) {
       return { ok: true, swapped: false, active: state.active };
     }
-    const preview = describeWeaponSwap(actor);
 
     const combat = activeCombat();
     const inCombat = !!combat && actorParticipatesInActiveCombat(actor);
@@ -575,9 +667,20 @@ export async function swapWeaponSet(actor: any, target?: WeaponSetIndex): Promis
       spentMovement = true;
     }
 
+    const nextActive: WeaponSetIndex = next === 'unarmed' ? state.active : next;
+    const nextState: WeaponSetsState = {
+      ...state,
+      active: nextActive,
+      stowed: next === 'unarmed',
+    };
+    const destination =
+      next === 'unarmed'
+        ? loc('stowedNow', 'Weapons stowed — unarmed.')
+        : `Set ${next}: ${describeWeaponSetHands(actor, state.sets[next])}`;
+
     try {
-      await applyWeaponSetHands(actor, state.sets[next] || emptyHands());
-      await persistWeaponSets(actor, { ...state, active: next });
+      await persistWeaponSets(actor, nextState);
+      await applyWeaponSetHands(actor, next === 'unarmed' ? emptyHands() : state.sets[next] || emptyHands());
     } catch (err) {
       console.warn('Mastery System | Weapon set apply failed', err);
       if (spentMovement) {
@@ -600,13 +703,13 @@ export async function swapWeaponSet(actor: any, target?: WeaponSetIndex): Promis
         await ChatMessage.create({
           speaker:
             typeof ChatMessage.getSpeaker === 'function' ? ChatMessage.getSpeaker({ actor }) : undefined,
-          content: `<p><strong>${loc('actionName', 'Weapon Swap')}</strong> — Set ${preview.active}: ${preview.from} → Set ${preview.next}: ${preview.to}. ${note}</p>`,
+          content: `<p><strong>${loc('actionName', 'Weapon Swap')}</strong> — ${destination} ${note}</p>`,
         });
       }
     } catch (err) {
       console.warn('Mastery System | Weapon swap chat note failed', err);
     }
-    return { ok: true, swapped: true, active: next, spentMovement };
+    return { ok: true, swapped: true, active: nextActive, spentMovement };
   } finally {
     if (key) swapLocks.delete(key);
   }

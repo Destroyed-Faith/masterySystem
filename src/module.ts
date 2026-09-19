@@ -24,6 +24,7 @@ import { actorHasSurprise, effectCarriesSurprise, pinSurprisedInitiative, status
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
+import { registerRaisePlanChatHooks } from './combat/attack-executor.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dialog.js';
@@ -3177,6 +3178,7 @@ Hooks.once('ready', async function() {
   // Register attack roll click handler
   registerAttackRollClickHandler();
   registerDamageCardChatHooks();
+  registerRaisePlanChatHooks();
 
   const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
   registerPerceptionCombatHooks();

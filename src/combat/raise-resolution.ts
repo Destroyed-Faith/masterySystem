@@ -42,6 +42,10 @@ export interface DeclaredRaise {
   targetSpecialKey?: string;
   /** Raise slots consumed (1 or 2 per option). */
   slots: 1 | 2;
+  /** GM marked this one Raise free. The others still pay. */
+  free?: boolean;
+  /** Attack-card label, so the table can see which Raise was picked. */
+  label?: string;
 }
 
 export interface RaiseCostAllocation {
@@ -116,6 +120,41 @@ export function resolveRaiseOutcome(
 /** Total raise slots from declared raise plan. */
 export function countRaiseSlots(raises: DeclaredRaise[]): number {
   return raises.reduce((sum, r) => sum + (r.slots === 2 ? 2 : 1), 0);
+}
+
+/** Slots that still pay Raise Cost. A free Raise still raises the TN. */
+export function paidRaiseSlots(raises: DeclaredRaise[]): number {
+  return raises.reduce((sum, r) => {
+    if (r.free) return sum;
+    return sum + (r.slots === 2 ? 2 : 1);
+  }, 0);
+}
+
+export function describeDeclaredRaise(raise: DeclaredRaise): string {
+  if (raise.label) return raise.label;
+  switch (raise.effect) {
+    case 'damage':
+      return '+Schaden';
+    case 'specialPlus':
+      return `+${raise.targetSpecialKey || 'Special'}`;
+    case 'rangePlus':
+      return '+Reichweite';
+    case 'aoeRadiusPlus':
+      return '+AoE';
+    case 'durationPlus':
+      return '+Dauer';
+    default:
+      return 'Raise';
+  }
+}
+
+/** One line the whole table can read: which Raises were picked, and which are free. */
+export function formatDeclaredRaiseList(raises: DeclaredRaise[]): string {
+  const picked = raises.filter((r) => r.effect);
+  if (!picked.length) return 'Noch kein Raise gewählt.';
+  return picked
+    .map((r, i) => `${i + 1}. ${describeDeclaredRaise(r)}${r.free ? ' — kostenlos' : ''}`)
+    .join(' · ');
 }
 
 /** Martial: MR d8 per raise slot. Spell: MR total value per raise slot. */
@@ -236,8 +275,8 @@ export function resolvePowerSnapshot(params: ResolvePowerSnapshotParams): PowerS
     return cloneSnapshot(base);
   }
 
-  const slots = countRaiseSlots(declaredRaises);
-  const costValue = waiveRaiseCost ? 0 : computeTotalRaiseCost(slots, masteryRank);
+  const slots = waiveRaiseCost ? 0 : paidRaiseSlots(declaredRaises);
+  const costValue = computeTotalRaiseCost(slots, masteryRank);
   const costAlloc = isSpell
     ? spellCostOverride ?? defaultSpellCostAllocation(base, costValue)
     : { damageDice: costValue, specialByKey: {} as Record<string, number> };
@@ -265,7 +304,7 @@ export function previewAfterRaiseCost(
   isSpell: boolean,
   spellCostOverride?: RaiseCostAllocation,
 ): PowerSnapshot {
-  const slots = countRaiseSlots(declaredRaises);
+  const slots = paidRaiseSlots(declaredRaises);
   if (slots <= 0) return cloneSnapshot(base);
   const costValue = computeTotalRaiseCost(slots, masteryRank);
   const cost =
@@ -597,5 +636,6 @@ export function declaredRaiseFromOptionId(
     effect: opt.effect,
     targetSpecialKey: opt.targetSpecialKey,
     slots: opt.slots,
+    label: opt.label,
   };
 }

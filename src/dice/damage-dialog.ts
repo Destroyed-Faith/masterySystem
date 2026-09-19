@@ -25,6 +25,8 @@ import {
   bindChosenSpecialIntoLevelData,
   countRaiseSlots,
   computeTotalRaiseCost,
+  formatDeclaredRaiseList,
+  paidRaiseSlots,
   resolvePowerSnapshot,
   snapshotToDamageFormula,
   snapshotToSpecialStrings,
@@ -718,14 +720,20 @@ export async function showDamageDialog(
     }
     powerSpecials.length = 0;
     powerSpecials.push(...resolvedSpecials);
-    const lostCost = computeTotalRaiseCost(countRaiseSlots(declaredRaises), masteryRank);
+    const lostCost = flags.waiveRaiseCost
+      ? 0
+      : computeTotalRaiseCost(paidRaiseSlots(declaredRaises), masteryRank);
     const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8 Schaden`;
     const after = formatRaiseOutcomeBody(resolvedPowerSnapshot);
+    const picked = formatDeclaredRaiseList(declaredRaises);
+    const pickedLine = declaredRaises.length ? ` Gewählt: ${picked}.` : '';
     raiseOutcomeLine =
       outcome === 'partial'
-        ? `Raise verfehlt — Kosten von ${lostCostLabel} bleiben weg. Es gilt: ${after}`
+        ? lostCost > 0
+          ? `Raise verfehlt — Kosten von ${lostCostLabel} bleiben weg. Es gilt: ${after}.${pickedLine}`
+          : `Raise verfehlt — keine Kosten abgezogen. Es gilt: ${after}.${pickedLine}`
         : outcome === 'full'
-          ? `Raise gelungen — danach: ${after}`
+          ? `Raise gelungen — danach: ${after}.${pickedLine}`
           : '';
   }
 

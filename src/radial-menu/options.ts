@@ -5,7 +5,7 @@
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
-import { describeActiveWeaponProfile, describeWeaponSwap } from '../utils/weapon-sets.js';
+import { describeActiveWeaponProfile, describeWeaponSwap, listWeaponSwapChoices } from '../utils/weapon-sets.js';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1014,6 +1014,25 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     }
     
     if (isManeuverHiddenFromActorRadial(actor, maneuver.id)) {
+      continue;
+    }
+
+    if (maneuver.id === 'weapon-swap') {
+      for (const choice of listWeaponSwapChoices(actor)) {
+        allManeuvers.push({
+          id: choice.target === 'unarmed' ? 'weapon-swap-unarmed' : `weapon-swap-${choice.target}`,
+          name: choice.name,
+          description: choice.description,
+          slot: maneuver.slot,
+          source: 'maneuver',
+          range: maneuverRange,
+          maneuver,
+          tags: maneuver.tags || [],
+          costsMovement: false,
+          costsAction: false,
+          disabled: choice.active,
+        });
+      }
       continue;
     }
 
