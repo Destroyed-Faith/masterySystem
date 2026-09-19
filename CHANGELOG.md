@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.526] - 2026-09-19
+
+### Fixed
+
+- **Nächster Zug:** Der Knopf unter dem Porträt liegt nicht mehr auf der Karte. Ein Klick beendet den eigenen Zug. Doppelklick auf das Bild öffnet weiter den Bogen.
+
 ## [0.9.525] - 2026-09-19
 
 ### Fixed

@@ -773,14 +773,20 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
-    // End Turn button (on current combatant card)
+    // End Turn button — sibling of the portrait, same path as the Next chevron
     root.querySelectorAll('.js-end-turn').forEach((btn: HTMLElement) => {
       const button = btn as HTMLButtonElement;
       button.disabled = false;
       button.removeAttribute('disabled');
+      button.ondblclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
+      };
       button.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         ev.stopPropagation();
+        ev.stopImmediatePropagation();
         await requestEndTurn();
       };
     });

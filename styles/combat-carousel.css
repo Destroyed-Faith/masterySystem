@@ -139,6 +139,7 @@
 #mastery-combat-carousel .window-content > *,
 #mastery-combat-carousel [data-application-part],
 #mastery-combat-carousel .mastery-carousel,
+#mastery-combat-carousel .carousel-combatant,
 #mastery-combat-carousel .carousel-portrait,
 #mastery-combat-carousel button {
   pointer-events: auto !important;
@@ -191,11 +192,21 @@
    Portrait Card
    ======================================== */
 
+.carousel-combatant {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex-shrink: 0;
+  width: 160px;
+  gap: 0.2rem;
+  pointer-events: auto;
+}
+
 .carousel-portrait {
   position: relative;
   flex-shrink: 0;
-  align-self: flex-start;
-  width: 160px;
+  align-self: stretch;
+  width: 100%;
   height: auto;
   background: rgba(15, 52, 96, 0.6);
   border: 2px solid rgba(233, 69, 96, 0.3);
@@ -797,8 +808,19 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
   gap: 0.4rem;
 }
 
+.mastery-carousel.is-compact .carousel-combatant {
+  width: auto;
+  min-width: 88px;
+  max-width: 180px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
 .mastery-carousel.is-compact .carousel-portrait {
   width: auto;
+  flex: 1 1 auto;
   min-width: 88px;
   max-width: 150px;
   height: auto;

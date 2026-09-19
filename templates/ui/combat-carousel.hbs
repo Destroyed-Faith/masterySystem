@@ -39,6 +39,7 @@
     <!-- Combatants Row -->
     <div class="carousel-combatants">
       {{#each combatants as |combatant|}}
+        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}" data-combatant-id="{{combatant.id}}">
         <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}}" 
              data-combatant-id="{{combatant.id}}">
           <!-- Portrait Image -->
@@ -154,14 +155,6 @@
             </div>
           {{/if}}
 
-          <!-- Advance initiative one step (next combatant) -->
-          {{#if combatant.showEndTurn}}
-            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
-              <i class="fas fa-forward"></i>
-              <span>Nächster Zug</span>
-            </button>
-          {{/if}}
-
           <!-- Portrait Controls (shown on hover) -->
           <div class="portrait-controls">
             {{#if ../controlsAllowed}}
@@ -180,6 +173,15 @@
               </button>
             {{/if}}
           </div>
+        </div>
+
+          <!-- Sibling of the portrait so a click ends the turn instead of opening the sheet -->
+          {{#if combatant.showEndTurn}}
+            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
+              <i class="fas fa-forward"></i>
+              <span>Nächster Zug</span>
+            </button>
+          {{/if}}
         </div>
       {{/each}}
     </div>
