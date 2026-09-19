@@ -34,6 +34,7 @@ import {
   applyDamage,
   isStressTrackCollapsed,
   calculateMaxPowerLevel,
+  attributeScalingEnabled,
 } from '../utils/calculations.js';
 import type { HealthBar } from '../types/actor.js';
 
@@ -135,10 +136,12 @@ export async function applyStressToActor(
 
   let appliedAmount = amount;
   if (!options?.voluntary) {
-    const armor = Math.max(
-      0,
-      Math.floor(Number(system?.scaling?.resolveStressArmor ?? 0) || 0),
-    );
+    const armor = attributeScalingEnabled()
+      ? Math.max(
+          0,
+          Math.floor(Number(system?.scaling?.resolveStressArmor ?? 0) || 0),
+        )
+      : 0;
     if (armor > 0) {
       appliedAmount = Math.max(0, amount - armor);
       if (appliedAmount === 0) {

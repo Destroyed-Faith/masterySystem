@@ -3,6 +3,7 @@
  * Appears after successful attack roll to calculate and apply damage
  */
 
+import { attributeScalingEnabled } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { collectMechanicsContributions } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
@@ -842,7 +843,7 @@ export async function showDamageDialog(
         raise: shownRaiseDamage,
         specials: shownSpecials,
         might:
-          flags?.attackType === 'melee'
+          flags?.attackType === 'melee' && attributeScalingEnabled()
             ? Math.max(0, Math.floor(Number((actorToUse as any)?.system?.scaling?.mightDamageBonus) || 0))
             : 0,
       },
@@ -2675,7 +2676,7 @@ async function calculateDamageResult(
   // `system.scaling.mightDamageBonus` so any rank-up / mid-session bump is
   // reflected immediately.
   let mightMeleeBonus = 0;
-  if (attackType === 'melee' && attacker) {
+  if (attackType === 'melee' && attacker && attributeScalingEnabled()) {
     try {
       const mb = Number((attacker as any)?.system?.scaling?.mightDamageBonus ?? 0) || 0;
       if (mb > 0) {

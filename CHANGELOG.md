@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.519] - 2026-09-19
+
+### Changed
+
+- **Attributsboni:** Schalter unter Configure Settings, Mastery System. Standard ist aus. An: Might/8 Nahkampfschaden (2×, fest), Wits/8 Initiative, Resolve/8 Stress-Rüstung. Stones bleiben.
+
+## [0.9.518] - 2026-09-19
+
+### Changed
+
+- **Angriffskarte:** Nur noch Wurf, Evade, Waffe und eine Trefferzeile. Finesse und die Special-Liste sind weg. Ein Raise steht in derselben Zeile: `11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise)`.
+- **Schaden:** Waffe, Power und Raise getrennt. Might/8 ist der feste Bonus, nicht der Raise und nicht gewürfelt.
+
 ## [0.9.517] - 2026-09-19
 
 ### Changed

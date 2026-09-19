@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
+  attributeScalingEnabled,
   calculateMightDamageBonus,
   calculateAgilityEvadeBonus,
   calculateAgilityRangeBonus,
@@ -10,6 +11,22 @@ import {
   calculateArmorBreaker,
   calculateBaseEvade,
 } from '../src/utils/calculations';
+
+describe('attributeScalingEnabled', () => {
+  it('is off when Foundry settings are missing', () => {
+    expect(attributeScalingEnabled()).toBe(false);
+  });
+
+  it('follows the world setting when it is set', () => {
+    const prev = (globalThis as any).game;
+    (globalThis as any).game = { settings: { get: () => true } };
+    try {
+      expect(attributeScalingEnabled()).toBe(true);
+    } finally {
+      (globalThis as any).game = prev;
+    }
+  });
+});
 
 describe('Attribute Scaling Passives (Player\'s Guide)', () => {
   describe('Might - Melee Damage Scaling', () => {

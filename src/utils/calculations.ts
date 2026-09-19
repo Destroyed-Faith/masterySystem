@@ -494,6 +494,24 @@ export function calculateArmorBreaker(might: number): number {
 }
 
 /**
+ * World switch for the three attribute bonuses that actually hit the table:
+ * Might melee damage, Wits initiative, Resolve stress armor.
+ *
+ * Default is off (nobody at the table was using them). Missing `game`
+ * (unit tests, early boot) matches that default. Stones (`floor(attr/8)`)
+ * are not this switch.
+ */
+export function attributeScalingEnabled(): boolean {
+  try {
+    const v = (globalThis as any).game?.settings?.get?.('mastery-system', 'attributeScaling');
+    if (v === undefined || v === null) return false;
+    return !!v;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Evade formula: MR * 4 + size mod + shield bonus + passives + agility scaling
  */
 export function calculateBaseEvade(masteryRank: number): number {

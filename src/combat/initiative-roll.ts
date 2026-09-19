@@ -5,6 +5,7 @@
  * or another rule changes it.
  */
 
+import { attributeScalingEnabled } from '../utils/calculations.js';
 import { masteryRoll } from '../dice/roll-handler.js';
 import { getRoundState } from './action-economy.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
@@ -255,10 +256,12 @@ export async function rollInitiativeForCombatant(
   // Players Guide attribute scaling (~5969–5973): +floor(Wits/8) initiative.
   // Read from the actor's pre-derived `system.scaling.witsInitiativeBonus` so
   // any rank-up / mid-encounter Wits change is reflected immediately.
-  const witsInitBonus = Math.max(
-    0,
-    Math.floor(Number((actor as any)?.system?.scaling?.witsInitiativeBonus ?? 0) || 0),
-  );
+  const witsInitBonus = attributeScalingEnabled()
+    ? Math.max(
+        0,
+        Math.floor(Number((actor as any)?.system?.scaling?.witsInitiativeBonus ?? 0) || 0),
+      )
+    : 0;
   const witsFlavor = witsInitBonus > 0 ? ` · Wits scaling +${witsInitBonus}` : '';
 
   // Manual Adjustments — character-sheet-authored flat + bonus d8 applied on

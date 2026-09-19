@@ -1051,9 +1051,9 @@
                 </li>
               </ul>
               {{/if}}
-              {{#if system.scaling}}
+              {{#if attributeScaling}}
               {{#if (ne (default system.scaling.witsInitiativeBonus 0) 0)}}
-              <p class="stat-footnote-wits">Wits scaling: +{{default system.scaling.witsInitiativeBonus 0}} (reference only — not added by the system roll yet)</p>
+              <p class="stat-footnote-wits">Wits/8: +{{default system.scaling.witsInitiativeBonus 0}} Initiative</p>
               {{/if}}
               {{/if}}
             </div>

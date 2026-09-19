@@ -1611,6 +1611,18 @@ function registerSystemSettings() {
     },
   });
 
+  // The three attribute bonuses that still hit the table. Off by default:
+  // Might/8 melee damage, Wits/8 initiative, Resolve/8 stress armor.
+  // Stone pools are a separate economy and stay on.
+  (game as any).settings.register('mastery-system', 'attributeScaling', {
+    name: 'Attributsboni',
+    hint: 'An: Might/8 gibt festen Nahkampfschaden (2×), Wits/8 Initiative, Resolve/8 Stress-Rüstung. Aus: keiner dieser drei Boni. Stones bleiben. Standard ist aus.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+  });
+
   // Mastery Rank - Global default
   (game as any).settings.register('mastery-system', 'defaultMasteryRank', {
     name: 'Default Mastery Rank',

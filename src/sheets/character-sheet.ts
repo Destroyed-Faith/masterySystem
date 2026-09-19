@@ -122,7 +122,7 @@ import {
   validateHandEquip,
 } from '../utils/ammunition.js';
 import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
-import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
+import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
@@ -1185,6 +1185,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.canEditMasteryRank =
       context.isGM || (!context.creationComplete && this.actor.isOwner);
     context.defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
+    context.attributeScaling = attributeScalingEnabled();
 
     // Post-creation skill redistribute (40 pts, max 4) when no XP yet.
     const skillsRedistributing = isSkillsRedistributing(this.actor);
