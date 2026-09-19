@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.513] - 2026-09-19
+
+### Changed
+
+- **Steine:** Ein Stein auf Extra Attack oder Crit liegt nur, er ist nicht an. Solange die Welle nicht voll ist, steht oben im Stein-Dialog, welche Mächte nicht aktiviert sind, und **Übernehmen** sagt es noch einmal.
+
 ## [0.9.512] - 2026-09-19
 
 ### Changed

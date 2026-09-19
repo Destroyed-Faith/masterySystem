@@ -62,11 +62,15 @@ import {
   maxConvertibleColorlessStones,
 } from './colorless-stones.js';
 import {
+  formatPendingStoneActivationWarning,
   orderPowersRampFirst,
+  pendingStoneActivation,
+  pendingStoneActivationLabel,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
+  type PendingStoneActivation,
 } from './stone-payment-rules.js';
 import {
   clampStoneRecoveryAllocation,
@@ -191,6 +195,19 @@ function rampSkipLeadLanes(powerId: string): number[] {
   const lanes: number[] = [];
   for (let s = 0; s < segs; s++) lanes.push(...lanesInStonePaymentSegment(s));
   return lanes;
+}
+
+function pendingStoneCardFields(name: string, placed: number, needed: number): {
+  pendingActivation: boolean;
+  pendingLabel: string;
+  pendingRow: PendingStoneActivation | null;
+} {
+  const row = pendingStoneActivation({ name, placed, needed });
+  return {
+    pendingActivation: !!row,
+    pendingLabel: row ? pendingStoneActivationLabel(row) : '',
+    pendingRow: row,
+  };
 }
 
 /** Occupied lanes augmented with skipped lead lanes (for segment-unlock only). */
@@ -838,6 +855,7 @@ export class StonePowersDialog extends BaseDialog {
               ? isPhasingStoneUsedThisCombat(this.combatant)
               : false),
         hideLeadSegment: rampSkip > 0,
+        ...pendingStoneCardFields(power.name, occupied.length, nextCost),
         ...laneSegs
       };
     };
@@ -912,6 +930,7 @@ export class StonePowersDialog extends BaseDialog {
           ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
           : '',
         hideLeadSegment: rampSkip > 0,
+        ...pendingStoneCardFields(power.name, occupied.length, nextCost),
         ...laneSegs
       };
     });
@@ -987,6 +1006,10 @@ export class StonePowersDialog extends BaseDialog {
       sectionHasAssigned: this.#sectionHasAssigned('general'),
       userOverride: this._sectionOpenOverride.general,
     });
+    const unactivatedStones = [
+      ...generalPowers,
+      ...attributePowerMatrix.flatMap((row) => row.cells),
+    ].flatMap((card) => (card?.pendingRow ? [card.pendingRow] : []));
 
     const mr = getMasteryRank(poolOwner);
     const initiativeScore = Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0));
@@ -1063,6 +1086,7 @@ export class StonePowersDialog extends BaseDialog {
       hasCombat,
       stonePlanLocked,
       stoneReviewMode,
+      unactivatedStones,
       gmTools: {
         show: !!(game as any).user?.isGM && !!this.combatant,
         passives: (this.actor as any).type === 'character',
@@ -1845,6 +1869,28 @@ export class StonePowersDialog extends BaseDialog {
       this.#stoneOccSet(accKey, []);
     }
     return ok;
+  }
+
+  /** Stones in a slot that do not fill the wave are not turned on. Say so. */
+  #warnUnactivatedStones(): void {
+    const rows = this.#listUnactivatedPlacements();
+    const text = formatPendingStoneActivationWarning(rows);
+    if (text) ui.notifications?.warn(text);
+  }
+
+  #listUnactivatedPlacements(): PendingStoneActivation[] {
+    this.#pullSessionPartialsIntoInstance();
+    const out: PendingStoneActivation[] = [];
+    for (const [accKey, value] of this._stoneDropAccumulators) {
+      const parsed = parseStonePowerAccKey(accKey);
+      if (!parsed || !Array.isArray(value) || !value.length) continue;
+      const def = STONE_POWERS[parsed.powerId];
+      if (!def) continue;
+      const needed = calculateStoneCost(parsed.uses + rampSkipSegmentsForPower(parsed.powerId));
+      const row = pendingStoneActivation({ name: def.name, placed: value.length, needed });
+      if (row) out.push(row);
+    }
+    return out;
   }
 
   async #flushCompletedStonePaymentsFromAccumulators(): Promise<boolean> {
@@ -2975,6 +3021,7 @@ export class StonePowersDialog extends BaseDialog {
         // snapshot that got charged again on the next confirm.
         try {
           await this.#flushCompletedStonePaymentsFromAccumulators();
+          this.#warnUnactivatedStones();
           await this.#persistStonePowersRoundPlan();
         } catch (err) {
           console.error('Mastery System | Stone payment on confirm failed', err);

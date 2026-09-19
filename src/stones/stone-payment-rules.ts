@@ -79,6 +79,45 @@ export function stoneDialogSectionStartsOpen(args: {
   return !!args.sectionHasSpendable || !!args.sectionHasAssigned;
 }
 
+export interface PendingStoneActivation {
+  name: string;
+  placed: number;
+  needed: number;
+  missing: number;
+}
+
+/**
+ * Stones sitting in a power that has not reached the next full wave.
+ * Placing them does not turn the power on — Extra Attack and Crit start at
+ * 2 stones, so one stone in each looks assigned and does nothing.
+ */
+export function pendingStoneActivation(args: {
+  name: string;
+  placed: number;
+  needed: number;
+}): PendingStoneActivation | null {
+  const placed = Math.max(0, Math.floor(Number(args.placed) || 0));
+  const needed = Math.max(0, Math.floor(Number(args.needed) || 0));
+  if (placed <= 0 || needed <= 0 || placed >= needed) return null;
+  return {
+    name: String(args.name || 'Steinmacht').trim() || 'Steinmacht',
+    placed,
+    needed,
+    missing: needed - placed,
+  };
+}
+
+export function pendingStoneActivationLabel(row: PendingStoneActivation): string {
+  const still = row.missing === 1 ? 'noch 1 Stein' : `noch ${row.missing} Steine`;
+  return `Nicht aktiviert — ${row.placed} von ${row.needed}, ${still}.`;
+}
+
+export function formatPendingStoneActivationWarning(rows: readonly PendingStoneActivation[]): string {
+  if (!rows.length) return '';
+  const bits = rows.map((row) => `${row.name} (${row.placed} von ${row.needed})`);
+  return `Nicht aktiviert: ${bits.join(', ')}. Ablegen schaltet die Macht nicht ein — die Welle muss voll sein.`;
+}
+
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool: {
   max: number;

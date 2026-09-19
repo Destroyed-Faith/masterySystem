@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   orderPowersRampFirst,
+  pendingStoneActivation,
+  pendingStoneActivationLabel,
+  formatPendingStoneActivationWarning,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
   stoneDialogSectionStartsOpen,
@@ -60,6 +63,24 @@ describe('wave settlement guard', () => {
 
   it('ignores waves whose usage level no longer matches', () => {
     expect(shouldSettleStoneWave({ ...base, currentUses: 1 })).toBe(false);
+  });
+});
+
+describe('unactivated stone warning', () => {
+  it('warns when one stone sits on a power that needs two', () => {
+    const row = pendingStoneActivation({ name: 'Extra Attack', placed: 1, needed: 2 });
+    expect(row).toEqual({ name: 'Extra Attack', placed: 1, needed: 2, missing: 1 });
+    expect(pendingStoneActivationLabel(row!)).toBe('Nicht aktiviert — 1 von 2, noch 1 Stein.');
+    const crit = pendingStoneActivation({ name: 'Crit', placed: 1, needed: 2 });
+    expect(formatPendingStoneActivationWarning([row!, crit!])).toBe(
+      'Nicht aktiviert: Extra Attack (1 von 2), Crit (1 von 2). Ablegen schaltet die Macht nicht ein — die Welle muss voll sein.',
+    );
+  });
+
+  it('stays quiet once the wave is full or empty', () => {
+    expect(pendingStoneActivation({ name: 'Evade', placed: 1, needed: 1 })).toBeNull();
+    expect(pendingStoneActivation({ name: 'Evade', placed: 0, needed: 1 })).toBeNull();
+    expect(formatPendingStoneActivationWarning([])).toBe('');
   });
 });
 
