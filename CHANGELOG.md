@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.528] - 2026-09-19
+
+### Fixed
+
+- **Status auf NSCs:** Slow und manuell gesetzte Status bleiben jetzt auf der Figur. Foundry hat die Liste auf unlinked Tokens verschluckt. Der Status liegt zusätzlich in den Actor-Flags, Bogen und Karussell lesen dort zuerst.
+
 ## [0.9.527] - 2026-09-19
 
 ### Fixed

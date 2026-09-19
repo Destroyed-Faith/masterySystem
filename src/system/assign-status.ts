@@ -1,7 +1,7 @@
 /**
  * One path for setting a catalog status on a character or NPC.
  *
- * Combat, the sheet, and the carousel read `system.statusEffects`.
+ * Combat, the sheet, and the carousel read flags first, then `system.statusEffects`.
  * The token status bar reads ActiveEffects. Both have to move together,
  * including when a Special never triggered on its own.
  */
@@ -11,7 +11,9 @@ import { getEffectById } from '../utils/special-effects.js';
 import {
   coerceStatusEffectsArray,
   hasActiveSpecial,
+  readActorStatusEffects,
   statusEntryId,
+  type RawStatusEntry,
 } from './active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from './status-effects.js';
 
@@ -22,11 +24,6 @@ export interface StatusAddChoice {
   img: string;
 }
 
-interface RawStatusEntry {
-  id?: string;
-  name?: string;
-  value?: number | null;
-}
 
 const mirroring = new Map<string, Promise<void>>();
 
@@ -212,20 +209,41 @@ export function isMirroringStatusIcons(actor: any): boolean {
   return mirroring.has(String(actor?.id || ''));
 }
 
-async function persistStatusList(actor: any, list: RawStatusEntry[]): Promise<void> {
+async function persistStatusList(
+  actor: any,
+  list: RawStatusEntry[],
+  extra: Record<string, unknown> = {},
+): Promise<void> {
+  const update: Record<string, unknown> = {
+    'system.statusEffects': list,
+    'flags.mastery-system.statusEffects': list,
+    ...extra,
+  };
   const g = globalThis as any;
   if (typeof g.game === 'undefined' || !g.game?.user) {
-    await actor.update({ 'system.statusEffects': list });
+    await actor.update(update, { diff: false });
     return;
   }
   const { updateActorViaGm } = await import('../combat/gm-relay.js');
-  await updateActorViaGm(actor, { 'system.statusEffects': list });
+  await updateActorViaGm(actor, update, { diff: false });
 }
 
-export async function writeActorStatusList(actor: any, list: RawStatusEntry[]): Promise<void> {
+export async function writeActorStatusList(
+  actor: any,
+  list: RawStatusEntry[],
+  extra: Record<string, unknown> = {},
+): Promise<void> {
   if (!actor) return;
-  await persistStatusList(actor, list);
+  await persistStatusList(actor, list, extra);
   await syncTokenStatusIcons(actor);
+  const sheet = actor.sheet;
+  if (sheet?.rendered) {
+    try {
+      await sheet.render(false);
+    } catch {
+      /* sheet may already be redrawing */
+    }
+  }
 }
 
 /**
@@ -243,12 +261,12 @@ export async function setActorCatalogStatus(
   const id = String(statusId || '').trim().toLowerCase();
   if (!isAssignableStatusId(id)) return;
   const choice = choiceForStatus(id);
-  const before = coerceStatusEffectsArray(actor.system?.statusEffects);
+  const before = readActorStatusEffects(actor);
   const had = before.some((e) => entryMatches(e, id));
   const next = active ? upsertStatusEntry(before, id, value) : removeStatusById(before, id);
   const changed = listChanged(before, next);
-  if (changed) await persistStatusList(actor, next);
-  await syncTokenStatusIcons(actor);
+  if (changed) await writeActorStatusList(actor, next);
+  else await syncTokenStatusIcons(actor);
 
   if (!options?.notify) return;
   const g = globalThis as any;

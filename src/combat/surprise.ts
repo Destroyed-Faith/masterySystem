@@ -5,7 +5,12 @@
  * so everyone who still has a normal score acts first.
  */
 
-import { hasActiveSpecial, coerceStatusEffectsArray, statusEntryId } from '../system/active-specials.js';
+import {
+  hasActiveSpecial,
+  coerceStatusEffectsArray,
+  readActorStatusEffects,
+  statusEntryId,
+} from '../system/active-specials.js';
 
 export const SURPRISE_STATUS_ID = 'surprise';
 
@@ -45,7 +50,7 @@ export function statusListHasSurprise(raw: unknown): boolean {
 export function actorHasSurprise(actor: any): boolean {
   if (!actor) return false;
   if (hasActiveSpecial(actor, SURPRISE_STATUS_ID)) return true;
-  if (statusListHasSurprise(actor.system?.statusEffects)) return true;
+  if (statusListHasSurprise(readActorStatusEffects(actor))) return true;
 
   const statuses = actor.statuses;
   if (statuses?.has?.(SURPRISE_STATUS_ID)) return true;

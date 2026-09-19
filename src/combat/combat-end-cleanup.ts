@@ -81,13 +81,12 @@ export async function clearNpcOngoingEffectsAfterCombat(combat: any): Promise<vo
     } catch (err) {
       console.warn('Mastery System | NPC active buff cleanup after combat failed', err);
     }
-    const list = actor?.system?.statusEffects;
-    const hasSpecials = Array.isArray(list)
-      ? list.length > 0
-      : !!list && typeof list === 'object' && Object.keys(list).length > 0;
-    if (!hasSpecials) continue;
+    const { readActorStatusEffects } = await import('../system/active-specials.js');
+    const { writeActorStatusList } = await import('../system/assign-status.js');
+    const list = readActorStatusEffects(actor);
+    if (!list.length) continue;
     try {
-      await actor.update?.({ 'system.statusEffects': [] });
+      await writeActorStatusList(actor, []);
     } catch (err) {
       console.warn('Mastery System | NPC special effect cleanup after combat failed', err);
     }

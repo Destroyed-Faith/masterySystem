@@ -158,7 +158,7 @@ import {
 } from './character-status-panel.js';
 import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
-import { coerceStatusEffectsArray } from '../system/active-specials.js';
+import { readActorStatusEffects } from '../system/active-specials.js';
 
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
 // + Handlebars part rendering.
@@ -7440,11 +7440,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (!data?.system || !Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
       return data;
     }
-    const submitted = coerceStatusEffectsArray(data.system.statusEffects);
-    data.system.statusEffects =
-      submitted.length > 0
-        ? submitted
-        : coerceStatusEffectsArray((this.actor as any).system?.statusEffects);
+    data.system.statusEffects = readActorStatusEffects(this.actor);
     return data;
   }
 

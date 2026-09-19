@@ -4,7 +4,7 @@
 
 import { getEffectById } from '../utils/special-effects.js';
 import {
-  coerceStatusEffectsArray,
+  readActorStatusEffects,
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
@@ -24,7 +24,7 @@ export interface CharacterStatusRow {
 
 export function buildCharacterStatusRows(actor: Actor | null | undefined): CharacterStatusRow[] {
   const rows: CharacterStatusRow[] = [];
-  const list = coerceStatusEffectsArray((actor as any)?.system?.statusEffects);
+  const list = readActorStatusEffects(actor);
   for (let index = 0; index < list.length; index++) {
     const entry = list[index];
     const id = statusEntryId(entry) || String(entry?.id || '').trim();
@@ -68,14 +68,14 @@ export async function removeCharacterStatusRow(actor: Actor, row: CharacterStatu
     await (actor as any).update({ 'system.health.tempHP': 0 });
     return;
   }
-  const list = coerceStatusEffectsArray((actor as any).system?.statusEffects);
+  const list = readActorStatusEffects(actor);
   if (row.index < 0 || row.index >= list.length) return;
   await writeActorStatusList(actor, list.filter((_, i) => i !== row.index));
 }
 
 export async function reduceCharacterStatusRow(actor: Actor, row: CharacterStatusRow, steps: number): Promise<void> {
   if (row.kind !== 'special') return;
-  const list = coerceStatusEffectsArray((actor as any).system?.statusEffects);
+  const list = readActorStatusEffects(actor);
   if (row.index < 0 || row.index >= list.length) return;
   await writeActorStatusList(actor, reduceStatusEffectAt(list, row.index, steps));
 }

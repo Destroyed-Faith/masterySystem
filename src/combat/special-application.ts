@@ -582,8 +582,9 @@ export async function applyNaturalSpecialRecovery(
   if (!isNegativeDiminishingSpecialId(specialId)) return { ok: false, reason: 'not-eligible' };
 
   const rank = actorMasteryRank(actor);
-  const system = actor.system;
-  const list = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+  const { readActorStatusEffects } = await import('../system/active-specials.js');
+  const { writeActorStatusList } = await import('../system/assign-status.js');
+  const list = readActorStatusEffects(actor);
   const { next, before, after, reduced } = reduceSpecialEntries(list, specialId, rank);
   if (reduced <= 0) return { ok: false, reason: 'empty' };
 
@@ -592,18 +593,19 @@ export async function applyNaturalSpecialRecovery(
     chosen: true,
     allocations: { [specialId]: reduced },
   };
-  const update: Record<string, unknown> = {
-    'system.statusEffects': next,
-    [`flags.mastery-system.${NATURAL_RECOVERY_FLAG}`]: choice,
-  };
-
   if (typeof actor.update === 'function') {
-    await actor.update(update);
+    await writeActorStatusList(actor, next, {
+      [`flags.mastery-system.${NATURAL_RECOVERY_FLAG}`]: choice,
+    });
   } else {
     actor.system = actor.system || {};
     actor.system.statusEffects = next;
     actor.flags = actor.flags || {};
-    actor.flags['mastery-system'] = { ...(actor.flags['mastery-system'] || {}), [NATURAL_RECOVERY_FLAG]: choice };
+    actor.flags['mastery-system'] = {
+      ...(actor.flags['mastery-system'] || {}),
+      statusEffects: next,
+      [NATURAL_RECOVERY_FLAG]: choice,
+    };
   }
 
   const name = specialDisplayName(specialId);

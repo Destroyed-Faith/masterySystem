@@ -15,10 +15,36 @@ export interface ActiveSpecial {
   value: number;
 }
 
-interface RawStatusEntry {
+export interface RawStatusEntry {
   id?: string;
   name?: string;
   value?: number | null;
+  source?: string;
+  sourceUuid?: string;
+  sourceMasteryRank?: number;
+  timestamp?: number;
+}
+
+function flagStatusList(actor: any): unknown {
+  if (!actor) return undefined;
+  if (typeof actor.getFlag === 'function') {
+    try {
+      return actor.getFlag('mastery-system', 'statusEffects');
+    } catch {
+      /* fall through */
+    }
+  }
+  return actor.flags?.['mastery-system']?.statusEffects;
+}
+
+/**
+ * Live Specials on a creature. Flags survive unlinked NPC tokens; the sheet
+ * field is the fallback for older actors.
+ */
+export function readActorStatusEffects(actor: any): RawStatusEntry[] {
+  const flagged = flagStatusList(actor);
+  if (flagged !== undefined && flagged !== null) return coerceStatusEffectsArray(flagged);
+  return coerceStatusEffectsArray(actor?.system?.statusEffects);
 }
 
 function slugSpecialName(name: string): string {
@@ -47,7 +73,7 @@ export function statusEntryId(entry: RawStatusEntry): string | undefined {
 
 /** Normalized list of a creature's active Specials (id + value). */
 export function readActiveSpecials(actor: any): ActiveSpecial[] {
-  const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
+  const list = readActorStatusEffects(actor);
   const out: ActiveSpecial[] = [];
   for (const entry of list) {
     const id = statusEntryId(entry);
@@ -75,7 +101,7 @@ export function getActiveSpecialValue(actor: any, id: string): number {
  * numeric stack.
  */
 export function hasActiveSpecial(actor: any, id: string): boolean {
-  const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
+  const list = readActorStatusEffects(actor);
   for (const entry of list) {
     if (statusEntryId(entry) === id) return true;
   }

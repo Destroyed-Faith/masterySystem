@@ -1315,8 +1315,8 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
 async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
   if (!spend || spend <= 0) return;
   try {
-    const system = (target as any).system;
-    const list: any[] = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+    const { readActorStatusEffects } = await import('../system/active-specials.js');
+    const list: any[] = readActorStatusEffects(target);
     let changed = false;
     const next = list
       .map((e) => {
@@ -1331,7 +1331,7 @@ async function consumeTargetMark(target: Actor, spend: number): Promise<void> {
       })
       .filter((e) => !((e?.id === 'mark' || String(e?.name ?? '').toLowerCase() === 'mark') && Math.floor(Number(e.value ?? 0)) <= 0));
     if (changed) {
-      await (await import('../combat/gm-relay.js')).updateActorViaGm(target, { 'system.statusEffects': next });
+      await (await import('../system/assign-status.js')).writeActorStatusList(target, next);
     }
   } catch (err) {
     console.warn('Mastery System | consumeTargetMark failed', err);
@@ -1387,10 +1387,8 @@ async function applyStatusEffectsToTarget(
 ): Promise<string[]> {
   const limitNotes: string[] = [];
   try {
-    // Get current status effects from target
-    const system = (target as any).system;
-    const { coerceStatusEffectsArray } = await import('../system/active-specials.js');
-    let list: any[] = coerceStatusEffectsArray(system?.statusEffects).map((e) => ({ ...e }));
+    const { readActorStatusEffects } = await import('../system/active-specials.js');
+    let list: any[] = readActorStatusEffects(target).map((e) => ({ ...e }));
     const { getEffect } = await import('../utils/special-effects.js');
     const { mergeChallengeEntry } = await import('../system/pool-reduction.js');
     const {
@@ -1522,10 +1520,7 @@ async function applyStatusEffectsToTarget(
     }
     
     // Update target actor
-    await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
-      'system.statusEffects': list,
-      ...appsUpdate,
-    });
+    await (await import('../system/assign-status.js')).writeActorStatusList(target, list, appsUpdate);
 
     // Reactive Cleanse — status surface (not the attack Reaction Window).
     try {
@@ -1792,17 +1787,14 @@ export async function applyDamageToTarget(
             if (use) {
               const spent = combat ? await spendReactionAction(target as any, combat) : true;
               if (spent) {
-                const listNow: any[] = Array.isArray((target as any).system?.statusEffects)
-                  ? [...(target as any).system.statusEffects]
-                  : [];
+                const { readActorStatusEffects } = await import('../system/active-specials.js');
+                const listNow = readActorStatusEffects(target).map((e) => ({ ...e }));
                 const idx = listNow.findIndex((e: any) => statusEntryId(e) === 'bulwark');
                 if (idx >= 0) {
                   const cur = Math.max(0, Math.floor(Number(listNow[idx]?.value ?? 0)));
                   if (cur > 1) listNow[idx] = { ...listNow[idx], value: cur - 1 };
                   else listNow.splice(idx, 1);
-                  await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
-                    'system.statusEffects': listNow,
-                  });
+                  await (await import('../system/assign-status.js')).writeActorStatusList(target, listNow);
                 }
                 bulwarkNote = `Bulwark −50% (${mitigated} → ${halved})`;
                 mitigated = halved;

@@ -6,16 +6,24 @@ import {
   setActorCatalogStatus,
   upsertStatusEntry,
 } from '../src/system/assign-status.js';
+import { readActorStatusEffects } from '../src/system/active-specials.js';
 import { statusIdFromHudTarget } from '../src/system/status-hud.js';
 
 function mockActor(statusEffects: unknown[] = []) {
   const actor = {
     id: 'a1',
     name: 'Bjorn',
-    system: { statusEffects },
+    system: { statusEffects: [...statusEffects] },
+    flags: { 'mastery-system': {} as Record<string, unknown> },
+    getFlag(ns: string, key: string) {
+      return actor.flags[ns]?.[key];
+    },
     update: async (patch: Record<string, unknown>) => {
       if (patch['system.statusEffects']) {
         actor.system.statusEffects = patch['system.statusEffects'] as unknown[];
+      }
+      if (patch['flags.mastery-system.statusEffects']) {
+        actor.flags['mastery-system'].statusEffects = patch['flags.mastery-system.statusEffects'];
       }
     },
   };
@@ -60,8 +68,17 @@ describe('assign catalog status', () => {
     const actor = mockActor();
     await setActorCatalogStatus(actor, 'stunned', true);
     expect(actor.system.statusEffects).toEqual([{ id: 'stunned', name: 'Stunned' }]);
+    expect(actor.flags['mastery-system'].statusEffects).toEqual([{ id: 'stunned', name: 'Stunned' }]);
     await setActorCatalogStatus(actor, 'stunned', false);
     expect(actor.system.statusEffects).toEqual([]);
+    expect(actor.flags['mastery-system'].statusEffects).toEqual([]);
+  });
+
+  it('reads flags when the sheet field was dropped', () => {
+    const actor = mockActor();
+    actor.system.statusEffects = [];
+    actor.flags['mastery-system'].statusEffects = [{ id: 'slow', name: 'Slow', value: 6 }];
+    expect(readActorStatusEffects(actor)).toEqual([{ id: 'slow', name: 'Slow', value: 6 }]);
   });
 });
 

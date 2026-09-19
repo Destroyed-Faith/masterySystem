@@ -31,6 +31,9 @@ async function applyRelayedActorUpdate(payload: any): Promise<boolean> {
   if (!actor && payload.actorId) {
     actor = game.actors?.get?.(payload.actorId) ?? null;
   }
+  if (actor?.documentName === 'Token' && actor.actor) {
+    actor = actor.actor;
+  }
   if (!actor || typeof actor.update !== 'function') return false;
   await actor.update(payload.update, payload.options || {});
   return true;

@@ -185,6 +185,7 @@
       "skills": {},
       "skillsSpent": {},
       "conditions": [],
+      "statusEffects": [],
       "schticks": {
         "ranks": []
       },
@@ -332,6 +333,7 @@
       "npcMovementSlots": 1,
       "npcReactionSlots": 0,
       "npcReactions": [],
+      "statusEffects": [],
       "notes": ""
     }
   },
