@@ -4964,14 +4964,33 @@
 
 .mastery-system.sheet.actor.npc .health-panel .npc-hp-row {
   display: flex;
-  align-items: end;
-  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.35rem;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 6px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-weight: 500;
+}
+
+.mastery-system.sheet.actor.npc .health-panel .npc-hp-row.active {
+  background: transparent;
+  border: 0;
+  box-shadow: inset 3px 0 0 #c9a227;
+  padding-left: 8px;
 }
 
 .mastery-system.sheet.actor.npc .health-panel .npc-hp-field {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  width: auto;
   min-width: 0;
 }
 
@@ -4981,18 +5000,18 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.92);
-}
-
-.mastery-system.sheet.actor.npc .health-panel .npc-hp-sep {
-  padding-bottom: 6px;
-  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
 }
 
 .mastery-system.sheet.actor.npc .health-panel .health-bar input {
+  width: 5.2rem;
+  max-width: 6.5rem;
+  flex: 0 0 auto;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
   border-radius: 4px;
+  padding: 3px 6px;
 }
 
 .mastery-system.sheet.actor.npc .attack-values-header {

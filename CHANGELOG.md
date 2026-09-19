@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.514] - 2026-09-19
+
+### Changed
+
+- **NSC-HP:** Aktuell und Maximum stehen in einer Zeile. Das Wort, dann das Feld, Abstand, dann Maximum und sein Feld. Nicht mehr über die ganze Breite gezogen.
+
 ## [0.9.513] - 2026-09-19
 
 ### Changed
