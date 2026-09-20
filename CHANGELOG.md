@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.533] - 2026-09-20
+
+### Changed
+
+- **Karussell hinter dem Bogen:** Der Charakterbogen liegt wieder vorne. Schließen und Ziehen am Bogen gehen, das Karussell bleibt unten am oberen Rand.
+- **Karussell-Größe:** Rechts unten ein Zieh-Griff. Nach unten werden zuerst die Porträts kleiner, ganz klein bleiben Name und die rechten Knöpfe — HP-Zeilen fallen weg. Doppelklick auf den Griff setzt die volle Größe zurück.
+
 ## [0.9.532] - 2026-09-19
 
 ### Changed

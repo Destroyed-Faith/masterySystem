@@ -55,6 +55,7 @@
     },
     "carousel": {
       "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768.",
+      "resizeHint": "Karussell-Größe ziehen. Doppelklick setzt die volle Größe zurück.",
       "reactionsHint": "Verbleibende Reactions diese Runde (Steine können das Maximum erhöhen).",
       "refundHint": "GM-Absicherung: eine verbrauchte Attack-/Movement-/Reaction-Aktion dieser Runde zurückgeben.",
       "attackActions": "Attack",

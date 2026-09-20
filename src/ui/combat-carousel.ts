@@ -20,8 +20,16 @@ import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
 import {
   applyCarouselCompactClass,
+  applyCarouselUserSize,
+  CAROUSEL_MIN_HEIGHT,
+  CAROUSEL_MIN_WIDTH,
+  CAROUSEL_Z_INDEX,
+  clampCarouselHeight,
+  clampCarouselWidth,
   clearCarouselTopOffset,
   isCompactCarouselViewport,
+  readCarouselUserSize,
+  writeCarouselUserSize,
 } from './combat-carousel-layout.js';
 import {
   forceEncounterDialog,
@@ -81,7 +89,9 @@ export class CombatCarouselApp extends BaseCarousel {
     // Check for existing instance
     const existingApp = foundry.applications.instances.get('mastery-combat-carousel') as CombatCarouselApp | undefined;
     if (existingApp) {
-      (existingApp as any).bringToFront();
+      if (!(existingApp as any).rendered) {
+        (existingApp as any).render({ force: true, focus: false });
+      }
       return;
     }
     
@@ -452,8 +462,10 @@ export class CombatCarouselApp extends BaseCarousel {
     
     // Add body class when carousel is rendered
     document.body.classList.add('mastery-carousel-open');
+    this.pinBehindSheets();
     this.applyCompactLayout();
     this.bindCompactViewportWatch();
+    this.bindResizeHandle(root);
     if (this.hookEntries.length === 0) {
       this.registerUpdateHooks();
     }
@@ -805,14 +817,87 @@ export class CombatCarouselApp extends BaseCarousel {
     // Remove body class when carousel is closed
     document.body.classList.remove('mastery-carousel-open');
     document.body.classList.remove('mastery-carousel-compact');
+    document.body.classList.remove('mastery-carousel-resizing');
     clearCarouselTopOffset();
     return super._onClose(_options);
   }
 
   private compactViewportHandler: (() => void) | null = null;
+  private resizeDrag: {
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startW: number;
+    startH: number;
+  } | null = null;
+
+  /** Stay under actor sheets so the close button remains clickable. */
+  bringToFront(): this {
+    this.pinBehindSheets();
+    return this;
+  }
+
+  private pinBehindSheets(): void {
+    const el = (this as any).element as HTMLElement | undefined;
+    if (!el) return;
+    el.style.zIndex = String(CAROUSEL_Z_INDEX);
+  }
 
   private applyCompactLayout(): void {
     applyCarouselCompactClass((this as any).element as HTMLElement | undefined, isCompactCarouselViewport());
+    this.pinBehindSheets();
+  }
+
+  private bindResizeHandle(root: HTMLElement | null | undefined): void {
+    const handle = root?.querySelector?.('.js-carousel-resize') as HTMLElement | null;
+    if (!handle || !root) return;
+    handle.onpointerdown = (ev: PointerEvent) => {
+      if (ev.button !== 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const inner = root.querySelector('.mastery-carousel') as HTMLElement | null;
+      this.resizeDrag = {
+        pointerId: ev.pointerId,
+        startX: ev.clientX,
+        startY: ev.clientY,
+        startW: root.offsetWidth,
+        startH: inner?.offsetHeight || root.offsetHeight,
+      };
+      handle.setPointerCapture?.(ev.pointerId);
+      document.body.classList.add('mastery-carousel-resizing');
+    };
+    handle.onpointermove = (ev: PointerEvent) => {
+      const drag = this.resizeDrag;
+      if (!drag || ev.pointerId !== drag.pointerId) return;
+      ev.preventDefault();
+      const maxW = Math.max(CAROUSEL_MIN_WIDTH, Math.floor(window.innerWidth * 0.96));
+      const maxH = Math.max(CAROUSEL_MIN_HEIGHT, Math.floor(window.innerHeight * 0.7));
+      const width = clampCarouselWidth(drag.startW + (ev.clientX - drag.startX), maxW);
+      const height = clampCarouselHeight(drag.startH + (ev.clientY - drag.startY), maxH);
+      applyCarouselUserSize(root, { width, height });
+    };
+    const endDrag = (ev: PointerEvent) => {
+      const drag = this.resizeDrag;
+      if (!drag || ev.pointerId !== drag.pointerId) return;
+      this.resizeDrag = null;
+      document.body.classList.remove('mastery-carousel-resizing');
+      const width = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10);
+      const height = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10);
+      writeCarouselUserSize({
+        width: Number.isFinite(width) ? width : null,
+        height: Number.isFinite(height) ? height : null,
+      });
+    };
+    handle.onpointerup = endDrag;
+    handle.onpointercancel = endDrag;
+    handle.ondblclick = (ev: MouseEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.resizeDrag = null;
+      document.body.classList.remove('mastery-carousel-resizing');
+      writeCarouselUserSize({ width: null, height: null });
+      applyCarouselUserSize(root, { width: null, height: null });
+    };
   }
 
   private bindCompactViewportWatch(): void {

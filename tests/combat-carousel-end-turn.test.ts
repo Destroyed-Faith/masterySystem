@@ -29,4 +29,10 @@ describe('combat carousel Nächster Zug', () => {
     expect(css).toMatch(/\.carousel-combatant\s*\{/);
     expect(css).toMatch(/#mastery-combat-carousel \.carousel-combatant/);
   });
+
+  it('exposes a resize handle and stays under actor sheets', () => {
+    expect(hbs).toMatch(/carousel-resize-handle js-carousel-resize/);
+    expect(css).not.toMatch(/#mastery-combat-carousel[\s\S]{0,400}z-index:\s*300\s*!important/);
+    expect(css).toMatch(/carousel-resize-handle/);
+  });
 });

@@ -55,6 +55,7 @@
     },
     "carousel": {
       "compactHint": "Compact carousel — window or zoom is below 1024×768.",
+      "resizeHint": "Drag to resize the carousel. Double-click restores full size.",
       "reactionsHint": "Reactions remaining this round (stones may raise total).",
       "refundHint": "GM recovery: refund one spent Attack / Movement / Reaction this round.",
       "attackActions": "Attack",
