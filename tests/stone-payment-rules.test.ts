@@ -8,6 +8,7 @@ import {
   shouldSettleStoneWave,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
+  stonePowerActivationRing,
 } from '../src/stones/stone-payment-rules';
 
 const ATTRS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'] as const;
@@ -154,5 +155,24 @@ describe('pool blocked reason', () => {
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 0 })).toBe(
       'spent this round',
     );
+  });
+});
+
+describe('stonePowerActivationRing', () => {
+  it('leaves unused cards white (1px, not activated)', () => {
+    expect(stonePowerActivationRing(0)).toEqual({
+      activationCount: 0,
+      activated: false,
+      ringPx: 1,
+    });
+  });
+
+  it('grows the green ring with each paid wave', () => {
+    expect(stonePowerActivationRing(1)).toEqual({ activationCount: 1, activated: true, ringPx: 1 });
+    expect(stonePowerActivationRing(2)).toEqual({ activationCount: 2, activated: true, ringPx: 2 });
+    expect(stonePowerActivationRing(3)).toEqual({ activationCount: 3, activated: true, ringPx: 3 });
+    expect(stonePowerActivationRing(4)).toEqual({ activationCount: 4, activated: true, ringPx: 4 });
+    expect(stonePowerActivationRing(5)).toEqual({ activationCount: 5, activated: true, ringPx: 5 });
+    expect(stonePowerActivationRing(8)).toEqual({ activationCount: 8, activated: true, ringPx: 5 });
   });
 });

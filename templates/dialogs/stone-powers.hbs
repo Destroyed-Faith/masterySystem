@@ -244,7 +244,7 @@
       </summary>
       <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
-        <div class="power-card power-card-general" title="{{#if power.hideLeadSegment}}Linksklick: nächsten Block füllen (2, dann 4, dann 8 Steine — je Pool-Verfügbarkeit){{else}}Linksklick: nächsten Block füllen (1, dann 2, dann 4, dann 8 Steine — je Pool-Verfügbarkeit){{/if}} · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen">
+        <div class="power-card power-card-general{{#if power.activated}} is-activated{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.hideLeadSegment}}Linksklick: nächsten Block füllen (2, dann 4, dann 8 Steine — je Pool-Verfügbarkeit){{else}}Linksklick: nächsten Block füllen (1, dann 2, dann 4, dann 8 Steine — je Pool-Verfügbarkeit){{/if}} · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen{{#if power.activated}} · Aktiviert ({{power.activationCount}}×){{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}" data-acc-key="{{power.accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if power.hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -315,7 +315,7 @@
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
-        <div class="power-card power-card-general" title="{{#if hideLeadSegment}}Linksklick: nächsten Block mit {{attribute}}-Steinen (2 → 4 → 8){{else}}Linksklick: nächsten Block mit {{attribute}}-Steinen (1 → 2 → 4 → 8){{/if}} · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen">
+        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if hideLeadSegment}}Linksklick: nächsten Block mit {{attribute}}-Steinen (2 → 4 → 8){{else}}Linksklick: nächsten Block mit {{attribute}}-Steinen (1 → 2 → 4 → 8){{/if}} · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen{{#if activated}} · Aktiviert ({{activationCount}}×){{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" data-acc-key="{{accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if hideLeadSegment}} is-ramp-skip{{/if}}" role="group">

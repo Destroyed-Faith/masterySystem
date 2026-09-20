@@ -77,6 +77,7 @@ import {
   shouldSettleStoneWave,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
+  stonePowerActivationRing,
   type PendingStoneActivation,
 } from './stone-payment-rules.js';
 import {
@@ -875,6 +876,7 @@ export class StonePowersDialog extends BaseDialog {
           !!this.combatant &&
           isOncePerCombatPowerUsed(this.combatant, power.id),
         hideLeadSegment: rampSkip > 0,
+        ...stonePowerActivationRing(liveUses),
         ...pendingStoneCardFields(power.name, occupied.length, nextCost),
         ...laneSegs
       };
@@ -950,6 +952,9 @@ export class StonePowersDialog extends BaseDialog {
           ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
           : '',
         hideLeadSegment: rampSkip > 0,
+        ...stonePowerActivationRing(
+          getGenericStonePowerUsageCount(this.actor, power.id, combat),
+        ),
         ...pendingStoneCardFields(power.name, occupied.length, nextCost),
         ...laneSegs
       };

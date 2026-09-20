@@ -130,3 +130,21 @@ export function stonePoolBlockedReason(pool: {
   if (pool.sustained > 0) return 'bound by Sustain';
   return 'spent this round';
 }
+
+/**
+ * Green card ring after a Stone Power has been charged. Unused cards stay
+ * white. First activation is a thin 1px green edge; each further wave adds
+ * 1px, capped at 5px so the compact card still fits.
+ */
+export function stonePowerActivationRing(activationCount: number): {
+  activationCount: number;
+  activated: boolean;
+  ringPx: number;
+} {
+  const n = Math.max(0, Math.min(8, Math.floor(Number(activationCount) || 0)));
+  return {
+    activationCount: n,
+    activated: n > 0,
+    ringPx: n <= 0 ? 1 : Math.min(5, n),
+  };
+}
