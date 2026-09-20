@@ -59,7 +59,7 @@ export async function requestEndTurn(): Promise<void> {
   requestEndTurnInFlight = true;
   try {
     const ok = await requestCombatNextTurn();
-    if (!ok) ui.notifications?.error?.('Nächster Zug fehlgeschlagen');
+    if (!ok) ui.notifications?.error?.('Next Turn failed');
   } catch (error) {
     console.error('Mastery System | Error ending turn', error);
     ui.notifications.error('Failed to end turn');
@@ -75,22 +75,22 @@ export async function requestDelayTurn(): Promise<void> {
   if (delayInFlight) return;
   const combat = game.combat;
   if (!combat?.combatant) {
-    ui.notifications?.warn?.('Kein aktiver Zug.');
+    ui.notifications?.warn?.('No active turn.');
     return;
   }
   const user = game.user;
   const actor = combat.combatant.actor;
   if (!canViewerSeeEndTurn(actor, user)) {
-    ui.notifications?.warn?.('Nur der eigene Zug kann verzögert werden.');
+    ui.notifications?.warn?.('Only your own turn can be delayed.');
     return;
   }
   delayInFlight = true;
   try {
     const ok = await requestDelayInitiative();
-    if (!ok) ui.notifications?.warn?.('Initiative verzögern fehlgeschlagen.');
+    if (!ok) ui.notifications?.warn?.('Delay Initiative failed.');
   } catch (error) {
     console.error('Mastery System | delay initiative failed', error);
-    ui.notifications?.error?.('Initiative verzögern fehlgeschlagen.');
+    ui.notifications?.error?.('Delay Initiative failed.');
   } finally {
     delayInFlight = false;
   }

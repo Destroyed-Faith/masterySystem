@@ -873,7 +873,7 @@ export class StonePowersDialog extends BaseDialog {
         supportSource: support?.source ?? '',
         supportActive: !!supportLanes,
         supportHint: support
-          ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
+          ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
           : '',
         boostUsed:
           !!power.oncePerCombat &&
@@ -953,7 +953,7 @@ export class StonePowersDialog extends BaseDialog {
         supportSource: support?.source ?? '',
         supportActive: !!supportLanes,
         supportHint: support
-          ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
+          ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
           : '',
         hideLeadSegment: rampSkip > 0,
         ...stonePowerActivationRing(
@@ -1137,7 +1137,7 @@ export class StonePowersDialog extends BaseDialog {
       showStonePools,
       prefsUseDefaults,
       canSavePrefs,
-      combatLabel: combat ? `Runde ${combat.round}` : '',
+      combatLabel: combat ? `Round ${combat.round}` : '',
       naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
     };
   }
@@ -1152,14 +1152,6 @@ export class StonePowersDialog extends BaseDialog {
       !!this.combatant &&
       (this.actor as any).type === 'character' &&
       (options.length > 0 || skipped);
-    const i18n = (game as any)?.i18n;
-    const title =
-      i18n?.localize?.('MASTERY.specials.naturalRecoveryPick') || 'Natural Special Recovery';
-    const fallbackHint =
-      `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`;
-    const hint =
-      i18n?.format?.('MASTERY.specials.naturalRecoveryHint', { rank: masteryRank }) || fallbackHint;
-    const noneLabel = i18n?.localize?.('MASTERY.specials.naturalRecoveryNone') || 'None';
     return {
       show,
       locked,
@@ -1172,9 +1164,9 @@ export class StonePowersDialog extends BaseDialog {
         canRemove: row.canRemove && !locked,
       })),
       skipped,
-      title: title === 'MASTERY.specials.naturalRecoveryPick' ? 'Natural Special Recovery' : title,
-      hint: hint === 'MASTERY.specials.naturalRecoveryHint' ? fallbackHint : hint,
-      noneLabel: noneLabel === 'MASTERY.specials.naturalRecoveryNone' ? 'None' : noneLabel,
+      title: 'Natural Special Recovery',
+      hint: `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`,
+      noneLabel: 'None',
     };
   }
 
@@ -1194,17 +1186,12 @@ export class StonePowersDialog extends BaseDialog {
       show &&
       (gmOpen ||
         passiveSlotsHaveOpenChoice(slots, getAvailablePassives(this.actor).length, pendingSwaps));
-    const i18n = (game as any)?.i18n;
-    const loc = (key: string, fallback: string) => {
-      const t = i18n?.localize?.(`MASTERY.encounterSetup.${key}`);
-      return !t || t === `MASTERY.encounterSetup.${key}` ? fallback : t;
-    };
-    const label = loc('assignPassives', 'Passives verteilen');
+    const label = 'Assign Passives';
     const hint = canEdit
       ? pendingSwaps > 0
-        ? loc('assignPassivesHintSwap', 'Exchange Passive ist bezahlt — du kannst jetzt tauschen.')
-        : loc('assignPassivesHint', 'Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.')
-      : loc('assignPassivesHintView', 'Nur Ansicht. Passives bleiben, bis Exchange Passive bezahlt ist.');
+        ? 'Exchange Passive is paid — you may swap now.'
+        : 'Change the pre-selected Passives. Your last choice is kept.'
+      : 'View only. Passives stay set until you pay Exchange Passive.';
     return {
       show: needsPrompt,
       glow: gmOpen || (needsPrompt && ((round <= 1 && !reviewed) || pendingSwaps > 0)),
@@ -1700,7 +1687,7 @@ export class StonePowersDialog extends BaseDialog {
           return;
         }
         if (this.#dialogNeedsInitiativeRoll()) {
-          ui.notifications?.warn('Erst Initiative würfeln — der Knopf steht in der Initiative-Zeile.');
+          ui.notifications?.warn('Roll Initiative first — the button is in the Initiative row.');
           return;
         }
         // `_onClose` resolves the caller's promise once payment and the round
@@ -2003,7 +1990,7 @@ export class StonePowersDialog extends BaseDialog {
     } catch {
       /* combat flag is best-effort; the combatant flag is enough to edit */
     }
-    ui.notifications?.info(`${(this.actor as any).name}: Passives sind wieder offen.`);
+    ui.notifications?.info(`${(this.actor as any).name}: Passives are open again.`);
     await this.#renderKeepingScroll();
   }
 
@@ -2014,7 +2001,7 @@ export class StonePowersDialog extends BaseDialog {
     if (owner !== this.actor) await releasePcInitiativeRoll(this.actor, this.combatant);
     this._colorlessConvertCount = null;
     ui.notifications?.info(
-      `${(this.actor as any).name}: Initiative ist wieder offen. Würfel sie neu.`,
+      `${(this.actor as any).name}: Initiative is open again. Roll it again.`,
     );
     await this.#renderKeepingScroll();
   }
@@ -2101,7 +2088,7 @@ export class StonePowersDialog extends BaseDialog {
     this._stonePaidLanes.clear();
     this._stoneReviewMode = false;
     ui.notifications?.info(
-      `${String(owner.name || 'Charakter')}: Steinzuordnung zurückgesetzt. Bezahlte Steine sind wieder im Pool.`,
+      `${String(owner.name || 'Character')}: Stone assignment reset. Paid stones are back in the pool.`,
     );
     await this.#renderKeepingScroll();
   }
@@ -2420,12 +2407,12 @@ export class StonePowersDialog extends BaseDialog {
         gem.setAttribute('data-lane-index', String(lane));
         gem.setAttribute('data-return-attribute-key', payAttr);
         gem.title = paid
-          ? 'Bereits bezahlt — bleibt für diese Runde gebucht'
+          ? 'Already paid — stays booked for this round'
           : canReturn
-            ? 'Zurück in den passenden Pool ziehen'
+            ? 'Drag back to the matching pool'
             : this._stoneReviewMode
-              ? 'Diese Runde bestätigt — nur Ansicht'
-              : 'Runde gesperrt — Rückgabe nicht möglich';
+              ? 'This round is confirmed — view only'
+              : 'Round locked — cannot return';
         gem.draggable = canReturn;
         gem.classList.toggle('is-drag-disabled', !canReturn);
         gem.classList.toggle('is-paid', paid);
@@ -2724,7 +2711,7 @@ export class StonePowersDialog extends BaseDialog {
       clearDragOver();
 
       if (locked) {
-        ui.notifications?.warn('Diese Runde ist für Stonepowers gesperrt.');
+        ui.notifications?.warn('This round is locked for Stone Powers.');
         return;
       }
       if (!slot.classList.contains('slot-active')) {
@@ -2752,7 +2739,7 @@ export class StonePowersDialog extends BaseDialog {
           return;
         }
         if (!poolKeys.has(dragged) && !isColorless) {
-          ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
+          ui.notifications?.warn('This stone belongs to no pool on this sheet.');
           return;
         }
         if (!isColorless) this._generalAttrSelection[powerId] = payAttr as AttributeKey;
@@ -2762,7 +2749,7 @@ export class StonePowersDialog extends BaseDialog {
           return;
         }
         if (dragged !== payAttr && !isColorless) {
-          ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
+          ui.notifications?.warn('Wrong stone — attribute does not match this slot.');
           return;
         }
         if (isColorless) payAttr = COLORLESS_STONE_ATTR;
@@ -3071,7 +3058,7 @@ export class StonePowersDialog extends BaseDialog {
       }
     } as any);
 
-    ui.notifications?.info('Steinmacht-Standard gespeichert (wird bei neuen Runden übernommen, solange aktiviert).');
+    ui.notifications?.info('Stone Power defaults saved (applied on new rounds while enabled).');
   }
   
   async _onClose(_options: any): Promise<void> {

@@ -412,7 +412,7 @@ export class CombatCarouselApp extends BaseCarousel {
     const stonesReady = arePlayerStonesReadyForRound(combat);
     const startBlockers = preparing ? encounterStartBlockers(combat) : [];
     const startBlockedTpl =
-      game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
+      game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Still open: {list}';
     const round = Math.max(1, Number(combat.round) || 1);
     const fill = (key: string, fallback: string) =>
       (game.i18n?.localize(key) || fallback).replace('{n}', String(round));
@@ -427,14 +427,14 @@ export class CombatCarouselApp extends BaseCarousel {
       show: preparing || roundGateOpen || isGM,
       isRoundGate: roundGateOpen,
       label: preparing
-        ? game.i18n?.localize('MASTERY.encounterSetup.preparing') || 'Vorbereitung'
+        ? game.i18n?.localize('MASTERY.encounterSetup.preparing') || 'Preparation'
         : roundGateOpen
-          ? fill('MASTERY.encounterSetup.roundWaiting', 'Runde {n} — Steine noch offen') +
+          ? fill('MASTERY.encounterSetup.roundWaiting', 'Round {n} — stones still open') +
             (pendingList ? ` — ${pendingList}` : '')
-          : fill('MASTERY.encounterSetup.roundLine', 'Runde {n}'),
+          : fill('MASTERY.encounterSetup.roundLine', 'Round {n}'),
       showPrepareButtons: preparing && isGM,
       showStartRound: roundGateOpen && isGM,
-      startRoundLabel: fill('MASTERY.encounterSetup.startRound', 'Runde {n} starten'),
+      startRoundLabel: fill('MASTERY.encounterSetup.startRound', 'Start Round {n}'),
       showShutdown: isGM,
     };
     return {
@@ -451,7 +451,7 @@ export class CombatCarouselApp extends BaseCarousel {
       canStartLive: preparing && startBlockers.length === 0,
       startBlockedReason: startBlockers.length
         ? startBlockedTpl.replace('{list}', startBlockers.join(', '))
-        : game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten',
+        : game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Start Combat',
     };
   }
 
@@ -596,7 +596,7 @@ export class CombatCarouselApp extends BaseCarousel {
         const n = await rollNpcInitiativeOnly(combat, { force: true });
         CombatCarouselApp.refresh();
         ui.notifications?.info(
-          (game.i18n?.localize('MASTERY.encounterSetup.npcIniRolled') || 'NSC-Initiative gewürfelt ({n}).').replace(
+          (game.i18n?.localize('MASTERY.encounterSetup.npcIniRolled') || 'NPC initiative rolled ({n}).').replace(
             '{n}',
             String(n),
           ),

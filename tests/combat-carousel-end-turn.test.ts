@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const hbs = readFileSync(join(process.cwd(), 'templates/ui/combat-carousel.hbs'), 'utf8');
 const css = readFileSync(join(process.cwd(), 'styles/combat-carousel.css'), 'utf8');
 
-describe('combat carousel Nächster Zug', () => {
+describe('combat carousel Next Turn', () => {
   it('wraps each combatant so the end-turn button is not on the portrait card', () => {
     expect(hbs).toMatch(/class="carousel-combatant/);
     expect(hbs).toMatch(

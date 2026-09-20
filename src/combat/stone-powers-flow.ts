@@ -365,10 +365,10 @@ export async function promptPendingStoneAssignments(combat: Combat): Promise<voi
 
   if (areAllCombatantsDone(live, round)) {
     await runInitiativePhaseAfterStones(live, round);
-    ui.notifications?.info(`Runde ${round}: alle Steine gesetzt, Initiative sortiert.`);
+    ui.notifications?.info(`Round ${round}: all stones set, Initiative sorted.`);
   } else {
     const still = pendingStonePlayerNames(live, round);
-    if (still.length) ui.notifications?.info(`Runde ${round} — Steine offen: ${still.join(', ')}.`);
+    if (still.length) ui.notifications?.info(`Round ${round} — stones still open: ${still.join(', ')}.`);
   }
 
   try {

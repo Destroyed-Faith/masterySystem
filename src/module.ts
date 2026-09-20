@@ -618,8 +618,8 @@ Hooks.once('init', async function() {
       (trackerCombat.flags as any)?.['mastery-system']?.encounterSetup?.started
     );
     const foundryStartLabel = trackerPreparing
-      ? game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten'
-      : game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+      ? game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Start Combat'
+      : game.i18n?.localize('MASTERY.startEncounter.start') || 'Prepare Combat';
     $html.find('[data-action="startCombat"]').attr({
       'data-tooltip': foundryStartLabel,
       'aria-label': foundryStartLabel,
@@ -632,10 +632,10 @@ Hooks.once('init', async function() {
     // Escape hatch for a wedged encounter: always offered to a GM as long as any
     // combat exists, no matter what state the carousel or the setup flow is in.
     const shutdownLabel =
-      game.i18n?.localize('MASTERY.combatShutdown.button') || 'Kampf abbrechen';
+      game.i18n?.localize('MASTERY.combatShutdown.button') || 'Shut Down Combat';
     const shutdownHint =
       game.i18n?.localize('MASTERY.combatShutdown.hint') ||
-      'Kampf sofort beenden und Steine auffüllen.';
+      'End the fight right now and refill stone pools.';
     const shutdownBtn =
       game.user?.isGM && findShutdownCombat()
         ? `<button type="button" class="ms-shutdown-combat-btn" title="${shutdownHint}"><i class="fas fa-power-off"></i> ${shutdownLabel}</button>`
@@ -691,8 +691,8 @@ Hooks.once('init', async function() {
       // Add End Turn button for current combatant only after every PC set stones.
       // Players never see it on NPCs — they cannot use it and it only confuses.
       if (isCurrent && canViewerSeeEndTurn(combatant.actor, game.user)) {
-        const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="msEndTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
-        const delayBtn = $('<button type="button" class="combatant-control ms-delay-turn-btn" data-action="delayTurn" data-combatant-id="' + combatantId + '" data-tooltip="Initiative verzögern — direkt nach dem nächsten Eintrag handeln." aria-label="Initiative verzögern" title="Initiative verzögern"><i class="fa-solid fa-hourglass-half"></i></button>');
+        const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="msEndTurn" data-combatant-id="' + combatantId + '" data-tooltip="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn" title="Next Turn"><i class="fa-solid fa-forward"></i></button>');
+        const delayBtn = $('<button type="button" class="combatant-control ms-delay-turn-btn" data-action="delayTurn" data-combatant-id="' + combatantId + '" data-tooltip="Delay Initiative — act right after the next entry." aria-label="Delay Initiative" title="Delay Initiative"><i class="fa-solid fa-hourglass-half"></i></button>');
         $initiativeDiv.append(delayBtn);
         $initiativeDiv.append(endTurnBtn);
         
@@ -719,12 +719,12 @@ Hooks.once('init', async function() {
       const setupStatus =
         combatant.actor?.type === 'character' ? buildEncounterSetupStatus(combatant, combat) : null;
       const forceHint = game.user?.isGM
-        ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
+        ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'open for the player'}`
         : '';
       const passiveTooltip =
         (setupStatus?.passivesDone || passivesLocked
-          ? 'Passives ansehen (gesperrt)'
-          : 'Passives wählen / bestätigen') + forceHint;
+          ? 'View Passives (locked)'
+          : 'Choose / confirm Passives') + forceHint;
       const passiveBtn = $(
         '<button type="button" class="combatant-control ms-passive-btn' +
           (setupStatus?.passivesDone ? ' is-setup-done' : '') +
@@ -844,18 +844,18 @@ Hooks.once('init', async function() {
           const setup = flags.encounterSetup;
           const isStarted = setup?.started === true || combat.round > 0;
           
-          const prepareLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+          const prepareLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Prepare Combat';
           const beginBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid fa-list-check ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="${prepareLabel}" aria-label="${prepareLabel}"></button>`);
           
           if (isStarted) {
             beginBtn.prop('disabled', true).addClass('disabled');
-            beginBtn.attr('data-tooltip', game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
+            beginBtn.attr('data-tooltip', game.i18n?.localize('MASTERY.startEncounter.already') || 'Already in preparation');
           }
           
           leftControls.prepend(beginBtn);
 
           if (setup?.started === true && !combat.started) {
-            const startLiveLabel = game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten';
+            const startLiveLabel = game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Start Combat';
             const startLiveBtn = $(
               `<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-start-live-combat-btn" data-action="startLiveCombat" data-tooltip="${startLiveLabel}" aria-label="${startLiveLabel}"></button>`,
             );
@@ -869,7 +869,7 @@ Hooks.once('init', async function() {
                 await launchLiveCombat(live);
               } catch (error) {
                 console.error('Mastery System | Error starting live combat', error);
-                ui.notifications?.error('Kampf starten fehlgeschlagen');
+                ui.notifications?.error('Start Combat failed');
               }
             });
           }

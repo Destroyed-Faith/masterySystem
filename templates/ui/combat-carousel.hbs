@@ -177,9 +177,9 @@
 
           <!-- Sibling of the portrait so a click ends the turn instead of opening the sheet -->
           {{#if combatant.showEndTurn}}
-            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
+            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" data-tooltip="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn">
               <i class="fas fa-forward"></i>
-              <span>Nächster Zug</span>
+              <span>Next Turn</span>
             </button>
           {{/if}}
         </div>
@@ -198,7 +198,7 @@
         <i class="fas fa-forward"></i>
       </button>
       {{else if showPlayerEndTurn}}
-      <button type="button" class="carousel-control-btn js-next-turn js-end-turn" data-action="msEndTurn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
+      <button type="button" class="carousel-control-btn js-next-turn js-end-turn" data-action="msEndTurn" data-tooltip="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn">
         <i class="fas fa-chevron-right"></i>
       </button>
       {{/if}}

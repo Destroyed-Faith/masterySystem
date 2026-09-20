@@ -47,8 +47,8 @@ export function arePlayerStonesReadyForRound(
 
 function stoneWaitMessage(combat: Combat): string {
   const names = pendingStonePlayerNames(combat);
-  const who = names.length ? ` Noch offen: ${names.join(', ')}.` : '';
-  return `Neue Runde: alle Spieler müssen ihre Steine bestätigen, bevor jemand den Zug wechselt.${who}`;
+  const who = names.length ? ` Still open: ${names.join(', ')}.` : '';
+  return `New round: every player must confirm their stones before anyone changes turn.${who}`;
 }
 
 let gmStonePromptOpen = false;
@@ -73,9 +73,9 @@ export function encounterStartBlockers(combat: Combat): string[] {
   for (const combatant of Array.from(combat.combatants) as Combatant[]) {
     const actor = combatant.actor as { type?: string; id?: string; name?: string } | null;
     if (!actor || actor.type !== 'character') continue;
-    const name = String(actor.name || (combatant as { name?: string }).name || 'Unbekannt');
+    const name = String(actor.name || (combatant as { name?: string }).name || 'Unknown');
     if (!isPassiveSelectionLocked(combat, String(actor.id ?? ''))) blockers.push(`${name}: Passives`);
-    if (!isStonePowersDone(combat, combatant.id, 1)) blockers.push(`${name}: Steine`);
+    if (!isStonePowersDone(combat, combatant.id, 1)) blockers.push(`${name}: Stones`);
   }
   return blockers;
 }
@@ -87,7 +87,7 @@ export function warnIfPlayerStonesPending(combat: Combat | null | undefined): bo
   if (isEncounterPreparing(combat)) {
     ui.notifications?.warn(
       game.i18n?.localize('MASTERY.encounterSetup.waitForStart') ||
-        'Erst alle vorbereiten, dann „Kampf starten“ im Karussell.',
+        'Finish preparation, then use Start Combat on the carousel.',
     );
     return true;
   }
@@ -123,20 +123,20 @@ async function promptGmAssignPendingStones(combat: Combat): Promise<void> {
 }
 
 async function askGmFillPendingStones(names: string[]): Promise<'fill' | 'wait'> {
-  const who = names.length ? names.join(', ') : 'Spieler';
+  const who = names.length ? names.join(', ') : 'players';
   const content =
-    `<p>Noch nicht alle haben Steine für diese Runde bestätigt.</p>` +
-    `<p><strong>Noch offen: ${who}</strong></p>` +
-    `<p>Du kannst die Steine jetzt für die Spieler verteilen und bestätigen.</p>`;
+    `<p>Not everyone has confirmed stones for this round yet.</p>` +
+    `<p><strong>Still open: ${who}</strong></p>` +
+    `<p>You can assign and confirm the stones for the players now.</p>`;
 
   const DialogV2 = (globalThis as any).foundry?.applications?.api?.DialogV2;
   if (typeof DialogV2?.wait === 'function') {
     const result = await DialogV2.wait({
-      window: { title: 'Steine noch offen' },
+      window: { title: 'Stones still open' },
       content,
       buttons: [
-        { action: 'fill', label: 'Für Spieler ausfüllen', icon: 'fa-solid fa-gem', default: true },
-        { action: 'wait', label: 'Warten', icon: 'fa-solid fa-clock' },
+        { action: 'fill', label: 'Fill for players', icon: 'fa-solid fa-gem', default: true },
+        { action: 'wait', label: 'Wait', icon: 'fa-solid fa-clock' },
       ],
       rejectClose: false,
     });
@@ -154,17 +154,17 @@ async function askGmFillPendingStones(names: string[]): Promise<'fill' | 'wait'>
       resolve(value);
     };
     new DialogCls({
-      title: 'Steine noch offen',
+      title: 'Stones still open',
       content,
       buttons: {
         fill: {
           icon: '<i class="fas fa-gem"></i>',
-          label: 'Für Spieler ausfüllen',
+          label: 'Fill for players',
           callback: () => finish('fill'),
         },
         wait: {
           icon: '<i class="fas fa-clock"></i>',
-          label: 'Warten',
+          label: 'Wait',
           callback: () => finish('wait'),
         },
       },
@@ -209,9 +209,9 @@ export async function assignPendingStonesAsGm(combat: Combat): Promise<number> {
 
   const still = pendingStonePlayerNames(live);
   if (!still.length) {
-    ui.notifications?.info('Steine für alle Spieler bestätigt. Der Zug kann weitergehen.');
+    ui.notifications?.info('Stones confirmed for every player. The turn can continue.');
   } else {
-    ui.notifications?.warn(`Noch offen: ${still.join(', ')}.`);
+    ui.notifications?.warn(`Still open: ${still.join(', ')}.`);
   }
   return confirmedCount;
 }

@@ -100,7 +100,7 @@ export function pendingStoneActivation(args: {
   const needed = Math.max(0, Math.floor(Number(args.needed) || 0));
   if (placed <= 0 || needed <= 0 || placed >= needed) return null;
   return {
-    name: String(args.name || 'Steinmacht').trim() || 'Steinmacht',
+    name: String(args.name || 'Stone Power').trim() || 'Stone Power',
     placed,
     needed,
     missing: needed - placed,
@@ -108,14 +108,14 @@ export function pendingStoneActivation(args: {
 }
 
 export function pendingStoneActivationLabel(row: PendingStoneActivation): string {
-  const still = row.missing === 1 ? 'noch 1 Stein' : `noch ${row.missing} Steine`;
-  return `Nicht aktiviert — ${row.placed} von ${row.needed}, ${still}.`;
+  const still = row.missing === 1 ? '1 stone still needed' : `${row.missing} stones still needed`;
+  return `Not activated — ${row.placed} of ${row.needed}, ${still}.`;
 }
 
 export function formatPendingStoneActivationWarning(rows: readonly PendingStoneActivation[]): string {
   if (!rows.length) return '';
-  const bits = rows.map((row) => `${row.name} (${row.placed} von ${row.needed})`);
-  return `Nicht aktiviert: ${bits.join(', ')}. Ablegen schaltet die Macht nicht ein — die Welle muss voll sein.`;
+  const bits = rows.map((row) => `${row.name} (${row.placed} of ${row.needed})`);
+  return `Not activated: ${bits.join(', ')}. Placing them does not turn the power on — the wave must be full.`;
 }
 
 /** Why a visible pool has nothing to drag right now (empty string = usable). */

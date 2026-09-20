@@ -1,5 +1,5 @@
 <div class="initiative-shop-dialog initiative-shop-lean">
-  {{!-- Eine kompakte Leiste: Figur + Mastery/CR/Pool + Bestätigen --}}
+  {{!-- Compact bar: figure + Mastery/CR/Pool + Confirm --}}
   <div class="shop-summary-bar">
     <div class="shop-summary-actor">
       <img src="{{actor.img}}" alt="" class="actor-portrait-summary" width="36" height="36">
@@ -8,7 +8,7 @@
         <span class="shop-summary-mr">MR {{masteryRank}}</span>
       </div>
     </div>
-    <div class="shop-summary-stats" title="Initiative-Wurf, Combat Reflexes und Shop-Pool">
+    <div class="shop-summary-stats" title="Initiative roll, Combat Reflexes, and shop pool">
       <span class="sum-seg">
         <span class="sum-lbl">Mastery Roll</span><span class="sum-punct">:</span>
         <strong class="sum-val">{{diceTotal}}</strong>
@@ -20,7 +20,7 @@
         {{#if crSelectDisabled}}
         <span class="sum-muted">0</span>
         {{else}}
-        <select class="lean-select lean-select-inline js-cr-select" title="CR auf diese Initiative (max. {{crMax}}, Pool {{crPoolRemaining}})">
+        <select class="lean-select lean-select-inline js-cr-select" title="CR on this Initiative (max {{crMax}}, pool {{crPoolRemaining}})">
           {{#each crOptions}}
           <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
           {{/each}}
@@ -36,20 +36,20 @@
       {{/if}}
       <span class="sum-div" aria-hidden="true">|</span>
       <span class="sum-seg">
-        <span class="sum-lbl">Shop-Pool</span><span class="sum-punct">:</span>
+        <span class="sum-lbl">Shop Pool</span><span class="sum-punct">:</span>
         <strong class="sum-val">{{totalInitiative}}</strong>
-        <span class="sum-muted">Rest</span>
+        <span class="sum-muted">Left</span>
         <strong class="sum-val sum-rest">{{remainingInitiative}}</strong>
       </span>
     </div>
-    <button type="button" class="btn-primary btn-confirm-summary js-confirm" title="Initiative und Einkäufe übernehmen">
-      <i class="fas fa-check"></i> Bestätigen
+    <button type="button" class="btn-primary btn-confirm-summary js-confirm" title="Apply Initiative and purchases">
+      <i class="fas fa-check"></i> Confirm
     </button>
-    <p class="initiative-shop-footer-hint">Mit ✕ schließen übernimmt nicht — Initiative-Button im Tracker öffnet den Shop erneut (gleicher Wurf).</p>
+    <p class="initiative-shop-footer-hint">Closing with ✕ does not apply — the Initiative button in the tracker reopens the shop (same roll).</p>
   </div>
 
   <section class="shop-lines" aria-label="Initiative Shop">
-    <div class="shop-line" title="Je Kauf +{{costs.movementIncrement}}m Bewegung in dieser Runde; Kosten {{costs.movement}} Initiative-Punkte pro Stufe">
+    <div class="shop-line" title="Each purchase +{{costs.movementIncrement}}m movement this round; cost {{costs.movement}} Initiative per step">
       <span class="shop-line-text">
         <span class="shop-name">Extra Movement</span><span class="shop-punct">:</span>
         <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
@@ -57,58 +57,58 @@
         <span class="shop-extra">· +{{costs.movementIncrement}}m · ×{{purchases.extraMovement}} → +{{movementBonus}}m</span>
       </span>
       <span class="shop-line-actions">
-        <button type="button" class="icon-btn js-remove-movement" title="Eine Stufe weniger" {{#unless purchases.extraMovement}}disabled{{/unless}}><i class="fas fa-minus"></i></button>
-        <button type="button" class="icon-btn js-buy-movement" title="Eine Stufe kaufen ({{costs.movement}})" {{#unless (gte remainingInitiative costs.movement)}}disabled{{/unless}}><i class="fas fa-plus"></i></button>
+        <button type="button" class="icon-btn js-remove-movement" title="One step less" {{#unless purchases.extraMovement}}disabled{{/unless}}><i class="fas fa-minus"></i></button>
+        <button type="button" class="icon-btn js-buy-movement" title="Buy one step ({{costs.movement}})" {{#unless (gte remainingInitiative costs.movement)}}disabled{{/unless}}><i class="fas fa-plus"></i></button>
       </span>
     </div>
 
-    <div class="shop-line" title="Mit einvernehmlichem Spieler die Initiativewerte tauschen">
+    <div class="shop-line" title="Swap Initiative values with a consenting player">
       <span class="shop-line-text">
         <span class="shop-name">Initiative Swap</span><span class="shop-punct">:</span>
         <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
         <span class="shop-cost-num">{{costs.swap}}</span>
       </span>
       <button type="button" class="icon-btn icon-btn-toggle js-buy-swap {{#if purchases.initiativeSwap}}is-on{{/if}}"
-              title="{{#if purchases.initiativeSwap}}Entfernen{{else}}Kaufen ({{costs.swap}}){{/if}}"
+              title="{{#if purchases.initiativeSwap}}Remove{{else}}Buy ({{costs.swap}}){{/if}}"
               {{#unless purchases.initiativeSwap}}{{#unless (gte remainingInitiative costs.swap)}}disabled{{/unless}}{{/unless}}>
         <i class="fas fa-{{#if purchases.initiativeSwap}}check{{else}}cart-plus{{/if}}"></i>
       </button>
     </div>
 
-    <div class="shop-line" title="Eine zusätzliche Reaktion in dieser Runde">
+    <div class="shop-line" title="One extra reaction this round">
       <span class="shop-line-text">
         <span class="shop-name">Extra Reaction</span><span class="shop-punct">:</span>
         <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
         <span class="shop-cost-num">{{costs.extraReaction}}</span>
       </span>
       <button type="button" class="icon-btn icon-btn-toggle js-buy-reaction {{#if purchases.extraReaction}}is-on{{/if}}"
-              title="{{#if purchases.extraReaction}}Entfernen{{else}}Kaufen ({{costs.extraReaction}}){{/if}}"
+              title="{{#if purchases.extraReaction}}Remove{{else}}Buy ({{costs.extraReaction}}){{/if}}"
               {{#unless purchases.extraReaction}}{{#unless (gte remainingInitiative costs.extraReaction)}}disabled{{/unless}}{{/unless}}>
         <i class="fas fa-{{#if purchases.extraReaction}}check{{else}}cart-plus{{/if}}"></i>
       </button>
     </div>
 
-    <div class="shop-line" title="1W8 Stress von den Stress-Leisten entfernen (beim Anwenden würfeln)">
+    <div class="shop-line" title="Remove 1d8 Stress from the stress tracks (rolled when applied)">
       <span class="shop-line-text">
         <span class="shop-name">Remove Stress</span><span class="shop-punct">:</span>
         <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
         <span class="shop-cost-num">{{costs.removeStress}}</span>
       </span>
       <button type="button" class="icon-btn icon-btn-toggle js-buy-stress {{#if purchases.removeStress}}is-on{{/if}}"
-              title="{{#if purchases.removeStress}}Entfernen{{else}}Kaufen ({{costs.removeStress}}){{/if}}"
+              title="{{#if purchases.removeStress}}Remove{{else}}Buy ({{costs.removeStress}}){{/if}}"
               {{#unless purchases.removeStress}}{{#unless (gte remainingInitiative costs.removeStress)}}disabled{{/unless}}{{/unless}}>
         <i class="fas fa-{{#if purchases.removeStress}}check{{else}}cart-plus{{/if}}"></i>
       </button>
     </div>
 
-    <div class="shop-line" title="Einen zusätzlichen Angriff in dieser Runde">
+    <div class="shop-line" title="One extra attack this round">
       <span class="shop-line-text">
         <span class="shop-name">Extra Attack</span><span class="shop-punct">:</span>
         <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
         <span class="shop-cost-num">{{costs.extraAttack}}</span>
       </span>
       <button type="button" class="icon-btn icon-btn-toggle js-buy-attack {{#if purchases.extraAttack}}is-on{{/if}}"
-              title="{{#if purchases.extraAttack}}Entfernen{{else}}Kaufen ({{costs.extraAttack}}){{/if}}"
+              title="{{#if purchases.extraAttack}}Remove{{else}}Buy ({{costs.extraAttack}}){{/if}}"
               {{#unless purchases.extraAttack}}{{#unless (gte remainingInitiative costs.extraAttack)}}disabled{{/unless}}{{/unless}}>
         <i class="fas fa-{{#if purchases.extraAttack}}check{{else}}cart-plus{{/if}}"></i>
       </button>
