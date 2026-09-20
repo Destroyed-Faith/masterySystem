@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.534] - 2026-09-20
+
+### Fixed
+
+- **Breath Weapon:** Der Kegel sitzt mit der Spitze auf der Figur und dreht sich nur um sie. Vorher landete der Keil oft am Kartenursprung (im Geröll) und sah in den anderen Richtungen schräg aus. Die Maus wählt eine der sechs 60°-Scheiben.
+
 ## [0.9.533] - 2026-09-20
 
 ### Changed
