@@ -95,7 +95,20 @@ export function pcNeedsManualInitiativeRoll(input: {
   return false;
 }
 
-/** One line for the Initiative row after the player has rolled. */
+export function formatSignedInitiativeModifier(n: number): string {
+  const v = Math.floor(Number(n) || 0);
+  return v > 0 ? `+${v}` : String(v);
+}
+
+export function formatInitiativeDiceRollLine(diceTotal: number): string {
+  return `Initiative Dice Roll was ${Math.floor(Number(diceTotal) || 0)}.`;
+}
+
+export function formatInitiativeArmorPenaltyLine(equipmentModifier: number): string {
+  return `Armor Penalty ${formatSignedInitiativeModifier(equipmentModifier)}.`;
+}
+
+/** English toast / fallback after the player has rolled. */
 export function formatInitiativeExchangeSummary(input: {
   diceTotal: number | null;
   initiative: number;
@@ -103,9 +116,9 @@ export function formatInitiativeExchangeSummary(input: {
   const initiative = Math.floor(Number(input.initiative) || 0);
   const dice = input.diceTotal == null ? null : Math.floor(Number(input.diceTotal));
   if (dice != null && dice !== initiative) {
-    return `Wurf hat ${dice} gebracht. Initiative jetzt ${initiative}.`;
+    return `${formatInitiativeDiceRollLine(dice)} Initiative is now ${initiative}.`;
   }
-  return `Wurf hat ${initiative} gebracht.`;
+  return formatInitiativeDiceRollLine(dice ?? initiative);
 }
 
 /** Drop the stored roll so the Initiative button shows again. Does not roll. */

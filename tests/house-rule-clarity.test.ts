@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { passiveSlotsHaveOpenChoice } from '../src/powers/passives';
 import {
+  formatInitiativeArmorPenaltyLine,
+  formatInitiativeDiceRollLine,
   formatInitiativeExchangeSummary,
+  formatSignedInitiativeModifier,
   initiativeRollAlreadyRecorded,
   pcNeedsManualInitiativeRoll,
 } from '../src/combat/initiative-roll';
@@ -79,7 +82,7 @@ describe('formatInitiativeExchangeSummary', () => {
         diceTotal: 7,
         initiative: 7,
       }),
-    ).toBe('Wurf hat 7 gebracht.');
+    ).toBe('Initiative Dice Roll was 7.');
   });
 
   it('keeps the dice result when the score has already changed', () => {
@@ -88,7 +91,16 @@ describe('formatInitiativeExchangeSummary', () => {
         diceTotal: 7,
         initiative: 9,
       }),
-    ).toBe('Wurf hat 7 gebracht. Initiative jetzt 9.');
+    ).toBe('Initiative Dice Roll was 7. Initiative is now 9.');
+  });
+});
+
+describe('initiative exchange detail lines', () => {
+  it('prints the dice roll and a signed armor penalty', () => {
+    expect(formatInitiativeDiceRollLine(12)).toBe('Initiative Dice Roll was 12.');
+    expect(formatInitiativeArmorPenaltyLine(-4)).toBe('Armor Penalty -4.');
+    expect(formatInitiativeArmorPenaltyLine(2)).toBe('Armor Penalty +2.');
+    expect(formatSignedInitiativeModifier(0)).toBe('0');
   });
 });
 

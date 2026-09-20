@@ -44,10 +44,14 @@ import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
 import {
   INITIATIVE_ROLLED_FLAG,
+  formatInitiativeArmorPenaltyLine,
+  formatInitiativeDiceRollLine,
   formatInitiativeExchangeSummary,
+  formatSignedInitiativeModifier,
   pcNeedsManualInitiativeRoll,
   releasePcInitiativeRoll,
 } from '../combat/initiative-roll.js';
+import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import {
   COLORLESS_GEM_STYLE,
@@ -1063,10 +1067,20 @@ export class StonePowersDialog extends BaseDialog {
     const diceTotal = Number.isFinite(Number(rolledFlag?.diceTotal))
       ? Math.floor(Number(rolledFlag?.diceTotal))
       : null;
+    const equipmentModifier = getEquippedEquipmentInitiativeModifier(this.actor);
     const initiativeExchange = {
       show: !!this.combatant,
       needsRoll,
       surprised: surprised && (this.actor as any).type === 'character',
+      diceTotal,
+      equipmentModifier,
+      equipmentSigned: formatSignedInitiativeModifier(equipmentModifier),
+      diceRollLine:
+        !needsRoll && !surprised
+          ? formatInitiativeDiceRollLine(diceTotal ?? initiativeScore)
+          : '',
+      armorPenaltyLine:
+        !needsRoll && !surprised ? formatInitiativeArmorPenaltyLine(equipmentModifier) : '',
       summary: needsRoll
         ? ''
         : formatInitiativeExchangeSummary({
@@ -1475,14 +1489,14 @@ export class StonePowersDialog extends BaseDialog {
       const now = Math.floor(Number(breakdown.totalInitiative) || 0);
       ui.notifications?.info(
         rolled === now
-          ? `${(this.actor as any).name}: Wurf hat ${rolled} gebracht.`
-          : `${(this.actor as any).name}: Wurf hat ${rolled} gebracht. Initiative jetzt ${now}.`,
+          ? `${(this.actor as any).name}: ${formatInitiativeDiceRollLine(rolled)}`
+          : `${(this.actor as any).name}: ${formatInitiativeDiceRollLine(rolled)} Initiative is now ${now}.`,
       );
       this._colorlessConvertCount = null;
       await this.#renderKeepingScroll();
     } catch (err) {
       console.warn('Mastery System | Initiative roll from dialog failed', err);
-      ui.notifications?.warn('Initiative konnte nicht gewürfelt werden.');
+      ui.notifications?.warn('Could not roll Initiative.');
       button.disabled = false;
     }
   }
