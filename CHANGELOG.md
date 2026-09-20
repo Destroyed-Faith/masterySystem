@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.537] - 2026-09-20
+
+### Changed
+
+- **Stein-Dialog:** Aktivierte Mächte bekommen einen grünen Rand und einen leichten grünen Hintergrund. Unbenutzte Karten bleiben weiß. Der Rand wird mit jeder weiteren bezahlten Welle dicker.
+
 ## [0.9.536] - 2026-09-20
 
 ### Changed
