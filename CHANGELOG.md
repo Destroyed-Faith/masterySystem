@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.535] - 2026-09-20
+
+### Changed
+
+- **Mark ausgeben:** Kein Extra-Dialog mehr, bevor der Wurf im Chat steht. Nach dem Roll (und nach Keep, wenn Faith Fracture) stehen die sinnvollen Spends direkt auf der Damage-Karte — z. B. Mark 4: 30 → 45 (+15) — plus „Do not spend“. Nur Optionen, die den Total wirklich erhöhen.
+
 ## [0.9.534] - 2026-09-20
 
 ### Fixed
