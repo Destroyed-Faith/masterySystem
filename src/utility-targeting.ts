@@ -20,7 +20,7 @@ import {
   masteryPowerMaxSteps
 } from './utils/grid-range.js';
 import { clearHexHighlight, highlightGridOffsets, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
-import { bestDirectionIndex, wideningConeCells, type GridOffset } from './utils/cone-template.js';
+import { bestConeEdgePair, wideningConeCells, type GridOffset } from './utils/cone-template.js';
 import {
   eventWorldPoint,
   resolveOverlayContainer,
@@ -998,8 +998,8 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
  * End utility targeting mode
  */
 /**
- * Cone attack from the figure. The mouse picks the facing. The first cell is
- * the one in front, then the row widens 1, 2, 3 … for the printed length.
+ * Cone attack from the figure. The mouse only turns the 60° slice; the
+ * apex stays on the caster. Each ring is one cell wider.
  */
 export function startConeAttackMode(token: any, option: RadialCombatOption): void {
   endUtilityTargeting(false);
@@ -1124,11 +1124,12 @@ export function startConeAttackMode(token: any, option: RadialCombatOption): voi
   canvas.stage.on('pointermove', state.onPointerMove);
   canvas.stage.on('pointerdown', state.onPointerDown);
   window.addEventListener('keydown', state.onKeyDown);
-  ui.notifications?.info(`Kegel ${lengthSteps} m — Maus zeigt die Richtung, Klick setzt sie.`);
+  ui.notifications?.info(`Kegel ${lengthSteps} m — Spitze an der Figur, Maus dreht ihn, Klick setzt ihn.`);
 }
 
 function readGridOffset(raw: any): GridOffset | null {
   if (!raw) return null;
+  if (raw.offset && raw.offset !== raw) return readGridOffset(raw.offset);
   if (raw.i !== undefined && raw.j !== undefined) return { i: Number(raw.i), j: Number(raw.j) };
   if (raw.col !== undefined && raw.row !== undefined) return { i: Number(raw.col), j: Number(raw.row) };
   if (raw.x !== undefined && raw.y !== undefined) return { i: Number(raw.x), j: Number(raw.y) };
@@ -1139,7 +1140,9 @@ function gridNeighborOffsets(cell: GridOffset): GridOffset[] {
   const grid: any = canvas.grid;
   const fn = grid?.getAdjacentOffsets ?? grid?.getNeighbors;
   if (typeof fn !== 'function') return [];
-  return (fn.call(grid, cell) ?? []).map(readGridOffset).filter((cell: GridOffset | null): cell is GridOffset => !!cell);
+  return (fn.call(grid, cell) ?? [])
+    .map(readGridOffset)
+    .filter((n: GridOffset | null): n is GridOffset => !!n);
 }
 
 function offsetCenter(cell: GridOffset): { x: number; y: number } | null {
@@ -1166,8 +1169,8 @@ function coneCellsToward(token: any, world: { x: number; y: number }, lengthStep
     })
     .filter((row): row is { index: number; x: number; y: number } => !!row);
   if (!centers.length) return [];
-  const dir = bestDirectionIndex(world.x - token.center.x, world.y - token.center.y, centers);
-  return wideningConeCells(origin, dir, lengthSteps, gridNeighborOffsets);
+  const pair = bestConeEdgePair(world.x - token.center.x, world.y - token.center.y, centers);
+  return wideningConeCells(origin, pair.first, lengthSteps, gridNeighborOffsets, pair.second);
 }
 
 function candidatesInCone(
