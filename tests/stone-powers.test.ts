@@ -35,6 +35,7 @@ interface MockActor {
   _roundState: any;
   getFlag: (ns: string, k: string) => any;
   setFlag: (ns: string, k: string, v: any) => Promise<void>;
+  unsetFlag: (ns: string, k: string) => Promise<void>;
   update: (data: Record<string, any>) => Promise<void>;
   heal: (amount: number) => Promise<void>;
 }
@@ -93,6 +94,11 @@ function makeMockActor(): MockActor {
       if (ns !== 'mastery-system') return;
       if (k === 'roundState') this._roundState = v;
       else this._flags[k] = v;
+    },
+    async unsetFlag(ns, k) {
+      if (ns !== 'mastery-system') return;
+      if (k === 'roundState') this._roundState = null;
+      else delete this._flags[k];
     },
     async update(data) {
       for (const [path, value] of Object.entries(data)) {
@@ -407,16 +413,69 @@ describe('Agility — Evade scales 8/16/24/32', () => {
 });
 
 describe('Vitality — Temporary HP scales 20/40/80/160', () => {
+  it('is once per combat', () => {
+    expect(STONE_POWERS['vitality.tempHp'].oncePerCombat).toBe(true);
+  });
+
   it.each([[1, 20], [2, 40], [3, 80], [4, 160]])('T%i grants %i temp HP', async (tier, expected) => {
     const actor = makeMockActor();
+    const combatant = makeMockCombatant();
     await STONE_POWERS['vitality.tempHp'].apply({
       actor: actor as any,
-      combatant: makeMockCombatant() as any,
+      combatant: combatant as any,
       tier,
       cost: 2 ** (tier - 1),
     });
     expect(actor.system.health.tempHP).toBe(expected);
-    expect(actor._roundState.stoneBonuses.tempHpGrantedThisTurn).toBe(expected);
+    expect(actor._roundState.stoneBonuses?.tempHpGrantedThisTurn ?? 0).toBe(0);
+    expect(combatant._flags['msTempHpStoneUsed']).toBe(true);
+  });
+
+  it('refuses a second activation in the same combat', async () => {
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant();
+    const power = STONE_POWERS['vitality.tempHp'];
+    await power.apply({ actor: actor as any, combatant: combatant as any, tier: 1, cost: 1 });
+    await power.apply({ actor: actor as any, combatant: combatant as any, tier: 4, cost: 8 });
+    expect(actor.system.health.tempHP).toBe(20);
+    expect(combatant._flags['msTempHpStoneUsed']).toBe(true);
+  });
+
+  it('activateStonePower blocks a second Temporary HP use', async () => {
+    const { activateStonePower } = await import('../src/stones/stone-activation');
+    const { markTempHpStoneUsedThisCombat } = await import('../src/stones/colorless-stones');
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant();
+    await markTempHpStoneUsedThisCombat(combatant);
+    const ok = await activateStonePower({
+      actor: actor as any,
+      combatant: combatant as any,
+      abilityId: 'vitality.tempHp',
+    });
+    expect(ok).toBe(false);
+    expect(actor.system.health.tempHP).toBe(0);
+  });
+
+  it('keeps Temp HP at turn end; combat end still wipes it', async () => {
+    const { clearCombatStoneTurnBonusesForActor } = await import('../src/combat/action-economy');
+    const { resetTempHpAfterCombat } = await import('../src/combat/combat-end-cleanup');
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant();
+    await STONE_POWERS['vitality.tempHp'].apply({
+      actor: actor as any,
+      combatant: combatant as any,
+      tier: 2,
+      cost: 2,
+    });
+    expect(actor.system.health.tempHP).toBe(40);
+    actor._roundState.stoneBonuses.tempHpGrantedThisTurn = 40;
+    actor._roundState.stoneBonuses.evadeBonus = 8;
+    const combat = { id: 'combat-1', round: 1, turn: 0, combatants: [{ actor, id: 'c1' }] };
+    await clearCombatStoneTurnBonusesForActor(actor as any, combat as any);
+    expect(actor.system.health.tempHP).toBe(40);
+    expect(actor._roundState.stoneBonuses.evadeBonus).toBe(0);
+    await resetTempHpAfterCombat(combat);
+    expect(actor.system.health.tempHP).toBe(0);
   });
 });
 

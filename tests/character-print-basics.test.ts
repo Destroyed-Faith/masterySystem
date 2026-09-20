@@ -248,10 +248,13 @@ describe('character print table sheet', () => {
     expect(phasing.oncePerCombat).toBe(true);
     expect(phasing.paymentTiers[0].label).toBe('T2');
     expect(phasing.summary).toMatch(/\+1 per Tier/i);
+    const vitalityGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'vitality');
+    const tempHp = vitalityGroup.powers.find((p: any) => /temporary hp/i.test(p.name));
+    expect(tempHp.oncePerCombat).toBe(true);
     const onceCount = ctx.stoneDashboard.powerGroups
       .flatMap((g: any) => g.powers)
       .filter((p: any) => p.oncePerCombat).length;
-    expect(onceCount).toBe(2);
+    expect(onceCount).toBe(3);
     expect(ctx.stoneDashboard.combatReflexes).toBeNull();
   });
 

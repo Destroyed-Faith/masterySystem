@@ -104,7 +104,7 @@ export const UNBOUND_IDENTITIES: UnboundIdentity[] = [
     artifactKey: 'greenWardenMantle',
     slotLabel: 'Body',
     summary: 'Bark, thorn, and old green wrath. Endurance and retaliation, not animal shape.',
-    technical: 'Medium Armor / Active Buff: Thorns / Reaction: Ally Armor / Resolve Ability: Special Reduction',
+    technical: 'Medium Armor / Active Buff: Thorns / Reaction: Ally Armor / Resolve Ability: Ward',
   },
   {
     key: 'bane-relic-hunter',

@@ -83,7 +83,7 @@ export const UNBOUND_ECHO: EchoDefinition = {
       trait: {
         id: 'bane-greenwarden',
         name: 'Green Warden Mantle',
-        effect: 'Medium Armor. Thorns is Active Buff: Thorns. Warden\'s Guard is Reaction: Ally Armor. Green Warden Stone supports Resolve Ability: Special Reduction.',
+        effect: 'Medium Armor. Thorns is Active Buff: Thorns. Warden\'s Guard is Reaction: Ally Armor. Green Warden Stone supports Resolve Ability: Ward.',
         flavor: 'Bark, thorn, patient violence.',
         usage: 'passive',
       },

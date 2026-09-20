@@ -52,7 +52,7 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     expect(getArtifactStonePoolExtraByAttribute(actorL3).resolve).toBeGreaterThan(0);
   });
 
-  it('Sentinel Frame unlocks Special Reduction Support from Artifact Level 5', () => {
+  it('Sentinel Frame unlocks Ward Support from Artifact Level 5', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('sentinelFrame')!);
     const actorL4 = actorWith(activeItemFromNode(tree.nodes[3], 'Sentinel Frame'));
     expect(getArtifactStoneSupportPrefill(actorL4, 'resolve.ward', 'resolve')).toBe(0);

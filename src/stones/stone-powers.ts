@@ -24,10 +24,13 @@ import {
   initiativeBoostAmount,
   isInitiativeBoostUsedThisCombat,
   isPhasingStoneUsedThisCombat,
+  isTempHpStoneUsedThisCombat,
   markInitiativeBoostUsedThisCombat,
   markPhasingStoneUsedThisCombat,
+  markTempHpStoneUsedThisCombat,
 } from './colorless-stones.js';
 import { augmentPhasingCharges } from '../combat/phasing.js';
+import { applyRemoveScarEffect } from './remove-scar.js';
 
 export type StonePowerAttribute = AttributeKey | 'generic';
 
@@ -432,28 +435,31 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
     name: 'Temporary HP',
     attribute: 'vitality',
     category: 'passive',
-    description: 'Gain Temporary HP until the start of your next turn (20 / 40 / 80 / 160).',
+    oncePerCombat: true,
+    description:
+      'Gain Temporary HP that lasts until depleted or combat ends (20 / 40 / 80 / 160). Once per combat; regenerated Stones do not allow a second activation.',
     tiers: [
-      { label: '20 Temp HP', description: 'Gain 20 Temporary HP until the start of your next turn.', value: 20 },
-      { label: '40 Temp HP', description: 'Gain 40 Temporary HP until the start of your next turn.', value: 40 },
-      { label: '80 Temp HP', description: 'Gain 80 Temporary HP until the start of your next turn.', value: 80 },
-      { label: '160 Temp HP', description: 'Gain 160 Temporary HP until the start of your next turn.', value: 160 },
+      { label: '20 Temp HP', description: 'Gain 20 Temporary HP until depleted or combat ends. Once per combat.', value: 20 },
+      { label: '40 Temp HP', description: 'Gain 40 Temporary HP until depleted or combat ends. Once per combat.', value: 40 },
+      { label: '80 Temp HP', description: 'Gain 80 Temporary HP until depleted or combat ends. Once per combat.', value: 80 },
+      { label: '160 Temp HP', description: 'Gain 160 Temporary HP until depleted or combat ends. Once per combat.', value: 160 },
     ],
-    apply: async ({ actor, tier }) => {
-      const combat = (game as any).combat;
+    apply: async ({ actor, combatant, tier }) => {
+      const c =
+        combatant ??
+        (game as any).combat?.combatants?.find((x: any) => x.actor?.id === (actor as any).id);
+      if (c && isTempHpStoneUsedThisCombat(c)) {
+        ui.notifications?.warn(`${(actor as any).name}: Temporary HP already used this combat.`);
+        return;
+      }
       // Tiers are cumulative TOTALS (20/40/80/160), not per-wave increments.
       const hp = scaleStoneTier([20, 40, 80, 160], tier);
       // Canonical field is `tempHP` (capital P) — the damage pipeline and all
-      // health math read/consume that.
-      const roundState = getRoundState(actor, combat);
-      const sb = ensureStoneBonuses(roundState);
+      // health math read/consume that. Persists until depleted or combat ends.
       const current = Math.max(0, Number((actor as any).system?.health?.tempHP ?? 0) || 0);
-      // Re-activation ADDs to the existing value (PG "Temporary Defensive
-      // Stone Values": if you already have the defense, add the listed value).
       await (actor as any).update?.({ 'system.health.tempHP': current + hp });
-      sb.tempHpGrantedThisTurn = Math.max(0, Number(sb.tempHpGrantedThisTurn ?? 0) || 0) + hp;
-      await setRoundState(actor, roundState);
-      ui.notifications?.info(`${(actor as any).name}: ${hp} Temp HP until the start of your next turn.`);
+      if (c) await markTempHpStoneUsedThisCombat(c);
+      ui.notifications?.info(`${(actor as any).name}: ${hp} Temp HP until depleted or combat ends.`);
     },
   },
   {
@@ -485,48 +491,16 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
     name: 'Remove Scar',
     attribute: 'vitality',
     category: 'action',
-    description: 'Recover 1 Scarred Health Bar. Burns 1 Vitality Stone (any tier).',
+    description:
+      'Seal Vitality Stones to resolve Tiers (1 / 2 / 4 / 8, cumulative). Each newly resolved Tier recovers 1 Scarred Health Bar. Tiers already resolved since the last Daily Reset are not paid again. Colorless Stones cannot pay this cost.',
     tiers: [
-      { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
-      { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
-      { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
-      { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
+      { label: 'Seal 1 / 1 Scar', description: 'Seal 1 Vitality Stone. Recover 1 Scarred Health Bar (Tier 1).', value: 1 },
+      { label: 'Seal 3 / 2 Scars', description: 'Resolve Tiers 1–2 (Seal 3 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 2 },
+      { label: 'Seal 7 / 3 Scars', description: 'Resolve Tiers 1–3 (Seal 7 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 3 },
+      { label: 'Seal 15 / 4 Scars', description: 'Resolve Tiers 1–4 (Seal 15 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 4 },
     ],
-    apply: async ({ actor }) => {
-      const system: any = (actor as any).system ?? {};
-      // Scarred bar = fully depleted Health Bar. Restore the most recent one.
-      const src: any[] = Array.isArray(system?.health?.bars) ? system.health.bars : [];
-      let activeIdx = src.findIndex((b: any) => (Number(b?.current) || 0) > 0);
-      if (activeIdx < 0) activeIdx = src.length;
-      let scarIdx = -1;
-      for (let i = activeIdx - 1; i >= 0; i--) {
-        if ((Number(src[i]?.current) || 0) === 0) {
-          scarIdx = i;
-          break;
-        }
-      }
-      if (scarIdx < 0) {
-        ui.notifications?.warn(`${(actor as any).name} has no Scarred Health Bar to recover.`);
-        return;
-      }
-      const bars = src.map((b: any) => ({ ...b }));
-      bars[scarIdx] = { ...bars[scarIdx], current: Number(bars[scarIdx]?.max) || 0 };
-      const scarredCount = bars.filter((b: any) => (Number(b?.current) || 0) === 0).length;
-      const newActive = bars.findIndex((b: any) => (Number(b?.current) || 0) > 0);
-      // BURN: the spent Vitality Stone is lost until a Safe Haven Rest —
-      // `burned` keeps regen / refills from bringing it back early.
-      const burnedNow = Math.max(0, Number(system?.stonePools?.vitality?.burned) || 0);
-      await (actor as any).update?.({
-        'system.health.bars': bars,
-        'system.health.currentBar': Math.max(0, newActive),
-        ...(Object.prototype.hasOwnProperty.call(system?.health ?? {}, 'scarred')
-          ? { 'system.health.scarred': scarredCount }
-          : {}),
-        'system.stonePools.vitality.burned': burnedNow + 1,
-      });
-      ui.notifications?.info(
-        `${(actor as any).name} recovered a Scarred Health Bar (1 Vitality Stone burned until Safe Haven Rest).`,
-      );
+    apply: async ({ actor, tier }) => {
+      await applyRemoveScarEffect(actor, tier);
     },
   },
   {

@@ -178,7 +178,7 @@ export interface EchoArtifactDefinition {
   /**
    * Extra Stone Functions that do not occupy a Basic 1/2/3 pick slot.
    * Used when a printed table has a fourth support line (e.g. Sentinel Frame
-   * Special Reduction at Artifact Level 5).
+   * Ward at Artifact Level 5).
    */
   extraStoneFunctions?: Array<{
     level: number;
@@ -546,7 +546,8 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Use Remove Scar through Titan Scars and pay its normal Stone cost.',
+      effect:
+        'Supports Vitality Ability: Remove Scar and pre-fills Tier 2. Unresolved Tiers Seal 1 / 2 / 4 / 8 (cumulative). Each newly resolved Tier recovers 1 Scarred Health Bar. Colorless Stones cannot pay this cost.',
       special: 'vitality.removeScar',
     },
     {
@@ -574,7 +575,7 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Remove Scar used through Titan Scars may recover 1 Scarred Health Bar, as written by the Stone Power. Pay its normal Stone cost.',
+        'Remove Scar used through Titan Scars follows the cumulative Seal rule. Pay only Tiers not yet resolved since the last Daily Reset. Each newly resolved Tier recovers 1 Scarred Health Bar.',
       special: 'vitality.removeScar',
     },
     {
@@ -601,7 +602,8 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self / Touch',
       duration: 'Instant',
-      effect: 'Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost.',
+      effect:
+        'Use Remove Scar on yourself or one touched willing creature. Seal costs stay cumulative (1 / 2 / 4 / 8 per unresolved Tier). Colorless Stones cannot pay this cost.',
       special: 'vitality.removeScar',
     },
     {
@@ -1248,8 +1250,8 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
   // Printed table: Heal 1/4/7, Resolve Pool 2/6, Healing Support 3/8,
-  // Special Reduction 5/9. The 1/2/3 compiler covers Heal + Pool + Healing;
-  // Special Reduction is an extra Stone Function from Artifact Level 5.
+  // Ward 5/9. The 1/2/3 compiler covers Heal + Pool + Healing;
+  // Ward is an extra Stone Function from Artifact Level 5.
   progressionPickSpecs: {
     1: { templateId: 'active-ranged-single-heal', name: 'Single Heal' },
     2: { name: 'Resolve Core', stoneFunction: { kind: 'stonePool', attribute: 'resolve' } },
@@ -1265,7 +1267,7 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   extraStoneFunctions: [
     {
       level: 5,
-      name: 'Special Reduction Support',
+      name: 'Ward Support',
       kind: 'stonePowerSupport',
       attribute: 'resolve',
       stonePowerId: 'resolve.ward',
@@ -1319,11 +1321,11 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 5,
-      name: 'Special Reduction Support I',
+      name: 'Ward Support I',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Supports Resolve Ability: Special Reduction and pre-fills Tier 3. Tiers 1 and 2 must still be paid.',
+      effect: 'Supports Resolve Ability: Ward and pre-fills Tier 3. Tiers 1 and 2 must still be paid.',
       special: 'resolve.ward',
     },
     {
@@ -1355,11 +1357,11 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 9,
-      name: 'Special Reduction Support II',
+      name: 'Ward Support II',
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fill Tier 4 of Resolve Ability: Special Reduction. Tiers 1, 2, and 3 must still be paid.',
+      effect: 'Pre-fill Tier 4 of Resolve Ability: Ward. Tiers 1, 2, and 3 must still be paid.',
       special: 'resolve.ward',
     },
     {
@@ -1436,8 +1438,8 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Judicator Frame supports the Regeneration Stone Power and pre-fills Tier 2.',
-      special: 'Regeneration Stone Power',
+        'Judicator Frame supports Influence Ability: Regeneration and pre-fills Tier 2.',
+      special: 'influence.regeneration',
     },
     {
       level: 4,
@@ -1463,8 +1465,8 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fills Tier 3 of the Regeneration Stone Power.',
-      special: 'Regeneration Stone Power',
+      effect: 'Pre-fills Tier 3 of Influence Ability: Regeneration.',
+      special: 'influence.regeneration',
     },
     {
       level: 7,
@@ -1490,8 +1492,8 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fills Tier 4 of the Regeneration Stone Power.',
-      special: 'Regeneration Stone Power',
+      effect: 'Pre-fills Tier 4 of Influence Ability: Regeneration.',
+      special: 'influence.regeneration',
     },
     {
       level: 10,

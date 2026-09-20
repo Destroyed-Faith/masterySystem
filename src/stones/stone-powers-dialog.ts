@@ -58,9 +58,16 @@ import {
   getMasteryRank,
   getTempColorlessStones,
   isInitiativeBoostUsedThisCombat,
-  isPhasingStoneUsedThisCombat,
+  isOncePerCombatPowerUsed,
   maxConvertibleColorlessStones,
 } from './colorless-stones.js';
+import {
+  computeRemoveScarPayment,
+  getRemoveScarResolvedMaxTier,
+  inferRemoveScarTargetTier,
+  payAndApplyRemoveScar,
+  REMOVE_SCAR_POWER_ID,
+} from './remove-scar.js';
 import {
   formatPendingStoneActivationWarning,
   orderPowersRampFirst,
@@ -803,22 +810,39 @@ export class StonePowersDialog extends BaseDialog {
 
     const preparePowerData = (power: any, attrKey: AttributeKey) => {
       /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
-      const liveUses = getStoneUsageCount(this.actor, attrKey, power.id, combat);
+      const isRemoveScar = power.id === REMOVE_SCAR_POWER_ID;
+      const liveUses = isRemoveScar
+        ? getRemoveScarResolvedMaxTier(this.actor)
+        : getStoneUsageCount(this.actor, attrKey, power.id, combat);
       const usesThisTurn = this._stoneReviewMode && liveUses > 0 ? liveUses - 1 : liveUses;
       const rampSkip = rampSkipSegmentsForPower(power.id);
       const leadLockedLanes = rampSkipLeadLanes(power.id);
-      const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
+      const support = supportForPower(power.id, attrKey);
+      const supportTier = support?.tier ?? 0;
+      const removeScarPayment = isRemoveScar
+        ? computeRemoveScarPayment(
+            liveUses,
+            inferRemoveScarTargetTier(liveUses, supportTier),
+            supportTier,
+          )
+        : null;
+      const nextCost = removeScarPayment
+        ? removeScarPayment.sealCost
+        : calculateStoneCost(usesThisTurn + rampSkip);
       const pool = getStonePool(this.actor, attrKey);
-      const canAfford = pool.current >= nextCost && hasCombat;
+      const removeScarOpen =
+        !removeScarPayment ||
+        removeScarPayment.sealCost > 0 ||
+        removeScarPayment.barsRecovered > 0;
+      const canAfford = pool.current >= nextCost && hasCombat && removeScarOpen;
       const gross = spendableForAttr(attrKey);
       const reserved = this.#reservedStonesInDialogForAttr(attrKey);
       const spendableNet =
-        Math.max(0, gross - reserved) + this.#spendableNetForAttr(COLORLESS_STONE_ATTR);
+        Math.max(0, gross - reserved) +
+        (isRemoveScar ? 0 : this.#spendableNetForAttr(COLORLESS_STONE_ATTR));
       const description = power.description || power.effect || '';
       const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
       const occupied = this.#stoneOccGet(accKey);
-      const support = supportForPower(power.id, attrKey);
-      const supportTier = support?.tier ?? 0;
       const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
       const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
@@ -849,11 +873,7 @@ export class StonePowersDialog extends BaseDialog {
         boostUsed:
           !!power.oncePerCombat &&
           !!this.combatant &&
-          (power.id === 'wits.initiativeBoost'
-            ? isInitiativeBoostUsedThisCombat(this.combatant)
-            : power.id === 'wits.phasing'
-              ? isPhasingStoneUsedThisCombat(this.combatant)
-              : false),
+          isOncePerCombatPowerUsed(this.combatant, power.id),
         hideLeadSegment: rampSkip > 0,
         ...pendingStoneCardFields(power.name, occupied.length, nextCost),
         ...laneSegs
@@ -1798,9 +1818,12 @@ export class StonePowersDialog extends BaseDialog {
     const combat = game.combat;
     if (!combat) return false;
 
-    const currentUses = isGenericUnifiedAccKey(accKey)
-      ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-      : getStoneUsageCount(this.actor, middle as AttributeKey, powerId, combat);
+    const currentUses =
+      powerId === REMOVE_SCAR_POWER_ID
+        ? getRemoveScarResolvedMaxTier(this.actor)
+        : isGenericUnifiedAccKey(accKey)
+          ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+          : getStoneUsageCount(this.actor, middle as AttributeKey, powerId, combat);
 
     if (
       !shouldSettleStoneWave({
@@ -1816,7 +1839,20 @@ export class StonePowersDialog extends BaseDialog {
 
     // Ramp powers (no Tier 1) start one segment higher, so the first wave
     // costs the Tier-2 amount; mirror the dialog's nextCost here.
-    const nextCost = calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
+    // Remove Scar pays remaining unresolved Tiers (Seal 1/2/4/8), not the
+    // per-round wave counter.
+    const removeScarSupport =
+      powerId === REMOVE_SCAR_POWER_ID
+        ? getArtifactStoneSupportPrefill(this.actor, powerId, 'vitality')
+        : 0;
+    const nextCost =
+      powerId === REMOVE_SCAR_POWER_ID
+        ? computeRemoveScarPayment(
+            currentUses,
+            inferRemoveScarTargetTier(currentUses, removeScarSupport),
+            removeScarSupport,
+          ).sealCost
+        : calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
     const perAttr: Record<string, number> = {};
 
     if (isGenericUnifiedAccKey(accKey)) {
@@ -1845,7 +1881,16 @@ export class StonePowersDialog extends BaseDialog {
     if (!combatant) return false;
 
     let ok: boolean;
-    if (isGenericUnifiedAccKey(accKey)) {
+    if (powerId === REMOVE_SCAR_POWER_ID) {
+      if ((perAttr[COLORLESS_STONE_ATTR] || 0) > 0) {
+        ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
+        return false;
+      }
+      ok = await payAndApplyRemoveScar(this.actor, {
+        colorlessSpent: 0,
+        supportPrefillTier: removeScarSupport,
+      });
+    } else if (isGenericUnifiedAccKey(accKey)) {
       ok = await activateGenericStonePowerMixed({
         actor: this.actor,
         combatant,

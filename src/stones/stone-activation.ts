@@ -29,7 +29,8 @@ import {
   type StonePower,
 } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
-import { isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat } from './colorless-stones.js';
+import { isOncePerCombatPowerUsed } from './colorless-stones.js';
+import { payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID } from './remove-scar.js';
 
 export function resolveStonePowerActivation(
   abilityId: string,
@@ -77,13 +78,20 @@ export async function activateStonePower(options: {
     ui.notifications?.error(`Unknown stone power: ${abilityId}`);
     return false;
   }
-  if (power.id === 'wits.initiativeBoost' && isInitiativeBoostUsedThisCombat(combatant)) {
-    ui.notifications?.warn('Initiative Boost may be used only once per combat.');
+  if (power.oncePerCombat && isOncePerCombatPowerUsed(combatant, power.id)) {
+    ui.notifications?.warn(`${power.name} may be used only once per combat.`);
     return false;
   }
-  if (power.id === 'wits.phasing' && isPhasingStoneUsedThisCombat(combatant)) {
-    ui.notifications?.warn('Phasing may be used only once per combat.');
-    return false;
+  if (power.id === REMOVE_SCAR_POWER_ID) {
+    if (colorlessSpent > 0) {
+      ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
+      return false;
+    }
+    const prefillTier = getArtifactStoneSupportPrefill(actor, power.id, 'vitality');
+    return payAndApplyRemoveScar(actor, {
+      colorlessSpent,
+      supportPrefillTier: prefillTier,
+    });
   }
   
   // Determine which attribute pool to use

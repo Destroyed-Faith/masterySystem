@@ -1134,8 +1134,8 @@ export function getStonePool(actor: Actor, attribute: AttributeKey): { current: 
 
 /**
  * Stones in a pool that must NOT come back through regen / refills:
- * Sustain, Sealed (Rituals — return on Safe Haven Rest) and Burned
- * (lost until Safe Haven Rest, e.g. Last Breath / Remove Scar).
+ * Sustain, Sealed (Rituals / Remove Scar — return on Safe Haven Rest) and
+ * Burned (lost until Safe Haven Rest, e.g. Last Breath).
  */
 export function stonePoolReservedStones(system: any, attr: string): number {
   const p = system?.stonePools?.[attr] ?? {};
@@ -1283,6 +1283,11 @@ export async function spendStoneAbility(
   // Get stone pool
   const pool = getStonePool(actor, attribute);
   
+  if (abilityKey === 'vitality.removeScar' && colorlessSpent > 0) {
+    ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
+    return false;
+  }
+
   const colorlessWanted = Math.max(0, Math.floor(Number(colorlessSpent) || 0));
   let colorlessUsed = 0;
   try {
@@ -1720,7 +1725,6 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.tempArmor ?? 0) !== 0 ||
     (sb.spellPoolDice ?? 0) !== 0 ||
     (sb.spellKeepDice ?? 0) !== 0 ||
-    (sb.tempHpGrantedThisTurn ?? 0) !== 0 ||
     (sb.ignoreWoundPenalties ?? 0) !== 0 ||
     (sb.spellAutoRaises ?? 0) !== 0 ||
     (sb.spellResistanceBonus ?? 0) !== 0 ||
@@ -1732,22 +1736,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.phasingChargesFromStones ?? 0) !== 0 ||
     (sb.extendActiveBuffRounds ?? 0) !== 0;
   if (!changed) return;
-  // Expire Temp HP granted by the Vitality "Temporary HP" stone power. It is a
-  // per-turn buff ("until your next turn"): decrement the scalar mirror by the
-  // amount this turn granted so it neither persists nor stacks additively
-  // across turns/rounds. Any still-unused portion is simply lost on expiry.
-  const grantedTempHp = Math.max(0, Math.floor(Number(sb.tempHpGrantedThisTurn ?? 0) || 0));
-  if (grantedTempHp > 0) {
-    const curTempHp = Math.max(0, Math.floor(Number((owner as any).system?.health?.tempHP ?? 0) || 0));
-    const nextTempHp = Math.max(0, curTempHp - grantedTempHp);
-    if (nextTempHp !== curTempHp) {
-      try {
-        await (owner as any).update?.({ 'system.health.tempHP': nextTempHp });
-      } catch (e) {
-        console.warn('Mastery System | Failed to expire stone Temp HP', e);
-      }
-    }
-  }
+  // Vitality Temporary HP lasts until depleted or combat ends — do not strip
+  // it when the actor's spotlight ends. Combat-end cleanup still zeroes it.
   // Round-long bonuses persist through spotlight changes; per-turn bonuses
   // reset when the actor's spotlight in the initiative tracker ends.
   roundState.stoneBonuses = {

@@ -76,6 +76,39 @@ export async function markPhasingStoneUsedThisCombat(combatant: any): Promise<vo
   await combatant?.setFlag?.('mastery-system', FLAG_PHASING_STONE, true);
 }
 
+const FLAG_TEMP_HP_STONE = 'msTempHpStoneUsed';
+
+export function isTempHpStoneUsedThisCombat(combatant: any): boolean {
+  return !!combatant?.getFlag?.('mastery-system', FLAG_TEMP_HP_STONE);
+}
+
+export async function markTempHpStoneUsedThisCombat(combatant: any): Promise<void> {
+  await combatant?.setFlag?.('mastery-system', FLAG_TEMP_HP_STONE, true);
+}
+
+/** Combatant flags for Stone Powers that may fire only once per encounter. */
+const ONCE_PER_COMBAT_FLAGS: Record<string, string> = {
+  'wits.initiativeBoost': FLAG_BOOST_USED,
+  'wits.phasing': FLAG_PHASING_STONE,
+  'vitality.tempHp': FLAG_TEMP_HP_STONE,
+};
+
+export function oncePerCombatFlagForPower(powerId: string): string | null {
+  return ONCE_PER_COMBAT_FLAGS[String(powerId || '')] ?? null;
+}
+
+export function isOncePerCombatPowerUsed(combatant: any, powerId: string): boolean {
+  const flag = oncePerCombatFlagForPower(powerId);
+  if (!flag) return false;
+  return !!combatant?.getFlag?.('mastery-system', flag);
+}
+
+export async function markOncePerCombatPowerUsed(combatant: any, powerId: string): Promise<void> {
+  const flag = oncePerCombatFlagForPower(powerId);
+  if (!flag) return;
+  await combatant?.setFlag?.('mastery-system', flag, true);
+}
+
 /** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank (then keep doubling). */
 export function initiativeBoostAmount(tier: number, masteryRank: number): number {
   const t = Math.max(1, Math.floor(Number(tier) || 1));
