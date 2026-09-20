@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.536] - 2026-09-20
+
+### Changed
+
+- **Temporary HP:** Vitality-Steinmacht nur noch einmal pro Kampf. Regenerierte Steine schalten sie nicht wieder frei. Der Wert bleibt bis Verbrauch oder Kampfende, nicht bis zum nächsten Zug.
+- **Remove Scar:** Siegel 1/2/4/8 pro ungelöstem Tier, kumulativ (T2=3, T3=7, T4=15). Schon gelöste Tiers seit Daily Reset werden nicht nochmal gezahlt. Colorless darf das nicht zahlen. Support-Vorbefüllung zählt als bezahlt; tiefere Tiers bleiben zahlpflichtig. Safe Haven setzt die gelösten Tiers zurück.
+- **Echo-Texte:** Sentinel Frame und Green Warden sprechen Ward statt Special Reduction. Judicator bleibt Influence Regeneration. Titan Scars Remove Scar folgt der kumulativen Siegel-Regel; ab Artifact Level 9 auf sich oder eine berührte willige Kreatur.
+
 ## [0.9.535] - 2026-09-20
 
 ### Changed
