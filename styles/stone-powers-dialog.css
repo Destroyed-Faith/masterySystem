@@ -311,6 +311,59 @@
   white-space: nowrap;
 }
 
+.stone-powers-dialog .initiative-inline-btn.js-roll-initiative.is-glow {
+  position: relative;
+  isolation: isolate;
+  padding: 0.38rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 0 16px rgba(255, 120, 180, 0.42);
+}
+
+.stone-powers-dialog .initiative-inline-btn.js-roll-initiative.is-glow:hover {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 20px rgba(255, 120, 180, 0.55);
+}
+
+.stone-powers-dialog .initiative-inline-btn.js-roll-initiative.is-glow::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--ms-initiative-glow-angle, 0deg),
+    #ff4d6d,
+    #ffd166,
+    #06d6a0,
+    #4cc9f0,
+    #7b2cbf,
+    #ff4d6d
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: initiative-roll-glow 2.4s linear infinite;
+}
+
+@keyframes initiative-roll-glow {
+  to {
+    --ms-initiative-glow-angle: 360deg;
+  }
+}
+
+@property --ms-initiative-glow-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .stone-powers-dialog .initiative-exchange-stepper {
   display: flex;
   align-items: center;
