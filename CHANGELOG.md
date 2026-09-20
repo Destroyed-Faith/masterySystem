@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.539] - 2026-09-20
+
+### Changed
+
+- **Stones-Menü:** Komplett Englisch — Karten, Lanes, „Not active“, Apply & Close / Close / Save defaults, Passives-Overlay (Confirm), Toasts und Pending-Warnungen. Kein deutsches `loc()` mehr in diesem Dialog.
+- **Combat-Buttons:** Next Turn, Delay Initiative, Initiative Shop Confirm und die Encounter-Setup-Leiste (Start Combat / Round n) sind Englisch, auch wenn Foundry auf `de` steht.
+
 ## [0.9.538] - 2026-09-20
 
 ### Changed
