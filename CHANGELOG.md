@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.538] - 2026-09-20
+
+### Changed
+
+- **Initiative-Zeile:** Eine englische Steuerzeile — Initiative, Combat Reflexes, Stones, Convert to Colorless Stones. Darunter der Wurf: „Initiative Dice Roll was X. Armor Penalty Y.“ Kein deutscher Satz mehr in der Zeile.
+
 ## [0.9.537] - 2026-09-20
 
 ### Changed
