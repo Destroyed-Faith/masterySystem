@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.540] - 2026-09-20
+
+### Changed
+
+- **Roll Initiative:** Im Stones-Menü bekommt der Knopf, solange noch nicht gewürfelt ist, dieselbe drehende Regenbogenumrandung wie die Passives-Leiste — größer, leuchtend, damit man ihn zuerst drückt.
+
 ## [0.9.539] - 2026-09-20
 
 ### Changed
