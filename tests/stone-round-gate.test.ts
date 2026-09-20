@@ -142,7 +142,7 @@ describe('prepare vs start combat', () => {
     setGame({ userId: 'gm', isGM: true });
     const finn = mockCombatant({ id: 'c1', actorId: 'a1', owners: ['fynn'], name: 'Finn' });
     const combat = mockCombat([finn], 0, {}, { started: false, setupStarted: true });
-    expect(encounterStartBlockers(combat)).toEqual(['Finn: Passives', 'Finn: Steine']);
+    expect(encounterStartBlockers(combat)).toEqual(['Finn: Passives', 'Finn: Stones']);
     expect(warnIfPlayerStonesPending(combat)).toBe(true);
   });
 
