@@ -36,7 +36,7 @@ import {
   type RaiseOutcome,
 } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
-import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
+import { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
 import { resolveLiveActor, tokenIdOfActor } from '../system/status-target.js';
 import { formatEffectReference, getEffectById } from '../utils/special-effects.js';
@@ -52,7 +52,7 @@ function normalizeWeaponSpecial(s: any): string {
   return String(s ?? '').trim();
 }
 
-export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
+export { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 
 /**
  * Add `bonusDice` d8 to a damage formula. Empty / "0" → "Nd8"; pure "Xd8" →
@@ -238,8 +238,8 @@ export interface DamageResult {
     armorPenetration?: number;
   };
   /**
-   * Faith Fracture Keep already posted this chat message as the damage card
-   * (with Keep/Reroll). Caller should update it instead of creating a second one.
+   * Faith Keep and/or Mark spend already posted this chat message as the
+   * damage card. Caller should update it instead of creating a second one.
    */
   prePostedChatMessageId?: string;
 }
@@ -940,12 +940,10 @@ function createDamageCardContent(
   const markMax = Math.max(0, Math.floor(Number(targetMarkValue) || 0));
   let markSpendSection = '';
   if (markMax > 0) {
-    // Mark spend is chosen AFTER the damage roll (post-roll prompt with exact
-    // "total → new total" options) — the card only announces it.
+    // Spend is chosen on the post-roll damage card — this only announces Mark.
     markSpendSection = `
       <div class="raises-section mark-spend-section">
-        <h4><i class="fas fa-bullseye"></i> Mark(${markMax}) on target</h4>
-        <p class="raises-description">After the damage roll you may spend any amount of Mark. Spent Mark becomes the Damage Floor for this roll (dice below that value are raised) — the prompt shows exactly how much each option gains. Anyone who hits this target may spend Mark.</p>
+        <p class="raises-description">Mark(${markMax}) on target — after the roll, spend it on the damage card if it raises the total.</p>
       </div>`;
   }
   const html = `
@@ -2274,66 +2272,299 @@ async function promptDamageFaithReroll(
   }
 }
 
+/** In-memory waiter for Mark spend on the damage chat card. */
+type PendingDamageMarkPrompt = {
+  resolve: (spend: number) => void;
+  attackerId: string;
+};
+const pendingDamageMarkPrompts = new Map<string, PendingDamageMarkPrompt>();
+let damageMarkChatHooksRegistered = false;
+
+function registerDamageMarkSpendChatHooks(): void {
+  if (damageMarkChatHooksRegistered) return;
+  damageMarkChatHooksRegistered = true;
+  Hooks.on('renderChatMessageHTML', (message: ChatMessage, htmlRaw: HTMLElement | JQuery) => {
+    try {
+      const ms = (message.flags as any)?.['mastery-system'];
+      if (ms?.type !== 'damageMarkSpendPrompt' || ms?.resolved) return;
+      attachDamageMarkPromptHandlers(message, htmlRaw);
+    } catch (e) {
+      console.warn('Mastery System | damage Mark spend prompt hook', e);
+    }
+  });
+}
+
+type DamageMarkSpendOption = { spend: number; bonus: number };
+
+function buildDamageMarkGateHtml(opts: {
+  targetName: string;
+  markOnTarget: number;
+  totalDamage: number;
+  rollDetails: string[];
+  options: DamageMarkSpendOption[];
+}): string {
+  const details = opts.rollDetails;
+  const rollsHtml = details.length
+    ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+        .map((line) => `<li>${damageFaithPromptEsc(line)}</li>`)
+        .join('')}</ul></div>`
+    : '';
+  const spendButtons = opts.options
+    .map((opt) => {
+      const next = opts.totalDamage + opt.bonus;
+      const label = `Mark ${opt.spend}: ${opts.totalDamage} → ${next} (+${opt.bonus})`;
+      return `<button type="button" class="ms-damage-mark-spend-btn" data-mark-spend="${opt.spend}">${damageFaithPromptEsc(label)}</button>`;
+    })
+    .join('');
+
+  return `<div class="mastery-system-damage mastery-damage-mark-gate">
+      <h3><i class="fas fa-sword"></i> Damage: ${opts.totalDamage}</h3>
+      ${rollsHtml}
+      <p><strong>Target:</strong> ${damageFaithPromptEsc(opts.targetName)}</p>
+      <div class="mastery-damage-mitigation mastery-damage-pending">
+        <div class="mastery-damage-mitigation-title"><i class="fas fa-bullseye"></i> Spend Mark?</div>
+        <div class="mastery-damage-mitigation-breakdown">Roh ${opts.totalDamage} — HP not applied yet</div>
+      </div>
+      <p class="ms-damage-mark-hint">Mark(${opts.markOnTarget}) on ${damageFaithPromptEsc(opts.targetName)}. Spent Mark becomes the Damage Floor — dice below that value are raised. Only spends that raise the total are listed.</p>
+      <div class="ms-damage-mark-buttons">
+        ${spendButtons}
+        <button type="button" class="ms-damage-mark-skip-btn"><i class="fas fa-times"></i> Do not spend</button>
+      </div>
+    </div>`;
+}
+
+/** After a Mark choice: same damage card without spend buttons (still awaiting apply). */
+function buildDamageMarkSettledPreviewHtml(opts: {
+  targetName: string;
+  totalDamage: number;
+  rollDetails: string[];
+  spend: number;
+  bonus: number;
+}): string {
+  const details = opts.rollDetails;
+  const rollsHtml = details.length
+    ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+        .map((line) => `<li>${damageFaithPromptEsc(line)}</li>`)
+        .join('')}</ul></div>`
+    : '';
+  const shownTotal = opts.totalDamage + Math.max(0, opts.bonus);
+  const breakdown =
+    opts.spend > 0
+      ? `Roh ${opts.totalDamage} — Mark ${opts.spend} → ${shownTotal} — HP not applied yet`
+      : `Roh ${opts.totalDamage} — Mark not spent — HP not applied yet`;
+  return `<div class="mastery-system-damage">
+      <h3><i class="fas fa-sword"></i> Damage: ${shownTotal}</h3>
+      ${rollsHtml}
+      <p><strong>Target:</strong> ${damageFaithPromptEsc(opts.targetName)}</p>
+      <div class="mastery-damage-mitigation mastery-damage-pending">
+        <div class="mastery-damage-mitigation-title"><i class="fas fa-hourglass-half"></i> Awaiting Reactions…</div>
+        <div class="mastery-damage-mitigation-breakdown">${damageFaithPromptEsc(breakdown)}</div>
+      </div>
+    </div>`;
+}
+
+async function settleDamageMarkPrompt(message: ChatMessage, spend: number): Promise<void> {
+  const messageId = String((message as any).id || '');
+  const pending = pendingDamageMarkPrompts.get(messageId);
+  if (!pending) {
+    (ui as any).notifications?.warn?.(
+      'Only the player who rolled this damage can spend Mark here.',
+    );
+    return;
+  }
+  pendingDamageMarkPrompts.delete(messageId);
+
+  const flags = ((message.flags as any)?.['mastery-system'] ?? {}) as Record<string, unknown>;
+  const mark = Math.max(0, Math.floor(Number(flags.markOnTarget) || 0));
+  const chosen = clampMarkSpend(mark, spend);
+  const options = Array.isArray(flags.options) ? (flags.options as DamageMarkSpendOption[]) : [];
+  const bonus = chosen > 0 ? Math.max(0, options.find((o) => o.spend === chosen)?.bonus ?? 0) : 0;
+
+  try {
+    await (message as any).update({
+      content: buildDamageMarkSettledPreviewHtml({
+        targetName: String(flags.targetName || 'Target'),
+        totalDamage: Math.max(0, Math.floor(Number(flags.totalDamage) || 0)),
+        rollDetails: Array.isArray(flags.rollDetails) ? (flags.rollDetails as string[]) : [],
+        spend: chosen,
+        bonus,
+      }),
+      flags: {
+        'mastery-system': {
+          ...flags,
+          type: 'damageMarkSpendPrompt',
+          resolved: chosen > 0 ? `spend-${chosen}` : 'skip',
+        },
+      },
+    });
+  } catch (e) {
+    console.warn('Mastery System | could not settle damage Mark spend gate', e);
+  }
+
+  pending.resolve(chosen);
+}
+
+function attachDamageMarkPromptHandlers(
+  message: ChatMessage,
+  htmlRaw: HTMLElement | JQuery,
+): void {
+  const $root = htmlRaw instanceof HTMLElement ? $(htmlRaw) : htmlRaw;
+  const card = $root
+    .filter('.mastery-damage-mark-gate')
+    .add($root.find('.mastery-damage-mark-gate'))
+    .first();
+  if (!card.length) return;
+  if (card.data('msMarkBound')) return;
+  card.data('msMarkBound', true);
+
+  const messageId = String((message as any).id || '');
+  const canAct = pendingDamageMarkPrompts.has(messageId);
+  const spendBtns = card.find('.ms-damage-mark-spend-btn');
+  const skipBtn = card.find('.ms-damage-mark-skip-btn');
+  if (!canAct) {
+    spendBtns.prop('disabled', true);
+    skipBtn.prop('disabled', true);
+    spendBtns.attr('title', 'Waiting for the rolling player…');
+    skipBtn.attr('title', 'Waiting for the rolling player…');
+    return;
+  }
+
+  const lock = async (spend: number) => {
+    spendBtns.prop('disabled', true);
+    skipBtn.prop('disabled', true);
+    await settleDamageMarkPrompt(message, spend);
+  };
+
+  spendBtns.off('click.msDmgMark').on('click.msDmgMark', (ev: JQuery.ClickEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    const raw = Number($(ev.currentTarget).attr('data-mark-spend'));
+    void lock(Number.isFinite(raw) ? raw : 0);
+  });
+  skipBtn.off('click.msDmgMark').on('click.msDmgMark', (ev: JQuery.ClickEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    void lock(0);
+  });
+}
+
+type DamageMarkPromptResult = {
+  spend: number;
+  /** Reuse this message as the damage card. */
+  messageId: string | null;
+};
+
 /**
- * Post-roll Mark spend prompt: the attacker sees the rolled total and picks
- * how much Mark to spend from a dropdown that shows the exact outcome of
- * every option ("Mark 4: 30 → 45 damage (+15)"). Returns the chosen spend
- * (0 = keep the Mark on the target).
+ * Post-roll Mark spend on the damage chat card itself (no extra Dialog).
+ * Shows only spends that raise the total, plus "Do not spend". If Faith Keep
+ * already posted a card, that message is reused; otherwise a preview card
+ * with the rolled dice is posted first.
  */
 async function promptMarkSpend(
+  attacker: Actor,
   target: Actor,
   markOnTarget: number,
   totalDamage: number,
+  rollDetails: string[],
   damageChatRolls: any[],
-): Promise<number> {
+  existingFloor: number,
+  existingMessageId?: string,
+): Promise<DamageMarkPromptResult> {
+  const skip: DamageMarkPromptResult = {
+    spend: 0,
+    messageId: existingMessageId ? String(existingMessageId) : null,
+  };
   const mark = Math.max(0, Math.floor(Number(markOnTarget) || 0));
-  if (mark <= 0) return 0;
+  if (mark <= 0) return skip;
+  const options = listUsefulMarkSpends(damageChatRolls, mark, existingFloor);
+  if (options.length === 0) return skip;
+
   try {
-    const options: string[] = [
-      `<option value="0" selected>0 — do not spend Mark (keep ${mark} on target)</option>`,
-    ];
-    for (let n = 1; n <= mark; n++) {
-      const bonus = computeMarkFloorBonus(damageChatRolls, n);
-      const label =
-        bonus > 0
-          ? `Mark ${n}: ${totalDamage} → ${totalDamage + bonus} damage (+${bonus})`
-          : `Mark ${n}: ${totalDamage} → ${totalDamage} damage (no gain)`;
-      options.push(`<option value="${n}">${label}</option>`);
+    const user = (game as any).user;
+    if (!user?.isGM && !(attacker as any)?.isOwner) return skip;
+
+    registerDamageMarkSpendChatHooks();
+
+    const attackerName = String((attacker as any)?.name || 'Attacker');
+    const targetName = String((target as any)?.name || 'Target');
+    const content = buildDamageMarkGateHtml({
+      targetName,
+      markOnTarget: mark,
+      totalDamage,
+      rollDetails,
+      options,
+    });
+
+    const serializedRolls = (damageChatRolls || [])
+      .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+      .filter(Boolean);
+
+    const markFlags = {
+      type: 'damageMarkSpendPrompt',
+      attackerId: (attacker as any)?.id,
+      attackerName,
+      targetName,
+      totalDamage,
+      markOnTarget: mark,
+      rollDetails: [...rollDetails],
+      options,
+      resolved: false,
+    };
+
+    let message: ChatMessage | null = null;
+    const reuseId = existingMessageId ? String(existingMessageId) : '';
+    if (reuseId) {
+      try {
+        const existing = (game as any).messages?.get?.(reuseId);
+        if (existing) {
+          const patch: Record<string, unknown> = {
+            content,
+            flags: { 'mastery-system': markFlags },
+          };
+          if (serializedRolls.length > 0) {
+            patch.rolls = serializedRolls;
+          }
+          await existing.update(patch);
+          message = existing as ChatMessage;
+        }
+      } catch (err) {
+        console.warn('Mastery System | [MARK SPEND] could not reuse damage card — posting new', err);
+      }
     }
 
-    return await new Promise<number>((resolve) => {
-      new Dialog({
-        title: `Mark(${mark}) on ${(target as any).name} — spend?`,
-        content: `<p style="margin-bottom:0.35em"><strong>Damage rolled: ${totalDamage}</strong></p>
-          <p style="margin:0 0 0.5em">Spent Mark becomes the Damage Floor for this roll — every damage die below the spent value is raised to it. The target's Mark is reduced by the amount spent.</p>
-          <div class="form-group">
-            <label for="ms-mark-spend-post">Spend Mark:</label>
-            <select id="ms-mark-spend-post" name="markSpendPost" style="width:100%">
-              ${options.join('\n              ')}
-            </select>
-          </div>`,
-        buttons: {
-          apply: {
-            icon: '<i class="fas fa-bullseye"></i>',
-            label: 'Apply',
-            callback: (html: JQuery) => {
-              const chosen = Number($(html).find('#ms-mark-spend-post').val());
-              resolve(clampMarkSpend(mark, chosen));
-            },
-          },
-          skip: {
-            icon: '<i class="fas fa-times"></i>',
-            label: 'Do not spend',
-            callback: () => resolve(0),
-          },
+    if (!message) {
+      message = (await ChatMessage.create({
+        user: user?.id,
+        speaker: ChatMessage.getSpeaker({ actor: attacker }),
+        content,
+        ...(serializedRolls.length > 0
+          ? { rolls: serializedRolls, sound: CONFIG.sounds.dice }
+          : { style: (CONST as any)?.CHAT_MESSAGE_STYLES?.OTHER }),
+        flags: {
+          'mastery-system': markFlags,
         },
-        default: 'apply',
-        close: () => resolve(0),
-      } as any).render(true);
+      } as any)) as ChatMessage;
+    }
+
+    if (!message?.id) return skip;
+
+    const spend = await new Promise<number>((resolve) => {
+      pendingDamageMarkPrompts.set(String(message.id), {
+        resolve,
+        attackerId: String((attacker as any)?.id || ''),
+      });
+      window.setTimeout(() => {
+        const el =
+          document.querySelector(`.chat-message[data-message-id="${message.id}"]`) ??
+          document.querySelector(`.message[data-message-id="${message.id}"]`);
+        if (el) attachDamageMarkPromptHandlers(message as ChatMessage, el as HTMLElement);
+      }, 50);
     });
+
+    return { spend: clampMarkSpend(mark, spend), messageId: String(message.id) };
   } catch (e) {
     console.warn('Mastery System | [MARK SPEND] prompt failed — Mark not spent', e);
-    return 0;
+    return skip;
   }
 }
 
@@ -2769,20 +3000,30 @@ async function calculateDamageResult(
     if (faithChoice.messageId) prePostedChatMessageId = faithChoice.messageId;
   }
 
-  // Mark(X) Damage Floor — chosen AFTER the roll so the attacker sees exactly
-  // what each spend gains ("Mark 4: 30 → 45 damage"). Runs after the reroll
-  // gate: the floor applies to the final dice, and a reroll never consumes
-  // Mark twice.
+  // Mark(X) Damage Floor — chosen AFTER the roll on the damage chat card
+  // ("Mark 4: 30 → 45"). No extra Dialog. Runs after the reroll gate so the
+  // floor applies to the final dice; a reroll never consumes Mark twice.
   try {
     if (target) {
       const { getActiveSpecialValue } = await import('../system/active-specials.js');
       const mark = Math.max(0, getActiveSpecialValue(target, 'mark'));
       if (mark > 0) {
-        const maxBonus = computeMarkFloorBonus(damageChatRolls, mark, brutalImpactFloor);
-        if (maxBonus <= 0) {
+        const useful = listUsefulMarkSpends(damageChatRolls, mark, brutalImpactFloor);
+        if (useful.length === 0) {
           rollDetails.push(`Mark(${mark}) available — all damage dice already ≥ ${mark}, nothing to gain`);
         } else {
-          const spend = await promptMarkSpend(target, mark, totalDamage, damageChatRolls);
+          const markChoice = await promptMarkSpend(
+            attacker,
+            target,
+            mark,
+            totalDamage,
+            rollDetails,
+            damageChatRolls,
+            brutalImpactFloor,
+            prePostedChatMessageId,
+          );
+          if (markChoice.messageId) prePostedChatMessageId = markChoice.messageId;
+          const spend = markChoice.spend;
           if (spend > 0) {
             const markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend, brutalImpactFloor);
             totalDamage += markFloorBonus;

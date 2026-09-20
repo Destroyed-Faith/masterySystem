@@ -986,6 +986,49 @@ prose-mirror#chat-message.chat-input > .editor-container {
   cursor: not-allowed;
 }
 
+#chat-log .mastery-system-damage.mastery-damage-mark-gate {
+  border-left: 3px solid rgba(202, 178, 113, 0.75);
+}
+
+#chat-log .mastery-system-damage .ms-damage-mark-hint {
+  margin: 0.35em 0 0.5em;
+  font-size: 0.9em;
+}
+
+#chat-log .mastery-system-damage .ms-damage-mark-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  margin-top: 0.35em;
+}
+
+#chat-log .mastery-system-damage .ms-damage-mark-spend-btn,
+#chat-log .mastery-system-damage .ms-damage-mark-skip-btn {
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.28em 0.55em;
+  border-radius: 4px;
+  border: 1px solid var(--ms-border, #3a3f44);
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-text, #d0d0d0);
+}
+
+#chat-log .mastery-system-damage .ms-damage-mark-spend-btn:hover:not(:disabled) {
+  border-color: rgba(202, 178, 113, 0.75);
+  color: #ffe08a;
+}
+
+#chat-log .mastery-system-damage .ms-damage-mark-skip-btn:hover:not(:disabled) {
+  border-color: rgba(140, 140, 140, 0.75);
+  color: #c8c8c8;
+}
+
+#chat-log .mastery-system-damage .ms-damage-mark-spend-btn:disabled,
+#chat-log .mastery-system-damage .ms-damage-mark-skip-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 #chat-log .mastery-stress-breakdown {
   border-left: 3px solid rgba(142, 68, 173, 0.75);
   padding: 0.35em 0.55em;
