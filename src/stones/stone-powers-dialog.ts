@@ -211,14 +211,31 @@ function rampSkipLeadLanes(powerId: string): number[] {
 
 function pendingStoneCardFields(name: string, placed: number, needed: number): {
   pendingActivation: boolean;
+  waveReady: boolean;
   pendingLabel: string;
   pendingRow: PendingStoneActivation | null;
 } {
   const row = pendingStoneActivation({ name, placed, needed });
   return {
     pendingActivation: !!row,
+    waveReady: placed > 0 && needed > 0 && placed >= needed,
     pendingLabel: row ? pendingStoneActivationLabel(row) : '',
     pendingRow: row,
+  };
+}
+
+function stonePowerCardVisuals(
+  name: string,
+  placed: number,
+  needed: number,
+  liveUses: number,
+): ReturnType<typeof stonePowerActivationRing> & ReturnType<typeof pendingStoneCardFields> {
+  const ring = stonePowerActivationRing(liveUses);
+  const pending = pendingStoneCardFields(name, placed, needed);
+  return {
+    ...ring,
+    ...pending,
+    activated: ring.activated || pending.waveReady,
   };
 }
 
@@ -880,8 +897,7 @@ export class StonePowersDialog extends BaseDialog {
           !!this.combatant &&
           isOncePerCombatPowerUsed(this.combatant, power.id),
         hideLeadSegment: rampSkip > 0,
-        ...stonePowerActivationRing(liveUses),
-        ...pendingStoneCardFields(power.name, occupied.length, nextCost),
+        ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
         ...laneSegs
       };
     };
@@ -956,10 +972,12 @@ export class StonePowersDialog extends BaseDialog {
           ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
           : '',
         hideLeadSegment: rampSkip > 0,
-        ...stonePowerActivationRing(
+        ...stonePowerCardVisuals(
+          power.name,
+          occupied.length,
+          nextCost,
           getGenericStonePowerUsageCount(this.actor, power.id, combat),
         ),
-        ...pendingStoneCardFields(power.name, occupied.length, nextCost),
         ...laneSegs
       };
     });
@@ -2480,8 +2498,17 @@ export class StonePowersDialog extends BaseDialog {
         if (!el) continue;
         el.classList.remove('slot-active', 'slot-locked');
         el.classList.add('slot-filled');
-        el.style.setProperty('background', 'rgba(76, 175, 80, 0.28)', 'important');
-        el.style.setProperty('border-color', 'rgba(102, 187, 106, 0.95)', 'important');
+        const pending = !!el.closest('.power-card-general')?.classList.contains('is-pending');
+        el.style.setProperty(
+          'background',
+          pending ? 'rgba(255, 152, 0, 0.2)' : 'rgba(76, 175, 80, 0.28)',
+          'important',
+        );
+        el.style.setProperty(
+          'border-color',
+          pending ? '#ff9800' : 'rgba(102, 187, 106, 0.95)',
+          'important',
+        );
       }
     }
     this.#reconcilePrimedSupportLanes(root);
