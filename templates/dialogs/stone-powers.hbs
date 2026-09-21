@@ -57,6 +57,11 @@
     <div class="initiative-exchange-row">
       <div class="initiative-exchange-copy">
         <strong>Initiative</strong>
+        <button type="button"
+                class="stone-help-btn js-stone-help"
+                data-help-start="1"
+                title="How does this work?"
+                aria-label="How does this work?">?</button>
         {{#unless initiativeExchange.needsRoll}}
         <span class="initiative-exchange-score">{{initiativeExchange.initiative}}</span>
         {{/unless}}
@@ -160,7 +165,14 @@
   {{#if showStonePools}}
   <div class="stone-pools-display{{#if recovery.active}} is-recovery{{/if}}">
     <div class="stone-pools-header-row">
-      <h3>Available Stones</h3>
+      <div class="stone-help-heading">
+        <h3>Available Stones</h3>
+        <button type="button"
+                class="stone-help-btn js-stone-help"
+                data-help-start="4"
+                title="How does this work?"
+                aria-label="How does this work?">?</button>
+      </div>
     </div>
     {{#if recovery.active}}
     <div class="stone-recovery-bar" role="region" aria-label="Stone Recovery">
@@ -403,5 +415,51 @@
       <i class="fas fa-check"></i> Apply &amp; Close
     </button>
     {{/if}}
+  </div>
+
+  <div class="stone-help-overlay is-hidden"
+       hidden
+       data-help-page="1"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="stone-help-title">
+    <div class="stone-help-panel">
+      <header class="stone-help-header">
+        <h2 id="stone-help-title">STONE POWERS — QUICK HELP</h2>
+        <button type="button" class="stone-help-close js-stone-help-close" title="Close" aria-label="Close help">×</button>
+      </header>
+      <div class="stone-help-pages">
+        {{#each helpScreens}}
+        <article class="stone-help-screen{{#if (eq id 1)}} is-current{{/if}}" data-help-index="{{id}}" {{#unless (eq id 1)}}hidden{{/unless}}>
+          <h3 class="stone-help-screen-title">{{title}}</h3>
+          <div class="stone-help-images{{#if (gt images.length 1)}} is-triple{{/if}}">
+            {{#each images}}
+            <figure class="stone-help-figure">
+              <img src="{{src}}" alt="{{alt}}" loading="lazy">
+              {{#if caption}}<figcaption>{{caption}}</figcaption>{{/if}}
+            </figure>
+            {{/each}}
+          </div>
+          <p class="stone-help-body">{{body}}</p>
+          {{#if note}}<p class="stone-help-note">{{note}}</p>{{/if}}
+        </article>
+        {{/each}}
+      </div>
+      <footer class="stone-help-footer">
+        <div class="stone-help-dots" role="tablist" aria-label="Help screens">
+          {{#each helpScreens}}
+          <button type="button"
+                  class="stone-help-dot js-stone-help-dot{{#if (eq id 1)}} is-current{{/if}}"
+                  data-help-index="{{id}}"
+                  aria-label="Help screen {{id}}">{{id}}</button>
+          {{/each}}
+        </div>
+        <span class="stone-help-counter js-stone-help-counter">1 / {{helpScreenCount}}</span>
+        <div class="stone-help-nav">
+          <button type="button" class="dialog-btn dialog-btn-secondary js-stone-help-prev" disabled>Previous</button>
+          <button type="button" class="dialog-btn js-stone-help-next">Next</button>
+        </div>
+      </footer>
+    </div>
   </div>
 </div>

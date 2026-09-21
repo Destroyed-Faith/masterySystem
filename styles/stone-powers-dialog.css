@@ -560,6 +560,12 @@
   font-weight: 600;
 }
 
+.stone-powers-dialog .stone-help-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .stone-powers-dialog .dialog-btn-stone-save-inline {
   padding: 0.28rem 0.55rem;
   font-size: 0.68rem;
@@ -2089,4 +2095,277 @@
 .stone-powers-dialog .stone-familiar-ref-table-wrap summary {
   cursor: pointer;
   margin-bottom: 0.35rem;
+}
+
+.mastery-system.stone-powers-dialog .window-content {
+  position: relative;
+}
+
+.stone-powers-dialog .stone-help-btn,
+.mastery-system.stone-powers-dialog .stone-help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  padding: 0;
+  border: 1px solid rgba(201, 162, 39, 0.35);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(232, 220, 184, 0.72);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.stone-powers-dialog .stone-help-btn:hover,
+.mastery-system.stone-powers-dialog .stone-help-btn:hover {
+  border-color: rgba(201, 162, 39, 0.75);
+  color: #f3e6b8;
+  background: rgba(201, 162, 39, 0.14);
+}
+
+.stone-help-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  padding: 0.7rem;
+  background: rgba(4, 4, 6, 0.72);
+  box-sizing: border-box;
+}
+
+.stone-help-overlay.is-hidden,
+.stone-help-overlay[hidden] {
+  display: none;
+}
+
+.stone-help-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 100%);
+  max-height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(176, 190, 197, 0.35);
+  border-radius: 6px;
+  background: #161616;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.stone-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stone-help-header h2 {
+  margin: 0;
+  color: #f3e6b8;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.stone-help-close {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #eee;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.stone-help-close:hover {
+  border-color: rgba(201, 162, 39, 0.7);
+  color: #f3e6b8;
+}
+
+.stone-help-pages {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.7rem 0.85rem 0.4rem;
+}
+
+.stone-help-screen {
+  display: none;
+}
+
+.stone-help-screen.is-current {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.stone-help-screen-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.stone-help-images {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 8rem;
+}
+
+.stone-help-images.is-triple {
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.stone-help-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.stone-help-figure img {
+  display: block;
+  max-width: 100%;
+  max-height: min(52vh, 520px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: #0d0d0d;
+}
+
+.stone-help-images.is-triple .stone-help-figure img {
+  max-height: min(36vh, 320px);
+}
+
+.stone-help-figure figcaption {
+  color: rgba(243, 230, 184, 0.85);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.stone-help-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  width: 100%;
+  padding: 1rem;
+  border: 1px dashed rgba(201, 162, 39, 0.35);
+  border-radius: 4px;
+  color: rgba(232, 220, 184, 0.7);
+  background: rgba(0, 0, 0, 0.28);
+  font-size: 0.82rem;
+}
+
+.stone-help-body,
+.stone-help-note {
+  margin: 0;
+  max-width: 42rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.stone-help-note {
+  color: rgba(243, 230, 184, 0.78);
+  font-size: 0.78rem;
+}
+
+.stone-help-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem 0.7rem;
+  padding: 0.55rem 0.75rem 0.65rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stone-help-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.22rem;
+}
+
+.stone-help-dot {
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.28);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.68rem;
+  cursor: pointer;
+}
+
+.stone-help-dot.is-current,
+.stone-help-dot:hover {
+  border-color: rgba(201, 162, 39, 0.7);
+  color: #f3e6b8;
+}
+
+.stone-help-counter {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stone-help-nav {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.stone-help-overlay .dialog-btn {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem;
+}
+
+.stone-help-overlay .dialog-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 720px) {
+  .stone-help-images.is-triple {
+    flex-direction: column;
+  }
+
+  .stone-help-images.is-triple .stone-help-figure img {
+    max-height: min(28vh, 240px);
+  }
+
+  .stone-help-footer {
+    justify-content: center;
+  }
+
+  .stone-help-nav {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
 }

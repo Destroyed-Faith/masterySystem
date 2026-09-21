@@ -73,6 +73,11 @@ import {
   REMOVE_SCAR_POWER_ID,
 } from './remove-scar.js';
 import {
+  STONE_POWERS_HELP_COUNT,
+  STONE_POWERS_HELP_SCREENS,
+  clampStoneHelpPage,
+} from './stone-powers-help.js';
+import {
   formatPendingStoneActivationWarning,
   orderPowersRampFirst,
   pendingStoneActivation,
@@ -631,6 +636,8 @@ export class StonePowersDialog extends BaseDialog {
   private _colorlessConvertCount: number | null = null;
   /** Player toggles for attribute / General sections in this dialog session. */
   private _sectionOpenOverride: Record<string, boolean> = {};
+  /** Removes the Help overlay key listener (Escape / arrows). */
+  private _helpKeyCleanup?: () => void;
 
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
@@ -1157,6 +1164,8 @@ export class StonePowersDialog extends BaseDialog {
       canSavePrefs,
       combatLabel: combat ? `Round ${combat.round}` : '',
       naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
+      helpScreens: STONE_POWERS_HELP_SCREENS,
+      helpScreenCount: STONE_POWERS_HELP_COUNT,
     };
   }
 
@@ -1628,6 +1637,7 @@ export class StonePowersDialog extends BaseDialog {
     this.#bindInitiativeExchangeControls(root);
     this.#bindNaturalRecoveryControls(root);
     this.#bindSectionToggles(root);
+    this.#bindStoneHelp(root);
     const passivesCta = root.querySelector('.js-open-passives') as HTMLElement | null;
     if (passivesCta) {
       passivesCta.onclick = async (ev: MouseEvent) => {
@@ -2205,6 +2215,167 @@ export class StonePowersDialog extends BaseDialog {
       if (val?.length && matches(accKey)) return true;
     }
     return false;
+  }
+
+  #helpOverlay(root: HTMLElement): HTMLElement | null {
+    return (
+      root.querySelector('.stone-help-overlay') ||
+      ((this as any).element as HTMLElement | undefined)?.querySelector('.stone-help-overlay') ||
+      null
+    );
+  }
+
+  #helpIsOpen(root: HTMLElement): boolean {
+    const overlay = this.#helpOverlay(root);
+    return !!overlay && !overlay.hasAttribute('hidden');
+  }
+
+  #bindStoneHelp(root: HTMLElement): void {
+    this._helpKeyCleanup?.();
+    this._helpKeyCleanup = undefined;
+
+    root.querySelectorAll<HTMLButtonElement>('.js-stone-help').forEach((btn) => {
+      btn.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.#openStoneHelp(root, Number(btn.dataset.helpStart || '1'));
+      };
+    });
+
+    const overlay = this.#helpOverlay(root);
+    if (!overlay) return;
+    const frame =
+      (((this as any).element as HTMLElement | undefined)?.querySelector('.window-content') as
+        | HTMLElement
+        | null) ?? root;
+    if (overlay.parentElement !== frame) frame.appendChild(overlay);
+
+    overlay.querySelectorAll<HTMLImageElement>('img').forEach((img) => {
+      if ((img as HTMLImageElement & { _msHelpFallback?: boolean })._msHelpFallback) return;
+      (img as HTMLImageElement & { _msHelpFallback?: boolean })._msHelpFallback = true;
+      img.addEventListener('error', () => {
+        if (img.dataset.helpFallback === '1') return;
+        img.dataset.helpFallback = '1';
+        const fallback = document.createElement('div');
+        fallback.className = 'stone-help-fallback';
+        fallback.textContent = 'Screenshot unavailable';
+        img.replaceWith(fallback);
+      });
+    });
+
+    const closeBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-close');
+    if (closeBtn) {
+      closeBtn.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.#closeStoneHelp(root);
+      };
+    }
+    overlay.onclick = (ev: MouseEvent) => {
+      if (ev.target === overlay) {
+        ev.preventDefault();
+        this.#closeStoneHelp(root);
+      }
+    };
+    const prevBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-prev');
+    if (prevBtn) {
+      prevBtn.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.#stepStoneHelp(root, -1);
+      };
+    }
+    const nextBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-next');
+    if (nextBtn) {
+      nextBtn.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (this.#readHelpPage(overlay) >= STONE_POWERS_HELP_COUNT) {
+          this.#closeStoneHelp(root);
+          return;
+        }
+        this.#stepStoneHelp(root, 1);
+      };
+    }
+    overlay.querySelectorAll<HTMLButtonElement>('.js-stone-help-dot').forEach((dot) => {
+      dot.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this.#showStoneHelpPage(root, Number(dot.dataset.helpIndex || '1'));
+      };
+    });
+
+    const onKey = (ev: KeyboardEvent) => {
+      if (!this.#helpIsOpen(root)) return;
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        ev.stopImmediatePropagation();
+        this.#closeStoneHelp(root);
+        return;
+      }
+      if (ev.key === 'ArrowRight') {
+        ev.preventDefault();
+        if (this.#readHelpPage(overlay) >= STONE_POWERS_HELP_COUNT) return;
+        this.#stepStoneHelp(root, 1);
+        return;
+      }
+      if (ev.key === 'ArrowLeft') {
+        ev.preventDefault();
+        this.#stepStoneHelp(root, -1);
+      }
+    };
+    const host = ((this as any).element as HTMLElement | undefined) ?? root;
+    host.addEventListener('keydown', onKey, true);
+    this._helpKeyCleanup = () => host.removeEventListener('keydown', onKey, true);
+  }
+
+  #readHelpPage(overlay: HTMLElement): number {
+    return clampStoneHelpPage(Number(overlay.dataset.helpPage || '1'));
+  }
+
+  #openStoneHelp(root: HTMLElement, startPage: number): void {
+    const overlay = this.#helpOverlay(root);
+    if (!overlay) return;
+    overlay.hidden = false;
+    overlay.classList.remove('is-hidden');
+    this.#showStoneHelpPage(root, startPage);
+    const closeBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-close');
+    closeBtn?.focus();
+  }
+
+  #closeStoneHelp(root: HTMLElement): void {
+    const overlay = this.#helpOverlay(root);
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.classList.add('is-hidden');
+    overlay.dataset.helpPage = '1';
+  }
+
+  #stepStoneHelp(root: HTMLElement, delta: number): void {
+    const overlay = this.#helpOverlay(root);
+    if (!overlay || !this.#helpIsOpen(root)) return;
+    this.#showStoneHelpPage(root, this.#readHelpPage(overlay) + delta);
+  }
+
+  #showStoneHelpPage(root: HTMLElement, page: number): void {
+    const overlay = this.#helpOverlay(root);
+    if (!overlay) return;
+    const current = clampStoneHelpPage(page);
+    overlay.dataset.helpPage = String(current);
+    overlay.querySelectorAll<HTMLElement>('.stone-help-screen').forEach((screen) => {
+      const active = Number(screen.dataset.helpIndex) === current;
+      screen.classList.toggle('is-current', active);
+      screen.hidden = !active;
+    });
+    overlay.querySelectorAll<HTMLButtonElement>('.js-stone-help-dot').forEach((dot) => {
+      dot.classList.toggle('is-current', Number(dot.dataset.helpIndex) === current);
+    });
+    const counter = overlay.querySelector('.js-stone-help-counter');
+    if (counter) counter.textContent = `${current} / ${STONE_POWERS_HELP_COUNT}`;
+    const prevBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-prev');
+    if (prevBtn) prevBtn.disabled = current <= 1;
+    const nextBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-next');
+    if (nextBtn) nextBtn.textContent = current >= STONE_POWERS_HELP_COUNT ? 'Done' : 'Next';
   }
 
   #bindSectionToggles(root: HTMLElement): void {
@@ -3150,6 +3321,8 @@ export class StonePowersDialog extends BaseDialog {
     this._stoneReturnAccKey = null;
     this._stoneDndCleanup?.();
     this._stoneDndCleanup = undefined;
+    this._helpKeyCleanup?.();
+    this._helpKeyCleanup = undefined;
     if (this.resolve) {
       this.resolve(committed);
       this.resolve = undefined;
