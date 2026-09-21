@@ -8,7 +8,9 @@ import {
   STONE_POWERS_HELP_SCREENS,
   assignHelperFilesToSlots,
   clampStoneHelpPage,
+  listStoneHelpAssetFiles,
   matchHelperAsset,
+  resetStoneHelpAssetFileCache,
   stoneHelpScreensForFiles,
 } from '../src/stones/stone-powers-help.ts';
 
@@ -64,10 +66,40 @@ describe('Stone Powers Quick Help', () => {
     expect(dialogSrc).toMatch(/#openStoneHelp/);
     expect(dialogSrc).toMatch(/#resolveHelpImages/);
     expect(dialogSrc).toMatch(/assignHelperFilesToSlots/);
+    expect(dialogSrc).toMatch(/helpScreens: STONE_POWERS_HELP_SCREENS/);
     expect(dialogSrc).not.toMatch(/#openStoneHelp[\s\S]{0,200}#gmResetStoneAssignment/);
+    expect(dialogSrc).toMatch(
+      /#openStoneHelp[\s\S]*?overlay\.hidden = false[\s\S]*?#resolveHelpImages/,
+    );
+    expect(dialogSrc).not.toMatch(
+      /#openStoneHelp[\s\S]*?await this\.#resolveHelpImages[\s\S]*?overlay\.hidden = false/,
+    );
     expect(css).toMatch(/\.stone-help-overlay/);
     expect(css).toMatch(/object-fit:\s*contain/);
     expect(css).toMatch(/\.stone-help-images\.is-triple/);
+  });
+
+  it('returns quickly when FilePicker.browse never resolves', async () => {
+    resetStoneHelpAssetFileCache();
+    const previous = (globalThis as any).foundry;
+    (globalThis as any).foundry = {
+      applications: {
+        apps: {
+          FilePicker: {
+            browse: () => new Promise(() => {}),
+          },
+        },
+      },
+    };
+    try {
+      const started = Date.now();
+      const files = await listStoneHelpAssetFiles();
+      expect(Date.now() - started).toBeLessThan(2500);
+      expect(files).toEqual([]);
+    } finally {
+      resetStoneHelpAssetFileCache();
+      (globalThis as any).foundry = previous;
+    }
   });
 
   it('matches numbered helper files when the folder uses those names', () => {

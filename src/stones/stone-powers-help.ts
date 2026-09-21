@@ -156,6 +156,32 @@ export function matchHelperAsset(files: readonly string[], slot: string): string
   return null;
 }
 
+const BROWSE_TIMEOUT_MS = 800;
+
+let cachedHelperFiles: string[] | null = null;
+let cachedHelperFilesPromise: Promise<string[]> | null = null;
+
+export function resetStoneHelpAssetFileCache(): void {
+  cachedHelperFiles = null;
+  cachedHelperFilesPromise = null;
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('stone-help-browse-timeout')), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
+
 function browseCandidates(): Array<(source: string, target: string, options?: object) => Promise<unknown>> {
   const picker =
     (globalThis as any).foundry?.applications?.apps?.FilePicker ??
@@ -230,26 +256,36 @@ export function assignHelperFilesToSlots(files: readonly string[]): Map<string, 
   return assigned;
 }
 
-export async function listStoneHelpAssetFiles(): Promise<string[]> {
-  const found = new Set<string>();
+async function listStoneHelpAssetFilesUncached(): Promise<string[]> {
   const browsers = browseCandidates();
-  const sources = ['data', 'public'];
   for (const dir of stoneHelpAssetDirs()) {
-    for (const source of sources) {
-      for (const browse of browsers) {
-        for (const target of [dir, `${dir}/`]) {
-          try {
-            const result = await browse(source, target);
-            for (const file of collectBrowseFiles(result)) found.add(file);
-          } catch {
-            /* try the next source / browser / path */
-          }
+    for (const browse of browsers) {
+      try {
+        const result = await withTimeout(Promise.resolve(browse('data', dir)), BROWSE_TIMEOUT_MS);
+        const files = sortedHelperImages(collectBrowseFiles(result));
+        if (files.length) return files;
+      } catch (err) {
+        if (String((err as Error)?.message || err).includes('stone-help-browse-timeout')) {
+          return [];
         }
       }
     }
-    if (found.size) break;
   }
-  return sortedHelperImages([...found]);
+  return [];
+}
+
+export async function listStoneHelpAssetFiles(): Promise<string[]> {
+  if (cachedHelperFiles) return cachedHelperFiles;
+  if (cachedHelperFilesPromise) return cachedHelperFilesPromise;
+  cachedHelperFilesPromise = listStoneHelpAssetFilesUncached()
+    .then((files) => {
+      cachedHelperFiles = files;
+      return files;
+    })
+    .finally(() => {
+      cachedHelperFilesPromise = null;
+    });
+  return cachedHelperFilesPromise;
 }
 
 export function resolveStoneHelpImagePath(
