@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.545] - 2026-09-21
+
+### Fixed
+
+- **Stone Powers Help:** Die Overlay-Bilder nehmen die echten Dateinamen aus `assets/helper`. Keine Platzhalter mehr (`01-roll-initiative.png` usw.). Liegen andere Namen im Ordner, gelten die Dateien in Ordnerreihenfolge. Kein Regelwechsel.
+
 ## [0.9.544] - 2026-09-21
 
 ### Fixed
