@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
@@ -32,6 +32,12 @@ describe('Stone Powers Quick Help', () => {
     expect(hbs).toMatch(/STONE POWERS — QUICK HELP/);
     expect(hbs).toMatch(/js-stone-help-prev/);
     expect(hbs).toMatch(/js-stone-help-next/);
+  });
+
+  it('ships the helper PNGs in assets/helper', () => {
+    for (const file of Object.values(STONE_HELP_FILES)) {
+      expect(existsSync(join(process.cwd(), 'assets/helper', file))).toBe(true);
+    }
   });
 
   it('uses these exact helper filenames', () => {

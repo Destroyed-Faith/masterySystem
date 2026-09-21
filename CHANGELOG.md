@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.549] - 2026-09-21
+
+### Added
+
+- **Stone Powers Help:** Die neun Screenshots liegen jetzt in `assets/helper` und kommen mit ins Release-ZIP, damit Forge sie ausliefern kann. Kein Regelwechsel.
+
 ## [0.9.548] - 2026-09-21
 
 ### Fixed
