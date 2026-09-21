@@ -7,6 +7,9 @@ import {
   STONE_POWERS_HELP_COUNT,
   STONE_POWERS_HELP_SCREENS,
   clampStoneHelpPage,
+  matchHelperAsset,
+  resolveStoneHelpImagePath,
+  stoneHelpScreensForFiles,
 } from '../src/stones/stone-powers-help.ts';
 
 const hbs = readFileSync(join(process.cwd(), 'templates/dialogs/stone-powers.hbs'), 'utf8');
@@ -60,9 +63,57 @@ describe('Stone Powers Quick Help', () => {
   it('does not hook Help into stone payment or GM reset', () => {
     expect(dialogSrc).toMatch(/#bindStoneHelp/);
     expect(dialogSrc).toMatch(/#openStoneHelp/);
+    expect(dialogSrc).toMatch(/#resolveHelpImages/);
     expect(dialogSrc).not.toMatch(/#openStoneHelp[\s\S]{0,200}#gmResetStoneAssignment/);
     expect(css).toMatch(/\.stone-help-overlay/);
     expect(css).toMatch(/object-fit:\s*contain/);
     expect(css).toMatch(/\.stone-help-images\.is-triple/);
+  });
+
+  it('matches the real files from assets/helper, including local name variants', () => {
+    const local = [
+      'D:/Dev/VTT/Mastery System/assets/helper/01 Roll Initiative.PNG',
+      'assets/helper/02_before_conversion.jpg',
+      'systems/mastery-system/assets/helper/screenshot_03.png',
+      '04 Available Colorless Stones.webp',
+      'help-05-power-sections.png',
+      '06a extra attack empty.png',
+      '6b-incomplete.jpg',
+      '06c-power-active.png',
+      '07 Apply & Close.png',
+    ];
+    expect(matchHelperAsset(local, '01')).toContain('01 Roll Initiative.PNG');
+    expect(matchHelperAsset(local, '02')).toContain('02_before_conversion.jpg');
+    expect(matchHelperAsset(local, '03')).toContain('screenshot_03.png');
+    expect(matchHelperAsset(local, '04')).toContain('04 Available Colorless Stones.webp');
+    expect(matchHelperAsset(local, '05')).toContain('help-05-power-sections.png');
+    expect(matchHelperAsset(local, '06a')).toContain('06a extra attack empty.png');
+    expect(matchHelperAsset(local, '06b')).toContain('6b-incomplete.jpg');
+    expect(matchHelperAsset(local, '06c')).toContain('06c-power-active.png');
+    expect(matchHelperAsset(local, '07')).toContain('07 Apply & Close.png');
+  });
+
+  it('keeps Extra Attack empty / incomplete / active on distinct files', () => {
+    const files = [
+      'assets/helper/06a-power-empty.png',
+      'assets/helper/06b-power-incomplete.png',
+      'assets/helper/06c-power-active.png',
+    ];
+    const used = new Set<string>();
+    expect(resolveStoneHelpImagePath(files, '06a', '06a-power-empty.png', used)).toBe(
+      'assets/helper/06a-power-empty.png',
+    );
+    expect(resolveStoneHelpImagePath(files, '06b', '06b-power-incomplete.png', used)).toBe(
+      'assets/helper/06b-power-incomplete.png',
+    );
+    expect(resolveStoneHelpImagePath(files, '06c', '06c-power-active.png', used)).toBe(
+      'assets/helper/06c-power-active.png',
+    );
+    const screens = stoneHelpScreensForFiles(files);
+    expect(screens[5].images.map((row) => row.file)).toEqual([
+      '06a-power-empty.png',
+      '06b-power-incomplete.png',
+      '06c-power-active.png',
+    ]);
   });
 });

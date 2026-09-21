@@ -74,8 +74,12 @@ import {
 } from './remove-scar.js';
 import {
   STONE_POWERS_HELP_COUNT,
-  STONE_POWERS_HELP_SCREENS,
   clampStoneHelpPage,
+  helperFileBaseName,
+  listStoneHelpAssetFiles,
+  resolveStoneHelpImagePath,
+  stoneHelpPublicUrl,
+  stoneHelpScreensForFiles,
 } from './stone-powers-help.js';
 import {
   formatPendingStoneActivationWarning,
@@ -1164,7 +1168,7 @@ export class StonePowersDialog extends BaseDialog {
       canSavePrefs,
       combatLabel: combat ? `Round ${combat.round}` : '',
       naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
-      helpScreens: STONE_POWERS_HELP_SCREENS,
+      helpScreens: stoneHelpScreensForFiles(await listStoneHelpAssetFiles()),
       helpScreenCount: STONE_POWERS_HELP_COUNT,
     };
   }
@@ -2238,7 +2242,7 @@ export class StonePowersDialog extends BaseDialog {
       btn.onclick = (ev: MouseEvent) => {
         ev.preventDefault();
         ev.stopPropagation();
-        this.#openStoneHelp(root, Number(btn.dataset.helpStart || '1'));
+        void this.#openStoneHelp(root, Number(btn.dataset.helpStart || '1'));
       };
     });
 
@@ -2250,18 +2254,7 @@ export class StonePowersDialog extends BaseDialog {
         | null) ?? root;
     if (overlay.parentElement !== frame) frame.appendChild(overlay);
 
-    overlay.querySelectorAll<HTMLImageElement>('img').forEach((img) => {
-      if ((img as HTMLImageElement & { _msHelpFallback?: boolean })._msHelpFallback) return;
-      (img as HTMLImageElement & { _msHelpFallback?: boolean })._msHelpFallback = true;
-      img.addEventListener('error', () => {
-        if (img.dataset.helpFallback === '1') return;
-        img.dataset.helpFallback = '1';
-        const fallback = document.createElement('div');
-        fallback.className = 'stone-help-fallback';
-        fallback.textContent = 'Screenshot unavailable';
-        img.replaceWith(fallback);
-      });
-    });
+    void this.#resolveHelpImages(overlay);
 
     const closeBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-close');
     if (closeBtn) {
@@ -2333,9 +2326,36 @@ export class StonePowersDialog extends BaseDialog {
     return clampStoneHelpPage(Number(overlay.dataset.helpPage || '1'));
   }
 
-  #openStoneHelp(root: HTMLElement, startPage: number): void {
+  async #resolveHelpImages(overlay: HTMLElement): Promise<void> {
+    const imgs = [...overlay.querySelectorAll<HTMLImageElement>('img[data-help-slot]')];
+    if (!imgs.length) return;
+    const files = await listStoneHelpAssetFiles();
+    const used = new Set<string>();
+    for (const img of imgs) {
+      const slot = String(img.dataset.helpSlot || '');
+      const fallback = String(img.dataset.helpFile || helperFileBaseName(img.getAttribute('src') || ''));
+      const path = resolveStoneHelpImagePath(files, slot, fallback, used);
+      const url = stoneHelpPublicUrl(path);
+      if (url) img.src = url;
+      img.dataset.helpFile = helperFileBaseName(path) || fallback;
+      if (img.dataset.helpBound === '1') continue;
+      img.dataset.helpBound = '1';
+      img.addEventListener('error', () => {
+        const figure = img.closest('figure');
+        if (!figure || figure.querySelector('.stone-help-fallback')) return;
+        img.hidden = true;
+        const note = document.createElement('div');
+        note.className = 'stone-help-fallback';
+        note.textContent = img.alt || '';
+        figure.appendChild(note);
+      });
+    }
+  }
+
+  async #openStoneHelp(root: HTMLElement, startPage: number): Promise<void> {
     const overlay = this.#helpOverlay(root);
     if (!overlay) return;
+    await this.#resolveHelpImages(overlay);
     overlay.hidden = false;
     overlay.classList.remove('is-hidden');
     this.#showStoneHelpPage(root, startPage);
