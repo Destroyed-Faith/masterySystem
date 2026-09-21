@@ -85,7 +85,7 @@
 
           <!-- Segmented HP Bar (one segment per wound level, color-graded) -->
           {{#if combatant.hpSegments.length}}
-            <div class="ms-hp-bar" title="{{#if combatant.hideHpNumbers}}HP{{else}}HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}{{#if combatant.tempHP}} (+{{combatant.tempHP}} Temp HP){{/if}}{{/if}}">
+            <div class="ms-hp-bar" title="{{#if combatant.hideHpNumbers}}HP{{else}}HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}{{#if combatant.tempHP}} (+{{combatant.tempHP}} Temp HP){{/if}}{{#if combatant.hpScarredCount}} · Scarred {{combatant.hpScarredCount}}{{/if}}{{/if}}">
               <div class="ms-hp-bar-header">
                 <span class="ms-hp-bar-label">HP</span>
                 {{#unless combatant.hideHpNumbers}}
@@ -94,20 +94,30 @@
                   <span class="ms-hp-sep">/</span>
                   <span class="ms-hp-max">Max {{combatant.hpTotalMax}}</span>
                   {{#if combatant.tempHP}}<span class="ms-hp-temp" title="Temporary HP">+{{combatant.tempHP}}</span>{{/if}}
+                  {{#if combatant.hpScarredCount}}<span class="ms-hp-scarred-count" title="Scarred Health Bars — empty until Remove Scar">Scarred {{combatant.hpScarredCount}}</span>{{/if}}
                 </span>
                 {{/unless}}
               </div>
               <div class="ms-hp-bar-track">
                 {{#each combatant.hpSegments as |seg|}}
-                  <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}"
+                  <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}{{#if seg.scarred}} is-scarred{{/if}}"
                        style="flex-basis: {{seg.widthPct}}%"
-                       title="{{#if ../hideHpNumbers}}{{seg.name}}{{else}}{{seg.name}}: {{seg.current}}/{{seg.max}}{{/if}}">
+                       title="{{#if seg.scarred}}{{seg.name}}: Scarred — heal HP here only after Remove Scar{{else}}{{#if ../hideHpNumbers}}{{seg.name}}{{else}}{{seg.name}}: {{seg.current}}/{{seg.max}}{{/if}}{{/if}}">
                     {{#if seg.max}}
+                      {{#unless seg.scarred}}
                       {{#with (divide seg.current seg.max)}}
                         <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
                       {{/with}}
+                      {{/unless}}
                     {{/if}}
                   </div>
+                {{/each}}
+              </div>
+              <div class="ms-hp-scar-legend" aria-hidden="true">
+                {{#each combatant.hpSegments as |seg|}}
+                  <span class="ms-hp-legend-name{{#if seg.scarred}} is-scarred{{/if}}"
+                        style="flex-basis: {{seg.widthPct}}%"
+                        title="{{#if seg.scarred}}{{seg.name}}: Scarred{{else}}{{seg.name}}{{/if}}">{{seg.shortName}}</span>
                 {{/each}}
               </div>
             </div>

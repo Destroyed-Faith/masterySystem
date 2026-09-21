@@ -17,7 +17,7 @@ import {
 } from '../combat/stone-round-gate.js';
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
-import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
 import {
   applyCarouselCompactClass,
   applyCarouselUserSize,
@@ -197,42 +197,21 @@ export class CombatCarouselApp extends BaseCarousel {
       // Dynamically includes extra bars from passives/equipment. Each segment
       // carries a `severity` index (0=healthy-green, 1=yellow, 2=orange, 3=red,
       // 4+=dark-red) derived from its position so extra bars degrade further.
-      const hpSegments: Array<{
-        name: string;
-        current: number;
-        max: number;
-        severity: number;
-        widthPct: number;
-      }> = [];
+      // Scarred (empty) bars get an X so players see they cannot heal there
+      // until Remove Scar opens the bar again.
+      let hpSegments: ReturnType<typeof buildCarouselHpSegments> = [];
       let hpTotalCurrent = 0;
       let hpTotalMax = 0;
+      let hpScarredCount = 0;
       // Temp HP (e.g. Vitality "Temporary HP" stone power) — shown as a separate
       // badge on the banner so players can see their cushion before damage lands.
       const tempHP = Math.max(0, Math.floor(Number((actor.system as any)?.health?.tempHP ?? 0) || 0));
       try {
-        const bars = (actor.system as any)?.health?.bars;
-        if (Array.isArray(bars) && bars.length > 0) {
-          for (const bar of bars) {
-            const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
-            const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
-            hpTotalCurrent += cur;
-            hpTotalMax += mx;
-          }
-          if (hpTotalMax > 0) {
-            bars.forEach((bar: any, idx: number) => {
-              const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
-              const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
-              const severity = Math.min(4, idx); // clamp so extras still render
-              const widthPct = mx > 0 ? (mx / hpTotalMax) * 100 : 0;
-              hpSegments.push({
-                name: String(bar?.name ?? `Bar ${idx + 1}`),
-                current: cur,
-                max: mx,
-                severity,
-                widthPct,
-              });
-            });
-          }
+        hpSegments = buildCarouselHpSegments((actor.system as any)?.health?.bars);
+        for (const seg of hpSegments) {
+          hpTotalCurrent += seg.current;
+          hpTotalMax += seg.max;
+          if (seg.scarred) hpScarredCount += 1;
         }
       } catch (err) {
         console.warn('Mastery System | [CAROUSEL] Failed to build HP segments:', err);
@@ -397,6 +376,7 @@ export class CombatCarouselApp extends BaseCarousel {
         statusIcons: statusIcons.filter((item: any) => item && item.icon),
         hpTotalCurrent,
         hpTotalMax,
+        hpScarredCount,
         tempHP,
         hpSegments,
         hideHpNumbers: !isGM && hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),

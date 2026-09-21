@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.554] - 2026-09-21
+
+### Changed
+
+- **Combat-Karussell:** Scarred Health Bars sind in der HP-Leiste mit einem X und durchgestrichenem Kürzel sichtbar. Nach Remove Scar verschwindet die Narbe und der Balken ist wieder heilbar. Kein Regelwechsel.
+
 ## [0.9.553] - 2026-09-21
 
 ### Fixed

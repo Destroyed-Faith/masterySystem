@@ -606,7 +606,7 @@
 .ms-hp-bar-track {
   display: flex;
   width: 100%;
-  height: 10px;
+  height: 12px;
   gap: 2px;
   background: rgba(255, 255, 255, 0.07);
   border-radius: 3px;
@@ -642,6 +642,70 @@
 .ms-hp-severity-2 .ms-hp-segment-fill { background: #e08a3c; } /* injured: orange */
 .ms-hp-severity-3 .ms-hp-segment-fill { background: #d94a4a; } /* wounded: red */
 .ms-hp-severity-4 .ms-hp-segment-fill { background: #8a2c2c; } /* critical: dark red */
+
+.ms-hp-scarred-count {
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85em;
+  color: #ffe0b2;
+  background: rgba(121, 85, 72, 0.75);
+  box-shadow: 0 0 4px rgba(183, 110, 64, 0.45);
+}
+
+.ms-hp-segment.is-scarred {
+  background: rgba(90, 42, 18, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(255, 183, 77, 0.5);
+}
+
+.ms-hp-segment.is-scarred::before,
+.ms-hp-segment.is-scarred::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 50%;
+  height: 2px;
+  background: rgba(255, 204, 128, 0.95);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ms-hp-segment.is-scarred::before {
+  transform: rotate(38deg);
+}
+
+.ms-hp-segment.is-scarred::after {
+  transform: rotate(-38deg);
+}
+
+.ms-hp-scar-legend {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  margin-top: 1px;
+  min-height: 10px;
+  line-height: 1;
+}
+
+.ms-hp-legend-name {
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(243, 243, 243, 0.78);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
+}
+
+.ms-hp-legend-name.is-scarred {
+  color: #ffcc80;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: rgba(255, 183, 77, 0.95);
+}
 
 /* Stress bar — same shell as HP; cool palette Healthy → Breaking. */
 .ms-stress-bar {
@@ -794,6 +858,7 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
 
 .mastery-carousel.is-compact .portrait-image,
 .mastery-carousel.is-compact .ms-hp-bar-track,
+.mastery-carousel.is-compact .ms-hp-scar-legend,
 .mastery-carousel.is-compact .ms-carousel-combat-strip,
 .mastery-carousel.is-compact .ms-carousel-reactions,
 .mastery-carousel.is-compact .ms-carousel-action-refund,
@@ -966,6 +1031,7 @@ body.mastery-carousel-resizing {
 
 .mastery-carousel.is-user-rail .portrait-image,
 .mastery-carousel.is-user-rail .ms-hp-bar-track,
+.mastery-carousel.is-user-rail .ms-hp-scar-legend,
 .mastery-carousel.is-user-rail .ms-carousel-combat-strip,
 .mastery-carousel.is-user-rail .ms-carousel-reactions,
 .mastery-carousel.is-user-rail .ms-carousel-action-refund,
