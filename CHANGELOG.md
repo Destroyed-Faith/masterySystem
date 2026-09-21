@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.544] - 2026-09-21
+
+### Fixed
+
+- **Stone Powers Help:** Screenshots kommen aus dem echten Ordner `assets/helper`. Die Hilfe listet die Dateien dort und ordnet sie den sieben Screens zu — auch bei lokalen Namen wie `01 Roll Initiative.PNG` oder `6b-incomplete.jpg`. Kein Regelwechsel.
+
 ## [0.9.543] - 2026-09-21
 
 ### Added
