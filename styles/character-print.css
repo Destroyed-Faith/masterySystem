@@ -632,6 +632,19 @@
   font-weight: 600;
 }
 
+.cp-health-level.is-scarred .cp-health-level-name {
+  color: #8a4b1f;
+}
+
+.cp-scarred-mark {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8a4b1f;
+}
+
 .cp-health-level-penalty {
   font-size: 7px;
   color: #555;
@@ -3373,6 +3386,10 @@ body.mastery-print.is-compact {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #b8b0a4;
+}
+
+.qp-bar.is-scarred .qp-bar-name {
+  color: #d7a06a;
 }
 
 .qp-mark {

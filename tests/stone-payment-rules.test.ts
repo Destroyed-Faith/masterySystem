@@ -5,6 +5,7 @@ import {
   pendingStoneActivationLabel,
   formatPendingStoneActivationWarning,
   pickStoneFillAttribute,
+  stonePowerAllowsColorless,
   shouldSettleStoneWave,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
@@ -36,6 +37,19 @@ describe('click-fill stone choice', () => {
 
   it('ignores Colorless when it is not available', () => {
     expect(pickStoneFillAttribute(ATTRS, (a) => a !== 'colorless', () => 1)).toBe('might');
+  });
+
+  it('never offers Colorless for Remove Scar', () => {
+    expect(stonePowerAllowsColorless('vitality.removeScar')).toBe(false);
+    expect(stonePowerAllowsColorless('vitality.tempHp')).toBe(true);
+    const pools: Record<string, number> = { vitality: 0, colorless: 3 };
+    expect(
+      pickStoneFillAttribute(
+        ['vitality'],
+        (a) => stonePowerAllowsColorless('vitality.removeScar') || a !== 'colorless',
+        (a) => pools[a] ?? 0,
+      ),
+    ).toBeNull();
   });
 });
 

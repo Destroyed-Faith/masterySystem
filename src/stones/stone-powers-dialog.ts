@@ -86,6 +86,7 @@ import {
   pendingStoneActivationLabel,
   pickStoneFillAttribute,
   shouldSettleStoneWave,
+  stonePowerAllowsColorless,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
   stonePowerActivationRing,
@@ -865,12 +866,20 @@ export class StonePowersDialog extends BaseDialog {
         !removeScarPayment ||
         removeScarPayment.sealCost > 0 ||
         removeScarPayment.barsRecovered > 0;
-      const canAfford = pool.current >= nextCost && hasCombat && removeScarOpen;
+      const oncePerCombatUsed =
+        !!power.oncePerCombat &&
+        !!this.combatant &&
+        isOncePerCombatPowerUsed(this.combatant, power.id);
+      const canAfford =
+        !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
       const gross = spendableForAttr(attrKey);
       const reserved = this.#reservedStonesInDialogForAttr(attrKey);
-      const spendableNet =
-        Math.max(0, gross - reserved) +
-        (isRemoveScar ? 0 : this.#spendableNetForAttr(COLORLESS_STONE_ATTR));
+      const spendableNet = oncePerCombatUsed
+        ? 0
+        : Math.max(0, gross - reserved) +
+          (stonePowerAllowsColorless(power.id)
+            ? this.#spendableNetForAttr(COLORLESS_STONE_ATTR)
+            : 0);
       const description = power.description || power.effect || '';
       const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
       const occupied = this.#stoneOccGet(accKey);
@@ -901,10 +910,7 @@ export class StonePowersDialog extends BaseDialog {
         supportHint: support
           ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
           : '',
-        boostUsed:
-          !!power.oncePerCombat &&
-          !!this.combatant &&
-          isOncePerCombatPowerUsed(this.combatant, power.id),
+        boostUsed: oncePerCombatUsed,
         hideLeadSegment: rampSkip > 0,
         ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
         ...laneSegs
@@ -2417,6 +2423,15 @@ export class StonePowersDialog extends BaseDialog {
   ): Promise<void> {
     const combat = game.combat;
     if (!isGeneric && !fixedPayAttr) return;
+    const onceDef = STONE_POWERS[powerId];
+    if (
+      onceDef?.oncePerCombat &&
+      this.combatant &&
+      isOncePerCombatPowerUsed(this.combatant, powerId)
+    ) {
+      ui.notifications?.warn(`${onceDef.name} may be used only once per combat.`);
+      return;
+    }
 
     const uses = isGeneric
       ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
@@ -2468,7 +2483,7 @@ export class StonePowersDialog extends BaseDialog {
         // once that pool is empty (same rule as dropping one by hand).
         const pick = pickStoneFillAttribute(
           [fixedPayAttr!],
-          () => true,
+          (attr) => stonePowerAllowsColorless(powerId) || attr !== COLORLESS_STONE_ATTR,
           (attr) => this.#spendableNetForAttr(attr)
         );
         if (!pick) break;
@@ -2933,7 +2948,19 @@ export class StonePowersDialog extends BaseDialog {
       const isGeneric =
         slot.dataset.isGeneric === 'true' ||
         slot.getAttribute('data-is-generic') === 'true';
+      if (
+        STONE_POWERS[powerId]?.oncePerCombat &&
+        this.combatant &&
+        isOncePerCombatPowerUsed(this.combatant, powerId)
+      ) {
+        ui.notifications?.warn(`${STONE_POWERS[powerId].name} may be used only once per combat.`);
+        return;
+      }
       const isColorless = dragged === COLORLESS_STONE_ATTR;
+      if (isColorless && !stonePowerAllowsColorless(powerId)) {
+        ui.notifications?.warn('Colorless Stones cannot pay Remove Scar — only Vitality Stones can be Sealed.');
+        return;
+      }
       let payAttr: AttributeKey | typeof COLORLESS_STONE_ATTR;
       if (isGeneric) {
         payAttr = dragged as AttributeKey | typeof COLORLESS_STONE_ATTR;

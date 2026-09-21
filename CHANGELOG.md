@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.553] - 2026-09-21
+
+### Fixed
+
+- **Remove Scar:** Colorless Stones dürfen dort nicht mehr gelegt werden — nur Vitality Stones, die wirklich Sealed werden können.
+- **Temporary HP:** Im Stones-Dialog nach der ersten Nutzung im Kampf gesperrt. Regenerierte Steine öffnen keine zweite Nutzung.
+- **Heal:** Ally-/Heal-Utilities können den Caster selbst treffen.
+- **Health Bars:** Scarred Bars sind auf dem Bogen und im Print als Scarred sichtbar. Kein Regelwechsel bei COST, Reset oder Armor Penalty.
+
 ## [0.9.552] - 2026-09-21
 
 ### Fixed

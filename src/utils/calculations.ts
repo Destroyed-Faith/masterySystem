@@ -40,6 +40,13 @@ export function calculateHealthBarMax(vitality: number): number {
   return vitality * 2;
 }
 
+/** A Health Bar with boxes remaining is open; current 0 on a real bar is Scarred. */
+export function isHealthBarScarred(bar: { current?: unknown; max?: unknown } | null | undefined): boolean {
+  const max = Math.max(0, Math.floor(Number(bar?.max) || 0));
+  const current = Math.max(0, Math.floor(Number(bar?.current) || 0));
+  return max > 0 && current <= 0;
+}
+
 /**
  * Initialize health bars with proper max HP values.
  *

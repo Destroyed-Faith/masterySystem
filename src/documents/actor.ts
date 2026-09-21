@@ -9,6 +9,7 @@ import {
   initializeHealthBars,
   initializeStressBars,
   calculateHealthBarMax,
+  isHealthBarScarred,
   calculateStressBarMax,
   calculateMightDamageBonus,
   calculateAgilityEvadeBonus,
@@ -367,6 +368,7 @@ export class MasteryActor extends Actor {
             if (isIncap) {
               bar.max = 1;
               bar.current = Math.min(bar.current ?? 1, 1);
+              bar.scarred = isHealthBarScarred(bar);
               return;
             }
             if (bar.max !== maxHP) {
@@ -374,6 +376,7 @@ export class MasteryActor extends Actor {
               bar.max = maxHP;
               bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
             }
+            bar.scarred = isHealthBarScarred(bar);
           });
         }
 

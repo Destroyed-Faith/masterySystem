@@ -3,6 +3,7 @@ import {
   calculateStones,
   calculateTotalStones,
   calculateHealthBarMax,
+  isHealthBarScarred,
   initializeHealthBars,
   getCurrentPenalty,
   applyDamage,
@@ -66,6 +67,12 @@ describe('Health Bar Calculations', () => {
     expect(calculateHealthBarMax(6)).toBe(12);
     expect(calculateHealthBarMax(8)).toBe(16);
     expect(calculateHealthBarMax(16)).toBe(32);
+  });
+
+  it('marks empty Health Bars as Scarred', () => {
+    expect(isHealthBarScarred({ max: 16, current: 0 })).toBe(true);
+    expect(isHealthBarScarred({ max: 16, current: 4 })).toBe(false);
+    expect(isHealthBarScarred({ max: 0, current: 0 })).toBe(false);
   });
 
   it('initializes 6 health bars with correct penalties', () => {

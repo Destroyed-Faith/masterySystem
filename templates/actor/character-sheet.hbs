@@ -1086,7 +1086,7 @@
             <h4><i class="fas fa-heart"></i> Health (Vitality × 2 per bar)</h4>
             <div class="health-bars-list">
               {{#each system.health.bars as |bar index|}}
-              <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}">
+              <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}{{#if bar.scarred}} is-scarred{{/if}}">
                 <div class="health-bar-info">
                   <span class="health-bar-name">
                     {{#if (eq bar.penalty 0)}}
@@ -1103,6 +1103,9 @@
                       Incapacitated (out)
                     {{else}}
                       {{bar.name}}{{#if bar.penalty}} ({{bar.penalty}} penalty){{/if}}
+                    {{/if}}
+                    {{#if bar.scarred}}
+                      <span class="health-bar-scarred-badge" title="Scarred Health Bar — empty until Remove Scar or Safe Haven Rest">Scarred</span>
                     {{/if}}
                   </span>
                   {{#if (userIsGM)}}

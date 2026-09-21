@@ -6528,6 +6528,36 @@ aside#tooltip,
   box-shadow: 0 0 8px rgba(102, 255, 102, 0.3);
 }
 
+.mastery-system.sheet.actor.character .health-bar-row.is-scarred {
+  border-color: rgba(183, 110, 64, 0.7);
+  background: rgba(90, 42, 18, 0.35);
+}
+
+.mastery-system.sheet.actor.character .health-bar-row.is-scarred.active {
+  border-color: rgba(183, 110, 64, 0.95);
+  box-shadow: 0 0 8px rgba(183, 110, 64, 0.35);
+}
+
+.mastery-system.sheet.actor.character .health-bar-scarred-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #ffcc80;
+  background: rgba(121, 85, 72, 0.55);
+  border: 1px solid rgba(255, 183, 77, 0.55);
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.mastery-system.sheet.actor.character .health-bar-row.is-scarred .health-box.empty {
+  background: rgba(183, 110, 64, 0.35);
+  border-color: rgba(255, 183, 77, 0.35);
+}
+
 .mastery-system.sheet.actor.character .health-bar-info,
 .mastery-system.sheet.actor.character .stress-bar-info {
   display: flex;

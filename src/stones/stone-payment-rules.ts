@@ -6,6 +6,11 @@
 
 import { COLORLESS_STONE_ATTR } from './colorless-stones.js';
 
+/** Remove Scar Seals attribute stones. Colorless Stones cannot be Sealed. */
+export function stonePowerAllowsColorless(powerId: string): boolean {
+  return String(powerId || '') !== 'vitality.removeScar';
+}
+
 /**
  * Attribute a click-fill should draw the next stone from. Colorless Stones are
  * the last resort: they only get picked when no attribute pool has a free stone

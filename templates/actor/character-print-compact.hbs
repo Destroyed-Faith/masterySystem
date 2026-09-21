@@ -35,8 +35,8 @@
       <div class="qp-track">
         <h2>Health</h2>
         {{#each healthBars}}
-        <div class="qp-bar">
-          <span class="qp-bar-name">{{name}}</span>
+        <div class="qp-bar{{#if scarred}} is-scarred{{/if}}">
+          <span class="qp-bar-name">{{name}}{{#if scarred}} (Scarred){{/if}}</span>
           <span class="qp-mark"></span>
           <span class="qp-bar-n">{{available}}</span>
           <span class="qp-bar-pen">{{penalty}}</span>

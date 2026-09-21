@@ -973,6 +973,25 @@
   font-size: 0.6rem;
 }
 
+.stone-powers-dialog .power-once-used-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 8px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #ffe0b2;
+  background: rgba(121, 85, 72, 0.7);
+  border: 1px solid rgba(255, 183, 77, 0.55);
+  white-space: nowrap;
+}
+
+.stone-powers-dialog .power-card-general.is-once-used {
+  opacity: 0.72;
+}
+
 .stone-powers-dialog .ms-stone-drop-slot.slot-no-drag.slot-active {
   cursor: default;
 }

@@ -28,6 +28,9 @@ import {
 } from './utils/grid-snap.js';
 import { pickTokenAtPoint } from './utils/token-pick.js';
 import { tokenIsExcludedAsTarget } from './combat/defeated-token.js';
+import { utilitySingleTargetAllowsSelf } from './utility-targeting-rules.js';
+
+export { utilitySingleTargetAllowsSelf };
 type PlacementColors = {
   hex: number;
   hexAlpha: number;
@@ -482,8 +485,9 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
 
       // Highlight valid targets
       const allTokens = canvas.tokens?.placeables || [];
+      const allowSelf = utilitySingleTargetAllowsSelf(targetGroup);
       for (const targetToken of allTokens) {
-        if (targetToken.id === token.id) continue;
+        if (!allowSelf && targetToken.id === token.id) continue;
         if (tokenIsExcludedAsTarget(targetToken)) continue;
 
         const targetCenter = targetToken.center;
@@ -524,12 +528,13 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     
     if (ev.button === 0) {
       const worldPos = eventWorldPoint(ev);
+      const allowSelf = utilitySingleTargetAllowsSelf(targetGroup);
       const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
-        excludeIds: token?.id ? [token.id] : [],
+        excludeIds: allowSelf || !token?.id ? [] : [token.id],
         noCenterFallback: true,
       });
       
-      if (clickedToken && clickedToken.id !== token.id && !tokenIsExcludedAsTarget(clickedToken)) {
+      if (clickedToken && (allowSelf || clickedToken.id !== token.id) && !tokenIsExcludedAsTarget(clickedToken)) {
         const casterCenter = token.center;
         const matches = matchesTargetGroup(token, clickedToken, targetGroup);
         

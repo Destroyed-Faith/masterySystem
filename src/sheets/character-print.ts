@@ -14,7 +14,7 @@
  * "may be used once per round".
  */
 
-import { calculateBaseEvade, calculateMaxSkillRank } from '../utils/calculations.js';
+import { calculateBaseEvade, calculateMaxSkillRank, isHealthBarScarred } from '../utils/calculations.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
@@ -761,6 +761,7 @@ export function buildCharacterPrintContext(
           name: String(b?.name ?? ''),
           max,
           current,
+          scarred: isHealthBarScarred(b),
           penalty: num(b?.penalty),
           penaltyLabel: healthPenaltyLabel(num(b?.penalty)),
         };
@@ -1873,7 +1874,7 @@ function compactTrackBars(
   bars: any[],
   names: string[],
   skipNames: string[] = [],
-): { name: string; available: number; max: number; penalty: string }[] {
+): { name: string; available: number; max: number; penalty: string; scarred: boolean }[] {
   const skip = new Set(skipNames.map((n) => n.toLowerCase()));
   return bars
     .filter((b) => !skip.has(String(b?.name ?? '').toLowerCase()))
@@ -1881,11 +1882,13 @@ function compactTrackBars(
       const max = num(b?.max);
       const current = num(b?.current);
       const name = String(b?.name ?? names[i] ?? `Bar ${i + 1}`);
-      const available = current > 0 ? current : max;
+      const scarred = isHealthBarScarred(b);
+      const available = scarred ? 0 : current > 0 ? current : max;
       return {
         name,
         available,
         max,
+        scarred,
         penalty: HEALTH_TRACK_PENALTY[name.toLowerCase()] ?? '',
       };
     });

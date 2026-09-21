@@ -29,7 +29,7 @@ import {
   type StonePower,
 } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
-import { isOncePerCombatPowerUsed } from './colorless-stones.js';
+import { isOncePerCombatPowerUsed, markOncePerCombatPowerUsed } from './colorless-stones.js';
 import { payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID } from './remove-scar.js';
 
 export function resolveStonePowerActivation(
@@ -119,7 +119,7 @@ export async function activateStonePower(options: {
   const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
 
   // Use the action economy system to handle stone spending
-  return await spendStoneAbility(
+  const ok = await spendStoneAbility(
     actor,
     combatant,
     poolAttribute,
@@ -130,6 +130,10 @@ export async function activateStonePower(options: {
     cost,
     colorlessSpent,
   );
+  if (ok && power.oncePerCombat) {
+    await markOncePerCombatPowerUsed(combatant, power.id);
+  }
+  return ok;
 }
 
 /**
