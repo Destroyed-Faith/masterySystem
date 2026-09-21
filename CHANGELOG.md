@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.543] - 2026-09-21
+
+### Added
+
+- **Stone Powers Help:** Kleine „?“-Knöpfe neben Initiative und Available Stones öffnen ein Quick-Help-Overlay mit sieben Screenshots aus `assets/helper`. Initiative startet auf Screen 1, Available Stones auf Screen 4. Previous / Next, Done, X, Escape und Pfeiltasten. Kein Auto-Start, kein Reset-Hinweis, kein Regelwechsel.
+
 ## [0.9.542] - 2026-09-21
 
 ### Changed
