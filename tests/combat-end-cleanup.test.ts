@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { runCombatEndCleanup } from '../src/combat/combat-end-cleanup.js';
+import {
+  clearStaleStoneStateBeforeEncounter,
+  runCombatEndCleanup,
+} from '../src/combat/combat-end-cleanup.js';
 
 interface MockActor {
   id: string;
@@ -15,8 +18,27 @@ interface MockActor {
   deleteEmbeddedDocuments: (type: string, ids: string[]) => Promise<void>;
 }
 
-function mockActor(id: string, type: string, options: { tempHP?: number; specials?: any[]; buff?: boolean } = {}): MockActor {
-  const own: Record<string, unknown> = { tempColorlessStones: 3 };
+function mockActor(
+  id: string,
+  type: string,
+  options: {
+    tempHP?: number;
+    specials?: any[];
+    buff?: boolean;
+    colorless?: number;
+    initiativeColorless?: number;
+    absorptionExpiry?: number;
+  } = {},
+): MockActor {
+  const own: Record<string, unknown> = {};
+  if (options.colorless !== undefined) own.tempColorlessStones = options.colorless;
+  else own.tempColorlessStones = 3;
+  if (options.initiativeColorless !== undefined) {
+    own.initiativeColorlessStones = options.initiativeColorless;
+  }
+  if (options.absorptionExpiry !== undefined) {
+    own.absorptionStoneExpiry = { combatId: 'cmb1', count: options.absorptionExpiry };
+  }
   const actor: MockActor = {
     id,
     type,
@@ -55,13 +77,23 @@ function mockActor(id: string, type: string, options: { tempHP?: number; special
   return actor;
 }
 
-function setupCombat(actors: MockActor[]) {
+function setupCombat(actors: MockActor[], world: MockActor[] = actors) {
   const combat = {
     id: 'cmb1',
     round: 3,
     combatants: actors.map((actor) => ({ id: `c-${actor.id}`, actor })),
   };
-  (globalThis as any).game = { combat, actors: { get: () => undefined }, user: { isGM: true } };
+  (globalThis as any).game = {
+    combat,
+    actors: {
+      get: (id: string) => world.find((a) => a.id === id),
+      contents: world,
+      [Symbol.iterator]: function* () {
+        yield* world;
+      },
+    },
+    user: { isGM: true },
+  };
   (globalThis as any).canvas = {};
   (globalThis as any).Hooks = { callAll: () => {} };
   return combat;
@@ -73,7 +105,7 @@ describe('combat end cleanup', () => {
     delete (globalThis as any).canvas;
   });
 
-  it('clears Temp HP and Colorless Stones for everyone', async () => {
+  it('clears Temp HP and leftover Initiative Colorless Stones for everyone', async () => {
     const pc = mockActor('pc', 'character', { tempHP: 12 });
     const npc = mockActor('npc', 'npc', { tempHP: 7 });
     const combat = setupCombat([pc, npc]);
@@ -84,6 +116,50 @@ describe('combat end cleanup', () => {
     expect(npc.system.health.tempHP).toBe(0);
     expect(pc.getFlag('mastery-system', 'tempColorlessStones')).toBeUndefined();
     expect(npc.getFlag('mastery-system', 'tempColorlessStones')).toBeUndefined();
+  });
+
+  it('keeps item-granted Colorless Stones and only drops Initiative leftovers', async () => {
+    const pc = mockActor('pc', 'character', { colorless: 3, initiativeColorless: 2 });
+    const combat = setupCombat([pc]);
+
+    await runCombatEndCleanup(combat);
+
+    expect(pc.getFlag('mastery-system', 'tempColorlessStones')).toBe(1);
+    expect(pc.getFlag('mastery-system', 'initiativeColorlessStones')).toBeUndefined();
+  });
+
+  it('expires pending Absorption stones with that item rule, not as Initiative leftovers', async () => {
+    const pc = mockActor('pc', 'character', {
+      colorless: 2,
+      initiativeColorless: 0,
+      absorptionExpiry: 1,
+    });
+    const combat = setupCombat([pc]);
+
+    await runCombatEndCleanup(combat);
+
+    expect(pc.getFlag('mastery-system', 'tempColorlessStones')).toBe(1);
+    expect(pc.getFlag('mastery-system', 'absorptionStoneExpiry')).toBeUndefined();
+  });
+
+  it('drops leftover Initiative stones before a new encounter without touching item stones', async () => {
+    const pc = mockActor('pc', 'character', { colorless: 3, initiativeColorless: 2 });
+    const combat = setupCombat([pc]);
+
+    await clearStaleStoneStateBeforeEncounter(combat);
+
+    expect(pc.getFlag('mastery-system', 'tempColorlessStones')).toBe(1);
+    expect(pc.getFlag('mastery-system', 'initiativeColorlessStones')).toBeUndefined();
+  });
+
+  it('clears leftover Initiative stones even when combatants are already gone', async () => {
+    const pc = mockActor('pc', 'character', { colorless: 2, initiativeColorless: 2 });
+    setupCombat([], [pc]);
+    const empty = { id: 'cmb1', round: 3, combatants: [] };
+
+    await runCombatEndCleanup(empty);
+
+    expect(pc.getFlag('mastery-system', 'tempColorlessStones')).toBeUndefined();
   });
 
   it('wipes ongoing Specials on players and NPCs after combat', async () => {

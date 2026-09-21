@@ -132,13 +132,10 @@ export async function expireAbsorptionStonesAtTurnEnd(actor: any, combat: any): 
   const currentRound = Number(combat.round ?? 1);
   if (currentRound <= Number(flag.round ?? 0)) return;
   try {
-    const { getTempColorlessStones, setTempColorlessStones } = await import(
-      '../stones/colorless-stones.js'
-    );
-    const have = getTempColorlessStones(owner);
-    const drop = Math.min(have, Math.max(0, Math.floor(Number(flag.count) || 0)));
+    const { dropItemColorlessStones } = await import('../stones/colorless-stones.js');
+    const dropWanted = Math.max(0, Math.floor(Number(flag.count) || 0));
+    const drop = dropWanted > 0 ? await dropItemColorlessStones(owner, dropWanted) : 0;
     if (drop > 0) {
-      await setTempColorlessStones(owner, have - drop);
       (globalThis as any).ui?.notifications?.info?.(
         `${String(owner.name ?? 'Character')}: ${drop} unspent Absorption Stone${drop === 1 ? '' : 's'} fade${drop === 1 ? 's' : ''} away.`,
       );
@@ -149,15 +146,36 @@ export async function expireAbsorptionStonesAtTurnEnd(actor: any, combat: any): 
   }
 }
 
-/** Combat end: remaining Absorbed Damage disappears. */
-export async function clearAbsorptionForCombat(combat: any): Promise<void> {
-  if (!combat?.combatants) return;
-  for (const c of combat.combatants) {
-    const actor = c?.actor;
-    if (!actor) continue;
+/** Combat end: remaining Absorbed Damage disappears. Pending Absorption stones expire with the fight. */
+export async function clearAbsorptionForCombat(combat: any, actors?: any[]): Promise<void> {
+  const list: any[] = [];
+  if (Array.isArray(actors) && actors.length) {
+    list.push(...actors);
+  } else if (combat?.combatants) {
+    for (const c of combat.combatants) {
+      if (c?.actor) list.push(c.actor);
+    }
+  }
+  if (!list.length) return;
+  const { dropItemColorlessStones } = await import('../stones/colorless-stones.js');
+  const seen = new Set<string>();
+  for (const actor of list) {
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const key = String(owner?.id ?? owner?._id ?? actor?.id ?? '');
+    if (key && seen.has(key)) continue;
+    if (key) seen.add(key);
     try {
-      await actor.unsetFlag?.(FLAG_SCOPE, FLAG_ACCUM);
-      await actor.unsetFlag?.(FLAG_SCOPE, FLAG_TEMP_STONE_EXPIRY);
+      const flag = owner?.getFlag?.(FLAG_SCOPE, FLAG_TEMP_STONE_EXPIRY) as
+        | { count?: unknown }
+        | undefined;
+      const drop = Math.max(0, Math.floor(Number(flag?.count) || 0));
+      if (drop > 0) await dropItemColorlessStones(owner, drop);
+      await owner?.unsetFlag?.(FLAG_SCOPE, FLAG_ACCUM);
+      await owner?.unsetFlag?.(FLAG_SCOPE, FLAG_TEMP_STONE_EXPIRY);
+      if (actor && actor !== owner) {
+        await actor.unsetFlag?.(FLAG_SCOPE, FLAG_ACCUM);
+        await actor.unsetFlag?.(FLAG_SCOPE, FLAG_TEMP_STONE_EXPIRY);
+      }
     } catch {
       /* best-effort */
     }

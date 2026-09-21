@@ -57,7 +57,7 @@ import {
   COLORLESS_GEM_STYLE,
   COLORLESS_STONE_ATTR,
   colorlessStoneInitiativeCost,
-  addTempColorlessStones,
+  addInitiativeColorlessStones,
   convertInitiativeToColorlessStones,
   getMasteryRank,
   getTempColorlessStones,
@@ -2053,7 +2053,7 @@ export class StonePowersDialog extends BaseDialog {
     for (const [attr, n] of Object.entries(refund)) {
       if (n <= 0) continue;
       if (attr === COLORLESS_STONE_ATTR) {
-        await addTempColorlessStones(owner, n);
+        await addInitiativeColorlessStones(owner, n);
         continue;
       }
       const pool = getStonePool(owner, attr as AttributeKey);

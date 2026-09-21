@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.552] - 2026-09-21
+
+### Fixed
+
+- **Colorless Stones:** Initiative-Steine (Convert) sind nach jedem Kampf weg, benutzt oder nicht. Item-Steine (Absorption) bleiben und folgen der Item-Regel — Absorption läuft am Ende der nächsten Runde bzw. mit dem Kampf aus. Kein Regelwechsel bei COST, Reset oder Armor Penalty.
+
 ## [0.9.551] - 2026-09-21
 
 ### Changed

@@ -4,7 +4,8 @@
  * Encounter-scoped resources always go away:
  *   - Temporary HP (sourced pools are cleared by `passive-triggers`; the scalar
  *     mirror is zeroed here so stone-granted / manual Temp HP cannot survive).
- *   - Temporary Colorless Stones (also on the action-economy owner document).
+ *   - Leftover Initiative Colorless Stones (used or unused). Item-granted
+ *     Colorless Stones stay and follow that item's own combat rule.
  *
  * Ongoing Special Effects are wiped from every combatant when the fight
  * ends — PCs and NPCs. Leftover stacks on the sheet were too noisy, and
@@ -14,7 +15,10 @@
 import { getActionEconomyActor } from './action-economy.js';
 import { getCombatActors } from './passive-triggers.js';
 import { deleteAllMasteryActiveBuffEffects } from '../utils/active-buffs.js';
-import { clearTempColorlessStones } from '../stones/colorless-stones.js';
+import {
+  clearInitiativeColorlessStones,
+  getTempColorlessStones,
+} from '../stones/colorless-stones.js';
 
 /** Non-player combatants also lose Mastery active buffs after the fight. */
 function isNpcSide(actor: any): boolean {
@@ -56,7 +60,8 @@ function combatantActors(combat: any): any[] {
 function collectCleanupActors(combat: any): any[] {
   const out: any[] = [];
   const seen = new Set<string>();
-  for (const actor of combatantActors(combat)) {
+  const add = (actor: any): void => {
+    if (!actor) return;
     for (const doc of actorWithEconomyOwner(actor)) {
       const tokenId = String(doc?.token?.id || '');
       const id = String(doc?.id ?? doc?._id ?? '');
@@ -65,6 +70,43 @@ function collectCleanupActors(combat: any): any[] {
       seen.add(key);
       out.push(doc);
     }
+  };
+  for (const actor of combatantActors(combat)) add(actor);
+  return out;
+}
+
+function iterateWorldActors(): any[] {
+  const col = (globalThis as any).game?.actors;
+  if (!col) return [];
+  if (Array.isArray(col)) return col;
+  if (Array.isArray(col.contents)) return col.contents;
+  if (typeof col[Symbol.iterator] === 'function') return Array.from(col);
+  if (typeof col.filter === 'function') return col.filter(() => true);
+  return [];
+}
+
+/**
+ * Combatants plus anyone still holding Colorless Stones. deleteCombat often
+ * drops combatant.actor before the hook runs; leftover Initiative must not
+ * survive just because the combatant list is already empty.
+ */
+function collectColorlessCleanupActors(combat: any): any[] {
+  const out: any[] = [];
+  const seen = new Set<string>();
+  const add = (actor: any): void => {
+    if (!actor) return;
+    for (const doc of actorWithEconomyOwner(actor)) {
+      const tokenId = String(doc?.token?.id || '');
+      const id = String(doc?.id ?? doc?._id ?? '');
+      const key = tokenId ? `t:${tokenId}` : `a:${id}`;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      out.push(doc);
+    }
+  };
+  for (const actor of collectCleanupActors(combat)) add(actor);
+  for (const actor of iterateWorldActors()) {
+    if (getTempColorlessStones(actor) > 0) add(actor);
   }
   return out;
 }
@@ -82,13 +124,26 @@ export async function resetTempHpAfterCombat(combat: any): Promise<void> {
   }
 }
 
-/** Leftover Temporary Colorless Stones vanish when the encounter ends. */
+/** Leftover Initiative Colorless Stones vanish when the encounter ends. */
 export async function clearColorlessStonesAfterCombat(combat: any): Promise<void> {
-  for (const actor of collectCleanupActors(combat)) {
+  for (const actor of collectColorlessCleanupActors(combat)) {
     try {
-      await clearTempColorlessStones(actor);
+      await clearInitiativeColorlessStones(actor);
     } catch (err) {
       console.warn('Mastery System | Colorless stone cleanup after combat failed', err);
+    }
+  }
+}
+
+/** No-GM / player client: drop leftover Initiative stones on owned actors only. */
+export async function clearOwnedInitiativeColorlessAfterCombat(combat: any): Promise<void> {
+  const { canCurrentUserUpdateDocument } = await import('./combat-permissions.js');
+  for (const actor of collectColorlessCleanupActors(combat)) {
+    if (!canCurrentUserUpdateDocument(actor)) continue;
+    try {
+      await clearInitiativeColorlessStones(actor);
+    } catch (err) {
+      console.warn('Mastery System | Owned colorless leftover cleanup failed', err);
     }
   }
 }
@@ -119,23 +174,23 @@ export async function clearNpcOngoingEffectsAfterCombat(combat: any): Promise<vo
 }
 
 /**
- * Fresh encounter: drop leftovers from a fight that ended without cleanup
- * (crash, no GM online, world from before the cleanup existed). Colorless
- * Stones only ever come from Initiative Exchange, so anything present before
- * the first conversion is stale, and a stale stone assignment snapshot would
- * otherwise reappear in the Stone Powers dialog.
+ * Fresh encounter: drop leftover Initiative Colorless Stones from a fight
+ * that ended without cleanup (crash, no GM online). Item-granted stones stay.
+ * A stale stone assignment snapshot would otherwise reappear in the dialog.
  *
  * Runs at encounter preparation, never at `combatStart` — round-1 stones are
  * bought during the prepare phase and must survive.
  */
 export async function clearStaleStoneStateBeforeEncounter(combat: any): Promise<void> {
   if (!combat) return;
-  for (const actor of collectCleanupActors(combat)) {
+  for (const actor of collectColorlessCleanupActors(combat)) {
     try {
-      await clearTempColorlessStones(actor);
+      await clearInitiativeColorlessStones(actor);
     } catch (err) {
       console.warn('Mastery System | Colorless stone reset before encounter failed', err);
     }
+  }
+  for (const actor of collectCleanupActors(combat)) {
     try {
       await actor.unsetFlag?.('mastery-system', 'stonePowersRoundPlan');
     } catch (err) {
@@ -166,7 +221,7 @@ export async function runCombatEndCleanup(combat: any): Promise<void> {
   }
   try {
     const { clearAbsorptionForCombat } = await import('./absorption.js');
-    await clearAbsorptionForCombat(combat);
+    await clearAbsorptionForCombat(combat, collectColorlessCleanupActors(combat));
   } catch (err) {
     console.warn('Mastery System | Absorption cleanup failed', err);
   }
