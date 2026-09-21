@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.546] - 2026-09-21
+
+### Fixed
+
+- **Stone Powers Help:** Die „?“-Dialoge gehen sofort auf. Die Bildsuche aus `assets/helper` läuft erst danach und darf FilePicker nicht mehr blockieren. Kein Regelwechsel.
+
 ## [0.9.545] - 2026-09-21
 
 ### Fixed
