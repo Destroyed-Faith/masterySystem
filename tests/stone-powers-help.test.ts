@@ -6,9 +6,9 @@ import {
   STONE_HELP_START_STONES,
   STONE_POWERS_HELP_COUNT,
   STONE_POWERS_HELP_SCREENS,
+  assignHelperFilesToSlots,
   clampStoneHelpPage,
   matchHelperAsset,
-  resolveStoneHelpImagePath,
   stoneHelpScreensForFiles,
 } from '../src/stones/stone-powers-help.ts';
 
@@ -40,22 +40,21 @@ describe('Stone Powers Quick Help', () => {
     const screen6 = STONE_POWERS_HELP_SCREENS[5];
     expect(screen6.title).toBe('6. Pay the full Tier');
     expect(screen6.images.map((row) => row.caption)).toEqual(['EMPTY', 'INCOMPLETE', 'ACTIVE']);
-    expect(screen6.images.map((row) => row.src)).toEqual([
-      'systems/mastery-system/assets/helper/06a-power-empty.png',
-      'systems/mastery-system/assets/helper/06b-power-incomplete.png',
-      'systems/mastery-system/assets/helper/06c-power-active.png',
-    ]);
+    expect(screen6.images.every((row) => row.src === '')).toBe(true);
   });
 
-  it('uses the existing helper screenshots and never mentions reset', () => {
+  it('does not bake guessed helper filenames into the overlay', () => {
     const overlay = hbs.slice(hbs.indexOf('stone-help-overlay'));
     const blob = `${helpSrc}\n${overlay}`;
     expect(blob).not.toMatch(/Reset stone assignment/i);
     expect(blob).not.toMatch(/reset Stone/i);
     expect(hbs).toMatch(/js-gm-reset-stones/);
+    expect(hbs).not.toMatch(/01-roll-initiative\.png/);
+    expect(helpSrc).not.toMatch(/01-roll-initiative\.png/);
     for (const screen of STONE_POWERS_HELP_SCREENS) {
       for (const image of screen.images) {
-        expect(image.src).toMatch(/^systems\/mastery-system\/assets\/helper\//);
+        expect(image.src).toBe('');
+        expect(image.file).toBe('');
       }
     }
   });
@@ -64,13 +63,14 @@ describe('Stone Powers Quick Help', () => {
     expect(dialogSrc).toMatch(/#bindStoneHelp/);
     expect(dialogSrc).toMatch(/#openStoneHelp/);
     expect(dialogSrc).toMatch(/#resolveHelpImages/);
+    expect(dialogSrc).toMatch(/assignHelperFilesToSlots/);
     expect(dialogSrc).not.toMatch(/#openStoneHelp[\s\S]{0,200}#gmResetStoneAssignment/);
     expect(css).toMatch(/\.stone-help-overlay/);
     expect(css).toMatch(/object-fit:\s*contain/);
     expect(css).toMatch(/\.stone-help-images\.is-triple/);
   });
 
-  it('matches the real files from assets/helper, including local name variants', () => {
+  it('matches numbered helper files when the folder uses those names', () => {
     const local = [
       'D:/Dev/VTT/Mastery System/assets/helper/01 Roll Initiative.PNG',
       'assets/helper/02_before_conversion.jpg',
@@ -93,27 +93,66 @@ describe('Stone Powers Quick Help', () => {
     expect(matchHelperAsset(local, '07')).toContain('07 Apply & Close.png');
   });
 
-  it('keeps Extra Attack empty / incomplete / active on distinct files', () => {
+  it('takes the real folder filenames in order when names do not match the spec', () => {
     const files = [
-      'assets/helper/06a-power-empty.png',
-      'assets/helper/06b-power-incomplete.png',
-      'assets/helper/06c-power-active.png',
+      'assets/helper/shot-i.png',
+      'assets/helper/shot-c.png',
+      'assets/helper/shot-a.png',
+      'assets/helper/shot-f.png',
+      'assets/helper/shot-b.png',
+      'assets/helper/shot-e.png',
+      'assets/helper/shot-d.png',
+      'assets/helper/shot-h.png',
+      'assets/helper/shot-g.png',
     ];
-    const used = new Set<string>();
-    expect(resolveStoneHelpImagePath(files, '06a', '06a-power-empty.png', used)).toBe(
-      'assets/helper/06a-power-empty.png',
-    );
-    expect(resolveStoneHelpImagePath(files, '06b', '06b-power-incomplete.png', used)).toBe(
-      'assets/helper/06b-power-incomplete.png',
-    );
-    expect(resolveStoneHelpImagePath(files, '06c', '06c-power-active.png', used)).toBe(
-      'assets/helper/06c-power-active.png',
-    );
+    const assigned = assignHelperFilesToSlots(files);
+    expect([...assigned.values()].map((path) => path.split('/').pop())).toEqual([
+      'shot-a.png',
+      'shot-b.png',
+      'shot-c.png',
+      'shot-d.png',
+      'shot-e.png',
+      'shot-f.png',
+      'shot-g.png',
+      'shot-h.png',
+      'shot-i.png',
+    ]);
     const screens = stoneHelpScreensForFiles(files);
-    expect(screens[5].images.map((row) => row.file)).toEqual([
-      '06a-power-empty.png',
-      '06b-power-incomplete.png',
-      '06c-power-active.png',
+    expect(screens.flatMap((screen) => screen.images.map((row) => row.file))).toEqual([
+      'shot-a.png',
+      'shot-b.png',
+      'shot-c.png',
+      'shot-d.png',
+      'shot-e.png',
+      'shot-f.png',
+      'shot-g.png',
+      'shot-h.png',
+      'shot-i.png',
+    ]);
+    expect(screens.flatMap((screen) => screen.images.map((row) => row.src)).join(' ')).not.toMatch(
+      /01-roll-initiative|02-before-conversion|06a-power-empty/,
+    );
+  });
+
+  it('maps seven folder files one-to-one onto the seven screens', () => {
+    const files = [
+      'assets/helper/g-apply.png',
+      'assets/helper/a-init.png',
+      'assets/helper/b-choose.png',
+      'assets/helper/c-convert.png',
+      'assets/helper/d-available.png',
+      'assets/helper/e-sections.png',
+      'assets/helper/f-power.png',
+    ];
+    const screens = stoneHelpScreensForFiles(files);
+    expect(screens.map((screen) => screen.images.map((row) => row.file))).toEqual([
+      ['a-init.png'],
+      ['b-choose.png'],
+      ['c-convert.png'],
+      ['d-available.png'],
+      ['e-sections.png'],
+      ['f-power.png'],
+      ['g-apply.png'],
     ]);
   });
 });

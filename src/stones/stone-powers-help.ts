@@ -59,7 +59,20 @@ export function stoneHelpPublicUrl(path: string): string {
   if (!raw) return '';
   if (/^(?:https?:|data:|blob:)/i.test(raw)) return raw;
   const getRoute = (globalThis as any).foundry?.utils?.getRoute;
-  return typeof getRoute === 'function' ? String(getRoute(raw) || raw) : raw;
+  const routed = typeof getRoute === 'function' ? String(getRoute(raw) || raw) : raw;
+  if (/^(?:https?:|data:|blob:)/i.test(routed)) return routed;
+  const withSlash = routed.startsWith('/') ? routed : `/${routed.replace(/^\/+/, '')}`;
+  return withSlash
+    .split('/')
+    .map((seg, idx) => {
+      if (!seg || idx === 0) return seg;
+      try {
+        return encodeURIComponent(decodeURIComponent(seg));
+      } catch {
+        return encodeURIComponent(seg);
+      }
+    })
+    .join('/');
 }
 
 export function clampStoneHelpPage(page: number): number {
@@ -143,76 +156,146 @@ export function matchHelperAsset(files: readonly string[], slot: string): string
   return null;
 }
 
-function browseFns(): Array<(source: string, target: string) => Promise<{ files?: string[] }>> {
+function browseCandidates(): Array<(source: string, target: string, options?: object) => Promise<unknown>> {
   const picker =
     (globalThis as any).foundry?.applications?.apps?.FilePicker ??
     (globalThis as any).foundry?.applications?.FilePicker ??
     (globalThis as any).FilePicker;
+  const impl = picker?.implementation;
   return [
-    picker?.implementation?.browse?.bind(picker.implementation),
+    impl?.browse?.bind(impl),
     picker?.browse?.bind(picker),
   ].filter((fn) => typeof fn === 'function');
 }
 
+function collectBrowseFiles(result: any): string[] {
+  const rows = Array.isArray(result?.files) ? result.files : [];
+  return rows
+    .map((file: unknown) => {
+      if (typeof file === 'string') return file.trim();
+      const row = file as { path?: string; url?: string; name?: string } | null;
+      return String(row?.path || row?.url || row?.name || '').trim();
+    })
+    .filter(Boolean);
+}
+
+export function sortedHelperImages(files: readonly string[]): string[] {
+  return [...files]
+    .filter((file) => isImageName(helperFileBaseName(file)))
+    .sort((a, b) =>
+      helperFileBaseName(a).localeCompare(helperFileBaseName(b), undefined, {
+        numeric: true,
+        sensitivity: 'base',
+      }),
+    );
+}
+
+/** Nine image slots: screens 1–5, Extra Attack empty/incomplete/active, then Apply. */
+export const STONE_HELP_FILE_SLOTS = ['01', '02', '03', '04', '05', '06a', '06b', '06c', '07'] as const;
+
+function helperAssetPath(file: string): string {
+  const raw = String(file || '').replace(/\\/g, '/');
+  if (!raw) return '';
+  if (/^(?:https?:|data:|blob:)/i.test(raw) || raw.includes('/')) return raw;
+  return stoneHelpAssetUrl(raw);
+}
+
+/**
+ * Use the real filenames from assets/helper.
+ * Numbered names win first; leftover files fill leftover slots in folder order.
+ * Never invent a filename that is not in the folder.
+ */
+export function assignHelperFilesToSlots(files: readonly string[]): Map<string, string> {
+  const sorted = sortedHelperImages(files);
+  const assigned = new Map<string, string>();
+  const used = new Set<string>();
+  const slots =
+    sorted.length === 7 ? (['01', '02', '03', '04', '05', '06a', '07'] as string[]) : [...STONE_HELP_FILE_SLOTS];
+
+  for (const slot of slots) {
+    const remaining = sorted.filter((file) => !used.has(file));
+    const hit = matchHelperAsset(remaining, slot);
+    if (!hit) continue;
+    assigned.set(slot, helperAssetPath(hit));
+    used.add(hit);
+  }
+
+  const leftoverSlots = slots.filter((slot) => !assigned.has(slot));
+  const leftoverFiles = sorted.filter((file) => !used.has(file));
+  leftoverSlots.forEach((slot, index) => {
+    const file = leftoverFiles[index];
+    if (!file) return;
+    assigned.set(slot, helperAssetPath(file));
+  });
+  return assigned;
+}
+
 export async function listStoneHelpAssetFiles(): Promise<string[]> {
   const found = new Set<string>();
-  const browsers = browseFns();
+  const browsers = browseCandidates();
+  const sources = ['data', 'public'];
   for (const dir of stoneHelpAssetDirs()) {
-    for (const browse of browsers) {
-      try {
-        const result = await browse('data', dir);
-        for (const file of result?.files ?? []) {
-          const name = String(file || '').trim();
-          if (name) found.add(name);
+    for (const source of sources) {
+      for (const browse of browsers) {
+        for (const target of [dir, `${dir}/`]) {
+          try {
+            const result = await browse(source, target);
+            for (const file of collectBrowseFiles(result)) found.add(file);
+          } catch {
+            /* try the next source / browser / path */
+          }
         }
-        if (found.size) break;
-      } catch {
-        /* try the next browser / directory */
       }
     }
+    if (found.size) break;
   }
-  return [...found];
+  return sortedHelperImages([...found]);
 }
 
 export function resolveStoneHelpImagePath(
   files: readonly string[],
   slot: string,
-  fallbackFile: string,
+  _fallbackFile = '',
   used: Set<string> = new Set(),
 ): string {
   const remaining = files.filter((file) => {
     const base = helperFileBaseName(file).toLowerCase();
     return !used.has(file) && !used.has(base);
   });
-  const matched = matchHelperAsset(remaining, slot);
-  if (matched) {
-    used.add(matched);
-    used.add(helperFileBaseName(matched).toLowerCase());
-    return matched.includes('/') || matched.includes('\\') ? matched.replace(/\\/g, '/') : stoneHelpAssetUrl(matched);
-  }
-  return stoneHelpAssetUrl(fallbackFile);
+  const matched = assignHelperFilesToSlots(remaining).get(String(slot || ''));
+  if (!matched) return '';
+  used.add(matched);
+  used.add(helperFileBaseName(matched).toLowerCase());
+  const original = remaining.find((file) => helperFileBaseName(file) === helperFileBaseName(matched));
+  if (original) used.add(original);
+  return matched;
 }
 
 export function stoneHelpScreensForFiles(files: readonly string[]): StoneHelpScreen[] {
-  const used = new Set<string>();
+  const assigned = assignHelperFilesToSlots(files);
+  const hasFiles = assigned.size > 0;
   return STONE_POWERS_HELP_SCREENS.map((screen) => ({
     ...screen,
-    images: screen.images.map((image) => {
-      const path = resolveStoneHelpImagePath(files, image.slot, image.file, used);
-      return {
-        ...image,
-        file: helperFileBaseName(path) || image.file,
-        src: stoneHelpPublicUrl(path),
-      };
+    images: screen.images.flatMap((image) => {
+      const path = assigned.get(image.slot);
+      if (!path && hasFiles) return [];
+      if (!path) return [{ ...image, file: '', src: '' }];
+      return [
+        {
+          ...image,
+          file: helperFileBaseName(path),
+          src: stoneHelpPublicUrl(path),
+        },
+      ];
     }),
   }));
 }
 
-function helpImage(slot: string, file: string, alt: string, caption?: string): StoneHelpImage {
+function helpImage(slot: string, alt: string, caption?: string): StoneHelpImage {
   return {
     slot,
-    file,
-    src: stoneHelpAssetUrl(file),
+    file: '',
+    src: '',
     alt,
     caption,
   };
@@ -224,7 +307,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     title: '1. Roll Initiative',
     body: 'Roll Initiative first. Your Initiative roll, Combat Reflexes and Armor Penalty determine your starting Initiative.',
     images: [
-      helpImage('01', '01-roll-initiative.png', 'Stone Powers window before Initiative is rolled'),
+      helpImage('01', 'Stone Powers window before Initiative is rolled'),
     ],
   },
   {
@@ -232,7 +315,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     title: '2. Choose Stones to convert',
     body: 'Choose how much Initiative you want to convert into Colorless Stones. The minimum is 1 Stone — converting 0 would have no effect.',
     images: [
-      helpImage('02', '02-before-conversion.png', 'Initiative row with one Stone staged for conversion'),
+      helpImage('02', 'Initiative row with one Stone staged for conversion'),
     ],
   },
   {
@@ -240,7 +323,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     title: '3. Convert to Colorless Stones',
     body: 'Select Convert to Colorless Stones. Your Initiative is reduced and the converted Stone becomes available as a Colorless Stone.',
     images: [
-      helpImage('03', '03-after-conversion.png', 'Initiative row after converting into a Colorless Stone'),
+      helpImage('03', 'Initiative row after converting into a Colorless Stone'),
     ],
   },
   {
@@ -248,7 +331,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     title: '4. Check your available Stones',
     body: 'Your Attribute Stones are shown here. Converted Initiative appears in the Colorless pool. Attributes below 8 do not provide a Stone pool.',
     images: [
-      helpImage('04', '04-available-colorless-stones.png', 'Available Stones row with Attribute and Colorless pools'),
+      helpImage('04', 'Available Stones row with Attribute and Colorless pools'),
     ],
   },
   {
@@ -256,7 +339,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     title: '5. Choose a Stone Power',
     body: 'Stone Powers are grouped into General Powers and Attribute sections. Open the section containing the Power you want to use.',
     images: [
-      helpImage('05', '05-power-sections.png', 'General and Attribute Stone Power sections'),
+      helpImage('05', 'General and Attribute Stone Power sections'),
     ],
   },
   {
@@ -264,14 +347,9 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     title: '6. Pay the full Tier',
     body: 'Assign Stones to the Power you want to activate. An incomplete Tier is not active yet. The Tier becomes active only when its full cost is paid.',
     images: [
-      helpImage('06a', '06a-power-empty.png', 'Extra Attack with no Stones assigned', 'EMPTY'),
-      helpImage(
-        '06b',
-        '06b-power-incomplete.png',
-        'Extra Attack with Stones assigned but the Tier not fully paid',
-        'INCOMPLETE',
-      ),
-      helpImage('06c', '06c-power-active.png', 'Extra Attack with the required Tier fully paid', 'ACTIVE'),
+      helpImage('06a', 'Extra Attack with no Stones assigned', 'EMPTY'),
+      helpImage('06b', 'Extra Attack with Stones assigned but the Tier not fully paid', 'INCOMPLETE'),
+      helpImage('06c', 'Extra Attack with the required Tier fully paid', 'ACTIVE'),
     ],
   },
   {
@@ -280,7 +358,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     body: 'Select Apply & Close when you are finished. Fully paid Stone waves are settled. Incomplete waves remain open until the next full wave.',
     note: 'Save defaults remembers your preferred choices for future rounds.',
     images: [
-      helpImage('07', '07-apply-close.png', 'Stone Powers footer with Save defaults and Apply & Close'),
+      helpImage('07', 'Stone Powers footer with Save defaults and Apply & Close'),
     ],
   },
 ];

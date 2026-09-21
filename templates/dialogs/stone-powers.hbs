@@ -435,7 +435,11 @@
           <div class="stone-help-images{{#if (gt images.length 1)}} is-triple{{/if}}">
             {{#each images}}
             <figure class="stone-help-figure">
+              {{#if src}}
               <img src="{{src}}" alt="{{alt}}" data-help-slot="{{slot}}" data-help-file="{{file}}">
+              {{else}}
+              <span class="stone-help-pending" data-help-slot="{{slot}}" aria-label="{{alt}}" hidden></span>
+              {{/if}}
               {{#if caption}}<figcaption>{{caption}}</figcaption>{{/if}}
             </figure>
             {{/each}}

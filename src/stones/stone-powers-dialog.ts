@@ -74,10 +74,10 @@ import {
 } from './remove-scar.js';
 import {
   STONE_POWERS_HELP_COUNT,
+  assignHelperFilesToSlots,
   clampStoneHelpPage,
   helperFileBaseName,
   listStoneHelpAssetFiles,
-  resolveStoneHelpImagePath,
   stoneHelpPublicUrl,
   stoneHelpScreensForFiles,
 } from './stone-powers-help.js';
@@ -2327,28 +2327,36 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   async #resolveHelpImages(overlay: HTMLElement): Promise<void> {
-    const imgs = Array.from(overlay.querySelectorAll<HTMLImageElement>('img[data-help-slot]'));
-    if (!imgs.length) return;
     const files = await listStoneHelpAssetFiles();
-    const used = new Set<string>();
-    for (const img of imgs) {
-      const slot = String(img.dataset.helpSlot || '');
-      const fallback = String(img.dataset.helpFile || helperFileBaseName(img.getAttribute('src') || ''));
-      const path = resolveStoneHelpImagePath(files, slot, fallback, used);
-      const url = stoneHelpPublicUrl(path);
-      if (url) img.src = url;
-      img.dataset.helpFile = helperFileBaseName(path) || fallback;
-      if (img.dataset.helpBound === '1') continue;
-      img.dataset.helpBound = '1';
-      img.addEventListener('error', () => {
-        const figure = img.closest('figure');
-        if (!figure || figure.querySelector('.stone-help-fallback')) return;
-        img.hidden = true;
-        const note = document.createElement('div');
-        note.className = 'stone-help-fallback';
-        note.textContent = img.alt || '';
-        figure.appendChild(note);
-      });
+    if (files.length) {
+      console.info(
+        'Mastery System | Stone Help files',
+        files.map((file) => helperFileBaseName(file)),
+      );
+    }
+    const assigned = assignHelperFilesToSlots(files);
+    const slots = Array.from(overlay.querySelectorAll<HTMLElement>('[data-help-slot]'));
+    for (const el of slots) {
+      const slot = String(el.dataset.helpSlot || '');
+      const path = assigned.get(slot) || '';
+      const url = path ? stoneHelpPublicUrl(path) : '';
+      if (!url) {
+        if (el.tagName === 'IMG') el.remove();
+        continue;
+      }
+      const fileName = helperFileBaseName(path);
+      if (el.tagName === 'IMG') {
+        const img = el as HTMLImageElement;
+        img.src = url;
+        img.dataset.helpFile = fileName;
+        continue;
+      }
+      const img = document.createElement('img');
+      img.alt = el.getAttribute('aria-label') || el.textContent || '';
+      img.dataset.helpSlot = slot;
+      img.dataset.helpFile = fileName;
+      img.src = url;
+      el.replaceWith(img);
     }
   }
 
