@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.542] - 2026-09-21
+
+### Changed
+
+- **Stein-Kästchen:** Belegte Slots bekommen denselben grünen Rand und die grüne Füllung wie im Extra-Attack-Beispiel. Eine volle Welle (Extra Attack mit 2 Steinen) färbt Karte, Name und Kästchen sofort grün — nicht erst nach Apply. Unvollständige Wellen bleiben orange.
+
 ## [0.9.541] - 2026-09-21
 
 ### Changed
