@@ -2327,7 +2327,7 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   async #resolveHelpImages(overlay: HTMLElement): Promise<void> {
-    const imgs = [...overlay.querySelectorAll<HTMLImageElement>('img[data-help-slot]')];
+    const imgs = Array.from(overlay.querySelectorAll<HTMLImageElement>('img[data-help-slot]'));
     if (!imgs.length) return;
     const files = await listStoneHelpAssetFiles();
     const used = new Set<string>();
