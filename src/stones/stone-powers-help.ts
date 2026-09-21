@@ -43,6 +43,7 @@ export type StoneHelpImage = {
 export type StoneHelpScreen = {
   id: number;
   track: StoneHelpTrackId;
+  step: number;
   title: string;
   body: string;
   note?: string;
@@ -92,6 +93,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   {
     id: 1,
     track: 'initiative',
+    step: 1,
     title: '1. Roll Initiative',
     body: 'Roll Initiative first. Your Initiative roll, Combat Reflexes and Armor Penalty determine your starting Initiative.',
     images: [helpImage('01', 'Stone Powers window before Initiative is rolled')],
@@ -99,6 +101,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   {
     id: 2,
     track: 'initiative',
+    step: 2,
     title: '2. Choose Stones to convert',
     body: 'Choose how much Initiative you want to convert into Colorless Stones. The minimum is 1 Stone — converting 0 would have no effect.',
     images: [helpImage('02', 'Initiative row with one Stone staged for conversion')],
@@ -106,6 +109,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   {
     id: 3,
     track: 'initiative',
+    step: 3,
     title: '3. Convert to Colorless Stones',
     body: 'Select Convert to Colorless Stones. Your Initiative is reduced and the converted Stone becomes available as a Colorless Stone.',
     images: [helpImage('03', 'Initiative row after converting into a Colorless Stone')],
@@ -113,21 +117,24 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   {
     id: 4,
     track: 'stones',
-    title: '4. Check your available Stones',
+    step: 1,
+    title: '1. Check your available Stones',
     body: 'Your Attribute Stones are shown here. Converted Initiative appears in the Colorless pool. Attributes below 8 do not provide a Stone pool.',
     images: [helpImage('04', 'Available Stones row with Attribute and Colorless pools')],
   },
   {
     id: 5,
     track: 'stones',
-    title: '5. Choose a Stone Power',
+    step: 2,
+    title: '2. Choose a Stone Power',
     body: 'Stone Powers are grouped into General Powers and Attribute sections. Open the section containing the Power you want to use.',
     images: [helpImage('05', 'General and Attribute Stone Power sections')],
   },
   {
     id: 6,
     track: 'stones',
-    title: '6. Pay the full Tier',
+    step: 3,
+    title: '3. Pay the full Tier',
     body: 'Assign Stones to the Power you want to activate. An incomplete Tier is not active yet. The Tier becomes active only when its full cost is paid.',
     images: [
       helpImage('06a', 'Extra Attack with no Stones assigned', 'EMPTY'),
@@ -138,7 +145,8 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   {
     id: 7,
     track: 'stones',
-    title: '7. Apply your assignment',
+    step: 4,
+    title: '4. Apply your assignment',
     body: 'Select Apply & Close when you are finished. Fully paid Stone waves are settled. Incomplete waves remain open until the next full wave.',
     note: 'Save defaults remembers your preferred choices for future rounds.',
     images: [helpImage('07', 'Stone Powers footer with Save defaults and Apply & Close')],

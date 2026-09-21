@@ -47,6 +47,16 @@ describe('Stone Powers Quick Help', () => {
     expect(STONE_POWERS_HELP_SCREENS.filter((row) => row.track === 'stones').map((row) => row.id)).toEqual([
       4, 5, 6, 7,
     ]);
+    expect(STONE_POWERS_HELP_SCREENS.filter((row) => row.track === 'stones').map((row) => row.step)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    expect(STONE_POWERS_HELP_SCREENS.filter((row) => row.track === 'stones').map((row) => row.title)).toEqual([
+      '1. Check your available Stones',
+      '2. Choose a Stone Power',
+      '3. Pay the full Tier',
+      '4. Apply your assignment',
+    ]);
+    expect(hbs).toMatch(/aria-label="Help screen \{\{step\}\}">\{\{step\}\}/);
   });
 
   it('puts ? buttons on Initiative and Available Stones only', () => {

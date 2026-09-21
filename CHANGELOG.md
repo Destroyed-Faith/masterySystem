@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.551] - 2026-09-21
+
+### Changed
+
+- **Stone Powers Help:** Available Stones zählt unten und in den Titeln 1–4, nicht 4–7. Kein Regelwechsel.
+
 ## [0.9.550] - 2026-09-21
 
 ### Changed
