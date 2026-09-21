@@ -6,9 +6,22 @@
 
 import { COLORLESS_STONE_ATTR } from './colorless-stones.js';
 
-/** Remove Scar Seals attribute stones. Colorless Stones cannot be Sealed. */
+const COLORLESS_BLOCKED_STONE_POWERS = new Set(['vitality.removeScar', 'wits.initiativeBoost']);
+
+/** Remove Scar Seals attribute stones. Initiative Boost must not farm Colorless. */
 export function stonePowerAllowsColorless(powerId: string): boolean {
-  return String(powerId || '') !== 'vitality.removeScar';
+  return !COLORLESS_BLOCKED_STONE_POWERS.has(String(powerId || ''));
+}
+
+export function stonePowerColorlessRejectMessage(powerId: string): string {
+  const id = String(powerId || '');
+  if (id === 'vitality.removeScar') {
+    return 'Colorless Stones cannot pay Remove Scar — only Vitality Stones can be Sealed.';
+  }
+  if (id === 'wits.initiativeBoost') {
+    return 'Colorless Stones cannot pay Initiative Boost.';
+  }
+  return 'Colorless Stones cannot pay this Stone Power.';
 }
 
 /**

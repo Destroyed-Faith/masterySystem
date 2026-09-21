@@ -6,6 +6,7 @@ import {
   formatPendingStoneActivationWarning,
   pickStoneFillAttribute,
   stonePowerAllowsColorless,
+  stonePowerColorlessRejectMessage,
   shouldSettleStoneWave,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
@@ -47,6 +48,19 @@ describe('click-fill stone choice', () => {
       pickStoneFillAttribute(
         ['vitality'],
         (a) => stonePowerAllowsColorless('vitality.removeScar') || a !== 'colorless',
+        (a) => pools[a] ?? 0,
+      ),
+    ).toBeNull();
+  });
+
+  it('never offers Colorless for Initiative Boost', () => {
+    expect(stonePowerAllowsColorless('wits.initiativeBoost')).toBe(false);
+    expect(stonePowerColorlessRejectMessage('wits.initiativeBoost')).toMatch(/Initiative Boost/);
+    const pools: Record<string, number> = { wits: 0, colorless: 4 };
+    expect(
+      pickStoneFillAttribute(
+        ['wits'],
+        (a) => stonePowerAllowsColorless('wits.initiativeBoost') || a !== 'colorless',
         (a) => pools[a] ?? 0,
       ),
     ).toBeNull();

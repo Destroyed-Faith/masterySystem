@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.557] - 2026-09-21
+
+### Fixed
+
+- **Initiative Boost:** Einmal pro Kampf, auf dem höchsten vollen Tier, den die gelegten Wits-Steine erreichen. Colorless Stones dürfen dort nicht liegen — sonst wird aus dem Boost wieder Initiative und daraus wieder Colorless. Wie Temporary HP: Steine bis zum Maximum legen, einmal anwenden, danach Schluss. Kein Regelwechsel bei COST.
+
 ## [0.9.556] - 2026-09-21
 
 ### Fixed

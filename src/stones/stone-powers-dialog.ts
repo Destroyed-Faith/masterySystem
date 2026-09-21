@@ -87,6 +87,7 @@ import {
   pickStoneFillAttribute,
   shouldSettleStoneWave,
   stonePowerAllowsColorless,
+  stonePowerColorlessRejectMessage,
   stoneDialogSectionStartsOpen,
   stonePoolBlockedReason,
   stonePowerActivationRing,
@@ -1895,12 +1896,13 @@ export class StonePowersDialog extends BaseDialog {
             removeScarSupport,
           ).sealCost
         : calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
+    const onceCluster = !!def.oncePerCombat;
     const perAttr: Record<string, number> = {};
 
     if (isGenericUnifiedAccKey(accKey)) {
       const raw = this.#stoneOccGetRaw(accKey) as GenericLaneOcc[];
       if (!raw.length || !isGenericLaneOccArray(raw)) return false;
-      if (raw.length !== nextCost) return false;
+      if (!onceCluster && raw.length !== nextCost) return false;
       for (const { attr } of raw) {
         perAttr[attr] = (perAttr[attr] || 0) + 1;
       }
@@ -1909,12 +1911,12 @@ export class StonePowersDialog extends BaseDialog {
       const raw = this.#stoneOccGetRaw(accKey);
       if (!raw.length) return false;
       if (isGenericLaneOccArray(raw)) {
-        if (raw.length !== nextCost) return false;
+        if (!onceCluster && raw.length !== nextCost) return false;
         for (const { attr } of raw) {
           perAttr[attr] = (perAttr[attr] || 0) + 1;
         }
       } else {
-        if (raw.length !== nextCost) return false;
+        if (!onceCluster && raw.length !== nextCost) return false;
         perAttr[String(middle)] = raw.length;
       }
     }
@@ -1922,12 +1924,13 @@ export class StonePowersDialog extends BaseDialog {
     const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
     if (!combatant) return false;
 
+    if (!stonePowerAllowsColorless(powerId) && (perAttr[COLORLESS_STONE_ATTR] || 0) > 0) {
+      ui.notifications?.warn(stonePowerColorlessRejectMessage(powerId));
+      return false;
+    }
+
     let ok: boolean;
     if (powerId === REMOVE_SCAR_POWER_ID) {
-      if ((perAttr[COLORLESS_STONE_ATTR] || 0) > 0) {
-        ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
-        return false;
-      }
       ok = await payAndApplyRemoveScar(this.actor, {
         colorlessSpent: 0,
         supportPrefillTier: removeScarSupport,
@@ -1940,11 +1943,13 @@ export class StonePowersDialog extends BaseDialog {
         perAttributeStones: perAttr
       });
     } else {
+      const placed = Object.values(perAttr).reduce((sum, n) => sum + (Number(n) || 0), 0);
       ok = await activateStonePower({
         actor: this.actor,
         combatant,
         abilityId: powerId,
         colorlessSpent: perAttr[COLORLESS_STONE_ATTR] || 0,
+        placedCount: onceCluster ? placed : undefined,
       });
     }
 
@@ -2958,7 +2963,7 @@ export class StonePowersDialog extends BaseDialog {
       }
       const isColorless = dragged === COLORLESS_STONE_ATTR;
       if (isColorless && !stonePowerAllowsColorless(powerId)) {
-        ui.notifications?.warn('Colorless Stones cannot pay Remove Scar — only Vitality Stones can be Sealed.');
+        ui.notifications?.warn(stonePowerColorlessRejectMessage(powerId));
         return;
       }
       let payAttr: AttributeKey | typeof COLORLESS_STONE_ATTR;

@@ -115,6 +115,46 @@ export function cumulativeStoneCostForTier(tier: number, startsAtTier: 1 | 2 = 1
   return total;
 }
 
+/** Highest fully paid tier on one card (1 / 3 / 7 / 15 stones → T1 / T2 / T3 / T4). */
+export function highestCompleteStoneTierFromPlaced(
+  placed: number,
+  startsAtTier: 1 | 2 = 1,
+  maxTier: number = STONE_TIER_HARD_MAX,
+): number {
+  const n = Math.max(0, Math.floor(Number(placed) || 0));
+  const start = startsAtTier === 2 ? 2 : 1;
+  const cap = Math.max(start, Math.floor(Number(maxTier) || STONE_TIER_HARD_MAX));
+  let best = 0;
+  for (let t = start; t <= cap; t += 1) {
+    if (n < cumulativeStoneCostForTier(t, start)) break;
+    best = t;
+  }
+  return best;
+}
+
+/**
+ * Once-per-combat powers apply the highest complete cluster once.
+ * Artifact Support only raises that tier when every tier below the gold
+ * prefill was paid by the player.
+ */
+export function resolveOncePerCombatStoneTier(
+  powerId: string,
+  placedCount: number,
+  prefillTier = 0,
+): { tier: number; playerTier: number } {
+  const startsAt = stonePowerStartsAtTier(powerId);
+  const playerTier = highestCompleteStoneTierFromPlaced(placedCount, startsAt);
+  if (playerTier < startsAt) return { tier: 0, playerTier: 0 };
+  const first = firstEffectiveStonePowerTier(powerId);
+  const effective = effectiveStoneSupportPrefillTier(powerId, prefillTier);
+  const supportApplies = effective > first;
+  const tier =
+    supportApplies && playerTier >= first && playerTier >= effective - 1
+      ? Math.max(playerTier, effective)
+      : playerTier;
+  return { tier, playerTier };
+}
+
 /** Compile the multi-tier tooltip. T2-start powers omit any T1 line. */
 function compileEffectText(
   name: string,
@@ -869,7 +909,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
     category: 'reaction',
     oncePerCombat: true,
     description:
-      'During Initiative Exchange, once per combat, gain Initiative equal to 1 / 2 / 4 / 8 × your Mastery Rank. Add it before converting Initiative into Temporary Colorless Stones.',
+      'During Initiative Exchange, once per combat, spend Wits Stones up to the highest complete tier (1 / 2 / 4 / 8 × Mastery Rank). Colorless Stones cannot pay this cost. After that activation, no further Initiative Boost this combat.',
     tiers: [
       { label: '+1 × MR Initiative', description: 'Gain Initiative equal to your Mastery Rank.', value: 1 },
       { label: '+2 × MR Initiative', description: 'Gain Initiative equal to 2 × your Mastery Rank.', value: 2 },
@@ -887,7 +927,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
       const bonus = initiativeBoostAmount(tier, mr);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
-      sb.initiativeBonus = (sb.initiativeBonus ?? 0) + bonus;
+      sb.initiativeBonus = bonus;
       await setRoundState(actor, roundState);
 
       if (c && c.initiative !== null && c.initiative !== undefined) {

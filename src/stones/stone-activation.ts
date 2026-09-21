@@ -21,6 +21,7 @@ import {
 // Import canonical stone powers definition
 import {
   STONE_POWERS,
+  resolveOncePerCombatStoneTier,
   resolveStonePowerId,
   tierForUseIndex,
   stonePowerSkipsFirstTier,
@@ -31,6 +32,7 @@ import {
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
 import { isOncePerCombatPowerUsed, markOncePerCombatPowerUsed } from './colorless-stones.js';
 import { payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID } from './remove-scar.js';
+import { stonePowerAllowsColorless, stonePowerColorlessRejectMessage } from './stone-payment-rules.js';
 
 export function resolveStonePowerActivation(
   abilityId: string,
@@ -68,8 +70,10 @@ export async function activateStonePower(options: {
   abilityId: string;
   attributeKey?: AttributeKey;
   colorlessSpent?: number;
+  /** Stones sitting on the card — once-per-combat powers apply the highest complete tier. */
+  placedCount?: number;
 }): Promise<boolean> {
-  const { combatant, abilityId, attributeKey, colorlessSpent = 0 } = options;
+  const { combatant, abilityId, attributeKey, colorlessSpent = 0, placedCount } = options;
   const actor = getActionEconomyActor(options.actor) ?? options.actor;
 
   // Get power definition
@@ -82,11 +86,11 @@ export async function activateStonePower(options: {
     ui.notifications?.warn(`${power.name} may be used only once per combat.`);
     return false;
   }
+  if (!stonePowerAllowsColorless(power.id) && colorlessSpent > 0) {
+    ui.notifications?.warn(stonePowerColorlessRejectMessage(power.id));
+    return false;
+  }
   if (power.id === REMOVE_SCAR_POWER_ID) {
-    if (colorlessSpent > 0) {
-      ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
-      return false;
-    }
     const prefillTier = getArtifactStoneSupportPrefill(actor, power.id, 'vitality');
     return payAndApplyRemoveScar(actor, {
       colorlessSpent,
@@ -116,7 +120,16 @@ export async function activateStonePower(options: {
   // T2-start powers (no Tier 1, e.g. Extra Attack) start one segment higher:
   // the first activation is Tier 2 and the player pays the Tier-2 cost.
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
-  const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+  const cluster =
+    power.oncePerCombat && placedCount != null
+      ? resolveOncePerCombatStoneTier(abilityId, placedCount, prefillTier)
+      : null;
+  if (cluster && cluster.tier < (power.startsAtTier ?? 1)) {
+    return false;
+  }
+  const { tier, cost } = cluster
+    ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)) }
+    : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
 
   // Use the action economy system to handle stone spending
   const ok = await spendStoneAbility(

@@ -17,6 +17,8 @@ import {
   STONE_POWERS_BY_ATTRIBUTE,
   STONE_TIER_HARD_MAX,
   STONE_TIER_PRACTICAL_MAX,
+  highestCompleteStoneTierFromPlaced,
+  resolveOncePerCombatStoneTier,
   scaleStoneTier,
   stonePowerSkipsFirstTier,
   tierForUseIndex,
@@ -630,6 +632,41 @@ describe('Wits — Phasing', () => {
       expect(state?.current).toBe(charges);
       expect(state?.max).toBe(charges);
     }
+  });
+});
+
+describe('once-per-combat highest complete tier', () => {
+  it('reads 1 / 3 / 7 / 15 stones as T1 / T2 / T3 / T4', () => {
+    expect(highestCompleteStoneTierFromPlaced(0)).toBe(0);
+    expect(highestCompleteStoneTierFromPlaced(1)).toBe(1);
+    expect(highestCompleteStoneTierFromPlaced(2)).toBe(1);
+    expect(highestCompleteStoneTierFromPlaced(3)).toBe(2);
+    expect(highestCompleteStoneTierFromPlaced(6)).toBe(2);
+    expect(highestCompleteStoneTierFromPlaced(7)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced(14)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced(15)).toBe(4);
+  });
+
+  it('starts Phasing at T2 (2 stones)', () => {
+    expect(highestCompleteStoneTierFromPlaced(1, 2)).toBe(0);
+    expect(highestCompleteStoneTierFromPlaced(2, 2)).toBe(2);
+    expect(highestCompleteStoneTierFromPlaced(6, 2)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced(14, 2)).toBe(4);
+  });
+
+  it('lets Artifact Support raise Initiative Boost only after T1–T3 are paid', () => {
+    expect(resolveOncePerCombatStoneTier('wits.initiativeBoost', 1, 4)).toEqual({
+      tier: 1,
+      playerTier: 1,
+    });
+    expect(resolveOncePerCombatStoneTier('wits.initiativeBoost', 7, 4)).toEqual({
+      tier: 4,
+      playerTier: 3,
+    });
+    expect(resolveOncePerCombatStoneTier('wits.initiativeBoost', 15, 0)).toEqual({
+      tier: 4,
+      playerTier: 4,
+    });
   });
 });
 

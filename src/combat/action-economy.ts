@@ -1287,6 +1287,17 @@ export async function spendStoneAbility(
     ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
     return false;
   }
+  try {
+    const { stonePowerAllowsColorless, stonePowerColorlessRejectMessage } = await import(
+      '../stones/stone-payment-rules.js'
+    );
+    if (!stonePowerAllowsColorless(abilityKey) && colorlessSpent > 0) {
+      ui.notifications?.warn(stonePowerColorlessRejectMessage(abilityKey));
+      return false;
+    }
+  } catch {
+    /* payment-rules unavailable */
+  }
 
   const colorlessWanted = Math.max(0, Math.floor(Number(colorlessSpent) || 0));
   let colorlessUsed = 0;
