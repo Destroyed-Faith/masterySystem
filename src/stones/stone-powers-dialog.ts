@@ -899,6 +899,7 @@ export class StonePowersDialog extends BaseDialog {
         id: power.id,
         name: power.name,
         description,
+        effectLong: power.effect || description,
         attribute: power.attribute,
         accKey,
         nextCost,

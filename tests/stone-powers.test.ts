@@ -745,6 +745,37 @@ describe('Influence powers are GM-manual (flag-driven)', () => {
   );
 });
 
+describe('Resolve Ward and Influence Regeneration copy', () => {
+  it('names Ward with what it actually does', () => {
+    const power = STONE_POWERS['resolve.ward'];
+    expect(power.name).toMatch(/incoming Specials/i);
+    expect(power.description).toMatch(/hostile Special/i);
+    expect(power.tiers[0]?.description).toMatch(/reduced by 2/i);
+  });
+
+  it('grants Regeneration 8/16/32/64 plus 1/2/4/8 m Movement', async () => {
+    const power = STONE_POWERS['influence.regeneration'];
+    expect(power.name).toBe('Regeneration + Movement');
+    expect(power.tiers.map((t) => t.value)).toEqual([8, 16, 32, 64]);
+    const actor = makeMockActor();
+    await power.apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier: 1,
+      cost: 1,
+    });
+    expect(actor._flags.pendingAllyRegeneration).toEqual({ value: 8, moveMeters: 1, range: 8 });
+    const actorT4 = makeMockActor();
+    await power.apply({
+      actor: actorT4 as any,
+      combatant: makeMockCombatant() as any,
+      tier: 4,
+      cost: 8,
+    });
+    expect(actorT4._flags.pendingAllyRegeneration).toEqual({ value: 64, moveMeters: 8, range: 32 });
+  });
+});
+
 describe('STONE_POWERS_BY_ATTRIBUTE — GM editor coverage', () => {
   const ATTRS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const;
 

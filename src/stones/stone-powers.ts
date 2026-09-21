@@ -31,6 +31,7 @@ import {
 } from './colorless-stones.js';
 import { augmentPhasingCharges } from '../combat/phasing.js';
 import { applyRemoveScarEffect } from './remove-scar.js';
+import { applyRegenerationAndMove, promptSelectablePlayerTarget } from './ally-stone-target.js';
 
 export type StonePowerAttribute = AttributeKey | 'generic';
 
@@ -776,15 +777,16 @@ const RESOLVE_POWERS_RAW: StonePowerDraft[] = [
   },
   {
     id: 'resolve.ward',
-    name: 'Ward',
+    name: 'Ward (incoming Specials −X)',
     attribute: 'resolve',
     category: 'passive',
-    description: 'Gain Ward until the start of your next turn (+2 / +4 / +8 / +12). Creates Ward if you do not have it. Applies only to eligible incoming hostile Special(X).',
+    description:
+      'Ward reduces every incoming hostile Special(X) by this value until the start of your next turn (+2 / +4 / +8 / +12). Creates Ward if you do not have it. Positive effects such as Regeneration are not reduced.',
     tiers: [
-      { label: '+2 Ward', description: 'Gain +2 Ward until the start of your next turn.', value: 2 },
-      { label: '+4 Ward', description: 'Gain +4 Ward until the start of your next turn.', value: 4 },
-      { label: '+8 Ward', description: 'Gain +8 Ward until the start of your next turn.', value: 8 },
-      { label: '+12 Ward', description: 'Gain +12 Ward until the start of your next turn.', value: 12 },
+      { label: 'Specials −2', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 2. Positive effects are not reduced.', value: 2 },
+      { label: 'Specials −4', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 4. Positive effects are not reduced.', value: 4 },
+      { label: 'Specials −8', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 8. Positive effects are not reduced.', value: 8 },
+      { label: 'Specials −12', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 12. Positive effects are not reduced.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
@@ -827,22 +829,37 @@ const INFLUENCE_POWERS_RAW: StonePowerDraft[] = [
   },
   {
     id: 'influence.regeneration',
-    name: 'Regeneration',
+    name: 'Regeneration + Movement',
     attribute: 'influence',
     category: 'action',
-    description: 'One ally within range gains Regeneration(X). T1: 2@8 m, T2: 4@16 m, T3: 6@24 m, T4: 8@32 m.',
+    description:
+      'Choose one player. They gain Regeneration(8 / 16 / 32 / 64) and +1 / +2 / +4 / +8 m Movement until the end of this round.',
     tiers: [
-      { label: 'Ally Regen(2) (8 m)', description: 'One ally within 8 m gains Regeneration(2).', value: 2 },
-      { label: 'Ally Regen(4) (16 m)', description: 'One ally within 16 m gains Regeneration(4).', value: 4 },
-      { label: 'Ally Regen(6) (24 m)', description: 'One ally within 24 m gains Regeneration(6).', value: 6 },
-      { label: 'Ally Regen(8) (32 m)', description: 'One ally within 32 m gains Regeneration(8).', value: 8 },
+      { label: 'Regen(8) +1 m', description: 'Choose a player. They gain Regeneration(8) and +1 m Movement until the end of this round.', value: 8 },
+      { label: 'Regen(16) +2 m', description: 'Choose a player. They gain Regeneration(16) and +2 m Movement until the end of this round.', value: 16 },
+      { label: 'Regen(32) +4 m', description: 'Choose a player. They gain Regeneration(32) and +4 m Movement until the end of this round.', value: 32 },
+      { label: 'Regen(64) +8 m', description: 'Choose a player. They gain Regeneration(64) and +8 m Movement until the end of this round.', value: 64 },
     ],
     apply: async ({ actor, tier }) => {
-      const value = scaleStoneTier([2, 4, 6, 8], tier);
-      const meters = scaleStoneTier([8, 16, 24, 32], tier);
-      await (actor as any).setFlag?.('mastery-system', 'pendingAllyRegeneration', { value, range: meters });
+      const value = scaleStoneTier([8, 16, 32, 64], tier);
+      const moveMeters = scaleStoneTier([1, 2, 4, 8], tier);
+      const range = scaleStoneTier([8, 16, 24, 32], tier);
+      const payload = { value, moveMeters, range };
+      await (actor as any).setFlag?.('mastery-system', 'pendingAllyRegeneration', payload);
+      const hint = `They gain Regeneration(${value}) and +${moveMeters} m Movement until the end of this round.`;
+      const target = await promptSelectablePlayerTarget({
+        caster: actor,
+        title: 'Regeneration + Movement',
+        hint,
+      });
+      if (target) {
+        await applyRegenerationAndMove(target, value, moveMeters);
+        await (actor as any).unsetFlag?.('mastery-system', 'pendingAllyRegeneration');
+        ui.notifications?.info(`${target.name}: Regeneration(${value}) and +${moveMeters} m Movement this round.`);
+        return;
+      }
       ui.notifications?.info(
-        `${(actor as any).name}: Regeneration — apply Regeneration(${value}) to one ally within ${meters} m.`,
+        `${(actor as any).name}: Regeneration + Movement — choose a player (${hint})`,
       );
     },
   },

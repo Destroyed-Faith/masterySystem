@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.558] - 2026-09-21
+
+### Changed
+
+- **Ward:** Die Stone-Power heißt jetzt Ward (incoming Specials −X) und der Text sagt, dass eingehende feindliche Specials reduziert werden.
+- **Regeneration:** Influence gibt Regeneration + Movement: 8 / 16 / 32 / 64 Regeneration und +1 / +2 / +4 / +8 m Bewegung bis zum Ende der Runde. Nach dem Zahlen wählst du den Spieler. Kein Regelwechsel bei COST.
+
 ## [0.9.557] - 2026-09-21
 
 ### Fixed

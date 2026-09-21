@@ -89,6 +89,12 @@ export function summarizeStonePowerPrint(power: {
   if (id === 'vitality.removeScar') {
     return 'Recover 1 Scarred Health Bar. Burns 1 Vitality Stone.';
   }
+  if (id === 'resolve.ward') {
+    return 'Incoming hostile Specials are reduced by this value until the start of your next turn.';
+  }
+  if (id === 'influence.regeneration') {
+    return 'Choose a player: Regeneration(8/16/32/64) and +1/2/4/8 m Movement until the end of this round.';
+  }
 
   const tiers = Array.isArray(power?.tiers) ? power.tiers : [];
   const values = tiers

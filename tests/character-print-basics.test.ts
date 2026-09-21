@@ -293,6 +293,22 @@ describe('character print table sheet', () => {
         tiers: [{ value: 1 }, { value: 2 }, { value: 3 }],
       }),
     ).toMatch(/One attack per Tier/i);
+    expect(
+      summarizeStonePowerPrint({
+        id: 'resolve.ward',
+        name: 'Ward (incoming Specials −X)',
+        description: 'Ward reduces every incoming hostile Special(X).',
+        tiers: [{ value: 2 }, { value: 4 }],
+      }),
+    ).toMatch(/incoming hostile Specials/i);
+    expect(
+      summarizeStonePowerPrint({
+        id: 'influence.regeneration',
+        name: 'Regeneration + Movement',
+        description: 'Choose one player.',
+        tiers: [{ value: 8 }, { value: 16 }],
+      }),
+    ).toMatch(/Regeneration\(8\/16\/32\/64\)/);
   });
 
   it('opts into equipment modules when requested', () => {
