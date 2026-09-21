@@ -75,11 +75,7 @@ import {
 import {
   STONE_POWERS_HELP_COUNT,
   STONE_POWERS_HELP_SCREENS,
-  assignHelperFilesToSlots,
   clampStoneHelpPage,
-  helperFileBaseName,
-  listStoneHelpAssetFiles,
-  stoneHelpPublicUrl,
 } from './stone-powers-help.js';
 import {
   formatPendingStoneActivationWarning,
@@ -2254,8 +2250,6 @@ export class StonePowersDialog extends BaseDialog {
         | null) ?? root;
     if (overlay.parentElement !== frame) frame.appendChild(overlay);
 
-    void this.#resolveHelpImages(overlay);
-
     const closeBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-close');
     if (closeBtn) {
       closeBtn.onclick = (ev: MouseEvent) => {
@@ -2326,44 +2320,6 @@ export class StonePowersDialog extends BaseDialog {
     return clampStoneHelpPage(Number(overlay.dataset.helpPage || '1'));
   }
 
-  async #resolveHelpImages(overlay: HTMLElement): Promise<void> {
-    try {
-      const files = await listStoneHelpAssetFiles();
-      if (files.length) {
-        console.info(
-          'Mastery System | Stone Help files',
-          files.map((file) => helperFileBaseName(file)),
-        );
-      }
-      const assigned = assignHelperFilesToSlots(files);
-      const slots = Array.from(overlay.querySelectorAll<HTMLElement>('[data-help-slot]'));
-      for (const el of slots) {
-        const slot = String(el.dataset.helpSlot || '');
-        const path = assigned.get(slot) || '';
-        const url = path ? stoneHelpPublicUrl(path) : '';
-        if (!url) {
-          if (el.tagName === 'IMG') el.remove();
-          continue;
-        }
-        const fileName = helperFileBaseName(path);
-        if (el.tagName === 'IMG') {
-          const img = el as HTMLImageElement;
-          img.src = url;
-          img.dataset.helpFile = fileName;
-          continue;
-        }
-        const img = document.createElement('img');
-        img.alt = el.getAttribute('aria-label') || el.textContent || '';
-        img.dataset.helpSlot = slot;
-        img.dataset.helpFile = fileName;
-        img.src = url;
-        el.replaceWith(img);
-      }
-    } catch {
-      /* Help copy stays visible even if the folder listing fails. */
-    }
-  }
-
   #openStoneHelp(root: HTMLElement, startPage: number): void {
     const overlay = this.#helpOverlay(root);
     if (!overlay) return;
@@ -2372,7 +2328,6 @@ export class StonePowersDialog extends BaseDialog {
     this.#showStoneHelpPage(root, startPage);
     const closeBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-close');
     closeBtn?.focus();
-    void this.#resolveHelpImages(overlay);
   }
 
   #closeStoneHelp(root: HTMLElement): void {
