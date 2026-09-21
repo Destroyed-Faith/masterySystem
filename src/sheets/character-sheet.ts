@@ -46,9 +46,8 @@ import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
 import {
-  bindImageUrlBar,
-  buildImageUrlBarHtml,
   copyDocumentImageLink,
+  openImageViewer,
 } from '../ui/image-url-share.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
@@ -6265,58 +6264,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    try {
-      // Try to use Foundry's ImagePopout if available
-      const ImagePopoutClass = (foundry as any)?.applications?.apps?.ImagePopout?.implementation ||
-                               (window as any).ImagePopout;
-      
-      if (ImagePopoutClass) {
-        const popout = new ImagePopoutClass(imgSrc, {
-          title: this.actor.name,
-          shareable: true,
-          uuid: this.actor.uuid
-        });
-        await popout.render(true);
-      } else {
-        // Fallback: Create a simple dialog with the image
-        const dialog = new Dialog({
-          title: this.actor.name,
-          content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
-          buttons: {
-            close: {
-              label: 'Close',
-              callback: () => {}
-            }
-          },
-          default: 'close',
-          render: (html: JQuery) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
-        } as any);
-        await dialog.render(true);
-      }
-    } catch (error) {
-      console.error('Mastery System | Failed to show image popup', error);
-      console.error('Mastery System | Error stack:', error instanceof Error ? error.stack : 'No stack');
-      // Fallback: Create a simple dialog with the image
-      try {
-        const dialog = new Dialog({
-          title: this.actor.name,
-          content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
-          buttons: {
-            close: {
-              label: 'Close',
-              callback: () => {}
-            }
-          },
-          default: 'close',
-          render: (html: JQuery) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
-        } as any);
-        await dialog.render(true);
-      } catch (fallbackError) {
-        console.error('Mastery System | Fallback dialog also failed', fallbackError);
-        console.error('Mastery System | Fallback error stack:', fallbackError instanceof Error ? fallbackError.stack : 'No stack');
-        ui.notifications?.error('Failed to display image.');
-      }
-    }
+    const opened = await openImageViewer(imgSrc, {
+      title: this.actor.name,
+      shareable: true,
+      uuid: this.actor.uuid,
+    });
+    if (!opened) ui.notifications?.error('Failed to display image.');
   }
 
   /**

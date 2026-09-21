@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.556] - 2026-09-21
+
+### Fixed
+
+- **Important NPCs:** Klick aufs Porträt öffnet das Bild wieder groß (Foundry-v14-ImagePopout). Die Leiste bleibt verschiebbar und einklappbar. Kein Regelwechsel.
+
 ## [0.9.555] - 2026-09-21
 
 ### Changed

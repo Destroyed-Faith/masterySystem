@@ -14,6 +14,7 @@ import {
   setKnownNpcsBarCollapsed,
   setKnownNpcsBarPosition,
 } from '../system/known-npcs.js';
+import { openImageViewer } from './image-url-share.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseBar = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -28,22 +29,8 @@ export async function openKnownNpcPortrait(actorId: string): Promise<void> {
   if (!actor || String(actor.type || '') !== 'npc') return;
   const imgSrc = resolveActorPortraitSrc(actor);
   const title = String(actor.name || loc('MASTERY.knownNpcs.title', 'Important NPCs'));
-  try {
-    const ImagePopoutClass =
-      (foundry as any)?.applications?.apps?.ImagePopout?.implementation || (window as any).ImagePopout;
-    if (ImagePopoutClass) {
-      const popout = new ImagePopoutClass(imgSrc, {
-        title,
-        shareable: false,
-        uuid: actor.uuid,
-      });
-      await popout.render(true);
-      return;
-    }
-  } catch (err) {
-    console.warn('Mastery System | Known NPC portrait popout failed', err);
-  }
-  ui.notifications?.info(title);
+  const opened = await openImageViewer(imgSrc, { title, shareable: false, uuid: actor.uuid });
+  if (!opened) ui.notifications?.info(title);
 }
 
 export class KnownNpcsBar extends BaseBar {

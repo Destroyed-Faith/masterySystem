@@ -102,24 +102,146 @@ export async function copyDocumentImageLink(doc: { img?: string } | null | undef
   return copyShareableImageUrl(String(doc?.img ?? ''));
 }
 
+export interface ImagePopoutOpenOptions {
+  title?: string;
+  uuid?: string;
+  shareable?: boolean;
+}
+
+export type ImagePopoutConstruction =
+  | { mode: 'v2'; args: [Record<string, unknown>] }
+  | { mode: 'v1'; args: [string, Record<string, unknown>] };
+
+function normalizeImagePopoutOptions(
+  titleOrOptions: string | ImagePopoutOpenOptions | undefined,
+): ImagePopoutOpenOptions {
+  if (typeof titleOrOptions === 'string' || titleOrOptions == null) {
+    return { title: titleOrOptions || 'Image' };
+  }
+  return { title: titleOrOptions.title || 'Image', uuid: titleOrOptions.uuid, shareable: titleOrOptions.shareable };
+}
+
+function foundryNamespace(): any {
+  if (typeof foundry !== 'undefined') return foundry;
+  return (globalThis as any).foundry;
+}
+
+function globalImagePopout(): any {
+  if (typeof window !== 'undefined' && (window as any).ImagePopout) return (window as any).ImagePopout;
+  return (globalThis as any).ImagePopout;
+}
+
+/** Foundry v13+ ImagePopout is ApplicationV2 and takes `{ src, window: { title } }`. */
+export function hasApplicationV2ImagePopout(foundryNs: unknown = foundryNamespace()): boolean {
+  return !!(foundryNs as { applications?: { apps?: { ImagePopout?: { implementation?: unknown } } } } | undefined)
+    ?.applications?.apps?.ImagePopout?.implementation;
+}
+
+export function planImagePopoutConstruction(
+  src: string,
+  titleOrOptions: string | ImagePopoutOpenOptions = 'Image',
+  useApplicationV2 = hasApplicationV2ImagePopout(),
+): ImagePopoutConstruction {
+  const imgSrc = String(src || '').trim();
+  const options = normalizeImagePopoutOptions(titleOrOptions);
+  const title = String(options.title || 'Image');
+  if (useApplicationV2) {
+    return {
+      mode: 'v2',
+      args: [
+        {
+          src: imgSrc,
+          uuid: options.uuid ?? null,
+          window: { title },
+        },
+      ],
+    };
+  }
+  return {
+    mode: 'v1',
+    args: [
+      imgSrc,
+      {
+        title,
+        shareable: options.shareable ?? false,
+        uuid: options.uuid,
+      },
+    ],
+  };
+}
+
+function resolveImagePopoutClass(): (new (...args: any[]) => { render: (opts?: unknown) => Promise<unknown> | unknown }) | undefined {
+  return foundryNamespace()?.applications?.apps?.ImagePopout?.implementation || globalImagePopout();
+}
+
 /** Open Foundry's ImagePopout for a picture (item portraits, alt art, etc.). */
-export async function openFoundryImagePopout(src: string, title: string): Promise<boolean> {
+export async function openFoundryImagePopout(
+  src: string,
+  titleOrOptions: string | ImagePopoutOpenOptions = 'Image',
+): Promise<boolean> {
   const imgSrc = String(src || '').trim();
   if (!imgSrc) return false;
+  const ImagePopoutClass = resolveImagePopoutClass();
+  if (!ImagePopoutClass) return false;
+  const planned = planImagePopoutConstruction(imgSrc, titleOrOptions, hasApplicationV2ImagePopout());
   try {
-    const ImagePopoutClass =
-      (foundry as any)?.applications?.apps?.ImagePopout?.implementation || (window as any).ImagePopout;
-    if (!ImagePopoutClass) return false;
-    const popout = new ImagePopoutClass(imgSrc, {
-      title: title || 'Image',
-      shareable: false,
-    });
-    await popout.render(true);
+    const popout = new ImagePopoutClass(...(planned.args as [any, any?]));
+    await popout.render(planned.mode === 'v2' ? { force: true } : true);
     return true;
   } catch (err) {
+    if (planned.mode === 'v2') {
+      try {
+        const legacy = planImagePopoutConstruction(imgSrc, titleOrOptions, false);
+        const popout = new ImagePopoutClass(...(legacy.args as [any, any?]));
+        await popout.render(true);
+        return true;
+      } catch {
+        /* fall through */
+      }
+    }
     console.warn('Mastery System | Image popout failed', err);
     return false;
   }
+}
+
+/** Last-resort picture window when ImagePopout is missing or rejects the constructor. */
+export async function openFallbackImageDialog(src: string, title: string): Promise<boolean> {
+  const imgSrc = String(src || '').trim();
+  if (!imgSrc) return false;
+  const DialogClass = (typeof window !== 'undefined' ? (window as any).Dialog : undefined) || (globalThis as any).Dialog;
+  if (!DialogClass) return false;
+  try {
+    const dialog = new DialogClass({
+      title: title || 'Image',
+      content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+      buttons: {
+        close: {
+          label: 'Close',
+          callback: () => {},
+        },
+      },
+      default: 'close',
+      render: (html: { [0]?: HTMLElement; get?: (i: number) => HTMLElement } | HTMLElement) => {
+        const root = html instanceof HTMLElement ? html : (html?.[0] ?? html?.get?.(0));
+        bindImageUrlBar(root, imgSrc);
+      },
+    });
+    await dialog.render(true);
+    return true;
+  } catch (err) {
+    console.warn('Mastery System | Fallback image dialog failed', err);
+    return false;
+  }
+}
+
+/** ImagePopout first (v14 ctor), then a simple dialog so the picture still opens. */
+export async function openImageViewer(
+  src: string,
+  titleOrOptions: string | ImagePopoutOpenOptions = 'Image',
+): Promise<boolean> {
+  if (await openFoundryImagePopout(src, titleOrOptions)) return true;
+  const title = normalizeImagePopoutOptions(titleOrOptions).title || 'Image';
+  return openFallbackImageDialog(src, title);
 }
 
 export function buildImageUrlBarHtml(src: string): string {
