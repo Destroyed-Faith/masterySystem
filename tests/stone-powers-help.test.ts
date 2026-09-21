@@ -36,10 +36,10 @@ describe('Stone Powers Quick Help', () => {
 
   it('uses these exact helper filenames', () => {
     expect(STONE_HELP_FILES).toEqual({
-      '01': '01-roll-initiative.png',
-      '02': '02-before-conversion.png',
-      '03': '03-after-conversion.png',
-      '04': '04-available-colorless-stones.png',
+      '01': '01-roll-intiative.png',
+      '02': '02-rolled-intiative.png',
+      '03': '03-convert-initiative.png',
+      '04': '04-available-colorlessstones.png',
       '05': '05-power-sections.png',
       '06a': '06a-power-empty.png',
       '06b': '06b-power-incomplete.png',

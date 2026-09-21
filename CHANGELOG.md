@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.548] - 2026-09-21
+
+### Fixed
+
+- **Stone Powers Help:** Feste Dateinamen aus `assets/helper`: `01-roll-intiative.png`, `02-rolled-intiative.png`, `03-convert-initiative.png`, `04-available-colorlessstones.png`, `05-power-sections.png`, `06a-power-empty.png`, `06b-power-incomplete.png`, `06c-power-active.png`, `07-apply-close.png`. Kein FilePicker, kein Regelwechsel.
+
 ## [0.9.547] - 2026-09-21
 
 ### Fixed
