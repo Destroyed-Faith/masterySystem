@@ -2052,6 +2052,9 @@
               {{#each equipmentUi.weaponSets.choices}}
               <button type="button" class="df-weapon-set-switch{{#if this.active}} is-active{{/if}}" data-action="switchWeaponSet" data-weapon-set="{{this.target}}" title="{{this.title}}" aria-pressed="{{#if this.active}}true{{else}}false{{/if}}">{{this.label}}</button>
               {{/each}}
+              {{#if equipmentUi.weaponSets.stowed}}
+              <span class="df-weapon-set-unarmed" title="{{localize 'MASTERY.weaponSets.stowedStatusHint'}}">{{localize "MASTERY.weaponSets.emptyHandLabel"}}</span>
+              {{/if}}
             </div>
             <ul class="df-weapon-set-preview">
               {{#each equipmentUi.weaponSets.choices}}
@@ -2078,7 +2081,7 @@
                       {{/if}}
                     </div>
                   {{else}}
-                    <div class="df-slot-empty">Drop</div>
+                    <div class="df-slot-empty{{#if this.emptyUnarmed}} is-unarmed{{/if}}">{{this.emptyLabel}}</div>
                   {{/if}}
                 </div>
               {{/each}}

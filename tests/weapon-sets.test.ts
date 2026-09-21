@@ -41,6 +41,7 @@ import {
   buildInitialWeaponSets,
   ensureWeaponSets,
   isNaturallyTwoHandedItem,
+  listEquipmentWeaponSetChoices,
   listWeaponSwapChoices,
   peekWeaponSets,
   pruneWeaponSetRefs,
@@ -477,6 +478,8 @@ describe('weapon set labels', () => {
       },
     });
     expect(listWeaponSwapChoices(emptySecond).map((choice) => choice.target)).toEqual([1, 'unarmed']);
+    expect(listEquipmentWeaponSetChoices(emptySecond).map((choice) => choice.target)).toEqual([1]);
+    expect(listEquipmentWeaponSetChoices(actor).map((choice) => choice.target)).toEqual([1, 2]);
 
     const stowed = await swapWeaponSet(actor, 'unarmed');
     expect(stowed).toMatchObject({ ok: true, swapped: true, active: 1 });

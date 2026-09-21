@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.555] - 2026-09-21
+
+### Changed
+
+- **Equipment:** Unarmed ist kein eigener Waffenslot mehr — das hat suggeriert, man könne dort etwas ablegen. Leere Main Hand / Off Hand zeigen Unarmed als Beschriftung. Unarmed bleibt im Radialmenü.
+
 ## [0.9.554] - 2026-09-21
 
 ### Changed

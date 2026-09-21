@@ -462,6 +462,8 @@
       "choiceSwitch": "Set {n}: {hands}",
       "choiceWearingDetail": "Wearing this. Set {n}: {hands}.",
       "choiceSwitchDetail": "Switch to Set {n}: {hands}. Costs 1 Movement in combat.",
+      "emptyHandLabel": "Unarmed",
+      "stowedStatusHint": "Weapons are stowed. Unarmed is not a slot — switch a Weapon Set or drop a weapon on Main Hand / Off Hand. Unarmed stays on the radial menu.",
       "stowName": "Fists",
       "stowWearing": "Wearing · Fists",
       "stowSummary": "Stow weapons and fight unarmed",

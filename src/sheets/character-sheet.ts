@@ -107,7 +107,7 @@ import {
   isHiddenInInactiveWeaponSet,
   isNaturallyTwoHandedItem,
   peekWeaponSets,
-  listWeaponSwapChoices,
+  listEquipmentWeaponSetChoices,
   swapWeaponSet,
   syncActiveWeaponSetFromHands,
 } from '../utils/weapon-sets.js';
@@ -1995,9 +1995,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       },
       equipSlots: slotDefs.map((def) => {
         const item = slotMap[def.key] || null;
+        const isHand = def.key === 'mainhand' || def.key === 'offhand';
         return {
           ...def,
           item,
+          emptyUnarmed: isHand,
+          emptyLabel: isHand
+            ? ((globalThis as any).game?.i18n?.localize?.('MASTERY.weaponSets.emptyHandLabel') || 'Unarmed')
+            : 'Drop',
           ammoLabel: quiverAmmunitionLabel(item),
           artifactMeta: mapArtifactMeta(item),
         };
@@ -2005,7 +2010,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       weaponSets: {
         active: weaponSets.active,
         stowed: weaponSets.stowed === true,
-        choices: listWeaponSwapChoices(this.actor).map((choice) => ({
+        choices: listEquipmentWeaponSetChoices(this.actor).map((choice) => ({
           target: choice.target,
           label: choice.shortLabel,
           summary: choice.summary,

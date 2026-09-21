@@ -462,6 +462,8 @@
       "choiceSwitch": "Set {n}: {hands}",
       "choiceWearingDetail": "Das trägst du. Set {n}: {hands}.",
       "choiceSwitchDetail": "Wechseln zu Set {n}: {hands}. Kostet im Kampf 1 Movement.",
+      "emptyHandLabel": "Unarmed",
+      "stowedStatusHint": "Waffen sind weggesteckt. Unarmed ist kein Slot — wechsle ein Waffenset oder lege eine Waffe auf Main Hand / Off Hand. Unarmed bleibt im Radialmenü.",
       "stowName": "Fäuste",
       "stowWearing": "Angelegt · Fäuste",
       "stowSummary": "Waffen wegstecken und unbewaffnet kämpfen",

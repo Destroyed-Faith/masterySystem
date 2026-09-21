@@ -10619,6 +10619,28 @@ aside#tooltip,
   color: #1a1a1a;
 }
 
+.df-weapon-set-unarmed {
+  margin-left: 2px;
+  padding: 0 0.4rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  border: 1px dashed rgba(255, 183, 77, 0.45);
+  border-radius: 4px;
+  color: #ffcc80;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.df-slot-empty.is-unarmed {
+  color: #ffcc80;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .df-weapon-set-preview {
   list-style: none;
   margin: 0 0 8px;

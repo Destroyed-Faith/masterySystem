@@ -546,6 +546,14 @@ export function listWeaponSwapChoices(actor: any): WeaponSwapChoice[] {
   return [...worn, ...others, fists];
 }
 
+/**
+ * Sheet / paperdoll: only real Weapon Sets. Unarmed is not a slot you can
+ * fill — it stays on the radial menu (and as empty-hand labeling).
+ */
+export function listEquipmentWeaponSetChoices(actor: any): WeaponSwapChoice[] {
+  return listWeaponSwapChoices(actor).filter((choice) => choice.target !== 'unarmed');
+}
+
 function fmt(key: string, data: Record<string, string | number>, fallback: string): string {
   const formatted = (globalThis as any).game?.i18n?.format?.(`MASTERY.weaponSets.${key}`, data);
   return formatted && formatted !== `MASTERY.weaponSets.${key}` ? formatted : fallback;
