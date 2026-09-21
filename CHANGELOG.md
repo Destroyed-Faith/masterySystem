@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.541] - 2026-09-21
+
+### Changed
+
+- **Stein-Karten:** Leer bleibt grau. Liegen Steine auf einer unvollständigen Welle, wird nur der Rand orange. Ist die Macht aktiv, färben sich Kästchen und Name grün. Der gelbe Banner und „Not active“ unter Extra Attack sind weg — der Zustand steht in der Farbe.
+
 ## [0.9.540] - 2026-09-20
 
 ### Changed
