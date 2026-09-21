@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.547] - 2026-09-21
+
+### Fixed
+
+- **Stone Powers Help:** FilePicker-Suche ist raus — die hat Stones-Menü und „?“-Dialoge blockiert. Hilfe öffnet wieder sofort und lädt nur diese festen Dateien aus `assets/helper`: `01-roll-initiative.png`, `02-before-conversion.png`, `03-after-conversion.png`, `04-available-colorless-stones.png`, `05-power-sections.png`, `06a-power-empty.png`, `06b-power-incomplete.png`, `06c-power-active.png`, `07-apply-close.png`. Kein Regelwechsel.
+
 ## [0.9.546] - 2026-09-21
 
 ### Fixed
