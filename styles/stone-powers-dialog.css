@@ -534,45 +534,6 @@
   margin-top: 0.12rem;
 }
 
-.stone-powers-dialog .stone-unactivated-banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
-  margin: 0 0 0.45rem;
-  padding: 0.45rem 0.55rem;
-  border: 1px solid rgba(255, 152, 0, 0.7);
-  border-radius: 6px;
-  background: rgba(255, 120, 0, 0.16);
-  color: #ffcc80;
-  font-size: 0.84rem;
-  line-height: 1.35;
-}
-
-.stone-powers-dialog .stone-unactivated-banner strong {
-  display: block;
-  color: #ffe0b2;
-}
-
-.stone-powers-dialog .stone-unactivated-banner ul {
-  margin: 0.25rem 0 0;
-  padding-left: 1.1rem;
-}
-
-.stone-powers-dialog .power-title-general:has(.power-not-activated) {
-  flex-direction: column;
-  overflow: visible;
-  gap: 0.1rem;
-}
-
-.stone-powers-dialog .power-not-activated {
-  display: block;
-  color: #ffb74d;
-  font-size: 0.62rem;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
 
 /* Stone Pools Display */
 .stone-powers-dialog .stone-pools-display {
@@ -1131,13 +1092,30 @@
   overflow: hidden;
 }
 
-/* Charged Stone Power: green ring grows with each paid wave. Unused stay white. */
+/* Empty cards stay gray. Stones sitting in an unpaid wave: orange edge. */
+.stone-powers-dialog .power-card-general.is-pending {
+  border-style: solid;
+  border-width: 2px;
+  border-color: #ff9800;
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.28);
+}
+
+/* Charged Stone Power: whole card + name go green. Unused stay gray. */
 .stone-powers-dialog .power-card-general.is-activated {
   border-style: solid;
-  border-width: var(--stone-activation-ring, 1px);
-  border-color: rgba(102, 187, 106, 0.92);
-  background: rgba(46, 125, 50, 0.18);
-  box-shadow: inset 0 0 0 1px rgba(165, 214, 167, 0.18);
+  border-width: var(--stone-activation-ring, 2px);
+  border-color: #4caf50;
+  background: rgba(46, 160, 60, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(165, 214, 167, 0.28);
+}
+
+.stone-powers-dialog .power-card-general.is-activated .power-name {
+  color: #c8f7c5;
+}
+
+.stone-powers-dialog .power-card-general.is-activated.is-pending {
+  border-color: #ff9800;
+  box-shadow: 0 0 0 1px rgba(255, 152, 0, 0.28);
 }
 
 .stone-powers-dialog .power-drop-slots-row-general {

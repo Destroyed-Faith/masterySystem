@@ -132,9 +132,9 @@ export function stonePoolBlockedReason(pool: {
 }
 
 /**
- * Green card ring after a Stone Power has been charged. Unused cards stay
- * white. First activation is a thin 1px green edge; each further wave adds
- * 1px, capped at 5px so the compact card still fits.
+ * Green card fill after a Stone Power has been charged. Unused cards stay
+ * gray. First activation is a thin green edge; each further wave adds 1px,
+ * capped at 5px so the compact card still fits.
  */
 export function stonePowerActivationRing(activationCount: number): {
   activationCount: number;

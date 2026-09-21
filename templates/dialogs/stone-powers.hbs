@@ -27,21 +27,6 @@
   </div>
   {{/if}}
 
-  {{#if unactivatedStones.length}}
-  <div class="stone-unactivated-banner" role="alert">
-    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-    <div>
-      <strong>These stones are not activated.</strong>
-      <span>Placing them does not turn the power on. The wave must be full — Extra Attack and Crit need 2 stones, not 1.</span>
-      <ul>
-        {{#each unactivatedStones}}
-        <li>{{name}}: {{placed}} of {{needed}}, {{missing}} still needed</li>
-        {{/each}}
-      </ul>
-    </div>
-  </div>
-  {{/if}}
-
   {{#if gmTools.show}}
   <div class="stone-gm-reset-row">
     {{#if gmTools.passives}}
@@ -249,7 +234,7 @@
       </summary>
       <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
-        <div class="power-card power-card-general{{#if power.activated}} is-activated{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.hideLeadSegment}}Left-click: fill the next block (2, then 4, then 8 stones — based on pool availability){{else}}Left-click: fill the next block (1, then 2, then 4, then 8 stones — based on pool availability){{/if}} · Right-click: clear all · Drag: pull from the pool{{#if power.activated}} · Activated ({{power.activationCount}}×){{/if}}">
+        <div class="power-card power-card-general{{#if power.activated}} is-activated{{/if}}{{#if power.pendingActivation}} is-pending{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.pendingLabel}}{{power.pendingLabel}} · {{/if}}{{#if power.hideLeadSegment}}Left-click: fill the next block (2, then 4, then 8 stones — based on pool availability){{else}}Left-click: fill the next block (1, then 2, then 4, then 8 stones — based on pool availability){{/if}} · Right-click: clear all · Drag: pull from the pool{{#if power.activated}} · Activated ({{power.activationCount}}×){{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}" data-acc-key="{{power.accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if power.hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -302,7 +287,6 @@
           </div>
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{power.effectLong}}">{{power.name}}</strong>
-            {{#if power.pendingActivation}}<span class="power-not-activated" title="{{power.pendingLabel}}">Not active</span>{{/if}}
             {{#if power.supportTier}}<span class="power-support-badge{{#unless power.supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{power.supportSource}}): {{#if power.supportActive}}{{power.supportHint}}{{else}}Artifact Support Stones already used — scales normally from here (minimum tier {{power.supportTier}}).{{/if}}"><i class="fas fa-gem"></i> T{{power.supportTier}}</span>{{/if}}
           </div>
         </div>
@@ -320,7 +304,7 @@
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
-        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if hideLeadSegment}}Left-click: fill the next block with {{attribute}} stones (2 → 4 → 8){{else}}Left-click: fill the next block with {{attribute}} stones (1 → 2 → 4 → 8){{/if}} · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}">
+        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if pendingLabel}}{{pendingLabel}} · {{/if}}{{#if hideLeadSegment}}Left-click: fill the next block with {{attribute}} stones (2 → 4 → 8){{else}}Left-click: fill the next block with {{attribute}} stones (1 → 2 → 4 → 8){{/if}} · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" data-acc-key="{{accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -373,7 +357,6 @@
           </div>
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{effectLong}}">{{name}}</strong>
-            {{#if pendingActivation}}<span class="power-not-activated" title="{{pendingLabel}}">Not active</span>{{/if}}
             {{#if supportTier}}<span class="power-support-badge{{#unless supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{supportSource}}): {{#if supportActive}}{{supportHint}}{{else}}Artifact Support Stones already used — scales normally from here (minimum tier {{supportTier}}).{{/if}}"><i class="fas fa-gem"></i> T{{supportTier}}</span>{{/if}}
           </div>
         </div>
