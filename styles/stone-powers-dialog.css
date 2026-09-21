@@ -2173,22 +2173,32 @@
   letter-spacing: 0.04em;
 }
 
-.stone-help-close {
-  width: 1.6rem;
-  height: 1.6rem;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+.stone-help-close,
+.mastery-system.stone-powers-dialog .stone-help-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 4px 8px;
+  border: none !important;
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.3);
-  color: #eee;
-  font-size: 1.1rem;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
+  opacity: 0.7;
+  box-shadow: none !important;
 }
 
-.stone-help-close:hover {
-  border-color: rgba(201, 162, 39, 0.7);
-  color: #f3e6b8;
+.stone-help-close:hover,
+.mastery-system.stone-powers-dialog .stone-help-close:hover {
+  background: rgba(255, 102, 102, 0.2) !important;
+  color: #ff6666;
+  opacity: 1;
 }
 
 .stone-help-pages {
@@ -2308,22 +2318,35 @@
   gap: 0.22rem;
 }
 
-.stone-help-dot {
+.stone-help-dot,
+.mastery-system.stone-powers-dialog .stone-help-dot {
   min-width: 1.35rem;
   height: 1.35rem;
   padding: 0 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
   border-radius: 3px;
-  background: rgba(0, 0, 0, 0.28);
+  background: rgba(0, 0, 0, 0.28) !important;
   color: rgba(255, 255, 255, 0.72);
   font-size: 0.68rem;
   cursor: pointer;
+  box-shadow: none !important;
+}
+
+.stone-help-dot:hover,
+.mastery-system.stone-powers-dialog .stone-help-dot:hover {
+  border-color: rgba(229, 57, 53, 0.7) !important;
+  color: #ffcdd2;
 }
 
 .stone-help-dot.is-current,
-.stone-help-dot:hover {
-  border-color: rgba(201, 162, 39, 0.7);
-  color: #f3e6b8;
+.mastery-system.stone-powers-dialog .stone-help-dot.is-current {
+  border: 2px solid #e53935 !important;
+  color: #ffebee;
+  background: rgba(229, 57, 53, 0.18) !important;
+}
+
+.stone-help-dot[hidden] {
+  display: none !important;
 }
 
 .stone-help-counter {

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.550] - 2026-09-21
+
+### Changed
+
+- **Stone Powers Help:** Initiative-„?“ zeigt nur Seiten 1–3, Available-Stones-„?“ nur 4–7. Die aktuelle Seite ist unten rot umrandet. Das X oben entspricht den anderen Fenstern. Kein Regelwechsel.
+
 ## [0.9.549] - 2026-09-21
 
 ### Added

@@ -7,6 +7,16 @@ export const STONE_POWERS_HELP_COUNT = 7;
 export const STONE_HELP_START_INITIATIVE = 1;
 export const STONE_HELP_START_STONES = 4;
 
+export type StoneHelpTrackId = 'initiative' | 'stones';
+
+export const STONE_HELP_TRACKS: Record<
+  StoneHelpTrackId,
+  { id: StoneHelpTrackId; first: number; last: number; title: string }
+> = {
+  initiative: { id: 'initiative', first: 1, last: 3, title: 'INITIATIVE — QUICK HELP' },
+  stones: { id: 'stones', first: 4, last: 7, title: 'STONE POWERS — QUICK HELP' },
+};
+
 export const STONE_HELP_DIR = 'systems/mastery-system/assets/helper';
 
 /** Exact filenames Help loads from assets/helper. Rename local files to these. */
@@ -32,6 +42,7 @@ export type StoneHelpImage = {
 
 export type StoneHelpScreen = {
   id: number;
+  track: StoneHelpTrackId;
   title: string;
   body: string;
   note?: string;
@@ -52,9 +63,18 @@ export function stoneHelpPublicUrl(path: string): string {
   return routed.startsWith('/') ? routed : `/${routed.replace(/^\/+/, '')}`;
 }
 
-export function clampStoneHelpPage(page: number): number {
-  const n = Math.floor(Number(page) || 1);
-  return Math.min(STONE_POWERS_HELP_COUNT, Math.max(1, n));
+export function stoneHelpTrackForPage(page: number): (typeof STONE_HELP_TRACKS)[StoneHelpTrackId] {
+  return Number(page) >= STONE_HELP_START_STONES
+    ? STONE_HELP_TRACKS.stones
+    : STONE_HELP_TRACKS.initiative;
+}
+
+export function clampStoneHelpPage(
+  page: number,
+  track: { first: number; last: number } = stoneHelpTrackForPage(page),
+): number {
+  const n = Math.floor(Number(page) || track.first);
+  return Math.min(track.last, Math.max(track.first, n));
 }
 
 function helpImage(slot: keyof typeof STONE_HELP_FILES, alt: string, caption?: string): StoneHelpImage {
@@ -71,36 +91,42 @@ function helpImage(slot: keyof typeof STONE_HELP_FILES, alt: string, caption?: s
 export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   {
     id: 1,
+    track: 'initiative',
     title: '1. Roll Initiative',
     body: 'Roll Initiative first. Your Initiative roll, Combat Reflexes and Armor Penalty determine your starting Initiative.',
     images: [helpImage('01', 'Stone Powers window before Initiative is rolled')],
   },
   {
     id: 2,
+    track: 'initiative',
     title: '2. Choose Stones to convert',
     body: 'Choose how much Initiative you want to convert into Colorless Stones. The minimum is 1 Stone — converting 0 would have no effect.',
     images: [helpImage('02', 'Initiative row with one Stone staged for conversion')],
   },
   {
     id: 3,
+    track: 'initiative',
     title: '3. Convert to Colorless Stones',
     body: 'Select Convert to Colorless Stones. Your Initiative is reduced and the converted Stone becomes available as a Colorless Stone.',
     images: [helpImage('03', 'Initiative row after converting into a Colorless Stone')],
   },
   {
     id: 4,
+    track: 'stones',
     title: '4. Check your available Stones',
     body: 'Your Attribute Stones are shown here. Converted Initiative appears in the Colorless pool. Attributes below 8 do not provide a Stone pool.',
     images: [helpImage('04', 'Available Stones row with Attribute and Colorless pools')],
   },
   {
     id: 5,
+    track: 'stones',
     title: '5. Choose a Stone Power',
     body: 'Stone Powers are grouped into General Powers and Attribute sections. Open the section containing the Power you want to use.',
     images: [helpImage('05', 'General and Attribute Stone Power sections')],
   },
   {
     id: 6,
+    track: 'stones',
     title: '6. Pay the full Tier',
     body: 'Assign Stones to the Power you want to activate. An incomplete Tier is not active yet. The Tier becomes active only when its full cost is paid.',
     images: [
@@ -111,6 +137,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
   },
   {
     id: 7,
+    track: 'stones',
     title: '7. Apply your assignment',
     body: 'Select Apply & Close when you are finished. Fully paid Stone waves are settled. Incomplete waves remain open until the next full wave.',
     note: 'Save defaults remembers your preferred choices for future rounds.',

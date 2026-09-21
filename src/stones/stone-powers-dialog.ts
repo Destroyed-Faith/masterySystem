@@ -73,9 +73,11 @@ import {
   REMOVE_SCAR_POWER_ID,
 } from './remove-scar.js';
 import {
+  STONE_HELP_TRACKS,
   STONE_POWERS_HELP_COUNT,
   STONE_POWERS_HELP_SCREENS,
   clampStoneHelpPage,
+  stoneHelpTrackForPage,
 } from './stone-powers-help.js';
 import {
   formatPendingStoneActivationWarning,
@@ -2277,7 +2279,7 @@ export class StonePowersDialog extends BaseDialog {
       nextBtn.onclick = (ev: MouseEvent) => {
         ev.preventDefault();
         ev.stopPropagation();
-        if (this.#readHelpPage(overlay) >= STONE_POWERS_HELP_COUNT) {
+        if (this.#readHelpPage(overlay) >= this.#helpTrack(overlay).last) {
           this.#closeStoneHelp(root);
           return;
         }
@@ -2302,7 +2304,7 @@ export class StonePowersDialog extends BaseDialog {
       }
       if (ev.key === 'ArrowRight') {
         ev.preventDefault();
-        if (this.#readHelpPage(overlay) >= STONE_POWERS_HELP_COUNT) return;
+        if (this.#readHelpPage(overlay) >= this.#helpTrack(overlay).last) return;
         this.#stepStoneHelp(root, 1);
         return;
       }
@@ -2316,15 +2318,24 @@ export class StonePowersDialog extends BaseDialog {
     this._helpKeyCleanup = () => host.removeEventListener('keydown', onKey, true);
   }
 
+  #helpTrack(overlay: HTMLElement) {
+    const raw = String(overlay.dataset.helpTrack || '');
+    return raw === 'stones' ? STONE_HELP_TRACKS.stones : STONE_HELP_TRACKS.initiative;
+  }
+
   #readHelpPage(overlay: HTMLElement): number {
-    return clampStoneHelpPage(Number(overlay.dataset.helpPage || '1'));
+    return clampStoneHelpPage(Number(overlay.dataset.helpPage || '1'), this.#helpTrack(overlay));
   }
 
   #openStoneHelp(root: HTMLElement, startPage: number): void {
     const overlay = this.#helpOverlay(root);
     if (!overlay) return;
+    const track = stoneHelpTrackForPage(startPage);
+    overlay.dataset.helpTrack = track.id;
     overlay.hidden = false;
     overlay.classList.remove('is-hidden');
+    const title = overlay.querySelector('#stone-help-title');
+    if (title) title.textContent = track.title;
     this.#showStoneHelpPage(root, startPage);
     const closeBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-close');
     closeBtn?.focus();
@@ -2335,7 +2346,7 @@ export class StonePowersDialog extends BaseDialog {
     if (!overlay) return;
     overlay.hidden = true;
     overlay.classList.add('is-hidden');
-    overlay.dataset.helpPage = '1';
+    overlay.dataset.helpPage = String(this.#helpTrack(overlay).first);
   }
 
   #stepStoneHelp(root: HTMLElement, delta: number): void {
@@ -2347,22 +2358,28 @@ export class StonePowersDialog extends BaseDialog {
   #showStoneHelpPage(root: HTMLElement, page: number): void {
     const overlay = this.#helpOverlay(root);
     if (!overlay) return;
-    const current = clampStoneHelpPage(page);
+    const track = this.#helpTrack(overlay);
+    const current = clampStoneHelpPage(page, track);
     overlay.dataset.helpPage = String(current);
     overlay.querySelectorAll<HTMLElement>('.stone-help-screen').forEach((screen) => {
-      const active = Number(screen.dataset.helpIndex) === current;
+      const inTrack = screen.dataset.helpTrack === track.id;
+      const active = inTrack && Number(screen.dataset.helpIndex) === current;
       screen.classList.toggle('is-current', active);
       screen.hidden = !active;
     });
     overlay.querySelectorAll<HTMLButtonElement>('.js-stone-help-dot').forEach((dot) => {
-      dot.classList.toggle('is-current', Number(dot.dataset.helpIndex) === current);
+      const inTrack = dot.dataset.helpTrack === track.id;
+      dot.hidden = !inTrack;
+      dot.classList.toggle('is-current', inTrack && Number(dot.dataset.helpIndex) === current);
     });
+    const total = track.last - track.first + 1;
+    const index = current - track.first + 1;
     const counter = overlay.querySelector('.js-stone-help-counter');
-    if (counter) counter.textContent = `${current} / ${STONE_POWERS_HELP_COUNT}`;
+    if (counter) counter.textContent = `${index} / ${total}`;
     const prevBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-prev');
-    if (prevBtn) prevBtn.disabled = current <= 1;
+    if (prevBtn) prevBtn.disabled = current <= track.first;
     const nextBtn = overlay.querySelector<HTMLButtonElement>('.js-stone-help-next');
-    if (nextBtn) nextBtn.textContent = current >= STONE_POWERS_HELP_COUNT ? 'Done' : 'Next';
+    if (nextBtn) nextBtn.textContent = current >= track.last ? 'Done' : 'Next';
   }
 
   #bindSectionToggles(root: HTMLElement): void {
