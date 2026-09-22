@@ -4,6 +4,21 @@
  * Foundry globals so the behaviour can be unit tested.
  */
 import { COLORLESS_STONE_ATTR } from './colorless-stones.js';
+const COLORLESS_BLOCKED_STONE_POWERS = new Set(['vitality.removeScar', 'wits.initiativeBoost']);
+/** Remove Scar Seals attribute stones. Initiative Boost must not farm Colorless. */
+export function stonePowerAllowsColorless(powerId) {
+    return !COLORLESS_BLOCKED_STONE_POWERS.has(String(powerId || ''));
+}
+export function stonePowerColorlessRejectMessage(powerId) {
+    const id = String(powerId || '');
+    if (id === 'vitality.removeScar') {
+        return 'Colorless Stones cannot pay Remove Scar — only Vitality Stones can be Sealed.';
+    }
+    if (id === 'wits.initiativeBoost') {
+        return 'Colorless Stones cannot pay Initiative Boost.';
+    }
+    return 'Colorless Stones cannot pay this Stone Power.';
+}
 /**
  * Attribute a click-fill should draw the next stone from. Colorless Stones are
  * the last resort: they only get picked when no attribute pool has a free stone
@@ -62,6 +77,33 @@ export function stoneDialogSectionStartsOpen(args) {
         return args.userOverride;
     return !!args.sectionHasSpendable || !!args.sectionHasAssigned;
 }
+/**
+ * Stones sitting in a power that has not reached the next full wave.
+ * Placing them does not turn the power on — Extra Attack and Crit start at
+ * 2 stones, so one stone in each looks assigned and does nothing.
+ */
+export function pendingStoneActivation(args) {
+    const placed = Math.max(0, Math.floor(Number(args.placed) || 0));
+    const needed = Math.max(0, Math.floor(Number(args.needed) || 0));
+    if (placed <= 0 || needed <= 0 || placed >= needed)
+        return null;
+    return {
+        name: String(args.name || 'Stone Power').trim() || 'Stone Power',
+        placed,
+        needed,
+        missing: needed - placed,
+    };
+}
+export function pendingStoneActivationLabel(row) {
+    const still = row.missing === 1 ? '1 stone still needed' : `${row.missing} stones still needed`;
+    return `Not activated — ${row.placed} of ${row.needed}, ${still}.`;
+}
+export function formatPendingStoneActivationWarning(rows) {
+    if (!rows.length)
+        return '';
+    const bits = rows.map((row) => `${row.name} (${row.placed} of ${row.needed})`);
+    return `Not activated: ${bits.join(', ')}. Placing them does not turn the power on — the wave must be full.`;
+}
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool) {
     if (pool.max <= 0)
@@ -71,5 +113,18 @@ export function stonePoolBlockedReason(pool) {
     if (pool.sustained > 0)
         return 'bound by Sustain';
     return 'spent this round';
+}
+/**
+ * Green card fill after a Stone Power has been charged. Unused cards stay
+ * gray. First activation is a thin green edge; each further wave adds 1px,
+ * capped at 5px so the compact card still fits.
+ */
+export function stonePowerActivationRing(activationCount) {
+    const n = Math.max(0, Math.min(8, Math.floor(Number(activationCount) || 0)));
+    return {
+        activationCount: n,
+        activated: n > 0,
+        ringPx: n <= 0 ? 1 : Math.min(5, n),
+    };
 }
 //# sourceMappingURL=stone-payment-rules.js.map

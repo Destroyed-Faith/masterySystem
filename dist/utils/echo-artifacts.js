@@ -328,7 +328,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Supports Might Ability: Melee Damage and pre-fills Tier 2. Tier 1 must still be paid.',
+            effect: 'Supports Might Ability: Martial Damage and pre-fills Tier 2. Tier 1 must still be paid.',
             special: 'might.meleeDamage',
         },
         {
@@ -337,7 +337,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Use Remove Scar through Titan Scars and pay its normal Stone cost.',
+            effect: 'Supports Vitality Ability: Remove Scar and pre-fills Tier 2. Unresolved Tiers Seal 1 / 2 / 4 / 8 (cumulative). Each newly resolved Tier recovers 1 Scarred Health Bar. Colorless Stones cannot pay this cost.',
             special: 'vitality.removeScar',
         },
         {
@@ -364,7 +364,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Remove Scar used through Titan Scars may recover 1 Scarred Health Bar, as written by the Stone Power. Pay its normal Stone cost.',
+            effect: 'Remove Scar used through Titan Scars follows the cumulative Seal rule. Pay only Tiers not yet resolved since the last Daily Reset. Each newly resolved Tier recovers 1 Scarred Health Bar.',
             special: 'vitality.removeScar',
         },
         {
@@ -391,7 +391,7 @@ const TITAN_SCARS = {
             type: 'Stone Power Support',
             range: 'Self / Touch',
             duration: 'Instant',
-            effect: 'Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost.',
+            effect: 'Use Remove Scar on yourself or one touched willing creature. Seal costs stay cumulative (1 / 2 / 4 / 8 per unresolved Tier). Colorless Stones cannot pay this cost.',
             special: 'vitality.removeScar',
         },
         {
@@ -721,7 +721,7 @@ const DRAGON_CLAWS = {
     restriction: 'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',
     // Stone Power Support targets an Attribute's Stone Power. The generic Extra
     // Attack power is not attribute-bound, so it cannot be a support target;
-    // Dragon Claws instead support the Might: Melee Damage Stone Power.
+    // Dragon Claws instead support the Might: Martial Damage Stone Power.
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
@@ -761,7 +761,7 @@ const DRAGON_CLAWS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
+            effect: 'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
             special: '',
         },
         {
@@ -790,7 +790,7 @@ const DRAGON_CLAWS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
+            effect: 'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
             special: '',
         },
         {
@@ -819,7 +819,7 @@ const DRAGON_CLAWS = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
+            effect: 'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
             special: '',
         },
         {
@@ -1006,8 +1006,8 @@ const SENTINEL_FRAME = {
     requiresSubChoice: 'sentinel',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
     // Printed table: Heal 1/4/7, Resolve Pool 2/6, Healing Support 3/8,
-    // Special Reduction 5/9. The 1/2/3 compiler covers Heal + Pool + Healing;
-    // Special Reduction is an extra Stone Function from Artifact Level 5.
+    // Ward 5/9. The 1/2/3 compiler covers Heal + Pool + Healing;
+    // Ward is an extra Stone Function from Artifact Level 5.
     progressionPickSpecs: {
         1: { templateId: 'active-ranged-single-heal', name: 'Single Heal' },
         2: { name: 'Resolve Core', stoneFunction: { kind: 'stonePool', attribute: 'resolve' } },
@@ -1023,7 +1023,7 @@ const SENTINEL_FRAME = {
     extraStoneFunctions: [
         {
             level: 5,
-            name: 'Special Reduction Support',
+            name: 'Ward Support',
             kind: 'stonePowerSupport',
             attribute: 'resolve',
             stonePowerId: 'resolve.ward',
@@ -1076,11 +1076,11 @@ const SENTINEL_FRAME = {
         },
         {
             level: 5,
-            name: 'Special Reduction Support I',
+            name: 'Ward Support I',
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Supports Resolve Ability: Special Reduction and pre-fills Tier 3. Tiers 1 and 2 must still be paid.',
+            effect: 'Supports Resolve Ability: Ward and pre-fills Tier 3. Tiers 1 and 2 must still be paid.',
             special: 'resolve.ward',
         },
         {
@@ -1112,11 +1112,11 @@ const SENTINEL_FRAME = {
         },
         {
             level: 9,
-            name: 'Special Reduction Support II',
+            name: 'Ward Support II',
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fill Tier 4 of Resolve Ability: Special Reduction. Tiers 1, 2, and 3 must still be paid.',
+            effect: 'Pre-fill Tier 4 of Resolve Ability: Ward. Tiers 1, 2, and 3 must still be paid.',
             special: 'resolve.ward',
         },
         {
@@ -1188,8 +1188,8 @@ const JUDICATOR_FRAME = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Judicator Frame supports the Regeneration Stone Power and pre-fills Tier 2.',
-            special: 'Regeneration Stone Power',
+            effect: 'Judicator Frame supports Influence Ability: Regeneration and pre-fills Tier 2.',
+            special: 'influence.regeneration',
         },
         {
             level: 4,
@@ -1215,8 +1215,8 @@ const JUDICATOR_FRAME = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 3 of the Regeneration Stone Power.',
-            special: 'Regeneration Stone Power',
+            effect: 'Pre-fills Tier 3 of Influence Ability: Regeneration.',
+            special: 'influence.regeneration',
         },
         {
             level: 7,
@@ -1242,8 +1242,8 @@ const JUDICATOR_FRAME = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fills Tier 4 of the Regeneration Stone Power.',
-            special: 'Regeneration Stone Power',
+            effect: 'Pre-fills Tier 4 of Influence Ability: Regeneration.',
+            special: 'influence.regeneration',
         },
         {
             level: 10,

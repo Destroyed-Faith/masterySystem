@@ -27,6 +27,20 @@ async function applyDirectDamage(actor, amount) {
     const bars = foundry.utils.duplicate(system.health.bars);
     const currentBar = applyDamage(bars, Number(system.health.currentBar ?? 0), dmg);
     await actor.update({ 'system.health.bars': bars, 'system.health.currentBar': currentBar });
+    try {
+        const { maybeAdvanceNpcBossPhase } = await import('./npc-phase-advance.js');
+        await maybeAdvanceNpcBossPhase(actor);
+    }
+    catch (phaseErr) {
+        console.warn('Mastery System | NPC phase advance failed', phaseErr);
+    }
+    try {
+        const { syncNpcDefeatedPresentationAfterHpChange } = await import('./defeated-token.js');
+        await syncNpcDefeatedPresentationAfterHpChange(actor);
+    }
+    catch (downErr) {
+        console.warn('Mastery System | defeated token presentation failed', downErr);
+    }
 }
 /** Meters moved between two token positions on the given scene. */
 function metersBetween(scene, oldX, oldY, newX, newY) {

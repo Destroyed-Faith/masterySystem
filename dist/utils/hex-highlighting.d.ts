@@ -12,4 +12,9 @@ export declare function highlightHexesWithinStepsFromPoint(center: {
     x: number;
     y: number;
 }, rangeSteps: number, highlightLayerId: string, color?: number, alpha?: number): void;
+/** Paint an explicit list of grid offsets (cone rows). */
+export declare function highlightGridOffsets(cells: Array<{
+    i: number;
+    j: number;
+}>, highlightLayerId: string, color?: number, alpha?: number): void;
 //# sourceMappingURL=hex-highlighting.d.ts.map

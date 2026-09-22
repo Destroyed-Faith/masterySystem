@@ -84,8 +84,8 @@ function validateSkillsAndExpressions(payload) {
             }
             const def = getMinorExpressionDefinition(id);
             const attrVal = Number(attrs[def.attribute]);
-            if (!Number.isFinite(attrVal) || attrVal < 8) {
-                errors.push(`Minor Expression "${id}" requires ${def.attribute} ≥ 8 (currently ${attrVal || 'missing'}).`);
+            if (!Number.isFinite(attrVal) || attrVal < 4) {
+                errors.push(`Minor Expression "${id}" requires ${def.attribute} ≥ 4 (currently ${attrVal || 'missing'}).`);
             }
         }
     }

@@ -19,9 +19,9 @@ export function findShutdownCombat() {
     return g.combats?.active ?? g.combat ?? g.combats?.contents?.[0] ?? null;
 }
 async function confirmShutdown(combat) {
-    const title = T('MASTERY.combatShutdown.confirmTitle', 'Kampf abbrechen');
+    const title = T('MASTERY.combatShutdown.confirmTitle', 'Shut Down Combat');
     const round = Math.max(0, Math.floor(Number(combat?.round) || 0));
-    const content = `<p>${T('MASTERY.combatShutdown.confirmContent', 'Beendet den Kampf für alle. Steinpools werden aufgefüllt, farblose Steine und Temp HP entfernt. Laufende Effekte der Spielercharaktere bleiben.')}</p><p><strong>${T('MASTERY.combatShutdown.confirmRound', 'Runde')} ${round}</strong></p>`;
+    const content = `<p>${T('MASTERY.combatShutdown.confirmContent', 'Ends the fight for everyone. Stone pools refill, Colorless Stones and Temp HP are dropped. Ongoing effects on player characters stay.')}</p><p><strong>${T('MASTERY.combatShutdown.confirmRound', 'Round')} ${round}</strong></p>`;
     const DialogV2 = globalThis.foundry?.applications?.api?.DialogV2;
     if (typeof DialogV2?.confirm === 'function') {
         return !!(await DialogV2.confirm({ window: { title }, content, modal: true }));
@@ -39,12 +39,12 @@ async function confirmShutdown(combat) {
  */
 export async function shutDownCombat(options = {}) {
     if (!game.user?.isGM) {
-        ui.notifications?.warn(T('MASTERY.combatShutdown.gmOnly', 'Nur der SL kann den Kampf abbrechen.'));
+        ui.notifications?.warn(T('MASTERY.combatShutdown.gmOnly', 'Only the GM can shut down the combat.'));
         return false;
     }
     const combat = findShutdownCombat();
     if (!combat) {
-        ui.notifications?.info(T('MASTERY.combatShutdown.noCombat', 'Kein Kampf vorhanden.'));
+        ui.notifications?.info(T('MASTERY.combatShutdown.noCombat', 'No combat present.'));
         return false;
     }
     if (options.confirm !== false && !(await confirmShutdown(combat)))
@@ -59,11 +59,11 @@ export async function shutDownCombat(options = {}) {
         }
         catch (err2) {
             console.error('Mastery System | Combat shutdown failed', err2);
-            ui.notifications?.error(T('MASTERY.combatShutdown.failed', 'Kampf konnte nicht abgebrochen werden — siehe Konsole.'));
+            ui.notifications?.error(T('MASTERY.combatShutdown.failed', 'Could not shut down the combat — see the console.'));
             return false;
         }
     }
-    ui.notifications?.info(T('MASTERY.combatShutdown.done', 'Kampf abgebrochen. Steine sind wieder aufgefüllt.'));
+    ui.notifications?.info(T('MASTERY.combatShutdown.done', 'Combat shut down. Stone pools are refilled.'));
     return true;
 }
 //# sourceMappingURL=combat-shutdown.js.map

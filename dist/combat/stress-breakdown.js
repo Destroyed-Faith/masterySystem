@@ -2,7 +2,7 @@
  * Stress Breakdown Check — Players Guide (~9214–9257).
  *
  * When the Stress Track fills (all bars empty / Breakdown reached):
- *  1. Wits Attribute Check, keep = MR, TN = 8 × MR
+ *  1. Wits Attribute Check, keep = MR, TN = (8 × MR) − 2
  *     (no Skill Points, no Vitality expenditure).
  *  2. Success (Virtue) → reset track to Clear; next action +1 Keep.
  *  3. Failure (Affliction) → reset track; choose:
@@ -54,7 +54,7 @@ function buildBreakdownPromptHtml(actor, tn, mr) {
     return `<div class="mastery-stress-breakdown" data-actor-id="${escHtml(String(actor.id))}">
     <strong>⚡ Stress Breakdown — ${name}</strong>
     <p>The Stress Track is full. Make the Stress Breakdown Check.</p>
-    <p>Make a <strong>Wits Attribute Check</strong>: keep <strong>${mr}</strong>, TN <strong>${tn}</strong> (= 8 × MR). No Skill Points / Vitality expenditure.</p>
+    <p>Make a <strong>Wits Attribute Check</strong>: keep <strong>${mr}</strong>, TN <strong>${tn}</strong> (= (8 × MR) − 2). No Skill Points / Vitality expenditure.</p>
     <div class="ms-stress-breakdown-actions" style="margin-top:0.5em;display:flex;flex-wrap:wrap;gap:0.4em;">
       <button type="button" class="ms-stress-breakdown-roll-btn" data-actor-id="${escHtml(String(actor.id))}">
         <i class="fas fa-dice"></i> Roll Stress Breakdown Check
@@ -108,7 +108,7 @@ export async function maybeTriggerStressBreakdown(actor, opts) {
         /* continue even if flag fails */
     }
     const mr = masteryRankOf(actor);
-    const tn = 8 * mr;
+    const tn = 8 * mr - 2;
     const g = globalThis;
     try {
         await g.ChatMessage?.create?.({
@@ -145,7 +145,7 @@ async function handleRollClick(actorId) {
         return;
     }
     const mr = masteryRankOf(actor);
-    const tn = 8 * mr;
+    const tn = 8 * mr - 2;
     const wits = Math.max(0, Math.floor(Number(actor.system?.attributes?.wits?.value) || 0));
     const { masteryRoll } = await import('../dice/roll-handler.js');
     const result = await masteryRoll({

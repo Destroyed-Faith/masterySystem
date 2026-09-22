@@ -25,6 +25,6 @@ export declare function accumulateAbsorbedDamage(target: any, hpLost: number, at
  * were gained before this turn expire ("until the end of your next Turn").
  */
 export declare function expireAbsorptionStonesAtTurnEnd(actor: any, combat: any): Promise<void>;
-/** Combat end: remaining Absorbed Damage disappears. */
-export declare function clearAbsorptionForCombat(combat: any): Promise<void>;
+/** Combat end: remaining Absorbed Damage disappears. Pending Absorption stones expire with the fight. */
+export declare function clearAbsorptionForCombat(combat: any, actors?: any[]): Promise<void>;
 //# sourceMappingURL=absorption.d.ts.map

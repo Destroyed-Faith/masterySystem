@@ -24,12 +24,10 @@ export interface BuiltRollContext {
 export declare function skillFullPoolThreshold(masteryRank: number): number;
 export declare function isSkillFullPoolReady(skillRating: number, masteryRank: number): boolean;
 /**
- * Opposed Skill Rolls (PG "Opposed Skill Rolls"): after a successful setup
- * roll, the opposing creature rolls against
- *   Opposing TN = standard Skill Check TN by the setup creature's MR (8 × MR)
- *                 + 2 per Raise on the setup roll.
+ * Opposed Skill Rolls: the setup roll's Final Result is the opposing TN.
+ * Raises are not added on top of a fixed Mastery Rank TN.
  */
-export declare function buildOpposedSkillTn(setupMasteryRank: number, setupRaises: number): number;
+export declare function buildOpposedSkillTn(setupFinalResult: number, _unusedRaises?: number): number;
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
 export interface SkillRollPoolPreview {
     attributeKey: string;

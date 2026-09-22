@@ -16,6 +16,7 @@ export const MASTERY_STATUS_EFFECTS = [
     { id: 'challenge', name: 'Challenge', img: ICON('challenge') },
     { id: 'stunned', name: 'Stunned', img: ICON('daze') },
     { id: 'prone', name: 'Prone', img: ICON('falling') },
+    { id: 'surprise', name: 'Surprise', img: ICON('terror') },
     { id: 'entangled', name: 'Entangled', img: ICON('net') },
     { id: 'grappled', name: 'Grappled', img: ICON('net') },
     { id: 'charmed', name: 'Charmed', img: ICON('ice-aura') },
@@ -58,12 +59,19 @@ function upsertV14StatusEffect(store, effect, order) {
         existing.name = effect.name;
         existing.img = effect.img;
         existing.order = order;
+        existing.hud = true;
+        try {
+            existing.statuses = new Set([effect.id]);
+        }
+        catch {
+            // v14 config objects sometimes freeze `statuses`; id alone is enough.
+        }
         return true;
     }
     const attempts = [
-        { id: effect.id, name: effect.name, img: effect.img, order },
-        { id: effect.id, name: effect.name, img: effect.img, order, statuses: new Set([effect.id]) },
-        { id: effect.id, name: effect.name, img: effect.img, order },
+        { id: effect.id, name: effect.name, img: effect.img, order, hud: true, statuses: new Set([effect.id]) },
+        { id: effect.id, name: effect.name, img: effect.img, order, hud: true, statuses: [effect.id] },
+        { id: effect.id, name: effect.name, img: effect.img, order, hud: true },
     ];
     for (const data of attempts) {
         try {

@@ -8,14 +8,19 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
 import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, stonePowerSkipsFirstTier, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, stoneSupportPrefillLanes, } from './stone-powers.js';
-import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
+import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, setStonePool, getRoundState, setRoundState, isStonePowersConfigurationLocked, clearStonePowersConfigurationLock, clearCombatStoneTurnBonusesForActor, getActionEconomyActor } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
+import { actorHasSurprise } from '../combat/surprise.js';
+import { INITIATIVE_ROLLED_FLAG, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
+import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, convertInitiativeToColorlessStones, getMasteryRank, getTempColorlessStones, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, maxConvertibleColorlessStones, } from './colorless-stones.js';
-import { orderPowersRampFirst, pickStoneFillAttribute, shouldSettleStoneWave, stoneDialogSectionStartsOpen, stonePoolBlockedReason, } from './stone-payment-rules.js';
+import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getMasteryRank, getTempColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, maxConvertibleColorlessStones, } from './colorless-stones.js';
+import { computeRemoveScarPayment, getRemoveScarResolvedMaxTier, inferRemoveScarTargetTier, payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID, } from './remove-scar.js';
+import { STONE_HELP_TRACKS, STONE_POWERS_HELP_COUNT, STONE_POWERS_HELP_SCREENS, clampStoneHelpPage, stoneHelpTrackForPage, } from './stone-powers-help.js';
+import { formatPendingStoneActivationWarning, orderPowersRampFirst, pendingStoneActivation, pendingStoneActivationLabel, pickStoneFillAttribute, shouldSettleStoneWave, stonePowerAllowsColorless, stonePowerColorlessRejectMessage, stoneDialogSectionStartsOpen, stonePoolBlockedReason, stonePowerActivationRing, } from './stone-payment-rules.js';
 import { clampStoneRecoveryAllocation, planStoneRecovery, } from './stone-recovery.js';
-import { isPassivesReviewedThisEncounter, isStoneRegenDone, persistCombatantSetupStep, } from '../combat/encounter-setup-flags.js';
-import { canEditEncounterPassives, getPassiveSlots, getPendingPassiveSwaps, } from '../powers/passives.js';
+import { isPassivesReviewedThisEncounter, isStoneRegenDone, persistCombatantSetupStep, readCombatantSetupStep, } from '../combat/encounter-setup-flags.js';
+import { canEditEncounterPassives, getAvailablePassives, getPassiveSlots, getPendingPassiveSwaps, passiveSlotsHaveOpenChoice, } from '../powers/passives.js';
 import { combatReflexesInitiativeState, spendCombatReflexesUse, undoCombatReflexesUse, } from '../combat/combat-reflexes.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
@@ -24,7 +29,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-men
 import { actorMasteryRank, changeNaturalRecoveryAllocation, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
-/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. T5+ (16/32) is future UI. */
+/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. Tier 4 is the last tier. */
 const STONE_PAYMENT_LANE_COUNT = 15;
 /** Segment-Index für Lane: 0=Anchor(1), 1=Mid(2), 2=Quad(4), 3=Oct(8). */
 function segmentIndexForLane(laneIndex) {
@@ -117,6 +122,24 @@ function rampSkipLeadLanes(powerId) {
         lanes.push(...lanesInStonePaymentSegment(s));
     return lanes;
 }
+function pendingStoneCardFields(name, placed, needed) {
+    const row = pendingStoneActivation({ name, placed, needed });
+    return {
+        pendingActivation: !!row,
+        waveReady: placed > 0 && needed > 0 && placed >= needed,
+        pendingLabel: row ? pendingStoneActivationLabel(row) : '',
+        pendingRow: row,
+    };
+}
+function stonePowerCardVisuals(name, placed, needed, liveUses) {
+    const ring = stonePowerActivationRing(liveUses);
+    const pending = pendingStoneCardFields(name, placed, needed);
+    return {
+        ...ring,
+        ...pending,
+        activated: ring.activated || pending.waveReady,
+    };
+}
 /** Occupied lanes augmented with skipped lead lanes (for segment-unlock only). */
 function occWithRampSkip(occupied, powerId) {
     const lead = rampSkipLeadLanes(powerId);
@@ -144,6 +167,26 @@ function parseStonePowerAccKey(accKey) {
     if (i <= 0)
         return null;
     return { powerId: rest.slice(0, i), middle: rest.slice(i + 1), uses };
+}
+function stonesPaidInLane(accKey, value) {
+    const out = {};
+    if (!Array.isArray(value) || value.length === 0)
+        return out;
+    const first = value[0];
+    if (first && typeof first === 'object') {
+        for (const occ of value) {
+            const attr = String(occ?.attr || '');
+            if (!attr)
+                continue;
+            out[attr] = (out[attr] || 0) + 1;
+        }
+        return out;
+    }
+    const attr = parseStonePowerAccKey(accKey)?.middle || '';
+    if (!attr)
+        return out;
+    out[attr] = value.length;
+    return out;
 }
 function stonePowerAccKeyPowerId(accKey) {
     return parseStonePowerAccKey(accKey)?.powerId ?? null;
@@ -396,6 +439,8 @@ export class StonePowersDialog extends BaseDialog {
     _colorlessConvertCount = null;
     /** Player toggles for attribute / General sections in this dialog session. */
     _sectionOpenOverride = {};
+    /** Removes the Help overlay key listener (Escape / arrows). */
+    _helpKeyCleanup;
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -409,15 +454,6 @@ export class StonePowersDialog extends BaseDialog {
      * Show stone powers dialog for an actor
      */
     static async showForActor(actor, combatant) {
-        if (combatant && (combatant.initiative === null || combatant.initiative === undefined)) {
-            try {
-                const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
-                await rollInitiativeForCombatant(combatant, { promptCombatReflexes: true });
-            }
-            catch (err) {
-                console.warn('Mastery System | Could not roll initiative before Stone Powers', err);
-            }
-        }
         try {
             const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
             await ensureDefaultPassiveSlots(actor);
@@ -584,27 +620,47 @@ export class StonePowersDialog extends BaseDialog {
         const canAffordGenericNextCost = (cost) => hasCombat && pools.some((p) => (Number(p.current) || 0) >= cost);
         const preparePowerData = (power, attrKey) => {
             /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
-            const liveUses = getStoneUsageCount(this.actor, attrKey, power.id, combat);
+            const isRemoveScar = power.id === REMOVE_SCAR_POWER_ID;
+            const liveUses = isRemoveScar
+                ? getRemoveScarResolvedMaxTier(this.actor)
+                : getStoneUsageCount(this.actor, attrKey, power.id, combat);
             const usesThisTurn = this._stoneReviewMode && liveUses > 0 ? liveUses - 1 : liveUses;
             const rampSkip = rampSkipSegmentsForPower(power.id);
             const leadLockedLanes = rampSkipLeadLanes(power.id);
-            const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
+            const support = supportForPower(power.id, attrKey);
+            const supportTier = support?.tier ?? 0;
+            const removeScarPayment = isRemoveScar
+                ? computeRemoveScarPayment(liveUses, inferRemoveScarTargetTier(liveUses, supportTier), supportTier)
+                : null;
+            const waveCost = calculateStoneCost(usesThisTurn + rampSkip);
+            const tierCapped = !removeScarPayment && waveCost <= 0;
+            const nextCost = removeScarPayment ? removeScarPayment.sealCost : waveCost;
             const pool = getStonePool(this.actor, attrKey);
-            const canAfford = pool.current >= nextCost && hasCombat;
+            const removeScarOpen = !removeScarPayment ||
+                removeScarPayment.sealCost > 0 ||
+                removeScarPayment.barsRecovered > 0;
+            const oncePerCombatUsed = !!power.oncePerCombat &&
+                !!this.combatant &&
+                isOncePerCombatPowerUsed(this.combatant, power.id);
+            const canAfford = !tierCapped && !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
             const gross = spendableForAttr(attrKey);
             const reserved = this.#reservedStonesInDialogForAttr(attrKey);
-            const spendableNet = Math.max(0, gross - reserved) + this.#spendableNetForAttr(COLORLESS_STONE_ATTR);
+            const spendableNet = oncePerCombatUsed
+                ? 0
+                : Math.max(0, gross - reserved) +
+                    (stonePowerAllowsColorless(power.id)
+                        ? this.#spendableNetForAttr(COLORLESS_STONE_ATTR)
+                        : 0);
             const description = power.description || power.effect || '';
             const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
             const occupied = this.#stoneOccGet(accKey);
-            const support = supportForPower(power.id, attrKey);
-            const supportTier = support?.tier ?? 0;
             const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/${attrKey}`, supportLanes, leadLockedLanes);
             return {
                 id: power.id,
                 name: power.name,
                 description,
+                effectLong: power.effect || description,
                 attribute: power.attribute,
                 accKey,
                 nextCost,
@@ -615,16 +671,11 @@ export class StonePowersDialog extends BaseDialog {
                 supportSource: support?.source ?? '',
                 supportActive: !!supportLanes,
                 supportHint: support
-                    ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
+                    ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
                     : '',
-                boostUsed: !!power.oncePerCombat &&
-                    !!this.combatant &&
-                    (power.id === 'wits.initiativeBoost'
-                        ? isInitiativeBoostUsedThisCombat(this.combatant)
-                        : power.id === 'wits.phasing'
-                            ? isPhasingStoneUsedThisCombat(this.combatant)
-                            : false),
+                boostUsed: oncePerCombatUsed,
                 hideLeadSegment: rampSkip > 0,
+                ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
                 ...laneSegs
             };
         };
@@ -654,7 +705,7 @@ export class StonePowersDialog extends BaseDialog {
             const rampSkip = rampSkipSegmentsForPower(power.id);
             const leadLockedLanes = rampSkipLeadLanes(power.id);
             const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
-            const canAfford = canAffordGenericNextCost(nextCost);
+            const canAfford = nextCost > 0 && canAffordGenericNextCost(nextCost);
             const description = power.description || power.effect || '';
             const spendableNet = totalSpendableNetAllPools();
             const occupied = this.#stoneOccGet(genericUnifiedAccKey(power.id, usesThisTurn));
@@ -678,9 +729,10 @@ export class StonePowersDialog extends BaseDialog {
                 supportSource: support?.source ?? '',
                 supportActive: !!supportLanes,
                 supportHint: support
-                    ? `Du zahlst T${firstEffectiveStonePowerTier(power.id)} selbst. T${supportTier} stellt ${support.source}.`
+                    ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
                     : '',
                 hideLeadSegment: rampSkip > 0,
+                ...stonePowerCardVisuals(power.name, occupied.length, nextCost, getGenericStonePowerUsageCount(this.actor, power.id, combat)),
                 ...laneSegs
             };
         });
@@ -745,16 +797,51 @@ export class StonePowersDialog extends BaseDialog {
             sectionHasAssigned: this.#sectionHasAssigned('general'),
             userOverride: this._sectionOpenOverride.general,
         });
+        const unactivatedStones = [
+            ...generalPowers,
+            ...attributePowerMatrix.flatMap((row) => row.cells),
+        ].flatMap((card) => (card?.pendingRow ? [card.pendingRow] : []));
         const mr = getMasteryRank(poolOwner);
         const initiativeScore = Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0));
         const stoneIniCost = colorlessStoneInitiativeCost(mr);
-        const maxConvert = maxConvertibleColorlessStones(initiativeScore, mr);
-        const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active;
+        const rolledFlag = (this.actor.getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG) ??
+            poolOwner.getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG));
+        const surprised = actorHasSurprise(this.actor) || actorHasSurprise(poolOwner);
+        const needsRoll = pcNeedsManualInitiativeRoll({
+            actorType: this.actor.type,
+            surprised,
+            combatId: combat?.id ?? null,
+            recordedCombatId: rolledFlag?.combatId ?? null,
+            recordedTotal: rolledFlag?.total ?? null,
+            initiative: this.combatant?.initiative ?? null,
+            combatantHasRecordedValue: this.combatant?.getFlag?.('mastery-system', 'msInitiativeValue') != null,
+        });
+        const maxConvert = needsRoll ? 0 : maxConvertibleColorlessStones(initiativeScore, mr);
+        const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active || needsRoll;
         const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? maxConvert));
         this._colorlessConvertCount = convertCount;
         const cr = combatReflexesInitiativeState(this.actor, this.combatant, mr);
+        const diceTotal = Number.isFinite(Number(rolledFlag?.diceTotal))
+            ? Math.floor(Number(rolledFlag?.diceTotal))
+            : null;
+        const equipmentModifier = getEquippedEquipmentInitiativeModifier(this.actor);
         const initiativeExchange = {
             show: !!this.combatant,
+            needsRoll,
+            surprised: surprised && this.actor.type === 'character',
+            diceTotal,
+            equipmentModifier,
+            equipmentSigned: formatSignedInitiativeModifier(equipmentModifier),
+            diceRollLine: !needsRoll && !surprised
+                ? formatInitiativeDiceRollLine(diceTotal ?? initiativeScore)
+                : '',
+            armorPenaltyLine: !needsRoll && !surprised ? formatInitiativeArmorPenaltyLine(equipmentModifier) : '',
+            summary: needsRoll
+                ? ''
+                : formatInitiativeExchangeSummary({
+                    diceTotal,
+                    initiative: initiativeScore,
+                }),
             initiative: initiativeScore,
             masteryRank: mr,
             costPerStone: stoneIniCost,
@@ -765,9 +852,7 @@ export class StonePowersDialog extends BaseDialog {
             locked: exchangeLocked,
             boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
             combatReflexes: {
-                // Four use boxes like on the sheet: one use applies the Mastery Rank.
-                // The roll no longer stops for a popup nobody had context for.
-                show: this.actor.type === 'character' && cr.rating > 0,
+                show: this.actor.type === 'character' && cr.rating > 0 && !needsRoll && !surprised,
                 pointsPerUse: cr.pointsPerUse,
                 remainingPool: cr.remainingPool,
                 nextUse: cr.nextUse,
@@ -794,6 +879,11 @@ export class StonePowersDialog extends BaseDialog {
             hasCombat,
             stonePlanLocked,
             stoneReviewMode,
+            unactivatedStones,
+            gmTools: {
+                show: !!game.user?.isGM && !!this.combatant,
+                passives: this.actor.type === 'character',
+            },
             recovery,
             /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
             dragStonesEnabled: !stonePlanLocked && !recovery.active,
@@ -801,8 +891,10 @@ export class StonePowersDialog extends BaseDialog {
             showStonePools,
             prefsUseDefaults,
             canSavePrefs,
-            combatLabel: combat ? `Runde ${combat.round}` : '',
+            combatLabel: combat ? `Round ${combat.round}` : '',
             naturalRecovery: this.#naturalRecoveryContext(combat, stonePlanLocked),
+            helpScreens: STONE_POWERS_HELP_SCREENS,
+            helpScreenCount: STONE_POWERS_HELP_COUNT,
         };
     }
     #naturalRecoveryContext(combat, locked) {
@@ -814,11 +906,6 @@ export class StonePowersDialog extends BaseDialog {
         const show = !!this.combatant &&
             this.actor.type === 'character' &&
             (options.length > 0 || skipped);
-        const i18n = game?.i18n;
-        const title = i18n?.localize?.('MASTERY.specials.naturalRecoveryPick') || 'Natural Special Recovery';
-        const fallbackHint = `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`;
-        const hint = i18n?.format?.('MASTERY.specials.naturalRecoveryHint', { rank: masteryRank }) || fallbackHint;
-        const noneLabel = i18n?.localize?.('MASTERY.specials.naturalRecoveryNone') || 'None';
         return {
             show,
             locked,
@@ -831,9 +918,9 @@ export class StonePowersDialog extends BaseDialog {
                 canRemove: row.canRemove && !locked,
             })),
             skipped,
-            title: title === 'MASTERY.specials.naturalRecoveryPick' ? 'Natural Special Recovery' : title,
-            hint: hint === 'MASTERY.specials.naturalRecoveryHint' ? fallbackHint : hint,
-            noneLabel: noneLabel === 'MASTERY.specials.naturalRecoveryNone' ? 'None' : noneLabel,
+            title: 'Natural Special Recovery',
+            hint: `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`,
+            noneLabel: 'None',
         };
     }
     #passivesCtaContext(combat) {
@@ -843,23 +930,23 @@ export class StonePowersDialog extends BaseDialog {
         const pendingSwaps = getPendingPassiveSwaps(this.actor);
         const canEdit = canEditEncounterPassives(combat, this.actor);
         const show = !!this.combatant && actorType === 'character';
-        const names = getPassiveSlots(this.actor)
+        const slots = getPassiveSlots(this.actor);
+        const names = slots
             .map((slot) => String(slot.passive?.name ?? '').trim())
             .filter(Boolean);
-        const i18n = game?.i18n;
-        const loc = (key, fallback) => {
-            const t = i18n?.localize?.(`MASTERY.encounterSetup.${key}`);
-            return !t || t === `MASTERY.encounterSetup.${key}` ? fallback : t;
-        };
-        const label = loc('assignPassives', 'Passives verteilen');
+        const gmOpen = readCombatantSetupStep(this.combatant, combat)?.passivesGmOpen === true;
+        const needsPrompt = show &&
+            (gmOpen ||
+                passiveSlotsHaveOpenChoice(slots, getAvailablePassives(this.actor).length, pendingSwaps));
+        const label = 'Assign Passives';
         const hint = canEdit
             ? pendingSwaps > 0
-                ? loc('assignPassivesHintSwap', 'Exchange Passive ist bezahlt — du kannst jetzt tauschen.')
-                : loc('assignPassivesHint', 'Die vorausgewählten Passives ändern. Die letzte Wahl bleibt gespeichert.')
-            : loc('assignPassivesHintView', 'Nur Ansicht. Passives bleiben, bis Exchange Passive bezahlt ist.');
+                ? 'Exchange Passive is paid — you may swap now.'
+                : 'Change the pre-selected Passives. Your last choice is kept.'
+            : 'View only. Passives stay set until you pay Exchange Passive.';
         return {
-            show,
-            glow: show && ((round <= 1 && !reviewed) || pendingSwaps > 0),
+            show: needsPrompt,
+            glow: gmOpen || (needsPrompt && ((round <= 1 && !reviewed) || pendingSwaps > 0)),
             canEdit,
             names,
             namesLabel: names.length ? names.join(', ') : '—',
@@ -1110,7 +1197,51 @@ export class StonePowersDialog extends BaseDialog {
         await setNaturalRecoverySkipped(this.actor, combat);
         await this.#renderKeepingScroll();
     }
+    #dialogNeedsInitiativeRoll() {
+        const combat = game.combat;
+        const actor = this.actor;
+        const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+        const rolledFlag = (actor.getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG) ??
+            poolOwner.getFlag?.('mastery-system', INITIATIVE_ROLLED_FLAG));
+        return pcNeedsManualInitiativeRoll({
+            actorType: actor.type,
+            surprised: actorHasSurprise(actor) || actorHasSurprise(poolOwner),
+            combatId: combat?.id ?? null,
+            recordedCombatId: rolledFlag?.combatId ?? null,
+            recordedTotal: rolledFlag?.total ?? null,
+            initiative: this.combatant?.initiative ?? null,
+            combatantHasRecordedValue: this.combatant?.getFlag?.('mastery-system', 'msInitiativeValue') != null,
+        });
+    }
+    async #rollInitiativeFromDialog(button) {
+        if (!this.combatant || button.disabled)
+            return;
+        button.disabled = true;
+        try {
+            const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
+            const breakdown = await rollInitiativeForCombatant(this.combatant, { promptCombatReflexes: false });
+            const rolled = Math.floor(Number(breakdown.diceTotal) || 0);
+            const now = Math.floor(Number(breakdown.totalInitiative) || 0);
+            ui.notifications?.info(rolled === now
+                ? `${this.actor.name}: ${formatInitiativeDiceRollLine(rolled)}`
+                : `${this.actor.name}: ${formatInitiativeDiceRollLine(rolled)} Initiative is now ${now}.`);
+            this._colorlessConvertCount = null;
+            await this.#renderKeepingScroll();
+        }
+        catch (err) {
+            console.warn('Mastery System | Initiative roll from dialog failed', err);
+            ui.notifications?.warn('Could not roll Initiative.');
+            button.disabled = false;
+        }
+    }
     #bindInitiativeExchangeControls(root) {
+        const rollBtn = root.querySelector('.js-roll-initiative');
+        if (rollBtn) {
+            rollBtn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                void this.#rollInitiativeFromDialog(rollBtn);
+            });
+        }
         const stepConvert = async (delta) => {
             const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
             const max = maxConvertibleColorlessStones(Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0)), mr);
@@ -1207,11 +1338,57 @@ export class StonePowersDialog extends BaseDialog {
         this.#bindInitiativeExchangeControls(root);
         this.#bindNaturalRecoveryControls(root);
         this.#bindSectionToggles(root);
+        this.#bindStoneHelp(root);
         const passivesCta = root.querySelector('.js-open-passives');
         if (passivesCta) {
             passivesCta.onclick = async (ev) => {
                 ev.preventDefault();
                 await this.#openPassivesFromCta();
+            };
+        }
+        const resetStones = root.querySelector('.js-gm-reset-stones');
+        if (resetStones) {
+            resetStones.onclick = async (ev) => {
+                ev.preventDefault();
+                if (resetStones.disabled)
+                    return;
+                resetStones.disabled = true;
+                try {
+                    await this.#gmResetStoneAssignment();
+                }
+                finally {
+                    resetStones.disabled = false;
+                }
+            };
+        }
+        const releasePassives = root.querySelector('.js-gm-release-passives');
+        if (releasePassives) {
+            releasePassives.onclick = async (ev) => {
+                ev.preventDefault();
+                if (releasePassives.disabled)
+                    return;
+                releasePassives.disabled = true;
+                try {
+                    await this.#gmReleasePassives();
+                }
+                finally {
+                    releasePassives.disabled = false;
+                }
+            };
+        }
+        const releaseInitiative = root.querySelector('.js-gm-release-initiative');
+        if (releaseInitiative) {
+            releaseInitiative.onclick = async (ev) => {
+                ev.preventDefault();
+                if (releaseInitiative.disabled)
+                    return;
+                releaseInitiative.disabled = true;
+                try {
+                    await this.#gmReleaseInitiative();
+                }
+                finally {
+                    releaseInitiative.disabled = false;
+                }
             };
         }
         const convertBtn = root.querySelector('.js-convert-initiative-colorless');
@@ -1240,6 +1417,10 @@ export class StonePowersDialog extends BaseDialog {
                 ev.preventDefault();
                 if (this._recoveryActive) {
                     ui.notifications?.warn('Finish Stone Recovery first, then assign your stones.');
+                    return;
+                }
+                if (this.#dialogNeedsInitiativeRoll()) {
+                    ui.notifications?.warn('Roll Initiative first — the button is in the Initiative row.');
                     return;
                 }
                 // `_onClose` resolves the caller's promise once payment and the round
@@ -1379,9 +1560,11 @@ export class StonePowersDialog extends BaseDialog {
         const combat = game.combat;
         if (!combat)
             return false;
-        const currentUses = isGenericUnifiedAccKey(accKey)
-            ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-            : getStoneUsageCount(this.actor, middle, powerId, combat);
+        const currentUses = powerId === REMOVE_SCAR_POWER_ID
+            ? getRemoveScarResolvedMaxTier(this.actor)
+            : isGenericUnifiedAccKey(accKey)
+                ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+                : getStoneUsageCount(this.actor, middle, powerId, combat);
         if (!shouldSettleStoneWave({
             reviewMode: this._stoneReviewMode,
             paidAccKeys: this._stonePaidLanes.keys(),
@@ -1393,13 +1576,21 @@ export class StonePowersDialog extends BaseDialog {
         }
         // Ramp powers (no Tier 1) start one segment higher, so the first wave
         // costs the Tier-2 amount; mirror the dialog's nextCost here.
-        const nextCost = calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
+        // Remove Scar pays remaining unresolved Tiers (Seal 1/2/4/8), not the
+        // per-round wave counter.
+        const removeScarSupport = powerId === REMOVE_SCAR_POWER_ID
+            ? getArtifactStoneSupportPrefill(this.actor, powerId, 'vitality')
+            : 0;
+        const nextCost = powerId === REMOVE_SCAR_POWER_ID
+            ? computeRemoveScarPayment(currentUses, inferRemoveScarTargetTier(currentUses, removeScarSupport), removeScarSupport).sealCost
+            : calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
+        const onceCluster = !!def.oncePerCombat;
         const perAttr = {};
         if (isGenericUnifiedAccKey(accKey)) {
             const raw = this.#stoneOccGetRaw(accKey);
             if (!raw.length || !isGenericLaneOccArray(raw))
                 return false;
-            if (raw.length !== nextCost)
+            if (!onceCluster && raw.length !== nextCost)
                 return false;
             for (const { attr } of raw) {
                 perAttr[attr] = (perAttr[attr] || 0) + 1;
@@ -1412,14 +1603,14 @@ export class StonePowersDialog extends BaseDialog {
             if (!raw.length)
                 return false;
             if (isGenericLaneOccArray(raw)) {
-                if (raw.length !== nextCost)
+                if (!onceCluster && raw.length !== nextCost)
                     return false;
                 for (const { attr } of raw) {
                     perAttr[attr] = (perAttr[attr] || 0) + 1;
                 }
             }
             else {
-                if (raw.length !== nextCost)
+                if (!onceCluster && raw.length !== nextCost)
                     return false;
                 perAttr[String(middle)] = raw.length;
             }
@@ -1427,8 +1618,18 @@ export class StonePowersDialog extends BaseDialog {
         const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
         if (!combatant)
             return false;
+        if (!stonePowerAllowsColorless(powerId) && (perAttr[COLORLESS_STONE_ATTR] || 0) > 0) {
+            ui.notifications?.warn(stonePowerColorlessRejectMessage(powerId));
+            return false;
+        }
         let ok;
-        if (isGenericUnifiedAccKey(accKey)) {
+        if (powerId === REMOVE_SCAR_POWER_ID) {
+            ok = await payAndApplyRemoveScar(this.actor, {
+                colorlessSpent: 0,
+                supportPrefillTier: removeScarSupport,
+            });
+        }
+        else if (isGenericUnifiedAccKey(accKey)) {
             ok = await activateGenericStonePowerMixed({
                 actor: this.actor,
                 combatant,
@@ -1437,11 +1638,13 @@ export class StonePowersDialog extends BaseDialog {
             });
         }
         else {
+            const placed = Object.values(perAttr).reduce((sum, n) => sum + (Number(n) || 0), 0);
             ok = await activateStonePower({
                 actor: this.actor,
                 combatant,
                 abilityId: powerId,
                 colorlessSpent: perAttr[COLORLESS_STONE_ATTR] || 0,
+                placedCount: onceCluster ? placed : undefined,
             });
         }
         if (ok) {
@@ -1452,6 +1655,30 @@ export class StonePowersDialog extends BaseDialog {
             this.#stoneOccSet(accKey, []);
         }
         return ok;
+    }
+    /** Stones in a slot that do not fill the wave are not turned on. Say so. */
+    #warnUnactivatedStones() {
+        const rows = this.#listUnactivatedPlacements();
+        const text = formatPendingStoneActivationWarning(rows);
+        if (text)
+            ui.notifications?.warn(text);
+    }
+    #listUnactivatedPlacements() {
+        this.#pullSessionPartialsIntoInstance();
+        const out = [];
+        for (const [accKey, value] of this._stoneDropAccumulators) {
+            const parsed = parseStonePowerAccKey(accKey);
+            if (!parsed || !Array.isArray(value) || !value.length)
+                continue;
+            const def = STONE_POWERS[parsed.powerId];
+            if (!def)
+                continue;
+            const needed = calculateStoneCost(parsed.uses + rampSkipSegmentsForPower(parsed.powerId));
+            const row = pendingStoneActivation({ name: def.name, placed: value.length, needed });
+            if (row)
+                out.push(row);
+        }
+        return out;
     }
     async #flushCompletedStonePaymentsFromAccumulators() {
         this.#pullSessionPartialsIntoInstance();
@@ -1474,6 +1701,133 @@ export class StonePowersDialog extends BaseDialog {
     }
     #sessionLaneCompositeKey(accKey) {
         return `${this.#stoneLaneOwnerActorId()}\0${accKey}`;
+    }
+    async #gmReleasePassives() {
+        if (!game.user?.isGM)
+            return;
+        const combat = game.combat;
+        if (!combat || !this.combatant)
+            return;
+        const actorId = String(this.actor.id ?? '');
+        await persistCombatantSetupStep(this.combatant, combat, {
+            passivesLocked: false,
+            passivesGmOpen: true,
+            passivesReviewed: false,
+        });
+        try {
+            const setup = (combat.getFlag?.('mastery-system', 'encounterSetup') ?? {});
+            const passives = { ...(setup.passives || {}) };
+            if (actorId && passives[actorId]) {
+                passives[actorId] = { ...passives[actorId], locked: false };
+                await combat.setFlag('mastery-system', 'encounterSetup', { ...setup, passives });
+            }
+        }
+        catch {
+            /* combat flag is best-effort; the combatant flag is enough to edit */
+        }
+        ui.notifications?.info(`${this.actor.name}: Passives are open again.`);
+        await this.#renderKeepingScroll();
+    }
+    async #gmReleaseInitiative() {
+        if (!game.user?.isGM || !this.combatant)
+            return;
+        const owner = getActionEconomyActor(this.actor) ?? this.actor;
+        await releasePcInitiativeRoll(owner, this.combatant);
+        if (owner !== this.actor)
+            await releasePcInitiativeRoll(this.actor, this.combatant);
+        this._colorlessConvertCount = null;
+        ui.notifications?.info(`${this.actor.name}: Initiative is open again. Roll it again.`);
+        await this.#renderKeepingScroll();
+    }
+    async #gmResetStoneAssignment() {
+        if (!game.user?.isGM)
+            return;
+        const combat = game.combat;
+        if (!combat || !this.combatant)
+            return;
+        const owner = (getActionEconomyActor(this.actor) ?? this.actor);
+        const plan = owner.getFlag?.('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
+        const refund = {};
+        for (const row of plan?.receipt ?? []) {
+            for (const [attr, n] of Object.entries(stonesPaidInLane(row.accKey, row.value))) {
+                refund[attr] = (refund[attr] || 0) + n;
+            }
+        }
+        for (const [attr, n] of Object.entries(refund)) {
+            if (n <= 0)
+                continue;
+            if (attr === COLORLESS_STONE_ATTR) {
+                await addInitiativeColorlessStones(owner, n);
+                continue;
+            }
+            const pool = getStonePool(owner, attr);
+            const cap = Math.max(pool.current, Math.floor(Number(pool.max) || pool.current));
+            await setStonePool(owner, attr, Math.min(cap, pool.current + n));
+        }
+        const round = Math.max(1, Number(combat.round) || 1);
+        const usage = {
+            ...(owner.getFlag?.('mastery-system', 'stoneUsage') || {}),
+        };
+        for (const key of Object.keys(usage)) {
+            if (key.includes(`:${round}:`))
+                delete usage[key];
+        }
+        try {
+            await owner.setFlag('mastery-system', 'stoneUsage', usage);
+        }
+        catch {
+            /* best-effort */
+        }
+        try {
+            await clearCombatStoneTurnBonusesForActor(owner, combat);
+        }
+        catch {
+            /* best-effort */
+        }
+        try {
+            const roundState = getRoundState(owner, combat);
+            if (roundState.stoneBonuses) {
+                roundState.stoneBonuses.extraAttacks = 0;
+                roundState.stoneBonuses.extraReactions = 0;
+                roundState.stoneBonuses.extraMoveMeters = 0;
+                await setRoundState(owner, roundState);
+            }
+        }
+        catch {
+            /* best-effort */
+        }
+        try {
+            await owner.unsetFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
+        }
+        catch {
+            /* best-effort */
+        }
+        try {
+            await clearStonePowersConfigurationLock(owner);
+        }
+        catch {
+            /* best-effort */
+        }
+        const state = combat.getFlag?.('mastery-system', 'stonePowersState') || {};
+        const stonesDone = { ...(state.stonesDone || {}) };
+        delete stonesDone[this.combatant.id];
+        try {
+            await combat.setFlag('mastery-system', 'stonePowersState', { ...state, stonesDone });
+        }
+        catch {
+            /* best-effort */
+        }
+        try {
+            await persistCombatantSetupStep(this.combatant, combat, { stonesDoneRound: 0 });
+        }
+        catch {
+            /* best-effort */
+        }
+        this.#clearSessionStoneLanesForOwner();
+        this._stonePaidLanes.clear();
+        this._stoneReviewMode = false;
+        ui.notifications?.info(`${String(owner.name || 'Character')}: Stone assignment reset. Paid stones are back in the pool.`);
+        await this.#renderKeepingScroll();
     }
     #clearSessionStoneLanesForOwner() {
         const aid = this.#stoneLaneOwnerActorId();
@@ -1580,6 +1934,163 @@ export class StonePowersDialog extends BaseDialog {
         }
         return false;
     }
+    #helpOverlay(root) {
+        return (root.querySelector('.stone-help-overlay') ||
+            this.element?.querySelector('.stone-help-overlay') ||
+            null);
+    }
+    #helpIsOpen(root) {
+        const overlay = this.#helpOverlay(root);
+        return !!overlay && !overlay.hasAttribute('hidden');
+    }
+    #bindStoneHelp(root) {
+        this._helpKeyCleanup?.();
+        this._helpKeyCleanup = undefined;
+        root.querySelectorAll('.js-stone-help').forEach((btn) => {
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.#openStoneHelp(root, Number(btn.dataset.helpStart || '1'));
+            };
+        });
+        const overlay = this.#helpOverlay(root);
+        if (!overlay)
+            return;
+        const frame = this.element?.querySelector('.window-content') ?? root;
+        if (overlay.parentElement !== frame)
+            frame.appendChild(overlay);
+        const closeBtn = overlay.querySelector('.js-stone-help-close');
+        if (closeBtn) {
+            closeBtn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.#closeStoneHelp(root);
+            };
+        }
+        overlay.onclick = (ev) => {
+            if (ev.target === overlay) {
+                ev.preventDefault();
+                this.#closeStoneHelp(root);
+            }
+        };
+        const prevBtn = overlay.querySelector('.js-stone-help-prev');
+        if (prevBtn) {
+            prevBtn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.#stepStoneHelp(root, -1);
+            };
+        }
+        const nextBtn = overlay.querySelector('.js-stone-help-next');
+        if (nextBtn) {
+            nextBtn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (this.#readHelpPage(overlay) >= this.#helpTrack(overlay).last) {
+                    this.#closeStoneHelp(root);
+                    return;
+                }
+                this.#stepStoneHelp(root, 1);
+            };
+        }
+        overlay.querySelectorAll('.js-stone-help-dot').forEach((dot) => {
+            dot.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                this.#showStoneHelpPage(root, Number(dot.dataset.helpIndex || '1'));
+            };
+        });
+        const onKey = (ev) => {
+            if (!this.#helpIsOpen(root))
+                return;
+            if (ev.key === 'Escape') {
+                ev.preventDefault();
+                ev.stopImmediatePropagation();
+                this.#closeStoneHelp(root);
+                return;
+            }
+            if (ev.key === 'ArrowRight') {
+                ev.preventDefault();
+                if (this.#readHelpPage(overlay) >= this.#helpTrack(overlay).last)
+                    return;
+                this.#stepStoneHelp(root, 1);
+                return;
+            }
+            if (ev.key === 'ArrowLeft') {
+                ev.preventDefault();
+                this.#stepStoneHelp(root, -1);
+            }
+        };
+        const host = this.element ?? root;
+        host.addEventListener('keydown', onKey, true);
+        this._helpKeyCleanup = () => host.removeEventListener('keydown', onKey, true);
+    }
+    #helpTrack(overlay) {
+        const raw = String(overlay.dataset.helpTrack || '');
+        return raw === 'stones' ? STONE_HELP_TRACKS.stones : STONE_HELP_TRACKS.initiative;
+    }
+    #readHelpPage(overlay) {
+        return clampStoneHelpPage(Number(overlay.dataset.helpPage || '1'), this.#helpTrack(overlay));
+    }
+    #openStoneHelp(root, startPage) {
+        const overlay = this.#helpOverlay(root);
+        if (!overlay)
+            return;
+        const track = stoneHelpTrackForPage(startPage);
+        overlay.dataset.helpTrack = track.id;
+        overlay.hidden = false;
+        overlay.classList.remove('is-hidden');
+        const title = overlay.querySelector('#stone-help-title');
+        if (title)
+            title.textContent = track.title;
+        this.#showStoneHelpPage(root, startPage);
+        const closeBtn = overlay.querySelector('.js-stone-help-close');
+        closeBtn?.focus();
+    }
+    #closeStoneHelp(root) {
+        const overlay = this.#helpOverlay(root);
+        if (!overlay)
+            return;
+        overlay.hidden = true;
+        overlay.classList.add('is-hidden');
+        overlay.dataset.helpPage = String(this.#helpTrack(overlay).first);
+    }
+    #stepStoneHelp(root, delta) {
+        const overlay = this.#helpOverlay(root);
+        if (!overlay || !this.#helpIsOpen(root))
+            return;
+        this.#showStoneHelpPage(root, this.#readHelpPage(overlay) + delta);
+    }
+    #showStoneHelpPage(root, page) {
+        const overlay = this.#helpOverlay(root);
+        if (!overlay)
+            return;
+        const track = this.#helpTrack(overlay);
+        const current = clampStoneHelpPage(page, track);
+        overlay.dataset.helpPage = String(current);
+        overlay.querySelectorAll('.stone-help-screen').forEach((screen) => {
+            const inTrack = screen.dataset.helpTrack === track.id;
+            const active = inTrack && Number(screen.dataset.helpIndex) === current;
+            screen.classList.toggle('is-current', active);
+            screen.hidden = !active;
+        });
+        overlay.querySelectorAll('.js-stone-help-dot').forEach((dot) => {
+            const inTrack = dot.dataset.helpTrack === track.id;
+            dot.hidden = !inTrack;
+            dot.classList.toggle('is-current', inTrack && Number(dot.dataset.helpIndex) === current);
+        });
+        const total = track.last - track.first + 1;
+        const index = current - track.first + 1;
+        const counter = overlay.querySelector('.js-stone-help-counter');
+        if (counter)
+            counter.textContent = `${index} / ${total}`;
+        const prevBtn = overlay.querySelector('.js-stone-help-prev');
+        if (prevBtn)
+            prevBtn.disabled = current <= track.first;
+        const nextBtn = overlay.querySelector('.js-stone-help-next');
+        if (nextBtn)
+            nextBtn.textContent = current >= track.last ? 'Done' : 'Next';
+    }
     #bindSectionToggles(root) {
         root.querySelectorAll('details.power-group[data-section]').forEach((el) => {
             el.addEventListener('toggle', () => {
@@ -1606,6 +2117,13 @@ export class StonePowersDialog extends BaseDialog {
         const combat = game.combat;
         if (!isGeneric && !fixedPayAttr)
             return;
+        const onceDef = STONE_POWERS[powerId];
+        if (onceDef?.oncePerCombat &&
+            this.combatant &&
+            isOncePerCombatPowerUsed(this.combatant, powerId)) {
+            ui.notifications?.warn(`${onceDef.name} may be used only once per combat.`);
+            return;
+        }
         const uses = isGeneric
             ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
             : getStoneUsageCount(this.actor, fixedPayAttr, powerId, combat);
@@ -1640,7 +2158,7 @@ export class StonePowersDialog extends BaseDialog {
             else {
                 // Attribute powers pay in their own colour; Colorless Stones fill in
                 // once that pool is empty (same rule as dropping one by hand).
-                const pick = pickStoneFillAttribute([fixedPayAttr], () => true, (attr) => this.#spendableNetForAttr(attr));
+                const pick = pickStoneFillAttribute([fixedPayAttr], (attr) => stonePowerAllowsColorless(powerId) || attr !== COLORLESS_STONE_ATTR, (attr) => this.#spendableNetForAttr(attr));
                 if (!pick)
                     break;
                 chosenAttr = pick;
@@ -1761,12 +2279,12 @@ export class StonePowersDialog extends BaseDialog {
                 gem.setAttribute('data-lane-index', String(lane));
                 gem.setAttribute('data-return-attribute-key', payAttr);
                 gem.title = paid
-                    ? 'Bereits bezahlt — bleibt für diese Runde gebucht'
+                    ? 'Already paid — stays booked for this round'
                     : canReturn
-                        ? 'Zurück in den passenden Pool ziehen'
+                        ? 'Drag back to the matching pool'
                         : this._stoneReviewMode
-                            ? 'Diese Runde bestätigt — nur Ansicht'
-                            : 'Runde gesperrt — Rückgabe nicht möglich';
+                            ? 'This round is confirmed — view only'
+                            : 'Round locked — cannot return';
                 gem.draggable = canReturn;
                 gem.classList.toggle('is-drag-disabled', !canReturn);
                 gem.classList.toggle('is-paid', paid);
@@ -1837,8 +2355,9 @@ export class StonePowersDialog extends BaseDialog {
                     continue;
                 el.classList.remove('slot-active', 'slot-locked');
                 el.classList.add('slot-filled');
-                el.style.setProperty('background', 'rgba(76, 175, 80, 0.28)', 'important');
-                el.style.setProperty('border-color', 'rgba(102, 187, 106, 0.95)', 'important');
+                const pending = !!el.closest('.power-card-general')?.classList.contains('is-pending');
+                el.style.setProperty('background', pending ? 'rgba(255, 152, 0, 0.2)' : 'rgba(76, 175, 80, 0.28)', 'important');
+                el.style.setProperty('border-color', pending ? '#ff9800' : 'rgba(102, 187, 106, 0.95)', 'important');
             }
         }
         this.#reconcilePrimedSupportLanes(root);
@@ -2053,7 +2572,7 @@ export class StonePowersDialog extends BaseDialog {
             ev.preventDefault();
             clearDragOver();
             if (locked) {
-                ui.notifications?.warn('Diese Runde ist für Stonepowers gesperrt.');
+                ui.notifications?.warn('This round is locked for Stone Powers.');
                 return;
             }
             if (!slot.classList.contains('slot-active')) {
@@ -2069,7 +2588,17 @@ export class StonePowersDialog extends BaseDialog {
                 '';
             const isGeneric = slot.dataset.isGeneric === 'true' ||
                 slot.getAttribute('data-is-generic') === 'true';
+            if (STONE_POWERS[powerId]?.oncePerCombat &&
+                this.combatant &&
+                isOncePerCombatPowerUsed(this.combatant, powerId)) {
+                ui.notifications?.warn(`${STONE_POWERS[powerId].name} may be used only once per combat.`);
+                return;
+            }
             const isColorless = dragged === COLORLESS_STONE_ATTR;
+            if (isColorless && !stonePowerAllowsColorless(powerId)) {
+                ui.notifications?.warn(stonePowerColorlessRejectMessage(powerId));
+                return;
+            }
             let payAttr;
             if (isGeneric) {
                 payAttr = dragged;
@@ -2077,7 +2606,7 @@ export class StonePowersDialog extends BaseDialog {
                     return;
                 }
                 if (!poolKeys.has(dragged) && !isColorless) {
-                    ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
+                    ui.notifications?.warn('This stone belongs to no pool on this sheet.');
                     return;
                 }
                 if (!isColorless)
@@ -2089,7 +2618,7 @@ export class StonePowersDialog extends BaseDialog {
                     return;
                 }
                 if (dragged !== payAttr && !isColorless) {
-                    ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
+                    ui.notifications?.warn('Wrong stone — attribute does not match this slot.');
                     return;
                 }
                 if (isColorless)
@@ -2388,7 +2917,7 @@ export class StonePowersDialog extends BaseDialog {
                 defaultAttributesByPowerId: map
             }
         });
-        ui.notifications?.info('Steinmacht-Standard gespeichert (wird bei neuen Runden übernommen, solange aktiviert).');
+        ui.notifications?.info('Stone Power defaults saved (applied on new rounds while enabled).');
     }
     async _onClose(_options) {
         const committed = _options?.committed === true;
@@ -2401,6 +2930,7 @@ export class StonePowersDialog extends BaseDialog {
                 // snapshot that got charged again on the next confirm.
                 try {
                     await this.#flushCompletedStonePaymentsFromAccumulators();
+                    this.#warnUnactivatedStones();
                     await this.#persistStonePowersRoundPlan();
                 }
                 catch (err) {
@@ -2457,6 +2987,8 @@ export class StonePowersDialog extends BaseDialog {
         this._stoneReturnAccKey = null;
         this._stoneDndCleanup?.();
         this._stoneDndCleanup = undefined;
+        this._helpKeyCleanup?.();
+        this._helpKeyCleanup = undefined;
         if (this.resolve) {
             this.resolve(committed);
             this.resolve = undefined;

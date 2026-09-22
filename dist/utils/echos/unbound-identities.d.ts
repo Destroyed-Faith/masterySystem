@@ -9,7 +9,7 @@ export declare const UNBOUND_PREDATOR_SHAPES: readonly ["Wolf", "Bear", "Raven",
 export type UnboundPredatorShape = (typeof UNBOUND_PREDATOR_SHAPES)[number];
 export declare const UNBOUND_PREDATOR_STONES: readonly [{
     readonly key: "might";
-    readonly label: "Might — Melee Damage";
+    readonly label: "Might — Martial Damage";
     readonly artifactKey: "predatorCrownMight";
 }, {
     readonly key: "wits";

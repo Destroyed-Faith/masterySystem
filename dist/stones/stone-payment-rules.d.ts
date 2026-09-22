@@ -3,6 +3,9 @@
  * when a wave may be charged, and why a visible pool is unusable. Kept free of
  * Foundry globals so the behaviour can be unit tested.
  */
+/** Remove Scar Seals attribute stones. Initiative Boost must not farm Colorless. */
+export declare function stonePowerAllowsColorless(powerId: string): boolean;
+export declare function stonePowerColorlessRejectMessage(powerId: string): string;
 /**
  * Attribute a click-fill should draw the next stone from. Colorless Stones are
  * the last resort: they only get picked when no attribute pool has a free stone
@@ -39,6 +42,24 @@ export declare function stoneDialogSectionStartsOpen(args: {
     sectionHasAssigned?: boolean;
     userOverride?: boolean;
 }): boolean;
+export interface PendingStoneActivation {
+    name: string;
+    placed: number;
+    needed: number;
+    missing: number;
+}
+/**
+ * Stones sitting in a power that has not reached the next full wave.
+ * Placing them does not turn the power on — Extra Attack and Crit start at
+ * 2 stones, so one stone in each looks assigned and does nothing.
+ */
+export declare function pendingStoneActivation(args: {
+    name: string;
+    placed: number;
+    needed: number;
+}): PendingStoneActivation | null;
+export declare function pendingStoneActivationLabel(row: PendingStoneActivation): string;
+export declare function formatPendingStoneActivationWarning(rows: readonly PendingStoneActivation[]): string;
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export declare function stonePoolBlockedReason(pool: {
     max: number;
@@ -46,4 +67,14 @@ export declare function stonePoolBlockedReason(pool: {
     sustained: number;
     artifactBound: number;
 }): string;
+/**
+ * Green card fill after a Stone Power has been charged. Unused cards stay
+ * gray. First activation is a thin green edge; each further wave adds 1px,
+ * capped at 5px so the compact card still fits.
+ */
+export declare function stonePowerActivationRing(activationCount: number): {
+    activationCount: number;
+    activated: boolean;
+    ringPx: number;
+};
 //# sourceMappingURL=stone-payment-rules.d.ts.map

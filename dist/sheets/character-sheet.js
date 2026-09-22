@@ -21,7 +21,7 @@ import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize,
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
-import { bindImageUrlBar, buildImageUrlBarHtml, copyDocumentImageLink, } from '../ui/image-url-share.js';
+import { copyDocumentImageLink, openImageViewer, } from '../ui/image-url-share.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
@@ -38,10 +38,13 @@ import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpda
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
-import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
+import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, listEquipmentWeaponSetChoices, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
-import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
-import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
+import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants.js';
+import { ATTRIBUTE_ABBREV, ATTRIBUTE_KEYS, buildStoneProgressionSlots, canPlacePermanentStone, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
+import { V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
+import { openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
+import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
@@ -60,8 +63,8 @@ import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/ech
 // Replaced with General Items Storage and Store dialogs
 import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
 import { buildCharacterStatusRows, reduceCharacterStatusRow, removeCharacterStatusRow, } from './character-status-panel.js';
+import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
-import { coerceStatusEffectsArray } from '../system/active-specials.js';
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
 // + Handlebars part rendering.
 const BaseActorSheet = foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2);
@@ -758,46 +761,43 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
         const maxDisadvantagePoints = CONFIG.MASTERY?.creation?.maxDisadvantagePoints ?? 8;
         const minDisadvantagePoints = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
-        // Calculate attribute distribution status (2×8, 2×6, 2×4, 1×2 model)
+        // Calculate attribute distribution status (2×4, 2×3, 3×2 model)
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-        const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || masteryRank);
-        const assignedValues = attrValues.filter(v => [2, 4, 6, 8].includes(v));
-        const count8 = assignedValues.filter(v => v === 8).length;
-        const count6 = assignedValues.filter(v => v === 6).length;
+        const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || 2);
+        const assignedValues = attrValues.filter(v => [2, 3, 4].includes(v));
         const count4 = assignedValues.filter(v => v === 4).length;
+        const count3 = assignedValues.filter(v => v === 3).length;
         const count2 = assignedValues.filter(v => v === 2).length;
-        const attributeDistributionValid = count8 === 2 && count6 === 2 && count4 === 2 && count2 === 1;
-        /** Per-attribute dropdown: hide tier options already fully used elsewhere (2×8, 2×6, 2×4, 1×2). */
-        const attrTierMax = { 8: 2, 6: 2, 4: 2, 2: 1 };
+        const attributeDistributionValid = count4 === 2 && count3 === 2 && count2 === 3;
+        /** Per-attribute dropdown: hide values already fully used (2×4, 2×3, 3×2). */
+        const attrTierMax = { 4: 2, 3: 2, 2: 3 };
         const attrCreationSelect = {};
         const attrs = context.system.attributes || {};
         for (const ex of attributeKeys) {
-            let o2 = 0, o4 = 0, o6 = 0, o8 = 0;
+            let o2 = 0, o3 = 0, o4 = 0;
             for (const k of attributeKeys) {
                 if (k === ex)
                     continue;
                 const v = attrs[k]?.value;
-                if (v === 8)
-                    o8++;
-                else if (v === 6)
-                    o6++;
-                else if (v === 4)
+                if (v === 4)
                     o4++;
+                else if (v === 3)
+                    o3++;
                 else if (v === 2)
                     o2++;
             }
             const cur = attrs[ex]?.value;
-            const curInSet = cur === 2 || cur === 4 || cur === 6 || cur === 8;
+            const curInSet = cur === 2 || cur === 3 || cur === 4;
             const can = (val) => {
                 if (!curInSet)
                     return true;
                 if (cur === val)
                     return true;
-                const used = val === 8 ? o8 : val === 6 ? o6 : val === 4 ? o4 : o2;
+                const used = val === 4 ? o4 : val === 3 ? o3 : o2;
                 const max = attrTierMax[val] ?? 0;
                 return used < max;
             };
-            attrCreationSelect[ex] = { s2: can(2), s4: can(4), s6: can(6), s8: can(8) };
+            attrCreationSelect[ex] = { s2: can(2), s3: can(3), s4: can(4) };
         }
         const attrCreationOk = {};
         for (const ex of attributeKeys) {
@@ -984,9 +984,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillPointsConfig,
             maxSkillAtCreation,
             skillStep,
-            attrCount8: count8,
-            attrCount6: count6,
             attrCount4: count4,
+            attrCount3: count3,
             attrCount2: count2,
             attrCreationSelect,
             attrCreationOk,
@@ -1038,6 +1037,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.canEditMasteryRank =
             context.isGM || (!context.creationComplete && this.actor.isOwner);
         context.defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
+        context.attributeScaling = attributeScalingEnabled();
         // Post-creation skill redistribute (40 pts, max 4) when no XP yet.
         const skillsRedistributing = isSkillsRedistributing(this.actor);
         context.skillsRedistributing = skillsRedistributing;
@@ -1203,6 +1203,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.characterStatusRows = statusRows;
         context.hasCharacterStatusRows = statusRows.length > 0;
         context.canEditCharacterStatus = canCurrentUserUpdateDocument(this.actor);
+        context.statusAddChoices = listAssignableStatuses();
+        context.showCharacterStatusPanel = statusRows.length > 0;
         // Passive slotting happens exclusively in combat (Combat-Start dialog).
         // The character-sheet "Passive Slots" manager was removed: it implied a
         // false pre-selection outside combat and was unrelated to the in-combat
@@ -1261,6 +1263,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         catch (err) {
             console.error('Mastery System | Failed to build combatStatsView', err);
             context.combatStatsView = null;
+        }
+        if (this.actor.type === 'character') {
+            const sys = this.actor.system ?? {};
+            const flag = (key) => {
+                try {
+                    if (this.actor.getFlag?.('mastery-system', key) === true)
+                        return true;
+                }
+                catch {
+                    /* stored flags below */
+                }
+                return this.actor.flags?.['mastery-system']?.[key] === true;
+            };
+            const needsRespec = flag(V099_RESPEC_FLAG);
+            const needsLifetime = flag(V099_LIFETIME_FLAG);
+            const storedLife = sys?.progression?.lifetimeXp;
+            const lifetimeXp = typeof storedLife === 'number' ? Math.max(0, Math.floor(storedLife)) : null;
+            const assignments = usesV099Stones(sys) ? readAssignments(sys) : {
+                might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
+            };
+            const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
+            const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
+            const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
+            const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through).map((slot) => {
+                if (lifetimeXp == null) {
+                    return { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '', canAssign: false };
+                }
+                return { ...slot, canAssign: slot.unlocked && !slot.assigned };
+            });
+            const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+            context.v099 = {
+                needsRespec,
+                needsLifetime,
+                lifetimeLabel: lifetimeXp == null ? '—' : String(lifetimeXp),
+                lifetimeXp,
+                permanentStones: stones,
+                unassigned: Math.max(0, stones - assigned),
+                concentrationCap: stoneConcentrationCap(stones, rank),
+                stoneSummary: lifetimeXp == null
+                    ? 'Enter Lifetime XP during the v0.9.9 migration.'
+                    : `${assigned}/${stones} Stones assigned · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
+                slots,
+            };
         }
         // Ensure context is always an object
         if (!context || typeof context !== 'object') {
@@ -1814,25 +1859,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             },
             equipSlots: slotDefs.map((def) => {
                 const item = slotMap[def.key] || null;
+                const isHand = def.key === 'mainhand' || def.key === 'offhand';
                 return {
                     ...def,
                     item,
+                    emptyUnarmed: isHand,
+                    emptyLabel: isHand
+                        ? (globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.emptyHandLabel') || 'Unarmed')
+                        : 'Drop',
                     ammoLabel: quiverAmmunitionLabel(item),
                     artifactMeta: mapArtifactMeta(item),
                 };
             }),
             weaponSets: {
                 active: weaponSets.active,
-                buttons: [1, 2].map((index) => {
-                    const roman = index === 2 ? 'II' : 'I';
-                    return {
-                        index,
-                        label: roman,
-                        active: weaponSets.active === index,
-                        title: globalThis.game?.i18n?.format?.('MASTERY.weaponSets.switchTitle', { n: roman }) ||
-                            `Weaponslots ${roman}`,
-                    };
-                }),
+                stowed: weaponSets.stowed === true,
+                choices: listEquipmentWeaponSetChoices(this.actor).map((choice) => ({
+                    target: choice.target,
+                    label: choice.shortLabel,
+                    summary: choice.summary,
+                    active: choice.active,
+                    title: choice.description,
+                })),
             },
         };
     }
@@ -2193,7 +2241,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.gm-restore-stress-bar', this.#onGmRestoreStressBar.bind(this));
         bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
         bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
+        bindReliableControlClick(html, '.gm-reset-reroll-points', this.#onGmResetRerollPoints.bind(this));
         bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
+        bindReliableControlClick(html, '.v099-open-respec', (ev) => {
+            ev.preventDefault();
+            void this.#openV099Migration();
+        });
+        bindReliableControlClick(html, '.v099-open-lifetime', (ev) => {
+            ev.preventDefault();
+            void this.#openV099Lifetime();
+        });
+        bindReliableControlClick(html, '[data-action="v099-assign-stone"]', (ev) => {
+            ev.preventDefault();
+            void this.#onV099StoneSlot();
+        });
         // Point spending buttons (JavaScript will check permissions)
         // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
         // the only attribute spend path is now the pending/confirm flow via
@@ -2241,6 +2302,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.reset-creation-attributes', this.#onResetCreationAttributes.bind(this));
         html.find('.js-character-status-remove').on('click', this.#onRemoveCharacterStatus.bind(this));
         html.find('.js-character-status-reduce').on('click', this.#onReduceCharacterStatus.bind(this));
+        bindStatusAddControls(html, this.actor);
         html.find('[data-action="forceEncounterSetup"]').on('click', async (ev) => {
             ev.preventDefault();
             if (!game.user?.isGM)
@@ -2294,8 +2356,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ev.stopPropagation();
             if (!canCurrentUserUpdateDocument(this.actor))
                 return;
-            const raw = Number(ev.currentTarget?.dataset?.weaponSet);
-            const target = raw === 2 ? 2 : raw === 1 ? 1 : null;
+            const raw = String(ev.currentTarget?.dataset?.weaponSet || '');
+            const target = raw === 'unarmed' ? 'unarmed' : raw === '2' ? 2 : raw === '1' ? 1 : null;
             if (!target)
                 return;
             await swapWeaponSet(this.actor, target);
@@ -3250,9 +3312,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const pending = this._pendingAttributeChanges[attributeName] || 0;
         const nextPending = pending + 1;
         const effectiveAfter = currentValue + nextPending;
-        if (effectiveAfter > 80) {
+        if (effectiveAfter > MAX_ATTRIBUTE) {
             console.warn('Mastery System | #onAttributeIncreaseXP: Max value exceeded', { effectiveAfter });
-            ui.notifications?.warn('This attribute cannot exceed maximum value (80).');
+            ui.notifications?.warn('This attribute cannot exceed maximum value (40).');
             return;
         }
         /**
@@ -3381,7 +3443,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             // Free-XP phase: spend freely (no per-step cap).
             const wouldExceedStepCap = !this.#hasFreeXp() &&
                 (nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey)));
-            if (effectiveAfter > 80 || wouldExceedStepCap) {
+            if (effectiveAfter > MAX_ATTRIBUTE || wouldExceedStepCap) {
                 increaseBtn.prop('disabled', true);
                 if (wouldExceedStepCap) {
                     increaseBtn.attr('title', this.#hasFreeXp()
@@ -3883,10 +3945,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #promptForAttributeRollOptions(attributeKey) {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
-        const standardTN = masteryRank * 8;
+        const standardTN = standardTnForMasteryRank(masteryRank);
         const difficulties = {
-            trivial: standardTN - 8,
-            easy: standardTN - 4,
+            trivial: Math.max(0, standardTN - 8),
+            easy: Math.max(0, standardTN - 4),
             standard: standardTN,
             challenging: standardTN + 4,
             hard: standardTN + 8,
@@ -4088,8 +4150,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute, opts) {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
-        // Players Guide skill-difficulty chapter (~1860–1879): Standard TN = 8 ×
-        // Challenge MR (the GM-set difficulty), NOT 8 × the rolling actor's MR.
+        // Standard TN = (8 × Challenge MR) − 2. The character's MR affects Keep, not the TN.
         // We default the Challenge to the actor's own MR so a self-test starts
         // at the familiar TN, but expose a 1–16 picker so any GM challenge MR
         // can be selected directly.
@@ -4160,10 +4221,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         </div>
 
         <div class="md-group">
-          <label class="md-label">Challenge MR <span class="md-sublabel">(GM difficulty — Standard TN = 8 × Challenge MR)</span></label>
+          <label class="md-label">Challenge MR <span class="md-sublabel">(GM difficulty — Standard TN = (8 × Challenge MR) − 2)</span></label>
           <select name="challengeMR" id="skill-roll-challengeMR" class="md-select">
             ${Array.from({ length: 16 }, (_, i) => i + 1)
-            .map((mr) => `<option value="${mr}" ${mr === challengeMR ? 'selected' : ''}>MR ${mr} (Standard ${mr * 8})</option>`)
+            .map((mr) => `<option value="${mr}" ${mr === challengeMR ? 'selected' : ''}>MR ${mr} (Standard ${standardTnForMasteryRank(mr)})</option>`)
             .join('')}
           </select>
         </div>
@@ -4440,6 +4501,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'system.health.bars': hpBars,
             'system.health.currentBar': currentBar,
         }, { render: false });
+        try {
+            const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
+            await syncNpcDefeatedPresentationAfterHpChange(this.actor);
+        }
+        catch (downErr) {
+            console.warn('Mastery System | defeated token presentation failed', downErr);
+        }
         const startName = String(hpBars[fromIndex]?.name ?? `Bar ${fromIndex + 1}`);
         ui.notifications?.info?.(`Health restored from ${startName} through Incapacitated.`);
         await this.render();
@@ -4521,6 +4589,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         await this.actor.update({ 'system.faithFractures.current': cur + 1 });
         ui.notifications?.info(`${this.actor.name}: +1 Reroll Point (${cur + 1}/${max}).`);
+        this.render();
+    }
+    /** GM: put current Reroll Points back to the sheet maximum after an accidental spend. */
+    async #onGmResetRerollPoints(event) {
+        event.preventDefault();
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only a GM can reset Reroll Points.');
+            return;
+        }
+        const system = this.actor.system;
+        const max = Math.max(0, Number(system.faithFractures?.maximum) || 0);
+        const cur = Math.max(0, Number(system.faithFractures?.current) || 0);
+        if (max <= 0) {
+            ui.notifications?.warn('This actor has no Reroll Point pool (maximum is 0).');
+            return;
+        }
+        if (cur === max) {
+            ui.notifications?.info(`${this.actor.name} is already at ${cur}/${max} Reroll Points.`);
+            return;
+        }
+        await this.actor.update({ 'system.faithFractures.current': max });
+        ui.notifications?.info(`${this.actor.name}: Reroll Points ${cur} → ${max}.`);
         this.render();
     }
     async #onRemoveCharacterStatus(event) {
@@ -4684,7 +4774,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Combined spendable XP (Free pool is spent first, then regular).
         const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
         if (netCost > availableXP) {
-            const nextCost = attributeBandCost(effective + 1);
+            const nextCost = skillBandCost(effective + 1);
             ui.notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
             return;
         }
@@ -4727,8 +4817,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Calculate net pending cost (signed) for all pending skill rank changes.
      *
-     * New spec: Skills use the banded Attribute table — `attributeBandCost(R)`
-     * is the XP cost of buying rank R. Refunds are symmetric.
+     * Skills keep their own 1–32 band costs (`skillBandCost`). Refunds are symmetric.
      */
     #calculateSkillPendingNetCost(pendingMap) {
         return calculateSkillPendingNetCost(this.actor, pendingMap);
@@ -4933,7 +5022,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             pendingMap: this._pendingSkillRankChanges,
             getCurrent: key => Number(this.actor.system.skills?.[key] ?? 0) || 0,
             getLabel: key => SKILLS[key]?.name || key,
-            costForTarget: attributeBandCost,
+            costForTarget: skillBandCost,
             before: beforeState,
             after: {
                 available: availableXP - netCost,
@@ -4965,10 +5054,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #promptForTN() {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
-        const standardTN = masteryRank * 8;
+        const standardTN = standardTnForMasteryRank(masteryRank);
         const presets = [
-            { label: 'Trivial', value: standardTN - 8 },
-            { label: 'Easy', value: standardTN - 4 },
+            { label: 'Trivial', value: Math.max(0, standardTN - 8) },
+            { label: 'Easy', value: Math.max(0, standardTN - 4) },
             { label: 'Standard', value: standardTN },
             { label: 'Challenging', value: standardTN + 4 },
             { label: 'Hard', value: standardTN + 8 },
@@ -5620,60 +5709,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn('No image to display.');
             return;
         }
-        try {
-            // Try to use Foundry's ImagePopout if available
-            const ImagePopoutClass = foundry?.applications?.apps?.ImagePopout?.implementation ||
-                window.ImagePopout;
-            if (ImagePopoutClass) {
-                const popout = new ImagePopoutClass(imgSrc, {
-                    title: this.actor.name,
-                    shareable: true,
-                    uuid: this.actor.uuid
-                });
-                await popout.render(true);
-            }
-            else {
-                // Fallback: Create a simple dialog with the image
-                const dialog = new Dialog({
-                    title: this.actor.name,
-                    content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
-                    buttons: {
-                        close: {
-                            label: 'Close',
-                            callback: () => { }
-                        }
-                    },
-                    default: 'close',
-                    render: (html) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
-                });
-                await dialog.render(true);
-            }
-        }
-        catch (error) {
-            console.error('Mastery System | Failed to show image popup', error);
-            console.error('Mastery System | Error stack:', error instanceof Error ? error.stack : 'No stack');
-            // Fallback: Create a simple dialog with the image
-            try {
-                const dialog = new Dialog({
-                    title: this.actor.name,
-                    content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
-                    buttons: {
-                        close: {
-                            label: 'Close',
-                            callback: () => { }
-                        }
-                    },
-                    default: 'close',
-                    render: (html) => bindImageUrlBar(html[0] ?? html.get?.(0), imgSrc),
-                });
-                await dialog.render(true);
-            }
-            catch (fallbackError) {
-                console.error('Mastery System | Fallback dialog also failed', fallbackError);
-                console.error('Mastery System | Fallback error stack:', fallbackError instanceof Error ? fallbackError.stack : 'No stack');
-                ui.notifications?.error('Failed to display image.');
-            }
-        }
+        const opened = await openImageViewer(imgSrc, {
+            title: this.actor.name,
+            shareable: true,
+            uuid: this.actor.uuid,
+        });
+        if (!opened)
+            ui.notifications?.error('Failed to display image.');
     }
     /**
      * Lock sheet when character creation is incomplete
@@ -5893,7 +5935,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         new Dialog({
             title: 'Reset attributes?',
-            content: '<p class="mastery-reset-attrs-msg">Set <strong>all seven attributes</strong> to <strong>2</strong>. You can then pick the distribution again (2×8, 2×6, 2×4, 1×2). Skills, powers, and disadvantages are unchanged.</p>',
+            content: '<p class="mastery-reset-attrs-msg">Set <strong>all seven attributes</strong> to <strong>2</strong>. You can then pick the distribution again (2×4, 2×3, 3×2). Skills, powers, and disadvantages are unchanged.</p>',
             buttons: {
                 reset: {
                     icon: '<i class="fas fa-undo"></i>',
@@ -5954,6 +5996,94 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         };
         window.setTimeout(() => document.addEventListener('mousedown', onDoc, true), 0);
     }
+    async #openV099Migration() {
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can finish the v0.9.9 migration.');
+            return;
+        }
+        await openV099RespecDialog(this.actor);
+        this.render();
+    }
+    async #openV099Lifetime() {
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can enter Lifetime XP.');
+            return;
+        }
+        await openV099LifetimeDialog(this.actor);
+        this.render();
+    }
+    async #onV099StoneSlot() {
+        const sys = this.actor.system ?? {};
+        const pending = this.actor.getFlag?.('mastery-system', V099_RESPEC_FLAG) === true;
+        if (pending || !usesV099Stones(sys)) {
+            await this.#openV099Migration();
+            return;
+        }
+        const storedLife = sys?.progression?.lifetimeXp;
+        const needsLife = this.actor.getFlag?.('mastery-system', V099_LIFETIME_FLAG) === true
+            || typeof storedLife !== 'number';
+        if (needsLife) {
+            await this.#openV099Lifetime();
+            return;
+        }
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can assign Stones.');
+            return;
+        }
+        const assignments = readAssignments(sys);
+        const total = permanentStonesFromLifetimeXp(Number(sys?.progression?.lifetimeXp) || 0);
+        const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+        const choices = ATTRIBUTE_KEYS.filter((key) => canPlacePermanentStone({
+            attribute: key,
+            assignments,
+            totalPermanent: total,
+            storedRank: rank,
+        }).ok);
+        if (!choices.length) {
+            ui.notifications?.warn('No Attribute can take another Stone under the Mastery Rank × 2 limit.');
+            return;
+        }
+        const DialogCtor = globalThis.Dialog;
+        if (!DialogCtor)
+            return;
+        const options = choices
+            .map((key) => `<option value="${key}">${ATTRIBUTE_ABBREV[key]} (${assignments[key]})</option>`)
+            .join('');
+        new DialogCtor({
+            title: 'Assign permanent Stone',
+            content: `<form><p>This assignment stays until a rule allows reassignment.</p>
+        <select name="attribute">${options}</select></form>`,
+            buttons: {
+                assign: {
+                    label: 'Assign',
+                    callback: async (html) => {
+                        const jq = html?.find?.('[name="attribute"]');
+                        const key = String(jq?.val?.() ?? html?.querySelector?.('[name="attribute"]')?.value ?? '');
+                        const check = canPlacePermanentStone({
+                            attribute: key,
+                            assignments,
+                            totalPermanent: total,
+                            storedRank: rank,
+                        });
+                        if (!check.ok) {
+                            ui.notifications?.warn(check.reason || 'That Attribute cannot take the Stone.');
+                            return;
+                        }
+                        const next = (assignments[key] ?? 0) + 1;
+                        const pool = sys?.stonePools?.[key] ?? {};
+                        const current = Math.max(0, Math.floor(Number(pool.current) || 0)) + 1;
+                        await this.actor.update({
+                            [`system.progression.stoneAssignments.${key}`]: next,
+                            [`system.stonePools.${key}.max`]: next,
+                            [`system.stonePools.${key}.current`]: current,
+                        });
+                    },
+                },
+                cancel: { label: 'Cancel' },
+            },
+            default: 'assign',
+        }).render(true);
+    }
     /**
      * Character Creation: Attribute value changed via select dropdown
      */
@@ -5966,41 +6096,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (isNaN(newValue))
             return;
         const system = this.actor.system;
-        const masteryRank = system.mastery?.rank || 2;
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         // Count how many of each value are already assigned (excluding current attribute)
-        let count8 = 0, count6 = 0, count4 = 0, count2 = 0;
+        let count4 = 0, count3 = 0, count2 = 0;
         for (const key of attributeKeys) {
             if (key === attribute)
                 continue;
-            const v = system.attributes?.[key]?.value || masteryRank;
-            if (v === 8)
-                count8++;
-            else if (v === 6)
-                count6++;
-            else if (v === 4)
+            const v = system.attributes?.[key]?.value || 2;
+            if (v === 4)
                 count4++;
+            else if (v === 3)
+                count3++;
             else if (v === 2)
                 count2++;
         }
-        // Validate the new assignment (2×8, 2×6, 2×4, 1×2)
-        if (newValue === 8 && count8 >= 2) {
-            ui.notifications?.warn('Already 2 attributes at 8. Choose a different value.');
-            this.render();
-            return;
-        }
-        if (newValue === 6 && count6 >= 2) {
-            ui.notifications?.warn('Already 2 attributes at 6. Choose a different value.');
-            this.render();
-            return;
-        }
+        // Starting package: 2×4, 2×3, 3×2
         if (newValue === 4 && count4 >= 2) {
             ui.notifications?.warn('Already 2 attributes at 4. Choose a different value.');
             this.render();
             return;
         }
-        if (newValue === 2 && count2 >= 1) {
-            ui.notifications?.warn('Already 1 attribute at 2. Choose a different value.');
+        if (newValue === 3 && count3 >= 2) {
+            ui.notifications?.warn('Already 2 attributes at 3. Choose a different value.');
+            this.render();
+            return;
+        }
+        if (newValue === 2 && count2 >= 3) {
+            ui.notifications?.warn('Already 3 attributes at 2. Choose a different value.');
             this.render();
             return;
         }
@@ -6549,14 +6671,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Validate powers & magic
         const powers = this.actor.items.filter((item) => item.type === 'power');
         const creationCategoryCounts = countPowersByCategory(powers);
-        // Validate attribute distribution (2×8, 2×6, 2×4, 1×2)
-        const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || masteryRank);
-        const c8 = attrValues.filter((v) => v === 8).length;
-        const c6 = attrValues.filter((v) => v === 6).length;
+        // Validate attribute distribution (2×4, 2×3, 3×2). Missing values count as 2.
+        const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || 2);
         const c4 = attrValues.filter((v) => v === 4).length;
+        const c3 = attrValues.filter((v) => v === 3).length;
         const c2 = attrValues.filter((v) => v === 2).length;
-        if (c8 !== 2 || c6 !== 2 || c4 !== 2 || c2 !== 1) {
-            ui.notifications?.error(`Attributes must be 2×8, 2×6, 2×4, 1×2. Currently: ${c8}×8, ${c6}×6, ${c4}×4, ${c2}×2`);
+        if (c4 !== 2 || c3 !== 2 || c2 !== 3) {
+            ui.notifications?.error(`Attributes must be 2×4, 2×3, 3×2. Currently: ${c4}×4, ${c3}×3, ${c2}×2`);
             return;
         }
         if (skillPointsSpent !== skillPointsConfig) {
@@ -6704,17 +6825,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('Failed to finalize character creation.');
         }
     }
-    /** Status UI is button-driven — never let an empty form submit wipe it. */
+    /** Status UI is button-driven — never let a form submit rewrite the live list. */
     _prepareSubmitData(event, form, formData, updateData) {
         const data = super._prepareSubmitData(event, form, formData, updateData);
-        if (!data?.system || !Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
-            return data;
+        if (data?.system && Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
+            delete data.system.statusEffects;
         }
-        const submitted = coerceStatusEffectsArray(data.system.statusEffects);
-        data.system.statusEffects =
-            submitted.length > 0
-                ? submitted
-                : coerceStatusEffectsArray(this.actor.system?.statusEffects);
         return data;
     }
     /** Local controls that must not submit / re-render the actor sheet. */

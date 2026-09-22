@@ -2,7 +2,7 @@
  * Damage Dialog for Mastery System
  * Appears after successful attack roll to calculate and apply damage
  */
-export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
+export { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 /**
  * Re-attach Roll / Cancel listeners when the log re-renders (Foundry v13
  * `renderChatMessageHTML`). Without this, handlers are lost while an in-memory
@@ -65,8 +65,8 @@ export interface DamageResult {
         armorPenetration?: number;
     };
     /**
-     * Faith Fracture Keep already posted this chat message as the damage card
-     * (with Keep/Reroll). Caller should update it instead of creating a second one.
+     * Faith Keep and/or Mark spend already posted this chat message as the
+     * damage card. Caller should update it instead of creating a second one.
      */
     prePostedChatMessageId?: string;
 }

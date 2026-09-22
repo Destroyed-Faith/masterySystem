@@ -18,6 +18,9 @@ export declare class CombatCarouselApp extends BaseCarousel {
             resizable: boolean;
             minimizable: boolean;
         };
+        actions: {
+            msEndTurn: (this: CombatCarouselApp, event: Event) => void;
+        };
     };
     static PARTS: {
         content: {
@@ -44,7 +47,12 @@ export declare class CombatCarouselApp extends BaseCarousel {
     _onRender(_context: any, _options: any): Promise<void>;
     _onClose(_options: any): Promise<void>;
     private compactViewportHandler;
+    private resizeDrag;
+    /** Stay under actor sheets so the close button remains clickable. */
+    bringToFront(): this;
+    private pinBehindSheets;
     private applyCompactLayout;
+    private bindResizeHandle;
     private bindCompactViewportWatch;
     private unbindCompactViewportWatch;
     /**

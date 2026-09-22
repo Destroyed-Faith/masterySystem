@@ -6,7 +6,7 @@
  */
 import { applyAttributePendingChanges, applyPowerPendingChanges, applySkillPendingChanges, getAttributeXpBaseline, } from '../progression/progression-hub-actions.js';
 import { downgradeArtifactForActor } from '../artifacts/artifact-evolution-actions.js';
-import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
+import { attributeBandCost, skillBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
 import { getPowerMinLevel } from './power-xp-refund.js';
 const REFUNDABLE_CATEGORIES = new Set(['attribute', 'skill', 'power', 'artifact']);
 export function liveRefundXp(category, current, target) {
@@ -20,7 +20,7 @@ export function liveRefundXp(category, current, target) {
     }
     let sum = 0;
     for (let v = current; v > target; v--) {
-        sum += category === 'power' ? powerLevelCost(v) : attributeBandCost(v);
+        sum += category === 'power' ? powerLevelCost(v) : category === 'skill' ? skillBandCost(v) : attributeBandCost(v);
     }
     return sum;
 }

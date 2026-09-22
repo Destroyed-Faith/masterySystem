@@ -16,4 +16,16 @@ export declare function computeMarkFloorBonus(damageChatRolls: Array<{
 } | null | undefined>, spend: number, existingFloor?: number): number;
 /** Clamp a chosen Mark spend to `[0, markOnTarget]`. */
 export declare function clampMarkSpend(markOnTarget: number, chosen: number): number;
+export type UsefulMarkSpend = {
+    spend: number;
+    bonus: number;
+};
+/**
+ * Spends of 1..markOnTarget that actually raise the damage total.
+ * A higher spend that does not beat a cheaper option's bonus is omitted
+ * (same damage for more Mark is never useful).
+ */
+export declare function listUsefulMarkSpends(damageChatRolls: Array<{
+    terms?: any[];
+} | null | undefined>, markOnTarget: number, existingFloor?: number): UsefulMarkSpend[];
 //# sourceMappingURL=mark-floor.d.ts.map

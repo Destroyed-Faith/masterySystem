@@ -4,7 +4,7 @@
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { ARTIFACT_CAPACITY_DEFAULT, countBoundArtifacts, } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts, listUnwiredEmbeddedArtifacts, } from '../utils/artifact-tree-grant.js';
-import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
+import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE } from '../utils/constants.js';
 import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
 import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
@@ -108,7 +108,7 @@ export function calculateSingleSkillPendingXpNet(actor, skillKey, pending) {
     let net = 0;
     if (pending > 0) {
         for (let i = 1; i <= pending; i++) {
-            net += attributeBandCost(current + i);
+            net += skillBandCost(current + i);
         }
     }
     else {
@@ -117,7 +117,7 @@ export function calculateSingleSkillPendingXpNet(actor, skillKey, pending) {
             const refundRank = current - i;
             if (refundRank <= 0)
                 break;
-            net -= attributeBandCost(refundRank);
+            net -= skillBandCost(refundRank);
         }
     }
     return net;
@@ -249,7 +249,7 @@ export async function applyAttributePendingChanges(actor, pendingMap) {
         const currentValue = actor.system.attributes[attrKey]?.value || 0;
         const newValue = currentValue + pending;
         const baseline = getAttributeXpBaseline(actor, attrKey);
-        if (newValue < baseline || newValue > 80) {
+        if (newValue < baseline || newValue > MAX_ATTRIBUTE) {
             return { ok: false, error: `Invalid attribute change for ${attrKey}.` };
         }
         if (!unrestricted && pending > 0) {
@@ -346,7 +346,7 @@ export async function applySkillPendingChanges(actor, pendingMap) {
         pendingMap,
         getCurrent: key => Number(actor.system.skills?.[key] ?? 0) || 0,
         getLabel: key => SKILLS[key]?.name || key,
-        costForTarget: attributeBandCost,
+        costForTarget: skillBandCost,
         before: {
             available: xpState.available,
             totalEarned: xpState.totalEarned,

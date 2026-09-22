@@ -1,5 +1,6 @@
 import { MasteryActor } from './documents/actor.js';
 import { MasteryItem } from './documents/item.js';
+import { registerMasteryCombatDocument } from './documents/combat.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasterySummonSheet } from './sheets/summon-sheet.js';
@@ -11,13 +12,17 @@ import { calculateStones } from './utils/calculations.js';
 import { renderSpecials } from './utils/power-rendering.js';
 import { NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, preserveNpcExtraPowersInSystemUpdate, preserveNpcAttackSpecialsInSystemUpdate, } from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
+import { registerStatusHud } from './system/status-hud.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { initializeBloodPoolHooks } from './utils/blood-pool.js';
 import { initializeInitiativeOrder } from './combat/initiative-roll.js';
+import { canViewerSeeEndTurn, userMayEndCurrentTurn } from './combat/end-turn.js';
+import { actorHasSurprise, effectCarriesSurprise, pinSurprisedInitiative, statusListHasSurprise } from './combat/surprise.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
+import { registerRaisePlanChatHooks } from './combat/attack-executor.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { showTowerWizardDialog } from './creation/tower-wizard/tower-wizard-dialog.js';
@@ -71,6 +76,8 @@ import { registerXpCurrentStepCutoverSetting, runXpCurrentStepCutover, } from '.
 import { registerArtifactSpecBackfillSetting, runArtifactSpecBackfill, } from './migrations/artifact-spec-backfill.js';
 import { registerEchoArtifactTreeMigrationSetting, runEchoArtifactTreeMigration, } from './migrations/echo-artifact-tree-migration.js';
 import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigration, } from './migrations/echo-artifact-dedupe-migration.js';
+import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
+import { nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
@@ -92,6 +99,7 @@ registerHandlebarsHelpersImmediate();
  * migrations in `ready` still work when a later init step throws.
  */
 function registerAllMasteryInitSettings() {
+    registerV099SchemaSetting();
     registerSystemSettings();
     registerDivineClashSettings();
     registerEpicMasteryRollSettings();
@@ -129,6 +137,7 @@ Hooks.once('init', async function () {
     // Register custom Document classes
     CONFIG.Actor.documentClass = MasteryActor;
     CONFIG.Item.documentClass = MasteryItem;
+    registerMasteryCombatDocument();
     // Register custom sheet application classes before optional init steps that
     // may throw on v14 (status effects, legacy shims, etc.).
     const coreActorSheet = foundry.appv1?.sheets?.ActorSheet;
@@ -386,10 +395,15 @@ Hooks.once('init', async function () {
         $tokenName.prepend($initiativeSpan);
     }
     // Update carousel when combatants change
-    Hooks.on('createCombatant', () => {
+    Hooks.on('createCombatant', (combatant) => {
         const carousel = CombatCarouselApp.instance;
         if (carousel && carousel.rendered) {
             carousel.render({ force: false });
+        }
+        const actor = combatant?.actor;
+        if (actor && actorHasSurprise(actor)) {
+            const parent = combatant.parent ?? combatant.combat;
+            void pinSurprisedInitiative(actor, parent);
         }
     });
     Hooks.on('updateCombatant', (_combat, combatant) => {
@@ -447,6 +461,28 @@ Hooks.once('init', async function () {
         }, true);
     }
     bindShutdownCombatClick();
+    function bindEndTurnClick() {
+        const w = window;
+        if (w._msEndTurnClickBound)
+            return;
+        w._msEndTurnClickBound = true;
+        document.addEventListener('click', (ev) => {
+            const target = ev.target;
+            const btn = target?.closest?.('.js-end-turn, .ms-end-turn-btn, .js-next-turn, [data-action="msEndTurn"], [data-action="nextTurn"]');
+            if (!btn)
+                return;
+            if (btn.closest?.('[data-action="nextRound"], .js-next-round'))
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            void (async () => {
+                const { requestEndTurn } = await import('./combat/end-turn.js');
+                await requestEndTurn();
+            })();
+        }, true);
+    }
+    bindEndTurnClick();
     // Hide initiative roll button (d20) and add passive selection button in combat tracker
     // Also add End Turn button for current combatant
     Hooks.on('renderCombatTracker', (_app, html) => {
@@ -485,8 +521,8 @@ Hooks.once('init', async function () {
             !trackerCombat.started &&
             trackerCombat.flags?.['mastery-system']?.encounterSetup?.started);
         const foundryStartLabel = trackerPreparing
-            ? game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten'
-            : game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+            ? game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Start Combat'
+            : game.i18n?.localize('MASTERY.startEncounter.start') || 'Prepare Combat';
         $html.find('[data-action="startCombat"]').attr({
             'data-tooltip': foundryStartLabel,
             'aria-label': foundryStartLabel,
@@ -497,9 +533,9 @@ Hooks.once('init', async function () {
         const startHint = game.i18n?.localize('MASTERY.startEncounter.trackerHint') || 'Pick PCs and NPCs on the scene';
         // Escape hatch for a wedged encounter: always offered to a GM as long as any
         // combat exists, no matter what state the carousel or the setup flow is in.
-        const shutdownLabel = game.i18n?.localize('MASTERY.combatShutdown.button') || 'Kampf abbrechen';
+        const shutdownLabel = game.i18n?.localize('MASTERY.combatShutdown.button') || 'Shut Down Combat';
         const shutdownHint = game.i18n?.localize('MASTERY.combatShutdown.hint') ||
-            'Kampf sofort beenden und Steine auffüllen.';
+            'End the fight right now and refill stone pools.';
         const shutdownBtn = game.user?.isGM && findShutdownCombat()
             ? `<button type="button" class="ms-shutdown-combat-btn" title="${shutdownHint}"><i class="fas fa-power-off"></i> ${shutdownLabel}</button>`
             : '';
@@ -546,9 +582,9 @@ Hooks.once('init', async function () {
                 arePlayerStonesReadyForRound(combat);
             // Add End Turn button for current combatant only after every PC set stones.
             // Players never see it on NPCs — they cannot use it and it only confuses.
-            if (isCurrent && (game.user?.isGM || (combatant.actor && combatant.actor.type !== 'npc' && combatant.actor.isOwner))) {
-                const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
-                const delayBtn = $('<button type="button" class="combatant-control ms-delay-turn-btn" data-action="delayTurn" data-combatant-id="' + combatantId + '" data-tooltip="Initiative verzögern — direkt nach dem nächsten Eintrag handeln." aria-label="Initiative verzögern" title="Initiative verzögern"><i class="fa-solid fa-hourglass-half"></i></button>');
+            if (isCurrent && canViewerSeeEndTurn(combatant.actor, game.user)) {
+                const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="msEndTurn" data-combatant-id="' + combatantId + '" data-tooltip="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn" title="Next Turn"><i class="fa-solid fa-forward"></i></button>');
+                const delayBtn = $('<button type="button" class="combatant-control ms-delay-turn-btn" data-action="delayTurn" data-combatant-id="' + combatantId + '" data-tooltip="Delay Initiative — act right after the next entry." aria-label="Delay Initiative" title="Delay Initiative"><i class="fa-solid fa-hourglass-half"></i></button>');
                 $initiativeDiv.append(delayBtn);
                 $initiativeDiv.append(endTurnBtn);
                 endTurnBtn.off('click.ms-end-turn').on('click.ms-end-turn', async (ev) => {
@@ -570,11 +606,11 @@ Hooks.once('init', async function () {
             const passivesLocked = actorIdForPassives && encSetup?.passives?.[actorIdForPassives]?.locked === true;
             const setupStatus = combatant.actor?.type === 'character' ? buildEncounterSetupStatus(combatant, combat) : null;
             const forceHint = game.user?.isGM
-                ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'beim Spieler öffnen'}`
+                ? ` — ${game.i18n?.localize('MASTERY.encounterSetup.openForPlayer') || 'open for the player'}`
                 : '';
             const passiveTooltip = (setupStatus?.passivesDone || passivesLocked
-                ? 'Passives ansehen (gesperrt)'
-                : 'Passives wählen / bestätigen') + forceHint;
+                ? 'View Passives (locked)'
+                : 'Choose / confirm Passives') + forceHint;
             const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn' +
                 (setupStatus?.passivesDone ? ' is-setup-done' : '') +
                 '" data-action="selectPassives" data-combatant-id="' +
@@ -649,6 +685,19 @@ Hooks.once('init', async function () {
                 }
             });
         });
+        const unlockPlayerTurnAdvance = ($root) => {
+            if (!userMayEndCurrentTurn(game.user, game.combat))
+                return;
+            $root.find('[data-action="nextTurn"], [data-action="endTurn"], .ms-end-turn-btn').each((_i, el) => {
+                const btn = el;
+                btn.disabled = false;
+                btn.removeAttribute('disabled');
+                btn.classList.remove('disabled');
+                btn.setAttribute('aria-disabled', 'false');
+            });
+        };
+        unlockPlayerTurnAdvance($html);
+        requestAnimationFrame(() => unlockPlayerTurnAdvance($html));
         // Add "Begin Encounter" and "Select Passives" buttons to encounter controls
         const encounterControls = $html.find('.encounter-controls');
         if (encounterControls.length > 0) {
@@ -664,15 +713,15 @@ Hooks.once('init', async function () {
                     const flags = combat.flags['mastery-system'] || {};
                     const setup = flags.encounterSetup;
                     const isStarted = setup?.started === true || combat.round > 0;
-                    const prepareLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Kampf vorbereiten';
+                    const prepareLabel = game.i18n?.localize('MASTERY.startEncounter.start') || 'Prepare Combat';
                     const beginBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid fa-list-check ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="${prepareLabel}" aria-label="${prepareLabel}"></button>`);
                     if (isStarted) {
                         beginBtn.prop('disabled', true).addClass('disabled');
-                        beginBtn.attr('data-tooltip', game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
+                        beginBtn.attr('data-tooltip', game.i18n?.localize('MASTERY.startEncounter.already') || 'Already in preparation');
                     }
                     leftControls.prepend(beginBtn);
                     if (setup?.started === true && !combat.started) {
-                        const startLiveLabel = game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten';
+                        const startLiveLabel = game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Start Combat';
                         const startLiveBtn = $(`<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-start-live-combat-btn" data-action="startLiveCombat" data-tooltip="${startLiveLabel}" aria-label="${startLiveLabel}"></button>`);
                         beginBtn.after(startLiveBtn);
                         startLiveBtn.off('click.ms-start-live').on('click.ms-start-live', async (ev) => {
@@ -686,7 +735,7 @@ Hooks.once('init', async function () {
                             }
                             catch (error) {
                                 console.error('Mastery System | Error starting live combat', error);
-                                ui.notifications?.error('Kampf starten fehlgeschlagen');
+                                ui.notifications?.error('Start Combat failed');
                             }
                         });
                     }
@@ -889,6 +938,21 @@ Hooks.once('init', async function () {
     // round 3 never materialises its Temp HP pool until the next turn/combat.
     Hooks.on('createActiveEffect', async (effect) => {
         try {
+            if (effectCarriesSurprise(effect)) {
+                await pinSurprisedInitiative(effect.parent);
+            }
+        }
+        catch (err) {
+            console.error('Mastery System | surprise createActiveEffect failed', err);
+        }
+        try {
+            const { adoptEffectStatus } = await import('./system/assign-status.js');
+            await adoptEffectStatus(effect?.parent, effect, true);
+        }
+        catch (err) {
+            console.error('Mastery System | status adopt failed', err);
+        }
+        try {
             const flags = effect?.flags?.['mastery-system'];
             if (!flags || flags.activeBuff !== true)
                 return;
@@ -902,6 +966,13 @@ Hooks.once('init', async function () {
         }
     });
     Hooks.on('deleteActiveEffect', async (effect) => {
+        try {
+            const { adoptEffectStatus } = await import('./system/assign-status.js');
+            await adoptEffectStatus(effect?.parent, effect, false);
+        }
+        catch (err) {
+            console.error('Mastery System | status clear failed', err);
+        }
         try {
             const flags = effect?.flags?.['mastery-system'];
             if (!flags || flags.activeBuff !== true)
@@ -936,6 +1007,7 @@ Hooks.once('init', async function () {
     registerImageUrlShareHooks();
     // Initialize token action selector
     initializeTokenActionSelector();
+    registerStatusHud();
     // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)
     Hooks.on('masterySystem.roundStateUpdated', ({ actorId }) => {
         const actor = game.actors?.get(actorId);
@@ -946,6 +1018,17 @@ Hooks.once('init', async function () {
     Hooks.on('updateActor', (actor, changed) => {
         if (changed.flags?.['mastery-system'] !== undefined) {
             void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+        }
+        const statusTouched = (changed?.system && Object.prototype.hasOwnProperty.call(changed.system, 'statusEffects')) ||
+            changed?.flags?.['mastery-system']?.statusJson !== undefined ||
+            changed?.flags?.['mastery-system']?.statusEffects !== undefined ||
+            changed?.['flags.mastery-system.statusJson'] !== undefined ||
+            changed?.['flags.mastery-system.statusEffects'] !== undefined;
+        if (statusListHasSurprise(changed?.system?.statusEffects) || (statusTouched && actorHasSurprise(actor))) {
+            void pinSurprisedInitiative(actor);
+        }
+        if (statusTouched) {
+            void import('./system/assign-status.js').then(({ syncTokenStatusIcons }) => syncTokenStatusIcons(actor));
         }
         if (changed.system?.mastery?.rank !== undefined) {
             void import('./utils/consumable-slots.js').then(async ({ syncConsumableSlotsToMasteryRank, rankChangeNotification }) => {
@@ -1426,6 +1509,17 @@ function registerSystemSettings() {
             }
         },
     });
+    // The three attribute bonuses that still hit the table. Off by default:
+    // Might/8 melee damage, Wits/8 initiative, Resolve/8 stress armor.
+    // Stone pools are a separate economy and stay on.
+    game.settings.register('mastery-system', 'attributeScaling', {
+        name: 'Attributsboni',
+        hint: 'An: Might/8 gibt festen Nahkampfschaden (2×), Wits/8 Initiative, Resolve/8 Stress-Rüstung. Aus: keiner dieser drei Boni. Stones bleiben. Standard ist aus.',
+        scope: 'world',
+        config: true,
+        type: Boolean,
+        default: false,
+    });
     // Mastery Rank - Global default
     game.settings.register('mastery-system', 'defaultMasteryRank', {
         name: 'Default Mastery Rank',
@@ -1700,6 +1794,9 @@ function setupXpManagementInline() {
                 'system.points.xp': xpState.available + amount,
                 'system.xp.totalEarned': xpState.totalEarned + amount
             };
+            const life = nextLifetimeXp(actor.system, amount);
+            if (life != null)
+                updates['system.progression.lifetimeXp'] = life;
             if (!actor.system.xp) {
                 updates['system.xp.totalSpent'] = 0;
                 updates['system.xp.history'] = [];
@@ -1751,6 +1848,9 @@ function setupXpManagementInline() {
                 'system.points.xpFree': xpState.freeAvailable + amount,
                 'system.xp.freeEarned': xpState.freeEarned + amount,
             };
+            const life = nextLifetimeXp(actor.system, amount);
+            if (life != null)
+                updates['system.progression.lifetimeXp'] = life;
             if (!actor.system.xp) {
                 updates['system.xp.totalSpent'] = 0;
                 updates['system.xp.history'] = [];
@@ -1900,6 +2000,9 @@ function setupXpManagementInline() {
                     'system.points.xp': xpState.available + amount,
                     'system.xp.totalEarned': xpState.totalEarned + amount
                 };
+                const life = nextLifetimeXp(actor.system, amount);
+                if (life != null)
+                    updates['system.progression.lifetimeXp'] = life;
                 if (!actor.system.xp) {
                     updates['system.xp.totalSpent'] = 0;
                     updates['system.xp.history'] = [];
@@ -1948,6 +2051,9 @@ function setupXpManagementInline() {
                     'system.points.xpFree': xpState.freeAvailable + amount,
                     'system.xp.freeEarned': xpState.freeEarned + amount,
                 };
+                const life = nextLifetimeXp(actor.system, amount);
+                if (life != null)
+                    updates['system.progression.lifetimeXp'] = life;
                 if (!actor.system.xp) {
                     updates['system.xp.totalSpent'] = 0;
                     updates['system.xp.history'] = [];
@@ -2083,9 +2189,9 @@ function registerConfigConstants() {
     }
     CONFIG.MASTERY.creation = {
         schticksAllowed: 2,
-        attributeDistribution: [8, 8, 6, 6, 4, 4, 2],
+        attributeDistribution: [4, 4, 3, 3, 2, 2, 2],
         skillPoints: 40,
-        maxAttributeAtCreation: 8,
+        maxAttributeAtCreation: 4,
         maxSkillAtCreation: 4,
         // Players Guide ~5158–5164: only the maximum (8) is canonical; the
         // minimum defaults to 0 so a character may take no disadvantages.
@@ -2184,6 +2290,27 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
             data.system.creation = {};
         }
         data.system.creation.complete = false;
+        if (!data.system.progression)
+            data.system.progression = {};
+        const priorFlags = data.flags?.['mastery-system'] || {};
+        const explicitLife = data.system.progression.lifetimeXp;
+        const lifetimeUnknown = priorFlags.needsV099LifetimeXp === true && typeof explicitLife !== 'number';
+        data.system.progression.rulesVersion = '0.9.9.0';
+        data.system.progression.v099Prepared = true;
+        data.system.progression.v099Stones = true;
+        if (!lifetimeUnknown) {
+            data.system.progression.lifetimeXp = Math.max(0, Math.floor(Number(explicitLife) || 0));
+        }
+        data.system.progression.earnedAttributeXp = Math.max(0, Math.floor(Number(data.system.progression.earnedAttributeXp) || 0));
+        data.system.progression.stoneAssignments = data.system.progression.stoneAssignments || {
+            might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
+        };
+        data.flags = data.flags || {};
+        data.flags['mastery-system'] = data.flags['mastery-system'] || {};
+        data.flags['mastery-system'].schemaVersion = '0.9.9.0';
+        data.flags['mastery-system'].v099CorePrepared = true;
+        data.flags['mastery-system'].needsV099Respec = false;
+        data.flags['mastery-system'].needsV099LifetimeXp = lifetimeUnknown;
     }
     // Initialize health bars (6 levels for characters, 1 for NPCs)
     if (actor.type === 'npc' || actor.type === 'character') {
@@ -2194,9 +2321,9 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
         if (!data.system.health) {
             if (actor.type === 'character') {
                 // Characters: 6 levels (Healthy → Bruised → Injured → Wounded →
-                // Broken → Incapacitated). Bars 0–4 = Vitality × 2; Incapacitated = 1.
+                // Broken → Incapacitated). Bars 0–4 = Vitality × 4; Incapacitated = 1.
                 const vitality = data.system.attributes?.vitality?.value || 2;
-                const maxHP = vitality * 2;
+                const maxHP = vitality * 4;
                 data.system.health = {
                     bars: [
                         { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
@@ -2226,7 +2353,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
             if (!data.system.health.bars || data.system.health.bars.length === 0) {
                 if (actor.type === 'character') {
                     const vitality = data.system.attributes?.vitality?.value || 2;
-                    const maxHP = vitality * 2;
+                    const maxHP = vitality * 4;
                     data.system.health.bars = [
                         { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
                         { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
@@ -2247,7 +2374,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                 // migration runs in actor.ts prepareBaseData; here we just seed a
                 // sane shape so preCreate data is never malformed.
                 const vitality = data.system.attributes?.vitality?.value || 2;
-                const maxHP = vitality * 2;
+                const maxHP = vitality * 4;
                 const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Broken', 'Incapacitated'];
                 const penalties = [0, -1, -2, -4, -5, -6];
                 // Limit to 6 bars maximum.
@@ -2288,7 +2415,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
             if (!data.system.stress) {
                 const resolve = data.system.attributes?.resolve?.value || 2;
                 const intellect = data.system.attributes?.intellect?.value || 2;
-                const maxStress = resolve + intellect;
+                const maxStress = 2 * (resolve + intellect);
                 data.system.stress = {
                     bars: [
                         { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
@@ -2304,7 +2431,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                 if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
                     const resolve = data.system.attributes?.resolve?.value || 2;
                     const intellect = data.system.attributes?.intellect?.value || 2;
-                    const maxStress = resolve + intellect;
+                    const maxStress = 2 * (resolve + intellect);
                     const oldCurrent = data.system.stress.current || 0;
                     data.system.stress.bars = [
                         { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
@@ -2333,7 +2460,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                     // Add missing bars (4 bars total)
                     const resolve = data.system.attributes?.resolve?.value || 2;
                     const intellect = data.system.attributes?.intellect?.value || 2;
-                    const maxStress = resolve + intellect;
+                    const maxStress = 2 * (resolve + intellect);
                     const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
                     for (let i = data.system.stress.bars.length; i < 4; i++) {
                         data.system.stress.bars.push({
@@ -2901,6 +3028,7 @@ Hooks.once('ready', async function () {
     // Register attack roll click handler
     registerAttackRollClickHandler();
     registerDamageCardChatHooks();
+    registerRaisePlanChatHooks();
     const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
     registerPerceptionCombatHooks();
     // Register skill spend click handler
@@ -2908,6 +3036,8 @@ Hooks.once('ready', async function () {
     registerSkillSpendClickHandler();
     const { registerAidReactionClickHandler } = await import('./chat/aid-reaction-handler.js');
     registerAidReactionClickHandler();
+    const { registerWeaponSwapChatHandler } = await import('./chat/weapon-swap-card.js');
+    registerWeaponSwapChatHandler();
     const { registerWordOfRecallChatHandler } = await import('./stones/word-of-recall-mark.js');
     registerWordOfRecallChatHandler();
     const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
@@ -2971,6 +3101,13 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Rules v2 alignment migration failed', error);
+    }
+    // Migration: v0.9.9 compressed Attributes — preserve Attribute XP, flag respec.
+    try {
+        await runV099CoreMigration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | v0.9.9 core migration failed', error);
     }
     // Migration: base Speed 6 → 8 (Rules v0.9.8).
     try {
@@ -3209,6 +3346,7 @@ Hooks.once('ready', async function () {
     // Migration: Fix stone pool current values for existing actors
     const characterActors = game.actors?.filter((a) => a.type === 'character') || [];
     let stonePoolsFixed = 0;
+    const { resolvedStonePoolMax } = await import('./progression/v099-rules.js');
     for (const actor of characterActors) {
         try {
             const system = actor.system;
@@ -3222,7 +3360,7 @@ Hooks.once('ready', async function () {
                 if (!pool)
                     continue;
                 const attrValue = attributes[attrKey]?.value || 0;
-                const maxStones = Math.floor(attrValue / 8);
+                const maxStones = resolvedStonePoolMax(system, attrKey, attrValue);
                 const sustained = pool.sustained ?? 0;
                 const sealedBurned = (Math.max(0, Number(pool.sealed) || 0)) + (Math.max(0, Number(pool.burned) || 0));
                 const effectiveMax = Math.max(0, maxStones - sustained - sealedBurned);

@@ -52,26 +52,37 @@ export interface StonePower {
     /** Apply the effect for the given tier. */
     apply: (ctx: StonePowerContext) => Promise<void>;
 }
-/** Tiers shown in the dialog / Players Guide. */
+/** Tiers shown in the dialog / Players Guide. Tier 4 is the last tier. */
 export declare const STONE_TIER_VISIBLE = 4;
-/** Last wave you can fully pay with 80 Stones (1+2+4+8+16+32 = 63). */
-export declare const STONE_TIER_PRACTICAL_MAX = 6;
-/** Hard cap while the table is still open-ended. */
-export declare const STONE_TIER_HARD_MAX = 8;
+/** Highest tier a Stone Ability can reach. */
+export declare const STONE_TIER_PRACTICAL_MAX = 4;
+/** Hard cap. There is no Tier 5. */
+export declare const STONE_TIER_HARD_MAX = 4;
 /**
- * Continue a published T1–T4 number sequence past the printed table.
- * Doubling sequences keep doubling; otherwise the last delta repeats.
+ * Read a published tier value. Tiers past the printed sequence, and anything
+ * above Tier 4, do not scale.
  */
 export declare function scaleStoneTier(seq: readonly number[], tier: number): number;
-/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8, … */
+/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
 export declare function stonePowerWaveCost(tier: number): number;
 /** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
 export declare function cumulativeStoneCostForTier(tier: number, startsAtTier?: 1 | 2): number;
+/** Highest fully paid tier on one card (1 / 3 / 7 / 15 stones → T1 / T2 / T3 / T4). */
+export declare function highestCompleteStoneTierFromPlaced(placed: number, startsAtTier?: 1 | 2, maxTier?: number): number;
+/**
+ * Once-per-combat powers apply the highest complete cluster once.
+ * Artifact Support only raises that tier when every tier below the gold
+ * prefill was paid by the player.
+ */
+export declare function resolveOncePerCombatStoneTier(powerId: string, placedCount: number, prefillTier?: number): {
+    tier: number;
+    playerTier: number;
+};
 export declare const STONE_POWERS: Record<string, StonePower>;
 export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]>;
 /**
  * Convert a usage count (0-indexed; activations this turn BEFORE this one)
- * to the matching tier. Published UI is T1–T4; the math continues to T8.
+ * to the matching tier. Tier 4 is the last tier.
  */
 export declare function tierForUseIndex(usesBefore: number): number;
 /**

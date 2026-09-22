@@ -6,6 +6,7 @@
  */
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 import { healStressFromBars } from '../utils/calculations.js';
+import { resolvedStonePoolMax } from '../progression/v099-rules.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc-attack-model.js';
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
@@ -808,10 +809,14 @@ export async function incrementStoneUsage(actor, attribute, abilityKey, combat) 
     await o.setFlag('mastery-system', 'stoneUsage', stoneUsage);
 }
 /**
- * Calculate exponential stone cost: 2^(usesThisTurn)
+ * Additional Stone cost of the next Ability tier: 1, 2, 4, 8.
+ * Tier 4 is the last tier. A further use costs nothing and must not be offered.
  */
 export function calculateStoneCost(usesThisTurn) {
-    return Math.pow(2, usesThisTurn);
+    const uses = Math.max(0, Math.floor(Number(usesThisTurn) || 0));
+    if (uses >= 4)
+        return 0;
+    return Math.pow(2, uses);
 }
 /**
  * Get stone pool for an attribute
@@ -830,8 +835,8 @@ export function getStonePool(actor, attribute) {
 }
 /**
  * Stones in a pool that must NOT come back through regen / refills:
- * Sustain, Sealed (Rituals — return on Safe Haven Rest) and Burned
- * (lost until Safe Haven Rest, e.g. Last Breath / Remove Scar).
+ * Sustain, Sealed (Rituals / Remove Scar — return on Safe Haven Rest) and
+ * Burned (lost until Safe Haven Rest, e.g. Last Breath).
  */
 export function stonePoolReservedStones(system, attr) {
     const p = system?.stonePools?.[attr] ?? {};
@@ -864,7 +869,7 @@ export async function refillStonePoolsFromAttributes(actor) {
     const updates = {};
     for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
         const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
-        const maxStones = Math.floor(attrValue / 8);
+        const maxStones = resolvedStonePoolMax(sys, attr, attrValue);
         const reserved = stonePoolReservedStones(sys, attr);
         const effectiveMax = Math.max(0, maxStones - reserved);
         const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
@@ -898,7 +903,7 @@ export async function syncStonePoolCapsFromAttributes(actor) {
     const updates = {};
     for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
         const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
-        const maxStones = Math.floor(attrValue / 8);
+        const maxStones = resolvedStonePoolMax(sys, attr, attrValue);
         const reserved = stonePoolReservedStones(sys, attr);
         const effectiveMax = Math.max(0, maxStones - reserved);
         const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
@@ -958,6 +963,20 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
         : calculateStoneCost(uses);
     // Get stone pool
     const pool = getStonePool(actor, attribute);
+    if (abilityKey === 'vitality.removeScar' && colorlessSpent > 0) {
+        ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
+        return false;
+    }
+    try {
+        const { stonePowerAllowsColorless, stonePowerColorlessRejectMessage } = await import('../stones/stone-payment-rules.js');
+        if (!stonePowerAllowsColorless(abilityKey) && colorlessSpent > 0) {
+            ui.notifications?.warn(stonePowerColorlessRejectMessage(abilityKey));
+            return false;
+        }
+    }
+    catch {
+        /* payment-rules unavailable */
+    }
     const colorlessWanted = Math.max(0, Math.floor(Number(colorlessSpent) || 0));
     let colorlessUsed = 0;
     try {
@@ -1220,15 +1239,13 @@ export async function restoreStonesAfterCombat(combat) {
         const owner = getActionEconomyActor(actor) ?? actor;
         const system = owner.system;
         const updates = {};
-        // Same target as the round-1 refill: capacity from the attribute, current
-        // filled up to capacity minus sustained. Artifact-bound stones are not
-        // subtracted here — bindings are deducted when stones are spent
-        // (`poolSpendableStones`), so they stay reserved without shrinking the pool.
+        // Capacity is the assigned permanent Stone count (v0.9.9) or the legacy
+        // attribute threshold until that character finishes respec.
         for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
             const pool = getStonePool(owner, attr);
             const reserved = stonePoolReservedStones(system, attr);
             const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
-            const maxStones = Math.floor(attrValue / 8);
+            const maxStones = resolvedStonePoolMax(system, attr, attrValue);
             const fullCurrent = Math.max(0, maxStones - reserved);
             if (pool.current !== fullCurrent || pool.max !== maxStones) {
                 updates[`system.stonePools.${attr}.max`] = maxStones;
@@ -1341,7 +1358,6 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         (sb.tempArmor ?? 0) !== 0 ||
         (sb.spellPoolDice ?? 0) !== 0 ||
         (sb.spellKeepDice ?? 0) !== 0 ||
-        (sb.tempHpGrantedThisTurn ?? 0) !== 0 ||
         (sb.ignoreWoundPenalties ?? 0) !== 0 ||
         (sb.spellAutoRaises ?? 0) !== 0 ||
         (sb.spellResistanceBonus ?? 0) !== 0 ||
@@ -1354,23 +1370,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         (sb.extendActiveBuffRounds ?? 0) !== 0;
     if (!changed)
         return;
-    // Expire Temp HP granted by the Vitality "Temporary HP" stone power. It is a
-    // per-turn buff ("until your next turn"): decrement the scalar mirror by the
-    // amount this turn granted so it neither persists nor stacks additively
-    // across turns/rounds. Any still-unused portion is simply lost on expiry.
-    const grantedTempHp = Math.max(0, Math.floor(Number(sb.tempHpGrantedThisTurn ?? 0) || 0));
-    if (grantedTempHp > 0) {
-        const curTempHp = Math.max(0, Math.floor(Number(owner.system?.health?.tempHP ?? 0) || 0));
-        const nextTempHp = Math.max(0, curTempHp - grantedTempHp);
-        if (nextTempHp !== curTempHp) {
-            try {
-                await owner.update?.({ 'system.health.tempHP': nextTempHp });
-            }
-            catch (e) {
-                console.warn('Mastery System | Failed to expire stone Temp HP', e);
-            }
-        }
-    }
+    // Vitality Temporary HP lasts until depleted or combat ends — do not strip
+    // it when the actor's spotlight ends. Combat-end cleanup still zeroes it.
     // Round-long bonuses persist through spotlight changes; per-turn bonuses
     // reset when the actor's spotlight in the initiative tracker ends.
     roundState.stoneBonuses = {

@@ -1,7 +1,7 @@
 /**
  * Ritual System — out-of-combat Skill Checks.
  *
- * Base Ritual TN = 8 × Ritual MR (target / creator / artifact / power / scene).
+ * Base Ritual TN = (8 × Ritual MR) − 2 (target / creator / artifact / power / scene).
  * Player declares Raise Level before the roll.
  * Ritual Raise TN = Base + declared Raises × 4.
  * Fail below Base. Meet Base but miss Raise TN → Raise 0 only.

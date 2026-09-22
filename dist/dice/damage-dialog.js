@@ -2,6 +2,7 @@
  * Damage Dialog for Mastery System
  * Appears after successful attack roll to calculate and apply damage
  */
+import { attributeScalingEnabled } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { collectMechanicsContributions } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
@@ -14,11 +15,13 @@ import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-m
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
-import { bindChosenSpecialIntoLevelData, countRaiseSlots, computeTotalRaiseCost, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, formatSnapshotSummary, } from '../combat/raise-resolution.js';
+import { bindChosenSpecialIntoLevelData, countRaiseSlots, computeTotalRaiseCost, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
-import { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
+import { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
+import { resolveLiveActor, tokenIdOfActor } from '../system/status-target.js';
 import { formatEffectReference, getEffectById } from '../utils/special-effects.js';
+import { selectOnHitSpecialEffects } from '../utils/weapon-specials.js';
 /**
  * Weapon specials come in two shapes: plain strings ("Penetration(4)") on
  * conventional weapons, and `{ specialId, value }` refs on artifact virtual
@@ -29,7 +32,7 @@ function normalizeWeaponSpecial(s) {
         return formatEffectReference(s);
     return String(s ?? '').trim();
 }
-export { computeMarkFloorBonus, clampMarkSpend } from './mark-floor.js';
+export { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 /**
  * Add `bonusDice` d8 to a damage formula. Empty / "0" → "Nd8"; pure "Xd8" →
  * "(X+N)d8"; anything else gets " + Nd8" appended.
@@ -250,9 +253,9 @@ function resolveWeaponBaseDamage(weapon) {
     // Artifact weapons (e.g. Dragon Claws) keep their dice on
     // `system.artifactWeapon.damage` (e.g. "4d8"), NOT on `system.damage`.
     // Prefer it when present so artifacts don't fall back to the 1d8 default.
-    // For standard one/two-handed profiles, derive the canonical base+level dice
-    // live (2d8/4d8 base + 1d8/level) so existing artifacts always reflect the
-    // current rule even when their baked damage string is stale.
+    // For standard one/two-handed profiles, derive the canonical dice live
+    // (base + 1d8 per level, so two-handed Level 1 is 5d8) even when a baked
+    // damage string is stale.
     const artifactLevel = Math.max(1, Math.min(10, Number(weaponSystem.currentLevel) || Number(weaponSystem.level) || 1));
     const derivedArtifactDamage = weapon.type === 'artifact' ? deriveArtifactWeaponDamage(weaponSystem.baseProfile, artifactLevel) : null;
     const artifactWeaponDamage = derivedArtifactDamage ??
@@ -294,17 +297,22 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         : (attacker?.id ? game.actors?.get(attacker.id) : attacker);
     const actorToUse = freshAttacker || attacker;
     let stoneDamageBonusDice = 0;
-    try {
-        const { getRoundState } = await import('../combat/action-economy.js');
-        const combat = game.combat;
-        if (actorToUse && combat) {
+    const readMartialDamageDice = async () => {
+        try {
+            const { getRoundState } = await import('../combat/action-economy.js');
+            const combat = game.combat;
+            if (!actorToUse || !combat)
+                return 0;
             const rs = getRoundState(actorToUse, combat);
-            stoneDamageBonusDice = Math.max(0, Number(rs?.stoneBonuses?.damageBonus) || 0);
+            const martial = Math.max(0, Number(rs?.stoneBonuses?.meleeDamageBonusDice) || 0);
+            const legacy = Math.max(0, Number(rs?.stoneBonuses?.damageBonus) || 0);
+            return martial || legacy;
         }
-    }
-    catch (e) {
-        console.warn('Mastery System | [DAMAGE DIALOG] Could not read Might stone damage bonus', e);
-    }
+        catch (e) {
+            console.warn('Mastery System | [DAMAGE DIALOG] Could not read Martial Damage dice', e);
+            return 0;
+        }
+    };
     // Load items from fresh actor - use multiple methods to ensure we get all items
     let items = [];
     if (actorToUse && actorToUse.items) {
@@ -572,7 +580,15 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             console.warn('Mastery System | spell focus bonus failed', err);
         }
     }
+    const attackIsSpell = flags?.powerIsSpell === true ||
+        flags?.npcIsSpell === true ||
+        (!!selectedPowerId &&
+            isSpellPowerItem(resolvePowerItemForDamage(actorToUse, selectedPowerId)));
+    stoneDamageBonusDice = attackIsSpell ? 0 : await readMartialDamageDice();
     let raiseOutcomeLine = '';
+    let shownPowerDamage = '';
+    let shownRaiseDamage = '';
+    let shownSpecials = '';
     let resolvedPowerSnapshot = null;
     if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
         const masteryRank = Math.max(1, Math.floor(Number(actorToUse.system?.mastery?.rank) || flags.masteryRank || 2));
@@ -605,20 +621,38 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         });
         powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
         const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
-        if (selectedPowerData) {
+        if (!selectedPowerData) {
+            selectedPowerData = {
+                id: selectedPowerId || 'artifact-power',
+                name: String(flags?.selectedPowerName || flags?.npcAttackName || 'Power'),
+                level: Math.max(1, Number(flags?.selectedPowerLevel) || 1),
+                specials: resolvedSpecials,
+                damage: powerDamage,
+            };
+        }
+        else {
             selectedPowerData.damage = powerDamage;
             selectedPowerData.specials = resolvedSpecials;
         }
         powerSpecials.length = 0;
         powerSpecials.push(...resolvedSpecials);
-        const lostCost = computeTotalRaiseCost(countRaiseSlots(declaredRaises), masteryRank);
-        const lostCostLabel = isSpell ? `${lostCost} value` : `${lostCost}d8`;
-        raiseOutcomeLine =
-            outcome === 'partial'
-                ? `Raise failed — applying ${formatSnapshotSummary(resolvedPowerSnapshot)} (Raise cost of ${lostCostLabel} lost)`
-                : outcome === 'full'
-                    ? `Raise succeeded — ${formatSnapshotSummary(resolvedPowerSnapshot)}`
-                    : '';
+        const basePowerDice = Math.max(0, Math.floor(Number(flags.basePowerSnapshot.damageDice) || 0));
+        const resolvedPowerDice = Math.max(0, Math.floor(resolvedPowerSnapshot.damageDice));
+        if (outcome === 'full') {
+            shownPowerDamage = `${basePowerDice}d8`;
+            const extra = resolvedPowerDice - basePowerDice;
+            if (extra > 0)
+                shownRaiseDamage = `+${extra}d8`;
+            shownSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot).join(', ');
+            raiseOutcomeLine = '';
+        }
+        else if (outcome === 'partial') {
+            const lostCost = flags.waiveRaiseCost
+                ? 0
+                : computeTotalRaiseCost(paidRaiseSlots(declaredRaises), masteryRank);
+            shownPowerDamage = `${resolvedPowerDice}d8`;
+            raiseOutcomeLine = lostCost > 0 ? `Raise verfehlt, −${lostCost}d8` : 'Raise verfehlt';
+        }
     }
     let npcAutoDamageDice = 0;
     let npcStressD8 = 0;
@@ -662,6 +696,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     // Basic Attack: fold MR × 2d8 into the power-damage slot for display + roll.
     if (!isNpcAttackFlow &&
         !selectedPowerId &&
+        !flags?.basePowerSnapshot &&
         basicAttackMrDamage &&
         basicAttackMrDamage !== '0' &&
         (!powerDamage || powerDamage === '0')) {
@@ -695,23 +730,15 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     const targetMarkValue = Math.max(0, getActiveSpecialValue(target, 'mark'));
     // Create damage card as chat message instead of dialog
     return new Promise((resolve) => {
-        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue);
-        // Get targetTokenId if target is a token actor (for unlinked tokens)
-        let targetTokenId = null;
-        if (target.isToken) {
-            // Target is already a token actor, find the token document
-            const tokenDoc = canvas?.scene?.tokens?.find((t) => t.actor?.id === target.id);
-            if (tokenDoc) {
-                targetTokenId = tokenDoc.id;
-            }
-        }
-        else {
-            // Target is base actor, try to find token on canvas
-            const tokenDoc = canvas?.scene?.tokens?.find((t) => t.actor?.id === target.id);
-            if (tokenDoc) {
-                targetTokenId = tokenDoc.id;
-            }
-        }
+        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue, {
+            power: shownPowerDamage,
+            raise: shownRaiseDamage,
+            specials: shownSpecials,
+            might: flags?.attackType === 'melee' && attributeScalingEnabled()
+                ? Math.max(0, Math.floor(Number(actorToUse?.system?.scaling?.mightDamageBonus) || 0))
+                : 0,
+        });
+        const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
         const chatData = {
             user: game.user?.id,
             speaker: ChatMessage.getSpeaker({ actor: attacker }),
@@ -766,19 +793,17 @@ function damageCardHtmlEsc(text) {
 /**
  * Create HTML content for damage card in chat
  */
-function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0) {
+function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}) {
     const raisesSection = raiseOutcomeLine
         ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
         : '';
     const markMax = Math.max(0, Math.floor(Number(targetMarkValue) || 0));
     let markSpendSection = '';
     if (markMax > 0) {
-        // Mark spend is chosen AFTER the damage roll (post-roll prompt with exact
-        // "total → new total" options) — the card only announces it.
+        // Spend is chosen on the post-roll damage card — this only announces Mark.
         markSpendSection = `
       <div class="raises-section mark-spend-section">
-        <h4><i class="fas fa-bullseye"></i> Mark(${markMax}) on target</h4>
-        <p class="raises-description">After the damage roll you may spend any amount of Mark. Spent Mark becomes the Damage Floor for this roll (dice below that value are raised) — the prompt shows exactly how much each option gains. Anyone who hits this target may spend Mark.</p>
+        <p class="raises-description">Mark(${markMax}) on target — after the roll, spend it on the damage card if it raises the total.</p>
       </div>`;
     }
     const html = `
@@ -797,35 +822,37 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
         </div>`
         : ''}
         <div class="damage-row">
-          <span class="damage-label">Base Weapon Damage:</span>
+          <span class="damage-label">Waffe:</span>
           <span class="damage-value">${baseDamage || '0'}</span>
         </div>
-        ${weaponInnateLines.length > 0
+        <div class="damage-row">
+          <span class="damage-label">Power:</span>
+          <span class="damage-value">${hitSplit.power || powerDamage || '0'}</span>
+        </div>
+        ${hitSplit.raise
         ? `<div class="damage-row">
-          <span class="damage-label">Weapon innates (reference):</span>
-          <span class="damage-value">${weaponInnateLines.map(damageCardHtmlEsc).join(', ')}</span>
+          <span class="damage-label">Raise:</span>
+          <span class="damage-value">${damageCardHtmlEsc(hitSplit.raise)}</span>
         </div>`
         : ''}
-        ${selectedPower ? `
-          <div class="damage-row">
-            <span class="damage-label">Power:</span>
-            <span class="damage-value">${selectedPower.name} (Level ${selectedPower.level})</span>
-          </div>
-          ${selectedPower.specials && selectedPower.specials.length > 0 ? `
-            <div class="damage-row">
-              <span class="damage-label">Power Special Effects:</span>
-              <span class="damage-value">${selectedPower.specials.join(', ')}</span>
-            </div>
-          ` : ''}
-        ` : ''}
-        <div class="damage-row">
-          <span class="damage-label">Power Damage:</span>
-          <span class="damage-value">${powerDamage || '0'}</span>
-        </div>
-        <div class="damage-row">
-          <span class="damage-label">Passive Damage:</span>
-          <span class="damage-value">${passiveDamage || '0'}</span>
-        </div>
+        ${hitSplit.specials
+        ? `<div class="damage-row">
+          <span class="damage-label">Special:</span>
+          <span class="damage-value">${damageCardHtmlEsc(hitSplit.specials)}</span>
+        </div>`
+        : ''}
+        ${(hitSplit.might || 0) > 0
+        ? `<div class="damage-row">
+          <span class="damage-label">Might/8:</span>
+          <span class="damage-value">+${hitSplit.might}, fest</span>
+        </div>`
+        : ''}
+        ${passiveDamage && passiveDamage !== '0'
+        ? `<div class="damage-row">
+          <span class="damage-label">Passive:</span>
+          <span class="damage-value">${passiveDamage}</span>
+        </div>`
+        : ''}
       </div>
       ${raisesSection}
       ${markSpendSection}
@@ -877,20 +904,8 @@ export function attachDamageCardHandlers(messageId) {
             const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
             const attackerId = $btn.data('attacker-id');
             const targetId = $btn.data('target-id');
-            const attacker = game.actors?.get(attackerId);
-            // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
-            let target = null;
-            if (flags?.targetTokenId) {
-                // Try to get token document from current scene
-                const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
-                if (tokenDoc?.actor) {
-                    target = tokenDoc.actor;
-                }
-            }
-            // Fallback to base actor if token not found
-            if (!target) {
-                target = game.actors?.get(targetId);
-            }
+            const attacker = resolveLiveActor(attackerId, flags?.attackerTokenId) || game.actors?.get(attackerId);
+            const target = resolveLiveActor(targetId, flags?.targetTokenId);
             if (!attacker || !target) {
                 console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
                     attackerId,
@@ -1091,8 +1106,8 @@ async function consumeTargetMark(target, spend) {
     if (!spend || spend <= 0)
         return;
     try {
-        const system = target.system;
-        const list = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+        const { readActorStatusEffects } = await import('../system/active-specials.js');
+        const list = readActorStatusEffects(target);
         let changed = false;
         const next = list
             .map((e) => {
@@ -1107,7 +1122,7 @@ async function consumeTargetMark(target, spend) {
         })
             .filter((e) => !((e?.id === 'mark' || String(e?.name ?? '').toLowerCase() === 'mark') && Math.floor(Number(e.value ?? 0)) <= 0));
         if (changed) {
-            await (await import('../combat/gm-relay.js')).updateActorViaGm(target, { 'system.statusEffects': next });
+            await (await import('../system/assign-status.js')).writeActorStatusList(target, next);
         }
     }
     catch (err) {
@@ -1159,12 +1174,8 @@ function applyWardToIncomingSpecial(target, effectId, effectName, effectValue) {
 async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
     const limitNotes = [];
     try {
-        // Get current status effects from target
-        const system = target.system;
-        if (!system.statusEffects) {
-            system.statusEffects = [];
-        }
-        let list = Array.isArray(system.statusEffects) ? [...system.statusEffects] : [];
+        const { readActorStatusEffects } = await import('../system/active-specials.js');
+        let list = readActorStatusEffects(target).map((e) => ({ ...e }));
         const { getEffect } = await import('../utils/special-effects.js');
         const { mergeChallengeEntry } = await import('../system/pool-reduction.js');
         const { actorMasteryRank, clampSpecialApplication, formatApplicationLimitNote, specialRoundAppsUpdate, } = await import('../combat/special-application.js');
@@ -1213,10 +1224,13 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                     }
                     continue;
                 }
-                const wardReduced = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
-                if (wardReduced === null)
-                    continue;
-                let wardedValue = wardReduced;
+                let wardedValue = effectValue;
+                if (effectValue != null) {
+                    const wardReduced = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
+                    if (wardReduced === null)
+                        continue;
+                    wardedValue = wardReduced;
+                }
                 // Root has a minimum applied value of 2 — Root(1) is not a valid
                 // application (Players Guide "Root(X)").
                 if (effectId === 'root' && wardedValue !== null && wardedValue > 0 && wardedValue < 2) {
@@ -1275,10 +1289,7 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
             }
         }
         // Update target actor
-        await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
-            'system.statusEffects': list,
-            ...appsUpdate,
-        });
+        await (await import('../system/assign-status.js')).writeActorStatusList(target, list, appsUpdate);
         // Reactive Cleanse — status surface (not the attack Reaction Window).
         try {
             const { maybeOfferReactiveCleanseChat } = await import('../combat/reaction-followups.js');
@@ -1471,9 +1482,8 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                         if (use) {
                             const spent = combat ? await spendReactionAction(target, combat) : true;
                             if (spent) {
-                                const listNow = Array.isArray(target.system?.statusEffects)
-                                    ? [...target.system.statusEffects]
-                                    : [];
+                                const { readActorStatusEffects } = await import('../system/active-specials.js');
+                                const listNow = readActorStatusEffects(target).map((e) => ({ ...e }));
                                 const idx = listNow.findIndex((e) => statusEntryId(e) === 'bulwark');
                                 if (idx >= 0) {
                                     const cur = Math.max(0, Math.floor(Number(listNow[idx]?.value ?? 0)));
@@ -1481,9 +1491,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                                         listNow[idx] = { ...listNow[idx], value: cur - 1 };
                                     else
                                         listNow.splice(idx, 1);
-                                    await (await import('../combat/gm-relay.js')).updateActorViaGm(target, {
-                                        'system.statusEffects': listNow,
-                                    });
+                                    await (await import('../system/assign-status.js')).writeActorStatusList(target, listNow);
                                 }
                                 bulwarkNote = `Bulwark −50% (${mitigated} → ${halved})`;
                                 mitigated = halved;
@@ -1586,6 +1594,15 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             }
             catch (phaseErr) {
                 console.warn('Mastery System | NPC phase advance failed', phaseErr);
+            }
+            try {
+                const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
+                await syncNpcDefeatedPresentationAfterHpChange(target, {
+                    tokenId: tokenIdOfActor(target),
+                });
+            }
+            catch (downErr) {
+                console.warn('Mastery System | defeated token presentation failed', downErr);
             }
         }
         else if (Object.keys(tempHPConsumption.patch).length > 0) {
@@ -1762,10 +1779,10 @@ function buildDamageFaithGateHtml(opts) {
         <div class="mastery-damage-mitigation-title"><i class="fas fa-hourglass-half"></i> Keep or Reroll?</div>
         <div class="mastery-damage-mitigation-breakdown">Roh ${opts.totalDamage} — HP not applied yet</div>
       </div>
-      <p class="ms-damage-faith-hint">Spend <strong>1 Faith Fracture</strong> (${opts.fracturesLeft} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>
+      <p class="ms-damage-faith-hint">Spend <strong>1 Reroll Point</strong> (${opts.fracturesLeft} left) to reroll <em>all</em> damage dice once? One reroll per roll — the new result is final.</p>
       <div class="ms-damage-faith-buttons">
         <button type="button" class="ms-damage-faith-keep-btn"><i class="fas fa-check"></i> Keep</button>
-        <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (1 Faith Fracture)</button>
+        <button type="button" class="ms-damage-faith-reroll-btn"><i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)</button>
       </div>
     </div>`;
 }
@@ -1876,6 +1893,8 @@ async function promptDamageFaithReroll(attacker, target, totalDamage, rollDetail
         const user = game.user;
         if (!user?.isGM && !attacker.isOwner)
             return skip;
+        if (user?.isGM && String(user.character?.id || '') !== String(attacker.id || ''))
+            return skip;
         registerDamageFaithRerollChatHooks();
         const attackerName = String(attacker.name || 'Attacker');
         const targetName = String(target?.name || 'Target');
@@ -1931,61 +1950,248 @@ async function promptDamageFaithReroll(attacker, target, totalDamage, rollDetail
         return skip;
     }
 }
-/**
- * Post-roll Mark spend prompt: the attacker sees the rolled total and picks
- * how much Mark to spend from a dropdown that shows the exact outcome of
- * every option ("Mark 4: 30 → 45 damage (+15)"). Returns the chosen spend
- * (0 = keep the Mark on the target).
- */
-async function promptMarkSpend(target, markOnTarget, totalDamage, damageChatRolls) {
-    const mark = Math.max(0, Math.floor(Number(markOnTarget) || 0));
-    if (mark <= 0)
-        return 0;
-    try {
-        const options = [
-            `<option value="0" selected>0 — do not spend Mark (keep ${mark} on target)</option>`,
-        ];
-        for (let n = 1; n <= mark; n++) {
-            const bonus = computeMarkFloorBonus(damageChatRolls, n);
-            const label = bonus > 0
-                ? `Mark ${n}: ${totalDamage} → ${totalDamage + bonus} damage (+${bonus})`
-                : `Mark ${n}: ${totalDamage} → ${totalDamage} damage (no gain)`;
-            options.push(`<option value="${n}">${label}</option>`);
+const pendingDamageMarkPrompts = new Map();
+let damageMarkChatHooksRegistered = false;
+function registerDamageMarkSpendChatHooks() {
+    if (damageMarkChatHooksRegistered)
+        return;
+    damageMarkChatHooksRegistered = true;
+    Hooks.on('renderChatMessageHTML', (message, htmlRaw) => {
+        try {
+            const ms = message.flags?.['mastery-system'];
+            if (ms?.type !== 'damageMarkSpendPrompt' || ms?.resolved)
+                return;
+            attachDamageMarkPromptHandlers(message, htmlRaw);
         }
-        return await new Promise((resolve) => {
-            new Dialog({
-                title: `Mark(${mark}) on ${target.name} — spend?`,
-                content: `<p style="margin-bottom:0.35em"><strong>Damage rolled: ${totalDamage}</strong></p>
-          <p style="margin:0 0 0.5em">Spent Mark becomes the Damage Floor for this roll — every damage die below the spent value is raised to it. The target's Mark is reduced by the amount spent.</p>
-          <div class="form-group">
-            <label for="ms-mark-spend-post">Spend Mark:</label>
-            <select id="ms-mark-spend-post" name="markSpendPost" style="width:100%">
-              ${options.join('\n              ')}
-            </select>
-          </div>`,
-                buttons: {
-                    apply: {
-                        icon: '<i class="fas fa-bullseye"></i>',
-                        label: 'Apply',
-                        callback: (html) => {
-                            const chosen = Number($(html).find('#ms-mark-spend-post').val());
-                            resolve(clampMarkSpend(mark, chosen));
-                        },
-                    },
-                    skip: {
-                        icon: '<i class="fas fa-times"></i>',
-                        label: 'Do not spend',
-                        callback: () => resolve(0),
-                    },
+        catch (e) {
+            console.warn('Mastery System | damage Mark spend prompt hook', e);
+        }
+    });
+}
+function buildDamageMarkGateHtml(opts) {
+    const details = opts.rollDetails;
+    const rollsHtml = details.length
+        ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+            .map((line) => `<li>${damageFaithPromptEsc(line)}</li>`)
+            .join('')}</ul></div>`
+        : '';
+    const spendButtons = opts.options
+        .map((opt) => {
+        const next = opts.totalDamage + opt.bonus;
+        const label = `Mark ${opt.spend}: ${opts.totalDamage} → ${next} (+${opt.bonus})`;
+        return `<button type="button" class="ms-damage-mark-spend-btn" data-mark-spend="${opt.spend}">${damageFaithPromptEsc(label)}</button>`;
+    })
+        .join('');
+    return `<div class="mastery-system-damage mastery-damage-mark-gate">
+      <h3><i class="fas fa-sword"></i> Damage: ${opts.totalDamage}</h3>
+      ${rollsHtml}
+      <p><strong>Target:</strong> ${damageFaithPromptEsc(opts.targetName)}</p>
+      <div class="mastery-damage-mitigation mastery-damage-pending">
+        <div class="mastery-damage-mitigation-title"><i class="fas fa-bullseye"></i> Spend Mark?</div>
+        <div class="mastery-damage-mitigation-breakdown">Roh ${opts.totalDamage} — HP not applied yet</div>
+      </div>
+      <p class="ms-damage-mark-hint">Mark(${opts.markOnTarget}) on ${damageFaithPromptEsc(opts.targetName)}. Spent Mark becomes the Damage Floor — dice below that value are raised. Only spends that raise the total are listed.</p>
+      <div class="ms-damage-mark-buttons">
+        ${spendButtons}
+        <button type="button" class="ms-damage-mark-skip-btn"><i class="fas fa-times"></i> Do not spend</button>
+      </div>
+    </div>`;
+}
+/** After a Mark choice: same damage card without spend buttons (still awaiting apply). */
+function buildDamageMarkSettledPreviewHtml(opts) {
+    const details = opts.rollDetails;
+    const rollsHtml = details.length
+        ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+            .map((line) => `<li>${damageFaithPromptEsc(line)}</li>`)
+            .join('')}</ul></div>`
+        : '';
+    const shownTotal = opts.totalDamage + Math.max(0, opts.bonus);
+    const breakdown = opts.spend > 0
+        ? `Roh ${opts.totalDamage} — Mark ${opts.spend} → ${shownTotal} — HP not applied yet`
+        : `Roh ${opts.totalDamage} — Mark not spent — HP not applied yet`;
+    return `<div class="mastery-system-damage">
+      <h3><i class="fas fa-sword"></i> Damage: ${shownTotal}</h3>
+      ${rollsHtml}
+      <p><strong>Target:</strong> ${damageFaithPromptEsc(opts.targetName)}</p>
+      <div class="mastery-damage-mitigation mastery-damage-pending">
+        <div class="mastery-damage-mitigation-title"><i class="fas fa-hourglass-half"></i> Awaiting Reactions…</div>
+        <div class="mastery-damage-mitigation-breakdown">${damageFaithPromptEsc(breakdown)}</div>
+      </div>
+    </div>`;
+}
+async function settleDamageMarkPrompt(message, spend) {
+    const messageId = String(message.id || '');
+    const pending = pendingDamageMarkPrompts.get(messageId);
+    if (!pending) {
+        ui.notifications?.warn?.('Only the player who rolled this damage can spend Mark here.');
+        return;
+    }
+    pendingDamageMarkPrompts.delete(messageId);
+    const flags = (message.flags?.['mastery-system'] ?? {});
+    const mark = Math.max(0, Math.floor(Number(flags.markOnTarget) || 0));
+    const chosen = clampMarkSpend(mark, spend);
+    const options = Array.isArray(flags.options) ? flags.options : [];
+    const bonus = chosen > 0 ? Math.max(0, options.find((o) => o.spend === chosen)?.bonus ?? 0) : 0;
+    try {
+        await message.update({
+            content: buildDamageMarkSettledPreviewHtml({
+                targetName: String(flags.targetName || 'Target'),
+                totalDamage: Math.max(0, Math.floor(Number(flags.totalDamage) || 0)),
+                rollDetails: Array.isArray(flags.rollDetails) ? flags.rollDetails : [],
+                spend: chosen,
+                bonus,
+            }),
+            flags: {
+                'mastery-system': {
+                    ...flags,
+                    type: 'damageMarkSpendPrompt',
+                    resolved: chosen > 0 ? `spend-${chosen}` : 'skip',
                 },
-                default: 'apply',
-                close: () => resolve(0),
-            }).render(true);
+            },
         });
     }
     catch (e) {
+        console.warn('Mastery System | could not settle damage Mark spend gate', e);
+    }
+    pending.resolve(chosen);
+}
+function attachDamageMarkPromptHandlers(message, htmlRaw) {
+    const $root = htmlRaw instanceof HTMLElement ? $(htmlRaw) : htmlRaw;
+    const card = $root
+        .filter('.mastery-damage-mark-gate')
+        .add($root.find('.mastery-damage-mark-gate'))
+        .first();
+    if (!card.length)
+        return;
+    if (card.data('msMarkBound'))
+        return;
+    card.data('msMarkBound', true);
+    const messageId = String(message.id || '');
+    const canAct = pendingDamageMarkPrompts.has(messageId);
+    const spendBtns = card.find('.ms-damage-mark-spend-btn');
+    const skipBtn = card.find('.ms-damage-mark-skip-btn');
+    if (!canAct) {
+        spendBtns.prop('disabled', true);
+        skipBtn.prop('disabled', true);
+        spendBtns.attr('title', 'Waiting for the rolling player…');
+        skipBtn.attr('title', 'Waiting for the rolling player…');
+        return;
+    }
+    const lock = async (spend) => {
+        spendBtns.prop('disabled', true);
+        skipBtn.prop('disabled', true);
+        await settleDamageMarkPrompt(message, spend);
+    };
+    spendBtns.off('click.msDmgMark').on('click.msDmgMark', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const raw = Number($(ev.currentTarget).attr('data-mark-spend'));
+        void lock(Number.isFinite(raw) ? raw : 0);
+    });
+    skipBtn.off('click.msDmgMark').on('click.msDmgMark', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        void lock(0);
+    });
+}
+/**
+ * Post-roll Mark spend on the damage chat card itself (no extra Dialog).
+ * Shows only spends that raise the total, plus "Do not spend". If Faith Keep
+ * already posted a card, that message is reused; otherwise a preview card
+ * with the rolled dice is posted first.
+ */
+async function promptMarkSpend(attacker, target, markOnTarget, totalDamage, rollDetails, damageChatRolls, existingFloor, existingMessageId) {
+    const skip = {
+        spend: 0,
+        messageId: existingMessageId ? String(existingMessageId) : null,
+    };
+    const mark = Math.max(0, Math.floor(Number(markOnTarget) || 0));
+    if (mark <= 0)
+        return skip;
+    const options = listUsefulMarkSpends(damageChatRolls, mark, existingFloor);
+    if (options.length === 0)
+        return skip;
+    try {
+        const user = game.user;
+        if (!user?.isGM && !attacker?.isOwner)
+            return skip;
+        registerDamageMarkSpendChatHooks();
+        const attackerName = String(attacker?.name || 'Attacker');
+        const targetName = String(target?.name || 'Target');
+        const content = buildDamageMarkGateHtml({
+            targetName,
+            markOnTarget: mark,
+            totalDamage,
+            rollDetails,
+            options,
+        });
+        const serializedRolls = (damageChatRolls || [])
+            .map((r) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+            .filter(Boolean);
+        const markFlags = {
+            type: 'damageMarkSpendPrompt',
+            attackerId: attacker?.id,
+            attackerName,
+            targetName,
+            totalDamage,
+            markOnTarget: mark,
+            rollDetails: [...rollDetails],
+            options,
+            resolved: false,
+        };
+        let message = null;
+        const reuseId = existingMessageId ? String(existingMessageId) : '';
+        if (reuseId) {
+            try {
+                const existing = game.messages?.get?.(reuseId);
+                if (existing) {
+                    const patch = {
+                        content,
+                        flags: { 'mastery-system': markFlags },
+                    };
+                    if (serializedRolls.length > 0) {
+                        patch.rolls = serializedRolls;
+                    }
+                    await existing.update(patch);
+                    message = existing;
+                }
+            }
+            catch (err) {
+                console.warn('Mastery System | [MARK SPEND] could not reuse damage card — posting new', err);
+            }
+        }
+        if (!message) {
+            message = (await ChatMessage.create({
+                user: user?.id,
+                speaker: ChatMessage.getSpeaker({ actor: attacker }),
+                content,
+                ...(serializedRolls.length > 0
+                    ? { rolls: serializedRolls, sound: CONFIG.sounds.dice }
+                    : { style: CONST?.CHAT_MESSAGE_STYLES?.OTHER }),
+                flags: {
+                    'mastery-system': markFlags,
+                },
+            }));
+        }
+        if (!message?.id)
+            return skip;
+        const spend = await new Promise((resolve) => {
+            pendingDamageMarkPrompts.set(String(message.id), {
+                resolve,
+                attackerId: String(attacker?.id || ''),
+            });
+            window.setTimeout(() => {
+                const el = document.querySelector(`.chat-message[data-message-id="${message.id}"]`) ??
+                    document.querySelector(`.message[data-message-id="${message.id}"]`);
+                if (el)
+                    attachDamageMarkPromptHandlers(message, el);
+            }, 50);
+        });
+        return { spend: clampMarkSpend(mark, spend), messageId: String(message.id) };
+    }
+    catch (e) {
         console.warn('Mastery System | [MARK SPEND] prompt failed — Mark not spent', e);
-        return 0;
+        return skip;
     }
 }
 /**
@@ -2120,7 +2326,7 @@ skipPhasingPrompt = false) {
         damageChatRolls.push(baseRoll.roll);
     let stoneMightDamageRolled = 0;
     if (stoneDamageBonusDice > 0) {
-        const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Might stones');
+        const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Martial Damage');
         stoneMightDamageRolled = stoneRoll.total;
         if (stoneRoll.line)
             rollDetails.push(stoneRoll.line);
@@ -2143,19 +2349,9 @@ skipPhasingPrompt = false) {
     let raiseDamage = 0;
     const specialsUsed = [];
     let raiseDiceCount = 0;
-    // Base power specials from the resolved snapshot apply on every successful hit.
-    for (const special of availableSpecials) {
-        if (special.type === 'power-special' && special.effect) {
-            specialsUsed.push(special.effect);
-        }
-        // Weapon Exorcism/Requiem ride as on-hit Specials (tag-gated at apply).
-        if (special.type === 'weapon' && special.effect) {
-            const effect = String(special.effect).trim();
-            if (/^(exorcism|requiem)\s*\(/i.test(effect)) {
-                specialsUsed.push(effect);
-            }
-        }
-    }
+    // Only Specials the Raise resolution put on the power snapshot apply.
+    // A printed weapon Special stays off until that Raise is chosen.
+    specialsUsed.push(...selectOnHitSpecialEffects(availableSpecials));
     for (let i = 0; i < raises; i++) {
         const selection = raiseSelections.get(i);
         if (selection) {
@@ -2320,12 +2516,12 @@ skipPhasingPrompt = false) {
     // `system.scaling.mightDamageBonus` so any rank-up / mid-session bump is
     // reflected immediately.
     let mightMeleeBonus = 0;
-    if (attackType === 'melee' && attacker) {
+    if (attackType === 'melee' && attacker && attributeScalingEnabled()) {
         try {
             const mb = Number(attacker?.system?.scaling?.mightDamageBonus ?? 0) || 0;
             if (mb > 0) {
                 mightMeleeBonus = mb;
-                rollDetails.push(`Might melee bonus: +${mb}`);
+                rollDetails.push(`Might/8: +${mb}, fest`);
             }
         }
         catch {
@@ -2392,10 +2588,10 @@ skipPhasingPrompt = false) {
             const prevTotal = totalDamage;
             const cur = Number(attacker?.system?.faithFractures?.current ?? 0) || 0;
             await attacker.update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
-            ui.notifications?.info(`${attacker.name} spent 1 Faith Fracture — rerolling damage (was ${prevTotal}).`);
+            ui.notifications?.info(`${attacker.name} spent 1 Reroll Point — rerolling damage (was ${prevTotal}).`);
             const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext, skipApply, true);
             rerolled.rollDetails = [
-                `Reroll — 1 Faith Fracture spent (previous total: ${prevTotal})`,
+                `Reroll — 1 Reroll Point spent (previous total: ${prevTotal})`,
                 ...(rerolled.rollDetails ?? []),
             ];
             return rerolled;
@@ -2403,21 +2599,23 @@ skipPhasingPrompt = false) {
         if (faithChoice.messageId)
             prePostedChatMessageId = faithChoice.messageId;
     }
-    // Mark(X) Damage Floor — chosen AFTER the roll so the attacker sees exactly
-    // what each spend gains ("Mark 4: 30 → 45 damage"). Runs after the reroll
-    // gate: the floor applies to the final dice, and a reroll never consumes
-    // Mark twice.
+    // Mark(X) Damage Floor — chosen AFTER the roll on the damage chat card
+    // ("Mark 4: 30 → 45"). No extra Dialog. Runs after the reroll gate so the
+    // floor applies to the final dice; a reroll never consumes Mark twice.
     try {
         if (target) {
             const { getActiveSpecialValue } = await import('../system/active-specials.js');
             const mark = Math.max(0, getActiveSpecialValue(target, 'mark'));
             if (mark > 0) {
-                const maxBonus = computeMarkFloorBonus(damageChatRolls, mark, brutalImpactFloor);
-                if (maxBonus <= 0) {
+                const useful = listUsefulMarkSpends(damageChatRolls, mark, brutalImpactFloor);
+                if (useful.length === 0) {
                     rollDetails.push(`Mark(${mark}) available — all damage dice already ≥ ${mark}, nothing to gain`);
                 }
                 else {
-                    const spend = await promptMarkSpend(target, mark, totalDamage, damageChatRolls);
+                    const markChoice = await promptMarkSpend(attacker, target, mark, totalDamage, rollDetails, damageChatRolls, brutalImpactFloor, prePostedChatMessageId);
+                    if (markChoice.messageId)
+                        prePostedChatMessageId = markChoice.messageId;
+                    const spend = markChoice.spend;
                     if (spend > 0) {
                         const markFloorBonus = computeMarkFloorBonus(damageChatRolls, spend, brutalImpactFloor);
                         totalDamage += markFloorBonus;

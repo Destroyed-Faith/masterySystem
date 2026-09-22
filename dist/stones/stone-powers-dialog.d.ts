@@ -50,6 +50,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _colorlessConvertCount;
     /** Player toggles for attribute / General sections in this dialog session. */
     private _sectionOpenOverride;
+    /** Removes the Help overlay key listener (Escape / arrows). */
+    private _helpKeyCleanup?;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

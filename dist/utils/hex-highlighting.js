@@ -165,4 +165,19 @@ export function highlightHexesWithinStepsFromPoint(center, rangeSteps, highlight
         gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
     }
 }
+/** Paint an explicit list of grid offsets (cone rows). */
+export function highlightGridOffsets(cells, highlightLayerId, color = 0xff8833, alpha = 0.35) {
+    const grid = canvas.grid;
+    const gridUI = canvas.interface?.grid;
+    if (!grid || !gridUI)
+        return;
+    gridUI.addHighlightLayer?.(highlightLayerId);
+    gridUI.clearHighlightLayer?.(highlightLayerId);
+    for (const cell of cells) {
+        const tl = grid.getTopLeftPoint(cell);
+        if (!tl || tl.x === undefined || tl.y === undefined)
+            continue;
+        gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
+    }
+}
 //# sourceMappingURL=hex-highlighting.js.map

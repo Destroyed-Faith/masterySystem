@@ -28,6 +28,37 @@ export interface InitiativeRollBreakdown {
     /** Present after a local roll; omitted when the shop opens over the socket. */
     rollResult?: any;
 }
+export declare const INITIATIVE_ROLLED_FLAG = "initiativeRolledFor";
+/** True when this combatant already kept an initiative total for this combat round. */
+export declare function initiativeRollAlreadyRecorded(flag: {
+    combatId?: string;
+    round?: number;
+    total?: number;
+} | null | undefined, combatId: string | null | undefined, round: number): boolean;
+/**
+ * Player characters roll from the Initiative line in Stone Powers, not when
+ * the dialog opens. A stored total for this combat counts as already rolled,
+ * even on a later round. Foundry's seeded 0 does not.
+ */
+export declare function pcNeedsManualInitiativeRoll(input: {
+    actorType?: string;
+    surprised?: boolean;
+    combatId?: string | null;
+    recordedCombatId?: string | null;
+    recordedTotal?: number | null;
+    initiative?: number | null;
+    combatantHasRecordedValue?: boolean;
+}): boolean;
+export declare function formatSignedInitiativeModifier(n: number): string;
+export declare function formatInitiativeDiceRollLine(diceTotal: number): string;
+export declare function formatInitiativeArmorPenaltyLine(equipmentModifier: number): string;
+/** English toast / fallback after the player has rolled. */
+export declare function formatInitiativeExchangeSummary(input: {
+    diceTotal: number | null;
+    initiative: number;
+}): string;
+/** Drop the stored roll so the Initiative button shows again. Does not roll. */
+export declare function releasePcInitiativeRoll(actor: any, combatant: any): Promise<void>;
 /**
  * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
  * Combat Reflexes are added afterwards in the Initiative Exchange row, so the

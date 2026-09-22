@@ -22,31 +22,77 @@ export function canCurrentUserUpdateCombat(combat) {
         return false;
     return canCurrentUserUpdateDocument(combat);
 }
+function userLooksLikeGm(u) {
+    if (!u)
+        return false;
+    if (u.isGM === true)
+        return true;
+    const role = Number(u.role);
+    return Number.isFinite(role) && role >= 3;
+}
 export function listActiveUsers() {
     const raw = typeof game !== 'undefined' ? game.users : null;
     if (!raw)
         return [];
-    if (Array.isArray(raw))
-        return raw;
-    if (Array.isArray(raw.contents))
-        return raw.contents;
-    if (typeof raw.filter === 'function') {
+    const out = [];
+    const seen = new Set();
+    const add = (u) => {
+        if (!u || typeof u !== 'object' || Array.isArray(u))
+            return;
+        const id = String(u.id || u._id || '');
+        if (id) {
+            if (seen.has(id))
+                return;
+            seen.add(id);
+        }
+        out.push(u);
+    };
+    if (raw.activeGM)
+        add(raw.activeGM);
+    if (Array.isArray(raw)) {
+        for (const u of raw)
+            add(u);
+        return out;
+    }
+    if (Array.isArray(raw.contents)) {
+        for (const u of raw.contents)
+            add(u);
+    }
+    if (typeof raw.forEach === 'function') {
         try {
-            const filtered = raw.filter((u) => !!u && typeof u === 'object' && !Array.isArray(u));
-            if (Array.isArray(filtered) && filtered.length)
-                return filtered;
+            raw.forEach((u) => add(u));
         }
         catch {
-            /* Collection.filter may expect a different signature */
+            /* Collection.forEach may expect a different signature */
+        }
+    }
+    if (out.length === 0 && typeof raw.filter === 'function') {
+        try {
+            const filtered = raw.filter((u) => !!u && typeof u === 'object' && !Array.isArray(u));
+            if (Array.isArray(filtered))
+                for (const u of filtered)
+                    add(u);
+        }
+        catch {
+            /* ignore */
         }
     }
     if (typeof raw.values === 'function') {
-        return Array.from(raw.values()).filter((u) => !!u && typeof u === 'object' && !Array.isArray(u));
+        try {
+            for (const u of raw.values())
+                add(u);
+        }
+        catch {
+            /* ignore */
+        }
     }
-    return [];
+    return out;
 }
 export function hasActiveGm() {
-    return listActiveUsers().some((u) => !!u?.isGM && !!u?.active);
+    const users = typeof game !== 'undefined' ? game.users : null;
+    if (users?.activeGM)
+        return true;
+    return listActiveUsers().some((u) => userLooksLikeGm(u) && u.active !== false);
 }
 export function canCurrentUserCreateCombat() {
     const user = typeof game !== 'undefined' ? game.user : null;

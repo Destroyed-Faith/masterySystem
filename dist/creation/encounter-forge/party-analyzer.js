@@ -20,6 +20,7 @@ import { canonicalSpecialId } from '../../utils/special-effects.js';
 import { getPowerDefinitionRank } from '../../utils/power-definition-rank.js';
 import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, collectMechanicsContributions, } from '../../utils/power-mechanics.js';
 import { getTargetArmor, getTargetEvade, getTargetSpellResistance, } from '../../combat/target-defenses.js';
+import { permanentStonesFromLifetimeXp, usesV099Stones } from '../../progression/v099-rules.js';
 import { baseEvadeForMr, mightMeleeBonus, stonesForAttribute } from './combat-math.js';
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
@@ -202,7 +203,7 @@ export function analyzePc(actor) {
     const bars = Array.isArray(system.health?.bars) ? system.health.bars : [];
     const healthBars = bars.map((b) => Math.max(0, num(b?.max, 0)));
     if (healthBars.length === 0)
-        healthBars.push(Math.max(1, num(attributes.vitality?.value, 2) * 2));
+        healthBars.push(Math.max(1, num(attributes.vitality?.value, 2) * 4));
     const totalHealth = healthBars.reduce((a, b) => a + b, 0);
     const healthLevelSize = Math.max(1, healthBars[0]);
     const currentDamage = bars.reduce((acc, b) => acc + Math.max(0, num(b?.max, 0) - num(b?.current, num(b?.max, 0))), 0);
@@ -401,7 +402,7 @@ export function analyzePc(actor) {
                 casterMr: mr,
                 isMental: mental,
                 notes: [
-                    `Spell ${dice}d8 · TN = 8×MR${mental ? '+4 Mental' : ''} (nicht Power Level)`,
+                    `Spell ${dice}d8 · TN = (8×MR)−2${mental ? '+4 Mental' : ''} (nicht Power Level)`,
                     ignoreWeapon ? 'Ohne Waffe' : '',
                 ].filter(Boolean),
             };
@@ -452,21 +453,24 @@ export function analyzePc(actor) {
     }
     const pickBest = (list) => list.reduce((best, a) => (rawAttackScore(a) > rawAttackScore(best) ? a : best));
     let stonesTotal = 0;
-    for (const key of ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits']) {
-        stonesTotal += stonesForAttribute(num(attributes[key]?.value, 0));
+    if (usesV099Stones(system)) {
+        stonesTotal = permanentStonesFromLifetimeXp(Number(system?.progression?.lifetimeXp) || 0);
+    }
+    else {
+        for (const key of ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits']) {
+            stonesTotal += stonesForAttribute(num(attributes[key]?.value, 0));
+        }
     }
     const extraAttackStoneCost = 2;
     let burstBonusDamageDice = 0;
-    if (!isRangedWeapon) {
-        if (stonesTotal >= 15)
-            burstBonusDamageDice = 2 + 4 + 8 + 16;
-        else if (stonesTotal >= 7)
-            burstBonusDamageDice = 2 + 4 + 8;
-        else if (stonesTotal >= 3)
-            burstBonusDamageDice = 2 + 4;
-        else if (stonesTotal >= 1)
-            burstBonusDamageDice = 2;
-    }
+    if (stonesTotal >= 15)
+        burstBonusDamageDice = 2 + 4 + 8 + 16;
+    else if (stonesTotal >= 7)
+        burstBonusDamageDice = 2 + 4 + 8;
+    else if (stonesTotal >= 3)
+        burstBonusDamageDice = 2 + 4;
+    else if (stonesTotal >= 1)
+        burstBonusDamageDice = 2;
     let burstExtraActions = 0;
     if (stonesTotal >= 14)
         burstExtraActions = 3;
@@ -474,11 +478,15 @@ export function analyzePc(actor) {
         burstExtraActions = 2;
     else if (stonesTotal >= extraAttackStoneCost)
         burstExtraActions = 1;
-    const burstAttacks = [...sustainedAttacks, ...burstOnlyAttacks].map((a) => ({
-        ...a,
-        damageDice: a.damageDice + burstBonusDamageDice,
-        notes: [...a.notes, burstBonusDamageDice ? `Burst +${burstBonusDamageDice}d8 Stones` : ''].filter(Boolean),
-    }));
+    const burstAttacks = [...sustainedAttacks, ...burstOnlyAttacks].map((a) => {
+        const martial = a.kind !== 'spell';
+        const bonus = martial ? burstBonusDamageDice : 0;
+        return {
+            ...a,
+            damageDice: a.damageDice + bonus,
+            notes: [...a.notes, bonus ? `Burst +${bonus}d8 Martial Damage` : ''].filter(Boolean),
+        };
+    });
     const baselineBand = {
         attack: basicAttack,
         attacks: [basicAttack],

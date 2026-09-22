@@ -641,18 +641,73 @@ export function mergeNpcAttackTargetingFlag(atk, actor, usageKey) {
         return atk;
     return { ...atk, ...flagged };
 }
-/** Attack roll pool: explicit count (2–16 typical), else parse legacy attackDice */
+/** Attack roll pool. Explicit count wins. An empty sheet field is 6, the number the input shows — not Might. Explicit 0 stays 0. A missing row is 0. */
 export function npcAttackDiceCount(attack) {
     if (!attack)
         return 0;
-    const n = Math.floor(Number(attack.attackDiceCount) || 0);
-    if (n > 0)
+    const raw = attack.attackDiceCount;
+    if (raw === 0 || raw === '0')
+        return 0;
+    const n = Math.floor(Number(raw));
+    if (Number.isFinite(n) && n > 0)
         return Math.min(MAX_D, n);
     const s = String(attack.attackDice || '').trim();
     const p = parseInt(s, 10);
     if (Number.isFinite(p) && p > 0)
         return Math.min(MAX_D, p);
+    if (raw == null || raw === '')
+        return 6;
     return 0;
+}
+/** True when the sheet never stored a count. Explicit 0 is not blank. */
+export function npcAttackDiceCountIsBlank(attack) {
+    if (!attack)
+        return true;
+    const raw = attack.attackDiceCount;
+    if (raw === 0 || raw === '0')
+        return false;
+    const n = Number(raw);
+    if (Number.isFinite(n) && n > 0)
+        return false;
+    const s = String(attack.attackDice || '').trim();
+    const p = parseInt(s, 10);
+    if (Number.isFinite(p) && p > 0)
+        return false;
+    return raw == null || raw === '' || !Number.isFinite(n);
+}
+/**
+ * To-hit pool for an NPC or summon at click time.
+ * The token row wins when it has a stored count (including 0 and 2).
+ * A blank token field falls through to the prototype, then to 6 for NPCs —
+ * the number the sheet input shows. Summons are not forced to 6 when the
+ * row already says 2, and a summon with no row stays on the attribute.
+ */
+export function resolveNpcSheetToHit(args) {
+    const type = String(args.actorType || '');
+    if (type !== 'npc' && type !== 'summon')
+        return null;
+    const idx = args.attackIndex == null ? 0 : Math.max(0, Math.floor(Number(args.attackIndex) || 0));
+    const phase = args.phaseIndex == null ? null : args.phaseIndex;
+    let row = getNpcAttackByIndex(args.system, idx, phase);
+    if (npcAttackDiceCountIsBlank(row) && args.prototypeSystem) {
+        const proto = getNpcAttackByIndex(args.prototypeSystem, idx, phase);
+        if (proto && !npcAttackDiceCountIsBlank(proto))
+            row = proto;
+    }
+    if (!row) {
+        if (type !== 'npc')
+            return null;
+        return {
+            dice: 6,
+            keep: Math.max(1, Math.floor(Number(args.masteryRank) || 1)),
+            name: '',
+        };
+    }
+    return {
+        dice: npcAttackDiceCount(row),
+        keep: npcAttackKeepDice(row, args.masteryRank),
+        name: String(row.name || '').trim(),
+    };
 }
 /**
  * Keep value for one NPC attack row (PG statblocks print e.g. "6d8, Keep 1").

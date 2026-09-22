@@ -5,6 +5,7 @@ import { COMBAT_SENSES, skillCheckTnByMasteryRank } from './combat-senses.js';
 import { getActiveCombatSense, isNonSightCombatSense, listActorCombatSenses, } from './combat-sense-collection.js';
 import { effectiveInvisibilityBonus, getPerceptionCombatState, hasLocatedTarget, isSenseBlockedOnTarget, markLocatedTarget, } from './perception-state.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
+import { tokenIsExcludedAsTarget } from './defeated-token.js';
 function targetMasteryRank(actor) {
     return Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
 }
@@ -120,6 +121,8 @@ export function filterPerceivableTargetIds(attackerActor, candidateTokenIds, att
         const tok = byId.get(tid);
         const targetActor = tok?.actor;
         if (!targetActor)
+            continue;
+        if (tokenIsExcludedAsTarget(tok))
             continue;
         const gate = evaluatePerceptionGate(attackerActor, targetActor, {
             observerToken: attackerToken,

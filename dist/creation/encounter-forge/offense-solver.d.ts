@@ -11,7 +11,7 @@
  * fair Attack Dice, Damage Dice and Special magnitude so the encounter's
  * expected pressure matches the central tuning target. Martial attacks
  * resolve vs each PC's Evade (+ expected defensive reactions); Spells vs the
- * NPC Casting TN (8 × MR) + that PC's Spell Resistance. AoE evaluates
+ * NPC Casting TN ((8 × MR) − 2) + that PC's Spell Resistance. AoE evaluates
  * explicit occupancy cases instead of a hidden fixed target count.
  */
 import type { AttackConcept } from './encounter-model.js';

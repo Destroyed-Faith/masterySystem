@@ -123,7 +123,7 @@ export function buildSafeHavenRestUpdates(system, opts) {
             updates['system.stones.bondedFormActive'] = false;
         }
     }
-    // Sealed (Rituals) and Burned (Last Breath, Remove Scar, daily effects)
+    // Sealed (Rituals, Remove Scar) and Burned (Last Breath, daily effects)
     // stones return on Safe Haven Rest: clear the per-pool counters and refill
     // each pool to capacity minus Sustain.
     const pools = system?.stonePools;
@@ -176,6 +176,23 @@ export async function applySafeHavenRest(actor) {
     }
     catch (err) {
         console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
+    }
+    try {
+        const { clearRemoveScarResolvedTiers } = await import('../stones/remove-scar.js');
+        await clearRemoveScarResolvedTiers(actor);
+    }
+    catch (err) {
+        console.warn('Mastery System | Safe Haven Remove Scar flag clear failed', err);
+    }
+    try {
+        const { encodeStatusFlag, readActorStatusEffects } = await import('../system/active-specials.js');
+        if (readActorStatusEffects(actor).length) {
+            updates['system.statusEffects'] = [];
+            updates['flags.mastery-system.statusJson'] = encodeStatusFlag([]);
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | Safe Haven status clear failed', err);
     }
     await actor.update(updates);
     await beginMinorMagicRest(actor);

@@ -4,28 +4,28 @@
  * Encounter-scoped resources always go away:
  *   - Temporary HP (sourced pools are cleared by `passive-triggers`; the scalar
  *     mirror is zeroed here so stone-granted / manual Temp HP cannot survive).
- *   - Temporary Colorless Stones (also on the action-economy owner document).
+ *   - Leftover Initiative Colorless Stones (used or unused). Item-granted
+ *     Colorless Stones stay and follow that item's own combat rule.
  *
- * Ongoing Special Effects are treated asymmetrically on purpose: NPC-side
- * creatures are wiped, player characters keep theirs. Players must resolve
- * their own stacks after the fight — that is part of the rules, not a bug.
+ * Ongoing Special Effects are wiped from every combatant when the fight
+ * ends — PCs and NPCs. Leftover stacks on the sheet were too noisy, and
+ * leftover NPC tokens (dead or not) must not keep Mark / Slow / etc.
  */
 /** Zero the Temp HP mirror on every combatant — Temp HP never outlives a fight. */
 export declare function resetTempHpAfterCombat(combat: any): Promise<void>;
-/** Leftover Temporary Colorless Stones vanish when the encounter ends. */
+/** Leftover Initiative Colorless Stones vanish when the encounter ends. */
 export declare function clearColorlessStonesAfterCombat(combat: any): Promise<void>;
+/** No-GM / player client: drop leftover Initiative stones on owned actors only. */
+export declare function clearOwnedInitiativeColorlessAfterCombat(combat: any): Promise<void>;
 /**
- * Drop ongoing Special Effects and Mastery active buffs from NPC-side
- * creatures. Player characters keep both so they have to resolve them
- * themselves after the encounter.
+ * Drop ongoing Special Effects from everyone who was in the fight.
+ * Mastery active buffs are still NPC-only — those are slotted powers, not Stati.
  */
 export declare function clearNpcOngoingEffectsAfterCombat(combat: any): Promise<void>;
 /**
- * Fresh encounter: drop leftovers from a fight that ended without cleanup
- * (crash, no GM online, world from before the cleanup existed). Colorless
- * Stones only ever come from Initiative Exchange, so anything present before
- * the first conversion is stale, and a stale stone assignment snapshot would
- * otherwise reappear in the Stone Powers dialog.
+ * Fresh encounter: drop leftover Initiative Colorless Stones from a fight
+ * that ended without cleanup (crash, no GM online). Item-granted stones stay.
+ * A stale stone assignment snapshot would otherwise reappear in the dialog.
  *
  * Runs at encounter preparation, never at `combatStart` — round-1 stones are
  * bought during the prepare phase and must survive.

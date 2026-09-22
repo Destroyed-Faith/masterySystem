@@ -16,7 +16,7 @@ export const UNBOUND_PREDATOR_SHAPES = [
     'Lynx',
 ];
 export const UNBOUND_PREDATOR_STONES = [
-    { key: 'might', label: 'Might — Melee Damage', artifactKey: 'predatorCrownMight' },
+    { key: 'might', label: 'Might — Martial Damage', artifactKey: 'predatorCrownMight' },
     { key: 'wits', label: 'Wits — Initiative Boost', artifactKey: 'predatorCrownWits' },
     { key: 'intellect', label: 'Intellect — Spell Raises', artifactKey: 'predatorCrownIntellect' },
 ];
@@ -80,7 +80,7 @@ export const UNBOUND_IDENTITIES = [
         artifactKey: 'greenWardenMantle',
         slotLabel: 'Body',
         summary: 'Bark, thorn, and old green wrath. Endurance and retaliation, not animal shape.',
-        technical: 'Medium Armor / Active Buff: Thorns / Reaction: Ally Armor / Resolve Ability: Special Reduction',
+        technical: 'Medium Armor / Active Buff: Thorns / Reaction: Ally Armor / Resolve Ability: Ward',
     },
     {
         key: 'bane-relic-hunter',

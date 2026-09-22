@@ -3,6 +3,7 @@
  */
 import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
+import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getAvailableAttackActions, getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, } from '../utils/npc-attack-model.js';
@@ -10,7 +11,6 @@ import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-de
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
 import { buildArtifactRadialOptions } from './artifact-options.js';
-import { artifactPowersUnlocked } from '../utils/artifact-actor-rules.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
@@ -375,39 +375,6 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
         }
     }
     return range;
-}
-/**
- * True when the actor has an equipped/bound AND activated weapon-kind artifact
- * (e.g. Dragon Claws, Moonlight Greatsword). Those artifacts ARE the weapon.
- * Basic Attack is suppressed so it does not sit next to Single Attack / the
- * named artifact swing. An inactive artifact surfaces no own attack entry, so
- * Basic Attack must stay (it still rolls the artifact's dice).
- */
-function actorHasEquippedWeaponArtifact(actor) {
-    const items = actor?.items ? Array.from(actor.items) : [];
-    return items.some((item) => {
-        if (item?.type !== 'artifact')
-            return false;
-        const sys = item.system || {};
-        if (sys.artifactKind !== 'weapon' || !sys.artifactWeapon)
-            return false;
-        if (!artifactPowersUnlocked(actor, item))
-            return false;
-        const binding = String(sys.binding || '').toLowerCase();
-        if (binding === 'bound' || binding === 'echo')
-            return true;
-        if (sys.equipped === true)
-            return true;
-        try {
-            const flagSlot = item.getFlag?.('mastery-system', 'equipment')?.slot;
-            if (typeof flagSlot === 'string' && flagSlot.length > 0)
-                return true;
-        }
-        catch {
-            /* ignore */
-        }
-        return false;
-    });
 }
 /**
  * Map power type to combat slot
@@ -938,7 +905,7 @@ export async function getAllCombatOptionsForActor(actor) {
         // Calculate maneuver range using the new function
         const maneuverRange = calculateRange(actor, maneuver.id, maneuver.slot, undefined, undefined);
         // Determine costs
-        const costsMovement = maneuver.slot === 'movement' && maneuver.id !== 'stand-up';
+        const costsMovement = maneuver.slot === 'movement' && maneuver.id !== 'stand-up' && maneuver.id !== 'weapon-swap';
         const costsAction = maneuver.id === 'stand-up' || maneuver.slot === 'attack';
         // Filter stand-up: only show if prone
         if (maneuver.id === 'stand-up' && !isProne) {
@@ -951,7 +918,8 @@ export async function getAllCombatOptionsForActor(actor) {
             ? (globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.actionName') || maneuver.name)
             : maneuver.name;
         const maneuverDescription = maneuver.id === 'weapon-swap'
-            ? (globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.actionDescription') || maneuver.description)
+            ? (globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.pickPrompt') ||
+                'Pick in chat what you want to wear. Costs 1 Movement in combat.')
             : (maneuver.description || (maneuver.effect || ''));
         const maneuverOption = {
             id: maneuver.id,
@@ -970,33 +938,31 @@ export async function getAllCombatOptionsForActor(actor) {
     // Add "Weapon Attack" if not present
     const hasWeaponAttack = allManeuvers.some(opt => opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack'));
     const skipWeaponForNpc = actor.type === 'npc' && npcAttackOptions.length > 0;
-    // A weapon-kind artifact (e.g. Dragon Claws) IS the actor's weapon and
-    // surfaces its own attack via buildArtifactRadialOptions, so it replaces the
-    // generic "Weapon Attack" instead of duplicating it.
-    const hasEquippedWeaponArtifact = actorHasEquippedWeaponArtifact(actor);
     if (!hasWeaponAttack &&
         !skipWeaponForNpc &&
-        !hasEquippedWeaponArtifact &&
         !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
+        const profile = describeActiveWeaponProfile(actor);
         const ammoPair = getActiveAmmoPair(actor);
         const ammoNote = ammoPair ? ` ${quiverAmmunitionLabel(ammoPair.quiver)}` : '';
         allManeuvers.push({
             id: 'weapon-attack',
             name: 'Basic Attack',
-            description: `Weapon Damage + MR × 2d8. No Active Power effects.${ammoNote}`,
+            description: `${profile.summary}${ammoNote}`,
             slot: 'attack',
             source: 'maneuver',
-            range: calculateRange(actor, 'weapon-attack', 'attack', undefined, undefined),
+            range: profile.rangeM,
             maneuver: {
                 id: 'weapon-attack',
                 name: 'Basic Attack',
-                description: 'Weapon Damage + MR × 2d8. No Active Power effects.',
+                description: profile.summary,
                 slot: 'attack',
                 category: 'combat-action',
-                tags: ['attack', 'weapon', 'basic'],
-                effect: 'Make a Basic Attack with your equipped weapon: Weapon Damage + MR × 2d8. No Active Power effects. Weapon properties and eligible Passives/Buffs still apply.',
+                tags: ['attack', 'weapon', 'basic', ...(profile.attackType === 'ranged' ? ['ranged'] : [])],
+                effect: profile.unarmed
+                    ? 'Improvised strike with empty hands: 1d8 + MR × 2d8. No weapon Specials. Swap Weapon Set to put a weapon back in your hands.'
+                    : `Basic Attack with the active Weapon Set (${profile.name}): weapon damage + MR × 2d8.`,
             },
-            tags: ['attack', 'weapon', 'basic'],
+            tags: ['attack', 'weapon', 'basic', ...(profile.attackType === 'ranged' ? ['ranged'] : [])],
             costsAction: true
         });
     }

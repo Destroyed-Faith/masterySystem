@@ -112,6 +112,14 @@ export interface RollOptions {
     bloodRaises?: number;
     /** Bonus added only when checking Raise TN (Intellect Spell Raises stone). */
     raiseTnRollBonus?: number;
+    /**
+     * Pool & Keep Guaranteed Eights already chosen by the caller.
+     * Omit to prompt when at least one conversion is legal.
+     * Ignored on rolls that are not Pool & Keep (`rollKind: 'damage'` or `poolAndKeep: false`).
+     */
+    guaranteedEights?: number;
+    /** Set false for rolls that are not Pool & Keep. Damage rolls are never Pool & Keep. */
+    poolAndKeep?: boolean;
     /** When true, evaluate the roll but do not post a chat message. */
     skipChat?: boolean;
     /**
@@ -163,6 +171,7 @@ export interface MasteryRollRecipe {
      * disconnected roll message.
      */
     attackCardMessageId?: string;
+    guaranteedEights?: number;
 }
 /** Margin raises: each full +4 over TN = 1 Raise (echo, ritual, skill checks). */
 export declare function countMarginRaises(total: number, tn: number): number;

@@ -2,6 +2,7 @@
  * XP Management Settings Application
  * Allows GM to view character XP spending and grant XP allowances
  */
+import { nextLifetimeXp } from '../progression/v099-rules.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
 import { openXpHistoryDialog } from '../utils/xp-history.js';
 import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
@@ -134,6 +135,9 @@ export class XpManagementSettings extends BaseApplication {
                 'system.points.xp': xpState.available + amount,
                 'system.xp.totalEarned': xpState.totalEarned + amount
             };
+            const life = nextLifetimeXp(actor.system, amount);
+            if (life != null)
+                updates['system.progression.lifetimeXp'] = life;
             if (!actor.system.xp) {
                 updates['system.xp.totalSpent'] = 0;
                 updates['system.xp.history'] = [];
@@ -185,6 +189,9 @@ export class XpManagementSettings extends BaseApplication {
                 'system.points.xpFree': xpState.freeAvailable + amount,
                 'system.xp.freeEarned': xpState.freeEarned + amount,
             };
+            const life = nextLifetimeXp(actor.system, amount);
+            if (life != null)
+                updates['system.progression.lifetimeXp'] = life;
             if (!actor.system.xp) {
                 updates['system.xp.totalSpent'] = 0;
                 updates['system.xp.history'] = [];
@@ -232,6 +239,9 @@ export class XpManagementSettings extends BaseApplication {
                     'system.points.xp': xpState.available + amount,
                     'system.xp.totalEarned': xpState.totalEarned + amount
                 };
+                const life = nextLifetimeXp(actor.system, amount);
+                if (life != null)
+                    updates['system.progression.lifetimeXp'] = life;
                 if (!actor.system.xp) {
                     updates['system.xp.totalSpent'] = 0;
                     updates['system.xp.history'] = [];
@@ -281,6 +291,9 @@ export class XpManagementSettings extends BaseApplication {
                     'system.points.xpFree': xpState.freeAvailable + amount,
                     'system.xp.freeEarned': xpState.freeEarned + amount,
                 };
+                const life = nextLifetimeXp(actor.system, amount);
+                if (life != null)
+                    updates['system.progression.lifetimeXp'] = life;
                 if (!actor.system.xp) {
                     updates['system.xp.totalSpent'] = 0;
                     updates['system.xp.history'] = [];

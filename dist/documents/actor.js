@@ -1,7 +1,7 @@
 /**
  * Extended Actor document for Mastery System
  */
-import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
+import { initializeHealthBars, initializeStressBars, calculateHealthBarMax, isHealthBarScarred, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier, getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, buildPassiveMechanicsBreakdown, resolvePowerMechanics, } from '../utils/power-mechanics.js';
 import { passiveDamageNegationReserveForLevel, passiveParryPoolForLevel, } from '../utils/powers/templates/passives.js';
@@ -16,6 +16,7 @@ import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../uti
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
+import { resolvedPermanentStoneTotal, resolvedStonePoolMax, usesV099Stones } from '../progression/v099-rules.js';
 /** Clamp skill ranks in an actor update to MR × 4 (and ≥ 0). */
 function clampSkillRanksInUpdate(actor, changed) {
     if (actor.type !== 'character')
@@ -86,14 +87,9 @@ export class MasteryActor extends Actor {
         const system = this.system;
         // Calculate derived values if needed
         if (system.attributes) {
-            // Calculate attribute stones using /8 rule (Single Source of Truth)
-            for (const attr of Object.values(system.attributes)) {
-                if (attr && typeof attr.value === 'number') {
-                    updateAttributeStones(attr);
-                }
-            }
-            // NEW: Calculate per-attribute stone pools (floor(attribute / 8))
-            // For characters only (NPCs may have stones but don't use action bonuses)
+            const v099Stones = usesV099Stones(system);
+            // v0.9.9: assigned Stones are independent of Attribute values.
+            // Until the one-time respec, existing characters still use floor(attribute / 8).
             if (this.type === 'character') {
                 // Initialize stonePools if it doesn't exist (for new characters)
                 if (!system.stonePools) {
@@ -102,7 +98,9 @@ export class MasteryActor extends Actor {
                 const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
                 for (const attrKey of attributeKeys) {
                     const attrValue = system.attributes[attrKey]?.value || 0;
-                    const maxStones = Math.floor(attrValue / 8);
+                    const maxStones = resolvedStonePoolMax(system, attrKey, attrValue);
+                    if (system.attributes[attrKey])
+                        system.attributes[attrKey].stones = maxStones;
                     // Initialize pool if missing
                     if (!system.stonePools[attrKey]) {
                         system.stonePools[attrKey] = {
@@ -145,15 +143,22 @@ export class MasteryActor extends Actor {
                     }
                 }
             }
-            // OLD STONE SYSTEM: Keep for backwards compatibility / migration
-            // Calculate total stones
             if (!system.stones) {
                 system.stones = {};
             }
-            system.stones.total = calculateTotalStones(system.attributes);
-            // Calculate vitality stones
+            const legacyTotal = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits']
+                .reduce((sum, key) => sum + Math.floor((Number(system.attributes[key]?.value) || 0) / 8), 0);
+            system.stones.total = resolvedPermanentStoneTotal(system, v099Stones ? 0 : legacyTotal);
+            if (!v099Stones) {
+                for (const attr of Object.values(system.attributes)) {
+                    if (attr && typeof attr.value === 'number' && attr.stones == null) {
+                        attr.stones = Math.floor(attr.value / 8);
+                    }
+                }
+            }
             if (system.attributes.vitality) {
-                system.stones.vitality = calculateStones(system.attributes.vitality.value);
+                system.stones.vitality = system.attributes.vitality.stones
+                    ?? (v099Stones ? 0 : Math.floor((Number(system.attributes.vitality.value) || 0) / 8));
             }
             // Set maximum stones (total for now, can be extended with bonuses later)
             system.stones.maximum = system.stones.total;
@@ -185,7 +190,7 @@ export class MasteryActor extends Actor {
             system.mastery.divineScale = getDivineScale(system.stones.total);
             // Initialize health bars — 6 levels:
             // Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
-            // Bars 0–4 each hold `Vitality × 2` boxes; the final bar (Incapacitated)
+            // Bars 0–4 each hold `Vitality × 4` boxes; the final bar (Incapacitated)
             // is a fixed single box ("you go down at 0").
             if (this.type === 'character') {
                 // Normalize player/GM-authored manual adjustments so the rest of
@@ -196,7 +201,7 @@ export class MasteryActor extends Actor {
                 const stressBarBonus = Math.max(-9999, system.manual.stress.barMaxBonus || 0);
                 const vitality = system.attributes.vitality?.value || 2;
                 // Absorption Passive (Rules/passives.md): each normal Health Bar gains
-                // +4 Max HP per Passive Level (bar formula: Vitality × 2 + Absorption HP).
+                // +4 Max HP per Passive Level (bar formula: Vitality × 4 + Absorption HP).
                 let absorptionHp = 0;
                 try {
                     for (const item of this.items ?? []) {
@@ -211,7 +216,7 @@ export class MasteryActor extends Actor {
                 catch {
                     /* items not yet initialized on first prepare */
                 }
-                // Health bar max = Vitality × 2 + Absorption HP + manual Health Bonus per bar.
+                // Health bar max = Vitality × 4 + Absorption HP + manual Health Bonus per bar.
                 // A negative bonus is clamped at 1 so HP never collapses to 0.
                 const maxHP = Math.max(1, calculateHealthBarMax(vitality) + absorptionHp + healthBarBonus);
                 if (!system.health) {
@@ -314,6 +319,7 @@ export class MasteryActor extends Actor {
                         if (isIncap) {
                             bar.max = 1;
                             bar.current = Math.min(bar.current ?? 1, 1);
+                            bar.scarred = isHealthBarScarred(bar);
                             return;
                         }
                         if (bar.max !== maxHP) {
@@ -321,6 +327,7 @@ export class MasteryActor extends Actor {
                             bar.max = maxHP;
                             bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
                         }
+                        bar.scarred = isHealthBarScarred(bar);
                     });
                 }
                 // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
@@ -1170,6 +1177,13 @@ export class MasteryActor extends Actor {
             if (currentBar) {
                 currentBar.current = Math.min(currentBar.current + amount, currentBar.max);
                 await this.update({ 'system.health': system.health });
+                try {
+                    const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
+                    await syncNpcDefeatedPresentationAfterHpChange(this);
+                }
+                catch (downErr) {
+                    console.warn('Mastery System | defeated token presentation failed', downErr);
+                }
             }
         }
     }
@@ -1189,6 +1203,13 @@ export class MasteryActor extends Actor {
                 }
                 catch (phaseErr) {
                     console.warn('Mastery System | NPC phase advance failed', phaseErr);
+                }
+                try {
+                    const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
+                    await syncNpcDefeatedPresentationAfterHpChange(this);
+                }
+                catch (downErr) {
+                    console.warn('Mastery System | defeated token presentation failed', downErr);
                 }
             }
         }

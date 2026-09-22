@@ -27,6 +27,12 @@ export interface DeclaredRaise {
     targetSpecialKey?: string;
     /** Raise slots consumed (1 or 2 per option). */
     slots: 1 | 2;
+    /** GM marked this one Raise free. The others still pay. */
+    free?: boolean;
+    /** Printed rank turned on by a Special Raise. Not added on top of MR. */
+    printedRank?: number;
+    /** Attack-card label, so the table can see which Raise was picked. */
+    label?: string;
 }
 export interface RaiseCostAllocation {
     /** d8 removed from damage pool for spell mixed cost. */
@@ -39,6 +45,8 @@ export interface RaiseOption {
     label: string;
     effect: RaiseEffectKind;
     targetSpecialKey?: string;
+    /** Printed rank this Raise turns on. A Special is off until this Raise. */
+    printedRank?: number;
     slots: 1 | 2;
 }
 export interface ResolvePowerSnapshotParams {
@@ -65,8 +73,15 @@ export declare function computeRaiseTns(normalTn: number, declaredRaiseSlots: nu
 export declare function resolveRaiseOutcome(total: number, normalTn: number, declaredRaiseSlots: number, 
 /** Intellect Spell Raises: bonus applied only when checking Raise TN. */
 raiseTnRollBonus?: number): RaiseOutcome;
+/** +MR Schaden once per attack. Each Special (Penetration, Precision, …) once as well. */
+export declare function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[];
 /** Total raise slots from declared raise plan. */
 export declare function countRaiseSlots(raises: DeclaredRaise[]): number;
+/** Slots that still pay Raise Cost. A free Raise still raises the TN. */
+export declare function paidRaiseSlots(raises: DeclaredRaise[]): number;
+export declare function describeDeclaredRaise(raise: DeclaredRaise): string;
+/** One line the whole table can read: which Raises were picked, and which are free. */
+export declare function formatDeclaredRaiseList(raises: DeclaredRaise[]): string;
 /** Martial: MR d8 per raise slot. Spell: MR total value per raise slot. */
 export declare function raiseCostPerSlot(masteryRank: number): number;
 /**
@@ -83,7 +98,29 @@ export declare function resolvePowerSnapshot(params: ResolvePowerSnapshotParams)
 /** Pre-roll snapshot after paying raise cost (for UI preview). */
 export declare function previewAfterRaiseCost(base: PowerSnapshot, declaredRaises: DeclaredRaise[], masteryRank: number, isSpell: boolean, spellCostOverride?: RaiseCostAllocation): PowerSnapshot;
 export declare function buildAvailableRaiseOptions(snapshot: PowerSnapshot, isSpell: boolean): RaiseOption[];
+/** One line: 11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise). */
+export declare function formatHitBreakdown(weaponDice: number | undefined, powerDice: number, extra?: {
+    raiseDice?: number;
+    specials?: PowerSpecialEntry[];
+}): string;
+/** Weapon dice plus power dice, so 4d8 total is not read as the Raise itself. */
+export declare function formatAttackDiceLine(powerDice: number, weaponDice?: number): string;
+/**
+ * What a full Raise actually changes. Specials that stay put are named, so
+ * Penetration on the weapon is not mistaken for a Raise the player took.
+ */
+export declare function describeSnapshotDelta(base: PowerSnapshot, resolved: PowerSnapshot, weaponDice?: number): string;
+export declare function formatRaiseResultLine(params: {
+    outcome: 'full' | 'partial';
+    base: PowerSnapshot;
+    resolved: PowerSnapshot;
+    declared: DeclaredRaise[];
+    lostCostLabel?: string;
+    weaponDice?: number;
+}): string;
 export declare function formatSnapshotSummary(snapshot: PowerSnapshot): string;
+/** Labeled result so "3d8, Range 12m" is not read as the Raise itself. */
+export declare function formatRaiseOutcomeBody(snapshot: PowerSnapshot): string;
 /** Build a PowerSnapshot from level row data (attack card / damage dialog). */
 export declare function buildPowerSnapshotFromLevelData(levelData: {
     effect?: {
@@ -110,7 +147,7 @@ export declare function bindChosenSpecialIntoLevelData(levelData: any | null, ch
 export declare function parseDeclaredRaises(raw: string | null | undefined): DeclaredRaise[];
 export declare function snapshotToDamageFormula(snapshot: PowerSnapshot): string;
 export declare function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[];
-/** Load template level data for an artifact radial option flagged as a Spell. */
+/** Load catalog level data for an artifact Active (Frost Throw, spells, …). */
 export declare function loadPowerSnapshotForArtifactOption(option: RadialCombatOption): Promise<{
     snapshot: PowerSnapshot;
     isSpell: boolean;

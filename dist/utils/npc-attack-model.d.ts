@@ -153,8 +153,30 @@ export declare function resolveNpcAttackList(system: any): {
 export declare function getNpcAttackByIndex(system: any, attackIndex: number, phaseIndex: number | null | undefined): AttackValue | null;
 /** Overlay authoritative targeting flags (if present) onto an attack row. */
 export declare function mergeNpcAttackTargetingFlag(atk: AttackValue | null | undefined, actor: any, usageKey: string): AttackValue | null;
-/** Attack roll pool: explicit count (2–16 typical), else parse legacy attackDice */
+/** Attack roll pool. Explicit count wins. An empty sheet field is 6, the number the input shows — not Might. Explicit 0 stays 0. A missing row is 0. */
 export declare function npcAttackDiceCount(attack: AttackValue | null | undefined): number;
+/** True when the sheet never stored a count. Explicit 0 is not blank. */
+export declare function npcAttackDiceCountIsBlank(attack: AttackValue | null | undefined): boolean;
+export interface NpcSheetToHit {
+    dice: number;
+    keep: number;
+    name: string;
+}
+/**
+ * To-hit pool for an NPC or summon at click time.
+ * The token row wins when it has a stored count (including 0 and 2).
+ * A blank token field falls through to the prototype, then to 6 for NPCs —
+ * the number the sheet input shows. Summons are not forced to 6 when the
+ * row already says 2, and a summon with no row stays on the attribute.
+ */
+export declare function resolveNpcSheetToHit(args: {
+    actorType: string | null | undefined;
+    system: any;
+    masteryRank: number;
+    attackIndex?: number | null;
+    phaseIndex?: number | null;
+    prototypeSystem?: any | null;
+}): NpcSheetToHit | null;
 /**
  * Keep value for one NPC attack row (PG statblocks print e.g. "6d8, Keep 1").
  * Explicit `keepDice` wins; unset rows fall back to the actor's Mastery Rank.

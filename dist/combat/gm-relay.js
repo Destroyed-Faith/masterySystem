@@ -85,7 +85,44 @@ export async function requestCombatNextTurn() {
         await combat.nextTurn();
         return true;
     }
+    const beforeTurn = combat.turn;
+    const beforeRound = combat.round;
+    try {
+        await combat.nextTurn();
+        if (combat.turn !== beforeTurn || combat.round !== beforeRound)
+            return true;
+    }
+    catch (err) {
+        console.warn('Mastery System | player nextTurn local failed, asking GM', err);
+    }
     return askGm({ type: 'gmNextTurn', combatId: combat.id });
+}
+/** Write a combatant's initiative. Players cannot update the Combat document. */
+export async function requestSetCombatantInitiative(combatant, initiative, flags = {}) {
+    const g = globalThis;
+    const combat = g.game?.combat;
+    const combatId = String(combat?.id || combatant.parent?.id || combatant.combat?.id || '');
+    const combatantId = String(combatant.id || '');
+    if (!combatId || !combatantId || !Number.isFinite(Number(initiative)))
+        return false;
+    if (g.game?.user?.isGM) {
+        const live = combat?.combatants?.get?.(combatantId) ?? combatant;
+        await live.update?.({ initiative: Number(initiative) });
+        for (const [key, value] of Object.entries(flags)) {
+            if (value == null)
+                await live.unsetFlag?.('mastery-system', key);
+            else
+                await live.setFlag?.('mastery-system', key, value);
+        }
+        return true;
+    }
+    return askGm({
+        type: 'gmSetInitiative',
+        combatId,
+        combatantId,
+        initiative: Number(initiative),
+        flags,
+    });
 }
 /**
  * Yield to the next combatant: set this initiative just below theirs, then advance.
@@ -96,6 +133,22 @@ export function initiativeAfterDelay(nextInitiative) {
     if (!Number.isFinite(next))
         return next;
     return Math.round((next - 0.01) * 100) / 100;
+}
+/** Ghost / restore a defeated enemy token + combatant. Players cannot write these. */
+export async function requestDefeatedPresentation(args) {
+    const g = globalThis;
+    if (g.game?.user?.isGM) {
+        const { writeDefeatedPresentation } = await import('./defeated-token.js');
+        await writeDefeatedPresentation(args);
+        return true;
+    }
+    return askGm({
+        type: 'gmDefeatedPresentation',
+        actorId: String(args.actor?.id || ''),
+        tokenActorUuid: String(args.actor?.uuid || ''),
+        tokenId: String(args.tokenId || ''),
+        defeated: !!args.defeated,
+    });
 }
 export async function requestDelayInitiative() {
     const g = globalThis;

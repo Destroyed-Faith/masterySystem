@@ -10,7 +10,7 @@
  * applies the outcome (and tracks the once-per-combat limit).
  */
 import { getEffectById } from './special-effects.js';
-import { statusEntryId } from '../system/active-specials.js';
+import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
 const FIRST_AID_FLAG = 'firstAidReceived';
 function isNegativeSpecialEntry(entry) {
     const id = statusEntryId(entry);
@@ -25,9 +25,7 @@ function isNegativeSpecialEntry(entry) {
 export async function applyFirstAidTo(target) {
     if (!target)
         return [];
-    const list = Array.isArray(target.system?.statusEffects)
-        ? target.system.statusEffects
-        : [];
+    const list = readActorStatusEffects(target);
     const removed = [];
     const kept = [];
     for (const entry of list) {
@@ -40,7 +38,8 @@ export async function applyFirstAidTo(target) {
         }
     }
     if (removed.length > 0) {
-        await target.update({ 'system.statusEffects': kept });
+        const { writeActorStatusList } = await import('../system/assign-status.js');
+        await writeActorStatusList(target, kept);
     }
     await target.setFlag?.('mastery-system', FIRST_AID_FLAG, true);
     return removed;

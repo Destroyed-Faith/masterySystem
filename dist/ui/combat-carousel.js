@@ -1,9 +1,10 @@
 import { getActionEconomyActor, getAvailableAttackActions, getAvailableMovementActions, getReactionActionsSummary, getRoundState, gmRefundCombatAction, } from '../combat/action-economy.js';
-import { canViewerSeeEndTurn, requestEndTurn } from '../combat/end-turn.js';
+import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../combat/end-turn.js';
 import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
+import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
-import { hideCarouselHpNumbers } from './combat-carousel-hp.js';
-import { applyCarouselCompactClass, clearCarouselTopOffset, isCompactCarouselViewport, } from './combat-carousel-layout.js';
+import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
@@ -31,7 +32,14 @@ export class CombatCarouselApp extends BaseCarousel {
             positioned: false, // Let CSS handle positioning
             resizable: false,
             minimizable: false
-        }
+        },
+        actions: {
+            msEndTurn: function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                void requestEndTurn();
+            },
+        },
     };
     static PARTS = {
         content: { template: 'systems/mastery-system/templates/ui/combat-carousel.hbs' }
@@ -43,7 +51,9 @@ export class CombatCarouselApp extends BaseCarousel {
         // Check for existing instance
         const existingApp = foundry.applications.instances.get('mastery-combat-carousel');
         if (existingApp) {
-            existingApp.bringToFront();
+            if (!existingApp.rendered) {
+                existingApp.render({ force: true, focus: false });
+            }
             return;
         }
         if (!CombatCarouselApp._instance) {
@@ -112,9 +122,8 @@ export class CombatCarouselApp extends BaseCarousel {
             // "Name (X)" so the table sees each combatant's Specials at a glance.
             const statusIcons = [];
             try {
-                const effectList = Array.isArray(actor.system?.statusEffects)
-                    ? actor.system.statusEffects
-                    : [];
+                const tokenDoc = combatant.token?.document ?? combatant.token ?? token?.document ?? token;
+                const effectList = readActorStatusEffects(actor, tokenDoc);
                 for (const entry of effectList) {
                     const rawId = String(entry?.id ?? '').trim().toLowerCase();
                     const rawName = String(entry?.name ?? '').replace(/\(x\)/gi, '').trim();
@@ -141,36 +150,22 @@ export class CombatCarouselApp extends BaseCarousel {
             // Dynamically includes extra bars from passives/equipment. Each segment
             // carries a `severity` index (0=healthy-green, 1=yellow, 2=orange, 3=red,
             // 4+=dark-red) derived from its position so extra bars degrade further.
-            const hpSegments = [];
+            // Scarred (empty) bars get an X so players see they cannot heal there
+            // until Remove Scar opens the bar again.
+            let hpSegments = [];
             let hpTotalCurrent = 0;
             let hpTotalMax = 0;
+            let hpScarredCount = 0;
             // Temp HP (e.g. Vitality "Temporary HP" stone power) — shown as a separate
             // badge on the banner so players can see their cushion before damage lands.
             const tempHP = Math.max(0, Math.floor(Number(actor.system?.health?.tempHP ?? 0) || 0));
             try {
-                const bars = actor.system?.health?.bars;
-                if (Array.isArray(bars) && bars.length > 0) {
-                    for (const bar of bars) {
-                        const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
-                        const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
-                        hpTotalCurrent += cur;
-                        hpTotalMax += mx;
-                    }
-                    if (hpTotalMax > 0) {
-                        bars.forEach((bar, idx) => {
-                            const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
-                            const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
-                            const severity = Math.min(4, idx); // clamp so extras still render
-                            const widthPct = mx > 0 ? (mx / hpTotalMax) * 100 : 0;
-                            hpSegments.push({
-                                name: String(bar?.name ?? `Bar ${idx + 1}`),
-                                current: cur,
-                                max: mx,
-                                severity,
-                                widthPct,
-                            });
-                        });
-                    }
+                hpSegments = buildCarouselHpSegments(actor.system?.health?.bars);
+                for (const seg of hpSegments) {
+                    hpTotalCurrent += seg.current;
+                    hpTotalMax += seg.max;
+                    if (seg.scarred)
+                        hpScarredCount += 1;
                 }
             }
             catch (err) {
@@ -311,9 +306,10 @@ export class CombatCarouselApp extends BaseCarousel {
                 statusIcons: statusIcons.filter((item) => item && item.icon),
                 hpTotalCurrent,
                 hpTotalMax,
+                hpScarredCount,
                 tempHP,
                 hpSegments,
-                hideHpNumbers: hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
+                hideHpNumbers: !isGM && hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
                 stressTotalCurrent,
                 stressTotalMax,
                 stressSegments,
@@ -325,7 +321,7 @@ export class CombatCarouselApp extends BaseCarousel {
         const preparing = isEncounterPreparing(combat);
         const stonesReady = arePlayerStonesReadyForRound(combat);
         const startBlockers = preparing ? encounterStartBlockers(combat) : [];
-        const startBlockedTpl = game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}';
+        const startBlockedTpl = game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Still open: {list}';
         const round = Math.max(1, Number(combat.round) || 1);
         const fill = (key, fallback) => (game.i18n?.localize(key) || fallback).replace('{n}', String(round));
         // Between rounds the carousel used to go silent for the GM: turn controls are
@@ -339,14 +335,14 @@ export class CombatCarouselApp extends BaseCarousel {
             show: preparing || roundGateOpen || isGM,
             isRoundGate: roundGateOpen,
             label: preparing
-                ? game.i18n?.localize('MASTERY.encounterSetup.preparing') || 'Vorbereitung'
+                ? game.i18n?.localize('MASTERY.encounterSetup.preparing') || 'Preparation'
                 : roundGateOpen
-                    ? fill('MASTERY.encounterSetup.roundWaiting', 'Runde {n} — Steine noch offen') +
+                    ? fill('MASTERY.encounterSetup.roundWaiting', 'Round {n} — stones still open') +
                         (pendingList ? ` — ${pendingList}` : '')
-                    : fill('MASTERY.encounterSetup.roundLine', 'Runde {n}'),
+                    : fill('MASTERY.encounterSetup.roundLine', 'Round {n}'),
             showPrepareButtons: preparing && isGM,
             showStartRound: roundGateOpen && isGM,
-            startRoundLabel: fill('MASTERY.encounterSetup.startRound', 'Runde {n} starten'),
+            startRoundLabel: fill('MASTERY.encounterSetup.startRound', 'Start Round {n}'),
             showShutdown: isGM,
         };
         return {
@@ -354,6 +350,7 @@ export class CombatCarouselApp extends BaseCarousel {
             compact: isCompactCarouselViewport(),
             combatants,
             controlsAllowed: isGM,
+            showPlayerEndTurn: !isGM && userMayEndCurrentTurn(game.user, combat),
             currentRound: combat.round || 1,
             currentTurn: combat.turn || 0,
             preparing,
@@ -362,7 +359,7 @@ export class CombatCarouselApp extends BaseCarousel {
             canStartLive: preparing && startBlockers.length === 0,
             startBlockedReason: startBlockers.length
                 ? startBlockedTpl.replace('{list}', startBlockers.join(', '))
-                : game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Kampf starten',
+                : game.i18n?.localize('MASTERY.encounterSetup.startCombat') || 'Start Combat',
         };
     }
     async _onRender(_context, _options) {
@@ -370,8 +367,10 @@ export class CombatCarouselApp extends BaseCarousel {
         const root = this.element;
         // Add body class when carousel is rendered
         document.body.classList.add('mastery-carousel-open');
+        this.pinBehindSheets();
         this.applyCompactLayout();
         this.bindCompactViewportWatch();
+        this.bindResizeHandle(root);
         if (this.hookEntries.length === 0) {
             this.registerUpdateHooks();
         }
@@ -403,7 +402,10 @@ export class CombatCarouselApp extends BaseCarousel {
         });
         // Portrait click - pan to token; double-click - open actor sheet
         root.querySelectorAll('.carousel-portrait').forEach((portrait) => {
-            portrait.onclick = async (_ev) => {
+            portrait.onclick = async (ev) => {
+                const hit = ev.target;
+                if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers'))
+                    return;
                 const combatantId = portrait.dataset.combatantId;
                 if (!combatantId)
                     return;
@@ -427,6 +429,9 @@ export class CombatCarouselApp extends BaseCarousel {
             portrait.ondblclick = async (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
+                const hit = ev.target;
+                if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button'))
+                    return;
                 const combatantId = portrait.dataset.combatantId;
                 if (!combatantId)
                     return;
@@ -442,6 +447,8 @@ export class CombatCarouselApp extends BaseCarousel {
         root.querySelectorAll('.js-prev-turn').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
+                if (!game.user?.isGM)
+                    return;
                 if (CombatCarouselApp._turnNavigationBusy)
                     return;
                 const combat = game.combats?.active;
@@ -460,6 +467,7 @@ export class CombatCarouselApp extends BaseCarousel {
         root.querySelectorAll('.js-next-turn').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
+                ev.stopPropagation();
                 if (CombatCarouselApp._turnNavigationBusy)
                     return;
                 const combat = game.combats?.active;
@@ -469,7 +477,10 @@ export class CombatCarouselApp extends BaseCarousel {
                     return;
                 CombatCarouselApp._turnNavigationBusy = true;
                 try {
-                    await combat.nextTurn();
+                    if (game.user?.isGM)
+                        await combat.nextTurn();
+                    else
+                        await requestEndTurn();
                 }
                 finally {
                     CombatCarouselApp._turnNavigationBusy = false;
@@ -480,6 +491,8 @@ export class CombatCarouselApp extends BaseCarousel {
         root.querySelectorAll('.js-next-round').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
+                if (!game.user?.isGM)
+                    return;
                 const combat = game.combats?.active;
                 if (combat) {
                     if (warnIfPlayerStonesPending(combat))
@@ -499,7 +512,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 const { rollNpcInitiativeOnly } = await import('../combat/initiative-roll.js');
                 const n = await rollNpcInitiativeOnly(combat, { force: true });
                 CombatCarouselApp.refresh();
-                ui.notifications?.info((game.i18n?.localize('MASTERY.encounterSetup.npcIniRolled') || 'NSC-Initiative gewürfelt ({n}).').replace('{n}', String(n)));
+                ui.notifications?.info((game.i18n?.localize('MASTERY.encounterSetup.npcIniRolled') || 'NPC initiative rolled ({n}).').replace('{n}', String(n)));
             };
         });
         root.querySelectorAll('.js-start-live-combat').forEach((btn) => {
@@ -558,7 +571,12 @@ export class CombatCarouselApp extends BaseCarousel {
                 const actor = combatant.actor;
                 if (!game.user?.isGM && !actor?.isOwner)
                     return;
-                await combatant.update({ defeated: !combatant.defeated });
+                const { applyDefeatedPresentation } = await import('../combat/defeated-token.js');
+                await applyDefeatedPresentation({
+                    actor: combatant.actor,
+                    tokenId: String(combatant.tokenId || combatant.token?.id || ''),
+                    defeated: !combatant.defeated,
+                });
             };
         });
         // GM recovery: refund one spent Attack / Movement / Reaction this round.
@@ -670,11 +688,20 @@ export class CombatCarouselApp extends BaseCarousel {
                 await forceEncounterDialogForAll(kind);
             };
         });
-        // End Turn button (on current combatant card)
+        // End Turn button — sibling of the portrait, same path as the Next chevron
         root.querySelectorAll('.js-end-turn').forEach((btn) => {
-            btn.onclick = async (ev) => {
+            const button = btn;
+            button.disabled = false;
+            button.removeAttribute('disabled');
+            button.ondblclick = (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
+                ev.stopImmediatePropagation();
+            };
+            button.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
                 await requestEndTurn();
             };
         });
@@ -686,12 +713,81 @@ export class CombatCarouselApp extends BaseCarousel {
         // Remove body class when carousel is closed
         document.body.classList.remove('mastery-carousel-open');
         document.body.classList.remove('mastery-carousel-compact');
+        document.body.classList.remove('mastery-carousel-resizing');
         clearCarouselTopOffset();
         return super._onClose(_options);
     }
     compactViewportHandler = null;
+    resizeDrag = null;
+    /** Stay under actor sheets so the close button remains clickable. */
+    bringToFront() {
+        this.pinBehindSheets();
+        return this;
+    }
+    pinBehindSheets() {
+        const el = this.element;
+        if (!el)
+            return;
+        el.style.zIndex = String(CAROUSEL_Z_INDEX);
+    }
     applyCompactLayout() {
         applyCarouselCompactClass(this.element, isCompactCarouselViewport());
+        this.pinBehindSheets();
+    }
+    bindResizeHandle(root) {
+        const handle = root?.querySelector?.('.js-carousel-resize');
+        if (!handle || !root)
+            return;
+        handle.onpointerdown = (ev) => {
+            if (ev.button !== 0)
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const inner = root.querySelector('.mastery-carousel');
+            this.resizeDrag = {
+                pointerId: ev.pointerId,
+                startX: ev.clientX,
+                startY: ev.clientY,
+                startW: root.offsetWidth,
+                startH: inner?.offsetHeight || root.offsetHeight,
+            };
+            handle.setPointerCapture?.(ev.pointerId);
+            document.body.classList.add('mastery-carousel-resizing');
+        };
+        handle.onpointermove = (ev) => {
+            const drag = this.resizeDrag;
+            if (!drag || ev.pointerId !== drag.pointerId)
+                return;
+            ev.preventDefault();
+            const maxW = Math.max(CAROUSEL_MIN_WIDTH, Math.floor(window.innerWidth * 0.96));
+            const maxH = Math.max(CAROUSEL_MIN_HEIGHT, Math.floor(window.innerHeight * 0.7));
+            const width = clampCarouselWidth(drag.startW + (ev.clientX - drag.startX), maxW);
+            const height = clampCarouselHeight(drag.startH + (ev.clientY - drag.startY), maxH);
+            applyCarouselUserSize(root, { width, height });
+        };
+        const endDrag = (ev) => {
+            const drag = this.resizeDrag;
+            if (!drag || ev.pointerId !== drag.pointerId)
+                return;
+            this.resizeDrag = null;
+            document.body.classList.remove('mastery-carousel-resizing');
+            const width = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10);
+            const height = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10);
+            writeCarouselUserSize({
+                width: Number.isFinite(width) ? width : null,
+                height: Number.isFinite(height) ? height : null,
+            });
+        };
+        handle.onpointerup = endDrag;
+        handle.onpointercancel = endDrag;
+        handle.ondblclick = (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            this.resizeDrag = null;
+            document.body.classList.remove('mastery-carousel-resizing');
+            writeCarouselUserSize({ width: null, height: null });
+            applyCarouselUserSize(root, { width: null, height: null });
+        };
     }
     bindCompactViewportWatch() {
         if (this.compactViewportHandler)
@@ -806,14 +902,17 @@ export class CombatCarouselApp extends BaseCarousel {
         // (optimization: could check specific paths like system.tracked.hp, system.tracked.stress, system.health)
         if (source === 'actor') {
             return (updateData.system !== undefined ||
-                updateData.flags?.['mastery-system'] !== undefined);
+                updateData.flags?.['mastery-system'] !== undefined ||
+                updateData['flags.mastery-system.statusJson'] !== undefined ||
+                updateData['flags.mastery-system.statusEffects'] !== undefined);
         }
-        else {
-            // For tokens, check delta.system or actorData.system
-            return updateData.delta?.system !== undefined ||
-                updateData.actorData?.system !== undefined ||
-                updateData.system !== undefined;
-        }
+        const delta = updateData.delta ?? updateData.actorData ?? {};
+        return (updateData.system !== undefined ||
+            updateData.flags !== undefined ||
+            delta.system !== undefined ||
+            delta.flags !== undefined ||
+            updateData['flags.mastery-system.statusJson'] !== undefined ||
+            updateData['flags.mastery-system.statusEffects'] !== undefined);
     }
     /**
      * Debounced refresh to avoid excessive re-renders

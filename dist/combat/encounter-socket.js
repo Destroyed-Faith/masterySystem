@@ -4,18 +4,12 @@
  */
 import { ENCOUNTER_SOCKET, resolveLiveCombat, shouldShowEncounterDialogLocally, } from './combat-permissions.js';
 import { isRelayableActorUpdate } from './gm-relay.js';
+import { canViewerSeeEndTurn } from './end-turn.js';
 function requesterMayAdvanceTurn(combat, userId) {
     const user = game.users?.get?.(userId);
     if (!user)
         return false;
-    if (user.isGM)
-        return true;
-    const actor = combat?.combatant?.actor;
-    if (!actor || String(actor.type || '') === 'npc')
-        return false;
-    if (typeof actor.testUserPermission === 'function')
-        return !!actor.testUserPermission(user, 'OWNER');
-    return false;
+    return canViewerSeeEndTurn(combat?.combatant?.actor, user);
 }
 async function applyRelayedActorUpdate(payload) {
     if (!isRelayableActorUpdate(payload.update))
@@ -33,9 +27,32 @@ async function applyRelayedActorUpdate(payload) {
     if (!actor && payload.actorId) {
         actor = game.actors?.get?.(payload.actorId) ?? null;
     }
+    if (actor?.documentName === 'Token' && actor.actor) {
+        actor = actor.actor;
+    }
     if (!actor || typeof actor.update !== 'function')
         return false;
-    await actor.update(payload.update, payload.options || {});
+    const encoded = payload.update?.['flags.mastery-system.statusJson'];
+    if (encoded !== undefined) {
+        try {
+            const { tokenDocOfActor } = await import('../system/status-target.js');
+            const { writeTokenStatusJson } = await import('../system/assign-status.js');
+            const token = tokenDocOfActor(actor);
+            if (token)
+                await writeTokenStatusJson(token, String(encoded));
+        }
+        catch (err) {
+            console.warn('Mastery System | relay token status flag failed', err);
+        }
+    }
+    try {
+        await actor.update(payload.update, payload.options || {});
+    }
+    catch (err) {
+        if (encoded === undefined)
+            throw err;
+        console.warn('Mastery System | relay actor update dropped after token status write', err);
+    }
     return true;
 }
 let socketRegistered = false;
@@ -52,6 +69,13 @@ export function registerEncounterSocket() {
 async function handleEncounterSocket(payload) {
     if (!payload || typeof payload !== 'object')
         return;
+    if (payload.type === 'raisePlanLive') {
+        if (payload.fromUserId && payload.fromUserId === game.user?.id)
+            return;
+        const { applyRemoteRaisePlan } = await import('./attack-executor.js');
+        applyRemoteRaisePlan(payload);
+        return;
+    }
     if (payload.action)
         return;
     const { type, combatId, combatantId, actorId, userId, data, finalInitiative, round } = payload;
@@ -87,13 +111,38 @@ async function handleEncounterSocket(payload) {
         }
         return;
     }
-    if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative') {
+    if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative' || type === 'gmDefeatedPresentation') {
         if (!game.user?.isGM)
             return;
         let ok = false;
         try {
             if (type === 'gmActorUpdate') {
                 ok = await applyRelayedActorUpdate(payload);
+            }
+            else if (type === 'gmDefeatedPresentation') {
+                const { writeDefeatedPresentation } = await import('./defeated-token.js');
+                let actor = null;
+                const uuid = String(payload.tokenActorUuid || '');
+                if (uuid && typeof globalThis.fromUuid === 'function') {
+                    try {
+                        actor = await globalThis.fromUuid(uuid);
+                    }
+                    catch {
+                        actor = null;
+                    }
+                }
+                if (!actor && payload.actorId) {
+                    actor = game.actors?.get?.(payload.actorId) ?? null;
+                }
+                if (actor?.documentName === 'Token' && actor.actor) {
+                    actor = actor.actor;
+                }
+                await writeDefeatedPresentation({
+                    actor,
+                    tokenId: String(payload.tokenId || ''),
+                    defeated: !!payload.defeated,
+                });
+                ok = true;
             }
             else if (type === 'gmNextTurn') {
                 const combat = resolveLiveCombat(payload.combatId);
@@ -111,6 +160,30 @@ async function handleEncounterSocket(payload) {
                     Number.isFinite(Number(payload.initiative))) {
                     await combatant.update({ initiative: Number(payload.initiative) });
                     await combat.nextTurn();
+                    ok = true;
+                }
+            }
+            else if (type === 'gmSetInitiative') {
+                const combat = resolveLiveCombat(payload.combatId);
+                const combatant = combat?.combatants?.get?.(payload.combatantId);
+                const requester = game.users?.get?.(payload.replyTo);
+                const actor = combatant?.actor;
+                const owns = !!requester &&
+                    !!actor &&
+                    (requester.isGM ||
+                        (typeof actor.testUserPermission === 'function' &&
+                            actor.testUserPermission(requester, 'OWNER')));
+                if (combatant && owns && Number.isFinite(Number(payload.initiative))) {
+                    await combatant.update({ initiative: Number(payload.initiative) });
+                    const flags = payload.flags;
+                    if (flags && typeof flags === 'object') {
+                        for (const [key, value] of Object.entries(flags)) {
+                            if (value == null)
+                                await combatant.unsetFlag?.('mastery-system', key);
+                            else
+                                await combatant.setFlag?.('mastery-system', key, value);
+                        }
+                    }
                     ok = true;
                 }
             }

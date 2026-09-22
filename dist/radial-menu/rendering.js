@@ -205,6 +205,8 @@ function createRadialOptionSlice(option, startAngle, endAngle, token, ringColor)
     });
     // Click: select option
     container.on('pointertap', async () => {
+        if (option.disabled)
+            return;
         // Store the chosen option as a flag
         const segmentId = getSegmentIdForOption(option);
         // Store segment in flag (this is the quadrant the option came from)

@@ -3,9 +3,10 @@
  * Simplified sheet for non-player characters
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
+import { writeActorStatusList } from '../system/assign-status.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, } from '../utils/npc-attack-model.js';
-import { coerceStatusEffectsArray, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
+import { coerceStatusEffectsArray, readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
 import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
@@ -480,7 +481,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             // Combat applies Specials to root system.statusEffects. Phase tabs used to
             // read empty phase.statusEffects ([] is truthy in Handlebars → blank panel).
             // Prefer live actor data (same source as combat carousel).
-            const statusList = coerceStatusEffectsArray(this.actor?.system?.statusEffects ?? context.system.statusEffects);
+            const statusList = readActorStatusEffects(this.actor);
             context.system.statusEffects = statusList;
             context.npcStatusEffects = buildNpcStatusRows(statusList);
             context.hasNpcStatusEffects = statusList.length > 0;
@@ -793,13 +794,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 initiative: clampNpcInitiativeModifier(data.system.combat.initiative),
             };
         }
-        // Status UI is button-driven (not form fields) — never let an empty submit wipe it.
-        if (Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
-            const submitted = coerceStatusEffectsArray(data.system.statusEffects);
-            data.system.statusEffects =
-                submitted.length > 0
-                    ? submitted
-                    : coerceStatusEffectsArray(existingSystem.statusEffects);
+        // Status lives in flags. A form rewrite of `{ id: 'slow' }` arrays is what
+        // ActorDelta drops on unlinked tokens — leave the live list alone.
+        if (data.system && Object.prototype.hasOwnProperty.call(data.system, 'statusEffects')) {
+            delete data.system.statusEffects;
         }
         data.system = sanitizeNpcSystemAttackTargeting(data.system);
         console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
@@ -1069,11 +1067,11 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         event.preventDefault();
         event.stopPropagation();
         const index = parseInt(String($(event.currentTarget).data('effect-index') ?? ''), 10);
-        const list = coerceStatusEffectsArray(this.actor.system?.statusEffects);
+        const list = readActorStatusEffects(this.actor);
         if (!Number.isFinite(index) || index < 0 || index >= list.length)
             return;
         const next = list.filter((_, i) => i !== index);
-        await this.actor.update({ 'system.statusEffects': next });
+        await writeActorStatusList(this.actor, next);
     }
     async #onReduceStatusEffect(event) {
         event.preventDefault();
@@ -1081,11 +1079,11 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const btn = $(event.currentTarget);
         const index = parseInt(String(btn.data('effect-index') ?? ''), 10);
         const steps = Math.max(1, parseInt(String(btn.data('steps') ?? '1'), 10) || 1);
-        const list = coerceStatusEffectsArray(this.actor.system?.statusEffects);
+        const list = readActorStatusEffects(this.actor);
         if (!Number.isFinite(index) || index < 0 || index >= list.length)
             return;
         const next = reduceStatusEffectAt(list, index, steps);
-        await this.actor.update({ 'system.statusEffects': next });
+        await writeActorStatusList(this.actor, next);
     }
     async #onAttackValueAdd(event) {
         event.preventDefault();

@@ -213,9 +213,8 @@ export function registerReactionFollowupChatHandlers() {
         if (!spent)
             return;
         await markPowerUsedThisRound(economy, combat, powerId);
-        const list = Array.isArray(actor.system?.statusEffects)
-            ? [...actor.system.statusEffects]
-            : [];
+        const { readActorStatusEffects } = await import('../system/active-specials.js');
+        const list = readActorStatusEffects(actor).map((entry) => ({ ...entry }));
         if (list.length) {
             // Reduce the highest-value eligible effect first.
             let bestIdx = 0;
@@ -234,7 +233,8 @@ export function registerReactionFollowupChatHandlers() {
                 list.splice(bestIdx, 1);
             else
                 list[bestIdx] = { ...entry, value: nextVal };
-            await actor.update?.({ 'system.statusEffects': list });
+            const { writeActorStatusList } = await import('../system/assign-status.js');
+            await writeActorStatusList(actor, list);
             const msgRoot = btn.closest('.message');
             const messageId = String(msgRoot.attr('data-message-id') || '');
             const message = messageId ? g.game?.messages?.get?.(messageId) : null;

@@ -23,7 +23,8 @@
  */
 import { applyDamage, healDamage, applyStress } from '../utils/calculations.js';
 import { getEffectById } from '../utils/special-effects.js';
-import { statusEntryId } from '../system/active-specials.js';
+import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
+import { writeActorStatusList } from '../system/assign-status.js';
 import { distributeCleanseAcrossList, formatCleanseDistribution } from '../system/pool-reduction.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { applyNaturalRecoveryToValue, formatNaturalRecoveryNote, resolveNaturalRecoveryPlan, } from './special-application.js';
@@ -35,7 +36,7 @@ export async function processTurnStartStatusTick(actor) {
     if (!actor || !game.user?.isGM)
         return '';
     const system = actor.system;
-    const list = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+    const list = readActorStatusEffects(actor);
     if (list.length === 0)
         return '';
     let ruinDamage = 0;
@@ -159,7 +160,7 @@ export async function processTurnStartStatusTick(actor) {
     catch (err) {
         console.debug?.('Mastery System | Cleanse Maintenance skipped', err);
     }
-    const update = { 'system.statusEffects': next };
+    const extra = {};
     // Blight(X): all healing received is reduced by X — applies to the
     // Regeneration heal resolved in this same Tick.
     if (regenHeal > 0 && blightHealReduction > 0) {
@@ -177,22 +178,38 @@ export async function processTurnStartStatusTick(actor) {
         if (regenHeal > 0) {
             healDamage(bars, Math.min(Math.max(currentBar, 0), bars.length - 1), regenHeal);
         }
-        update['system.health.bars'] = bars;
-        update['system.health.currentBar'] = currentBar;
+        extra['system.health.bars'] = bars;
+        extra['system.health.currentBar'] = currentBar;
     }
     // Apply Stress (Blight, ignores Stress Armor) to stress bars.
     if (blightStress > 0 && Array.isArray(system?.stress?.bars) && system.stress.bars.length > 0) {
         const bars = foundry.utils.duplicate(system.stress.bars);
         const currentBar = applyStress(bars, Number(system.stress.currentBar ?? 0), blightStress);
-        update['system.stress.bars'] = bars;
-        update['system.stress.currentBar'] = currentBar;
+        extra['system.stress.bars'] = bars;
+        extra['system.stress.currentBar'] = currentBar;
     }
     try {
-        await actor.update(update);
+        await writeActorStatusList(actor, next, extra);
     }
     catch (err) {
         console.warn('Mastery System | status-tick update failed', actor?.name, err);
         return '';
+    }
+    if (ruinDamage > 0 || regenHeal > 0) {
+        try {
+            const { maybeAdvanceNpcBossPhase } = await import('./npc-phase-advance.js');
+            await maybeAdvanceNpcBossPhase(actor);
+        }
+        catch (phaseErr) {
+            console.warn('Mastery System | NPC phase advance failed', phaseErr);
+        }
+        try {
+            const { syncNpcDefeatedPresentationAfterHpChange } = await import('./defeated-token.js');
+            await syncNpcDefeatedPresentationAfterHpChange(actor);
+        }
+        catch (downErr) {
+            console.warn('Mastery System | defeated token presentation failed', downErr);
+        }
     }
     return notes.join(', ');
 }
@@ -204,8 +221,7 @@ export async function processTurnStartStatusTick(actor) {
 export async function processTurnEndSpecials(actor) {
     if (!actor)
         return '';
-    const system = actor.system;
-    const list = Array.isArray(system?.statusEffects) ? system.statusEffects : [];
+    const list = readActorStatusEffects(actor);
     if (list.length === 0)
         return '';
     const notes = [];
@@ -231,7 +247,7 @@ export async function processTurnEndSpecials(actor) {
     if (!changed)
         return '';
     try {
-        await actor.update({ 'system.statusEffects': next });
+        await writeActorStatusList(actor, next);
     }
     catch (err) {
         console.warn('Mastery System | turn-end special update failed', actor?.name, err);

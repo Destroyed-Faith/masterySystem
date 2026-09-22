@@ -6,6 +6,7 @@
  */
 import { deriveArtifactWeaponDamage } from './artifact-base-derive.js';
 import { resolveArtifactWeaponKind, weaponBasicsForProfile } from './artifact-rules.js';
+import { backfillArtifactWeaponSpecials } from './weapon-specials.js';
 export const VIRTUAL_UNARMED_WEAPON_ID = '__mastery_virtual_unarmed__';
 /** Canonical virtual weapon shape (compatible with damage / attack resolution). */
 export function createVirtualUnarmedWeapon() {
@@ -94,7 +95,7 @@ export function artifactToVirtualWeapon(artifact) {
         return null;
     const weaponType = resolveArtifactWeaponKind(w, sys.baseProfile);
     const basics = weaponBasicsForProfile(sys.baseProfile);
-    const specials = Array.isArray(w?.specials) ? w.specials : [];
+    const specials = backfillArtifactWeaponSpecials(sys, Array.isArray(w?.specials) ? w.specials : []);
     const damage = derived ??
         (typeof w?.damage === 'string' && w.damage.trim().length > 0 ? w.damage.trim() : '1d8');
     const innateAbilities = Array.isArray(w?.innateAbilities)

@@ -29,6 +29,8 @@ export declare function activateStonePower(options: {
     abilityId: string;
     attributeKey?: AttributeKey;
     colorlessSpent?: number;
+    /** Stones sitting on the card — once-per-combat powers apply the highest complete tier. */
+    placedCount?: number;
 }): Promise<boolean>;
 /**
  * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).

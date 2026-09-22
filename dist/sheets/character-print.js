@@ -13,7 +13,8 @@
  * (Movement / Active / Reaction) plus an empty check-box meaning
  * "may be used once per round".
  */
-import { calculateBaseEvade } from '../utils/calculations.js';
+import { calculateBaseEvade, isHealthBarScarred } from '../utils/calculations.js';
+import { buildStoneProgressionSlots, chunkSlots, deriveLifetimeXp, readAssignments, usesV099Stones, } from '../progression/v099-rules.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
@@ -59,6 +60,12 @@ export function summarizeStonePowerPrint(power) {
     if (id === 'vitality.removeScar') {
         return 'Recover 1 Scarred Health Bar. Burns 1 Vitality Stone.';
     }
+    if (id === 'resolve.ward') {
+        return 'Incoming hostile Specials are reduced by this value until the start of your next turn.';
+    }
+    if (id === 'influence.regeneration') {
+        return 'Choose a player: Regeneration(8/16/32/64) and +1/2/4/8 m Movement until the end of this round.';
+    }
     const tiers = Array.isArray(power?.tiers) ? power.tiers : [];
     const values = tiers
         .map((t) => Number(t?.value))
@@ -87,15 +94,17 @@ export function summarizeStonePowerPrint(power) {
     }
     return `${base} (${values.join('/')}).`.replace(/\s+/g, ' ').trim();
 }
-/** Quick Play–style payment lanes: T1=1, T2=2 stacked, T3=2×2 (no T4 — 8 cubes too wide). */
+/** Printed Stone Ability lanes. T1=1, T2=2, T3=4, T4=8. There is no Tier 5. */
+const STONE_PRINT_TIERS = [
+    { label: 'T1', tier: 1, layout: 't1', count: 1 },
+    { label: 'T2', tier: 2, layout: 't2', count: 2 },
+    { label: 'T3', tier: 3, layout: 't3', count: 4 },
+    { label: 'T4', tier: 4, layout: 't4', count: 8 },
+];
 function stonePowerPaymentTiersForPrint(powerId, supportTier) {
     const isRamp = stonePowerSkipsFirstTier(powerId);
     const firstPaid = firstEffectiveStonePowerTier(powerId);
-    return [
-        { label: 'T1', tier: 1, layout: 't1', count: 1 },
-        { label: 'T2', tier: 2, layout: 't2', count: 2 },
-        { label: 'T3', tier: 3, layout: 't3', count: 4 },
-    ]
+    return STONE_PRINT_TIERS.map((g) => ({ ...g }))
         .filter((g) => !(isRamp && g.tier === 1))
         .map((g) => ({
         ...g,
@@ -134,8 +143,8 @@ const ATTR_ORDER = [
     'influence',
     'wits'
 ];
-/** Stone-threshold ladder printed next to every ability (one cell per 8 points). */
-const ABILITY_LADDER = [8, 16, 24, 32, 40, 48, 56, 64, 72, 80];
+/** Compressed Attribute scale (bands of 4, cap 40). Not Stone generation. */
+const ABILITY_LADDER = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40];
 /** Health wound-track pool penalties (dice pool at each penalty tier). */
 const HEALTH_POOL_TIERS = [
     { label: '10%', fraction: 0.1 },
@@ -653,6 +662,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
                 name: String(b?.name ?? ''),
                 max,
                 current,
+                scarred: isHealthBarScarred(b),
                 penalty: num(b?.penalty),
                 penaltyLabel: healthPenaltyLabel(num(b?.penalty)),
             };
@@ -1218,7 +1228,7 @@ export function buildCharacterPrintContext(actor, options = {}) {
             label: cap(key),
             value,
             max,
-            generation: Math.max(0, Math.floor(value / 8)),
+            generation: max,
             // Physical ~8 mm cube slots — one per max capacity.
             slots: Array.from({ length: max }, (_, i) => i + 1),
         };
@@ -1301,10 +1311,25 @@ export function buildCharacterPrintContext(actor, options = {}) {
         includeModules,
         portrait,
         hasPortrait: !!portrait,
+        lifetimeProgression: buildPrintLifetimeProgression(system),
         gear,
         equipment,
         consumableSlots: buildConsumablePrintSlots(actor),
         technical
+    };
+}
+function buildPrintLifetimeProgression(system) {
+    const derived = deriveLifetimeXp(system);
+    const lifetimeXp = derived.lifetimeXp;
+    const assignments = usesV099Stones(system) ? readAssignments(system) : {};
+    const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments).map((slot) => lifetimeXp == null
+        ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
+        : slot);
+    const rowSize = Math.max(1, Math.ceil(slots.length / 2));
+    return {
+        lifetimeLabel: lifetimeXp == null ? '' : String(lifetimeXp),
+        unknown: lifetimeXp == null,
+        rows: chunkSlots(slots, rowSize),
     };
 }
 /** Resolve a Foundry-routed URL (respects a configured route prefix). */
@@ -1661,12 +1686,8 @@ function compactStoneRows(attrKey, supportByPowerId) {
         const isRamp = stonePowerSkipsFirstTier(String(power.id));
         const sup = supportByPowerId?.get(String(power.id));
         const supportTier = sup?.tier ?? 0;
-        // T1 = 1 pip (row), T2 = 2 pips (column), T3 = 4 pips (2×2). Ramp powers omit T1.
-        const tiers = [
-            { label: 'T1', tier: 1, layout: 't1', count: 1 },
-            { label: 'T2', tier: 2, layout: 't2', count: 2 },
-            { label: 'T3', tier: 3, layout: 't3', count: 4 },
-        ]
+        // T1 = 1, T2 = 2, T3 = 4, T4 = 8. Ramp powers omit T1. No Tier 5.
+        const tiers = STONE_PRINT_TIERS.map((g) => ({ ...g }))
             .filter((g) => !(isRamp && g.tier === 1))
             .map((g) => ({
             label: g.label,
@@ -1700,11 +1721,13 @@ function compactTrackBars(bars, names, skipNames = []) {
         const max = num(b?.max);
         const current = num(b?.current);
         const name = String(b?.name ?? names[i] ?? `Bar ${i + 1}`);
-        const available = current > 0 ? current : max;
+        const scarred = isHealthBarScarred(b);
+        const available = scarred ? 0 : current > 0 ? current : max;
         return {
             name,
             available,
             max,
+            scarred,
             penalty: HEALTH_TRACK_PENALTY[name.toLowerCase()] ?? '',
         };
     });

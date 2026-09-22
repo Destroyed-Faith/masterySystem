@@ -11,6 +11,14 @@ function userIsOwnerOfActorForFaith(user, actor) {
         return false;
     return typeof actor?.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER');
 }
+/** A player spends only characters they own. A GM is owner of every actor, so that does not count. */
+function userPlaysActor(user, actor) {
+    if (!user || !actor)
+        return false;
+    if (user.isGM)
+        return String(user.character?.id || '') === String(actor.id || '');
+    return userIsOwnerOfActorForFaith(user, actor);
+}
 function getActorsWithFaithForUser(user) {
     if (!user)
         return [];
@@ -20,7 +28,7 @@ function getActorsWithFaithForUser(user) {
         const cur = sys?.faithFractures?.current ?? 0;
         if (cur < 1)
             continue;
-        if (userIsOwnerOfActorForFaith(user, a))
+        if (userPlaysActor(user, a))
             list.push(a);
     }
     return list;
@@ -31,29 +39,40 @@ function notifyFaithRerollClient(userId, ok, error) {
         userId,
         ok,
         error,
-        message: ok ? 'Reroll posted to chat. 1 Faith Fracture spent.' : undefined
+        message: ok ? 'Reroll posted to chat. 1 Reroll Point spent.' : undefined
     });
 }
-async function pickSpendingActor(user) {
+async function resolveRerollSpender(user, message) {
+    const flags = message.flags?.['mastery-system'] || message.getFlag?.('mastery-system') || {};
+    const recipeActorId = String(flags.rollRecipe?.actorId || '');
+    const recipeActor = recipeActorId ? game.actors?.get(recipeActorId) : null;
+    if (recipeActor && userPlaysActor(user, recipeActor)) {
+        const cur = Number(recipeActor.system?.faithFractures?.current ?? 0) || 0;
+        if (cur < 1) {
+            ui.notifications?.warn(`${recipeActor.name} has no Reroll Points left.`);
+            return null;
+        }
+        return String(recipeActor.id);
+    }
     const actors = getActorsWithFaithForUser(user);
     if (actors.length === 0) {
-        ui.notifications?.warn('No Faith Fractures available on characters you control.');
+        ui.notifications?.warn('No Reroll Points on a character you play.');
         return null;
     }
     if (actors.length === 1)
-        return actors[0].id;
+        return String(actors[0].id);
     return new Promise(resolve => {
         const optionsHtml = actors
             .map(a => {
             const sys = a.system;
             const c = sys?.faithFractures?.current ?? 0;
             const m = sys?.faithFractures?.maximum ?? 0;
-            return `<option value="${a.id}">${a.name} (${c}/${m})</option>`;
+            return `<option value="${a.id}">${a.name} (${c}/${m} Reroll Points)</option>`;
         })
             .join('');
         new Dialog({
-            title: 'Spend Faith Fracture',
-            content: `<p style="margin-bottom:0.5em">Which character pays <strong>1 Faith Fracture</strong> for this reroll?</p>
+            title: 'Spend Reroll Point',
+            content: `<p style="margin-bottom:0.5em">Which of your characters pays <strong>1 Reroll Point</strong>?</p>
         <select id="ms-faith-spender" style="width:100%">${optionsHtml}</select>`,
             buttons: {
                 ok: {
@@ -110,13 +129,17 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
         if (!spender) {
             return { ok: false, error: 'Spending actor not found.' };
         }
-        if (!userIsOwnerOfActorForFaith(requester, spender)) {
-            return { ok: false, error: 'You cannot spend Faith from that character.' };
+        if (!userPlaysActor(requester, spender)) {
+            return { ok: false, error: 'You can only spend your own Reroll Points.' };
+        }
+        const recipeActor = recipe.actorId ? game.actors?.get(recipe.actorId) : null;
+        if (recipeActor && userPlaysActor(requester, recipeActor) && String(spender.id) !== String(recipeActor.id)) {
+            return { ok: false, error: 'This roll spends the rolling character\'s Reroll Points, not another character\'s.' };
         }
         const sys = spender.system;
         const cur = sys?.faithFractures?.current ?? 0;
         if (cur < 1) {
-            return { ok: false, error: `${String(spender.name)} has no Faith Fractures left.` };
+            return { ok: false, error: `${String(spender.name)} has no Reroll Points left.` };
         }
         const newCur = cur - 1;
         await spender.update({ 'system.faithFractures.current': newCur });
@@ -155,7 +178,7 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
             return { ok: true };
         }
         const { masteryRoll } = await import('../dice/roll-handler.js');
-        const extra = `\n\n<i class="fas fa-sync-alt"></i> Reroll — ${String(spender.name)} spent 1 Faith Fracture.`;
+        const extra = `\n\n<i class="fas fa-sync-alt"></i> Reroll — ${String(spender.name)} spent 1 Reroll Point.`;
         try {
             await message.setFlag('mastery-system', 'faithRerollConsumed', true);
             await masteryRoll({
@@ -218,7 +241,7 @@ async function triggerAttackFaithReroll(attackCardMessageId, spenderName) {
     await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: { spenderName } });
 }
 async function onFaithFractureRerollClick(message) {
-    const spenderId = await pickSpendingActor(game.user);
+    const spenderId = await resolveRerollSpender(game.user, message);
     if (!spenderId)
         return;
     const payload = {
@@ -230,7 +253,7 @@ async function onFaithFractureRerollClick(message) {
     if (game.user?.isGM) {
         const res = await executeFaithFractureReroll(message.id, spenderId, payload.requesterUserId);
         if (res.ok) {
-            ui.notifications?.info('Reroll posted to chat. 1 Faith Fracture spent.');
+            ui.notifications?.info('Reroll posted to chat. 1 Reroll Point spent.');
         }
         else {
             ui.notifications?.warn(res.error || 'Reroll failed.');
@@ -263,13 +286,11 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
         // the label flips between "Reroll" and "Force GM Reroll".
         const recipeActorId = flags.rollRecipe?.actorId || null;
         const recipeActor = recipeActorId ? game.actors?.get(recipeActorId) : null;
-        const isOwnRoll = recipeActor
-            ? userIsOwnerOfActorForFaith(game.user, recipeActor)
-            : false;
-        const btnLabel = isOwnRoll ? 'Reroll (1 Faith Fracture)' : 'Force GM Reroll (1 Faith Fracture)';
+        const isOwnRoll = recipeActor ? userPlaysActor(game.user, recipeActor) : false;
+        const btnLabel = isOwnRoll ? 'Reroll (1 Reroll Point)' : 'Force GM Reroll (1 Reroll Point)';
         const btnTitle = isOwnRoll
-            ? 'Spend 1 Faith Fracture from a character you control to reroll this Mastery roll. Once per roll, table-wide.'
-            : 'Force the GM to reroll this Mastery roll. Spend 1 Faith Fracture from a character you control. Once per roll, table-wide.';
+            ? 'Spend 1 of this character\'s Reroll Points. Once per roll.'
+            : 'Spend 1 Reroll Point from a character you play to force this roll to be rerolled. Once per roll.';
         const bar = $(`<div class="mastery-faith-reroll-bar">
     <button type="button" class="faith-fracture-reroll-btn" title="${btnTitle}">
       <i class="fas fa-sync-alt"></i> ${btnLabel}

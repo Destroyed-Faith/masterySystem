@@ -1,9 +1,10 @@
 /**
  * Minor Expressions (cantrips) — catalog and tier/scaling helpers.
- * Vitality has no catalog entries; selections are capped by mastery rank and require attribute ≥ 8.
+ * Vitality has no catalog entries; selections are capped by mastery rank and require attribute ≥ 4.
+ * Tiers follow the compressed scale: 4 / 8 / 12 / 16 / 20.
  */
-export const MINOR_EXPRESSION_MIN_ATTRIBUTE = 8;
-export const MINOR_EXPRESSION_TIERS = [8, 16, 24, 32, 40];
+export const MINOR_EXPRESSION_MIN_ATTRIBUTE = 4;
+export const MINOR_EXPRESSION_TIERS = [4, 8, 12, 16, 20];
 const M = 'might';
 const A = 'agility';
 const I = 'intellect';
@@ -17,11 +18,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Hold the Door',
         tagline: 'You can briefly hold back something that should not be stoppable.',
         tiers: {
-            8: 'You hold a door, a gate, a heavy beam, or a falling load just long enough to buy a moment.',
-            16: 'You hold stronger pressure, heavier gates, or a failing barrier long enough for 1–2 people to react or escape.',
-            24: 'You catch a small collapse, massive pressure, or a breaking obstacle for a clearly heroic moment.',
-            32: 'You buy a small group time against something that should be too much for one person alone.',
-            40: 'You create a legendary “Hold the Door” moment and briefly hold back something everyone else would have given up on long ago.'
+            4: 'You hold a door, a gate, a heavy beam, or a falling load just long enough to buy a moment.',
+            8: 'You hold stronger pressure, heavier gates, or a failing barrier long enough for 1–2 people to react or escape.',
+            12: 'You catch a small collapse, massive pressure, or a breaking obstacle for a clearly heroic moment.',
+            16: 'You buy a small group time against something that should be too much for one person alone.',
+            20: 'You create a legendary “Hold the Door” moment and briefly hold back something everyone else would have given up on long ago.'
         }
     },
     {
@@ -30,11 +31,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Iron Grip',
         tagline: 'When you hold something, you really hold it.',
         tiers: {
-            8: 'You do not lose rope, edge, grip, or support so easily.',
-            16: 'You can hold someone securely, cinch something down reliably, or stabilize a slipping object.',
-            24: 'Even under hard pull, wetness, weight, or panic, your grip stays astonishingly sure.',
-            32: 'You hold things that would have slipped from others long ago, and can secure others with you.',
-            40: 'Your grip feels like a vise; once you truly seize something, it feels as if the world would have to give before your hand does.'
+            4: 'You do not lose rope, edge, grip, or support so easily.',
+            8: 'You can hold someone securely, cinch something down reliably, or stabilize a slipping object.',
+            12: 'Even under hard pull, wetness, weight, or panic, your grip stays astonishingly sure.',
+            16: 'You hold things that would have slipped from others long ago, and can secure others with you.',
+            20: 'Your grip feels like a vise; once you truly seize something, it feels as if the world would have to give before your hand does.'
         }
     },
     {
@@ -43,11 +44,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Break Through',
         tagline: 'You do not go around an obstacle — you go through.',
         tiers: {
-            8: 'You push through light barricades, loose furniture, blocked doors, or dense crowds.',
-            16: 'You break through more serious blockades of wood, clutter, furniture, or dense resistance.',
-            24: 'You force a path through massive obstacles, makeshift barriers, or chaotically barricaded passages.',
-            32: 'You create openings or paths through things others would first have to clear the hard way.',
-            40: 'You move like a force of nature and go through almost anything physical that was not explicitly built to stop you.'
+            4: 'You push through light barricades, loose furniture, blocked doors, or dense crowds.',
+            8: 'You break through more serious blockades of wood, clutter, furniture, or dense resistance.',
+            12: 'You force a path through massive obstacles, makeshift barriers, or chaotically barricaded passages.',
+            16: 'You create openings or paths through things others would first have to clear the hard way.',
+            20: 'You move like a force of nature and go through almost anything physical that was not explicitly built to stop you.'
         }
     },
     {
@@ -56,11 +57,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Titan Carry',
         tagline: 'You carry people, loads, or bulky things as if they mattered less to you than to others.',
         tiers: {
-            8: 'You carry an injured person or heavy load a short distance safely.',
-            16: 'You shoulder someone with their gear or move heavy loads a solid distance.',
-            24: 'You haul wounded, bulky loads, or several heavy things farther under bad conditions than others could.',
-            32: 'You move heavy loads or people through stairs, mud, rubble, or chaotic paths with impressive endurance.',
-            40: 'You seem almost monstrously reliable when carrying, and get people or loads where they need to go no matter how hard the path is.'
+            4: 'You carry an injured person or heavy load a short distance safely.',
+            8: 'You shoulder someone with their gear or move heavy loads a solid distance.',
+            12: 'You haul wounded, bulky loads, or several heavy things farther under bad conditions than others could.',
+            16: 'You move heavy loads or people through stairs, mud, rubble, or chaotic paths with impressive endurance.',
+            20: 'You seem almost monstrously reliable when carrying, and get people or loads where they need to go no matter how hard the path is.'
         }
     },
     {
@@ -69,11 +70,11 @@ export const MINOR_EXPRESSIONS = [
         name: "Tyrant's Aura",
         tagline: 'You enter a room and people physically sense that you are dangerous.',
         tiers: {
-            8: 'Individual people register your physical danger immediately.',
-            16: 'Small groups grow quieter, more careful, or intuitively step back.',
-            24: 'Your presence colors a room physically; people instinctively expect violence even if you stay calm.',
-            32: 'Even hard people realize they should take you seriously.',
-            40: 'Your mere presence tips the air in the room; bodies react before thoughts.'
+            4: 'Individual people register your physical danger immediately.',
+            8: 'Small groups grow quieter, more careful, or intuitively step back.',
+            12: 'Your presence colors a room physically; people instinctively expect violence even if you stay calm.',
+            16: 'Even hard people realize they should take you seriously.',
+            20: 'Your mere presence tips the air in the room; bodies react before thoughts.'
         }
     },
     {
@@ -82,11 +83,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Immovable',
         tagline: 'You can set yourself like an anchor.',
         tiers: {
-            8: 'You hold your footing surprisingly well on awkward, slippery, or pressing ground.',
-            16: 'You are not easily shifted from stance, grip, or position.',
-            24: 'Even several disrupting factors at once barely move you once you have set yourself.',
-            32: 'Others have to reckon with you like a pillar; you hold lines, passages, or positions with your body.',
-            40: 'When you plant yourself, it almost feels as if everything around you has to go the long way around.'
+            4: 'You hold your footing surprisingly well on awkward, slippery, or pressing ground.',
+            8: 'You are not easily shifted from stance, grip, or position.',
+            12: 'Even several disrupting factors at once barely move you once you have set yourself.',
+            16: 'Others have to reckon with you like a pillar; you hold lines, passages, or positions with your body.',
+            20: 'When you plant yourself, it almost feels as if everything around you has to go the long way around.'
         }
     },
     {
@@ -95,11 +96,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Feather Step',
         tagline: 'Your steps and landings are so light that you barely create weight.',
         tiers: {
-            8: 'You walk clearly quieter and leave only little noticeable weight.',
-            16: 'Floorboards, rubble, cloth, leaves, or lightly sensitive surfaces react much less to you.',
-            24: 'You move with an almost unnaturally light tread through problematic ground.',
-            32: 'Your steps often feel as if you barely truly load the ground.',
-            40: 'You seem to walk almost without weight; step, landing, and contact are minimal.'
+            4: 'You walk clearly quieter and leave only little noticeable weight.',
+            8: 'Floorboards, rubble, cloth, leaves, or lightly sensitive surfaces react much less to you.',
+            12: 'You move with an almost unnaturally light tread through problematic ground.',
+            16: 'Your steps often feel as if you barely truly load the ground.',
+            20: 'You seem to walk almost without weight; step, landing, and contact are minimal.'
         }
     },
     {
@@ -108,11 +109,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Bounding Leap',
         tagline: 'You can jump clearly farther and higher than normal movement would suggest.',
         tiers: {
-            8: 'You clear small gaps, wall edges, and height differences clearly better than usual.',
-            16: 'Your jumps carry you far enough to reach places others only manage with help.',
-            24: 'You bridge impressive distances or heights and make movement much freer vertically.',
-            32: 'Your jumps feel clearly superhuman in range and safety.',
-            40: 'You move in bounds that look almost like brief moments of flight.'
+            4: 'You clear small gaps, wall edges, and height differences clearly better than usual.',
+            8: 'Your jumps carry you far enough to reach places others only manage with help.',
+            12: 'You bridge impressive distances or heights and make movement much freer vertically.',
+            16: 'Your jumps feel clearly superhuman in range and safety.',
+            20: 'You move in bounds that look almost like brief moments of flight.'
         }
     },
     {
@@ -121,11 +122,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Catfall',
         tagline: 'You can catch large falls or jumps extremely softly, rolling or springing.',
         tiers: {
-            8: 'You catch jumps, steps, edges, and smaller falls cleanly.',
-            16: 'Even clear height differences or hard landings feel controlled and soft on you.',
-            24: 'You can blunt large jumps or deep descents by rolling or springing.',
-            32: 'Even heights that look dangerous can often be caught by you with surprising elegance.',
-            40: 'You land from absurd heights or distances with an unreality that makes others look clumsy.'
+            4: 'You catch jumps, steps, edges, and smaller falls cleanly.',
+            8: 'Even clear height differences or hard landings feel controlled and soft on you.',
+            12: 'You can blunt large jumps or deep descents by rolling or springing.',
+            16: 'Even heights that look dangerous can often be caught by you with surprising elegance.',
+            20: 'You land from absurd heights or distances with an unreality that makes others look clumsy.'
         }
     },
     {
@@ -134,11 +135,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Wall Spring',
         tagline: 'You can use walls, ledges, or angled surfaces for an extra bound or change of direction.',
         tiers: {
-            8: 'You use edges, low walls, or angled surfaces for small corrections or extra bounds.',
-            16: 'You visibly gain extra movement or height from walls and ledges.',
-            24: 'You can make more complex direction changes or follow-up moves across vertical surfaces.',
-            32: 'Tight spaces, roofs, walls, and vertical obstacles become playable movement surfaces for you.',
-            40: 'You feel almost impossibly free in vertical movement as long as some surface still exists to push off from.'
+            4: 'You use edges, low walls, or angled surfaces for small corrections or extra bounds.',
+            8: 'You visibly gain extra movement or height from walls and ledges.',
+            12: 'You can make more complex direction changes or follow-up moves across vertical surfaces.',
+            16: 'Tight spaces, roofs, walls, and vertical obstacles become playable movement surfaces for you.',
+            20: 'You feel almost impossibly free in vertical movement as long as some surface still exists to push off from.'
         }
     },
     {
@@ -147,11 +148,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Reed on the Wind',
         tagline: 'You can stand securely on absurdly small, narrow, or unstable surfaces.',
         tiers: {
-            8: 'You hold securely on narrow edges, beams, or unstable ground.',
-            16: 'You can stand calmly or move carefully on small, wobbly, or awkward surfaces.',
-            24: 'You balance on absurdly small or problematic surfaces as long as there is still physical room.',
-            32: 'Even wet, loose, or strongly swaying surfaces throw you off balance astonishingly little.',
-            40: 'Your balance feels almost weightless; where others would not even step, you can stand securely.'
+            4: 'You hold securely on narrow edges, beams, or unstable ground.',
+            8: 'You can stand calmly or move carefully on small, wobbly, or awkward surfaces.',
+            12: 'You balance on absurdly small or problematic surfaces as long as there is still physical room.',
+            16: 'Even wet, loose, or strongly swaying surfaces throw you off balance astonishingly little.',
+            20: 'Your balance feels almost weightless; where others would not even step, you can stand securely.'
         }
     },
     {
@@ -160,11 +161,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Flow Through',
         tagline: 'You can move through tight, chaotic, or vertical environments almost like flowing water.',
         tiers: {
-            8: 'You get cleanly through choke points, obstacles, or chaotic spaces.',
-            16: 'When climbing, squeezing, ducking, or weaving past obstacles, you barely lose your rhythm.',
-            24: 'Even vertical, tight, or messy environments slow you only a little.',
-            32: 'You move through difficult spaces like water through cracks.',
-            40: 'Obstacle-rich environments seem more like paths than problems for you.'
+            4: 'You get cleanly through choke points, obstacles, or chaotic spaces.',
+            8: 'When climbing, squeezing, ducking, or weaving past obstacles, you barely lose your rhythm.',
+            12: 'Even vertical, tight, or messy environments slow you only a little.',
+            16: 'You move through difficult spaces like water through cracks.',
+            20: 'Obstacle-rich environments seem more like paths than problems for you.'
         }
     },
     {
@@ -173,11 +174,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Mage Hand',
         tagline: 'You create a small magical force/hand that can move, fetch, or tip light objects at short range.',
         tiers: {
-            8: 'You move, fetch, or tip small light objects at short range.',
-            16: 'You manipulate objects more reliably, more precisely, and a bit farther away.',
-            24: 'You carry out several small remote hand actions cleanly in succession.',
-            32: 'Your magical hand becomes clearly more skilled, farther-reaching, and more versatile.',
-            40: 'Your remote manipulation of light things feels almost like a natural extension of your own hand.'
+            4: 'You move, fetch, or tip small light objects at short range.',
+            8: 'You manipulate objects more reliably, more precisely, and a bit farther away.',
+            12: 'You carry out several small remote hand actions cleanly in succession.',
+            16: 'Your magical hand becomes clearly more skilled, farther-reaching, and more versatile.',
+            20: 'Your remote manipulation of light things feels almost like a natural extension of your own hand.'
         }
     },
     {
@@ -186,11 +187,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Message',
         tagline: 'You can whisper a quiet, targeted message to a person at short range that only they hear.',
         tiers: {
-            8: 'A short whispered sentence to a person nearby.',
-            16: 'More range, more clarity, a short reply possible.',
-            24: 'A short back-and-forth exchange over usable distance.',
-            32: 'Several short messages even across noise or simple obstacles.',
-            40: 'Almost like a discreet invisible conversation on a small scale.'
+            4: 'A short whispered sentence to a person nearby.',
+            8: 'More range, more clarity, a short reply possible.',
+            12: 'A short back-and-forth exchange over usable distance.',
+            16: 'Several short messages even across noise or simple obstacles.',
+            20: 'Almost like a discreet invisible conversation on a small scale.'
         }
     },
     {
@@ -199,11 +200,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Arcane Spark',
         tagline: 'You create small points of light, sparks, glyph flicker, or visible arcane marks.',
         tiers: {
-            8: 'A small point of light, spark, or glowing mark.',
-            16: 'Several small lights or brief magical marks.',
-            24: 'Moving points of light, small symbols, or more stable signs.',
-            32: 'Clean arcane displays, longer glow duration, and more complex small light patterns.',
-            40: 'A masterful small language of light and glyphs that feels like a real tool.'
+            4: 'A small point of light, spark, or glowing mark.',
+            8: 'Several small lights or brief magical marks.',
+            12: 'Moving points of light, small symbols, or more stable signs.',
+            16: 'Clean arcane displays, longer glow duration, and more complex small light patterns.',
+            20: 'A masterful small language of light and glyphs that feels like a real tool.'
         }
     },
     {
@@ -212,11 +213,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Detect Trace',
         tagline: 'You can sense faint magical residue, resonances, or ritual traces.',
         tiers: {
-            8: 'You sense that magic or something unnatural was here.',
-            16: 'Rough direction, freshness, or strength becomes recognizable.',
-            24: 'You can better tell whether the residue came more from a ritual, an object, or a person.',
-            32: 'Subtle differences and finer remnants become reliably perceptible.',
-            40: 'You read even delicate arcane afterimages with surprising certainty, without replacing true analysis.'
+            4: 'You sense that magic or something unnatural was here.',
+            8: 'Rough direction, freshness, or strength becomes recognizable.',
+            12: 'You can better tell whether the residue came more from a ritual, an object, or a person.',
+            16: 'Subtle differences and finer remnants become reliably perceptible.',
+            20: 'You read even delicate arcane afterimages with surprising certainty, without replacing true analysis.'
         }
     },
     {
@@ -225,11 +226,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Script Whisper',
         tagline: 'You create secret, invisible runes or marks that become readable only under the right circumstances.',
         tiers: {
-            8: 'You can leave a single short hidden mark, word, or symbol.',
-            16: 'You leave short secret messages or small rune sequences that can be made visible on purpose.',
-            24: 'Your hidden runes can carry small paragraphs, several marks, or simple structured clues.',
-            32: 'You lay down more complex secret script layers, mark paths, or nested runes that stay reliably hidden.',
-            40: 'You create masterful invisible writing and rune-work that is wide-ranging, fine, and hard to discover.'
+            4: 'You can leave a single short hidden mark, word, or symbol.',
+            8: 'You leave short secret messages or small rune sequences that can be made visible on purpose.',
+            12: 'Your hidden runes can carry small paragraphs, several marks, or simple structured clues.',
+            16: 'You lay down more complex secret script layers, mark paths, or nested runes that stay reliably hidden.',
+            20: 'You create masterful invisible writing and rune-work that is wide-ranging, fine, and hard to discover.'
         }
     },
     {
@@ -239,11 +240,11 @@ export const MINOR_EXPRESSIONS = [
         tagline: 'You create a small amount of simple matter or substance for a short time.',
         constraints: 'Important limit: only simple matter; nothing precision-built; nothing complexly living; nothing meant to replace real crafting, rituals, or Powers.',
         tiers: {
-            8: 'A handful of a simple substance: water, earth, sand, ash, metal shavings, gravel, clay, or similar.',
-            16: 'About a bucketful of a simple substance.',
-            24: 'About a bathtub full of a simple substance.',
-            32: 'A large chest, tub, or small cartload of a simple substance.',
-            40: 'An impressively large amount of simple matter, big enough to visibly fill or clearly change a small area.'
+            4: 'A handful of a simple substance: water, earth, sand, ash, metal shavings, gravel, clay, or similar.',
+            8: 'About a bucketful of a simple substance.',
+            12: 'About a bathtub full of a simple substance.',
+            16: 'A large chest, tub, or small cartload of a simple substance.',
+            20: 'An impressively large amount of simple matter, big enough to visibly fill or clearly change a small area.'
         }
     },
     {
@@ -252,11 +253,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Alarm',
         tagline: 'You set a silent warning on an object, sleeping place, entrance, or small area that alerts you when it is broken.',
         tiers: {
-            8: 'An object, pack, bedroll, or personal spot.',
-            16: 'An entrance, window, door, or small campsite.',
-            24: 'A small room or clear radius.',
-            32: 'Several entrances or a larger area.',
-            40: 'An entire camp, a hall, or a cleanly set small safe space.'
+            4: 'An object, pack, bedroll, or personal spot.',
+            8: 'An entrance, window, door, or small campsite.',
+            12: 'A small room or clear radius.',
+            16: 'Several entrances or a larger area.',
+            20: 'An entire camp, a hall, or a cleanly set small safe space.'
         }
     },
     {
@@ -265,11 +266,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Still Mind',
         tagline: 'You can gather, order, and shield your mind in a short time against panic, confusion, or rising unrest.',
         tiers: {
-            8: 'You quickly find calm and focus.',
-            16: 'You push strong unrest or mental pressure back for a while.',
-            24: 'Even fierce inner turbulence can be ordered more clearly.',
-            32: 'You can gather yourself again almost immediately and become ready to act.',
-            40: 'Your inner order feels exceptionally firm and hard to shake.'
+            4: 'You quickly find calm and focus.',
+            8: 'You push strong unrest or mental pressure back for a while.',
+            12: 'Even fierce inner turbulence can be ordered more clearly.',
+            16: 'You can gather yourself again almost immediately and become ready to act.',
+            20: 'Your inner order feels exceptionally firm and hard to shake.'
         }
     },
     {
@@ -278,11 +279,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Read Omen',
         tagline: 'You can read a good or ill omen from mood, signs, chance, animal behavior, wind, silence, or small dissonances.',
         tiers: {
-            8: 'A rough feeling: good, bad, wrong, uneasy.',
-            16: 'Clearer tendencies tied to place, travel, action, or encounter.',
-            24: 'Several small signs can be assembled into a usable omen-picture.',
-            32: 'Your reading becomes astonishingly concrete in its direction.',
-            40: 'You read reliable warnings or signs of hope from the smallest breaks in the world.'
+            4: 'A rough feeling: good, bad, wrong, uneasy.',
+            8: 'Clearer tendencies tied to place, travel, action, or encounter.',
+            12: 'Several small signs can be assembled into a usable omen-picture.',
+            16: 'Your reading becomes astonishingly concrete in its direction.',
+            20: 'You read reliable warnings or signs of hope from the smallest breaks in the world.'
         }
     },
     {
@@ -291,11 +292,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Cold Comfort',
         tagline: 'You can give someone steadiness with quiet certainty, dark honesty, or silent confidence, without offering false hope.',
         tiers: {
-            8: 'One person settles through your words or presence.',
-            16: 'Someone tipping inside finds their footing again through you.',
-            24: 'Your calm can help stabilize small groups as well.',
-            32: 'Even in bleak situations you create durable emotional quiet.',
-            40: 'You feel like a dark anchor others can hold onto.'
+            4: 'One person settles through your words or presence.',
+            8: 'Someone tipping inside finds their footing again through you.',
+            12: 'Your calm can help stabilize small groups as well.',
+            16: 'Even in bleak situations you create durable emotional quiet.',
+            20: 'You feel like a dark anchor others can hold onto.'
         }
     },
     {
@@ -304,11 +305,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Sense Taint',
         tagline: 'You can sense on places, things, or people whether something is spoiled, wrong, ill-omened, or mentally “dirty.”',
         tiers: {
-            8: 'You dimly sense that something is off.',
-            16: 'You can better tell whether a person, object, or area is the source.',
-            24: 'Freshness, strength, or kind of taint become clearer.',
-            32: 'Even subtle impurity or mental rot becomes perceptible.',
-            40: 'Your sense for false presence, corruption, and mental weight is exceptionally fine.'
+            4: 'You dimly sense that something is off.',
+            8: 'You can better tell whether a person, object, or area is the source.',
+            12: 'Freshness, strength, or kind of taint become clearer.',
+            16: 'Even subtle impurity or mental rot becomes perceptible.',
+            20: 'Your sense for false presence, corruption, and mental weight is exceptionally fine.'
         }
     },
     {
@@ -317,11 +318,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Keep Watch',
         tagline: 'You can stay awake, attentive, and inwardly taut in quiet concentration for a long time, almost as if listening for something invisible.',
         tiers: {
-            8: 'You keep watch more reliably than others.',
-            16: 'Tiredness, monotony, and long silence dull you much less.',
-            24: 'Fine changes in sound, air, or mood are more likely to catch your notice.',
-            32: 'Over long watches you stay remarkably clear and taut.',
-            40: 'Your vigilance feels almost unnaturally gathered, as if you were listening along even for the invisible.'
+            4: 'You keep watch more reliably than others.',
+            8: 'Tiredness, monotony, and long silence dull you much less.',
+            12: 'Fine changes in sound, air, or mood are more likely to catch your notice.',
+            16: 'Over long watches you stay remarkably clear and taut.',
+            20: 'Your vigilance feels almost unnaturally gathered, as if you were listening along even for the invisible.'
         }
     },
     {
@@ -330,11 +331,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Mirror Shade',
         tagline: 'You create a brief mix-up or double-image effect around yourself.',
         tiers: {
-            8: 'A brief false impression, a glance-trick, or a mixable afterimage of you.',
-            16: 'Observers hang for a moment on a false position or version of you.',
-            24: 'In groups or moving scenes, clear confusion arises about exactly where you are.',
-            32: 'Pursuers, observers, or fleeting witnesses often remember the false version of you first.',
-            40: 'Your image can socially detach from the actual moment almost like a ghostly twin.'
+            4: 'A brief false impression, a glance-trick, or a mixable afterimage of you.',
+            8: 'Observers hang for a moment on a false position or version of you.',
+            12: 'In groups or moving scenes, clear confusion arises about exactly where you are.',
+            16: 'Pursuers, observers, or fleeting witnesses often remember the false version of you first.',
+            20: 'Your image can socially detach from the actual moment almost like a ghostly twin.'
         }
     },
     {
@@ -343,11 +344,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Read the Room',
         tagline: 'You read not only the mood, but the hidden social truth of a scene.',
         tiers: {
-            8: 'You sense the basic mood and obvious tension.',
-            16: 'You recognize who is only playing along, who is about to tip, and where the fault lines lie.',
-            24: 'Power, fear, insecurity, and emotional triggers of a small group become clearly readable.',
-            32: 'Even veiled tensions or unspoken social roles rarely escape you.',
-            40: 'You read social spaces almost as if you could hear the unspoken subtext.'
+            4: 'You sense the basic mood and obvious tension.',
+            8: 'You recognize who is only playing along, who is about to tip, and where the fault lines lie.',
+            12: 'Power, fear, insecurity, and emotional triggers of a small group become clearly readable.',
+            16: 'Even veiled tensions or unspoken social roles rarely escape you.',
+            20: 'You read social spaces almost as if you could hear the unspoken subtext.'
         }
     },
     {
@@ -356,11 +357,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Glamour',
         tagline: 'You lay a deceptive appearance over yourself.',
         tiers: {
-            8: 'Clothing, style, bearing, or social impression can be visibly shifted.',
-            16: 'You come across credibly as another origin, role, class, or age.',
-            24: 'The appearance becomes clearly more flexible and can rewrite whole social impressions.',
-            32: 'You can strongly change your perceived outward appearance.',
-            40: 'Your glamour can produce almost a complete outer reinterpretation of your person.'
+            4: 'Clothing, style, bearing, or social impression can be visibly shifted.',
+            8: 'You come across credibly as another origin, role, class, or age.',
+            12: 'The appearance becomes clearly more flexible and can rewrite whole social impressions.',
+            16: 'You can strongly change your perceived outward appearance.',
+            20: 'Your glamour can produce almost a complete outer reinterpretation of your person.'
         }
     },
     {
@@ -369,11 +370,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Vanish',
         tagline: 'You can slip out of the moment socially and visually and be “gone.”',
         tiers: {
-            8: 'You use a brief break in attention to leave the focus.',
-            16: 'In a crowd, unrest, or motion you are quickly no longer where people expect you.',
-            24: 'Observers lose you noticeably more easily from sight and from the scene’s memory.',
-            32: 'You are often already “gone” before others have sorted their gaze.',
-            40: 'Your vanishing feels like a small social blink effect, without being true teleportation.'
+            4: 'You use a brief break in attention to leave the focus.',
+            8: 'In a crowd, unrest, or motion you are quickly no longer where people expect you.',
+            12: 'Observers lose you noticeably more easily from sight and from the scene’s memory.',
+            16: 'You are often already “gone” before others have sorted their gaze.',
+            20: 'Your vanishing feels like a small social blink effect, without being true teleportation.'
         }
     },
     {
@@ -382,11 +383,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Silver Tongue',
         tagline: 'Your words can make others forget their own interests, reservations, wounds, or caution for a short moment.',
         tiers: {
-            8: 'People listen to you noticeably more than usual.',
-            16: 'Individuals can be pulled for a moment out of their caution or agenda.',
-            24: 'Conversations run noticeably more on your frame than on theirs.',
-            32: 'Even difficult counterparts come farther toward you than they originally meant to.',
-            40: 'Your words can briefly almost resort the priorities in the room.'
+            4: 'People listen to you noticeably more than usual.',
+            8: 'Individuals can be pulled for a moment out of their caution or agenda.',
+            12: 'Conversations run noticeably more on your frame than on theirs.',
+            16: 'Even difficult counterparts come farther toward you than they originally meant to.',
+            20: 'Your words can briefly almost resort the priorities in the room.'
         }
     },
     {
@@ -395,11 +396,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Silken Barb',
         tagline: 'You set an elegant, subtle line that sticks in the mind and keeps working.',
         tiers: {
-            8: 'A doubt or small barb is left with one person.',
-            16: 'The remark visibly colors the aftereffect of a conversation.',
-            24: 'The planted thought works longer and deeper on self-image, insecurity, or stance.',
-            32: 'Even small groups can come to see someone or something differently through a planted line.',
-            40: 'Your fine social blades leave elegant, long-lasting mental aftereffects.'
+            4: 'A doubt or small barb is left with one person.',
+            8: 'The remark visibly colors the aftereffect of a conversation.',
+            12: 'The planted thought works longer and deeper on self-image, insecurity, or stance.',
+            16: 'Even small groups can come to see someone or something differently through a planted line.',
+            20: 'Your fine social blades leave elegant, long-lasting mental aftereffects.'
         }
     },
     {
@@ -408,11 +409,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Nose for Trouble',
         tagline: 'You quickly sense when a situation is tipping, something is rotten, or trouble is in the air.',
         tiers: {
-            8: 'You notice early that something is off.',
-            16: 'You perceive tipping situations, ambushes, or sources of trouble more clearly.',
-            24: 'You often sense where trouble is about to come from.',
-            32: 'Even well-camouflaged bad mood or looming problems rarely escape you.',
-            40: 'Your instinct for trouble feels almost uncannily reliable.'
+            4: 'You notice early that something is off.',
+            8: 'You perceive tipping situations, ambushes, or sources of trouble more clearly.',
+            12: 'You often sense where trouble is about to come from.',
+            16: 'Even well-camouflaged bad mood or looming problems rarely escape you.',
+            20: 'Your instinct for trouble feels almost uncannily reliable.'
         }
     },
     {
@@ -421,11 +422,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Quick Read',
         tagline: 'You can size up a person, object, or situation in a few moments roughly, but often accurately.',
         tiers: {
-            8: 'A first usable read in seconds.',
-            16: 'Character, condition, or the catch in a thing become clear quickly.',
-            24: 'You read situations or people with striking certainty.',
-            32: 'Even more complex setups quickly form a coherent picture for you.',
-            40: 'Your first impressions are frighteningly often on target.'
+            4: 'A first usable read in seconds.',
+            8: 'Character, condition, or the catch in a thing become clear quickly.',
+            12: 'You read situations or people with striking certainty.',
+            16: 'Even more complex setups quickly form a coherent picture for you.',
+            20: 'Your first impressions are frighteningly often on target.'
         }
     },
     {
@@ -434,11 +435,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Find the Angle',
         tagline: 'You quickly spot the simplest, cleverest, or most practical point of attack in a situation.',
         tiers: {
-            8: 'You quickly find the obvious workable path.',
-            16: 'You often discover the better lever, access, or trick.',
-            24: 'Even chaotic situations usually have some working angle for you somewhere.',
-            32: 'In hard spots you quickly see where you really need to apply pressure.',
-            40: 'Almost every stuck scene shows you some usable angle.'
+            4: 'You quickly find the obvious workable path.',
+            8: 'You often discover the better lever, access, or trick.',
+            12: 'Even chaotic situations usually have some working angle for you somewhere.',
+            16: 'In hard spots you quickly see where you really need to apply pressure.',
+            20: 'Almost every stuck scene shows you some usable angle.'
         }
     },
     {
@@ -447,11 +448,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Keep the Thread',
         tagline: 'In chaotic conversations, scenes, or search moments you do not lose the thread so easily.',
         tiers: {
-            8: 'You keep the essentials more easily in mind.',
-            16: 'Even with distraction or chaos, the central line stays intact for you.',
-            24: 'You can hold several trails, suspicions, or conversation threads together more cleanly.',
-            32: 'Even in messy scenes you barely lose the actual matter at hand.',
-            40: 'Where others fray mentally, you hold the inner line almost effortlessly.'
+            4: 'You keep the essentials more easily in mind.',
+            8: 'Even with distraction or chaos, the central line stays intact for you.',
+            12: 'You can hold several trails, suspicions, or conversation threads together more cleanly.',
+            16: 'Even in messy scenes you barely lose the actual matter at hand.',
+            20: 'Where others fray mentally, you hold the inner line almost effortlessly.'
         }
     },
     {
@@ -460,11 +461,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Improvised Solution',
         tagline: 'You can quickly turn simple things into a usable small makeshift solution.',
         tiers: {
-            8: 'Simple provisional aids, wedges, hooks, markers, or stopgaps.',
-            16: 'More useful small constructions from whatever is at hand.',
-            24: 'Surprisingly reliable improvisations with clearly recognizable use.',
-            32: 'From almost any environment something usable can be pulled quickly.',
-            40: 'Your improvisations feel, in the small scale, almost like a craft style of their own.'
+            4: 'Simple provisional aids, wedges, hooks, markers, or stopgaps.',
+            8: 'More useful small constructions from whatever is at hand.',
+            12: 'Surprisingly reliable improvisations with clearly recognizable use.',
+            16: 'From almost any environment something usable can be pulled quickly.',
+            20: 'Your improvisations feel, in the small scale, almost like a craft style of their own.'
         }
     },
     {
@@ -473,11 +474,11 @@ export const MINOR_EXPRESSIONS = [
         name: 'Street Sense',
         tagline: 'You find your way quickly in alleys, markets, camps, taverns, and cluttered everyday spaces.',
         tiers: {
-            8: 'You quickly spot exits, choke points, and useful spots.',
-            16: 'You quickly understand how a place works socially and practically.',
-            24: 'Even unfamiliar everyday spaces become quickly readable and usable for you.',
-            32: 'You almost always find the right people, paths, or places to vanish, watch, or get through.',
-            40: 'In human everyday spaces you are almost never truly lost.'
+            4: 'You quickly spot exits, choke points, and useful spots.',
+            8: 'You quickly understand how a place works socially and practically.',
+            12: 'Even unfamiliar everyday spaces become quickly readable and usable for you.',
+            16: 'You almost always find the right people, paths, or places to vanish, watch, or get through.',
+            20: 'In human everyday spaces you are almost never truly lost.'
         }
     }
 ];

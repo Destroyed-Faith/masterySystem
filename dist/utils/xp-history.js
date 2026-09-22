@@ -4,7 +4,7 @@
  * Older batched confirm entries (`details.changes`) are expanded when shown
  * so existing logs still read as individual steps.
  */
-import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
+import { attributeBandCost, skillBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
 export function currentXpUser() {
     const user = globalThis.game?.user;
     return {
@@ -73,7 +73,7 @@ function stepCost(category, from, to) {
         const cost = artifactLevelXpCost(rising ? to : from);
         return rising ? cost : -cost;
     }
-    const cost = attributeBandCost(rising ? to : from);
+    const cost = category === 'skill' ? skillBandCost(rising ? to : from) : attributeBandCost(rising ? to : from);
     return rising ? cost : -cost;
 }
 function signedForEntry(entry, amount) {

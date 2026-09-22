@@ -15,8 +15,11 @@ export interface WeaponSetHands {
 export interface WeaponSetsState {
     schemaVersion: number;
     active: WeaponSetIndex;
+    /** Weapons put away. Both sets stay stored; Basic Attack is Unarmed. */
+    stowed?: boolean;
     sets: Record<WeaponSetIndex, WeaponSetHands>;
 }
+export type WeaponSwapTarget = WeaponSetIndex | 'unarmed';
 export type SwapWeaponSetResult = {
     ok: true;
     swapped: false;
@@ -57,11 +60,61 @@ export declare function ensureWeaponSets(actor: any): Promise<WeaponSetsState>;
 export declare function pruneDeletedWeaponSetRefs(actor: any): Promise<WeaponSetsState | null>;
 export declare function syncActiveWeaponSetFromHands(actor: any): Promise<WeaponSetsState>;
 export declare function applyWeaponSetHands(actor: any, set: WeaponSetHands): Promise<void>;
+/** Short label for one prepared set: weapon names, or empty hands. */
+export declare function describeWeaponSetHands(actor: any, hands: WeaponSetHands | null | undefined): string;
+export interface WeaponSwapPreview {
+    active: WeaponSetIndex;
+    next: WeaponSetIndex;
+    from: string;
+    to: string;
+    /** One line for the radial and the sheet tooltip. */
+    line: string;
+}
+/** What Weapon Swap will do with the sets as they are stored right now. */
+export declare function describeWeaponSwap(actor: any): WeaponSwapPreview;
+export interface WeaponSwapChoice {
+    target: WeaponSwapTarget;
+    /** Roman numeral or Fists, for the sheet button. */
+    shortLabel: string;
+    summary: string;
+    /** Full radial title. */
+    name: string;
+    description: string;
+    active: boolean;
+}
 /**
- * Shared Weapon Swap. Used by the [1]/[2] sheet switches and the movement action.
- * `target` omitted = toggle to the inactive set.
+ * Filled sets, then Fists. An empty set is not a button — if Set II is empty
+ * the card offers the worn set and Fists, not an empty Set II as well.
+ * Fists stays on the card whenever another set still has a weapon.
  */
-export declare function swapWeaponSet(actor: any, target?: WeaponSetIndex): Promise<SwapWeaponSetResult>;
+export declare function listWeaponSwapChoices(actor: any): WeaponSwapChoice[];
+/**
+ * Sheet / paperdoll: only real Weapon Sets. Unarmed is not a slot you can
+ * fill — it stays on the radial menu (and as empty-hand labeling).
+ */
+export declare function listEquipmentWeaponSetChoices(actor: any): WeaponSwapChoice[];
+export interface ActiveWeaponProfile {
+    unarmed: boolean;
+    name: string;
+    damage: string;
+    attackType: 'melee' | 'ranged';
+    /** Radial range. Ranged must be > 4 so the targeting flow treats it as ranged. */
+    rangeM: number;
+    summary: string;
+}
+/**
+ * What Basic Attack rolls right now: the active set's main-hand weapon, or
+ * Unarmed 1d8 when that set is empty.
+ */
+export declare function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile;
+/**
+ * Shared Weapon Swap. Sheet buttons and the radial pass a target:
+ * set 1, set 2, or `unarmed` (stow both sets and fight with fists).
+ * `target` omitted = toggle to the other set.
+ */
+export declare function swapWeaponSet(actor: any, target?: WeaponSwapTarget, options?: {
+    quiet?: boolean;
+}): Promise<SwapWeaponSetResult>;
 /** Test helper — do not use from production UI. */
 export declare function resetWeaponSetLocks(): void;
 //# sourceMappingURL=weapon-sets.d.ts.map

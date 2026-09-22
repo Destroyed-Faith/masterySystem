@@ -139,8 +139,8 @@ function makePredatorCrown(opts) {
 }
 const PREDATOR_CROWN_MIGHT = makePredatorCrown({
     key: 'predatorCrownMight',
-    stoneLabel: 'Might — Melee Damage',
-    stoneTechnical: 'Might Ability: Melee Damage (choose one, Tier 2+)',
+    stoneLabel: 'Might — Martial Damage',
+    stoneTechnical: 'Might Ability: Martial Damage (choose one, Tier 2+)',
     stoneFunction: {
         level: 1,
         kind: 'stonePowerSupport',
@@ -516,7 +516,7 @@ const GREEN_WARDEN_MANTLE = {
             range: 'Self',
             duration: 'Instant',
             effect: 'Pre-fill Tier 2. Tier 1 must still be paid.',
-            special: 'Resolve Ability: Special Reduction (Stone Power Support, Tier 2)',
+            special: 'Resolve Ability: Ward (Stone Power Support, Tier 2)',
         },
         {
             name: 'Green Warden Stone II',
@@ -524,7 +524,7 @@ const GREEN_WARDEN_MANTLE = {
             range: 'Self',
             duration: 'Instant',
             effect: 'Pre-fill Tier 3. Tiers 1 and 2 must still be paid.',
-            special: 'Resolve Ability: Special Reduction (Stone Power Support, Tier 3)',
+            special: 'Resolve Ability: Ward (Stone Power Support, Tier 3)',
         },
         {
             name: 'Green Warden Stone III',
@@ -532,7 +532,7 @@ const GREEN_WARDEN_MANTLE = {
             range: 'Self',
             duration: 'Instant',
             effect: 'Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.',
-            special: 'Resolve Ability: Special Reduction (Stone Power Support, Tier 4)',
+            special: 'Resolve Ability: Ward (Stone Power Support, Tier 4)',
         },
     ], {
         name: 'True Green Warden Mantle',

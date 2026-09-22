@@ -3,6 +3,7 @@
  * Implements Roll & Keep with exploding 8s
  */
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants.js';
+import { applyGuaranteedEightExchange, maxGuaranteedEights, rollGuaranteedEightChain, } from '../progression/v099-rules.js';
 import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
 import { finalizeRolledPool } from './pool-finalize.js';
 import { buildOpposedSkillTn } from './roll-context-build.js';
@@ -135,6 +136,56 @@ function selectHighestDice(dice, keepDice) {
  */
 function calculateTotal(dice, keptIndices) {
     return keptIndices.reduce((sum, index) => sum + dice[index], 0);
+}
+/** Prompt only when Dialog exists and at least one Guaranteed Eight is legal. */
+async function promptGuaranteedEights(max, pool, masteryRank) {
+    const DialogCtor = globalThis.Dialog;
+    if (!DialogCtor || max <= 0)
+        return 0;
+    const options = Array.from({ length: max + 1 }, (_, n) => {
+        const rolled = pool - n * 8;
+        const label = n === 0
+            ? `0 — roll ${pool} dice`
+            : `${n} — ${rolled} dice + ${n} Guaranteed Eight${n === 1 ? '' : 's'}`;
+        return `<option value="${n}">${label}</option>`;
+    }).join('');
+    return await new Promise((resolve) => {
+        let settled = false;
+        const finish = (n) => {
+            if (settled)
+                return;
+            settled = true;
+            resolve(Math.max(0, Math.min(max, Math.floor(n) || 0)));
+        };
+        try {
+            const dialog = new DialogCtor({
+                title: 'Guaranteed Eight',
+                content: `<form class="mastery-guaranteed-eight">
+          <p>Exchange 8 dice from the final pool for 1 Guaranteed Eight. At least ${masteryRank} dice must still be rolled. A Guaranteed Eight does not count toward that minimum.</p>
+          <div class="form-group"><label>Guaranteed Eights</label>
+            <select name="guaranteedEights">${options}</select>
+          </div>
+        </form>`,
+                buttons: {
+                    roll: {
+                        icon: '<i class="fas fa-dice-d8"></i>',
+                        label: 'Roll',
+                        callback: (html) => {
+                            const jq = html?.find?.('[name="guaranteedEights"]');
+                            const raw = jq?.val?.() ?? html?.querySelector?.('[name="guaranteedEights"]')?.value;
+                            finish(Number(raw) || 0);
+                        },
+                    },
+                },
+                default: 'roll',
+                close: () => finish(0),
+            });
+            dialog.render(true);
+        }
+        catch {
+            finish(0);
+        }
+    });
 }
 /** Margin raises: each full +4 over TN = 1 Raise (echo, ritual, skill checks). */
 export function countMarginRaises(total, tn) {
@@ -288,6 +339,40 @@ export async function masteryRoll(options) {
         const note = `Pool cap: ${before} → ${numDice}d8 (Split-Attack / strike limit)`;
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
+    const poolBeforeGuaranteed = numDice;
+    let guaranteedEights = 0;
+    const poolAndKeep = options.poolAndKeep !== false && kind !== 'damage';
+    if (poolAndKeep && !autoFailReason) {
+        let masteryRank = Math.max(1, keepDice);
+        try {
+            const geActor = options.actorRef ??
+                (options.actorId ? globalThis.game?.actors?.get?.(options.actorId) : null);
+            const stored = Math.floor(Number(geActor?.system?.mastery?.rank) || 0);
+            if (stored > 0)
+                masteryRank = stored;
+        }
+        catch {
+            /* keep the Keep count as the floor */
+        }
+        const maxGe = maxGuaranteedEights(numDice, masteryRank);
+        let requested = 0;
+        if (maxGe > 0 && typeof options.guaranteedEights === 'number') {
+            requested = Math.floor(options.guaranteedEights);
+        }
+        else if (maxGe > 0 && typeof options.guaranteedEights !== 'number') {
+            requested = await promptGuaranteedEights(maxGe, numDice, masteryRank);
+        }
+        if (requested > 0) {
+            const exchanged = applyGuaranteedEightExchange(numDice, masteryRank, requested);
+            if (exchanged.ok && exchanged.guaranteedEights > 0) {
+                guaranteedEights = exchanged.guaranteedEights;
+                numDice = exchanged.rolledDice;
+                const label = guaranteedEights === 1 ? '1 Guaranteed Eight' : `${guaranteedEights} Guaranteed Eights`;
+                const note = `Pool: ${poolBeforeGuaranteed} → ${numDice} dice + ${label}`;
+                flavor = flavor ? `${flavor} | ${note}` : note;
+            }
+        }
+    }
     const explodeAttack78 = !!options.attackExplodeDiceOn78;
     if (explodeAttack78) {
         flavor = flavor ? `${flavor} | Crit: d8 pool explodes on 7–8` : 'Crit: d8 pool explodes on 7–8';
@@ -305,11 +390,24 @@ export async function masteryRoll(options) {
     // Both may apply at once — the book does not cancel them into a normal roll.
     const useAdv = rollAdvantage;
     const useDis = rollDisadvantage;
-    const { dice, exploded, dieChains } = rollDice(numDice, {
+    const rolled = rollDice(numDice, {
         explodeOn78: explodeAttack78,
         rollAdvantage: useAdv,
         rollDisadvantage: useDis,
     });
+    const geChains = [];
+    const geDice = [];
+    const geExploded = [];
+    for (let g = 0; g < guaranteedEights; g += 1) {
+        const chain = rollGuaranteedEightChain(() => Math.floor(Math.random() * 8) + 1);
+        geChains.push(chain.faces);
+        geDice.push(chain.total);
+        if (chain.faces.length > 1)
+            geExploded.push(g);
+    }
+    const dice = [...geDice, ...rolled.dice];
+    const dieChains = [...geChains, ...rolled.dieChains];
+    const exploded = [...geExploded, ...rolled.exploded.map((index) => index + guaranteedEights)];
     // Select highest dice to keep
     const keptIndices = selectHighestDice(dice, keepDice);
     const keptValues = keptIndices.map(i => dice[i]);
@@ -371,6 +469,13 @@ export async function masteryRoll(options) {
         raiseTn: raiseTnVal,
         stoneBonusRaises,
         ...(autoFailReason ? { autoFailReason } : {}),
+        ...(guaranteedEights > 0
+            ? {
+                guaranteedEights,
+                poolBeforeGuaranteed,
+                rolledDice: numDice,
+            }
+            : {}),
     };
     const rollRecipe = {
         numDice: options.numDice,
@@ -401,6 +506,7 @@ export async function masteryRoll(options) {
         ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
         ...(rollAdvantage ? { rollAdvantage: true } : {}),
         ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
+        ...(guaranteedEights > 0 ? { guaranteedEights } : {}),
         ...(options.attackCardMessageId ? { attackCardMessageId: options.attackCardMessageId } : {}),
     };
     if (!options.skipChat) {
@@ -554,14 +660,19 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
         <div class="roll-details">
           <div class="roll-breakdown">
             <div class="breakdown-line">
-              <span>Rolled ${result.dice.length}d8, kept ${result.kept.length}</span>
+              <span>${result.guaranteedEights > 0
+            ? `Pool: ${result.poolBeforeGuaranteed} → ${result.rolledDice} dice + ${result.guaranteedEights} Guaranteed Eight${result.guaranteedEights === 1 ? '' : 's'}`
+            : `Rolled ${result.dice.length}d8, kept ${result.kept.length}`}</span>
             </div>
             <div class="breakdown-line">
               <span>Dice Rolled:</span>
               <span class="value">${result.dice.map((d, i) => {
             const isKept = keptIndices.includes(i);
             const ch = result.dieChains?.[i];
-            const label = ch && ch.length > 1 ? `${ch.join(' + ')} = ${d}` : String(d);
+            const ge = i < (result.guaranteedEights || 0);
+            let label = ch && ch.length > 1 ? `${ch.join(' + ')} = ${d}` : String(d);
+            if (ge)
+                label = `GE ${label}`;
             return isKept ? `<strong>${label}</strong>` : label;
         }).join(', ')}</span>
             </div>
@@ -613,9 +724,9 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
                 </div>
               ` : ''}
               ${isSkillRoll && result.success && actor ? `
-                <div class="result-line" title="Opposed Skill Rolls: if this was a Setup Roll, the opposing creature rolls against 8 × your Mastery Rank + 2 per Raise.">
+                <div class="result-line" title="Opposed Skill Rolls: if this was a Setup Roll, the Final Result is the TN the opposing creature must meet.">
                   <span>Opposing TN (Setup Roll):</span>
-                  <span class="value">${buildOpposedSkillTn(actor.system?.mastery?.rank || 2, result.raises)}</span>
+                  <span class="value">${buildOpposedSkillTn(result.total)}</span>
                 </div>
               ` : ''}
             </div>

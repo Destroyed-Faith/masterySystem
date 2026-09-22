@@ -15,37 +15,32 @@
  */
 import { getRoundState, setRoundState, } from '../combat/action-economy.js';
 import { healStressFromBars } from '../utils/calculations.js';
-import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, } from './colorless-stones.js';
+import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, isTempHpStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, markTempHpStoneUsedThisCombat, } from './colorless-stones.js';
 import { augmentPhasingCharges } from '../combat/phasing.js';
-/** Tiers shown in the dialog / Players Guide. */
+import { applyRemoveScarEffect } from './remove-scar.js';
+import { applyRegenerationAndMove, promptSelectablePlayerTarget } from './ally-stone-target.js';
+/** Tiers shown in the dialog / Players Guide. Tier 4 is the last tier. */
 export const STONE_TIER_VISIBLE = 4;
-/** Last wave you can fully pay with 80 Stones (1+2+4+8+16+32 = 63). */
-export const STONE_TIER_PRACTICAL_MAX = 6;
-/** Hard cap while the table is still open-ended. */
-export const STONE_TIER_HARD_MAX = 8;
+/** Highest tier a Stone Ability can reach. */
+export const STONE_TIER_PRACTICAL_MAX = 4;
+/** Hard cap. There is no Tier 5. */
+export const STONE_TIER_HARD_MAX = 4;
 /**
- * Continue a published T1–T4 number sequence past the printed table.
- * Doubling sequences keep doubling; otherwise the last delta repeats.
+ * Read a published tier value. Tiers past the printed sequence, and anything
+ * above Tier 4, do not scale.
  */
 export function scaleStoneTier(seq, tier) {
     const t = Math.max(1, Math.floor(Number(tier) || 1));
-    if (t <= seq.length)
-        return Number(seq[t - 1]) || 0;
-    if (seq.length === 0)
+    if (t > STONE_TIER_HARD_MAX || t > seq.length)
         return 0;
-    if (seq.length === 1)
-        return Number(seq[0]) || 0;
-    const a = Number(seq[seq.length - 2]) || 0;
-    const b = Number(seq[seq.length - 1]) || 0;
-    const steps = t - seq.length;
-    if (a > 0 && b > 0 && b % a === 0 && b / a >= 2) {
-        return b * (b / a) ** steps;
-    }
-    return b + (b - a) * steps;
+    return Number(seq[t - 1]) || 0;
 }
-/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8, … */
+/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
 export function stonePowerWaveCost(tier) {
-    return Math.pow(2, Math.max(1, Math.floor(Number(tier) || 1)) - 1);
+    const t = Math.floor(Number(tier) || 1);
+    if (t < 1 || t > STONE_TIER_HARD_MAX)
+        return 0;
+    return Math.pow(2, t - 1);
 }
 /** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
 export function cumulativeStoneCostForTier(tier, startsAtTier = 1) {
@@ -55,6 +50,37 @@ export function cumulativeStoneCostForTier(tier, startsAtTier = 1) {
     for (let t = start; t <= end; t += 1)
         total += stonePowerWaveCost(t);
     return total;
+}
+/** Highest fully paid tier on one card (1 / 3 / 7 / 15 stones → T1 / T2 / T3 / T4). */
+export function highestCompleteStoneTierFromPlaced(placed, startsAtTier = 1, maxTier = STONE_TIER_HARD_MAX) {
+    const n = Math.max(0, Math.floor(Number(placed) || 0));
+    const start = startsAtTier === 2 ? 2 : 1;
+    const cap = Math.max(start, Math.floor(Number(maxTier) || STONE_TIER_HARD_MAX));
+    let best = 0;
+    for (let t = start; t <= cap; t += 1) {
+        if (n < cumulativeStoneCostForTier(t, start))
+            break;
+        best = t;
+    }
+    return best;
+}
+/**
+ * Once-per-combat powers apply the highest complete cluster once.
+ * Artifact Support only raises that tier when every tier below the gold
+ * prefill was paid by the player.
+ */
+export function resolveOncePerCombatStoneTier(powerId, placedCount, prefillTier = 0) {
+    const startsAt = stonePowerStartsAtTier(powerId);
+    const playerTier = highestCompleteStoneTierFromPlaced(placedCount, startsAt);
+    if (playerTier < startsAt)
+        return { tier: 0, playerTier: 0 };
+    const first = firstEffectiveStonePowerTier(powerId);
+    const effective = effectiveStoneSupportPrefillTier(powerId, prefillTier);
+    const supportApplies = effective > first;
+    const tier = supportApplies && playerTier >= first && playerTier >= effective - 1
+        ? Math.max(playerTier, effective)
+        : playerTier;
+    return { tier, playerTier };
 }
 /** Compile the multi-tier tooltip. T2-start powers omit any T1 line. */
 function compileEffectText(name, tiers, startsAtTier = 1) {
@@ -171,15 +197,15 @@ const GENERIC_POWERS_RAW = [
 const MIGHT_POWERS_RAW = [
     {
         id: 'might.meleeDamage',
-        name: 'Melee Damage',
+        name: 'Martial Damage',
         attribute: 'might',
         category: 'action',
-        description: 'Add bonus damage dice to your next melee damage roll this turn (+2/+4/+8/+16).',
+        description: 'Add bonus damage dice to your next Martial Attack this turn (+2/+4/+8/+16). Melee, ranged, natural weapons, and Martial AoE all qualify. Spell Attacks do not.',
         tiers: [
-            { label: '+2 Damage Dice', description: 'Add +2 Damage Dice to your next melee damage roll this turn.', value: 2 },
-            { label: '+4 Damage Dice', description: 'Add +4 Damage Dice to your next melee damage roll this turn.', value: 4 },
-            { label: '+8 Damage Dice', description: 'Add +8 Damage Dice to your next melee damage roll this turn.', value: 8 },
-            { label: '+16 Damage Dice', description: 'Add +16 Damage Dice to your next melee damage roll this turn.', value: 16 },
+            { label: '+2 Damage Dice', description: 'Add +2 Damage Dice to your next Martial Attack this turn.', value: 2 },
+            { label: '+4 Damage Dice', description: 'Add +4 Damage Dice to your next Martial Attack this turn.', value: 4 },
+            { label: '+8 Damage Dice', description: 'Add +8 Damage Dice to your next Martial Attack this turn.', value: 8 },
+            { label: '+16 Damage Dice', description: 'Add +16 Damage Dice to your next Martial Attack this turn.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
@@ -366,28 +392,30 @@ const VITALITY_POWERS_RAW = [
         name: 'Temporary HP',
         attribute: 'vitality',
         category: 'passive',
-        description: 'Gain Temporary HP until the start of your next turn (20 / 40 / 80 / 160).',
+        oncePerCombat: true,
+        description: 'Gain Temporary HP that lasts until depleted or combat ends (20 / 40 / 80 / 160). Once per combat; regenerated Stones do not allow a second activation.',
         tiers: [
-            { label: '20 Temp HP', description: 'Gain 20 Temporary HP until the start of your next turn.', value: 20 },
-            { label: '40 Temp HP', description: 'Gain 40 Temporary HP until the start of your next turn.', value: 40 },
-            { label: '80 Temp HP', description: 'Gain 80 Temporary HP until the start of your next turn.', value: 80 },
-            { label: '160 Temp HP', description: 'Gain 160 Temporary HP until the start of your next turn.', value: 160 },
+            { label: '20 Temp HP', description: 'Gain 20 Temporary HP until depleted or combat ends. Once per combat.', value: 20 },
+            { label: '40 Temp HP', description: 'Gain 40 Temporary HP until depleted or combat ends. Once per combat.', value: 40 },
+            { label: '80 Temp HP', description: 'Gain 80 Temporary HP until depleted or combat ends. Once per combat.', value: 80 },
+            { label: '160 Temp HP', description: 'Gain 160 Temporary HP until depleted or combat ends. Once per combat.', value: 160 },
         ],
-        apply: async ({ actor, tier }) => {
-            const combat = game.combat;
+        apply: async ({ actor, combatant, tier }) => {
+            const c = combatant ??
+                game.combat?.combatants?.find((x) => x.actor?.id === actor.id);
+            if (c && isTempHpStoneUsedThisCombat(c)) {
+                ui.notifications?.warn(`${actor.name}: Temporary HP already used this combat.`);
+                return;
+            }
             // Tiers are cumulative TOTALS (20/40/80/160), not per-wave increments.
             const hp = scaleStoneTier([20, 40, 80, 160], tier);
             // Canonical field is `tempHP` (capital P) — the damage pipeline and all
-            // health math read/consume that.
-            const roundState = getRoundState(actor, combat);
-            const sb = ensureStoneBonuses(roundState);
+            // health math read/consume that. Persists until depleted or combat ends.
             const current = Math.max(0, Number(actor.system?.health?.tempHP ?? 0) || 0);
-            // Re-activation ADDs to the existing value (PG "Temporary Defensive
-            // Stone Values": if you already have the defense, add the listed value).
             await actor.update?.({ 'system.health.tempHP': current + hp });
-            sb.tempHpGrantedThisTurn = Math.max(0, Number(sb.tempHpGrantedThisTurn ?? 0) || 0) + hp;
-            await setRoundState(actor, roundState);
-            ui.notifications?.info(`${actor.name}: ${hp} Temp HP until the start of your next turn.`);
+            if (c)
+                await markTempHpStoneUsedThisCombat(c);
+            ui.notifications?.info(`${actor.name}: ${hp} Temp HP until depleted or combat ends.`);
         },
     },
     {
@@ -421,47 +449,15 @@ const VITALITY_POWERS_RAW = [
         name: 'Remove Scar',
         attribute: 'vitality',
         category: 'action',
-        description: 'Recover 1 Scarred Health Bar. Burns 1 Vitality Stone (any tier).',
+        description: 'Seal Vitality Stones to resolve Tiers (1 / 2 / 4 / 8, cumulative). Each newly resolved Tier recovers 1 Scarred Health Bar. Tiers already resolved since the last Daily Reset are not paid again. Colorless Stones cannot pay this cost.',
         tiers: [
-            { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
-            { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
-            { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
-            { label: 'Recover 1 Scar', description: 'Recover 1 Scarred Health Bar. Burn 1 Vitality Stone.', value: 1 },
+            { label: 'Seal 1 / 1 Scar', description: 'Seal 1 Vitality Stone. Recover 1 Scarred Health Bar (Tier 1).', value: 1 },
+            { label: 'Seal 3 / 2 Scars', description: 'Resolve Tiers 1–2 (Seal 3 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 2 },
+            { label: 'Seal 7 / 3 Scars', description: 'Resolve Tiers 1–3 (Seal 7 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 3 },
+            { label: 'Seal 15 / 4 Scars', description: 'Resolve Tiers 1–4 (Seal 15 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 4 },
         ],
-        apply: async ({ actor }) => {
-            const system = actor.system ?? {};
-            // Scarred bar = fully depleted Health Bar. Restore the most recent one.
-            const src = Array.isArray(system?.health?.bars) ? system.health.bars : [];
-            let activeIdx = src.findIndex((b) => (Number(b?.current) || 0) > 0);
-            if (activeIdx < 0)
-                activeIdx = src.length;
-            let scarIdx = -1;
-            for (let i = activeIdx - 1; i >= 0; i--) {
-                if ((Number(src[i]?.current) || 0) === 0) {
-                    scarIdx = i;
-                    break;
-                }
-            }
-            if (scarIdx < 0) {
-                ui.notifications?.warn(`${actor.name} has no Scarred Health Bar to recover.`);
-                return;
-            }
-            const bars = src.map((b) => ({ ...b }));
-            bars[scarIdx] = { ...bars[scarIdx], current: Number(bars[scarIdx]?.max) || 0 };
-            const scarredCount = bars.filter((b) => (Number(b?.current) || 0) === 0).length;
-            const newActive = bars.findIndex((b) => (Number(b?.current) || 0) > 0);
-            // BURN: the spent Vitality Stone is lost until a Safe Haven Rest —
-            // `burned` keeps regen / refills from bringing it back early.
-            const burnedNow = Math.max(0, Number(system?.stonePools?.vitality?.burned) || 0);
-            await actor.update?.({
-                'system.health.bars': bars,
-                'system.health.currentBar': Math.max(0, newActive),
-                ...(Object.prototype.hasOwnProperty.call(system?.health ?? {}, 'scarred')
-                    ? { 'system.health.scarred': scarredCount }
-                    : {}),
-                'system.stonePools.vitality.burned': burnedNow + 1,
-            });
-            ui.notifications?.info(`${actor.name} recovered a Scarred Health Bar (1 Vitality Stone burned until Safe Haven Rest).`);
+        apply: async ({ actor, tier }) => {
+            await applyRemoveScarEffect(actor, tier);
         },
     },
     {
@@ -689,15 +685,15 @@ const RESOLVE_POWERS_RAW = [
     },
     {
         id: 'resolve.ward',
-        name: 'Ward',
+        name: 'Ward (incoming Specials −X)',
         attribute: 'resolve',
         category: 'passive',
-        description: 'Gain Ward until the start of your next turn (+2 / +4 / +8 / +12). Creates Ward if you do not have it. Applies only to eligible incoming hostile Special(X).',
+        description: 'Ward reduces every incoming hostile Special(X) by this value until the start of your next turn (+2 / +4 / +8 / +12). Creates Ward if you do not have it. Positive effects such as Regeneration are not reduced.',
         tiers: [
-            { label: '+2 Ward', description: 'Gain +2 Ward until the start of your next turn.', value: 2 },
-            { label: '+4 Ward', description: 'Gain +4 Ward until the start of your next turn.', value: 4 },
-            { label: '+8 Ward', description: 'Gain +8 Ward until the start of your next turn.', value: 8 },
-            { label: '+12 Ward', description: 'Gain +12 Ward until the start of your next turn.', value: 12 },
+            { label: 'Specials −2', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 2. Positive effects are not reduced.', value: 2 },
+            { label: 'Specials −4', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 4. Positive effects are not reduced.', value: 4 },
+            { label: 'Specials −8', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 8. Positive effects are not reduced.', value: 8 },
+            { label: 'Specials −12', description: 'Until the start of your next turn, every incoming hostile Special(X) is reduced by 12. Positive effects are not reduced.', value: 12 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
@@ -736,21 +732,35 @@ const INFLUENCE_POWERS_RAW = [
     },
     {
         id: 'influence.regeneration',
-        name: 'Regeneration',
+        name: 'Regeneration + Movement',
         attribute: 'influence',
         category: 'action',
-        description: 'One ally within range gains Regeneration(X). T1: 2@8 m, T2: 4@16 m, T3: 6@24 m, T4: 8@32 m.',
+        description: 'Choose one player. They gain Regeneration(8 / 16 / 32 / 64) and +1 / +2 / +4 / +8 m Movement until the end of this round.',
         tiers: [
-            { label: 'Ally Regen(2) (8 m)', description: 'One ally within 8 m gains Regeneration(2).', value: 2 },
-            { label: 'Ally Regen(4) (16 m)', description: 'One ally within 16 m gains Regeneration(4).', value: 4 },
-            { label: 'Ally Regen(6) (24 m)', description: 'One ally within 24 m gains Regeneration(6).', value: 6 },
-            { label: 'Ally Regen(8) (32 m)', description: 'One ally within 32 m gains Regeneration(8).', value: 8 },
+            { label: 'Regen(8) +1 m', description: 'Choose a player. They gain Regeneration(8) and +1 m Movement until the end of this round.', value: 8 },
+            { label: 'Regen(16) +2 m', description: 'Choose a player. They gain Regeneration(16) and +2 m Movement until the end of this round.', value: 16 },
+            { label: 'Regen(32) +4 m', description: 'Choose a player. They gain Regeneration(32) and +4 m Movement until the end of this round.', value: 32 },
+            { label: 'Regen(64) +8 m', description: 'Choose a player. They gain Regeneration(64) and +8 m Movement until the end of this round.', value: 64 },
         ],
         apply: async ({ actor, tier }) => {
-            const value = scaleStoneTier([2, 4, 6, 8], tier);
-            const meters = scaleStoneTier([8, 16, 24, 32], tier);
-            await actor.setFlag?.('mastery-system', 'pendingAllyRegeneration', { value, range: meters });
-            ui.notifications?.info(`${actor.name}: Regeneration — apply Regeneration(${value}) to one ally within ${meters} m.`);
+            const value = scaleStoneTier([8, 16, 32, 64], tier);
+            const moveMeters = scaleStoneTier([1, 2, 4, 8], tier);
+            const range = scaleStoneTier([8, 16, 24, 32], tier);
+            const payload = { value, moveMeters, range };
+            await actor.setFlag?.('mastery-system', 'pendingAllyRegeneration', payload);
+            const hint = `They gain Regeneration(${value}) and +${moveMeters} m Movement until the end of this round.`;
+            const target = await promptSelectablePlayerTarget({
+                caster: actor,
+                title: 'Regeneration + Movement',
+                hint,
+            });
+            if (target) {
+                await applyRegenerationAndMove(target, value, moveMeters);
+                await actor.unsetFlag?.('mastery-system', 'pendingAllyRegeneration');
+                ui.notifications?.info(`${target.name}: Regeneration(${value}) and +${moveMeters} m Movement this round.`);
+                return;
+            }
+            ui.notifications?.info(`${actor.name}: Regeneration + Movement — choose a player (${hint})`);
         },
     },
     {
@@ -811,7 +821,7 @@ const WITS_POWERS_RAW = [
         attribute: 'wits',
         category: 'reaction',
         oncePerCombat: true,
-        description: 'During Initiative Exchange, once per combat, gain Initiative equal to 1 / 2 / 4 / 8 × your Mastery Rank. Add it before converting Initiative into Temporary Colorless Stones.',
+        description: 'During Initiative Exchange, once per combat, spend Wits Stones up to the highest complete tier (1 / 2 / 4 / 8 × Mastery Rank). Colorless Stones cannot pay this cost. After that activation, no further Initiative Boost this combat.',
         tiers: [
             { label: '+1 × MR Initiative', description: 'Gain Initiative equal to your Mastery Rank.', value: 1 },
             { label: '+2 × MR Initiative', description: 'Gain Initiative equal to 2 × your Mastery Rank.', value: 2 },
@@ -829,7 +839,7 @@ const WITS_POWERS_RAW = [
             const bonus = initiativeBoostAmount(tier, mr);
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.initiativeBonus = (sb.initiativeBonus ?? 0) + bonus;
+            sb.initiativeBonus = bonus;
             await setRoundState(actor, roundState);
             if (c && c.initiative !== null && c.initiative !== undefined) {
                 const cur = Number(c.initiative) || 0;
@@ -972,7 +982,7 @@ export const STONE_POWERS_BY_ATTRIBUTE = {
 };
 /**
  * Convert a usage count (0-indexed; activations this turn BEFORE this one)
- * to the matching tier. Published UI is T1–T4; the math continues to T8.
+ * to the matching tier. Tier 4 is the last tier.
  */
 export function tierForUseIndex(usesBefore) {
     return Math.max(1, Math.min(STONE_TIER_HARD_MAX, Math.floor(usesBefore) + 1));

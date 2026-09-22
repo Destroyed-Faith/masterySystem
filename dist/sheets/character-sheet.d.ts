@@ -59,7 +59,7 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     _onRender(context: any, options: any): Promise<void>;
     /** @override */
     activateListeners(html: JQuery): void;
-    /** Status UI is button-driven — never let an empty form submit wipe it. */
+    /** Status UI is button-driven — never let a form submit rewrite the live list. */
     _prepareSubmitData(event: any, form: any, formData: any, updateData?: any): any;
     /** @override */
     _onChangeForm(formConfig: any, event: Event): any;

@@ -7,6 +7,8 @@ export declare const COMBATANT_SETUP_FLAG = "encounterSetupStep";
 export interface CombatantSetupStep {
     combatId: string;
     passivesLocked?: boolean;
+    /** GM opened the picker again after the round-1 lock. */
+    passivesGmOpen?: boolean;
     /** Player opened the Passives picker from Stone Powers this encounter. */
     passivesReviewed?: boolean;
     stonesDoneRound?: number;

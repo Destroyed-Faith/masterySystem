@@ -8,6 +8,101 @@
  * single normalized view.
  */
 import { getEffect, getEffectById, canonicalSpecialId } from '../utils/special-effects.js';
+import { tokenDocOfActor } from './status-target.js';
+function readMasteryFlag(actor, key) {
+    if (!actor)
+        return undefined;
+    if (typeof actor.getFlag === 'function') {
+        try {
+            const flagged = actor.getFlag('mastery-system', key);
+            if (flagged !== undefined)
+                return flagged;
+        }
+        catch {
+            /* fall through */
+        }
+    }
+    return actor.flags?.['mastery-system']?.[key];
+}
+/**
+ * Persist without `{ id: ... }` arrays. Foundry ActorDelta treats those as
+ * embedded documents and drops them on unlinked NPC tokens.
+ */
+export function encodeStatusFlag(list) {
+    return JSON.stringify(coerceStatusEffectsArray(list).map((entry) => {
+        const row = {
+            k: String(entry?.id ?? ''),
+            n: String(entry?.name ?? ''),
+            v: entry?.value ?? null,
+        };
+        if (entry?.source)
+            row.s = String(entry.source);
+        if (entry?.sourceUuid)
+            row.u = String(entry.sourceUuid);
+        if (entry?.sourceMasteryRank != null)
+            row.m = Number(entry.sourceMasteryRank);
+        if (entry?.timestamp != null)
+            row.t = Number(entry.timestamp);
+        return row;
+    }));
+}
+function rowFromFlag(entry) {
+    return {
+        id: String(entry.k || ''),
+        name: String(entry.n || ''),
+        value: entry.v,
+        source: entry.s,
+        sourceUuid: entry.u,
+        sourceMasteryRank: entry.m,
+        timestamp: entry.t,
+    };
+}
+/** Read the JSON flag, a leftover array flag, or a raw list. */
+export function decodeStatusFlag(raw) {
+    if (raw === undefined || raw === null)
+        return undefined;
+    let parsed = raw;
+    if (typeof raw === 'string') {
+        const text = raw.trim();
+        if (!text)
+            return undefined;
+        try {
+            parsed = JSON.parse(text);
+        }
+        catch {
+            return undefined;
+        }
+    }
+    if (Array.isArray(parsed)) {
+        return parsed.map((entry) => {
+            if (entry && typeof entry === 'object' && entry.id == null && (entry.k != null || entry.n != null)) {
+                return rowFromFlag(entry);
+            }
+            return entry;
+        });
+    }
+    if (parsed && typeof parsed === 'object') {
+        return coerceStatusEffectsArray(parsed);
+    }
+    return undefined;
+}
+/**
+ * Live Specials on a creature. Scene-token flags survive unlinked NPCs;
+ * actor flags and `system.statusEffects` are fallbacks.
+ */
+export function readActorStatusEffects(actor, tokenHint) {
+    const token = tokenDocOfActor(actor) ?? tokenDocOfActor(tokenHint);
+    const fromToken = decodeStatusFlag(readMasteryFlag(token, 'statusJson'));
+    if (fromToken !== undefined)
+        return coerceStatusEffectsArray(fromToken);
+    const fromJson = decodeStatusFlag(readMasteryFlag(actor, 'statusJson'));
+    if (fromJson !== undefined)
+        return coerceStatusEffectsArray(fromJson);
+    const fromFlag = decodeStatusFlag(readMasteryFlag(actor, 'statusEffects'));
+    if (fromFlag !== undefined)
+        return coerceStatusEffectsArray(fromFlag);
+    return coerceStatusEffectsArray(actor?.system?.statusEffects);
+}
 function slugSpecialName(name) {
     return String(name || '')
         .replace(/\(X\)/gi, '')
@@ -35,7 +130,7 @@ export function statusEntryId(entry) {
 }
 /** Normalized list of a creature's active Specials (id + value). */
 export function readActiveSpecials(actor) {
-    const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
+    const list = readActorStatusEffects(actor);
     const out = [];
     for (const entry of list) {
         const id = statusEntryId(entry);
@@ -63,7 +158,7 @@ export function getActiveSpecialValue(actor, id) {
  * numeric stack.
  */
 export function hasActiveSpecial(actor, id) {
-    const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
+    const list = readActorStatusEffects(actor);
     for (const entry of list) {
         if (statusEntryId(entry) === id)
             return true;

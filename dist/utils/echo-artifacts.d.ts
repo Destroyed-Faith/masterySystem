@@ -159,7 +159,7 @@ export interface EchoArtifactDefinition {
     /**
      * Extra Stone Functions that do not occupy a Basic 1/2/3 pick slot.
      * Used when a printed table has a fourth support line (e.g. Sentinel Frame
-     * Special Reduction at Artifact Level 5).
+     * Ward at Artifact Level 5).
      */
     extraStoneFunctions?: Array<{
         level: number;

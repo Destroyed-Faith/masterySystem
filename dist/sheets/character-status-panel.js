@@ -2,10 +2,11 @@
  * Player-sheet status list: combat specials plus leftover Temp HP.
  */
 import { getEffectById } from '../utils/special-effects.js';
-import { coerceStatusEffectsArray, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
+import { readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
+import { writeActorStatusList } from '../system/assign-status.js';
 export function buildCharacterStatusRows(actor) {
     const rows = [];
-    const list = coerceStatusEffectsArray(actor?.system?.statusEffects);
+    const list = readActorStatusEffects(actor);
     for (let index = 0; index < list.length; index++) {
         const entry = list[index];
         const id = statusEntryId(entry) || String(entry?.id || '').trim();
@@ -46,17 +47,17 @@ export async function removeCharacterStatusRow(actor, row) {
         await actor.update({ 'system.health.tempHP': 0 });
         return;
     }
-    const list = coerceStatusEffectsArray(actor.system?.statusEffects);
+    const list = readActorStatusEffects(actor);
     if (row.index < 0 || row.index >= list.length)
         return;
-    await actor.update({ 'system.statusEffects': list.filter((_, i) => i !== row.index) });
+    await writeActorStatusList(actor, list.filter((_, i) => i !== row.index));
 }
 export async function reduceCharacterStatusRow(actor, row, steps) {
     if (row.kind !== 'special')
         return;
-    const list = coerceStatusEffectsArray(actor.system?.statusEffects);
+    const list = readActorStatusEffects(actor);
     if (row.index < 0 || row.index >= list.length)
         return;
-    await actor.update({ 'system.statusEffects': reduceStatusEffectAt(list, row.index, steps) });
+    await writeActorStatusList(actor, reduceStatusEffectAt(list, row.index, steps));
 }
 //# sourceMappingURL=character-status-panel.js.map

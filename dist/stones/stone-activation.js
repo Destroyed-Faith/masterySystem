@@ -8,9 +8,11 @@
  */
 import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions, getActionEconomyActor, getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost } from '../combat/action-economy.js';
 // Import canonical stone powers definition
-import { STONE_POWERS, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, stonePowerSupportPrefillApplies, effectiveStoneSupportPrefillTier, } from './stone-powers.js';
+import { STONE_POWERS, resolveOncePerCombatStoneTier, resolveStonePowerId, tierForUseIndex, stonePowerSkipsFirstTier, stonePowerSupportPrefillApplies, effectiveStoneSupportPrefillTier, } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
-import { isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat } from './colorless-stones.js';
+import { isOncePerCombatPowerUsed, markOncePerCombatPowerUsed } from './colorless-stones.js';
+import { payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID } from './remove-scar.js';
+import { stonePowerAllowsColorless, stonePowerColorlessRejectMessage } from './stone-payment-rules.js';
 export function resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier) {
     const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
     const effective = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
@@ -36,7 +38,7 @@ export { STONE_POWERS };
  * @returns true if successful, false if failed (insufficient stones, etc.)
  */
 export async function activateStonePower(options) {
-    const { combatant, abilityId, attributeKey, colorlessSpent = 0 } = options;
+    const { combatant, abilityId, attributeKey, colorlessSpent = 0, placedCount } = options;
     const actor = getActionEconomyActor(options.actor) ?? options.actor;
     // Get power definition
     const power = STONE_POWERS[resolveStonePowerId(abilityId)];
@@ -44,13 +46,20 @@ export async function activateStonePower(options) {
         ui.notifications?.error(`Unknown stone power: ${abilityId}`);
         return false;
     }
-    if (power.id === 'wits.initiativeBoost' && isInitiativeBoostUsedThisCombat(combatant)) {
-        ui.notifications?.warn('Initiative Boost may be used only once per combat.');
+    if (power.oncePerCombat && isOncePerCombatPowerUsed(combatant, power.id)) {
+        ui.notifications?.warn(`${power.name} may be used only once per combat.`);
         return false;
     }
-    if (power.id === 'wits.phasing' && isPhasingStoneUsedThisCombat(combatant)) {
-        ui.notifications?.warn('Phasing may be used only once per combat.');
+    if (!stonePowerAllowsColorless(power.id) && colorlessSpent > 0) {
+        ui.notifications?.warn(stonePowerColorlessRejectMessage(power.id));
         return false;
+    }
+    if (power.id === REMOVE_SCAR_POWER_ID) {
+        const prefillTier = getArtifactStoneSupportPrefill(actor, power.id, 'vitality');
+        return payAndApplyRemoveScar(actor, {
+            colorlessSpent,
+            supportPrefillTier: prefillTier,
+        });
     }
     // Determine which attribute pool to use
     let poolAttribute;
@@ -74,11 +83,27 @@ export async function activateStonePower(options) {
     // T2-start powers (no Tier 1, e.g. Extra Attack) start one segment higher:
     // the first activation is Tier 2 and the player pays the Tier-2 cost.
     const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
-    const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+    const cluster = power.oncePerCombat && placedCount != null
+        ? resolveOncePerCombatStoneTier(abilityId, placedCount, prefillTier)
+        : null;
+    if (cluster && cluster.tier < (power.startsAtTier ?? 1)) {
+        return false;
+    }
+    const { tier, cost } = cluster
+        ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)) }
+        : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+    if (tier > 4 || (!cluster && cost <= 0)) {
+        ui.notifications?.warn(`${power.name} ends at Tier 4.`);
+        return false;
+    }
     // Use the action economy system to handle stone spending
-    return await spendStoneAbility(actor, combatant, poolAttribute, abilityId, async (_roundState) => {
+    const ok = await spendStoneAbility(actor, combatant, poolAttribute, abilityId, async (_roundState) => {
         await power.apply({ actor, combatant, tier, cost });
     }, cost, colorlessSpent);
+    if (ok && power.oncePerCombat) {
+        await markOncePerCombatPowerUsed(combatant, power.id);
+    }
+    return ok;
 }
 /**
  * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
@@ -103,6 +128,10 @@ export async function activateGenericStonePowerMixed(options) {
     // cost (the Artifact Support Stones are provided by the artifact).
     const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
     const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+    if (tier > 4 || cost <= 0) {
+        ui.notifications?.warn(`${power.name} ends at Tier 4.`);
+        return false;
+    }
     return spendGenericStoneAbilityWithPerAttributeDeductions(actor, combatant, abilityId, perAttributeStones, async (_roundState) => {
         await power.apply({ actor, combatant, tier, cost });
     }, cost);

@@ -229,9 +229,8 @@ export async function applyNpcReactionSpecialsToTarget(target, specials, sourceA
     const limitNotes = [];
     if (!target || !specials?.length)
         return limitNotes;
-    const list = Array.isArray(target.system?.statusEffects)
-        ? [...target.system.statusEffects]
-        : [];
+    const { readActorStatusEffects } = await import('../system/active-specials.js');
+    const list = readActorStatusEffects(target).map((entry) => ({ ...entry }));
     const sourceName = String(sourceActor?.name ?? 'NPC');
     const combat = globalThis.game?.combat ?? null;
     const { actorMasteryRank, clampSpecialApplication, formatApplicationLimitNote, specialRoundAppsUpdate, } = await import('../combat/special-application.js');
@@ -274,7 +273,8 @@ export async function applyNpcReactionSpecialsToTarget(target, specials, sourceA
             });
         }
     }
-    await target.update?.({ 'system.statusEffects': list, ...appsUpdate });
+    const { writeActorStatusList } = await import('../system/assign-status.js');
+    await writeActorStatusList(target, list, appsUpdate);
     return limitNotes;
 }
 export function newCustomNpcReaction(masteryRank) {

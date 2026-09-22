@@ -94,26 +94,126 @@ export async function copyShareableImageUrl(src) {
 export async function copyDocumentImageLink(doc) {
     return copyShareableImageUrl(String(doc?.img ?? ''));
 }
+function normalizeImagePopoutOptions(titleOrOptions) {
+    if (typeof titleOrOptions === 'string' || titleOrOptions == null) {
+        return { title: titleOrOptions || 'Image' };
+    }
+    return { title: titleOrOptions.title || 'Image', uuid: titleOrOptions.uuid, shareable: titleOrOptions.shareable };
+}
+function foundryNamespace() {
+    if (typeof foundry !== 'undefined')
+        return foundry;
+    return globalThis.foundry;
+}
+function globalImagePopout() {
+    if (typeof window !== 'undefined' && window.ImagePopout)
+        return window.ImagePopout;
+    return globalThis.ImagePopout;
+}
+/** Foundry v13+ ImagePopout is ApplicationV2 and takes `{ src, window: { title } }`. */
+export function hasApplicationV2ImagePopout(foundryNs = foundryNamespace()) {
+    return !!foundryNs
+        ?.applications?.apps?.ImagePopout?.implementation;
+}
+export function planImagePopoutConstruction(src, titleOrOptions = 'Image', useApplicationV2 = hasApplicationV2ImagePopout()) {
+    const imgSrc = String(src || '').trim();
+    const options = normalizeImagePopoutOptions(titleOrOptions);
+    const title = String(options.title || 'Image');
+    if (useApplicationV2) {
+        return {
+            mode: 'v2',
+            args: [
+                {
+                    src: imgSrc,
+                    uuid: options.uuid ?? null,
+                    window: { title },
+                },
+            ],
+        };
+    }
+    return {
+        mode: 'v1',
+        args: [
+            imgSrc,
+            {
+                title,
+                shareable: options.shareable ?? false,
+                uuid: options.uuid,
+            },
+        ],
+    };
+}
+function resolveImagePopoutClass() {
+    return foundryNamespace()?.applications?.apps?.ImagePopout?.implementation || globalImagePopout();
+}
 /** Open Foundry's ImagePopout for a picture (item portraits, alt art, etc.). */
-export async function openFoundryImagePopout(src, title) {
+export async function openFoundryImagePopout(src, titleOrOptions = 'Image') {
     const imgSrc = String(src || '').trim();
     if (!imgSrc)
         return false;
+    const ImagePopoutClass = resolveImagePopoutClass();
+    if (!ImagePopoutClass)
+        return false;
+    const planned = planImagePopoutConstruction(imgSrc, titleOrOptions, hasApplicationV2ImagePopout());
     try {
-        const ImagePopoutClass = foundry?.applications?.apps?.ImagePopout?.implementation || window.ImagePopout;
-        if (!ImagePopoutClass)
-            return false;
-        const popout = new ImagePopoutClass(imgSrc, {
-            title: title || 'Image',
-            shareable: false,
-        });
-        await popout.render(true);
+        const popout = new ImagePopoutClass(...planned.args);
+        await popout.render(planned.mode === 'v2' ? { force: true } : true);
         return true;
     }
     catch (err) {
+        if (planned.mode === 'v2') {
+            try {
+                const legacy = planImagePopoutConstruction(imgSrc, titleOrOptions, false);
+                const popout = new ImagePopoutClass(...legacy.args);
+                await popout.render(true);
+                return true;
+            }
+            catch {
+                /* fall through */
+            }
+        }
         console.warn('Mastery System | Image popout failed', err);
         return false;
     }
+}
+/** Last-resort picture window when ImagePopout is missing or rejects the constructor. */
+export async function openFallbackImageDialog(src, title) {
+    const imgSrc = String(src || '').trim();
+    if (!imgSrc)
+        return false;
+    const DialogClass = (typeof window !== 'undefined' ? window.Dialog : undefined) || globalThis.Dialog;
+    if (!DialogClass)
+        return false;
+    try {
+        const dialog = new DialogClass({
+            title: title || 'Image',
+            content: `${buildImageUrlBarHtml(imgSrc)}<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+            buttons: {
+                close: {
+                    label: 'Close',
+                    callback: () => { },
+                },
+            },
+            default: 'close',
+            render: (html) => {
+                const root = html instanceof HTMLElement ? html : (html?.[0] ?? html?.get?.(0));
+                bindImageUrlBar(root, imgSrc);
+            },
+        });
+        await dialog.render(true);
+        return true;
+    }
+    catch (err) {
+        console.warn('Mastery System | Fallback image dialog failed', err);
+        return false;
+    }
+}
+/** ImagePopout first (v14 ctor), then a simple dialog so the picture still opens. */
+export async function openImageViewer(src, titleOrOptions = 'Image') {
+    if (await openFoundryImagePopout(src, titleOrOptions))
+        return true;
+    const title = normalizeImagePopoutOptions(titleOrOptions).title || 'Image';
+    return openFallbackImageDialog(src, title);
 }
 export function buildImageUrlBarHtml(src) {
     const url = resolveShareableImageUrl(src);

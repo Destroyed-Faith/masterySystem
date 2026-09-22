@@ -78,8 +78,16 @@ export function initializeStoneHooks() {
  * `deleteCombat` Foundry emits first; every step is idempotent.
  */
 async function finishCombat(combat, hook) {
-    if (!game.user?.isGM)
+    if (!game.user?.isGM) {
+        try {
+            const { clearOwnedInitiativeColorlessAfterCombat } = await import('../combat/combat-end-cleanup.js');
+            await clearOwnedInitiativeColorlessAfterCombat(combat);
+        }
+        catch (e) {
+            console.warn(`Mastery System | Owned colorless leftover cleanup on ${hook} failed`, e);
+        }
         return;
+    }
     await clearStonePowersConfigurationLocksInCombat(combat);
     try {
         const { runCombatEndCleanup } = await import('../combat/combat-end-cleanup.js');

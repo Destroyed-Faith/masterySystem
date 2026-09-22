@@ -2,7 +2,7 @@
  * Stress Breakdown Check — Players Guide (~9214–9257).
  *
  * When the Stress Track fills (all bars empty / Breakdown reached):
- *  1. Wits Attribute Check, keep = MR, TN = 8 × MR
+ *  1. Wits Attribute Check, keep = MR, TN = (8 × MR) − 2
  *     (no Skill Points, no Vitality expenditure).
  *  2. Success (Virtue) → reset track to Clear; next action +1 Keep.
  *  3. Failure (Affliction) → reset track; choose:

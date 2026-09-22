@@ -1,7 +1,7 @@
 import { warnIfPlayerStonesPending } from './stone-round-gate.js';
 import { requestCombatNextTurn, requestDelayInitiative } from './gm-relay.js';
 let requestEndTurnInFlight = false;
-/** Players never see/use Next Turn on NPCs — it only confuses them. */
+/** The assigned character, an owned PC, or the GM. Not an NPC. */
 export function canViewerSeeEndTurn(actor, user) {
     if (!user)
         return false;
@@ -11,7 +11,22 @@ export function canViewerSeeEndTurn(actor, user) {
         return false;
     if (String(actor.type || '') === 'npc')
         return false;
-    return actor.isOwner === true;
+    if (actor.isOwner === true)
+        return true;
+    if (typeof actor.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER')) {
+        return true;
+    }
+    const assigned = user.character;
+    const assignedId = assigned && typeof assigned === 'object' ? assigned.id : assigned;
+    return !!assignedId && String(assignedId) === String(actor.id);
+}
+/** Current combatant is this viewer's own turn. */
+export function userMayEndCurrentTurn(user, combat) {
+    if (!user || !combat?.combatant)
+        return false;
+    if (!combat.started)
+        return false;
+    return canViewerSeeEndTurn(combat.combatant.actor, user);
 }
 /**
  * Request to advance the active encounter one turn (same as Foundry's next turn).
@@ -44,7 +59,7 @@ export async function requestEndTurn() {
     try {
         const ok = await requestCombatNextTurn();
         if (!ok)
-            ui.notifications?.error?.('Nächster Zug fehlgeschlagen');
+            ui.notifications?.error?.('Next Turn failed');
     }
     catch (error) {
         console.error('Mastery System | Error ending turn', error);
@@ -61,24 +76,24 @@ export async function requestDelayTurn() {
         return;
     const combat = game.combat;
     if (!combat?.combatant) {
-        ui.notifications?.warn?.('Kein aktiver Zug.');
+        ui.notifications?.warn?.('No active turn.');
         return;
     }
     const user = game.user;
     const actor = combat.combatant.actor;
     if (!canViewerSeeEndTurn(actor, user)) {
-        ui.notifications?.warn?.('Nur der eigene Zug kann verzögert werden.');
+        ui.notifications?.warn?.('Only your own turn can be delayed.');
         return;
     }
     delayInFlight = true;
     try {
         const ok = await requestDelayInitiative();
         if (!ok)
-            ui.notifications?.warn?.('Initiative verzögern fehlgeschlagen.');
+            ui.notifications?.warn?.('Delay Initiative failed.');
     }
     catch (error) {
         console.error('Mastery System | delay initiative failed', error);
-        ui.notifications?.error?.('Initiative verzögern fehlgeschlagen.');
+        ui.notifications?.error?.('Delay Initiative failed.');
     }
     finally {
         delayInFlight = false;

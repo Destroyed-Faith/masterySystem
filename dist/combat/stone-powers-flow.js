@@ -326,12 +326,12 @@ export async function promptPendingStoneAssignments(combat) {
     }
     if (areAllCombatantsDone(live, round)) {
         await runInitiativePhaseAfterStones(live, round);
-        ui.notifications?.info(`Runde ${round}: alle Steine gesetzt, Initiative sortiert.`);
+        ui.notifications?.info(`Round ${round}: all stones set, Initiative sorted.`);
     }
     else {
         const still = pendingStonePlayerNames(live, round);
         if (still.length)
-            ui.notifications?.info(`Runde ${round} — Steine offen: ${still.join(', ')}.`);
+            ui.notifications?.info(`Round ${round} — stones still open: ${still.join(', ')}.`);
     }
     try {
         const { CombatCarouselApp } = await import('../ui/combat-carousel.js');

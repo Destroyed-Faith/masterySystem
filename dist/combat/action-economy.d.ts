@@ -303,7 +303,8 @@ export declare function getStoneUsageCount(actor: Actor, attribute: AttributeKey
  */
 export declare function incrementStoneUsage(actor: Actor, attribute: AttributeKey, abilityKey: string, combat: Combat | null): Promise<void>;
 /**
- * Calculate exponential stone cost: 2^(usesThisTurn)
+ * Additional Stone cost of the next Ability tier: 1, 2, 4, 8.
+ * Tier 4 is the last tier. A further use costs nothing and must not be offered.
  */
 export declare function calculateStoneCost(usesThisTurn: number): number;
 /**
@@ -315,8 +316,8 @@ export declare function getStonePool(actor: Actor, attribute: AttributeKey): {
 };
 /**
  * Stones in a pool that must NOT come back through regen / refills:
- * Sustain, Sealed (Rituals — return on Safe Haven Rest) and Burned
- * (lost until Safe Haven Rest, e.g. Last Breath / Remove Scar).
+ * Sustain, Sealed (Rituals / Remove Scar — return on Safe Haven Rest) and
+ * Burned (lost until Safe Haven Rest, e.g. Last Breath).
  */
 export declare function stonePoolReservedStones(system: any, attr: string): number;
 /**

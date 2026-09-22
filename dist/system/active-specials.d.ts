@@ -11,11 +11,27 @@ export interface ActiveSpecial {
     id: string;
     value: number;
 }
-interface RawStatusEntry {
+export interface RawStatusEntry {
     id?: string;
     name?: string;
     value?: number | null;
+    source?: string;
+    sourceUuid?: string;
+    sourceMasteryRank?: number;
+    timestamp?: number;
 }
+/**
+ * Persist without `{ id: ... }` arrays. Foundry ActorDelta treats those as
+ * embedded documents and drops them on unlinked NPC tokens.
+ */
+export declare function encodeStatusFlag(list: unknown): string;
+/** Read the JSON flag, a leftover array flag, or a raw list. */
+export declare function decodeStatusFlag(raw: unknown): RawStatusEntry[] | undefined;
+/**
+ * Live Specials on a creature. Scene-token flags survive unlinked NPCs;
+ * actor flags and `system.statusEffects` are fallbacks.
+ */
+export declare function readActorStatusEffects(actor: any, tokenHint?: any): RawStatusEntry[];
 /** Resolve the canonical special id for a stored status entry. */
 export declare function statusEntryId(entry: RawStatusEntry): string | undefined;
 /** Normalized list of a creature's active Specials (id + value). */
@@ -38,5 +54,4 @@ export declare function coerceStatusEffectsArray(raw: unknown): RawStatusEntry[]
  * Non-positive / missing values are treated as a single stack (any reduce removes).
  */
 export declare function reduceStatusEffectAt(list: unknown, index: number, steps: number): RawStatusEntry[];
-export {};
 //# sourceMappingURL=active-specials.d.ts.map

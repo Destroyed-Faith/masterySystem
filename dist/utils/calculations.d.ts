@@ -4,10 +4,12 @@
  */
 import { AttributeData, HealthBar } from '../types';
 /**
- * Calculate the number of Stones from an attribute value
- * Every 8 attribute points = 1 Stone
+ * Legacy Attribute → Stone helper.
+ * v0.9.9.0 no longer generates Stones from Attributes. This returns 0 so
+ * leftover callers cannot recreate the old threshold table. Permanent Stones
+ * come from Lifetime XP (`permanentStonesFromLifetimeXp`).
  */
-export declare function calculateStones(attributeValue: number): number;
+export declare function calculateStones(_attributeValue: number): number;
 /**
  * Calculate total Stones from all attributes
  */
@@ -17,16 +19,21 @@ export declare function calculateTotalStones(attributes: Record<string, Attribut
  */
 export declare function updateAttributeStones(attribute: AttributeData): void;
 /**
- * Calculate Health Bar maximum HP
- * Each bar = Vitality × 2
+ * Calculate Health Bar maximum HP.
+ * Each normal bar = Vitality × 4 (DF Core v0.9.9.0).
  */
 export declare function calculateHealthBarMax(vitality: number): number;
+/** A Health Bar with boxes remaining is open; current 0 on a real bar is Scarred. */
+export declare function isHealthBarScarred(bar: {
+    current?: unknown;
+    max?: unknown;
+} | null | undefined): boolean;
 /**
  * Initialize health bars with proper max HP values.
  *
  * Six health levels:
  *   Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
- * Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
+ * Each non-Incapacitated bar holds `Vitality × 4` boxes; Incapacitated is a
  * single-box "you go down at 0" state. The legacy `penalty` field stores the
  * flat dice penalty for the rare callers that still want a per-step value;
  * the canonical penalty is the percentage table in `HEALTH_PENALTY_FRACTIONS`.
@@ -35,7 +42,7 @@ export declare function initializeHealthBars(vitality: number): HealthBar[];
 /**
  * Update health bars when vitality changes.
  *
- * Bars 0–4 carry `Vitality × 2` boxes; the final bar (Incapacitated) is a
+ * Bars 0–4 carry `Vitality × 4` boxes; the final bar (Incapacitated) is a
  * single box and never scales with Vitality. Older actors created before the
  * 6-bar migration may still have four or five bars — in that case we insert
  * the missing levels (Broken before Incapacitated, then Incapacitated).
@@ -81,14 +88,14 @@ export declare function healDamage(bars: HealthBar[], currentBar: number, healin
  */
 export declare function restoreHealthBarsFrom(bars: HealthBar[], fromIndex: number): number;
 /**
- * Calculate Stress Bar maximum
- * Each bar = Resolve + Intellect
+ * Calculate Stress Bar maximum.
+ * Each bar = 2 × (Resolve + Intellect) (DF Core v0.9.9.0).
  */
 export declare function calculateStressBarMax(resolve: number, intellect: number): number;
 /**
  * Initialize stress bars with proper max values
  * 4 bars: Healthy, Stressed, Not Well, Breaking
- * Each bar = Resolve + Intellect boxes
+ * Each bar = 2 × (Resolve + Intellect) boxes
  */
 export declare function initializeStressBars(resolve: number, intellect: number): HealthBar[];
 /**
@@ -128,17 +135,12 @@ export declare function calculateMaxSkillRank(masteryRank: number): number;
 export declare function validateSkillValue(skillValue: number, masteryRank: number): number;
 /**
  * Maximum Power Level a character of the given Mastery Rank may purchase.
- *
- *   | MR    | Max Power Level |
- *   |-------|-----------------|
- *   | 1 – 2 | 4               |
- *   | 3     | 8               |
- *   | 4     | 12              |
- *   | 5+    | 16              |
- *
- * The hard ceiling is `MAX_POWER_LEVEL` (16) regardless of MR.
+ * v0.9.9.0: Maximum Power Level = Mastery Rank × 2 (MR 1 → 2 … MR 8 → 16).
+ * Existing Powers already above the cap are not stripped by this helper.
  */
 export declare function calculateMaxPowerLevel(masteryRank: number): number;
+/** Passive Skill Value = 2 × the relevant Attribute. */
+export declare function passiveSkillValue(attributeValue: number): number;
 /**
  * Might Scaling: Melee Damage bonus = 2 * floor(Might / 8)
  * Flat bonus applied per successful melee/unarmed hit.
@@ -182,6 +184,15 @@ export declare function calculateWitsInitiativeBonus(wits: number): number;
  * Stacks with weapon penetration and power penetration.
  */
 export declare function calculateArmorBreaker(might: number): number;
+/**
+ * World switch for the three attribute bonuses that actually hit the table:
+ * Might melee damage, Wits initiative, Resolve stress armor.
+ *
+ * Default is off (nobody at the table was using them). Missing `game`
+ * (unit tests, early boot) matches that default. Stones (`floor(attr/8)`)
+ * are not this switch.
+ */
+export declare function attributeScalingEnabled(): boolean;
 /**
  * Evade formula: MR * 4 + size mod + shield bonus + passives + agility scaling
  */

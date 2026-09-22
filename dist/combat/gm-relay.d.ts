@@ -7,10 +7,29 @@ export declare function settleGmRelay(requestId: string, ok: boolean): void;
 export declare function isRelayableActorUpdate(update: unknown): boolean;
 export declare function updateActorViaGm(actor: any, update: Record<string, unknown>, options?: Record<string, unknown>): Promise<void>;
 export declare function requestCombatNextTurn(): Promise<boolean>;
+/** Write a combatant's initiative. Players cannot update the Combat document. */
+export declare function requestSetCombatantInitiative(combatant: {
+    id?: string;
+    parent?: {
+        id?: string;
+    };
+    combat?: {
+        id?: string;
+    };
+}, initiative: number, flags?: Record<string, unknown>): Promise<boolean>;
 /**
  * Yield to the next combatant: set this initiative just below theirs, then advance.
  * Returns false when already last in the round.
  */
 export declare function initiativeAfterDelay(nextInitiative: number): number;
+/** Ghost / restore a defeated enemy token + combatant. Players cannot write these. */
+export declare function requestDefeatedPresentation(args: {
+    actor?: {
+        id?: string;
+        uuid?: string;
+    };
+    tokenId?: string;
+    defeated: boolean;
+}): Promise<boolean>;
 export declare function requestDelayInitiative(): Promise<boolean>;
 //# sourceMappingURL=gm-relay.d.ts.map

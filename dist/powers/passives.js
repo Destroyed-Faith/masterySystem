@@ -2,6 +2,7 @@
  * Passive Abilities System
  * Handles passive ability slots, activation, and management
  */
+import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
 /** Mastery Rank at which each passive slot unlocks (max 4 slots). */
 export const PASSIVE_SLOT_UNLOCK_RANKS = [1, 2, 4, 6];
 export const MAX_PASSIVE_SLOTS = PASSIVE_SLOT_UNLOCK_RANKS.length;
@@ -233,6 +234,19 @@ export async function ensureDefaultPassiveSlots(actor) {
 }
 /** Stone Power `generic.exchangePassive` stores leftover mid-combat swaps here. */
 export const EXCHANGE_PASSIVE_SWAPS_FLAG = 'exchangePassiveSwapsPending';
+/**
+ * Rainbow "pick passives" prompt only when a slot is still empty and there is
+ * a passive left to put in it, or Exchange Passive paid a swap.
+ * A full set (no third slot, or nothing left to assign) stays quiet.
+ */
+export function passiveSlotsHaveOpenChoice(slots, availablePassiveCount, pendingSwaps) {
+    if (Math.max(0, Math.floor(pendingSwaps)) > 0)
+        return true;
+    const filled = slots.filter((slot) => slot?.passive).length;
+    const empty = Math.max(0, slots.length - filled);
+    const spare = Math.max(0, Math.floor(availablePassiveCount) - filled);
+    return empty > 0 && spare > 0;
+}
 export function getPendingPassiveSwaps(actor) {
     if (!actor)
         return 0;
@@ -254,6 +268,13 @@ export function canEditEncounterPassives(combat, actor) {
     const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
     if (round <= 1)
         return true;
-    return getPendingPassiveSwaps(actor) > 0;
+    if (getPendingPassiveSwaps(actor) > 0)
+        return true;
+    const bag = combat?.combatants;
+    const actorId = String(actor?.id ?? '');
+    if (!combat || !bag || !actorId)
+        return false;
+    const combatant = findCombatantByActorId(combat, actorId);
+    return readCombatantSetupStep(combatant, combat)?.passivesGmOpen === true;
 }
 //# sourceMappingURL=passives.js.map

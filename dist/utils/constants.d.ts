@@ -1,6 +1,6 @@
 /**
  * Constants for the Mastery System
- * Based on Player's Guide v0.5.26
+ * Based on Destroyed Faith DF Core v0.9.9.0
  */
 export declare const EXPLODE_VALUE = 8;
 export declare const RAISE_INCREMENT = 4;
@@ -12,7 +12,7 @@ export declare const RAISE_INCREMENT = 4;
  */
 export declare const AUTO_RAISE_DICE_COST = 4;
 export declare const MIN_ATTRIBUTE = 0;
-export declare const MAX_ATTRIBUTE = 80;
+export declare const MAX_ATTRIBUTE = 40;
 export declare const ATTACK_ACTIONS_PER_TURN = 1;
 export declare const REACTIONS_PER_ROUND = 1;
 export declare const MOVEMENT_PER_TURN = 1;
@@ -41,14 +41,13 @@ export declare const CREATION: {
 };
 export declare const MAX_POWER_LEVEL = 16;
 /**
- * XP Costs for Progression (new spec).
+ * XP Costs for Progression (DF Core v0.9.9.0).
  *
- *   Attributes — band cost = floor((nextValue - 1) / 8) + 1, going from 1 XP
- *       (values 1–8) up to 10 XP (values 73–80). `ATTRIBUTE` is the explicit
- *       lookup table; `attributeBandCost(next)` is the runtime helper.
+ *   Attributes — compressed 1–40 scale. Cost of the new value:
+ *       1–4 = 2, 5–8 = 4, …, 37–40 = 20. `attributeBandCost(next)` is the helper.
  *
- *   Skills    — same banded table as Attributes (1 / 2 / … / 10 XP) instead
- *       of the old `R × SKILL_PER_RANK` ramp. `SKILL` aliases `ATTRIBUTE`.
+ *   Skills — unchanged 1–32 bands of 8 (1 / 2 / 3 / 4 XP). Do not use the
+ *       Attribute cost table for Skills. `skillBandCost(next)` is the helper.
  *
  *   Powers    — `cost = 2 × newLevel` for levels 1..16 (Players Guide
  *       "Power Costs": Level 1 = 2 XP … Level 16 = 32 XP). POWER_LEVEL[i] is
@@ -65,7 +64,7 @@ export declare const XP_COSTS: {
         max: number;
         cost: number;
     }[];
-    readonly SKILL: {
+    SKILL: {
         min: number;
         max: number;
         cost: number;
@@ -74,8 +73,13 @@ export declare const XP_COSTS: {
     /** @deprecated Use `artifactLevelXpCost(newLevel)`. L2/L3 band cost. */
     ARTIFACT_LEVEL: number;
 };
-/** XP cost to raise an Attribute (or Skill) to `nextValue` (1..80). */
+/** XP cost to raise an Attribute to `nextValue` on the compressed 1–40 scale. */
 export declare function attributeBandCost(nextValue: number): number;
+/**
+ * XP cost to raise a Skill to `nextValue`.
+ * Skills keep the pre-v0.9.9 bands: 1–8 = 1, 9–16 = 2, 17–24 = 3, 25–32 = 4.
+ */
+export declare function skillBandCost(nextValue: number): number;
 /** XP cost to raise a Power to `level` (1..16); `cost = 2 × level`. */
 export declare function powerLevelCost(level: number): number;
 /**
@@ -96,7 +100,7 @@ export declare function totalArtifactXpToLevel(level: number): number;
  *  | 21 – 29      | 5  | Grandmaster  |
  *  | 30 – 39      | 6  | Legend       |
  *  | 40 – 49      | 7  | Mythic       |
- *  | 50 – 70      | 8  | Godlevel     |
+ *  | 50 – 112     | 8  | God          |
  */
 export declare const MR_ADVANCEMENT: {
     stones: number;
@@ -104,16 +108,19 @@ export declare const MR_ADVANCEMENT: {
     tier: string;
 }[];
 /**
- * Divine Scale label within MR8 (50–70 Stones). Returns `null` for any
+ * Divine Scale label within MR8 (50–112 Stones). Returns `null` for any
  * Stone total below 50 (i.e. MR 7 or lower).
  */
-export declare function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | null;
+export declare function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | 'System Limit' | null;
 /**
- * Attribute Check TN by source Mastery Rank (Player's Guide "Attribute Checks
- * Against Effects"): `TN = 8 × Source Mastery Rank`.
+ * Standard Target Number for a Challenge / source Mastery Rank (v0.9.9.0):
+ * `TN = (8 × MR) − 2`. Spell Base TN, Attribute Checks, Death Checks,
+ * Stress Breakdown, and Ritual base TN all use this value.
  */
+export declare function standardTnForMasteryRank(masteryRank: number): number;
+/** @deprecated Use `standardTnForMasteryRank`. Kept so older imports still resolve. */
 export declare const ATTRIBUTE_CHECK_TN_BY_MR: Record<number, number>;
-/** Attribute Check TN = 8 × Source Mastery Rank. */
+/** Attribute Check TN = (8 × Source Mastery Rank) − 2. */
 export declare function attributeCheckTn(sourceMasteryRank: number): number;
 export declare const ECHO_SPEEDS: Record<string, number>;
 //# sourceMappingURL=constants.d.ts.map

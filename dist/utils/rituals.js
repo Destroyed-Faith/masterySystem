@@ -1,7 +1,7 @@
 /**
  * Ritual System — out-of-combat Skill Checks.
  *
- * Base Ritual TN = 8 × Ritual MR (target / creator / artifact / power / scene).
+ * Base Ritual TN = (8 × Ritual MR) − 2 (target / creator / artifact / power / scene).
  * Player declares Raise Level before the roll.
  * Ritual Raise TN = Base + declared Raises × 4.
  * Fail below Base. Meet Base but miss Raise TN → Raise 0 only.
@@ -10,6 +10,7 @@
  * Any Stone color may pay the cost.
  */
 import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
+import { standardTnForMasteryRank } from './constants.js';
 export const RITUAL_CATEGORY_LABELS = {
     physical: 'Physical',
     knowledge: 'Knowledge & Craft',
@@ -53,7 +54,7 @@ export const RITUAL_SKILLS_BY_CATEGORY = {
 export function calculateRitualTN(ritualMR, modifier = 0) {
     const mr = Math.max(1, Math.floor(Number(ritualMR) || 1));
     const mod = Math.floor(Number(modifier) || 0);
-    return 8 * mr + mod;
+    return standardTnForMasteryRank(mr) + mod;
 }
 export function calculateRitualRaiseTN(baseTn, declaredRaises) {
     const base = Math.max(0, Math.floor(Number(baseTn) || 0));

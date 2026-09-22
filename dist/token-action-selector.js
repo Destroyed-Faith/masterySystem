@@ -11,7 +11,7 @@ import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-t
 import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
-import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
+import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, getAvailableActiveBuffActions, markActiveBuffUsedThisRound, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
@@ -588,7 +588,11 @@ export function endGuidedMovement(success) {
  * @param option - The chosen option (power or maneuver)
  */
 export async function handleChosenCombatOption(token, option) {
-    const isWeaponSwap = option.id === 'weapon-swap' || option.maneuver?.id === 'weapon-swap';
+    const isWeaponSwap = option.id === 'weapon-swap' ||
+        option.id === 'weapon-swap-1' ||
+        option.id === 'weapon-swap-2' ||
+        option.id === 'weapon-swap-unarmed' ||
+        option.maneuver?.id === 'weapon-swap';
     if (isWeaponSwap) {
         const actor = token?.actor;
         if (!actor) {
@@ -596,8 +600,14 @@ export async function handleChosenCombatOption(token, option) {
             return;
         }
         closeRadialMenu();
-        const { swapWeaponSet } = await import('./utils/weapon-sets.js');
-        await swapWeaponSet(actor);
+        const target = option.id === 'weapon-swap-unarmed' ? 'unarmed' : option.id === 'weapon-swap-2' ? 2 : option.id === 'weapon-swap-1' ? 1 : undefined;
+        if (target !== undefined) {
+            const { swapWeaponSet } = await import('./utils/weapon-sets.js');
+            await swapWeaponSet(actor, target);
+            return;
+        }
+        const { postWeaponSwapCard } = await import('./chat/weapon-swap-card.js');
+        await postWeaponSwapCard(actor, token);
         return;
     }
     // Check combat exists
@@ -935,6 +945,18 @@ export async function handleChosenCombatOption(token, option) {
     // Other attacks: range <= 4m (2m base + up to 2m reach) or unspecified.
     // Exclude active buffs (they're handled above)
     const isNpcMelee = option.source === 'npc-attack' && !option.tags?.includes('ranged');
+    if (option.slot === 'attack' && option.aoeShape === 'cone') {
+        if (option.costsAction) {
+            const atkAvail = getAvailableAttackActions(actor, combat);
+            if (atkAvail <= 0) {
+                ui.notifications?.warn('No Actions left this round.');
+                return;
+            }
+        }
+        closeRadialMenu();
+        startConeAttackMode(token, option);
+        return;
+    }
     const isMeleeAttack = segmentId !== 'active-buff' &&
         option.slot === 'attack' &&
         (isNpcMelee ||
@@ -1048,24 +1070,30 @@ export async function handleChosenCombatOption(token, option) {
                 const { getAttackAttribute, getAttributeValue, getMasteryRank, getTargetEvade } = await import('./combat/attack-executor.js');
                 const mr = getMasteryRank(actor);
                 const attribute = getAttackAttribute(actor, null, option, 'melee');
-                let numDice = Math.max(1, getAttributeValue(actor, attribute));
-                if (option.source === 'npc-attack') {
-                    const { getNpcAttackByIndex, npcAttackDiceCount } = await import('./utils/npc-attack-model.js');
-                    const row = getNpcAttackByIndex(actor.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex);
-                    const pool = npcAttackDiceCount(row);
-                    if (pool > 0)
-                        numDice = pool;
-                }
+                const { resolveNpcSheetToHit } = await import('./utils/npc-attack-model.js');
+                const sheetHit = resolveNpcSheetToHit({
+                    actorType: actor?.type,
+                    system: actor?.system,
+                    masteryRank: mr,
+                    attackIndex: option.source === 'npc-attack' ? (option.npcAttackIndex ?? 0) : 0,
+                    phaseIndex: option.npcPhaseIndex ?? null,
+                });
+                let numDice = sheetHit && sheetHit.dice > 0
+                    ? sheetHit.dice
+                    : Math.max(1, getAttributeValue(actor, attribute));
+                const keepDice = sheetHit && sheetHit.keep > 0 ? sheetHit.keep : mr;
                 const firstTok = canvas.tokens?.get(effectiveBurstIds[0]);
                 const anchorTn = getTargetEvade(firstTok?.actor) || 6;
                 const { masteryRoll } = await import('./dice/roll-handler.js');
                 const areaRoll = await masteryRoll({
                     numDice,
-                    keepDice: mr,
+                    keepDice,
                     skill: 0,
                     tn: anchorTn,
-                    label: `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
-                    flavor: `Roll ${numDice}d8 keep ${mr} — AoE: same result compared separately against each creature's Evade`,
+                    label: sheetHit?.name
+                        ? sheetHit.name
+                        : `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
+                    flavor: `Roll ${numDice}d8 keep ${keepDice} — AoE: same result compared separately against each creature's Evade`,
                     actorId: actor.id,
                     rollKind: 'attack',
                     autoFailIntent: 'attack',

@@ -9,6 +9,7 @@ export declare function listActiveUsers(): Array<{
     id: string;
     isGM?: boolean;
     active?: boolean;
+    role?: number;
 }>;
 export declare function hasActiveGm(): boolean;
 export declare function canCurrentUserCreateCombat(): boolean;

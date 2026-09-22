@@ -15,7 +15,7 @@ export const RADIAL_STANDARD_MANEUVER_IDS = [
     'aid',
 ];
 /** Maneuver IDs hidden by default; only appear when the player opts in. */
-export const OPT_IN_RADIAL_MANEUVER_IDS = ['weapon-attack'];
+export const OPT_IN_RADIAL_MANEUVER_IDS = [];
 export function isStandardRadialManeuverId(id) {
     return RADIAL_STANDARD_MANEUVER_IDS.includes(id);
 }
@@ -43,7 +43,7 @@ const RADIAL_PREFS_ROWS = [
     { id: 'stand-up', name: 'Stand Up', group: 'Bewegung' },
     { id: 'flee', name: 'Flee', group: 'Bewegung' },
     { id: 'quick-load', name: 'Quick Load', group: 'Bewegung' },
-    { id: 'weapon-swap', name: 'Weapon Swap', group: 'Angriff' },
+    { id: 'weapon-swap', name: 'Weapon Swap', group: 'Bewegung' },
     { id: 'weapon-attack', name: 'Basic Attack', group: 'Angriff' },
     { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
     { id: 'aid', name: 'Aid', group: 'Reaktion' },

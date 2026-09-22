@@ -8,9 +8,13 @@ import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound,
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { getNpcAttackByIndex, npcDamageDiceFormula } from './utils/npc-attack-model.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
-import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+import { clearHexHighlight, highlightGridOffsets, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+import { bestConeEdgePair, wideningConeCells } from './utils/cone-template.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldCenter, } from './utils/grid-snap.js';
 import { pickTokenAtPoint } from './utils/token-pick.js';
+import { tokenIsExcludedAsTarget } from './combat/defeated-token.js';
+import { utilitySingleTargetAllowsSelf } from './utility-targeting-rules.js';
+export { utilitySingleTargetAllowsSelf };
 function placementColorsFromOption(option) {
     if (option.aoePlacementProfile === 'hostile-zone') {
         return {
@@ -105,6 +109,8 @@ function findCandidatesInRadius(casterToken, center, radiusMeters, targetGroup) 
     const candidates = new Map();
     const allTokens = canvas.tokens?.placeables || [];
     for (const token of allTokens) {
+        if (tokenIsExcludedAsTarget(token))
+            continue;
         const tokenCenter = token.center;
         if (isWithinMasteryPowerRange(center, tokenCenter, radiusMeters)) {
             const isAllyToken = isAlly(casterToken, token);
@@ -364,8 +370,11 @@ export function startUtilitySingleTargetMode(token, option) {
             rangeLineGraphics.lineTo(snapped.x, snapped.y);
             // Highlight valid targets
             const allTokens = canvas.tokens?.placeables || [];
+            const allowSelf = utilitySingleTargetAllowsSelf(targetGroup);
             for (const targetToken of allTokens) {
-                if (targetToken.id === token.id)
+                if (!allowSelf && targetToken.id === token.id)
+                    continue;
+                if (tokenIsExcludedAsTarget(targetToken))
                     continue;
                 const targetCenter = targetToken.center;
                 const isInRange = isWithinMasteryPowerRange(casterCenter, targetCenter, rangeMeters);
@@ -404,11 +413,12 @@ export function startUtilitySingleTargetMode(token, option) {
         }
         if (ev.button === 0) {
             const worldPos = eventWorldPoint(ev);
+            const allowSelf = utilitySingleTargetAllowsSelf(targetGroup);
             const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
-                excludeIds: token?.id ? [token.id] : [],
+                excludeIds: allowSelf || !token?.id ? [] : [token.id],
                 noCenterFallback: true,
             });
-            if (clickedToken && clickedToken.id !== token.id) {
+            if (clickedToken && (allowSelf || clickedToken.id !== token.id) && !tokenIsExcludedAsTarget(clickedToken)) {
                 const casterCenter = token.center;
                 const matches = matchesTargetGroup(token, clickedToken, targetGroup);
                 if (isWithinMasteryPowerRange(casterCenter, clickedToken.center, rangeMeters) && matches) {
@@ -744,7 +754,7 @@ async function confirmUtilityTargets(state) {
     const targets = Array.from(state.selectedTargets).map(id => {
         const candidate = state.candidates.get(id);
         return candidate?.token;
-    }).filter(t => t !== undefined);
+    }).filter(t => t !== undefined && !tokenIsExcludedAsTarget(t));
     const combat = game.combat;
     const actor = state.casterToken?.actor;
     if (state.option.costsAction) {
@@ -824,6 +834,265 @@ async function confirmUtilityTargets(state) {
 /**
  * End utility targeting mode
  */
+/**
+ * Cone attack from the figure. The mouse only turns the 60° slice; the
+ * apex stays on the caster. Each ring is one cell wider.
+ */
+export function startConeAttackMode(token, option) {
+    endUtilityTargeting(false);
+    token.control?.({ releaseOthers: false });
+    const lengthSteps = Math.max(1, masteryPowerMaxSteps(option.aoeRadiusMeters || 0));
+    const targetGroup = option.defaultTargetGroup || 'enemy';
+    const previewGraphics = new PIXI.Graphics();
+    const effectsContainer = resolveOverlayContainer();
+    if (effectsContainer)
+        effectsContainer.addChild(previewGraphics);
+    const highlightId = `mastery-cone-${option.id}`;
+    const placement = placementColorsFromOption(option);
+    const state = {
+        casterToken: token,
+        option,
+        rangeMeters: 0,
+        radiusMeters: lengthSteps,
+        center: null,
+        candidates: new Map(),
+        selectedTargets: new Set(),
+        highlightId,
+        placement,
+        previewGraphics,
+        rangeLineGraphics: null,
+        panelApp: null,
+        onPointerMove: () => { },
+        onPointerDown: () => { },
+        onKeyDown: () => { },
+        manualMode: option.allowManualTargetSelection !== false,
+        excludeAllies: true,
+    };
+    const paint = (world) => {
+        const cells = coneCellsToward(token, world, lengthSteps);
+        const grid = canvas.grid;
+        const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+        if (gridless) {
+            clearHexHighlight(highlightId);
+            drawGridlessCone(previewGraphics, token.center, world, lengthSteps, placement);
+            return cells;
+        }
+        previewGraphics.clear();
+        highlightGridOffsets(cells, highlightId, placement.hex, placement.hexAlpha);
+        return cells;
+    };
+    state.onPointerMove = (ev) => {
+        if (state.center)
+            return;
+        try {
+            paint(eventWorldPoint(ev));
+        }
+        catch (err) {
+            console.error('Mastery System | cone aim failed', err);
+        }
+    };
+    state.onPointerDown = (ev) => {
+        if (ev.button === 2 || ev.button === 1) {
+            endUtilityTargeting(false);
+            return;
+        }
+        if (ev.button !== 0)
+            return;
+        try {
+            if (!state.center) {
+                const world = eventWorldPoint(ev);
+                const cells = paint(world);
+                state.candidates = candidatesInCone(token, cells, world, lengthSteps, targetGroup);
+                if (state.candidates.size === 0) {
+                    ui.notifications?.info('Niemand im Kegel.');
+                    return;
+                }
+                for (const [tokenId, candidate] of state.candidates.entries()) {
+                    if (state.excludeAllies && candidate.isAlly) {
+                        candidate.selected = false;
+                        continue;
+                    }
+                    if (candidate.selected)
+                        state.selectedTargets.add(tokenId);
+                }
+                state.center = { x: token.center.x, y: token.center.y };
+                updateCandidateVisuals(state);
+                const panel = createTargetSelectionPanel(state);
+                state.panelApp = panel;
+                panel.render(true);
+                return;
+            }
+            if (!state.manualMode)
+                return;
+            const worldPos = eventWorldPoint(ev);
+            const clickedToken = pickTokenAtPoint(worldPos.x, worldPos.y, {
+                onlyIds: state.candidates.keys(),
+                noCenterFallback: true,
+            });
+            if (!clickedToken || !state.candidates.has(clickedToken.id))
+                return;
+            const candidate = state.candidates.get(clickedToken.id);
+            if (state.excludeAllies && candidate.isAlly && !candidate.selected) {
+                ui.notifications?.info('Verbündete/Spieler sind ausgenommen (Häkchen im Panel entfernen, um sie zu treffen).');
+                return;
+            }
+            candidate.selected = !candidate.selected;
+            if (candidate.selected)
+                state.selectedTargets.add(clickedToken.id);
+            else
+                state.selectedTargets.delete(clickedToken.id);
+            updateCandidateVisuals(state);
+            if (state.panelApp) {
+                const html = $(state.panelApp.element);
+                html.find('#selected-count').text(state.selectedTargets.size);
+            }
+        }
+        catch (err) {
+            console.error('Mastery System | cone click failed', err);
+        }
+    };
+    state.onKeyDown = (ev) => {
+        if (ev.key === 'Escape')
+            endUtilityTargeting(false);
+    };
+    activeUtilityTargeting = state;
+    const allTokens = canvas.tokens?.placeables || [];
+    for (const t of allTokens) {
+        t._originalAlpha = t.alpha;
+    }
+    canvas.stage.on('pointermove', state.onPointerMove);
+    canvas.stage.on('pointerdown', state.onPointerDown);
+    window.addEventListener('keydown', state.onKeyDown);
+    ui.notifications?.info(`Kegel ${lengthSteps} m — Spitze an der Figur, Maus dreht ihn, Klick setzt ihn.`);
+}
+function readGridOffset(raw) {
+    if (!raw)
+        return null;
+    if (raw.offset && raw.offset !== raw)
+        return readGridOffset(raw.offset);
+    if (raw.i !== undefined && raw.j !== undefined)
+        return { i: Number(raw.i), j: Number(raw.j) };
+    if (raw.col !== undefined && raw.row !== undefined)
+        return { i: Number(raw.col), j: Number(raw.row) };
+    if (raw.x !== undefined && raw.y !== undefined)
+        return { i: Number(raw.x), j: Number(raw.y) };
+    return null;
+}
+function gridNeighborOffsets(cell) {
+    const grid = canvas.grid;
+    const fn = grid?.getAdjacentOffsets ?? grid?.getNeighbors;
+    if (typeof fn !== 'function')
+        return [];
+    return (fn.call(grid, cell) ?? [])
+        .map(readGridOffset)
+        .filter((n) => !!n);
+}
+function offsetCenter(cell) {
+    const grid = canvas.grid;
+    const center = grid?.getCenterPoint?.(cell);
+    if (center && Number.isFinite(center.x) && Number.isFinite(center.y))
+        return center;
+    const tl = grid?.getTopLeftPoint?.(cell);
+    const size = Number(grid?.size) || 100;
+    if (!tl || tl.x === undefined)
+        return null;
+    return { x: tl.x + size / 2, y: tl.y + size / 2 };
+}
+function coneCellsToward(token, world, lengthSteps) {
+    const grid = canvas.grid;
+    if (!grid || grid.type === CONST.GRID_TYPES.GRIDLESS)
+        return [];
+    const origin = readGridOffset(grid.getOffset?.(token.center));
+    if (!origin)
+        return [];
+    const neighbors = gridNeighborOffsets(origin);
+    const centers = neighbors
+        .map((cell, index) => {
+        const center = offsetCenter(cell);
+        if (!center)
+            return null;
+        return { index, x: center.x - token.center.x, y: center.y - token.center.y };
+    })
+        .filter((row) => !!row);
+    if (!centers.length)
+        return [];
+    const pair = bestConeEdgePair(world.x - token.center.x, world.y - token.center.y, centers);
+    return wideningConeCells(origin, pair.first, lengthSteps, gridNeighborOffsets, pair.second);
+}
+function candidatesInCone(casterToken, cells, world, lengthSteps, targetGroup) {
+    const candidates = new Map();
+    const keys = new Set(cells.map((cell) => `${cell.i},${cell.j}`));
+    const grid = canvas.grid;
+    const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+    const allTokens = canvas.tokens?.placeables || [];
+    for (const token of allTokens) {
+        if (token.id === casterToken.id)
+            continue;
+        if (tokenIsExcludedAsTarget(token))
+            continue;
+        let inside = false;
+        if (gridless) {
+            inside = pointInGridlessCone(casterToken.center, world, token.center, lengthSteps);
+        }
+        else {
+            const off = readGridOffset(grid.getOffset?.(token.center));
+            inside = !!off && keys.has(`${off.i},${off.j}`);
+        }
+        if (!inside)
+            continue;
+        const matches = matchesTargetGroup(casterToken, token, targetGroup);
+        candidates.set(token.id, {
+            token,
+            inRadius: true,
+            selected: matches,
+            isAlly: isAlly(casterToken, token),
+            isEnemy: isEnemy(casterToken, token),
+            originalAlpha: token.alpha,
+        });
+    }
+    return candidates;
+}
+function drawGridlessCone(graphics, origin, aim, lengthSteps, colors) {
+    const size = Number(canvas.grid?.size) || 100;
+    const dx = aim.x - origin.x;
+    const dy = aim.y - origin.y;
+    const mag = Math.hypot(dx, dy) || 1;
+    const ux = dx / mag;
+    const uy = dy / mag;
+    const px = -uy;
+    const py = ux;
+    const len = Math.max(1, lengthSteps) * size;
+    const half = len / 2;
+    const tipX = origin.x + ux * size * 0.55;
+    const tipY = origin.y + uy * size * 0.55;
+    const farX = origin.x + ux * (len + size * 0.45);
+    const farY = origin.y + uy * (len + size * 0.45);
+    graphics.clear();
+    graphics.lineStyle(2, colors.previewLine, 0.85);
+    graphics.beginFill(colors.previewFill, 0.14);
+    graphics.moveTo(tipX, tipY);
+    graphics.lineTo(farX + px * half, farY + py * half);
+    graphics.lineTo(farX - px * half, farY - py * half);
+    graphics.closePath();
+    graphics.endFill();
+}
+function pointInGridlessCone(origin, aim, point, lengthSteps) {
+    const size = Number(canvas.grid?.size) || 100;
+    const dx = aim.x - origin.x;
+    const dy = aim.y - origin.y;
+    const mag = Math.hypot(dx, dy) || 1;
+    const ux = dx / mag;
+    const uy = dy / mag;
+    const vx = point.x - origin.x;
+    const vy = point.y - origin.y;
+    const along = vx * ux + vy * uy;
+    const lateral = Math.abs(vx * -uy + vy * ux);
+    const len = Math.max(1, lengthSteps) * size;
+    if (along < size * 0.4 || along > len + size * 0.45)
+        return false;
+    const half = (along / len) * (len / 2);
+    return lateral <= half + size * 0.2;
+}
 export function endUtilityTargeting(success) {
     const state = activeUtilityTargeting;
     if (!state)
@@ -872,9 +1141,11 @@ export function endUtilityTargeting(success) {
         }
     }
     if (!success) {
-        const msg = state.option.aoePlacementProfile === 'hostile-zone'
-            ? 'Zonenwahl abgebrochen'
-            : 'Utility targeting cancelled';
+        const msg = state.option.aoeShape === 'cone'
+            ? 'Kegel abgebrochen'
+            : state.option.aoePlacementProfile === 'hostile-zone'
+                ? 'Zonenwahl abgebrochen'
+                : 'Utility targeting cancelled';
         ui.notifications?.info(msg);
     }
     activeUtilityTargeting = null;

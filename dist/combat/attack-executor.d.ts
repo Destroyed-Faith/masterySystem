@@ -48,4 +48,18 @@ export declare function getAttackAttribute(actor: any, weapon: any | null, optio
 export declare function createAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: "melee" | "ranged", split?: SplitContext | null, burstVolley?: MeleeBurstVolleyContext | null, aoeMelee?: AoeMeleeWeaponContext | null): Promise<string | null>;
 export declare function createMeleeAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, burstVolley?: MeleeBurstVolleyContext | null, aoeMelee?: AoeMeleeWeaponContext | null): Promise<string | null>;
 export declare function createRangedAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, aoeZone?: AoeMeleeWeaponContext | null): Promise<string | null>;
+/**
+ * Setup raise-plan editor on attack cards (new Raise rules).
+ * The chosen Raises are broadcast so the GM sees them without a chat re-render.
+ */
+type RaiseDraftRow = {
+    optionId: string;
+    free: boolean;
+};
+export declare function applyRemoteRaisePlan(payload: {
+    messageId?: string;
+    draft?: RaiseDraftRow[];
+    summary?: string;
+}): void;
+export declare function registerRaisePlanChatHooks(): void;
 //# sourceMappingURL=attack-executor.d.ts.map

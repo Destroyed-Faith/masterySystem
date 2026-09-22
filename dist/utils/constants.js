@@ -1,6 +1,6 @@
 /**
  * Constants for the Mastery System
- * Based on Player's Guide v0.5.26
+ * Based on Destroyed Faith DF Core v0.9.9.0
  */
 // Dice mechanics
 export const EXPLODE_VALUE = 8;
@@ -12,9 +12,9 @@ export const RAISE_INCREMENT = 4; // Every +4 over TN = 1 Raise
  * other generic rolls.
  */
 export const AUTO_RAISE_DICE_COST = 4;
-// Attribute ranges
+// Attribute ranges — compressed scale (v0.9.9.0). Skills still cap at MR × 4 (max 32).
 export const MIN_ATTRIBUTE = 0;
-export const MAX_ATTRIBUTE = 80; // Theoretical max per Player's Guide scaling table
+export const MAX_ATTRIBUTE = 40;
 // Combat
 export const ATTACK_ACTIONS_PER_TURN = 1;
 export const REACTIONS_PER_ROUND = 1;
@@ -24,7 +24,7 @@ export const BASE_SPEED_M = 8;
 // Health bars
 // Six health levels:
 //   Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
-// Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
+// Each non-Incapacitated bar holds `Vitality × 4` boxes; Incapacitated is a
 // single-box "you go down at 0" state. Healthy carries no penalty; the other
 // broken levels apply a dice-pool penalty that scales as a percentage of the
 // active (already-reduced) pool, floored and never below a 1-die minimum:
@@ -48,10 +48,10 @@ export const MAX_MASTERY_RANK = 8;
 export const INITIATIVE_PER_COLORLESS_STONE = 4;
 // Character Creation
 export const CREATION = {
-    ATTRIBUTE_DISTRIBUTION: [8, 8, 6, 6, 4, 4, 2],
-    ATTRIBUTE_ALLOWED_VALUES: [2, 4, 6, 8],
+    ATTRIBUTE_DISTRIBUTION: [4, 4, 3, 3, 2, 2, 2],
+    ATTRIBUTE_ALLOWED_VALUES: [2, 3, 4],
     SKILL_POINTS: 40,
-    MAX_ATTRIBUTE_AT_CREATION: 8,
+    MAX_ATTRIBUTE_AT_CREATION: 4,
     MAX_SKILL_AT_CREATION: 4,
     // Players Guide ~5158–5164: only the *maximum* of 8 Disadvantage Points
     // is canonical. Any minimum is a house rule and ships as 0 by default.
@@ -61,14 +61,13 @@ export const CREATION = {
 // Power level cap (1..16). Per-MR caps live in `calculateMaxPowerLevel`.
 export const MAX_POWER_LEVEL = 16;
 /**
- * XP Costs for Progression (new spec).
+ * XP Costs for Progression (DF Core v0.9.9.0).
  *
- *   Attributes — band cost = floor((nextValue - 1) / 8) + 1, going from 1 XP
- *       (values 1–8) up to 10 XP (values 73–80). `ATTRIBUTE` is the explicit
- *       lookup table; `attributeBandCost(next)` is the runtime helper.
+ *   Attributes — compressed 1–40 scale. Cost of the new value:
+ *       1–4 = 2, 5–8 = 4, …, 37–40 = 20. `attributeBandCost(next)` is the helper.
  *
- *   Skills    — same banded table as Attributes (1 / 2 / … / 10 XP) instead
- *       of the old `R × SKILL_PER_RANK` ramp. `SKILL` aliases `ATTRIBUTE`.
+ *   Skills — unchanged 1–32 bands of 8 (1 / 2 / 3 / 4 XP). Do not use the
+ *       Attribute cost table for Skills. `skillBandCost(next)` is the helper.
  *
  *   Powers    — `cost = 2 × newLevel` for levels 1..16 (Players Guide
  *       "Power Costs": Level 1 = 2 XP … Level 16 = 32 XP). POWER_LEVEL[i] is
@@ -81,18 +80,23 @@ export const MAX_POWER_LEVEL = 16;
  */
 export const XP_COSTS = {
     ATTRIBUTE: [
+        { min: 1, max: 4, cost: 2 },
+        { min: 5, max: 8, cost: 4 },
+        { min: 9, max: 12, cost: 6 },
+        { min: 13, max: 16, cost: 8 },
+        { min: 17, max: 20, cost: 10 },
+        { min: 21, max: 24, cost: 12 },
+        { min: 25, max: 28, cost: 14 },
+        { min: 29, max: 32, cost: 16 },
+        { min: 33, max: 36, cost: 18 },
+        { min: 37, max: 40, cost: 20 }
+    ],
+    SKILL: [
         { min: 1, max: 8, cost: 1 },
         { min: 9, max: 16, cost: 2 },
         { min: 17, max: 24, cost: 3 },
-        { min: 25, max: 32, cost: 4 },
-        { min: 33, max: 40, cost: 5 },
-        { min: 41, max: 48, cost: 6 },
-        { min: 49, max: 56, cost: 7 },
-        { min: 57, max: 64, cost: 8 },
-        { min: 65, max: 72, cost: 9 },
-        { min: 73, max: 80, cost: 10 }
+        { min: 25, max: 32, cost: 4 }
     ],
-    get SKILL() { return XP_COSTS.ATTRIBUTE; },
     POWER_LEVEL: [
         2, 4, 6, 8, 10, 12, 14, 16,
         18, 20, 22, 24, 26, 28, 30, 32
@@ -100,9 +104,21 @@ export const XP_COSTS = {
     /** @deprecated Use `artifactLevelXpCost(newLevel)`. L2/L3 band cost. */
     ARTIFACT_LEVEL: 8
 };
-/** XP cost to raise an Attribute (or Skill) to `nextValue` (1..80). */
+/** XP cost to raise an Attribute to `nextValue` on the compressed 1–40 scale. */
 export function attributeBandCost(nextValue) {
     const v = Math.max(1, Math.floor(Number(nextValue) || 1));
+    if (v > MAX_ATTRIBUTE)
+        return 0;
+    return Math.floor((v - 1) / 4) * 2 + 2;
+}
+/**
+ * XP cost to raise a Skill to `nextValue`.
+ * Skills keep the pre-v0.9.9 bands: 1–8 = 1, 9–16 = 2, 17–24 = 3, 25–32 = 4.
+ */
+export function skillBandCost(nextValue) {
+    const v = Math.max(1, Math.floor(Number(nextValue) || 1));
+    if (v > 32)
+        return 0;
     return Math.floor((v - 1) / 8) + 1;
 }
 /** XP cost to raise a Power to `level` (1..16); `cost = 2 × level`. */
@@ -149,7 +165,7 @@ export function totalArtifactXpToLevel(level) {
  *  | 21 – 29      | 5  | Grandmaster  |
  *  | 30 – 39      | 6  | Legend       |
  *  | 40 – 49      | 7  | Mythic       |
- *  | 50 – 70      | 8  | Godlevel     |
+ *  | 50 – 112     | 8  | God          |
  */
 export const MR_ADVANCEMENT = [
     { stones: 1, mr: 2, tier: 'Adept' },
@@ -161,7 +177,7 @@ export const MR_ADVANCEMENT = [
     { stones: 50, mr: 8, tier: 'Godlevel' }
 ];
 /**
- * Divine Scale label within MR8 (50–70 Stones). Returns `null` for any
+ * Divine Scale label within MR8 (50–112 Stones). Returns `null` for any
  * Stone total below 50 (i.e. MR 7 or lower).
  */
 export function getDivineScale(totalStones) {
@@ -174,19 +190,26 @@ export function getDivineScale(totalStones) {
         return 'True God';
     if (s <= 69)
         return 'High God';
-    return 'Apex God'; // 70+
+    if (s <= 111)
+        return 'Apex God';
+    return 'System Limit';
 }
 /**
- * Attribute Check TN by source Mastery Rank (Player's Guide "Attribute Checks
- * Against Effects"): `TN = 8 × Source Mastery Rank`.
+ * Standard Target Number for a Challenge / source Mastery Rank (v0.9.9.0):
+ * `TN = (8 × MR) − 2`. Spell Base TN, Attribute Checks, Death Checks,
+ * Stress Breakdown, and Ritual base TN all use this value.
  */
+export function standardTnForMasteryRank(masteryRank) {
+    const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+    return 8 * mr - 2;
+}
+/** @deprecated Use `standardTnForMasteryRank`. Kept so older imports still resolve. */
 export const ATTRIBUTE_CHECK_TN_BY_MR = {
-    1: 8, 2: 16, 3: 24, 4: 32, 5: 40, 6: 48, 7: 56, 8: 64
+    1: 6, 2: 14, 3: 22, 4: 30, 5: 38, 6: 46, 7: 54, 8: 62
 };
-/** Attribute Check TN = 8 × Source Mastery Rank. */
+/** Attribute Check TN = (8 × Source Mastery Rank) − 2. */
 export function attributeCheckTn(sourceMasteryRank) {
-    const mr = Math.max(1, Math.floor(Number(sourceMasteryRank) || 1));
-    return ATTRIBUTE_CHECK_TN_BY_MR[mr] ?? mr * 8;
+    return standardTnForMasteryRank(sourceMasteryRank);
 }
 // Echo base speeds
 export const ECHO_SPEEDS = {

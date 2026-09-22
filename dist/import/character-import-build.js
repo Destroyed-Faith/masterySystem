@@ -13,12 +13,13 @@ import { normalizeKnownLanguages } from '../utils/languages.js';
 import { calculateDisadvantagePoints, getDisadvantageDefinition, } from '../system/disadvantages.js';
 import { getMinorExpressionDefinition } from '../utils/minor-expressions.js';
 import { SKILLS } from '../utils/skills.js';
+import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS } from './character-import-types.js';
 export function normalizeImportAttributes(raw) {
     const out = {};
     for (const key of CHARACTER_IMPORT_ATTRIBUTE_KEYS) {
         const n = Math.floor(Number(raw?.[key]));
-        out[key] = Number.isFinite(n) ? Math.max(2, Math.min(80, n)) : 2;
+        out[key] = Number.isFinite(n) ? Math.max(2, Math.min(MAX_ATTRIBUTE, n)) : 2;
     }
     return out;
 }
@@ -185,12 +186,10 @@ export function buildActorSystemFromPayload(payload) {
     const echo = payload.echo ?? { key: '' };
     const attributeBlock = Object.fromEntries(CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [
         key,
-        { value: attrs[key], stones: Math.floor(attrs[key] / 8) },
+        { value: attrs[key], stones: 0 },
     ]));
-    const stonePools = Object.fromEntries(CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => {
-        const max = Math.floor(attrs[key] / 8);
-        return [key, { current: max, max, sustained: 0 }];
-    }));
+    const emptyAssignments = Object.fromEntries(CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [key, 0]));
+    const stonePools = Object.fromEntries(CHARACTER_IMPORT_ATTRIBUTE_KEYS.map((key) => [key, { current: 0, max: 0, sustained: 0 }]));
     const skills = normalizeSkillRanks(payload.skills);
     const skillsSpent = normalizeSkillRanks(payload.skillsSpent);
     const disadvantages = normalizeDisadvantageEntries(payload.disadvantages);
@@ -229,6 +228,13 @@ export function buildActorSystemFromPayload(payload) {
         },
         attributes: attributeBlock,
         stonePools,
+        progression: {
+            rulesVersion: '0.9.9.0',
+            v099Prepared: true,
+            v099Stones: true,
+            earnedAttributeXp: 0,
+            stoneAssignments: emptyAssignments,
+        },
         mastery: { rank: masteryRank, points: 0, experience: 0 },
         skills,
         skillsSpent,
@@ -274,6 +280,7 @@ export function buildActorCreateDataFromPayload(payload) {
             'mastery-system': {
                 importSource: 'homepage',
                 importSchemaVersion: 1,
+                needsV099LifetimeXp: true,
             },
         },
     };

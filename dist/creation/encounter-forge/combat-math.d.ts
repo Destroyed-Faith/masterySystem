@@ -31,10 +31,10 @@ export declare const SPECIAL_DECAY_PER_TURN = 1;
 export declare const HEALTH_PENALTY_FRACTIONS: readonly [0, 0.1, 0.2, 0.4, 0.5, 1];
 /** Base PC evade: MR × 4 (calculations.ts calculateBaseEvade). */
 export declare function baseEvadeForMr(mr: number): number;
-/** NPC spell attack Casting TN: 8 × MR (+ target Spell Resistance). */
+/** NPC spell attack Casting TN: (8 × MR) − 2 (+ target Spell Resistance). */
 export declare function npcSpellCastingTn(mr: number, targetSpellResistance?: number): number;
 /**
- * PC spell Casting TN vs an NPC: 8 × caster Mastery Rank
+ * PC spell Casting TN vs an NPC: (8 × caster Mastery Rank) − 2
  * (`castingBaseTnForMasteryRank`), +4 if Mental, plus target Spell Resistance.
  * Power Level does not set the TN.
  */

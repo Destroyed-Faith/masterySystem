@@ -61,6 +61,14 @@ export declare function pickDefaultPassiveIds(available: Array<{
 export declare function ensureDefaultPassiveSlots(actor: Actor): Promise<string[]>;
 /** Stone Power `generic.exchangePassive` stores leftover mid-combat swaps here. */
 export declare const EXCHANGE_PASSIVE_SWAPS_FLAG = "exchangePassiveSwapsPending";
+/**
+ * Rainbow "pick passives" prompt only when a slot is still empty and there is
+ * a passive left to put in it, or Exchange Passive paid a swap.
+ * A full set (no third slot, or nothing left to assign) stays quiet.
+ */
+export declare function passiveSlotsHaveOpenChoice(slots: Array<{
+    passive?: unknown;
+}>, availablePassiveCount: number, pendingSwaps: number): boolean;
 export declare function getPendingPassiveSwaps(actor: Actor | null | undefined): number;
 export declare function consumePendingPassiveSwap(actor: Actor): Promise<number>;
 /**

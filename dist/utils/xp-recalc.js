@@ -12,18 +12,16 @@
  * Package Wizard "power upgrade refund" over-refund).
  */
 import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
-import { attributeBandCost } from './constants.js';
+import { attributeBandCost, skillBandCost } from './constants.js';
 import { calculatePowersUpgradeRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot } from './xp-post-creation.js';
 const ATTRIBUTE_KEYS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-/** Σ of the banded step cost to raise an Attribute/Skill from `from` to `to`. */
-function bandStepSum(from, to) {
+function stepSum(from, to, costFor) {
     const start = Math.floor(Number(from) || 0);
     const end = Math.floor(Number(to) || 0);
     let sum = 0;
-    for (let v = start + 1; v <= end; v++) {
-        sum += attributeBandCost(v);
-    }
+    for (let v = start + 1; v <= end; v++)
+        sum += costFor(v);
     return sum;
 }
 /**
@@ -75,7 +73,7 @@ export function computeGroundTruthXp(actor) {
         const baseVal = Number(snap.attributes[k] ?? 2);
         const curVal = Number(system.attributes?.[k]?.value ?? baseVal);
         if (curVal > baseVal)
-            attributeSpent += bandStepSum(baseVal, curVal);
+            attributeSpent += stepSum(baseVal, curVal, attributeBandCost);
     }
     let skillSpent = 0;
     const curSkills = system.skills ?? {};
@@ -85,7 +83,7 @@ export function computeGroundTruthXp(actor) {
         const baseVal = Number(snapSkills[key] ?? 0);
         const curVal = Number(curSkills[key] ?? 0);
         if (curVal > baseVal)
-            skillSpent += bandStepSum(baseVal, curVal);
+            skillSpent += stepSum(baseVal, curVal, skillBandCost);
     }
     const powerItems = (actor.items?.filter?.((i) => i.type === 'power') ?? []).map((i) => ({
         system: i.system,

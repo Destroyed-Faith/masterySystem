@@ -47,7 +47,7 @@ export async function handlePassiveSelectionComplete(combat, actorId, data) {
     if (!live)
         return;
     const combatant = findCombatantByActorId(live, actorId);
-    await persistCombatantSetupStep(combatant, live, { passivesLocked: true });
+    await persistCombatantSetupStep(combatant, live, { passivesLocked: true, passivesGmOpen: false });
     if (!canCurrentUserUpdateCombat(live)) {
         game.socket?.emit(ENCOUNTER_SOCKET, {
             type: 'passiveSelectionComplete',
@@ -98,7 +98,7 @@ export async function handleInitiativeConfirmed(combat, combatantId, finalInitia
             });
             CombatCarouselApp.refresh();
             ui.notifications?.info(game.i18n?.localize('MASTERY.encounterSetup.shopAllDone') ||
-                'Alle Spieler haben die Initiative Exchange bestätigt. NSC-Ini prüfen, dann Kampf starten.');
+                'All players confirmed initiative. Check NPC initiative, then start combat.');
         }
     }
 }
@@ -106,7 +106,7 @@ export { encounterStartBlockers, isEncounterPreparing, isLaunchingLiveCombat, } 
 /** GM: roll leftover NPC initiative, sort, then actually start the fight. */
 export async function launchLiveCombat(combat) {
     if (!game.user?.isGM) {
-        ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.gmOnly') || 'Nur der SL kann den Kampf starten.');
+        ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.gmOnly') || 'Only the GM can start combat.');
         return false;
     }
     const live = resolveLiveCombat(combat);
@@ -114,12 +114,12 @@ export async function launchLiveCombat(combat) {
         return false;
     combat = live;
     if (combat.started) {
-        ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.alreadyLive') || 'Der Kampf läuft bereits.');
+        ui.notifications?.warn(game.i18n?.localize('MASTERY.encounterSetup.alreadyLive') || 'Combat is already running.');
         return false;
     }
     const blockers = encounterStartBlockers(combat);
     if (blockers.length) {
-        ui.notifications?.warn((game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Noch offen: {list}').replace('{list}', blockers.join(', ')));
+        ui.notifications?.warn((game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Still open: {list}').replace('{list}', blockers.join(', ')));
         return false;
     }
     setLaunchingLiveCombat(true);
@@ -139,7 +139,7 @@ export async function launchLiveCombat(combat) {
     }
     CombatCarouselApp.refresh();
     ui.notifications?.info(game.i18n?.localize('MASTERY.encounterSetup.combatStarted') ||
-        'Kampf gestartet. Höchste Initiative handelt zuerst.');
+        'Combat started. Highest initiative acts first.');
     return true;
 }
 /** Native Foundry Start Combat during prepare is redirected or blocked. */
@@ -163,12 +163,12 @@ export async function ensureEncounterSetupStarted(combat) {
 export async function beginEncounter(combat) {
     const canWrite = !!(game.user?.isGM || canCurrentUserUpdateDocument(combat));
     if (!canWrite && !getSimulatePlayerEncounterId()) {
-        ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.needGm') || 'Nur der SL kann den Kampf vorbereiten.');
+        ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.needGm') || 'Only the GM can prepare combat.');
         return;
     }
     const setup = getEncounterSetup(combat);
     if (setup.started || combat.round > 0) {
-        ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.already') || 'Schon in Vorbereitung');
+        ui.notifications?.warn(game.i18n?.localize('MASTERY.startEncounter.already') || 'Already in preparation');
         return;
     }
     await updateEncounterSetup(combat, { started: true });
@@ -218,7 +218,7 @@ export async function beginEncounter(combat) {
     const { resumePlayerEncounterSetup } = await import('./player-encounter-setup.js');
     void resumePlayerEncounterSetup(combat);
     ui.notifications?.info(game.i18n?.localize('MASTERY.encounterSetup.prepareStarted') ||
-        'Vorbereitung gestartet. Passives und Steine bestätigen, NSC-Initiative würfeln, dann „Kampf starten“.');
+        'Preparation started. Players pick Passives and Stones. Then use Start Combat.');
 }
 /**
  * Debounce helper for carousel refresh

@@ -44,4 +44,22 @@ export function clampMarkSpend(markOnTarget, chosen) {
     const spend = Math.max(0, Math.floor(Number(chosen) || 0));
     return Math.min(max, spend);
 }
+/**
+ * Spends of 1..markOnTarget that actually raise the damage total.
+ * A higher spend that does not beat a cheaper option's bonus is omitted
+ * (same damage for more Mark is never useful).
+ */
+export function listUsefulMarkSpends(damageChatRolls, markOnTarget, existingFloor = 0) {
+    const mark = Math.max(0, Math.floor(Number(markOnTarget) || 0));
+    const out = [];
+    let lastBonus = 0;
+    for (let n = 1; n <= mark; n++) {
+        const bonus = computeMarkFloorBonus(damageChatRolls, n, existingFloor);
+        if (bonus > lastBonus) {
+            out.push({ spend: n, bonus });
+            lastBonus = bonus;
+        }
+    }
+    return out;
+}
 //# sourceMappingURL=mark-floor.js.map

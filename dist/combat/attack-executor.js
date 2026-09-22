@@ -10,14 +10,17 @@ import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 import { npcMaxRangeM, rangeTextFromMax } from "../utils/range-bands.js";
 import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcAttackKeepDice, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
-import { formatEffectReference } from "../utils/special-effects.js";
 import { parseD8Count } from "../utils/dice-formula.js";
+import { basicAttackMrDamageFormula } from "./basic-combat.js";
+import { mergeWeaponSpecialsIntoSnapshot, parkWeaponSpecialsForRaises, weaponSpecialEntries, } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+import { actorHasSurprise } from "./surprise.js";
+import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
-import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, formatSnapshotSummary, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, previewAfterRaiseCost, } from "./raise-resolution.js";
+import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, dedupeDeclaredRaises, describeDeclaredRaise, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -86,17 +89,7 @@ function resolveWeaponForAttack(items, attackType) {
  * dice (spells, unarmed flat damage) this is the plain power snapshot summary.
  */
 function formatOnHitSummary(snapshot, weaponDice) {
-    const summary = formatSnapshotSummary(snapshot);
-    const w = Math.max(0, Math.floor(weaponDice ?? 0));
-    if (w <= 0)
-        return summary;
-    const p = Math.max(0, Math.floor(snapshot.damageDice));
-    const totalPart = `${w + p}d8 total (${w}d8 weapon${p > 0 ? ` + ${p}d8 power` : ''})`;
-    let rest = summary === '—' ? '' : summary;
-    if (p > 0 && rest.startsWith(`${p}d8`)) {
-        rest = rest.slice(`${p}d8`.length).replace(/^,\s*/, '');
-    }
-    return rest ? `${totalPart}, ${rest}` : totalPart;
+    return formatHitBreakdown(weaponDice, snapshot.damageDice, { specials: snapshot.specials });
 }
 /**
  * Get attribute value from actor
@@ -314,6 +307,17 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const npcAttackRow = isNpcAttack
         ? getNpcAttackByIndex(attacker.system, option.npcAttackIndex ?? 0, option.npcPhaseIndex)
         : null;
+    const isNpcActor = attacker?.type === 'npc' || attacker?.type === 'summon';
+    // Basic Attack on an NPC still hits with the sheet row (index 0), not Might.
+    // isNpcAttack stays false so weapon damage is not stripped.
+    const sheetAttackRow = npcAttackRow ??
+        (isNpcActor ? getNpcAttackByIndex(attacker.system, 0, null) : null);
+    const poolFromNpc = sheetAttackRow
+        ? npcAttackDiceCount(sheetAttackRow)
+        : attacker?.type === 'npc'
+            ? 6
+            : 0;
+    const useSheetPool = isNpcActor && (sheetAttackRow != null || attacker?.type === 'npc');
     if (isNpcAttack || option.ignoreWeaponDamage) {
         weapon = null;
     }
@@ -324,10 +328,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     let weaponId = weapon && !isVirtualUnarmedWeapon(weapon) ? weapon.id ?? null : null;
     // Determine attack attribute
     const attribute = getAttackAttribute(attacker, weapon, option, attackType);
-    const poolFromNpc = npcAttackDiceCount(npcAttackRow);
     let attributeValue = option.storedAttackPool && Number(option.storedAttackPool.numDice) > 0
         ? Math.max(0, Math.floor(Number(option.storedAttackPool.numDice)))
-        : isNpcAttack && poolFromNpc > 0
+        : useSheetPool
             ? poolFromNpc
             : getAttributeValue(attacker, attribute);
     const masteryRank = getMasteryRank(attacker);
@@ -362,7 +365,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         selectedPowerId = option.item.id;
         const powerSystem = option.item.system || {};
         const artifactIsSpell = option.artifactIsSpell === true;
-        selectedPowerLevel = artifactIsSpell
+        selectedPowerLevel = option.artifactPowerTemplateId
             ? Number(artifactLevelToTemplateRank(option.artifactRowLevel || 1))
             : (powerSystem.level || null);
         // Extract specials and damage from option.powerData or embedded item system (damage-card fallback).
@@ -381,7 +384,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         }
         if (powerSystem.isSpell === true || artifactIsSpell) {
             tnKind = 'casting';
-            // Spell Base TN = 8 × caster Mastery Rank (Players Guide "Casting
+            // Spell Base TN = (8 × caster Mastery Rank) − 2 (Players Guide "Casting
             // Roll"); Mental Powers add +4. The Power Level does NOT set the TN.
             const powerTags = Array.isArray(powerSystem.tags)
                 ? powerSystem.tags.map((t) => String(t))
@@ -394,12 +397,13 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                     getTargetSpellResistance(target);
         }
     }
-    // NPC Spell attacks use the hard MR casting standard (8 × Mastery Rank),
+    // NPC Spell attacks use Spell Base TN (8 × Mastery Rank − 2),
     // not Evade and not PC power-level Casting TN.
     const npcIsSpell = isNpcAttack && (!!option.npcIsSpell || !!npcAttackRow?.npcIsSpell);
     if (npcIsSpell) {
         tnKind = 'casting';
-        castingBaseTn = 8 * Math.max(1, masteryRank) + getTargetSpellResistance(target);
+        castingBaseTn =
+            castingBaseTnForMasteryRank(Math.max(1, masteryRank)) + getTargetSpellResistance(target);
     }
     /** Normal TN for the card's anchor target — unchanged by declared raises. */
     const normalTn = tnKind === 'casting' && castingBaseTn != null
@@ -407,16 +411,25 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         : targetEvadeFromActor;
     const baseEvade = normalTn;
     let raiseContext = null;
+    const powerOnHitKeys = new Set();
     if (option.source === 'power' && option.item && !isNpcAttack) {
         try {
             let loaded = null;
-            if (option.artifactIsSpell && option.artifactPowerTemplateId) {
+            if (option.artifactPowerTemplateId) {
                 loaded = await loadPowerSnapshotForArtifactOption(option);
             }
             else if (option.item.type === 'power') {
                 loaded = await loadPowerSnapshotForItem(option.item);
             }
             if (loaded) {
+                for (const sp of loaded.snapshot.specials) {
+                    if (sp.key)
+                        powerOnHitKeys.add(sp.key);
+                }
+                selectedPowerSpecials = snapshotToSpecialStrings(loaded.snapshot);
+                if (!selectedPowerDamage) {
+                    selectedPowerDamage = snapshotToDamageFormula(loaded.snapshot);
+                }
                 const opts = buildAvailableRaiseOptions(loaded.snapshot, loaded.isSpell);
                 if (opts.length > 0) {
                     raiseContext = {
@@ -434,6 +447,12 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                         raiseOptions: [],
                     };
                 }
+            }
+            else if (option.artifactRowSpecial) {
+                selectedPowerSpecials = String(option.artifactRowSpecial)
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter((s) => s && s !== '—' && s !== '-');
             }
         }
         catch (err) {
@@ -463,8 +482,55 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             isSpell: npcIsSpell,
             baseSnapshot: snap,
             raiseOptions: buildAvailableRaiseOptions(snap, npcIsSpell),
-            waiveRaiseCost: true,
         };
+    }
+    if (raiseContext && !raiseContext.isSpell && !option.ignoreWeaponDamage && weapon) {
+        raiseContext.baseSnapshot = mergeWeaponSpecialsIntoSnapshot(raiseContext.baseSnapshot, weaponSpecialEntries(weapon));
+        raiseContext.raiseOptions = buildAvailableRaiseOptions(raiseContext.baseSnapshot, false);
+    }
+    if (!raiseContext && !isNpcAttack && !option.ignoreWeaponDamage && option.id === 'weapon-attack') {
+        const snap = {
+            damageDice: parseD8Count(basicAttackMrDamageFormula(attacker)),
+            specials: weapon && !isVirtualUnarmedWeapon(weapon) ? weaponSpecialEntries(weapon) : [],
+            rangeM: null,
+            aoeRadiusM: null,
+            durationSteps: 0,
+            hasRange: false,
+            hasAoe: false,
+            hasDuration: false,
+        };
+        raiseContext = {
+            masteryRank,
+            isSpell: false,
+            baseSnapshot: snap,
+            raiseOptions: buildAvailableRaiseOptions(snap, false),
+        };
+    }
+    if (!raiseContext && !isNpcAttack && !option.ignoreWeaponDamage && weapon && !isVirtualUnarmedWeapon(weapon)) {
+        const entries = weaponSpecialEntries(weapon);
+        if (entries.length > 0) {
+            const snap = {
+                damageDice: 0,
+                specials: entries,
+                rangeM: null,
+                aoeRadiusM: null,
+                durationSteps: 0,
+                hasRange: false,
+                hasAoe: false,
+                hasDuration: false,
+            };
+            raiseContext = {
+                masteryRank,
+                isSpell: false,
+                baseSnapshot: snap,
+                raiseOptions: buildAvailableRaiseOptions(snap, false),
+            };
+        }
+    }
+    if (raiseContext && !raiseContext.isSpell && !isNpcAttack) {
+        const parked = parkWeaponSpecialsForRaises(raiseContext.baseSnapshot, powerOnHitKeys);
+        raiseContext.baseSnapshot = parked.onHit;
+        raiseContext.raiseOptions = buildAvailableRaiseOptions(parked.raiseSource, false);
     }
     // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
     // on top of the power's bonus dice, so the preview can show the real total.
@@ -515,6 +581,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         forcedWeaponItemId: forcedWeaponItemId ?? null,
         selectedPowerId: selectedPowerId,
         selectedPowerLevel: selectedPowerLevel,
+        selectedPowerName: option.source === 'power' ? String(option.name || '') : '',
         selectedPowerSpecials: selectedPowerSpecials,
         selectedPowerDamage: selectedPowerDamage || "",
         consumableItemId: option.consumableItemId || null,
@@ -548,15 +615,15 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         weaponRange: isNpcAttack && attackType === "ranged"
             ? rangeTextFromMax(npcMaxRangeM(Math.floor(Number(option.rangeMeters ?? option.range) || 0)))
             : undefined,
-        useNpcAttackDicePool: isNpcAttack,
-        npcAttackDicePool: isNpcAttack ? attributeValue : undefined,
+        useNpcAttackDicePool: useSheetPool,
+        npcAttackDicePool: useSheetPool ? attributeValue : undefined,
         // PG statblocks print the Keep per attack ("6d8, Keep 1"); unset ⇒ MR.
-        npcAttackKeepDice: isNpcAttack ? npcAttackKeepDice(npcAttackRow, masteryRank) : undefined,
+        npcAttackKeepDice: useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : undefined,
         npcAttackSource: isNpcAttack,
         npcAttackIndex: isNpcAttack ? (option.npcAttackIndex ?? 0) : undefined,
         npcPhaseIndex: isNpcAttack ? (option.npcPhaseIndex ?? null) : undefined,
-        npcAttackName: isNpcAttack
-            ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
+        npcAttackName: useSheetPool
+            ? (sheetAttackRow?.name?.trim() || (isNpcAttack ? option.name : '') || "Waffenangriff")
             : undefined,
         npcAttackOptionId: isNpcAttack
             ? String(option.npcAttackUsageKey || option.id || '')
@@ -567,6 +634,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 powerIsSpell: raiseContext.isSpell,
                 basePowerSnapshot: raiseContext.baseSnapshot,
                 raiseOptions: raiseContext.raiseOptions,
+                weaponDamageDice: raiseContext.weaponDamageDice ?? 0,
             }
             : npcIsSpell
                 ? { powerIsSpell: true }
@@ -593,24 +661,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 ? `${baseOptionName} (AoE)`
                 : baseOptionName;
     const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
-    const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
-    const innateLines = weapon
-        ? [].concat(weapon.system?.innateAbilities || []).map((x) => String(x))
-        : [];
-    // Artifact virtual weapons carry specials as `{ specialId, value }` refs;
-    // conventional weapons as plain strings. Format both readably.
-    const weaponSpecialLines = weapon
-        ? []
-            .concat(weapon.system?.specials || [])
-            .map((x) => (x && typeof x === 'object' ? formatEffectReference(x) : String(x ?? '').trim()))
-            .filter(Boolean)
-        : [];
-    const innatesHtml = innateLines.length > 0
-        ? `<div class="detail-row"><span class="detail-label">Weapon innates:</span><span class="detail-value">${innateLines.map(attackCardEsc).join(", ")}</span></div>`
-        : "";
-    const weaponSpecialsHtml = weaponSpecialLines.length > 0
-        ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")}</span></div>`
-        : "";
     const npcSpecialsLine = isNpcAttack && npcAttackRow ? formatNpcAttackSpecialsLine(npcAttackRow) : "";
     const npcAttackDetailHtml = isNpcAttack && npcAttackRow
         ? `<div class="detail-row"><span class="detail-label">NSC-Pool:</span><span class="detail-value">${attributeValue}d8</span></div>
@@ -669,11 +719,6 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const raisePlanHtml = raiseContext
         ? `
     <div class="raise-plan-panel">
-      <div class="raise-tn-row">
-        <span>Normal TN: <strong>${normalTn}</strong></span>
-        <span>Raise TN: <strong class="raise-tn-display">${normalTn}</strong></span>
-      </div>
-      <div class="raise-preview-row">On hit (before raises): <strong class="raise-cost-display">${attackCardEsc(formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice))}</strong></div>
       ${raiseContext.isSpell
             ? `<div class="spell-cost-split-row md-sublabel">
           Pay Raise cost with:
@@ -682,18 +727,37 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
           </select>
         </div>`
             : ''}
-      ${''}
-      <label class="raise-waive-row" title="Raise-Cost nicht vom Schaden/Special abziehen">
-        <input type="checkbox" class="raise-cost-waive" ${raiseContext.waiveRaiseCost ? 'checked' : ''}/>
-        Kostenlos
-      </label>
       <div class="raise-plan-rows"></div>
       <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
     </div>`
         : '';
     const raisesTitle = tnKind === 'casting'
-        ? `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN stays ${normalTn}). Pay Raise Cost from the Power first.${aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Final Spell TN.' : ''}`
-        : `Declare Raises before rolling. Each Raise adds +${RAISE_INCREMENT} to the Raise TN (Normal TN / Evade stays ${normalTn}). Pay Raise Cost from the Power first.${aoeMelee ? ' AoE: the same roll is compared separately against each creature\'s Evade.' : ''}`;
+        ? `Ein Raise vor dem Wurf. Jeder macht die Raise TN um +${RAISE_INCREMENT} schwerer. Die Kosten gehen vorher von der Power weg und kommen nur zurück, wenn die Raise TN fällt.${aoeMelee ? ' AoE: derselbe Wurf gilt einzeln gegen jede Final Spell TN.' : ''}`
+        : `Ein Raise vor dem Wurf. Jeder macht die Raise TN um +${RAISE_INCREMENT} schwerer. Die normale TN bleibt ${normalTn}. Kosten vorher weg, Bonus nur wenn die Raise TN fällt.${aoeMelee ? ' AoE: derselbe Wurf gilt einzeln gegen jedes Evade.' : ''}`;
+    const evadeNoteParts = [];
+    if (actorHasSurprise(target))
+        evadeNoteParts.push('half — Surprise');
+    if (evadeVsInvisible.evadeMultiplier < 1) {
+        evadeNoteParts.push('half — failed Perception vs invisible attacker');
+    }
+    const evadeNote = evadeNoteParts.length ? ` (${evadeNoteParts.join('; ')})` : '';
+    const keepShown = useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : masteryRank;
+    const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
+    const poolLabel = useSheetPool
+        ? (sheetAttackRow?.name?.trim() || 'Angriff')
+        : attrLabel;
+    const wurfLine = `${attributeValue}k${keepShown} (${poolLabel})`;
+    const tnLabel = tnKind === 'casting'
+        ? aoeMelee
+            ? 'Anchor TN'
+            : 'Casting TN'
+        : aoeMelee
+            ? 'Anchor Evade'
+            : 'Target Evade';
+    const tnValue = tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : normalTn;
+    const hitLine = raiseContext
+        ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice)
+        : '';
     const content = `
     <div class="mastery-attack-card">
       <div class="attack-header">
@@ -703,36 +767,23 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       ${threatenedHtml}
       <div class="attack-details">
         <div class="detail-row">
-          <span class="detail-label">Attack:</span>
-          <span class="detail-value">${attackKindLabel}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Attribute:</span>
-          <span class="detail-value">${attribute.charAt(0).toUpperCase() + attribute.slice(1)} (${attributeValue})</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Mastery Rank:</span>
-          <span class="detail-value">${masteryRank}</span>
+          <span class="detail-label">Wurf:</span>
+          <span class="detail-value">${wurfLine}</span>
         </div>
         ${tr.rollDisadvantage
-        ? `<div class="detail-row"><span class="detail-label">Disadvantage:</span><span class="detail-value">Yes (Threatened Ranged)</span></div>`
+        ? `<div class="detail-row"><span class="detail-label">Nachteil:</span><span class="detail-value">nur eine 8 explodiert</span></div>`
         : ""}
-        ${tnKind === 'casting' && castingBaseTn != null
-        ? `<div class="detail-row">
-          <span class="detail-label">${aoeMelee ? 'Anchor Final Spell TN' : 'Casting TN'}:</span>
-          <span class="detail-value">${castingBaseTn}${npcIsSpell
-            ? ` (8 × Mastery Rank ${masteryRank})`
-            : ` (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})`}${aoeMelee ? ' — each creature checked separately' : ''}</span>
-        </div>`
-        : `<div class="detail-row">
-          <span class="detail-label">${aoeMelee ? 'Anchor Evade' : 'Target Evade'}:</span>
-          <span class="detail-value">${normalTn}${evadeVsInvisible.evadeMultiplier < 1 ? ' (half — failed Perception vs invisible attacker)' : ''}${aoeMelee ? ' — each creature checked separately' : ''}</span>
-        </div>`}
+        <div class="detail-row">
+          <span class="detail-label">${tnLabel}:</span>
+          <span class="detail-value">${tnValue}${evadeNote}${aoeMelee ? ' — jede Kreatur extra' : ''}${raiseContext
+        ? ` · Raise TN <strong class="raise-tn-display">${normalTn}</strong>`
+        : ''}</span>
+        </div>
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
-        ${innatesHtml}
-        ${weaponSpecialsHtml}
         ${npcAttackDetailHtml}
-        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${attackCardEsc(option.name)}</span></div>` : ""}
+        ${hitLine
+        ? `<div class="detail-row"><span class="detail-label">Wenn du triffst:</span><span class="detail-value raise-cost-display">${attackCardEsc(hitLine)}</span></div>`
+        : ''}
       </div>
       <div class="attack-controls">
         ${raisePlanHtml ? `<div class="raises-input-group" title="${attackCardEsc(raisesTitle)}">${raisePlanHtml}</div>` : ''}
@@ -816,10 +867,68 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option, 
 export async function createRangedAttackCard(attackerToken, targetToken, option, aoeZone = null) {
     return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, aoeZone);
 }
-/**
- * Setup raise-plan editor on attack cards (new Raise rules).
- */
+const raisePlanAppliers = new Map();
+export function applyRemoteRaisePlan(payload) {
+    const id = String(payload?.messageId || '');
+    const apply = raisePlanAppliers.get(id);
+    if (apply) {
+        apply(Array.isArray(payload.draft) ? payload.draft : [], String(payload.summary || ''));
+        return;
+    }
+    const live = globalThis.document?.querySelector?.(`.message[data-message-id="${CSS.escape(id)}"] .raise-plan-live`);
+    if (live)
+        live.textContent = String(payload.summary || '');
+}
+function broadcastRaisePlan(messageId, draft, summary) {
+    const gameAny = globalThis.game;
+    gameAny?.socket?.emit?.(ENCOUNTER_SOCKET, {
+        type: 'raisePlanLive',
+        messageId,
+        fromUserId: gameAny.user?.id ?? null,
+        draft,
+        summary,
+    });
+}
+let raisePlanHooksRegistered = false;
+export function registerRaisePlanChatHooks() {
+    if (raisePlanHooksRegistered)
+        return;
+    raisePlanHooksRegistered = true;
+    const HooksAny = globalThis.Hooks;
+    if (!HooksAny?.on)
+        return;
+    HooksAny.on('renderChatMessageHTML', (message, htmlRaw) => {
+        try {
+            const flags = message?.flags?.['mastery-system'];
+            if (!flags?.raiseOptions || !Array.isArray(flags.raiseOptions) || !flags.basePowerSnapshot)
+                return;
+            const jq = globalThis.$;
+            if (!jq)
+                return;
+            const $root = htmlRaw instanceof HTMLElement ? jq(htmlRaw) : htmlRaw;
+            if (!$root?.find)
+                return;
+            const panel = $root.find('.raise-plan-panel');
+            if (!panel.length)
+                return;
+            const host = panel.closest('.message');
+            setupRaisesHandler(host.length ? host : $root, String(message.id), Number(flags.normalTn) || 0, {
+                masteryRank: Math.max(1, Math.floor(Number(flags.masteryRank) || 1)),
+                isSpell: !!flags.powerIsSpell,
+                baseSnapshot: flags.basePowerSnapshot,
+                raiseOptions: flags.raiseOptions,
+                weaponDamageDice: Number(flags.weaponDamageDice) || 0,
+            });
+        }
+        catch (err) {
+            console.warn('Mastery System | raise plan chat hook failed', err);
+        }
+    });
+}
 function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
+    const panel = messageElement.find('.raise-plan-panel');
+    if (panel.attr('data-raise-bound') === '1')
+        return;
     const button = messageElement.find('.roll-attack-btn');
     button.attr('data-normal-tn', String(normalTn));
     button.attr('data-target-evade', String(normalTn));
@@ -827,27 +936,70 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     button.attr('data-raise-tn', String(normalTn));
     button.attr('data-raise-slots', '0');
     button.attr('data-raise-plan', '[]');
-    if (!raiseContext)
+    if (!raiseContext || !panel.length)
         return;
-    const panel = messageElement.find('.raise-plan-panel');
+    panel.attr('data-raise-bound', '1');
     const maxSlots = 8;
-    const buildOptionHtml = () => {
+    const buildOptionHtml = (currentId, takenSpecialIds) => {
         const opts = raiseContext.raiseOptions
+            .filter((o) => {
+            if (o.id === currentId)
+                return true;
+            if (o.effect === 'damage' || o.effect === 'specialPlus')
+                return !takenSpecialIds.has(o.id);
+            return true;
+        })
             .map((o) => `<option value="${o.id}">${o.label} (${o.slots} slot${o.slots > 1 ? 's' : ''})</option>`)
             .join('');
         return `<option value="">— Raise effect —</option>${opts}`;
     };
+    const specialName = (optionId) => {
+        const opt = raiseContext.raiseOptions.find((o) => o.id === optionId);
+        if (!opt)
+            return 'Dieses Special';
+        if (opt.targetSpecialKey) {
+            return opt.targetSpecialKey.charAt(0).toUpperCase() + opt.targetSpecialKey.slice(1);
+        }
+        return opt.label;
+    };
+    const isGM = !!globalThis.game?.user?.isGM;
+    let applyingRemote = false;
+    const readDraft = () => {
+        const draft = [];
+        panel.find('.raise-plan-row').each((_i, row) => {
+            const optionId = String($(row).find('.raise-effect-select').val() || '');
+            const free = $(row).find('.raise-free').is(':checked') || $(row).attr('data-free') === '1';
+            draft.push({ optionId, free });
+        });
+        return draft;
+    };
     const collectPlan = () => {
         const plan = [];
-        panel.find('.raise-plan-row').each((_i, row) => {
-            const id = $(row).find('.raise-effect-select').val();
-            if (!id)
-                return;
-            const dr = declaredRaiseFromOptionId(id, raiseContext.raiseOptions);
-            if (dr)
-                plan.push(dr);
+        for (const row of readDraft()) {
+            if (!row.optionId)
+                continue;
+            const dr = declaredRaiseFromOptionId(row.optionId, raiseContext.raiseOptions);
+            if (!dr)
+                continue;
+            if (row.free)
+                dr.free = true;
+            plan.push(dr);
+        }
+        return dedupeDeclaredRaises(plan);
+    };
+    const summaryFor = (draft) => {
+        if (!draft.length)
+            return 'Noch kein Raise gewählt.';
+        const parts = draft.map((row, index) => {
+            const dr = row.optionId
+                ? declaredRaiseFromOptionId(row.optionId, raiseContext.raiseOptions)
+                : null;
+            if (dr && row.free)
+                dr.free = true;
+            const name = dr ? describeDeclaredRaise(dr) : 'noch offen';
+            return `${index + 1}. ${name}${row.free ? ' — kostenlos' : ''}`;
         });
-        return plan;
+        return `Raises: ${parts.join(' · ')}`;
     };
     const totalSpecialRank = raiseContext.baseSnapshot.specials.reduce((sum, sp) => sum + Math.max(0, sp.rank), 0);
     /** Distribute a special-value payment over the power's specials (largest rank first). */
@@ -914,15 +1066,50 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             return undefined;
         return spellAllocFromParts(d8Paid, spPaid);
     };
-    const updatePreview = () => {
+    const lockSpecialRaises = () => {
+        const rows = panel.find('.raise-plan-row').toArray();
+        const owner = new Map();
+        let cleared = null;
+        for (const rowEl of rows) {
+            const select = $(rowEl).find('.raise-effect-select');
+            const id = String(select.val() || '');
+            const opt = raiseContext.raiseOptions.find((o) => o.id === id);
+            if (!opt || (opt.effect !== 'specialPlus' && opt.effect !== 'damage'))
+                continue;
+            const prev = owner.get(opt.id);
+            if (prev && prev !== rowEl) {
+                select.val('');
+                cleared = specialName(opt.id);
+            }
+            else {
+                owner.set(opt.id, rowEl);
+            }
+        }
+        const taken = new Set(owner.keys());
+        for (const rowEl of rows) {
+            const select = $(rowEl).find('.raise-effect-select');
+            const current = String(select.val() || '');
+            select.html(buildOptionHtml(current, taken));
+            if (current)
+                select.val(current);
+        }
+        return cleared;
+    };
+    const updatePreview = (broadcast = false, announceDuplicate = false) => {
+        const cleared = lockSpecialRaises();
+        if (announceDuplicate && cleared && !applyingRemote) {
+            ui.notifications?.warn?.(`${cleared} nur einmal pro Angriff.`);
+        }
+        const draft = readDraft();
         const plan = collectPlan();
         const slots = countRaiseSlots(plan);
+        const paid = paidRaiseSlots(plan);
         const { raiseTn } = computeRaiseTns(normalTn, slots);
         let spellCostOverride;
         if (raiseContext.isSpell) {
-            const costTotal = slots > 0 ? raiseContext.masteryRank * slots : 0;
+            const costTotal = paid > 0 ? raiseContext.masteryRank * paid : 0;
             rebuildSpellCostSelect(costTotal);
-            if (slots > 0) {
+            if (paid > 0) {
                 spellCostOverride = readSpellCostSelection(costTotal);
             }
             if (spellCostOverride) {
@@ -932,56 +1119,94 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
                 button.removeAttr('data-spell-cost');
             }
         }
-        const waived = panel.find('.raise-cost-waive').is(':checked');
-        const preview = previewAfterRaiseCost(raiseContext.baseSnapshot, waived ? [] : plan, raiseContext.masteryRank, raiseContext.isSpell, spellCostOverride);
-        panel.find('.raise-tn-display').text(String(raiseTn));
-        panel.find('.raise-cost-display').text(formatOnHitSummary(preview, raiseContext.weaponDamageDice));
+        const summary = summaryFor(draft);
+        panel.find('.raise-plan-live').text(summary);
+        messageElement.find('.raise-tn-display').text(String(raiseTn));
+        const full = plan.length
+            ? resolvePowerSnapshot({
+                base: raiseContext.baseSnapshot,
+                declaredRaises: plan,
+                outcome: 'full',
+                masteryRank: raiseContext.masteryRank,
+                isSpell: raiseContext.isSpell,
+                spellCostOverride,
+            })
+            : raiseContext.baseSnapshot;
+        const raiseDice = Math.max(0, full.damageDice - raiseContext.baseSnapshot.damageDice);
+        messageElement.find('.raise-cost-display').text(formatHitBreakdown(raiseContext.weaponDamageDice, raiseContext.baseSnapshot.damageDice, {
+            raiseDice,
+            specials: full.specials,
+        }));
         button.attr('data-raise-tn', String(raiseTn));
         button.attr('data-raise-slots', String(slots));
         button.attr('data-raise-plan', JSON.stringify(plan));
         button.attr('data-raises', String(slots));
         button.attr('data-blood-raises', '0');
-        button.attr('data-raise-cost-waived', waived ? '1' : '0');
+        button.removeAttr('data-raise-cost-waived');
+        if (broadcast && !applyingRemote)
+            broadcastRaisePlan(messageId, draft, summary);
     };
-    const addRow = () => {
-        const currentSlots = countRaiseSlots(collectPlan());
-        if (currentSlots >= maxSlots) {
-            ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
-            return;
-        }
-        const row = $(`
-      <div class="raise-plan-row">
-        <select class="raise-effect-select">${buildOptionHtml()}</select>
-        <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
-      </div>
-    `);
-        panel.find('.raise-plan-rows').append(row);
+    const bindRow = (row, initial) => {
+        if (initial?.optionId)
+            row.find('.raise-effect-select').val(initial.optionId);
         row.find('.raise-effect-select').on('change', () => {
             const slots = countRaiseSlots(collectPlan());
             if (slots > maxSlots) {
                 ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
                 row.find('.raise-effect-select').val('');
             }
-            updatePreview();
+            updatePreview(true, true);
+        });
+        row.find('.raise-free').on('change', () => {
+            row.attr('data-free', row.find('.raise-free').is(':checked') ? '1' : '0');
+            updatePreview(true);
         });
         row.find('.remove-raise-btn').on('click', (ev) => {
             ev.preventDefault();
             row.remove();
-            updatePreview();
+            updatePreview(true);
         });
-        updatePreview();
     };
+    const addRow = (initial, broadcast = true) => {
+        const currentSlots = countRaiseSlots(collectPlan());
+        if (!initial && currentSlots >= maxSlots) {
+            ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
+            return;
+        }
+        const freeBox = isGM
+            ? `<label class="raise-free-label" title="Nur dieser Raise ist kostenlos"><input type="checkbox" class="raise-free"${initial?.free ? ' checked' : ''}/> Kostenlos</label>`
+            : '';
+        const row = $(`
+      <div class="raise-plan-row" data-free="${initial?.free ? '1' : '0'}">
+        <select class="raise-effect-select">${buildOptionHtml('', new Set())}</select>
+        ${freeBox}
+        <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
+      </div>
+    `);
+        panel.find('.raise-plan-rows').append(row);
+        bindRow(row, initial);
+        updatePreview(broadcast);
+    };
+    raisePlanAppliers.set(messageId, (draft, summary) => {
+        applyingRemote = true;
+        try {
+            panel.find('.raise-plan-rows').empty();
+            for (const row of draft)
+                addRow(row, false);
+            if (!draft.length)
+                panel.find('.raise-plan-live').text(summary || 'Noch kein Raise gewählt.');
+        }
+        finally {
+            applyingRemote = false;
+        }
+    });
     panel.find('.add-raise-btn').off('click.masteryRaisePlan').on('click.masteryRaisePlan', (ev) => {
         ev.preventDefault();
         addRow();
     });
     panel.find('.spell-cost-select')
         .off('input.masteryRaisePlan change.masteryRaisePlan')
-        .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview());
-    panel.find('.raise-cost-waive')
-        .off('change.masteryRaisePlan')
-        .on('change.masteryRaisePlan', () => updatePreview());
-    void messageId;
-    updatePreview();
+        .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview(true));
+    updatePreview(false);
 }
 //# sourceMappingURL=attack-executor.js.map
