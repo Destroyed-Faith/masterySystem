@@ -111,9 +111,9 @@ function validateSkillsAndExpressions(payload: CharacterImportPayload): string[]
       }
       const def = getMinorExpressionDefinition(id)!;
       const attrVal = Number(attrs[def.attribute]);
-      if (!Number.isFinite(attrVal) || attrVal < 8) {
+      if (!Number.isFinite(attrVal) || attrVal < 4) {
         errors.push(
-          `Minor Expression "${id}" requires ${def.attribute} ≥ 8 (currently ${attrVal || 'missing'}).`,
+          `Minor Expression "${id}" requires ${def.attribute} ≥ 4 (currently ${attrVal || 'missing'}).`,
         );
       }
     }

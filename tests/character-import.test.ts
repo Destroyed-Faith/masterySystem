@@ -128,7 +128,10 @@ describe('character-import build', () => {
     expect(data.type).toBe('character');
     const system = data.system as any;
     expect(system.attributes.might.value).toBe(16);
-    expect(system.stonePools.might.max).toBe(2);
+    expect(system.stonePools.might.max).toBe(0);
+    expect(system.progression.v099Stones).toBe(true);
+    expect(system.progression.lifetimeXp).toBeUndefined();
+    expect((data.flags as any)['mastery-system'].needsV099LifetimeXp).toBe(true);
     expect(system.mastery.rank).toBe(4);
     expect(system.skills.meleeWeapons).toBe(2);
     expect(system.disadvantages).toHaveLength(1);

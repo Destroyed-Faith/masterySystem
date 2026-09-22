@@ -10,10 +10,10 @@ describe('Rules v0.9.8 combat core constants', () => {
     expect(BASE_SPEED_M).toBe(8);
   });
 
-  it('Attribute Check TN = 8 × source MR', () => {
-    expect(attributeCheckTn(1)).toBe(8);
-    expect(attributeCheckTn(3)).toBe(24);
-    expect(attributeCheckTn(5)).toBe(40);
+  it('Attribute Check TN = (8 × source MR) − 2', () => {
+    expect(attributeCheckTn(1)).toBe(6);
+    expect(attributeCheckTn(3)).toBe(22);
+    expect(attributeCheckTn(5)).toBe(38);
   });
 
   it('Perception category label is not Awareness', () => {

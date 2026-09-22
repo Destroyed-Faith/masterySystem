@@ -13,7 +13,7 @@
  */
 
 import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
-import { attributeBandCost } from './constants.js';
+import { attributeBandCost, skillBandCost } from './constants.js';
 import { calculatePowersUpgradeRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot, type PostCreationProgress } from './xp-post-creation.js';
 
@@ -54,14 +54,11 @@ export interface XpRecalcResult {
   changed: boolean;
 }
 
-/** Σ of the banded step cost to raise an Attribute/Skill from `from` to `to`. */
-function bandStepSum(from: number, to: number): number {
+function stepSum(from: number, to: number, costFor: (next: number) => number): number {
   const start = Math.floor(Number(from) || 0);
   const end = Math.floor(Number(to) || 0);
   let sum = 0;
-  for (let v = start + 1; v <= end; v++) {
-    sum += attributeBandCost(v);
-  }
+  for (let v = start + 1; v <= end; v++) sum += costFor(v);
   return sum;
 }
 
@@ -118,7 +115,7 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
   for (const k of ATTRIBUTE_KEYS) {
     const baseVal = Number(snap.attributes[k] ?? 2);
     const curVal = Number(system.attributes?.[k]?.value ?? baseVal);
-    if (curVal > baseVal) attributeSpent += bandStepSum(baseVal, curVal);
+    if (curVal > baseVal) attributeSpent += stepSum(baseVal, curVal, attributeBandCost);
   }
 
   let skillSpent = 0;
@@ -128,7 +125,7 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
   for (const key of skillKeys) {
     const baseVal = Number(snapSkills[key] ?? 0);
     const curVal = Number(curSkills[key] ?? 0);
-    if (curVal > baseVal) skillSpent += bandStepSum(baseVal, curVal);
+    if (curVal > baseVal) skillSpent += stepSum(baseVal, curVal, skillBandCost);
   }
 
   const powerItems = (actor.items?.filter?.((i: any) => i.type === 'power') ?? []).map((i: any) => ({

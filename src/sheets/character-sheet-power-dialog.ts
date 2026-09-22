@@ -467,7 +467,7 @@ export async function showPowerCreationDialog(
                 const castingTn = castingBaseTnForMasteryRank(masteryRank);
                 $spellHint.html(
                     `<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs <strong>Casting TN ${castingTn}</strong> ` +
-                        `(8 × Mastery Rank ${masteryRank}; + Target Spell Resistance). ` +
+                        `((8 × Mastery Rank ${masteryRank}) − 2; + Target Spell Resistance). ` +
                         `<strong>Declared Raises</strong> before the roll add +4 each to that TN. ` +
                         `<strong>Raises</strong> after a successful hit can improve damage, special potency, Range, AoE, and other riders (per spell rules).`,
                 );

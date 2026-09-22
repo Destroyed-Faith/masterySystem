@@ -44,7 +44,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Might Ability: Martial Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
         "special": "might.meleeDamage"
       },
       {
@@ -335,7 +335,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Might Ability: Melee Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Might Ability: Martial Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
             },
             "specials": [],
             "lvl": 7

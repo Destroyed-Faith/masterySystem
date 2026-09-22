@@ -41,7 +41,7 @@ describe('buildNpcPrintContext', () => {
     expect(page.masteryRank).toBe(3);
     expect(page.specialRecovery).toBe(3);
     expect(page.specialCap).toBe(12);
-    expect(page.castingTn).toBe(24);
+    expect(page.castingTn).toBe(22);
     expect(page.creatureType).toBe('Humanoid');
     expect(page.hasPhases).toBe(false);
     expect(page.evade).toBe(12);
@@ -124,6 +124,6 @@ describe('buildNpcPrintContext', () => {
     expect(ctx.pages[1].attacks).toHaveLength(2);
     expect(ctx.pages[1].attacks[0].flags).toContain('Split');
     expect(ctx.pages[1].attacks[1].aoe).toMatch(/4 m/);
-    expect(ctx.pages[1].castingTn).toBe(40);
+    expect(ctx.pages[1].castingTn).toBe(38);
   });
 });

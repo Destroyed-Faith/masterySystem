@@ -1792,6 +1792,12 @@
   gap: 0.6mm;
 }
 
+.cp-sd-boxes.is-t4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6mm;
+}
+
 .cp-sd-cost {
   display: inline-block;
   width: 6mm;
@@ -3628,6 +3634,12 @@ body.mastery-print.is-compact {
   gap: 0.25mm;
 }
 
+.qp-sp-boxes.is-t4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25mm;
+}
+
 .qp-cost.is-filled {
   background: #c4a574;
   border-color: #c4a574;
@@ -4238,4 +4250,42 @@ body.mastery-print.is-dark:not(.is-compact) {
   .mastery-print.is-dark:not(.is-compact) .print-page {
     background: #141210 !important;
   }
+}
+
+.mastery-print .cp-lifetime {
+  margin: 1.5mm 0 2mm;
+}
+
+.mastery-print .cp-lifetime-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.2mm;
+  margin-bottom: 1.2mm;
+}
+
+.mastery-print .cp-lifetime-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6mm;
+}
+
+.mastery-print .cp-lifetime-box {
+  width: 9mm;
+  height: 9mm;
+  border: 0.4mm solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mastery-print .cp-lifetime-mark {
+  font-size: 7px;
+  line-height: 1;
+  text-align: center;
 }

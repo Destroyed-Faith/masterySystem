@@ -40,7 +40,7 @@ describe('Initiative Boost amount', () => {
     expect(initiativeBoostAmount(2, 3)).toBe(6);
     expect(initiativeBoostAmount(3, 3)).toBe(12);
     expect(initiativeBoostAmount(4, 3)).toBe(24);
-    expect(initiativeBoostAmount(5, 3)).toBe(48);
+    expect(initiativeBoostAmount(5, 3)).toBe(0);
   });
 });
 

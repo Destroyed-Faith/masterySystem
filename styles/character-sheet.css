@@ -12608,3 +12608,96 @@ aside#tooltip,
 .mastery-system.sheet.actor.character .minor-magic-tab-embed .mm-root {
   min-height: 22rem;
 }
+
+.mastery-system.sheet.actor.character .v099-migration-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.4rem 0.6rem 0;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #8a5a12;
+  background: #2a2114;
+  color: #f3e2c2;
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.character .v099-open-respec {
+  margin-left: auto;
+}
+
+.mastery-system.sheet.actor.character .v099-lifetime {
+  margin: 0.35rem 0.6rem 0.2rem;
+}
+
+.mastery-system.sheet.actor.character .v099-lifetime-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.mastery-system.sheet.actor.character .v099-lifetime-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.mastery-system.sheet.actor.character .v099-lifetime-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.mastery-system.sheet.actor.character .v099-lifetime-meta {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.mastery-system.sheet.actor.character .v099-stone-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.mastery-system.sheet.actor.character .v099-stone-slot {
+  width: 3.1rem;
+  min-height: 3.1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.mastery-system.sheet.actor.character .v099-stone-slot.is-locked {
+  opacity: 0.38;
+}
+
+.mastery-system.sheet.actor.character .v099-stone-slot.is-open {
+  border-color: #d7a441;
+  background: rgba(215, 164, 65, 0.16);
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .v099-stone-slot.is-assigned {
+  border-color: #7d9a6a;
+  background: rgba(125, 154, 106, 0.2);
+}
+
+.mastery-system.sheet.actor.character .v099-stone-mark {
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.6rem;
+}
+
+.mastery-system.sheet.actor.character .v099-stone-threshold {
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}

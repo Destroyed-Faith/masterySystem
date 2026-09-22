@@ -1,5 +1,5 @@
 /**
- * Ritual skill-check flow: declared Raises, Base TN = 8 × Ritual MR,
+ * Ritual skill-check flow: declared Raises, Base TN = (8 × Ritual MR) − 2,
  * stones Sealed on the attempt (success or failure).
  */
 

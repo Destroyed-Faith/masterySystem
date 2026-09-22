@@ -135,7 +135,7 @@ import {
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 
-/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. T5+ (16/32) is future UI. */
+/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. Tier 4 is the last tier. */
 const STONE_PAYMENT_LANE_COUNT = 15;
 
 /** Segment-Index für Lane: 0=Anchor(1), 1=Mid(2), 2=Quad(4), 3=Oct(8). */
@@ -859,9 +859,9 @@ export class StonePowersDialog extends BaseDialog {
             supportTier,
           )
         : null;
-      const nextCost = removeScarPayment
-        ? removeScarPayment.sealCost
-        : calculateStoneCost(usesThisTurn + rampSkip);
+      const waveCost = calculateStoneCost(usesThisTurn + rampSkip);
+      const tierCapped = !removeScarPayment && waveCost <= 0;
+      const nextCost = removeScarPayment ? removeScarPayment.sealCost : waveCost;
       const pool = getStonePool(this.actor, attrKey);
       const removeScarOpen =
         !removeScarPayment ||
@@ -872,7 +872,7 @@ export class StonePowersDialog extends BaseDialog {
         !!this.combatant &&
         isOncePerCombatPowerUsed(this.combatant, power.id);
       const canAfford =
-        !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
+        !tierCapped && !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
       const gross = spendableForAttr(attrKey);
       const reserved = this.#reservedStonesInDialogForAttr(attrKey);
       const spendableNet = oncePerCombatUsed
@@ -954,7 +954,7 @@ export class StonePowersDialog extends BaseDialog {
       const rampSkip = rampSkipSegmentsForPower(power.id);
       const leadLockedLanes = rampSkipLeadLanes(power.id);
       const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
-      const canAfford = canAffordGenericNextCost(nextCost);
+      const canAfford = nextCost > 0 && canAffordGenericNextCost(nextCost);
       const description = power.description || power.effect || '';
       const spendableNet = totalSpendableNetAllPools();
       const occupied = this.#stoneOccGet(genericUnifiedAccKey(power.id, usesThisTurn));

@@ -425,7 +425,7 @@ export const UNTIL_USED_EFFECTS: SpecialEffect[] = [
     name: 'Root(X)',
     category: 'untilUsed',
     description:
-      'While Rooted, your Speed becomes 0 m and you cannot move voluntarily. At the start of your Turn, reduce Root by your Mastery Rank. You may also spend an Action, Movement Action, or Reaction on a Vitality Attribute Check against TN 8 × source Mastery Rank; success reduces Root by 1, plus 1 per Raise.',
+      'While Rooted, your Speed becomes 0 m and you cannot move voluntarily. At the start of your Turn, reduce Root by your Mastery Rank. You may also spend an Action, Movement Action, or Reaction on a Vitality Attribute Check against TN (8 × source Mastery Rank) − 2; success reduces Root by 1, plus 1 per Raise.',
     duration: 'Until broken',
     stacking: 'Yes',
     removal: 'Start-of-turn −MR, Break attempt (Vitality Attribute Check), or Cleanse.',

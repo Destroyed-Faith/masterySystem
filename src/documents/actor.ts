@@ -3,9 +3,6 @@
  */
 
 import { 
-  calculateStones, 
-  calculateTotalStones, 
-  updateAttributeStones,
   initializeHealthBars,
   initializeStressBars,
   calculateHealthBarMax,
@@ -51,6 +48,7 @@ import {
   resolveNpcAttackSlots,
 } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
+import { resolvedPermanentStoneTotal, resolvedStonePoolMax, usesV099Stones } from '../progression/v099-rules.js';
 
 /** Clamp skill ranks in an actor update to MR × 4 (and ≥ 0). */
 function clampSkillRanksInUpdate(actor: Actor, changed: any): void {
@@ -128,15 +126,9 @@ export class MasteryActor extends Actor {
     
     // Calculate derived values if needed
     if (system.attributes) {
-      // Calculate attribute stones using /8 rule (Single Source of Truth)
-      for (const attr of Object.values(system.attributes) as any[]) {
-        if (attr && typeof attr.value === 'number') {
-          updateAttributeStones(attr);
-        }
-      }
-      
-      // NEW: Calculate per-attribute stone pools (floor(attribute / 8))
-      // For characters only (NPCs may have stones but don't use action bonuses)
+      const v099Stones = usesV099Stones(system);
+      // v0.9.9: assigned Stones are independent of Attribute values.
+      // Until the one-time respec, existing characters still use floor(attribute / 8).
       if ((this as any).type === 'character') {
         // Initialize stonePools if it doesn't exist (for new characters)
         if (!system.stonePools) {
@@ -147,7 +139,8 @@ export class MasteryActor extends Actor {
         
         for (const attrKey of attributeKeys) {
           const attrValue = system.attributes[attrKey]?.value || 0;
-          const maxStones = Math.floor(attrValue / 8);
+          const maxStones = resolvedStonePoolMax(system, attrKey, attrValue);
+          if (system.attributes[attrKey]) system.attributes[attrKey].stones = maxStones;
           
           // Initialize pool if missing
           if (!system.stonePools[attrKey]) {
@@ -191,16 +184,23 @@ export class MasteryActor extends Actor {
         }
       }
       
-      // OLD STONE SYSTEM: Keep for backwards compatibility / migration
-      // Calculate total stones
       if (!system.stones) {
         system.stones = {};
       }
-      system.stones.total = calculateTotalStones(system.attributes);
+      const legacyTotal = (['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const)
+        .reduce((sum, key) => sum + Math.floor((Number(system.attributes[key]?.value) || 0) / 8), 0);
+      system.stones.total = resolvedPermanentStoneTotal(system, v099Stones ? 0 : legacyTotal);
+      if (!v099Stones) {
+        for (const attr of Object.values(system.attributes) as any[]) {
+          if (attr && typeof attr.value === 'number' && attr.stones == null) {
+            attr.stones = Math.floor(attr.value / 8);
+          }
+        }
+      }
       
-      // Calculate vitality stones
       if (system.attributes.vitality) {
-        system.stones.vitality = calculateStones(system.attributes.vitality.value);
+        system.stones.vitality = system.attributes.vitality.stones
+          ?? (v099Stones ? 0 : Math.floor((Number(system.attributes.vitality.value) || 0) / 8));
       }
       
       // Set maximum stones (total for now, can be extended with bonuses later)
@@ -234,7 +234,7 @@ export class MasteryActor extends Actor {
       
       // Initialize health bars — 6 levels:
       // Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
-      // Bars 0–4 each hold `Vitality × 2` boxes; the final bar (Incapacitated)
+      // Bars 0–4 each hold `Vitality × 4` boxes; the final bar (Incapacitated)
       // is a fixed single box ("you go down at 0").
       if ((this as any).type === 'character') {
         // Normalize player/GM-authored manual adjustments so the rest of
@@ -246,7 +246,7 @@ export class MasteryActor extends Actor {
 
         const vitality = system.attributes.vitality?.value || 2;
         // Absorption Passive (Rules/passives.md): each normal Health Bar gains
-        // +4 Max HP per Passive Level (bar formula: Vitality × 2 + Absorption HP).
+        // +4 Max HP per Passive Level (bar formula: Vitality × 4 + Absorption HP).
         let absorptionHp = 0;
         try {
           for (const item of (this as any).items ?? []) {
@@ -262,7 +262,7 @@ export class MasteryActor extends Actor {
         } catch {
           /* items not yet initialized on first prepare */
         }
-        // Health bar max = Vitality × 2 + Absorption HP + manual Health Bonus per bar.
+        // Health bar max = Vitality × 4 + Absorption HP + manual Health Bonus per bar.
         // A negative bonus is clamped at 1 so HP never collapses to 0.
         const maxHP = Math.max(1, calculateHealthBarMax(vitality) + absorptionHp + healthBarBonus);
 

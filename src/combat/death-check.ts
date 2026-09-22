@@ -4,7 +4,7 @@
  * When all Health Bars are depleted the creature is Incapacitated. At the end
  * of each of its turns the GM rolls a Death Check:
  *   - Pool: the higher of Vitality or Resolve, keep dice equal to Mastery Rank.
- *   - TN = 8 × Mastery Rank.
+ *   - TN = (8 × Mastery Rank) − 2.
  *   - Success → +1 Success (4 Successes → Stabilized).
  *   - Failure → +1 Death Mark (4 Death Marks → dead).
  *
@@ -71,7 +71,7 @@ export function deathCheckPool(actor: any): { attribute: string; dice: number; k
     attribute: useVit ? 'Vitality' : 'Resolve',
     dice: Math.max(1, useVit ? vit : res),
     keep: Math.min(mr, Math.max(1, useVit ? vit : res)),
-    tn: 8 * mr,
+    tn: 8 * mr - 2,
   };
 }
 

@@ -223,11 +223,11 @@ describe('action economy: extra actions only in Burst', () => {
 
 describe('spell TN from caster MR', () => {
   it('is 8 × caster MR (+4 Mental), not Power Level', () => {
-    expect(pcSpellCastingTn(2)).toBe(16);
-    expect(pcSpellCastingTn(3)).toBe(24);
-    expect(pcSpellCastingTn(3, 4)).toBe(28);
-    expect(pcSpellCastingTn(3, 0, { mental: true })).toBe(28);
-    expect(pcSpellCastingTn(3, 2, { mental: true })).toBe(30);
+    expect(pcSpellCastingTn(2)).toBe(14);
+    expect(pcSpellCastingTn(3)).toBe(22);
+    expect(pcSpellCastingTn(3, 4)).toBe(26);
+    expect(pcSpellCastingTn(3, 0, { mental: true })).toBe(26);
+    expect(pcSpellCastingTn(3, 2, { mental: true })).toBe(28);
     // Old PL formula 8×ceil(PL/2) for PL 4 would be 16 — must differ at MR 3.
     expect(pcSpellCastingTn(3)).not.toBe(8 * Math.ceil(4 / 2));
   });

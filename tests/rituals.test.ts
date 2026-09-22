@@ -12,15 +12,15 @@ import {
 import { STONE_RITUALS_CATALOG } from '../src/stones/rituals-catalog';
 
 describe('Ritual TN', () => {
-  it('Base Ritual TN = 8 × Ritual MR', () => {
-    expect(calculateRitualTN(1)).toBe(8);
-    expect(calculateRitualTN(2)).toBe(16);
-    expect(calculateRitualTN(3)).toBe(24);
+  it('Base Ritual TN = (8 × Ritual MR) − 2', () => {
+    expect(calculateRitualTN(1)).toBe(6);
+    expect(calculateRitualTN(2)).toBe(14);
+    expect(calculateRitualTN(3)).toBe(22);
   });
 
   it('situational modifier shifts Base TN in ±4 steps', () => {
-    expect(calculateRitualTN(2, 4)).toBe(20);
-    expect(calculateRitualTN(2, -4)).toBe(12);
+    expect(calculateRitualTN(2, 4)).toBe(18);
+    expect(calculateRitualTN(2, -4)).toBe(10);
   });
 
   it('Raise TN = Base + declared Raises × 4', () => {

@@ -8,6 +8,7 @@
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 
 import { healStressFromBars } from '../utils/calculations.js';
+import { resolvedStonePoolMax } from '../progression/v099-rules.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc-attack-model.js';
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
@@ -1108,10 +1109,13 @@ export async function incrementStoneUsage(
 }
 
 /**
- * Calculate exponential stone cost: 2^(usesThisTurn)
+ * Additional Stone cost of the next Ability tier: 1, 2, 4, 8.
+ * Tier 4 is the last tier. A further use costs nothing and must not be offered.
  */
 export function calculateStoneCost(usesThisTurn: number): number {
-  return Math.pow(2, usesThisTurn);
+  const uses = Math.max(0, Math.floor(Number(usesThisTurn) || 0));
+  if (uses >= 4) return 0;
+  return Math.pow(2, uses);
 }
 
 /**
@@ -1168,7 +1172,7 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
-    const maxStones = Math.floor(attrValue / 8);
+    const maxStones = resolvedStonePoolMax(sys, attr, attrValue);
     const reserved = stonePoolReservedStones(sys, attr);
     const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
@@ -1203,7 +1207,7 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
-    const maxStones = Math.floor(attrValue / 8);
+    const maxStones = resolvedStonePoolMax(sys, attr, attrValue);
     const reserved = stonePoolReservedStones(sys, attr);
     const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
@@ -1605,15 +1609,13 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
     const system = (owner.system as any);
     const updates: any = {};
 
-    // Same target as the round-1 refill: capacity from the attribute, current
-    // filled up to capacity minus sustained. Artifact-bound stones are not
-    // subtracted here — bindings are deducted when stones are spent
-    // (`poolSpendableStones`), so they stay reserved without shrinking the pool.
+    // Capacity is the assigned permanent Stone count (v0.9.9) or the legacy
+    // attribute threshold until that character finishes respec.
     for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
       const pool = getStonePool(owner, attr);
       const reserved = stonePoolReservedStones(system, attr);
       const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
-      const maxStones = Math.floor(attrValue / 8);
+      const maxStones = resolvedStonePoolMax(system, attr, attrValue);
       const fullCurrent = Math.max(0, maxStones - reserved);
 
       if (pool.current !== fullCurrent || pool.max !== maxStones) {

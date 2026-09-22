@@ -21,6 +21,10 @@
           <span class="cp-meta-label">Mastery Rank</span>
           <span class="cp-meta-value">{{masteryRank}}</span>
         </div>
+        <div class="cp-meta-item cp-meta-lifetime">
+          <span class="cp-meta-label">Lifetime XP</span>
+          <span class="cp-meta-value">{{#if lifetimeProgression.unknown}}{{else}}{{lifetimeProgression.lifetimeLabel}}{{/if}}</span>
+        </div>
         <div class="cp-meta-item cp-meta-rerolls">
           <span class="cp-meta-label">Reroll Points</span>
           <span class="cp-meta-value">{{rerollPoints.current}} / {{rerollPoints.maximum}}</span>
@@ -28,6 +32,18 @@
             {{#each rerollPoints.boxes}}<i class="cp-meta-reroll-box is-{{state}}"></i>{{/each}}
           </span>
         </div>
+      </div>
+      <div class="cp-lifetime" aria-label="Lifetime XP Stones">
+        {{#each lifetimeProgression.rows}}
+        <div class="cp-lifetime-row">
+          {{#each this}}
+          <div class="cp-lifetime-cell">
+            <span class="cp-lifetime-box">{{#if assigned}}{{abbrev}}{{/if}}</span>
+            <span class="cp-lifetime-mark">{{label}}</span>
+          </div>
+          {{/each}}
+        </div>
+        {{/each}}
       </div>
       <div class="cp-core-combat" aria-label="Core Combat">
         <div class="cp-core-stat">

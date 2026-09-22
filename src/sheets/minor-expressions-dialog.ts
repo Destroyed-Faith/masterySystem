@@ -1,6 +1,6 @@
 /**
  * Dialog: choose Minor Expressions (cantrips) per attribute view, capped
- * by Mastery Rank globally, attribute ≥ 8.
+ * by Mastery Rank globally, attribute ≥ 4.
  */
 
 import {
@@ -37,7 +37,7 @@ function escapeHtml(s: string): string {
 function tierScaleBlock(def: MinorExpressionDefinition, attrVal: number, eligible: boolean): string {
   if (!eligible) return '';
   const currentTier = tierThresholdForAttributeValue(attrVal);
-  const defaultTier: MinorExpressionTier = currentTier ?? 8;
+  const defaultTier: MinorExpressionTier = currentTier ?? MINOR_EXPRESSION_TIERS[0];
   const options = MINOR_EXPRESSION_TIERS.map((t) => {
     const sel = t === defaultTier ? ' selected' : '';
     const unlocked = isTierUnlocked(attrVal, t);

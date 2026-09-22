@@ -12,7 +12,7 @@ import {
   getAttributeXpBaseline,
 } from '../progression/progression-hub-actions.js';
 import { downgradeArtifactForActor } from '../artifacts/artifact-evolution-actions.js';
-import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
+import { attributeBandCost, skillBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
 import { getPowerMinLevel } from './power-xp-refund.js';
 import type { XpHistoryRow } from './xp-history.js';
 
@@ -40,7 +40,7 @@ export function liveRefundXp(category: string, current: number, target: number):
   }
   let sum = 0;
   for (let v = current; v > target; v--) {
-    sum += category === 'power' ? powerLevelCost(v) : attributeBandCost(v);
+    sum += category === 'power' ? powerLevelCost(v) : category === 'skill' ? skillBandCost(v) : attributeBandCost(v);
   }
   return sum;
 }

@@ -10,6 +10,7 @@
  * rolls share one calculation.
  */
 
+import { standardTnForMasteryRank } from '../utils/constants.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { finalizeRolledPool } from './pool-finalize.js';
@@ -38,22 +39,18 @@ export function isSkillFullPoolReady(skillRating: number, masteryRank: number): 
 }
 
 /**
- * Opposed Skill Rolls (PG "Opposed Skill Rolls"): after a successful setup
- * roll, the opposing creature rolls against
- *   Opposing TN = standard Skill Check TN by the setup creature's MR (8 × MR)
- *                 + 2 per Raise on the setup roll.
+ * Opposed Skill Rolls: the setup roll's Final Result is the opposing TN.
+ * Raises are not added on top of a fixed Mastery Rank TN.
  */
-export function buildOpposedSkillTn(setupMasteryRank: number, setupRaises: number): number {
-  const mr = Math.max(1, Math.floor(Number(setupMasteryRank) || 1));
-  const raises = Math.max(0, Math.floor(Number(setupRaises) || 0));
-  return mr * 8 + raises * 2;
+export function buildOpposedSkillTn(setupFinalResult: number, _unusedRaises = 0): number {
+  return Math.max(0, Math.floor(Number(setupFinalResult) || 0));
 }
 
 export function buildDifficultyPresets(challengeMR: number): Record<string, number> {
-  const std = Math.max(1, Math.floor(challengeMR)) * 8;
+  const std = standardTnForMasteryRank(challengeMR);
   return {
-    trivial: std - 8,
-    easy: std - 4,
+    trivial: Math.max(0, std - 8),
+    easy: Math.max(0, std - 4),
     standard: std,
     challenging: std + 4,
     hard: std + 8,

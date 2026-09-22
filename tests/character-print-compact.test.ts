@@ -302,7 +302,7 @@ describe('Quick Play character print', () => {
     expect(ctx.hasEchoCards).toBeUndefined();
   });
 
-  it('connects each Attribute to its stones and T1–T3 stone cost layouts', () => {
+  it('connects each Attribute to its stones and T1–T4 stone cost layouts', () => {
     const ctx = buildCharacterCompactPrintContext(alarisActor()) as any;
     expect(ctx.attributeModules).toHaveLength(7);
     const agility = ctx.attributeModules.find((m: any) => m.key === 'agility');
@@ -311,16 +311,18 @@ describe('Quick Play character print', () => {
     expect(agility.stones).toEqual([{ ready: true }]);
     const crit = agility.powers.find((p: any) => p.name === 'Crit');
     expect(crit.firstTier).toBe(2);
-    expect(crit.tiers.map((t: any) => t.label)).toEqual(['T2', 'T3']);
+    expect(crit.tiers.map((t: any) => t.label)).toEqual(['T2', 'T3', 'T4']);
     expect(crit.tiers.find((t: any) => t.label === 'T2').boxes).toHaveLength(2);
     expect(crit.tiers.find((t: any) => t.label === 'T3').boxes).toHaveLength(4);
+    expect(crit.tiers.find((t: any) => t.label === 'T4').boxes).toHaveLength(8);
+    expect(crit.tiers.find((t: any) => t.label === 'T1')).toBeUndefined();
     expect(crit.tiers.find((t: any) => t.label === 'T2').layout).toBe('t2');
     expect(crit.tiers.find((t: any) => t.label === 'T3').layout).toBe('t3');
     expect(crit.effect).toBeUndefined();
 
     const vitality = ctx.attributeModules.find((m: any) => m.key === 'vitality');
     const tempHp = vitality.powers.find((p: any) => p.name === 'Temporary HP');
-    expect(tempHp.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
+    expect(tempHp.tiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3', 'T4']);
     expect(tempHp.tiers.find((t: any) => t.label === 'T1').boxes).toHaveLength(1);
     expect(tempHp.tiers.find((t: any) => t.label === 'T1').layout).toBe('t1');
 
@@ -333,7 +335,7 @@ describe('Quick Play character print', () => {
     expect(ctx.generalStones.powers).toHaveLength(4);
     const extraAttack = ctx.generalStones.powers.find((p: any) => p.name === 'Extra Attack');
     expect(extraAttack.firstTier).toBe(2);
-    expect(extraAttack.tiers.map((t: any) => t.label)).toEqual(['T2', 'T3']);
+    expect(extraAttack.tiers.map((t: any) => t.label)).toEqual(['T2', 'T3', 'T4']);
   });
 
   it('shows only trained skills by category with Keep and existing skill-use boxes', () => {

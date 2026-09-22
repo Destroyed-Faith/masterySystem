@@ -53,13 +53,14 @@ export function baseEvadeForMr(mr: number): number {
   return Math.max(1, Math.floor(mr)) * 4;
 }
 
-/** NPC spell attack Casting TN: 8 × MR (+ target Spell Resistance). */
+/** NPC spell attack Casting TN: (8 × MR) − 2 (+ target Spell Resistance). */
 export function npcSpellCastingTn(mr: number, targetSpellResistance = 0): number {
-  return 8 * Math.max(1, Math.floor(mr)) + Math.max(0, Math.floor(targetSpellResistance));
+  const rank = Math.max(1, Math.floor(mr));
+  return 8 * rank - 2 + Math.max(0, Math.floor(targetSpellResistance));
 }
 
 /**
- * PC spell Casting TN vs an NPC: 8 × caster Mastery Rank
+ * PC spell Casting TN vs an NPC: (8 × caster Mastery Rank) − 2
  * (`castingBaseTnForMasteryRank`), +4 if Mental, plus target Spell Resistance.
  * Power Level does not set the TN.
  */
@@ -69,7 +70,7 @@ export function pcSpellCastingTn(
   opts?: { mental?: boolean },
 ): number {
   const mr = Math.max(1, Math.min(8, Math.floor(Number(casterMr) || 1)));
-  return 8 * mr + (opts?.mental ? 4 : 0) + Math.max(0, Math.floor(targetSpellResistance));
+  return 8 * mr - 2 + (opts?.mental ? 4 : 0) + Math.max(0, Math.floor(targetSpellResistance));
 }
 
 /** Melee flat damage bonus from Might: 2 × floor(Might / 8) (calculations.ts). */

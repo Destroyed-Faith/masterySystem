@@ -20,7 +20,7 @@ export const UNBOUND_PREDATOR_SHAPES = [
 export type UnboundPredatorShape = (typeof UNBOUND_PREDATOR_SHAPES)[number];
 
 export const UNBOUND_PREDATOR_STONES = [
-  { key: 'might', label: 'Might — Melee Damage', artifactKey: 'predatorCrownMight' },
+  { key: 'might', label: 'Might — Martial Damage', artifactKey: 'predatorCrownMight' },
   { key: 'wits', label: 'Wits — Initiative Boost', artifactKey: 'predatorCrownWits' },
   { key: 'intellect', label: 'Intellect — Spell Raises', artifactKey: 'predatorCrownIntellect' },
 ] as const;

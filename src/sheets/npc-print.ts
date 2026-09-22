@@ -271,7 +271,7 @@ export function buildNpcPrintContext(actor: any): Record<string, unknown> {
   const system = actor?.system ?? {};
   const name = String(actor?.name ?? system?.bio?.name ?? 'NPC').trim() || 'NPC';
   const masteryRank = Math.max(1, Math.floor(num(system?.mastery?.rank, 1)));
-  const castingTn = 8 * masteryRank;
+  const castingTn = 8 * masteryRank - 2;
   const creatureType = creatureTypeLabel(actor);
   const movementSlots = Math.max(1, Math.floor(num(system?.npcMovementSlots, 1)));
   const description = String(system?.bio?.description ?? '').trim();
@@ -332,7 +332,7 @@ export function buildNpcCompactPrintContext(actor: any): Record<string, unknown>
   const system = actor?.system ?? {};
   const name = String(actor?.name ?? system?.bio?.name ?? 'NPC').trim() || 'NPC';
   const masteryRank = Math.max(1, Math.floor(num(system?.mastery?.rank, 1)));
-  const castingTn = 8 * masteryRank;
+  const castingTn = 8 * masteryRank - 2;
   const creatureType = creatureTypeLabel(actor);
   const movementSlots = Math.max(1, Math.floor(num(system?.npcMovementSlots, 1)));
   const faction = String(system?.bio?.faction ?? '').trim();

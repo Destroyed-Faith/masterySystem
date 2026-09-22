@@ -6,7 +6,7 @@
  *     Vitality (per rules table): Temporary HP / Damage Negation /
  *     Remove Scar / Extend Active Buff.
  *   - Each power has exactly 4 published tiers; cost-per-tier = 1 / 2 / 4 / 8.
- *   - tierForUseIndex continues to T8 (practical pay wall is T6 / 80 stones).
+ *   - tierForUseIndex stops at Tier 4. There is no Tier 5.
  *   - apply() for every power × every tier runs without throwing on a
  *     mock actor/combatant and writes only into stoneBonuses or flags.
  */
@@ -279,20 +279,19 @@ describe('Cost progression maps to tiers', () => {
     expect(calculateStoneCost(1)).toBe(2);
     expect(calculateStoneCost(2)).toBe(4);
     expect(calculateStoneCost(3)).toBe(8);
-    expect(calculateStoneCost(4)).toBe(16);
-    expect(calculateStoneCost(5)).toBe(32);
+    expect(calculateStoneCost(4)).toBe(0);
+    expect(calculateStoneCost(5)).toBe(0);
   });
 
-  it('tierForUseIndex continues past the printed T4 table', () => {
+  it('tierForUseIndex stops at Tier 4', () => {
     expect(tierForUseIndex(0)).toBe(1);
     expect(tierForUseIndex(1)).toBe(2);
     expect(tierForUseIndex(2)).toBe(3);
     expect(tierForUseIndex(3)).toBe(4);
-    expect(tierForUseIndex(4)).toBe(5);
-    expect(tierForUseIndex(5)).toBe(6);
-    expect(tierForUseIndex(7)).toBe(8);
-    expect(tierForUseIndex(99)).toBe(STONE_TIER_HARD_MAX);
-    expect(STONE_TIER_PRACTICAL_MAX).toBe(6);
+    expect(tierForUseIndex(4)).toBe(4);
+    expect(tierForUseIndex(99)).toBe(4);
+    expect(STONE_TIER_HARD_MAX).toBe(4);
+    expect(STONE_TIER_PRACTICAL_MAX).toBe(4);
   });
 
   it('tierForUseIndex floors negative / NaN inputs to T1', () => {
@@ -301,25 +300,20 @@ describe('Cost progression maps to tiers', () => {
   });
 });
 
-describe('scaleStoneTier continues past the printed table', () => {
+describe('scaleStoneTier stops at the published sequence', () => {
   it('returns published T1–T4 values', () => {
     expect(scaleStoneTier([0, 1, 2, 3], 1)).toBe(0);
     expect(scaleStoneTier([0, 1, 2, 3], 4)).toBe(3);
     expect(scaleStoneTier([4, 8, 16, 32], 4)).toBe(32);
   });
 
-  it('keeps doubling when the last published step doubled', () => {
-    expect(scaleStoneTier([4, 8, 16, 32], 5)).toBe(64);
-    expect(scaleStoneTier([4, 8, 16, 32], 6)).toBe(128);
-    expect(scaleStoneTier([20, 40, 80, 160], 5)).toBe(320);
-    expect(scaleStoneTier([2, 4, 8, 16], 5)).toBe(32);
-  });
-
-  it('repeats the last delta otherwise', () => {
-    expect(scaleStoneTier([0, 1, 2, 3], 5)).toBe(4);
-    expect(scaleStoneTier([8, 16, 24, 32], 5)).toBe(40);
-    expect(scaleStoneTier([0, 4, 8, 12], 5)).toBe(16);
-    expect(scaleStoneTier([2, 4, 8, 12], 5)).toBe(16);
+  it('does not invent Tier 5 scaling', () => {
+    expect(scaleStoneTier([4, 8, 16, 32], 5)).toBe(0);
+    expect(scaleStoneTier([4, 8, 16, 32], 6)).toBe(0);
+    expect(scaleStoneTier([20, 40, 80, 160], 5)).toBe(0);
+    expect(scaleStoneTier([2, 4, 8, 16], 5)).toBe(0);
+    expect(scaleStoneTier([0, 1, 2, 3], 5)).toBe(0);
+    expect(scaleStoneTier([1, 2, 3], 4)).toBe(0);
   });
 });
 
@@ -375,18 +369,23 @@ describe('Generic powers — Extra Attack', () => {
     expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
   });
 
-  it('T2 grants +1, T3 grants +2, T4 grants +3, T5 grants +4 Attack Actions', async () => {
+  it('T2 grants +1, T3 grants +2, T4 grants +3, and T5 adds nothing', async () => {
     const power = STONE_POWERS['generic.extraAttack'];
-    for (const [tier, expected] of [[2, 1], [3, 2], [4, 3], [5, 4]] as const) {
+    for (const [tier, expected] of [[2, 1], [3, 2], [4, 3]] as const) {
       const actor = makeMockActor();
       await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier, cost: 2 ** (tier - 1) });
       expect(actor._roundState.attackActions.total).toBe(1 + expected);
       expect(actor._roundState.stoneBonuses.extraAttacks).toBe(expected);
     }
+    const capped = makeMockActor();
+    await power.apply({ actor: capped as any, combatant: makeMockCombatant() as any, tier: 5, cost: 16 });
+    expect(capped._roundState.stoneBonuses.extraAttacks).toBe(0);
+    expect(power.tiers).toHaveLength(3);
+    expect(power.tiers[0].label).not.toMatch(/Tier 1/i);
   });
 });
 
-describe('Might — Melee Damage scales 2/4/8/16', () => {
+describe('Might — Martial Damage scales 2/4/8/16', () => {
   it.each([[1, 2], [2, 4], [3, 8], [4, 16]])('T%i adds %i melee damage dice', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['might.meleeDamage'].apply({
@@ -671,7 +670,7 @@ describe('once-per-combat highest complete tier', () => {
 });
 
 describe('Wits — Initiative Boost is MR × 1/2/4/8 and once per combat', () => {
-  it.each([[1, 2], [2, 4], [3, 8], [4, 16], [5, 32]])('T%i adds +%i initiative at MR2', async (tier, expected) => {
+  it.each([[1, 2], [2, 4], [3, 8], [4, 16], [5, 0]])('T%i adds +%i initiative at MR2', async (tier, expected) => {
     const actor = makeMockActor();
     const combatant = makeMockCombatant();
     await STONE_POWERS['wits.initiativeBoost'].apply({
@@ -716,7 +715,7 @@ describe('Agility — Crit starts at T2', () => {
     expect(STONE_POWERS['agility.crit'].tiers).toHaveLength(3);
   });
 
-  it.each([[2, 1], [3, 2], [4, 3], [5, 4]])('T%i grants Crit(1) on %i attack(s)', async (tier, expected) => {
+  it.each([[2, 1], [3, 2], [4, 3]])('T%i grants Crit(1) on %i attack(s)', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['agility.crit'].apply({
       actor: actor as any,
@@ -725,6 +724,17 @@ describe('Agility — Crit starts at T2', () => {
       cost: 2 ** (tier - 1),
     });
     expect(actor._roundState.stoneBonuses.critRaises).toBe(expected);
+  });
+
+  it('T5 does not invent another Crit charge', async () => {
+    const actor = makeMockActor();
+    await STONE_POWERS['agility.crit'].apply({
+      actor: actor as any,
+      combatant: makeMockCombatant() as any,
+      tier: 5,
+      cost: 16,
+    });
+    expect(actor._roundState.stoneBonuses.critRaises).toBeUndefined();
   });
 });
 

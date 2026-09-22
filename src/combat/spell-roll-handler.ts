@@ -6,7 +6,7 @@
  * standard attack:
  *
  *   Spell Attack → pool = casting attribute, keep = mastery rank,
- *                  TN = 8 × caster Mastery Rank (+4 for Mental Powers)
+ *                  TN = (8 × caster Mastery Rank) − 2 (+4 for Mental Powers)
  *                       + Target Spell Resistance + 4 × declared raises.
  *
  *   Saving Throws were removed from the rules: a successful cast resolves the
@@ -28,7 +28,7 @@ import type {
 import type { MasteryRollResult } from '../types/index';
 import { masteryRoll } from '../dice/roll-handler.js';
 import { computeRaiseTns, resolveRaiseOutcome, type RaiseOutcome } from './raise-resolution.js';
-import { RAISE_INCREMENT } from '../utils/constants.js';
+import { RAISE_INCREMENT, standardTnForMasteryRank } from '../utils/constants.js';
 import {
   applyStress,
   applyDamage,
@@ -58,7 +58,7 @@ export function canCastSpellAtLevel(masteryRank: number, spellLevel: number): bo
 }
 
 /**
- * Spell Base TN (Players Guide "Casting Roll"): **8 × caster Mastery Rank**,
+ * Spell Base TN (Players Guide "Casting Roll"): **(8 × caster Mastery Rank) − 2**,
  * independent of the Power Level of the spell being cast.
  *
  *   MR 1 → 8, MR 2 → 16, … MR 8 → 64.
@@ -74,7 +74,7 @@ export function castingBaseTnForMasteryRank(
   opts?: { mental?: boolean },
 ): number {
   const mr = Math.max(1, Math.min(8, Math.floor(Number(masteryRank) || 1)));
-  return 8 * mr + (opts?.mental ? 4 : 0);
+  return standardTnForMasteryRank(mr) + (opts?.mental ? 4 : 0);
 }
 
 // ──────────────────────────────────────────────────────────────────────────

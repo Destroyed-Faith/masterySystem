@@ -77,34 +77,28 @@ export interface StonePower {
 
 type StonePowerDraft = Omit<StonePower, 'effect' | 'startsAtTier'> & { startsAtTier?: 1 | 2 };
 
-/** Tiers shown in the dialog / Players Guide. */
+/** Tiers shown in the dialog / Players Guide. Tier 4 is the last tier. */
 export const STONE_TIER_VISIBLE = 4;
-/** Last wave you can fully pay with 80 Stones (1+2+4+8+16+32 = 63). */
-export const STONE_TIER_PRACTICAL_MAX = 6;
-/** Hard cap while the table is still open-ended. */
-export const STONE_TIER_HARD_MAX = 8;
+/** Highest tier a Stone Ability can reach. */
+export const STONE_TIER_PRACTICAL_MAX = 4;
+/** Hard cap. There is no Tier 5. */
+export const STONE_TIER_HARD_MAX = 4;
 
 /**
- * Continue a published T1–T4 number sequence past the printed table.
- * Doubling sequences keep doubling; otherwise the last delta repeats.
+ * Read a published tier value. Tiers past the printed sequence, and anything
+ * above Tier 4, do not scale.
  */
 export function scaleStoneTier(seq: readonly number[], tier: number): number {
   const t = Math.max(1, Math.floor(Number(tier) || 1));
-  if (t <= seq.length) return Number(seq[t - 1]) || 0;
-  if (seq.length === 0) return 0;
-  if (seq.length === 1) return Number(seq[0]) || 0;
-  const a = Number(seq[seq.length - 2]) || 0;
-  const b = Number(seq[seq.length - 1]) || 0;
-  const steps = t - seq.length;
-  if (a > 0 && b > 0 && b % a === 0 && b / a >= 2) {
-    return b * (b / a) ** steps;
-  }
-  return b + (b - a) * steps;
+  if (t > STONE_TIER_HARD_MAX || t > seq.length) return 0;
+  return Number(seq[t - 1]) || 0;
 }
 
-/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8, … */
+/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
 export function stonePowerWaveCost(tier: number): number {
-  return Math.pow(2, Math.max(1, Math.floor(Number(tier) || 1)) - 1);
+  const t = Math.floor(Number(tier) || 1);
+  if (t < 1 || t > STONE_TIER_HARD_MAX) return 0;
+  return Math.pow(2, t - 1);
 }
 
 /** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
@@ -281,15 +275,16 @@ const GENERIC_POWERS_RAW: StonePowerDraft[] = [
 const MIGHT_POWERS_RAW: StonePowerDraft[] = [
   {
     id: 'might.meleeDamage',
-    name: 'Melee Damage',
+    name: 'Martial Damage',
     attribute: 'might',
     category: 'action',
-    description: 'Add bonus damage dice to your next melee damage roll this turn (+2/+4/+8/+16).',
+    description:
+      'Add bonus damage dice to your next Martial Attack this turn (+2/+4/+8/+16). Melee, ranged, natural weapons, and Martial AoE all qualify. Spell Attacks do not.',
     tiers: [
-      { label: '+2 Damage Dice', description: 'Add +2 Damage Dice to your next melee damage roll this turn.', value: 2 },
-      { label: '+4 Damage Dice', description: 'Add +4 Damage Dice to your next melee damage roll this turn.', value: 4 },
-      { label: '+8 Damage Dice', description: 'Add +8 Damage Dice to your next melee damage roll this turn.', value: 8 },
-      { label: '+16 Damage Dice', description: 'Add +16 Damage Dice to your next melee damage roll this turn.', value: 16 },
+      { label: '+2 Damage Dice', description: 'Add +2 Damage Dice to your next Martial Attack this turn.', value: 2 },
+      { label: '+4 Damage Dice', description: 'Add +4 Damage Dice to your next Martial Attack this turn.', value: 4 },
+      { label: '+8 Damage Dice', description: 'Add +8 Damage Dice to your next Martial Attack this turn.', value: 8 },
+      { label: '+16 Damage Dice', description: 'Add +16 Damage Dice to your next Martial Attack this turn.', value: 16 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
@@ -1101,7 +1096,7 @@ export const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePo
 
 /**
  * Convert a usage count (0-indexed; activations this turn BEFORE this one)
- * to the matching tier. Published UI is T1–T4; the math continues to T8.
+ * to the matching tier. Tier 4 is the last tier.
  */
 export function tierForUseIndex(usesBefore: number): number {
   return Math.max(1, Math.min(STONE_TIER_HARD_MAX, Math.floor(usesBefore) + 1));

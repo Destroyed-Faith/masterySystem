@@ -87,10 +87,11 @@ describe('Skill Roll participant filter', () => {
 });
 
 describe('buildDifficultyPresets', () => {
-  it('uses 8 × challenge MR as standard TN', () => {
+  it('uses (8 × challenge MR) − 2 as standard TN', () => {
     const p = buildDifficultyPresets(4);
-    expect(p.standard).toBe(32);
-    expect(p.hard).toBe(40);
+    expect(p.standard).toBe(30);
+    expect(p.hard).toBe(38);
+    expect(p.easy).toBe(26);
   });
 });
 

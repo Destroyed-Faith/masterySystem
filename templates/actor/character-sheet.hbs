@@ -91,12 +91,12 @@
       {{/if}}
       {{else}}
       <!-- Attribute Distribution Counter -->
-      <div class="points-box creation-points creation-points-attr" title="Attribute Distribution: 2×8, 2×6, 2×4, 1×2">
+      <div class="points-box creation-points creation-points-attr" title="Attribute Distribution: 2×4, 2×3, 3×2">
         <label>Attr</label>
         <div class="points-display attr-distribution-display">
-          <span class="attr-dist-item {{#if (eq creation.attrCount8 2)}}complete{{else}}remaining{{/if}}">8×{{creation.attrCount8}}/2</span>
-          <span class="attr-dist-item {{#if (eq creation.attrCount6 2)}}complete{{else}}remaining{{/if}}">6×{{creation.attrCount6}}/2</span>
           <span class="attr-dist-item {{#if (eq creation.attrCount4 2)}}complete{{else}}remaining{{/if}}">4×{{creation.attrCount4}}/2</span>
+          <span class="attr-dist-item {{#if (eq creation.attrCount3 2)}}complete{{else}}remaining{{/if}}">3×{{creation.attrCount3}}/2</span>
+          <span class="attr-dist-item {{#if (eq creation.attrCount2 3)}}complete{{else}}remaining{{/if}}">2×{{creation.attrCount2}}/3</span>
         </div>
       </div>
       
@@ -152,6 +152,36 @@
     {{/if}}
     </div>
   </header>
+  {{#if v099.needsRespec}}
+  <div class="v099-migration-banner" role="status">
+    <strong>v0.9.9 migration pending.</strong>
+    Attribute scale and Stones changed. Invested Attribute XP is preserved until you confirm the one-time respec.
+    <button type="button" class="v099-open-respec">Complete v0.9.9 migration</button>
+  </div>
+  {{else if v099.needsLifetime}}
+  <div class="v099-migration-banner" role="status">
+    <strong>Lifetime XP needed.</strong>
+    Total earned XP could not be reconstructed. Enter it once, then assign the unlocked Stones.
+    <button type="button" class="v099-open-lifetime">Enter Lifetime XP</button>
+  </div>
+  {{/if}}
+  {{#if v099}}
+  <section class="v099-lifetime" aria-label="Lifetime XP">
+    <div class="v099-lifetime-head">
+      <span class="v099-lifetime-label">Lifetime XP</span>
+      <span class="v099-lifetime-value">{{v099.lifetimeLabel}}</span>
+      <span class="v099-lifetime-meta">{{v099.stoneSummary}}</span>
+    </div>
+    <div class="v099-stone-grid">
+      {{#each v099.slots}}
+      <button type="button" class="v099-stone-slot{{#if unlocked}} is-unlocked{{else}} is-locked{{/if}}{{#if assigned}} is-assigned{{else}}{{#if unlocked}} is-open{{/if}}{{/if}}" data-action="v099-assign-stone" {{#unless canAssign}}disabled{{/unless}} title="{{label}}">
+        <span class="v099-stone-mark">{{#if assigned}}{{abbrev}}{{else}}{{#if unlocked}}+{{/if}}{{/if}}</span>
+        <span class="v099-stone-threshold">{{label}}</span>
+      </button>
+      {{/each}}
+    </div>
+  </section>
+  {{/if}}
   <nav class="sheet-tabs tabs" data-group="primary" aria-label="{{localize 'MASTERY.sheet.tabs.nav'}}">
       <a class="item{{#if creationGuideTabs.attributes}} creation-tab-hint{{/if}}" data-tab="attributes" aria-label="{{localize 'MASTERY.sheet.tabs.attributes'}}">
         <i class="fas fa-fist-raised" aria-hidden="true"></i>
@@ -223,7 +253,7 @@
   <div class="creation-banner">
     <div class="creation-banner-content">
       <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
-      <p>Distribute attributes: <strong>2×8, 2×6, 2×4, 1×2</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}). 
+      <p>Distribute attributes: <strong>2×4, 2×3, 3×2</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}). 
       <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
       <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / {{creation.disadvantagePointsMax}} pts — <strong>at least {{creation.disadvantagePointsMin}} pts required</strong> to finalize.</p>
       <button type="button" class="reset-creation-attributes" title="Set all attributes to 2 so you can redistribute (fixes hidden dropdown options)">
@@ -235,7 +265,7 @@
       </button>
       {{else}}
       <span class="creation-status">
-        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount4}}/2×4, {{creation.attrCount3}}/2×3, {{creation.attrCount2}}/3×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
       </span>
       {{/if}}
     </div>
@@ -588,9 +618,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Might-Wert auswählen" data-attribute="might">
                       {{#if @root.creation.attrCreationSelect.might.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.might.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.might.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.might.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.might.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -639,9 +668,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Agility-Wert auswählen" data-attribute="agility">
                       {{#if @root.creation.attrCreationSelect.agility.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.agility.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.agility.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.agility.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.agility.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -689,9 +717,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Vitality-Wert auswählen" data-attribute="vitality">
                       {{#if @root.creation.attrCreationSelect.vitality.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.vitality.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.vitality.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.vitality.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.vitality.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -733,9 +760,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Wits-Wert auswählen" data-attribute="wits">
                       {{#if @root.creation.attrCreationSelect.wits.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.wits.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.wits.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.wits.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.wits.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -788,9 +814,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Intellect-Wert auswählen" data-attribute="intellect">
                       {{#if @root.creation.attrCreationSelect.intellect.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.intellect.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.intellect.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.intellect.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.intellect.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -838,9 +863,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Resolve-Wert auswählen" data-attribute="resolve">
                       {{#if @root.creation.attrCreationSelect.resolve.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.resolve.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.resolve.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.resolve.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.resolve.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -888,9 +912,8 @@
                     <i class="fas fa-caret-down attribute-creation-handle" aria-hidden="true"></i>
                     <select class="attr-creation-select" title="Attributwert auswählen" aria-label="Influence-Wert auswählen" data-attribute="influence">
                       {{#if @root.creation.attrCreationSelect.influence.s2}}<option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>{{/if}}
+                      {{#if @root.creation.attrCreationSelect.influence.s3}}<option value="3" {{#if (eq value 3)}}selected{{/if}}>3</option>{{/if}}
                       {{#if @root.creation.attrCreationSelect.influence.s4}}<option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.influence.s6}}<option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>{{/if}}
-                      {{#if @root.creation.attrCreationSelect.influence.s8}}<option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>{{/if}}
                     </select>
                   </div>
                   {{/if}}
@@ -1083,7 +1106,7 @@
         <div class="health-stress-grid">
           <!-- Health Bars -->
           <div class="health-bars-container">
-            <h4><i class="fas fa-heart"></i> Health (Vitality × 2 per bar)</h4>
+            <h4><i class="fas fa-heart"></i> Health (Vitality × 4 per bar)</h4>
             <div class="health-bars-list">
               {{#each system.health.bars as |bar index|}}
               <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}{{#if bar.scarred}} is-scarred{{/if}}">
@@ -1138,7 +1161,7 @@
           
           <!-- Stress Bars -->
           <div class="stress-bars-container">
-            <h4><i class="fas fa-brain"></i> Stress (Resolve + Intellect per bar)</h4>
+            <h4><i class="fas fa-brain"></i> Stress (2 × (Resolve + Intellect) per bar)</h4>
             <div class="stress-bars-list">
               {{#each system.stress.bars as |bar index|}}
               <div class="stress-bar-row {{#if (eq index ../system.stress.currentBar)}}active{{/if}}">

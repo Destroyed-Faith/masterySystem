@@ -122,6 +122,8 @@ import {
   registerEchoArtifactDedupeMigrationSetting,
   runEchoArtifactDedupeMigration,
 } from './migrations/echo-artifact-dedupe-migration.js';
+import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
+import { nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
@@ -172,6 +174,7 @@ registerHandlebarsHelpersImmediate();
  * migrations in `ready` still work when a later init step throws.
  */
 function registerAllMasteryInitSettings(): void {
+  registerV099SchemaSetting();
   registerSystemSettings();
   registerDivineClashSettings();
   registerEpicMasteryRollSettings();
@@ -1970,6 +1973,8 @@ function setupXpManagementInline() {
         'system.points.xp': xpState.available + amount,
         'system.xp.totalEarned': xpState.totalEarned + amount
       };
+      const life = nextLifetimeXp(actor.system, amount);
+      if (life != null) updates['system.progression.lifetimeXp'] = life;
 
       if (!actor.system.xp) {
         updates['system.xp.totalSpent'] = 0;
@@ -2031,6 +2036,8 @@ function setupXpManagementInline() {
         'system.points.xpFree': xpState.freeAvailable + amount,
         'system.xp.freeEarned': xpState.freeEarned + amount,
       };
+      const life = nextLifetimeXp(actor.system, amount);
+      if (life != null) updates['system.progression.lifetimeXp'] = life;
 
       if (!actor.system.xp) {
         updates['system.xp.totalSpent'] = 0;
@@ -2191,6 +2198,8 @@ function setupXpManagementInline() {
           'system.points.xp': xpState.available + amount,
           'system.xp.totalEarned': xpState.totalEarned + amount
         };
+        const life = nextLifetimeXp(actor.system, amount);
+        if (life != null) updates['system.progression.lifetimeXp'] = life;
 
         if (!actor.system.xp) {
           updates['system.xp.totalSpent'] = 0;
@@ -2249,6 +2258,8 @@ function setupXpManagementInline() {
           'system.points.xpFree': xpState.freeAvailable + amount,
           'system.xp.freeEarned': xpState.freeEarned + amount,
         };
+        const life = nextLifetimeXp(actor.system, amount);
+        if (life != null) updates['system.progression.lifetimeXp'] = life;
 
         if (!actor.system.xp) {
           updates['system.xp.totalSpent'] = 0;
@@ -2401,9 +2412,9 @@ function registerConfigConstants() {
   
   (CONFIG as any).MASTERY.creation = {
     schticksAllowed: 2,
-    attributeDistribution: [8, 8, 6, 6, 4, 4, 2],
+    attributeDistribution: [4, 4, 3, 3, 2, 2, 2],
     skillPoints: 40,
-    maxAttributeAtCreation: 8,
+    maxAttributeAtCreation: 4,
     maxSkillAtCreation: 4,
     // Players Guide ~5158–5164: only the maximum (8) is canonical; the
     // minimum defaults to 0 so a character may take no disadvantages.
@@ -2517,6 +2528,26 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       data.system.creation = {};
     }
     data.system.creation.complete = false;
+    if (!data.system.progression) data.system.progression = {};
+    const priorFlags = data.flags?.['mastery-system'] || {};
+    const explicitLife = data.system.progression.lifetimeXp;
+    const lifetimeUnknown = priorFlags.needsV099LifetimeXp === true && typeof explicitLife !== 'number';
+    data.system.progression.rulesVersion = '0.9.9.0';
+    data.system.progression.v099Prepared = true;
+    data.system.progression.v099Stones = true;
+    if (!lifetimeUnknown) {
+      data.system.progression.lifetimeXp = Math.max(0, Math.floor(Number(explicitLife) || 0));
+    }
+    data.system.progression.earnedAttributeXp = Math.max(0, Math.floor(Number(data.system.progression.earnedAttributeXp) || 0));
+    data.system.progression.stoneAssignments = data.system.progression.stoneAssignments || {
+      might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
+    };
+    data.flags = data.flags || {};
+    data.flags['mastery-system'] = data.flags['mastery-system'] || {};
+    data.flags['mastery-system'].schemaVersion = '0.9.9.0';
+    data.flags['mastery-system'].v099CorePrepared = true;
+    data.flags['mastery-system'].needsV099Respec = false;
+    data.flags['mastery-system'].needsV099LifetimeXp = lifetimeUnknown;
   }
   
   // Initialize health bars (6 levels for characters, 1 for NPCs)
@@ -2529,9 +2560,9 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     if (!data.system.health) {
       if (actor.type === 'character') {
         // Characters: 6 levels (Healthy → Bruised → Injured → Wounded →
-        // Broken → Incapacitated). Bars 0–4 = Vitality × 2; Incapacitated = 1.
+        // Broken → Incapacitated). Bars 0–4 = Vitality × 4; Incapacitated = 1.
         const vitality = data.system.attributes?.vitality?.value || 2;
-        const maxHP = vitality * 2;
+        const maxHP = vitality * 4;
         data.system.health = {
           bars: [
             { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
@@ -2559,7 +2590,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       if (!data.system.health.bars || data.system.health.bars.length === 0) {
         if (actor.type === 'character') {
           const vitality = data.system.attributes?.vitality?.value || 2;
-          const maxHP = vitality * 2;
+          const maxHP = vitality * 4;
           data.system.health.bars = [
             { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
             { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
@@ -2578,7 +2609,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
         // migration runs in actor.ts prepareBaseData; here we just seed a
         // sane shape so preCreate data is never malformed.
         const vitality = data.system.attributes?.vitality?.value || 2;
-        const maxHP = vitality * 2;
+        const maxHP = vitality * 4;
         const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Broken', 'Incapacitated'];
         const penalties = [0, -1, -2, -4, -5, -6];
 
@@ -2623,7 +2654,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       if (!data.system.stress) {
         const resolve = data.system.attributes?.resolve?.value || 2;
         const intellect = data.system.attributes?.intellect?.value || 2;
-        const maxStress = resolve + intellect;
+        const maxStress = 2 * (resolve + intellect);
         data.system.stress = {
           bars: [
             { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
@@ -2638,7 +2669,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
         if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
           const resolve = data.system.attributes?.resolve?.value || 2;
           const intellect = data.system.attributes?.intellect?.value || 2;
-          const maxStress = resolve + intellect;
+          const maxStress = 2 * (resolve + intellect);
           const oldCurrent = data.system.stress.current || 0;
           
           data.system.stress.bars = [
@@ -2667,7 +2698,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
           // Add missing bars (4 bars total)
           const resolve = data.system.attributes?.resolve?.value || 2;
           const intellect = data.system.attributes?.intellect?.value || 2;
-          const maxStress = resolve + intellect;
+          const maxStress = 2 * (resolve + intellect);
           const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
           
           for (let i = data.system.stress.bars.length; i < 4; i++) {
@@ -3339,6 +3370,13 @@ Hooks.once('ready', async function() {
     console.warn('Mastery System | Rules v2 alignment migration failed', error);
   }
 
+  // Migration: v0.9.9 compressed Attributes — preserve Attribute XP, flag respec.
+  try {
+    await runV099CoreMigration(migrationActors);
+  } catch (error) {
+    console.warn('Mastery System | v0.9.9 core migration failed', error);
+  }
+
   // Migration: base Speed 6 → 8 (Rules v0.9.8).
   try {
     await runSpeed8mMigration(migrationActors);
@@ -3571,6 +3609,7 @@ Hooks.once('ready', async function() {
   const characterActors = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
   let stonePoolsFixed = 0;
   
+  const { resolvedStonePoolMax } = await import('./progression/v099-rules.js');
   for (const actor of characterActors) {
     try {
       const system = (actor as any).system;
@@ -3586,7 +3625,7 @@ Hooks.once('ready', async function() {
         if (!pool) continue;
         
         const attrValue = attributes[attrKey]?.value || 0;
-        const maxStones = Math.floor(attrValue / 8);
+        const maxStones = resolvedStonePoolMax(system, attrKey, attrValue);
         const sustained = pool.sustained ?? 0;
         const sealedBurned = (Math.max(0, Number(pool.sealed) || 0)) + (Math.max(0, Number(pool.burned) || 0));
         const effectiveMax = Math.max(0, maxStones - sustained - sealedBurned);

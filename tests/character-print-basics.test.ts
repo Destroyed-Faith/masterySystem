@@ -230,11 +230,11 @@ describe('character print table sheet', () => {
     expect(ctx.stoneDashboard.powerGroups.length).toBeGreaterThan(0);
     const mightGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'might');
     expect(mightGroup).toBeTruthy();
-    const melee = mightGroup.powers.find((p: any) => /melee damage/i.test(p.name));
+    const melee = mightGroup.powers.find((p: any) => /martial damage/i.test(p.name));
     expect(melee.summary).toMatch(/2\/4\/8\/16/);
-    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3']);
-    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3']);
-    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4]);
+    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3', 'T4']);
+    expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3', 't4']);
+    expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
     const parry = mightGroup.powers.find((p: any) => /parry/i.test(p.name));
     expect(parry.summary).toMatch(/\+4 per Tier/i);
     expect(parry.paymentTiers[0].label).toBe('T2');

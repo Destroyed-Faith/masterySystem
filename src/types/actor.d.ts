@@ -308,7 +308,7 @@ export interface CharacterData {
   resources: ResourcesData;
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
-  /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 8 */
+  /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 4 */
   minorExpressions?: string[];
   /** Optional: default attribute pool per generic stone power; auto-filled each round when useDefaultsEachRound is true */
   stonePowersPrefs?: {
@@ -433,7 +433,7 @@ export interface AttackValue {
   /** Wie Split-Attack-Powers: zwei Treffer, Pool & Schaden je floor(Hälfte). */
   npcSplitAttack?: boolean;
   /**
-   * Spell-Angriff: TN ist der harte MR-Standard (8 × Mastery Rank + Spell Resistance),
+   * Spell-Angriff: TN ist Spell Base TN ((8 × Mastery Rank) − 2 + Spell Resistance),
    * nicht Evade.
    */
   npcIsSpell?: boolean;

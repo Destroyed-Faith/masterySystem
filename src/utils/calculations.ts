@@ -7,11 +7,13 @@ import { AttributeData, HealthBar } from '../types';
 import { HEALTH_PENALTY_FRACTIONS, MAX_ATTRIBUTE, MAX_POWER_LEVEL } from './constants.js';
 
 /**
- * Calculate the number of Stones from an attribute value
- * Every 8 attribute points = 1 Stone
+ * Legacy Attribute → Stone helper.
+ * v0.9.9.0 no longer generates Stones from Attributes. This returns 0 so
+ * leftover callers cannot recreate the old threshold table. Permanent Stones
+ * come from Lifetime XP (`permanentStonesFromLifetimeXp`).
  */
-export function calculateStones(attributeValue: number): number {
-  return Math.floor(attributeValue / 8);
+export function calculateStones(_attributeValue: number): number {
+  return 0;
 }
 
 /**
@@ -33,11 +35,11 @@ export function updateAttributeStones(attribute: AttributeData): void {
 }
 
 /**
- * Calculate Health Bar maximum HP
- * Each bar = Vitality × 2
+ * Calculate Health Bar maximum HP.
+ * Each normal bar = Vitality × 4 (DF Core v0.9.9.0).
  */
 export function calculateHealthBarMax(vitality: number): number {
-  return vitality * 2;
+  return Math.max(0, Math.floor(Number(vitality) || 0)) * 4;
 }
 
 /** A Health Bar with boxes remaining is open; current 0 on a real bar is Scarred. */
@@ -52,7 +54,7 @@ export function isHealthBarScarred(bar: { current?: unknown; max?: unknown } | n
  *
  * Six health levels:
  *   Healthy → Bruised → Injured → Wounded → Broken → Incapacitated.
- * Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
+ * Each non-Incapacitated bar holds `Vitality × 4` boxes; Incapacitated is a
  * single-box "you go down at 0" state. The legacy `penalty` field stores the
  * flat dice penalty for the rare callers that still want a per-step value;
  * the canonical penalty is the percentage table in `HEALTH_PENALTY_FRACTIONS`.
@@ -72,7 +74,7 @@ export function initializeHealthBars(vitality: number): HealthBar[] {
 /**
  * Update health bars when vitality changes.
  *
- * Bars 0–4 carry `Vitality × 2` boxes; the final bar (Incapacitated) is a
+ * Bars 0–4 carry `Vitality × 4` boxes; the final bar (Incapacitated) is a
  * single box and never scales with Vitality. Older actors created before the
  * 6-bar migration may still have four or five bars — in that case we insert
  * the missing levels (Broken before Incapacitated, then Incapacitated).
@@ -248,17 +250,19 @@ export function restoreHealthBarsFrom(bars: HealthBar[], fromIndex: number): num
 }
 
 /**
- * Calculate Stress Bar maximum
- * Each bar = Resolve + Intellect
+ * Calculate Stress Bar maximum.
+ * Each bar = 2 × (Resolve + Intellect) (DF Core v0.9.9.0).
  */
 export function calculateStressBarMax(resolve: number, intellect: number): number {
-  return resolve + intellect;
+  const r = Math.max(0, Math.floor(Number(resolve) || 0));
+  const i = Math.max(0, Math.floor(Number(intellect) || 0));
+  return 2 * (r + i);
 }
 
 /**
  * Initialize stress bars with proper max values
  * 4 bars: Healthy, Stressed, Not Well, Breaking
- * Each bar = Resolve + Intellect boxes
+ * Each bar = 2 × (Resolve + Intellect) boxes
  */
 export function initializeStressBars(resolve: number, intellect: number): HealthBar[] {
   const maxStress = calculateStressBarMax(resolve, intellect);
@@ -410,22 +414,17 @@ export function validateSkillValue(skillValue: number, masteryRank: number): num
 
 /**
  * Maximum Power Level a character of the given Mastery Rank may purchase.
- *
- *   | MR    | Max Power Level |
- *   |-------|-----------------|
- *   | 1 – 2 | 4               |
- *   | 3     | 8               |
- *   | 4     | 12              |
- *   | 5+    | 16              |
- *
- * The hard ceiling is `MAX_POWER_LEVEL` (16) regardless of MR.
+ * v0.9.9.0: Maximum Power Level = Mastery Rank × 2 (MR 1 → 2 … MR 8 → 16).
+ * Existing Powers already above the cap are not stripped by this helper.
  */
 export function calculateMaxPowerLevel(masteryRank: number): number {
   const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
-  if (mr <= 2) return Math.min(4, MAX_POWER_LEVEL);
-  if (mr === 3) return Math.min(8, MAX_POWER_LEVEL);
-  if (mr === 4) return Math.min(12, MAX_POWER_LEVEL);
-  return MAX_POWER_LEVEL;
+  return Math.min(MAX_POWER_LEVEL, mr * 2);
+}
+
+/** Passive Skill Value = 2 × the relevant Attribute. */
+export function passiveSkillValue(attributeValue: number): number {
+  return 2 * Math.max(0, Math.floor(Number(attributeValue) || 0));
 }
 
 // ============================================================

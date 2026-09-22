@@ -32,6 +32,12 @@ export interface MasteryRollResult {
   raiseOutcome?: 'fail' | 'partial' | 'full';
   /** Stone-granted bonus raises applied on full raise success only. */
   stoneBonusRaises?: number;
+  /** Guaranteed Eights exchanged from the final Pool & Keep pool. */
+  guaranteedEights?: number;
+  /** Dice pool after modifiers and before the Guaranteed Eight exchange. */
+  poolBeforeGuaranteed?: number;
+  /** Actual dice rolled after the exchange. Guaranteed Eights are extra results. */
+  rolledDice?: number;
   /**
    * @deprecated Auto-Raises removed — ignored if present on stored flags.
    */

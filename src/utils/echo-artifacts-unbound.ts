@@ -178,8 +178,8 @@ function makePredatorCrown(opts: {
 
 const PREDATOR_CROWN_MIGHT = makePredatorCrown({
   key: 'predatorCrownMight',
-  stoneLabel: 'Might — Melee Damage',
-  stoneTechnical: 'Might Ability: Melee Damage (choose one, Tier 2+)',
+  stoneLabel: 'Might — Martial Damage',
+  stoneTechnical: 'Might Ability: Martial Damage (choose one, Tier 2+)',
   stoneFunction: {
     level: 1,
     kind: 'stonePowerSupport',

@@ -79,9 +79,9 @@ describe('Saving throws removed', () => {
 
 describe('Attribute Checks', () => {
   it('exposes Challenge-MR based Attribute Check TN helper', () => {
-    expect(attributeCheckTn(1)).toBe(8);
-    expect(attributeCheckTn(2)).toBe(16);
-    expect(attributeCheckTn(3)).toBe(24);
+    expect(attributeCheckTn(1)).toBe(6);
+    expect(attributeCheckTn(2)).toBe(14);
+    expect(attributeCheckTn(3)).toBe(22);
   });
 });
 

@@ -32,8 +32,8 @@ describe('Dice Constants (Player\'s Guide compliance)', () => {
 });
 
 describe('Attribute Constants', () => {
-  it('extends to 80 to cover the new MR2-MR8 progression band', () => {
-    expect(MAX_ATTRIBUTE).toBe(80);
+  it('caps the compressed scale at 40', () => {
+    expect(MAX_ATTRIBUTE).toBe(40);
   });
 });
 
@@ -66,17 +66,17 @@ describe('Initiative Exchange (Player\'s Guide)', () => {
 });
 
 describe('Character Creation Constants', () => {
-  it('attribute distribution is 2×8, 2×6, 2×4, 1×2', () => {
-    expect(CREATION.ATTRIBUTE_DISTRIBUTION).toEqual([8, 8, 6, 6, 4, 4, 2]);
-    expect(CREATION.ATTRIBUTE_ALLOWED_VALUES).toEqual([2, 4, 6, 8]);
+  it('attribute distribution is 2×4, 2×3, 3×2', () => {
+    expect(CREATION.ATTRIBUTE_DISTRIBUTION).toEqual([4, 4, 3, 3, 2, 2, 2]);
+    expect(CREATION.ATTRIBUTE_ALLOWED_VALUES).toEqual([2, 3, 4]);
   });
 
   it('40 skill points', () => {
     expect(CREATION.SKILL_POINTS).toBe(40);
   });
 
-  it('max attribute at creation is 8', () => {
-    expect(CREATION.MAX_ATTRIBUTE_AT_CREATION).toBe(8);
+  it('max attribute at creation is 4', () => {
+    expect(CREATION.MAX_ATTRIBUTE_AT_CREATION).toBe(4);
   });
 
   it('max skill at creation is 4', () => {
@@ -93,30 +93,27 @@ describe('Character Creation Constants', () => {
 });
 
 describe('XP Cost Tables (new spec)', () => {
-  it('attribute band table covers values 1..80 with cost 1..10', () => {
-    expect(XP_COSTS.ATTRIBUTE[0]).toEqual({ min: 1, max: 8, cost: 1 });
-    expect(XP_COSTS.ATTRIBUTE[1]).toEqual({ min: 9, max: 16, cost: 2 });
-    expect(XP_COSTS.ATTRIBUTE[2]).toEqual({ min: 17, max: 24, cost: 3 });
-    expect(XP_COSTS.ATTRIBUTE[3]).toEqual({ min: 25, max: 32, cost: 4 });
-    expect(XP_COSTS.ATTRIBUTE[9]).toEqual({ min: 73, max: 80, cost: 10 });
+  it('attribute band table covers the compressed 1..40 scale', () => {
+    expect(XP_COSTS.ATTRIBUTE[0]).toEqual({ min: 1, max: 4, cost: 2 });
+    expect(XP_COSTS.ATTRIBUTE[1]).toEqual({ min: 5, max: 8, cost: 4 });
+    expect(XP_COSTS.ATTRIBUTE[9]).toEqual({ min: 37, max: 40, cost: 20 });
     expect(XP_COSTS.ATTRIBUTE).toHaveLength(10);
   });
 
-  it('skills share the attribute band (SKILL aliases ATTRIBUTE)', () => {
-    expect(XP_COSTS.SKILL).toBe(XP_COSTS.ATTRIBUTE);
+  it('skills keep the 1..32 bands and do not alias attributes', () => {
+    expect(XP_COSTS.SKILL).not.toBe(XP_COSTS.ATTRIBUTE);
+    expect(XP_COSTS.SKILL[0]).toEqual({ min: 1, max: 8, cost: 1 });
+    expect(XP_COSTS.SKILL[3]).toEqual({ min: 25, max: 32, cost: 4 });
   });
 
-  it('attributeBandCost returns floor((v - 1) / 8) + 1', () => {
-    expect(attributeBandCost(1)).toBe(1);
-    expect(attributeBandCost(8)).toBe(1);
-    expect(attributeBandCost(9)).toBe(2);
-    expect(attributeBandCost(16)).toBe(2);
-    expect(attributeBandCost(17)).toBe(3);
-    expect(attributeBandCost(32)).toBe(4);
-    expect(attributeBandCost(40)).toBe(5);
-    expect(attributeBandCost(72)).toBe(9);
-    expect(attributeBandCost(73)).toBe(10);
-    expect(attributeBandCost(80)).toBe(10);
+  it('attributeBandCost uses the compressed 4-wide doubled bands', () => {
+    expect(attributeBandCost(1)).toBe(2);
+    expect(attributeBandCost(4)).toBe(2);
+    expect(attributeBandCost(5)).toBe(4);
+    expect(attributeBandCost(8)).toBe(4);
+    expect(attributeBandCost(9)).toBe(6);
+    expect(attributeBandCost(40)).toBe(20);
+    expect(attributeBandCost(41)).toBe(0);
   });
 
   it('power level cost array runs 2..32 (2 × level) for levels 1..16', () => {
@@ -216,9 +213,11 @@ describe('Divine Scale (MR8 sub-tier)', () => {
     expect(getDivineScale(69)).toBe('High God');
   });
 
-  it('Apex God for 70+ stones', () => {
+  it('Apex God for 70-111 stones and System Limit at 112', () => {
     expect(getDivineScale(70)).toBe('Apex God');
-    expect(getDivineScale(120)).toBe('Apex God');
+    expect(getDivineScale(111)).toBe('Apex God');
+    expect(getDivineScale(112)).toBe('System Limit');
+    expect(getDivineScale(120)).toBe('System Limit');
   });
 });
 

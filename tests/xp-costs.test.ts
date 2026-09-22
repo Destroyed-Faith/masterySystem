@@ -2,18 +2,19 @@ import { describe, it, expect } from 'vitest';
 import {
   XP_COSTS,
   attributeBandCost,
+  skillBandCost,
   powerLevelCost,
   MAX_POWER_LEVEL,
 } from '../src/utils/constants';
 
-/** New spec: XP cost to raise an Attribute from currentValue to currentValue+1. */
+/** Compressed Attribute cost to raise from currentValue to currentValue+1. */
 function getAttributeXPCost(currentValue: number): number {
   return attributeBandCost(currentValue + 1);
 }
 
-/** New spec: Skills use the same banded table as Attributes. */
+/** Skills keep their own 1–32 band table. */
 function getSkillXPCost(newRank: number): number {
-  return attributeBandCost(newRank);
+  return skillBandCost(newRank);
 }
 
 /** New spec: power level cost = 2 × newLevel for levels 1..16. */
@@ -21,72 +22,41 @@ function getPowerLevelCost(level: number): number {
   return powerLevelCost(level);
 }
 
-describe('Attribute XP Costs (new banded table to 80)', () => {
-  it('costs 1 XP per point from 0 to 8', () => {
-    for (let v = 0; v < 8; v++) {
-      expect(getAttributeXPCost(v)).toBe(1);
-    }
+describe('Attribute XP Costs (compressed 1–40 scale)', () => {
+  it('costs 2 XP per point from 1 to 4', () => {
+    for (let v = 0; v < 4; v++) expect(getAttributeXPCost(v)).toBe(2);
   });
 
-  it('costs 2 XP per point from 9 to 16', () => {
-    for (let v = 8; v < 16; v++) {
-      expect(getAttributeXPCost(v)).toBe(2);
-    }
+  it('costs 4 XP per point from 5 to 8', () => {
+    for (let v = 4; v < 8; v++) expect(getAttributeXPCost(v)).toBe(4);
   });
 
-  it('costs 3 XP per point from 17 to 24', () => {
-    for (let v = 16; v < 24; v++) {
-      expect(getAttributeXPCost(v)).toBe(3);
-    }
+  it('ends at 20 XP for values 37 to 40 and does not price 41', () => {
+    for (let v = 36; v < 40; v++) expect(getAttributeXPCost(v)).toBe(20);
+    expect(getAttributeXPCost(40)).toBe(0);
   });
 
-  it('costs 4 XP per point from 25 to 32', () => {
-    for (let v = 24; v < 32; v++) {
-      expect(getAttributeXPCost(v)).toBe(4);
-    }
-  });
-
-  it('costs scale through the upper bands all the way to 80', () => {
-    for (let v = 32; v < 40; v++) expect(getAttributeXPCost(v)).toBe(5);
-    for (let v = 40; v < 48; v++) expect(getAttributeXPCost(v)).toBe(6);
-    for (let v = 48; v < 56; v++) expect(getAttributeXPCost(v)).toBe(7);
-    for (let v = 56; v < 64; v++) expect(getAttributeXPCost(v)).toBe(8);
-    for (let v = 64; v < 72; v++) expect(getAttributeXPCost(v)).toBe(9);
-    for (let v = 72; v < 80; v++) expect(getAttributeXPCost(v)).toBe(10);
-  });
-
-  it('total cost to raise from 2 (creation base at MR2) to 8 is 6 XP', () => {
-    let total = 0;
-    for (let v = 2; v < 8; v++) {
-      total += getAttributeXPCost(v);
-    }
-    expect(total).toBe(6);
-  });
-
-  it('total cost to raise from 0 to 80 is the band sum', () => {
-    let total = 0;
-    for (let v = 0; v < 80; v++) total += getAttributeXPCost(v);
-    // 8 points in each of 10 bands, costs 1..10 → 8 × (1+2+...+10) = 8 × 55 = 440
-    expect(total).toBe(8 * (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10));
-    expect(total).toBe(440);
+  it('total cost to raise from 2 to 4 is 4 XP', () => {
+    expect(getAttributeXPCost(2) + getAttributeXPCost(3)).toBe(4);
   });
 });
 
-describe('Skill XP Costs (now share the attribute band)', () => {
-  it('matches the attribute band cost for any rank', () => {
-    for (let r = 1; r <= 80; r++) {
-      expect(getSkillXPCost(r)).toBe(attributeBandCost(r));
-    }
+describe('Skill XP Costs (separate from Attributes)', () => {
+  it('keeps the 1 XP band through rank 8', () => {
+    for (let r = 1; r <= 8; r++) expect(getSkillXPCost(r)).toBe(1);
+    expect(getSkillXPCost(9)).toBe(2);
+    expect(getSkillXPCost(32)).toBe(4);
+    expect(getSkillXPCost(9)).not.toBe(attributeBandCost(9));
   });
 
-  it('total cost to raise skill from 0 to 4 is 4 XP (all in band 1)', () => {
+  it('total cost to raise skill from 0 to 4 is 4 XP', () => {
     let total = 0;
     for (let r = 1; r <= 4; r++) total += getSkillXPCost(r);
     expect(total).toBe(4);
   });
 
-  it('XP_COSTS.SKILL aliases XP_COSTS.ATTRIBUTE', () => {
-    expect(XP_COSTS.SKILL).toBe(XP_COSTS.ATTRIBUTE);
+  it('does not alias the Attribute cost table', () => {
+    expect(XP_COSTS.SKILL).not.toBe(XP_COSTS.ATTRIBUTE);
   });
 });
 

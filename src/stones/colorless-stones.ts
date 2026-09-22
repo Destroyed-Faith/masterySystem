@@ -230,9 +230,10 @@ export async function markOncePerCombatPowerUsed(combatant: any, powerId: string
   await combatant?.setFlag?.('mastery-system', flag, true);
 }
 
-/** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank (then keep doubling). */
+/** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank. Tier 4 is the last tier. */
 export function initiativeBoostAmount(tier: number, masteryRank: number): number {
-  const t = Math.max(1, Math.floor(Number(tier) || 1));
+  const t = Math.floor(Number(tier) || 1);
+  if (t < 1 || t > 4) return 0;
   const mr = Math.max(1, Math.floor(Number(masteryRank) || 2));
   const mult = 2 ** (t - 1);
   return mr * mult;

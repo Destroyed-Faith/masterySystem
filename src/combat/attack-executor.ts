@@ -491,7 +491,7 @@ export async function createAttackCard(
 
     if (powerSystem.isSpell === true || artifactIsSpell) {
       tnKind = 'casting';
-      // Spell Base TN = 8 × caster Mastery Rank (Players Guide "Casting
+      // Spell Base TN = (8 × caster Mastery Rank) − 2 (Players Guide "Casting
       // Roll"); Mental Powers add +4. The Power Level does NOT set the TN.
       const powerTags: string[] = Array.isArray(powerSystem.tags)
         ? powerSystem.tags.map((t: unknown) => String(t))
@@ -506,13 +506,14 @@ export async function createAttackCard(
     }
   }
 
-  // NPC Spell attacks use the hard MR casting standard (8 × Mastery Rank),
+  // NPC Spell attacks use Spell Base TN (8 × Mastery Rank − 2),
   // not Evade and not PC power-level Casting TN.
   const npcIsSpell =
     isNpcAttack && (!!(option as any).npcIsSpell || !!npcAttackRow?.npcIsSpell);
   if (npcIsSpell) {
     tnKind = 'casting';
-    castingBaseTn = 8 * Math.max(1, masteryRank) + getTargetSpellResistance(target);
+    castingBaseTn =
+      castingBaseTnForMasteryRank(Math.max(1, masteryRank)) + getTargetSpellResistance(target);
   }
 
   /** Normal TN for the card's anchor target — unchanged by declared raises. */

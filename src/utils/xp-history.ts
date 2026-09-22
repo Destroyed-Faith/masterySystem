@@ -5,7 +5,7 @@
  * so existing logs still read as individual steps.
  */
 
-import { attributeBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
+import { attributeBandCost, skillBandCost, artifactLevelXpCost, powerLevelCost } from './constants.js';
 
 export type XpHistoryKind = 'grant' | 'spend' | 'adjust' | 'step' | 'step-end';
 export type XpHistoryCategory = 'xp' | 'attribute' | 'skill' | 'power' | 'artifact';
@@ -118,7 +118,7 @@ function stepCost(category: string, from: number, to: number): number {
     const cost = artifactLevelXpCost(rising ? to : from);
     return rising ? cost : -cost;
   }
-  const cost = attributeBandCost(rising ? to : from);
+  const cost = category === 'skill' ? skillBandCost(rising ? to : from) : attributeBandCost(rising ? to : from);
   return rising ? cost : -cost;
 }
 

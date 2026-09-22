@@ -89,12 +89,12 @@ describe('NPC compact combat strip', () => {
     expect(strip.hasPhases).toBe(false);
     expect(strip.cores.find((c: any) => c.label === 'Evade')?.value).toBe('12');
     expect(strip.cores.find((c: any) => c.label === 'Init')?.value).toBe('3d8 +2');
-    expect(strip.cores.find((c: any) => c.label === 'Spell TN')?.value).toBe('24');
+    expect(strip.cores.find((c: any) => c.label === 'Spell TN')?.value).toBe('22');
     expect(strip.cores.find((c: any) => c.label === 'ATK')?.value).toBe('3');
     expect(strip.attacks).toHaveLength(2);
     expect(strip.attacks[0].line).toBe('Speer — 6k3 · 4d8 · Melee 3 m · ×2');
     expect(strip.attacks[1].isSpell).toBe(true);
-    expect(strip.attacks[1].line).toContain('Spell TN 24');
+    expect(strip.attacks[1].line).toContain('Spell TN 22');
   });
 
   it('builds one strip per boss phase with phase-local combat values', () => {

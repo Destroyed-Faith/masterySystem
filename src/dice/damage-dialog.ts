@@ -394,16 +394,20 @@ export async function showDamageDialog(
   const actorToUse = freshAttacker || attacker;
 
   let stoneDamageBonusDice = 0;
-  try {
-    const { getRoundState } = await import('../combat/action-economy.js');
-    const combat = (game as any).combat;
-    if (actorToUse && combat) {
+  const readMartialDamageDice = async (): Promise<number> => {
+    try {
+      const { getRoundState } = await import('../combat/action-economy.js');
+      const combat = (game as any).combat;
+      if (!actorToUse || !combat) return 0;
       const rs = getRoundState(actorToUse as Actor, combat);
-      stoneDamageBonusDice = Math.max(0, Number(rs?.stoneBonuses?.damageBonus) || 0);
+      const martial = Math.max(0, Number(rs?.stoneBonuses?.meleeDamageBonusDice) || 0);
+      const legacy = Math.max(0, Number(rs?.stoneBonuses?.damageBonus) || 0);
+      return martial || legacy;
+    } catch (e) {
+      console.warn('Mastery System | [DAMAGE DIALOG] Could not read Martial Damage dice', e);
+      return 0;
     }
-  } catch (e) {
-    console.warn('Mastery System | [DAMAGE DIALOG] Could not read Might stone damage bonus', e);
-  }
+  };
   
   // Load items from fresh actor - use multiple methods to ensure we get all items
   let items: any[] = [];
@@ -676,6 +680,12 @@ export async function showDamageDialog(
       console.warn('Mastery System | spell focus bonus failed', err);
     }
   }
+  const attackIsSpell =
+    flags?.powerIsSpell === true ||
+    flags?.npcIsSpell === true ||
+    (!!selectedPowerId &&
+      isSpellPowerItem(resolvePowerItemForDamage(actorToUse, selectedPowerId)));
+  stoneDamageBonusDice = attackIsSpell ? 0 : await readMartialDamageDice();
   let raiseOutcomeLine = '';
   let shownPowerDamage = '';
   let shownRaiseDamage = '';
@@ -2715,7 +2725,7 @@ async function calculateDamageResult(
 
   let stoneMightDamageRolled = 0;
   if (stoneDamageBonusDice > 0) {
-    const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Might stones');
+    const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Martial Damage');
     stoneMightDamageRolled = stoneRoll.total;
     if (stoneRoll.line) rollDetails.push(stoneRoll.line);
     if (stoneRoll.roll) damageChatRolls.push(stoneRoll.roll);

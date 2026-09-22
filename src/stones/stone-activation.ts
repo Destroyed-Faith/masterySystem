@@ -131,6 +131,11 @@ export async function activateStonePower(options: {
     ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)) }
     : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
 
+  if (tier > 4 || (!cluster && cost <= 0)) {
+    ui.notifications?.warn(`${power.name} ends at Tier 4.`);
+    return false;
+  }
+
   // Use the action economy system to handle stone spending
   const ok = await spendStoneAbility(
     actor,
@@ -178,6 +183,10 @@ export async function activateGenericStonePowerMixed(options: {
   // cost (the Artifact Support Stones are provided by the artifact).
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
   const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+  if (tier > 4 || cost <= 0) {
+    ui.notifications?.warn(`${power.name} ends at Tier 4.`);
+    return false;
+  }
 
   return spendGenericStoneAbilityWithPerAttributeDeductions(
     actor,

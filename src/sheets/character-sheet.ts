@@ -120,7 +120,19 @@ import {
   requiresAmmunition,
   validateHandEquip,
 } from '../utils/ammunition.js';
-import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
+import { XP_COSTS, attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants';
+import {
+  ATTRIBUTE_ABBREV,
+  ATTRIBUTE_KEYS,
+  buildStoneProgressionSlots,
+  canPlacePermanentStone,
+  permanentStonesFromLifetimeXp,
+  readAssignments,
+  stoneConcentrationCap,
+  usesV099Stones,
+} from '../progression/v099-rules.js';
+import { V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
+import { openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
 import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -889,43 +901,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const maxDisadvantagePoints = (CONFIG as any).MASTERY?.creation?.maxDisadvantagePoints ?? 8;
     const minDisadvantagePoints = (CONFIG as any).MASTERY?.creation?.minDisadvantagePoints ?? 2;
     
-    // Calculate attribute distribution status (2×8, 2×6, 2×4, 1×2 model)
+    // Calculate attribute distribution status (2×4, 2×3, 3×2 model)
     const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-    const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || masteryRank);
-    const assignedValues = attrValues.filter(v => [2, 4, 6, 8].includes(v));
-    const count8 = assignedValues.filter(v => v === 8).length;
-    const count6 = assignedValues.filter(v => v === 6).length;
+    const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || 2);
+    const assignedValues = attrValues.filter(v => [2, 3, 4].includes(v));
     const count4 = assignedValues.filter(v => v === 4).length;
+    const count3 = assignedValues.filter(v => v === 3).length;
     const count2 = assignedValues.filter(v => v === 2).length;
-    const attributeDistributionValid = count8 === 2 && count6 === 2 && count4 === 2 && count2 === 1;
+    const attributeDistributionValid = count4 === 2 && count3 === 2 && count2 === 3;
 
-    /** Per-attribute dropdown: hide tier options already fully used elsewhere (2×8, 2×6, 2×4, 1×2). */
-    const attrTierMax: Record<number, number> = { 8: 2, 6: 2, 4: 2, 2: 1 };
-    const attrCreationSelect: Record<string, { s2: boolean; s4: boolean; s6: boolean; s8: boolean }> = {};
+    /** Per-attribute dropdown: hide values already fully used (2×4, 2×3, 3×2). */
+    const attrTierMax: Record<number, number> = { 4: 2, 3: 2, 2: 3 };
+    const attrCreationSelect: Record<string, { s2: boolean; s3: boolean; s4: boolean }> = {};
     const attrs = context.system.attributes || {};
     for (const ex of attributeKeys) {
       let o2 = 0,
-        o4 = 0,
-        o6 = 0,
-        o8 = 0;
+        o3 = 0,
+        o4 = 0;
       for (const k of attributeKeys) {
         if (k === ex) continue;
         const v = attrs[k]?.value;
-        if (v === 8) o8++;
-        else if (v === 6) o6++;
-        else if (v === 4) o4++;
+        if (v === 4) o4++;
+        else if (v === 3) o3++;
         else if (v === 2) o2++;
       }
       const cur = attrs[ex]?.value;
-      const curInSet = cur === 2 || cur === 4 || cur === 6 || cur === 8;
+      const curInSet = cur === 2 || cur === 3 || cur === 4;
       const can = (val: number) => {
         if (!curInSet) return true;
         if (cur === val) return true;
-        const used = val === 8 ? o8 : val === 6 ? o6 : val === 4 ? o4 : o2;
+        const used = val === 4 ? o4 : val === 3 ? o3 : o2;
         const max = attrTierMax[val] ?? 0;
         return used < max;
       };
-      attrCreationSelect[ex] = { s2: can(2), s4: can(4), s6: can(6), s8: can(8) };
+      attrCreationSelect[ex] = { s2: can(2), s3: can(3), s4: can(4) };
     }
 
     const attrCreationOk: Record<string, boolean> = {};
@@ -1128,9 +1137,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       skillPointsConfig,
       maxSkillAtCreation,
       skillStep,
-      attrCount8: count8,
-      attrCount6: count6,
       attrCount4: count4,
+      attrCount3: count3,
       attrCount2: count2,
       attrCreationSelect,
       attrCreationOk,
@@ -1427,6 +1435,48 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } catch (err) {
       console.error('Mastery System | Failed to build combatStatsView', err);
       context.combatStatsView = null;
+    }
+
+    if (this.actor.type === 'character') {
+      const sys: any = (this.actor as any).system ?? {};
+      const flag = (key: string) => {
+        try {
+          if ((this.actor as any).getFlag?.('mastery-system', key) === true) return true;
+        } catch {
+          /* stored flags below */
+        }
+        return (this.actor as any).flags?.['mastery-system']?.[key] === true;
+      };
+      const needsRespec = flag(V099_RESPEC_FLAG);
+      const needsLifetime = flag(V099_LIFETIME_FLAG);
+      const storedLife = sys?.progression?.lifetimeXp;
+      const lifetimeXp = typeof storedLife === 'number' ? Math.max(0, Math.floor(storedLife)) : null;
+      const assignments = usesV099Stones(sys) ? readAssignments(sys) : {
+        might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
+      };
+      const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
+      const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
+      const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
+      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through).map((slot) => {
+        if (lifetimeXp == null) {
+          return { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '', canAssign: false };
+        }
+        return { ...slot, canAssign: slot.unlocked && !slot.assigned };
+      });
+      const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+      context.v099 = {
+        needsRespec,
+        needsLifetime,
+        lifetimeLabel: lifetimeXp == null ? '—' : String(lifetimeXp),
+        lifetimeXp,
+        permanentStones: stones,
+        unassigned: Math.max(0, stones - assigned),
+        concentrationCap: stoneConcentrationCap(stones, rank),
+        stoneSummary: lifetimeXp == null
+          ? 'Enter Lifetime XP during the v0.9.9 migration.'
+          : `${assigned}/${stones} Stones assigned · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
+        slots,
+      };
     }
 
     // Ensure context is always an object
@@ -2429,6 +2479,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
     bindReliableControlClick(html, '.gm-reset-reroll-points', this.#onGmResetRerollPoints.bind(this));
     bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
+    bindReliableControlClick(html, '.v099-open-respec', (ev: JQuery.TriggeredEvent) => {
+      ev.preventDefault();
+      void this.#openV099Migration();
+    });
+    bindReliableControlClick(html, '.v099-open-lifetime', (ev: JQuery.TriggeredEvent) => {
+      ev.preventDefault();
+      void this.#openV099Lifetime();
+    });
+    bindReliableControlClick(html, '[data-action="v099-assign-stone"]', (ev: JQuery.TriggeredEvent) => {
+      ev.preventDefault();
+      void this.#onV099StoneSlot();
+    });
     
     // Point spending buttons (JavaScript will check permissions)
     // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
@@ -3552,9 +3614,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const pending = this._pendingAttributeChanges[attributeName] || 0;
     const nextPending = pending + 1;
     const effectiveAfter = currentValue + nextPending;
-    if (effectiveAfter > 80) {
+    if (effectiveAfter > MAX_ATTRIBUTE) {
       console.warn('Mastery System | #onAttributeIncreaseXP: Max value exceeded', { effectiveAfter });
-      (ui as any).notifications?.warn('This attribute cannot exceed maximum value (80).');
+      (ui as any).notifications?.warn('This attribute cannot exceed maximum value (40).');
       return;
     }
 
@@ -3707,7 +3769,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const wouldExceedStepCap =
         !this.#hasFreeXp() &&
         (nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey)));
-      if (effectiveAfter > 80 || wouldExceedStepCap) {
+      if (effectiveAfter > MAX_ATTRIBUTE || wouldExceedStepCap) {
         increaseBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
           increaseBtn.attr(
@@ -4284,10 +4346,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   ): Promise<{ baseTN: number; raises: number; finalTN: number } | null> {
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
-    const standardTN = masteryRank * 8;
+    const standardTN = standardTnForMasteryRank(masteryRank);
     const difficulties = {
-      trivial: standardTN - 8,
-      easy: standardTN - 4,
+      trivial: Math.max(0, standardTN - 8),
+      easy: Math.max(0, standardTN - 4),
       standard: standardTN,
       challenging: standardTN + 4,
       hard: standardTN + 8,
@@ -4517,8 +4579,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
 
-    // Players Guide skill-difficulty chapter (~1860–1879): Standard TN = 8 ×
-    // Challenge MR (the GM-set difficulty), NOT 8 × the rolling actor's MR.
+    // Standard TN = (8 × Challenge MR) − 2. The character's MR affects Keep, not the TN.
     // We default the Challenge to the actor's own MR so a self-test starts
     // at the familiar TN, but expose a 1–16 picker so any GM challenge MR
     // can be selected directly.
@@ -4593,12 +4654,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         </div>
 
         <div class="md-group">
-          <label class="md-label">Challenge MR <span class="md-sublabel">(GM difficulty — Standard TN = 8 × Challenge MR)</span></label>
+          <label class="md-label">Challenge MR <span class="md-sublabel">(GM difficulty — Standard TN = (8 × Challenge MR) − 2)</span></label>
           <select name="challengeMR" id="skill-roll-challengeMR" class="md-select">
             ${Array.from({ length: 16 }, (_, i) => i + 1)
               .map(
                 (mr) =>
-                  `<option value="${mr}" ${mr === challengeMR ? 'selected' : ''}>MR ${mr} (Standard ${mr * 8})</option>`,
+                  `<option value="${mr}" ${mr === challengeMR ? 'selected' : ''}>MR ${mr} (Standard ${standardTnForMasteryRank(mr)})</option>`,
               )
               .join('')}
           </select>
@@ -5230,7 +5291,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Combined spendable XP (Free pool is spent first, then regular).
     const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     if (netCost > availableXP) {
-      const nextCost = attributeBandCost(effective + 1);
+      const nextCost = skillBandCost(effective + 1);
       (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
       return;
     }
@@ -5277,8 +5338,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Calculate net pending cost (signed) for all pending skill rank changes.
    *
-   * New spec: Skills use the banded Attribute table — `attributeBandCost(R)`
-   * is the XP cost of buying rank R. Refunds are symmetric.
+   * Skills keep their own 1–32 band costs (`skillBandCost`). Refunds are symmetric.
    */
   #calculateSkillPendingNetCost(pendingMap: Record<string, number>): number {
     return calculateSkillPendingNetCost(this.actor, pendingMap);
@@ -5513,7 +5573,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       pendingMap: this._pendingSkillRankChanges,
       getCurrent: key => Number(this.actor.system.skills?.[key] ?? 0) || 0,
       getLabel: key => SKILLS[key]?.name || key,
-      costForTarget: attributeBandCost,
+      costForTarget: skillBandCost,
       before: beforeState,
       after: {
         available: availableXP - netCost,
@@ -5549,11 +5609,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #promptForTN(): Promise<{ tn: number; raises: number } | null> {
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
-    const standardTN = masteryRank * 8;
+    const standardTN = standardTnForMasteryRank(masteryRank);
 
     const presets = [
-      { label: 'Trivial', value: standardTN - 8 },
-      { label: 'Easy', value: standardTN - 4 },
+      { label: 'Trivial', value: Math.max(0, standardTN - 8) },
+      { label: 'Easy', value: Math.max(0, standardTN - 4) },
       { label: 'Standard', value: standardTN },
       { label: 'Challenging', value: standardTN + 4 },
       { label: 'Hard', value: standardTN + 8 },
@@ -6511,7 +6571,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     new Dialog({
       title: 'Reset attributes?',
       content:
-        '<p class="mastery-reset-attrs-msg">Set <strong>all seven attributes</strong> to <strong>2</strong>. You can then pick the distribution again (2×8, 2×6, 2×4, 1×2). Skills, powers, and disadvantages are unchanged.</p>',
+        '<p class="mastery-reset-attrs-msg">Set <strong>all seven attributes</strong> to <strong>2</strong>. You can then pick the distribution again (2×4, 2×3, 3×2). Skills, powers, and disadvantages are unchanged.</p>',
       buttons: {
         reset: {
           icon: '<i class="fas fa-undo"></i>',
@@ -6574,6 +6634,98 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     window.setTimeout(() => document.addEventListener('mousedown', onDoc, true), 0);
   }
 
+  async #openV099Migration(): Promise<void> {
+    if (!this.actor.isOwner && !(game as any).user?.isGM) {
+      ui.notifications?.warn('Only the owner or GM can finish the v0.9.9 migration.');
+      return;
+    }
+    await openV099RespecDialog(this.actor);
+    this.render();
+  }
+
+  async #openV099Lifetime(): Promise<void> {
+    if (!this.actor.isOwner && !(game as any).user?.isGM) {
+      ui.notifications?.warn('Only the owner or GM can enter Lifetime XP.');
+      return;
+    }
+    await openV099LifetimeDialog(this.actor);
+    this.render();
+  }
+
+  async #onV099StoneSlot(): Promise<void> {
+    const sys: any = (this.actor as any).system ?? {};
+    const pending = (this.actor as any).getFlag?.('mastery-system', V099_RESPEC_FLAG) === true;
+    if (pending || !usesV099Stones(sys)) {
+      await this.#openV099Migration();
+      return;
+    }
+    const storedLife = sys?.progression?.lifetimeXp;
+    const needsLife = (this.actor as any).getFlag?.('mastery-system', V099_LIFETIME_FLAG) === true
+      || typeof storedLife !== 'number';
+    if (needsLife) {
+      await this.#openV099Lifetime();
+      return;
+    }
+    if (!this.actor.isOwner && !(game as any).user?.isGM) {
+      ui.notifications?.warn('Only the owner or GM can assign Stones.');
+      return;
+    }
+    const assignments = readAssignments(sys);
+    const total = permanentStonesFromLifetimeXp(Number(sys?.progression?.lifetimeXp) || 0);
+    const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+    const choices = ATTRIBUTE_KEYS.filter((key) =>
+      canPlacePermanentStone({
+        attribute: key,
+        assignments,
+        totalPermanent: total,
+        storedRank: rank,
+      }).ok,
+    );
+    if (!choices.length) {
+      ui.notifications?.warn('No Attribute can take another Stone under the Mastery Rank × 2 limit.');
+      return;
+    }
+    const DialogCtor = (globalThis as any).Dialog;
+    if (!DialogCtor) return;
+    const options = choices
+      .map((key) => `<option value="${key}">${ATTRIBUTE_ABBREV[key]} (${assignments[key]})</option>`)
+      .join('');
+    new DialogCtor({
+      title: 'Assign permanent Stone',
+      content: `<form><p>This assignment stays until a rule allows reassignment.</p>
+        <select name="attribute">${options}</select></form>`,
+      buttons: {
+        assign: {
+          label: 'Assign',
+          callback: async (html: any) => {
+            const jq = html?.find?.('[name="attribute"]');
+            const key = String(jq?.val?.() ?? html?.querySelector?.('[name="attribute"]')?.value ?? '');
+            const check = canPlacePermanentStone({
+              attribute: key,
+              assignments,
+              totalPermanent: total,
+              storedRank: rank,
+            });
+            if (!check.ok) {
+              ui.notifications?.warn(check.reason || 'That Attribute cannot take the Stone.');
+              return;
+            }
+            const next = (assignments[key as keyof typeof assignments] ?? 0) + 1;
+            const pool = sys?.stonePools?.[key] ?? {};
+            const current = Math.max(0, Math.floor(Number(pool.current) || 0)) + 1;
+            await this.actor.update({
+              [`system.progression.stoneAssignments.${key}`]: next,
+              [`system.stonePools.${key}.max`]: next,
+              [`system.stonePools.${key}.current`]: current,
+            });
+          },
+        },
+        cancel: { label: 'Cancel' },
+      },
+      default: 'assign',
+    }).render(true);
+  }
+
   /**
    * Character Creation: Attribute value changed via select dropdown
    */
@@ -6586,38 +6738,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (isNaN(newValue)) return;
 
     const system = (this.actor as any).system;
-    const masteryRank = system.mastery?.rank || 2;
     const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
 
     // Count how many of each value are already assigned (excluding current attribute)
-    let count8 = 0, count6 = 0, count4 = 0, count2 = 0;
+    let count4 = 0, count3 = 0, count2 = 0;
     for (const key of attributeKeys) {
       if (key === attribute) continue;
-      const v = system.attributes?.[key]?.value || masteryRank;
-      if (v === 8) count8++;
-      else if (v === 6) count6++;
-      else if (v === 4) count4++;
+      const v = system.attributes?.[key]?.value || 2;
+      if (v === 4) count4++;
+      else if (v === 3) count3++;
       else if (v === 2) count2++;
     }
 
-    // Validate the new assignment (2×8, 2×6, 2×4, 1×2)
-    if (newValue === 8 && count8 >= 2) {
-      ui.notifications?.warn('Already 2 attributes at 8. Choose a different value.');
-      this.render();
-      return;
-    }
-    if (newValue === 6 && count6 >= 2) {
-      ui.notifications?.warn('Already 2 attributes at 6. Choose a different value.');
-      this.render();
-      return;
-    }
+    // Starting package: 2×4, 2×3, 3×2
     if (newValue === 4 && count4 >= 2) {
       ui.notifications?.warn('Already 2 attributes at 4. Choose a different value.');
       this.render();
       return;
     }
-    if (newValue === 2 && count2 >= 1) {
-      ui.notifications?.warn('Already 1 attribute at 2. Choose a different value.');
+    if (newValue === 3 && count3 >= 2) {
+      ui.notifications?.warn('Already 2 attributes at 3. Choose a different value.');
+      this.render();
+      return;
+    }
+    if (newValue === 2 && count2 >= 3) {
+      ui.notifications?.warn('Already 3 attributes at 2. Choose a different value.');
       this.render();
       return;
     }
@@ -7214,15 +7359,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const creationCategoryCounts = countPowersByCategory(powers);
 
-    // Validate attribute distribution (2×8, 2×6, 2×4, 1×2)
-    const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || masteryRank);
-    const c8 = attrValues.filter((v: number) => v === 8).length;
-    const c6 = attrValues.filter((v: number) => v === 6).length;
+    // Validate attribute distribution (2×4, 2×3, 3×2). Missing values count as 2.
+    const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || 2);
     const c4 = attrValues.filter((v: number) => v === 4).length;
+    const c3 = attrValues.filter((v: number) => v === 3).length;
     const c2 = attrValues.filter((v: number) => v === 2).length;
-    if (c8 !== 2 || c6 !== 2 || c4 !== 2 || c2 !== 1) {
+    if (c4 !== 2 || c3 !== 2 || c2 !== 3) {
       ui.notifications?.error(
-        `Attributes must be 2×8, 2×6, 2×4, 1×2. Currently: ${c8}×8, ${c6}×6, ${c4}×4, ${c2}×2`
+        `Attributes must be 2×4, 2×3, 3×2. Currently: ${c4}×4, ${c3}×3, ${c2}×2`
       );
       return;
     }

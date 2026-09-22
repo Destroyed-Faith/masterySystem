@@ -537,7 +537,7 @@ const TITAN_SCARS: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Supports Might Ability: Melee Damage and pre-fills Tier 2. Tier 1 must still be paid.',
+      effect: 'Supports Might Ability: Martial Damage and pre-fills Tier 2. Tier 1 must still be paid.',
       special: 'might.meleeDamage',
     },
     {
@@ -954,7 +954,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',
   // Stone Power Support targets an Attribute's Stone Power. The generic Extra
   // Attack power is not attribute-bound, so it cannot be a support target;
-  // Dragon Claws instead support the Might: Melee Damage Stone Power.
+  // Dragon Claws instead support the Might: Martial Damage Stone Power.
   stoneFunction: {
     kind: 'stonePowerSupport',
     attribute: 'might',
@@ -995,7 +995,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
+        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
       special: '',
     },
     {
@@ -1025,7 +1025,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
+        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
       special: '',
     },
     {
@@ -1055,7 +1055,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
+        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
       special: '',
     },
     {
