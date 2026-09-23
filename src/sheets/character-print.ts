@@ -19,6 +19,7 @@ import {
   buildStoneProgressionSlots,
   chunkSlots,
   deriveLifetimeXp,
+  permanentColorlessCount,
   readAssignments,
   usesV099Stones,
 } from '../progression/v099-rules.js';
@@ -1479,7 +1480,9 @@ function buildPrintLifetimeProgression(system: any) {
   const derived = deriveLifetimeXp(system);
   const lifetimeXp = derived.lifetimeXp;
   const assignments = usesV099Stones(system) ? readAssignments(system) : {};
-  const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments).map((slot) =>
+  const colorless = usesV099Stones(system) ? permanentColorlessCount(system) : 0;
+  const slotOrder = Array.isArray(system?.progression?.stoneSlotOrder) ? system.progression.stoneSlotOrder : null;
+  const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder).map((slot) =>
     lifetimeXp == null
       ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
       : slot,

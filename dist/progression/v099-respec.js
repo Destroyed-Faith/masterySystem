@@ -3,6 +3,7 @@
  * Pure validation so the dialog and tests share one rule.
  */
 import { assignmentsAreLegal, ATTRIBUTE_KEYS, compressedAttributeXpBetween, emptyAssignments, permanentStonesFromLifetimeXp, readAssignments, startingPackageIsValid, } from './v099-rules.js';
+import { tallyStoneSlotOrder } from './v099-respec-flow.js';
 import { V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from './v099-migration.js';
 function nums(source) {
     const out = emptyAssignments();
@@ -52,10 +53,23 @@ export function planV099Respec(actor, input) {
         return fail('Attribute increases must stay on the new cost table.');
     if (spent > budget)
         return fail(`Those Attributes cost ${spent} XP, but only ${budget} preserved Attribute XP is available.`);
-    const stones = readAssignments({ progression: { stoneAssignments: input.stones } });
     const permanent = permanentStonesFromLifetimeXp(life);
     const storedRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
-    const legal = assignmentsAreLegal(stones, permanent, storedRank);
+    let stones = readAssignments({ progression: { stoneAssignments: input.stones } });
+    let colorless = Math.max(0, Math.floor(Number(input.permanentColorless) || 0));
+    let stoneSlotOrder = null;
+    if (Array.isArray(input.stoneSlotOrder)) {
+        if (input.stoneSlotOrder.length !== permanent) {
+            return fail(`Assign exactly ${permanent} permanent Stones.`);
+        }
+        const tallied = tallyStoneSlotOrder(input.stoneSlotOrder);
+        if (!tallied.ok)
+            return fail(tallied.reason || 'Stone assignment is not legal.');
+        stones = tallied.assignments;
+        colorless = tallied.colorless;
+        stoneSlotOrder = input.stoneSlotOrder.map((entry) => String(entry));
+    }
+    const legal = assignmentsAreLegal(stones, permanent, storedRank, colorless);
     if (!legal.ok)
         return fail(legal.reason || 'Stone assignment is not legal.');
     return {
@@ -64,6 +78,8 @@ export function planV099Respec(actor, input) {
         permanentStones: permanent,
         spentAttributeXp: spent,
         leftoverAttributeXp: budget - spent,
+        permanentColorless: colorless,
+        stoneSlotOrder,
         starting,
         attributes,
         stones,
@@ -77,6 +93,8 @@ function fail(reason) {
         permanentStones: 0,
         spentAttributeXp: 0,
         leftoverAttributeXp: 0,
+        permanentColorless: 0,
+        stoneSlotOrder: null,
         starting: emptyAssignments(),
         attributes: emptyAssignments(),
         stones: emptyAssignments(),
@@ -103,6 +121,13 @@ export function v099RespecUpdate(actor, plan) {
         updates[`system.stonePools.${key}.sustained`] = 0;
         updates[`system.stonePools.${key}.sealed`] = 0;
         updates[`system.stonePools.${key}.burned`] = 0;
+    }
+    const colorless = Math.max(0, Math.floor(Number(plan.permanentColorless) || 0));
+    updates['system.progression.permanentColorless'] = colorless;
+    updates['system.stonePools.colorless.max'] = colorless;
+    updates['system.stonePools.colorless.current'] = colorless;
+    if (plan.stoneSlotOrder) {
+        updates['system.progression.stoneSlotOrder'] = plan.stoneSlotOrder;
     }
     const leftover = plan.leftoverAttributeXp;
     if (leftover > 0) {

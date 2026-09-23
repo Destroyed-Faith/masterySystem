@@ -174,7 +174,7 @@
     </div>
     <div class="v099-stone-grid">
       {{#each v099.slots}}
-      <button type="button" class="v099-stone-slot{{#if unlocked}} is-unlocked{{else}} is-locked{{/if}}{{#if assigned}} is-assigned{{else}}{{#if unlocked}} is-open{{/if}}{{/if}}" data-action="v099-assign-stone" {{#unless canAssign}}disabled{{/unless}} title="{{label}}">
+      <button type="button" class="v099-stone-slot{{#if unlocked}} is-unlocked{{else}} is-locked{{/if}}{{#if assigned}} is-assigned{{else}}{{#if unlocked}} is-open{{/if}}{{/if}}" data-action="v099-assign-stone" data-slot-index="{{index}}" {{#unless canAssign}}disabled{{/unless}} title="{{label}}">
         <span class="v099-stone-mark">{{#if assigned}}{{abbrev}}{{else}}{{#if unlocked}}+{{/if}}{{/if}}</span>
         <span class="v099-stone-threshold">{{label}}</span>
       </button>

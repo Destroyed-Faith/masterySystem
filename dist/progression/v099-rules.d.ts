@@ -108,7 +108,7 @@ export interface StoneProgressSlot {
     attribute: string | null;
     abbrev: string;
 }
-export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number, permanentColorless?: number): StoneProgressSlot[];
+export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number, permanentColorless?: number, slotOrder?: readonly (string | null)[] | null): StoneProgressSlot[];
 export declare function chunkSlots<T>(slots: T[], size: number): T[][];
 /** v0.9.9 characters store assignments. Older actors still derive Stones from Attributes until respec. */
 export declare function usesV099Stones(system: any): boolean;

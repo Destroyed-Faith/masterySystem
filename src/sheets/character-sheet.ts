@@ -122,11 +122,8 @@ import {
 } from '../utils/ammunition.js';
 import { XP_COSTS, attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants';
 import {
-  ATTRIBUTE_ABBREV,
   ATTRIBUTE_KEYS,
   buildStoneProgressionSlots,
-  canConvertToPermanentColorless,
-  canPlacePermanentStone,
   permanentColorlessCap,
   permanentColorlessCount,
   permanentStonesFromLifetimeXp,
@@ -135,7 +132,14 @@ import {
   usesV099Stones,
 } from '../progression/v099-rules.js';
 import { V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
-import { openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
+import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
+import {
+  migrationStoneSlotLabel,
+  stoneOrderActorUpdate,
+  stoneOrderForActor,
+  stonePlacementOptions,
+  stoneSlotProgress,
+} from '../progression/v099-respec-flow.js';
 import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1461,7 +1465,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
       const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
       const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
-      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through, colorless).map((slot) => {
+      const slotOrder = Array.isArray(sys?.progression?.stoneSlotOrder) ? sys.progression.stoneSlotOrder : null;
+      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through, colorless, slotOrder).map((slot) => {
         if (lifetimeXp == null) {
           return { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '', canAssign: false };
         }
@@ -2497,7 +2502,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     bindReliableControlClick(html, '[data-action="v099-assign-stone"]', (ev: JQuery.TriggeredEvent) => {
       ev.preventDefault();
-      void this.#onV099StoneSlot();
+      void this.#onV099StoneSlot(ev);
     });
     
     // Point spending buttons (JavaScript will check permissions)
@@ -6660,7 +6665,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.render();
   }
 
-  async #onV099StoneSlot(): Promise<void> {
+  async #onV099StoneSlot(ev?: { currentTarget?: EventTarget | null }): Promise<void> {
     const sys: any = (this.actor as any).system ?? {};
     const pending = (this.actor as any).getFlag?.('mastery-system', V099_RESPEC_FLAG) === true;
     if (pending || !usesV099Stones(sys)) {
@@ -6678,97 +6683,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ui.notifications?.warn('Only the owner or GM can assign Stones.');
       return;
     }
-    const assignments = readAssignments(sys);
-    const total = permanentStonesFromLifetimeXp(Number(sys?.progression?.lifetimeXp) || 0);
+    const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
     const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
-    const colorless = permanentColorlessCount(sys);
-    const choices = ATTRIBUTE_KEYS.filter((key) =>
-      canPlacePermanentStone({
-        attribute: key,
-        assignments,
-        totalPermanent: total,
-        storedRank: rank,
-        permanentColorless: colorless,
-      }).ok,
-    );
-    const convertCheck = canConvertToPermanentColorless({
-      assignments,
-      totalPermanent: total,
-      permanentColorless: colorless,
-      storedRank: rank,
-    });
-    if (!choices.length && !convertCheck.ok) {
-      ui.notifications?.warn('No Attribute can take another Stone under the Mastery Rank × 2 limit.');
+    const order = stoneOrderForActor(sys, lifetime);
+    const index = Math.floor(Number((ev?.currentTarget as HTMLElement | undefined)?.dataset?.slotIndex));
+    if (!Number.isFinite(index) || index < 0 || index >= order.length || order[index]) return;
+    const options = stonePlacementOptions(order, rank);
+    const progress = stoneSlotProgress(order);
+    if (!options.attributes.length && !options.colorless) {
+      ui.notifications?.warn(
+        options.colorlessReason || 'No Attribute can take another Stone under the Mastery Rank × 2 limit.',
+      );
       return;
     }
-    const DialogCtor = (globalThis as any).Dialog;
-    if (!DialogCtor) return;
-    const options = [
-      ...choices.map(
-        (key) => `<option value="${key}">${ATTRIBUTE_ABBREV[key]} (${assignments[key]})</option>`,
-      ),
-      ...(convertCheck.ok
-        ? [
-            `<option value="colorless">Permanent Colorless — convert 2 unassigned Stones (${colorless}/${convertCheck.cap})</option>`,
-          ]
-        : []),
-    ].join('');
-    new DialogCtor({
-      title: 'Assign permanent Stone',
-      content: `<form><p>This assignment stays until a rule allows reassignment. Converting 2 unassigned Stones into 1 Permanent Colorless Stone is permanent (max ${permanentColorlessCap(rank)} = Mastery Rank).</p>
-        <select name="attribute">${options}</select></form>`,
-      buttons: {
-        assign: {
-          label: 'Assign',
-          callback: async (html: any) => {
-            const jq = html?.find?.('[name="attribute"]');
-            const key = String(jq?.val?.() ?? html?.querySelector?.('[name="attribute"]')?.value ?? '');
-            if (key === 'colorless') {
-              const check = canConvertToPermanentColorless({
-                assignments,
-                totalPermanent: total,
-                permanentColorless: colorless,
-                storedRank: rank,
-              });
-              if (!check.ok) {
-                ui.notifications?.warn(check.reason || 'The conversion is not legal.');
-                return;
-              }
-              const nextColorless = colorless + 1;
-              const pool = sys?.stonePools?.colorless ?? {};
-              const current = Math.max(0, Math.floor(Number(pool.current) || 0)) + 1;
-              await this.actor.update({
-                'system.progression.permanentColorless': nextColorless,
-                'system.stonePools.colorless.max': nextColorless,
-                'system.stonePools.colorless.current': current,
-              });
-              return;
-            }
-            const check = canPlacePermanentStone({
-              attribute: key,
-              assignments,
-              totalPermanent: total,
-              storedRank: rank,
-              permanentColorless: colorless,
-            });
-            if (!check.ok) {
-              ui.notifications?.warn(check.reason || 'That Attribute cannot take the Stone.');
-              return;
-            }
-            const next = (assignments[key as keyof typeof assignments] ?? 0) + 1;
-            const pool = sys?.stonePools?.[key] ?? {};
-            const current = Math.max(0, Math.floor(Number(pool.current) || 0)) + 1;
-            await this.actor.update({
-              [`system.progression.stoneAssignments.${key}`]: next,
-              [`system.stonePools.${key}.max`]: next,
-              [`system.stonePools.${key}.current`]: current,
-            });
-          },
-        },
-        cancel: { label: 'Cancel' },
-      },
-      default: 'assign',
-    }).render(true);
+    const choice = await openStoneSlotChoice({
+      label: migrationStoneSlotLabel(index),
+      attributeChoices: options.attributes,
+      counts: progress.assignments,
+      colorless: options.colorless,
+      colorlessHint: options.colorlessReason,
+      allowClear: false,
+      partners: progress.openIndexes
+        .filter((i) => i !== index)
+        .map((i) => ({ index: i, label: migrationStoneSlotLabel(i) })),
+    });
+    if (choice.kind === 'cancel') return;
+    if (choice.kind === 'attribute' && choice.key) order[index] = choice.key;
+    else if (choice.kind === 'colorless' && choice.otherIndex != null && !order[choice.otherIndex]) {
+      const pair = `colorless#${index}-${choice.otherIndex}`;
+      order[index] = pair;
+      order[choice.otherIndex] = pair;
+    } else return;
+    await this.actor.update(stoneOrderActorUpdate(sys, order));
+    this.render();
   }
 
   /**

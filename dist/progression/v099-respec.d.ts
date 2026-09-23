@@ -8,6 +8,8 @@ export interface V099RespecInput {
     starting: Record<string, number>;
     attributes: Record<string, number>;
     stones: Record<string, number>;
+    permanentColorless?: number;
+    stoneSlotOrder?: readonly (string | null)[] | null;
 }
 export interface V099RespecPlan {
     ok: boolean;
@@ -16,6 +18,8 @@ export interface V099RespecPlan {
     permanentStones: number;
     spentAttributeXp: number;
     leftoverAttributeXp: number;
+    permanentColorless: number;
+    stoneSlotOrder: string[] | null;
     starting: Record<AttributeKeyName, number>;
     attributes: Record<AttributeKeyName, number>;
     stones: Record<AttributeKeyName, number>;

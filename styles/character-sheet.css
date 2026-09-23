@@ -12701,3 +12701,131 @@ aside#tooltip,
   letter-spacing: 0.04em;
   opacity: 0.85;
 }
+
+.v099-respec-dialog .v099-respec-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.v099-respec-dialog .v099-attr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.v099-respec-dialog .v099-attr-table th,
+.v099-respec-dialog .v099-attr-table td {
+  padding: 0.28rem 0.4rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.v099-respec-dialog .v099-col-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.v099-respec-dialog .v099-apply-start:disabled,
+.v099-respec-dialog .v099-continue:disabled,
+.v099-respec-dialog .v099-confirm:disabled,
+.v099-respec-dialog .v099-step:disabled {
+  opacity: 0.4;
+}
+
+.v099-respec-dialog .v099-start-status {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.v099-respec-dialog .v099-start-status.is-invalid {
+  color: #8d2b2b;
+}
+
+.v099-respec-dialog .v099-start-status.is-valid {
+  color: #2d5a32;
+}
+
+.v099-respec-dialog .v099-xp {
+  display: block;
+  font-weight: 700;
+}
+
+.v099-respec-dialog .v099-final-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.v099-respec-dialog .v099-step {
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+}
+
+.v099-respec-dialog .v099-final-value,
+.v099-respec-dialog .v099-final-locked {
+  min-width: 1.4rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.v099-respec-dialog .v099-final-locked {
+  opacity: 0.55;
+}
+
+.v099-respec-dialog .v099-form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.v099-respec-dialog .v099-stone-grid,
+.v099-respec-dialog .v099-pick-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.v099-respec-dialog .v099-pick-list {
+  flex-direction: column;
+}
+
+.v099-respec-dialog .v099-pick {
+  text-align: left;
+}
+
+.v099-respec-dialog .v099-stone-slot {
+  width: 3.2rem;
+  min-height: 3.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.35);
+  color: inherit;
+}
+
+.v099-respec-dialog .v099-stone-slot.is-open {
+  border-color: #8a6a22;
+  background: rgba(215, 164, 65, 0.28);
+  cursor: pointer;
+}
+
+.v099-respec-dialog .v099-stone-slot.is-assigned {
+  border-color: #3f6b38;
+  background: rgba(125, 154, 106, 0.35);
+}
+
+.v099-respec-dialog .v099-stone-mark {
+  font-weight: 700;
+}
+
+.v099-respec-dialog .v099-stone-threshold,
+.v099-respec-dialog .v099-pick-hint,
+.v099-respec-dialog .v099-stone-meta {
+  font-size: 0.75rem;
+}

@@ -336,24 +336,31 @@ export function buildStoneProgressionSlots(
   assignments: Record<string, number>,
   throughXp = PRINT_LIFETIME_XP_SPAN,
   permanentColorless = 0,
+  slotOrder?: readonly (string | null)[] | null,
 ): StoneProgressSlot[] {
   const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
   const span = Math.max(PRINT_LIFETIME_XP_SPAN, Math.ceil(xp / 20) * 20, Math.max(0, Math.floor(throughXp)));
   const unlocked = permanentStonesFromLifetimeXp(xp);
+  const useOrder = Array.isArray(slotOrder);
   const queue: string[] = [];
-  for (const key of ATTRIBUTE_KEYS) {
-    const n = Math.max(0, Math.floor(Number(assignments[key]) || 0));
-    for (let i = 0; i < n; i += 1) queue.push(key);
+  if (!useOrder) {
+    for (const key of ATTRIBUTE_KEYS) {
+      const n = Math.max(0, Math.floor(Number(assignments[key]) || 0));
+      for (let i = 0; i < n; i += 1) queue.push(key);
+    }
+    // Each Permanent Colorless Stone replaced two earned progression Stones.
+    const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
+    for (let i = 0; i < colorless * 2; i += 1) queue.push('colorless');
   }
-  // Each Permanent Colorless Stone replaced two earned progression Stones.
-  const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
-  for (let i = 0; i < colorless * 2; i += 1) queue.push('colorless');
   const slots: StoneProgressSlot[] = [];
   const count = 2 + span / 20;
   for (let i = 0; i < count; i += 1) {
     const start = i < 2;
     const milestoneXp = start ? null : (i - 1) * 20;
-    const attr = i < queue.length ? queue[i]! : null;
+    const raw = useOrder
+      ? (i < slotOrder.length ? slotOrder[i] : null)
+      : (i < queue.length ? queue[i]! : null);
+    const attr = raw ? String(raw) : null;
     slots.push({
       index: i,
       kind: start ? 'start' : 'milestone',

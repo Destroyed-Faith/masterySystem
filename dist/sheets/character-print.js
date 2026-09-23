@@ -14,7 +14,7 @@
  * "may be used once per round".
  */
 import { calculateBaseEvade, isHealthBarScarred } from '../utils/calculations.js';
-import { buildStoneProgressionSlots, chunkSlots, deriveLifetimeXp, readAssignments, usesV099Stones, } from '../progression/v099-rules.js';
+import { buildStoneProgressionSlots, chunkSlots, deriveLifetimeXp, permanentColorlessCount, readAssignments, usesV099Stones, } from '../progression/v099-rules.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
@@ -1323,7 +1323,9 @@ function buildPrintLifetimeProgression(system) {
     const derived = deriveLifetimeXp(system);
     const lifetimeXp = derived.lifetimeXp;
     const assignments = usesV099Stones(system) ? readAssignments(system) : {};
-    const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments).map((slot) => lifetimeXp == null
+    const colorless = usesV099Stones(system) ? permanentColorlessCount(system) : 0;
+    const slotOrder = Array.isArray(system?.progression?.stoneSlotOrder) ? system.progression.stoneSlotOrder : null;
+    const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder).map((slot) => lifetimeXp == null
         ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
         : slot);
     const rowSize = Math.max(1, Math.ceil(slots.length / 2));
