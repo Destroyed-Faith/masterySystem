@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.559] - 2026-09-23
+
+### Changed
+
+- **DF Core v0.9.9.0:** Aktuelles Regelwerk liegt unter `docs/Rules/`. Startattribute 4/4/3/3/2/2/2, Attributskala 1–40, Steine aus Lifetime XP. Health = Vitality × 4, Stress = 2 × (Resolve + Intellect), Passive Skill = 2 × Attribut. Minor Expressions bei 4/8/12/16/20. Guaranteed Eight bleibt der Tausch von 8 Würfeln gegen eine natürliche 8.
+- **Pool-Specials:** Challenge, Disoriented, Soulburn und Weaken folgen den gedruckten Katalogen. Die übrigen Specials sind nicht halbiert.
+- **Parry:** Stone Parry +2 / +4 / +6. Passive Parry und Parry Recovery nach den aktuellen Katalogen.
+- **Ringchain:** Not a Target beginnt bei Tier 2. Kept from Sight hebt nur eine Stufe: Tier 2 zahlen ergibt Tier 3, Tier 3 zahlen ergibt Tier 4. Level 9 trifft einen zusätzlichen Gegner innerhalb von 24 m, wenn Tier 4 zum vollen Steinpreis gezahlt wird.
+
 ## [0.9.558] - 2026-09-21
 
 ### Changed
