@@ -125,7 +125,10 @@ import {
   ATTRIBUTE_ABBREV,
   ATTRIBUTE_KEYS,
   buildStoneProgressionSlots,
+  canConvertToPermanentColorless,
   canPlacePermanentStone,
+  permanentColorlessCap,
+  permanentColorlessCount,
   permanentStonesFromLifetimeXp,
   readAssignments,
   stoneConcentrationCap,
@@ -1456,8 +1459,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       };
       const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
       const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
+      const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
       const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
-      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through).map((slot) => {
+      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through, colorless).map((slot) => {
         if (lifetimeXp == null) {
           return { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '', canAssign: false };
         }
@@ -1470,11 +1474,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         lifetimeLabel: lifetimeXp == null ? '—' : String(lifetimeXp),
         lifetimeXp,
         permanentStones: stones,
-        unassigned: Math.max(0, stones - assigned),
+        unassigned: Math.max(0, stones - assigned - 2 * colorless),
+        permanentColorless: colorless,
+        permanentColorlessCap: permanentColorlessCap(rank),
         concentrationCap: stoneConcentrationCap(stones, rank),
         stoneSummary: lifetimeXp == null
           ? 'Enter Lifetime XP during the v0.9.9 migration.'
-          : `${assigned}/${stones} Stones assigned · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
+          : `${assigned}/${stones} Stones assigned` +
+            (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(rank)})` : '') +
+            ` · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
         slots,
       };
     }
@@ -6673,26 +6681,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const assignments = readAssignments(sys);
     const total = permanentStonesFromLifetimeXp(Number(sys?.progression?.lifetimeXp) || 0);
     const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+    const colorless = permanentColorlessCount(sys);
     const choices = ATTRIBUTE_KEYS.filter((key) =>
       canPlacePermanentStone({
         attribute: key,
         assignments,
         totalPermanent: total,
         storedRank: rank,
+        permanentColorless: colorless,
       }).ok,
     );
-    if (!choices.length) {
+    const convertCheck = canConvertToPermanentColorless({
+      assignments,
+      totalPermanent: total,
+      permanentColorless: colorless,
+      storedRank: rank,
+    });
+    if (!choices.length && !convertCheck.ok) {
       ui.notifications?.warn('No Attribute can take another Stone under the Mastery Rank × 2 limit.');
       return;
     }
     const DialogCtor = (globalThis as any).Dialog;
     if (!DialogCtor) return;
-    const options = choices
-      .map((key) => `<option value="${key}">${ATTRIBUTE_ABBREV[key]} (${assignments[key]})</option>`)
-      .join('');
+    const options = [
+      ...choices.map(
+        (key) => `<option value="${key}">${ATTRIBUTE_ABBREV[key]} (${assignments[key]})</option>`,
+      ),
+      ...(convertCheck.ok
+        ? [
+            `<option value="colorless">Permanent Colorless — convert 2 unassigned Stones (${colorless}/${convertCheck.cap})</option>`,
+          ]
+        : []),
+    ].join('');
     new DialogCtor({
       title: 'Assign permanent Stone',
-      content: `<form><p>This assignment stays until a rule allows reassignment.</p>
+      content: `<form><p>This assignment stays until a rule allows reassignment. Converting 2 unassigned Stones into 1 Permanent Colorless Stone is permanent (max ${permanentColorlessCap(rank)} = Mastery Rank).</p>
         <select name="attribute">${options}</select></form>`,
       buttons: {
         assign: {
@@ -6700,11 +6723,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           callback: async (html: any) => {
             const jq = html?.find?.('[name="attribute"]');
             const key = String(jq?.val?.() ?? html?.querySelector?.('[name="attribute"]')?.value ?? '');
+            if (key === 'colorless') {
+              const check = canConvertToPermanentColorless({
+                assignments,
+                totalPermanent: total,
+                permanentColorless: colorless,
+                storedRank: rank,
+              });
+              if (!check.ok) {
+                ui.notifications?.warn(check.reason || 'The conversion is not legal.');
+                return;
+              }
+              const nextColorless = colorless + 1;
+              const pool = sys?.stonePools?.colorless ?? {};
+              const current = Math.max(0, Math.floor(Number(pool.current) || 0)) + 1;
+              await this.actor.update({
+                'system.progression.permanentColorless': nextColorless,
+                'system.stonePools.colorless.max': nextColorless,
+                'system.stonePools.colorless.current': current,
+              });
+              return;
+            }
             const check = canPlacePermanentStone({
               attribute: key,
               assignments,
               totalPermanent: total,
               storedRank: rank,
+              permanentColorless: colorless,
             });
             if (!check.ok) {
               ui.notifications?.warn(check.reason || 'That Attribute cannot take the Stone.');

@@ -25,12 +25,11 @@ export declare function shouldSettleStoneWave(args: {
     usesInKey: number;
 }): boolean;
 /**
- * Card order inside a power row. Every row holds exactly one T2-start power
- * (Tier 1 does not exist). Its first activation costs 2 stones and the
- * unused Anchor lane is omitted. It leads the row so the shorter cluster
- * sits first. The remaining cards keep their order.
+ * Card order inside a power row. Every row holds exactly one Premium power
+ * (2 / 4 / 6 / 8 Rank costs). It leads the row; the remaining cards keep
+ * their order.
  */
-export declare function orderPowersRampFirst<T>(powers: readonly T[], skipsFirstTier: (power: T) => boolean): T[];
+export declare function orderPowersRampFirst<T>(powers: readonly T[], isPremium: (power: T) => boolean): T[];
 /**
  * Whether an attribute (or General) section starts expanded in the Stone
  * Powers dialog. Sections with freely spendable stones of that attribute
@@ -50,8 +49,8 @@ export interface PendingStoneActivation {
 }
 /**
  * Stones sitting in a power that has not reached the next full wave.
- * Placing them does not turn the power on — Extra Attack and Crit start at
- * 2 stones, so one stone in each looks assigned and does nothing.
+ * Placing them does not turn the power on — Premium Rank 1 costs 2 stones,
+ * so one stone in Extra Attack or Crit looks assigned and does nothing.
  */
 export declare function pendingStoneActivation(args: {
     name: string;

@@ -449,7 +449,7 @@ const LOR_KETHS_STAFF = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: "Lor-Keth's Staff supports the Might Ability Ignore Armor and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+            effect: "Lor-Keth's Staff supports the Might Ability Ignore Armor and pre-fills Rank 2. Rank 1 must still be paid normally.",
             special: 'Ignore Armor',
         },
         {
@@ -476,7 +476,7 @@ const LOR_KETHS_STAFF = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: "Lor-Keth's Staff pre-fills Tier 3 of the Might Ability Ignore Armor. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.",
+            effect: "Lor-Keth's Staff pre-fills Rank 3 of the Might Ability Ignore Armor. Ranks 1 and 2 must still be paid normally.",
             special: 'Ignore Armor',
         },
         {
@@ -503,7 +503,7 @@ const LOR_KETHS_STAFF = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: "Lor-Keth's Staff pre-fills Tier 4 of the Might Ability Ignore Armor. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.",
+            effect: "Lor-Keth's Staff pre-fills Rank 4 of the Might Ability Ignore Armor. Ranks 1, 2, and 3 must still be paid normally.",
             special: 'Ignore Armor',
         },
         {
@@ -573,9 +573,8 @@ const HEARTSEEKER = {
     baseProfile: 'twoHandedWeaponRanged',
     description: 'A massive two-handed Artifact Crossbow built for calculated volleys, armor-breaking shots, and decisive kills. Its mechanism draws with supernatural force, aligning every bolt along invisible lines of weakness.',
     restriction: 'Heartseeker occupies both the Main Hand and Off Hand Slots. A character wielding Heartseeker cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Penetration and Precision on Base Value B apply only to attacks made with Heartseeker.',
-    // Crit starts at Tier 2 (no Tier 1). The printed Killing Focus stages
-    // (T2 / T3 / T4) are lifted so support never activates Tier 2 and only
-    // advances an already paid tier by one step.
+    // Killing Focus pre-fills Crit Rank 2 / 3 / 4 (default level schedule).
+    // The pre-filled Rank costs no Stones; lower Ranks are paid normally.
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'agility',

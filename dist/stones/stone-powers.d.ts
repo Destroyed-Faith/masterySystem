@@ -1,10 +1,11 @@
 /**
- * Canonical Stone Powers Definition — new tier-based spec.
+ * Canonical Stone Powers Definition — universal four-Rank spec.
  *
- * Most powers publish T1–T4. A listed set starts at Tier 2: Tier 1 does
- * not exist in data, UI, spending, validation, or serialization. First
- * purchase is T2 (2 Stones total), then T3 (6 total), then T4 (14 total).
- * Tier 4 is the hard cap — there is no Tier 5.
+ * Every Stone Ability has exactly four Ranks; Rank 4 is the hard cap.
+ * Normal Abilities cost 1 / 2 / 4 / 8 additional Stones (1 / 3 / 7 / 15
+ * total). The eight Premium Abilities (Extra Attack, Parry, Crit, Damage
+ * Negation, Spell Action, Damage Reduction, Not a Target, Phasing) cost
+ * 2 / 4 / 6 / 8 additional Stones (2 / 6 / 12 / 20 total).
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
  * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
@@ -38,11 +39,11 @@ export interface StonePower {
     category: 'action' | 'passive' | 'reaction';
     /** Short one-liner (the matching tier description is preferred at runtime). */
     description: string;
-    /** Compiled multi-tier tooltip — generated on module load. */
+    /** Compiled multi-Rank tooltip — generated on module load. */
     effect: string;
-    /** First published tier. `2` means Tier 1 does not exist for this ability. */
-    startsAtTier: 1 | 2;
-    /** Published effects starting at `startsAtTier` (T1–T4 or T2–T4). */
+    /** Premium Abilities cost 2 / 4 / 6 / 8 per Rank instead of 1 / 2 / 4 / 8. */
+    premium: boolean;
+    /** Published Rank effects (always Rank 1–4). */
     tiers: StoneTier[];
     /**
      * When true, this power may be used only once per combat.
@@ -52,34 +53,42 @@ export interface StonePower {
     /** Apply the effect for the given tier. */
     apply: (ctx: StonePowerContext) => Promise<void>;
 }
-/** Tiers shown in the dialog / Players Guide. Tier 4 is the last tier. */
+/** Ranks shown in the dialog / Players Guide. Rank 4 is the last Rank. */
 export declare const STONE_TIER_VISIBLE = 4;
-/** Highest tier a Stone Ability can reach. */
+/** Highest Rank a Stone Ability can reach. */
 export declare const STONE_TIER_PRACTICAL_MAX = 4;
-/** Hard cap. There is no Tier 5. */
+/** Hard cap. There is no Rank 5. */
 export declare const STONE_TIER_HARD_MAX = 4;
+/** Retired ids that still resolve to a current Stone Power. */
+export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
+export declare function resolveStonePowerId(powerId: string): string;
 /**
- * Read a published tier value. Tiers past the printed sequence, and anything
- * above Tier 4, do not scale.
+ * Premium Stone Abilities (PG "Premium Stone Abilities"): 2 / 4 / 6 / 8
+ * additional Stones per Rank. All other Abilities are Normal (1 / 2 / 4 / 8).
+ */
+export declare const PREMIUM_STONE_POWER_IDS: readonly ["generic.extraAttack", "might.parry", "agility.crit", "vitality.damageNegation", "intellect.spellAction", "resolve.damageReduction", "influence.notATarget", "wits.phasing"];
+export declare function isPremiumStonePower(powerId: string): boolean;
+/** Per-Rank payment segment sizes for one Ability (Normal 1/2/4/8, Premium 2/4/6/8). */
+export declare function stonePowerSegmentSizes(powerId: string): readonly number[];
+/** Additional Stones to activate `rank` (1..4) of this Ability. 0 outside 1..4. */
+export declare function stonePowerRankCost(powerId: string, rank: number): number;
+/** Cumulative Stones to reach `rank` (Normal 1/3/7/15, Premium 2/6/12/20). */
+export declare function cumulativeStoneCostForRank(powerId: string, rank: number): number;
+/**
+ * Read a published Rank value. Ranks past the printed sequence, and anything
+ * above Rank 4, do not scale.
  */
 export declare function scaleStoneTier(seq: readonly number[], tier: number): number;
-/** Enemies and range for Not a Target. Level 9 Ringchain adds one enemy only on a full Tier 4 payment. */
-export declare function notATargetProfile(tier: number, cost: number, ringchainLevel?: number): {
-    enemies: number;
-    range: number;
-} | null;
-/** Attacks that may gain Crit(1). Level 9 Elorian Stride adds one attack only on a full Tier 4 payment. */
-export declare function critChargesProfile(tier: number, cost: number, elorianLevel?: number): number;
-/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
-export declare function stonePowerWaveCost(tier: number): number;
-/** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
-export declare function cumulativeStoneCostForTier(tier: number, startsAtTier?: 1 | 2): number;
-/** Highest fully paid tier on one card (1 / 3 / 7 / 15 stones → T1 / T2 / T3 / T4). */
-export declare function highestCompleteStoneTierFromPlaced(placed: number, startsAtTier?: 1 | 2, maxTier?: number): number;
 /**
- * Once-per-combat powers apply the highest complete cluster once.
- * Artifact Support only raises that tier when every tier below the gold
- * prefill was paid by the player.
+ * Highest fully paid Rank on one card given the placed Stone count and this
+ * Ability's cost curve. A pre-filled Rank costs nothing; every other Rank up
+ * to the result must be covered by the placed Stones in order.
+ */
+export declare function highestCompleteStoneTierFromPlaced(powerId: string, placed: number, prefillRank?: number, maxTier?: number): number;
+/**
+ * Once-per-combat powers apply the highest complete cluster once. A Support
+ * prefill makes its named Rank free; every other Rank is paid from the
+ * placed Stones in order.
  */
 export declare function resolveOncePerCombatStoneTier(powerId: string, placedCount: number, prefillTier?: number): {
     tier: number;
@@ -92,45 +101,25 @@ export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic',
  * to the matching tier. Tier 4 is the last tier.
  */
 export declare function tierForUseIndex(usesBefore: number): number;
-/**
- * Abilities whose first published tier is T2. Tier 1 does not exist.
- * Extra Attack (generic) uses the same start.
- */
-export declare const TIER2_START_STONE_POWER_IDS: readonly ["might.parry", "agility.crit", "vitality.damageNegation", "intellect.spellAction", "resolve.damageReduction", "influence.notATarget", "wits.phasing", "generic.extraAttack"];
-export declare function stonePowerStartsAtTier(powerId: string): 1 | 2;
-/** True when the ability begins at Tier 2 (no Tier-1 slot). */
-export declare function stonePowerSkipsFirstTier(powerId: string): boolean;
-/** First published tier (2 when Tier 1 does not exist, otherwise 1). */
-export declare function firstEffectiveStonePowerTier(powerId: string): number;
-/**
- * Printed Support that would land on (or below) the first published tier is
- * lifted one step so the player still pays that tier and the gold prefills
- * sit above it. Crit + Elorian Focus I (printed T2) → T3.
- */
+/** Printed Support Rank, clamped to the real Rank range (0 = no Support). */
 export declare function effectiveStoneSupportPrefillTier(powerId: string, printedTier: number): number;
-/** Lane indices for one published tier (T1=anchor, T2=mid, T3=quad, T4=oct). */
-export declare function stonePaymentLanesForTier(tier: number): number[];
+/** Lane indices for one Rank of this Ability (segments sized by its cost curve). */
+export declare function stonePaymentLanesForTier(powerId: string, rank: number): number[];
+/** Total payment lanes for this Ability (Normal 15, Premium 20). */
+export declare function stonePaymentLaneCount(powerId: string): number;
 /**
- * Gold Artifact Support Stone lanes: every published tier above the one the
- * player must pay, up through the effective prefill. Empty when Support
- * cannot raise the first published tier.
+ * Gold Artifact Support Stone lanes: exactly the pre-filled Rank. Every other
+ * Rank keeps its normal payable lanes.
  */
 export declare function stoneSupportPrefillLanes(powerId: string, printedTier: number): number[];
-/**
- * Support may raise the first paid activation to a higher tier. It never
- * grants the first published tier for free (T1, or T2 when T1 does not exist).
- */
+/** True when a Support prefill exists (Rank 1–4). The named Rank costs no Stones. */
 export declare function stonePowerSupportPrefillApplies(powerId: string, printedTier: number): boolean;
-/** Retired ids that still resolve to a current Stone Power. */
-export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
 /**
- * Per-power adjustment applied to Artifact Stone Power Support pre-fill tiers.
- * No power is currently shifted: printed support tiers are used as-is (lifted
- * above the first published tier by `effectiveStoneSupportPrefillTier` when
- * needed). Kept as a map in case a future table diverges.
+ * Per-power adjustment applied to Artifact Stone Power Support pre-fill Ranks.
+ * No power is currently shifted: printed support Ranks are used as-is. Kept
+ * as a map in case a future table diverges.
  */
 export declare const STONE_POWER_SUPPORT_TIER_SHIFT: Record<string, number>;
-export declare function resolveStonePowerId(powerId: string): string;
 /** Retired Stone Power ids that have no successor (cannot auto-remap). */
 export declare const UNRESOLVED_STONE_POWER_IDS: readonly ["might.attackPoolReduction", "vitality.endureSpecial", "wits.initiativeShop"];
 //# sourceMappingURL=stone-powers.d.ts.map

@@ -379,11 +379,10 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       kind: 'stonePowerSupport',
       attribute: 'agility',
       stonePowerId: 'agility.crit',
-      // Crit starts at Tier 2 (no Tier 1). Elorian Focus I (artifact L3)
-      // prints Tier 3 and requires Tier 2 to be paid; Elorian Focus II
-      // (artifact L6) prints Tier 4 and requires Tier 3 to be paid.
-      // Artifact L9 is an Artifact Function, not a higher prefill.
-      supportStages: [3, 3, 6],
+      // Crit is a Premium Stone Ability with four Ranks. Elorian Focus I
+      // (artifact L3) pre-fills Rank 2, II (L6) Rank 3, III (L9) Rank 4.
+      // All lower Ranks must still be activated and paid normally.
+      supportStages: [3, 6, 9],
     },
   ],
   baseValues: [
@@ -415,8 +414,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'After you activate Crit at Tier 2 normally, Elorian Focus pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.',
+      effect: 'Pre-fill Rank 2. Rank 1 must still be paid normally.',
       special: 'agility.crit',
     },
     {
@@ -443,8 +441,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'After you activate Crit at Tier 3 normally, Elorian Focus pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.',
+      effect: 'Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.',
       special: 'agility.crit',
     },
     {
@@ -468,11 +465,10 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
     {
       level: 9,
       name: 'Elorian Focus III',
-      type: 'Artifact Function',
+      type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect:
-        'When you activate Crit at Tier 4 by paying its full normal Stone cost, one additional attack this round may gain Crit(1).',
+      effect: 'Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.',
       special: 'agility.crit',
     },
     {
@@ -727,7 +723,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Wyrm Scales support the Vitality Ability ARMOR Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+        'Wyrm Scales support the Vitality Ability ARMOR Stone Power and pre-fill Rank 2. Rank 1 must still be paid normally.',
       special: 'ARMOR Stone Power',
     },
     {
@@ -755,7 +751,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Wyrm Scales pre-fill Tier 3 of the Vitality Ability ARMOR Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+        'Wyrm Scales pre-fill Rank 3 of the Vitality Ability ARMOR Stone Power. Ranks 1 and 2 must still be paid normally.',
       special: 'ARMOR Stone Power',
     },
     {
@@ -783,7 +779,7 @@ const WYRM_SCALES_HEAVY: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Wyrm Scales pre-fill Tier 4 of the Vitality Ability ARMOR Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
+        'Wyrm Scales pre-fill Rank 4 of the Vitality Ability ARMOR Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
       special: 'ARMOR Stone Power',
     },
     {
@@ -870,7 +866,7 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Serpent Scales support the Agility Ability EVADE Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+        'Serpent Scales support the Agility Ability EVADE Stone Power and pre-fill Rank 2. Rank 1 must still be paid normally.',
       special: 'EVADE Stone Power',
     },
     {
@@ -900,7 +896,7 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Serpent Scales pre-fill Tier 3 of the Agility Ability EVADE Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+        'Serpent Scales pre-fill Rank 3 of the Agility Ability EVADE Stone Power. Ranks 1 and 2 must still be paid normally.',
       special: 'EVADE Stone Power',
     },
     {
@@ -930,7 +926,7 @@ const WYRM_SCALES_LIGHT: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Serpent Scales pre-fill Tier 4 of the Agility Ability EVADE Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
+        'Serpent Scales pre-fill Rank 4 of the Agility Ability EVADE Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
       special: 'EVADE Stone Power',
     },
     {
@@ -1002,7 +998,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.',
+        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Rank 2. Rank 1 must still be paid normally.',
       special: '',
     },
     {
@@ -1032,7 +1028,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.',
+        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.',
       special: '',
     },
     {
@@ -1062,7 +1058,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.',
+        'Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.',
       special: '',
     },
     {
@@ -1570,7 +1566,7 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+        'Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.',
       special: 'Aid Roll Stone Power',
     },
     {
@@ -1600,7 +1596,7 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Oracle Frame pre-fills Tier 3 of the Influence Ability: Aid Roll Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.',
+        'Oracle Frame pre-fills Rank 3 of the Influence Ability: Aid Roll Stone Power. Ranks 1 and 2 must still be paid normally.',
       special: 'Aid Roll Stone Power',
     },
     {
@@ -1630,7 +1626,7 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Oracle Frame pre-fills Tier 4 of the Influence Ability: Aid Roll Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.',
+        'Oracle Frame pre-fills Rank 4 of the Influence Ability: Aid Roll Stone Power. Ranks 1, 2, and 3 must still be paid normally.',
       special: 'Aid Roll Stone Power',
     },
     {
@@ -1677,11 +1673,10 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       kind: 'stonePowerSupport',
       attribute: 'influence',
       stonePowerId: 'influence.notATarget',
-      // Not a Target starts at Tier 2. Levels 1–4 print Tier 2, which is
-      // lifted so the character pays Tier 2 and Kept from Sight I fills Tier 3.
-      // Level 5+ prints Tier 4: Kept from Sight II fills Tier 4 only after
-      // Tier 3 is paid. Level 9 is an Artifact Function, not a higher prefill.
-      supportStages: [1, 5, 5],
+      // Not a Target is a Premium Stone Ability with four Ranks. Kept from
+      // Sight I (artifact L1) pre-fills Rank 2, II (L5) Rank 3, III (L9)
+      // Rank 4. All lower Ranks must still be activated and paid normally.
+      supportStages: [1, 5, 9],
     },
   ],
   baseValues: [
@@ -1698,7 +1693,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'After you activate Not a Target at Tier 2 normally, Kept from Sight I pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.',
+      effect: 'Pre-fill Rank 2. Rank 1 must still be paid normally.',
       special: 'influence.notATarget',
     },
     {
@@ -1735,7 +1730,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'After you activate Not a Target at Tier 3 normally, Kept from Sight II pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.',
+      effect: 'Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.',
       special: 'influence.notATarget',
     },
     {
@@ -1769,10 +1764,10 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
     {
       level: 9,
       name: 'Kept from Sight III',
-      type: 'Artifact Function',
+      type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'When you activate Not a Target at Tier 4 by paying its full normal Stone cost, one additional eligible enemy within 24 m may be affected. This uses one Kept from Sight use.',
+      effect: 'Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.',
       special: 'influence.notATarget',
     },
     {

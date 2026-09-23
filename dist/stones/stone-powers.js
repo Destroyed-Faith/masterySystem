@@ -1,10 +1,11 @@
 /**
- * Canonical Stone Powers Definition — new tier-based spec.
+ * Canonical Stone Powers Definition — universal four-Rank spec.
  *
- * Most powers publish T1–T4. A listed set starts at Tier 2: Tier 1 does
- * not exist in data, UI, spending, validation, or serialization. First
- * purchase is T2 (2 Stones total), then T3 (6 total), then T4 (14 total).
- * Tier 4 is the hard cap — there is no Tier 5.
+ * Every Stone Ability has exactly four Ranks; Rank 4 is the hard cap.
+ * Normal Abilities cost 1 / 2 / 4 / 8 additional Stones (1 / 3 / 7 / 15
+ * total). The eight Premium Abilities (Extra Attack, Parry, Crit, Damage
+ * Negation, Spell Action, Damage Reduction, Not a Target, Phasing) cost
+ * 2 / 4 / 6 / 8 additional Stones (2 / 6 / 12 / 20 total).
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
  * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
@@ -19,15 +20,64 @@ import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneU
 import { augmentPhasingCharges } from '../combat/phasing.js';
 import { applyRemoveScarEffect } from './remove-scar.js';
 import { applyRegenerationAndMove, promptSelectablePlayerTarget } from './ally-stone-target.js';
-/** Tiers shown in the dialog / Players Guide. Tier 4 is the last tier. */
+/** Ranks shown in the dialog / Players Guide. Rank 4 is the last Rank. */
 export const STONE_TIER_VISIBLE = 4;
-/** Highest tier a Stone Ability can reach. */
+/** Highest Rank a Stone Ability can reach. */
 export const STONE_TIER_PRACTICAL_MAX = 4;
-/** Hard cap. There is no Tier 5. */
+/** Hard cap. There is no Rank 5. */
 export const STONE_TIER_HARD_MAX = 4;
+/** Retired ids that still resolve to a current Stone Power. */
+export const STONE_POWER_ID_ALIASES = {
+    'resolve.damageReductionBoost': 'resolve.damageReduction',
+    'resolve.specialReduction': 'resolve.ward',
+};
+export function resolveStonePowerId(powerId) {
+    const id = String(powerId || '').trim();
+    return STONE_POWER_ID_ALIASES[id] || id;
+}
 /**
- * Read a published tier value. Tiers past the printed sequence, and anything
- * above Tier 4, do not scale.
+ * Premium Stone Abilities (PG "Premium Stone Abilities"): 2 / 4 / 6 / 8
+ * additional Stones per Rank. All other Abilities are Normal (1 / 2 / 4 / 8).
+ */
+export const PREMIUM_STONE_POWER_IDS = [
+    'generic.extraAttack',
+    'might.parry',
+    'agility.crit',
+    'vitality.damageNegation',
+    'intellect.spellAction',
+    'resolve.damageReduction',
+    'influence.notATarget',
+    'wits.phasing',
+];
+const PREMIUM_SET = new Set(PREMIUM_STONE_POWER_IDS);
+export function isPremiumStonePower(powerId) {
+    return PREMIUM_SET.has(resolveStonePowerId(powerId));
+}
+/** Additional-Stone cost per Rank (index 0 = Rank 1). */
+const NORMAL_RANK_COSTS = [1, 2, 4, 8];
+const PREMIUM_RANK_COSTS = [2, 4, 6, 8];
+/** Per-Rank payment segment sizes for one Ability (Normal 1/2/4/8, Premium 2/4/6/8). */
+export function stonePowerSegmentSizes(powerId) {
+    return isPremiumStonePower(powerId) ? PREMIUM_RANK_COSTS : NORMAL_RANK_COSTS;
+}
+/** Additional Stones to activate `rank` (1..4) of this Ability. 0 outside 1..4. */
+export function stonePowerRankCost(powerId, rank) {
+    const r = Math.floor(Number(rank) || 0);
+    if (r < 1 || r > STONE_TIER_HARD_MAX)
+        return 0;
+    return stonePowerSegmentSizes(powerId)[r - 1] ?? 0;
+}
+/** Cumulative Stones to reach `rank` (Normal 1/3/7/15, Premium 2/6/12/20). */
+export function cumulativeStoneCostForRank(powerId, rank) {
+    const r = Math.max(0, Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(rank) || 0)));
+    let total = 0;
+    for (let t = 1; t <= r; t += 1)
+        total += stonePowerRankCost(powerId, t);
+    return total;
+}
+/**
+ * Read a published Rank value. Ranks past the printed sequence, and anything
+ * above Rank 4, do not scale.
  */
 export function scaleStoneTier(seq, tier) {
     const t = Math.max(1, Math.floor(Number(tier) || 1));
@@ -35,98 +85,43 @@ export function scaleStoneTier(seq, tier) {
         return 0;
     return Number(seq[t - 1]) || 0;
 }
-/** Enemies and range for Not a Target. Level 9 Ringchain adds one enemy only on a full Tier 4 payment. */
-export function notATargetProfile(tier, cost, ringchainLevel = 0) {
-    if (tier < 2)
-        return null;
-    const enemies = scaleStoneTier([1, 2, 3], tier - 1);
-    const range = scaleStoneTier([8, 16, 24], tier - 1);
-    if (enemies <= 0)
-        return null;
-    const keptFromSightIii = tier >= 4 && cost >= 8 && ringchainLevel >= 9;
-    return { enemies: enemies + (keptFromSightIii ? 1 : 0), range };
-}
-/** Attacks that may gain Crit(1). Level 9 Elorian Stride adds one attack only on a full Tier 4 payment. */
-export function critChargesProfile(tier, cost, elorianLevel = 0) {
-    if (tier < 2)
-        return 0;
-    const charges = scaleStoneTier([1, 2, 3], tier - 1);
-    if (charges <= 0)
-        return 0;
-    const focusIii = tier >= 4 && cost >= 8 && elorianLevel >= 9;
-    return charges + (focusIii ? 1 : 0);
-}
-/** Highest active level of one equipped / echo-bound Echo Artifact on the actor. */
-function echoArtifactLevelOnActor(actor, artifactKey) {
-    const items = actor?.items ? Array.from(actor.items) : [];
-    let best = 0;
-    for (const item of items) {
-        if (item?.type !== 'artifact')
-            continue;
-        if (item.getFlag?.('mastery-system', 'echoArtifactKey') !== artifactKey)
-            continue;
-        const sys = item.system ?? {};
-        if (sys.equipped !== true && sys.binding !== 'echo')
-            continue;
-        const level = Math.floor(Number(sys.currentLevel) || Number(sys.level) || 0);
-        if (level > best)
-            best = level;
-    }
-    return best;
-}
-/** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
-export function stonePowerWaveCost(tier) {
-    const t = Math.floor(Number(tier) || 1);
-    if (t < 1 || t > STONE_TIER_HARD_MAX)
-        return 0;
-    return Math.pow(2, t - 1);
-}
-/** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
-export function cumulativeStoneCostForTier(tier, startsAtTier = 1) {
-    const start = startsAtTier === 2 ? 2 : 1;
-    const end = Math.max(start, Math.floor(Number(tier) || start));
-    let total = 0;
-    for (let t = start; t <= end; t += 1)
-        total += stonePowerWaveCost(t);
-    return total;
-}
-/** Highest fully paid tier on one card (1 / 3 / 7 / 15 stones → T1 / T2 / T3 / T4). */
-export function highestCompleteStoneTierFromPlaced(placed, startsAtTier = 1, maxTier = STONE_TIER_HARD_MAX) {
+/**
+ * Highest fully paid Rank on one card given the placed Stone count and this
+ * Ability's cost curve. A pre-filled Rank costs nothing; every other Rank up
+ * to the result must be covered by the placed Stones in order.
+ */
+export function highestCompleteStoneTierFromPlaced(powerId, placed, prefillRank = 0, maxTier = STONE_TIER_HARD_MAX) {
     const n = Math.max(0, Math.floor(Number(placed) || 0));
-    const start = startsAtTier === 2 ? 2 : 1;
-    const cap = Math.max(start, Math.floor(Number(maxTier) || STONE_TIER_HARD_MAX));
+    const cap = Math.max(1, Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(maxTier) || STONE_TIER_HARD_MAX)));
+    const prefill = Math.max(0, Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(prefillRank) || 0)));
     let best = 0;
-    for (let t = start; t <= cap; t += 1) {
-        if (n < cumulativeStoneCostForTier(t, start))
+    let cost = 0;
+    for (let r = 1; r <= cap; r += 1) {
+        if (r !== prefill)
+            cost += stonePowerRankCost(powerId, r);
+        if (n < cost)
             break;
-        best = t;
+        best = r;
     }
     return best;
 }
 /**
- * Once-per-combat powers apply the highest complete cluster once.
- * Artifact Support only raises that tier when every tier below the gold
- * prefill was paid by the player.
+ * Once-per-combat powers apply the highest complete cluster once. A Support
+ * prefill makes its named Rank free; every other Rank is paid from the
+ * placed Stones in order.
  */
 export function resolveOncePerCombatStoneTier(powerId, placedCount, prefillTier = 0) {
-    const startsAt = stonePowerStartsAtTier(powerId);
-    const playerTier = highestCompleteStoneTierFromPlaced(placedCount, startsAt);
-    if (playerTier < startsAt)
-        return { tier: 0, playerTier: 0 };
-    const first = firstEffectiveStonePowerTier(powerId);
-    const effective = effectiveStoneSupportPrefillTier(powerId, prefillTier);
-    const supportApplies = effective > first;
-    const tier = supportApplies && playerTier >= first && playerTier >= effective - 1
-        ? Math.max(playerTier, effective)
-        : playerTier;
+    const prefill = effectiveStoneSupportPrefillTier(powerId, prefillTier);
+    const playerTier = highestCompleteStoneTierFromPlaced(powerId, placedCount, 0);
+    const tier = prefill > 0 ? highestCompleteStoneTierFromPlaced(powerId, placedCount, prefill) : playerTier;
     return { tier, playerTier };
 }
-/** Compile the multi-tier tooltip. T2-start powers omit any T1 line. */
-function compileEffectText(name, tiers, startsAtTier = 1) {
+/** Compile the multi-Rank tooltip with this Ability's cost curve. */
+function compileEffectText(name, tiers, powerId) {
     const lines = tiers.map((t, i) => {
-        const tierNum = startsAtTier + i;
-        const cost = stonePowerWaveCost(tierNum);
-        return `T${tierNum} (${cost}): ${t.description || t.label}`;
+        const rank = i + 1;
+        const cost = stonePowerRankCost(powerId, rank);
+        return `R${rank} (${cost}): ${t.description || t.label}`;
     });
     return `${name}\n${lines.join('\n')}`;
 }
@@ -146,18 +141,16 @@ const GENERIC_POWERS_RAW = [
         name: 'Extra Attack',
         attribute: 'generic',
         category: 'action',
-        description: 'Gain additional Attack Actions this round (T2: +1, T3: +2, T4: +3).',
-        startsAtTier: 2,
+        description: 'Premium. Gain additional Attack Actions this round (R1–R4: +1/+2/+3/+4).',
         tiers: [
             { label: '+1 Attack Action', description: 'Gain 1 additional Attack Action this round.', value: 1 },
             { label: '+2 Attack Actions', description: 'Gain 2 additional Attack Actions this round.', value: 2 },
             { label: '+3 Attack Actions', description: 'Gain 3 additional Attack Actions this round.', value: 3 },
+            { label: '+4 Attack Actions', description: 'Gain 4 additional Attack Actions this round.', value: 4 },
         ],
         apply: async ({ actor, tier }) => {
-            if (tier < 2)
-                return;
             const combat = game.combat;
-            const bonus = scaleStoneTier([1, 2, 3], tier - 1);
+            const bonus = scaleStoneTier([1, 2, 3, 4], tier);
             if (bonus <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
@@ -310,18 +303,16 @@ const MIGHT_POWERS_RAW = [
         name: 'Parry',
         attribute: 'might',
         category: 'passive',
-        description: 'Gain Parry Pool until the start of your next turn (T2: +2, T3: +4, T4: +6). No Tier 1. Creates Parry if you do not have it.',
-        startsAtTier: 2,
+        description: 'Premium. Gain Parry Pool until the start of your next turn (R1–R4: +2/+4/+6/+8). Creates Parry if you do not have it.',
         tiers: [
             { label: '+2 Parry Pool', description: 'Gain +2 Parry Pool until the start of your next turn.', value: 2 },
             { label: '+4 Parry Pool', description: 'Gain +4 Parry Pool until the start of your next turn.', value: 4 },
             { label: '+6 Parry Pool', description: 'Gain +6 Parry Pool until the start of your next turn.', value: 6 },
+            { label: '+8 Parry Pool', description: 'Gain +8 Parry Pool until the start of your next turn.', value: 8 },
         ],
         apply: async ({ actor, tier }) => {
-            if (tier < 2)
-                return;
             const combat = game.combat;
-            const bonus = scaleStoneTier([2, 4, 6], tier - 1);
+            const bonus = scaleStoneTier([2, 4, 6, 8], tier);
             if (bonus <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
@@ -341,16 +332,16 @@ const AGILITY_POWERS_RAW = [
         name: 'Crit',
         attribute: 'agility',
         category: 'action',
-        description: 'A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll (T2: 1, T3: 2, T4: 3).',
-        startsAtTier: 2,
+        description: 'Premium. A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll (R1–R4: 1/2/3/4).',
         tiers: [
             { label: '1 attack: Crit(1)', description: 'One of your attacks this round can have Crit(1). You decide which attack before you roll the Attack Roll.', value: 1 },
             { label: '2 attacks: Crit(1)', description: 'Two of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 2 },
             { label: '3 attacks: Crit(1)', description: 'Three of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 3 },
+            { label: '4 attacks: Crit(1)', description: 'Four of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 4 },
         ],
-        apply: async ({ actor, tier, cost }) => {
+        apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const charges = critChargesProfile(tier, cost, echoArtifactLevelOnActor(actor, 'elorianStride'));
+            const charges = scaleStoneTier([1, 2, 3, 4], tier);
             if (charges <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
@@ -460,18 +451,16 @@ const VITALITY_POWERS_RAW = [
         name: 'Damage Negation',
         attribute: 'vitality',
         category: 'passive',
-        description: 'Gain Damage Negation until the start of your next turn (T2: +4, T3: +8, T4: +12). Creates it if you do not have it.',
-        startsAtTier: 2,
+        description: 'Premium. Gain Damage Negation until the start of your next turn (R1–R4: +4/+8/+12/+16). Creates it if you do not have it.',
         tiers: [
             { label: '+4 Damage Negation', description: 'Gain +4 Damage Negation until the start of your next turn.', value: 4 },
             { label: '+8 Damage Negation', description: 'Gain +8 Damage Negation until the start of your next turn.', value: 8 },
             { label: '+12 Damage Negation', description: 'Gain +12 Damage Negation until the start of your next turn.', value: 12 },
+            { label: '+16 Damage Negation', description: 'Gain +16 Damage Negation until the start of your next turn.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
-            if (tier < 2)
-                return;
             const combat = game.combat;
-            const bonus = scaleStoneTier([4, 8, 12], tier - 1);
+            const bonus = scaleStoneTier([4, 8, 12, 16], tier);
             if (bonus <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
@@ -574,17 +563,15 @@ const INTELLECT_POWERS_RAW = [
         name: 'Spell Action',
         attribute: 'intellect',
         category: 'action',
-        description: 'Gain additional Attack Actions this round that may only cast Spells (T2: +1, T3: +2, T4: +3).',
-        startsAtTier: 2,
+        description: 'Premium. Gain additional Attack Actions this round that may only cast Spells (R1–R4: +1/+2/+3/+4).',
         tiers: [
             { label: '+1 Spell Action', description: 'Gain 1 additional Attack Action this round. It may only be used to cast a Spell.', value: 1 },
             { label: '+2 Spell Actions', description: 'Gain 2 additional Attack Actions this round. They may only be used to cast Spells.', value: 2 },
             { label: '+3 Spell Actions', description: 'Gain 3 additional Attack Actions this round. They may only be used to cast Spells.', value: 3 },
+            { label: '+4 Spell Actions', description: 'Gain 4 additional Attack Actions this round. They may only be used to cast Spells.', value: 4 },
         ],
         apply: async ({ actor, combatant, tier }) => {
-            if (tier < 2)
-                return;
-            const bonus = scaleStoneTier([1, 2, 3], tier - 1);
+            const bonus = scaleStoneTier([1, 2, 3, 4], tier);
             if (bonus <= 0)
                 return;
             const combat = game.combat;
@@ -699,19 +686,17 @@ const RESOLVE_POWERS_RAW = [
         name: 'Damage Reduction',
         attribute: 'resolve',
         category: 'passive',
-        description: 'Gain Damage Reduction until the start of your next turn (T2:+10%, T3:+20%, T4:+30%). Creates it if you do not have it.',
-        startsAtTier: 2,
+        description: 'Premium. Gain Damage Reduction until the start of your next turn (R1–R4: +10%/+20%/+30%/+40%). Creates it if you do not have it.',
         tiers: [
             { label: '+10% DR', description: 'Gain +10% Damage Reduction until the start of your next turn.', value: 10 },
             { label: '+20% DR', description: 'Gain +20% Damage Reduction until the start of your next turn.', value: 20 },
             { label: '+30% DR', description: 'Gain +30% Damage Reduction until the start of your next turn.', value: 30 },
+            { label: '+40% DR', description: 'Gain +40% Damage Reduction until the start of your next turn.', value: 40 },
         ],
         apply: async ({ actor, tier }) => {
-            if (tier < 2)
-                return;
             const combat = game.combat;
             // Re-activation ADDs (PG "Temporary Defensive Stone Values").
-            const pct = scaleStoneTier([10, 20, 30], tier - 1);
+            const pct = scaleStoneTier([10, 20, 30, 40], tier);
             if (pct <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
@@ -769,35 +754,34 @@ const INFLUENCE_POWERS_RAW = [
     },
     {
         id: 'influence.regeneration',
-        name: 'Regeneration + Movement',
+        name: 'Regeneration',
         attribute: 'influence',
         category: 'action',
-        description: 'Choose one player. They gain Regeneration(8 / 16 / 32 / 64) and +1 / +2 / +4 / +8 m Movement until the end of this round.',
+        description: 'One ally within 8 / 16 / 24 / 32 m gains Regeneration(2 / 4 / 6 / 8).',
         tiers: [
-            { label: 'Regen(8) +1 m', description: 'Choose a player. They gain Regeneration(8) and +1 m Movement until the end of this round.', value: 8 },
-            { label: 'Regen(16) +2 m', description: 'Choose a player. They gain Regeneration(16) and +2 m Movement until the end of this round.', value: 16 },
-            { label: 'Regen(32) +4 m', description: 'Choose a player. They gain Regeneration(32) and +4 m Movement until the end of this round.', value: 32 },
-            { label: 'Regen(64) +8 m', description: 'Choose a player. They gain Regeneration(64) and +8 m Movement until the end of this round.', value: 64 },
+            { label: 'Regeneration(2) — 8 m', description: 'One ally within 8 m gains Regeneration(2).', value: 2 },
+            { label: 'Regeneration(4) — 16 m', description: 'One ally within 16 m gains Regeneration(4).', value: 4 },
+            { label: 'Regeneration(6) — 24 m', description: 'One ally within 24 m gains Regeneration(6).', value: 6 },
+            { label: 'Regeneration(8) — 32 m', description: 'One ally within 32 m gains Regeneration(8).', value: 8 },
         ],
         apply: async ({ actor, tier }) => {
-            const value = scaleStoneTier([8, 16, 32, 64], tier);
-            const moveMeters = scaleStoneTier([1, 2, 4, 8], tier);
+            const value = scaleStoneTier([2, 4, 6, 8], tier);
             const range = scaleStoneTier([8, 16, 24, 32], tier);
-            const payload = { value, moveMeters, range };
+            const payload = { value, moveMeters: 0, range };
             await actor.setFlag?.('mastery-system', 'pendingAllyRegeneration', payload);
-            const hint = `They gain Regeneration(${value}) and +${moveMeters} m Movement until the end of this round.`;
+            const hint = `They gain Regeneration(${value}).`;
             const target = await promptSelectablePlayerTarget({
                 caster: actor,
-                title: 'Regeneration + Movement',
+                title: 'Regeneration',
                 hint,
             });
             if (target) {
-                await applyRegenerationAndMove(target, value, moveMeters);
+                await applyRegenerationAndMove(target, value, 0);
                 await actor.unsetFlag?.('mastery-system', 'pendingAllyRegeneration');
-                ui.notifications?.info(`${target.name}: Regeneration(${value}) and +${moveMeters} m Movement this round.`);
+                ui.notifications?.info(`${target.name}: Regeneration(${value}) — one ally within ${range} m.`);
                 return;
             }
-            ui.notifications?.info(`${actor.name}: Regeneration + Movement — choose a player (${hint})`);
+            ui.notifications?.info(`${actor.name}: Regeneration — choose one ally within ${range} m (${hint})`);
         },
     },
     {
@@ -829,22 +813,23 @@ const INFLUENCE_POWERS_RAW = [
         name: 'Not a Target',
         attribute: 'influence',
         category: 'reaction',
-        description: 'Enemies cannot target you with their next attack before the start of your next turn unless you are the only valid target. T2: 1@8 m, T3: 2@16 m, T4: 3@24 m.',
-        startsAtTier: 2,
+        description: 'Premium. Enemies cannot target you with their next attack before the start of your next turn unless you are the only valid target. R1: 1@8 m, R2: 2@16 m, R3: 3@24 m, R4: 4@32 m.',
         tiers: [
             { label: '1 enemy @ 8 m', description: 'One enemy within 8 m cannot target you with its next attack before the start of your next turn unless you are the only valid target.', value: 1 },
             { label: '2 enemies @ 16 m', description: 'Up to 2 enemies within 16 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 2 },
             { label: '3 enemies @ 24 m', description: 'Up to 3 enemies within 24 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 3 },
+            { label: '4 enemies @ 32 m', description: 'Up to 4 enemies within 32 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 4 },
         ],
-        apply: async ({ actor, tier, cost }) => {
-            const profile = notATargetProfile(tier, cost, echoArtifactLevelOnActor(actor, 'ringchainOfKeptNames'));
-            if (!profile)
+        apply: async ({ actor, tier }) => {
+            const enemies = scaleStoneTier([1, 2, 3, 4], tier);
+            const meters = scaleStoneTier([8, 16, 24, 32], tier);
+            if (enemies <= 0)
                 return;
             await actor.setFlag?.('mastery-system', 'pendingNotATarget', {
-                enemies: profile.enemies,
-                range: profile.range,
+                enemies,
+                range: meters,
             });
-            ui.notifications?.info(`${actor.name}: Not a Target — up to ${profile.enemies} enemy(ies) within ${profile.range} m cannot target you next attack this round.`);
+            ui.notifications?.info(`${actor.name}: Not a Target — up to ${enemies} enemy(ies) within ${meters} m cannot target you next attack this round.`);
         },
     },
 ];
@@ -894,21 +879,19 @@ const WITS_POWERS_RAW = [
         attribute: 'wits',
         category: 'reaction',
         oncePerCombat: true,
-        description: 'Once per combat, gain Phasing Charges that persist until spent or combat ends (T2: 1, T3: 2, T4: 3).',
-        startsAtTier: 2,
+        description: 'Premium. Once per combat, gain Phasing Charges that persist until spent or combat ends (R1–R4: 1/2/3/4).',
         tiers: [
             { label: '1 Phasing Charge', description: 'Gain 1 Phasing Charge (once per combat).', value: 1 },
             { label: '2 Phasing Charges', description: 'Gain 2 Phasing Charges (once per combat).', value: 2 },
             { label: '3 Phasing Charges', description: 'Gain 3 Phasing Charges (once per combat).', value: 3 },
+            { label: '4 Phasing Charges', description: 'Gain 4 Phasing Charges (once per combat).', value: 4 },
         ],
         apply: async ({ actor, combatant, tier }) => {
-            if (tier < 2)
-                return;
             if (combatant && isPhasingStoneUsedThisCombat(combatant)) {
                 ui.notifications?.warn(`${actor.name}: Phasing already used this combat.`);
                 return;
             }
-            const charges = Math.max(1, Math.floor(Number(tier) || 2) - 1);
+            const charges = scaleStoneTier([1, 2, 3, 4], tier);
             if (charges <= 0)
                 return;
             const combat = game.combat;
@@ -972,18 +955,15 @@ const WITS_POWERS_RAW = [
 // Registry + finalization (auto-compile `.effect`)
 // ---------------------------------------------------------------------------
 function finalize(list) {
-    return list.map((p) => {
-        const startsAtTier = p.startsAtTier === 2 ? 2 : 1;
-        return {
-            ...p,
-            startsAtTier,
-            effect: compileEffectText(p.name, p.tiers, startsAtTier),
-        };
-    });
+    return list.map((p) => ({
+        ...p,
+        premium: isPremiumStonePower(p.id),
+        effect: compileEffectText(p.name, p.tiers, p.id),
+    }));
 }
-function leadTier2Start(list) {
-    const lead = list.filter((p) => p.startsAtTier === 2);
-    const rest = list.filter((p) => p.startsAtTier !== 2);
+function leadPremium(list) {
+    const lead = list.filter((p) => p.premium);
+    const rest = list.filter((p) => !p.premium);
     return [...lead, ...rest];
 }
 const GENERIC_POWERS = finalize(GENERIC_POWERS_RAW);
@@ -1008,14 +988,14 @@ export const STONE_POWERS = {};
     STONE_POWERS[power.id] = power;
 });
 export const STONE_POWERS_BY_ATTRIBUTE = {
-    generic: leadTier2Start(GENERIC_POWERS),
-    might: leadTier2Start(MIGHT_POWERS),
-    agility: leadTier2Start(AGILITY_POWERS),
-    vitality: leadTier2Start(VITALITY_POWERS),
-    intellect: leadTier2Start(INTELLECT_POWERS),
-    resolve: leadTier2Start(RESOLVE_POWERS),
-    influence: leadTier2Start(INFLUENCE_POWERS),
-    wits: leadTier2Start(WITS_POWERS),
+    generic: leadPremium(GENERIC_POWERS),
+    might: leadPremium(MIGHT_POWERS),
+    agility: leadPremium(AGILITY_POWERS),
+    vitality: leadPremium(VITALITY_POWERS),
+    intellect: leadPremium(INTELLECT_POWERS),
+    resolve: leadPremium(RESOLVE_POWERS),
+    influence: leadPremium(INFLUENCE_POWERS),
+    wits: leadPremium(WITS_POWERS),
 };
 /**
  * Convert a usage count (0-indexed; activations this turn BEFORE this one)
@@ -1024,103 +1004,48 @@ export const STONE_POWERS_BY_ATTRIBUTE = {
 export function tierForUseIndex(usesBefore) {
     return Math.max(1, Math.min(STONE_TIER_HARD_MAX, Math.floor(usesBefore) + 1));
 }
-/**
- * Abilities whose first published tier is T2. Tier 1 does not exist.
- * Extra Attack (generic) uses the same start.
- */
-export const TIER2_START_STONE_POWER_IDS = [
-    'might.parry',
-    'agility.crit',
-    'vitality.damageNegation',
-    'intellect.spellAction',
-    'resolve.damageReduction',
-    'influence.notATarget',
-    'wits.phasing',
-    'generic.extraAttack',
-];
-export function stonePowerStartsAtTier(powerId) {
-    const power = STONE_POWERS[resolveStonePowerId(powerId)];
-    if (power?.startsAtTier === 2)
-        return 2;
-    if (TIER2_START_STONE_POWER_IDS.includes(resolveStonePowerId(powerId))) {
-        return 2;
-    }
-    return 1;
-}
-/** True when the ability begins at Tier 2 (no Tier-1 slot). */
-export function stonePowerSkipsFirstTier(powerId) {
-    return stonePowerStartsAtTier(powerId) === 2;
-}
-/** First published tier (2 when Tier 1 does not exist, otherwise 1). */
-export function firstEffectiveStonePowerTier(powerId) {
-    return stonePowerStartsAtTier(powerId);
-}
-/**
- * Printed Support that would land on (or below) the first published tier is
- * lifted one step so the player still pays that tier and the gold prefills
- * sit above it. Crit + Elorian Focus I (printed T2) → T3.
- */
+/** Printed Support Rank, clamped to the real Rank range (0 = no Support). */
 export function effectiveStoneSupportPrefillTier(powerId, printedTier) {
+    void powerId;
     const printed = Math.max(0, Math.floor(Number(printedTier) || 0));
-    if (printed <= 0)
-        return 0;
-    const first = firstEffectiveStonePowerTier(powerId);
-    if (printed <= first)
-        return Math.min(STONE_TIER_HARD_MAX, first + 1);
     return Math.min(STONE_TIER_HARD_MAX, printed);
 }
-/** Lane indices for one published tier (T1=anchor, T2=mid, T3=quad, T4=oct). */
-export function stonePaymentLanesForTier(tier) {
-    const seg = Math.floor(Number(tier) || 0) - 1;
-    if (seg === 0)
-        return [0];
-    if (seg === 1)
-        return [1, 2];
-    if (seg === 2)
-        return [3, 4, 5, 6];
-    if (seg === 3)
-        return [7, 8, 9, 10, 11, 12, 13, 14];
-    return [];
+/** Lane indices for one Rank of this Ability (segments sized by its cost curve). */
+export function stonePaymentLanesForTier(powerId, rank) {
+    const r = Math.floor(Number(rank) || 0);
+    if (r < 1 || r > STONE_TIER_HARD_MAX)
+        return [];
+    const sizes = stonePowerSegmentSizes(powerId);
+    let start = 0;
+    for (let i = 0; i < r - 1; i += 1)
+        start += sizes[i] ?? 0;
+    const size = sizes[r - 1] ?? 0;
+    return Array.from({ length: size }, (_, i) => start + i);
+}
+/** Total payment lanes for this Ability (Normal 15, Premium 20). */
+export function stonePaymentLaneCount(powerId) {
+    return stonePowerSegmentSizes(powerId).reduce((sum, n) => sum + n, 0);
 }
 /**
- * Gold Artifact Support Stone lanes: every published tier above the one the
- * player must pay, up through the effective prefill. Empty when Support
- * cannot raise the first published tier.
+ * Gold Artifact Support Stone lanes: exactly the pre-filled Rank. Every other
+ * Rank keeps its normal payable lanes.
  */
 export function stoneSupportPrefillLanes(powerId, printedTier) {
-    const first = firstEffectiveStonePowerTier(powerId);
-    const effective = effectiveStoneSupportPrefillTier(powerId, printedTier);
-    if (effective <= first)
+    const rank = effectiveStoneSupportPrefillTier(powerId, printedTier);
+    if (rank <= 0)
         return [];
-    const lanes = [];
-    for (let tier = first + 1; tier <= effective; tier += 1) {
-        lanes.push(...stonePaymentLanesForTier(tier));
-    }
-    return lanes;
+    return stonePaymentLanesForTier(powerId, rank);
 }
-/**
- * Support may raise the first paid activation to a higher tier. It never
- * grants the first published tier for free (T1, or T2 when T1 does not exist).
- */
+/** True when a Support prefill exists (Rank 1–4). The named Rank costs no Stones. */
 export function stonePowerSupportPrefillApplies(powerId, printedTier) {
-    return effectiveStoneSupportPrefillTier(powerId, printedTier) > firstEffectiveStonePowerTier(powerId);
+    return effectiveStoneSupportPrefillTier(powerId, printedTier) > 0;
 }
-/** Retired ids that still resolve to a current Stone Power. */
-export const STONE_POWER_ID_ALIASES = {
-    'resolve.damageReductionBoost': 'resolve.damageReduction',
-    'resolve.specialReduction': 'resolve.ward',
-};
 /**
- * Per-power adjustment applied to Artifact Stone Power Support pre-fill tiers.
- * No power is currently shifted: printed support tiers are used as-is (lifted
- * above the first published tier by `effectiveStoneSupportPrefillTier` when
- * needed). Kept as a map in case a future table diverges.
+ * Per-power adjustment applied to Artifact Stone Power Support pre-fill Ranks.
+ * No power is currently shifted: printed support Ranks are used as-is. Kept
+ * as a map in case a future table diverges.
  */
 export const STONE_POWER_SUPPORT_TIER_SHIFT = {};
-export function resolveStonePowerId(powerId) {
-    const id = String(powerId || '').trim();
-    return STONE_POWER_ID_ALIASES[id] || id;
-}
 /** Retired Stone Power ids that have no successor (cannot auto-remap). */
 export const UNRESOLVED_STONE_POWER_IDS = [
     'might.attackPoolReduction',

@@ -61,7 +61,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Resolve Ability: Healing Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
         "special": "resolve.healing"
       },
       {
@@ -78,7 +78,7 @@
     "extraStoneFunctions": [
       {
         "level": 5,
-        "name": "Special Reduction Support",
+        "name": "Ward Support",
         "kind": "stonePowerSupport",
         "attribute": "resolve",
         "stonePowerId": "resolve.ward",
@@ -748,7 +748,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Resolve Ability: Healing Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Resolve Ability: Healing Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 9

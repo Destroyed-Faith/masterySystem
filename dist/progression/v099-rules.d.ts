@@ -52,18 +52,49 @@ export declare function stoneConcentrationCap(totalPermanentStones: number, stor
 export declare function emptyAssignments(): Record<AttributeKeyName, number>;
 export declare function readAssignments(source: any): Record<AttributeKeyName, number>;
 export declare function sumAssignments(assignments: Record<string, number>): number;
+/** Permanent Colorless Stones owned by this character (2:1 conversion of unassigned Stones). */
+export declare function permanentColorlessCount(system: any): number;
+/** A character may possess at most Mastery Rank Permanent Colorless Stones. */
+export declare function permanentColorlessCap(masteryRank: number): number;
+/**
+ * Unassigned permanent progression Stones: earned total minus assigned minus
+ * the two consumed by each Permanent Colorless Stone conversion.
+ */
+export declare function unassignedPermanentStones(args: {
+    assignments: Record<string, number>;
+    totalPermanent: number;
+    permanentColorless?: number;
+}): number;
+/**
+ * Convert 2 unassigned permanent Stones into 1 Permanent Colorless Stone.
+ * The conversion is permanent; the cap is Mastery Rank. For Mastery Rank
+ * progression a Permanent Colorless Stone keeps the value of the two Stones
+ * it replaced (Mastery Stone Value = 2 + floor(Lifetime XP / 20) throughout).
+ */
+export declare function canConvertToPermanentColorless(args: {
+    assignments: Record<string, number>;
+    totalPermanent: number;
+    permanentColorless: number;
+    storedRank?: number;
+}): {
+    ok: boolean;
+    masteryRank: number;
+    cap: number;
+    reason?: string;
+};
 export declare function canPlacePermanentStone(args: {
     attribute: string;
     assignments: Record<string, number>;
     totalPermanent: number;
     storedRank?: number;
+    permanentColorless?: number;
 }): {
     ok: boolean;
     cap: number;
     masteryRank: number;
     reason?: string;
 };
-export declare function assignmentsAreLegal(assignments: Record<string, number>, totalPermanent: number, storedRank?: number): {
+export declare function assignmentsAreLegal(assignments: Record<string, number>, totalPermanent: number, storedRank?: number, permanentColorless?: number): {
     ok: boolean;
     reason?: string;
 };
@@ -77,7 +108,7 @@ export interface StoneProgressSlot {
     attribute: string | null;
     abbrev: string;
 }
-export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number): StoneProgressSlot[];
+export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number, permanentColorless?: number): StoneProgressSlot[];
 export declare function chunkSlots<T>(slots: T[], size: number): T[][];
 /** v0.9.9 characters store assignments. Older actors still derive Stones from Attributes until respec. */
 export declare function usesV099Stones(system: any): boolean;
@@ -103,7 +134,8 @@ export declare function martialDamageApplies(opts: {
     npcIsSpell?: boolean;
     attackKind?: string;
 }): boolean;
-export declare function maxStoneCommitment(startsAtTier: 1 | 2): number;
+/** Total Stones for Rank 4: Normal 1+2+4+8 = 15, Premium 2+4+6+8 = 20. */
+export declare function maxStoneCommitment(premium: boolean): number;
 /** Passive Skill Value on the compressed scale. */
 export declare function passiveSkillValue(attributeValue: number): number;
 //# sourceMappingURL=v099-rules.d.ts.map

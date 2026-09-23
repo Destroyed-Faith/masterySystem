@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.561] - 2026-09-23
+
+### Changed
+
+- **Stein-Fähigkeiten (finales v0.9.9.0-Modell):** Jede Stone Ability hat vier echte Ranks; „startet bei Tier 2" ist abgeschafft. Normale Kosten 1/2/4/8 (gesamt 1/3/7/15). Die acht Premium-Fähigkeiten — Extra Attack, Parry, Crit, Damage Negation, Spell Action, Damage Reduction, Not a Target, Phasing — kosten 2/4/6/8 (gesamt 20). Rank 4 ist das absolute Maximum; Premium-Rank 4 darf teurer sein als die 16 Steine eines Attributs.
+- **Premium-Rank-4-Werte:** Parry +8, Crit 4 Angriffe, Damage Negation +16, Extra Attack/Spell Action +4, Damage Reduction +40 %, Not a Target 4 Gegner @ 32 m, Phasing 4 Charges. Regeneration ist jetzt Regeneration(2/4/6/8) für einen Verbündeten in 8/16/24/32 m.
+- **Stone Power Support:** Ein Support füllt genau den benannten Rank (kostet 0 Steine); alle niedrigeren Ranks werden normal aktiviert und bezahlt. Elorian Focus I/II/III = Crit Rank 2/3/4 (Artefakt-Level 3/6/9); Kept from Sight I/II/III = Not a Target Rank 2/3/4 (Level 1/5/9); Killing Focus analog.
+- **Permanente Colorless-Steine:** 2 nicht zugewiesene permanente Steine lassen sich dauerhaft in 1 permanenten Colorless-Stein umwandeln (Maximum = Mastery Rank). Sie zählen nicht gegen das MR×2-Attributlimit, zahlen jede freigeschaltete Stone Ability (außer explizit ausgeschlossen), werden beim Ausgeben Exhausted und kehren nach dem Kampf zurück. Mastery Stone Value bleibt 2 + ⌊Lifetime XP ÷ 20⌋. Temporäre Colorless-Steine (Initiative Exchange) bleiben getrennt und verfallen wie bisher.
+
 ## [0.9.560] - 2026-09-23
 
 ### Fixed

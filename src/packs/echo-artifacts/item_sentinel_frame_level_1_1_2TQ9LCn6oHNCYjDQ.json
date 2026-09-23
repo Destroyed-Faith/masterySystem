@@ -49,7 +49,7 @@
     "extraStoneFunctions": [
       {
         "level": 5,
-        "name": "Special Reduction Support",
+        "name": "Ward Support",
         "kind": "stonePowerSupport",
         "attribute": "resolve",
         "stonePowerId": "resolve.ward",

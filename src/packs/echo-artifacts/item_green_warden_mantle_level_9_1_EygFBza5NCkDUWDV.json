@@ -62,7 +62,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Resolve Ability: Ward Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Resolve Ability: Ward (incoming Specials −X) Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
         "special": "resolve.ward"
       }
     ],
@@ -726,7 +726,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Resolve Ability: Ward Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Resolve Ability: Ward (incoming Specials −X) Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 9

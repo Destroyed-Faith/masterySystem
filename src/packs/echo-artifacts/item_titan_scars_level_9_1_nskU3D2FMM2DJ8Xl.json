@@ -51,7 +51,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Might Ability: Martial Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Might Ability: Martial Damage Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
         "special": "might.meleeDamage"
       },
       {
@@ -61,7 +61,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Vitality Ability: Remove Scar Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Vitality Ability: Remove Scar Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
         "special": "vitality.removeScar"
       }
     ],
@@ -518,7 +518,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Might Ability: Martial Damage Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Might Ability: Martial Damage Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 8
@@ -727,7 +727,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Vitality Ability: Remove Scar Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Vitality Ability: Remove Scar Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 9

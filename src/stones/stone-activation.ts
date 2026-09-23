@@ -1,9 +1,9 @@
 /**
  * Stone Power Activation System
- * 
+ *
  * Implements:
  * - Power registry with attribute associations
- * - Exponential cost calculation (1, 2, 4, 8, 16...)
+ * - Universal four-Rank costs (Normal 1/2/4/8, Premium 2/4/6/8)
  * - Pool deduction and round state updates
  */
 
@@ -13,7 +13,6 @@ import {
   getActionEconomyActor,
   getStoneUsageCount,
   getGenericStonePowerUsageCount,
-  calculateStoneCost,
   type RoundState,
   type AttributeKey
 } from '../combat/action-economy.js';
@@ -21,10 +20,11 @@ import {
 // Import canonical stone powers definition
 import {
   STONE_POWERS,
+  STONE_TIER_HARD_MAX,
   resolveOncePerCombatStoneTier,
   resolveStonePowerId,
   tierForUseIndex,
-  stonePowerSkipsFirstTier,
+  stonePowerRankCost,
   stonePowerSupportPrefillApplies,
   effectiveStoneSupportPrefillTier,
   type StonePower,
@@ -34,34 +34,28 @@ import { isOncePerCombatPowerUsed, markOncePerCombatPowerUsed } from './colorles
 import { payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID } from './remove-scar.js';
 import { stonePowerAllowsColorless, stonePowerColorlessRejectMessage } from './stone-payment-rules.js';
 
+/**
+ * Each activation this Round raises the Ability one Rank. The Rank's
+ * additional cost follows the Ability's Normal or Premium curve. A Stone
+ * Power Support prefill makes exactly its named Rank free; every lower Rank
+ * is activated and paid normally. `legal` is false past Rank 4.
+ */
 export function resolveStonePowerActivation(
   abilityId: string,
   rawUsesBefore: number,
   prefillTier: number,
-): { tier: number; cost: number; supportApplies: boolean } {
-  const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
-  const effective = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
+): { tier: number; cost: number; supportApplies: boolean; legal: boolean } {
+  const prefill = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
   const supportApplies = stonePowerSupportPrefillApplies(abilityId, prefillTier);
   const paidUses = Math.max(0, Math.floor(Number(rawUsesBefore) || 0));
-  const paidIndex = paidUses + rampSkip;
-  let usesBefore = paidIndex;
-  if (supportApplies) {
-    if (rampSkip === 1) {
-      // T2-start abilities (Crit, Not a Target, …): Support only advances an
-      // already active ability and only by one tier above the tier being paid.
-      // Paying Tier 2 can reach Tier 3; paying Tier 3 can reach Tier 4. A
-      // printed Tier 4 prefill never skips an unpaid tier.
-      const paidTier = tierForUseIndex(paidIndex);
-      const capped = Math.min(effective, paidTier + 1);
-      usesBefore = capped > paidTier ? capped - 1 : paidIndex;
-    } else {
-      usesBefore = Math.max(paidIndex, Math.max(0, effective - 1));
-    }
-  }
+  const rank = paidUses + 1;
+  const legal = rank <= STONE_TIER_HARD_MAX;
+  const cost = legal && rank === prefill ? 0 : stonePowerRankCost(abilityId, rank);
   return {
-    tier: tierForUseIndex(usesBefore),
-    cost: calculateStoneCost(paidIndex),
+    tier: tierForUseIndex(paidUses),
+    cost,
     supportApplies,
+    legal,
   };
 }
 
@@ -123,29 +117,27 @@ export async function activateStonePower(options: {
     poolAttribute = power.attribute;
   }
   
-  // Artifact Stone Power Support may only raise an already-activated ability.
-  // The character must pay the first published tier themselves (T2 when T1
-  // does not exist). Support never activates that first tier.
+  // Stone Power Support pre-fills exactly one named Rank (it costs nothing);
+  // every lower Rank is activated and paid normally.
   const combat = (game as any).combat;
   const rawUsesBefore = abilityId.startsWith('generic.')
     ? getGenericStonePowerUsageCount(actor, abilityId, combat)
     : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
-  // T2-start powers (no Tier 1, e.g. Extra Attack) start one segment higher:
-  // the first activation is Tier 2 and the player pays the Tier-2 cost.
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
   const cluster =
     power.oncePerCombat && placedCount != null
       ? resolveOncePerCombatStoneTier(abilityId, placedCount, prefillTier)
       : null;
-  if (cluster && cluster.tier < (power.startsAtTier ?? 1)) {
+  if (cluster && cluster.tier < 1) {
     return false;
   }
-  const { tier, cost } = cluster
-    ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)) }
+  const resolved = cluster
+    ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)), legal: true }
     : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+  const { tier, cost } = resolved;
 
-  if (tier > 4 || (!cluster && cost <= 0)) {
-    ui.notifications?.warn(`${power.name} ends at Tier 4.`);
+  if (tier > 4 || !resolved.legal) {
+    ui.notifications?.warn(`${power.name} ends at Rank 4.`);
     return false;
   }
 
@@ -191,13 +183,13 @@ export async function activateGenericStonePowerMixed(options: {
   const combat = (game as any).combat;
   const rawUsesBefore = getGenericStonePowerUsageCount(actor, abilityId, combat);
   // Generic / multi-pool activations get the highest Support prefill from
-  // any equipped artifact (attribute-agnostic match). The effect tier is
-  // floored to the prefill tier while the player only pays the raw wave
-  // cost (the Artifact Support Stones are provided by the artifact).
+  // any equipped artifact (attribute-agnostic match). The pre-filled Rank
+  // costs nothing; the other Ranks are paid from the chosen pools.
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
-  const { tier, cost } = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
-  if (tier > 4 || cost <= 0) {
-    ui.notifications?.warn(`${power.name} ends at Tier 4.`);
+  const resolved = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+  const { tier, cost } = resolved;
+  if (tier > 4 || !resolved.legal) {
+    ui.notifications?.warn(`${power.name} ends at Rank 4.`);
     return false;
   }
 

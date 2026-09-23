@@ -79,6 +79,7 @@ import { registerEchoArtifactDedupeMigrationSetting, runEchoArtifactDedupeMigrat
 import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
 import { nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
+import { runEchoStoneSupportResyncMigration } from './migrations/echo-stone-support-resync.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
 import { runSpecialEffectRenameMigration } from './migrations/special-effect-rename-migration.js';
 import { registerRulesV2AlignmentMigrationSetting, runRulesV2AlignmentMigration, } from './migrations/rules-v2-alignment-migration.js';
@@ -2980,6 +2981,15 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Power template resync migration failed', error);
+    }
+    // Gate-free resync of embedded Echo-Artifact Stone Power Support data to
+    // the v0.9.9 four-Rank model (Kept from Sight / Elorian Focus stages and
+    // support text). Idempotent: only writes items whose data differs.
+    try {
+        await runEchoStoneSupportResyncMigration();
+    }
+    catch (error) {
+        console.warn('Mastery System | Echo stone-support resync failed', error);
     }
     // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).
     // Maps legacy slot keys (helmet/chest/boot/necklace/ring1/ring2/cloak/glove/belt/leggings)

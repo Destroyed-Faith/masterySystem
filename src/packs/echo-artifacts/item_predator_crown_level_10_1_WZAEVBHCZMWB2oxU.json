@@ -45,7 +45,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Wits Ability: Initiative Boost Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Wits Ability: Initiative Boost Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
         "special": "wits.initiativeBoost"
       },
       {
@@ -326,7 +326,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Wits Ability: Initiative Boost Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Wits Ability: Initiative Boost Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 7

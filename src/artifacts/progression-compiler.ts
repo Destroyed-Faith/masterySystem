@@ -29,7 +29,6 @@ import {
   STONE_POWER_SUPPORT_TIER_SHIFT,
   STONE_TIER_HARD_MAX,
   effectiveStoneSupportPrefillTier,
-  firstEffectiveStonePowerTier,
 } from '../stones/stone-powers.js';
 import {
   artifactPowerRowLabel,
@@ -163,24 +162,18 @@ function stoneFunctionEffect(sf: ArtifactStoneFunction, stageIndex: 0 | 1 | 2): 
     const spName = sp?.name || sf.stonePowerId || 'Stone Power';
     const powerId = sf.stonePowerId || '';
     const shift = powerId ? STONE_POWER_SUPPORT_TIER_SHIFT[powerId] ?? 0 : 0;
-    const printedTier = Math.min(STONE_TIER_HARD_MAX, stageIndex + 2 + shift);
-    // T2-start abilities (e.g. Crit) have no Tier 1: a printed first-tier
-    // prefill is lifted one step, and the player pays from the first real tier.
-    const prefillTier = powerId
-      ? effectiveStoneSupportPrefillTier(powerId, printedTier)
-      : printedTier;
-    const firstTier = powerId ? firstEffectiveStonePowerTier(powerId) : 1;
-    const lowerTiers = Array.from({ length: Math.max(0, prefillTier - 1) }, (_, i) => i + 1)
-      .filter((tier) => tier >= firstTier)
-      .join(', ');
-    const many = lowerTiers.includes(',');
-    const payNote = lowerTiers
-      ? ` You must still pay Tier${many ? 's' : ''} ${lowerTiers} yourself.`
+    const printedRank = Math.min(STONE_TIER_HARD_MAX, stageIndex + 2 + shift);
+    const prefillRank = powerId
+      ? effectiveStoneSupportPrefillTier(powerId, printedRank)
+      : printedRank;
+    const lowerRanks = Array.from({ length: Math.max(0, prefillRank - 1) }, (_, i) => i + 1).join(
+      ', ',
+    );
+    const many = lowerRanks.includes(',');
+    const payNote = lowerRanks
+      ? ` Rank${many ? 's' : ''} ${lowerRanks} must still be paid normally.`
       : '';
-    const unpaidNote = lowerTiers
-      ? ` If Tier${many ? 's' : ''} ${lowerTiers} ${many ? 'are' : 'is'} not paid, the pre-filled Tier ${prefillTier} has no effect.`
-      : '';
-    return `Supports the ${attrLabel}Ability: ${spName} Stone Power and pre-fills Tier ${prefillTier}.${payNote}${unpaidNote}`;
+    return `Supports the ${attrLabel}Ability: ${spName} Stone Power and pre-fills Rank ${prefillRank}.${payNote}`;
   }
   if (sf.kind === 'stonePool') {
     const amount = [2, 4, 8][stageIndex];

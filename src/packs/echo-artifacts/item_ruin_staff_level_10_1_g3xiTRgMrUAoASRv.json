@@ -33,7 +33,7 @@
         "slot": "c",
         "type": "spellFocus",
         "label": "Spell Focus",
-        "value": "+13d8",
+        "value": "+14d8",
         "note": "Spell Focus from Level 1. May be used with Intellect.",
         "isBaseline": true
       }
@@ -46,7 +46,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
+        "effect": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
         "special": "intellect.spellRaises"
       },
       {
@@ -56,7 +56,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "MR Rounds",
-        "effect": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+4**.",
+        "effect": "On the first qualifying hit each round, increase one already existing chosen Special by **+4**, or **+2** for Challenge, Disoriented, Soulburn, or Weaken. This does nothing if that Special is not already present.",
         "special": "Hex(4)",
         "powerTemplateId": "ab-special-overdrive",
         "chosenSpecialKey": "hex"
@@ -338,7 +338,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect."
+              "text": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 7
@@ -546,7 +546,7 @@
               "rounds": 1
             },
             "effect": {
-              "text": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+4**."
+              "text": "On the first qualifying hit each round, increase one already existing chosen Special by **+4**, or **+2** for Challenge, Disoriented, Soulburn, or Weaken. This does nothing if that Special is not already present."
             },
             "specials": [],
             "lvl": 8
@@ -978,7 +978,12 @@
       "range": "0m",
       "hands": 2,
       "innateAbilities": [],
-      "specials": []
+      "specials": [
+        {
+          "specialId": "hex",
+          "value": 5
+        }
+      ]
     },
     "equipSlots": [
       "mainhand",

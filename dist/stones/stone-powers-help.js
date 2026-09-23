@@ -101,12 +101,12 @@ export const STONE_POWERS_HELP_SCREENS = [
         id: 6,
         track: 'stones',
         step: 3,
-        title: '3. Pay the full Tier',
-        body: 'Assign Stones to the Power you want to activate. An incomplete Tier is not active yet. The Tier becomes active only when its full cost is paid.',
+        title: '3. Pay the full Rank',
+        body: 'Assign Stones to the Power you want to activate. An incomplete Rank is not active yet. The Rank becomes active only when its full cost is paid.',
         images: [
             helpImage('06a', 'Extra Attack with no Stones assigned', 'EMPTY'),
-            helpImage('06b', 'Extra Attack with Stones assigned but the Tier not fully paid', 'INCOMPLETE'),
-            helpImage('06c', 'Extra Attack with the required Tier fully paid', 'ACTIVE'),
+            helpImage('06b', 'Extra Attack with Stones assigned but the Rank not fully paid', 'INCOMPLETE'),
+            helpImage('06c', 'Extra Attack with the required Rank fully paid', 'ACTIVE'),
         ],
     },
     {

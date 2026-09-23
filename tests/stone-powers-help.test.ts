@@ -53,7 +53,7 @@ describe('Stone Powers Quick Help', () => {
     expect(STONE_POWERS_HELP_SCREENS.filter((row) => row.track === 'stones').map((row) => row.title)).toEqual([
       '1. Check your available Stones',
       '2. Choose a Stone Power',
-      '3. Pay the full Tier',
+      '3. Pay the full Rank',
       '4. Apply your assignment',
     ]);
     expect(hbs).toMatch(/aria-label="Help screen \{\{step\}\}">\{\{step\}\}/);

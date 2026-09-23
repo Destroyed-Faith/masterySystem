@@ -65,19 +65,18 @@ export function shouldSettleStoneWave(args: {
 }
 
 /**
- * Card order inside a power row. Every row holds exactly one T2-start power
- * (Tier 1 does not exist). Its first activation costs 2 stones and the
- * unused Anchor lane is omitted. It leads the row so the shorter cluster
- * sits first. The remaining cards keep their order.
+ * Card order inside a power row. Every row holds exactly one Premium power
+ * (2 / 4 / 6 / 8 Rank costs). It leads the row; the remaining cards keep
+ * their order.
  */
 export function orderPowersRampFirst<T>(
   powers: readonly T[],
-  skipsFirstTier: (power: T) => boolean
+  isPremium: (power: T) => boolean
 ): T[] {
   const lead: T[] = [];
   const rest: T[] = [];
   for (const power of powers) {
-    (skipsFirstTier(power) ? lead : rest).push(power);
+    (isPremium(power) ? lead : rest).push(power);
   }
   return [...lead, ...rest];
 }
@@ -106,8 +105,8 @@ export interface PendingStoneActivation {
 
 /**
  * Stones sitting in a power that has not reached the next full wave.
- * Placing them does not turn the power on — Extra Attack and Crit start at
- * 2 stones, so one stone in each looks assigned and does nothing.
+ * Placing them does not turn the power on — Premium Rank 1 costs 2 stones,
+ * so one stone in Extra Attack or Crit looks assigned and does nothing.
  */
 export function pendingStoneActivation(args: {
   name: string;

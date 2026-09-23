@@ -29,6 +29,23 @@ export declare function setTempColorlessStones(actor: any, count: number): Promi
 export declare function addTempColorlessStones(actor: any, amount: number): Promise<number>;
 /** Initiative Exchange grant — these vanish after combat if still unused. */
 export declare function addInitiativeColorlessStones(actor: any, amount: number): Promise<number>;
+/**
+ * Permanent Colorless Stones (v0.9.9): converted 2:1 from unassigned
+ * permanent progression Stones. They live in `system.stonePools.colorless`,
+ * use the normal Stone states, become Exhausted when spent, and regenerate
+ * normally. Temporary Colorless Stones stay a separate combat resource.
+ */
+export declare function getPermanentColorlessStones(actor: any): {
+    current: number;
+    max: number;
+};
+/** Colorless Stones spendable right now: Temporary pile + Ready Permanent Colorless. */
+export declare function getSpendableColorlessStones(actor: any): number;
+/**
+ * Spend Colorless Stones: Temporary first (they vanish and are use-or-lose),
+ * then Ready Permanent Colorless Stones (they become Exhausted).
+ */
+export declare function spendColorlessStones(actor: any, amount: number): Promise<boolean>;
 /** Spend Initiative leftovers first — they disappear at combat end anyway. */
 export declare function spendTempColorlessStones(actor: any, amount: number): Promise<boolean>;
 /** Drop item-granted stones without touching the Initiative leftover count. */

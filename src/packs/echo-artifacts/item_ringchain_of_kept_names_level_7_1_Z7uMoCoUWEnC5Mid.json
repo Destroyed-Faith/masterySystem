@@ -32,7 +32,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "After you activate Not a Target at Tier 3 normally, Kept from Sight II pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.",
+        "effect": "Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.",
         "special": "influence.notATarget"
       },
       {
@@ -57,7 +57,7 @@
         "supportStages": [
           1,
           5,
-          5
+          9
         ]
       }
     ],
@@ -73,7 +73,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "After you activate Not a Target at Tier 2 normally, Kept from Sight I pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.",
+            "effect": "Pre-fill Rank 2. Rank 1 must still be paid normally.",
             "special": "influence.notATarget"
           },
           {
@@ -119,7 +119,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "After you activate Not a Target at Tier 3 normally, Kept from Sight II pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.",
+            "effect": "Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.",
             "special": "influence.notATarget"
           },
           {
@@ -161,11 +161,11 @@
           {
             "level": 9,
             "name": "Kept from Sight III",
-            "type": "Artifact Function",
+            "type": "Stone Power Support",
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "When you activate Not a Target at Tier 4 by paying its full normal Stone cost, one additional eligible enemy within 24 m may be affected. This uses one Kept from Sight use.",
+            "effect": "Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.",
             "special": "influence.notATarget"
           }
         ]
@@ -523,7 +523,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "After you activate Not a Target at Tier 3 normally, Kept from Sight II pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself."
+              "text": "Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally."
             },
             "specials": [],
             "lvl": 5

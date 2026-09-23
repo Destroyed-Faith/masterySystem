@@ -232,13 +232,14 @@ describe('character print table sheet', () => {
     expect(mightGroup).toBeTruthy();
     const melee = mightGroup.powers.find((p: any) => /martial damage/i.test(p.name));
     expect(melee.summary).toMatch(/2\/4\/8\/16/);
-    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['T1', 'T2', 'T3', 'T4']);
+    expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
     expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3', 't4']);
     expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
     const parry = mightGroup.powers.find((p: any) => /parry/i.test(p.name));
-    expect(parry.summary).toMatch(/\+2 per Tier/i);
-    expect(parry.paymentTiers[0].label).toBe('T2');
-    expect(parry.paymentTiers.every((t: any) => t.label !== 'T1')).toBe(true);
+    expect(parry.summary).toMatch(/\+2 per Rank/i);
+    // Premium Ability: four Ranks with lane counts 2 / 4 / 6 / 8.
+    expect(parry.paymentTiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
+    expect(parry.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6, 8]);
     expect(parry.oncePerCombat).toBe(false);
 
     const witsGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'wits');
@@ -246,8 +247,9 @@ describe('character print table sheet', () => {
     expect(initiativeBoost.oncePerCombat).toBe(true);
     const phasing = witsGroup.powers.find((p: any) => /^phasing$/i.test(p.name));
     expect(phasing.oncePerCombat).toBe(true);
-    expect(phasing.paymentTiers[0].label).toBe('T2');
-    expect(phasing.summary).toMatch(/\+1 per Tier/i);
+    expect(phasing.paymentTiers[0].label).toBe('R1');
+    expect(phasing.paymentTiers.map((t: any) => t.boxes.length)).toEqual([2, 4, 6, 8]);
+    expect(phasing.summary).toMatch(/\+1 per Rank/i);
     const vitalityGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'vitality');
     const tempHp = vitalityGroup.powers.find((p: any) => /temporary hp/i.test(p.name));
     expect(tempHp.oncePerCombat).toBe(true);
@@ -271,28 +273,29 @@ describe('character print table sheet', () => {
     expect(ctx.stoneDashboard.combatReflexes.boxes.length).toBe(4);
   });
 
-  it('summarizes stone powers like Quick Play (short + per Tier / list)', async () => {
+  it('summarizes stone powers like Quick Play (short + per Rank / list)', async () => {
     const { summarizeStonePowerPrint } = await import('../src/sheets/character-print');
     expect(
       summarizeStonePowerPrint({
         id: 'generic.extraAttack',
         name: 'Extra Attack',
-        description: 'Gain additional Attack Actions this round (T2: +1, T3: +2, T4: +3).',
+        description: 'Premium. Gain additional Attack Actions this round (R1–R4: +1/+2/+3/+4).',
         tiers: [
           { value: 1, description: 'Gain 1 additional Attack Action this round.' },
           { value: 2 },
           { value: 3 },
+          { value: 4 },
         ],
       }),
-    ).toMatch(/\+1 per Tier/i);
+    ).toMatch(/\+1 per Rank/i);
     expect(
       summarizeStonePowerPrint({
         id: 'agility.crit',
         name: 'Crit',
         description: 'A number of your attacks…',
-        tiers: [{ value: 1 }, { value: 2 }, { value: 3 }],
+        tiers: [{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }],
       }),
-    ).toMatch(/One attack per Tier/i);
+    ).toMatch(/One attack per Rank/i);
     expect(
       summarizeStonePowerPrint({
         id: 'resolve.ward',

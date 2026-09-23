@@ -206,17 +206,79 @@ export function sumAssignments(assignments: Record<string, number>): number {
   return ATTRIBUTE_KEYS.reduce((sum, key) => sum + Math.max(0, Math.floor(Number(assignments[key]) || 0)), 0);
 }
 
+/** Permanent Colorless Stones owned by this character (2:1 conversion of unassigned Stones). */
+export function permanentColorlessCount(system: any): number {
+  return Math.max(0, Math.floor(Number(system?.progression?.permanentColorless) || 0));
+}
+
+/** A character may possess at most Mastery Rank Permanent Colorless Stones. */
+export function permanentColorlessCap(masteryRank: number): number {
+  return Math.max(1, Math.floor(Number(masteryRank) || 1));
+}
+
+/**
+ * Unassigned permanent progression Stones: earned total minus assigned minus
+ * the two consumed by each Permanent Colorless Stone conversion.
+ */
+export function unassignedPermanentStones(args: {
+  assignments: Record<string, number>;
+  totalPermanent: number;
+  permanentColorless?: number;
+}): number {
+  const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
+  const colorless = Math.max(0, Math.floor(Number(args.permanentColorless) || 0));
+  return total - sumAssignments(args.assignments) - 2 * colorless;
+}
+
+/**
+ * Convert 2 unassigned permanent Stones into 1 Permanent Colorless Stone.
+ * The conversion is permanent; the cap is Mastery Rank. For Mastery Rank
+ * progression a Permanent Colorless Stone keeps the value of the two Stones
+ * it replaced (Mastery Stone Value = 2 + floor(Lifetime XP / 20) throughout).
+ */
+export function canConvertToPermanentColorless(args: {
+  assignments: Record<string, number>;
+  totalPermanent: number;
+  permanentColorless: number;
+  storedRank?: number;
+}): { ok: boolean; masteryRank: number; cap: number; reason?: string } {
+  const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
+  const masteryRank = Math.max(
+    deriveMasteryRankFromStones(total),
+    Math.max(1, Math.floor(Number(args.storedRank) || 1)),
+  );
+  const cap = permanentColorlessCap(masteryRank);
+  const colorless = Math.max(0, Math.floor(Number(args.permanentColorless) || 0));
+  if (colorless >= cap) {
+    return { ok: false, masteryRank, cap, reason: `Permanent Colorless Stones are capped at Mastery Rank (${cap}).` };
+  }
+  const unassigned = unassignedPermanentStones({
+    assignments: args.assignments,
+    totalPermanent: total,
+    permanentColorless: colorless,
+  });
+  if (unassigned < 2) {
+    return { ok: false, masteryRank, cap, reason: 'The conversion needs 2 unassigned permanent Stones.' };
+  }
+  return { ok: true, masteryRank, cap };
+}
+
 export function canPlacePermanentStone(args: {
   attribute: string;
   assignments: Record<string, number>;
   totalPermanent: number;
   storedRank?: number;
+  permanentColorless?: number;
 }): { ok: boolean; cap: number; masteryRank: number; reason?: string } {
   const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
   const cap = stoneConcentrationCap(total, args.storedRank ?? 1);
   const masteryRank = cap / 2;
-  const assigned = sumAssignments(args.assignments);
-  if (assigned >= total) {
+  const unassigned = unassignedPermanentStones({
+    assignments: args.assignments,
+    totalPermanent: total,
+    permanentColorless: args.permanentColorless ?? 0,
+  });
+  if (unassigned <= 0) {
     return { ok: false, cap, masteryRank, reason: 'No unassigned permanent Stones.' };
   }
   const key = args.attribute;
@@ -239,10 +301,16 @@ export function assignmentsAreLegal(
   assignments: Record<string, number>,
   totalPermanent: number,
   storedRank = 1,
+  permanentColorless = 0,
 ): { ok: boolean; reason?: string } {
   const total = Math.max(0, Math.floor(totalPermanent));
-  if (sumAssignments(assignments) !== total) {
-    return { ok: false, reason: `Assign exactly ${total} permanent Stones.` };
+  const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
+  const assignable = total - 2 * colorless;
+  if (assignable < 0) {
+    return { ok: false, reason: 'More Permanent Colorless Stones than earned progression allows.' };
+  }
+  if (sumAssignments(assignments) !== assignable) {
+    return { ok: false, reason: `Assign exactly ${assignable} permanent Stones.` };
   }
   const cap = stoneConcentrationCap(total, storedRank);
   for (const key of ATTRIBUTE_KEYS) {
@@ -267,6 +335,7 @@ export function buildStoneProgressionSlots(
   lifetimeXp: number,
   assignments: Record<string, number>,
   throughXp = PRINT_LIFETIME_XP_SPAN,
+  permanentColorless = 0,
 ): StoneProgressSlot[] {
   const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
   const span = Math.max(PRINT_LIFETIME_XP_SPAN, Math.ceil(xp / 20) * 20, Math.max(0, Math.floor(throughXp)));
@@ -276,6 +345,9 @@ export function buildStoneProgressionSlots(
     const n = Math.max(0, Math.floor(Number(assignments[key]) || 0));
     for (let i = 0; i < n; i += 1) queue.push(key);
   }
+  // Each Permanent Colorless Stone replaced two earned progression Stones.
+  const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
+  for (let i = 0; i < colorless * 2; i += 1) queue.push('colorless');
   const slots: StoneProgressSlot[] = [];
   const count = 2 + span / 20;
   for (let i = 0; i < count; i += 1) {
@@ -290,7 +362,12 @@ export function buildStoneProgressionSlots(
       unlocked: i < unlocked,
       assigned: i < unlocked && !!attr,
       attribute: i < unlocked ? attr : null,
-      abbrev: attr ? ATTRIBUTE_ABBREV[attr as AttributeKeyName] ?? attr.slice(0, 3).toUpperCase() : '',
+      abbrev:
+        attr === 'colorless'
+          ? 'CLS'
+          : attr
+            ? ATTRIBUTE_ABBREV[attr as AttributeKeyName] ?? attr.slice(0, 3).toUpperCase()
+            : '',
     });
   }
   return slots;
@@ -378,8 +455,9 @@ export function martialDamageApplies(opts: {
   return true;
 }
 
-export function maxStoneCommitment(startsAtTier: 1 | 2): number {
-  return startsAtTier === 2 ? 14 : 15;
+/** Total Stones for Rank 4: Normal 1+2+4+8 = 15, Premium 2+4+6+8 = 20. */
+export function maxStoneCommitment(premium: boolean): number {
+  return premium ? 20 : 15;
 }
 
 /** Passive Skill Value on the compressed scale. */

@@ -368,11 +368,11 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(byLevel(1).stagePowerLevels).toEqual(['2', '4', '6']);
     expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
     // Elorian Focus rows are authored (Core text); the Crit support mechanics
-    // live in extraStoneFunctions with printed stages T3 (L3) / T4 (L6).
+    // live in extraStoneFunctions: Rank 2 / 3 / 4 at Artifact Levels 3 / 6 / 9.
     expect(byLevel(3).kind).toBe('authored');
     const extras = (tree.nodes[0].itemData.system as any).extraStoneFunctions as any[];
     expect(extras[0]?.stonePowerId).toBe('agility.crit');
-    expect(extras[0]?.supportStages).toEqual([3, 3, 6]);
+    expect(extras[0]?.supportStages).toEqual([3, 6, 9]);
 
     const reflexEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
@@ -394,18 +394,13 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
         /Elorian Focus/.test(r.name),
       )?.effect as string) || '';
-    expect(focusEffectAt(3)).toContain('pre-fills Tier 3');
-    expect(focusEffectAt(3)).toMatch(/pay the normal Tier 2 Stone cost/);
-    expect(focusEffectAt(3)).not.toMatch(/Tier 1/);
-    expect(focusEffectAt(6)).toContain('pre-fills Tier 4');
-    expect(focusEffectAt(6)).toMatch(/pay the normal Tier 3 Stone cost/);
-    expect(focusEffectAt(6)).not.toMatch(/Tier 1/);
+    expect(focusEffectAt(3)).toBe('Pre-fill Rank 2. Rank 1 must still be paid normally.');
+    expect(focusEffectAt(6)).toBe('Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.');
     const focusRowAt9 = (tree.nodes[8].itemData.system as any).levelProgression.find((r: any) =>
       /Elorian Focus/.test(r.name),
     );
-    expect(focusRowAt9?.type).toBe('Artifact Function');
-    expect(focusRowAt9?.effect).toContain('one additional attack');
-    expect(focusRowAt9?.effect).not.toMatch(/Tier 1|Tier 5/);
+    expect(focusRowAt9?.type).toBe('Stone Power Support');
+    expect(focusRowAt9?.effect).toBe('Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.');
   });
 
   it('Elorian Stride Evade (+1..+5 paired bands) and Movement (L4+) base values scale per spec', () => {

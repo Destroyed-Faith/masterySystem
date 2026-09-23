@@ -62,7 +62,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Agility Ability: Evade Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+        "effect": "Supports the Agility Ability: Evade Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
         "special": "agility.evade"
       }
     ],
@@ -591,7 +591,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Agility Ability: Evade Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect."
+              "text": "Supports the Agility Ability: Evade Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
             },
             "specials": [],
             "lvl": 3

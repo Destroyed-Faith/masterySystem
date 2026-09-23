@@ -1109,8 +1109,8 @@ export async function incrementStoneUsage(
 }
 
 /**
- * Additional Stone cost of the next Ability tier: 1, 2, 4, 8.
- * Tier 4 is the last tier. A further use costs nothing and must not be offered.
+ * Additional Stone cost of the next Normal Ability Rank: 1, 2, 4, 8.
+ * Rank 4 is the last Rank. Prefer `stonePowerRankCost` (Premium Abilities use 2 / 4 / 6 / 8).
  */
 export function calculateStoneCost(usesThisTurn: number): number {
   const uses = Math.max(0, Math.floor(Number(usesThisTurn) || 0));
@@ -1278,9 +1278,10 @@ export async function spendStoneAbility(
   const uses = isGenericStoneAbility
     ? getGenericStonePowerUsageCount(actor, abilityKey, combat)
     : getStoneUsageCount(actor, attribute, abilityKey, combat);
-  // Ramp powers (no Tier 1) pass an explicit higher first-wave cost.
+  // Callers pass the Rank cost (Normal 1/2/4/8, Premium 2/4/6/8); an explicit
+  // 0 is legal — the Support-prefilled Rank costs no Stones.
   const cost =
-    expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost > 0
+    expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost >= 0
       ? Math.floor(expectedCost)
       : calculateStoneCost(uses);
   
@@ -1306,8 +1307,8 @@ export async function spendStoneAbility(
   const colorlessWanted = Math.max(0, Math.floor(Number(colorlessSpent) || 0));
   let colorlessUsed = 0;
   try {
-    const { getTempColorlessStones } = await import('../stones/colorless-stones.js');
-    colorlessUsed = Math.min(colorlessWanted, getTempColorlessStones(actor));
+    const { getSpendableColorlessStones } = await import('../stones/colorless-stones.js');
+    colorlessUsed = Math.min(colorlessWanted, getSpendableColorlessStones(actor));
   } catch {
     colorlessUsed = 0;
   }
@@ -1333,8 +1334,8 @@ export async function spendStoneAbility(
       await setStonePool(actor, attribute, pool.current - attributeCost);
     }
     if (colorlessUsed > 0) {
-      const { spendTempColorlessStones } = await import('../stones/colorless-stones.js');
-      await spendTempColorlessStones(actor, colorlessUsed);
+      const { spendColorlessStones } = await import('../stones/colorless-stones.js');
+      await spendColorlessStones(actor, colorlessUsed);
     }
 
     // Increment usage counter (General Powers: ein Zähler pro Macht, nicht pro Pool-Farbe)
@@ -1391,10 +1392,10 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   }
 
   const uses = getGenericStonePowerUsageCount(actor, abilityKey, combat);
-  // Ramp powers (no Tier 1) pass an explicit higher cost for their first wave;
-  // fall back to the standard exponential cost otherwise.
+  // Callers pass the Rank cost (an explicit 0 = Support-prefilled Rank);
+  // fall back to the Normal cost curve otherwise.
   const cost =
-    expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost > 0
+    expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost >= 0
       ? Math.floor(expectedCost)
       : calculateStoneCost(uses);
 
@@ -1421,8 +1422,8 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   }
 
   if (colorlessN > 0) {
-    const { getTempColorlessStones } = await import('../stones/colorless-stones.js');
-    const have = getTempColorlessStones(actor);
+    const { getSpendableColorlessStones } = await import('../stones/colorless-stones.js');
+    const have = getSpendableColorlessStones(actor);
     if (have < colorlessN) {
       ui.notifications?.warn(`Not enough colorless stones! Need ${colorlessN}, have ${have}`);
       return false;
@@ -1451,8 +1452,8 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
       await setStonePool(actor, attr, pool.current - n);
     }
     if (colorlessN > 0) {
-      const { spendTempColorlessStones } = await import('../stones/colorless-stones.js');
-      await spendTempColorlessStones(actor, colorlessN);
+      const { spendColorlessStones } = await import('../stones/colorless-stones.js');
+      await spendColorlessStones(actor, colorlessN);
     }
 
     await incrementGenericStonePowerUsage(actor, abilityKey, combat);
@@ -1623,7 +1624,20 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
         updates[`system.stonePools.${attr}.current`] = fullCurrent;
       }
     }
-    
+
+    // Permanent Colorless Stones regenerate normally after combat (unlike
+    // Temporary Colorless Stones, which are cleared by combat cleanup).
+    const colorlessPool = system?.stonePools?.colorless;
+    if (colorlessPool && typeof colorlessPool === 'object') {
+      const max = Math.max(0, Math.floor(Number(colorlessPool.max) || 0));
+      const sustained = Math.max(0, Math.floor(Number(colorlessPool.sustained) || 0));
+      const sealed = Math.max(0, Math.floor(Number(colorlessPool.sealed) || 0));
+      const full = Math.max(0, max - sustained - sealed);
+      if ((Number(colorlessPool.current) || 0) !== full) {
+        updates['system.stonePools.colorless.current'] = full;
+      }
+    }
+
     if (Object.keys(updates).length > 0) {
       await owner.update(updates);
     }

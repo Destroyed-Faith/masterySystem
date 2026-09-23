@@ -303,8 +303,8 @@ export declare function getStoneUsageCount(actor: Actor, attribute: AttributeKey
  */
 export declare function incrementStoneUsage(actor: Actor, attribute: AttributeKey, abilityKey: string, combat: Combat | null): Promise<void>;
 /**
- * Additional Stone cost of the next Ability tier: 1, 2, 4, 8.
- * Tier 4 is the last tier. A further use costs nothing and must not be offered.
+ * Additional Stone cost of the next Normal Ability Rank: 1, 2, 4, 8.
+ * Rank 4 is the last Rank. Prefer `stonePowerRankCost` (Premium Abilities use 2 / 4 / 6 / 8).
  */
 export declare function calculateStoneCost(usesThisTurn: number): number;
 /**

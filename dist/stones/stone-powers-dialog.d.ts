@@ -1,5 +1,6 @@
 /**
- * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
+ * Stone Powers Dialog — Steine pro Macht in Rank-Segmenten verteilen
+ * (Normal 1→2→4→8, Premium 2→4→6→8).
  * Voll bezahlte Wellen werden beim Schließen des Dialogs abgerechnet (Pools, RoundState, Radial); beim Klick/Drop bleiben Steine in den Slots.
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;

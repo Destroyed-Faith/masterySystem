@@ -142,6 +142,35 @@ export class MasteryActor extends Actor {
                         }
                     }
                 }
+                // Permanent Colorless Stones (v0.9.9): their own pool, not assigned
+                // to an Attribute and not counted against any Attribute Stone limit.
+                // They use the normal Stone states and regenerate normally.
+                const permanentColorless = v099Stones
+                    ? Math.max(0, Math.floor(Number(system.progression?.permanentColorless) || 0))
+                    : 0;
+                if (permanentColorless > 0 || system.stonePools.colorless) {
+                    if (!system.stonePools.colorless) {
+                        system.stonePools.colorless = { current: permanentColorless, max: permanentColorless, sustained: 0 };
+                    }
+                    else {
+                        system.stonePools.colorless.max = permanentColorless;
+                        const sustained = system.stonePools.colorless.sustained ?? 0;
+                        const effectiveMax = Math.max(0, permanentColorless - sustained);
+                        const current = system.stonePools.colorless.current;
+                        const combat = game.combat;
+                        const inLiveCombat = !!combat?.started &&
+                            combat.combatants?.some((c) => c.actorId === this.id);
+                        if (current === undefined || current === null) {
+                            system.stonePools.colorless.current = effectiveMax;
+                        }
+                        else if (current === 0 && permanentColorless > 0 && sustained === 0 && !inLiveCombat) {
+                            system.stonePools.colorless.current = effectiveMax;
+                        }
+                        else {
+                            system.stonePools.colorless.current = Math.max(0, Math.min(current, effectiveMax));
+                        }
+                    }
+                }
             }
             if (!system.stones) {
                 system.stones = {};

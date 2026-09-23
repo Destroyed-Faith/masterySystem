@@ -3,15 +3,22 @@
  *
  * Implements:
  * - Power registry with attribute associations
- * - Exponential cost calculation (1, 2, 4, 8, 16...)
+ * - Universal four-Rank costs (Normal 1/2/4/8, Premium 2/4/6/8)
  * - Pool deduction and round state updates
  */
 import { type AttributeKey } from '../combat/action-economy.js';
 import { STONE_POWERS, type StonePower } from './stone-powers.js';
+/**
+ * Each activation this Round raises the Ability one Rank. The Rank's
+ * additional cost follows the Ability's Normal or Premium curve. A Stone
+ * Power Support prefill makes exactly its named Rank free; every lower Rank
+ * is activated and paid normally. `legal` is false past Rank 4.
+ */
 export declare function resolveStonePowerActivation(abilityId: string, rawUsesBefore: number, prefillTier: number): {
     tier: number;
     cost: number;
     supportApplies: boolean;
+    legal: boolean;
 };
 export { STONE_POWERS, type StonePower };
 /**

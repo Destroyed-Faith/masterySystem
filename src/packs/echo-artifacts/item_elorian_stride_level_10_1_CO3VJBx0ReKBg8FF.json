@@ -55,11 +55,11 @@
       {
         "level": 9,
         "name": "Elorian Focus III",
-        "type": "Artifact Function",
+        "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "When you activate Crit at Tier 4 by paying its full normal Stone cost, one additional attack this round may gain Crit(1).",
+        "effect": "Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.",
         "special": "agility.crit"
       },
       {
@@ -82,8 +82,8 @@
         "stonePowerId": "agility.crit",
         "supportStages": [
           3,
-          3,
-          6
+          6,
+          9
         ]
       }
     ],
@@ -116,7 +116,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "After you activate Crit at Tier 2 normally, Elorian Focus pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.",
+            "effect": "Pre-fill Rank 2. Rank 1 must still be paid normally.",
             "special": "agility.crit"
           },
           {
@@ -126,17 +126,17 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "After you activate Crit at Tier 3 normally, Elorian Focus pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.",
+            "effect": "Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.",
             "special": "agility.crit"
           },
           {
             "level": 9,
             "name": "Elorian Focus III",
-            "type": "Artifact Function",
+            "type": "Stone Power Support",
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "When you activate Crit at Tier 4 by paying its full normal Stone cost, one additional attack this round may gain Crit(1).",
+            "effect": "Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.",
             "special": "agility.crit"
           }
         ]
@@ -573,7 +573,9 @@
         "name": "Elorian Focus III",
         "fluff": "Special: agility.crit",
         "category": "passive",
-        "tags": [],
+        "tags": [
+          "stone-function"
+        ],
         "cost": {
           "action": "none"
         },
@@ -759,7 +761,7 @@
             "specials": []
           },
           "16": {
-            "type": "Artifact Function",
+            "type": "Stone Power Support",
             "range": {
               "kind": "self"
             },
@@ -768,7 +770,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "When you activate Crit at Tier 4 by paying its full normal Stone cost, one additional attack this round may gain Crit(1)."
+              "text": "Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 9

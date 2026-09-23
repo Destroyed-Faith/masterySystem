@@ -103,6 +103,49 @@ async function copyColorlessPile(from, to) {
     await to?.setFlag?.('mastery-system', FLAG_COUNT, total);
     await setInitiativeColorlessStones(to, init);
 }
+/**
+ * Permanent Colorless Stones (v0.9.9): converted 2:1 from unassigned
+ * permanent progression Stones. They live in `system.stonePools.colorless`,
+ * use the normal Stone states, become Exhausted when spent, and regenerate
+ * normally. Temporary Colorless Stones stay a separate combat resource.
+ */
+export function getPermanentColorlessStones(actor) {
+    const pool = actor?.system?.stonePools?.colorless ?? {};
+    return {
+        current: Math.max(0, Math.floor(Number(pool.current) || 0)),
+        max: Math.max(0, Math.floor(Number(pool.max) || 0)),
+    };
+}
+/** Colorless Stones spendable right now: Temporary pile + Ready Permanent Colorless. */
+export function getSpendableColorlessStones(actor) {
+    return getTempColorlessStones(actor) + getPermanentColorlessStones(actor).current;
+}
+/**
+ * Spend Colorless Stones: Temporary first (they vanish and are use-or-lose),
+ * then Ready Permanent Colorless Stones (they become Exhausted).
+ */
+export async function spendColorlessStones(actor, amount) {
+    const n = Math.max(0, Math.floor(Number(amount) || 0));
+    if (n <= 0)
+        return true;
+    const temp = getTempColorlessStones(actor);
+    const fromTemp = Math.min(n, temp);
+    const fromPermanent = n - fromTemp;
+    if (fromPermanent > 0) {
+        const perm = getPermanentColorlessStones(actor);
+        if (perm.current < fromPermanent)
+            return false;
+    }
+    if (fromTemp > 0 && !(await spendTempColorlessStones(actor, fromTemp)))
+        return false;
+    if (fromPermanent > 0) {
+        const perm = getPermanentColorlessStones(actor);
+        await actor?.update?.({
+            'system.stonePools.colorless.current': Math.max(0, perm.current - fromPermanent),
+        });
+    }
+    return true;
+}
 /** Spend Initiative leftovers first — they disappear at combat end anyway. */
 export async function spendTempColorlessStones(actor, amount) {
     const n = Math.max(0, Math.floor(Number(amount) || 0));

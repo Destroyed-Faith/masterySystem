@@ -1,26 +1,28 @@
 /**
- * Tests for the new tier-based Stone Powers (`src/stones/stone-powers.ts`).
+ * Tests for the universal four-Rank Stone Powers (`src/stones/stone-powers.ts`).
  *
  * Coverage:
  *   - Registry shape: 8 pools (generic + 7 attributes), 4 powers each.
- *     Vitality (per rules table): Temporary HP / Damage Negation /
- *     Remove Scar / Extend Active Buff.
- *   - Each power has exactly 4 published tiers; cost-per-tier = 1 / 2 / 4 / 8.
- *   - tierForUseIndex stops at Tier 4. There is no Tier 5.
- *   - apply() for every power × every tier runs without throwing on a
+ *   - Every power has exactly 4 published Ranks. No Rank 5.
+ *   - Normal costs 1 / 2 / 4 / 8 (1 / 3 / 7 / 15 total); Premium costs
+ *     2 / 4 / 6 / 8 (2 / 6 / 12 / 20 total).
+ *   - apply() for every power × every Rank runs without throwing on a
  *     mock actor/combatant and writes only into stoneBonuses or flags.
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import {
+  PREMIUM_STONE_POWER_IDS,
   STONE_POWERS,
   STONE_POWERS_BY_ATTRIBUTE,
   STONE_TIER_HARD_MAX,
   STONE_TIER_PRACTICAL_MAX,
+  cumulativeStoneCostForRank,
   highestCompleteStoneTierFromPlaced,
+  isPremiumStonePower,
   resolveOncePerCombatStoneTier,
   scaleStoneTier,
-  stonePowerSkipsFirstTier,
+  stonePowerRankCost,
   tierForUseIndex,
   type StonePower,
 } from '../src/stones/stone-powers';
@@ -199,7 +201,7 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(Object.keys(STONE_POWERS)).toHaveLength(32);
   });
 
-  it('Resolve pool leads with the T2-start ability', () => {
+  it('Resolve pool leads with the Premium ability', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.resolve.map((p) => p.id);
     expect(ids[0]).toBe('resolve.damageReduction');
     expect(ids).toEqual([
@@ -210,7 +212,7 @@ describe('Stone Powers — pool layout (new spec)', () => {
     ]);
   });
 
-  it('Vitality pool leads with the T2-start ability', () => {
+  it('Vitality pool leads with the Premium ability', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.vitality.map((p) => p.id);
     expect(ids[0]).toBe('vitality.damageNegation');
     expect(ids).toEqual([
@@ -221,13 +223,13 @@ describe('Stone Powers — pool layout (new spec)', () => {
     ]);
   });
 
-  it('Might pool leads with Parry (T2-start)', () => {
+  it('Might pool leads with Parry (Premium)', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.might.map((p) => p.id);
     expect(ids[0]).toBe('might.parry');
     expect(ids).toEqual(['might.parry', 'might.meleeDamage', 'might.armor', 'might.ignoreArmor']);
   });
 
-  it('each attribute list leads with its T2-start ability', () => {
+  it('each attribute list leads with its Premium ability', () => {
     expect(STONE_POWERS_BY_ATTRIBUTE.generic[0].id).toBe('generic.extraAttack');
     expect(STONE_POWERS_BY_ATTRIBUTE.agility[0].id).toBe('agility.crit');
     expect(STONE_POWERS_BY_ATTRIBUTE.intellect[0].id).toBe('intellect.spellAction');
@@ -242,13 +244,12 @@ describe('Stone Powers — pool layout (new spec)', () => {
   });
 });
 
-describe('Stone Powers — tier table shape', () => {
+describe('Stone Powers — Rank table shape', () => {
   it.each(Object.values(STONE_POWERS).map((p) => [p.id, p]))(
-    '"%s" publishes only existing tiers with description text',
+    '"%s" publishes exactly four Ranks with description text',
     (_id, power) => {
       const p = power as StonePower;
-      const expected = p.startsAtTier === 2 ? 3 : 4;
-      expect(p.tiers).toHaveLength(expected);
+      expect(p.tiers).toHaveLength(4);
       for (const tier of p.tiers) {
         expect(typeof tier.description).toBe('string');
         expect(tier.description.length).toBeGreaterThan(0);
@@ -259,28 +260,66 @@ describe('Stone Powers — tier table shape', () => {
     },
   );
 
-  it('compiled effect tooltip includes published tiers with cost markers', () => {
+  it('compiled effect tooltip includes all four Ranks with cost markers', () => {
     for (const power of Object.values(STONE_POWERS)) {
-      expect(power.effect).toContain('T2 (2)');
-      expect(power.effect).toContain('T3 (4)');
-      expect(power.effect).toContain('T4 (8)');
-      if (power.startsAtTier === 2) {
-        expect(power.effect).not.toContain('T1 (1)');
+      if (power.premium) {
+        expect(power.effect).toContain('R1 (2)');
+        expect(power.effect).toContain('R2 (4)');
+        expect(power.effect).toContain('R3 (6)');
+        expect(power.effect).toContain('R4 (8)');
       } else {
-        expect(power.effect).toContain('T1 (1)');
+        expect(power.effect).toContain('R1 (1)');
+        expect(power.effect).toContain('R2 (2)');
+        expect(power.effect).toContain('R3 (4)');
+        expect(power.effect).toContain('R4 (8)');
       }
+      expect(power.effect).not.toContain('R5');
+    }
+  });
+
+  it('exactly the eight PG Premium Abilities are premium', () => {
+    expect([...PREMIUM_STONE_POWER_IDS].sort()).toEqual(
+      [
+        'generic.extraAttack',
+        'might.parry',
+        'agility.crit',
+        'vitality.damageNegation',
+        'intellect.spellAction',
+        'resolve.damageReduction',
+        'influence.notATarget',
+        'wits.phasing',
+      ].sort(),
+    );
+    for (const power of Object.values(STONE_POWERS)) {
+      expect(power.premium).toBe(
+        (PREMIUM_STONE_POWER_IDS as readonly string[]).includes(power.id),
+      );
     }
   });
 });
 
-describe('Cost progression maps to tiers', () => {
-  it('1st / 2nd / 3rd / 4th uses cost 1 / 2 / 4 / 8 stones', () => {
+describe('Cost progression maps to Ranks', () => {
+  it('Normal Abilities cost 1 / 2 / 4 / 8 (1 / 3 / 7 / 15 total)', () => {
     expect(calculateStoneCost(0)).toBe(1);
     expect(calculateStoneCost(1)).toBe(2);
     expect(calculateStoneCost(2)).toBe(4);
     expect(calculateStoneCost(3)).toBe(8);
     expect(calculateStoneCost(4)).toBe(0);
     expect(calculateStoneCost(5)).toBe(0);
+    expect([1, 2, 3, 4].map((r) => stonePowerRankCost('might.armor', r))).toEqual([1, 2, 4, 8]);
+    expect([1, 2, 3, 4].map((r) => cumulativeStoneCostForRank('might.armor', r))).toEqual([1, 3, 7, 15]);
+    expect(stonePowerRankCost('might.armor', 5)).toBe(0);
+  });
+
+  it('Premium Abilities cost 2 / 4 / 6 / 8 (2 / 6 / 12 / 20 total)', () => {
+    for (const id of PREMIUM_STONE_POWER_IDS) {
+      expect(isPremiumStonePower(id)).toBe(true);
+      expect([1, 2, 3, 4].map((r) => stonePowerRankCost(id, r))).toEqual([2, 4, 6, 8]);
+      expect([1, 2, 3, 4].map((r) => cumulativeStoneCostForRank(id, r))).toEqual([2, 6, 12, 20]);
+      expect(stonePowerRankCost(id, 5)).toBe(0);
+    }
+    expect(isPremiumStonePower('might.armor')).toBe(false);
+    expect(isPremiumStonePower('resolve.healing')).toBe(false);
   });
 
   it('tierForUseIndex stops at Tier 4', () => {
@@ -317,16 +356,15 @@ describe('scaleStoneTier stops at the published sequence', () => {
   });
 });
 
-describe('apply() — runs cleanly across every power and tier', () => {
+describe('apply() — runs cleanly across every power and Rank', () => {
   for (const [id, power] of Object.entries(STONE_POWERS)) {
     describe(id, () => {
-      const start = power.startsAtTier ?? 1;
-      const publishedTiers = power.tiers.map((_, i) => start + i);
+      const publishedTiers = power.tiers.map((_, i) => i + 1);
       for (const tier of publishedTiers) {
-        it(`tier ${tier} runs without throwing`, async () => {
+        it(`rank ${tier} runs without throwing`, async () => {
           const actor = makeMockActor();
           const combatant = makeMockCombatant();
-          const cost = calculateStoneCost(tier - 1);
+          const cost = stonePowerRankCost(id, tier);
           await expect(
             power.apply({ actor: actor as any, combatant: combatant as any, tier, cost }),
           ).resolves.toBeUndefined();
@@ -361,27 +399,26 @@ describe('apply() — runs cleanly across every power and tier', () => {
   }
 });
 
-describe('Generic powers — Extra Attack', () => {
-  it('has no Tier 1 and first purchase is +1 Attack Action for 2 Stones', () => {
+describe('Generic powers — Extra Attack (Premium)', () => {
+  it('has four real Ranks and Rank 1 costs 2 Stones', () => {
     const power = STONE_POWERS['generic.extraAttack'];
-    expect(power.startsAtTier).toBe(2);
-    expect(power.tiers[0].value).toBe(1);
-    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
+    expect(power.premium).toBe(true);
+    expect(power.tiers).toHaveLength(4);
+    expect(power.tiers.map((t) => t.value)).toEqual([1, 2, 3, 4]);
+    expect(stonePowerRankCost('generic.extraAttack', 1)).toBe(2);
   });
 
-  it('T2 grants +1, T3 grants +2, T4 grants +3, and T5 adds nothing', async () => {
+  it('R1–R4 grant +1/+2/+3/+4 Attack Actions; Rank 5 adds nothing', async () => {
     const power = STONE_POWERS['generic.extraAttack'];
-    for (const [tier, expected] of [[2, 1], [3, 2], [4, 3]] as const) {
+    for (const [tier, expected] of [[1, 1], [2, 2], [3, 3], [4, 4]] as const) {
       const actor = makeMockActor();
-      await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier, cost: 2 ** (tier - 1) });
+      await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier, cost: stonePowerRankCost(power.id, tier) });
       expect(actor._roundState.attackActions.total).toBe(1 + expected);
       expect(actor._roundState.stoneBonuses.extraAttacks).toBe(expected);
     }
     const capped = makeMockActor();
-    await power.apply({ actor: capped as any, combatant: makeMockCombatant() as any, tier: 5, cost: 16 });
+    await power.apply({ actor: capped as any, combatant: makeMockCombatant() as any, tier: 5, cost: 0 });
     expect(capped._roundState.stoneBonuses.extraAttacks).toBe(0);
-    expect(power.tiers).toHaveLength(3);
-    expect(power.tiers[0].label).not.toMatch(/Tier 1/i);
   });
 });
 
@@ -480,19 +517,19 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
   });
 });
 
-describe('Vitality — Damage Negation starts at T2', () => {
-  it('has no Tier-1 slot', () => {
-    expect(STONE_POWERS['vitality.damageNegation'].startsAtTier).toBe(2);
-    expect(STONE_POWERS['vitality.damageNegation'].tiers).toHaveLength(3);
+describe('Vitality — Damage Negation (Premium, four Ranks)', () => {
+  it('has four Ranks', () => {
+    expect(STONE_POWERS['vitality.damageNegation'].premium).toBe(true);
+    expect(STONE_POWERS['vitality.damageNegation'].tiers).toHaveLength(4);
   });
 
-  it.each([[2, 4], [3, 8], [4, 12]])('T%i grants +%i Damage Negation', async (tier, expected) => {
+  it.each([[1, 4], [2, 8], [3, 12], [4, 16]])('R%i grants +%i Damage Negation', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['vitality.damageNegation'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
-      cost: 2 ** (tier - 1),
+      cost: stonePowerRankCost('vitality.damageNegation', tier),
     });
     expect(actor._roundState.stoneBonuses.tempDamageNegation).toBe(expected);
   });
@@ -577,80 +614,85 @@ describe('Resolve — Stress Healing scales 1d8/2d8/3d8/4d8', () => {
   );
 });
 
-describe('Resolve — Damage Reduction starts at T2', () => {
-  it('has no Tier-1 slot', () => {
-    expect(STONE_POWERS['resolve.damageReduction'].startsAtTier).toBe(2);
-    expect(STONE_POWERS['resolve.damageReduction'].tiers).toHaveLength(3);
+describe('Resolve — Damage Reduction (Premium, four Ranks)', () => {
+  it('has four Ranks', () => {
+    expect(STONE_POWERS['resolve.damageReduction'].premium).toBe(true);
+    expect(STONE_POWERS['resolve.damageReduction'].tiers).toHaveLength(4);
   });
 
-  it.each([[2, 10], [3, 20], [4, 30]])('T%i adds +%i%% DR', async (tier, expected) => {
+  it.each([[1, 10], [2, 20], [3, 30], [4, 40]])('R%i adds +%i%% DR', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['resolve.damageReduction'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
-      cost: 2 ** (tier - 1),
+      cost: stonePowerRankCost('resolve.damageReduction', tier),
     });
     expect(actor._roundState.stoneBonuses.damageReductionBoostPct).toBe(expected);
   });
 });
 
-describe('stonePowerSkipsFirstTier', () => {
-  it('is true only for abilities that begin at Tier 2', () => {
-    expect(stonePowerSkipsFirstTier('wits.phasing')).toBe(true);
-    expect(stonePowerSkipsFirstTier('generic.extraAttack')).toBe(true);
-    expect(stonePowerSkipsFirstTier('intellect.spellAction')).toBe(true);
-    expect(stonePowerSkipsFirstTier('resolve.damageReduction')).toBe(true);
-    expect(stonePowerSkipsFirstTier('resolve.damageReductionBoost')).toBe(true);
-    expect(stonePowerSkipsFirstTier('agility.crit')).toBe(true);
-    expect(stonePowerSkipsFirstTier('might.parry')).toBe(true);
-    expect(stonePowerSkipsFirstTier('vitality.damageNegation')).toBe(true);
-    expect(stonePowerSkipsFirstTier('influence.notATarget')).toBe(true);
-    expect(stonePowerSkipsFirstTier('wits.initiativeBoost')).toBe(false);
-    expect(stonePowerSkipsFirstTier('wits.reactionRange')).toBe(false);
+describe('isPremiumStonePower', () => {
+  it('is true exactly for the eight PG Premium Abilities (aliases included)', () => {
+    expect(isPremiumStonePower('wits.phasing')).toBe(true);
+    expect(isPremiumStonePower('generic.extraAttack')).toBe(true);
+    expect(isPremiumStonePower('intellect.spellAction')).toBe(true);
+    expect(isPremiumStonePower('resolve.damageReduction')).toBe(true);
+    expect(isPremiumStonePower('resolve.damageReductionBoost')).toBe(true);
+    expect(isPremiumStonePower('agility.crit')).toBe(true);
+    expect(isPremiumStonePower('might.parry')).toBe(true);
+    expect(isPremiumStonePower('vitality.damageNegation')).toBe(true);
+    expect(isPremiumStonePower('influence.notATarget')).toBe(true);
+    expect(isPremiumStonePower('wits.initiativeBoost')).toBe(false);
+    expect(isPremiumStonePower('wits.reactionRange')).toBe(false);
   });
 });
 
-describe('Wits — Phasing', () => {
-  it('has no Tier 1; once per combat; T2/T3/T4 grant 1/2/3 charges', async () => {
+describe('Wits — Phasing (Premium, four Ranks)', () => {
+  it('once per combat; R1–R4 grant 1/2/3/4 charges; Rank 5 grants nothing', async () => {
     const power = STONE_POWERS['wits.phasing'];
-    expect(power.startsAtTier).toBe(2);
+    expect(power.premium).toBe(true);
     expect(power.oncePerCombat).toBe(true);
-    expect(power.tiers.map((t) => t.value)).toEqual([1, 2, 3]);
+    expect(power.tiers.map((t) => t.value)).toEqual([1, 2, 3, 4]);
 
-    for (const [tier, charges] of [[2, 1], [3, 2], [4, 3], [5, 4], [6, 5]] as const) {
+    for (const [tier, charges] of [[1, 1], [2, 2], [3, 3], [4, 4]] as const) {
       const actor = makeMockActor();
       const combatant = makeMockCombatant();
       await power.apply({
         actor: actor as any,
         combatant: combatant as any,
         tier,
-        cost: 2 ** (tier - 1),
+        cost: stonePowerRankCost(power.id, tier),
       });
       const state = (actor as any).flags?.['mastery-system']?.phasingCharges;
       expect(state?.current).toBe(charges);
       expect(state?.max).toBe(charges);
     }
+    const capped = makeMockActor();
+    await power.apply({ actor: capped as any, combatant: makeMockCombatant() as any, tier: 5, cost: 0 });
+    expect((capped as any).flags?.['mastery-system']?.phasingCharges).toBeUndefined();
   });
 });
 
-describe('once-per-combat highest complete tier', () => {
-  it('reads 1 / 3 / 7 / 15 stones as T1 / T2 / T3 / T4', () => {
-    expect(highestCompleteStoneTierFromPlaced(0)).toBe(0);
-    expect(highestCompleteStoneTierFromPlaced(1)).toBe(1);
-    expect(highestCompleteStoneTierFromPlaced(2)).toBe(1);
-    expect(highestCompleteStoneTierFromPlaced(3)).toBe(2);
-    expect(highestCompleteStoneTierFromPlaced(6)).toBe(2);
-    expect(highestCompleteStoneTierFromPlaced(7)).toBe(3);
-    expect(highestCompleteStoneTierFromPlaced(14)).toBe(3);
-    expect(highestCompleteStoneTierFromPlaced(15)).toBe(4);
+describe('once-per-combat highest complete Rank', () => {
+  it('reads 1 / 3 / 7 / 15 Normal stones as R1 / R2 / R3 / R4', () => {
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 0)).toBe(0);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 1)).toBe(1);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 2)).toBe(1);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 3)).toBe(2);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 6)).toBe(2);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 7)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 14)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 15)).toBe(4);
   });
 
-  it('starts Phasing at T2 (2 stones)', () => {
-    expect(highestCompleteStoneTierFromPlaced(1, 2)).toBe(0);
-    expect(highestCompleteStoneTierFromPlaced(2, 2)).toBe(2);
-    expect(highestCompleteStoneTierFromPlaced(6, 2)).toBe(3);
-    expect(highestCompleteStoneTierFromPlaced(14, 2)).toBe(4);
+  it('reads 2 / 6 / 12 / 20 Premium stones as R1 / R2 / R3 / R4 (Phasing)', () => {
+    expect(highestCompleteStoneTierFromPlaced('wits.phasing', 1)).toBe(0);
+    expect(highestCompleteStoneTierFromPlaced('wits.phasing', 2)).toBe(1);
+    expect(highestCompleteStoneTierFromPlaced('wits.phasing', 6)).toBe(2);
+    expect(highestCompleteStoneTierFromPlaced('wits.phasing', 12)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced('wits.phasing', 19)).toBe(3);
+    expect(highestCompleteStoneTierFromPlaced('wits.phasing', 20)).toBe(4);
   });
 
   it('lets Artifact Support raise Initiative Boost only after T1–T3 are paid', () => {
@@ -696,43 +738,43 @@ describe('Wits — Initiative Boost is MR × 1/2/4/8 and once per combat', () =>
   });
 });
 
-describe('Might — Parry ramps at T2', () => {
-  it.each([[2, 2], [3, 4], [4, 6]])('T%i grants +%i Parry Pool', async (tier, expected) => {
+describe('Might — Parry (Premium): +2 / +4 / +6 / +8 Parry Pool', () => {
+  it.each([[1, 2], [2, 4], [3, 6], [4, 8]])('R%i grants +%i Parry Pool', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['might.parry'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
-      cost: 2 ** (tier - 1),
+      cost: stonePowerRankCost('might.parry', tier),
     });
     expect(actor._roundState.stoneBonuses.tempParryPool).toBe(expected);
   });
 });
 
-describe('Agility — Crit starts at T2', () => {
-  it('has no Tier-1 slot', () => {
-    expect(STONE_POWERS['agility.crit'].startsAtTier).toBe(2);
-    expect(STONE_POWERS['agility.crit'].tiers).toHaveLength(3);
+describe('Agility — Crit (Premium, four Ranks)', () => {
+  it('has four Ranks', () => {
+    expect(STONE_POWERS['agility.crit'].premium).toBe(true);
+    expect(STONE_POWERS['agility.crit'].tiers).toHaveLength(4);
   });
 
-  it.each([[2, 1], [3, 2], [4, 3]])('T%i grants Crit(1) on %i attack(s)', async (tier, expected) => {
+  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('R%i grants Crit(1) on %i attack(s)', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['agility.crit'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
-      cost: 2 ** (tier - 1),
+      cost: stonePowerRankCost('agility.crit', tier),
     });
     expect(actor._roundState.stoneBonuses.critRaises).toBe(expected);
   });
 
-  it('T5 does not invent another Crit charge', async () => {
+  it('Rank 5 does not invent another Crit charge', async () => {
     const actor = makeMockActor();
     await STONE_POWERS['agility.crit'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier: 5,
-      cost: 16,
+      cost: 0,
     });
     expect(actor._roundState.stoneBonuses.critRaises).toBeUndefined();
   });
@@ -763,10 +805,10 @@ describe('Resolve Ward and Influence Regeneration copy', () => {
     expect(power.tiers[0]?.description).toMatch(/reduced by 2/i);
   });
 
-  it('grants Regeneration 8/16/32/64 plus 1/2/4/8 m Movement', async () => {
+  it('grants Regeneration(2/4/6/8) to one ally within 8/16/24/32 m', async () => {
     const power = STONE_POWERS['influence.regeneration'];
-    expect(power.name).toBe('Regeneration + Movement');
-    expect(power.tiers.map((t) => t.value)).toEqual([8, 16, 32, 64]);
+    expect(power.name).toBe('Regeneration');
+    expect(power.tiers.map((t) => t.value)).toEqual([2, 4, 6, 8]);
     const actor = makeMockActor();
     await power.apply({
       actor: actor as any,
@@ -774,7 +816,7 @@ describe('Resolve Ward and Influence Regeneration copy', () => {
       tier: 1,
       cost: 1,
     });
-    expect(actor._flags.pendingAllyRegeneration).toEqual({ value: 8, moveMeters: 1, range: 8 });
+    expect(actor._flags.pendingAllyRegeneration).toEqual({ value: 2, moveMeters: 0, range: 8 });
     const actorT4 = makeMockActor();
     await power.apply({
       actor: actorT4 as any,
@@ -782,7 +824,7 @@ describe('Resolve Ward and Influence Regeneration copy', () => {
       tier: 4,
       cost: 8,
     });
-    expect(actorT4._flags.pendingAllyRegeneration).toEqual({ value: 64, moveMeters: 8, range: 32 });
+    expect(actorT4._flags.pendingAllyRegeneration).toEqual({ value: 8, moveMeters: 0, range: 32 });
   });
 });
 

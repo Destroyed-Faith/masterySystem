@@ -13,7 +13,7 @@ import {
   reactionSpecialIncrease,
 } from '../src/utils/powers/pool-special-ranks.js';
 import { passiveDamageNegationReserveForLevel, passiveParryPoolForLevel } from '../src/utils/powers/templates/passives.js';
-import { notATargetProfile, STONE_POWERS } from '../src/stones/stone-powers.js';
+import { STONE_POWERS } from '../src/stones/stone-powers.js';
 import { resolveStonePowerActivation } from '../src/stones/stone-activation.js';
 import { computeParryStrip } from '../src/combat/parry.js';
 import { calculateHealthBarMax, calculateStressBarMax, passiveSkillValue } from '../src/utils/calculations.js';
@@ -32,11 +32,10 @@ function boundRank(templateId: string, key: string, level: number): number | und
 describe('Stone Ability Parry', () => {
   const parry = STONE_POWERS['might.parry'];
 
-  it('starts at Tier 2 with +2 / +4 / +6 and no Tier 1', () => {
-    expect(parry.startsAtTier).toBe(2);
-    expect(parry.tiers).toHaveLength(3);
-    expect(parry.tiers.map((t) => t.value)).toEqual([2, 4, 6]);
-    expect(parry.tiers.some((t) => /tier 1/i.test(t.label))).toBe(false);
+  it('is Premium with four Ranks: +2 / +4 / +6 / +8 Parry Pool', () => {
+    expect(parry.premium).toBe(true);
+    expect(parry.tiers).toHaveLength(4);
+    expect(parry.tiers.map((t) => t.value)).toEqual([2, 4, 6, 8]);
   });
 
   it('Fully Parried still fires when the Attack Pool is reduced to zero', () => {
@@ -146,7 +145,7 @@ describe('scales that were not compressed', () => {
   it('keeps Damage Negation, Health, Stress, and Passive Skill Value', () => {
     expect(passiveDamageNegationReserveForLevel(1)).toBe(4);
     expect(passiveDamageNegationReserveForLevel(16)).toBe(64);
-    expect(STONE_POWERS['vitality.damageNegation'].tiers.map((t) => t.value)).toEqual([4, 8, 12]);
+    expect(STONE_POWERS['vitality.damageNegation'].tiers.map((t) => t.value)).toEqual([4, 8, 12, 16]);
     expect(calculateHealthBarMax(7)).toBe(28);
     expect(calculateStressBarMax(4, 3)).toBe(14);
     expect(passiveSkillValue(6)).toBe(12);
@@ -181,39 +180,27 @@ describe('scales that were not compressed', () => {
 });
 
 describe('Not a Target support', () => {
-  it('does not tell the player to pay a Tier 1 that does not exist', () => {
+  it('uses the printed four-Rank Kept from Sight rows (no Tier language)', () => {
     const chain = ECHO_ARTIFACTS.ringchainOfKeptNames;
     const sight = chain.levelProgression.filter((row) => row.name.startsWith('Kept from Sight'));
-    expect(sight.map((row) => row.effect).join('\n')).not.toMatch(/Tier 1/);
-    expect(sight[0]?.effect).toContain('pay the normal Tier 2 Stone cost yourself');
-    expect(sight[0]?.effect).toContain('pre-fills Tier 3');
-    expect(sight[1]?.effect).toContain('pay the normal Tier 3 Stone cost yourself');
-    expect(sight[1]?.effect).toContain('pre-fills Tier 4');
-    expect(sight[2]?.type).toBe('Artifact Function');
-    expect(sight[2]?.effect).toContain('one additional eligible enemy within 24 m');
-    expect(sight[2]?.effect).not.toMatch(/[Pp]re-fill Tier 4/);
-    expect(chain.extraStoneFunctions?.[0]?.supportStages).toEqual([1, 5, 5]);
-    expect(STONE_POWERS['influence.notATarget'].startsAtTier).toBe(2);
+    expect(sight.map((row) => row.effect).join('\n')).not.toMatch(/Tier/);
+    expect(sight[0]?.effect).toBe('Pre-fill Rank 2. Rank 1 must still be paid normally.');
+    expect(sight[1]?.effect).toBe('Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.');
+    expect(sight[2]?.effect).toBe('Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.');
+    expect(chain.extraStoneFunctions?.[0]?.supportStages).toEqual([1, 5, 9]);
+    expect(STONE_POWERS['influence.notATarget'].premium).toBe(true);
+    expect(STONE_POWERS['influence.notATarget'].tiers.map((t) => t.value)).toEqual([1, 2, 3, 4]);
   });
 
-  it('raises Not a Target by one real tier only after that tier is paid', () => {
-    const first = resolveStonePowerActivation('influence.notATarget', 0, 4);
-    expect(first.supportApplies).toBe(true);
-    expect(first.tier).toBe(3);
-    expect(first.cost).toBe(2);
-
-    const second = resolveStonePowerActivation('influence.notATarget', 1, 4);
-    expect(second.supportApplies).toBe(true);
-    expect(second.tier).toBe(4);
-    expect(second.cost).toBe(4);
-
-    const full = resolveStonePowerActivation('influence.notATarget', 2, 4);
-    expect(full.tier).toBe(4);
-    expect(full.cost).toBe(8);
-
-    expect(notATargetProfile(4, 8, 9)).toEqual({ enemies: 4, range: 24 });
-    expect(notATargetProfile(4, 4, 9)).toEqual({ enemies: 3, range: 24 });
-    expect(notATargetProfile(4, 8, 8)).toEqual({ enemies: 3, range: 24 });
-    expect(notATargetProfile(2, 2, 9)).toEqual({ enemies: 1, range: 8 });
+  it('a Rank 4 prefill makes exactly Rank 4 free; Ranks 1–3 are paid normally', () => {
+    const costs = [0, 1, 2, 3].map(
+      (uses) => resolveStonePowerActivation('influence.notATarget', uses, 4).cost,
+    );
+    expect(costs).toEqual([2, 4, 6, 0]);
+    const ranks = [0, 1, 2, 3].map(
+      (uses) => resolveStonePowerActivation('influence.notATarget', uses, 4).tier,
+    );
+    expect(ranks).toEqual([1, 2, 3, 4]);
+    expect(resolveStonePowerActivation('influence.notATarget', 4, 4).legal).toBe(false);
   });
 });

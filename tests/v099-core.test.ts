@@ -19,7 +19,7 @@ import {
 import { planV099Migration, v099PrepareUpdate } from '../src/progression/v099-migration.js';
 import { planV099Respec, v099RespecUpdate } from '../src/progression/v099-respec.js';
 import { masteryRoll } from '../src/dice/roll-handler.js';
-import { STONE_POWERS, stonePowerStartsAtTier } from '../src/stones/stone-powers.js';
+import { STONE_POWERS, isPremiumStonePower } from '../src/stones/stone-powers.js';
 
 const KEYS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const;
 
@@ -291,10 +291,10 @@ describe('Martial Damage and Tier 4 cap', () => {
     expect(STONE_POWERS['might.meleeDamage'].tiers).toHaveLength(4);
   });
 
-  it('caps a normal ability at 15 Stones and a Tier-2 ability at 14', () => {
-    expect(maxStoneCommitment(1)).toBe(15);
-    expect(maxStoneCommitment(2)).toBe(14);
-    expect(stonePowerStartsAtTier('generic.extraAttack')).toBe(2);
+  it('caps a Normal ability at 15 Stones and a Premium ability at 20', () => {
+    expect(maxStoneCommitment(false)).toBe(15);
+    expect(maxStoneCommitment(true)).toBe(20);
+    expect(isPremiumStonePower('generic.extraAttack')).toBe(true);
     expect(STONE_POWERS['generic.extraAttack'].tiers[0].value).toBe(1);
     expect(passiveSkillValue(4)).toBe(8);
   });

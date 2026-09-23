@@ -35,8 +35,8 @@ import { specialApplicationLimit } from '../combat/special-application.js';
 import {
   STONE_POWERS_BY_ATTRIBUTE,
   effectiveStoneSupportPrefillTier,
-  firstEffectiveStonePowerTier,
-  stonePowerSkipsFirstTier,
+  isPremiumStonePower,
+  stonePowerRankCost,
 } from '../stones/stone-powers.js';
 import { orderPowersRampFirst } from '../stones/stone-payment-rules.js';
 import { getMinorExpressionDefinition, tierBodyForExpression } from '../utils/minor-expressions.js';
@@ -91,7 +91,7 @@ export function summarizeStonePowerPrint(power: {
   const id = String(power?.id ?? '');
   // A few powers read better with a fixed one-liner.
   if (id === 'agility.crit') {
-    return 'One attack per Tier can have Crit(1). Decide before each Attack Roll.';
+    return 'One attack per Rank can have Crit(1). Decide before each Attack Roll.';
   }
   if (id === 'vitality.removeScar') {
     return 'Recover 1 Scarred Health Bar. Burns 1 Vitality Stone.';
@@ -129,33 +129,34 @@ export function summarizeStonePowerPrint(power: {
   }
 
   if (linearDelta != null) {
-    return `${base} +${linearDelta} per Tier.`.replace(/\s+/g, ' ').trim();
+    return `${base} +${linearDelta} per Rank.`.replace(/\s+/g, ' ').trim();
   }
   return `${base} (${values.join('/')}).`.replace(/\s+/g, ' ').trim();
 }
 
-/** Printed Stone Ability lanes. T1=1, T2=2, T3=4, T4=8. There is no Tier 5. */
-const STONE_PRINT_TIERS = [
-  { label: 'T1', tier: 1, layout: 't1', count: 1 },
-  { label: 'T2', tier: 2, layout: 't2', count: 2 },
-  { label: 'T3', tier: 3, layout: 't3', count: 4 },
-  { label: 'T4', tier: 4, layout: 't4', count: 8 },
-] as const;
+/**
+ * Printed Stone Ability lanes. All four Ranks exist; lane counts follow the
+ * Ability's cost curve (Normal 1/2/4/8, Premium 2/4/6/8). No Rank 5.
+ * A Support-prefilled Rank's lanes print filled — that Rank costs no Stones.
+ */
+const STONE_PRINT_TIER_LAYOUTS = ['t1', 't2', 't3', 't4'] as const;
 
 function stonePowerPaymentTiersForPrint(
   powerId: string,
   supportTier: number,
 ): { label: string; tier: number; layout: string; count: number; boxes: { filled: boolean }[] }[] {
-  const isRamp = stonePowerSkipsFirstTier(powerId);
-  const firstPaid = firstEffectiveStonePowerTier(powerId);
-  return STONE_PRINT_TIERS.map((g) => ({ ...g }))
-    .filter((g) => !(isRamp && g.tier === 1))
-    .map((g) => ({
-      ...g,
-      boxes: Array.from({ length: g.count }, () => ({
-        filled: supportTier > 0 && g.tier > firstPaid && g.tier <= supportTier,
-      })),
-    }));
+  const prefill = effectiveStoneSupportPrefillTier(powerId, supportTier);
+  return STONE_PRINT_TIER_LAYOUTS.map((layout, i) => {
+    const rank = i + 1;
+    const count = stonePowerRankCost(powerId, rank);
+    return {
+      label: `R${rank}`,
+      tier: rank,
+      layout,
+      count,
+      boxes: Array.from({ length: count }, () => ({ filled: prefill > 0 && rank === prefill })),
+    };
+  });
 }
 
 /** Options for the printable character sheet. */
@@ -1272,7 +1273,7 @@ export function buildCharacterPrintContext(
       freeStones,
       slots: Array.from({ length: freeStones }, (_, i) => i + 1),
       boosts: boostsByAttr.get(key) ?? [],
-      powers: orderPowersRampFirst(list, (p: any) => stonePowerSkipsFirstTier(String(p.id))).map((p: any) => {
+      powers: orderPowersRampFirst(list, (p: any) => isPremiumStonePower(String(p.id))).map((p: any) => {
         const powerId = String(p.id);
         const sup = supportByPowerId.get(powerId);
         const supportTier = sup?.tier ?? 0;
@@ -1867,24 +1868,18 @@ function compactStoneRows(
 ) {
   const list = STONE_POWERS_BY_ATTRIBUTE[attrKey] ?? [];
   return list.map((power) => {
-    const firstPaid = firstEffectiveStonePowerTier(power.id);
-    const isRamp = stonePowerSkipsFirstTier(String(power.id));
     const sup = supportByPowerId?.get(String(power.id));
     const supportTier = sup?.tier ?? 0;
-    // T1 = 1, T2 = 2, T3 = 4, T4 = 8. Ramp powers omit T1. No Tier 5.
-    const tiers = STONE_PRINT_TIERS.map((g) => ({ ...g }))
-      .filter((g) => !(isRamp && g.tier === 1))
-      .map((g) => ({
-        label: g.label,
-        tier: g.tier,
-        layout: g.layout,
-        boxes: Array.from({ length: g.count }, () => ({
-          filled: !!sup && g.tier > firstPaid && g.tier <= supportTier,
-        })),
-      }));
+    const tiers = stonePowerPaymentTiersForPrint(String(power.id), supportTier).map((g) => ({
+      label: g.label,
+      tier: g.tier,
+      layout: g.layout,
+      boxes: g.boxes,
+    }));
     return {
       name: power.name,
-      firstTier: firstPaid,
+      firstTier: 1,
+      premium: isPremiumStonePower(String(power.id)),
       tiers,
       supported: !!sup,
       supportTier,

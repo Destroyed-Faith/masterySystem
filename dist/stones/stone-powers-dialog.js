@@ -1,5 +1,6 @@
 /**
- * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
+ * Stone Powers Dialog — Steine pro Macht in Rank-Segmenten verteilen
+ * (Normal 1→2→4→8, Premium 2→4→6→8).
  * Voll bezahlte Wellen werden beim Schließen des Dialogs abgerechnet (Pools, RoundState, Radial); beim Klick/Drop bleiben Steine in den Slots.
  */
 var _a;
@@ -7,14 +8,14 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
-import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, stonePowerSkipsFirstTier, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, stoneSupportPrefillLanes, } from './stone-powers.js';
-import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, setStonePool, getRoundState, setRoundState, isStonePowersConfigurationLocked, clearStonePowersConfigurationLock, clearCombatStoneTurnBonusesForActor, getActionEconomyActor } from '../combat/action-economy.js';
+import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, isPremiumStonePower, effectiveStoneSupportPrefillTier, stonePowerRankCost, stonePowerSegmentSizes, stonePaymentLaneCount, stonePaymentLanesForTier, stoneSupportPrefillLanes, } from './stone-powers.js';
+import { getStoneUsageCount, getGenericStonePowerUsageCount, getStonePool, setStonePool, getRoundState, setRoundState, isStonePowersConfigurationLocked, clearStonePowersConfigurationLock, clearCombatStoneTurnBonusesForActor, getActionEconomyActor } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
 import { INITIATIVE_ROLLED_FLAG, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getMasteryRank, getTempColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, maxConvertibleColorlessStones, } from './colorless-stones.js';
+import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getMasteryRank, getSpendableColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, maxConvertibleColorlessStones, } from './colorless-stones.js';
 import { computeRemoveScarPayment, getRemoveScarResolvedMaxTier, inferRemoveScarTargetTier, payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID, } from './remove-scar.js';
 import { STONE_HELP_TRACKS, STONE_POWERS_HELP_COUNT, STONE_POWERS_HELP_SCREENS, clampStoneHelpPage, stoneHelpTrackForPage, } from './stone-powers-help.js';
 import { formatPendingStoneActivationWarning, orderPowersRampFirst, pendingStoneActivation, pendingStoneActivationLabel, pickStoneFillAttribute, shouldSettleStoneWave, stonePowerAllowsColorless, stonePowerColorlessRejectMessage, stoneDialogSectionStartsOpen, stonePoolBlockedReason, stonePowerActivationRing, } from './stone-payment-rules.js';
@@ -29,98 +30,69 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-men
 import { actorMasteryRank, changeNaturalRecoveryAllocation, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
-/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. Tier 4 is the last tier. */
-const STONE_PAYMENT_LANE_COUNT = 15;
-/** Segment-Index für Lane: 0=Anchor(1), 1=Mid(2), 2=Quad(4), 3=Oct(8). */
-function segmentIndexForLane(laneIndex) {
-    if (laneIndex === 0)
-        return 0;
-    if (laneIndex <= 2)
-        return 1;
-    if (laneIndex <= 6)
-        return 2;
-    return 3;
+/** Payment-Lane geometry per Ability: Normal 1+2+4+8 (15), Premium 2+4+6+8 (20). */
+function stoneLaneCountForPower(powerId) {
+    return stonePaymentLaneCount(powerId);
+}
+/** Segment-Index (Rank − 1) für eine Lane dieser Ability. */
+function segmentIndexForLane(powerId, laneIndex) {
+    const sizes = stonePowerSegmentSizes(powerId);
+    let acc = 0;
+    for (let s = 0; s < sizes.length; s += 1) {
+        acc += sizes[s] ?? 0;
+        if (laneIndex < acc)
+            return s;
+    }
+    return sizes.length - 1;
+}
+/** Lane-Indizes pro Segment (Segment s = Rank s + 1). */
+function lanesInStonePaymentSegment(powerId, segmentIndex) {
+    return stonePaymentLanesForTier(powerId, segmentIndex + 1);
 }
 /** Segment vollständig belegt (Voraussetzung für das nächste Segment). */
-function isStoneSegmentComplete(o, seg) {
-    if (seg === 0)
-        return o.has(0);
-    if (seg === 1)
-        return o.has(1) && o.has(2);
-    if (seg === 2)
-        return [3, 4, 5, 6].every((l) => o.has(l));
-    if (seg === 3)
-        return [7, 8, 9, 10, 11, 12, 13, 14].every((l) => o.has(l));
-    return false;
+function isStoneSegmentComplete(powerId, o, seg) {
+    const lanes = lanesInStonePaymentSegment(powerId, seg);
+    return lanes.length > 0 && lanes.every((l) => o.has(l));
 }
-/** Leere Lane darf einen Stein annehmen (Segment-Freigabe 1 → 2 → 4 → 8). */
-function isLaneAllowedBySegmentUnlock(occupied, laneIndex) {
-    if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT)
+/** Leere Lane darf einen Stein annehmen (Segment-Freigabe Rank 1 → 2 → 3 → 4). */
+function isLaneAllowedBySegmentUnlock(powerId, occupied, laneIndex) {
+    if (laneIndex < 0 || laneIndex >= stoneLaneCountForPower(powerId))
         return false;
     const o = new Set(occupied);
     if (o.has(laneIndex))
         return false;
-    const seg = segmentIndexForLane(laneIndex);
+    const seg = segmentIndexForLane(powerId, laneIndex);
     for (let s = 0; s < seg; s++) {
-        if (!isStoneSegmentComplete(o, s))
+        if (!isStoneSegmentComplete(powerId, o, s))
             return false;
     }
     return true;
 }
 /** Alle leeren Lanes, die aktuell dropfähig sind. */
-function allowedSegmentDropLanes(occupied) {
+function allowedSegmentDropLanes(powerId, occupied) {
     const set = new Set();
-    for (let l = 0; l < STONE_PAYMENT_LANE_COUNT; l++) {
-        if (isLaneAllowedBySegmentUnlock(occupied, l))
+    for (let l = 0; l < stoneLaneCountForPower(powerId); l++) {
+        if (isLaneAllowedBySegmentUnlock(powerId, occupied, l))
             set.add(l);
     }
     return set;
-}
-/** Lane-Indizes pro Segment: 0=1, 1=2, 2=4, 3=8. */
-function lanesInStonePaymentSegment(segmentIndex) {
-    if (segmentIndex === 0)
-        return [0];
-    if (segmentIndex === 1)
-        return [1, 2];
-    if (segmentIndex === 2)
-        return [3, 4, 5, 6];
-    if (segmentIndex === 3)
-        return [7, 8, 9, 10, 11, 12, 13, 14];
-    return [];
 }
 /**
  * Niedrigstes Segment mit freien Lanes, sobald alle vorherigen Segmente voll sind.
  * Ein Linksklick füllt nur dieses Segment (teilweise, wenn der Pool nicht reicht).
  */
-function nextStoneSegmentToFill(occupied) {
+function nextStoneSegmentToFill(powerId, occupied) {
     const o = new Set(occupied);
     for (let seg = 0; seg <= 3; seg++) {
-        if (isStoneSegmentComplete(o, seg))
+        if (isStoneSegmentComplete(powerId, o, seg))
             continue;
         for (let s = 0; s < seg; s++) {
-            if (!isStoneSegmentComplete(o, s))
+            if (!isStoneSegmentComplete(powerId, o, s))
                 return null;
         }
         return seg;
     }
     return null;
-}
-/**
- * Powers that start at Tier 2 have no Tier-1 slot. First activation is the
- * Mid segment (2 stones): the Anchor is omitted, not rendered empty.
- */
-function rampSkipSegmentsForPower(powerId) {
-    return stonePowerSkipsFirstTier(powerId) ? 1 : 0;
-}
-/** Lane indices of the leading segments skipped by a ramp power (e.g. [0]). */
-function rampSkipLeadLanes(powerId) {
-    const segs = rampSkipSegmentsForPower(powerId);
-    if (segs <= 0)
-        return [];
-    const lanes = [];
-    for (let s = 0; s < segs; s++)
-        lanes.push(...lanesInStonePaymentSegment(s));
-    return lanes;
 }
 function pendingStoneCardFields(name, placed, needed) {
     const row = pendingStoneActivation({ name, placed, needed });
@@ -140,10 +112,14 @@ function stonePowerCardVisuals(name, placed, needed, liveUses) {
         activated: ring.activated || pending.waveReady,
     };
 }
-/** Occupied lanes augmented with skipped lead lanes (for segment-unlock only). */
-function occWithRampSkip(occupied, powerId) {
-    const lead = rampSkipLeadLanes(powerId);
-    return lead.length ? [...occupied, ...lead] : occupied;
+/**
+ * Occupied lanes augmented with the Support-prefilled Rank's lanes (for
+ * segment-unlock only): the pre-filled Rank costs nothing, so its lanes
+ * count as full when unlocking the Ranks above it.
+ */
+function occWithPrefill(occupied, powerId, prefillRank) {
+    const lanes = prefillRank > 0 ? lanesInStonePaymentSegment(powerId, prefillRank - 1) : [];
+    return lanes.length ? [...occupied, ...lanes] : occupied;
 }
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
 let msLastDraggedStoneAttribute = '';
@@ -283,33 +259,43 @@ function escapeAttrValueInCssSelector(value) {
  * After the wave is used, the next climb is a normal paid segment.
  */
 function buildSupportLaneSet(prefillTier, usesThisTurn, powerId) {
-    if (usesThisTurn >= 1)
+    const rank = effectiveStoneSupportPrefillTier(powerId ?? '', prefillTier);
+    if (rank <= 0 || usesThisTurn >= rank)
         return undefined;
     const lanes = stoneSupportPrefillLanes(powerId ?? '', prefillTier);
     return lanes.length ? new Set(lanes) : undefined;
 }
 /**
+ * Additional cost of the next wave (Rank = usesThisTurn + 1) for this
+ * Ability. The Support-prefilled Rank costs 0; Rank 5+ does not exist.
+ */
+function nextStoneWaveCost(powerId, usesThisTurn, prefillTier = 0) {
+    const rank = Math.max(0, Math.floor(Number(usesThisTurn) || 0)) + 1;
+    if (rank > STONE_TIER_HARD_MAX)
+        return 0;
+    const prefill = effectiveStoneSupportPrefillTier(powerId, prefillTier);
+    if (prefill === rank)
+        return 0;
+    return stonePowerRankCost(powerId, rank);
+}
+/**
  * UI/Drop: Segment-Freigabe — erst Anchor (1), nach Stein die beiden Mitten (2), dann Quad (4), dann Oct (8).
  * Innerhalb eines freigeschalteten Segments beliebige leere Lane; Reihenfolge innerhalb Mid/Quad/Oct frei.
  */
-function buildStonePaymentLanes(usesThisTurn, spendableNet, planLocked, occupied, debugLabel, supportLanes, leadLockedLanes) {
+function buildStonePaymentLanes(powerId, usesThisTurn, spendableNet, planLocked, occupied, debugLabel, supportLanes) {
+    void debugLabel;
     const o = new Set(occupied);
-    const leadLocked = new Set(leadLockedLanes ?? []);
-    // Ramp powers (no Tier 1) treat their leading segment as already satisfied so
-    // the next segment unlocks immediately; those lanes are disabled, not payable.
-    const allowed = allowedSegmentDropLanes(leadLocked.size ? [...occupied, ...leadLocked] : occupied);
+    // The Support-prefilled Rank costs nothing: its lanes count as full when
+    // unlocking the Ranks above it, but are never payable by the player.
+    const allowed = allowedSegmentDropLanes(powerId, supportLanes?.size ? [...occupied, ...supportLanes] : occupied);
     const laneState = (laneIndex) => {
-        if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT)
+        if (laneIndex < 0 || laneIndex >= stoneLaneCountForPower(powerId))
             return 'locked';
         if (o.has(laneIndex))
             return 'filled';
-        // Ramp power (e.g. Extra Attack): unused Tier-1 lane is omitted, not droppable.
-        if (leadLocked.has(laneIndex))
-            return 'empty';
-        // Artifact "Stone Power Support" pre-fills lanes above the anchor with
-        // Artifact Support Stones (free, artifact-provided). They are purely
-        // visual: not in the `occupied` player set, so they never participate in
-        // segment-unlock or settle.
+        // Artifact "Stone Power Support" pre-fills exactly one Rank with Artifact
+        // Support Stones (free, artifact-provided). Purely visual: not in the
+        // `occupied` player set, so they never participate in settle.
         if (supportLanes?.has(laneIndex))
             return 'support';
         if (planLocked)
@@ -325,13 +311,13 @@ function buildStonePaymentLanes(usesThisTurn, spendableNet, planLocked, occupied
         slotIndex: usesThisTurn + laneIndex,
         state: laneState(laneIndex)
     });
-    const segments = {
-        paymentAnchor: [cell(0)],
-        paymentMid: [cell(1), cell(2)],
-        paymentQuad: [cell(3), cell(4), cell(5), cell(6)],
-        paymentOct: Array.from({ length: 8 }, (_, j) => cell(7 + j))
+    const segmentCells = (seg) => lanesInStonePaymentSegment(powerId, seg).map((lane) => cell(lane));
+    return {
+        paymentAnchor: segmentCells(0),
+        paymentMid: segmentCells(1),
+        paymentQuad: segmentCells(2),
+        paymentOct: segmentCells(3),
     };
-    return segments;
 }
 /** DOM root for listeners (ApplicationV2 legt Inhalt unter part=content / .window-content). */
 function getStonePowersContentRoot(app) {
@@ -564,9 +550,10 @@ export class StonePowersDialog extends BaseDialog {
                 blockedReason,
             };
         });
-        let colorlessHave = getTempColorlessStones(poolOwner);
+        // Temporary pile + Ready Permanent Colorless Stones (both spendable).
+        let colorlessHave = getSpendableColorlessStones(poolOwner);
         if (colorlessHave <= 0 && poolOwner !== this.actor) {
-            colorlessHave = getTempColorlessStones(this.actor);
+            colorlessHave = getSpendableColorlessStones(this.actor);
         }
         const colorlessReserved = this.#reservedStonesInDialogForAttr(COLORLESS_STONE_ATTR);
         const colorlessDisplay = Math.max(0, colorlessHave - colorlessReserved);
@@ -625,15 +612,13 @@ export class StonePowersDialog extends BaseDialog {
                 ? getRemoveScarResolvedMaxTier(this.actor)
                 : getStoneUsageCount(this.actor, attrKey, power.id, combat);
             const usesThisTurn = this._stoneReviewMode && liveUses > 0 ? liveUses - 1 : liveUses;
-            const rampSkip = rampSkipSegmentsForPower(power.id);
-            const leadLockedLanes = rampSkipLeadLanes(power.id);
             const support = supportForPower(power.id, attrKey);
             const supportTier = support?.tier ?? 0;
             const removeScarPayment = isRemoveScar
                 ? computeRemoveScarPayment(liveUses, inferRemoveScarTargetTier(liveUses, supportTier), supportTier)
                 : null;
-            const waveCost = calculateStoneCost(usesThisTurn + rampSkip);
-            const tierCapped = !removeScarPayment && waveCost <= 0;
+            const waveCost = nextStoneWaveCost(power.id, usesThisTurn, supportTier);
+            const tierCapped = !removeScarPayment && usesThisTurn >= STONE_TIER_HARD_MAX;
             const nextCost = removeScarPayment ? removeScarPayment.sealCost : waveCost;
             const pool = getStonePool(this.actor, attrKey);
             const removeScarOpen = !removeScarPayment ||
@@ -655,7 +640,7 @@ export class StonePowersDialog extends BaseDialog {
             const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
             const occupied = this.#stoneOccGet(accKey);
             const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
-            const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/${attrKey}`, supportLanes, leadLockedLanes);
+            const laneSegs = buildStonePaymentLanes(power.id, usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/${attrKey}`, supportLanes);
             return {
                 id: power.id,
                 name: power.name,
@@ -671,10 +656,10 @@ export class StonePowersDialog extends BaseDialog {
                 supportSource: support?.source ?? '',
                 supportActive: !!supportLanes,
                 supportHint: support
-                    ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
+                    ? `Rank ${supportTier} is provided by ${support.source}. All lower Ranks are paid normally.`
                     : '',
                 boostUsed: oncePerCombatUsed,
-                hideLeadSegment: rampSkip > 0,
+                hideLeadSegment: false,
                 ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
                 ...laneSegs
             };
@@ -691,29 +676,26 @@ export class StonePowersDialog extends BaseDialog {
                 defaultGeneralAttrKey;
             if (!pools.some((p) => p.key === attrKey))
                 attrKey = defaultGeneralAttrKey;
-            const nextCost = calculateStoneCost(usesThisTurn);
+            const nextCost = nextStoneWaveCost(powerId, usesThisTurn);
             const spendable = spendableForAttr(attrKey);
             this._generalAttrSelection[powerId] = attrKey;
             return { attrKey, usesThisTurn, spendable, nextCost };
         };
-        // Separate generic and attribute-specific powers
-        const genericPowers = orderPowersRampFirst(availablePowers.filter(p => p.attribute === 'generic'), (p) => stonePowerSkipsFirstTier(p.id));
+        // Separate generic and attribute-specific powers (Premium leads the row)
+        const genericPowers = orderPowersRampFirst(availablePowers.filter(p => p.attribute === 'generic'), (p) => isPremiumStonePower(p.id));
         const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
         const generalPowers = genericPowers.map((power) => {
             const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
-            // T2-start powers have no Tier 1: first activation = Tier 2 (2 stones).
-            const rampSkip = rampSkipSegmentsForPower(power.id);
-            const leadLockedLanes = rampSkipLeadLanes(power.id);
-            const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
+            const support = supportForPower(power.id);
+            const supportTier = support?.tier ?? 0;
+            const nextCost = nextStoneWaveCost(power.id, usesThisTurn, supportTier);
             const canAfford = nextCost > 0 && canAffordGenericNextCost(nextCost);
             const description = power.description || power.effect || '';
             const spendableNet = totalSpendableNetAllPools();
             const occupied = this.#stoneOccGet(genericUnifiedAccKey(power.id, usesThisTurn));
             const sp = STONE_POWERS[power.id];
-            const support = supportForPower(power.id);
-            const supportTier = support?.tier ?? 0;
             const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
-            const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/general`, supportLanes, leadLockedLanes);
+            const laneSegs = buildStonePaymentLanes(power.id, usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/general`, supportLanes);
             return {
                 id: power.id,
                 name: power.name,
@@ -729,9 +711,9 @@ export class StonePowersDialog extends BaseDialog {
                 supportSource: support?.source ?? '',
                 supportActive: !!supportLanes,
                 supportHint: support
-                    ? `You pay T${firstEffectiveStonePowerTier(power.id)} yourself. T${supportTier} is provided by ${support.source}.`
+                    ? `Rank ${supportTier} is provided by ${support.source}. All lower Ranks are paid normally.`
                     : '',
-                hideLeadSegment: rampSkip > 0,
+                hideLeadSegment: false,
                 ...stonePowerCardVisuals(power.name, occupied.length, nextCost, getGenericStonePowerUsageCount(this.actor, power.id, combat)),
                 ...laneSegs
             };
@@ -757,7 +739,7 @@ export class StonePowersDialog extends BaseDialog {
             const rawDefs = STONE_POWERS_BY_ATTRIBUTE[attr];
             if (!rawDefs?.length)
                 return null;
-            const defs = orderPowersRampFirst(rawDefs, (def) => stonePowerSkipsFirstTier(def.id));
+            const defs = orderPowersRampFirst(rawDefs, (def) => isPremiumStonePower(def.id));
             const preparedMap = new Map((powersByAttribute[attr] || []).map((p) => [p.id, p]));
             const cells = [];
             const cols = Math.max(ATTR_MATRIX_COLS, defs.length);
@@ -981,7 +963,12 @@ export class StonePowersDialog extends BaseDialog {
         const owner = getActionEconomyActor(this.actor) ?? this.actor;
         return Math.max(1, Math.floor(Number(owner.system?.mastery?.rank) || 2));
     }
-    /** Attribute pools as recovery input — Colorless is temporary and never regenerates. */
+    /**
+     * Attribute pools as recovery input. End-of-round Regeneration chooses from
+     * Attribute Stone Pools; the Colorless row (Temporary pile + Permanent
+     * Colorless) is not an Attribute pool. Permanent Colorless Stones return
+     * through the after-combat / Safe Haven restore instead.
+     */
     #recoveryPoolInputs(pools) {
         return pools
             .filter((pool) => pool.key !== COLORLESS_STONE_ATTR)
@@ -1574,16 +1561,18 @@ export class StonePowersDialog extends BaseDialog {
         })) {
             return false;
         }
-        // Ramp powers (no Tier 1) start one segment higher, so the first wave
-        // costs the Tier-2 amount; mirror the dialog's nextCost here.
-        // Remove Scar pays remaining unresolved Tiers (Seal 1/2/4/8), not the
-        // per-round wave counter.
+        // The wave cost follows the Ability's Normal / Premium Rank curve; a
+        // Support-prefilled Rank costs 0. Remove Scar pays remaining unresolved
+        // Ranks (Seal 1/2/4/8), not the per-round wave counter.
         const removeScarSupport = powerId === REMOVE_SCAR_POWER_ID
             ? getArtifactStoneSupportPrefill(this.actor, powerId, 'vitality')
             : 0;
+        const settleSupport = powerId === REMOVE_SCAR_POWER_ID
+            ? 0
+            : getArtifactStoneSupportPrefill(this.actor, powerId, middle !== STONE_GENERIC_UNIFIED_MARKER ? middle : undefined);
         const nextCost = powerId === REMOVE_SCAR_POWER_ID
             ? computeRemoveScarPayment(currentUses, inferRemoveScarTargetTier(currentUses, removeScarSupport), removeScarSupport).sealCost
-            : calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
+            : nextStoneWaveCost(powerId, usesInKey, settleSupport);
         const onceCluster = !!def.oncePerCombat;
         const perAttr = {};
         if (isGenericUnifiedAccKey(accKey)) {
@@ -1653,6 +1642,33 @@ export class StonePowersDialog extends BaseDialog {
             const paidValue = this.#stoneOccGetRaw(accKey);
             this._stonePaidLanes.set(accKey, cloneLaneValue(paidValue));
             this.#stoneOccSet(accKey, []);
+            // If the NEXT Rank is the Support-prefilled one, it costs no Stones and
+            // applies as soon as the lower Ranks are active — activate it directly.
+            if (powerId !== REMOVE_SCAR_POWER_ID && !def.oncePerCombat && settleSupport > 0) {
+                const usesNow = isGenericUnifiedAccKey(accKey)
+                    ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+                    : getStoneUsageCount(this.actor, middle, powerId, combat);
+                if (usesNow < STONE_TIER_HARD_MAX &&
+                    nextStoneWaveCost(powerId, usesNow, settleSupport) === 0 &&
+                    effectiveStoneSupportPrefillTier(powerId, settleSupport) === usesNow + 1) {
+                    if (isGenericUnifiedAccKey(accKey)) {
+                        await activateGenericStonePowerMixed({
+                            actor: this.actor,
+                            combatant,
+                            abilityId: powerId,
+                            perAttributeStones: {},
+                        });
+                    }
+                    else {
+                        await activateStonePower({
+                            actor: this.actor,
+                            combatant,
+                            abilityId: powerId,
+                            colorlessSpent: 0,
+                        });
+                    }
+                }
+            }
         }
         return ok;
     }
@@ -1673,7 +1689,7 @@ export class StonePowersDialog extends BaseDialog {
             const def = STONE_POWERS[parsed.powerId];
             if (!def)
                 continue;
-            const needed = calculateStoneCost(parsed.uses + rampSkipSegmentsForPower(parsed.powerId));
+            const needed = stonePowerRankCost(parsed.powerId, parsed.uses + 1);
             const row = pendingStoneActivation({ name: def.name, placed: value.length, needed });
             if (row)
                 out.push(row);
@@ -1886,10 +1902,10 @@ export class StonePowersDialog extends BaseDialog {
     #actorPoolSpendable(attr) {
         if (attr === COLORLESS_STONE_ATTR) {
             const owner = getActionEconomyActor(this.actor) ?? this.actor;
-            const fromOwner = getTempColorlessStones(owner);
+            const fromOwner = getSpendableColorlessStones(owner);
             if (fromOwner > 0)
                 return fromOwner;
-            return getTempColorlessStones(this.actor);
+            return getSpendableColorlessStones(this.actor);
         }
         // Read from `this.actor` so artifact activation bindings match the sheet /
         // evolution dialog (pool capacity is still derived via the economy actor
@@ -2135,18 +2151,47 @@ export class StonePowersDialog extends BaseDialog {
             ? genericUnifiedAccKey(powerId, uses)
             : `${powerId}:${fixedPayAttr}:${uses}`;
         let occ = this.#stoneOccGet(accKey);
-        const seg = nextStoneSegmentToFill(occWithRampSkip(occ, powerId));
+        const prefillTier = getArtifactStoneSupportPrefill(this.actor, powerId, isGeneric ? undefined : fixedPayAttr || undefined);
+        const prefillRank = effectiveStoneSupportPrefillTier(powerId, prefillTier);
+        // The Support-prefilled Rank costs nothing: activating it directly needs
+        // no lanes at all once the lower Ranks are active.
+        if (prefillRank > 0 &&
+            uses < STONE_TIER_HARD_MAX &&
+            uses + 1 === prefillRank &&
+            !occ.length) {
+            const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
+            if (combatant) {
+                if (isGeneric) {
+                    await activateGenericStonePowerMixed({
+                        actor: this.actor,
+                        combatant,
+                        abilityId: powerId,
+                        perAttributeStones: {},
+                    });
+                }
+                else {
+                    await activateStonePower({
+                        actor: this.actor,
+                        combatant,
+                        abilityId: powerId,
+                        colorlessSpent: 0,
+                    });
+                }
+            }
+            return;
+        }
+        const seg = nextStoneSegmentToFill(powerId, occWithPrefill(occ, powerId, prefillRank));
         if (seg === null) {
             return;
         }
         const occSet = new Set(occ);
-        const supportSet = new Set(stoneSupportPrefillLanes(powerId, getArtifactStoneSupportPrefill(this.actor, powerId, isGeneric ? undefined : fixedPayAttr || undefined)));
-        const emptyInSeg = lanesInStonePaymentSegment(seg).filter((l) => !occSet.has(l) && !supportSet.has(l));
+        const supportSet = new Set(stoneSupportPrefillLanes(powerId, prefillTier));
+        const emptyInSeg = lanesInStonePaymentSegment(powerId, seg).filter((l) => !occSet.has(l) && !supportSet.has(l));
         emptyInSeg.sort((a, b) => a - b);
         for (const lane of emptyInSeg) {
             this.#pullSessionPartialsIntoInstance();
             occ = this.#stoneOccGet(accKey);
-            if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), lane))
+            if (!isLaneAllowedBySegmentUnlock(powerId, occWithPrefill(occ, powerId, prefillRank), lane))
                 break;
             let chosenAttr;
             if (isGeneric) {
@@ -2636,6 +2681,7 @@ export class StonePowersDialog extends BaseDialog {
             let accKey;
             let occ;
             let paid;
+            const dropPrefillRank = effectiveStoneSupportPrefillTier(powerId, getArtifactStoneSupportPrefill(this.actor, powerId, isGeneric ? undefined : slotPayAttr));
             if (isGeneric) {
                 this.#mergeLegacyGenericIntoUnified(powerId, uses);
                 accKey = genericUnifiedAccKey(powerId, uses);
@@ -2643,7 +2689,7 @@ export class StonePowersDialog extends BaseDialog {
                 if (occ.includes(laneIndex)) {
                     return;
                 }
-                if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), laneIndex)) {
+                if (!isLaneAllowedBySegmentUnlock(powerId, occWithPrefill(occ, powerId, dropPrefillRank), laneIndex)) {
                     return;
                 }
                 const prev = this.#stoneOccGetRaw(accKey);
@@ -2659,7 +2705,7 @@ export class StonePowersDialog extends BaseDialog {
                 if (occ.includes(laneIndex)) {
                     return;
                 }
-                if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), laneIndex)) {
+                if (!isLaneAllowedBySegmentUnlock(powerId, occWithPrefill(occ, powerId, dropPrefillRank), laneIndex)) {
                     return;
                 }
                 const prev = this.#stoneOccGetRaw(accKey);
