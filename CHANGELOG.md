@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.564] - 2026-09-23
+
 ### Changed
 
-- **v0.9.9-Migration:** Starting lässt sich erst mit „Apply starting“ übernehmen, und nur wenn das Paket genau zwei 4er, zwei 3er und drei 2er ist. Danach hebt + / − die Final-Werte gegen die erhaltene Attribut-XP an. Steine sind ein eigener Dialog: Start, Start, dann je 20 Lifetime XP ein Feld. Ein Klick vergibt einen Stein an ein Attribut oder fasst zwei Felder zu einem permanenten Colorless-Stein zusammen.
+- **v0.9.9-Migration:** Starting lässt sich erst mit „Starting übernehmen“ übernehmen, und nur wenn das Paket genau zwei 4er, zwei 3er und drei 2er ist. Danach hebt + / − die Final-Werte gegen die erhaltene Attribut-XP an. Steine sind ein eigener Dialog: Start, Start, dann je 20 Lifetime XP ein Feld. Ein Klick vergibt einen Stein an ein Attribut oder fasst zwei Felder zu einem permanenten Colorless-Stein zusammen.
 
 ## [0.9.563] - 2026-09-23
 
