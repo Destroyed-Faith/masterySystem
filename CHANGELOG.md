@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **SL-Steine:** Im SL-Menü lassen sich Steine wieder auf Ready setzen (Exhausted, Sustained, Sealed, Burned weg, Zuweisung bleibt). „Steine neu verteilen“ gibt belegte Felder frei, damit sie gelöst oder anders zugewiesen werden können. „Alle Steine lösen“ leert die Zuweisung; Lifetime XP bleibt.
+
 ## [0.9.565] - 2026-09-23
 
 ### Changed

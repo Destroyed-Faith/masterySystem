@@ -58,5 +58,14 @@ export declare function stonePlacementOptions(order: readonly (string | null)[],
 export declare function stoneOrderForActor(system: any, lifetimeXp: number): (string | null)[];
 /** Actor update that keeps assignments, pools and the clicked slot order together. */
 export declare function stoneOrderActorUpdate(system: any, order: readonly (string | null)[]): Record<string, unknown>;
+/** Drop one box. A Permanent Colorless pair drops both boxes. */
+export declare function releaseStoneSlot(order: readonly (string | null)[], index: number): (string | null)[];
+/** Every earned box becomes empty again. Lifetime XP is untouched. */
+export declare function releaseAllStoneSlots(order: readonly (string | null)[]): (string | null)[];
+/**
+ * GM unblock: Attribute pools and Permanent Colorless return to Ready.
+ * Assignment is unchanged. Exhausted, Sustained, Sealed and Burned are cleared.
+ */
+export declare function unblockStonePoolsUpdate(system: any): Record<string, unknown>;
 export declare function slotAbbrev(choice: string | null): string;
 //# sourceMappingURL=v099-respec-flow.d.ts.map

@@ -133,14 +133,17 @@ import {
   stoneConcentrationCap,
   usesV099Stones,
 } from '../progression/v099-rules.js';
-import { V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
+import { STONE_REDISTRIBUTE_FLAG, V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
 import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
 import {
   migrationStoneSlotLabel,
+  releaseAllStoneSlots,
+  releaseStoneSlot,
   stoneOrderActorUpdate,
   stoneOrderForActor,
   stonePlacementOptions,
   stoneSlotProgress,
+  unblockStonePoolsUpdate,
 } from '../progression/v099-respec-flow.js';
 import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
@@ -1468,11 +1471,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
       const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
       const slotOrder = Array.isArray(sys?.progression?.stoneSlotOrder) ? sys.progression.stoneSlotOrder : null;
+      const stoneRedistribute = flag(STONE_REDISTRIBUTE_FLAG);
       const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through, colorless, slotOrder).map((slot) => {
         if (lifetimeXp == null) {
-          return { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '', canAssign: false };
+          return {
+            ...slot,
+            unlocked: false,
+            assigned: false,
+            attribute: null,
+            abbrev: '',
+            canAssign: false,
+            canReassign: false,
+          };
         }
-        return { ...slot, canAssign: slot.unlocked && !slot.assigned };
+        return {
+          ...slot,
+          canAssign: slot.unlocked && !slot.assigned,
+          canReassign: stoneRedistribute && slot.unlocked && slot.assigned,
+        };
       });
       const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
       context.v099 = {
@@ -1493,6 +1509,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         slots,
         rows: chunkLifetimeSlots(slots),
         lineSlots: lifetimeLineSlotCount(),
+        usesStones: usesV099Stones(sys),
+        stoneRedistribute,
       };
     }
 
@@ -2415,6 +2433,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#onResetCharacter(e);
       });
     }
+
+    html.find('.gm-unblock-stones').off('click.gm-unblock-stones').on('click.gm-unblock-stones', (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.#onGmUnblockStones(e);
+    });
+    html.find('.gm-toggle-stone-redistribute').off('click.gm-stone-redistribute').on('click.gm-stone-redistribute', (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.#onGmToggleStoneRedistribute(e);
+    });
+    html.find('.gm-release-all-stones').off('click.gm-release-stones').on('click.gm-release-stones', (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      void this.#onGmReleaseAllStones(e);
+    });
 
     html
       .find('.start-skills-redistribute')
@@ -6363,11 +6397,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
     creationButtons.prop('disabled', false);
     
     // Also enable power rank selects (they're select elements, not buttons)
@@ -6691,10 +6725,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
     const order = stoneOrderForActor(sys, lifetime);
     const index = Math.floor(Number((ev?.currentTarget as HTMLElement | undefined)?.dataset?.slotIndex));
-    if (!Number.isFinite(index) || index < 0 || index >= order.length || order[index]) return;
-    const options = stonePlacementOptions(order, rank);
-    const progress = stoneSlotProgress(order);
-    if (!options.attributes.length && !options.colorless) {
+    if (!Number.isFinite(index) || index < 0 || index >= order.length) return;
+    const redistribute = (this.actor as any).getFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG) === true
+      || (this.actor as any).flags?.['mastery-system']?.[STONE_REDISTRIBUTE_FLAG] === true;
+    const filled = Boolean(order[index]);
+    if (filled && !redistribute) return;
+    const base = filled ? releaseStoneSlot(order, index) : order.slice();
+    const options = stonePlacementOptions(base, rank);
+    const progress = stoneSlotProgress(base);
+    if (!filled && !options.attributes.length && !options.colorless) {
       ui.notifications?.warn(
         options.colorlessReason || 'No Attribute can take another Stone under the Mastery Rank × 2 limit.',
       );
@@ -6706,19 +6745,62 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       counts: progress.assignments,
       colorless: options.colorless,
       colorlessHint: options.colorlessReason,
-      allowClear: false,
+      allowClear: filled,
       partners: progress.openIndexes
         .filter((i) => i !== index)
         .map((i) => ({ index: i, label: migrationStoneSlotLabel(i) })),
     });
     if (choice.kind === 'cancel') return;
-    if (choice.kind === 'attribute' && choice.key) order[index] = choice.key;
-    else if (choice.kind === 'colorless' && choice.otherIndex != null && !order[choice.otherIndex]) {
+    const next = base.slice();
+    if (choice.kind === 'clear') {
+      if (!filled) return;
+    } else if (choice.kind === 'attribute' && choice.key) {
+      next[index] = choice.key;
+    } else if (choice.kind === 'colorless' && choice.otherIndex != null && !next[choice.otherIndex]) {
       const pair = `colorless#${index}-${choice.otherIndex}`;
-      order[index] = pair;
-      order[choice.otherIndex] = pair;
+      next[index] = pair;
+      next[choice.otherIndex] = pair;
     } else return;
+    await this.actor.update(stoneOrderActorUpdate(sys, next));
+    this.render();
+  }
+
+  async #onGmUnblockStones(event?: { preventDefault?: () => void }): Promise<void> {
+    event?.preventDefault?.();
+    if (!(game as any).user?.isGM) return;
+    const confirmed = await Dialog.confirm({
+      title: 'Steine entblocken',
+      content: '<p>Alle Steine in den Attribut-Pools und die permanenten Colorless-Steine werden wieder <strong>Ready</strong>. Exhausted, Sustained, Sealed und Burned fällt weg. Die Zuweisung bleibt.</p>',
+    });
+    if (!confirmed) return;
+    const sys: any = (this.actor as any).system ?? {};
+    await this.actor.update(unblockStonePoolsUpdate(sys));
+    ui.notifications?.info('Steine sind wieder Ready.');
+    this.render();
+  }
+
+  async #onGmToggleStoneRedistribute(event?: { preventDefault?: () => void }): Promise<void> {
+    event?.preventDefault?.();
+    if (!(game as any).user?.isGM) return;
+    const on = (this.actor as any).getFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG) === true;
+    if (on) await (this.actor as any).unsetFlag('mastery-system', STONE_REDISTRIBUTE_FLAG);
+    else await (this.actor as any).setFlag('mastery-system', STONE_REDISTRIBUTE_FLAG, true);
+    this.render();
+  }
+
+  async #onGmReleaseAllStones(event?: { preventDefault?: () => void }): Promise<void> {
+    event?.preventDefault?.();
+    if (!(game as any).user?.isGM) return;
+    const confirmed = await Dialog.confirm({
+      title: 'Alle Steine lösen',
+      content: '<p>Alle zugewiesenen Steine werden frei. Lifetime XP bleibt. Die Felder können danach neu belegt werden.</p>',
+    });
+    if (!confirmed) return;
+    const sys: any = (this.actor as any).system ?? {};
+    const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
+    const order = releaseAllStoneSlots(stoneOrderForActor(sys, lifetime));
     await this.actor.update(stoneOrderActorUpdate(sys, order));
+    ui.notifications?.info('Steine sind frei und können neu verteilt werden.');
     this.render();
   }
 

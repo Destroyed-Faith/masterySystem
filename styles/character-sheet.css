@@ -12697,6 +12697,16 @@ aside#tooltip,
   background: rgba(125, 154, 106, 0.2);
 }
 
+.mastery-system.sheet.actor.character .v099-stone-slot.is-reassignable {
+  cursor: pointer;
+  border-style: dashed;
+}
+
+.mastery-system.sheet.actor.character .v099-redistribute-hint {
+  margin: 0.2rem 0 0.45rem;
+  font-size: 0.78rem;
+}
+
 .mastery-system.sheet.actor.character .v099-stone-mark {
   font-weight: 700;
   font-size: 0.68rem;

@@ -174,7 +174,15 @@ export function stoneOrderActorUpdate(system, order) {
         const current = Math.max(0, Math.floor(Number(pool.current) || 0));
         updates[`system.progression.stoneAssignments.${key}`] = next;
         updates[`system.stonePools.${key}.max`] = next;
-        updates[`system.stonePools.${key}.current`] = Math.max(0, Math.min(next, current + (next - prev[key])));
+        if (next === 0) {
+            updates[`system.stonePools.${key}.current`] = 0;
+            updates[`system.stonePools.${key}.sustained`] = 0;
+            updates[`system.stonePools.${key}.sealed`] = 0;
+            updates[`system.stonePools.${key}.burned`] = 0;
+        }
+        else {
+            updates[`system.stonePools.${key}.current`] = Math.max(0, Math.min(next, current + (next - prev[key])));
+        }
     }
     const prevColorless = permanentColorlessCount(system);
     if (progress.colorless !== prevColorless) {
@@ -182,7 +190,55 @@ export function stoneOrderActorUpdate(system, order) {
         const current = Math.max(0, Math.floor(Number(pool.current) || 0));
         updates['system.progression.permanentColorless'] = progress.colorless;
         updates['system.stonePools.colorless.max'] = progress.colorless;
-        updates['system.stonePools.colorless.current'] = Math.max(0, Math.min(progress.colorless, current + (progress.colorless - prevColorless)));
+        if (progress.colorless === 0) {
+            updates['system.stonePools.colorless.current'] = 0;
+            updates['system.stonePools.colorless.sustained'] = 0;
+            updates['system.stonePools.colorless.sealed'] = 0;
+            updates['system.stonePools.colorless.burned'] = 0;
+        }
+        else {
+            updates['system.stonePools.colorless.current'] = Math.max(0, Math.min(progress.colorless, current + (progress.colorless - prevColorless)));
+        }
+    }
+    return updates;
+}
+/** Drop one box. A Permanent Colorless pair drops both boxes. */
+export function releaseStoneSlot(order, index) {
+    const next = order.map((entry) => (entry == null || entry === '' ? null : String(entry)));
+    if (index < 0 || index >= next.length)
+        return next;
+    const current = next[index];
+    if (isColorlessSlot(current)) {
+        for (let i = 0; i < next.length; i += 1) {
+            if (next[i] === current)
+                next[i] = null;
+        }
+    }
+    else {
+        next[index] = null;
+    }
+    return next;
+}
+/** Every earned box becomes empty again. Lifetime XP is untouched. */
+export function releaseAllStoneSlots(order) {
+    return order.map(() => null);
+}
+/**
+ * GM unblock: Attribute pools and Permanent Colorless return to Ready.
+ * Assignment is unchanged. Exhausted, Sustained, Sealed and Burned are cleared.
+ */
+export function unblockStonePoolsUpdate(system) {
+    const updates = {};
+    const keys = [...ATTRIBUTE_KEYS, 'colorless'];
+    for (const key of keys) {
+        const pool = system?.stonePools?.[key];
+        if (!pool)
+            continue;
+        const max = Math.max(0, Math.floor(Number(pool.max) || 0));
+        updates[`system.stonePools.${key}.current`] = max;
+        updates[`system.stonePools.${key}.sustained`] = 0;
+        updates[`system.stonePools.${key}.sealed`] = 0;
+        updates[`system.stonePools.${key}.burned`] = 0;
     }
     return updates;
 }

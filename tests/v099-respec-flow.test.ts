@@ -6,9 +6,12 @@ import {
   emptyStoneSlotOrder,
   migrationStoneSlotLabel,
   planFinalAttributes,
+  releaseAllStoneSlots,
+  releaseStoneSlot,
   stoneOrderActorUpdate,
   stonePlacementOptions,
   tallyStoneSlotOrder,
+  unblockStonePoolsUpdate,
 } from '../src/progression/v099-respec-flow.js';
 
 const flat = (values: number[]) => ({
@@ -125,5 +128,45 @@ describe('Per-slot Stones', () => {
     expect(update['system.progression.stoneAssignments.agility']).toBe(1);
     expect(update['system.stonePools.might.current']).toBeUndefined();
     expect(update['system.stonePools.agility.current']).toBe(1);
+  });
+
+  it('releases one box, and both boxes of a Colorless pair', () => {
+    expect(releaseStoneSlot(['might', 'agility', null], 0)).toEqual([null, 'agility', null]);
+    const pair = ['colorless#0-2', 'might', 'colorless#0-2'];
+    expect(releaseStoneSlot(pair, 2)).toEqual([null, 'might', null]);
+    expect(releaseAllStoneSlots(pair)).toEqual([null, null, null]);
+  });
+
+  it('clears pool locks when the last Stone leaves an Attribute', () => {
+    const update = stoneOrderActorUpdate(
+      {
+        progression: { stoneAssignments: { might: 1 }, permanentColorless: 1 },
+        stonePools: {
+          might: { current: 0, max: 1, sustained: 1, sealed: 0, burned: 0 },
+          colorless: { current: 0, max: 1, sealed: 1, burned: 0, sustained: 0 },
+        },
+      },
+      [null, null],
+    );
+    expect(update['system.stonePools.might.max']).toBe(0);
+    expect(update['system.stonePools.might.current']).toBe(0);
+    expect(update['system.stonePools.might.sustained']).toBe(0);
+    expect(update['system.progression.permanentColorless']).toBe(0);
+    expect(update['system.stonePools.colorless.sealed']).toBe(0);
+  });
+
+  it('returns assigned pools to Ready without changing the assignment', () => {
+    const update = unblockStonePoolsUpdate({
+      stonePools: {
+        might: { current: 1, max: 4, sustained: 1, sealed: 1, burned: 1 },
+        colorless: { current: 0, max: 2, sustained: 0, sealed: 2, burned: 0 },
+      },
+    });
+    expect(update['system.stonePools.might.current']).toBe(4);
+    expect(update['system.stonePools.might.sealed']).toBe(0);
+    expect(update['system.stonePools.might.burned']).toBe(0);
+    expect(update['system.stonePools.colorless.current']).toBe(2);
+    expect(update['system.stonePools.colorless.sealed']).toBe(0);
+    expect(update['system.progression.stoneAssignments.might']).toBeUndefined();
   });
 });

@@ -147,6 +147,19 @@
         <button type="button" class="reset-character" title="Wipe this character back to creation (keeps name + portrait; earned XP returned to the player's pool). Destructive, requires double confirmation.">
           <i class="fas fa-trash-restore-alt"></i> Reset Character
         </button>
+        {{#if v099.usesStones}}
+        <button type="button" class="gm-unblock-stones" title="Alle Attribut- und permanenten Colorless-Steine wieder Ready. Zuweisung bleibt.">
+          <i class="fas fa-unlock"></i> Steine entblocken
+        </button>
+        <button type="button" class="gm-toggle-stone-redistribute" title="Belegte Stein-Felder zum Lösen und Neuverteilen freigeben.">
+          <i class="fas fa-arrows-rotate"></i> {{#if v099.stoneRedistribute}}Neuverteilung beenden{{else}}Steine neu verteilen{{/if}}
+        </button>
+        {{#if v099.stoneRedistribute}}
+        <button type="button" class="gm-release-all-stones" title="Alle Zuweisungen lösen. Lifetime XP bleibt. Die Felder werden neu belegt.">
+          <i class="fas fa-eraser"></i> Alle Steine lösen
+        </button>
+        {{/if}}
+        {{/if}}
       </div>
     </div>
     {{/if}}
@@ -172,11 +185,14 @@
       <span class="v099-lifetime-value">{{v099.lifetimeLabel}}</span>
       <span class="v099-lifetime-meta">{{v099.stoneSummary}}</span>
     </div>
+    {{#if v099.stoneRedistribute}}
+    <p class="v099-redistribute-hint">Steine sind zur Neuverteilung frei. Ein belegtes Feld anklicken, lösen oder anders zuweisen.</p>
+    {{/if}}
     <div class="v099-stone-grid" style="--v099-line-slots: {{v099.lineSlots}};">
       {{#each v099.rows}}
       <div class="v099-stone-row">
         {{#each this}}
-        <button type="button" class="v099-stone-slot{{#if unlocked}} is-unlocked{{else}} is-locked{{/if}}{{#if assigned}} is-assigned{{else}}{{#if unlocked}} is-open{{/if}}{{/if}}" data-action="v099-assign-stone" data-slot-index="{{this.index}}" {{#unless canAssign}}disabled{{/unless}} title="{{label}}">
+        <button type="button" class="v099-stone-slot{{#if unlocked}} is-unlocked{{else}} is-locked{{/if}}{{#if assigned}} is-assigned{{else}}{{#if unlocked}} is-open{{/if}}{{/if}}{{#if canReassign}} is-reassignable{{/if}}" data-action="v099-assign-stone" data-slot-index="{{this.index}}" {{#unless (or canAssign canReassign)}}disabled{{/unless}} title="{{label}}">
           <span class="v099-stone-mark">{{#if assigned}}{{abbrev}}{{else}}{{#if unlocked}}+{{/if}}{{/if}}</span>
           <span class="v099-stone-threshold">{{label}}</span>
         </button>

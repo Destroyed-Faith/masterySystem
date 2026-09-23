@@ -10,6 +10,8 @@ import { earnedAttributeXpInvestment, deriveLifetimeXp, readAttributeValues, V09
 export const V099_PREPARED_FLAG = 'v099CorePrepared';
 export const V099_RESPEC_FLAG = 'needsV099Respec';
 export const V099_LIFETIME_FLAG = 'needsV099LifetimeXp';
+/** GM opened this character's assigned Stones so they can be cleared and placed again. */
+export const STONE_REDISTRIBUTE_FLAG = 'stoneRedistribute';
 
 export interface V099PrepareResult {
   changed: boolean;

@@ -7,6 +7,8 @@
 export declare const V099_PREPARED_FLAG = "v099CorePrepared";
 export declare const V099_RESPEC_FLAG = "needsV099Respec";
 export declare const V099_LIFETIME_FLAG = "needsV099LifetimeXp";
+/** GM opened this character's assigned Stones so they can be cleared and placed again. */
+export declare const STONE_REDISTRIBUTE_FLAG = "stoneRedistribute";
 export interface V099PrepareResult {
     changed: boolean;
     alreadyPrepared: boolean;
