@@ -174,11 +174,17 @@ export function permanentStonesFromLifetimeXp(lifetimeXp: number): number {
   return 2 + Math.floor(xp / 20);
 }
 
-/** MR × 2. Resolve Mastery Rank from the stone total first. */
+/**
+ * MR × 2 Stones on one Attribute.
+ *
+ * Mastery Rank for this limit is the rank earned by Mastery Stone Value
+ * (2 + floor(Lifetime XP / 20)). A higher rank stored on the sheet does not
+ * raise it: MR2 stays at 4 until the stone total itself reaches the next
+ * bracket. `storedRank` remains in the signature for existing callers.
+ */
 export function stoneConcentrationCap(totalPermanentStones: number, storedRank = 1): number {
-  const derived = deriveMasteryRankFromStones(totalPermanentStones);
-  const stored = Math.max(1, Math.floor(Number(storedRank) || 1));
-  return Math.max(derived, stored) * 2;
+  void storedRank;
+  return deriveMasteryRankFromStones(totalPermanentStones) * 2;
 }
 
 export function emptyAssignments(): Record<AttributeKeyName, number> {

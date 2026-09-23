@@ -15,6 +15,7 @@ import {
   permanentStonesFromLifetimeXp,
   rollGuaranteedEightChain,
   startingPackageIsValid,
+  stoneConcentrationCap,
 } from '../src/progression/v099-rules.js';
 import { planV099Migration, v099PrepareUpdate } from '../src/progression/v099-migration.js';
 import { planV099Respec, v099RespecUpdate } from '../src/progression/v099-respec.js';
@@ -139,6 +140,29 @@ describe('v0.9.9 Lifetime XP and Stones', () => {
     expect(raised.ok).toBe(true);
     expect(raised.masteryRank).toBe(3);
     expect(raised.cap).toBe(6);
+  });
+
+  it('does not let a stored Mastery Rank above the stone total raise the cap', () => {
+    expect(permanentStonesFromLifetimeXp(200)).toBe(12);
+    expect(stoneConcentrationCap(12, 8)).toBe(6);
+    expect(stoneConcentrationCap(12, 2)).toBe(6);
+    expect(stoneConcentrationCap(7, 8)).toBe(4);
+    const atTwoHundredXp = canPlacePermanentStone({
+      attribute: 'might',
+      assignments: flat([7, 0, 0, 0, 0, 0, 0]),
+      totalPermanent: 12,
+      storedRank: 8,
+    });
+    expect(atTwoHundredXp.ok).toBe(false);
+    expect(atTwoHundredXp.cap).toBe(6);
+    const stillAdept = canPlacePermanentStone({
+      attribute: 'might',
+      assignments: flat([4, 2, 0, 0, 0, 0, 0]),
+      totalPermanent: 7,
+      storedRank: 8,
+    });
+    expect(stillAdept.ok).toBe(false);
+    expect(stillAdept.cap).toBe(4);
   });
 
   it('reassigns migrated Stones from Lifetime XP instead of the old pools', () => {

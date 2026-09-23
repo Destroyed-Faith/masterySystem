@@ -3227,7 +3227,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /**
      * Max Power Level a character of the actor's MR may purchase.
-     * MR 1–2 → 4, MR 3 → 8, MR 4 → 12, MR 5+ → 16.
+     * Maximum Power Level = Mastery Rank × 2 (MR 1 → 2 … MR 8 → 16).
      */
     #getMaxPurchasablePowerLevel() {
         const mr = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1));
@@ -3550,7 +3550,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const levelCap = this.#getMaxPurchasablePowerLevel();
         if (effectiveLevel >= levelCap) {
             console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { effectiveLevel, levelCap });
-            ui.notifications?.warn(`This power cannot exceed your current maximum (level ${levelCap}; MR 1-2 cap 4, MR 3 cap 8, MR 4 cap 12, MR 5+ cap 16).`);
+            ui.notifications?.warn(`This power cannot exceed your current maximum (level ${levelCap}; Maximum Power Level = Mastery Rank × 2).`);
             return;
         }
         /**

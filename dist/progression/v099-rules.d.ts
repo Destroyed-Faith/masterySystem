@@ -47,7 +47,14 @@ export declare function deriveLifetimeXp(system: any): LifetimeXpDerivation;
 export declare function nextLifetimeXp(system: any, amount: number): number | null;
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export declare function permanentStonesFromLifetimeXp(lifetimeXp: number): number;
-/** MR × 2. Resolve Mastery Rank from the stone total first. */
+/**
+ * MR × 2 Stones on one Attribute.
+ *
+ * Mastery Rank for this limit is the rank earned by Mastery Stone Value
+ * (2 + floor(Lifetime XP / 20)). A higher rank stored on the sheet does not
+ * raise it: MR2 stays at 4 until the stone total itself reaches the next
+ * bracket. `storedRank` remains in the signature for existing callers.
+ */
 export declare function stoneConcentrationCap(totalPermanentStones: number, storedRank?: number): number;
 export declare function emptyAssignments(): Record<AttributeKeyName, number>;
 export declare function readAssignments(source: any): Record<AttributeKeyName, number>;
