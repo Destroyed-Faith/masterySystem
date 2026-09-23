@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.563] - 2026-09-23
+
 ### Changed
 
 - **Initiative-Colorless-Steine (finales Players-Guide-Modell):** Aus Initiative Exchange gewonnene Colorless-Steine sind keine Einweg-Steine mehr. Sie gehören für die Dauer des Kampfes zum Colorless-Pool, werden beim Ausgeben Exhausted statt zu verschwinden und können über die normale Stein-Regeneration am Rundenende zurückkehren. Bei Kampfende verschwinden sie vollständig — egal ob Ready oder Exhausted.
