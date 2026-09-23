@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Stone Powers:** Der Namensbereich unter den Steinen ist nur noch so hoch wie der Text. Die Karten bleiben kompakt.
+
 ## [0.9.566] - 2026-09-23
 
 ### Added

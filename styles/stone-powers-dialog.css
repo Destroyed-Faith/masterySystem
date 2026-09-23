@@ -1097,7 +1097,8 @@
   grid-auto-rows: auto;
   gap: 0.35rem 0.4rem;
   padding: 0.2rem 0.22rem 0.28rem;
-  align-items: stretch;
+  align-items: start;
+  align-content: start;
 }
 
 .stone-powers-dialog .power-card-general {
@@ -1392,6 +1393,15 @@
   justify-content: flex-start;
   flex: 1 1 12rem;
   min-width: 0;
+}
+
+/* General cards: the shared 12rem title basis left a tall empty band under the stones. */
+.stone-powers-dialog .power-card-general > .power-title.power-title-general {
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  margin-top: 0.05rem;
 }
 
 .stone-powers-dialog .power-name {
