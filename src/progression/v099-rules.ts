@@ -42,7 +42,8 @@ export const NEW_STARTING_PACKAGE = [4, 4, 3, 3, 2, 2, 2] as const;
 export const NEW_STARTING_COUNTS: Record<number, number> = { 4: 2, 3: 2, 2: 3 };
 
 export const STONE_ABILITY_MAX_TIER = 4;
-export const PRINT_LIFETIME_XP_SPAN = 400;
+/** First Lifetime XP line on the sheet and the print. Further XP continues on the next line. */
+export const PRINT_LIFETIME_XP_SPAN = 660;
 
 /** Old Attribute step cost to reach `nextValue` (1–80 bands of 8). */
 export function oldAttributeStepCost(nextValue: number): number {
@@ -388,8 +389,23 @@ export function buildStoneProgressionSlots(
 
 export function chunkSlots<T>(slots: T[], size: number): T[][] {
   const rows: T[][] = [];
-  for (let i = 0; i < slots.length; i += size) rows.push(slots.slice(i, i + size));
+  const step = Math.max(1, Math.floor(size));
+  for (let i = 0; i < slots.length; i += step) rows.push(slots.slice(i, i + step));
   return rows;
+}
+
+/** Boxes on one Lifetime XP line: two Start Stones, then one box every 20 XP through `span`. */
+export function lifetimeLineSlotCount(span = PRINT_LIFETIME_XP_SPAN): number {
+  const xp = Math.max(0, Math.floor(Number(span) || 0));
+  return 2 + Math.floor(xp / 20);
+}
+
+/**
+ * First line runs through 660 Lifetime XP. XP past that adds boxes on the
+ * next line; a full line starts another one instead of reshuffling the first.
+ */
+export function chunkLifetimeSlots<T>(slots: T[], lineSize = lifetimeLineSlotCount()): T[][] {
+  return chunkSlots(slots, lineSize);
 }
 
 /** v0.9.9 characters store assignments. Older actors still derive Stones from Attributes until respec. */

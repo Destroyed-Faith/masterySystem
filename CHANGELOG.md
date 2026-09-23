@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Lifetime-XP-Zeile:** Der Bogen und der Ausdruck zeigen die Stein-Felder bis 660 Lifetime XP in einer Zeile. Mehr XP hängt weitere Felder an die nächste Zeile; eine volle Zeile beginnt eine weitere, die erste Zeile bleibt bis 660.
+
 ### Fixed
 
 - **Steine pro Attribut:** Das Limit ist die doppelte Mastery Rank aus dem Mastery Stone Value (MR 1–8 → 2/4/6/8/10/12/14/16). Ein höherer Rang, der nur auf dem Bogen steht, hebt die Obergrenze nicht mehr an. Bei 200 Lifetime XP (12 Steine, MR 3) sind das 6 Steine pro Attribut, nicht 8.

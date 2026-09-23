@@ -13,6 +13,8 @@ import {
   maxStoneCommitment,
   passiveSkillValue,
   permanentStonesFromLifetimeXp,
+  chunkLifetimeSlots,
+  lifetimeLineSlotCount,
   rollGuaranteedEightChain,
   startingPackageIsValid,
   stoneConcentrationCap,
@@ -330,6 +332,16 @@ describe('Martial Damage and Tier 4 cap', () => {
     expect(slots[2].label).toBe('20');
     expect(slots[0].abbrev).toBe('MIG');
     expect(slots.filter((slot) => slot.unlocked)).toHaveLength(3);
-    expect(slots.length).toBeGreaterThanOrEqual(22);
+    expect(slots).toHaveLength(lifetimeLineSlotCount());
+    expect(slots.at(-1)?.label).toBe('660');
+    expect(chunkLifetimeSlots(slots)).toHaveLength(1);
+  });
+
+  it('continues Lifetime XP past 660 on the next line', () => {
+    const slots = buildStoneProgressionSlots(700, {});
+    const rows = chunkLifetimeSlots(slots);
+    expect(rows[0]?.at(-1)?.label).toBe('660');
+    expect(rows[1]?.map((slot) => slot.label)).toEqual(['680', '700']);
+    expect(rows[1]?.every((slot) => slot.unlocked)).toBe(true);
   });
 });

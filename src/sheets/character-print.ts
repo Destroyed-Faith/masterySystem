@@ -17,7 +17,8 @@
 import { calculateBaseEvade, calculateMaxSkillRank, isHealthBarScarred } from '../utils/calculations.js';
 import {
   buildStoneProgressionSlots,
-  chunkSlots,
+  chunkLifetimeSlots,
+  lifetimeLineSlotCount,
   deriveLifetimeXp,
   permanentColorlessCount,
   readAssignments,
@@ -1487,11 +1488,12 @@ function buildPrintLifetimeProgression(system: any) {
       ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
       : slot,
   );
-  const rowSize = Math.max(1, Math.ceil(slots.length / 2));
+  const lineSlots = lifetimeLineSlotCount();
   return {
     lifetimeLabel: lifetimeXp == null ? '' : String(lifetimeXp),
     unknown: lifetimeXp == null,
-    rows: chunkSlots(slots, rowSize),
+    lineSlots,
+    rows: chunkLifetimeSlots(slots, lineSlots),
   };
 }
 

@@ -4257,24 +4257,25 @@ body.mastery-print.is-dark:not(.is-compact) {
 }
 
 .mastery-print .cp-lifetime-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 1.2mm;
+  display: grid;
+  grid-template-columns: repeat(var(--cp-line-slots, 35), minmax(0, 1fr));
+  gap: 0.8mm;
   margin-bottom: 1.2mm;
 }
 
 .mastery-print .cp-lifetime-cell {
-  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6mm;
+  gap: 0.4mm;
 }
 
 .mastery-print .cp-lifetime-box {
-  width: 9mm;
-  height: 9mm;
+  width: 100%;
+  max-width: 9mm;
+  aspect-ratio: 1;
+  height: auto;
   border: 0.4mm solid #1a1a1a;
   display: flex;
   align-items: center;
@@ -4285,7 +4286,9 @@ body.mastery-print.is-dark:not(.is-compact) {
 }
 
 .mastery-print .cp-lifetime-mark {
-  font-size: 7px;
+  font-size: 5.5px;
   line-height: 1;
   text-align: center;
+  max-width: 100%;
+  overflow: hidden;
 }

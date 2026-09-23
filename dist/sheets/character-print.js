@@ -14,7 +14,7 @@
  * "may be used once per round".
  */
 import { calculateBaseEvade, isHealthBarScarred } from '../utils/calculations.js';
-import { buildStoneProgressionSlots, chunkSlots, deriveLifetimeXp, permanentColorlessCount, readAssignments, usesV099Stones, } from '../progression/v099-rules.js';
+import { buildStoneProgressionSlots, chunkLifetimeSlots, lifetimeLineSlotCount, deriveLifetimeXp, permanentColorlessCount, readAssignments, usesV099Stones, } from '../progression/v099-rules.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
@@ -1328,11 +1328,12 @@ function buildPrintLifetimeProgression(system) {
     const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder).map((slot) => lifetimeXp == null
         ? { ...slot, unlocked: false, assigned: false, attribute: null, abbrev: '' }
         : slot);
-    const rowSize = Math.max(1, Math.ceil(slots.length / 2));
+    const lineSlots = lifetimeLineSlotCount();
     return {
         lifetimeLabel: lifetimeXp == null ? '' : String(lifetimeXp),
         unknown: lifetimeXp == null,
-        rows: chunkSlots(slots, rowSize),
+        lineSlots,
+        rows: chunkLifetimeSlots(slots, lineSlots),
     };
 }
 /** Resolve a Foundry-routed URL (respects a configured route prefix). */

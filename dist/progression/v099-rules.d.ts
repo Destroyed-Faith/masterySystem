@@ -15,7 +15,8 @@ export declare const OLD_STARTING_ATTRIBUTE_XP = 38;
 export declare const NEW_STARTING_PACKAGE: readonly [4, 4, 3, 3, 2, 2, 2];
 export declare const NEW_STARTING_COUNTS: Record<number, number>;
 export declare const STONE_ABILITY_MAX_TIER = 4;
-export declare const PRINT_LIFETIME_XP_SPAN = 400;
+/** First Lifetime XP line on the sheet and the print. Further XP continues on the next line. */
+export declare const PRINT_LIFETIME_XP_SPAN = 660;
 /** Old Attribute step cost to reach `nextValue` (1–80 bands of 8). */
 export declare function oldAttributeStepCost(nextValue: number): number;
 /** Cumulative old-table XP to raise one Attribute from 0 to `value`. */
@@ -117,6 +118,13 @@ export interface StoneProgressSlot {
 }
 export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number, permanentColorless?: number, slotOrder?: readonly (string | null)[] | null): StoneProgressSlot[];
 export declare function chunkSlots<T>(slots: T[], size: number): T[][];
+/** Boxes on one Lifetime XP line: two Start Stones, then one box every 20 XP through `span`. */
+export declare function lifetimeLineSlotCount(span?: number): number;
+/**
+ * First line runs through 660 Lifetime XP. XP past that adds boxes on the
+ * next line; a full line starts another one instead of reshuffling the first.
+ */
+export declare function chunkLifetimeSlots<T>(slots: T[], lineSize?: number): T[][];
 /** v0.9.9 characters store assignments. Older actors still derive Stones from Attributes until respec. */
 export declare function usesV099Stones(system: any): boolean;
 export declare function resolvedStonePoolMax(system: any, attr: string, attributeValue: number): number;

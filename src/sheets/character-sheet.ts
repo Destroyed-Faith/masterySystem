@@ -124,6 +124,8 @@ import { XP_COSTS, attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBU
 import {
   ATTRIBUTE_KEYS,
   buildStoneProgressionSlots,
+  chunkLifetimeSlots,
+  lifetimeLineSlotCount,
   permanentColorlessCap,
   permanentColorlessCount,
   permanentStonesFromLifetimeXp,
@@ -1489,6 +1491,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(rank)})` : '') +
             ` · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
         slots,
+        rows: chunkLifetimeSlots(slots),
+        lineSlots: lifetimeLineSlotCount(),
       };
     }
 

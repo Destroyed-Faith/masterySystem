@@ -41,7 +41,7 @@ import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlo
 import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, listEquipmentWeaponSetChoices, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
 import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants.js';
-import { buildStoneProgressionSlots, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
+import { buildStoneProgressionSlots, chunkLifetimeSlots, lifetimeLineSlotCount, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
 import { V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
 import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
 import { migrationStoneSlotLabel, stoneOrderActorUpdate, stoneOrderForActor, stonePlacementOptions, stoneSlotProgress, } from '../progression/v099-respec-flow.js';
@@ -1312,6 +1312,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(rank)})` : '') +
                         ` · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
                 slots,
+                rows: chunkLifetimeSlots(slots),
+                lineSlots: lifetimeLineSlotCount(),
             };
         }
         // Ensure context is always an object
