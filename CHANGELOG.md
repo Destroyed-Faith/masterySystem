@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.562] - 2026-09-23
+
+### Changed
+
+- **Release:** Das Vier-Rank-Steinmodell aus 0.9.561 wird als Foundry-Release veröffentlicht. Jede Stone Ability hat Rank 1–4. Normale Kosten 1/2/4/8 (gesamt 1/3/7/15). Premium (Extra Attack, Parry, Crit, Damage Negation, Spell Action, Damage Reduction, Not a Target, Phasing) kostet 2/4/6/8 (gesamt 20). Stone Power Support füllt genau den benannten Rank; niedrigere Ranks werden normal bezahlt. Zwei nicht zugewiesene permanente Steine werden zu einem permanenten Colorless-Stein (Maximum = Mastery Rank).
+
 ## [0.9.561] - 2026-09-23
 
 ### Changed
