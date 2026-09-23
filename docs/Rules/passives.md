@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Passives
-Version: v0.9.8.1 (2026-08-30)
+Version: v0.9.9.0 (2026-09-22)
 }}
 
 }}
@@ -426,25 +426,25 @@ This is the only accepted Damage Reduction passive. If a build wants Damage Redu
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Unconditional Evade = 10 PP per +1 Evade<br><br>
+      Unconditional Evade = 20 PP per +1 Evade<br><br>
       CALCULATION<br>
-      L1 → +2 Evade = 20 PP<br>
-      L2 → +4 Evade = 40 PP<br>
-      L3 → +6 Evade = 60 PP<br>
-      L4 → +8 Evade = 80 PP<br>
-      L5 → +10 Evade = 100 PP<br>
-      L6 → +12 Evade = 120 PP<br>
-      L7 → +14 Evade = 140 PP<br>
-      L8 → +16 Evade = 160 PP<br>
-      L9 → +18 Evade = 180 PP<br>
-      L10 → +20 Evade = 200 PP<br>
-      L11 → +22 Evade = 220 PP<br>
-      L12 → +24 Evade = 240 PP<br>
-      L13 → +26 Evade = 260 PP<br>
-      L14 → +28 Evade = 280 PP<br>
-      L15 → +30 Evade = 300 PP<br>
-      L16 → +32 Evade = 320 PP<br><br>
-      NOTES — Pure unconditional Evade passive. Because it is always active, Evade uses the doubled unconditional price. No Armor, no Damage Reduction, no Temporary HP, no Healing, no Phasing.
+      L1 → +1 Evade = 20 PP<br>
+      L2 → +2 Evade = 40 PP<br>
+      L3 → +3 Evade = 60 PP<br>
+      L4 → +4 Evade = 80 PP<br>
+      L5 → +5 Evade = 100 PP<br>
+      L6 → +6 Evade = 120 PP<br>
+      L7 → +7 Evade = 140 PP<br>
+      L8 → +8 Evade = 160 PP<br>
+      L9 → +9 Evade = 180 PP<br>
+      L10 → +10 Evade = 200 PP<br>
+      L11 → +11 Evade = 220 PP<br>
+      L12 → +12 Evade = 240 PP<br>
+      L13 → +13 Evade = 260 PP<br>
+      L14 → +14 Evade = 280 PP<br>
+      L15 → +15 Evade = 300 PP<br>
+      L16 → +16 Evade = 320 PP<br><br>
+      NOTES — Pure unconditional Evade passive. Evade uses the fixed premium unconditional price. No Armor, no Damage Reduction, no Temporary HP, no Healing, no Phasing.
     </span>
   </span>
 </h3>
@@ -453,75 +453,60 @@ You are not faster in one moment. You are harder to catch in every moment.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Evade | Self | — | Permanent | Gain **+2 Evade**. |
-| **2** | Passive, Evade | Self | — | Permanent | Gain **+4 Evade**. |
-| **3** | Passive, Evade | Self | — | Permanent | Gain **+6 Evade**. |
-| **4** | Passive, Evade | Self | — | Permanent | Gain **+8 Evade**. |
-| **5** | Passive, Evade | Self | — | Permanent | Gain **+10 Evade**. |
-| **6** | Passive, Evade | Self | — | Permanent | Gain **+12 Evade**. |
-| **7** | Passive, Evade | Self | — | Permanent | Gain **+14 Evade**. |
-| **8** | Passive, Evade | Self | — | Permanent | Gain **+16 Evade**. |
-| **9** | Passive, Evade | Self | — | Permanent | Gain **+18 Evade**. |
-| **10** | Passive, Evade | Self | — | Permanent | Gain **+20 Evade**. |
-| **11** | Passive, Evade | Self | — | Permanent | Gain **+22 Evade**. |
-| **12** | Passive, Evade | Self | — | Permanent | Gain **+24 Evade**. |
-| **13** | Passive, Evade | Self | — | Permanent | Gain **+26 Evade**. |
-| **14** | Passive, Evade | Self | — | Permanent | Gain **+28 Evade**. |
-| **15** | Passive, Evade | Self | — | Permanent | Gain **+30 Evade**. |
-| **16** | Passive, Evade | Self | — | Permanent | Gain **+32 Evade**. |
+| **1** | Passive, Evade | Self | — | Permanent | Gain **+1 Evade**. |
+| **2** | Passive, Evade | Self | — | Permanent | Gain **+2 Evade**. |
+| **3** | Passive, Evade | Self | — | Permanent | Gain **+3 Evade**. |
+| **4** | Passive, Evade | Self | — | Permanent | Gain **+4 Evade**. |
+| **5** | Passive, Evade | Self | — | Permanent | Gain **+5 Evade**. |
+| **6** | Passive, Evade | Self | — | Permanent | Gain **+6 Evade**. |
+| **7** | Passive, Evade | Self | — | Permanent | Gain **+7 Evade**. |
+| **8** | Passive, Evade | Self | — | Permanent | Gain **+8 Evade**. |
+| **9** | Passive, Evade | Self | — | Permanent | Gain **+9 Evade**. |
+| **10** | Passive, Evade | Self | — | Permanent | Gain **+10 Evade**. |
+| **11** | Passive, Evade | Self | — | Permanent | Gain **+11 Evade**. |
+| **12** | Passive, Evade | Self | — | Permanent | Gain **+12 Evade**. |
+| **13** | Passive, Evade | Self | — | Permanent | Gain **+13 Evade**. |
+| **14** | Passive, Evade | Self | — | Permanent | Gain **+14 Evade**. |
+| **15** | Passive, Evade | Self | — | Permanent | Gain **+15 Evade**. |
+| **16** | Passive, Evade | Self | — | Permanent | Gain **+16 Evade**. |
 
 ---
 
-<h3 id="passive-temporary-hp">
-  Passive: Temporary HP
+<h3 id="passive-evade-temporary-hp">
+  Passive: Evade + Temporary HP
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Start-of-Combat Temporary HP = 2 PP per HP<br><br>
+      Combined Passive = two half-budget axes<br>
+      Evade Half = 20 PP per +1 Evade<br>
+      Temporary HP Half = 2 PP per Temporary HP<br><br>
       CALCULATION<br>
-      L1 → 10 Temporary HP = 20 PP<br>
-      L2 → 20 Temporary HP = 40 PP<br>
-      L3 → 30 Temporary HP = 60 PP<br>
-      L4 → 40 Temporary HP = 80 PP<br>
-      L5 → 50 Temporary HP = 100 PP<br>
-      L6 → 60 Temporary HP = 120 PP<br>
-      L7 → 70 Temporary HP = 140 PP<br>
-      L8 → 80 Temporary HP = 160 PP<br>
-      L9 → 90 Temporary HP = 180 PP<br>
-      L10 → 100 Temporary HP = 200 PP<br>
-      L11 → 110 Temporary HP = 220 PP<br>
-      L12 → 120 Temporary HP = 240 PP<br>
-      L13 → 130 Temporary HP = 260 PP<br>
-      L14 → 140 Temporary HP = 280 PP<br>
-      L15 → 150 Temporary HP = 300 PP<br>
-      L16 → 160 Temporary HP = 320 PP<br><br>
-      NOTES — This passive grants Temporary HP once at the start of combat only. It does not refresh or rebuild during the fight.
+      Each level combines the listed Evade value with the listed start-of-combat Temporary HP value.<br>
+      Evade PP + Temporary HP PP should approximately match the Passive Curve target.<br><br>
+      NOTES — Counts as both Evade and Temporary HP. No Armor, no Damage Reduction, no Healing, no Phasing.
     </span>
   </span>
 </h3>
 
-A reserve layer of protection that exists only at the moment battle begins.
-
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **10 Temporary HP**. |
-| **2** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **20 Temporary HP**. |
-| **3** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **30 Temporary HP**. |
-| **4** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **40 Temporary HP**. |
-| **5** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **50 Temporary HP**. |
-| **6** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **60 Temporary HP**. |
-| **7** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **70 Temporary HP**. |
-| **8** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **80 Temporary HP**. |
-| **9** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **90 Temporary HP**. |
-| **10** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **100 Temporary HP**. |
-| **11** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **110 Temporary HP**. |
-| **12** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **120 Temporary HP**. |
-| **13** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **130 Temporary HP**. |
-| **14** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **140 Temporary HP**. |
-| **15** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **150 Temporary HP**. |
-| **16** | Passive, Temporary HP | Self | — | Start of Combat | At the start of combat, gain **160 Temporary HP**. |
-
+| **1** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
+| **2** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **10 Temporary HP**. |
+| **3** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **15 Temporary HP**. |
+| **4** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **20 Temporary HP**. |
+| **5** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **25 Temporary HP**. |
+| **6** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **30 Temporary HP**. |
+| **7** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **35 Temporary HP**. |
+| **8** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **40 Temporary HP**. |
+| **9** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **45 Temporary HP**. |
+| **10** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **50 Temporary HP**. |
+| **11** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **55 Temporary HP**. |
+| **12** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **60 Temporary HP**. |
+| **13** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **65 Temporary HP**. |
+| **14** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **70 Temporary HP**. |
+| **15** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **75 Temporary HP**. |
+| **16** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Evade**. At the start of combat, gain **80 Temporary HP**. |
 }}
 
 \page
@@ -857,7 +842,7 @@ A single enemy can test you. A crowd only gives you something to brace against.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Evade = 5 PP per +1 Evade<br><br>
+      Conditional Evade = 15 PP per +1 Evade<br><br>
       CONDITION<br>
       This Evade applies only after you move at least 8 m on your turn.<br><br>
       NOTES — Conditional Evade passive. Requires a full movement commitment. No Armor, no Healing, no Damage Reduction, no Phasing.
@@ -869,22 +854,22 @@ You are safest when you refuse to become a fixed point.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. |
-| **2** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. |
-| **3** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+12 Evade** until the start of your next turn. |
-| **4** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+16 Evade** until the start of your next turn. |
-| **5** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+20 Evade** until the start of your next turn. |
-| **6** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+24 Evade** until the start of your next turn. |
-| **7** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+28 Evade** until the start of your next turn. |
-| **8** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+32 Evade** until the start of your next turn. |
-| **9** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+36 Evade** until the start of your next turn. |
-| **10** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+40 Evade** until the start of your next turn. |
-| **11** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+44 Evade** until the start of your next turn. |
-| **12** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+48 Evade** until the start of your next turn. |
-| **13** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+52 Evade** until the start of your next turn. |
-| **14** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+56 Evade** until the start of your next turn. |
-| **15** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+60 Evade** until the start of your next turn. |
-| **16** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+64 Evade** until the start of your next turn. |
+| **1** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+1 Evade** until the start of your next turn. |
+| **2** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+3 Evade** until the start of your next turn. |
+| **3** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. |
+| **4** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+5 Evade** until the start of your next turn. |
+| **5** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+7 Evade** until the start of your next turn. |
+| **6** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. |
+| **7** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+9 Evade** until the start of your next turn. |
+| **8** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+11 Evade** until the start of your next turn. |
+| **9** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+12 Evade** until the start of your next turn. |
+| **10** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+13 Evade** until the start of your next turn. |
+| **11** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+15 Evade** until the start of your next turn. |
+| **12** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+16 Evade** until the start of your next turn. |
+| **13** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+17 Evade** until the start of your next turn. |
+| **14** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+19 Evade** until the start of your next turn. |
+| **15** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+20 Evade** until the start of your next turn. |
+| **16** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+21 Evade** until the start of your next turn. |
 
 ---
 
@@ -894,7 +879,7 @@ You are safest when you refuse to become a fixed point.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Evade = 5 PP per +1 Evade<br><br>
+      Conditional Evade = 15 PP per +1 Evade<br><br>
       CONDITION<br>
       This Evade applies only while exactly one enemy is adjacent to you.<br><br>
       NOTES — Conditional Evade passive. Strong in duels, weak against groups and ranged pressure.
@@ -906,22 +891,22 @@ You do not dodge the battlefield. You reduce it to a duel.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+4 Evade**. |
-| **2** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+8 Evade**. |
-| **3** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+12 Evade**. |
-| **4** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+16 Evade**. |
-| **5** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+20 Evade**. |
-| **6** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+24 Evade**. |
-| **7** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+28 Evade**. |
-| **8** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+32 Evade**. |
-| **9** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+36 Evade**. |
-| **10** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+40 Evade**. |
-| **11** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+44 Evade**. |
-| **12** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+48 Evade**. |
-| **13** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+52 Evade**. |
-| **14** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+56 Evade**. |
-| **15** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+60 Evade**. |
-| **16** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+64 Evade**. |
+| **1** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+1 Evade**. |
+| **2** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+3 Evade**. |
+| **3** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+4 Evade**. |
+| **4** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+5 Evade**. |
+| **5** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+7 Evade**. |
+| **6** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+8 Evade**. |
+| **7** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+9 Evade**. |
+| **8** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+11 Evade**. |
+| **9** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+12 Evade**. |
+| **10** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+13 Evade**. |
+| **11** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+15 Evade**. |
+| **12** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+16 Evade**. |
+| **13** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+17 Evade**. |
+| **14** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+19 Evade**. |
+| **15** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+20 Evade**. |
+| **16** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+21 Evade**. |
 }}
 
 \page
@@ -1447,7 +1432,7 @@ Combined Passives may not use:
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Combined Passive = two half-budget axes<br>
-      Evade Half = 10 PP per +1 Evade<br>
+      Evade Half = 20 PP per +1 Evade<br>
       Healing Half = 8 PP per HP healed<br><br>
       CALCULATION<br>
       Each level combines the listed Evade value with the listed start-of-turn Healing value.<br>
@@ -1459,22 +1444,22 @@ Combined Passives may not use:
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade + Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Evade + Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Evade + Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Evade + Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Evade + Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Evade + Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Evade + Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Evade + Healing | Self | — | Permanent | Gain **+8 Evade**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Evade + Healing | Self | — | Permanent | Gain **+9 Evade**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Evade + Healing | Self | — | Permanent | Gain **+10 Evade**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Evade + Healing | Self | — | Permanent | Gain **+11 Evade**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Evade + Healing | Self | — | Permanent | Gain **+12 Evade**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Evade + Healing | Self | — | Permanent | Gain **+13 Evade**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Evade + Healing | Self | — | Permanent | Gain **+14 Evade**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Evade + Healing | Self | — | Permanent | Gain **+15 Evade**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Evade + Healing | Self | — | Permanent | Gain **+16 Evade**. At the start of your turn, heal **20 HP**. |
+| **1** | Passive: Evade + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
+| **2** | Passive: Evade + Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **2 HP**. |
+| **3** | Passive: Evade + Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **3 HP**. |
+| **4** | Passive: Evade + Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **5 HP**. |
+| **5** | Passive: Evade + Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **6 HP**. |
+| **6** | Passive: Evade + Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **7 HP**. |
+| **7** | Passive: Evade + Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **8 HP**. |
+| **8** | Passive: Evade + Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **10 HP**. |
+| **9** | Passive: Evade + Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **11 HP**. |
+| **10** | Passive: Evade + Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **12 HP**. |
+| **11** | Passive: Evade + Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **13 HP**. |
+| **12** | Passive: Evade + Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **15 HP**. |
+| **13** | Passive: Evade + Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **16 HP**. |
+| **14** | Passive: Evade + Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **17 HP**. |
+| **15** | Passive: Evade + Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **18 HP**. |
+| **16** | Passive: Evade + Healing | Self | — | Permanent | Gain **+8 Evade**. At the start of your turn, heal **20 HP**. |
 
 ---
 
@@ -1485,7 +1470,7 @@ Combined Passives may not use:
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Combined Passive = two half-budget axes<br>
-      Evade Half = 10 PP per +1 Evade<br>
+      Evade Half = 20 PP per +1 Evade<br>
       Damage Half = 40 PP per +1d8 Damage<br><br>
       CALCULATION<br>
       Each level combines the listed Evade value with the listed Damage value.<br>
@@ -1498,21 +1483,21 @@ Combined Passives may not use:
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
 | **1** | Passive: Evade + Damage | Self | — | Permanent | Gain **+1 Evade**. |
-| **2** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade**. |
-| **3** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade**. |
-| **4** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **5** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **6** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **7** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **8** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **9** | Passive: Evade + Damage | Self | — | Permanent | Gain **+9 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **10** | Passive: Evade + Damage | Self | — | Permanent | Gain **+10 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **11** | Passive: Evade + Damage | Self | — | Permanent | Gain **+11 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **12** | Passive: Evade + Damage | Self | — | Permanent | Gain **+12 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **13** | Passive: Evade + Damage | Self | — | Permanent | Gain **+13 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **14** | Passive: Evade + Damage | Self | — | Permanent | Gain **+14 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **15** | Passive: Evade + Damage | Self | — | Permanent | Gain **+15 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **16** | Passive: Evade + Damage | Self | — | Permanent | Gain **+16 Evade** and **+4d8 Damage** on all damage rolls you make. |
+| **2** | Passive: Evade + Damage | Self | — | Permanent | Gain **+1 Evade**. |
+| **3** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade**. |
+| **4** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **5** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **6** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **7** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d8 Damage** on all damage rolls you make. |
+| **8** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **9** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **10** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **11** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+2d8 Damage** on all damage rolls you make. |
+| **12** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **13** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **14** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **15** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+3d8 Damage** on all damage rolls you make. |
+| **16** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+4d8 Damage** on all damage rolls you make. |
 
 }}
 
@@ -1756,7 +1741,7 @@ Conditional Combined Passives may not use:
 | **Axis** | **Conditional Combined Baseline** |
 |:--|:--|
 | **Armor Half** | Conditional Armor at half budget: **7.5 PP per +1 Armor** |
-| **Evade Half** | Conditional Evade at half budget: **5 PP per +1 Evade** |
+| **Evade Half** | Conditional Evade at half budget: **15 PP per +1 Evade** |
 | **Damage Half** | Conditional Damage at half budget: **20 PP per +1d8 Damage** |
 | **Healing Half** | Conditional Healing at half budget: **4 PP per 1 HP healed** |
 | **Temporary HP Half** | Start-of-combat Temporary HP at half budget: **2 PP per 1 Temporary HP** |
@@ -1951,6 +1936,16 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 {{pageNumber,auto}}
 
 {{wide
+## Conditional Combined Value Baselines
+
+| **Axis** | **Conditional Combined Baseline** |
+|:--|:--|
+| **Armor Half** | Conditional Armor at half budget: **7.5 PP per +1 Armor** |
+| **Evade Half** | Conditional Evade at half budget: **15 PP per +1 Evade** |
+| **Damage Half** | Conditional Damage at half budget: **20 PP per +1d8 Damage** |
+| **Healing Half** | Conditional Healing at half budget: **4 PP per 1 HP healed** |
+| **Temporary HP Half** | Start-of-combat Temporary HP at half budget: **2 PP per 1 Temporary HP** |
+| **Health Half** | Milestone structural Health progression; no Healthy bar in Combined Passives |
 
 <h3 id="conditional-passive-evade-temporary-hp-movement">
   Conditional Passive: Evade + Temporary HP (Moved 8+ m)
@@ -1961,28 +1956,28 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Conditional Combined Passive = two conditional half-budget axes<br>
-      Evade Half = 5 PP per +1 Evade<br>
+      Evade Half = 15 PP per +1 Evade<br>
       Temporary HP Half = 2 PP per Temporary HP<br><br>
       CONDITION<br>
       Evade applies if you moved at least 8 m on your turn.<br>
       Temporary HP is gained once after you first move at least 8 m this combat.<br><br>
       CALCULATION<br>
-      L1 → +2 Evade = 10 PP + 5 THP = 10 PP → 20 PP = 20 target<br>
-      L2 → +4 Evade = 20 PP + 10 THP = 20 PP → 40 PP = 40 target<br>
-      L3 → +6 Evade = 30 PP + 15 THP = 30 PP → 60 PP = 60 target<br>
-      L4 → +8 Evade = 40 PP + 20 THP = 40 PP → 80 PP = 80 target<br>
-      L5 → +10 Evade = 50 PP + 25 THP = 50 PP → 100 PP = 100 target<br>
-      L6 → +12 Evade = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
-      L7 → +14 Evade = 70 PP + 35 THP = 70 PP → 140 PP = 140 target<br>
-      L8 → +16 Evade = 80 PP + 40 THP = 80 PP → 160 PP = 160 target<br>
-      L9 → +18 Evade = 90 PP + 45 THP = 90 PP → 180 PP = 180 target<br>
-      L10 → +20 Evade = 100 PP + 50 THP = 100 PP → 200 PP = 200 target<br>
-      L11 → +22 Evade = 110 PP + 55 THP = 110 PP → 220 PP = 220 target<br>
-      L12 → +24 Evade = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
-      L13 → +26 Evade = 130 PP + 65 THP = 130 PP → 260 PP = 260 target<br>
-      L14 → +28 Evade = 140 PP + 70 THP = 140 PP → 280 PP = 280 target<br>
-      L15 → +30 Evade = 150 PP + 75 THP = 150 PP → 300 PP = 300 target<br>
-      L16 → +32 Evade = 160 PP + 80 THP = 160 PP → 320 PP = 320 target<br><br>
+      L1 → no Evade = 0 PP + 5 THP = 10 PP → 10 PP below 20 target<br>
+      L2 → +1 Evade = 15 PP + 10 THP = 20 PP → 35 PP ≈ 40 target<br>
+      L3 → +2 Evade = 30 PP + 15 THP = 30 PP → 60 PP = 60 target<br>
+      L4 → +2 Evade = 30 PP + 20 THP = 40 PP → 70 PP below 80 target<br>
+      L5 → +3 Evade = 45 PP + 25 THP = 50 PP → 95 PP ≈ 100 target<br>
+      L6 → +4 Evade = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
+      L7 → +4 Evade = 60 PP + 35 THP = 70 PP → 130 PP below 140 target<br>
+      L8 → +5 Evade = 75 PP + 40 THP = 80 PP → 155 PP ≈ 160 target<br>
+      L9 → +6 Evade = 90 PP + 45 THP = 90 PP → 180 PP = 180 target<br>
+      L10 → +6 Evade = 90 PP + 50 THP = 100 PP → 190 PP below 200 target<br>
+      L11 → +7 Evade = 105 PP + 55 THP = 110 PP → 215 PP ≈ 220 target<br>
+      L12 → +8 Evade = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
+      L13 → +8 Evade = 120 PP + 65 THP = 130 PP → 250 PP below 260 target<br>
+      L14 → +9 Evade = 135 PP + 70 THP = 140 PP → 275 PP ≈ 280 target<br>
+      L15 → +10 Evade = 150 PP + 75 THP = 150 PP → 300 PP = 300 target<br>
+      L16 → +10 Evade = 150 PP + 80 THP = 160 PP → 310 PP below 320 target<br><br>
       NOTES — Counts as both Evade and Temporary HP. No Armor, no Damage Reduction, no Healing, no Phasing.
     </span>
   </span>
@@ -1990,22 +1985,22 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+2 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **5 Temporary HP**. |
-| **2** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **10 Temporary HP**. |
-| **3** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+6 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **15 Temporary HP**. |
-| **4** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **20 Temporary HP**. |
-| **5** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+10 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **25 Temporary HP**. |
-| **6** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+12 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **30 Temporary HP**. |
-| **7** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+14 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **35 Temporary HP**. |
-| **8** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+16 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **40 Temporary HP**. |
-| **9** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+18 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **45 Temporary HP**. |
-| **10** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+20 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **50 Temporary HP**. |
-| **11** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+22 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **55 Temporary HP**. |
-| **12** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+24 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **60 Temporary HP**. |
-| **13** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+26 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **65 Temporary HP**. |
-| **14** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+28 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **70 Temporary HP**. |
-| **15** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+30 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **75 Temporary HP**. |
-| **16** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+32 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **80 Temporary HP**. |
+| **1** | Passive | Self | — | Conditional / Once per Combat | Once per combat, after you first move at least **8 m**, gain **5 Temporary HP**. |
+| **2** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+1 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **10 Temporary HP**. |
+| **3** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+2 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **15 Temporary HP**. |
+| **4** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+2 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **20 Temporary HP**. |
+| **5** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+3 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **25 Temporary HP**. |
+| **6** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **30 Temporary HP**. |
+| **7** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **35 Temporary HP**. |
+| **8** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+5 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **40 Temporary HP**. |
+| **9** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+6 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **45 Temporary HP**. |
+| **10** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+6 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **50 Temporary HP**. |
+| **11** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+7 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **55 Temporary HP**. |
+| **12** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **60 Temporary HP**. |
+| **13** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **65 Temporary HP**. |
+| **14** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+9 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **70 Temporary HP**. |
+| **15** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+10 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **75 Temporary HP**. |
+| **16** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+10 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **80 Temporary HP**. |
 
 ---
 }}
@@ -2023,27 +2018,27 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Conditional Combined Passive = two conditional half-budget axes<br>
-      Evade Half = 5 PP per +1 Evade<br>
+      Evade Half = 15 PP per +1 Evade<br>
       Healing Half = 4 PP per HP healed<br><br>
       CONDITION<br>
       This passive applies if you moved at least 8 m on your last turn.<br><br>
       CALCULATION<br>
-      L1 → +2 Evade = 10 PP + heal 2 HP = 8 PP → 18 PP ≈ 20 target<br>
-      L2 → +4 Evade = 20 PP + heal 5 HP = 20 PP → 40 PP = 40 target<br>
-      L3 → +6 Evade = 30 PP + heal 7 HP = 28 PP → 58 PP ≈ 60 target<br>
-      L4 → +8 Evade = 40 PP + heal 10 HP = 40 PP → 80 PP = 80 target<br>
-      L5 → +10 Evade = 50 PP + heal 12 HP = 48 PP → 98 PP ≈ 100 target<br>
-      L6 → +12 Evade = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
-      L7 → +14 Evade = 70 PP + heal 17 HP = 68 PP → 138 PP ≈ 140 target<br>
-      L8 → +16 Evade = 80 PP + heal 20 HP = 80 PP → 160 PP = 160 target<br>
-      L9 → +18 Evade = 90 PP + heal 22 HP = 88 PP → 178 PP ≈ 180 target<br>
-      L10 → +20 Evade = 100 PP + heal 25 HP = 100 PP → 200 PP = 200 target<br>
-      L11 → +22 Evade = 110 PP + heal 27 HP = 108 PP → 218 PP ≈ 220 target<br>
-      L12 → +24 Evade = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
-      L13 → +26 Evade = 130 PP + heal 32 HP = 128 PP → 258 PP ≈ 260 target<br>
-      L14 → +28 Evade = 140 PP + heal 35 HP = 140 PP → 280 PP = 280 target<br>
-      L15 → +30 Evade = 150 PP + heal 37 HP = 148 PP → 298 PP ≈ 300 target<br>
-      L16 → +32 Evade = 160 PP + heal 40 HP = 160 PP → 320 PP = 320 target<br><br>
+      L1 → no Evade = 0 PP + heal 2 HP = 8 PP → 8 PP below 20 target<br>
+      L2 → +1 Evade = 15 PP + heal 5 HP = 20 PP → 35 PP ≈ 40 target<br>
+      L3 → +2 Evade = 30 PP + heal 7 HP = 28 PP → 58 PP ≈ 60 target<br>
+      L4 → +2 Evade = 30 PP + heal 10 HP = 40 PP → 70 PP below 80 target<br>
+      L5 → +3 Evade = 45 PP + heal 12 HP = 48 PP → 93 PP ≈ 100 target<br>
+      L6 → +4 Evade = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
+      L7 → +4 Evade = 60 PP + heal 17 HP = 68 PP → 128 PP below 140 target<br>
+      L8 → +5 Evade = 75 PP + heal 20 HP = 80 PP → 155 PP ≈ 160 target<br>
+      L9 → +6 Evade = 90 PP + heal 22 HP = 88 PP → 178 PP ≈ 180 target<br>
+      L10 → +6 Evade = 90 PP + heal 25 HP = 100 PP → 190 PP below 200 target<br>
+      L11 → +7 Evade = 105 PP + heal 27 HP = 108 PP → 213 PP ≈ 220 target<br>
+      L12 → +8 Evade = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
+      L13 → +8 Evade = 120 PP + heal 32 HP = 128 PP → 248 PP below 260 target<br>
+      L14 → +9 Evade = 135 PP + heal 35 HP = 140 PP → 275 PP ≈ 280 target<br>
+      L15 → +10 Evade = 150 PP + heal 37 HP = 148 PP → 298 PP ≈ 300 target<br>
+      L16 → +10 Evade = 150 PP + heal 40 HP = 160 PP → 310 PP below 320 target<br><br>
       NOTES — Counts as both Evade and Healing. Healing restores current HP only and never restores lost Health Bars.
     </span>
   </span>
@@ -2051,22 +2046,23 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+2 Evade** and heal **2 HP** at the start of your turn. |
-| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+4 Evade** and heal **5 HP** at the start of your turn. |
-| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+6 Evade** and heal **7 HP** at the start of your turn. |
-| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+8 Evade** and heal **10 HP** at the start of your turn. |
-| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+10 Evade** and heal **12 HP** at the start of your turn. |
-| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+12 Evade** and heal **15 HP** at the start of your turn. |
-| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+14 Evade** and heal **17 HP** at the start of your turn. |
-| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+16 Evade** and heal **20 HP** at the start of your turn. |
-| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+18 Evade** and heal **22 HP** at the start of your turn. |
-| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+20 Evade** and heal **25 HP** at the start of your turn. |
-| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+22 Evade** and heal **27 HP** at the start of your turn. |
-| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+24 Evade** and heal **30 HP** at the start of your turn. |
-| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+26 Evade** and heal **32 HP** at the start of your turn. |
-| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+28 Evade** and heal **35 HP** at the start of your turn. |
-| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+30 Evade** and heal **37 HP** at the start of your turn. |
-| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+32 Evade** and heal **40 HP** at the start of your turn. |
+| **1** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, heal **2 HP** at the start of your turn. |
+| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+1 Evade** and heal **5 HP** at the start of your turn. |
+| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+2 Evade** and heal **7 HP** at the start of your turn. |
+| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+2 Evade** and heal **10 HP** at the start of your turn. |
+| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+3 Evade** and heal **12 HP** at the start of your turn. |
+| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+4 Evade** and heal **15 HP** at the start of your turn. |
+| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+4 Evade** and heal **17 HP** at the start of your turn. |
+| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+5 Evade** and heal **20 HP** at the start of your turn. |
+| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+6 Evade** and heal **22 HP** at the start of your turn. |
+| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+6 Evade** and heal **25 HP** at the start of your turn. |
+| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+7 Evade** and heal **27 HP** at the start of your turn. |
+| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+8 Evade** and heal **30 HP** at the start of your turn. |
+| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+8 Evade** and heal **32 HP** at the start of your turn. |
+| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+9 Evade** and heal **35 HP** at the start of your turn. |
+| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+10 Evade** and heal **37 HP** at the start of your turn. |
+| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+10 Evade** and heal **40 HP** at the start of your turn. |
+
 
 }}
 
@@ -2083,27 +2079,27 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
       Conditional Combined Passive = two conditional half-budget axes<br>
-      Evade Half = 5 PP per +1 Evade<br>
+      Evade Half = 15 PP per +1 Evade<br>
       Damage Half = 20 PP per +1d8 Damage<br><br>
       CONDITION<br>
       This passive applies if you moved at least 8 m on your turn.<br><br>
       CALCULATION<br>
-      L1 → +2 Evade = 10 PP + no Damage = 0 PP → 10 PP below 20 target<br>
-      L2 → +4 Evade = 20 PP + +1d8 Damage = 20 PP → 40 PP = 40 target<br>
-      L3 → +6 Evade = 30 PP + +1d8 Damage = 20 PP → 50 PP below 60 target<br>
-      L4 → +8 Evade = 40 PP + +2d8 Damage = 40 PP → 80 PP = 80 target<br>
-      L5 → +10 Evade = 50 PP + +2d8 Damage = 40 PP → 90 PP below 100 target<br>
-      L6 → +12 Evade = 60 PP + +3d8 Damage = 60 PP → 120 PP = 120 target<br>
-      L7 → +14 Evade = 70 PP + +3d8 Damage = 60 PP → 130 PP below 140 target<br>
-      L8 → +16 Evade = 80 PP + +4d8 Damage = 80 PP → 160 PP = 160 target<br>
-      L9 → +18 Evade = 90 PP + +4d8 Damage = 80 PP → 170 PP below 180 target<br>
-      L10 → +20 Evade = 100 PP + +5d8 Damage = 100 PP → 200 PP = 200 target<br>
-      L11 → +22 Evade = 110 PP + +5d8 Damage = 100 PP → 210 PP below 220 target<br>
-      L12 → +24 Evade = 120 PP + +6d8 Damage = 120 PP → 240 PP = 240 target<br>
-      L13 → +26 Evade = 130 PP + +6d8 Damage = 120 PP → 250 PP below 260 target<br>
-      L14 → +28 Evade = 140 PP + +7d8 Damage = 140 PP → 280 PP = 280 target<br>
-      L15 → +30 Evade = 150 PP + +7d8 Damage = 140 PP → 290 PP below 300 target<br>
-      L16 → +32 Evade = 160 PP + +8d8 Damage = 160 PP → 320 PP = 320 target<br><br>
+      L1 → +1 Evade = 15 PP + no Damage = 0 PP → 15 PP ≈ 20 target<br>
+      L2 → +1 Evade = 15 PP + +1d8 Damage = 20 PP → 35 PP ≈ 40 target<br>
+      L3 → +2 Evade = 30 PP + +1d8 Damage = 20 PP → 50 PP below 60 target<br>
+      L4 → +2 Evade = 30 PP + +2d8 Damage = 40 PP → 70 PP below 80 target<br>
+      L5 → +3 Evade = 45 PP + +2d8 Damage = 40 PP → 85 PP below 100 target<br>
+      L6 → +4 Evade = 60 PP + +3d8 Damage = 60 PP → 120 PP = 120 target<br>
+      L7 → +4 Evade = 60 PP + +3d8 Damage = 60 PP → 120 PP below 140 target<br>
+      L8 → +5 Evade = 75 PP + +4d8 Damage = 80 PP → 155 PP ≈ 160 target<br>
+      L9 → +6 Evade = 90 PP + +4d8 Damage = 80 PP → 170 PP below 180 target<br>
+      L10 → +6 Evade = 90 PP + +5d8 Damage = 100 PP → 190 PP below 200 target<br>
+      L11 → +7 Evade = 105 PP + +5d8 Damage = 100 PP → 205 PP below 220 target<br>
+      L12 → +8 Evade = 120 PP + +6d8 Damage = 120 PP → 240 PP = 240 target<br>
+      L13 → +8 Evade = 120 PP + +6d8 Damage = 120 PP → 240 PP below 260 target<br>
+      L14 → +9 Evade = 135 PP + +7d8 Damage = 140 PP → 275 PP ≈ 280 target<br>
+      L15 → +10 Evade = 150 PP + +7d8 Damage = 140 PP → 290 PP below 300 target<br>
+      L16 → +10 Evade = 150 PP + +8d8 Damage = 160 PP → 310 PP below 320 target<br><br>
       NOTES — Counts as both Evade and Damage. No Attack Dice, no crit rider, no Special rider, no Phasing.
     </span>
   </span>
@@ -2111,22 +2107,22 @@ If the condition is true, gain the listed Health Bars for that combat. These Hea
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2 Evade** until the start of your next turn. |
-| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
-| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
-| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
-| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
-| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+12 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
-| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+14 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
-| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+16 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
-| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+18 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
-| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+20 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
-| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+22 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
-| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+24 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
-| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+26 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
-| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+28 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
-| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+30 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
-| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+32 Evade** until the start of your next turn and **+8d8 Damage** on all damage rolls you make until the end of your turn. |
+| **1** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1 Evade** until the start of your next turn. |
+| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
+| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
+| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
+| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+3 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
+| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
+| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
+| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+5 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
+| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
+| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
+| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+7 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
+| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
+| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
+| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+9 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
+| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
+| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+8d8 Damage** on all damage rolls you make until the end of your turn. |
 
 }}
 
@@ -2405,11 +2401,11 @@ Multiple Special Auras affecting the same Special do not stack. Only the stronge
 
 #### Example: Passive: Special Aura + Weaken
 
-A creature inside the aura is affected by **Weaken(4)**. The Passive Special Aura increases it to **Weaken(5)** while that creature remains inside the aura. When it leaves, the Special returns to its normal current value. The aura never applies Weaken to an unaffected creature.
+A creature inside the aura is affected by **Weaken(2)**. The Passive Special Aura increases it to **Weaken(3)** while that creature remains inside the aura. When it leaves, the Special returns to its normal current value. The aura never applies Weaken to an unaffected creature.
 
 #### Example: Passive: Special Aura + Soulburn
 
-A creature inside the aura is affected by **Soulburn(6)**. The aura treats it as **Soulburn(7)** while the creature remains inside. The +1 increase ends immediately when the creature leaves the aura.
+A creature inside the aura is affected by **Soulburn(3)**. The aura treats it as **Soulburn(4)** while the creature remains inside. The +1 increase ends immediately when the creature leaves the aura.
 
 ## Special Aura Category Rule
 
@@ -2734,10 +2730,10 @@ Your body, mind, soul, or warding pattern rejects hostile spell structure.
       L16 = Ward 10.<br><br>
 
   EXAMPLE<br>
-      You have Ward 4.<br>
-      An Attack would apply Soulburn(7) and Mark(4) to you.<br>
-      Soulburn(7) is reduced to Soulburn(3).<br>
-      Mark(4) is reduced to 0 and is not applied.<br>
+      You have Ward 2.<br>
+      An Attack would apply Soulburn(3) and Mark(4) to you.<br>
+      Soulburn(3) is reduced to Soulburn(1).<br>
+      Mark(4) is reduced to Mark(2).<br>
       The Attack's damage and all other effects resolve normally.<br><br>
 
    NOTES<br>
@@ -2879,7 +2875,6 @@ A passive mental connection that grants Telepathic Access and allows voluntary M
       L14 → +28 Summon Tokens = 280 PP<br>
       L15 → +30 Summon Tokens = 300 PP<br>
       L16 → +32 Summon Tokens = 320 PP<br><br>
-
       NOTES — This Passive strengthens existing Summon Bonds. It does not create Summons, does not bind Stones, does not grant Extra Attacks, and does not create additional Summon Bodies. The bonus Tokens may only be spent on existing Summon Bodies.
     </span>
   </span>
@@ -3333,15 +3328,15 @@ Any Attack Dice that remain are rolled normally against the character's Evade.
   Movement and Reactions remain available.<br><br>
 
   PARRY POOL<br>
-  Your Parry Pool equals your chosen Parry Attribute, limited by 5 × this Power's Level.<br>
+  Your Parry Pool equals your chosen Parry Attribute, limited by ceil(5 × this Power's Level / 2).<br>
   The Pool is shared across all eligible Attacks until the beginning of your next Turn.<br>
   This preserves Attribute investment while requiring the Passive itself to be developed.<br><br>
 
   POWER-CAP ALIGNMENT<br>
-  Level 4 = maximum 20 Parry.<br>
-  Level 8 = maximum 40 Parry.<br>
-  Level 12 = maximum 60 Parry.<br>
-  Level 16 = maximum 80 Parry.<br>
+  Level 4 = maximum 10 Parry.<br>
+  Level 8 = maximum 20 Parry.<br>
+  Level 12 = maximum 30 Parry.<br>
+  Level 16 = maximum 40 Parry.<br>
   This allows the subsystem to scale alongside long-term Attribute progression without exceeding the normal Attribute cap.<br><br>
 
   RESOLUTION<br>
@@ -3359,22 +3354,22 @@ Any Attack Dice that remain are rolled normally against the character's Evade.
   A Fully Parried Attack may trigger Riposte or Reflection.<br><br>
 
   LEVEL CAP<br>
-  L1 = maximum 5 Parry<br>
-  L2 = maximum 10 Parry<br>
-  L3 = maximum 15 Parry<br>
-  L4 = maximum 20 Parry<br>
-  L5 = maximum 25 Parry<br>
-  L6 = maximum 30 Parry<br>
-  L7 = maximum 35 Parry<br>
-  L8 = maximum 40 Parry<br>
-  L9 = maximum 45 Parry<br>
-  L10 = maximum 50 Parry<br>
-  L11 = maximum 55 Parry<br>
-  L12 = maximum 60 Parry<br>
-  L13 = maximum 65 Parry<br>
-  L14 = maximum 70 Parry<br>
-  L15 = maximum 75 Parry<br>
-  L16 = maximum 80 Parry<br><br>
+  L1 = maximum 3 Parry<br>
+  L2 = maximum 5 Parry<br>
+  L3 = maximum 8 Parry<br>
+  L4 = maximum 10 Parry<br>
+  L5 = maximum 13 Parry<br>
+  L6 = maximum 15 Parry<br>
+  L7 = maximum 18 Parry<br>
+  L8 = maximum 20 Parry<br>
+  L9 = maximum 23 Parry<br>
+  L10 = maximum 25 Parry<br>
+  L11 = maximum 28 Parry<br>
+  L12 = maximum 30 Parry<br>
+  L13 = maximum 33 Parry<br>
+  L14 = maximum 35 Parry<br>
+  L15 = maximum 38 Parry<br>
+  L16 = maximum 40 Parry<br><br>
 
   LIMITS<br>
   Parry normally affects only eligible direct Attacks that make an Attack Roll.<br>
@@ -3414,22 +3409,22 @@ If you reduce the triggering Attack Pool to **0 Attack Dice**, the Attack is **F
 
 | **Level** | **Type**       | **Range** |     **Duration**     | **Maximum Parry Pool** |
 | :-------: | :------------- | :-------: | :------------------: | :--------------------: |
-|   **1**   | Passive, Parry |    Self   | Until your next Turn |          **5**         |
-|   **2**   | Passive, Parry |    Self   | Until your next Turn |         **10**         |
-|   **3**   | Passive, Parry |    Self   | Until your next Turn |         **15**         |
-|   **4**   | Passive, Parry |    Self   | Until your next Turn |         **20**         |
-|   **5**   | Passive, Parry |    Self   | Until your next Turn |         **25**         |
-|   **6**   | Passive, Parry |    Self   | Until your next Turn |         **30**         |
-|   **7**   | Passive, Parry |    Self   | Until your next Turn |         **35**         |
-|   **8**   | Passive, Parry |    Self   | Until your next Turn |         **40**         |
-|   **9**   | Passive, Parry |    Self   | Until your next Turn |         **45**         |
-|   **10**  | Passive, Parry |    Self   | Until your next Turn |         **50**         |
-|   **11**  | Passive, Parry |    Self   | Until your next Turn |         **55**         |
-|   **12**  | Passive, Parry |    Self   | Until your next Turn |         **60**         |
-|   **13**  | Passive, Parry |    Self   | Until your next Turn |         **65**         |
-|   **14**  | Passive, Parry |    Self   | Until your next Turn |         **70**         |
-|   **15**  | Passive, Parry |    Self   | Until your next Turn |         **75**         |
-|   **16**  | Passive, Parry |    Self   | Until your next Turn |         **80**         |
+|   **1**   | Passive, Parry |    Self   | Until your next Turn |          **3**         |
+|   **2**   | Passive, Parry |    Self   | Until your next Turn |         **5**         |
+|   **3**   | Passive, Parry |    Self   | Until your next Turn |         **8**         |
+|   **4**   | Passive, Parry |    Self   | Until your next Turn |         **10**         |
+|   **5**   | Passive, Parry |    Self   | Until your next Turn |         **13**         |
+|   **6**   | Passive, Parry |    Self   | Until your next Turn |         **15**         |
+|   **7**   | Passive, Parry |    Self   | Until your next Turn |         **18**         |
+|   **8**   | Passive, Parry |    Self   | Until your next Turn |         **20**         |
+|   **9**   | Passive, Parry |    Self   | Until your next Turn |         **23**         |
+|   **10**  | Passive, Parry |    Self   | Until your next Turn |         **25**         |
+|   **11**  | Passive, Parry |    Self   | Until your next Turn |         **28**         |
+|   **12**  | Passive, Parry |    Self   | Until your next Turn |         **30**         |
+|   **13**  | Passive, Parry |    Self   | Until your next Turn |         **33**         |
+|   **14**  | Passive, Parry |    Self   | Until your next Turn |         **35**         |
+|   **15**  | Passive, Parry |    Self   | Until your next Turn |         **38**         |
+|   **16**  | Passive, Parry |    Self   | Until your next Turn |         **40**         |
 
 ---
 

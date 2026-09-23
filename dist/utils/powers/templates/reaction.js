@@ -8,6 +8,7 @@
  * plus Parry/Absorption/Cleanse utility lines.
  */
 import { buildLevels, reactionRow } from './_shared.js';
+import { reactionSpecialIncrease } from '../pool-special-ranks.js';
 const SELF = { kind: 'self' };
 const ALLY_4M = { kind: 'distance', m: 4, note: 'ally' };
 const NEAR_2M = { kind: 'distance', m: 2, note: 'triggering enemy' };
@@ -312,15 +313,26 @@ export const REACTION_TEMPLATES = [
         cost: { action: 'reaction' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const inc = lvl >= 16 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
+            const inc = reactionSpecialIncrease(lvl);
+            const poolInc = reactionSpecialIncrease(lvl, 'challenge');
+            const effectText = inc === 0
+                ? 'No effect. This Reaction increases an already existing chosen Special on the triggering creature, and this Power Level has not reached that milestone.'
+                : poolInc === inc
+                    ? `If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+${inc}**.`
+                    : `If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+${inc}**, or **+${poolInc}** for Challenge, Disoriented, Soulburn, or Weaken.`;
             return reactionRow({
                 range: NEAR_2M,
-                effectText: inc === 0
-                    ? '—'
-                    : `If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+${inc}**.`,
+                effectText,
                 mechanics: inc === 0
                     ? {}
-                    : { modifySpecial: { type: 'chosen', mode: 'increaseExisting', amount: inc } },
+                    : {
+                        modifySpecial: {
+                            type: 'chosen',
+                            mode: 'increaseExisting',
+                            amount: inc,
+                            poolAmount: poolInc,
+                        },
+                    },
             });
         }),
     },

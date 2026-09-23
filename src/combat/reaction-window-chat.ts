@@ -957,50 +957,55 @@ async function executeReactionSpend(params: {
   }
 
   // Special Increase — bump an existing Special on the attacker / shooter.
+  // Pool-reducing Specials use the compressed Reaction curve; others keep the normal curve.
   if (allowOffensiveVsShooter && attacker && isSpecialIncreaseReaction(power)) {
-    const amount = Math.max(0, Math.floor(Number((mech as any)?.modifySpecial?.amount) || 0));
-    if (amount > 0) {
-      try {
-        const { readActiveSpecials } = await import('../system/active-specials.js');
-        const list = readActiveSpecials(attacker);
-        if (!list.length) {
-          note += ' <em>(Special Increase — attacker has no active Special to raise.)</em>';
-        } else {
-          let chosenIdx = 0;
-          if (list.length > 1) {
-            const Dialog = (globalThis as any).Dialog;
-            const options = list
-              .map(
-                (s, i) =>
-                  `<option value="${i}">${escHtml(String(s.id))} (${Math.floor(Number(s.value) || 0)})</option>`,
-              )
-              .join('');
-            chosenIdx = await new Promise<number>((resolve) => {
-              if (!Dialog) {
-                resolve(0);
-                return;
-              }
-              new Dialog({
-                title: 'Special Increase — choose Special',
-                content: `<p>Increase which Special by <strong>+${amount}</strong>?</p>
-                  <select id="ms-special-inc" style="width:100%">${options}</select>`,
-                buttons: {
-                  ok: {
-                    label: 'Increase',
-                    callback: (html: any) => {
-                      const v = Number($(html).find('#ms-special-inc').val());
-                      resolve(Number.isFinite(v) ? v : 0);
-                    },
+    try {
+      const { readActiveSpecials } = await import('../system/active-specials.js');
+      const { reactionSpecialIncrease } = await import('../utils/powers/pool-special-ranks.js');
+      const list = readActiveSpecials(attacker);
+      const level = Math.max(1, Math.min(16, Math.floor(Number((power as any)?.system?.level ?? (power as any)?.system?.rank) || 1)));
+      if (!list.length) {
+        note += ' <em>(Special Increase — attacker has no active Special to raise.)</em>';
+      } else {
+        let chosenIdx = 0;
+        if (list.length > 1) {
+          const Dialog = (globalThis as any).Dialog;
+          const options = list
+            .map((s, i) => {
+              const bump = reactionSpecialIncrease(level, s.id);
+              return `<option value="${i}">${escHtml(String(s.id))} (${Math.floor(Number(s.value) || 0)}) +${bump}</option>`;
+            })
+            .join('');
+          chosenIdx = await new Promise<number>((resolve) => {
+            if (!Dialog) {
+              resolve(0);
+              return;
+            }
+            new Dialog({
+              title: 'Special Increase — choose Special',
+              content: `<p>Increase which already existing Special?</p>
+                <select id="ms-special-inc" style="width:100%">${options}</select>`,
+              buttons: {
+                ok: {
+                  label: 'Increase',
+                  callback: (html: any) => {
+                    const v = Number($(html).find('#ms-special-inc').val());
+                    resolve(Number.isFinite(v) ? v : 0);
                   },
-                  cancel: { label: 'Skip', callback: () => resolve(-1) },
                 },
-                default: 'ok',
-                close: () => resolve(-1),
-              }).render(true);
-            });
-          }
-          if (chosenIdx >= 0 && chosenIdx < list.length) {
-            const chosen = list[chosenIdx]!;
+                cancel: { label: 'Skip', callback: () => resolve(-1) },
+              },
+              default: 'ok',
+              close: () => resolve(-1),
+            }).render(true);
+          });
+        }
+        if (chosenIdx >= 0 && chosenIdx < list.length) {
+          const chosen = list[chosenIdx]!;
+          const amount = reactionSpecialIncrease(level, chosen.id);
+          if (amount <= 0) {
+            note += ' <em>(Special Increase — this Power Level does not raise that Special.)</em>';
+          } else {
             const { readActorStatusEffects } = await import('../system/active-specials.js');
             const raw = readActorStatusEffects(attacker).map((entry) => ({ ...entry }));
             let updated = false;
@@ -1022,10 +1027,10 @@ async function executeReactionSpend(params: {
             }
           }
         }
-      } catch (err) {
-        console.warn('Mastery System | Special Increase failed', err);
-        note += ' <em>(Special Increase — resolve at the table.)</em>';
       }
+    } catch (err) {
+      console.warn('Mastery System | Special Increase failed', err);
+      note += ' <em>(Special Increase — resolve at the table.)</em>';
     }
   }
 

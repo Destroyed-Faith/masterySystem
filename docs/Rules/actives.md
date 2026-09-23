@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Actives
-Version: v0.9.8.1 (2026-08-30)
+Version: v0.9.9.0 (2026-09-22)
 }}
 
 }}
@@ -94,7 +94,7 @@ Version: v0.9.8.1 (2026-08-30)
 
 Every catalogue entry uses a mechanical technical name. When a technical name lists several Specials separated by slashes, choose one of them when learning the Power. That choice becomes part of the Power's technical name and cannot be changed later.
 
-> **Base Cost 8 Specials:** Disoriented, Expose, Soulburn, and Weaken use the dedicated 8 PP Special-cost progression in this catalogue.
+> **Pool-Reduction Specials:** Challenge, Disoriented, Soulburn, and Weaken directly remove dice from Attribute-based or Attack Pools. Challenge(1) costs 6 PP; Challenge(X) at X 2+ costs **6 × T(2X)**. Disoriented(1), Soulburn(1), and Weaken(1) cost 8 PP; at X 2+ they cost **8 × T(2X)**. Expose remains on the normal **8 × T(X)** progression.
 
 > **Base Cost 2 Targeted Specials:** Exorcism and Requiem use dedicated targeted progressions later in this catalogue.
 
@@ -607,13 +607,13 @@ The template remains Mark-first.
       Special base cost = 6 PP<br>
       Special Cost = 6 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-      SPECIAL COSTS<br>
+      STANDARD HEAVY SPECIAL COSTS<br>
       X1 = 6 PP • X2 = 18 PP • X3 = 36 PP • X4 = 60 PP • X5 = 90 PP • X6 = 126 PP • X7 = 168 PP • X8 = 216 PP • X9 = 270 PP • X10 = 330 PP • X11 = 396 PP • X12 = 468 PP<br><br>
       SCALING RULE<br>
       Special-first scaling with Damage Anchor.<br>
       Level 4 establishes the Damage Anchor: +2d8 Damage = 30 PP.<br>
       From Level 5 onward, the template spends into the Special first.<br><br>
-      CALCULATION<br>
+      CALCULATION — CORRODE / HEX / SUNDERED / ROOT<br>
       L1 → Target 30 PP: Damage +1d8 (15) + Special(2) (18) = 33 PP<br>
       L2 → Target 60 PP: Damage +2d8 (30) + Special(3) (36) = 66 PP<br>
       L3 → Target 90 PP: Damage +2d8 (30) + Special(4) (60) = 90 PP<br>
@@ -630,6 +630,8 @@ The template remains Mark-first.
       L14 → Target 420 PP: Damage +2d8 (30) + Special(10) (330) = 360 PP<br>
       L15 → Target 450 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br>
       L16 → Target 480 PP: Damage +2d8 (30) + Special(11) (396) = 426 PP<br><br>
+      CHALLENGE<br>
+      Challenge uses the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for Challenge.<br><br>
       NOTES — Melee Martial Active. Covers Challenge, Corrode, Hex, Sundered, and Root. Root uses the same 6 PP Base Cost but follows its dedicated minimum, decay, and breaking rules. This group is heavy and should remain clearly Special-first.
     </span>
   </span>
@@ -645,22 +647,22 @@ A close-range martial attack that deals damage and applies Challenge, Corrode, H
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
-| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **3** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11) / Root(11)** |
-| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(11) / Corrode(11) / Hex(11) / Sundered(11) / Root(11)** |
+| **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **2** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **3** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(11) / Hex(11) / Sundered(11) / Root(11)** |
+| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(11) / Hex(11) / Sundered(11) / Root(11)** |
 
 ---
 :
@@ -680,14 +682,14 @@ A close-range martial attack that deals damage and applies Challenge, Corrode, H
       Special base cost = 6 PP<br>
       Special Cost = 6 × T(X)<br>
       T(X) = X × (X + 1) / 2<br><br>
-      SPECIAL COSTS<br>
+      STANDARD HEAVY SPECIAL COSTS<br>
       X1 = 6 PP • X2 = 18 PP • X3 = 36 PP • X4 = 60 PP • X5 = 90 PP • X6 = 126 PP • X7 = 168 PP • X8 = 216 PP • X9 = 270 PP • X10 = 330 PP • X11 = 396 PP<br><br>
       SCALING RULE<br>
       Special-first scaling with Damage Anchor.<br>
       Level 4 establishes the Damage Anchor: +2d8 Damage = 30 PP.<br>
       Ranged also pays Range cost each level.<br>
       From Level 5 onward, the template spends into the Special first.<br><br>
-      CALCULATION<br>
+      CALCULATION — CORRODE / HEX / SUNDERED / ROOT<br>
       L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Special(1) (6) = 21 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Damage +2d8 (30) + Special(2) (18) = 53 PP<br>
       L3 → Target 90 PP: Range 16 m (10) + Damage +2d8 (30) + Special(3) (36) = 76 PP<br>
@@ -704,6 +706,8 @@ A close-range martial attack that deals damage and applies Challenge, Corrode, H
       L14 → Target 420 PP: Range 60 m (65) + Damage +2d8 (30) + Special(9) (270) = 365 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Damage +2d8 (30) + Special(10) (330) = 430 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Damage +2d8 (30) + Special(10) (330) = 435 PP<br><br>
+      CHALLENGE<br>
+      Challenge uses the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for Challenge.<br><br>
       NOTES — Ranged Martial Active. Covers Challenge, Corrode, Hex, Sundered, and Root. Root uses a minimum of Root(2), including at Level 1. Range cost slows Special growth compared to the Melee version.
     </span>
   </span>
@@ -720,21 +724,21 @@ A ranged martial attack that deals damage and applies Challenge, Corrode, Hex, S
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1) / Root(2)** |
-| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
-| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(9) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
-| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
-| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(10) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(4) / Corrode(9) / Hex(9) / Sundered(9) / Root(9)** |
+| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
+| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Challenge(5) / Corrode(10) / Hex(10) / Sundered(10) / Root(10)** |
 
 }}
 \page
@@ -783,7 +787,7 @@ The Power therefore has less damage and slower Special scaling than cheaper Spec
       The Special is the primary axis. Damage is held low so the next Special increase is not delayed.<br>
       Damage and Special may stay the same or increase, but they may never decrease.<br>
       Unused PP may remain unused.<br><br>
-      CALCULATION<br>
+      CALCULATION — EXPOSE<br>
       L1 → Target 30 PP: Damage +1d8 (15) + Special(1) (8) = 23 PP<br>
       L2 → Target 60 PP: Damage +1d8 (15) + Special(3) (48) = 63 PP<br>
       L3 → Target 90 PP: Damage +1d8 (15) + Special(4) (80) = 95 PP<br>
@@ -800,9 +804,11 @@ The Power therefore has less damage and slower Special scaling than cheaper Spec
       L14 → Target 420 PP: Damage +2d8 (30) + Special(9) (360) = 390 PP<br>
       L15 → Target 450 PP: Damage +2d8 (30) + Special(9) (360) = 390 PP<br>
       L16 → Target 480 PP: Damage +2d8 (30) + Special(10) (440) = 470 PP<br><br>
+      POOL-REDUCTION VARIANTS<br>
+      Disoriented, Soulburn, and Weaken use the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for those Specials.<br><br>
       NOTES<br>
-      Weaken and Soulburn reduce dice pools, not Attributes or Keep.<br>
-      Disoriented and Expose use the same 8 PP Base Cost curve.<br>
+      Disoriented, Soulburn, and Weaken reduce dice pools, not Attributes or Keep.<br>
+      Expose remains on the normal 8 PP Base Cost curve because it modifies Evade rather than a dice Pool.<br>
       All flat pool reductions apply before percentage-based Health penalties, and the final Pool cannot fall below Mastery Rank.
     </span>
   </span>
@@ -819,21 +825,21 @@ A close-range martial attack that applies Disoriented, Expose, Soulburn, or Weak
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)** |
-| **2** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **3** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
-| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
-| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
-| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
-| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
-| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(10) / Expose(10) / Soulburn(10) / Weaken(10)** |
+| **2** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **3** | Active | Melee Reach | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **4** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **5** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **6** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **7** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **8** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **9** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **10** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **11** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(8) / Soulburn(4) / Weaken(4)** |
+| **12** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(8) / Soulburn(4) / Weaken(4)** |
+| **13** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(9) / Soulburn(4) / Weaken(4)** |
+| **14** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(9) / Soulburn(4) / Weaken(4)** |
+| **15** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(9) / Soulburn(4) / Weaken(4)** |
+| **16** | Active | Melee Reach | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(10) / Soulburn(5) / Weaken(5)** |
 
 ---
 }}
@@ -860,7 +866,7 @@ A close-range martial attack that applies Disoriented, Expose, Soulburn, or Weak
       The Special is the primary axis. Damage is held low so the next Special increase is not delayed.<br>
       Damage and Special may stay the same or increase, but they may never decrease.<br>
       Unused PP may remain unused.<br><br>
-      CALCULATION<br>
+      CALCULATION — EXPOSE<br>
       L1 → Target 30 PP: Range 8 m (0) + Damage +1d8 (15) + Special(1) (8) = 23 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Damage +2d8 (30) + Special(2) (24) = 59 PP<br>
       L3 → Target 90 PP: Range 16 m (10) + Damage +2d8 (30) + Special(3) (48) = 88 PP<br>
@@ -877,9 +883,11 @@ A close-range martial attack that applies Disoriented, Expose, Soulburn, or Weak
       L14 → Target 420 PP: Range 60 m (65) + Damage +2d8 (30) + Special(8) (288) = 383 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Damage +2d8 (30) + Special(8) (288) = 388 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Damage +2d8 (30) + Special(9) (360) = 465 PP<br><br>
+      POOL-REDUCTION VARIANTS<br>
+      Disoriented, Soulburn, and Weaken use the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for those Specials.<br><br>
       NOTES<br>
-      Weaken and Soulburn reduce dice pools, not Attributes or Keep.<br>
-      Disoriented and Expose use the same 8 PP Base Cost curve.<br>
+      Disoriented, Soulburn, and Weaken reduce dice pools, not Attributes or Keep.<br>
+      Expose remains on the normal 8 PP Base Cost curve because it modifies Evade rather than a dice Pool.<br>
       All flat pool reductions apply before percentage-based Health penalties, and the final Pool cannot fall below Mastery Rank.
     </span>
   </span>
@@ -896,21 +904,21 @@ A ranged martial attack that applies Disoriented, Expose, Soulburn, or Weaken.
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | 8 m | — | Instant | Deal **+1d8 damage** on hit. | **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)** |
-| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
-| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
-| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
-| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
-| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(9) / Expose(9) / Soulburn(9) / Weaken(9)** |
+| **2** | Active | 12 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)** |
+| **3** | Active | 16 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **4** | Active | 20 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **5** | Active | 24 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **6** | Active | 28 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **7** | Active | 32 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **8** | Active | 36 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **9** | Active | 40 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **10** | Active | 44 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **11** | Active | 48 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **12** | Active | 52 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **13** | Active | 56 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(8) / Soulburn(4) / Weaken(4)** |
+| **14** | Active | 60 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(8) / Soulburn(4) / Weaken(4)** |
+| **15** | Active | 64 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(8) / Soulburn(4) / Weaken(4)** |
+| **16** | Active | 68 m | — | Instant | Deal **+2d8 damage** on hit. | **Disoriented(4) / Expose(9) / Soulburn(4) / Weaken(4)** |
 
 ---
 }}
@@ -1328,7 +1336,8 @@ A ranged martial AoE that carries a standard numeric Special through a weapon-dr
       Melee AoE Range = Self; no Range cost<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Corrode / Hex / Sundered / Root Cost = 6 × T(X), T(X) = X × (X + 1) / 2<br>
+      Challenge(1) = 6 PP; Challenge(X) at X 2+ = 6 × T(2X)<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Challenge / Corrode / Hex / Sundered / Root.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1351,7 +1360,10 @@ A ranged martial AoE that carries a standard numeric Special through a weapon-dr
       L14 → Target 420 PP: Radius 7 m (220) + Special(7) (168) = 388 PP<br>
       L15 → Target 450 PP: Radius 7 m (220) + Special(8) (216) = 436 PP<br>
       L16 → Target 480 PP: Radius 7 m (220) + Special(8) (216) = 436 PP<br>
-<br>      NOTES<br>
+<br>
+      CHALLENGE<br>
+      Challenge uses the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for Challenge.<br><br>
+      NOTES<br>
       Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
       Root still requires a minimum applied value of Root(2); where the table prints Special(1), Root is unavailable.<br>
       Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
@@ -1370,21 +1382,21 @@ A self-centered martial AoE that delivers a heavy numeric Special through a weap
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
-| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **3** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **5** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **7** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **8** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **10** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **11** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **13** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **14** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **15** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
-| **16** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(8) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **3** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **5** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **7** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **8** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **10** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **11** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **13** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **14** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **15** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
+| **16** | Active | Self | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(8) / Hex(8) / Sundered(8) / Root(8)** |
 
 
 ---
@@ -1401,7 +1413,8 @@ A self-centered martial AoE that delivers a heavy numeric Special through a weap
       Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = 6 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Corrode / Hex / Sundered / Root Cost = 6 × T(X), T(X) = X × (X + 1) / 2<br>
+      Challenge(1) = 6 PP; Challenge(X) at X 2+ = 6 × T(2X)<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Challenge / Corrode / Hex / Sundered / Root.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1424,7 +1437,10 @@ A self-centered martial AoE that delivers a heavy numeric Special through a weap
       L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (165) + Special(7) (168) = 398 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (165) + Special(7) (168) = 403 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Radius 7 m (220) + Special(7) (168) = 463 PP<br>
-<br>      NOTES<br>
+<br>
+      CHALLENGE<br>
+      Challenge uses the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for Challenge.<br><br>
+      NOTES<br>
       Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
       Root still requires a minimum applied value of Root(2); where the table prints Special(1), Root is unavailable.<br>
       Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
@@ -1443,21 +1459,21 @@ A ranged martial AoE that delivers a heavy numeric Special through a weapon-driv
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
 | **1** | Active | 8 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. **Root is unavailable at this Level.** |
-| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
-| **3** | Active | 16 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
-| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **5** | Active | 24 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
-| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **8** | Active | 36 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
-| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
-| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **12** | Active | 52 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(6) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
-| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
-| **16** | Active | 68 m | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(7) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **3** | Active | 16 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2) / Root(2)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **5** | Active | 24 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3) / Root(3)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **8** | Active | 36 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4) / Root(4)** |
+| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5) / Root(5)** |
+| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **12** | Active | 52 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(6) / Hex(6) / Sundered(6) / Root(6)** |
+| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
+| **16** | Active | 68 m | Radius 7 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Challenge(3) / Corrode(7) / Hex(7) / Sundered(7) / Root(7)** |
 
 
 ---
@@ -1474,7 +1490,8 @@ A ranged martial AoE that delivers a heavy numeric Special through a weapon-driv
       Melee AoE Range = Self; no Range cost<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Expose Cost = 8 × T(X), T(X) = X × (X + 1) / 2<br>
+      Disoriented(1) / Soulburn(1) / Weaken(1) = 8 PP; at X 2+, use 8 × T(2X)<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Disoriented / Expose / Soulburn / Weaken.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1497,7 +1514,9 @@ A ranged martial AoE that delivers a heavy numeric Special through a weapon-driv
       L14 → Target 420 PP: Radius 6 m (165) + Special(7) (224) = 389 PP<br>
       L15 → Target 450 PP: Radius 6 m (165) + Special(7) (224) = 389 PP<br>
       L16 → Target 480 PP: Radius 6 m (165) + Special(8) (288) = 453 PP<br>
-<br>      NOTES<br>
+<br>      POOL-REDUCTION VARIANTS<br>
+      Disoriented, Soulburn, and Weaken use the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for those Specials.<br><br>
+      NOTES<br>
       Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
       Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
@@ -1514,22 +1533,22 @@ A self-centered martial AoE that delivers a premium reduction Special through a 
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Self | Radius 1 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
-| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
-| **3** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **5** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **7** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **8** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **10** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **11** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **13** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **14** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **15** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
-| **16** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(8) / Expose(8) / Soulburn(8) / Weaken(8)** |
+| **1** | Active | Self | Radius 1 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)** |
+| **2** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)** |
+| **3** | Active | Self | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **4** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **5** | Active | Self | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **6** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **7** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **8** | Active | Self | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **9** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **10** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **11** | Active | Self | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **12** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **13** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **14** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **15** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
+| **16** | Active | Self | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(8) / Soulburn(4) / Weaken(4)** |
 
 
 ---
@@ -1546,7 +1565,8 @@ A self-centered martial AoE that delivers a premium reduction Special through a 
       Ranged AoE Range = 8 m +4 m per level; Range costs +5 PP per +4 m after 8 m<br>
       Weapon Damage is the baseline damage of the attack and is not priced again<br>
       Instant Attack AoE costs: Radius 1/2/3/4/5/6/7/8 m = 0/20/50/80/120/165/220/280 PP<br>
-      Special Cost = 8 × T(X), T(X) = X × (X + 1) / 2<br><br>
+      Expose Cost = 8 × T(X), T(X) = X × (X + 1) / 2<br>
+      Disoriented(1) / Soulburn(1) / Weaken(1) = 8 PP; at X 2+, use 8 × T(2X)<br><br>
       DESIGN STRUCTURE<br>
       Eligible Specials: Disoriented / Expose / Soulburn / Weaken.<br>
       AoE pays for coverage through Radius. The Special uses its normal printed value and normal Special cost: it is not halved and does not pay an extra Diminishing step.<br>
@@ -1569,7 +1589,9 @@ A self-centered martial AoE that delivers a premium reduction Special through a 
       L14 → Target 420 PP: Range 60 m (65) + Radius 6 m (165) + Special(6) (168) = 398 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + Radius 6 m (165) + Special(6) (168) = 403 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + Radius 6 m (165) + Special(7) (224) = 464 PP<br>
-<br>      NOTES<br>
+<br>      POOL-REDUCTION VARIANTS<br>
+      Disoriented, Soulburn, and Weaken use the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for those Specials.<br><br>
+      NOTES<br>
       Values never decrease. Unused PP may remain unused when the next Radius or Special increase does not fit cleanly.<br>
       Active Buff: Damage, if active, adds its full listed damage to every creature successfully hit by this AoE.
     </span>
@@ -1586,22 +1608,22 @@ A ranged martial AoE that delivers a premium reduction Special through a weapon-
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | Radius 1 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
-| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)** |
-| **3** | Active | 16 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **5** | Active | 24 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)** |
-| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **8** | Active | 36 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)** |
-| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **12** | Active | 52 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(5) / Expose(5) / Soulburn(5) / Weaken(5)** |
-| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(6) / Expose(6) / Soulburn(6) / Weaken(6)** |
-| **16** | Active | 68 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(7) / Expose(7) / Soulburn(7) / Weaken(7)** |
+| **1** | Active | 8 m | Radius 1 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)** |
+| **2** | Active | 12 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)** |
+| **3** | Active | 16 m | Radius 2 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **4** | Active | 20 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **5** | Active | 24 m | Radius 3 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **6** | Active | 28 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)** |
+| **7** | Active | 32 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **8** | Active | 36 m | Radius 4 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **9** | Active | 40 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)** |
+| **10** | Active | 44 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **11** | Active | 48 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **12** | Active | 52 m | Radius 5 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **13** | Active | 56 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(2) / Expose(5) / Soulburn(2) / Weaken(2)** |
+| **14** | Active | 60 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **15** | Active | 64 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(6) / Soulburn(3) / Weaken(3)** |
+| **16** | Active | 68 m | Radius 6 m | Instant | Affected creatures hit by the AoE take weapon damage. | **Disoriented(3) / Expose(7) / Soulburn(3) / Weaken(3)** |
 
 
 ---
@@ -1920,7 +1942,7 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       Special(3) = 60 PP<br>
       Special(4) = 90 PP<br>
       Special(5) = 126 PP<br><br>
-      CALCULATION<br>
+      CALCULATION — CORRODE / HEX / SUNDERED<br>
       L1 → Target 30 PP: not enough budget for a 4-Round zone<br>
       L2 → Target 60 PP: not enough budget for a 4-Round zone<br>
       L3 → Target 90 PP: Range 16 m (10) + [(Radius 2 m (20) + Special(1) (18)) ×2] = 86 PP<br>
@@ -1937,6 +1959,8 @@ This template covers Lacerate, Mark, Ruin, and Slow.
       L14 → Target 420 PP: Range 60 m (65) + [(Radius 3 m (50) + Special(5) (126)) ×2] = 417 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Special(5) (126)) ×2] = 422 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 3 m (50) + Special(5) (126)) ×2] = 427 PP<br><br>
+      CHALLENGE<br>
+      Challenge uses the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for Challenge.<br><br>
       NOTES<br>
       Heavy Specials stay intentionally narrow and low-value when converted into 4-Round zones.<br>
       Radius stays at 3 m at high levels because the heavy Special payload and duration consume most of the budget.
@@ -1958,18 +1982,18 @@ A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered for 4
 | **2** | Active | 12 m | — | — | — | — |
 | **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
 | **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(1) / Hex(1) / Sundered(1)**. |
-| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(2) / Hex(2) / Sundered(2)**. |
-| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(3) / Corrode(3) / Hex(3) / Sundered(3)**. |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(4) / Corrode(4) / Hex(4) / Sundered(4)**. |
-| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
-| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(5) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **7** | Active | 32 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **8** | Active | 36 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(2) / Hex(2) / Sundered(2)**. |
+| **9** | Active | 40 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **10** | Active | 44 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(1) / Corrode(3) / Hex(3) / Sundered(3)**. |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(4) / Hex(4) / Sundered(4)**. |
+| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
+| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Challenge(2) / Corrode(5) / Hex(5) / Sundered(5)**. |
 
 }}
 \page
@@ -1985,10 +2009,11 @@ A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered for 4
       Active curve = 30 PP per level<br>
       Range progression = +4 m per level; +5 PP per step after 8 m<br>
       Duration = 4 Rounds; persistent payload multiplier ×2<br>
-      AoE Special(X) = 8 × T(X+1)<br><br>
+      Expose AoE Special(X) = 8 × T(X+1)<br>
+      Disoriented / Soulburn / Weaken AoE Cost = 8 × T(2) at X1; at X 2+, use 8 × T(2X + 1)<br><br>
       VALID SPECIALS<br>
       Disoriented(X), Expose(X), Soulburn(X), Weaken(X).<br><br>
-      CALCULATION<br>
+      CALCULATION — EXPOSE<br>
       L3 → Target 90 PP: Range 16 m (10) + [(Radius 2 m (20) + Special(1) (24)) ×2] = 98 PP<br>
       L4 → Target 120 PP: Range 20 m (15) + [(Radius 2 m (20) + Special(1) (24)) ×2] = 103 PP<br>
       L5 → Target 150 PP: Range 24 m (20) + [(Radius 2 m (20) + Special(2) (48)) ×2] = 156 PP<br>
@@ -2003,6 +2028,8 @@ A ranged persistent area that applies Challenge, Corrode, Hex, or Sundered for 4
       L14 → Target 420 PP: Range 60 m (65) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 405 PP<br>
       L15 → Target 450 PP: Range 64 m (70) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 410 PP<br>
       L16 → Target 480 PP: Range 68 m (75) + [(Radius 3 m (50) + Special(4) (120)) ×2] = 415 PP<br><br>
+      POOL-REDUCTION VARIANTS<br>
+      Disoriented, Soulburn, and Weaken use the exact compressed values printed in the table and the dedicated pool-reduction pricing defined for those Specials.<br><br>
       NOTES<br>
       Levels 1–2 have no version because a legal persistent zone with these Specials does not fit the curve cleanly.<br>
       The zone applies the full printed value whenever a creature becomes affected under the Persistent Zone rules.
@@ -2018,18 +2045,18 @@ A persistent battlefield zone that weakens perception, defense, physical perform
 | **2** | Active | 12 m | — | — | — | — |
 | **3** | Active | 16 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
 | **4** | Active | 20 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(1) / Soulburn(1) / Weaken(1)**. |
-| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **7** | Active | 32 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **8** | Active | 36 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(2) / Soulburn(2) / Weaken(2)**. |
-| **9** | Active | 40 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **10** | Active | 44 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(3) / Expose(3) / Soulburn(3) / Weaken(3)**. |
-| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
-| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(4) / Expose(4) / Soulburn(4) / Weaken(4)**. |
+| **5** | Active | 24 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **6** | Active | 28 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **7** | Active | 32 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **8** | Active | 36 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(2) / Soulburn(1) / Weaken(1)**. |
+| **9** | Active | 40 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **10** | Active | 44 m | Radius 2 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **11** | Active | 48 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **12** | Active | 52 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **13** | Active | 56 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(1) / Expose(3) / Soulburn(1) / Weaken(1)**. |
+| **14** | Active | 60 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
+| **15** | Active | 64 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
+| **16** | Active | 68 m | Radius 3 m | 4 Rounds | Create a persistent zone. | Affected creatures gain **Disoriented(2) / Expose(4) / Soulburn(2) / Weaken(2)**. |
 
 ---
 }}

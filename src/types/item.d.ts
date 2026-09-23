@@ -193,6 +193,8 @@ export interface PowerMechanicsModifySpecial {
   type: string;
   mode: ModifySpecialMode;
   amount?: number;
+  /** Pool-reducing Specials (Challenge, Disoriented, Soulburn, Weaken) when their curve differs. */
+  poolAmount?: number;
   minExisting?: number;
   maxValue?: number;
   target?: string;

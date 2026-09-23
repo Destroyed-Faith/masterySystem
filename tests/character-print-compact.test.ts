@@ -440,7 +440,7 @@ describe('Quick Play character print', () => {
     };
     const parryCtx = buildCharacterCompactPrintContext(withParry) as any;
     expect(parryCtx.defenseSpecialLabel).toBe('Parry');
-    expect(parryCtx.defenseSpecialBoxes).toHaveLength(20);
+    expect(parryCtx.defenseSpecialBoxes).toHaveLength(10);
     expect(parryCtx.hasPhasing).toBe(false);
 
     // Phasing wins when present alongside Damage Negation.

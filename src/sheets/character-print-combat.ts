@@ -8,6 +8,7 @@ import { getAttackAttributeForPowerTreeOrSchool } from '../utils/power-roll-attr
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { getTemplate } from '../utils/powers/index.js';
+import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 import {
   artifactSystemHasSpellFocus,
   resolveArtifactWeaponKind,
@@ -586,10 +587,7 @@ export function buildPrintCombatPreviewForArtifactRow(
   let levelRow = tpl.levels[pl];
   if (!levelRow) return null;
   if (row.chosenSpecialKey) {
-    const specials = (levelRow.specials || []).map((s) =>
-      s.key === 'SPECIAL' ? { ...s, key: row.chosenSpecialKey! } : s,
-    );
-    levelRow = { ...levelRow, specials };
+    levelRow = bindPoolSpecialsOnRow(levelRow, row.chosenSpecialKey, row.powerTemplateId, Number(pl) || 1);
   }
   const sys = {
     isSpell: true,

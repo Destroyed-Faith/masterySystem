@@ -74,8 +74,8 @@ const INVIS_PASSIVE = [1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10];
 /** Passive Invisibility: Special Combat Senses blocked (0 below L4). */
 const INVIS_PASSIVE_SENSES = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4];
 
-/** Parry — Maximum Parry Pool = 5 × Level. */
-const PARRY_POOL = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+/** Passive: Parry — printed maximum Parry Pool (ceil(5 × Level / 2), capped by the Parry Attribute at runtime). */
+const PARRY_POOL = [3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40];
 
 /** Absorption — +4 HP per Health Bar per level. */
 const ABSORPTION_HP_PER_BAR = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
@@ -1128,7 +1128,7 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
             return {
                 text:
                     `While in Parry (no Attack Action), Maximum Parry Pool **${pool}** ` +
-                    `(Parry Attribute Might or Agility, capped at 5 × Level). Spend 1:1 to remove Attack Dice before the roll; 0 dice = Fully Parried.`,
+                    `(chosen Parry Attribute, limited by ceil(5 × Level / 2)). Spend 1:1 to remove Attack Dice before the roll; 0 dice = Fully Parried.`,
                 mechanics: {},
             };
         },

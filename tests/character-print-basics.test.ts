@@ -236,7 +236,7 @@ describe('character print table sheet', () => {
     expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3', 't4']);
     expect(melee.paymentTiers.map((t: any) => t.boxes.length)).toEqual([1, 2, 4, 8]);
     const parry = mightGroup.powers.find((p: any) => /parry/i.test(p.name));
-    expect(parry.summary).toMatch(/\+4 per Tier/i);
+    expect(parry.summary).toMatch(/\+2 per Tier/i);
     expect(parry.paymentTiers[0].label).toBe('T2');
     expect(parry.paymentTiers.every((t: any) => t.label !== 'T1')).toBe(true);
     expect(parry.oncePerCombat).toBe(false);

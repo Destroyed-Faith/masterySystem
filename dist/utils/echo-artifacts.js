@@ -1406,8 +1406,9 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             kind: 'stonePowerSupport',
             attribute: 'influence',
             stonePowerId: 'influence.notATarget',
-            // Follow-up: T2 support at L1 tries to activate the first published
-            // Not a Target tier. Do not invent replacement Level Progression values here.
+            // Not a Target starts at Tier 2. Printed support stages stay [1, 5, 9];
+            // effectiveStoneSupportPrefillTier lifts a T2 prefill so the character
+            // still pays the first real tier. There is no Tier 1.
             supportStages: [1, 5, 9],
         },
     ],
@@ -1425,7 +1426,7 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fill Tier 2 of Influence Ability: Not a Target. Tier 1 must still be paid.',
+            effect: 'Not a Target begins at Tier 2. You must activate and pay Tier 2 yourself. Stone Power Support only advances an already activated Stone Ability.',
             special: 'influence.notATarget',
         },
         {
@@ -1462,7 +1463,7 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fill Tier 3 of Influence Ability: Not a Target. Tiers 1 and 2 must still be paid.',
+            effect: 'Pre-fill Tier 3 of Influence Ability: Not a Target. Tier 2 must still be paid by you. There is no Tier 1.',
             special: 'influence.notATarget',
         },
         {
@@ -1499,7 +1500,7 @@ const RINGCHAIN_OF_KEPT_NAMES = {
             type: 'Stone Power Support',
             range: 'Self',
             duration: 'Instant',
-            effect: 'Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.',
+            effect: 'Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1.',
             special: 'influence.notATarget',
         },
         {

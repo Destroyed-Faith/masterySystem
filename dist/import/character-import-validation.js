@@ -2,6 +2,7 @@
  * Validation for homepage character import JSON.
  */
 import { validateTowerWizardSelection } from '../creation/tower-wizard/tower-wizard-validation.js';
+import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { findCatalogEntry, CREATION_POWER_TOTAL } from '../utils/power-catalog.js';
 import { CHARACTER_IMPORT_ATTRIBUTE_KEYS, CHARACTER_IMPORT_EXPORT_KIND, CHARACTER_IMPORT_SCHEMA_VERSION, CHARACTER_IMPORT_SYSTEM_ID, FOUNDRY_ACTOR_IMPORT_EXPORT_KIND, } from './character-import-types.js';
 import { disadvantagePointsTotal, expectedPowerCount, isKnownMinorExpressionId, isKnownSkillKey, normalizeDisadvantageEntries, resolveEchoArtifactImportKeys, resolvePowerGrantSpecs, validateArtifactImportSpec, } from './character-import-build.js';
@@ -130,8 +131,8 @@ function validateCharacterPayload(payload) {
                 continue;
             }
             const n = Number(raw);
-            if (!Number.isFinite(n) || n < 2 || n > 80) {
-                errors.push(`Attribute "${key}" must be a number between 2 and 80.`);
+            if (!Number.isFinite(n) || n < 1 || n > MAX_ATTRIBUTE) {
+                errors.push(`Attribute "${key}" must be a number between 1 and ${MAX_ATTRIBUTE}.`);
             }
         }
     }

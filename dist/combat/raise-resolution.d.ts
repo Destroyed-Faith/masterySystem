@@ -142,7 +142,7 @@ export declare function buildPowerSnapshotFromLevelData(levelData: {
  * otherwise the damage pipeline emits a meaningless "Special(X)" instead of
  * e.g. "Sundered(X)" and no status effect lands on the target.
  */
-export declare function bindChosenSpecialIntoLevelData(levelData: any | null, chosenSpecialKey: string | null | undefined): any | null;
+export declare function bindChosenSpecialIntoLevelData(levelData: any | null, chosenSpecialKey: string | null | undefined, templateId?: string | null, level?: number | null): any | null;
 /** Parse raise plan JSON from attack card data attribute. */
 export declare function parseDeclaredRaises(raw: string | null | undefined): DeclaredRaise[];
 export declare function snapshotToDamageFormula(snapshot: PowerSnapshot): string;

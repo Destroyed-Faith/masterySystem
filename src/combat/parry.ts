@@ -9,6 +9,7 @@ import {
   setRoundState,
   type RoundState,
 } from './action-economy.js';
+import { passiveParryPoolForLevel } from '../utils/powers/templates/passives.js';
 
 export interface ParryState {
   entered: boolean;
@@ -60,10 +61,9 @@ export function actorHasPassiveParry(actor: any): boolean {
   return !!findPassiveParryItem(actor);
 }
 
-/** Max pool from Passive Parry level (= 5 × Level). */
+/** Max pool from Passive Parry level (printed ceil(5 × Level / 2) table). */
 export function parryPoolCapForLevel(level: number): number {
-  const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
-  return 5 * lvl;
+  return passiveParryPoolForLevel(level);
 }
 
 export function resolveParryAttribute(actor: any): {

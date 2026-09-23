@@ -3154,7 +3154,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /**
      * Calculate cost to increase an attribute from current value to next value.
-     * New spec: bands 1–8 / 9–16 / … / 73–80 cost 1 / 2 / … / 10 XP per +1.
+     * Compressed 1–40 scale: the next point costs attributeBandCost(current + 1).
      */
     #calculateAttributeCost(currentValue) {
         return attributeBandCost(currentValue + 1);

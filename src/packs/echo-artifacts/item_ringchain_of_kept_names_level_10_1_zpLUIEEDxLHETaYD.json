@@ -42,7 +42,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.",
+        "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1.",
         "special": "influence.notATarget"
       },
       {
@@ -82,7 +82,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "Pre-fill Tier 2 of Influence Ability: Not a Target. Tier 1 must still be paid.",
+            "effect": "Not a Target begins at Tier 2. You must activate and pay Tier 2 yourself. Stone Power Support only advances an already activated Stone Ability.",
             "special": "influence.notATarget"
           },
           {
@@ -128,7 +128,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "Pre-fill Tier 3 of Influence Ability: Not a Target. Tiers 1 and 2 must still be paid.",
+            "effect": "Pre-fill Tier 3 of Influence Ability: Not a Target. Tier 2 must still be paid by you. There is no Tier 1.",
             "special": "influence.notATarget"
           },
           {
@@ -174,7 +174,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.",
+            "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1.",
             "special": "influence.notATarget"
           }
         ]
@@ -815,7 +815,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid."
+              "text": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1."
             },
             "specials": [],
             "lvl": 9

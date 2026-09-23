@@ -8,6 +8,7 @@
 
 import type { PowerTemplate } from './_shared.js';
 import { buildLevels, activeBuffRow } from './_shared.js';
+import { activeBuffSpecialIncrease } from '../pool-special-ranks.js';
 
 // Level-scaled value tables derived from the L1..L16 calculations in the md.
 // Rules/active-buffs.md Armor: +5 at L1, +4/level → L16 = +65 (7.5 PP per Armor).
@@ -50,8 +51,8 @@ const SUMMON_AURA_RADIUS = [8, 8, 8, 8, 16, 16, 16, 16, 24, 24, 24, 24, 32, 32, 
 const SUMMON_DMG_AURA = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 
-/** Reinforced Parry regain cap per Round (2 × Level). */
-const REINFORCED_PARRY = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Active Buff: Parry Recovery — 1 Parry per Power Level per Round. */
+const REINFORCED_PARRY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 
 /** Intensified Absorption — extra Temporary Colorless Stones on first harvest. */
 const INTENSIFIED_ABSORPTION = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
@@ -471,15 +472,27 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const inc = lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
+            const inc = activeBuffSpecialIncrease(lvl);
+            const poolInc = activeBuffSpecialIncrease(lvl, 'challenge');
+            const effectText = inc === 0
+                ? 'No effect. The first qualifying hit each round increases an already existing chosen Special, and this Power Level has not reached that milestone.'
+                : poolInc === inc
+                    ? `On the first qualifying hit each round, increase one already existing chosen Special by **+${inc}**. This does nothing if that Special is not already present.`
+                    : `On the first qualifying hit each round, increase one already existing chosen Special by **+${inc}**, or **+${poolInc}** for Challenge, Disoriented, Soulburn, or Weaken. This does nothing if that Special is not already present.`;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: inc === 0
-                    ? '—'
-                    : `Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by **+${inc}**.`,
+                effectText,
                 mechanics: inc === 0
                     ? { duration: 'masteryRankRounds' }
-                    : { modifySpecial: { type: 'chosen', mode: 'increaseExisting', amount: inc }, duration: 'masteryRankRounds' },
+                    : {
+                        modifySpecial: {
+                            type: 'chosen',
+                            mode: 'increaseExisting',
+                            amount: inc,
+                            poolAmount: poolInc,
+                        },
+                        duration: 'masteryRankRounds',
+                    },
             });
         }),
     },
@@ -671,7 +684,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
                 type: 'Active Buff, Parry',
                 duration: DURATION_MR_ROUNDS,
                 effectText:
-                    `Requires **Parry** Passive. After Parry resolves, regain spent Parry up to **${regain}** total per Round; cannot exceed the entered Pool.`,
+                    `Requires **Parry** Passive. After you spend Parry, regain up to **${regain}** total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.`,
                 mechanics: { duration: 'masteryRankRounds' },
             });
         }),

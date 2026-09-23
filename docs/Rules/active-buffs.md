@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Active Buffs
-Version: v0.9.8 (2026-07-31)
+Version: v0.9.9.0 (2026-09-22)
 }}
 
 }}
@@ -157,6 +157,10 @@ The round in which the Active Buff is activated counts as the first round of its
 
 ---
 ::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Linear Scaling Rule
 
 Levels **1–4** define the structure and mechanical identity of an Active Buff.
@@ -166,10 +170,7 @@ Levels **5–16** scale that same structure upward.
 A standard Active Buff does not gain a new axis, rider, Special, condition, subsystem, or action-economy effect at later Levels.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Pure and Combination Active Buffs
 
 A **Pure Active Buff** has exactly one mechanical axis.
@@ -408,6 +409,11 @@ You become harder to target, harder to read, harder to pin down, or harder to st
 | **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+32 Evade**. |
 
 ---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 
 <h3 id="active-buff-armor-aura">
   Active Buff: Armor Aura
@@ -850,6 +856,7 @@ You reinforce yourself with both a hardened defensive layer and a temporary dama
 {{pageNumber,auto}}
 {{wide
 
+
 <h3 id="active-buff-evade-temporary-hp">
   Active Buff: Evade + Temporary HP
   <span class="tooltip">🛈
@@ -913,6 +920,11 @@ You avoid the cleanest hits, and what still connects is swallowed by a temporary
 
 
 ---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 
 <h3 id="active-buff-temporary-hp-healing">
   Active Buff: Temporary HP + Healing
@@ -1047,6 +1059,45 @@ You reinforce both your ability to absorb hits and your ability to avoid clean c
 | **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+33 Armor** and **+16 Evade**. |
 
 ---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Active Buffs — Pure Offensive
+
+Pure Offensive Active Buffs improve the user's own offensive output for a limited time.
+
+They do not deal damage when activated.  
+Instead, they enhance attacks or offensive Powers made while the buff lasts.
+
+Unless an entry says otherwise, a Pure Offensive Active Buff applies only to the user's own attacks.
+
+Pure Offensive Active Buffs should remain clean and focused.
+
+They may improve:
+
+- damage,
+- Critical value,
+- Penetration,
+- or one other clearly defined offensive axis.
+
+They may not grant Attack Dice.
+
+They may not grant extra attacks.
+
+They may not grant free actions.
+
+They may not apply detection, reveal, awareness, or sensor effects.
+
+They may not add defensive benefits unless the entry is built as a separate Offensive Combination Active Buff and explicitly pays for both axes.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 <h3 id="active-buff-damage">
   Active Buff: Damage
@@ -1452,9 +1503,9 @@ It may not escalate knockdown, stun, forced behavior, full action denial, or oth
       ACTIVE BUFF SPECIAL INCREASE MILESTONES<br>
       L1–3 → no effect.<br>
       L4–7 → first qualifying hit each round increases the chosen existing Special by +1.<br>
-      L8–11 → first qualifying hit each round increases the chosen existing Special by +2.<br>
-      L12–14 → first qualifying hit each round increases the chosen existing Special by +3.<br>
-      L15–16 → first qualifying hit each round increases the chosen existing Special by +4.<br><br>
+      L8–11 → increase by +2; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +1 instead.<br>
+      L12–14 → increase by +3; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +2 instead.<br>
+      L15–16 → increase by +4; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +2 instead.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 40 PP → no effect because the first Special Increase milestone has not been reached.<br>
       L2 target 70 PP → no effect because the first Special Increase milestone has not been reached.<br>
@@ -1463,14 +1514,14 @@ It may not escalate knockdown, stun, forced behavior, full action denial, or oth
       L5 target 160 PP → same Special Increase band as L4; no filler is added.<br>
       L6 target 190 PP → same Special Increase band as L4; no filler is added.<br>
       L7 target 220 PP → same Special Increase band as L4; no filler is added.<br>
-      L8 target 250 PP → second Special Increase milestone: increase one existing chosen Special by +2 on the first qualifying hit each round.<br>
+      L8 target 250 PP → second Special Increase milestone: increase one existing chosen Special by +2, or +1 for Challenge / Disoriented / Soulburn / Weaken, on the first qualifying hit each round.<br>
       L9 target 280 PP → same Special Increase band as L8; no filler is added.<br>
       L10 target 310 PP → same Special Increase band as L8; no filler is added.<br>
       L11 target 340 PP → same Special Increase band as L8; no filler is added.<br>
-      L12 target 370 PP → third Special Increase milestone: increase one existing chosen Special by +3 on the first qualifying hit each round.<br>
+      L12 target 370 PP → third Special Increase milestone: increase one existing chosen Special by +3, or +2 for Challenge / Disoriented / Soulburn / Weaken, on the first qualifying hit each round.<br>
       L13 target 400 PP → same Special Increase band as L12; no filler is added.<br>
       L14 target 430 PP → same Special Increase band as L12; no filler is added.<br>
-      L15 target 460 PP → fourth Special Increase milestone: increase one existing chosen Special by +4 on the first qualifying hit each round.<br>
+      L15 target 460 PP → fourth Special Increase milestone: increase one existing chosen Special by +4, or +2 for Challenge / Disoriented / Soulburn / Weaken, on the first qualifying hit each round.<br>
       L16 target 490 PP → same Special Increase band as L15; no filler is added.<br><br>
       DESIGN NOTE<br>
       Special Increase is intentionally not smoothed across all levels.<br>
@@ -1495,25 +1546,25 @@ You push an existing condition past its normal limits, turning setup into escala
 | **5** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
 | **6** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
 | **7** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+4**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+4**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+4** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+4** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
 
 ---
 :
 #### Example: Active Buff: Special Increase + Weaken
 
-A creature is already affected by **Weaken(3)**. At Active Buff Level 8, the first qualifying hit each round increases it by **+2**, producing **Weaken(5)**. If the creature has no Weaken value before the hit, Special Increase does nothing.
+A creature is already affected by **Weaken(2)**. At Active Buff Level 8, the first qualifying hit each round increases it by **+1**, producing **Weaken(3)**. If the creature has no Weaken value before the hit, Special Increase does nothing.
 
 #### Example: Active Buff: Special Increase + Soulburn
 
-A creature is already affected by **Soulburn(4)**. At Active Buff Level 12, the first qualifying hit each round increases it by **+3**, producing **Soulburn(7)**. This increases only the existing Special; it does not alter Attributes, Keep, or derived values.
+A creature is already affected by **Soulburn(2)**. At Active Buff Level 12, the first qualifying hit each round increases it by **+2**, producing **Soulburn(4)**. This increases only the existing Special; it does not alter Attributes, Keep, or derived values.
 
 ---
 
@@ -2335,14 +2386,14 @@ This Active Buff does not block Special Combat Senses unless another explicit In
   Regained Parry cannot increase your current Pool above the amount with which you entered Parry that Turn.<br><br>
 
   SCALING<br>
-  Regain a total of up to 2 Parry per Power Level during each Round.<br>
+  Regain a total of up to 1 Parry per Power Level during each Round.<br>
   You cannot regain more Parry than you have spent during that Round.<br>
   The recovery limit resets at the beginning of each new Round.<br><br>
 
   EXAMPLE<br>
-  You spend 10 Parry to remove 10 Attack Dice while using Active Buff: Parry Recovery Level 4.<br>
-  After the Attack resolves, regain up to 8 Parry.<br>
-  The Attack therefore consumes only 2 Parry from your Pool.<br>
+  You spend 5 Parry to remove 5 Attack Dice while using Active Buff: Parry Recovery Level 4.<br>
+  After the Attack resolves, regain up to 4 Parry.<br>
+  The Attack therefore consumes only 1 Parry from your Pool.<br>
   You have reached this Buff's recovery limit and cannot regain further Parry until the beginning of the next Round.<br><br>
 
   NOTES<br>
@@ -2371,22 +2422,22 @@ The recovery limit resets at the beginning of each new Round.
 
 | **Level** | **Type**           | **Range** | **AoE** |     **Duration**    | **Effect**                                      |
 | :-------: | :----------------- | :-------: | :-----: | :-----------------: | :---------------------------------------------- |
-|   **1**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **2 Parry per Round**.  |
-|   **2**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **4 Parry per Round**.  |
-|   **3**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **6 Parry per Round**.  |
-|   **4**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **8 Parry per Round**.  |
-|   **5**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **10 Parry per Round**. |
-|   **6**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **12 Parry per Round**. |
-|   **7**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **14 Parry per Round**. |
-|   **8**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **16 Parry per Round**. |
-|   **9**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **18 Parry per Round**. |
-|   **10**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **20 Parry per Round**. |
-|   **11**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **22 Parry per Round**. |
-|   **12**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **24 Parry per Round**. |
-|   **13**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **26 Parry per Round**. |
-|   **14**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **28 Parry per Round**. |
-|   **15**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **30 Parry per Round**. |
-|   **16**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **32 Parry per Round**. |
+|   **1**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **1 Parry per Round**.  |
+|   **2**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **2 Parry per Round**.  |
+|   **3**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **3 Parry per Round**.  |
+|   **4**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **4 Parry per Round**.  |
+|   **5**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **5 Parry per Round**. |
+|   **6**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **6 Parry per Round**. |
+|   **7**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **7 Parry per Round**. |
+|   **8**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **8 Parry per Round**. |
+|   **9**   | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **9 Parry per Round**. |
+|   **10**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **10 Parry per Round**. |
+|   **11**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **11 Parry per Round**. |
+|   **12**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **12 Parry per Round**. |
+|   **13**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **13 Parry per Round**. |
+|   **14**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **14 Parry per Round**. |
+|   **15**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **15 Parry per Round**. |
+|   **16**  | Active Buff, Parry |    Self   |    —    | Mastery Rank Rounds | Regain a total of up to **16 Parry per Round**. |
 
 
 }}

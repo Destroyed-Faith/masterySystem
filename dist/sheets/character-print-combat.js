@@ -6,6 +6,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getAttackAttributeForPowerTreeOrSchool } from '../utils/power-roll-attribute.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/index.js';
+import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 import { artifactSystemHasSpellFocus, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
@@ -517,8 +518,7 @@ export function buildPrintCombatPreviewForArtifactRow(actor, row, items, slot = 
     if (!levelRow)
         return null;
     if (row.chosenSpecialKey) {
-        const specials = (levelRow.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: row.chosenSpecialKey } : s);
-        levelRow = { ...levelRow, specials };
+        levelRow = bindPoolSpecialsOnRow(levelRow, row.chosenSpecialKey, row.powerTemplateId, Number(pl) || 1);
     }
     const sys = {
         isSpell: true,

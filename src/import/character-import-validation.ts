@@ -3,6 +3,7 @@
  */
 
 import { validateTowerWizardSelection } from '../creation/tower-wizard/tower-wizard-validation.js';
+import { MAX_ATTRIBUTE } from '../utils/constants.js';
 import { findCatalogEntry, CREATION_POWER_TOTAL } from '../utils/power-catalog.js';
 import type { PowerGrantSpec } from '../utils/power-item-builder.js';
 import {
@@ -162,8 +163,8 @@ function validateCharacterPayload(payload: CharacterImportPayload): CharacterImp
         continue;
       }
       const n = Number(raw);
-      if (!Number.isFinite(n) || n < 2 || n > 80) {
-        errors.push(`Attribute "${key}" must be a number between 2 and 80.`);
+      if (!Number.isFinite(n) || n < 1 || n > MAX_ATTRIBUTE) {
+        errors.push(`Attribute "${key}" must be a number between 1 and ${MAX_ATTRIBUTE}.`);
       }
     }
   }

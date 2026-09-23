@@ -143,7 +143,10 @@ export function summarizePowerMechanics(mech) {
                         ms.mode === 'remove' ? 'remove' :
                             ms.mode === 'refreshDuration' ? 'refresh' : ms.mode;
         const amt = typeof ms.amount === 'number' ? ms.amount : '';
-        push(`${verb}${amt} ${ms.type}`.trim());
+        const pool = typeof ms.poolAmount === 'number' && ms.poolAmount !== ms.amount
+            ? ` (pool Specials +${ms.poolAmount})`
+            : '';
+        push(`${verb}${amt} ${ms.type}${pool}`.trim());
     }
     // grantNextHitEffect
     if (mech.grantNextHitEffect) {

@@ -8,12 +8,23 @@
  * CONFIG.MASTERY.creation.minDisadvantagePoints (default 2) and at most maxDisadvantagePoints (8).
  * Disadvantage Points = Starting Faith Fractures (both current and maximum)
  */
+/**
+ * Addiction withdrawal on Skill Dice Pools (v0.9.9 sync).
+ * The archived Core table still prints −2/−4/−8/−16; runtime follows the
+ * approved compressed penalties. Resolve TN is not set.
+ */
+export const ADDICTION_SKILL_DICE_PENALTIES = {
+    oneDay: 1,
+    oneWeek: 2,
+    oneMonth: 4,
+    threeMonths: 8,
+};
 export const DISADVANTAGES = [
     {
         id: 'addiction',
         name: 'Addiction',
         basePoints: 2,
-        description: 'You are addicted to a substance, ritual, faith, or communion. Withdrawal effects: After 1 day without: -1k0 on all rolls. After 1 week: -2k0 on all rolls. After 1 month: no Raises possible. If pushed beyond that: Stress(3) and Disoriented(2) until restored.',
+        description: 'You are dependent on a substance, ritual, faith, or contact. If denied that source, Skill Dice Pools take −1d8 after 1 day, −2d8 after 1 week, −4d8 after 1 month, and −8d8 after 3 months or more. The GM may call for a Resolve k1 roll when the Addiction is offered, threatened, denied, or becomes dangerous. That roll has no fixed Target Number.',
         fields: [
             {
                 name: 'substance',
@@ -23,7 +34,7 @@ export const DISADVANTAGES = [
                 required: true
             }
         ],
-        effect: 'Withdrawal: 1 day = -1k0 all rolls; 1 week = -2k0 all rolls; 1 month = no Raises; if pushed = Stress(3) + Disoriented(2)'
+        effect: 'Withdrawal Skill Dice Pools: 1 day −1d8; 1 week −2d8; 1 month −4d8; 3 months or more −8d8. Resolve k1 may be called; no fixed TN.'
     },
     {
         id: 'berserkers-curse',

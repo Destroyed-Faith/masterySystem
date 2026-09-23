@@ -697,7 +697,7 @@ describe('Wits — Initiative Boost is MR × 1/2/4/8 and once per combat', () =>
 });
 
 describe('Might — Parry ramps at T2', () => {
-  it.each([[2, 4], [3, 8], [4, 12]])('T%i grants +%i Parry Pool', async (tier, expected) => {
+  it.each([[2, 2], [3, 4], [4, 6]])('T%i grants +%i Parry Pool', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['might.parry'].apply({
       actor: actor as any,

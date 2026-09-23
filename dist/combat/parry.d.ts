@@ -18,7 +18,7 @@ export interface ParryStripResult {
 /** Find the Passive Parry power item on an actor (templateId preferred). */
 export declare function findPassiveParryItem(actor: any): any | null;
 export declare function actorHasPassiveParry(actor: any): boolean;
-/** Max pool from Passive Parry level (= 5 × Level). */
+/** Max pool from Passive Parry level (printed ceil(5 × Level / 2) table). */
 export declare function parryPoolCapForLevel(level: number): number;
 export declare function resolveParryAttribute(actor: any): {
     attribute: 'might' | 'agility';

@@ -8,6 +8,7 @@ import { RAISE_INCREMENT } from '../utils/constants.js';
 import { clampAtZero, formatD8Count, parseD8Count } from '../utils/dice-formula.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
+import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 function cloneSnapshot(s) {
     return {
         ...s,
@@ -462,15 +463,12 @@ export function buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallb
  * otherwise the damage pipeline emits a meaningless "Special(X)" instead of
  * e.g. "Sundered(X)" and no status effect lands on the target.
  */
-export function bindChosenSpecialIntoLevelData(levelData, chosenSpecialKey) {
+export function bindChosenSpecialIntoLevelData(levelData, chosenSpecialKey, templateId, level) {
     if (!levelData || !chosenSpecialKey || !Array.isArray(levelData.specials))
         return levelData;
     if (!levelData.specials.some((s) => s?.key === 'SPECIAL'))
         return levelData;
-    return {
-        ...levelData,
-        specials: levelData.specials.map((s) => s?.key === 'SPECIAL' ? { ...s, key: chosenSpecialKey } : s),
-    };
+    return bindPoolSpecialsOnRow(levelData, chosenSpecialKey, templateId, Number(level) || 1);
 }
 /** Parse raise plan JSON from attack card data attribute. */
 export function parseDeclaredRaises(raw) {
@@ -513,8 +511,7 @@ export async function loadPowerSnapshotForArtifactOption(option) {
         if (powerDef?.levels) {
             levelData = powerDef.levels[pl] ?? null;
             if (levelData && chosenKey) {
-                const specials = (levelData.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s);
-                levelData = { ...levelData, specials };
+                levelData = bindPoolSpecialsOnRow(levelData, chosenKey, templateId, Number(pl) || 1);
             }
         }
     }
@@ -536,6 +533,7 @@ export async function loadPowerSnapshotForItem(powerItem) {
         ? [...powerSystem.specials]
         : [];
     let levelData = null;
+    let definitionRank = Math.max(1, Math.floor(Number(rawLevel) || 1));
     try {
         const powersModule = await import('../utils/powers/index.js');
         const templates = powersModule.ALL_POWER_TEMPLATES || [];
@@ -549,7 +547,7 @@ export async function loadPowerSnapshotForItem(powerItem) {
         }
         if (powerDef?.levels) {
             const { getPowerDefinitionRank } = await import('../utils/power-definition-rank.js');
-            const definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
+            definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
             // Prefer the item's own bound levels (SPECIAL placeholder already
             // replaced by chosenSpecial at item creation) over the raw template.
             const levelsSource = powerSystem.levels || powerDef.levels;
@@ -564,7 +562,7 @@ export async function loadPowerSnapshotForItem(powerItem) {
     catch {
         /* template optional */
     }
-    levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
+    levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key, powerSystem.templateId, definitionRank);
     const snapshot = buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallbackSpecials);
     return { snapshot, isSpell, levelData };
 }

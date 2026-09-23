@@ -585,7 +585,12 @@ export async function showDamageDialog(
           } else {
             levelData = levelsSource[String(definitionRank)];
           }
-          levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
+          levelData = bindChosenSpecialIntoLevelData(
+            levelData,
+            powerSystem.chosenSpecial?.key,
+            templateId || powerDef?.templateId,
+            definitionRank,
+          );
         }
       } catch (e) {
         console.warn('Mastery System | Could not load power definitions for level data', e);

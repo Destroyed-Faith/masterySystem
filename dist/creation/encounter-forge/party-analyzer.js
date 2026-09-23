@@ -18,6 +18,7 @@ import { isArtifactEquippedOnActor } from '../../utils/artifact-actor-rules.js';
 import { artifactToVirtualWeapon } from '../../utils/unarmed-fallback.js';
 import { canonicalSpecialId } from '../../utils/special-effects.js';
 import { getPowerDefinitionRank } from '../../utils/power-definition-rank.js';
+import { passiveParryPoolForLevel } from '../../utils/powers/templates/passives.js';
 import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, collectMechanicsContributions, } from '../../utils/power-mechanics.js';
 import { getTargetArmor, getTargetEvade, getTargetSpellResistance, } from '../../combat/target-defenses.js';
 import { permanentStonesFromLifetimeXp, usesV099Stones } from '../../progression/v099-rules.js';
@@ -223,7 +224,7 @@ export function analyzePc(actor) {
         const chosenKey = String(sys.chosenSpecial?.key ?? '').toLowerCase();
         if (tid.includes('parry')) {
             const level = Math.max(1, num(sys.level ?? sys.rank, 1));
-            parryPoolMax = Math.max(parryPoolMax, Math.min(Math.max(might, agility), 5 * level));
+            parryPoolMax = Math.max(parryPoolMax, Math.min(Math.max(might, agility), passiveParryPoolForLevel(level)));
         }
         if (chosenKey === 'cleanse' || String(sys.subfamily ?? '').toLowerCase() === 'support-cleanse' || name.includes('cleanse')) {
             canCleanse = true;

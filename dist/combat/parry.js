@@ -3,6 +3,7 @@
  * 0 remaining dice = Fully Parried → Riposte / Reflection may fire.
  */
 import { getActionEconomyActor, getRoundState, setRoundState, } from './action-economy.js';
+import { passiveParryPoolForLevel } from '../utils/powers/templates/passives.js';
 function actorItems(actor) {
     const items = actor?.items;
     if (!items)
@@ -45,10 +46,9 @@ export function findPassiveParryItem(actor) {
 export function actorHasPassiveParry(actor) {
     return !!findPassiveParryItem(actor);
 }
-/** Max pool from Passive Parry level (= 5 × Level). */
+/** Max pool from Passive Parry level (printed ceil(5 × Level / 2) table). */
 export function parryPoolCapForLevel(level) {
-    const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
-    return 5 * lvl;
+    return passiveParryPoolForLevel(level);
 }
 export function resolveParryAttribute(actor) {
     const attrs = actor?.system?.attributes ?? {};

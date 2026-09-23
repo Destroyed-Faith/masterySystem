@@ -39,6 +39,7 @@ import {
   catalogTemplateRequiresSpecial,
 } from '../utils/artifact-catalog-pick.js';
 import { getEffect, getEffectBaseName } from '../utils/special-effects.js';
+import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 
 /** Roman numeral per stage index (0-based). */
 const STAGE_NUMERALS = ['I', 'II', 'III'] as const;
@@ -88,19 +89,26 @@ function clean(s: string | undefined): string {
 }
 
 /** Replace SPECIAL placeholder with the chosen Special key for preview / compile. */
-function bindChosenSpecialRow(lr: PowerLevelRow, chosenKey: string): PowerLevelRow {
-  const specials = (lr.specials || []).map((s: PowerSpecial) =>
-    s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s,
-  );
-  return { ...lr, specials };
+function bindChosenSpecialRow(
+  lr: PowerLevelRow,
+  chosenKey: string,
+  templateId?: string,
+  level?: number,
+): PowerLevelRow {
+  return bindPoolSpecialsOnRow(lr, chosenKey, templateId, Number(level) || 1) as PowerLevelRow;
 }
 
 /** Resolve the Special column for a level row (placeholder bind or aura-style). */
-function specialTextForRow(lr: PowerLevelRow, chosenKey: string | undefined): string {
+function specialTextForRow(
+  lr: PowerLevelRow,
+  chosenKey: string | undefined,
+  templateId?: string,
+  level?: number,
+): string {
   if (!chosenKey) return clean(renderSpecials(lr.specials || []));
   const hasPlaceholder = (lr.specials || []).some((s) => s.key === 'SPECIAL');
   if (hasPlaceholder) {
-    return clean(renderSpecials(bindChosenSpecialRow(lr, chosenKey).specials || []));
+    return clean(renderSpecials(bindChosenSpecialRow(lr, chosenKey, templateId, level).specials || []));
   }
   const placeholder = (lr.specials || []).find((s) => s.key === 'SPECIAL');
   const rank =
@@ -226,7 +234,7 @@ export function deriveLevelProgressionFromPicks(
         const isWeaponAoe = /weapon-aoe/.test(templateId);
         const lrRaw = (tpl.levels as Record<string, PowerLevelRow>)[pl];
         if (!lrRaw) continue;
-        const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey) : lrRaw;
+        const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey, templateId, Number(pl) || 1) : lrRaw;
         // Printed artifact-exclusive profiles override the catalog effect text.
         const effectOverride = pick.stageEffectTexts?.[s]?.trim();
         const effectText = effectOverride
@@ -235,10 +243,10 @@ export function deriveLevelProgressionFromPicks(
             ? (lr.effect?.text || '').replace(/\bSPECIAL\b/g, chosenKey)
             : (lr.effect?.text || '');
         const specialCol = pick.isSpell
-          ? [specialTextForRow(lrRaw, chosenKey), 'Spell'].filter(Boolean).join(', ')
+          ? [specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1), 'Spell'].filter(Boolean).join(', ')
           : chosenKey && isWeaponAoe && !catalogTemplateRequiresSpecial(templateId)
             ? optionalWeaponAoeSpecialText(chosenKey, s)
-            : specialTextForRow(lrRaw, chosenKey);
+            : specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1);
         rows.push({
           level,
           name: perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`,

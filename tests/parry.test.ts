@@ -65,9 +65,11 @@ describe('parry strip math', () => {
     expect(computeParryStrip(0, 5).fullyParried).toBe(false);
   });
 
-  it('caps pool at 5 × level', () => {
-    expect(parryPoolCapForLevel(1)).toBe(5);
-    expect(parryPoolCapForLevel(4)).toBe(20);
+  it('caps pool at the printed ceil(5 × level / 2) table', () => {
+    expect(parryPoolCapForLevel(1)).toBe(3);
+    expect(parryPoolCapForLevel(2)).toBe(5);
+    expect(parryPoolCapForLevel(4)).toBe(10);
+    expect(parryPoolCapForLevel(16)).toBe(40);
   });
 });
 
@@ -106,7 +108,7 @@ describe('parry enter + strip persistence', () => {
     expect(findPassiveParryItem(def)?.id).toBe('pp');
     const pool = computeParryPoolMax(def)!;
     expect(pool.attribute).toBe('agility');
-    expect(pool.max).toBe(10); // min(12, 5*2)
+    expect(pool.max).toBe(5); // min(12, Passive Parry L2 = 5)
   });
 
   it('enterParry sets pool and spends Attack Actions', async () => {
@@ -114,21 +116,21 @@ describe('parry enter + strip persistence', () => {
     const combat = { id: 'c1', round: 1, turn: 0 } as any;
     const result = await enterParry(def, combat);
     expect(result.ok).toBe(true);
-    expect(result.pool).toBe(8);
+    expect(result.pool).toBe(5);
     const rs = getRoundState(def, combat);
     expect(rs.parry?.entered).toBe(true);
-    expect(rs.parry?.pool).toBe(8);
+    expect(rs.parry?.pool).toBe(5);
     expect(rs.attackActions.used).toBe(rs.attackActions.total);
     expect(rs.baseAttackLocked).toBe(true);
   });
 
   it('applyParryDiceStrip Fully Parries and depletes pool', async () => {
-    const def = makeDefender('def-strip', { might: 6, level: 2 });
+    const def = makeDefender('def-strip', { might: 8, level: 2 });
     const combat = { id: 'c1', round: 1, turn: 0 } as any;
     await enterParry(def, combat);
-    const strip = await applyParryDiceStrip(def, combat, 6);
+    const strip = await applyParryDiceStrip(def, combat, 5);
     expect(strip.fullyParried).toBe(true);
-    expect(strip.spent).toBe(6);
+    expect(strip.spent).toBe(5);
     expect(strip.remainingDice).toBe(0);
     expect(getRoundState(def, combat).parry?.pool).toBe(0);
   });

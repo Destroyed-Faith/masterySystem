@@ -19,7 +19,7 @@ export function normalizeImportAttributes(raw) {
     const out = {};
     for (const key of CHARACTER_IMPORT_ATTRIBUTE_KEYS) {
         const n = Math.floor(Number(raw?.[key]));
-        out[key] = Number.isFinite(n) ? Math.max(2, Math.min(MAX_ATTRIBUTE, n)) : 2;
+        out[key] = Number.isFinite(n) ? Math.max(1, Math.min(MAX_ATTRIBUTE, n)) : 2;
     }
     return out;
 }

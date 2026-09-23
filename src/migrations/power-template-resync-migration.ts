@@ -26,6 +26,7 @@ import { findTemplateById } from '../utils/power-catalog.js';
 import { ALL_POWER_TEMPLATES } from '../utils/powers/templates/index.js';
 import type { EmbeddedPowerData, PowerLevelKey, PowerLevelRow, PowerSpecial } from '../types/item.js';
 import { renderRange, renderAoe, renderDuration } from '../utils/power-rendering.js';
+import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 const SETTING_NAMESPACE = 'mastery-system';
 // Retained only so old worlds that registered this world-setting don't error on
 // `settings.get`. The flag is no longer used to gate the migration.
@@ -92,10 +93,12 @@ function bindLevels(
     if (!chosenSpecialKey) return template.levels;
     const next: Record<string, PowerLevelRow> = {};
     for (const [k, row] of Object.entries(template.levels)) {
-        const specials = (row.specials || []).map((s: PowerSpecial) =>
-            s.key === 'SPECIAL' ? { ...s, key: chosenSpecialKey } : s,
-        );
-        next[k] = { ...row, specials };
+        next[k] = bindPoolSpecialsOnRow(
+            row,
+            chosenSpecialKey,
+            template.templateId,
+            Number(k),
+        ) as PowerLevelRow;
     }
     return next as Record<PowerLevelKey, PowerLevelRow>;
 }

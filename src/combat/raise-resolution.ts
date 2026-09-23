@@ -11,6 +11,7 @@ import type { AoeSpec, DurationSpec, PowerSpecial, RangeSpec } from '../types/it
 import type { RadialCombatOption } from '../radial-menu/types.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
+import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 
 export type RaiseEffectKind =
   | 'damage'
@@ -621,15 +622,12 @@ export function buildPowerSnapshotFromLevelData(
 export function bindChosenSpecialIntoLevelData(
   levelData: any | null,
   chosenSpecialKey: string | null | undefined,
+  templateId?: string | null,
+  level?: number | null,
 ): any | null {
   if (!levelData || !chosenSpecialKey || !Array.isArray(levelData.specials)) return levelData;
   if (!levelData.specials.some((s: any) => s?.key === 'SPECIAL')) return levelData;
-  return {
-    ...levelData,
-    specials: levelData.specials.map((s: any) =>
-      s?.key === 'SPECIAL' ? { ...s, key: chosenSpecialKey } : s,
-    ),
-  };
+  return bindPoolSpecialsOnRow(levelData, chosenSpecialKey, templateId, Number(level) || 1);
 }
 
 /** Parse raise plan JSON from attack card data attribute. */
@@ -677,10 +675,7 @@ export async function loadPowerSnapshotForArtifactOption(
     if (powerDef?.levels) {
       levelData = powerDef.levels[pl] ?? null;
       if (levelData && chosenKey) {
-        const specials = (levelData.specials || []).map((s: PowerSpecial) =>
-          s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s,
-        );
-        levelData = { ...levelData, specials };
+        levelData = bindPoolSpecialsOnRow(levelData, chosenKey, templateId, Number(pl) || 1);
       }
     }
   } catch {
@@ -709,6 +704,7 @@ export async function loadPowerSnapshotForItem(
     : [];
 
   let levelData: any = null;
+  let definitionRank = Math.max(1, Math.floor(Number(rawLevel) || 1));
   try {
     const powersModule = await import('../utils/powers/index.js' as any);
     const templates = powersModule.ALL_POWER_TEMPLATES || [];
@@ -724,7 +720,7 @@ export async function loadPowerSnapshotForItem(
     }
     if (powerDef?.levels) {
       const { getPowerDefinitionRank } = await import('../utils/power-definition-rank.js');
-      const definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
+      definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
       // Prefer the item's own bound levels (SPECIAL placeholder already
       // replaced by chosenSpecial at item creation) over the raw template.
       const levelsSource = powerSystem.levels || powerDef.levels;
@@ -738,7 +734,12 @@ export async function loadPowerSnapshotForItem(
     /* template optional */
   }
 
-  levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
+  levelData = bindChosenSpecialIntoLevelData(
+    levelData,
+    powerSystem.chosenSpecial?.key,
+    powerSystem.templateId,
+    definitionRank,
+  );
   const snapshot = buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallbackSpecials);
   return { snapshot, isSpell, levelData };
 }

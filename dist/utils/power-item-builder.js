@@ -2,6 +2,7 @@
  * Shared utilities for building embedded power Items from catalog entries.
  */
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
+import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
 import { actorAlreadyHasPower, activeTemplateCanBeSpell, findCatalogEntry, } from './power-catalog.js';
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: false }) {
@@ -18,17 +19,7 @@ export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: f
     if (chosenSpecial) {
         const next = {};
         for (const [k, row] of Object.entries(template.levels)) {
-            const specials = (row.specials || []).map((s) => {
-                if (s.key !== 'SPECIAL')
-                    return s;
-                const bound = { ...s, key: chosenSpecial.key };
-                /* Actives.md: "Root uses a minimum of Root(2), including at Level 1." */
-                if (chosenSpecial.key === 'root' && (bound.rank ?? 0) > 0 && (bound.rank ?? 0) < 2) {
-                    bound.rank = 2;
-                }
-                return bound;
-            });
-            next[k] = { ...row, specials };
+            next[k] = bindPoolSpecialsOnRow(row, chosenSpecial.key, template.templateId, Number(k));
         }
         levels = next;
     }

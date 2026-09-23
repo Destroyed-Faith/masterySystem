@@ -56,7 +56,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Reactions
-Version: v0.9.8 (2026-07-31)
+Version: v0.9.9.0 (2026-09-22)
 }}
 
 }}
@@ -151,7 +151,10 @@ A Reaction does not normally create a maintained state.
 It is not an Active Buff and does not remain active for the rest of the Round unless the entry explicitly states otherwise.
 
 ---
-:
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Reaction Curve
 
 | **Level** | **Target PP** |
@@ -173,11 +176,7 @@ It is not an Active Buff and does not remain active for the rest of the Round un
 |   **15**  |           300 |
 |   **16**  |           320 |
 
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Chosen Triggers
 
 Each Reaction Effect lists its Allowed Triggers.
@@ -206,6 +205,10 @@ The character still has only their normal number of Reactions.
 
 ---
 ::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Standard Reaction Scope
 
 Standard defensive Reactions may use:
@@ -227,12 +230,7 @@ Counter Effects are not Attack Actions.
 
 They do not make attack rolls, generate Raises, use offensive Active Buffs, apply Specials, or trigger normal on-hit effects unless their entry explicitly says otherwise.
 
----
-::
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ### Dedicated Reaction Exceptions
 
 Some Reactions belong to dedicated subsystems and may break one narrow general restriction.
@@ -259,6 +257,10 @@ These exceptions do not create general permission for other Reactions to copy th
 
 ---
 ::
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Reaction Limits
 
 Reactions may not normally grant:
@@ -437,13 +439,11 @@ You slip, twist, blur, or move just enough to make one attack fail to find you c
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
       Temporary HP against a triggering damage instance = 4 PP per 1 Temporary HP.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a pure Defensive Reaction with exactly one axis: Temporary HP.<br>
       The Temporary HP is gained immediately against the triggering damage instance.<br>
       Any Temporary HP left after that damage instance remains until the end of your next turn, then disappears.<br>
       Since Temporary HP costs 4 PP per HP and the Reaction curve increases by 20 PP per level, this progression matches the curve exactly.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → 5 Temporary HP = 20 PP, exactly on target.<br>
       L2 target 40 PP → 10 Temporary HP = 40 PP, exactly on target.<br>
@@ -461,7 +461,6 @@ You slip, twist, blur, or move just enough to make one attack fail to find you c
       L14 target 280 PP → 70 Temporary HP = 280 PP, exactly on target.<br>
       L15 target 300 PP → 75 Temporary HP = 300 PP, exactly on target.<br>
       L16 target 320 PP → 80 Temporary HP = 320 PP, exactly on target.<br><br>
-
       NOTES<br>
       This Reaction does not heal real HP.<br>
       It does not restore Health Levels.<br>
@@ -524,13 +523,11 @@ Damage Reduction and Phasing remain closed premium Reaction entries and may not 
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
       +1 Armor = 10 PP.<br>
       Temporary HP against a triggering damage instance = 4 PP per 1 Temporary HP.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a Defensive Combination Reaction with exactly two axes: Armor and Temporary HP.<br>
       Armor increases by +1 per level.<br>
       The remaining PP is spent on Temporary HP.<br>
       This creates a one-hit anti-burst response: Armor reduces the incoming hit, and Temporary HP absorbs damage that still gets through.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → +1 Armor (10) + 2 Temporary HP (8) = 18 PP, close to target.<br>
       L2 target 40 PP → +2 Armor (20) + 5 Temporary HP (20) = 40 PP, exactly on target.<br>
@@ -652,6 +649,28 @@ You slip the worst angle of the attack and form a sudden buffer against whatever
 
 
 ---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Reactions — Ally Protection
+
+Ally Protection Reactions allow you to protect one nearby ally against a triggering attack, hit, or damage instance.
+
+These Reactions do not make you attack.  
+They do not punish the attacker.  
+They do not apply Specials.  
+They simply let you spend your Reaction to defend someone else.
+
+Ally Protection is priced with a small protection premium because it allows the user to answer the most dangerous incoming hit against the team.
+
+Unless an entry says otherwise, the protected ally must be within **4 m**.
+
+Each Ally Protection Reaction lists its Allowed Trigger. This Trigger is part of the Reaction Effect when you learn it.
+
+---
+
 
 <h3 id="reaction-ally-armor">
   Reaction: Ally Armor
@@ -661,13 +680,11 @@ You slip the worst angle of the attack and form a sudden buffer against whatever
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
       +1 Armor = 10 PP.<br>
       Ally Protection premium = 10 PP for protecting one ally within 4 m.<br><br>
-
       DESIGN STRUCTURE<br>
       This is an Ally Protection Reaction with one axis: Armor granted to a nearby ally.<br>
       The 10 PP protection premium is paid first.<br>
       Remaining PP is spent on Armor.<br>
       The Armor applies only against the triggering attack or damage instance.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → Ally premium (10) + +1 Armor (10) = 20 PP, exactly on target.<br>
       L2 target 40 PP → Ally premium (10) + +3 Armor (30) = 40 PP, exactly on target.<br>
@@ -786,6 +803,10 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
 | **16** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+15 Evade** against the triggering attack. |
 
 ---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 <h3 id="reaction-ally-temporary-hp">
   Reaction: Ally Temporary HP
@@ -795,13 +816,11 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
       Temporary HP against a triggering damage instance = 4 PP per 1 Temporary HP.<br>
       Ally Protection premium = 10 PP for protecting one ally within 4 m.<br><br>
-
       DESIGN STRUCTURE<br>
       This is an Ally Protection Reaction with one axis: Temporary HP granted to a nearby ally.<br>
       The 10 PP protection premium is paid first.<br>
       Remaining PP is spent on Temporary HP.<br>
       The Temporary HP applies only against the triggering damage instance.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → Ally premium (10) + 2 Temporary HP (8) = 18 PP, close to target.<br>
       L2 target 40 PP → Ally premium (10) + 7 Temporary HP (28) = 38 PP, close to target.<br>
@@ -819,7 +838,6 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
       L14 target 280 PP → Ally premium (10) + 67 Temporary HP (268) = 278 PP, close to target.<br>
       L15 target 300 PP → Ally premium (10) + 72 Temporary HP (288) = 298 PP, close to target.<br>
       L16 target 320 PP → Ally premium (10) + 77 Temporary HP (308) = 318 PP, close to target.<br><br>
-
       NOTES<br>
       This Reaction protects one ally only.<br>
       Any remaining Temporary HP from this Reaction disappears at the end of that ally's next turn.<br>
@@ -878,17 +896,14 @@ Each Restricted Utility Reaction lists exactly what it may do.
       BASELINES<br>
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
       Reposition is a hard-capped mobility Reaction and uses milestone scaling.<br><br>
-
       DESIGN STRUCTURE<br>
       The triggering attack, hit, or damage instance resolves first.<br>
       After it resolves, move using normal legal movement up to the listed distance.<br>
       Reposition is not a dodge, not Evade, not teleportation, not damage prevention, and not an Ally Reposition effect.<br>
       It does not cancel, redirect, or replace the triggering attack.<br><br>
-
       MOVEMENT RULES<br>
       This movement does not ignore terrain, walls, creatures, hazards, zones, engagement, or movement restrictions.<br>
       It does not grant Safe Movement or Disengage by default.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → no effect; first milestone not reached.<br>
       L2 target 40 PP → no effect; first milestone not reached.<br>
@@ -897,7 +912,6 @@ Each Restricted Utility Reaction lists exactly what it may do.
       L8–11 → move up to 4 m after the triggering event resolves.<br>
       L12–14 → move up to 6 m after the triggering event resolves.<br>
       L15–16 → move up to 8 m after the triggering event resolves.<br><br>
-
       NOTES<br>
       Unused PP remains unused. Do not add Evade, Armor, Temporary HP, Push, Damage, interception, target replacement, or any other rider.
     </span>
@@ -938,12 +952,10 @@ You recover position only after the immediate danger has resolved.
       Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
       Cleanse(X) = 4 × T(X) PP.<br>
       A single Cleanse(X) reduces exactly one eligible Special by X and cannot be split.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a restricted self-cleansing Reaction.<br>
       It may affect only the triggering incoming Special or the triggering Special already affecting you.<br>
       If the Special has less than X remaining, it ends and unused Cleanse points are lost.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → Cleanse(2) = 12 PP.<br>
       L2 target 40 PP → Cleanse(4) = 40 PP.<br>
@@ -1020,7 +1032,6 @@ If a character wants these premium defensive answers, the dedicated Reaction is 
       Damage Reduction is a closed premium defensive subsystem.<br>
       Reaction DR does not follow normal linear Reaction scaling.<br>
       This Reaction only works if an active Passive already grants Damage Reduction.<br><br>
-
       CORE DR RULES<br>
       Without Passive Damage Reduction, this Reaction has no effect.<br>
       This Reaction may never create Damage Reduction on its own.<br>
@@ -1028,14 +1039,12 @@ If a character wants these premium defensive answers, the dedicated Reaction is 
       This Reaction applies only against the triggering attack or damage instance.<br>
       This Reaction may never exceed the total DR cap allowed by its level band.<br>
       This Reaction may not include Armor, Evade, Temporary HP, Phasing, Attack Dice, Specials, movement, or any other rider.<br><br>
-
       REACTION DR MILESTONES<br>
       L1–3 → no effect.<br>
       L4–7 → increase existing Passive DR by +10% against the triggering attack, up to 30% total DR.<br>
       L8–11 → increase existing Passive DR by +10% against the triggering attack, up to 40% total DR.<br>
       L12–14 → increase existing Passive DR by +10% against the triggering attack, up to 50% total DR.<br>
       L15–16 → increase existing Passive DR by +10% against the triggering attack, up to 60% total DR.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → no effect because the first Reaction DR milestone has not been reached.<br>
       L2 target 40 PP → no effect because the first Reaction DR milestone has not been reached.<br>
@@ -1053,7 +1062,6 @@ If a character wants these premium defensive answers, the dedicated Reaction is 
       L14 target 280 PP → same DR band as L12; no filler is added.<br>
       L15 target 300 PP → fourth Reaction DR milestone: +10% DR against the triggering attack, up to 60% total DR.<br>
       L16 target 320 PP → same DR band as L15; no filler is added.<br><br>
-
       DESIGN NOTE<br>
       Damage Reduction is intentionally not smoothed across all levels.<br>
       It is a rare, gated, high-commitment defensive path.<br>
@@ -1100,7 +1108,6 @@ Your existing damage resistance spikes for one decisive hit.
       Phasing is a closed premium defensive subsystem.<br>
       Reaction Phasing does not follow normal linear Reaction scaling.<br>
       This Reaction only works if an active Passive already grants Phasing.<br><br>
-
       CORE PHASING RULES<br>
       Without Passive Phasing, this Reaction has no effect.<br>
       This Reaction may never create Phasing on its own.<br>
@@ -1108,13 +1115,11 @@ Your existing damage resistance spikes for one decisive hit.
       This Reaction may ignore only the triggering hit.<br>
       This Reaction may never exceed the total Phasing cap allowed by its level band.<br>
       This Reaction may not include Armor, Evade, Temporary HP, Damage Reduction, Attack Dice, Specials, movement, or any other rider.<br><br>
-
       REACTION PHASING MILESTONES<br>
       L1–3 → no effect.<br>
       L4–7 → if you currently have Phasing from a Passive, ignore the triggering hit, up to a maximum of 2 total Phasing charges this combat.<br>
       L8–14 → if you currently have Phasing from a Passive, ignore the triggering hit, up to a maximum of 3 total Phasing charges this combat.<br>
       L15–16 → if you currently have Phasing from a Passive, ignore the triggering hit, up to a maximum of 4 total Phasing charges this combat.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → no effect because the first Reaction Phasing milestone has not been reached.<br>
       L2 target 40 PP → no effect because the first Reaction Phasing milestone has not been reached.<br>
@@ -1132,7 +1137,6 @@ Your existing damage resistance spikes for one decisive hit.
       L14 target 280 PP → same Phasing band as L8; no filler is added.<br>
       L15 target 300 PP → third Reaction Phasing milestone: ignore the triggering hit if you have Passive Phasing, up to 4 total charges this combat.<br>
       L16 target 320 PP → same Phasing band as L15; no filler is added.<br><br>
-
       DESIGN NOTE<br>
       Phasing is intentionally not smoothed across all levels.<br>
       Ignoring hits entirely is a premium defense and must remain a committed subsystem.<br>
@@ -1295,13 +1299,11 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       Push 4 m = 40 PP.<br>
       Push 6 m = 60 PP.<br>
       Push 8 m = 80 PP.<br><br>
-
       DESIGN STRUCTURE<br>
       This is a retaliatory Reaction with exactly two axes: fixed Reaction: Damage and Push.<br>
       Reaction: Damage is intentionally priced higher than normal damage because it does not require an attack roll and happens outside your turn.<br>
       Push is the secondary axis and represents a forceful rebound, shield-bash, shockwave, repulsion ward, kinetic discharge, or similar effect.<br>
       The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally against the damage.<br><br>
-
       PUSH STRUCTURE<br>
       L1 → no Push; the level is spent fully on the first damage die.<br>
       L2–3 → Push 2 m.<br>
@@ -1309,7 +1311,6 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       L6–7 → Push 6 m.<br>
       L8–16 → Push 8 m.<br>
       After Push reaches 8 m, later levels increase only Reaction: Damage.<br><br>
-
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → 1d8 damage (20) = 20 PP, exactly on target. Push has not unlocked yet.<br>
       L2 target 40 PP → 1d8 damage (20) + Push 2 m (20) = 40 PP, exactly on target.<br>
@@ -1327,7 +1328,6 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       L14 target 280 PP → 10d8 damage (200) + Push 8 m (80) = 280 PP, exactly on target.<br>
       L15 target 300 PP → 11d8 damage (220) + Push 8 m (80) = 300 PP, exactly on target.<br>
       L16 target 320 PP → 12d8 damage (240) + Push 8 m (80) = 320 PP, exactly on target.<br><br>
-
       NOTES<br>
       This is not an Attack Action.<br>
       It does not make an attack roll.<br>
@@ -1386,7 +1386,6 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       It does not use normal linear Reaction scaling.<br>
       It never applies a Special by itself.<br>
       It only increases one already existing eligible Special(X) on the triggering creature.<br><br>
-
       CORE RULES<br>
       Choose one eligible Special(X) when you take this Reaction.<br>
       The learned Reaction's technical name is Reaction: Special Increase + the chosen Special.<br>
@@ -1395,19 +1394,15 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       This Reaction can only trigger when a creature within 2 m hits you with an attack and is already affected by the chosen Special(X).<br>
       If the triggering creature is not already affected by the chosen Special, this Reaction has no effect.<br>
       This Reaction affects only the triggering creature.<br><br>
-
       ELIGIBLE SPECIALS<br>
       Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
-
       INELIGIBLE SPECIALS<br>
       This Reaction may not affect binary Specials, hard control, forced behavior, Stunned, Prone, Immovable, full-turn or full-reaction denial, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
-
       REACTION SPECIAL INCREASE MILESTONES<br>
       L1–3 → no effect.<br>
       L4–7 → increase the chosen existing Special by +1.<br>
-      L8–15 → increase the chosen existing Special by +2.<br>
-      L16 → increase the chosen existing Special by +3.<br><br>
-
+      L8–15 → increase by +2; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +1 instead.<br>
+      L16 → increase by +3; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +2 instead.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → no effect because the first Special Increase milestone has not been reached.<br>
       L2 target 40 PP → no effect because the first Special Increase milestone has not been reached.<br>
@@ -1416,7 +1411,7 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       L5 target 100 PP → same Special Increase band as L4; no filler is added.<br>
       L6 target 120 PP → same Special Increase band as L4; no filler is added.<br>
       L7 target 140 PP → same Special Increase band as L4; no filler is added.<br>
-      L8 target 160 PP → second Special Increase milestone: increase one existing chosen Special on the triggering creature by +2.<br>
+      L8 target 160 PP → second Special Increase milestone: increase one existing chosen Special on the triggering creature by +2, or +1 for Challenge / Disoriented / Soulburn / Weaken.<br>
       L9 target 180 PP → same Special Increase band as L8; no filler is added.<br>
       L10 target 200 PP → same Special Increase band as L8; no filler is added.<br>
       L11 target 220 PP → same Special Increase band as L8; no filler is added.<br>
@@ -1424,14 +1419,12 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
       L13 target 260 PP → same Special Increase band as L8; no filler is added.<br>
       L14 target 280 PP → same Special Increase band as L8; no filler is added.<br>
       L15 target 300 PP → same Special Increase band as L8; no filler is added.<br>
-      L16 target 320 PP → third Special Increase milestone: increase one existing chosen Special on the triggering creature by +3.<br><br>
-
+      L16 target 320 PP → third Special Increase milestone: increase one existing chosen Special on the triggering creature by +3, or +2 for Challenge / Disoriented / Soulburn / Weaken.<br><br>
       DESIGN NOTE<br>
       This Reaction is intentionally narrower than Active Buff: Special Increase.<br>
       It can only affect the triggering creature, only if that creature hits you, and only if the chosen Special is already present.<br>
       It does not add damage, defense, movement, push, control, or any other rider.<br>
       Unused PP remains unused instead of being converted into filler bonuses.<br><br>
-
       NOTES<br>
       This is not Special Application.<br>
       This Reaction never starts a Special by itself.<br>
@@ -1460,15 +1453,15 @@ The triggering creature must be within **2 m** and already affected by your chos
 | **5** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
 | **6** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
 | **7** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
-| **8** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **9** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **10** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **11** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **12** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **13** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **14** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **15** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2**. |
-| **16** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+3**. |
+| **8** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **9** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **10** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **11** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **12** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **13** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **14** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **15** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
+| **16** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
 
 ---
 }}

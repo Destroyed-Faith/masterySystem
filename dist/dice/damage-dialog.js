@@ -479,7 +479,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     else {
                         levelData = levelsSource[String(definitionRank)];
                     }
-                    levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key);
+                    levelData = bindChosenSpecialIntoLevelData(levelData, powerSystem.chosenSpecial?.key, templateId || powerDef?.templateId, definitionRank);
                 }
             }
             catch (e) {

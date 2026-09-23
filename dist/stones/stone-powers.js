@@ -271,18 +271,18 @@ const MIGHT_POWERS_RAW = [
         name: 'Parry',
         attribute: 'might',
         category: 'passive',
-        description: 'Gain Parry Pool until the start of your next turn (T2: +4, T3: +8, T4: +12). Creates Parry if you do not have it.',
+        description: 'Gain Parry Pool until the start of your next turn (T2: +2, T3: +4, T4: +6). No Tier 1. Creates Parry if you do not have it.',
         startsAtTier: 2,
         tiers: [
+            { label: '+2 Parry Pool', description: 'Gain +2 Parry Pool until the start of your next turn.', value: 2 },
             { label: '+4 Parry Pool', description: 'Gain +4 Parry Pool until the start of your next turn.', value: 4 },
-            { label: '+8 Parry Pool', description: 'Gain +8 Parry Pool until the start of your next turn.', value: 8 },
-            { label: '+12 Parry Pool', description: 'Gain +12 Parry Pool until the start of your next turn.', value: 12 },
+            { label: '+6 Parry Pool', description: 'Gain +6 Parry Pool until the start of your next turn.', value: 6 },
         ],
         apply: async ({ actor, tier }) => {
             if (tier < 2)
                 return;
             const combat = game.combat;
-            const bonus = scaleStoneTier([4, 8, 12], tier - 1);
+            const bonus = scaleStoneTier([2, 4, 6], tier - 1);
             if (bonus <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
