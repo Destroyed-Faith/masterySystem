@@ -15,7 +15,7 @@ import { actorHasSurprise } from '../combat/surprise.js';
 import { INITIATIVE_ROLLED_FLAG, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getMasteryRank, getSpendableColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, maxConvertibleColorlessStones, } from './colorless-stones.js';
+import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getExhaustedInitiativeColorlessStones, getInitiativeColorlessTotal, getItemColorlessStones, getMasteryRank, getPermanentColorlessStones, getSpendableColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, maxConvertibleColorlessStones, } from './colorless-stones.js';
 import { computeRemoveScarPayment, getRemoveScarResolvedMaxTier, inferRemoveScarTargetTier, payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID, } from './remove-scar.js';
 import { STONE_HELP_TRACKS, STONE_POWERS_HELP_COUNT, STONE_POWERS_HELP_SCREENS, clampStoneHelpPage, stoneHelpTrackForPage, } from './stone-powers-help.js';
 import { formatPendingStoneActivationWarning, orderPowersRampFirst, pendingStoneActivation, pendingStoneActivationLabel, pickStoneFillAttribute, shouldSettleStoneWave, stonePowerAllowsColorless, stonePowerColorlessRejectMessage, stoneDialogSectionStartsOpen, stonePoolBlockedReason, stonePowerActivationRing, } from './stone-payment-rules.js';
@@ -550,20 +550,29 @@ export class StonePowersDialog extends BaseDialog {
                 blockedReason,
             };
         });
-        // Temporary pile + Ready Permanent Colorless Stones (both spendable).
-        let colorlessHave = getSpendableColorlessStones(poolOwner);
-        if (colorlessHave <= 0 && poolOwner !== this.actor) {
-            colorlessHave = getSpendableColorlessStones(this.actor);
-        }
+        // One combat Colorless Pool: item-granted pile + Initiative Colorless
+        // (this combat) + Permanent Colorless. Gems show Ready stones; Exhausted
+        // Permanent / Initiative Colorless come back through Stone Recovery.
+        const colorless = this.#colorlessPoolSnapshot();
+        const colorlessHave = colorless.spendable;
         const colorlessReserved = this.#reservedStonesInDialogForAttr(COLORLESS_STONE_ATTR);
         const colorlessDisplay = Math.max(0, colorlessHave - colorlessReserved);
+        const colorlessNoteParts = [];
+        if (colorless.perm.max > 0) {
+            colorlessNoteParts.push(`${colorless.perm.current}/${colorless.perm.max} Permanent`);
+        }
+        if (colorless.initTotal > 0) {
+            colorlessNoteParts.push(`${colorless.initReady}/${colorless.initTotal} Initiative — gone when combat ends`);
+        }
+        if (colorless.item > 0)
+            colorlessNoteParts.push(`${colorless.item} granted`);
         pools.push({
             key: COLORLESS_STONE_ATTR,
             name: 'Colorless',
             current: colorlessHave,
-            max: Math.max(colorlessHave, 0),
+            max: colorless.max,
             sustained: 0,
-            sealedBurned: 0,
+            sealedBurned: colorless.permReserved,
             artifactBound: 0,
             available: colorlessHave,
             gemStyle: COLORLESS_GEM_STYLE,
@@ -571,6 +580,7 @@ export class StonePowersDialog extends BaseDialog {
             boundSlots: [],
             blocked: colorlessDisplay <= 0,
             blockedReason: colorlessDisplay > 0 ? '' : 'Convert Initiative to get Colorless Stones',
+            note: colorlessNoteParts.join(' · '),
         });
         const combatMissingFromTracker = combatActive && !this.combatant;
         const hasCombat = combatActive && !!this.combatant;
@@ -964,15 +974,13 @@ export class StonePowersDialog extends BaseDialog {
         return Math.max(1, Math.floor(Number(owner.system?.mastery?.rank) || 2));
     }
     /**
-     * Attribute pools as recovery input. End-of-round Regeneration chooses from
-     * Attribute Stone Pools; the Colorless row (Temporary pile + Permanent
-     * Colorless) is not an Attribute pool. Permanent Colorless Stones return
-     * through the after-combat / Safe Haven restore instead.
+     * Pools as recovery input. End-of-round Regeneration is one shared Mastery
+     * Rank budget across Attribute Stone Pools and the Colorless Pool
+     * (Exhausted Permanent and Initiative Colorless Stones). Item-granted
+     * Colorless Stones offer no regen space — they follow their source's rule.
      */
     #recoveryPoolInputs(pools) {
-        return pools
-            .filter((pool) => pool.key !== COLORLESS_STONE_ATTR)
-            .map((pool) => ({
+        return pools.map((pool) => ({
             key: String(pool.key),
             max: pool.max,
             current: pool.current,
@@ -1054,9 +1062,50 @@ export class StonePowersDialog extends BaseDialog {
                     Math.max(0, Number(pool?.burned) || 0),
             };
         });
+        const colorless = this.#colorlessPoolSnapshot();
+        inputs.push({
+            key: COLORLESS_STONE_ATTR,
+            max: colorless.max,
+            current: colorless.spendable,
+            sustained: colorless.permReserved,
+        });
         return {
             inputs,
             plan: planStoneRecovery(inputs, this._recoveryAlloc, this.#stoneRecoveryPoints()),
+        };
+    }
+    /**
+     * Colorless Pool numbers from the economy owner. Falls back to the sheet
+     * actor when the owner mirror is empty (same convention as
+     * #actorPoolSpendable for unlinked tokens).
+     */
+    #colorlessPoolSnapshot() {
+        const owner = getActionEconomyActor(this.actor) ?? this.actor;
+        let source = owner;
+        if (owner !== this.actor &&
+            getSpendableColorlessStones(owner) <= 0 &&
+            getInitiativeColorlessTotal(owner) <= 0 &&
+            getPermanentColorlessStones(owner).max <= 0) {
+            source = this.actor;
+        }
+        const perm = getPermanentColorlessStones(source);
+        const permPool = source.system?.stonePools?.colorless ?? {};
+        const permReserved = Math.max(0, Math.floor(Number(permPool.sustained) || 0)) +
+            Math.max(0, Math.floor(Number(permPool.sealed) || 0)) +
+            Math.max(0, Math.floor(Number(permPool.burned) || 0));
+        const initExhausted = getExhaustedInitiativeColorlessStones(source);
+        const initTotal = getInitiativeColorlessTotal(source);
+        const initReady = Math.max(0, initTotal - initExhausted);
+        const item = getItemColorlessStones(source);
+        return {
+            perm,
+            permReserved,
+            initTotal,
+            initReady,
+            initExhausted,
+            item,
+            spendable: getSpendableColorlessStones(source),
+            max: item + initTotal + perm.max,
         };
     }
     #changeStoneRecovery(attr, delta) {

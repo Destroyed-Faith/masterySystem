@@ -67,6 +67,39 @@ describe('recovery plan', () => {
   });
 });
 
+describe('shared Mastery Rank budget across Attribute and Colorless pools', () => {
+  // MR4 example from the Core: 4 Attribute, 4 Colorless, or any mixture of 4.
+  const mr4 = 4;
+  const pools = [pool('might', 6, 2), pool('colorless', 5, 1)];
+
+  it('allows 4 Attribute stones', () => {
+    const plan = planStoneRecovery(pools, { might: 4 }, mr4);
+    expect(plan.allocated).toBe(4);
+    expect(plan.canFinish).toBe(true);
+  });
+
+  it('allows 4 Colorless stones', () => {
+    const plan = planStoneRecovery(pools, { colorless: 4 }, mr4);
+    expect(plan.allocated).toBe(4);
+    expect(plan.canFinish).toBe(true);
+  });
+
+  it('allows 2 Attribute + 2 Colorless', () => {
+    const plan = planStoneRecovery(pools, { might: 2, colorless: 2 }, mr4);
+    expect(plan.allocated).toBe(4);
+    expect(plan.remaining).toBe(0);
+    expect(plan.canFinish).toBe(true);
+  });
+
+  it('Colorless regen grants no extra allowance beyond the Mastery Rank', () => {
+    const plan = planStoneRecovery(pools, { might: 4, colorless: 4 }, mr4);
+    expect(plan.remaining).toBe(0);
+    expect(clampStoneRecoveryAllocation(pools, { might: 4, colorless: 4 }, mr4)).toEqual({
+      might: 4,
+    });
+  });
+});
+
 describe('allocation clamp for the actor update', () => {
   it('trims per pool and to the available points', () => {
     const pools = [pool('might', 4, 0), pool('agility', 2, 1)];

@@ -4,8 +4,9 @@
  * Encounter-scoped resources always go away:
  *   - Temporary HP (sourced pools are cleared by `passive-triggers`; the scalar
  *     mirror is zeroed here so stone-granted / manual Temp HP cannot survive).
- *   - Leftover Initiative Colorless Stones (used or unused). Item-granted
- *     Colorless Stones stay and follow that item's own combat rule.
+ *   - Initiative Colorless Stones (Ready or Exhausted — their state no longer
+ *     matters once combat ends). Item-granted Colorless Stones stay and
+ *     follow that item's own combat rule.
  *
  * Ongoing Special Effects are wiped from every combatant when the fight
  * ends — PCs and NPCs. Leftover stacks on the sheet were too noisy, and
@@ -14,7 +15,7 @@
 import { getActionEconomyActor } from './action-economy.js';
 import { getCombatActors } from './passive-triggers.js';
 import { deleteAllMasteryActiveBuffEffects } from '../utils/active-buffs.js';
-import { clearInitiativeColorlessStones, getTempColorlessStones, } from '../stones/colorless-stones.js';
+import { clearInitiativeColorlessStones, getInitiativeColorlessTotal, getTempColorlessStones, } from '../stones/colorless-stones.js';
 /** Non-player combatants also lose Mastery active buffs after the fight. */
 function isNpcSide(actor) {
     return String(actor?.type ?? '') !== 'character';
@@ -109,7 +110,7 @@ function collectColorlessCleanupActors(combat) {
     for (const actor of collectCleanupActors(combat))
         add(actor);
     for (const actor of iterateWorldActors()) {
-        if (getTempColorlessStones(actor) > 0)
+        if (getTempColorlessStones(actor) > 0 || getInitiativeColorlessTotal(actor) > 0)
             add(actor);
     }
     return out;
@@ -128,7 +129,7 @@ export async function resetTempHpAfterCombat(combat) {
         }
     }
 }
-/** Leftover Initiative Colorless Stones vanish when the encounter ends. */
+/** Initiative Colorless Stones (Ready or Exhausted) vanish when the encounter ends. */
 export async function clearColorlessStonesAfterCombat(combat) {
     for (const actor of collectColorlessCleanupActors(combat)) {
         try {

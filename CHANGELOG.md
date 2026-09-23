@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Initiative-Colorless-Steine (finales Players-Guide-Modell):** Aus Initiative Exchange gewonnene Colorless-Steine sind keine Einweg-Steine mehr. Sie gehören für die Dauer des Kampfes zum Colorless-Pool, werden beim Ausgeben Exhausted statt zu verschwinden und können über die normale Stein-Regeneration am Rundenende zurückkehren. Bei Kampfende verschwinden sie vollständig — egal ob Ready oder Exhausted.
+- **Gemeinsames Regenerationsbudget:** Die Rundenend-Regeneration (Mastery Rank Steine) wählt jetzt frei aus Attribut-Pools und dem Colorless-Pool (Exhausted permanente und Initiative-Colorless-Steine). Ein gemeinsames Limit, kein Extra-Budget für Colorless.
+- **Ausgabereihenfolge:** Item-/Absorption-Steine zuerst (verschwinden gemäß Quellenregel), dann Initiative-Colorless (werden Exhausted), zuletzt permanente Colorless. Quellen-spezifische Colorless-Steine (z. B. Absorption) behalten ihre eigenen Regeln unverändert.
+- **Players Guide:** Neues finales Regelwerk verbatim unter `docs/Rules/players-guide.md` archiviert.
+
 ## [0.9.562] - 2026-09-23
 
 ### Changed

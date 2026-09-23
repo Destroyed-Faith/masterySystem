@@ -1844,22 +1844,31 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 
 > *“Hope is not given, it is made.”*  
 > — Teachings of the Hidden Flame
-
-::::::::::::::::::
-
+:::::
+::::
 > ## Core Terms
 > 
 > **Pool & Keep:** Roll your Pool (X dice), keep the best Y.  
 > **Exploding Dice:** On an **8**, **reroll that die** and **add** the new result. Repeat on further 8s.
+
 > **Guaranteed Eight:** Before rolling, you may exchange **8 dice from your final dice Pool** for **1 Guaranteed Eight**. After all exchanges, you must still roll at least a number of dice equal to your **Mastery Rank**; Guaranteed Eights do not count toward this minimum. A Guaranteed Eight is treated as a natural **8**: reroll it and add the new result, repeating on further 8s as normal. It remains a normal die result for **Pool & Keep** and is not automatically kept.
-> **Target Number (TN):** The value you must reach to hit or succeed.  
+
+> **Target Number (TN):** The value you must reach to hit or succeed.
+
 > **Evade:** The TN an Attack must reach to hit a creature. For an AoE Attack, one roll is compared separately against the defense of each valid creature in the area.
+
 > **AoE Attack:** Roll once for the whole area. A Martial AoE compares that result separately against each creature's Evade. A Spell AoE compares the same Spell Roll separately against each creature's Final Spell TN.
+
 > **Raises:** Combat Raises and Ritual Raises are declared before rolling and increase the required TN by +4 each. Ordinary Skill Check Raises and Echo Card Raises are counted after the roll unless their own rules say otherwise: every full +4 over the base TN equals 1 Raise.
-> **Penetration(X):** Ignores X points of the target’s Armor.  
->**Armor (AR):** Reduces the rolled damage of a successful hit. Armor does not reduce Specials, conditions, ongoing damage, or other effect damage unless a rule explicitly says so. 
-> **Damage Reduction (DR):** Reduces all incoming damage of the listed type.  
-> **Action:** You may take 1 Attack Action per turn (Attack, Cast, etc.).  
+
+> **Penetration(X):** Ignores X points of the target’s Armor.
+
+>**Armor (AR):** Reduces the rolled damage of a successful hit. Armor does not reduce Specials, conditions, ongoing damage, or other effect damage unless a rule explicitly says so.
+
+> **Damage Reduction (DR):** Reduces all incoming damage of the listed type.
+ 
+> **Action:** You may take 1 Attack Action per turn (Attack, Cast, etc.).
+
 > **Reaction:** Special defense actions you may take outside your turn (Guard, Evade, Counterattack, etc.).  
 
 
@@ -7916,21 +7925,33 @@ Stones exist in 4 states:
 - **Sealed**: locked by Rituals; cannot be regenerated at end of round. It returns only after a **Safe Haven Rest**.
 - **Bound**: Permanently invested (Artifacts, Familiars, Summons, etc.). Bound Stones are not part of your usable pool and do not regenerate. They return to your Stone Pool only when the bond is **broken** or the investment is **released**.
 
-Permanent Colorless Stones use the same Stone states and regenerate normally. **Temporary Colorless Stones** are a separate combat resource; they do not count against the Permanent Colorless Stone limit or toward Mastery Rank progression.
+### Colorless Stones
+
+Colorless Stones may pay the normal cost of any unlocked Stone Ability unless a rule explicitly excludes them. Their source determines how long they remain available.
+
+- **Permanent Colorless Stones** are created through progression. They use the normal Stone states, regenerate normally, remain between combats, and are capped at **your Mastery Rank**.
+- **Initiative Colorless Stones** are created through **Initiative Exchange**. They last for the current combat. While the combat lasts, they use **Ready** and **Exhausted** normally and may be restored through normal Stone Regeneration. They disappear when the combat ends, regardless of their current state. They do not count against the Permanent Colorless Stone limit or toward Mastery Rank progression and cannot be burned, Sealed, or Bound.
+- **Granted Colorless Stones** from an Artifact, Power, Absorption, or another effect follow the duration, spending, and recovery rules of the effect that created them. They do not automatically use the Initiative Colorless rules.
+
+During combat, **Permanent Colorless Stones and Initiative Colorless Stones use the same Colorless Pool for spending and Regeneration**. Their source matters only for persistence and any rule that explicitly refers to that source.
 
 ---
 
 #### Spending Stones
 
 During the **Preparation Phase** at the start of each Round, you choose and commit your Stone Abilities for that Round.
-You may spend any number of **Ready Stones** available to you across your Stone Abilities, but **no Stone Ability can ever be raised beyond Rank 4**. Permanent and Temporary Colorless Stones may be used where their rules allow.
-Each permanent Stone spent becomes **Exhausted**. Temporary Colorless Stones disappear when spent.
+You may spend any number of **Ready Stones** available to you across your Stone Abilities, but **no Stone Ability can ever be raised beyond Rank 4**. Attribute Stones, Permanent Colorless Stones, and Initiative Colorless Stones may be used where their rules allow.
+When spent, an eligible Attribute Stone, Permanent Colorless Stone, or Initiative Colorless Stone becomes **Exhausted**. Colorless Stones granted by another source follow that source's own spending rule.
 Once the first Turn of the Round begins, your Stone choices for that Round are locked unless a rule explicitly allows a change.
 Stone Abilities with a specific Turn timing or trigger are still prepared during the Preparation Phase, but their effect resolves only when that timing or trigger occurs.
 For a Stone Ability activated during the Preparation Phase, an effect that lasts **until the start of your next Turn** lasts until the start of your Turn in the **following Round**.
 
 All Stone Abilities have **4 Ranks**. They use one of two cost progressions.
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 **Normal Stone Abilities**
 
 | Rank | Additional Cost | Total Cost |
@@ -7940,11 +7961,7 @@ All Stone Abilities have **4 Ranks**. They use one of two cost progressions.
 | **Rank 3** | 4 Stones | 7 Stones |
 | **Rank 4** | 8 Stones | 15 Stones |
 
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 **Premium Stone Abilities**
 
 | Rank | Additional Cost | Total Cost |
@@ -7956,7 +7973,7 @@ All Stone Abilities have **4 Ranks**. They use one of two cost progressions.
 
 The following are **Premium Stone Abilities**: **Extra Attack, Parry, Crit, Damage Negation, Spell Action, Damage Reduction, Not a Target, and Phasing**. All other Stone Abilities use the Normal cost progression.
 
-**Rank 4 is the absolute maximum.** There are no higher Stone Ability Ranks. A Premium Rank 4 may exceed the normal Stone capacity of one Attribute and can therefore require **Permanent Colorless Stones, Temporary Colorless Stones, Stone Power Support, or another rule that explicitly provides usable Stones**.
+**Rank 4 is the absolute maximum.** There are no higher Stone Ability Ranks. A Premium Rank 4 may exceed the normal Stone capacity of one Attribute and can therefore require **Colorless Stones, Stone Power Support, or another rule that explicitly provides usable Stones**.
 
 #### Stone Power Support
 
@@ -7971,8 +7988,10 @@ Stone Ability costs reset each **Preparation Phase** unless an Ability explicitl
 ---
 
 #### Regeneration
-- At the end of each round, you regenerate a total number of Exhausted Stones equal to your Mastery Rank, chosen from any of your Attribute Stone Pools.
-- Sealed / Bound Stones do not return through Regeneration.
+- At the end of each Round, regenerate a total number of **Exhausted Stones equal to your Mastery Rank**.
+- Choose those Stones freely from your **Attribute Stone Pools** and any **Colorless Stones eligible for normal Regeneration**, including Permanent and Initiative Colorless Stones.
+- This is one shared limit. Regenerating Colorless Stones does not grant additional regeneration beyond your Mastery Rank.
+- Sealed / Bound Stones and source-granted Colorless Stones that do not explicitly regenerate do not return through normal Regeneration.
 
 
 
@@ -8111,7 +8130,7 @@ Wits expresses awareness, reaction speed, timing, initiative, and acting before 
 \page
 {{pageNumber,auto}}
 {{wide
-**Initiative Boost** may be activated only during Initiative Exchange at the start of a Round and only **once per combat**, regardless of Rank or source. Add the gained Initiative before converting Initiative into Temporary Colorless Stones. Stones spent on Initiative Boost become Exhausted normally.
+**Initiative Boost** may be activated only during Initiative Exchange at the start of a Round and only **once per combat**, regardless of Rank or source. Add the gained Initiative before converting Initiative into Initiative Colorless Stones. Stones spent on Initiative Boost become Exhausted normally.
 
 
 **Phasing Charges last until spent or until the Combat ends. Phasing can be activated only once per Combat, regardless of Rank or source.**
@@ -8749,6 +8768,8 @@ A creature does not automatically make a Perception Check merely because another
 - being directly targeted.
 
 If there is no reason to suspect anything and no clear sensory clue, no Perception Check occurs.
+
+}}
 \page
 {{pageNumber,auto}}
 {{wide
@@ -8855,8 +8876,8 @@ Each combat follows this structure:
    - On the first Round only, roll Initiative and spend Combat Reflexes.
    - Before any creature moves, acts, or begins its Turn, all creatures prepare their Stone use for the Round.
    - Resolve **Initiative Boost** first. Any Stones used for Initiative Boost are committed and spent immediately.
-   - Resolve **Initiative Exchange** and convert Initiative into Temporary Colorless Stones.
-   - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Temporary Colorless Stones on their other Stone Abilities for the Round.
+   - Resolve **Initiative Exchange** and convert Initiative into Initiative Colorless Stones.
+   - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Initiative Colorless Stones on their other Stone Abilities for the Round.
    - Defensive and passive Stone values that apply during the Round become active immediately.
    - Stone Abilities that require the creature's Turn or a specific trigger are prepared now, but resolve only when their normal timing occurs.
    - Once all Stone choices are complete, determine Initiative Order and lock it for this Round.
@@ -9001,10 +9022,10 @@ At the start of every Round, before any creature has moved, acted, or begun its 
 
 1. On the first Round only, roll Initiative and spend Combat Reflexes.
 2. Any creature that has not used **Initiative Boost** this combat may activate it now.
-3. Each creature may convert any amount of its Initiative into Temporary Colorless Stones.
+3. Each creature may convert any amount of its Initiative into **Initiative Colorless Stones**.
 4. After all conversions are complete, determine Initiative Order from the remaining Initiative Scores.
 
-The cost of one Temporary Colorless Stone is:
+The cost of one Initiative Colorless Stone is:
 
 `4 × your current Mastery Rank Initiative`
 
@@ -9020,7 +9041,9 @@ The cost of one Temporary Colorless Stone is:
 
 You may buy more than one Stone during the same Initiative Exchange if you can pay the full cost of each Stone. Subtract the cost immediately. Initiative can never drop below **0**.
 
-A Temporary Colorless Stone may pay any part of the normal Stone cost of an unlocked Stone Ability. When spent, it disappears instead of becoming Exhausted. It cannot be burned, sealed, or bound; does not increase a Stone Pool or Mastery Stone Value; does not count against the Permanent Colorless Stone limit; and disappears at the end of combat.
+An **Initiative Colorless Stone** is gained Ready and joins your Colorless Pool for the current combat. It may pay any part of the normal Stone cost of an unlocked Stone Ability. When spent, it becomes **Exhausted** and may be restored through normal end-of-Round Stone Regeneration. It remains part of your Colorless Pool for the rest of the combat and disappears when combat ends, whether Ready or Exhausted.
+
+Initiative Colorless Stones cannot be burned, Sealed, or Bound. They do not count against an Attribute Stone limit, the Permanent Colorless Stone limit, or Mastery Stone Value.
 
 ---
 
@@ -10041,9 +10064,9 @@ When combat ends, all remaining Specials end.
 
 #### Stone Flow (Combat Economy)
 
-- When you use a Stone, it becomes **Exhausted** (unless an effect says it becomes Sealed/Bound).
-- **End of each Round:** move **MR Stones** from Exhausted → Ready.
-- **End of Combat:** all remaining Exhausted Stones return to Ready, but Sealed / Bound Stones do not return by Regeneration or end-of-combat.
+- When you use an eligible Attribute Stone, Permanent Colorless Stone, or Initiative Colorless Stone, it becomes **Exhausted** unless a rule says otherwise.
+- **End of each Round:** move a total of **MR eligible Stones** from Exhausted → Ready, chosen freely from Attribute Stone Pools and the Colorless Pool.
+- **End of Combat:** all remaining Exhausted permanent Stones return to Ready, then all Initiative Colorless Stones disappear. Sealed / Bound Stones do not return by Regeneration or end-of-combat. Colorless Stones from other sources follow their own rules.
 
 ---
 
@@ -10267,7 +10290,7 @@ Because each Permanent Colorless Stone replaces two earned Stones, this value re
 
 The character sheet may display the first **400 Lifetime XP** for convenience; progression continues beyond it. **MR 1–8 allow 2 / 4 / 6 / 8 / 10 / 12 / 14 / 16 assigned Stones per Attribute.** Permanent Colorless Stones are capped separately at **MR**.
 
-At MR 8, each Attribute may hold up to **16 assigned Stones**, while a character may hold up to **8 Permanent Colorless Stones**. Temporary or Artifact-generated extra Stones do not increase Mastery Stone Value unless a rule explicitly makes them permanent progression.
+At MR 8, each Attribute may hold up to **16 assigned Stones**, while a character may hold up to **8 Permanent Colorless Stones**. Initiative Colorless Stones and other source-granted extra Stones do not increase Mastery Stone Value unless a rule explicitly makes them permanent progression.
 
 ---
 
@@ -13199,7 +13222,7 @@ A purchased Power cannot grant Stones, Artifacts, another Summon Bond, or additi
 ---
 }}
 \page
-{{pageN
+{{pageNumber,auto}}
 ### Summon Specials
 
 Special Access unlocks one eligible numeric **Special(X)** at **Special(1)** for the Bond's normal Summon Attacks.
@@ -14325,7 +14348,7 @@ At the start of each Round, before anyone moves or acts:
 
 1. On the first Round only, roll Initiative and spend Combat Reflexes.
 2. Initiative Boost may be activated now, once per combat.
-3. Convert Initiative into Temporary Colorless Stones at **4 × MR Initiative per Stone**.
+3. Convert Initiative into **Initiative Colorless Stones** at **4 × MR Initiative per Stone**.
 4. Determine Initiative Order from the remaining scores and lock it for the Round.
 
 | MR | Cost per Stone |
@@ -14340,7 +14363,7 @@ At the start of each Round, before anyone moves or acts:
 
 Initiative cannot drop below 0 and is not reset between Rounds. Each creature still gets only one Turn per Round.
 
-Temporary Colorless Stones may pay normal costs for unlocked Stone Abilities. They disappear when spent or at the end of combat and cannot be burned, sealed, or bound.
+Initiative Colorless Stones may pay normal costs for unlocked Stone Abilities. When spent, they become **Exhausted** and may be restored through normal Stone Regeneration. They disappear only when combat ends and cannot be burned, Sealed, or Bound.
 
 
 
@@ -14495,11 +14518,13 @@ End of each Round:
 
 `Regain MR Exhausted Stones total`
 
+Choose freely from Attribute Stones and eligible Colorless Stones. Permanent and Initiative Colorless Stones use the same shared Regeneration limit.
+
 End of combat:
 
-All Exhausted Stones return.
+All Exhausted permanent Stones return. Initiative Colorless Stones disappear.
 
-Sealed and Bound Stones do not regenerate normally.
+Sealed and Bound Stones do not regenerate normally. Other source-granted Colorless Stones follow their own rules.
 
 ---
 

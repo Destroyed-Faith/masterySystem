@@ -68,7 +68,7 @@ describe('Premium Stone Ability costs', () => {
     expect(stoneConcentrationCap(32, 8)).toBe(16);
     expect(cumulativeStoneCostForRank('might.parry', 4)).toBe(20);
     // The cost is NOT reduced to fit into one Attribute pool: extra resources
-    // (Permanent / Temporary Colorless, Stone Power Support) close the gap.
+    // (Permanent / Initiative Colorless, Stone Power Support) close the gap.
     expect(cumulativeStoneCostForRank('might.parry', 4)).toBeGreaterThan(16);
   });
 });
@@ -180,7 +180,7 @@ describe('Permanent Colorless Stones — conversion and caps', () => {
   });
 });
 
-describe('Permanent vs Temporary Colorless Stones', () => {
+describe('Permanent vs item-granted Colorless Stones', () => {
   function actorWith(temp: number, permanentCurrent: number, permanentMax: number) {
     const actor: any = {
       _flags: temp > 0 ? { tempColorlessStones: temp } : {},

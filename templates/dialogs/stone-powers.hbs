@@ -230,6 +230,9 @@
         {{#if pool.sustained}}
         <span class="pool-sustained">({{pool.sustained}} sustained)</span>
         {{/if}}
+        {{#if pool.note}}
+        <span class="pool-sustained pool-note" title="Ready/total per source. Initiative Colorless Stones exhaust when spent, can return through Stone Recovery, and disappear when combat ends.">{{pool.note}}</span>
+        {{/if}}
       </div>
       {{/each}}
     </div>

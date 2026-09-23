@@ -111,7 +111,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     track: 'initiative',
     step: 3,
     title: '3. Convert to Colorless Stones',
-    body: 'Select Convert to Colorless Stones. Your Initiative is reduced and the converted Stone becomes available as a Colorless Stone.',
+    body: 'Select Convert to Colorless Stones. Your Initiative is reduced and the converted Stone joins your Colorless Pool for this combat. When spent it becomes Exhausted and can come back through Stone Recovery; it disappears when combat ends.',
     images: [helpImage('03', 'Initiative row after converting into a Colorless Stone')],
   },
   {
@@ -119,7 +119,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     track: 'stones',
     step: 1,
     title: '1. Check your available Stones',
-    body: 'Your Attribute Stones are shown here. Converted Initiative appears in the Colorless pool. Attributes below 8 do not provide a Stone pool.',
+    body: 'Your Attribute Stones are shown here. Converted Initiative and Permanent Colorless Stones share the Colorless pool. Attributes below 8 do not provide a Stone pool.',
     images: [helpImage('04', 'Available Stones row with Attribute and Colorless pools')],
   },
   {

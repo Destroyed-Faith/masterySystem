@@ -4,8 +4,9 @@
  * Encounter-scoped resources always go away:
  *   - Temporary HP (sourced pools are cleared by `passive-triggers`; the scalar
  *     mirror is zeroed here so stone-granted / manual Temp HP cannot survive).
- *   - Leftover Initiative Colorless Stones (used or unused). Item-granted
- *     Colorless Stones stay and follow that item's own combat rule.
+ *   - Initiative Colorless Stones (Ready or Exhausted — their state no longer
+ *     matters once combat ends). Item-granted Colorless Stones stay and
+ *     follow that item's own combat rule.
  *
  * Ongoing Special Effects are wiped from every combatant when the fight
  * ends — PCs and NPCs. Leftover stacks on the sheet were too noisy, and
@@ -13,7 +14,7 @@
  */
 /** Zero the Temp HP mirror on every combatant — Temp HP never outlives a fight. */
 export declare function resetTempHpAfterCombat(combat: any): Promise<void>;
-/** Leftover Initiative Colorless Stones vanish when the encounter ends. */
+/** Initiative Colorless Stones (Ready or Exhausted) vanish when the encounter ends. */
 export declare function clearColorlessStonesAfterCombat(combat: any): Promise<void>;
 /** No-GM / player client: drop leftover Initiative stones on owned actors only. */
 export declare function clearOwnedInitiativeColorlessAfterCombat(combat: any): Promise<void>;

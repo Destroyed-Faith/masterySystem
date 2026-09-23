@@ -89,7 +89,7 @@
       "button": "Shut Down Combat",
       "hint": "End the fight right now — even when preparation is stuck.",
       "confirmTitle": "Shut Down Combat",
-      "confirmContent": "Ends the fight for everyone. Stone pools refill, Colorless Stones and Temp HP are dropped. Ongoing effects on player characters stay.",
+      "confirmContent": "Ends the fight for everyone. Stone pools refill, Initiative Colorless Stones and Temp HP are dropped. Ongoing effects on player characters stay.",
       "confirmRound": "Round",
       "done": "Combat shut down. Stone pools are refilled.",
       "noCombat": "No combat present.",

@@ -360,9 +360,13 @@ export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor
  */
 export declare function applyAutomaticStoneRegen(actor: Actor): Promise<void>;
 /**
- * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen pools).
+ * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen
+ * pools). One shared budget: the `colorless` key restores Exhausted Permanent
+ * Colorless Stones first, then Exhausted Initiative Colorless Stones (both
+ * are equivalent while the combat lasts; Permanent ones are the character's
+ * own Stones, so they come back first).
  */
-export declare function applyStoneRegenAllocation(actor: Actor, allocation: Partial<Record<AttributeKey, number>>): Promise<void>;
+export declare function applyStoneRegenAllocation(actor: Actor, allocation: Partial<Record<AttributeKey | 'colorless', number>>): Promise<void>;
 /**
  * Round advance no longer auto-fills pools. Players pick which stones come back
  * in the Stone Recovery step of the Stone Powers dialog.

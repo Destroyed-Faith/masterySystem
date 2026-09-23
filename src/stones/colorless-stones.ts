@@ -1,15 +1,21 @@
 /**
- * Temporary Colorless Stones — Initiative Exchange and item grants (Absorption).
+ * Colorless Stones from Initiative Exchange and item grants (Absorption).
  *
- * Initiative Exchange: convert remaining Initiative into Temporary Colorless
- * Stones at `4 × Mastery Rank` Initiative per Stone. They may pay any part of
- * an unlocked Stone Ability's normal cost. When spent they disappear (they
- * are never Exhausted, burned, sealed, or bound). Unused leftovers vanish at
- * the end of combat — use them or lose them.
+ * Initiative Exchange: convert remaining Initiative into Initiative Colorless
+ * Stones at `4 × Mastery Rank` Initiative per Stone. They join the Colorless
+ * Pool for the current combat, may pay any part of an unlocked Stone
+ * Ability's normal cost, and use Ready / Exhausted normally: spending one
+ * makes it Exhausted, and it may return through normal end-of-Round Stone
+ * Regeneration. They disappear when combat ends — Ready or Exhausted — and
+ * can never be burned, Sealed, or Bound.
  *
- * Item-granted stones stay on the actor and follow that item's own combat
- * rule (Absorption: gone at the end of the next turn). Combat cleanup must
- * not treat them as leftover Initiative.
+ * Item-granted stones stay on the actor and follow that item's own rule
+ * (Absorption: vanish when spent, gone at the end of the next turn). Combat
+ * cleanup must not treat them as leftover Initiative.
+ *
+ * Permanent Colorless Stones (progression, `system.stonePools.colorless`)
+ * share the same combat Colorless Pool for spending and Regeneration but
+ * survive the combat.
  */
 
 export const COLORLESS_STONE_ATTR = 'colorless';
@@ -18,6 +24,7 @@ export const COLORLESS_GEM_STYLE = { fill: '#eceff1', stroke: '#90a4ae' };
 
 const FLAG_COUNT = 'tempColorlessStones';
 const FLAG_INITIATIVE = 'initiativeColorlessStones';
+const FLAG_INITIATIVE_EXHAUSTED = 'initiativeColorlessExhausted';
 const FLAG_ABSORPTION_EXPIRY = 'absorptionStoneExpiry';
 const FLAG_BOOST_USED = 'msInitiativeBoostUsed';
 
@@ -41,11 +48,24 @@ function rawInitiativeColorlessStones(actor: any): number | undefined {
   return Math.max(0, Math.floor(Number(raw) || 0));
 }
 
-/** How many of the current pile were bought with Initiative Exchange. */
+/** Ready Initiative Colorless Stones (part of the spendable pile). */
 export function getInitiativeColorlessStones(actor: any): number {
   const tagged = rawInitiativeColorlessStones(actor);
   if (tagged === undefined) return 0;
   return Math.min(tagged, getTempColorlessStones(actor));
+}
+
+/** Exhausted Initiative Colorless Stones — spent, but still part of the combat. */
+export function getExhaustedInitiativeColorlessStones(actor: any): number {
+  return Math.max(
+    0,
+    Math.floor(Number(actor?.getFlag?.('mastery-system', FLAG_INITIATIVE_EXHAUSTED) ?? 0) || 0),
+  );
+}
+
+/** All Initiative Colorless Stones alive in this combat (Ready + Exhausted). */
+export function getInitiativeColorlessTotal(actor: any): number {
+  return getInitiativeColorlessStones(actor) + getExhaustedInitiativeColorlessStones(actor);
 }
 
 /** Colorless Stones that did not come from Initiative (Absorption / items). */
@@ -91,7 +111,7 @@ export async function addTempColorlessStones(actor: any, amount: number): Promis
   return next;
 }
 
-/** Initiative Exchange grant — these vanish after combat if still unused. */
+/** Initiative Exchange grant — gained Ready, alive until the combat ends. */
 export async function addInitiativeColorlessStones(actor: any, amount: number): Promise<number> {
   const add = Math.max(0, Math.floor(Number(amount) || 0));
   if (add <= 0) return getTempColorlessStones(actor);
@@ -102,19 +122,30 @@ export async function addInitiativeColorlessStones(actor: any, amount: number): 
   return nextTotal;
 }
 
-async function copyColorlessPile(from: any, to: any): Promise<void> {
+async function setExhaustedInitiativeColorlessStones(actor: any, count: number): Promise<void> {
+  const next = Math.max(0, Math.floor(Number(count) || 0));
+  if (next <= 0) {
+    await actor?.unsetFlag?.('mastery-system', FLAG_INITIATIVE_EXHAUSTED);
+    return;
+  }
+  await actor?.setFlag?.('mastery-system', FLAG_INITIATIVE_EXHAUSTED, next);
+}
+
+export async function copyColorlessPile(from: any, to: any): Promise<void> {
   if (!from || !to || from === to) return;
   if (String((from as { id?: string }).id ?? '') === String((to as { id?: string }).id ?? '')) {
     return;
   }
   const total = getTempColorlessStones(from);
   const init = getInitiativeColorlessStones(from);
+  const exhausted = getExhaustedInitiativeColorlessStones(from);
   if (total <= 0) {
     await setTempColorlessStones(to, 0);
-    return;
+  } else {
+    await to?.setFlag?.('mastery-system', FLAG_COUNT, total);
+    await setInitiativeColorlessStones(to, init);
   }
-  await to?.setFlag?.('mastery-system', FLAG_COUNT, total);
-  await setInitiativeColorlessStones(to, init);
+  await setExhaustedInitiativeColorlessStones(to, exhausted);
 }
 
 /**
@@ -131,14 +162,20 @@ export function getPermanentColorlessStones(actor: any): { current: number; max:
   };
 }
 
-/** Colorless Stones spendable right now: Temporary pile + Ready Permanent Colorless. */
+/**
+ * Colorless Stones spendable right now: item-granted pile + Ready Initiative
+ * Colorless + Ready Permanent Colorless.
+ */
 export function getSpendableColorlessStones(actor: any): number {
   return getTempColorlessStones(actor) + getPermanentColorlessStones(actor).current;
 }
 
 /**
- * Spend Colorless Stones: Temporary first (they vanish and are use-or-lose),
- * then Ready Permanent Colorless Stones (they become Exhausted).
+ * Spend Colorless Stones. Deterministic, player-favorable source order:
+ * item-granted first (they vanish on spend and expire soonest), then Ready
+ * Initiative Colorless (combat-limited; they become Exhausted and may
+ * regenerate), then Ready Permanent Colorless (they become Exhausted and
+ * survive the combat).
  */
 export async function spendColorlessStones(actor: any, amount: number): Promise<boolean> {
   const n = Math.max(0, Math.floor(Number(amount) || 0));
@@ -160,23 +197,52 @@ export async function spendColorlessStones(actor: any, amount: number): Promise<
   return true;
 }
 
-/** Spend Initiative leftovers first — they disappear at combat end anyway. */
+/**
+ * Spend from the temporary pile: item-granted stones first (source rule —
+ * they vanish when spent), then Ready Initiative Colorless Stones, which
+ * become Exhausted instead of disappearing.
+ */
 export async function spendTempColorlessStones(actor: any, amount: number): Promise<boolean> {
   const n = Math.max(0, Math.floor(Number(amount) || 0));
   if (n <= 0) return true;
   const have = getTempColorlessStones(actor);
   if (have < n) return false;
   const init = getInitiativeColorlessStones(actor);
-  const fromInit = Math.min(n, init);
+  const item = Math.max(0, have - init);
+  const fromItem = Math.min(n, item);
+  const fromInit = n - fromItem;
   const nextTotal = have - n;
   const nextInit = init - fromInit;
   if (nextTotal <= 0) {
     await setTempColorlessStones(actor, 0);
-    return true;
+  } else {
+    await actor?.setFlag?.('mastery-system', FLAG_COUNT, nextTotal);
+    await setInitiativeColorlessStones(actor, nextInit);
   }
-  await actor?.setFlag?.('mastery-system', FLAG_COUNT, nextTotal);
-  await setInitiativeColorlessStones(actor, nextInit);
+  if (fromInit > 0) {
+    await setExhaustedInitiativeColorlessStones(
+      actor,
+      getExhaustedInitiativeColorlessStones(actor) + fromInit,
+    );
+  }
   return true;
+}
+
+/**
+ * Normal Stone Regeneration on Initiative Colorless Stones: move up to
+ * `amount` Exhausted Initiative Colorless Stones back to Ready. Returns how
+ * many actually came back.
+ */
+export async function restoreInitiativeColorlessStones(actor: any, amount: number): Promise<number> {
+  const n = Math.max(0, Math.floor(Number(amount) || 0));
+  if (n <= 0) return 0;
+  const exhausted = getExhaustedInitiativeColorlessStones(actor);
+  const restore = Math.min(n, exhausted);
+  if (restore <= 0) return 0;
+  await setExhaustedInitiativeColorlessStones(actor, exhausted - restore);
+  await actor?.setFlag?.('mastery-system', FLAG_COUNT, getTempColorlessStones(actor) + restore);
+  await setInitiativeColorlessStones(actor, getInitiativeColorlessStones(actor) + restore);
+  return restore;
 }
 
 /** Drop item-granted stones without touching the Initiative leftover count. */
@@ -197,12 +263,14 @@ export async function dropItemColorlessStones(actor: any, amount: number): Promi
 
 export async function clearTempColorlessStones(actor: any): Promise<void> {
   await setTempColorlessStones(actor, 0);
+  await actor?.unsetFlag?.('mastery-system', FLAG_INITIATIVE_EXHAUSTED);
 }
 
 /**
- * Drop leftover Initiative Colorless Stones. Item-granted stones stay.
- * Untagged leftovers from before source tracking count as Initiative, minus
- * any Absorption expiry still on the actor.
+ * End of combat: all Initiative Colorless Stones disappear, Ready or
+ * Exhausted. Item-granted stones stay. Untagged leftovers from before source
+ * tracking count as Initiative, minus any Absorption expiry still on the
+ * actor.
  */
 export async function clearInitiativeColorlessStones(actor: any): Promise<void> {
   const total = getTempColorlessStones(actor);
@@ -215,6 +283,7 @@ export async function clearInitiativeColorlessStones(actor: any): Promise<void> 
   }
   const remain = total - drop;
   await actor?.unsetFlag?.('mastery-system', FLAG_INITIATIVE);
+  await actor?.unsetFlag?.('mastery-system', FLAG_INITIATIVE_EXHAUSTED);
   if (remain <= 0) {
     await actor?.unsetFlag?.('mastery-system', FLAG_COUNT);
     return;

@@ -1184,7 +1184,11 @@ export async function applyAutomaticStoneRegen(actor) {
     }
 }
 /**
- * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen pools).
+ * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen
+ * pools). One shared budget: the `colorless` key restores Exhausted Permanent
+ * Colorless Stones first, then Exhausted Initiative Colorless Stones (both
+ * are equivalent while the combat lasts; Permanent ones are the character's
+ * own Stones, so they come back first).
  */
 export async function applyStoneRegenAllocation(actor, allocation) {
     const owner = getActionEconomyActor(actor) ?? actor;
@@ -1211,8 +1215,30 @@ export async function applyStoneRegenAllocation(actor, allocation) {
             updates[`system.stonePools.${attr}.current`] = next;
         }
     }
+    let colorlessLeft = Math.max(0, Math.floor(Number(allocation.colorless) || 0));
+    if (colorlessLeft > 0) {
+        const pool = system?.stonePools?.colorless;
+        if (pool && typeof pool === 'object') {
+            const max = Math.max(0, Math.floor(Number(pool.max) || 0));
+            const current = Math.max(0, Math.floor(Number(pool.current) || 0));
+            const reserved = stonePoolReservedStones(system, 'colorless');
+            const cap = Math.max(0, max - reserved);
+            const next = Math.min(cap, current + colorlessLeft);
+            if (next !== current) {
+                updates['system.stonePools.colorless.current'] = next;
+                colorlessLeft -= next - current;
+            }
+        }
+    }
     if (Object.keys(updates).length > 0) {
         await owner.update(updates);
+    }
+    if (colorlessLeft > 0) {
+        const { restoreInitiativeColorlessStones, copyColorlessPile } = await import('../stones/colorless-stones.js');
+        const restored = await restoreInitiativeColorlessStones(owner, colorlessLeft);
+        if (restored > 0 && owner !== actor) {
+            await copyColorlessPile(owner, actor);
+        }
     }
 }
 /**
@@ -1253,8 +1279,8 @@ export async function restoreStonesAfterCombat(combat) {
                 updates[`system.stonePools.${attr}.current`] = fullCurrent;
             }
         }
-        // Permanent Colorless Stones regenerate normally after combat (unlike
-        // Temporary Colorless Stones, which are cleared by combat cleanup).
+        // Permanent Colorless Stones return to Ready after combat (Initiative
+        // Colorless Stones disappear instead — combat cleanup drops them).
         const colorlessPool = system?.stonePools?.colorless;
         if (colorlessPool && typeof colorlessPool === 'object') {
             const max = Math.max(0, Math.floor(Number(colorlessPool.max) || 0));
