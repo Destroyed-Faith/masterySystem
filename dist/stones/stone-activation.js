@@ -18,11 +18,23 @@ export function resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTie
     const effective = effectiveStoneSupportPrefillTier(abilityId, prefillTier);
     const supportApplies = stonePowerSupportPrefillApplies(abilityId, prefillTier);
     const paidUses = Math.max(0, Math.floor(Number(rawUsesBefore) || 0));
-    const prefillBaseline = supportApplies ? Math.max(0, effective - 1) : 0;
-    const usesBefore = Math.max(paidUses + rampSkip, prefillBaseline);
+    const paidIndex = paidUses + rampSkip;
+    let usesBefore = paidIndex;
+    if (supportApplies) {
+        const prefillBaseline = Math.max(0, effective - 1);
+        usesBefore = Math.max(paidIndex, prefillBaseline);
+        // Not a Target: Kept from Sight raises one tier above the tier just paid.
+        // Paying Tier 2 can reach Tier 3. Paying Tier 3 can reach Tier 4.
+        // A Tier 4 prefill must not skip Tier 3.
+        if (resolveStonePowerId(abilityId) === 'influence.notATarget') {
+            const paidTier = tierForUseIndex(paidIndex);
+            const capped = Math.min(effective, paidTier + 1);
+            usesBefore = capped > paidTier ? capped - 1 : paidIndex;
+        }
+    }
     return {
         tier: tierForUseIndex(usesBefore),
-        cost: calculateStoneCost(paidUses + rampSkip),
+        cost: calculateStoneCost(paidIndex),
         supportApplies,
     };
 }

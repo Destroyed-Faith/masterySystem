@@ -63,6 +63,11 @@ export declare const STONE_TIER_HARD_MAX = 4;
  * above Tier 4, do not scale.
  */
 export declare function scaleStoneTier(seq: readonly number[], tier: number): number;
+/** Enemies and range for Not a Target. Level 9 Ringchain adds one enemy only on a full Tier 4 payment. */
+export declare function notATargetProfile(tier: number, cost: number, ringchainLevel?: number): {
+    enemies: number;
+    range: number;
+} | null;
 /** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
 export declare function stonePowerWaveCost(tier: number): number;
 /** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */

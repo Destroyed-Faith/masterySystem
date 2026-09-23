@@ -1670,10 +1670,11 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       kind: 'stonePowerSupport',
       attribute: 'influence',
       stonePowerId: 'influence.notATarget',
-      // Not a Target starts at Tier 2. Printed support stages stay [1, 5, 9];
-      // effectiveStoneSupportPrefillTier lifts a T2 prefill so the character
-      // still pays the first real tier. There is no Tier 1.
-      supportStages: [1, 5, 9],
+      // Not a Target starts at Tier 2. Levels 1–4 print Tier 2, which is
+      // lifted so the character pays Tier 2 and Kept from Sight I fills Tier 3.
+      // Level 5+ prints Tier 4: Kept from Sight II fills Tier 4 only after
+      // Tier 3 is paid. Level 9 is an Artifact Function, not a higher prefill.
+      supportStages: [1, 5, 5],
     },
   ],
   baseValues: [
@@ -1690,7 +1691,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Not a Target begins at Tier 2. You must activate and pay Tier 2 yourself. Stone Power Support only advances an already activated Stone Ability.',
+      effect: 'After you activate Not a Target at Tier 2 normally, Kept from Sight I pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.',
       special: 'influence.notATarget',
     },
     {
@@ -1727,7 +1728,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       type: 'Stone Power Support',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fill Tier 3 of Influence Ability: Not a Target. Tier 2 must still be paid by you. There is no Tier 1.',
+      effect: 'After you activate Not a Target at Tier 3 normally, Kept from Sight II pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.',
       special: 'influence.notATarget',
     },
     {
@@ -1761,10 +1762,10 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
     {
       level: 9,
       name: 'Kept from Sight III',
-      type: 'Stone Power Support',
+      type: 'Artifact Function',
       range: 'Self',
       duration: 'Instant',
-      effect: 'Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1.',
+      effect: 'When you activate Not a Target at Tier 4 by paying its full normal Stone cost, one additional eligible enemy within 24 m may be affected. This uses one Kept from Sight use.',
       special: 'influence.notATarget',
     },
     {

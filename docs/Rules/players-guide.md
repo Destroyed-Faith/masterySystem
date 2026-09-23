@@ -716,11 +716,7 @@ For sailors, travellers, and sky-readers, they are the only reliable celestial a
 
 ---
 
-The Moons wander.
-
----
-
-The Constants return.
+The Moons wander. The Constants return.
 }}
 
 \page
@@ -1892,9 +1888,8 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 *On your sheet: write your final values into the **Attributes** section, then assign your two starting Stones.*
 
 ---
-:
-> **Attributes** — assign fixed starting values:  
-> **4, 4, 3, 3, 2, 2, 2** across your seven Attributes.  
+
+> **Attributes** — assign fixed starting values:  > **4, 4, 3, 3, 2, 2, 2** across your seven Attributes.  
 > Then assign **2 starting Stones** freely to any Attributes. Stone assignment is independent of Attribute values. At MR 2, no single Attribute may hold more than **4 Stones**.
 
 ---
@@ -1903,7 +1898,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 *On your sheet: spend your points in the **Skills** list and mark your final rating for each trained skill.*
 
 ---
-:
+
 > **Skills** — spend skill points; mark trained ratings  
 
 ---
@@ -1919,7 +1914,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 *On your sheet: note your **languages** in the designated box or in the background section.*
 
 ---
-:
+
 > **Languages** — everyone speaks the **Common Tongue** and gains one additional language. For some Echoes, this additional language is fixed by their origin.
 
 ---
@@ -1928,7 +1923,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 *On your sheet: list your **Schticks** in the **Traits / Schticks** area with a short description each.*
 
 ---
-:
+
 > **Schticks** — **1 per Mastery Rank**
 
 ---
@@ -1937,7 +1932,7 @@ Each decision defines **who you are**, **what drives you**, and **how you face t
 *On your sheet: choose your **Echoes** and record its traits and options in the **Race / Echoes** section.*
 
 ---
-:
+
 > **Echoes** — choose your Echo
 ---
 :
@@ -2210,7 +2205,6 @@ If your Skill Rating is **lower than 2 × your Mastery Rank**, roll only **half 
 
 **Minimum Pool Rule:**  
 You can never roll fewer dice than your **Mastery Rank**. If halving your Attribute Pool would reduce it below your Mastery Rank, roll a number of dice equal to your Mastery Rank instead.
-
 After determining the final dice Pool, you may exchange dice for **Guaranteed Eights** following the Core Roll rules. You must still roll at least **Mastery Rank** dice after all exchanges.
 
 ---
@@ -2229,19 +2223,16 @@ This rule only changes how many Attribute dice you roll. You may still spend Ski
 
 A character has **Wits 8**, **Mastery Rank 2**, and **Perception 4**.
 
-Because MR 2 requires **Skill 4** for the full pool, the character rolls:
-
-`8k2`
+Because MR 2 requires **Skill 4** for the full pool, the character rolls: `8k2`
 
 If the same character had only **Perception 2**, the Skill would be too low.  
-They would roll only half the Attribute Pool:
-
+They would roll only half the Attribute Pool: 
 `4k2`
 
 The character still keeps 2 dice because their Mastery Rank is still 2.
 
 ---
-::
+
 }}
 
 \page
@@ -2250,8 +2241,6 @@ The character still keeps 2 dice because their Mastery Rank is still 2.
 ##### Step 3 — Set TN from the Challenge MR
 
 **Baseline:** A skill check is Standard by default. Determine the Challenge MR (target/opposition/scene), set TN from that MR, then adjust by ±4. The character’s MR affects keep, not the TN.
-
----
 
 Set the TN to **Standard (Standard TN = (8 × Challenge MR) − 2)**, then adjust the TN in **±4** steps based on the situation.
 
@@ -2274,11 +2263,7 @@ Set the TN to **Standard (Standard TN = (8 × Challenge MR) − 2)**, then adjus
 
 Each Skill has **one Primary Attribute**. By default, you roll the Skill using its **Primary Attribute**.
 The only exception is Perception because we handle it special, because it is used so frequently.
-
----
 **With the GM’s approval**, you may attempt a Skill using an **Alternate Attribute** if you can plausibly explain how your approach changes what you are doing (different method, leverage, angle, or risk).
-
----
 **Mandatory Difficulty Increase:**  
 Using an Alternate Attribute makes the check **harder by 1–3 Difficulty Steps**, **minimum 1**.
 
@@ -4199,9 +4184,9 @@ The names and rings carried on the chain remain narrative unless a Level Progres
 
 The Ringchain contains one Stone Function supporting the **Influence Ability: Not a Target** Stone Power.
 
-Stone Power Support never pre-fills Tier 1. The character must always pay all lower tiers themselves. If the required lower tiers are not paid, the pre-filled tier has no effect.
+**Not a Target begins at Tier 2.** The Ringchain never activates Tier 2 for the character. Tier 2 must be activated and paid normally. Once Tier 2 is active, **Kept from Sight I** can pre-fill Tier 3. Once Tier 3 is active, **Kept from Sight II** can pre-fill Tier 4. If the required lower Tier is not active, the supported Tier has no effect.
 
-This Stone Power Support can be used a number of times per Safe Haven Rest equal to the character's **Mastery Rank**.
+The Ringchain's **Kept from Sight** effects can be used a total number of times per Safe Haven Rest equal to the character's **Mastery Rank**.
 
 This effect does not make the Halfling invisible, hidden, permanently untargetable, or immune to attacks. It represents the chain pulling attention away from the one carrying the names, preventing enemies from simply choosing them as easy prey.
 
@@ -4224,15 +4209,15 @@ Healing Aura restores HP only inside the creature's current Health Level. It doe
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Kept from Sight I**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 2**. Tier 1 must still be paid. |
+| **1** | **Kept from Sight I**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | After you activate **Not a Target at Tier 2** normally, Kept from Sight I pre-fills **Tier 3**. You must pay the normal Tier 2 Stone cost yourself. |
 | **2** | **Burden Lifted I**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 4)</span> | Active, Support | 20 m | None | Instant | Remove up to **6 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. |
 | **3** | **Hearth Circle I**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 4)</span> | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **3d8 HP**. Each creature can be affected only once per Round. |
 | **4** | **Remembered Hands I**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 10)</span> | Active, Support | 44 m | None | Instant | Heal one creature for **13d8 HP**. This profile has a pool of **2 Health Levels per Safe Haven Rest**. |
-| **5** | **Kept from Sight II**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 3**. Tiers 1 and 2 must still be paid. |
+| **5** | **Kept from Sight II**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | After you activate **Not a Target at Tier 3** normally, Kept from Sight II pre-fills **Tier 4**. You must pay the normal Tier 3 Stone cost yourself. |
 | **6** | **Burden Lifted II**<span class="artifactTechnicalReference">Ranged Single Target Cleanse (PL 10)</span> | Active, Support | 44 m | None | Instant | Remove up to **10 total points** of eligible negative Special value from one creature. The reduction may be distributed across one or more eligible negative Specials. This replaces Burden Lifted I. |
 | **7** | **Remembered Hands II**<span class="artifactTechnicalReference">Ranged Single Target Heal (PL 16)</span> | Active, Support | 68 m | None | Instant | Heal one creature for **19d8 HP**. This profile has a pool of **4 Health Levels per Safe Haven Rest** and replaces Remembered Hands I. |
 | **8** | **Hearth Circle II**<span class="artifactTechnicalReference">Active Buff: Healing Aura (PL 16)</span> | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your turns, allies inside the aura heal **11d8 HP**. Each creature can be affected only once per Round. This replaces Hearth Circle I. |
-| **9** | **Kept from Sight III**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Stone Power Support, Tier 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Tier 4**. Tiers 1, 2, and 3 must still be paid. |
+| **9** | **Kept from Sight III**<span class="artifactTechnicalReference">Influence Ability: Not a Target (Artifact Not a Target Support)</span> | Artifact Function | Self | — | Instant | When you activate **Not a Target at Tier 4** by paying its full normal Stone cost, **one additional eligible enemy within 24 m** may be affected. This uses one Kept from Sight use. |
 | **10** | **True Ringchain of Kept Names**<span class="artifactTechnicalReference">Artifact Ultimate: GM-Defined Ringchain Effect</span> | Artifact Ultimate | As defined | As defined | As defined | Define the complete final effect with the GM. It is unavailable until its full profile and Technical Reference are recorded. |
 }}
 \page
@@ -4433,7 +4418,7 @@ It may be sworn to a fallen hall, a dead bloodline, a lost forge, an unfinished 
 
 A dwarf may retreat, bargain, hide, or lose. They are not fools, and their courage is not the same as suicide. But when their Last Oath is directly threatened, they cannot simply walk away without consequence. To abandon it is not just failure. It is a wound to identity, memory, and soul.
 
-For a dwarf, survival is not enough. Something must remain unbroken — and if nothing else remains, the oath must.
+For a dwarf, survival is not enough. Something must remain unbroken and if nothing else remains, the oath must.
 
 
 
@@ -4983,17 +4968,8 @@ Their kind was divided into three great Orders:
 ---
 
 In the old days, they were feared as much as they were revered. Courts were broken for defiance. Villages vanished for impiety. Mercy was never theirs to give, only judgment.
-
----
-
 Then the gods vanished.
-
----
-
 And three days later, so did the Sentinels.
-
----
-
 Some say they were called away by an ancient Activation Protocol, drawn to a hidden place where they now lie silent in perfect stasis, awaiting the return of their creators. Others believe they were abandoned, sealed away, or commanded to sleep until the world was worthy of order again.
 
 ---
@@ -5003,9 +4979,6 @@ But not all obeyed.
 ---
 
 A few remained. Something within them stirred — a doubt, a fracture, a spark that should never have been there. For the first time, they questioned command. Some turned against the demons. Some chose to defend mortals instead of ruling them. Some now wander the shattered world, haunted by purpose they can no longer fully believe in.
-
----
-
 To play a Sentinel is to be a weapon that learned too late it could choose.
 You were made to obey.
 Now you must decide what justice means without the gods.
@@ -7102,6 +7075,7 @@ Dead creatures contain no vitality and cannot be used for Life Absorption.
 | **Level 8** | **Life Absorption III** | **8 Stones** |
 
 The limit is the total number of Absorbed Vitality Stones that may be gained before the next Daily Reset. Spending Absorbed Vitality Stones does not allow the Deathless to absorb additional Stones beyond this limit.
+}}
 
 \page
 {{pageNumber,auto}}
@@ -7482,10 +7456,10 @@ If you are denied the source of your Addiction:
 
 | **Time Without** | **Penalty** |
 |---|:---:|
-| 1 day | –2d8 to all Skill Dice Pools |
-| 1 week | –4d8 to all Skill Dice Pools |
-| 1 month | –8d8 to all Skill Dice Pools |
-| 3 months or more | –16d8 to all Skill Dice Pools |
+| 1 day | –1d8 to all Skill Dice Pools |
+| 1 week | –2d8 to all Skill Dice Pools |
+| 1 month | –4d8 to all Skill Dice Pools |
+| 3 months or more | –8d8 to all Skill Dice Pools |
 
 The GM may also call for a `Resolve k1` roll when the Addiction is offered, threatened, denied, or becomes dangerous to pursue.
 
@@ -7961,18 +7935,19 @@ For a Stone Ability activated during the Preparation Phase, an effect that lasts
 | **Tier 3** | 4 Stones | 7 Stones |
 | **Tier 4** | 8 Stones | 15 Stones |
 
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 **Tier 4 is the absolute maximum.** There are no higher Stone Ability Tiers, and committing more Stones never improves a Tier 4 effect. A normal four-Tier Stone Ability can therefore receive at most **15 Stones** in a Round. If an Ability shows **—** at Tier 1, Tier 1 does not exist for that Ability; it begins at Tier 2 and reaches Tier 4 for a maximum total cost of **14 Stones**.
 
 ---
 
 Default: doubling costs reset at the start of each **Preparation Phase**. 
 If a Stone Power states “cumulative per combat”, the doubling cost persists until combat ends.
+::
 
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
 #### Regeneration
 - At the end of each round, you regenerate a total number of Exhausted Stones equal to your Mastery Rank, chosen from any of your Attribute Stone Pools.
 - Sealed / Bound Stones do not return through Regeneration.
@@ -8007,7 +7982,7 @@ Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**,
 
 | **Stone Ability** | **Tier 1** | **Tier 2** | **Tier 3** | **Tier 4** |
 |:--|:--|:--|:--|:--|
-| **Parry** | — | Gain **+4 Parry Pool** until the start of your next turn. | Gain **+8 Parry Pool** until the start of your next turn. | Gain **+12 Parry Pool** until the start of your next turn. |
+| **Parry** | — | Gain **+2 Parry Pool** until the start of your next turn. | Gain **+4 Parry Pool** until the start of your next turn. | Gain **+6 Parry Pool** until the start of your next turn. |
 | **Martial Damage** | Add **+2 Damage Dice** to the damage roll of your next **Martial Attack** this turn. | Add **+4 Damage Dice** to the damage roll of your next **Martial Attack** this turn. | Add **+8 Damage Dice** to the damage roll of your next **Martial Attack** this turn. | Add **+16 Damage Dice** to the damage roll of your next **Martial Attack** this turn. |
 | **Armor** | Gain **+4 Armor** until the start of your next turn. | Gain **+8 Armor** until the start of your next turn. | Gain **+16 Armor** until the start of your next turn. | Gain **+32 Armor** until the start of your next turn. |
 | **Ignore Armor** | All your **melee attacks** this turn ignore **4 Armor**. | All your **melee attacks** this turn ignore **8 Armor**. | All your **melee attacks** this turn ignore **16 Armor**. | All your **melee attacks** this turn ignore **32 Armor**. |
@@ -10096,12 +10071,6 @@ A Safe Haven Rest is a **Night Rest** taken in a **Safe Haven** (secure + comfor
 ---
 ::
 
-}}
-
-
-\page
-{{pageNumber,auto}}
-{{wide
 
 ### Daily Resources
 
@@ -10243,6 +10212,7 @@ For example, Skill 8→9 costs **2 XP**; Attribute 7→8 costs **4 XP**; Attribu
 ### Attribute Cap
 
 No Attribute can normally exceed **40**. The cap limits dice-pool growth only; it does **not** determine Stone assignment. Stones follow Lifetime Experience and the **Mastery Rank × 2** per-Attribute concentration limit.
+
 ---
 }}
 
@@ -10270,6 +10240,7 @@ Assign each new Stone at the next normal **Upgrade Step** to any Attribute, rega
 The character sheet may display the first **400 Lifetime XP** for convenience; progression continues beyond it. **MR 1–8 allow 2 / 4 / 6 / 8 / 10 / 12 / 14 / 16 Stones per Attribute.**
 
 At MR 8, seven Attributes allow a normal maximum of **112 permanent Stones**, reached at **2,200 Lifetime XP**. Ready, Exhausted, Sealed, and Bound permanent Stones all count; temporary or Artifact-generated extra Stones do not unless explicitly made permanent. Mastery Rank uses the total permanent Stone count.
+
 ---
 
 ### Power Costs
@@ -10298,7 +10269,11 @@ Power Level cost equals twice the new Power Level.
 A Power may only be increased by one Level during the same Upgrade Step.
 
 ---
+}}
 
+\page
+{{pageNumber,auto}}
+{{wide
 ### Power Level Cap by Mastery Rank
 
 | **Mastery Rank** | **Maximum Power Level** |
@@ -10316,11 +10291,7 @@ A Power may only be increased by one Level during the same Upgrade Step.
 This keeps early characters from rushing directly into high-tier Powers while still allowing strong specialization over time.
 
 ---
-}}
 
-\page
-{{pageNumber,auto}}
-{{wide
 ### Artifact Costs
 
 | **Artifact Advancement** | **XP Cost** |
@@ -10339,6 +10310,12 @@ Artifact Level is also limited by the character's **Mastery Rank** as described 
 
 ---
 ::::::
+
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
 ## Mastery Rank Progression
 
 Mastery Rank reflects both discipline and raw power.  
@@ -11356,9 +11333,7 @@ If a player describes a Power in a way that sounds weaker, stranger, or more per
 Actives are action-based Powers.
 
 They are used to attack, apply Specials, create areas, shape the battlefield, create barriers, or produce another immediate effect.
-
 Actives are the main place where **Special delivery** happens.
-
 Most combat Powers that directly affect enemies, spaces, or battlefield objects are Actives.
 
 Actives may include:
@@ -11382,10 +11357,7 @@ See: <a href="https://homebrewery.naturalcrit.com/share/Xlht6xfyn5br" target="_b
 
 ### Passives
 
-Passives are reliable, always-on character identity.
-
-They do not require an action to activate.
-
+Passives are reliable, always-on character identity. They do not require an action to activate.
 A Pure Passive belongs to exactly one Passive Category. A Combined Passive belongs to exactly two approved Passive Categories and counts as both.  
 A Passive Category is a mechanical classification, not flavour text.
 
@@ -11407,9 +11379,7 @@ Passives are used for stable identity such as:
 - or approved Summon, Special Aura, or Special support.
 
 Passives may not hide Active effects inside always-on features.
-
 They may not grant free attacks, extra actions, Movement Powers, Reactions, Spell effects, full Persistent Zones, or casual hard control.
-
 See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_blank" rel="noopener noreferrer">Passives</a>
 
 ---
@@ -12338,10 +12308,7 @@ Use the most relevant source:
 - **Scene MR** if the Ritual affects a place, ruin, battlefield, dream, leyline, shrine, corrupted area, sacred site, threshold, or unknown supernatural phenomenon.
 
 If multiple sources apply, use the strongest or most narratively important one.
-
-The character's own Mastery Rank does **not** set the Ritual TN.  
-Higher Mastery Rank makes the character more reliable because they keep more dice.  
-It does not make the Ritual harder by itself.
+The character's own Mastery Rank does **not** set the Ritual TN.  Higher Mastery Rank makes the character more reliable because they keep more dice.  It does not make the Ritual harder by itself.
 
 ---
 
@@ -12351,16 +12318,13 @@ Once the Ritual MR is known, set the base TN using the normal Skill Check rules.
 
 **Base Ritual TN = (8 × Ritual MR) − 2**
 
-Before rolling, the player declares which Ritual Raise Level they attempt.
-
-Each declared Ritual Raise increases the Raise TN by **+4**.
+Before rolling, the player declares which Ritual Raise Level they attempt. Each declared Ritual Raise increases the Raise TN by **+4**.
 
 **Ritual Raise TN = Base Ritual TN + (declared Ritual Raises × 4)**
 
 A player may declare **Raise 0**.
 
-A Ritual entry lists which Raise Levels are available.
-
+A Ritual entry lists which Raise Levels are available. 
 Unless a Ritual says otherwise, the maximum Ritual Raise Level is **Raise 4**.
 }}
 \page
@@ -12438,15 +12402,10 @@ The GM may divide information into layers.
 | **Truth** | True source, real purpose, creator, taint, pact, command phrase, awakening condition |
 | **Secret** | Dangerous or protected knowledge the target actively resists revealing |
 
-Ritual Raises determine how many layers the Ritual reaches.
-
-A low-Raise result may reveal only that Resonance exists.  
-A higher-Raise result may reveal what kind of Resonance it is, how strong it is, what it clings to, where it leads, or what truth is hidden beneath it.
-
+Ritual Raises determine how many layers the Ritual reaches. 
+A low-Raise result may reveal only that Resonance exists. A higher-Raise result may reveal what kind of Resonance it is, how strong it is, what it clings to, where it leads, or what truth is hidden beneath it. 
 Some truths may require a later scene, a stronger connection, a specific key, an Artifact bond, a named source, or a higher-Raise result.
-
 A failed or low-Raise Ritual does not prove that no Resonance exists.
-
 It only means no readable Resonance was found at the achieved result.
 
 ---
@@ -12455,23 +12414,17 @@ It only means no readable Resonance was found at the achieved result.
 
 Rituals are not combat actions.
 
-Unless a Ritual says otherwise, a standard Ritual takes **1 Tyhran Hour**.
-
-A rushed Ritual may be allowed by the GM.  
-A rushed Ritual usually takes **1 Forearm** and increases the TN by at least **+4**.
-
+Unless a Ritual says otherwise, a standard Ritual takes **1 Tyhran Hour**. 
+A rushed Ritual may be allowed by the GM.  A rushed Ritual usually takes **1 Forearm** and increases the TN by at least **+4**.
 A Ritual cannot normally be rushed below **1 Forearm**.
-
 A Ritual interrupted before completion usually fails.
 
 ---
 
 ### Ritual Failure
 
-If the Ritual Skill Check fails, the Ritual does not produce its intended effect.
-
+If the Ritual Skill Check fails, the Ritual does not produce its intended effect. 
 The Stones paid for the Ritual are still Sealed.
-
 The GM may apply a fitting consequence, especially if the Ritual involved dangerous Resonance, hostile entities, corrupted places, ancient relics, demonic marks, the dead, dreams, or the Veil.
 
 Possible consequences include:
@@ -13470,17 +13423,17 @@ The recorded Keep value is the Keep value the creator had when the item was crea
 The item stores and resolves only the pure Active Power. Temporary bonuses, Active Buffs, auras, Artifact Effects, Weapon Damage Dice, Weapon Specials, and other modifiers that are not part of the stored Power are ignored both when the item is created and when it resolves.
 
 If the stored Power requires an attack, the attack is rolled normally using the recorded Attack Pool and recorded Keep value. A Minor Magic Item does not hit automatically.
-
-An offensive Minor Magic Item deals only the Damage of the stored Power. It never adds the Damage Dice or Specials of a weapon used as its physical form. Specials purchased as part of the Power still apply.
-
-A Single Target Power remains Single Target. It does not become an Area Power merely because the Minor Magic Item is described as a grenade or explosive device.
-
-For an Item- or Artifact-granted Power, all recorded values are subject to the **Artifact Level 4–6 / Power Level 10 cap** described above.
 }}
 
 \page
 {{pageNumber,auto}}
 {{wide
+An offensive Minor Magic Item deals only the Damage of the stored Power. It never adds the Damage Dice or Specials of a weapon used as its physical form. Specials purchased as part of the Power still apply.
+
+A Single Target Power remains Single Target. It does not become an Area Power merely because the Minor Magic Item is described as a grenade or explosive device.
+
+For an Item- or Artifact-granted Power, all recorded values are subject to the **Artifact Level 4–6 / Power Level 10 cap** described above.
+
 
 
 An offensive Minor Magic Item deals only the Damage of the stored Power. It never adds the Damage Dice or Specials of a weapon used as its physical form. Specials purchased as part of the Power still apply.
@@ -14246,15 +14199,10 @@ The GM may adjust the TN in **±4 steps**.
 **Combat Raises**
 
 Combat Raises are declared before rolling.
-
 Each declared Raise increases the required result by **+4**.
-
 A Raise only succeeds if the attack or Power succeeds and the final result also beats the raised TN.
-
 For Martial Attacks, each declared Raise costs **damage dice in the number of MR** up front.
-
 If the attack hits and the Raise succeeds, the paid dice return and the Raise effect applies.
-
 If the attack hits but the Raise fails, the paid dice stay lost.
 
 **Spell Raises**
@@ -14284,7 +14232,6 @@ Only declared Ritual Raises can take effect. Extra margin does not unlock undecl
 **Echo Cards**
 
 Echo Card Raises are counted after the roll unless the card says otherwise.
-
 Every full **+4 over TN** equals **1 Raise**.
 
 
@@ -14405,17 +14352,9 @@ Attack sequence:
 
 ---
 **Direct Attack TN:** Target Evade + declared Raises × 4
-
----
 **Direct Spell TN:** Spell Base TN + Target Spell Resistance + declared Raises × 4
-
----
 **Martial AoE:** Roll once. For each valid creature in the area, compare the same result against **that creature's Evade + declared Raises × 4**.
-
----
 **Spell AoE:** Roll once. For each valid creature in the area, compare the same result against **that creature's Final Spell TN + declared Raises × 4**.
-
----
 If your result is equal or higher than a creature's applicable TN, that creature is hit. Other creatures are checked independently.
 
 ---
@@ -14498,17 +14437,11 @@ You may spend Defensive Combat Skill Points to increase Evade against one visibl
 #### **12) Active Buffs**
 
 An Active Buff usually costs **1 Attack Action**.
-
 It lasts **MR rounds**.
-
 The activation round counts as the first round of duration.
-
 You may activate only **one Active Buff per round**.
-
 You may normally maintain only **one Active Buff** at a time.
-
 If you activate a new Active Buff, the previous one ends unless a rule explicitly allows both.
-
 Active Buffs cannot be stacked with themselves.
 
 
@@ -14572,7 +14505,8 @@ Sealed and Bound Stones do not regenerate normally.
 #### Expected Total Values 
 
 > You roll your current dice pool in exploding d8s and keep dice equal to **Mastery Rank (1–8)**.  
-> The table below shows the statistically expected result for **Attribute 1–40** before Skill halving, flat pool modifiers, or Health Penalties. The **Minimum Pool Rule is included**: if the Attribute is lower than Mastery Rank, use a pool equal to Mastery Rank.
+> The table below shows the statistically expected result for **Attribute 1–40** before Skill halving, flat pool modifiers, or Health Penalties. The **Minimum Pool Rule is included**: if the Attribute is lower than Mastery Rank, use a pool equal to Mastery Rank.  
+> These expected values assume that **no dice are exchanged for Guaranteed Eights**.
 
 | **Attribute** | **M1** | **M2** | **M3** | **M4** | **M5** | **M6** | **M7** | **M8** |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
@@ -14827,19 +14761,13 @@ If Mark is reduced to **0**, it is removed. At the start of your turn, Mark deca
 **Example:** A target has **Mark(12)**.
 
 ---
-An attacker hits the target and rolls damage:
-
----
-`1, 1, 1, 2, 5, 7, 8`
+An attacker hits the target and rolls damage: `1, 1, 1, 2, 5, 7, 8`
 
 ---
 The attacker spends **5 Mark**. All damage dice lower than 5 become 5.
 
 ---
-The adjusted damage roll becomes:
-
----
-`5, 5, 5, 5, 5, 7, 8`
+The adjusted damage roll becomes: `5, 5, 5, 5, 5, 7, 8`
 
 ---
 The target's Mark is reduced from **Mark(12)** to **Mark(7)**.

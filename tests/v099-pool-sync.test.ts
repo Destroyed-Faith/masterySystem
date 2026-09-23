@@ -13,7 +13,8 @@ import {
   reactionSpecialIncrease,
 } from '../src/utils/powers/pool-special-ranks.js';
 import { passiveDamageNegationReserveForLevel, passiveParryPoolForLevel } from '../src/utils/powers/templates/passives.js';
-import { STONE_POWERS } from '../src/stones/stone-powers.js';
+import { notATargetProfile, STONE_POWERS } from '../src/stones/stone-powers.js';
+import { resolveStonePowerActivation } from '../src/stones/stone-activation.js';
 import { computeParryStrip } from '../src/combat/parry.js';
 import { calculateHealthBarMax, calculateStressBarMax, passiveSkillValue } from '../src/utils/calculations.js';
 import { MINOR_EXPRESSION_TIERS, tierThresholdForAttributeValue } from '../src/utils/minor-expressions.js';
@@ -183,9 +184,36 @@ describe('Not a Target support', () => {
   it('does not tell the player to pay a Tier 1 that does not exist', () => {
     const chain = ECHO_ARTIFACTS.ringchainOfKeptNames;
     const sight = chain.levelProgression.filter((row) => row.name.startsWith('Kept from Sight'));
-    expect(sight.map((row) => row.effect).join('\n')).not.toMatch(/Tier 1 must still be paid/);
-    expect(sight[0]?.effect).toContain('begins at Tier 2');
-    expect(chain.extraStoneFunctions?.[0]?.supportStages).toEqual([1, 5, 9]);
+    expect(sight.map((row) => row.effect).join('\n')).not.toMatch(/Tier 1/);
+    expect(sight[0]?.effect).toContain('pay the normal Tier 2 Stone cost yourself');
+    expect(sight[0]?.effect).toContain('pre-fills Tier 3');
+    expect(sight[1]?.effect).toContain('pay the normal Tier 3 Stone cost yourself');
+    expect(sight[1]?.effect).toContain('pre-fills Tier 4');
+    expect(sight[2]?.type).toBe('Artifact Function');
+    expect(sight[2]?.effect).toContain('one additional eligible enemy within 24 m');
+    expect(sight[2]?.effect).not.toMatch(/[Pp]re-fill Tier 4/);
+    expect(chain.extraStoneFunctions?.[0]?.supportStages).toEqual([1, 5, 5]);
     expect(STONE_POWERS['influence.notATarget'].startsAtTier).toBe(2);
+  });
+
+  it('raises Not a Target by one real tier only after that tier is paid', () => {
+    const first = resolveStonePowerActivation('influence.notATarget', 0, 4);
+    expect(first.supportApplies).toBe(true);
+    expect(first.tier).toBe(3);
+    expect(first.cost).toBe(2);
+
+    const second = resolveStonePowerActivation('influence.notATarget', 1, 4);
+    expect(second.supportApplies).toBe(true);
+    expect(second.tier).toBe(4);
+    expect(second.cost).toBe(4);
+
+    const full = resolveStonePowerActivation('influence.notATarget', 2, 4);
+    expect(full.tier).toBe(4);
+    expect(full.cost).toBe(8);
+
+    expect(notATargetProfile(4, 8, 9)).toEqual({ enemies: 4, range: 24 });
+    expect(notATargetProfile(4, 4, 9)).toEqual({ enemies: 3, range: 24 });
+    expect(notATargetProfile(4, 8, 8)).toEqual({ enemies: 3, range: 24 });
+    expect(notATargetProfile(2, 2, 9)).toEqual({ enemies: 1, range: 8 });
   });
 });

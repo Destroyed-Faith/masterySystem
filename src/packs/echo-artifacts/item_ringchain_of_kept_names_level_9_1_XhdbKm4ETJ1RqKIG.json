@@ -42,7 +42,7 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1.",
+        "effect": "When you activate Not a Target at Tier 4 by paying its full normal Stone cost, one additional eligible enemy within 24 m may be affected. This uses one Kept from Sight use.",
         "special": "influence.notATarget"
       }
     ],
@@ -57,7 +57,7 @@
         "supportStages": [
           1,
           5,
-          9
+          5
         ]
       }
     ],
@@ -73,7 +73,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "Not a Target begins at Tier 2. You must activate and pay Tier 2 yourself. Stone Power Support only advances an already activated Stone Ability.",
+            "effect": "After you activate Not a Target at Tier 2 normally, Kept from Sight I pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.",
             "special": "influence.notATarget"
           },
           {
@@ -119,7 +119,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "Pre-fill Tier 3 of Influence Ability: Not a Target. Tier 2 must still be paid by you. There is no Tier 1.",
+            "effect": "After you activate Not a Target at Tier 3 normally, Kept from Sight II pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.",
             "special": "influence.notATarget"
           },
           {
@@ -165,7 +165,7 @@
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
-            "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1.",
+            "effect": "When you activate Not a Target at Tier 4 by paying its full normal Stone cost, one additional eligible enemy within 24 m may be affected. This uses one Kept from Sight use.",
             "special": "influence.notATarget"
           }
         ]
@@ -806,7 +806,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 2 and 3 must still be paid by you. There is no Tier 1."
+              "text": "When you activate Not a Target at Tier 4 by paying its full normal Stone cost, one additional eligible enemy within 24 m may be affected. This uses one Kept from Sight use."
             },
             "specials": [],
             "lvl": 9

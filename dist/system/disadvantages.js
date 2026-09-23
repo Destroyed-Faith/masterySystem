@@ -9,9 +9,8 @@
  * Disadvantage Points = Starting Faith Fractures (both current and maximum)
  */
 /**
- * Addiction withdrawal on Skill Dice Pools (v0.9.9 sync).
- * The archived Core table still prints −2/−4/−8/−16; runtime follows the
- * approved compressed penalties. Resolve TN is not set.
+ * Addiction withdrawal on Skill Dice Pools.
+ * Matches the archived Core: −1/−2/−4/−8. Resolve TN is not set.
  */
 export const ADDICTION_SKILL_DICE_PENALTIES = {
     oneDay: 1,

@@ -35,6 +35,34 @@ export function scaleStoneTier(seq, tier) {
         return 0;
     return Number(seq[t - 1]) || 0;
 }
+/** Enemies and range for Not a Target. Level 9 Ringchain adds one enemy only on a full Tier 4 payment. */
+export function notATargetProfile(tier, cost, ringchainLevel = 0) {
+    if (tier < 2)
+        return null;
+    const enemies = scaleStoneTier([1, 2, 3], tier - 1);
+    const range = scaleStoneTier([8, 16, 24], tier - 1);
+    if (enemies <= 0)
+        return null;
+    const keptFromSightIii = tier >= 4 && cost >= 8 && ringchainLevel >= 9;
+    return { enemies: enemies + (keptFromSightIii ? 1 : 0), range };
+}
+function ringchainLevelOnActor(actor) {
+    const items = actor?.items ? Array.from(actor.items) : [];
+    let best = 0;
+    for (const item of items) {
+        if (item?.type !== 'artifact')
+            continue;
+        if (item.getFlag?.('mastery-system', 'echoArtifactKey') !== 'ringchainOfKeptNames')
+            continue;
+        const sys = item.system ?? {};
+        if (sys.equipped !== true && sys.binding !== 'echo')
+            continue;
+        const level = Math.floor(Number(sys.currentLevel) || Number(sys.level) || 0);
+        if (level > best)
+            best = level;
+    }
+    return best;
+}
 /** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
 export function stonePowerWaveCost(tier) {
     const t = Math.floor(Number(tier) || 1);
@@ -799,15 +827,15 @@ const INFLUENCE_POWERS_RAW = [
             { label: '2 enemies @ 16 m', description: 'Up to 2 enemies within 16 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 2 },
             { label: '3 enemies @ 24 m', description: 'Up to 3 enemies within 24 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 3 },
         ],
-        apply: async ({ actor, tier }) => {
-            if (tier < 2)
+        apply: async ({ actor, tier, cost }) => {
+            const profile = notATargetProfile(tier, cost, ringchainLevelOnActor(actor));
+            if (!profile)
                 return;
-            const enemies = scaleStoneTier([1, 2, 3], tier - 1);
-            const meters = scaleStoneTier([8, 16, 24], tier - 1);
-            if (enemies <= 0)
-                return;
-            await actor.setFlag?.('mastery-system', 'pendingNotATarget', { enemies, range: meters });
-            ui.notifications?.info(`${actor.name}: Not a Target — up to ${enemies} enemy(ies) within ${meters} m cannot target you next attack this round.`);
+            await actor.setFlag?.('mastery-system', 'pendingNotATarget', {
+                enemies: profile.enemies,
+                range: profile.range,
+            });
+            ui.notifications?.info(`${actor.name}: Not a Target — up to ${profile.enemies} enemy(ies) within ${profile.range} m cannot target you next attack this round.`);
         },
     },
 ];
