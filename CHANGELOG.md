@@ -2,11 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.9.566] - 2026-09-23
 
 ### Added
 
 - **SL-Steine:** Im SL-Menü lassen sich Steine wieder auf Ready setzen (Exhausted, Sustained, Sealed, Burned weg, Zuweisung bleibt). „Steine neu verteilen“ gibt belegte Felder frei, damit sie gelöst oder anders zugewiesen werden können. „Alle Steine lösen“ leert die Zuweisung; Lifetime XP bleibt.
+
+### Changed
+
+- **Stone Powers:** Die Stein-Felder liegen in Zweierreihen. Bei Premium steht Rank 1 (zwei Steine) übereinander. Vier Steine sind zwei Paare nebeneinander, sechs drei Paare, acht vier Paare — der Block wird breiter, nicht höher. Die Namen bleiben lesbar.
 
 ## [0.9.565] - 2026-09-23
 
