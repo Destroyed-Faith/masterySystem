@@ -15,7 +15,7 @@
  */
 import { getTemplate } from '../utils/powers/index.js';
 import { renderRange, renderAoe, renderDuration, renderSpecials } from '../utils/power-rendering.js';
-import { STONE_POWERS, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, stonePowerSkipsFirstTier, } from '../stones/stone-powers.js';
+import { STONE_POWERS, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, effectiveStoneSupportPrefillTier, firstEffectiveStonePowerTier, } from '../stones/stone-powers.js';
 import { artifactPowerRowLabel, } from '../utils/artifact-power-pick.js';
 import { catalogPowerRowLabel, catalogTemplateRequiresSpecial, } from '../utils/artifact-catalog-pick.js';
 import { getEffect, getEffectBaseName } from '../utils/special-effects.js';
@@ -118,10 +118,15 @@ function stoneFunctionEffect(sf, stageIndex) {
         const spName = sp?.name || sf.stonePowerId || 'Stone Power';
         const powerId = sf.stonePowerId || '';
         const shift = powerId ? STONE_POWER_SUPPORT_TIER_SHIFT[powerId] ?? 0 : 0;
-        const prefillTier = Math.min(STONE_TIER_HARD_MAX, stageIndex + 2 + shift);
-        const skipFirst = !!(powerId && stonePowerSkipsFirstTier(powerId));
+        const printedTier = Math.min(STONE_TIER_HARD_MAX, stageIndex + 2 + shift);
+        // T2-start abilities (e.g. Crit) have no Tier 1: a printed first-tier
+        // prefill is lifted one step, and the player pays from the first real tier.
+        const prefillTier = powerId
+            ? effectiveStoneSupportPrefillTier(powerId, printedTier)
+            : printedTier;
+        const firstTier = powerId ? firstEffectiveStonePowerTier(powerId) : 1;
         const lowerTiers = Array.from({ length: Math.max(0, prefillTier - 1) }, (_, i) => i + 1)
-            .filter((tier) => !(skipFirst && tier === 1))
+            .filter((tier) => tier >= firstTier)
             .join(', ');
         const many = lowerTiers.includes(',');
         const payNote = lowerTiers

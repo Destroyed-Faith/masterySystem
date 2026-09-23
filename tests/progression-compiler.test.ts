@@ -56,18 +56,20 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(rows.map((r) => r.name)).toEqual(['Stone Support I', 'Stone Support II', 'Stone Support III']);
   });
 
-  it('describes Crit support at printed T2 / T3 / T4 without a table shift', () => {
+  it('describes Crit support at the effective T3 / T3 / T4 (T2 must be paid, never Tier 1)', () => {
     const picks: ArtifactProgressionPick[] = [
       {
         level: 3,
         kind: 'stoneFunction',
         stoneFunction: { kind: 'stonePowerSupport', attribute: 'agility', stonePowerId: 'agility.crit' },
-        displayName: 'Elorian Focus',
+        displayName: 'Killing Focus',
       },
     ];
     const rows = deriveLevelProgressionFromPicks(picks);
     expect(rows.map((r) => r.level)).toEqual([3, 6, 9]);
-    expect(rows[0].effect).toContain('pre-fills Tier 2');
+    // A printed first-tier prefill is lifted: support never activates Tier 2.
+    expect(rows[0].effect).toContain('pre-fills Tier 3');
+    expect(rows[0].effect).toMatch(/pay Tier 2 yourself/);
     expect(rows[0].effect).not.toMatch(/Tier 1/);
     expect(rows[1].effect).toContain('pre-fills Tier 3');
     expect(rows[1].effect).toMatch(/Tier 2/);

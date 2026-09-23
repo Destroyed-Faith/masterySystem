@@ -573,6 +573,9 @@ const HEARTSEEKER = {
     baseProfile: 'twoHandedWeaponRanged',
     description: 'A massive two-handed Artifact Crossbow built for calculated volleys, armor-breaking shots, and decisive kills. Its mechanism draws with supernatural force, aligning every bolt along invisible lines of weakness.',
     restriction: 'Heartseeker occupies both the Main Hand and Off Hand Slots. A character wielding Heartseeker cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Penetration and Precision on Base Value B apply only to attacks made with Heartseeker.',
+    // Crit starts at Tier 2 (no Tier 1). The printed Killing Focus stages
+    // (T2 / T3 / T4) are lifted so support never activates Tier 2 and only
+    // advances an already paid tier by one step.
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'agility',

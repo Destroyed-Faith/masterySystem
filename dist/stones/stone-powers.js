@@ -4,7 +4,7 @@
  * Most powers publish T1–T4. A listed set starts at Tier 2: Tier 1 does
  * not exist in data, UI, spending, validation, or serialization. First
  * purchase is T2 (2 Stones total), then T3 (6 total), then T4 (14 total).
- * Tiers continue past the printed table — T5 costs 16, T6 costs 32, up to T8.
+ * Tier 4 is the hard cap — there is no Tier 5.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
  * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
@@ -46,13 +46,24 @@ export function notATargetProfile(tier, cost, ringchainLevel = 0) {
     const keptFromSightIii = tier >= 4 && cost >= 8 && ringchainLevel >= 9;
     return { enemies: enemies + (keptFromSightIii ? 1 : 0), range };
 }
-function ringchainLevelOnActor(actor) {
+/** Attacks that may gain Crit(1). Level 9 Elorian Stride adds one attack only on a full Tier 4 payment. */
+export function critChargesProfile(tier, cost, elorianLevel = 0) {
+    if (tier < 2)
+        return 0;
+    const charges = scaleStoneTier([1, 2, 3], tier - 1);
+    if (charges <= 0)
+        return 0;
+    const focusIii = tier >= 4 && cost >= 8 && elorianLevel >= 9;
+    return charges + (focusIii ? 1 : 0);
+}
+/** Highest active level of one equipped / echo-bound Echo Artifact on the actor. */
+function echoArtifactLevelOnActor(actor, artifactKey) {
     const items = actor?.items ? Array.from(actor.items) : [];
     let best = 0;
     for (const item of items) {
         if (item?.type !== 'artifact')
             continue;
-        if (item.getFlag?.('mastery-system', 'echoArtifactKey') !== 'ringchainOfKeptNames')
+        if (item.getFlag?.('mastery-system', 'echoArtifactKey') !== artifactKey)
             continue;
         const sys = item.system ?? {};
         if (sys.equipped !== true && sys.binding !== 'echo')
@@ -337,11 +348,9 @@ const AGILITY_POWERS_RAW = [
             { label: '2 attacks: Crit(1)', description: 'Two of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 2 },
             { label: '3 attacks: Crit(1)', description: 'Three of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 3 },
         ],
-        apply: async ({ actor, tier }) => {
-            if (tier < 2)
-                return;
+        apply: async ({ actor, tier, cost }) => {
             const combat = game.combat;
-            const charges = scaleStoneTier([1, 2, 3], tier - 1);
+            const charges = critChargesProfile(tier, cost, echoArtifactLevelOnActor(actor, 'elorianStride'));
             if (charges <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
@@ -828,7 +837,7 @@ const INFLUENCE_POWERS_RAW = [
             { label: '3 enemies @ 24 m', description: 'Up to 3 enemies within 24 m cannot target you with their next attack before the start of your next turn unless you are the only valid target.', value: 3 },
         ],
         apply: async ({ actor, tier, cost }) => {
-            const profile = notATargetProfile(tier, cost, ringchainLevelOnActor(actor));
+            const profile = notATargetProfile(tier, cost, echoArtifactLevelOnActor(actor, 'ringchainOfKeptNames'));
             if (!profile)
                 return;
             await actor.setFlag?.('mastery-system', 'pendingNotATarget', {
@@ -1103,9 +1112,9 @@ export const STONE_POWER_ID_ALIASES = {
 };
 /**
  * Per-power adjustment applied to Artifact Stone Power Support pre-fill tiers.
- * The current rulebook prints Support stages as Tier 2 / 3 / 4 for every power
- * (Elorian Focus PG 4819–4825, Ringchain "Kept from Sight" PG 4253–4261), so
- * no power is shifted. Kept as a map in case a future table diverges.
+ * No power is currently shifted: printed support tiers are used as-is (lifted
+ * above the first published tier by `effectiveStoneSupportPrefillTier` when
+ * needed). Kept as a map in case a future table diverges.
  */
 export const STONE_POWER_SUPPORT_TIER_SHIFT = {};
 export function resolveStonePowerId(powerId) {

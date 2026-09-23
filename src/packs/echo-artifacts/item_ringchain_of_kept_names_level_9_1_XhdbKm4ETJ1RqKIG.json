@@ -38,7 +38,7 @@
       {
         "level": 9,
         "name": "Kept from Sight III",
-        "type": "Stone Power Support",
+        "type": "Artifact Function",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
@@ -161,7 +161,7 @@
           {
             "level": 9,
             "name": "Kept from Sight III",
-            "type": "Stone Power Support",
+            "type": "Artifact Function",
             "range": "Self",
             "aoe": "",
             "duration": "Instant",
@@ -609,9 +609,7 @@
         "name": "Kept from Sight III",
         "fluff": "Special: influence.notATarget",
         "category": "passive",
-        "tags": [
-          "stone-function"
-        ],
+        "tags": [],
         "cost": {
           "action": "none"
         },
@@ -797,7 +795,7 @@
             "specials": []
           },
           "16": {
-            "type": "Stone Power Support",
+            "type": "Artifact Function",
             "range": {
               "kind": "self"
             },

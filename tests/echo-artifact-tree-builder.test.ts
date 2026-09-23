@@ -367,8 +367,12 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(byLevel(1).powerTemplateId).toBe('reaction-evade');
     expect(byLevel(1).stagePowerLevels).toEqual(['2', '4', '6']);
     expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
-    expect(byLevel(3).kind).toBe('stoneFunction');
-    expect(byLevel(3).stoneFunction.stonePowerId).toBe('agility.crit');
+    // Elorian Focus rows are authored (Core text); the Crit support mechanics
+    // live in extraStoneFunctions with printed stages T3 (L3) / T4 (L6).
+    expect(byLevel(3).kind).toBe('authored');
+    const extras = (tree.nodes[0].itemData.system as any).extraStoneFunctions as any[];
+    expect(extras[0]?.stonePowerId).toBe('agility.crit');
+    expect(extras[0]?.supportStages).toEqual([3, 3, 6]);
 
     const reflexEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
@@ -390,14 +394,18 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
         /Elorian Focus/.test(r.name),
       )?.effect as string) || '';
-    expect(focusEffectAt(3)).toContain('pre-fills Tier 2');
+    expect(focusEffectAt(3)).toContain('pre-fills Tier 3');
+    expect(focusEffectAt(3)).toMatch(/pay the normal Tier 2 Stone cost/);
     expect(focusEffectAt(3)).not.toMatch(/Tier 1/);
-    expect(focusEffectAt(6)).toContain('pre-fills Tier 3');
-    expect(focusEffectAt(6)).toMatch(/Tier 2/);
+    expect(focusEffectAt(6)).toContain('pre-fills Tier 4');
+    expect(focusEffectAt(6)).toMatch(/pay the normal Tier 3 Stone cost/);
     expect(focusEffectAt(6)).not.toMatch(/Tier 1/);
-    expect(focusEffectAt(9)).toContain('pre-fills Tier 4');
-    expect(focusEffectAt(9)).toMatch(/Tiers 2, 3/);
-    expect(focusEffectAt(9)).not.toMatch(/Tier 1/);
+    const focusRowAt9 = (tree.nodes[8].itemData.system as any).levelProgression.find((r: any) =>
+      /Elorian Focus/.test(r.name),
+    );
+    expect(focusRowAt9?.type).toBe('Artifact Function');
+    expect(focusRowAt9?.effect).toContain('one additional attack');
+    expect(focusRowAt9?.effect).not.toMatch(/Tier 1|Tier 5/);
   });
 
   it('Elorian Stride Evade (+1..+5 paired bands) and Movement (L4+) base values scale per spec', () => {

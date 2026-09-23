@@ -4,7 +4,7 @@
  * Most powers publish T1–T4. A listed set starts at Tier 2: Tier 1 does
  * not exist in data, UI, spending, validation, or serialization. First
  * purchase is T2 (2 Stones total), then T3 (6 total), then T4 (14 total).
- * Tiers continue past the printed table — T5 costs 16, T6 costs 32, up to T8.
+ * Tier 4 is the hard cap — there is no Tier 5.
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
  * Intellect / Resolve / Influence / Wits). Every pool has 4 powers. Total 32.
@@ -26,7 +26,7 @@ export interface StoneTier {
 export interface StonePowerContext {
     actor: any;
     combatant: any;
-    /** 1..8 — activation tier (UI currently shows 1..4). */
+    /** 1..4 — activation tier (Tier 4 is the hard cap). */
     tier: number;
     /** Stone cost of this activation (1 / 2 / 4 / 8 / …). */
     cost: number;
@@ -68,6 +68,8 @@ export declare function notATargetProfile(tier: number, cost: number, ringchainL
     enemies: number;
     range: number;
 } | null;
+/** Attacks that may gain Crit(1). Level 9 Elorian Stride adds one attack only on a full Tier 4 payment. */
+export declare function critChargesProfile(tier: number, cost: number, elorianLevel?: number): number;
 /** Wave cost of an absolute tier: T1=1, T2=2, T3=4, T4=8. Tier 5+ costs nothing and is illegal. */
 export declare function stonePowerWaveCost(tier: number): number;
 /** Cumulative stones to reach `tier` when the first published tier is `startsAtTier`. */
@@ -123,9 +125,9 @@ export declare function stonePowerSupportPrefillApplies(powerId: string, printed
 export declare const STONE_POWER_ID_ALIASES: Record<string, string>;
 /**
  * Per-power adjustment applied to Artifact Stone Power Support pre-fill tiers.
- * The current rulebook prints Support stages as Tier 2 / 3 / 4 for every power
- * (Elorian Focus PG 4819–4825, Ringchain "Kept from Sight" PG 4253–4261), so
- * no power is shifted. Kept as a map in case a future table diverges.
+ * No power is currently shifted: printed support tiers are used as-is (lifted
+ * above the first published tier by `effectiveStoneSupportPrefillTier` when
+ * needed). Kept as a map in case a future table diverges.
  */
 export declare const STONE_POWER_SUPPORT_TIER_SHIFT: Record<string, number>;
 export declare function resolveStonePowerId(powerId: string): string;

@@ -46,15 +46,16 @@ export function resolveStonePowerActivation(
   const paidIndex = paidUses + rampSkip;
   let usesBefore = paidIndex;
   if (supportApplies) {
-    const prefillBaseline = Math.max(0, effective - 1);
-    usesBefore = Math.max(paidIndex, prefillBaseline);
-    // Not a Target: Kept from Sight raises one tier above the tier just paid.
-    // Paying Tier 2 can reach Tier 3. Paying Tier 3 can reach Tier 4.
-    // A Tier 4 prefill must not skip Tier 3.
-    if (resolveStonePowerId(abilityId) === 'influence.notATarget') {
+    if (rampSkip === 1) {
+      // T2-start abilities (Crit, Not a Target, …): Support only advances an
+      // already active ability and only by one tier above the tier being paid.
+      // Paying Tier 2 can reach Tier 3; paying Tier 3 can reach Tier 4. A
+      // printed Tier 4 prefill never skips an unpaid tier.
       const paidTier = tierForUseIndex(paidIndex);
       const capped = Math.min(effective, paidTier + 1);
       usesBefore = capped > paidTier ? capped - 1 : paidIndex;
+    } else {
+      usesBefore = Math.max(paidIndex, Math.max(0, effective - 1));
     }
   }
   return {

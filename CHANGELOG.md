@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.560] - 2026-09-23
+
+### Fixed
+
+- **Crit Stone Power Support:** Support für Tier-2-Start-Fähigkeiten hebt nur noch eine Stufe über den gerade bezahlten Tier. Erste Aktivierung mit Tier-4-Prefill ergibt Tier 3 für die normalen Tier-2-Kosten; Tier 4 kommt erst, nachdem Tier 3 bezahlt ist. Kein Regelwechsel bei COST.
+- **Elorian Focus:** Folgt jetzt dem Core — I (Artefakt-Level 3): Tier 2 zahlen, Tier 3 wird vorgefüllt. II (Level 6, nicht mehr Level 7): Tier 3 zahlen, Tier 4 wird vorgefüllt. III (Level 9) ist eine Artefakt-Funktion: Wer Crit Tier 4 zum vollen Steinpreis zahlt, darf einen zusätzlichen Angriff mit Crit(1) machen. Kein „Tier 1 zahlen" mehr.
+- **Heartseeker / Killing Focus:** Gleiche Crit-Regeln — kein Tier 1, kein Überspringen unbezahlter Tiers. Texte in Artefaktkatalog und Kompilierer korrigiert.
+
 ## [0.9.559] - 2026-09-23
 
 ### Changed

@@ -53,10 +53,10 @@ export declare function getArtifactStoneBatteryCapacityByAttribute(actor: any): 
  *   • If `poolAttribute` is provided, the Support's attribute must also
  *     equal the pool attribute (for attribute-scoped pools).
  *
- * Returns 0 when no matching Support exists, otherwise the prefill tier
- * (1..8). The activation pipeline interprets this as "the first
- * activation of `powerId` acts as if it had been used `prefill-1` times
- * already this turn". Shifted tables (Crit, Not a Target) can land on T5.
+ * Returns 0 when no matching Support exists, otherwise the effective prefill
+ * tier (2..4, hard-capped at Tier 4). The activation pipeline lets Support
+ * advance an already active ability by one tier above the tier being paid —
+ * it never activates the first published tier or skips unpaid tiers.
  */
 export declare function getArtifactStoneSupportPrefill(actor: any, powerId: string, poolAttribute?: string): number;
 /**

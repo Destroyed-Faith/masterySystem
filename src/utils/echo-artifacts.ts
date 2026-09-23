@@ -368,17 +368,24 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       stagePowerLevels: ['2', '4', '6'],
     },
     2: { templateId: 'movement-wall-walk', name: 'Elorian Cling' },
-    3: {
-      name: 'Elorian Focus',
-      stoneFunction: {
-        // Follow-up: support begins at T2, the first published Crit tier.
-        // Do not invent replacement Level Progression values here.
-        kind: 'stonePowerSupport',
-        attribute: 'agility',
-        stonePowerId: 'agility.crit',
-      },
-    },
+    // Slot 3 (Elorian Focus) uses the authored Level Progression rows below;
+    // the Crit support mechanics live in `extraStoneFunctions` (same pattern
+    // as the Ringchain's Kept from Sight).
   },
+  extraStoneFunctions: [
+    {
+      level: 3,
+      name: 'Elorian Focus',
+      kind: 'stonePowerSupport',
+      attribute: 'agility',
+      stonePowerId: 'agility.crit',
+      // Crit starts at Tier 2 (no Tier 1). Elorian Focus I (artifact L3)
+      // prints Tier 3 and requires Tier 2 to be paid; Elorian Focus II
+      // (artifact L6) prints Tier 4 and requires Tier 3 to be paid.
+      // Artifact L9 is an Artifact Function, not a higher prefill.
+      supportStages: [3, 3, 6],
+    },
+  ],
   baseValues: [
     { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants True Elorian Stride.' },
     { slot: 'b', label: 'Movement', note: '+1 to +4 m Movement from Level 4 onward.' },
@@ -409,7 +416,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.',
+        'After you activate Crit at Tier 2 normally, Elorian Focus pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.',
       special: 'agility.crit',
     },
     {
@@ -437,7 +444,7 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.',
+        'After you activate Crit at Tier 3 normally, Elorian Focus pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.',
       special: 'agility.crit',
     },
     {
@@ -461,11 +468,11 @@ const ELORIAN_STRIDE: EchoArtifactDefinition = {
     {
       level: 9,
       name: 'Elorian Focus III',
-      type: 'Stone Power Support',
+      type: 'Artifact Function',
       range: 'Self',
       duration: 'Instant',
       effect:
-        'Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.',
+        'When you activate Crit at Tier 4 by paying its full normal Stone cost, one additional attack this round may gain Crit(1).',
       special: 'agility.crit',
     },
     {

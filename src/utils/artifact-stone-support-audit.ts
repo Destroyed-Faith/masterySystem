@@ -2,10 +2,11 @@
  * Audit Artifact / Echo-Artifact Stone Power Supports against T2-start
  * abilities (Tier 1 does not exist).
  *
- * Support must never activate Tier 2 for these abilities. Tables that begin
- * support at T2 (Elorian Focus / Ringchain Kept from Sight, and any matching
- * General Artifact) are flagged for a manual Level Progression review —
- * this file does not invent replacement values.
+ * Support must never activate Tier 2 for these abilities. Tables whose first
+ * printed support tier is the first published tier (e.g. Ringchain Kept from
+ * Sight prints Tier 2, which the runtime lifts to an effective Tier 3) are
+ * flagged so the printed/effective difference stays visible — this file does
+ * not invent replacement values.
  */
 
 import { ECHO_ARTIFACTS, type EchoArtifactDefinition } from './echo-artifacts.js';

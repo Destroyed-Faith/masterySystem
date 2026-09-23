@@ -52,12 +52,25 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2.",
+        "effect": "After you activate Crit at Tier 2 normally, Elorian Focus pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.",
         "special": "agility.crit"
       }
     ],
     "stoneFunction": null,
-    "extraStoneFunctions": [],
+    "extraStoneFunctions": [
+      {
+        "level": 3,
+        "name": "Elorian Focus",
+        "kind": "stonePowerSupport",
+        "attribute": "agility",
+        "stonePowerId": "agility.crit",
+        "supportStages": [
+          3,
+          3,
+          6
+        ]
+      }
+    ],
     "progressionPicks": [
       {
         "level": 1,
@@ -78,13 +91,39 @@
       },
       {
         "level": 3,
-        "kind": "stoneFunction",
-        "stoneFunction": {
-          "kind": "stonePowerSupport",
-          "attribute": "agility",
-          "stonePowerId": "agility.crit"
-        },
-        "displayName": "Elorian Focus"
+        "kind": "authored",
+        "authoredStages": [
+          {
+            "level": 3,
+            "name": "Elorian Focus I",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "After you activate Crit at Tier 2 normally, Elorian Focus pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself.",
+            "special": "agility.crit"
+          },
+          {
+            "level": 6,
+            "name": "Elorian Focus II",
+            "type": "Stone Power Support",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "After you activate Crit at Tier 3 normally, Elorian Focus pre-fills Tier 4. You must pay the normal Tier 3 Stone cost yourself.",
+            "special": "agility.crit"
+          },
+          {
+            "level": 9,
+            "name": "Elorian Focus III",
+            "type": "Artifact Function",
+            "range": "Self",
+            "aoe": "",
+            "duration": "Instant",
+            "effect": "When you activate Crit at Tier 4 by paying its full normal Stone cost, one additional attack this round may gain Crit(1).",
+            "special": "agility.crit"
+          }
+        ]
       }
     ],
     "lore": "Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, reflex, clinging movement and focus in combat.",
@@ -571,7 +610,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2."
+              "text": "After you activate Crit at Tier 2 normally, Elorian Focus pre-fills Tier 3. You must pay the normal Tier 2 Stone cost yourself."
             },
             "specials": [],
             "lvl": 3
