@@ -62,7 +62,7 @@ export const STONE_POWERS_HELP_SCREENS = [
         track: 'initiative',
         step: 1,
         title: '1. Roll Initiative',
-        body: 'Roll Initiative first. Your Initiative roll, Combat Reflexes and Armor Penalty determine your starting Initiative.',
+        body: 'Roll Initiative first. Your Initiative roll and your Initiative modifiers (Armor Penalty, Passives, equipment) determine your starting Initiative.',
         images: [helpImage('01', 'Stone Powers window before Initiative is rolled')],
     },
     {

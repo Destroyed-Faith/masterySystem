@@ -3,7 +3,8 @@
  */
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
-import { applyAttributePendingChanges, applyPowerPendingChanges, applySkillPendingChanges, buildProgressionHubContext, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSkillPendingNetCost, getAttributeXpBaseline, hasFreeXp, } from '../progression/progression-hub-actions.js';
+import { allocateActorSkillPending, applyAttributePendingChanges, applyPowerPendingChanges, applySkillPendingChanges, buildProgressionHubContext, calculateAttributePendingNetCost, calculatePowerPendingNetCost, getAttributeXpBaseline, hasFreeXp, } from '../progression/progression-hub-actions.js';
+import { readSkillPointPool } from '../progression/skill-point-pool.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 import { wireEmbeddedArtifactToWorldTree } from '../utils/artifact-tree-grant.js';
@@ -41,7 +42,8 @@ export class ProgressionHubDialog extends BaseDialog {
         const hub = buildProgressionHubContext(this.actor);
         const stonePools = listArtifactSpendableStonePools(this.actor);
         const attrNet = calculateAttributePendingNetCost(this.actor, this.pendingAttributes);
-        const skillNet = calculateSkillPendingNetCost(this.actor, this.pendingSkills);
+        const skillAllocation = allocateActorSkillPending(this.actor, this.pendingSkills);
+        const skillNet = skillAllocation.xpNet;
         const powerNet = calculatePowerPendingNetCost(this.actor, this.pendingPowers);
         const remainingAfterPending = hub.xp.available - attrNet - skillNet - powerNet;
         return {
@@ -63,6 +65,9 @@ export class ProgressionHubDialog extends BaseDialog {
             hasPendingPowers: Object.keys(this.pendingPowers).length > 0,
             attrNet,
             skillNet,
+            skillPointsUnspent: readSkillPointPool(this.actor.system).unspent,
+            skillPointsAfterPending: skillAllocation.poolAfter,
+            skillPointsPending: skillAllocation.poolSpent,
             powerNet,
             remainingAfterPending,
             hasFreeXpPhase: hasFreeXp(this.actor),

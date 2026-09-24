@@ -15,6 +15,7 @@ import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
 import { attributeBandCost, skillBandCost } from './constants.js';
 import { calculatePowersUpgradeRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot } from './xp-post-creation.js';
+import { readSkillPointPool } from '../progression/skill-point-pool.js';
 const ATTRIBUTE_KEYS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
 function stepSum(from, to, costFor) {
     const start = Math.floor(Number(from) || 0);
@@ -78,9 +79,11 @@ export function computeGroundTruthXp(actor) {
     let skillSpent = 0;
     const curSkills = system.skills ?? {};
     const snapSkills = snap.skills ?? {};
+    // Ranks paid with unspent Skill Points are not XP; they raise the baseline.
+    const placedSkillPoints = readSkillPointPool(system).placed;
     const skillKeys = new Set([...Object.keys(curSkills), ...Object.keys(snapSkills)]);
     for (const key of skillKeys) {
-        const baseVal = Number(snapSkills[key] ?? 0);
+        const baseVal = Number(snapSkills[key] ?? 0) + Number(placedSkillPoints[key] ?? 0);
         const curVal = Number(curSkills[key] ?? 0);
         if (curVal > baseVal)
             skillSpent += stepSum(baseVal, curVal, skillBandCost);

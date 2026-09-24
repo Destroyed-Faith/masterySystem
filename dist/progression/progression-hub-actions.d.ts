@@ -2,6 +2,8 @@
  * Shared XP progression helpers for the character sheet and Progression Hub.
  */
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
+import { type XpHistoryBalances, type XpHistoryEntry } from '../utils/xp-history.js';
+import { type SkillPendingAllocation } from './skill-point-pool.js';
 export declare const ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
 export interface XpState {
     available: number;
@@ -23,8 +25,23 @@ export declare function applyXpCost(xpState: Pick<XpState, 'regularAvailable' | 
 };
 export declare function getAttributeXpBaseline(actor: any, attributeKey: string): number;
 export declare function calculateAttributePendingNetCost(actor: any, pendingMap: Record<string, number>): number;
-export declare function calculateSingleSkillPendingXpNet(actor: any, skillKey: string, pending: number): number;
+/**
+ * Split pending Skill rank changes between unspent Skill Points and XP.
+ * Skill Points pay first (one per rank, in click order); the rest costs XP.
+ */
+export declare function allocateActorSkillPending(actor: any, pendingMap: Record<string, number>): SkillPendingAllocation;
+/** Net XP (positive = spend) for pending Skill changes after unspent Skill Points paid their share. */
 export declare function calculateSkillPendingNetCost(actor: any, pendingMap: Record<string, number>): number;
+/**
+ * XP history rows for a confirmed Skill batch. Ranks paid with unspent Skill
+ * Points are logged with 0 XP so the audit trail shows where they went.
+ */
+export declare function buildSkillStepHistoryEntries(opts: {
+    actor: any;
+    allocation: SkillPendingAllocation;
+    before: XpHistoryBalances;
+    after: XpHistoryBalances;
+}): XpHistoryEntry[];
 export declare function getPowerMinLevel(item: any): number;
 export declare function getMaxPurchasablePowerLevel(actor: any): number;
 export declare function calculatePowerPendingNetCost(actor: any, pendingMap: Record<string, number>): number;

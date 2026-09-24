@@ -324,7 +324,7 @@ describe('Skill Keys Match Between skills.ts and Data Model', () => {
   });
 
   it('every skill has a valid category', () => {
-    const validCategories = ['Perception', 'Awareness', 'Physical', 'Knowledge & Craft', 'Social', 'Survival', 'Martial'];
+    const validCategories = ['Perception', 'Awareness', 'Physical', 'Knowledge & Craft', 'Social', 'Survival'];
     for (const skill of Object.values(SKILLS)) {
       expect(validCategories).toContain(skill.category);
     }

@@ -269,16 +269,6 @@
     <span class="cp-sd-ini-seg cp-sd-ini-seg-roll">
       <b class="cp-sd-ini-k">Initiative</b>
       Roll: <b>{{stoneDashboard.initiative}}</b>
-      {{#if stoneDashboard.combatReflexes}}
-      <span class="cp-sd-ini-cr">
-        <span class="cp-sd-ini-cr-label">{{stoneDashboard.combatReflexes.label}} {{stoneDashboard.combatReflexes.rating}}</span>
-        <span class="cp-sd-ini-cr-boxes">
-          {{#each stoneDashboard.combatReflexes.boxes}}
-          <i class="cp-sd-ini-cr-box is-{{state}}">{{#if size}}{{size}}{{/if}}</i>
-          {{/each}}
-        </span>
-      </span>
-      {{/if}}
     </span>
     <span class="cp-sd-ini-seg">
       <b class="cp-sd-ini-k">Exchange</b>

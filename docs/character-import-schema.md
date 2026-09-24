@@ -145,14 +145,14 @@ Map of **skill keys → rank** (creation budget: **40 points** total).
 
 ```json
 "skills": {
-  "meleeWeapons": 2,
+  "acrobatics": 2,
   "athletics": 1,
   "stealth": 1,
   "lore": 2
 }
 ```
 
-Keys must match the module catalog (`src/utils/skills.ts`), e.g. `meleeWeapons`, `handToHand`, `acrobatics`, `lore`, `medicine`, `negotiation`, …
+Keys must match the module catalog (`src/utils/skills.ts`), e.g. `acrobatics`, `athletics`, `lore`, `medicine`, `negotiation`, `perception`, … Combat is resolved without Skills; there are no combat Skill keys.
 
 Optional `skillsSpent` uses the same shape (tracks consumable uses per Safe Haven rest).
 

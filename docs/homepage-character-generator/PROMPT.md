@@ -285,7 +285,7 @@ Datenquelle: `skills.json`. Referenz: `character-sheet.hbs` ab Z. 1268.
 
 - Kategorien in fester Reihenfolge mit Icon-Überschrift (`.category-header-compact`):
   Perception 👁 (`fa-eye`), Physical (`fa-running`), Knowledge & Craft (`fa-book`),
-  Social (`fa-comments`), Survival (`fa-tree`), Martial (`fa-sword` bzw. `fa-hand-fist` als FA-Free-Fallback).
+  Social (`fa-comments`), Survival (`fa-tree`).
 - **Alle Skills** aus `skills.json` anzeigen — komplette Liste, nichts weglassen.
 - Jede Skill-Zeile (`.skill-row-compact`), von links nach rechts:
   1. *(optional, rein dekorativ)* Pool-Chip(s) wie im Original (`.skill-roll-compact`): Label `Nd8 keep 2`. Formel: Skill 4 ⇒ voller Pool = Attributwert; Skill 0 ⇒ halber Pool = `round(Attribut/2)`. Halbe Pools dunkler (`half-pool`), volle heller (`full-pool`).

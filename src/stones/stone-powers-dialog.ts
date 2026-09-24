@@ -119,11 +119,6 @@ import {
   getPendingPassiveSwaps,
   passiveSlotsHaveOpenChoice,
 } from '../powers/passives.js';
-import {
-  combatReflexesInitiativeState,
-  spendCombatReflexesUse,
-  undoCombatReflexesUse,
-} from '../combat/combat-reflexes.js';
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import {
@@ -1113,7 +1108,6 @@ export class StonePowersDialog extends BaseDialog {
     const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active || needsRoll;
     const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? maxConvert));
     this._colorlessConvertCount = convertCount;
-    const cr = combatReflexesInitiativeState(this.actor, this.combatant, mr);
     const diceTotal = Number.isFinite(Number(rolledFlag?.diceTotal))
       ? Math.floor(Number(rolledFlag?.diceTotal))
       : null;
@@ -1146,17 +1140,6 @@ export class StonePowersDialog extends BaseDialog {
       canConvertLess: !exchangeLocked && convertCount > 0,
       locked: exchangeLocked,
       boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
-      combatReflexes: {
-        show: (this.actor as any).type === 'character' && cr.rating > 0 && !needsRoll && !surprised,
-        pointsPerUse: cr.pointsPerUse,
-        remainingPool: cr.remainingPool,
-        nextUse: cr.nextUse,
-        canUndo: cr.canUndo && !exchangeLocked,
-        boxes: cr.boxes.map((box) => ({
-          ...box,
-          canSpend: box.canSpend && !exchangeLocked,
-        })),
-      },
     };
 
     return {
@@ -1518,7 +1501,7 @@ export class StonePowersDialog extends BaseDialog {
     }
   }
 
-  /** Combat Reflexes steppers and the staged stone count of the exchange row. */
+  /** Natural Stone Recovery steppers and skip button. */
   #bindNaturalRecoveryControls(root: HTMLElement): void {
     root.querySelectorAll('.js-nsr-add, .js-nsr-remove').forEach((el) => {
       const btn = el as HTMLButtonElement;
@@ -1580,7 +1563,7 @@ export class StonePowersDialog extends BaseDialog {
     button.disabled = true;
     try {
       const { rollInitiativeForCombatant } = await import('../combat/initiative-roll.js');
-      const breakdown = await rollInitiativeForCombatant(this.combatant, { promptCombatReflexes: false });
+      const breakdown = await rollInitiativeForCombatant(this.combatant);
       const rolled = Math.floor(Number(breakdown.diceTotal) || 0);
       const now = Math.floor(Number(breakdown.totalInitiative) || 0);
       ui.notifications?.info(
@@ -1633,34 +1616,6 @@ export class StonePowersDialog extends BaseDialog {
         void stepConvert(-1);
       },
     );
-
-    root.querySelectorAll('.js-cr-box').forEach((el) => {
-      const box = el as HTMLButtonElement;
-      box.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        void this.#clickCombatReflexesBox(box.dataset.crAction === 'undo');
-      });
-    });
-  }
-
-  /** Tick or un-tick a Combat Reflexes use box. */
-  async #clickCombatReflexesBox(undo: boolean): Promise<void> {
-    if (!this.combatant) return;
-    const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
-    const next = undo
-      ? await undoCombatReflexesUse(this.actor, this.combatant, mr)
-      : await spendCombatReflexesUse(this.actor, this.combatant, mr);
-    if (next === null) {
-      ui.notifications?.warn(
-        undo
-          ? 'Nothing to take back — that use is not from this round, or its Initiative is already spent.'
-          : 'No Combat Reflexes uses left until the next Safe Haven Rest.',
-      );
-      return;
-    }
-    // The score changed, so the exchange maximum moves with it.
-    this._colorlessConvertCount = null;
-    await this.#renderKeepingScroll();
   }
 
   /** Scroll position of the template root (the element that actually scrolls). */

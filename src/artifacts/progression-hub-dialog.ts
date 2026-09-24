@@ -11,16 +11,17 @@ import {
 } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
 import {
+  allocateActorSkillPending,
   applyAttributePendingChanges,
   applyPowerPendingChanges,
   applySkillPendingChanges,
   buildProgressionHubContext,
   calculateAttributePendingNetCost,
   calculatePowerPendingNetCost,
-  calculateSkillPendingNetCost,
   getAttributeXpBaseline,
   hasFreeXp,
 } from '../progression/progression-hub-actions.js';
+import { readSkillPointPool } from '../progression/skill-point-pool.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import {
   buildArtifactEvolutionCards,
@@ -71,7 +72,8 @@ export class ProgressionHubDialog extends BaseDialog {
     const hub = buildProgressionHubContext(this.actor);
     const stonePools = listArtifactSpendableStonePools(this.actor);
     const attrNet = calculateAttributePendingNetCost(this.actor, this.pendingAttributes);
-    const skillNet = calculateSkillPendingNetCost(this.actor, this.pendingSkills);
+    const skillAllocation = allocateActorSkillPending(this.actor, this.pendingSkills);
+    const skillNet = skillAllocation.xpNet;
     const powerNet = calculatePowerPendingNetCost(this.actor, this.pendingPowers);
     const remainingAfterPending = hub.xp.available - attrNet - skillNet - powerNet;
 
@@ -94,6 +96,9 @@ export class ProgressionHubDialog extends BaseDialog {
       hasPendingPowers: Object.keys(this.pendingPowers).length > 0,
       attrNet,
       skillNet,
+      skillPointsUnspent: readSkillPointPool((this.actor as any).system).unspent,
+      skillPointsAfterPending: skillAllocation.poolAfter,
+      skillPointsPending: skillAllocation.poolSpent,
       powerNet,
       remainingAfterPending,
       hasFreeXpPhase: hasFreeXp(this.actor),

@@ -3168,135 +3168,6 @@ The wise never curse the storm; they listen to it.
 \page
 {{pageNumber,auto}}
 {{wide
-
-### Martial Skills  
-*“In the end, every philosophy is measured by the distance between blade and throat.”*
-
----
-:
-Martial Skills are combat techniques trained into muscle memory — how you strike, how you hold ground, and how you survive the moment a blade is already moving.
-
----
-
-In **Destroyed Faith**, Martial Skills work like all other Skills: they are a **consumable resource**.  
-They do **not** permanently increase Attack, Evade, or Initiative.  
-Instead, you may **spend Martial Skill Points** to push a single combat moment beyond what raw talent alone would allow.
-
----
-
-All spent Martial Skill Points return **fully** after a **Safe Haven Rest**.
-
----
-:
-#### Spending Martial Skill Points
-
-When a Martial Skill applies, you may spend points from that Skill’s pool **after seeing the roll**.
-
-- You may spend **0** points.
-- If you spend points, you must spend **at least your Mastery Rank (MR)**.
-- You may spend more in **MR steps**: **MR, 2MR, 3MR, ...** up to your remaining pool.
-- **All-in option:** you may instead spend your **entire remaining pool** for that Skill (even if it is not a multiple of MR).
-
-> **One Skill per roll:** You may spend points from **only one** Skill on a given roll.
-
----
-:
-#### Hand-to-Hand (Might)  
-*“A weapon is a convenience — the body is the truth.”*
-
----
-:
-Training in unarmed combat, grappling, and improvised violence.  
-Hand-to-Hand covers strikes, clinches, locks, throws, and the brutal control of distance at arm’s length.
-
----
-
-**Applies to:** unarmed attacks, grapples, shoves, holds, disarms in close quarters, body-based counters.
-
-> **Effect:** When you make an **unarmed attack roll** or a **grapple/control check**, you may spend **Hand-to-Hand Skill Points** to add a flat bonus to the result.
-
----
-:
-#### Melee Weapons (Might)  
-*“Steel remembers the will that wields it.”*
-
----
-:
-Skill with blades, axes, hammers, polearms, and any weapon meant to end a fight at touching distance.  
-Melee Weapons is timing, reach, and decisive pressure.
-
----
-
-**Applies to:** melee attack rolls, melee weapon techniques, weapon-based disarms or trips (if allowed).
-
-> **Effect:** When you make a **melee attack roll**, you may spend **Melee Weapons Skill Points** to add a flat bonus to the result.  
-
-
----
-:
-#### Ranged Weapons (Agility)  
-*“Patience is the space between heartbeat and flight.”*
-
----
-:
-Accuracy and control with bows, crossbows, firearms, and thrown weapons.  
-Ranged Weapons is breath, stability, and choosing the right second to release.
-
----
-
-**Applies to:** ranged attack rolls.
-
-> **Effect:** When you make a **ranged attack roll**, you may spend **Ranged Weapons Skill Points** to add a flat bonus to the result.
-
----
-:
-}}
-
-
-
-
-
-\page
-{{pageNumber,auto}}
-{{wide
-#### Defensive Combat (Vitality)  
-*“Survival is the art of not being where the blade lands.”*
-
----
-:
-Training in parries, shields, footwork, and evasive instincts under pressure.  
-Defensive Combat is not passive armor — it is the trained decision to be somewhere else, or to meet the strike with steel at the last possible instant.
-
----
-
-**Applies to:** defending against attacks you can perceive, blocking/deflecting, parrying, resisting forced movement in melee.
-
-> **Effect:** When you are targeted by an attack, you may spend **Defensive Combat Skill Points** to increase your **Evade against that single attack** by the spent amount.  
-> This does **not** permanently raise Evade — it applies only for that specific attack (or for a blocking/parry roll, if one is used).
-
----
-:
-#### Combat Reflexes (Agility)  
-*“The first move is not speed — it’s noticing the opening.”*
-
----
-:
-Training in explosive reaction, timing, and micro-decisions under pressure.  
-Combat Reflexes is the difference between *acting* and merely *responding*.
-
----
-
-**Applies to:** Initiative rolls, reacting to sudden threats, fast repositioning windows (if your combat rules allow it).
-
-> **Effect:** Combat Reflexes may be spent once after the initial Initiative roll. The spent amount increases your Initiative Score before the first Initiative Exchange. You do not spend Combat Reflexes separately for Initiative Order and Initiative Exchange.
-
----
-}}
-
-
-\page
-{{pageNumber,auto}}
-{{wide
 #### Example Skill Spreads
 
 The following examples show how a character might spend their starting **40 Skill Points**.
@@ -3308,29 +3179,29 @@ These are not fixed builds or classes. They only show how Skills can support a c
 :
 ##### Frontline Fighter
 
-**Melee Weapons 4, Defensive Combat 4, Athletics 4, Intimidation 4, Survival 4, Perception 4, Leadership 4, Medicine 4, Crafting 4, Combat Reflexes 4**
+**Athletics 4, Acrobatics 4, Intimidation 4, Survival 4, Perception 4, Leadership 4, Medicine 4, Crafting 4, Ride 4, Tracking 4**
 
 This character spends all **40 Skill Points** across ten Skills.  
-They are built to fight in melee, resist pressure, protect allies, and remain useful during travel, repairs, and battlefield recovery.
+Their fighting comes from Attributes, Powers, and weapons. Skills make them resist pressure, protect allies, and remain useful during travel, repairs, and battlefield recovery.
 
 ---
 :
 ##### Mobile Skirmisher
 
-**Ranged Weapons 4, Combat Reflexes 4, Stealth 4, Acrobatics 4, Perception 4, Tracking 4, Survival 4, Sleight of Hand 4, Navigation 4, Defensive Combat 4**
+**Stealth 4, Acrobatics 4, Concealment 4, Athletics 4, Perception 4, Tracking 4, Survival 4, Sleight of Hand 4, Navigation 4, Streetwise 4**
 
 This character spends all **40 Skill Points** across ten Skills.  
-They are built around movement, scouting, initiative, ranged attacks, and avoiding danger instead of standing still.
+They are built around movement, scouting, and avoiding danger instead of standing still; their ranged attacks come from Agility, Powers, and weapons.
 
 ---
 :
 
 ##### Spellcaster
 
-**Occultism 4, Lore 4, Investigation 4, Medicine 4, Persuasion 4, Empathy 4, Deception 4, Perception 4, Combat Reflexes 4, Defensive Combat 4**
+**Occultism 4, Lore 4, Investigation 4, Medicine 4, Alchemy 4, Persuasion 4, Empathy 4, Deception 4, Etiquette 4, Perception 4**
 
 This character spends all **40 Skill Points** across ten Skills.  
-They are built to understand magic, read people and situations, support the party, and survive long enough to cast under pressure.
+They are built to understand magic, read people and situations, and support the party; surviving under pressure comes from their Attributes, Powers, and Evade.
 }}
 \page
 {{pageNumber,auto}}
@@ -3340,7 +3211,7 @@ They are built to understand magic, read people and situations, support the part
 
 Alaris chooses Skills that reinforce the Attributes and role she already selected.
 
-- **Melee pressure:** Melee Weapons, Defensive Combat, Combat Reflexes, and Acrobatics.
+- **Movement and positioning:** Acrobatics, Athletics, and Stealth.
 - **Travel and scouting:** Perception, Survival, Tracking, Navigation, and Streetwise.
 - **Broader usefulness:** Crafting, Herbalism, Investigation, Persuasion, Etiquette, and Occultism.
 
@@ -8873,7 +8744,7 @@ If the Stealth result had been lower than 14, use the normal TN instead.
 Each combat follows this structure:
 
 1. **Preparation Phase**
-   - On the first Round only, roll Initiative and spend Combat Reflexes.
+   - On the first Round only, roll Initiative.
    - Before any creature moves, acts, or begins its Turn, all creatures prepare their Stone use for the Round.
    - Resolve **Initiative Boost** first. Any Stones used for Initiative Boost are committed and spent immediately.
    - Resolve **Initiative Exchange** and convert Initiative into Initiative Colorless Stones.
@@ -9004,11 +8875,11 @@ Keep all dice and 8s explode.
 
 Your Initiative Score is:
 
-`Initial Initiative Score = Initiative Roll + Combat Reflexes spent + all Initiative modifiers`
+`Initial Initiative Score = Initiative Roll + all Initiative modifiers`
 
 The Initial Initiative Score can never be lower than **0**.
 
-You may spend Combat Reflexes Skill Points like a normal Skill resource after seeing the roll, up to your remaining Combat Reflexes pool and no more than `MR × 4` per Initiative roll.
+No Skill Points are spent on the Initiative roll. Only explicit Initiative modifiers from other rules (equipment, Passives, Stone Abilities, Active Buffs, items) change the score.
 
 ---
 
@@ -9020,7 +8891,7 @@ The resulting Initiative Score remains in play until it is spent or another rule
 
 At the start of every Round, before any creature has moved, acted, or begun its Turn, resolve Initiative Exchange in this order:
 
-1. On the first Round only, roll Initiative and spend Combat Reflexes.
+1. On the first Round only, roll Initiative.
 2. Any creature that has not used **Initiative Boost** this combat may activate it now.
 3. Each creature may convert any amount of its Initiative into **Initiative Colorless Stones**.
 4. After all conversions are complete, determine Initiative Order from the remaining Initiative Scores.
@@ -9879,15 +9750,15 @@ If you gain additional Attack Actions, you may use them to make additional Basic
 
 **Range:** Melee Reach
 
-**Check:** Make an **Opposed Hand-to-Hand Skill Check**.
+**Check:** Make an **Opposed Physical Check**.
 
-Both creatures use an appropriate physical Attribute Pool and their Hand-to-Hand Skill Pool normally.
+Both creatures roll an appropriate physical Attribute Pool (Might or Agility) and keep Mastery Rank. No Skill Points are spent.
 
 If the attacker wins, the target becomes **Grappled**. If the defender wins or the check ties, the Grapple fails.
 
 **Grappled:** The creature's Speed becomes **0 m** and it cannot voluntarily move away from the grappler.
 
-**Escape:** The Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Skill Check. If it wins, the Grapple ends. If the check ties, the Grapple remains.
+**Escape:** The Grappled creature may spend **1 Attack Action** to repeat the Opposed Physical Check. If it wins, the Grapple ends. If the check ties, the Grapple remains.
 
 **Pressure:** While maintaining the Grapple, the grappler may deal **Mastery Rank Damage once per Round**. This damage ignores Armor.
 
@@ -10209,7 +10080,7 @@ They may choose:
 - **Might** +1
 - **Agility** +1
 - **Athletics** +1
-- **Defensive Combat** +1
+- **Stealth** +1
 - **Main Attack Power** +1 Level
 - **Armor Artifact** +1 Level
 
@@ -12317,7 +12188,6 @@ Scarred Health Bars are not restored by Rituals unless a specific rule outside t
 | **Knowledge & Craft Skills** | Lore, Alchemy, Crafting, Artisanry, Engineering, Medicine, Navigation, Occultism, Investigation |
 | **Social Skills** | Persuasion, Deception, Intimidation, Leadership, Performance, Streetwise, Empathy, Negotiation, Seduction, Etiquette |
 | **Survival Skills** | Survival, Animal Handling, Tracking, Herbalism, Weather Sense |
-| **Martial Skills** | Hand-to-Hand, Melee Weapons, Ranged Weapons, Defensive Combat, Combat Reflexes |
 
 ---
 }}
@@ -13093,7 +12963,7 @@ The approved Summon Skills are:
 - Athletics
 - Acrobatics
 
-Social Skills, Martial Skills, Lore Skills, Medicine, Crafting, Engineering, Artisanry, Alchemy, Herbalism, and other professional Skills are not Summon Skills.
+Social Skills, Lore Skills, Medicine, Crafting, Engineering, Artisanry, Alchemy, Herbalism, and other professional Skills are not Summon Skills.
 
 ---
 
@@ -14332,9 +14202,9 @@ Roll:
 
 8s explode.
 
-After seeing the roll, you may spend **Combat Reflexes Skill Points**.
+No Skill Points are spent on Initiative.
 
-`Initiative Score = Initiative Roll + Combat Reflexes spent`
+`Initiative Score = Initiative Roll + Initiative modifiers`
 
 The Initiative Score remains in play until it is spent or another rule changes it.
 
@@ -14346,7 +14216,7 @@ Initiative is not rolled again each Round unless a rule explicitly allows it.
 
 At the start of each Round, before anyone moves or acts:
 
-1. On the first Round only, roll Initiative and spend Combat Reflexes.
+1. On the first Round only, roll Initiative.
 2. Initiative Boost may be activated now, once per combat.
 3. Convert Initiative into **Initiative Colorless Stones** at **4 × MR Initiative per Stone**.
 4. Determine Initiative Order from the remaining scores and lock it for the Round.
@@ -14448,9 +14318,7 @@ Evade may be modified by:
 - items
 - other effects
 
-**Defensive Combat**
-
-You may spend Defensive Combat Skill Points to increase Evade against one visible attack.
+No Skill Points can be spent to raise Evade.
 
 **Attribute Checks Against Effects**
 

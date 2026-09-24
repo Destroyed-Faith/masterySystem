@@ -71,6 +71,12 @@ export async function resetActorProgressToPostCreation(actor, options) {
             updates[`system.skillsSpent.${key}`] = 0;
         }
     }
+    // Skill Points placed after creation go back to the pool; refunded Skill
+    // investment recorded on the snapshot is restored, never turned into XP.
+    updates['system.skillPoints'] = {
+        unspent: Math.max(0, Math.floor(Number(snap.skillPointsUnspent) || 0)),
+        placed: {},
+    };
     updates['system.points.xp'] = totalEarned;
     updates['system.xp.totalSpent'] = 0;
     // Free XP pool: restore all granted Free XP to the spendable free pool.

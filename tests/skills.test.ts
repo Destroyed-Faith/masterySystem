@@ -144,51 +144,43 @@ describe('Skill Definitions (Player\'s Guide compliance)', () => {
     });
   });
 
-  describe('Martial Skills', () => {
-    it('Hand-to-Hand uses Might and Agility', () => {
-      expect(SKILLS.handToHand.attributes).toContain('might');
-      expect(SKILLS.handToHand.attributes).toContain('agility');
+  describe('Martial Skills (removed from the rules)', () => {
+    it('no longer defines Hand-to-Hand, Melee Weapons, Ranged Weapons, Defensive Combat, or Combat Reflexes', () => {
+      for (const key of ['handToHand', 'meleeWeapons', 'rangedWeapons', 'defensiveCombat', 'combatReflexes']) {
+        expect(SKILLS[key]).toBeUndefined();
+        expect(getSkill(key)).toBeUndefined();
+      }
+      const names = Object.values(SKILLS).map((s) => s.name);
+      for (const name of ['Hand-to-Hand', 'Melee Weapons', 'Ranged Weapons', 'Defensive Combat', 'Combat Reflexes']) {
+        expect(names).not.toContain(name);
+      }
     });
 
-    it('Melee Weapons primary attribute is Might', () => {
-      expect(SKILLS.meleeWeapons.attributes[0]).toBe('might');
-    });
-
-    it('Ranged Weapons primary attribute is Agility', () => {
-      expect(SKILLS.rangedWeapons.attributes[0]).toBe('agility');
-    });
-
-    it('Defensive Combat uses Agility and Vitality', () => {
-      expect(SKILLS.defensiveCombat.attributes).toContain('agility');
-      expect(SKILLS.defensiveCombat.attributes).toContain('vitality');
-    });
-
-    it('Combat Reflexes primary attribute is Agility', () => {
-      expect(SKILLS.combatReflexes.attributes[0]).toBe('agility');
+    it('has no Martial category', () => {
+      expect((SKILL_CATEGORIES as Record<string, string>).MARTIAL).toBeUndefined();
+      expect(Object.values(SKILL_CATEGORIES)).not.toContain('Martial');
+      expect(Object.values(SKILLS).some((s) => s.category === 'Martial')).toBe(false);
     });
   });
 });
 
 describe('Skill Categories', () => {
-  it('has all 6 categories', () => {
-    expect(Object.keys(SKILL_CATEGORIES)).toHaveLength(6);
+  it('has all 5 categories', () => {
+    expect(Object.keys(SKILL_CATEGORIES)).toHaveLength(5);
     expect(SKILL_CATEGORIES.AWARENESS).toBe('Perception');
     expect(SKILL_CATEGORIES.PHYSICAL).toBe('Physical');
     expect(SKILL_CATEGORIES.KNOWLEDGE_CRAFT).toBe('Knowledge & Craft');
     expect(SKILL_CATEGORIES.SOCIAL).toBe('Social');
     expect(SKILL_CATEGORIES.SURVIVAL).toBe('Survival');
-    expect(SKILL_CATEGORIES.MARTIAL).toBe('Martial');
   });
 
   it('getSkillsByCategory groups correctly', () => {
     const grouped = getSkillsByCategory();
-    expect(Object.keys(grouped)).toHaveLength(6);
+    expect(Object.keys(grouped)).toHaveLength(5);
+    expect(grouped['Martial']).toBeUndefined();
 
     const physicalSkills = grouped[SKILL_CATEGORIES.PHYSICAL];
     expect(physicalSkills.length).toBe(6);
-
-    const martialSkills = grouped[SKILL_CATEGORIES.MARTIAL];
-    expect(martialSkills.length).toBe(5);
 
     expect(grouped[SKILL_CATEGORIES.AWARENESS].map((s) => s.name)).toContain('Perception');
   });
@@ -197,7 +189,7 @@ describe('Skill Categories', () => {
 describe('Total Skill Count', () => {
   it('has the correct number of skills (Player\'s Guide)', () => {
     const totalSkills = Object.keys(SKILLS).length;
-    expect(totalSkills).toBeGreaterThanOrEqual(30);
+    expect(totalSkills).toBe(31);
   });
 });
 

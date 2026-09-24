@@ -18,7 +18,7 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 ### 1.2 Skill Point Buy
 - [X] Verify **16 skill points** are available
 - [X] Verify no single skill can exceed **4** at creation
-- [X] Verify all 5 categories appear (Physical, Knowledge & Craft, Social, Survival, Martial)
+- [X] Verify all 5 categories appear (Perception, Physical, Knowledge & Craft, Social, Survival) — no combat Skill category
 - [ ] Verify new skills appear: Negotiation, Seduction, Investigation, Etiquette, Artisanry, Herbalism <- NOPE>
 - [ ] Verify renamed skill: Alchemy (was "Herbalism / Alchemy") NOPE
 - [ ] Verify Crafting shows Might as primary attribute (not Intellect) NOPE

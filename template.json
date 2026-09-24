@@ -184,6 +184,10 @@
       },
       "skills": {},
       "skillsSpent": {},
+      "skillPoints": {
+        "unspent": 0,
+        "placed": {}
+      },
       "conditions": [],
       "statusEffects": [],
       "schticks": {

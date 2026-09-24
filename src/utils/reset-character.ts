@@ -230,6 +230,8 @@ export async function resetCharacterForRecreation(
 
     // Skills & session spend fully cleared (creation points + roll pool).
     clearSkillBucketsInUpdateBatch(updates, system);
+    // Creation hands out the full Skill budget again; no refunded pool survives.
+    updates['system.skillPoints'] = { unspent: 0, placed: {} };
 
     // Mastery defaults (rank 2, points 0, experience 0) per template.json.
     updates['system.mastery.rank'] = getWorldDefaultMasteryRank();

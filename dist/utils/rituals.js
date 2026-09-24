@@ -16,7 +16,6 @@ export const RITUAL_CATEGORY_LABELS = {
     knowledge: 'Knowledge & Craft',
     social: 'Social',
     survival: 'Survival',
-    martial: 'Martial',
 };
 /** Raise 0-1 = 1 Stone, Raise 2-3 = 2, Raise 4 = 3. */
 export const RITUAL_STONE_COST_BY_RAISE = [1, 1, 2, 2, 3];
@@ -49,7 +48,6 @@ export const RITUAL_SKILLS_BY_CATEGORY = {
         'Etiquette',
     ],
     survival: ['Survival', 'Animal Handling', 'Tracking', 'Herbalism', 'Weather Sense'],
-    martial: ['Hand-to-Hand', 'Melee Weapons', 'Ranged Weapons', 'Defensive Combat', 'Combat Reflexes'],
 };
 export function calculateRitualTN(ritualMR, modifier = 0) {
     const mr = Math.max(1, Math.floor(Number(ritualMR) || 1));

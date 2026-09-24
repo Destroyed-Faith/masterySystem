@@ -18,7 +18,6 @@ export const SKILL_CATEGORIES = {
   KNOWLEDGE_CRAFT: 'Knowledge & Craft',
   SOCIAL: 'Social',
   SURVIVAL: 'Survival',
-  MARTIAL: 'Martial'
 } as const;
 
 export const SKILLS: Record<string, SkillDefinition> = {
@@ -343,53 +342,6 @@ Read temperature, scent, and sound — clouds whisper intent; the wind carries w
 Roll: Wits keep Mastery · Opposed by: None (Environmental TN)
 Typical Raises: magical storms, rapid climate shifts, mountain/sea, long-range forecast.`,
   },
-
-  // Martial Skills
-  handToHand: {
-    name: 'Hand-to-Hand',
-    attributes: ['might', 'agility'],
-    category: SKILL_CATEGORIES.MARTIAL,
-    description: `“A weapon is a convenience — the body is the truth.”
-
-Unarmed combat, grappling, and improvised violence at arm’s length.
-Spend Skill Points after an unarmed attack or grapple/control check to add a flat bonus to the result.`,
-  },
-  meleeWeapons: {
-    name: 'Melee Weapons',
-    attributes: ['might'],
-    category: SKILL_CATEGORIES.MARTIAL,
-    description: `“Steel remembers the will that wields it.”
-
-Blades, axes, hammers, polearms — timing, reach, and decisive pressure.
-Spend Skill Points after a melee attack roll to add a flat bonus to the result.`,
-  },
-  rangedWeapons: {
-    name: 'Ranged Weapons',
-    attributes: ['agility'],
-    category: SKILL_CATEGORIES.MARTIAL,
-    description: `“Patience is the space between heartbeat and flight.”
-
-Bows, crossbows, firearms, thrown weapons — breath, stability, the right second to release.
-Spend Skill Points after a ranged attack roll to add a flat bonus to the result.`,
-  },
-  defensiveCombat: {
-    name: 'Defensive Combat',
-    attributes: ['agility', 'vitality'],
-    category: SKILL_CATEGORIES.MARTIAL,
-    description: `“Survival is the art of not being where the blade lands.”
-
-Parries, shields, footwork, and evasive instincts under pressure.
-When targeted by an attack, spend Skill Points to raise Evade against that single attack only.`,
-  },
-  combatReflexes: {
-    name: 'Combat Reflexes',
-    attributes: ['agility'],
-    category: SKILL_CATEGORIES.MARTIAL,
-    description: `“The first move is not speed — it’s noticing the opening.”
-
-Explosive reaction and timing under pressure.
-Spend once after the Initiative roll to increase your Initiative Score before the Initiative Shop.`,
-  }
 };
 
 /**

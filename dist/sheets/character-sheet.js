@@ -57,7 +57,8 @@ import { resyncActorPowerTemplates } from '../migrations/power-template-resync-m
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
-import { applyAttributePendingChanges, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSingleSkillPendingXpNet, calculateSkillPendingNetCost, } from '../progression/progression-hub-actions.js';
+import { applyAttributePendingChanges, allocateActorSkillPending, buildSkillStepHistoryEntries, calculateAttributePendingNetCost, calculatePowerPendingNetCost, } from '../progression/progression-hub-actions.js';
+import { readSkillPointPool, skillPointPoolUpdate } from '../progression/skill-point-pool.js';
 import { appendXpHistory, buildBandedStepEntries, currentXpUser } from '../utils/xp-history.js';
 import { isEchoBoundArtifact, isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
@@ -1053,6 +1054,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillsRedistributing &&
                 skillPointsSpent === skillPointsConfig &&
                 (!!this.actor.isOwner || context.isGM);
+        // Unspent Skill Points (refunds) — placed through the progression +/- buttons.
+        context.skillPointsUnspent = readSkillPointPool(context.system).unspent;
         // Add configuration data
         context.config = CONFIG.MASTERY;
         // Enrich biography info for display
@@ -2071,7 +2074,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
             SKILL_CATEGORIES.SOCIAL,
             SKILL_CATEGORIES.SURVIVAL,
-            SKILL_CATEGORIES.MARTIAL,
         ];
         const groupedSkills = [];
         const seen = new Set();
@@ -4795,21 +4797,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn(`${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`);
             return;
         }
-        // Once-per-step rule (skipped during the Free-XP phase).
-        if (!this.#hasFreeXp()) {
-            if (pending + 1 > 1) {
+        const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
+        const allocation = allocateActorSkillPending(this.actor, simulateMap);
+        const xpSteps = allocation.perSkill[skillKey]?.xpSteps ?? 0;
+        // Once-per-step rule for XP-funded ranks (skipped during the Free-XP phase).
+        // Ranks paid with unspent Skill Points are not limited per step.
+        if (!this.#hasFreeXp() && xpSteps > 0) {
+            if (xpSteps > 1) {
                 ui.notifications?.warn(`${skillKey} can only be increased by +1 per session. Use Free XP to raise it again.`);
                 return;
             }
             const stepRule = await import('../utils/xp-step-rule.js');
             const step = stepRule.readStep(this.actor);
-            if (pending + 1 > 0 && stepRule.isBumped(step, 'skill', skillKey)) {
+            if (stepRule.isBumped(step, 'skill', skillKey)) {
                 ui.notifications?.warn(`${skillKey} was already increased this session. Use Free XP to raise it again.`);
                 return;
             }
         }
-        const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
-        const netCost = this.#calculateSkillPendingNetCost(simulateMap);
+        const netCost = allocation.xpNet;
         // Combined spendable XP (Free pool is spent first, then regular).
         const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
         if (netCost > availableXP) {
@@ -4854,30 +4859,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#updateSkillXPUI();
     }
     /**
-     * Calculate net pending cost (signed) for all pending skill rank changes.
-     *
-     * Skills keep their own 1–32 band costs (`skillBandCost`). Refunds are symmetric.
-     */
-    #calculateSkillPendingNetCost(pendingMap) {
-        return calculateSkillPendingNetCost(this.actor, pendingMap);
-    }
-    /** Net XP cost (positive) or refund (negative) for one skill's pending rank delta only. */
-    #calculateSingleSkillPendingXpNet(skillKey, pending) {
-        return calculateSingleSkillPendingXpNet(this.actor, skillKey, pending);
-    }
-    /**
      * Update the skill XP distribution UI (pending/remaining + enable/disable buttons)
      */
     #updateSkillXPUI() {
         const html = $(this.element);
         // Combined spendable XP (Free pool is spent first, then regular).
         const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
-        const netPendingCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
+        const allocation = allocateActorSkillPending(this.actor, this._pendingSkillRankChanges);
+        const netPendingCost = allocation.xpNet;
         const remainingXP = availableXP - netPendingCost;
         this.#setHeaderXpDisplay(remainingXP);
         const totalPendingChanges = Object.values(this._pendingSkillRankChanges).reduce((sum, v) => sum + Math.abs(v), 0);
         html.find('#pending-skill-changes-count').text(String(totalPendingChanges));
         html.find('#remaining-skill-xp').text(String(Math.max(0, remainingXP)));
+        html.find('#remaining-skill-points').text(String(Math.max(0, allocation.poolAfter)));
         const netSummary = html.find('#pending-skill-xp-net');
         if (netSummary.length) {
             if (netPendingCost === 0) {
@@ -4910,9 +4905,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             minusBtn.prop('disabled', effective <= 0);
             const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
             const nextPending = pending + 1;
-            // Free-XP phase: spend freely (no per-step cap).
+            const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: nextPending };
+            const simulated = allocateActorSkillPending(this.actor, simulateMap);
+            const nextXpSteps = simulated.perSkill[skillKey]?.xpSteps ?? 0;
+            // Free-XP phase: spend freely (no per-step cap). Skill-Point-funded ranks
+            // are never capped per step; only XP-funded ranks are.
             const wouldExceedStepCap = !this.#hasFreeXp() &&
-                (nextPending > 1 || (nextPending > 0 && bumpedSkills.has(skillKey)));
+                nextXpSteps > 0 &&
+                (nextXpSteps > 1 || bumpedSkills.has(skillKey));
             if (effective >= maxSkill || wouldExceedStepCap) {
                 plusBtn.prop('disabled', true);
                 if (wouldExceedStepCap) {
@@ -4926,9 +4926,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (this.#hasFreeXp()) {
                     plusBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
                 }
-                const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: nextPending };
-                const simulateNet = this.#calculateSkillPendingNetCost(simulateMap);
-                plusBtn.prop('disabled', simulateNet > availableXP);
+                else if (nextXpSteps === 0) {
+                    plusBtn.attr('title', 'Paid with an unspent Skill Point (no XP, no step limit).');
+                }
+                plusBtn.prop('disabled', simulated.xpNet > availableXP);
             }
             const pendingLine = html.find(`.skill-pending-xp[data-skill="${skillKey}"]`);
             const rankBadge = html.find(`.skill-rank-pending-badge[data-skill="${skillKey}"]`);
@@ -4937,18 +4938,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 rankBadge.text('');
             }
             else {
-                const xpNet = this.#calculateSingleSkillPendingXpNet(skillKey, pending);
+                const entry = allocation.perSkill[skillKey];
+                const xpNet = entry?.xpNet ?? 0;
                 const rankLabel = pending > 0
                     ? `+${pending} rank${pending === 1 ? '' : 's'}`
                     : `${pending} rank${pending === -1 ? '' : 's'}`;
-                let xpLabel = '';
+                const parts = [];
+                if (entry?.poolSteps)
+                    parts.push(`${entry.poolSteps} SP`);
+                if (entry?.poolReturned)
+                    parts.push(`+${entry.poolReturned} SP back`);
                 if (xpNet > 0) {
-                    xpLabel = ` · ${xpNet} XP`;
+                    parts.push(`${xpNet} XP`);
                 }
                 else if (xpNet < 0) {
-                    xpLabel = ` · +${Math.abs(xpNet)} XP back`;
+                    parts.push(`+${Math.abs(xpNet)} XP back`);
                 }
-                pendingLine.text(`${rankLabel}${xpLabel}`).addClass('has-pending');
+                const costLabel = parts.length ? ` · ${parts.join(' · ')}` : '';
+                pendingLine.text(`${rankLabel}${costLabel}`).addClass('has-pending');
                 rankBadge.text(`→${effective}`);
             }
             this.#applySkillDicePoolPreview(skillKey, effective, pending !== 0);
@@ -4983,7 +4990,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const xpState = this.#getXpState(this.actor);
         const availableXP = xpState.available; // combined Free + regular
-        const netCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
+        // Unspent Skill Points pay first; only the remainder costs XP.
+        const allocation = allocateActorSkillPending(this.actor, this._pendingSkillRankChanges);
+        const netCost = allocation.xpNet;
         if (netCost > availableXP) {
             ui.notifications?.error(`Not enough XP! Net cost: ${netCost}, Available: ${availableXP}`);
             return;
@@ -5011,13 +5020,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 from: current,
                 to: target,
                 delta: pending,
-                cost: this.#calculateSingleSkillPendingXpNet(skillKey, pending),
+                xpSteps: allocation.perSkill[skillKey]?.xpSteps ?? 0,
             });
         }
         /**
          * New spec — once-per-step rule. Each Skill may only be increased by
-         * +1 per Upgrade Step. Mark each positively-bumped skill; un-bump on
-         * refund.
+         * +1 XP-funded rank per Upgrade Step. Ranks paid with unspent Skill
+         * Points are exempt. Mark each XP-bumped skill; un-bump on refund.
          */
         const stepRuleSk = await import('../utils/xp-step-rule.js');
         let stepAfterSk = stepRuleSk.readStep(this.actor);
@@ -5026,8 +5035,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         for (const change of changes) {
             if (unrestrictedSk)
                 continue;
-            if (change.delta > 0) {
-                if (stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
+            if (change.delta > 0 && change.xpSteps > 0) {
+                if (change.xpSteps > 1 || stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
                     ui.notifications?.error(`${change.skillKey} was already increased this session. Use Free XP to raise it again.`);
                     return;
                 }
@@ -5047,6 +5056,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         updates['system.xp.currentStep.skills'] = [...stepAfterSk.skills];
         updates['system.xp.currentStep.powers'] = [...stepAfterSk.powers];
         updates['system.xp.currentStep.artifacts'] = [...stepAfterSk.artifacts];
+        Object.assign(updates, skillPointPoolUpdate(readSkillPointPool(this.actor.system), allocation));
         if (!this.actor.system.xp) {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
             updates['system.xp.history'] = [];
@@ -5056,19 +5066,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
         };
-        const skillHistory = buildBandedStepEntries({
-            category: 'skill',
-            pendingMap: this._pendingSkillRankChanges,
-            getCurrent: key => Number(this.actor.system.skills?.[key] ?? 0) || 0,
-            getLabel: key => SKILLS[key]?.name || key,
-            costForTarget: skillBandCost,
+        const skillHistory = buildSkillStepHistoryEntries({
+            actor: this.actor,
+            allocation,
             before: beforeState,
             after: {
                 available: availableXP - netCost,
                 totalEarned: xpState.totalEarned,
                 totalSpent: acctSk.totalSpent,
             },
-            user: currentXpUser(),
         });
         if (skillHistory.length) {
             updates['system.xp.history'] = appendXpHistory(this.actor, skillHistory);

@@ -10,6 +10,7 @@ import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculat
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import * as stepRule from '../utils/xp-step-rule.js';
 import { appendXpHistory, buildBandedStepEntries, currentXpUser, } from '../utils/xp-history.js';
+import { allocateSkillPending, readSkillPointPool, skillPointPoolUpdate, } from './skill-point-pool.js';
 export const ATTRIBUTE_KEYS = [
     'might',
     'agility',
@@ -101,33 +102,78 @@ export function calculateAttributePendingNetCost(actor, pendingMap) {
     }
     return net;
 }
-export function calculateSingleSkillPendingXpNet(actor, skillKey, pending) {
-    if (!pending)
-        return 0;
-    const current = Number(actor.system.skills?.[skillKey] ?? 0) || 0;
-    let net = 0;
-    if (pending > 0) {
-        for (let i = 1; i <= pending; i++) {
-            net += skillBandCost(current + i);
-        }
-    }
-    else {
-        const steps = Math.abs(pending);
-        for (let i = 0; i < steps; i++) {
-            const refundRank = current - i;
-            if (refundRank <= 0)
-                break;
-            net -= skillBandCost(refundRank);
-        }
-    }
-    return net;
+/**
+ * Split pending Skill rank changes between unspent Skill Points and XP.
+ * Skill Points pay first (one per rank, in click order); the rest costs XP.
+ */
+export function allocateActorSkillPending(actor, pendingMap) {
+    return allocateSkillPending({
+        pendingMap,
+        currentRank: (key) => Number(actor?.system?.skills?.[key] ?? 0) || 0,
+        pool: readSkillPointPool(actor?.system),
+        skillBandCost,
+    });
 }
+/** Net XP (positive = spend) for pending Skill changes after unspent Skill Points paid their share. */
 export function calculateSkillPendingNetCost(actor, pendingMap) {
-    let net = 0;
-    for (const [skillKey, pending] of Object.entries(pendingMap)) {
-        net += calculateSingleSkillPendingXpNet(actor, skillKey, pending);
+    return allocateActorSkillPending(actor, pendingMap).xpNet;
+}
+/**
+ * XP history rows for a confirmed Skill batch. Ranks paid with unspent Skill
+ * Points are logged with 0 XP so the audit trail shows where they went.
+ */
+export function buildSkillStepHistoryEntries(opts) {
+    const user = currentXpUser();
+    const ts = Date.now();
+    const entries = [];
+    for (const entry of Object.values(opts.allocation.perSkill)) {
+        const current = Number(opts.actor?.system?.skills?.[entry.key] ?? 0) || 0;
+        const label = SKILLS[entry.key]?.name || entry.key;
+        if (entry.pending > 0) {
+            for (let i = 0; i < entry.pending; i += 1) {
+                const from = current + i;
+                const to = from + 1;
+                const fromPool = i < entry.poolSteps;
+                const cost = fromPool ? 0 : skillBandCost(to);
+                entries.push({
+                    ts: ts + entries.length,
+                    userId: user.userId,
+                    userName: user.userName,
+                    kind: 'spend',
+                    category: 'skill',
+                    amount: cost,
+                    note: fromPool ? `${label} ${from} → ${to} (Skill Point)` : `${label} ${from} → ${to}`,
+                    details: { key: entry.key, name: label, from, to, cost, skillPoint: fromPool },
+                    before: opts.before,
+                    after: opts.after,
+                });
+            }
+        }
+        else {
+            const steps = entry.poolReturned + entry.xpRefundSteps;
+            for (let i = 0; i < steps; i += 1) {
+                const from = current - i;
+                const to = from - 1;
+                const toPool = i < entry.poolReturned;
+                const cost = toPool ? 0 : skillBandCost(from);
+                entries.push({
+                    ts: ts + entries.length,
+                    userId: user.userId,
+                    userName: user.userName,
+                    kind: 'adjust',
+                    category: 'skill',
+                    amount: cost,
+                    note: toPool
+                        ? `refund: ${label} ${from} → ${to} (Skill Point returned)`
+                        : `refund: ${label} ${from} → ${to}`,
+                    details: { key: entry.key, name: label, from, to, cost, skillPoint: toPool },
+                    before: opts.before,
+                    after: opts.after,
+                });
+            }
+        }
     }
-    return net;
+    return entries;
 }
 export function getPowerMinLevel(item) {
     // Delegate to the shared baseline (floored at the category creation rank) so
@@ -199,7 +245,6 @@ export function buildProgressionHubContext(actor) {
         SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
         SKILL_CATEGORIES.SOCIAL,
         SKILL_CATEGORIES.SURVIVAL,
-        SKILL_CATEGORIES.MARTIAL,
     ];
     const skillGroups = categoryOrder
         .filter((c) => skillsByCategory[c]?.length)
@@ -298,7 +343,8 @@ export async function applyAttributePendingChanges(actor, pendingMap) {
 }
 export async function applySkillPendingChanges(actor, pendingMap) {
     const xpState = getXpState(actor);
-    const netCost = calculateSkillPendingNetCost(actor, pendingMap);
+    const allocation = allocateActorSkillPending(actor, pendingMap);
+    const netCost = allocation.xpNet;
     if (netCost > xpState.available) {
         return { ok: false, error: `Not enough XP (need ${netCost}, have ${xpState.available}).` };
     }
@@ -321,8 +367,11 @@ export async function applySkillPendingChanges(actor, pendingMap) {
         const target = Math.max(0, Math.min(maxSkill, desired));
         if (target === current)
             continue;
-        if (!unrestricted && pending > 0) {
-            if (stepRule.isBumped(stepAfter, 'skill', skillKey)) {
+        // Ranks paid with unspent Skill Points are free of the once-per-step rule;
+        // only XP-funded increases count as this step's bump.
+        const xpSteps = allocation.perSkill[skillKey]?.xpSteps ?? 0;
+        if (!unrestricted && pending > 0 && xpSteps > 0) {
+            if (xpSteps > 1 || stepRule.isBumped(stepAfter, 'skill', skillKey)) {
                 return { ok: false, error: `${skillKey} was already increased this Upgrade Step.` };
             }
             stepAfter = stepRule.recordBump(stepAfter, 'skill', skillKey);
@@ -341,12 +390,10 @@ export async function applySkillPendingChanges(actor, pendingMap) {
     updates['system.xp.currentStep.skills'] = [...stepAfter.skills];
     updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
     updates['system.xp.currentStep.artifacts'] = [...stepAfter.artifacts];
-    const historyEntries = buildBandedStepEntries({
-        category: 'skill',
-        pendingMap,
-        getCurrent: key => Number(actor.system.skills?.[key] ?? 0) || 0,
-        getLabel: key => SKILLS[key]?.name || key,
-        costForTarget: skillBandCost,
+    Object.assign(updates, skillPointPoolUpdate(readSkillPointPool(actor.system), allocation));
+    const historyEntries = buildSkillStepHistoryEntries({
+        actor,
+        allocation,
         before: {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
@@ -357,7 +404,6 @@ export async function applySkillPendingChanges(actor, pendingMap) {
             totalEarned: xpState.totalEarned,
             totalSpent: acct.totalSpent,
         },
-        user: currentXpUser(),
     });
     if (historyEntries.length) {
         updates['system.xp.history'] = appendXpHistory(actor, historyEntries);

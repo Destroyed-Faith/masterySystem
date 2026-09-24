@@ -17,6 +17,8 @@ export interface PostCreationProgress {
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
   powerLevels: Record<string, number>;
+  /** Unspent Skill Points to restore on a progression reset (refunded Skill investment). */
+  skillPointsUnspent?: number;
 }
 
 export function buildPostCreationSnapshot(actor: any): PostCreationProgress {
@@ -90,6 +92,13 @@ export async function resetActorProgressToPostCreation(
       updates[`system.skillsSpent.${key}`] = 0;
     }
   }
+
+  // Skill Points placed after creation go back to the pool; refunded Skill
+  // investment recorded on the snapshot is restored, never turned into XP.
+  updates['system.skillPoints'] = {
+    unspent: Math.max(0, Math.floor(Number(snap.skillPointsUnspent) || 0)),
+    placed: {},
+  };
 
   updates['system.points.xp'] = totalEarned;
   updates['system.xp.totalSpent'] = 0;

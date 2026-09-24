@@ -24,7 +24,7 @@ const alarisPayload = {
     wits: 10,
   },
   masteryRank: 4,
-  skills: { meleeWeapons: 2, athletics: 1 },
+  skills: { acrobatics: 2, athletics: 1 },
   disadvantages: [{ id: 'hunted', points: 2, details: { hunter: 'The Pale Court' } }],
   minorExpressions: ['might-set-your-feet', 'agility-soft-step'],
   powers: [
@@ -133,7 +133,7 @@ describe('character-import build', () => {
     expect(system.progression.lifetimeXp).toBeUndefined();
     expect((data.flags as any)['mastery-system'].needsV099LifetimeXp).toBe(true);
     expect(system.mastery.rank).toBe(4);
-    expect(system.skills.meleeWeapons).toBe(2);
+    expect(system.skills.acrobatics).toBe(2);
     expect(system.disadvantages).toHaveLength(1);
     expect(system.faithFractures.maximum).toBe(2);
     expect(system.minorExpressions).toEqual(['might-set-your-feet', 'agility-soft-step']);

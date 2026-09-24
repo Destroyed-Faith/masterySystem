@@ -17,8 +17,7 @@ export type RitualSkillCategory =
   | 'physical'
   | 'knowledge'
   | 'social'
-  | 'survival'
-  | 'martial';
+  | 'survival';
 
 export interface RitualDefinition {
   id: string;
@@ -46,7 +45,6 @@ export const RITUAL_CATEGORY_LABELS: Record<RitualSkillCategory, string> = {
   knowledge: 'Knowledge & Craft',
   social: 'Social',
   survival: 'Survival',
-  martial: 'Martial',
 };
 
 /** Raise 0-1 = 1 Stone, Raise 2-3 = 2, Raise 4 = 3. */
@@ -82,7 +80,6 @@ export const RITUAL_SKILLS_BY_CATEGORY: Record<RitualSkillCategory, readonly str
     'Etiquette',
   ],
   survival: ['Survival', 'Animal Handling', 'Tracking', 'Herbalism', 'Weather Sense'],
-  martial: ['Hand-to-Hand', 'Melee Weapons', 'Ranged Weapons', 'Defensive Combat', 'Combat Reflexes'],
 };
 
 export function calculateRitualTN(ritualMR: number, modifier = 0): number {

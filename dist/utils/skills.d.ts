@@ -16,7 +16,6 @@ export declare const SKILL_CATEGORIES: {
     readonly KNOWLEDGE_CRAFT: "Knowledge & Craft";
     readonly SOCIAL: "Social";
     readonly SURVIVAL: "Survival";
-    readonly MARTIAL: "Martial";
 };
 export declare const SKILLS: Record<string, SkillDefinition>;
 /**

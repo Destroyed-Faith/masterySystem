@@ -308,6 +308,15 @@ export interface CharacterData {
   resources: ResourcesData;
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
+  /**
+   * Unspent Skill Points after creation (e.g. refunded when Skills were removed
+   * from the rules). One point buys one Skill Rating point in the progression UI;
+   * `placed` records per Skill how many ranks were paid this way.
+   */
+  skillPoints?: {
+    unspent?: number;
+    placed?: Record<string, number>;
+  };
   /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 4 */
   minorExpressions?: string[];
   /** Optional: default attribute pool per generic stone power; auto-filled each round when useDefaultsEachRound is true */
@@ -346,6 +355,8 @@ export interface CharacterData {
       skills: Record<string, number>;
       skillsSpent: Record<string, number>;
       powerLevels: Record<string, number>;
+      /** Unspent Skill Points the GM progression reset restores. */
+      skillPointsUnspent?: number;
     };
     /**
      * New spec — Upgrade Step state. Each individual Attribute / Skill /

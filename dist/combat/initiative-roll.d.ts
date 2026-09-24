@@ -1,26 +1,17 @@
 /**
  * Initiative Rolling System
- * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) + optional Combat
- * Reflexes. The score persists until spent (Initiative Exchange → Colorless Stones)
- * or another rule changes it.
+ * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) plus the flat
+ * Initiative modifiers (equipment, Passives, Wits scaling, Stone Boost, manual).
+ * The score persists until spent (Initiative Exchange → Colorless Stones) or
+ * another rule changes it.
  */
-export { getCombatReflexesInitiativeLimits } from './combat-reflexes.js';
-export interface InitiativeRollOptions {
-    /**
-     * Kept for callers; Combat Reflexes are no longer asked for at roll time.
-     * The points are added in the Initiative Exchange row of Stone Powers.
-     */
-    promptCombatReflexes?: boolean;
-}
 /**
- * Initiative roll breakdown (pre–Initiative Shop).
+ * Initiative roll breakdown (pre–Initiative Exchange).
  */
 export interface InitiativeRollBreakdown {
     /** Sum of Mastery Rank d8 (exploding 8s). */
     diceTotal: number;
-    /** Combat Reflexes points added to this roll (also updates skillsSpent). */
-    combatReflexesSpent: number;
-    /** Dice + CR — pool for the shop; order uses points left after shopping. */
+    /** Dice + flat modifiers — the score Initiative Exchange converts from. */
     totalInitiative: number;
     /** Flat modifier from equipped armor, shield, and weapon (e.g. Heavy). */
     equipmentInitiativeModifier: number;
@@ -61,10 +52,9 @@ export declare function formatInitiativeExchangeSummary(input: {
 export declare function releasePcInitiativeRoll(actor: any, combatant: any): Promise<void>;
 /**
  * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
- * Combat Reflexes are added afterwards in the Initiative Exchange row, so the
- * roll no longer interrupts with a popup.
+ * The roll stands as rolled; no Skill Points are spent on it.
  */
-export declare function rollInitiativeForCombatant(combatant: Combatant, _options?: InitiativeRollOptions): Promise<InitiativeRollBreakdown>;
+export declare function rollInitiativeForCombatant(combatant: Combatant): Promise<InitiativeRollBreakdown>;
 /** True when an NPC still needs a real initiative roll (Foundry often seeds 0). */
 export declare function needsNpcInitiativeRoll(combatant: Combatant, force?: boolean): boolean;
 /** Roll initiative for NPCs / summons / divine only. PCs roll on their own client. */

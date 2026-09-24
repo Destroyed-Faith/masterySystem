@@ -248,7 +248,7 @@ export const COMBAT_MANEUVERS = [
         slot: "attack",
         category: "combat-action",
         tags: ["combat-action", "control", "melee"],
-        effect: "Range: Melee Reach. Make an **Opposed Hand-to-Hand Skill Check** (both creatures use an appropriate physical Attribute Pool and their Hand-to-Hand Skill Pool normally). If the attacker wins, the target is **Grappled**: its Speed becomes **0 m** and it cannot voluntarily move away from the grappler. **Escape:** the Grappled creature may spend **1 Attack Action** to repeat the Opposed Hand-to-Hand Check; on a win the Grapple ends, on a tie it remains. **Pressure:** while maintaining the Grapple, the grappler may deal **Mastery Rank damage once per Round**; this damage **ignores Armor**. The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.",
+        effect: "Range: Melee Reach. Make an **Opposed Physical Check** (both creatures roll an appropriate physical Attribute Pool — Might or Agility — keep Mastery Rank; no Skill Points are spent). If the attacker wins, the target is **Grappled**: its Speed becomes **0 m** and it cannot voluntarily move away from the grappler. **Escape:** the Grappled creature may spend **1 Attack Action** to repeat the Opposed Physical Check; on a win the Grapple ends, on a tie it remains. **Pressure:** while maintaining the Grapple, the grappler may deal **Mastery Rank damage once per Round**; this damage **ignores Armor**. The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.",
     },
     {
         id: "reckless-attack",

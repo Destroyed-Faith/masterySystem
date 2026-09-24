@@ -1063,7 +1063,7 @@
           <!-- Initiative -->
           <div class="combat-stat-card combat-stat-card--tooltip">
             <div class="combat-stat-tooltip" role="tooltip">
-              <p class="stat-summary-hint">Roll: sum of exploding d8s + optional Combat Reflexes + equipment / Passive modifier below.</p>
+              <p class="stat-summary-hint">Roll: sum of exploding d8s + equipment / Passive modifier below. The roll stands as rolled.</p>
               {{#if system.combat.initiativeEquipmentRows}}
               <ul class="combat-stat-breakdown">
                 {{#each system.combat.initiativeEquipmentRows}}
@@ -1375,6 +1375,11 @@
           </div>
         </div>
         {{else if creationComplete}}
+        {{#if skillPointsUnspent}}
+        <div class="skill-points-refund-banner" title="Unspent Skill Points. Each + on a skill places one of them (no XP, no once-per-session limit) until they are used up. Removing a rank placed this way gives the Skill Point back; Skill Points never turn into XP.">
+          <p><i class="fas fa-coins"></i> <strong>Unspent Skill Points: <span id="remaining-skill-points">{{skillPointsUnspent}}</span></strong> — place them with the <i class="fas fa-plus"></i> buttons below (1 point = +1 Rating, up to Mastery Rank × 4 per skill), then Confirm.</p>
+        </div>
+        {{/if}}
         <div class="attribute-xp-distribution-controls skill-xp-toolbar">
           <div class="pending-skill-changes-info">
             <span class="remaining-xp-text">After pending: <span id="remaining-skill-xp">0</span> XP</span>
@@ -1419,7 +1424,6 @@
             {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
             {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
             {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-            {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
             {{this.category}}
           </h4>
           <div class="skills-list-compact">

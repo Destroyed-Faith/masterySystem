@@ -123,6 +123,7 @@ import {
   runEchoArtifactDedupeMigration,
 } from './migrations/echo-artifact-dedupe-migration.js';
 import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
+import { runMartialSkillsRefundMigration } from './migrations/martial-skills-refund-migration.js';
 import { nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runEchoStoneSupportResyncMigration } from './migrations/echo-stone-support-resync.js';
@@ -3385,6 +3386,18 @@ Hooks.once('ready', async function() {
     await runV099CoreMigration(migrationActors);
   } catch (error) {
     console.warn('Mastery System | v0.9.9 core migration failed', error);
+  }
+
+  // Migration: removed combat Skills — refund invested Ratings as unspent Skill Points.
+  try {
+    const refunded = await runMartialSkillsRefundMigration(migrationActors);
+    if (refunded > 0) {
+      ui.notifications?.info(
+        `Skill refund: ${refunded} character${refunded === 1 ? '' : 's'} received the Skill Points invested in removed combat Skills back as unspent Skill Points.`,
+      );
+    }
+  } catch (error) {
+    console.warn('Mastery System | Skill refund migration failed', error);
   }
 
   // Migration: base Speed 6 → 8 (Rules v0.9.8).

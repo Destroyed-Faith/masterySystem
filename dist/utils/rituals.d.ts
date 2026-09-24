@@ -9,7 +9,7 @@
  * Stones are Sealed on the attempt (success or failure) until Safe Haven Rest.
  * Any Stone color may pay the cost.
  */
-export type RitualSkillCategory = 'physical' | 'knowledge' | 'social' | 'survival' | 'martial';
+export type RitualSkillCategory = 'physical' | 'knowledge' | 'social' | 'survival';
 export interface RitualDefinition {
     id: string;
     name: string;

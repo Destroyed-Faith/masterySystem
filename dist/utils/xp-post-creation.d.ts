@@ -6,6 +6,8 @@ export interface PostCreationProgress {
     skills: Record<string, number>;
     skillsSpent: Record<string, number>;
     powerLevels: Record<string, number>;
+    /** Unspent Skill Points to restore on a progression reset (refunded Skill investment). */
+    skillPointsUnspent?: number;
 }
 export declare function buildPostCreationSnapshot(actor: any): PostCreationProgress;
 export declare function actorHasPostCreationSnapshot(actor: any): boolean;

@@ -1,8 +1,9 @@
 /**
  * Initiative Rolling System
- * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) + optional Combat
- * Reflexes. The score persists until spent (Initiative Exchange → Colorless Stones)
- * or another rule changes it.
+ * Rolled ONCE at combat start: Mastery Rank d8 (keep all, 8s explode) plus the flat
+ * Initiative modifiers (equipment, Passives, Wits scaling, Stone Boost, manual).
+ * The score persists until spent (Initiative Exchange → Colorless Stones) or
+ * another rule changes it.
  */
 import { attributeScalingEnabled } from '../utils/calculations.js';
 import { masteryRoll } from '../dice/roll-handler.js';
@@ -10,10 +11,8 @@ import { getRoundState } from './action-economy.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
 import { formatNpcInitiativeSigned, getNpcInitiativeModifier, } from '../utils/npc-initiative.js';
-import { resetCombatReflexesRoundUsage } from './combat-reflexes.js';
 import { actorHasSurprise, pinSurprisedInitiative } from './surprise.js';
 import { requestSetCombatantInitiative } from './gm-relay.js';
-export { getCombatReflexesInitiativeLimits } from './combat-reflexes.js';
 function getMasteryRank(actor) {
     if (!actor || !actor.system)
         return 2;
@@ -111,13 +110,6 @@ export async function releasePcInitiativeRoll(actor, combatant) {
     catch {
         /* best-effort */
     }
-    try {
-        const { resetCombatReflexesRoundUsage } = await import('./combat-reflexes.js');
-        await resetCombatReflexesRoundUsage(combatant);
-    }
-    catch {
-        /* best-effort */
-    }
 }
 async function writeCombatantInitiative(combatant, initiative, flags) {
     const game = globalThis.game;
@@ -137,16 +129,14 @@ async function writeCombatantInitiative(combatant, initiative, flags) {
 }
 /**
  * Roll initiative for one combatant: Mastery Rank d8 plus the flat modifiers.
- * Combat Reflexes are added afterwards in the Initiative Exchange row, so the
- * roll no longer interrupts with a popup.
+ * The roll stands as rolled; no Skill Points are spent on it.
  */
-export async function rollInitiativeForCombatant(combatant, _options = {}) {
+export async function rollInitiativeForCombatant(combatant) {
     const actor = combatant.actor;
     if (!actor) {
         console.error('Mastery System | Cannot roll initiative: combatant has no actor');
         return {
             diceTotal: 0,
-            combatReflexesSpent: 0,
             totalInitiative: 0,
             equipmentInitiativeModifier: 0,
             masteryRank: 2,
@@ -159,7 +149,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
         await pinSurprisedInitiative(actor);
         return {
             diceTotal: 0,
-            combatReflexesSpent: 0,
             totalInitiative: 0,
             equipmentInitiativeModifier: 0,
             masteryRank: getMasteryRank(actor),
@@ -179,7 +168,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
         }
         return {
             diceTotal: Number(prior?.diceTotal) || 0,
-            combatReflexesSpent: 0,
             totalInitiative: Number.isFinite(kept) ? kept : 0,
             equipmentInitiativeModifier: 0,
             masteryRank: Number(prior?.masteryRank) || getMasteryRank(actor),
@@ -189,7 +177,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
     if (flightKey && initiativeRollInFlight.has(flightKey)) {
         return {
             diceTotal: 0,
-            combatReflexesSpent: 0,
             totalInitiative: 0,
             equipmentInitiativeModifier: 0,
             masteryRank: getMasteryRank(actor),
@@ -243,10 +230,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
         });
         const diceTotal = rollResult.total;
         const isPc = actor.type === 'character';
-        // A fresh roll replaces the score, so points added for the previous score are
-        // gone with it — the per-round budget starts over.
-        const combatReflexesSpent = 0;
-        await resetCombatReflexesRoundUsage(combatant);
         // Wits "Initiative Boost" stone power chosen BEFORE this roll (stone phase
         // precedes the initiative phase): fold it into the score here. The boost is
         // temporary ("this round") — record it so the round-advance pipeline can
@@ -260,7 +243,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
             /* no round state outside combat */
         }
         const totalInitiative = diceTotal +
-            combatReflexesSpent +
             equipmentInitiativeModifier +
             manualInitiativeFlat +
             passiveInitiativeBonus +
@@ -273,7 +255,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
             pendingInitiativeShop: isPc
                 ? {
                     diceTotal,
-                    combatReflexesSpent,
                     totalInitiative,
                     equipmentInitiativeModifier,
                     masteryRank,
@@ -297,7 +278,6 @@ export async function rollInitiativeForCombatant(combatant, _options = {}) {
         }
         return {
             diceTotal,
-            combatReflexesSpent,
             totalInitiative,
             equipmentInitiativeModifier,
             masteryRank,
@@ -333,7 +313,7 @@ export async function rollNpcInitiativeOnly(combat, opts = {}) {
             continue;
         if (!needsNpcInitiativeRoll(combatant, opts.force === true))
             continue;
-        await rollInitiativeForCombatant(combatant, { promptCombatReflexes: false });
+        await rollInitiativeForCombatant(combatant);
         try {
             await combatant.setFlag('mastery-system', 'npcInitiativeRolled', true);
         }

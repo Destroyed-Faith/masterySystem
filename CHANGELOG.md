@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Removed
+
+- **Martial Skills:** Hand-to-Hand, Melee Weapons, Ranged Weapons, Defensive Combat und Combat Reflexes gibt es nicht mehr — ersatzlos. Kampfwürfe gelten so, wie sie fallen: Angriffe nutzen nur Attribut, Power und Waffe; Evade lässt sich nicht mehr mit Skill-Punkten anheben; die Initiative ist der Initiative-Wurf plus die bestehenden Initiative-Modifikatoren. Nur Reroll Points, Steine, Powers, Passives, Active Buffs, Reactions, Ausrüstung und Raises ändern einen Kampfwurf weiterhin. Die Martial-Kategorie ist aus Bogen, Ausdruck, Erschaffung, Progression Hub, Ritual-Kategorien, Stone-Powers-Dialog, Hilfetexten, Beispielen und Players Guide entfernt.
+
+### Added
+
+- **Skill-Punkte-Rückerstattung (Migration):** Jeder Charakter bekommt die dauerhaft investierten Ratings der fünf entfernten Skills als **unverbrauchte Skill-Punkte** (`system.skillPoints.unspent`) zurück — das volle Rating, nicht den Restwert (Melee Weapons 8 mit 2 verbleibend → 8 Punkte). Die alten Skill-Daten werden gelöscht. Läuft genau einmal pro Charakter; ein Flag verhindert doppelte Rückerstattung, spätere Läufe entfernen nur noch Altdaten. Keine Umwandlung in XP, keine automatische Verteilung.
+- **Unverbrauchte Skill-Punkte verteilen:** Der Skills-Tab und der Progression Hub zeigen den Pool an. Jeder Klick auf **+** setzt zuerst einen unverbrauchten Skill-Punkt (1 Punkt = +1 Rating, Limit Mastery Rank × 4, kein Einmal-pro-Sitzung-Limit); erst danach kostet ein Rang XP. Ränge, die mit Skill-Punkten bezahlt wurden, gehen beim Senken in den Pool zurück statt XP zu erstatten. Die XP-Neuberechnung des SL zählt sie nicht als XP.
+
+### Changed
+
+- **Grapple:** Der Gegenwurf ist ein Opposed Physical Check (Might oder Agility, keep Mastery Rank) ohne Skill-Punkte.
+- **Beispiel-Skill-Verteilungen:** Frontline Fighter, Mobile Skirmisher, Spellcaster und Alaris' Skill-Auswahl belegen weiterhin 40 Punkte auf zehn Skills, nur noch mit den verbliebenen Skills.
+
 ## [0.9.567] - 2026-09-23
 
 ### Changed

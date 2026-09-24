@@ -1413,58 +1413,6 @@
   white-space: nowrap;
 }
 
-.cp-sd-ini-cr {
-  display: inline-flex;
-  align-items: center;
-  gap: 1.5mm;
-  margin: 0;
-  padding: 0;
-  flex-wrap: nowrap;
-  white-space: nowrap;
-}
-
-.cp-sd-ini-cr-label {
-  font-size: 7px;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: #1a1a1a;
-  white-space: nowrap;
-}
-
-.cp-sd-ini-cr-boxes {
-  display: inline-flex;
-  gap: 1px;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-
-.cp-sd-ini-cr-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.6mm;
-  height: 3.6mm;
-  border: 1px solid #333;
-  box-sizing: border-box;
-  font-size: 5.5px;
-  font-weight: 700;
-  font-style: normal;
-  line-height: 1;
-  flex: 0 0 auto;
-}
-
-.cp-sd-ini-cr-box.is-spent {
-  background: #ddd;
-  text-decoration: line-through;
-}
-
-.cp-sd-ini-cr-box.is-empty,
-.cp-sd-ini-cr-box.is-unavailable {
-  border-style: dashed;
-  color: #999;
-}
-
 /* Pencil box for remaining Initiative (real write-in square) */
 .cp-sd-ini-box,
 .cp-sd-ini-writein {
@@ -2444,10 +2392,6 @@
 }
 
 .cp-skill-list-2col {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.cp-skills-martial .cp-skill-list {
   grid-template-columns: repeat(2, 1fr);
 }
 
@@ -4092,7 +4036,6 @@ body.mastery-print.is-dark:not(.is-compact) {
 .mastery-print.is-dark:not(.is-compact) .cp-sd-cube,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-ini-box,
 .mastery-print.is-dark:not(.is-compact) .cp-sd-cost,
-.mastery-print.is-dark:not(.is-compact) .cp-sd-ini-cr-box,
 .mastery-print.is-dark:not(.is-compact) .cp-buff-round {
   background: #2a2622;
   border-color: #8a8478;

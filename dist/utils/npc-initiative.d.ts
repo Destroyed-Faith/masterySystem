@@ -1,6 +1,6 @@
 /**
  * NPC / Summon initiative flat modifier from the sheet combat block.
- * Applied on top of Mastery Rank d8 at combat start (no Combat Reflexes).
+ * Applied on top of Mastery Rank d8 at combat start.
  */
 export declare function clampNpcInitiativeModifier(raw: unknown): number;
 /** Split a stored net modifier into UI malus (≤0) / bonus (≥0) selects. */

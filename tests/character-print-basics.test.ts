@@ -32,7 +32,7 @@ function mockCharacter(mr = 2, overrides: Record<string, unknown> = {}) {
         ],
       },
       stress: { bars: [{ name: 'Healthy', max: 4, current: 4 }] },
-      skills: { meleeWeapons: 2, athletics: 1, lore: 0 },
+      skills: { intimidation: 2, athletics: 1, lore: 0 },
       skillsSpent: {},
       disadvantages: [],
       stonePools: {
@@ -103,19 +103,18 @@ describe('character print table sheet', () => {
       'Knowledge & Craft',
       'Social',
       'Survival',
-      'Martial',
     ]);
-    expect(ctx.learnedSkills.length).toBe(36);
+    expect(ctx.learnedSkills.length).toBe(31);
     expect(ctx.learnedSkills.map((s: any) => s.name)).toEqual(
-      expect.arrayContaining(['Melee Weapons', 'Athletics', 'Lore', 'Perception', 'Artisanry']),
+      expect.arrayContaining(['Intimidation', 'Athletics', 'Lore', 'Perception', 'Artisanry']),
     );
     expect(ctx.learnedSkills.every((s: any) => s.key !== 'perception' || s === ctx.perceptionSkill)).toBe(
       true,
     );
-    const melee = ctx.learnedSkills.find((s: any) => s.key === 'meleeWeapons');
-    expect(melee?.rating).toBe(2);
-    expect(melee?.halfPool).toBe(true);
-    expect(melee?.poolLabel).toBe('8k2');
+    const intimidation = ctx.learnedSkills.find((s: any) => s.key === 'intimidation');
+    expect(intimidation?.rating).toBe(2);
+    expect(intimidation?.halfPool).toBe(true);
+    expect(intimidation?.poolLabel).toBe('8k2');
     const lore = ctx.learnedSkills.find((s: any) => s.key === 'lore');
     expect(lore?.rating).toBe(0);
     expect(lore?.halfPool).toBe(true);
@@ -135,11 +134,11 @@ describe('character print table sheet', () => {
 
   it('uses full skill pool when rating reaches 2× Mastery Rank', () => {
     const ctx = buildCharacterPrintContext(
-      mockCharacter(2, { skills: { meleeWeapons: 4, athletics: 1, lore: 0 } }),
+      mockCharacter(2, { skills: { intimidation: 4, athletics: 1, lore: 0 } }),
     ) as any;
-    const melee = ctx.learnedSkills.find((s: any) => s.key === 'meleeWeapons');
-    expect(melee?.halfPool).toBe(false);
-    expect(melee?.poolLabel).toBe('16k2');
+    const intimidation = ctx.learnedSkills.find((s: any) => s.key === 'intimidation');
+    expect(intimidation?.halfPool).toBe(false);
+    expect(intimidation?.poolLabel).toBe('16k2');
     const athletics = ctx.learnedSkills.find((s: any) => s.key === 'athletics');
     expect(athletics?.halfPool).toBe(true);
     expect(athletics?.poolLabel).toBe('8k2');
@@ -257,20 +256,23 @@ describe('character print table sheet', () => {
       .flatMap((g: any) => g.powers)
       .filter((p: any) => p.oncePerCombat).length;
     expect(onceCount).toBe(3);
-    expect(ctx.stoneDashboard.combatReflexes).toBeNull();
+    expect(ctx.stoneDashboard.combatReflexes).toBeUndefined();
   });
 
-  it('shows Combat Reflexes use boxes on Page 1 and Page 2 Initiative', () => {
+  it('prints no Martial Skills, even when legacy skill data is still on the actor', () => {
     const ctx = buildCharacterPrintContext(
-      mockCharacter(2, { skills: { meleeWeapons: 2, combatReflexes: 4 } }),
+      mockCharacter(2, {
+        skills: { intimidation: 2, meleeWeapons: 4, combatReflexes: 4, defensiveCombat: 4 },
+      }),
     ) as any;
-    const crSkill = ctx.learnedSkills.find((s: any) => s.key === 'combatReflexes');
-    expect(crSkill).toBeTruthy();
-    expect(crSkill.omitUseBoxes).toBeUndefined();
-    expect(crSkill.boxes.length).toBe(4);
-    expect(ctx.stoneDashboard.combatReflexes).toBeTruthy();
-    expect(ctx.stoneDashboard.combatReflexes.rating).toBe(4);
-    expect(ctx.stoneDashboard.combatReflexes.boxes.length).toBe(4);
+    const keys = ctx.learnedSkills.map((s: any) => s.key);
+    expect(keys).not.toContain('meleeWeapons');
+    expect(keys).not.toContain('combatReflexes');
+    expect(keys).not.toContain('defensiveCombat');
+    expect(ctx.skillCategories.map((c: any) => c.label)).not.toContain('Martial');
+    expect(ctx.stoneDashboard.combatReflexes).toBeUndefined();
+    // Attack prints the physical Attribute pool — Might 16 keep MR 2 — not a Skill.
+    expect(ctx.coreCombat.attack).toBe('16k2');
   });
 
   it('summarizes stone powers like Quick Play (short + per Rank / list)', async () => {

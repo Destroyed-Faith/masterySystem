@@ -197,14 +197,6 @@ const SKILL_GROUPS = [
             .map(([key]) => key)
             .sort((a, b) => SKILLS[a].name.localeCompare(SKILLS[b].name)),
     },
-    {
-        key: 'martial',
-        label: SKILL_CATEGORIES.MARTIAL,
-        skills: Object.entries(SKILLS)
-            .filter(([, def]) => def.category === SKILL_CATEGORIES.MARTIAL)
-            .map(([key]) => key)
-            .sort((a, b) => SKILLS[a].name.localeCompare(SKILLS[b].name)),
-    },
 ];
 function cap(s) {
     return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
@@ -1172,21 +1164,10 @@ export function buildCharacterPrintContext(actor, options = {}) {
     const weaponSetTiles = buildCompactWeaponSetTiles(actor);
     const activeSet = weaponSetTiles.find((t) => t.active) ?? weaponSetTiles[0];
     const weaponDamageOnly = String(activeSet?.meta?.split(' · ')[0] || '').trim() || '—';
-    const combatAttackSkills = ['meleeWeapons', 'handToHand', 'rangedWeapons', 'combatReflexes'];
-    let bestAttack = '';
-    let bestAttackRating = -1;
-    for (const sk of combatAttackSkills) {
-        const rating = num(skillMap[sk]);
-        if (rating <= 0)
-            continue;
-        const def = SKILLS[sk];
-        const attrKey = def?.attributes?.[0];
-        const pool = attrKey ? num(system?.attributes?.[attrKey]?.value) : 0;
-        if (rating > bestAttackRating && pool > 0) {
-            bestAttackRating = rating;
-            bestAttack = `${pool}k${masteryRank}`;
-        }
-    }
+    // Attack rolls use the Attribute pool of the attack (Might for melee, Agility
+    // for ranged); no Skill is involved. Print the stronger physical pool.
+    const attackPool = Math.max(num(system?.attributes?.might?.value), num(system?.attributes?.agility?.value));
+    const bestAttack = attackPool > 0 ? `${attackPool}k${masteryRank}` : '';
     const damageNegation = Math.max(0, num(combat?.damageNegationReserve));
     const damageReductionPct = Math.max(0, Math.min(100, num(combat?.damageReductionPct)));
     const parry = Math.max(0, num(combat?.parryPool));
@@ -1236,17 +1217,6 @@ export function buildCharacterPrintContext(actor, options = {}) {
     });
     const totalPoolStones = dashboardPools.reduce((s, p) => s + p.max, 0);
     const exhaustedSlots = Math.max(masteryRank * 2, Math.min(12, Math.max(6, totalPoolStones)));
-    const crRating = num(skillMap.combatReflexes);
-    const combatReflexes = crRating > 0
-        ? {
-            rating: crRating,
-            label: SKILLS.combatReflexes?.name || 'Combat Reflexes',
-            boxes: buildSkillUseBoxes(crRating, num(skillsSpent.combatReflexes), masteryRank || 1).map((b) => ({
-                size: b.size,
-                state: b.state,
-            })),
-        }
-        : null;
     const stoneDashboard = {
         regeneration: masteryRank,
         initiative: initiativeLabel,
@@ -1256,7 +1226,6 @@ export function buildCharacterPrintContext(actor, options = {}) {
         exhaustedSlots: Array.from({ length: exhaustedSlots }, (_, i) => i + 1),
         powerGroups: stonePowerGroups,
         hasStonePowers: stonePowerGroups.length > 0,
-        combatReflexes,
     };
     const rawImg = String(actor?.img ?? '').trim();
     const portraitSrc = rawImg.replace(/\/Players\/Alaris\.png$/i, '/Players/Alaris/Alaris.png');

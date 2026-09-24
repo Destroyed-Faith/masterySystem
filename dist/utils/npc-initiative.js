@@ -1,6 +1,6 @@
 /**
  * NPC / Summon initiative flat modifier from the sheet combat block.
- * Applied on top of Mastery Rank d8 at combat start (no Combat Reflexes).
+ * Applied on top of Mastery Rank d8 at combat start.
  */
 import { coerceNpcPhasesArray } from './npc-attack-model.js';
 export function clampNpcInitiativeModifier(raw) {
