@@ -12,6 +12,7 @@ export const RADIAL_STANDARD_MANEUVER_IDS = [
     'weapon-swap',
     'weapon-attack',
     'parry-stance',
+    'grapple',
     'aid',
 ];
 /** Maneuver IDs hidden by default; only appear when the player opts in. */
@@ -46,6 +47,7 @@ const RADIAL_PREFS_ROWS = [
     { id: 'weapon-swap', name: 'Weapon Swap', group: 'Bewegung' },
     { id: 'weapon-attack', name: 'Basic Attack', group: 'Angriff' },
     { id: 'parry-stance', name: 'Parry Stance', group: 'Angriff' },
+    { id: 'grapple', name: 'Grapple', group: 'Angriff' },
     { id: 'aid', name: 'Aid', group: 'Reaktion' },
 ];
 /**

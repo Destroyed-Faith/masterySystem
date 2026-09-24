@@ -85,6 +85,48 @@ export async function updateActorViaGm(
   }
 }
 
+/** Only contest cards may be rewritten by a non-author through the GM. */
+export function isRelayableMessageUpdate(message: any, update: unknown): boolean {
+  if (!message || !update || typeof update !== 'object' || Array.isArray(update)) return false;
+  const flags = message.flags?.['mastery-system'] ?? {};
+  if (!flags.attributeContest) return false;
+  const keys = Object.keys(update as object);
+  if (!keys.length) return false;
+  return keys.every((k) => k === 'content' || k === 'flags' || k.startsWith('flags.mastery-system.'));
+}
+
+/**
+ * Update a chat message that the current user may not own (the opponent in
+ * an Attribute Contest answers on the initiator's card). Authors and GMs
+ * write directly; everyone else asks the GM.
+ */
+export async function updateChatMessageViaGm(
+  message: any,
+  update: Record<string, unknown>,
+): Promise<void> {
+  if (!message) return;
+  const g = globalThis as any;
+  const user = g.game?.user;
+  const isAuthor =
+    !!user && (String(message.author?.id ?? message.user?.id ?? '') === String(user.id ?? ''));
+  if (!user || user.isGM || isAuthor) {
+    await message.update(update);
+    return;
+  }
+  if (!isRelayableMessageUpdate(message, update)) {
+    console.warn('Mastery System | Refusing non-relayable message update', Object.keys(update));
+    return;
+  }
+  const ok = await askGm({
+    type: 'gmMessageUpdate',
+    messageId: String(message.id || ''),
+    update,
+  });
+  if (!ok) {
+    throw new Error('GM message update failed or timed out');
+  }
+}
+
 export async function requestCombatNextTurn(): Promise<boolean> {
   const g = globalThis as any;
   const combat = g.game?.combat;

@@ -14,6 +14,18 @@ import {
   skillFullPoolThreshold,
 } from '../dice/roll-context-build.js';
 import {
+  bindCheckContestMode,
+  buildCheckContestSwitchHtml,
+  buildContestSectionHtml,
+  listContestOpponents,
+  readCheckContestMode,
+  readContestDialogChoice,
+  runSheetAttributeContest,
+  type ContestDialogChoice,
+  type ContestOpponentChoice,
+} from '../contests/contest-dialog-section.js';
+import { isContestAttributeKey } from '../contests/opposed-attribute-contest.js';
+import {
   DISADVANTAGES,
   getDisadvantageDefinition,
   calculateDisadvantagePoints,
@@ -4344,6 +4356,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const rollOptions = await this.#promptForAttributeRollOptions(attribute);
     if (!rollOptions) return;
 
+    // Check / Contest — Attribute Contest mode: opposed roll, no TN / Raises.
+    if (rollOptions.mode === 'contest') {
+      if (!rollOptions.contest) {
+        ui.notifications?.warn('Pick an opponent for the contest.');
+        return;
+      }
+      await runSheetAttributeContest(this.actor, rollOptions.contest, rollOptions.contestOpponents);
+      return;
+    }
+
     const actorData = (this.actor as any).system;
     let numDice = actorData.attributes?.[attribute]?.value || 0;
     const keepDice = actorData.mastery?.rank || 2;
@@ -4397,10 +4419,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #promptForAttributeRollOptions(
     attributeKey: string
-  ): Promise<{ baseTN: number; raises: number; finalTN: number } | null> {
+  ): Promise<{
+    mode: 'check' | 'contest';
+    baseTN: number;
+    raises: number;
+    finalTN: number;
+    contest?: ContestDialogChoice;
+    contestOpponents?: ContestOpponentChoice[];
+  } | null> {
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
     const standardTN = standardTnForMasteryRank(masteryRank);
+    const contestOpponents = listContestOpponents(this.actor);
+    const contestSection = isContestAttributeKey(attributeKey)
+      ? buildContestSectionHtml(this.actor, { fixedAttribute: attributeKey, opponents: contestOpponents })
+      : '';
     const difficulties = {
       trivial: Math.max(0, standardTN - 8),
       easy: Math.max(0, standardTN - 4),
@@ -4415,14 +4448,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const content = `
       <form class="mastery-dialog-form">
-        <div class="md-group">
+        ${contestSection ? buildCheckContestSwitchHtml('Attribute Check') : ''}
+        <div class="md-group ms-check-only">
           <label class="md-label">Attribute</label>
           <div class="md-attr-display">
             ${attrLabel} (${attrDice}d8, keep ${masteryRank})
           </div>
         </div>
 
-        <div class="md-group md-group-difficulty">
+        <div class="md-group md-group-difficulty ms-check-only">
           <label class="md-label">Difficulty</label>
           <select name="baseTN" id="attr-roll-baseTN" class="md-select md-select-difficulty">
             <option value="${difficulties.trivial}">Trivial (${difficulties.trivial})</option>
@@ -4441,7 +4475,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           <input type="number" name="customTN" id="attr-roll-customTN" value="${difficulties.standard}" min="0" step="1" class="md-input" />
         </div>
 
-        <div class="md-group">
+        <div class="md-group ms-check-only">
           <label class="md-label">Raises <span class="md-sublabel">(+4 Raise TN each; Normal TN unchanged)</span></label>
           <input type="number" name="raises" id="attr-roll-raises" value="0" min="0" step="1" class="md-input" />
           <div class="md-final-tn">
@@ -4449,18 +4483,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             · Raise TN: <strong><span id="attr-final-tn-display">${difficulties.standard}</span></strong>
           </div>
         </div>
+        ${contestSection}
       </form>
     `;
 
     return new Promise((resolve) => {
       const dialog = new Dialog(
         {
-          title: `Roll ${attrLabel}`,
+          title: contestSection ? `Check / Contest — ${attrLabel}` : `Roll ${attrLabel}`,
           content,
           buttons: {
             roll: {
               label: '<i class="fas fa-dice-d20"></i> Roll',
               callback: (html: JQuery) => {
+                if (contestSection && readCheckContestMode(html) === 'contest') {
+                  const contest = readContestDialogChoice(html);
+                  resolve({
+                    mode: 'contest',
+                    baseTN: 0,
+                    raises: 0,
+                    finalTN: 0,
+                    ...(contest ? { contest } : {}),
+                    contestOpponents,
+                  });
+                  return;
+                }
                 const baseTNSelect = html.find('[name="baseTN"]').val() as string;
                 let baseTN: number;
                 if (baseTNSelect === 'custom') {
@@ -4470,7 +4517,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
                 const raises = parseInt(html.find('[name="raises"]').val() as string) || 0;
                 const finalTN = baseTN + raises * 4;
-                resolve({ baseTN, raises, finalTN });
+                resolve({ mode: 'check', baseTN, raises, finalTN });
               }
             },
             cancel: {
@@ -4485,10 +4532,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog mastery-skill-roll-dialog');
             }, 0);
 
-            $html.find('[name="baseTN"]').on('change', function () {
-              const isCustom = $(this).val() === 'custom';
-              $html.find('#attr-custom-tn-group').toggle(isCustom);
-            });
+            const updateCustomTnVisibility = () => {
+              const isCustom = $html.find('[name="baseTN"]').val() === 'custom';
+              const inCheckMode = !contestSection || readCheckContestMode($html) === 'check';
+              $html.find('#attr-custom-tn-group').toggle(isCustom && inCheckMode);
+            };
+            $html.find('[name="baseTN"]').on('change', updateCustomTnVisibility);
+            if (contestSection) {
+              bindCheckContestMode($html);
+              $html.find('[name="ccMode"]').on('change', updateCustomTnVisibility);
+            }
 
             const updateFinalTN = () => {
               const baseTNSelect = $html.find('[name="baseTN"]').val() as string;
@@ -4510,7 +4563,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         } as any,
         {
           width: 600,
-          height: 440,
+          height: 500,
           resizable: true
         } as any
       );
@@ -4547,6 +4600,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Prompt for roll options (attribute, base TN, raises)
     const rollOptions = await this.#promptForSkillRollOptions(skillKey, skillDef, forcedAttribute);
     if (!rollOptions) return; // User cancelled
+
+    // Check / Contest — Attribute Contest mode leaves the Skill out entirely.
+    if (rollOptions.mode === 'contest') {
+      if (!rollOptions.contest) {
+        ui.notifications?.warn('Pick an opponent for the contest.');
+        return;
+      }
+      await runSheetAttributeContest(this.actor, rollOptions.contest, rollOptions.contestOpponents);
+      return;
+    }
     
     // Perform the roll
     const system = (this.actor as any).system;
@@ -4625,13 +4688,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     forcedAttribute?: string,
     opts?: { marginOnly?: boolean },
   ): Promise<{
+    mode?: 'check' | 'contest';
     attributeKey: string;
     baseTN: number;
     raises: number;
     finalTN: number;
+    contest?: ContestDialogChoice;
+    contestOpponents?: ContestOpponentChoice[];
   } | null> {
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
+    // Echo card rolls (marginOnly) stay pure Skill Checks.
+    const allowContest = !opts?.marginOnly;
+    const contestOpponents = allowContest ? listContestOpponents(this.actor) : [];
 
     // Standard TN = (8 × Challenge MR) − 2. The character's MR affects Keep, not the TN.
     // We default the Challenge to the actor's own MR so a self-test starts
@@ -4675,8 +4744,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const initialPreview = buildPoolPreview(defaultAttribute);
     const marginOnly = !!opts?.marginOnly;
 
+    const skillContestSection = allowContest
+      ? buildContestSectionHtml(this.actor, {
+          defaultAttribute: isContestAttributeKey(defaultAttribute) ? defaultAttribute : 'might',
+          opponents: contestOpponents,
+        })
+      : '';
+
     const content = `
       <form class="mastery-dialog-form">
+        ${allowContest ? buildCheckContestSwitchHtml('Skill Check') : ''}
+        <div class="ms-check-only">
         ${hasMultipleAttributes ? `
           <div class="md-group">
             <label class="md-label">Attribute</label>
@@ -4751,18 +4829,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           </div>
         </div>`
         }
+        </div>
+        ${skillContestSection}
       </form>
     `;
     
     return new Promise((resolve) => {
       const dialog = new Dialog(
         {
-        title: `Roll ${skillDef.name}`,
+        title: allowContest ? `Check / Contest — ${skillDef.name}` : `Roll ${skillDef.name}`,
         content,
         buttons: {
           roll: {
             label: '<i class="fas fa-dice-d20"></i> Roll',
             callback: (html: JQuery) => {
+              if (allowContest && readCheckContestMode(html) === 'contest') {
+                const contest = readContestDialogChoice(html);
+                resolve({
+                  mode: 'contest',
+                  attributeKey: contest?.attributeKey ?? defaultAttribute,
+                  baseTN: 0,
+                  raises: 0,
+                  finalTN: 0,
+                  ...(contest ? { contest } : {}),
+                  contestOpponents,
+                });
+                return;
+              }
               const attributeKey = html.find('[name="attribute"]').val() as string;
               const challengeMRVal = Math.max(
                 1,
@@ -4784,6 +4877,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               const finalTN = baseTN + raises * 4;
 
               resolve({
+                mode: 'check',
                 attributeKey,
                 baseTN,
                 raises,
@@ -4806,6 +4900,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               .closest('.window-app.dialog')
               .addClass('mastery-system mastery-roll-dialog mastery-skill-roll-dialog');
           }, 0);
+
+          if (allowContest) bindCheckContestMode($html);
 
           $html.find('[name="baseTN"]').on('change', function() {
             const isCustom = $(this).val() === 'custom';
@@ -4879,7 +4975,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         } as any,
         {
           width: 600,
-          height: 440,
+          height: 500,
           resizable: true
         } as any
       );

@@ -16,6 +16,17 @@ import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
 import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
 import { getActiveAmmoPair, quiverAmmunitionLabel } from '../utils/ammunition.js';
+/** Attack-slot maneuvers the radial shows (Basic Attack is injected separately). */
+export const RADIAL_ATTACK_MANEUVER_IDS = [
+    'parry-stance',
+    'reload',
+    'drop-load',
+    'grapple',
+    'grapple-escape',
+    'grapple-release',
+];
+/** Grapple family: Grapple reaches like a body (melee reach); escape / release target the partner. */
+export const GRAPPLE_MANEUVER_IDS = ['grapple', 'grapple-escape', 'grapple-release'];
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -326,6 +337,14 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
     }
     // Quick Load does not move
     if (optionId === 'quick-load') {
+        return 0;
+    }
+    // Grapple uses the body's melee reach, never a weapon's range. Escape and
+    // Release act on the creature already linked to this actor.
+    if (optionId === 'grapple') {
+        return 2;
+    }
+    if (optionId === 'grapple-escape' || optionId === 'grapple-release') {
         return 0;
     }
     // Check if it's a melee power/attack
@@ -873,9 +892,11 @@ export async function getAllCombatOptionsForActor(actor) {
             maneuver.tags?.includes('basic-reaction')) {
             continue;
         }
-        // For attack slot: only Parry Stance, Reload, and Drop Load (Weapon Attack is injected separately).
+        // For attack slot: Parry Stance, Reload, Drop Load and the Grapple family
+        // (Weapon Attack is injected separately). Grapple-state gating happens in
+        // `getAvailableManeuvers` (requirements).
         if (maneuver.slot === 'attack') {
-            if (maneuver.id !== 'parry-stance' && maneuver.id !== 'reload' && maneuver.id !== 'drop-load') {
+            if (!RADIAL_ATTACK_MANEUVER_IDS.includes(maneuver.id)) {
                 continue;
             }
             // Drop Load only appears while Encumbered or Overloaded.
@@ -906,7 +927,8 @@ export async function getAllCombatOptionsForActor(actor) {
         const maneuverRange = calculateRange(actor, maneuver.id, maneuver.slot, undefined, undefined);
         // Determine costs
         const costsMovement = maneuver.slot === 'movement' && maneuver.id !== 'stand-up' && maneuver.id !== 'weapon-swap';
-        const costsAction = maneuver.id === 'stand-up' || maneuver.slot === 'attack';
+        // Release Grapple is free; every other attack-slot maneuver spends an Attack Action.
+        const costsAction = maneuver.id !== 'grapple-release' && (maneuver.id === 'stand-up' || maneuver.slot === 'attack');
         // Filter stand-up: only show if prone
         if (maneuver.id === 'stand-up' && !isProne) {
             continue;

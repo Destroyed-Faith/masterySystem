@@ -12867,3 +12867,22 @@ aside#tooltip,
 .v099-respec-dialog .v099-stone-meta {
   font-size: 0.75rem;
 }
+
+/* Check / Contest mode switch in the roll dialogs */
+.mastery-system.mastery-roll-dialog .mastery-dialog-form .ms-mode-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+}
+
+.mastery-system.mastery-roll-dialog .mastery-dialog-form .ms-mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.mastery-system.mastery-roll-dialog .mastery-dialog-form .ms-mode-option input[type="radio"] {
+  margin: 0;
+}

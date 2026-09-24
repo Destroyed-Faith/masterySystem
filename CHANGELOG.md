@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Check / Contest:** Die Wurf-Dialoge des Charakterbogens (Attribut und Skill) haben einen Modus-Schalter. **Skill Check / Attribute Check** bleibt unverändert (Skill, Attribut, TN, Skill-Punkte, Raises). Neu ist **Attribute Contest**: eigenes Attribut wählen, Gegner (anvisierter Token, Szenen-Token oder Actor) wählen, würfeln — kein Skill, keine Skill-Punkte, keine TN, keine Raises. Der Gegner wählt sein Attribut auf der Chat-Karte; die Final Results werden direkt verglichen, höher gewinnt, Gleichstand ändert nichts. Für Armdrücken, Ringen, eine Tür zuhalten, einen Streit in der Taverne, eine Glaubensdebatte oder eine Willensprobe.
+- **Grapple als Kampfmanöver:** Grapple erscheint im Angriffs-Segment des Radial-Menüs neben Basic Attack (Melee Reach, 1 Attack Action). Es nutzt denselben Opposed-Attribute-Contest-Resolver wie der Bogen: Initiator wählt Might oder Agility, Ziel wählt Might oder Agility, höher gewinnt. Gewinnt der Initiator, sind **beide** Kreaturen miteinander Grappled (Speed 0 m, kein freiwilliges Wegbewegen). Option **Target is Unaware** (vorbelegt aus Surprise-Status / Wahrnehmung): Advantage für den Initiator, Disadvantage für das Ziel — nur für den ersten Contest. **Escape Grapple** (Gehaltener, 1 Attack Action, weiterer Contest; Gleichstand hält) und **Release Grapple** (Grappler, kostenlos) stehen situativ im Radial-Menü. Grapple endet mit dem Kampf.
+
+### Changed
+
+- **Grapple ohne Schaden:** Grapple selbst verursacht nie Schaden — der automatische **Mastery-Rank-Schaden („Pressure“) ist entfernt**. Wer den Gehaltenen verletzen will, macht einen normalen **Unarmed Basic Attack** (bestehende Basic-Attack-Regeln); der Griff kann bestehen bleiben. Ein Waffenangriff ist kein Teil des Grapples: Wählt der Grappler einen Waffenangriff, fragt das System nach und löst den Griff vorher. Grapple ist kein Root und ändert weder Evade, Armor, Angriffspools noch Specials. Players Guide (Grapple, Opposed Attribute Contests) entsprechend aktualisiert.
+
 ## [0.9.568] - 2026-09-24
 
 ### Removed

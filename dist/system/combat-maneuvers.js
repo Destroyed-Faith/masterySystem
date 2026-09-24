@@ -12,6 +12,7 @@
  * - Combat Actions/Stances: Use Action slot, provide ongoing benefits
  * - Advanced Specials: Modify Attack actions (Multiattack, Autofire, etc.)
  */
+import { grappleRoleOf } from '../combat/grapple-state.js';
 /**
  * All available Combat Maneuvers — canonical list from Players Guide
  * 6815–6985.
@@ -244,11 +245,38 @@ export const COMBAT_MANEUVERS = [
     {
         id: "grapple",
         name: "Grapple",
-        description: "Restrain a creature within melee reach.",
+        description: "Opposed Attribute Contest to hold a creature within melee reach.",
         slot: "attack",
         category: "combat-action",
-        tags: ["combat-action", "control", "melee"],
-        effect: "Range: Melee Reach. Make an **Opposed Physical Check** (both creatures roll an appropriate physical Attribute Pool — Might or Agility — keep Mastery Rank; no Skill Points are spent). If the attacker wins, the target is **Grappled**: its Speed becomes **0 m** and it cannot voluntarily move away from the grappler. **Escape:** the Grappled creature may spend **1 Attack Action** to repeat the Opposed Physical Check; on a win the Grapple ends, on a tie it remains. **Pressure:** while maintaining the Grapple, the grappler may deal **Mastery Rank damage once per Round**; this damage **ignores Armor**. The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.",
+        tags: ["combat-action", "control", "melee", "contest"],
+        requirements: {
+            requiresNotGrappling: true,
+        },
+        effect: "Costs **1 Attack Action**. Range: Melee Reach. Resolve an **Opposed Attribute Contest** (Opposed Physical Check): you and the target each choose an appropriate physical Attribute — normally Might or Agility — and roll that Attribute Pool, keep Mastery Rank. No TN, no Raises, no Skill Points. Higher Final Result wins; a tie leaves the target free. If you win, **both creatures are Grappled** with each other: Speed **0 m**, neither may voluntarily move away. Grapple is not Root and deals **no damage**; it does not change Evade, Armor, Attack Pools or Specials. To hurt the held creature make a separate **Unarmed Basic Attack**; a weapon attack is not part of the Grapple and requires releasing it first. **Surprise Grapple:** if the target is genuinely unaware of you, you roll the initial contest with Advantage and the target with Disadvantage. The grappler may release the hold at any time; the held creature may spend **1 Attack Action** to attempt an escape (another Opposed Attribute Contest — win ends the Grapple, a tie keeps it).",
+    },
+    {
+        id: "grapple-escape",
+        name: "Escape Grapple",
+        description: "Spend 1 Attack Action on an Opposed Attribute Contest to break free.",
+        slot: "attack",
+        category: "combat-action",
+        tags: ["combat-action", "control", "contest"],
+        requirements: {
+            requiresGrappleRole: "held",
+        },
+        effect: "Costs **1 Attack Action**. Resolve an **Opposed Attribute Contest** against the grappler (Might or Agility, keep Mastery Rank; no TN, no Raises, no Skill Points). If you win, the Grapple ends. If you lose or tie, the Grapple remains.",
+    },
+    {
+        id: "grapple-release",
+        name: "Release Grapple",
+        description: "Let go of the creature you are holding (free).",
+        slot: "attack",
+        category: "combat-action",
+        tags: ["combat-action", "control"],
+        requirements: {
+            requiresGrappleRole: "grappler",
+        },
+        effect: "Voluntarily end the Grapple. Costs nothing. Both creatures lose the Grappled state. Required before you attack the held creature with a weapon.",
     },
     {
         id: "reckless-attack",
@@ -380,6 +408,14 @@ function meetsRequirements(actor, maneuver) {
         const isProne = system.effects?.prone === true ||
             actor.getFlag('mastery-system', 'prone') === true;
         if (isProne)
+            return false;
+    }
+    // Grapple state gates
+    if (req.requiresGrappleRole || req.requiresNotGrappling) {
+        const role = grappleRoleOf(actor);
+        if (req.requiresNotGrappling && role !== null)
+            return false;
+        if (req.requiresGrappleRole && role !== req.requiresGrappleRole)
             return false;
     }
     // Check minimum attribute requirement

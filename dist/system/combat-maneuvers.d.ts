@@ -32,6 +32,10 @@ export interface ManeuverRequirements {
     requiresFreeHand?: boolean;
     requiresProne?: boolean;
     requiresStanding?: boolean;
+    /** Only while this actor is in a Grapple with the given role. */
+    requiresGrappleRole?: 'grappler' | 'held';
+    /** Only while this actor is not part of any Grapple. */
+    requiresNotGrappling?: boolean;
     minAttribute?: {
         attribute: string;
         value: number;

@@ -207,6 +207,13 @@ export async function runCombatEndCleanup(combat: any): Promise<void> {
   await resetTempHpAfterCombat(combat);
   await clearColorlessStonesAfterCombat(combat);
   await clearNpcOngoingEffectsAfterCombat(combat);
+  // Grapples do not outlive the fight (the `grappled` status was wiped above).
+  try {
+    const { clearGrappleAfterCombat } = await import('./grapple-state.js');
+    await clearGrappleAfterCombat(collectCleanupActors(combat));
+  } catch (err) {
+    console.warn('Mastery System | Grapple cleanup failed', err);
+  }
   // A new post-combat First Aid window opens (once per creature per combat).
   try {
     const { clearFirstAidFlags } = await import('../utils/first-aid.js');

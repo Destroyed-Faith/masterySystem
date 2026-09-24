@@ -161,6 +161,12 @@ export function initializeTokenActionSelector() {
                 if (!ok)
                     return;
             }
+            // Grapple is an Opposed Attribute Contest, not an attack card.
+            if (option?.source === 'maneuver' && option.maneuver?.id === 'grapple') {
+                const { beginGrappleContest } = await import('./combat/grapple-actions.js');
+                await beginGrappleContest(attackerToken, targetToken);
+                return;
+            }
             await createMeleeAttackCard(attackerToken, targetToken, option, null, aoeMelee);
         }
         catch (e) {
@@ -939,6 +945,44 @@ export async function handleChosenCombatOption(token, option) {
             ui.notifications?.warn('Could not enter Parry.');
         }
         return;
+    }
+    // Release Grapple (grappler, free): end the pair link.
+    if (option.source === 'maneuver' && option.maneuver?.id === 'grapple-release') {
+        closeRadialMenu();
+        const { releaseGrappleAction } = await import('./combat/grapple-actions.js');
+        await releaseGrappleAction(token);
+        return;
+    }
+    // Escape Grapple (held creature, 1 Attack Action): Opposed Attribute Contest vs the grappler.
+    if (option.source === 'maneuver' && option.maneuver?.id === 'grapple-escape') {
+        const atkAvail = getAvailableAttackActions(actor, combat);
+        if (atkAvail <= 0) {
+            ui.notifications?.warn('No Actions left this round.');
+            return;
+        }
+        closeRadialMenu();
+        const { beginGrappleEscape } = await import('./combat/grapple-actions.js');
+        await beginGrappleEscape(token);
+        return;
+    }
+    // Grapple itself continues into the melee-targeting branch below; the
+    // meleeTargetSelected hook routes it to the contest card instead of an attack card.
+    // A grappler attacking with a weapon has to let go first (unarmed Basic
+    // Attack and spells keep the hold). Asked once, before targeting starts.
+    if (option.slot === 'attack' && segmentId !== 'active-buff') {
+        try {
+            const { attackRequiresGrappleRelease } = await import('./combat/grapple-state.js');
+            const { describeActiveWeaponProfile } = await import('./utils/weapon-sets.js');
+            if (attackRequiresGrappleRelease(actor, option, { unarmedNow: describeActiveWeaponProfile(actor).unarmed })) {
+                const { confirmReleaseGrappleForWeaponAttack } = await import('./combat/grapple-actions.js');
+                const proceed = await confirmReleaseGrappleForWeaponAttack(token, option.name);
+                if (!proceed)
+                    return;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | grapple weapon-attack gate failed', err);
+        }
     }
     // Check if this is a melee attack option
     // NPC attacks: tagged melee / not ranged (Reach may be up to 8m).

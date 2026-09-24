@@ -3049,6 +3049,8 @@ Hooks.once('ready', async function () {
     registerAidReactionClickHandler();
     const { registerWeaponSwapChatHandler } = await import('./chat/weapon-swap-card.js');
     registerWeaponSwapChatHandler();
+    const { registerContestCardClickHandler } = await import('./contests/contest-card.js');
+    registerContestCardClickHandler();
     const { registerWordOfRecallChatHandler } = await import('./stones/word-of-recall-mark.js');
     registerWordOfRecallChatHandler();
     const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');

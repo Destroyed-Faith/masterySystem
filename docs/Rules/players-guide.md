@@ -2348,6 +2348,21 @@ If several creatures oppose the same Setup Roll, each rolls separately against t
 
 ---
 
+### Opposed Attribute Contests
+
+Some confrontations are direct competitions of raw Attribute against Attribute, with no Skill involved: arm wrestling, wrestling as a sport, holding a door shut against someone, a prolonged tavern argument, a theological dispute, an intellectual contest, or a test of will or presence.
+
+In these situations, use an **Opposed Attribute Contest**:
+
+- Each creature chooses an appropriate Attribute (the GM decides which Attributes fit).
+- Each rolls that Attribute Pool and keeps Mastery Rank.
+- No Skill, no Skill Points, no TN, no Raises.
+- Compare the Final Results directly. The **higher result wins**. A **tie** means the existing situation remains unchanged.
+
+Eligible Passives, Active Buffs, Artifact effects, Stones, and other explicit modifiers apply normally. Combat **Grapple** and its Escape use this same resolution with their own combat costs and consequences (see Grapple).
+
+---
+
 ### No Roll Spam
 
 A setup roll is made once for the scene, situation, obstacle, or attempt. Do not reroll the setup every time another creature reacts to it. A new setup roll is only allowed if the situation meaningfully changes.
@@ -9748,21 +9763,29 @@ If you gain additional Attack Actions, you may use them to make additional Basic
 :
 #### Grapple
 
+**Cost:** 1 Attack Action
+
 **Range:** Melee Reach
 
-**Check:** Make an **Opposed Physical Check**.
+**Check:** Resolve an **Opposed Attribute Contest** (Opposed Physical Check).
 
-Both creatures roll an appropriate physical Attribute Pool (Might or Agility) and keep Mastery Rank. No Skill Points are spent.
+The initiator chooses an appropriate physical Attribute — normally Might or Agility. The target chooses an appropriate physical Attribute — normally Might or Agility. Both roll that Attribute Pool and keep Mastery Rank. No TN, no Raises, no Skill Points. The higher Final Result wins.
 
-If the attacker wins, the target becomes **Grappled**. If the defender wins or the check ties, the Grapple fails.
+If the initiator wins, **both creatures become Grappled with each other**. If the target wins or the contest ties, the target remains free and nothing changes.
 
-**Grappled:** The creature's Speed becomes **0 m** and it cannot voluntarily move away from the grappler.
+**Surprise Grapple:** If the target is genuinely unaware of the initiator when the Grapple begins, the initiator has **Advantage** and the target has **Disadvantage**. This applies only to the initial contest; afterwards the target is aware. This does not replace or modify the normal Surprise rules.
 
-**Escape:** The Grappled creature may spend **1 Attack Action** to repeat the Opposed Physical Check. If it wins, the Grapple ends. If the check ties, the Grapple remains.
+**Grappled:** Grapple is not Root. While two creatures are Grappled with each other, both have Speed **0 m** and neither can voluntarily move away from the other. Grapple itself deals no damage and does not alter Evade, Armor, Attack Pools, or Specials.
 
-**Pressure:** While maintaining the Grapple, the grappler may deal **Mastery Rank Damage once per Round**. This damage ignores Armor.
+**Release:** The grappler may voluntarily release the Grapple at any time.
 
-The Grapple also ends if the grappler releases the target or can no longer physically maintain the hold.
+**Escape:** The held creature may spend **1 Attack Action** on another Opposed Attribute Contest. If it wins, the Grapple ends. If the contest ties or it loses, the Grapple remains.
+
+**Damage while Grappling:** Grapple never deals damage. To hurt the other participant while keeping the hold, make a separate **Unarmed Basic Attack** (a normal Attack Action resolved through the normal attack rules). The Grapple may remain active after an Unarmed Basic Attack.
+
+**Weapons:** Using a weapon against the held creature is a normal weapon Attack, not part of the Grapple. Either you are using the Grapple to physically restrain the creature, or you are making a weapon Attack — they are separate actions. A grappler must release the Grapple before making a weapon Attack.
+
+The Grapple also ends if the grappler can no longer physically maintain the hold.
 
 
 }}

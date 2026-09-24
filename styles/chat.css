@@ -1154,3 +1154,91 @@ prose-mirror#chat-message.chat-input > .editor-container {
 #chat-log .ms-weapon-swap.is-done p {
   margin: 0;
 }
+/* ── Attribute Contest card (sheet Check / Contest + combat Grapple) ── */
+#chat-log .ms-contest-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+#chat-log .ms-contest-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+#chat-log .ms-contest-hint {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+#chat-log .ms-contest-side {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+#chat-log .ms-contest-side.ms-contest-pending {
+  border-style: dashed;
+}
+
+#chat-log .ms-contest-role {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+  margin-right: 0.25rem;
+}
+
+#chat-log .ms-contest-dice,
+#chat-log .ms-contest-total {
+  font-size: 0.85rem;
+}
+
+#chat-log .ms-contest-mod {
+  font-size: 0.78rem;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+#chat-log .ms-contest-autofail {
+  color: #8b0000;
+  font-size: 0.8rem;
+}
+
+#chat-log .ms-contest-answer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.3rem 0;
+}
+
+#chat-log .ms-contest-answer-btn,
+.ms-theme-rulebook #chat-log .ms-contest-answer-btn {
+  flex: 1 1 8rem;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  padding: 0.3rem 0.5rem;
+}
+
+#chat-log .ms-contest-outcome {
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(139, 0, 0, 0.08);
+  border: 1px solid rgba(139, 0, 0, 0.25);
+}
+
+#chat-log .ms-contest-outcome-tie {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+#chat-log .ms-contest-consequence {
+  font-size: 0.82rem;
+}
+
+#chat-log .ms-grapple-note h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}

@@ -3,7 +3,7 @@
  * owning player — not only the GM. Combat document writes stay on the GM.
  */
 import { ENCOUNTER_SOCKET, resolveLiveCombat, shouldShowEncounterDialogLocally, } from './combat-permissions.js';
-import { isRelayableActorUpdate } from './gm-relay.js';
+import { isRelayableActorUpdate, isRelayableMessageUpdate } from './gm-relay.js';
 import { canViewerSeeEndTurn } from './end-turn.js';
 function requesterMayAdvanceTurn(combat, userId) {
     const user = game.users?.get?.(userId);
@@ -111,13 +111,20 @@ async function handleEncounterSocket(payload) {
         }
         return;
     }
-    if (type === 'gmActorUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative' || type === 'gmDefeatedPresentation') {
+    if (type === 'gmActorUpdate' || type === 'gmMessageUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative' || type === 'gmDefeatedPresentation') {
         if (!game.user?.isGM)
             return;
         let ok = false;
         try {
             if (type === 'gmActorUpdate') {
                 ok = await applyRelayedActorUpdate(payload);
+            }
+            else if (type === 'gmMessageUpdate') {
+                const message = game.messages?.get?.(String(payload.messageId || ''));
+                if (message && isRelayableMessageUpdate(message, payload.update)) {
+                    await message.update(payload.update);
+                    ok = true;
+                }
             }
             else if (type === 'gmDefeatedPresentation') {
                 const { writeDefeatedPresentation } = await import('./defeated-token.js');
