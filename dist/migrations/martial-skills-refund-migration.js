@@ -55,21 +55,29 @@ export function planMartialSkillsRefund(actor) {
         hasAnyLegacyKey(system.xp?.postCreationProgress?.skills) ||
         hasAnyLegacyKey(system.xp?.postCreationProgress?.skillsSpent) ||
         hasAnyLegacyKey(system.creation?.skillsRedistributeBackup);
+    const creationBudget = system.creation?.complete === false;
+    const deferred = system.creation?.skillsRedistributing === true;
     return {
         alreadyRefunded,
         byKey,
-        refund: alreadyRefunded ? 0 : refund,
+        refund: alreadyRefunded || creationBudget ? 0 : refund,
         hasLegacyData,
+        creationBudget,
+        deferred,
     };
 }
 /**
  * Update batch for one character, or `null` when nothing needs to change.
  * Refunds once (flag), strips legacy keys every time they are found.
+ * Characters still in creation only lose the keys (their creation budget
+ * frees the points); a running skill redistribution is left alone until done.
  */
 export function martialSkillsRefundUpdate(actor) {
     if (!actor || (actor.type && actor.type !== 'character'))
         return null;
     const plan = planMartialSkillsRefund(actor);
+    if (plan.deferred)
+        return null;
     if (plan.alreadyRefunded && !plan.hasLegacyData)
         return null;
     const system = actor.system ?? {};
@@ -106,12 +114,15 @@ export function martialSkillsRefundUpdate(actor) {
         }
     }
     if (!plan.alreadyRefunded) {
-        const currentUnspent = rating(system.skillPoints?.unspent);
-        updates['system.skillPoints.unspent'] = currentUnspent + plan.refund;
+        if (!plan.creationBudget) {
+            const currentUnspent = rating(system.skillPoints?.unspent);
+            updates['system.skillPoints.unspent'] = currentUnspent + plan.refund;
+        }
         updates[`flags.mastery-system.${MARTIAL_SKILLS_REFUND_FLAG}`] = true;
         updates['system.progression.martialSkillsRefund'] = {
             total: plan.refund,
             byKey: plan.byKey,
+            creationBudget: plan.creationBudget,
             migratedAt: Date.now(),
         };
     }

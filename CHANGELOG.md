@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Skill-Punkte-Rückerstattung (Migration):** Jeder Charakter bekommt die dauerhaft investierten Ratings der fünf entfernten Skills als **unverbrauchte Skill-Punkte** (`system.skillPoints.unspent`) zurück — das volle Rating, nicht den Restwert (Melee Weapons 8 mit 2 verbleibend → 8 Punkte). Die alten Skill-Daten werden gelöscht. Läuft genau einmal pro Charakter; ein Flag verhindert doppelte Rückerstattung, spätere Läufe entfernen nur noch Altdaten. Keine Umwandlung in XP, keine automatische Verteilung.
+- **Skill-Punkte-Rückerstattung (Migration):** Jeder Charakter bekommt die dauerhaft investierten Ratings der fünf entfernten Skills als **unverbrauchte Skill-Punkte** (`system.skillPoints.unspent`) zurück — das volle Rating, nicht den Restwert (Melee Weapons 8 mit 2 verbleibend → 8 Punkte). Die alten Skill-Daten werden gelöscht. Läuft genau einmal pro Charakter; ein Flag verhindert doppelte Rückerstattung, spätere Läufe entfernen nur noch Altdaten. Charaktere, die noch in der Erschaffung sind, verlieren nur die alten Keys — ihr 40-Punkte-Budget gibt die Punkte selbst frei; ein laufendes Skill-Redistribute wird erst nach Abschluss migriert. Keine Umwandlung in XP, keine automatische Verteilung.
 - **Unverbrauchte Skill-Punkte verteilen:** Der Skills-Tab und der Progression Hub zeigen den Pool an. Jeder Klick auf **+** setzt zuerst einen unverbrauchten Skill-Punkt (1 Punkt = +1 Rating, Limit Mastery Rank × 4, kein Einmal-pro-Sitzung-Limit); erst danach kostet ein Rang XP. Ränge, die mit Skill-Punkten bezahlt wurden, gehen beim Senken in den Pool zurück statt XP zu erstatten. Die XP-Neuberechnung des SL zählt sie nicht als XP.
 
 ### Changed

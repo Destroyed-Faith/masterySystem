@@ -22,11 +22,21 @@ export interface MartialSkillsRefundPlan {
     refund: number;
     /** Legacy keys still present anywhere on the actor (skills, spent, snapshot, backup). */
     hasLegacyData: boolean;
+    /**
+     * Character creation is still open: its 40-point budget is the sum of
+     * `system.skills`, so deleting the legacy keys already frees the points
+     * there. No pool refund, or the points would count twice.
+     */
+    creationBudget: boolean;
+    /** Skill redistribution is in progress: defer until it is finished or cancelled. */
+    deferred: boolean;
 }
 export declare function planMartialSkillsRefund(actor: any): MartialSkillsRefundPlan;
 /**
  * Update batch for one character, or `null` when nothing needs to change.
  * Refunds once (flag), strips legacy keys every time they are found.
+ * Characters still in creation only lose the keys (their creation budget
+ * frees the points); a running skill redistribution is left alone until done.
  */
 export declare function martialSkillsRefundUpdate(actor: any): Record<string, unknown> | null;
 export declare function runMartialSkillsRefundMigration(actors: any[]): Promise<number>;

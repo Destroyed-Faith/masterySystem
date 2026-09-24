@@ -163,6 +163,48 @@ describe('Martial Skills refund migration', () => {
     expect(actor.system.xp.postCreationProgress.skillPointsUnspent).toBe(4);
   });
 
+  it('does not refund into the pool while character creation is still open (the 40-point budget frees the points)', async () => {
+    const actor = makeActor({
+      skills: { athletics: 4, meleeWeapons: 4, combatReflexes: 4 },
+      skillsSpent: {},
+      creation: { complete: false },
+    });
+    const plan = planMartialSkillsRefund(actor);
+    expect(plan.creationBudget).toBe(true);
+    expect(plan.refund).toBe(0);
+    await runMartialSkillsRefundMigration([actor]);
+    expect(actor.system.skills).toEqual({ athletics: 4 });
+    expect(actor.system.skillPoints).toBeUndefined();
+    expect(actor.getFlag('mastery-system', MARTIAL_SKILLS_REFUND_FLAG)).toBe(true);
+    // Creation budget: 40 − 4 = 36 points left to place, no second copy in a pool.
+    const spent = Object.values(actor.system.skills as Record<string, number>).reduce((a, b) => a + b, 0);
+    expect(40 - spent).toBe(36);
+  });
+
+  it('defers characters that are in the middle of a skill redistribution', async () => {
+    const actor = makeActor({
+      skills: { athletics: 0, meleeWeapons: 0 },
+      skillsSpent: {},
+      creation: {
+        complete: true,
+        skillsRedistributing: true,
+        skillsRedistributeBackup: { athletics: 4, meleeWeapons: 4 },
+      },
+    });
+    expect(planMartialSkillsRefund(actor).deferred).toBe(true);
+    expect(martialSkillsRefundUpdate(actor)).toBeNull();
+    expect(await runMartialSkillsRefundMigration([actor])).toBe(0);
+    expect(actor.getFlag('mastery-system', MARTIAL_SKILLS_REFUND_FLAG)).toBeUndefined();
+
+    // Cancelled redistribute restores the backup; the next run refunds the restored rating once.
+    actor.system.creation.skillsRedistributing = false;
+    actor.system.skills = { athletics: 4, meleeWeapons: 4 };
+    delete actor.system.creation.skillsRedistributeBackup;
+    expect(await runMartialSkillsRefundMigration([actor])).toBe(1);
+    expect(actor.system.skillPoints.unspent).toBe(4);
+    expect(actor.system.skills).toEqual({ athletics: 4 });
+  });
+
   it('keeps the legacy identifiers out of the active Skill catalog', () => {
     for (const key of LEGACY_MARTIAL_SKILL_KEYS) {
       expect(SKILLS[key]).toBeUndefined();
