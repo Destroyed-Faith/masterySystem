@@ -248,8 +248,9 @@ export async function masteryRoll(options) {
         try {
             const actor = game?.actors?.get?.(options.actorId);
             if (actor) {
-                // Mechanics-engine dice delta — only meaningful for typed roll kinds.
-                if (kind && kind !== 'generic') {
+                // Mechanics-engine dice delta — only for the kinds the engine tracks
+                // (attack / skill / damage). Generic and contest pools get none.
+                if (kind === 'attack' || kind === 'skill' || kind === 'damage') {
                     const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
                     const targetActor = options.targetActorId
                         ? (game?.actors?.get?.(options.targetActorId) ?? null)

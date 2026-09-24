@@ -5,7 +5,9 @@
 import { MasteryRollResult } from '../types';
 import { type CheckContext } from '../system/auto-fail.js';
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
-export type MasteryRollKind = 'attack' | 'skill' | 'damage' | 'generic';
+export type MasteryRollKind = 'attack' | 'skill' | 'damage'
+/** Opposed Attribute Contest side (sheet Check / Contest, combat Grapple). No attack / skill dice deltas. */
+ | 'contest' | 'generic';
 export interface RollOptions {
     numDice: number;
     keepDice: number;

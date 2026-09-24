@@ -72,7 +72,7 @@ describe('Opposed Attribute Contest — shared resolver', () => {
     expect(opts.stoneBonusRaises).toBe(0);
     expect(opts.isSkillRoll).toBe(false);
     expect(opts.skillKey).toBeUndefined();
-    expect(opts.rollKind).toBe('generic');
+    expect(opts.rollKind).toBe('contest');
     expect(opts.poolAttribute).toBe('might');
     expect(opts.applyPoolPenalties).toBe(true);
     expect(opts.skipChat).toBe(true);

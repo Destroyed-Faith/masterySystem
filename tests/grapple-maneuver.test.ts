@@ -250,7 +250,7 @@ describe('Grapple contest flow (mocked dice + action economy)', () => {
     expect(o.isSkillRoll).toBe(false);
     expect(o.tn).toBe(0);
     expect(o.declaredRaiseSlots).toBe(0);
-    expect(o.rollKind).toBe('generic');
+    expect(o.rollKind).toBe('contest');
     const state = msg.flags['mastery-system'][ATTRIBUTE_CONTEST_FLAG];
     expect(state.resolved).toBe(false);
     expect(state.attackActionSpent).toBe(true);

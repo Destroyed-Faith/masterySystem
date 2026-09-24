@@ -2325,7 +2325,7 @@ Examples include:
 
 In these situations, use an **Opposed Skill Roll** instead of a fixed TN.
 
-**Exception:** **Grapple** and **Pursuit** use repeated opposed checks through their own combat rules. Those rules override this procedure.
+**Exception:** **Grapple** is an Opposed Attribute Contest (see below), not an Opposed Skill Roll. **Pursuit** uses repeated opposed checks through its own combat rules. Those rules override this procedure.
 
 #### Setup Roll
 
@@ -2345,21 +2345,6 @@ The opposing creature makes the relevant Skill Check against the Opposed TN.
 - **Final Result < Opposed TN:** Failure.
 
 If several creatures oppose the same Setup Roll, each rolls separately against the same Opposed TN.
-
----
-
-### Opposed Attribute Contests
-
-Some confrontations are direct competitions of raw Attribute against Attribute, with no Skill involved: arm wrestling, wrestling as a sport, holding a door shut against someone, a prolonged tavern argument, a theological dispute, an intellectual contest, or a test of will or presence.
-
-In these situations, use an **Opposed Attribute Contest**:
-
-- Each creature chooses an appropriate Attribute (the GM decides which Attributes fit).
-- Each rolls that Attribute Pool and keeps Mastery Rank.
-- No Skill, no Skill Points, no TN, no Raises.
-- Compare the Final Results directly. The **higher result wins**. A **tie** means the existing situation remains unchanged.
-
-Eligible Passives, Active Buffs, Artifact effects, Stones, and other explicit modifiers apply normally. Combat **Grapple** and its Escape use this same resolution with their own combat costs and consequences (see Grapple).
 
 ---
 
@@ -2396,6 +2381,21 @@ A creature hides its tracks with a **Stealth Final Result of 21**. A tracker rol
 
 **Deception vs Investigation.**  
 A creature lies with a **Deception Final Result of 24**. A suspicious listener rolls **Investigation against TN 24**.
+
+---
+
+### Opposed Attribute Contests
+
+Some confrontations are direct competitions of raw Attribute against Attribute, with no Skill involved: arm wrestling, wrestling as a sport, holding a door shut against someone, a prolonged tavern argument, a theological dispute, an intellectual contest, or a test of will or presence.
+
+This is **not** an Opposed Skill Roll. There is no Setup Roll and no Opposed TN.
+
+- Each creature chooses an appropriate Attribute (the GM decides which Attributes fit).
+- Each rolls that Attribute Pool and keeps Mastery Rank.
+- No Skill, no Skill Points, no TN, no Raises.
+- Compare the Final Results directly. The **higher result wins**. A **tie** means the existing situation remains unchanged.
+
+Eligible Passives, Active Buffs, Artifact effects, Stones, and other explicit modifiers apply normally. In combat, **Grapple** and its Escape are resolved as Opposed Attribute Contests; their costs and consequences are listed under Grapple only.
 
 
 

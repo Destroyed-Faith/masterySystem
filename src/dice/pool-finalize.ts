@@ -23,7 +23,7 @@ import { applyHealthAndEncumbrancePenalties } from '../utils/encumbrance.js';
 
 export interface FinalizePoolOptions {
   /** 'attack' enables the Challenge reduction and attack-intent auto-fail. */
-  rollKind?: 'attack' | 'skill' | 'damage' | 'generic';
+  rollKind?: 'attack' | 'skill' | 'damage' | 'contest' | 'generic';
   /** Attribute the pool is built from — drives Weaken / Soulburn. */
   poolAttribute?: string;
   /** Target refs of the attack (actor ids / uuids / token ids). */

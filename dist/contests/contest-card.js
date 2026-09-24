@@ -399,6 +399,7 @@ export async function promptContestAttribute(actor, choices, opts) {
     const unaware = opts.unawareOption
         ? `<div class="md-group">
         <label class="md-label"><input type="checkbox" name="targetUnaware" ${opts.unawareDefault ? 'checked' : ''}/> Target is Unaware <span class="md-sublabel">(Surprise Grapple: you roll with Advantage, the target with Disadvantage — initial contest only)</span></label>
+        <p class="md-sublabel">${opts.unawareDefault ? 'Preselected from the Surprise status / perception state — a suggestion only.' : 'Not suggested by the Surprise status / perception state.'} The fiction decides: change it as needed.</p>
       </div>`
         : '';
     const content = `<form class="mastery-dialog-form ms-contest-prompt">

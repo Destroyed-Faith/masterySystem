@@ -40,7 +40,8 @@ export function contestKeepDice(actor) {
  * Roll options for one contest side. Attribute dice, keep Mastery Rank,
  * Pool & Keep with the normal pool-reduction stages. Deliberately no
  * `skillKey`, no `isSkillRoll`, no TN and no Raises, and `rollKind`
- * `'generic'` so attack- or skill-only dice deltas do not apply.
+ * `'contest'` — identifiable in hooks and logs, and outside the attack /
+ * skill dice-delta paths of the mechanics engine.
  */
 export function buildContestRollOptions(actor, attributeKey, input) {
     const numDice = contestAttributeDice(actor, attributeKey);
@@ -63,7 +64,7 @@ export function buildContestRollOptions(actor, attributeKey, input) {
         actorRef: input.actorRef ?? actor,
         isSkillRoll: false,
         baseModifier: 0,
-        rollKind: 'generic',
+        rollKind: 'contest',
         poolAttribute: attributeKey,
         applyPoolPenalties: true,
         skipChat: true,
