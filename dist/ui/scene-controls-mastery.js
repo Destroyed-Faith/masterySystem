@@ -6,6 +6,7 @@ import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { confirmAndApplySafeHavenRestToAllCharacters } from '../utils/safe-haven-rest.js';
 import { UnluckGmDialog } from './unluck-gm-dialog.js';
 import { KnownNpcsGmDialog } from './known-npcs-gm-dialog.js';
+import { handleLightingToolClick } from '../vision/lighting-scene-controls.js';
 /**
  * Resolve combatant for active actor
  */
@@ -148,8 +149,14 @@ function bindMasteryToolClicks() {
             return;
         const toolName = button.getAttribute('data-tool');
         const handler = toolName ? MASTERY_TOOL_HANDLERS[toolName] : undefined;
-        if (!handler)
+        if (!handler) {
+            if (toolName && handleLightingToolClick(toolName)) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                ev.stopImmediatePropagation();
+            }
             return;
+        }
         ev.preventDefault();
         ev.stopPropagation();
         ev.stopImmediatePropagation();

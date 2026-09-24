@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Szenenbeleuchtung (Lighting):** Neue SL-Szenensteuerung **Lighting: AUTO / DAY / DIM / NIGHT / DARK** mit Lichtquellen-Buttons. Der Modus wird pro Szene gespeichert (Standard AUTO, auch für alte Szenen) und ist zusätzlich in der Szenenkonfiguration wählbar. AUTO leitet den Zustand aus der aktuellen Watch des Tyhra-Kalenders ab: Erste + Zweite Watch → Daylight, Dritte → Dim Light, Vierte → Night; ohne Kalenderinformation bleibt der bisherige Zustand. Manuelle Modi überschreiben die Watch. Der Gruppentitel zeigt den Effektivzustand („Lighting: AUTO — Fourth Watch → NIGHT“ / „Lighting: DARK — Manual Override“).
+- **Sichtweite nach Beleuchtung:** Normal Combat Awareness sieht 60 m; die Szene begrenzt nur den Sicht-Kanal: Daylight 60 m, Dim Light 30 m, Night 8 m, Total Darkness 0 m. Darkvision hebt Night und Total Darkness auf 30 m an, ersetzt aber nie die 60 m bei Tageslicht. Spezielle Combat Senses (Tremor, Life, Mage, Sonar, Predator) behalten in Dunkelheit ihre Reichweite. Gerendert wird über Foundrys eigene Dunkelheit / globale Beleuchtung; die gerenderte Sichtweite von Spieler-Tokens wird zur Laufzeit gekappt, die 60 m am Token bleiben unverändert.
+- **Lichtquellen:** Kerze 2 m hell / 4 m dämmrig, Fackel 8 / 16 m, Laterne 12 / 24 m als Foundry-Tokenlicht auf ausgewählte Tokens. Im hellen Radius gilt Daylight, im dämmrigen Dim Light, außerhalb der Szenenzustand.
+- **Spieler-Token-Sicht:** Neue Spielercharaktere und Prototype Tokens mit Sichtweite 0 erhalten Vision an, 60 m, 360°, Basic Vision. Bewusst angepasste Sicht bleibt erhalten, NSC-Tokens werden nicht angefasst. Foundry-Token-Vision ist nicht das Combat-Sense-System: Ein NSC ohne gerenderte Sicht ist weder blind noch automatisch unaware — Wahrnehmung, Surprise, Stealth und der Grapple-Hinweis „Target is Unaware“ nutzen weiterhin die Mastery-Regeln.
+
 ## [0.9.569] - 2026-09-24
 
 ### Added

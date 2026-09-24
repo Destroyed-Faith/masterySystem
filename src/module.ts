@@ -77,6 +77,13 @@ import { registerEncounterSocket } from './combat/encounter-socket.js';
 import { canCurrentUserUpdateDocument } from './combat/combat-permissions.js';
 import { findShutdownCombat } from './combat/combat-shutdown.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
+import { initializeLightingSceneControls } from './vision/lighting-scene-controls.js';
+import { installVisionRangeCap, registerSceneLightingHooks } from './vision/scene-lighting-foundry.js';
+import {
+  applyPlayerVisionToCreateData,
+  planTokenCreateSightUpdate,
+  runPlayerVisionDefaultsMigration,
+} from './vision/token-vision-defaults.js';
 import { initializeSceneEditor } from './scene-editor/register.js';
 import { initializeHitBlockerProbe } from './debug/hit-blocker-probe.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
@@ -309,6 +316,10 @@ Hooks.once('init', async function() {
 
   // Initialize scene controls
   initializeSceneControls();
+  // Scene lighting (Daylight / Dim / Night / Darkness) — GM control + Watch-driven AUTO.
+  initializeLightingSceneControls();
+  registerSceneLightingHooks();
+  installVisionRangeCap();
   initializeTokenHUDButton();
   initializeSceneEditor();
   initializeHitBlockerProbe();
@@ -2516,6 +2527,16 @@ Hooks.on('preCreateItem', (item: any, data: any, _options: any, _userId: string)
   }
 });
 
+Hooks.on('preCreateToken', (tokenDoc: any, data: any) => {
+  try {
+    const actorType = String(tokenDoc?.actor?.type ?? '');
+    const sightUpdate = planTokenCreateSightUpdate(actorType, tokenDoc?.toObject?.() ?? data);
+    if (sightUpdate) tokenDoc.updateSource?.(sightUpdate);
+  } catch (err) {
+    console.warn('Mastery System | token vision defaults on create failed', err);
+  }
+});
+
 Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId: string) => {
   // Set creationComplete=false for new character actors
   if (actor.type === 'character') {
@@ -2550,6 +2571,16 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     data.flags['mastery-system'].v099CorePrepared = true;
     data.flags['mastery-system'].needsV099Respec = false;
     data.flags['mastery-system'].needsV099LifetimeXp = lifetimeUnknown;
+    // Rendering baseline for player tokens: Vision on, 60 m, 360°, Basic Vision.
+    applyPlayerVisionToCreateData('character', data);
+    try {
+      actor.updateSource?.({
+        'prototypeToken.sight': data.prototypeToken.sight,
+        'flags.mastery-system.visionInitialized': true,
+      });
+    } catch (err) {
+      console.warn('Mastery System | prototype vision defaults failed', err);
+    }
   }
   
   // Initialize health bars (6 levels for characters, 1 for NPCs)
@@ -3400,6 +3431,17 @@ Hooks.once('ready', async function() {
     }
   } catch (error) {
     console.warn('Mastery System | Skill refund migration failed', error);
+  }
+
+  // Player prototype tokens: initialize missing Foundry vision (60 m / 360° / Basic);
+  // deliberately customized sight stays. NPC tokens are never touched.
+  try {
+    const normalized = await runPlayerVisionDefaultsMigration(migrationActors);
+    if (normalized > 0) {
+      console.log(`Mastery System | Player token vision initialized on ${normalized} character(s).`);
+    }
+  } catch (error) {
+    console.warn('Mastery System | player vision defaults migration failed', error);
   }
 
   // Migration: base Speed 6 → 8 (Rules v0.9.8).

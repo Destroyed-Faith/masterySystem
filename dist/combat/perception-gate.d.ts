@@ -1,5 +1,11 @@
 /**
  * Perception gating — can an observer perceive / target a creature through Combat Senses?
+ *
+ * Mechanical perception only. Foundry Token Vision (sight range, vision
+ * mode, enabled flag) and the scene lighting layer (`src/vision`) are
+ * rendering for the user and are deliberately not consulted here: an NPC
+ * whose token has vision disabled is not blind, and Total Darkness does not
+ * make a creature unaware — hearing, smell, touch and instinct remain.
  */
 import type { CombatSenseId } from './combat-senses.js';
 export interface PerceptionGateResult {
