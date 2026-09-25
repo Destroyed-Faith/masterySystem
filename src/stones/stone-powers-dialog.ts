@@ -545,20 +545,6 @@ function getStonePowersContentRoot(app: any): HTMLElement | null {
 }
 
 /**
- * Element that actually scrolls: the template root carries `max-height` +
- * `overflow-y: auto`, not the ApplicationV2 wrapper. Saving/restoring the
- * wrapper's `scrollTop` always reads 0, which is why placing a stone jumped
- * the view back to the top.
- */
-function getStonePowersScrollRoot(app: any): HTMLElement | null {
-  const el = app?.element as HTMLElement | undefined;
-  if (!el) return null;
-  const inner = el.querySelector('.stone-powers-dialog') as HTMLElement | null;
-  if (inner) return inner;
-  return getStonePowersContentRoot(app);
-}
-
-/**
  * Slot unter dem Mauszeiger — `ev.target` beim drop/dragover sitzt oft auf Kindern oder einer
  * benachbarten Zelle; sonst akzeptiert der Browser den Drop auf `slot-locked` obwohl visuell „aktiv“ wirkte.
  */
@@ -629,8 +615,12 @@ export class StonePowersDialog extends BaseDialog {
   private _stonePaidLanes = new Map<string, StoneAccumulatorValue>();
   /** True while a render triggered from `_onRender` is still pending. */
   private _stoneRenderQueued = false;
-  /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
-  private _stonePowersContentScrollTop = 0;
+  /**
+   * Scroll vor dem Re-Render. Fenster (`.window-content`) und die innere
+   * Dialogfläche scrollen getrennt — nur eine davon zu merken setzt die
+   * Ansicht auf Damage Reduction bzw. die erste offene Attribut-Sektion.
+   */
+  private _stoneScroll = { content: 0, dialog: 0, frame: 0 };
   /** Stone Recovery (round 2+): stones the player takes back, per pool. */
   private _recoveryAlloc: Record<string, number> = {};
   /** Round the current recovery belongs to — a new round starts from scratch. */
@@ -1618,12 +1608,30 @@ export class StonePowersDialog extends BaseDialog {
     );
   }
 
-  /** Scroll position of the template root (the element that actually scrolls). */
+  /** Scroll position of every surface that can move when a stone is placed. */
   #rememberStonePowersScroll(): void {
-    const scrollRoot = getStonePowersScrollRoot(this as any);
-    if (scrollRoot && scrollRoot.scrollTop > 0) {
-      this._stonePowersContentScrollTop = scrollRoot.scrollTop;
-    }
+    const el = (this as any).element as HTMLElement | undefined;
+    if (!el?.isConnected) return;
+    const dialog = el.querySelector('.stone-powers-dialog') as HTMLElement | null;
+    const content = el.querySelector('.window-content') as HTMLElement | null;
+    // A render that already tore the template down reads 0 everywhere and
+    // would throw the view back to the first open section.
+    if (!dialog) return;
+    this._stoneScroll = {
+      content: content?.scrollTop ?? 0,
+      dialog: dialog.scrollTop ?? 0,
+      frame: el.scrollTop ?? 0,
+    };
+  }
+
+  #restoreStonePowersScroll(): void {
+    const el = (this as any).element as HTMLElement | undefined;
+    if (!el) return;
+    const content = el.querySelector('.window-content') as HTMLElement | null;
+    const dialog = el.querySelector('.stone-powers-dialog') as HTMLElement | null;
+    if (content) content.scrollTop = this._stoneScroll.content;
+    if (dialog) dialog.scrollTop = this._stoneScroll.dialog;
+    el.scrollTop = this._stoneScroll.frame;
   }
 
   /** Re-render that keeps the scroll position (used after every stone edit). */
@@ -1638,13 +1646,12 @@ export class StonePowersDialog extends BaseDialog {
     this._stoneRenderQueued = false;
     this.#pullSessionPartialsIntoInstance();
 
-    const st = this._stonePowersContentScrollTop;
-    if (st > 0) {
-      requestAnimationFrame(() => {
-        const scrollRoot = getStonePowersScrollRoot(this as any);
-        if (scrollRoot) scrollRoot.scrollTop = st;
-      });
-    }
+    const restoreScroll = () => this.#restoreStonePowersScroll();
+    restoreScroll();
+    requestAnimationFrame(() => {
+      restoreScroll();
+      requestAnimationFrame(restoreScroll);
+    });
 
     const root = getStonePowersContentRoot(this);
     if (!root) {
@@ -2467,13 +2474,13 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   /**
-   * General Power: erstes Attribut mit mindestens einem freien Stein
-   * (Kern-Attribute; Wits nur für Rituale). Colorless Stones sind der letzte
-   * Ausweg — sie sollen nur zahlen, wenn kein Attribut-Pool mehr trägt.
+   * General Power: erstes Attribut mit mindestens einem freien Stein,
+   * Wits eingeschlossen. Colorless Stones sind der letzte Ausweg — sie
+   * sollen nur zahlen, wenn kein Attribut-Pool mehr trägt.
    */
   #firstGenericAttrWithSpendable(poolKeys: Set<string>): string | null {
     return pickStoneFillAttribute(
-      ALL_STONE_ATTRS.filter((attr) => attr !== 'wits'),
+      ALL_STONE_ATTRS,
       (attr) => poolKeys.has(attr),
       (attr) => this.#spendableNetForAttr(attr)
     );

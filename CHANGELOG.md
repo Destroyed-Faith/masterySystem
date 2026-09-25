@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.583] - 2026-09-25
+
+### Fixed
+
+- **Stone Powers:** Ein Linksklick verteilt auch Wits-Steine. Der Dialog bleibt an der Stelle, an der der Stein gesetzt wurde, statt zu Damage Reduction, Resolve oder Intellect zu springen.
+
+### Changed
+
+- **Kampf-Karussell:** Über der Lebensleiste stehen nur noch Temporary HP und Scarred. Darunter stehen die abgezogenen Prozent (0%, −10%, −20%, …). Name und Prozent stehen im Hover.
+
 ## [0.9.582] - 2026-09-25
 
 ### Added

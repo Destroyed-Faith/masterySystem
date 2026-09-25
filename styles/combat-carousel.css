@@ -574,8 +574,10 @@
 
 .ms-hp-bar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
+  gap: 4px;
+  min-height: 0.85rem;
   font-size: 0.68rem;
   font-weight: 600;
   color: #f3f3f3;
@@ -693,7 +695,7 @@
   min-width: 0;
   overflow: hidden;
   text-align: center;
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: rgba(243, 243, 243, 0.78);
