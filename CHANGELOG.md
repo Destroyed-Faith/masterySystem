@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.580] - 2026-09-25
+
+### Changed
+
+- **Stein-Auswahl:** Der Dialog an der Lifetime-XP-Leiste nutzt das Regelbuch-Thema. Attribute liegen als Kacheln, Colorless und Lösen als volle Zeilen.
+
 ## [0.9.579] - 2026-09-25
 
 ### Added

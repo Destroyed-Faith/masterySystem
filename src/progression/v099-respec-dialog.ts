@@ -318,7 +318,7 @@ export function openStoneSlotChoice(args: {
   const attrButtons = args.attributeChoices
     .map(
       (key) =>
-        `<button type="button" class="v099-pick" data-choice="attribute" data-key="${key}">${ATTRIBUTE_ABBREV[key]} (${args.counts[key] ?? 0})</button>`,
+        `<button type="button" class="v099-pick" data-choice="attribute" data-key="${key}"><span class="v099-pick-abbrev">${ATTRIBUTE_ABBREV[key]}</span><span class="v099-pick-count">${args.counts[key] ?? 0}</span></button>`,
     )
     .join('');
   const colorlessBtn = args.colorless
@@ -340,8 +340,8 @@ export function openStoneSlotChoice(args: {
       {
         title: args.label,
         content: `<form class="v099-respec-form" onsubmit="return false;">
-          <p>Choose where this Stone goes. A Permanent Colorless Stone takes this box and one other open box.</p>
-          <div class="v099-pick-list">${attrButtons}${colorlessBtn}${clearBtn}</div>
+          <p class="v099-pick-intro">Choose where this Stone goes. A Permanent Colorless Stone takes this box and one other open box.</p>
+          <div class="v099-pick-list"><div class="v099-pick-attrs">${attrButtons}</div>${colorlessBtn}${clearBtn}</div>
         </form>`,
         buttons: {
           cancel: { label: 'Cancel', callback: () => finish({ kind: 'cancel' }) },
@@ -349,7 +349,7 @@ export function openStoneSlotChoice(args: {
         default: 'cancel',
         close: () => finish({ kind: 'cancel' }),
       },
-      { width: 460, classes: ['v099-respec-dialog'] },
+      { width: 460, classes: ['mastery-system', 'v099-respec-dialog', 'v099-stone-choice'] },
     );
     dialog.activateListeners = function activate(html: any) {
       DialogCtor.prototype?.activateListeners?.call(dialog, html);
@@ -400,14 +400,14 @@ function openPartnerChoice(label: string, partners: Array<{ index: number; label
       {
         title: `${label} — second box`,
         content: `<form class="v099-respec-form" onsubmit="return false;">
-          <p>A Permanent Colorless Stone replaces two Stones. Choose the second open box.</p>
+          <p class="v099-pick-intro">A Permanent Colorless Stone replaces two Stones. Choose the second open box.</p>
           <div class="v099-pick-list">${buttons}</div>
         </form>`,
         buttons: { cancel: { label: 'Cancel', callback: () => finish(null) } },
         default: 'cancel',
         close: () => finish(null),
       },
-      { width: 420, classes: ['v099-respec-dialog'] },
+      { width: 420, classes: ['mastery-system', 'v099-respec-dialog', 'v099-stone-choice'] },
     );
     dialog.activateListeners = function activate(html: any) {
       DialogCtor.prototype?.activateListeners?.call(dialog, html);

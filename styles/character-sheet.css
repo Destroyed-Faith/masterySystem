@@ -12829,6 +12829,112 @@ aside#tooltip,
   justify-content: flex-end;
 }
 
+.window-app.dialog.mastery-system.v099-stone-choice,
+.application.mastery-system.v099-stone-choice {
+  background: var(--ms-bg, #20272b);
+  border: 1px solid var(--ms-border, #3a3f44);
+  color: var(--ms-text, #d0d0d0);
+  box-shadow: 0 12px 38px var(--ms-shadow, rgba(0, 0, 0, 0.55));
+  border-radius: var(--ms-radius, 8px);
+  font-family: var(--ms-font-body, 'Cormorant Garamond', Georgia, serif);
+}
+
+.mastery-system.v099-stone-choice .window-header {
+  background: linear-gradient(to bottom, var(--ms-panel, #2a3136), var(--ms-bg, #20272b));
+  border-bottom: 2px solid var(--ms-border, #3a3f44);
+  color: var(--ms-text, #d0d0d0);
+}
+
+.mastery-system.v099-stone-choice .window-title {
+  color: var(--ms-text, #f0f0f0);
+  font-family: var(--ms-font-head, 'Laviossa', serif);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mastery-system.v099-stone-choice .window-content {
+  background: var(--ms-bg, #20272b);
+  color: var(--ms-text, #d0d0d0);
+  padding: 14px 16px 10px;
+}
+
+.mastery-system.v099-stone-choice .v099-pick-intro,
+.mastery-system.v099-stone-choice .v099-pick-hint {
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--ms-panel, #2a3136);
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 8px;
+  color: var(--ms-text, #d0d0d0);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.mastery-system.v099-stone-choice .v099-pick-attrs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mastery-system.v099-stone-choice .v099-pick {
+  background: var(--ms-panel, #2a3136);
+  color: var(--ms-text, #d0d0d0);
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.mastery-system.v099-stone-choice .v099-pick[data-choice="attribute"] {
+  min-width: 4.4rem;
+  min-height: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  padding: 0.3rem 0.45rem;
+  text-align: center;
+  border-color: rgba(125, 154, 106, 0.75);
+  background: rgba(125, 154, 106, 0.16);
+}
+
+.mastery-system.v099-stone-choice .v099-pick-abbrev {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.mastery-system.v099-stone-choice .v099-pick-count {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.mastery-system.v099-stone-choice .v099-pick[data-choice="colorless"],
+.mastery-system.v099-stone-choice .v099-pick[data-choice="clear"],
+.mastery-system.v099-stone-choice .v099-pick[data-index] {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+}
+
+.mastery-system.v099-stone-choice .v099-pick:hover {
+  border-color: var(--ms-accent, #aeb5c0);
+  background: var(--ms-panel2, #343b40);
+}
+
+.mastery-system.v099-stone-choice .dialog-buttons {
+  background: transparent;
+  border-top: 1px solid var(--ms-border, #3a3f44);
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+}
+
+.mastery-system.v099-stone-choice .dialog-buttons button {
+  background: var(--ms-panel2, #343b40);
+  color: var(--ms-text, #d0d0d0);
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 6px;
+}
+
 .v099-respec-dialog .v099-stone-grid,
 .v099-respec-dialog .v099-pick-list {
   display: flex;
