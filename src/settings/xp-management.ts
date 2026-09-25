@@ -109,6 +109,23 @@ export class XpManagementSettings extends BaseApplication {
 
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+
+    const applyXpTarget = () => {
+      const raw = String(html.find('.xp-target-input').val() ?? '').trim();
+      const goal = raw === '' ? 0 : Math.floor(Number(raw));
+      const hasTarget = Number.isFinite(goal) && goal > 0;
+      html.find('tr[data-after-spend]').each((_, rowEl) => {
+        const row = $(rowEl);
+        const after = Math.floor(Number(row.attr('data-after-spend')) || 0);
+        const need = hasTarget ? Math.max(0, goal - after) : 0;
+        row.find('.xp-to-target').text(hasTarget ? String(need) : '—');
+        row.find('.free-xp-amount-input').val(hasTarget ? need : 0);
+      });
+    };
+    html.find('.xp-target-input').on('input', applyXpTarget);
+    html.find('.xp-target-input').on('keydown', (event) => {
+      if ((event as any).key === 'Enter') event.preventDefault();
+    });
     
     // Helper function to get XP state
     const getXpState = (actor: any) => {

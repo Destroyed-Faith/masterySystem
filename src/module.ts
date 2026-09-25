@@ -1859,6 +1859,22 @@ function setupXpManagementInline() {
     
     if ((game as any).user?.isGM) htmlContent += buildValueTableHtml(characters);
     customContainer.html(htmlContent);
+    const applyXpTarget = () => {
+      const raw = String(customContainer.find('.xp-target-input').val() ?? '').trim();
+      const goal = raw === '' ? 0 : Math.floor(Number(raw));
+      const hasTarget = Number.isFinite(goal) && goal > 0;
+      customContainer.find('tr[data-after-spend]').each((_, rowEl) => {
+        const row = $(rowEl);
+        const after = Math.floor(Number(row.attr('data-after-spend')) || 0);
+        const need = hasTarget ? Math.max(0, goal - after) : 0;
+        row.find('.xp-to-target').text(hasTarget ? String(need) : '—');
+        row.find('.free-xp-amount-input').val(hasTarget ? need : 0);
+      });
+    };
+    customContainer.find('.xp-target-input').on('input', applyXpTarget);
+    customContainer.find('.xp-target-input').on('keydown', (event) => {
+      if ((event as any).key === 'Enter') event.preventDefault();
+    });
     
     // Replace the input
     settingInput.hide();

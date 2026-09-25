@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appraiseBuild, attributeXpAboveFreePackage, buildValueTableHtml } from '../src/progression/build-value';
+import { appraiseBuild, attributeXpAboveFreePackage, buildValueTableHtml, xpGrantToTarget } from '../src/progression/build-value';
 
 describe('build value at current rules', () => {
   it('prices nothing for the free Attribute package', () => {
@@ -127,6 +127,15 @@ describe('build value at current rules', () => {
     expect(html).toContain('reset-progress-xp-btn');
     expect(html).toContain('>55<');
     expect(html).toContain('>63<');
+    expect(html).toContain('xp-target-input');
+    expect(html).toContain('data-after-spend="63"');
     expect(html).not.toContain('grant-xp-btn');
+  });
+
+  it('grants only the gap up to a shared target', () => {
+    expect(xpGrantToTarget(145, 160)).toBe(15);
+    expect(xpGrantToTarget(160, 160)).toBe(0);
+    expect(xpGrantToTarget(170, 150)).toBe(0);
+    expect(xpGrantToTarget(136, 0)).toBe(0);
   });
 });

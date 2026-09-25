@@ -25,6 +25,14 @@
   --xp-free: #c4a35a;
 }
 
+.mastery-xp-management-inline .xp-target-input,
+.mastery-xp-management .xp-target-input {
+  display: block;
+  width: 4.5rem;
+  margin-top: 0.2rem;
+  padding: 0.1rem 0.25rem;
+}
+
 .mastery-xp-management-inline,
 .mastery-xp-management {
   padding: 1rem;

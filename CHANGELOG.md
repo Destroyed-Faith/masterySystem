@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.579] - 2026-09-25
+
+### Added
+
+- **Build-Wert:** In der Spalte Bis Ziel steht ein Zielfeld. Darunter erscheint pro Charakter, wie viele XP noch fehlen, damit Nach Ausgabe diese Zahl erreicht. Derselbe Betrag liegt im Vergabefeld, der Stern gibt ihn aus. Wer schon darüber liegt, bekommt 0.
+
 ## [0.9.578] - 2026-09-25
 
 ### Changed

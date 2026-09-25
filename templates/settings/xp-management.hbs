@@ -51,12 +51,16 @@
               <th>Skill-Basis</th>
               <th title="Noch nicht ausgegebene XP.">XP</th>
               <th title="Netto plus übrige XP.">Nach Ausgabe</th>
+              <th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">
+                Bis Ziel
+                <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen." />
+              </th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {{#each buildValues}}
-            <tr data-character-id="{{this.id}}">
+            <tr data-character-id="{{this.id}}" data-after-spend="{{this.afterSpend}}">
               <td>{{this.name}}</td>
               <td>{{this.attributes}}</td>
               <td title="{{this.skillNote}}">{{this.skills}}</td>
@@ -66,7 +70,8 @@
               <td>{{this.unspentSkillPoints}}</td>
               <td>{{this.skillBasisLabel}}</td>
               <td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP."><strong>{{this.unspentFreeXp}}</strong></td>
-              <td title="Netto plus übrige XP. So steht der Bogen, wenn diese XP ausgegeben sind."><strong>{{this.afterSpend}}</strong></td>
+              <td class="xp-after-spend" title="Netto plus übrige XP. So steht der Bogen, wenn diese XP ausgegeben sind."><strong>{{this.afterSpend}}</strong></td>
+              <td class="xp-to-target" data-after-spend="{{this.afterSpend}}" title="XP, die noch fehlen, damit Nach Ausgabe das Ziel erreicht.">—</td>
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group grant-group-free">
@@ -92,7 +97,7 @@
               </td>
             </tr>
             {{else}}
-            <tr><td colspan="11">Keine Charaktere.</td></tr>
+            <tr><td colspan="12">Keine Charaktere.</td></tr>
             {{/each}}
           </tbody>
         </table>
