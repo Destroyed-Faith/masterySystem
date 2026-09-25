@@ -86,8 +86,18 @@ describe('wave settlement guard', () => {
     ).toBe(false);
   });
 
-  it('never charges in review mode', () => {
-    expect(shouldSettleStoneWave({ ...base, reviewMode: true })).toBe(false);
+  it('still settles an unpaid wave while the dialog is only reviewing', () => {
+    expect(shouldSettleStoneWave({ ...base, reviewMode: true })).toBe(true);
+  });
+
+  it('does not re-charge a paid wave just because the dialog is in review', () => {
+    expect(
+      shouldSettleStoneWave({
+        ...base,
+        reviewMode: true,
+        paidAccKeys: ['might.evade:might:0'],
+      }),
+    ).toBe(false);
   });
 
   it('ignores waves whose usage level no longer matches', () => {

@@ -17,9 +17,11 @@ import {
   STONE_POWERS_BY_ATTRIBUTE,
   STONE_TIER_HARD_MAX,
   STONE_TIER_PRACTICAL_MAX,
+  completeStoneRankPayment,
   cumulativeStoneCostForRank,
   highestCompleteStoneTierFromPlaced,
   isPremiumStonePower,
+  partitionStoneLanesByCompleteRanks,
   resolveOncePerCombatStoneTier,
   scaleStoneTier,
   stonePowerRankCost,
@@ -684,6 +686,51 @@ describe('once-per-combat highest complete Rank', () => {
     expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 7)).toBe(3);
     expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 14)).toBe(3);
     expect(highestCompleteStoneTierFromPlaced('wits.initiativeBoost', 15)).toBe(4);
+  });
+
+  it('turns six Extra Attack stones into Rank 2, not a rejected first wave of two', () => {
+    expect(completeStoneRankPayment('generic.extraAttack', 6, 0, 0)).toEqual({
+      tier: 2,
+      spendCount: 6,
+      ranksGained: 2,
+    });
+    expect(completeStoneRankPayment('generic.extraAttack', 2, 0, 0)).toEqual({
+      tier: 1,
+      spendCount: 2,
+      ranksGained: 1,
+    });
+    expect(completeStoneRankPayment('generic.extraAttack', 1, 0, 0)).toBeNull();
+    expect(completeStoneRankPayment('generic.extraAttack', 7, 0, 0)).toEqual({
+      tier: 2,
+      spendCount: 6,
+      ranksGained: 2,
+    });
+    expect(completeStoneRankPayment('generic.extraAttack', 20, 0, 0)).toEqual({
+      tier: 4,
+      spendCount: 20,
+      ranksGained: 4,
+    });
+  });
+
+  it('includes a free Support Rank once the paid ranks under it are covered', () => {
+    expect(completeStoneRankPayment('generic.extraAttack', 2, 0, 2)).toEqual({
+      tier: 2,
+      spendCount: 2,
+      ranksGained: 2,
+    });
+  });
+
+  it('spends only the lanes of the complete ranks and leaves the rest', () => {
+    const lanes = [0, 1, 2, 3, 4, 5, 6].map((lane) => ({ lane, attr: 'intellect' }));
+    const split = partitionStoneLanesByCompleteRanks('generic.extraAttack', lanes, 0, 0);
+    expect(split?.payment.tier).toBe(2);
+    expect(split?.spend.map((row) => row.lane)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(split?.leftover.map((row) => row.lane)).toEqual([6]);
+  });
+
+  it('refuses a pile whose count would pay a rank but whose lanes skip ahead', () => {
+    const lanes = [2, 3, 4, 5, 6, 7].map((lane) => ({ lane, attr: 'might' }));
+    expect(partitionStoneLanesByCompleteRanks('generic.extraAttack', lanes, 0, 0)).toBeNull();
   });
 
   it('reads 2 / 6 / 12 / 20 Premium stones as R1 / R2 / R3 / R4 (Phasing)', () => {

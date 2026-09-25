@@ -176,6 +176,94 @@ export function highestCompleteStoneTierFromPlaced(
 }
 
 /**
+ * Ranks a single Apply can turn on from the stones sitting on the card.
+ * Costs are additional and in order (Premium Extra Attack: 2, then 4).
+ * Six stones from Rank 0 therefore reach Rank 2 and spend all six — not
+ * only the first wave of two. A pre-filled Rank costs nothing and is
+ * included once the ranks below it are covered. Stones past the last
+ * complete Rank stay unspent (`placed - spendCount`).
+ */
+export interface CompleteStoneRankPayment {
+  /** Highest Rank reached, inclusive. */
+  tier: number;
+  /** Stones that pay the newly completed Ranks. */
+  spendCount: number;
+  /** How many usage steps this payment records. */
+  ranksGained: number;
+}
+
+export function completeStoneRankPayment(
+  powerId: string,
+  placed: number,
+  usesBefore = 0,
+  prefillRank = 0,
+): CompleteStoneRankPayment | null {
+  const n = Math.max(0, Math.floor(Number(placed) || 0));
+  const start = Math.max(0, Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(usesBefore) || 0)));
+  const prefill = effectiveStoneSupportPrefillTier(powerId, prefillRank);
+  if (start >= STONE_TIER_HARD_MAX) return null;
+  let remaining = n;
+  let tier = start;
+  let spend = 0;
+  for (let r = start + 1; r <= STONE_TIER_HARD_MAX; r += 1) {
+    const cost = r === prefill ? 0 : stonePowerRankCost(powerId, r);
+    if (remaining < cost) break;
+    remaining -= cost;
+    spend += cost;
+    tier = r;
+  }
+  if (tier <= start) return null;
+  return { tier, spendCount: spend, ranksGained: tier - start };
+}
+
+/** Payable lane indexes for Ranks `fromRank`..`toRank` (the pre-filled Rank is omitted). */
+export function paidLaneSetForStoneRanks(
+  powerId: string,
+  fromRank: number,
+  toRank: number,
+  prefillRank = 0,
+): Set<number> {
+  const prefill = effectiveStoneSupportPrefillTier(powerId, prefillRank);
+  const from = Math.max(1, Math.floor(Number(fromRank) || 1));
+  const to = Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(toRank) || 0));
+  const set = new Set<number>();
+  for (let r = from; r <= to; r += 1) {
+    if (r === prefill) continue;
+    for (const lane of stonePaymentLanesForTier(powerId, r)) set.add(lane);
+  }
+  return set;
+}
+
+/**
+ * Split occupied lanes into the complete Rank prefix and the leftover.
+ * Returns null when the stone count would pay a Rank but those lanes are
+ * not actually filled (a gap). That pile must not be charged.
+ */
+export function partitionStoneLanesByCompleteRanks<T extends { lane: number }>(
+  powerId: string,
+  lanes: readonly T[],
+  usesBefore = 0,
+  prefillRank = 0,
+): { payment: CompleteStoneRankPayment; spend: T[]; leftover: T[] } | null {
+  const payment = completeStoneRankPayment(powerId, lanes.length, usesBefore, prefillRank);
+  if (!payment) return null;
+  const covered = paidLaneSetForStoneRanks(
+    powerId,
+    Math.max(0, Math.floor(Number(usesBefore) || 0)) + 1,
+    payment.tier,
+    prefillRank,
+  );
+  const spend: T[] = [];
+  const leftover: T[] = [];
+  for (const row of lanes) {
+    if (covered.has(row.lane)) spend.push(row);
+    else leftover.push(row);
+  }
+  if (spend.length !== payment.spendCount) return null;
+  return { payment, spend, leftover };
+}
+
+/**
  * Once-per-combat powers apply the highest complete cluster once. A Support
  * prefill makes its named Rank free; every other Rank is paid from the
  * placed Stones in order.

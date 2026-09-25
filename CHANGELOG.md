@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.586] - 2026-09-25
+
+### Fixed
+
+- **Extra Attack:** Sechs Steine auf der Karte sind Rang 2 (+2 Angriffe). Die Abrechnung hat die ganze Zahlung verworfen, weil sie exakt die nächste Welle (2 Steine) verlangt hat — deshalb blieb der Zähler bei 1 und es stand kein Rang auf der Karte. Volle Ränge werden jetzt zusammen eingeschaltet. Unter dem Namen steht der Rang (z. B. „Rank 2: +2 Attack Actions“). Das Radial zeigt danach Atk 3: ein Grundangriff plus zwei Extra Attacks. Ein bereits bestätigter, aber nie bezahlter Stapel wird beim nächsten Schließen des Stein-Dialogs nachgezogen.
+
 ## [0.9.585] - 2026-09-25
 
 ### Fixed

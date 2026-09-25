@@ -285,6 +285,7 @@
           </div>
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{power.effectLong}}">{{power.name}}</strong>
+            {{#if power.rankCaption}}<span class="power-rank-caption">{{power.rankCaption}}</span>{{/if}}
             {{#if power.supportTier}}<span class="power-support-badge{{#unless power.supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{power.supportSource}}): {{#if power.supportActive}}{{power.supportHint}}{{else}}Artifact Support already applied — Rank {{power.supportTier}} cost no Stones.{{/if}}"><i class="fas fa-gem"></i> R{{power.supportTier}}</span>{{/if}}
           </div>
         </div>
@@ -355,6 +356,7 @@
           </div>
           <div class="power-title power-title-general">
             <strong class="power-name" title="{{effectLong}}">{{name}}</strong>
+            {{#if rankCaption}}<span class="power-rank-caption">{{rankCaption}}</span>{{/if}}
             {{#if boostUsed}}<span class="power-once-used-badge" title="This Stone Power may be used only once per combat.">Once this combat</span>{{/if}}
             {{#if supportTier}}<span class="power-support-badge{{#unless supportActive}} is-spent{{/unless}}" title="Stone Power Support ({{supportSource}}): {{#if supportActive}}{{supportHint}}{{else}}Artifact Support already applied — Rank {{supportTier}} cost no Stones.{{/if}}"><i class="fas fa-gem"></i> R{{supportTier}}</span>{{/if}}
           </div>
