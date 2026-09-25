@@ -97,6 +97,30 @@ describe('round state across the prepare phase', () => {
     });
   });
 
+  it('drops Spell Action attacks already written into this round', () => {
+    const actor = mockActor('oda');
+    const combat = setupGame([actor], 2);
+    actor.flags['mastery-system'].roundState = {
+      combatId: 'cmb1',
+      round: 2,
+      turn: 0,
+      isPC: true,
+      movementActions: { total: 1, used: 0 },
+      attackActions: { total: 5, used: 0 },
+      reactionActions: { total: 1, used: 0 },
+      stoneBonuses: { extraAttacks: 4, extraSpellActions: 2 },
+    };
+
+    const live = getRoundState(actor as any, combat as any);
+    expect(live.attackActions.total).toBe(3);
+    expect(live.stoneBonuses?.extraAttacks).toBe(2);
+    expect(live.stoneBonuses?.extraSpellActions).toBe(0);
+
+    const again = getRoundState(actor as any, combat as any);
+    expect(again.attackActions.total).toBe(3);
+    expect(again.stoneBonuses?.extraAttacks).toBe(2);
+  });
+
   it('initializes actors that never went through the prepare phase', async () => {
     const actor = mockActor('a2');
     const combat = setupGame([actor], 1);

@@ -23,6 +23,8 @@ import {
   STONE_TIER_HARD_MAX,
   resolveStonePowerId,
   isPremiumStonePower,
+  isRetiredStonePower,
+  RETIRED_STONE_POWER_MESSAGE,
   effectiveStoneSupportPrefillTier,
   stonePowerRankCost,
   stonePowerSegmentSizes,
@@ -927,7 +929,8 @@ export class StonePowersDialog extends BaseDialog {
 
     const preparePowerData = (power: any, attrKey: AttributeKey) => {
       /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
-      const isRemoveScar = power.id === REMOVE_SCAR_POWER_ID;
+      const retired = isRetiredStonePower(power.id);
+    const isRemoveScar = power.id === REMOVE_SCAR_POWER_ID;
       const liveUses = isRemoveScar
         ? getRemoveScarResolvedMaxTier(this.actor)
         : getStoneUsageCount(this.actor, attrKey, power.id, combat);
@@ -954,6 +957,7 @@ export class StonePowersDialog extends BaseDialog {
         !!this.combatant &&
         isOncePerCombatPowerUsed(this.combatant, power.id);
       const canAfford =
+        !retired &&
         !tierCapped && !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
       const gross = spendableForAttr(attrKey);
       const reserved = this.#reservedStonesInDialogForAttr(attrKey);
@@ -982,7 +986,7 @@ export class StonePowersDialog extends BaseDialog {
         power.id,
         usesThisTurn,
         spendableNet,
-        stonePlanLocked,
+        stonePlanLocked || retired,
         occupied,
         `${power.id}/${attrKey}`,
         supportLanes,
@@ -1009,8 +1013,19 @@ export class StonePowersDialog extends BaseDialog {
         hideLeadSegment: false,
         ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
         ...(rankFields.waveReady ? rankFields : { rankCaption: rankFields.rankCaption }),
-        activated:
-          stonePowerActivationRing(liveUses).activated || rankFields.waveReady,
+        activated: retired
+          ? stonePowerActivationRing(liveUses).activated
+          : stonePowerActivationRing(liveUses).activated || rankFields.waveReady,
+        retired,
+        ...(retired
+          ? {
+              rankCaption: 'Parked — use Extra Attack',
+              pendingActivation: false,
+              pendingLabel: '',
+              waveReady: false,
+              canAfford: false,
+            }
+          : {}),
         ...laneSegs
       };
     };
@@ -1046,10 +1061,11 @@ export class StonePowersDialog extends BaseDialog {
     
     const generalPowers = genericPowers.map((power) => {
       const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
+      const retired = isRetiredStonePower(power.id);
       const support = supportForPower(power.id);
       const supportTier = support?.tier ?? 0;
       const nextCost = nextStoneWaveCost(power.id, usesThisTurn, supportTier);
-      const canAfford = nextCost > 0 && canAffordGenericNextCost(nextCost);
+      const canAfford = !retired && nextCost > 0 && canAffordGenericNextCost(nextCost);
       const description = power.description || power.effect || '';
       const spendableNet = totalSpendableNetAllPools();
       const genericKey = genericUnifiedAccKey(power.id, usesThisTurn);
@@ -1072,7 +1088,7 @@ export class StonePowersDialog extends BaseDialog {
         power.id,
         usesThisTurn,
         spendableNet,
-        stonePlanLocked,
+        stonePlanLocked || retired,
         occupied,
         `${power.id}/general`,
         supportLanes,
@@ -1097,7 +1113,19 @@ export class StonePowersDialog extends BaseDialog {
         hideLeadSegment: false,
         ...stonePowerCardVisuals(power.name, occupied.length, nextCost, liveUses),
         ...(rankFields.waveReady ? rankFields : { rankCaption: rankFields.rankCaption }),
-        activated: stonePowerActivationRing(liveUses).activated || rankFields.waveReady,
+        activated: retired
+          ? stonePowerActivationRing(liveUses).activated
+          : stonePowerActivationRing(liveUses).activated || rankFields.waveReady,
+        retired,
+        ...(retired
+          ? {
+              rankCaption: 'Parked — use Extra Attack',
+              pendingActivation: false,
+              pendingLabel: '',
+              waveReady: false,
+              canAfford: false,
+            }
+          : {}),
         ...laneSegs
       };
     });
@@ -2018,6 +2046,13 @@ export class StonePowersDialog extends BaseDialog {
     const { powerId, middle, uses: usesInKey } = parsed;
     const def = STONE_POWERS[powerId];
     if (!def) return false;
+    if (isRetiredStonePower(powerId)) {
+      if (this.#stoneOccGetRaw(accKey).length) {
+        this.#stoneOccDelete(accKey);
+        ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
+      }
+      return false;
+    }
 
     const combat = game.combat;
     if (!combat) return false;
@@ -2665,6 +2700,10 @@ export class StonePowersDialog extends BaseDialog {
   ): Promise<void> {
     const combat = game.combat;
     if (!isGeneric && !fixedPayAttr) return;
+    if (isRetiredStonePower(powerId)) {
+      ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
+      return;
+    }
     const onceDef = STONE_POWERS[powerId];
     if (
       onceDef?.oncePerCombat &&
@@ -3198,6 +3237,14 @@ export class StonePowersDialog extends BaseDialog {
 
       if (locked) {
         ui.notifications?.warn('This round is locked for Stone Powers.');
+        return;
+      }
+      const dropPowerId =
+        slot.dataset.powerId ||
+        (slot.closest('.power-drop-slots') as HTMLElement | null)?.dataset.powerId ||
+        '';
+      if (isRetiredStonePower(dropPowerId)) {
+        ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
         return;
       }
       if (!slot.classList.contains('slot-active')) {

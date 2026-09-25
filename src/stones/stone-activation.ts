@@ -29,6 +29,8 @@ import {
   stonePowerRankCost,
   stonePowerSupportPrefillApplies,
   effectiveStoneSupportPrefillTier,
+  isRetiredStonePower,
+  RETIRED_STONE_POWER_MESSAGE,
   type StonePower,
 } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
@@ -97,6 +99,10 @@ export async function activateStonePower(options: {
   const power = STONE_POWERS[resolveStonePowerId(abilityId)];
   if (!power) {
     ui.notifications?.error(`Unknown stone power: ${abilityId}`);
+    return false;
+  }
+  if (isRetiredStonePower(power.id)) {
+    ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
     return false;
   }
   if (power.oncePerCombat && isOncePerCombatPowerUsed(combatant, power.id)) {

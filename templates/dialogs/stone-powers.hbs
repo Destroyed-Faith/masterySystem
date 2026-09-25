@@ -232,7 +232,7 @@
       </summary>
       <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
-        <div class="power-card power-card-general{{#if power.activated}} is-activated{{/if}}{{#if power.pendingActivation}} is-pending{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.pendingLabel}}{{power.pendingLabel}} · {{/if}}Left-click: fill the next Rank block (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8 stones — based on pool availability) · Right-click: clear all · Drag: pull from the pool{{#if power.activated}} · Activated ({{power.activationCount}}×){{/if}}">
+        <div class="power-card power-card-general{{#if power.activated}} is-activated{{/if}}{{#if power.pendingActivation}} is-pending{{/if}}{{#if power.retired}} is-retired{{/if}}"{{#if power.activated}} data-activation-count="{{power.activationCount}}" style="--stone-activation-ring: {{power.ringPx}}px;"{{/if}} title="{{#if power.retired}}Parked — use Extra Attack. {{/if}}{{#if power.pendingLabel}}{{power.pendingLabel}} · {{/if}}Left-click: fill the next Rank block (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8 stones — based on pool availability) · Right-click: clear all · Drag: pull from the pool{{#if power.activated}} · Activated ({{power.activationCount}}×){{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}" data-acc-key="{{power.accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if power.hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -303,7 +303,7 @@
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
-        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}{{#if boostUsed}} is-once-used{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if boostUsed}}Already used this combat. {{/if}}{{#if pendingLabel}}{{pendingLabel}} · {{/if}}Left-click: fill the next Rank block with {{attribute}} stones (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8) · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}">
+        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}{{#if boostUsed}} is-once-used{{/if}}{{#if retired}} is-retired{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if retired}}Parked — use Extra Attack. {{/if}}{{#if boostUsed}}Already used this combat. {{/if}}{{#if pendingLabel}}{{pendingLabel}} · {{/if}}Left-click: fill the next Rank block with {{attribute}} stones (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8) · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" data-acc-key="{{accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if hideLeadSegment}} is-ramp-skip{{/if}}" role="group">

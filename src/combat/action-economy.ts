@@ -264,7 +264,11 @@ export interface RoundState {
     spellAutoRaises?: number;
     /** Intellect.SpellResistance — +TN vs Spells that directly target you until next turn. */
     spellResistanceBonus?: number;
-    /** Intellect.SpellAction — extra attack actions this round, restricted to Spells. */
+    /**
+     * Intellect.SpellAction — retired. Reads strip this pile out of
+     * attackActions.total and extraAttacks, then store 0. Extra Attack is
+     * the only extra-attack source.
+     */
     extraSpellActions?: number;
     /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
     spellSpecialBoost?: number;
@@ -402,6 +406,26 @@ function totalStoneCapacityFromAttributes(actor: Actor | null | undefined): numb
 }
 
 /**
+ * Spell Action used to add a second attack pile on top of Extra Attack.
+ * Drop that pile on read so a fight already in progress stops counting it.
+ * Mutating the stored object makes the correction stick: a later save writes
+ * extraSpellActions 0, and a second read does not subtract again.
+ */
+function retireSpellActionAttacks(state: RoundState): void {
+  const sb = state.stoneBonuses;
+  if (!sb) return;
+  const extra = Math.max(0, Math.floor(Number(sb.extraSpellActions) || 0));
+  if (extra <= 0) return;
+  const attack = state.attackActions ?? { total: 0, used: 0 };
+  attack.total = Math.max(0, Math.floor(Number(attack.total) || 0) - extra);
+  const used = Math.max(0, Math.floor(Number(attack.used) || 0));
+  attack.used = Math.min(used, attack.total);
+  state.attackActions = attack;
+  sb.extraAttacks = Math.max(0, Math.floor(Number(sb.extraAttacks) || 0) - extra);
+  sb.extraSpellActions = 0;
+}
+
+/**
  * Get round state from actor flags
  */
 export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
@@ -421,6 +445,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     stored.round === round &&
     storedCombatId === combatId
   ) {
+    retireSpellActionAttacks(stored);
     // NPC ATK label / spend budget must follow live Angriffe/Runde edits.
     return reconcileNpcReactionActions(owner, reconcileNpcAttackActions(owner, stored));
   }

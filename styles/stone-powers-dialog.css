@@ -940,6 +940,14 @@
   opacity: 0.72;
 }
 
+.stone-powers-dialog .power-card-general.is-retired {
+  opacity: 0.55;
+}
+
+.stone-powers-dialog .power-card-general.is-retired .power-rank-caption {
+  color: #c9b27a;
+}
+
 .stone-powers-dialog .ms-stone-drop-slot.slot-no-drag.slot-active {
   cursor: default;
 }

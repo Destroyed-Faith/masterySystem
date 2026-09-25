@@ -117,6 +117,22 @@ export function isPremiumStonePower(powerId: string): boolean {
   return PREMIUM_SET.has(resolveStonePowerId(powerId));
 }
 
+/**
+ * Parked abilities stay in the registry so the card can be replaced later,
+ * but they accept no stones and grant nothing. Extra Attack is the only
+ * source of extra attacks (spells, ranged, and martial).
+ */
+export const RETIRED_STONE_POWER_IDS = ['intellect.spellAction'] as const;
+
+const RETIRED_STONE_POWER_SET = new Set<string>(RETIRED_STONE_POWER_IDS);
+
+export function isRetiredStonePower(powerId: string): boolean {
+  return RETIRED_STONE_POWER_SET.has(resolveStonePowerId(powerId));
+}
+
+export const RETIRED_STONE_POWER_MESSAGE =
+  'Spell Action is parked. Extra Attack covers spells, ranged attacks, and martial attacks.';
+
 /** Additional-Stone cost per Rank (index 0 = Rank 1). */
 const NORMAL_RANK_COSTS = [1, 2, 4, 8] as const;
 const PREMIUM_RANK_COSTS = [2, 4, 6, 8] as const;
@@ -742,26 +758,16 @@ const INTELLECT_POWERS_RAW: StonePowerDraft[] = [
     name: 'Spell Action',
     attribute: 'intellect',
     category: 'action',
-    description: 'Premium. Gain additional Attack Actions this round that may only cast Spells (R1–R4: +1/+2/+3/+4).',
+    description:
+      'Parked. Stones cannot be placed here. Extra Attack covers spells, ranged attacks, and martial attacks.',
     tiers: [
-      { label: '+1 Spell Action', description: 'Gain 1 additional Attack Action this round. It may only be used to cast a Spell.', value: 1 },
-      { label: '+2 Spell Actions', description: 'Gain 2 additional Attack Actions this round. They may only be used to cast Spells.', value: 2 },
-      { label: '+3 Spell Actions', description: 'Gain 3 additional Attack Actions this round. They may only be used to cast Spells.', value: 3 },
-      { label: '+4 Spell Actions', description: 'Gain 4 additional Attack Actions this round. They may only be used to cast Spells.', value: 4 },
+      { label: '+1 Spell Action', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 1 },
+      { label: '+2 Spell Actions', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 2 },
+      { label: '+3 Spell Actions', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 3 },
+      { label: '+4 Spell Actions', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 4 },
     ],
-    apply: async ({ actor, combatant, tier }) => {
-      const bonus = scaleStoneTier([1, 2, 3, 4], tier);
-      if (bonus <= 0) return;
-      const combat = (game as any).combat;
-      const roundState = getRoundState(actor, combat);
-      roundState.attackActions.total += bonus;
-      const sb = ensureStoneBonuses(roundState);
-      sb.extraAttacks = (sb.extraAttacks ?? 0) + bonus;
-      sb.extraSpellActions = (sb.extraSpellActions ?? 0) + bonus;
-      await setRoundState(actor, roundState);
-      // Mark the combatant so attack consumers know N attacks must be Spells.
-      const prior = Number((combatant as any)?.getFlag?.('mastery-system', 'extraSpellActions') ?? 0) || 0;
-      await (combatant as any)?.setFlag?.('mastery-system', 'extraSpellActions', prior + bonus);
+    apply: async () => {
+      // Parked until replaced. Extra Attack is the only extra-attack source.
     },
   },
   {

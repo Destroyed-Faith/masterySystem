@@ -21,6 +21,7 @@ import {
   cumulativeStoneCostForRank,
   highestCompleteStoneTierFromPlaced,
   isPremiumStonePower,
+  isRetiredStonePower,
   partitionStoneLanesByCompleteRanks,
   resolveOncePerCombatStoneTier,
   scaleStoneTier,
@@ -394,6 +395,11 @@ describe('apply() — runs cleanly across every power and Rank', () => {
             grantedHp ||
             tempHpRaised ||
             specialsTouched;
+          if (isRetiredStonePower(id)) {
+            expect(touched, `${id} T${tier} is parked and must not grant attacks`).toBe(false);
+            expect(actor._roundState.attackActions.total).toBe(1);
+            return;
+          }
           expect(touched, `${id} T${tier} should affect actor state`).toBe(true);
         });
       }

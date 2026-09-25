@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.588] - 2026-09-25
+
+### Changed
+
+- **Spell Action:** Die Karte bleibt sichtbar, nimmt aber keine Steine mehr an. Extra Attack bleibt die einzige Quelle für zusätzliche Angriffe und gilt für Spells, Fernkampf und Nahkampf. Angriffe, die Spell Action in dieser Runde schon gutgeschrieben hat, zählen nicht mehr. Bereits ausgegebene Steine bleiben ausgegeben.
+
 ## [0.9.587] - 2026-09-25
 
 ### Added
