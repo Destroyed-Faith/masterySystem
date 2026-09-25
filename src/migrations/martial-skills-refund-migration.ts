@@ -6,7 +6,8 @@
  * - Ranks from the original 40 Character Creation Skill Points, and ranks
  *   later placed from the unspent Skill Point pool, return to
  *   `system.skillPoints.unspent`. They stay Skill Points.
- * - Ranks bought with XP return as ordinary spendable XP (`system.points.xp`).
+ * - Ranks bought with XP return as unrestricted Free XP (`system.points.xpFree`).
+ *   `freeEarned` is not increased: a refund is not newly earned XP.
  *   The XP amount comes from XP history when that history accounts for the
  *   ranks. With no history, the unchanged Skill band table is used, because
  *   Skill costs did not change in v0.9.9.0. If history exists but does not
@@ -49,7 +50,7 @@ export interface MartialSkillsRefundPlan {
   startingPoints: number;
   /** Post-creation ranks that were paid with XP. */
   xpRanks: number;
-  /** Ordinary spendable XP returned this run. Never added to Lifetime XP. */
+  /** Free XP (`system.points.xpFree`) returned this run. Never added to Lifetime XP or `freeEarned`. */
   xpRefund: number;
   /** Where `xpRefund` came from. `ambiguous` means the run must not apply it. */
   xpSource: 'none' | 'history' | 'canonical-band' | 'ambiguous';
@@ -278,7 +279,7 @@ function stripLegacyUpdates(system: any, updates: Record<string, unknown>): void
 function historyRefundEntry(actor: any, xpRefund: number): Record<string, unknown>[] {
   const xp = actor?.system?.xp ?? {};
   const points = actor?.system?.points ?? {};
-  const available = rating(points.xp);
+  const available = rating(points.xpFree);
   const totalEarned = rating(xp.totalEarned);
   const totalSpent = rating(xp.totalSpent);
   const prior = Array.isArray(xp.history) ? [...xp.history] : [];
@@ -287,13 +288,13 @@ function historyRefundEntry(actor: any, xpRefund: number): Record<string, unknow
     kind: 'adjust',
     category: 'xp',
     amount: xpRefund,
-    note: 'refund: removed Martial Skill XP returned as spendable XP',
-    details: { martialSkillXpRefund: xpRefund },
+    note: 'refund: free — removed Martial Skill XP returned as Free XP',
+    details: { martialSkillXpRefund: xpRefund, pool: 'xpFree' },
     before: { available, totalEarned, totalSpent },
     after: {
       available: available + xpRefund,
       totalEarned,
-      totalSpent: Math.max(0, totalSpent - xpRefund),
+      totalSpent,
     },
   });
   return prior.length > 200 ? prior.slice(-200) : prior;
@@ -302,7 +303,7 @@ function historyRefundEntry(actor: any, xpRefund: number): Record<string, unknow
 /**
  * The first Martial refund turned every rank into Skill Points. When that
  * record has no `xpSettled` flag, move only the XP-paid ranks back out of
- * the unspent Skill Point pool and into spendable XP. Lifetime XP stays.
+ * the unspent Skill Point pool and into Free XP. Lifetime XP stays.
  * If the points were already placed onto other Skills, leave the character
  * for review instead of taking those Skills back.
  */
@@ -349,8 +350,7 @@ function correctEarlierSkillPointRefund(actor: any, updates: Record<string, unkn
   }
 
   updates['system.skillPoints.unspent'] = unspent - history.netRanks;
-  updates['system.points.xp'] = rating(system.points?.xp) + history.netXp;
-  updates['system.xp.totalSpent'] = Math.max(0, rating(system.xp?.totalSpent) - history.netXp);
+  updates['system.points.xpFree'] = rating(system.points?.xpFree) + history.netXp;
   updates['system.xp.history'] = historyRefundEntry(actor, history.netXp);
   updates['system.progression.martialSkillsRefund'] = {
     ...prior,
@@ -401,8 +401,7 @@ export function martialSkillsRefundUpdate(actor: any): Record<string, unknown> |
       const currentUnspent = rating(system.skillPoints?.unspent);
       updates['system.skillPoints.unspent'] = currentUnspent + plan.startingPoints;
       if (plan.xpRefund > 0) {
-        updates['system.points.xp'] = rating(system.points?.xp) + plan.xpRefund;
-        updates['system.xp.totalSpent'] = Math.max(0, rating(system.xp?.totalSpent) - plan.xpRefund);
+        updates['system.points.xpFree'] = rating(system.points?.xpFree) + plan.xpRefund;
         updates['system.xp.history'] = historyRefundEntry(actor, plan.xpRefund);
       }
     }

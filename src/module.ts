@@ -3426,7 +3426,7 @@ Hooks.once('ready', async function() {
     const refunded = await runMartialSkillsRefundMigration(migrationActors);
     if (refunded > 0) {
       ui.notifications?.info(
-        `Skill refund: ${refunded} character${refunded === 1 ? '' : 's'} — removed combat Skills returned starting points as Skill Points and XP purchases as spendable XP.`,
+        `Skill refund: ${refunded} character${refunded === 1 ? '' : 's'} — removed combat Skills returned starting points as Skill Points and XP purchases as Free XP.`,
       );
     }
   } catch (error) {

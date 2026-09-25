@@ -238,16 +238,19 @@ describe('Martial Skills refund migration', () => {
     expect(actor.system.skills.meleeWeapons).toBeUndefined();
     expect(actor.system.skills.athletics).toBe(4);
     expect(actor.system.skillPoints.unspent).toBe(4);
-    expect(actor.system.points.xp).toBe(16);
+    expect(actor.system.points.xp).toBe(12);
+    expect(actor.system.points.xpFree).toBe(4);
     expect(actor.system.xp.totalEarned).toBe(84);
-    expect(actor.system.xp.totalSpent).toBe(68);
+    expect(actor.system.xp.freeEarned).toBe(0);
+    expect(actor.system.xp.totalSpent).toBe(72);
     expect(actor.system.progression.lifetimeXp).toBe(84);
     expect(actor.system.progression.martialSkillsRefund.xpRefund).toBe(4);
     expect(actor.system.progression.martialSkillsRefund.xpSource).toBe('history');
 
     expect(await runMartialSkillsRefundMigration([actor])).toBe(0);
     expect(actor.system.skillPoints.unspent).toBe(4);
-    expect(actor.system.points.xp).toBe(16);
+    expect(actor.system.points.xp).toBe(12);
+    expect(actor.system.points.xpFree).toBe(4);
     expect(actor.system.xp.totalEarned).toBe(84);
     expect(actor.system.progression.lifetimeXp).toBe(84);
   });
@@ -270,7 +273,9 @@ describe('Martial Skills refund migration', () => {
     });
     const update = martialSkillsRefundUpdate(actor)!;
     expect(update['system.skillPoints.unspent']).toBe(4);
-    expect(update['system.points.xp']).toBe(12);
+    expect(update['system.points.xp']).toBeUndefined();
+    expect(update['system.points.xpFree']).toBe(2);
+    expect(update['system.xp.freeEarned']).toBeUndefined();
     expect(update['system.xp.totalEarned']).toBeUndefined();
     expect(update['system.progression.lifetimeXp']).toBeUndefined();
     expect((update['system.progression.martialSkillsRefund'] as any).xpSource).toBe('canonical-band');
@@ -339,17 +344,65 @@ describe('Martial Skills refund migration', () => {
     );
     expect(await runMartialSkillsRefundMigration([actor])).toBe(1);
     expect(actor.system.skillPoints.unspent).toBe(4);
-    expect(actor.system.points.xp).toBe(16);
+    expect(actor.system.points.xp).toBe(12);
+    expect(actor.system.points.xpFree).toBe(4);
     expect(actor.system.xp.totalEarned).toBe(84);
+    expect(actor.system.xp.freeEarned).toBeUndefined();
     expect(actor.system.progression.lifetimeXp).toBe(84);
     expect(actor.system.progression.martialSkillsRefund.xpSettled).toBe(true);
     expect(await runMartialSkillsRefundMigration([actor])).toBe(0);
-    expect(actor.system.points.xp).toBe(16);
+    expect(actor.system.points.xp).toBe(12);
+    expect(actor.system.points.xpFree).toBe(4);
     const report = explainXpAccount(actor);
     expect(report.lifetimeXp).toBe(84);
     expect(report.totalGranted).toBe(84);
     expect(report.spendable).toBe(16);
     expect(report.lifetimeGap).toBe(0);
+  });
+
+  it('credits an 8 XP Martial refund as Free XP and does not refund twice', async () => {
+    const actor = makeActor({
+      skills: { athletics: 4, meleeWeapons: 8 },
+      points: { xp: 20, xpFree: 1 },
+      xp: {
+        totalEarned: 84,
+        totalSpent: 64,
+        freeEarned: 1,
+        freeSpent: 0,
+        history: [
+          {
+            ts: 1,
+            kind: 'spend',
+            category: 'skill',
+            amount: 8,
+            details: { changes: [{ skillKey: 'meleeWeapons', from: 0, to: 8 }] },
+          },
+        ],
+        postCreationProgress: {
+          attributes: { might: 2, agility: 2, vitality: 2, intellect: 2, resolve: 2, influence: 2, wits: 2 },
+          skills: { athletics: 4, meleeWeapons: 0 },
+          skillsSpent: {},
+          powerLevels: {},
+        },
+      },
+      progression: { lifetimeXp: 84, lifetimeXpSource: 'earnedCounters' },
+    });
+    expect(await runMartialSkillsRefundMigration([actor])).toBe(1);
+    expect(actor.system.points.xp).toBe(20);
+    expect(actor.system.points.xpFree).toBe(9);
+    expect(actor.system.xp.totalEarned).toBe(84);
+    expect(actor.system.xp.freeEarned).toBe(1);
+    expect(actor.system.xp.totalSpent).toBe(64);
+    expect(actor.system.progression.lifetimeXp).toBe(84);
+    expect(actor.system.xp.history.at(-1).note).toMatch(/free/i);
+    expect(actor.system.xp.history.at(-1).amount).toBe(8);
+
+    expect(await runMartialSkillsRefundMigration([actor])).toBe(0);
+    expect(actor.system.points.xp).toBe(20);
+    expect(actor.system.points.xpFree).toBe(9);
+    expect(actor.system.xp.totalEarned).toBe(84);
+    expect(actor.system.xp.freeEarned).toBe(1);
+    expect(actor.system.progression.lifetimeXp).toBe(84);
   });
 
   it('keeps the legacy identifiers out of the active Skill catalog', () => {
