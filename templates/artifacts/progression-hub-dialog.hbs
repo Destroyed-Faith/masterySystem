@@ -62,7 +62,7 @@
       {{/each}}
       <div class="ph-confirm-row">
         {{#if skillPointsUnspent}}
-        <span class="ph-cost" title="Unspent Skill Points pay for ranks before XP (1 point = +1 Rating). They never turn into XP.">Skill Points: {{skillPointsAfterPending}} / {{skillPointsUnspent}}</span>
+        <span class="ph-cost" title="Starting Skill Points pay for ranks before XP (1 point = +1 Rating). They never turn into XP.">Starting Skill Points: {{skillPointsAfterPending}} remaining</span>
         {{/if}}
         <span class="ph-cost">Net cost: {{skillNet}} XP</span>
         <button type="button" class="ae-btn ae-btn-primary" data-action="ph-confirm-skills" {{#unless hasPendingSkills}}disabled{{/unless}}>

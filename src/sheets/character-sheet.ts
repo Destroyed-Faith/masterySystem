@@ -137,7 +137,6 @@ import {
   ATTRIBUTE_KEYS,
   buildStoneProgressionSlots,
   chunkLifetimeSlots,
-  lifetimeLineSlotCount,
   permanentColorlessCap,
   permanentColorlessCount,
   permanentStonesFromLifetimeXp,
@@ -1485,10 +1484,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
       const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
       const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
-      const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
       const slotOrder = Array.isArray(sys?.progression?.stoneSlotOrder) ? sys.progression.stoneSlotOrder : null;
       const stoneRedistribute = flag(STONE_REDISTRIBUTE_FLAG);
-      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through, colorless, slotOrder).map((slot) => {
+      const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder, 'visible').map((slot) => {
         if (lifetimeXp == null) {
           return {
             ...slot,
@@ -1523,8 +1521,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(rank)})` : '') +
             ` · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
         slots,
-        rows: chunkLifetimeSlots(slots),
-        lineSlots: lifetimeLineSlotCount(),
+        rows: chunkLifetimeSlots(slots, Math.max(1, slots.length)),
+        lineSlots: Math.max(1, slots.length),
         usesStones: usesV099Stones(sys),
         stoneRedistribute,
       };

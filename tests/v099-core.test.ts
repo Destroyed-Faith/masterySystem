@@ -325,6 +325,17 @@ describe('Martial Damage and Tier 4 cap', () => {
     expect(passiveSkillValue(4)).toBe(8);
   });
 
+  it('shows reached milestones plus one upcoming breakpoint', () => {
+    const labels = (xp: number) =>
+      buildStoneProgressionSlots(xp, {}, undefined, 0, null, 'visible').map((slot) => slot.label);
+    expect(labels(0)).toEqual(['Start', 'Start', '20']);
+    expect(labels(1)).toEqual(['Start', 'Start', '20']);
+    expect(labels(84)).toEqual(['Start', 'Start', '20', '40', '60', '80', '100']);
+    expect(labels(100)).toEqual(['Start', 'Start', '20', '40', '60', '80', '100', '120']);
+    expect(labels(84).some((label) => Number(label) > 100)).toBe(false);
+    expect(buildStoneProgressionSlots(20, { might: 1 })).toHaveLength(lifetimeLineSlotCount());
+  });
+
   it('prints Start on the first two Stone slots and milestones after that', () => {
     const slots = buildStoneProgressionSlots(20, { might: 1 });
     expect(slots[0].label).toBe('Start');

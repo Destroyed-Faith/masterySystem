@@ -338,15 +338,31 @@ export interface StoneProgressSlot {
   abbrev: string;
 }
 
+/** Stone milestones are every 20 Lifetime XP. The full track still runs to {@link PRINT_LIFETIME_XP_SPAN}. */
+export const STONE_MILESTONE_XP = 20;
+
+/**
+ * First milestone strictly above `lifetimeXp`.
+ * 0 and 1 show 20; 84 shows 100; 100 shows 120.
+ */
+export function nextProgressionMilestoneXp(lifetimeXp: number): number {
+  const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
+  return Math.floor(xp / STONE_MILESTONE_XP) * STONE_MILESTONE_XP + STONE_MILESTONE_XP;
+}
+
 export function buildStoneProgressionSlots(
   lifetimeXp: number,
   assignments: Record<string, number>,
   throughXp = PRINT_LIFETIME_XP_SPAN,
   permanentColorless = 0,
   slotOrder?: readonly (string | null)[] | null,
+  /** `visible` draws reached milestones plus the one upcoming breakpoint. `full` keeps the canonical track. */
+  spanMode: 'full' | 'visible' = 'full',
 ): StoneProgressSlot[] {
   const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
-  const span = Math.max(PRINT_LIFETIME_XP_SPAN, Math.ceil(xp / 20) * 20, Math.max(0, Math.floor(throughXp)));
+  const span = spanMode === 'visible'
+    ? nextProgressionMilestoneXp(xp)
+    : Math.max(PRINT_LIFETIME_XP_SPAN, Math.ceil(xp / STONE_MILESTONE_XP) * STONE_MILESTONE_XP, Math.max(0, Math.floor(throughXp)));
   const unlocked = permanentStonesFromLifetimeXp(xp);
   const useOrder = Array.isArray(slotOrder);
   const queue: string[] = [];

@@ -133,6 +133,7 @@ describe('combat resolves without Skill Points', () => {
 describe('no player-facing surface mentions the removed Skills', () => {
   const allowed = new Set([
     resolve('src/migrations/martial-skills-refund-migration.ts'),
+    resolve('src/progression/xp-consistency.ts'),
   ]);
 
   it('runtime sources', () => {

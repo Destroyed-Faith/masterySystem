@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **Martial-Skill-Erstattung:** Entfernte Kampf-Skills geben Startpunkte wieder als ungenutzte Character-Creation-Skill-Points zurück. Später mit XP gekaufte Stufen kommen als normale ausgebare XP zurück. Lifetime XP, Total XP Granted und die verdienten Zähler bleiben unverändert. Läuft die Migration kein zweites Mal. Unklare Historie wird nur markiert, nicht geraten.
+- **Lifetime-XP-Leiste:** Der Bogen und der Ausdruck zeigen erreichte Stone-Meilensteine plus genau den nächsten. Die volle Leiter bis 660 XP bleibt die Regel, wird aber nicht mehr gezeichnet.
+
 ## [0.9.570] - 2026-09-24
 
 ### Added
