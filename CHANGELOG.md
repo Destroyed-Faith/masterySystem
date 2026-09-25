@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.577] - 2026-09-25
+
+### Changed
+
+- **Steinleiste:** Mehr Abstand unter der Lifetime-XP-Leiste, bevor die Tabs beginnen.
+- **Steine sperren:** Solange die Neuverteilung offen ist, steht neben dem Hinweis ein Schloss. Damit ist die Zuweisung wieder fest, bis der GM sie erneut öffnet.
+
 ## [0.9.576] - 2026-09-25
 
 ### Changed

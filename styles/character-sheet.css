@@ -12642,7 +12642,7 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .v099-lifetime {
-  margin: 0.35rem 0.6rem 0.2rem;
+  margin: 0.35rem 0.6rem 1.15rem;
 }
 
 .mastery-system.sheet.actor.character .v099-lifetime-head {
@@ -12718,8 +12718,18 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .v099-redistribute-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   margin: 0.2rem 0 0.45rem;
   font-size: 0.78rem;
+}
+
+.mastery-system.sheet.actor.character .v099-lock-stones {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.75rem;
 }
 
 .mastery-system.sheet.actor.character .v099-stone-mark {

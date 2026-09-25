@@ -184,7 +184,14 @@
       <span class="v099-lifetime-meta">{{v099.stoneSummary}}</span>
     </div>
     {{#if v099.stoneRedistribute}}
-    <p class="v099-redistribute-hint">Steine sind zur Neuverteilung frei. Ein belegtes Feld anklicken, lösen oder anders zuweisen.</p>
+    <p class="v099-redistribute-hint">
+      <span>Steine sind zur Neuverteilung frei. Ein belegtes Feld anklicken, lösen oder anders zuweisen.</span>
+      {{#if (userIsGM)}}
+      <button type="button" class="gm-toggle-stone-redistribute v099-lock-stones" title="Zuweisung wieder sperren. Danach ändert niemand mehr ein Feld, bis du neu verteilst.">
+        <i class="fas fa-lock"></i> Steine sperren
+      </button>
+      {{/if}}
+    </p>
     {{/if}}
     <div class="v099-stone-grid" style="--v099-line-slots: {{v099.lineSlots}};">
       {{#each v099.rows}}
