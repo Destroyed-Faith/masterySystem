@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.584] - 2026-09-25
+
+### Fixed
+
+- **Reroll:** Der Button steht auf der Würfelkarte selbst, auch für den Spieler. Keep und Reroll am Schaden kann der Besitzer des Charakters drücken, auch wenn der Wurf vom SL-Client kam.
+- **Raise:** „Declare a Raise first“ bleibt sichtbar, bis ein Raise gewählt ist. Die 3 daneben ist die Zauber-Kosten (Mastery Rank), abgezogen vom Special-Rang, kein +3 auf das Special. Ein Special-Raise schaltet den gedruckten Rang ein.
+
 ## [0.9.583] - 2026-09-25
 
 ### Fixed
