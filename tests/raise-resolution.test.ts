@@ -155,7 +155,7 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
       false,
     );
     const precision = latent.find((o) => o.id === 'special:precision');
-    expect(precision?.label).toBe('Precision(2)');
+    expect(precision?.label).toBe('Precision an (Rang 2)');
     expect(precision?.printedRank).toBe(2);
     const base = examplePower();
     base.damageDice = 4;

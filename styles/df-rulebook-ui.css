@@ -762,7 +762,7 @@
   border: 1px solid var(--df-border-primary);
   border-radius: 8px;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 #chat-log .mastery-roll .roll-header {
@@ -978,15 +978,24 @@
   background: var(--df-bg-header);
   border-top: 1px solid var(--df-border-primary);
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: 10px;
-  align-items: center;
-  justify-content: space-between;
 }
 
 #chat-log .mastery-attack-card .raises-input-group {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+#chat-log .mastery-attack-card .spell-cost-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--df-text-primary);
 }
 
 #chat-log .mastery-attack-card .raise-plan-panel {

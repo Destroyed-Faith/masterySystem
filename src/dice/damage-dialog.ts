@@ -2049,6 +2049,14 @@ function registerDamageFaithRerollChatHooks(): void {
       console.warn('Mastery System | damage Faith Fracture prompt hook', e);
     }
   });
+  (game as any).socket?.on('system.mastery-system', (payload: any) => {
+    if (payload?.type !== 'damageFaithChoice') return;
+    const messageId = String(payload.messageId || '');
+    if (!pendingDamageFaithPrompts.has(messageId)) return;
+    const message = (game as any).messages?.get(messageId) as ChatMessage | undefined;
+    if (!message) return;
+    void settleDamageFaithPrompt(message, !!payload.wantsReroll);
+  });
 }
 
 function damageFaithPromptEsc(text: string): string {
@@ -2173,7 +2181,16 @@ function attachDamageFaithPromptHandlers(
   card.data('msFaithBound', true);
 
   const messageId = String((message as any).id || '');
-  const canAct = pendingDamageFaithPrompts.has(messageId);
+  const flags = ((message as any).flags as any)?.['mastery-system'] || {};
+  const attackerId = String(flags.attackerId || '');
+  const attacker = attackerId ? (game as any).actors?.get(attackerId) : null;
+  const user = (game as any).user;
+  const playsAttacker =
+    !!attacker &&
+    (user?.isGM
+      ? String(user.character?.id || '') === attackerId || !!(attacker as any).isOwner
+      : !!(attacker as any).isOwner);
+  const canAct = pendingDamageFaithPrompts.has(messageId) || playsAttacker;
   const keepBtn = card.find('.ms-damage-faith-keep-btn');
   const rerollBtn = card.find('.ms-damage-faith-reroll-btn');
   if (!canAct) {
@@ -2183,11 +2200,21 @@ function attachDamageFaithPromptHandlers(
     rerollBtn.attr('title', 'Waiting for the rolling player…');
     return;
   }
+  keepBtn.prop('disabled', false);
+  rerollBtn.prop('disabled', false);
 
   const lock = async (wantsReroll: boolean) => {
     keepBtn.prop('disabled', true);
     rerollBtn.prop('disabled', true);
-    await settleDamageFaithPrompt(message, wantsReroll);
+    if (pendingDamageFaithPrompts.has(messageId)) {
+      await settleDamageFaithPrompt(message, wantsReroll);
+      return;
+    }
+    (game as any).socket?.emit('system.mastery-system', {
+      type: 'damageFaithChoice',
+      messageId,
+      wantsReroll,
+    });
   };
 
   keepBtn.off('click.msDmgFaith').on('click.msDmgFaith', (ev: JQuery.ClickEvent) => {
@@ -2226,7 +2253,6 @@ async function promptDamageFaithReroll(
     if (cur < 1) return skip;
     const user = (game as any).user;
     if (!user?.isGM && !(attacker as any).isOwner) return skip;
-    if (user?.isGM && String(user.character?.id || '') !== String((attacker as any).id || '')) return skip;
 
     registerDamageFaithRerollChatHooks();
 

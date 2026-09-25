@@ -364,7 +364,7 @@ export function buildAvailableRaiseOptions(
     const name = displaySpecialName(sp.key);
     options.push({
       id: `special:${sp.key}`,
-      label: `${name}(${sp.rank})`,
+      label: `${name} an (Rang ${sp.rank})`,
       effect: 'specialPlus',
       targetSpecialKey: sp.key,
       printedRank: sp.rank,

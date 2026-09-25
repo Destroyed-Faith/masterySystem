@@ -875,10 +875,12 @@ export async function createAttackCard(
       ${
         raiseContext.isSpell
           ? `<div class="spell-cost-split-row md-sublabel">
-          Pay Raise cost with:
+          <p class="spell-cost-hint">Declare a Raise first.</p>
+          <label class="spell-cost-label">Pay Raise cost with
           <select class="spell-cost-select" disabled>
             <option value="">— declare a Raise first —</option>
           </select>
+          </label>
         </div>`
           : ''
       }
@@ -1242,10 +1244,13 @@ function setupRaisesHandler(
   const rebuildSpellCostSelect = (costTotal: number): void => {
     const sel = panel.find('.spell-cost-select');
     if (!sel.length) return;
+    const hint = panel.find('.spell-cost-hint');
     if (costTotal <= 0) {
+      hint.show();
       sel.prop('disabled', true).html('<option value="">— declare a Raise first —</option>');
       return;
     }
+    hint.hide();
     const prev = String(sel.val() || '');
     const maxD8 = Math.min(costTotal, raiseContext!.baseSnapshot.damageDice);
     const minD8 = Math.max(0, costTotal - totalSpecialRank);
@@ -1254,7 +1259,7 @@ function setupRaisesHandler(
       const sp = costTotal - d8;
       const parts: string[] = [];
       if (d8 > 0) parts.push(`${d8}d8 damage`);
-      if (sp > 0) parts.push(`${sp} Special value`);
+      if (sp > 0) parts.push(`cost ${sp} from Special rank`);
       optionHtml.push(`<option value="${d8}|${sp}">${parts.join(' + ')}</option>`);
     }
     if (!optionHtml.length) {
