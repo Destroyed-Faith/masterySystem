@@ -201,13 +201,11 @@ function esc(value: unknown): string {
 
 function bonusXpControls(actor: any): string {
   const id = esc(actor?.id);
-  const free = Math.max(0, Math.floor(Number(actor?.system?.points?.xpFree) || 0));
   const hasSnap = actorHasPostCreationSnapshot(actor);
   const reset = (globalThis as any).game?.user?.isGM === false
     ? ''
     : `<button type="button" class="reset-progress-xp-btn" data-character-id="${id}" title="Fortschritt auf den Stand nach der Erschaffung zurücksetzen."${hasSnap ? '' : ' disabled'}><i class="fas fa-undo"></i></button>`;
-  return `<td class="xp-cell xp-cell-free" title="Bonus-XP, die noch nicht ausgegeben sind."><strong>${free}</strong></td>`
-    + `<td class="grant-cell"><div class="grant-controls">`
+  return `<td class="grant-cell"><div class="grant-controls">`
     + `<div class="grant-group grant-group-free">`
     + `<input type="number" class="free-xp-amount-input" data-character-id="${id}" min="0" value="0" placeholder="+" title="Bonus-XP ohne Sitzungslimit." />`
     + `<button type="button" class="grant-free-xp-btn" data-character-id="${id}" title="Bonus-XP geben"><i class="fas fa-star"></i></button>`
@@ -225,8 +223,10 @@ export function buildValueTableHtml(actors: any[]): string {
     ? rows.map((actor) => {
         const value = appraiseBuild(actor);
         const title = esc(value.notes.join(' '));
-        return `<tr data-character-id="${esc(actor.id)}"><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td>${value.unspentSkillPoints}</td><td title="${title}">Startregel</td>${bonusXpControls(actor)}</tr>`;
+        const free = Math.max(0, Math.floor(Number(actor?.system?.points?.xpFree) || 0));
+        const afterSpend = value.net + free;
+        return `<tr data-character-id="${esc(actor.id)}"><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td>${value.unspentSkillPoints}</td><td title="${title}">Startregel</td><td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP."><strong>${free}</strong></td><td title="Netto plus übrige XP. So steht der Bogen, wenn diese XP ausgegeben sind."><strong>${afterSpend}</strong></td>${bonusXpControls(actor)}</tr>`;
       }).join('')
-    : '<tr><td colspan="10">Keine Charaktere.</td></tr>';
-  return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige EP auf dem Bogen zählen nicht zum Netto. Bonus-XP sind die einzigen EP, die hier vergeben werden.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Skills</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Skill Points übrig</th><th>Skill-Basis</th><th>Bonus übrig</th><th>Bonus-XP</th></tr></thead><tbody>${body}</tbody></table></div>`;
+    : '<tr><td colspan="11">Keine Charaktere.</td></tr>';
+  return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige XP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe ist Netto plus diese XP.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Skills</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Skill Points übrig</th><th>Skill-Basis</th><th title="Noch nicht ausgegebene XP.">XP</th><th title="Netto plus übrige XP.">Nach Ausgabe</th><th></th></tr></thead><tbody>${body}</tbody></table></div>`;
 }

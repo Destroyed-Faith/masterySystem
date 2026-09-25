@@ -119,13 +119,14 @@ describe('build value at current rules', () => {
       type: 'character',
       name: 'Scurry',
       system: { points: { xpFree: 55 }, attributes: {}, skills: {}, xp: {} },
-      items: [],
+      items: [{ type: 'artifact', name: 'Blade', system: { level: 2 } }],
     }]);
     expect(html).toContain('grant-free-xp-btn');
     expect(html).toContain('deduct-free-xp-btn');
     expect(html).toContain('history-xp-btn');
     expect(html).toContain('reset-progress-xp-btn');
     expect(html).toContain('>55<');
+    expect(html).toContain('>63<');
     expect(html).not.toContain('grant-xp-btn');
   });
 });

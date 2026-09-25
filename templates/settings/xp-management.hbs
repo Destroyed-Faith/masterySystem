@@ -49,8 +49,9 @@
               <th>Netto</th>
               <th>Skill Points übrig</th>
               <th>Skill-Basis</th>
-              <th>Bonus übrig</th>
-              <th>Bonus-XP</th>
+              <th title="Noch nicht ausgegebene XP.">XP</th>
+              <th title="Netto plus übrige XP.">Nach Ausgabe</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -64,7 +65,8 @@
               <td><strong>{{this.net}}</strong></td>
               <td>{{this.unspentSkillPoints}}</td>
               <td>{{this.skillBasisLabel}}</td>
-              <td class="xp-cell xp-cell-free"><strong>{{this.unspentFreeXp}}</strong></td>
+              <td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP."><strong>{{this.unspentFreeXp}}</strong></td>
+              <td title="Netto plus übrige XP. So steht der Bogen, wenn diese XP ausgegeben sind."><strong>{{this.afterSpend}}</strong></td>
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group grant-group-free">
@@ -90,7 +92,7 @@
               </td>
             </tr>
             {{else}}
-            <tr><td colspan="10">Keine Charaktere.</td></tr>
+            <tr><td colspan="11">Keine Charaktere.</td></tr>
             {{/each}}
           </tbody>
         </table>

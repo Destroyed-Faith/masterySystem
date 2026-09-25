@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.578] - 2026-09-25
+
+### Changed
+
+- **Build-Wert:** Die Spalte heißt XP statt Bonus übrig. Daneben steht Nach Ausgabe: Netto plus die noch nicht ausgegebenen XP.
+
 ## [0.9.577] - 2026-09-25
 
 ### Changed

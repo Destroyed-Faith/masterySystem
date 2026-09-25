@@ -81,6 +81,7 @@ export class XpManagementSettings extends BaseApplication {
         id: actor.id,
         name: actor.name,
         hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
+        afterSpend: value.net + value.unspentFreeXp,
         ...value,
         skillBasisLabel: value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel',
         skillNote: value.notes.filter((note) => note.startsWith('Skill-Start')).join(' '),
