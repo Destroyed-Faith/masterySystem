@@ -8,6 +8,36 @@ describe('build value at current rules', () => {
     }).xp).toBe(0);
   });
 
+  it('prices migrated sheets on the compressed table and old sheets on the 1–80 table', () => {
+    const sheet = (values: Record<string, number>, migrated: boolean) => appraiseBuild({
+      type: 'character',
+      system: {
+        progression: migrated ? { v099Stones: true } : {},
+        attributes: Object.fromEntries(Object.entries(values).map(([key, value]) => [key, { value }])),
+        skills: {},
+        points: {},
+        xp: {},
+      },
+      items: [],
+    });
+    // Scurry after respec: two 8s above a free 4 cost 16 each, plus the extra 4s.
+    expect(sheet({
+      might: 8, agility: 4, vitality: 8, wits: 4, intellect: 2, resolve: 4, influence: 2,
+    }, true).attributes).toBe(40);
+    // Oda after respec: 8, 8, 8, 4, 4, 4, 2.
+    expect(sheet({
+      might: 2, agility: 4, vitality: 8, wits: 8, intellect: 4, resolve: 8, influence: 4,
+    }, true).attributes).toBe(60);
+    // Alaris still on the old scale. 16 is not a new-table 16.
+    expect(sheet({
+      might: 8, agility: 16, vitality: 16, wits: 16, intellect: 8, resolve: 8, influence: 8,
+    }, false).attributes).toBe(66);
+    // Lor-Keth still on the old scale.
+    expect(sheet({
+      might: 9, agility: 8, vitality: 18, wits: 8, intellect: 18, resolve: 9, influence: 7,
+    }, false).attributes).toBe(65);
+  });
+
   it('prices only the steps above the free package', () => {
     // Highest value keeps a free 4. 5–8 cost 4 each.
     expect(attributeXpAboveFreePackage({

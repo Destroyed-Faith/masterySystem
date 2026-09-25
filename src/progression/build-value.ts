@@ -8,7 +8,12 @@
  * nothing beyond the level table, and level 1 is free.
  */
 
-import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE } from './v099-rules.js';
+import {
+  ATTRIBUTE_KEYS,
+  NEW_STARTING_PACKAGE,
+  earnedAttributeXpInvestment,
+  usesV099Stones,
+} from './v099-rules.js';
 import { attributeBandCost, powerLevelCost, skillBandCost, totalArtifactXpToLevel } from '../utils/constants.js';
 import {
   CREATION_DEFENSIVE_RANK,
@@ -151,11 +156,18 @@ export function appraiseBuild(actor: any): BuildValue {
   const system = actor?.system ?? {};
   const attributes: Record<string, number> = {};
   for (const key of ATTRIBUTE_KEYS) attributes[key] = n(system.attributes?.[key]?.value ?? system.attributes?.[key]);
-  const attr = attributeXpAboveFreePackage(attributes);
+  const migrated = usesV099Stones(system);
+  const attr = migrated
+    ? attributeXpAboveFreePackage(attributes)
+    : { xp: earnedAttributeXpInvestment(attributes, null).xp, belowPackage: false };
+  const listed = ATTRIBUTE_KEYS.map((key) => `${key} ${attributes[key] ?? 0}`).join(', ');
   const skills = skillXp(system);
   const powers = powerXp(actor);
   const artifacts = artifactXp(actor);
   const notes: string[] = [];
+  notes.push(migrated
+    ? `Neue Attributtabelle über dem Paket 4/4/3/3/2/2/2. ${listed}.`
+    : `Alte Attributtabelle (Bänder à 8), abzüglich des kostenlosen Startpakets. Noch kein v0.9.9-Respec. ${listed}.`);
   if (attr.belowPackage) notes.push('Mindestens ein Attribut liegt unter dem kostenlosen Startpaket.');
   if (skills.note) notes.push(skills.note);
   if (artifacts.lines.length) notes.push(artifacts.lines.join('; '));

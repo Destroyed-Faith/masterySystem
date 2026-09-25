@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.574] - 2026-09-25
+
+### Fixed
+
+- **Build-Wert:** Attribute von Charakteren ohne v0.9.9-Respec werden auf der alten Tabelle (Bänder à 8) gerechnet, abzüglich des kostenlosen Startpakets. Werte wie 16 oder 18 sind damit keine teuren Stufen der neuen 1–40-Tabelle mehr. Nach dem Respec gilt die neue Tabelle über dem Paket 4/4/3/3/2/2/2. Der Hinweis nennt die gelesenen Attributwerte.
+
 ## [0.9.573] - 2026-09-25
 
 ### Fixed
