@@ -131,6 +131,7 @@ import {
 } from './migrations/echo-artifact-dedupe-migration.js';
 import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
 import { runMartialSkillsRefundMigration } from './migrations/martial-skills-refund-migration.js';
+import { buildValueTableHtml } from './progression/build-value.js';
 import { nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runEchoStoneSupportResyncMigration } from './migrations/echo-stone-support-resync.js';
@@ -1922,6 +1923,7 @@ function setupXpManagementInline() {
     }
 
     htmlContent += '</tbody></table></div>';
+    if ((game as any).user?.isGM) htmlContent += buildValueTableHtml(characters);
     customContainer.html(htmlContent);
     
     // Replace the input

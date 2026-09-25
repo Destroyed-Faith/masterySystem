@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Build-Wert (nur GM):** In den XP-Settings steht unter den vergebenen EP eine zweite Tabelle. Sie rechnet jeden Charakter aus dem aktuellen Bogen nach den heutigen Tabellen: Attribute über dem kostenlosen Startpaket, Skills über den 40 Startpunkten, Powers über dem Erschaffungsrang, Artefakte über Stufe 1. Aktivieren kostet nichts. Vergebene EP und übrige EP zählen nicht zum Netto.
+
 ## [0.9.571] - 2026-09-25
 
 ### Fixed

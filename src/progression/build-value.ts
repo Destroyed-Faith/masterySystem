@@ -1,0 +1,173 @@
+/**
+ * What a character's current sheet is worth under today's XP tables.
+ *
+ * This ignores granted XP, history, and migrations. The free start is not
+ * XP: the Attribute package, up to 40 Character Creation Skill Points (max 4
+ * per Skill), creation Power ranks, and Artifact level 1. Ranks paid with
+ * unspent Skill Points are Skill Points, not XP. Artifact activation costs
+ * nothing beyond the level table, and level 1 is free.
+ */
+
+import { ATTRIBUTE_KEYS, NEW_STARTING_PACKAGE } from './v099-rules.js';
+import { attributeBandCost, skillBandCost, totalArtifactXpToLevel } from '../utils/constants.js';
+import { calculatePowerUpgradeRefund } from '../utils/power-xp-refund.js';
+import { readSkillPointPool } from './skill-point-pool.js';
+
+export interface BuildValue {
+  attributes: number;
+  skills: number;
+  powers: number;
+  artifacts: number;
+  /** Attributes + Skills + Powers + Artifacts. Unspent XP is not included. */
+  net: number;
+  unspentSkillPoints: number;
+  /** Regular XP still in the pool. Not part of `net`. */
+  unspentXp: number;
+  unspentFreeXp: number;
+  skillBasis: 'snapshot' | 'creation-cap';
+  /** Artifact level 1 and equipping an Artifact. Always 0 under current rules. */
+  artifactActivation: number;
+  notes: string[];
+}
+
+function n(value: unknown): number {
+  const v = Math.floor(Number(value) || 0);
+  return v > 0 ? v : 0;
+}
+
+function bandSum(from: number, to: number, cost: (rank: number) => number): number {
+  let sum = 0;
+  for (let rank = from + 1; rank <= to; rank += 1) sum += cost(rank);
+  return sum;
+}
+
+function listItems(actor: any, type: string): any[] {
+  const items = actor?.items;
+  if (!items) return [];
+  if (typeof items.filter === 'function') return Array.from(items.filter((i: any) => i.type === type));
+  if (Array.isArray(items)) return items.filter((i: any) => i.type === type);
+  if (Array.isArray(items.contents)) return items.contents.filter((i: any) => i.type === type);
+  return [];
+}
+
+/** Compressed XP above the free 4/4/3/3/2/2/2 package. The highest values keep the highest free ranks. */
+export function attributeXpAboveFreePackage(values: Record<string, number>): { xp: number; belowPackage: boolean } {
+  const current = ATTRIBUTE_KEYS.map((key) => n(values[key])).sort((a, b) => b - a);
+  const free = [...NEW_STARTING_PACKAGE].sort((a, b) => b - a);
+  let xp = 0;
+  let belowPackage = false;
+  for (let i = 0; i < current.length; i += 1) {
+    const base = free[i] ?? 2;
+    const cur = current[i] ?? 0;
+    if (cur < base) belowPackage = true;
+    else xp += bandSum(base, cur, attributeBandCost);
+  }
+  return { xp, belowPackage };
+}
+
+function skillXp(system: any): { xp: number; basis: BuildValue['skillBasis']; note?: string } {
+  const skills = system?.skills && typeof system.skills === 'object' ? system.skills : {};
+  const placed = readSkillPointPool(system).placed;
+  const snap = system?.xp?.postCreationProgress?.skills;
+  const hasSnapshot = snap && typeof snap === 'object';
+  const cfg = (globalThis as any).CONFIG?.MASTERY?.creation;
+  const budget = {
+    total: Math.max(1, Math.floor(Number(cfg?.skillPoints) || 40)),
+    maxPerSkill: Math.max(1, Math.floor(Number(cfg?.maxSkillAtCreation) || 4)),
+  };
+
+  if (hasSnapshot) {
+    const keys = new Set<string>([...Object.keys(skills), ...Object.keys(snap), ...Object.keys(placed)]);
+    let xp = 0;
+    for (const key of keys) {
+      const current = n(skills[key]);
+      const from = n(snap[key]) + n(placed[key]);
+      if (current > from) xp += bandSum(from, current, skillBandCost);
+    }
+    return { xp, basis: 'snapshot' };
+  }
+
+  let remaining = budget.total;
+  const keys = Object.keys(skills).sort();
+  let xp = 0;
+  for (const key of keys) {
+    const current = n(skills[key]);
+    const creation = Math.min(budget.maxPerSkill, current, remaining);
+    remaining -= creation;
+    const from = creation + Math.min(n(placed[key]), Math.max(0, current - creation));
+    if (current > from) xp += bandSum(from, current, skillBandCost);
+  }
+  const spentAtCap = budget.total - remaining;
+  const note = spentAtCap < budget.total
+    ? `Skill-Start: ${spentAtCap} von ${budget.total} Punkten liegen auf dem Bogen, höchstens ${budget.maxPerSkill} pro Skill.`
+    : `Skill-Start: ${budget.total} Punkte, höchstens ${budget.maxPerSkill} pro Skill, ohne Creation-Snapshot.`;
+  return { xp, basis: 'creation-cap', note };
+}
+
+function powerXp(actor: any): number {
+  return listItems(actor, 'power').reduce((sum, item) => sum + calculatePowerUpgradeRefund(item), 0);
+}
+
+function artifactXp(actor: any): { xp: number; lines: string[] } {
+  const lines: string[] = [];
+  let xp = 0;
+  for (const item of listItems(actor, 'artifact')) {
+    const level = Math.max(1, n(item?.system?.level) || 1);
+    const cost = totalArtifactXpToLevel(level);
+    xp += cost;
+    if (cost > 0) lines.push(`${item?.name || 'Artifact'} L${level}: ${cost}`);
+  }
+  return { xp, lines };
+}
+
+export function appraiseBuild(actor: any): BuildValue {
+  const system = actor?.system ?? {};
+  const attributes: Record<string, number> = {};
+  for (const key of ATTRIBUTE_KEYS) attributes[key] = n(system.attributes?.[key]?.value ?? system.attributes?.[key]);
+  const attr = attributeXpAboveFreePackage(attributes);
+  const skills = skillXp(system);
+  const powers = powerXp(actor);
+  const artifacts = artifactXp(actor);
+  const notes: string[] = [];
+  if (attr.belowPackage) notes.push('Mindestens ein Attribut liegt unter dem kostenlosen Startpaket.');
+  if (skills.note) notes.push(skills.note);
+  if (artifacts.lines.length) notes.push(artifacts.lines.join('; '));
+  notes.push('Artefakt aktivieren und Stufe 1 kosten 0.');
+  const unspentSkillPoints = readSkillPointPool(system).unspent;
+  const unspentXp = n(system.points?.xp);
+  const unspentFreeXp = n(system.points?.xpFree);
+  return {
+    attributes: attr.xp,
+    skills: skills.xp,
+    powers,
+    artifacts: artifacts.xp,
+    net: attr.xp + skills.xp + powers + artifacts.xp,
+    unspentSkillPoints,
+    unspentXp,
+    unspentFreeXp,
+    skillBasis: skills.basis,
+    artifactActivation: 0,
+    notes,
+  };
+}
+
+function esc(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** GM settings table. Read-only. */
+export function buildValueTableHtml(actors: any[]): string {
+  const rows = (actors || []).filter((actor) => actor && actor.type === 'character');
+  const body = rows.length
+    ? rows.map((actor) => {
+        const value = appraiseBuild(actor);
+        const title = esc(value.notes.join(' '));
+        return `<tr><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td>${value.unspentSkillPoints}</td><td title="${title}">${esc(value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel')}</td></tr>`;
+      }).join('')
+    : '<tr><td colspan="8">Keine Charaktere.</td></tr>';
+  return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige EP auf dem Bogen zählen nicht zum Netto.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Skills</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Skill Points übrig</th><th>Skill-Basis</th></tr></thead><tbody>${body}</tbody></table></div>`;
+}

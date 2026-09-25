@@ -104,6 +104,41 @@
           </tbody>
         </table>
       </div>
+
+      <div class="bulk-grant-section build-value-section">
+        <h3>Build-Wert nach aktuellen Regeln</h3>
+        <p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige EP auf dem Bogen zählen nicht zum Netto.</p>
+        <table class="xp-table xp-table-compact">
+          <thead>
+            <tr>
+              <th>Charakter</th>
+              <th>Attribute</th>
+              <th>Skills</th>
+              <th>Powers</th>
+              <th>Artefakte</th>
+              <th>Netto</th>
+              <th>Skill Points übrig</th>
+              <th>Skill-Basis</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each buildValues}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.attributes}}</td>
+              <td title="{{this.skillNote}}">{{this.skills}}</td>
+              <td>{{this.powers}}</td>
+              <td title="{{this.artifactNote}}">{{this.artifacts}}</td>
+              <td><strong>{{this.net}}</strong></td>
+              <td>{{this.unspentSkillPoints}}</td>
+              <td>{{this.skillBasisLabel}}</td>
+            </tr>
+            {{else}}
+            <tr><td colspan="8">Keine Charaktere.</td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 </div>

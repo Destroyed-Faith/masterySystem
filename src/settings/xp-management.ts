@@ -3,6 +3,7 @@
  * Allows GM to view character XP spending and grant XP allowances
  */
 
+import { appraiseBuild } from '../progression/build-value.js';
 import { nextLifetimeXp } from '../progression/v099-rules.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
 import { openXpHistoryDialog } from '../utils/xp-history.js';
@@ -74,6 +75,17 @@ export class XpManagementSettings extends BaseApplication {
       };
     });
     
+    data.buildValues = (game as any).user?.isGM === false ? [] : characters.map((actor: any) => {
+      const value = appraiseBuild(actor);
+      return {
+        name: actor.name,
+        ...value,
+        skillBasisLabel: value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel',
+        skillNote: value.notes.filter((note) => note.startsWith('Skill-Start')).join(' '),
+        artifactNote: value.notes.filter((note) => note.includes('L')).join(' ') || 'Stufe 1 und Aktivieren: 0',
+      };
+    });
+
     return data;
   }
 
