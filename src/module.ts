@@ -1838,25 +1838,17 @@ function setupXpManagementInline() {
     
     // Build the UI
     const i18n = (game as any).i18n;
-    const regularHint = i18n.localize('MASTERY.xp.regularHint');
     const freeHint = i18n.localize('MASTERY.xp.freeHint');
-    const regularLabel = i18n.localize('MASTERY.xp.regularLabel');
     const freeLabel = i18n.localize('MASTERY.xp.freeLabel');
 
     let htmlContent = '<div class="xp-management-header"><h3><i class="fas fa-coins"></i> Character XP Management</h3>';
-    htmlContent += `<p class="hint"><strong>${regularLabel}:</strong> ${regularHint} `;
-    htmlContent += `<strong>${freeLabel}:</strong> ${freeHint}</p></div>`;
-    
-    // Bulk Grant Section
-    htmlContent += '<div class="bulk-grant-section"><h4>Bulk Grant XP</h4>';
+    htmlContent += `<p class="hint"><strong>${freeLabel}:</strong> ${freeHint}</p></div>`;
+
+    htmlContent += '<div class="bulk-grant-section"><h4>Bonus-XP an alle</h4>';
     htmlContent += '<div class="bulk-grant-controls">';
-    htmlContent += `<div class="bulk-grant-group"><label title="${regularHint}">${regularLabel}:</label>`;
-    htmlContent += `<input type="number" class="bulk-xp-amount" min="0" value="0" title="${regularHint}" />`;
-    htmlContent += `<button type="button" class="bulk-grant-btn" title="${regularHint}"><i class="fas fa-gift"></i> Grant to All</button>`;
-    htmlContent += `<p class="bulk-grant-help" title="${regularHint}">${regularHint}</p></div>`;
     htmlContent += `<div class="bulk-grant-group"><label title="${freeHint}">${freeLabel}:</label>`;
     htmlContent += `<input type="number" class="bulk-free-xp-amount" min="0" value="0" title="${freeHint}" />`;
-    htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Grant Free to All</button>`;
+    htmlContent += `<button type="button" class="bulk-grant-free-btn" title="${freeHint}"><i class="fas fa-star"></i> Bonus-XP an alle</button>`;
     htmlContent += `<p class="bulk-grant-help" title="${freeHint}">${freeHint}</p></div>`;
     htmlContent += '</div></div>';
 
@@ -1865,64 +1857,6 @@ function setupXpManagementInline() {
     htmlContent += '<button type="button" class="party-safe-haven-btn"><i class="fas fa-bed"></i> Safe Haven Rest — All Characters</button>';
     htmlContent += '</div>';
     
-    const colCharacter = i18n.localize('MASTERY.xp.colCharacter');
-    const colSpent = i18n.localize('MASTERY.xp.colSpent');
-    const colAvail = i18n.localize('MASTERY.xp.colAvail');
-    const colFree = i18n.localize('MASTERY.xp.colFree');
-    const colEarned = i18n.localize('MASTERY.xp.colEarned');
-    const colActions = i18n.localize('MASTERY.xp.colActions');
-    const spentHint = i18n.localize('MASTERY.xp.spentHint');
-    const availHint = i18n.localize('MASTERY.xp.availHint');
-
-    htmlContent += '<div class="characters-list"><table class="xp-table xp-table-compact"><thead><tr>';
-    htmlContent += `<th>${colCharacter}</th><th title="${spentHint}">${colSpent}</th><th title="${availHint}">${colAvail}</th><th>${colFree}</th><th>${colEarned}</th><th>${colActions}</th>`;
-    htmlContent += '</tr></thead><tbody>';
-
-    if (characters.length === 0) {
-      htmlContent += '<tr><td colspan="6" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
-    } else {
-      characters.forEach((actor: any) => {
-        const system = actor.system || {};
-        const points = system.points || {};
-        const xp = system.xp || {};
-
-        const totalEarned = xp.totalEarned ?? 0;
-        const available = points.xp ?? 0;
-        const freeAvailable = points.xpFree ?? 0;
-        const freeEarned = xp.freeEarned ?? 0;
-        const earnedAll = totalEarned + freeEarned;
-        const availableAll = available + freeAvailable;
-        const spentAll = Math.max(0, earnedAll - availableAll);
-        const freeAvailHint = i18n.format('MASTERY.xp.freeAvailHint', { earned: freeEarned });
-        const earnedHint = i18n.format('MASTERY.xp.earnedHint', { regular: totalEarned, free: freeEarned });
-
-        const isGM = (game as any).user?.isGM;
-        const hasSnap = actorHasPostCreationSnapshot(actor);
-        const resetBtn = isGM
-          ? `<button type="button" class="reset-progress-xp-btn" data-character-id="${actor.id}" title="Reset to post-creation (attributes, skills, powers). All earned XP becomes available."${hasSnap ? '' : ' disabled'}><i class="fas fa-undo"></i></button>`
-          : '';
-
-        htmlContent += `<tr data-character-id="${actor.id}">`;
-        htmlContent += `<td class="character-cell"><img src="${actor.img}" alt="${actor.name}" class="character-avatar" /><span class="character-name">${actor.name}</span></td>`;
-        htmlContent += `<td class="xp-cell" title="${spentHint}"><strong>${spentAll}</strong></td>`;
-        htmlContent += `<td class="xp-cell" title="${availHint}"><strong>${available}</strong></td>`;
-        htmlContent += `<td class="xp-cell xp-cell-free" title="${freeAvailHint}"><strong>${freeAvailable}</strong></td>`;
-        htmlContent += `<td class="xp-cell" title="${earnedHint}"><strong>${earnedAll}</strong></td>`;
-        htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
-        htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${regularHint}" />`;
-        htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="${regularHint}"><i class="fas fa-plus"></i></button>`;
-        htmlContent += `<button type="button" class="deduct-xp-btn" data-character-id="${actor.id}" title="Reguläre XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
-        htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="${freeHint}" />`;
-        htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="${freeHint}"><i class="fas fa-star"></i></button>`;
-        htmlContent += `<button type="button" class="deduct-free-xp-btn" data-character-id="${actor.id}" title="Free XP zurücknehmen (nur noch nicht ausgegebene)"><i class="fas fa-minus"></i></button></div>`;
-        htmlContent += `<div class="xp-row-actions">`;
-        htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
-        htmlContent += resetBtn;
-        htmlContent += `</div></div></td></tr>`;
-      });
-    }
-
-    htmlContent += '</tbody></table></div>';
     if ((game as any).user?.isGM) htmlContent += buildValueTableHtml(characters);
     customContainer.html(htmlContent);
     

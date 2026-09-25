@@ -78,7 +78,9 @@ export class XpManagementSettings extends BaseApplication {
     data.buildValues = (game as any).user?.isGM === false ? [] : characters.map((actor: any) => {
       const value = appraiseBuild(actor);
       return {
+        id: actor.id,
         name: actor.name,
+        hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
         ...value,
         skillBasisLabel: value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel',
         skillNote: value.notes.filter((note) => note.startsWith('Skill-Start')).join(' '),
@@ -259,6 +261,43 @@ export class XpManagementSettings extends BaseApplication {
 
       ui.notifications?.info(`Granted ${amount} Free XP to ${actor.name}.`);
 
+      this.render();
+    });
+
+    html.find('.deduct-free-xp-btn').on('click', async (event) => {
+      const button = $(event.currentTarget);
+      if (!(game as any).user?.isGM) return;
+      const characterId = button.data('character-id');
+      const requested = parseInt(button.siblings('.free-xp-amount-input').val() as string) || 0;
+      if (requested <= 0) {
+        ui.notifications?.warn('Bitte einen Betrag größer als 0 eingeben.');
+        return;
+      }
+      const actor = (game as any).actors?.get(characterId);
+      if (!actor) return;
+      const xpState = getXpState(actor);
+      const amount = Math.min(requested, Math.max(0, xpState.freeAvailable));
+      if (amount <= 0) {
+        ui.notifications?.warn(`${actor.name} hat keine freien Bonus-XP zum Zurücknehmen.`);
+        return;
+      }
+      await actor.update({
+        'system.points.xpFree': xpState.freeAvailable - amount,
+        'system.xp.freeEarned': Math.max(0, xpState.freeEarned - amount),
+      });
+      pushXpHistory(actor, {
+        ts: Date.now(),
+        userId: (game as any).user?.id || '',
+        userName: (game as any).user?.name || 'GM',
+        kind: 'adjust',
+        category: 'xp',
+        amount: -amount,
+        note: 'GM: Free XP zurückgenommen (nicht ausgegeben).',
+        before: { freeAvailable: xpState.freeAvailable },
+        after: { freeAvailable: xpState.freeAvailable - amount },
+      });
+      await actor.update({ 'system.xp.history': actor.system.xp.history });
+      ui.notifications?.info(`${actor.name}: ${amount} Bonus-XP zurückgenommen.`);
       this.render();
     });
 

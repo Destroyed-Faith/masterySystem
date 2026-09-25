@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appraiseBuild, attributeXpAboveFreePackage } from '../src/progression/build-value';
+import { appraiseBuild, attributeXpAboveFreePackage, buildValueTableHtml } from '../src/progression/build-value';
 
 describe('build value at current rules', () => {
   it('prices nothing for the free Attribute package', () => {
@@ -111,5 +111,21 @@ describe('build value at current rules', () => {
     // L3 = 8+8, L3 = 8+8, L2 = 8. Level 1 stays free.
     expect(value.artifacts).toBe(40);
     expect(value.powers).toBe(6);
+  });
+
+  it('puts Bonus XP, history, and reset on the build table', () => {
+    const html = buildValueTableHtml([{
+      id: 'scurry',
+      type: 'character',
+      name: 'Scurry',
+      system: { points: { xpFree: 55 }, attributes: {}, skills: {}, xp: {} },
+      items: [],
+    }]);
+    expect(html).toContain('grant-free-xp-btn');
+    expect(html).toContain('deduct-free-xp-btn');
+    expect(html).toContain('history-xp-btn');
+    expect(html).toContain('reset-progress-xp-btn');
+    expect(html).toContain('>55<');
+    expect(html).not.toContain('grant-xp-btn');
   });
 });

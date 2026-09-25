@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.576] - 2026-09-25
+
+### Changed
+
+- **XP-Verwaltung:** Die Tabelle mit Spent, Available und Earned ist weg. Bonus-XP geben und zurücknehmen, die XP-Historie und der Fortschritts-Reset sitzen in der Build-Wert-Tabelle. Session-XP wird dort nicht mehr vergeben.
+
 ## [0.9.575] - 2026-09-25
 
 ### Fixed

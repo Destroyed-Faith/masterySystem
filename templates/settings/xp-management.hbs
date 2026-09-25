@@ -9,21 +9,13 @@
     <div class="tab active" data-tab="characters">
       <div class="xp-management-header">
         <h2><i class="fas fa-coins"></i> Character XP Management</h2>
-        <p class="hint"><strong>{{localize "MASTERY.xp.regularLabel"}}:</strong> {{localize "MASTERY.xp.regularHint"}} <strong>{{localize "MASTERY.xp.freeLabel"}}:</strong> {{localize "MASTERY.xp.freeHint"}}</p>
+        <p class="hint"><strong>{{localize "MASTERY.xp.freeLabel"}}:</strong> {{localize "MASTERY.xp.freeHint"}}</p>
       </div>
       
       <!-- Bulk Grant Section -->
       <div class="bulk-grant-section">
-        <h3>Bulk Grant XP</h3>
+        <h3>Bonus-XP an alle</h3>
         <div class="bulk-grant-controls">
-          <div class="bulk-grant-group">
-            <label title="{{localize 'MASTERY.xp.regularHint'}}">{{localize "MASTERY.xp.regularLabel"}}:</label>
-            <input type="number" class="bulk-xp-amount" min="0" value="0" title="{{localize 'MASTERY.xp.regularHint'}}" />
-            <button type="button" class="bulk-grant-btn" title="{{localize 'MASTERY.xp.regularHint'}}">
-              <i class="fas fa-gift"></i> Grant to All
-            </button>
-            <p class="bulk-grant-help" title="{{localize 'MASTERY.xp.regularHint'}}">{{localize "MASTERY.xp.regularHint"}}</p>
-          </div>
           <div class="bulk-grant-group">
             <label title="{{localize 'MASTERY.xp.freeHint'}}">{{localize "MASTERY.xp.freeLabel"}}:</label>
             <input type="number" class="bulk-free-xp-amount" min="0" value="0" title="{{localize 'MASTERY.xp.freeHint'}}" />
@@ -43,68 +35,6 @@
         </button>
       </div>
       
-      <!-- Characters List -->
-      <div class="characters-list">
-        <table class="xp-table xp-table-compact">
-          <thead>
-            <tr>
-              <th>{{localize "MASTERY.xp.colCharacter"}}</th>
-              <th title="{{localize 'MASTERY.xp.spentHint'}}">{{localize "MASTERY.xp.colSpent"}}</th>
-              <th title="{{localize 'MASTERY.xp.availHint'}}">{{localize "MASTERY.xp.colAvail"}}</th>
-              <th>{{localize "MASTERY.xp.colFree"}}</th>
-              <th>{{localize "MASTERY.xp.colEarned"}}</th>
-              <th>{{localize "MASTERY.xp.colActions"}}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each characters}}
-            <tr data-character-id="{{this.id}}">
-              <td class="character-cell">
-                <img src="{{this.img}}" alt="{{this.name}}" class="character-avatar" />
-                <span class="character-name">{{this.name}}</span>
-              </td>
-              <td class="xp-cell" title="{{localize 'MASTERY.xp.spentHint'}}"><strong>{{this.xp.spent}}</strong></td>
-              <td class="xp-cell" title="{{localize 'MASTERY.xp.availHint'}}"><strong>{{this.xp.available}}</strong></td>
-              <td class="xp-cell xp-cell-free" title="{{localize 'MASTERY.xp.freeAvailHint' earned=this.xp.freeEarned}}"><strong>{{this.xp.freeAvailable}}</strong></td>
-              <td class="xp-cell" title="{{localize 'MASTERY.xp.earnedHint' regular=this.xp.regularEarned free=this.xp.freeEarned}}"><strong>{{this.xp.totalEarned}}</strong></td>
-              <td class="grant-cell">
-                <div class="grant-controls">
-                  <div class="grant-group">
-                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.regularHint'}}" />
-                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="{{localize 'MASTERY.xp.regularHint'}}">
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
-                  <div class="grant-group grant-group-free">
-                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.freeHint'}}" />
-                    <button type="button" class="grant-free-xp-btn" data-character-id="{{this.id}}" title="{{localize 'MASTERY.xp.freeHint'}}">
-                      <i class="fas fa-star"></i>
-                    </button>
-                  </div>
-                  <div class="xp-row-actions">
-                    <button type="button" class="history-xp-btn" data-character-id="{{this.id}}" title="XP History">
-                      <i class="fas fa-history"></i>
-                    </button>
-                    {{#if (userIsGM)}}
-                    <button type="button" class="reset-progress-xp-btn" data-character-id="{{this.id}}" title="Reset to post-creation (attributes, skills, powers). All earned XP becomes available." {{#unless this.hasPostCreationSnapshot}}disabled{{/unless}}>
-                      <i class="fas fa-undo"></i>
-                    </button>
-                    {{/if}}
-                  </div>
-                </div>
-              </td>
-            </tr>
-            {{else}}
-            <tr>
-              <td colspan="8" class="empty-message">
-                <i class="fas fa-info-circle"></i> No player characters found.
-              </td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-
       <div class="bulk-grant-section build-value-section">
         <h3>Build-Wert nach aktuellen Regeln</h3>
         <p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige EP auf dem Bogen zählen nicht zum Netto.</p>
@@ -119,11 +49,13 @@
               <th>Netto</th>
               <th>Skill Points übrig</th>
               <th>Skill-Basis</th>
+              <th>Bonus übrig</th>
+              <th>Bonus-XP</th>
             </tr>
           </thead>
           <tbody>
             {{#each buildValues}}
-            <tr>
+            <tr data-character-id="{{this.id}}">
               <td>{{this.name}}</td>
               <td>{{this.attributes}}</td>
               <td title="{{this.skillNote}}">{{this.skills}}</td>
@@ -132,9 +64,33 @@
               <td><strong>{{this.net}}</strong></td>
               <td>{{this.unspentSkillPoints}}</td>
               <td>{{this.skillBasisLabel}}</td>
+              <td class="xp-cell xp-cell-free"><strong>{{this.unspentFreeXp}}</strong></td>
+              <td class="grant-cell">
+                <div class="grant-controls">
+                  <div class="grant-group grant-group-free">
+                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="{{localize 'MASTERY.xp.freeHint'}}" />
+                    <button type="button" class="grant-free-xp-btn" data-character-id="{{this.id}}" title="{{localize 'MASTERY.xp.freeHint'}}">
+                      <i class="fas fa-star"></i>
+                    </button>
+                    <button type="button" class="deduct-free-xp-btn" data-character-id="{{this.id}}" title="Bonus-XP zurücknehmen (nur noch nicht ausgegebene)">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                  </div>
+                  <div class="xp-row-actions">
+                    <button type="button" class="history-xp-btn" data-character-id="{{this.id}}" title="XP History">
+                      <i class="fas fa-history"></i>
+                    </button>
+                    {{#if (userIsGM)}}
+                    <button type="button" class="reset-progress-xp-btn" data-character-id="{{this.id}}" title="Fortschritt auf den Stand nach der Erschaffung zurücksetzen." {{#unless this.hasPostCreationSnapshot}}disabled{{/unless}}>
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    {{/if}}
+                  </div>
+                </div>
+              </td>
             </tr>
             {{else}}
-            <tr><td colspan="8">Keine Charaktere.</td></tr>
+            <tr><td colspan="10">Keine Charaktere.</td></tr>
             {{/each}}
           </tbody>
         </table>
