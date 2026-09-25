@@ -5,7 +5,8 @@
  * XP: the Attribute package, up to 40 Character Creation Skill Points (max 4
  * per Skill), creation Power ranks, and Artifact level 1. Ranks paid with
  * unspent Skill Points are Skill Points, not XP. Artifact activation costs
- * nothing beyond the level table, and level 1 is free.
+ * nothing beyond the level table, and level 1 is free. Echo Artifacts use that
+ * same level table: the granted level 1 costs nothing, later levels cost XP.
  */
 
 import {
@@ -143,7 +144,6 @@ function artifactXp(actor: any): { xp: number; lines: string[] } {
   const lines: string[] = [];
   let xp = 0;
   for (const item of listItems(actor, 'artifact')) {
-    if (grantedForFree(item)) continue;
     const level = Math.max(1, n(item?.system?.level) || 1);
     const cost = totalArtifactXpToLevel(level);
     xp += cost;

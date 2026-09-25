@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.575] - 2026-09-25
+
+### Fixed
+
+- **Build-Wert:** Echo-Artefakte zählen ab Stufe 2. Stufe 1 und das Aktivieren bleiben 0. Scurry’s Dragon Claws 3, Dragon Head 3 und Serpent Scales 2 sind 16 + 16 + 8.
+
 ## [0.9.574] - 2026-09-25
 
 ### Fixed

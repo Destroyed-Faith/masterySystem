@@ -94,19 +94,22 @@ describe('build value at current rules', () => {
     expect(value.net).toBe(8);
   });
 
-  it('does not price an Echo Artifact, and charges an extra Active from rank 1', () => {
+  it('prices Echo Artifact levels above 1, and charges an extra Active from rank 1', () => {
     const actor = {
       type: 'character',
       system: { attributes: {}, skills: {}, points: {}, xp: {} },
       items: [
-        { type: 'artifact', name: 'Echo', system: { level: 8 }, flags: { 'mastery-system': { echoBound: true } } },
+        { type: 'artifact', name: 'Dragon Claws - Level 3-1', system: { level: 3 }, flags: { 'mastery-system': { echoBound: true } } },
+        { type: 'artifact', name: 'Dragon Head - Level 3-1', system: { level: 3 }, flags: { 'mastery-system': { echoBound: true } } },
+        { type: 'artifact', name: 'Serpent Scales - Level 2-1', system: { level: 2 }, flags: { 'mastery-system': { echoBound: true } } },
         { type: 'power', name: 'Strike', system: { level: 2, category: 'active' } },
         { type: 'power', name: 'Second', system: { level: 2, category: 'active' } },
         { type: 'power', name: 'Bought', system: { level: 2, category: 'active' } },
       ],
     };
     const value = appraiseBuild(actor);
-    expect(value.artifacts).toBe(0);
+    // L3 = 8+8, L3 = 8+8, L2 = 8. Level 1 stays free.
+    expect(value.artifacts).toBe(40);
     expect(value.powers).toBe(6);
   });
 });
