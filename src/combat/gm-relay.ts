@@ -21,23 +21,24 @@ function newRequestId(): string {
 async function askGm(payload: Record<string, unknown>): Promise<boolean> {
   const g = globalThis as any;
   if (!g.game?.socket) return false;
-  if (!hasActiveGm()) {
-    g.ui?.notifications?.warn?.('Kein GM verbunden — Änderung nicht möglich.');
-    return false;
-  }
   const requestId = newRequestId();
   const replyTo = String(g.game.user?.id || '');
-  return await new Promise<boolean>((resolve) => {
+  const gmVisible = hasActiveGm();
+  const ok = await new Promise<boolean>((resolve) => {
     const timer = setTimeout(() => {
       pending.delete(requestId);
       resolve(false);
     }, 8000);
-    pending.set(requestId, (ok) => {
+    pending.set(requestId, (answered) => {
       clearTimeout(timer);
-      resolve(ok);
+      resolve(answered);
     });
     g.game.socket.emit(ENCOUNTER_SOCKET, { ...payload, requestId, replyTo });
   });
+  if (!ok && !gmVisible) {
+    g.ui?.notifications?.warn?.('Kein GM verbunden — Änderung nicht möglich.');
+  }
+  return ok;
 }
 
 /** Keys a player may ask the GM to write onto a target actor. */

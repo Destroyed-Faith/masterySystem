@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.585] - 2026-09-25
+
+### Fixed
+
+- **Keep als Spieler:** Schaden an einem fremden Ziel wird auch dann an den SL geschickt, wenn der Spieler-Client den SL nicht in der Userliste sieht. Der Knopf „GM: Close“ an Reaktionen schließt das Fenster für den, der den Schaden gewürfelt hat, statt „du bist kein GM“ zu sagen.
+
 ## [0.9.584] - 2026-09-25
 
 ### Fixed
