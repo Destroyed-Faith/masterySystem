@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.581] - 2026-09-25
+
+### Changed
+
+- **Steinleiste:** Die Felder sind höher. Start und die XP-Schwellen (20, 40, …) sind lesbar.
+
 ## [0.9.580] - 2026-09-25
 
 ### Changed
