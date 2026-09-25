@@ -6830,7 +6830,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const base = filled ? releaseStoneSlot(order, index) : order.slice();
     const options = stonePlacementOptions(base, rank);
     const progress = stoneSlotProgress(base);
-    if (!filled && !options.attributes.length && !options.colorless) {
+    const gmCombine = redistribute && base.length >= 2;
+    if (!filled && !options.attributes.length && !options.colorless && !gmCombine) {
       ui.notifications?.warn(
         options.colorlessReason || 'No Attribute can take another Stone under the Mastery Rank × 2 limit.',
       );
@@ -6840,20 +6841,30 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       label: migrationStoneSlotLabel(index),
       attributeChoices: options.attributes,
       counts: progress.assignments,
-      colorless: options.colorless,
-      colorlessHint: options.colorlessReason,
+      colorless: options.colorless || gmCombine,
+      colorlessHint: gmCombine
+        ? 'Zwei Felder werden ein Permanent Colorless Stone. Das zweite Feld darf belegt sein.'
+        : options.colorlessReason,
       allowClear: filled,
-      partners: progress.openIndexes
+      partners: (gmCombine
+        ? base.map((_, i) => i)
+        : progress.openIndexes
+      )
         .filter((i) => i !== index)
-        .map((i) => ({ index: i, label: migrationStoneSlotLabel(i) })),
+        .map((i) => ({
+          index: i,
+          label: `${migrationStoneSlotLabel(i)}${base[i] ? ` (${base[i]})` : ''}`,
+        })),
     });
     if (choice.kind === 'cancel') return;
-    const next = base.slice();
+    let next = base.slice();
     if (choice.kind === 'clear') {
       if (!filled) return;
     } else if (choice.kind === 'attribute' && choice.key) {
       next[index] = choice.key;
-    } else if (choice.kind === 'colorless' && choice.otherIndex != null && !next[choice.otherIndex]) {
+    } else if (choice.kind === 'colorless' && choice.otherIndex != null && choice.otherIndex !== index) {
+      next = releaseStoneSlot(next, choice.otherIndex);
+      next[index] = null;
       const pair = `colorless#${index}-${choice.otherIndex}`;
       next[index] = pair;
       next[choice.otherIndex] = pair;
@@ -6896,6 +6907,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const sys: any = (this.actor as any).system ?? {};
     const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
     const order = releaseAllStoneSlots(stoneOrderForActor(sys, lifetime));
+    await (this.actor as any).setFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG, true);
     await this.actor.update(stoneOrderActorUpdate(sys, order));
     ui.notifications?.info('Steine sind frei und können neu verteilt werden.');
     this.render();

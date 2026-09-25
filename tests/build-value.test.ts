@@ -44,7 +44,7 @@ describe('build value at current rules', () => {
     expect(value.unspentXp).toBe(30);
     expect(value.unspentFreeXp).toBe(8);
     expect(value.unspentSkillPoints).toBe(4);
-    expect(value.skillBasis).toBe('snapshot');
+    expect(value.skillBasis).toBe('creation-cap');
   });
 
   it('does not charge for activating an Artifact or for level 1', () => {
@@ -62,5 +62,21 @@ describe('build value at current rules', () => {
     expect(value.artifactActivation).toBe(0);
     expect(value.powers).toBe(0);
     expect(value.net).toBe(8);
+  });
+
+  it('does not price an Echo Artifact, and charges an extra Active from rank 1', () => {
+    const actor = {
+      type: 'character',
+      system: { attributes: {}, skills: {}, points: {}, xp: {} },
+      items: [
+        { type: 'artifact', name: 'Echo', system: { level: 8 }, flags: { 'mastery-system': { echoBound: true } } },
+        { type: 'power', name: 'Strike', system: { level: 2, category: 'active' } },
+        { type: 'power', name: 'Second', system: { level: 2, category: 'active' } },
+        { type: 'power', name: 'Bought', system: { level: 2, category: 'active' } },
+      ],
+    };
+    const value = appraiseBuild(actor);
+    expect(value.artifacts).toBe(0);
+    expect(value.powers).toBe(6);
   });
 });

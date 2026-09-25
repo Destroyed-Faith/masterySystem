@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- **Build-Wert:** Skills werden vom aktuellen Bogen gerechnet. 40 Startpunkte bleiben kostenlos, auch nach der Migration. Echo-Artefakte zählen nicht. Nur das Erschaffungspaket der Powers ist kostenlos, jede weitere Power ab Rang 1.
+- **Steine:** Der GM kann alle Steine lösen und zwei Felder zu einem Permanent Colorless Stone kombinieren, auch wenn das zweite Feld noch belegt ist.
+
 ## [0.9.572] - 2026-09-25
 
 ### Added
