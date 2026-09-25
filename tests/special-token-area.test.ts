@@ -109,8 +109,9 @@ describe('special token views', () => {
     expect(listHudDiminishingSpecials(actor).map((s) => s.id)).toEqual(['challenge']);
   });
 
-  it('uses the Challenge 1er art as the fallback for every Special', () => {
-    expect(specialTokenAsset('blight')).toBe(SPECIAL_TOKEN_FALLBACK);
+  it('uses dedicated art for the first coins and the Challenge 1er art otherwise', () => {
+    expect(specialTokenAsset('blight')).toBe('systems/mastery-system/assets/special-tokens/blight.png');
+    expect(specialTokenAsset('sundered')).toBe('systems/mastery-system/assets/special-tokens/sundered.png');
     expect(specialTokenAsset('challenge')).toBe(SPECIAL_TOKEN_FALLBACK);
   });
 
