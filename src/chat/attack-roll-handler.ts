@@ -589,7 +589,11 @@ export async function executeAttackRollFromCard(
         buffQuotaRemaining: syncedQuota.remaining,
         stoneCritCharges: critBank,
       });
-      const attackExplodeDiceOn78 = critMod.explodeOn78;
+      const npcCrit =
+        !!sheetToHit?.crit ||
+        (flags as any).npcCrit === true ||
+        (flags as any).npcCrit === 'true';
+      const attackExplodeDiceOn78 = critMod.explodeOn78 || npcCrit;
 
       const bloodRaises = 0;
       let raiseTnRollBonus = 0;

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.587] - 2026-09-25
+
+### Added
+
+- **NSC-Crit:** Jede NSC-Power (Basisangriff, Extra-Powers, Phasen) hat eine Crit-Checkbox. Ist sie an, explodieren die Angriffswürfel auf 7 und 8, wie beim Spieler-Crit. Schadenswürfel explodieren nicht. Powers ohne Haken würfeln weiter nur auf 8.
+
 ## [0.9.586] - 2026-09-25
 
 ### Fixed

@@ -4,6 +4,7 @@ import {
   npcAttacksPerRoundCap,
   npcAttackUsageKey,
   npcAttackDiceCount,
+  npcAttackExplodesOn7,
   resolveNpcSheetToHit,
   resolveNpcAttackSlots,
   sumNpcAttackSlotsFromPowers,
@@ -152,7 +153,7 @@ describe('npc attack dice pool', () => {
         masteryRank: 2,
         prototypeSystem: protoSix,
       }),
-    ).toEqual({ dice: 2, keep: 2, name: 'Hieb' });
+    ).toEqual({ dice: 2, keep: 2, name: 'Hieb', crit: false });
 
     expect(
       resolveNpcSheetToHit({
@@ -161,7 +162,7 @@ describe('npc attack dice pool', () => {
         masteryRank: 2,
         prototypeSystem: protoSix,
       }),
-    ).toEqual({ dice: 6, keep: 2, name: 'Waffenangriff' });
+    ).toEqual({ dice: 6, keep: 2, name: 'Waffenangriff', crit: false });
 
     expect(
       resolveNpcSheetToHit({
@@ -169,7 +170,7 @@ describe('npc attack dice pool', () => {
         system: {},
         masteryRank: 2,
       }),
-    ).toEqual({ dice: 6, keep: 2, name: '' });
+    ).toEqual({ dice: 6, keep: 2, name: '', crit: false });
 
     expect(
       resolveNpcSheetToHit({
@@ -178,7 +179,7 @@ describe('npc attack dice pool', () => {
         masteryRank: 1,
         prototypeSystem: protoSix,
       }),
-    ).toEqual({ dice: 2, keep: 1, name: 'Summon Attack' });
+    ).toEqual({ dice: 2, keep: 1, name: 'Summon Attack', crit: false });
 
     expect(
       resolveNpcSheetToHit({
@@ -195,5 +196,23 @@ describe('npc attack dice pool', () => {
         masteryRank: 4,
       }),
     ).toBeNull();
+  });
+
+  it('reads Crit per power: attack dice explode on 7–8 only when that row is marked', () => {
+    expect(npcAttackExplodesOn7(null)).toBe(false);
+    expect(npcAttackExplodesOn7({ npcCrit: true })).toBe(true);
+    expect(npcAttackExplodesOn7({ npcCrit: 'on' as any })).toBe(true);
+    expect(npcAttackExplodesOn7({})).toBe(false);
+
+    const system = {
+      npcBaseAttack: { name: 'Hieb', attackDiceCount: 6, npcCrit: false },
+      attackValues: [{ name: 'Biss', attackDiceCount: 8, npcCrit: true }],
+    };
+    expect(
+      resolveNpcSheetToHit({ actorType: 'npc', system, masteryRank: 3, attackIndex: 0 })?.crit,
+    ).toBe(false);
+    expect(
+      resolveNpcSheetToHit({ actorType: 'npc', system, masteryRank: 3, attackIndex: 1 })?.crit,
+    ).toBe(true);
   });
 });

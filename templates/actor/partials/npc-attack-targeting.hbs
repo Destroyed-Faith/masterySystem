@@ -86,6 +86,10 @@
       <label>Split</label>
       <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcSplitAttack" {{#if atk.npcSplitAttack}}checked{{/if}} data-dtype="Boolean" title="Two hits; pool/damage halved"/></label>
     </div>
+    <div class="npc-attack-field npc-attack-field--check">
+      <label>Crit</label>
+      <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcCrit" {{#if atk.npcCrit}}checked{{/if}} data-dtype="Boolean" title="Attack dice explode on 7 and 8, like player Crit. Damage dice do not explode. Set per power."/></label>
+    </div>
     <div class="npc-attack-field">
       <label>Stress (d8)</label>
       <select name="{{path}}.npcStressD8" data-dtype="Number" data-tooltip="Stress damage on hit. NPC attacks default to 1d8.">

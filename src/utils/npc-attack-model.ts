@@ -217,6 +217,9 @@ export function sanitizeNpcAttackTargetingFields<T extends Record<string, any>>(
     out.npcAoeShape = 'none';
   }
 
+  if (npcAttackExplodesOn7(out)) out.npcCrit = true;
+  else delete out.npcCrit;
+
   if (isRanged) {
     const maxM =
       Number.isFinite(metersRaw) && metersRaw >= 8 ? Math.min(48, metersRaw) : 24;
@@ -780,10 +783,18 @@ export function npcAttackDiceCountIsBlank(attack: AttackValue | null | undefined
   return raw == null || raw === '' || !Number.isFinite(n);
 }
 
+/** True when this NPC power's attack dice explode on 7 and 8 (player Crit). */
+export function npcAttackExplodesOn7(attack: { npcCrit?: unknown } | null | undefined): boolean {
+  const v = attack?.npcCrit as unknown;
+  return v === true || v === 'true' || v === 'on' || v === 1 || v === '1';
+}
+
 export interface NpcSheetToHit {
   dice: number;
   keep: number;
   name: string;
+  /** Attack pool explodes on 7–8. Damage dice do not. */
+  crit: boolean;
 }
 
 /**
@@ -819,6 +830,7 @@ export function resolveNpcSheetToHit(args: {
       dice: 6,
       keep: Math.max(1, Math.floor(Number(args.masteryRank) || 1)),
       name: '',
+      crit: false,
     };
   }
 
@@ -826,6 +838,7 @@ export function resolveNpcSheetToHit(args: {
     dice: npcAttackDiceCount(row),
     keep: npcAttackKeepDice(row, args.masteryRank),
     name: String(row.name || '').trim(),
+    crit: npcAttackExplodesOn7(row),
   };
 }
 

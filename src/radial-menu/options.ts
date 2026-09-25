@@ -87,6 +87,7 @@ function buildNpcAttackDescription(atk: any): string {
   const stress = Math.max(0, Math.floor(Number(atk?.npcStressD8) || 0));
   if (stress > 0) parts.push(`Stress: ${stress}d8`);
   if (atk?.npcIsSpell) parts.push('Spell');
+  if (atk?.npcCrit) parts.push('Crit (7–8)');
   if (atk?.armor) parts.push(`Rüstung: ${atk.armor}`);
   const sp = formatNpcAttackSpecialsLine(atk);
   if (sp) parts.push(`Spezial: ${sp}`);
@@ -214,6 +215,7 @@ export function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
         costsMovement: false,
         npcSplitAttack: !!atk?.npcSplitAttack,
         npcIsSpell: !!atk?.npcIsSpell,
+        npcCrit: !!atk?.npcCrit,
         npcAttacksPerRound: maxCopies,
         npcAttackUsageKey: usageKey,
         tags: targeting.tags,

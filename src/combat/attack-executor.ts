@@ -14,6 +14,7 @@ import {
   formatNpcAttackSpecialsLine,
   getNpcAttackByIndex,
   npcAttackDiceCount,
+  npcAttackExplodesOn7,
   npcAttackKeepDice,
   npcDamageDiceFormula
 } from "../utils/npc-attack-model.js";
@@ -510,6 +511,9 @@ export async function createAttackCard(
   // not Evade and not PC power-level Casting TN.
   const npcIsSpell =
     isNpcAttack && (!!(option as any).npcIsSpell || !!npcAttackRow?.npcIsSpell);
+  const npcCrit =
+    isNpcAttack &&
+    (npcAttackExplodesOn7(option as any) || npcAttackExplodesOn7(npcAttackRow));
   if (npcIsSpell) {
     tnKind = 'casting';
     castingBaseTn =
@@ -766,6 +770,7 @@ export async function createAttackCard(
       ? String((option as any).npcAttackUsageKey || option.id || '')
       : undefined,
     npcIsSpell: npcIsSpell || undefined,
+    npcCrit: npcCrit || undefined,
     ...(raiseContext
       ? {
           powerIsSpell: raiseContext.isSpell,
@@ -809,6 +814,11 @@ export async function createAttackCard(
         ${
           npcAttackRow.armor
             ? `<div class="detail-row"><span class="detail-label">Rüstung:</span><span class="detail-value">${attackCardEsc(String(npcAttackRow.armor))}</span></div>`
+            : ""
+        }
+        ${
+          npcCrit
+            ? `<div class="detail-row"><span class="detail-label">Crit:</span><span class="detail-value">Attack dice explode on 7–8</span></div>`
             : ""
         }
         ${

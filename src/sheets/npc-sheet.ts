@@ -205,6 +205,7 @@ function readLiveNpcAttackFormFields(
   pick('npcStressD8', true);
   pick('npcIsSpell');
   pick('npcSplitAttack');
+  pick('npcCrit');
   return out;
 }
 
@@ -246,6 +247,11 @@ function normalizeNpcAttackRowForContext(row: Record<string, any> | null | undef
     o.npcIsSpell = true;
   } else {
     delete o.npcIsSpell;
+  }
+  if (o.npcCrit === true || o.npcCrit === 'true' || o.npcCrit === 'on') {
+    o.npcCrit = true;
+  } else {
+    delete o.npcCrit;
   }
   {
     const apr = Math.floor(Number(o.npcAttacksPerRound));

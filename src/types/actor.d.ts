@@ -449,6 +449,11 @@ export interface AttackValue {
    */
   npcIsSpell?: boolean;
   /**
+   * Attack dice explode on 7 and 8, like player Crit. Damage dice stay flat.
+   * Set per power on the NPC sheet.
+   */
+  npcCrit?: boolean;
+  /**
    * Wie oft diese Power im Radialmenü erscheint (1–5 Kopien).
    * Die Summe über alle Powers der aktiven Phase setzt `attackSlots` (ATK).
    */
