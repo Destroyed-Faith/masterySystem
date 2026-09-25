@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.582] - 2026-09-25
+
+### Added
+
+- **Special-Tokens:** Blight, Expose, Hex, Slow und Sundered haben eigene Münzen. Steigt so ein Special, zittert der getroffene Token kurz, und die neuen Münzen fliegen in etwa einer halben Sekunde in die Fläche. Dort setzen sie mit einem kurzen Ruck auf.
+
 ## [0.9.581] - 2026-09-25
 
 ### Changed
