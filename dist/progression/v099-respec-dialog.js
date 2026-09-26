@@ -416,7 +416,7 @@ function openStoneStep(actor, draft, order) {
             const progress = stoneSlotProgress(order);
             const meta = root.querySelector('.v099-stone-meta');
             if (meta) {
-                const cap = stoneConcentrationCap(order.length, storedRank);
+                const cap = stoneConcentrationCap(order.length, storedRank, draft.lifetimeXp);
                 meta.textContent = `${progress.filled} / ${order.length} Stones placed` +
                     (progress.colorless ? ` · ${progress.colorless} Permanent Colorless` : '') +
                     ` · max ${cap} per Attribute`;
@@ -484,7 +484,7 @@ function openStoneStep(actor, draft, order) {
             paint();
         };
         const onSlot = async (index) => {
-            const options = stonePlacementOptions(order, storedRank);
+            const options = stonePlacementOptions(order, storedRank, draft.lifetimeXp);
             const progress = stoneSlotProgress(order);
             const partners = progress.openIndexes
                 .filter((i) => i !== index)

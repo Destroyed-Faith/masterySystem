@@ -16,6 +16,7 @@ import {
 } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number): number {
@@ -342,7 +343,9 @@ export async function executeAttackRollFromCard(
       const sheetToHit = resolveNpcSheetToHit({
         actorType: attackerForRoll?.type,
         system: attackerForRoll?.system,
-        masteryRank: Number(flags.masteryRank ?? attackerForRoll?.system?.mastery?.rank ?? 2),
+        masteryRank: attackerForRoll
+          ? getRulesMasteryRank(attackerForRoll)
+          : Number(flags.masteryRank ?? 2),
         attackIndex: flags.npcAttackIndex != null ? Number(flags.npcAttackIndex) : 0,
         phaseIndex: flags.npcPhaseIndex ?? null,
         prototypeSystem:
@@ -535,7 +538,9 @@ export async function executeAttackRollFromCard(
       let keepDice =
         npcKeep > 0
           ? npcKeep
-          : (flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2));
+          : (attackerForRoll
+            ? getRulesMasteryRank(attackerForRoll)
+            : (flags.masteryRank ?? 2));
       const baseKeepDice = keepDice;
       // Disadvantage is no longer modeled as a Keep reduction (Players Guide
       // ~6471–6477 says only one chosen 8 may explode; pool & keep are
@@ -738,24 +743,31 @@ export async function executeAttackRollFromCard(
           }
         } else if ((flags as any).persistentSpellZone === true && rolled >= spellBase) {
           try {
-            const { readSpellZones } = await import('../combat/spell-zones.js');
+            const { appendSpellZone, createPersistentSpellZone, readSpellZones, writeSpellZones } =
+              await import('../combat/spell-zones.js');
             const caster = freshAttacker || (game as any).actors?.get(flags.attackerId);
-            if (caster?.setFlag) {
-              const zones = readSpellZones(caster);
-              const roundKey = `${String((combatRef as any)?.id ?? '')}:${Number((combatRef as any)?.round) || 0}`;
+            if (caster) {
+              const createdRound = Number((combatRef as any)?.round) || 0;
+              const roundKey = `${String((combatRef as any)?.id ?? '')}:${createdRound}`;
               const already = String(flags.targetId || '').trim();
-              zones.push({
+              const zone = createPersistentSpellZone({
                 id: `${String((caster as any).id)}:${messageId}`,
                 name: String((flags as any).selectedPowerName || 'Spell Zone'),
                 casterId: String((caster as any).id ?? ''),
                 spellBaseTn: spellBase,
                 castingTotal: rolled,
+                sourceMasteryRank: Number((flags as any).sourceMasteryRank) || getRulesMasteryRank(caster),
+                powerId: (flags as any).spellZonePowerId ?? (flags as any).selectedPowerId ?? null,
+                templateId: (flags as any).spellZoneTemplateId ?? null,
+                durationNote: (flags as any).spellZoneDuration ?? null,
+                createdRound,
+                sceneId: (flags as any).spellZoneSceneId ?? null,
                 appliedByRound: already ? { [roundKey]: [already] } : {},
                 centerX: (flags as any).spellZoneCenterX ?? null,
                 centerY: (flags as any).spellZoneCenterY ?? null,
                 radiusMeters: Math.max(0, Number((flags as any).spellZoneRadius) || 0),
               });
-              await caster.setFlag('mastery-system', 'spellZones', zones);
+              await writeSpellZones(caster, appendSpellZone(readSpellZones(caster), zone));
             }
           } catch (zoneErr) {
             console.warn('Mastery System | persistent spell zone was not stored', zoneErr);
@@ -959,9 +971,9 @@ export async function executeAttackRollFromCard(
             const mr = Math.max(
               1,
               Math.floor(
-                Number((freshAttackerForDialog as any)?.system?.mastery?.rank) ||
-                  updatedFlags.masteryRank ||
-                  2,
+                freshAttackerForDialog
+                  ? getRulesMasteryRank(freshAttackerForDialog)
+                  : Number(updatedFlags.masteryRank) || 2,
               ),
             );
             let spellCostOverride: RaiseCostAllocation | undefined;

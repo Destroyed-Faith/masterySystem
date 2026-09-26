@@ -12,7 +12,7 @@ import { getActiveSpecialValue, hasActiveSpecial } from '../system/active-specia
 import { getActorInventoryLoadZone, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
-import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, masteryRankFromLifetimeXp, } from '../utils/mastery-rank-sync.js';
+import { deriveMasteryRankFromStones, getRulesMasteryRank, getWorldDefaultMasteryRank, masteryRankFromLifetimeXp, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
@@ -24,7 +24,13 @@ function clampSkillRanksInUpdate(actor, changed) {
     const systemChange = changed?.system;
     if (!systemChange || typeof systemChange !== 'object')
         return;
-    const currentMr = Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 1));
+    const xpRaw = systemChange.progression?.lifetimeXp ?? actor.system?.progression?.lifetimeXp;
+    const xpKnown = xpRaw != null && xpRaw !== '' && Number.isFinite(Number(xpRaw));
+    const rulesRank = xpKnown ? masteryRankFromLifetimeXp(Number(xpRaw) || 0) : null;
+    if (rulesRank != null) {
+        systemChange.mastery = { ...(systemChange.mastery ?? {}), rank: rulesRank };
+    }
+    const currentMr = rulesRank ?? getRulesMasteryRank(actor);
     const nextMrRaw = systemChange.mastery?.rank;
     const nextMr = nextMrRaw != null && Number.isFinite(Number(nextMrRaw))
         ? Math.max(1, Math.floor(Number(nextMrRaw)))
@@ -199,23 +205,18 @@ export class MasteryActor extends Actor {
                 system.stones.current = Math.max(0, Math.min(system.stones.current, system.stones.maximum));
             }
             /**
-             * DF Core v0.9.9.1: suggested Mastery Rank comes from Lifetime XP.
-             * Live `system.mastery.rank` stays the GM-set value and is not overwritten.
+             * DF Core v0.9.9.1: Lifetime XP is the only mechanical Mastery Rank.
+             * When Lifetime XP is present, the stored field is the same number.
              */
             if (!system.mastery) {
                 system.mastery = { rank: getWorldDefaultMasteryRank(), points: 0, experience: 0 };
             }
             const lifetimeXp = system.progression?.lifetimeXp;
+            const rulesRank = getRulesMasteryRank(system);
             system.mastery.suggestedRank = lifetimeXp == null
                 ? deriveMasteryRankFromStones(system.stones.total)
-                : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
-            const storedRank = Math.floor(Number(system.mastery.rank) || 0);
-            if (!Number.isFinite(storedRank) || storedRank < 1) {
-                system.mastery.rank = getWorldDefaultMasteryRank();
-            }
-            else {
-                system.mastery.rank = Math.max(1, Math.min(8, storedRank));
-            }
+                : rulesRank;
+            system.mastery.rank = rulesRank;
             // New spec — MR 8 Divine Scale (Lesser/True/High/Apex God) for display.
             // `null` when total Stones < 50 (i.e. the actor is below Godlevel).
             system.mastery.divineScale = getDivineScale(system.stones.total);

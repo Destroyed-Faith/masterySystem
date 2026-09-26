@@ -23,6 +23,7 @@
  */
 
 import { applyDamage, healDamage, applyStress } from '../utils/calculations.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getEffectById } from '../utils/special-effects.js';
 import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
 import { writeActorStatusList } from '../system/assign-status.js';
@@ -59,7 +60,7 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
   let regenHeal = 0;
   const notes: string[] = [];
   const working: StatusEffectEntry[] = [];
-  const masteryRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
+  const masteryRank = getRulesMasteryRank(system);
 
   for (const entry of list) {
     const id = statusEntryId(entry);

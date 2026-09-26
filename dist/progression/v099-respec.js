@@ -69,7 +69,7 @@ export function planV099Respec(actor, input) {
         colorless = tallied.colorless;
         stoneSlotOrder = input.stoneSlotOrder.map((entry) => String(entry));
     }
-    const legal = assignmentsAreLegal(stones, permanent, storedRank, colorless);
+    const legal = assignmentsAreLegal(stones, permanent, storedRank, colorless, life);
     if (!legal.ok)
         return fail(legal.reason || 'Stone assignment is not legal.');
     return {

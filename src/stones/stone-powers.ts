@@ -15,6 +15,7 @@
  * in `clearCombatStoneTurnBonusesForActor` (see action-economy.ts).
  */
 
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
   getRoundState,
   setRoundState,
@@ -1076,7 +1077,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
         ui.notifications?.warn(`${(actor as any).name}: Initiative Boost already used this combat.`);
         return;
       }
-      const mr = Math.max(2, Math.floor(Number((actor as any)?.system?.mastery?.rank ?? 2) || 2));
+      const mr = getRulesMasteryRank(actor);
       const bonus = initiativeBoostAmount(tier, mr);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);

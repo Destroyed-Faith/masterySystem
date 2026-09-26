@@ -14,8 +14,9 @@
  *     token size on the effect so it can be restored when the buff ends.
  */
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 function getMasteryRank(actor) {
-    return actor?.system?.mastery?.rank || 2;
+    return getRulesMasteryRank(actor);
 }
 function getCurrentRound() {
     return game.combat?.round || 1;

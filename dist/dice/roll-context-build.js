@@ -10,6 +10,7 @@
  * rolls share one calculation.
  */
 import { standardTnForMasteryRank } from '../utils/constants.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { finalizeRolledPool } from './pool-finalize.js';
@@ -65,7 +66,7 @@ function skillRollIconClass(skillKey, attributeKey) {
 /** Sheet + dialog helper: dice pool label and tooltip for a skill attribute roll. */
 export function buildSkillRollPoolPreview(actor, skillKey, attributeKey, skillRatingOverride) {
     const system = actor.system;
-    const masteryRank = Number(system.mastery?.rank ?? 2);
+    const masteryRank = getRulesMasteryRank(actor);
     const skillRating = skillRatingOverride ?? Number(system.skills?.[skillKey] ?? 0);
     const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
     const poolThreshold = skillFullPoolThreshold(masteryRank);
@@ -113,7 +114,7 @@ export function buildSkillRollPoolPreview(actor, skillKey, attributeKey, skillRa
 export function getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride) {
     const skillDef = SKILLS[skillKey];
     const system = actor.system;
-    const masteryRank = Number(system.mastery?.rank ?? 2);
+    const masteryRank = getRulesMasteryRank(actor);
     if (!skillDef) {
         return {
             numDice: masteryRank,
@@ -175,7 +176,7 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
     if (!skillDef)
         return null;
     const system = actor.system;
-    const masteryRank = system.mastery?.rank || 2;
+    const masteryRank = getRulesMasteryRank(actor);
     const attributeValue = Number(system.attributes?.[attributeKey]?.value) || 0;
     const skillRating = Number(system?.skills?.[skillKey] ?? 0);
     const poolThreshold = skillFullPoolThreshold(masteryRank);
@@ -214,7 +215,7 @@ export function buildSkillRollContext(actor, skillKey, attributeKey, tnSpec, sto
 }
 export function buildAttributeRollContext(actor, attributeKey, tnSpec, stoneBonusRaises = 0) {
     const system = actor.system;
-    const masteryRank = system.mastery?.rank || 2;
+    const masteryRank = getRulesMasteryRank(actor);
     const numDice = Number(system.attributes?.[attributeKey]?.value) || 0;
     const attrLabel = capAttr(attributeKey);
     const flavor = `Attribute pool: ${numDice}d8 base, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.`;

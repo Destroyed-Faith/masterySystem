@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.591] - 2026-09-26
+
+### Fixed
+
+- **Persistente Spell-Zonen:** Jede Zone behält ihr eigenes Casting-Ergebnis, die Power und die Dauer. Eine zweite Zone desselben Casters überschreibt die erste nicht. Eine Zone ohne gespeicherten Mittelpunkt durchsucht die Szene nicht.
+- **Mastery Rank:** Lifetime XP ist die einzige mechanische Mastery Rank. Ein abweichend gespeicherter Rang gilt nicht für Keep, Spell Base TN, Stone-Caps oder Buff-Dauer.
+
 ## [0.9.590] - 2026-09-26
 
 ### Changed

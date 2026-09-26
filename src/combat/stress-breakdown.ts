@@ -33,8 +33,10 @@ function escHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+
 function masteryRankOf(actor: any): number {
-  return Math.max(1, Math.min(16, Math.floor(Number(actor?.system?.mastery?.rank) || 1)));
+  return getRulesMasteryRank(actor);
 }
 
 function userMayActForActor(actor: any): boolean {

@@ -187,6 +187,7 @@ export interface StonePlacementOptions {
 export function stonePlacementOptions(
   order: readonly (string | null)[],
   storedRank = 1,
+  lifetimeXp?: number | null,
 ): StonePlacementOptions {
   const progress = stoneSlotProgress(order);
   const total = order.length;
@@ -198,6 +199,7 @@ export function stonePlacementOptions(
         totalPermanent: total,
         storedRank,
         permanentColorless: progress.colorless,
+        lifetimeXp,
       }).ok,
   );
   const convert = canConvertToPermanentColorless({
@@ -205,6 +207,7 @@ export function stonePlacementOptions(
     totalPermanent: total,
     permanentColorless: progress.colorless,
     storedRank,
+    lifetimeXp,
   });
   const anotherOpen = progress.openIndexes.length >= 2;
   return {

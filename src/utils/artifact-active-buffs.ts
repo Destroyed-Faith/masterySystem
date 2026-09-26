@@ -25,8 +25,10 @@ interface TokenSizeSnapshot {
   height: number;
 }
 
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
+
 function getMasteryRank(actor: any): number {
-  return (actor?.system as any)?.mastery?.rank || 2;
+  return getRulesMasteryRank(actor);
 }
 
 function getCurrentRound(): number {

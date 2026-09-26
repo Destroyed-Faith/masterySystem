@@ -27,6 +27,7 @@ import {
   weaponSpecialEntries,
 } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
+import { getRulesMasteryRank } from "../utils/mastery-rank-sync.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import {
@@ -201,14 +202,7 @@ export function getAttributeValue(actor: any, attributeName: string): number {
  * Get mastery rank from actor
  */
 export function getMasteryRank(actor: any): number {
-  if (!actor || !actor.system) return 2; // Default
-  
-  const system = actor.system as any;
-  const rank = Math.floor(Number(system.mastery?.rank) || 0);
-  if (rank >= 1) return Math.min(8, rank);
-
-  const defaultMasteryRank = (game as any).settings?.get('mastery-system', 'defaultMasteryRank') || 2;
-  return Math.max(1, Math.min(8, Math.floor(Number(defaultMasteryRank) || 2)));
+  return getRulesMasteryRank(actor);
 }
 
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
@@ -802,6 +796,10 @@ export async function createAttackCard(
           spellZoneCenterX: (option as any).spellZoneCenterX ?? null,
           spellZoneCenterY: (option as any).spellZoneCenterY ?? null,
           spellZoneRadius: (option as any).aoeRadiusMeters ?? null,
+          spellZoneDuration: (option as any).zoneDurationNote ?? null,
+          spellZonePowerId: (option as any).powerId ?? (option as any).item?.id ?? null,
+          spellZoneTemplateId: (option as any).templateId ?? (option as any).item?.system?.templateId ?? null,
+          sourceMasteryRank: masteryRank,
         }
       : {}),
     targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,

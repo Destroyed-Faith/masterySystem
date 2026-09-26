@@ -14,6 +14,7 @@ import {
   spendReactionAction,
 } from './action-economy.js';
 import { actorParticipatesInReactions } from '../utils/npc-reactions.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
   getTargetEvade,
   getTargetSpellResistance,
@@ -65,7 +66,7 @@ export function aoeSecondaryBodySaveDc(masteryRank: number): number {
 
 /** Dive-for-Cover movement allowance of the diving creature (2 × own MR). */
 export function diveForCoverDistanceM(actor: any): number {
-  const mr = Math.max(1, Math.min(8, Math.floor(Number(actor?.system?.mastery?.rank) || 1)));
+  const mr = getRulesMasteryRank(actor);
   return mr * 2;
 }
 

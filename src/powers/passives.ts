@@ -4,6 +4,7 @@
  */
 
 import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 
 /** Mastery Rank at which each passive slot unlocks (max 4 slots). */
 export const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[] = [1, 2, 4, 6];
@@ -48,7 +49,7 @@ export function getPassiveSlotUnlockRank(slotIndex: number): number | null {
 export function getPassiveSlots(actor: Actor): PassiveSlot[] {
   const system = (actor.system as any);
   const passives = system.passives || {};
-  const masteryRank = system.mastery?.rank || 2;
+  const masteryRank = getRulesMasteryRank(actor);
   const slotCount = getPassiveSlotCountForMasteryRank(masteryRank);
   const slots: PassiveSlot[] = [];
 
@@ -178,7 +179,7 @@ export async function activatePassive(actor: Actor, slotIndex: number): Promise<
     return; // Can't activate empty slot
   }
   
-  const masteryRank = system.mastery?.rank || 2;
+  const masteryRank = getRulesMasteryRank(actor);
   const maxActive = getPassiveSlotCountForMasteryRank(masteryRank);
   const activeCount = getActivePassiveCount(actor);
 

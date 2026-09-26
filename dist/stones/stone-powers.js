@@ -14,6 +14,7 @@
  * or set actor / combatant flags. Cleanup of per-turn bonuses happens
  * in `clearCombatStoneTurnBonusesForActor` (see action-economy.ts).
  */
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getRoundState, setRoundState, syncPcExtraAttackTotal, } from '../combat/action-economy.js';
 import { healStressFromBars } from '../utils/calculations.js';
 import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, isTempHpStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, markTempHpStoneUsedThisCombat, } from './colorless-stones.js';
@@ -925,7 +926,7 @@ const WITS_POWERS_RAW = [
                 ui.notifications?.warn(`${actor.name}: Initiative Boost already used this combat.`);
                 return;
             }
-            const mr = Math.max(2, Math.floor(Number(actor?.system?.mastery?.rank ?? 2) || 2));
+            const mr = getRulesMasteryRank(actor);
             const bonus = initiativeBoostAmount(tier, mr);
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);

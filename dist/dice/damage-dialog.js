@@ -3,6 +3,7 @@
  * Appears after successful attack roll to calculate and apply damage
  */
 import { attributeScalingEnabled } from '../utils/calculations.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { collectMechanicsContributions } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
@@ -592,7 +593,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     let shownSpecials = '';
     let resolvedPowerSnapshot = null;
     if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
-        const masteryRank = Math.max(1, Math.floor(Number(actorToUse.system?.mastery?.rank) || flags.masteryRank || 2));
+        const masteryRank = actorToUse
+            ? getRulesMasteryRank(actorToUse)
+            : Math.max(1, Math.floor(Number(flags.masteryRank) || 2));
         const isSpell = !!flags.powerIsSpell;
         const declaredRaises = Array.isArray(flags.declaredRaises)
             ? [...flags.declaredRaises]
@@ -1282,9 +1285,7 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                 else {
                     // Add new effect. `sourceMasteryRank` feeds effects whose recovery
                     // TN scales with the source (e.g. Root break checks: TN 8 × source MR).
-                    const srcRank = attacker
-                        ? Math.max(1, Math.floor(Number(attacker?.system?.mastery?.rank) || 1))
-                        : null;
+                    const srcRank = attacker ? getRulesMasteryRank(attacker) : null;
                     list.push({
                         id: effectId,
                         name: effectName,

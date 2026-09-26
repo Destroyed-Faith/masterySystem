@@ -1,1 +1,1 @@
-{"version":3,"file":"spell-zone-entry.d.ts","sourceRoot":"","sources":["../../src/combat/spell-zone-entry.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AA2BH,wBAAsB,4BAA4B,CAChD,QAAQ,EAAE,GAAG,EACb,QAAQ,EAAE,GAAG,EACb,MAAM,EAAE,GAAG,GACV,OAAO,CAAC,IAAI,CAAC,CAiDf"}
+{"version":3,"file":"spell-zone-entry.d.ts","sourceRoot":"","sources":["../../src/combat/spell-zone-entry.ts"],"names":[],"mappings":"AAAA;;;;GAIG;AA4BH,wBAAsB,4BAA4B,CAChD,QAAQ,EAAE,GAAG,EACb,QAAQ,EAAE,GAAG,EACb,MAAM,EAAE,GAAG,GACV,OAAO,CAAC,IAAI,CAAC,CA2Cf"}

@@ -1,11 +1,10 @@
 /**
  * Mastery Rank synchronisation helpers.
  *
- * DF Core v0.9.9.1: Mastery Rank comes from Lifetime XP, not Stone count.
- * A permanent Stone total earned as 2 + floor(XP / 20) implies that XP, so
- * `deriveMasteryRankFromStones` stays as a fallback when only the Stone total
- * is known. The live sheet rank may still be set by the GM; the suggested
- * rank is the Lifetime XP value.
+ * DF Core v0.9.9.1: the only mechanical Mastery Rank is Lifetime XP.
+ * `getRulesMasteryRank` is that rank. When Lifetime XP is missing (legacy
+ * actors, NPCs, mid-migration), the stored `system.mastery.rank` is the
+ * fallback. Stone count is not a Mastery Rank.
  */
 
 import { MR_ADVANCEMENT } from './constants.js';
@@ -32,6 +31,22 @@ export function masteryRankFromLifetimeXp(lifetimeXp: number): number {
         if (xp >= row.lifetimeXp) mr = row.mr;
     }
     return mr;
+}
+
+/**
+ * The Mastery Rank used by rules calculations.
+ * Lifetime XP wins over a stored `system.mastery.rank`.
+ */
+export function getRulesMasteryRank(actorOrSystem: any): number {
+    const system = actorOrSystem?.system ?? actorOrSystem ?? null;
+    if (!system || typeof system !== 'object') return getWorldDefaultMasteryRank();
+    const xpRaw = system?.progression?.lifetimeXp;
+    if (xpRaw != null && xpRaw !== '' && Number.isFinite(Number(xpRaw))) {
+        return masteryRankFromLifetimeXp(Number(xpRaw));
+    }
+    const stored = Math.floor(Number(system?.mastery?.rank) || 0);
+    if (stored >= 1) return Math.min(8, stored);
+    return getWorldDefaultMasteryRank();
 }
 
 /**
@@ -120,8 +135,8 @@ export async function syncActorMasteryRank(actor: any, options?: { applyBundle?:
  *   • +1 Schtick slot per rank gained (`system.schticks.ranks` table
  *     receives one new empty row per gained rank, capped at the new
  *     `system.mastery.rank`).
- *   • The "+1 Keep on all rolls" effect is implicit — every dice
- *     subsystem already reads `system.mastery.rank` directly.
+ *   • The "+1 Keep on all rolls" effect is implicit — dice subsystems
+ *     use `getRulesMasteryRank`, which is Lifetime XP when that field exists.
  *
  * The function is intentionally idempotent on the *target* rank: callers
  * may invoke it once with `delta = 1` per rank gained or with

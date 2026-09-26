@@ -133,6 +133,7 @@ import {
   validateHandEquip,
 } from '../utils/ammunition.js';
 import { XP_COSTS, attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
   ATTRIBUTE_KEYS,
   buildStoneProgressionSlots,
@@ -1504,7 +1505,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           canReassign: stoneRedistribute && slot.unlocked && slot.assigned,
         };
       });
-      const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+      const rank = getRulesMasteryRank(sys);
+      const concentrationCap = stoneConcentrationCap(
+        stones,
+        rank,
+        lifetimeXp == null ? null : Number(lifetimeXp),
+      );
       context.v099 = {
         needsRespec,
         needsLifetime,
@@ -1513,13 +1519,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         permanentStones: stones,
         unassigned: Math.max(0, stones - assigned - 2 * colorless),
         permanentColorless: colorless,
-        permanentColorlessCap: permanentColorlessCap(rank),
-        concentrationCap: stoneConcentrationCap(stones, rank),
+        permanentColorlessCap: permanentColorlessCap(concentrationCap / 2),
+        concentrationCap,
         stoneSummary: lifetimeXp == null
           ? 'Enter Lifetime XP during the v0.9.9 migration.'
           : `${assigned}/${stones} Stones assigned` +
-            (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(rank)})` : '') +
-            ` · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
+            (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(concentrationCap / 2)})` : '') +
+            ` · max ${concentrationCap} per Attribute`,
         slots,
         rows: chunkLifetimeSlots(slots, Math.max(1, slots.length)),
         lineSlots: Math.max(1, slots.length),
@@ -2243,7 +2249,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       currentHP: this.actor.totalHP || 0,
       maxHP: this.actor.maxHP || 0,
       currentPenalty: this.actor.currentPenalty || 0,
-      keepDice: system.mastery?.rank || 1
+      keepDice: getRulesMasteryRank(system)
     };
   }
 
@@ -2340,12 +2346,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const box = html.find('.mastery-rank-box');
     if (!box.length) return;
 
+    const rank = getRulesMasteryRank(this.actor);
+    const xpKnown = (this.actor.system as any)?.progression?.lifetimeXp != null
+      && (this.actor.system as any)?.progression?.lifetimeXp !== '';
     let select = box.find('.mastery-rank-select');
     if (!select.length) {
-      const rank = Math.max(
-        1,
-        Math.min(8, Math.floor(Number((this.actor.system as any)?.mastery?.rank) || 2))
-      );
       const options = [1, 2, 3, 4, 5, 6, 7, 8]
         .map((n) => `<option value="${n}"${n === rank ? ' selected' : ''}>${n}</option>`)
         .join('');
@@ -2353,11 +2358,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         `<select class="mastery-rank-select" data-dtype="Number" title="Mastery Rank" aria-label="Mastery Rank">${options}</select>`
       );
       select = box.find('.mastery-rank-select');
+    }
+    select.val(String(rank));
 
-      const suggested = Math.floor(Number((this.actor.system as any)?.mastery?.suggestedRank) || 0);
-      if (suggested >= 1 && suggested <= 8 && !box.find('.rank-stone-hint').length) {
+    if (xpKnown) {
+      select.prop('disabled', true);
+      select.off('change.masteryRank');
+      const hint = box.find('.rank-stone-hint');
+      if (hint.length) {
+        hint.text('Lifetime XP').attr('title', 'Mastery Rank comes from Lifetime XP');
+      } else {
         box.append(
-          `<span class="rank-stone-hint" title="Empfehlung aus Total Stones (nur Hinweis, kein Auto-Rank-Up)">↗${suggested}</span>`
+          `<span class="rank-stone-hint" title="Mastery Rank comes from Lifetime XP">Lifetime XP</span>`
+        );
+      }
+      return;
+    }
+
+    if (!box.find('.rank-stone-hint').length) {
+      const suggested = Math.floor(Number((this.actor.system as any)?.mastery?.suggestedRank) || 0);
+      if (suggested >= 1 && suggested <= 8) {
+        box.append(
+          `<span class="rank-stone-hint" title="Suggested from earned Stones until Lifetime XP is set">↗${suggested}</span>`
         );
       }
     }
@@ -4366,7 +4388,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const actorData = (this.actor as any).system;
     let numDice = actorData.attributes?.[attribute]?.value || 0;
-    const keepDice = actorData.mastery?.rank || 2;
+    const keepDice = getRulesMasteryRank(this.actor);
     // Players Guide minimum-pool rule (~5888–5899) — apply *before* the
     // health penalty so the percentage scales with the post-floor pool.
     numDice = Math.max(numDice, keepDice);
@@ -6819,7 +6841,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
-    const rank = Math.max(1, Math.floor(Number(sys?.mastery?.rank) || 1));
+    const rank = getRulesMasteryRank(this.actor);
     const order = stoneOrderForActor(sys, lifetime);
     const index = Math.floor(Number((ev?.currentTarget as HTMLElement | undefined)?.dataset?.slotIndex));
     if (!Number.isFinite(index) || index < 0 || index >= order.length) return;
@@ -6828,7 +6850,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const filled = Boolean(order[index]);
     if (filled && !redistribute) return;
     const base = filled ? releaseStoneSlot(order, index) : order.slice();
-    const options = stonePlacementOptions(base, rank);
+    const options = stonePlacementOptions(base, rank, lifetime);
     const progress = stoneSlotProgress(base);
     const gmCombine = redistribute && base.length >= 2;
     if (!filled && !options.attributes.length && !options.colorless && !gmCombine) {

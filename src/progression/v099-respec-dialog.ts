@@ -467,7 +467,7 @@ function openStoneStep(
       const progress = stoneSlotProgress(order);
       const meta = root.querySelector('.v099-stone-meta');
       if (meta) {
-        const cap = stoneConcentrationCap(order.length, storedRank);
+        const cap = stoneConcentrationCap(order.length, storedRank, draft.lifetimeXp);
         meta.textContent = `${progress.filled} / ${order.length} Stones placed` +
           (progress.colorless ? ` · ${progress.colorless} Permanent Colorless` : '') +
           ` · max ${cap} per Attribute`;
@@ -533,7 +533,7 @@ function openStoneStep(
     };
 
     const onSlot = async (index: number) => {
-      const options = stonePlacementOptions(order, storedRank);
+      const options = stonePlacementOptions(order, storedRank, draft.lifetimeXp);
       const progress = stoneSlotProgress(order);
       const partners = progress.openIndexes
         .filter((i) => i !== index)

@@ -11,6 +11,7 @@
 import { getPassiveSlots, getAvailablePassives, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, getPassiveSlotUnlockRank } from '../powers/passives.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { summarizePowerMechanics } from './power-mechanics-summary.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
 export interface PassiveSlotRow {
   index: number;
@@ -45,7 +46,7 @@ export function buildPassiveSlotView(actor: any): PassiveSlotView {
   const slotsRaw = getPassiveSlots(actor);
   const available = getAvailablePassives(actor);
   const items = (actor as any).items ?? [];
-  const masteryRank = Math.max(1, Math.floor(Number((actor as any)?.system?.mastery?.rank) || 2));
+  const masteryRank = getRulesMasteryRank(actor);
   const maxSlots = getPassiveSlotCountForMasteryRank(masteryRank);
 
   const slotIdToIndex = new Map<string, number>();

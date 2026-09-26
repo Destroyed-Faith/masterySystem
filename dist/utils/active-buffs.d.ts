@@ -14,6 +14,8 @@ export declare function isTrueActiveBuff(power: any): boolean;
  * Check if a power is an active buff (includes utilities)
  */
 export declare function isActiveBuff(power: any): boolean;
+/** Active Buff duration in rounds before Extend Active Buff. */
+export declare function activeBuffDurationRounds(actor: any): number;
 /**
  * Get all true active buffs (excluding utilities) on an actor
  */

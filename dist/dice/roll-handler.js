@@ -8,6 +8,7 @@ import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
 import { finalizeRolledPool } from './pool-finalize.js';
 import { buildOpposedSkillTn } from './roll-context-build.js';
 import { manualKindFromRollKind, manualRollBonusForKind, readManualAdjustments, } from '../utils/manual-adjustments.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 /**
  * Roll one pool die: each face of **8** explodes (Players Guide ~5850–5854 —
  * "On an 8, reroll that die and add the new result"). Returns the per-face
@@ -348,9 +349,8 @@ export async function masteryRoll(options) {
         try {
             const geActor = options.actorRef ??
                 (options.actorId ? globalThis.game?.actors?.get?.(options.actorId) : null);
-            const stored = Math.floor(Number(geActor?.system?.mastery?.rank) || 0);
-            if (stored > 0)
-                masteryRank = stored;
+            if (geActor)
+                masteryRank = getRulesMasteryRank(geActor);
         }
         catch {
             /* keep the Keep count as the floor */
@@ -606,7 +606,7 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             const skillRating = actorData.skills?.[skillKey] || 0;
             const skillsSpent = actorData.skillsSpent?.[skillKey] || 0;
             remainingPool = Math.max(0, skillRating - skillsSpent);
-            const MR = actorData.mastery?.rank || 2;
+            const MR = getRulesMasteryRank(actor);
             const diceTotal = result.kept.reduce((sum, d) => sum + d, 0) + (baseModifier || 0);
             // Stone bonus raises count only on full raise success; include in spend previews when applicable.
             const stoneBonusRaises = Math.max(0, result.stoneBonusRaises ?? 0);
@@ -814,7 +814,7 @@ export async function quickRoll(actor, attributeName, skillName, tn, label, modi
     // `masteryRoll` in canonical order (`applyPoolPenalties: true`).
     const numDice = actorData.attributes?.[attributeName]?.value || 0;
     // Get mastery rank (number to keep)
-    const keepDice = actorData.mastery?.rank || 1;
+    const keepDice = getRulesMasteryRank(actor);
     // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
     // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
     const skillBonus = modifier !== undefined ? modifier : 0;

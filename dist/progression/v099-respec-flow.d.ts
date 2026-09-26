@@ -53,7 +53,7 @@ export interface StonePlacementOptions {
     colorless: boolean;
     colorlessReason: string;
 }
-export declare function stonePlacementOptions(order: readonly (string | null)[], storedRank?: number): StonePlacementOptions;
+export declare function stonePlacementOptions(order: readonly (string | null)[], storedRank?: number, lifetimeXp?: number | null): StonePlacementOptions;
 /** Slot list for an actor. A stored order wins; otherwise the current sheet order. */
 export declare function stoneOrderForActor(system: any, lifetimeXp: number): (string | null)[];
 /** Actor update that keeps assignments, pools and the clicked slot order together. */

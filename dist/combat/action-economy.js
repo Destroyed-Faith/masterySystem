@@ -11,6 +11,7 @@ import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc-attack-model.js';
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 /** NPC ATK total = explicit per-phase/root slots (falls back to APR sum). */
 function npcAttackSlotsForEconomy(owner) {
     if (!owner || owner.type !== 'npc')
@@ -1179,7 +1180,7 @@ function shuffleArray(arr) {
 export async function applyAutomaticStoneRegen(actor) {
     const owner = getActionEconomyActor(actor) ?? actor;
     const system = owner.system;
-    const masteryRank = system.mastery?.rank || 2;
+    const masteryRank = getRulesMasteryRank(owner);
     const regenPoints = masteryRank;
     const attributeKeys = [
         'might',

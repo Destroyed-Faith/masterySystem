@@ -10,11 +10,12 @@
 import { getPassiveSlots, getAvailablePassives, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, getPassiveSlotUnlockRank } from '../powers/passives.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { summarizePowerMechanics } from './power-mechanics-summary.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export function buildPassiveSlotView(actor) {
     const slotsRaw = getPassiveSlots(actor);
     const available = getAvailablePassives(actor);
     const items = actor.items ?? [];
-    const masteryRank = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 2));
+    const masteryRank = getRulesMasteryRank(actor);
     const maxSlots = getPassiveSlotCountForMasteryRank(masteryRank);
     const slotIdToIndex = new Map();
     for (const s of slotsRaw) {

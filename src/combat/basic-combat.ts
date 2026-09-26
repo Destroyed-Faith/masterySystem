@@ -5,9 +5,10 @@
  * Basic Reactions: Guard (+MR×2 Armor), Evade (+MR×2 Evade), Counterattack.
  */
 
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+
 export function getMasteryRank(actor: any): number {
-  const mr = Math.floor(Number(actor?.system?.mastery?.rank) || 0);
-  return Math.max(1, Math.min(16, mr || 2));
+  return getRulesMasteryRank(actor);
 }
 
 /** MR × 2 — used for Basic Attack bonus dice and Guard/Evade bonuses. */

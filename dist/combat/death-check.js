@@ -12,6 +12,7 @@
  * The state lives in `flags.mastery-system.deathState` and resets as soon as
  * the creature has any HP again (healing wakes it immediately).
  */
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 export const DEATH_STATE_FLAG = 'deathState';
 export function emptyDeathState() {
     return { successes: 0, marks: 0, stabilized: false, dead: false };
@@ -53,7 +54,7 @@ export function isIncapacitated(actor) {
 export function deathCheckPool(actor) {
     const vit = Math.max(0, Math.floor(Number(actor?.system?.attributes?.vitality?.value) || 0));
     const res = Math.max(0, Math.floor(Number(actor?.system?.attributes?.resolve?.value) || 0));
-    const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+    const mr = getRulesMasteryRank(actor);
     const useVit = vit >= res;
     return {
         attribute: useVit ? 'Vitality' : 'Resolve',

@@ -13,6 +13,8 @@
  * the creature has any HP again (healing wakes it immediately).
  */
 
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+
 export const DEATH_STATE_FLAG = 'deathState';
 
 export interface DeathState {
@@ -65,7 +67,7 @@ export function isIncapacitated(actor: any): boolean {
 export function deathCheckPool(actor: any): { attribute: string; dice: number; keep: number; tn: number } {
   const vit = Math.max(0, Math.floor(Number(actor?.system?.attributes?.vitality?.value) || 0));
   const res = Math.max(0, Math.floor(Number(actor?.system?.attributes?.resolve?.value) || 0));
-  const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+  const mr = getRulesMasteryRank(actor);
   const useVit = vit >= res;
   return {
     attribute: useVit ? 'Vitality' : 'Resolve',

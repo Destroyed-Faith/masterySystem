@@ -9,6 +9,7 @@
  */
 import { getActionEconomyActor, getRoundState, spendReactionAction, } from './action-economy.js';
 import { actorParticipatesInReactions } from '../utils/npc-reactions.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from './attack-executor.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
@@ -54,7 +55,7 @@ export function aoeSecondaryBodySaveDc(masteryRank) {
 }
 /** Dive-for-Cover movement allowance of the diving creature (2 × own MR). */
 export function diveForCoverDistanceM(actor) {
-    const mr = Math.max(1, Math.min(8, Math.floor(Number(actor?.system?.mastery?.rank) || 1)));
+    const mr = getRulesMasteryRank(actor);
     return mr * 2;
 }
 /**

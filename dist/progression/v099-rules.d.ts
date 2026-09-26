@@ -52,13 +52,16 @@ export declare function nextLifetimeXp(system: any, amount: number): number | nu
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export declare function permanentStonesFromLifetimeXp(lifetimeXp: number): number;
 /**
- * MR × 2 Stones on one Attribute.
- *
- * Mastery Rank is the Lifetime XP rank. A permanent Stone total implies that
- * XP (2 + floor(XP / 20)). A higher rank stored on the sheet does not raise
- * the cap. `storedRank` remains in the signature for existing callers.
+ * Mastery Rank for Stone caps. Lifetime XP wins. Without it, the earned
+ * permanent Stone total implies the XP that produced it. A stored sheet
+ * rank does not change the cap, and allocated Stones are not a rank.
  */
-export declare function stoneConcentrationCap(totalPermanentStones: number, storedRank?: number): number;
+export declare function masteryRankForStoneLimits(totalPermanentStones: number, lifetimeXp?: number | null): number;
+/**
+ * MR × 2 Stones on one Attribute.
+ * `storedRank` remains in the signature for existing callers and is ignored.
+ */
+export declare function stoneConcentrationCap(totalPermanentStones: number, storedRank?: number, lifetimeXp?: number | null): number;
 export declare function emptyAssignments(): Record<AttributeKeyName, number>;
 export declare function readAssignments(source: any): Record<AttributeKeyName, number>;
 export declare function sumAssignments(assignments: Record<string, number>): number;
@@ -85,6 +88,7 @@ export declare function canConvertToPermanentColorless(args: {
     totalPermanent: number;
     permanentColorless: number;
     storedRank?: number;
+    lifetimeXp?: number | null;
 }): {
     ok: boolean;
     masteryRank: number;
@@ -97,13 +101,14 @@ export declare function canPlacePermanentStone(args: {
     totalPermanent: number;
     storedRank?: number;
     permanentColorless?: number;
+    lifetimeXp?: number | null;
 }): {
     ok: boolean;
     cap: number;
     masteryRank: number;
     reason?: string;
 };
-export declare function assignmentsAreLegal(assignments: Record<string, number>, totalPermanent: number, storedRank?: number, permanentColorless?: number): {
+export declare function assignmentsAreLegal(assignments: Record<string, number>, totalPermanent: number, storedRank?: number, permanentColorless?: number, lifetimeXp?: number | null): {
     ok: boolean;
     reason?: string;
 };

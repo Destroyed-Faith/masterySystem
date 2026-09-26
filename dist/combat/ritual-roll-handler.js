@@ -3,6 +3,7 @@
  * stones Sealed on the attempt (success or failure).
  */
 import { masteryRoll } from '../dice/roll-handler.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { appliedRitualEffects, calculateRitualRaiseTN, resolveRitualDeclaredOutcome, ritualStoneCost, } from '../utils/rituals.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
@@ -48,7 +49,7 @@ export async function showRitualRollDialog(actor, ritualId) {
 }
 export async function performRitualRoll(actor, ritual, opts) {
     const system = actor.system;
-    const masteryRank = system.mastery?.rank || 2;
+    const masteryRank = getRulesMasteryRank(actor);
     const skillDef = SKILLS[opts.skillKey];
     if (!skillDef) {
         ui.notifications?.error('Invalid ritual skill.');

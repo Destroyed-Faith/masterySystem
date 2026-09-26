@@ -12,8 +12,9 @@ import { getActiveCombatSense, isNonSightCombatSense, listActorCombatSenses, } f
 import { effectiveInvisibilityBonus, getPerceptionCombatState, hasLocatedTarget, isSenseBlockedOnTarget, markLocatedTarget, } from './perception-state.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
 import { tokenIsExcludedAsTarget } from './defeated-token.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 function targetMasteryRank(actor) {
-    return Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+    return getRulesMasteryRank(actor);
 }
 function distanceMeters(a, b) {
     try {
@@ -189,7 +190,7 @@ async function promptPerceptionCheck(observer, target, tn) {
                             try {
                                 const { masteryRoll } = await import('../dice/roll-handler.js');
                                 const { buildSkillRollContext } = await import('../dice/roll-context-build.js');
-                                const mr = Math.max(1, Math.floor(Number(observer?.system?.mastery?.rank) || 1));
+                                const mr = targetMasteryRank(observer);
                                 const presets = buildDifficultyPresets(mr);
                                 const raises = Math.max(0, Math.ceil((tn - presets.standard) / 4));
                                 const ctx = buildSkillRollContext(observer, 'perception', 'wits', { baseTN: tn, raises });

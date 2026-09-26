@@ -22,6 +22,7 @@
  * Runs GM-side only so a single client mutates the actor.
  */
 import { applyDamage, healDamage, applyStress } from '../utils/calculations.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getEffectById } from '../utils/special-effects.js';
 import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
 import { writeActorStatusList } from '../system/assign-status.js';
@@ -45,7 +46,7 @@ export async function processTurnStartStatusTick(actor) {
     let regenHeal = 0;
     const notes = [];
     const working = [];
-    const masteryRank = Math.max(1, Math.floor(Number(system?.mastery?.rank) || 1));
+    const masteryRank = getRulesMasteryRank(system);
     for (const entry of list) {
         const id = statusEntryId(entry);
         const effect = id ? getEffectById(id) : undefined;

@@ -7,6 +7,7 @@ import { powerCostPaysAction } from '../radial-menu/options.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
 /**
  * Consume a pending Vitality "Extend Active Buff" stone-power extension.
@@ -153,11 +154,9 @@ export function isActiveBuff(power: any): boolean {
   return false;
 }
 
-/**
- * Get mastery rank from actor
- */
-function getMasteryRank(actor: Actor): number {
-  return (actor.system as any)?.mastery?.rank || 2;
+/** Active Buff duration in rounds before Extend Active Buff. */
+export function activeBuffDurationRounds(actor: any): number {
+  return getRulesMasteryRank(actor);
 }
 
 /**
@@ -222,7 +221,7 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     }
   }
   
-  const masteryRank = getMasteryRank(actor);
+  const masteryRank = activeBuffDurationRounds(actor);
   const currentRound = getCurrentRound();
 
   // Vitality Stone Power "Extend Active Buff": +1..+4 rounds on ONE Active

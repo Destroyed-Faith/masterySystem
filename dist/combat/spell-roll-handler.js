@@ -24,6 +24,7 @@
 import { masteryRoll } from '../dice/roll-handler.js';
 import { computeRaiseTns, resolveRaiseOutcome } from './raise-resolution.js';
 import { RAISE_INCREMENT, standardTnForMasteryRank } from '../utils/constants.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { spellResistanceAfterPenetration } from './target-defenses.js';
 import { applyStress, applyDamage, isStressTrackCollapsed, calculateMaxPowerLevel, attributeScalingEnabled, } from '../utils/calculations.js';
 /** Flag scope used for persistent spell-related state on actors. */
@@ -205,7 +206,7 @@ export async function rollSpell(params) {
     const { actor, target = null, spellLevel, castingAttribute, resolution, declaredRaises = 0, declaredRaiseSlots, bloodRaises = 0, gmModifier = 0, masteryRankOverride, spellName = 'Spell', flavor, supportMode = false, mentalPower = false, } = params;
     const system = actor?.system ?? {};
     const attrValue = Number(system.attributes?.[castingAttribute]?.value ?? 0);
-    const masteryRank = Number(masteryRankOverride ?? system.mastery?.rank ?? 1);
+    const masteryRank = Number(masteryRankOverride ?? getRulesMasteryRank(actor));
     // Base pool = casting attribute. Specials (Weaken / Soulburn), the
     // Health/Encumbrance percentage penalty, and the Minimum Pool (= MR)
     // are applied centrally inside `masteryRoll` in canonical order.

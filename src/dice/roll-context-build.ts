@@ -11,6 +11,7 @@
  */
 
 import { standardTnForMasteryRank } from '../utils/constants.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { finalizeRolledPool } from './pool-finalize.js';
@@ -103,7 +104,7 @@ export function buildSkillRollPoolPreview(
   skillRatingOverride?: number,
 ): SkillRollPoolPreview {
   const system = (actor as any).system;
-  const masteryRank = Number(system.mastery?.rank ?? 2);
+  const masteryRank = getRulesMasteryRank(actor);
   const skillRating = skillRatingOverride ?? Number(system.skills?.[skillKey] ?? 0);
   const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
   const poolThreshold = skillFullPoolThreshold(masteryRank);
@@ -164,7 +165,7 @@ export function getSkillRollDicePool(
 } {
   const skillDef = SKILLS[skillKey];
   const system = (actor as any).system;
-  const masteryRank = Number(system.mastery?.rank ?? 2);
+  const masteryRank = getRulesMasteryRank(actor);
 
   if (!skillDef) {
     return {
@@ -246,7 +247,7 @@ export function buildSkillRollContext(
   if (!skillDef) return null;
 
   const system = (actor as any).system;
-  const masteryRank = system.mastery?.rank || 2;
+  const masteryRank = getRulesMasteryRank(actor);
   const attributeValue = Number(system.attributes?.[attributeKey]?.value) || 0;
   const skillRating = Number(system?.skills?.[skillKey] ?? 0);
   const poolThreshold = skillFullPoolThreshold(masteryRank);
@@ -296,7 +297,7 @@ export function buildAttributeRollContext(
   stoneBonusRaises = 0,
 ): BuiltRollContext | null {
   const system = (actor as any).system;
-  const masteryRank = system.mastery?.rank || 2;
+  const masteryRank = getRulesMasteryRank(actor);
   const numDice = Number(system.attributes?.[attributeKey]?.value) || 0;
 
   const attrLabel = capAttr(attributeKey);

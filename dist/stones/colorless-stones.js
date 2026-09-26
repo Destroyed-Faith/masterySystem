@@ -24,9 +24,9 @@ const FLAG_INITIATIVE = 'initiativeColorlessStones';
 const FLAG_INITIATIVE_EXHAUSTED = 'initiativeColorlessExhausted';
 const FLAG_ABSORPTION_EXPIRY = 'absorptionStoneExpiry';
 const FLAG_BOOST_USED = 'msInitiativeBoostUsed';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 export function getMasteryRank(actor) {
-    const raw = Number(actor?.system?.mastery?.rank ?? 2) || 2;
-    return Math.max(2, Math.min(8, Math.floor(raw)));
+    return getRulesMasteryRank(actor);
 }
 /** Initiative spent to buy one Temporary Colorless Stone. */
 export function colorlessStoneInitiativeCost(masteryRank) {

@@ -9,6 +9,7 @@ import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
   getAvailableAttackActions,
   getMovementRangeBonusMeters,
@@ -100,7 +101,7 @@ function buildNpcAttackDescription(atk: any): string {
  */
 function buildNpcCatalogActiveBuffOptions(actor: any): RadialCombatOption[] {
   if (!actor || actor.type !== 'npc') return [];
-  const mr = Math.max(1, Math.min(16, Math.floor(Number(actor.system?.mastery?.rank) || 2)));
+  const mr = getRulesMasteryRank(actor);
   const ownedTemplateIds = new Set<string>();
   for (const item of actor.items || []) {
     if (item?.type !== 'power') continue;

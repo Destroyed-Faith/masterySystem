@@ -1,11 +1,10 @@
 /**
  * Mastery Rank synchronisation helpers.
  *
- * DF Core v0.9.9.1: Mastery Rank comes from Lifetime XP, not Stone count.
- * A permanent Stone total earned as 2 + floor(XP / 20) implies that XP, so
- * `deriveMasteryRankFromStones` stays as a fallback when only the Stone total
- * is known. The live sheet rank may still be set by the GM; the suggested
- * rank is the Lifetime XP value.
+ * DF Core v0.9.9.1: the only mechanical Mastery Rank is Lifetime XP.
+ * `getRulesMasteryRank` is that rank. When Lifetime XP is missing (legacy
+ * actors, NPCs, mid-migration), the stored `system.mastery.rank` is the
+ * fallback. Stone count is not a Mastery Rank.
  */
 /** Recommended starting Mastery Rank (Players Guide 7224–7226). */
 export declare const STARTING_MASTERY_RANK = 2;
@@ -13,6 +12,11 @@ export declare const STARTING_MASTERY_RANK = 2;
 export declare function getWorldDefaultMasteryRank(): number;
 /** DF Core v0.9.9.1 Mastery Rank from Lifetime XP. 0 XP is MR2. 1000+ is MR8. */
 export declare function masteryRankFromLifetimeXp(lifetimeXp: number): number;
+/**
+ * The Mastery Rank used by rules calculations.
+ * Lifetime XP wins over a stored `system.mastery.rank`.
+ */
+export declare function getRulesMasteryRank(actorOrSystem: any): number;
 /**
  * Lowest Lifetime XP that produces this permanent Stone total
  * (Stones = 2 + floor(XP / 20)). Used when a sheet has Stones but no XP field.
@@ -55,8 +59,8 @@ export declare function syncActorMasteryRank(actor: any, options?: {
  *   • +1 Schtick slot per rank gained (`system.schticks.ranks` table
  *     receives one new empty row per gained rank, capped at the new
  *     `system.mastery.rank`).
- *   • The "+1 Keep on all rolls" effect is implicit — every dice
- *     subsystem already reads `system.mastery.rank` directly.
+ *   • The "+1 Keep on all rolls" effect is implicit — dice subsystems
+ *     use `getRulesMasteryRank`, which is Lifetime XP when that field exists.
  *
  * The function is intentionally idempotent on the *target* rank: callers
  * may invoke it once with `delta = 1` per rank gained or with

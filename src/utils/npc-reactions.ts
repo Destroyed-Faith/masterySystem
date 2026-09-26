@@ -15,6 +15,7 @@ import {
 } from './npc-attack-model.js';
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
 export type NpcReactionSource = 'basic' | 'catalog' | 'custom';
 
@@ -158,7 +159,7 @@ export function npcReactionSlotsForEconomy(actor: any): number {
 }
 
 function buildDiveForCoverItem(actor: any): any {
-  const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 2));
+  const mr = getRulesMasteryRank(actor);
   const moveM = mr * 2;
   return {
     id: 'basic-reaction-dive-for-cover',
@@ -203,7 +204,7 @@ function materializeCatalog(actor: any, row: NpcReactionRow): any | null {
   if (!tid) return null;
   const entry = filterCatalog({ category: 'reaction', templateId: tid })[0];
   if (!entry) return null;
-  const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 2));
+  const mr = getRulesMasteryRank(actor);
   const rank = row.rank ?? defaultNpcReactionRank(mr);
   const itemData = buildPowerItemFromCatalogEntry(entry, rank);
   if (!itemData) return null;

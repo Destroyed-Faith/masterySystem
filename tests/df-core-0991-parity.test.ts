@@ -9,8 +9,12 @@ import {
   powerIdentityKey,
   speciallessSpellLimit,
 } from '../src/utils/power-catalog.js';
-import { masteryRankFromLifetimeXp } from '../src/utils/mastery-rank-sync.js';
+import { getRulesMasteryRank, masteryRankFromLifetimeXp } from '../src/utils/mastery-rank-sync.js';
 import {
+  canConvertToPermanentColorless,
+  canPlacePermanentStone,
+  emptyAssignments,
+  permanentColorlessCap,
   permanentStonesFromLifetimeXp,
   stoneConcentrationCap,
 } from '../src/progression/v099-rules.js';
@@ -27,11 +31,22 @@ import {
   splitSpellShouldStress,
 } from '../src/combat/split-spell-stress.js';
 import {
+  appendSpellZone,
+  createPersistentSpellZone,
   markZoneApplied,
+  removeSpellZone,
+  retainActiveSpellZones,
+  spellZonesEntered,
+  writeSpellZones,
   zoneAlreadyApplied,
   zoneApplicationOutcome,
   zoneCreationOutcome,
+  type PersistentSpellZone,
 } from '../src/combat/spell-zones.js';
+import { activeBuffDurationRounds } from '../src/utils/active-buffs.js';
+import { getSkillRollDicePool } from '../src/dice/roll-context-build.js';
+import { getMasteryRank as basicAttackMasteryRank } from '../src/combat/basic-combat.js';
+import { actorMasteryRank } from '../src/combat/special-application.js';
 import { critAppliesToAttackRoll } from '../src/combat/critical-resolution.js';
 import { applySpecialBoostToLabel } from '../src/combat/special-boost.js';
 
@@ -184,24 +199,215 @@ describe('split Spell stress', () => {
   });
 });
 
+function spellZone(partial: Partial<PersistentSpellZone> & Pick<PersistentSpellZone, 'id' | 'castingTotal'>): PersistentSpellZone {
+  return createPersistentSpellZone({
+    name: partial.name ?? partial.id,
+    casterId: 'caster',
+    spellBaseTn: 22,
+    sourceMasteryRank: 3,
+    powerId: partial.id,
+    durationNote: '3 rounds',
+    createdRound: 1,
+    centerX: 0,
+    centerY: 0,
+    radiusMeters: 4,
+    ...partial,
+  });
+}
+
 describe('persistent Spell zones', () => {
   it('stores one Casting result and resists later without a new roll or Stress', () => {
     expect(zoneCreationOutcome(10, 22)).toBe('fizzle');
     expect(zoneCreationOutcome(22, 22)).toBe('create');
-    const zone = {
-      id: 'z',
-      name: 'Zone',
-      casterId: 'c',
-      spellBaseTn: 22,
-      castingTotal: 30,
-      appliedByRound: {},
-    };
+    const zone = spellZone({ id: 'z', castingTotal: 30, name: 'Zone' });
+    expect(zone.castingTotal).toBe(30);
+    expect(zone.powerId).toBe('z');
+    expect(zone.expiresAfterRound).toBe(3);
     expect(zoneApplicationOutcome(zone.castingTotal, 22)).toBe('affect');
     expect(zoneApplicationOutcome(zone.castingTotal, 40)).toBe('resist');
     const once = markZoneApplied(zone, 'combat:1', 'goblin');
     expect(zoneAlreadyApplied(once, 'combat:1', 'goblin')).toBe(true);
     expect(zoneAlreadyApplied(once, 'combat:2', 'goblin')).toBe(false);
     expect(zone.castingTotal).toBe(30);
+  });
+
+  it('keeps a separate Casting result on every zone from the same caster', () => {
+    const zoneA = spellZone({ id: 'a', name: 'Zone A', castingTotal: 31, centerX: 0, powerId: 'power-a' });
+    const zoneB = spellZone({
+      id: 'b',
+      name: 'Zone B',
+      castingTotal: 47,
+      centerX: 100,
+      powerId: 'power-b',
+      createdRound: 2,
+    });
+    const both = appendSpellZone([zoneA], zoneB);
+    expect(both.map((zone) => zone.castingTotal)).toEqual([31, 47]);
+    expect(zoneA.castingTotal).toBe(31);
+
+    const enteredA = spellZonesEntered(both, {
+      x: 0,
+      y: 0,
+      roundKey: 'combat:2',
+      creatureId: 'goblin',
+      spellResistance: 0,
+      distanceMeters: (x) => Math.abs(x),
+    });
+    expect(enteredA).toEqual([
+      expect.objectContaining({ zoneId: 'a', castingTotal: 31, outcome: 'affect', finalTn: 22 }),
+    ]);
+
+    const enteredB = spellZonesEntered(both, {
+      x: 100,
+      y: 0,
+      roundKey: 'combat:2',
+      creatureId: 'goblin',
+      spellResistance: 0,
+      distanceMeters: (x) => Math.abs(x - 100),
+    });
+    expect(enteredB).toEqual([
+      expect.objectContaining({ zoneId: 'b', castingTotal: 47, outcome: 'affect', finalTn: 22 }),
+    ]);
+    expect(both.find((zone) => zone.id === 'a')?.castingTotal).toBe(31);
+  });
+
+  it('does not scan the scene for a zone that has no stored center', () => {
+    let scans = 0;
+    const hits = spellZonesEntered(
+      [spellZone({ id: 'loose', castingTotal: 40, centerX: null, centerY: null, radiusMeters: 0 })],
+      {
+        x: 0,
+        y: 0,
+        roundKey: 'combat:1',
+        creatureId: 'goblin',
+        spellResistance: 0,
+        distanceMeters: () => {
+          scans += 1;
+          return 0;
+        },
+      },
+    );
+    expect(hits).toEqual([]);
+    expect(scans).toBe(0);
+  });
+
+  it('removing or expiring one zone leaves the other Casting result', () => {
+    const zoneA = spellZone({ id: 'a', castingTotal: 31, durationNote: '1 rounds', createdRound: 1 });
+    const zoneB = spellZone({ id: 'b', castingTotal: 47, durationNote: null, createdRound: 1 });
+    expect(zoneA.expiresAfterRound).toBe(1);
+    expect(zoneB.expiresAfterRound).toBeNull();
+    const removed = removeSpellZone([zoneA, zoneB], 'a');
+    expect(removed.map((zone) => [zone.id, zone.castingTotal])).toEqual([['b', 47]]);
+    const expired = retainActiveSpellZones([zoneA, zoneB], 2);
+    expect(expired.map((zone) => [zone.id, zone.castingTotal])).toEqual([['b', 47]]);
+  });
+
+  it('compares the stored zone result to Spell Resistance at the moment of entry', () => {
+    const zone = spellZone({ id: 'a', castingTotal: 31 });
+    const low = spellZonesEntered([zone], {
+      x: 0,
+      y: 0,
+      roundKey: 'combat:1',
+      creatureId: 'goblin',
+      spellResistance: 0,
+      distanceMeters: () => 0,
+    });
+    const high = spellZonesEntered([zone], {
+      x: 0,
+      y: 0,
+      roundKey: 'combat:1',
+      creatureId: 'goblin',
+      spellResistance: 20,
+      distanceMeters: () => 0,
+    });
+    expect(low[0]).toMatchObject({ castingTotal: 31, finalTn: 22, outcome: 'affect' });
+    expect(high[0]).toMatchObject({ castingTotal: 31, finalTn: 42, outcome: 'resist' });
+    expect(zone.castingTotal).toBe(31);
+  });
+
+  it('replaces the stored zone list instead of merging over an earlier Casting result', async () => {
+    const zoneA = spellZone({ id: 'a', castingTotal: 31 });
+    const zoneB = spellZone({ id: 'b', castingTotal: 47 });
+    const actor: any = {
+      flags: { 'mastery-system': { spellZones: [zoneA] } },
+      async unsetFlag() {
+        delete this.flags['mastery-system'].spellZones;
+      },
+      async setFlag(_scope: string, _key: string, value: PersistentSpellZone[]) {
+        const existing = this.flags['mastery-system'].spellZones;
+        if (Array.isArray(existing)) {
+          const merged = existing.map((zone: PersistentSpellZone, index: number) => ({
+            ...zone,
+            ...(value[index] ?? {}),
+          }));
+          this.flags['mastery-system'].spellZones = merged.concat(value.slice(existing.length));
+          return;
+        }
+        this.flags['mastery-system'].spellZones = value;
+      },
+    };
+    await writeSpellZones(actor, appendSpellZone(readZones(actor), zoneB));
+    expect(actor.flags['mastery-system'].spellZones.map((zone: PersistentSpellZone) => zone.castingTotal)).toEqual([31, 47]);
+    await writeSpellZones(actor, removeSpellZone(actor.flags['mastery-system'].spellZones, 'a'));
+    expect(actor.flags['mastery-system'].spellZones).toHaveLength(1);
+    expect(actor.flags['mastery-system'].spellZones[0].castingTotal).toBe(47);
+  });
+});
+
+function readZones(actor: any): PersistentSpellZone[] {
+  return actor.flags['mastery-system'].spellZones ?? [];
+}
+
+describe('Lifetime XP is the only mechanical Mastery Rank', () => {
+  const mismatched = {
+    system: {
+      mastery: { rank: 2 },
+      progression: { lifetimeXp: 100 },
+      attributes: { might: { value: 4 } },
+    },
+  };
+
+  it('resolves a stored MR2 with 100 Lifetime XP as MR3', () => {
+    expect(getRulesMasteryRank(mismatched)).toBe(3);
+    expect(castingBaseTnForMasteryRank(getRulesMasteryRank(mismatched))).toBe(22);
+    expect(speciallessSpellLimit(getRulesMasteryRank(mismatched))).toBe(3);
+    expect(stoneConcentrationCap(2, 2, 100)).toBe(6);
+    expect(permanentColorlessCap(getRulesMasteryRank(mismatched))).toBe(3);
+    expect(activeBuffDurationRounds(mismatched)).toBe(3);
+    expect(getSkillRollDicePool(mismatched as any, 'not-a-skill', 'might').keepDice).toBe(3);
+    expect(basicAttackMasteryRank(mismatched)).toBe(3);
+    expect(actorMasteryRank(mismatched)).toBe(3);
+  });
+
+  it('uses Lifetime XP for the attribute cap and the Permanent Colorless cap', () => {
+    const assignments = { ...emptyAssignments(), might: 5 };
+    expect(canPlacePermanentStone({
+      attribute: 'might',
+      assignments,
+      totalPermanent: 7,
+      storedRank: 2,
+      lifetimeXp: 100,
+    }).ok).toBe(true);
+    expect(canPlacePermanentStone({
+      attribute: 'might',
+      assignments,
+      totalPermanent: 7,
+      storedRank: 2,
+      lifetimeXp: 0,
+    }).ok).toBe(false);
+    expect(canConvertToPermanentColorless({
+      assignments: emptyAssignments(),
+      totalPermanent: 6,
+      permanentColorless: 2,
+      storedRank: 2,
+      lifetimeXp: 100,
+    })).toMatchObject({ ok: true, masteryRank: 3, cap: 3 });
+    expect(canConvertToPermanentColorless({
+      assignments: emptyAssignments(),
+      totalPermanent: 6,
+      permanentColorless: 2,
+      storedRank: 2,
+    }).ok).toBe(false);
   });
 });
 

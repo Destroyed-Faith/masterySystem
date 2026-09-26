@@ -2,7 +2,7 @@
  * Shared utilities for building embedded power Items from catalog entries.
  */
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
-import { masteryRankFromLifetimeXp } from './mastery-rank-sync.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
 import { actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, findCatalogEntry, powerHasConfiguredSpecial, } from './power-catalog.js';
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
@@ -79,10 +79,7 @@ export function resolveGrantSpecEntry(spec) {
 export async function grantPowerSpecs(actor, specs) {
     const existing = actor.items.filter((i) => i.type === 'power');
     const itemDataList = [];
-    const lifetimeXp = actor.system?.progression?.lifetimeXp;
-    const masteryRank = lifetimeXp == null
-        ? Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 2))
-        : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
+    const masteryRank = getRulesMasteryRank(actor);
     let specialless = countSpeciallessSpells(existing);
     for (const spec of specs) {
         const entry = resolveGrantSpecEntry(spec);

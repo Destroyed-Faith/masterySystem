@@ -33,8 +33,10 @@ export interface PerceptionGateResult {
   senseUsed?: CombatSenseId;
 }
 
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+
 function targetMasteryRank(actor: any): number {
-  return Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+  return getRulesMasteryRank(actor);
 }
 
 function distanceMeters(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -239,7 +241,7 @@ async function promptPerceptionCheck(observer: any, target: any, tn: number): Pr
               try {
                 const { masteryRoll } = await import('../dice/roll-handler.js');
                 const { buildSkillRollContext } = await import('../dice/roll-context-build.js');
-                const mr = Math.max(1, Math.floor(Number(observer?.system?.mastery?.rank) || 1));
+                const mr = targetMasteryRank(observer);
                 const presets = buildDifficultyPresets(mr);
                 const raises = Math.max(0, Math.ceil((tn - presets.standard) / 4));
                 const ctx = buildSkillRollContext(

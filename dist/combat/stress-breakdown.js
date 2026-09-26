@@ -23,8 +23,9 @@ function escHtml(s) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 }
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 function masteryRankOf(actor) {
-    return Math.max(1, Math.min(16, Math.floor(Number(actor?.system?.mastery?.rank) || 1)));
+    return getRulesMasteryRank(actor);
 }
 function userMayActForActor(actor) {
     const u = globalThis.game?.user;

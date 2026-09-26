@@ -6,6 +6,7 @@
 import { countRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRaiseOutcome, } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button, kebab, fallback) {
     const raw = button.attr(`data-${kebab}`);
@@ -290,7 +291,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             const sheetToHit = resolveNpcSheetToHit({
                 actorType: attackerForRoll?.type,
                 system: attackerForRoll?.system,
-                masteryRank: Number(flags.masteryRank ?? attackerForRoll?.system?.mastery?.rank ?? 2),
+                masteryRank: attackerForRoll
+                    ? getRulesMasteryRank(attackerForRoll)
+                    : Number(flags.masteryRank ?? 2),
                 attackIndex: flags.npcAttackIndex != null ? Number(flags.npcAttackIndex) : 0,
                 phaseIndex: flags.npcPhaseIndex ?? null,
                 prototypeSystem: prototypeActor && prototypeActor !== attackerForRoll ? prototypeActor.system : null,
@@ -471,7 +474,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 : Math.floor(Number(flags.npcAttackKeepDice) || 0);
             let keepDice = npcKeep > 0
                 ? npcKeep
-                : (flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2));
+                : (attackerForRoll
+                    ? getRulesMasteryRank(attackerForRoll)
+                    : (flags.masteryRank ?? 2));
             const baseKeepDice = keepDice;
             // Disadvantage is no longer modeled as a Keep reduction (Players Guide
             // ~6471–6477 says only one chosen 8 may explode; pool & keep are
@@ -646,24 +651,30 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 }
                 else if (flags.persistentSpellZone === true && rolled >= spellBase) {
                     try {
-                        const { readSpellZones } = await import('../combat/spell-zones.js');
+                        const { appendSpellZone, createPersistentSpellZone, readSpellZones, writeSpellZones } = await import('../combat/spell-zones.js');
                         const caster = freshAttacker || game.actors?.get(flags.attackerId);
-                        if (caster?.setFlag) {
-                            const zones = readSpellZones(caster);
-                            const roundKey = `${String(combatRef?.id ?? '')}:${Number(combatRef?.round) || 0}`;
+                        if (caster) {
+                            const createdRound = Number(combatRef?.round) || 0;
+                            const roundKey = `${String(combatRef?.id ?? '')}:${createdRound}`;
                             const already = String(flags.targetId || '').trim();
-                            zones.push({
+                            const zone = createPersistentSpellZone({
                                 id: `${String(caster.id)}:${messageId}`,
                                 name: String(flags.selectedPowerName || 'Spell Zone'),
                                 casterId: String(caster.id ?? ''),
                                 spellBaseTn: spellBase,
                                 castingTotal: rolled,
+                                sourceMasteryRank: Number(flags.sourceMasteryRank) || getRulesMasteryRank(caster),
+                                powerId: flags.spellZonePowerId ?? flags.selectedPowerId ?? null,
+                                templateId: flags.spellZoneTemplateId ?? null,
+                                durationNote: flags.spellZoneDuration ?? null,
+                                createdRound,
+                                sceneId: flags.spellZoneSceneId ?? null,
                                 appliedByRound: already ? { [roundKey]: [already] } : {},
                                 centerX: flags.spellZoneCenterX ?? null,
                                 centerY: flags.spellZoneCenterY ?? null,
                                 radiusMeters: Math.max(0, Number(flags.spellZoneRadius) || 0),
                             });
-                            await caster.setFlag('mastery-system', 'spellZones', zones);
+                            await writeSpellZones(caster, appendSpellZone(readSpellZones(caster), zone));
                         }
                     }
                     catch (zoneErr) {
@@ -853,9 +864,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     }
                     let resolvedPowerSnapshot = null;
                     if (updatedFlags.basePowerSnapshot) {
-                        const mr = Math.max(1, Math.floor(Number(freshAttackerForDialog?.system?.mastery?.rank) ||
-                            updatedFlags.masteryRank ||
-                            2));
+                        const mr = Math.max(1, Math.floor(freshAttackerForDialog
+                            ? getRulesMasteryRank(freshAttackerForDialog)
+                            : Number(updatedFlags.masteryRank) || 2));
                         let spellCostOverride;
                         const spellCostRaw = button.attr('data-spell-cost');
                         if (spellCostRaw) {

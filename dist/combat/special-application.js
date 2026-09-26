@@ -14,6 +14,7 @@
  * otherwise the HUD applies the choice. A Special that reaches 0 ends.
  */
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { readActiveSpecials, statusEntryId } from '../system/active-specials.js';
 export const SPECIAL_ROUND_APPS_FLAG = 'specialRoundApps';
 export const NATURAL_RECOVERY_FLAG = 'naturalSpecialRecovery';
@@ -29,7 +30,7 @@ function locFormat(key, data, fallback) {
     return fallback;
 }
 export function actorMasteryRank(actor) {
-    return Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+    return getRulesMasteryRank(actor);
 }
 export function specialApplicationLimit(masteryRank) {
     return SPECIAL_APPLICATION_LIMIT_PER_MR * Math.max(1, Math.floor(Number(masteryRank) || 1));

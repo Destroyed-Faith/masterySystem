@@ -7,7 +7,7 @@
  * through `attributeBandCost`.
  */
 
-import { deriveMasteryRankFromStones } from '../utils/mastery-rank-sync.js';
+import { deriveMasteryRankFromStones, masteryRankFromLifetimeXp } from '../utils/mastery-rank-sync.js';
 import { standardTnForMasteryRank as standardTnFromConstants } from '../utils/constants.js';
 
 export const V099_SCHEMA_VERSION = '0.9.9.0';
@@ -179,15 +179,31 @@ export function permanentStonesFromLifetimeXp(lifetimeXp: number): number {
 }
 
 /**
- * MR × 2 Stones on one Attribute.
- *
- * Mastery Rank is the Lifetime XP rank. A permanent Stone total implies that
- * XP (2 + floor(XP / 20)). A higher rank stored on the sheet does not raise
- * the cap. `storedRank` remains in the signature for existing callers.
+ * Mastery Rank for Stone caps. Lifetime XP wins. Without it, the earned
+ * permanent Stone total implies the XP that produced it. A stored sheet
+ * rank does not change the cap, and allocated Stones are not a rank.
  */
-export function stoneConcentrationCap(totalPermanentStones: number, storedRank = 1): number {
+export function masteryRankForStoneLimits(
+  totalPermanentStones: number,
+  lifetimeXp?: number | null,
+): number {
+  if (lifetimeXp != null && Number.isFinite(Number(lifetimeXp))) {
+    return masteryRankFromLifetimeXp(Number(lifetimeXp));
+  }
+  return deriveMasteryRankFromStones(totalPermanentStones);
+}
+
+/**
+ * MR × 2 Stones on one Attribute.
+ * `storedRank` remains in the signature for existing callers and is ignored.
+ */
+export function stoneConcentrationCap(
+  totalPermanentStones: number,
+  storedRank = 1,
+  lifetimeXp?: number | null,
+): number {
   void storedRank;
-  return deriveMasteryRankFromStones(totalPermanentStones) * 2;
+  return masteryRankForStoneLimits(totalPermanentStones, lifetimeXp) * 2;
 }
 
 export function emptyAssignments(): Record<AttributeKeyName, number> {
@@ -249,10 +265,11 @@ export function canConvertToPermanentColorless(args: {
   totalPermanent: number;
   permanentColorless: number;
   storedRank?: number;
+  lifetimeXp?: number | null;
 }): { ok: boolean; masteryRank: number; cap: number; reason?: string } {
   const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
   void args.storedRank;
-  const masteryRank = deriveMasteryRankFromStones(total);
+  const masteryRank = masteryRankForStoneLimits(total, args.lifetimeXp);
   const cap = permanentColorlessCap(masteryRank);
   const colorless = Math.max(0, Math.floor(Number(args.permanentColorless) || 0));
   if (colorless >= cap) {
@@ -275,9 +292,10 @@ export function canPlacePermanentStone(args: {
   totalPermanent: number;
   storedRank?: number;
   permanentColorless?: number;
+  lifetimeXp?: number | null;
 }): { ok: boolean; cap: number; masteryRank: number; reason?: string } {
   const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
-  const cap = stoneConcentrationCap(total, args.storedRank ?? 1);
+  const cap = stoneConcentrationCap(total, args.storedRank ?? 1, args.lifetimeXp);
   const masteryRank = cap / 2;
   const unassigned = unassignedPermanentStones({
     assignments: args.assignments,
@@ -308,6 +326,7 @@ export function assignmentsAreLegal(
   totalPermanent: number,
   storedRank = 1,
   permanentColorless = 0,
+  lifetimeXp?: number | null,
 ): { ok: boolean; reason?: string } {
   const total = Math.max(0, Math.floor(totalPermanent));
   const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
@@ -318,7 +337,7 @@ export function assignmentsAreLegal(
   if (sumAssignments(assignments) !== assignable) {
     return { ok: false, reason: `Assign exactly ${assignable} permanent Stones.` };
   }
-  const cap = stoneConcentrationCap(total, storedRank);
+  const cap = stoneConcentrationCap(total, storedRank, lifetimeXp);
   for (const key of ATTRIBUTE_KEYS) {
     const n = Math.max(0, Math.floor(Number(assignments[key]) || 0));
     if (n > cap) return { ok: false, reason: `${key} exceeds MR × 2 (${cap}).` };

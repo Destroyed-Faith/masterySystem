@@ -8,8 +8,9 @@ import { spellResistanceAfterPenetration } from './target-defenses.js';
 import {
   markZoneApplied,
   readSpellZones,
-  zoneAlreadyApplied,
-  zoneApplicationOutcome,
+  retainActiveSpellZones,
+  spellZonesEntered,
+  writeSpellZones,
   type PersistentSpellZone,
 } from './spell-zones.js';
 
@@ -44,42 +45,36 @@ export async function applyStoredSpellZonesOnEnter(
   for (const caster of actorList()) {
     const zones = readSpellZones(caster);
     if (!zones.length) continue;
-    let changed = false;
-    const next: PersistentSpellZone[] = [];
-    for (const zone of zones) {
-      const hasCenter = zone.centerX != null && zone.centerY != null && (zone.radiusMeters ?? 0) > 0;
-      if (!hasCenter || !Number.isFinite(x) || !Number.isFinite(y)) {
-        next.push(zone);
-        continue;
-      }
-      const dist = metersBetween(scene, zone.centerX as number, zone.centerY as number, x, y);
-      if (dist > (zone.radiusMeters ?? 0)) {
-        next.push(zone);
-        continue;
-      }
-      if (zoneAlreadyApplied(zone, roundKey, creatureId)) {
-        next.push(zone);
-        continue;
-      }
-      const sr = spellResistanceAfterPenetration(creature, caster);
-      const finalTn = Math.floor(zone.spellBaseTn) + sr;
-      const outcome = zoneApplicationOutcome(zone.castingTotal, finalTn);
-      const updated = markZoneApplied(zone, roundKey, creatureId);
-      changed = true;
-      next.push(updated);
+    const currentRound = Number(combat.round) || 0;
+    const active = retainActiveSpellZones(zones, currentRound);
+    const sr = spellResistanceAfterPenetration(creature, caster);
+    const hits = spellZonesEntered(active, {
+      x,
+      y,
+      roundKey,
+      creatureId,
+      spellResistance: sr,
+      distanceMeters: (cx, cy) => metersBetween(scene, cx, cy, x, y),
+    });
+    const hitById = new Map(hits.map((hit) => [hit.zoneId, hit]));
+    const next: PersistentSpellZone[] = active.map((zone) => {
+      if (!hitById.has(zone.id)) return zone;
+      return markZoneApplied(zone, roundKey, creatureId);
+    });
+    const changed = active.length !== zones.length || hits.length > 0;
+    for (const hit of hits) {
+      const zone = active.find((entry) => entry.id === hit.zoneId);
       const name = String(creature.name ?? 'Creature');
-      const verb = outcome === 'affect' ? 'is affected' : 'resists';
+      const verb = hit.outcome === 'affect' ? 'is affected by' : 'resists';
       try {
         await (globalThis as any).ChatMessage?.create?.({
           speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor: creature }),
-          content: `<p><strong>${name}</strong> ${verb} <strong>${zone.name}</strong> (stored Casting ${zone.castingTotal} vs Final Spell TN ${finalTn}). The zone stays. No new Casting Roll.</p>`,
+          content: `<p><strong>${name}</strong> ${verb} <strong>${zone?.name ?? 'Spell Zone'}</strong> (stored Casting ${hit.castingTotal} vs Final Spell TN ${hit.finalTn}). The zone stays. No new Casting Roll.</p>`,
         });
       } catch {
         /* Chat is informational. The stored result still stands. */
       }
     }
-    if (changed && typeof caster.setFlag === 'function') {
-      await caster.setFlag('mastery-system', 'spellZones', next);
-    }
+    if (changed) await writeSpellZones(caster, next);
   }
 }

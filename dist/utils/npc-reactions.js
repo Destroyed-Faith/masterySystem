@@ -9,6 +9,7 @@ import { buildPowerItemFromCatalogEntry } from './power-item-builder.js';
 import { coerceNpcAttackSpecials, coerceNpcPhasesArray, npcSpecialEffectString, } from './npc-attack-model.js';
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export const NPC_STANDARD_REACTIONS = [
     { id: 'guard', name: 'Guard', description: '+MR × 2 Armor vs the triggering hit.' },
     { id: 'evade', name: 'Evade', description: '+MR × 2 Evade vs the triggering attack.' },
@@ -119,7 +120,7 @@ export function npcReactionSlotsForEconomy(actor) {
     return slots;
 }
 function buildDiveForCoverItem(actor) {
-    const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 2));
+    const mr = getRulesMasteryRank(actor);
     const moveM = mr * 2;
     return {
         id: 'basic-reaction-dive-for-cover',
@@ -164,7 +165,7 @@ function materializeCatalog(actor, row) {
     const entry = filterCatalog({ category: 'reaction', templateId: tid })[0];
     if (!entry)
         return null;
-    const mr = Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 2));
+    const mr = getRulesMasteryRank(actor);
     const rank = row.rank ?? defaultNpcReactionRank(mr);
     const itemData = buildPowerItemFromCatalogEntry(entry, rank);
     if (!itemData)

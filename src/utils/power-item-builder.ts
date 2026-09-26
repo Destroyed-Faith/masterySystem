@@ -11,7 +11,7 @@ import type {
     SpellResolution,
 } from '../types/item.js';
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
-import { masteryRankFromLifetimeXp } from './mastery-rank-sync.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 import { SPECIAL_EFFECTS_BY_ID } from './special-effects.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
 import {
@@ -133,10 +133,7 @@ export function resolveGrantSpecEntry(spec: PowerGrantSpec): CatalogEntry | null
 export async function grantPowerSpecs(actor: Actor, specs: PowerGrantSpec[]): Promise<number> {
     const existing = (actor as any).items.filter((i: any) => i.type === 'power');
     const itemDataList: Record<string, unknown>[] = [];
-    const lifetimeXp = (actor as any).system?.progression?.lifetimeXp;
-    const masteryRank = lifetimeXp == null
-        ? Math.max(1, Math.floor(Number((actor as any).system?.mastery?.rank) || 2))
-        : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
+    const masteryRank = getRulesMasteryRank(actor);
     let specialless = countSpeciallessSpells(existing);
 
     for (const spec of specs) {

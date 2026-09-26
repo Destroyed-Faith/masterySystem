@@ -25,7 +25,7 @@ import type {
 import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { powerLevelCost } from '../utils/constants.js';
-import { masteryRankFromLifetimeXp } from '../utils/mastery-rank-sync.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import {
@@ -76,7 +76,7 @@ export async function showPowerCreationDialog(
         await showTowerWizardDialog(actor);
         return;
     }
-    const masteryRank = system?.mastery?.rank || 2;
+    const masteryRank = getRulesMasteryRank(actor);
     const actorEchoKey = (system?.echo?.key as string | undefined) || null;
     const actorSubChoiceKey = (system?.echo?.subChoiceKey as string | undefined) || null;
     const maxPowerLevel = calculateMaxPowerLevel(masteryRank);
@@ -215,10 +215,7 @@ export async function showPowerCreationDialog(
                             ?? (actor as any).items
                             ?? [];
                         const list = Array.isArray(owned) ? owned : Array.from(owned.values?.() ?? []);
-                        const lifetimeXp = system?.progression?.lifetimeXp;
-                        const spellCapRank = lifetimeXp == null
-                            ? masteryRank
-                            : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
+                        const spellCapRank = masteryRank;
                         if (!canLearnAnotherSpeciallessSpell(countSpeciallessSpells(list), spellCapRank)) {
                             ui.notifications?.error(
                                 `Spell Powers without a Special are limited to Mastery Rank (${spellCapRank}).`,

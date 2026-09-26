@@ -6,6 +6,7 @@ import { powerCostPaysAction } from '../radial-menu/options.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
+import { getRulesMasteryRank } from './mastery-rank-sync.js';
 /**
  * Consume a pending Vitality "Extend Active Buff" stone-power extension.
  * Returns the extra rounds for the buff being activated right now (0 if none)
@@ -139,11 +140,9 @@ export function isActiveBuff(power) {
     }
     return false;
 }
-/**
- * Get mastery rank from actor
- */
-function getMasteryRank(actor) {
-    return actor.system?.mastery?.rank || 2;
+/** Active Buff duration in rounds before Extend Active Buff. */
+export function activeBuffDurationRounds(actor) {
+    return getRulesMasteryRank(actor);
 }
 /**
  * Get current combat round
@@ -200,7 +199,7 @@ export async function activateActiveBuff(actor, power) {
             }
         }
     }
-    const masteryRank = getMasteryRank(actor);
+    const masteryRank = activeBuffDurationRounds(actor);
     const currentRound = getCurrentRound();
     // Vitality Stone Power "Extend Active Buff": +1..+4 rounds on ONE Active
     // Buff activated this turn. Consumed here so a second activation this turn

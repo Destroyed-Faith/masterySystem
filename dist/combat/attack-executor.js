@@ -14,6 +14,7 @@ import { parseD8Count } from "../utils/dice-formula.js";
 import { basicAttackMrDamageFormula } from "./basic-combat.js";
 import { mergeWeaponSpecialsIntoSnapshot, parkWeaponSpecialsForRaises, weaponSpecialEntries, } from "../utils/weapon-specials.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
+import { getRulesMasteryRank } from "../utils/mastery-rank-sync.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
 import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
@@ -125,14 +126,7 @@ export function getAttributeValue(actor, attributeName) {
  * Get mastery rank from actor
  */
 export function getMasteryRank(actor) {
-    if (!actor || !actor.system)
-        return 2; // Default
-    const system = actor.system;
-    const rank = Math.floor(Number(system.mastery?.rank) || 0);
-    if (rank >= 1)
-        return Math.min(8, rank);
-    const defaultMasteryRank = game.settings?.get('mastery-system', 'defaultMasteryRank') || 2;
-    return Math.max(1, Math.min(8, Math.floor(Number(defaultMasteryRank) || 2)));
+    return getRulesMasteryRank(actor);
 }
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
 export function weaponHasFinesse(weapon) {
@@ -654,6 +648,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 spellZoneCenterX: option.spellZoneCenterX ?? null,
                 spellZoneCenterY: option.spellZoneCenterY ?? null,
                 spellZoneRadius: option.aoeRadiusMeters ?? null,
+                spellZoneDuration: option.zoneDurationNote ?? null,
+                spellZonePowerId: option.powerId ?? option.item?.id ?? null,
+                spellZoneTemplateId: option.templateId ?? option.item?.system?.templateId ?? null,
+                sourceMasteryRank: masteryRank,
             }
             : {}),
         targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,

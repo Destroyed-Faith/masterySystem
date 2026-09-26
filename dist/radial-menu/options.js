@@ -5,6 +5,7 @@ import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getAvailableAttackActions, getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, } from '../utils/npc-attack-model.js';
 import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-debug.js';
@@ -88,7 +89,7 @@ function buildNpcAttackDescription(atk) {
 function buildNpcCatalogActiveBuffOptions(actor) {
     if (!actor || actor.type !== 'npc')
         return [];
-    const mr = Math.max(1, Math.min(16, Math.floor(Number(actor.system?.mastery?.rank) || 2)));
+    const mr = getRulesMasteryRank(actor);
     const ownedTemplateIds = new Set();
     for (const item of actor.items || []) {
         if (item?.type !== 'power')

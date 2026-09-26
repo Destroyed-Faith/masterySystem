@@ -7,6 +7,7 @@
  */
 import { getActionEconomyActor, getReactionActionsSummary, hasPowerBeenUsedThisRound, } from './action-economy.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
@@ -179,7 +180,7 @@ export function buildInterposeReactionItem() {
  * chat cards / tests referencing the id do not crash on import.
  */
 export function buildOpportunityAttackReactionItem(actor) {
-    const mr2 = Math.max(2, Math.floor(Number(actor?.system?.mastery?.rank) || 2) * 2);
+    const mr2 = Math.max(2, getRulesMasteryRank(actor) * 2);
     return {
         id: 'basic-reaction-opportunity-attack',
         name: 'Opportunity Attack',

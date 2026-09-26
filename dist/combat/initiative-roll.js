@@ -13,11 +13,9 @@ import { readManualAdjustments } from '../utils/manual-adjustments.js';
 import { formatNpcInitiativeSigned, getNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { actorHasSurprise, pinSurprisedInitiative } from './surprise.js';
 import { requestSetCombatantInitiative } from './gm-relay.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 function getMasteryRank(actor) {
-    if (!actor || !actor.system)
-        return 2;
-    const system = actor.system;
-    return system.mastery?.rank || 2;
+    return getRulesMasteryRank(actor);
 }
 export const INITIATIVE_ROLLED_FLAG = 'initiativeRolledFor';
 const initiativeRollInFlight = new Set();

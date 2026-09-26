@@ -15,6 +15,7 @@
  */
 
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { readActiveSpecials, statusEntryId } from '../system/active-specials.js';
 
 export const SPECIAL_ROUND_APPS_FLAG = 'specialRoundApps';
@@ -46,7 +47,7 @@ function locFormat(key: string, data: Record<string, unknown>, fallback: string)
 }
 
 export function actorMasteryRank(actor: any): number {
-  return Math.max(1, Math.floor(Number(actor?.system?.mastery?.rank) || 1));
+  return getRulesMasteryRank(actor);
 }
 
 export function specialApplicationLimit(masteryRank: number): number {

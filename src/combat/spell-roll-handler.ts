@@ -30,6 +30,7 @@ import type { MasteryRollResult } from '../types/index';
 import { masteryRoll } from '../dice/roll-handler.js';
 import { computeRaiseTns, resolveRaiseOutcome, type RaiseOutcome } from './raise-resolution.js';
 import { RAISE_INCREMENT, standardTnForMasteryRank } from '../utils/constants.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { spellResistanceAfterPenetration } from './target-defenses.js';
 import {
   applyStress,
@@ -309,7 +310,7 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
   const system = actor?.system ?? {};
   const attrValue = Number(system.attributes?.[castingAttribute]?.value ?? 0);
   const masteryRank = Number(
-    masteryRankOverride ?? system.mastery?.rank ?? 1,
+    masteryRankOverride ?? getRulesMasteryRank(actor),
   );
   // Base pool = casting attribute. Specials (Weaken / Soulburn), the
   // Health/Encumbrance percentage penalty, and the Minimum Pool (= MR)

@@ -115,7 +115,7 @@ export function tallyStoneSlotOrder(order) {
     }
     return { ok: true, assignments, colorless };
 }
-export function stonePlacementOptions(order, storedRank = 1) {
+export function stonePlacementOptions(order, storedRank = 1, lifetimeXp) {
     const progress = stoneSlotProgress(order);
     const total = order.length;
     const attributes = ATTRIBUTE_KEYS.filter((key) => canPlacePermanentStone({
@@ -124,12 +124,14 @@ export function stonePlacementOptions(order, storedRank = 1) {
         totalPermanent: total,
         storedRank,
         permanentColorless: progress.colorless,
+        lifetimeXp,
     }).ok);
     const convert = canConvertToPermanentColorless({
         assignments: progress.assignments,
         totalPermanent: total,
         permanentColorless: progress.colorless,
         storedRank,
+        lifetimeXp,
     });
     const anotherOpen = progress.openIndexes.length >= 2;
     return {
