@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.594] - 2026-09-26
+
+### Changed
+
+- **Manöver:** Basic Attack und Grapple (samt Escape und Release) sitzen im blauen MAN.-Segment. Der Angriffsring bleibt für Powers. Beide kosten weiter eine Attack Action.
+- **Rending Spiral:** Entspricht Melee AoE Attack + Lacerate. Getroffen wird mit dem aktuellen Claw-/Tail-Waffenschaden, ohne extra Würfel. Rending Spiral I legt Lacerate(5), II Lacerate(7), III Lacerate(10).
+
 ## [0.9.593] - 2026-09-26
 
 ### Fixed

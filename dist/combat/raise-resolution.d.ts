@@ -147,6 +147,12 @@ export declare function bindChosenSpecialIntoLevelData(levelData: any | null, ch
 export declare function parseDeclaredRaises(raw: string | null | undefined): DeclaredRaise[];
 export declare function snapshotToDamageFormula(snapshot: PowerSnapshot): string;
 export declare function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[];
+/**
+ * Older Dragon Claws rows stored Rending Spiral as a plain weapon AoE
+ * (`active-melee-weapon-aoe`), which adds bonus dice and never applies Lacerate.
+ * The printed profile is Melee AoE Attack + Lacerate.
+ */
+export declare function canonicalArtifactAttackTemplateId(option: RadialCombatOption): string;
 /** Load catalog level data for an artifact Active (Frost Throw, spells, …). */
 export declare function loadPowerSnapshotForArtifactOption(option: RadialCombatOption): Promise<{
     snapshot: PowerSnapshot;

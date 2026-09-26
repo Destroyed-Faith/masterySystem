@@ -27,7 +27,7 @@ import { getEchoArtifactAltIcon, getEchoArtifactIcon } from '../utils/item-icons
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 53;
+export const ECHO_ARTIFACT_SEED_VERSION = 54;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',

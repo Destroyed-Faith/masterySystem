@@ -658,12 +658,26 @@ export function snapshotToSpecialStrings(snapshot: PowerSnapshot): string[] {
   });
 }
 
+/**
+ * Older Dragon Claws rows stored Rending Spiral as a plain weapon AoE
+ * (`active-melee-weapon-aoe`), which adds bonus dice and never applies Lacerate.
+ * The printed profile is Melee AoE Attack + Lacerate.
+ */
+export function canonicalArtifactAttackTemplateId(option: RadialCombatOption): string {
+  const stored = String(option.artifactPowerTemplateId || '');
+  const key = String(option.artifactChosenSpecialKey || '').trim().toLowerCase();
+  if (stored === 'active-melee-weapon-aoe' && key === 'lacerate') {
+    return 'active-melee-aoe-damage-t4';
+  }
+  return stored;
+}
+
 /** Load catalog level data for an artifact Active (Frost Throw, spells, …). */
 export async function loadPowerSnapshotForArtifactOption(
   option: RadialCombatOption,
 ): Promise<{ snapshot: PowerSnapshot; isSpell: boolean; levelData: any | null } | null> {
   if (!option.artifactPowerTemplateId) return null;
-  const templateId = option.artifactPowerTemplateId;
+  const templateId = canonicalArtifactAttackTemplateId(option);
   const pl = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
   const chosenKey = option.artifactChosenSpecialKey;
 

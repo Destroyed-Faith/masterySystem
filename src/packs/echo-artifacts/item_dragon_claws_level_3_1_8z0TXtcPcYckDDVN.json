@@ -40,9 +40,9 @@
         "range": "Self",
         "aoe": "Radius 3m",
         "duration": "Instant",
-        "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **4d8 damage** and may use Dive for Cover before payload.",
-        "special": "Lacerate(3)",
-        "powerTemplateId": "active-melee-weapon-aoe",
+        "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.",
+        "special": "Lacerate(5)",
+        "powerTemplateId": "active-melee-aoe-damage-t4",
         "chosenSpecialKey": "lacerate"
       },
       {
@@ -78,7 +78,7 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "active-melee-weapon-aoe",
+        "powerTemplateId": "active-melee-aoe-damage-t4",
         "displayName": "Rending Spiral",
         "chosenSpecial": {
           "key": "lacerate",
@@ -322,7 +322,7 @@
       {
         "id": "dragonClaws-pw-2",
         "name": "Rending Spiral I",
-        "fluff": "Special: Lacerate(3)",
+        "fluff": "Special: Lacerate(5)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -379,7 +379,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **4d8 damage** and may use Dive for Cover before payload."
+              "text": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload."
             },
             "specials": [],
             "lvl": 2
@@ -767,7 +767,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 53
+      "seedVersion": 54
     }
   },
   "_id": "8z0TXtcPcYckDDVN",

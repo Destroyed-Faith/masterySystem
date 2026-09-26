@@ -54,7 +54,7 @@
       {
         "level": 2,
         "kind": "power",
-        "powerTemplateId": "active-melee-weapon-aoe",
+        "powerTemplateId": "active-melee-aoe-damage-t4",
         "displayName": "Rending Spiral",
         "chosenSpecial": {
           "key": "lacerate",
@@ -320,7 +320,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 53
+      "seedVersion": 54
     }
   },
   "_id": "4o9NfDpRYWgDa4we",

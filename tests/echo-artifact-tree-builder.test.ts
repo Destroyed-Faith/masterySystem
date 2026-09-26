@@ -254,13 +254,28 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l10.some((r: any) => r.name === 'True Serpent Form')).toBe(true);
   });
 
-  it('Dragon Claws bind Lacerate and Push on weapon AoE picks', () => {
+  it('Dragon Claws bind Lacerate on the melee AoE special template and Push on Tail Sweep', () => {
     const l2 = pick('dragonClaws', 2);
     const l3 = pick('dragonClaws', 3);
-    expect(l2.powerTemplateId).toBe('active-melee-weapon-aoe');
+    expect(l2.powerTemplateId).toBe('active-melee-aoe-damage-t4');
     expect(l2.chosenSpecial?.key).toBe('lacerate');
+    expect(l3.powerTemplateId).toBe('active-melee-weapon-aoe');
     expect(l3.chosenSpecial?.key).toBe('push');
     const tree = buildEchoArtifactTree(getEchoArtifact('dragonClaws')!);
+    const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
+    const spiral = l2Rows.find((r) => String(r.name).includes('Rending Spiral'));
+    expect(spiral?.special).toBe('Lacerate(5)');
+    expect(spiral?.powerTemplateId).toBe('active-melee-aoe-damage-t4');
+    expect(String(spiral?.effect)).not.toMatch(/4d8/);
+    expect(String(spiral?.aoe)).toMatch(/3/);
+    const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
+    const spiral2 = l5Rows.find((r) => String(r.name).includes('Rending Spiral'));
+    expect(spiral2?.special).toBe('Lacerate(7)');
+    expect(String(spiral2?.aoe)).toMatch(/6/);
+    const l8Rows = (tree.nodes[7].itemData.system as any).levelProgression as any[];
+    const spiral3 = l8Rows.find((r) => String(r.name).includes('Rending Spiral'));
+    expect(spiral3?.special).toBe('Lacerate(10)');
+    expect(String(spiral3?.aoe)).toMatch(/7/);
     const l3Rows = (tree.nodes[2].itemData.system as any).levelProgression as any[];
     const tail = l3Rows.find((r) => String(r.name).includes('Tail Sweep'));
     expect(tail?.special).toBe('Push(2)');

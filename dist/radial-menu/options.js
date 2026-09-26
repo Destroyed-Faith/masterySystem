@@ -515,11 +515,14 @@ function determineTargetGroup(option) {
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
 export function getSegmentIdForOption(option) {
-    // Maneuvers: route Parry Stance into the MAN. segment even though its slot
-    // is 'attack'. Keeps the Atk quadrant focused on actual attacks.
-    if (option.source === 'maneuver' && option.maneuver) {
-        const mid = option.maneuver.id;
-        if (mid === 'parry-stance') {
+    // Maneuvers: Parry, Basic Attack, and the Grapple family live in the blue
+    // MAN. segment even though their slot is 'attack'. The Atk ring stays for
+    // powers. They still spend an Attack Action.
+    if (option.source === 'maneuver') {
+        const mid = option.maneuver?.id || option.id;
+        if (mid === 'parry-stance' ||
+            mid === 'weapon-attack' ||
+            GRAPPLE_MANEUVER_IDS.includes(mid)) {
             return 'utility';
         }
     }

@@ -735,12 +735,11 @@ const DRAGON_CLAWS = {
         level: 1,
         name: 'Extra Damage Support',
     },
-    // Rending Spiral and Tail Sweep are real, editable catalog Powers — both are
-    // self-centered Melee AoE weapon attacks that deal the current Claw / Tail
-    // Weapon Damage in a radius. Only the names are overridden; the GM can add the
-    // Lacerate / Push Specials and tune them freely in the Node Editor.
+    // Rending Spiral is the canonical Melee AoE Attack + Lacerate (PL 4 / 10 / 16):
+    // current Claw / Tail Weapon Damage only, plus Lacerate(5 / 7 / 10). No bonus
+    // power dice. Tail Sweep stays the artifact-exclusive weapon AoE + Push.
     progressionPickSpecs: {
-        2: { name: 'Rending Spiral', templateId: 'active-melee-weapon-aoe', special: 'lacerate' },
+        2: { name: 'Rending Spiral', templateId: 'active-melee-aoe-damage-t4', special: 'lacerate' },
         3: { name: 'Tail Sweep', templateId: 'active-melee-weapon-aoe', special: 'push' },
     },
     baseValues: [

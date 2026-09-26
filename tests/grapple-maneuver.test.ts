@@ -43,7 +43,7 @@ vi.mock('../src/combat/action-economy.js', () => ({
 }));
 
 import { COMBAT_MANEUVERS, getAvailableManeuvers, getManeuverById } from '../src/system/combat-maneuvers.js';
-import { GRAPPLE_MANEUVER_IDS, RADIAL_ATTACK_MANEUVER_IDS } from '../src/radial-menu/options.js';
+import { GRAPPLE_MANEUVER_IDS, RADIAL_ATTACK_MANEUVER_IDS, getSegmentIdForOption } from '../src/radial-menu/options.js';
 import { answerAttributeContest, startAttributeContest, ATTRIBUTE_CONTEST_FLAG } from '../src/contests/contest-card.js';
 import { readGrappleState, grappleRoleOf } from '../src/combat/grapple-state.js';
 import { hasActiveSpecial } from '../src/system/active-specials.js';
@@ -145,6 +145,22 @@ describe('Grapple combat maneuver definition', () => {
     expect(RADIAL_ATTACK_MANEUVER_IDS).toContain('grapple-escape');
     expect(RADIAL_ATTACK_MANEUVER_IDS).toContain('grapple-release');
     expect(GRAPPLE_MANEUVER_IDS).toEqual(['grapple', 'grapple-escape', 'grapple-release']);
+  });
+
+  it('puts Basic Attack and Grapple in the blue MAN. segment', () => {
+    const maneuver = (id: string) =>
+      getSegmentIdForOption({
+        id,
+        name: id,
+        slot: 'attack',
+        source: 'maneuver',
+        maneuver: { id, name: id, slot: 'attack', category: 'combat-action' },
+      } as any);
+    expect(maneuver('weapon-attack')).toBe('utility');
+    expect(maneuver('grapple')).toBe('utility');
+    expect(maneuver('grapple-escape')).toBe('utility');
+    expect(maneuver('grapple-release')).toBe('utility');
+    expect(maneuver('parry-stance')).toBe('utility');
   });
 });
 

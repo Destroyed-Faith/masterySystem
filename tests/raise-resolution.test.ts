@@ -402,4 +402,33 @@ describe('artifact catalog snapshot', () => {
     });
     expect(snapshotToSpecialStrings(resolved)).toEqual(['Slow(6)']);
   });
+
+  it('Rending Spiral I is weapon damage plus Lacerate(5), including stale weapon-AoE rows', async () => {
+    for (const templateId of ['active-melee-aoe-damage-t4', 'active-melee-weapon-aoe']) {
+      const loaded = await loadPowerSnapshotForArtifactOption({
+        artifactPowerTemplateId: templateId,
+        artifactChosenSpecialKey: 'lacerate',
+        artifactRowLevel: 2,
+        artifactIsSpell: false,
+      } as any);
+      expect(loaded?.isSpell).toBe(false);
+      expect(loaded?.snapshot.damageDice).toBe(0);
+      expect(loaded?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 5 }]);
+      expect(snapshotToSpecialStrings(loaded!.snapshot)).toEqual(['Lacerate(5)']);
+    }
+    const spiral2 = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-aoe-damage-t4',
+      artifactChosenSpecialKey: 'lacerate',
+      artifactRowLevel: 5,
+      artifactIsSpell: false,
+    } as any);
+    expect(spiral2?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 7 }]);
+    const spiral3 = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-aoe-damage-t4',
+      artifactChosenSpecialKey: 'lacerate',
+      artifactRowLevel: 8,
+      artifactIsSpell: false,
+    } as any);
+    expect(spiral3?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 10 }]);
+  });
 });
