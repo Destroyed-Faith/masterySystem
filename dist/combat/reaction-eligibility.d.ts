@@ -18,8 +18,14 @@ export interface ReactionTriggerContext {
     allyDistanceM?: number | null;
     hasPassiveDR?: boolean;
     hasPassivePhasing?: boolean;
-    /** Full Parry resolved for this attack (Riposte / Reflection). */
+    /** Fully Parried Martial attack (Parry + Weapon Damage / matching Reflection). */
     hasParryThisHit?: boolean;
+    /** Fully Countered Spell. Opens Attack Reflection for Spell Parry only. */
+    spellFullyCountered?: boolean;
+    /** Which Parry delivery produced the full stop. */
+    parryDelivery?: 'martial' | 'spell' | null;
+    /** Split, Autofire, or any effect that is not a single direct target. */
+    multiTarget?: boolean;
     /** Actual HP was lost from this damage instance (Overload). */
     hpLost?: boolean;
     /** Ongoing/status application surface (Cleanse) — not the attack window. */
@@ -43,6 +49,8 @@ export declare function isGhostSlipReaction(item: any): boolean;
 export declare function isCleanseReaction(item: any): boolean;
 export declare function isOverloadReaction(item: any): boolean;
 export declare function isParryFollowUpReaction(item: any): boolean;
+/** Explicit exception: Parry + Weapon Damage may be used again. Each use still costs 1 Reaction. */
+export declare function reactionMayRepeatThisRound(item: any): boolean;
 export declare function isInterposeReaction(item: any): boolean;
 export declare function actorHasPassiveDR(actor: any): boolean;
 export declare function actorHasPassivePhasing(actor: any): boolean;
@@ -63,6 +71,9 @@ export declare function buildReactionTriggerContext(params: {
     allyDistanceM?: number | null;
     suppressCounterattack?: boolean;
     hasParryThisHit?: boolean;
+    spellFullyCountered?: boolean;
+    parryDelivery?: 'martial' | 'spell' | null;
+    multiTarget?: boolean;
     hpLost?: boolean;
     statusSurface?: boolean;
     isAoE?: boolean;

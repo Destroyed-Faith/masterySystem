@@ -670,12 +670,12 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
     },
     {
         templateId: 'ab-reinforced-parry',
-        templateName: 'Reinforced Parry',
-        name: 'Active Buff: Reinforced Parry',
+        templateName: 'Parry Recovery',
+        name: 'Active Buff: Parry Recovery',
         subfamily: 'parry',
         category: 'activeBuff',
         tags: [],
-        fluff: 'Requires Parry Passive. Spent Parry returns after resolve, up to a per-round cap.',
+        fluff: 'Requires Parry Passive. Spent Parry returns after a Martial or Spell Parry, up to a per-round cap.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
@@ -684,8 +684,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
                 type: 'Active Buff, Parry',
                 duration: DURATION_MR_ROUNDS,
                 effectText:
-                    `Requires **Parry** Passive. After you spend Parry, regain up to **${regain}** total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                    `Requires **Parry** Passive. After you spend Parry against a Martial Attack or Spell, regain up to **${regain}** total Parry per Round. You cannot regain more than you spent, and the Pool cannot exceed the amount with which you entered Parry that Turn.`,
+                mechanics: { duration: 'masteryRankRounds', parryRecoveryPerRound: regain },
             });
         }),
     },

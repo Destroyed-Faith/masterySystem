@@ -236,8 +236,19 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 }
             }
             // Normal TN vs Raise TN (new Raise rules)
-            const normalTn = readAttackButtonDataInt(button, 'normal-tn', readAttackButtonDataInt(button, 'target-evade', flags.normalTn ?? flags.baseEvade ?? 0));
-            const raiseTn = readAttackButtonDataInt(button, 'raise-tn', normalTn);
+            let normalTn = readAttackButtonDataInt(button, 'normal-tn', readAttackButtonDataInt(button, 'target-evade', flags.normalTn ?? flags.baseEvade ?? 0));
+            let raiseTn = readAttackButtonDataInt(button, 'raise-tn', normalTn);
+            const willingSpell = flags.tnKind === 'casting' &&
+                button.closest('.mastery-attack-card').find('input.willing-spell-target').prop('checked') === true;
+            if (willingSpell) {
+                const spellBase = Math.floor(Number(flags.spellBaseTn) || 0);
+                if (spellBase > 0 && normalTn > spellBase) {
+                    const sr = normalTn - spellBase;
+                    normalTn = spellBase;
+                    raiseTn = Math.max(spellBase, raiseTn - sr);
+                }
+                flags.willingSpellTarget = true;
+            }
             const raisePlanRaw = button.attr('data-raise-plan') || '[]';
             const declaredRaises = parseDeclaredRaises(raisePlanRaw);
             let declaredRaiseSlots = countRaiseSlots(declaredRaises);
@@ -414,8 +425,6 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 catch {
                     /* ignore */
                 }
-                if (spellFullyCountered)
-                    return;
                 try {
                     const combatForReactions = game.combat ?? null;
                     const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
@@ -423,6 +432,12 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     const isAoE = aoeFromBtn ||
                         flags.aoeMeleeWeapon === true ||
                         String(flags.aoeMeleeWeapon) === 'true';
+                    const secondaryIds = String(button.attr('data-aoe-secondary-ids') || flags.aoeMeleeSecondaryTokenIds || '');
+                    const multiTarget = isAoE ||
+                        flags.autofire === true ||
+                        String(flags.autofire) === 'true' ||
+                        secondaryIds.split(/[|,]/).filter((s) => s.trim()).length > 0;
+                    const spellDice = Math.max(0, Math.floor(Number(flags.basePowerSnapshot?.damageDice) || 0));
                     await runInteractiveReactionWindow({
                         defender: defenderForParry,
                         attacker: freshAttacker,
@@ -432,7 +447,11 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         evadeTn: normalTn,
                         hit: false,
                         phase: 'defender',
-                        hasParryThisHit: true,
+                        hasParryThisHit: hasParryThisHit,
+                        spellFullyCountered,
+                        parryDelivery: spellFullyCountered ? 'spell' : 'martial',
+                        multiTarget,
+                        spellPowerDamageDice: spellDice,
                         attackType: flags.attackType === 'ranged' ? 'ranged' : 'melee',
                         isAoE,
                         suppressCounterattack: suppressNestedCounterattack,
@@ -511,7 +530,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 buffCriticalX = 0;
             }
             // Critical(X) = X Critical attacks per Round; explode threshold always 7–8 on Attack Dice.
-            const { resolveCriticalAttackModifier, syncCriticalRoundQuota, consumeCriticalQuota, combatRoundKey, } = await import('../combat/critical-resolution.js');
+            const { resolveCriticalAttackModifier, syncCriticalRoundQuota, consumeCriticalQuota, combatRoundKey, critAppliesToAttackRoll, } = await import('../combat/critical-resolution.js');
             const roundKey = combatRoundKey(combatRef);
             const syncedQuota = syncCriticalRoundQuota(rsCrit.criticalQuota, roundKey, buffCriticalX);
             if (!rsCrit.criticalQuota ||
@@ -521,10 +540,16 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 rsCrit.criticalQuota = syncedQuota;
                 await actionEco.setRoundState(economyForStones, rsCrit);
             }
+            const spellDamageDice = Math.max(0, Math.floor(Number(flags.basePowerSnapshot?.damageDice) || 0)) +
+                Math.max(0, Math.floor(Number(flags.aoeMeleePowerBonusDice) || 0));
+            const critLegal = critAppliesToAttackRoll({
+                spell: tnKind === 'casting',
+                damageDice: spellDamageDice,
+            });
             const critMod = resolveCriticalAttackModifier({
-                activeBuffCriticalX: buffCriticalX,
-                buffQuotaRemaining: syncedQuota.remaining,
-                stoneCritCharges: critBank,
+                activeBuffCriticalX: critLegal ? buffCriticalX : 0,
+                buffQuotaRemaining: critLegal ? syncedQuota.remaining : 0,
+                stoneCritCharges: critLegal ? critBank : 0,
             });
             const npcCrit = !!sheetToHit?.crit ||
                 flags.npcCrit === true ||
@@ -599,8 +624,13 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 if (Number.isFinite(spellBase) && spellBase > 0 && rolled < spellBase) {
                     try {
                         const { applyFizzleStress } = await import('../combat/spell-roll-handler.js');
+                        const { noteSplitSpellRoll } = await import('../combat/split-spell-stress.js');
+                        const splitPair = String(flags.splitPairId || '');
+                        const splitDecision = flags.splitAttack && splitPair
+                            ? noteSplitSpellRoll(splitPair, rolled, spellBase, 2)
+                            : 'stress';
                         const caster = freshAttacker || game.actors?.get(flags.attackerId);
-                        if (caster) {
+                        if (caster && splitDecision === 'stress') {
                             const stress = await applyFizzleStress(caster);
                             const casterName = String(caster?.name ?? 'Caster');
                             await globalThis.ChatMessage?.create?.({
@@ -612,6 +642,32 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     }
                     catch (fizzleErr) {
                         console.warn('Mastery System | fizzle stress failed', fizzleErr);
+                    }
+                }
+                else if (flags.persistentSpellZone === true && rolled >= spellBase) {
+                    try {
+                        const { readSpellZones } = await import('../combat/spell-zones.js');
+                        const caster = freshAttacker || game.actors?.get(flags.attackerId);
+                        if (caster?.setFlag) {
+                            const zones = readSpellZones(caster);
+                            const roundKey = `${String(combatRef?.id ?? '')}:${Number(combatRef?.round) || 0}`;
+                            const already = String(flags.targetId || '').trim();
+                            zones.push({
+                                id: `${String(caster.id)}:${messageId}`,
+                                name: String(flags.selectedPowerName || 'Spell Zone'),
+                                casterId: String(caster.id ?? ''),
+                                spellBaseTn: spellBase,
+                                castingTotal: rolled,
+                                appliedByRound: already ? { [roundKey]: [already] } : {},
+                                centerX: flags.spellZoneCenterX ?? null,
+                                centerY: flags.spellZoneCenterY ?? null,
+                                radiusMeters: Math.max(0, Number(flags.spellZoneRadius) || 0),
+                            });
+                            await caster.setFlag('mastery-system', 'spellZones', zones);
+                        }
+                    }
+                    catch (zoneErr) {
+                        console.warn('Mastery System | persistent spell zone was not stored', zoneErr);
                     }
                 }
             }

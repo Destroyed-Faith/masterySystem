@@ -12,7 +12,7 @@ import { getActiveSpecialValue, hasActiveSpecial } from '../system/active-specia
 import { getActorInventoryLoadZone, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
-import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, } from '../utils/mastery-rank-sync.js';
+import { deriveMasteryRankFromStones, getWorldDefaultMasteryRank, masteryRankFromLifetimeXp, } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 import { coerceNpcPhasesArray, ensureNpcHealthState, resolveNpcAttackSlots, } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
@@ -199,14 +199,16 @@ export class MasteryActor extends Actor {
                 system.stones.current = Math.max(0, Math.min(system.stones.current, system.stones.maximum));
             }
             /**
-             * Players Guide 7232–7239: Stones → **suggested** MR for GM reference only.
-             * Live `system.mastery.rank` is set by the GM on the character sheet
-             * (or world default for new actors) — never auto-promoted from Stones.
+             * DF Core v0.9.9.1: suggested Mastery Rank comes from Lifetime XP.
+             * Live `system.mastery.rank` stays the GM-set value and is not overwritten.
              */
             if (!system.mastery) {
                 system.mastery = { rank: getWorldDefaultMasteryRank(), points: 0, experience: 0 };
             }
-            system.mastery.suggestedRank = deriveMasteryRankFromStones(system.stones.total);
+            const lifetimeXp = system.progression?.lifetimeXp;
+            system.mastery.suggestedRank = lifetimeXp == null
+                ? deriveMasteryRankFromStones(system.stones.total)
+                : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
             const storedRank = Math.floor(Number(system.mastery.rank) || 0);
             if (!Number.isFinite(storedRank) || storedRank < 1) {
                 system.mastery.rank = getWorldDefaultMasteryRank();

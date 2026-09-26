@@ -114,6 +114,7 @@ export async function resolveAutofireChain(params: {
           isSpell: true,
           spellBaseTn: flags.spellBaseTn,
           caster: attacker,
+          willing: flags.willingSpellTarget === true,
         })
       : getTargetEvade(defender);
     const defenseName = isSpell ? 'Final Spell TN' : 'Evade';

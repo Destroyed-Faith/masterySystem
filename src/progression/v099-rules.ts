@@ -181,10 +181,9 @@ export function permanentStonesFromLifetimeXp(lifetimeXp: number): number {
 /**
  * MR × 2 Stones on one Attribute.
  *
- * Mastery Rank for this limit is the rank earned by Mastery Stone Value
- * (2 + floor(Lifetime XP / 20)). A higher rank stored on the sheet does not
- * raise it: MR2 stays at 4 until the stone total itself reaches the next
- * bracket. `storedRank` remains in the signature for existing callers.
+ * Mastery Rank is the Lifetime XP rank. A permanent Stone total implies that
+ * XP (2 + floor(XP / 20)). A higher rank stored on the sheet does not raise
+ * the cap. `storedRank` remains in the signature for existing callers.
  */
 export function stoneConcentrationCap(totalPermanentStones: number, storedRank = 1): number {
   void storedRank;
@@ -242,9 +241,8 @@ export function unassignedPermanentStones(args: {
 
 /**
  * Convert 2 unassigned permanent Stones into 1 Permanent Colorless Stone.
- * The conversion is permanent; the cap is Mastery Rank. For Mastery Rank
- * progression a Permanent Colorless Stone keeps the value of the two Stones
- * it replaced (Mastery Stone Value = 2 + floor(Lifetime XP / 20) throughout).
+ * The conversion is permanent. The cap is the Lifetime-XP Mastery Rank.
+ * Temporary Colorless Stones are a different pool and do not change this cap.
  */
 export function canConvertToPermanentColorless(args: {
   assignments: Record<string, number>;
@@ -253,10 +251,8 @@ export function canConvertToPermanentColorless(args: {
   storedRank?: number;
 }): { ok: boolean; masteryRank: number; cap: number; reason?: string } {
   const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
-  const masteryRank = Math.max(
-    deriveMasteryRankFromStones(total),
-    Math.max(1, Math.floor(Number(args.storedRank) || 1)),
-  );
+  void args.storedRank;
+  const masteryRank = deriveMasteryRankFromStones(total);
   const cap = permanentColorlessCap(masteryRank);
   const colorless = Math.max(0, Math.floor(Number(args.permanentColorless) || 0));
   if (colorless >= cap) {

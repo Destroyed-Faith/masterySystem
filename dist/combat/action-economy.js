@@ -216,6 +216,33 @@ function totalStoneCapacityFromAttributes(actor) {
  * Mutating the stored object makes the correction stick: a later save writes
  * extraSpellActions 0, and a second read does not subtract again.
  */
+/**
+ * Additional Attack Actions do not stack. The highest single source is used.
+ * Extra Attack and Artifact support of Extra Attack are the same source.
+ */
+export function highestExtraAttackGrant(sources) {
+    let best = 0;
+    for (const raw of sources) {
+        const n = Math.max(0, Math.floor(Number(raw) || 0));
+        if (n > best)
+            best = n;
+    }
+    return best;
+}
+/** PC Attack Action total = 1 base + the highest extra-attack grant. */
+export function syncPcExtraAttackTotal(state) {
+    if (!state.isPC)
+        return;
+    const sb = state.stoneBonuses;
+    const grant = highestExtraAttackGrant([
+        sb?.extraAttacks,
+        sb?.shopExtraAttack,
+        sb?.bonusAttackActions,
+    ]);
+    const total = 1 + grant;
+    const used = Math.max(0, Math.floor(Number(state.attackActions?.used) || 0));
+    state.attackActions = { total, used: Math.min(used, total) };
+}
 function retireSpellActionAttacks(state) {
     const sb = state.stoneBonuses;
     if (!sb)
@@ -429,9 +456,13 @@ export async function applyInitiativeShopBonuses(actor, combatant, combat) {
     }
     const roundState = getRoundState(actor, combat);
     roundState.combatId = combat.id ?? '';
-    // Apply extra attack
+    // Initiative Shop is one Attack Action source. It does not add on top of Extra Attack.
     if (shopData.extraAttack) {
-        roundState.attackActions.total += 1;
+        if (!roundState.stoneBonuses) {
+            roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+        }
+        roundState.stoneBonuses.shopExtraAttack = 1;
+        syncPcExtraAttackTotal(roundState);
     }
     if (shopData.extraReaction) {
         roundState.reactionActions.total += 1;

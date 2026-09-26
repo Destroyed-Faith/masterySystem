@@ -224,6 +224,10 @@ export interface RoundState {
     attribute: 'might' | 'agility' | 'intellect' | 'resolve' | 'influence';
     /** Martial strips Attack Dice. Spell strips Casting Dice (Fully Countered). */
     delivery?: 'martial' | 'spell';
+    /** Pool at the moment Parry was entered. Recovery cannot exceed this. */
+    entryPool?: number;
+    /** Parry Recovery already refunded this Round. */
+    recoveredThisRound?: number;
   };
   stoneBonuses?: {
     extraAttacks: number;
@@ -276,6 +280,13 @@ export interface RoundState {
      * the only extra-attack source.
      */
     extraSpellActions?: number;
+    /**
+     * Initiative Shop extra Attack Action. Does not stack with Extra Attack:
+     * the character keeps the highest single grant.
+     */
+    shopExtraAttack?: number;
+    /** Other named Attack Action grants. Highest source wins. */
+    bonusAttackActions?: number;
     /** @deprecated Mirror of specialBoost. Kept so older turn-cleanup still sees the bonus. */
     spellSpecialBoost?: number;
     /** Resolve.Damage Reduction — additional %DR until next turn (creates DR if missing). */
@@ -417,6 +428,33 @@ function totalStoneCapacityFromAttributes(actor: Actor | null | undefined): numb
  * Mutating the stored object makes the correction stick: a later save writes
  * extraSpellActions 0, and a second read does not subtract again.
  */
+/**
+ * Additional Attack Actions do not stack. The highest single source is used.
+ * Extra Attack and Artifact support of Extra Attack are the same source.
+ */
+export function highestExtraAttackGrant(sources: Array<number | null | undefined>): number {
+  let best = 0;
+  for (const raw of sources) {
+    const n = Math.max(0, Math.floor(Number(raw) || 0));
+    if (n > best) best = n;
+  }
+  return best;
+}
+
+/** PC Attack Action total = 1 base + the highest extra-attack grant. */
+export function syncPcExtraAttackTotal(state: RoundState): void {
+  if (!state.isPC) return;
+  const sb = state.stoneBonuses;
+  const grant = highestExtraAttackGrant([
+    sb?.extraAttacks,
+    sb?.shopExtraAttack,
+    sb?.bonusAttackActions,
+  ]);
+  const total = 1 + grant;
+  const used = Math.max(0, Math.floor(Number(state.attackActions?.used) || 0));
+  state.attackActions = { total, used: Math.min(used, total) };
+}
+
 function retireSpellActionAttacks(state: RoundState): void {
   const sb = state.stoneBonuses;
   if (!sb) return;
@@ -670,9 +708,13 @@ export async function applyInitiativeShopBonuses(
   const roundState = getRoundState(actor, combat);
   roundState.combatId = (combat as any).id ?? '';
 
-  // Apply extra attack
+  // Initiative Shop is one Attack Action source. It does not add on top of Extra Attack.
   if (shopData.extraAttack) {
-    roundState.attackActions.total += 1;
+    if (!roundState.stoneBonuses) {
+      roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+    }
+    roundState.stoneBonuses.shopExtraAttack = 1;
+    syncPcExtraAttackTotal(roundState);
   }
 
   if (shopData.extraReaction) {

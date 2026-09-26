@@ -56,7 +56,7 @@ export const RULES_EXPECTED_ACTIVE_BUFFS = [
     { rulesName: 'Summon Armor Aura', id: 'ab-summon-armor-aura' },
     { rulesName: 'Thorns', id: 'ab-thorns' },
     { rulesName: 'Invisibility', id: 'ab-invisibility' },
-    { rulesName: 'Reinforced Parry', id: 'ab-reinforced-parry' },
+    { rulesName: 'Parry Recovery', id: 'ab-reinforced-parry' },
     { rulesName: 'Intensified Absorption', id: 'ab-intensified-absorption' },
     { rulesName: 'Reinforced Damage Negation', id: 'ab-reinforced-damage-negation' },
     // Documented in Rules/actives.md as Active Buff — Immovable + Temporary HP
@@ -81,9 +81,9 @@ export const RULES_EXPECTED_REACTIONS = [
     { rulesName: 'Initiative Gain', id: 'reaction-initiative-gain' },
     { rulesName: 'Reposition', id: 'reaction-reposition' },
     { rulesName: 'Reactive Cleanse', id: 'reaction-reactive-cleanse' },
-    { rulesName: 'Riposte', id: 'reaction-riposte' },
+    { rulesName: 'Parry + Weapon Damage', id: 'reaction-riposte' },
     { rulesName: 'Damage Negation', id: 'reaction-damage-negation' },
-    { rulesName: 'Reflection', id: 'reaction-parry-reflection' },
+    { rulesName: 'Parry + Attack Reflection', id: 'reaction-parry-reflection' },
     { rulesName: 'Reactive Overload', id: 'reaction-reactive-overload' },
     // Catalog expansion (CHANGELOG / agent intercept patterns); keep tracked.
     { rulesName: 'Repositioning Intercept', id: 'reaction-repositioning-intercept' },

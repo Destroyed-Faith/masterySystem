@@ -192,9 +192,7 @@ function damageAoeTemplate(def: {
         name,
         subfamily: 'damage-aoe',
         category: 'active',
-        // Players Guide: AoE Actives are inherently magical / counterspell-able
-        // when cast as Spells; tag them so Counterspell, anti-magic and the
-        // Spell-Focus pipeline can find them.
+        // Ranged Actives may use Spell Delivery. Spell Focus finds damaging Spells by this tag.
         tags: ['spell'],
         specialSlot: slot,
         spellHints,

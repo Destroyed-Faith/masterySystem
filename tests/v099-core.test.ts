@@ -123,48 +123,41 @@ describe('v0.9.9 Lifetime XP and Stones', () => {
     expect(plan.needsLifetimeInput).toBe(true);
   });
 
-  it('enforces MR × 2 and uses the new rank when a Stone crosses a threshold', () => {
-    const seven = flat([4, 3, 0, 0, 0, 0, 0]);
+  it('enforces MR × 2 from Lifetime XP, including the 100 XP MR3 step', () => {
+    const atCap = flat([6, 0, 0, 0, 0, 0, 0]);
     const blocked = canPlacePermanentStone({
       attribute: 'might',
-      assignments: seven,
+      assignments: atCap,
+      totalPermanent: 7,
+      storedRank: 8,
+    });
+    expect(blocked.ok).toBe(false);
+    expect(blocked.cap).toBe(6);
+    expect(blocked.masteryRank).toBe(3);
+    const under = canPlacePermanentStone({
+      attribute: 'might',
+      assignments: flat([4, 2, 0, 0, 0, 0, 0]),
       totalPermanent: 7,
       storedRank: 2,
     });
-    expect(blocked.ok).toBe(false);
-    expect(blocked.cap).toBe(4);
-    const raised = canPlacePermanentStone({
-      attribute: 'might',
-      assignments: seven,
-      totalPermanent: 8,
-      storedRank: 2,
-    });
-    expect(raised.ok).toBe(true);
-    expect(raised.masteryRank).toBe(3);
-    expect(raised.cap).toBe(6);
+    expect(under.ok).toBe(true);
+    expect(under.cap).toBe(6);
   });
 
-  it('does not let a stored Mastery Rank above the stone total raise the cap', () => {
+  it('uses Lifetime XP rank for the attribute cap, not a stored sheet rank', () => {
     expect(permanentStonesFromLifetimeXp(200)).toBe(12);
-    expect(stoneConcentrationCap(12, 8)).toBe(6);
-    expect(stoneConcentrationCap(12, 2)).toBe(6);
-    expect(stoneConcentrationCap(7, 8)).toBe(4);
+    expect(stoneConcentrationCap(12, 8)).toBe(8);
+    expect(stoneConcentrationCap(12, 2)).toBe(8);
+    expect(stoneConcentrationCap(7, 8)).toBe(6);
     const atTwoHundredXp = canPlacePermanentStone({
       attribute: 'might',
-      assignments: flat([7, 0, 0, 0, 0, 0, 0]),
+      assignments: flat([8, 3, 0, 0, 0, 0, 0]),
       totalPermanent: 12,
       storedRank: 8,
     });
     expect(atTwoHundredXp.ok).toBe(false);
-    expect(atTwoHundredXp.cap).toBe(6);
-    const stillAdept = canPlacePermanentStone({
-      attribute: 'might',
-      assignments: flat([4, 2, 0, 0, 0, 0, 0]),
-      totalPermanent: 7,
-      storedRank: 8,
-    });
-    expect(stillAdept.ok).toBe(false);
-    expect(stillAdept.cap).toBe(4);
+    expect(atTwoHundredXp.cap).toBe(8);
+    expect(atTwoHundredXp.masteryRank).toBe(4);
   });
 
   it('reassigns migrated Stones from Lifetime XP instead of the old pools', () => {

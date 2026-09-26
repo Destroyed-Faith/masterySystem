@@ -1,6 +1,6 @@
 {
-  "version": "0.9.589",
-  "generatedAt": "2026-09-26T09:44:09.258Z",
+  "version": "0.9.590",
+  "generatedAt": "2026-09-26T10:44:46.302Z",
   "summary": {
     "correct": 218,
     "corrected": 3,
@@ -586,9 +586,9 @@
     {
       "category": "activeBuff",
       "id": "ab-reinforced-parry",
-      "name": "Active Buff: Reinforced Parry",
+      "name": "Active Buff: Parry Recovery",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "activeBuff",
@@ -1496,7 +1496,7 @@
     {
       "category": "reaction",
       "id": "reaction-parry-reflection",
-      "name": "Reaction: Reflection",
+      "name": "Reaction: Parry + Attack Reflection",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1538,9 +1538,9 @@
     {
       "category": "reaction",
       "id": "reaction-riposte",
-      "name": "Reaction: Riposte",
+      "name": "Reaction: Parry + Weapon Damage",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "reaction",

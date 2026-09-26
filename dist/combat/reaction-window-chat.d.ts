@@ -42,8 +42,13 @@ export interface ReactionWindowState {
     opportunityEnemyTokenIds?: string[];
     /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
     suppressCounterattack?: boolean;
-    /** Full Parry this attack — shows Riposte / Reflection. */
+    /** Full Parry this attack — shows Parry + Weapon Damage / Attack Reflection. */
     hasParryThisHit?: boolean;
+    spellFullyCountered?: boolean;
+    parryDelivery?: 'martial' | 'spell' | null;
+    multiTarget?: boolean;
+    /** Printed Spell damage dice to reflect. Weapon damage is not used for Spells. */
+    spellPowerDamageDice?: number;
     attackType?: 'melee' | 'ranged' | null;
     isAoE?: boolean;
     /**
@@ -98,8 +103,12 @@ export declare function runInteractiveReactionWindow(params: {
     opportunityEnemyTokenIds?: string[] | null;
     /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
     suppressCounterattack?: boolean;
-    /** Full Parry this attack — enables Riposte / Reflection. */
+    /** Full Parry this attack — enables Parry + Weapon Damage / Attack Reflection. */
     hasParryThisHit?: boolean;
+    spellFullyCountered?: boolean;
+    parryDelivery?: 'martial' | 'spell' | null;
+    multiTarget?: boolean;
+    spellPowerDamageDice?: number;
     attackType?: 'melee' | 'ranged' | null;
     isAoE?: boolean;
 }): Promise<ReactionPhaseResult>;

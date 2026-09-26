@@ -73,7 +73,9 @@ export function getEligibleReactionPowers(defender, combat) {
             continue;
         if (sys?.showInRadialMenu === false)
             continue;
-        if (hasPowerBeenUsedThisRound(owner, combat, item.id))
+        const repeatable = String(sys?.templateId ?? '') === 'reaction-riposte' ||
+            resolvePowerMechanics(item)?.repeatable === true;
+        if (!repeatable && hasPowerBeenUsedThisRound(owner, combat, item.id))
             continue;
         // Ghost Slip (phasing.reactionSingleHit) stays in the pool; the Reaction
         // Window eligibility layer hides it unless Passive Phasing + hit apply.

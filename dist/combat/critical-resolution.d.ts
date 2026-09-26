@@ -12,6 +12,14 @@ export type CriticalSource = 'active-buff' | 'stone-crit' | 'special-crit';
 export declare const CRITICAL_ATTACK_EXPLODE_FACES: readonly [7, 8];
 /** Damage Dice are never exploded by Critical(X). */
 export declare const CRITICAL_DAMAGE_DICE_EXPLODE: false;
+/**
+ * Crit is declared before the roll. It applies to damaging Martial attacks
+ * and damaging Spells. Non-damaging Spells do not consume a charge.
+ */
+export declare function critAppliesToAttackRoll(args: {
+    spell: boolean;
+    damageDice: number;
+}): boolean;
 export type CriticalRoundQuota = {
     /** `${combatId}:${round}` — quota refreshes when this changes. */
     roundKey: string;

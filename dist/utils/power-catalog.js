@@ -169,24 +169,39 @@ export function powerIdentityKeyFromEntry(entry) {
     });
 }
 /**
- * PG "Spell Design Rule": only a Ranged Active with at least one Special may
- * be converted into a Spell ("A Spell is always Ranged + Special"). Damage
- * templates with a Special slot qualify because the chosen Special fills it.
+ * DF Core v0.9.9.1: an otherwise legal Ranged Active may use Spell Delivery
+ * with or without a Special. Damage-only Spells are legal. Melee stays martial.
  */
 export function activeTemplateCanBeSpell(templateId) {
-    if (!templateId.includes('active-ranged'))
+    if (!String(templateId || '').includes('active-ranged'))
         return false;
-    const template = ALL_POWER_TEMPLATES.find((t) => t.templateId === templateId);
-    if (!template)
+    return ALL_POWER_TEMPLATES.some((t) => t.templateId === templateId);
+}
+/** A configured Special means the Spell does not count against the special-less cap. */
+export function powerHasConfiguredSpecial(input) {
+    const key = String(input.chosenSpecial?.key || input.special || '').trim();
+    return !!key && key !== 'none';
+}
+/** Up to Mastery Rank Spell Powers may lack a Special. */
+export function speciallessSpellLimit(masteryRank) {
+    return Math.max(0, Math.floor(Number(masteryRank) || 0));
+}
+export function isSpeciallessSpellItem(item) {
+    const sys = item?.system ?? {};
+    if (sys.isSpell !== true)
         return false;
-    for (const k of POWER_LEVEL_KEYS) {
-        const row = template.levels[k];
-        for (const s of row?.specials ?? []) {
-            if (s?.key)
-                return true; // includes the 'special' placeholder slot
-        }
+    return !powerHasConfiguredSpecial(sys);
+}
+export function countSpeciallessSpells(items) {
+    let n = 0;
+    for (const item of items) {
+        if (isSpeciallessSpellItem(item))
+            n += 1;
     }
-    return false;
+    return n;
+}
+export function canLearnAnotherSpeciallessSpell(currentCount, masteryRank) {
+    return Math.max(0, Math.floor(Number(currentCount) || 0)) < speciallessSpellLimit(masteryRank);
 }
 export function collectOwnedPowerIdentityKeys(powers) {
     const out = new Set();

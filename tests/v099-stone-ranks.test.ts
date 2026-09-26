@@ -63,8 +63,8 @@ describe('Premium Stone Ability costs', () => {
   });
 
   it('Premium Rank 4 legally costs 20 — more than the MR8 Attribute cap of 16', () => {
-    const mr8Total = permanentStonesFromLifetimeXp(960);
-    expect(deriveMasteryRankFromStones(mr8Total)).toBeGreaterThanOrEqual(8);
+    const mr8Total = permanentStonesFromLifetimeXp(1000);
+    expect(deriveMasteryRankFromStones(mr8Total)).toBe(8);
     expect(stoneConcentrationCap(mr8Total, 1)).toBe(16);
     expect(stoneConcentrationCap(32, 8)).toBe(12);
     expect(cumulativeStoneCostForRank('might.parry', 4)).toBe(20);
@@ -130,34 +130,42 @@ describe('Permanent Colorless Stones — conversion and caps', () => {
   });
 
   it('does not consume the MR × 2 Attribute Stone limit', () => {
-    // 7 earned (MR2, cap 4 per Attribute), 2 converted to 1 colorless:
-    // 5 assignable. The Attribute cap only counts assigned Stones —
-    // Permanent Colorless Stones never count against it.
-    const assignments = { ...emptyAssignments(), might: 4 };
+    // 7 earned (100 XP, MR3, cap 6). Might is already at the cap.
+    // Colorless Stones do not count toward that Attribute cap.
+    const assignments = { ...emptyAssignments(), might: 6 };
     const place = canPlacePermanentStone({
       attribute: 'might',
       assignments,
       totalPermanent: 7,
-      storedRank: 2,
-      permanentColorless: 1,
+      storedRank: 8,
+      permanentColorless: 0,
     });
     expect(place.ok).toBe(false);
     expect(place.reason).toMatch(/Mastery Rank × 2/);
+    expect(place.cap).toBe(6);
     const other = canPlacePermanentStone({
       attribute: 'agility',
       assignments,
       totalPermanent: 7,
       storedRank: 2,
-      permanentColorless: 1,
+      permanentColorless: 0,
     });
     expect(other.ok).toBe(true);
-    // With everything assigned or converted, nothing is left to place.
-    const full = canPlacePermanentStone({
-      attribute: 'agility',
-      assignments: { ...emptyAssignments(), might: 4, agility: 1 },
-      totalPermanent: 7,
+    const withColorless = canPlacePermanentStone({
+      attribute: 'might',
+      assignments: { ...emptyAssignments(), might: 5 },
+      totalPermanent: 8,
       storedRank: 2,
       permanentColorless: 1,
+    });
+    expect(withColorless.ok).toBe(true);
+    expect(withColorless.cap).toBe(6);
+    const full = canPlacePermanentStone({
+      attribute: 'agility',
+      assignments: { ...emptyAssignments(), might: 6, agility: 1 },
+      totalPermanent: 7,
+      storedRank: 2,
+      permanentColorless: 0,
     });
     expect(full.ok).toBe(false);
     expect(full.reason).toMatch(/No unassigned/);

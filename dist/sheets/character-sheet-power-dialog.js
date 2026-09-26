@@ -14,18 +14,18 @@
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
  * "Make this a Spell?" toggle and the casting attribute (Intellect/Resolve).
- * Every Spell resolves as a Spell Attack (caster roll vs Casting TN / Evade);
- * saving throws were removed from the rules.
+ * Spell Delivery uses a Casting Roll against Final Spell TN (Spell Base TN + Spell Resistance).
  */
 import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { powerLevelCost } from '../utils/constants.js';
+import { masteryRankFromLifetimeXp } from '../utils/mastery-rank-sync.js';
 import { renderPowerLevelTable } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import { buildPowerItemFromCatalogEntry, } from '../utils/power-item-builder.js';
 import { applyXpCost, getXpState, } from '../progression/progression-hub-actions.js';
 import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, activeTemplateCanBeSpell, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, powerHasConfiguredSpecial, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 /**
  * Show the template-based Power picker.
  */
@@ -161,6 +161,20 @@ export async function showPowerCreationDialog(actor, options) {
                     if (isSpell && rank > maxSpellLevel) {
                         ui.notifications?.error(`Spell Level ${rank} exceeds Max Power Level ${maxSpellLevel} at Mastery Rank ${masteryRank}.`);
                         return false;
+                    }
+                    if (isSpell && !powerHasConfiguredSpecial(entry)) {
+                        const owned = actor.items?.filter?.((i) => i.type === 'power')
+                            ?? actor.items
+                            ?? [];
+                        const list = Array.isArray(owned) ? owned : Array.from(owned.values?.() ?? []);
+                        const lifetimeXp = system?.progression?.lifetimeXp;
+                        const spellCapRank = lifetimeXp == null
+                            ? masteryRank
+                            : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
+                        if (!canLearnAnotherSpeciallessSpell(countSpeciallessSpells(list), spellCapRank)) {
+                            ui.notifications?.error(`Spell Powers without a Special are limited to Mastery Rank (${spellCapRank}).`);
+                            return false;
+                        }
                     }
                     const itemData = buildPowerItemFromCatalogEntry(entry, rank, { isSpell, castingAttribute, spellResolution });
                     if (!itemData) {

@@ -124,10 +124,16 @@ export function validateManualWizardSelection(selection: Partial<TowerWizardSele
         return 'One or more chosen Powers are missing from the catalog.';
     }
     const seen = new Set<string>();
+    let speciallessSpells = 0;
     for (const spec of specs) {
         const key = `${spec.templateId}::${spec.special ?? ''}`;
         if (seen.has(key)) return 'This package contains duplicate Powers.';
         seen.add(key);
+        if (spec.isSpell && !spec.special) speciallessSpells += 1;
+    }
+    const masteryRank = Math.max(1, Math.floor(Number((selection as { masteryRank?: number }).masteryRank) || 2));
+    if (speciallessSpells > masteryRank) {
+        return `Spell Powers without a Special are limited to Mastery Rank (${masteryRank}).`;
     }
     return null;
 }

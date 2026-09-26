@@ -11,12 +11,16 @@ import type {
     SpellResolution,
 } from '../types/item.js';
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
+import { masteryRankFromLifetimeXp } from './mastery-rank-sync.js';
 import { SPECIAL_EFFECTS_BY_ID } from './special-effects.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
 import {
     actorAlreadyHasPower,
     activeTemplateCanBeSpell,
+    canLearnAnotherSpeciallessSpell,
+    countSpeciallessSpells,
     findCatalogEntry,
+    powerHasConfiguredSpecial,
     type CatalogEntry,
 } from './power-catalog.js';
 import type { PowerTemplate } from './powers/templates/index.js';
@@ -129,6 +133,11 @@ export function resolveGrantSpecEntry(spec: PowerGrantSpec): CatalogEntry | null
 export async function grantPowerSpecs(actor: Actor, specs: PowerGrantSpec[]): Promise<number> {
     const existing = (actor as any).items.filter((i: any) => i.type === 'power');
     const itemDataList: Record<string, unknown>[] = [];
+    const lifetimeXp = (actor as any).system?.progression?.lifetimeXp;
+    const masteryRank = lifetimeXp == null
+        ? Math.max(1, Math.floor(Number((actor as any).system?.mastery?.rank) || 2))
+        : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
+    let specialless = countSpeciallessSpells(existing);
 
     for (const spec of specs) {
         const entry = resolveGrantSpecEntry(spec);
@@ -137,9 +146,16 @@ export async function grantPowerSpecs(actor: Actor, specs: PowerGrantSpec[]): Pr
         }
         if (actorAlreadyHasPower(existing, entry)) continue;
 
-    const canSpell = activeTemplateCanBeSpell(entry.templateId);
-    const itemData = buildPowerItemFromCatalogEntry(entry, spec.rank, {
-        isSpell: canSpell && !!spec.isSpell,
+        const canSpell = activeTemplateCanBeSpell(entry.templateId);
+        const asSpell = canSpell && !!spec.isSpell;
+        if (asSpell && !powerHasConfiguredSpecial({ special: spec.special, chosenSpecial: entry.chosenSpecial })) {
+            if (!canLearnAnotherSpeciallessSpell(specialless, masteryRank)) {
+                throw new Error(`Spell Powers without a Special are limited to Mastery Rank (${masteryRank}).`);
+            }
+            specialless += 1;
+        }
+        const itemData = buildPowerItemFromCatalogEntry(entry, spec.rank, {
+            isSpell: asSpell,
         castingAttribute: canSpell ? spec.castingAttribute : undefined,
         spellResolution: canSpell ? spec.spellResolution : undefined,
     });

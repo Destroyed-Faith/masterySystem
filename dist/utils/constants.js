@@ -155,34 +155,35 @@ export function totalArtifactXpToLevel(level) {
     return sum;
 }
 /**
- * Mastery Rank Advancement (new spec — based on total Stone count).
+ * Mastery Rank from Lifetime XP (DF Core v0.9.9.1).
+ * Stones listed are the permanent total at that XP: 2 + floor(XP / 20).
  *
- *  | Total Stones | MR | Tier         |
- *  |--------------|----|--------------|
- *  | 1 – 7        | 2  | Adept        |
- *  | 8 – 13       | 3  | Expert       |
- *  | 14 – 20      | 4  | Master       |
- *  | 21 – 29      | 5  | Grandmaster  |
- *  | 30 – 39      | 6  | Legend       |
- *  | 40 – 49      | 7  | Mythic       |
- *  | 50 – 112     | 8  | God          |
+ *  | Lifetime XP | Stones | MR | Tier        |
+ *  |-------------|--------|----|-------------|
+ *  | 0           | 2      | 2  | Adept       |
+ *  | 100         | 7      | 3  | Expert      |
+ *  | 200         | 12     | 4  | Master      |
+ *  | 400         | 22     | 5  | Grandmaster |
+ *  | 600         | 32     | 6  | Legend      |
+ *  | 800         | 42     | 7  | Mythic      |
+ *  | 1000        | 52     | 8  | Godlevel    |
  */
 export const MR_ADVANCEMENT = [
-    { stones: 1, mr: 2, tier: 'Adept' },
-    { stones: 8, mr: 3, tier: 'Expert' },
-    { stones: 14, mr: 4, tier: 'Master' },
-    { stones: 21, mr: 5, tier: 'Grandmaster' },
-    { stones: 30, mr: 6, tier: 'Legend' },
-    { stones: 40, mr: 7, tier: 'Mythic' },
-    { stones: 50, mr: 8, tier: 'Godlevel' }
+    { lifetimeXp: 0, stones: 2, mr: 2, tier: 'Adept' },
+    { lifetimeXp: 100, stones: 7, mr: 3, tier: 'Expert' },
+    { lifetimeXp: 200, stones: 12, mr: 4, tier: 'Master' },
+    { lifetimeXp: 400, stones: 22, mr: 5, tier: 'Grandmaster' },
+    { lifetimeXp: 600, stones: 32, mr: 6, tier: 'Legend' },
+    { lifetimeXp: 800, stones: 42, mr: 7, tier: 'Mythic' },
+    { lifetimeXp: 1000, stones: 52, mr: 8, tier: 'Godlevel' },
 ];
 /**
- * Divine Scale label within MR8 (50–112 Stones). Returns `null` for any
- * Stone total below 50 (i.e. MR 7 or lower).
+ * Divine Scale label within MR8. MR8 begins at 1000 Lifetime XP (52 Stones).
+ * Returns `null` below that.
  */
 export function getDivineScale(totalStones) {
     const s = Math.max(0, Math.floor(Number(totalStones) || 0));
-    if (s < 50)
+    if (s < 52)
         return null;
     if (s <= 55)
         return 'Lesser God';
@@ -195,7 +196,7 @@ export function getDivineScale(totalStones) {
     return 'System Limit';
 }
 /**
- * Standard Target Number for a Challenge / source Mastery Rank (v0.9.9.0):
+ * Standard Target Number for a Challenge / source Mastery Rank (DF Core v0.9.9.1):
  * `TN = (8 × MR) − 2`. Spell Base TN, Attribute Checks, Death Checks,
  * Stress Breakdown, and Ritual base TN all use this value.
  */

@@ -261,7 +261,7 @@ export async function runMasteryCombatRoundAdvancePipeline(
 
   // Round 1 is reached by leaving the prepare phase (round 0 → 1). Resetting
   // here would discard the Stone Powers the players just bought (Extra Attack,
-  // Spell Action, …), so only rounds 2+ get a fresh round state.
+  // Retired extra-attack piles are stripped on read, so only rounds 2+ get a fresh round state.
   if (newRound <= 1) return;
 
   for (const combatant of combat.combatants) {

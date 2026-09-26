@@ -113,6 +113,16 @@ export function isParryFollowUpReaction(item) {
         return true;
     return subfamilyOf(item) === 'parry';
 }
+/** Explicit exception: Parry + Weapon Damage may be used again. Each use still costs 1 Reaction. */
+export function reactionMayRepeatThisRound(item) {
+    const tid = templateIdOf(item);
+    if (tid === 'reaction-riposte')
+        return true;
+    const name = String(item?.name ?? '').toLowerCase();
+    if (name.includes('parry + weapon damage') || name.includes('riposte'))
+        return true;
+    return mechanicsOf(item)?.repeatable === true;
+}
 export function isInterposeReaction(item) {
     return item?.basicReaction === 'interpose' || String(item?.id || '') === 'basic-reaction-interpose';
 }
@@ -194,22 +204,43 @@ export function evaluateReactionEligibility(power, ctx) {
     if (isOverloadReaction(power) && !ctx.hpLost) {
         return { shown: false, enabled: false, reason: 'Overload triggers after actual HP loss' };
     }
-    // Parry follow-ups need a Full Parry this hit.
+    // Parry follow-ups: Weapon Damage is martial melee only. Reflection matches delivery.
     if (isParryFollowUpReaction(power)) {
-        if (!ctx.hasParryThisHit) {
-            return { shown: false, enabled: false, reason: 'Requires a Full Parry on this attack' };
-        }
-        // Riposte: melee Full Parry only.
-        if (tid === 'reaction-riposte' && ctx.attackType === 'ranged') {
-            return { shown: false, enabled: false, reason: 'Riposte requires a melee Full Parry' };
-        }
-        // Reflection: single-target only.
-        if ((tid === 'reaction-parry-reflection' || tid.includes('reflection')) &&
-            ctx.isAoE) {
-            return { shown: false, enabled: false, reason: 'Reflection requires a single-target attack' };
-        }
         if (phase !== 'defender') {
             return { shown: false, enabled: false, reason: 'Parry follow-ups are defender reactions' };
+        }
+        const name = String(power?.name ?? '').toLowerCase();
+        const riposte = tid === 'reaction-riposte' || name.includes('weapon damage') || name.includes('riposte');
+        const reflection = tid === 'reaction-parry-reflection' ||
+            tid.includes('reflection') ||
+            name.includes('attack reflection') ||
+            name.includes('reflection');
+        const martialFull = !!ctx.hasParryThisHit && ctx.parryDelivery !== 'spell' && !ctx.spellFullyCountered;
+        const spellFull = !!ctx.spellFullyCountered && ctx.parryDelivery !== 'martial';
+        if (riposte && !reflection) {
+            if (!martialFull || ctx.attackType === 'ranged' || ctx.isAoE || ctx.multiTarget) {
+                return {
+                    shown: false,
+                    enabled: false,
+                    reason: 'Parry + Weapon Damage requires a Fully Parried direct melee Attack',
+                };
+            }
+        }
+        else if (reflection && !riposte) {
+            if (ctx.isAoE || ctx.multiTarget) {
+                return { shown: false, enabled: false, reason: 'Attack Reflection requires a direct single-target effect' };
+            }
+            const matching = (martialFull && ctx.parryDelivery !== 'spell') || (spellFull && ctx.parryDelivery === 'spell');
+            if (!matching) {
+                return {
+                    shown: false,
+                    enabled: false,
+                    reason: 'Attack Reflection requires a matching Fully Parried or Fully Countered delivery',
+                };
+            }
+        }
+        else if (!martialFull && !spellFull) {
+            return { shown: false, enabled: false, reason: 'Requires a Full Parry on this attack' };
         }
     }
     // Repositioning Intercept — out of scope for auto-retarget; hide from window.
@@ -328,6 +359,9 @@ export function buildReactionTriggerContext(params) {
         hasPassiveDR: defender ? actorHasPassiveDR(defender) : undefined,
         hasPassivePhasing: defender ? actorHasPassivePhasing(defender) : undefined,
         hasParryThisHit: !!params.hasParryThisHit,
+        spellFullyCountered: !!params.spellFullyCountered,
+        parryDelivery: params.parryDelivery ?? null,
+        multiTarget: !!params.multiTarget,
         hpLost: !!params.hpLost,
         statusSurface: !!params.statusSurface,
         isAoE: !!params.isAoE,

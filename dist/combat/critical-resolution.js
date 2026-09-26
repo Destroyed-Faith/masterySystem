@@ -12,6 +12,15 @@ export const CRITICAL_ATTACK_EXPLODE_FACES = [7, 8];
 /** Damage Dice are never exploded by Critical(X). */
 export const CRITICAL_DAMAGE_DICE_EXPLODE = false;
 /**
+ * Crit is declared before the roll. It applies to damaging Martial attacks
+ * and damaging Spells. Non-damaging Spells do not consume a charge.
+ */
+export function critAppliesToAttackRoll(args) {
+    if (!args.spell)
+        return true;
+    return Math.max(0, Math.floor(Number(args.damageDice) || 0)) > 0;
+}
+/**
  * Sync Active Buff Critical quota for the current combat round.
  * New round → remaining = Critical(X). Same round → keep spent charges.
  */

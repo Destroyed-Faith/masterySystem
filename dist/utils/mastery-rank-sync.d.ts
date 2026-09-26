@@ -1,32 +1,24 @@
 /**
  * Mastery Rank synchronisation helpers.
  *
- * New spec — Mastery Rank Progression (driven by total Stones):
- *
- *   | Total Stones | Suggested MR        | Tier         |
- *   |--------------|---------------------|--------------|
- *   |   1 –  7     | MR 2 — Adept        | Trained      |
- *   |   8 – 13     | MR 3 — Expert       | Veteran      |
- *   |  14 – 20     | MR 4 — Master       | Hero-tier    |
- *   |  21 – 29     | MR 5 — Grandmaster  | Apex         |
- *   |  30 – 39     | MR 6 — Legend       | Mythic       |
- *   |  40 – 49     | MR 7 — Mythic       | Mythic+      |
- *   |  50 – 70     | MR 8 — Godlevel     | Divine       |
- *
- *   Rank-up bundle:
- *       – +1 Mastery Charge (used by Charged powers)
- *       – +1 Keep on all rolls (handled by the dice subsystem reading
- *         `system.mastery.rank`)
- *       – +1 Schtick slot per Mastery Rank
- *
- *   MR 8 Divine Scale: `getDivineScale(totalStones)` further classifies
- *   Godlevel characters as Lesser / True / High / Apex God for display.
+ * DF Core v0.9.9.1: Mastery Rank comes from Lifetime XP, not Stone count.
+ * A permanent Stone total earned as 2 + floor(XP / 20) implies that XP, so
+ * `deriveMasteryRankFromStones` stays as a fallback when only the Stone total
+ * is known. The live sheet rank may still be set by the GM; the suggested
+ * rank is the Lifetime XP value.
  */
 /** Recommended starting Mastery Rank (Players Guide 7224–7226). */
 export declare const STARTING_MASTERY_RANK = 2;
 /** World setting `defaultMasteryRank` (fallback when an actor has no MR stored). */
 export declare function getWorldDefaultMasteryRank(): number;
-/** Compute the suggested Mastery Rank from a total Stone count. */
+/** DF Core v0.9.9.1 Mastery Rank from Lifetime XP. 0 XP is MR2. 1000+ is MR8. */
+export declare function masteryRankFromLifetimeXp(lifetimeXp: number): number;
+/**
+ * Lowest Lifetime XP that produces this permanent Stone total
+ * (Stones = 2 + floor(XP / 20)). Used when a sheet has Stones but no XP field.
+ */
+export declare function lifetimeXpFloorFromPermanentStones(totalStones: number): number;
+/** Suggested Mastery Rank from a permanent Stone total earned by Lifetime XP. */
 export declare function deriveMasteryRankFromStones(totalStones: number): number;
 /** Tier label for the supplied Mastery Rank ("Adept" .. "Legend"). */
 export declare function tierLabelForMasteryRank(masteryRank: number): string;

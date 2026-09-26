@@ -162,8 +162,9 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(actorAlreadyHasPower([{ system: { templateId: a.templateId, chosenSpecial: a.chosenSpecial } }], b)).toBe(false);
     });
 
-    it('only ranged active templates may become spells', () => {
+    it('any legal ranged active may become a spell, including damage-only', () => {
         expect(activeTemplateCanBeSpell('active-ranged-damage-t4')).toBe(true);
+        expect(activeTemplateCanBeSpell('active-ranged-single-heal')).toBe(true);
         expect(activeTemplateCanBeSpell('active-melee-damage-t4')).toBe(false);
         expect(activeTemplateCanBeSpell('active-melee-weapon-single')).toBe(false);
     });

@@ -14,8 +14,7 @@
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
  * "Make this a Spell?" toggle and the casting attribute (Intellect/Resolve).
- * Every Spell resolves as a Spell Attack (caster roll vs Casting TN / Evade);
- * saving throws were removed from the rules.
+ * Spell Delivery uses a Casting Roll against Final Spell TN (Spell Base TN + Spell Resistance).
  */
 import type { PowerCategory } from '../types/item.js';
 /**

@@ -221,6 +221,8 @@ export async function enterParry(
     max: computed.max,
     attribute: computed.attribute,
     delivery,
+    entryPool: computed.max,
+    recoveredThisRound: 0,
   };
   rs.baseAttackLocked = true;
   await setRoundState(economy, rs);
@@ -277,7 +279,28 @@ export async function applyParryDiceStrip(
   const fromStone = Math.min(stone, strip.spent);
   const fromStance = Math.max(0, strip.spent - fromStone);
   if (rs.stoneBonuses) rs.stoneBonuses.tempParryPool = stone - fromStone;
-  if (rs.parry) rs.parry = { ...rs.parry, pool: Math.max(0, stance - fromStance) };
+  if (rs.parry) {
+    let pool = Math.max(0, stance - fromStance);
+    let recoveredThisRound = Math.max(0, Math.floor(Number(rs.parry.recoveredThisRound) || 0));
+    try {
+      const { computeParryRecovery, readParryRecoveryCap } = await import('./parry-recovery.js');
+      const cap = actorHasPassiveParry(defender) ? readParryRecoveryCap(defender) : 0;
+      if (cap > 0) {
+        const refund = computeParryRecovery({
+          spent: fromStance,
+          pool,
+          entryPool: Math.max(pool, Math.floor(Number(rs.parry.entryPool ?? rs.parry.max) || 0)),
+          recoveredThisRound,
+          maxRecoverPerRound: cap,
+        });
+        pool = refund.pool;
+        recoveredThisRound = refund.recoveredThisRound;
+      }
+    } catch {
+      /* Recovery is optional. The spend itself still stands. */
+    }
+    rs.parry = { ...rs.parry, pool, recoveredThisRound };
+  }
   await setRoundState(economy, rs);
 
   const defName = String((defender as any).name ?? 'Defender');
@@ -336,25 +359,31 @@ export function buildRiposteFormula(actor: any, riderFlat: string): string {
 }
 
 /**
- * Reflection: triggering damage (or attacker weapon proxy when Fully Parried / raw 0)
- * plus the reaction rider.
+ * Reflection returns the triggering payload. Spell delivery uses the printed
+ * Power damage, not the attacker's weapon.
  */
 export function buildReflectionFormula(
   triggerDamage: number,
   attacker: any,
   riderFlat: string,
+  opts?: { spell?: boolean; powerDamageDice?: number },
 ): string {
   const raw = Math.max(0, Math.floor(Number(triggerDamage) || 0));
-  if (raw > 0) {
-    const r = String(riderFlat || '').trim().replace(/^\+/, '');
-    return r ? `${raw}+${r}` : String(raw);
+  const rider = String(riderFlat || '').trim().replace(/^\+/, '');
+  if (opts?.spell) {
+    const dice = Math.max(0, Math.floor(Number(opts.powerDamageDice) || 0));
+    const base = raw > 0 ? String(raw) : dice > 0 ? `${dice}d8` : '0';
+    if (base === '0') return rider || '0';
+    return rider ? `${base}+${rider}` : base;
   }
+  if (raw > 0) return rider ? `${raw}+${rider}` : String(raw);
   return buildDamageFormula(resolveEquippedWeaponDamageFormula(attacker), riderFlat);
 }
 
 export function isRiposteReaction(item: any): boolean {
   const tid = String(item?.system?.templateId ?? '').toLowerCase();
-  return tid === 'reaction-riposte' || String(item?.name ?? '').toLowerCase().includes('riposte');
+  const name = String(item?.name ?? '').toLowerCase();
+  return tid === 'reaction-riposte' || name.includes('riposte') || name.includes('weapon damage');
 }
 
 export function isReflectionReaction(item: any): boolean {

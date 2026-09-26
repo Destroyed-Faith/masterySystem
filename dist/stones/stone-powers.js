@@ -14,7 +14,7 @@
  * or set actor / combatant flags. Cleanup of per-turn bonuses happens
  * in `clearCombatStoneTurnBonusesForActor` (see action-economy.ts).
  */
-import { getRoundState, setRoundState, } from '../combat/action-economy.js';
+import { getRoundState, setRoundState, syncPcExtraAttackTotal, } from '../combat/action-economy.js';
 import { healStressFromBars } from '../utils/calculations.js';
 import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, isTempHpStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, markTempHpStoneUsedThisCombat, } from './colorless-stones.js';
 import { augmentPhasingCharges } from '../combat/phasing.js';
@@ -224,9 +224,11 @@ const GENERIC_POWERS_RAW = [
             if (bonus <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
-            roundState.attackActions.total += bonus;
             const sb = ensureStoneBonuses(roundState);
-            sb.extraAttacks = (sb.extraAttacks ?? 0) + bonus;
+            // Rank value is the grant. A second activation or Artifact support of the
+            // same ability keeps the highest rank, it does not add another pile.
+            sb.extraAttacks = Math.max(sb.extraAttacks ?? 0, bonus);
+            syncPcExtraAttackTotal(roundState);
             await setRoundState(actor, roundState);
         },
     },

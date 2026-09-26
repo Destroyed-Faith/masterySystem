@@ -90,30 +90,32 @@ export declare function artifactLevelXpCost(newLevel: number): number;
 /** Total XP invested to bring an Artifact from Level 1 to `level`. */
 export declare function totalArtifactXpToLevel(level: number): number;
 /**
- * Mastery Rank Advancement (new spec — based on total Stone count).
+ * Mastery Rank from Lifetime XP (DF Core v0.9.9.1).
+ * Stones listed are the permanent total at that XP: 2 + floor(XP / 20).
  *
- *  | Total Stones | MR | Tier         |
- *  |--------------|----|--------------|
- *  | 1 – 7        | 2  | Adept        |
- *  | 8 – 13       | 3  | Expert       |
- *  | 14 – 20      | 4  | Master       |
- *  | 21 – 29      | 5  | Grandmaster  |
- *  | 30 – 39      | 6  | Legend       |
- *  | 40 – 49      | 7  | Mythic       |
- *  | 50 – 112     | 8  | God          |
+ *  | Lifetime XP | Stones | MR | Tier        |
+ *  |-------------|--------|----|-------------|
+ *  | 0           | 2      | 2  | Adept       |
+ *  | 100         | 7      | 3  | Expert      |
+ *  | 200         | 12     | 4  | Master      |
+ *  | 400         | 22     | 5  | Grandmaster |
+ *  | 600         | 32     | 6  | Legend      |
+ *  | 800         | 42     | 7  | Mythic      |
+ *  | 1000        | 52     | 8  | Godlevel    |
  */
 export declare const MR_ADVANCEMENT: {
+    lifetimeXp: number;
     stones: number;
     mr: number;
     tier: string;
 }[];
 /**
- * Divine Scale label within MR8 (50–112 Stones). Returns `null` for any
- * Stone total below 50 (i.e. MR 7 or lower).
+ * Divine Scale label within MR8. MR8 begins at 1000 Lifetime XP (52 Stones).
+ * Returns `null` below that.
  */
 export declare function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | 'System Limit' | null;
 /**
- * Standard Target Number for a Challenge / source Mastery Rank (v0.9.9.0):
+ * Standard Target Number for a Challenge / source Mastery Rank (DF Core v0.9.9.1):
  * `TN = (8 × MR) − 2`. Spell Base TN, Attribute Checks, Death Checks,
  * Stress Breakdown, and Ritual base TN all use this value.
  */

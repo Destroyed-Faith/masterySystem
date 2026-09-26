@@ -2,8 +2,9 @@
  * Shared utilities for building embedded power Items from catalog entries.
  */
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
+import { masteryRankFromLifetimeXp } from './mastery-rank-sync.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
-import { actorAlreadyHasPower, activeTemplateCanBeSpell, findCatalogEntry, } from './power-catalog.js';
+import { actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, findCatalogEntry, powerHasConfiguredSpecial, } from './power-catalog.js';
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: false }) {
     const template = entry.raw;
@@ -78,6 +79,11 @@ export function resolveGrantSpecEntry(spec) {
 export async function grantPowerSpecs(actor, specs) {
     const existing = actor.items.filter((i) => i.type === 'power');
     const itemDataList = [];
+    const lifetimeXp = actor.system?.progression?.lifetimeXp;
+    const masteryRank = lifetimeXp == null
+        ? Math.max(1, Math.floor(Number(actor.system?.mastery?.rank) || 2))
+        : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
+    let specialless = countSpeciallessSpells(existing);
     for (const spec of specs) {
         const entry = resolveGrantSpecEntry(spec);
         if (!entry) {
@@ -86,8 +92,15 @@ export async function grantPowerSpecs(actor, specs) {
         if (actorAlreadyHasPower(existing, entry))
             continue;
         const canSpell = activeTemplateCanBeSpell(entry.templateId);
+        const asSpell = canSpell && !!spec.isSpell;
+        if (asSpell && !powerHasConfiguredSpecial({ special: spec.special, chosenSpecial: entry.chosenSpecial })) {
+            if (!canLearnAnotherSpeciallessSpell(specialless, masteryRank)) {
+                throw new Error(`Spell Powers without a Special are limited to Mastery Rank (${masteryRank}).`);
+            }
+            specialless += 1;
+        }
         const itemData = buildPowerItemFromCatalogEntry(entry, spec.rank, {
-            isSpell: canSpell && !!spec.isSpell,
+            isSpell: asSpell,
             castingAttribute: canSpell ? spec.castingAttribute : undefined,
             spellResolution: canSpell ? spec.spellResolution : undefined,
         });

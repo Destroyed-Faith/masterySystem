@@ -798,6 +798,10 @@ export async function createAttackCard(
           spellBaseTn:
             spellBaseTnValue ??
             castingBaseTn - getTargetSpellResistance(target),
+          persistentSpellZone: !!(option as any).zoneDurationNote && !/instant/i.test(String((option as any).zoneDurationNote)),
+          spellZoneCenterX: (option as any).spellZoneCenterX ?? null,
+          spellZoneCenterY: (option as any).spellZoneCenterY ?? null,
+          spellZoneRadius: (option as any).aoeRadiusMeters ?? null,
         }
       : {}),
     targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
@@ -963,6 +967,11 @@ export async function createAttackCard(
           tr.rollDisadvantage
             ? `<div class="detail-row"><span class="detail-label">Nachteil:</span><span class="detail-value">nur eine 8 explodiert</span></div>`
             : ""
+        }
+        ${
+          tnKind === 'casting'
+            ? `<label class="detail-row willing-spell-target-label"><input type="checkbox" class="willing-spell-target" /> Willing target — Spell Resistance 0 (chosen before the Casting Roll)</label>`
+            : ''
         }
         <div class="detail-row">
           <span class="detail-label">${tnLabel}:</span>

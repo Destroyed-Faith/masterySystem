@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.590] - 2026-09-26
+
+### Changed
+
+- **DF Core v0.9.9.1:** Foundry setzt das Regelset vollständig um. Ein legaler Ranged Active darf Spell Delivery ohne Special nutzen. Special-lose Spells sind auf die Mastery Rank begrenzt.
+- **Zauberauflösung:** Willing Targets setzen Spell Resistance auf 0, bevor gewürfelt wird. Split-Zauber verursachen 1d8 Stress nur, wenn keiner der Würfe die Spell Base TN erreicht. Persistente Zonen speichern das Casting-Ergebnis.
+- **Extra Attack:** Zusätzliche Attack Actions aus mehreren Quellen stapeln nicht. Es gilt die höchste einzelne Quelle.
+- **Parry:** Parry Recovery erstattet ausgegebenes Parry für Martial und Spell. Attack Reflection gilt nach Fully Parried und Fully Countered. Parry + Weapon Damage bleibt martial und darf mehrfach pro Runde genutzt werden.
+- **Mastery Rank:** Kommt aus Lifetime XP (0 = MR2, 100 = MR3, 200 = MR4, 400 = MR5, 600 = MR6, 800 = MR7, 1000 = MR8). Das Attributlimit ist diese Rank × 2.
+
 ## [0.9.589] - 2026-09-26
 
 ### Changed

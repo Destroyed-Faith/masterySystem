@@ -810,6 +810,10 @@ async function confirmUtilityTargets(state) {
         // Pass AoE context so secondaries each get a per-Evade check + full payload.
         try {
             const { createRangedAttackCard } = await import('./combat/attack-executor.js');
+            if (state.center) {
+                state.option.spellZoneCenterX = state.center.x;
+                state.option.spellZoneCenterY = state.center.y;
+            }
             await createRangedAttackCard(state.casterToken, primary, state.option, {
                 secondaryTokenIds: secondaries,
                 powerBonusDice: powerBonus,

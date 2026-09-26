@@ -108,6 +108,10 @@ export interface RoundState {
         attribute: 'might' | 'agility' | 'intellect' | 'resolve' | 'influence';
         /** Martial strips Attack Dice. Spell strips Casting Dice (Fully Countered). */
         delivery?: 'martial' | 'spell';
+        /** Pool at the moment Parry was entered. Recovery cannot exceed this. */
+        entryPool?: number;
+        /** Parry Recovery already refunded this Round. */
+        recoveredThisRound?: number;
     };
     stoneBonuses?: {
         extraAttacks: number;
@@ -160,6 +164,13 @@ export interface RoundState {
          * the only extra-attack source.
          */
         extraSpellActions?: number;
+        /**
+         * Initiative Shop extra Attack Action. Does not stack with Extra Attack:
+         * the character keeps the highest single grant.
+         */
+        shopExtraAttack?: number;
+        /** Other named Attack Action grants. Highest source wins. */
+        bonusAttackActions?: number;
         /** @deprecated Mirror of specialBoost. Kept so older turn-cleanup still sees the bonus. */
         spellSpecialBoost?: number;
         /** Resolve.Damage Reduction — additional %DR until next turn (creates DR if missing). */
@@ -189,6 +200,19 @@ export type StoneUsageKey = string;
  */
 export declare function isPC(actor: Actor | null | undefined): boolean;
 export declare function getActionEconomyActor(actor: Actor | null | undefined): Actor | null;
+/**
+ * Spell Action used to add a second attack pile on top of Extra Attack.
+ * Drop that pile on read so a fight already in progress stops counting it.
+ * Mutating the stored object makes the correction stick: a later save writes
+ * extraSpellActions 0, and a second read does not subtract again.
+ */
+/**
+ * Additional Attack Actions do not stack. The highest single source is used.
+ * Extra Attack and Artifact support of Extra Attack are the same source.
+ */
+export declare function highestExtraAttackGrant(sources: Array<number | null | undefined>): number;
+/** PC Attack Action total = 1 base + the highest extra-attack grant. */
+export declare function syncPcExtraAttackTotal(state: RoundState): void;
 /**
  * Get round state from actor flags
  */

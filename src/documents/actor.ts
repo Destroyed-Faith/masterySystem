@@ -39,6 +39,7 @@ import { getRoundState } from '../combat/action-economy.js';
 import {
   deriveMasteryRankFromStones,
   getWorldDefaultMasteryRank,
+  masteryRankFromLifetimeXp,
   STARTING_MASTERY_RANK,
 } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
@@ -241,14 +242,16 @@ export class MasteryActor extends Actor {
       }
 
       /**
-       * Players Guide 7232–7239: Stones → **suggested** MR for GM reference only.
-       * Live `system.mastery.rank` is set by the GM on the character sheet
-       * (or world default for new actors) — never auto-promoted from Stones.
+       * DF Core v0.9.9.1: suggested Mastery Rank comes from Lifetime XP.
+       * Live `system.mastery.rank` stays the GM-set value and is not overwritten.
        */
       if (!system.mastery) {
         system.mastery = { rank: getWorldDefaultMasteryRank(), points: 0, experience: 0 };
       }
-      system.mastery.suggestedRank = deriveMasteryRankFromStones(system.stones.total);
+      const lifetimeXp = (system as any).progression?.lifetimeXp;
+      system.mastery.suggestedRank = lifetimeXp == null
+        ? deriveMasteryRankFromStones(system.stones.total)
+        : masteryRankFromLifetimeXp(Number(lifetimeXp) || 0);
       const storedRank = Math.floor(Number(system.mastery.rank) || 0);
       if (!Number.isFinite(storedRank) || storedRank < 1) {
         system.mastery.rank = getWorldDefaultMasteryRank();

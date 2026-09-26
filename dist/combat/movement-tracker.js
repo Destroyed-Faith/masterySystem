@@ -118,6 +118,13 @@ export async function handleTokenMovement(tokenDoc, changes) {
     catch (err) {
         console.debug?.('Mastery System | cloak disruption on move failed', err);
     }
+    try {
+        const { applyStoredSpellZonesOnEnter } = await import('./spell-zone-entry.js');
+        await applyStoredSpellZonesOnEnter(actor, tokenDoc, combat);
+    }
+    catch (err) {
+        console.debug?.('Mastery System | persistent spell zone entry failed', err);
+    }
     const lacerate = getActiveSpecialValue(actor, 'lacerate');
     if (lacerate <= 0)
         return;

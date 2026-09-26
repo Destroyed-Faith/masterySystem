@@ -269,6 +269,10 @@ export interface PowerMechanics {
    * this actor. Ward passives / Spell Resistance active buffs only.
    */
   spellResistance?: number;
+  /** Active Buff: Parry Recovery — maximum Parry refunded per Round. */
+  parryRecoveryPerRound?: number;
+  /** Reaction may be used again this Round. Each use still costs 1 Reaction. */
+  repeatable?: boolean;
 
   /**
    * Recurring self-Cleanse at the start of each turn. The value may be

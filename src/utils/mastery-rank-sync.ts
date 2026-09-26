@@ -1,26 +1,11 @@
 /**
  * Mastery Rank synchronisation helpers.
  *
- * New spec — Mastery Rank Progression (driven by total Stones):
- *
- *   | Total Stones | Suggested MR        | Tier         |
- *   |--------------|---------------------|--------------|
- *   |   1 –  7     | MR 2 — Adept        | Trained      |
- *   |   8 – 13     | MR 3 — Expert       | Veteran      |
- *   |  14 – 20     | MR 4 — Master       | Hero-tier    |
- *   |  21 – 29     | MR 5 — Grandmaster  | Apex         |
- *   |  30 – 39     | MR 6 — Legend       | Mythic       |
- *   |  40 – 49     | MR 7 — Mythic       | Mythic+      |
- *   |  50 – 70     | MR 8 — Godlevel     | Divine       |
- *
- *   Rank-up bundle:
- *       – +1 Mastery Charge (used by Charged powers)
- *       – +1 Keep on all rolls (handled by the dice subsystem reading
- *         `system.mastery.rank`)
- *       – +1 Schtick slot per Mastery Rank
- *
- *   MR 8 Divine Scale: `getDivineScale(totalStones)` further classifies
- *   Godlevel characters as Lesser / True / High / Apex God for display.
+ * DF Core v0.9.9.1: Mastery Rank comes from Lifetime XP, not Stone count.
+ * A permanent Stone total earned as 2 + floor(XP / 20) implies that XP, so
+ * `deriveMasteryRankFromStones` stays as a fallback when only the Stone total
+ * is known. The live sheet rank may still be set by the GM; the suggested
+ * rank is the Lifetime XP value.
  */
 
 import { MR_ADVANCEMENT } from './constants.js';
@@ -39,14 +24,28 @@ export function getWorldDefaultMasteryRank(): number {
     }
 }
 
-/** Compute the suggested Mastery Rank from a total Stone count. */
-export function deriveMasteryRankFromStones(totalStones: number): number {
-    const stones = Math.max(0, Math.floor(Number(totalStones) || 0));
+/** DF Core v0.9.9.1 Mastery Rank from Lifetime XP. 0 XP is MR2. 1000+ is MR8. */
+export function masteryRankFromLifetimeXp(lifetimeXp: number): number {
+    const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
     let mr = STARTING_MASTERY_RANK;
     for (const row of MR_ADVANCEMENT) {
-        if (stones >= row.stones) mr = row.mr;
+        if (xp >= row.lifetimeXp) mr = row.mr;
     }
     return mr;
+}
+
+/**
+ * Lowest Lifetime XP that produces this permanent Stone total
+ * (Stones = 2 + floor(XP / 20)). Used when a sheet has Stones but no XP field.
+ */
+export function lifetimeXpFloorFromPermanentStones(totalStones: number): number {
+    const stones = Math.max(0, Math.floor(Number(totalStones) || 0));
+    return Math.max(0, (stones - 2) * 20);
+}
+
+/** Suggested Mastery Rank from a permanent Stone total earned by Lifetime XP. */
+export function deriveMasteryRankFromStones(totalStones: number): number {
+    return masteryRankFromLifetimeXp(lifetimeXpFloorFromPermanentStones(totalStones));
 }
 
 /** Tier label for the supplied Mastery Rank ("Adept" .. "Legend"). */
@@ -78,7 +77,10 @@ export function recommendMasteryRank(actor: any): MasteryRankRecommendation {
     const system = actor?.system || {};
     const totalStones = Number(system.stones?.total ?? 0);
     const currentRank = Math.max(STARTING_MASTERY_RANK, Math.floor(Number(system.mastery?.rank ?? STARTING_MASTERY_RANK)));
-    const suggestedRank = deriveMasteryRankFromStones(totalStones);
+    const storedXp = system.progression?.lifetimeXp;
+    const suggestedRank = storedXp == null
+        ? deriveMasteryRankFromStones(totalStones)
+        : masteryRankFromLifetimeXp(Number(storedXp) || 0);
     return {
         currentRank,
         suggestedRank,

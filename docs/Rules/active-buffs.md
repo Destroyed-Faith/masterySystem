@@ -2381,7 +2381,7 @@ This Active Buff does not block Special Combat Senses unless another explicit In
   This Buff has no effect while you are not Parrying.<br><br>
 
   DESIGN STRUCTURE<br>
-  Whenever you spend Parry against an eligible Attack, regain spent Parry after that Attack resolves.<br>
+  Whenever you spend Parry against an eligible Martial Attack or Spell, regain spent Parry after that effect resolves.<br>
   The total amount of Parry regained through this Buff cannot exceed its listed maximum during each Round.<br>
   Regained Parry cannot increase your current Pool above the amount with which you entered Parry that Turn.<br><br>
 
@@ -2412,7 +2412,7 @@ You settle into an enduring defensive rhythm, recovering your guard after every 
 
 **Requirement:** Parry Passive
 
-While this Active Buff is maintained, whenever you spend Parry against an eligible Attack, regain spent Parry after that Attack resolves.
+While this Active Buff is maintained, whenever you spend Parry against an eligible Martial Attack or Spell, regain spent Parry after that effect resolves.
 
 The total amount of Parry you may regain during each Round cannot exceed the value listed for this Power's Level.
 

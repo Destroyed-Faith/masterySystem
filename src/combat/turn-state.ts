@@ -13,7 +13,8 @@ import {
   resetTurnState as resetTurnStateNew,
   spendAttackAction,
   spendMovementAction,
-  spendReactionAction
+  spendReactionAction,
+  syncPcExtraAttackTotal,
 } from './action-economy.js';
 
 /**
@@ -148,9 +149,15 @@ export async function addAction(
     case 'move':
       roundState.movementActions.total += amount;
       break;
-    case 'attack':
-      roundState.attackActions.total += amount;
+    case 'attack': {
+      if (!roundState.stoneBonuses) {
+        roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+      }
+      const current = Math.max(0, Math.floor(Number(roundState.stoneBonuses.bonusAttackActions) || 0));
+      roundState.stoneBonuses.bonusAttackActions = Math.max(current, Math.max(0, Math.floor(amount)));
+      syncPcExtraAttackTotal(roundState);
       break;
+    }
     case 'reaction':
       roundState.reactionActions.total += amount;
       break;

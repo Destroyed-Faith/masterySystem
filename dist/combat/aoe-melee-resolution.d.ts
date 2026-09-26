@@ -34,6 +34,8 @@ export declare function aoeCreatureNormalTn(params: {
     spellBaseTn?: number | null;
     /** Caster, so Spell Penetration reduces only this creature's SR. */
     caster?: any;
+    /** Willing, aware target: Spell Resistance is 0. Spell Base TN is unchanged. */
+    willing?: boolean;
 }): number;
 /**
  * Hit check for one creature against a shared AoE roll.

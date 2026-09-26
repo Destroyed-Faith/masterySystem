@@ -73,8 +73,13 @@ export interface ReactionWindowState {
   opportunityEnemyTokenIds?: string[];
   /** Nested reaction-counterattack windows: hide Counterattack to avoid deep pauses. */
   suppressCounterattack?: boolean;
-  /** Full Parry this attack — shows Riposte / Reflection. */
+  /** Full Parry this attack — shows Parry + Weapon Damage / Attack Reflection. */
   hasParryThisHit?: boolean;
+  spellFullyCountered?: boolean;
+  parryDelivery?: 'martial' | 'spell' | null;
+  multiTarget?: boolean;
+  /** Printed Spell damage dice to reflect. Weapon damage is not used for Spells. */
+  spellPowerDamageDice?: number;
   attackType?: 'melee' | 'ranged' | null;
   isAoE?: boolean;
   /**
@@ -244,6 +249,9 @@ function filterEntriesForCard(
         allyDistanceM: e.role === 'ally' ? e.distanceM : null,
         suppressCounterattack: state.suppressCounterattack,
         hasParryThisHit: !!state.hasParryThisHit,
+        spellFullyCountered: !!state.spellFullyCountered,
+        parryDelivery: state.parryDelivery ?? null,
+        multiTarget: !!state.multiTarget,
         attackType: state.attackType ?? null,
         isAoE: !!state.isAoE,
       });
@@ -699,7 +707,10 @@ async function executeReactionSpend(params: {
     return { state, note: 'Could not spend Reaction.' };
   }
 
-  if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction) {
+  const repeatableReaction =
+    String(power?.system?.templateId ?? '') === 'reaction-riposte' ||
+    String(power?.name ?? '').toLowerCase().includes('parry + weapon damage');
+  if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction && !repeatableReaction) {
     await markPowerUsedThisRound(economy, combat, power.id);
   }
 
@@ -786,8 +797,8 @@ async function executeReactionSpend(params: {
     return { state, note };
   }
 
-  // Riposte / Reflection — after a Full Parry (no new attack roll).
-  if (state.hasParryThisHit && attacker && isParryFollowUpReaction(power)) {
+  // Parry follow-ups — no new Attack Roll or Casting Roll.
+  if ((state.hasParryThisHit || state.spellFullyCountered) && attacker && isParryFollowUpReaction(power)) {
     const rider = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
     try {
       let formula = '';
@@ -796,8 +807,11 @@ async function executeReactionSpend(params: {
         formula = buildRiposteFormula(actor, rider);
         label = 'Riposte';
       } else if (isReflectionReaction(power)) {
-        formula = buildReflectionFormula(state.rawDamage, attacker, rider);
-        label = 'Reflection';
+        formula = buildReflectionFormula(state.rawDamage, attacker, rider, {
+          spell: state.parryDelivery === 'spell' || !!state.spellFullyCountered,
+          powerDamageDice: state.spellPowerDamageDice ?? 0,
+        });
+        label = 'Attack Reflection';
         // Reflection also prevents any residual triggering damage on the defender.
         state.mitigation = {
           ...(state.mitigation || emptyMitigation()),
@@ -1389,8 +1403,12 @@ export async function runInteractiveReactionWindow(params: {
   opportunityEnemyTokenIds?: string[] | null;
   /** Hide Counterattack buttons (nested reaction-counterattack resolution). */
   suppressCounterattack?: boolean;
-  /** Full Parry this attack — enables Riposte / Reflection. */
+  /** Full Parry this attack — enables Parry + Weapon Damage / Attack Reflection. */
   hasParryThisHit?: boolean;
+  spellFullyCountered?: boolean;
+  parryDelivery?: 'martial' | 'spell' | null;
+  multiTarget?: boolean;
+  spellPowerDamageDice?: number;
   attackType?: 'melee' | 'ranged' | null;
   isAoE?: boolean;
 }): Promise<ReactionPhaseResult> {
@@ -1441,6 +1459,10 @@ export async function runInteractiveReactionWindow(params: {
     opportunityEnemyTokenIds: oppIds,
     suppressCounterattack: !!params.suppressCounterattack,
     hasParryThisHit: !!params.hasParryThisHit,
+    spellFullyCountered: !!params.spellFullyCountered,
+    parryDelivery: params.parryDelivery ?? null,
+    multiTarget: !!params.multiTarget,
+    spellPowerDamageDice: Math.max(0, Math.floor(Number(params.spellPowerDamageDice) || 0)),
     attackType: params.attackType ?? null,
     isAoE: !!params.isAoE,
   };

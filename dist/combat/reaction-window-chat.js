@@ -155,6 +155,9 @@ function filterEntriesForCard(entries, state, actors) {
             allyDistanceM: e.role === 'ally' ? e.distanceM : null,
             suppressCounterattack: state.suppressCounterattack,
             hasParryThisHit: !!state.hasParryThisHit,
+            spellFullyCountered: !!state.spellFullyCountered,
+            parryDelivery: state.parryDelivery ?? null,
+            multiTarget: !!state.multiTarget,
             attackType: state.attackType ?? null,
             isAoE: !!state.isAoE,
         });
@@ -544,7 +547,9 @@ async function executeReactionSpend(params) {
     if (!spent) {
         return { state, note: 'Could not spend Reaction.' };
     }
-    if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction) {
+    const repeatableReaction = String(power?.system?.templateId ?? '') === 'reaction-riposte' ||
+        String(power?.name ?? '').toLowerCase().includes('parry + weapon damage');
+    if (!isBasicReactionItem(power) && !power?.npcConfiguredReaction && !repeatableReaction) {
         await markPowerUsedThisRound(economy, combat, power.id);
     }
     state.spentActorIds.push(actorId);
@@ -627,8 +632,8 @@ async function executeReactionSpend(params) {
         }
         return { state, note };
     }
-    // Riposte / Reflection — after a Full Parry (no new attack roll).
-    if (state.hasParryThisHit && attacker && isParryFollowUpReaction(power)) {
+    // Parry follow-ups — no new Attack Roll or Casting Roll.
+    if ((state.hasParryThisHit || state.spellFullyCountered) && attacker && isParryFollowUpReaction(power)) {
         const rider = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
         try {
             let formula = '';
@@ -638,8 +643,11 @@ async function executeReactionSpend(params) {
                 label = 'Riposte';
             }
             else if (isReflectionReaction(power)) {
-                formula = buildReflectionFormula(state.rawDamage, attacker, rider);
-                label = 'Reflection';
+                formula = buildReflectionFormula(state.rawDamage, attacker, rider, {
+                    spell: state.parryDelivery === 'spell' || !!state.spellFullyCountered,
+                    powerDamageDice: state.spellPowerDamageDice ?? 0,
+                });
+                label = 'Attack Reflection';
                 // Reflection also prevents any residual triggering damage on the defender.
                 state.mitigation = {
                     ...(state.mitigation || emptyMitigation()),
@@ -1220,6 +1228,10 @@ export async function runInteractiveReactionWindow(params) {
         opportunityEnemyTokenIds: oppIds,
         suppressCounterattack: !!params.suppressCounterattack,
         hasParryThisHit: !!params.hasParryThisHit,
+        spellFullyCountered: !!params.spellFullyCountered,
+        parryDelivery: params.parryDelivery ?? null,
+        multiTarget: !!params.multiTarget,
+        spellPowerDamageDice: Math.max(0, Math.floor(Number(params.spellPowerDamageDice) || 0)),
         attackType: params.attackType ?? null,
         isAoE: !!params.isAoE,
     };

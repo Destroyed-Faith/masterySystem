@@ -157,49 +157,50 @@ describe('XP Cost Tables (new spec)', () => {
   });
 });
 
-describe('Mastery Rank Advancement (MR2-MR8)', () => {
-  it('starts at MR2 with 1 stone', () => {
-    expect(MR_ADVANCEMENT[0]).toEqual({ stones: 1, mr: 2, tier: 'Adept' });
+describe('Mastery Rank Advancement (Lifetime XP)', () => {
+  it('starts at MR2 with 0 XP and 2 Stones', () => {
+    expect(MR_ADVANCEMENT[0]).toEqual({ lifetimeXp: 0, stones: 2, mr: 2, tier: 'Adept' });
   });
 
-  it('advances to MR3 at 8 stones', () => {
-    expect(MR_ADVANCEMENT[1]).toEqual({ stones: 8, mr: 3, tier: 'Expert' });
+  it('advances to MR3 at 100 XP', () => {
+    expect(MR_ADVANCEMENT[1]).toEqual({ lifetimeXp: 100, stones: 7, mr: 3, tier: 'Expert' });
   });
 
-  it('advances to MR4 at 14 stones', () => {
+  it('advances to MR4 at 200 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 4);
-    expect(row).toEqual({ stones: 14, mr: 4, tier: 'Master' });
+    expect(row).toEqual({ lifetimeXp: 200, stones: 12, mr: 4, tier: 'Master' });
   });
 
-  it('advances to MR5 at 21 stones', () => {
+  it('advances to MR5 at 400 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 5);
-    expect(row).toEqual({ stones: 21, mr: 5, tier: 'Grandmaster' });
+    expect(row).toEqual({ lifetimeXp: 400, stones: 22, mr: 5, tier: 'Grandmaster' });
   });
 
-  it('advances to MR6 at 30 stones', () => {
+  it('advances to MR6 at 600 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 6);
-    expect(row).toEqual({ stones: 30, mr: 6, tier: 'Legend' });
+    expect(row).toEqual({ lifetimeXp: 600, stones: 32, mr: 6, tier: 'Legend' });
   });
 
-  it('advances to MR7 (Mythic) at 40 stones', () => {
+  it('advances to MR7 at 800 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 7);
-    expect(row).toEqual({ stones: 40, mr: 7, tier: 'Mythic' });
+    expect(row).toEqual({ lifetimeXp: 800, stones: 42, mr: 7, tier: 'Mythic' });
   });
 
-  it('advances to MR8 (Godlevel) at 50 stones', () => {
+  it('advances to MR8 at 1000 XP', () => {
     const row = MR_ADVANCEMENT.find(a => a.mr === 8);
-    expect(row).toEqual({ stones: 50, mr: 8, tier: 'Godlevel' });
+    expect(row).toEqual({ lifetimeXp: 1000, stones: 52, mr: 8, tier: 'Godlevel' });
   });
 });
 
 describe('Divine Scale (MR8 sub-tier)', () => {
-  it('returns null below 50 stones', () => {
+  it('returns null below MR8 (52 stones / 1000 XP)', () => {
     expect(getDivineScale(0)).toBeNull();
-    expect(getDivineScale(49)).toBeNull();
+    expect(getDivineScale(50)).toBeNull();
+    expect(getDivineScale(51)).toBeNull();
   });
 
-  it('Lesser God for 50-55 stones', () => {
-    expect(getDivineScale(50)).toBe('Lesser God');
+  it('Lesser God for 52-55 stones', () => {
+    expect(getDivineScale(52)).toBe('Lesser God');
     expect(getDivineScale(55)).toBe('Lesser God');
   });
 

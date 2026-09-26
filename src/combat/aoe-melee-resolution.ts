@@ -123,9 +123,12 @@ export function aoeCreatureNormalTn(params: {
   spellBaseTn?: number | null;
   /** Caster, so Spell Penetration reduces only this creature's SR. */
   caster?: any;
+  /** Willing, aware target: Spell Resistance is 0. Spell Base TN is unchanged. */
+  willing?: boolean;
 }): number {
   if (params.isSpell) {
     const base = Math.max(0, Math.floor(Number(params.spellBaseTn) || 0));
+    if (params.willing) return base;
     const sr = params.caster
       ? spellResistanceAfterPenetration(params.defender, params.caster)
       : getTargetSpellResistance(params.defender);
@@ -420,6 +423,7 @@ export async function resolveAoeMeleeSecondaries(params: {
       isSpell,
       spellBaseTn: params.spellBaseTn ?? flags.spellBaseTn ?? null,
       caster: attacker,
+      willing: flags.willingSpellTarget === true,
     });
     const { hit, raiseTn } = aoeCreatureHitCheck({
       attackTotal,

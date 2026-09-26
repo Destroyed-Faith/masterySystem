@@ -650,6 +650,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             ? {
                 spellBaseTn: spellBaseTnValue ??
                     castingBaseTn - getTargetSpellResistance(target),
+                persistentSpellZone: !!option.zoneDurationNote && !/instant/i.test(String(option.zoneDurationNote)),
+                spellZoneCenterX: option.spellZoneCenterX ?? null,
+                spellZoneCenterY: option.spellZoneCenterY ?? null,
+                spellZoneRadius: option.aoeRadiusMeters ?? null,
             }
             : {}),
         targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
@@ -785,6 +789,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ${tr.rollDisadvantage
         ? `<div class="detail-row"><span class="detail-label">Nachteil:</span><span class="detail-value">nur eine 8 explodiert</span></div>`
         : ""}
+        ${tnKind === 'casting'
+        ? `<label class="detail-row willing-spell-target-label"><input type="checkbox" class="willing-spell-target" /> Willing target — Spell Resistance 0 (chosen before the Casting Roll)</label>`
+        : ''}
         <div class="detail-row">
           <span class="detail-label">${tnLabel}:</span>
           <span class="detail-value">${tnValue}${evadeNote}${aoeMelee ? ' — jede Kreatur extra' : ''}${raiseContext

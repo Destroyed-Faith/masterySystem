@@ -85,11 +85,26 @@ export declare function powerIdentityKeyFromItem(item: {
 }): string;
 export declare function powerIdentityKeyFromEntry(entry: CatalogEntry): string;
 /**
- * PG "Spell Design Rule": only a Ranged Active with at least one Special may
- * be converted into a Spell ("A Spell is always Ranged + Special"). Damage
- * templates with a Special slot qualify because the chosen Special fills it.
+ * DF Core v0.9.9.1: an otherwise legal Ranged Active may use Spell Delivery
+ * with or without a Special. Damage-only Spells are legal. Melee stays martial.
  */
 export declare function activeTemplateCanBeSpell(templateId: string): boolean;
+/** A configured Special means the Spell does not count against the special-less cap. */
+export declare function powerHasConfiguredSpecial(input: {
+    chosenSpecial?: {
+        key?: string;
+    } | null;
+    special?: string | null;
+}): boolean;
+/** Up to Mastery Rank Spell Powers may lack a Special. */
+export declare function speciallessSpellLimit(masteryRank: number): number;
+export declare function isSpeciallessSpellItem(item: {
+    system?: any;
+}): boolean;
+export declare function countSpeciallessSpells(items: Array<{
+    system?: any;
+}>): number;
+export declare function canLearnAnotherSpeciallessSpell(currentCount: number, masteryRank: number): boolean;
 export declare function collectOwnedPowerIdentityKeys(powers: Iterable<{
     system?: {
         templateId?: string;

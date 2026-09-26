@@ -75,10 +75,13 @@ export declare function resolveEquippedWeaponDamageFormula(actor: any): string;
 export declare function buildDamageFormula(base: string, riderFlat: string): string;
 export declare function buildRiposteFormula(actor: any, riderFlat: string): string;
 /**
- * Reflection: triggering damage (or attacker weapon proxy when Fully Parried / raw 0)
- * plus the reaction rider.
+ * Reflection returns the triggering payload. Spell delivery uses the printed
+ * Power damage, not the attacker's weapon.
  */
-export declare function buildReflectionFormula(triggerDamage: number, attacker: any, riderFlat: string): string;
+export declare function buildReflectionFormula(triggerDamage: number, attacker: any, riderFlat: string, opts?: {
+    spell?: boolean;
+    powerDamageDice?: number;
+}): string;
 export declare function isRiposteReaction(item: any): boolean;
 export declare function isReflectionReaction(item: any): boolean;
 //# sourceMappingURL=parry.d.ts.map
