@@ -17,6 +17,72 @@ export interface StoneBar {
   penalty?: number;
 }
 
+function finiteBarNumber(value: unknown): number {
+  const n = Math.floor(Number(value));
+  return Number.isFinite(n) ? n : 0;
+}
+
+/**
+ * Foundry 14 stores bar fields as DataModel getters. Object spread drops them,
+ * so a wounded bar looks like 0/0 and healing reports "0 short of maximum".
+ */
+export function readStoneBar(bar: any): StoneBar {
+  const name = bar?.name != null ? String(bar.name) : undefined;
+  return {
+    ...(name !== undefined ? { name } : {}),
+    current: finiteBarNumber(bar?.current),
+    max: finiteBarNumber(bar?.max),
+    penalty: finiteBarNumber(bar?.penalty),
+  };
+}
+
+export function readBarList(bars: unknown): any[] {
+  if (Array.isArray(bars)) return bars;
+  if (!bars || typeof bars !== 'object') return [];
+  const record = bars as Record<string, unknown> & { values?: () => Iterable<unknown>; size?: number };
+  if (typeof record.values === 'function' && typeof record.size === 'number') {
+    return [...record.values()];
+  }
+  const keys = Object.keys(record).filter((key) => /^\d+$/.test(key));
+  if (!keys.length) return [];
+  return keys.sort((a, b) => Number(a) - Number(b)).map((key) => record[key]);
+}
+
+export function readHealthSnapshot(track: any): HealthSnapshot | null {
+  const bars = readBarList(track?.bars);
+  if (!bars.length) return null;
+  return {
+    bars: bars.map((bar) => readStoneBar(bar)),
+    currentBar: finiteBarNumber(track?.currentBar),
+  };
+}
+
+/**
+ * Unlinked tokens share the world actor id, but combat HP lives on the token
+ * actor. `game.actors.get(id)` and the action-economy owner are the prototype,
+ * whose bars are still full.
+ */
+export function resolveHealthActor(
+  id: string,
+  source: { id?: string; isToken?: boolean } | null | undefined,
+  combatants: readonly { actorId?: string; actor?: any }[] | null | undefined,
+  worldActor: any,
+  preferred?: { actorId?: string; actor?: any } | null,
+): any | null {
+  const wanted = String(id || '');
+  if (!wanted) return null;
+  const preferredId = String(preferred?.actorId || preferred?.actor?.id || '');
+  if (preferred?.actor && preferredId === wanted) return preferred.actor;
+  for (const combatant of combatants || []) {
+    const actorId = String(combatant?.actorId || combatant?.actor?.id || '');
+    if (actorId === wanted && combatant?.actor) return combatant.actor;
+  }
+  if (source?.isToken && String(source.id || '') === wanted) return source;
+  if (worldActor && String(worldActor.id || '') === wanted) return worldActor;
+  if (String(source?.id || '') === wanted) return source;
+  return null;
+}
+
 export const STONE_RESOLUTION_QUEUE_FLAG = 'stoneResolutionQueue';
 
 export type StoneResolutionKind = 'passive' | 'automatic' | 'interactive';
@@ -255,7 +321,7 @@ export function applyHealingToCurrentBar(
   health: HealthSnapshot,
   rolled: number,
 ): { bars: StoneBar[]; currentBar: number; restored: number; rolled: number } {
-  const bars = (health.bars || []).map((bar) => ({ ...bar }));
+  const bars = (health.bars || []).map((bar) => readStoneBar(bar));
   const currentBar = Math.max(0, Math.min(bars.length - 1, Math.floor(Number(health.currentBar) || 0)));
   const before = bars[currentBar] ? Math.floor(Number(bars[currentBar].current) || 0) : 0;
   const roll = Math.max(0, Math.floor(Number(rolled) || 0));
@@ -275,7 +341,7 @@ export function applyStressHealingToBars(
   currentBar: number,
   rolled: number,
 ): { bars: StoneBar[]; currentBar: number; restored: number; rolled: number } {
-  const before = bars.map((bar) => ({ ...bar }));
+  const before = bars.map((bar) => readStoneBar(bar));
   const roll = Math.max(0, Math.floor(Number(rolled) || 0));
   const healed = healStressFromBars(before as any, currentBar, roll);
   return {

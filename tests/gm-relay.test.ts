@@ -10,8 +10,9 @@ describe('initiativeAfterDelay', () => {
 });
 
 describe('isRelayableActorUpdate', () => {
-  it('allows health, specials, phases, and mastery flags', () => {
+  it('allows health, stress, specials, phases, and mastery flags', () => {
     expect(isRelayableActorUpdate({ 'system.health.bars': [], 'system.statusEffects': [] })).toBe(true);
+    expect(isRelayableActorUpdate({ 'system.stress.bars': [], 'system.stress.currentBar': 0 })).toBe(true);
     expect(isRelayableActorUpdate({ 'system.npcActivePhaseIndex': 1, 'system.phases': [] })).toBe(true);
     expect(isRelayableActorUpdate({ 'flags.mastery-system.specialRoundApps': {} })).toBe(true);
     expect(isRelayableActorUpdate({ 'system.combat.armor': 9 })).toBe(false);

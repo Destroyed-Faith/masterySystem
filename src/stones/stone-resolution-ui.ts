@@ -9,6 +9,8 @@ import { STONE_POWERS, resolveStonePowerId } from './stone-powers.js';
 import { listSelectablePlayerActors } from './ally-stone-target.js';
 import {
   healingRankProfile,
+  readHealthSnapshot,
+  resolveHealthActor,
   resolveHealingSelection,
   resolveStressHealingSelection,
   stressHealingRankProfile,
@@ -35,18 +37,24 @@ function worldActors(): any[] {
   return out;
 }
 
-function actorById(id: string, source: any): any | null {
-  if (String(source?.id || '') === id) return source;
+function combatantList(): any[] {
   const g = globalThis as any;
-  const fromCombat = g.game?.combat?.combatants?.find?.(
-    (combatant: any) => String(combatant?.actor?.id || combatant?.actorId || '') === id,
-  )?.actor;
-  if (fromCombat) return fromCombat;
-  return g.game?.actors?.get?.(id) ?? null;
+  const combatants = g.game?.combat?.combatants;
+  if (!combatants) return [];
+  if (typeof combatants[Symbol.iterator] === 'function') return [...combatants];
+  if (Array.isArray(combatants.contents)) return combatants.contents;
+  return [];
 }
 
-export function stoneTargetCandidates(source: any): StoneTargetCandidate[] {
+/** Combat token actor when one is placed. Unlinked tokens share the world id. */
+function actorById(id: string, source: any, preferred?: any): any | null {
+  const g = globalThis as any;
+  return resolveHealthActor(id, source, combatantList(), g.game?.actors?.get?.(id) ?? null, preferred);
+}
+
+export function stoneTargetCandidates(source: any, preferred?: any): StoneTargetCandidate[] {
   const sourceId = String(source?.id || '').trim();
+  const placed = actorById(sourceId, source, preferred) ?? source;
   const choices = listSelectablePlayerActors(worldActors(), sourceId);
   const out: StoneTargetCandidate[] = [];
   const seen = new Set<string>();
@@ -66,7 +74,7 @@ export function stoneTargetCandidates(source: any): StoneTargetCandidate[] {
   for (const choice of choices) {
     if (choice.id === sourceId) continue;
     const actor = actorById(choice.id, source);
-    const distanceM = actor ? distanceBetweenActorsMeters(source, actor) : null;
+    const distanceM = actor ? distanceBetweenActorsMeters(placed, actor) : null;
     push({
       id: choice.id,
       name: choice.name,
@@ -123,26 +131,25 @@ export async function postStonePowerChat(content: string): Promise<void> {
 }
 
 function healthSnapshot(actor: any): HealthSnapshot | null {
-  const health = actor?.system?.health;
-  if (!Array.isArray(health?.bars) || !health.bars.length) return null;
-  return {
-    bars: health.bars.map((bar: HealthSnapshot['bars'][number]) => ({ ...bar })),
-    currentBar: Math.floor(Number(health.currentBar) || 0),
-  };
+  return readHealthSnapshot(actor?.system?.health);
 }
 
 function stressSnapshot(actor: any): HealthSnapshot | null {
-  const stress = actor?.system?.stress;
-  if (!Array.isArray(stress?.bars) || !stress.bars.length) return null;
-  return {
-    bars: stress.bars.map((bar: HealthSnapshot['bars'][number]) => ({ ...bar })),
-    currentBar: Math.floor(Number(stress.currentBar) || 0),
-  };
+  return readHealthSnapshot(actor?.system?.stress);
 }
 
-async function presentHealing(source: any, tier: number): Promise<boolean> {
+async function writeTrack(target: any, key: 'health' | 'stress', track: HealthSnapshot): Promise<void> {
+  if (!target || typeof target.update !== 'function') return;
+  const { updateActorViaGm } = await import('../combat/gm-relay.js');
+  await updateActorViaGm(target, {
+    [`system.${key}.bars`]: track.bars,
+    [`system.${key}.currentBar`]: track.currentBar,
+  });
+}
+
+async function presentHealing(source: any, combatant: any, tier: number): Promise<boolean> {
   const profile = healingRankProfile(tier);
-  const candidates = stoneTargetCandidates(source);
+  const candidates = stoneTargetCandidates(source, combatant);
   const result = await resolveHealingSelection({
     sourceName: String(source?.name || 'Someone'),
     tier,
@@ -154,22 +161,18 @@ async function presentHealing(source: any, tier: number): Promise<boolean> {
         legal,
       }),
     roll: rollPool,
-    healthOf: (targetId) => healthSnapshot(actorById(targetId, source)),
+    healthOf: (targetId) => healthSnapshot(actorById(targetId, source, combatant)),
     writeHealth: async (targetId, health) => {
-      const target = actorById(targetId, source);
-      await target?.update?.({
-        'system.health.bars': health.bars,
-        'system.health.currentBar': health.currentBar,
-      });
+      await writeTrack(actorById(targetId, source, combatant), 'health', health);
     },
     chat: postStonePowerChat,
   });
   return result.ok;
 }
 
-async function presentStressHealing(source: any, tier: number): Promise<boolean> {
+async function presentStressHealing(source: any, combatant: any, tier: number): Promise<boolean> {
   const profile = stressHealingRankProfile(tier);
-  const candidates = stoneTargetCandidates(source);
+  const candidates = stoneTargetCandidates(source, combatant);
   const result = await resolveStressHealingSelection({
     sourceName: String(source?.name || 'Someone'),
     tier,
@@ -181,13 +184,9 @@ async function presentStressHealing(source: any, tier: number): Promise<boolean>
         legal,
       }),
     roll: rollPool,
-    stressOf: (targetId) => stressSnapshot(actorById(targetId, source)),
+    stressOf: (targetId) => stressSnapshot(actorById(targetId, source, combatant)),
     writeStress: async (targetId, stress) => {
-      const target = actorById(targetId, source);
-      await target?.update?.({
-        'system.stress.bars': stress.bars,
-        'system.stress.currentBar': stress.currentBar,
-      });
+      await writeTrack(actorById(targetId, source, combatant), 'stress', stress);
     },
     chat: postStonePowerChat,
   });
@@ -202,8 +201,8 @@ export async function presentStoneResolution(
 ): Promise<boolean> {
   if (ticket.status === 'resolved') return true;
   const powerId = resolveStonePowerId(ticket.powerId);
-  if (powerId === 'resolve.healing') return presentHealing(actor, ticket.tier);
-  if (powerId === 'resolve.stressHealing') return presentStressHealing(actor, ticket.tier);
+  if (powerId === 'resolve.healing') return presentHealing(actor, combatant, ticket.tier);
+  if (powerId === 'resolve.stressHealing') return presentStressHealing(actor, combatant, ticket.tier);
   if (powerId === 'agility.safeMovement') {
     const { presentSafeMovement } = await import('./agility-movement-ui.js');
     return presentSafeMovement(actor, ticket.tier);

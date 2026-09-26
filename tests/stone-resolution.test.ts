@@ -8,6 +8,7 @@ import { STONE_POWERS } from '../src/stones/stone-powers';
 import { shouldSettleStoneWave } from '../src/stones/stone-payment-rules';
 import {
   applyHealingToCurrentBar,
+  applyStressHealingToBars,
   effectsFromAllocation,
   enqueueStoneResolutions,
   healingChatContent,
@@ -21,6 +22,8 @@ import {
   stoneResolutionKind,
   stressHealingChatContent,
   stressHealingRankProfile,
+  readHealthSnapshot,
+  resolveHealthActor,
   resolveHealingSelection,
   resolveStressHealingSelection,
   type AssignmentSimulation,
@@ -243,6 +246,42 @@ describe('Stone resolution — Healing and Stress Healing', () => {
     expect(result.ok).toBe(false);
     expect(writes).toBe(0);
     expect(health.far.bars[0].current).toBe(1);
+  });
+
+  it('reads wounded bars when current and max are not copied by object spread', () => {
+    const bar: Record<string, unknown> = {};
+    Object.defineProperty(bar, 'current', { enumerable: false, value: 4 });
+    Object.defineProperty(bar, 'max', { enumerable: false, value: 20 });
+    const health = readHealthSnapshot({ bars: [bar], currentBar: 0 });
+    expect(health?.bars[0]).toMatchObject({ current: 4, max: 20 });
+    const applied = applyHealingToCurrentBar(health!, 22);
+    expect(applied.restored).toBe(16);
+    expect(applied.bars[0].current).toBe(20);
+    expect({ ...bar }).not.toHaveProperty('current');
+  });
+
+  it('reads stress bars stored as a numeric object and fills real headroom', () => {
+    const track = readHealthSnapshot({
+      bars: { 0: { current: 2, max: 8 }, 1: { current: 8, max: 8 } },
+      currentBar: 0,
+    });
+    expect(track?.bars).toHaveLength(2);
+    const applied = applyStressHealingToBars(track!.bars, track!.currentBar, 7);
+    expect(applied.restored).toBe(6);
+    expect(applied.bars[0].current).toBe(8);
+  });
+
+  it('heals the combat token, not the full world actor that shares its id', () => {
+    const world = { id: 'oda', isToken: false, system: { health: { bars: [{ current: 20, max: 20 }], currentBar: 0 } } };
+    const token = { id: 'oda', isToken: true, system: { health: { bars: [{ current: 3, max: 20 }], currentBar: 0 } } };
+    const resolved = resolveHealthActor('oda', world, [{ actorId: 'oda', actor: token }], world, {
+      actorId: 'oda',
+      actor: token,
+    });
+    expect(resolved).toBe(token);
+    const applied = applyHealingToCurrentBar(readHealthSnapshot(resolved.system.health)!, 22);
+    expect(applied.restored).toBe(17);
+    expect(world.system.health.bars[0].current).toBe(20);
   });
 
   it('resolves Stress Healing with its own pool and range, then continues', async () => {

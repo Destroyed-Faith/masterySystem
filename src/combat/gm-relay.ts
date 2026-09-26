@@ -50,6 +50,8 @@ export function isRelayableActorUpdate(update: unknown): boolean {
     (k) =>
       k === 'system.health' ||
       k.startsWith('system.health.') ||
+      k === 'system.stress' ||
+      k.startsWith('system.stress.') ||
       k === 'system.statusEffects' ||
       k.startsWith('system.statusEffects.') ||
       k === 'system.phases' ||

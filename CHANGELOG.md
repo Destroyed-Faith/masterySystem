@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.597] - 2026-09-26
+
+### Fixed
+
+- **Healing und Stress Healing:** Der Wurf schreibt die Punkte auf die aktuelle Lebens- bzw. Stressleiste des Tokens im Kampf. Vorher blieb der Bogen unverändert, obwohl der Chat „0 wiederhergestellt“ meldete.
+
 ## [0.9.596] - 2026-09-26
 
 ### Changed

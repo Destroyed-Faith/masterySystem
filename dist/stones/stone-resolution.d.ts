@@ -12,6 +12,28 @@ export interface StoneBar {
     name?: string;
     penalty?: number;
 }
+/**
+ * Foundry 14 stores bar fields as DataModel getters. Object spread drops them,
+ * so a wounded bar looks like 0/0 and healing reports "0 short of maximum".
+ */
+export declare function readStoneBar(bar: any): StoneBar;
+export declare function readBarList(bars: unknown): any[];
+export declare function readHealthSnapshot(track: any): HealthSnapshot | null;
+/**
+ * Unlinked tokens share the world actor id, but combat HP lives on the token
+ * actor. `game.actors.get(id)` and the action-economy owner are the prototype,
+ * whose bars are still full.
+ */
+export declare function resolveHealthActor(id: string, source: {
+    id?: string;
+    isToken?: boolean;
+} | null | undefined, combatants: readonly {
+    actorId?: string;
+    actor?: any;
+}[] | null | undefined, worldActor: any, preferred?: {
+    actorId?: string;
+    actor?: any;
+} | null): any | null;
 export declare const STONE_RESOLUTION_QUEUE_FLAG = "stoneResolutionQueue";
 export type StoneResolutionKind = 'passive' | 'automatic' | 'interactive';
 export type StoneResolutionStatus = 'pending' | 'resolved';
