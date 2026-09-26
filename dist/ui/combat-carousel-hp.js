@@ -1,4 +1,5 @@
 import { isHealthBarScarred } from '../utils/calculations.js';
+import { HEALTH_PENALTY_FRACTIONS } from '../utils/constants.js';
 /** Hide exact HP numbers on hostile/secret NPC cards. The bar itself stays. */
 export function hideCarouselHpNumbers(actorType, disposition) {
     if (actorType !== 'npc')
@@ -20,6 +21,21 @@ export function carouselHpBarShortName(name, index = 0) {
     const compact = String(name || '').trim();
     return compact.slice(0, 2) || String(index + 1);
 }
+/** Pool percent this wound bar deducts. Index follows HEALTH_PENALTY_FRACTIONS. */
+export function carouselHpPenaltyLabel(index) {
+    const clamped = Math.max(0, Math.floor(Number(index) || 0));
+    const fraction = HEALTH_PENALTY_FRACTIONS[Math.min(clamped, HEALTH_PENALTY_FRACTIONS.length - 1)] ?? 0;
+    const pct = Math.round(fraction * 100);
+    if (pct <= 0)
+        return '0%';
+    return `−${pct}%`;
+}
+export function carouselHpHoverTitle(name, index, scarred) {
+    const label = String(name || '').trim() || `Bar ${index + 1}`;
+    const penalty = carouselHpPenaltyLabel(index);
+    const base = `${label} · ${penalty}`;
+    return scarred ? `${base} · Scarred` : base;
+}
 /** One carousel HP segment per Health Bar, including Scarred so players can see the lock. */
 export function buildCarouselHpSegments(bars) {
     if (!Array.isArray(bars) || bars.length === 0)
@@ -30,13 +46,16 @@ export function buildCarouselHpSegments(bars) {
         const max = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
         totalMax += max;
         const name = String(bar?.name ?? `Bar ${idx + 1}`);
+        const scarred = isHealthBarScarred(bar);
         return {
             name,
             shortName: carouselHpBarShortName(name, idx),
+            penaltyLabel: carouselHpPenaltyLabel(idx),
+            hoverTitle: carouselHpHoverTitle(name, idx, scarred),
             current,
             max,
             severity: Math.min(4, idx),
-            scarred: isHealthBarScarred(bar),
+            scarred,
         };
     });
     if (totalMax <= 0)

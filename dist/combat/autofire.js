@@ -3,8 +3,9 @@
  *
  * Before rolling, declare up to `1 + extraTargets` creatures. Every target after
  * the first must be within 4 m of the previous target and within the Power's
- * Range. Compare the same final result against each target's Evade in order;
- * the first miss ends the chain. No Raises are required for target count.
+ * Range. Compare the same final result against each target's Evade, or Final
+ * Spell TN when the Power is a Spell. The first failed check ends the chain.
+ * No Raises are required for target count.
  * Every hit receives the full printed payload. Dive for Cover cannot be used.
  */
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
@@ -68,7 +69,10 @@ export async function resolveAutofireChain(params) {
     const weaponId = params.weaponId ?? flags.weaponId ?? null;
     if (!chainTokenIds.length)
         return;
-    const { resolveAoeFullPayloadOnTarget } = await import('./aoe-melee-resolution.js');
+    const { resolveAoeFullPayloadOnTarget, aoeCreatureNormalTn } = await import('./aoe-melee-resolution.js');
+    const isSpell = flags.powerIsSpell === true ||
+        flags.tnKind === 'casting' ||
+        flags.npcIsSpell === true;
     for (let i = 0; i < chainTokenIds.length; i++) {
         const tid = chainTokenIds[i];
         const resolved = resolveBurstTarget(tid);
@@ -89,21 +93,29 @@ export async function resolveAutofireChain(params) {
                 /* ignore */
             }
         }
-        const normalTn = getTargetEvade(defender);
+        const normalTn = isSpell
+            ? aoeCreatureNormalTn({
+                defender,
+                isSpell: true,
+                spellBaseTn: flags.spellBaseTn,
+                caster: attacker,
+            })
+            : getTargetEvade(defender);
+        const defenseName = isSpell ? 'Final Spell TN' : 'Evade';
         const raiseTn = raiseSlots > 0 ? normalTn + raiseSlots * RAISE_INCREMENT : normalTn;
         const hit = attackTotal >= normalTn;
         if (!hit) {
             await ChatMessage.create({
                 user: game.user?.id,
                 speaker: ChatMessage.getSpeaker({ actor: attacker }),
-                content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): miss (roll ${attackTotal} vs Evade ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}). <strong>Chain ends.</strong></p>`,
+                content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): miss (roll ${attackTotal} vs ${defenseName} ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}). <strong>Chain ends.</strong></p>`,
             });
             break;
         }
         await ChatMessage.create({
             user: game.user?.id,
             speaker: ChatMessage.getSpeaker({ actor: attacker }),
-            content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): hit (roll ${attackTotal} vs Evade ${normalTn}).</p>`,
+            content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): hit (roll ${attackTotal} vs ${defenseName} ${normalTn}).</p>`,
         });
         const creatureFlags = {
             ...flags,

@@ -235,7 +235,13 @@ describe('Stone Powers — pool layout (new spec)', () => {
   it('each attribute list leads with its Premium ability', () => {
     expect(STONE_POWERS_BY_ATTRIBUTE.generic[0].id).toBe('generic.extraAttack');
     expect(STONE_POWERS_BY_ATTRIBUTE.agility[0].id).toBe('agility.crit');
-    expect(STONE_POWERS_BY_ATTRIBUTE.intellect[0].id).toBe('intellect.spellAction');
+    expect(STONE_POWERS_BY_ATTRIBUTE.intellect[0].id).toBe('intellect.specialBoost');
+    expect(STONE_POWERS_BY_ATTRIBUTE.intellect.map((p) => p.id)).toEqual([
+      'intellect.specialBoost',
+      'intellect.spellPenetration',
+      'intellect.raiseFocus',
+      'intellect.spellResistance',
+    ]);
     expect(STONE_POWERS_BY_ATTRIBUTE.influence[0].id).toBe('influence.notATarget');
     expect(STONE_POWERS_BY_ATTRIBUTE.wits[0].id).toBe('wits.phasing');
   });
@@ -287,7 +293,7 @@ describe('Stone Powers — Rank table shape', () => {
         'might.parry',
         'agility.crit',
         'vitality.damageNegation',
-        'intellect.spellAction',
+        'intellect.specialBoost',
         'resolve.damageReduction',
         'influence.notATarget',
         'wits.phasing',
@@ -564,7 +570,7 @@ describe('Vitality — Extend Active Buff stores +1/+2/+3/+4 pending rounds', ()
   });
 });
 
-describe('Intellect — Spell Raises scales +4/+8/+12/+16 Raise-TN bonus', () => {
+describe('Intellect — Raise Focus scales +4/+8/+12/+16 Raise-TN bonus', () => {
   it.each([
     [1, 4],
     [2, 8],
@@ -572,7 +578,7 @@ describe('Intellect — Spell Raises scales +4/+8/+12/+16 Raise-TN bonus', () =>
     [4, 16],
   ])('T%i adds +%i to Raise TN check only', async (tier, expected) => {
     const actor = makeMockActor();
-    await STONE_POWERS['intellect.spellRaises'].apply({
+    await STONE_POWERS['intellect.raiseFocus'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
@@ -644,7 +650,10 @@ describe('isPremiumStonePower', () => {
   it('is true exactly for the eight PG Premium Abilities (aliases included)', () => {
     expect(isPremiumStonePower('wits.phasing')).toBe(true);
     expect(isPremiumStonePower('generic.extraAttack')).toBe(true);
-    expect(isPremiumStonePower('intellect.spellAction')).toBe(true);
+    expect(isPremiumStonePower('intellect.specialBoost')).toBe(true);
+    expect(isPremiumStonePower('intellect.spellAction')).toBe(false);
+    expect(isPremiumStonePower('intellect.spellPenetration')).toBe(false);
+    expect(isPremiumStonePower('intellect.raiseFocus')).toBe(false);
     expect(isPremiumStonePower('resolve.damageReduction')).toBe(true);
     expect(isPremiumStonePower('resolve.damageReductionBoost')).toBe(true);
     expect(isPremiumStonePower('agility.crit')).toBe(true);

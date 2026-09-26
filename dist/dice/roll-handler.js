@@ -756,6 +756,13 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             </button>
           </div>
         ` : ''}
+        ${isRerollResult ? '' : `
+        <div class="mastery-faith-reroll-bar">
+          <button type="button" class="faith-fracture-reroll-btn" title="Spend 1 Reroll Point. Once per roll.">
+            <i class="fas fa-sync-alt"></i> Reroll (1 Reroll Point)
+          </button>
+          <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table. Single-die abilities may still reroll individual dice afterwards (each die once).</span>
+        </div>`}
       </div>
     `;
         // Flags: omit dieChains — they duplicate explosion data already in rolls[] and can bloat

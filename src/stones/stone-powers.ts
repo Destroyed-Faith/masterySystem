@@ -4,7 +4,7 @@
  * Every Stone Ability has exactly four Ranks; Rank 4 is the hard cap.
  * Normal Abilities cost 1 / 2 / 4 / 8 additional Stones (1 / 3 / 7 / 15
  * total). The eight Premium Abilities (Extra Attack, Parry, Crit, Damage
- * Negation, Spell Action, Damage Reduction, Not a Target, Phasing) cost
+ * Negation, Special Boost, Damage Reduction, Not a Target, Phasing) cost
  * 2 / 4 / 6 / 8 additional Stones (2 / 6 / 12 / 20 total).
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
@@ -89,6 +89,8 @@ export const STONE_TIER_HARD_MAX = 4;
 export const STONE_POWER_ID_ALIASES: Record<string, string> = {
   'resolve.damageReductionBoost': 'resolve.damageReduction',
   'resolve.specialReduction': 'resolve.ward',
+  /** DF Core 0.9.9.1: Spell Raises became Raise Focus (generic, Raise TN only). */
+  'intellect.spellRaises': 'intellect.raiseFocus',
 };
 
 export function resolveStonePowerId(powerId: string): string {
@@ -105,7 +107,7 @@ export const PREMIUM_STONE_POWER_IDS = [
   'might.parry',
   'agility.crit',
   'vitality.damageNegation',
-  'intellect.spellAction',
+  'intellect.specialBoost',
   'resolve.damageReduction',
   'influence.notATarget',
   'wits.phasing',
@@ -118,9 +120,9 @@ export function isPremiumStonePower(powerId: string): boolean {
 }
 
 /**
- * Parked abilities stay in the registry so the card can be replaced later,
- * but they accept no stones and grant nothing. Extra Attack is the only
- * source of extra attacks (spells, ranged, and martial).
+ * Removed abilities. They are not in the registry. Old saves that still name
+ * the id are refused so they do not become Spell Penetration.
+ * Extra Attack is the only source of extra attacks (spells, ranged, and martial).
  */
 export const RETIRED_STONE_POWER_IDS = ['intellect.spellAction'] as const;
 
@@ -131,7 +133,7 @@ export function isRetiredStonePower(powerId: string): boolean {
 }
 
 export const RETIRED_STONE_POWER_MESSAGE =
-  'Spell Action is parked. Extra Attack covers spells, ranged attacks, and martial attacks.';
+  'Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks. Spell Penetration is a different ability.';
 
 /** Additional-Stone cost per Rank (index 0 = Rank 1). */
 const NORMAL_RANK_COSTS = [1, 2, 4, 8] as const;
@@ -520,12 +522,13 @@ const AGILITY_POWERS_RAW: StonePowerDraft[] = [
     name: 'Crit',
     attribute: 'agility',
     category: 'action',
-    description: 'Premium. A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll (R1–R4: 1/2/3/4).',
+    description:
+      'Premium. A number of your damaging attacks or Spells this round can have Crit(1) (R1–R4: 1/2/3/4). Declare it before the Attack Roll or Casting Roll.',
     tiers: [
-      { label: '1 attack: Crit(1)', description: 'One of your attacks this round can have Crit(1). You decide which attack before you roll the Attack Roll.', value: 1 },
-      { label: '2 attacks: Crit(1)', description: 'Two of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 2 },
-      { label: '3 attacks: Crit(1)', description: 'Three of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 3 },
-      { label: '4 attacks: Crit(1)', description: 'Four of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 4 },
+      { label: '1 attack: Crit(1)', description: 'One damaging attack or Spell this round can have Crit(1). Declare it before the Attack Roll or Casting Roll.', value: 1 },
+      { label: '2 attacks: Crit(1)', description: 'Two damaging attacks or Spells this round can have Crit(1). Declare each before the Attack Roll or Casting Roll.', value: 2 },
+      { label: '3 attacks: Crit(1)', description: 'Three damaging attacks or Spells this round can have Crit(1). Declare each before the Attack Roll or Casting Roll.', value: 3 },
+      { label: '4 attacks: Crit(1)', description: 'Four damaging attacks or Spells this round can have Crit(1). Declare each before the Attack Roll or Casting Roll.', value: 4 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
@@ -711,23 +714,47 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
 
 const INTELLECT_POWERS_RAW: StonePowerDraft[] = [
   {
-    id: 'intellect.spellRaises',
-    name: 'Spell Raises',
+    id: 'intellect.spellPenetration',
+    name: 'Spell Penetration',
     attribute: 'intellect',
     category: 'action',
-    description: 'Your Spells this turn gain +4 / +8 / +12 / +16 to their roll for meeting the Raise TN only.',
+    description:
+      'Until the start of your next turn, ignore 4 / 8 / 12 / 16 Spell Resistance. ' +
+      'This never reduces a Spell Base TN or a Mental Power Base TN, and it cannot reduce Spell Resistance below 0.',
     tiers: [
-      { label: '+4 Raise TN', description: 'Your Spells this turn gain +4 to their roll for the purpose of meeting the Raise TN only.', value: 4 },
-      { label: '+8 Raise TN', description: 'Your Spells this turn gain +8 to their roll for the purpose of meeting the Raise TN only.', value: 8 },
-      { label: '+12 Raise TN', description: 'Your Spells this turn gain +12 to their roll for the purpose of meeting the Raise TN only.', value: 12 },
-      { label: '+16 Raise TN', description: 'Your Spells this turn gain +16 to their roll for the purpose of meeting the Raise TN only.', value: 16 },
+      { label: 'Ignore 4 Spell Resistance', description: 'Ignore 4 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 4 },
+      { label: 'Ignore 8 Spell Resistance', description: 'Ignore 8 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 8 },
+      { label: 'Ignore 12 Spell Resistance', description: 'Ignore 12 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 12 },
+      { label: 'Ignore 16 Spell Resistance', description: 'Ignore 16 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 16 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       const bonus = scaleStoneTier([4, 8, 12, 16], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
-      sb.spellRaiseTnBonus = (sb.spellRaiseTnBonus ?? 0) + bonus;
+      sb.spellPenetration = Math.max(sb.spellPenetration ?? 0, bonus);
+      await setRoundState(actor, roundState);
+    },
+  },
+  {
+    id: 'intellect.raiseFocus',
+    name: 'Raise Focus',
+    attribute: 'intellect',
+    category: 'action',
+    description:
+      'Your Martial and Spell Power rolls this turn gain +4 / +8 / +12 / +16 for meeting the Raise TN only. The normal success TN does not change.',
+    tiers: [
+      { label: '+4 Raise TN', description: 'Martial and Spell Power rolls this turn gain +4 for the Raise TN only.', value: 4 },
+      { label: '+8 Raise TN', description: 'Martial and Spell Power rolls this turn gain +8 for the Raise TN only.', value: 8 },
+      { label: '+12 Raise TN', description: 'Martial and Spell Power rolls this turn gain +12 for the Raise TN only.', value: 12 },
+      { label: '+16 Raise TN', description: 'Martial and Spell Power rolls this turn gain +16 for the Raise TN only.', value: 16 },
+    ],
+    apply: async ({ actor, tier }) => {
+      const combat = (game as any).combat;
+      const bonus = scaleStoneTier([4, 8, 12, 16], tier);
+      const roundState = getRoundState(actor, combat);
+      const sb = ensureStoneBonuses(roundState);
+      sb.spellRaiseTnBonus = Math.max(sb.spellRaiseTnBonus ?? 0, bonus);
       await setRoundState(actor, roundState);
     },
   },
@@ -754,42 +781,27 @@ const INTELLECT_POWERS_RAW: StonePowerDraft[] = [
     },
   },
   {
-    id: 'intellect.spellAction',
-    name: 'Spell Action',
-    attribute: 'intellect',
-    category: 'action',
-    description:
-      'Parked. Stones cannot be placed here. Extra Attack covers spells, ranged attacks, and martial attacks.',
-    tiers: [
-      { label: '+1 Spell Action', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 1 },
-      { label: '+2 Spell Actions', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 2 },
-      { label: '+3 Spell Actions', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 3 },
-      { label: '+4 Spell Actions', description: 'Parked. This Rank grants no attacks. Use Extra Attack.', value: 4 },
-    ],
-    apply: async () => {
-      // Parked until replaced. Extra Attack is the only extra-attack source.
-    },
-  },
-  {
     id: 'intellect.specialBoost',
     name: 'Special Boost',
     attribute: 'intellect',
     category: 'action',
     description:
-      'Increase one eligible Special on your Spells this turn by +2 / +4 / +8 / +12. ' +
-      'Eligible Special Effects: Slow, Ruin, Lacerate, Mark, Blight, Regeneration, Challenge, Weaken, Soulburn.',
+      'Premium. Every numeric Special(X) you successfully apply this round, Martial or Spell, increases by +2 / +4 / +8 / +12. ' +
+      'This is not Active Buff: Special Increase.',
     tiers: [
-      { label: '+2 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +2.', value: 2 },
-      { label: '+4 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +4.', value: 4 },
-      { label: '+8 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +8.', value: 8 },
-      { label: '+12 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +12.', value: 12 },
+      { label: '+2 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +2.', value: 2 },
+      { label: '+4 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +4.', value: 4 },
+      { label: '+8 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +8.', value: 8 },
+      { label: '+12 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +12.', value: 12 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       const bonus = scaleStoneTier([2, 4, 8, 12], tier);
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
-      sb.spellSpecialBoost = (sb.spellSpecialBoost ?? 0) + bonus;
+      const next = Math.max(sb.specialBoost ?? 0, sb.spellSpecialBoost ?? 0, bonus);
+      sb.specialBoost = next;
+      sb.spellSpecialBoost = next;
       await setRoundState(actor, roundState);
     },
   },

@@ -29,11 +29,19 @@ import {
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
-import { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+import {
+  getTargetEvade,
+  getTargetSpellResistance,
+  spellResistanceAfterPenetration,
+} from "./target-defenses.js";
 import { actorHasSurprise } from "./surprise.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 
-export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+export {
+  getTargetEvade,
+  getTargetSpellResistance,
+  spellResistanceAfterPenetration,
+} from "./target-defenses.js";
 import {
   buildAvailableRaiseOptions,
   computeRaiseTns,
@@ -462,6 +470,8 @@ export async function createAttackCard(
 
   let tnKind: 'evade' | 'casting' = 'evade';
   let castingBaseTn: number | null = null;
+  /** Spell or Mental Power Base TN, before Spell Resistance. */
+  let spellBaseTnValue: number | null = null;
 
   // AoE: one roll compared separately against each creature's Evade (martial)
   // or Final Spell TN (spell). The card's display TN is the primary/anchor
@@ -501,9 +511,8 @@ export async function createAttackCard(
         powerTags.includes('mental') ||
         /mental/i.test(String(powerSystem.templateId ?? '')) ||
         /mind-illusion|mind-probe|mental-control/i.test(String(powerSystem.templateId ?? ''));
-      castingBaseTn =
-        castingBaseTnForMasteryRank(masteryRank, { mental: isMentalPower }) +
-        getTargetSpellResistance(target);
+      spellBaseTnValue = castingBaseTnForMasteryRank(masteryRank, { mental: isMentalPower });
+      castingBaseTn = spellBaseTnValue + spellResistanceAfterPenetration(target, attacker);
     }
   }
 
@@ -516,8 +525,8 @@ export async function createAttackCard(
     (npcAttackExplodesOn7(option as any) || npcAttackExplodesOn7(npcAttackRow));
   if (npcIsSpell) {
     tnKind = 'casting';
-    castingBaseTn =
-      castingBaseTnForMasteryRank(Math.max(1, masteryRank)) + getTargetSpellResistance(target);
+    spellBaseTnValue = castingBaseTnForMasteryRank(Math.max(1, masteryRank));
+    castingBaseTn = spellBaseTnValue + spellResistanceAfterPenetration(target, attacker);
   }
 
   /** Normal TN for the card's anchor target — unchanged by declared raises. */
@@ -721,7 +730,7 @@ export async function createAttackCard(
     selectedPowerSpecials: selectedPowerSpecials,
     selectedPowerDamage: selectedPowerDamage || "",
     consumableItemId: option.consumableItemId || null,
-    ignoreWeaponDamage: option.ignoreWeaponDamage === true,
+    ignoreWeaponDamage: option.ignoreWeaponDamage === true || tnKind === 'casting',
     // Split-attack bookkeeping (both strikes carry the same pairId so the
     // damage dialog and chat handlers can render "Strike 1 of 2" markers and
     // halve the damage pool per strike).
@@ -785,7 +794,11 @@ export async function createAttackCard(
     ...(castingBaseTn != null ? { castingBaseTn } : {}),
     /** Spell Base TN without this target's SR — used for per-creature Spell AoE checks. */
     ...(tnKind === 'casting' && castingBaseTn != null
-      ? { spellBaseTn: castingBaseTn - getTargetSpellResistance(target) }
+      ? {
+          spellBaseTn:
+            spellBaseTnValue ??
+            castingBaseTn - getTargetSpellResistance(target),
+        }
       : {}),
     targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
     halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,

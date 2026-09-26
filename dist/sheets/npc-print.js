@@ -71,6 +71,8 @@ function formatFlags(atk) {
         flags.push('Spell');
     if (atk.npcSplitAttack)
         flags.push('Split');
+    if (atk.npcCrit)
+        flags.push('Crit');
     return flags.join(' · ') || '—';
 }
 function formatStress(atk) {
@@ -112,6 +114,8 @@ export function formatNpcCompactAttackPlayLine(atk, opts) {
         parts.push(`Spell TN ${opts.castingTn}`);
     if (atk.npcSplitAttack)
         parts.push('Split');
+    if (atk.npcCrit)
+        parts.push('Crit');
     const stress = Math.floor(num(atk.npcStressD8, 0));
     if (stress > 0)
         parts.push(`Stress ${stress}d8`);
@@ -142,6 +146,7 @@ function buildAttackRows(attacks) {
             specials: formatNpcAttackSpecialsLine(atk) || '—',
             isSpell: !!atk.npcIsSpell,
             isSplit: !!atk.npcSplitAttack,
+            isCrit: !!atk.npcCrit,
         };
     });
 }
@@ -303,6 +308,7 @@ export function buildNpcCompactPrintContext(actor) {
             line: formatNpcCompactAttackPlayLine(atk, { masteryRank, castingTn, index }),
             isSpell: !!atk.npcIsSpell,
             isSplit: !!atk.npcSplitAttack,
+            isCrit: !!atk.npcCrit,
         }));
         const cores = [
             { label: 'Evade', value: String(Math.floor(num(src.combat?.evade, 0))) },

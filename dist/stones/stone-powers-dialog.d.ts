@@ -37,8 +37,12 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stonePaidLanes;
     /** True while a render triggered from `_onRender` is still pending. */
     private _stoneRenderQueued;
-    /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
-    private _stonePowersContentScrollTop;
+    /**
+     * Scroll vor dem Re-Render. Fenster (`.window-content`) und die innere
+     * Dialogfläche scrollen getrennt — nur eine davon zu merken setzt die
+     * Ansicht auf Damage Reduction bzw. die erste offene Attribut-Sektion.
+     */
+    private _stoneScroll;
     /** Stone Recovery (round 2+): stones the player takes back, per pool. */
     private _recoveryAlloc;
     /** Round the current recovery belongs to — a new round starts from scratch. */

@@ -18,7 +18,7 @@ export const UNBOUND_PREDATOR_SHAPES = [
 export const UNBOUND_PREDATOR_STONES = [
     { key: 'might', label: 'Might — Martial Damage', artifactKey: 'predatorCrownMight' },
     { key: 'wits', label: 'Wits — Initiative Boost', artifactKey: 'predatorCrownWits' },
-    { key: 'intellect', label: 'Intellect — Spell Raises', artifactKey: 'predatorCrownIntellect' },
+    { key: 'intellect', label: 'Intellect — Raise Focus', artifactKey: 'predatorCrownIntellect' },
 ];
 export const UNBOUND_IDENTITIES = [
     {
@@ -40,7 +40,7 @@ export const UNBOUND_IDENTITIES = [
         artifactKey: 'witchStaffRoot',
         slotLabel: 'Main Hand + Off Hand',
         summary: 'Root Witches bind, entangle, hold, and awaken the deep green will of the land.',
-        technical: 'Ranged Attack + Slow / Active Buff: Special Increase + Slow / Intellect Ability: Spell Raises',
+        technical: 'Ranged Attack + Slow / Active Buff: Special Increase + Slow / Intellect Ability: Raise Focus',
     },
     {
         key: 'witch-ruin',
@@ -50,7 +50,7 @@ export const UNBOUND_IDENTITIES = [
         artifactKey: 'witchStaffRuin',
         slotLabel: 'Main Hand + Off Hand',
         summary: 'Ruin Witches curse, break, hex, and turn certainty into collapse.',
-        technical: 'Ranged Attack + Hex / Active Buff: Special Increase + Hex / Intellect Ability: Spell Raises',
+        technical: 'Ranged Attack + Hex / Active Buff: Special Increase + Hex / Intellect Ability: Raise Focus',
     },
     {
         key: 'witch-blight',
@@ -60,7 +60,7 @@ export const UNBOUND_IDENTITIES = [
         artifactKey: 'witchStaffBlight',
         slotLabel: 'Main Hand + Off Hand',
         summary: 'Blight Witches poison, corrode, wither, and teach flesh, metal, and faith how to decay.',
-        technical: 'Ranged Attack + Corrode / Active Buff: Special Increase + Corrode / Intellect Ability: Spell Raises',
+        technical: 'Ranged Attack + Corrode / Active Buff: Special Increase + Corrode / Intellect Ability: Raise Focus',
     },
     {
         key: 'bane-alchemist',

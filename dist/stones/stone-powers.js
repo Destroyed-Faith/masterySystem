@@ -4,7 +4,7 @@
  * Every Stone Ability has exactly four Ranks; Rank 4 is the hard cap.
  * Normal Abilities cost 1 / 2 / 4 / 8 additional Stones (1 / 3 / 7 / 15
  * total). The eight Premium Abilities (Extra Attack, Parry, Crit, Damage
- * Negation, Spell Action, Damage Reduction, Not a Target, Phasing) cost
+ * Negation, Special Boost, Damage Reduction, Not a Target, Phasing) cost
  * 2 / 4 / 6 / 8 additional Stones (2 / 6 / 12 / 20 total).
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
@@ -30,6 +30,8 @@ export const STONE_TIER_HARD_MAX = 4;
 export const STONE_POWER_ID_ALIASES = {
     'resolve.damageReductionBoost': 'resolve.damageReduction',
     'resolve.specialReduction': 'resolve.ward',
+    /** DF Core 0.9.9.1: Spell Raises became Raise Focus (generic, Raise TN only). */
+    'intellect.spellRaises': 'intellect.raiseFocus',
 };
 export function resolveStonePowerId(powerId) {
     const id = String(powerId || '').trim();
@@ -44,7 +46,7 @@ export const PREMIUM_STONE_POWER_IDS = [
     'might.parry',
     'agility.crit',
     'vitality.damageNegation',
-    'intellect.spellAction',
+    'intellect.specialBoost',
     'resolve.damageReduction',
     'influence.notATarget',
     'wits.phasing',
@@ -53,6 +55,17 @@ const PREMIUM_SET = new Set(PREMIUM_STONE_POWER_IDS);
 export function isPremiumStonePower(powerId) {
     return PREMIUM_SET.has(resolveStonePowerId(powerId));
 }
+/**
+ * Removed abilities. They are not in the registry. Old saves that still name
+ * the id are refused so they do not become Spell Penetration.
+ * Extra Attack is the only source of extra attacks (spells, ranged, and martial).
+ */
+export const RETIRED_STONE_POWER_IDS = ['intellect.spellAction'];
+const RETIRED_STONE_POWER_SET = new Set(RETIRED_STONE_POWER_IDS);
+export function isRetiredStonePower(powerId) {
+    return RETIRED_STONE_POWER_SET.has(resolveStonePowerId(powerId));
+}
+export const RETIRED_STONE_POWER_MESSAGE = 'Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks. Spell Penetration is a different ability.';
 /** Additional-Stone cost per Rank (index 0 = Rank 1). */
 const NORMAL_RANK_COSTS = [1, 2, 4, 8];
 const PREMIUM_RANK_COSTS = [2, 4, 6, 8];
@@ -104,6 +117,63 @@ export function highestCompleteStoneTierFromPlaced(powerId, placed, prefillRank 
         best = r;
     }
     return best;
+}
+export function completeStoneRankPayment(powerId, placed, usesBefore = 0, prefillRank = 0) {
+    const n = Math.max(0, Math.floor(Number(placed) || 0));
+    const start = Math.max(0, Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(usesBefore) || 0)));
+    const prefill = effectiveStoneSupportPrefillTier(powerId, prefillRank);
+    if (start >= STONE_TIER_HARD_MAX)
+        return null;
+    let remaining = n;
+    let tier = start;
+    let spend = 0;
+    for (let r = start + 1; r <= STONE_TIER_HARD_MAX; r += 1) {
+        const cost = r === prefill ? 0 : stonePowerRankCost(powerId, r);
+        if (remaining < cost)
+            break;
+        remaining -= cost;
+        spend += cost;
+        tier = r;
+    }
+    if (tier <= start)
+        return null;
+    return { tier, spendCount: spend, ranksGained: tier - start };
+}
+/** Payable lane indexes for Ranks `fromRank`..`toRank` (the pre-filled Rank is omitted). */
+export function paidLaneSetForStoneRanks(powerId, fromRank, toRank, prefillRank = 0) {
+    const prefill = effectiveStoneSupportPrefillTier(powerId, prefillRank);
+    const from = Math.max(1, Math.floor(Number(fromRank) || 1));
+    const to = Math.min(STONE_TIER_HARD_MAX, Math.floor(Number(toRank) || 0));
+    const set = new Set();
+    for (let r = from; r <= to; r += 1) {
+        if (r === prefill)
+            continue;
+        for (const lane of stonePaymentLanesForTier(powerId, r))
+            set.add(lane);
+    }
+    return set;
+}
+/**
+ * Split occupied lanes into the complete Rank prefix and the leftover.
+ * Returns null when the stone count would pay a Rank but those lanes are
+ * not actually filled (a gap). That pile must not be charged.
+ */
+export function partitionStoneLanesByCompleteRanks(powerId, lanes, usesBefore = 0, prefillRank = 0) {
+    const payment = completeStoneRankPayment(powerId, lanes.length, usesBefore, prefillRank);
+    if (!payment)
+        return null;
+    const covered = paidLaneSetForStoneRanks(powerId, Math.max(0, Math.floor(Number(usesBefore) || 0)) + 1, payment.tier, prefillRank);
+    const spend = [];
+    const leftover = [];
+    for (const row of lanes) {
+        if (covered.has(row.lane))
+            spend.push(row);
+        else
+            leftover.push(row);
+    }
+    if (spend.length !== payment.spendCount)
+        return null;
+    return { payment, spend, leftover };
 }
 /**
  * Once-per-combat powers apply the highest complete cluster once. A Support
@@ -332,12 +402,12 @@ const AGILITY_POWERS_RAW = [
         name: 'Crit',
         attribute: 'agility',
         category: 'action',
-        description: 'Premium. A number of your attacks this round can have Crit(1). You decide which attacks BEFORE you roll each attack roll (R1–R4: 1/2/3/4).',
+        description: 'Premium. A number of your damaging attacks or Spells this round can have Crit(1) (R1–R4: 1/2/3/4). Declare it before the Attack Roll or Casting Roll.',
         tiers: [
-            { label: '1 attack: Crit(1)', description: 'One of your attacks this round can have Crit(1). You decide which attack before you roll the Attack Roll.', value: 1 },
-            { label: '2 attacks: Crit(1)', description: 'Two of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 2 },
-            { label: '3 attacks: Crit(1)', description: 'Three of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 3 },
-            { label: '4 attacks: Crit(1)', description: 'Four of your attacks this round can have Crit(1). You decide which attacks before you roll each Attack Roll.', value: 4 },
+            { label: '1 attack: Crit(1)', description: 'One damaging attack or Spell this round can have Crit(1). Declare it before the Attack Roll or Casting Roll.', value: 1 },
+            { label: '2 attacks: Crit(1)', description: 'Two damaging attacks or Spells this round can have Crit(1). Declare each before the Attack Roll or Casting Roll.', value: 2 },
+            { label: '3 attacks: Crit(1)', description: 'Three damaging attacks or Spells this round can have Crit(1). Declare each before the Attack Roll or Casting Roll.', value: 3 },
+            { label: '4 attacks: Crit(1)', description: 'Four damaging attacks or Spells this round can have Crit(1). Declare each before the Attack Roll or Casting Roll.', value: 4 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
@@ -517,23 +587,45 @@ const VITALITY_POWERS_RAW = [
 // ---------------------------------------------------------------------------
 const INTELLECT_POWERS_RAW = [
     {
-        id: 'intellect.spellRaises',
-        name: 'Spell Raises',
+        id: 'intellect.spellPenetration',
+        name: 'Spell Penetration',
         attribute: 'intellect',
         category: 'action',
-        description: 'Your Spells this turn gain +4 / +8 / +12 / +16 to their roll for meeting the Raise TN only.',
+        description: 'Until the start of your next turn, ignore 4 / 8 / 12 / 16 Spell Resistance. ' +
+            'This never reduces a Spell Base TN or a Mental Power Base TN, and it cannot reduce Spell Resistance below 0.',
         tiers: [
-            { label: '+4 Raise TN', description: 'Your Spells this turn gain +4 to their roll for the purpose of meeting the Raise TN only.', value: 4 },
-            { label: '+8 Raise TN', description: 'Your Spells this turn gain +8 to their roll for the purpose of meeting the Raise TN only.', value: 8 },
-            { label: '+12 Raise TN', description: 'Your Spells this turn gain +12 to their roll for the purpose of meeting the Raise TN only.', value: 12 },
-            { label: '+16 Raise TN', description: 'Your Spells this turn gain +16 to their roll for the purpose of meeting the Raise TN only.', value: 16 },
+            { label: 'Ignore 4 Spell Resistance', description: 'Ignore 4 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 4 },
+            { label: 'Ignore 8 Spell Resistance', description: 'Ignore 8 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 8 },
+            { label: 'Ignore 12 Spell Resistance', description: 'Ignore 12 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 12 },
+            { label: 'Ignore 16 Spell Resistance', description: 'Ignore 16 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
             const bonus = scaleStoneTier([4, 8, 12, 16], tier);
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.spellRaiseTnBonus = (sb.spellRaiseTnBonus ?? 0) + bonus;
+            sb.spellPenetration = Math.max(sb.spellPenetration ?? 0, bonus);
+            await setRoundState(actor, roundState);
+        },
+    },
+    {
+        id: 'intellect.raiseFocus',
+        name: 'Raise Focus',
+        attribute: 'intellect',
+        category: 'action',
+        description: 'Your Martial and Spell Power rolls this turn gain +4 / +8 / +12 / +16 for meeting the Raise TN only. The normal success TN does not change.',
+        tiers: [
+            { label: '+4 Raise TN', description: 'Martial and Spell Power rolls this turn gain +4 for the Raise TN only.', value: 4 },
+            { label: '+8 Raise TN', description: 'Martial and Spell Power rolls this turn gain +8 for the Raise TN only.', value: 8 },
+            { label: '+12 Raise TN', description: 'Martial and Spell Power rolls this turn gain +12 for the Raise TN only.', value: 12 },
+            { label: '+16 Raise TN', description: 'Martial and Spell Power rolls this turn gain +16 for the Raise TN only.', value: 16 },
+        ],
+        apply: async ({ actor, tier }) => {
+            const combat = game.combat;
+            const bonus = scaleStoneTier([4, 8, 12, 16], tier);
+            const roundState = getRoundState(actor, combat);
+            const sb = ensureStoneBonuses(roundState);
+            sb.spellRaiseTnBonus = Math.max(sb.spellRaiseTnBonus ?? 0, bonus);
             await setRoundState(actor, roundState);
         },
     },
@@ -559,52 +651,26 @@ const INTELLECT_POWERS_RAW = [
         },
     },
     {
-        id: 'intellect.spellAction',
-        name: 'Spell Action',
-        attribute: 'intellect',
-        category: 'action',
-        description: 'Premium. Gain additional Attack Actions this round that may only cast Spells (R1–R4: +1/+2/+3/+4).',
-        tiers: [
-            { label: '+1 Spell Action', description: 'Gain 1 additional Attack Action this round. It may only be used to cast a Spell.', value: 1 },
-            { label: '+2 Spell Actions', description: 'Gain 2 additional Attack Actions this round. They may only be used to cast Spells.', value: 2 },
-            { label: '+3 Spell Actions', description: 'Gain 3 additional Attack Actions this round. They may only be used to cast Spells.', value: 3 },
-            { label: '+4 Spell Actions', description: 'Gain 4 additional Attack Actions this round. They may only be used to cast Spells.', value: 4 },
-        ],
-        apply: async ({ actor, combatant, tier }) => {
-            const bonus = scaleStoneTier([1, 2, 3, 4], tier);
-            if (bonus <= 0)
-                return;
-            const combat = game.combat;
-            const roundState = getRoundState(actor, combat);
-            roundState.attackActions.total += bonus;
-            const sb = ensureStoneBonuses(roundState);
-            sb.extraAttacks = (sb.extraAttacks ?? 0) + bonus;
-            sb.extraSpellActions = (sb.extraSpellActions ?? 0) + bonus;
-            await setRoundState(actor, roundState);
-            // Mark the combatant so attack consumers know N attacks must be Spells.
-            const prior = Number(combatant?.getFlag?.('mastery-system', 'extraSpellActions') ?? 0) || 0;
-            await combatant?.setFlag?.('mastery-system', 'extraSpellActions', prior + bonus);
-        },
-    },
-    {
         id: 'intellect.specialBoost',
         name: 'Special Boost',
         attribute: 'intellect',
         category: 'action',
-        description: 'Increase one eligible Special on your Spells this turn by +2 / +4 / +8 / +12. ' +
-            'Eligible Special Effects: Slow, Ruin, Lacerate, Mark, Blight, Regeneration, Challenge, Weaken, Soulburn.',
+        description: 'Premium. Every numeric Special(X) you successfully apply this round, Martial or Spell, increases by +2 / +4 / +8 / +12. ' +
+            'This is not Active Buff: Special Increase.',
         tiers: [
-            { label: '+2 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +2.', value: 2 },
-            { label: '+4 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +4.', value: 4 },
-            { label: '+8 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +8.', value: 8 },
-            { label: '+12 Special (eligible)', description: 'Increase one eligible Special on your Spells this turn by +12.', value: 12 },
+            { label: '+2 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +2.', value: 2 },
+            { label: '+4 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +4.', value: 4 },
+            { label: '+8 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +8.', value: 8 },
+            { label: '+12 Special(X)', description: 'Every numeric Special(X) you apply this round increases by +12.', value: 12 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
             const bonus = scaleStoneTier([2, 4, 8, 12], tier);
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.spellSpecialBoost = (sb.spellSpecialBoost ?? 0) + bonus;
+            const next = Math.max(sb.specialBoost ?? 0, sb.spellSpecialBoost ?? 0, bonus);
+            sb.specialBoost = next;
+            sb.spellSpecialBoost = next;
             await setRoundState(actor, roundState);
         },
     },

@@ -354,11 +354,11 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
         </button>`
             : ''}
         ${postAttack
-            ? `<button type="button" class="ms-reaction-gm-close-btn" title="GM only — stop further reaction cards for this attack">
+            ? `<button type="button" class="ms-reaction-gm-close-btn" title="Stop further reaction cards for this attack">
           <i class="fas fa-gavel"></i> Reactions abgeschlossen
         </button>`
-            : `<button type="button" class="ms-reaction-gm-close-btn" title="GM only — close this reaction window">
-          <i class="fas fa-gavel"></i> GM: Close
+            : `<button type="button" class="ms-reaction-gm-close-btn" title="Close this reaction window">
+          <i class="fas fa-check"></i> Close
         </button>`}
         <span class="ms-reaction-continue-hint" style="opacity:0.85;font-size:0.88em;">
           ${escHtml(continueHint)}
@@ -1153,12 +1153,14 @@ async function handleGmCloseClick(messageId) {
     const state = readState(message);
     if (!state || state.resolved)
         return;
-    if (!g.game?.user?.isGM) {
+    if (!g.game?.user?.isGM && !pendingWaiters.has(messageId)) {
         g.ui?.notifications?.warn?.('Only the GM can close reactions for everyone.');
         return;
     }
-    await closeReactionWindow(messageId, state, { gmClosed: true });
-    g.ui?.notifications?.info?.('Reactions abgeschlossen — keine weiteren Karten für diesen Angriff.');
+    await closeReactionWindow(messageId, state, g.game?.user?.isGM ? { gmClosed: true } : undefined);
+    if (g.game?.user?.isGM) {
+        g.ui?.notifications?.info?.('Reactions abgeschlossen — keine weiteren Karten für diesen Angriff.');
+    }
 }
 function emptyPhaseResult(eventId) {
     return {

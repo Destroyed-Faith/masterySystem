@@ -157,10 +157,16 @@ export declare function mergeNpcAttackTargetingFlag(atk: AttackValue | null | un
 export declare function npcAttackDiceCount(attack: AttackValue | null | undefined): number;
 /** True when the sheet never stored a count. Explicit 0 is not blank. */
 export declare function npcAttackDiceCountIsBlank(attack: AttackValue | null | undefined): boolean;
+/** True when this NPC power's attack dice explode on 7 and 8 (player Crit). */
+export declare function npcAttackExplodesOn7(attack: {
+    npcCrit?: unknown;
+} | null | undefined): boolean;
 export interface NpcSheetToHit {
     dice: number;
     keep: number;
     name: string;
+    /** Attack pool explodes on 7–8. Damage dice do not. */
+    crit: boolean;
 }
 /**
  * To-hit pool for an NPC or summon at click time.

@@ -1,5 +1,6 @@
 /**
- * Destroyed Faith DF Core v0.9.9.0 — compressed Attributes, Lifetime XP Stones,
+ * Destroyed Faith DF Core. Schema stays v0.9.9.0 so the attribute migration
+ * does not replay. The live rules label is DF Core v0.9.9.1.
  * Guaranteed Eight, Target Numbers, Martial Damage, and Stone Ability tier cap.
  *
  * Skill XP costs stay on the existing 1–32 band table. Do not route Skills
@@ -8,6 +9,8 @@
 import { deriveMasteryRankFromStones } from '../utils/mastery-rank-sync.js';
 import { standardTnForMasteryRank as standardTnFromConstants } from '../utils/constants.js';
 export const V099_SCHEMA_VERSION = '0.9.9.0';
+/** Rules text currently implemented. Does not replay the 0.9.9.0 migration. */
+export const DF_CORE_RULES_VERSION = '0.9.9.1';
 export const ATTRIBUTE_KEYS = [
     'might',
     'agility',
@@ -266,9 +269,23 @@ export function assignmentsAreLegal(assignments, totalPermanent, storedRank = 1,
     }
     return { ok: true };
 }
-export function buildStoneProgressionSlots(lifetimeXp, assignments, throughXp = PRINT_LIFETIME_XP_SPAN, permanentColorless = 0, slotOrder) {
+/** Stone milestones are every 20 Lifetime XP. The full track still runs to {@link PRINT_LIFETIME_XP_SPAN}. */
+export const STONE_MILESTONE_XP = 20;
+/**
+ * First milestone strictly above `lifetimeXp`.
+ * 0 and 1 show 20; 84 shows 100; 100 shows 120.
+ */
+export function nextProgressionMilestoneXp(lifetimeXp) {
     const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
-    const span = Math.max(PRINT_LIFETIME_XP_SPAN, Math.ceil(xp / 20) * 20, Math.max(0, Math.floor(throughXp)));
+    return Math.floor(xp / STONE_MILESTONE_XP) * STONE_MILESTONE_XP + STONE_MILESTONE_XP;
+}
+export function buildStoneProgressionSlots(lifetimeXp, assignments, throughXp = PRINT_LIFETIME_XP_SPAN, permanentColorless = 0, slotOrder, 
+/** `visible` draws reached milestones plus the one upcoming breakpoint. `full` keeps the canonical track. */
+spanMode = 'full') {
+    const xp = Math.max(0, Math.floor(Number(lifetimeXp) || 0));
+    const span = spanMode === 'visible'
+        ? nextProgressionMilestoneXp(xp)
+        : Math.max(PRINT_LIFETIME_XP_SPAN, Math.ceil(xp / STONE_MILESTONE_XP) * STONE_MILESTONE_XP, Math.max(0, Math.floor(throughXp)));
     const unlocked = permanentStonesFromLifetimeXp(xp);
     const useOrder = Array.isArray(slotOrder);
     const queue = [];

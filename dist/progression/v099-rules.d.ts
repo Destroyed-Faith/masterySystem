@@ -1,11 +1,14 @@
 /**
- * Destroyed Faith DF Core v0.9.9.0 — compressed Attributes, Lifetime XP Stones,
+ * Destroyed Faith DF Core. Schema stays v0.9.9.0 so the attribute migration
+ * does not replay. The live rules label is DF Core v0.9.9.1.
  * Guaranteed Eight, Target Numbers, Martial Damage, and Stone Ability tier cap.
  *
  * Skill XP costs stay on the existing 1–32 band table. Do not route Skills
  * through `attributeBandCost`.
  */
 export declare const V099_SCHEMA_VERSION = "0.9.9.0";
+/** Rules text currently implemented. Does not replay the 0.9.9.0 migration. */
+export declare const DF_CORE_RULES_VERSION = "0.9.9.1";
 export declare const ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
 export type AttributeKeyName = (typeof ATTRIBUTE_KEYS)[number];
 export declare const ATTRIBUTE_ABBREV: Record<AttributeKeyName, string>;
@@ -116,7 +119,16 @@ export interface StoneProgressSlot {
     attribute: string | null;
     abbrev: string;
 }
-export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number, permanentColorless?: number, slotOrder?: readonly (string | null)[] | null): StoneProgressSlot[];
+/** Stone milestones are every 20 Lifetime XP. The full track still runs to {@link PRINT_LIFETIME_XP_SPAN}. */
+export declare const STONE_MILESTONE_XP = 20;
+/**
+ * First milestone strictly above `lifetimeXp`.
+ * 0 and 1 show 20; 84 shows 100; 100 shows 120.
+ */
+export declare function nextProgressionMilestoneXp(lifetimeXp: number): number;
+export declare function buildStoneProgressionSlots(lifetimeXp: number, assignments: Record<string, number>, throughXp?: number, permanentColorless?: number, slotOrder?: readonly (string | null)[] | null, 
+/** `visible` draws reached milestones plus the one upcoming breakpoint. `full` keeps the canonical track. */
+spanMode?: 'full' | 'visible'): StoneProgressSlot[];
 export declare function chunkSlots<T>(slots: T[], size: number): T[][];
 /** Boxes on one Lifetime XP line: two Start Stones, then one box every 20 XP through `span`. */
 export declare function lifetimeLineSlotCount(span?: number): number;

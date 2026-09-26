@@ -7,6 +7,7 @@ import { CREATION_MASTERY_RANK, CREATION_POWER_TOTAL, findCatalogEntry, } from '
 import { buildPowerItemFromCatalogEntry, } from '../utils/power-item-builder.js';
 import { getGeneralArtifact } from '../utils/general-artifacts.js';
 import { ECHO_ARTIFACTS } from '../utils/echo-artifacts.js';
+import { DF_CORE_RULES_VERSION } from '../progression/v099-rules.js';
 import { buildFreshTraitUses, getEcho } from '../utils/echos/index.js';
 import { getUnboundIdentity, resolveUnboundArtifactKey, } from '../utils/echos/unbound-identities.js';
 import { normalizeKnownLanguages } from '../utils/languages.js';
@@ -229,7 +230,7 @@ export function buildActorSystemFromPayload(payload) {
         attributes: attributeBlock,
         stonePools,
         progression: {
-            rulesVersion: '0.9.9.0',
+            rulesVersion: DF_CORE_RULES_VERSION,
             v099Prepared: true,
             v099Stones: true,
             earnedAttributeXp: 0,

@@ -8,7 +8,7 @@ import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 import { npcMaxRangeM, rangeTextFromMax } from "../utils/range-bands.js";
-import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcAttackKeepDice, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
+import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcAttackExplodesOn7, npcAttackKeepDice, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { parseD8Count } from "../utils/dice-formula.js";
 import { basicAttackMrDamageFormula } from "./basic-combat.js";
@@ -16,10 +16,10 @@ import { mergeWeaponSpecialsIntoSnapshot, parkWeaponSpecialsForRaises, weaponSpe
 import { RAISE_INCREMENT } from "../utils/constants.js";
 import { castingBaseTnForMasteryRank } from "./spell-roll-handler.js";
 import { artifactLevelToTemplateRank } from "../utils/artifact-spell-pick.js";
-import { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { actorHasSurprise } from "./surprise.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
-export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, dedupeDeclaredRaises, describeDeclaredRaise, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
 function newSplitPairId() {
     try {
@@ -358,6 +358,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     let selectedPowerDamage = null;
     let tnKind = 'evade';
     let castingBaseTn = null;
+    /** Spell or Mental Power Base TN, before Spell Resistance. */
+    let spellBaseTnValue = null;
     // AoE: one roll compared separately against each creature's Evade (martial)
     // or Final Spell TN (spell). The card's display TN is the primary/anchor
     // target; secondaries are checked independently after the roll.
@@ -392,18 +394,19 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             const isMentalPower = powerTags.includes('mental') ||
                 /mental/i.test(String(powerSystem.templateId ?? '')) ||
                 /mind-illusion|mind-probe|mental-control/i.test(String(powerSystem.templateId ?? ''));
-            castingBaseTn =
-                castingBaseTnForMasteryRank(masteryRank, { mental: isMentalPower }) +
-                    getTargetSpellResistance(target);
+            spellBaseTnValue = castingBaseTnForMasteryRank(masteryRank, { mental: isMentalPower });
+            castingBaseTn = spellBaseTnValue + spellResistanceAfterPenetration(target, attacker);
         }
     }
     // NPC Spell attacks use Spell Base TN (8 × Mastery Rank − 2),
     // not Evade and not PC power-level Casting TN.
     const npcIsSpell = isNpcAttack && (!!option.npcIsSpell || !!npcAttackRow?.npcIsSpell);
+    const npcCrit = isNpcAttack &&
+        (npcAttackExplodesOn7(option) || npcAttackExplodesOn7(npcAttackRow));
     if (npcIsSpell) {
         tnKind = 'casting';
-        castingBaseTn =
-            castingBaseTnForMasteryRank(Math.max(1, masteryRank)) + getTargetSpellResistance(target);
+        spellBaseTnValue = castingBaseTnForMasteryRank(Math.max(1, masteryRank));
+        castingBaseTn = spellBaseTnValue + spellResistanceAfterPenetration(target, attacker);
     }
     /** Normal TN for the card's anchor target — unchanged by declared raises. */
     const normalTn = tnKind === 'casting' && castingBaseTn != null
@@ -585,7 +588,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         selectedPowerSpecials: selectedPowerSpecials,
         selectedPowerDamage: selectedPowerDamage || "",
         consumableItemId: option.consumableItemId || null,
-        ignoreWeaponDamage: option.ignoreWeaponDamage === true,
+        ignoreWeaponDamage: option.ignoreWeaponDamage === true || tnKind === 'casting',
         // Split-attack bookkeeping (both strikes carry the same pairId so the
         // damage dialog and chat handlers can render "Strike 1 of 2" markers and
         // halve the damage pool per strike).
@@ -629,6 +632,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             ? String(option.npcAttackUsageKey || option.id || '')
             : undefined,
         npcIsSpell: npcIsSpell || undefined,
+        npcCrit: npcCrit || undefined,
         ...(raiseContext
             ? {
                 powerIsSpell: raiseContext.isSpell,
@@ -643,7 +647,10 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ...(castingBaseTn != null ? { castingBaseTn } : {}),
         /** Spell Base TN without this target's SR — used for per-creature Spell AoE checks. */
         ...(tnKind === 'casting' && castingBaseTn != null
-            ? { spellBaseTn: castingBaseTn - getTargetSpellResistance(target) }
+            ? {
+                spellBaseTn: spellBaseTnValue ??
+                    castingBaseTn - getTargetSpellResistance(target),
+            }
             : {}),
         targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
         halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,
@@ -667,6 +674,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         <div class="detail-row"><span class="detail-label">Schaden:</span><span class="detail-value">${attackCardEsc(npcDamageDiceFormula(npcAttackRow))}</span></div>
         ${npcAttackRow.armor
             ? `<div class="detail-row"><span class="detail-label">Rüstung:</span><span class="detail-value">${attackCardEsc(String(npcAttackRow.armor))}</span></div>`
+            : ""}
+        ${npcCrit
+            ? `<div class="detail-row"><span class="detail-label">Crit:</span><span class="detail-value">Attack dice explode on 7–8</span></div>`
             : ""}
         ${npcSpecialsLine
             ? `<div class="detail-row"><span class="detail-label">Spezial:</span><span class="detail-value">${attackCardEsc(npcSpecialsLine)}</span></div>`
@@ -721,10 +731,12 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     <div class="raise-plan-panel">
       ${raiseContext.isSpell
             ? `<div class="spell-cost-split-row md-sublabel">
-          Pay Raise cost with:
+          <p class="spell-cost-hint">Declare a Raise first.</p>
+          <label class="spell-cost-label">Pay Raise cost with
           <select class="spell-cost-select" disabled>
             <option value="">— declare a Raise first —</option>
           </select>
+          </label>
         </div>`
             : ''}
       <div class="raise-plan-rows"></div>
@@ -1029,10 +1041,13 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         const sel = panel.find('.spell-cost-select');
         if (!sel.length)
             return;
+        const hint = panel.find('.spell-cost-hint');
         if (costTotal <= 0) {
+            hint.show();
             sel.prop('disabled', true).html('<option value="">— declare a Raise first —</option>');
             return;
         }
+        hint.hide();
         const prev = String(sel.val() || '');
         const maxD8 = Math.min(costTotal, raiseContext.baseSnapshot.damageDice);
         const minD8 = Math.max(0, costTotal - totalSpecialRank);
@@ -1043,7 +1058,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             if (d8 > 0)
                 parts.push(`${d8}d8 damage`);
             if (sp > 0)
-                parts.push(`${sp} Special value`);
+                parts.push(`cost ${sp} from Special rank`);
             optionHtml.push(`<option value="${d8}|${sp}">${parts.join(' + ')}</option>`);
         }
         if (!optionHtml.length) {

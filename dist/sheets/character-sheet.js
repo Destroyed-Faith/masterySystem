@@ -43,7 +43,7 @@ import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlo
 import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, listEquipmentWeaponSetChoices, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
 import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants.js';
-import { buildStoneProgressionSlots, chunkLifetimeSlots, lifetimeLineSlotCount, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
+import { buildStoneProgressionSlots, chunkLifetimeSlots, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
 import { STONE_REDISTRIBUTE_FLAG, V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
 import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
 import { migrationStoneSlotLabel, releaseAllStoneSlots, releaseStoneSlot, stoneOrderActorUpdate, stoneOrderForActor, stonePlacementOptions, stoneSlotProgress, unblockStonePoolsUpdate, } from '../progression/v099-respec-flow.js';
@@ -1292,10 +1292,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
             const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
             const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
-            const through = Math.max(160, lifetimeXp == null ? 0 : Math.ceil(lifetimeXp / 20) * 20);
             const slotOrder = Array.isArray(sys?.progression?.stoneSlotOrder) ? sys.progression.stoneSlotOrder : null;
             const stoneRedistribute = flag(STONE_REDISTRIBUTE_FLAG);
-            const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, through, colorless, slotOrder).map((slot) => {
+            const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder, 'visible').map((slot) => {
                 if (lifetimeXp == null) {
                     return {
                         ...slot,
@@ -1330,8 +1329,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(rank)})` : '') +
                         ` · max ${stoneConcentrationCap(stones, rank)} per Attribute`,
                 slots,
-                rows: chunkLifetimeSlots(slots),
-                lineSlots: lifetimeLineSlotCount(),
+                rows: chunkLifetimeSlots(slots, Math.max(1, slots.length)),
+                lineSlots: Math.max(1, slots.length),
                 usesStones: usesV099Stones(sys),
                 stoneRedistribute,
             };
@@ -6162,7 +6161,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const base = filled ? releaseStoneSlot(order, index) : order.slice();
         const options = stonePlacementOptions(base, rank);
         const progress = stoneSlotProgress(base);
-        if (!filled && !options.attributes.length && !options.colorless) {
+        const gmCombine = redistribute && base.length >= 2;
+        if (!filled && !options.attributes.length && !options.colorless && !gmCombine) {
             ui.notifications?.warn(options.colorlessReason || 'No Attribute can take another Stone under the Mastery Rank × 2 limit.');
             return;
         }
@@ -6170,16 +6170,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             label: migrationStoneSlotLabel(index),
             attributeChoices: options.attributes,
             counts: progress.assignments,
-            colorless: options.colorless,
-            colorlessHint: options.colorlessReason,
+            colorless: options.colorless || gmCombine,
+            colorlessHint: gmCombine
+                ? 'Zwei Felder werden ein Permanent Colorless Stone. Das zweite Feld darf belegt sein.'
+                : options.colorlessReason,
             allowClear: filled,
-            partners: progress.openIndexes
+            partners: (gmCombine
+                ? base.map((_, i) => i)
+                : progress.openIndexes)
                 .filter((i) => i !== index)
-                .map((i) => ({ index: i, label: migrationStoneSlotLabel(i) })),
+                .map((i) => ({
+                index: i,
+                label: `${migrationStoneSlotLabel(i)}${base[i] ? ` (${base[i]})` : ''}`,
+            })),
         });
         if (choice.kind === 'cancel')
             return;
-        const next = base.slice();
+        let next = base.slice();
         if (choice.kind === 'clear') {
             if (!filled)
                 return;
@@ -6187,7 +6194,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         else if (choice.kind === 'attribute' && choice.key) {
             next[index] = choice.key;
         }
-        else if (choice.kind === 'colorless' && choice.otherIndex != null && !next[choice.otherIndex]) {
+        else if (choice.kind === 'colorless' && choice.otherIndex != null && choice.otherIndex !== index) {
+            next = releaseStoneSlot(next, choice.otherIndex);
+            next[index] = null;
             const pair = `colorless#${index}-${choice.otherIndex}`;
             next[index] = pair;
             next[choice.otherIndex] = pair;
@@ -6236,6 +6245,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const sys = this.actor.system ?? {};
         const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
         const order = releaseAllStoneSlots(stoneOrderForActor(sys, lifetime));
+        await this.actor.setFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG, true);
         await this.actor.update(stoneOrderActorUpdate(sys, order));
         ui.notifications?.info('Steine sind frei und können neu verteilt werden.');
         this.render();

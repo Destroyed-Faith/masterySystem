@@ -42,10 +42,12 @@ export function pickStoneFillAttribute(attributes, isUsable, spendable) {
  * Guard against paying a wave twice. `currentUses === usesInKey` alone is not
  * enough: `stoneUsage` is wiped on turn change and combat start, so a restored
  * snapshot of an already paid wave would line up again and charge empty pools.
+ * The receipt (`paidAccKeys`) is that guard. Review mode used to block every
+ * wave, which also left a pile the first Apply had rejected (six Extra Attack
+ * stones against a two-stone check) sitting on the card forever.
  */
 export function shouldSettleStoneWave(args) {
-    if (args.reviewMode)
-        return false;
+    void args.reviewMode;
     for (const paid of args.paidAccKeys) {
         if (paid === args.accKey)
             return false;

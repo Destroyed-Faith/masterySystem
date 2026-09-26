@@ -3,8 +3,9 @@
  *
  * Before rolling, declare up to `1 + extraTargets` creatures. Every target after
  * the first must be within 4 m of the previous target and within the Power's
- * Range. Compare the same final result against each target's Evade in order;
- * the first miss ends the chain. No Raises are required for target count.
+ * Range. Compare the same final result against each target's Evade, or Final
+ * Spell TN when the Power is a Spell. The first failed check ends the chain.
+ * No Raises are required for target count.
  * Every hit receives the full printed payload. Dive for Cover cannot be used.
  */
 import type { RadialCombatOption } from '../radial-menu/types.js';

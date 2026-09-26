@@ -11,6 +11,7 @@ import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/una
 import { coerceNpcAttackSpecials, displayNpcSpecialName, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
+import { applySpecialBoostToLabel, readSpecialBoost } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
@@ -643,7 +644,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             const extra = resolvedPowerDice - basePowerDice;
             if (extra > 0)
                 shownRaiseDamage = `+${extra}d8`;
-            shownSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot).join(', ');
+            shownSpecials = resolvedSpecials.join(', ');
             raiseOutcomeLine = '';
         }
         else if (outcome === 'partial') {
@@ -653,6 +654,10 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             shownPowerDamage = `${resolvedPowerDice}d8`;
             raiseOutcomeLine = lostCost > 0 ? `Raise verfehlt, −${lostCost}d8` : 'Raise verfehlt';
         }
+    }
+    const specialBoost = readSpecialBoost(actorToUse);
+    if (specialBoost > 0 && shownSpecials) {
+        shownSpecials = applySpecialBoostToLabel(shownSpecials, specialBoost);
     }
     let npcAutoDamageDice = 0;
     let npcStressD8 = 0;
@@ -1006,6 +1011,8 @@ async function calculatePassiveDamage(actor) {
 async function collectAvailableSpecials(actor, weapon, selectedPower) {
     const specials = [];
     const items = actor.items || [];
+    const specialBoost = readSpecialBoost(actor);
+    const boosted = (label) => applySpecialBoostToLabel(label, specialBoost);
     // Get power specials from selected power (e.g., "Lacerate(3)")
     if (selectedPower && selectedPower.specials && selectedPower.specials.length > 0) {
         for (const specialName of selectedPower.specials) {
@@ -1020,16 +1027,17 @@ async function collectAvailableSpecials(actor, weapon, selectedPower) {
                 continue;
             }
             // Parse special name like "Lacerate(3)" to extract name and value
-            const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
+            const listed = boosted(specialName);
+            const match = listed.match(/^([^(]+)(?:\((\d+)\))?$/);
             if (match) {
                 const specialNameOnly = match[1].trim();
                 const specialValue = match[2] ? parseInt(match[2]) : null;
                 specials.push({
                     id: `power-special-${specialNameOnly.toLowerCase().replace(/\s+/g, '-')}`,
-                    name: specialName, // Keep full name like "Lacerate(3)"
+                    name: listed,
                     type: 'power-special',
-                    description: `Power special: ${specialName}`,
-                    effect: specialName,
+                    description: `Power special: ${listed}`,
+                    effect: listed,
                     value: specialValue ?? undefined
                 });
             }
@@ -1087,12 +1095,13 @@ async function collectAvailableSpecials(actor, weapon, selectedPower) {
             const special = normalizeWeaponSpecial(raw);
             if (!special)
                 continue;
+            const listed = boosted(special);
             specials.push({
                 id: `weapon-${special}`,
-                name: special,
+                name: listed,
                 type: 'weapon',
-                description: `Weapon special: ${special}`,
-                effect: special
+                description: `Weapon special: ${listed}`,
+                effect: listed
             });
         }
     }
@@ -1751,6 +1760,17 @@ function registerDamageFaithRerollChatHooks() {
             console.warn('Mastery System | damage Faith Fracture prompt hook', e);
         }
     });
+    game.socket?.on('system.mastery-system', (payload) => {
+        if (payload?.type !== 'damageFaithChoice')
+            return;
+        const messageId = String(payload.messageId || '');
+        if (!pendingDamageFaithPrompts.has(messageId))
+            return;
+        const message = game.messages?.get(messageId);
+        if (!message)
+            return;
+        void settleDamageFaithPrompt(message, !!payload.wantsReroll);
+    });
 }
 function damageFaithPromptEsc(text) {
     return String(text)
@@ -1852,7 +1872,15 @@ function attachDamageFaithPromptHandlers(message, htmlRaw) {
         return;
     card.data('msFaithBound', true);
     const messageId = String(message.id || '');
-    const canAct = pendingDamageFaithPrompts.has(messageId);
+    const flags = message.flags?.['mastery-system'] || {};
+    const attackerId = String(flags.attackerId || '');
+    const attacker = attackerId ? game.actors?.get(attackerId) : null;
+    const user = game.user;
+    const playsAttacker = !!attacker &&
+        (user?.isGM
+            ? String(user.character?.id || '') === attackerId || !!attacker.isOwner
+            : !!attacker.isOwner);
+    const canAct = pendingDamageFaithPrompts.has(messageId) || playsAttacker;
     const keepBtn = card.find('.ms-damage-faith-keep-btn');
     const rerollBtn = card.find('.ms-damage-faith-reroll-btn');
     if (!canAct) {
@@ -1862,10 +1890,20 @@ function attachDamageFaithPromptHandlers(message, htmlRaw) {
         rerollBtn.attr('title', 'Waiting for the rolling player…');
         return;
     }
+    keepBtn.prop('disabled', false);
+    rerollBtn.prop('disabled', false);
     const lock = async (wantsReroll) => {
         keepBtn.prop('disabled', true);
         rerollBtn.prop('disabled', true);
-        await settleDamageFaithPrompt(message, wantsReroll);
+        if (pendingDamageFaithPrompts.has(messageId)) {
+            await settleDamageFaithPrompt(message, wantsReroll);
+            return;
+        }
+        game.socket?.emit('system.mastery-system', {
+            type: 'damageFaithChoice',
+            messageId,
+            wantsReroll,
+        });
     };
     keepBtn.off('click.msDmgFaith').on('click.msDmgFaith', (ev) => {
         ev.preventDefault();
@@ -1892,8 +1930,6 @@ async function promptDamageFaithReroll(attacker, target, totalDamage, rollDetail
             return skip;
         const user = game.user;
         if (!user?.isGM && !attacker.isOwner)
-            return skip;
-        if (user?.isGM && String(user.character?.id || '') !== String(attacker.id || ''))
             return skip;
         registerDamageFaithRerollChatHooks();
         const attackerName = String(attacker.name || 'Attacker');

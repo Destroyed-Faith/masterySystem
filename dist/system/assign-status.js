@@ -252,7 +252,11 @@ async function persistStatusList(actor, list, extra = {}) {
 export async function writeActorStatusList(actor, list, extra = {}) {
     if (!actor)
         return;
+    const before = readActorStatusEffects(actor);
     await persistStatusList(actor, list, extra);
+    void import('../ui/special-token-arrival.js')
+        .then((mod) => mod.announceStatusGains(actor, before, list))
+        .catch(() => undefined);
     await syncTokenStatusIcons(actor);
     const sheet = actor.sheet;
     if (sheet?.rendered) {

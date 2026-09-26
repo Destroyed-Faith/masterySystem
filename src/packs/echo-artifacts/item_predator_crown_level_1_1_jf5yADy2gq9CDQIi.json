@@ -45,14 +45,14 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
-        "special": "intellect.spellRaises"
+        "effect": "Supports the Intellect Ability: Raise Focus Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
+        "special": "intellect.raiseFocus"
       }
     ],
     "stoneFunction": {
       "kind": "stonePowerSupport",
       "attribute": "intellect",
-      "stonePowerId": "intellect.spellRaises"
+      "stonePowerId": "intellect.raiseFocus"
     },
     "extraStoneFunctions": [],
     "progressionPicks": [
@@ -62,7 +62,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "intellect",
-          "stonePowerId": "intellect.spellRaises"
+          "stonePowerId": "intellect.raiseFocus"
         },
         "displayName": "Predator Stone"
       },
@@ -96,7 +96,7 @@
       {
         "id": "predatorCrownIntellect-pw-1",
         "name": "Predator Stone I",
-        "fluff": "Special: intellect.spellRaises",
+        "fluff": "Special: intellect.raiseFocus",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -151,7 +151,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Intellect Ability: Spell Raises Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
+              "text": "Supports the Intellect Ability: Raise Focus Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
             },
             "specials": [],
             "lvl": 1

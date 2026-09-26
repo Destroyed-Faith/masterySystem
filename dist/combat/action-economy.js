@@ -211,6 +211,27 @@ function totalStoneCapacityFromAttributes(actor) {
     return sum;
 }
 /**
+ * Spell Action used to add a second attack pile on top of Extra Attack.
+ * Drop that pile on read so a fight already in progress stops counting it.
+ * Mutating the stored object makes the correction stick: a later save writes
+ * extraSpellActions 0, and a second read does not subtract again.
+ */
+function retireSpellActionAttacks(state) {
+    const sb = state.stoneBonuses;
+    if (!sb)
+        return;
+    const extra = Math.max(0, Math.floor(Number(sb.extraSpellActions) || 0));
+    if (extra <= 0)
+        return;
+    const attack = state.attackActions ?? { total: 0, used: 0 };
+    attack.total = Math.max(0, Math.floor(Number(attack.total) || 0) - extra);
+    const used = Math.max(0, Math.floor(Number(attack.used) || 0));
+    attack.used = Math.min(used, attack.total);
+    state.attackActions = attack;
+    sb.extraAttacks = Math.max(0, Math.floor(Number(sb.extraAttacks) || 0) - extra);
+    sb.extraSpellActions = 0;
+}
+/**
  * Get round state from actor flags
  */
 export function getRoundState(actor, combat) {
@@ -227,6 +248,7 @@ export function getRoundState(actor, combat) {
     if (stored &&
         stored.round === round &&
         storedCombatId === combatId) {
+        retireSpellActionAttacks(stored);
         // NPC ATK label / spend budget must follow live Angriffe/Runde edits.
         return reconcileNpcReactionActions(owner, reconcileNpcAttackActions(owner, stored));
     }
@@ -1399,7 +1421,10 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         (sb.spellKeepDice ?? 0) !== 0 ||
         (sb.ignoreWoundPenalties ?? 0) !== 0 ||
         (sb.spellAutoRaises ?? 0) !== 0 ||
+        (sb.spellRaiseTnBonus ?? 0) !== 0 ||
+        (sb.spellPenetration ?? 0) !== 0 ||
         (sb.spellResistanceBonus ?? 0) !== 0 ||
+        (sb.specialBoost ?? 0) !== 0 ||
         (sb.spellSpecialBoost ?? 0) !== 0 ||
         (sb.damageReductionBoostPct ?? 0) !== 0 ||
         (sb.tempWard ?? 0) !== 0 ||
@@ -1433,8 +1458,11 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
         extendActiveBuffRounds: 0,
         secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
         spellAutoRaises: 0,
+        spellRaiseTnBonus: 0,
+        spellPenetration: 0,
         spellResistanceBonus: 0,
         extraSpellActions: sb.extraSpellActions ?? 0,
+        specialBoost: 0,
         spellSpecialBoost: 0,
         damageReductionBoostPct: 0,
         incomingSpecialReduction: 0,

@@ -5,13 +5,14 @@
  * time. Spells reuse the Raise engine, but their resolution differs from a
  * standard attack:
  *
- *   Spell Attack → pool = casting attribute, keep = mastery rank,
- *                  TN = (8 × caster Mastery Rank) − 2 (+4 for Mental Powers)
- *                       + Target Spell Resistance + 4 × declared raises.
+ *   Casting Roll → pool = casting attribute, keep = mastery rank.
+ *   Spell Base TN = (8 × caster Mastery Rank) − 2. Mental Powers add +4.
+ *   Final Spell TN = Spell Base TN + target Spell Resistance.
+ *   Spell Penetration reduces only the Spell Resistance part, never the base.
  *
- *   Saving Throws were removed from the rules: a successful cast resolves the
- *   spell's full listed payload. Resistance only happens through explicitly
- *   named Attribute Checks created by individual rules.
+ *   Below the Spell Base TN (or Mental Power Base TN): the Spell fizzles and
+ *   the caster takes 1d8 Stress. Reaching the base but missing the Final TN
+ *   means the target resisted: no effect and no Stress.
  *
  * Raises (`+4` per Raise) are declared before the roll. **Blood Raises** cost
  * `4 HP` each (ignoring armor) and add `+4` to the final total *and* stamp the
@@ -23,6 +24,7 @@
 import { masteryRoll } from '../dice/roll-handler.js';
 import { computeRaiseTns, resolveRaiseOutcome } from './raise-resolution.js';
 import { RAISE_INCREMENT, standardTnForMasteryRank } from '../utils/constants.js';
+import { spellResistanceAfterPenetration } from './target-defenses.js';
 import { applyStress, applyDamage, isStressTrackCollapsed, calculateMaxPowerLevel, attributeScalingEnabled, } from '../utils/calculations.js';
 /** Flag scope used for persistent spell-related state on actors. */
 const FLAG_SCOPE = 'mastery-system';
@@ -46,13 +48,11 @@ export function canCastSpellAtLevel(masteryRank, spellLevel) {
  * Spell Base TN (Players Guide "Casting Roll"): **(8 × caster Mastery Rank) − 2**,
  * independent of the Power Level of the spell being cast.
  *
- *   MR 1 → 8, MR 2 → 16, … MR 8 → 64.
+ *   MR 1 → 6, MR 2 → 14, … MR 8 → 62.
  *
  * Mental Powers (Mental Attack, Mind Illusion, Mind Probe, Mental Control)
- * use `Mental Power Base TN = Spell Base TN + 4`.
- *
- * `Final Spell TN = Spell Base TN + Target Spell Resistance` — SR is added by
- * the caller (it is per-target).
+ * use `Mental Power Base TN = Spell Base TN + 4`. That mental base is the
+ * fizzle line. Final TN adds the target's Spell Resistance after Penetration.
  */
 export function castingBaseTnForMasteryRank(masteryRank, opts) {
     const mr = Math.max(1, Math.min(8, Math.floor(Number(masteryRank) || 1)));
@@ -213,8 +213,10 @@ export async function rollSpell(params) {
     const keepDice = Math.max(1, masteryRank);
     const bloodApplied = Math.max(0, Math.floor(bloodRaises));
     const raiseSlots = Math.max(0, Math.floor(declaredRaiseSlots ?? declaredRaises ?? 0));
-    const baseTn = castingBaseTnForMasteryRank(masteryRank, { mental: mentalPower }) +
+    const spellBase = castingBaseTnForMasteryRank(masteryRank, { mental: mentalPower }) +
         (Number(gmModifier) || 0);
+    const effectiveSr = target && !supportMode ? spellResistanceAfterPenetration(target, actor) : 0;
+    const baseTn = spellBase + effectiveSr;
     const { raiseTn } = computeRaiseTns(baseTn, raiseSlots);
     // HP cost for Blood Raises fires *before* the roll per the SRD wording.
     let bloodHpLost = 0;
@@ -262,10 +264,11 @@ export async function rollSpell(params) {
         /* ignore */
     }
     const raiseOutcome = resolveRaiseOutcome(adjustedTotal, baseTn, raiseSlots, raiseTnRollBonus);
-    const success = raiseOutcome !== 'fail';
+    const fizzled = adjustedTotal < spellBase;
+    const success = !fizzled && raiseOutcome !== 'fail';
     const raises = raiseOutcome === 'full' ? raiseSlots : 0;
     let stressTaken = 0;
-    if (!success) {
+    if (fizzled) {
         stressTaken = await applyFizzleStress(actor);
     }
     return {

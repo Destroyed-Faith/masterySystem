@@ -2,6 +2,7 @@
  * XP Management Settings Application
  * Allows GM to view character XP spending and grant XP allowances
  */
+import { appraiseBuild } from '../progression/build-value.js';
 import { nextLifetimeXp } from '../progression/v099-rules.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
 import { openXpHistoryDialog } from '../utils/xp-history.js';
@@ -66,6 +67,19 @@ export class XpManagementSettings extends BaseApplication {
                 }
             };
         });
+        data.buildValues = game.user?.isGM === false ? [] : characters.map((actor) => {
+            const value = appraiseBuild(actor);
+            return {
+                id: actor.id,
+                name: actor.name,
+                hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
+                afterSpend: value.net + value.unspentFreeXp,
+                ...value,
+                skillBasisLabel: value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel',
+                skillNote: value.notes.filter((note) => note.startsWith('Skill-Start')).join(' '),
+                artifactNote: value.notes.filter((note) => note.includes('L')).join(' ') || 'Stufe 1 und Aktivieren: 0',
+            };
+        });
         return data;
     }
     // Implement required methods for ApplicationV2 with Handlebars
@@ -83,6 +97,23 @@ export class XpManagementSettings extends BaseApplication {
     }
     activateListeners(html) {
         super.activateListeners(html);
+        const applyXpTarget = () => {
+            const raw = String(html.find('.xp-target-input').val() ?? '').trim();
+            const goal = raw === '' ? 0 : Math.floor(Number(raw));
+            const hasTarget = Number.isFinite(goal) && goal > 0;
+            html.find('tr[data-after-spend]').each((_, rowEl) => {
+                const row = $(rowEl);
+                const after = Math.floor(Number(row.attr('data-after-spend')) || 0);
+                const need = hasTarget ? Math.max(0, goal - after) : 0;
+                row.find('.xp-to-target').text(hasTarget ? String(need) : '—');
+                row.find('.free-xp-amount-input').val(hasTarget ? need : 0);
+            });
+        };
+        html.find('.xp-target-input').on('input', applyXpTarget);
+        html.find('.xp-target-input').on('keydown', (event) => {
+            if (event.key === 'Enter')
+                event.preventDefault();
+        });
         // Helper function to get XP state
         const getXpState = (actor) => {
             const system = actor.system || {};
@@ -216,6 +247,44 @@ export class XpManagementSettings extends BaseApplication {
             pushXpHistory(actor, historyEntry);
             await actor.update({ 'system.xp.history': actor.system.xp.history });
             ui.notifications?.info(`Granted ${amount} Free XP to ${actor.name}.`);
+            this.render();
+        });
+        html.find('.deduct-free-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            if (!game.user?.isGM)
+                return;
+            const characterId = button.data('character-id');
+            const requested = parseInt(button.siblings('.free-xp-amount-input').val()) || 0;
+            if (requested <= 0) {
+                ui.notifications?.warn('Bitte einen Betrag größer als 0 eingeben.');
+                return;
+            }
+            const actor = game.actors?.get(characterId);
+            if (!actor)
+                return;
+            const xpState = getXpState(actor);
+            const amount = Math.min(requested, Math.max(0, xpState.freeAvailable));
+            if (amount <= 0) {
+                ui.notifications?.warn(`${actor.name} hat keine freien Bonus-XP zum Zurücknehmen.`);
+                return;
+            }
+            await actor.update({
+                'system.points.xpFree': xpState.freeAvailable - amount,
+                'system.xp.freeEarned': Math.max(0, xpState.freeEarned - amount),
+            });
+            pushXpHistory(actor, {
+                ts: Date.now(),
+                userId: game.user?.id || '',
+                userName: game.user?.name || 'GM',
+                kind: 'adjust',
+                category: 'xp',
+                amount: -amount,
+                note: 'GM: Free XP zurückgenommen (nicht ausgegeben).',
+                before: { freeAvailable: xpState.freeAvailable },
+                after: { freeAvailable: xpState.freeAvailable - amount },
+            });
+            await actor.update({ 'system.xp.history': actor.system.xp.history });
+            ui.notifications?.info(`${actor.name}: ${amount} Bonus-XP zurückgenommen.`);
             this.render();
         });
         // Handle bulk grant

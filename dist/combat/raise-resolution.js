@@ -28,7 +28,7 @@ export function computeRaiseTns(normalTn, declaredRaiseSlots) {
  * but not Raise TN.
  */
 export function resolveRaiseOutcome(total, normalTn, declaredRaiseSlots, 
-/** Intellect Spell Raises: bonus applied only when checking Raise TN. */
+/** Intellect Raise Focus: bonus applied only when checking Raise TN. */
 raiseTnRollBonus = 0) {
     const t = Number(total) || 0;
     const normal = Math.max(0, Math.floor(normalTn));
@@ -241,7 +241,7 @@ export function buildAvailableRaiseOptions(snapshot, isSpell) {
         const name = displaySpecialName(sp.key);
         options.push({
             id: `special:${sp.key}`,
-            label: `${name}(${sp.rank})`,
+            label: `${name} an (Rang ${sp.rank})`,
             effect: 'specialPlus',
             targetSpecialKey: sp.key,
             printedRank: sp.rank,

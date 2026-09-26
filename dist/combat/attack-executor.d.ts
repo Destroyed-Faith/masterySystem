@@ -3,7 +3,7 @@
  * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
 import type { RadialCombatOption } from "../token-radial-menu";
-export { getTargetEvade, getTargetSpellResistance } from "./target-defenses.js";
+export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 /** Bookkeeping for a single strike of a split-attack pair. */
 interface SplitContext {
     splitPairId: string;

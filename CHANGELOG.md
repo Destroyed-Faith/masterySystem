@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.589] - 2026-09-26
+
+### Changed
+
+- **DF Core 0.9.9.1:** Spell Action ist entfernt. Extra Attack bleibt die einzige zusätzliche Angriffsquelle. Spell Penetration ignoriert 4/8/12/16 Spell Resistance und senkt die Base TN nie.
+- **Raise Focus:** Ersetzt Spell Raises. Der Bonus gilt für Martial- und Spell-Würfe nur gegen die Raise TN.
+- **Special Boost:** Premium. Jede numerische Special(X), die der Charakter in der Runde anwendet, steigt um +2/+4/+8/+12.
+- **Zauber:** Unter der Base TN Fizzle mit 1d8 Stress. Zwischen Base und Final Spell TN widerstanden, ohne Stress. Spell Delivery addiert keinen Waffenschaden.
+- **Parry:** Verbraucht nur die Basis-Attack Action. Martial zieht Attack Dice ab, Spell zieht Casting Dice innerhalb von 22 m ab. 0 Würfel ist Fully Parried oder Fully Countered.
+
 ## [0.9.588] - 2026-09-25
 
 ### Changed

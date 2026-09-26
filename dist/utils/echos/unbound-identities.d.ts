@@ -17,7 +17,7 @@ export declare const UNBOUND_PREDATOR_STONES: readonly [{
     readonly artifactKey: "predatorCrownWits";
 }, {
     readonly key: "intellect";
-    readonly label: "Intellect — Spell Raises";
+    readonly label: "Intellect — Raise Focus";
     readonly artifactKey: "predatorCrownIntellect";
 }];
 export type UnboundPredatorStone = (typeof UNBOUND_PREDATOR_STONES)[number]['key'];

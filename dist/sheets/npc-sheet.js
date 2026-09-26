@@ -156,6 +156,7 @@ function readLiveNpcAttackFormFields(root, path) {
     pick('npcStressD8', true);
     pick('npcIsSpell');
     pick('npcSplitAttack');
+    pick('npcCrit');
     return out;
 }
 /** Coerce sheet / FormData strings so attack & damage pool &lt;select&gt; `eq` matches. */
@@ -201,6 +202,12 @@ function normalizeNpcAttackRowForContext(row) {
     }
     else {
         delete o.npcIsSpell;
+    }
+    if (o.npcCrit === true || o.npcCrit === 'true' || o.npcCrit === 'on') {
+        o.npcCrit = true;
+    }
+    else {
+        delete o.npcCrit;
     }
     {
         const apr = Math.floor(Number(o.npcAttacksPerRound));

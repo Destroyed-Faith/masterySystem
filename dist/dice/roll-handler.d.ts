@@ -112,7 +112,7 @@ export interface RollOptions {
     raiseModel?: 'power' | 'skill' | 'margin';
     /** Blood Raises: each adds +4 to the roll total (HP cost handled by caller). */
     bloodRaises?: number;
-    /** Bonus added only when checking Raise TN (Intellect Spell Raises stone). */
+    /** Bonus added only when checking Raise TN (Intellect Raise Focus). */
     raiseTnRollBonus?: number;
     /**
      * Pool & Keep Guaranteed Eights already chosen by the caller.

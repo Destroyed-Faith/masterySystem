@@ -274,7 +274,7 @@ export function openStoneSlotChoice(args) {
     if (!DialogCtor)
         return Promise.resolve({ kind: 'cancel' });
     const attrButtons = args.attributeChoices
-        .map((key) => `<button type="button" class="v099-pick" data-choice="attribute" data-key="${key}">${ATTRIBUTE_ABBREV[key]} (${args.counts[key] ?? 0})</button>`)
+        .map((key) => `<button type="button" class="v099-pick" data-choice="attribute" data-key="${key}"><span class="v099-pick-abbrev">${ATTRIBUTE_ABBREV[key]}</span><span class="v099-pick-count">${args.counts[key] ?? 0}</span></button>`)
         .join('');
     const colorlessBtn = args.colorless
         ? `<button type="button" class="v099-pick" data-choice="colorless">Combine with another box into a Permanent Colorless Stone</button>`
@@ -295,15 +295,15 @@ export function openStoneSlotChoice(args) {
         const dialog = new DialogCtor({
             title: args.label,
             content: `<form class="v099-respec-form" onsubmit="return false;">
-          <p>Choose where this Stone goes. A Permanent Colorless Stone takes this box and one other open box.</p>
-          <div class="v099-pick-list">${attrButtons}${colorlessBtn}${clearBtn}</div>
+          <p class="v099-pick-intro">Choose where this Stone goes. A Permanent Colorless Stone takes this box and one other open box.</p>
+          <div class="v099-pick-list"><div class="v099-pick-attrs">${attrButtons}</div>${colorlessBtn}${clearBtn}</div>
         </form>`,
             buttons: {
                 cancel: { label: 'Cancel', callback: () => finish({ kind: 'cancel' }) },
             },
             default: 'cancel',
             close: () => finish({ kind: 'cancel' }),
-        }, { width: 460, classes: ['v099-respec-dialog'] });
+        }, { width: 460, classes: ['mastery-system', 'v099-respec-dialog', 'v099-stone-choice'] });
         dialog.activateListeners = function activate(html) {
             DialogCtor.prototype?.activateListeners?.call(dialog, html);
             const root = dialogRoot(dialog, html);
@@ -357,13 +357,13 @@ function openPartnerChoice(label, partners) {
         const dialog = new DialogCtor({
             title: `${label} — second box`,
             content: `<form class="v099-respec-form" onsubmit="return false;">
-          <p>A Permanent Colorless Stone replaces two Stones. Choose the second open box.</p>
+          <p class="v099-pick-intro">A Permanent Colorless Stone replaces two Stones. Choose the second open box.</p>
           <div class="v099-pick-list">${buttons}</div>
         </form>`,
             buttons: { cancel: { label: 'Cancel', callback: () => finish(null) } },
             default: 'cancel',
             close: () => finish(null),
-        }, { width: 420, classes: ['v099-respec-dialog'] });
+        }, { width: 420, classes: ['mastery-system', 'v099-respec-dialog', 'v099-stone-choice'] });
         dialog.activateListeners = function activate(html) {
             DialogCtor.prototype?.activateListeners?.call(dialog, html);
             const root = dialogRoot(dialog, html);

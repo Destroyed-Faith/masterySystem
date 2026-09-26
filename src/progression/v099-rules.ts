@@ -1,5 +1,6 @@
 /**
- * Destroyed Faith DF Core v0.9.9.0 — compressed Attributes, Lifetime XP Stones,
+ * Destroyed Faith DF Core. Schema stays v0.9.9.0 so the attribute migration
+ * does not replay. The live rules label is DF Core v0.9.9.1.
  * Guaranteed Eight, Target Numbers, Martial Damage, and Stone Ability tier cap.
  *
  * Skill XP costs stay on the existing 1–32 band table. Do not route Skills
@@ -10,6 +11,8 @@ import { deriveMasteryRankFromStones } from '../utils/mastery-rank-sync.js';
 import { standardTnForMasteryRank as standardTnFromConstants } from '../utils/constants.js';
 
 export const V099_SCHEMA_VERSION = '0.9.9.0';
+/** Rules text currently implemented. Does not replay the 0.9.9.0 migration. */
+export const DF_CORE_RULES_VERSION = '0.9.9.1';
 
 export const ATTRIBUTE_KEYS = [
   'might',

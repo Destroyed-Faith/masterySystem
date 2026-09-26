@@ -6,9 +6,9 @@
  * - Universal four-Rank costs (Normal 1/2/4/8, Premium 2/4/6/8)
  * - Pool deduction and round state updates
  */
-import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions, getActionEconomyActor, getStoneUsageCount, getGenericStonePowerUsageCount } from '../combat/action-economy.js';
+import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions, getActionEconomyActor, getStoneUsageCount, getGenericStonePowerUsageCount, incrementStoneUsage, incrementGenericStonePowerUsage } from '../combat/action-economy.js';
 // Import canonical stone powers definition
-import { STONE_POWERS, STONE_TIER_HARD_MAX, resolveOncePerCombatStoneTier, resolveStonePowerId, tierForUseIndex, stonePowerRankCost, stonePowerSupportPrefillApplies, effectiveStoneSupportPrefillTier, } from './stone-powers.js';
+import { STONE_POWERS, STONE_TIER_HARD_MAX, resolveOncePerCombatStoneTier, resolveStonePowerId, tierForUseIndex, stonePowerRankCost, stonePowerSupportPrefillApplies, effectiveStoneSupportPrefillTier, isRetiredStonePower, RETIRED_STONE_POWER_MESSAGE, } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
 import { isOncePerCombatPowerUsed, markOncePerCombatPowerUsed } from './colorless-stones.js';
 import { payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID } from './remove-scar.js';
@@ -53,6 +53,10 @@ export async function activateStonePower(options) {
         ui.notifications?.error(`Unknown stone power: ${abilityId}`);
         return false;
     }
+    if (isRetiredStonePower(power.id)) {
+        ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
+        return false;
+    }
     if (power.oncePerCombat && isOncePerCombatPowerUsed(combatant, power.id)) {
         ui.notifications?.warn(`${power.name} may be used only once per combat.`);
         return false;
@@ -87,15 +91,22 @@ export async function activateStonePower(options) {
         ? getGenericStonePowerUsageCount(actor, abilityId, combat)
         : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
     const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
-    const cluster = power.oncePerCombat && placedCount != null
+    const cluster = power.oncePerCombat && placedCount != null && options.tier == null
         ? resolveOncePerCombatStoneTier(abilityId, placedCount, prefillTier)
         : null;
     if (cluster && cluster.tier < 1) {
         return false;
     }
-    const resolved = cluster
-        ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)), legal: true }
-        : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+    const explicitRank = options.tier != null && options.cost != null;
+    const resolved = explicitRank
+        ? {
+            tier: Math.floor(Number(options.tier)),
+            cost: Math.max(0, Math.floor(Number(options.cost))),
+            legal: Math.floor(Number(options.tier)) >= 1 && Math.floor(Number(options.tier)) <= STONE_TIER_HARD_MAX,
+        }
+        : cluster
+            ? { tier: cluster.tier, cost: Math.max(0, Math.floor(Number(placedCount) || 0)), legal: true }
+            : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
     const { tier, cost } = resolved;
     if (tier > 4 || !resolved.legal) {
         ui.notifications?.warn(`${power.name} ends at Rank 4.`);
@@ -108,6 +119,8 @@ export async function activateStonePower(options) {
     if (ok && power.oncePerCombat) {
         await markOncePerCombatPowerUsed(combatant, power.id);
     }
+    if (ok)
+        await recordExtraStoneRankUsage(actor, abilityId, poolAttribute, options.ranksGained);
     return ok;
 }
 /**
@@ -131,15 +144,44 @@ export async function activateGenericStonePowerMixed(options) {
     // any equipped artifact (attribute-agnostic match). The pre-filled Rank
     // costs nothing; the other Ranks are paid from the chosen pools.
     const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
-    const resolved = resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
+    const explicitRank = options.tier != null && options.cost != null;
+    const resolved = explicitRank
+        ? {
+            tier: Math.floor(Number(options.tier)),
+            cost: Math.max(0, Math.floor(Number(options.cost))),
+            legal: Math.floor(Number(options.tier)) >= 1 &&
+                Math.floor(Number(options.tier)) <= STONE_TIER_HARD_MAX,
+        }
+        : resolveStonePowerActivation(abilityId, rawUsesBefore, prefillTier);
     const { tier, cost } = resolved;
     if (tier > 4 || !resolved.legal) {
         ui.notifications?.warn(`${power.name} ends at Rank 4.`);
         return false;
     }
-    return spendGenericStoneAbilityWithPerAttributeDeductions(actor, combatant, abilityId, perAttributeStones, async (_roundState) => {
+    const ok = await spendGenericStoneAbilityWithPerAttributeDeductions(actor, combatant, abilityId, perAttributeStones, async (_roundState) => {
         await power.apply({ actor, combatant, tier, cost });
     }, cost);
+    if (ok)
+        await recordExtraStoneRankUsage(actor, abilityId, undefined, options.ranksGained);
+    return ok;
+}
+/**
+ * Spend already records the first Rank. Further complete Ranks on the same
+ * card need the remaining usage steps so the next wave starts at the right cost.
+ */
+async function recordExtraStoneRankUsage(actor, abilityId, attribute, ranksGained) {
+    const steps = Math.max(1, Math.floor(Number(ranksGained) || 1));
+    if (steps <= 1)
+        return;
+    const combat = game.combat ?? null;
+    for (let i = 1; i < steps; i += 1) {
+        if (abilityId.startsWith('generic.')) {
+            await incrementGenericStonePowerUsage(actor, abilityId, combat);
+        }
+        else if (attribute) {
+            await incrementStoneUsage(actor, attribute, abilityId, combat);
+        }
+    }
 }
 /**
  * Get available stone powers for an actor

@@ -177,6 +177,10 @@ export function sanitizeNpcAttackTargetingFields(row) {
         out.npcAoeRadiusM = 0;
         out.npcAoeShape = 'none';
     }
+    if (npcAttackExplodesOn7(out))
+        out.npcCrit = true;
+    else
+        delete out.npcCrit;
     if (isRanged) {
         const maxM = Number.isFinite(metersRaw) && metersRaw >= 8 ? Math.min(48, metersRaw) : 24;
         out.npcRangeMeters = maxM;
@@ -675,6 +679,11 @@ export function npcAttackDiceCountIsBlank(attack) {
         return false;
     return raw == null || raw === '' || !Number.isFinite(n);
 }
+/** True when this NPC power's attack dice explode on 7 and 8 (player Crit). */
+export function npcAttackExplodesOn7(attack) {
+    const v = attack?.npcCrit;
+    return v === true || v === 'true' || v === 'on' || v === 1 || v === '1';
+}
 /**
  * To-hit pool for an NPC or summon at click time.
  * The token row wins when it has a stored count (including 0 and 2).
@@ -701,12 +710,14 @@ export function resolveNpcSheetToHit(args) {
             dice: 6,
             keep: Math.max(1, Math.floor(Number(args.masteryRank) || 1)),
             name: '',
+            crit: false,
         };
     }
     return {
         dice: npcAttackDiceCount(row),
         keep: npcAttackKeepDice(row, args.masteryRank),
         name: String(row.name || '').trim(),
+        crit: npcAttackExplodesOn7(row),
     };
 }
 /**

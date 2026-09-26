@@ -109,7 +109,7 @@ export function resolveRaiseOutcome(
   total: number,
   normalTn: number,
   declaredRaiseSlots: number,
-  /** Intellect Spell Raises: bonus applied only when checking Raise TN. */
+  /** Intellect Raise Focus: bonus applied only when checking Raise TN. */
   raiseTnRollBonus = 0,
 ): RaiseOutcome {
   const t = Number(total) || 0;

@@ -49,3 +49,22 @@ export function getTargetSpellResistance(targetActor: any): number {
       stoneBonus,
   );
 }
+
+/** Intellect Spell Penetration on the caster. Never applied to a Base TN. */
+export function getCasterSpellPenetration(caster: any): number {
+  if (!caster) return 0;
+  try {
+    const rs = caster.getFlag?.('mastery-system', 'roundState');
+    return Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellPenetration ?? 0) || 0));
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * Spell Resistance after Spell Penetration.
+ * Penetration subtracts only from SR, floors at 0, and does not touch Base TN.
+ */
+export function spellResistanceAfterPenetration(targetActor: any, caster: any): number {
+  return Math.max(0, getTargetSpellResistance(targetActor) - getCasterSpellPenetration(caster));
+}

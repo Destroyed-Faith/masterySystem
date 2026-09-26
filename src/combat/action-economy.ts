@@ -221,7 +221,9 @@ export interface RoundState {
     entered: boolean;
     pool: number;
     max: number;
-    attribute: 'might' | 'agility';
+    attribute: 'might' | 'agility' | 'intellect' | 'resolve' | 'influence';
+    /** Martial strips Attack Dice. Spell strips Casting Dice (Fully Countered). */
+    delivery?: 'martial' | 'spell';
   };
   stoneBonuses?: {
     extraAttacks: number;
@@ -258,8 +260,12 @@ export interface RoundState {
     secondChanceFreeBoxes?: number;
     /** Vitality.ExtendActiveBuff — +rounds for the next Active Buff activated this turn (consumed on activation). */
     extendActiveBuffRounds?: number;
-    /** Intellect.SpellRaises — +4 per tier to meet Raise TN only (not Normal TN). */
+    /** Intellect.Raise Focus — bonus to meet Raise TN only (not the normal success TN). */
     spellRaiseTnBonus?: number;
+    /** Intellect.Spell Penetration — Spell Resistance ignored. Never reduces Base TN. */
+    spellPenetration?: number;
+    /** Intellect.Special Boost — added to every numeric Special(X) you apply this round. */
+    specialBoost?: number;
     /** @deprecated Use spellRaiseTnBonus — legacy bonus-d8 path removed. */
     spellAutoRaises?: number;
     /** Intellect.SpellResistance — +TN vs Spells that directly target you until next turn. */
@@ -270,7 +276,7 @@ export interface RoundState {
      * the only extra-attack source.
      */
     extraSpellActions?: number;
-    /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
+    /** @deprecated Mirror of specialBoost. Kept so older turn-cleanup still sees the bonus. */
     spellSpecialBoost?: number;
     /** Resolve.Damage Reduction — additional %DR until next turn (creates DR if missing). */
     damageReductionBoostPct?: number;
@@ -1810,7 +1816,10 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.spellKeepDice ?? 0) !== 0 ||
     (sb.ignoreWoundPenalties ?? 0) !== 0 ||
     (sb.spellAutoRaises ?? 0) !== 0 ||
+    (sb.spellRaiseTnBonus ?? 0) !== 0 ||
+    (sb.spellPenetration ?? 0) !== 0 ||
     (sb.spellResistanceBonus ?? 0) !== 0 ||
+    (sb.specialBoost ?? 0) !== 0 ||
     (sb.spellSpecialBoost ?? 0) !== 0 ||
     (sb.damageReductionBoostPct ?? 0) !== 0 ||
     (sb.tempWard ?? 0) !== 0 ||
@@ -1843,8 +1852,11 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     extendActiveBuffRounds: 0,
     secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
     spellAutoRaises: 0,
+    spellRaiseTnBonus: 0,
+    spellPenetration: 0,
     spellResistanceBonus: 0,
     extraSpellActions: sb.extraSpellActions ?? 0,
+    specialBoost: 0,
     spellSpecialBoost: 0,
     damageReductionBoostPct: 0,
     incomingSpecialReduction: 0,

@@ -4,7 +4,7 @@
  * Every Stone Ability has exactly four Ranks; Rank 4 is the hard cap.
  * Normal Abilities cost 1 / 2 / 4 / 8 additional Stones (1 / 3 / 7 / 15
  * total). The eight Premium Abilities (Extra Attack, Parry, Crit, Damage
- * Negation, Spell Action, Damage Reduction, Not a Target, Phasing) cost
+ * Negation, Special Boost, Damage Reduction, Not a Target, Phasing) cost
  * 2 / 4 / 6 / 8 additional Stones (2 / 6 / 12 / 20 total).
  *
  * Pool layout: Generic + 7 attribute pools (Might / Agility / Vitality /
@@ -66,8 +66,16 @@ export declare function resolveStonePowerId(powerId: string): string;
  * Premium Stone Abilities (PG "Premium Stone Abilities"): 2 / 4 / 6 / 8
  * additional Stones per Rank. All other Abilities are Normal (1 / 2 / 4 / 8).
  */
-export declare const PREMIUM_STONE_POWER_IDS: readonly ["generic.extraAttack", "might.parry", "agility.crit", "vitality.damageNegation", "intellect.spellAction", "resolve.damageReduction", "influence.notATarget", "wits.phasing"];
+export declare const PREMIUM_STONE_POWER_IDS: readonly ["generic.extraAttack", "might.parry", "agility.crit", "vitality.damageNegation", "intellect.specialBoost", "resolve.damageReduction", "influence.notATarget", "wits.phasing"];
 export declare function isPremiumStonePower(powerId: string): boolean;
+/**
+ * Removed abilities. They are not in the registry. Old saves that still name
+ * the id are refused so they do not become Spell Penetration.
+ * Extra Attack is the only source of extra attacks (spells, ranged, and martial).
+ */
+export declare const RETIRED_STONE_POWER_IDS: readonly ["intellect.spellAction"];
+export declare function isRetiredStonePower(powerId: string): boolean;
+export declare const RETIRED_STONE_POWER_MESSAGE = "Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks. Spell Penetration is a different ability.";
 /** Per-Rank payment segment sizes for one Ability (Normal 1/2/4/8, Premium 2/4/6/8). */
 export declare function stonePowerSegmentSizes(powerId: string): readonly number[];
 /** Additional Stones to activate `rank` (1..4) of this Ability. 0 outside 1..4. */
@@ -85,6 +93,37 @@ export declare function scaleStoneTier(seq: readonly number[], tier: number): nu
  * to the result must be covered by the placed Stones in order.
  */
 export declare function highestCompleteStoneTierFromPlaced(powerId: string, placed: number, prefillRank?: number, maxTier?: number): number;
+/**
+ * Ranks a single Apply can turn on from the stones sitting on the card.
+ * Costs are additional and in order (Premium Extra Attack: 2, then 4).
+ * Six stones from Rank 0 therefore reach Rank 2 and spend all six — not
+ * only the first wave of two. A pre-filled Rank costs nothing and is
+ * included once the ranks below it are covered. Stones past the last
+ * complete Rank stay unspent (`placed - spendCount`).
+ */
+export interface CompleteStoneRankPayment {
+    /** Highest Rank reached, inclusive. */
+    tier: number;
+    /** Stones that pay the newly completed Ranks. */
+    spendCount: number;
+    /** How many usage steps this payment records. */
+    ranksGained: number;
+}
+export declare function completeStoneRankPayment(powerId: string, placed: number, usesBefore?: number, prefillRank?: number): CompleteStoneRankPayment | null;
+/** Payable lane indexes for Ranks `fromRank`..`toRank` (the pre-filled Rank is omitted). */
+export declare function paidLaneSetForStoneRanks(powerId: string, fromRank: number, toRank: number, prefillRank?: number): Set<number>;
+/**
+ * Split occupied lanes into the complete Rank prefix and the leftover.
+ * Returns null when the stone count would pay a Rank but those lanes are
+ * not actually filled (a gap). That pile must not be charged.
+ */
+export declare function partitionStoneLanesByCompleteRanks<T extends {
+    lane: number;
+}>(powerId: string, lanes: readonly T[], usesBefore?: number, prefillRank?: number): {
+    payment: CompleteStoneRankPayment;
+    spend: T[];
+    leftover: T[];
+} | null;
 /**
  * Once-per-combat powers apply the highest complete cluster once. A Support
  * prefill makes its named Rank free; every other Rank is paid from the

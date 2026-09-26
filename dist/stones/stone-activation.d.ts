@@ -38,6 +38,14 @@ export declare function activateStonePower(options: {
     colorlessSpent?: number;
     /** Stones sitting on the card — once-per-combat powers apply the highest complete tier. */
     placedCount?: number;
+    /**
+     * Several complete Ranks on one card. Apply `tier` once (the Rank's listed
+     * value, not the sum of every lower Rank) and record `ranksGained` usage
+     * steps. Omit both to buy only the next Rank.
+     */
+    tier?: number;
+    cost?: number;
+    ranksGained?: number;
 }): Promise<boolean>;
 /**
  * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
@@ -47,6 +55,10 @@ export declare function activateGenericStonePowerMixed(options: {
     combatant: Combatant;
     abilityId: string;
     perAttributeStones: Partial<Record<AttributeKey | 'colorless', number>>;
+    /** Several complete Ranks on one card — see `activateStonePower`. */
+    tier?: number;
+    cost?: number;
+    ranksGained?: number;
 }): Promise<boolean>;
 /**
  * Get available stone powers for an actor

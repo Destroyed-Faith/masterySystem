@@ -18,6 +18,7 @@ import {
 } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
+import { applySpecialBoostToLabel, readSpecialBoost } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
@@ -754,7 +755,7 @@ export async function showDamageDialog(
       shownPowerDamage = `${basePowerDice}d8`;
       const extra = resolvedPowerDice - basePowerDice;
       if (extra > 0) shownRaiseDamage = `+${extra}d8`;
-      shownSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot).join(', ');
+      shownSpecials = resolvedSpecials.join(', ');
       raiseOutcomeLine = '';
     } else if (outcome === 'partial') {
       const lostCost = flags.waiveRaiseCost
@@ -763,6 +764,11 @@ export async function showDamageDialog(
       shownPowerDamage = `${resolvedPowerDice}d8`;
       raiseOutcomeLine = lostCost > 0 ? `Raise verfehlt, −${lostCost}d8` : 'Raise verfehlt';
     }
+  }
+
+  const specialBoost = readSpecialBoost(actorToUse);
+  if (specialBoost > 0 && shownSpecials) {
+    shownSpecials = applySpecialBoostToLabel(shownSpecials, specialBoost);
   }
 
   let npcAutoDamageDice = 0;
@@ -1193,6 +1199,8 @@ async function calculatePassiveDamage(actor: Actor): Promise<string> {
 async function collectAvailableSpecials(actor: Actor, weapon: any | null, selectedPower?: any): Promise<SpecialOption[]> {
   const specials: SpecialOption[] = [];
   const items = (actor as any).items || [];
+  const specialBoost = readSpecialBoost(actor);
+  const boosted = (label: string) => applySpecialBoostToLabel(label, specialBoost);
   
   // Get power specials from selected power (e.g., "Lacerate(3)")
   if (selectedPower && selectedPower.specials && selectedPower.specials.length > 0) {
@@ -1210,16 +1218,17 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
         continue;
       }
       // Parse special name like "Lacerate(3)" to extract name and value
-      const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
+      const listed = boosted(specialName);
+      const match = listed.match(/^([^(]+)(?:\((\d+)\))?$/);
       if (match) {
         const specialNameOnly = match[1].trim();
         const specialValue = match[2] ? parseInt(match[2]) : null;
         specials.push({
           id: `power-special-${specialNameOnly.toLowerCase().replace(/\s+/g, '-')}`,
-          name: specialName, // Keep full name like "Lacerate(3)"
+          name: listed,
           type: 'power-special',
-          description: `Power special: ${specialName}`,
-          effect: specialName,
+          description: `Power special: ${listed}`,
+          effect: listed,
           value: specialValue ?? undefined
         });
       } else {
@@ -1281,12 +1290,13 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
     for (const raw of weaponSpecialsFromWeapon) {
       const special = normalizeWeaponSpecial(raw);
       if (!special) continue;
+      const listed = boosted(special);
       specials.push({
         id: `weapon-${special}`,
-        name: special,
+        name: listed,
         type: 'weapon',
-        description: `Weapon special: ${special}`,
-        effect: special
+        description: `Weapon special: ${listed}`,
+        effect: listed
       });
     }
   }

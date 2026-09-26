@@ -132,7 +132,7 @@ import {
 import { registerV099SchemaSetting, runV099CoreMigration } from './progression/v099-migration.js';
 import { runMartialSkillsRefundMigration } from './migrations/martial-skills-refund-migration.js';
 import { buildValueTableHtml } from './progression/build-value.js';
-import { nextLifetimeXp } from './progression/v099-rules.js';
+import { DF_CORE_RULES_VERSION, nextLifetimeXp } from './progression/v099-rules.js';
 import { runElorianStrideMigration } from './migrations/elorian-stride-migration.js';
 import { runEchoStoneSupportResyncMigration } from './migrations/echo-stone-support-resync.js';
 import { runTitanScarsAffinityMigration } from './migrations/titan-scars-affinity-migration.js';
@@ -2507,7 +2507,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     const priorFlags = data.flags?.['mastery-system'] || {};
     const explicitLife = data.system.progression.lifetimeXp;
     const lifetimeUnknown = priorFlags.needsV099LifetimeXp === true && typeof explicitLife !== 'number';
-    data.system.progression.rulesVersion = '0.9.9.0';
+    data.system.progression.rulesVersion = DF_CORE_RULES_VERSION;
     data.system.progression.v099Prepared = true;
     data.system.progression.v099Stones = true;
     if (!lifetimeUnknown) {

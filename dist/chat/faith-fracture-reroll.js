@@ -271,15 +271,13 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
         if (!root.length)
             return;
         const flags = message.flags?.['mastery-system'] || {};
-        if (flags.canReroll !== true || flags.faithRerollConsumed === true)
+        if (flags.canReroll !== true ||
+            flags.faithRerollConsumed === true ||
+            flags.isRerollResult === true ||
+            !flags.rollRecipe) {
+            root.find('.mastery-faith-reroll-bar').remove();
             return;
-        // A reroll result can never be rerolled again (max one reroll per roll).
-        if (flags.isRerollResult === true)
-            return;
-        if (!flags.rollRecipe)
-            return;
-        if (root.find('.faith-fracture-reroll-btn').length)
-            return;
+        }
         // Players Guide ~5522: 1 Reroll Point can either reroll your own roll or
         // **force the GM to reroll** their roll (e.g., a hit against you). We
         // detect whether the rolling actor is one the current user controls so
@@ -291,17 +289,21 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
         const btnTitle = isOwnRoll
             ? 'Spend 1 of this character\'s Reroll Points. Once per roll.'
             : 'Spend 1 Reroll Point from a character you play to force this roll to be rerolled. Once per roll.';
-        const bar = $(`<div class="mastery-faith-reroll-bar">
+        let bar = root.find('.mastery-faith-reroll-bar');
+        if (!bar.length) {
+            bar = $(`<div class="mastery-faith-reroll-bar">
     <button type="button" class="faith-fracture-reroll-btn" title="${btnTitle}">
       <i class="fas fa-sync-alt"></i> ${btnLabel}
     </button>
     <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table. Single-die abilities may still reroll individual dice afterwards (each die once).</span>
   </div>`);
-        root.append(bar);
-        bar.find('.faith-fracture-reroll-btn').on('click.faith-reroll', async (ev) => {
+            root.append(bar);
+        }
+        const btn = bar.find('.faith-fracture-reroll-btn');
+        btn.prop('disabled', false).attr('title', btnTitle).html(`<i class="fas fa-sync-alt"></i> ${btnLabel}`);
+        btn.off('click.faith-reroll').on('click.faith-reroll', async (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
-            const btn = bar.find('.faith-fracture-reroll-btn');
             if (btn.prop('disabled'))
                 return;
             btn.prop('disabled', true);

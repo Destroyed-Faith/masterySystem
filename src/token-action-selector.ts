@@ -1154,7 +1154,24 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     closeRadialMenu();
     try {
       const { enterParry } = await import('./combat/parry.js');
-      const result = await enterParry(actor, combat);
+      let delivery: 'martial' | 'spell' = 'martial';
+      const Dialog = (globalThis as any).Dialog;
+      if (Dialog?.wait) {
+        const choice = await Dialog.wait({
+          title: 'Parry',
+          content:
+            '<p>Parry has one pool and two deliveries. Martial strips Attack Dice (Might or Agility). Spell strips Casting Dice from a perceived direct Spell whose origin is within 22 m (Intellect, Resolve, or Influence). Entering spends only the base Attack Action.</p>',
+          buttons: {
+            martial: { label: 'Martial', callback: () => 'martial' },
+            spell: { label: 'Spell', callback: () => 'spell' },
+          },
+          default: 'martial',
+          close: () => null,
+        });
+        if (choice !== 'martial' && choice !== 'spell') return;
+        delivery = choice;
+      }
+      const result = await enterParry(actor, combat, { delivery });
       if (!result.ok) {
         ui.notifications?.warn(result.reason || 'Could not enter Parry.');
         return;

@@ -361,6 +361,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             }
             // Passive Parry: strip Attack Dice 1:1 before the roll. 0 dice = Fully Parried.
             let hasParryThisHit = false;
+            let spellFullyCountered = false;
             let defenderForParry = null;
             let parryFlavorNote = '';
             try {
@@ -376,10 +377,15 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 }
                 if (defenderForParry && combatForParry && numDice > 0) {
                     const { applyParryDiceStrip } = await import('../combat/parry.js');
-                    const strip = await applyParryDiceStrip(defenderForParry, combatForParry, numDice);
+                    const incomingSpell = flags.tnKind === 'casting';
+                    const strip = await applyParryDiceStrip(defenderForParry, combatForParry, numDice, {
+                        spell: incomingSpell,
+                        attacker: freshAttacker,
+                    });
                     if (strip.spent > 0) {
                         numDice = strip.remainingDice;
-                        hasParryThisHit = strip.fullyParried;
+                        spellFullyCountered = strip.fullyParried && strip.countered;
+                        hasParryThisHit = strip.fullyParried && !strip.countered;
                         if (strip.note)
                             parryFlavorNote = ` (${strip.note})`;
                     }
@@ -388,21 +394,28 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             catch (parryErr) {
                 console.warn('Mastery System | Parry strip failed', parryErr);
             }
-            // Fully Parried: no attack roll, no hit effects, no damage — open Riposte/Reflection window.
-            if (hasParryThisHit) {
-                button.html('<i class="fas fa-check"></i> Fully Parried').addClass('rolled');
+            // Fully Parried / Fully Countered: no roll, no hit effects, no damage.
+            // Weapon follow-ups (Riposte, Parry + Weapon Damage) only follow a Martial Full Parry.
+            if (hasParryThisHit || spellFullyCountered) {
+                const stopLabel = spellFullyCountered ? 'Fully Countered' : 'Fully Parried';
+                button.html(`<i class="fas fa-check"></i> ${stopLabel}`).addClass('rolled');
                 const atkName = String(freshAttacker?.name ?? 'Attacker');
                 const defName = String(defenderForParry?.name ?? 'Defender');
+                const stopDetail = spellFullyCountered
+                    ? `Fully Countered <strong>${atkName}</strong>'s Spell (0 Casting Dice). The Spell does not resolve.`
+                    : `Fully Parried <strong>${atkName}</strong>'s attack (0 Attack Dice). No damage.`;
                 try {
                     await globalThis.ChatMessage?.create?.({
                         user: game.user?.id,
                         speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: defenderForParry }),
-                        content: `<p class="mastery-reaction-msg"><strong>${defName}</strong> Fully Parried <strong>${atkName}</strong>'s attack (0 Attack Dice). No damage.</p>`,
+                        content: `<p class="mastery-reaction-msg"><strong>${defName}</strong> ${stopDetail}</p>`,
                     });
                 }
                 catch {
                     /* ignore */
                 }
+                if (spellFullyCountered)
+                    return;
                 try {
                     const combatForReactions = game.combat ?? null;
                     const { runInteractiveReactionWindow } = await import('../combat/reaction-window-chat.js');
@@ -513,10 +526,13 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 buffQuotaRemaining: syncedQuota.remaining,
                 stoneCritCharges: critBank,
             });
-            const attackExplodeDiceOn78 = critMod.explodeOn78;
+            const npcCrit = !!sheetToHit?.crit ||
+                flags.npcCrit === true ||
+                flags.npcCrit === 'true';
+            const attackExplodeDiceOn78 = critMod.explodeOn78 || npcCrit;
             const bloodRaises = 0;
             let raiseTnRollBonus = 0;
-            if (isSpellcasting && freshAttacker && combatRef) {
+            if (freshAttacker && combatRef) {
                 raiseTnRollBonus = Math.max(0, Number(rsCrit?.stoneBonuses?.spellRaiseTnBonus ?? 0) || 0);
             }
             // All targets of this attack (primary + AoE secondaries) — used by the
@@ -550,7 +566,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 declaredRaiseSlots,
                 raiseModel: 'power',
                 ...(bloodRaises > 0 && isSpellcasting ? { bloodRaises } : {}),
-                ...(raiseTnRollBonus > 0 && isSpellcasting ? { raiseTnRollBonus } : {}),
+                ...(raiseTnRollBonus > 0 ? { raiseTnRollBonus } : {}),
                 ...(typeof splitAttackDiceCap === 'number' && splitAttackDiceCap > 0
                     ? { attackDiceCap: splitAttackDiceCap }
                     : {}),
@@ -576,6 +592,28 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
                 }
                 await actionEco.setRoundState(economyForStones, rs2);
+            }
+            if (isSpellcasting) {
+                const spellBase = Math.floor(Number(flags.spellBaseTn));
+                const rolled = Math.floor(Number(result?.total) || 0);
+                if (Number.isFinite(spellBase) && spellBase > 0 && rolled < spellBase) {
+                    try {
+                        const { applyFizzleStress } = await import('../combat/spell-roll-handler.js');
+                        const caster = freshAttacker || game.actors?.get(flags.attackerId);
+                        if (caster) {
+                            const stress = await applyFizzleStress(caster);
+                            const casterName = String(caster?.name ?? 'Caster');
+                            await globalThis.ChatMessage?.create?.({
+                                user: game.user?.id,
+                                speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: caster }),
+                                content: `<p><strong>${casterName}</strong> fizzles (roll ${rolled} is below Base TN ${spellBase}) and takes <strong>${stress}</strong> Stress.</p>`,
+                            });
+                        }
+                    }
+                    catch (fizzleErr) {
+                        console.warn('Mastery System | fizzle stress failed', fizzleErr);
+                    }
+                }
             }
             const raiseOutcome = result.raiseOutcome ??
                 resolveRaiseOutcome(result.total, normalTn, declaredRaiseSlots);

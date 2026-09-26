@@ -204,13 +204,13 @@ const PREDATOR_CROWN_WITS = makePredatorCrown({
 
 const PREDATOR_CROWN_INTELLECT = makePredatorCrown({
   key: 'predatorCrownIntellect',
-  stoneLabel: 'Intellect — Spell Raises',
-  stoneTechnical: 'Intellect Ability: Spell Raises (choose one, Tier 2+)',
+  stoneLabel: 'Intellect — Raise Focus',
+  stoneTechnical: 'Intellect Ability: Raise Focus (choose one, Tier 2+)',
   stoneFunction: {
     level: 1,
     kind: 'stonePowerSupport',
     attribute: 'intellect',
-    stonePowerId: 'intellect.spellRaises',
+    stonePowerId: 'intellect.raiseFocus',
     name: 'Predator Stone',
   },
 });
@@ -283,7 +283,7 @@ const WITCH_STONE: [StageRow, StageRow, StageRow] = [
     range: 'Self',
     duration: 'Instant',
     effect: 'Pre-fill Tier 2. Tier 1 must still be paid.',
-    special: 'Intellect Ability: Spell Raises (Stone Power Support, Tier 2)',
+    special: 'Intellect Ability: Raise Focus (Stone Power Support, Tier 2)',
   },
   {
     name: 'Witch Stone II',
@@ -291,7 +291,7 @@ const WITCH_STONE: [StageRow, StageRow, StageRow] = [
     range: 'Self',
     duration: 'Instant',
     effect: 'Pre-fill Tier 3. Tiers 1 and 2 must still be paid.',
-    special: 'Intellect Ability: Spell Raises (Stone Power Support, Tier 3)',
+    special: 'Intellect Ability: Raise Focus (Stone Power Support, Tier 3)',
   },
   {
     name: 'Witch Stone III',
@@ -299,7 +299,7 @@ const WITCH_STONE: [StageRow, StageRow, StageRow] = [
     range: 'Self',
     duration: 'Instant',
     effect: 'Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.',
-    special: 'Intellect Ability: Spell Raises (Stone Power Support, Tier 4)',
+    special: 'Intellect Ability: Raise Focus (Stone Power Support, Tier 4)',
   },
 ];
 
@@ -332,7 +332,7 @@ function makeWitchStaff(opts: {
       level: 1,
       kind: 'stonePowerSupport',
       attribute: 'intellect',
-      stonePowerId: 'intellect.spellRaises',
+      stonePowerId: 'intellect.raiseFocus',
       name: 'Witch Stone',
     },
     progressionPickSpecs: {

@@ -62,6 +62,8 @@ export interface RadialCombatOption {
     npcSplitAttack?: boolean;
     /** NSC-Angriff: Spell — Casting TN = (8 × MR) − 2 (+ Spell Resistance), nicht Evade. */
     npcIsSpell?: boolean;
+    /** NSC-Angriff: Angriffswürfel explodieren auf 7 und 8 (wie Spieler-Crit). */
+    npcCrit?: boolean;
     /** NSC-Angriff: Anzahl Radial-Kopien dieser Power (1–5). */
     npcAttacksPerRound?: number;
     /**

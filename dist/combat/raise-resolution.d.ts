@@ -71,7 +71,7 @@ export declare function computeRaiseTns(normalTn: number, declaredRaiseSlots: nu
  * but not Raise TN.
  */
 export declare function resolveRaiseOutcome(total: number, normalTn: number, declaredRaiseSlots: number, 
-/** Intellect Spell Raises: bonus applied only when checking Raise TN. */
+/** Intellect Raise Focus: bonus applied only when checking Raise TN. */
 raiseTnRollBonus?: number): RaiseOutcome;
 /** +MR Schaden once per attack. Each Special (Penetration, Precision, …) once as well. */
 export declare function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[];

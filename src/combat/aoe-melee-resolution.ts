@@ -14,7 +14,11 @@ import {
   spendReactionAction,
 } from './action-economy.js';
 import { actorParticipatesInReactions } from '../utils/npc-reactions.js';
-import { getTargetEvade, getTargetSpellResistance } from './attack-executor.js';
+import {
+  getTargetEvade,
+  getTargetSpellResistance,
+  spellResistanceAfterPenetration,
+} from './attack-executor.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
@@ -117,10 +121,15 @@ export function aoeCreatureNormalTn(params: {
   isSpell: boolean;
   /** Spell Base TN without SR (Final = base + this creature's SR). */
   spellBaseTn?: number | null;
+  /** Caster, so Spell Penetration reduces only this creature's SR. */
+  caster?: any;
 }): number {
   if (params.isSpell) {
     const base = Math.max(0, Math.floor(Number(params.spellBaseTn) || 0));
-    return base + getTargetSpellResistance(params.defender);
+    const sr = params.caster
+      ? spellResistanceAfterPenetration(params.defender, params.caster)
+      : getTargetSpellResistance(params.defender);
+    return base + sr;
   }
   return getTargetEvade(params.defender);
 }
@@ -410,6 +419,7 @@ export async function resolveAoeMeleeSecondaries(params: {
       defender,
       isSpell,
       spellBaseTn: params.spellBaseTn ?? flags.spellBaseTn ?? null,
+      caster: attacker,
     });
     const { hit, raiseTn } = aoeCreatureHitCheck({
       attackTotal,

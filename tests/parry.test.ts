@@ -74,7 +74,10 @@ describe('parry strip math', () => {
 });
 
 describe('parry enter + strip persistence', () => {
-  function makeDefender(id: string, opts?: { might?: number; agility?: number; level?: number }) {
+  function makeDefender(
+    id: string,
+    opts?: { might?: number; agility?: number; intellect?: number; level?: number },
+  ) {
     states.delete(id);
     return {
       id,
@@ -84,6 +87,9 @@ describe('parry enter + strip persistence', () => {
         attributes: {
           might: { value: opts?.might ?? 8 },
           agility: { value: opts?.agility ?? 4 },
+          intellect: { value: opts?.intellect ?? 0 },
+          resolve: { value: 0 },
+          influence: { value: 0 },
         },
       },
       items: [
@@ -111,17 +117,40 @@ describe('parry enter + strip persistence', () => {
     expect(pool.max).toBe(5); // min(12, Passive Parry L2 = 5)
   });
 
-  it('enterParry sets pool and spends Attack Actions', async () => {
+  it('enterParry spends only the base Attack Action', async () => {
     const def = makeDefender('def-enter', { might: 8, level: 2 });
     const combat = { id: 'c1', round: 1, turn: 0 } as any;
+    const rsBefore = getRoundState(def, combat);
+    rsBefore.attackActions.total = 3;
     const result = await enterParry(def, combat);
     expect(result.ok).toBe(true);
     expect(result.pool).toBe(5);
     const rs = getRoundState(def, combat);
     expect(rs.parry?.entered).toBe(true);
+    expect(rs.parry?.delivery).toBe('martial');
     expect(rs.parry?.pool).toBe(5);
-    expect(rs.attackActions.used).toBe(rs.attackActions.total);
+    expect(rs.attackActions.used).toBe(0);
+    expect(rs.attackActions.total).toBe(3);
     expect(rs.baseAttackLocked).toBe(true);
+  });
+
+  it('martial Parry does not strip a Spell, and Spell Parry does not strip an attack', async () => {
+    const def = makeDefender('def-delivery', { might: 8, intellect: 10, level: 2 });
+    const combat = { id: 'c1', round: 1, turn: 0 } as any;
+    await enterParry(def, combat, { delivery: 'martial' });
+    const spellStrip = await applyParryDiceStrip(def, combat, 4, { spell: true });
+    expect(spellStrip.spent).toBe(0);
+    expect(getRoundState(def, combat).parry?.pool).toBe(5);
+
+    const spellDef = makeDefender('def-spell', { intellect: 10, might: 2, level: 2 });
+    await enterParry(spellDef, combat, { delivery: 'spell' });
+    expect(getRoundState(spellDef, combat).parry?.attribute).toBe('intellect');
+    const martialStrip = await applyParryDiceStrip(spellDef, combat, 4, { spell: false });
+    expect(martialStrip.spent).toBe(0);
+    const countered = await applyParryDiceStrip(spellDef, combat, 4, { spell: true });
+    expect(countered.fullyParried).toBe(true);
+    expect(countered.countered).toBe(true);
+    expect(countered.remainingDice).toBe(0);
   });
 
   it('applyParryDiceStrip Fully Parries and depletes pool', async () => {

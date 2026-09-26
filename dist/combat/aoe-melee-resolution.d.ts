@@ -32,6 +32,8 @@ export declare function aoeCreatureNormalTn(params: {
     isSpell: boolean;
     /** Spell Base TN without SR (Final = base + this creature's SR). */
     spellBaseTn?: number | null;
+    /** Caster, so Spell Penetration reduces only this creature's SR. */
+    caster?: any;
 }): number;
 /**
  * Hit check for one creature against a shared AoE roll.

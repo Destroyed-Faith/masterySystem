@@ -13,4 +13,11 @@ export declare function getTargetEvade(targetActor: any): number;
 export declare function getTargetArmor(targetActor: any): number;
 /** Spell Resistance used vs spells (`attack-executor.getTargetSpellResistance`). */
 export declare function getTargetSpellResistance(targetActor: any): number;
+/** Intellect Spell Penetration on the caster. Never applied to a Base TN. */
+export declare function getCasterSpellPenetration(caster: any): number;
+/**
+ * Spell Resistance after Spell Penetration.
+ * Penetration subtracts only from SR, floors at 0, and does not touch Base TN.
+ */
+export declare function spellResistanceAfterPenetration(targetActor: any, caster: any): number;
 //# sourceMappingURL=target-defenses.d.ts.map

@@ -1122,13 +1122,15 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
     basePassive({
         id: 'passive-parry', name: 'Parry', subfamily: 'parry',
         passiveType: 'Passive, Parry',
-        fluff: 'Enter Parry instead of attacking — spend pool 1:1 to strip Attack Dice before the roll.',
+        fluff: 'Enter Parry by spending the base Attack Action. Extra Attacks remain. One pool, Martial or Spell delivery.',
         perLevel: (lvl) => {
             const pool = PARRY_POOL[lvl - 1]!;
             return {
                 text:
-                    `While in Parry (no Attack Action), Maximum Parry Pool **${pool}** ` +
-                    `(chosen Parry Attribute, limited by ceil(5 × Level / 2)). Spend 1:1 to remove Attack Dice before the roll; 0 dice = Fully Parried.`,
+                    `Entering Parry spends the base Attack Action. Extra Attacks remain. Maximum Parry Pool **${pool}** ` +
+                    `(chosen Parry Attribute, limited by ceil(5 × Level / 2)). ` +
+                    `Martial (Might or Agility) removes Attack Dice; 0 dice = Fully Parried. ` +
+                    `Spell (Intellect, Resolve, or Influence) removes Casting Dice from a direct Spell whose origin is within 22 m; 0 dice = Fully Countered.`,
                 mechanics: {},
             };
         },
