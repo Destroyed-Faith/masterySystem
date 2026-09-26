@@ -3099,6 +3099,20 @@ Hooks.once('ready', async function() {
     console.warn('Mastery System | Status effects apply on ready failed', err);
   }
 
+  // Token-corner status icons keep the img from when the effect was applied.
+  // Refresh them so effect-token art replaces old SVGs, including the scene
+  // that is already open when this ready hook runs.
+  const refreshPlacedTokenStatusIcons = () => {
+    void import('./system/assign-status.js').then(({ syncTokenStatusIcons }) => {
+      const tokens = (canvas as any)?.tokens?.placeables ?? [];
+      for (const token of tokens) {
+        if (token?.actor) void syncTokenStatusIcons(token.actor);
+      }
+    });
+  };
+  Hooks.on('canvasReady', refreshPlacedTokenStatusIcons);
+  refreshPlacedTokenStatusIcons();
+
   // Seed General Items Storage once per world load (GM only)
   if (game.user?.isGM) {
     // Drop legacy sheet selections so defaults apply after sheet registration changes.

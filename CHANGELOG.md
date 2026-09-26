@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.595] - 2026-09-26
+
+### Changed
+
+- **Token-Status:** Die kleinen Icons links oben am Actor-Token zeigen für Sundered, Slow, Expose, Hex und Blight dieselbe Effekt-Münze wie das Karussell. Bereits gesetzte Effekte tauschen das alte Bild beim Laden der Szene. Andere Specials bleiben bei den bisherigen Icons.
+
 ## [0.9.594] - 2026-09-26
 
 ### Changed

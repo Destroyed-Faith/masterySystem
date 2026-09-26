@@ -159,6 +159,40 @@ async function fallbackToggle(actor, choice, active) {
         await actor.createEmbeddedDocuments('ActiveEffect', [{ ...base, statuses: new Set([choice.id]) }]);
     }
 }
+function effectIconSrc(effect) {
+    return String(effect?.img || effect?.icon || '').trim();
+}
+/** Point an existing token status at the current catalog art (effect-token icons included). */
+async function refreshStatusIconArt(actor, choice) {
+    const stale = actorEffects(actor).filter((effect) => statusIdFromEffect(effect) === choice.id && effectIconSrc(effect) !== choice.img);
+    if (!stale.length)
+        return;
+    for (const effect of stale) {
+        try {
+            if (typeof effect.update === 'function') {
+                await effect.update({ img: choice.img });
+                continue;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | status icon art update failed', choice.id, err);
+        }
+    }
+    if (typeof actor.updateEmbeddedDocuments !== 'function')
+        return;
+    const pending = stale.filter((effect) => effectIconSrc(effect) !== choice.img);
+    if (!pending.length)
+        return;
+    try {
+        await actor.updateEmbeddedDocuments('ActiveEffect', pending.map((effect) => ({
+            _id: String(effect.id ?? effect._id ?? ''),
+            img: choice.img,
+        })));
+    }
+    catch (err) {
+        console.warn('Mastery System | status icon art update failed', choice.id, err);
+    }
+}
 /** Make the token status-bar icons match `system.statusEffects`. */
 export function syncTokenStatusIcons(actor) {
     const actorId = String(actor?.id || '');
@@ -173,6 +207,10 @@ export function syncTokenStatusIcons(actor) {
         for (const choice of listAssignableStatuses()) {
             const want = hasActiveSpecial(actor, choice.id);
             const have = tokenHasStatus(actor, choice.id);
+            if (want && have) {
+                await refreshStatusIconArt(actor, choice);
+                continue;
+            }
             if (want === have)
                 continue;
             try {

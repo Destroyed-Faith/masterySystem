@@ -5,6 +5,7 @@ import {
   openStatusAddDialog,
   removeStatusById,
   setActorCatalogStatus,
+  syncTokenStatusIcons,
   upsertStatusEntry,
 } from '../src/system/assign-status.js';
 import { encodeStatusFlag, readActorStatusEffects } from '../src/system/active-specials.js';
@@ -104,6 +105,22 @@ describe('assign catalog status', () => {
       'slow',
     );
     expect(next).toEqual([{ id: 'prone' }]);
+  });
+
+  it('replaces a stored token status icon with the effect-token art', async () => {
+    const effect = {
+      id: 'eff1',
+      img: 'systems/mastery-system/assets/icons/status/frozen.svg',
+      flags: { core: { statusId: 'slow' } },
+      update: async (patch: { img: string }) => {
+        effect.img = patch.img;
+      },
+    };
+    const actor = mockActor([{ id: 'slow', name: 'Slow', value: 1 }]) as any;
+    actor.effects = [effect];
+    actor.toggleStatusEffect = async () => {};
+    await syncTokenStatusIcons(actor);
+    expect(effect.img).toBe('systems/mastery-system/assets/special-tokens/icons/slow.png');
   });
 
   it('writes the sheet list when the status was not there', async () => {
