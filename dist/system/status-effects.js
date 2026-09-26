@@ -1,6 +1,9 @@
+import { specialTokenIcon } from '../ui/special-token-assets.js';
 import { isFoundryV14OrNewer } from '../utils/foundry-v14.js';
 /** Core `icons/svg/*` paths are not guaranteed; ship minimal SVGs with the system. */
 const ICON = (name) => `systems/mastery-system/assets/icons/status/${name}.svg`;
+/** Effect-token art when we have it; otherwise the simple status SVG. */
+const STATUS_IMG = (id, fallback) => specialTokenIcon(id) ?? ICON(fallback);
 /**
  * Single source of truth for the token HUD radial.
  * Keep ordered by gameplay category (debuffs first, then damage-over-time,
@@ -9,9 +12,9 @@ const ICON = (name) => `systems/mastery-system/assets/icons/status/${name}.svg`;
 export const MASTERY_STATUS_EFFECTS = [
     { id: 'lacerate', name: 'Lacerate', img: ICON('blood') },
     { id: 'ruin', name: 'Ruin', img: ICON('fire') },
-    { id: 'slow', name: 'Slow', img: ICON('frozen') },
+    { id: 'slow', name: 'Slow', img: STATUS_IMG('slow', 'frozen') },
     { id: 'corrode', name: 'Corrode', img: ICON('acid') },
-    { id: 'blight', name: 'Blight', img: ICON('poison') },
+    { id: 'blight', name: 'Blight', img: STATUS_IMG('blight', 'poison') },
     { id: 'soulburn', name: 'Soulburn', img: ICON('aura') },
     { id: 'challenge', name: 'Challenge', img: ICON('challenge') },
     { id: 'stunned', name: 'Stunned', img: ICON('daze') },
@@ -22,10 +25,10 @@ export const MASTERY_STATUS_EFFECTS = [
     { id: 'charmed', name: 'Charmed', img: ICON('ice-aura') },
     { id: 'disoriented', name: 'Disoriented', img: ICON('stoned') },
     { id: 'mark', name: 'Mark', img: ICON('target') },
-    { id: 'expose', name: 'Expose', img: ICON('eye') },
+    { id: 'expose', name: 'Expose', img: STATUS_IMG('expose', 'eye') },
     { id: 'weaken', name: 'Weakened', img: ICON('down') },
-    { id: 'sundered', name: 'Sundered', img: ICON('sword-broken') },
-    { id: 'hex', name: 'Hex', img: ICON('hazard') },
+    { id: 'sundered', name: 'Sundered', img: STATUS_IMG('sundered', 'sword-broken') },
+    { id: 'hex', name: 'Hex', img: STATUS_IMG('hex', 'hazard') },
     { id: 'root', name: 'Root', img: ICON('net') },
     { id: 'curse', name: 'Cursed', img: ICON('skull') },
     { id: 'suppress', name: 'Suppressed', img: ICON('silenced') },

@@ -3,6 +3,7 @@ import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../c
 import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
+import { specialTokenIcon } from './special-token-assets.js';
 import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
 import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
@@ -135,11 +136,13 @@ export class CombatCarouselApp extends BaseCarousel {
                     const reg = MASTERY_STATUS_EFFECTS.find((e) => e.id === rawId) ??
                         MASTERY_STATUS_EFFECTS.find((e) => e.name.toLowerCase() === rawName.toLowerCase());
                     const label = reg?.name ?? rawName ?? rawId;
+                    const tokenIcon = specialTokenIcon(rawId) ?? (reg ? specialTokenIcon(reg.id) : null);
                     statusIcons.push({
-                        icon: reg?.img ?? 'systems/mastery-system/assets/icons/status/hazard.svg',
+                        icon: tokenIcon ?? reg?.img ?? 'systems/mastery-system/assets/icons/status/hazard.svg',
                         name: label,
                         tooltip: value !== null ? `${label} (${value})` : label,
                         kind: 'special',
+                        cssClass: tokenIcon ? 'status-icon status-effect-token' : undefined,
                     });
                 }
             }

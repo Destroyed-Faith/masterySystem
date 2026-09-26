@@ -418,6 +418,17 @@
   z-index: 10;
 }
 
+/* Effect-token art (Sundered, Hex, Blight, Slow, Expose). Four fit under a
+   portrait: two rows of two when someone actually carries that many. */
+.status-icon.status-effect-token {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #000;
+  border-color: rgba(0, 0, 0, 0.7);
+}
+
 /* Active Buff icons — lila accent. Extra `ms-*` class + !important guards
    against Foundry / other modules overriding our border/shadow. */
 .status-icon.active-buff-icon,

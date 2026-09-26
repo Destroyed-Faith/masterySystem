@@ -17,10 +17,16 @@ export function tokenUsesPortrait(tokenSrc: unknown, portraitSrc: unknown): bool
   return !!portrait && token === portrait;
 }
 
+/** Image currently drawn for this actor's token. Unlinked tokens keep their own texture. */
+export function visibleTokenSrc(actor: any): string {
+  if (actor?.isToken) return String(actor?.token?.texture?.src ?? '');
+  return String(actor?.prototypeToken?.texture?.src ?? '');
+}
+
 /** Actor update for a new portrait. Includes the token image when it still follows the portrait. */
 export function artworkUpdateForPortrait(actor: any, nextPortrait: string): Record<string, string> {
   const update: Record<string, string> = { img: nextPortrait };
-  if (tokenUsesPortrait(actor?.prototypeToken?.texture?.src, actor?.img)) {
+  if (tokenUsesPortrait(visibleTokenSrc(actor), actor?.img)) {
     update['prototypeToken.texture.src'] = nextPortrait;
   }
   return update;
@@ -30,11 +36,16 @@ export function artworkUpdateForToken(nextToken: string): Record<string, string>
   return { 'prototypeToken.texture.src': nextToken };
 }
 
-/** Placed tokens of this actor that should pick up a new token image. */
+/**
+ * Placed tokens of this actor that should pick up a new token image.
+ * `all` replaces every copy (explicit token edit on the base actor).
+ * Otherwise only copies still showing the portrait, the old token, or no image.
+ */
 export function placedTokenIdsToRetarget(
   tokens: Array<{ id?: string; actorId?: string; texture?: { src?: string } }>,
   actorId: string,
   previousSources: string[],
+  all = false,
 ): string[] {
   const previous = new Set(
     previousSources.map((src) => String(src ?? '').trim()).filter((src) => src.length > 0),
@@ -45,7 +56,7 @@ export function placedTokenIdsToRetarget(
   for (const token of tokens) {
     if (String(token?.actorId ?? '') !== id) continue;
     const src = String(token?.texture?.src ?? '').trim();
-    if (!previous.has(src)) continue;
+    if (!all && src && !previous.has(src)) continue;
     if (token.id) out.push(String(token.id));
   }
   return out;

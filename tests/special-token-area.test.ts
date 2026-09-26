@@ -5,7 +5,7 @@ import {
   resolveCombatantActor,
   resolveSpecialTokenHudActor,
 } from '../src/ui/special-token-area.js';
-import { specialTokenAsset, SPECIAL_TOKEN_FALLBACK } from '../src/ui/special-token-assets.js';
+import { specialTokenAsset, specialTokenIcon, SPECIAL_TOKEN_FALLBACK } from '../src/ui/special-token-assets.js';
 import {
   SPECIAL_TOKEN_STACK_MAX,
   autoArrangeTokens,
@@ -113,6 +113,9 @@ describe('special token views', () => {
     expect(specialTokenAsset('blight')).toBe('systems/mastery-system/assets/special-tokens/blight.png');
     expect(specialTokenAsset('sundered')).toBe('systems/mastery-system/assets/special-tokens/sundered.png');
     expect(specialTokenAsset('challenge')).toBe(SPECIAL_TOKEN_FALLBACK);
+    expect(specialTokenIcon('hex')).toBe('systems/mastery-system/assets/special-tokens/icons/hex.png');
+    expect(specialTokenIcon('sundered')).not.toBe(specialTokenAsset('sundered'));
+    expect(specialTokenIcon('challenge')).toBeNull();
   });
 
   it('builds three Sundered tokens from the actor stack', () => {

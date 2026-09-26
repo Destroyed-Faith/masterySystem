@@ -4,6 +4,7 @@ import {
   artworkUpdateForToken,
   placedTokenIdsToRetarget,
   tokenUsesPortrait,
+  visibleTokenSrc,
 } from '../src/utils/actor-artwork.js';
 
 describe('actor artwork', () => {
@@ -43,5 +44,27 @@ describe('actor artwork', () => {
       ['portrait.webp', ''],
     );
     expect(ids).toEqual(['a']);
+  });
+
+  it('reads an unlinked token texture and replaces every copy of that actor', () => {
+    const npc = {
+      isToken: true,
+      img: 'portrait.webp',
+      token: { texture: { src: 'portrait.webp' } },
+      prototypeToken: { texture: { src: 'other.webp' } },
+    };
+    expect(visibleTokenSrc(npc)).toBe('portrait.webp');
+    expect(artworkUpdateForPortrait(npc, 'portrait-new.webp')['prototypeToken.texture.src']).toBe('portrait-new.webp');
+    const ids = placedTokenIdsToRetarget(
+      [
+        { id: 'goblin-a', actorId: 'goblin', texture: { src: 'portrait.webp' } },
+        { id: 'goblin-b', actorId: 'goblin', texture: { src: '' } },
+        { id: 'wolf', actorId: 'wolf', texture: { src: 'portrait.webp' } },
+      ],
+      'goblin',
+      ['portrait.webp'],
+      true,
+    );
+    expect(ids).toEqual(['goblin-a', 'goblin-b']);
   });
 });

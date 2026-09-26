@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.593] - 2026-09-26
+
+### Fixed
+
+- **NSC-Token:** Ein gesetztes Token-Bild auf einem unlinked NSC wird auf dem Token selbst gespeichert und auf alle Kopien dieses NSC übertragen. Ein neues Porträt überschreibt ein bewusst gesetztes Token nicht.
+
+### Changed
+
+- **Effekt-Tokens im Karussell:** Sundered, Slow, Expose, Hex und Blight zeigen die Effekt-Münze statt des einfachen Icons. Geladen wird eine kleine Kopie (128 px, etwa 40 KB), nicht die große Token-Datei. Effekte ohne Münze bleiben bei den bisherigen Icons. Das Hover mit Name und Wert bleibt.
+
 ## [0.9.592] - 2026-09-26
 
 ### Fixed

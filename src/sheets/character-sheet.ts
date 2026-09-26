@@ -61,6 +61,7 @@ import {
   artworkUpdateForPortrait,
   artworkUpdateForToken,
   placedTokenIdsToRetarget,
+  visibleTokenSrc,
 } from '../utils/actor-artwork.js';
 import {
   copyDocumentImageLink,
@@ -1293,6 +1294,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.ritualWorkshop = this.#getRitualWorkshop().prepareContext();
     context.minorMagicView = minorMagicSheetView(this.actor);
     context.minorMagicPanel = this.#getMinorMagicPanel().prepareContext();
+
+    context.tokenImg = visibleTokenSrc(this.actor) || this.actor.img || '';
 
     context.summonBondsView = getSummonBondsFromActor(this.actor).map((b) => {
       const tok = tokensSummary(b);
@@ -6434,7 +6437,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const isTokenEdit = (imgType === 'token'); // Store in const to ensure it's captured correctly in closure
       let currentImage: string;
       if (isTokenEdit) {
-        currentImage = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
+        currentImage = visibleTokenSrc(this.actor) || this.actor.img || '';
       } else {
         currentImage = this.actor.img || '';
       }
@@ -6449,16 +6452,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           try {
             const src = String(path ?? '').trim();
             if (!src) return;
-            const previousPortrait = String(this.actor.img ?? '');
-            const previousToken = String(this.actor.prototypeToken?.texture?.src ?? '');
-            const updateData = updateIsToken
-              ? artworkUpdateForToken(src)
-              : artworkUpdateForPortrait(this.actor, src);
-            await this.actor.update(updateData);
-            const nextToken = String(updateData['prototypeToken.texture.src'] ?? '');
-            if (nextToken) {
-              await this.#syncPlacedTokenArtwork(nextToken, [previousPortrait, previousToken]);
-            }
+            await this.#applyProfileImage(src, updateIsToken);
             this.render(false);
           } catch (updateError) {
             console.error('Mastery System | Error updating image:', updateError);
@@ -6475,9 +6469,56 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
   }
 
-  /** Copy a new token image onto placed tokens that still show the old portrait or token. */
-  async #syncPlacedTokenArtwork(nextSrc: string, previousSources: string[]): Promise<void> {
-    const actorId = String(this.actor.id ?? '');
+  /**
+   * Portrait and token images.
+   * Linked characters store the token on the actor. Unlinked NPCs store it on
+   * the placed token; writing only the prototype leaves the map image unchanged.
+   */
+  async #applyProfileImage(src: string, tokenEdit: boolean): Promise<void> {
+    const actor = this.actor as any;
+    const previousPortrait = String(actor.img ?? '');
+    const previousToken = visibleTokenSrc(actor);
+    const base = this.#baseActor();
+    const onToken = !!(actor.isToken && actor.token?.update);
+
+    if (tokenEdit) {
+      if (onToken) await actor.token.update({ 'texture.src': src });
+      try {
+        if (base) await base.update(artworkUpdateForToken(src));
+      } catch (err) {
+        console.warn('Mastery System | prototype token image was not saved', err);
+      }
+      await this.#syncPlacedTokenArtwork(src, [previousPortrait, previousToken], true);
+      return;
+    }
+
+    const portraitUpdate = artworkUpdateForPortrait(actor, src);
+    const tokenFollows = !!portraitUpdate['prototypeToken.texture.src'];
+    if (onToken) {
+      await actor.update({ img: src });
+      if (tokenFollows) await actor.token.update({ 'texture.src': src });
+    }
+    if (base) {
+      await base.update(onToken ? (tokenFollows ? portraitUpdate : { img: src }) : portraitUpdate);
+    }
+    if (tokenFollows) {
+      await this.#syncPlacedTokenArtwork(src, [previousPortrait, previousToken], false);
+    }
+  }
+
+  /** World actor behind an unlinked token sheet. */
+  #baseActor(): any {
+    const actor = this.actor as any;
+    if (actor?.isToken && actor?.token?.actorId) {
+      return (game as any).actors?.get?.(actor.token.actorId) ?? null;
+    }
+    return actor;
+  }
+
+  /** Copy a new token image onto placed tokens. */
+  async #syncPlacedTokenArtwork(nextSrc: string, previousSources: string[], all: boolean): Promise<void> {
+    const base = this.#baseActor();
+    const actorId = String(base?.id ?? this.actor.id ?? '');
     if (!actorId || !nextSrc) return;
     const scenes = (game as any).scenes;
     const sceneList = scenes?.contents ?? (typeof scenes?.values === 'function' ? Array.from(scenes.values()) : []);
@@ -6488,8 +6529,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       tokens.push(...list);
     }
     const liveToken = (this.actor as any).token;
-    if (liveToken) tokens.push({ ...liveToken, id: liveToken.id, actorId, texture: liveToken.texture, update: liveToken.update?.bind(liveToken) });
-    const ids = new Set(placedTokenIdsToRetarget(tokens, actorId, previousSources));
+    if (liveToken) {
+      tokens.push({
+        id: liveToken.id,
+        actorId,
+        texture: liveToken.texture,
+        update: liveToken.update?.bind(liveToken),
+      });
+    }
+    const ids = new Set(placedTokenIdsToRetarget(tokens, actorId, previousSources, all));
     await Promise.all(tokens.map(async (token) => {
       if (!ids.has(String(token?.id ?? ''))) return;
       if (String(token?.texture?.src ?? '') === nextSrc) return;
@@ -6512,7 +6560,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Get image source based on imgType
     let imgSrc: string;
     if (imgType === 'token') {
-      imgSrc = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
+      imgSrc = visibleTokenSrc(this.actor) || this.actor.img || '';
     } else {
       imgSrc = this.actor.img || '';
     }
