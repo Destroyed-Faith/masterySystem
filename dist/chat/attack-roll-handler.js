@@ -1159,6 +1159,15 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             phase: 'defender',
                             suppressCounterattack: suppressNestedCounterattack,
                         });
+                        if (!isSpellcasting) {
+                            const { maybeOfferSlip } = await import('../stones/agility-movement-ui.js');
+                            await maybeOfferSlip({
+                                defender: missTarget,
+                                attacker: missAttacker,
+                                hit: false,
+                                isAttack: true,
+                            });
+                        }
                     }
                 }
                 catch (missReactErr) {

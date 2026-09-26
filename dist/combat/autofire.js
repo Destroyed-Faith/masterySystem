@@ -111,6 +111,20 @@ export async function resolveAutofireChain(params) {
                 speaker: ChatMessage.getSpeaker({ actor: attacker }),
                 content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): miss (roll ${attackTotal} vs ${defenseName} ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}). <strong>Chain ends.</strong></p>`,
             });
+            if (!isSpell) {
+                try {
+                    const { maybeOfferSlip } = await import('../stones/agility-movement-ui.js');
+                    await maybeOfferSlip({
+                        defender,
+                        attacker,
+                        hit: false,
+                        isAttack: true,
+                    });
+                }
+                catch (slipErr) {
+                    console.warn('Mastery System | Slip offer failed', slipErr);
+                }
+            }
             break;
         }
         await ChatMessage.create({

@@ -344,6 +344,20 @@ export async function resolveAoeMeleeSecondaries(params) {
                 speaker: ChatMessage.getSpeaker({ actor: attacker }),
                 content: `<p><strong>AoE</strong> → <strong>${defender.name}</strong>: miss (roll ${attackTotal} vs ${isSpell ? 'Final Spell TN' : 'Evade'} ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}).</p>`,
             });
+            if (!isSpell) {
+                try {
+                    const { maybeOfferSlip } = await import('../stones/agility-movement-ui.js');
+                    await maybeOfferSlip({
+                        defender,
+                        attacker,
+                        hit: false,
+                        isAttack: true,
+                    });
+                }
+                catch (slipErr) {
+                    console.warn('Mastery System | Slip offer failed', slipErr);
+                }
+            }
             continue;
         }
         // Declared Raises raise each creature's TN; if the roll meets Normal TN but

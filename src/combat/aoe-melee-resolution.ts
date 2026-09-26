@@ -440,6 +440,19 @@ export async function resolveAoeMeleeSecondaries(params: {
           isSpell ? 'Final Spell TN' : 'Evade'
         } ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}).</p>`,
       } as any);
+      if (!isSpell) {
+        try {
+          const { maybeOfferSlip } = await import('../stones/agility-movement-ui.js');
+          await maybeOfferSlip({
+            defender,
+            attacker,
+            hit: false,
+            isAttack: true,
+          });
+        } catch (slipErr) {
+          console.warn('Mastery System | Slip offer failed', slipErr);
+        }
+      }
       continue;
     }
 

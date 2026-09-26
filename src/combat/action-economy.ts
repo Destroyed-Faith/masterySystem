@@ -1817,7 +1817,15 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
   // Basic maneuver turn locks expire at the start of your next Turn.
   roundState.baseAttackLocked = false;
   roundState.safeMovementThisTurn = false;
+  roundState.movementPowerUsedThisRound = false;
   roundState.fleeLock = false;
+  try {
+    await (owner as any).unsetFlag?.('mastery-system', 'pendingSlip');
+    await (owner as any).unsetFlag?.('mastery-system', 'slipMovementActive');
+    await (owner as any).unsetFlag?.('mastery-system', 'pendingSafeMovement');
+  } catch {
+    /* slip / safe movement are turn-scoped */
+  }
   roundState.quickLoadReloadThisTurn = 0;
   
   // Clear stone usage for this turn (keep round-level usage)

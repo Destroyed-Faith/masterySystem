@@ -338,6 +338,10 @@ function getDefaultMovementRange(token, option) {
 export function startGuidedMovement(token, option) {
     // Cancel any existing movement mode first
     endGuidedMovement(false);
+    let finish = () => undefined;
+    const done = new Promise((resolve) => {
+        finish = resolve;
+    });
     // Ensure token is controlled by this user
     token.control({ releaseOthers: false });
     // Get hex center as origin (for hex grids, this is the center of the hex the token is in)
@@ -387,7 +391,8 @@ export function startGuidedMovement(token, option) {
         highlightIdHover,
         onMove,
         onDown,
-        onKeyDown
+        onKeyDown,
+        finish,
     };
     activeMovementState = state;
     paintStaticMovementRange(state);
@@ -398,6 +403,7 @@ export function startGuidedMovement(token, option) {
     window.addEventListener("keydown", state.onKeyDown);
     // Initial preview at origin (zero-length)
     refreshMovementPreview(state, origin.x, origin.y);
+    return done;
 }
 /**
  * Handle pointer move during movement mode
@@ -548,6 +554,7 @@ export function endGuidedMovement(success) {
     const state = activeMovementState;
     if (!state)
         return;
+    const finish = state.finish;
     // Remove event listeners
     canvas.stage.off("pointermove", state.onMove);
     canvas.stage.off("pointerdown", state.onDown);
@@ -584,6 +591,7 @@ export function endGuidedMovement(success) {
         ui.notifications.info('Movement cancelled');
     }
     activeMovementState = null;
+    finish?.(success);
 }
 // Removed getTurnState - now using RoundState from action-economy.ts
 /**

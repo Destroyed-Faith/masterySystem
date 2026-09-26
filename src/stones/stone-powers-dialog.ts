@@ -1,7 +1,7 @@
 /**
  * Stone Powers Dialog — Steine pro Macht in Rank-Segmenten verteilen
  * (Normal 1→2→4→8, Premium 2→4→6→8).
- * Voll bezahlte Wellen werden beim Schließen des Dialogs abgerechnet (Pools, RoundState, Radial); beim Klick/Drop bleiben Steine in den Slots.
+ * Placing Stones only plans. Confirm Stone Assignment pays, applies automatic powers, then walks the resolution queue.
  */
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -17,6 +17,17 @@ import {
   activateStonePower,
   activateGenericStonePowerMixed
 } from './stone-activation.js';
+import {
+  STONE_RESOLUTION_QUEUE_FLAG,
+  enqueueStoneResolutions,
+  markStoneResolutionResolved,
+  pendingStoneResolutions,
+  readStoneResolutionQueue,
+  stoneResolutionKind,
+  type PlannedStonePower,
+  type StoneResolutionQueue,
+} from './stone-resolution.js';
+import { presentStoneResolution } from './stone-resolution-ui.js';
 import {
   STONE_POWERS_BY_ATTRIBUTE,
   STONE_POWER_SUPPORT_TIER_SHIFT,
@@ -692,6 +703,13 @@ export class StonePowersDialog extends BaseDialog {
   private _stoneRoundPlanHydratedKey: string | null = null;
   /** Stones already confirmed this round — show assignment, do not spend again. */
   private _stoneReviewMode = false;
+  /** Interactive powers staged by the confirm that is currently paying. */
+  private _resolutionBatch: PlannedStonePower[] = [];
+  /** Free support ranks the player accepted while planning. Spent only on confirm. */
+  private _plannedFreeRankIds = new Set<string>();
+  private _resolutionRunning = false;
+  /** Stops a cancelled resolution dialog from opening again on the next render. */
+  private _resolutionResumeStarted = false;
   /** Waves paid in this combat round: displayed, never charged again. */
   private _stonePaidLanes = new Map<string, StoneAccumulatorValue>();
   /** True while a render triggered from `_onRender` is still pending. */
@@ -890,13 +908,14 @@ export class StonePowersDialog extends BaseDialog {
     const hasCombat = combatActive && !!this.combatant;
     const stoneReviewMode = this.#isStoneAssignmentReviewMode();
     this._stoneReviewMode = stoneReviewMode;
+    const stoneResolutionHold = this.#stoneResolutionPending();
     const stonePlanLocked = this.#isStoneDialogLocked();
 
     const recovery = this.#buildStoneRecovery(combat, pools);
     this._recoveryActive = recovery.active;
 
     const showStonePools = true;
-    const dragPoolEnabled = !stonePlanLocked && !recovery.active;
+    const dragPoolEnabled = !stonePlanLocked && !recovery.active && !stoneResolutionHold;
     const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
     const user = game.user;
     const canSavePrefs =
@@ -986,7 +1005,7 @@ export class StonePowersDialog extends BaseDialog {
         power.id,
         usesThisTurn,
         spendableNet,
-        stonePlanLocked || retired,
+        stonePlanLocked || stoneResolutionHold || retired,
         occupied,
         `${power.id}/${attrKey}`,
         supportLanes,
@@ -1088,7 +1107,7 @@ export class StonePowersDialog extends BaseDialog {
         power.id,
         usesThisTurn,
         spendableNet,
-        stonePlanLocked || retired,
+        stonePlanLocked || stoneResolutionHold || retired,
         occupied,
         `${power.id}/general`,
         supportLanes,
@@ -1279,6 +1298,7 @@ export class StonePowersDialog extends BaseDialog {
       hasCombat,
       stonePlanLocked,
       stoneReviewMode,
+      stoneResolutionHold,
       unactivatedStones,
       gmTools: {
         show: !!(game as any).user?.isGM && !!this.combatant,
@@ -1286,7 +1306,7 @@ export class StonePowersDialog extends BaseDialog {
       },
       recovery,
       /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
-      dragStonesEnabled: !stonePlanLocked && !recovery.active,
+      dragStonesEnabled: !stonePlanLocked && !recovery.active && !stoneResolutionHold,
       dragPoolEnabled,
       showStonePools,
       prefsUseDefaults,
@@ -1880,23 +1900,26 @@ export class StonePowersDialog extends BaseDialog {
       };
     }
 
-    // Close button
+    const confirmBtn = root.querySelector('.js-confirm-stones');
+    if (confirmBtn) {
+      (confirmBtn as HTMLElement).onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        void this.#confirmStoneAssignment();
+      };
+    }
+
+    // Review mode only closes. The assignment was already paid.
     const closeBtn = root.querySelector('.js-close');
     if (closeBtn) {
       (closeBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
-        if (this._recoveryActive) {
-          ui.notifications?.warn('Finish Stone Recovery first, then assign your stones.');
-          return;
-        }
-        if (this.#dialogNeedsInitiativeRoll()) {
-          ui.notifications?.warn('Roll Initiative first — the button is in the Initiative row.');
-          return;
-        }
-        // `_onClose` resolves the caller's promise once payment and the round
-        // confirmation are done, so the flow does not run in parallel with it.
-        await (this as any).close({ closeSource: 'button', committed: true });
+        await (this as any).close({ closeSource: 'button', committed: true, alreadySettled: true });
       };
+    }
+
+    if (!this._resolutionRunning && !this._resolutionResumeStarted && this.#stoneResolutionPending()) {
+      this._resolutionResumeStarted = true;
+      void this.#confirmStoneAssignment();
     }
   }
 
@@ -2036,6 +2059,163 @@ export class StonePowersDialog extends BaseDialog {
     }
   }
 
+  #stonesEditable(): boolean {
+    return !this.#isStoneDialogLocked() && !this.#stoneResolutionPending();
+  }
+
+  #resolutionOwner(): any {
+    return (getActionEconomyActor(this.actor) ?? this.actor) as any;
+  }
+
+  #readResolutionQueue(): StoneResolutionQueue | null {
+    return readStoneResolutionQueue(
+      this.#resolutionOwner().getFlag?.('mastery-system', STONE_RESOLUTION_QUEUE_FLAG),
+    );
+  }
+
+  #stoneResolutionPending(): boolean {
+    const combat = game.combat;
+    if (!combat) return false;
+    const queue = this.#readResolutionQueue();
+    if (!queue) return false;
+    if (String(queue.combatId) !== String(combat.id)) return false;
+    if (Number(queue.round) !== encounterStoneRound(combat)) return false;
+    return pendingStoneResolutions(queue).length > 0;
+  }
+
+  async #persistResolutionQueue(queue: StoneResolutionQueue): Promise<void> {
+    const owner = this.#resolutionOwner();
+    if (typeof owner.setFlag !== 'function') return;
+    await owner.setFlag('mastery-system', STONE_RESOLUTION_QUEUE_FLAG, queue);
+  }
+
+  #stageResolution(powerId: string, tier: number): void {
+    if (stoneResolutionKind(powerId) !== 'interactive') return;
+    const rank = Math.floor(Number(tier) || 0);
+    if (rank < 1) return;
+    this._resolutionBatch.push({ powerId: resolveStonePowerId(powerId), tier: rank });
+  }
+
+  /** Free support ranks accepted during planning are paid here, still without resolving. */
+  async #commitPlannedFreeRanks(): Promise<void> {
+    const combat = game.combat;
+    if (!combat || !this._plannedFreeRankIds.size) return;
+    const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
+    if (!combatant) return;
+    const planned = [...this._plannedFreeRankIds];
+    this._plannedFreeRankIds.clear();
+    for (const key of planned) {
+      const splitAt = key.lastIndexOf(':');
+      const powerId = key.slice(0, splitAt);
+      const tier = Math.floor(Number(key.slice(splitAt + 1)) || 0);
+      const def = STONE_POWERS[powerId];
+      if (!def || tier < 1 || stoneResolutionKind(powerId) !== 'interactive') continue;
+      const isGeneric = def.attribute === 'generic';
+      const ok = isGeneric
+        ? await activateGenericStonePowerMixed({
+            actor: this.actor,
+            combatant,
+            abilityId: powerId,
+            perAttributeStones: {},
+            deferApply: true,
+          })
+        : await activateStonePower({
+            actor: this.actor,
+            combatant,
+            abilityId: powerId,
+            colorlessSpent: 0,
+            deferApply: true,
+          });
+      if (ok) this.#stageResolution(powerId, tier);
+    }
+  }
+
+  async #drainResolutions(queue: StoneResolutionQueue | null): Promise<boolean> {
+    if (!queue || !pendingStoneResolutions(queue).length) return true;
+    const actor = this.#resolutionOwner();
+    let current = queue;
+    for (;;) {
+      const ticket = pendingStoneResolutions(current)[0];
+      if (!ticket) {
+        await this.#persistResolutionQueue(current);
+        return true;
+      }
+      const ok = await presentStoneResolution(actor, this.combatant, ticket);
+      if (!ok) {
+        await this.#persistResolutionQueue(current);
+        return false;
+      }
+      current = markStoneResolutionResolved(current, ticket.id);
+      await this.#persistResolutionQueue(current);
+    }
+  }
+
+  /**
+   * Single commit point. Planning stays editable until this runs.
+   * Automatic powers apply inside the payment. Interactive powers open one
+   * after another. View-only starts only after the queue is empty.
+   */
+  async #confirmStoneAssignment(): Promise<void> {
+    if (this._resolutionRunning) return;
+    if (this._recoveryActive) {
+      ui.notifications?.warn('Finish Stone Recovery first, then assign your stones.');
+      return;
+    }
+    if (this.#dialogNeedsInitiativeRoll()) {
+      ui.notifications?.warn('Roll Initiative first — the button is in the Initiative row.');
+      return;
+    }
+    this._resolutionRunning = true;
+    this._resolutionResumeStarted = true;
+    this._resolutionBatch = [];
+    try {
+      await this.#commitPlannedFreeRanks();
+      await this.#flushCompletedStonePaymentsFromAccumulators();
+      this.#warnUnactivatedStones();
+      await this.#persistStonePowersRoundPlan();
+      const combat = game.combat;
+      let queue = this.#readResolutionQueue();
+      if (combat) {
+        queue = enqueueStoneResolutions(
+          queue,
+          String(combat.id),
+          encounterStoneRound(combat),
+          this._resolutionBatch,
+        );
+        await this.#persistResolutionQueue(queue);
+      }
+      const done = await this.#drainResolutions(queue);
+      if (!done) {
+        ui.notifications?.info(
+          'Stone assignment is committed. Finish the remaining resolution.',
+        );
+        await this.#renderKeepingScroll();
+        return;
+      }
+      await (this as any).close({ closeSource: 'button', committed: true, alreadySettled: true });
+    } catch (err) {
+      console.error('Mastery System | Stone assignment confirm failed', err);
+      ui.notifications?.warn('Could not confirm the stone assignment.');
+      try {
+        const combat = game.combat;
+        if (combat && this._resolutionBatch.length) {
+          await this.#persistResolutionQueue(
+            enqueueStoneResolutions(
+              this.#readResolutionQueue(),
+              String(combat.id),
+              encounterStoneRound(combat),
+              this._resolutionBatch,
+            ),
+          );
+        }
+      } catch {
+        /* the in-memory batch is the fallback until the next confirm */
+      }
+    } finally {
+      this._resolutionRunning = false;
+    }
+  }
+
   /**
    * Vollständige Zahlungswelle → Pools abziehen, Macht anwenden, Akku leeren. Keine UI-Strukturänderung.
    */
@@ -2142,6 +2322,7 @@ export class StonePowersDialog extends BaseDialog {
       return false;
     }
 
+    const deferApply = stoneResolutionKind(powerId) === 'interactive';
     let ok: boolean;
     if (powerId === REMOVE_SCAR_POWER_ID) {
       ok = await payAndApplyRemoveScar(this.actor, {
@@ -2154,6 +2335,7 @@ export class StonePowersDialog extends BaseDialog {
         combatant,
         abilityId: powerId,
         perAttributeStones: perAttr,
+        deferApply,
         ...(clusterPayment
           ? {
               tier: clusterPayment.tier,
@@ -2170,6 +2352,7 @@ export class StonePowersDialog extends BaseDialog {
         abilityId: powerId,
         colorlessSpent: perAttr[COLORLESS_STONE_ATTR] || 0,
         placedCount: onceCluster ? placed : undefined,
+        deferApply,
         ...(clusterPayment
           ? {
               tier: clusterPayment.tier,
@@ -2178,6 +2361,9 @@ export class StonePowersDialog extends BaseDialog {
             }
           : {}),
       });
+    }
+    if (ok && deferApply) {
+      this.#stageResolution(powerId, clusterPayment?.tier ?? usesInKey + 1);
     }
 
     if (ok) {
@@ -2209,21 +2395,27 @@ export class StonePowersDialog extends BaseDialog {
           nextStoneWaveCost(powerId, usesNow, settleSupport) === 0 &&
           effectiveStoneSupportPrefillTier(powerId, settleSupport) === usesNow + 1
         ) {
+          const deferSupport = stoneResolutionKind(powerId) === 'interactive';
+          const supportTier = usesNow + 1;
+          let supportOk = false;
           if (isGenericUnifiedAccKey(accKey)) {
-            await activateGenericStonePowerMixed({
+            supportOk = await activateGenericStonePowerMixed({
               actor: this.actor,
               combatant,
               abilityId: powerId,
               perAttributeStones: {},
+              deferApply: deferSupport,
             });
           } else {
-            await activateStonePower({
+            supportOk = await activateStonePower({
               actor: this.actor,
               combatant,
               abilityId: powerId,
               colorlessSpent: 0,
+              deferApply: deferSupport,
             });
           }
+          if (supportOk && deferSupport) this.#stageResolution(powerId, supportTier);
         }
       }
     }
@@ -2377,6 +2569,13 @@ export class StonePowersDialog extends BaseDialog {
     } catch {
       /* best-effort */
     }
+    try {
+      await owner.unsetFlag('mastery-system', STONE_RESOLUTION_QUEUE_FLAG);
+    } catch {
+      /* best-effort */
+    }
+    this._plannedFreeRankIds.clear();
+    this._resolutionBatch = [];
     try {
       await clearStonePowersConfigurationLock(owner);
     } catch {
@@ -2743,6 +2942,13 @@ export class StonePowersDialog extends BaseDialog {
       uses + 1 === prefillRank &&
       !occ.length
     ) {
+      if (stoneResolutionKind(powerId) === 'interactive') {
+        this._plannedFreeRankIds.add(`${resolveStonePowerId(powerId)}:${uses + 1}`);
+        ui.notifications?.info(
+          `${onceDef?.name || 'Stone Power'} is planned. Confirm Stone Assignment to commit it.`,
+        );
+        return;
+      }
       const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
       if (combatant) {
         if (isGeneric) {
@@ -2883,7 +3089,7 @@ export class StonePowersDialog extends BaseDialog {
 
   /** Zeigt Steine in `slot-filled`-Zellen (ein Stein pro Feld, zurück zum Pool ziehbar). */
   #syncAccumulatorGems(root: HTMLElement): void {
-    const locked = this.#isStoneDialogLocked();
+    const locked = !this.#stonesEditable();
     const allowReturnDrag = !locked;
 
     root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
@@ -3043,7 +3249,8 @@ export class StonePowersDialog extends BaseDialog {
 
     const combat = game.combat;
     const canExecute = !!combat && !!this.combatant;
-    const locked = this.#isStoneDialogLocked();
+    const editingLocked = () => !this.#stonesEditable();
+    const locked = editingLocked();
     const allowDrag = !locked;
     const poolKeys = getActorStonePoolKeysWithMax(this.actor);
     let lastDragOverLogKey = '';
@@ -3065,7 +3272,7 @@ export class StonePowersDialog extends BaseDialog {
       gem.classList.toggle('is-drag-disabled', !allowDrag);
 
       gem.ondragstart = (ev: DragEvent) => {
-        if (!allowDrag || !ev.dataTransfer) {
+        if (editingLocked() || !ev.dataTransfer) {
           return;
         }
         this._stoneReturnAccKey = null;
@@ -3115,7 +3322,7 @@ export class StonePowersDialog extends BaseDialog {
 
     /** Slot: Pool→Feld; Return-Drag: Feld→Pool (nutzt `_stoneReturnAccKey`, da types in dragover unzuverlässig sind). */
     const onBindDragOver = (ev: DragEvent) => {
-      if (!allowDrag || locked) {
+      if (editingLocked()) {
         return;
       }
 
@@ -3235,8 +3442,12 @@ export class StonePowersDialog extends BaseDialog {
       ev.preventDefault();
       clearDragOver();
 
-      if (locked) {
-        ui.notifications?.warn('This round is locked for Stone Powers.');
+      if (editingLocked()) {
+        ui.notifications?.warn(
+          this.#stoneResolutionPending() || this._resolutionRunning
+            ? 'Stone assignment is already committed.'
+            : 'This round is locked for Stone Powers.',
+        );
         return;
       }
       const dropPowerId =
@@ -3366,7 +3577,7 @@ export class StonePowersDialog extends BaseDialog {
     const onDelegateReturnDragStart = (ev: DragEvent) => {
       const t = ev.target as HTMLElement;
       if (!t?.classList?.contains('js-stone-returnable')) return;
-      if (!allowDrag || !ev.dataTransfer || locked) {
+      if (editingLocked() || !ev.dataTransfer) {
         ev.preventDefault();
         return;
       }
@@ -3432,7 +3643,7 @@ export class StonePowersDialog extends BaseDialog {
     /** Linksklick auf ganze Power-Karte (inkl. Titel): Slots aus Pools füllen. */
     const onPowerCardClick = async (ev: MouseEvent) => {
       if (ev.button !== 0) return;
-      if (!allowDrag || locked) return;
+      if (editingLocked()) return;
       const t = ev.target as HTMLElement;
       if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
       if (t.closest('button, a, input, select, textarea, label, summary, .js-stone-section-toggle')) return;
@@ -3448,7 +3659,7 @@ export class StonePowersDialog extends BaseDialog {
 
     /** Rechtsklick: Kampf-Macht leeren. */
     const onPowerCardContextMenu = async (ev: MouseEvent) => {
-      if (!allowDrag || locked) return;
+      if (editingLocked()) return;
       const t = ev.target as HTMLElement;
 
       if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
@@ -3514,6 +3725,11 @@ export class StonePowersDialog extends BaseDialog {
         await ownerDoc.unsetFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
       } catch (e) {
         console.warn('Mastery System | Could not clear stale stone round plan', e);
+      }
+      try {
+        await ownerDoc.unsetFlag('mastery-system', STONE_RESOLUTION_QUEUE_FLAG);
+      } catch (e) {
+        console.warn('Mastery System | Could not clear stale stone resolution queue', e);
       }
       plan = undefined;
       this._stoneRoundPlanHydratedKey = null;
@@ -3618,16 +3834,16 @@ export class StonePowersDialog extends BaseDialog {
     const committed = _options?.committed === true;
     this.#pullSessionPartialsIntoInstance();
     if (committed) {
-      // Pay first, then snapshot: paid waves move into the receipt, only open
-      // partial waves stay editable. Persisting first left a stale unpaid
-      // snapshot that got charged again on the next confirm. Review mode still
-      // settles a wave that was never paid — the receipt blocks a second charge.
-      try {
-        await this.#flushCompletedStonePaymentsFromAccumulators();
-        this.#warnUnactivatedStones();
-        await this.#persistStonePowersRoundPlan();
-      } catch (err) {
-        console.error('Mastery System | Stone payment on confirm failed', err);
+      // Confirm pays before close and passes alreadySettled. A plain close
+      // (the window control during planning) must not pay or resolve.
+      if (_options?.alreadySettled !== true) {
+        try {
+          await this.#flushCompletedStonePaymentsFromAccumulators();
+          this.#warnUnactivatedStones();
+          await this.#persistStonePowersRoundPlan();
+        } catch (err) {
+          console.error('Mastery System | Stone payment on confirm failed', err);
+        }
       }
       // Every entry point counts as confirmed (player pipeline, GM fill, setup
       // status row, forced dialog) — otherwise the encounter stays blocked

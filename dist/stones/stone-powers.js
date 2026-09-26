@@ -16,11 +16,11 @@
  */
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getRoundState, setRoundState, syncPcExtraAttackTotal, } from '../combat/action-economy.js';
-import { healStressFromBars } from '../utils/calculations.js';
 import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, isTempHpStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, markTempHpStoneUsedThisCombat, } from './colorless-stones.js';
 import { augmentPhasingCharges } from '../combat/phasing.js';
 import { applyRemoveScarEffect } from './remove-scar.js';
 import { applyRegenerationAndMove, promptSelectablePlayerTarget } from './ally-stone-target.js';
+import { PENDING_SAFE_MOVEMENT_FLAG, PENDING_SLIP_FLAG, safeMovementMeters, slipMeters, } from './agility-movement.js';
 /** Ranks shown in the dialog / Players Guide. Rank 4 is the last Rank. */
 export const STONE_TIER_VISIBLE = 4;
 /** Highest Rank a Stone Ability can reach. */
@@ -449,21 +449,18 @@ const AGILITY_POWERS_RAW = [
         name: 'Safe Movement',
         attribute: 'agility',
         category: 'action',
-        description: 'Move some distance without provoking movement-triggered Attacks / Reactions (4 / 8 / 12 / 16 m).',
+        description: 'Replace your normal Movement with a move of 4/8/12/16 m. This does not provoke movement-triggered Reactions and does not cost an Attack Action or a Reaction.',
         tiers: [
-            { label: 'Move 4 m, no movement-triggered Reactions', description: 'Move up to 4 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 4 },
-            { label: 'Move 8 m, no movement-triggered Reactions', description: 'Move up to 8 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 8 },
-            { label: 'Move 12 m, no movement-triggered Reactions', description: 'Move up to 12 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 12 },
-            { label: 'Move 16 m, no movement-triggered Reactions', description: 'Move up to 16 m. This movement does not provoke movement-triggered Attacks / Reactions.', value: 16 },
+            { label: 'Move 4 m, no movement-triggered Reactions', description: 'Use your Movement to move up to 4 m. This replaces normal Movement and does not provoke movement-triggered Reactions.', value: 4 },
+            { label: 'Move 8 m, no movement-triggered Reactions', description: 'Use your Movement to move up to 8 m. This replaces normal Movement and does not provoke movement-triggered Reactions.', value: 8 },
+            { label: 'Move 12 m, no movement-triggered Reactions', description: 'Use your Movement to move up to 12 m. This replaces normal Movement and does not provoke movement-triggered Reactions.', value: 12 },
+            { label: 'Move 16 m, no movement-triggered Reactions', description: 'Use your Movement to move up to 16 m. This replaces normal Movement and does not provoke movement-triggered Reactions.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
-            const combat = game.combat;
-            const meters = scaleStoneTier([4, 8, 12, 16], tier);
-            const roundState = getRoundState(actor, combat);
-            roundState.moveBonusMeters = (roundState.moveBonusMeters ?? 0) + meters;
-            await setRoundState(actor, roundState);
-            const prior = Number(actor.getFlag?.('mastery-system', 'pendingNoOaMove') ?? 0) || 0;
-            await actor.setFlag?.('mastery-system', 'pendingNoOaMove', prior + meters);
+            const meters = safeMovementMeters(tier);
+            if (meters <= 0)
+                return;
+            await actor.setFlag?.('mastery-system', PENDING_SAFE_MOVEMENT_FLAG, { meters });
         },
     },
     {
@@ -471,16 +468,40 @@ const AGILITY_POWERS_RAW = [
         name: 'Slip',
         attribute: 'agility',
         category: 'reaction',
-        description: 'Once before the start of your next turn, when an enemy misses you with an attack, you may move 2/4/6/8 m.',
+        description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move 4/8/12/16 m. This does not use your normal Movement and does not provoke movement-triggered Reactions.',
         tiers: [
-            { label: 'Slip 2 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an attack, you may move 2 m.', value: 2 },
-            { label: 'Slip 4 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an attack, you may move 4 m.', value: 4 },
-            { label: 'Slip 6 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an attack, you may move 6 m.', value: 6 },
-            { label: 'Slip 8 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an attack, you may move 8 m.', value: 8 },
+            { label: 'Slip 4 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 4 m. This does not use your normal Movement.', value: 4 },
+            { label: 'Slip 8 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 8 m. This does not use your normal Movement.', value: 8 },
+            { label: 'Slip 12 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 12 m. This does not use your normal Movement.', value: 12 },
+            { label: 'Slip 16 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 16 m. This does not use your normal Movement.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
-            const meters = scaleStoneTier([2, 4, 6, 8], tier);
-            await actor.setFlag?.('mastery-system', 'pendingSlipMeters', meters);
+            const meters = slipMeters(tier);
+            if (meters <= 0)
+                return;
+            const combat = game.combat;
+            await actor.setFlag?.('mastery-system', PENDING_SLIP_FLAG, {
+                meters,
+                used: false,
+                actorId: String(actor.id || ''),
+                armedCombatId: combat?.id ?? null,
+                armedRound: Math.floor(Number(combat?.round) || 0),
+                armedTurn: Math.floor(Number(combat?.turn) || 0),
+            });
+            try {
+                const ChatMessage = globalThis.ChatMessage;
+                if (typeof ChatMessage?.create === 'function') {
+                    const source = String(actor.name || 'Someone')
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;');
+                    await ChatMessage.create({
+                        content: `<div class="mastery-stone-resolution"><p><strong>${source}</strong> — Slip</p><p>Ready: up to <strong>${meters} m</strong> when an enemy misses you with an Attack, once before your next Turn. This does not move you now and does not spend Movement.</p></div>`,
+                    });
+                }
+            }
+            catch {
+                /* the armed flag is the trigger */
+            }
         },
     },
 ];
@@ -695,20 +716,8 @@ const RESOLVE_POWERS_RAW = [
             { label: 'Heal 12d8 (8 m)', description: 'You or one ally within 8 m heals 12d8 HP in their current Health Bar.', value: 12 },
             { label: 'Heal 16d8 (16 m)', description: 'You or one ally within 16 m heals 16d8 HP in their current Health Bar.', value: 16 },
         ],
-        apply: async ({ actor, tier }) => {
-            const dice = scaleStoneTier([4, 8, 12, 16], tier);
-            const meters = scaleStoneTier([2, 4, 8, 16], tier);
-            try {
-                const roll = await new Roll(`${dice}d8`).evaluate({ async: true });
-                const total = Number(roll?.total) || 0;
-                if (typeof actor?.heal === 'function') {
-                    await actor.heal(total);
-                }
-                ui.notifications?.info(`${actor.name}: Healing rolled ${total} HP (${dice}d8). Apply to self or one ally within ${meters} m.`);
-            }
-            catch {
-                ui.notifications?.warn('Healing: roll failed.');
-            }
+        apply: async () => {
+            // Target, roll, cap, and chat belong to the post-commit resolution queue.
         },
     },
     {
@@ -724,30 +733,8 @@ const RESOLVE_POWERS_RAW = [
             { label: '−3d8 Stress (8 m)', description: 'Remove 3d8 Stress from yourself or one ally within 8 m.', value: 3 },
             { label: '−4d8 Stress (16 m)', description: 'Remove 4d8 Stress from yourself or one ally within 16 m.', value: 4 },
         ],
-        apply: async ({ actor, tier }) => {
-            const dice = scaleStoneTier([1, 2, 3, 4], tier);
-            const meters = scaleStoneTier([2, 4, 8, 16], tier);
-            try {
-                const roll = await new Roll(`${dice}d8`).evaluate({ async: true });
-                const total = Number(roll?.total) || 0;
-                const stress = actor?.system?.stress;
-                if (Array.isArray(stress?.bars) && stress.bars.length) {
-                    const healed = healStressFromBars(stress.bars, stress.currentBar ?? 0, total);
-                    await actor.update?.({
-                        'system.stress.bars': healed.bars,
-                        'system.stress.currentBar': healed.currentBar,
-                    });
-                }
-                await actor.setFlag?.('mastery-system', 'pendingStressHealing', {
-                    amount: total,
-                    dice,
-                    range: meters,
-                });
-                ui.notifications?.info(`${actor.name}: Stress Healing rolled ${total} (${dice}d8). Apply to self or one ally within ${meters} m.`);
-            }
-            catch {
-                ui.notifications?.warn('Stress Healing: roll failed.');
-            }
+        apply: async () => {
+            // Target, roll, and chat belong to the post-commit resolution queue.
         },
     },
     {
@@ -940,6 +927,21 @@ const WITS_POWERS_RAW = [
             if (c)
                 await markInitiativeBoostUsedThisCombat(c);
             ui.notifications?.info(`${actor.name}: Initiative Boost +${bonus} (MR ${mr} × ${2 ** (tier - 1)}).`);
+            try {
+                const ChatMessage = globalThis.ChatMessage;
+                if (typeof ChatMessage?.create === 'function') {
+                    const source = String(actor.name || 'Someone')
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    await ChatMessage.create({
+                        content: `<div class="mastery-stone-resolution"><p><strong>${source}</strong> — Initiative Boost</p><p>+${bonus} Initiative (Mastery Rank ${mr} × ${2 ** (tier - 1)}).</p></div>`,
+                    });
+                }
+            }
+            catch {
+                /* the bonus is already on the combatant */
+            }
         },
     },
     {

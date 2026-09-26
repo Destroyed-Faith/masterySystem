@@ -91,6 +91,11 @@ export async function activateStonePower(options: {
   tier?: number;
   cost?: number;
   ranksGained?: number;
+  /**
+   * Spend and record the rank, but do not run `apply`. Interactive powers
+   * resolve from the post-commit queue.
+   */
+  deferApply?: boolean;
 }): Promise<boolean> {
   const { combatant, abilityId, attributeKey, colorlessSpent = 0, placedCount } = options;
   const actor = getActionEconomyActor(options.actor) ?? options.actor;
@@ -171,6 +176,7 @@ export async function activateStonePower(options: {
     poolAttribute,
     abilityId,
     async (_roundState: RoundState) => {
+      if (options.deferApply) return;
       await power.apply({ actor, combatant, tier, cost });
     },
     cost,
@@ -195,6 +201,8 @@ export async function activateGenericStonePowerMixed(options: {
   tier?: number;
   cost?: number;
   ranksGained?: number;
+  /** See `activateStonePower`. Generic powers are not interactive today. */
+  deferApply?: boolean;
 }): Promise<boolean> {
   const { combatant, abilityId, perAttributeStones } = options;
   const actor = getActionEconomyActor(options.actor) ?? options.actor;
@@ -236,6 +244,7 @@ export async function activateGenericStonePowerMixed(options: {
     abilityId,
     perAttributeStones,
     async (_roundState: RoundState) => {
+      if (options.deferApply) return;
       await power.apply({ actor, combatant, tier, cost });
     },
     cost

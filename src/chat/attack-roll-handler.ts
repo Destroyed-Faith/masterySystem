@@ -1323,6 +1323,15 @@ export async function executeAttackRollFromCard(
               phase: 'defender',
               suppressCounterattack: suppressNestedCounterattack,
             });
+            if (!isSpellcasting) {
+              const { maybeOfferSlip } = await import('../stones/agility-movement-ui.js');
+              await maybeOfferSlip({
+                defender: missTarget,
+                attacker: missAttacker,
+                hit: false,
+                isAttack: true,
+              });
+            }
           }
         } catch (missReactErr) {
           console.warn('Mastery System | miss reaction window failed', missReactErr);

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.596] - 2026-09-26
+
+### Changed
+
+- **Stone-Zuweisung:** Steine legen nur den Plan fest. „Confirm Stone Assignment“ zahlt sie einmal, löst automatische Powers aus und öffnet danach die nötigen Zielwahl-Dialoge. Danach bleibt die Runde nur noch zur Ansicht. Ein offener Heilungs- oder Bewegungsdialog geht beim Schließen nicht verloren und wird nicht doppelt bezahlt.
+- **Healing und Stress Healing:** Nach dem Bestätigen wählt man ein legales Ziel (sich selbst oder einen Verbündeten in Reichweite), würfelt den jeweiligen Pool und heilt nur die fehlenden Punkte der aktuellen Leiste. Der Chat nennt Quelle, Ziel, Wurf und tatsächlich wiederhergestellte Punkte.
+- **Safe Movement:** Ersetzt die normale Movement dieser Aktion (4/8/12/16 m), kostet keine Attack Action und keine Reaction und löst keine bewegungsabhängigen Reactions aus. Zusätzliche Movement aus einer anderen Regel bleibt erhalten.
+- **Slip:** 4/8/12/16 m. Wird beim Bestätigen nur scharf geschaltet. Wenn ein gegnerischer Angriff verfehlt, darf man einmal bis zum nächsten eigenen Zug ausweichen, ohne die normale Movement zu verbrauchen. Ein Ablehnen lässt die Gelegenheit für den nächsten Fehlschlag bestehen.
+
 ## [0.9.595] - 2026-09-26
 
 ### Changed

@@ -406,6 +406,11 @@ describe('apply() — runs cleanly across every power and Rank', () => {
             expect(actor._roundState.attackActions.total).toBe(1);
             return;
           }
+          if (id === 'resolve.healing' || id === 'resolve.stressHealing') {
+            expect(touched, `${id} T${tier} waits for the resolution queue`).toBe(false);
+            expect(actor.system.health.current ?? 0).toBe(0);
+            return;
+          }
           expect(touched, `${id} T${tier} should affect actor state`).toBe(true);
         });
       }
@@ -605,6 +610,12 @@ describe('Resolve — Stress Healing scales 1d8/2d8/3d8/4d8', () => {
   it.each([[1, 1, 2], [2, 2, 4], [3, 3, 8], [4, 4, 16]])(
     'T%i rolls %id8 and reaches %i m',
     async (tier, dice, meters) => {
+      const { resolveStressHealingSelection, stressHealingRankProfile } = await import(
+        '../src/stones/stone-resolution'
+      );
+      const profile = stressHealingRankProfile(tier);
+      expect(profile.dice).toBe(dice);
+      expect(profile.rangeM).toBe(meters);
       const actor = makeMockActor();
       actor.system.stress = {
         currentBar: 1,
@@ -613,16 +624,24 @@ describe('Resolve — Stress Healing scales 1d8/2d8/3d8/4d8', () => {
           { name: 'S2', current: 4, max: 12 },
         ],
       };
-      await STONE_POWERS['resolve.stressHealing'].apply({
-        actor: actor as any,
-        combatant: makeMockCombatant() as any,
+      const result = await resolveStressHealingSelection({
+        sourceName: actor.name,
         tier,
-        cost: 2 ** (tier - 1),
+        candidates: [{ id: 'self', name: actor.name, self: true, distanceM: 0 }],
+        choose: async () => 'self',
+        roll: async () => dice * 4,
+        stressOf: () => ({
+          bars: actor.system.stress.bars,
+          currentBar: actor.system.stress.currentBar,
+        }),
+        writeStress: (_id, stress) => {
+          actor.system.stress.bars = stress.bars;
+          actor.system.stress.currentBar = stress.currentBar;
+        },
+        chat: () => undefined,
       });
-      const pending = actor._flags.pendingStressHealing;
-      expect(pending.dice).toBe(dice);
-      expect(pending.range).toBe(meters);
-      expect(pending.amount).toBe(dice * 4);
+      expect(result.ok).toBe(true);
+      expect(result.restored).toBe(Math.min(dice * 4, 8));
       expect(actor.system.stress.bars[1].current).toBeGreaterThan(4);
     },
   );

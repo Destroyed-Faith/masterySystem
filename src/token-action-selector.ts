@@ -76,6 +76,8 @@ interface MovementState {
   onMove: (ev: PIXI.FederatedPointerEvent) => void;
   onDown: (ev: PIXI.FederatedPointerEvent) => void;
   onKeyDown: (ev: KeyboardEvent) => void;
+  /** Resolves when the player commits or cancels this movement. */
+  finish?: (ok: boolean) => void;
 }
 
 // Global movement state
@@ -454,9 +456,13 @@ function getDefaultMovementRange(token: any, option: RadialCombatOption): number
 /**
  * Start guided movement mode for a token
  */
-export function startGuidedMovement(token: any, option: RadialCombatOption): void {
+export function startGuidedMovement(token: any, option: RadialCombatOption): Promise<boolean> {
   // Cancel any existing movement mode first
   endGuidedMovement(false);
+  let finish: (ok: boolean) => void = () => undefined;
+  const done = new Promise<boolean>((resolve) => {
+    finish = resolve;
+  });
   
   // Ensure token is controlled by this user
   token.control({ releaseOthers: false });
@@ -512,7 +518,8 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): voi
     highlightIdHover,
     onMove,
     onDown,
-    onKeyDown
+    onKeyDown,
+    finish,
   };
   
   activeMovementState = state;
@@ -528,6 +535,7 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): voi
   
   // Initial preview at origin (zero-length)
   refreshMovementPreview(state, origin.x, origin.y);
+  return done;
 }
 
 /**
@@ -702,6 +710,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
 export function endGuidedMovement(success: boolean): void {
   const state = activeMovementState;
   if (!state) return;
+  const finish = state.finish;
   // Remove event listeners
   canvas.stage.off("pointermove", state.onMove);
   canvas.stage.off("pointerdown", state.onDown);
@@ -742,6 +751,7 @@ export function endGuidedMovement(success: boolean): void {
   }
 
   activeMovementState = null;
+  finish?.(success);
 }
 
 // Removed getTurnState - now using RoundState from action-economy.ts

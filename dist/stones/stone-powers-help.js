@@ -113,10 +113,10 @@ export const STONE_POWERS_HELP_SCREENS = [
         id: 7,
         track: 'stones',
         step: 4,
-        title: '4. Apply your assignment',
-        body: 'Select Apply & Close when you are finished. Fully paid Stone waves are settled. Incomplete waves remain open until the next full wave.',
+        title: '4. Confirm your assignment',
+        body: 'Select Confirm Stone Assignment when you are finished. Fully paid Stone waves are committed. Powers that need a target resolve next, one at a time. Incomplete waves stay open until the next full wave.',
         note: 'Save defaults remembers your preferred choices for future rounds.',
-        images: [helpImage('07', 'Stone Powers footer with Save defaults and Apply & Close')],
+        images: [helpImage('07', 'Stone Powers footer with Save defaults and Confirm Stone Assignment')],
     },
 ];
 //# sourceMappingURL=stone-powers-help.js.map

@@ -54,7 +54,7 @@ describe('Stone Powers Quick Help', () => {
       '1. Check your available Stones',
       '2. Choose a Stone Power',
       '3. Pay the full Rank',
-      '4. Apply your assignment',
+      '4. Confirm your assignment',
     ]);
     expect(hbs).toMatch(/aria-label="Help screen \{\{step\}\}">\{\{step\}\}/);
   });

@@ -114,6 +114,8 @@ export async function activateStonePower(options) {
     }
     // Use the action economy system to handle stone spending
     const ok = await spendStoneAbility(actor, combatant, poolAttribute, abilityId, async (_roundState) => {
+        if (options.deferApply)
+            return;
         await power.apply({ actor, combatant, tier, cost });
     }, cost, colorlessSpent);
     if (ok && power.oncePerCombat) {
@@ -159,6 +161,8 @@ export async function activateGenericStonePowerMixed(options) {
         return false;
     }
     const ok = await spendGenericStoneAbilityWithPerAttributeDeductions(actor, combatant, abilityId, perAttributeStones, async (_roundState) => {
+        if (options.deferApply)
+            return;
         await power.apply({ actor, combatant, tier, cost });
     }, cost);
     if (ok)

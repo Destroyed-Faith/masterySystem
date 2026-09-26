@@ -13,7 +13,7 @@ export declare function initializeTokenActionSelector(): void;
 /**
  * Start guided movement mode for a token
  */
-export declare function startGuidedMovement(token: any, option: RadialCombatOption): void;
+export declare function startGuidedMovement(token: any, option: RadialCombatOption): Promise<boolean>;
 /**
  * End guided movement mode
  */

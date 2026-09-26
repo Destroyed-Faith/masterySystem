@@ -46,6 +46,11 @@ export declare function activateStonePower(options: {
     tier?: number;
     cost?: number;
     ranksGained?: number;
+    /**
+     * Spend and record the rank, but do not run `apply`. Interactive powers
+     * resolve from the post-commit queue.
+     */
+    deferApply?: boolean;
 }): Promise<boolean>;
 /**
  * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
@@ -59,6 +64,8 @@ export declare function activateGenericStonePowerMixed(options: {
     tier?: number;
     cost?: number;
     ranksGained?: number;
+    /** See `activateStonePower`. Generic powers are not interactive today. */
+    deferApply?: boolean;
 }): Promise<boolean>;
 /**
  * Get available stone powers for an actor

@@ -16,13 +16,21 @@
       <span>This stone assignment is confirmed for the round. You can see what was placed. Stones cannot be moved or paid again.</span>
     </div>
   </div>
+  {{else if stoneResolutionHold}}
+  <div class="stone-plan-locked-banner" role="status">
+    <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+    <div class="stone-plan-locked-text">
+      <strong>{{combatLabel}} — resolving</strong>
+      <span>The stone assignment is committed. Finish the remaining target choices. Stones cannot be moved or paid again.</span>
+    </div>
+  </div>
   {{else if stonePlanLocked}}
   <div class="stone-plan-locked-banner" role="status">
     <i class="fas fa-lock" aria-hidden="true"></i>
     <div class="stone-plan-locked-text">
       <strong>{{combatLabel}}</strong>
       <span>Stone assignment and activation are locked for this round once you have used movement, an attack, or a reaction.</span>
-      <span class="stone-plan-locked-sub">Fully paid waves stay in effect — <strong>Apply &amp; Close</strong> settles them and closes the dialog.</span>
+      <span class="stone-plan-locked-sub">Fully paid waves stay in effect — <strong>Confirm Stone Assignment</strong> commits them.</span>
     </div>
   </div>
   {{/if}}
@@ -373,7 +381,7 @@
 
   {{#unless combatStarted}}
   {{#unless stoneReviewMode}}
-  <p class="stone-powers-close-hint">Fully paid stone waves are settled when you <strong>Apply &amp; Close</strong> (pools, combat round state). Incomplete waves stay open until the next full wave.</p>
+  <p class="stone-powers-close-hint">Placing Stones only plans the round. <strong>Confirm Stone Assignment</strong> commits them. Powers that need a target resolve after that, one at a time.</p>
   {{/unless}}
   {{/unless}}
 
@@ -399,9 +407,13 @@
     <button type="button" class="dialog-btn dialog-btn-primary js-close" title="Close the dialog. The confirmed assignment stays.">
       <i class="fas fa-check"></i> Close
     </button>
+    {{else if stoneResolutionHold}}
+    <button type="button" class="dialog-btn dialog-btn-primary js-confirm-stones" title="Continue the committed resolutions.">
+      <i class="fas fa-check"></i> Resume resolutions
+    </button>
     {{else}}
-    <button type="button" class="dialog-btn dialog-btn-primary js-close" {{#if recovery.active}}disabled title="Finish Stone Recovery first."{{else}}title="Settles fully paid waves and closes the dialog."{{/if}}>
-      <i class="fas fa-check"></i> Apply &amp; Close
+    <button type="button" class="dialog-btn dialog-btn-primary js-confirm-stones" {{#if recovery.active}}disabled title="Finish Stone Recovery first."{{else}}title="Commits the stone assignment, then resolves any powers that need a target."{{/if}}>
+      <i class="fas fa-check"></i> Confirm Stone Assignment
     </button>
     {{/if}}
   </div>

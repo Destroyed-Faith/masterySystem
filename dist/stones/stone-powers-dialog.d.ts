@@ -1,7 +1,7 @@
 /**
  * Stone Powers Dialog — Steine pro Macht in Rank-Segmenten verteilen
  * (Normal 1→2→4→8, Premium 2→4→6→8).
- * Voll bezahlte Wellen werden beim Schließen des Dialogs abgerechnet (Pools, RoundState, Radial); beim Klick/Drop bleiben Steine in den Slots.
+ * Placing Stones only plans. Confirm Stone Assignment pays, applies automatic powers, then walks the resolution queue.
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;
@@ -33,6 +33,13 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneRoundPlanHydratedKey;
     /** Stones already confirmed this round — show assignment, do not spend again. */
     private _stoneReviewMode;
+    /** Interactive powers staged by the confirm that is currently paying. */
+    private _resolutionBatch;
+    /** Free support ranks the player accepted while planning. Spent only on confirm. */
+    private _plannedFreeRankIds;
+    private _resolutionRunning;
+    /** Stops a cancelled resolution dialog from opening again on the next render. */
+    private _resolutionResumeStarted;
     /** Waves paid in this combat round: displayed, never charged again. */
     private _stonePaidLanes;
     /** True while a render triggered from `_onRender` is still pending. */

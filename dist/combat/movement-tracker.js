@@ -12,6 +12,7 @@
  */
 import { applyDamage } from '../utils/calculations.js';
 import { getActiveSpecialValue } from '../system/active-specials.js';
+import { movementProvokesReactions } from '../stones/agility-movement.js';
 const FLAG_SCOPE = 'mastery-system';
 const FLAG_MOVED = 'movedThisTurnM';
 const FLAG_LACERATE_STAGE = 'lacerateStageThisTurn';
@@ -94,18 +95,22 @@ export async function handleTokenMovement(tokenDoc, changes) {
     const prevMoved = Number(actor.getFlag(FLAG_SCOPE, FLAG_MOVED) ?? 0);
     const totalMoved = prevMoved + moved;
     await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, totalMoved);
-    // Disengage / Safe Movement: this movement does not provoke
-    // movement-triggered Reactions — announce once per turn so the table
-    // adjudicates any such reaction as illegal.
+    // Safe Movement, Disengage, and Slip do not open movement-triggered Reactions.
     try {
         const { getRoundState } = await import('./action-economy.js');
         const rs = getRoundState(actor, combat);
-        if (rs?.safeMovementThisTurn && !actor.getFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED)) {
+        const slipActive = !!actor.getFlag(FLAG_SCOPE, 'slipMovementActive');
+        const kind = slipActive ? 'slip' : rs?.safeMovementThisTurn ? 'safe' : 'normal';
+        if (!movementProvokesReactions(kind) && !actor.getFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED)) {
             await actor.setFlag(FLAG_SCOPE, FLAG_SAFE_MOVE_NOTED, true);
+            const label = slipActive ? 'Slip' : rs?.baseAttackLocked ? 'Disengage' : 'Safe Movement';
             await ChatMessage.create({
                 speaker: ChatMessage.getSpeaker({ actor }),
-                content: `<div class="mastery-status-tick"><strong>${actor.name}</strong> — <strong>Disengage:</strong> this movement does not provoke movement-triggered Reactions.</div>`,
+                content: `<div class="mastery-status-tick"><strong>${actor.name}</strong> — <strong>${label}:</strong> this movement does not provoke movement-triggered Reactions.</div>`,
             });
+        }
+        if (slipActive) {
+            await actor.unsetFlag(FLAG_SCOPE, 'slipMovementActive');
         }
     }
     catch (err) {

@@ -1414,7 +1414,16 @@ export async function resetTurnState(actor, combat) {
     // Basic maneuver turn locks expire at the start of your next Turn.
     roundState.baseAttackLocked = false;
     roundState.safeMovementThisTurn = false;
+    roundState.movementPowerUsedThisRound = false;
     roundState.fleeLock = false;
+    try {
+        await owner.unsetFlag?.('mastery-system', 'pendingSlip');
+        await owner.unsetFlag?.('mastery-system', 'slipMovementActive');
+        await owner.unsetFlag?.('mastery-system', 'pendingSafeMovement');
+    }
+    catch {
+        /* slip / safe movement are turn-scoped */
+    }
     roundState.quickLoadReloadThisTurn = 0;
     // Clear stone usage for this turn (keep round-level usage)
     const stoneUsage = o.getFlag('mastery-system', 'stoneUsage') || {};
