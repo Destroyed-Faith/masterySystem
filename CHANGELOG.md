@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.592] - 2026-09-26
+
+### Fixed
+
+- **Token-Bild:** Ein neues Porträt überschreibt das Token, solange das Token noch das alte Porträt oder die Standard-Silhouette zeigt. Ein gesetztes Token-Bild wird gespeichert und auf Tokens auf der Karte übertragen, die noch das alte Bild zeigen.
+
 ## [0.9.591] - 2026-09-26
 
 ### Fixed

@@ -23,6 +23,7 @@ import { collectInventoryBandRects, findFirstFit, fitsInGrid, itemInventorySize,
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad, LOAD_ZONE_LABEL, ZONE_WIDTH_COLS } from '../utils/encumbrance.js';
 import { getFilePickerClass } from '../utils/foundry-v14.js';
+import { artworkUpdateForPortrait, artworkUpdateForToken, placedTokenIdsToRetarget, } from '../utils/actor-artwork.js';
 import { copyDocumentImageLink, openImageViewer, } from '../ui/image-url-share.js';
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
@@ -1121,12 +1122,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 hasActor: (b.bodies || []).some((body) => !!body.summonActorId),
             };
         });
-        // Ensure token image is available
-        if (!context.actor.prototypeToken?.texture?.src) {
-            context.actor.prototypeToken = context.actor.prototypeToken || {};
-            context.actor.prototypeToken.texture = context.actor.prototypeToken.texture || {};
-            context.actor.prototypeToken.texture.src = context.actor.img;
-        }
         // Ensure context.items contains the prepared items structure (weapons, armor, shields, etc.)
         // This is already set in line 453, but we ensure it's not overwritten
         if (!context.items || !context.items.weapons) {
@@ -5799,17 +5794,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 current: currentImage,
                 callback: async (path) => {
                     try {
-                        if (updateIsToken) {
-                            // Update token image
-                            const updateData = { 'prototypeToken.texture.src': path };
-                            await this.actor.update(updateData);
+                        const src = String(path ?? '').trim();
+                        if (!src)
+                            return;
+                        const previousPortrait = String(this.actor.img ?? '');
+                        const previousToken = String(this.actor.prototypeToken?.texture?.src ?? '');
+                        const updateData = updateIsToken
+                            ? artworkUpdateForToken(src)
+                            : artworkUpdateForPortrait(this.actor, src);
+                        await this.actor.update(updateData);
+                        const nextToken = String(updateData['prototypeToken.texture.src'] ?? '');
+                        if (nextToken) {
+                            await this.#syncPlacedTokenArtwork(nextToken, [previousPortrait, previousToken]);
                         }
-                        else {
-                            // Update portrait image
-                            const updateData = { img: path };
-                            await this.actor.update(updateData);
-                        }
-                        // Re-render the sheet to show the new image
                         this.render(false);
                     }
                     catch (updateError) {
@@ -5818,13 +5815,46 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     }
                 }
             });
-            await filePicker.render(true);
+            if (typeof filePicker.browse === 'function')
+                await filePicker.browse();
+            else
+                await filePicker.render(true);
         }
         catch (error) {
             console.error('Mastery System | Error opening file picker:', error);
             console.error('Mastery System | Error stack:', error instanceof Error ? error.stack : 'No stack');
             ui.notifications?.error('Failed to open image picker.');
         }
+    }
+    /** Copy a new token image onto placed tokens that still show the old portrait or token. */
+    async #syncPlacedTokenArtwork(nextSrc, previousSources) {
+        const actorId = String(this.actor.id ?? '');
+        if (!actorId || !nextSrc)
+            return;
+        const scenes = game.scenes;
+        const sceneList = scenes?.contents ?? (typeof scenes?.values === 'function' ? Array.from(scenes.values()) : []);
+        const tokens = [];
+        for (const scene of sceneList) {
+            const docs = scene?.tokens?.contents ?? scene?.tokens;
+            const list = Array.isArray(docs) ? docs : (typeof docs?.values === 'function' ? Array.from(docs.values()) : []);
+            tokens.push(...list);
+        }
+        const liveToken = this.actor.token;
+        if (liveToken)
+            tokens.push({ ...liveToken, id: liveToken.id, actorId, texture: liveToken.texture, update: liveToken.update?.bind(liveToken) });
+        const ids = new Set(placedTokenIdsToRetarget(tokens, actorId, previousSources));
+        await Promise.all(tokens.map(async (token) => {
+            if (!ids.has(String(token?.id ?? '')))
+                return;
+            if (String(token?.texture?.src ?? '') === nextSrc)
+                return;
+            try {
+                await token.update?.({ 'texture.src': nextSrc });
+            }
+            catch (err) {
+                console.warn('Mastery System | placed token image was not updated', err);
+            }
+        }));
     }
     /**
      * Handle profile image show (lower zone)
