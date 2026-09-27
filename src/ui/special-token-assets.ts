@@ -11,8 +11,12 @@ export const SPECIAL_TOKEN_FALLBACK = 'systems/mastery-system/assets/Challenge T
 /** Per-special token art. Add a path here when the dedicated PNG exists. */
 export const SPECIAL_TOKEN_ASSETS: Record<string, string> = {
   blight: 'systems/mastery-system/assets/special-tokens/blight.png',
+  challenge: 'systems/mastery-system/assets/special-tokens/challenge.png',
+  corrode: 'systems/mastery-system/assets/special-tokens/corrode.png',
   expose: 'systems/mastery-system/assets/special-tokens/expose.png',
   hex: 'systems/mastery-system/assets/special-tokens/hex.png',
+  mark: 'systems/mastery-system/assets/special-tokens/mark.png',
+  root: 'systems/mastery-system/assets/special-tokens/root.png',
   slow: 'systems/mastery-system/assets/special-tokens/slow.png',
   sundered: 'systems/mastery-system/assets/special-tokens/sundered.png',
 };
@@ -24,8 +28,12 @@ export const SPECIAL_TOKEN_ASSETS: Record<string, string> = {
  */
 export const SPECIAL_TOKEN_ICONS: Record<string, string> = {
   blight: 'systems/mastery-system/assets/special-tokens/icons/blight.png',
+  challenge: 'systems/mastery-system/assets/special-tokens/icons/challenge.png',
+  corrode: 'systems/mastery-system/assets/special-tokens/icons/corrode.png',
   expose: 'systems/mastery-system/assets/special-tokens/icons/expose.png',
   hex: 'systems/mastery-system/assets/special-tokens/icons/hex.png',
+  mark: 'systems/mastery-system/assets/special-tokens/icons/mark.png',
+  root: 'systems/mastery-system/assets/special-tokens/icons/root.png',
   slow: 'systems/mastery-system/assets/special-tokens/icons/slow.png',
   sundered: 'systems/mastery-system/assets/special-tokens/icons/sundered.png',
 };

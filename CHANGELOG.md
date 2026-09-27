@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.599] - 2026-09-27
+
+### Changed
+
+- **Effekt-Tokens:** Root, Corrode, Challenge und Mark zeigen die Effekt-Münze im Karussell und an den Status-Icons auf der Karte. Geladen wird eine kleine Kopie (128 px, etwa 40 KB). Die große Münze bleibt auf der Effektfläche. Effekte ohne Münze bleiben bei den bisherigen Icons. Das Hover mit Name und Wert bleibt.
+
 ## [0.9.598] - 2026-09-27
 
 ### Fixed

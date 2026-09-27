@@ -30,7 +30,7 @@ describe('special token views', () => {
       'challenge:5',
     ]);
     expect(tokens.every((t) => t.specialId === 'challenge')).toBe(true);
-    expect(tokens.every((t) => t.asset === SPECIAL_TOKEN_FALLBACK)).toBe(true);
+    expect(tokens.every((t) => t.asset === 'systems/mastery-system/assets/special-tokens/challenge.png')).toBe(true);
   });
 
   it('drops the highest indices when the actor value shrinks', () => {
@@ -109,13 +109,18 @@ describe('special token views', () => {
     expect(listHudDiminishingSpecials(actor).map((s) => s.id)).toEqual(['challenge']);
   });
 
-  it('uses dedicated art for the first coins and the Challenge 1er art otherwise', () => {
+  it('uses dedicated art for coins that have it and the Challenge 1er art otherwise', () => {
     expect(specialTokenAsset('blight')).toBe('systems/mastery-system/assets/special-tokens/blight.png');
     expect(specialTokenAsset('sundered')).toBe('systems/mastery-system/assets/special-tokens/sundered.png');
-    expect(specialTokenAsset('challenge')).toBe(SPECIAL_TOKEN_FALLBACK);
+    expect(specialTokenAsset('challenge')).toBe('systems/mastery-system/assets/special-tokens/challenge.png');
+    expect(specialTokenAsset('corrode')).toBe('systems/mastery-system/assets/special-tokens/corrode.png');
+    expect(specialTokenAsset('mark')).toBe('systems/mastery-system/assets/special-tokens/mark.png');
+    expect(specialTokenAsset('root')).toBe('systems/mastery-system/assets/special-tokens/root.png');
+    expect(specialTokenAsset('stunned')).toBe(SPECIAL_TOKEN_FALLBACK);
     expect(specialTokenIcon('hex')).toBe('systems/mastery-system/assets/special-tokens/icons/hex.png');
+    expect(specialTokenIcon('challenge')).toBe('systems/mastery-system/assets/special-tokens/icons/challenge.png');
     expect(specialTokenIcon('sundered')).not.toBe(specialTokenAsset('sundered'));
-    expect(specialTokenIcon('challenge')).toBeNull();
+    expect(specialTokenIcon('stunned')).toBeNull();
   });
 
   it('builds three Sundered tokens from the actor stack', () => {
