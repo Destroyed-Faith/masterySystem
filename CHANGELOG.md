@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.602] - 2026-09-27
+
+### Changed
+
+- **Combat-Karussell:** Disposition-Farben, Next-Turn-Markierung, Rich Tooltips und ein Einstellungs-Zahnrad (Client). Hostile-NPCs zeigen keine genauen HP-/Stress-Zahlen mehr.
+- **Movement:** Guided Move erlaubt Teilschritte mit Restmetern; das Karussell zeigt übrige Movement-Actions, Speed und Safe/Slip-Badges. Weapon-Set 1/2 sitzt am eigenen Card.
+- **GM-Vitals:** Health-, Stress- und Temp-HP lassen sich am Karussell direkt setzen; Scarred-Bars können wieder gefüllt werden.
+- **Power-Favoriten:** Bis zu sechs Powers per Stern auf dem Sheet pinnen; Icons unter dem eigenen Karussell-Card starten sie. Rechtsklick entfernt den Pin.
+
 ## [0.9.601] - 2026-09-27
 
 ### Changed

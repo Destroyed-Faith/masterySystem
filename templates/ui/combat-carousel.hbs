@@ -1,5 +1,8 @@
 <div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}} {{#if topBar.show}}is-preparing{{/if}}">
   {{#if active}}
+    <button type="button" class="carousel-settings-cog js-carousel-settings" title="Carousel settings" aria-label="Carousel settings">
+      <i class="fas fa-cog"></i>
+    </button>
     {{#if topBar.show}}
     <div class="ms-carousel-prepare-bar{{#if topBar.isRoundGate}} is-round-gate{{/if}}">
       <span class="ms-carousel-prepare-label">{{topBar.label}}</span>
@@ -39,14 +42,25 @@
     <!-- Combatants Row -->
     <div class="carousel-combatants">
       {{#each combatants as |combatant|}}
-        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}" data-combatant-id="{{combatant.id}}">
-        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}}" 
+        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}}" data-combatant-id="{{combatant.id}}">
+        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}} {{combatant.dispositionClass}}" 
              data-combatant-id="{{combatant.id}}">
+          {{#if combatant.richTooltip}}
+          <div class="ms-carousel-rich-tip" hidden>
+            <strong class="ms-carousel-rich-tip-title">{{combatant.richTooltip.title}}</strong>
+            {{#each combatant.richTooltip.lines as |line|}}
+              <div class="ms-carousel-rich-tip-line">{{line}}</div>
+            {{/each}}
+          </div>
+          {{/if}}
           <!-- Portrait Image -->
           <div class="portrait-image">
             <img src="{{combatant.img}}" alt="{{combatant.name}}" />
             {{#if combatant.isCurrent}}
               <div class="current-indicator"></div>
+            {{/if}}
+            {{#if combatant.isNext}}
+              <div class="next-indicator" title="Next Turn">Next</div>
             {{/if}}
           </div>
 
@@ -75,6 +89,30 @@
           <!-- Name — opens Stone Powers (Passives live in that dialog) -->
           <div class="portrait-name js-open-stone-powers" title="{{localize 'MASTERY.encounterSetup.stones'}}">{{combatant.name}}</div>
 
+          {{#if combatant.weaponSets}}
+          <div class="ms-carousel-weapon-sets" title="Active weapon set">
+            <button type="button" class="ms-car-wset js-weapon-set{{#if combatant.weaponSets.isSet1}} is-active{{/if}}" data-set="1" title="{{combatant.weaponSets.set1Title}}" {{#unless combatant.weaponSets.canSwap}}disabled{{/unless}}>1</button>
+            <button type="button" class="ms-car-wset js-weapon-set{{#if combatant.weaponSets.isSet2}} is-active{{/if}}" data-set="2" title="{{combatant.weaponSets.set2Title}}" {{#unless combatant.weaponSets.canSwap}}disabled{{/unless}}>2</button>
+          </div>
+          {{/if}}
+
+          {{#if combatant.moveStrip}}
+          <div class="ms-carousel-move-strip" title="Movement actions and meters">
+            <span class="ms-car-move">M <strong>{{combatant.moveStrip.movementRemaining}}</strong>/{{combatant.moveStrip.movementTotal}}</span>
+            {{#if combatant.moveStrip.moveActive}}
+              <span class="ms-car-move is-live"><strong>{{combatant.moveStrip.remainingMeters}}</strong> m left</span>
+            {{else}}
+              <span class="ms-car-move">{{combatant.moveStrip.speedMeters}} m</span>
+            {{/if}}
+            {{#if combatant.moveStrip.safeMeters}}
+              <span class="ms-car-move-badge" title="Safe Movement armed">Safe {{combatant.moveStrip.safeMeters}} m</span>
+            {{/if}}
+            {{#if combatant.moveStrip.slipMeters}}
+              <span class="ms-car-move-badge" title="Slip armed">Slip {{combatant.moveStrip.slipMeters}} m</span>
+            {{/if}}
+          </div>
+          {{/if}}
+
           {{#if combatant.combatStrip}}
           <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR%) — Hover für Herkunft{{/if}}">
             <span class="ms-cs ms-cs-arm" title="Armor total">A <strong>{{combatant.combatStrip.armor}}</strong></span>
@@ -87,14 +125,21 @@
           {{#if combatant.hpSegments.length}}
             <div class="ms-hp-bar">
               <div class="ms-hp-bar-header">
-                {{#if combatant.tempHP}}<span class="ms-hp-temp" title="Temporary HP">+{{combatant.tempHP}}</span>{{/if}}
+                {{#unless combatant.hideHpNumbers}}
+                {{#if combatant.tempHP}}<span class="ms-hp-temp{{#if combatant.canEditVitals}} js-edit-temp-hp{{/if}}" data-actor-id="{{combatant.actorId}}" data-temp="{{combatant.tempHP}}" title="Temporary HP{{#if combatant.canEditVitals}} — click to edit{{/if}}">+{{combatant.tempHP}}</span>{{/if}}
                 {{#if combatant.hpScarredCount}}<span class="ms-hp-scarred-count" title="Scarred Health Bars — empty until Remove Scar">Scarred {{combatant.hpScarredCount}}</span>{{/if}}
+                {{/unless}}
               </div>
               <div class="ms-hp-bar-track">
                 {{#each combatant.hpSegments as |seg|}}
-                  <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}{{#if seg.scarred}} is-scarred{{/if}}"
+                  <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}{{#if seg.scarred}} is-scarred{{/if}}{{#if ../canEditVitals}} js-edit-hp-bar{{/if}}"
                        style="flex-basis: {{seg.widthPct}}%"
-                       title="{{seg.hoverTitle}}">
+                       data-actor-id="{{../actorId}}"
+                       data-bar-index="{{@index}}"
+                       data-current="{{seg.current}}"
+                       data-max="{{seg.max}}"
+                       data-scarred="{{#if seg.scarred}}1{{else}}0{{/if}}"
+                       title="{{#unless ../hideHpNumbers}}{{seg.hoverTitle}}{{else}}{{seg.name}}{{/unless}}{{#if ../canEditVitals}} — click to edit{{/if}}">
                     {{#if seg.max}}
                       {{#unless seg.scarred}}
                       {{#with (divide seg.current seg.max)}}
@@ -109,7 +154,7 @@
                 {{#each combatant.hpSegments as |seg|}}
                   <span class="ms-hp-legend-name{{#if seg.scarred}} is-scarred{{/if}}"
                         style="flex-basis: {{seg.widthPct}}%"
-                        title="{{seg.hoverTitle}}">{{seg.penaltyLabel}}</span>
+                        title="{{#unless ../hideHpNumbers}}{{seg.hoverTitle}}{{else}}{{seg.name}}{{/unless}}">{{seg.penaltyLabel}}</span>
                 {{/each}}
               </div>
             </div>
@@ -117,18 +162,24 @@
 
           <!-- Segmented Stress Bar (same layout as HP; stress severity colors) -->
           {{#if combatant.stressSegments.length}}
-            <div class="ms-hp-bar ms-stress-bar" title="Stress: {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}">
+            <div class="ms-hp-bar ms-stress-bar"{{#unless combatant.hideHpNumbers}} title="Stress: {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}"{{else}} title="Stress"{{/unless}}>
               <div class="ms-hp-bar-header">
                 <span class="ms-hp-bar-label">Stress</span>
+                {{#unless combatant.hideHpNumbers}}
                 <span class="ms-hp-bar-totals">
                   {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}
                 </span>
+                {{/unless}}
               </div>
               <div class="ms-hp-bar-track">
                 {{#each combatant.stressSegments as |seg|}}
-                  <div class="ms-hp-segment ms-stress-severity-{{seg.severity}}"
+                  <div class="ms-hp-segment ms-stress-severity-{{seg.severity}}{{#if ../canEditVitals}} js-edit-stress-bar{{/if}}"
                        style="flex-basis: {{seg.widthPct}}%"
-                       title="{{seg.name}}: {{seg.current}}/{{seg.max}}">
+                       data-actor-id="{{../actorId}}"
+                       data-bar-index="{{@index}}"
+                       data-current="{{seg.current}}"
+                       data-max="{{seg.max}}"
+                       title="{{#unless ../hideHpNumbers}}{{seg.name}}: {{seg.current}}/{{seg.max}}{{else}}{{seg.name}}{{/unless}}{{#if ../canEditVitals}} — click to edit{{/if}}">
                     {{#if seg.max}}
                       {{#with (divide seg.current seg.max)}}
                         <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
@@ -184,6 +235,16 @@
               <span>Next Turn</span>
             </button>
           {{/if}}
+
+          {{#if combatant.favoritePowers.length}}
+          <div class="ms-carousel-favorites" data-combatant-id="{{combatant.id}}">
+            {{#each combatant.favoritePowers as |fav|}}
+              <button type="button" class="ms-car-fav js-favorite-power{{#if fav.disabled}} is-disabled{{/if}}" data-item-id="{{fav.id}}" title="{{fav.name}}{{#if fav.used}} (used this round){{/if}}" {{#if fav.disabled}}disabled{{/if}}>
+                <img src="{{fav.img}}" alt="{{fav.name}}" />
+              </button>
+            {{/each}}
+          </div>
+          {{/if}}
         </div>
       {{/each}}
     </div>
@@ -192,6 +253,12 @@
     <div class="carousel-controls carousel-controls-right">
       {{#unless preparing}}
       {{#if stonesReady}}
+      {{#if nextCombatant}}
+      <button type="button" class="carousel-next-chip js-pan-next" data-combatant-id="{{nextCombatant.id}}" title="Next: {{nextCombatant.name}}" aria-label="Next: {{nextCombatant.name}}">
+        <img src="{{nextCombatant.img}}" alt="" />
+        <span>Next</span>
+      </button>
+      {{/if}}
       {{#if controlsAllowed}}
       <button type="button" class="carousel-control-btn js-next-turn" data-tooltip="Next Turn" aria-label="Next Turn">
         <i class="fas fa-chevron-right"></i>

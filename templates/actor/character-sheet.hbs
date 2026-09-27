@@ -1648,6 +1648,10 @@
                     <label class="power-radial-toggle-label" title="Im Token-Radialmenü anzeigen">
                       <input type="checkbox" class="power-radial-checkbox" data-item-id="{{this.id}}" {{#unless (eq this.system.showInRadialMenu false)}}checked{{/unless}}/>
                     </label>
+                    <label class="power-favorite-toggle-label" title="Als Favorit im Combat-Karussell (max. 6)">
+                      <input type="checkbox" class="power-favorite-checkbox" data-item-id="{{this.id}}" {{#if this.isFavorite}}checked{{/if}}/>
+                      <i class="fas fa-star"></i>
+                    </label>
                     <input type="text" class="power-display-name-input" data-item-id="{{this.id}}" value="{{this.name}}" title="Display name — rename anytime (sheet &amp; rolls use this label)" />
                     <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>
                   </div>
@@ -1806,6 +1810,10 @@
                 <div class="power-name-compact">
                   <label class="power-radial-toggle-label" title="Im Token-Radialmenü anzeigen">
                     <input type="checkbox" class="power-radial-checkbox" data-item-id="{{this.id}}" {{#unless (eq this.system.showInRadialMenu false)}}checked{{/unless}}/>
+                  </label>
+                  <label class="power-favorite-toggle-label" title="Als Favorit im Combat-Karussell (max. 6)">
+                    <input type="checkbox" class="power-favorite-checkbox" data-item-id="{{this.id}}" {{#if this.isFavorite}}checked{{/if}}/>
+                    <i class="fas fa-star"></i>
                   </label>
                   <input type="text" class="power-display-name-input" data-item-id="{{this.id}}" value="{{this.name}}" title="Display name — rename anytime (sheet &amp; rolls use this label)" />
                   <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>

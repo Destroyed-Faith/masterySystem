@@ -59,6 +59,9 @@ export declare class CombatCarouselApp extends BaseCarousel {
      * Register hooks for live HP/Stress updates
      */
     private registerUpdateHooks;
+    private openVitalsEditDialog;
+    /** Client-side carousel display preferences. */
+    private openCarouselSettingsDialog;
     /**
      * Unregister update hooks
      */

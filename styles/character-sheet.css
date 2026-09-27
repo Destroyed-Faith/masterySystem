@@ -2938,6 +2938,24 @@
   accent-color: #66aaff;
 }
 
+.mastery-system.sheet.actor.character .power-favorite-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0;
+  cursor: pointer;
+  color: #c9a84c;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .power-favorite-checkbox {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #d4b86e;
+}
+
 .mastery-system.sheet.actor.character .power-name-text {
   flex: 1;
   min-width: 0;

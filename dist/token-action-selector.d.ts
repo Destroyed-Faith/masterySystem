@@ -6,6 +6,17 @@
  * Uses a PIXI-based radial menu for visual option selection
  */
 import type { RadialCombatOption } from './token-radial-menu';
+export type GuidedMovementSummary = {
+    active: true;
+    tokenId: string;
+    actorId: string | null;
+    remainingMeters: number;
+    maxMeters: number;
+    remainingSteps: number;
+    maxSteps: number;
+};
+/** Live budget for the open guided-move session, if any. */
+export declare function getActiveGuidedMovementSummary(): GuidedMovementSummary | null;
 /**
  * Initialize token action selector hooks
  */

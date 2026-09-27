@@ -50,6 +50,13 @@ import {
   collectHexKeysInRangeForToken,
   highlightTabuHexesOnLayer
 } from './utils/hex-highlighting.js';
+import {
+  createMovementBudget,
+  movementBudgetExhausted,
+  spendMovementMeters,
+  spendMovementSteps,
+  type MovementBudget,
+} from './ui/guided-movement-budget.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
 const MOVEMENT_RANGE_COLOR = 0xffe066;
 const MOVEMENT_RANGE_ALPHA = 0.45;
@@ -65,6 +72,8 @@ interface MovementState {
   origin: { x: number; y: number };
   maxRangeMeters: number;
   maxRangeSteps: number;
+  budget: MovementBudget;
+  movedOnce: boolean;
   blockedHexKeys: Set<string>;
   originalAlpha: number;
   previewGraphics: PIXI.Graphics | null;
@@ -82,6 +91,41 @@ interface MovementState {
 
 // Global movement state
 let activeMovementState: MovementState | null = null;
+
+export type GuidedMovementSummary = {
+  active: true;
+  tokenId: string;
+  actorId: string | null;
+  remainingMeters: number;
+  maxMeters: number;
+  remainingSteps: number;
+  maxSteps: number;
+};
+
+/** Live budget for the open guided-move session, if any. */
+export function getActiveGuidedMovementSummary(): GuidedMovementSummary | null {
+  const state = activeMovementState;
+  if (!state) return null;
+  return {
+    active: true,
+    tokenId: String(state.token?.id ?? state.token?.document?.id ?? ''),
+    actorId: state.token?.actor?.id != null ? String(state.token.actor.id) : null,
+    remainingMeters: state.budget.remainingMeters,
+    maxMeters: state.budget.maxMeters,
+    remainingSteps: state.budget.remainingSteps,
+    maxSteps: state.budget.maxSteps,
+  };
+}
+
+function notifyGuidedMovementChanged(): void {
+  try {
+    void import('./ui/combat-carousel.js').then(({ CombatCarouselApp }) => {
+      CombatCarouselApp.refresh();
+    });
+  } catch {
+    /* ignore */
+  }
+}
 
 /**
  * Initialize token action selector hooks
@@ -413,14 +457,16 @@ function collectBlockedHexKeysFromOtherTokens(movingToken: any): Set<string> {
 function paintStaticMovementRange(state: MovementState): void {
   const token = state.token;
   if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) return;
+  const steps = Math.max(0, state.budget.remainingSteps);
+  if (steps <= 0) return;
   highlightHexesInRange(
     token.id,
-    state.maxRangeSteps,
+    steps,
     state.highlightIdRange,
     MOVEMENT_RANGE_COLOR,
     MOVEMENT_RANGE_ALPHA
   );
-  const reachable = collectHexKeysInRangeForToken(token.id, state.maxRangeSteps);
+  const reachable = collectHexKeysInRangeForToken(token.id, steps);
   if (reachable) {
     highlightTabuHexesOnLayer(
       state.highlightIdRange,
@@ -510,6 +556,8 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): Pro
     origin,
     maxRangeMeters,
     maxRangeSteps,
+    budget: createMovementBudget(maxRangeMeters, maxRangeSteps),
+    movedOnce: false,
     blockedHexKeys,
     originalAlpha,
     previewGraphics,
@@ -535,6 +583,10 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): Pro
   
   // Initial preview at origin (zero-length)
   refreshMovementPreview(state, origin.x, origin.y);
+  notifyGuidedMovementChanged();
+  ui.notifications?.info?.(
+    `Move up to ${Math.round(maxRangeMeters)} m. Click to step; right-click to finish; Esc cancels leftover.`,
+  );
   return done;
 }
 
@@ -578,8 +630,9 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
 
     const destKey = hexKeyUnderTokenAtTopLeft(token, destTL);
     const tabuDest = destKey !== null && state.blockedHexKeys.has(destKey);
-    const steps = gridStepsBetweenCenters(origin, destCenter, state.maxRangeSteps);
-    isValid = !tabuDest && steps !== null && steps <= state.maxRangeSteps;
+    const stepCap = state.budget.remainingSteps;
+    const steps = gridStepsBetweenCenters(origin, destCenter, stepCap);
+    isValid = !tabuDest && steps !== null && steps <= stepCap;
 
     if (destKey && gridUI) {
       const parts = destKey.split(',');
@@ -598,7 +651,7 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
       }
     }
   } else {
-    const maxScene = metersToSceneDistance(state.maxRangeMeters);
+    const maxScene = metersToSceneDistance(state.budget.remainingMeters);
     const d = measureSceneDistanceBetweenPoints(origin, destCenter);
     isValid = d <= maxScene + 0.01;
   }
@@ -628,9 +681,9 @@ function handleMovementPointerDown(ev: PIXI.FederatedPointerEvent, state?: Movem
   const currentState = state || activeMovementState;
   if (!currentState || activeMovementState !== currentState) return;
   
-  // Right or middle click cancels
+  // Right/middle: finish if already stepped, otherwise cancel
   if (ev.button === 2 || ev.button === 1) {
-    endGuidedMovement(false);
+    endGuidedMovement(currentState.movedOnce);
     return;
   }
   
@@ -659,7 +712,8 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
   const grid: any = canvas.grid;
   const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
 
-  let distanceLabel = '';
+  let stepsUsed = 0;
+  let metersUsed = 0;
 
   if (!gridless && grid?.getOffset) {
     const destKey = hexKeyUnderTokenAtTopLeft(token, destTL);
@@ -670,33 +724,58 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
       );
       return;
     }
-    const steps = gridStepsBetweenCenters(origin, destCenter, state.maxRangeSteps);
-    if (steps === null || steps > state.maxRangeSteps) {
+    const steps = gridStepsBetweenCenters(origin, destCenter, state.budget.remainingSteps);
+    if (steps === null || steps > state.budget.remainingSteps) {
       ui.notifications.warn(
         game.i18n?.localize('MASTERY.combat.moveOutOfRange') ??
           'Ziel liegt außerhalb der Bewegungsreichweite.'
       );
       return;
     }
-    distanceLabel = String(steps);
+    if (steps <= 0) return;
+    stepsUsed = steps;
   } else {
-    const maxScene = metersToSceneDistance(state.maxRangeMeters);
+    const maxScene = metersToSceneDistance(state.budget.remainingMeters);
     const d = measureSceneDistanceBetweenPoints(origin, destCenter);
     if (d > maxScene + 0.01) {
       ui.notifications.warn('Target is out of movement range.');
       return;
     }
-    distanceLabel = d.toFixed(1);
+    if (d <= 0.01) return;
+    metersUsed = d;
   }
 
   try {
     await token.document.update({ x: destTL.x, y: destTL.y }, { animate: true });
-    // Movement action consumption is already handled in handleChosenCombatOption
-    // before startGuidedMovement is called, so no need to consume again here
-    
-    // End movement mode successfully
-    endGuidedMovement(true);
-    
+    // Movement action was already spent when the option started.
+
+    if (stepsUsed > 0) {
+      state.budget = spendMovementSteps(state.budget, stepsUsed);
+    } else {
+      state.budget = spendMovementMeters(state.budget, metersUsed);
+    }
+    state.movedOnce = true;
+    state.origin = getTokenHexCenter(token);
+    state.blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
+
+    try {
+      clearHexHighlight(state.highlightIdRange);
+      clearHexHighlight(state.highlightIdHover);
+    } catch {
+      /* ignore */
+    }
+
+    if (movementBudgetExhausted(state.budget)) {
+      endGuidedMovement(true);
+      return;
+    }
+
+    paintStaticMovementRange(state);
+    refreshMovementPreview(state, state.origin.x, state.origin.y);
+    notifyGuidedMovementChanged();
+    ui.notifications?.info?.(
+      `${Math.max(0, Math.round(state.budget.remainingMeters))} m left — click to step, right-click to finish.`,
+    );
   } catch (error) {
     console.error('Mastery System | Error during token movement', error);
     ui.notifications.error('Failed to move token');
@@ -746,11 +825,12 @@ export function endGuidedMovement(success: boolean): void {
         void markPowerUsedThisRound(act, combat, opt.item.id);
       }
     }
-  } else {
+  } else if (!state.movedOnce) {
     ui.notifications.info('Movement cancelled');
   }
 
   activeMovementState = null;
+  notifyGuidedMovementChanged();
   finish?.(success);
 }
 

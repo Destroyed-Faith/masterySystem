@@ -33,6 +33,62 @@
   display: flex !important;
 }
 
+.carousel-settings-cog {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.45rem;
+  z-index: 8;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 1px solid rgba(233, 69, 96, 0.45);
+  border-radius: 4px;
+  background: rgba(20, 24, 32, 0.9);
+  color: #e8d9a8;
+  cursor: pointer;
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.carousel-settings-cog:hover {
+  border-color: #e94560;
+  color: #fff;
+}
+
+.ms-carousel-rich-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  z-index: 20;
+  min-width: 140px;
+  max-width: 220px;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgba(212, 184, 110, 0.55);
+  border-radius: 6px;
+  background: rgba(12, 14, 18, 0.96);
+  color: #f2e6c4;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  text-align: left;
+}
+
+.ms-carousel-rich-tip-title {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: #fff;
+  font-size: 0.72rem;
+}
+
+.ms-carousel-rich-tip-line + .ms-carousel-rich-tip-line {
+  margin-top: 0.12rem;
+  opacity: 0.92;
+}
+
 .mastery-carousel.is-preparing {
   flex-wrap: wrap;
   padding-top: 0.3rem;
@@ -234,6 +290,33 @@
   opacity: 1;
 }
 
+.carousel-portrait.is-next:not(.is-current) {
+  border-color: rgba(212, 184, 110, 0.85);
+  border-style: dashed;
+  box-shadow: 0 0 8px rgba(212, 184, 110, 0.35);
+  opacity: 0.95;
+}
+
+.carousel-portrait.disp-friendly {
+  box-shadow: inset 0 0 0 2px rgba(90, 160, 120, 0.85);
+}
+
+.carousel-portrait.disp-hostile {
+  box-shadow: inset 0 0 0 2px rgba(180, 70, 70, 0.9);
+}
+
+.carousel-portrait.disp-neutral {
+  box-shadow: inset 0 0 0 2px rgba(160, 140, 90, 0.7);
+}
+
+.carousel-portrait.is-current.disp-friendly,
+.carousel-portrait.is-current.disp-hostile,
+.carousel-portrait.is-current.disp-neutral {
+  box-shadow:
+    0 0 12px rgba(102, 255, 102, 0.6),
+    inset 0 0 0 2px rgba(102, 255, 102, 0.5);
+}
+
 .carousel-portrait.is-defeated {
   opacity: 0.5;
   filter: grayscale(100%);
@@ -270,6 +353,139 @@
   border-radius: 50%;
   border: 2px solid #000;
   box-shadow: 0 0 8px rgba(102, 255, 102, 0.8);
+}
+
+.next-indicator {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  padding: 0 4px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1610;
+  background: rgba(212, 184, 110, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 3px;
+  line-height: 1.3;
+  pointer-events: none;
+}
+
+.carousel-next-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0 0.15rem;
+  padding: 0.15rem 0.4rem 0.15rem 0.15rem;
+  border: 1px dashed rgba(212, 184, 110, 0.85);
+  border-radius: 999px;
+  background: rgba(20, 24, 32, 0.85);
+  color: #e8d9a8;
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.carousel-next-chip img {
+  width: 22px;
+  height: 22px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid rgba(212, 184, 110, 0.6);
+}
+
+.ms-carousel-weapon-sets {
+  display: inline-flex;
+  gap: 0.25rem;
+  pointer-events: auto;
+}
+
+.ms-car-wset {
+  min-width: 1.4rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border: 1px solid rgba(212, 184, 110, 0.55);
+  border-radius: 4px;
+  background: rgba(20, 24, 32, 0.85);
+  color: #e8d9a8;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ms-car-wset.is-active {
+  background: rgba(212, 184, 110, 0.9);
+  color: #1a1610;
+  border-color: #d4b86e;
+}
+
+.ms-car-wset:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ms-carousel-move-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  justify-content: center;
+  font-size: 0.62rem;
+  color: #d8d0b8;
+  line-height: 1.2;
+}
+
+.ms-car-move.is-live {
+  color: #9fe3a0;
+  font-weight: 700;
+}
+
+.ms-car-move-badge {
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  background: rgba(90, 140, 100, 0.35);
+  color: #cfe8c8;
+}
+
+.ms-carousel-favorites {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  justify-content: center;
+  max-width: 100%;
+  pointer-events: auto;
+}
+
+.ms-car-fav {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(212, 184, 110, 0.5);
+  border-radius: 5px;
+  background: rgba(16, 18, 24, 0.9);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.ms-car-fav img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ms-car-fav.is-disabled,
+.ms-car-fav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.7);
+}
+
+.ms-hp-segment.js-edit-hp-bar,
+.ms-hp-segment.js-edit-stress-bar,
+.ms-hp-temp.js-edit-temp-hp {
+  cursor: pointer;
 }
 
 /* Initiative Badge */

@@ -2,9 +2,11 @@ import {
   getActionEconomyActor,
   getAvailableAttackActions,
   getAvailableMovementActions,
+  getMovementRangeBonusMeters,
   getReactionActionsSummary,
   getRoundState,
   gmRefundCombatAction,
+  hasPowerBeenUsedThisRound,
   type CombatActionRefundKind,
 } from '../combat/action-economy.js';
 import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../combat/end-turn.js';
@@ -19,6 +21,7 @@ import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
 import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import { carouselDispositionClass, findNextCombatantId } from './combat-carousel-helpers.js';
 import {
   applyCarouselCompactClass,
   applyCarouselUserSize,
@@ -32,6 +35,23 @@ import {
   readCarouselUserSize,
   writeCarouselUserSize,
 } from './combat-carousel-layout.js';
+import {
+  buildCarouselTooltip,
+  readCarouselClientPrefs,
+  resolveCarouselCompact,
+  writeCarouselClientPrefs,
+  type CarouselClientPrefs,
+} from './combat-carousel-settings.js';
+import {
+  PENDING_SAFE_MOVEMENT_FLAG,
+  PENDING_SLIP_FLAG,
+} from '../stones/agility-movement.js';
+import { peekWeaponSets, swapWeaponSet, type WeaponSetIndex } from '../utils/weapon-sets.js';
+import { getActiveGuidedMovementSummary, handleChosenCombatOption } from '../token-action-selector.js';
+import { applyCarouselVitalsEdit } from './carousel-vitals-edit.js';
+import { readPowerFavorites, togglePowerFavorite } from './power-favorites.js';
+import { getAllCombatOptionsForActor } from '../token-radial-menu.js';
+import { resolveLiveActor } from '../system/status-target.js';
 import {
   forceEncounterDialog,
   forceEncounterDialogForAll,
@@ -51,6 +71,36 @@ function combatantDisposition(combatant: any, token: any, actor: any): number {
     actor?.prototypeToken?.disposition ??
     0;
   return Number(raw);
+}
+
+function weaponHandLabel(actor: any, itemId: string | null | undefined): string {
+  if (!itemId) return '—';
+  const item = actor?.items?.get?.(itemId) ?? actor?.items?.find?.((it: any) => it.id === itemId);
+  return String(item?.name || '—');
+}
+
+function buildWeaponSetUi(actor: any, user: User | null | undefined, movementRemaining: number) {
+  if (!actor || actor.type !== 'character' || !user) return null;
+  const owns =
+    typeof actor.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER');
+  if (!owns) return null;
+  const sets = peekWeaponSets(actor);
+  const labelFor = (idx: WeaponSetIndex) => {
+    const hands = sets.sets[idx];
+    const main = weaponHandLabel(actor, hands?.mainhand);
+    const off = weaponHandLabel(actor, hands?.offhand);
+    return `${main} / ${off}`;
+  };
+  const live = !!game.combats?.active?.started;
+  return {
+    active: sets.active,
+    isSet1: sets.active === 1,
+    isSet2: sets.active === 2,
+    stowed: !!sets.stowed,
+    canSwap: !live || movementRemaining > 0,
+    set1Title: `Set 1: ${labelFor(1)}`,
+    set2Title: `Set 2: ${labelFor(2)}`,
+  };
 }
 
 export class CombatCarouselApp extends BaseCarousel {
@@ -156,6 +206,8 @@ export class CombatCarouselApp extends BaseCarousel {
     const currentCombatantId =
       (combat as any).combatant?.id ?? (combat as any).current?.combatantId ?? null;
     const isGM = game.user?.isGM || false;
+    const prefs = readCarouselClientPrefs();
+    const guidedMove = getActiveGuidedMovementSummary();
 
     for (const combatant of turns) {
       const actor = combatant.actor;
@@ -349,6 +401,91 @@ export class CombatCarouselApp extends BaseCarousel {
         movementRemaining + movementUsed,
         Math.floor(Number(roundState.movementActions?.total) || 0),
       );
+      const disposition = combatantDisposition(combatant, token, actor);
+      const ownsActor =
+        typeof actor.testUserPermission === 'function' &&
+        !!game.user &&
+        actor.testUserPermission(game.user, 'OWNER');
+      const hideHpNumbers =
+        !isGM && !ownsActor && hideCarouselHpNumbers(actor.type, disposition);
+      const visibleStatusIcons = prefs.showStatusIcons
+        ? statusIcons.filter((item: any) => item && item.icon)
+        : [];
+      const tip = buildCarouselTooltip({
+        mode: prefs.tooltipMode,
+        name: String(combatant.name || actor.name || ''),
+        initiative: combatant.initiative ?? 0,
+        statusTooltips: visibleStatusIcons.map((s) => String(s.tooltip || s.name || '')).filter(Boolean),
+        hideVitals: hideHpNumbers,
+        armor: combatStrip?.armor,
+        evade: combatStrip?.evade,
+        drPct: combatStrip?.drPct,
+        attackRemaining,
+        attackTotal,
+        movementRemaining,
+        movementTotal,
+        reactionRemaining: reactSum.remaining,
+        reactionTotal: reactSum.total,
+        tempHP,
+        hpScarredCount,
+        stressCurrent: stressTotalCurrent,
+        stressMax: stressTotalMax,
+      });
+
+      const speedMeters =
+        Math.max(0, Math.floor(Number((actor.system as any)?.combat?.speed ?? 0) || 0)) +
+        getMovementRangeBonusMeters(economyActor, combat);
+      const tokenDocId = String(token?.id ?? tokenId ?? '');
+      const moveActive =
+        !!guidedMove &&
+        (guidedMove.tokenId === tokenDocId ||
+          (guidedMove.actorId != null && guidedMove.actorId === String(actor.id || '')));
+      const pendingSafe = (() => {
+        try {
+          const raw = economyActor?.getFlag?.('mastery-system', PENDING_SAFE_MOVEMENT_FLAG);
+          const m = Math.max(0, Math.floor(Number((raw as any)?.meters ?? raw) || 0));
+          return m > 0 ? m : 0;
+        } catch {
+          return 0;
+        }
+      })();
+      const pendingSlip = (() => {
+        try {
+          const raw = economyActor?.getFlag?.('mastery-system', PENDING_SLIP_FLAG);
+          if (raw && typeof raw === 'object' && (raw as any).used === true) return 0;
+          const m = Math.max(0, Math.floor(Number((raw as any)?.meters ?? raw) || 0));
+          return m > 0 ? m : 0;
+        } catch {
+          return 0;
+        }
+      })();
+      const showMoveStrip =
+        !hideHpNumbers &&
+        (ownsActor ||
+          combatant.id === currentCombatantId ||
+          moveActive);
+
+      const favoritePowers =
+        ownsActor && actor.type === 'character'
+          ? (() => {
+              const ids = readPowerFavorites(actor);
+              if (!ids.length) return [];
+              return ids
+                .map((id) => {
+                  const item = actor.items?.get?.(id);
+                  if (!item || item.type !== 'power') return null;
+                  const used = hasPowerBeenUsedThisRound(economyActor, combat, id);
+                  return {
+                    id,
+                    name: String(item.name || 'Power'),
+                    img: String(item.img || 'icons/svg/aura.svg'),
+                    used,
+                    disabled: used,
+                  };
+                })
+                .filter(Boolean);
+            })()
+          : [];
 
       combatants.push({
         id: combatant.id,
@@ -369,6 +506,7 @@ export class CombatCarouselApp extends BaseCarousel {
           !isEncounterPreparing(combat) &&
           arePlayerStonesReadyForRound(combat) &&
           combatant.id === currentCombatantId,
+        isNext: false,
         showEndTurn:
           !isEncounterPreparing(combat) &&
           arePlayerStonesReadyForRound(combat) &&
@@ -376,20 +514,47 @@ export class CombatCarouselApp extends BaseCarousel {
           canViewerSeeEndTurn(actor, game.user),
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,
-        statusIcons: statusIcons.filter((item: any) => item && item.icon),
+        disposition,
+        dispositionClass: prefs.showDisposition ? carouselDispositionClass(disposition) : '',
+        statusIcons: visibleStatusIcons,
         hpTotalCurrent,
         hpTotalMax,
         hpScarredCount,
         tempHP,
         hpSegments,
-        hideHpNumbers: !isGM && hideCarouselHpNumbers(actor.type, combatantDisposition(combatant, token, actor)),
+        hideHpNumbers,
         stressTotalCurrent,
         stressTotalMax,
-        stressSegments,
-        combatStrip,
+        stressSegments: prefs.showStressBar ? stressSegments : [],
+        combatStrip: prefs.showCombatStrip ? combatStrip : null,
+        richTooltip: tip,
         hasToken: !!token,
         tokenId: tokenId,
+        weaponSets: buildWeaponSetUi(actor, game.user, movementRemaining),
+            moveStrip: showMoveStrip
+          ? {
+              movementRemaining,
+              movementTotal,
+              speedMeters,
+              moveActive,
+              remainingMeters: moveActive ? Math.round(guidedMove!.remainingMeters) : null,
+              maxMeters: moveActive ? Math.round(guidedMove!.maxMeters) : speedMeters,
+              safeMeters: pendingSafe,
+              slipMeters: pendingSlip,
+            }
+          : null,
+        favoritePowers,
+        canEditVitals: isGM,
+        actorId: String(actor.id || ''),
       });
+    }
+
+    const turnsActive = !isEncounterPreparing(combat) && arePlayerStonesReadyForRound(combat);
+    const nextCombatantId = prefs.showNextMark
+      ? findNextCombatantId(combatants, currentCombatantId, turnsActive)
+      : null;
+    for (const row of combatants) {
+      row.isNext = row.id === nextCombatantId;
     }
     const preparing = isEncounterPreparing(combat);
     const stonesReady = arePlayerStonesReadyForRound(combat);
@@ -420,10 +585,15 @@ export class CombatCarouselApp extends BaseCarousel {
       startRoundLabel: fill('MASTERY.encounterSetup.startRound', 'Start Round {n}'),
       showShutdown: isGM,
     };
+    const nextCombatant = combatants.find((c) => c.isNext) ?? null;
     return {
       active: true,
-      compact: isCompactCarouselViewport(),
+      compact: resolveCarouselCompact(prefs, isCompactCarouselViewport()),
+      prefs,
       combatants,
+      nextCombatant: nextCombatant
+        ? { id: nextCombatant.id, name: nextCombatant.name, img: nextCombatant.img, hasToken: nextCombatant.hasToken }
+        : null,
       controlsAllowed: isGM,
       showPlayerEndTurn: !isGM && userMayEndCurrentTurn(game.user, combat),
       currentRound: combat.round || 1,
@@ -478,31 +648,180 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
+    const panToCombatant = (combatantId: string) => {
+      const combat = game.combats?.active;
+      if (!combat) return;
+      const combatant = combat.combatants.get(combatantId);
+      if (!combatant) return;
+      const tokenId = combatant.tokenId || combatant.token?.id;
+      const token = tokenId ? canvas.tokens?.get(tokenId) : null;
+      if (!token) return;
+      token.control({ releaseOthers: true });
+      canvas.animatePan({
+        x: token.center.x,
+        y: token.center.y,
+        scale: canvas.stage.scale.x,
+      });
+    };
+
+    root.querySelectorAll('.js-pan-next').forEach((btn: HTMLElement) => {
+      btn.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const id = btn.dataset.combatantId;
+        if (id) panToCombatant(id);
+      };
+    });
+
+    root.querySelectorAll('.js-carousel-settings').forEach((btn: HTMLElement) => {
+      btn.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        void this.openCarouselSettingsDialog();
+      };
+    });
+
+    root.querySelectorAll('.js-weapon-set').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if ((btn as HTMLButtonElement).disabled) return;
+        const portrait = btn.closest('.carousel-portrait') as HTMLElement | null;
+        const combatantId = portrait?.dataset.combatantId;
+        const set = Number(btn.dataset.set) as WeaponSetIndex;
+        if (!combatantId || (set !== 1 && set !== 2)) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        const actor = combatant?.actor;
+        if (!actor) return;
+        const res = await swapWeaponSet(actor, set);
+        if (!res.ok) {
+          (ui as any).notifications?.warn?.(
+            res.reason === 'no-movement'
+              ? 'No Movement action left to swap weapon sets.'
+              : 'Could not swap weapon set.',
+          );
+          return;
+        }
+        CombatCarouselApp.refresh();
+      };
+    });
+
+    root.querySelectorAll('.js-edit-temp-hp').forEach((el: HTMLElement) => {
+      el.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        const actorId = el.dataset.actorId || '';
+        const combatantEl = el.closest('.carousel-combatant') as HTMLElement | null;
+        const combatantId = combatantEl?.dataset.combatantId || '';
+        const combatant = game.combats?.active?.combatants?.get(combatantId);
+        const tokenId = combatant?.tokenId || combatant?.token?.id;
+        const actor = resolveLiveActor(actorId, tokenId) ?? combatant?.actor;
+        if (!actor) return;
+        const cur = Math.max(0, Math.floor(Number(el.dataset.temp) || 0));
+        void this.openVitalsEditDialog({
+          actor,
+          title: `Temp HP — ${actor.name}`,
+          pool: 'health',
+          tempHP: cur,
+        });
+      };
+    });
+
+    root.querySelectorAll('.js-edit-hp-bar, .js-edit-stress-bar').forEach((el: HTMLElement) => {
+      el.onclick = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        const actorId = el.dataset.actorId || '';
+        const combatantEl = el.closest('.carousel-combatant') as HTMLElement | null;
+        const combatantId = combatantEl?.dataset.combatantId || '';
+        const combatant = game.combats?.active?.combatants?.get(combatantId);
+        const tokenId = combatant?.tokenId || combatant?.token?.id;
+        const actor = resolveLiveActor(actorId, tokenId) ?? combatant?.actor;
+        if (!actor) return;
+        const pool = el.classList.contains('js-edit-stress-bar') ? 'stress' : 'health';
+        const barIndex = Math.max(0, Math.floor(Number(el.dataset.barIndex) || 0));
+        const current = Math.max(0, Math.floor(Number(el.dataset.current) || 0));
+        const max = Math.max(0, Math.floor(Number(el.dataset.max) || 0));
+        const scarred = el.dataset.scarred === '1';
+        void this.openVitalsEditDialog({
+          actor,
+          title: `${pool === 'health' ? 'Health' : 'Stress'} bar — ${actor.name}`,
+          pool,
+          barIndex,
+          current,
+          max,
+          scarred,
+        });
+      };
+    });
+
+    root.querySelectorAll('.js-favorite-power').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if ((btn as HTMLButtonElement).disabled) return;
+        const wrap = btn.closest('.ms-carousel-favorites') as HTMLElement | null;
+        const combatantId = wrap?.dataset.combatantId;
+        const itemId = btn.dataset.itemId;
+        if (!combatantId || !itemId) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        const actor = combatant?.actor;
+        const tokenId = combatant?.tokenId || combatant?.token?.id;
+        const token = tokenId ? canvas.tokens?.get(tokenId) : null;
+        if (!actor || !token) {
+          (ui as any).notifications?.warn?.('Token not found for this power.');
+          return;
+        }
+        const options = await getAllCombatOptionsForActor(actor);
+        const option = options.find((o: any) => o.item?.id === itemId || o.id === itemId);
+        if (!option) {
+          (ui as any).notifications?.warn?.('That power is not available right now.');
+          return;
+        }
+        await handleChosenCombatOption(token, option);
+        CombatCarouselApp.refresh();
+      };
+      btn.oncontextmenu = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const wrap = btn.closest('.ms-carousel-favorites') as HTMLElement | null;
+        const combatantId = wrap?.dataset.combatantId;
+        const itemId = btn.dataset.itemId;
+        if (!combatantId || !itemId) return;
+        const combatant = game.combats?.active?.combatants?.get(combatantId);
+        const actor = combatant?.actor;
+        if (!actor) return;
+        await togglePowerFavorite(actor, itemId);
+        CombatCarouselApp.refresh();
+      };
+    });
+
     // Portrait click - pan to token; double-click - open actor sheet
     root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {
+      const tip = portrait.querySelector('.ms-carousel-rich-tip') as HTMLElement | null;
+      if (tip) {
+        portrait.onmouseenter = () => {
+          tip.hidden = false;
+        };
+        portrait.onmouseleave = () => {
+          tip.hidden = true;
+        };
+      }
       portrait.onclick = async (ev: MouseEvent) => {
         const hit = ev.target as HTMLElement | null;
-        if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers')) return;
-        const combatantId = portrait.dataset.combatantId;
-        if (!combatantId) return;
-
-        const combat = game.combats?.active;
-        if (!combat) return;
-
-        const combatant = combat.combatants.get(combatantId);
-        if (!combatant) return;
-
-        const tokenId = combatant.tokenId || combatant.token?.id;
-        const token = tokenId ? canvas.tokens?.get(tokenId) : null;
-
-        if (token) {
-          token.control({ releaseOthers: true });
-          canvas.animatePan({
-            x: token.center.x,
-            y: token.center.y,
-            scale: canvas.stage.scale.x
-          });
+        if (
+          hit?.closest?.(
+            '.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers, .js-pan-next, .js-carousel-settings, .js-weapon-set, .ms-carousel-rich-tip, .ms-hp-segment, .ms-hp-temp',
+          )
+        ) {
+          return;
         }
+        const combatantId = portrait.dataset.combatantId;
+        if (combatantId) panToCombatant(combatantId);
       };
 
       portrait.ondblclick = async (ev: MouseEvent) => {
@@ -957,6 +1276,121 @@ export class CombatCarouselApp extends BaseCarousel {
     reg('createActiveEffect', Hooks.on('createActiveEffect', onEffectChange));
     reg('updateActiveEffect', Hooks.on('updateActiveEffect', onEffectChange));
     reg('deleteActiveEffect', Hooks.on('deleteActiveEffect', onEffectChange));
+  }
+
+  private async openVitalsEditDialog(opts: {
+    actor: any;
+    title: string;
+    pool: 'health' | 'stress';
+    barIndex?: number;
+    current?: number;
+    max?: number;
+    scarred?: boolean;
+    tempHP?: number;
+  }): Promise<void> {
+    const isTemp = opts.tempHP != null;
+    const content = isTemp
+      ? `<form class="ms-carousel-vitals-form"><label>Temp HP <input type="number" name="value" value="${opts.tempHP}" min="0" step="1"/></label></form>`
+      : `<form class="ms-carousel-vitals-form">
+          <p style="margin:0 0 0.4rem;">Current / max: <strong>${opts.current ?? 0}</strong> / ${opts.max ?? 0}</p>
+          <label>Set current <input type="number" name="value" value="${opts.current ?? 0}" min="0" max="${opts.max ?? 0}" step="1"/></label>
+          ${
+            opts.scarred
+              ? '<label style="display:block;margin-top:0.4rem;"><input type="checkbox" name="clearScar" checked/> Clear scar (fill this bar)</label>'
+              : ''
+          }
+        </form>`;
+    await new Promise<void>((resolve) => {
+      new Dialog({
+        title: opts.title,
+        content,
+        buttons: {
+          save: {
+            label: 'Apply',
+            callback: async (html: any) => {
+              const root = html?.[0] ?? html;
+              const form = (root as HTMLElement)?.querySelector?.('form') as HTMLFormElement | null;
+              if (!form) return;
+              const value = Math.floor(Number(new FormData(form).get('value')) || 0);
+              const clearScar = !!form.querySelector<HTMLInputElement>('[name="clearScar"]')?.checked;
+              const res = await applyCarouselVitalsEdit(opts.actor, {
+                pool: opts.pool,
+                barIndex: opts.barIndex,
+                tempHP: isTemp ? value : undefined,
+                fillBar: !isTemp && clearScar,
+                current: !isTemp && !clearScar ? value : undefined,
+              });
+              if (!res.ok) {
+                (ui as any).notifications?.warn?.(res.error || 'Could not update vitals.');
+                return;
+              }
+              CombatCarouselApp.refresh();
+            },
+          },
+          cancel: { label: 'Cancel' },
+        },
+        default: 'save',
+        close: () => resolve(),
+      } as any).render(true);
+    });
+  }
+
+  /** Client-side carousel display preferences. */
+  private async openCarouselSettingsDialog(): Promise<void> {
+    const prefs = readCarouselClientPrefs();
+    const content = `
+      <form class="ms-carousel-settings-form" style="display:flex;flex-direction:column;gap:0.55rem;">
+        <label>Compact mode
+          <select name="compactMode">
+            <option value="auto"${prefs.compactMode === 'auto' ? ' selected' : ''}>Auto</option>
+            <option value="force"${prefs.compactMode === 'force' ? ' selected' : ''}>Force compact</option>
+            <option value="off"${prefs.compactMode === 'off' ? ' selected' : ''}>Always full</option>
+          </select>
+        </label>
+        <label><input type="checkbox" name="showCombatStrip"${prefs.showCombatStrip ? ' checked' : ''}/> Combat strip (A / E / DR)</label>
+        <label><input type="checkbox" name="showStatusIcons"${prefs.showStatusIcons ? ' checked' : ''}/> Status effect coins</label>
+        <label><input type="checkbox" name="showNextMark"${prefs.showNextMark ? ' checked' : ''}/> Next-turn mark</label>
+        <label><input type="checkbox" name="showDisposition"${prefs.showDisposition ? ' checked' : ''}/> Disposition colors</label>
+        <label><input type="checkbox" name="showStressBar"${prefs.showStressBar ? ' checked' : ''}/> Stress bar</label>
+        <label>Tooltips
+          <select name="tooltipMode">
+            <option value="full"${prefs.tooltipMode === 'full' ? ' selected' : ''}>Full</option>
+            <option value="short"${prefs.tooltipMode === 'short' ? ' selected' : ''}>Short</option>
+            <option value="off"${prefs.tooltipMode === 'off' ? ' selected' : ''}>Off</option>
+          </select>
+        </label>
+      </form>`;
+    await new Promise<void>((resolve) => {
+      new Dialog({
+        title: 'Combat Carousel',
+        content,
+        buttons: {
+          save: {
+            label: 'Save',
+            callback: async (html: any) => {
+              const root = html?.[0] ?? html;
+              const form = (root as HTMLElement)?.querySelector?.('form') as HTMLFormElement | null;
+              if (!form) return;
+              const fd = new FormData(form);
+              const next: Partial<CarouselClientPrefs> = {
+                compactMode: String(fd.get('compactMode') || 'auto') as CarouselClientPrefs['compactMode'],
+                tooltipMode: String(fd.get('tooltipMode') || 'full') as CarouselClientPrefs['tooltipMode'],
+                showCombatStrip: !!form.querySelector<HTMLInputElement>('[name="showCombatStrip"]')?.checked,
+                showStatusIcons: !!form.querySelector<HTMLInputElement>('[name="showStatusIcons"]')?.checked,
+                showNextMark: !!form.querySelector<HTMLInputElement>('[name="showNextMark"]')?.checked,
+                showDisposition: !!form.querySelector<HTMLInputElement>('[name="showDisposition"]')?.checked,
+                showStressBar: !!form.querySelector<HTMLInputElement>('[name="showStressBar"]')?.checked,
+              };
+              await writeCarouselClientPrefs(next);
+              CombatCarouselApp.refresh();
+            },
+          },
+          cancel: { label: 'Cancel' },
+        },
+        default: 'save',
+        close: () => resolve(),
+      } as any).render(true);
+    });
   }
 
   /**

@@ -67,6 +67,7 @@ import { registerUnluckSettings } from './system/unluck.js';
 import { registerKnownNpcSettings } from './system/known-npcs.js';
 import { initializeKnownNpcsBar } from './ui/known-npcs-bar.js';
 import { initializeSpecialTokenArea, registerSpecialTokenAreaSettings } from './ui/special-token-area.js';
+import { registerCarouselClientSettings } from './ui/combat-carousel-settings.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
 import {
   buildEncounterSetupStatus,
@@ -208,6 +209,7 @@ function registerAllMasteryInitSettings(): void {
   registerUnluckSettings();
   registerKnownNpcSettings();
   registerSpecialTokenAreaSettings();
+  registerCarouselClientSettings();
 }
 
 /**

@@ -36,6 +36,7 @@ import {
 import { getAllSchticks } from '../utils/schticks';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { openCharacterPrintSheet } from './character-print.js';
+import { isPowerFavorited, togglePowerFavorite } from '../ui/power-favorites.js';
 import {
   getCardOption,
   getEcho,
@@ -652,6 +653,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const item = this.actor.items.get(itemId);
     if (!item || item.type !== 'power') return;
     await item.update({ 'system.showInRadialMenu': el.checked });
+    this.render();
+  }
+
+  async #onPowerFavoriteCheckboxChange(event: JQuery.ChangeEvent) {
+    event.stopPropagation();
+    const el = event.currentTarget as HTMLInputElement;
+    const itemId = el.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (!item || item.type !== 'power') return;
+    const next = await togglePowerFavorite(this.actor, itemId);
+    const want = !!el.checked;
+    const has = next.includes(itemId);
+    if (want !== has) {
+      // Keep the checkbox honest if the list was full and something else was shifted.
+      el.checked = has;
+    }
     this.render();
   }
 
@@ -1779,6 +1797,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (power.system && !Array.isArray((power.system as any).specials)) {
         (power.system as any).specials = (power.system as any).specials ? [(power.system as any).specials] : [];
       }
+      (power as any).isFavorite = isPowerFavorited(this.actor, power.id);
     }
     
     // Sort powers: alphabetical by name, then radial-menu visibility (shown in menu first)
@@ -3022,6 +3041,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html
       .off('change', '.power-radial-checkbox')
       .on('change', '.power-radial-checkbox', this.#onPowerRadialCheckboxChange.bind(this));
+    html
+      .off('change', '.power-favorite-checkbox')
+      .on('change', '.power-favorite-checkbox', this.#onPowerFavoriteCheckboxChange.bind(this));
     html
       .off('change', '.radial-maneuver-hide-all')
       .on('change', '.radial-maneuver-hide-all', this.#onRadialManeuverHideAll.bind(this));
