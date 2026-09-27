@@ -95,8 +95,9 @@ export declare function runInteractiveReactionWindow(params: {
     used?: ReactionWindowState['used'];
     priorMitigation?: DefenderReactionMitigation;
     /**
-     * When true and nobody can act, skip posting a chat card (used for ally phase).
-     * Defender phase still posts an info card so the table sees "no reactions left".
+     * When true and nobody can act, skip posting a chat card.
+     * Default for empty defender/ally windows: also silent — grayed-only Evade /
+     * "no eligible powers" cards are noise when nothing useful can be spent.
      */
     silentIfEmpty?: boolean;
     /** Threatened Ranged: token ids that may spend a Reaction vs the shooter. */

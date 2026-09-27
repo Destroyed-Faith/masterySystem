@@ -162,6 +162,29 @@ describe('combat end cleanup', () => {
     expect(pc.getFlag('mastery-system', 'tempColorlessStones')).toBeUndefined();
   });
 
+  it('clears Temp HP even when combatants are already gone after deleteCombat', async () => {
+    const pc = mockActor('pc', 'character', { tempHP: 80 });
+    await pc.setFlag('mastery-system', 'tempHPSources', {
+      'passive:lean:combatStart': { value: 20, combatId: 'cmb1' },
+    });
+    setupCombat([], [pc]);
+    const empty = { id: 'cmb1', round: 3, combatants: [] };
+
+    await runCombatEndCleanup(empty);
+
+    expect(pc.system.health.tempHP).toBe(0);
+    expect(pc.getFlag('mastery-system', 'tempHPSources')).toBeUndefined();
+  });
+
+  it('drops stale Temp HP before a new encounter so stone pools cannot stack', async () => {
+    const pc = mockActor('pc', 'character', { tempHP: 20 });
+    const combat = setupCombat([pc]);
+
+    await clearStaleStoneStateBeforeEncounter(combat);
+
+    expect(pc.system.health.tempHP).toBe(0);
+  });
+
   it('drops Exhausted Initiative Colorless Stones too — spent stones do not survive the fight', async () => {
     const pc = mockActor('pc', 'character', { colorless: 0, initiativeColorless: 0 });
     await pc.setFlag('mastery-system', 'initiativeColorlessExhausted', 2);

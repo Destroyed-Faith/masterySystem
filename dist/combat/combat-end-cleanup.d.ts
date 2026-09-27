@@ -12,7 +12,10 @@
  * ends — PCs and NPCs. Leftover stacks on the sheet were too noisy, and
  * leftover NPC tokens (dead or not) must not keep Mark / Slow / etc.
  */
-/** Zero the Temp HP mirror on every combatant — Temp HP never outlives a fight. */
+/**
+ * Zero Temp HP and drop sourced pools — Temp HP never outlives a fight.
+ * Also scans world actors: on deleteCombat combatant.actor is often already null.
+ */
 export declare function resetTempHpAfterCombat(combat: any): Promise<void>;
 /** Initiative Colorless Stones (Ready or Exhausted) vanish when the encounter ends. */
 export declare function clearColorlessStonesAfterCombat(combat: any): Promise<void>;

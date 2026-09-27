@@ -83,12 +83,14 @@ export declare function attachDamageCardHandlers(messageId: string): void;
 export interface AppliedDamageSummary {
     rawDamage: number;
     armorApplied: number;
+    /** Guard / reaction Armor portion of `armorApplied` (0 when none). */
+    reactionArmorApplied?: number;
     drPercent: number;
     mitigatedDamage: number;
     tempHPAbsorbed: number;
     barDamage: number;
     min8sUsed: boolean;
-    /** "Raw X → Armor Y → DR Z% → TempHP A → B". */
+    /** "Raw X → Armor Y → Guard +Z → DR% → TempHP A → B". */
     breakdownLine: string;
     /** `true` if the target phased out of the hit entirely. */
     phased: boolean;

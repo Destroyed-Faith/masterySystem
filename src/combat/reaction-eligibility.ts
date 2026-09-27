@@ -64,6 +64,19 @@ function subfamilyOf(item: any): string {
   return String(item?.system?.subfamily ?? '').toLowerCase();
 }
 
+/** Basic Evade or a reaction whose only combat effect is an Evade bonus. */
+export function isEvadeOnlyReaction(item: any): boolean {
+  if (item?.basicReaction === 'evade') return true;
+  const mech = mechanicsOf(item);
+  const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+  if (ev <= 0) return false;
+  const armor = Math.max(0, Math.floor(Number(mech?.armor) || 0));
+  const dr = Math.max(0, Math.floor(Number(mech?.damageReductionPct) || 0));
+  if (armor > 0 || dr > 0) return false;
+  if (item?.basicReaction === 'counterattack' || item?.basicReaction === 'guard') return false;
+  return true;
+}
+
 /** True when the reaction's only / primary defensive effect is Armor (hit/damage). */
 export function isArmorAxisReaction(item: any): boolean {
   if (item?.basicReaction === 'guard') return true;
@@ -312,12 +325,17 @@ export function evaluateReactionEligibility(power: any, ctx: ReactionTriggerCont
     }
   }
 
-  // Miss: no Armor / damage-buffer / counterattack / counter-damage.
+  // Miss: no Armor / damage-buffer / counterattack / counter-damage / Evade.
+  // Evade is decided against the finalized attack total — a miss cannot be
+  // "un-missed", so showing Evade only clutters the window.
   // Threatened Ranged reactors were not the attack target — miss/hit of the
   // original strike does not gate their offensive reactions vs the shooter.
   if (!ctx.hit && !threatenedWindow) {
     if (basic === 'guard' || isArmorAxisReaction(power) || isDamageTriggerReaction(power)) {
       return { shown: false, enabled: false, reason: 'Attack missed — nothing to absorb' };
+    }
+    if (isEvadeOnlyReaction(power)) {
+      return { shown: false, enabled: false, reason: 'Attack already missed — Evade will not change that' };
     }
     if (basic === 'counterattack') {
       return { shown: false, enabled: false, reason: 'Counterattack requires a hit' };

@@ -1258,8 +1258,13 @@ function buildMitigationHtml(damageResult) {
           <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
         </div>`;
     }
-    const armorLine = mit.armorApplied > 0
-        ? `<span class="mitigation-chip mitigation-chip-armor"><i class="fas fa-shield-alt"></i> Rüstung: ${mit.armorApplied} aufgefangen</span>`
+    const guardArmor = Math.max(0, Math.floor(Number(mit.reactionArmorApplied) || 0));
+    const sheetArmor = Math.max(0, Math.floor(Number(mit.armorApplied) || 0) - guardArmor);
+    const armorLine = sheetArmor > 0
+        ? `<span class="mitigation-chip mitigation-chip-armor"><i class="fas fa-shield-alt"></i> Rüstung: ${sheetArmor} aufgefangen</span>`
+        : '';
+    const guardLine = guardArmor > 0
+        ? `<span class="mitigation-chip mitigation-chip-guard"><i class="fas fa-shield"></i> Guard: ${guardArmor} aufgefangen</span>`
         : '';
     const drLine = mit.drPercent > 0
         ? `<span class="mitigation-chip mitigation-chip-dr"><i class="fas fa-user-shield"></i> DR: ${mit.drPercent}% reduziert</span>`
@@ -1278,6 +1283,7 @@ function buildMitigationHtml(damageResult) {
           <div class="mastery-damage-mitigation-chips">
             <span class="mitigation-chip mitigation-chip-raw"><i class="fas fa-burst"></i> Roh: ${mit.rawDamage}</span>
             ${armorLine}
+            ${guardLine}
             ${drLine}
             ${tempLine}
             ${min8sLine}

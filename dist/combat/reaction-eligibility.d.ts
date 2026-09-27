@@ -38,6 +38,8 @@ export interface ReactionEligibility {
     enabled: boolean;
     reason?: string;
 }
+/** Basic Evade or a reaction whose only combat effect is an Evade bonus. */
+export declare function isEvadeOnlyReaction(item: any): boolean;
 /** True when the reaction's only / primary defensive effect is Armor (hit/damage). */
 export declare function isArmorAxisReaction(item: any): boolean;
 /** Damage-buffer reactions that need a hit / incoming damage (Temp HP, Armor+Temp, DR). */

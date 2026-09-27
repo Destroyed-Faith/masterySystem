@@ -568,8 +568,13 @@ export async function clearTempHPSourcesOnCombatEnd(actor, combat) {
     if (prevKeys.length === 0)
         return;
     const combatId = combat?.id ? String(combat.id) : null;
+    // Match this combat, plus stale/empty combatIds left from a prior fight or
+    // buffs activated with no combat — those must not linger and stack later.
     const toRemove = combatId
-        ? prevKeys.filter((k) => sources[k].combatId === combatId)
+        ? prevKeys.filter((k) => {
+            const sid = String(sources[k].combatId ?? '');
+            return !sid || sid === combatId;
+        })
         : prevKeys.slice();
     if (toRemove.length === 0)
         return;
@@ -621,6 +626,30 @@ export async function applyPassiveTriggerToCombat(triggerKind, combat) {
 /** Convenience: clear sources on every combatant in the combat. */
 export async function clearTempHPSourcesForCombat(combat) {
     const actors = getCombatActors(combat);
+    const seen = new Set(actors.map((a) => String(a?.id ?? a?._id ?? '')));
+    // deleteCombat often clears combatant.actor before hooks run — still wipe
+    // leftover Temp HP on world actors so the next fight cannot stack on residue.
+    const col = globalThis.game?.actors;
+    const world = col
+        ? Array.isArray(col)
+            ? col
+            : Array.isArray(col.contents)
+                ? col.contents
+                : typeof col[Symbol.iterator] === 'function'
+                    ? Array.from(col)
+                    : []
+        : [];
+    for (const actor of world) {
+        const id = String(actor?.id ?? actor?._id ?? '');
+        if (!id || seen.has(id))
+            continue;
+        const temp = Math.max(0, Math.floor(Number(actor?.system?.health?.tempHP ?? 0) || 0));
+        const sources = getTempHPSources(actor);
+        if (temp <= 0 && Object.keys(sources).length === 0)
+            continue;
+        seen.add(id);
+        actors.push(actor);
+    }
     for (const actor of actors) {
         await clearTempHPSourcesOnCombatEnd(actor, combat);
     }

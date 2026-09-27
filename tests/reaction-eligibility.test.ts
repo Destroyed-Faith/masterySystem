@@ -35,16 +35,19 @@ describe('reaction eligibility', () => {
     rangeToAttackerM: 1,
   };
 
-  it('hides armor-axis and counterattack on a miss', () => {
+  it('hides armor-axis, evade, and counterattack on a miss', () => {
     const armor = {
       system: { templateId: 'reaction-armor' },
       mechanics: { armor: 4 },
     };
+    const evade = { basicReaction: 'evade', id: 'basic-reaction-evade', mechanics: { evade: 4 } };
     const counter = { basicReaction: 'counterattack', id: 'basic-reaction-counterattack' };
     const miss = { ...hitCtx, hit: false };
     expect(evaluateReactionEligibility(armor, miss).shown).toBe(false);
+    expect(evaluateReactionEligibility(evade, miss).shown).toBe(false);
     expect(evaluateReactionEligibility(counter, miss).shown).toBe(false);
     expect(evaluateReactionEligibility(armor, hitCtx).shown).toBe(true);
+    expect(evaluateReactionEligibility(evade, hitCtx).shown).toBe(true);
     expect(evaluateReactionEligibility(counter, hitCtx).shown).toBe(true);
   });
 

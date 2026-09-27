@@ -87,10 +87,19 @@ function iterateWorldActors(): any[] {
   return [];
 }
 
+function actorHasTempHpResidue(actor: any): boolean {
+  const temp = Math.max(0, Math.floor(Number(actor?.system?.health?.tempHP ?? 0) || 0));
+  if (temp > 0) return true;
+  const sources =
+    actor?.getFlag?.('mastery-system', 'tempHPSources') ??
+    actor?.flags?.['mastery-system']?.tempHPSources;
+  return !!(sources && typeof sources === 'object' && Object.keys(sources).length > 0);
+}
+
 /**
- * Combatants plus anyone still holding Colorless Stones. deleteCombat often
- * drops combatant.actor before the hook runs; leftover Initiative must not
- * survive just because the combatant list is already empty.
+ * Combatants plus anyone still holding Colorless Stones / Temp HP. deleteCombat
+ * often drops combatant.actor before the hook runs; leftovers must not survive
+ * just because the combatant list is already empty.
  */
 function collectColorlessCleanupActors(combat: any): any[] {
   const out: any[] = [];
@@ -113,13 +122,37 @@ function collectColorlessCleanupActors(combat: any): any[] {
   return out;
 }
 
-/** Zero the Temp HP mirror on every combatant — Temp HP never outlives a fight. */
+function collectTempHpCleanupActors(combat: any): any[] {
+  const out: any[] = [];
+  const seen = new Set<string>();
+  const add = (actor: any): void => {
+    if (!actor) return;
+    for (const doc of actorWithEconomyOwner(actor)) {
+      const tokenId = String(doc?.token?.id || '');
+      const id = String(doc?.id ?? doc?._id ?? '');
+      const key = tokenId ? `t:${tokenId}` : `a:${id}`;
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      out.push(doc);
+    }
+  };
+  for (const actor of collectCleanupActors(combat)) add(actor);
+  for (const actor of iterateWorldActors()) {
+    if (actorHasTempHpResidue(actor)) add(actor);
+  }
+  return out;
+}
+
+/**
+ * Zero Temp HP and drop sourced pools — Temp HP never outlives a fight.
+ * Also scans world actors: on deleteCombat combatant.actor is often already null.
+ */
 export async function resetTempHpAfterCombat(combat: any): Promise<void> {
-  for (const actor of collectCleanupActors(combat)) {
-    const current = Math.max(0, Math.floor(Number(actor?.system?.health?.tempHP ?? 0) || 0));
-    if (current <= 0) continue;
+  for (const actor of collectTempHpCleanupActors(combat)) {
+    if (!actorHasTempHpResidue(actor)) continue;
     try {
       await actor.update?.({ 'system.health.tempHP': 0 });
+      await actor.unsetFlag?.('mastery-system', 'tempHPSources');
     } catch (err) {
       console.warn('Mastery System | Temp HP reset after combat failed', err);
     }
@@ -192,6 +225,9 @@ export async function clearStaleStoneStateBeforeEncounter(combat: any): Promise<
       console.warn('Mastery System | Colorless stone reset before encounter failed', err);
     }
   }
+  // Safety net: Temp HP from a fight that ended without cleanup must not stack
+  // onto the next encounter's stone Temporary HP.
+  await resetTempHpAfterCombat(combat);
   for (const actor of collectCleanupActors(combat)) {
     try {
       await actor.unsetFlag?.('mastery-system', 'stonePowersRoundPlan');

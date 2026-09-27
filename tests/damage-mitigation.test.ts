@@ -109,6 +109,21 @@ describe('applyDefensiveMitigation', () => {
     // 20 − 5 = 15 → 50% reduction ceils to 8 off → 7 (8s-min not used; 7 > 0)
     expect(result.mitigatedDamage).toBe(7);
     expect(result.breakdownLine.endsWith('→ 7')).toBe(true);
+    expect(result.breakdownLine).not.toContain('→ →');
+  });
+
+  it('shows Guard separately from sheet Armor in the breakdown', () => {
+    const result = applyDefensiveMitigation({
+      rawDamage: 44,
+      count8s: 0,
+      armorTotal: 11,
+      reactionArmorFlat: 8,
+      damageReductionPct: 0,
+    });
+    expect(result.armorApplied).toBe(19);
+    expect(result.reactionArmorApplied).toBe(8);
+    expect(result.mitigatedDamage).toBe(25);
+    expect(result.breakdownLine).toBe('Raw 44 → Armor 11 → Guard +8 → 25');
   });
 
   it('favors defender on fractional DR% (e.g. 10% of 18 after armor)', () => {

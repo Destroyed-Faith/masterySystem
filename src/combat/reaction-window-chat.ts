@@ -32,6 +32,7 @@ import {
   buildReactionTriggerContext,
   evaluateReactionEligibility,
   isCounterDamageReaction,
+  isEvadeOnlyReaction,
   isGhostSlipReaction,
   isInterposeReaction,
   isParryFollowUpReaction,
@@ -170,22 +171,6 @@ function entriesForPhase(
 }
 
 /**
- * Evade-focused reaction (Basic Evade or a reaction whose only combat effect
- * is an Evade bonus). These are grayed out when they cannot prevent the hit.
- */
-function isEvadeOnlyReaction(power: any): boolean {
-  if (power?.basicReaction === 'evade') return true;
-  const mech = mechanicsOf(power);
-  const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
-  if (ev <= 0) return false;
-  const armor = Math.max(0, Math.floor(Number(mech?.armor) || 0));
-  const dr = Math.max(0, Math.floor(Number(mech?.damageReductionPct) || 0));
-  if (armor > 0 || dr > 0) return false;
-  if (power?.basicReaction === 'counterattack' || power?.basicReaction === 'guard') return false;
-  return true;
-}
-
-/**
  * Whether an Evade-only reaction would raise Evade above the attack total.
  * - `true` / `false` when decidable
  * - `null` when not an evade-only reaction, or attack total unknown (keep enabled)
@@ -255,7 +240,13 @@ function filterEntriesForCard(
         attackType: state.attackType ?? null,
         isAoE: !!state.isAoE,
       });
-      const powers = e.powers.filter((p) => evaluateReactionEligibility(p, ctx).shown);
+      const powers = e.powers.filter((p) => {
+        if (!evaluateReactionEligibility(p, ctx).shown) return false;
+        // Evade that cannot prevent this hit is not a meaningful option — hide it
+        // so an empty window can silent-skip instead of posting grayed buttons.
+        if (evadeReactionWouldNegateHit(p, state) === false) return false;
+        return true;
+      });
       return { ...e, powers };
     })
     .filter((e) => {
@@ -1395,8 +1386,9 @@ export async function runInteractiveReactionWindow(params: {
   used?: ReactionWindowState['used'];
   priorMitigation?: DefenderReactionMitigation;
   /**
-   * When true and nobody can act, skip posting a chat card (used for ally phase).
-   * Defender phase still posts an info card so the table sees "no reactions left".
+   * When true and nobody can act, skip posting a chat card.
+   * Default for empty defender/ally windows: also silent — grayed-only Evade /
+   * "no eligible powers" cards are noise when nothing useful can be spent.
    */
   silentIfEmpty?: boolean;
   /** Threatened Ranged: token ids that may spend a Reaction vs the shooter. */
@@ -1420,9 +1412,6 @@ export async function runInteractiveReactionWindow(params: {
 
   const { defender, attacker, combat, rawDamage, hit } = params;
   if (!defender || !combat) return empty;
-
-  const { actorParticipatesInReactions } = await import('../utils/npc-reactions.js');
-  const defenderMayReact = actorParticipatesInReactions(defender);
 
   const oppIds = (params.opportunityEnemyTokenIds ?? [])
     .map((id) => String(id || '').trim())
@@ -1473,26 +1462,17 @@ export async function runInteractiveReactionWindow(params: {
   const mustShowOpportunityCard =
     oppIds.length > 0 && (phase === 'others' || phase === 'opportunity');
   if (!actionable.length) {
-    if (phase === 'defender' && !defenderMayReact && !mustShowOpportunityCard) {
-      return {
-        mitigation: state.mitigation,
-        eventId: state.eventId,
-        spentActorIds: state.spentActorIds,
-        used: state.used,
-      };
-    }
-    if (!mustShowOpportunityCard && (params.silentIfEmpty || phase === 'others')) {
-      return {
-        mitigation: state.mitigation,
-        eventId: state.eventId,
-        spentActorIds: state.spentActorIds,
-        used: state.used,
-      };
-    }
-    // Info card only (defender empty, or OA threateners all spent) — still post.
     if (!mustShowOpportunityCard) {
-      state.resolved = true;
+      // No meaningful reaction left (miss + only Evade, no Reactions, NPC skip, …).
+      return {
+        mitigation: state.mitigation,
+        eventId: state.eventId,
+        spentActorIds: state.spentActorIds,
+        used: state.used,
+      };
     }
+    // OA threateners all spent — still post an explanation card.
+    state.resolved = true;
   }
 
   const html = buildReactionWindowHtml(

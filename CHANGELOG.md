@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.604] - 2026-09-27
+
+### Fixed
+
+- **Temp HP nach Kampf:** Shutdown / `deleteCombat` nullt Temporary HP und sourced Pools auch dann, wenn Combatants schon weg sind (World-Actor-Scan). Rest-Temp-HP stapelt sich nicht mehr mit dem nächsten Temporary-HP-Stone (z. B. 20 + 80 → 100).
+- **Combat-Karussell Next:** Das Next-Badge sitzt mittig auf dem runden Porträt.
+- **Guard im Damage Result:** Guard erscheint getrennt von Rüstung in Chips und Breakdown (`Raw → Armor → Guard +X → …`).
+- **Reaction Window:** Ohne sinnvolle Reaction (Miss + nur Evade, keine eligible Powers) kommt keine Karte mehr.
+
 ## [0.9.603] - 2026-09-27
 
 ### Fixed

@@ -919,6 +919,8 @@ prose-mirror#chat-message.chat-input > .editor-container {
 #chat-log .mastery-damage-mitigation .mitigation-chip-raw { border-color: rgba(200, 200, 200, 0.35); }
 #chat-log .mastery-damage-mitigation .mitigation-chip-armor { border-color: rgba(158, 193, 255, 0.55); }
 #chat-log .mastery-damage-mitigation .mitigation-chip-armor i { color: #9ec1ff; }
+#chat-log .mastery-damage-mitigation .mitigation-chip-guard { border-color: rgba(212, 184, 110, 0.65); }
+#chat-log .mastery-damage-mitigation .mitigation-chip-guard i { color: #e8d9a8; }
 #chat-log .mastery-damage-mitigation .mitigation-chip-dr { border-color: rgba(204, 136, 255, 0.55); }
 #chat-log .mastery-damage-mitigation .mitigation-chip-dr i { color: #cc88ff; }
 #chat-log .mastery-damage-mitigation .mitigation-chip-temp { border-color: rgba(127, 211, 169, 0.55); }

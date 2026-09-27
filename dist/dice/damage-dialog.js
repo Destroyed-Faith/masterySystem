@@ -1323,6 +1323,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
     const empty = {
         rawDamage: Math.max(0, Math.floor(damage)),
         armorApplied: 0,
+        reactionArmorApplied: 0,
         drPercent: 0,
         mitigatedDamage: 0,
         tempHPAbsorbed: 0,
@@ -1458,12 +1459,13 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         const barsBefore = system.health.bars.map((b) => ({
             current: Number(b?.current) || 0,
         }));
-        // Step 1: Flat Armor + percentage DR + 8s-min floor.
+        // Step 1: Flat Armor + Guard/reaction Armor + percentage DR + 8s-min floor.
         const baseArmorTotal = Number(system.combat?.armorTotal ?? 0) + Number(system.combat?.armorFromActiveBuffs ?? 0);
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
             count8s,
-            armorTotal: baseArmorTotal + reactionArmorFlat,
+            armorTotal: baseArmorTotal,
+            reactionArmorFlat,
             damageReductionPct: Number(system.combat?.damageReductionPct ?? 0),
             reactionDrPct,
             armorPenetration: Math.max(0, Math.floor(Number(attackContext?.armorPenetration) || 0)),
@@ -1730,6 +1732,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         return {
             rawDamage: mitigation.rawDamage,
             armorApplied: mitigation.armorApplied,
+            reactionArmorApplied: mitigation.reactionArmorApplied,
             drPercent: mitigation.drPercent,
             mitigatedDamage: mitigated,
             tempHPAbsorbed: tempHPConsumption.reducedBy,
