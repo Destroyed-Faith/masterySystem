@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.601] - 2026-09-27
+
+### Changed
+
+- **Effekt-Tokens:** Ruin zeigt die Effekt-Münze im Karussell, auf der Effektfläche und an den Status-Icons auf der Karte. Geladen wird die kleine Kopie (128 px). Die große Münze bleibt auf der Effektfläche.
+
 ## [0.9.600] - 2026-09-27
 
 ### Fixed

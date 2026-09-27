@@ -17,6 +17,7 @@ export const SPECIAL_TOKEN_ASSETS: Record<string, string> = {
   hex: 'systems/mastery-system/assets/special-tokens/hex.png',
   mark: 'systems/mastery-system/assets/special-tokens/mark.png',
   root: 'systems/mastery-system/assets/special-tokens/root.png',
+  ruin: 'systems/mastery-system/assets/special-tokens/ruin.png',
   slow: 'systems/mastery-system/assets/special-tokens/slow.png',
   sundered: 'systems/mastery-system/assets/special-tokens/sundered.png',
 };
@@ -34,6 +35,7 @@ export const SPECIAL_TOKEN_ICONS: Record<string, string> = {
   hex: 'systems/mastery-system/assets/special-tokens/icons/hex.png',
   mark: 'systems/mastery-system/assets/special-tokens/icons/mark.png',
   root: 'systems/mastery-system/assets/special-tokens/icons/root.png',
+  ruin: 'systems/mastery-system/assets/special-tokens/icons/ruin.png',
   slow: 'systems/mastery-system/assets/special-tokens/icons/slow.png',
   sundered: 'systems/mastery-system/assets/special-tokens/icons/sundered.png',
 };

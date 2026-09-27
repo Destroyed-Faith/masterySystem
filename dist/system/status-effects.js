@@ -11,7 +11,7 @@ const STATUS_IMG = (id, fallback) => specialTokenIcon(id) ?? ICON(fallback);
  */
 export const MASTERY_STATUS_EFFECTS = [
     { id: 'lacerate', name: 'Lacerate', img: ICON('blood') },
-    { id: 'ruin', name: 'Ruin', img: ICON('fire') },
+    { id: 'ruin', name: 'Ruin', img: STATUS_IMG('ruin', 'fire') },
     { id: 'slow', name: 'Slow', img: STATUS_IMG('slow', 'frozen') },
     { id: 'corrode', name: 'Corrode', img: STATUS_IMG('corrode', 'acid') },
     { id: 'blight', name: 'Blight', img: STATUS_IMG('blight', 'poison') },

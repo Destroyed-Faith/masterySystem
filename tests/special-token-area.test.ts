@@ -116,6 +116,8 @@ describe('special token views', () => {
     expect(specialTokenAsset('corrode')).toBe('systems/mastery-system/assets/special-tokens/corrode.png');
     expect(specialTokenAsset('mark')).toBe('systems/mastery-system/assets/special-tokens/mark.png');
     expect(specialTokenAsset('root')).toBe('systems/mastery-system/assets/special-tokens/root.png');
+    expect(specialTokenAsset('ruin')).toBe('systems/mastery-system/assets/special-tokens/ruin.png');
+    expect(specialTokenIcon('ruin')).toBe('systems/mastery-system/assets/special-tokens/icons/ruin.png');
     expect(specialTokenAsset('stunned')).toBe(SPECIAL_TOKEN_FALLBACK);
     expect(specialTokenIcon('hex')).toBe('systems/mastery-system/assets/special-tokens/icons/hex.png');
     expect(specialTokenIcon('challenge')).toBe('systems/mastery-system/assets/special-tokens/icons/challenge.png');
