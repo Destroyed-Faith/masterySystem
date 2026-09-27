@@ -899,7 +899,7 @@ const WITS_POWERS_RAW = [
         attribute: 'wits',
         category: 'reaction',
         oncePerCombat: true,
-        description: 'During Initiative Exchange, once per combat, spend Wits Stones up to the highest complete tier (1 / 2 / 4 / 8 × Mastery Rank). Colorless Stones cannot pay this cost. After that activation, no further Initiative Boost this combat.',
+        description: 'During Preparation, before Initiative Exchange, once per combat, spend Wits Stones up to the highest complete tier (1 / 2 / 4 / 8 × Mastery Rank). Colorless Stones cannot pay this cost. The Initiative increase is applied before Initiative is converted, and the Colorless Stones bought from it are Ready in that same Preparation Phase. After that activation, no further Initiative Boost this combat.',
         tiers: [
             { label: '+1 × MR Initiative', description: 'Gain Initiative equal to your Mastery Rank.', value: 1 },
             { label: '+2 × MR Initiative', description: 'Gain Initiative equal to 2 × your Mastery Rank.', value: 2 },

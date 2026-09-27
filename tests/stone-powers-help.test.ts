@@ -60,7 +60,7 @@ describe('Stone Powers Quick Help', () => {
   });
 
   it('puts ? buttons on Initiative and Available Stones only', () => {
-    expect(hbs).toMatch(/<strong>Initiative<\/strong>[\s\S]*?data-help-start="1"/);
+    expect(hbs).toMatch(/<strong>2\. Initiative Exchange<\/strong>[\s\S]*?data-help-start="1"/);
     expect(hbs).toMatch(/Available Stones[\s\S]*?data-help-start="4"/);
     expect(hbs.match(/js-stone-help"/g)?.length).toBe(2);
     expect(hbs).toMatch(/INITIATIVE — QUICK HELP/);

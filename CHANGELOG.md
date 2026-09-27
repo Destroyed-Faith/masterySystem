@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.598] - 2026-09-27
+
+### Fixed
+
+- **Preparation:** Initiative Boost läuft vor dem Initiative Exchange. Die daraus gekauften Initiative Colorless Stones sind sofort Ready und können in derselben Preparation Phase auf Stone Abilities gelegt werden. Ein erneutes Öffnen kauft sie nicht noch einmal. Nach dem Bestätigen der Zuweisung ist die Runde gesperrt.
+
 ## [0.9.597] - 2026-09-26
 
 ### Fixed

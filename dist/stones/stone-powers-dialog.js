@@ -17,7 +17,8 @@ import { actorHasSurprise } from '../combat/surprise.js';
 import { INITIATIVE_ROLLED_FLAG, formatInitiativeArmorPenaltyLine, formatInitiativeDiceRollLine, formatInitiativeExchangeSummary, formatSignedInitiativeModifier, pcNeedsManualInitiativeRoll, releasePcInitiativeRoll, } from '../combat/initiative-roll.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getExhaustedInitiativeColorlessStones, getInitiativeColorlessTotal, getItemColorlessStones, getMasteryRank, getPermanentColorlessStones, getSpendableColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, maxConvertibleColorlessStones, } from './colorless-stones.js';
+import { COLORLESS_GEM_STYLE, COLORLESS_STONE_ATTR, colorlessStoneInitiativeCost, addInitiativeColorlessStones, convertInitiativeToColorlessStones, getExhaustedInitiativeColorlessStones, getInitiativeColorlessTotal, getItemColorlessStones, getMasteryRank, getPermanentColorlessStones, getSpendableColorlessStones, isInitiativeBoostUsedThisCombat, isOncePerCombatPowerUsed, initiativeBoostAmount, maxConvertibleColorlessStones, } from './colorless-stones.js';
+import { PREPARATION_PHASE_FLAG, applyInitiativeBoost, confirmPreparationAssignment, initiativeBoostRankCost, planInitiativeExchange, preparationStep, readPreparationPhase, reconcilePreparationPhase, reopenPreparationAssignment, skipInitiativeBoost, } from './preparation-phase.js';
 import { computeRemoveScarPayment, getRemoveScarResolvedMaxTier, inferRemoveScarTargetTier, payAndApplyRemoveScar, REMOVE_SCAR_POWER_ID, } from './remove-scar.js';
 import { STONE_HELP_TRACKS, STONE_POWERS_HELP_COUNT, STONE_POWERS_HELP_SCREENS, clampStoneHelpPage, stoneHelpTrackForPage, } from './stone-powers-help.js';
 import { formatPendingStoneActivationWarning, orderPowersRampFirst, pendingStoneActivation, pendingStoneActivationLabel, pickStoneFillAttribute, shouldSettleStoneWave, stonePowerAllowsColorless, stonePowerColorlessRejectMessage, stoneDialogSectionStartsOpen, stonePoolBlockedReason, stonePowerActivationRing, } from './stone-payment-rules.js';
@@ -642,7 +643,7 @@ export class StonePowersDialog extends BaseDialog {
         const stonePlanLocked = this.#isStoneDialogLocked();
         const recovery = this.#buildStoneRecovery(combat, pools);
         this._recoveryActive = recovery.active;
-        const showStonePools = true;
+        let showStonePools = true;
         const dragPoolEnabled = !stonePlanLocked && !recovery.active && !stoneResolutionHold;
         const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
         const user = game.user;
@@ -773,7 +774,7 @@ export class StonePowersDialog extends BaseDialog {
         };
         // Separate generic and attribute-specific powers (Premium leads the row)
         const genericPowers = orderPowersRampFirst(availablePowers.filter(p => p.attribute === 'generic'), (p) => isPremiumStonePower(p.id));
-        const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
+        const attributeSpecificPowers = availablePowers.filter((p) => p.attribute !== 'generic' && p.id !== 'wits.initiativeBoost');
         const generalPowers = genericPowers.map((power) => {
             const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
             const retired = isRetiredStonePower(power.id);
@@ -917,7 +918,8 @@ export class StonePowersDialog extends BaseDialog {
             combatantHasRecordedValue: this.combatant?.getFlag?.('mastery-system', 'msInitiativeValue') != null,
         });
         const maxConvert = needsRoll ? 0 : maxConvertibleColorlessStones(initiativeScore, mr);
-        const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active || needsRoll;
+        const preparation = this.#preparationView(needsRoll, recovery.active, stonePlanLocked);
+        const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active || needsRoll || preparation.step !== 'exchange';
         const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? maxConvert));
         this._colorlessConvertCount = convertCount;
         const diceTotal = Number.isFinite(Number(rolledFlag?.diceTotal))
@@ -925,7 +927,7 @@ export class StonePowersDialog extends BaseDialog {
             : null;
         const equipmentModifier = getEquippedEquipmentInitiativeModifier(this.actor);
         const initiativeExchange = {
-            show: !!this.combatant,
+            show: !!this.combatant && preparation.exchangeMode !== 'hidden',
             needsRoll,
             surprised: surprised && this.actor.type === 'character',
             diceTotal,
@@ -950,12 +952,16 @@ export class StonePowersDialog extends BaseDialog {
             canConvertLess: !exchangeLocked && convertCount > 0,
             locked: exchangeLocked,
             boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
+            mode: preparation.exchangeMode,
+            receipt: preparation.exchangeReceipt,
         };
+        showStonePools = !this.combatant || preparation.showAssignment;
         return {
             actor: this.actor,
             pools,
             passivesCta: this.#passivesCtaContext(combat),
             initiativeExchange,
+            preparation,
             attributePowerMatrix,
             generalPowers,
             generalHasSpendable,
@@ -975,7 +981,10 @@ export class StonePowersDialog extends BaseDialog {
             },
             recovery,
             /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
-            dragStonesEnabled: !stonePlanLocked && !recovery.active && !stoneResolutionHold,
+            dragStonesEnabled: !stonePlanLocked &&
+                !recovery.active &&
+                !stoneResolutionHold &&
+                preparation.step === 'assignment',
             dragPoolEnabled,
             showStonePools,
             prefsUseDefaults,
@@ -1367,6 +1376,120 @@ export class StonePowersDialog extends BaseDialog {
             button.disabled = false;
         }
     }
+    #readPreparation() {
+        const combat = game.combat;
+        const owner = (getActionEconomyActor(this.actor) ?? this.actor);
+        const round = encounterStoneRound(combat);
+        const raw = owner?.getFlag?.('mastery-system', PREPARATION_PHASE_FLAG);
+        return reconcilePreparationPhase(readPreparationPhase(raw, String(combat?.id || ''), round), {
+            boostAlreadyUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
+            assignmentConfirmed: this.#isStoneAssignmentReviewMode(),
+        });
+    }
+    async #writePreparation(state) {
+        const owner = (getActionEconomyActor(this.actor) ?? this.actor);
+        if (typeof owner?.setFlag !== 'function')
+            return;
+        await owner.setFlag('mastery-system', PREPARATION_PHASE_FLAG, state);
+    }
+    #preparationView(needsRoll, recoveryActive, locked = false) {
+        const state = this.combatant
+            ? this.#readPreparation()
+            : readPreparationPhase(null, '', 0);
+        const step = this.combatant ? preparationStep(state, needsRoll) : 'assignment';
+        const prefill = effectiveStoneSupportPrefillTier('wits.initiativeBoost', getArtifactStoneSupportPrefill(this.actor, 'wits.initiativeBoost', 'wits'));
+        const wits = poolSpendableStones(this.actor, 'wits');
+        const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
+        const ranks = [1, 2, 3, 4].map((tier) => {
+            const cost = initiativeBoostRankCost(tier, prefill) ?? 0;
+            const bonus = initiativeBoostAmount(tier, mr);
+            return {
+                tier,
+                cost,
+                bonus,
+                label: `Rank ${tier} · ${cost} Wits · +${bonus} Initiative`,
+                affordable: !locked && wits >= cost,
+            };
+        });
+        const exchangeMode = step === 'roll' ? 'roll' : step === 'exchange' ? 'buy' : state.exchange === 'done' ? 'receipt' : 'hidden';
+        const exchangeReceipt = state.exchangeStones > 0
+            ? `${state.exchangeStones} Initiative Colorless Stone(s) are Ready and can be spent in this Round.`
+            : 'No Initiative was converted. Stone Assignment can use the Stones you already have.';
+        return {
+            step,
+            showBoost: step === 'boost',
+            showAssignment: step === 'assignment' || step === 'locked',
+            canConfirm: step === 'assignment' && !recoveryActive,
+            boostLocked: locked,
+            ranks,
+            exchangeMode,
+            exchangeReceipt,
+        };
+    }
+    async #skipInitiativeBoost() {
+        if (this.#isStoneDialogLocked())
+            return;
+        const skipped = skipInitiativeBoost(this.#readPreparation());
+        if (!skipped.changed)
+            return;
+        await this.#writePreparation(skipped.state);
+        this._colorlessConvertCount = null;
+        await this.#renderKeepingScroll();
+    }
+    async #activateInitiativeBoost(tier) {
+        if (!this.combatant || this.#isStoneDialogLocked())
+            return;
+        const prep = this.#readPreparation();
+        const committed = applyInitiativeBoost(prep, tier);
+        if (!committed.changed)
+            return;
+        const prefill = effectiveStoneSupportPrefillTier('wits.initiativeBoost', getArtifactStoneSupportPrefill(this.actor, 'wits.initiativeBoost', 'wits'));
+        const cost = initiativeBoostRankCost(tier, prefill);
+        if (cost == null)
+            return;
+        const have = poolSpendableStones(this.actor, 'wits');
+        if (have < cost) {
+            ui.notifications?.warn(`Initiative Boost Rank ${tier} needs ${cost} Wits Stones.`);
+            return;
+        }
+        const ok = await activateStonePower({
+            actor: this.actor,
+            combatant: this.combatant,
+            abilityId: 'wits.initiativeBoost',
+            tier,
+            cost,
+            ranksGained: tier,
+            colorlessSpent: 0,
+        });
+        if (!ok)
+            return;
+        await this.#writePreparation(committed.state);
+        this._colorlessConvertCount = null;
+        await this.#renderKeepingScroll();
+    }
+    async #commitInitiativeExchange() {
+        if (!this.combatant || this.#isStoneDialogLocked())
+            return;
+        const prep = this.#readPreparation();
+        const n = Math.max(0, Math.floor(Number(this._colorlessConvertCount) || 0));
+        const planned = planInitiativeExchange(prep, n);
+        if (!planned.changed)
+            return;
+        if (planned.stones > 0) {
+            const result = await convertInitiativeToColorlessStones(this.actor, this.combatant, planned.stones);
+            if (!result) {
+                ui.notifications?.warn('Not enough Initiative to convert.');
+                return;
+            }
+            await this.#writePreparation(planInitiativeExchange(prep, result.stones).state);
+            ui.notifications?.info(`${this.actor.name}: ${result.stones} Colorless Stone(s) are Ready. Initiative now ${result.remainingInitiative}.`);
+        }
+        else {
+            await this.#writePreparation(planned.state);
+        }
+        this._colorlessConvertCount = null;
+        await this.#renderKeepingScroll();
+    }
     #bindInitiativeExchangeControls(root) {
         const rollBtn = root.querySelector('.js-roll-initiative');
         if (rollBtn) {
@@ -1525,18 +1648,20 @@ export class StonePowersDialog extends BaseDialog {
                 ev.preventDefault();
                 if (convertBtn.disabled)
                     return;
-                const n = Math.max(0, Math.floor(Number(this._colorlessConvertCount) || 0));
-                if (!this.combatant || n <= 0)
-                    return;
-                const result = await convertInitiativeToColorlessStones(this.actor, this.combatant, n);
-                if (!result) {
-                    ui.notifications?.warn('Not enough Initiative to convert.');
-                    return;
-                }
-                ui.notifications?.info(`${this.actor.name}: ${result.stones} Colorless Stone(s). Initiative now ${result.remainingInitiative}.`);
-                this._colorlessConvertCount = null;
-                await this.#renderKeepingScroll();
+                await this.#commitInitiativeExchange();
             };
+        }
+        root.querySelector('.js-skip-initiative-boost')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            void this.#skipInitiativeBoost();
+        });
+        for (const button of Array.from(root.querySelectorAll('.js-initiative-boost'))) {
+            const el = button;
+            el.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                const tier = Math.floor(Number(el.dataset.tier) || 0);
+                void this.#activateInitiativeBoost(tier);
+            });
         }
         const confirmBtn = root.querySelector('.js-confirm-stones');
         if (confirmBtn) {
@@ -1810,6 +1935,10 @@ export class StonePowersDialog extends BaseDialog {
             ui.notifications?.warn('Roll Initiative first — the button is in the Initiative row.');
             return;
         }
+        if (!this.#stoneResolutionPending() && preparationStep(this.#readPreparation(), false) !== 'assignment') {
+            ui.notifications?.warn('Finish Initiative Boost and Initiative Exchange before confirming Stone Assignment.');
+            return;
+        }
         this._resolutionRunning = true;
         this._resolutionResumeStarted = true;
         this._resolutionBatch = [];
@@ -1824,6 +1953,7 @@ export class StonePowersDialog extends BaseDialog {
                 queue = enqueueStoneResolutions(queue, String(combat.id), encounterStoneRound(combat), this._resolutionBatch);
                 await this.#persistResolutionQueue(queue);
             }
+            await this.#writePreparation(confirmPreparationAssignment(this.#readPreparation()));
             const done = await this.#drainResolutions(queue);
             if (!done) {
                 ui.notifications?.info('Stone assignment is committed. Finish the remaining resolution.');
@@ -1861,6 +1991,11 @@ export class StonePowersDialog extends BaseDialog {
         const def = STONE_POWERS[powerId];
         if (!def)
             return false;
+        if (powerId === 'wits.initiativeBoost') {
+            if (this.#stoneOccGetRaw(accKey).length)
+                this.#stoneOccDelete(accKey);
+            return false;
+        }
         if (isRetiredStonePower(powerId)) {
             if (this.#stoneOccGetRaw(accKey).length) {
                 this.#stoneOccDelete(accKey);
@@ -2222,6 +2357,12 @@ export class StonePowersDialog extends BaseDialog {
         this.#clearSessionStoneLanesForOwner();
         this._stonePaidLanes.clear();
         this._stoneReviewMode = false;
+        try {
+            await this.#writePreparation(reopenPreparationAssignment(this.#readPreparation()));
+        }
+        catch {
+            /* the cleared stones-done flag still reopens the round */
+        }
         ui.notifications?.info(`${String(owner.name || 'Character')}: Stone assignment reset. Paid stones are back in the pool.`);
         await this.#renderKeepingScroll();
     }

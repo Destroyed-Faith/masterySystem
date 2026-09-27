@@ -60,11 +60,33 @@
   </button>
   {{/if}}
 
+  {{#if preparation.showBoost}}
+  <div class="initiative-exchange-bar">
+    <div class="initiative-exchange-copy">
+      <strong>1. Initiative Boost</strong>
+      <span>Once per combat, before Initiative Exchange. Spend Wits Stones only — Colorless Stones cannot pay this. The Initiative increase is applied immediately.</span>
+    </div>
+    <div class="initiative-boost-ranks">
+      {{#each preparation.ranks}}
+      <button type="button"
+              class="dialog-btn initiative-inline-btn js-initiative-boost"
+              data-tier="{{this.tier}}"
+              {{#unless this.affordable}}disabled{{/unless}}>
+        {{this.label}}
+      </button>
+      {{/each}}
+      <button type="button" class="dialog-btn initiative-inline-btn js-skip-initiative-boost" {{#if preparation.boostLocked}}disabled{{/if}}>
+        Skip
+      </button>
+    </div>
+  </div>
+  {{/if}}
+
   {{#if initiativeExchange.show}}
   <div class="initiative-exchange-bar{{#if initiativeExchange.locked}} is-locked{{/if}}">
     <div class="initiative-exchange-row">
       <div class="initiative-exchange-copy">
-        <strong>Initiative</strong>
+        <strong>2. Initiative Exchange</strong>
         <button type="button"
                 class="stone-help-btn js-stone-help"
                 data-help-start="1"
@@ -81,6 +103,9 @@
           <i class="fas fa-dice"></i> Roll Initiative
         </button>
         {{else}}
+        {{#if (eq initiativeExchange.mode "receipt")}}
+        <span class="initiative-exchange-receipt">{{initiativeExchange.receipt}}</span>
+        {{else}}
         <div class="initiative-exchange-stepper" title="Colorless Stones to buy for {{initiativeExchange.costPerStone}} Initiative each (max {{initiativeExchange.maxConvert}}).">
           <span class="initiative-exchange-stepper-label">Stones</span>
           <button type="button" class="initiative-exchange-btn js-convert-count-remove" {{#unless initiativeExchange.canConvertLess}}disabled{{/unless}} aria-label="One stone less">
@@ -91,9 +116,10 @@
             <i class="fas fa-plus"></i>
           </button>
         </div>
-        <button type="button" class="dialog-btn initiative-inline-btn js-convert-initiative-colorless" title="Convert Initiative into Colorless Stones" {{#if initiativeExchange.locked}}disabled{{/if}} {{#unless initiativeExchange.convertCount}}disabled{{/unless}}>
-          <i class="fas fa-arrows-rotate"></i> Convert to Colorless Stones
+        <button type="button" class="dialog-btn initiative-inline-btn js-convert-initiative-colorless" title="Convert Initiative into Colorless Stones that are Ready immediately" {{#if initiativeExchange.locked}}disabled{{/if}}>
+          <i class="fas fa-arrows-rotate"></i> {{#if initiativeExchange.convertCount}}Convert and continue{{else}}Continue{{/if}}
         </button>
+        {{/if}}
         {{/if}}
       </div>
     </div>
@@ -412,7 +438,7 @@
       <i class="fas fa-check"></i> Resume resolutions
     </button>
     {{else}}
-    <button type="button" class="dialog-btn dialog-btn-primary js-confirm-stones" {{#if recovery.active}}disabled title="Finish Stone Recovery first."{{else}}title="Commits the stone assignment, then resolves any powers that need a target."{{/if}}>
+    <button type="button" class="dialog-btn dialog-btn-primary js-confirm-stones" {{#unless preparation.canConfirm}}disabled title="Finish Initiative Boost and Initiative Exchange first."{{else}}title="Commits the stone assignment, then resolves any powers that need a target."{{/unless}}>
       <i class="fas fa-check"></i> Confirm Stone Assignment
     </button>
     {{/if}}
