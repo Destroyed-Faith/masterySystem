@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.600] - 2026-09-27
+
+### Fixed
+
+- **Reroll als GM:** Der Reroll-Button im Chat ist für Spieler und kostet weiter 1 Reroll Point, für den eigenen Wurf oder um einen GM-Wurf neu würfeln zu lassen. Drückt der GM selbst, wird neu gewürfelt, ohne Punkte abzuziehen. Die Meldung „No Reroll Points on a character you play.“ kommt dabei nicht mehr.
+
 ## [0.9.599] - 2026-09-27
 
 ### Changed

@@ -15,6 +15,7 @@ export declare function registerAttackRollClickHandler(): void;
 export declare function executeAttackRollFromCard(button: JQuery, messageId: string, opts?: {
     faithReroll?: {
         spenderName: string;
+        free?: boolean;
     };
 }): Promise<void>;
 //# sourceMappingURL=attack-roll-handler.d.ts.map

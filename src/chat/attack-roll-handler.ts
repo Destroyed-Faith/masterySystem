@@ -17,6 +17,7 @@ import {
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import { faithRerollNote } from './faith-fracture-reroll.js';
 
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number): number {
@@ -65,7 +66,7 @@ export function registerAttackRollClickHandler(): void {
 export async function executeAttackRollFromCard(
   button: JQuery,
   messageId: string,
-  opts: { faithReroll?: { spenderName: string } } = {},
+  opts: { faithReroll?: { spenderName: string; free?: boolean } } = {},
 ): Promise<void> {
   {
     const isFaithReroll = !!opts.faithReroll;
@@ -586,7 +587,7 @@ export async function executeAttackRollFromCard(
               declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''
             })${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
       const rollFlavor = opts.faithReroll
-        ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Reroll Point.`
+        ? `${rollFlavorBase}${faithRerollNote(opts.faithReroll)}`
         : rollFlavorBase;
       const sheetAttackName = String(sheetToHit?.name || flags.npcAttackName || '').trim();
       const rollLabel =

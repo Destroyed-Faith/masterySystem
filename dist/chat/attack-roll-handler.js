@@ -7,6 +7,7 @@ import { countRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRais
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import { faithRerollNote } from './faith-fracture-reroll.js';
 /** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
 function readAttackButtonDataInt(button, kebab, fallback) {
     const raw = button.attr(`data-${kebab}`);
@@ -513,7 +514,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`
                 : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
             const rollFlavor = opts.faithReroll
-                ? `${rollFlavorBase}\n\n<i class="fas fa-sync-alt"></i> Reroll — ${opts.faithReroll.spenderName} spent 1 Reroll Point.`
+                ? `${rollFlavorBase}${faithRerollNote(opts.faithReroll)}`
                 : rollFlavorBase;
             const sheetAttackName = String(sheetToHit?.name || flags.npcAttackName || '').trim();
             const rollLabel = tnKind === 'casting'

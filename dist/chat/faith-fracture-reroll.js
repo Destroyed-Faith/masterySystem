@@ -91,10 +91,38 @@ async function resolveRerollSpender(user, message) {
         }).render(true);
     });
 }
+/** Chat line under a rerolled result. A GM emergency reroll does not name a spender. */
+export function faithRerollNote(note) {
+    const line = note.free
+        ? 'Reroll — the GM rerolled this roll.'
+        : `Reroll — ${note.spenderName} spent 1 Reroll Point.`;
+    return `\n\n<i class="fas fa-sync-alt"></i> ${line}`;
+}
+/** Players spend a point. The GM button is an emergency reroll and does not. */
+export function faithRerollButtonCopy(isGm, isOwnRoll) {
+    if (isGm) {
+        return {
+            label: 'Reroll',
+            title: 'GM reroll. Does not spend a character\'s Reroll Points. Once per roll, shared by the whole table.',
+        };
+    }
+    if (isOwnRoll) {
+        return {
+            label: 'Reroll (1 Reroll Point)',
+            title: 'Spend 1 of this character\'s Reroll Points. Once per roll.',
+        };
+    }
+    return {
+        label: 'Force GM Reroll (1 Reroll Point)',
+        title: 'Spend 1 Reroll Point from a character you play to force this roll to be rerolled. Once per roll.',
+    };
+}
 /**
  * GM-only: spend faith, mark message consumed, post new roll. Serialized per message id.
+ * `gmFree` is only for the GM clicking the button on their own client. It does not
+ * spend anyone's Reroll Points. Player requests never set it.
  */
-export async function executeFaithFractureReroll(messageId, spenderActorId, requesterUserId) {
+export async function executeFaithFractureReroll(messageId, spenderActorId, requesterUserId, options) {
     if (!game.user?.isGM) {
         return { ok: false, error: 'Only the GM can resolve this reroll.' };
     }
@@ -125,24 +153,32 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
         if (!requester) {
             return { ok: false, error: 'Requesting user not found.' };
         }
-        const spender = game.actors?.get(spenderActorId);
-        if (!spender) {
-            return { ok: false, error: 'Spending actor not found.' };
+        const gmFree = options?.gmFree === true;
+        if (gmFree && !requester.isGM) {
+            return { ok: false, error: 'Only the GM can reroll without spending Reroll Points.' };
         }
-        if (!userPlaysActor(requester, spender)) {
-            return { ok: false, error: 'You can only spend your own Reroll Points.' };
+        let spender = null;
+        let cur = 0;
+        if (!gmFree) {
+            spender = game.actors?.get(spenderActorId);
+            if (!spender) {
+                return { ok: false, error: 'Spending actor not found.' };
+            }
+            if (!userPlaysActor(requester, spender)) {
+                return { ok: false, error: 'You can only spend your own Reroll Points.' };
+            }
+            const ownedRoll = recipe.actorId ? game.actors?.get(recipe.actorId) : null;
+            if (ownedRoll && userPlaysActor(requester, ownedRoll) && String(spender.id) !== String(ownedRoll.id)) {
+                return { ok: false, error: 'This roll spends the rolling character\'s Reroll Points, not another character\'s.' };
+            }
+            const sys = spender.system;
+            cur = sys?.faithFractures?.current ?? 0;
+            if (cur < 1) {
+                return { ok: false, error: `${String(spender.name)} has no Reroll Points left.` };
+            }
+            await spender.update({ 'system.faithFractures.current': cur - 1 });
         }
-        const recipeActor = recipe.actorId ? game.actors?.get(recipe.actorId) : null;
-        if (recipeActor && userPlaysActor(requester, recipeActor) && String(spender.id) !== String(recipeActor.id)) {
-            return { ok: false, error: 'This roll spends the rolling character\'s Reroll Points, not another character\'s.' };
-        }
-        const sys = spender.system;
-        const cur = sys?.faithFractures?.current ?? 0;
-        if (cur < 1) {
-            return { ok: false, error: `${String(spender.name)} has no Reroll Points left.` };
-        }
-        const newCur = cur - 1;
-        await spender.update({ 'system.faithFractures.current': newCur });
+        const rerollNote = faithRerollNote(gmFree ? { spenderName: 'GM', free: true } : { spenderName: String(spender.name) });
         // Attack rolls: re-run the full attack pipeline from the attack card so a
         // rerolled hit can continue into the damage dialog. A bare roll replay
         // (below) would post a disconnected roll message with no damage flow.
@@ -157,7 +193,10 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                 if (!requesterOwnsAttacker || requesterUserId === game.user?.id) {
                     // GM-forced reroll of an NPC attack, or the GM rerolled their own
                     // roll — the attack flow (incl. damage dialog) runs on this client.
-                    await triggerAttackFaithReroll(attackCardMessageId, String(spender.name));
+                    await triggerAttackFaithReroll(attackCardMessageId, {
+                        spenderName: gmFree ? 'GM' : String(spender.name),
+                        free: gmFree,
+                    });
                 }
                 else {
                     // Player reroll: run the attack flow on the player's client, where
@@ -171,14 +210,14 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                 }
             }
             catch (rollErr) {
-                await spender.update({ 'system.faithFractures.current': cur });
+                if (spender)
+                    await spender.update({ 'system.faithFractures.current': cur });
                 await message.unsetFlag('mastery-system', 'faithRerollConsumed');
                 throw rollErr;
             }
             return { ok: true };
         }
         const { masteryRoll } = await import('../dice/roll-handler.js');
-        const extra = `\n\n<i class="fas fa-sync-alt"></i> Reroll — ${String(spender.name)} spent 1 Reroll Point.`;
         try {
             await message.setFlag('mastery-system', 'faithRerollConsumed', true);
             await masteryRoll({
@@ -187,7 +226,7 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                 skill: recipe.skill,
                 tn: recipe.tn,
                 label: recipe.label,
-                flavor: `${recipe.flavor}${extra}`,
+                flavor: `${recipe.flavor}${rerollNote}`,
                 actorId: recipe.actorId || undefined,
                 skillKey: recipe.skillKey || undefined,
                 isSkillRoll: recipe.isSkillRoll,
@@ -211,7 +250,8 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
             });
         }
         catch (rollErr) {
-            await spender.update({ 'system.faithFractures.current': cur });
+            if (spender)
+                await spender.update({ 'system.faithFractures.current': cur });
             await message.unsetFlag('mastery-system', 'faithRerollConsumed');
             throw rollErr;
         }
@@ -231,16 +271,26 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
  * success the damage dialog + follow-ups. Action costs and one-time side
  * effects are skipped inside `executeAttackRollFromCard` (faithReroll mode).
  */
-async function triggerAttackFaithReroll(attackCardMessageId, spenderName) {
+async function triggerAttackFaithReroll(attackCardMessageId, note) {
     const button = $(`.message[data-message-id="${attackCardMessageId}"] .roll-attack-btn`).first();
     if (!button.length) {
         ui.notifications?.warn('Attack card not found in the chat log — cannot rerun the attack roll.');
         return;
     }
     const { executeAttackRollFromCard } = await import('./attack-roll-handler.js');
-    await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: { spenderName } });
+    await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: note });
 }
 async function onFaithFractureRerollClick(message) {
+    if (game.user?.isGM) {
+        const res = await executeFaithFractureReroll(message.id, '', game.user?.id, { gmFree: true });
+        if (res.ok) {
+            ui.notifications?.info('Reroll posted to chat.');
+        }
+        else {
+            ui.notifications?.warn(res.error || 'Reroll failed.');
+        }
+        return;
+    }
     const spenderId = await resolveRerollSpender(game.user, message);
     if (!spenderId)
         return;
@@ -250,16 +300,6 @@ async function onFaithFractureRerollClick(message) {
         spenderActorId: spenderId,
         requesterUserId: game.user?.id
     };
-    if (game.user?.isGM) {
-        const res = await executeFaithFractureReroll(message.id, spenderId, payload.requesterUserId);
-        if (res.ok) {
-            ui.notifications?.info('Reroll posted to chat. 1 Reroll Point spent.');
-        }
-        else {
-            ui.notifications?.warn(res.error || 'Reroll failed.');
-        }
-        return;
-    }
     game.socket?.emit(SOCKET_NAME, payload);
     ui.notifications?.info('Requesting reroll from GM…');
 }
@@ -285,10 +325,9 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
         const recipeActorId = flags.rollRecipe?.actorId || null;
         const recipeActor = recipeActorId ? game.actors?.get(recipeActorId) : null;
         const isOwnRoll = recipeActor ? userPlaysActor(game.user, recipeActor) : false;
-        const btnLabel = isOwnRoll ? 'Reroll (1 Reroll Point)' : 'Force GM Reroll (1 Reroll Point)';
-        const btnTitle = isOwnRoll
-            ? 'Spend 1 of this character\'s Reroll Points. Once per roll.'
-            : 'Spend 1 Reroll Point from a character you play to force this roll to be rerolled. Once per roll.';
+        const copy = faithRerollButtonCopy(!!game.user?.isGM, isOwnRoll);
+        const btnLabel = copy.label;
+        const btnTitle = copy.title;
         let bar = root.find('.mastery-faith-reroll-bar');
         if (!bar.length) {
             bar = $(`<div class="mastery-faith-reroll-bar">
@@ -325,7 +364,9 @@ function onRenderChatMessageFaithReroll(message, htmlRaw) {
 async function onFaithFractureSocket(payload) {
     if (payload?.type === 'faithFractureAttackReroll') {
         if (payload.userId === game.user?.id) {
-            await triggerAttackFaithReroll(String(payload.attackCardMessageId || ''), String(payload.spenderName || ''));
+            await triggerAttackFaithReroll(String(payload.attackCardMessageId || ''), {
+                spenderName: String(payload.spenderName || ''),
+            });
         }
         return;
     }
