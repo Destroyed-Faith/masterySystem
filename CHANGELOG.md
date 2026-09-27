@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.603] - 2026-09-27
+
+### Fixed
+
+- **Combat-Karussell Resize:** Der Drag-Handle unten rechts setzt Breite und Höhe wieder durch; die User-Größe wurde vorher von `max-height: none !important` überschrieben.
+- **Aktueller Zug:** Die Markierung folgt `combat.turns[combat.turn]` statt einer abweichenden Combatant-Liste.
+- **HP-Balken:** Die Balken laufen nicht mehr über die Card-Breite hinaus.
+
+### Changed
+
+- **Disposition:** PC-Cards nutzen blaue, NPC-Cards rote Rahmen statt immer Rot.
+- **Weapon Sets:** Der 1/2-Toggle am Karussell-Card ist entfernt; Weapon Sets bleiben im Sheet.
+
 ## [0.9.602] - 2026-09-27
 
 ### Changed

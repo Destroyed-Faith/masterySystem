@@ -21,7 +21,11 @@ import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
 import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
-import { carouselDispositionClass, findNextCombatantId } from './combat-carousel-helpers.js';
+import {
+  carouselSideClass,
+  findNextCombatantId,
+  resolveCurrentCombatantId,
+} from './combat-carousel-helpers.js';
 import {
   applyCarouselCompactClass,
   applyCarouselUserSize,
@@ -33,6 +37,7 @@ import {
   clearCarouselTopOffset,
   isCompactCarouselViewport,
   readCarouselUserSize,
+  syncCarouselTopOffset,
   writeCarouselUserSize,
 } from './combat-carousel-layout.js';
 import {
@@ -46,7 +51,6 @@ import {
   PENDING_SAFE_MOVEMENT_FLAG,
   PENDING_SLIP_FLAG,
 } from '../stones/agility-movement.js';
-import { peekWeaponSets, swapWeaponSet, type WeaponSetIndex } from '../utils/weapon-sets.js';
 import { getActiveGuidedMovementSummary, handleChosenCombatOption } from '../token-action-selector.js';
 import { applyCarouselVitalsEdit } from './carousel-vitals-edit.js';
 import { readPowerFavorites, togglePowerFavorite } from './power-favorites.js';
@@ -71,36 +75,6 @@ function combatantDisposition(combatant: any, token: any, actor: any): number {
     actor?.prototypeToken?.disposition ??
     0;
   return Number(raw);
-}
-
-function weaponHandLabel(actor: any, itemId: string | null | undefined): string {
-  if (!itemId) return '—';
-  const item = actor?.items?.get?.(itemId) ?? actor?.items?.find?.((it: any) => it.id === itemId);
-  return String(item?.name || '—');
-}
-
-function buildWeaponSetUi(actor: any, user: User | null | undefined, movementRemaining: number) {
-  if (!actor || actor.type !== 'character' || !user) return null;
-  const owns =
-    typeof actor.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER');
-  if (!owns) return null;
-  const sets = peekWeaponSets(actor);
-  const labelFor = (idx: WeaponSetIndex) => {
-    const hands = sets.sets[idx];
-    const main = weaponHandLabel(actor, hands?.mainhand);
-    const off = weaponHandLabel(actor, hands?.offhand);
-    return `${main} / ${off}`;
-  };
-  const live = !!game.combats?.active?.started;
-  return {
-    active: sets.active,
-    isSet1: sets.active === 1,
-    isSet2: sets.active === 2,
-    stowed: !!sets.stowed,
-    canSwap: !live || movementRemaining > 0,
-    set1Title: `Set 1: ${labelFor(1)}`,
-    set2Title: `Set 2: ${labelFor(2)}`,
-  };
 }
 
 export class CombatCarouselApp extends BaseCarousel {
@@ -203,8 +177,7 @@ export class CombatCarouselApp extends BaseCarousel {
       });
     }
 
-    const currentCombatantId =
-      (combat as any).combatant?.id ?? (combat as any).current?.combatantId ?? null;
+    const currentCombatantId = resolveCurrentCombatantId(combat as any);
     const isGM = game.user?.isGM || false;
     const prefs = readCarouselClientPrefs();
     const guidedMove = getActiveGuidedMovementSummary();
@@ -505,17 +478,17 @@ export class CombatCarouselApp extends BaseCarousel {
         isCurrent:
           !isEncounterPreparing(combat) &&
           arePlayerStonesReadyForRound(combat) &&
-          combatant.id === currentCombatantId,
+          String(combatant.id) === String(currentCombatantId),
         isNext: false,
         showEndTurn:
           !isEncounterPreparing(combat) &&
           arePlayerStonesReadyForRound(combat) &&
-          combatant.id === currentCombatantId &&
+          String(combatant.id) === String(currentCombatantId) &&
           canViewerSeeEndTurn(actor, game.user),
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,
         disposition,
-        dispositionClass: prefs.showDisposition ? carouselDispositionClass(disposition) : '',
+        dispositionClass: prefs.showDisposition ? carouselSideClass(actor.type) : '',
         statusIcons: visibleStatusIcons,
         hpTotalCurrent,
         hpTotalMax,
@@ -530,8 +503,7 @@ export class CombatCarouselApp extends BaseCarousel {
         richTooltip: tip,
         hasToken: !!token,
         tokenId: tokenId,
-        weaponSets: buildWeaponSetUi(actor, game.user, movementRemaining),
-            moveStrip: showMoveStrip
+        moveStrip: showMoveStrip
           ? {
               movementRemaining,
               movementTotal,
@@ -554,7 +526,7 @@ export class CombatCarouselApp extends BaseCarousel {
       ? findNextCombatantId(combatants, currentCombatantId, turnsActive)
       : null;
     for (const row of combatants) {
-      row.isNext = row.id === nextCombatantId;
+      row.isNext = String(row.id) === String(nextCombatantId);
     }
     const preparing = isEncounterPreparing(combat);
     const stonesReady = arePlayerStonesReadyForRound(combat);
@@ -681,32 +653,6 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
-    root.querySelectorAll('.js-weapon-set').forEach((btn: HTMLElement) => {
-      btn.onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        if ((btn as HTMLButtonElement).disabled) return;
-        const portrait = btn.closest('.carousel-portrait') as HTMLElement | null;
-        const combatantId = portrait?.dataset.combatantId;
-        const set = Number(btn.dataset.set) as WeaponSetIndex;
-        if (!combatantId || (set !== 1 && set !== 2)) return;
-        const combat = game.combats?.active;
-        const combatant = combat?.combatants?.get(combatantId);
-        const actor = combatant?.actor;
-        if (!actor) return;
-        const res = await swapWeaponSet(actor, set);
-        if (!res.ok) {
-          (ui as any).notifications?.warn?.(
-            res.reason === 'no-movement'
-              ? 'No Movement action left to swap weapon sets.'
-              : 'Could not swap weapon set.',
-          );
-          return;
-        }
-        CombatCarouselApp.refresh();
-      };
-    });
-
     root.querySelectorAll('.js-edit-temp-hp').forEach((el: HTMLElement) => {
       el.onclick = (ev: MouseEvent) => {
         ev.preventDefault();
@@ -815,7 +761,7 @@ export class CombatCarouselApp extends BaseCarousel {
         const hit = ev.target as HTMLElement | null;
         if (
           hit?.closest?.(
-            '.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers, .js-pan-next, .js-carousel-settings, .js-weapon-set, .ms-carousel-rich-tip, .ms-hp-segment, .ms-hp-temp',
+            '.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers, .js-pan-next, .js-carousel-settings, .ms-carousel-rich-tip, .ms-hp-segment, .ms-hp-temp',
           )
         ) {
           return;
@@ -1153,22 +1099,8 @@ export class CombatCarouselApp extends BaseCarousel {
   private bindResizeHandle(root: HTMLElement | null | undefined): void {
     const handle = root?.querySelector?.('.js-carousel-resize') as HTMLElement | null;
     if (!handle || !root) return;
-    handle.onpointerdown = (ev: PointerEvent) => {
-      if (ev.button !== 0) return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      const inner = root.querySelector('.mastery-carousel') as HTMLElement | null;
-      this.resizeDrag = {
-        pointerId: ev.pointerId,
-        startX: ev.clientX,
-        startY: ev.clientY,
-        startW: root.offsetWidth,
-        startH: inner?.offsetHeight || root.offsetHeight,
-      };
-      handle.setPointerCapture?.(ev.pointerId);
-      document.body.classList.add('mastery-carousel-resizing');
-    };
-    handle.onpointermove = (ev: PointerEvent) => {
+
+    const onMove = (ev: PointerEvent) => {
       const drag = this.resizeDrag;
       if (!drag || ev.pointerId !== drag.pointerId) return;
       ev.preventDefault();
@@ -1178,20 +1110,60 @@ export class CombatCarouselApp extends BaseCarousel {
       const height = clampCarouselHeight(drag.startH + (ev.clientY - drag.startY), maxH);
       applyCarouselUserSize(root, { width, height });
     };
+
     const endDrag = (ev: PointerEvent) => {
       const drag = this.resizeDrag;
       if (!drag || ev.pointerId !== drag.pointerId) return;
       this.resizeDrag = null;
       document.body.classList.remove('mastery-carousel-resizing');
+      window.removeEventListener('pointermove', onMove, true);
+      window.removeEventListener('pointerup', endDrag, true);
+      window.removeEventListener('pointercancel', endDrag, true);
+      try {
+        handle.releasePointerCapture?.(ev.pointerId);
+      } catch {
+        /* ignore */
+      }
       const width = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10);
       const height = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10);
       writeCarouselUserSize({
         width: Number.isFinite(width) ? width : null,
         height: Number.isFinite(height) ? height : null,
       });
+      syncCarouselTopOffset(root);
     };
-    handle.onpointerup = endDrag;
-    handle.onpointercancel = endDrag;
+
+    handle.onpointerdown = (ev: PointerEvent) => {
+      if (ev.button !== 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const inner = root.querySelector('.mastery-carousel') as HTMLElement | null;
+      const startW =
+        Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10) ||
+        root.offsetWidth ||
+        Math.floor(window.innerWidth * 0.5);
+      const startH =
+        Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10) ||
+        inner?.offsetHeight ||
+        root.offsetHeight;
+      this.resizeDrag = {
+        pointerId: ev.pointerId,
+        startX: ev.clientX,
+        startY: ev.clientY,
+        startW,
+        startH,
+      };
+      try {
+        handle.setPointerCapture?.(ev.pointerId);
+      } catch {
+        /* ignore */
+      }
+      document.body.classList.add('mastery-carousel-resizing');
+      window.addEventListener('pointermove', onMove, true);
+      window.addEventListener('pointerup', endDrag, true);
+      window.addEventListener('pointercancel', endDrag, true);
+    };
+
     handle.ondblclick = (ev: MouseEvent) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -1350,7 +1322,7 @@ export class CombatCarouselApp extends BaseCarousel {
         <label><input type="checkbox" name="showCombatStrip"${prefs.showCombatStrip ? ' checked' : ''}/> Combat strip (A / E / DR)</label>
         <label><input type="checkbox" name="showStatusIcons"${prefs.showStatusIcons ? ' checked' : ''}/> Status effect coins</label>
         <label><input type="checkbox" name="showNextMark"${prefs.showNextMark ? ' checked' : ''}/> Next-turn mark</label>
-        <label><input type="checkbox" name="showDisposition"${prefs.showDisposition ? ' checked' : ''}/> Disposition colors</label>
+        <label><input type="checkbox" name="showDisposition"${prefs.showDisposition ? ' checked' : ''}/> PC blue / NPC red borders</label>
         <label><input type="checkbox" name="showStressBar"${prefs.showStressBar ? ' checked' : ''}/> Stress bar</label>
         <label>Tooltips
           <select name="tooltipMode">

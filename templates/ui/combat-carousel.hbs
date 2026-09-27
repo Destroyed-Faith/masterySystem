@@ -89,13 +89,6 @@
           <!-- Name — opens Stone Powers (Passives live in that dialog) -->
           <div class="portrait-name js-open-stone-powers" title="{{localize 'MASTERY.encounterSetup.stones'}}">{{combatant.name}}</div>
 
-          {{#if combatant.weaponSets}}
-          <div class="ms-carousel-weapon-sets" title="Active weapon set">
-            <button type="button" class="ms-car-wset js-weapon-set{{#if combatant.weaponSets.isSet1}} is-active{{/if}}" data-set="1" title="{{combatant.weaponSets.set1Title}}" {{#unless combatant.weaponSets.canSwap}}disabled{{/unless}}>1</button>
-            <button type="button" class="ms-car-wset js-weapon-set{{#if combatant.weaponSets.isSet2}} is-active{{/if}}" data-set="2" title="{{combatant.weaponSets.set2Title}}" {{#unless combatant.weaponSets.canSwap}}disabled{{/unless}}>2</button>
-          </div>
-          {{/if}}
-
           {{#if combatant.moveStrip}}
           <div class="ms-carousel-move-strip" title="Movement actions and meters">
             <span class="ms-car-move">M <strong>{{combatant.moveStrip.movementRemaining}}</strong>/{{combatant.moveStrip.movementTotal}}</span>

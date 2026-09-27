@@ -5,11 +5,10 @@ import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
 import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
-import { carouselDispositionClass, findNextCombatantId } from './combat-carousel-helpers.js';
-import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, writeCarouselUserSize, } from './combat-carousel-layout.js';
+import { carouselSideClass, findNextCombatantId, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
+import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, syncCarouselTopOffset, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { buildCarouselTooltip, readCarouselClientPrefs, resolveCarouselCompact, writeCarouselClientPrefs, } from './combat-carousel-settings.js';
 import { PENDING_SAFE_MOVEMENT_FLAG, PENDING_SLIP_FLAG, } from '../stones/agility-movement.js';
-import { peekWeaponSets, swapWeaponSet } from '../utils/weapon-sets.js';
 import { getActiveGuidedMovementSummary, handleChosenCombatOption } from '../token-action-selector.js';
 import { applyCarouselVitalsEdit } from './carousel-vitals-edit.js';
 import { readPowerFavorites, togglePowerFavorite } from './power-favorites.js';
@@ -26,36 +25,6 @@ function combatantDisposition(combatant, token, actor) {
         actor?.prototypeToken?.disposition ??
         0;
     return Number(raw);
-}
-function weaponHandLabel(actor, itemId) {
-    if (!itemId)
-        return '—';
-    const item = actor?.items?.get?.(itemId) ?? actor?.items?.find?.((it) => it.id === itemId);
-    return String(item?.name || '—');
-}
-function buildWeaponSetUi(actor, user, movementRemaining) {
-    if (!actor || actor.type !== 'character' || !user)
-        return null;
-    const owns = typeof actor.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER');
-    if (!owns)
-        return null;
-    const sets = peekWeaponSets(actor);
-    const labelFor = (idx) => {
-        const hands = sets.sets[idx];
-        const main = weaponHandLabel(actor, hands?.mainhand);
-        const off = weaponHandLabel(actor, hands?.offhand);
-        return `${main} / ${off}`;
-    };
-    const live = !!game.combats?.active?.started;
-    return {
-        active: sets.active,
-        isSet1: sets.active === 1,
-        isSet2: sets.active === 2,
-        stowed: !!sets.stowed,
-        canSwap: !live || movementRemaining > 0,
-        set1Title: `Set 1: ${labelFor(1)}`,
-        set2Title: `Set 2: ${labelFor(2)}`,
-    };
 }
 export class CombatCarouselApp extends BaseCarousel {
     static _instance = null;
@@ -147,7 +116,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 return bInit - aInit;
             });
         }
-        const currentCombatantId = combat.combatant?.id ?? combat.current?.combatantId ?? null;
+        const currentCombatantId = resolveCurrentCombatantId(combat);
         const isGM = game.user?.isGM || false;
         const prefs = readCarouselClientPrefs();
         const guidedMove = getActiveGuidedMovementSummary();
@@ -422,16 +391,16 @@ export class CombatCarouselApp extends BaseCarousel {
                 showGmActionRefund: isGM && !isEncounterPreparing(combat),
                 isCurrent: !isEncounterPreparing(combat) &&
                     arePlayerStonesReadyForRound(combat) &&
-                    combatant.id === currentCombatantId,
+                    String(combatant.id) === String(currentCombatantId),
                 isNext: false,
                 showEndTurn: !isEncounterPreparing(combat) &&
                     arePlayerStonesReadyForRound(combat) &&
-                    combatant.id === currentCombatantId &&
+                    String(combatant.id) === String(currentCombatantId) &&
                     canViewerSeeEndTurn(actor, game.user),
                 hidden: combatant.hidden || false,
                 defeated: combatant.defeated || false,
                 disposition,
-                dispositionClass: prefs.showDisposition ? carouselDispositionClass(disposition) : '',
+                dispositionClass: prefs.showDisposition ? carouselSideClass(actor.type) : '',
                 statusIcons: visibleStatusIcons,
                 hpTotalCurrent,
                 hpTotalMax,
@@ -446,7 +415,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 richTooltip: tip,
                 hasToken: !!token,
                 tokenId: tokenId,
-                weaponSets: buildWeaponSetUi(actor, game.user, movementRemaining),
                 moveStrip: showMoveStrip
                     ? {
                         movementRemaining,
@@ -469,7 +437,7 @@ export class CombatCarouselApp extends BaseCarousel {
             ? findNextCombatantId(combatants, currentCombatantId, turnsActive)
             : null;
         for (const row of combatants) {
-            row.isNext = row.id === nextCombatantId;
+            row.isNext = String(row.id) === String(nextCombatantId);
         }
         const preparing = isEncounterPreparing(combat);
         const stonesReady = arePlayerStonesReadyForRound(combat);
@@ -592,32 +560,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 void this.openCarouselSettingsDialog();
             };
         });
-        root.querySelectorAll('.js-weapon-set').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (btn.disabled)
-                    return;
-                const portrait = btn.closest('.carousel-portrait');
-                const combatantId = portrait?.dataset.combatantId;
-                const set = Number(btn.dataset.set);
-                if (!combatantId || (set !== 1 && set !== 2))
-                    return;
-                const combat = game.combats?.active;
-                const combatant = combat?.combatants?.get(combatantId);
-                const actor = combatant?.actor;
-                if (!actor)
-                    return;
-                const res = await swapWeaponSet(actor, set);
-                if (!res.ok) {
-                    ui.notifications?.warn?.(res.reason === 'no-movement'
-                        ? 'No Movement action left to swap weapon sets.'
-                        : 'Could not swap weapon set.');
-                    return;
-                }
-                CombatCarouselApp.refresh();
-            };
-        });
         root.querySelectorAll('.js-edit-temp-hp').forEach((el) => {
             el.onclick = (ev) => {
                 ev.preventDefault();
@@ -729,7 +671,7 @@ export class CombatCarouselApp extends BaseCarousel {
             }
             portrait.onclick = async (ev) => {
                 const hit = ev.target;
-                if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers, .js-pan-next, .js-carousel-settings, .js-weapon-set, .ms-carousel-rich-tip, .ms-hp-segment, .ms-hp-temp')) {
+                if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button, .js-open-stone-powers, .js-pan-next, .js-carousel-settings, .ms-carousel-rich-tip, .ms-hp-segment, .ms-hp-temp')) {
                     return;
                 }
                 const combatantId = portrait.dataset.combatantId;
@@ -1048,23 +990,7 @@ export class CombatCarouselApp extends BaseCarousel {
         const handle = root?.querySelector?.('.js-carousel-resize');
         if (!handle || !root)
             return;
-        handle.onpointerdown = (ev) => {
-            if (ev.button !== 0)
-                return;
-            ev.preventDefault();
-            ev.stopPropagation();
-            const inner = root.querySelector('.mastery-carousel');
-            this.resizeDrag = {
-                pointerId: ev.pointerId,
-                startX: ev.clientX,
-                startY: ev.clientY,
-                startW: root.offsetWidth,
-                startH: inner?.offsetHeight || root.offsetHeight,
-            };
-            handle.setPointerCapture?.(ev.pointerId);
-            document.body.classList.add('mastery-carousel-resizing');
-        };
-        handle.onpointermove = (ev) => {
+        const onMove = (ev) => {
             const drag = this.resizeDrag;
             if (!drag || ev.pointerId !== drag.pointerId)
                 return;
@@ -1081,15 +1007,53 @@ export class CombatCarouselApp extends BaseCarousel {
                 return;
             this.resizeDrag = null;
             document.body.classList.remove('mastery-carousel-resizing');
+            window.removeEventListener('pointermove', onMove, true);
+            window.removeEventListener('pointerup', endDrag, true);
+            window.removeEventListener('pointercancel', endDrag, true);
+            try {
+                handle.releasePointerCapture?.(ev.pointerId);
+            }
+            catch {
+                /* ignore */
+            }
             const width = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10);
             const height = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10);
             writeCarouselUserSize({
                 width: Number.isFinite(width) ? width : null,
                 height: Number.isFinite(height) ? height : null,
             });
+            syncCarouselTopOffset(root);
         };
-        handle.onpointerup = endDrag;
-        handle.onpointercancel = endDrag;
+        handle.onpointerdown = (ev) => {
+            if (ev.button !== 0)
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const inner = root.querySelector('.mastery-carousel');
+            const startW = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10) ||
+                root.offsetWidth ||
+                Math.floor(window.innerWidth * 0.5);
+            const startH = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10) ||
+                inner?.offsetHeight ||
+                root.offsetHeight;
+            this.resizeDrag = {
+                pointerId: ev.pointerId,
+                startX: ev.clientX,
+                startY: ev.clientY,
+                startW,
+                startH,
+            };
+            try {
+                handle.setPointerCapture?.(ev.pointerId);
+            }
+            catch {
+                /* ignore */
+            }
+            document.body.classList.add('mastery-carousel-resizing');
+            window.addEventListener('pointermove', onMove, true);
+            window.addEventListener('pointerup', endDrag, true);
+            window.addEventListener('pointercancel', endDrag, true);
+        };
         handle.ondblclick = (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
@@ -1225,7 +1189,7 @@ export class CombatCarouselApp extends BaseCarousel {
         <label><input type="checkbox" name="showCombatStrip"${prefs.showCombatStrip ? ' checked' : ''}/> Combat strip (A / E / DR)</label>
         <label><input type="checkbox" name="showStatusIcons"${prefs.showStatusIcons ? ' checked' : ''}/> Status effect coins</label>
         <label><input type="checkbox" name="showNextMark"${prefs.showNextMark ? ' checked' : ''}/> Next-turn mark</label>
-        <label><input type="checkbox" name="showDisposition"${prefs.showDisposition ? ' checked' : ''}/> Disposition colors</label>
+        <label><input type="checkbox" name="showDisposition"${prefs.showDisposition ? ' checked' : ''}/> PC blue / NPC red borders</label>
         <label><input type="checkbox" name="showStressBar"${prefs.showStressBar ? ' checked' : ''}/> Stress bar</label>
         <label>Tooltips
           <select name="tooltipMode">

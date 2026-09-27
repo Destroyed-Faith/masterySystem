@@ -1,16 +1,29 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  carouselDispositionClass,
+  carouselSideClass,
   findNextCombatantId,
+  resolveCurrentCombatantId,
 } from '../src/ui/combat-carousel-helpers.js';
 
-describe('carouselDispositionClass', () => {
-  it('maps Foundry disposition to friendly / neutral / hostile', () => {
-    expect(carouselDispositionClass(1)).toBe('disp-friendly');
-    expect(carouselDispositionClass(0)).toBe('disp-neutral');
-    expect(carouselDispositionClass(-1)).toBe('disp-hostile');
-    expect(carouselDispositionClass(-2)).toBe('disp-hostile');
+describe('carouselSideClass', () => {
+  it('marks player characters blue and everyone else red', () => {
+    expect(carouselSideClass('character')).toBe('disp-pc');
+    expect(carouselSideClass('npc')).toBe('disp-npc');
+    expect(carouselSideClass('summon')).toBe('disp-npc');
+  });
+});
+
+describe('resolveCurrentCombatantId', () => {
+  it('prefers combat.turns[combat.turn] over a stale combat.combatant', () => {
+    expect(
+      resolveCurrentCombatantId({
+        turn: 1,
+        turns: [{ id: 'prev' }, { id: 'current' }, { id: 'next' }],
+        combatant: { id: 'prev' },
+        current: { combatantId: 'prev' },
+      }),
+    ).toBe('current');
   });
 });
 

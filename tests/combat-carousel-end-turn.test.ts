@@ -34,5 +34,9 @@ describe('combat carousel Next Turn', () => {
     expect(hbs).toMatch(/carousel-resize-handle js-carousel-resize/);
     expect(css).not.toMatch(/#mastery-combat-carousel[\s\S]{0,400}z-index:\s*300\s*!important/);
     expect(css).toMatch(/carousel-resize-handle/);
+    // Base .mastery-carousel sets max-height/overflow with !important; user size must win.
+    expect(css).toMatch(
+      /\.mastery-carousel\.is-user-sized\s*\{[^}]*max-height:\s*var\(--ms-carousel-user-height[^)]*\)\s*!important/s,
+    );
   });
 });
