@@ -103,37 +103,58 @@
         "might": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         },
         "agility": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         },
         "vitality": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         },
         "intellect": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         },
         "resolve": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         },
         "influence": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         },
         "wits": {
           "current": 0,
           "max": 0,
-          "sustained": 0
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
+        },
+        "colorless": {
+          "current": 0,
+          "max": 0,
+          "sustained": 0,
+          "sealed": 0,
+          "burned": 0
         }
       },
       "health": {

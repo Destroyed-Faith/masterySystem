@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.605] - 2026-09-28
+
+### Fixed
+
+- **Remove Scar:** Vitality Stones werden wieder **Sealed** (nicht Exhausted). `sealed`/`burned` stehen im Actor-Template; `prepareBaseData` hält sie aus dem Ready-Pool. Stone-Dialog Klick/Drop nutzen den Daily-Reset-Zähler statt Wave `:0`, damit T1 nicht jede Runde erneut geht (Kosten 1 → 2 → 4 → 8 bis Safe Haven).
+
 ## [0.9.604] - 2026-09-27
 
 ### Fixed

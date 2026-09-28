@@ -155,19 +155,26 @@ export class MasteryActor extends Actor {
             system.stonePools[attrKey] = {
               current: maxStones,
               max: maxStones,
-              sustained: 0
+              sustained: 0,
+              sealed: 0,
+              burned: 0,
             };
           } else {
             // Update max based on attribute
             system.stonePools[attrKey].max = maxStones;
-            
-            // Calculate effective max (max - sustained)
-            const sustained = system.stonePools[attrKey].sustained ?? 0;
-            const effectiveMax = Math.max(0, maxStones - sustained);
-            
+            if (system.stonePools[attrKey].sealed == null) system.stonePools[attrKey].sealed = 0;
+            if (system.stonePools[attrKey].burned == null) system.stonePools[attrKey].burned = 0;
+
+            // Capacity that must not refill: Sustain + Sealed (Remove Scar / Rituals)
+            // + Burned (Last Breath). Sealed stones return only on Safe Haven Rest.
+            const sustained = Math.max(0, Number(system.stonePools[attrKey].sustained) || 0);
+            const sealed = Math.max(0, Number(system.stonePools[attrKey].sealed) || 0);
+            const burned = Math.max(0, Number(system.stonePools[attrKey].burned) || 0);
+            const effectiveMax = Math.max(0, maxStones - sustained - sealed - burned);
+
             // Initialize/refill current if:
             // - missing/undefined/null -> set to effectiveMax
-            // - is 0 and maxStones > 0 and sustained === 0 -> refill to effectiveMax (character creation or reset case)
+            // - is 0 and maxStones > 0 and nothing reserved -> refill to effectiveMax
             // - otherwise clamp to valid range
             const current = system.stonePools[attrKey].current;
             // Compare against the STORED combatant actorId — touching
@@ -180,9 +187,10 @@ export class MasteryActor extends Actor {
             const combat = (game as any).combat;
             const inLiveCombat = !!combat?.started &&
               combat.combatants?.some((c: any) => c.actorId === (this as any).id);
+            const reserved = sustained + sealed + burned;
             if (current === undefined || current === null) {
               system.stonePools[attrKey].current = effectiveMax;
-            } else if (current === 0 && maxStones > 0 && sustained === 0 && !inLiveCombat) {
+            } else if (current === 0 && maxStones > 0 && reserved === 0 && !inLiveCombat) {
               // Refill empty pools out of combat and during prepare (round 1 starts full).
               system.stonePools[attrKey].current = effectiveMax;
             } else {
@@ -199,18 +207,29 @@ export class MasteryActor extends Actor {
           : 0;
         if (permanentColorless > 0 || system.stonePools.colorless) {
           if (!system.stonePools.colorless) {
-            system.stonePools.colorless = { current: permanentColorless, max: permanentColorless, sustained: 0 };
+            system.stonePools.colorless = {
+              current: permanentColorless,
+              max: permanentColorless,
+              sustained: 0,
+              sealed: 0,
+              burned: 0,
+            };
           } else {
             system.stonePools.colorless.max = permanentColorless;
-            const sustained = system.stonePools.colorless.sustained ?? 0;
-            const effectiveMax = Math.max(0, permanentColorless - sustained);
+            if (system.stonePools.colorless.sealed == null) system.stonePools.colorless.sealed = 0;
+            if (system.stonePools.colorless.burned == null) system.stonePools.colorless.burned = 0;
+            const sustained = Math.max(0, Number(system.stonePools.colorless.sustained) || 0);
+            const sealed = Math.max(0, Number(system.stonePools.colorless.sealed) || 0);
+            const burned = Math.max(0, Number(system.stonePools.colorless.burned) || 0);
+            const effectiveMax = Math.max(0, permanentColorless - sustained - sealed - burned);
             const current = system.stonePools.colorless.current;
             const combat = (game as any).combat;
             const inLiveCombat = !!combat?.started &&
               combat.combatants?.some((c: any) => c.actorId === (this as any).id);
+            const reserved = sustained + sealed + burned;
             if (current === undefined || current === null) {
               system.stonePools.colorless.current = effectiveMax;
-            } else if (current === 0 && permanentColorless > 0 && sustained === 0 && !inLiveCombat) {
+            } else if (current === 0 && permanentColorless > 0 && reserved === 0 && !inLiveCombat) {
               system.stonePools.colorless.current = effectiveMax;
             } else {
               system.stonePools.colorless.current = Math.max(0, Math.min(current, effectiveMax));

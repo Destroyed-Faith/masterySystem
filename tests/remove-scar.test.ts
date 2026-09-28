@@ -167,6 +167,15 @@ describe('payAndApplyRemoveScar', () => {
     expect(actor.system.health.scarred).toBe(3);
   });
 
+  it('keeps Sealed stones out of the Ready pool across two activations', async () => {
+    const actor = makeActor({ current: 10, sealed: 0 });
+    expect(await payAndApplyRemoveScar(actor, { targetTier: 1, skipTargetPrompt: true })).toBe(true);
+    expect(actor.system.stonePools.vitality).toMatchObject({ current: 9, sealed: 1 });
+    expect(await payAndApplyRemoveScar(actor, { targetTier: 2, skipTargetPrompt: true })).toBe(true);
+    expect(actor.system.stonePools.vitality).toMatchObject({ current: 7, sealed: 3 });
+    expect(getRemoveScarResolvedMaxTier(actor)).toBe(2);
+  });
+
   it('T4 Support Seals 7 and recovers 4 bars', async () => {
     const actor = makeActor();
     const ok = await payAndApplyRemoveScar(actor, { supportPrefillTier: 4, skipTargetPrompt: true });

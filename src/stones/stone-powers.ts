@@ -705,6 +705,8 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
       { label: 'Seal 15 / 4 Scars', description: 'Resolve Tiers 1–4 (Seal 15 total). Recover 1 Scarred Health Bar per newly resolved Tier.', value: 4 },
     ],
     apply: async ({ actor, tier }) => {
+      // Heal + Daily resolved flag only. Sealing is done by payAndApplyRemoveScar /
+      // spendStoneAbility — never Exhaust for this ability.
       await applyRemoveScarEffect(actor, tier);
     },
   },

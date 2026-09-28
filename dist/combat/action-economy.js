@@ -1018,9 +1018,15 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
         : calculateStoneCost(uses);
     // Get stone pool
     const pool = getStonePool(actor, attribute);
-    if (abilityKey === 'vitality.removeScar' && colorlessSpent > 0) {
-        ui.notifications?.warn('Colorless Stones cannot pay Remove Scar.');
-        return false;
+    if (String(abilityKey || '') === 'vitality.removeScar') {
+        // Remove Scar Seals — never Exhaust. Exhausted stones come back via round
+        // Recovery; Sealed stones stay out until Safe Haven Rest.
+        const { payAndApplyRemoveScar } = await import('../stones/remove-scar.js');
+        const { getArtifactStoneSupportPrefill } = await import('../utils/artifact-stone-functions.js');
+        return payAndApplyRemoveScar(actor, {
+            colorlessSpent,
+            supportPrefillTier: getArtifactStoneSupportPrefill(actor, 'vitality.removeScar', 'vitality'),
+        });
     }
     try {
         const { stonePowerAllowsColorless, stonePowerColorlessRejectMessage } = await import('../stones/stone-payment-rules.js');

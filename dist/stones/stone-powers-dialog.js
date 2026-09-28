@@ -2665,9 +2665,11 @@ export class StonePowersDialog extends BaseDialog {
             ui.notifications?.warn(`${onceDef.name} may be used only once per combat.`);
             return;
         }
-        const uses = isGeneric
-            ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-            : getStoneUsageCount(this.actor, fixedPayAttr, powerId, combat);
+        const uses = powerId === REMOVE_SCAR_POWER_ID
+            ? getRemoveScarResolvedMaxTier(this.actor)
+            : isGeneric
+                ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+                : getStoneUsageCount(this.actor, fixedPayAttr, powerId, combat);
         if (isGeneric) {
             this.#mergeLegacyGenericIntoUnified(powerId, uses);
         }
@@ -2765,9 +2767,11 @@ export class StonePowersDialog extends BaseDialog {
         const combat = game.combat;
         if (!isGeneric && !fixedPayAttr)
             return;
-        const uses = isGeneric
-            ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-            : getStoneUsageCount(this.actor, fixedPayAttr, powerId, combat);
+        const uses = powerId === REMOVE_SCAR_POWER_ID
+            ? getRemoveScarResolvedMaxTier(this.actor)
+            : isGeneric
+                ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+                : getStoneUsageCount(this.actor, fixedPayAttr, powerId, combat);
         const shouldDeleteAccKey = (accKey) => {
             if (!accKey.startsWith(`${powerId}:`))
                 return false;
@@ -3210,9 +3214,11 @@ export class StonePowersDialog extends BaseDialog {
                     payAttr = COLORLESS_STONE_ATTR;
             }
             const slotPayAttr = (slot.dataset.payAttribute || payAttr);
-            const uses = isGeneric
-                ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-                : getStoneUsageCount(this.actor, slotPayAttr, powerId, combat);
+            const uses = powerId === REMOVE_SCAR_POWER_ID
+                ? getRemoveScarResolvedMaxTier(this.actor)
+                : isGeneric
+                    ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+                    : getStoneUsageCount(this.actor, slotPayAttr, powerId, combat);
             const laneRaw = slot.dataset.laneIndex;
             const laneIndex = laneRaw !== undefined && laneRaw !== '' ? Number(laneRaw) : NaN;
             if (!Number.isFinite(laneIndex)) {

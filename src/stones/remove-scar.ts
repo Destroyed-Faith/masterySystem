@@ -138,9 +138,14 @@ export async function sealVitalityStones(actor: any, amount: number): Promise<bo
   const current = Math.max(0, Math.floor(Number(pool.current) || 0));
   if (current < n) return false;
   const sealedNow = Math.max(0, Math.floor(Number(pool.sealed) || 0));
+  const burnedNow = Math.max(0, Math.floor(Number(pool.burned) || 0));
+  const sustainedNow = Math.max(0, Math.floor(Number(pool.sustained) || 0));
   await owner?.update?.({
     'system.stonePools.vitality.current': current - n,
     'system.stonePools.vitality.sealed': sealedNow + n,
+    // Ensure schema fields exist so Foundry does not drop Sealed on the next prepare.
+    'system.stonePools.vitality.sustained': sustainedNow,
+    'system.stonePools.vitality.burned': burnedNow,
   });
   return true;
 }
