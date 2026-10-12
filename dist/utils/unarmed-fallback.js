@@ -162,9 +162,10 @@ function tryResolveActiveSetWeapon(actor, attackType) {
             return attackType === 'melee' ? createVirtualUnarmedWeapon() : null;
         }
         const mainId = state.sets?.[state.active]?.mainhand;
-        if (!mainId) {
-            return attackType === 'melee' ? createVirtualUnarmedWeapon() : null;
-        }
+        // Empty set: do not force Unarmed — fall through so bound/echo artifacts
+        // (and equipped weapons) still resolve when sets were never filled.
+        if (!mainId)
+            return undefined;
         let main = null;
         if (typeof actor.items?.get === 'function') {
             main = actor.items.get(mainId) ?? null;
@@ -185,6 +186,9 @@ function tryResolveActiveSetWeapon(actor, attackType) {
             return itemMatchesAttackType(vw, attackType) ? vw : undefined;
         }
         if (main.type === 'weapon') {
+            // Seeded Unarmed in a provisional set must not block bound artifacts.
+            if (isLegacyUnarmedItem(main) || isVirtualUnarmedWeapon(main))
+                return undefined;
             return itemMatchesAttackType(main, attackType) ? main : undefined;
         }
         return undefined;

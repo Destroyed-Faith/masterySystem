@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.609] - 2026-10-12
+
+### Fixed
+
+- **Weapon resolve:** Leeres / provisional Weapon Set fällt nicht mehr auf Unarmed 1d8 und blockiert keine gebundenen Artifacts; Legacy-Unarmed im Set wird übersprungen.
+
 ## [0.9.608] - 2026-10-12
 
 ### Fixed

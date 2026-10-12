@@ -10,7 +10,7 @@ import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 import { artifactSystemHasSpellFocus, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
-import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
+import { isLegacyUnarmedItem, isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
 import { peekWeaponSets, } from '../utils/weapon-sets.js';
 import { addD8Formulas, parseD8Count } from '../utils/dice-formula.js';
 import { formatEffectReference } from '../utils/special-effects.js';
@@ -265,6 +265,10 @@ function resolveWeaponForPrint(actor, items, attackType) {
                     continue;
                 seen.add(id);
                 const item = findItemById(items, id);
+                // Legacy/auto Unarmed must not block a bound artifact (seeded Unarmed
+                // often ends up as the provisional set main-hand).
+                if (isLegacyUnarmedItem(item) || isVirtualUnarmedWeapon(item))
+                    continue;
                 if (itemMatchesAttackType(item, attackType))
                     return item;
             }

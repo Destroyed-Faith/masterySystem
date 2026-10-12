@@ -63,15 +63,58 @@ describe('resolveEquippedWeaponForAttackType — active Weapon Set', () => {
     expect(withActor?.system?.damage).toBe('6d8');
   });
 
-  it('falls back to virtual unarmed when the active set is empty', () => {
-    const leftover = {
-      id: 'wpn-dagger',
-      name: 'Dagger',
-      type: 'weapon',
-      system: { equipped: true, weaponType: 'melee', damage: '1d8' },
+  it('empty active set falls through to equipped scan (bound artifact still wins)', () => {
+    const artifact = {
+      id: 'art-moon',
+      name: 'Moonlight Greatsword',
+      type: 'artifact',
+      system: {
+        equipped: true,
+        binding: 'bound',
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 4,
+        artifactWeapon: { damage: '8d8', weaponType: 'melee', hands: 2, specials: [] },
+      },
     };
-    const actor = makeActor([leftover], { active: 1, mainhand: null });
-    const resolved = resolveEquippedWeaponForAttackType([leftover], 'melee', actor);
+    const actor = makeActor([artifact], { active: 1, mainhand: null });
+    const resolved = resolveEquippedWeaponForAttackType([artifact], 'melee', actor);
+    expect(resolved?.id).toBe('art-moon');
+    expect(resolved?.system?.damage).toBe('8d8');
+  });
+
+  it('stowed fists force Unarmed even when an artifact is still equipped', () => {
+    const artifact = {
+      id: 'art-claws',
+      name: 'Dragon Claws',
+      type: 'artifact',
+      system: {
+        equipped: true,
+        binding: 'echo',
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 2,
+        artifactWeapon: { damage: '6d8', weaponType: 'melee', hands: 2, specials: [] },
+      },
+    };
+    const byId = new Map([[artifact.id, artifact]]);
+    const actor = {
+      items: {
+        get: (id: string) => byId.get(id),
+        values: () => [artifact].values(),
+      },
+      getFlag: (_s: string, key: string) => {
+        if (key !== WEAPON_SETS_FLAG) return undefined;
+        return {
+          schemaVersion: WEAPON_SETS_SCHEMA,
+          active: 1,
+          stowed: true,
+          sets: {
+            1: { mainhand: 'art-claws', offhand: 'art-claws' },
+            2: { mainhand: null, offhand: null },
+          },
+        };
+      },
+    };
+    const resolved = resolveEquippedWeaponForAttackType([artifact], 'melee', actor);
     expect(resolved?.system?.virtualUnarmed).toBe(true);
     expect(resolved?.system?.damage).toBe('1d8');
   });
