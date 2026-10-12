@@ -440,13 +440,15 @@ const MIGHT_POWERS_RAW: StonePowerDraft[] = [
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       const dice = scaleStoneTier([2, 4, 8, 16], tier);
+      if (dice <= 0) return;
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
-      sb.meleeDamageBonusDice = (sb.meleeDamageBonusDice ?? 0) + dice;
-      // Keep the legacy aggregate field in sync so damage-dialog (which only
-      // reads damageBonus today) still surfaces the bonus until it's wired
-      // up to read meleeDamageBonusDice directly.
-      sb.damageBonus = (sb.damageBonus ?? 0) + dice;
+      // Rank value is the grant (R1=+2, R2=+4, R3=+8, R4=+16). Re-activation
+      // or Artifact Support of the same ability keeps the highest rank — it
+      // must not stack (3 Stones = Rank 2 = +4d8, never +2 then +4 = +6 or
+      // a doubled +8).
+      sb.meleeDamageBonusDice = Math.max(sb.meleeDamageBonusDice ?? 0, dice);
+      sb.damageBonus = Math.max(sb.damageBonus ?? 0, dice);
       await setRoundState(actor, roundState);
     },
   },

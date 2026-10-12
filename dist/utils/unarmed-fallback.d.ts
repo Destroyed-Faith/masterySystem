@@ -27,7 +27,11 @@ export declare function createVirtualUnarmedWeapon(): {
 export declare function isVirtualUnarmedWeapon(item: any | null | undefined): boolean;
 /** True for embedded items named "Unarmed" that were auto-seeded (legacy). */
 export declare function isLegacyUnarmedItem(item: any): boolean;
-/** True when a wieldable artifact contributes weapon damage (profile or derived). */
+/**
+ * True when a wieldable artifact is an actual attack weapon.
+ * Body armor (Serpent Scales, etc.) must never count — a stale empty
+ * `artifactWeapon: {}` blob used to look "truthy" and fall back to 1d8.
+ */
 export declare function artifactCarriesWeaponProfile(artifact: any): boolean;
 /**
  * Convert an equipped artifact that carries weapon damage into a weapon-shaped

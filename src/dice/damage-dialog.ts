@@ -404,7 +404,8 @@ export async function showDamageDialog(
       const rs = getRoundState(actorToUse as Actor, combat);
       const martial = Math.max(0, Number(rs?.stoneBonuses?.meleeDamageBonusDice) || 0);
       const legacy = Math.max(0, Number(rs?.stoneBonuses?.damageBonus) || 0);
-      return martial || legacy;
+      // Same grant mirrored on two fields — take the higher, never sum.
+      return Math.max(martial, legacy);
     } catch (e) {
       console.warn('Mastery System | [DAMAGE DIALOG] Could not read Martial Damage dice', e);
       return 0;

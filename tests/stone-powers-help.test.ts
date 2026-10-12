@@ -100,7 +100,9 @@ describe('Stone Powers Quick Help', () => {
     const blob = `${helpSrc}\n${overlay}`;
     expect(blob).not.toMatch(/Reset stone assignment/i);
     expect(blob).not.toMatch(/reset Stone/i);
-    expect(hbs).toMatch(/js-gm-reset-stones/);
+    // GM tools live in the Application window header (injected in the dialog).
+    expect(dialogSrc).toMatch(/#syncGmHeaderTools/);
+    expect(dialogSrc).toMatch(/js-gm-reset-stones/);
     for (const screen of STONE_POWERS_HELP_SCREENS) {
       for (const image of screen.images) {
         expect(image.src).toBe(`/systems/mastery-system/assets/helper/${image.file}`);

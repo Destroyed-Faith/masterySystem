@@ -1325,10 +1325,6 @@ export class StonePowersDialog extends BaseDialog {
       stoneReviewMode,
       stoneResolutionHold,
       unactivatedStones,
-      gmTools: {
-        show: !!(game as any).user?.isGM && !!this.combatant,
-        passives: (this.actor as any).type === 'character',
-      },
       recovery,
       /** Ziehen sobald Initiative steht — Convert/Boost müssen nicht erst bestätigt sein. */
       dragStonesEnabled:
@@ -1945,6 +1941,91 @@ export class StonePowersDialog extends BaseDialog {
     await (this as any).render({ force: true });
   }
 
+  /**
+   * GM tools sit in the window header after "Stone Powers", before ⋮ / close,
+   * so the dialog body keeps that vertical space.
+   */
+  #syncGmHeaderTools(appEl: HTMLElement): void {
+    const header =
+      (appEl.querySelector('.window-header') as HTMLElement | null) ||
+      ((this as any).window?.header as HTMLElement | undefined) ||
+      null;
+    if (!header) return;
+
+    const show = !!(game as any).user?.isGM && !!this.combatant;
+    let row = header.querySelector('.stone-gm-header-tools') as HTMLElement | null;
+    if (!show) {
+      row?.remove();
+      return;
+    }
+
+    const showPassives = (this.actor as any).type === 'character';
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'stone-gm-header-tools';
+      const anchor =
+        (header.querySelector(
+          '.header-control, [data-action="toggleControls"], [data-action="close"]',
+        ) as HTMLElement | null) || null;
+      if (anchor) header.insertBefore(row, anchor);
+      else header.appendChild(row);
+    }
+
+    row.innerHTML = `
+      ${
+        showPassives
+          ? `<button type="button" class="stone-gm-tool js-gm-release-passives" title="Let this figure change Passives again">Reopen Passives</button>`
+          : ''
+      }
+      <button type="button" class="stone-gm-tool js-gm-reset-stones" title="Return this round's paid stones to the pools and reopen assignment">Reset Stone Assignments</button>
+      <button type="button" class="stone-gm-tool js-gm-release-initiative" title="Clear the stored Initiative so it can be rolled again">Reopen Initiative</button>
+    `;
+  }
+
+  #bindGmHeaderTools(scope: HTMLElement): void {
+    const resetStones = scope.querySelector('.js-gm-reset-stones') as HTMLButtonElement | null;
+    if (resetStones) {
+      resetStones.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (resetStones.disabled) return;
+        resetStones.disabled = true;
+        try {
+          await this.#gmResetStoneAssignment();
+        } finally {
+          resetStones.disabled = false;
+        }
+      };
+    }
+    const releasePassives = scope.querySelector('.js-gm-release-passives') as HTMLButtonElement | null;
+    if (releasePassives) {
+      releasePassives.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (releasePassives.disabled) return;
+        releasePassives.disabled = true;
+        try {
+          await this.#gmReleasePassives();
+        } finally {
+          releasePassives.disabled = false;
+        }
+      };
+    }
+    const releaseInitiative = scope.querySelector(
+      '.js-gm-release-initiative',
+    ) as HTMLButtonElement | null;
+    if (releaseInitiative) {
+      releaseInitiative.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (releaseInitiative.disabled) return;
+        releaseInitiative.disabled = true;
+        try {
+          await this.#gmReleaseInitiative();
+        } finally {
+          releaseInitiative.disabled = false;
+        }
+      };
+    }
+  }
+
   async _onRender(_context: any, _options: any): Promise<void> {
     super._onRender?.(_context, _options);
 
@@ -1965,6 +2046,8 @@ export class StonePowersDialog extends BaseDialog {
     }
 
     const appWindow = ((this as any).element as HTMLElement | undefined) ?? root;
+    this.#syncGmHeaderTools(appWindow);
+    this.#bindGmHeaderTools(appWindow);
     if (this._recoveryActive) {
       // Recovery first: no stone may move into a power while pools are still
       // being refilled, so the drag/drop and click-fill handlers stay unbound.
@@ -1992,45 +2075,6 @@ export class StonePowersDialog extends BaseDialog {
       passivesCta.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
         await this.#openPassivesFromCta();
-      };
-    }
-    const resetStones = root.querySelector('.js-gm-reset-stones') as HTMLButtonElement | null;
-    if (resetStones) {
-      resetStones.onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        if (resetStones.disabled) return;
-        resetStones.disabled = true;
-        try {
-          await this.#gmResetStoneAssignment();
-        } finally {
-          resetStones.disabled = false;
-        }
-      };
-    }
-    const releasePassives = root.querySelector('.js-gm-release-passives') as HTMLButtonElement | null;
-    if (releasePassives) {
-      releasePassives.onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        if (releasePassives.disabled) return;
-        releasePassives.disabled = true;
-        try {
-          await this.#gmReleasePassives();
-        } finally {
-          releasePassives.disabled = false;
-        }
-      };
-    }
-    const releaseInitiative = root.querySelector('.js-gm-release-initiative') as HTMLButtonElement | null;
-    if (releaseInitiative) {
-      releaseInitiative.onclick = async (ev: MouseEvent) => {
-        ev.preventDefault();
-        if (releaseInitiative.disabled) return;
-        releaseInitiative.disabled = true;
-        try {
-          await this.#gmReleaseInitiative();
-        } finally {
-          releaseInitiative.disabled = false;
-        }
       };
     }
 

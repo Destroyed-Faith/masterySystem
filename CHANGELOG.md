@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.610] - 2026-10-12
+
+### Fixed
+
+- **Base Weapon Damage:** Body-Armor (z. B. Serpent Scales) zählt nicht mehr als Angriffswaffe mit Fallback 1d8; die echte Mainhand (z. B. 8d8) wird genutzt.
+- **Martial Damage:** Bonus behält den höchsten Rank (3 Stones = Rank 2 = +4d8) statt Ränge zu stapeln.
+- **Stone Powers Dialog:** GM-Tools (Reopen Passives / Reset Stone Assignments / Reopen Initiative) sitzen in der Fenster-Headerzeile.
+
 ## [0.9.609] - 2026-10-12
 
 ### Fixed

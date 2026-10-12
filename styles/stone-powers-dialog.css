@@ -122,23 +122,37 @@
   font-weight: 700;
 }
 
-.stone-powers-dialog .stone-gm-reset-row {
+/* GM tools live in the Application window header (after the title). */
+.application.stone-powers-dialog .window-header .stone-gm-header-tools,
+.application.mastery-system.stone-powers-dialog .window-header .stone-gm-header-tools {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.35rem;
-  margin: 0 0 0.45rem;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.55rem;
+  margin-right: 0.35rem;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
-.stone-powers-dialog .stone-gm-tool {
+.application.stone-powers-dialog .window-header .stone-gm-tool,
+.application.mastery-system.stone-powers-dialog .window-header .stone-gm-tool {
   font: inherit;
-  font-size: 0.78rem;
-  padding: 0.28rem 0.55rem;
-  border-radius: 6px;
+  font-size: 0.68rem;
+  line-height: 1.1;
+  padding: 0.18rem 0.42rem;
+  border-radius: 4px;
   border: 1px solid rgba(255, 183, 77, 0.7);
-  background: rgba(255, 183, 77, 0.12);
+  background: rgba(255, 183, 77, 0.14);
   color: inherit;
   cursor: pointer;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.application.stone-powers-dialog .window-header .stone-gm-tool:hover,
+.application.mastery-system.stone-powers-dialog .window-header .stone-gm-tool:hover {
+  background: rgba(255, 183, 77, 0.28);
 }
 
 .stone-powers-dialog .passives-cta {

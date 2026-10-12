@@ -978,10 +978,6 @@ export class StonePowersDialog extends BaseDialog {
             stoneReviewMode,
             stoneResolutionHold,
             unactivatedStones,
-            gmTools: {
-                show: !!game.user?.isGM && !!this.combatant,
-                passives: this.actor.type === 'character',
-            },
             recovery,
             /** Ziehen sobald Initiative steht — Convert/Boost müssen nicht erst bestätigt sein. */
             dragStonesEnabled: !stonePlanLocked &&
@@ -1558,6 +1554,87 @@ export class StonePowersDialog extends BaseDialog {
         this.#rememberStonePowersScroll();
         await this.render({ force: true });
     }
+    /**
+     * GM tools sit in the window header after "Stone Powers", before ⋮ / close,
+     * so the dialog body keeps that vertical space.
+     */
+    #syncGmHeaderTools(appEl) {
+        const header = appEl.querySelector('.window-header') ||
+            this.window?.header ||
+            null;
+        if (!header)
+            return;
+        const show = !!game.user?.isGM && !!this.combatant;
+        let row = header.querySelector('.stone-gm-header-tools');
+        if (!show) {
+            row?.remove();
+            return;
+        }
+        const showPassives = this.actor.type === 'character';
+        if (!row) {
+            row = document.createElement('div');
+            row.className = 'stone-gm-header-tools';
+            const anchor = header.querySelector('.header-control, [data-action="toggleControls"], [data-action="close"]') || null;
+            if (anchor)
+                header.insertBefore(row, anchor);
+            else
+                header.appendChild(row);
+        }
+        row.innerHTML = `
+      ${showPassives
+            ? `<button type="button" class="stone-gm-tool js-gm-release-passives" title="Let this figure change Passives again">Reopen Passives</button>`
+            : ''}
+      <button type="button" class="stone-gm-tool js-gm-reset-stones" title="Return this round's paid stones to the pools and reopen assignment">Reset Stone Assignments</button>
+      <button type="button" class="stone-gm-tool js-gm-release-initiative" title="Clear the stored Initiative so it can be rolled again">Reopen Initiative</button>
+    `;
+    }
+    #bindGmHeaderTools(scope) {
+        const resetStones = scope.querySelector('.js-gm-reset-stones');
+        if (resetStones) {
+            resetStones.onclick = async (ev) => {
+                ev.preventDefault();
+                if (resetStones.disabled)
+                    return;
+                resetStones.disabled = true;
+                try {
+                    await this.#gmResetStoneAssignment();
+                }
+                finally {
+                    resetStones.disabled = false;
+                }
+            };
+        }
+        const releasePassives = scope.querySelector('.js-gm-release-passives');
+        if (releasePassives) {
+            releasePassives.onclick = async (ev) => {
+                ev.preventDefault();
+                if (releasePassives.disabled)
+                    return;
+                releasePassives.disabled = true;
+                try {
+                    await this.#gmReleasePassives();
+                }
+                finally {
+                    releasePassives.disabled = false;
+                }
+            };
+        }
+        const releaseInitiative = scope.querySelector('.js-gm-release-initiative');
+        if (releaseInitiative) {
+            releaseInitiative.onclick = async (ev) => {
+                ev.preventDefault();
+                if (releaseInitiative.disabled)
+                    return;
+                releaseInitiative.disabled = true;
+                try {
+                    await this.#gmReleaseInitiative();
+                }
+                finally {
+                    releaseInitiative.disabled = false;
+                }
+            };
+        }
+    }
     async _onRender(_context, _options) {
         super._onRender?.(_context, _options);
         this._stoneRenderQueued = false;
@@ -1574,6 +1651,8 @@ export class StonePowersDialog extends BaseDialog {
             return;
         }
         const appWindow = this.element ?? root;
+        this.#syncGmHeaderTools(appWindow);
+        this.#bindGmHeaderTools(appWindow);
         if (this._recoveryActive) {
             // Recovery first: no stone may move into a power while pools are still
             // being refilled, so the drag/drop and click-fill handlers stay unbound.
@@ -1602,51 +1681,6 @@ export class StonePowersDialog extends BaseDialog {
             passivesCta.onclick = async (ev) => {
                 ev.preventDefault();
                 await this.#openPassivesFromCta();
-            };
-        }
-        const resetStones = root.querySelector('.js-gm-reset-stones');
-        if (resetStones) {
-            resetStones.onclick = async (ev) => {
-                ev.preventDefault();
-                if (resetStones.disabled)
-                    return;
-                resetStones.disabled = true;
-                try {
-                    await this.#gmResetStoneAssignment();
-                }
-                finally {
-                    resetStones.disabled = false;
-                }
-            };
-        }
-        const releasePassives = root.querySelector('.js-gm-release-passives');
-        if (releasePassives) {
-            releasePassives.onclick = async (ev) => {
-                ev.preventDefault();
-                if (releasePassives.disabled)
-                    return;
-                releasePassives.disabled = true;
-                try {
-                    await this.#gmReleasePassives();
-                }
-                finally {
-                    releasePassives.disabled = false;
-                }
-            };
-        }
-        const releaseInitiative = root.querySelector('.js-gm-release-initiative');
-        if (releaseInitiative) {
-            releaseInitiative.onclick = async (ev) => {
-                ev.preventDefault();
-                if (releaseInitiative.disabled)
-                    return;
-                releaseInitiative.disabled = true;
-                try {
-                    await this.#gmReleaseInitiative();
-                }
-                finally {
-                    releaseInitiative.disabled = false;
-                }
             };
         }
         const convertBtn = root.querySelector('.js-convert-initiative-colorless');

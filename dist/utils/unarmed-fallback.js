@@ -74,12 +74,21 @@ function isArtifactWieldable(item) {
 function artifactLevel(sys) {
     return Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
 }
-/** True when a wieldable artifact contributes weapon damage (profile or derived). */
+/**
+ * True when a wieldable artifact is an actual attack weapon.
+ * Body armor (Serpent Scales, etc.) must never count — a stale empty
+ * `artifactWeapon: {}` blob used to look "truthy" and fall back to 1d8.
+ */
 export function artifactCarriesWeaponProfile(artifact) {
     const sys = artifact?.system || {};
-    if (sys.artifactWeapon)
+    const level = artifactLevel(sys);
+    if (deriveArtifactWeaponDamage(sys.baseProfile, level) != null)
         return true;
-    return deriveArtifactWeaponDamage(sys.baseProfile, artifactLevel(sys)) != null;
+    // Non-weapon profiles (bodyArmor, robe, …) never become attack weapons.
+    if (!weaponBasicsForProfile(sys.baseProfile))
+        return false;
+    const dmg = sys.artifactWeapon?.damage;
+    return typeof dmg === 'string' && dmg.trim().length > 0;
 }
 /**
  * Convert an equipped artifact that carries weapon damage into a weapon-shaped
@@ -88,17 +97,19 @@ export function artifactCarriesWeaponProfile(artifact) {
  * general artifacts such as the Moonlight Greatsword).
  */
 export function artifactToVirtualWeapon(artifact) {
+    if (!artifactCarriesWeaponProfile(artifact))
+        return null;
     const sys = artifact?.system || {};
     const level = artifactLevel(sys);
     const w = sys.artifactWeapon;
     const derived = deriveArtifactWeaponDamage(sys.baseProfile, level);
-    if (!w && !derived)
+    const baked = typeof w?.damage === 'string' && w.damage.trim().length > 0 ? w.damage.trim() : '';
+    const damage = derived ?? (baked || null);
+    if (!damage)
         return null;
     const weaponType = resolveArtifactWeaponKind(w, sys.baseProfile);
     const basics = weaponBasicsForProfile(sys.baseProfile);
     const specials = backfillArtifactWeaponSpecials(sys, Array.isArray(w?.specials) ? w.specials : []);
-    const damage = derived ??
-        (typeof w?.damage === 'string' && w.damage.trim().length > 0 ? w.damage.trim() : '1d8');
     const innateAbilities = Array.isArray(w?.innateAbilities)
         ? w.innateAbilities.map((x) => String(x))
         : [];

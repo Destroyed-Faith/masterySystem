@@ -35,22 +35,6 @@
   </div>
   {{/if}}
 
-  {{#if gmTools.show}}
-  <div class="stone-gm-reset-row">
-    {{#if gmTools.passives}}
-    <button type="button" class="stone-gm-tool js-gm-release-passives" title="Let this figure change Passives again">
-      Reopen Passives
-    </button>
-    {{/if}}
-    <button type="button" class="stone-gm-tool js-gm-reset-stones" title="Return this round's paid stones to the pools and reopen assignment">
-      Reset stone assignment
-    </button>
-    <button type="button" class="stone-gm-tool js-gm-release-initiative" title="Clear the stored Initiative so it can be rolled again">
-      Reopen Initiative
-    </button>
-  </div>
-  {{/if}}
-
   {{#if passivesCta.show}}
   <button type="button"
           class="passives-cta js-open-passives{{#if passivesCta.glow}} is-glow{{/if}}"

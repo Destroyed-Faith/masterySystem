@@ -442,7 +442,7 @@ describe('Generic powers — Extra Attack (Premium)', () => {
 });
 
 describe('Might — Martial Damage scales 2/4/8/16', () => {
-  it.each([[1, 2], [2, 4], [3, 8], [4, 16]])('T%i adds %i melee damage dice', async (tier, expected) => {
+  it.each([[1, 2], [2, 4], [3, 8], [4, 16]])('T%i grants %i melee damage dice', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['might.meleeDamage'].apply({
       actor: actor as any,
@@ -453,6 +453,32 @@ describe('Might — Martial Damage scales 2/4/8/16', () => {
     expect(actor._roundState.stoneBonuses.meleeDamageBonusDice).toBe(expected);
     // Legacy mirror so existing damage-dialog keeps working.
     expect(actor._roundState.stoneBonuses.damageBonus).toBe(expected);
+  });
+
+  it('keeps the highest rank instead of stacking (3 Stones = Rank 2 = +4, not +8)', async () => {
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant() as any;
+    await STONE_POWERS['might.meleeDamage'].apply({
+      actor: actor as any,
+      combatant,
+      tier: 1,
+      cost: 1,
+    });
+    await STONE_POWERS['might.meleeDamage'].apply({
+      actor: actor as any,
+      combatant,
+      tier: 2,
+      cost: 2,
+    });
+    expect(actor._roundState.stoneBonuses.meleeDamageBonusDice).toBe(4);
+    // Re-applying the same rank must not double.
+    await STONE_POWERS['might.meleeDamage'].apply({
+      actor: actor as any,
+      combatant,
+      tier: 2,
+      cost: 2,
+    });
+    expect(actor._roundState.stoneBonuses.meleeDamageBonusDice).toBe(4);
   });
 });
 

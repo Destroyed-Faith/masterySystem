@@ -82,6 +82,34 @@ describe('resolveEquippedWeaponForAttackType — active Weapon Set', () => {
     expect(resolved?.system?.damage).toBe('8d8');
   });
 
+  it('does not treat Serpent Scales body armor as a 1d8 weapon over a real mainhand', () => {
+    const scales = {
+      id: 'art-scales',
+      name: 'Serpent Scales - Level 3-1',
+      type: 'artifact',
+      system: {
+        equipped: true,
+        binding: 'echo',
+        baseProfile: 'bodyArmor',
+        currentLevel: 3,
+        // Stale empty blob used to make armor look like a weapon → 1d8.
+        artifactWeapon: {},
+      },
+      getFlag: () => ({ slot: 'body' }),
+    };
+    const sword = {
+      id: 'wpn-sword',
+      name: 'Greatsword',
+      type: 'weapon',
+      system: { equipped: true, weaponType: 'melee', damage: '8d8' },
+    };
+    // Active set wrongly points at body armor (old seed / bad slot).
+    const actor = makeActor([scales, sword], { active: 1, mainhand: 'art-scales' });
+    const resolved = resolveEquippedWeaponForAttackType([scales, sword], 'melee', actor);
+    expect(resolved?.id).toBe('wpn-sword');
+    expect(resolved?.system?.damage).toBe('8d8');
+  });
+
   it('stowed fists force Unarmed even when an artifact is still equipped', () => {
     const artifact = {
       id: 'art-claws',
