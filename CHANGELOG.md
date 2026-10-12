@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.611] - 2026-10-12
+
+### Changed
+
+- **Split Attack:** Teilt nur noch Accuracy (Attack-/Casting-Pool). Jeder erfolgreiche Strike verursacht **vollen** Weapon- + Power-Schaden (keine Schadenshalbierung mehr). Regeltexte und Katalog angepasst.
+
 ## [0.9.610] - 2026-10-12
 
 ### Fixed

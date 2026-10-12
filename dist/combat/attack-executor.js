@@ -68,9 +68,9 @@ function newSplitPairId() {
     return `split-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
 }
 /**
- * Detect whether the selected power declares a Split-Attack. The attack pool
- * and damage pool are split evenly (Math.floor) between two independent
- * strikes sharing one attack-action. See [agent.md] rules for scope.
+ * Detect whether the selected power declares a Split-Attack. The attack /
+ * casting pool is split between strikes (accuracy); each successful strike
+ * deals full weapon + power damage. See Split Attack Rule.
  */
 function detectSplitAttack(option) {
     try {
@@ -616,9 +616,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         selectedPowerDamage: selectedPowerDamage || "",
         consumableItemId: option.consumableItemId || null,
         ignoreWeaponDamage: option.ignoreWeaponDamage === true || tnKind === 'casting',
-        // Split-attack bookkeeping (both strikes carry the same pairId so the
-        // damage dialog and chat handlers can render "Strike 1 of 2" markers and
-        // halve the damage pool per strike).
+        // Split-attack bookkeeping (both strikes share pairId for "Strike N of 2"
+        // labels). Damage is full per successful strike — only the attack pool is split.
         splitAttack: !!split,
         splitIndex: split?.splitIndex ?? null,
         splitPairId: split?.splitPairId ?? null,

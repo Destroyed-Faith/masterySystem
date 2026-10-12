@@ -5267,32 +5267,51 @@ Every valid creature inside the listed Radius is checked separately against the 
 
 ### Split Attack Rule
 
-Split Attack does not create full independent attacks.
-
-A Split Attack divides one attack sequence between multiple targets.
+Split Attack divides the delivery of one Power use between multiple targets. It does not divide the damage of successful attacks.
 
 When you use a Split Attack:
 
-1. Choose the listed number of targets.
-2. Split your **Attack Pool** between those targets before rolling.
-3. Roll each split attack separately.
-4. Determine which targets are hit.
-5. Roll one total **Damage Pool** for the Power.
-6. Split that total Damage Pool between all successful hits.
-7. Each successful target takes only the damage assigned to it.
+1. Choose up to the listed number of **different targets**.
+2. Split the roll Pool required by the delivery between those targets before rolling.
+   - Martial delivery splits the **Attack Pool**.
+   - Spell delivery splits the **Casting Pool**.
+3. Roll each split separately.
+4. Resolve each split against the defense required by that delivery:
+   - Martial delivery against **Evade**.
+   - Spell delivery against the target's **Final Spell TN**.
+5. Each successful split resolves the Power's **full Damage Pool and full applicable payload** against that target.
 
-The Damage Pool includes:
+For Martial delivery, each successful split deals:
 
-- weapon damage,
-- plus the Power's listed bonus damage.
+> **full Weapon Damage + the Power's full listed bonus Damage**
+
+For Spell delivery, weapon damage is omitted. Each successful split deals:
+
+> **the Power's full listed Spell Damage + any legal Spell Focus Damage**
+
+Any Specials, eligible offensive effects, and other parts of the Power's payload apply normally to each successful split unless the Power explicitly says otherwise.
 
 A creature may not be targeted more than once by the same Split Attack unless the Power explicitly allows it.
 
-Split Attack increases targeting flexibility.
+---
 
-It does not multiply damage.  
-It does not create several full-damage attacks.  
-It does not roll full weapon damage separately for every target.
+**Split Attack splits accuracy, not damage.**
+
+The attacker divides their ability to deliver the attack between several targets. A successful hit still carries the full force of the Power.
+
+Split Attack therefore increases targeting flexibility at the cost of making each individual attack harder to land.
+
+---
+
+#### Split Spells
+
+Failed splits do not cancel successful splits.
+
+A Split Spell fizzles and causes the normal **1d8 Stress** only if **none** of its split Casting Rolls reaches the Spell Base TN.
+
+A split that reaches the **Spell Base TN** but fails to reach that target's **Final Spell TN** is **resisted**, not fizzled.
+
+Successful splits resolve normally against their respective targets.
 
 ---
 
@@ -5437,9 +5456,7 @@ Before rolling, the character splits the pool:
 
 Enemy A and Enemy C are hit. Enemy B is missed.
 
-The character rolls the Power's one total Damage Pool and splits the final damage only between A and C.
-
-Split Attack does not roll full weapon damage separately for every strike and does not multiply the total Damage Pool.
+Each successful hit (A and C) takes the Power's **full** weapon damage + listed bonus damage (and Specials). The miss on B deals nothing. Accuracy was split; damage was not.
 
 }}
 \page
@@ -5788,9 +5805,9 @@ A ranged weapon attack that detonates across an area.
       L7–12 → up to 3 attacks<br>
       L13–16 → up to 4 attacks<br><br>
       NOTES<br>
-      Split Attack does not multiply damage.<br>
+      Split Attack splits accuracy, not damage.<br>
       The attacker splits the Attack Pool before rolling.<br>
-      The attacker also splits the total Damage Pool between successful hits.
+      Each successful hit deals full weapon + power damage.
     </span>
   </span>
 </h3>
@@ -5805,22 +5822,22 @@ A melee technique that divides one attack sequence between multiple targets.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage, then split that damage between successful hits. | — |
-| **2** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **2d8 damage**, then split that damage between successful hits. | — |
-| **3** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **4d8 damage**, then split that damage between successful hits. | — |
-| **4** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **6d8 damage**, then split that damage between successful hits. | — |
-| **5** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **8d8 damage**, then split that damage between successful hits. | — |
-| **6** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **10d8 damage**, then split that damage between successful hits. | — |
-| **7** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **10d8 damage**, then split that damage between successful hits. | — |
-| **8** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **12d8 damage**, then split that damage between successful hits. | — |
-| **9** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **14d8 damage**, then split that damage between successful hits. | — |
-| **10** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **16d8 damage**, then split that damage between successful hits. | — |
-| **11** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **18d8 damage**, then split that damage between successful hits. | — |
-| **12** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **20d8 damage**, then split that damage between successful hits. | — |
-| **13** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **20d8 damage**, then split that damage between successful hits. | — |
-| **14** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **22d8 damage**, then split that damage between successful hits. | — |
-| **15** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **24d8 damage**, then split that damage between successful hits. | — |
-| **16** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **26d8 damage**, then split that damage between successful hits. | — |
+| **1** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage. | — |
+| **2** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **2d8 damage**. | — |
+| **3** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **4d8 damage**. | — |
+| **4** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **6d8 damage**. | — |
+| **5** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **8d8 damage**. | — |
+| **6** | Active | Melee Reach | — | Instant | Make up to **2 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **10d8 damage**. | — |
+| **7** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **10d8 damage**. | — |
+| **8** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **12d8 damage**. | — |
+| **9** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **14d8 damage**. | — |
+| **10** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **16d8 damage**. | — |
+| **11** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **18d8 damage**. | — |
+| **12** | Active | Melee Reach | — | Instant | Make up to **3 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **20d8 damage**. | — |
+| **13** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **20d8 damage**. | — |
+| **14** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **22d8 damage**. | — |
+| **15** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **24d8 damage**. | — |
+| **16** | Active | Melee Reach | — | Instant | Make up to **4 melee weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **26d8 damage**. | — |
 
 }}
 
@@ -5846,7 +5863,8 @@ A melee technique that divides one attack sequence between multiple targets.
       L7–12 → up to 3 attacks<br>
       L13–16 → up to 4 attacks<br><br>
       NOTES<br>
-      Split Attack does not multiply damage.<br>
+      Split Attack splits accuracy, not damage.<br>
+      Each successful hit deals full weapon + power damage.<br>
       The Ranged version pays Range every level, so its bonus damage trails behind the melee version.
     </span>
   </span>
@@ -5862,22 +5880,22 @@ A ranged technique that divides one attack sequence between multiple targets.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage, then split that damage between successful hits. | — |
-| **2** | Active | 12 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **1d8 damage**, then split that damage between successful hits. | — |
-| **3** | Active | 16 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **3d8 damage**, then split that damage between successful hits. | — |
-| **4** | Active | 20 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **5d8 damage**, then split that damage between successful hits. | — |
-| **5** | Active | 24 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **6d8 damage**, then split that damage between successful hits. | — |
-| **6** | Active | 28 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **8d8 damage**, then split that damage between successful hits. | — |
-| **7** | Active | 32 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **8d8 damage**, then split that damage between successful hits. | — |
-| **8** | Active | 36 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **9d8 damage**, then split that damage between successful hits. | — |
-| **9** | Active | 40 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **11d8 damage**, then split that damage between successful hits. | — |
-| **10** | Active | 44 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **13d8 damage**, then split that damage between successful hits. | — |
-| **11** | Active | 48 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **14d8 damage**, then split that damage between successful hits. | — |
-| **12** | Active | 52 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **16d8 damage**, then split that damage between successful hits. | — |
-| **13** | Active | 56 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **16d8 damage**, then split that damage between successful hits. | — |
-| **14** | Active | 60 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **17d8 damage**, then split that damage between successful hits. | — |
-| **15** | Active | 64 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **19d8 damage**, then split that damage between successful hits. | — |
-| **16** | Active | 68 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage + **21d8 damage**, then split that damage between successful hits. | — |
+| **1** | Active | 8 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage. | — |
+| **2** | Active | 12 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **1d8 damage**. | — |
+| **3** | Active | 16 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **3d8 damage**. | — |
+| **4** | Active | 20 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **5d8 damage**. | — |
+| **5** | Active | 24 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **6d8 damage**. | — |
+| **6** | Active | 28 m | — | Instant | Make up to **2 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **8d8 damage**. | — |
+| **7** | Active | 32 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **8d8 damage**. | — |
+| **8** | Active | 36 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **9d8 damage**. | — |
+| **9** | Active | 40 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **11d8 damage**. | — |
+| **10** | Active | 44 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **13d8 damage**. | — |
+| **11** | Active | 48 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **14d8 damage**. | — |
+| **12** | Active | 52 m | — | Instant | Make up to **3 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **16d8 damage**. | — |
+| **13** | Active | 56 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **16d8 damage**. | — |
+| **14** | Active | 60 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **17d8 damage**. | — |
+| **15** | Active | 64 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **19d8 damage**. | — |
+| **16** | Active | 68 m | — | Instant | Make up to **4 ranged weapon attacks**. Split your Attack Pool between them. Each successful hit deals full weapon damage + **21d8 damage**. | — |
 
 }}
 

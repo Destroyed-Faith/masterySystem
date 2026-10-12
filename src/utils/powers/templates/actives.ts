@@ -1025,19 +1025,19 @@ function splitWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
         levels: buildLevels((lvl) => {
             const p = prog[lvl - 1];
             const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
-            const base = `Make up to **${p.attacks} ${isRanged ? 'ranged' : 'melee'} weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage`;
+            const base = `Make up to **${p.attacks} ${isRanged ? 'ranged' : 'melee'} weapon attacks** against different targets. Split your Attack Pool between them. Each successful hit deals full weapon damage`;
             const effect = p.dice === 0
-                ? `${base}, then split that damage between successful hits.`
-                : `${base} + **${p.dice}d8 damage**, then split that damage between successful hits.`;
+                ? `${base}.`
+                : `${base} + **${p.dice}d8 damage**.`;
             return activeRow({
                 type: isRanged ? 'Ranged' : 'Melee',
                 range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
                 aoe: { shape: 'weapon', targets: p.attacks },
                 effectText: effect,
                 dice: diceText || undefined,
-                // Split-Attack is an attack *mode*, not a Special: declare via
-                // mechanics.splitAttack so the runtime halves the pool, but do
-                // NOT expose it in the Raise-Special catalog.
+                // Split Attack is an attack *mode*, not a Special: declare via
+                // mechanics.splitAttack so the runtime splits the attack pool.
+                // Damage stays full per successful strike.
                 specials: [],
                 mechanics: p.dice === 0
                     ? { applyWhen: 'attack-rider', splitAttack: true }

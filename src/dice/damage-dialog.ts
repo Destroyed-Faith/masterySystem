@@ -3166,23 +3166,10 @@ async function calculateDamageResult(
   // "never below count8s if any 8 was rolled" floor in the defensive pipeline.
   const count8s = countNaturalEights(damageChatRolls);
 
-  // Split-Attack damage rule:
-  //   Raises go 1:1 into the strike they were declared on (the player
-  //   buys raises per strike during the attack roll, so they already
-  //   reflect the halved attack pool). Every other damage source (base
-  //   weapon, Might stones, power damage, conditional riders, manual
-  //   bonuses, NPC auto-dice) represents the *full* output of the
-  //   attacker and is split evenly between the two strikes → halved.
-  //   Implementation: subtract raises, floor-divide the remainder, then
-  //   add raises back in full so each strike's damage equals
-  //     floor((base+weapon+stones+power+riders+manual+npc)/2) + raises.
-  const nonRaiseDamage = Math.max(0, totalDamage - raiseDamage);
-  const appliedDamage = splitAttack
-    ? Math.max(0, Math.floor(nonRaiseDamage / 2)) + raiseDamage
-    : totalDamage;
-  // count8s feeds the "never below count8s" floor in the defensive
-  // pipeline. Halving it would under-report 8s that came from the raise
-  // dice of *this* strike; we keep the full count (it is per-strike).
+  // Split Attack splits accuracy (Attack/Casting Pool), not damage.
+  // Each successful split deals the Power's full Damage Pool + payload.
+  const appliedDamage = totalDamage;
+  void splitAttack;
   const appliedCount8s = count8s;
   // Per-hit context forwarded to mitigation (direct or deferred path).
   // Phasing was already resolved before the damage roll — never re-prompt.

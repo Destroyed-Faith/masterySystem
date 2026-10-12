@@ -299,9 +299,9 @@ export interface PowerMechanics {
   damageReductionPct?: number;
 
   /**
-   * Declares this power as a Split-Attack (2 Strikes). Runtime splits the
-   * attack pool and damage pool evenly between the two strikes and creates
-   * two independent attack rolls. Power-declared (not a runtime toggle).
+   * Declares this power as a Split Attack. Runtime splits the Attack/Casting
+   * Pool between strikes (accuracy). Each successful strike deals full weapon
+   * + power damage. Power-declared (not a runtime toggle).
    */
   splitAttack?: boolean;
 

@@ -556,19 +556,18 @@ Current Persistent Zone Radius costs are subsystem-specific:
 
 ### 9.5 Player Split Attack
 
-A player `Split Attack` divides one attack sequence; it does not create several full independent attacks.
+A player `Split Attack` divides **accuracy** (Attack Pool or Casting Pool) between different targets. It does **not** divide damage.
 
-- Split the Attack Pool between targets before rolling.
-- Resolve each split attack separately.
-- Roll **one total Damage Pool**.
-- Split that total Damage Pool among successful hits.
+- Split the Attack/Casting Pool between targets before rolling.
+- Resolve each split separately against Evade / Final Spell TN.
+- Each successful split deals the Power's **full** Damage Pool and payload (Martial: full weapon + power bonus; Spell: full spell damage + legal Spell Focus).
 - A target normally cannot be selected more than once by the same Split Attack.
 
 Target capacity costs:
 
 > **30 PP per additional attack/target beyond the first**
 
-Because both Attack Pool and total Damage Pool are shared, added target flexibility does not multiply the character's full damage output for free.
+Flexibility costs accuracy per target; a successful hit still carries full force.
 
 ### 9.6 Split AoE
 
@@ -1296,7 +1295,7 @@ The Quick Encounter Boss `Split Attack` is a GM encounter rule:
 - each deals -2d8 Damage;
 - Specials are paid separately from each reduced Damage Pool.
 
-This is **not** the same mechanic as the player Active `Split Attack`, which divides Attack Pool and one shared total Damage Pool.
+This is **not** the same mechanic as the player Active `Split Attack`, which divides Attack/Casting Pool for accuracy while each successful hit deals full damage.
 
 Never copy the Boss rule into the player Power catalogue or vice versa.
 
@@ -1440,7 +1439,7 @@ Result: correct because the exact milestone table is the balancing structure.
 
 Adding one additional target costs 30 PP.
 
-The user splits the Attack Pool and then splits one total Damage Pool among successful hits.
+The user splits the Attack Pool for accuracy; each successful hit deals full weapon + power damage.
 
 Result: the Power buys targeting flexibility, not another full copy of weapon damage. This is a direct example of the rule **no output multiplication without paid structure**.
 
@@ -1585,7 +1584,7 @@ ACTIVE:
   healing = 15 PP / +1d8 where exact entry uses standard Active healing
   ranged baseline = 8 m at 0 PP, then +5 PP / +4 m
   instant Attack AoE radius uses exact 1-8 m table
-  player Split Attack additional target = 30 PP and shares Attack/Damage resources
+  player Split Attack additional target = 30 PP; splits Attack Pool, full damage per hit
   Autofire additional target = 30 PP
 
 ACTIVE_BUFF:
@@ -1802,7 +1801,7 @@ A proposed Power should be stopped for review if any of the following appear wit
 - a Passive applying a Special directly;
 - a standard Active Buff applying a Special directly;
 - a Reaction behaving like a full Active Power;
-- player Split Attack treated as several full-damage attacks;
+- player Split Attack damage treated as shared or halved instead of full per successful hit;
 - Boss Split Attack used as a player Power rule;
 - Persistent Diminishing Zone reapplication forced to `highest only` despite current Core stacking;
 - a nonexistent Stone Tier treated as a prerequisite;
