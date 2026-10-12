@@ -167,4 +167,20 @@ describe('Preparation Phase — Initiative Boost then Exchange', () => {
     expect(planInitiativeExchange(reopened, 2).changed).toBe(false);
     expect(reopened.exchangeStones).toBe(2);
   });
+
+  it('Confirm can skip pending Boost and Convert without buying Stones', () => {
+    const pending = emptyPreparationPhase('combat', 1);
+    expect(preparationStep(pending)).toBe('boost');
+    const locked = confirmPreparationAssignment(pending);
+    expect(preparationStep(locked)).toBe('locked');
+    expect(locked.boost).toBe('skipped');
+    expect(locked.exchange).toBe('done');
+    expect(locked.exchangeStones).toBe(0);
+
+    const afterBoost = skipInitiativeBoost(emptyPreparationPhase('combat', 1)).state;
+    expect(preparationStep(afterBoost)).toBe('exchange');
+    const lockedExchange = confirmPreparationAssignment(afterBoost);
+    expect(preparationStep(lockedExchange)).toBe('locked');
+    expect(lockedExchange.exchangeStones).toBe(0);
+  });
 });

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.607] - 2026-10-12
+
+### Fixed
+
+- **Stone Powers Dialog:** Convert und Initiative Boost sind optional. Nach dem Initiative-Wurf kann **Confirm Stone Assignment** ohne Convert/Boost; offene Schritte werden übersprungen. Convert-Zähler startet bei 0; Stones lassen sich schon vor Convert zuweisen.
+
 ## [0.9.606] - 2026-10-12
 
 ### Fixed

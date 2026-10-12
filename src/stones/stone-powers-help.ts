@@ -103,7 +103,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     track: 'initiative',
     step: 2,
     title: '2. Choose Stones to convert',
-    body: 'Choose how much Initiative you want to convert into Colorless Stones. The minimum is 1 Stone — converting 0 would have no effect.',
+    body: 'Convert is optional. Choose how many Colorless Stones to buy, or leave it at 0 and press Continue — or Confirm Stone Assignment below without converting.',
     images: [helpImage('02', 'Initiative row with one Stone staged for conversion')],
   },
   {

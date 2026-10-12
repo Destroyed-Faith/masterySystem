@@ -920,7 +920,8 @@ export class StonePowersDialog extends BaseDialog {
         const maxConvert = needsRoll ? 0 : maxConvertibleColorlessStones(initiativeScore, mr);
         const preparation = this.#preparationView(needsRoll, recovery.active, stonePlanLocked);
         const exchangeLocked = stonePlanLocked || !this.combatant || recovery.active || needsRoll || preparation.step !== 'exchange';
-        const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? maxConvert));
+        // Default 0: Convert is optional. Confirm works without pressing it.
+        const convertCount = Math.max(0, Math.min(maxConvert, this._colorlessConvertCount ?? 0));
         this._colorlessConvertCount = convertCount;
         const diceTotal = Number.isFinite(Number(rolledFlag?.diceTotal))
             ? Math.floor(Number(rolledFlag?.diceTotal))
@@ -982,11 +983,13 @@ export class StonePowersDialog extends BaseDialog {
                 passives: this.actor.type === 'character',
             },
             recovery,
-            /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
+            /** Ziehen sobald Initiative steht — Convert/Boost müssen nicht erst bestätigt sein. */
             dragStonesEnabled: !stonePlanLocked &&
                 !recovery.active &&
                 !stoneResolutionHold &&
-                preparation.step === 'assignment',
+                (preparation.step === 'assignment' ||
+                    preparation.step === 'boost' ||
+                    preparation.step === 'exchange'),
             dragPoolEnabled,
             showStonePools,
             prefsUseDefaults,
@@ -1421,7 +1424,9 @@ export class StonePowersDialog extends BaseDialog {
             step,
             showBoost: step === 'boost',
             showAssignment: step === 'assignment' || step === 'locked',
-            canConfirm: step === 'assignment' && !recoveryActive,
+            // Boost + Convert are optional; Confirm auto-skips pending steps.
+            canConfirm: !recoveryActive &&
+                (step === 'assignment' || step === 'boost' || step === 'exchange'),
             boostLocked: locked,
             ranks,
             exchangeMode,
@@ -1503,7 +1508,7 @@ export class StonePowersDialog extends BaseDialog {
         const stepConvert = async (delta) => {
             const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
             const max = maxConvertibleColorlessStones(Math.max(0, Math.floor(Number(this.combatant?.initiative) || 0)), mr);
-            const current = Math.max(0, Math.min(max, Number(this._colorlessConvertCount ?? max)));
+            const current = Math.max(0, Math.min(max, Number(this._colorlessConvertCount ?? 0)));
             const next = Math.max(0, Math.min(max, current + delta));
             if (next === current)
                 return;
@@ -1937,9 +1942,12 @@ export class StonePowersDialog extends BaseDialog {
             ui.notifications?.warn('Roll Initiative first — the button is in the Initiative row.');
             return;
         }
-        if (!this.#stoneResolutionPending() && preparationStep(this.#readPreparation(), false) !== 'assignment') {
-            ui.notifications?.warn('Finish Initiative Boost and Initiative Exchange before confirming Stone Assignment.');
-            return;
+        if (!this.#stoneResolutionPending()) {
+            const step = preparationStep(this.#readPreparation(), false);
+            if (step !== 'assignment' && step !== 'boost' && step !== 'exchange') {
+                ui.notifications?.warn('Roll Initiative first — then you can confirm Stone Assignment.');
+                return;
+            }
         }
         this._resolutionRunning = true;
         this._resolutionResumeStarted = true;
