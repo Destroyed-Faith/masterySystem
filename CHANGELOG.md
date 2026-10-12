@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.606] - 2026-10-12
+
+### Fixed
+
+- **Stone Powers Dialog:** Available Stones bleiben in Boost/Exchange sichtbar; die Initiative-Zeile hat wieder korrektes Layout (fehlender CSS-Selektor); Labels sind klar **Initiative Boost** / **Initiative** statt nummeriertem „Exchange“.
+
 ## [0.9.605] - 2026-09-28
 
 ### Fixed

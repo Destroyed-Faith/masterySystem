@@ -61,23 +61,26 @@
   {{/if}}
 
   {{#if preparation.showBoost}}
-  <div class="initiative-exchange-bar">
-    <div class="initiative-exchange-copy">
-      <strong>1. Initiative Boost</strong>
-      <span>Once per combat, before Initiative Exchange. Spend Wits Stones only — Colorless Stones cannot pay this. The Initiative increase is applied immediately.</span>
-    </div>
-    <div class="initiative-boost-ranks">
-      {{#each preparation.ranks}}
-      <button type="button"
-              class="dialog-btn initiative-inline-btn js-initiative-boost"
-              data-tier="{{this.tier}}"
-              {{#unless this.affordable}}disabled{{/unless}}>
-        {{this.label}}
-      </button>
-      {{/each}}
-      <button type="button" class="dialog-btn initiative-inline-btn js-skip-initiative-boost" {{#if preparation.boostLocked}}disabled{{/if}}>
-        Skip
-      </button>
+  <div class="initiative-exchange-bar initiative-boost-bar">
+    <div class="initiative-exchange-row">
+      <div class="initiative-exchange-copy">
+        <strong>Initiative Boost</strong>
+        <span class="initiative-exchange-note">Optional · once per combat · Wits only · before Exchange</span>
+      </div>
+      <div class="initiative-exchange-actions">
+        {{#each preparation.ranks}}
+        <button type="button"
+                class="dialog-btn initiative-inline-btn js-initiative-boost"
+                data-tier="{{this.tier}}"
+                {{#unless this.affordable}}disabled{{/unless}}
+                title="{{this.label}}">
+          R{{this.tier}} (+{{this.bonus}})
+        </button>
+        {{/each}}
+        <button type="button" class="dialog-btn initiative-inline-btn js-skip-initiative-boost" {{#if preparation.boostLocked}}disabled{{/if}}>
+          Skip
+        </button>
+      </div>
     </div>
   </div>
   {{/if}}
@@ -86,7 +89,7 @@
   <div class="initiative-exchange-bar{{#if initiativeExchange.locked}} is-locked{{/if}}">
     <div class="initiative-exchange-row">
       <div class="initiative-exchange-copy">
-        <strong>2. Initiative Exchange</strong>
+        <strong>Initiative</strong>
         <button type="button"
                 class="stone-help-btn js-stone-help"
                 data-help-start="1"
@@ -95,7 +98,7 @@
         {{#unless initiativeExchange.needsRoll}}
         <span class="initiative-exchange-score">{{initiativeExchange.initiative}}</span>
         {{/unless}}
-        {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Initiative Boost already used this combat.</span>{{/if}}
+        {{#if initiativeExchange.boostUsed}}<span class="initiative-exchange-boost-used">Boost used</span>{{/if}}
       </div>
       <div class="initiative-exchange-actions">
         {{#if initiativeExchange.needsRoll}}
@@ -107,7 +110,7 @@
         <span class="initiative-exchange-receipt">{{initiativeExchange.receipt}}</span>
         {{else}}
         <div class="initiative-exchange-stepper" title="Colorless Stones to buy for {{initiativeExchange.costPerStone}} Initiative each (max {{initiativeExchange.maxConvert}}).">
-          <span class="initiative-exchange-stepper-label">Stones</span>
+          <span class="initiative-exchange-stepper-label">Colorless</span>
           <button type="button" class="initiative-exchange-btn js-convert-count-remove" {{#unless initiativeExchange.canConvertLess}}disabled{{/unless}} aria-label="One stone less">
             <i class="fas fa-minus"></i>
           </button>
@@ -117,7 +120,7 @@
           </button>
         </div>
         <button type="button" class="dialog-btn initiative-inline-btn js-convert-initiative-colorless" title="Convert Initiative into Colorless Stones that are Ready immediately" {{#if initiativeExchange.locked}}disabled{{/if}}>
-          <i class="fas fa-arrows-rotate"></i> {{#if initiativeExchange.convertCount}}Convert and continue{{else}}Continue{{/if}}
+          <i class="fas fa-arrows-rotate"></i> {{#if initiativeExchange.convertCount}}Convert{{else}}Continue{{/if}}
         </button>
         {{/if}}
         {{/if}}

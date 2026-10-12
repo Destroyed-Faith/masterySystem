@@ -955,7 +955,9 @@ export class StonePowersDialog extends BaseDialog {
             mode: preparation.exchangeMode,
             receipt: preparation.exchangeReceipt,
         };
-        showStonePools = !this.combatant || preparation.showAssignment;
+        // Always show Available Stones — hiding them during Boost/Exchange made the
+        // dialog look empty (only Wits/Initiative chrome). Dragging stays gated below.
+        showStonePools = true;
         return {
             actor: this.actor,
             pools,

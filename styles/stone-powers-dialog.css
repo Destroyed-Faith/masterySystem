@@ -232,6 +232,8 @@
 .stone-powers-dialog .initiative-exchange-receipt {
   font-size: 0.92rem;
 }
+
+.stone-powers-dialog .initiative-exchange-bar {
   display: flex;
   flex-direction: column;
   align-items: stretch;
