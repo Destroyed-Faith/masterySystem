@@ -236,7 +236,7 @@ export interface RoundState {
     extraMoveMeters: number;
     /** Generic per-hit damage-die bonus (legacy field — still consumed by damage-dialog). */
     damageBonus?: number;
-    /** New: Might.MeleeDamage tier value — bonus damage dice on next MELEE damage roll only, then cleared. */
+    /** Might Martial Damage — bonus d8 on the next martial damage roll this turn (consumed on roll). */
     meleeDamageBonusDice?: number;
     /** Generic armor-penetration on attacks (legacy field — kept for compatibility). */
     armorPenetration?: number;

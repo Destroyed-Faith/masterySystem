@@ -497,12 +497,18 @@ export function initializeInitiativeOrder(): void {
 /** After `setupTurns()`, ensure `combat.turn` points at highest-initiative combatant (Mastery first-actor rule). */
 export async function syncCombatTurnToHighestInitiativeFirst(combat: Combat): Promise<void> {
   try {
+    const { MASTERY_SKIP_TURN_BONUS_CLEAR } = await import('./combat-update-options.js');
     const turns = listInitiativeCombatants(combat);
     const desired = findTurnIndexHighestInitiativeFirst(combat);
     const currentId = (combat as any).combatant?.id ?? turns[Number(combat.turn) || 0]?.id;
     const desiredId = turns[desired]?.id;
     if (desired === combat.turn && currentId === desiredId) return;
-    await combat.update({ turn: desired });
+    // Administrative turn jump — must not wipe Martial Damage / Evade / etc.
+    // bought during Stone Powers for combatants who have not acted yet.
+    await combat.update(
+      { turn: desired },
+      { [MASTERY_SKIP_TURN_BONUS_CLEAR]: true },
+    );
   } catch (e) {
     console.warn('Mastery System | syncCombatTurnToHighestInitiativeFirst failed', e);
   }

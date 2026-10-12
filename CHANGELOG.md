@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.612] - 2026-10-12
+
+### Fixed
+
+- **Martial Damage:** Turn-Boni (Martial Damage, Evade, Armor, …) werden nicht mehr beim Initiative-Sync oder Round-Advance gelöscht, bevor der Charakter seinen Turn hatte.
+- **Damage Card:** Vorschau zeigt Martial Damage (`Xd8`); der Bonus wird nach dem ersten Martial-Damage-Roll verbraucht.
+
 ## [0.9.611] - 2026-10-12
 
 ### Changed

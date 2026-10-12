@@ -20,6 +20,17 @@ import {
 } from '../combat/stone-powers-flow.js';
 import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import {
+  MASTERY_SKIP_TURN_BONUS_CLEAR,
+  shouldClearTurnStoneBonuses,
+} from '../combat/combat-update-options.js';
+
+/**
+ * Last combatant who actually held the spotlight, per combat id.
+ * Used instead of `(turn - 1) % len`, which falsely expires prepare-phase /
+ * post-stone bonuses when initiative sync jumps `combat.turn` before anyone acted.
+ */
+const lastSpotlightCombatantIdByCombat = new Map<string, string>();
 
 /**
  * Initialize stone system hooks
@@ -37,21 +48,42 @@ export function initializeStoneHooks(): void {
   });
   
   // Hook: Combat turn/round changes
-  Hooks.on('updateCombat', async (combat: Combat, changes: any, _options: any, _userId: string) => {
-    // Turn changed — expire the previous combatant's "this turn" stone bonuses
-    // (+8 Evade, damage dice from stones, etc.) then reset counters for the new current.
-    if (changes.turn !== undefined && combat.started && combat.turns?.length) {
-      const turns = combat.turns as any[];
-      const len = turns.length;
-      const prevIdx = (combat.turn - 1 + len) % len;
-      const prevCombatant = turns[prevIdx];
-      const prevActor = prevCombatant?.actor;
-      if (prevActor && canCurrentUserUpdateDocument(prevActor)) {
-        try {
-          await clearCombatStoneTurnBonusesForActor(prevActor, combat);
-        } catch (e) {
-          console.warn('Mastery System | clearCombatStoneTurnBonusesForActor failed', e);
+  Hooks.on('updateCombat', async (combat: Combat, changes: any, options: any, _userId: string) => {
+    const combatId = String((combat as any)?.id ?? '');
+    const newSpotlightId = String((combat as any).combatant?.id ?? '');
+
+    // Turn changed — expire the previous spotlight's "this turn" stone bonuses
+    // (+8 Evade, Martial Damage dice, armor pen, …). Skip administrative jumps
+    // (initiative sync after Stone Powers, round wrap) so prepare/round buys survive.
+    if (changes.turn !== undefined && combat.started) {
+      const prevSpotlightId = combatId
+        ? lastSpotlightCombatantIdByCombat.get(combatId)
+        : undefined;
+      const clearPrev = shouldClearTurnStoneBonuses({
+        skipFlag: options?.[MASTERY_SKIP_TURN_BONUS_CLEAR] === true,
+        roundChanged: changes.round !== undefined,
+        prevSpotlightId,
+        newSpotlightId,
+      });
+
+      if (clearPrev && prevSpotlightId) {
+        const prevCombatant =
+          (combat as any).combatants?.get?.(prevSpotlightId) ??
+          (Array.from((combat as any).combatants ?? []) as any[]).find(
+            (c) => String(c?.id ?? '') === prevSpotlightId,
+          );
+        const prevActor = prevCombatant?.actor;
+        if (prevActor && canCurrentUserUpdateDocument(prevActor)) {
+          try {
+            await clearCombatStoneTurnBonusesForActor(prevActor, combat);
+          } catch (e) {
+            console.warn('Mastery System | clearCombatStoneTurnBonusesForActor failed', e);
+          }
         }
+      }
+
+      if (combatId && newSpotlightId) {
+        lastSpotlightCombatantIdByCombat.set(combatId, newSpotlightId);
       }
     }
 
@@ -77,11 +109,15 @@ export function initializeStoneHooks(): void {
   
   // Hook: Combat ended - restore stone pools to full
   Hooks.on('deleteCombat', async (combat: Combat, _options: any, _userId: string) => {
+    const id = String((combat as any)?.id ?? '');
+    if (id) lastSpotlightCombatantIdByCombat.delete(id);
     await finishCombat(combat, 'deleteCombat');
   });
   
   // Also trigger on explicit combatEnd
   Hooks.on('combatEnd', async (combat: Combat) => {
+    const id = String((combat as any)?.id ?? '');
+    if (id) lastSpotlightCombatantIdByCombat.delete(id);
     await finishCombat(combat, 'combatEnd');
   });
 }

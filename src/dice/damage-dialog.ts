@@ -872,6 +872,7 @@ export async function showDamageDialog(
           flags?.attackType === 'melee' && attributeScalingEnabled()
             ? Math.max(0, Math.floor(Number((actorToUse as any)?.system?.scaling?.mightDamageBonus) || 0))
             : 0,
+        martialDamageDice: stoneDamageBonusDice,
       },
       formatSplitStrikeBanner(flags),
     );
@@ -958,7 +959,13 @@ function createDamageCardContent(
   npcAutoNoteLines: string[] = [],
   raiseOutcomeLine: string = '',
   targetMarkValue: number = 0,
-  hitSplit: { power?: string; raise?: string; specials?: string; might?: number } = {},
+  hitSplit: {
+    power?: string;
+    raise?: string;
+    specials?: string;
+    might?: number;
+    martialDamageDice?: number;
+  } = {},
   splitBanner: string = '',
 ): string {
   const raisesSection = raiseOutcomeLine
@@ -1001,6 +1008,14 @@ function createDamageCardContent(
           <span class="damage-label">Waffe:</span>
           <span class="damage-value">${baseDamage || '0'}</span>
         </div>
+        ${
+          (hitSplit.martialDamageDice || 0) > 0
+            ? `<div class="damage-row">
+          <span class="damage-label">Martial Damage:</span>
+          <span class="damage-value">${Math.floor(Number(hitSplit.martialDamageDice) || 0)}d8</span>
+        </div>`
+            : ''
+        }
         <div class="damage-row">
           <span class="damage-label">Power:</span>
           <span class="damage-value">${hitSplit.power || powerDamage || '0'}</span>
@@ -2780,12 +2795,31 @@ async function calculateDamageResult(
   if (baseRoll.line) rollDetails.push(baseRoll.line);
   if (baseRoll.roll) damageChatRolls.push(baseRoll.roll);
 
+  // Snapshot before Damage Negation may strip dice — still consume the grant.
+  const martialGrantedAtStart = Math.max(0, Math.floor(Number(stoneDamageBonusDice) || 0));
   let stoneMightDamageRolled = 0;
   if (stoneDamageBonusDice > 0) {
     const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Martial Damage');
     stoneMightDamageRolled = stoneRoll.total;
     if (stoneRoll.line) rollDetails.push(stoneRoll.line);
     if (stoneRoll.roll) damageChatRolls.push(stoneRoll.roll);
+  }
+  // PG: bonus applies to the next Martial Attack this turn — consume once used.
+  if (martialGrantedAtStart > 0 && attacker) {
+    try {
+      const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
+      const combat = (game as any).combat ?? null;
+      if (combat) {
+        const rs = getRoundState(attacker, combat);
+        if (rs.stoneBonuses) {
+          rs.stoneBonuses.meleeDamageBonusDice = 0;
+          rs.stoneBonuses.damageBonus = 0;
+          await setRoundState(attacker, rs);
+        }
+      }
+    } catch (e) {
+      console.warn('Mastery System | Could not consume Martial Damage bonus after roll', e);
+    }
   }
 
   const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power');
