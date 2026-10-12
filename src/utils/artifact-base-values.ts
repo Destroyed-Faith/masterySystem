@@ -31,7 +31,7 @@
  */
 
 import { getArtifactBindingKind } from './artifact-actor-rules.js';
-import { parseSpellFocusDice } from './artifact-rules.js';
+import { baseValueIsSpellFocus, parseSpellFocusDice } from './artifact-rules.js';
 import {
   resolveArtifactBodyArmor,
   type ArtifactBodyArmorClassPenalty,
@@ -302,7 +302,7 @@ export function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBr
           out.spellFocusBonusDice += dice;
           out.rows.notes.push({
             source,
-            type,
+            type: 'spellFocus',
             value: dice,
             label: `${contribLabel} (+${dice}d8 to Spells)`,
           });
@@ -315,6 +315,18 @@ export function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBr
         case 'sense':
         case 'minorFeature':
         default:
+          // Legacy Staff of the Dark: Spell Focus was authored as minorFeature.
+          if (baseValueIsSpellFocus(bv)) {
+            const dice = parseSpellFocusDice(bv.value);
+            out.spellFocusBonusDice += dice;
+            out.rows.notes.push({
+              source,
+              type: 'spellFocus',
+              value: dice,
+              label: `${contribLabel} (+${dice}d8 to Spells)`,
+            });
+            break;
+          }
           out.rows.notes.push({ source, type, value, label: contribLabel });
           break;
       }

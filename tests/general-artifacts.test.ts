@@ -645,6 +645,39 @@ describe('Staff of the Dark', () => {
     expect(baseValue(tree, 10, 'Spell Focus Bonus').value).toBe('+12d8');
   });
 
+  it('authors Spell Focus as type spellFocus (so damage dialog can sum it)', () => {
+    expect(baseValue(tree, 1, 'Spell Focus Bonus').type).toBe('spellFocus');
+    expect(baseValue(tree, 6, 'Spell Focus Bonus').type).toBe('spellFocus');
+  });
+
+  it('contributes Spell Focus dice when equipped (including legacy minorFeature rows)', async () => {
+    const { getActorSpellFocusBonusDice } = await import('../src/utils/artifact-base-values.js');
+    const { baseValueIsSpellFocus } = await import('../src/utils/artifact-rules.js');
+    expect(
+      baseValueIsSpellFocus({
+        type: 'minorFeature',
+        label: 'Spell Focus Bonus',
+        value: '+5d8',
+      }),
+    ).toBe(true);
+    const actor = {
+      items: [
+        {
+          type: 'artifact',
+          name: 'Staff of the Dark',
+          system: {
+            equipped: true,
+            currentLevel: 5,
+            baseValues: [
+              { slot: 'a', type: 'minorFeature', label: 'Spell Focus Bonus', value: '+7d8' },
+            ],
+          },
+        },
+      ],
+    };
+    expect(getActorSpellFocusBonusDice(actor)).toBe(7);
+  });
+
   it('Hex (Focus Special) uses its own breakpoints: 2 at L4-5, 3 at L6-7, 4 at L8-9, 5 at L10', () => {
     expect(baseValue(tree, 3, 'Hex')).toBeUndefined();
     expect(baseValue(tree, 4, 'Hex').value).toBe(2);

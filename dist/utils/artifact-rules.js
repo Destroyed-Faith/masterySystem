@@ -198,19 +198,34 @@ export function parseSpellFocusDice(value) {
     return 0;
 }
 /**
+ * True when a Base Value row is Spell Focus — including legacy Staff of the Dark
+ * rows that were baked as `minorFeature` + "Spell Focus Bonus" + "+Nd8".
+ */
+export function baseValueIsSpellFocus(bv) {
+    if (!bv)
+        return false;
+    if (String(bv.type || '') === 'spellFocus')
+        return true;
+    if (String(bv.type || '') !== 'minorFeature')
+        return false;
+    if (!/spell\s*focus/i.test(String(bv.label ?? '')))
+        return false;
+    return parseSpellFocusDice(bv.value) > 0;
+}
+/**
  * True when an artifact's `system` carries a Spell Focus Base Value. Such a
  * weapon adds its dice to Spell damage instead of dealing normal weapon damage.
  */
 export function artifactSystemHasSpellFocus(system) {
     const bvs = Array.isArray(system?.baseValues) ? system.baseValues : [];
-    return bvs.some((bv) => bv?.type === 'spellFocus');
+    return bvs.some((bv) => baseValueIsSpellFocus(bv));
 }
 /** Total Spell Focus bonus dice (d8) authored on an artifact `system`. */
 export function spellFocusDiceFromSystem(system) {
     const bvs = Array.isArray(system?.baseValues) ? system.baseValues : [];
     let dice = 0;
     for (const bv of bvs) {
-        if (bv?.type === 'spellFocus')
+        if (baseValueIsSpellFocus(bv))
             dice += parseSpellFocusDice(bv?.value);
     }
     return dice;

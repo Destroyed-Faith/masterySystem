@@ -554,25 +554,6 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     }
     else {
     }
-    // Spell Focus: weapon-slot artifacts that route their value into Spell
-    // damage add their bonus dice whenever a damaging Spell is being resolved.
-    let spellFocusBonusDice = 0;
-    if (selectedPowerId) {
-        try {
-            const spellPower = resolvePowerItemForDamage(actorToUse, selectedPowerId);
-            if (spellPower && isSpellPowerItem(spellPower)) {
-                spellFocusBonusDice = getActorSpellFocusBonusDice(actorToUse);
-                if (spellFocusBonusDice > 0) {
-                    powerDamage = addD8DiceToFormula(powerDamage, spellFocusBonusDice);
-                    if (selectedPowerData)
-                        selectedPowerData.damage = powerDamage;
-                }
-            }
-        }
-        catch (err) {
-            console.warn('Mastery System | spell focus bonus failed', err);
-        }
-    }
     const attackIsSpell = flags?.powerIsSpell === true ||
         flags?.npcIsSpell === true ||
         (!!selectedPowerId &&
@@ -727,16 +708,36 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         : [];
     const { getActiveSpecialValue } = await import('../system/active-specials.js');
     const targetMarkValue = Math.max(0, getActiveSpecialValue(target, 'mark'));
+    // Spell Focus AFTER raise/power formula resolve — earlier merges were wiped by
+    // `snapshotToDamageFormula`. Staff of the Dark etc. add dice to Spell damage
+    // (not Waffe); Waffe stays 0 for casting attacks (`ignoreWeaponDamage`).
+    const powerDamageBeforeFocus = powerDamage;
+    let spellFocusBonusDice = 0;
+    if (attackIsSpell && !isNpcAttackFlow) {
+        try {
+            spellFocusBonusDice = getActorSpellFocusBonusDice(actorToUse);
+            if (spellFocusBonusDice > 0) {
+                powerDamage = addD8DiceToFormula(powerDamage, spellFocusBonusDice);
+                if (selectedPowerData)
+                    selectedPowerData.damage = powerDamage;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | spell focus bonus failed', err);
+        }
+    }
     // Create damage card as chat message instead of dialog
     return new Promise((resolve) => {
         const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines, raiseOutcomeLine, targetMarkValue, {
-            power: shownPowerDamage,
+            // Keep Power line free of Focus dice when the Focus row is shown.
+            power: shownPowerDamage || powerDamageBeforeFocus,
             raise: shownRaiseDamage,
             specials: shownSpecials,
             might: flags?.attackType === 'melee' && attributeScalingEnabled()
                 ? Math.max(0, Math.floor(Number(actorToUse?.system?.scaling?.mightDamageBonus) || 0))
                 : 0,
             martialDamageDice: stoneDamageBonusDice,
+            spellFocusDice: spellFocusBonusDice,
         }, formatSplitStrikeBanner(flags));
         const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
         const chatData = {
@@ -842,6 +843,12 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
         ? `<div class="damage-row">
           <span class="damage-label">Martial Damage:</span>
           <span class="damage-value">${Math.floor(Number(hitSplit.martialDamageDice) || 0)}d8</span>
+        </div>`
+        : ''}
+        ${(hitSplit.spellFocusDice || 0) > 0
+        ? `<div class="damage-row">
+          <span class="damage-label">Spell Focus:</span>
+          <span class="damage-value">+${Math.floor(Number(hitSplit.spellFocusDice) || 0)}d8</span>
         </div>`
         : ''}
         <div class="damage-row">

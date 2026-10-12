@@ -351,7 +351,9 @@ const BASE_VALUE_TABLES = {
     staffOfTheDark: [
         {
             slot: 'a',
-            type: 'minorFeature',
+            // Must be `spellFocus` — `getActorSpellFocusBonusDice` / damage dialog only
+            // sum that type into Spell damage. `minorFeature` was silent (notes only).
+            type: 'spellFocus',
             label: 'Spell Focus Bonus',
             unlock: 1,
             valueAt: (l) => staffSpellFocusBonusForLevel(l),

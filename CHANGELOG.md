@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.613] - 2026-10-12
+
+### Fixed
+
+- **Staff of the Dark / Spell Focus:** Bonus fließt wieder in Spell-Schaden (Typ `spellFocus`; Legacy-`minorFeature`-Zeilen werden erkannt). Focus wird nach der Raise-Formel addiert und in der Damage-Card als `Spell Focus: +Xd8` angezeigt. `Waffe: 0` bei Casting bleibt korrekt.
+
 ## [0.9.612] - 2026-10-12
 
 ### Fixed

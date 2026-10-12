@@ -89,6 +89,15 @@ export declare function formatArtifactWeaponRangeDisplay(aw: {
 /** Parse the leading d8 dice count from a value like "+5d8", "5d8", 5. */
 export declare function parseSpellFocusDice(value: unknown): number;
 /**
+ * True when a Base Value row is Spell Focus — including legacy Staff of the Dark
+ * rows that were baked as `minorFeature` + "Spell Focus Bonus" + "+Nd8".
+ */
+export declare function baseValueIsSpellFocus(bv: {
+    type?: unknown;
+    label?: unknown;
+    value?: unknown;
+} | null | undefined): boolean;
+/**
  * True when an artifact's `system` carries a Spell Focus Base Value. Such a
  * weapon adds its dice to Spell damage instead of dealing normal weapon damage.
  */
