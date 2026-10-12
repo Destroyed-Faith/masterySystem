@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.614] - 2026-10-12
+
+### Fixed
+
+- **Push / Pull:** Nach Angriffs-Schaden öffnet sich die Zielwahl auf dem Canvas (gelbe legale Zellen, Mauer-Block, Esc/RMB skip). Dual-Axis-Powers fragen Push oder Pull. Gilt für Hits, deferred Apply und AoE-Secondaries (nicht nur Counter Damage).
+
 ## [0.9.613] - 2026-10-12
 
 ### Fixed

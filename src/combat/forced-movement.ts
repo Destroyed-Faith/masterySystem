@@ -71,6 +71,34 @@ export function isForcedMoveDistanceLegal(
   return destDist < originDist - 1e-6;
 }
 
+/** Parse a single Push(N) / Pull(N) label (optionally with trailing notes). */
+export function parsePushPullMetersFromLine(line: string): { push: number; pull: number } {
+  let push = 0;
+  let pull = 0;
+  const text = String(line || '');
+  for (const m of text.matchAll(/\b(push|pull)\s*\(\s*(\d+)\s*\)/gi)) {
+    const n = Math.max(0, Math.floor(Number(m[2]) || 0));
+    if (m[1].toLowerCase() === 'push') push = Math.max(push, n);
+    else pull = Math.max(pull, n);
+  }
+  return { push, pull };
+}
+
+/** Read Push/Pull metres from damage-card `specialsUsed` lines. */
+export function readPushPullMetersFromSpecialLines(
+  lines: readonly string[] | null | undefined,
+): { push: number; pull: number } {
+  let push = 0;
+  let pull = 0;
+  if (!Array.isArray(lines)) return { push, pull };
+  for (const line of lines) {
+    const parsed = parsePushPullMetersFromLine(String(line || ''));
+    push = Math.max(push, parsed.push);
+    pull = Math.max(pull, parsed.pull);
+  }
+  return { push, pull };
+}
+
 /** Read Push/Pull metres from a power item (levels / specials objects / "push(2)" strings). */
 export function readPushPullMetersFromPower(power: any): { push: number; pull: number } {
   let push = 0;
@@ -79,11 +107,9 @@ export function readPushPullMetersFromPower(power: any): { push: number; pull: n
     if (!Array.isArray(list)) return;
     for (const entry of list) {
       if (typeof entry === 'string') {
-        const m = entry.trim().match(/^(push|pull)\s*\(\s*(\d+)\s*\)$/i);
-        if (!m) continue;
-        const n = Math.max(0, Math.floor(Number(m[2]) || 0));
-        if (m[1].toLowerCase() === 'push') push = Math.max(push, n);
-        else pull = Math.max(pull, n);
+        const parsed = parsePushPullMetersFromLine(entry);
+        push = Math.max(push, parsed.push);
+        pull = Math.max(pull, parsed.pull);
         continue;
       }
       const key = String(entry?.key || entry?.id || '').toLowerCase();
@@ -106,6 +132,152 @@ export function readPushPullMetersFromPower(power: any): { push: number; pull: n
   }
 
   return { push, pull };
+}
+
+/**
+ * Control powers often grant Push and Pull at the same rank — the attacker
+ * chooses one axis, not both in sequence.
+ */
+export async function chooseForcedMoveAxis(
+  pushM: number,
+  pullM: number,
+): Promise<ForcedMoveMode | null> {
+  const push = Math.max(0, Math.floor(Number(pushM) || 0));
+  const pull = Math.max(0, Math.floor(Number(pullM) || 0));
+  if (push > 0 && pull <= 0) return 'push';
+  if (pull > 0 && push <= 0) return 'pull';
+  if (push <= 0 && pull <= 0) return null;
+
+  const DialogCtor = (globalThis as any).Dialog;
+  if (typeof DialogCtor !== 'function') {
+    // No UI — prefer Push when both are present.
+    return 'push';
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (mode: ForcedMoveMode | null) => {
+      if (settled) return;
+      settled = true;
+      resolve(mode);
+    };
+    try {
+      new DialogCtor({
+        title: 'Forced Movement',
+        content: `<p>Choose <strong>Push ${push} m</strong> (away) or <strong>Pull ${pull} m</strong> (toward).</p>`,
+        buttons: {
+          push: {
+            icon: '<i class="fas fa-arrow-right"></i>',
+            label: `Push ${push} m`,
+            callback: () => finish('push'),
+          },
+          pull: {
+            icon: '<i class="fas fa-arrow-left"></i>',
+            label: `Pull ${pull} m`,
+            callback: () => finish('pull'),
+          },
+          skip: {
+            icon: '<i class="fas fa-times"></i>',
+            label: 'Skip',
+            callback: () => finish(null),
+          },
+        },
+        default: 'push',
+        close: () => finish(null),
+      }).render(true);
+    } catch (err) {
+      console.warn('Mastery System | chooseForcedMoveAxis dialog failed', err);
+      finish('push');
+    }
+  });
+}
+
+/**
+ * After a hit's specials resolve: parse Push/Pull from special lines and open
+ * the canvas destination picker (Push-vs-Pull choice lives in
+ * `offerForcedMovementFromActors` when both metre values are present).
+ */
+export async function resolveForcedMovementFromSpecials(params: {
+  movedActor: Actor | null | undefined;
+  referenceActor: Actor | null | undefined;
+  specialLines: readonly string[] | null | undefined;
+  labelPrefix?: string;
+}): Promise<ForcedMoveOutcome[]> {
+  const { push, pull } = readPushPullMetersFromSpecialLines(params.specialLines);
+  if (push <= 0 && pull <= 0) return [];
+  return offerForcedMovementFromActors({
+    movedActor: params.movedActor,
+    referenceActor: params.referenceActor,
+    pushM: push,
+    pullM: pull,
+    labelPrefix: params.labelPrefix,
+  });
+}
+
+/** Yellow highlight shared with radial / guided movement range previews. */
+export const FORCED_MOVE_LEGAL_COLOR = 0xffe066;
+export const FORCED_MOVE_HOVER_OK = 0xffe066;
+export const FORCED_MOVE_HOVER_BAD = 0xff4444;
+export const FORCED_MOVE_REF_COLOR = 0xffcc44;
+
+/**
+ * True when a move ray from `from` → `to` is blocked by a wall (type move).
+ * Inject `testCollision` for unit tests; otherwise uses Foundry wall APIs.
+ */
+export function isMoveRayBlockedByWall(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  testCollision?: (a: { x: number; y: number }, b: { x: number; y: number }) => boolean,
+): boolean {
+  if (typeof testCollision === 'function') {
+    try {
+      return !!testCollision(from, to);
+    } catch {
+      return false;
+    }
+  }
+  const g = globalThis as any;
+  try {
+    const backend = g.CONFIG?.Canvas?.polygonBackends?.move;
+    if (typeof backend?.testCollision === 'function') {
+      return !!backend.testCollision(from, to, { type: 'move', mode: 'any' });
+    }
+  } catch {
+    /* fall through */
+  }
+  try {
+    const walls = g.canvas?.walls;
+    if (typeof walls?.checkCollision === 'function') {
+      const Ray = g.foundry?.canvas?.geometry?.Ray ?? g.Ray;
+      if (typeof Ray === 'function') {
+        const ray = new Ray(from, to);
+        return !!walls.checkCollision(ray, { type: 'move', mode: 'any' });
+      }
+    }
+  } catch {
+    /* no walls API */
+  }
+  return false;
+}
+
+/**
+ * Drop candidate keys whose center is wall-blocked from the origin center.
+ * Pure aside from the optional collision predicate.
+ */
+export function filterKeysBlockedByWalls(params: {
+  candidateKeys: Iterable<string>;
+  originCenter: { x: number; y: number };
+  cellCenterFromKey: (key: string) => { x: number; y: number } | null;
+  testCollision?: (a: { x: number; y: number }, b: { x: number; y: number }) => boolean;
+}): Set<string> {
+  const out = new Set<string>();
+  for (const key of params.candidateKeys) {
+    const c = params.cellCenterFromKey(key);
+    if (!c) continue;
+    if (isMoveRayBlockedByWall(params.originCenter, c, params.testCollision)) continue;
+    out.add(key);
+  }
+  return out;
 }
 
 function tokenCenter(token: any): { x: number; y: number } {
@@ -199,7 +371,6 @@ function paintLegalKeys(state: ForcedMoveState): void {
   gridUI.addHighlightLayer?.(state.highlightIdRange);
   gridUI.clearHighlightLayer?.(state.highlightIdRange);
 
-  const color = state.mode === 'push' ? 0x44aaff : 0xaa66ff;
   for (const key of state.legalKeys) {
     const parts = key.split(',');
     const i = Number(parts[0]);
@@ -210,8 +381,8 @@ function paintLegalKeys(state: ForcedMoveState): void {
     gridUI.highlightPosition?.(state.highlightIdRange, {
       x: tl.x,
       y: tl.y,
-      color,
-      alpha: 0.4,
+      color: FORCED_MOVE_LEGAL_COLOR,
+      alpha: 0.42,
     });
   }
 }
@@ -240,8 +411,8 @@ function refreshHover(state: ForcedMoveState, destTL: { x: number; y: number }):
           gridUI.highlightPosition?.(state.highlightIdHover, {
             x: tl.x,
             y: tl.y,
-            color: isValid ? 0x66dd66 : 0xff4444,
-            alpha: 0.45,
+            color: isValid ? FORCED_MOVE_HOVER_OK : FORCED_MOVE_HOVER_BAD,
+            alpha: 0.5,
           });
         }
       }
@@ -267,18 +438,19 @@ function drawPreviewLine(
 ): void {
   if (!state.previewGraphics) return;
   const cellSize = Number((globalThis as any).canvas?.grid?.size) || 100;
-  const lineColor = isValid ? 0x66ff99 : 0xff6666;
+  const lineColor = isValid ? FORCED_MOVE_HOVER_OK : FORCED_MOVE_HOVER_BAD;
   state.previewGraphics.lineStyle(3, lineColor, 0.88);
   state.previewGraphics.moveTo(state.originCenter.x, state.originCenter.y);
   state.previewGraphics.lineTo(destCenter.x, destCenter.y);
-  // Reference marker
-  state.previewGraphics.lineStyle(2, 0xffcc44, 0.9);
-  state.previewGraphics.beginFill(0xffcc44, 0.25);
+  // Reference marker (source of the force)
+  state.previewGraphics.lineStyle(2, FORCED_MOVE_REF_COLOR, 0.9);
+  state.previewGraphics.beginFill(FORCED_MOVE_REF_COLOR, 0.25);
   state.previewGraphics.drawCircle(state.refCenter.x, state.refCenter.y, cellSize * 0.22);
   state.previewGraphics.endFill();
-  state.previewGraphics.lineStyle(2, lineColor, 0.9);
-  state.previewGraphics.beginFill(lineColor, 0.26);
-  state.previewGraphics.drawCircle(destCenter.x, destCenter.y, cellSize * 0.26);
+  // Destination yellow point
+  state.previewGraphics.lineStyle(2, FORCED_MOVE_LEGAL_COLOR, 0.95);
+  state.previewGraphics.beginFill(FORCED_MOVE_LEGAL_COLOR, isValid ? 0.45 : 0.15);
+  state.previewGraphics.drawCircle(destCenter.x, destCenter.y, cellSize * 0.28);
   state.previewGraphics.endFill();
 }
 
@@ -403,7 +575,14 @@ export function startForcedMovementMode(req: ForcedMoveRequest): Promise<ForcedM
     const refKey = hexKeyAtCenter(refCenter);
     if (refKey) blockedKeys.add(refKey);
 
-    const candidates = collectHexKeysInRangeForToken(moved.id, maxSteps) ?? new Set<string>();
+    const rawCandidates = collectHexKeysInRangeForToken(moved.id, maxSteps) ?? new Set<string>();
+    // Walls block destination cells whose center cannot be reached by a move ray
+    // from the token's current center (cannot shove through walls).
+    const candidates = filterKeysBlockedByWalls({
+      candidateKeys: rawCandidates,
+      originCenter,
+      cellCenterFromKey,
+    });
     const legalKeys = filterLegalForcedMoveKeys({
       mode: req.mode,
       candidateKeys: candidates,
@@ -553,9 +732,17 @@ export async function offerForcedMovementFromActors(params: {
     return ['unavailable'];
   }
 
-  const pushM = Math.max(0, Math.floor(Number(params.pushM) || 0));
-  const pullM = Math.max(0, Math.floor(Number(params.pullM) || 0));
+  let pushM = Math.max(0, Math.floor(Number(params.pushM) || 0));
+  let pullM = Math.max(0, Math.floor(Number(params.pullM) || 0));
   const prefix = params.labelPrefix ? `${params.labelPrefix} — ` : '';
+
+  // Dual-axis powers: pick one direction, do not run Push then Pull.
+  if (pushM > 0 && pullM > 0) {
+    const axis = await chooseForcedMoveAxis(pushM, pullM);
+    if (!axis) return ['skipped'];
+    if (axis === 'push') pullM = 0;
+    else pushM = 0;
+  }
 
   if (pushM > 0) {
     outcomes.push(

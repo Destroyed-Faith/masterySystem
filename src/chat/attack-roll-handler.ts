@@ -1197,7 +1197,9 @@ export async function executeAttackRollFromCard(
                 // `calculateDamageResult` (rulebook sequence step 7) — a
                 // phased strike never reaches this deferred-apply branch.
                 {
-                  const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+                  const { applyDamageToTarget, resolveForcedMovementAfterDamage } = await import(
+                    '../dice/damage-dialog.js'
+                  );
                   damageResult.mitigation = await applyDamageToTarget(
                     target as any,
                     damageResult.totalDamage,
@@ -1215,6 +1217,13 @@ export async function executeAttackRollFromCard(
                       skipReactionPrompt: true,
                     },
                   );
+                  if (!damageResult.mitigation?.phased) {
+                    await resolveForcedMovementAfterDamage(
+                      freshAttackerForDialog as any,
+                      target as any,
+                      damageResult.specialsUsed,
+                    );
+                  }
                 }
 
                 damageResult.pendingApply = false;

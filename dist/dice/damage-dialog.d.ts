@@ -127,4 +127,9 @@ export interface ApplyDamageOptions {
 export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
 /** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
 export declare function applyDamageToTarget(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
+/**
+ * After HP is applied for a hit, open Push/Pull destination picking when the
+ * specials list includes Push(X) / Pull(X). Safe no-op when metres are 0.
+ */
+export declare function resolveForcedMovementAfterDamage(attacker: Actor | null | undefined, target: Actor | null | undefined, specialsUsed: readonly string[] | null | undefined, labelPrefix?: string): Promise<void>;
 //# sourceMappingURL=damage-dialog.d.ts.map

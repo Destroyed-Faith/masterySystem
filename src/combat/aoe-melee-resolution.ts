@@ -241,7 +241,9 @@ export async function resolveAoeFullPayloadOnTarget(params: {
     aoeMeleeWeapon: true,
   };
 
-  const { showDamageDialog, applyDamageToTarget } = await import('../dice/damage-dialog.js');
+  const { showDamageDialog, applyDamageToTarget, resolveForcedMovementAfterDamage } = await import(
+    '../dice/damage-dialog.js'
+  );
   const damageResult = await showDamageDialog(
     attacker,
     defender,
@@ -327,6 +329,14 @@ export async function resolveAoeFullPayloadOnTarget(params: {
         },
       );
       mitLine = mit?.breakdownLine || `HP lost: ${mit?.barDamage ?? '?'}`;
+      if (!mit?.phased) {
+        await resolveForcedMovementAfterDamage(
+          attacker,
+          defender,
+          damageResult.specialsUsed,
+          'AoE',
+        );
+      }
     }
 
     try {

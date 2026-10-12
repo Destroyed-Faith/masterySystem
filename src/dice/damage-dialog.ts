@@ -3232,6 +3232,11 @@ async function calculateDamageResult(
       ...applyContext,
       skipPhasing: true,
     });
+    // Instant Push/Pull: canvas destination picker (not a status). Deferred
+    // apply paths call `resolveForcedMovementAfterDamage` after HP lands.
+    if (!mitigation?.phased) {
+      await resolveForcedMovementAfterDamage(attacker, target, specialsUsed);
+    }
   }
 
   const result: DamageResult = {
@@ -3251,6 +3256,30 @@ async function calculateDamageResult(
     prePostedChatMessageId,
   };
   return result;
+}
+
+/**
+ * After HP is applied for a hit, open Push/Pull destination picking when the
+ * specials list includes Push(X) / Pull(X). Safe no-op when metres are 0.
+ */
+export async function resolveForcedMovementAfterDamage(
+  attacker: Actor | null | undefined,
+  target: Actor | null | undefined,
+  specialsUsed: readonly string[] | null | undefined,
+  labelPrefix?: string,
+): Promise<void> {
+  if (!target || !attacker) return;
+  try {
+    const { resolveForcedMovementFromSpecials } = await import('../combat/forced-movement.js');
+    await resolveForcedMovementFromSpecials({
+      movedActor: target,
+      referenceActor: attacker,
+      specialLines: specialsUsed,
+      labelPrefix,
+    });
+  } catch (err) {
+    console.warn('Mastery System | Push/Pull after damage failed', err);
+  }
 }
 
 /** Short text of individual dice results for chat (Foundry Roll v13). */

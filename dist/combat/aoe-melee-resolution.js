@@ -182,7 +182,7 @@ export async function resolveAoeFullPayloadOnTarget(params) {
         targetEvade: evadeTn,
         aoeMeleeWeapon: true,
     };
-    const { showDamageDialog, applyDamageToTarget } = await import('../dice/damage-dialog.js');
+    const { showDamageDialog, applyDamageToTarget, resolveForcedMovementAfterDamage } = await import('../dice/damage-dialog.js');
     const damageResult = await showDamageDialog(attacker, defender, weaponId, targetFlags.selectedPowerId || null, 0, targetFlags);
     if (!damageResult)
         return 'cancelled';
@@ -255,6 +255,9 @@ export async function resolveAoeFullPayloadOnTarget(params) {
                 skipReactionPrompt: true,
             });
             mitLine = mit?.breakdownLine || `HP lost: ${mit?.barDamage ?? '?'}`;
+            if (!mit?.phased) {
+                await resolveForcedMovementAfterDamage(attacker, defender, damageResult.specialsUsed, 'AoE');
+            }
         }
         try {
             if (dmgMsg?.id) {
