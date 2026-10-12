@@ -94,18 +94,72 @@ function powerPickDisplayName(pick, tpl) {
     }
     return tpl.templateName;
 }
-/** Staged ranks for optional Specials on weapon AoE artifact picks (Dragon Claws). */
-const WEAPON_AOE_PICK_SPECIAL_RANKS = {
+/**
+ * Staged ranks for optional Specials on weapon AoE artifact picks (Dragon Claws
+ * Tail Sweep / similar). Catalog `active-*-weapon-aoe` rows ship `specials: []`;
+ * the pick's chosen Special is printed here and injected at runtime via
+ * `injectOptionalWeaponAoeChosenSpecial`.
+ *
+ * Push / Pull follow the same authored metre profile: 2 m / 6 m / 10 m (I / II / III).
+ */
+export const WEAPON_AOE_PICK_SPECIAL_RANKS = {
     lacerate: [3, 5, 7],
-    push: [2, 6, 8],
+    push: [2, 6, 10],
+    pull: [2, 6, 10],
 };
+/** Map catalog Power Level (default stages 4 / 10 / 16) → stage index 0..2. */
+export function weaponAoeStageIndexFromPowerLevel(powerLevel) {
+    const pl = Math.max(1, Math.floor(Number(powerLevel) || 1));
+    if (pl <= 4)
+        return 0;
+    if (pl <= 10)
+        return 1;
+    return 2;
+}
+export function optionalWeaponAoeSpecialRank(specialKey, stageIndex) {
+    const key = String(specialKey || '').trim().toLowerCase();
+    const ranks = WEAPON_AOE_PICK_SPECIAL_RANKS[key];
+    if (!ranks)
+        return null;
+    const idx = Math.max(0, Math.min(2, Math.floor(Number(stageIndex) || 0)));
+    const rank = ranks[idx];
+    return rank != null ? Math.max(0, Math.floor(Number(rank) || 0)) : null;
+}
 function optionalWeaponAoeSpecialText(chosenKey, stageIndex) {
     const ef = getEffect(chosenKey);
     const label = ef ? getEffectBaseName(ef.name) : chosenKey;
-    const rank = WEAPON_AOE_PICK_SPECIAL_RANKS[chosenKey]?.[stageIndex];
+    const rank = optionalWeaponAoeSpecialRank(chosenKey, stageIndex);
     if (rank != null)
         return `${label}(${rank})`;
     return label;
+}
+/**
+ * Weapon AoE templates do not carry a SPECIAL placeholder. When an artifact pick
+ * chooses Push / Pull / Lacerate / …, inject that Special into the level row so
+ * attack cards and forced movement see `Push(2)` / `Pull(2)` etc.
+ */
+export function injectOptionalWeaponAoeChosenSpecial(levelData, chosenSpecialKey, templateId, powerLevel) {
+    if (!levelData || !chosenSpecialKey)
+        return levelData;
+    if (!/weapon-aoe/i.test(String(templateId || '')))
+        return levelData;
+    const key = String(chosenSpecialKey).trim();
+    if (!key)
+        return levelData;
+    const specials = Array.isArray(levelData.specials) ? [...levelData.specials] : [];
+    if (specials.some((s) => String(s?.key || '').toUpperCase() === 'SPECIAL')) {
+        return levelData;
+    }
+    if (specials.some((s) => String(s?.key || '').toLowerCase() === key.toLowerCase())) {
+        return levelData;
+    }
+    const rank = optionalWeaponAoeSpecialRank(key, weaponAoeStageIndexFromPowerLevel(powerLevel));
+    if (rank == null || rank <= 0)
+        return levelData;
+    return {
+        ...levelData,
+        specials: [...specials, { key: key.toLowerCase(), rank }],
+    };
 }
 /** Human-readable effect text for a Stone Function support row at stage I / II / III. */
 function stoneFunctionEffect(sf, stageIndex) {

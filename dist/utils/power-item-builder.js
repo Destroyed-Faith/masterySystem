@@ -4,6 +4,7 @@
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
+import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 import { actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, findCatalogEntry, powerHasConfiguredSpecial, } from './power-catalog.js';
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: false }) {
@@ -20,10 +21,13 @@ export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: f
     if (chosenSpecial) {
         const next = {};
         for (const [k, row] of Object.entries(template.levels)) {
-            next[k] = bindPoolSpecialsOnRow(row, chosenSpecial.key, template.templateId, Number(k));
+            const bound = bindPoolSpecialsOnRow(row, chosenSpecial.key, template.templateId, Number(k));
+            // Weapon AoE (Tail Sweep): catalog specials stay empty — inject Push/etc.
+            next[k] = injectOptionalWeaponAoeChosenSpecial(bound, chosenSpecial.key, template.templateId, Number(k));
         }
         levels = next;
     }
+    const boundLevelRow = levels[levelKey] ?? levelRow;
     /* PG Spell Design Rule: the `spell` tag marks an actual Spell. Items only
      * carry it when converted (isSpell) or inherently mental (always resolved
      * as Spells). Template-level 'spell' tags just mean "convertible". */
@@ -63,11 +67,11 @@ export function buildPowerItemFromCatalogEntry(entry, rank, spell = { isSpell: f
             castingAttribute: spell.castingAttribute,
             spellResolution: spell.isSpell ? 'spellAttack' : spell.spellResolution,
             powerType: template.category === 'activeBuff' ? 'buff' : template.category,
-            range: renderRange(levelRow.range),
-            aoe: renderAoe(levelRow.aoe),
-            duration: renderDuration(levelRow.duration),
-            effect: levelRow.effect?.text || '',
-            specials: (levelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
+            range: renderRange(boundLevelRow.range),
+            aoe: renderAoe(boundLevelRow.aoe),
+            duration: renderDuration(boundLevelRow.duration),
+            effect: boundLevelRow.effect?.text || '',
+            specials: (boundLevelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
             ap: 30,
         },
     };

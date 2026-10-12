@@ -9,6 +9,7 @@ import { clampAtZero, formatD8Count, parseD8Count } from '../utils/dice-formula.
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
+import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 function cloneSnapshot(s) {
     return {
         ...s,
@@ -464,11 +465,18 @@ export function buildPowerSnapshotFromLevelData(levelData, fallbackDamage, fallb
  * e.g. "Sundered(X)" and no status effect lands on the target.
  */
 export function bindChosenSpecialIntoLevelData(levelData, chosenSpecialKey, templateId, level) {
-    if (!levelData || !chosenSpecialKey || !Array.isArray(levelData.specials))
+    if (!levelData || !chosenSpecialKey)
+        return levelData;
+    const pl = Number(level) || 1;
+    // Weapon AoE (Tail Sweep): no SPECIAL placeholder — inject the pick's Special.
+    const injected = injectOptionalWeaponAoeChosenSpecial(levelData, chosenSpecialKey, templateId, pl);
+    if (injected && injected !== levelData)
+        return injected;
+    if (!Array.isArray(levelData.specials))
         return levelData;
     if (!levelData.specials.some((s) => s?.key === 'SPECIAL'))
         return levelData;
-    return bindPoolSpecialsOnRow(levelData, chosenSpecialKey, templateId, Number(level) || 1);
+    return bindPoolSpecialsOnRow(levelData, chosenSpecialKey, templateId, pl);
 }
 /** Parse raise plan JSON from attack card data attribute. */
 export function parseDeclaredRaises(raw) {
@@ -524,7 +532,9 @@ export async function loadPowerSnapshotForArtifactOption(option) {
         if (powerDef?.levels) {
             levelData = powerDef.levels[pl] ?? null;
             if (levelData && chosenKey) {
-                levelData = bindPoolSpecialsOnRow(levelData, chosenKey, templateId, Number(pl) || 1);
+                // Weapon AoE picks (Tail Sweep Push) have empty catalog specials —
+                // bindChosenSpecialIntoLevelData injects the chosen Special.
+                levelData = bindChosenSpecialIntoLevelData(levelData, chosenKey, templateId, Number(pl) || 1);
             }
         }
     }

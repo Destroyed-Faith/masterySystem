@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-compiler.js';
+import {
+  deriveLevelProgressionFromPicks,
+  injectOptionalWeaponAoeChosenSpecial,
+  optionalWeaponAoeSpecialRank,
+  weaponAoeStageIndexFromPowerLevel,
+} from '../src/artifacts/progression-compiler.js';
 import { getTemplate } from '../src/utils/powers/index.js';
 import type { ArtifactProgressionPick } from '../src/types/item.js';
 
@@ -154,6 +159,56 @@ describe('deriveLevelProgressionFromPicks', () => {
     expect(rows[0].special).toBe('Lacerate(3)');
     expect(rows[1].special).toBe('Lacerate(5)');
     expect(rows[2].special).toBe('Lacerate(7)');
+  });
+
+  it('prints Tail Sweep Push ranks 2 / 6 / 10 and injects them into empty specials', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 3,
+        kind: 'power',
+        powerTemplateId: 'active-melee-weapon-aoe',
+        chosenSpecial: { key: 'push', tier: 4 },
+        displayName: 'Tail Sweep',
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows.map((r) => r.special)).toEqual(['Push(2)', 'Push(6)', 'Push(10)']);
+    expect(weaponAoeStageIndexFromPowerLevel(4)).toBe(0);
+    expect(optionalWeaponAoeSpecialRank('push', 0)).toBe(2);
+    const tpl = getTemplate('active-melee-weapon-aoe')!;
+    const injected = injectOptionalWeaponAoeChosenSpecial(
+      tpl.levels['4'],
+      'push',
+      'active-melee-weapon-aoe',
+      4,
+    );
+    expect(injected?.specials).toEqual([{ key: 'push', rank: 2 }]);
+    expect(tpl.levels['4'].specials).toEqual([]);
+  });
+
+  it('treats Pull like Push on weapon AoE picks (print + inject 2 / 6 / 10)', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 3,
+        kind: 'power',
+        powerTemplateId: 'active-melee-weapon-aoe',
+        chosenSpecial: { key: 'pull', tier: 4 },
+        displayName: 'Tail Reel',
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows.map((r) => r.special)).toEqual(['Pull(2)', 'Pull(6)', 'Pull(10)']);
+    expect(optionalWeaponAoeSpecialRank('pull', 0)).toBe(2);
+    expect(optionalWeaponAoeSpecialRank('pull', 1)).toBe(6);
+    expect(optionalWeaponAoeSpecialRank('pull', 2)).toBe(10);
+    const tpl = getTemplate('active-melee-weapon-aoe')!;
+    const injected = injectOptionalWeaponAoeChosenSpecial(
+      tpl.levels['4'],
+      'pull',
+      'active-melee-weapon-aoe',
+      4,
+    );
+    expect(injected?.specials).toEqual([{ key: 'pull', rank: 2 }]);
   });
 
   it('honors custom stage power levels and numerals (Oracle Field I / III / V)', () => {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.615] - 2026-10-12
+
+### Fixed
+
+- **Tail Sweep / Weapon AoE Push & Pull:** Optional Specials (Push/Pull 2/6/10 m) werden zur Laufzeit in den Combat-Snapshot injiziert, damit nach dem Treffer der Forced-Move-Picker erscheint (nicht nur auf dem Print-Text).
+
 ## [0.9.614] - 2026-10-12
 
 ### Fixed

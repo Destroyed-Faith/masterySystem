@@ -431,4 +431,72 @@ describe('artifact catalog snapshot', () => {
     } as any);
     expect(spiral3?.snapshot.specials).toEqual([{ key: 'lacerate', rank: 10 }]);
   });
+
+  it('Tail Sweep injects Push into the empty weapon-AoE specials (I/II/III → 2/6/10)', async () => {
+    const stageI = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-weapon-aoe',
+      artifactChosenSpecialKey: 'push',
+      artifactRowLevel: 3,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageI?.snapshot.specials).toEqual([{ key: 'push', rank: 2 }]);
+    expect(snapshotToSpecialStrings(stageI!.snapshot)).toEqual(['Push(2)']);
+    expect(stageI?.snapshot.damageDice).toBe(4);
+
+    const stageII = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-weapon-aoe',
+      artifactChosenSpecialKey: 'push',
+      artifactRowLevel: 6,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageII?.snapshot.specials).toEqual([{ key: 'push', rank: 6 }]);
+
+    const stageIII = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-weapon-aoe',
+      artifactChosenSpecialKey: 'push',
+      artifactRowLevel: 9,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageIII?.snapshot.specials).toEqual([{ key: 'push', rank: 10 }]);
+  });
+
+  it('weapon-AoE Pull injects the same staged metres as Push (2/6/10)', async () => {
+    const stageI = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-weapon-aoe',
+      artifactChosenSpecialKey: 'pull',
+      artifactRowLevel: 3,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageI?.snapshot.specials).toEqual([{ key: 'pull', rank: 2 }]);
+    expect(snapshotToSpecialStrings(stageI!.snapshot)).toEqual(['Pull(2)']);
+
+    const stageII = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-weapon-aoe',
+      artifactChosenSpecialKey: 'pull',
+      artifactRowLevel: 6,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageII?.snapshot.specials).toEqual([{ key: 'pull', rank: 6 }]);
+
+    const stageIII = await loadPowerSnapshotForArtifactOption({
+      artifactPowerTemplateId: 'active-melee-weapon-aoe',
+      artifactChosenSpecialKey: 'pull',
+      artifactRowLevel: 9,
+      artifactIsSpell: false,
+    } as any);
+    expect(stageIII?.snapshot.specials).toEqual([{ key: 'pull', rank: 10 }]);
+  });
+
+  it('bindChosenSpecialIntoLevelData injects Push and Pull on weapon-AoE rows', () => {
+    const pushRow = { specials: [] as Array<{ key: string; rank: number }>, effect: { dice: '4d8' } };
+    const pullRow = { specials: [] as Array<{ key: string; rank: number }>, effect: { dice: '4d8' } };
+    expect(bindChosenSpecialIntoLevelData(pushRow, 'push', 'active-melee-weapon-aoe', 4).specials).toEqual([
+      { key: 'push', rank: 2 },
+    ]);
+    expect(bindChosenSpecialIntoLevelData(pullRow, 'pull', 'active-melee-weapon-aoe', 4).specials).toEqual([
+      { key: 'pull', rank: 2 },
+    ]);
+    expect(pushRow.specials).toEqual([]);
+    expect(pullRow.specials).toEqual([]);
+  });
 });

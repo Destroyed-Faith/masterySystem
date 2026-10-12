@@ -12,6 +12,7 @@ import type { RadialCombatOption } from '../radial-menu/types.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
+import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 
 export type RaiseEffectKind =
   | 'damage'
@@ -625,9 +626,19 @@ export function bindChosenSpecialIntoLevelData(
   templateId?: string | null,
   level?: number | null,
 ): any | null {
-  if (!levelData || !chosenSpecialKey || !Array.isArray(levelData.specials)) return levelData;
+  if (!levelData || !chosenSpecialKey) return levelData;
+  const pl = Number(level) || 1;
+  // Weapon AoE (Tail Sweep): no SPECIAL placeholder — inject the pick's Special.
+  const injected = injectOptionalWeaponAoeChosenSpecial(
+    levelData,
+    chosenSpecialKey,
+    templateId,
+    pl,
+  );
+  if (injected && injected !== levelData) return injected;
+  if (!Array.isArray(levelData.specials)) return levelData;
   if (!levelData.specials.some((s: any) => s?.key === 'SPECIAL')) return levelData;
-  return bindPoolSpecialsOnRow(levelData, chosenSpecialKey, templateId, Number(level) || 1);
+  return bindPoolSpecialsOnRow(levelData, chosenSpecialKey, templateId, pl);
 }
 
 /** Parse raise plan JSON from attack card data attribute. */
@@ -689,7 +700,14 @@ export async function loadPowerSnapshotForArtifactOption(
     if (powerDef?.levels) {
       levelData = powerDef.levels[pl] ?? null;
       if (levelData && chosenKey) {
-        levelData = bindPoolSpecialsOnRow(levelData, chosenKey, templateId, Number(pl) || 1);
+        // Weapon AoE picks (Tail Sweep Push) have empty catalog specials —
+        // bindChosenSpecialIntoLevelData injects the chosen Special.
+        levelData = bindChosenSpecialIntoLevelData(
+          levelData,
+          chosenKey,
+          templateId,
+          Number(pl) || 1,
+        );
       }
     }
   } catch {

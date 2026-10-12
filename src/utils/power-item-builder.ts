@@ -14,6 +14,7 @@ import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 import { SPECIAL_EFFECTS_BY_ID } from './special-effects.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
+import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 import {
     actorAlreadyHasPower,
     activeTemplateCanBeSpell,
@@ -63,8 +64,15 @@ export function buildPowerItemFromCatalogEntry(
     if (chosenSpecial) {
         const next: Record<string, unknown> = {};
         for (const [k, row] of Object.entries(template.levels)) {
-            next[k] = bindPoolSpecialsOnRow(
+            const bound = bindPoolSpecialsOnRow(
                 row as { specials?: PowerSpecial[]; effect?: { text?: string } },
+                chosenSpecial.key,
+                template.templateId,
+                Number(k),
+            );
+            // Weapon AoE (Tail Sweep): catalog specials stay empty — inject Push/etc.
+            next[k] = injectOptionalWeaponAoeChosenSpecial(
+                bound,
                 chosenSpecial.key,
                 template.templateId,
                 Number(k),
@@ -72,6 +80,8 @@ export function buildPowerItemFromCatalogEntry(
         }
         levels = next as Record<PowerLevelKey, unknown>;
     }
+
+    const boundLevelRow = (levels[levelKey] as typeof levelRow | undefined) ?? levelRow;
 
     /* PG Spell Design Rule: the `spell` tag marks an actual Spell. Items only
      * carry it when converted (isSpell) or inherently mental (always resolved
@@ -113,11 +123,11 @@ export function buildPowerItemFromCatalogEntry(
             castingAttribute: spell.castingAttribute,
             spellResolution: spell.isSpell ? 'spellAttack' : spell.spellResolution,
             powerType: template.category === 'activeBuff' ? 'buff' : template.category,
-            range: renderRange(levelRow.range),
-            aoe: renderAoe(levelRow.aoe),
-            duration: renderDuration(levelRow.duration),
-            effect: levelRow.effect?.text || '',
-            specials: (levelRow.specials || []).map((s: PowerSpecial) =>
+            range: renderRange(boundLevelRow.range),
+            aoe: renderAoe(boundLevelRow.aoe),
+            duration: renderDuration(boundLevelRow.duration),
+            effect: boundLevelRow.effect?.text || '',
+            specials: (boundLevelRow.specials || []).map((s: PowerSpecial) =>
                 s.rank !== undefined ? `${s.key}(${s.rank})` : s.key,
             ),
             ap: 30,
