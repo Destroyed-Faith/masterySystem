@@ -347,6 +347,24 @@ prose-mirror#chat-message.chat-input > .editor-container {
   margin: 0 0 8px 0;
 }
 
+.ms-theme-rulebook #chat-log .damage-split-banner,
+#chat-log .damage-split-banner {
+  font-family: var(--ms-font-head, inherit);
+  color: var(--ms-accent, #c9a227);
+  letter-spacing: 0.4px;
+  margin: 0 0 6px 0;
+  font-size: 12px;
+}
+
+.ms-theme-rulebook #chat-log .damage-split-sub,
+#chat-log .damage-split-sub {
+  font-size: 0.75em;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.85;
+}
+
 .ms-theme-rulebook #chat-log .mastery-damage-card .damage-header h3 i,
 .ms-theme-rulebook #chat-log .mastery-system-damage h3 i {
   color: var(--ms-muted);

@@ -11,6 +11,11 @@ interface SplitContext {
     /** Halved attack pool for this strike (Math.floor(original / 2)). */
     attributePool: number;
 }
+/**
+ * After Strike 1 of a Split Attack fully resolves (hit or miss), post Strike 2.
+ * Safe to call more than once — the pending entry is consumed on first spawn.
+ */
+export declare function spawnSplitStrike2IfPending(splitPairId: string | null | undefined): Promise<void>;
 /** One melee AoE declaration → multiple attack cards; only volleyIndex === 1 spends the attack action on roll. */
 export interface MeleeBurstVolleyContext {
     volleyId: string;

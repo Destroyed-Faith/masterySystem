@@ -22,6 +22,40 @@ import { actorHasSurprise } from "./surprise.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, dedupeDeclaredRaises, describeDeclaredRaise, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
+const pendingSplitStrike2 = new Map();
+/**
+ * After Strike 1 of a Split Attack fully resolves (hit or miss), post Strike 2.
+ * Safe to call more than once — the pending entry is consumed on first spawn.
+ */
+export async function spawnSplitStrike2IfPending(splitPairId) {
+    const pairId = String(splitPairId || '').trim();
+    if (!pairId)
+        return;
+    const pending = pendingSplitStrike2.get(pairId);
+    if (!pending)
+        return;
+    pendingSplitStrike2.delete(pairId);
+    const canvasTokens = globalThis.canvas?.tokens;
+    const attackerToken = canvasTokens?.get?.(pending.attackerTokenId) ||
+        canvasTokens?.placeables?.find?.((t) => String(t?.id) === pending.attackerTokenId) ||
+        null;
+    const targetToken = canvasTokens?.get?.(pending.targetTokenId) ||
+        canvasTokens?.placeables?.find?.((t) => String(t?.id) === pending.targetTokenId) ||
+        null;
+    if (!attackerToken || !targetToken) {
+        console.warn('Mastery System | Split Strike 2: tokens missing', {
+            pairId,
+            attackerTokenId: pending.attackerTokenId,
+            targetTokenId: pending.targetTokenId,
+        });
+        return;
+    }
+    await createAttackCard(attackerToken, targetToken, pending.option, pending.attackType, {
+        splitPairId: pairId,
+        splitIndex: 2,
+        attributePool: 0,
+    }, null, null);
+}
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -81,8 +115,8 @@ function attackCardEsc(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 }
-function resolveWeaponForAttack(items, attackType) {
-    return resolveEquippedWeaponForAttackType(items, attackType);
+function resolveWeaponForAttack(items, attackType, attacker) {
+    return resolveEquippedWeaponForAttackType(items, attackType, attacker);
 }
 /**
  * On-hit preview for the raise panel: weapon dice + power dice as a total
@@ -185,7 +219,7 @@ function resolveWeaponForAttribute(actor, weapon, option, attackType) {
         if (forcedItem?.type === "weapon")
             return forcedItem;
     }
-    return resolveWeaponForAttack(items, attackType);
+    return resolveWeaponForAttack(items, attackType, actor);
 }
 export function getAttackAttribute(actor, weapon, option, attackType) {
     const resolvedWeapon = resolveWeaponForAttribute(actor, weapon, option, attackType);
@@ -239,21 +273,20 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     // Autofire is handled before createAttackCard (chain targeting → one card
     // with autofireChainTokenIds). Do not treat it as Split-Attack.
     // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
-    // we recurse into two strikes sharing one attack action. Pool + damage are
-    // halved per strike (floor — odd remainder falls off symmetrically).
+    // post Strike 1 only. Strike 2 waits until Strike 1 fully finishes (hit or
+    // miss + damage), so the chat stays readable as one-after-another.
     if (!split && !burstVolley && !aoeMelee && detectSplitAttack(option)) {
         const pairId = newSplitPairId();
-        // Strike 1 resolves first; Strike 2 is scheduled immediately after so
-        // both cards appear in chat for the target owner to resolve.
+        pendingSplitStrike2.set(pairId, {
+            attackerTokenId: String(attackerToken?.id || ''),
+            targetTokenId: String(targetToken?.id || ''),
+            attackType,
+            option,
+        });
         await createAttackCard(attackerToken, targetToken, option, attackType, {
             splitPairId: pairId,
             splitIndex: 1,
             attributePool: 0, // recomputed below with the real base pool.
-        }, null, null);
-        await createAttackCard(attackerToken, targetToken, option, attackType, {
-            splitPairId: pairId,
-            splitIndex: 2,
-            attributePool: 0,
         }, null, null);
         return null;
     }
@@ -277,7 +310,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     }
     // Log actor item summary for diagnostics
     const items = collectActorItems(attacker);
-    let weapon = resolveWeaponForAttack(items, attackType);
+    let weapon = resolveWeaponForAttack(items, attackType, attacker);
     // Forced weapon (e.g. an artifact natural weapon like the Dragon Head Bite):
     // build a weapon-shaped object from the artifact's `artifactWeapon` profile so
     // this attack always uses it regardless of any conventional weapon equipped.

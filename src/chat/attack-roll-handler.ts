@@ -590,12 +590,21 @@ export async function executeAttackRollFromCard(
         ? `${rollFlavorBase}${faithRerollNote(opts.faithReroll)}`
         : rollFlavorBase;
       const sheetAttackName = String(sheetToHit?.name || flags.npcAttackName || '').trim();
+      const attrLabel = flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1);
+      const splitIdx = Math.max(1, Math.floor(Number(flags.splitIndex) || 1));
+      const splitPowerName = String(flags.selectedPowerName || '').trim();
+      const splitBanner =
+        flags.splitAttack === true
+          ? `${splitPowerName || `${attackKind} Split Attack`} — Strike ${splitIdx} of 2`
+          : '';
       const rollLabel =
         tnKind === 'casting'
-          ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
-          : sheetAttackName
-            ? sheetAttackName
-            : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
+          ? `Spell Attack (${attrLabel})`
+          : splitBanner
+            ? splitBanner
+            : sheetAttackName
+              ? sheetAttackName
+              : `${attackKind} Attack (${attrLabel})`;
 
       const actionEco = await import('../combat/action-economy.js');
       const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
@@ -1351,6 +1360,16 @@ export async function executeAttackRollFromCard(
           console.warn('Mastery System | consumable consume after attack roll failed', consumeErr);
         }
       }
+
+      // Split Attack: Strike 2 only after Strike 1 fully finishes (hit or miss).
+      if (flags.splitAttack === true && Math.floor(Number(flags.splitIndex) || 0) === 1) {
+        try {
+          const { spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+          await spawnSplitStrike2IfPending(flags.splitPairId);
+        } catch (split2Err) {
+          console.warn('Mastery System | Split Strike 2 spawn failed', split2Err);
+        }
+      }
       
     } catch (error) {
       if (spentAmmoOnRoll && actorForAmmo) {
@@ -1483,7 +1502,7 @@ function buildMitigationHtml(damageResult: any): string {
         </div>`;
 }
 
-function buildDamageChatContent(damageResult: any, target: Actor): string {
+function buildDamageChatContent(damageResult: any, target: Actor, flags?: any): string {
   const damageBreakdown: string[] = [];
   if (damageResult.baseDamage > 0) damageBreakdown.push(`Base: ${damageResult.baseDamage}`);
   if (damageResult.powerDamage > 0) damageBreakdown.push(`Power: ${damageResult.powerDamage}`);
@@ -1511,8 +1530,22 @@ function buildDamageChatContent(damageResult: any, target: Actor): string {
     ? `<p class="mastery-damage-special-limit">${limitNotes.map((n) => esc(n)).join('<br>')}</p>`
     : '';
 
+  const splitIdx = Math.max(1, Math.floor(Number(flags?.splitIndex) || 1));
+  const splitPower = String(flags?.selectedPowerName || '').trim();
+  const attackKind = flags?.attackType === 'ranged' ? 'Ranged' : 'Melee';
+  const splitBanner =
+    flags?.splitAttack === true
+      ? `${splitPower || `${attackKind} Split Attack`} — Strike ${splitIdx} of 2`
+      : '';
+  const splitHtml = splitBanner
+    ? `<div class="damage-split-banner"><strong>${esc(splitBanner)}</strong></div>`
+    : '';
+
   return `<div class="mastery-system-damage">
-      <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
+      ${splitHtml}
+      <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}${
+        splitBanner ? ` <span class="damage-split-sub">(${esc(splitBanner)})</span>` : ''
+      }</h3>
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${(target as any).name}</p>
@@ -1539,7 +1572,7 @@ async function rollAndDisplayDamage(
           .filter(Boolean)
       : [];
 
-  const content = buildDamageChatContent(damageResult, target);
+  const content = buildDamageChatContent(damageResult, target, _flags);
 
   // Faith Keep already posted this card — refresh rolls/details, do not duplicate.
   const prePostedId = String(damageResult?.prePostedChatMessageId || '');
@@ -1564,6 +1597,15 @@ async function rollAndDisplayDamage(
     user: (game as any).user?.id,
     speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
     content,
+    flags: {
+      'mastery-system': {
+        splitAttack: !!_flags?.splitAttack,
+        splitIndex: _flags?.splitIndex ?? null,
+        splitPairId: _flags?.splitPairId ?? null,
+        selectedPowerName: _flags?.selectedPowerName ?? '',
+        attackType: _flags?.attackType ?? null,
+      },
+    },
   };
 
   if (serializedRolls.length > 0) {
@@ -1590,7 +1632,8 @@ async function updateDamageChatWithMitigation(
   try {
     const message = (game as any).messages?.get?.(messageId);
     if (!message) return;
-    await message.update({ content: buildDamageChatContent(damageResult, target) });
+    const msFlags = message.getFlag?.('mastery-system') || message.flags?.['mastery-system'] || {};
+    await message.update({ content: buildDamageChatContent(damageResult, target, msFlags) });
   } catch (err) {
     console.warn('Mastery System | Could not update damage chat with mitigation', err);
   }

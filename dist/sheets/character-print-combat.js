@@ -273,7 +273,7 @@ function resolveWeaponForPrint(actor, items, attackType) {
     catch {
         /* ignore — fall through to equipped resolver */
     }
-    const resolved = resolveEquippedWeaponForAttackType(items, attackType);
+    const resolved = resolveEquippedWeaponForAttackType(items, attackType, actor);
     if (!resolved)
         return null;
     if (resolved.system?.fromArtifact && resolved.id) {

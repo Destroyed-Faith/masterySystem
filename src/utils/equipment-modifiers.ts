@@ -188,6 +188,7 @@ export function getInitiativeEquipmentRows(actor: any): Array<{
 export function resolveEquippedWeaponForAttackType(
   items: any[],
   attackType: 'melee' | 'ranged',
+  actor?: any,
 ): any | null {
-  return resolveEquippedWeaponForAttackTypeWithUnarmed(items, attackType);
+  return resolveEquippedWeaponForAttackTypeWithUnarmed(items, attackType, actor);
 }

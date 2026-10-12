@@ -173,7 +173,7 @@ export function getInitiativeEquipmentRows(actor) {
  * Equipped weapon for attack type. Melee falls back to virtual unarmed when
  * nothing is equipped (see `unarmed-fallback.ts`).
  */
-export function resolveEquippedWeaponForAttackType(items, attackType) {
-    return resolveEquippedWeaponForAttackTypeWithUnarmed(items, attackType);
+export function resolveEquippedWeaponForAttackType(items, attackType, actor) {
+    return resolveEquippedWeaponForAttackTypeWithUnarmed(items, attackType, actor);
 }
 //# sourceMappingURL=equipment-modifiers.js.map

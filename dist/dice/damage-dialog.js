@@ -330,8 +330,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     }
     // Debug: Log all items to see what we have
     const isNpcAttackFlow = !!(flags?.npcAttackSource === true && actorToUse.type === 'npc');
-    // Resolve weapon with priority: forced weapon > equipped melee weapon > equipped weapon > weaponId match > any weapon
+    // Resolve weapon with priority: forced > active Weapon Set > weaponId > equipped scan > unarmed
     let weaponForDamage = null;
+    const attackTypeForWeapon = flags?.attackType === 'ranged' ? 'ranged' : 'melee';
     // Method 0: Forced weapon (artifact / natural weapon attack) — this attack
     // always rolls that weapon's dice, regardless of what else is equipped and
     // regardless of attack type (a melee artifact weapon also backs the
@@ -347,7 +348,12 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             weaponForDamage = forced;
         }
     }
-    // Method 1: If weaponId is provided, try to find it first (but verify it's still valid)
+    // Method 1: Active Weapon Set (Claws / Tails / set main-hand) — must beat a
+    // stale weaponId or leftover equipped conventional 1d8 item.
+    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage && actorToUse) {
+        weaponForDamage = resolveEquippedWeaponForAttackType(items, attackTypeForWeapon, actorToUse);
+    }
+    // Method 2: weaponId from the attack card (when set resolution found nothing)
     if (!isNpcAttackFlow && !weaponForDamage && weaponId && actorToUse) {
         if (actorToUse.items?.get) {
             weaponForDamage = actorToUse.items.get(weaponId);
@@ -358,19 +364,11 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         else if (actorToUse.items instanceof Map) {
             weaponForDamage = actorToUse.items.get(weaponId);
         }
-        // If found by ID but unequipped, use strict equipped weapon for this attack type only
         if (weaponForDamage && weaponForDamage.system?.equipped !== true) {
-            const atk = flags?.attackType === 'ranged' ? 'ranged' : 'melee';
-            const strict = resolveEquippedWeaponForAttackType(items, atk);
-            if (strict) {
-                weaponForDamage = strict;
-            }
-            else {
-                weaponForDamage = null;
-            }
+            const strict = resolveEquippedWeaponForAttackType(items, attackTypeForWeapon, actorToUse);
+            weaponForDamage = strict || null;
         }
     }
-    // Method 1.5: If not found in actor items, try to get it directly from game.items
     if (!isNpcAttackFlow && !weaponForDamage && weaponId) {
         try {
             const weaponItem = game.items?.get(weaponId);
@@ -382,20 +380,12 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             console.warn('Mastery System | [DAMAGE DIALOG] Error looking up weapon from game.items', e);
         }
     }
-    // Method 2: Find in items array by ID (if not already found)
     if (!isNpcAttackFlow && !weaponForDamage && weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
-    // Method 3: Equipped weapon matching attack type (from attack card flags)
-    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
-        weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
-    }
-    // Method 4: Virtual unarmed when no equipped weapon (melee only)
+    // Method 3: Virtual unarmed when no equipped weapon (melee only)
     if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage) {
-        const atk = flags?.attackType === 'ranged' || flags?.attackType === 'melee'
-            ? flags.attackType
-            : 'melee';
-        weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, atk);
+        weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, attackTypeForWeapon);
     }
     if (flags?.ignoreWeaponDamage) {
         weaponForDamage = null;
@@ -745,7 +735,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             might: flags?.attackType === 'melee' && attributeScalingEnabled()
                 ? Math.max(0, Math.floor(Number(actorToUse?.system?.scaling?.mightDamageBonus) || 0))
                 : 0,
-        });
+        }, formatSplitStrikeBanner(flags));
         const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
         const chatData = {
             user: game.user?.id,
@@ -801,7 +791,16 @@ function damageCardHtmlEsc(text) {
 /**
  * Create HTML content for damage card in chat
  */
-function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}) {
+function formatSplitStrikeBanner(flags) {
+    if (!flags?.splitAttack)
+        return '';
+    const idx = Math.max(1, Math.floor(Number(flags.splitIndex) || 1));
+    const powerName = String(flags.selectedPowerName || '').trim();
+    const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
+    const title = powerName || `${attackKind} Split Attack`;
+    return `${title} — Strike ${idx} of 2`;
+}
+function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}, splitBanner = '') {
     const raisesSection = raiseOutcomeLine
         ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
         : '';
@@ -814,10 +813,14 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
         <p class="raises-description">Mark(${markMax}) on target — after the roll, spend it on the damage card if it raises the total.</p>
       </div>`;
     }
+    const splitHeader = splitBanner
+        ? `<div class="damage-split-banner"><strong>${damageCardHtmlEsc(splitBanner)}</strong></div>`
+        : '';
     const html = `
     <div class="mastery-damage-card">
       <div class="damage-header">
-        <h3><i class="fas fa-sword"></i> Damage Calculation</h3>
+        ${splitHeader}
+        <h3><i class="fas fa-sword"></i> Damage Calculation${splitBanner ? ` <span class="damage-split-sub">(${damageCardHtmlEsc(splitBanner)})</span>` : ''}</h3>
         <div class="damage-participants">
           <strong>${attacker.name}</strong> → <strong>${target.name}</strong>
         </div>

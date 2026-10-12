@@ -1,7 +1,7 @@
 /**
  * Option Collection and Parsing for Radial Menu
  */
-import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
+import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -271,7 +271,7 @@ function getEquippedWeapon(actor) {
  */
 function getReachBonus(actor) {
     const equippedWeapon = getEquippedWeapon(actor) ||
-        resolveEquippedWeaponForAttackType(actor?.items || [], 'melee');
+        resolveEquippedWeaponForAttackType(actor?.items || [], 'melee', actor);
     if (!equippedWeapon)
         return 0;
     const weaponSystem = equippedWeapon.system;

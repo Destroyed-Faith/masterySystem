@@ -288,7 +288,7 @@ function getEquippedWeapon(actor: any): any {
 function getReachBonus(actor: any): number {
   const equippedWeapon =
     getEquippedWeapon(actor) ||
-    resolveEquippedWeaponForAttackType(actor?.items || [], 'melee');
+    resolveEquippedWeaponForAttackType(actor?.items || [], 'melee', actor);
   if (!equippedWeapon) return 0;
 
   const weaponSystem = equippedWeapon.system as any;

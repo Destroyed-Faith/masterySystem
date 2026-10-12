@@ -8,6 +8,7 @@
 import { deriveArtifactWeaponDamage } from './artifact-base-derive.js';
 import { resolveArtifactWeaponKind, weaponBasicsForProfile } from './artifact-rules.js';
 import { backfillArtifactWeaponSpecials } from './weapon-specials.js';
+import { peekWeaponSets } from './weapon-sets.js';
 
 export const VIRTUAL_UNARMED_WEAPON_ID = '__mastery_virtual_unarmed__';
 
@@ -157,16 +158,74 @@ function isConventionalMeleeWeapon(item: any): boolean {
   return (item.system as any)?.weaponType !== 'ranged';
 }
 
+function itemMatchesAttackType(weaponLike: any, attackType: 'melee' | 'ranged'): boolean {
+  const kind = (weaponLike?.system as any)?.weaponType === 'ranged' ? 'ranged' : 'melee';
+  return kind === attackType;
+}
+
 /**
- * Resolve equipped weapon for an attack type. Conventional weapons win; an
- * artifact natural weapon (e.g. Dragon Head bite) is used when no conventional
- * weapon of that type is equipped. Melee finally falls back to virtual unarmed;
- * ranged returns null.
+ * Prefer the active Weapon Set main-hand (Claws / Tails / set weapon) over any
+ * leftover equipped conventional item. Echo-bound artifacts can stay equipped
+ * after a swap; without this, a stale 1d8 weapon often wins over 6d8 Claws.
+ *
+ * Returns `undefined` when the actor has no set guidance (caller falls through).
+ */
+function tryResolveActiveSetWeapon(
+  actor: any,
+  attackType: 'melee' | 'ranged',
+): any | null | undefined {
+  if (!actor) return undefined;
+  try {
+    const state = peekWeaponSets(actor);
+    if (state.stowed) {
+      return attackType === 'melee' ? createVirtualUnarmedWeapon() : null;
+    }
+    const mainId = state.sets?.[state.active]?.mainhand;
+    if (!mainId) {
+      return attackType === 'melee' ? createVirtualUnarmedWeapon() : null;
+    }
+    let main: any = null;
+    if (typeof actor.items?.get === 'function') {
+      main = actor.items.get(mainId) ?? null;
+    }
+    if (!main && Array.isArray(actor.items)) {
+      main = actor.items.find((i: any) => String(i?.id) === String(mainId)) ?? null;
+    }
+    if (!main && actor.items?.values) {
+      main =
+        Array.from(actor.items.values()).find((i: any) => String(i?.id) === String(mainId)) ?? null;
+    }
+    if (!main) return undefined;
+
+    if (main.type === 'artifact') {
+      const vw = artifactToVirtualWeapon(main);
+      if (!vw) return undefined;
+      return itemMatchesAttackType(vw, attackType) ? vw : undefined;
+    }
+    if (main.type === 'weapon') {
+      return itemMatchesAttackType(main, attackType) ? main : undefined;
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Resolve equipped weapon for an attack type.
+ * When `actor` is provided, the active Weapon Set main-hand wins (matches UI).
+ * Otherwise conventional weapons win; an artifact natural weapon is used when
+ * no conventional weapon of that type is equipped. Melee finally falls back to
+ * virtual unarmed; ranged returns null.
  */
 export function resolveEquippedWeaponForAttackType(
   items: any[],
   attackType: 'melee' | 'ranged',
+  actor?: any,
 ): any | null {
+  const fromSet = tryResolveActiveSetWeapon(actor, attackType);
+  if (fromSet !== undefined) return fromSet;
+
   const equippedWeapons = items.filter(
     (i: any) => i.type === 'weapon' && (i.system as any)?.equipped === true,
   );

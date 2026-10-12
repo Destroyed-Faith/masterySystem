@@ -99,7 +99,7 @@ export function showRadialInfoPanel(token, option) {
             // equipped/bound artifact weapon (derived dice) OR virtual unarmed (1d8).
             const isRanged = (option.tags || []).some((t) => /ranged/i.test(String(t))) ||
                 /\branged\b/i.test(`${option.name} ${option.description || ''}`);
-            weapon = resolveEquippedWeaponForAttackType(items, isRanged ? 'ranged' : 'melee');
+            weapon = resolveEquippedWeaponForAttackType(items, isRanged ? 'ranged' : 'melee', actor);
             // Legacy behavior: an attack option with only a ranged weapon equipped
             // still showed that weapon — keep any equipped weapon as last resort.
             if (!weapon || isVirtualUnarmedWeapon(weapon)) {

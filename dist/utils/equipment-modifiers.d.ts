@@ -33,5 +33,5 @@ export declare function getInitiativeEquipmentRows(actor: any): Array<{
  * Equipped weapon for attack type. Melee falls back to virtual unarmed when
  * nothing is equipped (see `unarmed-fallback.ts`).
  */
-export declare function resolveEquippedWeaponForAttackType(items: any[], attackType: 'melee' | 'ranged'): any | null;
+export declare function resolveEquippedWeaponForAttackType(items: any[], attackType: 'melee' | 'ranged', actor?: any): any | null;
 //# sourceMappingURL=equipment-modifiers.d.ts.map

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.608] - 2026-10-12
+
+### Fixed
+
+- **Split Attack:** Base Weapon folgt dem aktiven Weapon Set (z. B. Claws/Tails 6d8 statt stale 1d8). Strike 2 erscheint erst nach vollständigem Strike 1; Chat-Karten tragen klar **Strike N of 2**.
+
 ## [0.9.607] - 2026-10-12
 
 ### Fixed
