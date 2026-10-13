@@ -110,6 +110,22 @@
       "gmOnly": "Only the GM can shut down the combat.",
       "failed": "Could not shut down the combat — see the console."
     },
+    "combatSnapshot": {
+      "save": "Save Combat",
+      "load": "Load Combat",
+      "saveHint": "Download the full fight state as JSON (initiative, HP, Specials, Stones).",
+      "loadHint": "Restore a previously saved fight state onto this combat (same scene).",
+      "gmOnly": "Only the GM can export or import combat snapshots.",
+      "noCombat": "No active combat.",
+      "exported": "Combat snapshot downloaded ({n} combatants).",
+      "exportFailed": "Combat snapshot export failed — see console.",
+      "badJson": "Could not parse JSON file.",
+      "invalid": "Invalid combat snapshot: {reason}",
+      "confirmTitle": "Load Combat Snapshot",
+      "confirmContent": "Overwrite the current fight with this snapshot (same scene)? Initiative, HP, Specials, and Stones will be replaced.",
+      "importFailed": "Import failed: {reason}",
+      "imported": "Combat snapshot restored."
+    },
     "encounterSetup": {
       "title": "Encounter Setup",
       "passives": "Passives",

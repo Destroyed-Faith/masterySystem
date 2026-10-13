@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.653] - 2026-10-13
+
+### Added
+
+- **Combat Snapshot Export/Import:** GM kann den kompletten Kampfstand (Initiative, HP/Stress, Specials, Stones, RoundState, Token-Positionen) als JSON speichern und auf derselben Scene wiederherstellen. Buttons am Combat-Carousel (Download/Upload neben dem Settings-Zahnrad).
+
 ## [0.9.652] - 2026-10-13
 
 ### Fixed

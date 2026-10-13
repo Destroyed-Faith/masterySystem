@@ -573,6 +573,26 @@ export class CombatCarouselApp extends BaseCarousel {
                     panToCombatant(id);
             };
         });
+        root.querySelectorAll('.js-save-combat').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { exportActiveCombatSnapshot } = await import('../combat/combat-snapshot.js');
+                await exportActiveCombatSnapshot();
+            };
+        });
+        root.querySelectorAll('.js-load-combat').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { promptImportCombatSnapshot } = await import('../combat/combat-snapshot.js');
+                await promptImportCombatSnapshot();
+            };
+        });
         root.querySelectorAll('.js-carousel-settings').forEach((btn) => {
             btn.onclick = (ev) => {
                 ev.preventDefault();

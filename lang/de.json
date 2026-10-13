@@ -110,6 +110,22 @@
       "gmOnly": "Only the GM can shut down the combat.",
       "failed": "Could not shut down the combat — see the console."
     },
+    "combatSnapshot": {
+      "save": "Kampf speichern",
+      "load": "Kampf laden",
+      "saveHint": "Gesamten Kampfstand als JSON herunterladen (Initiative, HP, Specials, Stones).",
+      "loadHint": "Gespeicherten Kampfstand in diesen Kampf laden (gleiche Scene).",
+      "gmOnly": "Nur der GM kann Kampfstände exportieren oder importieren.",
+      "noCombat": "Kein aktiver Kampf.",
+      "exported": "Kampfstand heruntergeladen ({n} Combatants).",
+      "exportFailed": "Export fehlgeschlagen — siehe Konsole.",
+      "badJson": "JSON-Datei konnte nicht gelesen werden.",
+      "invalid": "Ungültiger Kampfstand: {reason}",
+      "confirmTitle": "Kampfstand laden",
+      "confirmContent": "Aktuellen Kampf mit diesem Stand überschreiben (gleiche Scene)? Initiative, HP, Specials und Stones werden ersetzt.",
+      "importFailed": "Import fehlgeschlagen: {reason}",
+      "imported": "Kampfstand wiederhergestellt."
+    },
     "encounterSetup": {
       "title": "Encounter Setup",
       "passives": "Passives",

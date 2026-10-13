@@ -33,6 +33,20 @@
   display: flex !important;
 }
 
+.carousel-snapshot-btns {
+  position: absolute;
+  top: 0.35rem;
+  right: 2.35rem;
+  z-index: 8;
+  display: inline-flex;
+  gap: 0.25rem;
+  pointer-events: auto;
+}
+
+.carousel-snapshot-btns .carousel-settings-cog {
+  position: static;
+}
+
 .carousel-settings-cog {
   position: absolute;
   top: 0.35rem;

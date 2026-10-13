@@ -1,5 +1,15 @@
 <div class="mastery-carousel {{#if active}}is-active{{/if}} {{#if compact}}is-compact{{/if}} {{#if topBar.show}}is-preparing{{/if}}">
   {{#if active}}
+    {{#if controlsAllowed}}
+    <div class="carousel-snapshot-btns">
+      <button type="button" class="carousel-settings-cog js-save-combat" title="{{localize 'MASTERY.combatSnapshot.saveHint'}}" aria-label="{{localize 'MASTERY.combatSnapshot.save'}}">
+        <i class="fas fa-download"></i>
+      </button>
+      <button type="button" class="carousel-settings-cog js-load-combat" title="{{localize 'MASTERY.combatSnapshot.loadHint'}}" aria-label="{{localize 'MASTERY.combatSnapshot.load'}}">
+        <i class="fas fa-upload"></i>
+      </button>
+    </div>
+    {{/if}}
     <button type="button" class="carousel-settings-cog js-carousel-settings" title="Carousel settings" aria-label="Carousel settings">
       <i class="fas fa-cog"></i>
     </button>
