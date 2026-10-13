@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.617] - 2026-10-13
+
+### Fixed
+
+- **Safe Haven Rest / Sealed Stones:** Stone-Pools werden über eine feste Key-Liste freigegeben (Foundry-DataModel: `Object.keys` war oft leer → Sealed blieb hängen). Zusätzlich werden `sustained` geleert und die Pool-Cap defensiv aus Zuweisung/`max` gelesen. Chat-Hinweis zeigt Vitality Sealed→Ready nach dem Rest.
+
 ## [0.9.616] - 2026-10-13
 
 ### Fixed

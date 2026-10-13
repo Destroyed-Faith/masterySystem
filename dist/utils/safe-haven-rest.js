@@ -8,6 +8,9 @@ import { beginMinorMagicRest } from './minor-magic-items.js';
 import { clearLastBreathOnRest } from '../stones/last-breath.js';
 import { calculateDisadvantagePoints, } from '../system/disadvantages.js';
 import { resolvedStonePoolMax, usesV099Stones } from '../progression/v099-rules.js';
+import { STONE_POOL_ATTRIBUTE_KEYS } from '../combat/action-economy.js';
+/** Attribute pools + colorless — never rely on Object.keys(DataModel). */
+const SAFE_HAVEN_STONE_POOL_KEYS = [...STONE_POOL_ATTRIBUTE_KEYS, 'colorless'];
 /** Reroll Point pool size = Disadvantage points (fallback: stored faithFractures.maximum). */
 export function rerollPointsMaximumFromSystem(system) {
     const rows = Array.isArray(system?.disadvantages) ? system.disadvantages : [];
@@ -65,19 +68,19 @@ export function buildRestHealthBarUpdates(system, opts) {
 }
 /** Pool capacity for Safe Haven refill (matches Actor.prepareBaseData / combat refill). */
 export function safeHavenPoolMax(system, attr, pool) {
+    const storedMax = Math.max(0, Number(pool?.max) || 0);
     if (attr === 'colorless') {
         if (usesV099Stones(system)) {
-            return Math.max(0, Math.floor(Number(system?.progression?.permanentColorless) || 0));
+            return Math.max(storedMax, Math.max(0, Math.floor(Number(system?.progression?.permanentColorless) || 0)));
         }
-        return Math.max(0, Number(pool?.max) || 0);
+        return storedMax;
     }
     const attrValue = Math.max(0, Number(system?.attributes?.[attr]?.value) || 0);
     const resolved = resolvedStonePoolMax(system, attr, attrValue);
-    if (resolved > 0)
-        return resolved;
-    // Legacy / missing attributes: keep the stored pool cap so Sealed stones
-    // still return instead of wiping the pool to 0.
-    return Math.max(0, Number(pool?.max) || 0);
+    const assigned = Math.max(0, Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0));
+    // Take the best known cap so a stale/zero resolved value cannot wipe Sealed
+    // stones, and Object.keys(DataModel) gaps cannot skip the pool.
+    return Math.max(resolved, storedMax, assigned);
 }
 /** Actor updates for one Safe Haven Rest (no flags / side effects). */
 export function buildSafeHavenRestUpdates(system, opts) {
@@ -141,21 +144,24 @@ export function buildSafeHavenRestUpdates(system, opts) {
         }
     }
     // Sealed (Rituals, Remove Scar) and Burned (Last Breath, daily effects)
-    // stones return on Safe Haven Rest: clear the per-pool counters and refill
-    // each pool to capacity minus Sustain. Always write sealed/burned/current/max
-    // so a stuck Sealed counter cannot survive a rest (and v0.9.9 assignments
-    // are respected — do not use raw floor(attribute/8) here).
+    // stones return on Safe Haven Rest. Use a fixed key list — Foundry
+    // DataModel / SchemaField pools often yield Object.keys([]) so a dynamic
+    // loop would skip every attribute and leave Sealed stuck forever.
+    // Sustained is cleared too: Safe Haven already wipes statusEffects, and a
+    // leftover sustained counter would lock Ready stones with no active buff.
     const pools = system?.stonePools;
     if (pools && typeof pools === 'object') {
-        for (const attr of Object.keys(pools)) {
-            const pool = pools[attr] ?? {};
-            const sustained = Math.max(0, Number(pool.sustained) || 0);
-            const maxStones = safeHavenPoolMax(system, attr, pool);
+        for (const attr of SAFE_HAVEN_STONE_POOL_KEYS) {
+            const poolData = pools[attr];
+            if (poolData == null && attr === 'colorless')
+                continue;
+            const maxStones = safeHavenPoolMax(system, attr, poolData ?? {});
             const heldSealed = Math.min(holdAttrs[attr] ?? 0, maxStones);
             updates[`system.stonePools.${attr}.sealed`] = heldSealed;
             updates[`system.stonePools.${attr}.burned`] = 0;
+            updates[`system.stonePools.${attr}.sustained`] = 0;
             updates[`system.stonePools.${attr}.max`] = maxStones;
-            updates[`system.stonePools.${attr}.current`] = Math.max(0, maxStones - sustained - heldSealed);
+            updates[`system.stonePools.${attr}.current`] = Math.max(0, maxStones - heldSealed);
         }
     }
     if (Array.isArray(system?.statusEffects) && system.statusEffects.length > 0) {
@@ -177,6 +183,7 @@ export async function applySafeHavenRest(actor) {
     catch {
         /* mark module unavailable */
     }
+    const sealedBefore = Math.max(0, Math.floor(Number(actor?.system?.stonePools?.vitality?.sealed) || 0));
     const updates = buildSafeHavenRestUpdates(actor.system, { sealHold });
     try {
         if (actor.getFlag?.('mastery-system', 'bloodRaiseHpLostThisCombat') != null) {
@@ -215,6 +222,12 @@ export async function applySafeHavenRest(actor) {
     }
     catch {
         /* death-check module unavailable */
+    }
+    const sealedAfter = Math.max(0, Math.floor(Number(actor?.system?.stonePools?.vitality?.sealed) || 0));
+    const released = Math.max(0, sealedBefore - sealedAfter);
+    const ready = Math.max(0, Math.floor(Number(actor?.system?.stonePools?.vitality?.current) || 0));
+    if (released > 0 || sealedBefore > 0) {
+        ui.notifications?.info?.(`${actor.name}: Safe Haven — Vitality Sealed ${sealedBefore}→${sealedAfter}, Ready ${ready}.`);
     }
 }
 /**

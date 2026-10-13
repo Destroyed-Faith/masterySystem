@@ -72,7 +72,25 @@ describe('buildSafeHavenRestUpdates', () => {
     });
     expect(updates['system.stonePools.vitality.sealed']).toBe(0);
     expect(updates['system.stonePools.vitality.burned']).toBe(0);
+    expect(updates['system.stonePools.vitality.sustained']).toBe(0);
     expect(updates['system.stonePools.vitality.max']).toBe(2);
+    expect(updates['system.stonePools.vitality.current']).toBe(2);
+  });
+
+  it('still releases Sealed stones when stonePools keys are non-enumerable (Foundry DataModel)', () => {
+    const stonePools: Record<string, unknown> = {};
+    Object.defineProperty(stonePools, 'vitality', {
+      value: { current: 0, max: 2, sustained: 1, sealed: 2, burned: 0 },
+      enumerable: false,
+      configurable: true,
+    });
+    expect(Object.keys(stonePools)).toEqual([]);
+    const updates = buildSafeHavenRestUpdates({
+      attributes: { vitality: { value: 16 } },
+      stonePools,
+    });
+    expect(updates['system.stonePools.vitality.sealed']).toBe(0);
+    expect(updates['system.stonePools.vitality.sustained']).toBe(0);
     expect(updates['system.stonePools.vitality.current']).toBe(2);
   });
 
