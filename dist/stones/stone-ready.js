@@ -154,6 +154,12 @@ export async function alignStonePoolsToAuditReady(actor) {
     try {
         const combat = globalThis.game?.combat;
         inCombat = !!(combat?.started && Math.floor(Number(combat.round) || 0) >= 1);
+        // Prepare phase with a stone ledger for this encounter counts as in combat:
+        // Round-1 stones were already handed out (and maybe spent) — no refill.
+        if (!inCombat && combat?.id) {
+            const { hasStoneCombatReady } = await import('./stone-combat-ledger.js');
+            inCombat = hasStoneCombatReady(actor, combat);
+        }
     }
     catch {
         inCombat = false;

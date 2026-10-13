@@ -33,10 +33,28 @@ const POOL_KEYS = [
   'colorless',
 ] as const;
 
-function inLiveCombat(): boolean {
+/**
+ * In a fight for stone purposes: started combat, OR a per-character combat
+ * ledger already exists for the live encounter (prepare phase — Round-1
+ * stones were handed out / spent, so nothing may be refilled).
+ */
+function inLiveCombat(actor?: any): boolean {
   try {
     const combat = (globalThis as any).game?.combat;
-    return !!(combat?.started && Math.floor(Number(combat.round) || 0) >= 1);
+    if (combat?.started && Math.floor(Number(combat.round) || 0) >= 1) return true;
+    const cid = String(combat?.id ?? '');
+    if (!cid || !actor) return false;
+    const flag =
+      actor?.flags?.['mastery-system']?.stoneCombatReady ??
+      actor?.getFlag?.('mastery-system', 'stoneCombatReady');
+    if (flag && String(flag.combatId ?? '') === cid) return true;
+    const owner = getActionEconomyActor(actor) as any;
+    const ownerFlag =
+      owner && owner !== actor
+        ? (owner?.flags?.['mastery-system']?.stoneCombatReady ??
+          owner?.getFlag?.('mastery-system', 'stoneCombatReady'))
+        : null;
+    return !!(ownerFlag && String(ownerFlag.combatId ?? '') === cid);
   } catch {
     return false;
   }
@@ -268,7 +286,7 @@ export async function syncStonePoolCapsFromAssignments(actor: any): Promise<bool
     }
     if (current > readyCap) {
       updates[`system.stonePools.${attr}.current`] = readyCap;
-    } else if (current < readyCap && !inLiveCombat()) {
+    } else if (current < readyCap && !inLiveCombat(actor)) {
       // Out of combat only: expand Ready to Audit cap. Mid-fight Spent stones
       // must stay spent — Stone Recovery (Mastery Rank) is the only refill.
       updates[`system.stonePools.${attr}.current`] = readyCap;

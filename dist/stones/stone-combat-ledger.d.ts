@@ -12,6 +12,19 @@ export interface StoneCombatReadyLedger {
     /** Remaining Ready stones per pool (attributes + colorless). */
     pools: Record<string, number>;
 }
+type LedgerCombatLike = {
+    id?: string;
+    started?: boolean;
+    combatants?: any;
+} | null | undefined;
+/**
+ * Combat id the ledger is keyed by. The ledger is active for the WHOLE
+ * encounter — prepare phase (round 0, `started === false`) included — because
+ * Round-1 stones are bought there and every spend must be recorded.
+ */
+export declare function stoneLedgerCombatId(combat: LedgerCombatLike): string;
+/** True when a ledger for `combat` (default: live combat) already exists. */
+export declare function hasStoneCombatReady(actor: any, combat?: LedgerCombatLike): boolean;
 /** Most depleted live current across world/token copies (never MAX). */
 export declare function minLivePoolCurrent(actor: any, attr: string): number;
 export declare function readStoneCombatReady(actor: any, combatId?: string): StoneCombatReadyLedger | null;
@@ -38,32 +51,21 @@ export declare function mirrorStoneCombatReadyToPools(actor: any, ledger: StoneC
  * An existing ledger is reconciled DOWN to the lowest live copy (spent is
  * spent), then stale-full copies are lowered to the ledger.
  */
-export declare function ensureStoneCombatReady(actor: any, combat: {
-    id?: string;
-    started?: boolean;
-} | null | undefined): Promise<StoneCombatReadyLedger | null>;
+export declare function ensureStoneCombatReady(actor: any, combat: LedgerCombatLike): Promise<StoneCombatReadyLedger | null>;
 /**
  * Force-overwrite the combat ledger (Round-1 refill / prep).
  * Pass explicit `pools` when you just wrote them — do not re-snapshot MIN across
  * stale token copies or the refill would be undone.
  */
-export declare function resealStoneCombatReadyFromPools(actor: any, combat: {
-    id?: string;
-    started?: boolean;
-} | null | undefined, pools?: Record<string, number>): Promise<void>;
+export declare function resealStoneCombatReadyFromPools(actor: any, combat: LedgerCombatLike, pools?: Record<string, number>): Promise<void>;
 /**
  * Set remaining Ready for one pool: update ledger + mirror `current` onto every
  * sync document so world/token copies cannot diverge again.
  */
-export declare function setCombatPoolCurrent(actor: any, attr: string, current: number, combat?: {
-    id?: string;
-    started?: boolean;
-} | null): Promise<void>;
+export declare function setCombatPoolCurrent(actor: any, attr: string, current: number, combat?: LedgerCombatLike): Promise<void>;
 /**
  * Add recovered stones into ledger + pools (capped by caller before call).
  */
-export declare function addCombatPoolCurrent(actor: any, attr: string, add: number, combat?: {
-    id?: string;
-    started?: boolean;
-} | null): Promise<number>;
+export declare function addCombatPoolCurrent(actor: any, attr: string, add: number, combat?: LedgerCombatLike): Promise<number>;
+export {};
 //# sourceMappingURL=stone-combat-ledger.d.ts.map

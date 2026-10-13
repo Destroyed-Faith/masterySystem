@@ -18,12 +18,9 @@ export interface StoneRecoveryRow {
   key: string;
   /** Free space the recovery could fill. */
   space: number;
-  /** Stones currently in the pool (manual "−" correction can take these out). */
+  /** Stones currently in the pool. */
   current: number;
-  /**
-   * Positive = stones recovered into the pool. Negative = manual correction:
-   * the player marks stones as spent that the sheet wrongly shows as Ready.
-   */
+  /** Stones recovered into the pool (never negative). */
   allocated: number;
   canAdd: boolean;
   canRemove: boolean;
@@ -59,19 +56,18 @@ function poolMax(pool: StoneRecoveryPoolInput): number {
   return Math.max(0, Math.floor(Number(pool.max) || 0));
 }
 
-/** Allocation clamped to [-current, +space] for one pool. */
+/** Allocation clamped to [0, +space] for one pool — recovery only ever adds. */
 function clampOwn(pool: StoneRecoveryPoolInput, raw: unknown): number {
   const n = Math.floor(Number(raw) || 0);
-  if (!Number.isFinite(n) || n === 0) return 0;
-  if (n > 0) return Math.min(stoneRecoverySpace(pool), n);
-  return Math.max(-poolCurrent(pool), n);
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  return Math.min(stoneRecoverySpace(pool), n);
 }
 
 /**
  * Rows a player can act on, plus the running totals. Every pool with capacity
- * gets a row: "+" takes a spent stone back (Mastery Rank budget), "−" marks a
- * stone as spent when the sheet wrongly shows it as Ready (manual correction,
- * costs no budget). Confirm never blocks.
+ * gets a row: "+" takes a spent stone back (Mastery Rank budget), "−" undoes
+ * one of your own "+" clicks. Allocation never goes below zero. Confirm never
+ * blocks.
  */
 export function planStoneRecovery(
   pools: readonly StoneRecoveryPoolInput[],
@@ -81,29 +77,26 @@ export function planStoneRecovery(
   const total = Math.max(0, Math.floor(Number(points) || 0));
   let allocated = 0;
   for (const pool of pools) {
-    const own = clampOwn(pool, allocation[pool.key]);
-    if (own > 0) allocated += own;
+    allocated += clampOwn(pool, allocation[pool.key]);
   }
   const remaining = Math.max(0, total - allocated);
 
   const rows: StoneRecoveryRow[] = [];
   for (const pool of pools) {
+    if (poolMax(pool) <= 0) continue;
     const space = stoneRecoverySpace(pool);
-    const current = poolCurrent(pool);
     const own = clampOwn(pool, allocation[pool.key]);
-    if (poolMax(pool) <= 0 && own === 0) continue;
     rows.push({
       key: pool.key,
       space,
-      current,
+      current: poolCurrent(pool),
       allocated: own,
-      canAdd: own < 0 || (remaining > 0 && own < space),
-      canRemove: own > -current,
+      canAdd: remaining > 0 && own < space,
+      canRemove: own > 0,
     });
   }
 
-  const saturated =
-    remaining > 0 && !rows.some((row) => row.allocated >= 0 && row.allocated < row.space);
+  const saturated = remaining > 0 && !rows.some((row) => row.allocated < row.space);
   return {
     points: total,
     allocated,
@@ -115,7 +108,7 @@ export function planStoneRecovery(
   };
 }
 
-/** Positive allocation trimmed to what the pools can actually take, for the actor update. */
+/** Allocation trimmed to what the pools can actually take, for the actor update. */
 export function clampStoneRecoveryAllocation(
   pools: readonly StoneRecoveryPoolInput[],
   allocation: Readonly<Record<string, number>>,
@@ -130,22 +123,6 @@ export function clampStoneRecoveryAllocation(
     if (take <= 0) continue;
     out[pool.key] = take;
     left -= take;
-  }
-  return out;
-}
-
-/**
- * Manual "−" corrections: stones the player marks as spent (positive counts,
- * clamped to what the pool currently holds). Costs no Mastery Rank budget.
- */
-export function stoneRecoveryManualSpends(
-  pools: readonly StoneRecoveryPoolInput[],
-  allocation: Readonly<Record<string, number>>
-): Record<string, number> {
-  const out: Record<string, number> = {};
-  for (const pool of pools) {
-    const own = clampOwn(pool, allocation[pool.key]);
-    if (own < 0) out[pool.key] = -own;
   }
   return out;
 }

@@ -21,16 +21,32 @@ const POOL_KEYS = [
     'wits',
     'colorless',
 ];
+/**
+ * Combat id the ledger is keyed by. The ledger is active for the WHOLE
+ * encounter — prepare phase (round 0, `started === false`) included — because
+ * Round-1 stones are bought there and every spend must be recorded.
+ */
+export function stoneLedgerCombatId(combat) {
+    if (!combat)
+        return '';
+    const id = String(combat.id ?? '').trim();
+    return id;
+}
 function currentCombatId() {
     try {
         const combat = globalThis.game?.combat;
-        if (!combat?.started)
-            return '';
-        return String(combat.id ?? '');
+        return stoneLedgerCombatId(combat);
     }
     catch {
         return '';
     }
+}
+/** True when a ledger for `combat` (default: live combat) already exists. */
+export function hasStoneCombatReady(actor, combat) {
+    const cid = combat === undefined ? currentCombatId() : stoneLedgerCombatId(combat);
+    if (!cid)
+        return false;
+    return readStoneCombatReady(actor, cid) !== null;
 }
 function readPoolCurrent(actor, attr) {
     return Math.max(0, Math.floor(Number(actor?.system?.stonePools?.[attr]?.current) || 0));
@@ -202,9 +218,9 @@ export async function mirrorStoneCombatReadyToPools(actor, ledger) {
  * spent), then stale-full copies are lowered to the ledger.
  */
 export async function ensureStoneCombatReady(actor, combat) {
-    if (!combat?.started || !combat.id)
+    const cid = stoneLedgerCombatId(combat);
+    if (!cid)
         return null;
-    const cid = String(combat.id);
     let ledger = readStoneCombatReady(actor, cid);
     if (!ledger) {
         ledger = {
@@ -236,10 +252,11 @@ export async function ensureStoneCombatReady(actor, combat) {
  * stale token copies or the refill would be undone.
  */
 export async function resealStoneCombatReadyFromPools(actor, combat, pools) {
-    if (!combat?.started || !combat.id)
+    const cid = stoneLedgerCombatId(combat);
+    if (!cid)
         return;
     const next = pools ?? snapshotStoneCombatReadyPools(actor);
-    await writeStoneCombatReady(actor, { combatId: String(combat.id), pools: next });
+    await writeStoneCombatReady(actor, { combatId: cid, pools: next });
     for (const target of listStonePoolSyncActors(actor)) {
         const patch = {};
         for (const [attr, n] of Object.entries(next)) {
@@ -273,9 +290,10 @@ export async function setCombatPoolCurrent(actor, attr, current, combat) {
                 return null;
             }
         })();
-    if (liveCombat?.started && liveCombat.id) {
+    const cid = stoneLedgerCombatId(liveCombat);
+    if (cid) {
         const ledger = (await ensureStoneCombatReady(actor, liveCombat)) ??
-            { combatId: String(liveCombat.id), pools: snapshotStoneCombatReadyPools(actor) };
+            { combatId: cid, pools: snapshotStoneCombatReadyPools(actor) };
         ledger.pools[attr] = next;
         await writeStoneCombatReady(actor, ledger);
     }

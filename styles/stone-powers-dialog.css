@@ -635,10 +635,6 @@
   text-align: center;
 }
 
-.stone-powers-dialog .pool-recovery-value.is-negative {
-  color: #ef9a9a;
-}
-
 .stone-powers-dialog .stone-recovery-bar {
   display: flex;
   flex-wrap: wrap;

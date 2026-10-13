@@ -363,7 +363,9 @@ export declare function stonePoolReservedStones(system: any, attr: string): numb
  * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.
  * Pass the **combatant's** actor (token document for unlinked PCs) so data matches Stone Powers UI.
  */
-export declare function refillStonePoolsFromAttributes(actor: Actor): Promise<void>;
+export declare function refillStonePoolsFromAttributes(actor: Actor, opts?: {
+    force?: boolean;
+}): Promise<void>;
 /**
  * Fix stale max (e.g. 0 in DB) and clamp current without forcing a full refill (round 2+).
  */

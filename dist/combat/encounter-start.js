@@ -188,7 +188,8 @@ export async function beginEncounter(combat) {
                     continue;
                 if (!canCurrentUserUpdateDocument(actor))
                     continue;
-                await refillStonePoolsFromAttributes(actor);
+                // Explicit encounter start: the one place a full Round-1 refill is intended.
+                await refillStonePoolsFromAttributes(actor, { force: true });
             }
         }
         catch (err) {

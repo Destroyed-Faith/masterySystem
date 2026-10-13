@@ -232,7 +232,8 @@ export async function beginEncounter(combat: Combat): Promise<void> {
         const actor = combatant.actor;
         if (!actor || actor.type !== 'character') continue;
         if (!canCurrentUserUpdateDocument(actor)) continue;
-        await refillStonePoolsFromAttributes(actor);
+        // Explicit encounter start: the one place a full Round-1 refill is intended.
+        await refillStonePoolsFromAttributes(actor, { force: true });
       }
     } catch (err) {
       console.warn('Mastery System | Round-1 stone refill before encounter failed', err);

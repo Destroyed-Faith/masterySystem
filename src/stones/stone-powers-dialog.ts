@@ -134,7 +134,6 @@ import {
 import {
   clampStoneRecoveryAllocation,
   planStoneRecovery,
-  stoneRecoveryManualSpends,
   type StoneRecoveryPoolInput,
 } from './stone-recovery.js';
 import {
@@ -830,7 +829,8 @@ export class StonePowersDialog extends BaseDialog {
     }
     try {
       const combat = (game as any).combat;
-      if (combat?.started) {
+      // Prepare phase included: Round-1 stones are bought there.
+      if (combat?.id) {
         const { ensureStoneCombatReady } = await import('./stone-combat-ledger.js');
         await ensureStoneCombatReady(actor, combat);
       }
@@ -1584,7 +1584,7 @@ export class StonePowersDialog extends BaseDialog {
       if (!row) continue;
       pool.recoverShow = true;
       pool.recoverAlloc = row.allocated;
-      pool.recoverAllocLabel = row.allocated > 0 ? `+${row.allocated}` : String(row.allocated);
+      pool.recoverAllocLabel = row.allocated > 0 ? `+${row.allocated}` : '0';
       pool.recoverSpace = row.space;
       pool.recoverCanAdd = row.canAdd;
       pool.recoverCanRemove = row.canRemove;
@@ -1685,8 +1685,8 @@ export class StonePowersDialog extends BaseDialog {
     if (!row) return false;
     if (delta > 0 && !row.canAdd) return false;
     if (delta < 0 && !row.canRemove) return false;
-    const next = row.allocated + (delta > 0 ? 1 : -1);
-    if (next !== 0) this._recoveryAlloc[attr] = next;
+    const next = Math.max(0, row.allocated + (delta > 0 ? 1 : -1));
+    if (next > 0) this._recoveryAlloc[attr] = next;
     else delete this._recoveryAlloc[attr];
     return true;
   }
@@ -1703,20 +1703,10 @@ export class StonePowersDialog extends BaseDialog {
     this._recoveryCommitting = true;
     try {
       const allocation = clampStoneRecoveryAllocation(inputs, this._recoveryAlloc, plan.points);
-      const manualSpends = stoneRecoveryManualSpends(inputs, this._recoveryAlloc);
       const total = Object.values(allocation).reduce((sum, n) => sum + n, 0);
-      const corrected = Object.values(manualSpends).reduce((sum, n) => sum + n, 0);
       const { canCurrentUserUpdateDocument } = await import('../combat/combat-permissions.js');
       const owner = getActionEconomyActor(this.actor) ?? this.actor;
       const mayWrite = canCurrentUserUpdateDocument(this.actor) || canCurrentUserUpdateDocument(owner);
-      if (corrected > 0 && mayWrite) {
-        // Manual "−": the sheet showed stones as Ready that were actually spent.
-        for (const [attr, n] of Object.entries(manualSpends)) {
-          if (attr === COLORLESS_STONE_ATTR) continue;
-          const pool = getStonePool(owner, attr as AttributeKey);
-          await setStonePool(owner, attr as AttributeKey, Math.max(0, pool.current - n));
-        }
-      }
       if (total > 0 && mayWrite) {
         const { applyStoneRegenAllocation } = await import('../combat/action-economy.js');
         await applyStoneRegenAllocation(this.actor, allocation as any);
@@ -1725,11 +1715,10 @@ export class StonePowersDialog extends BaseDialog {
       await confirmStoneRecoveryForCombatant(combat, this.combatant);
       this._recoveryActive = false;
       this._recoveryAlloc = {};
-      const parts: string[] = [];
-      if (total > 0) parts.push(`${total} stone(s) back in your pools`);
-      if (corrected > 0) parts.push(`${corrected} stone(s) marked as spent`);
       ui.notifications?.info(
-        parts.length ? `Stone Recovery: ${parts.join(', ')}.` : 'Stone Recovery done — no stones were taken back.',
+        total > 0
+          ? `Stone Recovery: ${total} stone(s) back in your pools.`
+          : 'Stone Recovery done — no stones were taken back.',
       );
     } catch (err) {
       console.error('Mastery System | Stone Recovery failed', err);

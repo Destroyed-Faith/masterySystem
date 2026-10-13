@@ -1269,10 +1269,31 @@ export function stonePoolReservedStones(system: any, attr: string): number {
  * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.
  * Pass the **combatant's** actor (token document for unlinked PCs) so data matches Stone Powers UI.
  */
-export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void> {
+export async function refillStonePoolsFromAttributes(
+  actor: Actor,
+  opts: { force?: boolean } = {},
+): Promise<void> {
   if (!isPC(actor)) return;
   const owner = getActionEconomyActor(actor) ?? actor;
   if (!isPC(owner)) return;
+  // A per-character combat ledger already exists for this encounter → stones
+  // were handed out (and possibly spent) earlier in this fight. Re-running a
+  // "fresh" refill (combatStart hook, setup resume, round-1 prompt, …) must
+  // NOT resurrect spent stones. Only the explicit encounter start forces it.
+  if (!opts.force) {
+    try {
+      const combat = typeof game !== 'undefined' ? game.combat : null;
+      const { hasStoneCombatReady, ensureStoneCombatReady } = await import(
+        '../stones/stone-combat-ledger.js'
+      );
+      if (combat?.id && hasStoneCombatReady(owner, combat)) {
+        await ensureStoneCombatReady(owner, combat);
+        return;
+      }
+    } catch {
+      /* optional */
+    }
+  }
   const sys = (owner.system as any);
   let stoneSys = sys;
   try {
@@ -1310,7 +1331,9 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
   }
   try {
     const combat = game.combat;
-    if (combat?.started && combat.id) {
+    // Seal the ledger for the whole encounter — prepare phase included — so
+    // every spend from here on is recorded per character.
+    if (combat?.id) {
       const colorless = sys?.stonePools?.colorless;
       if (colorless && typeof colorless === 'object') {
         const max = Math.max(0, Math.floor(Number(colorless.max) || 0));
@@ -1362,7 +1385,7 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
     await owner.update(updates);
   }
   // Crush stale full copies + keep the per-character Ready ledger authoritative.
-  if (combat?.started && combat.id) {
+  if (combat?.id) {
     try {
       const { ensureStoneCombatReady } = await import('../stones/stone-combat-ledger.js');
       await ensureStoneCombatReady(owner, combat);
@@ -1384,7 +1407,8 @@ export async function setStonePool(
   const next = Math.max(0, Math.floor(Number(current) || 0));
   try {
     const combat = game.combat;
-    if (combat?.started) {
+    // Prepare phase (round 0) counts: Round-1 stones are bought there.
+    if (combat?.id) {
       const { setCombatPoolCurrent } = await import('../stones/stone-combat-ledger.js');
       await setCombatPoolCurrent(actor, attribute, next, combat);
       return;
@@ -1877,10 +1901,20 @@ export async function initializeCombatRoundState(combat: Combat): Promise<void> 
     // Stone Powers for round 1 are bought during the prepare phase, before
     // Foundry reports `started`. That state must survive combat start.
     const stored = flagOwner.getFlag?.('mastery-system', 'roundState') as RoundState | undefined;
-    const preparedForThisCombat =
+    let preparedForThisCombat =
       !!stored &&
       String(stored.combatId ?? '') === combatId &&
       Math.max(1, Math.floor(Number(stored.round) || 1)) <= 1;
+    // A stone ledger for this encounter is the authoritative "already prepared"
+    // marker — spends whose powers never touch roundState still count.
+    if (!preparedForThisCombat) {
+      try {
+        const { hasStoneCombatReady } = await import('../stones/stone-combat-ledger.js');
+        if (hasStoneCombatReady(flagOwner, combat as any)) preparedForThisCombat = true;
+      } catch {
+        /* optional */
+      }
+    }
     if (preparedForThisCombat) continue;
 
     // No prepare-phase spend for this combat — fill pools so a cold start

@@ -31,8 +31,8 @@ describe('Stone Recovery budget (Mastery Rank)', () => {
       {},
       3,
     );
-    // Full pools stay listed so "−" can correct a wrongly-full pool; no "+" room.
-    expect(empty.rows.every((r) => r.space === 0 && !r.canAdd && r.canRemove)).toBe(true);
+    // Full pools stay listed (steppers visible) but nothing can be added or removed.
+    expect(empty.rows.every((r) => r.space === 0 && !r.canAdd && !r.canRemove)).toBe(true);
     expect(empty.saturated).toBe(true);
     expect(empty.canFinish).toBe(true);
   });

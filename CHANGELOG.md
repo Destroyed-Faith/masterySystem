@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.642] - 2026-10-13
+
+### Fixed
+
+- **Stone Recovery nur noch positiv:** **−** nimmt nur eine eigene **+**-Zuteilung zurück, nie unter 0 — die Recovery markiert keine Steine mehr als ausgegeben. Jeder Pool mit Kapazität zeigt weiterhin **+**/**−**.
+- **Steine werden im Kampf nicht mehr aufgefüllt:** Das Combat-Ledger (`stoneCombatReady`) gilt jetzt für den ganzen Encounter inkl. Vorbereitungsphase (Runde 0). Jede Ausgabe wird dort erfasst; `combatStart`-Hook, Setup-Resume, Runde-1-Prompt, Dialog-Öffnen (`alignStonePoolsToAuditReady`), Audit-Sync und `prepareBaseData` füllen Pools nicht mehr auf, sobald ein Ledger für den Kampf existiert. Einziger beabsichtigter Voll-Refill: expliziter Encounter-Start (`beginEncounter`, `force`).
+
 ## [0.9.641] - 2026-10-13
 
 ### Fixed

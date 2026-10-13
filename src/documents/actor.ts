@@ -141,7 +141,19 @@ function clampSkillRanksInUpdate(actor: Actor, changed: any): void {
  * and then prepareBaseData refilled spent 0 pools back to full.
  */
 function actorInStartedCombat(actor: any, combat: any): boolean {
-  if (!combat?.started) return false;
+  if (!combat) return false;
+  if (!combat.started) {
+    // Prepare phase: a stone ledger for this encounter means Round-1 stones
+    // were already handed out — spent 0 pools must NOT be refilled in memory.
+    const cid = String(combat.id ?? '');
+    if (!cid) return false;
+    try {
+      const flag = actor?.flags?.['mastery-system']?.stoneCombatReady;
+      return !!flag && String(flag.combatId ?? '') === cid;
+    } catch {
+      return false;
+    }
+  }
   const selfId = String(actor?.id ?? '');
   let baseId = selfId;
   try {

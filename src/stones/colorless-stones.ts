@@ -194,7 +194,7 @@ export async function spendColorlessStones(actor: any, amount: number): Promise<
     const next = Math.max(0, perm.current - fromPermanent);
     try {
       const combat = (globalThis as any).game?.combat;
-      if (combat?.started) {
+      if (combat?.id) {
         const { setCombatPoolCurrent } = await import('./stone-combat-ledger.js');
         await setCombatPoolCurrent(actor, 'colorless', next, combat);
       } else {

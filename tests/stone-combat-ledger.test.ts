@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   combatReadyRemaining,
+  hasStoneCombatReady,
   minLivePoolCurrent,
   readStoneCombatReady,
   snapshotStoneCombatReadyPools,
@@ -114,6 +115,29 @@ describe('stone combat Ready ledger', () => {
     try {
       expect(poolSpendableStones(actor, 'might')).toBe(0);
       expect(getAttrStoneReadyView(actor, 'might').current).toBe(0);
+    } finally {
+      g.game = prev;
+    }
+  });
+
+  it('prepare phase (round 0, not started): ledger is already authoritative', () => {
+    const actor = makeActor(
+      { might: { current: 5, max: 5 } },
+      {
+        stoneCombatReady: {
+          combatId: 'prep',
+          pools: { might: 2 },
+        },
+      },
+    );
+    const g = globalThis as any;
+    const prev = g.game;
+    g.game = { combat: { id: 'prep', started: false, round: 0 } };
+    try {
+      expect(hasStoneCombatReady(actor, g.game.combat)).toBe(true);
+      expect(hasStoneCombatReady(actor, { id: 'other' })).toBe(false);
+      expect(combatReadyRemaining(actor, 'might')).toBe(2);
+      expect(poolSpendableStones(actor, 'might')).toBe(2);
     } finally {
       g.game = prev;
     }
