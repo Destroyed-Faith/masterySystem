@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.655] - 2026-10-14
+
+### Added
+
+- **Cleanse Actives (Single/AoE):** Wie Heal — Ally/Self-Targeting (grün), kein Trefferwurf/Damage-Dialog/Reactions. Nach dem Ziel erscheint eine Chat-Karte mit `Cleanse(X)`: per +/− frei auf cleansable Specials verteilen, dann Apply. Unused Cleanse geht verloren. Heal+Cleanse (Mixed) heilt zuerst und postet danach denselben Cleanse-Prompt.
+
+### Fixed
+
+- **Artifact-Heals (Moonlight Mending u. a.):** Werden nicht mehr als feindlicher Angriff (rot) gezielt. Radial erkennt Heal über `powerTemplateId` / Effekttext, setzt grünes Ally-Targeting und würfelt die Katalog-Heilwürfel (z. B. 10d8 / 25d8 / 40d8).
+
 ## [0.9.654] - 2026-10-14
 
 ### Fixed

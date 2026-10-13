@@ -3,16 +3,34 @@
  * Rolls `mechanics.healing.flat`, applies to the current Health Bar, then
  * optionally offers Scarred / Health Level Recovery in chat.
  */
+import type { RadialCombatOption } from '../radial-menu/types.js';
 export declare const HEAL_CHAT_FLAG = "healResolution";
 /** Catalog Health Level Recovery band (heal Actives; 0 below L4). */
 export declare function healHealthLevelRecoveryForRank(rank: number): number;
 export declare function powerItemRank(item: any): number;
-/** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel). */
+/** Catalog / artifact template ids that deliver heal (incl. heal+cleanse mixed). */
+export declare function isHealTemplateId(templateId: string | null | undefined): boolean;
+/** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel-only). */
 export declare function isHealPowerItem(item: any): boolean;
+/**
+ * True for radial options that should use green ally heal targeting.
+ * Covers real power items and artifact rows (Moonlight Mending, …) where
+ * `option.item` is the artifact document, not a power.
+ */
 export declare function isHealRadialOption(option: {
     item?: any;
     source?: string;
+    aoePlacementProfile?: string;
+    artifactPowerTemplateId?: string;
+    name?: string;
+    description?: string;
+    artifactRowSpecial?: string;
 } | null | undefined): boolean;
+/**
+ * Resolve a power-shaped item for heal dice / HLR — real power, or a synthetic
+ * catalog snapshot from an artifact progression row (templateId + stage rank).
+ */
+export declare function healPowerItemFromRadialOption(option: RadialCombatOption | null | undefined): any | null;
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export declare function getHealDiceFormula(item: any): string | null;
 export declare function getHealAoETargetMode(item: any): 'target' | 'aoe' | 'self';

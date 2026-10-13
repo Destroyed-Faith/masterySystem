@@ -3052,6 +3052,8 @@ Hooks.once('ready', async function () {
     registerRaisePlanChatHooks();
     const { registerHealChatHandlers } = await import('./combat/heal-resolution.js');
     registerHealChatHandlers();
+    const { registerCleanseChatHandlers } = await import('./combat/cleanse-resolution.js');
+    registerCleanseChatHandlers();
     const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
     registerPerceptionCombatHooks();
     // Register skill spend click handler

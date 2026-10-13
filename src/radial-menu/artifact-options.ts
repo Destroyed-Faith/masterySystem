@@ -157,6 +157,22 @@ function rowDescription(row: ArtifactLevelProgressionRow): string {
     return segs.join(' · ');
 }
 
+/** Heal / Cleanse support actives on artifacts (Moonlight Mending, …). */
+function artifactRowSupportProfile(
+    row: ArtifactLevelProgressionRow,
+): 'heal' | 'cleanse' | null {
+    const tid = String(row.powerTemplateId || '');
+    if (/heal-cleanse/i.test(tid) || (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))) {
+        return 'heal';
+    }
+    if (/\bcleanse\b/i.test(tid) && !/heal/i.test(tid)) return 'cleanse';
+    const blob = `${row.name || ''} ${row.effect || ''} ${row.special || ''}`;
+    if (/\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob)) return 'cleanse';
+    if (/\bheal\b/i.test(blob) && !/\b(requiem|exorcism|damage)\b/i.test(blob)) return 'heal';
+    if (/\bheal\b/i.test(blob) && /\d+\s*d\s*8/i.test(blob)) return 'heal';
+    return null;
+}
+
 /**
  * Build radial-menu options derived from every equipped artifact on `actor`.
  * Returns `[]` when the actor has no artifacts or none are equipped.
@@ -365,6 +381,17 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 option.allowManualTargetSelection = true;
                 option.aoePlacementProfile = 'hostile-zone';
                 option.description = `${description} · Kegel ${coneM} m`;
+            }
+            // Support heals/cleanses are type "Active" but must not use hostile red aim.
+            const support = artifactRowSupportProfile(row);
+            if (support === 'heal' || support === 'cleanse') {
+                option.defaultTargetGroup = 'ally';
+                option.allowManualTargetSelection = true;
+                option.aoePlacementProfile = support;
+                option.tags = [
+                    ...(option.tags || []).filter((t) => t !== 'attack'),
+                    support,
+                ];
             }
             out.push(option);
         }

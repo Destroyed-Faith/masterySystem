@@ -34,8 +34,8 @@ export interface RadialCombatOption {
     aoeRadiusMeters?: number;
     defaultTargetGroup?: TargetGroup;
     allowManualTargetSelection?: boolean;
-    /** Hex placement UX: utility (blue), heal (green), hostile zone (orange). */
-    aoePlacementProfile?: 'utility' | 'hostile-zone' | 'heal';
+    /** Hex placement UX: utility (blue), heal/cleanse (green), hostile zone (orange). */
+    aoePlacementProfile?: 'utility' | 'hostile-zone' | 'heal' | 'cleanse';
     /** Definition duration string for persistent zones (table tracking). */
     zoneDurationNote?: string;
     item?: any;

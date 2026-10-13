@@ -8,6 +8,8 @@ import { getActiveSpecialValue } from '../system/active-specials.js';
 import { applyHealingToCurrentBar, escapeStoneChat, } from '../stones/stone-resolution.js';
 import { countScarredHealthBars, recoverScarredBars, } from '../stones/remove-scar.js';
 import { getActionEconomyActor } from './action-economy.js';
+import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
+import { getTemplate } from '../utils/powers/templates/index.js';
 export const HEAL_CHAT_FLAG = 'healResolution';
 /** Catalog Health Level Recovery band (heal Actives; 0 below L4). */
 export function healHealthLevelRecoveryForRank(rank) {
@@ -27,7 +29,30 @@ export function powerItemRank(item) {
     const raw = Number(sys.rank ?? sys.level ?? 1);
     return Math.max(1, Math.min(16, Number.isFinite(raw) ? Math.floor(raw) : 1));
 }
-/** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel). */
+/** Catalog / artifact template ids that deliver heal (incl. heal+cleanse mixed). */
+export function isHealTemplateId(templateId) {
+    const tid = String(templateId || '');
+    if (!tid)
+        return false;
+    if (/health-level-heal/i.test(tid))
+        return true;
+    if (/heal-cleanse/i.test(tid))
+        return true;
+    if (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))
+        return true;
+    return false;
+}
+function artifactRowLooksLikeHeal(option) {
+    const blob = `${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`;
+    if (!/\bheal\b/i.test(blob))
+        return false;
+    // Offensive artifact actives that mention heal incidentally stay out.
+    if (/\b(requiem|exorcism|damage|sundered|lacerate)\b/i.test(blob) && !/\bheal\b.*\bd\d+/i.test(blob)) {
+        return false;
+    }
+    return true;
+}
+/** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel-only). */
 export function isHealPowerItem(item) {
     if (!item || item.type !== 'power')
         return false;
@@ -37,6 +62,8 @@ export function isHealPowerItem(item) {
     if (/health-level-heal/i.test(tid))
         return true;
     if (/support-heal/i.test(sub))
+        return true;
+    if (/heal-cleanse/i.test(tid))
         return true;
     if (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))
         return true;
@@ -50,10 +77,76 @@ export function isHealPowerItem(item) {
     }
     return false;
 }
+/**
+ * True for radial options that should use green ally heal targeting.
+ * Covers real power items and artifact rows (Moonlight Mending, …) where
+ * `option.item` is the artifact document, not a power.
+ */
 export function isHealRadialOption(option) {
-    if (!option || option.source !== 'power' || !option.item)
+    if (!option || option.source !== 'power')
         return false;
-    return isHealPowerItem(option.item);
+    if (option.aoePlacementProfile === 'heal')
+        return true;
+    if (isHealTemplateId(option.artifactPowerTemplateId))
+        return true;
+    if (option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option))
+        return true;
+    if (option.item && isHealPowerItem(option.item))
+        return true;
+    return false;
+}
+/**
+ * Resolve a power-shaped item for heal dice / HLR — real power, or a synthetic
+ * catalog snapshot from an artifact progression row (templateId + stage rank).
+ */
+export function healPowerItemFromRadialOption(option) {
+    if (!option)
+        return null;
+    if (option.item?.type === 'power' && isHealPowerItem(option.item))
+        return option.item;
+    const tid = String(option.artifactPowerTemplateId || '');
+    if (tid && isHealTemplateId(tid)) {
+        const tpl = getTemplate(tid);
+        const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
+        const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
+        return {
+            type: 'power',
+            id: option.id,
+            name: option.name,
+            system: {
+                templateId: tid,
+                category: 'active',
+                subfamily: 'support-heal',
+                rank,
+                level: rank,
+                levels: tpl?.levels ?? {},
+            },
+        };
+    }
+    // Legacy / test rows: "Heal 10d8" in the effect column, no templateId.
+    if (option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
+        const blob = `${option.description || ''} ${option.artifactRowSpecial || ''}`;
+        const m = /(\d+)\s*d\s*8/i.exec(blob);
+        if (m) {
+            const dice = `${m[1]}d8`;
+            return {
+                type: 'power',
+                id: option.id,
+                name: option.name,
+                system: {
+                    templateId: 'active-ranged-single-heal',
+                    category: 'active',
+                    subfamily: 'support-heal',
+                    rank: 4,
+                    level: 4,
+                    levels: {
+                        '4': { mechanics: { healing: { flat: dice, target: 'target' } } },
+                    },
+                },
+            };
+        }
+    }
+    return option.item?.type === 'power' ? option.item : null;
 }
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export function getHealDiceFormula(item) {
@@ -250,6 +343,23 @@ export async function resolveHealOnTokens(args) {
                 console.warn('Mastery System | scarred heal prompt failed', err);
             }
         }
+    }
+    // Heal + Cleanse mixed: interactive Cleanse distribution after HP heal.
+    try {
+        const { getCleanseRankFromPower, postCleansePromptForTarget } = await import('./cleanse-resolution.js');
+        if (getCleanseRankFromPower(args.powerItem) > 0) {
+            for (const tok of args.targetTokens) {
+                await postCleansePromptForTarget({
+                    casterToken: args.casterToken,
+                    powerItem: args.powerItem,
+                    powerName: args.powerName,
+                    targetToken: tok,
+                });
+            }
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | mixed heal+cleanse prompt failed', err);
     }
     return results;
 }

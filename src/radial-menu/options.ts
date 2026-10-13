@@ -735,11 +735,18 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   // --- POWERS (from Actor items) ---
   const items = actor.items || [];
   let isHealPowerItem: ((item: any) => boolean) | null = null;
+  let isCleansePowerItem: ((item: any) => boolean) | null = null;
   try {
     const healMod = await import('../combat/heal-resolution.js');
     isHealPowerItem = healMod.isHealPowerItem;
   } catch {
     isHealPowerItem = null;
+  }
+  try {
+    const cleanseMod = await import('../combat/cleanse-resolution.js');
+    isCleansePowerItem = cleanseMod.isCleansePowerItem;
+  } catch {
+    isCleansePowerItem = null;
   }
 
   for (const item of items) {
@@ -850,11 +857,18 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     let rangeMeters: number | undefined = range;
     let hostileZonePlacement = false;
     let healPlacement = false;
+    let cleansePlacement = false;
     let zoneDurationNote: string | undefined = undefined;
     let burstMeleeAoE = false;
     let burstMeleeRadiusMeters: number | undefined = undefined;
 
     const isHealActive = !!(powerType === 'active' && isHealPowerItem?.(item));
+    // Pure Cleanse (Heal+Cleanse mixed is handled by the heal path).
+    const isCleanseActive = !!(
+      powerType === 'active' &&
+      !isHealActive &&
+      isCleansePowerItem?.(item)
+    );
 
     if (slot === 'utility' || powerType === 'utility') {
       let aoeStr = (item.system as any)?.aoe;
@@ -869,9 +883,10 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       if ((!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) && aoeShape !== 'none') {
         rangeMeters = 0;
       }
-    } else if (isHealActive && levelData) {
-      // Heal Actives: ally targeting, never hostile-zone / attack cards.
-      healPlacement = true;
+    } else if ((isHealActive || isCleanseActive) && levelData) {
+      // Heal / Cleanse Actives: ally targeting, never hostile-zone / attack cards.
+      if (isHealActive) healPlacement = true;
+      else cleansePlacement = true;
       rangeMeters = range;
       let aoeStr = (item.system as any)?.aoe;
       if (levelData.aoe) aoeStr = levelData.aoe;
@@ -979,6 +994,13 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       option.defaultTargetGroup = 'ally';
       option.allowManualTargetSelection = true;
       option.aoePlacementProfile = 'heal';
+    } else if (cleansePlacement) {
+      option.rangeMeters = rangeMeters;
+      option.aoeShape = aoeShape;
+      option.aoeRadiusMeters = aoeRadiusMeters;
+      option.defaultTargetGroup = 'ally';
+      option.allowManualTargetSelection = true;
+      option.aoePlacementProfile = 'cleanse';
     } else if (hostileZonePlacement) {
       option.rangeMeters = rangeMeters;
       option.aoeShape = aoeShape;

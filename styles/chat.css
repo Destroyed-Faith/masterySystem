@@ -1262,3 +1262,68 @@ prose-mirror#chat-message.chat-input > .editor-container {
   margin: 0 0 0.25rem;
   font-size: 1rem;
 }
+
+/* =========================================
+   Cleanse allocation prompt (ally Cleanse actives)
+   ========================================= */
+
+#chat-log .mastery-cleanse-prompt {
+  margin-top: 0.25rem;
+}
+
+#chat-log .ms-cleanse-list {
+  list-style: none;
+  margin: 0.35rem 0;
+  padding: 0;
+}
+
+#chat-log .ms-cleanse-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.2rem 0;
+  flex-wrap: wrap;
+}
+
+#chat-log .ms-cleanse-label {
+  flex: 1 1 6rem;
+  min-width: 0;
+}
+
+#chat-log .ms-cleanse-alloc {
+  min-width: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+#chat-log .ms-cleanse-plus,
+#chat-log .ms-cleanse-minus,
+#chat-log .ms-cleanse-apply,
+#chat-log .ms-cleanse-cancel,
+.ms-theme-rulebook #chat-log .ms-cleanse-plus,
+.ms-theme-rulebook #chat-log .ms-cleanse-minus,
+.ms-theme-rulebook #chat-log .ms-cleanse-apply,
+.ms-theme-rulebook #chat-log .ms-cleanse-cancel {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  padding: 0.2rem 0.45rem;
+  min-width: 1.75rem;
+}
+
+#chat-log .mastery-cleanse-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+#chat-log .ms-cleanse-apply {
+  background: rgba(60, 120, 70, 0.35);
+  border-color: rgba(80, 160, 90, 0.5);
+}
+
+#chat-log .mastery-cleanse-resolved {
+  margin-top: 0.35rem;
+  opacity: 0.95;
+}

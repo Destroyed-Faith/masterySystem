@@ -1305,10 +1305,12 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   // Grapple itself continues into the melee-targeting branch below; the
   // meleeTargetSelected hook routes it to the contest card instead of an attack card.
 
-  // Heal Actives: ally targeting, no attack roll / Evade / Reactions.
+  // Heal / Cleanse Actives: ally targeting, no attack roll / Evade / Reactions.
   try {
     const { isHealRadialOption } = await import('./combat/heal-resolution.js');
-    if (isHealRadialOption(option)) {
+    const { isCleanseRadialOption } = await import('./combat/cleanse-resolution.js');
+    const healOrCleanse = isHealRadialOption(option) || isCleanseRadialOption(option);
+    if (healOrCleanse) {
       if (option.costsAction) {
         const atkAvail = getAvailableAttackActions(actor, combat);
         if (atkAvail <= 0) {
@@ -1317,20 +1319,21 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         }
       }
       closeRadialMenu();
-      option.defaultTargetGroup = option.defaultTargetGroup || 'ally';
+      option.defaultTargetGroup = 'ally';
       option.allowManualTargetSelection = true;
-      option.aoePlacementProfile = 'heal';
+      if (isHealRadialOption(option)) option.aoePlacementProfile = 'heal';
+      else option.aoePlacementProfile = 'cleanse';
+      if (option.rangeMeters === undefined) option.rangeMeters = option.range;
       if (option.aoeShape === 'radius' && (option.aoeRadiusMeters ?? 0) > 0) {
         startUtilityRadiusMode(token, option);
       } else {
         option.aoeShape = 'none';
-        if (option.rangeMeters === undefined) option.rangeMeters = option.range;
         startUtilitySingleTargetMode(token, option);
       }
       return;
     }
   } catch (err) {
-    console.warn('Mastery System | heal radial branch failed', err);
+    console.warn('Mastery System | heal/cleanse radial branch failed', err);
   }
 
   // A grappler attacking with a weapon has to let go first (unarmed Basic

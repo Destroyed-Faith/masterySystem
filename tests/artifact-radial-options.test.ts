@@ -49,7 +49,14 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
       kind: 'weapon',
       damage: '5d8',
       progression: [
-        { level: 1, name: 'Moonlight Mending I', type: 'Active', effect: 'Heal 10d8' },
+        {
+          level: 1,
+          name: 'Moonlight Mending I',
+          type: 'Active',
+          effect: 'Heal one creature for 10d8 HP',
+          powerTemplateId: 'active-ranged-single-heal',
+          range: '20 m',
+        },
       ],
     });
     const single = {
@@ -61,6 +68,9 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     const opts = buildArtifactRadialOptions(actor([sword, single]));
     expect(opts.map((o) => o.name)).toEqual(['Moonlight Mending I']);
     expect(opts.some((o) => o.id.startsWith('artifact-weapon:'))).toBe(false);
+    expect(opts[0].aoePlacementProfile).toBe('heal');
+    expect(opts[0].defaultTargetGroup).toBe('ally');
+    expect(opts[0].artifactPowerTemplateId).toBe('active-ranged-single-heal');
   });
 
   it('keeps the named weapon swing when the actor has no Active power of their own', () => {

@@ -55,7 +55,7 @@ function placementColorsFromOption(option: RadialCombatOption): PlacementColors 
       previewFill: 0xff8833
     };
   }
-  if (option.aoePlacementProfile === 'heal') {
+  if (option.aoePlacementProfile === 'heal' || option.aoePlacementProfile === 'cleanse') {
     return {
       hex: 0x44cc88,
       hexAlpha: 0.35,
@@ -988,6 +988,7 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
   const isHostileZone = state.option.aoePlacementProfile === 'hostile-zone';
   const isAttackZone = isHostileZone && state.option.slot === 'attack';
   const isHealPlacement = state.option.aoePlacementProfile === 'heal';
+  const isCleansePlacement = state.option.aoePlacementProfile === 'cleanse';
 
   if (isHealPlacement) {
     if (!targets.length) {
@@ -996,16 +997,46 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
       return;
     }
     try {
-      const { resolveHealOnTokens } = await import('./combat/heal-resolution.js');
+      const { healPowerItemFromRadialOption, resolveHealOnTokens } = await import(
+        './combat/heal-resolution.js'
+      );
+      const powerItem = healPowerItemFromRadialOption(state.option) ?? state.option.item;
       await resolveHealOnTokens({
         casterToken: state.casterToken,
-        powerItem: state.option.item,
+        powerItem,
         powerName: String(state.option.name || state.option.item?.name || 'Heal'),
         targetTokens: targets,
       });
     } catch (err) {
       console.error('Mastery System | Heal resolve failed', err);
       ui.notifications?.error('Heilung konnte nicht angewendet werden.');
+      endUtilityTargeting(false);
+      return;
+    }
+    endUtilityTargeting(true);
+    return;
+  }
+
+  if (isCleansePlacement) {
+    if (!targets.length) {
+      ui.notifications?.warn('Kein Cleanse-Ziel ausgewählt.');
+      endUtilityTargeting(false);
+      return;
+    }
+    try {
+      const { cleansePowerItemFromRadialOption, resolveCleanseOnTokens } = await import(
+        './combat/cleanse-resolution.js'
+      );
+      const powerItem = cleansePowerItemFromRadialOption(state.option) ?? state.option.item;
+      await resolveCleanseOnTokens({
+        casterToken: state.casterToken,
+        powerItem,
+        powerName: String(state.option.name || state.option.item?.name || 'Cleanse'),
+        targetTokens: targets,
+      });
+    } catch (err) {
+      console.error('Mastery System | Cleanse resolve failed', err);
+      ui.notifications?.error('Cleanse konnte nicht angewendet werden.');
       endUtilityTargeting(false);
       return;
     }

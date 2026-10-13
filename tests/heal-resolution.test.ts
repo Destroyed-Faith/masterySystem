@@ -4,7 +4,9 @@ import {
   formatScarredPromptChat,
   getHealDiceFormula,
   healHealthLevelRecoveryForRank,
+  healPowerItemFromRadialOption,
   isHealPowerItem,
+  isHealRadialOption,
 } from '../src/combat/heal-resolution';
 
 describe('healHealthLevelRecoveryForRank', () => {
@@ -64,6 +66,25 @@ describe('isHealPowerItem / getHealDiceFormula', () => {
       },
     };
     expect(isHealPowerItem(item)).toBe(false);
+  });
+});
+
+describe('artifact heal radial (Moonlight Mending)', () => {
+  it('detects artifact heal rows and resolves 10d8 at stage I', () => {
+    const artifactItem = { type: 'artifact', id: 'mg', name: 'Moonlight Greatsword' };
+    const option = {
+      source: 'power' as const,
+      name: 'Moonlight Mending I',
+      description: 'Heal one creature for 10d8 HP · Range: 20 m',
+      item: artifactItem,
+      artifactPowerTemplateId: 'active-ranged-single-heal',
+      artifactRowLevel: 1,
+      aoePlacementProfile: 'heal' as const,
+    };
+    expect(isHealRadialOption(option)).toBe(true);
+    const power = healPowerItemFromRadialOption(option as any);
+    expect(power?.type).toBe('power');
+    expect(getHealDiceFormula(power)).toBe('10d8');
   });
 });
 
