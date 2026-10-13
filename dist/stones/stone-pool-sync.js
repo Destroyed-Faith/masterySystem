@@ -4,8 +4,36 @@
  * the token while Safe Haven / sheet GM tools update the world prototype.
  */
 import { STONE_POOL_ATTRIBUTE_KEYS, getActionEconomyActor } from '../combat/action-economy.js';
-import { ATTRIBUTE_KEYS, effectiveStoneAssignments, isLifetimeStoneMode, resolvedStonePoolMax, usesV099Stones, } from '../progression/v099-rules.js';
+import { ATTRIBUTE_KEYS, effectiveStoneAssignments, isLifetimeStoneMode, resolvedStonePoolMax, systemWithStoneProgression, usesV099Stones, } from '../progression/v099-rules.js';
 const POOL_KEYS = [...STONE_POOL_ATTRIBUTE_KEYS, 'colorless'];
+/**
+ * System used for Lifetime stone math. Token deltas often lack progression;
+ * the world prototype keeps `stoneSlotOrder` / `v099Stones`.
+ */
+export function resolveActorStoneSystem(actor) {
+    const local = actor?.system ?? actor ?? {};
+    if (isLifetimeStoneMode(local))
+        return local;
+    try {
+        let baseId = String(actor?.id ?? '');
+        if (actor?.isToken) {
+            baseId = String(actor?.token?.actorId ?? actor?.token?.document?.actorId ?? baseId);
+        }
+        else {
+            const doc = actor?.token?.document;
+            if (doc?.actorId)
+                baseId = String(doc.actorId);
+        }
+        const world = baseId ? globalThis.game?.actors?.get?.(baseId) : null;
+        if (world && world !== actor) {
+            return systemWithStoneProgression(local, world.system);
+        }
+    }
+    catch {
+        /* game / canvas optional */
+    }
+    return local;
+}
 /** Pool capacity for Ready refill (matches Safe Haven / Actor.prepareBaseData). */
 export function stonePoolReadyMax(system, attr, pool) {
     const storedMax = Math.max(0, Number(pool?.max) || 0);
@@ -16,10 +44,12 @@ export function stonePoolReadyMax(system, attr, pool) {
         return storedMax;
     }
     const attrValue = Math.max(0, Number(system?.attributes?.[attr]?.value) || 0);
+    if (isLifetimeStoneMode(system)) {
+        // Exact Lifetime assignments — never keep a stale Attribute÷8 max.
+        return Math.max(0, Math.floor(Number(effectiveStoneAssignments(system)[attr]) || 0));
+    }
     const resolved = resolvedStonePoolMax(system, attr, attrValue);
-    const assigned = isLifetimeStoneMode(system)
-        ? Math.max(0, Math.floor(Number(effectiveStoneAssignments(system)[attr]) || 0))
-        : Math.max(0, Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0));
+    const assigned = Math.max(0, Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0));
     return Math.max(resolved, storedMax, assigned);
 }
 function actorSyncKey(actor) {
@@ -92,20 +122,25 @@ export function listStonePoolSyncActors(actor) {
     return out;
 }
 /** Plain stonePools object with Sealed/Burned cleared (Word of Recall hold respected). */
-export function buildReadyStonePoolsObject(system, sealHold) {
+export function buildReadyStonePoolsObject(system, sealHold, 
+/** Optional progression donor (world actor system) when `system` is a token delta. */
+progressionDonor) {
     const holdAttrs = {};
     for (const [attr, n] of Object.entries(sealHold?.attrCounts ?? {})) {
         const v = Math.max(0, Math.floor(Number(n) || 0));
         if (v > 0)
             holdAttrs[attr] = v;
     }
+    const stoneSystem = progressionDonor
+        ? systemWithStoneProgression(system, progressionDonor)
+        : system;
     const next = {};
     const existing = system?.stonePools ?? {};
     for (const attr of POOL_KEYS) {
         const poolData = existing[attr];
         if (poolData == null && attr === 'colorless')
             continue;
-        const maxStones = stonePoolReadyMax(system, attr, poolData ?? {});
+        const maxStones = stonePoolReadyMax(stoneSystem, attr, poolData ?? {});
         const heldSealed = Math.min(holdAttrs[attr] ?? 0, maxStones);
         next[attr] = {
             max: maxStones,
@@ -133,18 +168,29 @@ export function buildReadyStonePoolUpdates(system, sealHold) {
 /**
  * Align stonePools.max/current and stoneAssignments with the Lifetime track.
  * Does not clear Sealed/Burned — only repairs caps that still follow ÷8.
+ * Uses world progression when the target is a token delta without the track.
  */
 export async function syncStonePoolCapsFromAssignments(actor) {
     if (!actor)
         return false;
-    const system = actor.system ?? {};
+    const liveSystem = actor.system ?? {};
+    const system = resolveActorStoneSystem(actor);
     if (!isLifetimeStoneMode(system))
         return false;
     const eff = effectiveStoneAssignments(system);
     const updates = {};
+    // Copy progression onto token actors so later prepareBaseData stays in Lifetime mode.
+    if (liveSystem?.progression?.v099Stones !== true && system?.progression?.v099Stones === true) {
+        updates['system.progression.v099Stones'] = true;
+    }
+    if (Array.isArray(system?.progression?.stoneSlotOrder) &&
+        (!Array.isArray(liveSystem?.progression?.stoneSlotOrder) ||
+            liveSystem.progression.stoneSlotOrder.length === 0)) {
+        updates['system.progression.stoneSlotOrder'] = system.progression.stoneSlotOrder.slice();
+    }
     for (const attr of ATTRIBUTE_KEYS) {
         const want = Math.max(0, Math.floor(Number(eff[attr]) || 0));
-        const pool = system?.stonePools?.[attr] ?? {};
+        const pool = liveSystem?.stonePools?.[attr] ?? {};
         const max = Math.max(0, Math.floor(Number(pool.max) || 0));
         const current = Math.max(0, Math.floor(Number(pool.current) || 0));
         const sustained = Math.max(0, Math.floor(Number(pool.sustained) || 0));
@@ -152,7 +198,7 @@ export async function syncStonePoolCapsFromAssignments(actor) {
         const burned = Math.max(0, Math.floor(Number(pool.burned) || 0));
         const reserved = sustained + sealed + burned;
         const readyCap = Math.max(0, want - reserved);
-        const storedAssign = Math.max(0, Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0));
+        const storedAssign = Math.max(0, Math.floor(Number(liveSystem?.progression?.stoneAssignments?.[attr]) || 0));
         if (storedAssign !== want) {
             updates[`system.progression.stoneAssignments.${attr}`] = want;
         }
@@ -182,7 +228,8 @@ export async function forceReadyStonePoolsOnCharacter(actor, sealHold) {
     let vitalityReady = 0;
     let vitalitySealed = 0;
     for (const target of targets) {
-        const pools = buildReadyStonePoolsObject(target?.system, sealHold);
+        const stoneSystem = resolveActorStoneSystem(target);
+        const pools = buildReadyStonePoolsObject(target?.system, sealHold, stoneSystem);
         try {
             await target.update?.({ 'system.stonePools': pools });
         }

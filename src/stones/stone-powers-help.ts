@@ -119,7 +119,7 @@ export const STONE_POWERS_HELP_SCREENS: StoneHelpScreen[] = [
     track: 'stones',
     step: 1,
     title: '1. Check your available Stones',
-    body: 'Your Attribute Stones are shown here. Converted Initiative and Permanent Colorless Stones share the Colorless pool. Attributes below 8 do not provide a Stone pool.',
+    body: 'Your Attribute Stones are shown here (from the Lifetime XP track). Converted Initiative and Permanent Colorless Stones share the Colorless pool. Attributes with no assigned Stones have an empty pool.',
     images: [helpImage('04', 'Available Stones row with Attribute and Colorless pools')],
   },
   {

@@ -50,7 +50,31 @@ import {
   resolveNpcAttackSlots,
 } from '../utils/npc-attack-model.js';
 import { calculateMaxSkillRank, validateSkillValue } from '../utils/calculations.js';
-import { resolvedPermanentStoneTotal, resolvedStonePoolMax, usesV099Stones } from '../progression/v099-rules.js';
+import {
+  isLifetimeStoneMode,
+  resolvedPermanentStoneTotal,
+  resolvedStonePoolMax,
+  systemWithStoneProgression,
+  usesV099Stones,
+} from '../progression/v099-rules.js';
+
+/**
+ * Token ActorDeltas often omit progression (Lifetime track lives on the world
+ * actor). Without this merge, prepareBaseData silently rewrites pools to ÷8.
+ */
+function stoneSystemForPrepare(self: any): any {
+  const system = self?.system;
+  if (!system || isLifetimeStoneMode(system)) return system;
+  try {
+    if (!self?.isToken) return system;
+    const baseId = String(self?.token?.actorId ?? self?.token?.document?.actorId ?? self?.id ?? '');
+    const world = baseId ? (globalThis as any).game?.actors?.get?.(baseId) : null;
+    if (world && world !== self) return systemWithStoneProgression(system, world.system);
+  } catch {
+    /* game optional during early boot */
+  }
+  return system;
+}
 
 /** Clamp skill ranks in an actor update to MR × 4 (and ≥ 0). */
 function clampSkillRanksInUpdate(actor: Actor, changed: any): void {
@@ -134,7 +158,8 @@ export class MasteryActor extends Actor {
     
     // Calculate derived values if needed
     if (system.attributes) {
-      const v099Stones = usesV099Stones(system);
+      const stoneSystem = stoneSystemForPrepare(this);
+      const v099Stones = usesV099Stones(stoneSystem) || usesV099Stones(system);
       // v0.9.9: assigned Stones are independent of Attribute values.
       // Until the one-time respec, existing characters still use floor(attribute / 8).
       if ((this as any).type === 'character') {
@@ -147,7 +172,7 @@ export class MasteryActor extends Actor {
         
         for (const attrKey of attributeKeys) {
           const attrValue = system.attributes[attrKey]?.value || 0;
-          const maxStones = resolvedStonePoolMax(system, attrKey, attrValue);
+          const maxStones = resolvedStonePoolMax(stoneSystem, attrKey, attrValue);
           if (system.attributes[attrKey]) system.attributes[attrKey].stones = maxStones;
           
           // Initialize pool if missing
@@ -203,7 +228,12 @@ export class MasteryActor extends Actor {
         // to an Attribute and not counted against any Attribute Stone limit.
         // They use the normal Stone states and regenerate normally.
         const permanentColorless = v099Stones
-          ? Math.max(0, Math.floor(Number(system.progression?.permanentColorless) || 0))
+          ? Math.max(
+              0,
+              Math.floor(
+                Number(stoneSystem?.progression?.permanentColorless ?? system.progression?.permanentColorless) || 0,
+              ),
+            )
           : 0;
         if (permanentColorless > 0 || system.stonePools.colorless) {
           if (!system.stonePools.colorless) {
@@ -243,7 +273,7 @@ export class MasteryActor extends Actor {
       }
       const legacyTotal = (['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const)
         .reduce((sum, key) => sum + Math.floor((Number(system.attributes[key]?.value) || 0) / 8), 0);
-      system.stones.total = resolvedPermanentStoneTotal(system, v099Stones ? 0 : legacyTotal);
+      system.stones.total = resolvedPermanentStoneTotal(stoneSystem, v099Stones ? 0 : legacyTotal);
       if (!v099Stones) {
         for (const attr of Object.values(system.attributes) as any[]) {
           if (attr && typeof attr.value === 'number' && attr.stones == null) {

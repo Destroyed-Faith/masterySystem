@@ -8,7 +8,11 @@
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 
 import { healStressFromBars } from '../utils/calculations.js';
-import { resolvedStonePoolMax } from '../progression/v099-rules.js';
+import {
+  isLifetimeStoneMode,
+  resolvedStonePoolMax,
+  systemWithStoneProgression,
+} from '../progression/v099-rules.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc-attack-model.js';
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
@@ -413,12 +417,33 @@ function resolveActionEconomyActorInner(anyA: any): Actor {
   return actor;
 }
 
-/** Sum of attribute-derived stone-pool capacity (⌊value/8⌋) across the core pools. */
+/**
+ * Total stone-pool capacity for economy-actor selection.
+ * Lifetime track (assignments) wins; only pre-respec actors use ⌊value/8⌋.
+ */
 function totalStoneCapacityFromAttributes(actor: Actor | null | undefined): number {
-  const attrs = (actor as any)?.system?.attributes ?? {};
+  let sys = (actor as any)?.system ?? {};
+  if (!isLifetimeStoneMode(sys) && actor) {
+    try {
+      let baseId = String((actor as any).id ?? '');
+      if ((actor as any).isToken) {
+        baseId = String(
+          (actor as any).token?.actorId ?? (actor as any).token?.document?.actorId ?? baseId,
+        );
+      }
+      const world = baseId ? ((globalThis as any).game?.actors?.get?.(baseId) as Actor | undefined) : undefined;
+      if (world && world !== actor) {
+        sys = systemWithStoneProgression(sys, (world as any).system);
+      }
+    } catch {
+      /* game optional */
+    }
+  }
+  const attrs = sys.attributes ?? {};
   let sum = 0;
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
-    sum += Math.floor((Number(attrs?.[attr]?.value) || 0) / 8);
+    const attrValue = Number(attrs?.[attr]?.value) || 0;
+    sum += resolvedStonePoolMax(sys, attr, attrValue);
   }
   return sum;
 }
@@ -1243,10 +1268,17 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
   const owner = getActionEconomyActor(actor) ?? actor;
   if (!isPC(owner)) return;
   const sys = (owner.system as any);
+  let stoneSys = sys;
+  try {
+    const { resolveActorStoneSystem } = await import('../stones/stone-pool-sync.js');
+    stoneSys = resolveActorStoneSystem(owner);
+  } catch {
+    /* optional */
+  }
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
-    const maxStones = resolvedStonePoolMax(sys, attr, attrValue);
+    const maxStones = resolvedStonePoolMax(stoneSys, attr, attrValue);
     const reserved = stonePoolReservedStones(sys, attr);
     const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
@@ -1278,10 +1310,17 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
   const owner = getActionEconomyActor(actor) ?? actor;
   if (!isPC(owner)) return;
   const sys = (owner.system as any);
+  let stoneSys = sys;
+  try {
+    const { resolveActorStoneSystem } = await import('../stones/stone-pool-sync.js');
+    stoneSys = resolveActorStoneSystem(owner);
+  } catch {
+    /* optional */
+  }
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
-    const maxStones = resolvedStonePoolMax(sys, attr, attrValue);
+    const maxStones = resolvedStonePoolMax(stoneSys, attr, attrValue);
     const reserved = stonePoolReservedStones(sys, attr);
     const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);

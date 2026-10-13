@@ -539,13 +539,15 @@ export class StonePowersDialog extends BaseDialog {
         await this.#syncStonePowersRoundPlanWithCombat();
         this.#pullSessionPartialsIntoInstance();
         const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+        let resolveActorStoneSystem = null;
         try {
-            const { syncStonePoolCapsFromAssignments, listStonePoolSyncActors } = await import('./stone-pool-sync.js');
-            for (const target of listStonePoolSyncActors(this.actor)) {
-                await syncStonePoolCapsFromAssignments(target);
+            const syncMod = await import('./stone-pool-sync.js');
+            resolveActorStoneSystem = syncMod.resolveActorStoneSystem;
+            for (const target of syncMod.listStonePoolSyncActors(this.actor)) {
+                await syncMod.syncStonePoolCapsFromAssignments(target);
             }
             if (poolOwner && poolOwner !== this.actor) {
-                await syncStonePoolCapsFromAssignments(poolOwner);
+                await syncMod.syncStonePoolCapsFromAssignments(poolOwner);
             }
         }
         catch (err) {
@@ -577,9 +579,12 @@ export class StonePowersDialog extends BaseDialog {
         const availablePowers = getAvailableStonePowers(this.actor);
         // Every attribute pool stays visible (empty or blocked ones included) so
         // players can see what they could reach; `blockedReason` says why not.
-        // Prefer the sheet actor's progression track; poolOwner may be a token
-        // delta whose stoneAssignments lag behind stoneSlotOrder.
-        const progressSystem = this.actor?.system ?? system;
+        // Prefer world/sheet Lifetime track — token deltas often omit progression
+        // and would otherwise fall back to Attribute÷8 in prepareBaseData.
+        const progressSystem = resolveActorStoneSystem?.(this.actor) ??
+            resolveActorStoneSystem?.(poolOwner) ??
+            this.actor?.system ??
+            system;
         const lifetimeStoneMode = isLifetimeStoneMode(progressSystem);
         const liveAssignments = lifetimeStoneMode ? effectiveStoneAssignments(progressSystem) : null;
         const pools = POOL_DISPLAY_ATTRS.map((attr) => {
@@ -590,13 +595,19 @@ export class StonePowersDialog extends BaseDialog {
             let current = pool?.current ?? pool?.value ?? 0;
             if (lifetimeStoneMode && liveAssignments) {
                 const assigned = Math.max(0, Math.floor(Number(liveAssignments[attr]) || 0));
-                const resolved = resolvedStonePoolMax(progressSystem, attr, Number(progressSystem?.attributes?.[attr]?.value) || 0);
-                max = Math.max(Number(max) || 0, assigned, resolved);
+                const resolved = resolvedStonePoolMax(progressSystem, attr, Number(progressSystem?.attributes?.[attr]?.value) ||
+                    Number(system?.attributes?.[attr]?.value) ||
+                    0);
+                // Exact Lifetime count — do not keep a higher stale ÷8 max.
+                max = Math.max(assigned, resolved);
                 const sealed = Math.max(0, Number(pool?.sealed) || 0);
                 const burned = Math.max(0, Number(pool?.burned) || 0);
                 const sustainedN = Math.max(0, Number(pool?.sustained) || 0);
                 const effectiveReady = Math.max(0, max - sustainedN - sealed - burned);
                 if ((Number(current) || 0) < effectiveReady && sealed + burned + sustainedN === 0) {
+                    current = effectiveReady;
+                }
+                else if ((Number(current) || 0) > effectiveReady) {
                     current = effectiveReady;
                 }
             }

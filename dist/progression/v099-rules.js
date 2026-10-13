@@ -414,6 +414,24 @@ export function isLifetimeStoneMode(system) {
     }
     return sumAssignments(readAssignments(system)) > 0;
 }
+/**
+ * Unlinked token actors often omit `system.progression` (track lives on the
+ * world prototype). Merge the donor's progression so pool math never falls
+ * back to Attribute÷8 while the sheet track still shows assignments.
+ */
+export function systemWithStoneProgression(baseSystem, progressionDonor) {
+    if (!baseSystem)
+        return progressionDonor ?? baseSystem;
+    if (isLifetimeStoneMode(baseSystem))
+        return baseSystem;
+    const donorProg = progressionDonor?.progression ?? progressionDonor?.system?.progression;
+    if (!donorProg)
+        return baseSystem;
+    const donorSystem = { progression: donorProg };
+    if (!isLifetimeStoneMode(donorSystem))
+        return baseSystem;
+    return { ...baseSystem, progression: donorProg };
+}
 export function resolvedStonePoolMax(system, attr, attributeValue) {
     if (isLifetimeStoneMode(system)) {
         const key = String(attr || '');

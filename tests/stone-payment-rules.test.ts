@@ -175,8 +175,17 @@ describe('dialog section expand/collapse', () => {
 describe('pool blocked reason', () => {
   it('explains a missing pool', () => {
     expect(stonePoolBlockedReason({ max: 0, available: 0, sustained: 0, artifactBound: 0 })).toBe(
-      'Attribute below 8 — no stone pool',
+      'no Stones assigned to this Attribute',
     );
+    expect(
+      stonePoolBlockedReason({
+        max: 0,
+        available: 0,
+        sustained: 0,
+        artifactBound: 0,
+        lifetimeStoneMode: false,
+      }),
+    ).toBe('Attribute below 8 — no stone pool');
     expect(
       stonePoolBlockedReason({
         max: 0,

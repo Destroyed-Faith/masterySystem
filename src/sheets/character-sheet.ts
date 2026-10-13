@@ -6997,6 +6997,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       next[choice.otherIndex] = pair;
     } else return;
     await this.actor.update(stoneOrderActorUpdate(sys, next));
+    try {
+      const { syncStonePoolCapsFromAssignments, listStonePoolSyncActors } = await import(
+        '../stones/stone-pool-sync.js'
+      );
+      for (const target of listStonePoolSyncActors(this.actor)) {
+        await syncStonePoolCapsFromAssignments(target);
+      }
+    } catch (err) {
+      console.warn('Mastery System | sync pools after stone slot assign failed', err);
+    }
     this.render();
   }
 

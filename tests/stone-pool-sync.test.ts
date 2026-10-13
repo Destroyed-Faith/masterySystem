@@ -18,6 +18,23 @@ describe('stonePoolReadyMax', () => {
       ),
     ).toBe(2);
   });
+
+  it('does not keep a higher Attribute÷8 max in Lifetime mode', () => {
+    expect(
+      stonePoolReadyMax(
+        {
+          attributes: { might: { value: 40 } },
+          progression: {
+            v099Stones: true,
+            stoneAssignments: { might: 2 },
+            stoneSlotOrder: ['might', 'might'],
+          },
+        },
+        'might',
+        { max: 5 },
+      ),
+    ).toBe(2);
+  });
 });
 
 describe('buildReadyStonePoolsObject', () => {

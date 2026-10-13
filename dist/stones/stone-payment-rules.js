@@ -108,9 +108,12 @@ export function formatPendingStoneActivationWarning(rows) {
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool) {
     if (pool.max <= 0) {
-        return pool.lifetimeStoneMode
-            ? 'no Stones assigned to this Attribute'
-            : 'Attribute below 8 — no stone pool';
+        // Lifetime XP track is the only source of Attribute Stones (DF Core).
+        // Keep the legacy "below 8" string only when a caller explicitly opts out.
+        if (pool.lifetimeStoneMode === false) {
+            return 'Attribute below 8 — no stone pool';
+        }
+        return 'no Stones assigned to this Attribute';
     }
     if (pool.available > 0)
         return '';

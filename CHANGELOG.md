@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.621] - 2026-10-13
+
+### Fixed
+
+- **Stone Powers / Token-Delta:** Unlinked Token-Actors ohne `progression` haben Pools weiter aus Attribute÷8 berechnet (Might=3, Vit/Agi=1, Resolve „below 8“), obwohl die Lifetime-Leiste auf dem World-Actor korrekt war. prepareBaseData, Sync und Dialog mergen jetzt die World-Progression; Caps folgen exakt der Zuweisung. Standard-Hinweis ist „no Stones assigned…“.
+
 ## [0.9.620] - 2026-10-13
 
 ### Fixed

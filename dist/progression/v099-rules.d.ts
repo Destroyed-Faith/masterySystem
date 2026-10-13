@@ -158,6 +158,12 @@ export declare function effectiveStoneAssignments(system: any): Record<Attribute
  * assignment map (so pools never fall back to the old ÷8 rule mid-migration).
  */
 export declare function isLifetimeStoneMode(system: any): boolean;
+/**
+ * Unlinked token actors often omit `system.progression` (track lives on the
+ * world prototype). Merge the donor's progression so pool math never falls
+ * back to Attribute÷8 while the sheet track still shows assignments.
+ */
+export declare function systemWithStoneProgression(baseSystem: any, progressionDonor: any): any;
 export declare function resolvedStonePoolMax(system: any, attr: string, attributeValue: number): number;
 export declare function resolvedPermanentStoneTotal(system: any, attributeDerivedTotal: number): number;
 /** Standard / Spell Base / Attribute Check / Death / Stress / Ritual base TN. */

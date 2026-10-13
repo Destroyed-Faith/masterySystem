@@ -7,6 +7,7 @@ import {
   effectiveStoneAssignments,
   isLifetimeStoneMode,
   resolvedStonePoolMax,
+  systemWithStoneProgression,
 } from '../src/progression/v099-rules.js';
 
 describe('lifetime XP unlocks stones regardless of spend', () => {
@@ -73,5 +74,36 @@ describe('lifetime XP unlocks stones regardless of spend', () => {
     expect(resolvedStonePoolMax(system, 'vitality', 10)).toBe(2);
     expect(resolvedStonePoolMax(system, 'resolve', 6)).toBe(1);
     expect(resolvedStonePoolMax(system, 'influence', 4)).toBe(0);
+  });
+
+  it('merges world progression onto a token system that still looks like ÷8', () => {
+    const world = {
+      progression: {
+        v099Stones: true,
+        stoneSlotOrder: ['might', 'might', 'vitality', 'vitality', 'resolve'],
+        stoneAssignments: { might: 2, vitality: 2, resolve: 1 },
+      },
+    };
+    const tokenOnly = {
+      attributes: {
+        might: { value: 24 },
+        vitality: { value: 10 },
+        resolve: { value: 6 },
+      },
+      stonePools: {
+        might: { max: 3, current: 3 },
+        vitality: { max: 1, current: 1 },
+        resolve: { max: 0, current: 0 },
+      },
+    };
+    expect(isLifetimeStoneMode(tokenOnly)).toBe(false);
+    expect(resolvedStonePoolMax(tokenOnly, 'vitality', 10)).toBe(1);
+    expect(resolvedStonePoolMax(tokenOnly, 'resolve', 6)).toBe(0);
+
+    const merged = systemWithStoneProgression(tokenOnly, world);
+    expect(isLifetimeStoneMode(merged)).toBe(true);
+    expect(resolvedStonePoolMax(merged, 'might', 24)).toBe(2);
+    expect(resolvedStonePoolMax(merged, 'vitality', 10)).toBe(2);
+    expect(resolvedStonePoolMax(merged, 'resolve', 6)).toBe(1);
   });
 });
