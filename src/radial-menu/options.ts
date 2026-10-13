@@ -734,7 +734,14 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   
   // --- POWERS (from Actor items) ---
   const items = actor.items || [];
-  
+  let isHealPowerItem: ((item: any) => boolean) | null = null;
+  try {
+    const healMod = await import('../combat/heal-resolution.js');
+    isHealPowerItem = healMod.isHealPowerItem;
+  } catch {
+    isHealPowerItem = null;
+  }
+
   for (const item of items) {
     // Powers are stored as items with type "power"
     if (item.type !== 'power') continue;
@@ -842,9 +849,12 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     let aoeRadiusMeters: number | undefined = undefined;
     let rangeMeters: number | undefined = range;
     let hostileZonePlacement = false;
+    let healPlacement = false;
     let zoneDurationNote: string | undefined = undefined;
     let burstMeleeAoE = false;
     let burstMeleeRadiusMeters: number | undefined = undefined;
+
+    const isHealActive = !!(powerType === 'active' && isHealPowerItem?.(item));
 
     if (slot === 'utility' || powerType === 'utility') {
       let aoeStr = (item.system as any)?.aoe;
@@ -858,6 +868,23 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
 
       if ((!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) && aoeShape !== 'none') {
         rangeMeters = 0;
+      }
+    } else if (isHealActive && levelData) {
+      // Heal Actives: ally targeting, never hostile-zone / attack cards.
+      healPlacement = true;
+      rangeMeters = range;
+      let aoeStr = (item.system as any)?.aoe;
+      if (levelData.aoe) aoeStr = levelData.aoe;
+      const shape = parseAoEShape(aoeStr);
+      const rad = parseAoERadius(aoeStr);
+      if (shape === 'radius' && rad !== undefined && rad > 0) {
+        aoeShape = 'radius';
+        aoeRadiusMeters = rad;
+        if (!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) {
+          rangeMeters = 0;
+        }
+      } else {
+        aoeShape = 'none';
       }
     } else if (slot === 'attack' && powerType === 'active' && levelData) {
       const typeStr = typeof levelData.type === 'string' ? levelData.type : '';
@@ -945,6 +972,13 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       option.defaultTargetGroup = determineTargetGroup(option);
       option.allowManualTargetSelection = true;
       option.aoePlacementProfile = 'utility';
+    } else if (healPlacement) {
+      option.rangeMeters = rangeMeters;
+      option.aoeShape = aoeShape;
+      option.aoeRadiusMeters = aoeRadiusMeters;
+      option.defaultTargetGroup = 'ally';
+      option.allowManualTargetSelection = true;
+      option.aoePlacementProfile = 'heal';
     } else if (hostileZonePlacement) {
       option.rangeMeters = rangeMeters;
       option.aoeShape = aoeShape;

@@ -3303,6 +3303,8 @@ Hooks.once('ready', async function() {
   registerAttackRollClickHandler();
   registerDamageCardChatHooks();
   registerRaisePlanChatHooks();
+  const { registerHealChatHandlers } = await import('./combat/heal-resolution.js');
+  registerHealChatHandlers();
 
   const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
   registerPerceptionCombatHooks();

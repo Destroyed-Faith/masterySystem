@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.654] - 2026-10-14
+
+### Fixed
+
+- **Heal Actives (Single/AoE):** Kein Damage-Dialog und kein Trefferwurf mehr. Ally/Self-Targeting (grün), Heilwürfel auf die aktuelle Health Bar, Blight-Reduktion, Chat-Ergebnis. Ab Power-Level 4 bei Scarred Bars: Chat-Nachfrage, ob Health Level / Scarred wiederhergestellt werden sollen. Keine Evade-Reactions.
+
 ## [0.9.653] - 2026-10-13
 
 ### Added

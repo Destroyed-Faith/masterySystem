@@ -1053,6 +1053,36 @@ export async function handleChosenCombatOption(token, option) {
     }
     // Grapple itself continues into the melee-targeting branch below; the
     // meleeTargetSelected hook routes it to the contest card instead of an attack card.
+    // Heal Actives: ally targeting, no attack roll / Evade / Reactions.
+    try {
+        const { isHealRadialOption } = await import('./combat/heal-resolution.js');
+        if (isHealRadialOption(option)) {
+            if (option.costsAction) {
+                const atkAvail = getAvailableAttackActions(actor, combat);
+                if (atkAvail <= 0) {
+                    ui.notifications?.warn('No Actions left this round.');
+                    return;
+                }
+            }
+            closeRadialMenu();
+            option.defaultTargetGroup = option.defaultTargetGroup || 'ally';
+            option.allowManualTargetSelection = true;
+            option.aoePlacementProfile = 'heal';
+            if (option.aoeShape === 'radius' && (option.aoeRadiusMeters ?? 0) > 0) {
+                startUtilityRadiusMode(token, option);
+            }
+            else {
+                option.aoeShape = 'none';
+                if (option.rangeMeters === undefined)
+                    option.rangeMeters = option.range;
+                startUtilitySingleTargetMode(token, option);
+            }
+            return;
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | heal radial branch failed', err);
+    }
     // A grappler attacking with a weapon has to let go first (unarmed Basic
     // Attack and spells keep the hold). Asked once, before targeting starts.
     if (option.slot === 'attack' && segmentId !== 'active-buff') {

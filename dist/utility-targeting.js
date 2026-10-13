@@ -28,6 +28,18 @@ function placementColorsFromOption(option) {
             previewFill: 0xff8833
         };
     }
+    if (option.aoePlacementProfile === 'heal') {
+        return {
+            hex: 0x44cc88,
+            hexAlpha: 0.35,
+            previewAlpha: 0.28,
+            lineValid: 0x55dd99,
+            lineInvalid: 0xff6666,
+            tokenTint: 0x44cc88,
+            previewLine: 0x44cc88,
+            previewFill: 0x44cc88
+        };
+    }
     return {
         hex: 0x66aaff,
         hexAlpha: 0.35,
@@ -574,8 +586,8 @@ export function startUtilityRadiusMode(token, option) {
         onPointerDown: () => { },
         onKeyDown: () => { },
         manualMode: option.allowManualTargetSelection !== false,
-        // Attack zones default to sparing allies/players; utilities keep them selectable.
-        excludeAllies: option.aoePlacementProfile === 'hostile-zone' || option.slot === 'attack'
+        // Hostile attack zones spare allies; heal/utility keep allies selectable.
+        excludeAllies: option.aoePlacementProfile === 'hostile-zone',
     };
     activeUtilityTargeting = state;
     // Event handlers (can now reference state)
@@ -811,6 +823,31 @@ async function confirmUtilityTargets(state) {
     }
     const isHostileZone = state.option.aoePlacementProfile === 'hostile-zone';
     const isAttackZone = isHostileZone && state.option.slot === 'attack';
+    const isHealPlacement = state.option.aoePlacementProfile === 'heal';
+    if (isHealPlacement) {
+        if (!targets.length) {
+            ui.notifications?.warn('Kein Heilungsziel ausgewählt.');
+            endUtilityTargeting(false);
+            return;
+        }
+        try {
+            const { resolveHealOnTokens } = await import('./combat/heal-resolution.js');
+            await resolveHealOnTokens({
+                casterToken: state.casterToken,
+                powerItem: state.option.item,
+                powerName: String(state.option.name || state.option.item?.name || 'Heal'),
+                targetTokens: targets,
+            });
+        }
+        catch (err) {
+            console.error('Mastery System | Heal resolve failed', err);
+            ui.notifications?.error('Heilung konnte nicht angewendet werden.');
+            endUtilityTargeting(false);
+            return;
+        }
+        endUtilityTargeting(true);
+        return;
+    }
     if (isAttackZone) {
         if (!targets.length) {
             ui.notifications?.warn('Keine Ziele in der Zone ausgewählt.');
