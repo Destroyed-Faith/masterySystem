@@ -86,6 +86,12 @@ export function summarizePowerMechanics(mech) {
     if (typeof mech.cleanseMaintenance === 'number' && mech.cleanseMaintenance > 0) {
         push(`Cleanse(${mech.cleanseMaintenance}) / turn`);
     }
+    if (typeof mech.invisibilityBonus === 'number' && mech.invisibilityBonus > 0) {
+        push(`Invisibility +${mech.invisibilityBonus}`);
+    }
+    if (typeof mech.blockedSpecialSenseSlots === 'number' && mech.blockedSpecialSenseSlots > 0) {
+        push(`Blocks ${mech.blockedSpecialSenseSlots} Special Sense(s)`);
+    }
     const move = fmtSigned(mech.movementBonus ?? 0);
     if (move)
         push(`${move} Movement`);

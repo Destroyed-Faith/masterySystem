@@ -657,14 +657,22 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         subfamily: 'invisibility',
         category: 'activeBuff',
         tags: [],
-        fluff: 'A short cloak that blocks Normal Combat Awareness. Stacks with Passive Invisibility.',
+        fluff:
+            'Temporary Invisibility Bonus for Mastery Rank rounds. Blocks Normal Combat Awareness (and Darkvision). ' +
+            'Stacks with Passive: Invisibility (add both bonuses). Same targeting rules: Perception to locate before direct attacks; ' +
+            'AoE still hits; attacking triggers Cloak Disruption. Does not block Special Combat Senses by itself.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) =>
             activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Gain **+${lvl} Invisibility Bonus**. Blocks Normal Combat Awareness.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                effectText:
+                    `Gain **+${lvl} Invisibility Bonus** (stacks with Passive: Invisibility). ` +
+                    `Blocks Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn.`,
+                mechanics: {
+                    duration: 'masteryRankRounds',
+                    invisibilityBonus: lvl,
+                },
             }),
         ),
     },

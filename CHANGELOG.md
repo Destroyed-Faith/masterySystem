@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.657] - 2026-10-14
+
+### Fixed
+
+- **Passive: Invisibility:** Klarere Power-Beschreibung (Hover/Effekttext). Bonus und Sense-Blocking greifen **automatisch**, sobald die Passive auf dem Actor liegt (Kampfstart-Sync, Level-Up, Create). Perception-TN / Target Denial / Half-Evade / Cloak Disruption nutzen den Live-Bonus — kein manuelles Flag mehr nötig.
+
 ## [0.9.656] - 2026-10-14
 
 ### Fixed

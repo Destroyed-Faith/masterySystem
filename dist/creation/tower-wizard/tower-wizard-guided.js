@@ -198,7 +198,7 @@ const GUIDED_PASSIVE2_WRAPPERS = {
     'passive-invisibility': {
         playerTitle: 'Invisibility',
         powerName: 'Invisibility',
-        explanation: 'Blocks Normal Combat Awareness and, at higher ranks, chosen Special Senses.',
+        explanation: 'Always on: harder to locate/target (Perception TN + bonus), not higher Evade. Blocks Normal Awareness; higher ranks also block chosen Special Senses. AoE still hits.',
     },
     'passive-temp-hp': {
         playerTitle: 'Temporary HP',

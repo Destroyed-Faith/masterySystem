@@ -288,6 +288,17 @@ export interface PowerMechanics {
   wardIncoming?: number;
 
   /**
+   * Invisibility Bonus — raises Perception TN to locate/target/read you
+   * (Passive: Invisibility / Active Buff: Invisibility). Not Evade.
+   */
+  invisibilityBonus?: number;
+  /**
+   * How many Special Combat Senses Passive: Invisibility may block
+   * (chosen senses; runtime fills defaults until chosen on the power).
+   */
+  blockedSpecialSenseSlots?: number;
+
+  /**
    * Percentage-based Damage Reduction applied to incoming damage AFTER flat
    * Armor mitigation. Closed subsystem: may only originate from the three
    * sanctioned power lines (`Damage Reduction` passive, `Unyielding Shell`

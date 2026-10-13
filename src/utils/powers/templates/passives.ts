@@ -1104,18 +1104,32 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
     basePassive({
         id: 'passive-invisibility', name: 'Invisibility', subfamily: 'invisibility',
         passiveType: 'Passive',
-        fluff: 'A lasting cloak that blocks Normal Combat Awareness and, at higher ranks, chosen Special Combat Senses.',
+        fluff:
+            'Always on once you have this Passive. You are harder to locate and target — not harder to hit after someone finds you. ' +
+            'Blocks Normal Combat Awareness (and Darkvision). Enemies who cannot perceive you must pass Perception ' +
+            '(TN = your Mastery Rank skill TN + your current Invisibility Bonus) before they can directly attack or target you; ' +
+            'on a failure their action is not spent. Area effects and zones still work. ' +
+            'When you attack, foes who fail Perception use half Evade, then Cloak Disruption lowers your bonus until your next turn. ' +
+            'Does not grant Evade, Armor, DR, Temp HP, or Healing. Stacks with Active Buff: Invisibility.',
         perLevel: (lvl) => {
             const bonus = INVIS_PASSIVE[lvl - 1]!;
             const senses = INVIS_PASSIVE_SENSES[lvl - 1]!;
             const sensePart = senses <= 0
-                ? 'Blocks Normal Combat Awareness.'
+                ? 'Blocks **Normal Combat Awareness** (and Darkvision).'
                 : senses === 1
-                    ? 'Blocks Normal Combat Awareness and **1** chosen Special Combat Sense.'
-                    : `Blocks Normal Combat Awareness and **${senses}** chosen Special Combat Senses.`;
+                    ? 'Blocks **Normal Combat Awareness** (and Darkvision) and **1** chosen Special Combat Sense.'
+                    : `Blocks **Normal Combat Awareness** (and Darkvision) and **${senses}** chosen Special Combat Senses.`;
             return {
-                text: `Gain **+${bonus} Invisibility Bonus**. ${sensePart}`,
-                mechanics: {},
+                text:
+                    `Always on. Gain **+${bonus} Invisibility Bonus** (raises Perception TN to locate/target you; not Evade). ` +
+                    `${sensePart} ` +
+                    `Before a direct attack/spell against you, an observer who lacks an unblocked Sense must succeed on Perception ` +
+                    `(TN = Mastery Rank skill TN + current Invisibility Bonus) or cannot target you this turn (action not spent). ` +
+                    `AoE/zones ignore this. Attacking from Invisibility: failed Perception → half Evade, then Cloak Disruption (−4 until your next turn; more from movement/damage).`,
+                mechanics: {
+                    invisibilityBonus: bonus,
+                    blockedSpecialSenseSlots: senses,
+                },
             };
         },
     }),

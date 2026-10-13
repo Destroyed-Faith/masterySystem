@@ -9,7 +9,8 @@
  */
 import { COMBAT_SENSES, skillCheckTnByMasteryRank } from './combat-senses.js';
 import { getActiveCombatSense, isNonSightCombatSense, listActorCombatSenses, } from './combat-sense-collection.js';
-import { effectiveInvisibilityBonus, getPerceptionCombatState, hasLocatedTarget, isSenseBlockedOnTarget, markLocatedTarget, } from './perception-state.js';
+import { getPerceptionCombatState, hasLocatedTarget, markLocatedTarget, } from './perception-state.js';
+import { effectiveInvisibilityBonusForActor, isSenseBlockedForActor, } from './invisibility-profile.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
 import { tokenIsExcludedAsTarget } from './defeated-token.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -50,7 +51,7 @@ export function computePerceptionTn(target, observer) {
     const tgtMr = targetMasteryRank(target);
     const base = skillCheckTnByMasteryRank(tgtMr);
     const st = getPerceptionCombatState(target);
-    const inv = effectiveInvisibilityBonus(st);
+    const inv = effectiveInvisibilityBonusForActor(target);
     const stealth = Math.max(0, Math.floor(Number(st.stealthRaiseBonus) || 0));
     return base + inv + stealth;
 }
@@ -76,10 +77,10 @@ export function evaluatePerceptionGate(observer, target, opts) {
     }
     const tgtState = getPerceptionCombatState(target);
     const hidden = !!tgtState.hidden;
-    const inv = effectiveInvisibilityBonus(tgtState);
+    const inv = effectiveInvisibilityBonusForActor(target);
     const senses = listActorCombatSenses(observer);
     for (const senseId of senses) {
-        if (isSenseBlockedOnTarget(target, senseId))
+        if (isSenseBlockedForActor(target, senseId))
             continue;
         if (opts?.observerToken && opts?.targetToken && !senseInRange(opts.observerToken, opts.targetToken, senseId)) {
             continue;
@@ -256,7 +257,7 @@ export function targetUnseenByObserver(observer, target) {
 export function shouldUseHalfEvadeVsAttacker(defender, attacker, round) {
     const st = getPerceptionCombatState(defender);
     const atkId = String(attacker?.id ?? '');
-    const inv = effectiveInvisibilityBonus(getPerceptionCombatState(attacker));
+    const inv = effectiveInvisibilityBonusForActor(attacker);
     if (inv <= 0)
         return false;
     const entry = st.perceivedInvisibleAttacker?.[atkId];
@@ -276,7 +277,7 @@ export async function recordInvisibleAttackerPerception(defender, attacker, succ
  * Returns multiplier 1 (full Evade) or 0.5 (half Evade).
  */
 export async function resolveEvadeVsInvisibleAttacker(defender, attacker, opts) {
-    const atkInv = effectiveInvisibilityBonus(getPerceptionCombatState(attacker));
+    const atkInv = effectiveInvisibilityBonusForActor(attacker);
     if (atkInv <= 0)
         return { evadeMultiplier: 1 };
     const gate = evaluatePerceptionGate(defender, attacker, {

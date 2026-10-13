@@ -36,7 +36,12 @@ export interface PerceptionCombatState {
 export declare function emptyPerceptionCombatState(): PerceptionCombatState;
 export declare function getPerceptionCombatState(actor: any): PerceptionCombatState;
 export declare function setPerceptionCombatState(actor: any, patch: Partial<PerceptionCombatState>): Promise<void>;
+/** Effective Invisibility Bonus from combat flags (after Cloak Disruption). */
 export declare function effectiveInvisibilityBonus(state: PerceptionCombatState): number;
+/**
+ * Sense blocked by stored veil list, or by any live Invisibility Bonus
+ * (Normal Combat Awareness + Darkvision). Special senses come from `blockedSenses`.
+ */
 export declare function isSenseBlockedOnTarget(target: any, senseId: CombatSenseId): boolean;
 export declare function computeStealthRaiseBonus(raises: number): number;
 /** Cloak Disruption — reduce current invisibility bonus; clears stealth raise bonus. */

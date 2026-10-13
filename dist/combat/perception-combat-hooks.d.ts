@@ -25,6 +25,8 @@ export declare function applyMovementCloakDisruption(actor: any, totalMovedM: nu
 export declare function clearPerceptionUsageForNewRound(): Promise<void>;
 /** Restore current Invisibility Bonus at the start of the creature's turn. */
 export declare function processPerceptionTurnStart(actor: any): Promise<void>;
+/** Sync every combatant when combat begins so Passive Invisibility is live immediately. */
+export declare function syncAllCombatantInvisibility(combat?: any): Promise<void>;
 /** Register Foundry hooks for perception combat bookkeeping. */
 export declare function registerPerceptionCombatHooks(): void;
 //# sourceMappingURL=perception-combat-hooks.d.ts.map

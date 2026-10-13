@@ -23,12 +23,17 @@ export async function setPerceptionCombatState(actor, patch) {
     const cur = getPerceptionCombatState(actor);
     await actor.setFlag('mastery-system', FLAG_KEY, { ...cur, ...patch });
 }
+/** Effective Invisibility Bonus from combat flags (after Cloak Disruption). */
 export function effectiveInvisibilityBonus(state) {
     if (state.currentInvisibilityBonus !== undefined) {
         return Math.max(0, Math.floor(Number(state.currentInvisibilityBonus) || 0));
     }
     return Math.max(0, Math.floor(Number(state.invisibilityBonus) || 0));
 }
+/**
+ * Sense blocked by stored veil list, or by any live Invisibility Bonus
+ * (Normal Combat Awareness + Darkvision). Special senses come from `blockedSenses`.
+ */
 export function isSenseBlockedOnTarget(target, senseId) {
     const st = getPerceptionCombatState(target);
     const blocked = st.blockedSenses ?? [];
