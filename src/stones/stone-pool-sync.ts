@@ -5,7 +5,13 @@
  */
 
 import { STONE_POOL_ATTRIBUTE_KEYS, getActionEconomyActor } from '../combat/action-economy.js';
-import { resolvedStonePoolMax, usesV099Stones } from '../progression/v099-rules.js';
+import {
+  ATTRIBUTE_KEYS,
+  effectiveStoneAssignments,
+  isLifetimeStoneMode,
+  resolvedStonePoolMax,
+  usesV099Stones,
+} from '../progression/v099-rules.js';
 
 /** Same shape as SafeHavenSealHold — kept local to avoid import cycles. */
 export interface StonePoolSealHold {
@@ -33,10 +39,9 @@ export function stonePoolReadyMax(
   }
   const attrValue = Math.max(0, Number(system?.attributes?.[attr]?.value) || 0);
   const resolved = resolvedStonePoolMax(system, attr, attrValue);
-  const assigned = Math.max(
-    0,
-    Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0),
-  );
+  const assigned = isLifetimeStoneMode(system)
+    ? Math.max(0, Math.floor(Number((effectiveStoneAssignments(system) as any)[attr]) || 0))
+    : Math.max(0, Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0));
   return Math.max(resolved, storedMax, assigned);
 }
 
@@ -151,6 +156,48 @@ export function buildReadyStonePoolUpdates(
     updates[`system.stonePools.${attr}.burned`] = pool.burned;
   }
   return updates;
+}
+
+/**
+ * Align stonePools.max/current and stoneAssignments with the Lifetime track.
+ * Does not clear Sealed/Burned — only repairs caps that still follow ÷8.
+ */
+export async function syncStonePoolCapsFromAssignments(actor: any): Promise<boolean> {
+  if (!actor) return false;
+  const system = actor.system ?? {};
+  if (!isLifetimeStoneMode(system)) return false;
+  const eff = effectiveStoneAssignments(system);
+  const updates: Record<string, unknown> = {};
+  for (const attr of ATTRIBUTE_KEYS) {
+    const want = Math.max(0, Math.floor(Number(eff[attr]) || 0));
+    const pool = system?.stonePools?.[attr] ?? {};
+    const max = Math.max(0, Math.floor(Number(pool.max) || 0));
+    const current = Math.max(0, Math.floor(Number(pool.current) || 0));
+    const sustained = Math.max(0, Math.floor(Number(pool.sustained) || 0));
+    const sealed = Math.max(0, Math.floor(Number(pool.sealed) || 0));
+    const burned = Math.max(0, Math.floor(Number(pool.burned) || 0));
+    const reserved = sustained + sealed + burned;
+    const readyCap = Math.max(0, want - reserved);
+    const storedAssign = Math.max(
+      0,
+      Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0),
+    );
+    if (storedAssign !== want) {
+      updates[`system.progression.stoneAssignments.${attr}`] = want;
+    }
+    if (max !== want) {
+      updates[`system.stonePools.${attr}.max`] = want;
+    }
+    if (current > readyCap) {
+      updates[`system.stonePools.${attr}.current`] = readyCap;
+    } else if (current < readyCap && reserved === 0) {
+      // Expand Ready when assignment grew or ÷8 lag left current too low.
+      updates[`system.stonePools.${attr}.current`] = readyCap;
+    }
+  }
+  if (!Object.keys(updates).length) return false;
+  await actor.update?.(updates);
+  return true;
 }
 
 /**

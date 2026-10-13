@@ -466,9 +466,54 @@ export function usesV099Stones(system: any): boolean {
   return system?.progression?.v099Stones === true;
 }
 
+/** Count Attribute Stones placed on the Lifetime XP track (stoneSlotOrder). */
+export function assignmentsFromStoneSlotOrder(
+  order: unknown,
+): Record<AttributeKeyName, number> {
+  const out = emptyAssignments();
+  if (!Array.isArray(order)) return out;
+  for (const raw of order) {
+    const choice = raw == null ? '' : String(raw);
+    if (!choice || choice === 'colorless' || choice.startsWith('colorless#')) continue;
+    if ((ATTRIBUTE_KEYS as readonly string[]).includes(choice)) {
+      out[choice as AttributeKeyName] += 1;
+    }
+  }
+  return out;
+}
+
+/**
+ * Authoritative assignment counts: max of stored `stoneAssignments` and the
+ * Lifetime track (`stoneSlotOrder`). The track is what players click; the map
+ * can lag after imports / older builds.
+ */
+export function effectiveStoneAssignments(system: any): Record<AttributeKeyName, number> {
+  const fromStore = readAssignments(system);
+  const fromOrder = assignmentsFromStoneSlotOrder(system?.progression?.stoneSlotOrder);
+  const out = emptyAssignments();
+  for (const key of ATTRIBUTE_KEYS) {
+    out[key] = Math.max(fromStore[key], fromOrder[key]);
+  }
+  return out;
+}
+
+/**
+ * Lifetime-assigned Stones (v0.9.9+) — not floor(Attribute/8).
+ * True when the flag is set, or when progression already carries a track /
+ * assignment map (so pools never fall back to the old ÷8 rule mid-migration).
+ */
+export function isLifetimeStoneMode(system: any): boolean {
+  if (usesV099Stones(system)) return true;
+  if (Array.isArray(system?.progression?.stoneSlotOrder) && system.progression.stoneSlotOrder.length > 0) {
+    return true;
+  }
+  return sumAssignments(readAssignments(system)) > 0;
+}
+
 export function resolvedStonePoolMax(system: any, attr: string, attributeValue: number): number {
-  if (usesV099Stones(system)) {
-    return Math.max(0, Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0));
+  if (isLifetimeStoneMode(system)) {
+    const key = String(attr || '') as AttributeKeyName;
+    return Math.max(0, Math.floor(Number(effectiveStoneAssignments(system)[key]) || 0));
   }
   return Math.floor(Math.max(0, Number(attributeValue) || 0) / 8);
 }

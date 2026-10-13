@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.620] - 2026-10-13
+
+### Fixed
+
+- **Stone Powers / Lifetime-Zuweisung:** Pool-Größe kommt aus der XP-Leiste (`stoneSlotOrder` + Assignments), nicht mehr aus Attribute÷8. Anzeige und Caps syncen beim Öffnen. Leere Pools sagen „no Stones assigned…“ statt „Attribute below 8“. Der 140er-Slot nutzt dieselbe Lifetime-XP-Quelle wie die Anzeige (150 EP → zuweisbar).
+
 ## [0.9.619] - 2026-10-13
 
 ### Fixed

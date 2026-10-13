@@ -107,8 +107,11 @@ export function formatPendingStoneActivationWarning(rows) {
 }
 /** Why a visible pool has nothing to drag right now (empty string = usable). */
 export function stonePoolBlockedReason(pool) {
-    if (pool.max <= 0)
-        return 'Attribute below 8 — no stone pool';
+    if (pool.max <= 0) {
+        return pool.lifetimeStoneMode
+            ? 'no Stones assigned to this Attribute'
+            : 'Attribute below 8 — no stone pool';
+    }
     if (pool.available > 0)
         return '';
     const sealedBurned = Math.max(0, Math.floor(Number(pool.sealedBurned) || 0));

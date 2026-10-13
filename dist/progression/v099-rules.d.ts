@@ -144,6 +144,20 @@ export declare function lifetimeLineSlotCount(span?: number): number;
 export declare function chunkLifetimeSlots<T>(slots: T[], lineSize?: number): T[][];
 /** v0.9.9 characters store assignments. Older actors still derive Stones from Attributes until respec. */
 export declare function usesV099Stones(system: any): boolean;
+/** Count Attribute Stones placed on the Lifetime XP track (stoneSlotOrder). */
+export declare function assignmentsFromStoneSlotOrder(order: unknown): Record<AttributeKeyName, number>;
+/**
+ * Authoritative assignment counts: max of stored `stoneAssignments` and the
+ * Lifetime track (`stoneSlotOrder`). The track is what players click; the map
+ * can lag after imports / older builds.
+ */
+export declare function effectiveStoneAssignments(system: any): Record<AttributeKeyName, number>;
+/**
+ * Lifetime-assigned Stones (v0.9.9+) — not floor(Attribute/8).
+ * True when the flag is set, or when progression already carries a track /
+ * assignment map (so pools never fall back to the old ÷8 rule mid-migration).
+ */
+export declare function isLifetimeStoneMode(system: any): boolean;
 export declare function resolvedStonePoolMax(system: any, attr: string, attributeValue: number): number;
 export declare function resolvedPermanentStoneTotal(system: any, attributeDerivedTotal: number): number;
 /** Standard / Spell Base / Attribute Check / Death / Stress / Ritual base TN. */

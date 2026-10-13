@@ -177,6 +177,15 @@ describe('pool blocked reason', () => {
     expect(stonePoolBlockedReason({ max: 0, available: 0, sustained: 0, artifactBound: 0 })).toBe(
       'Attribute below 8 — no stone pool',
     );
+    expect(
+      stonePoolBlockedReason({
+        max: 0,
+        available: 0,
+        sustained: 0,
+        artifactBound: 0,
+        lifetimeStoneMode: true,
+      }),
+    ).toBe('no Stones assigned to this Attribute');
   });
 
   it('stays empty while stones are available', () => {

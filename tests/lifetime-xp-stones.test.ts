@@ -4,6 +4,9 @@ import {
   nextLifetimeXp,
   permanentStonesFromLifetimeXp,
   buildStoneProgressionSlots,
+  effectiveStoneAssignments,
+  isLifetimeStoneMode,
+  resolvedStonePoolMax,
 } from '../src/progression/v099-rules.js';
 
 describe('lifetime XP unlocks stones regardless of spend', () => {
@@ -33,5 +36,42 @@ describe('lifetime XP unlocks stones regardless of spend', () => {
         20,
       ),
     ).toBe(170);
+  });
+
+  it('pool max follows Lifetime track, not Attribute ÷ 8', () => {
+    const system = {
+      progression: {
+        v099Stones: true,
+        stoneAssignments: { might: 1, vitality: 1 },
+        stoneSlotOrder: [
+          'might',
+          'might',
+          'might',
+          'vitality',
+          'vitality',
+          'agility',
+          'agility',
+          'resolve',
+          null,
+        ],
+      },
+      attributes: {
+        might: { value: 24 },
+        vitality: { value: 10 },
+        agility: { value: 10 },
+        resolve: { value: 6 },
+      },
+    };
+    expect(isLifetimeStoneMode(system)).toBe(true);
+    expect(effectiveStoneAssignments(system)).toMatchObject({
+      might: 3,
+      vitality: 2,
+      agility: 2,
+      resolve: 1,
+    });
+    expect(resolvedStonePoolMax(system, 'might', 24)).toBe(3);
+    expect(resolvedStonePoolMax(system, 'vitality', 10)).toBe(2);
+    expect(resolvedStonePoolMax(system, 'resolve', 6)).toBe(1);
+    expect(resolvedStonePoolMax(system, 'influence', 4)).toBe(0);
   });
 });

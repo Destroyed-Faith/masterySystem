@@ -148,8 +148,17 @@ export function stonePoolBlockedReason(pool: {
   sealedBurned?: number;
   /** Ready pool before dialog reservations. */
   current?: number;
+  /**
+   * Lifetime XP stone mode (v0.9.9+): pool size comes from assigned Stones,
+   * not Attribute ÷ 8.
+   */
+  lifetimeStoneMode?: boolean;
 }): string {
-  if (pool.max <= 0) return 'Attribute below 8 — no stone pool';
+  if (pool.max <= 0) {
+    return pool.lifetimeStoneMode
+      ? 'no Stones assigned to this Attribute'
+      : 'Attribute below 8 — no stone pool';
+  }
   if (pool.available > 0) return '';
   const sealedBurned = Math.max(0, Math.floor(Number(pool.sealedBurned) || 0));
   if (sealedBurned > 0) return 'sealed / burned — Safe Haven Rest';

@@ -28,6 +28,11 @@ export declare function buildReadyStonePoolsObject(system: any, sealHold?: Stone
 /** Dotted-path updates for callers that prefer partial writes. */
 export declare function buildReadyStonePoolUpdates(system: any, sealHold?: StonePoolSealHold | null): Record<string, unknown>;
 /**
+ * Align stonePools.max/current and stoneAssignments with the Lifetime track.
+ * Does not clear Sealed/Burned — only repairs caps that still follow ÷8.
+ */
+export declare function syncStonePoolCapsFromAssignments(actor: any): Promise<boolean>;
+/**
  * Force every economy document for this character to Ready stone pools.
  * Uses a whole `system.stonePools` replace so Foundry cannot leave a nested
  * `sealed` field behind on a DataModel fragment.

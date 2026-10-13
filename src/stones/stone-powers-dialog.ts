@@ -152,6 +152,11 @@ import {
 import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import {
+  effectiveStoneAssignments,
+  isLifetimeStoneMode,
+  resolvedStonePoolMax,
+} from '../progression/v099-rules.js';
+import {
   getArtifactStoneFunctionStatus,
   getArtifactStoneSupportPrefill,
 } from '../utils/artifact-stone-functions.js';
@@ -813,6 +818,19 @@ export class StonePowersDialog extends BaseDialog {
     this.#pullSessionPartialsIntoInstance();
 
     const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+    try {
+      const { syncStonePoolCapsFromAssignments, listStonePoolSyncActors } = await import(
+        './stone-pool-sync.js'
+      );
+      for (const target of listStonePoolSyncActors(this.actor)) {
+        await syncStonePoolCapsFromAssignments(target);
+      }
+      if (poolOwner && poolOwner !== this.actor) {
+        await syncStonePoolCapsFromAssignments(poolOwner);
+      }
+    } catch (err) {
+      console.warn('Mastery System | syncStonePoolCapsFromAssignments failed', err);
+    }
     const system = (poolOwner as any).system;
     const stonePools = system.stonePools || {};
 
@@ -841,10 +859,34 @@ export class StonePowersDialog extends BaseDialog {
     
     // Every attribute pool stays visible (empty or blocked ones included) so
     // players can see what they could reach; `blockedReason` says why not.
+    // Prefer the sheet actor's progression track; poolOwner may be a token
+    // delta whose stoneAssignments lag behind stoneSlotOrder.
+    const progressSystem = (this.actor as any)?.system ?? system;
+    const lifetimeStoneMode = isLifetimeStoneMode(progressSystem);
+    const liveAssignments = lifetimeStoneMode ? effectiveStoneAssignments(progressSystem) : null;
+
     const pools: StoneDialogPoolRow[] = POOL_DISPLAY_ATTRS.map((attr) => {
         const pool = stonePools[attr];
-        const current = pool?.current ?? pool?.value ?? 0;
-        const max = pool?.max ?? pool?.maximum ?? 0;
+        // Prefer live assignment caps in Lifetime mode — prepared pool.max can
+        // still lag on floor(Attribute/8) until the next full prepare/sync.
+        let max = pool?.max ?? pool?.maximum ?? 0;
+        let current = pool?.current ?? pool?.value ?? 0;
+        if (lifetimeStoneMode && liveAssignments) {
+          const assigned = Math.max(0, Math.floor(Number((liveAssignments as any)[attr]) || 0));
+          const resolved = resolvedStonePoolMax(
+            progressSystem,
+            attr,
+            Number(progressSystem?.attributes?.[attr]?.value) || 0,
+          );
+          max = Math.max(Number(max) || 0, assigned, resolved);
+          const sealed = Math.max(0, Number(pool?.sealed) || 0);
+          const burned = Math.max(0, Number(pool?.burned) || 0);
+          const sustainedN = Math.max(0, Number(pool?.sustained) || 0);
+          const effectiveReady = Math.max(0, max - sustainedN - sealed - burned);
+          if ((Number(current) || 0) < effectiveReady && sealed + burned + sustainedN === 0) {
+            current = effectiveReady;
+          }
+        }
         const sustained = pool?.sustained ?? 0;
         const sealedBurned =
           Math.max(0, Number(pool?.sealed) || 0) + Math.max(0, Number(pool?.burned) || 0);
@@ -853,7 +895,9 @@ export class StonePowersDialog extends BaseDialog {
         // economy actor (`poolOwner`) can be a different document whose item
         // flags are stale, so always read the binding from `this.actor`.
         const artifactBound = countArtifactActivationStones(this.actor, attr);
-        const spendable = poolSpendableStones(this.actor, attr);
+        const spendable = lifetimeStoneMode
+          ? Math.max(0, Math.min(Number(current) || 0, Number(max) || 0) - (Number(sustained) || 0))
+          : poolSpendableStones(this.actor, attr);
         const reserved = this.#reservedStonesInDialogForAttr(attr);
         const poolDisplay = Math.max(0, spendable - reserved);
         const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
@@ -867,6 +911,7 @@ export class StonePowersDialog extends BaseDialog {
           artifactBound,
           sealedBurned,
           current: Number(current) || 0,
+          lifetimeStoneMode,
         });
 
         return {

@@ -72,6 +72,11 @@ export declare function stonePoolBlockedReason(pool: {
     sealedBurned?: number;
     /** Ready pool before dialog reservations. */
     current?: number;
+    /**
+     * Lifetime XP stone mode (v0.9.9+): pool size comes from assigned Stones,
+     * not Attribute ÷ 8.
+     */
+    lifetimeStoneMode?: boolean;
 }): string;
 /**
  * Green card fill after a Stone Power has been charged. Unused cards stay

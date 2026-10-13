@@ -6254,9 +6254,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             await this.#openV099Migration();
             return;
         }
-        const storedLife = sys?.progression?.lifetimeXp;
+        const lifetime = lifetimeXpForStoneProgress(sys);
         const needsLife = this.actor.getFlag?.('mastery-system', V099_LIFETIME_FLAG) === true
-            || typeof storedLife !== 'number';
+            || lifetime == null;
         if (needsLife) {
             await this.#openV099Lifetime();
             return;
@@ -6265,7 +6265,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn('Only the owner or GM can assign Stones.');
             return;
         }
-        const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
+        // Persist derived lifetime so later grants / slots stay in sync.
+        if (typeof sys?.progression?.lifetimeXp !== 'number' ||
+            Math.floor(Number(sys.progression.lifetimeXp) || 0) < lifetime) {
+            await this.actor.update({ 'system.progression.lifetimeXp': lifetime });
+        }
         const rank = getRulesMasteryRank(this.actor);
         const order = stoneOrderForActor(sys, lifetime);
         const index = Math.floor(Number(ev?.currentTarget?.dataset?.slotIndex));
