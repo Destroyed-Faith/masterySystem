@@ -7000,9 +7000,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       content: '<p>Alle Steine in den Attribut-Pools und die permanenten Colorless-Steine werden wieder <strong>Ready</strong>. Exhausted, Sustained, Sealed und Burned fällt weg. Die Zuweisung bleibt.</p>',
     });
     if (!confirmed) return;
-    const sys: any = (this.actor as any).system ?? {};
-    await this.actor.update(unblockStonePoolsUpdate(sys));
-    ui.notifications?.info('Steine sind wieder Ready.');
+    const actor: any = this.actor;
+    const sys: any = actor.system ?? {};
+    await actor.update(unblockStonePoolsUpdate(sys));
+    try {
+      await actor.unsetFlag?.('mastery-system', 'stoneUsage');
+    } catch {
+      try {
+        await actor.setFlag?.('mastery-system', 'stoneUsage', {});
+      } catch {
+        /* ignore */
+      }
+    }
+    const vit = actor.system?.stonePools?.vitality;
+    ui.notifications?.info(
+      `Steine Ready — Vitality ${Math.max(0, Number(vit?.current) || 0)}/${Math.max(0, Number(vit?.max) || 0)} (sealed ${Math.max(0, Number(vit?.sealed) || 0)}).`,
+    );
     this.render();
   }
 

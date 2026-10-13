@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.618] - 2026-10-13
+
+### Fixed
+
+- **Steine entblocken:** Stellt Ready-Pools über echte Caps wieder her (v0.9.9-Zuweisung), nicht über ein steckengebliebenes `max: 0`. Löscht auch `stoneUsage`. Stone Powers zeigt klarere Gründe statt irreführendem „spent this round“ (sealed / pool empty).
+
 ## [0.9.617] - 2026-10-13
 
 ### Fixed

@@ -65,6 +65,8 @@ export declare function releaseAllStoneSlots(order: readonly (string | null)[]):
 /**
  * GM unblock: Attribute pools and Permanent Colorless return to Ready.
  * Assignment is unchanged. Exhausted, Sustained, Sealed and Burned are cleared.
+ * Caps use the same resolution as Safe Haven (v0.9.9 assignments / stored max),
+ * not a possibly stale `pool.max` of 0.
  */
 export declare function unblockStonePoolsUpdate(system: any): Record<string, unknown>;
 export declare function slotAbbrev(choice: string | null): string;

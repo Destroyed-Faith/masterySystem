@@ -3,6 +3,7 @@
  * starting package gate, Final +/- spending, and per-slot Stone placement.
  */
 import { ATTRIBUTE_ABBREV, ATTRIBUTE_KEYS, buildStoneProgressionSlots, canConvertToPermanentColorless, canPlacePermanentStone, compressedAttributeStepCost, compressedAttributeXpBetween, emptyAssignments, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, } from './v099-rules.js';
+import { safeHavenPoolMax } from '../utils/safe-haven-rest.js';
 /** Live check for the Starting column. Exactly two 4s, two 3s, three 2s. */
 export function describeStartingPackage(values) {
     const counts = { 2: 0, 3: 0, 4: 0, other: 0 };
@@ -228,15 +229,18 @@ export function releaseAllStoneSlots(order) {
 /**
  * GM unblock: Attribute pools and Permanent Colorless return to Ready.
  * Assignment is unchanged. Exhausted, Sustained, Sealed and Burned are cleared.
+ * Caps use the same resolution as Safe Haven (v0.9.9 assignments / stored max),
+ * not a possibly stale `pool.max` of 0.
  */
 export function unblockStonePoolsUpdate(system) {
     const updates = {};
     const keys = [...ATTRIBUTE_KEYS, 'colorless'];
     for (const key of keys) {
-        const pool = system?.stonePools?.[key];
-        if (!pool)
+        const pool = system?.stonePools?.[key] ?? {};
+        const max = safeHavenPoolMax(system, key, pool);
+        if (max <= 0 && key === 'colorless' && system?.stonePools?.colorless == null)
             continue;
-        const max = Math.max(0, Math.floor(Number(pool.max) || 0));
+        updates[`system.stonePools.${key}.max`] = max;
         updates[`system.stonePools.${key}.current`] = max;
         updates[`system.stonePools.${key}.sustained`] = 0;
         updates[`system.stonePools.${key}.sealed`] = 0;

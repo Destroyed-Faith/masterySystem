@@ -111,8 +111,14 @@ export function stonePoolBlockedReason(pool) {
         return 'Attribute below 8 — no stone pool';
     if (pool.available > 0)
         return '';
+    const sealedBurned = Math.max(0, Math.floor(Number(pool.sealedBurned) || 0));
+    if (sealedBurned > 0)
+        return 'sealed / burned — Safe Haven Rest';
     if (pool.sustained > 0)
         return 'bound by Sustain';
+    const current = Math.max(0, Math.floor(Number(pool.current) || 0));
+    if (current <= 0)
+        return 'pool empty — GM: Steine entblocken';
     return 'spent this round';
 }
 /**

@@ -586,6 +586,8 @@ export class StonePowersDialog extends BaseDialog {
                 available: poolDisplay,
                 sustained: Number(sustained) || 0,
                 artifactBound,
+                sealedBurned,
+                current: Number(current) || 0,
             });
             return {
                 key: attr,

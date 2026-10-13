@@ -17,6 +17,7 @@ import {
   readAssignments,
   type AttributeKeyName,
 } from './v099-rules.js';
+import { safeHavenPoolMax } from '../utils/safe-haven-rest.js';
 
 export interface StartingPackageStatus {
   fours: number;
@@ -312,14 +313,17 @@ export function releaseAllStoneSlots(order: readonly (string | null)[]): (string
 /**
  * GM unblock: Attribute pools and Permanent Colorless return to Ready.
  * Assignment is unchanged. Exhausted, Sustained, Sealed and Burned are cleared.
+ * Caps use the same resolution as Safe Haven (v0.9.9 assignments / stored max),
+ * not a possibly stale `pool.max` of 0.
  */
 export function unblockStonePoolsUpdate(system: any): Record<string, unknown> {
   const updates: Record<string, unknown> = {};
-  const keys = [...ATTRIBUTE_KEYS, 'colorless'];
+  const keys = [...ATTRIBUTE_KEYS, 'colorless'] as const;
   for (const key of keys) {
-    const pool = system?.stonePools?.[key];
-    if (!pool) continue;
-    const max = Math.max(0, Math.floor(Number(pool.max) || 0));
+    const pool = system?.stonePools?.[key] ?? {};
+    const max = safeHavenPoolMax(system, key, pool);
+    if (max <= 0 && key === 'colorless' && system?.stonePools?.colorless == null) continue;
+    updates[`system.stonePools.${key}.max`] = max;
     updates[`system.stonePools.${key}.current`] = max;
     updates[`system.stonePools.${key}.sustained`] = 0;
     updates[`system.stonePools.${key}.sealed`] = 0;

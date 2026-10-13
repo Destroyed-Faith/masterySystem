@@ -183,16 +183,26 @@ describe('pool blocked reason', () => {
     expect(stonePoolBlockedReason({ max: 2, available: 1, sustained: 0, artifactBound: 1 })).toBe('');
   });
 
-  it('names sustain before the generic case and never blames artifacts', () => {
-    expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 2 })).toBe(
-      'spent this round',
-    );
+  it('names sealed, sustain, empty pool, then spent — never blames artifacts', () => {
+    expect(
+      stonePoolBlockedReason({
+        max: 2,
+        available: 0,
+        sustained: 0,
+        artifactBound: 0,
+        sealedBurned: 2,
+        current: 0,
+      }),
+    ).toBe('sealed / burned — Safe Haven Rest');
     expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 2, artifactBound: 0 })).toBe(
       'bound by Sustain',
     );
-    expect(stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 0 })).toBe(
-      'spent this round',
-    );
+    expect(
+      stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 2, current: 0 }),
+    ).toBe('pool empty — GM: Steine entblocken');
+    expect(
+      stonePoolBlockedReason({ max: 2, available: 0, sustained: 0, artifactBound: 0, current: 2 }),
+    ).toBe('spent this round');
   });
 });
 

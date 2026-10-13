@@ -169,4 +169,17 @@ describe('Per-slot Stones', () => {
     expect(update['system.stonePools.colorless.sealed']).toBe(0);
     expect(update['system.progression.stoneAssignments.might']).toBeUndefined();
   });
+
+  it('restores Vitality from v0.9.9 assignments when pool.max is stale 0', () => {
+    const update = unblockStonePoolsUpdate({
+      attributes: { vitality: { value: 10 } },
+      progression: { v099Stones: true, stoneAssignments: { vitality: 2 } },
+      stonePools: {
+        vitality: { current: 0, max: 0, sustained: 0, sealed: 2, burned: 0 },
+      },
+    });
+    expect(update['system.stonePools.vitality.max']).toBe(2);
+    expect(update['system.stonePools.vitality.current']).toBe(2);
+    expect(update['system.stonePools.vitality.sealed']).toBe(0);
+  });
 });

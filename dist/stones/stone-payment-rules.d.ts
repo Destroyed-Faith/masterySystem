@@ -68,6 +68,10 @@ export declare function stonePoolBlockedReason(pool: {
     available: number;
     sustained: number;
     artifactBound: number;
+    /** Sealed (Remove Scar / Rituals) + Burned (until Safe Haven Rest). */
+    sealedBurned?: number;
+    /** Ready pool before dialog reservations. */
+    current?: number;
 }): string;
 /**
  * Green card fill after a Stone Power has been charged. Unused cards stay
