@@ -22,4 +22,11 @@ export declare function createAndBeginEncounter(opts: {
     sceneId: string;
     openLocally: boolean;
 }): Promise<Combat | null>;
+/**
+ * Add scene tokens to an existing combat (mid-fight or prepare). Skips tokens
+ * already in the tracker. Does not start or reset the encounter.
+ */
+export declare function addTokensToCombat(combat: Combat, tokenIds: string[]): Promise<number>;
+/** Scene tokens that are not yet in the given combat (PC / NPC / summon). */
+export declare function listTokensNotInCombat(combat: Combat | null | undefined): SceneEncounterToken[];
 //# sourceMappingURL=start-encounter.d.ts.map

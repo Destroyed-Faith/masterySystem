@@ -1,6 +1,7 @@
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseCarousel: typeof ApplicationV2;
 export declare class CombatCarouselApp extends BaseCarousel {
+    #private;
     private static _instance;
     /** Prevents double `nextTurn` / `previousTurn` from rapid clicks on carousel controls. */
     private static _turnNavigationBusy;

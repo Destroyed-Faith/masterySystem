@@ -204,17 +204,18 @@
           <!-- Portrait Controls (shown on hover) -->
           <div class="portrait-controls">
             {{#if ../controlsAllowed}}
-              <button type="button" class="portrait-control-btn js-toggle-defeated" data-tooltip="Toggle Defeated" aria-label="Toggle Defeated">
+              <button type="button" class="portrait-control-btn js-toggle-defeated" title="{{localize 'MASTERY.carousel.toggleDefeated'}}" aria-label="{{localize 'MASTERY.carousel.toggleDefeated'}}">
                 <i class="fas fa-skull"></i>
               </button>
-            {{/if}}
-            {{#if ../controlsAllowed}}
-              <button type="button" class="portrait-control-btn js-toggle-hidden" data-tooltip="Toggle Hidden" aria-label="Toggle Hidden">
+              <button type="button" class="portrait-control-btn js-toggle-hidden" title="{{localize 'MASTERY.carousel.toggleHidden'}}" aria-label="{{localize 'MASTERY.carousel.toggleHidden'}}">
                 <i class="fas fa-eye-slash"></i>
+              </button>
+              <button type="button" class="portrait-control-btn js-remove-combatant" title="{{localize 'MASTERY.carousel.removeCombatant'}}" aria-label="{{localize 'MASTERY.carousel.removeCombatant'}}">
+                <i class="fas fa-user-minus"></i>
               </button>
             {{/if}}
             {{#if combatant.hasToken}}
-              <button type="button" class="portrait-control-btn js-ping" data-tooltip="Ping Token" aria-label="Ping Token">
+              <button type="button" class="portrait-control-btn js-ping" title="Ping Token" aria-label="Ping Token">
                 <i class="fas fa-bullseye"></i>
               </button>
             {{/if}}
@@ -267,13 +268,16 @@
       {{/if}}
       {{/unless}}
       {{#if controlsAllowed}}
-        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="passives" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}">
+        <button type="button" class="carousel-control-btn js-add-combatants" title="{{localize 'MASTERY.carousel.addCombatants'}}" aria-label="{{localize 'MASTERY.carousel.addCombatants'}}">
+          <i class="fas fa-user-plus"></i>
+        </button>
+        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="passives" title="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllPassives'}}">
           <i class="fas fa-shield"></i>
         </button>
-        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="stones" data-tooltip="{{localize 'MASTERY.encounterSetup.forceAllStones'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllStones'}}">
+        <button type="button" class="carousel-control-btn js-force-all-setup" data-kind="stones" title="{{localize 'MASTERY.encounterSetup.forceAllStones'}}" aria-label="{{localize 'MASTERY.encounterSetup.forceAllStones'}}">
           <i class="fas fa-gem"></i>
         </button>
-        <button type="button" class="carousel-control-btn js-end-combat" data-tooltip="End Combat" aria-label="End Combat">
+        <button type="button" class="carousel-control-btn js-end-combat" title="{{localize 'MASTERY.carousel.endCombat'}}" aria-label="{{localize 'MASTERY.carousel.endCombat'}}">
           <i class="fas fa-stop"></i>
         </button>
       {{/if}}

@@ -65,7 +65,21 @@
       "refundMovement": "Refund 1 Movement action",
       "refundReaction": "Refund 1 Reaction",
       "refundNone": "Nothing to refund for that action this round.",
-      "refundDone": "Refunded 1 {kind} to {name}."
+      "refundDone": "Refunded 1 {kind} to {name}.",
+      "toggleDefeated": "Toggle defeated",
+      "toggleHidden": "Toggle hidden",
+      "removeCombatant": "Remove from combat",
+      "removeConfirm": "Remove <strong>{name}</strong> from combat? The token stays on the scene — you can add them back later.",
+      "removeDone": "{name} removed from combat.",
+      "removeFailed": "Could not remove combatant — see the console.",
+      "addCombatants": "Add to combat",
+      "addLead": "Check tokens on this scene that are not yet in combat.",
+      "addAction": "Add",
+      "addEmpty": "Every PC/NPC token on this scene is already in combat.",
+      "addDone": "Added {n} combatant(s).",
+      "addFailed": "Could not add combatants — see the console.",
+      "noCombat": "No active combat.",
+      "endCombat": "End combat"
     },
     "startEncounter": {
       "start": "Prepare Combat",

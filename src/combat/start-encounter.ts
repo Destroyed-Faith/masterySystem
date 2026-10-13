@@ -189,6 +189,49 @@ export async function createAndBeginEncounter(opts: {
   return live;
 }
 
+/**
+ * Add scene tokens to an existing combat (mid-fight or prepare). Skips tokens
+ * already in the tracker. Does not start or reset the encounter.
+ */
+export async function addTokensToCombat(
+  combat: Combat,
+  tokenIds: string[],
+): Promise<number> {
+  const sceneId = String((combat as any).scene?.id ?? (combat as any).sceneId ?? '');
+  const scene =
+    (sceneId && (game as any).scenes?.get?.(sceneId)) ||
+    (typeof canvas !== 'undefined' ? (canvas as any)?.scene : null) ||
+    (game as any).scenes?.active;
+  if (!combat || !scene) return 0;
+  const existing = new Set(
+    Array.from(combat.combatants).map((c: any) => String(c.tokenId ?? '')).filter(Boolean),
+  );
+  const toAdd: Array<Record<string, string>> = [];
+  for (const raw of tokenIds) {
+    const tokenId = String(raw || '');
+    if (!tokenId || existing.has(tokenId)) continue;
+    const token = scene.tokens?.get?.(tokenId);
+    if (!token) continue;
+    toAdd.push({
+      tokenId,
+      actorId: String(token.actorId ?? token.actor?.id ?? ''),
+      sceneId: String(scene.id ?? sceneId),
+    });
+  }
+  if (!toAdd.length) return 0;
+  await combat.createEmbeddedDocuments('Combatant', toAdd);
+  return toAdd.length;
+}
+
+/** Scene tokens that are not yet in the given combat (PC / NPC / summon). */
+export function listTokensNotInCombat(combat: Combat | null | undefined): SceneEncounterToken[] {
+  if (!combat) return listSceneEncounterTokens();
+  const inCombat = new Set(
+    Array.from(combat.combatants).map((c: any) => String(c.tokenId ?? '')).filter(Boolean),
+  );
+  return listSceneEncounterTokens().filter((t) => !inCombat.has(t.tokenId));
+}
+
 function loc(key: string, fallback: string): string {
   const full = `MASTERY.startEncounter.${key}`;
   const t = (game as any)?.i18n?.localize?.(full);

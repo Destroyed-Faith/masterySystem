@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.647] - 2026-10-13
+
+### Added
+
+- **Carousel: Combatants hinzufügen/entfernen (GM):** Pro Portrait ein **User-minus**-Button entfernt den Combatant aus Kampf und Carousel (Token bleibt auf der Szene, Bestätigung vorher). Rechts der **User-plus**-Button öffnet einen Picker für Szene-Token, die noch nicht im Kampf sind — PCs und NPCs, auch mitten im Kampf.
+
 ## [0.9.646] - 2026-10-13
 
 ### Fixed

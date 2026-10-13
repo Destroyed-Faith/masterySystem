@@ -65,7 +65,21 @@
       "refundMovement": "1 Movement-Aktion zurückgeben",
       "refundReaction": "1 Reaction zurückgeben",
       "refundNone": "Für diese Aktion ist diese Runde nichts zu erstatten.",
-      "refundDone": "1 {kind} an {name} zurückgegeben."
+      "refundDone": "1 {kind} an {name} zurückgegeben.",
+      "toggleDefeated": "Besiegt umschalten",
+      "toggleHidden": "Verborgen umschalten",
+      "removeCombatant": "Aus dem Kampf entfernen",
+      "removeConfirm": "<strong>{name}</strong> aus dem Kampf entfernen? Der Token bleibt auf der Szene — du kannst ihn später wieder hinzufügen.",
+      "removeDone": "{name} aus dem Kampf entfernt.",
+      "removeFailed": "Combatant konnte nicht entfernt werden — siehe Konsole.",
+      "addCombatants": "Zum Kampf hinzufügen",
+      "addLead": "Token auf dieser Szene anhaken, die noch nicht im Kampf sind.",
+      "addAction": "Hinzufügen",
+      "addEmpty": "Alle PC-/NPC-Token auf dieser Szene sind schon im Kampf.",
+      "addDone": "{n} Combatant(en) hinzugefügt.",
+      "addFailed": "Combatants konnten nicht hinzugefügt werden — siehe Konsole.",
+      "noCombat": "Kein aktiver Kampf.",
+      "endCombat": "Kampf beenden"
     },
     "startEncounter": {
       "start": "Prepare Combat",

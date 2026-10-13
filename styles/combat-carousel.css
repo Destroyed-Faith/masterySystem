@@ -743,6 +743,16 @@
   border-color: #e94560;
 }
 
+.portrait-control-btn.js-remove-combatant:hover {
+  background: rgba(183, 28, 28, 0.85);
+  border-color: #ef5350;
+}
+
+.carousel-control-btn.js-add-combatants:hover {
+  background: rgba(46, 125, 50, 0.75);
+  border-color: #81c784;
+}
+
 /* Compact combat totals under the portrait name (Armor / Evade / DR / Init) */
 .ms-carousel-combat-strip {
   display: flex;

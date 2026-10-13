@@ -1015,6 +1015,65 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
+    // GM: remove combatant from combat + carousel (token stays on the scene).
+    root.querySelectorAll('.js-remove-combatant').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        const portrait = btn.closest('.carousel-portrait') as HTMLElement | null;
+        const combatantId = portrait?.dataset.combatantId;
+        if (!combatantId) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        if (!combat || !combatant) return;
+        const name = String(combatant.name || combatant.actor?.name || 'combatant');
+        const escName =
+          typeof (foundry as any)?.utils?.escapeHTML === 'function'
+            ? (foundry as any).utils.escapeHTML(name)
+            : name.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+        const ok = await Dialog.confirm({
+          title:
+            game.i18n?.localize('MASTERY.carousel.removeCombatant') || 'Remove from combat',
+          content: `<p>${
+            (
+              game.i18n?.localize('MASTERY.carousel.removeConfirm') ||
+              'Remove <strong>{name}</strong> from combat? The token stays on the scene — you can add them back later.'
+            ).replace('{name}', escName)
+          }</p>`,
+          yes: () => true,
+          no: () => false,
+          defaultYes: false,
+        } as any);
+        if (!ok) return;
+        try {
+          await combat.deleteEmbeddedDocuments('Combatant', [combatantId]);
+          ui.notifications?.info(
+            (
+              game.i18n?.localize('MASTERY.carousel.removeDone') ||
+              '{name} removed from combat.'
+            ).replace('{name}', name),
+          );
+        } catch (err) {
+          console.error('Mastery System | remove combatant failed', err);
+          ui.notifications?.error(
+            game.i18n?.localize('MASTERY.carousel.removeFailed') ||
+              'Could not remove combatant — see the console.',
+          );
+        }
+      };
+    });
+
+    // GM: add scene tokens that are not yet in this combat.
+    root.querySelectorAll('.js-add-combatants').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        await this.#promptAddCombatants();
+      };
+    });
+
     // Portrait controls - Ping
     root.querySelectorAll('.js-ping').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
@@ -1083,6 +1142,90 @@ export class CombatCarouselApp extends BaseCarousel {
         await requestEndTurn();
       };
     });
+  }
+
+  /** GM picker: add scene tokens that are not yet in the active combat. */
+  async #promptAddCombatants(): Promise<void> {
+    if (!game.user?.isGM) return;
+    const combat = game.combats?.active;
+    if (!combat) {
+      ui.notifications?.warn(
+        game.i18n?.localize('MASTERY.carousel.noCombat') || 'No active combat.',
+      );
+      return;
+    }
+    const { listTokensNotInCombat, addTokensToCombat } = await import('../combat/start-encounter.js');
+    const candidates = listTokensNotInCombat(combat);
+    if (!candidates.length) {
+      ui.notifications?.info(
+        game.i18n?.localize('MASTERY.carousel.addEmpty') ||
+          'Every PC/NPC token on this scene is already in combat.',
+      );
+      return;
+    }
+    const esc = (s: string) =>
+      typeof (foundry as any)?.utils?.escapeHTML === 'function'
+        ? (foundry as any).utils.escapeHTML(s)
+        : s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+    const rows = candidates
+      .map(
+        (t) =>
+          `<label class="ms-carousel-add-row" style="display:flex;align-items:center;gap:0.45rem;margin:0.25rem 0;">` +
+          `<input type="checkbox" name="tokenId" value="${esc(t.tokenId)}" />` +
+          `<img src="${esc(t.img)}" alt="" width="28" height="28" style="object-fit:cover;border-radius:50%;" />` +
+          `<span>${esc(t.name)}</span>` +
+          `<span style="opacity:0.65;font-size:0.8em;margin-left:auto;">${
+            t.isCharacter
+              ? esc(game.i18n?.localize('MASTERY.startEncounter.pc') || 'PC')
+              : esc(game.i18n?.localize('MASTERY.startEncounter.npc') || 'NPC')
+          }</span></label>`,
+      )
+      .join('');
+    const selected = await new Promise<string[] | null>((resolve) => {
+      new Dialog({
+        title: game.i18n?.localize('MASTERY.carousel.addCombatants') || 'Add to combat',
+        content:
+          `<p>${game.i18n?.localize('MASTERY.carousel.addLead') || 'Check tokens to add to this combat (and the carousel).'}</p>` +
+          `<form class="ms-carousel-add-form" style="max-height:22rem;overflow:auto;">${rows}</form>`,
+        buttons: {
+          add: {
+            icon: '<i class="fas fa-user-plus"></i>',
+            label: game.i18n?.localize('MASTERY.carousel.addAction') || 'Add',
+            callback: (html: any) => {
+              const root = html instanceof HTMLElement ? html : (html as JQuery)[0];
+              const ids = Array.from(
+                root?.querySelectorAll?.('input[name="tokenId"]:checked') ?? [],
+              ).map((el) => String((el as HTMLInputElement).value || ''));
+              resolve(ids.filter(Boolean));
+            },
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: game.i18n?.localize('MASTERY.startEncounter.cancel') || 'Cancel',
+            callback: () => resolve(null),
+          },
+        },
+        default: 'add',
+        close: () => resolve(null),
+      } as any).render(true);
+    });
+    if (!selected?.length) return;
+    try {
+      const n = await addTokensToCombat(combat, selected);
+      ui.notifications?.info(
+        (
+          game.i18n?.localize('MASTERY.carousel.addDone') ||
+          'Added {n} combatant(s).'
+        ).replace('{n}', String(n)),
+      );
+      await this.render({ force: true });
+    } catch (err) {
+      console.error('Mastery System | add combatants failed', err);
+      ui.notifications?.error(
+        game.i18n?.localize('MASTERY.carousel.addFailed') ||
+          'Could not add combatants — see the console.',
+      );
+    }
   }
 
   async _onClose(_options: any): Promise<void> {
