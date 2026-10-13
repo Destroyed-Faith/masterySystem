@@ -226,110 +226,150 @@ function createTargetSelectionPanel(state) {
       </div>
     </div>
   `;
-    // Create a simple dialog-like panel using Foundry's Dialog
-    const panel = {
-        element: null,
-        render: function () {
-            const html = $(panelContent);
-            // Update selected count
-            const updateCount = () => {
-                const count = state.selectedTargets.size;
-                html.find('#selected-count').text(count);
-            };
-            // Button handlers
-            html.find('[data-action="allies"]').on('click', () => {
-                // Explicitly targeting allies overrides the exclusion filter.
-                if (state.excludeAllies) {
-                    state.excludeAllies = false;
-                    html.find('#exclude-allies').prop('checked', false);
-                }
-                for (const [tokenId, candidate] of state.candidates.entries()) {
-                    candidate.selected = candidate.isAlly;
-                    if (candidate.selected) {
-                        state.selectedTargets.add(tokenId);
-                    }
-                    else {
-                        state.selectedTargets.delete(tokenId);
-                    }
-                }
-                updateCandidateVisuals(state);
-                updateCount();
-            });
-            html.find('[data-action="enemies"]').on('click', () => {
-                for (const [tokenId, candidate] of state.candidates.entries()) {
-                    candidate.selected = candidate.isEnemy;
-                    if (candidate.selected) {
-                        state.selectedTargets.add(tokenId);
-                    }
-                    else {
-                        state.selectedTargets.delete(tokenId);
-                    }
-                }
-                updateCandidateVisuals(state);
-                updateCount();
-            });
-            html.find('[data-action="all"]').on('click', () => {
-                for (const [tokenId, candidate] of state.candidates.entries()) {
-                    if (state.excludeAllies && candidate.isAlly) {
-                        candidate.selected = false;
-                        state.selectedTargets.delete(tokenId);
-                        continue;
-                    }
-                    candidate.selected = true;
-                    state.selectedTargets.add(tokenId);
-                }
-                updateCandidateVisuals(state);
-                updateCount();
-            });
-            html.find('[data-action="none"]').on('click', () => {
-                for (const [tokenId, candidate] of state.candidates.entries()) {
-                    candidate.selected = false;
-                    state.selectedTargets.delete(tokenId);
-                }
-                updateCandidateVisuals(state);
-                updateCount();
-            });
-            html.find('#exclude-allies').on('change', (ev) => {
-                state.excludeAllies = ev.target.checked;
-                if (state.excludeAllies) {
-                    // Drop any allies that are currently selected.
-                    for (const [tokenId, candidate] of state.candidates.entries()) {
-                        if (candidate.isAlly && candidate.selected) {
-                            candidate.selected = false;
-                            state.selectedTargets.delete(tokenId);
-                        }
-                    }
-                    updateCandidateVisuals(state);
-                    updateCount();
-                }
-            });
-            html.find('#manual-mode').on('change', (ev) => {
-                state.manualMode = ev.target.checked;
-            });
-            html.find('[data-action="confirm"]').on('click', () => {
-                if (state.selectedTargets.size === 0) {
-                    ui.notifications?.warn('No targets selected.');
-                    return;
-                }
-                confirmUtilityTargets(state);
-            });
-            html.find('[data-action="cancel"]').on('click', () => {
+    // Real Foundry window (framed, draggable, centred) instead of a bare fixed
+    // DOM box in the top-left corner — the acting player sees it like any dialog.
+    const { ApplicationV2 } = foundry.applications.api;
+    const isZone = state.option.aoePlacementProfile === 'hostile-zone';
+    const windowTitle = isZone ? `${state.option.name} — Ziele bestätigen` : `${state.option.name} — Select Targets`;
+    let bindPanel = null;
+    class UtilityTargetPanelApp extends ApplicationV2 {
+        static DEFAULT_OPTIONS = {
+            id: 'mastery-utility-target-panel',
+            classes: ['mastery-system', 'mastery-utility-panel-window'],
+            position: { width: 320, height: 'auto' },
+            window: { title: windowTitle, frame: true, positioned: true, resizable: false, minimizable: false },
+        };
+        /** Closed via the window ✕ → cancel the whole targeting. */
+        _closedByTargeting = false;
+        async _renderHTML() {
+            return panelContent;
+        }
+        _replaceHTML(result, content) {
+            content.innerHTML = result;
+        }
+        async _onRender(context, options) {
+            await super._onRender?.(context, options);
+            const root = this.element;
+            if (root)
+                bindPanel?.(root);
+        }
+        async _onClose(options) {
+            await super._onClose?.(options);
+            if (!this._closedByTargeting && activeUtilityTargeting === state) {
                 endUtilityTargeting(false);
-            });
-            updateCount();
-            // Create a container div and append to body
-            const container = $('<div class="mastery-utility-panel-container"></div>');
-            container.append(html);
-            $('body').append(container);
-            panel.element = container[0];
-            return html;
-        },
-        close: function () {
-            if (this.element) {
-                $(this.element).remove();
-                this.element = null;
             }
         }
+    }
+    const panel = {
+        app: null,
+        element: null,
+        render: function () {
+            const app = new UtilityTargetPanelApp();
+            panel.app = app;
+            void app.render({ force: true }).then(() => {
+                panel.element = app.element ?? null;
+            });
+            return app;
+        },
+        close: function () {
+            const app = panel.app;
+            panel.app = null;
+            panel.element = null;
+            if (app) {
+                app._closedByTargeting = true;
+                void app.close();
+            }
+        },
+    };
+    bindPanel = (root) => {
+        const html = $(root);
+        panel.element = root;
+        // Update selected count
+        const updateCount = () => {
+            const count = state.selectedTargets.size;
+            html.find('#selected-count').text(count);
+        };
+        // Button handlers
+        html.find('[data-action="allies"]').on('click', () => {
+            // Explicitly targeting allies overrides the exclusion filter.
+            if (state.excludeAllies) {
+                state.excludeAllies = false;
+                html.find('#exclude-allies').prop('checked', false);
+            }
+            for (const [tokenId, candidate] of state.candidates.entries()) {
+                candidate.selected = candidate.isAlly;
+                if (candidate.selected) {
+                    state.selectedTargets.add(tokenId);
+                }
+                else {
+                    state.selectedTargets.delete(tokenId);
+                }
+            }
+            updateCandidateVisuals(state);
+            updateCount();
+        });
+        html.find('[data-action="enemies"]').on('click', () => {
+            for (const [tokenId, candidate] of state.candidates.entries()) {
+                candidate.selected = candidate.isEnemy;
+                if (candidate.selected) {
+                    state.selectedTargets.add(tokenId);
+                }
+                else {
+                    state.selectedTargets.delete(tokenId);
+                }
+            }
+            updateCandidateVisuals(state);
+            updateCount();
+        });
+        html.find('[data-action="all"]').on('click', () => {
+            for (const [tokenId, candidate] of state.candidates.entries()) {
+                if (state.excludeAllies && candidate.isAlly) {
+                    candidate.selected = false;
+                    state.selectedTargets.delete(tokenId);
+                    continue;
+                }
+                candidate.selected = true;
+                state.selectedTargets.add(tokenId);
+            }
+            updateCandidateVisuals(state);
+            updateCount();
+        });
+        html.find('[data-action="none"]').on('click', () => {
+            for (const [tokenId, candidate] of state.candidates.entries()) {
+                candidate.selected = false;
+                state.selectedTargets.delete(tokenId);
+            }
+            updateCandidateVisuals(state);
+            updateCount();
+        });
+        html.find('#exclude-allies').on('change', (ev) => {
+            state.excludeAllies = ev.target.checked;
+            if (state.excludeAllies) {
+                // Drop any allies that are currently selected.
+                for (const [tokenId, candidate] of state.candidates.entries()) {
+                    if (candidate.isAlly && candidate.selected) {
+                        candidate.selected = false;
+                        state.selectedTargets.delete(tokenId);
+                    }
+                }
+                updateCandidateVisuals(state);
+                updateCount();
+            }
+        });
+        html.find('#manual-mode').on('change', (ev) => {
+            state.manualMode = ev.target.checked;
+        });
+        html.find('[data-action="confirm"]').on('click', () => {
+            if (state.selectedTargets.size === 0) {
+                ui.notifications?.warn('No targets selected.');
+                return;
+            }
+            confirmUtilityTargets(state);
+        });
+        html.find('[data-action="cancel"]').on('click', () => {
+            endUtilityTargeting(false);
+        });
+        updateCount();
     };
     return panel;
 }
@@ -651,19 +691,10 @@ export function startUtilityRadiusMode(token, option) {
                         // Draw radius and update visuals
                         highlightRadiusArea(state);
                         updateCandidateVisuals(state);
-                        // Create UI panel
+                        // Create UI panel (framed window, centred by Foundry)
                         const panel = createTargetSelectionPanel(state);
                         state.panelApp = panel;
                         panel.render(true);
-                        // Position panel near caster
-                        const tokenScreen = canvas.stage.toGlobal(new PIXI.Point(token.center.x, token.center.y));
-                        if (panel.element) {
-                            $(panel.element).css({
-                                position: 'absolute',
-                                left: `${tokenScreen.x + 100}px`,
-                                top: `${tokenScreen.y - 100}px`
-                            });
-                        }
                     }
                 }
                 else {
@@ -723,19 +754,10 @@ export function startUtilityRadiusMode(token, option) {
         // Draw radius and update visuals
         highlightRadiusArea(state);
         updateCandidateVisuals(state);
-        // Create panel immediately
+        // Create panel immediately (framed window, centred by Foundry)
         const panel = createTargetSelectionPanel(state);
         state.panelApp = panel;
         panel.render(true);
-        // Position panel near caster
-        const tokenScreen = canvas.stage.toGlobal(new PIXI.Point(token.center.x, token.center.y));
-        if (panel.element) {
-            $(panel.element).css({
-                position: 'absolute',
-                left: `${tokenScreen.x + 100}px`,
-                top: `${tokenScreen.y - 100}px`
-            });
-        }
     }
     // Store original alphas
     const allTokens = canvas.tokens?.placeables || [];

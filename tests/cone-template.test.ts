@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { breathConeMeters, isBreathWeaponName } from '../src/utils/breath-weapon.js';
+import {
+  breathConeMeters,
+  breathWeaponRowDisplay,
+  isBreathWeaponName,
+  progressionRowRangeAoe,
+} from '../src/utils/breath-weapon.js';
 import {
   absoluteNeighbor,
   bestConeEdgePair,
@@ -92,6 +97,15 @@ describe('breath cone length', () => {
     expect(breathConeMeters(6)).toBe(10);
     expect(breathConeMeters(7)).toBe(14);
     expect(isBreathWeaponName('Breath Weapon II')).toBe(true);
+    // Sheet text: Breath is a cone from the figure, not the catalog "20m + Radius 3m".
+    expect(breathWeaponRowDisplay(1)).toEqual({ range: 'Self', aoe: 'Cone 6m' });
+    expect(
+      progressionRowRangeAoe({ level: 4, name: 'Breath Weapon II', range: '20m', aoe: 'Radius 5m' }),
+    ).toEqual({ range: 'Self', aoe: 'Cone 10m' });
+    expect(progressionRowRangeAoe({ level: 2, name: 'Draconic Roar I', range: 'Self', aoe: 'Aura 8m' })).toEqual({
+      range: 'Self',
+      aoe: 'Aura 8m',
+    });
     expect(isBreathWeaponName('Bite')).toBe(false);
   });
 });

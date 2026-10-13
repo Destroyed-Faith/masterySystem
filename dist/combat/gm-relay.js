@@ -37,6 +37,30 @@ async function askGm(payload) {
     }
     return ok;
 }
+/**
+ * Ask a specific connected user (owner or GM) for a yes/no decision — e.g. the
+ * defender's Dive for Cover when the attack resolves on another client.
+ * Resolves false on timeout. The receiving client must reply with
+ * `gmRelayResult` carrying the same `requestId`.
+ */
+export async function askRemoteUserDecision(targetUserId, payload, timeoutMs = 90_000) {
+    const g = globalThis;
+    if (!g.game?.socket || !targetUserId)
+        return false;
+    const requestId = newRequestId();
+    const replyTo = String(g.game.user?.id || '');
+    return new Promise((resolve) => {
+        const timer = setTimeout(() => {
+            pending.delete(requestId);
+            resolve(false);
+        }, timeoutMs);
+        pending.set(requestId, (answered) => {
+            clearTimeout(timer);
+            resolve(answered);
+        });
+        g.game.socket.emit(ENCOUNTER_SOCKET, { ...payload, requestId, replyTo, targetUserId });
+    });
+}
 /** Keys a player may ask the GM to write onto a target actor. */
 export function isRelayableActorUpdate(update) {
     if (!update || typeof update !== 'object' || Array.isArray(update))

@@ -3,6 +3,7 @@
  */
 
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
+import { progressionRowRangeAoe } from './breath-weapon.js';
 import {
   getChildWorldItemsForNode,
   getWorldArtifactItemsInFolder,
@@ -19,6 +20,8 @@ export interface ArtifactSheetAbility {
   type: string;
   effect: string;
   special: string;
+  /** "Range Self · Cone 6m · MR Rounds" — empty when nothing to show. */
+  reach: string;
 }
 
 export interface ArtifactSheetDisplay {
@@ -55,12 +58,23 @@ export function displayFromArtifactSystem(system: any, opts?: { level?: number }
   const abilities = visibleAbilityRows(
     Array.isArray(sys.levelProgression) ? sys.levelProgression : [],
     level,
-  ).map((row: any) => ({
-    name: String(row?.name || ''),
-    type: String(row?.type || ''),
-    effect: String(row?.effect || ''),
-    special: String(row?.special || ''),
-  }));
+  ).map((row: any) => {
+    const rangeAoe = progressionRowRangeAoe(row, level);
+    const reach = [
+      rangeAoe.range ? `Range ${rangeAoe.range}` : '',
+      rangeAoe.aoe && rangeAoe.aoe !== '—' ? rangeAoe.aoe : '',
+      row?.duration && row.duration !== 'Instant' ? String(row.duration) : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    return {
+      name: String(row?.name || ''),
+      type: String(row?.type || ''),
+      effect: String(row?.effect || ''),
+      special: String(row?.special || ''),
+      reach,
+    };
+  });
   return {
     level,
     baseValues,

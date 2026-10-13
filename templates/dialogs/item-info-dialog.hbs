@@ -118,6 +118,7 @@
       {{#each artifactProfile.abilities}}
       <li class="{{#unless unlocked}}item-info-muted{{/unless}}">
         <span class="item-info-ability-name">L{{level}} · {{name}}{{#if type}} <span class="item-info-muted">({{type}})</span>{{/if}}</span>
+        {{#if reach}}<span class="item-info-ability-desc item-info-muted">{{reach}}</span>{{/if}}
         {{#if effect}}<span class="item-info-ability-desc">{{effect}}</span>{{/if}}
         {{#if special}}<span class="item-info-ability-desc">Special Effect: {{special}}</span>{{/if}}
       </li>

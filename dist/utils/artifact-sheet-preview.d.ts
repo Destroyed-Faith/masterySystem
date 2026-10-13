@@ -11,6 +11,8 @@ export interface ArtifactSheetAbility {
     type: string;
     effect: string;
     special: string;
+    /** "Range Self · Cone 6m · MR Rounds" — empty when nothing to show. */
+    reach: string;
 }
 export interface ArtifactSheetDisplay {
     level: number;

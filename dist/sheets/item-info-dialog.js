@@ -8,6 +8,7 @@ import { formatEffectReference } from '../utils/special-effects.js';
 import { ARTIFACT_GEAR_SLOT_OPTIONS } from '../utils/artifact-node-options.js';
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
+import { progressionRowRangeAoe } from '../utils/breath-weapon.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 function typeLabel(t) {
@@ -398,14 +399,23 @@ export class ItemInfoDialog extends BaseDialog {
             const abilityRows = (Array.isArray(sys.levelProgression) ? sys.levelProgression : [])
                 .slice()
                 .sort((a, b) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
-                .map((row) => ({
-                level: Number(row.level) || 1,
-                name: row.name || '',
-                type: row.type || '',
-                effect: row.effect || '',
-                special: row.special || '',
-                unlocked: (Number(row.level) || 1) <= currentLevel,
-            }));
+                .map((row) => {
+                const rangeAoe = progressionRowRangeAoe(row, currentLevel);
+                const reachParts = [
+                    rangeAoe.range ? `Range ${rangeAoe.range}` : '',
+                    rangeAoe.aoe && rangeAoe.aoe !== '—' ? rangeAoe.aoe : '',
+                    row.duration && row.duration !== 'Instant' ? String(row.duration) : '',
+                ].filter(Boolean);
+                return {
+                    level: Number(row.level) || 1,
+                    name: row.name || '',
+                    type: row.type || '',
+                    effect: row.effect || '',
+                    special: row.special || '',
+                    reach: reachParts.join(' · '),
+                    unlocked: (Number(row.level) || 1) <= currentLevel,
+                };
+            });
             const req = sys.requirements && typeof sys.requirements === 'object' ? sys.requirements : null;
             const reqStones = req && req.stones != null ? req.stones : null;
             const reqMr = req && req.masteryRank != null ? req.masteryRank : null;

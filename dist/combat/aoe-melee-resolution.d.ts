@@ -25,7 +25,19 @@ export declare function diveForCoverDistanceM(actor: any): number;
  *
  * @returns true when the creature escaped (→ not affected by the AoE).
  */
+/**
+ * Who decides Dive for Cover for `defender` on this client?
+ * - GM, or a player who owns the defender → decide here.
+ * - Otherwise (a player resolving an AoE against an NPC or someone else's PC)
+ *   → route to a connected owner, else to the GM. Never ask the attacker.
+ */
+export declare function diveForCoverDeciderUserId(defender: any): {
+    local: boolean;
+    userId: string;
+};
 export declare function promptDiveForCoverEscape(defender: any, tok: any | null): Promise<boolean>;
+/** Dive for Cover prompt on THIS client (caller already checked who may decide). */
+export declare function promptDiveForCoverEscapeLocal(defender: any, tok: any | null): Promise<boolean>;
 /** Per-creature AoE defense TN (Evade or Final Spell TN) before Raise increments. */
 export declare function aoeCreatureNormalTn(params: {
     defender: any;

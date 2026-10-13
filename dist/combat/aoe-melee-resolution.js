@@ -65,7 +65,65 @@ export function diveForCoverDistanceM(actor) {
  *
  * @returns true when the creature escaped (→ not affected by the AoE).
  */
+/**
+ * Who decides Dive for Cover for `defender` on this client?
+ * - GM, or a player who owns the defender → decide here.
+ * - Otherwise (a player resolving an AoE against an NPC or someone else's PC)
+ *   → route to a connected owner, else to the GM. Never ask the attacker.
+ */
+export function diveForCoverDeciderUserId(defender) {
+    const g = globalThis;
+    const user = g.game?.user;
+    if (!user)
+        return { local: true, userId: '' };
+    const owns = !!defender &&
+        (defender.isOwner === true ||
+            (typeof defender.testUserPermission === 'function' && defender.testUserPermission(user, 'OWNER')));
+    const isNpc = String(defender?.type || '') !== 'character';
+    // GM decides for NPCs even when a player technically owns the NPC doc.
+    if (user.isGM)
+        return { local: true, userId: String(user.id) };
+    if (owns && !isNpc)
+        return { local: true, userId: String(user.id) };
+    const users = Array.from(g.game?.users ?? []);
+    if (!isNpc) {
+        const owner = users.find((u) => u?.active &&
+            !u.isGM &&
+            String(u.id) !== String(user.id) &&
+            typeof defender?.testUserPermission === 'function' &&
+            defender.testUserPermission(u, 'OWNER'));
+        if (owner)
+            return { local: false, userId: String(owner.id) };
+    }
+    const gm = g.game?.users?.activeGM ?? users.find((u) => u?.active && u.isGM);
+    return { local: false, userId: gm ? String(gm.id) : '' };
+}
 export async function promptDiveForCoverEscape(defender, tok) {
+    if (!actorParticipatesInReactions(defender))
+        return false;
+    const decider = diveForCoverDeciderUserId(defender);
+    if (!decider.local) {
+        if (!decider.userId)
+            return false; // nobody online who may decide — no dive
+        try {
+            const { askRemoteUserDecision } = await import('./gm-relay.js');
+            globalThis.ui?.notifications?.info?.(`${defender.name}: Dive for Cover wird vom Besitzer/GM entschieden …`);
+            return await askRemoteUserDecision(decider.userId, {
+                type: 'remoteDiveForCover',
+                actorUuid: String(defender.uuid || ''),
+                actorId: String(defender.id || ''),
+                tokenId: String(tok?.id || tok?.document?.id || ''),
+            });
+        }
+        catch (err) {
+            console.warn('Mastery System | remote Dive for Cover failed', err);
+            return false;
+        }
+    }
+    return promptDiveForCoverEscapeLocal(defender, tok);
+}
+/** Dive for Cover prompt on THIS client (caller already checked who may decide). */
+export async function promptDiveForCoverEscapeLocal(defender, tok) {
     if (!actorParticipatesInReactions(defender))
         return false;
     const combat = game.combat;

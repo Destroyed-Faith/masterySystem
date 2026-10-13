@@ -16,6 +16,7 @@ import {
   artifactSystemHasSpellFocus,
 } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
+import { progressionRowRangeAoe } from '../utils/breath-weapon.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -455,14 +456,23 @@ export class ItemInfoDialog extends BaseDialog {
       const abilityRows = (Array.isArray(sys.levelProgression) ? sys.levelProgression : [])
         .slice()
         .sort((a: any, b: any) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
-        .map((row: any) => ({
-          level: Number(row.level) || 1,
-          name: row.name || '',
-          type: row.type || '',
-          effect: row.effect || '',
-          special: row.special || '',
-          unlocked: (Number(row.level) || 1) <= currentLevel,
-        }));
+        .map((row: any) => {
+          const rangeAoe = progressionRowRangeAoe(row, currentLevel);
+          const reachParts = [
+            rangeAoe.range ? `Range ${rangeAoe.range}` : '',
+            rangeAoe.aoe && rangeAoe.aoe !== '—' ? rangeAoe.aoe : '',
+            row.duration && row.duration !== 'Instant' ? String(row.duration) : '',
+          ].filter(Boolean);
+          return {
+            level: Number(row.level) || 1,
+            name: row.name || '',
+            type: row.type || '',
+            effect: row.effect || '',
+            special: row.special || '',
+            reach: reachParts.join(' · '),
+            unlocked: (Number(row.level) || 1) <= currentLevel,
+          };
+        });
 
       const req = sys.requirements && typeof sys.requirements === 'object' ? sys.requirements : null;
       const reqStones = req && (req as { stones?: number }).stones != null ? (req as { stones: number }).stones : null;

@@ -864,15 +864,27 @@
   pointer-events: auto;
 }
 
+/* Framed Foundry window hosting the panel (replaces the bare top-left box). */
+.mastery-utility-panel-window .window-content {
+  padding: 0;
+  background: rgba(20, 20, 30, 0.97);
+}
+
 .mastery-utility-panel {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 12px;
+  min-width: 220px;
+  font-family: 'Signika', sans-serif;
+  color: #fff;
+}
+
+.mastery-utility-panel-container .mastery-utility-panel {
   background: rgba(20, 20, 30, 0.95);
   border: 2px solid #66aaff;
   border-radius: 8px;
-  padding: 12px;
-  min-width: 220px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  font-family: 'Signika', sans-serif;
-  color: #fff;
 }
 
 .mastery-utility-panel .panel-header {

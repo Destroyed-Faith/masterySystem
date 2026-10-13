@@ -15,4 +15,22 @@ export function breathConeMeters(artifactLevel) {
         return 10;
     return 14;
 }
+/**
+ * Sheet / dialog text for a Breath Weapon row: the Breath is a cone from the
+ * figure (range Self), not the catalog's "20m + Radius 3m". `artifactLevel`
+ * is the level the row belongs to (row.level) or the artifact's current level.
+ */
+export function breathWeaponRowDisplay(artifactLevel) {
+    const m = breathConeMeters(artifactLevel);
+    return { range: 'Self', aoe: `Cone ${m}m` };
+}
+/** Range / AoE text for any progression row, with the Breath Weapon cone applied. */
+export function progressionRowRangeAoe(row, fallbackLevel) {
+    if (!row)
+        return { range: '', aoe: '' };
+    if (isBreathWeaponName(row.name)) {
+        return breathWeaponRowDisplay(Number(row.level) || Number(fallbackLevel) || 1);
+    }
+    return { range: String(row.range || ''), aoe: String(row.aoe || '') };
+}
 //# sourceMappingURL=breath-weapon.js.map

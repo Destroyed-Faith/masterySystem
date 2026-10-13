@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.646] - 2026-10-13
+
+### Fixed
+
+- **Breath Weapon Reichweite im Charakterbogen:** Breath-Zeilen zeigen jetzt überall (Artefakt-Bogen, Item-Info, kompilierte Progression) **Range Self · Cone 6/10/14 m** statt der Katalog-Rohwerte bzw. leerer/„undefined“-Reichweite. Artefakt-Fähigkeiten im Bogen und im Info-Dialog bekommen generell eine Reichweite/AoE/Dauer-Zeile.
+- **Breath-/AoE-Zielbestätigung als echtes Fenster:** Das blau-rote Konstrukt oben links ist durch ein normales, zentriertes, verschiebbares Foundry-Fenster („… — Ziele bestätigen“) ersetzt. Es erscheint beim ausführenden Spieler, nicht nur beim DM.
+- **Dive for Cover gehört dem Besitzer/DM:** Bei AoE wird die Frage „zur Seite springen?“ nicht mehr dem angreifenden Spieler für fremde NSCs gestellt. Entscheider ist der DM für NSCs, der jeweilige (verbundene) Spieler für seinen eigenen Charakter; die Anfrage läuft per Socket an den richtigen Client (90 s Timeout, Standard: kein Dive). Der angreifende Spieler sieht nur einen Hinweis, dass gewartet wird.
+
 ## [0.9.645] - 2026-10-13
 
 ### Added

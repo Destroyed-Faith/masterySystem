@@ -3,6 +3,13 @@
  * (combat turns, NPC/unlinked-target actor updates).
  */
 export declare function settleGmRelay(requestId: string, ok: boolean): void;
+/**
+ * Ask a specific connected user (owner or GM) for a yes/no decision — e.g. the
+ * defender's Dive for Cover when the attack resolves on another client.
+ * Resolves false on timeout. The receiving client must reply with
+ * `gmRelayResult` carrying the same `requestId`.
+ */
+export declare function askRemoteUserDecision(targetUserId: string, payload: Record<string, unknown>, timeoutMs?: number): Promise<boolean>;
 /** Keys a player may ask the GM to write onto a target actor. */
 export declare function isRelayableActorUpdate(update: unknown): boolean;
 export declare function updateActorViaGm(actor: any, update: Record<string, unknown>, options?: Record<string, unknown>): Promise<void>;

@@ -108,6 +108,42 @@ async function handleEncounterSocket(payload: any): Promise<void> {
     return;
   }
 
+  // Defender decision routed to the owner / GM client (attack resolves elsewhere).
+  if (type === 'remoteDiveForCover') {
+    if (!payload.targetUserId || String(payload.targetUserId) !== String(game.user?.id)) return;
+    let ok = false;
+    try {
+      let actor: any = null;
+      const uuid = String(payload.actorUuid || '');
+      if (uuid && typeof (globalThis as any).fromUuid === 'function') {
+        try {
+          actor = await (globalThis as any).fromUuid(uuid);
+        } catch {
+          actor = null;
+        }
+      }
+      if (actor?.documentName === 'Token' && actor.actor) actor = actor.actor;
+      if (!actor && payload.actorId) actor = game.actors?.get?.(String(payload.actorId)) ?? null;
+      const tokenId = String(payload.tokenId || '');
+      const tok = tokenId ? ((canvas as any)?.tokens?.get?.(tokenId) ?? null) : null;
+      if (actor) {
+        const { promptDiveForCoverEscapeLocal } = await import('./aoe-melee-resolution.js');
+        ok = await promptDiveForCoverEscapeLocal(actor, tok);
+      }
+    } catch (err) {
+      console.error('Mastery System | remote Dive for Cover failed', err);
+      ok = false;
+    }
+    game.socket?.emit(ENCOUNTER_SOCKET, {
+      type: 'gmRelayResult',
+      requestId: payload.requestId,
+      ok,
+      userId: payload.replyTo,
+      replyTo: payload.replyTo,
+    });
+    return;
+  }
+
   if (type === 'gmActorUpdate' || type === 'gmMessageUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative' || type === 'gmDefeatedPresentation') {
     if (!game.user?.isGM) return;
     let ok = false;

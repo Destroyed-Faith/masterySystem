@@ -24,6 +24,7 @@ import type {
 } from '../types/item.js';
 import { getTemplate } from '../utils/powers/index.js';
 import { renderRange, renderAoe, renderDuration, renderSpecials } from '../utils/power-rendering.js';
+import { breathWeaponRowDisplay, isBreathWeaponName } from '../utils/breath-weapon.js';
 import {
   STONE_POWERS,
   STONE_POWER_SUPPORT_TIER_SHIFT,
@@ -306,12 +307,18 @@ export function deriveLevelProgressionFromPicks(
           : chosenKey && isWeaponAoe && !catalogTemplateRequiresSpecial(templateId)
             ? optionalWeaponAoeSpecialText(chosenKey, s)
             : specialTextForRow(lrRaw, chosenKey, templateId, Number(pl) || 1);
+        const rowName = perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`;
+        // Dragon Head Breath Weapon: cone from the figure, not the catalog's
+        // ranged radius (the table / radial aim use the cone as well).
+        const rangeAoe = isBreathWeaponName(rowName)
+          ? breathWeaponRowDisplay(level)
+          : { range: clean(renderRange(lr.range ?? null)), aoe: clean(renderAoe(lr.aoe ?? null)) };
         rows.push({
           level,
-          name: perStageNames?.[s]?.trim() || `${displayBase} ${numerals[s]}`,
+          name: rowName,
           type: lr.type || tpl.category || 'Active',
-          range: clean(renderRange(lr.range ?? null)),
-          aoe: clean(renderAoe(lr.aoe ?? null)),
+          range: rangeAoe.range,
+          aoe: rangeAoe.aoe,
           duration: clean(renderDuration(lr.duration)),
           effect: effectText,
           special: specialCol,

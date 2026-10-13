@@ -2,6 +2,7 @@
  * Read-only artifact sheet: current card plus a grayed next-level preview.
  */
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
+import { progressionRowRangeAoe } from './breath-weapon.js';
 import { getChildWorldItemsForNode, getWorldArtifactItemsInFolder, } from './artifact-actor-tree.js';
 function clampLevel(raw) {
     return Math.max(1, Math.min(10, Math.floor(Number(raw) || 1)));
@@ -19,12 +20,23 @@ export function displayFromArtifactSystem(system, opts) {
         label: String(bv?.label || ''),
         value: bv?.value != null && bv.value !== '' ? String(bv.value) : String(bv?.note || ''),
     }));
-    const abilities = visibleAbilityRows(Array.isArray(sys.levelProgression) ? sys.levelProgression : [], level).map((row) => ({
-        name: String(row?.name || ''),
-        type: String(row?.type || ''),
-        effect: String(row?.effect || ''),
-        special: String(row?.special || ''),
-    }));
+    const abilities = visibleAbilityRows(Array.isArray(sys.levelProgression) ? sys.levelProgression : [], level).map((row) => {
+        const rangeAoe = progressionRowRangeAoe(row, level);
+        const reach = [
+            rangeAoe.range ? `Range ${rangeAoe.range}` : '',
+            rangeAoe.aoe && rangeAoe.aoe !== '—' ? rangeAoe.aoe : '',
+            row?.duration && row.duration !== 'Instant' ? String(row.duration) : '',
+        ]
+            .filter(Boolean)
+            .join(' · ');
+        return {
+            name: String(row?.name || ''),
+            type: String(row?.type || ''),
+            effect: String(row?.effect || ''),
+            special: String(row?.special || ''),
+            reach,
+        };
+    });
     return {
         level,
         baseValues,

@@ -321,12 +321,71 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
     </div>
   `;
   
-  // Create a simple dialog-like panel using Foundry's Dialog
+  // Real Foundry window (framed, draggable, centred) instead of a bare fixed
+  // DOM box in the top-left corner — the acting player sees it like any dialog.
+  const { ApplicationV2 } = (foundry as any).applications.api;
+  const isZone = state.option.aoePlacementProfile === 'hostile-zone';
+  const windowTitle = isZone ? `${state.option.name} — Ziele bestätigen` : `${state.option.name} — Select Targets`;
+  let bindPanel: ((root: HTMLElement) => void) | null = null;
+
+  class UtilityTargetPanelApp extends ApplicationV2 {
+    static DEFAULT_OPTIONS = {
+      id: 'mastery-utility-target-panel',
+      classes: ['mastery-system', 'mastery-utility-panel-window'],
+      position: { width: 320, height: 'auto' },
+      window: { title: windowTitle, frame: true, positioned: true, resizable: false, minimizable: false },
+    };
+    /** Closed via the window ✕ → cancel the whole targeting. */
+    _closedByTargeting = false;
+
+    async _renderHTML(): Promise<string> {
+      return panelContent;
+    }
+
+    _replaceHTML(result: string, content: HTMLElement): void {
+      content.innerHTML = result;
+    }
+
+    async _onRender(context: any, options: any): Promise<void> {
+      await super._onRender?.(context, options);
+      const root = (this as any).element as HTMLElement | null;
+      if (root) bindPanel?.(root);
+    }
+
+    async _onClose(options: any): Promise<void> {
+      await super._onClose?.(options);
+      if (!this._closedByTargeting && activeUtilityTargeting === state) {
+        endUtilityTargeting(false);
+      }
+    }
+  }
+
   const panel: any = {
+    app: null as any,
     element: null,
-    render: function() {
-      const html = $(panelContent);
-    
+    render: function () {
+      const app = new UtilityTargetPanelApp();
+      panel.app = app;
+      void app.render({ force: true }).then(() => {
+        panel.element = (app as any).element ?? null;
+      });
+      return app;
+    },
+    close: function () {
+      const app = panel.app;
+      panel.app = null;
+      panel.element = null;
+      if (app) {
+        app._closedByTargeting = true;
+        void app.close();
+      }
+    },
+  };
+
+  bindPanel = (root: HTMLElement) => {
+    const html = $(root);
+    panel.element = root;
+
     // Update selected count
     const updateCount = () => {
       const count = state.selectedTargets.size;
@@ -418,25 +477,10 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
     html.find('[data-action="cancel"]').on('click', () => {
       endUtilityTargeting(false);
     });
-    
+
     updateCount();
-    
-    // Create a container div and append to body
-    const container = $('<div class="mastery-utility-panel-container"></div>');
-    container.append(html);
-    $('body').append(container);
-    
-    panel.element = container[0];
-    return html;
-  },
-  close: function() {
-    if (this.element) {
-      $(this.element).remove();
-      this.element = null;
-    }
-  }
   };
-  
+
   return panel;
 }
 
@@ -799,20 +843,10 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
           highlightRadiusArea(state);
           updateCandidateVisuals(state);
           
-          // Create UI panel
+          // Create UI panel (framed window, centred by Foundry)
           const panel = createTargetSelectionPanel(state);
           state.panelApp = panel;
           panel.render(true);
-          
-          // Position panel near caster
-          const tokenScreen = canvas.stage.toGlobal(new PIXI.Point(token.center.x, token.center.y));
-          if (panel.element) {
-            $(panel.element).css({
-              position: 'absolute',
-              left: `${tokenScreen.x + 100}px`,
-              top: `${tokenScreen.y - 100}px`
-            });
-          }
         }
       } else {
         // Center chosen, clicking toggles targets in manual mode
@@ -875,20 +909,10 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
     highlightRadiusArea(state);
     updateCandidateVisuals(state);
     
-    // Create panel immediately
+    // Create panel immediately (framed window, centred by Foundry)
     const panel = createTargetSelectionPanel(state);
     state.panelApp = panel;
     panel.render(true);
-    
-    // Position panel near caster
-    const tokenScreen = canvas.stage.toGlobal(new PIXI.Point(token.center.x, token.center.y));
-    if (panel.element) {
-      $(panel.element).css({
-        position: 'absolute',
-        left: `${tokenScreen.x + 100}px`,
-        top: `${tokenScreen.y - 100}px`
-      });
-    }
   }
   
   // Store original alphas
