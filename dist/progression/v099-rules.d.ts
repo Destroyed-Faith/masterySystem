@@ -49,6 +49,8 @@ export type LifetimeXpDerivation = {
  */
 export declare function deriveLifetimeXp(system: any): LifetimeXpDerivation;
 export declare function nextLifetimeXp(system: any, amount: number): number | null;
+/** Lifetime XP for Stone milestones: stored value, else derived (spent + unspent). */
+export declare function lifetimeXpForStoneProgress(system: any): number | null;
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export declare function permanentStonesFromLifetimeXp(lifetimeXp: number): number;
 /**

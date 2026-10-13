@@ -138,11 +138,27 @@ export function deriveLifetimeXp(system) {
     return { lifetimeXp: null, source: 'unknown' };
 }
 export function nextLifetimeXp(system, amount) {
-    const current = system?.progression?.lifetimeXp;
-    if (typeof current !== 'number' || !Number.isFinite(current))
+    // Bootstrap from derived lifetime when the stored field was never set —
+    // otherwise XP grants raise points.xp but never unlock Stone milestones.
+    const derived = deriveLifetimeXp(system).lifetimeXp;
+    const stored = system?.progression?.lifetimeXp;
+    const storedN = typeof stored === 'number' && Number.isFinite(stored) ? Math.max(0, Math.floor(stored)) : null;
+    const current = storedN != null && derived != null
+        ? Math.max(storedN, derived)
+        : (storedN ?? derived);
+    if (current == null)
         return null;
     const add = Math.max(0, Math.floor(Number(amount) || 0));
     return Math.max(0, Math.floor(current) + add);
+}
+/** Lifetime XP for Stone milestones: stored value, else derived (spent + unspent). */
+export function lifetimeXpForStoneProgress(system) {
+    const derived = deriveLifetimeXp(system);
+    const stored = system?.progression?.lifetimeXp;
+    const storedN = typeof stored === 'number' && Number.isFinite(stored) ? Math.max(0, Math.floor(stored)) : null;
+    if (storedN != null && derived.lifetimeXp != null)
+        return Math.max(storedN, derived.lifetimeXp);
+    return storedN ?? derived.lifetimeXp;
 }
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export function permanentStonesFromLifetimeXp(lifetimeXp) {

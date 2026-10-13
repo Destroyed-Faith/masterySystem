@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.619] - 2026-10-13
+
+### Fixed
+
+- **Sealed Stones / Safe Haven:** Ready-Sync trifft World-Actor **und** unlinked Token-Actors; `stonePools` wird als Ganzes ersetzt. Steine entblocken räumt auch Word-of-Recall-Marks und `stoneUsage`. Sealed darf nach Rest/Unblock nicht mehr am Token hängen bleiben.
+- **Stone-Milestones:** Freischaltung folgt Lifetime-XP (spent + unspent), nicht nur dem gespeicherten `progression.lifetimeXp`. Bei 150 EP ist der 140er-Stein sichtbar/zuweisbar; XP-Grants bootstrappen fehlendes Lifetime-XP.
+
 ## [0.9.618] - 2026-10-13
 
 ### Fixed

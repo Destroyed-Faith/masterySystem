@@ -2,6 +2,9 @@
  * Safe Haven Rest — restore per-rest resources on a character.
  * Players Guide: one night rest in a Safe Haven (secure + comfortable).
  */
+import { stonePoolReadyMax } from '../stones/stone-pool-sync.js';
+/** @deprecated Prefer stonePoolReadyMax — kept for existing imports/tests. */
+export declare const safeHavenPoolMax: typeof stonePoolReadyMax;
 /** Reroll Point pool size = Disadvantage points (fallback: stored faithFractures.maximum). */
 export declare function rerollPointsMaximumFromSystem(system: any): number;
 export declare const SAFE_HAVEN_REST_INFO = "Safe Haven Rest: active Health Bar + 1 Scarred Bar restored; Skill Points, Reroll Points, Mastery Charges, daily resources, Sealed Stones and Stones lost until Safe Haven Rest refreshed. You may create, replace, or dismiss Minor Magic Items.";
@@ -24,10 +27,6 @@ export interface SafeHavenSealHold {
     /** Generic `system.stones.sealed` count that must stay Sealed. */
     generic?: number;
 }
-/** Pool capacity for Safe Haven refill (matches Actor.prepareBaseData / combat refill). */
-export declare function safeHavenPoolMax(system: any, attr: string, pool: {
-    max?: unknown;
-} | null | undefined): number;
 /** Actor updates for one Safe Haven Rest (no flags / side effects). */
 export declare function buildSafeHavenRestUpdates(system: any, opts?: {
     sealHold?: SafeHavenSealHold | null;

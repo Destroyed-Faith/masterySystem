@@ -46,7 +46,7 @@ import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, is
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
 import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-import { buildStoneProgressionSlots, chunkLifetimeSlots, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
+import { buildStoneProgressionSlots, chunkLifetimeSlots, lifetimeXpForStoneProgress, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
 import { STONE_REDISTRIBUTE_FLAG, V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
 import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
 import { migrationStoneSlotLabel, releaseAllStoneSlots, releaseStoneSlot, stoneOrderActorUpdate, stoneOrderForActor, stonePlacementOptions, stoneSlotProgress, unblockStonePoolsUpdate, } from '../progression/v099-respec-flow.js';
@@ -1300,8 +1300,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             };
             const needsRespec = flag(V099_RESPEC_FLAG);
             const needsLifetime = flag(V099_LIFETIME_FLAG);
-            const storedLife = sys?.progression?.lifetimeXp;
-            const lifetimeXp = typeof storedLife === 'number' ? Math.max(0, Math.floor(storedLife)) : null;
+            // Lifetime XP unlocks stones; spent vs unspent does not matter. Fall back
+            // to spent+unspent when progression.lifetimeXp was never stored.
+            const lifetimeXp = lifetimeXpForStoneProgress(sys);
             const assignments = usesV099Stones(sys) ? readAssignments(sys) : {
                 might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
             };
@@ -6329,26 +6330,50 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         const confirmed = await Dialog.confirm({
             title: 'Steine entblocken',
-            content: '<p>Alle Steine in den Attribut-Pools und die permanenten Colorless-Steine werden wieder <strong>Ready</strong>. Exhausted, Sustained, Sealed und Burned fällt weg. Die Zuweisung bleibt.</p>',
+            content: '<p>Alle Steine in den Attribut-Pools und die permanenten Colorless-Steine werden wieder <strong>Ready</strong>. Exhausted, Sustained, Sealed und Burned fällt weg (auch auf Token-Actors). Word-of-Recall-Mark wird entfernt. Die Zuweisung bleibt.</p>',
         });
         if (!confirmed)
             return;
         const actor = this.actor;
-        const sys = actor.system ?? {};
-        await actor.update(unblockStonePoolsUpdate(sys));
         try {
-            await actor.unsetFlag?.('mastery-system', 'stoneUsage');
+            const { clearWordOfRecallMark } = await import('../stones/word-of-recall-mark.js');
+            await clearWordOfRecallMark(actor);
         }
         catch {
-            try {
-                await actor.setFlag?.('mastery-system', 'stoneUsage', {});
-            }
-            catch {
-                /* ignore */
-            }
+            /* optional */
         }
-        const vit = actor.system?.stonePools?.vitality;
-        ui.notifications?.info(`Steine Ready — Vitality ${Math.max(0, Number(vit?.current) || 0)}/${Math.max(0, Number(vit?.max) || 0)} (sealed ${Math.max(0, Number(vit?.sealed) || 0)}).`);
+        try {
+            const { forceReadyStonePoolsOnCharacter, listStonePoolSyncActors } = await import('../stones/stone-pool-sync.js');
+            for (const target of listStonePoolSyncActors(actor)) {
+                try {
+                    await target.unsetFlag?.('mastery-system', 'stoneUsage');
+                }
+                catch {
+                    try {
+                        await target.setFlag?.('mastery-system', 'stoneUsage', {});
+                    }
+                    catch {
+                        /* ignore */
+                    }
+                }
+                try {
+                    const { clearWordOfRecallMark } = await import('../stones/word-of-recall-mark.js');
+                    await clearWordOfRecallMark(target);
+                }
+                catch {
+                    /* optional */
+                }
+            }
+            const forced = await forceReadyStonePoolsOnCharacter(actor, null);
+            ui.notifications?.info(`Steine Ready — Vitality ${forced.vitalityReady} (sealed ${forced.vitalitySealed})` +
+                (forced.actors > 1 ? ` · ${forced.actors} actor docs` : '') +
+                '.');
+        }
+        catch (err) {
+            console.warn('Mastery System | forceReadyStonePoolsOnCharacter failed, dotted fallback', err);
+            await actor.update(unblockStonePoolsUpdate(actor.system ?? {}));
+            ui.notifications?.info('Steine Ready (fallback update).');
+        }
         this.render();
     }
     async #onGmToggleStoneRedistribute(event) {

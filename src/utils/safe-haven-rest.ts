@@ -10,11 +10,17 @@ import { clearLastBreathOnRest } from '../stones/last-breath.js';
 import {
   calculateDisadvantagePoints,
 } from '../system/disadvantages.js';
-import { resolvedStonePoolMax, usesV099Stones } from '../progression/v099-rules.js';
 import { STONE_POOL_ATTRIBUTE_KEYS } from '../combat/action-economy.js';
+import {
+  forceReadyStonePoolsOnCharacter,
+  stonePoolReadyMax,
+} from '../stones/stone-pool-sync.js';
 
 /** Attribute pools + colorless — never rely on Object.keys(DataModel). */
 const SAFE_HAVEN_STONE_POOL_KEYS = [...STONE_POOL_ATTRIBUTE_KEYS, 'colorless'] as const;
+
+/** @deprecated Prefer stonePoolReadyMax — kept for existing imports/tests. */
+export const safeHavenPoolMax = stonePoolReadyMax;
 
 /** Reroll Point pool size = Disadvantage points (fallback: stored faithFractures.maximum). */
 export function rerollPointsMaximumFromSystem(system: any): number {
@@ -91,29 +97,6 @@ export interface SafeHavenSealHold {
   attrCounts?: Record<string, number>;
   /** Generic `system.stones.sealed` count that must stay Sealed. */
   generic?: number;
-}
-
-/** Pool capacity for Safe Haven refill (matches Actor.prepareBaseData / combat refill). */
-export function safeHavenPoolMax(system: any, attr: string, pool: { max?: unknown } | null | undefined): number {
-  const storedMax = Math.max(0, Number(pool?.max) || 0);
-  if (attr === 'colorless') {
-    if (usesV099Stones(system)) {
-      return Math.max(
-        storedMax,
-        Math.max(0, Math.floor(Number(system?.progression?.permanentColorless) || 0)),
-      );
-    }
-    return storedMax;
-  }
-  const attrValue = Math.max(0, Number(system?.attributes?.[attr]?.value) || 0);
-  const resolved = resolvedStonePoolMax(system, attr, attrValue);
-  const assigned = Math.max(
-    0,
-    Math.floor(Number(system?.progression?.stoneAssignments?.[attr]) || 0),
-  );
-  // Take the best known cap so a stale/zero resolved value cannot wipe Sealed
-  // stones, and Object.keys(DataModel) gaps cannot skip the pool.
-  return Math.max(resolved, storedMax, assigned);
 }
 
 /** Actor updates for one Safe Haven Rest (no flags / side effects). */
@@ -260,6 +243,9 @@ export async function applySafeHavenRest(actor: any): Promise<void> {
     console.warn('Mastery System | Safe Haven status clear failed', err);
   }
   await actor.update(updates);
+  // Nuclear Ready sync: world actor + unlinked token actors, whole stonePools
+  // replace so Sealed cannot survive on a different economy document.
+  const forced = await forceReadyStonePoolsOnCharacter(actor, sealHold);
   await beginMinorMagicRest(actor);
   await clearLastBreathOnRest(actor);
   try {
@@ -268,15 +254,13 @@ export async function applySafeHavenRest(actor: any): Promise<void> {
   } catch {
     /* death-check module unavailable */
   }
-  const sealedAfter = Math.max(
-    0,
-    Math.floor(Number(actor?.system?.stonePools?.vitality?.sealed) || 0),
-  );
-  const released = Math.max(0, sealedBefore - sealedAfter);
-  const ready = Math.max(0, Math.floor(Number(actor?.system?.stonePools?.vitality?.current) || 0));
-  if (released > 0 || sealedBefore > 0) {
+  const sealedAfter = forced.vitalitySealed;
+  const ready = forced.vitalityReady;
+  if (sealedBefore > 0 || sealedAfter > 0 || ready > 0) {
     (ui as any).notifications?.info?.(
-      `${actor.name}: Safe Haven — Vitality Sealed ${sealedBefore}→${sealedAfter}, Ready ${ready}.`,
+      `${actor.name}: Safe Haven — Vitality Sealed ${sealedBefore}→${sealedAfter}, Ready ${ready}` +
+        (forced.actors > 1 ? ` (${forced.actors} actor docs)` : '') +
+        '.',
     );
   }
 }

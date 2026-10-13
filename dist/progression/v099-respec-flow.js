@@ -3,7 +3,7 @@
  * starting package gate, Final +/- spending, and per-slot Stone placement.
  */
 import { ATTRIBUTE_ABBREV, ATTRIBUTE_KEYS, buildStoneProgressionSlots, canConvertToPermanentColorless, canPlacePermanentStone, compressedAttributeStepCost, compressedAttributeXpBetween, emptyAssignments, permanentColorlessCount, permanentStonesFromLifetimeXp, readAssignments, } from './v099-rules.js';
-import { safeHavenPoolMax } from '../utils/safe-haven-rest.js';
+import { buildReadyStonePoolUpdates, stonePoolReadyMax, } from '../stones/stone-pool-sync.js';
 /** Live check for the Starting column. Exactly two 4s, two 3s, three 2s. */
 export function describeStartingPackage(values) {
     const counts = { 2: 0, 3: 0, 4: 0, other: 0 };
@@ -233,13 +233,13 @@ export function releaseAllStoneSlots(order) {
  * not a possibly stale `pool.max` of 0.
  */
 export function unblockStonePoolsUpdate(system) {
-    const updates = {};
-    const keys = [...ATTRIBUTE_KEYS, 'colorless'];
-    for (const key of keys) {
-        const pool = system?.stonePools?.[key] ?? {};
-        const max = safeHavenPoolMax(system, key, pool);
-        if (max <= 0 && key === 'colorless' && system?.stonePools?.colorless == null)
+    // No Word of Recall hold — GM unblock is an emergency full Ready restore.
+    const updates = buildReadyStonePoolUpdates(system, null);
+    // Ensure every attribute key is touched even when colorless is absent.
+    for (const key of ATTRIBUTE_KEYS) {
+        if (updates[`system.stonePools.${key}.max`] != null)
             continue;
+        const max = stonePoolReadyMax(system, key, system?.stonePools?.[key] ?? {});
         updates[`system.stonePools.${key}.max`] = max;
         updates[`system.stonePools.${key}.current`] = max;
         updates[`system.stonePools.${key}.sustained`] = 0;
