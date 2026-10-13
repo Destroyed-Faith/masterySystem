@@ -1,13 +1,25 @@
 import { describe, it, expect } from 'vitest';
 import {
+    calculatePowerDeletionRefund,
     calculatePowerUpgradeRefund,
     calculatePowersUpgradeRefund,
     creationBaselineRank,
     getPowerMinLevel,
+    powerLadderCost,
+    wasPowerXpPurchased,
 } from '../src/utils/power-xp-refund.js';
 
-function power(category: string, level: number, minLevel?: number) {
-    return { type: 'power', system: { category, level, minLevel } };
+function power(
+    category: string,
+    level: number,
+    minLevel?: number,
+    flags?: { xpPurchased?: boolean; gmGranted?: boolean },
+) {
+    return {
+        type: 'power',
+        system: { category, level, minLevel },
+        flags: flags ? { 'mastery-system': flags } : undefined,
+    };
 }
 
 describe('power XP refund — creation-baseline flooring', () => {
@@ -67,5 +79,38 @@ describe('power XP refund — creation-baseline flooring', () => {
             power('active', 3, 2), // the one actually upgraded → cost(3) = 6
         ];
         expect(calculatePowersUpgradeRefund(powers)).toBe(6);
+    });
+});
+
+describe('power XP refund — deletion / GM grant', () => {
+    it('powerLadderCost sums level costs 1…N', () => {
+        // 2 + 4 + 6 = 12
+        expect(powerLadderCost(3)).toBe(12);
+        expect(powerLadderCost(1)).toBe(2);
+    });
+
+    it('refunds full ladder for XP-purchased L1 power', () => {
+        expect(calculatePowerDeletionRefund(power('active', 1, 1, { xpPurchased: true }))).toBe(2);
+    });
+
+    it('refunds full ladder for purchased power raised to L3', () => {
+        expect(calculatePowerDeletionRefund(power('active', 3, 1, { xpPurchased: true }))).toBe(12);
+    });
+
+    it('treats legacy minLevel === 1 as purchased (no gmGranted)', () => {
+        expect(wasPowerXpPurchased(power('active', 1, 1))).toBe(true);
+        expect(calculatePowerDeletionRefund(power('active', 1, 1))).toBe(2);
+    });
+
+    it('GM-granted L1 refunds 0; upgrades only above grant floor', () => {
+        expect(calculatePowerDeletionRefund(power('active', 1, 1, { gmGranted: true }))).toBe(0);
+        // getPowerMinLevel floors active minLevel 1 → 2 when level ≥ 2, so L3 refunds cost(3)=6
+        expect(calculatePowerDeletionRefund(power('active', 3, 1, { gmGranted: true }))).toBe(6);
+    });
+
+    it('creation package power refunds only upgrades above baseline', () => {
+        expect(calculatePowerDeletionRefund(power('active', 2, 2))).toBe(0);
+        expect(calculatePowerDeletionRefund(power('active', 3, 2))).toBe(6);
+        expect(calculatePowerDeletionRefund(power('passive', 4, 4))).toBe(0);
     });
 });

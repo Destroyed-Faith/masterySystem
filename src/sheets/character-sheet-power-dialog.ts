@@ -88,6 +88,7 @@ export async function showPowerCreationDialog(
 
     const newPowerCost = powerLevelCost(1);
     const xpState = getXpState(actor);
+    const isGm = !!(game as any).user?.isGM;
 
     const content = `
     <form class="power-creation-form power-catalog-form">
@@ -156,7 +157,13 @@ export async function showPowerCreationDialog(
       <div class="form-group power-form-group pc-purchase-bar">
         <input type="hidden" name="rank" id="pc-rank" value="1" />
         <p class="pc-purchase-copy">New Powers start at <strong>Level 1</strong>. Raise the level later on the sheet.</p>
-        <p class="pc-purchase-cost">Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span></p>
+        <p class="pc-purchase-cost" id="pc-purchase-cost">Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span></p>
+        ${isGm ? `
+        <label class="power-form-label power-form-checkbox-label" style="margin-top:8px;">
+          <input type="checkbox" id="pc-gm-grant" class="power-form-checkbox" />
+          <span><strong>Als GM vergeben (keine XP abziehen)</strong></span>
+        </label>
+        ` : ''}
       </div>
       ` : `
       <div class="form-group power-form-group">
@@ -230,6 +237,25 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
+                    const gmGrant =
+                        creationComplete &&
+                        isGm &&
+                        !!$html.find('#pc-gm-grant').prop('checked');
+                    const msFlags: Record<string, boolean> = {};
+                    if (creationComplete) {
+                        if (gmGrant) msFlags.gmGranted = true;
+                        else msFlags.xpPurchased = true;
+                    }
+                    if (Object.keys(msFlags).length) {
+                        (itemData as any).flags = {
+                            ...((itemData as any).flags || {}),
+                            'mastery-system': {
+                                ...((itemData as any).flags?.['mastery-system'] || {}),
+                                ...msFlags,
+                            },
+                        };
+                    }
+
                     const existingPowers = (actor as any).items.filter((i: any) => i.type === 'power');
                     if (actorAlreadyHasPower(existingPowers, entry)) {
                         const specialSuffix = entry.chosenSpecial?.key
@@ -267,7 +293,7 @@ export async function showPowerCreationDialog(
                         }
                     }
 
-                    if (creationComplete) {
+                    if (creationComplete && !gmGrant) {
                         const cost = powerLevelCost(rank);
                         const beforeXp = getXpState(actor);
                         if (beforeXp.available < cost) {
@@ -280,7 +306,7 @@ export async function showPowerCreationDialog(
 
                     await (actor as any).createEmbeddedDocuments('Item', [itemData]);
 
-                    if (creationComplete) {
+                    if (creationComplete && !gmGrant) {
                         const cost = powerLevelCost(rank);
                         const beforeXp = getXpState(actor);
                         const acct = applyXpCost(beforeXp, cost);
@@ -312,11 +338,19 @@ export async function showPowerCreationDialog(
                         });
                     }
 
-                    ui.notifications?.info(
-                        creationComplete
-                            ? `Added ${entry.name} at Level ${rank} (−${powerLevelCost(rank)} XP)${isSpell ? ' as a Spell' : ''}`
-                            : `Created ${entry.name} (Rank ${rank})${isSpell ? ' as a Spell' : ''}`,
-                    );
+                    if (!creationComplete) {
+                        ui.notifications?.info(
+                            `Created ${entry.name} (Rank ${rank})${isSpell ? ' as a Spell' : ''}`,
+                        );
+                    } else if (gmGrant) {
+                        ui.notifications?.info(
+                            `GM granted ${entry.name} at Level ${rank} (0 XP)${isSpell ? ' as a Spell' : ''}`,
+                        );
+                    } else {
+                        ui.notifications?.info(
+                            `Added ${entry.name} at Level ${rank} (−${powerLevelCost(rank)} XP)${isSpell ? ' as a Spell' : ''}`,
+                        );
+                    }
                     return true;
                 },
             },
@@ -351,6 +385,30 @@ export async function showPowerCreationDialog(
             const $resolution = html.find('#pc-resolution');
             const $spellHint = html.find('#pc-spell-rules-hint');
             const $rankSelect = html.find('#pc-rank');
+            const $gmGrant = html.find('#pc-gm-grant');
+            const $purchaseCost = html.find('#pc-purchase-cost');
+
+            const syncGmGrantUi = () => {
+                if (!$gmGrant.length) return;
+                const free = !!$gmGrant.prop('checked');
+                if ($purchaseCost.length) {
+                    $purchaseCost.html(
+                        free
+                            ? `Cost: <strong>0 XP</strong> <span class="pc-purchase-have">(GM grant)</span>`
+                            : `Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span>`,
+                    );
+                }
+                const $btn = html.closest('.app, .dialog').find('.dialog-button.create, button[data-button="create"]');
+                if ($btn.length) {
+                    $btn.html(
+                        free
+                            ? `<i class="fas fa-check"></i> Grant (0 XP)`
+                            : `<i class="fas fa-check"></i> Buy (${newPowerCost} XP)`,
+                    );
+                }
+            };
+            $gmGrant.on('change', () => syncGmGrantUi());
+            setTimeout(() => syncGmGrantUi(), 0);
 
             const refreshSubfamilyDropdown = () => {
                 const category = ($categorySelect.val() as string) || '';

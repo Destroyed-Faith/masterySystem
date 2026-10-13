@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.628] - 2026-10-13
+
+### Added
+
+- **GM Add Power:** Häkchen „Als GM vergeben (keine XP abziehen)“ — Power ohne Abzug, Flag `gmGranted`.
+
+### Fixed
+
+- **Power löschen erstattet XP:** Gekaufte Powers bekommen die volle Kaufleiter zurück; Creation-Powers nur Upgrades; GM-Grants nur bezahlte Upgrades. Confirm zeigt den Refund.
+
 ## [0.9.627] - 2026-10-13
 
 ### Fixed

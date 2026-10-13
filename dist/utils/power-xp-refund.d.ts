@@ -10,7 +10,16 @@ type PowerItemLike = {
         powerType?: string;
     };
     type?: string;
+    flags?: {
+        'mastery-system'?: {
+            xpPurchased?: boolean;
+            gmGranted?: boolean;
+        };
+    };
+    getFlag?: (scope: string, key: string) => unknown;
 };
+/** Sum of `powerLevelCost(1) … powerLevelCost(level)`. */
+export declare function powerLadderCost(toLevel: number): number;
 /**
  * Creation baseline rank for a power category.
  *
@@ -33,5 +42,18 @@ export declare function getPowerMinLevel(item: PowerItemLike): number;
 /** Refund XP spent raising this power above its creation baseline. */
 export declare function calculatePowerUpgradeRefund(item: PowerItemLike): number;
 export declare function calculatePowersUpgradeRefund(powers: PowerItemLike[]): number;
+/**
+ * True when this power was bought with XP after character creation
+ * (or legacy L1 floor without a GM-grant flag).
+ */
+export declare function wasPowerXpPurchased(item: PowerItemLike): boolean;
+/**
+ * XP to return when deleting a power item after character creation.
+ *
+ * - GM-granted: only paid upgrades above minLevel
+ * - XP-purchased (or legacy minLevel === 1): full ladder 1…level
+ * - Creation package: upgrades above creation baseline only
+ */
+export declare function calculatePowerDeletionRefund(item: PowerItemLike): number;
 export {};
 //# sourceMappingURL=power-xp-refund.d.ts.map

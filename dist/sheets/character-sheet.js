@@ -54,7 +54,7 @@ import { migrationStoneSlotLabel, releaseAllStoneSlots, releaseStoneSlot, stoneO
 import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { getPowerMinLevel as resolvePowerMinLevel } from '../utils/power-xp-refund.js';
+import { calculatePowerDeletionRefund, getPowerMinLevel as resolvePowerMinLevel, } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext, isOptInRadialManeuverId } from '../utils/radial-maneuver-prefs.js';
 import { buildCombatSensesPanelContext, normalizeCombatSensesData } from '../combat/combat-sense-collection.js';
@@ -5725,31 +5725,73 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Item with ID ${itemId} not found in actor.`);
             return;
         }
+        const itemType = item.type;
+        const itemName = item.name;
+        const isPower = itemType === 'power';
+        const system = this.actor.system;
+        const creationComplete = system?.creation?.complete !== false;
+        const inCreationMode = !creationComplete;
+        const powerRefund = isPower && creationComplete ? calculatePowerDeletionRefund(item) : 0;
         const confirmed = await Dialog.confirm({
             title: 'Delete Item',
-            content: `<p>Are you sure you want to delete <strong>${item.name}</strong>?</p>`
+            content: `<p>Are you sure you want to delete <strong>${itemName}</strong>?</p>` +
+                (powerRefund > 0
+                    ? `<p><strong>+${powerRefund} XP</strong> will be refunded.</p>`
+                    : ''),
         });
         if (confirmed) {
             try {
-                const itemType = item.type;
-                const itemName = item.name;
-                const isPower = itemType === 'power';
-                // Check if we're in character creation mode
-                const system = this.actor.system;
-                const creationComplete = system?.creation?.complete !== false;
-                const inCreationMode = !creationComplete;
+                const refundUpdates = {};
+                if (powerRefund > 0) {
+                    const beforeXp = this.#getXpState(this.actor);
+                    const acct = this.#applyXpCost(beforeXp, -powerRefund);
+                    const history = appendXpHistory(this.actor, [
+                        {
+                            ts: Date.now(),
+                            ...currentXpUser(),
+                            kind: 'refund',
+                            category: 'power',
+                            amount: powerRefund,
+                            note: `Deleted ${itemName}`,
+                            details: {
+                                from: Number(item.system?.level) || 1,
+                                to: 0,
+                                label: String(itemName || ''),
+                                cost: -powerRefund,
+                            },
+                            before: {
+                                available: beforeXp.available,
+                                totalEarned: beforeXp.totalEarned,
+                                totalSpent: beforeXp.totalSpent,
+                            },
+                            after: {
+                                available: acct.pointsXp + acct.pointsXpFree,
+                                totalEarned: beforeXp.totalEarned,
+                                totalSpent: acct.totalSpent,
+                            },
+                        },
+                    ]);
+                    refundUpdates['system.points.xp'] = acct.pointsXp;
+                    refundUpdates['system.points.xpFree'] = acct.pointsXpFree;
+                    refundUpdates['system.xp.totalSpent'] = acct.totalSpent;
+                    refundUpdates['system.xp.freeSpent'] = acct.freeSpent;
+                    refundUpdates['system.xp.history'] = history;
+                }
                 await item.delete();
-                // Show appropriate notification
+                if (Object.keys(refundUpdates).length) {
+                    await this.actor.update(refundUpdates);
+                }
                 if (isPower && inCreationMode) {
-                    // Count remaining powers
                     const remainingPowers = this.actor.items.filter((i) => i.type === 'power');
                     const powerTotal = Object.values(creationPowerRequirementsForMasteryRank(Number(system?.mastery?.rank) || 2)).reduce((s, n) => s + n, 0);
                     ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of ${powerTotal} Powers selected.`);
                 }
+                else if (isPower && powerRefund > 0) {
+                    ui.notifications?.info(`"${itemName}" deleted (+${powerRefund} XP).`);
+                }
                 else {
                     ui.notifications?.info(`"${itemName}" deleted.`);
                 }
-                // Re-render the sheet to update the display
                 this.render();
             }
             catch (error) {

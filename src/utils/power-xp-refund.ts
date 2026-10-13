@@ -11,7 +11,30 @@ import {
 type PowerItemLike = {
     system?: { level?: number; minLevel?: number; rank?: number; category?: string; powerType?: string };
     type?: string;
+    flags?: { 'mastery-system'?: { xpPurchased?: boolean; gmGranted?: boolean } };
+    getFlag?: (scope: string, key: string) => unknown;
 };
+
+function readMsFlag(item: PowerItemLike, key: 'xpPurchased' | 'gmGranted'): boolean {
+    try {
+        if (typeof item.getFlag === 'function' && item.getFlag('mastery-system', key) === true) {
+            return true;
+        }
+    } catch {
+        /* optional */
+    }
+    return item.flags?.['mastery-system']?.[key] === true;
+}
+
+/** Sum of `powerLevelCost(1) … powerLevelCost(level)`. */
+export function powerLadderCost(toLevel: number): number {
+    const top = Math.max(0, Math.floor(Number(toLevel) || 0));
+    let sum = 0;
+    for (let level = 1; level <= top; level++) {
+        sum += powerLevelCost(level);
+    }
+    return sum;
+}
 
 /**
  * Creation baseline rank for a power category.
@@ -62,4 +85,32 @@ export function calculatePowersUpgradeRefund(
     powers: PowerItemLike[],
 ): number {
     return powers.reduce((sum, p) => sum + calculatePowerUpgradeRefund(p), 0);
+}
+
+/**
+ * True when this power was bought with XP after character creation
+ * (or legacy L1 floor without a GM-grant flag).
+ */
+export function wasPowerXpPurchased(item: PowerItemLike): boolean {
+    if (readMsFlag(item, 'gmGranted')) return false;
+    if (readMsFlag(item, 'xpPurchased')) return true;
+    const raw = item.system?.minLevel;
+    return typeof raw === 'number' && Number.isFinite(raw) && Math.floor(raw) === 1;
+}
+
+/**
+ * XP to return when deleting a power item after character creation.
+ *
+ * - GM-granted: only paid upgrades above minLevel
+ * - XP-purchased (or legacy minLevel === 1): full ladder 1…level
+ * - Creation package: upgrades above creation baseline only
+ */
+export function calculatePowerDeletionRefund(item: PowerItemLike): number {
+    if (readMsFlag(item, 'gmGranted')) {
+        return calculatePowerUpgradeRefund(item);
+    }
+    if (wasPowerXpPurchased(item)) {
+        return powerLadderCost(item.system?.level ?? 1);
+    }
+    return calculatePowerUpgradeRefund(item);
 }
