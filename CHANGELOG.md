@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.650] - 2026-10-13
+
+### Fixed
+
+- **Reaction-Chat-Hover:** Hover auf den Reaction-Buttons zeigt jetzt den **Effekt**/die Beschreibung (nicht mehr den Namen noch einmal). Bei Evade-Reaktionen, die den Treffer verhindern würden, steht das zusätzlich am Ende.
+
 ## [0.9.649] - 2026-10-13
 
 ### Fixed

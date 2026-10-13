@@ -72,6 +72,11 @@ export interface ReactionPhaseResult {
     }>;
 }
 /**
+ * Hover text for a Reaction Window button: effect/description, not the name again.
+ * Evade-only “would prevent the hit” is appended when relevant.
+ */
+export declare function reactionPowerHoverTip(power: any, evadeOk: boolean | null): string;
+/**
  * Post an interactive Reaction Window for one phase and wait until it is closed.
  *
  * - `defender`: call after the attack Roll (before damage dialog).

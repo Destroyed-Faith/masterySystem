@@ -38,6 +38,55 @@ function escHtml(s) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 }
+/** Plain text for `title` tooltips — strip HTML / light markdown, collapse space. */
+function plainHoverText(raw, maxLen = 280) {
+    let s = String(raw ?? '');
+    s = s.replace(/<[^>]+>/g, ' ');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\*([^*]+)\*/g, '$1');
+    s = s.replace(/\s+/g, ' ').trim();
+    if (s.length > maxLen)
+        s = `${s.slice(0, maxLen - 1)}…`;
+    return s;
+}
+/**
+ * Hover text for a Reaction Window button: effect/description, not the name again.
+ * Evade-only “would prevent the hit” is appended when relevant.
+ */
+export function reactionPowerHoverTip(power, evadeOk) {
+    const sys = power?.system ?? {};
+    const candidates = [
+        power?.artifactReactionMeta?.description,
+        sys.effect,
+        sys.description,
+        power?.description,
+        power?.effect,
+    ];
+    // Current level row effect, if present on the item.
+    try {
+        const levels = Array.isArray(sys.levels) ? sys.levels : [];
+        const lvl = Math.max(1, Math.floor(Number(sys.level ?? sys.powerLevel ?? 1) || 1));
+        const row = levels.find((r) => Number(r?.level) === lvl) ?? levels[lvl - 1];
+        if (row?.effect)
+            candidates.unshift(typeof row.effect === 'string' ? row.effect : row.effect?.text);
+    }
+    catch {
+        /* ignore */
+    }
+    let effect = '';
+    for (const c of candidates) {
+        const t = plainHoverText(c);
+        if (t) {
+            effect = t;
+            break;
+        }
+    }
+    if (evadeOk === true) {
+        return effect
+            ? `${effect} — Would prevent the hit.`
+            : 'Would prevent the hit.';
+    }
+    return effect || 'Reaction';
+}
 function emptyMitigation() {
     return { reactionArmorFlat: 0, reactionDrPct: 0 };
 }
@@ -275,9 +324,7 @@ function buildReactionWindowHtml(state, entries, attackerName, defenderName) {
                 <i class="fas fa-bolt"></i> ${escHtml(label)}
               </button>`;
                 }
-                const tip = evadeOk === true
-                    ? `${pname} — would prevent the hit`
-                    : pname;
+                const tip = reactionPowerHoverTip(p, evadeOk);
                 return `<button type="button" class="ms-reaction-use-btn"
               data-actor-id="${escHtml(actorId)}"
               data-power-id="${escHtml(pid)}"
