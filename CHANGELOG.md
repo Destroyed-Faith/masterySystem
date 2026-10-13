@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.629] - 2026-10-13
+
+### Added
+
+- **GM Add Power — Startfähigkeit:** Zweites Häkchen ersetzt eine gelöschte Creation-Power (Active Rank 2 / Defensive Rank 4, 0 XP, Flag `startingPower`). Kein Doppel-XP beim späteren Löschen.
+
 ## [0.9.628] - 2026-10-13
 
 ### Added

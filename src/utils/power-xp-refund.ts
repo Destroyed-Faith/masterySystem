@@ -11,11 +11,20 @@ import {
 type PowerItemLike = {
     system?: { level?: number; minLevel?: number; rank?: number; category?: string; powerType?: string };
     type?: string;
-    flags?: { 'mastery-system'?: { xpPurchased?: boolean; gmGranted?: boolean } };
+    flags?: {
+        'mastery-system'?: {
+            xpPurchased?: boolean;
+            gmGranted?: boolean;
+            startingPower?: boolean;
+        };
+    };
     getFlag?: (scope: string, key: string) => unknown;
 };
 
-function readMsFlag(item: PowerItemLike, key: 'xpPurchased' | 'gmGranted'): boolean {
+function readMsFlag(
+    item: PowerItemLike,
+    key: 'xpPurchased' | 'gmGranted' | 'startingPower',
+): boolean {
     try {
         if (typeof item.getFlag === 'function' && item.getFlag('mastery-system', key) === true) {
             return true;
@@ -89,10 +98,10 @@ export function calculatePowersUpgradeRefund(
 
 /**
  * True when this power was bought with XP after character creation
- * (or legacy L1 floor without a GM-grant flag).
+ * (or legacy L1 floor without a free-grant flag).
  */
 export function wasPowerXpPurchased(item: PowerItemLike): boolean {
-    if (readMsFlag(item, 'gmGranted')) return false;
+    if (readMsFlag(item, 'gmGranted') || readMsFlag(item, 'startingPower')) return false;
     if (readMsFlag(item, 'xpPurchased')) return true;
     const raw = item.system?.minLevel;
     return typeof raw === 'number' && Number.isFinite(raw) && Math.floor(raw) === 1;
@@ -101,12 +110,12 @@ export function wasPowerXpPurchased(item: PowerItemLike): boolean {
 /**
  * XP to return when deleting a power item after character creation.
  *
- * - GM-granted: only paid upgrades above minLevel
+ * - GM-granted / Startfähigkeit: only paid upgrades above baseline
  * - XP-purchased (or legacy minLevel === 1): full ladder 1…level
  * - Creation package: upgrades above creation baseline only
  */
 export function calculatePowerDeletionRefund(item: PowerItemLike): number {
-    if (readMsFlag(item, 'gmGranted')) {
+    if (readMsFlag(item, 'gmGranted') || readMsFlag(item, 'startingPower')) {
         return calculatePowerUpgradeRefund(item);
     }
     if (wasPowerXpPurchased(item)) {

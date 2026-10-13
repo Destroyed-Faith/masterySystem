@@ -13,7 +13,7 @@ function power(
     category: string,
     level: number,
     minLevel?: number,
-    flags?: { xpPurchased?: boolean; gmGranted?: boolean },
+    flags?: { xpPurchased?: boolean; gmGranted?: boolean; startingPower?: boolean },
 ) {
     return {
         type: 'power',
@@ -112,5 +112,11 @@ describe('power XP refund — deletion / GM grant', () => {
         expect(calculatePowerDeletionRefund(power('active', 2, 2))).toBe(0);
         expect(calculatePowerDeletionRefund(power('active', 3, 2))).toBe(6);
         expect(calculatePowerDeletionRefund(power('passive', 4, 4))).toBe(0);
+    });
+
+    it('Startfähigkeit is not treated as XP purchase even at minLevel 1', () => {
+        expect(wasPowerXpPurchased(power('active', 1, 1, { startingPower: true }))).toBe(false);
+        expect(calculatePowerDeletionRefund(power('active', 2, 2, { startingPower: true }))).toBe(0);
+        expect(calculatePowerDeletionRefund(power('active', 3, 2, { startingPower: true }))).toBe(6);
     });
 });

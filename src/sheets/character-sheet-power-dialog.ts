@@ -39,6 +39,8 @@ import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
 import {
     CATEGORY_LABELS,
     CATEGORY_ORDER,
+    CREATION_DEFENSIVE_RANK,
+    CREATION_OFFENSIVE_RANK,
     CREATION_POWER_REQUIREMENTS,
     CREATION_POWER_TOTAL,
     actorAlreadyHasPower,
@@ -59,6 +61,7 @@ import {
     type CatalogEntry,
 } from '../utils/power-catalog.js';
 import type { PowerTemplate } from '../utils/powers/templates/index.js';
+import { creationBaselineRank } from '../utils/power-xp-refund.js';
 
 /**
  * Show the template-based Power picker.
@@ -159,9 +162,13 @@ export async function showPowerCreationDialog(
         <p class="pc-purchase-copy">New Powers start at <strong>Level 1</strong>. Raise the level later on the sheet.</p>
         <p class="pc-purchase-cost" id="pc-purchase-cost">Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span></p>
         ${isGm ? `
-        <label class="power-form-label power-form-checkbox-label" style="margin-top:8px;">
+        <label class="power-form-label power-form-checkbox-label" style="margin-top:8px; display:block;">
           <input type="checkbox" id="pc-gm-grant" class="power-form-checkbox" />
-          <span><strong>Als GM vergeben (keine XP abziehen)</strong></span>
+          <span><strong>Als GM vergeben (keine XP abziehen)</strong> — Level 1 gratis</span>
+        </label>
+        <label class="power-form-label power-form-checkbox-label" style="margin-top:6px; display:block;">
+          <input type="checkbox" id="pc-starting-power" class="power-form-checkbox" />
+          <span><strong>Als Startfähigkeit</strong> — Creation-Ersatz (Active Rank ${CREATION_OFFENSIVE_RANK} / Defensive Rank ${CREATION_DEFENSIVE_RANK}, 0 XP; kein Doppel-Refund)</span>
         </label>
         ` : ''}
       </div>
@@ -197,9 +204,25 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
+                    const startingPower =
+                        creationComplete &&
+                        isGm &&
+                        !!$html.find('#pc-starting-power').prop('checked');
+                    const gmGrant =
+                        creationComplete &&
+                        isGm &&
+                        !startingPower &&
+                        !!$html.find('#pc-gm-grant').prop('checked');
+                    const freeGrant = gmGrant || startingPower;
+
                     let rank = parseInt(($html.find('#pc-rank').val() as string) || '1', 10);
-                    if (creationComplete) rank = 1;
-                    if (!creationComplete) rank = 2;
+                    if (!creationComplete) {
+                        rank = 2;
+                    } else if (startingPower) {
+                        rank = creationBaselineRank({ system: { category: entry.category } });
+                    } else {
+                        rank = 1;
+                    }
 
                     const isSpell = entry.category === 'active'
                         && activeTemplateCanBeSpell(entry.templateId)
@@ -214,6 +237,12 @@ export async function showPowerCreationDialog(
                     if (isSpell && rank > maxSpellLevel) {
                         ui.notifications?.error(
                             `Spell Level ${rank} exceeds Max Power Level ${maxSpellLevel} at Mastery Rank ${masteryRank}.`,
+                        );
+                        return false;
+                    }
+                    if (rank > maxPowerLevel) {
+                        ui.notifications?.error(
+                            `Power Level ${rank} exceeds Max Power Level ${maxPowerLevel} at Mastery Rank ${masteryRank}.`,
                         );
                         return false;
                     }
@@ -237,13 +266,10 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
-                    const gmGrant =
-                        creationComplete &&
-                        isGm &&
-                        !!$html.find('#pc-gm-grant').prop('checked');
                     const msFlags: Record<string, boolean> = {};
                     if (creationComplete) {
-                        if (gmGrant) msFlags.gmGranted = true;
+                        if (startingPower) msFlags.startingPower = true;
+                        else if (gmGrant) msFlags.gmGranted = true;
                         else msFlags.xpPurchased = true;
                     }
                     if (Object.keys(msFlags).length) {
@@ -293,8 +319,8 @@ export async function showPowerCreationDialog(
                         }
                     }
 
-                    if (creationComplete && !gmGrant) {
-                        const cost = powerLevelCost(rank);
+                    if (creationComplete && !freeGrant) {
+                        const cost = powerLevelCost(1);
                         const beforeXp = getXpState(actor);
                         if (beforeXp.available < cost) {
                             ui.notifications?.error(
@@ -306,8 +332,8 @@ export async function showPowerCreationDialog(
 
                     await (actor as any).createEmbeddedDocuments('Item', [itemData]);
 
-                    if (creationComplete && !gmGrant) {
-                        const cost = powerLevelCost(rank);
+                    if (creationComplete && !freeGrant) {
+                        const cost = powerLevelCost(1);
                         const beforeXp = getXpState(actor);
                         const acct = applyXpCost(beforeXp, cost);
                         const history = appendXpHistory(actor, [{
@@ -342,13 +368,17 @@ export async function showPowerCreationDialog(
                         ui.notifications?.info(
                             `Created ${entry.name} (Rank ${rank})${isSpell ? ' as a Spell' : ''}`,
                         );
+                    } else if (startingPower) {
+                        ui.notifications?.info(
+                            `Startfähigkeit ${entry.name} at Rank ${rank} (0 XP)${isSpell ? ' as a Spell' : ''}`,
+                        );
                     } else if (gmGrant) {
                         ui.notifications?.info(
                             `GM granted ${entry.name} at Level ${rank} (0 XP)${isSpell ? ' as a Spell' : ''}`,
                         );
                     } else {
                         ui.notifications?.info(
-                            `Added ${entry.name} at Level ${rank} (−${powerLevelCost(rank)} XP)${isSpell ? ' as a Spell' : ''}`,
+                            `Added ${entry.name} at Level ${rank} (−${powerLevelCost(1)} XP)${isSpell ? ' as a Spell' : ''}`,
                         );
                     }
                     return true;
@@ -386,28 +416,56 @@ export async function showPowerCreationDialog(
             const $spellHint = html.find('#pc-spell-rules-hint');
             const $rankSelect = html.find('#pc-rank');
             const $gmGrant = html.find('#pc-gm-grant');
+            const $startingPower = html.find('#pc-starting-power');
             const $purchaseCost = html.find('#pc-purchase-cost');
+            const $purchaseCopy = html.find('.pc-purchase-copy');
 
             const syncGmGrantUi = () => {
-                if (!$gmGrant.length) return;
-                const free = !!$gmGrant.prop('checked');
+                if (!$gmGrant.length && !$startingPower.length) return;
+                const starting = !!$startingPower.prop('checked');
+                const gmFree = !!$gmGrant.prop('checked');
+                const free = starting || gmFree;
                 if ($purchaseCost.length) {
-                    $purchaseCost.html(
-                        free
-                            ? `Cost: <strong>0 XP</strong> <span class="pc-purchase-have">(GM grant)</span>`
-                            : `Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span>`,
+                    if (starting) {
+                        $purchaseCost.html(
+                            `Cost: <strong>0 XP</strong> <span class="pc-purchase-have">(Startfähigkeit / Creation-Ersatz)</span>`,
+                        );
+                    } else if (gmFree) {
+                        $purchaseCost.html(
+                            `Cost: <strong>0 XP</strong> <span class="pc-purchase-have">(GM grant)</span>`,
+                        );
+                    } else {
+                        $purchaseCost.html(
+                            `Cost: <strong>${newPowerCost} XP</strong> <span class="pc-purchase-have">(you have ${xpState.available} XP)</span>`,
+                        );
+                    }
+                }
+                if ($purchaseCopy.length) {
+                    $purchaseCopy.html(
+                        starting
+                            ? `Startfähigkeit ersetzt eine gelöschte Creation-Power (Active Rank <strong>${CREATION_OFFENSIVE_RANK}</strong>, Defensive Rank <strong>${CREATION_DEFENSIVE_RANK}</strong>).`
+                            : `New Powers start at <strong>Level 1</strong>. Raise the level later on the sheet.`,
                     );
                 }
                 const $btn = html.closest('.app, .dialog').find('.dialog-button.create, button[data-button="create"]');
                 if ($btn.length) {
-                    $btn.html(
-                        free
-                            ? `<i class="fas fa-check"></i> Grant (0 XP)`
-                            : `<i class="fas fa-check"></i> Buy (${newPowerCost} XP)`,
-                    );
+                    if (starting) {
+                        $btn.html(`<i class="fas fa-check"></i> Startfähigkeit (0 XP)`);
+                    } else if (gmFree) {
+                        $btn.html(`<i class="fas fa-check"></i> Grant (0 XP)`);
+                    } else {
+                        $btn.html(`<i class="fas fa-check"></i> Buy (${newPowerCost} XP)`);
+                    }
                 }
             };
-            $gmGrant.on('change', () => syncGmGrantUi());
+            $gmGrant.on('change', () => {
+                if ($gmGrant.prop('checked')) $startingPower.prop('checked', false);
+                syncGmGrantUi();
+            });
+            $startingPower.on('change', () => {
+                if ($startingPower.prop('checked')) $gmGrant.prop('checked', false);
+                syncGmGrantUi();
+            });
             setTimeout(() => syncGmGrantUi(), 0);
 
             const refreshSubfamilyDropdown = () => {

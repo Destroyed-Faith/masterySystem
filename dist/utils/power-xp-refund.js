@@ -72,10 +72,10 @@ export function calculatePowersUpgradeRefund(powers) {
 }
 /**
  * True when this power was bought with XP after character creation
- * (or legacy L1 floor without a GM-grant flag).
+ * (or legacy L1 floor without a free-grant flag).
  */
 export function wasPowerXpPurchased(item) {
-    if (readMsFlag(item, 'gmGranted'))
+    if (readMsFlag(item, 'gmGranted') || readMsFlag(item, 'startingPower'))
         return false;
     if (readMsFlag(item, 'xpPurchased'))
         return true;
@@ -85,12 +85,12 @@ export function wasPowerXpPurchased(item) {
 /**
  * XP to return when deleting a power item after character creation.
  *
- * - GM-granted: only paid upgrades above minLevel
+ * - GM-granted / Startfähigkeit: only paid upgrades above baseline
  * - XP-purchased (or legacy minLevel === 1): full ladder 1…level
  * - Creation package: upgrades above creation baseline only
  */
 export function calculatePowerDeletionRefund(item) {
-    if (readMsFlag(item, 'gmGranted')) {
+    if (readMsFlag(item, 'gmGranted') || readMsFlag(item, 'startingPower')) {
         return calculatePowerUpgradeRefund(item);
     }
     if (wasPowerXpPurchased(item)) {
