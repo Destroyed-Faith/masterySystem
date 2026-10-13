@@ -1,7 +1,8 @@
 /**
  * GM stone audit: Lifetime track vs live pools vs Summon/Familiar holds.
- * Same sources Stone Powers uses (effective assignments + resolved caps).
+ * Ready numbers come from `stone-ready.ts` (same source as Stone Powers Available).
  */
+export { summonBoundSustainedByAttr } from './stone-ready.js';
 export interface StoneAuditBondRow {
     kind: 'summon' | 'familiar';
     name: string;
@@ -41,9 +42,7 @@ export interface StoneAuditReport {
     bonds: StoneAuditBondRow[];
     hasMismatch: boolean;
 }
-/** Sustained counts that Summon Bonds / Familiars currently hold. */
-export declare function summonBoundSustainedByAttr(actor: any): Record<string, number>;
 export declare function listStoneAuditBonds(actor: any): StoneAuditBondRow[];
-/** Full audit snapshot — same math as Stone Powers caps. */
+/** Full audit snapshot — Ready column uses the same math as Stone Powers Available. */
 export declare function buildStoneAuditReport(actor: any): StoneAuditReport;
 //# sourceMappingURL=stone-audit.d.ts.map

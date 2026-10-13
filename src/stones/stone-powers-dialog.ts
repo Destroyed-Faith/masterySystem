@@ -153,18 +153,13 @@ import {
   debugPoolSpendableSnapshot,
   poolSpendableStones,
 } from '../utils/artifact-actor-rules.js';
-import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
-import {
-  effectiveStoneAssignments,
-  isLifetimeStoneMode,
-  resolvedStonePoolMax,
-} from '../progression/v099-rules.js';
 import {
   allowStonePowersAutoOpen,
   dismissStonePowersPrompt,
   logStonePowersGate,
   stonePowersReopenBlocked,
 } from '../combat/stone-powers-session.js';
+import { listAttrStoneReadyViews } from './stone-ready.js';
 import {
   getArtifactStoneFunctionStatus,
   getArtifactStoneSupportPrefill,
@@ -822,14 +817,12 @@ export class StonePowersDialog extends BaseDialog {
       /* ignore */
     }
 
-    // Sync pools once on open (not on every re-render — that caused scroll jumps + reopen).
+    // Align pools once on open to Audit readyExpected (Lifetime − seals − summons).
     try {
-      const syncMod = await import('./stone-pool-sync.js');
-      for (const target of syncMod.listStonePoolSyncActors(actor)) {
-        await syncMod.syncStonePoolCapsFromAssignments(target);
-      }
+      const { alignStonePoolsToAuditReady } = await import('./stone-ready.js');
+      await alignStonePoolsToAuditReady(actor);
     } catch (err) {
-      console.warn('Mastery System | stone pool sync on open failed', err);
+      console.warn('Mastery System | alignStonePoolsToAuditReady on open failed', err);
     }
 
     try {
@@ -881,15 +874,7 @@ export class StonePowersDialog extends BaseDialog {
     this.#pullSessionPartialsIntoInstance();
 
     const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
-    let resolveActorStoneSystem: ((actor: any) => any) | null = null;
-    try {
-      const syncMod = await import('./stone-pool-sync.js');
-      resolveActorStoneSystem = syncMod.resolveActorStoneSystem;
-    } catch (err) {
-      console.warn('Mastery System | resolveActorStoneSystem unavailable', err);
-    }
     const system = (poolOwner as any).system;
-    const stonePools = system.stonePools || {};
 
     // Artifact "Stone Power Support" Stone Functions pre-fill an activation to
     // a higher tier. Resolve them once (off the same actor the economy uses)
@@ -913,92 +898,67 @@ export class StonePowersDialog extends BaseDialog {
       return best;
     };
     const availablePowers = getAvailableStonePowers(this.actor);
-    
-    // Every attribute pool stays visible (empty or blocked ones included) so
-    // players can see what they could reach; `blockedReason` says why not.
-    // Prefer world/sheet Lifetime track — token deltas often omit progression
-    // and would otherwise fall back to Attribute÷8 in prepareBaseData.
-    const progressSystem =
-      (resolveActorStoneSystem?.(this.actor) as any) ??
-      (resolveActorStoneSystem?.(poolOwner) as any) ??
-      (this.actor as any)?.system ??
-      system;
-    const lifetimeStoneMode = isLifetimeStoneMode(progressSystem);
-    const liveAssignments = lifetimeStoneMode ? effectiveStoneAssignments(progressSystem) : null;
 
-    const pools: StoneDialogPoolRow[] = POOL_DISPLAY_ATTRS.map((attr) => {
-        const pool = stonePools[attr];
-        // Prefer live assignment caps in Lifetime mode — prepared pool.max can
-        // still lag on floor(Attribute/8) until the next full prepare/sync.
-        let max = pool?.max ?? pool?.maximum ?? 0;
-        if (lifetimeStoneMode && liveAssignments) {
-          const assigned = Math.max(0, Math.floor(Number((liveAssignments as any)[attr]) || 0));
-          const resolved = resolvedStonePoolMax(
-            progressSystem,
-            attr,
-            Number(progressSystem?.attributes?.[attr]?.value) ||
-              Number(system?.attributes?.[attr]?.value) ||
-              0,
-          );
-          max = Math.max(assigned, resolved);
-        }
-        const sustained = pool?.sustained ?? 0;
-        const sealedBurned =
-          Math.max(0, Number(pool?.sealed) || 0) + Math.max(0, Number(pool?.burned) || 0);
-        // Artifact activation flags live on the embedded items of the actor the
-        // sheet / evolution dialog edit (`this.actor`). For unlinked tokens the
-        // economy actor (`poolOwner`) can be a different document whose item
-        // flags are stale, so always read the binding from `this.actor`.
-        const artifactBound = countArtifactActivationStones(this.actor, attr);
-        // Same Ready math as Audit / payment (`poolSpendableStones`).
-        const spendable = poolSpendableStones(this.actor, attr);
-        const current = spendable;
-        const reserved = this.#reservedStonesInDialogForAttr(attr);
-        const poolDisplay = Math.max(0, spendable - reserved);
-        const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
-        const gemSlots = Array.from({ length: poolDisplay }, (_, i) => ({ index: i }));
-        const boundSlots = Array.from({ length: artifactBound }, (_, i) => ({ index: i }));
+    // Available Stones = GM Übersicht "Erwartet Ready" (Lifetime − seals − summons).
+    // Dialog reservations (stones already dropped on powers) subtract from gems only.
+    const readyViews = listAttrStoneReadyViews(this.actor);
+    const lifetimeStoneMode = readyViews.some((v) => v.lifetimeStoneMode);
 
-        const blockedReason = stonePoolBlockedReason({
-          max: Number(max) || 0,
-          available: poolDisplay,
-          sustained: Number(sustained) || 0,
-          artifactBound,
-          sealedBurned,
-          current: Number(current) || 0,
-          lifetimeStoneMode,
-        });
-
-        return {
-          key: attr,
-          name: poolDisplayName(attr),
-          current: Number(current) || 0,
-          max: Number(max) || 0,
-          sustained: Number(sustained) || 0,
-          sealedBurned,
-          artifactBound,
-          available: spendable,
-          gemStyle,
-          gemSlots,
-          boundSlots,
-          blocked: !!blockedReason,
-          blockedReason,
-        };
+    const pools: StoneDialogPoolRow[] = readyViews.map((view) => {
+      const attr = view.key as AttributeKey;
+      const sealedBurned = view.sealed + view.burned;
+      const spendable = view.readyExpected;
+      const reserved = this.#reservedStonesInDialogForAttr(attr);
+      const poolDisplay = Math.max(0, spendable - reserved);
+      const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
+      const gemSlots = Array.from({ length: poolDisplay }, (_, i) => ({ index: i }));
+      const blockedReason = stonePoolBlockedReason({
+        max: view.max,
+        available: poolDisplay,
+        sustained: Math.max(view.sustained, view.summonBound),
+        artifactBound: 0,
+        sealedBurned,
+        current: spendable,
+        lifetimeStoneMode: view.lifetimeStoneMode,
       });
+
+      return {
+        key: attr,
+        name: poolDisplayName(attr),
+        current: spendable,
+        max: view.max,
+        sustained: Math.max(view.sustained, view.summonBound),
+        sealedBurned,
+        artifactBound: 0,
+        available: spendable,
+        gemStyle,
+        gemSlots,
+        boundSlots: [],
+        blocked: !!blockedReason,
+        blockedReason,
+      };
+    });
 
     if (!(this as any)._loggedAvailableSnapshot) {
       (this as any)._loggedAvailableSnapshot = true;
       try {
-        const snap = POOL_DISPLAY_ATTRS.map((attr) => debugPoolSpendableSnapshot(this.actor, attr));
-        console.log('Mastery Stones | Available snapshot', {
-          dialogActor: { id: (this.actor as any)?.id, name: (this.actor as any)?.name, isToken: !!(this.actor as any)?.isToken },
-          poolOwner: { id: (poolOwner as any)?.id, name: (poolOwner as any)?.name, isToken: !!(poolOwner as any)?.isToken },
+        console.log('Mastery Stones | Available = Audit readyExpected', {
+          dialogActor: {
+            id: (this.actor as any)?.id,
+            name: (this.actor as any)?.name,
+            isToken: !!(this.actor as any)?.isToken,
+          },
+          poolOwner: {
+            id: (poolOwner as any)?.id,
+            name: (poolOwner as any)?.name,
+            isToken: !!(poolOwner as any)?.isToken,
+          },
           lifetimeStoneMode,
-          liveAssignments,
-          pools: snap,
+          views: readyViews,
           reservedByAttr: Object.fromEntries(
-            POOL_DISPLAY_ATTRS.map((a) => [a, this.#reservedStonesInDialogForAttr(a)]),
+            readyViews.map((v) => [v.key, this.#reservedStonesInDialogForAttr(v.key)]),
           ),
+          debug: POOL_DISPLAY_ATTRS.map((a) => debugPoolSpendableSnapshot(this.actor, a)),
         });
       } catch (err) {
         console.warn('Mastery Stones | Available snapshot failed', err);

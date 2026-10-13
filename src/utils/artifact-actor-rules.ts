@@ -23,11 +23,7 @@ import {
   STONE_POOL_ATTRIBUTE_KEYS,
   type AttributeKey,
 } from '../combat/action-economy.js';
-import {
-  effectiveStoneAssignments,
-  isLifetimeStoneMode,
-  systemWithStoneProgression,
-} from '../progression/v099-rules.js';
+import { getAttrStoneReadyView } from '../stones/stone-ready.js';
 import { getStoneGemStyle } from './stone-attribute-ui.js';
 import {
   ARTIFACT_MAX_LEVEL as SPEC_ARTIFACT_MAX_LEVEL,
@@ -110,89 +106,34 @@ function economyActor(actor: any): any {
   return getActionEconomyActor(actor) ?? actor;
 }
 
-/** Progression merged from world actor when the economy target is a token delta. */
-function stoneSystemForSpendable(actor: any): any {
-  const econ = economyActor(actor);
-  const local = (econ?.system as any) || {};
-  if (isLifetimeStoneMode(local)) return local;
-  try {
-    let baseId = String(econ?.id ?? actor?.id ?? '');
-    if (econ?.isToken) {
-      baseId = String(econ?.token?.actorId ?? econ?.token?.document?.actorId ?? baseId);
-    } else {
-      const doc = econ?.token?.document;
-      if (doc?.actorId) baseId = String(doc.actorId);
-    }
-    const world = baseId ? (globalThis as any).game?.actors?.get?.(baseId) : null;
-    if (world && world !== econ) {
-      return systemWithStoneProgression(local, world.system);
-    }
-  } catch {
-    /* game optional */
-  }
-  return local;
-}
-
 /**
- * Spendable (Ready) stones in one attribute pool.
- * Reads the action-economy actor (token vs world) and Lifetime assignment caps
- * — same Ready math as the GM Stone-Übersicht. Never subtracts sustained twice.
+ * Spendable (Ready) stones — identical to GM Stone-Übersicht "Erwartet Ready".
+ * Lifetime track − sealed − burned − max(sustained, summon/familiar).
  */
 export function poolSpendableStones(actor: any, attr: string): number {
-  const econ = economyActor(actor);
-  const stoneSystem = stoneSystemForSpendable(actor);
-  const livePools = (econ?.system as any)?.stonePools ?? stoneSystem?.stonePools ?? {};
-  const pool = livePools?.[attr];
-  if (!pool && !isLifetimeStoneMode(stoneSystem)) return 0;
-
-  const sustained = Math.max(0, Number(pool?.sustained) || 0);
-  const sealed = Math.max(0, Number(pool?.sealed) || 0);
-  const burned = Math.max(0, Number(pool?.burned) || 0);
-  let max = Math.max(0, Number(pool?.max) || 0);
-  if (isLifetimeStoneMode(stoneSystem)) {
-    const assigned = Math.max(
-      0,
-      Math.floor(Number((effectiveStoneAssignments(stoneSystem) as any)[attr]) || 0),
-    );
-    max = assigned;
-  }
-  if (max <= 0) return 0;
-  const readyCap = Math.max(0, max - sustained - sealed - burned);
-  const storedMax = Math.max(0, Number(pool?.max) || 0);
-  const current = Math.max(0, Number(pool?.current) || 0);
-  // Stale ÷8 max vs higher Lifetime assignment: lift Ready the same way Audit
-  // expects, while preserving stones already spent against the old cap.
-  if (isLifetimeStoneMode(stoneSystem) && storedMax < max) {
-    const oldReadyCap = Math.max(0, storedMax - sustained - sealed - burned);
-    const spent = Math.max(0, oldReadyCap - current);
-    return Math.max(0, readyCap - spent);
-  }
-  return Math.min(current, readyCap);
+  return getAttrStoneReadyView(actor, attr).readyExpected;
 }
 
 /** Debug snapshot for one pool (Available vs Audit). */
 export function debugPoolSpendableSnapshot(actor: any, attr: string): Record<string, unknown> {
   const econ = economyActor(actor);
-  const stoneSystem = stoneSystemForSpendable(actor);
-  const pool = (econ?.system as any)?.stonePools?.[attr] ?? {};
-  const assigned = isLifetimeStoneMode(stoneSystem)
-    ? Math.max(0, Math.floor(Number((effectiveStoneAssignments(stoneSystem) as any)[attr]) || 0))
-    : null;
-  const spendable = poolSpendableStones(actor, attr);
+  const view = getAttrStoneReadyView(actor, attr);
   return {
     attr,
     actorId: actor?.id,
     actorName: actor?.name,
     economyId: econ?.id,
     economyIsToken: !!(econ as any)?.isToken,
-    lifetimeMode: isLifetimeStoneMode(stoneSystem),
-    assigned,
-    poolMax: Number(pool?.max) || 0,
-    poolCurrent: Number(pool?.current) || 0,
-    sustained: Number(pool?.sustained) || 0,
-    sealed: Number(pool?.sealed) || 0,
-    burned: Number(pool?.burned) || 0,
-    spendable,
+    lifetimeMode: view.lifetimeStoneMode,
+    assigned: view.assigned,
+    max: view.max,
+    poolCurrent: view.current,
+    sustained: view.sustained,
+    sealed: view.sealed,
+    burned: view.burned,
+    summonBound: view.summonBound,
+    readyExpected: view.readyExpected,
+    spendable: view.readyExpected,
   };
 }
 

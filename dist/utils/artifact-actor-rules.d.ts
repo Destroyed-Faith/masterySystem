@@ -61,9 +61,8 @@ export declare function artifactExceedsMasteryRankCap(level: number, masteryRank
 /** Attunement has no Mastery-Rank requirement (MR 1 may attune a Level 1 Artifact). */
 export declare function canArtifactLink(_masteryRank?: number): boolean;
 /**
- * Spendable (Ready) stones in one attribute pool.
- * Reads the action-economy actor (token vs world) and Lifetime assignment caps
- * — same Ready math as the GM Stone-Übersicht. Never subtracts sustained twice.
+ * Spendable (Ready) stones — identical to GM Stone-Übersicht "Erwartet Ready".
+ * Lifetime track − sealed − burned − max(sustained, summon/familiar).
  */
 export declare function poolSpendableStones(actor: any, attr: string): number;
 /** Debug snapshot for one pool (Available vs Audit). */

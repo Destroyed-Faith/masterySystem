@@ -1,0 +1,209 @@
+/**
+ * Canonical Ready / Available Stones math.
+ *
+ * Single source of truth shared by:
+ * - GM Stone-Übersicht (`readyExpected`)
+ * - Stone Powers "Available Stones" gems
+ * - `poolSpendableStones` / payment
+ *
+ * Formula (Lifetime track):
+ *   max = assigned stones on the Lifetime XP track
+ *   readyExpected = max − sealed − burned − max(sustained, summon/familiar hold)
+ *
+ * Does NOT use Attribute÷8, pool.current, or retired artifact activation flags
+ * for Available. `pool.current` is only mirrored for Audit mismatch notes.
+ */
+
+import { getActionEconomyActor } from '../combat/action-economy.js';
+import {
+  ATTRIBUTE_KEYS,
+  effectiveStoneAssignments,
+  isLifetimeStoneMode,
+  permanentColorlessCount,
+} from '../progression/v099-rules.js';
+import { familiarStoneAssignments, getFamiliarsFromActor } from './familiar-bind.js';
+import {
+  listStonePoolSyncActors,
+  resolveActorStoneSystem,
+  stonePoolReadyMax,
+} from './stone-pool-sync.js';
+import { bondStoneAssignments, getSummonBondsFromActor } from './summon-bond-bind.js';
+
+export interface AttrStoneReadyView {
+  key: string;
+  assigned: number;
+  /** Lifetime track capacity (same as Audit "Max"). */
+  max: number;
+  /** Live pool.current (Audit "Ready" column only — not used for Available). */
+  current: number;
+  sealed: number;
+  burned: number;
+  sustained: number;
+  summonBound: number;
+  /**
+   * Stones the player may place in Stone Powers.
+   * Identical to Audit "Erwartet Ready".
+   */
+  readyExpected: number;
+  lifetimeStoneMode: boolean;
+}
+
+/** Sustained counts that Summon Bonds / Familiars currently hold. */
+export function summonBoundSustainedByAttr(actor: any): Record<string, number> {
+  const out: Record<string, number> = {};
+  const bump = (attr: string, n: number) => {
+    if (!attr || n <= 0) return;
+    out[attr] = (out[attr] ?? 0) + n;
+  };
+  try {
+    for (const bond of getSummonBondsFromActor(actor)) {
+      for (const [attr, n] of Object.entries(bondStoneAssignments(bond))) {
+        bump(attr, Math.max(0, Math.floor(Number(n) || 0)));
+      }
+    }
+  } catch {
+    /* optional */
+  }
+  try {
+    for (const fam of getFamiliarsFromActor(actor)) {
+      for (const [attr, n] of Object.entries(familiarStoneAssignments(fam))) {
+        bump(attr, Math.max(0, Math.floor(Number(n) || 0)));
+      }
+    }
+  } catch {
+    /* optional */
+  }
+  return out;
+}
+
+function considerPoolFields(
+  pool:
+    | { current?: unknown; max?: unknown; sealed?: unknown; burned?: unknown; sustained?: unknown }
+    | null
+    | undefined,
+  acc: { current: number; max: number; sealed: number; burned: number; sustained: number },
+): void {
+  if (!pool) return;
+  acc.current = Math.max(acc.current, Math.max(0, Math.floor(Number(pool.current) || 0)));
+  acc.max = Math.max(acc.max, Math.max(0, Math.floor(Number(pool.max) || 0)));
+  acc.sealed = Math.max(acc.sealed, Math.max(0, Math.floor(Number(pool.sealed) || 0)));
+  acc.burned = Math.max(acc.burned, Math.max(0, Math.floor(Number(pool.burned) || 0)));
+  acc.sustained = Math.max(acc.sustained, Math.max(0, Math.floor(Number(pool.sustained) || 0)));
+}
+
+/** Live seal / sustain / current across world + token economy copies. */
+function livePoolFields(actor: any, attr: string): {
+  current: number;
+  max: number;
+  sealed: number;
+  burned: number;
+  sustained: number;
+} {
+  const acc = { current: 0, max: 0, sealed: 0, burned: 0, sustained: 0 };
+  const seen = new Set<string>();
+  const add = (a: any) => {
+    if (!a) return;
+    const key = a.isToken
+      ? `token:${String(a.token?.id ?? a.id ?? '')}`
+      : `world:${String(a.id ?? '')}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    considerPoolFields(a?.system?.stonePools?.[attr], acc);
+  };
+  add(actor);
+  try {
+    add(getActionEconomyActor(actor));
+  } catch {
+    /* optional */
+  }
+  try {
+    for (const t of listStonePoolSyncActors(actor)) add(t);
+  } catch {
+    /* optional */
+  }
+  return acc;
+}
+
+/**
+ * Audit-identical Ready view for one attribute (or `colorless`).
+ */
+export function getAttrStoneReadyView(actor: any, attr: string): AttrStoneReadyView {
+  const stoneSystem = resolveActorStoneSystem(actor);
+  const lifetimeStoneMode = isLifetimeStoneMode(stoneSystem);
+  const assignments = effectiveStoneAssignments(stoneSystem);
+
+  const assigned =
+    attr === 'colorless'
+      ? permanentColorlessCount(stoneSystem)
+      : Math.max(0, Math.floor(Number((assignments as any)[attr]) || 0));
+
+  const live = livePoolFields(actor, attr);
+  const summonBound =
+    attr === 'colorless' ? 0 : Math.max(0, Math.floor(Number(summonBoundSustainedByAttr(actor)[attr]) || 0));
+
+  // Lifetime mode: exact assignment. Legacy: keep stored pool.max / ÷8 via helper.
+  const max = stonePoolReadyMax(stoneSystem, attr, {
+    max: lifetimeStoneMode ? assigned : Math.max(assigned, live.max),
+  });
+  const hold = Math.max(live.sustained, summonBound);
+  const readyExpected = Math.max(0, max - live.sealed - live.burned - hold);
+
+  return {
+    key: attr,
+    assigned,
+    max,
+    current: live.current,
+    sealed: live.sealed,
+    burned: live.burned,
+    sustained: live.sustained,
+    summonBound,
+    readyExpected,
+    lifetimeStoneMode,
+  };
+}
+
+/** All attribute pools (no colorless) — Stone Powers Available row source. */
+export function listAttrStoneReadyViews(actor: any): AttrStoneReadyView[] {
+  return ATTRIBUTE_KEYS.map((k) => getAttrStoneReadyView(actor, k));
+}
+
+/**
+ * Persist max/current to Audit readyExpected on every economy copy.
+ * Call once when opening Stone Powers so payment and gems match the Übersicht.
+ */
+export async function alignStonePoolsToAuditReady(actor: any): Promise<boolean> {
+  if (!actor) return false;
+  let changed = false;
+  const boundMap = summonBoundSustainedByAttr(actor);
+  for (const target of listStonePoolSyncActors(actor)) {
+    const stoneSystem = resolveActorStoneSystem(target);
+    if (!isLifetimeStoneMode(stoneSystem)) continue;
+    const assignments = effectiveStoneAssignments(stoneSystem);
+    const updates: Record<string, unknown> = {};
+    for (const attr of ATTRIBUTE_KEYS) {
+      const want = Math.max(0, Math.floor(Number((assignments as any)[attr]) || 0));
+      const pool = target?.system?.stonePools?.[attr] ?? {};
+      const sealed = Math.max(0, Math.floor(Number(pool.sealed) || 0));
+      const burned = Math.max(0, Math.floor(Number(pool.burned) || 0));
+      let sustained = Math.max(0, Math.floor(Number(pool.sustained) || 0));
+      const bound = Math.max(0, Math.floor(Number(boundMap[attr]) || 0));
+      if (bound > sustained) {
+        sustained = bound;
+        updates[`system.stonePools.${attr}.sustained`] = sustained;
+      }
+      const readyExpected = Math.max(0, want - sealed - burned - Math.max(sustained, bound));
+      const curMax = Math.max(0, Math.floor(Number(pool.max) || 0));
+      const curCurrent = Math.max(0, Math.floor(Number(pool.current) || 0));
+      if (curMax !== want) updates[`system.stonePools.${attr}.max`] = want;
+      if (curCurrent !== readyExpected) updates[`system.stonePools.${attr}.current`] = readyExpected;
+    }
+    if (!Object.keys(updates).length) continue;
+    try {
+      await target.update?.(updates);
+      changed = true;
+    } catch (err) {
+      console.warn('Mastery System | alignStonePoolsToAuditReady failed for', target?.name, err);
+    }
+  }
+  return changed;
+}

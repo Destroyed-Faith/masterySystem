@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.627] - 2026-10-13
+
+### Fixed
+
+- **Available Stones = Stone-Übersicht:** Komplett neue Quelle `stone-ready.ts`. Gems und Spendable sind exakt Audit „Erwartet Ready“: Lifetime-Zuweisung − Sealed − Burned − max(Sustained, Summon/Familiar). Kein Attribute÷8, kein `pool.current`, keine Artifact-Ghost-Bindings. Beim Öffnen werden Pools einmal an diese Zahl angeglichen.
+
 ## [0.9.626] - 2026-10-13
 
 ### Fixed

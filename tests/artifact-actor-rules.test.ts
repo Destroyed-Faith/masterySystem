@@ -155,23 +155,7 @@ describe('artifact link stone helpers', () => {
     expect(poolSpendableStones(actor, 'might')).toBe(1);
   });
 
-  it('lifts Available Ready when Lifetime assignment exceeds stale ÷8 max', () => {
-    const actor = {
-      system: {
-        progression: {
-          v099Stones: true,
-          stoneAssignments: { might: 3, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0 },
-          stoneSlotOrder: ['might', 'might', 'might'],
-        },
-        stonePools: {
-          might: { current: 1, max: 1, sustained: 0, sealed: 0, burned: 0 },
-        },
-      },
-    };
-    expect(poolSpendableStones(actor, 'might')).toBe(3);
-  });
-
-  it('preserves spent stones when lifting from stale ÷8 max', () => {
+  it('Available Ready follows Lifetime assignment (Audit readyExpected), not pool.current', () => {
     const actor = {
       system: {
         progression: {
@@ -184,8 +168,24 @@ describe('artifact link stone helpers', () => {
         },
       },
     };
-    // Old readyCap was 1, spent 1 → new readyCap 3 − 1 spent = 2
-    expect(poolSpendableStones(actor, 'might')).toBe(2);
+    expect(poolSpendableStones(actor, 'might')).toBe(3);
+  });
+
+  it('subtracts sealed/burned and summon-hold from Lifetime Ready', () => {
+    const actor = {
+      system: {
+        progression: {
+          v099Stones: true,
+          stoneAssignments: { vitality: 4, might: 0, agility: 0, intellect: 0, resolve: 0, influence: 0, wits: 0 },
+          stoneSlotOrder: ['vitality', 'vitality', 'vitality', 'vitality'],
+        },
+        stonePools: {
+          vitality: { current: 99, max: 1, sustained: 1, sealed: 1, burned: 0 },
+        },
+      },
+    };
+    // 4 − sealed1 − burned0 − max(sustained1, summon0) = 2
+    expect(poolSpendableStones(actor, 'vitality')).toBe(2);
   });
 
   it('legacy activation-stone flags do not reserve spendable stones', () => {
