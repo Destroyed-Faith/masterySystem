@@ -42,6 +42,8 @@ import { registerMisfortuneTokenSettings } from './system/misfortune-tokens.js';
 import { registerUnluckSettings } from './system/unluck.js';
 import { registerKnownNpcSettings } from './system/known-npcs.js';
 import { initializeKnownNpcsBar } from './ui/known-npcs-bar.js';
+import { registerMinorExpressionsBarSettings } from './system/minor-expressions-bar.js';
+import { initializeMinorExpressionsBar } from './ui/minor-expressions-bar.js';
 import { initializeSpecialTokenArea, registerSpecialTokenAreaSettings } from './ui/special-token-area.js';
 import { registerCarouselClientSettings } from './ui/combat-carousel-settings.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
@@ -129,6 +131,7 @@ function registerAllMasteryInitSettings() {
     registerMisfortuneTokenSettings();
     registerUnluckSettings();
     registerKnownNpcSettings();
+    registerMinorExpressionsBarSettings();
     registerSpecialTokenAreaSettings();
     registerCarouselClientSettings();
 }
@@ -245,6 +248,7 @@ Hooks.once('init', async function () {
     initializeSceneEditor();
     initializeHitBlockerProbe();
     initializeKnownNpcsBar();
+    initializeMinorExpressionsBar();
     initializeSpecialTokenArea();
     // GM-only "Encounter erzeugen" button in the Actors directory header.
     Hooks.on('renderActorDirectory', (_app, html) => {
@@ -2143,6 +2147,7 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/ui/unluck-gm-dialog.hbs',
         'systems/mastery-system/templates/ui/known-npcs-bar.hbs',
         'systems/mastery-system/templates/ui/known-npcs-gm-dialog.hbs',
+        'systems/mastery-system/templates/ui/minor-expressions-bar.hbs',
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);

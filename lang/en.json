@@ -433,6 +433,16 @@
       "sheetHint": "Show this NPC’s portrait and name on the player bar",
       "drag": "Drag to move"
     },
+    "minorExpressionsBar": {
+      "title": "Minor Expressions",
+      "expand": "Show Minor Expressions",
+      "collapse": "Hide Minor Expressions",
+      "drag": "Drag to move",
+      "use": "Use (post to chat)",
+      "undo": "Undo last use",
+      "sheet": "Open character sheet",
+      "uses": "Uses until Safe Haven Rest"
+    },
     "sheet": {
       "gmMenu": "GM Tools",
       "refreshXp": "Refresh XP",

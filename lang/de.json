@@ -433,6 +433,16 @@
       "sheetHint": "Porträt und Name dieses NSC in der Spielerleiste zeigen",
       "drag": "Ziehen zum Verschieben"
     },
+    "minorExpressionsBar": {
+      "title": "Minor Expressions",
+      "expand": "Minor Expressions einblenden",
+      "collapse": "Minor Expressions ausblenden",
+      "drag": "Ziehen zum Verschieben",
+      "use": "Einsetzen (in den Chat posten)",
+      "undo": "Letzten Einsatz zurücknehmen",
+      "sheet": "Charakterbogen öffnen",
+      "uses": "Einsätze bis zur Safe-Haven-Rast"
+    },
     "sheet": {
       "gmMenu": "SL-Werkzeuge",
       "refreshXp": "XP neu berechnen",

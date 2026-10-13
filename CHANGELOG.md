@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.645] - 2026-10-13
+
+### Added
+
+- **Minor-Expressions-Leiste (Spieler):** Schwebendes, verschiebbares und ein-/ausklappbares Panel (wie „Wichtige NSCs“) mit den im Charakterbogen gewählten Minor Expressions des eigenen Charakters. Hover zeigt Name, Tier, Tagline, aktuellen Tier-Text und ggf. Einschränkungen. **Einsetzen** postet eine Chat-Karte und zählt den Einsatz; Budget **Mastery Rank × 2** pro Safe-Haven-Rast (Reset bei der Rast), Rücknahme-Button, Shortcut zum Bogen. Position/Einklappen pro Client gespeichert; per Client-Setting ausblendbar. Nur für Spieler (zugewiesener Charakter, sonst erster eigener).
+
 ## [0.9.644] - 2026-10-13
 
 ### Added

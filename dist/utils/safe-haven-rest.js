@@ -189,6 +189,10 @@ export async function applySafeHavenRest(actor) {
     catch (err) {
         console.warn('Mastery System | Safe Haven Remove Scar flag clear failed', err);
     }
+    // Minor Expression uses (Mastery Rank × 2 per Safe Haven Rest) refresh here.
+    if (actor.getFlag?.('mastery-system', 'minorExpressionUses') != null) {
+        updates['flags.mastery-system.minorExpressionUses'] = 0;
+    }
     try {
         const { encodeStatusFlag, readActorStatusEffects } = await import('../system/active-specials.js');
         if (readActorStatusEffects(actor).length) {

@@ -1,0 +1,240 @@
+/* Floating player panel for the character's Minor Expressions (shares the Important NPCs chrome). */
+
+#mastery-minor-expressions-bar {
+  position: fixed !important;
+  left: 90px;
+  top: 160px;
+  z-index: 90 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  pointer-events: none;
+}
+
+#mastery-minor-expressions-bar .window-content {
+  pointer-events: none !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.minor-expressions-bar .known-npcs-toggle {
+  border-color: rgba(179, 157, 219, 0.4);
+}
+
+.minor-expressions-budget {
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: rgba(179, 157, 219, 0.22);
+  color: #d1c4e9;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.minor-expressions-list {
+  width: 15.5rem;
+  gap: 0.3rem;
+  overflow: visible;
+}
+
+.minor-expressions-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0 0.15rem 0.2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.minor-expressions-actor {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.minor-expressions-head-tools {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.minor-expressions-mini,
+.minor-expressions-use {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #eceff1;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.minor-expressions-mini:hover:not(:disabled),
+.minor-expressions-use:hover:not(:disabled) {
+  background: rgba(179, 157, 219, 0.3);
+}
+
+.minor-expressions-mini:disabled,
+.minor-expressions-use:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.minor-expressions-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: calc(100vh - 16rem);
+  overflow-y: auto;
+  overflow-x: visible;
+}
+
+.minor-expressions-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.3rem;
+  border-radius: 6px;
+  color: #eceff1;
+}
+
+.minor-expressions-row:hover {
+  background: rgba(179, 157, 219, 0.16);
+}
+
+.minor-expressions-row.is-locked {
+  opacity: 0.55;
+}
+
+.minor-expressions-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.minor-expressions-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.minor-expressions-tier {
+  font-size: 0.7rem;
+  color: #d1c4e9;
+}
+
+.minor-expressions-tip {
+  position: absolute;
+  left: calc(100% + 0.5rem);
+  top: 0;
+  z-index: 200;
+  width: 18rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(179, 157, 219, 0.5);
+  background: rgba(10, 12, 18, 0.96);
+  color: #eceff1;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.minor-expressions-tip.is-left {
+  left: auto;
+  right: calc(100% + 0.5rem);
+}
+
+.minor-expressions-tip.is-up {
+  top: auto;
+  bottom: 0;
+}
+
+.minor-expressions-tip strong {
+  font-size: 0.9rem;
+}
+
+.minor-expressions-tip-tier {
+  margin-left: 0.3rem;
+  font-size: 0.72rem;
+  color: #d1c4e9;
+}
+
+.minor-expressions-tip-tagline {
+  display: block;
+  margin: 0.2rem 0 0.3rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.minor-expressions-tip-body,
+.minor-expressions-tip-constraints {
+  margin: 0;
+}
+
+.minor-expressions-tip-constraints {
+  margin-top: 0.35rem;
+  padding-top: 0.3rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.18);
+  font-size: 0.74rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Chat card */
+.chat-message .minor-expression-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.35rem 0.45rem;
+  border-left: 3px solid #b39ddb;
+  background: rgba(179, 157, 219, 0.08);
+  border-radius: 4px;
+}
+
+.chat-message .minor-expression-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.chat-message .minor-expression-card-tier {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #7e57c2;
+}
+
+.chat-message .minor-expression-card p {
+  margin: 0;
+}
+
+.chat-message .minor-expression-card-constraints,
+.chat-message .minor-expression-card-uses {
+  font-size: 0.78rem;
+  opacity: 0.8;
+}

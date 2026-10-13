@@ -1,0 +1,43 @@
+<div class="known-npcs minor-expressions {{#if collapsed}}is-collapsed{{/if}}">
+  <div class="known-npcs-chrome">
+    <button type="button" class="known-npcs-handle" title="{{dragLabel}}" aria-label="{{dragLabel}}">
+      <i class="fas fa-grip-vertical"></i>
+    </button>
+    <button type="button" class="known-npcs-toggle" data-action="toggle" title="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}" aria-label="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}">
+      <i class="fas fa-wand-sparkles"></i>
+      <span>{{title}}</span>
+      <span class="minor-expressions-budget" title="{{usesLabel}}">{{usesLeft}}/{{usesMax}}</span>
+      <i class="fas {{#if collapsed}}fa-chevron-right{{else}}fa-chevron-left{{/if}}"></i>
+    </button>
+  </div>
+  {{#unless collapsed}}
+  <div class="known-npcs-list minor-expressions-list">
+    <div class="minor-expressions-head">
+      <span class="minor-expressions-actor">{{actorName}}</span>
+      <span class="minor-expressions-head-tools">
+        <button type="button" class="minor-expressions-mini" data-action="undo" title="{{undoLabel}}" aria-label="{{undoLabel}}" {{#unless canUndo}}disabled{{/unless}}><i class="fas fa-rotate-left"></i></button>
+        <button type="button" class="minor-expressions-mini" data-action="sheet" title="{{sheetLabel}}" aria-label="{{sheetLabel}}"><i class="fas fa-user"></i></button>
+      </span>
+    </div>
+    <ul class="minor-expressions-rows">
+      {{#each rows}}
+      <li class="minor-expressions-row{{#if locked}} is-locked{{/if}}" data-expression-id="{{id}}">
+        <span class="minor-expressions-copy">
+          <span class="minor-expressions-name">{{name}}</span>
+          <span class="minor-expressions-tier">{{tierLabel}}</span>
+        </span>
+        <button type="button" class="minor-expressions-use" data-action="use" data-expression-id="{{id}}" title="{{../useLabel}}" aria-label="{{../useLabel}}" {{#unless canUse}}disabled{{/unless}}>
+          <i class="fas fa-comment-dots"></i>
+        </button>
+        <div class="minor-expressions-tip" hidden>
+          <strong>{{name}}</strong> <span class="minor-expressions-tip-tier">{{tierLabel}}</span>
+          <em class="minor-expressions-tip-tagline">{{tagline}}</em>
+          <p class="minor-expressions-tip-body">{{body}}</p>
+          {{#if constraints}}<p class="minor-expressions-tip-constraints">{{constraints}}</p>{{/if}}
+        </div>
+      </li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/unless}}
+</div>
