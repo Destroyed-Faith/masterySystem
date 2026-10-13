@@ -21,9 +21,9 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { applySpecialBoostToLabel, readSpecialBoost } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
-import { artifactSystemHasSpellFocus } from '../utils/artifact-rules.js';
+import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
-import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
+import { getActorSpellFocusBonusDice, listActorSpellFocusSources } from '../utils/artifact-base-values.js';
 import {
   bindChosenSpecialIntoLevelData,
   countRaiseSlots,
@@ -332,9 +332,9 @@ function resolveWeaponBaseDamage(weapon: any | null): string {
   }
   
   const weaponSystem = weapon.system as any;
-  // Spell Focus weapons route their value into Spell damage and deal NO normal
-  // weapon damage — even though they keep their melee/ranged base profile.
-  if (weapon.type === 'artifact' && artifactSystemHasSpellFocus(weaponSystem)) {
+  // Pure Spell Focus gear (Staff of the Dark) adds dice to Spells only.
+  // Witch Staffs etc. keep Staff Damage AND Spell Focus — do not zero those.
+  if (weapon.type === 'artifact' && artifactIsSpellFocusOnly(weaponSystem)) {
     return '0';
   }
   // Artifact weapons (e.g. Dragon Claws) keep their dice on
@@ -848,6 +848,14 @@ export async function showDamageDialog(
     }
   }
 
+  const weaponDisplayName = weaponForDamage
+    ? String(weaponForDamage.name || '').trim()
+    : '';
+  const spellFocusSources =
+    attackIsSpell && !isNpcAttackFlow && spellFocusBonusDice > 0
+      ? listActorSpellFocusSources(actorToUse as Actor)
+      : [];
+
   // Create damage card as chat message instead of dialog
   return new Promise((resolve) => {
     const damageCardContent = createDamageCardContent(
@@ -875,6 +883,9 @@ export async function showDamageDialog(
             : 0,
         martialDamageDice: stoneDamageBonusDice,
         spellFocusDice: spellFocusBonusDice,
+        weaponName: weaponDisplayName,
+        spellFocusSources,
+        castingNoWeapon: !!flags?.ignoreWeaponDamage,
       },
       formatSplitStrikeBanner(flags),
     );
@@ -968,12 +979,35 @@ function createDamageCardContent(
     might?: number;
     martialDamageDice?: number;
     spellFocusDice?: number;
+    weaponName?: string;
+    spellFocusSources?: Array<{ name: string; dice: number }>;
+    castingNoWeapon?: boolean;
   } = {},
   splitBanner: string = '',
 ): string {
   const raisesSection = raiseOutcomeLine
     ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
     : '';
+
+  const weaponName = String(hitSplit.weaponName || '').trim();
+  const weaponValue = baseDamage || '0';
+  let weaponLabelDetail = weaponValue;
+  if (weaponName) {
+    weaponLabelDetail = `${weaponValue} — ${damageCardHtmlEsc(weaponName)}`;
+  } else if (hitSplit.castingNoWeapon || weaponValue === '0') {
+    weaponLabelDetail = hitSplit.castingNoWeapon
+      ? '0 — Casting (kein Waffenschaden)'
+      : '0';
+  }
+  const focusSources = Array.isArray(hitSplit.spellFocusSources) ? hitSplit.spellFocusSources : [];
+  const focusDetail =
+    focusSources.length > 0
+      ? focusSources
+          .map((s) => `+${Math.floor(Number(s.dice) || 0)}d8 — ${damageCardHtmlEsc(s.name)}`)
+          .join('; ')
+      : (hitSplit.spellFocusDice || 0) > 0
+        ? `+${Math.floor(Number(hitSplit.spellFocusDice) || 0)}d8`
+        : '';
 
   const markMax = Math.max(0, Math.floor(Number(targetMarkValue) || 0));
   let markSpendSection = '';
@@ -1009,7 +1043,7 @@ function createDamageCardContent(
         }
         <div class="damage-row">
           <span class="damage-label">Waffe:</span>
-          <span class="damage-value">${baseDamage || '0'}</span>
+          <span class="damage-value">${weaponLabelDetail}</span>
         </div>
         ${
           (hitSplit.martialDamageDice || 0) > 0
@@ -1020,10 +1054,10 @@ function createDamageCardContent(
             : ''
         }
         ${
-          (hitSplit.spellFocusDice || 0) > 0
+          focusDetail
             ? `<div class="damage-row">
           <span class="damage-label">Spell Focus:</span>
-          <span class="damage-value">+${Math.floor(Number(hitSplit.spellFocusDice) || 0)}d8</span>
+          <span class="damage-value">${focusDetail}</span>
         </div>`
             : ''
         }

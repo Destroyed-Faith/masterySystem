@@ -43,6 +43,7 @@ export {
   getTargetSpellResistance,
   spellResistanceAfterPenetration,
 } from "./target-defenses.js";
+import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import {
   buildAvailableRaiseOptions,
   computeRaiseTns,
@@ -211,8 +212,15 @@ function resolveWeaponForAttack(
  * (e.g. "9d8 total (5d8 weapon + 4d8 power), Sundered(2)"). With no weapon
  * dice (spells, unarmed flat damage) this is the plain power snapshot summary.
  */
-function formatOnHitSummary(snapshot: PowerSnapshot, weaponDice: number | undefined): string {
-  return formatHitBreakdown(weaponDice, snapshot.damageDice, { specials: snapshot.specials });
+function formatOnHitSummary(
+  snapshot: PowerSnapshot,
+  weaponDice: number | undefined,
+  weaponName?: string,
+): string {
+  return formatHitBreakdown(weaponDice, snapshot.damageDice, {
+    specials: snapshot.specials,
+    weaponName,
+  });
 }
 
 /**
@@ -586,6 +594,8 @@ export async function createAttackCard(
     raiseOptions: RaiseOption[];
     /** Wielded weapon's d8 count — shown as part of the on-hit total preview. */
     weaponDamageDice?: number;
+    /** Display name for the wielded weapon in hit previews. */
+    weaponName?: string;
     /** NPC raises do not start free. The GM marks single Raises. */
     waiveRaiseCost?: boolean;
   } | null = null;
@@ -721,6 +731,9 @@ export async function createAttackCard(
     raiseContext.weaponDamageDice = option.ignoreWeaponDamage
       ? 0
       : parseD8Count((weapon?.system as any)?.damage);
+    if (weapon && !option.ignoreWeaponDamage) {
+      raiseContext.weaponName = String(weapon.name || '').trim() || undefined;
+    }
   }
 
   const tr =
@@ -828,6 +841,7 @@ export async function createAttackCard(
           basePowerSnapshot: raiseContext.baseSnapshot,
           raiseOptions: raiseContext.raiseOptions,
           weaponDamageDice: raiseContext.weaponDamageDice ?? 0,
+          weaponName: raiseContext.weaponName || '',
         }
       : npcIsSpell
         ? { powerIsSpell: true }
@@ -994,8 +1008,18 @@ export async function createAttackCard(
         : 'Target Evade';
   const tnValue = tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : normalTn;
   const hitLine = raiseContext
-    ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice)
+    ? formatOnHitSummary(
+        raiseContext.baseSnapshot,
+        raiseContext.weaponDamageDice,
+        raiseContext.weaponName,
+      )
     : '';
+  const spellFocusSources =
+    tnKind === 'casting' ? listActorSpellFocusSources(attacker) : [];
+  const spellFocusLine =
+    spellFocusSources.length > 0
+      ? spellFocusSources.map((s) => `+${s.dice}d8 ${s.name}`).join('; ')
+      : '';
 
   const content = `
     <div class="mastery-attack-card">
@@ -1030,6 +1054,11 @@ export async function createAttackCard(
           }</span>
         </div>
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
+        ${
+          spellFocusLine
+            ? `<div class="detail-row"><span class="detail-label">Spell Focus:</span><span class="detail-value">${attackCardEsc(spellFocusLine)}</span></div>`
+            : ''
+        }
         ${npcAttackDetailHtml}
         ${
           hitLine
@@ -1195,6 +1224,7 @@ export function registerRaisePlanChatHooks(): void {
         baseSnapshot: flags.basePowerSnapshot,
         raiseOptions: flags.raiseOptions,
         weaponDamageDice: Number(flags.weaponDamageDice) || 0,
+        weaponName: String(flags.weaponName || '').trim() || undefined,
       });
     } catch (err) {
       console.warn('Mastery System | raise plan chat hook failed', err);
@@ -1212,6 +1242,7 @@ function setupRaisesHandler(
     baseSnapshot: PowerSnapshot;
     raiseOptions: RaiseOption[];
     weaponDamageDice?: number;
+    weaponName?: string;
   } | null,
 ): void {
   const panel = messageElement.find('.raise-plan-panel');
@@ -1430,6 +1461,7 @@ function setupRaisesHandler(
       formatHitBreakdown(raiseContext!.weaponDamageDice, raiseContext!.baseSnapshot.damageDice, {
         raiseDice,
         specials: full.specials,
+        weaponName: raiseContext!.weaponName,
       }),
     );
     button.attr('data-raise-tn', String(raiseTn));

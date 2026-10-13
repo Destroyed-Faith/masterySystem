@@ -650,8 +650,24 @@ describe('Staff of the Dark', () => {
     expect(baseValue(tree, 6, 'Spell Focus Bonus').type).toBe('spellFocus');
   });
 
+  it('is Spell Focus only (no weapon damage); hybrids with Staff Damage keep WD', async () => {
+    const { artifactIsSpellFocusOnly } = await import('../src/utils/artifact-rules.js');
+    expect(artifactIsSpellFocusOnly(sysAt(tree, 3))).toBe(true);
+    expect(
+      artifactIsSpellFocusOnly({
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 3,
+        artifactWeapon: { damage: '7d8' },
+        baseValues: [
+          { type: 'weaponDamage', value: '7d8' },
+          { type: 'spellFocus', value: '+5d8' },
+        ],
+      }),
+    ).toBe(false);
+  });
+
   it('contributes Spell Focus dice when equipped (including legacy minorFeature rows)', async () => {
-    const { getActorSpellFocusBonusDice } = await import('../src/utils/artifact-base-values.js');
+    const { getActorSpellFocusBonusDice, listActorSpellFocusSources } = await import('../src/utils/artifact-base-values.js');
     const { baseValueIsSpellFocus } = await import('../src/utils/artifact-rules.js');
     expect(
       baseValueIsSpellFocus({
@@ -676,6 +692,9 @@ describe('Staff of the Dark', () => {
       ],
     };
     expect(getActorSpellFocusBonusDice(actor)).toBe(7);
+    expect(listActorSpellFocusSources(actor)).toEqual([
+      { name: 'Staff of the Dark', dice: 7 },
+    ]);
   });
 
   it('Hex (Focus Special) uses its own breakpoints: 2 at L4-5, 3 at L6-7, 4 at L8-9, 5 at L10', () => {
@@ -862,6 +881,16 @@ describe("Lor-Keth's Staff", () => {
       attribute: 'might',
       stonePowerId: 'might.ignoreArmor',
     });
+  });
+
+  it('is a melee staff (7d8 at L3), not a Spell Focus', async () => {
+    const { artifactIsSpellFocusOnly, artifactSystemHasSpellFocus } = await import(
+      '../src/utils/artifact-rules.js'
+    );
+    const sys = sysAt(tree, 3);
+    expect(sys.artifactWeapon.damage).toBe('7d8');
+    expect(artifactSystemHasSpellFocus(sys)).toBe(false);
+    expect(artifactIsSpellFocusOnly(sys)).toBe(false);
   });
 
   it('uses the authored rulebook progression rows 1:1', () => {

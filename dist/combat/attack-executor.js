@@ -21,6 +21,7 @@ import { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetrati
 import { actorHasSurprise } from "./surprise.js";
 import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
+import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
 import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, dedupeDeclaredRaises, describeDeclaredRaise, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
 const pendingSplitStrike2 = new Map();
 /**
@@ -123,8 +124,11 @@ function resolveWeaponForAttack(items, attackType, attacker) {
  * (e.g. "9d8 total (5d8 weapon + 4d8 power), Sundered(2)"). With no weapon
  * dice (spells, unarmed flat damage) this is the plain power snapshot summary.
  */
-function formatOnHitSummary(snapshot, weaponDice) {
-    return formatHitBreakdown(weaponDice, snapshot.damageDice, { specials: snapshot.specials });
+function formatOnHitSummary(snapshot, weaponDice, weaponName) {
+    return formatHitBreakdown(weaponDice, snapshot.damageDice, {
+        specials: snapshot.specials,
+        weaponName,
+    });
 }
 /**
  * Get attribute value from actor
@@ -568,6 +572,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         raiseContext.weaponDamageDice = option.ignoreWeaponDamage
             ? 0
             : parseD8Count(weapon?.system?.damage);
+        if (weapon && !option.ignoreWeaponDamage) {
+            raiseContext.weaponName = String(weapon.name || '').trim() || undefined;
+        }
     }
     const tr = attackType === "ranged"
         ? evaluateThreatenedRanged(attackerToken, option)
@@ -665,6 +672,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 basePowerSnapshot: raiseContext.baseSnapshot,
                 raiseOptions: raiseContext.raiseOptions,
                 weaponDamageDice: raiseContext.weaponDamageDice ?? 0,
+                weaponName: raiseContext.weaponName || '',
             }
             : npcIsSpell
                 ? { powerIsSpell: true }
@@ -802,7 +810,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             : 'Target Evade';
     const tnValue = tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : normalTn;
     const hitLine = raiseContext
-        ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice)
+        ? formatOnHitSummary(raiseContext.baseSnapshot, raiseContext.weaponDamageDice, raiseContext.weaponName)
+        : '';
+    const spellFocusSources = tnKind === 'casting' ? listActorSpellFocusSources(attacker) : [];
+    const spellFocusLine = spellFocusSources.length > 0
+        ? spellFocusSources.map((s) => `+${s.dice}d8 ${s.name}`).join('; ')
         : '';
     const content = `
     <div class="mastery-attack-card">
@@ -829,6 +841,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         : ''}</span>
         </div>
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
+        ${spellFocusLine
+        ? `<div class="detail-row"><span class="detail-label">Spell Focus:</span><span class="detail-value">${attackCardEsc(spellFocusLine)}</span></div>`
+        : ''}
         ${npcAttackDetailHtml}
         ${hitLine
         ? `<div class="detail-row"><span class="detail-label">Wenn du triffst:</span><span class="detail-value raise-cost-display">${attackCardEsc(hitLine)}</span></div>`
@@ -967,6 +982,7 @@ export function registerRaisePlanChatHooks() {
                 baseSnapshot: flags.basePowerSnapshot,
                 raiseOptions: flags.raiseOptions,
                 weaponDamageDice: Number(flags.weaponDamageDice) || 0,
+                weaponName: String(flags.weaponName || '').trim() || undefined,
             });
         }
         catch (err) {
@@ -1188,6 +1204,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         messageElement.find('.raise-cost-display').text(formatHitBreakdown(raiseContext.weaponDamageDice, raiseContext.baseSnapshot.damageDice, {
             raiseDice,
             specials: full.specials,
+            weaponName: raiseContext.weaponName,
         }));
         button.attr('data-raise-tn', String(raiseTn));
         button.attr('data-raise-slots', String(slots));

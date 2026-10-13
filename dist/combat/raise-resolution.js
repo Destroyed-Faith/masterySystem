@@ -273,15 +273,16 @@ function displaySpecialName(key) {
         return getEffectBaseName(effect.name);
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
-/** One line: 11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise). */
+/** One line: 11d8 (5d8 Lor-Keth's Staff + 4d8 Power + 2d8 Raise). */
 export function formatHitBreakdown(weaponDice, powerDice, extra) {
     const w = Math.max(0, Math.floor(weaponDice ?? 0));
     const p = Math.max(0, Math.floor(powerDice));
     const r = Math.max(0, Math.floor(extra?.raiseDice ?? 0));
     const total = w + p + r;
+    const weaponLabel = String(extra?.weaponName || '').trim() || 'Waffe';
     const parts = [];
     if (w > 0)
-        parts.push(`${w}d8 Waffe`);
+        parts.push(`${w}d8 ${weaponLabel}`);
     if (p > 0 || w > 0)
         parts.push(`${p}d8 Power`);
     if (r > 0)
@@ -293,14 +294,15 @@ export function formatHitBreakdown(weaponDice, powerDice, extra) {
     return specs.length ? `${head} + ${specs.join(', ')}` : head;
 }
 /** Weapon dice plus power dice, so 4d8 total is not read as the Raise itself. */
-export function formatAttackDiceLine(powerDice, weaponDice) {
+export function formatAttackDiceLine(powerDice, weaponDice, weaponName) {
     const w = Math.max(0, Math.floor(weaponDice ?? 0));
     const p = Math.max(0, Math.floor(powerDice));
+    const weaponLabel = String(weaponName || '').trim() || 'Waffe';
     if (w <= 0)
         return `${p}d8 Power`;
     if (p <= 0)
-        return `${w}d8 gesamt (nur die Waffe)`;
-    return `${w + p}d8 gesamt (${w}d8 Waffe + ${p}d8 Power)`;
+        return `${w}d8 gesamt (nur ${weaponLabel})`;
+    return `${w + p}d8 gesamt (${w}d8 ${weaponLabel} + ${p}d8 Power)`;
 }
 /**
  * What a full Raise actually changes. Specials that stay put are named, so

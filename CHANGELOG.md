@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.632] - 2026-10-13
+
+### Fixed
+
+- **Waffe sichtbar:** Schadenkarte und Hit-Preview zeigen den Waffennamen (`7d8 — Lor-Keth's Staff` statt nur `Waffe: 0`/`Xd8 Waffe`). Casting zeigt `0 — Casting` und **Spell Focus: +Nd8 — Staff-Name**.
+- **Spell Focus vs. Staff Damage:** Nur reine Focus-Artefakte (Staff of the Dark) setzen WD auf 0. Hybrid-Stäbe mit Staff Damage behalten ihren Waffenschaden.
+
 ## [0.9.631] - 2026-10-13
 
 ### Added

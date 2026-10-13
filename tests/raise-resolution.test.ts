@@ -207,6 +207,9 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
   it('writes the hit as weapon plus power plus raise', () => {
     expect(formatHitBreakdown(5, 4, { raiseDice: 2 })).toBe('11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise)');
     expect(formatHitBreakdown(5, 4)).toBe('9d8 (5d8 Waffe + 4d8 Power)');
+    expect(formatHitBreakdown(7, 2, { weaponName: "Lor-Keth's Staff" })).toBe(
+      "9d8 (7d8 Lor-Keth's Staff + 2d8 Power)",
+    );
   });
 
   it('does not offer a +4 m range Raise', () => {

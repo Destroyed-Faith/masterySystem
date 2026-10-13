@@ -105,6 +105,12 @@ export declare function artifactSystemHasSpellFocus(system: any): boolean;
 /** Total Spell Focus bonus dice (d8) authored on an artifact `system`. */
 export declare function spellFocusDiceFromSystem(system: any): number;
 /**
+ * True when an artifact is Spell Focus only (Staff of the Dark, etc.): it boosts
+ * Spells but deals no normal weapon damage. Witch Staffs and similar items that
+ * carry both Staff Damage and Spell Focus return false.
+ */
+export declare function artifactIsSpellFocusOnly(system: any): boolean;
+/**
  * Max number of Base Values per slot (Artefacts.md "Base Values" table):
  *   Main Hand / Off Hand: 2 · Both Hands: 3 · Body: 2 (Armor + Evade on A)
  *   Head: 2 · Feet: 2 · Ring / Amulet: 3 each — but an equipped Ring + Amulet

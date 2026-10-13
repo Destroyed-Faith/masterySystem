@@ -289,6 +289,15 @@ describe('buildPrintCombatPreview', () => {
     expect(preview?.damage).toMatch(/Spell Focus/i);
   });
 
+  it('keeps melee WD for hybrid artifacts that also have Spell Focus', () => {
+    const weapon = meleeArtifact(4, true);
+    const actor = mockActor({ might: 14 }, [weapon]);
+    const preview = buildPrintCombatPreview(actor, meleePower(), [weapon]);
+    // Focus must not zero Staff/weapon damage on martial attacks.
+    expect(preview?.damage).toMatch(/WD 6d8/);
+    expect(preview?.damage).not.toMatch(/WD 0/);
+  });
+
   it('appends the chosen Special to the damage line', () => {
     const power = meleePower({
       levels: {

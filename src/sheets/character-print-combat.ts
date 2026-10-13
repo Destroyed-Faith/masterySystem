@@ -10,7 +10,7 @@ import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { getTemplate } from '../utils/powers/index.js';
 import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
 import {
-  artifactSystemHasSpellFocus,
+  artifactIsSpellFocusOnly,
   resolveArtifactWeaponKind,
 } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
@@ -312,7 +312,8 @@ function resolveWeaponForPrint(
 function resolveWeaponBaseDamageString(weapon: any | null): string {
   if (!weapon?.system) return '1d8';
   const sys = weapon.system;
-  if (weapon.type === 'artifact' && artifactSystemHasSpellFocus(sys)) return '0';
+  // Focus-only gear deals no WD; hybrid staffs (WD + Spell Focus) keep WD.
+  if (weapon.type === 'artifact' && artifactIsSpellFocusOnly(sys)) return '0';
 
   const artifactLevel = Math.max(
     1,
@@ -483,7 +484,8 @@ function shouldIncludeWeapon(
 ): boolean {
   if (!weapon || !usesWeaponDamage(sys, rank)) return false;
   if (spell && !isWeaponAttackPower(sys)) return false;
-  if (artifactSystemHasSpellFocus(weapon.system)) return false;
+  // Pure Spell Focus gear never contributes WD; hybrids (Witch Staff) still do.
+  if (artifactIsSpellFocusOnly(weapon.system)) return false;
   if (weaponKind(weapon) !== attackType) return false;
   return slot === 'active' || slot === 'reaction';
 }

@@ -7,7 +7,7 @@ import { getAttackAttributeForPowerTreeOrSchool } from '../utils/power-roll-attr
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/index.js';
 import { bindPoolSpecialsOnRow } from '../utils/powers/pool-special-ranks.js';
-import { artifactSystemHasSpellFocus, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
+import { artifactIsSpellFocusOnly, resolveArtifactWeaponKind, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import { isLegacyUnarmedItem, isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
@@ -291,7 +291,8 @@ function resolveWeaponBaseDamageString(weapon) {
     if (!weapon?.system)
         return '1d8';
     const sys = weapon.system;
-    if (weapon.type === 'artifact' && artifactSystemHasSpellFocus(sys))
+    // Focus-only gear deals no WD; hybrid staffs (WD + Spell Focus) keep WD.
+    if (weapon.type === 'artifact' && artifactIsSpellFocusOnly(sys))
         return '0';
     const artifactLevel = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
     const derived = weapon.type === 'artifact'
@@ -433,7 +434,8 @@ function shouldIncludeWeapon(slot, spell, weapon, attackType, sys, rank) {
         return false;
     if (spell && !isWeaponAttackPower(sys))
         return false;
-    if (artifactSystemHasSpellFocus(weapon.system))
+    // Pure Spell Focus gear never contributes WD; hybrids (Witch Staff) still do.
+    if (artifactIsSpellFocusOnly(weapon.system))
         return false;
     if (weaponKind(weapon) !== attackType)
         return false;

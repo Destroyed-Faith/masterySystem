@@ -24,6 +24,7 @@
  *   • `src/utils/echos/*` (echo-artifact authoring)
  *   • `src/documents/actor.ts` (combat-side base-value aggregation)
  */
+import { deriveArtifactWeaponDamage } from './artifact-base-derive.js';
 // ----------------------------------------------------------------------
 // Canonical Equipment Slots
 // ----------------------------------------------------------------------
@@ -229,6 +230,25 @@ export function spellFocusDiceFromSystem(system) {
             dice += parseSpellFocusDice(bv?.value);
     }
     return dice;
+}
+/**
+ * True when an artifact is Spell Focus only (Staff of the Dark, etc.): it boosts
+ * Spells but deals no normal weapon damage. Witch Staffs and similar items that
+ * carry both Staff Damage and Spell Focus return false.
+ */
+export function artifactIsSpellFocusOnly(system) {
+    if (!artifactSystemHasSpellFocus(system))
+        return false;
+    const bvs = Array.isArray(system?.baseValues) ? system.baseValues : [];
+    if (bvs.some((bv) => String(bv?.type || '') === 'weaponDamage'))
+        return false;
+    const baked = typeof system?.artifactWeapon?.damage === 'string' ? system.artifactWeapon.damage.trim() : '';
+    if (baked.length > 0)
+        return false;
+    const level = Math.max(1, Math.min(10, Number(system?.currentLevel) || Number(system?.level) || 1));
+    if (deriveArtifactWeaponDamage(system?.baseProfile, level))
+        return false;
+    return true;
 }
 // ----------------------------------------------------------------------
 // Base Value Limits per Slot

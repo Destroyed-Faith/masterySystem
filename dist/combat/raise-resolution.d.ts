@@ -98,13 +98,14 @@ export declare function resolvePowerSnapshot(params: ResolvePowerSnapshotParams)
 /** Pre-roll snapshot after paying raise cost (for UI preview). */
 export declare function previewAfterRaiseCost(base: PowerSnapshot, declaredRaises: DeclaredRaise[], masteryRank: number, isSpell: boolean, spellCostOverride?: RaiseCostAllocation): PowerSnapshot;
 export declare function buildAvailableRaiseOptions(snapshot: PowerSnapshot, isSpell: boolean): RaiseOption[];
-/** One line: 11d8 (5d8 Waffe + 4d8 Power + 2d8 Raise). */
+/** One line: 11d8 (5d8 Lor-Keth's Staff + 4d8 Power + 2d8 Raise). */
 export declare function formatHitBreakdown(weaponDice: number | undefined, powerDice: number, extra?: {
     raiseDice?: number;
     specials?: PowerSpecialEntry[];
+    weaponName?: string;
 }): string;
 /** Weapon dice plus power dice, so 4d8 total is not read as the Raise itself. */
-export declare function formatAttackDiceLine(powerDice: number, weaponDice?: number): string;
+export declare function formatAttackDiceLine(powerDice: number, weaponDice?: number, weaponName?: string): string;
 /**
  * What a full Raise actually changes. Specials that stay put are named, so
  * Penetration on the weapon is not mistaken for a Raise the player took.

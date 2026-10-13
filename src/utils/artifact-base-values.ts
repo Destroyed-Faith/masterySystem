@@ -336,21 +336,43 @@ export function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBr
   return out;
 }
 
+export type SpellFocusSource = { name: string; dice: number };
+
+/**
+ * Equipped Spell Focus sources with names — for chat cards so players see
+ * which staff/wand contributed, not just a bare "+Nd8".
+ */
+export function listActorSpellFocusSources(actor: any): SpellFocusSource[] {
+  const sources: SpellFocusSource[] = [];
+  const breakdown = buildArtifactBaseValueBreakdown(actor);
+  for (const note of breakdown.rows.notes) {
+    if (note.type !== 'spellFocus') continue;
+    const dice = Math.max(0, Math.floor(Number(note.value) || 0));
+    if (dice <= 0) continue;
+    const name = String(note.source || 'Spell Focus').trim() || 'Spell Focus';
+    sources.push({ name, dice });
+  }
+  const items = actor?.items ? Array.from(actor.items as Iterable<any>) : [];
+  for (const it of items) {
+    if (it?.type !== 'weapon' || it?.system?.equipped !== true) continue;
+    const innates = Array.isArray(it.system?.innateAbilities) ? it.system.innateAbilities : [];
+    let dice = 0;
+    for (const innate of innates) {
+      const m = String(innate ?? '').match(/spell\s*focus[^\d]*(\d+)\s*d8/i);
+      if (m) dice += Math.max(0, Math.floor(Number(m[1]) || 0));
+    }
+    if (dice > 0) {
+      sources.push({ name: String(it.name || 'Weapon').trim() || 'Weapon', dice });
+    }
+  }
+  return sources;
+}
+
 /**
  * Total Spell Focus bonus dice (d8) added to Spell damage: equipped
  * weapon-slot artifacts PLUS mundane weapons with a printed
  * `Spell Focus (+Xd8)` innate (Wand / Runestaff, PG weapon table).
  */
 export function getActorSpellFocusBonusDice(actor: any): number {
-  let total = buildArtifactBaseValueBreakdown(actor).spellFocusBonusDice;
-  const items = actor?.items ? Array.from(actor.items as Iterable<any>) : [];
-  for (const it of items) {
-    if (it?.type !== 'weapon' || it?.system?.equipped !== true) continue;
-    const innates = Array.isArray(it.system?.innateAbilities) ? it.system.innateAbilities : [];
-    for (const innate of innates) {
-      const m = String(innate ?? '').match(/spell\s*focus[^\d]*(\d+)\s*d8/i);
-      if (m) total += Math.max(0, Math.floor(Number(m[1]) || 0));
-    }
-  }
-  return total;
+  return listActorSpellFocusSources(actor).reduce((sum, s) => sum + s.dice, 0);
 }

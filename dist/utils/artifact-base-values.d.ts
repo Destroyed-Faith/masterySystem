@@ -82,6 +82,15 @@ export interface ArtifactBaseValueBreakdown {
  * Pure function — never mutates the actor.
  */
 export declare function buildArtifactBaseValueBreakdown(actor: any): ArtifactBaseValueBreakdown;
+export type SpellFocusSource = {
+    name: string;
+    dice: number;
+};
+/**
+ * Equipped Spell Focus sources with names — for chat cards so players see
+ * which staff/wand contributed, not just a bare "+Nd8".
+ */
+export declare function listActorSpellFocusSources(actor: any): SpellFocusSource[];
 /**
  * Total Spell Focus bonus dice (d8) added to Spell damage: equipped
  * weapon-slot artifacts PLUS mundane weapons with a printed
