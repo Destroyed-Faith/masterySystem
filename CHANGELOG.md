@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.644] - 2026-10-13
+
+### Added
+
+- **GM-Override im Stone-Powers-Dialog:** Der GM sieht an jedem Pool (Attribute + permanente Colorless) immer ein gelbes **−/+** mit `GM x/y`. **−** nimmt einen Ready-Stein weg, **+** gibt einen zurück — unabhängig von Stone Recovery, begrenzt auf 0 … (Max − Sustained − Sealed/Burned). Schreibt ledger-bewusst (`setStonePool`/`setCombatPoolCurrent`), spiegelt auf World- und Token-Kopien.
+
 ## [0.9.643] - 2026-10-13
 
 ### Changed

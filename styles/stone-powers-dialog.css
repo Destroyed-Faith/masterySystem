@@ -635,6 +635,32 @@
   text-align: center;
 }
 
+/* GM override steppers — always visible for the GM, amber to tell them apart from Recovery. */
+.stone-powers-dialog .pool-gm-adjust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  margin: 0.1rem 0;
+}
+
+.stone-powers-dialog .pool-gm-btn {
+  border-color: rgba(255, 209, 102, 0.45);
+}
+
+.stone-powers-dialog .pool-gm-btn:hover:not(:disabled) {
+  background: rgba(255, 209, 102, 0.3);
+}
+
+.stone-powers-dialog .pool-gm-value {
+  min-width: 2.2rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #ffd166;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .stone-powers-dialog .stone-recovery-bar {
   display: flex;
   flex-wrap: wrap;

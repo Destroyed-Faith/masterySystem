@@ -738,6 +738,7 @@ export class StonePowersDialog extends BaseDialog {
         const stonePlanLocked = this.#isStoneDialogLocked();
         const recovery = this.#buildStoneRecovery(combat, pools);
         this._recoveryActive = recovery.active;
+        this.#buildGmPoolAdjust(pools);
         let showStonePools = true;
         const dragPoolEnabled = !stonePlanLocked && !recovery.active && !stoneResolutionHold;
         const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
@@ -1361,6 +1362,95 @@ export class StonePowersDialog extends BaseDialog {
         }
         await this.#renderKeepingScroll();
     }
+    /**
+     * GM override steppers: the GM can always add or take away Ready stones on
+     * every pool, independent of Stone Recovery. Bounded by 0 and the pool's
+     * free capacity (max − sustained − sealed/burned).
+     */
+    #buildGmPoolAdjust(pools) {
+        const isGM = !!game.user?.isGM;
+        for (const pool of pools) {
+            pool.gmAdjustShow = false;
+            pool.gmAdjustCanAdd = false;
+            pool.gmAdjustCanRemove = false;
+            pool.gmAdjustLabel = '';
+            if (!isGM)
+                continue;
+            const key = String(pool.key);
+            let current;
+            let cap;
+            if (key === COLORLESS_STONE_ATTR) {
+                const owner = getActionEconomyActor(this.actor) ?? this.actor;
+                const perm = getPermanentColorlessStones(owner);
+                if (perm.max <= 0)
+                    continue;
+                current = perm.current;
+                cap = Math.max(0, perm.max - Math.max(0, Math.floor(Number(pool.sealedBurned) || 0)));
+            }
+            else {
+                if (pool.max <= 0)
+                    continue;
+                current = Math.max(0, Math.floor(Number(pool.current) || 0));
+                cap = Math.max(0, pool.max - pool.sustained - pool.sealedBurned);
+            }
+            pool.gmAdjustShow = true;
+            pool.gmAdjustCanAdd = current < cap;
+            pool.gmAdjustCanRemove = current > 0;
+            pool.gmAdjustLabel = `${current}/${cap}`;
+        }
+    }
+    /** GM override: write the new Ready count (ledger-aware) for one pool. */
+    async #gmAdjustPool(attr, delta) {
+        if (!game.user?.isGM)
+            return;
+        const owner = getActionEconomyActor(this.actor) ?? this.actor;
+        const step = delta > 0 ? 1 : -1;
+        try {
+            if (attr === COLORLESS_STONE_ATTR) {
+                const perm = getPermanentColorlessStones(owner);
+                if (perm.max <= 0)
+                    return;
+                const next = Math.max(0, Math.min(perm.max, perm.current + step));
+                if (next === perm.current)
+                    return;
+                const { setCombatPoolCurrent } = await import('./stone-combat-ledger.js');
+                await setCombatPoolCurrent(owner, COLORLESS_STONE_ATTR, next, game.combat ?? null);
+            }
+            else {
+                const pool = getStonePool(owner, attr);
+                const sys = owner.system ?? {};
+                const p = sys.stonePools?.[attr] ?? {};
+                const reserved = Math.max(0, Math.floor(Number(p.sustained) || 0)) +
+                    Math.max(0, Math.floor(Number(p.sealed) || 0)) +
+                    Math.max(0, Math.floor(Number(p.burned) || 0));
+                const cap = Math.max(0, pool.max - reserved);
+                const next = Math.max(0, Math.min(cap, pool.current + step));
+                if (next === pool.current)
+                    return;
+                await setStonePool(owner, attr, next);
+            }
+        }
+        catch (err) {
+            console.error('Mastery System | GM stone override failed', err);
+            ui.notifications?.error('Stone override failed — see the console.');
+        }
+        await this.#renderKeepingScroll();
+    }
+    #bindGmPoolAdjustControls(root) {
+        root.querySelectorAll('.js-gm-pool-add, .js-gm-pool-remove').forEach((el) => {
+            const btn = el;
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (btn.disabled)
+                    return;
+                const attr = btn.dataset.attribute || '';
+                if (!attr)
+                    return;
+                await this.#gmAdjustPool(attr, btn.classList.contains('js-gm-pool-add') ? 1 : -1);
+            };
+        });
+    }
     #bindStoneRecoveryControls(root) {
         root.querySelectorAll('.js-recover-add').forEach((btn) => {
             btn.onclick = async (ev) => {
@@ -1740,6 +1830,7 @@ export class StonePowersDialog extends BaseDialog {
         const appWindow = this.element ?? root;
         this.#syncGmHeaderTools(appWindow);
         this.#bindGmHeaderTools(appWindow);
+        this.#bindGmPoolAdjustControls(root);
         if (this._recoveryActive) {
             // Recovery first: no stone may move into a power while pools are still
             // being refilled, so the drag/drop and click-fill handlers stay unbound.

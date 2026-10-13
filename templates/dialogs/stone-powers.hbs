@@ -213,6 +213,17 @@
           </button>
         </div>
         {{/if}}
+        {{#if pool.gmAdjustShow}}
+        <div class="pool-gm-adjust" title="GM override: {{pool.name}} Ready stones {{pool.gmAdjustLabel}} — − takes a stone away, + gives one back">
+          <button type="button" class="pool-recovery-btn pool-gm-btn js-gm-pool-remove" data-attribute="{{pool.key}}" {{#unless pool.gmAdjustCanRemove}}disabled{{/unless}} aria-label="GM: take one stone away">
+            <i class="fas fa-minus"></i>
+          </button>
+          <span class="pool-gm-value">GM {{pool.gmAdjustLabel}}</span>
+          <button type="button" class="pool-recovery-btn pool-gm-btn js-gm-pool-add" data-attribute="{{pool.key}}" {{#unless pool.gmAdjustCanAdd}}disabled{{/unless}} aria-label="GM: give one stone back">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        {{/if}}
         <div class="pool-gems{{#unless pool.gemSlots.length}} is-empty{{/unless}}" data-attribute-key="{{pool.key}}" title="{{pool.name}} — drag these stones">
           {{#each pool.boundSlots}}
           <span
