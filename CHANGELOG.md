@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.624] - 2026-10-13
+
+### Added
+
+- **GM Stone-Übersicht:** Im Drei-Punkte-Menü des Charakterbogens — Lifetime-Leiste, Pool-Lage (Ready/Sealed/Burned/Sustained), Summon-/Familiar-Holds, Sync und Ready-Aktionen. Dieselbe Berechnungsquelle wie Stone Powers.
+
+### Fixed
+
+- **Safe Haven Rest / Ready:** Summon- und Familiar-Steine bleiben als Sustained erhalten (nicht mehr mit Sealed/Burned weggewischt). „Steine entblocken“ bleibt der harte Reset inkl. Summon-Sustained.
+
 ## [0.9.623] - 2026-10-13
 
 ### Fixed

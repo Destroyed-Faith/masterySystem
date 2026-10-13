@@ -147,6 +147,11 @@ export function buildReadyStonePoolsObject(
   sealHold?: StonePoolSealHold | null,
   /** Optional progression donor (world actor system) when `system` is a token delta. */
   progressionDonor?: any,
+  /**
+   * Sustained counts to keep (Summon Bonds / Familiars). Safe Haven Rest must
+   * not wipe these — only combat Sealed/Burned/spent return to Ready.
+   */
+  sustainedHold?: Record<string, number> | null,
 ): Record<string, { current: number; max: number; sustained: number; sealed: number; burned: number }> {
   const holdAttrs: Record<string, number> = {};
   for (const [attr, n] of Object.entries(sealHold?.attrCounts ?? {})) {
@@ -166,10 +171,14 @@ export function buildReadyStonePoolsObject(
     if (poolData == null && attr === 'colorless') continue;
     const maxStones = stonePoolReadyMax(stoneSystem, attr, poolData ?? {});
     const heldSealed = Math.min(holdAttrs[attr] ?? 0, maxStones);
+    const heldSustained = Math.min(
+      Math.max(0, Math.floor(Number(sustainedHold?.[attr]) || 0)),
+      Math.max(0, maxStones - heldSealed),
+    );
     next[attr] = {
       max: maxStones,
-      current: Math.max(0, maxStones - heldSealed),
-      sustained: 0,
+      current: Math.max(0, maxStones - heldSealed - heldSustained),
+      sustained: heldSustained,
       sealed: heldSealed,
       burned: 0,
     };
@@ -257,13 +266,23 @@ export async function syncStonePoolCapsFromAssignments(actor: any): Promise<bool
 export async function forceReadyStonePoolsOnCharacter(
   actor: any,
   sealHold?: StonePoolSealHold | null,
+  opts?: { clearSummonSustained?: boolean },
 ): Promise<{ actors: number; vitalityReady: number; vitalitySealed: number }> {
   const targets = listStonePoolSyncActors(actor);
   let vitalityReady = 0;
   let vitalitySealed = 0;
+  let sustainedHold: Record<string, number> | null = null;
+  if (!opts?.clearSummonSustained) {
+    try {
+      const { summonBoundSustainedByAttr } = await import('./stone-audit.js');
+      sustainedHold = summonBoundSustainedByAttr(actor);
+    } catch {
+      sustainedHold = null;
+    }
+  }
   for (const target of targets) {
     const stoneSystem = resolveActorStoneSystem(target);
-    const pools = buildReadyStonePoolsObject(target?.system, sealHold, stoneSystem);
+    const pools = buildReadyStonePoolsObject(target?.system, sealHold, stoneSystem, sustainedHold);
     try {
       await target.update?.({ 'system.stonePools': pools });
     } catch (err) {

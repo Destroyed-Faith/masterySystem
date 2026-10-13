@@ -2497,6 +2497,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
     }
 
+    html.find('.gm-stone-audit').off('click.gm-stone-audit').on('click.gm-stone-audit', (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      void this.#onGmStoneAudit();
+    });
     html.find('.gm-unblock-stones').off('click.gm-unblock-stones').on('click.gm-unblock-stones', (e: JQuery.ClickEvent) => {
       e.preventDefault();
       e.stopPropagation();
@@ -6621,11 +6625,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
     creationButtons.prop('disabled', false);
     
     // Also enable power rank selects (they're select elements, not buttons)
@@ -7049,13 +7053,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.render();
   }
 
+  async #onGmStoneAudit(event?: { preventDefault?: () => void }): Promise<void> {
+    event?.preventDefault?.();
+    if (!(game as any).user?.isGM) return;
+    try {
+      const { openStoneAuditDialog } = await import('../stones/stone-audit-dialog.js');
+      await openStoneAuditDialog(this.actor);
+    } catch (err) {
+      console.error('Mastery System | Stone audit dialog failed', err);
+      ui.notifications?.warn('Stone-Übersicht konnte nicht geöffnet werden.');
+    }
+  }
+
   async #onGmUnblockStones(event?: { preventDefault?: () => void }): Promise<void> {
     event?.preventDefault?.();
     if (!(game as any).user?.isGM) return;
     const confirmed = await Dialog.confirm({
       title: 'Steine entblocken',
       content:
-        '<p>Alle Steine in den Attribut-Pools und die permanenten Colorless-Steine werden wieder <strong>Ready</strong>. Exhausted, Sustained, Sealed und Burned fällt weg (auch auf Token-Actors). Word-of-Recall-Mark wird entfernt. Die Zuweisung bleibt.</p>',
+        '<p>Alle Steine in den Attribut-Pools und die permanenten Colorless-Steine werden wieder <strong>Ready</strong>. Exhausted, Sustained (auch Summon), Sealed und Burned fällt weg (auch auf Token-Actors). Word-of-Recall-Mark wird entfernt. Die Zuweisung bleibt. Für eine Übersicht mit Summon-Erhalt: <em>Stone-Übersicht</em>.</p>',
     });
     if (!confirmed) return;
     const actor: any = this.actor;
@@ -7086,7 +7102,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           /* optional */
         }
       }
-      const forced = await forceReadyStonePoolsOnCharacter(actor, null);
+      const forced = await forceReadyStonePoolsOnCharacter(actor, null, {
+        clearSummonSustained: true,
+      });
       ui.notifications?.info(
         `Steine Ready — Vitality ${forced.vitalityReady} (sealed ${forced.vitalitySealed})` +
           (forced.actors > 1 ? ` · ${forced.actors} actor docs` : '') +
@@ -7118,7 +7136,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     if (!confirmed) return;
     const sys: any = (this.actor as any).system ?? {};
-    const lifetime = Number(sys?.progression?.lifetimeXp) || 0;
+    const lifetime = lifetimeXpForActor(this.actor) ?? 0;
     const order = releaseAllStoneSlots(stoneOrderForActor(sys, lifetime));
     await (this.actor as any).setFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG, true);
     await this.actor.update(stoneOrderActorUpdate(sys, order));

@@ -133,8 +133,8 @@ export function buildSafeHavenRestUpdates(system, opts) {
     // stones return on Safe Haven Rest. Use a fixed key list — Foundry
     // DataModel / SchemaField pools often yield Object.keys([]) so a dynamic
     // loop would skip every attribute and leave Sealed stuck forever.
-    // Sustained is cleared too: Safe Haven already wipes statusEffects, and a
-    // leftover sustained counter would lock Ready stones with no active buff.
+    // Sustained from combat buffs is cleared here; Summon/Familiar holds are
+    // re-applied by forceReadyStonePoolsOnCharacter after this update.
     const pools = system?.stonePools;
     if (pools && typeof pools === 'object') {
         for (const attr of SAFE_HAVEN_STONE_POOL_KEYS) {

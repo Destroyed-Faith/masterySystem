@@ -2357,6 +2357,7 @@ async function preloadTemplates() {
     'systems/mastery-system/templates/import/character-import-dialog.hbs',
     'systems/mastery-system/templates/dialogs/ritual-workshop.hbs',
     'systems/mastery-system/templates/dialogs/minor-magic.hbs',
+    'systems/mastery-system/templates/dialogs/stone-audit.hbs',
     'systems/mastery-system/templates/ui/unluck-gm-dialog.hbs',
     'systems/mastery-system/templates/ui/known-npcs-bar.hbs',
     'systems/mastery-system/templates/ui/known-npcs-gm-dialog.hbs',

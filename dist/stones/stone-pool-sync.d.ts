@@ -25,7 +25,12 @@ export declare function listStonePoolSyncActors(actor: any): any[];
 /** Plain stonePools object with Sealed/Burned cleared (Word of Recall hold respected). */
 export declare function buildReadyStonePoolsObject(system: any, sealHold?: StonePoolSealHold | null, 
 /** Optional progression donor (world actor system) when `system` is a token delta. */
-progressionDonor?: any): Record<string, {
+progressionDonor?: any, 
+/**
+ * Sustained counts to keep (Summon Bonds / Familiars). Safe Haven Rest must
+ * not wipe these — only combat Sealed/Burned/spent return to Ready.
+ */
+sustainedHold?: Record<string, number> | null): Record<string, {
     current: number;
     max: number;
     sustained: number;
@@ -45,7 +50,9 @@ export declare function syncStonePoolCapsFromAssignments(actor: any): Promise<bo
  * Uses a whole `system.stonePools` replace so Foundry cannot leave a nested
  * `sealed` field behind on a DataModel fragment.
  */
-export declare function forceReadyStonePoolsOnCharacter(actor: any, sealHold?: StonePoolSealHold | null): Promise<{
+export declare function forceReadyStonePoolsOnCharacter(actor: any, sealHold?: StonePoolSealHold | null, opts?: {
+    clearSummonSustained?: boolean;
+}): Promise<{
     actors: number;
     vitalityReady: number;
     vitalitySealed: number;

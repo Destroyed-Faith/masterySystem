@@ -1,0 +1,101 @@
+.stone-audit-dialog .window-content {
+  padding: 0.6rem 0.75rem 0.75rem;
+}
+
+.mastery-stone-audit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.stone-audit-summary p {
+  margin: 0.2rem 0;
+}
+
+.stone-audit-warn {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.stone-audit-ok {
+  color: #2e7d32;
+}
+
+.stone-audit-section h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.stone-audit-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.stone-audit-slot {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 2.2rem;
+  padding: 0.2rem 0.25rem;
+  border: 1px solid rgba(120, 120, 120, 0.45);
+  border-radius: 4px;
+  opacity: 0.45;
+}
+
+.stone-audit-slot.is-unlocked {
+  opacity: 1;
+}
+
+.stone-audit-slot.is-assigned {
+  background: rgba(66, 165, 245, 0.15);
+  border-color: rgba(66, 165, 245, 0.55);
+}
+
+.stone-audit-slot-mark {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.stone-audit-slot-label {
+  font-size: 0.65rem;
+  opacity: 0.8;
+}
+
+.stone-audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.stone-audit-table th,
+.stone-audit-table td {
+  border: 1px solid rgba(120, 120, 120, 0.35);
+  padding: 0.2rem 0.35rem;
+  text-align: center;
+}
+
+.stone-audit-table th:first-child,
+.stone-audit-table td:first-child,
+.stone-audit-notes {
+  text-align: left;
+}
+
+.stone-audit-table tr.is-mismatch {
+  background: rgba(244, 67, 54, 0.12);
+}
+
+.stone-audit-bonds {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.stone-audit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(120, 120, 120, 0.35);
+}

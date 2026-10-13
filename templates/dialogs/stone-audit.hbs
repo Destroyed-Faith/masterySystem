@@ -1,0 +1,87 @@
+<div class="mastery-stone-audit">
+  <header class="stone-audit-summary">
+    <p><strong>{{actorName}}</strong> — Lifetime XP / Nach Ausgabe: <strong>{{lifetimeXp}}</strong>
+      · Permanent Stones: <strong>{{permanentStones}}</strong>
+      · Assigned: <strong>{{assignedTotal}}</strong>
+      · Unassigned: <strong>{{unassigned}}</strong>
+      {{#if permanentColorless}}· Colorless: <strong>{{permanentColorless}}</strong>{{/if}}
+    </p>
+    {{#if hasMismatch}}
+    <p class="stone-audit-warn" role="status">Abweichungen zwischen Lifetime-Leiste und Pools — Sync oder Ready empfohlen.</p>
+    {{else}}
+    <p class="stone-audit-ok" role="status">Track und Pools stimmen überein (gleiche Quelle wie Stone Powers).</p>
+    {{/if}}
+  </header>
+
+  <section class="stone-audit-section">
+    <h3>Lifetime-Leiste</h3>
+    <div class="stone-audit-slots">
+      {{#each slots}}
+      <span class="stone-audit-slot{{#if unlocked}} is-unlocked{{else}} is-locked{{/if}}{{#if attribute}} is-assigned{{/if}}" title="{{label}}">
+        <span class="stone-audit-slot-mark">{{#if attribute}}{{abbrev}}{{else}}{{#if unlocked}}+{{else}}·{{/if}}{{/if}}</span>
+        <span class="stone-audit-slot-label">{{label}}</span>
+      </span>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="stone-audit-section">
+    <h3>Pools (wie Stone Powers)</h3>
+    <table class="stone-audit-table">
+      <thead>
+        <tr>
+          <th>Attribut</th>
+          <th>Track</th>
+          <th>Max</th>
+          <th>Ready</th>
+          <th>Sealed</th>
+          <th>Burned</th>
+          <th>Sustained</th>
+          <th>Summon</th>
+          <th>Erwartet Ready</th>
+          <th>Hinweis</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each pools}}
+        <tr class="{{#if mismatch}}is-mismatch{{/if}}">
+          <td>{{name}}</td>
+          <td>{{assigned}}</td>
+          <td>{{max}}</td>
+          <td>{{current}}</td>
+          <td>{{sealed}}</td>
+          <td>{{burned}}</td>
+          <td>{{sustained}}</td>
+          <td>{{summonBound}}</td>
+          <td>{{readyExpected}}</td>
+          <td class="stone-audit-notes">{{notes}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </section>
+
+  {{#if bonds.length}}
+  <section class="stone-audit-section">
+    <h3>Gebunden (Summon / Familiar) — bleiben bei Safe Haven Rest</h3>
+    <ul class="stone-audit-bonds">
+      {{#each bonds}}
+      <li><strong>{{name}}</strong> ({{kind}}): {{stones}} — {{byAttr}}</li>
+      {{/each}}
+    </ul>
+  </section>
+  {{/if}}
+
+  <footer class="stone-audit-actions">
+    <button type="button" class="dialog-btn dialog-btn-secondary js-audit-sync" title="Caps und Assignments an die Lifetime-Leiste anpassen. Sealed/Burned/Summon bleiben.">
+      Sync von Lifetime-Leiste
+    </button>
+    <button type="button" class="dialog-btn dialog-btn-primary js-audit-ready" title="Sealed/Burned/spent → Ready. Summon-/Familiar-Steine bleiben Sustained.">
+      Ready (Summon behalten)
+    </button>
+    <button type="button" class="dialog-btn dialog-btn-secondary js-audit-ready-all" title="Alles Ready inkl. Summon-Sustained (wie Steine entblocken).">
+      Ready (alles)
+    </button>
+    <button type="button" class="dialog-btn js-audit-close">Schließen</button>
+  </footer>
+</div>

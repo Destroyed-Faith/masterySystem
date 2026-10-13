@@ -124,7 +124,12 @@ export function listStonePoolSyncActors(actor) {
 /** Plain stonePools object with Sealed/Burned cleared (Word of Recall hold respected). */
 export function buildReadyStonePoolsObject(system, sealHold, 
 /** Optional progression donor (world actor system) when `system` is a token delta. */
-progressionDonor) {
+progressionDonor, 
+/**
+ * Sustained counts to keep (Summon Bonds / Familiars). Safe Haven Rest must
+ * not wipe these — only combat Sealed/Burned/spent return to Ready.
+ */
+sustainedHold) {
     const holdAttrs = {};
     for (const [attr, n] of Object.entries(sealHold?.attrCounts ?? {})) {
         const v = Math.max(0, Math.floor(Number(n) || 0));
@@ -142,10 +147,11 @@ progressionDonor) {
             continue;
         const maxStones = stonePoolReadyMax(stoneSystem, attr, poolData ?? {});
         const heldSealed = Math.min(holdAttrs[attr] ?? 0, maxStones);
+        const heldSustained = Math.min(Math.max(0, Math.floor(Number(sustainedHold?.[attr]) || 0)), Math.max(0, maxStones - heldSealed));
         next[attr] = {
             max: maxStones,
-            current: Math.max(0, maxStones - heldSealed),
-            sustained: 0,
+            current: Math.max(0, maxStones - heldSealed - heldSustained),
+            sustained: heldSustained,
             sealed: heldSealed,
             burned: 0,
         };
@@ -223,13 +229,23 @@ export async function syncStonePoolCapsFromAssignments(actor) {
  * Uses a whole `system.stonePools` replace so Foundry cannot leave a nested
  * `sealed` field behind on a DataModel fragment.
  */
-export async function forceReadyStonePoolsOnCharacter(actor, sealHold) {
+export async function forceReadyStonePoolsOnCharacter(actor, sealHold, opts) {
     const targets = listStonePoolSyncActors(actor);
     let vitalityReady = 0;
     let vitalitySealed = 0;
+    let sustainedHold = null;
+    if (!opts?.clearSummonSustained) {
+        try {
+            const { summonBoundSustainedByAttr } = await import('./stone-audit.js');
+            sustainedHold = summonBoundSustainedByAttr(actor);
+        }
+        catch {
+            sustainedHold = null;
+        }
+    }
     for (const target of targets) {
         const stoneSystem = resolveActorStoneSystem(target);
-        const pools = buildReadyStonePoolsObject(target?.system, sealHold, stoneSystem);
+        const pools = buildReadyStonePoolsObject(target?.system, sealHold, stoneSystem, sustainedHold);
         try {
             await target.update?.({ 'system.stonePools': pools });
         }
