@@ -514,12 +514,23 @@ export class CombatCarouselApp extends BaseCarousel {
                 const actor = combatant?.actor;
                 if (!combatant || !actor || actor.type !== 'character')
                     return;
-                if (game.user?.isGM) {
-                    await forceEncounterDialog('stones', combatant);
-                    return;
+                try {
+                    if (game.user?.isGM) {
+                        await forceEncounterDialog('stones', combatant);
+                        return;
+                    }
+                    // Players: only their own character.
+                    if (!actor.isOwner) {
+                        ui.notifications?.warn('Stone Powers: you can only open your own character.');
+                        return;
+                    }
+                    const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+                    await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
                 }
-                const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-                await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
+                catch (err) {
+                    console.error('Mastery System | Carousel: Stone Powers open failed', err);
+                    ui.notifications?.error('Stone Powers could not be opened — see the console.');
+                }
             };
             nameEl.ondblclick = (ev) => {
                 ev.preventDefault();
@@ -658,7 +669,27 @@ export class CombatCarouselApp extends BaseCarousel {
                 CombatCarouselApp.refresh();
             };
         });
-        // Portrait click - pan to token; double-click - open actor sheet
+        const openSheetForCombatant = async (combatantId) => {
+            if (!combatantId)
+                return;
+            const combat = game.combats?.active;
+            const combatant = combat?.combatants?.get(combatantId);
+            const actor = combatant?.actor;
+            if (!actor?.sheet)
+                return;
+            if (!game.user?.isGM && !actor.isOwner && !actor.testUserPermission?.(game.user, 'OBSERVER')) {
+                ui.notifications?.warn('You do not have permission to view this character sheet.');
+                return;
+            }
+            try {
+                await actor.sheet.render(true);
+            }
+            catch (err) {
+                console.error('Mastery System | Carousel: sheet open failed', err);
+            }
+        };
+        // Portrait image click - open actor sheet; rest of the card - pan to token;
+        // double-click anywhere - open actor sheet
         root.querySelectorAll('.carousel-portrait').forEach((portrait) => {
             const tip = portrait.querySelector('.ms-carousel-rich-tip');
             if (tip) {
@@ -675,6 +706,12 @@ export class CombatCarouselApp extends BaseCarousel {
                     return;
                 }
                 const combatantId = portrait.dataset.combatantId;
+                if (hit?.closest?.('.portrait-image')) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    await openSheetForCombatant(combatantId);
+                    return;
+                }
                 if (combatantId)
                     panToCombatant(combatantId);
             };
@@ -682,17 +719,9 @@ export class CombatCarouselApp extends BaseCarousel {
                 ev.preventDefault();
                 ev.stopPropagation();
                 const hit = ev.target;
-                if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button'))
+                if (hit?.closest?.('.js-end-turn, .portrait-end-turn, button, .portrait-image'))
                     return;
-                const combatantId = portrait.dataset.combatantId;
-                if (!combatantId)
-                    return;
-                const combat = game.combats?.active;
-                const combatant = combat?.combatants?.get(combatantId);
-                const actor = combatant?.actor;
-                if (!actor?.sheet)
-                    return;
-                await actor.sheet.render(true);
+                await openSheetForCombatant(portrait.dataset.combatantId);
             };
         });
         // Combat controls - Previous Turn

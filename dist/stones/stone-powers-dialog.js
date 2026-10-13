@@ -523,14 +523,27 @@ export class StonePowersDialog extends BaseDialog {
                     logStonePowersGate('showForActor-reuse-open', {
                         actorId: actor.id,
                     });
+                    return false;
+                }
+                if (opts?.explicit) {
+                    // Explicit open (carousel name / sheet button): a stale or closing
+                    // instance must not swallow the click — wait for it, then open fresh.
+                    if (closing) {
+                        for (let i = 0; i < 20 && foundry?.applications?.instances?.get?.('mastery-stone-powers'); i++) {
+                            await new Promise((r) => setTimeout(r, 50));
+                        }
+                    }
+                    logStonePowersGate('showForActor-explicit-after-stale', {
+                        actorId: actor.id,
+                    });
                 }
                 else {
                     dismissStonePowersPrompt(game.combat, actor, combatant ?? null);
                     logStonePowersGate('showForActor-blocked-closing', {
                         actorId: actor.id,
                     });
+                    return false;
                 }
-                return false;
             }
         }
         catch {

@@ -53,8 +53,8 @@
             {{/each}}
           </div>
           {{/if}}
-          <!-- Portrait Image -->
-          <div class="portrait-image">
+          <!-- Portrait Image — click opens the character sheet -->
+          <div class="portrait-image" title="{{combatant.name}} — open character sheet">
             <img src="{{combatant.img}}" alt="{{combatant.name}}" />
             {{#if combatant.isCurrent}}
               <div class="current-indicator"></div>

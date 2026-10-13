@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.643] - 2026-10-13
+
+### Changed
+
+- **Carousel-Klicks:** Klick auf das **Portrait** öffnet den Charakterbogen (Einzelklick, nicht mehr nur Doppelklick); Klick auf den **Namen** öffnet für Spieler den Stone-Powers-Dialog ihres eigenen Charakters (GM: Force-Dialog). Fremde Charaktere: Hinweis statt stiller Ignoranz.
+- **Stone Powers expliziter Open robust:** Eine hängende/schließende Dialog-Instanz schluckt den Klick nicht mehr — bei explizitem Öffnen wird kurz gewartet und frisch geöffnet.
+
 ## [0.9.642] - 2026-10-13
 
 ### Fixed
