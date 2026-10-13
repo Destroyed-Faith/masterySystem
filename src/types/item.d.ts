@@ -807,6 +807,10 @@ export interface ArtifactStoneFunction {
   stonePowerId?: string;
   /** Optional descriptive note. */
   note?: string;
+  /** Artifact levels at which Support prefills Rank 2 / 3 / 4. Default 1 / 4 / 7. */
+  supportStages?: [number, number, number];
+  /** Artifact levels at which Pool stores 2 / 4 / 8. Default 1 / 4 / 7. */
+  poolStages?: [number, number, number];
 }
 
 /**

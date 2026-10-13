@@ -895,7 +895,7 @@ describe("Lor-Keth's Staff", () => {
     expect(artifactIsSpellFocusOnly(sys)).toBe(false);
   });
 
-  it('builds Giant Shock / Ancestor Guard / Ignore Armor from catalog picks (no authored)', () => {
+  it('builds Giant Shock / Ancestral Guard / Ignore Armor from catalog picks (no authored)', () => {
     const def = getGeneralArtifact('lorKethsStaff')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'stoneFunction']);
@@ -906,7 +906,7 @@ describe("Lor-Keth's Staff", () => {
     });
     expect(picks[1]).toMatchObject({
       powerTemplateId: 'reaction-armor',
-      displayName: 'Ancestor Guard',
+      displayName: 'Ancestral Guard',
     });
     expect(picks[2]).toMatchObject({
       kind: 'stoneFunction',
@@ -918,7 +918,7 @@ describe("Lor-Keth's Staff", () => {
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Giant Shock Strike/);
-    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Ancestor Guard/);
+    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Ancestral Guard/);
     for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Might Ignore Armor Support/);
     expect((byLevel.get(10) as any).name).toBe('Heart of the Storm Ancestors');
 
@@ -930,7 +930,7 @@ describe("Lor-Keth's Staff", () => {
 
     const shock = sysAt(tree, 1).powers.find((p: any) => /Giant Shock Strike/.test(p.name));
     expect(shock?.category).toBe('active');
-    const guard = sysAt(tree, 2).powers.find((p: any) => /Ancestor Guard/.test(p.name));
+    const guard = sysAt(tree, 2).powers.find((p: any) => /Ancestral Guard/.test(p.name));
     expect(guard?.category).toBe('reaction');
   });
 });

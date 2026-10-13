@@ -3,7 +3,7 @@
  *
  * Support pre-fills exactly one named Rank: that Rank costs no Stones, every
  * lower Rank is activated and paid normally, and Support never skips unpaid
- * lower Ranks. Elorian Focus (Crit) and the Ringchain's Kept from Sight
+ * lower Ranks. Elorian Crit Support and the Ringchain's Kept from Sight
  * (Not a Target) provide Rank 2 / 3 / 4 at their printed Artifact Levels.
  */
 import { describe, expect, it } from 'vitest';
@@ -20,8 +20,13 @@ import {
 } from '../src/stones/stone-powers';
 import { resolveStonePowerActivation } from '../src/stones/stone-activation';
 import { getArtifactStoneSupportPrefill } from '../src/utils/artifact-stone-functions';
-import { ECHO_ARTIFACTS } from '../src/utils/echo-artifacts';
+import {
+  ECHO_ARTIFACTS,
+  buildEchoProgressionPicks,
+  getEchoArtifact,
+} from '../src/utils/echo-artifacts';
 import { GENERAL_ARTIFACTS } from '../src/utils/general-artifacts';
+import { buildEchoArtifactTree } from '../src/artifacts/echo-artifact-tree-builder';
 
 describe('four-Rank cost structure', () => {
   it('every Ability publishes Ranks 1–4 and nothing above', () => {
@@ -108,6 +113,7 @@ describe('Support pre-fills exactly the named Rank', () => {
 });
 
 function echoActor(key: string, level: number) {
+  const def = (ECHO_ARTIFACTS as any)[key];
   return {
     id: `actor-${key}`,
     items: [
@@ -119,18 +125,24 @@ function echoActor(key: string, level: number) {
           currentLevel: level,
           binding: 'echo',
           equipped: true,
-          extraStoneFunctions: (ECHO_ARTIFACTS as any)[key]?.extraStoneFunctions ?? [],
+          progressionPicks: def ? buildEchoProgressionPicks(def) : [],
+          extraStoneFunctions: def?.extraStoneFunctions ?? [],
         },
       },
     ],
   };
 }
 
-describe('Elorian Focus — Crit Rank 2 / 3 / 4 at Artifact Levels 3 / 6 / 9', () => {
-  it('stores the printed stages', () => {
-    const fn = ECHO_ARTIFACTS.elorianStride.extraStoneFunctions?.[0];
-    expect(fn?.stonePowerId).toBe('agility.crit');
-    expect(fn?.supportStages).toEqual([3, 6, 9]);
+describe('Elorian Crit Support — Rank 2 / 3 / 4 at Artifact Levels 3 / 6 / 9', () => {
+  it('stores Crit Support as a catalog stoneFunction pick with stages', () => {
+    const pick = buildEchoProgressionPicks(ECHO_ARTIFACTS.elorianStride).find((p) => p.level === 3);
+    expect(pick?.kind).toBe('stoneFunction');
+    expect(pick?.displayName).toBe('Crit Support');
+    expect(pick?.stoneFunction).toMatchObject({
+      stonePowerId: 'agility.crit',
+      supportStages: [3, 6, 9],
+    });
+    expect(ECHO_ARTIFACTS.elorianStride.extraStoneFunctions ?? []).toEqual([]);
   });
 
   it('prefills Rank 2 from level 3, Rank 3 from level 6, Rank 4 from level 9', () => {
@@ -144,20 +156,22 @@ describe('Elorian Focus — Crit Rank 2 / 3 / 4 at Artifact Levels 3 / 6 / 9', (
     expect(at(9)).toBe(4);
   });
 
-  it('the level progression rows use the printed Core text', () => {
-    const rows = ECHO_ARTIFACTS.elorianStride.levelProgression;
-    const focus = rows.filter((r) => r.name.startsWith('Elorian Focus'));
-    expect(focus.map((r) => r.level)).toEqual([3, 6, 9]);
-    expect(focus[0]?.effect).toBe('Pre-fill Rank 2. Rank 1 must still be paid normally.');
-    expect(focus[1]?.effect).toBe('Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.');
-    expect(focus[2]?.effect).toBe('Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.');
-    for (const row of focus) {
-      expect(row.type).toBe('Stone Power Support');
-      expect(row.effect).not.toMatch(/Tier/);
+  it('derived level progression rows are Crit Support Stone Power Support', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
+    const rowAt = (lvl: number) =>
+      (tree.nodes[lvl - 1].itemData.system as any).levelProgression.find((r: any) =>
+        /Crit Support/.test(r.name),
+      );
+    expect(rowAt(3)?.type).toBe('Stone Power Support');
+    expect(rowAt(3)?.effect).toMatch(/pre-fills Rank 2/i);
+    expect(rowAt(6)?.effect).toMatch(/pre-fills Rank 3/i);
+    expect(rowAt(9)?.effect).toMatch(/pre-fills Rank 4/i);
+    for (const lvl of [3, 6, 9]) {
+      expect(rowAt(lvl)?.effect).not.toMatch(/Tier/);
     }
   });
 
-  it('complete Crit sequence with Elorian Focus III: 2 / 4 / 6 / 0', () => {
+  it('complete Crit sequence with Crit Support III: 2 / 4 / 6 / 0', () => {
     const prefill = getArtifactStoneSupportPrefill(echoActor('elorianStride', 9), 'agility.crit', 'agility');
     expect(prefill).toBe(4);
     const costs = [0, 1, 2, 3].map((uses) => resolveStonePowerActivation('agility.crit', uses, prefill).cost);

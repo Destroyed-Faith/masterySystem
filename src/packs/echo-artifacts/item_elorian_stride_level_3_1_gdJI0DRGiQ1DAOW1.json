@@ -47,30 +47,17 @@
       },
       {
         "level": 3,
-        "name": "Elorian Focus I",
+        "name": "Crit Support I",
         "type": "Stone Power Support",
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Pre-fill Rank 2. Rank 1 must still be paid normally.",
+        "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
         "special": "agility.crit"
       }
     ],
     "stoneFunction": null,
-    "extraStoneFunctions": [
-      {
-        "level": 3,
-        "name": "Elorian Focus",
-        "kind": "stonePowerSupport",
-        "attribute": "agility",
-        "stonePowerId": "agility.crit",
-        "supportStages": [
-          3,
-          6,
-          9
-        ]
-      }
-    ],
+    "extraStoneFunctions": [],
     "progressionPicks": [
       {
         "level": 1,
@@ -91,39 +78,18 @@
       },
       {
         "level": 3,
-        "kind": "authored",
-        "authoredStages": [
-          {
-            "level": 3,
-            "name": "Elorian Focus I",
-            "type": "Stone Power Support",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Instant",
-            "effect": "Pre-fill Rank 2. Rank 1 must still be paid normally.",
-            "special": "agility.crit"
-          },
-          {
-            "level": 6,
-            "name": "Elorian Focus II",
-            "type": "Stone Power Support",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Instant",
-            "effect": "Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.",
-            "special": "agility.crit"
-          },
-          {
-            "level": 9,
-            "name": "Elorian Focus III",
-            "type": "Stone Power Support",
-            "range": "Self",
-            "aoe": "",
-            "duration": "Instant",
-            "effect": "Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.",
-            "special": "agility.crit"
-          }
-        ]
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "agility",
+          "stonePowerId": "agility.crit",
+          "supportStages": [
+            3,
+            6,
+            9
+          ]
+        },
+        "displayName": "Crit Support"
       }
     ],
     "lore": "Elorian Stride is an Elorian Echo Artifact representing otherworldly balance, reflex, clinging movement and focus in combat.",
@@ -554,7 +520,7 @@
       },
       {
         "id": "elorianStride-pw-3",
-        "name": "Elorian Focus I",
+        "name": "Crit Support I",
         "fluff": "Special: agility.crit",
         "category": "passive",
         "tags": [
@@ -610,7 +576,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Pre-fill Rank 2. Rank 1 must still be paid normally."
+              "text": "Supports the Agility Ability: Crit Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
             },
             "specials": [],
             "lvl": 3
@@ -778,7 +744,7 @@
       ],
       "echoBound": "elorians",
       "echoArtifactKey": "elorianStride",
-      "seedVersion": 54
+      "seedVersion": 55
     }
   },
   "_id": "gdJI0DRGiQ1DAOW1",

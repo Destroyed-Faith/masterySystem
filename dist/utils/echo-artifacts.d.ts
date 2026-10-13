@@ -81,6 +81,8 @@ export interface EchoArtifactProgressionPickSpec {
         kind: ArtifactStoneFunctionKind;
         attribute: string;
         stonePowerId?: string;
+        /** Artifact levels at which Support prefills Rank 2 / 3 / 4. Default 1 / 4 / 7. */
+        supportStages?: [number, number, number];
     };
     /** Override staged catalog PL rows (default 4 / 10 / 16). */
     stagePowerLevels?: PowerLevelKey[];

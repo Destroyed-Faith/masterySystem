@@ -167,116 +167,31 @@ const ELORIAN_STRIDE = {
             stagePowerLevels: ['2', '4', '6'],
         },
         2: { templateId: 'movement-wall-walk', name: 'Elorian Cling' },
-        // Slot 3 (Elorian Focus) uses the authored Level Progression rows below;
-        // the Crit support mechanics live in `extraStoneFunctions` (same pattern
-        // as the Ringchain's Kept from Sight).
-    },
-    extraStoneFunctions: [
-        {
-            level: 3,
-            name: 'Elorian Focus',
-            kind: 'stonePowerSupport',
-            attribute: 'agility',
-            stonePowerId: 'agility.crit',
-            // Crit is a Premium Stone Ability with four Ranks. Elorian Focus I
-            // (artifact L3) pre-fills Rank 2, II (L6) Rank 3, III (L9) Rank 4.
-            // All lower Ranks must still be activated and paid normally.
-            supportStages: [3, 6, 9],
+        // Slot 3 — Crit Support (Agility Ability: Crit). Catalog stone function,
+        // editable in the Node Editor — not authored "Elorian Focus" rows.
+        // Prefills Rank 2 / 3 / 4 at Artifact Levels 3 / 6 / 9.
+        3: {
+            name: 'Crit Support',
+            stoneFunction: {
+                kind: 'stonePowerSupport',
+                attribute: 'agility',
+                stonePowerId: 'agility.crit',
+                supportStages: [3, 6, 9],
+            },
         },
-    ],
+    },
     baseValues: [
         { slot: 'a', label: 'Evade', note: '+1 to +5 Evade across levels (paired bands L1–2 / L3–4 / …); Level 10 grants True Elorian Stride.' },
         { slot: 'b', label: 'Movement', note: '+1 to +4 m Movement from Level 4 onward.' },
     ],
     levelProgression: [
         {
-            level: 1,
-            name: 'Otherworld Reflex I',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack only',
-            effect: 'Gain +2 Evade against the triggering attack.',
-            special: 'Otherworld Reflex',
-        },
-        {
-            level: 2,
-            name: 'Elorian Cling I',
-            type: 'Movement',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Move up to 10 m along walls, ceilings, or similar solid surfaces.',
-            special: 'Wall Walk',
-        },
-        {
-            level: 3,
-            name: 'Elorian Focus I',
-            type: 'Stone Power Support',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Pre-fill Rank 2. Rank 1 must still be paid normally.',
-            special: 'agility.crit',
-        },
-        {
-            level: 4,
-            name: 'Otherworld Reflex II',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack only',
-            effect: 'Gain +4 Evade against the triggering attack.',
-            special: 'Otherworld Reflex',
-        },
-        {
-            level: 5,
-            name: 'Elorian Cling II',
-            type: 'Movement',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Move up to 25 m along walls, ceilings, or similar solid surfaces.',
-            special: 'Wall Walk',
-        },
-        {
-            level: 6,
-            name: 'Elorian Focus II',
-            type: 'Stone Power Support',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.',
-            special: 'agility.crit',
-        },
-        {
-            level: 7,
-            name: 'Otherworld Reflex III',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack only',
-            effect: 'Gain +6 Evade against the triggering attack.',
-            special: 'Otherworld Reflex',
-        },
-        {
-            level: 8,
-            name: 'Elorian Cling III',
-            type: 'Movement',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Move up to 28 m along walls, ceilings, or similar solid surfaces.',
-            special: 'Wall Walk',
-        },
-        {
-            level: 9,
-            name: 'Elorian Focus III',
-            type: 'Stone Power Support',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.',
-            special: 'agility.crit',
-        },
-        {
             level: 10,
             name: 'True Elorian Stride',
             type: 'Ultimate',
             range: 'Self',
             duration: 'Special',
-            effect: 'Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, focus, or agility effect with GM approval.',
+            effect: 'Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, Crit Support, or agility effect with GM approval.',
             special: 'True Elorian Stride',
         },
     ],
@@ -1720,6 +1635,9 @@ export function buildEchoProgressionPicks(def) {
             };
             if (sfSpec.kind === 'stonePowerSupport' && sfSpec.stonePowerId) {
                 stoneFunction.stonePowerId = sfSpec.stonePowerId;
+            }
+            if (sfSpec.supportStages) {
+                stoneFunction.supportStages = sfSpec.supportStages;
             }
             picks[lvl - 1] = { level: lvl, kind: 'stoneFunction', stoneFunction, displayName, ...stageOverrides };
         }

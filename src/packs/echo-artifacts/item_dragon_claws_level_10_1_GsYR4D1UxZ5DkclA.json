@@ -67,7 +67,7 @@
         "aoe": "Radius 8m",
         "duration": "Instant",
         "effect": "Make one melee AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **13d8 damage** and may use Dive for Cover before payload.",
-        "special": "Push(8)",
+        "special": "Push(10)",
         "powerTemplateId": "active-melee-weapon-aoe",
         "chosenSpecialKey": "push"
       },
@@ -556,7 +556,7 @@
       {
         "id": "dragonClaws-pw-9",
         "name": "Tail Sweep III",
-        "fluff": "Special: Push(8)",
+        "fluff": "Special: Push(10)",
         "category": "active",
         "tags": [],
         "cost": {
@@ -1005,7 +1005,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 54
+      "seedVersion": 55
     }
   },
   "_id": "GsYR4D1UxZ5DkclA",

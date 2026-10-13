@@ -425,12 +425,12 @@ const LOR_KETHS_STAFF = {
     ],
     // Standard catalog Powers (editable in the Node Editor) — no authored lines:
     //   L1 Giant Shock Strike → Melee Special Damage (Challenge / Start PP 6)
-    //   L2 Ancestor Guard     → Reaction: Armor
+    //   L2 Ancestral Guard    → Reaction: Armor
     //   L3 Ignore Armor       → Stone Power Support (from `stoneFunction`)
     // Only the bespoke L10 Ultimate stays authored below.
     progressionPickSpecs: {
         1: { delivery: 'melee-single', special: 'challenge', name: 'Giant Shock Strike' },
-        2: { templateId: 'reaction-armor', name: 'Ancestor Guard' },
+        2: { templateId: 'reaction-armor', name: 'Ancestral Guard' },
     },
     levelProgression: [
         {

@@ -371,10 +371,10 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     }
   });
 
-  it('Elorian Stride maps reflex, cling, and focus lines to editable picks', () => {
+  it('Elorian Stride maps reflex, cling, and Crit Support to editable picks', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('elorianStride')!);
     const l3 = (tree.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
-    expect(l3).toEqual(['Otherworld Reflex I', 'Elorian Cling I', 'Elorian Focus I']);
+    expect(l3).toEqual(['Otherworld Reflex I', 'Elorian Cling I', 'Crit Support I']);
 
     const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
     const byLevel = (lvl: number) => picks.find((p) => p.level === lvl);
@@ -382,12 +382,16 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(byLevel(1).powerTemplateId).toBe('reaction-evade');
     expect(byLevel(1).stagePowerLevels).toEqual(['2', '4', '6']);
     expect(byLevel(2).powerTemplateId).toBe('movement-wall-walk');
-    // Elorian Focus rows are authored (Core text); the Crit support mechanics
-    // live in extraStoneFunctions: Rank 2 / 3 / 4 at Artifact Levels 3 / 6 / 9.
-    expect(byLevel(3).kind).toBe('authored');
-    const extras = (tree.nodes[0].itemData.system as any).extraStoneFunctions as any[];
-    expect(extras[0]?.stonePowerId).toBe('agility.crit');
-    expect(extras[0]?.supportStages).toEqual([3, 6, 9]);
+    // Crit Support is a catalog Stone Function pick (editable), not authored Focus.
+    expect(byLevel(3).kind).toBe('stoneFunction');
+    expect(byLevel(3).displayName).toBe('Crit Support');
+    expect(byLevel(3).stoneFunction).toMatchObject({
+      kind: 'stonePowerSupport',
+      attribute: 'agility',
+      stonePowerId: 'agility.crit',
+      supportStages: [3, 6, 9],
+    });
+    expect((tree.nodes[0].itemData.system as any).extraStoneFunctions ?? []).toEqual([]);
 
     const reflexEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
@@ -405,17 +409,17 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     expect(clingEffectAt(5)).toContain('25 m');
     expect(clingEffectAt(8)).toContain('28 m');
 
-    const focusEffectAt = (nodeLevel: number) =>
+    const critEffectAt = (nodeLevel: number) =>
       ((tree.nodes[nodeLevel - 1].itemData.system as any).levelProgression.find((r: any) =>
-        /Elorian Focus/.test(r.name),
+        /Crit Support/.test(r.name),
       )?.effect as string) || '';
-    expect(focusEffectAt(3)).toBe('Pre-fill Rank 2. Rank 1 must still be paid normally.');
-    expect(focusEffectAt(6)).toBe('Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.');
-    const focusRowAt9 = (tree.nodes[8].itemData.system as any).levelProgression.find((r: any) =>
-      /Elorian Focus/.test(r.name),
+    expect(critEffectAt(3)).toMatch(/pre-fills Rank 2/i);
+    expect(critEffectAt(6)).toMatch(/pre-fills Rank 3/i);
+    const critRowAt9 = (tree.nodes[8].itemData.system as any).levelProgression.find((r: any) =>
+      /Crit Support/.test(r.name),
     );
-    expect(focusRowAt9?.type).toBe('Stone Power Support');
-    expect(focusRowAt9?.effect).toBe('Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.');
+    expect(critRowAt9?.type).toBe('Stone Power Support');
+    expect(critRowAt9?.effect).toMatch(/pre-fills Rank 4/i);
   });
 
   it('Elorian Stride Evade (+1..+5 paired bands) and Movement (L4+) base values scale per spec', () => {

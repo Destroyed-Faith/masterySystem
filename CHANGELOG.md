@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.639] - 2026-10-13
+
+### Added
+
+- **GM Power ersetzen:** Am Charakterbogen (Powers-Liste und Creation) zeigt der GM pro Power einen Swap-Button. Katalog-Picker nur gleiche Kategorie und gleiches Level; Flags `startingPower` / `gmGranted` / `xpPurchased` und `minLevel` bleiben erhalten — **0 XP**. Artifact-/Echo-Grants sind ausgeschlossen.
+
+### Fixed
+
+- **Elorian Stride (Boots):** Stufe-3-Slot ist wieder **Crit Support** (Katalog Stone Function für `agility.crit`, Rank 2/3/4 bei Artefakt 3/6/9) — kein Authored „Elorian Focus“ mehr. Im Node Editor editierbar.
+- **Lor-Keth's Staff:** Giant Shock Strike bleibt Katalog **Challenge** (Start PP 6); Ancestral Guard = **Reaction: Armor**; Ignore Armor bleibt Stone Support. Seed-Version 55, damit „Refresh Artifact Library“ bestehende Authored-Kopien neu baut.
+
 ## [0.9.638] - 2026-10-13
 
 ### Fixed
