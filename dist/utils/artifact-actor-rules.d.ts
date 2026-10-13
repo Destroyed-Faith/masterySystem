@@ -60,7 +60,13 @@ export declare function getMaxArtifactSpecLevelForMasteryRank(masteryRank?: numb
 export declare function artifactExceedsMasteryRankCap(level: number, masteryRank?: number): boolean;
 /** Attunement has no Mastery-Rank requirement (MR 1 may attune a Level 1 Artifact). */
 export declare function canArtifactLink(_masteryRank?: number): boolean;
-/** Spendable stones in one attribute pool (`current − sustained`). */
+/**
+ * Spendable (Ready) stones in one attribute pool.
+ * `prepareBaseData` / Safe Haven / forceReady store `current` as Ready
+ * (already max − sustained − sealed − burned). Never subtract sustained again.
+ * If a legacy row still has gross `current` (== max while sustained > 0), clamp
+ * to the Ready capacity instead.
+ */
 export declare function poolSpendableStones(actor: any, attr: string): number;
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
 export declare function actorStonesCurrent(actor: any): number;

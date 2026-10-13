@@ -4,7 +4,9 @@
  * that step pending. A per-session dismiss set prevents the same dialog
  * from immediately reopening after ✕; Join Game As / reload starts a new session.
  */
+import { dismissStonePowersPrompt } from './stone-powers-session.js';
 export declare function clearPlayerEncounterSetupSession(): void;
+export { dismissStonePowersPrompt };
 /**
  * Resume pending setup for every locally owned PC in the active encounter.
  */

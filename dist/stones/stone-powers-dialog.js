@@ -8,6 +8,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
+import { dismissStonePowersPrompt } from '../combat/stone-powers-session.js';
 import { STONE_RESOLUTION_QUEUE_FLAG, enqueueStoneResolutions, markStoneResolutionResolved, pendingStoneResolutions, readStoneResolutionQueue, stoneResolutionKind, } from './stone-resolution.js';
 import { presentStoneResolution } from './stone-resolution-ui.js';
 import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, isPremiumStonePower, isRetiredStonePower, RETIRED_STONE_POWER_MESSAGE, effectiveStoneSupportPrefillTier, stonePowerRankCost, stonePowerSegmentSizes, stonePaymentLaneCount, stonePaymentLanesForTier, stoneSupportPrefillLanes, completeStoneRankPayment, partitionStoneLanesByCompleteRanks, } from './stone-powers.js';
@@ -494,6 +495,35 @@ export class StonePowersDialog extends BaseDialog {
      * Show stone powers dialog for an actor
      */
     static async showForActor(actor, combatant) {
+        // Never stack a second instance — especially not while one is still closing
+        // (that race is what made ✕ look like it immediately reopened).
+        try {
+            const existing = foundry?.applications?.instances?.get?.('mastery-stone-powers');
+            if (existing) {
+                const closing = !!existing.closing || !!existing.state?.closing;
+                const gone = existing.rendered === false;
+                if (!closing && !gone) {
+                    try {
+                        existing.bringToFront?.();
+                    }
+                    catch {
+                        /* ignore */
+                    }
+                }
+                else {
+                    try {
+                        dismissStonePowersPrompt(game.combat, actor, combatant ?? null);
+                    }
+                    catch {
+                        /* ignore */
+                    }
+                }
+                return false;
+            }
+        }
+        catch {
+            /* ignore */
+        }
         try {
             const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
             await ensureDefaultPassiveSlots(actor);
@@ -604,12 +634,8 @@ export class StonePowersDialog extends BaseDialog {
                 const burned = Math.max(0, Number(pool?.burned) || 0);
                 const sustainedN = Math.max(0, Number(pool?.sustained) || 0);
                 const effectiveReady = Math.max(0, max - sustainedN - sealed - burned);
-                if ((Number(current) || 0) < effectiveReady && sealed + burned + sustainedN === 0) {
-                    current = effectiveReady;
-                }
-                else if ((Number(current) || 0) > effectiveReady) {
-                    current = effectiveReady;
-                }
+                // Always show the Ready cap the Audit dialog expects (fill or clamp).
+                current = effectiveReady;
             }
             const sustained = pool?.sustained ?? 0;
             const sealedBurned = Math.max(0, Number(pool?.sealed) || 0) + Math.max(0, Number(pool?.burned) || 0);
@@ -618,8 +644,9 @@ export class StonePowersDialog extends BaseDialog {
             // economy actor (`poolOwner`) can be a different document whose item
             // flags are stale, so always read the binding from `this.actor`.
             const artifactBound = countArtifactActivationStones(this.actor, attr);
+            // `current` is Ready (not gross). Do not subtract sustained again.
             const spendable = lifetimeStoneMode
-                ? Math.max(0, Math.min(Number(current) || 0, Number(max) || 0) - (Number(sustained) || 0))
+                ? Math.max(0, Math.min(Number(current) || 0, Number(max) || 0))
                 : poolSpendableStones(this.actor, attr);
             const reserved = this.#reservedStonesInDialogForAttr(attr);
             const poolDisplay = Math.max(0, spendable - reserved);
@@ -3620,6 +3647,15 @@ export class StonePowersDialog extends BaseDialog {
     async _onClose(_options) {
         const committed = _options?.committed === true;
         const force = _options?.force === true;
+        // Sync dismiss BEFORE any await — otherwise resume reopens mid-close.
+        if (!committed) {
+            try {
+                dismissStonePowersPrompt(game.combat, this.actor, this.combatant);
+            }
+            catch {
+                /* optional outside combat */
+            }
+        }
         this.#pullSessionPartialsIntoInstance();
         const withTimeout = async (p, ms = 4000) => {
             try {

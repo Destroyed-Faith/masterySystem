@@ -117,11 +117,12 @@ describe('artifact link stone helpers', () => {
     expect(canSpendArtifactLinkStoneFromPool({ system: { stonePools: {} } }, 'might')).toBe(true);
   });
 
-  it('sums spendable stones from stonePools (current − sustained)', () => {
+  it('sums spendable Ready stones (current already net of sustained)', () => {
     const actor = {
       system: {
         stonePools: {
-          might: { current: 2, max: 2, sustained: 1 },
+          // Ready model: current is Ready; sustained held separately.
+          might: { current: 1, max: 2, sustained: 1 },
           agility: { current: 1, max: 1, sustained: 0 },
           vitality: { current: 0, max: 0, sustained: 0 },
         },
@@ -130,6 +131,28 @@ describe('artifact link stone helpers', () => {
     expect(actorStonesCurrent(actor)).toBe(2);
     const pools = listArtifactSpendableStonePools(actor);
     expect(pools.map((p) => p.key)).toEqual(['might', 'agility']);
+  });
+
+  it('does not double-subtract sustained when current is already Ready', () => {
+    const actor = {
+      system: {
+        stonePools: {
+          vitality: { current: 1, max: 3, sustained: 2, sealed: 0, burned: 0 },
+        },
+      },
+    };
+    expect(poolSpendableStones(actor, 'vitality')).toBe(1);
+  });
+
+  it('clamps legacy gross current (current == max while sustained > 0)', () => {
+    const actor = {
+      system: {
+        stonePools: {
+          might: { current: 2, max: 2, sustained: 1 },
+        },
+      },
+    };
+    expect(poolSpendableStones(actor, 'might')).toBe(1);
   });
 
   it('legacy activation-stone flags do not reserve spendable stones', () => {

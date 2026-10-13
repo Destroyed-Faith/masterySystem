@@ -224,10 +224,29 @@ async function openStonePowersForCombatant(combat: Combat, combatant: Combatant,
   }
 
   try {
+    const combatId = String(combat.id);
+    const actorId = String(actor.id);
+    try {
+      const { isStonePowersDismissed, stonePowersReopenBlocked } = await import(
+        './stone-powers-session.js'
+      );
+      if (stonePowersReopenBlocked()) return;
+      if (isStonePowersDismissed(combatId, actorId, round, combatant.id)) return;
+    } catch {
+      /* session helper optional */
+    }
     // Round 2+ recovery happens inside the Stone Powers dialog: it locks the
     // power matrix until the player confirmed which stones come back.
     const confirmed = await StonePowersDialog.showForActor(actor, combatant);
-    if (!confirmed) return;
+    if (!confirmed) {
+      try {
+        const { dismissStonePowersPrompt } = await import('./stone-powers-session.js');
+        dismissStonePowersPrompt(combat, actor, combatant);
+      } catch {
+        /* ignore */
+      }
+      return;
+    }
     if (game.user?.isGM) {
       await markStonePowersDone(combat, combatant.id, round);
     } else {

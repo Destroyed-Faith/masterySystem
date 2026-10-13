@@ -248,8 +248,10 @@ export async function syncStonePoolCapsFromAssignments(actor: any): Promise<bool
     }
     if (current > readyCap) {
       updates[`system.stonePools.${attr}.current`] = readyCap;
-    } else if (current < readyCap && reserved === 0) {
-      // Expand Ready when assignment grew or ÷8 lag left current too low.
+    } else if (current < readyCap) {
+      // Expand Ready to the expected cap (max − sustained − sealed − burned).
+      // Previously this only ran when reserved === 0, so Summon-held pools
+      // stayed at a stale ÷8 `current` and Available never matched Audit.
       updates[`system.stonePools.${attr}.current`] = readyCap;
     }
   }

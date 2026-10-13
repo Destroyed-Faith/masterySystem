@@ -105,19 +105,25 @@ function economyActor(actor: any): any {
   return getActionEconomyActor(actor) ?? actor;
 }
 
-/** Spendable stones in one attribute pool (`current − sustained`). */
+/**
+ * Spendable (Ready) stones in one attribute pool.
+ * `prepareBaseData` / Safe Haven / forceReady store `current` as Ready
+ * (already max − sustained − sealed − burned). Never subtract sustained again.
+ * If a legacy row still has gross `current` (== max while sustained > 0), clamp
+ * to the Ready capacity instead.
+ */
 export function poolSpendableStones(actor: any, attr: string): number {
   const sys = (economyActor(actor)?.system as any) || {};
   const pool = sys.stonePools?.[attr];
   if (!pool) return 0;
   const max = Math.max(0, Number(pool.max) || 0);
   if (max <= 0) return 0;
-  // Never treat more stones than the pool can actually hold as spendable. A
-  // stale/inflated `current` (e.g. after the attribute max was lowered) must
-  // not let a player commit more permanent artifact bindings than capacity.
-  const current = Math.min(max, Math.max(0, Number(pool.current) || 0));
+  const current = Math.max(0, Number(pool.current) || 0);
   const sustained = Math.max(0, Number(pool.sustained) || 0);
-  return Math.max(0, current - sustained);
+  const sealed = Math.max(0, Number(pool.sealed) || 0);
+  const burned = Math.max(0, Number(pool.burned) || 0);
+  const readyCap = Math.max(0, max - sustained - sealed - burned);
+  return Math.min(current, readyCap);
 }
 
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */

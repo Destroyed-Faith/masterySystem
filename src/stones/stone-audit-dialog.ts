@@ -8,6 +8,17 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof Applicati
 
 import { buildStoneAuditReport } from './stone-audit.js';
 
+async function refreshOpenStonePowersDialog(): Promise<void> {
+  try {
+    const existing = (foundry as any)?.applications?.instances?.get?.('mastery-stone-powers');
+    if (existing?.render && existing.rendered !== false) {
+      await existing.render({ force: true });
+    }
+  } catch {
+    /* dialog optional */
+  }
+}
+
 export class StoneAuditDialog extends BaseDialog {
   private actor: any;
 
@@ -57,6 +68,7 @@ export class StoneAuditDialog extends BaseDialog {
             await syncStonePoolCapsFromAssignments(target);
           }
           ui.notifications?.info('Stone-Pools an Lifetime-Leiste angepasst.');
+          await refreshOpenStonePowersDialog();
         } catch (err) {
           console.warn('Mastery System | stone audit sync failed', err);
           ui.notifications?.warn('Sync fehlgeschlagen.');
@@ -70,12 +82,19 @@ export class StoneAuditDialog extends BaseDialog {
       readyBtn.onclick = async (ev) => {
         ev.preventDefault();
         try {
-          const { forceReadyStonePoolsOnCharacter, listStonePoolSyncActors } = await import(
-            './stone-pool-sync.js'
-          );
+          const {
+            forceReadyStonePoolsOnCharacter,
+            listStonePoolSyncActors,
+            syncStonePoolCapsFromAssignments,
+          } = await import('./stone-pool-sync.js');
           for (const target of listStonePoolSyncActors(this.actor)) {
             try {
               await target.unsetFlag?.('mastery-system', 'stoneUsage');
+            } catch {
+              /* ignore */
+            }
+            try {
+              await syncStonePoolCapsFromAssignments(target);
             } catch {
               /* ignore */
             }
@@ -86,6 +105,7 @@ export class StoneAuditDialog extends BaseDialog {
           ui.notifications?.info(
             `Ready (Summon behalten) — Vitality ${forced.vitalityReady}, sealed ${forced.vitalitySealed}.`,
           );
+          await refreshOpenStonePowersDialog();
         } catch (err) {
           console.warn('Mastery System | stone audit ready failed', err);
           ui.notifications?.warn('Ready fehlgeschlagen.');
@@ -105,12 +125,19 @@ export class StoneAuditDialog extends BaseDialog {
         });
         if (!ok) return;
         try {
-          const { forceReadyStonePoolsOnCharacter, listStonePoolSyncActors } = await import(
-            './stone-pool-sync.js'
-          );
+          const {
+            forceReadyStonePoolsOnCharacter,
+            listStonePoolSyncActors,
+            syncStonePoolCapsFromAssignments,
+          } = await import('./stone-pool-sync.js');
           for (const target of listStonePoolSyncActors(this.actor)) {
             try {
               await target.unsetFlag?.('mastery-system', 'stoneUsage');
+            } catch {
+              /* ignore */
+            }
+            try {
+              await syncStonePoolCapsFromAssignments(target);
             } catch {
               /* ignore */
             }
@@ -121,6 +148,7 @@ export class StoneAuditDialog extends BaseDialog {
           ui.notifications?.info(
             `Alles Ready — Vitality ${forced.vitalityReady}, sealed ${forced.vitalitySealed}.`,
           );
+          await refreshOpenStonePowersDialog();
         } catch (err) {
           console.warn('Mastery System | stone audit ready-all failed', err);
           ui.notifications?.warn('Ready (alles) fehlgeschlagen.');

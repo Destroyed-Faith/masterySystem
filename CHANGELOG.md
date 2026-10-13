@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.625] - 2026-10-13
+
+### Fixed
+
+- **Available Stones = Ready:** Spendable zählt `current` als Ready und zieht Sustained nicht noch einmal ab. Sync füllt Ready auch bei Summon-Holds auf `max − sustained − sealed − burned`. Audit Ready/Sync aktualisiert ein offenes Stone-Powers-Fenster.
+- **Stone Powers ✕:** Schließen markiert den Encounter-Prompt synchron als dismissed (inkl. Cooldown), verhindert ein zweites Fenster während `_onClose`, und stoppt damit die Sofort-Wiederöffnung.
+
 ## [0.9.624] - 2026-10-13
 
 ### Added

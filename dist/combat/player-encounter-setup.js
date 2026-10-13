@@ -6,22 +6,30 @@
  */
 import { ENCOUNTER_SOCKET, canCurrentUserUpdateDocument, resolveLiveCombat, shouldShowEncounterDialogLocally, } from './combat-permissions.js';
 import { isPassiveSelectionLocked, persistCombatantSetupStep } from './encounter-setup-flags.js';
-const dismissedThisSession = new Set();
+import { clearStonePowersSession, dismissStonePowersPrompt, isStonePowersDismissed, stonePowersReopenBlocked, } from './stone-powers-session.js';
 let pipelineRunning = false;
 let pipelineQueued = false;
-function stepKey(combatId, actorId, step, round) {
-    return round == null ? `${combatId}:${actorId}:${step}` : `${combatId}:${actorId}:${step}:${round}`;
-}
 export function clearPlayerEncounterSetupSession() {
-    dismissedThisSession.clear();
+    clearStonePowersSession();
     pipelineRunning = false;
     pipelineQueued = false;
 }
+export { dismissStonePowersPrompt };
 function dialogAlreadyOpen(id) {
     const instances = foundry?.applications?.instances;
     const existing = instances?.get?.(id);
     if (!existing)
         return false;
+    // Closing / unrendered instances must not block — and must not be yanked back.
+    try {
+        if (existing.state?.closing || existing.closing)
+            return false;
+        if (existing.rendered === false)
+            return false;
+    }
+    catch {
+        /* ignore */
+    }
     try {
         existing.bringToFront?.();
     }
@@ -102,7 +110,9 @@ async function runSetupForCombatant(combat, combatant) {
     const { isStonePowersDone } = await import('./stone-round-gate.js');
     const { handleStonePowersComplete } = await import('./stone-powers-flow.js');
     if (!isStonePowersDone(combat, combatant.id, round)) {
-        if (dismissedThisSession.has(stepKey(combatId, actorId, 'stones', round)))
+        if (stonePowersReopenBlocked())
+            return;
+        if (isStonePowersDismissed(combatId, actorId, round, combatant.id))
             return;
         if (dialogAlreadyOpen('mastery-stone-powers'))
             return;
@@ -122,7 +132,7 @@ async function runSetupForCombatant(combat, combatant) {
         const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
         const confirmed = await StonePowersDialog.showForActor(actor, combatant);
         if (!confirmed) {
-            dismissedThisSession.add(stepKey(combatId, actorId, 'stones', round));
+            dismissStonePowersPrompt(combat, actor, combatant);
             return;
         }
         await persistCombatantSetupStep(combatant, combat, { stonesDoneRound: round });
