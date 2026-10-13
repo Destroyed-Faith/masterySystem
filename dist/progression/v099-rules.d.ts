@@ -44,12 +44,14 @@ export type LifetimeXpDerivation = {
     source: 'stored' | 'earnedCounters' | 'spentPlusUnspent' | 'unknown';
 };
 /**
- * Lifetime XP never decreases. Prefer an already stored value, then the
- * system's earned counters, then spent + unspent. Never invent a number.
+ * Lifetime XP never decreases. Take the max of every known source:
+ * stored field, earned counters, and spent + unspent. A stale stored value
+ * (set at migration / last grant) must not block Stone milestones after more
+ * XP has been earned into `xp.totalEarned` or `points.xp`.
  */
 export declare function deriveLifetimeXp(system: any): LifetimeXpDerivation;
 export declare function nextLifetimeXp(system: any, amount: number): number | null;
-/** Lifetime XP for Stone milestones: stored value, else derived (spent + unspent). */
+/** Lifetime XP for Stone milestones — max(stored, earned, spent+unspent). */
 export declare function lifetimeXpForStoneProgress(system: any): number | null;
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export declare function permanentStonesFromLifetimeXp(lifetimeXp: number): number;

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.622] - 2026-10-13
+
+### Fixed
+
+- **140er-Stein / Lifetime XP:** Ein veraltetes `progression.lifetimeXp` (z. B. 120 nach Migration) hat die Freischaltung blockiert, obwohl `totalEarned` / spent+unspent schon 150+ waren. Lifetime für Steine ist jetzt max(stored, earned, spent+unspent); Sheet schreibt den Wert nach.
+
 ## [0.9.621] - 2026-10-13
 
 ### Fixed

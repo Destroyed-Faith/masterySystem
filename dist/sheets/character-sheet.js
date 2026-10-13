@@ -116,6 +116,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     _powersListDetailsOpen;
     /** Block nested render() while a paint is in flight. */
     #isRendering = false;
+    #lifetimeSyncInFlight = false;
     /** One attribute-baseline migration attempt per sheet instance. */
     #attributeBaselinesMigrationDone = false;
     /** Prevent overlapping catalog power resyncs from nested sheet renders. */
@@ -1462,6 +1463,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const root = this.element;
         if (!root)
             return;
+        // Persist reconstructed Lifetime XP when earned/unspent outgrew a stale
+        // stored value — otherwise the 140 stone stays locked after XP grants.
+        void this.#syncLifetimeXpFromProgress();
         bindManualSheetTabs(root, this, this._initialTab);
         bindEditImage(root, this.actor);
         // V1 `dragDrop` option replacement: the equipment grid uses `.df-draggable-item`,
@@ -6247,6 +6251,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await openV099LifetimeDialog(this.actor);
         this.render();
     }
+    /** Write back max(stored, earned, spent+unspent) so milestones stay unlocked. */
+    async #syncLifetimeXpFromProgress() {
+        if (this.#lifetimeSyncInFlight)
+            return;
+        if (this.actor.type !== 'character')
+            return;
+        if (!this.actor.isOwner && !game.user?.isGM)
+            return;
+        const sys = this.actor.system ?? {};
+        const life = lifetimeXpForStoneProgress(sys);
+        if (life == null)
+            return;
+        const stored = sys?.progression?.lifetimeXp;
+        const storedN = typeof stored === 'number' && Number.isFinite(stored) ? Math.max(0, Math.floor(stored)) : null;
+        if (storedN != null && storedN >= life)
+            return;
+        this.#lifetimeSyncInFlight = true;
+        try {
+            await this.actor.update({ 'system.progression.lifetimeXp': life });
+        }
+        catch (err) {
+            console.warn('Mastery System | lifetimeXp sync failed', err);
+        }
+        finally {
+            this.#lifetimeSyncInFlight = false;
+        }
+    }
     async #onV099StoneSlot(ev) {
         const sys = this.actor.system ?? {};
         const pending = this.actor.getFlag?.('mastery-system', V099_RESPEC_FLAG) === true;
@@ -6273,8 +6304,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const rank = getRulesMasteryRank(this.actor);
         const order = stoneOrderForActor(sys, lifetime);
         const index = Math.floor(Number(ev?.currentTarget?.dataset?.slotIndex));
-        if (!Number.isFinite(index) || index < 0 || index >= order.length)
+        if (!Number.isFinite(index) || index < 0 || index >= order.length) {
+            ui.notifications?.warn(`Stone slot ${index} is not unlocked yet (Lifetime XP ${lifetime}, ${order.length} stones).`);
             return;
+        }
         const redistribute = this.actor.getFlag?.('mastery-system', STONE_REDISTRIBUTE_FLAG) === true
             || this.actor.flags?.['mastery-system']?.[STONE_REDISTRIBUTE_FLAG] === true;
         const filled = Boolean(order[index]);

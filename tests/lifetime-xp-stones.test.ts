@@ -27,10 +27,23 @@ describe('lifetime XP unlocks stones regardless of spend', () => {
     ).toBe(150);
   });
 
-  it('XP grant bootstraps lifetime from spent+unspent', () => {
+  it('stale stored lifetimeXp does not block the 140 stone after more XP was earned', () => {
+    const system = {
+      progression: { lifetimeXp: 120, v099Stones: true },
+      xp: { totalEarned: 150, totalSpent: 40, freeEarned: 0, freeSpent: 0 },
+      points: { xp: 110, xpFree: 0 },
+    };
+    expect(lifetimeXpForStoneProgress(system)).toBe(150);
+    expect(permanentStonesFromLifetimeXp(150)).toBe(9);
+    const slots = buildStoneProgressionSlots(150, {}, undefined, 0, null, 'visible');
+    expect(slots.find((s) => s.label === '140')?.unlocked).toBe(true);
+  });
+
+  it('XP grant bootstraps from earned counters even when stored lifetime lags', () => {
     expect(
       nextLifetimeXp(
         {
+          progression: { lifetimeXp: 120 },
           xp: { totalSpent: 0, freeSpent: 0, totalEarned: 150 },
           points: { xp: 150 },
         },

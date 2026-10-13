@@ -111,20 +111,33 @@ export function compressedAttributeXpBetween(base, target) {
     return sum;
 }
 /**
- * Lifetime XP never decreases. Prefer an already stored value, then the
- * system's earned counters, then spent + unspent. Never invent a number.
+ * Lifetime XP never decreases. Take the max of every known source:
+ * stored field, earned counters, and spent + unspent. A stale stored value
+ * (set at migration / last grant) must not block Stone milestones after more
+ * XP has been earned into `xp.totalEarned` or `points.xp`.
  */
 export function deriveLifetimeXp(system) {
+    let best = null;
+    let source = 'unknown';
+    const consider = (value, src) => {
+        if (value == null || !Number.isFinite(value))
+            return;
+        const n = Math.max(0, Math.floor(value));
+        if (best == null || n > best) {
+            best = n;
+            source = src;
+        }
+    };
     const stored = system?.progression?.lifetimeXp;
     if (typeof stored === 'number' && Number.isFinite(stored)) {
-        return { lifetimeXp: Math.max(0, Math.floor(stored)), source: 'stored' };
+        consider(stored, 'stored');
     }
     const xp = system?.xp;
     const earnedPresent = xp && (typeof xp.totalEarned === 'number' || typeof xp.freeEarned === 'number');
     if (earnedPresent) {
         const regular = Math.max(0, Math.floor(Number(xp.totalEarned) || 0));
         const free = Math.max(0, Math.floor(Number(xp.freeEarned) || 0));
-        return { lifetimeXp: regular + free, source: 'earnedCounters' };
+        consider(regular + free, 'earnedCounters');
     }
     const spentPresent = xp && (typeof xp.totalSpent === 'number' || typeof xp.freeSpent === 'number');
     const unspentPresent = system?.points && (typeof system.points.xp === 'number' || typeof system.points.xpFree === 'number');
@@ -133,32 +146,21 @@ export function deriveLifetimeXp(system) {
             Math.max(0, Math.floor(Number(xp?.freeSpent) || 0));
         const unspent = Math.max(0, Math.floor(Number(system?.points?.xp) || 0)) +
             Math.max(0, Math.floor(Number(system?.points?.xpFree) || 0));
-        return { lifetimeXp: spent + unspent, source: 'spentPlusUnspent' };
+        consider(spent + unspent, 'spentPlusUnspent');
     }
-    return { lifetimeXp: null, source: 'unknown' };
+    return { lifetimeXp: best, source };
 }
 export function nextLifetimeXp(system, amount) {
-    // Bootstrap from derived lifetime when the stored field was never set —
-    // otherwise XP grants raise points.xp but never unlock Stone milestones.
-    const derived = deriveLifetimeXp(system).lifetimeXp;
-    const stored = system?.progression?.lifetimeXp;
-    const storedN = typeof stored === 'number' && Number.isFinite(stored) ? Math.max(0, Math.floor(stored)) : null;
-    const current = storedN != null && derived != null
-        ? Math.max(storedN, derived)
-        : (storedN ?? derived);
+    // Always advance from the best known lifetime (stored or reconstructed).
+    const current = deriveLifetimeXp(system).lifetimeXp;
     if (current == null)
         return null;
     const add = Math.max(0, Math.floor(Number(amount) || 0));
     return Math.max(0, Math.floor(current) + add);
 }
-/** Lifetime XP for Stone milestones: stored value, else derived (spent + unspent). */
+/** Lifetime XP for Stone milestones — max(stored, earned, spent+unspent). */
 export function lifetimeXpForStoneProgress(system) {
-    const derived = deriveLifetimeXp(system);
-    const stored = system?.progression?.lifetimeXp;
-    const storedN = typeof stored === 'number' && Number.isFinite(stored) ? Math.max(0, Math.floor(stored)) : null;
-    if (storedN != null && derived.lifetimeXp != null)
-        return Math.max(storedN, derived.lifetimeXp);
-    return storedN ?? derived.lifetimeXp;
+    return deriveLifetimeXp(system).lifetimeXp;
 }
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export function permanentStonesFromLifetimeXp(lifetimeXp) {
