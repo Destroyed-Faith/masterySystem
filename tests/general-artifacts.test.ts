@@ -114,18 +114,21 @@ describe('General Artifact trees — structure and binding', () => {
   });
 
   it('uses the authored rulebook rows 1:1 for artifacts without progressionPickSpecs', () => {
-    const def = getGeneralArtifact('lorKethsStaff')!;
+    const def = getGeneralArtifact('starfallenForceshield')!;
     // No pick specs → authored table is the source of truth (no recompilation).
     expect(def.progressionPickSpecs).toBeUndefined();
-    expect(def.levelProgression).toHaveLength(10);
+    expect(def.levelProgression.length).toBeGreaterThanOrEqual(1);
     const tree = buildEchoArtifactTree(def);
     for (const node of tree.nodes) {
       expect((node.itemData.system as any).levelProgression).toEqual(
         visibleAbilityRows(def.levelProgression, node.level),
       );
     }
-    // The authored L1 name survives verbatim.
-    expect(sysAt(tree, 1).levelProgression[0].name).toBe(def.levelProgression[0].name);
+    // The authored L1 name survives verbatim when present.
+    const l1 = def.levelProgression.find((r) => r.level === 1);
+    if (l1) {
+      expect(sysAt(tree, 1).levelProgression[0].name).toBe(l1.name);
+    }
   });
 });
 
@@ -872,8 +875,7 @@ describe("Lor-Keth's Staff", () => {
     expect(baseValue(tree, 10, 'Giant Weight').value).toBe('True Giant Weight');
   });
 
-  it('supports the Might Ignore Armor Stone Power from L3 (matching the authored Support row)', () => {
-    // L1 = Giant Shock Strike, L2 = Ancestor Guard; the stone support gates at L3.
+  it('supports the Might Ignore Armor Stone Power from L3', () => {
     expect(sysAt(tree, 1).stoneFunction).toBeNull();
     expect(sysAt(tree, 2).stoneFunction).toBeNull();
     expect(sysAt(tree, 3).stoneFunction).toEqual({
@@ -893,25 +895,42 @@ describe("Lor-Keth's Staff", () => {
     expect(artifactIsSpellFocusOnly(sys)).toBe(false);
   });
 
-  it('uses the authored rulebook progression rows 1:1', () => {
+  it('builds Giant Shock / Ancestor Guard / Ignore Armor from catalog picks (no authored)', () => {
     const def = getGeneralArtifact('lorKethsStaff')!;
-    expect(def.levelProgression.map((r) => r.name)).toEqual([
-      'Giant Shock Strike I',
-      'Ancestor Guard I',
-      'Might Ignore Armor Support I',
-      'Giant Shock Strike II',
-      'Ancestor Guard II',
-      'Might Ignore Armor Support II',
-      'Giant Shock Strike III',
-      'Ancestor Guard III',
-      'Might Ignore Armor Support III',
-      'Heart of the Storm Ancestors',
-    ]);
-    expect(sysAt(tree, 10).levelProgression.map((r: any) => r.name)).toEqual([
-      'Giant Shock Strike III',
-      'Ancestor Guard III',
-      'Might Ignore Armor Support III',
-      'Heart of the Storm Ancestors',
-    ]);
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'stoneFunction']);
+    expect(picks[0]).toMatchObject({
+      powerTemplateId: 'active-melee-damage-t5',
+      chosenSpecial: { key: 'challenge' },
+      displayName: 'Giant Shock Strike',
+    });
+    expect(picks[1]).toMatchObject({
+      powerTemplateId: 'reaction-armor',
+      displayName: 'Ancestor Guard',
+    });
+    expect(picks[2]).toMatchObject({
+      kind: 'stoneFunction',
+      displayName: 'Might Ignore Armor Support',
+      stoneFunction: { kind: 'stonePowerSupport', stonePowerId: 'might.ignoreArmor' },
+    });
+    // No authored slots — Node Editor can edit the Challenge / Armor lines.
+    expect(picks.every((p) => p.kind !== 'authored')).toBe(true);
+
+    const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
+    for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Giant Shock Strike/);
+    for (const lvl of [2, 5, 8]) expect((byLevel.get(lvl) as any).name).toMatch(/Ancestor Guard/);
+    for (const lvl of [3, 6, 9]) expect((byLevel.get(lvl) as any).name).toMatch(/Might Ignore Armor Support/);
+    expect((byLevel.get(10) as any).name).toBe('Heart of the Storm Ancestors');
+
+    expect((byLevel.get(1) as any).powerTemplateId).toBe('active-melee-damage-t5');
+    expect((byLevel.get(1) as any).chosenSpecialKey).toBe('challenge');
+    expect((byLevel.get(2) as any).powerTemplateId).toBe('reaction-armor');
+    expect((byLevel.get(1) as any).type).toMatch(/Melee/i);
+    expect((byLevel.get(2) as any).type).toMatch(/Reaction|Armor/i);
+
+    const shock = sysAt(tree, 1).powers.find((p: any) => /Giant Shock Strike/.test(p.name));
+    expect(shock?.category).toBe('active');
+    const guard = sysAt(tree, 2).powers.find((p: any) => /Ancestor Guard/.test(p.name));
+    expect(guard?.category).toBe('reaction');
   });
 });

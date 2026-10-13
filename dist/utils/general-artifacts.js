@@ -402,14 +402,13 @@ const LOR_KETHS_STAFF = {
     baseProfile: 'twoHandedWeapon',
     description: "Lor-Keth's Staff is a two-handed Rod of the Storm Ancestors. It was forged for giants, shaped from smooth blue-gray stone, and awakened by old runes of storm and bloodline.\n\nThe Staff changes with its bearer.\n\nIt is not a wand. It is a giant's weapon.",
     restriction: "Lor-Keth's Staff requires both hands.\n\nWhile wielding it, the character cannot wield another weapon, shield, or Hand Artifact.",
-    // The Ignore Armor Stone Power Support unlocks at L3 (L1/L2 are the Giant
-    // Shock Strike Active and Ancestor Guard Reaction), so the mechanical stone
-    // function gates at level 3 to match the authored Level Progression.
+    // L3 Stone Support (Ignore Armor). L1/L2 are catalog Powers via picks below.
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
         stonePowerId: 'might.ignoreArmor',
         level: 3,
+        name: 'Might Ignore Armor Support',
     },
     baseValues: [
         { slot: 'a', label: 'Staff Damage', note: '5d8 to 14d8 across levels (4d8 two-handed base + 1d8/level).' },
@@ -424,88 +423,16 @@ const LOR_KETHS_STAFF = {
             note: 'Giant Weight from L7, True Giant Weight at L10.',
         },
     ],
+    // Standard catalog Powers (editable in the Node Editor) — no authored lines:
+    //   L1 Giant Shock Strike → Melee Special Damage (Challenge / Start PP 6)
+    //   L2 Ancestor Guard     → Reaction: Armor
+    //   L3 Ignore Armor       → Stone Power Support (from `stoneFunction`)
+    // Only the bespoke L10 Ultimate stays authored below.
+    progressionPickSpecs: {
+        1: { delivery: 'melee-single', special: 'challenge', name: 'Giant Shock Strike' },
+        2: { templateId: 'reaction-armor', name: 'Ancestor Guard' },
+    },
     levelProgression: [
-        {
-            level: 1,
-            name: 'Giant Shock Strike I',
-            type: 'Active',
-            range: 'Melee Reach',
-            duration: 'Instant',
-            effect: "Use Melee — Damage + Start PP 6 Special at Power Level 4. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-            special: 'Challenge(5)',
-        },
-        {
-            level: 2,
-            name: 'Ancestor Guard I',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack or damage instance only',
-            effect: 'Use Reaction: Armor at Power Level 4. When you are hit or would take damage, gain +10 Armor against the triggering attack or damage instance.',
-            special: 'Armor',
-        },
-        {
-            level: 3,
-            name: 'Might Ignore Armor Support I',
-            type: 'Stone Power Support',
-            range: 'Self',
-            duration: 'Instant',
-            effect: "Lor-Keth's Staff supports the Might Ability Ignore Armor and pre-fills Rank 2. Rank 1 must still be paid normally.",
-            special: 'Ignore Armor',
-        },
-        {
-            level: 4,
-            name: 'Giant Shock Strike II',
-            type: 'Active',
-            range: 'Melee Reach',
-            duration: 'Instant',
-            effect: "Use Melee — Damage + Start PP 6 Special at Power Level 10. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-            special: 'Challenge(9)',
-        },
-        {
-            level: 5,
-            name: 'Ancestor Guard II',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack or damage instance only',
-            effect: 'Use Reaction: Armor at Power Level 10. When you are hit or would take damage, gain +26 Armor against the triggering attack or damage instance.',
-            special: 'Armor',
-        },
-        {
-            level: 6,
-            name: 'Might Ignore Armor Support II',
-            type: 'Stone Power Support',
-            range: 'Self',
-            duration: 'Instant',
-            effect: "Lor-Keth's Staff pre-fills Rank 3 of the Might Ability Ignore Armor. Ranks 1 and 2 must still be paid normally.",
-            special: 'Ignore Armor',
-        },
-        {
-            level: 7,
-            name: 'Giant Shock Strike III',
-            type: 'Active',
-            range: 'Melee Reach',
-            duration: 'Instant',
-            effect: "Use Melee — Damage + Start PP 6 Special at Power Level 16. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
-            special: 'Challenge(11)',
-        },
-        {
-            level: 8,
-            name: 'Ancestor Guard III',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack or damage instance only',
-            effect: 'Use Reaction: Armor at Power Level 16. When you are hit or would take damage, gain +42 Armor against the triggering attack or damage instance.',
-            special: 'Armor',
-        },
-        {
-            level: 9,
-            name: 'Might Ignore Armor Support III',
-            type: 'Stone Power Support',
-            range: 'Self',
-            duration: 'Instant',
-            effect: "Lor-Keth's Staff pre-fills Rank 4 of the Might Ability Ignore Armor. Ranks 1, 2, and 3 must still be paid normally.",
-            special: 'Ignore Armor',
-        },
         {
             level: 10,
             name: 'Heart of the Storm Ancestors',

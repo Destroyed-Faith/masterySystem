@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.633] - 2026-10-13
+
+### Changed
+
+- **Lor-Keth's Staff:** Keine Authored-Powers mehr. Giant Shock Strike = Katalog `Melee Damage T5` mit **Challenge**; Ancestor Guard = **Reaction: Armor**; Ignore Armor bleibt Stone Support. Im Node Editor editierbar. World-Setting „Rebuild Artifact Trees“ anwerfen, damit bestehende Stäbe neu gebaut werden.
+
 ## [0.9.632] - 2026-10-13
 
 ### Fixed
