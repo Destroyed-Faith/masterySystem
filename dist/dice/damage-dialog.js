@@ -1822,6 +1822,17 @@ function registerDamageFaithRerollChatHooks() {
         void settleDamageFaithPrompt(message, !!payload.wantsReroll);
     });
 }
+/** Rolling client, GM, or an OWNER of the attacker may press Keep / Reroll. */
+function canDecideDamageFaithGate(messageId, attacker, user) {
+    if (pendingDamageFaithPrompts.has(messageId))
+        return true;
+    if (user?.isGM)
+        return true;
+    if (!attacker || !user)
+        return false;
+    return (typeof attacker.testUserPermission === 'function' &&
+        attacker.testUserPermission(user, 'OWNER'));
+}
 function damageFaithPromptEsc(text) {
     return String(text)
         .replace(/&/g, '&amp;')
@@ -1924,24 +1935,25 @@ function attachDamageFaithPromptHandlers(message, htmlRaw) {
     const messageId = String(message.id || '');
     const flags = message.flags?.['mastery-system'] || {};
     const attackerId = String(flags.attackerId || '');
-    const attacker = attackerId ? game.actors?.get(attackerId) : null;
+    const attacker = resolveLiveActor(attackerId, flags?.attackerTokenId) ||
+        (attackerId ? game.actors?.get(attackerId) : null);
     const user = game.user;
-    const playsAttacker = !!attacker &&
-        (user?.isGM
-            ? String(user.character?.id || '') === attackerId || !!attacker.isOwner
-            : !!attacker.isOwner);
-    const canAct = pendingDamageFaithPrompts.has(messageId) || playsAttacker;
+    const canAct = canDecideDamageFaithGate(messageId, attacker, user);
     const keepBtn = card.find('.ms-damage-faith-keep-btn');
     const rerollBtn = card.find('.ms-damage-faith-reroll-btn');
     if (!canAct) {
         keepBtn.prop('disabled', true);
         rerollBtn.prop('disabled', true);
-        keepBtn.attr('title', 'Waiting for the rolling player…');
-        rerollBtn.attr('title', 'Waiting for the rolling player…');
+        keepBtn.attr('title', 'Waiting for the rolling player or GM…');
+        rerollBtn.attr('title', 'Waiting for the rolling player or GM…');
         return;
     }
     keepBtn.prop('disabled', false);
     rerollBtn.prop('disabled', false);
+    if (user?.isGM && !pendingDamageFaithPrompts.has(messageId)) {
+        keepBtn.attr('title', 'GM: keep this damage roll (forwards to the rolling player)');
+        rerollBtn.attr('title', 'GM: spend a Reroll Point for a damage reroll (forwards to the rolling player)');
+    }
     const lock = async (wantsReroll) => {
         keepBtn.prop('disabled', true);
         rerollBtn.prop('disabled', true);
@@ -1949,11 +1961,15 @@ function attachDamageFaithPromptHandlers(message, htmlRaw) {
             await settleDamageFaithPrompt(message, wantsReroll);
             return;
         }
+        // Decision made on another client (usually the GM while a player rolled).
         game.socket?.emit('system.mastery-system', {
             type: 'damageFaithChoice',
             messageId,
             wantsReroll,
         });
+        ui.notifications?.info?.(wantsReroll
+            ? 'Reroll sent to the rolling player…'
+            : 'Keep sent to the rolling player…');
     };
     keepBtn.off('click.msDmgFaith').on('click.msDmgFaith', (ev) => {
         ev.preventDefault();
@@ -2004,6 +2020,7 @@ async function promptDamageFaithReroll(attacker, target, totalDamage, rollDetail
                 'mastery-system': {
                     type: 'damageFaithRerollPrompt',
                     attackerId: attacker.id,
+                    attackerTokenId: tokenIdOfActor(attacker) || '',
                     attackerName,
                     targetName,
                     totalDamage,
@@ -2052,6 +2069,17 @@ function registerDamageMarkSpendChatHooks() {
         catch (e) {
             console.warn('Mastery System | damage Mark spend prompt hook', e);
         }
+    });
+    game.socket?.on('system.mastery-system', (payload) => {
+        if (payload?.type !== 'damageMarkChoice')
+            return;
+        const messageId = String(payload.messageId || '');
+        if (!pendingDamageMarkPrompts.has(messageId))
+            return;
+        const message = game.messages?.get(messageId);
+        if (!message)
+            return;
+        void settleDamageMarkPrompt(message, Math.max(0, Math.floor(Number(payload.spend) || 0)));
     });
 }
 function buildDamageMarkGateHtml(opts) {
@@ -2153,20 +2181,38 @@ function attachDamageMarkPromptHandlers(message, htmlRaw) {
         return;
     card.data('msMarkBound', true);
     const messageId = String(message.id || '');
-    const canAct = pendingDamageMarkPrompts.has(messageId);
+    const flags = message.flags?.['mastery-system'] || {};
+    const attackerId = String(flags.attackerId || '');
+    const attacker = resolveLiveActor(attackerId, flags?.attackerTokenId) ||
+        (attackerId ? game.actors?.get(attackerId) : null);
+    const user = game.user;
+    const canAct = pendingDamageMarkPrompts.has(messageId) ||
+        !!user?.isGM ||
+        (!!attacker &&
+            typeof attacker.testUserPermission === 'function' &&
+            attacker.testUserPermission(user, 'OWNER'));
     const spendBtns = card.find('.ms-damage-mark-spend-btn');
     const skipBtn = card.find('.ms-damage-mark-skip-btn');
     if (!canAct) {
         spendBtns.prop('disabled', true);
         skipBtn.prop('disabled', true);
-        spendBtns.attr('title', 'Waiting for the rolling player…');
-        skipBtn.attr('title', 'Waiting for the rolling player…');
+        spendBtns.attr('title', 'Waiting for the rolling player or GM…');
+        skipBtn.attr('title', 'Waiting for the rolling player or GM…');
         return;
     }
     const lock = async (spend) => {
         spendBtns.prop('disabled', true);
         skipBtn.prop('disabled', true);
-        await settleDamageMarkPrompt(message, spend);
+        if (pendingDamageMarkPrompts.has(messageId)) {
+            await settleDamageMarkPrompt(message, spend);
+            return;
+        }
+        game.socket?.emit('system.mastery-system', {
+            type: 'damageMarkChoice',
+            messageId,
+            spend,
+        });
+        ui.notifications?.info?.('Mark choice sent to the rolling player…');
     };
     spendBtns.off('click.msDmgMark').on('click.msDmgMark', (ev) => {
         ev.preventDefault();
@@ -2217,6 +2263,7 @@ async function promptMarkSpend(attacker, target, markOnTarget, totalDamage, roll
         const markFlags = {
             type: 'damageMarkSpendPrompt',
             attackerId: attacker?.id,
+            attackerTokenId: attacker ? tokenIdOfActor(attacker) || '' : '',
             attackerName,
             targetName,
             totalDamage,

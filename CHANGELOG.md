@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.648] - 2026-10-13
+
+### Fixed
+
+- **Schaden Keep/Reroll für den GM:** Wenn ein Spieler den Schaden gewürfelt hat, waren Keep/Reroll (und Mark-Spend) oft nur auf dem Würfel-Client aktiv. Der GM kann die Buttons jetzt immer bedienen; die Entscheidung geht per Socket an den wartenden Spieler-Client, damit der Schadenfluss dort weiterläuft.
+
 ## [0.9.647] - 2026-10-13
 
 ### Added
