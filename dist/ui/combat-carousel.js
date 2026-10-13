@@ -519,7 +519,7 @@ export class CombatCarouselApp extends BaseCarousel {
                     return;
                 }
                 const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-                await StonePowersDialog.showForActor(actor, combatant);
+                await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
             };
             nameEl.ondblclick = (ev) => {
                 ev.preventDefault();

@@ -8,7 +8,6 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
-import { dismissStonePowersPrompt } from '../combat/stone-powers-session.js';
 import { STONE_RESOLUTION_QUEUE_FLAG, enqueueStoneResolutions, markStoneResolutionResolved, pendingStoneResolutions, readStoneResolutionQueue, stoneResolutionKind, } from './stone-resolution.js';
 import { presentStoneResolution } from './stone-resolution-ui.js';
 import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, isPremiumStonePower, isRetiredStonePower, RETIRED_STONE_POWER_MESSAGE, effectiveStoneSupportPrefillTier, stonePowerRankCost, stonePowerSegmentSizes, stonePaymentLaneCount, stonePaymentLanesForTier, stoneSupportPrefillLanes, completeStoneRankPayment, partitionStoneLanesByCompleteRanks, } from './stone-powers.js';
@@ -26,9 +25,10 @@ import { formatPendingStoneActivationWarning, orderPowersRampFirst, pendingStone
 import { clampStoneRecoveryAllocation, planStoneRecovery, } from './stone-recovery.js';
 import { isPassivesReviewedThisEncounter, isStoneRegenDone, persistCombatantSetupStep, readCombatantSetupStep, } from '../combat/encounter-setup-flags.js';
 import { canEditEncounterPassives, getAvailablePassives, getPassiveSlots, getPendingPassiveSwaps, passiveSlotsHaveOpenChoice, } from '../powers/passives.js';
-import { poolSpendableStones } from '../utils/artifact-actor-rules.js';
+import { debugPoolSpendableSnapshot, poolSpendableStones, } from '../utils/artifact-actor-rules.js';
 import { countArtifactActivationStones } from '../utils/artifact-stone-bound.js';
 import { effectiveStoneAssignments, isLifetimeStoneMode, resolvedStonePoolMax, } from '../progression/v099-rules.js';
+import { allowStonePowersAutoOpen, dismissStonePowersPrompt, logStonePowersGate, stonePowersReopenBlocked, } from '../combat/stone-powers-session.js';
 import { getArtifactStoneFunctionStatus, getArtifactStoneSupportPrefill, } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 import { actorMasteryRank, changeNaturalRecoveryAllocation, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
@@ -492,11 +492,22 @@ export class StonePowersDialog extends BaseDialog {
         content: { template: "systems/mastery-system/templates/dialogs/stone-powers.hbs" }
     };
     /**
-     * Show stone powers dialog for an actor
+     * Show stone powers dialog for an actor.
+     * Pass `{ explicit: true }` for sheet/carousel/button opens so ✕-dismiss does not block.
+     * Auto resume / encounter pipeline must omit that flag.
      */
-    static async showForActor(actor, combatant) {
-        // Never stack a second instance — especially not while one is still closing
-        // (that race is what made ✕ look like it immediately reopened).
+    static async showForActor(actor, combatant, opts) {
+        if (opts?.explicit) {
+            allowStonePowersAutoOpen();
+        }
+        else if (stonePowersReopenBlocked()) {
+            logStonePowersGate('showForActor-blocked', {
+                actorId: actor.id,
+                explicit: false,
+            });
+            return false;
+        }
+        // Never stack a second instance — especially not while one is still closing.
         try {
             const existing = foundry?.applications?.instances?.get?.('mastery-stone-powers');
             if (existing) {
@@ -509,20 +520,31 @@ export class StonePowersDialog extends BaseDialog {
                     catch {
                         /* ignore */
                     }
+                    logStonePowersGate('showForActor-reuse-open', {
+                        actorId: actor.id,
+                    });
                 }
                 else {
-                    try {
-                        dismissStonePowersPrompt(game.combat, actor, combatant ?? null);
-                    }
-                    catch {
-                        /* ignore */
-                    }
+                    dismissStonePowersPrompt(game.combat, actor, combatant ?? null);
+                    logStonePowersGate('showForActor-blocked-closing', {
+                        actorId: actor.id,
+                    });
                 }
                 return false;
             }
         }
         catch {
             /* ignore */
+        }
+        // Sync pools once on open (not on every re-render — that caused scroll jumps + reopen).
+        try {
+            const syncMod = await import('./stone-pool-sync.js');
+            for (const target of syncMod.listStonePoolSyncActors(actor)) {
+                await syncMod.syncStonePoolCapsFromAssignments(target);
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | stone pool sync on open failed', err);
         }
         try {
             const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');
@@ -573,15 +595,9 @@ export class StonePowersDialog extends BaseDialog {
         try {
             const syncMod = await import('./stone-pool-sync.js');
             resolveActorStoneSystem = syncMod.resolveActorStoneSystem;
-            for (const target of syncMod.listStonePoolSyncActors(this.actor)) {
-                await syncMod.syncStonePoolCapsFromAssignments(target);
-            }
-            if (poolOwner && poolOwner !== this.actor) {
-                await syncMod.syncStonePoolCapsFromAssignments(poolOwner);
-            }
         }
         catch (err) {
-            console.warn('Mastery System | syncStonePoolCapsFromAssignments failed', err);
+            console.warn('Mastery System | resolveActorStoneSystem unavailable', err);
         }
         const system = poolOwner.system;
         const stonePools = system.stonePools || {};
@@ -622,20 +638,12 @@ export class StonePowersDialog extends BaseDialog {
             // Prefer live assignment caps in Lifetime mode — prepared pool.max can
             // still lag on floor(Attribute/8) until the next full prepare/sync.
             let max = pool?.max ?? pool?.maximum ?? 0;
-            let current = pool?.current ?? pool?.value ?? 0;
             if (lifetimeStoneMode && liveAssignments) {
                 const assigned = Math.max(0, Math.floor(Number(liveAssignments[attr]) || 0));
                 const resolved = resolvedStonePoolMax(progressSystem, attr, Number(progressSystem?.attributes?.[attr]?.value) ||
                     Number(system?.attributes?.[attr]?.value) ||
                     0);
-                // Exact Lifetime count — do not keep a higher stale ÷8 max.
                 max = Math.max(assigned, resolved);
-                const sealed = Math.max(0, Number(pool?.sealed) || 0);
-                const burned = Math.max(0, Number(pool?.burned) || 0);
-                const sustainedN = Math.max(0, Number(pool?.sustained) || 0);
-                const effectiveReady = Math.max(0, max - sustainedN - sealed - burned);
-                // Always show the Ready cap the Audit dialog expects (fill or clamp).
-                current = effectiveReady;
             }
             const sustained = pool?.sustained ?? 0;
             const sealedBurned = Math.max(0, Number(pool?.sealed) || 0) + Math.max(0, Number(pool?.burned) || 0);
@@ -644,10 +652,9 @@ export class StonePowersDialog extends BaseDialog {
             // economy actor (`poolOwner`) can be a different document whose item
             // flags are stale, so always read the binding from `this.actor`.
             const artifactBound = countArtifactActivationStones(this.actor, attr);
-            // `current` is Ready (not gross). Do not subtract sustained again.
-            const spendable = lifetimeStoneMode
-                ? Math.max(0, Math.min(Number(current) || 0, Number(max) || 0))
-                : poolSpendableStones(this.actor, attr);
+            // Same Ready math as Audit / payment (`poolSpendableStones`).
+            const spendable = poolSpendableStones(this.actor, attr);
+            const current = spendable;
             const reserved = this.#reservedStonesInDialogForAttr(attr);
             const poolDisplay = Math.max(0, spendable - reserved);
             const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
@@ -678,6 +685,23 @@ export class StonePowersDialog extends BaseDialog {
                 blockedReason,
             };
         });
+        if (!this._loggedAvailableSnapshot) {
+            this._loggedAvailableSnapshot = true;
+            try {
+                const snap = POOL_DISPLAY_ATTRS.map((attr) => debugPoolSpendableSnapshot(this.actor, attr));
+                console.log('Mastery Stones | Available snapshot', {
+                    dialogActor: { id: this.actor?.id, name: this.actor?.name, isToken: !!this.actor?.isToken },
+                    poolOwner: { id: poolOwner?.id, name: poolOwner?.name, isToken: !!poolOwner?.isToken },
+                    lifetimeStoneMode,
+                    liveAssignments,
+                    pools: snap,
+                    reservedByAttr: Object.fromEntries(POOL_DISPLAY_ATTRS.map((a) => [a, this.#reservedStonesInDialogForAttr(a)])),
+                });
+            }
+            catch (err) {
+                console.warn('Mastery Stones | Available snapshot failed', err);
+            }
+        }
         // One combat Colorless Pool: item-granted pile + Initiative Colorless
         // (this combat) + Permanent Colorless. Gems show Ready stones; Exhausted
         // Permanent / Initiative Colorless come back through Stone Recovery.
@@ -1793,6 +1817,15 @@ export class StonePowersDialog extends BaseDialog {
                 ev.preventDefault();
                 await this.close({ closeSource: 'button', committed: true, alreadySettled: true });
             };
+        }
+        // Header ✕: dismiss synchronously on pointerdown so resume cannot race close.
+        const headerClose = appWindow.querySelector('.header-control[data-action="close"]') ||
+            appWindow.querySelector('[data-action="close"]');
+        if (headerClose && !headerClose._masteryDismissBound) {
+            headerClose._masteryDismissBound = true;
+            headerClose.addEventListener('pointerdown', () => {
+                dismissStonePowersPrompt(game.combat, this.actor, this.combatant);
+            }, { capture: true });
         }
         // Escape hatch when Confirm / combat hooks hang — never leave the dialog stuck.
         const forceCloseBtn = root.querySelector('.js-force-close');
@@ -2935,15 +2968,20 @@ export class StonePowersDialog extends BaseDialog {
             const reserved = this.#reservedStonesInDialogForAttr(attr);
             const want = Math.max(0, spendable - reserved);
             const chips = Array.from(poolGems.querySelectorAll('.js-stone-draggable')).filter((c) => !c.classList.contains('is-dragging'));
+            // Only trim extras. Never force a full re-render here — that reset scroll
+            // and fought the Available gem count from `_prepareContext`.
             while (chips.length > want) {
                 const el = chips.pop();
                 el?.remove();
             }
-            if (chips.length < want && !this._stoneRenderQueued) {
-                // Runs from `_onRender`; without the guard this could loop and beat the
-                // scroll restore that follows the render.
-                this._stoneRenderQueued = true;
-                void this.#renderKeepingScroll();
+            if (chips.length < want) {
+                console.log('Mastery Stones | pool chips short (no re-render)', {
+                    attr,
+                    chips: chips.length,
+                    want,
+                    spendable,
+                    reserved,
+                });
             }
         });
     }

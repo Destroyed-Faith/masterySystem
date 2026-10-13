@@ -276,7 +276,7 @@ export function initializeTokenHUDButton(): void {
 
       try {
         const combatant = resolveCombatant(actor);
-        await StonePowersDialog.showForActor(actor, combatant || null);
+        await StonePowersDialog.showForActor(actor, combatant || null, { explicit: true });
       } catch (error) {
         console.error('Mastery System | Error showing stone powers dialog', error);
         ui.notifications?.error('Failed to open stone powers dialog');

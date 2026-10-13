@@ -789,7 +789,7 @@ Hooks.once('init', async function() {
               return;
             }
             const { StonePowersDialog } = await import('./stones/stone-powers-dialog.js');
-            await StonePowersDialog.showForActor(actor, combatant);
+            await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
           } catch (error) {
             console.error('Mastery System | Error showing stone powers dialog', error);
             ui.notifications?.error('Failed to open stone powers dialog');

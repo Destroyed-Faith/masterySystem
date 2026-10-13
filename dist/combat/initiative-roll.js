@@ -468,6 +468,6 @@ export async function openInitiativeShopForTrackerRescue(combatant, combat) {
     if (!actor)
         return false;
     const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-    return StonePowersDialog.showForActor(actor, combatant);
+    return StonePowersDialog.showForActor(actor, combatant, { explicit: true });
 }
 //# sourceMappingURL=initiative-roll.js.map

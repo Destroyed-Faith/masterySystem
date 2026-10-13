@@ -62,12 +62,12 @@ export declare function artifactExceedsMasteryRankCap(level: number, masteryRank
 export declare function canArtifactLink(_masteryRank?: number): boolean;
 /**
  * Spendable (Ready) stones in one attribute pool.
- * `prepareBaseData` / Safe Haven / forceReady store `current` as Ready
- * (already max − sustained − sealed − burned). Never subtract sustained again.
- * If a legacy row still has gross `current` (== max while sustained > 0), clamp
- * to the Ready capacity instead.
+ * Reads the action-economy actor (token vs world) and Lifetime assignment caps
+ * — same Ready math as the GM Stone-Übersicht. Never subtracts sustained twice.
  */
 export declare function poolSpendableStones(actor: any, attr: string): number;
+/** Debug snapshot for one pool (Available vs Audit). */
+export declare function debugPoolSpendableSnapshot(actor: any, attr: string): Record<string, unknown>;
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
 export declare function actorStonesCurrent(actor: any): number;
 /** True when the actor uses per-attribute `stonePools` (not legacy `stones.current` only). */

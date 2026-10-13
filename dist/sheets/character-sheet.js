@@ -2437,7 +2437,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 combatant = Array.from(combatants).find((c) => c.actor?.id === this.actor.id) || null;
             }
             const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-            await StonePowersDialog.showForActor(this.actor, combatant);
+            await StonePowersDialog.showForActor(this.actor, combatant, { explicit: true });
         });
         html.on('click', '[data-action="switchWeaponSet"]', async (ev) => {
             ev.preventDefault();

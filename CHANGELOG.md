@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.626] - 2026-10-13
+
+### Fixed
+
+- **Stone Powers ✕ bleibt zu:** Schließen setzt eine Session-Sperre gegen Auto-Reopen (Encounter-Resume); Header-✕ dismissed synchron; schließende Instanz zählt als „busy“. Explizite Öffnung (Bogen/Carousel) hebt die Sperre.
+- **Available Stones = Audit Ready:** Spendable nutzt Economy-Actor + Lifetime-Zuweisung (nicht stale ÷8). Kein Sync mehr bei jedem Re-Render (das hat Scroll nach oben und Reopen ausgelöst). Console: `Mastery Stones | Available snapshot` / `dismiss` / `gate`.
+
 ## [0.9.625] - 2026-10-13
 
 ### Fixed

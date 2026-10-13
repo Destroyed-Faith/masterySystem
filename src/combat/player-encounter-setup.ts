@@ -16,6 +16,7 @@ import {
   clearStonePowersSession,
   dismissStonePowersPrompt,
   isStonePowersDismissed,
+  logStonePowersGate,
   stonePowersReopenBlocked,
 } from './stone-powers-session.js';
 
@@ -34,9 +35,9 @@ function dialogAlreadyOpen(id: string): boolean {
   const instances = (foundry as any)?.applications?.instances;
   const existing = instances?.get?.(id);
   if (!existing) return false;
-  // Closing / unrendered instances must not block — and must not be yanked back.
+  // Closing counts as "busy" — resume must NOT open a second instance mid-close.
   try {
-    if ((existing as any).state?.closing || (existing as any).closing) return false;
+    if ((existing as any).state?.closing || (existing as any).closing) return true;
     if ((existing as any).rendered === false) return false;
   } catch {
     /* ignore */
@@ -125,9 +126,18 @@ async function runSetupForCombatant(combat: Combat, combatant: Combatant): Promi
   const { isStonePowersDone } = await import('./stone-round-gate.js');
   const { handleStonePowersComplete } = await import('./stone-powers-flow.js');
   if (!isStonePowersDone(combat, combatant.id, round)) {
-    if (stonePowersReopenBlocked()) return;
-    if (isStonePowersDismissed(combatId, actorId, round, combatant.id)) return;
-    if (dialogAlreadyOpen('mastery-stone-powers')) return;
+    if (stonePowersReopenBlocked()) {
+      logStonePowersGate('resume-blocked-reopen', { combatId, actorId, round });
+      return;
+    }
+    if (isStonePowersDismissed(combatId, actorId, round, combatant.id)) {
+      logStonePowersGate('resume-blocked-dismissed', { combatId, actorId, round });
+      return;
+    }
+    if (dialogAlreadyOpen('mastery-stone-powers')) {
+      logStonePowersGate('resume-blocked-already-open', { combatId, actorId, round });
+      return;
+    }
 
     if (round > 1) {
       try {

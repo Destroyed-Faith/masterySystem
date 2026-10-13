@@ -135,7 +135,7 @@ export async function openEncounterDialogLocally(
   }
   if (kind === 'stones') {
     const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-    await StonePowersDialog.showForActor(actor, combatant);
+    await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
     return;
   }
   const { openInitiativeShopForTrackerRescue } = await import('./initiative-roll.js');

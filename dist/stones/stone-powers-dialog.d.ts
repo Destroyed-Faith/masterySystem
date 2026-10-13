@@ -82,9 +82,13 @@ export declare class StonePowersDialog extends BaseDialog {
         };
     };
     /**
-     * Show stone powers dialog for an actor
+     * Show stone powers dialog for an actor.
+     * Pass `{ explicit: true }` for sheet/carousel/button opens so ✕-dismiss does not block.
+     * Auto resume / encounter pipeline must omit that flag.
      */
-    static showForActor(actor: Actor, combatant?: Combatant | null): Promise<boolean>;
+    static showForActor(actor: Actor, combatant?: Combatant | null, opts?: {
+        explicit?: boolean;
+    }): Promise<boolean>;
     constructor(actor: Actor, combatant: Combatant | null, resolve: (success: boolean) => void);
     _prepareContext(_options: any): Promise<any>;
     _onRender(_context: any, _options: any): Promise<void>;

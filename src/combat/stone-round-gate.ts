@@ -199,7 +199,7 @@ export async function assignPendingStonesAsGm(combat: Combat): Promise<number> {
       }
     }
 
-    const confirmed = await StonePowersDialog.showForActor(actor, combatant);
+    const confirmed = await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
     if (!confirmed) continue;
 
     await persistCombatantSetupStep(combatant, live, { stonesDoneRound: round });

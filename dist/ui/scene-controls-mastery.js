@@ -267,7 +267,7 @@ export function initializeTokenHUDButton() {
             }
             try {
                 const combatant = resolveCombatant(actor);
-                await StonePowersDialog.showForActor(actor, combatant || null);
+                await StonePowersDialog.showForActor(actor, combatant || null, { explicit: true });
             }
             catch (error) {
                 console.error('Mastery System | Error showing stone powers dialog', error);

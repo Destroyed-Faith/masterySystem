@@ -192,11 +192,15 @@ async function openStonePowersForCombatant(combat, combatant, round) {
         const combatId = String(combat.id);
         const actorId = String(actor.id);
         try {
-            const { isStonePowersDismissed, stonePowersReopenBlocked } = await import('./stone-powers-session.js');
-            if (stonePowersReopenBlocked())
+            const { isStonePowersDismissed, logStonePowersGate, stonePowersReopenBlocked } = await import('./stone-powers-session.js');
+            if (stonePowersReopenBlocked()) {
+                logStonePowersGate('flow-blocked-reopen', { combatId, actorId, round });
                 return;
-            if (isStonePowersDismissed(combatId, actorId, round, combatant.id))
+            }
+            if (isStonePowersDismissed(combatId, actorId, round, combatant.id)) {
+                logStonePowersGate('flow-blocked-dismissed', { combatId, actorId, round });
                 return;
+            }
         }
         catch {
             /* session helper optional */

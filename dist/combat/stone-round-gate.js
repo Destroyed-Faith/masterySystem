@@ -179,7 +179,7 @@ export async function assignPendingStonesAsGm(combat) {
                 console.warn('Mastery System | Could not sync stone pools before GM fill', err);
             }
         }
-        const confirmed = await StonePowersDialog.showForActor(actor, combatant);
+        const confirmed = await StonePowersDialog.showForActor(actor, combatant, { explicit: true });
         if (!confirmed)
             continue;
         await persistCombatantSetupStep(combatant, live, { stonesDoneRound: round });

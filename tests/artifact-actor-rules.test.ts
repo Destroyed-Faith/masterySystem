@@ -155,6 +155,39 @@ describe('artifact link stone helpers', () => {
     expect(poolSpendableStones(actor, 'might')).toBe(1);
   });
 
+  it('lifts Available Ready when Lifetime assignment exceeds stale ÷8 max', () => {
+    const actor = {
+      system: {
+        progression: {
+          v099Stones: true,
+          stoneAssignments: { might: 3, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0 },
+          stoneSlotOrder: ['might', 'might', 'might'],
+        },
+        stonePools: {
+          might: { current: 1, max: 1, sustained: 0, sealed: 0, burned: 0 },
+        },
+      },
+    };
+    expect(poolSpendableStones(actor, 'might')).toBe(3);
+  });
+
+  it('preserves spent stones when lifting from stale ÷8 max', () => {
+    const actor = {
+      system: {
+        progression: {
+          v099Stones: true,
+          stoneAssignments: { might: 3, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0 },
+          stoneSlotOrder: ['might', 'might', 'might'],
+        },
+        stonePools: {
+          might: { current: 0, max: 1, sustained: 0, sealed: 0, burned: 0 },
+        },
+      },
+    };
+    // Old readyCap was 1, spent 1 → new readyCap 3 − 1 spent = 2
+    expect(poolSpendableStones(actor, 'might')).toBe(2);
+  });
+
   it('legacy activation-stone flags do not reserve spendable stones', () => {
     const actor = mockActorWithArtifacts(
       { might: { current: 2, max: 2, sustained: 0 } },

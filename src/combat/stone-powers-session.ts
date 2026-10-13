@@ -6,18 +6,50 @@
 
 const dismissedThisSession = new Set<string>();
 let stonePowersClosedAt = 0;
+/** After ✕, block ALL auto-opens until explicit UI open or round change. */
+let autoOpenSuppressed = false;
+let autoOpenSuppressedRound = 0;
 
 function stepKey(combatId: string, actorId: string, step: string, round?: number): string {
   return round == null ? `${combatId}:${actorId}:${step}` : `${combatId}:${actorId}:${step}:${round}`;
 }
 
+function currentCombatRound(): number {
+  return Math.max(1, Number((game as any)?.combat?.round) || 1);
+}
+
 export function clearStonePowersSession(): void {
   dismissedThisSession.clear();
   stonePowersClosedAt = 0;
+  autoOpenSuppressed = false;
+  autoOpenSuppressedRound = 0;
 }
 
-export function stonePowersReopenBlocked(cooldownMs = 2500): boolean {
-  return Date.now() - stonePowersClosedAt < cooldownMs;
+/** Explicit player/GM open (sheet, carousel, …) may reopen after ✕. */
+export function allowStonePowersAutoOpen(): void {
+  autoOpenSuppressed = false;
+  autoOpenSuppressedRound = 0;
+  stonePowersClosedAt = 0;
+}
+
+export function stonePowersReopenBlocked(cooldownMs = 4000): boolean {
+  if (Date.now() - stonePowersClosedAt < cooldownMs) return true;
+  return stonePowersAutoOpenSuppressed();
+}
+
+/**
+ * True after the player closed Stone Powers with ✕ this round.
+ * Round advance clears the block automatically.
+ */
+export function stonePowersAutoOpenSuppressed(): boolean {
+  if (!autoOpenSuppressed) return false;
+  const round = currentCombatRound();
+  if (autoOpenSuppressedRound > 0 && round !== autoOpenSuppressedRound) {
+    autoOpenSuppressed = false;
+    autoOpenSuppressedRound = 0;
+    return false;
+  }
+  return true;
 }
 
 export function isStonePowersDismissed(
@@ -26,6 +58,7 @@ export function isStonePowersDismissed(
   round: number,
   combatantId?: string | null,
 ): boolean {
+  if (stonePowersAutoOpenSuppressed() && round === autoOpenSuppressedRound) return true;
   if (dismissedThisSession.has(stepKey(combatId, actorId, 'stones', round))) return true;
   if (combatantId && dismissedThisSession.has(stepKey(combatId, String(combatantId), 'stones', round))) {
     return true;
@@ -44,16 +77,40 @@ export function dismissStonePowersPrompt(
   combatant?: Combatant | null,
 ): void {
   stonePowersClosedAt = Date.now();
-  const combatId = String((combat as { id?: string } | null | undefined)?.id ?? (game as any)?.combat?.id ?? '');
-  const actorId = String((actor as { id?: string } | null | undefined)?.id ?? '');
-  if (!combatId || !actorId) return;
+  autoOpenSuppressed = true;
   const round = Math.max(
     1,
     Number((combat as { round?: number } | null | undefined)?.round ?? (game as any)?.combat?.round) || 1,
   );
+  autoOpenSuppressedRound = round;
+
+  const combatId = String(
+    (combat as { id?: string } | null | undefined)?.id ?? (game as any)?.combat?.id ?? '',
+  );
+  const actorId = String((actor as { id?: string } | null | undefined)?.id ?? '');
+  try {
+    console.log('Mastery Stones | dismiss', {
+      combatId: combatId || '(none)',
+      actorId: actorId || '(none)',
+      combatantId: (combatant as { id?: string } | null | undefined)?.id ?? null,
+      round,
+      autoOpenSuppressed: true,
+    });
+  } catch {
+    /* ignore */
+  }
+  if (!combatId || !actorId) return;
   dismissedThisSession.add(stepKey(combatId, actorId, 'stones', round));
   const combatantId = (combatant as { id?: string } | null | undefined)?.id;
   if (combatantId) {
     dismissedThisSession.add(stepKey(combatId, String(combatantId), 'stones', round));
+  }
+}
+
+export function logStonePowersGate(reason: string, detail?: Record<string, unknown>): void {
+  try {
+    console.log('Mastery Stones | gate', reason, detail ?? {});
+  } catch {
+    /* ignore */
   }
 }

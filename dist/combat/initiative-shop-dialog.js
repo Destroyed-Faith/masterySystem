@@ -7,6 +7,6 @@ export async function showRetiredInitiativeShop(combatant) {
     if (!actor)
         return false;
     const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-    return StonePowersDialog.showForActor(actor, combatant);
+    return StonePowersDialog.showForActor(actor, combatant, { explicit: true });
 }
 //# sourceMappingURL=initiative-shop-dialog.js.map

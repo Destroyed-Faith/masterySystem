@@ -529,5 +529,5 @@ export async function openInitiativeShopForTrackerRescue(
   const actor = combatant.actor;
   if (!actor) return false;
   const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
-  return StonePowersDialog.showForActor(actor, combatant);
+  return StonePowersDialog.showForActor(actor, combatant, { explicit: true });
 }
