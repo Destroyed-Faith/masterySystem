@@ -435,6 +435,8 @@
     },
     "sheet": {
       "gmMenu": "SL-Werkzeuge",
+      "refreshXp": "XP neu berechnen",
+      "refreshXpHint": "Verfügbare XP aus dem aktuellen Build neu berechnen (Attribute, Skills, Powers, Artefakte).",
       "tabs": {
         "nav": "Charakterbogen-Bereiche",
         "attributes": "Attribute",

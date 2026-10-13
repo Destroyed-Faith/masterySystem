@@ -14,9 +14,17 @@
 
 import { totalArtifactXpToLevel } from './artifact-actor-rules.js';
 import { attributeBandCost, skillBandCost } from './constants.js';
-import { calculatePowersUpgradeRefund } from './power-xp-refund.js';
+import { calculatePowerDeletionRefund } from './power-xp-refund.js';
 import { actorHasPostCreationSnapshot, type PostCreationProgress } from './xp-post-creation.js';
 import { readSkillPointPool } from '../progression/skill-point-pool.js';
+
+/** True when a power item was granted for free (artifact / echo) and never cost XP. */
+function powerGrantedForFree(item: any): boolean {
+  const flags = item?.flags?.['mastery-system'] ?? {};
+  if (flags.echoBound || flags.fromArtifact || flags.artifactGranted) return true;
+  const system = item?.system ?? {};
+  return system.echoBound === true || system.fromArtifact === true || system.artifactGranted === true;
+}
 
 const ATTRIBUTE_KEYS = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const;
 
@@ -131,11 +139,14 @@ export function computeGroundTruthXp(actor: any): XpRecalcResult {
     if (curVal > baseVal) skillSpent += stepSum(baseVal, curVal, skillBandCost);
   }
 
-  const powerItems = (actor.items?.filter?.((i: any) => i.type === 'power') ?? []).map((i: any) => ({
-    system: i.system,
-    type: i.type,
-  }));
-  const powerSpent = calculatePowersUpgradeRefund(powerItems);
+  const powerItems = (actor.items?.filter?.((i: any) => i.type === 'power') ?? []) as any[];
+  let powerSpent = 0;
+  for (const item of powerItems) {
+    if (powerGrantedForFree(item)) continue;
+    // Same rules as delete-refund: full ladder for XP purchases, upgrades only
+    // for creation / GM / Startfähigkeit grants.
+    powerSpent += calculatePowerDeletionRefund(item);
+  }
 
   const artifactItems = actor.items?.filter?.((i: any) => i.type === 'artifact') ?? [];
   let artifactSpent = 0;
@@ -187,20 +198,84 @@ export function formatXpRecalcHtml(actorName: string, r: XpRecalcResult): string
   }
   const fmt = (n: number) => `${n > 0 ? '+' : ''}${n}`;
   const totalEarnedAll = r.totalEarned + r.freeEarned;
+  const spendable = r.available + r.freeAvailable;
+  const previousSpendable = r.previousAvailable + r.previousFreeAvailable;
   return (
     `<div class="xp-recalc-dialog">` +
     `<p>Neuberechnung der verfügbaren XP für <strong>${actorName}</strong> aus dem aktuellen Build:</p>` +
     `<table class="xp-recalc-table" style="width:100%;border-collapse:collapse;margin:8px 0;">` +
     `<tbody>` +
-    `<tr><td>Verdient gesamt (Regular ${r.totalEarned} + Free ${r.freeEarned})</td><td style="text-align:right;"><strong>${totalEarnedAll}</strong></td></tr>` +
+    `<tr><td>Verdient gesamt</td><td style="text-align:right;"><strong>${totalEarnedAll}</strong></td></tr>` +
     `<tr><td>− Attribute</td><td style="text-align:right;">${r.attributeSpent}</td></tr>` +
     `<tr><td>− Skills</td><td style="text-align:right;">${r.skillSpent}</td></tr>` +
     `<tr><td>− Powers</td><td style="text-align:right;">${r.powerSpent}</td></tr>` +
     `<tr><td>− Artefakte</td><td style="text-align:right;">${r.artifactSpent}</td></tr>` +
-    `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td>= Investiert (gesamt)</td><td style="text-align:right;"><strong>${r.totalInvested}</strong></td></tr>` +
+    `<tr style="border-top:1px solid rgba(255,255,255,0.2);"><td>= Investiert</td><td style="text-align:right;"><strong>${r.totalInvested}</strong></td></tr>` +
     `</tbody></table>` +
-    `<p class="xp-recalc-result" style="margin:6px 0;">Korrekt: <strong>${r.available}</strong> regulär verfügbar &nbsp;·&nbsp; <strong>${r.freeAvailable}</strong> Free verfügbar &nbsp;(Free zuerst ausgegeben).</p>` +
-    `<p class="xp-recalc-compare" style="opacity:0.8;">Aktuell verbucht: ${r.previousAvailable} regulär / ${r.previousFreeAvailable} Free &nbsp;→&nbsp; Änderung: Regular <strong>${fmt(r.delta)}</strong>, Free <strong>${fmt(r.freeDelta)}</strong> (gesamt <strong>${fmt(r.totalDelta)}</strong> XP).</p>` +
+    `<p class="xp-recalc-result" style="margin:6px 0;">Verfügbar zum Verteilen: <strong>${spendable}</strong> XP` +
+    (r.changed ? ` &nbsp;(vorher ${previousSpendable}, Änderung <strong>${fmt(r.totalDelta)}</strong>)` : ` &nbsp;(unverändert)`) +
+    `.</p>` +
     `</div>`
   );
+}
+
+export type ApplyGroundTruthXpOptions = {
+  /** History note; defaults to a German GM refresh label. */
+  note?: string;
+  userId?: string;
+  userName?: string;
+};
+
+/**
+ * Persist `computeGroundTruthXp` onto the actor (pools + spent counters).
+ * No-op when nothing changed. Throws / returns error result when snapshot missing.
+ */
+export async function applyGroundTruthXp(
+  actor: any,
+  opts: ApplyGroundTruthXpOptions = {},
+): Promise<XpRecalcResult> {
+  const r = computeGroundTruthXp(actor);
+  if (!r.ok || !r.changed) return r;
+
+  const system = actor?.system ?? {};
+  const xp = system.xp ?? {};
+  const history = Array.isArray(xp.history) ? [...xp.history] : [];
+  history.push({
+    ts: Date.now(),
+    userId: opts.userId || '',
+    userName: opts.userName || 'GM',
+    kind: 'adjust',
+    category: 'xp',
+    amount: r.totalDelta,
+    note: opts.note || 'GM: XP aus Build neu berechnet',
+    before: {
+      available: r.previousAvailable,
+      freeAvailable: r.previousFreeAvailable,
+      totalSpent: r.previousSpent,
+      freeSpent: r.previousFreeSpent,
+    },
+    after: {
+      available: r.available,
+      freeAvailable: r.freeAvailable,
+      totalSpent: r.regularSpent,
+      freeSpent: r.freeSpent,
+      invested: {
+        attributes: r.attributeSpent,
+        skills: r.skillSpent,
+        powers: r.powerSpent,
+        artifacts: r.artifactSpent,
+        total: r.totalInvested,
+      },
+    },
+  });
+
+  await actor.update({
+    'system.points.xp': r.available,
+    'system.points.xpFree': r.freeAvailable,
+    'system.xp.totalSpent': r.regularSpent,
+    'system.xp.freeSpent': r.freeSpent,
+    'system.xp.history': history.slice(-200),
+  });
+
+  return r;
 }

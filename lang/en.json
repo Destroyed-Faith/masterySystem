@@ -435,6 +435,8 @@
     },
     "sheet": {
       "gmMenu": "GM Tools",
+      "refreshXp": "Refresh XP",
+      "refreshXpHint": "Recompute available XP from the current build (attributes, skills, powers, artifacts).",
       "tabs": {
         "nav": "Character sheet sections",
         "attributes": "Attributes",

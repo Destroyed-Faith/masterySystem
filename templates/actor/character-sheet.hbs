@@ -57,10 +57,10 @@
       </div>
       
       {{#if creationComplete}}
-      <div class="points-box{{#if (userIsGM)}} points-box-gm-editable{{/if}}" title="Experience Points{{#if (userIsGM)}} — GM: zum Bearbeiten klicken{{/if}}">
+      <div class="points-box{{#if (userIsGM)}} points-box-gm-editable{{/if}}" title="Verfügbare XP zum Verteilen{{#if (userIsGM)}} — GM: zum Bearbeiten klicken{{/if}}">
         <label>XP</label>
         <div class="points-display">
-          <span class="points-value" id="sheet-xp-display">{{default system.points.xp 0}}</span>
+          <span class="points-value" id="sheet-xp-display">{{default spendableXp 0}}</span>
           {{#if (userIsGM)}}
           <button type="button" class="gm-edit-xp" title="GM: XP setzen / anpassen" aria-label="XP bearbeiten">
             <i class="fas fa-pen"></i>
@@ -146,6 +146,9 @@
         {{/unless}}
         <button type="button" class="reset-character" title="Wipe this character back to creation (keeps name + portrait; earned XP returned to the player's pool). Destructive, requires double confirmation.">
           <i class="fas fa-trash-restore-alt"></i> Reset Character
+        </button>
+        <button type="button" class="gm-refresh-xp" title="{{localize 'MASTERY.sheet.refreshXpHint'}}">
+          <i class="fas fa-sync"></i> {{localize 'MASTERY.sheet.refreshXp'}}
         </button>
         {{#if v099.usesStones}}
         <button type="button" class="gm-stone-audit" title="Lifetime-Leiste, Pools und Summon-Holds einsehen — gleiche Quelle wie Stone Powers.">

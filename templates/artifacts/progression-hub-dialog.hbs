@@ -5,12 +5,8 @@
       <div class="ph-overview">
         <p>
           <strong>XP:</strong> {{hub.xp.available}} available
-          ({{hub.xp.regularAvailable}} regular{{#if hub.xp.freeAvailable}}, {{hub.xp.freeAvailable}} free ★{{/if}})
         </p>
         <p><strong>Mastery Rank:</strong> {{hub.masteryRank}}</p>
-        {{#if hasFreeXpPhase}}
-        <p class="ph-free-xp"><i class="fas fa-star"></i> Free XP phase — no per-step limits.</p>
-        {{/if}}
         <p class="{{#if capacity.full}}ae-warn{{/if}}">
           <strong>Artifact Capacity:</strong> {{capacity.bound}} / {{capacity.max}} bound
           {{#if capacity.full}} — full{{/if}}

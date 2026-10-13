@@ -73,6 +73,7 @@ import { bindManualSheetTabs, bindEditImage } from './sheet-v2-compat.js';
 import { buildCharacterStatusRows, reduceCharacterStatusRow, removeCharacterStatusRow, } from './character-status-panel.js';
 import { bindStatusAddControls, listAssignableStatuses } from '../system/assign-status.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
+import { applyGroundTruthXp, computeGroundTruthXp, formatXpRecalcHtml } from '../utils/xp-recalc.js';
 // ApplicationV2 actor sheet base (Foundry v13+): DocumentSheetV2 form handling
 // + Handlebars part rendering.
 const BaseActorSheet = foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2);
@@ -136,9 +137,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         const n = Number(value);
         const total = Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
-        const free = Math.max(0, Math.floor(Number(this.actor.system?.points?.xpFree ?? 0)));
-        el.text(free > 0 ? `${total} (★${free})` : String(total));
-        el.attr('title', free > 0 ? `${total} XP gesamt, davon ${free} Free XP (frei verteilbar)` : 'Verfügbare XP');
+        el.text(String(total));
+        el.attr('title', 'Verfügbare XP zum Verteilen');
     }
     /** Active tab, preserved across re-renders (see sheet-v2-compat tabs helper). */
     activeTab;
@@ -1156,8 +1156,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.hasProgressionArtifacts = actorHasProgressionArtifacts(this.actor);
         context.hasArtifactEvolution = context.hasProgressionArtifacts;
         const spendablePts = context.system?.points ?? {};
-        context.hasSpendableXp =
-            ((Number(spendablePts.xp) || 0) + (Number(spendablePts.xpFree) || 0)) > 0;
+        const spendableXp = Math.max(0, Math.floor(Number(spendablePts.xp) || 0)) +
+            Math.max(0, Math.floor(Number(spendablePts.xpFree) || 0));
+        context.spendableXp = spendableXp;
+        context.hasSpendableXp = spendableXp > 0;
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         context.combatSensesPanel = buildCombatSensesPanelContext(this.actor);
@@ -2256,6 +2258,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             e.preventDefault();
             e.stopPropagation();
             void this.#onGmReleaseAllStones(e);
+        });
+        html.find('.gm-refresh-xp').off('click.gm-refresh-xp').on('click.gm-refresh-xp', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            void this.#onGmRefreshXp();
         });
         html
             .find('.start-skills-redistribute')
@@ -4807,8 +4814,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /**
      * GM: directly edit the character's available XP from the header bar.
-     * Sets `system.points.xp` and keeps the accounting invariant
-     * (available = totalEarned − totalSpent) by adjusting `totalEarned`.
+     * Edits the combined spendable pool (`points.xp` + `points.xpFree`); surplus
+     * beyond existing Free is written to regular `points.xp`, and `totalEarned`
+     * is adjusted so available = earned − spent still holds for the regular pool.
      */
     async #onGmEditXp(event) {
         event.preventDefault();
@@ -4820,9 +4828,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const system = this.actor.system ?? {};
         const points = system.points ?? {};
         const xp = system.xp ?? {};
-        const current = Math.max(0, Math.floor(Number(points.xp) || 0));
+        const regular = Math.max(0, Math.floor(Number(points.xp) || 0));
+        const free = Math.max(0, Math.floor(Number(points.xpFree) || 0));
+        const current = regular + free;
         const totalSpent = Math.max(0, Math.floor(Number(xp.totalSpent) || 0));
+        const freeSpent = Math.max(0, Math.floor(Number(xp.freeSpent) || 0));
         const totalEarned = Math.max(0, Math.floor(Number(xp.totalEarned) || 0));
+        const freeEarned = Math.max(0, Math.floor(Number(xp.freeEarned) || 0));
         const content = `
       <form class="gm-edit-xp-form">
         <p>Verfügbare XP für <strong>${this.actor.name}</strong> setzen.</p>
@@ -4830,7 +4842,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           <label style="display:block;margin-bottom:4px;">Verfügbare XP</label>
           <input type="number" name="xp" value="${current}" step="1" min="0" style="width:100%;" autofocus />
         </div>
-        <p style="opacity:0.75;font-size:0.85rem;margin:6px 0 0;">Aktuell: ${current} verfügbar · ${totalEarned} verdient · ${totalSpent} ausgegeben.</p>
+        <p style="opacity:0.75;font-size:0.85rem;margin:6px 0 0;">Aktuell: ${current} verfügbar · ${totalEarned + freeEarned} verdient · ${totalSpent + freeSpent} ausgegeben.</p>
       </form>`;
         const newAvail = await new Promise((resolve) => {
             let settled = false;
@@ -4864,7 +4876,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (newAvail === null || newAvail === current)
             return;
         const delta = newAvail - current;
-        const newTotalEarned = totalSpent + newAvail;
+        // Keep Free pool as-is; put the remainder on regular so Free-first spend still works.
+        const newFree = Math.min(free, newAvail);
+        const newRegular = Math.max(0, newAvail - newFree);
+        const newTotalEarned = totalSpent + newRegular;
         const user = game.user;
         const history = Array.isArray(xp.history) ? [...xp.history] : [];
         history.push({
@@ -4875,15 +4890,83 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             category: 'xp',
             amount: delta,
             note: 'GM manual XP edit (sheet header)',
-            before: { available: current, totalEarned, totalSpent },
-            after: { available: newAvail, totalEarned: newTotalEarned, totalSpent },
+            before: { available: regular, freeAvailable: free, totalEarned, totalSpent },
+            after: { available: newRegular, freeAvailable: newFree, totalEarned: newTotalEarned, totalSpent },
         });
         await this.actor.update({
-            'system.points.xp': newAvail,
+            'system.points.xp': newRegular,
+            'system.points.xpFree': newFree,
             'system.xp.totalEarned': newTotalEarned,
             'system.xp.history': history.slice(-200),
         });
         ui.notifications?.info(`${this.actor.name}: XP auf ${newAvail} gesetzt (${delta >= 0 ? '+' : ''}${delta}).`);
+        this.render();
+    }
+    /**
+     * GM: recompute available XP from the current build (attributes, skills,
+     * powers, artifacts) and rewrite the spendable pools.
+     */
+    async #onGmRefreshXp() {
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only a GM can refresh XP.');
+            return;
+        }
+        const preview = computeGroundTruthXp(this.actor);
+        const content = formatXpRecalcHtml(String(this.actor.name || 'Charakter'), preview);
+        if (!preview.ok) {
+            new Dialog({
+                title: `XP neu berechnen: ${this.actor.name}`,
+                content,
+                buttons: {
+                    close: { icon: '<i class="fas fa-times"></i>', label: 'Schließen' },
+                },
+                default: 'close',
+            }).render(true);
+            return;
+        }
+        if (!preview.changed) {
+            ui.notifications?.info(`${this.actor.name}: XP stimmen bereits mit dem Build überein (${preview.available + preview.freeAvailable} verfügbar).`);
+            return;
+        }
+        const confirmed = await new Promise((resolve) => {
+            let settled = false;
+            const finish = (v) => { if (!settled) {
+                settled = true;
+                resolve(v);
+            } };
+            new Dialog({
+                title: `XP neu berechnen: ${this.actor.name}`,
+                content,
+                buttons: {
+                    apply: {
+                        icon: '<i class="fas fa-sync"></i>',
+                        label: 'Übernehmen',
+                        callback: () => finish(true),
+                    },
+                    cancel: {
+                        icon: '<i class="fas fa-times"></i>',
+                        label: 'Abbrechen',
+                        callback: () => finish(false),
+                    },
+                },
+                default: 'apply',
+                close: () => finish(false),
+            }).render(true);
+        });
+        if (!confirmed)
+            return;
+        const user = game.user;
+        const result = await applyGroundTruthXp(this.actor, {
+            userId: user?.id || '',
+            userName: user?.name || 'GM',
+        });
+        if (!result.ok) {
+            ui.notifications?.error(result.error || 'XP-Neuberechnung fehlgeschlagen.');
+            return;
+        }
+        const spendable = result.available + result.freeAvailable;
+        const fmt = (n) => `${n > 0 ? '+' : ''}${n}`;
+        ui.notifications?.info(`${this.actor.name}: XP neu berechnet → ${spendable} verfügbar (${fmt(result.totalDelta)}).`);
         this.render();
     }
     /**
@@ -6016,10 +6099,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         $scope.find('input[name="name"], textarea').prop('disabled', true);
         $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         $scope.find('.power-rank-select').prop('disabled', false);

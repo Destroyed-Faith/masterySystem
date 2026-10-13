@@ -53,4 +53,15 @@ export interface XpRecalcResult {
 export declare function computeGroundTruthXp(actor: any): XpRecalcResult;
 /** HTML breakdown for the GM confirm dialog. */
 export declare function formatXpRecalcHtml(actorName: string, r: XpRecalcResult): string;
+export type ApplyGroundTruthXpOptions = {
+    /** History note; defaults to a German GM refresh label. */
+    note?: string;
+    userId?: string;
+    userName?: string;
+};
+/**
+ * Persist `computeGroundTruthXp` onto the actor (pools + spent counters).
+ * No-op when nothing changed. Throws / returns error result when snapshot missing.
+ */
+export declare function applyGroundTruthXp(actor: any, opts?: ApplyGroundTruthXpOptions): Promise<XpRecalcResult>;
 //# sourceMappingURL=xp-recalc.d.ts.map

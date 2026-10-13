@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.631] - 2026-10-13
+
+### Added
+
+- **XP neu berechnen:** GM-Menü am Charakterbogen berechnet verfügbare XP aus dem aktuellen Build (Attribute, Skills, Powers, Artefakte) und schreibt die Pools neu.
+
+### Fixed
+
+- **Header-XP:** Zeigt nur noch die frei verteilbaren XP (Regular + Free zusammen), ohne `(★…)`-Klammer.
+- **Power-Investition bei Recalc:** XP-gekaufte Powers zählen die volle Leiter; Creation/GM/Startfähigkeit nur Upgrades; Artifact-Grants 0.
+
 ## [0.9.630] - 2026-10-13
 
 ### Fixed
