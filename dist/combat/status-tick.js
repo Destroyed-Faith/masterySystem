@@ -28,13 +28,30 @@ import { readActorStatusEffects, statusEntryId } from '../system/active-specials
 import { writeActorStatusList } from '../system/assign-status.js';
 import { distributeCleanseAcrossList, formatCleanseDistribution } from '../system/pool-reduction.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
-import { applyNaturalRecoveryToValue, formatNaturalRecoveryNote, resolveNaturalRecoveryPlan, } from './special-application.js';
+import { applyNaturalRecoveryToValue, formatNaturalRecoveryNote, resolveNaturalRecoveryPlan, specialDisplayName, } from './special-application.js';
+import { canCurrentUserUpdateDocument, hasActiveGm } from './combat-permissions.js';
+/**
+ * One client must run Tick+Decay. Prefer the GM; if no active GM is connected,
+ * the document owner applies (otherwise Specials never decay).
+ */
+function mayProcessStatusTick(actor) {
+    if (!actor)
+        return false;
+    const user = globalThis.game?.user;
+    if (!user)
+        return false;
+    if (user.isGM)
+        return true;
+    if (!hasActiveGm() && canCurrentUserUpdateDocument(actor))
+        return true;
+    return false;
+}
 /**
  * Resolve start-of-turn Tick + Decay for one actor's diminishing Specials.
  * Returns a short human summary of what happened (for chat), or ''.
  */
 export async function processTurnStartStatusTick(actor) {
-    if (!actor || !game.user?.isGM)
+    if (!mayProcessStatusTick(actor))
         return '';
     const system = actor.system;
     const list = readActorStatusEffects(actor);
@@ -135,12 +152,16 @@ export async function processTurnStartStatusTick(actor) {
             continue;
         }
         const value = Math.max(0, Math.floor(Number(entry.value ?? 0)));
+        if (value <= 0)
+            continue;
+        const label = specialDisplayName(String(id || '')) || effect.name.replace(/\(X\)/, '').trim();
         const decayed = value - 1;
         if (decayed > 0) {
             next.push({ ...entry, id, value: decayed });
+            notes.push(`Decay: ${label}(${value}) → ${label}(${decayed})`);
         }
         else {
-            notes.push(`${effect.name.replace(/\(X\)/, '')} ended`);
+            notes.push(`Decay: ${label}(${value}) ended`);
         }
     }
     // Cleanse Maintenance — the Cleanse value may be distributed freely across
@@ -212,7 +233,7 @@ export async function processTurnStartStatusTick(actor) {
             console.warn('Mastery System | defeated token presentation failed', downErr);
         }
     }
-    return notes.join(', ');
+    return notes.join(' | ');
 }
 /**
  * End-of-turn Special resolution for the creature whose turn just ended.
@@ -254,18 +275,26 @@ export async function processTurnEndSpecials(actor) {
         console.warn('Mastery System | turn-end special update failed', actor?.name, err);
         return '';
     }
-    return notes.join(', ');
+    // Same delimiter as turn-start so announceStatusTick can list items.
+    return notes.join(' | ');
 }
 /**
- * Post a compact chat summary of a turn-start Tick, if anything happened.
+ * Post a structured chat summary of Tick / Recovery / Decay / Cleanse.
  */
 export async function announceStatusTick(actor, summary) {
     if (!summary)
         return;
     try {
+        const parts = summary
+            .split(/\s*\|\s*/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+        const list = parts.length > 1
+            ? `<ul class="mastery-status-tick-list">${parts.map((p) => `<li>${p}</li>`).join('')}</ul>`
+            : `<span>${parts[0] ?? summary}</span>`;
         await ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ actor }),
-            content: `<div class="mastery-status-tick"><strong>${actor?.name ?? 'Creature'}</strong> — Special Effects: ${summary}.</div>`,
+            content: `<div class="mastery-status-tick"><strong>${actor?.name ?? 'Creature'}</strong> — Specials (Tick / Recovery / Decay):${list}</div>`,
         });
     }
     catch (err) {

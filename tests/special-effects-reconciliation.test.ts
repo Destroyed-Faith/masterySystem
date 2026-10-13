@@ -317,8 +317,8 @@ describe('status-tick Tick + Decay engine', () => {
     expect(actor.system.statusEffects.find((e: any) => e.id === 'slow')).toBeUndefined();
   });
 
-  it('is inert for a non-GM client', async () => {
-    (globalThis as any).game = { user: { isGM: false } };
+  it('is inert for a non-owner client when no GM fallback applies', async () => {
+    (globalThis as any).game = { user: { isGM: false }, users: { activeGM: { id: 'gm1', isGM: true, active: true } } };
     const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
     const actor = makeActor([{ id: 'ruin', value: 3 }]);
     const summary = await processTurnStartStatusTick(actor);

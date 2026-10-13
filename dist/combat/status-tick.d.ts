@@ -33,7 +33,7 @@ export declare function processTurnStartStatusTick(actor: any): Promise<string>;
  */
 export declare function processTurnEndSpecials(actor: any): Promise<string>;
 /**
- * Post a compact chat summary of a turn-start Tick, if anything happened.
+ * Post a structured chat summary of Tick / Recovery / Decay / Cleanse.
  */
 export declare function announceStatusTick(actor: any, summary: string): Promise<void>;
 //# sourceMappingURL=status-tick.d.ts.map

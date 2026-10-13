@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.652] - 2026-10-13
+
+### Fixed
+
+- **Special Decay einheitlich + Chat:** Tick/Recovery/Decay meldet jetzt jedes Decay (`X → X−1` bzw. ended) als Liste im Chat. Ohne aktiven GM wendet der Actor-Owner den Tick an (vorher blieb Decay aus).
+- **Ward im Schadensdialog:** Passive/Stone Ward erscheint auf der Damage-Card und als Roll-Note (`Ward −X: Special(n) → …` / fully blocked), statt still im Hintergrund.
+- **Stone-Round-Summary:** Wenn alle Stone Powers bestätigt sind, postet der Chat eine Runden-Zusammenfassung wer welche Stones verteilt hat.
+
 ## [0.9.651] - 2026-10-13
 
 ### Fixed

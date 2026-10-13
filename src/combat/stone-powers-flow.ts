@@ -335,6 +335,12 @@ export async function openStonePowersForAllCombatants(combat: Combat, round: num
   }
 
   if (areAllCombatantsDone(combat, round)) {
+    try {
+      const { announceRoundStoneAssignments } = await import('./stone-assignment-chat.js');
+      await announceRoundStoneAssignments(combat, round);
+    } catch (err) {
+      console.warn('Mastery System | round stone summary skipped', err);
+    }
     await runInitiativePhaseAfterStones(combat, round);
   }
 }
@@ -389,6 +395,12 @@ export async function promptPendingStoneAssignments(combat: Combat): Promise<voi
   }
 
   if (areAllCombatantsDone(live, round)) {
+    try {
+      const { announceRoundStoneAssignments } = await import('./stone-assignment-chat.js');
+      await announceRoundStoneAssignments(live, round);
+    } catch (err) {
+      console.warn('Mastery System | round stone summary skipped', err);
+    }
     await runInitiativePhaseAfterStones(live, round);
     ui.notifications?.info(`Round ${round}: all stones set, Initiative sorted.`);
   } else {
@@ -410,6 +422,12 @@ export async function handleStonePowersComplete(combat: Combat, combatantId: str
   await markStonePowersDone(live, combatantId, round);
 
   if (areAllCombatantsDone(live, round)) {
+    try {
+      const { announceRoundStoneAssignments } = await import('./stone-assignment-chat.js');
+      await announceRoundStoneAssignments(live, round);
+    } catch (err) {
+      console.warn('Mastery System | round stone summary skipped', err);
+    }
     await runInitiativePhaseAfterStones(live, round);
   }
 }

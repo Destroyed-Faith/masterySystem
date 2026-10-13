@@ -76,6 +76,11 @@ export declare function showDamageDialog(attacker: Actor, target: Actor, weaponI
  */
 export declare function attachDamageCardHandlers(messageId: string): void;
 /**
+ * Ward total on the defender: Passive `wardIncoming` + Stone Ward (`tempWard`)
+ * + Stone `incomingSpecialReduction`. Applied per incoming hostile Special.
+ */
+export declare function getIncomingWardTotal(target: Actor | null | undefined): number;
+/**
  * Result of the full defensive pipeline for one strike. Exposed so that the
  * chat card assembly (and split-attack logging) can render a single-line
  * "Raw 14 → Armor 4 → DR 20% → TempHP 3 → 5" summary.

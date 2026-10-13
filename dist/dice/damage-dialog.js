@@ -5,7 +5,7 @@
 import { attributeScalingEnabled } from '../utils/calculations.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { collectMechanicsContributions, sumUnconditionalPassiveDamageFormula, } from '../utils/power-mechanics.js';
+import { buildActorMechanicsBreakdown, collectMechanicsContributions, sumUnconditionalPassiveDamageFormula, } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
@@ -816,6 +816,16 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
     const raisesSection = raiseOutcomeLine
         ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
         : '';
+    const targetWard = getIncomingWardTotal(target);
+    const hasIncomingSpecials = !!(hitSplit.specials ||
+        (Array.isArray(availableSpecials) && availableSpecials.length > 0) ||
+        (Array.isArray(npcAutoNoteLines) && npcAutoNoteLines.some((l) => /Speziale/i.test(l))));
+    const wardSection = targetWard > 0 && hasIncomingSpecials
+        ? `<div class="damage-row ward-preview">
+          <span class="damage-label">Ward (${damageCardHtmlEsc(String(target?.name || 'Target'))}):</span>
+          <span class="damage-value">−${targetWard} on each incoming Special</span>
+        </div>`
+        : '';
     const weaponName = String(hitSplit.weaponName || '').trim();
     const weaponValue = baseDamage || '0';
     let weaponLabelDetail = weaponValue;
@@ -895,6 +905,7 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
           <span class="damage-value">${damageCardHtmlEsc(hitSplit.specials)}</span>
         </div>`
         : ''}
+        ${wardSection}
         ${(hitSplit.might || 0) > 0
         ? `<div class="damage-row">
           <span class="damage-label">Might/8:</span>
@@ -1180,21 +1191,12 @@ async function consumeTargetMark(target, spend) {
     }
 }
 /**
- * Ward — total incoming-Special reduction on the target: passive Ward
- * (mechanics `wardIncoming`) + Stone Ward (`tempWard`) + Stone incoming
- * Special reduction. Applies separately to every eligible hostile Special
- * (Players Guide "Ward"). `null` means the Special is fully blocked.
+ * Ward total on the defender: Passive `wardIncoming` + Stone Ward (`tempWard`)
+ * + Stone `incomingSpecialReduction`. Applied per incoming hostile Special.
  */
-function applyWardToIncomingSpecial(target, effectId, effectName, effectValue) {
-    if (effectValue == null)
-        return effectValue;
-    const id = String(effectId || effectName || '').toLowerCase();
-    // Ward only reduces hostile Specials — positive effects pass through.
-    if (id === 'regeneration' || id.includes('regeneration'))
-        return effectValue;
-    const effect = effectId ? getEffectById(effectId) : undefined;
-    if (effect?.polarity === 'positive')
-        return effectValue;
+export function getIncomingWardTotal(target) {
+    if (!target)
+        return 0;
     let ward = 0;
     try {
         const combat = globalThis.game?.combat ?? null;
@@ -1212,10 +1214,38 @@ function applyWardToIncomingSpecial(target, effectId, effectName, effectValue) {
     catch {
         /* derived data unavailable */
     }
+    // Live mechanics if derived breakdown missing (sheet not prepared).
+    if (ward <= 0) {
+        try {
+            const live = buildActorMechanicsBreakdown(target)?.totals?.wardIncoming;
+            ward += Math.max(0, Math.floor(Number(live) || 0));
+        }
+        catch {
+            /* optional */
+        }
+    }
+    return ward;
+}
+/**
+ * Ward — reduces every eligible hostile Special(X). `value: null` means fully
+ * blocked. Positive effects (e.g. Regeneration) pass through unchanged.
+ */
+function applyWardToIncomingSpecial(target, effectId, effectName, effectValue) {
+    if (effectValue == null)
+        return { value: effectValue, ward: 0, before: effectValue };
+    const id = String(effectId || effectName || '').toLowerCase();
+    if (id === 'regeneration' || id.includes('regeneration')) {
+        return { value: effectValue, ward: 0, before: effectValue };
+    }
+    const effect = effectId ? getEffectById(effectId) : undefined;
+    if (effect?.polarity === 'positive') {
+        return { value: effectValue, ward: 0, before: effectValue };
+    }
+    const ward = getIncomingWardTotal(target);
     if (ward <= 0)
-        return effectValue;
+        return { value: effectValue, ward: 0, before: effectValue };
     const next = effectValue - ward;
-    return next > 0 ? next : null;
+    return { value: next > 0 ? next : null, ward, before: effectValue };
 }
 /**
  * Apply status effects from specials to target actor.
@@ -1276,10 +1306,19 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                 }
                 let wardedValue = effectValue;
                 if (effectValue != null) {
-                    const wardReduced = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
-                    if (wardReduced === null)
+                    const wardResult = applyWardToIncomingSpecial(target, effectId, effectName, effectValue);
+                    if (wardResult.ward > 0 && wardResult.before != null) {
+                        if (wardResult.value === null) {
+                            limitNotes.push(`Ward −${wardResult.ward}: ${effectName}(${wardResult.before}) fully blocked`);
+                            continue;
+                        }
+                        if (wardResult.value < wardResult.before) {
+                            limitNotes.push(`Ward −${wardResult.ward}: ${effectName}(${wardResult.before}) → ${effectName}(${wardResult.value})`);
+                        }
+                    }
+                    if (wardResult.value === null)
                         continue;
-                    wardedValue = wardReduced;
+                    wardedValue = wardResult.value;
                 }
                 // Root has a minimum applied value of 2 — Root(1) is not a valid
                 // application (Players Guide "Root(X)").
