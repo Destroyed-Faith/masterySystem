@@ -191,9 +191,18 @@ export async function spendColorlessStones(actor: any, amount: number): Promise<
   if (fromTemp > 0 && !(await spendTempColorlessStones(actor, fromTemp))) return false;
   if (fromPermanent > 0) {
     const perm = getPermanentColorlessStones(actor);
-    await actor?.update?.({
-      'system.stonePools.colorless.current': Math.max(0, perm.current - fromPermanent),
-    });
+    const next = Math.max(0, perm.current - fromPermanent);
+    try {
+      const combat = (globalThis as any).game?.combat;
+      if (combat?.started) {
+        const { setCombatPoolCurrent } = await import('./stone-combat-ledger.js');
+        await setCombatPoolCurrent(actor, 'colorless', next, combat);
+      } else {
+        await actor?.update?.({ 'system.stonePools.colorless.current': next });
+      }
+    } catch {
+      await actor?.update?.({ 'system.stonePools.colorless.current': next });
+    }
   }
   return true;
 }

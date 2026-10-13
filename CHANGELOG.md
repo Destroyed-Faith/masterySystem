@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.637] - 2026-10-13
+
+### Fixed
+
+- **Spent Stones bleiben weg:** Pro Charakter speichert `stoneCombatReady` die verbleibenden Ready-Stones pro Kampf. Available/Spend/Round-2 lesen diesen Ledger (nie mehr eine volle World/Token-Kopie). Beim Dialog-Open werden alle Kopien auf den Ledger zurückgespiegelt. Mid-Combat-Sync füllt nicht auf — nur Stone Recovery (Mastery Rank).
+- **prepareBaseData-Refill:** Unlinked Token-Actors wurden im Kampf nicht erkannt (`actorId`-Mismatch) und haben ausgegebene `0`-Pools wieder voll gemacht — das ist weg.
+
 ## [0.9.636] - 2026-10-13
 
 ### Fixed

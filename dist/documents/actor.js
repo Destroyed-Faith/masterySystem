@@ -93,6 +93,50 @@ function clampSkillRanksInUpdate(actor, changed) {
         }
     }
 }
+/**
+ * True when this character is in a *started* fight. Must not touch `c.actor`
+ * (lazy synthetic token build recurses into prepareData). Match world id and
+ * token base actorId — unlinked tokens used to miss `c.actorId === this.id`
+ * and then prepareBaseData refilled spent 0 pools back to full.
+ */
+function actorInStartedCombat(actor, combat) {
+    if (!combat?.started)
+        return false;
+    const selfId = String(actor?.id ?? '');
+    let baseId = selfId;
+    try {
+        if (actor?.isToken) {
+            baseId = String(actor?.token?.actorId ?? actor?.token?.document?.actorId ?? selfId);
+        }
+        else {
+            const doc = actor?.token?.document;
+            if (doc?.actorId)
+                baseId = String(doc.actorId);
+        }
+    }
+    catch {
+        /* ignore */
+    }
+    const combatants = combat.combatants;
+    if (!combatants)
+        return false;
+    const match = (c) => {
+        const cid = String(c?.actorId ?? '');
+        return !!cid && (cid === selfId || cid === baseId);
+    };
+    if (typeof combatants.some === 'function')
+        return combatants.some(match);
+    try {
+        for (const c of combatants) {
+            if (match(c))
+                return true;
+        }
+    }
+    catch {
+        /* ignore */
+    }
+    return false;
+}
 export class MasteryActor extends Actor {
     // NOTE: Do NOT override prepareData() here. Core v13 already runs
     // prepareBaseData → prepareEmbeddedDocuments (ActiveEffects phase "initial")
@@ -157,16 +201,11 @@ export class MasteryActor extends Actor {
                         // - is 0 and maxStones > 0 and nothing reserved -> refill to effectiveMax
                         // - otherwise clamp to valid range
                         const current = system.stonePools[attrKey].current;
-                        // Compare against the STORED combatant actorId — touching
-                        // `c.actor` here would lazily build synthetic token actors while
-                        // THIS actor is itself mid-construction (ActorDelta), recursing
-                        // into prepareData until the call stack overflows on scene load.
                         // Only a *started* fight treats 0 as spent. `combat.active` is true
                         // as soon as the token is on the tracker (prepare / round 0), which
                         // used to lock leftover empty pools as "spent this round".
                         const combat = game.combat;
-                        const inLiveCombat = !!combat?.started &&
-                            combat.combatants?.some((c) => c.actorId === this.id);
+                        const inLiveCombat = actorInStartedCombat(this, combat);
                         const reserved = sustained + sealed + burned;
                         if (current === undefined || current === null) {
                             system.stonePools[attrKey].current = effectiveMax;
@@ -208,8 +247,7 @@ export class MasteryActor extends Actor {
                         const effectiveMax = Math.max(0, permanentColorless - sustained - sealed - burned);
                         const current = system.stonePools.colorless.current;
                         const combat = game.combat;
-                        const inLiveCombat = !!combat?.started &&
-                            combat.combatants?.some((c) => c.actorId === this.id);
+                        const inLiveCombat = actorInStartedCombat(this, combat);
                         const reserved = sustained + sealed + burned;
                         if (current === undefined || current === null) {
                             system.stonePools.colorless.current = effectiveMax;

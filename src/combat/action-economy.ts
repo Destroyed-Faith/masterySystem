@@ -18,6 +18,10 @@ import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc
 import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import {
+  combatReadyRemaining,
+  minLivePoolCurrent,
+} from '../stones/stone-combat-ledger.js';
 
 /** NPC ATK total = explicit per-phase/root slots (falls back to APR sum). */
 function npcAttackSlotsForEconomy(owner: any): number {
@@ -1224,15 +1228,16 @@ export function getStonePool(actor: Actor, attribute: AttributeKey): { current: 
   const owner = getActionEconomyActor(actor) ?? actor;
   const system = (owner.system as any);
   const pool = system.stonePools?.[attribute];
-  
-  if (!pool) {
-    return { current: 0, max: 0 };
+  const max = Math.max(0, Math.floor(Number(pool?.max) || 0));
+  let current = Math.max(0, Math.floor(Number(pool?.current) || 0));
+  try {
+    const fromLedger = combatReadyRemaining(owner, attribute);
+    if (fromLedger != null) current = fromLedger;
+    else current = minLivePoolCurrent(owner, attribute);
+  } catch {
+    /* game / canvas optional in unit tests */
   }
-  
-  return {
-    current: pool.current || 0,
-    max: pool.max || 0
-  };
+  return { current, max };
 }
 
 /**
@@ -1276,11 +1281,13 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
     /* optional */
   }
   const updates: Record<string, number> = {};
+  const readyPools: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
     const maxStones = resolvedStonePoolMax(stoneSys, attr, attrValue);
     const reserved = stonePoolReservedStones(sys, attr);
     const effectiveMax = Math.max(0, maxStones - reserved);
+    readyPools[attr] = effectiveMax;
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
     const curCurrent = Number(sys.stonePools?.[attr]?.current ?? -1);
     if (curMax !== maxStones || curCurrent !== effectiveMax) {
@@ -1300,6 +1307,21 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
     }
     await owner.update(updates);
   }
+  try {
+    const combat = game.combat;
+    if (combat?.started && combat.id) {
+      const colorless = sys?.stonePools?.colorless;
+      if (colorless && typeof colorless === 'object') {
+        const max = Math.max(0, Math.floor(Number(colorless.max) || 0));
+        const reserved = stonePoolReservedStones(sys, 'colorless');
+        readyPools.colorless = Math.max(0, max - reserved);
+      }
+      const { resealStoneCombatReadyFromPools } = await import('../stones/stone-combat-ledger.js');
+      await resealStoneCombatReadyFromPools(owner, combat, readyPools);
+    }
+  } catch {
+    /* optional */
+  }
 }
 
 /**
@@ -1317,6 +1339,7 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
   } catch {
     /* optional */
   }
+  const combat = typeof game !== 'undefined' ? game.combat : null;
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
@@ -1324,9 +1347,12 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
     const reserved = stonePoolReservedStones(sys, attr);
     const effectiveMax = Math.max(0, maxStones - reserved);
     const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
-    const curCurrent = Math.max(0, Number(sys.stonePools?.[attr]?.current ?? 0));
-    const newCurrent = Math.min(curCurrent, effectiveMax);
-    if (curMax !== maxStones || curCurrent !== newCurrent) {
+    // Prefer combat ledger / MIN across copies — never trust a single full sibling.
+    const liveCurrent =
+      combatReadyRemaining(owner, attr) ?? minLivePoolCurrent(owner, attr);
+    const newCurrent = Math.min(liveCurrent, effectiveMax);
+    const storedCurrent = Math.max(0, Number(sys.stonePools?.[attr]?.current ?? 0));
+    if (curMax !== maxStones || storedCurrent !== newCurrent) {
       updates[`system.stonePools.${attr}.max`] = maxStones;
       updates[`system.stonePools.${attr}.current`] = newCurrent;
     }
@@ -1334,19 +1360,40 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
   if (Object.keys(updates).length > 0) {
     await owner.update(updates);
   }
+  // Crush stale full copies + keep the per-character Ready ledger authoritative.
+  if (combat?.started && combat.id) {
+    try {
+      const { ensureStoneCombatReady } = await import('../stones/stone-combat-ledger.js');
+      await ensureStoneCombatReady(owner, combat);
+    } catch {
+      /* optional */
+    }
+  }
 }
-
 /**
- * Set stone pool current value
+ * Set stone pool current value. In combat this also updates the per-character
+ * Ready ledger and mirrors onto every world/token copy so Round 2 cannot
+ * resurrect a stale full pool.
  */
 export async function setStonePool(
   actor: Actor,
   attribute: AttributeKey,
   current: number
 ): Promise<void> {
+  const next = Math.max(0, Math.floor(Number(current) || 0));
+  try {
+    const combat = game.combat;
+    if (combat?.started) {
+      const { setCombatPoolCurrent } = await import('../stones/stone-combat-ledger.js');
+      await setCombatPoolCurrent(actor, attribute, next, combat);
+      return;
+    }
+  } catch {
+    /* fall through to single-doc write */
+  }
   const owner = getActionEconomyActor(actor) ?? actor;
   await owner.update({
-    [`system.stonePools.${attribute}.current`]: Math.max(0, current)
+    [`system.stonePools.${attribute}.current`]: next,
   });
 }
 
@@ -1678,7 +1725,10 @@ export async function applyStoneRegenAllocation(
 ): Promise<void> {
   const owner = getActionEconomyActor(actor) ?? actor;
   const system = (owner.system as any);
-  const updates: Record<string, number> = {};
+  const combat = game.combat;
+  const { setCombatPoolCurrent, combatReadyRemaining, minLivePoolCurrent } = await import(
+    '../stones/stone-combat-ledger.js'
+  );
   const keys: AttributeKey[] = [
     'might',
     'agility',
@@ -1694,9 +1744,11 @@ export async function applyStoneRegenAllocation(
     const pool = getStonePool(owner, attr);
     const reserved = stonePoolReservedStones(system, attr);
     const cap = Math.max(0, pool.max - reserved);
-    const next = Math.min(cap, pool.current + add);
-    if (next !== pool.current) {
-      updates[`system.stonePools.${attr}.current`] = next;
+    const before =
+      combatReadyRemaining(owner, attr) ?? minLivePoolCurrent(owner, attr);
+    const next = Math.min(cap, before + add);
+    if (next !== before) {
+      await setCombatPoolCurrent(owner, attr, next, combat);
     }
   }
 
@@ -1705,19 +1757,16 @@ export async function applyStoneRegenAllocation(
     const pool = system?.stonePools?.colorless;
     if (pool && typeof pool === 'object') {
       const max = Math.max(0, Math.floor(Number(pool.max) || 0));
-      const current = Math.max(0, Math.floor(Number(pool.current) || 0));
       const reserved = stonePoolReservedStones(system, 'colorless');
       const cap = Math.max(0, max - reserved);
-      const next = Math.min(cap, current + colorlessLeft);
-      if (next !== current) {
-        updates['system.stonePools.colorless.current'] = next;
-        colorlessLeft -= next - current;
+      const before =
+        combatReadyRemaining(owner, 'colorless') ?? minLivePoolCurrent(owner, 'colorless');
+      const next = Math.min(cap, before + colorlessLeft);
+      if (next !== before) {
+        await setCombatPoolCurrent(owner, 'colorless', next, combat);
+        colorlessLeft -= next - before;
       }
     }
-  }
-
-  if (Object.keys(updates).length > 0) {
-    await owner.update(updates);
   }
 
   if (colorlessLeft > 0) {
@@ -1801,6 +1850,12 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
     }
     try {
       await (owner as any).setFlag?.('mastery-system', 'stoneUsage', {});
+    } catch {
+      /* ignore */
+    }
+    try {
+      const { clearStoneCombatReady } = await import('../stones/stone-combat-ledger.js');
+      await clearStoneCombatReady(owner);
     } catch {
       /* ignore */
     }

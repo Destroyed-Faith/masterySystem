@@ -245,6 +245,13 @@ export async function clearStaleStoneStateBeforeEncounter(combat) {
         catch (err) {
             console.warn('Mastery System | Could not clear stale stone assignment snapshot', err);
         }
+        try {
+            const { clearStoneCombatReady } = await import('../stones/stone-combat-ledger.js');
+            await clearStoneCombatReady(actor);
+        }
+        catch (err) {
+            console.warn('Mastery System | Could not clear stale stone combat ledger', err);
+        }
     }
 }
 /** Single entry point for the `combatEnd` / `deleteCombat` hooks (GM only). */

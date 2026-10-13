@@ -826,6 +826,15 @@ export class StonePowersDialog extends BaseDialog {
     } catch (err) {
       console.warn('Mastery System | alignStonePoolsToAuditReady on open failed', err);
     }
+    try {
+      const combat = (game as any).combat;
+      if (combat?.started) {
+        const { ensureStoneCombatReady } = await import('./stone-combat-ledger.js');
+        await ensureStoneCombatReady(actor, combat);
+      }
+    } catch (err) {
+      console.warn('Mastery System | ensureStoneCombatReady on open failed', err);
+    }
 
     try {
       const { ensureDefaultPassiveSlots } = await import('../powers/passives.js');

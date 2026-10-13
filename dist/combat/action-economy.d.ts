@@ -368,7 +368,9 @@ export declare function refillStonePoolsFromAttributes(actor: Actor): Promise<vo
  */
 export declare function syncStonePoolCapsFromAttributes(actor: Actor): Promise<void>;
 /**
- * Set stone pool current value
+ * Set stone pool current value. In combat this also updates the per-character
+ * Ready ledger and mirrors onto every world/token copy so Round 2 cannot
+ * resurrect a stale full pool.
  */
 export declare function setStonePool(actor: Actor, attribute: AttributeKey, current: number): Promise<void>;
 /**

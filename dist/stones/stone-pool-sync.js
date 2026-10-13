@@ -6,6 +6,15 @@
 import { STONE_POOL_ATTRIBUTE_KEYS, getActionEconomyActor } from '../combat/action-economy.js';
 import { ATTRIBUTE_KEYS, effectiveStoneAssignments, isLifetimeStoneMode, resolvedStonePoolMax, systemWithStoneProgression, usesV099Stones, } from '../progression/v099-rules.js';
 const POOL_KEYS = [...STONE_POOL_ATTRIBUTE_KEYS, 'colorless'];
+function inLiveCombat() {
+    try {
+        const combat = globalThis.game?.combat;
+        return !!(combat?.started && Math.floor(Number(combat.round) || 0) >= 1);
+    }
+    catch {
+        return false;
+    }
+}
 /**
  * System used for Lifetime stone math. Token deltas often lack progression;
  * the world prototype keeps `stoneSlotOrder` / `v099Stones`.
@@ -214,10 +223,9 @@ export async function syncStonePoolCapsFromAssignments(actor) {
         if (current > readyCap) {
             updates[`system.stonePools.${attr}.current`] = readyCap;
         }
-        else if (current < readyCap) {
-            // Expand Ready to the expected cap (max − sustained − sealed − burned).
-            // Previously this only ran when reserved === 0, so Summon-held pools
-            // stayed at a stale ÷8 `current` and Available never matched Audit.
+        else if (current < readyCap && !inLiveCombat()) {
+            // Out of combat only: expand Ready to Audit cap. Mid-fight Spent stones
+            // must stay spent — Stone Recovery (Mastery Rank) is the only refill.
             updates[`system.stonePools.${attr}.current`] = readyCap;
         }
     }

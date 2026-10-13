@@ -22,6 +22,7 @@ import {
   permanentColorlessCount,
 } from '../progression/v099-rules.js';
 import { familiarStoneAssignments, getFamiliarsFromActor } from './familiar-bind.js';
+import { combatReadyRemaining } from './stone-combat-ledger.js';
 import {
   listStonePoolSyncActors,
   resolveActorStoneSystem,
@@ -76,22 +77,11 @@ export function summonBoundSustainedByAttr(actor: any): Record<string, number> {
   return out;
 }
 
-function considerPoolFields(
-  pool:
-    | { current?: unknown; max?: unknown; sealed?: unknown; burned?: unknown; sustained?: unknown }
-    | null
-    | undefined,
-  acc: { current: number; max: number; sealed: number; burned: number; sustained: number },
-): void {
-  if (!pool) return;
-  acc.current = Math.max(acc.current, Math.max(0, Math.floor(Number(pool.current) || 0)));
-  acc.max = Math.max(acc.max, Math.max(0, Math.floor(Number(pool.max) || 0)));
-  acc.sealed = Math.max(acc.sealed, Math.max(0, Math.floor(Number(pool.sealed) || 0)));
-  acc.burned = Math.max(acc.burned, Math.max(0, Math.floor(Number(pool.burned) || 0)));
-  acc.sustained = Math.max(acc.sustained, Math.max(0, Math.floor(Number(pool.sustained) || 0)));
-}
-
-/** Live seal / sustain / current across world + token economy copies. */
+/**
+ * Live seal / sustain / current across world + token economy copies.
+ * `current` must never take MAX across copies — a stale full sibling would
+ * erase spent stones. Prefer the combat ledger, else the minimum live current.
+ */
 function livePoolFields(actor: any, attr: string): {
   current: number;
   max: number;
@@ -100,6 +90,7 @@ function livePoolFields(actor: any, attr: string): {
   sustained: number;
 } {
   const acc = { current: 0, max: 0, sealed: 0, burned: 0, sustained: 0 };
+  const currents: number[] = [];
   const seen = new Set<string>();
   const add = (a: any) => {
     if (!a) return;
@@ -108,7 +99,16 @@ function livePoolFields(actor: any, attr: string): {
       : `world:${String(a.id ?? '')}`;
     if (seen.has(key)) return;
     seen.add(key);
-    considerPoolFields(a?.system?.stonePools?.[attr], acc);
+    const pool = a?.system?.stonePools?.[attr];
+    if (pool) {
+      currents.push(Math.max(0, Math.floor(Number(pool.current) || 0)));
+      // Seal / sustain still take the high watermark (those fields are rarely
+      // spent-down incorrectly; under-reading them would inflate Available).
+      acc.max = Math.max(acc.max, Math.max(0, Math.floor(Number(pool.max) || 0)));
+      acc.sealed = Math.max(acc.sealed, Math.max(0, Math.floor(Number(pool.sealed) || 0)));
+      acc.burned = Math.max(acc.burned, Math.max(0, Math.floor(Number(pool.burned) || 0)));
+      acc.sustained = Math.max(acc.sustained, Math.max(0, Math.floor(Number(pool.sustained) || 0)));
+    }
   };
   add(actor);
   try {
@@ -120,6 +120,15 @@ function livePoolFields(actor: any, attr: string): {
     for (const t of listStonePoolSyncActors(actor)) add(t);
   } catch {
     /* optional */
+  }
+
+  const ledgerCurrent = combatReadyRemaining(actor, attr);
+  if (ledgerCurrent != null) {
+    acc.current = ledgerCurrent;
+  } else if (currents.length) {
+    acc.current = Math.min(...currents);
+  } else {
+    acc.current = 0;
   }
   return acc;
 }
