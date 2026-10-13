@@ -41,6 +41,7 @@ import {
 } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
+import { makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { creatureTypeSelectOptions } from '../utils/creature-type.js';
 import {
   NPC_STANDARD_REACTIONS,
@@ -148,6 +149,7 @@ function resolveNpcAttackWritePath(el: HTMLElement | null | undefined): string {
     .replace(/\.npcAoeRadiusM$/, '')
     .replace(/\.npcRangeMeters$/, '')
     .replace(/\.npcAoeShape$/, '')
+    .replace(/\.npcStressD8$/, '')
     .trim();
   if (isValidNpcAttackWritePath(fromName)) return fromName;
   const card = el.closest?.('.npc-attack-card') as HTMLElement | null;
@@ -961,6 +963,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
 
+    makeFoundryTooltipInert();
+
     html.find('[data-npc-ini-chip]').each((_, el) => {
       const chip = el as HTMLElement;
       const onChange = () => this.#syncNpcIniChip(chip);
@@ -1145,6 +1149,17 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         ev.stopImmediatePropagation();
         void this.#onNpcAttackSpecialFieldChange(ev);
       });
+
+    // Stress (d8): same race as specials — persist immediately; tooltip must not block <select>.
+    html.find('select.npc-stress-d8-select, select[name$=".npcStressD8"]').on('change', (ev: JQuery.ChangeEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+      void this.#onNpcStressD8Change(ev);
+    });
+    html.find('select.npc-stress-d8-select, select[name$=".npcStressD8"]').on('pointerdown mousedown', () => {
+      makeFoundryTooltipInert();
+    });
 
     html.find('.npc-reaction-add-custom').on('click', this.#onNpcReactionAddCustom.bind(this));
     html.find('.npc-reaction-add-standard').on('click', this.#onNpcReactionAddStandard.bind(this));
@@ -1407,6 +1422,21 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
    * Persist one special / specialValue select without a full form submit.
    * Paths look like `system.npcBaseAttack.specials.0.special`.
    */
+  async #onNpcStressD8Change(event: JQuery.ChangeEvent): Promise<void> {
+    const select = event.currentTarget as HTMLSelectElement;
+    const path = resolveNpcAttackWritePath(select);
+    if (!path) {
+      console.warn('[MS NPC Targeting] stress-d8 change ignored — could not resolve attack path', {
+        name: select.name,
+        dataPath: select.dataset?.npcAttackPath,
+      });
+      return;
+    }
+    const raw = Math.floor(Number(select.value));
+    const npcStressD8 = Number.isFinite(raw) && raw >= 1 ? Math.min(4, raw) : 0;
+    await this.#persistNpcAttackTargeting(path, { npcStressD8 }, `stress-d8 → ${npcStressD8}`);
+  }
+
   async #onNpcAttackSpecialFieldChange(event: JQuery.ChangeEvent): Promise<void> {
     const el = event.currentTarget as HTMLSelectElement;
     const name = String(el.name || '');

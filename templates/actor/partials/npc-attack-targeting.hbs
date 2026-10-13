@@ -92,7 +92,14 @@
     </div>
     <div class="npc-attack-field">
       <label>Stress (d8)</label>
-      <select name="{{path}}.npcStressD8" data-dtype="Number" data-tooltip="Stress damage on hit. NPC attacks default to 1d8.">
+      {{!-- title not data-tooltip: Foundry #tooltip overlays kill native &lt;select&gt; interaction --}}
+      <select
+        name="{{path}}.npcStressD8"
+        class="npc-stress-d8-select"
+        data-dtype="Number"
+        title="Stress damage on hit (0 = none). Typical NPC attacks use 1d8."
+      >
+        <option value="0" {{#if (eqNum atk.npcStressD8 0)}}selected{{/if}}>—</option>
         {{#each (range 1 4)}}
         <option value="{{this}}" {{#if (eqNum ../atk.npcStressD8 this)}}selected{{/if}}>{{this}}d8</option>
         {{/each}}

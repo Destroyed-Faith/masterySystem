@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.635] - 2026-10-13
+
+### Fixed
+
+- **NPC Stress-Dropdown:** Foundry-`data-tooltip`-Overlay hat das Stress-`<select>` blockiert. Jetzt `title` statt Tooltip, sofortiges Persist (wie Specials), und Option **— (0)** zum Abschalten.
+
 ## [0.9.634] - 2026-10-13
 
 ### Fixed

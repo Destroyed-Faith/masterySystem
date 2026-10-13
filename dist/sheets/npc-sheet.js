@@ -10,6 +10,7 @@ import { coerceStatusEffectsArray, readActorStatusEffects, reduceStatusEffectAt,
 import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
+import { makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { creatureTypeSelectOptions } from '../utils/creature-type.js';
 import { NPC_STANDARD_REACTIONS, clampNpcReactionSlots, coerceNpcReactionsArray, listNpcCatalogReactions, newCatalogNpcReaction, newCustomNpcReaction, newStandardNpcReaction, } from '../utils/npc-reactions.js';
 import { isKnownNpcReleased, toggleKnownNpc } from '../system/known-npcs.js';
@@ -98,6 +99,7 @@ function resolveNpcAttackWritePath(el) {
         .replace(/\.npcAoeRadiusM$/, '')
         .replace(/\.npcRangeMeters$/, '')
         .replace(/\.npcAoeShape$/, '')
+        .replace(/\.npcStressD8$/, '')
         .trim();
     if (isValidNpcAttackWritePath(fromName))
         return fromName;
@@ -850,6 +852,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+        makeFoundryTooltipInert();
         html.find('[data-npc-ini-chip]').each((_, el) => {
             const chip = el;
             const onChange = () => this.#syncNpcIniChip(chip);
@@ -1013,6 +1016,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             ev.stopPropagation();
             ev.stopImmediatePropagation();
             void this.#onNpcAttackSpecialFieldChange(ev);
+        });
+        // Stress (d8): same race as specials — persist immediately; tooltip must not block <select>.
+        html.find('select.npc-stress-d8-select, select[name$=".npcStressD8"]').on('change', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            ev.stopImmediatePropagation();
+            void this.#onNpcStressD8Change(ev);
+        });
+        html.find('select.npc-stress-d8-select, select[name$=".npcStressD8"]').on('pointerdown mousedown', () => {
+            makeFoundryTooltipInert();
         });
         html.find('.npc-reaction-add-custom').on('click', this.#onNpcReactionAddCustom.bind(this));
         html.find('.npc-reaction-add-standard').on('click', this.#onNpcReactionAddStandard.bind(this));
@@ -1260,6 +1273,20 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
      * Persist one special / specialValue select without a full form submit.
      * Paths look like `system.npcBaseAttack.specials.0.special`.
      */
+    async #onNpcStressD8Change(event) {
+        const select = event.currentTarget;
+        const path = resolveNpcAttackWritePath(select);
+        if (!path) {
+            console.warn('[MS NPC Targeting] stress-d8 change ignored — could not resolve attack path', {
+                name: select.name,
+                dataPath: select.dataset?.npcAttackPath,
+            });
+            return;
+        }
+        const raw = Math.floor(Number(select.value));
+        const npcStressD8 = Number.isFinite(raw) && raw >= 1 ? Math.min(4, raw) : 0;
+        await this.#persistNpcAttackTargeting(path, { npcStressD8 }, `stress-d8 → ${npcStressD8}`);
+    }
     async #onNpcAttackSpecialFieldChange(event) {
         const el = event.currentTarget;
         const name = String(el.name || '');
