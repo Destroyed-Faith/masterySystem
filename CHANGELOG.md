@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.656] - 2026-10-14
+
+### Fixed
+
+- **Heal/Cleanse Targeting:** Wie Angriffszielen — **grüne Reichweiten-Area** (Hex), **grüne Ringe** um heilkare Ziele, Klick per Hit-Pad wendet Heal/Cleanse an. Keine Aim-Linie mehr. Funktioniert auch außerhalb des Kampfs; fehlende Artifact-Range kommt aus dem Katalog-Template.
+
 ## [0.9.655] - 2026-10-14
 
 ### Added

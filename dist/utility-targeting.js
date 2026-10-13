@@ -8,12 +8,14 @@ import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound,
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { getNpcAttackByIndex, npcDamageDiceFormula } from './utils/npc-attack-model.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
-import { clearHexHighlight, highlightGridOffsets, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+import { clearHexHighlight, highlightGridOffsets, highlightHexesInRange, highlightHexesWithinStepsFromPoint, } from './utils/hex-highlighting.js';
 import { bestConeEdgePair, wideningConeCells } from './utils/cone-template.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldCenter, } from './utils/grid-snap.js';
 import { pickTokenAtPoint } from './utils/token-pick.js';
 import { tokenIsExcludedAsTarget } from './combat/defeated-token.js';
 import { utilitySingleTargetAllowsSelf } from './utility-targeting-rules.js';
+import { artifactLevelToTemplateRank } from './utils/artifact-spell-pick.js';
+import { getTemplate } from './utils/powers/templates/index.js';
 export { utilitySingleTargetAllowsSelf };
 function placementColorsFromOption(option) {
     if (option.aoePlacementProfile === 'hostile-zone') {
@@ -53,6 +55,234 @@ function placementColorsFromOption(option) {
 }
 // Global utility targeting state
 let activeUtilityTargeting = null;
+function isSupportPlacement(option) {
+    const p = option?.aoePlacementProfile;
+    return p === 'heal' || p === 'cleanse';
+}
+function createSupportTargetRing(token, color) {
+    const ring = new PIXI.Graphics();
+    const radius = (token.w ?? token.width ?? 50) / 2 + 10;
+    ring.lineStyle(3, color, 0.95);
+    ring.drawCircle(0, 0, radius);
+    ring.position.set(token.center.x, token.center.y);
+    ring.eventMode = 'none';
+    ring.interactive = false;
+    ring.interactiveChildren = false;
+    canvas.stage.addChild(ring);
+    return ring;
+}
+function createSupportHitPad(token, targetId, color, onClick) {
+    const pad = new PIXI.Graphics();
+    const w = token.w ?? 50;
+    const h = token.h ?? 50;
+    const padW = w + 16;
+    const padH = h + 16;
+    pad.beginFill(color, 0.001);
+    pad.drawRect(-padW / 2, -padH / 2, padW, padH);
+    pad.endFill();
+    pad.position.set(token.center.x, token.center.y);
+    pad.eventMode = 'static';
+    pad.cursor = 'pointer';
+    pad.msTargetTokenId = targetId;
+    pad.on('pointerdown', (ev) => {
+        if (ev.button !== 0)
+            return;
+        ev.stopPropagation();
+        ev.stopImmediatePropagation?.();
+        onClick(targetId);
+    });
+    canvas.stage.addChild(pad);
+    return pad;
+}
+function clearSupportVisuals(state) {
+    for (const ring of state.rings?.values() ?? []) {
+        if (ring.parent)
+            ring.parent.removeChild(ring);
+        ring.destroy(true);
+    }
+    state.rings?.clear();
+    for (const pad of state.hitPads?.values() ?? []) {
+        if (pad.parent)
+            pad.parent.removeChild(pad);
+        pad.destroy(true);
+    }
+    state.hitPads?.clear();
+}
+function collectSupportValidTargets(casterToken, rangeMeters, targetGroup) {
+    const out = new Set();
+    const allowSelf = utilitySingleTargetAllowsSelf(targetGroup);
+    const casterCenter = casterToken.center;
+    for (const targetToken of canvas.tokens?.placeables ?? []) {
+        if (!targetToken?.id || !targetToken.actor)
+            continue;
+        if (!allowSelf && targetToken.id === casterToken.id)
+            continue;
+        if (tokenIsExcludedAsTarget(targetToken))
+            continue;
+        if (!matchesTargetGroup(casterToken, targetToken, targetGroup))
+            continue;
+        if (!isWithinMasteryPowerRange(casterCenter, targetToken.center, rangeMeters))
+            continue;
+        out.add(targetToken.id);
+    }
+    return out;
+}
+/**
+ * Heal / Cleanse single-target: green range area + green target rings + hit-pads.
+ * No aim line (unlike generic utility cursor-line mode).
+ */
+function resolveSupportRangeMeters(option) {
+    const rangeMeters = Number(option.rangeMeters ?? option.range ?? 0) || 0;
+    if (rangeMeters > 0)
+        return rangeMeters;
+    // Artifact rows sometimes omit Range; fall back to catalog template at stage rank.
+    const tid = String(option.artifactPowerTemplateId || '');
+    if (!tid)
+        return 0;
+    try {
+        const tpl = getTemplate(tid);
+        const rankKey = artifactLevelToTemplateRank(option.artifactRowLevel || 1);
+        const row = tpl?.levels?.[String(rankKey)];
+        const m = Number(row?.range?.m ?? row?.rangeMeters);
+        if (Number.isFinite(m) && m > 0)
+            return m;
+        const raw = String(row?.range || '');
+        const parsed = /(\d+(?:\.\d+)?)\s*m/i.exec(raw);
+        if (parsed)
+            return parseFloat(parsed[1]);
+    }
+    catch {
+        /* ignore */
+    }
+    return 0;
+}
+function startSupportAllyTargetMode(token, option) {
+    const rangeMeters = resolveSupportRangeMeters(option);
+    option.rangeMeters = rangeMeters;
+    option.range = rangeMeters;
+    const targetGroup = (option.defaultTargetGroup || 'ally');
+    const placement = placementColorsFromOption(option);
+    const highlightId = `mastery-support-${option.aoePlacementProfile || 'heal'}`;
+    const rings = new Map();
+    const hitPads = new Map();
+    const candidates = new Map();
+    const previewGraphics = new PIXI.Graphics();
+    const effectsContainer = resolveOverlayContainer();
+    if (effectsContainer)
+        effectsContainer.addChild(previewGraphics);
+    const validTargetIds = collectSupportValidTargets(token, rangeMeters, targetGroup);
+    // Soft green range disc / hex field (same footprint as attack aim, green).
+    const casterId = token?.document?.id ?? token?.id;
+    const steps = masteryPowerMaxSteps(rangeMeters);
+    const grid = canvas.grid;
+    if (casterId && grid && grid.type !== CONST.GRID_TYPES.GRIDLESS && steps > 0) {
+        highlightHexesInRange(casterId, steps, highlightId, placement.hex, placement.hexAlpha);
+    }
+    else if (steps > 0 && token?.center) {
+        const r = masteryAoERadiusPixels(rangeMeters);
+        previewGraphics.clear();
+        previewGraphics.lineStyle(2, placement.hex, 0.55);
+        previewGraphics.beginFill(placement.hex, 0.12);
+        previewGraphics.drawCircle(0, 0, r);
+        previewGraphics.endFill();
+        previewGraphics.position.set(token.center.x, token.center.y);
+        previewGraphics.eventMode = 'none';
+    }
+    const confirmSupportTarget = (targetId) => {
+        const state = activeUtilityTargeting;
+        if (!state?.supportMode || state.confirming)
+            return;
+        if (!state.validTargetIds?.has(targetId))
+            return;
+        const clicked = canvas.tokens?.get(targetId);
+        if (!clicked)
+            return;
+        state.confirming = true;
+        state.selectedTargets = new Set([targetId]);
+        state.candidates.set(targetId, {
+            token: clicked,
+            inRadius: true,
+            selected: true,
+            isAlly: isAlly(token, clicked),
+            isEnemy: isEnemy(token, clicked),
+            originalAlpha: clicked._originalAlpha ?? clicked.alpha,
+        });
+        void confirmUtilityTargets(state).finally(() => {
+            if (activeUtilityTargeting === state)
+                state.confirming = false;
+        });
+    };
+    for (const targetId of validTargetIds) {
+        const targetToken = canvas.tokens?.get(targetId);
+        if (!targetToken)
+            continue;
+        targetToken._originalAlpha = targetToken.alpha;
+        candidates.set(targetId, {
+            token: targetToken,
+            inRadius: true,
+            selected: false,
+            isAlly: isAlly(token, targetToken),
+            isEnemy: isEnemy(token, targetToken),
+            originalAlpha: targetToken.alpha,
+        });
+        rings.set(targetId, createSupportTargetRing(targetToken, placement.tokenTint));
+        hitPads.set(targetId, createSupportHitPad(targetToken, targetId, placement.tokenTint, confirmSupportTarget));
+    }
+    const onPointerDown = (ev) => {
+        if (ev.button === 2 || ev.button === 1) {
+            endUtilityTargeting(false);
+            return;
+        }
+        if (ev.button !== 0)
+            return;
+        // Hit-pads handle valid targets (stopPropagation). Empty canvas → cancel.
+        const worldPos = eventWorldPoint(ev);
+        const clicked = pickTokenAtPoint(worldPos.x, worldPos.y, { noCenterFallback: true });
+        if (clicked?.id && validTargetIds.has(clicked.id)) {
+            confirmSupportTarget(clicked.id);
+            return;
+        }
+        endUtilityTargeting(false);
+    };
+    const onKeyDown = (ev) => {
+        if (ev.key === 'Escape')
+            endUtilityTargeting(false);
+    };
+    const state = {
+        casterToken: token,
+        option,
+        rangeMeters,
+        radiusMeters: 0,
+        center: null,
+        candidates,
+        selectedTargets: new Set(),
+        highlightId,
+        placement,
+        previewGraphics,
+        rangeLineGraphics: null,
+        panelApp: null,
+        onPointerMove: () => { },
+        onPointerDown,
+        onKeyDown,
+        manualMode: false,
+        excludeAllies: false,
+        supportMode: true,
+        rings,
+        hitPads,
+        validTargetIds,
+        confirming: false,
+    };
+    activeUtilityTargeting = state;
+    canvas.stage.on('pointerdown', state.onPointerDown);
+    window.addEventListener('keydown', state.onKeyDown);
+    const label = option.aoePlacementProfile === 'cleanse' ? 'Cleanse' : 'Heal';
+    if (validTargetIds.size) {
+        ui.notifications?.info?.(`${label}: grüne Ziele in ${rangeMeters} m anklicken.`);
+    }
+    else {
+        ui.notifications?.warn?.(`${label}: kein gültiges Ziel in ${rangeMeters} m.`);
+    }
+}
 /**
  * Check if a token is an ally of the caster
  */
@@ -393,6 +623,11 @@ export function startUtilitySingleTargetMode(token, option) {
     endUtilityTargeting(false);
     // Ensure token is controlled
     token.control({ releaseOthers: false });
+    // Heal / Cleanse: green area + rings + hit-pads (no aim line).
+    if (isSupportPlacement(option)) {
+        startSupportAllyTargetMode(token, option);
+        return;
+    }
     const rangeMeters = option.rangeMeters || option.range || 0;
     const targetGroup = option.defaultTargetGroup || 'ally';
     // Create preview graphics
@@ -791,40 +1026,47 @@ async function confirmUtilityTargets(state) {
     }).filter(t => t !== undefined && !tokenIsExcludedAsTarget(t));
     const combat = game.combat;
     const actor = state.casterToken?.actor;
+    const isHealPlacement = state.option.aoePlacementProfile === 'heal';
+    const isCleansePlacement = state.option.aoePlacementProfile === 'cleanse';
+    const isSupport = isHealPlacement || isCleansePlacement;
     if (state.option.costsAction) {
-        if (!combat || !actor) {
+        if (combat && actor) {
+            const available = getAvailableAttackActions(actor, combat);
+            if (available <= 0) {
+                ui.notifications?.warn('No Actions left this round.');
+                console.warn('Mastery System | [RADIAL FLOW] utility confirm blocked: no attack actions', {
+                    option: state.option.name
+                });
+                endUtilityTargeting(false);
+                return;
+            }
+            const consumed = await consumeAttackAction(actor, combat);
+            if (!consumed) {
+                ui.notifications?.warn('Failed to consume attack action.');
+                endUtilityTargeting(false);
+                return;
+            }
+        }
+        else if (!isSupport) {
             ui.notifications?.warn('Cannot resolve utility: not in combat or missing actor.');
             console.warn('Mastery System | [RADIAL FLOW] utility confirm blocked: no combat/actor', {
                 option: state.option.name
             });
+            endUtilityTargeting(false);
             return;
         }
-        const available = getAvailableAttackActions(actor, combat);
-        if (available <= 0) {
-            ui.notifications?.warn('No Actions left this round.');
-            console.warn('Mastery System | [RADIAL FLOW] utility confirm blocked: no attack actions', {
-                option: state.option.name
-            });
-            return;
-        }
-        const consumed = await consumeAttackAction(actor, combat);
-        if (!consumed) {
-            ui.notifications?.warn('Failed to consume attack action.');
-            return;
-        }
-    }
-    else {
+        // Heal/Cleanse outside combat: apply without spending an Action.
     }
     if (state.option.source === 'power' && state.option.item?.id && actor && combat) {
-        await markPowerUsedThisRound(actor, combat, state.option.item.id);
+        // Prefer the radial option id for artifact rows (item is the artifact).
+        const usageId = String(state.option.id || state.option.item.id);
+        await markPowerUsedThisRound(actor, combat, usageId);
     }
     if (state.option.source === 'npc-attack' && state.option.costsAction && actor && combat) {
         await markNpcAttackUsedThisRound(actor, combat, String(state.option.npcAttackUsageKey || state.option.id || ''));
     }
     const isHostileZone = state.option.aoePlacementProfile === 'hostile-zone';
     const isAttackZone = isHostileZone && state.option.slot === 'attack';
-    const isHealPlacement = state.option.aoePlacementProfile === 'heal';
-    const isCleansePlacement = state.option.aoePlacementProfile === 'cleanse';
     if (isHealPlacement) {
         if (!targets.length) {
             ui.notifications?.warn('Kein Heilungsziel ausgewählt.');
@@ -834,6 +1076,11 @@ async function confirmUtilityTargets(state) {
         try {
             const { healPowerItemFromRadialOption, resolveHealOnTokens } = await import('./combat/heal-resolution.js');
             const powerItem = healPowerItemFromRadialOption(state.option) ?? state.option.item;
+            if (!powerItem) {
+                ui.notifications?.error('Heal-Power konnte nicht aufgelöst werden.');
+                endUtilityTargeting(false);
+                return;
+            }
             await resolveHealOnTokens({
                 casterToken: state.casterToken,
                 powerItem,
@@ -1191,6 +1438,7 @@ export function endUtilityTargeting(success) {
     canvas.stage.off('pointermove', state.onPointerMove);
     canvas.stage.off('pointerdown', state.onPointerDown);
     window.removeEventListener('keydown', state.onKeyDown);
+    clearSupportVisuals(state);
     clearHexHighlight(state.highlightId);
     if (state.aoePreviewLayerId) {
         clearHexHighlight(state.aoePreviewLayerId);
@@ -1235,7 +1483,9 @@ export function endUtilityTargeting(success) {
             ? 'Kegel abgebrochen'
             : state.option.aoePlacementProfile === 'hostile-zone'
                 ? 'Zonenwahl abgebrochen'
-                : 'Utility targeting cancelled';
+                : isSupportPlacement(state.option)
+                    ? `${state.option.aoePlacementProfile === 'cleanse' ? 'Cleanse' : 'Heal'} abgebrochen`
+                    : 'Utility targeting cancelled';
         ui.notifications?.info(msg);
     }
     activeUtilityTargeting = null;

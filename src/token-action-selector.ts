@@ -1311,7 +1311,8 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     const { isCleanseRadialOption } = await import('./combat/cleanse-resolution.js');
     const healOrCleanse = isHealRadialOption(option) || isCleanseRadialOption(option);
     if (healOrCleanse) {
-      if (option.costsAction) {
+      // In combat: spend an Attack Action. Outside combat: still allow heal/cleanse.
+      if (option.costsAction && combat) {
         const atkAvail = getAvailableAttackActions(actor, combat);
         if (atkAvail <= 0) {
           ui.notifications?.warn('No Actions left this round.');
