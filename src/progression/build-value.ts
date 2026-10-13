@@ -12,6 +12,7 @@
 import {
   ATTRIBUTE_KEYS,
   NEW_STARTING_PACKAGE,
+  deriveLifetimeXp,
   earnedAttributeXpInvestment,
   usesV099Stones,
 } from './v099-rules.js';
@@ -199,6 +200,33 @@ function esc(value: unknown): string {
     .replace(/"/g, '&quot;');
 }
 
+/**
+ * Nach Ausgabe (GM XP table): Netto Build-Wert + alle noch nicht ausgegebenen XP
+ * (`points.xp` + `points.xpFree`). Stone milestones and the sheet Lifetime label
+ * use this number so they match the settings table.
+ */
+export function nachAusgabeXp(actor: any): number {
+  const value = appraiseBuild(actor);
+  return Math.max(0, value.net + value.unspentXp + value.unspentFreeXp);
+}
+
+/**
+ * Lifetime XP for stone unlocks / sheet display.
+ * For character actors this is always {@link nachAusgabeXp} (GM XP table).
+ * Plain system blobs keep the earned/spent reconstruction fallback.
+ */
+export function lifetimeXpForActor(actorOrSystem: any): number | null {
+  if (!actorOrSystem) return null;
+  const looksLikeActor =
+    actorOrSystem.system != null ||
+    actorOrSystem.items != null ||
+    actorOrSystem.type === 'character';
+  if (looksLikeActor && (actorOrSystem.type == null || actorOrSystem.type === 'character')) {
+    return nachAusgabeXp(actorOrSystem);
+  }
+  return deriveLifetimeXp(actorOrSystem?.system ?? actorOrSystem).lifetimeXp;
+}
+
 /** XP still to grant so Nach Ausgabe reaches `target`. Already at or above the target needs nothing. */
 export function xpGrantToTarget(afterSpend: number, target: number): number {
   const goal = Math.floor(Number(target) || 0);
@@ -231,10 +259,10 @@ export function buildValueTableHtml(actors: any[]): string {
     ? rows.map((actor) => {
         const value = appraiseBuild(actor);
         const title = esc(value.notes.join(' '));
-        const free = Math.max(0, Math.floor(Number(actor?.system?.points?.xpFree) || 0));
-        const afterSpend = value.net + free;
-        return `<tr data-character-id="${esc(actor.id)}" data-after-spend="${afterSpend}"><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td>${value.unspentSkillPoints}</td><td title="${title}">Startregel</td><td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP."><strong>${free}</strong></td><td class="xp-after-spend" title="Netto plus übrige XP. So steht der Bogen, wenn diese XP ausgegeben sind."><strong>${afterSpend}</strong></td><td class="xp-to-target" data-after-spend="${afterSpend}" title="XP, die noch fehlen, damit Nach Ausgabe das Ziel erreicht.">—</td>${bonusXpControls(actor)}</tr>`;
+        const unspent = value.unspentXp + value.unspentFreeXp;
+        const afterSpend = nachAusgabeXp(actor);
+        return `<tr data-character-id="${esc(actor.id)}" data-after-spend="${afterSpend}"><td>${esc(actor.name)}</td><td>${value.attributes}</td><td>${value.skills}</td><td>${value.powers}</td><td>${value.artifacts}</td><td><strong>${value.net}</strong></td><td>${value.unspentSkillPoints}</td><td title="${title}">Startregel</td><td class="xp-cell xp-cell-free" title="Noch nicht ausgegebene XP (regulär + Bonus)."><strong>${unspent}</strong></td><td class="xp-after-spend" title="Netto plus übrige XP. Lifetime-Steine nutzen denselben Wert."><strong>${afterSpend}</strong></td><td class="xp-to-target" data-after-spend="${afterSpend}" title="XP, die noch fehlen, damit Nach Ausgabe das Ziel erreicht.">—</td>${bonusXpControls(actor)}</tr>`;
       }).join('')
     : '<tr><td colspan="12">Keine Charaktere.</td></tr>';
-  return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige XP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe ist Netto plus diese XP. Ein Ziel füllt pro Charakter die fehlenden XP ins Vergabefeld.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Skills</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Skill Points übrig</th><th>Skill-Basis</th><th title="Noch nicht ausgegebene XP.">XP</th><th title="Netto plus übrige XP.">Nach Ausgabe</th><th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">Bis Ziel <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen." /></th><th></th></tr></thead><tbody>${body}</tbody></table></div>`;
+  return `<div class="bulk-grant-section build-value-section"><h4>Build-Wert nach aktuellen Regeln</h4><p class="hint">Nicht die vergebenen EP. Gerechnet wird der aktuelle Bogen: das Attribut-Startpaket, 40 Skill Points (höchstens 4 pro Skill), Power-Erschaffungsränge und Artefaktstufe 1 sind kostenlos. Skill Points, die später gesetzt wurden, sind keine EP. Artefakte aktivieren kostet nichts. Übrige XP auf dem Bogen zählen nicht zum Netto. Nach Ausgabe ist Netto plus alle übrig XP — dieselbe Zahl wie Lifetime XP auf dem Charakterbogen / Stone-Milestones.</p><table class="xp-table xp-table-compact"><thead><tr><th>Charakter</th><th>Attribute</th><th>Skills</th><th>Powers</th><th>Artefakte</th><th>Netto</th><th>Skill Points übrig</th><th>Skill-Basis</th><th title="Noch nicht ausgegebene XP.">XP</th><th title="Netto plus übrige XP (= Lifetime XP).">Nach Ausgabe</th><th class="xp-target-head" title="Ziel für Nach Ausgabe. Die Spalte zeigt, wie viele XP noch fehlen.">Bis Ziel <input type="number" class="xp-target-input" min="0" placeholder="150" title="Alle auf diese Nach-Ausgabe bringen." /></th><th></th></tr></thead><tbody>${body}</tbody></table></div>`;
 }

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.623] - 2026-10-13
+
+### Fixed
+
+- **Lifetime XP = Nach Ausgabe:** Die Lifetime-Anzeige und Stone-Milestones nutzen denselben Wert wie die XP-Tabelle in den Game Settings (Netto Build-Wert + alle übrig XP), nicht mehr Grant-/History-Zähler. Behebt abweichende Zahlen (z. B. 137 vs. 150) und abgeschnittene Track-Zuweisungen (INT×3 → nur 2 im Pool).
+- **Stone Powers schließen:** Extra „Close window“-Button und Timeouts beim Schließen, falls Confirm/Combat-Hooks hängen.
+
 ## [0.9.622] - 2026-10-13
 
 ### Fixed

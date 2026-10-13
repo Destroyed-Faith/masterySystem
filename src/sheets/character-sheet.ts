@@ -145,14 +145,14 @@ import {
   ATTRIBUTE_KEYS,
   buildStoneProgressionSlots,
   chunkLifetimeSlots,
-  lifetimeXpForStoneProgress,
+  effectiveStoneAssignments,
   permanentColorlessCap,
   permanentColorlessCount,
   permanentStonesFromLifetimeXp,
-  readAssignments,
   stoneConcentrationCap,
   usesV099Stones,
 } from '../progression/v099-rules.js';
+import { lifetimeXpForActor } from '../progression/build-value.js';
 import { STONE_REDISTRIBUTE_FLAG, V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
 import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
 import {
@@ -1498,12 +1498,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       };
       const needsRespec = flag(V099_RESPEC_FLAG);
       const needsLifetime = flag(V099_LIFETIME_FLAG);
-      // Lifetime XP unlocks stones; spent vs unspent does not matter. Fall back
-      // to spent+unspent when progression.lifetimeXp was never stored.
-      const lifetimeXp = lifetimeXpForStoneProgress(sys);
-      const assignments = usesV099Stones(sys) ? readAssignments(sys) : {
-        might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
-      };
+      // Lifetime XP = Nach Ausgabe (Build-Wert-Tabelle), not grant counters.
+      const lifetimeXp = lifetimeXpForActor(this.actor);
+      const assignments = usesV099Stones(sys)
+        ? effectiveStoneAssignments(sys)
+        : {
+            might: 0, agility: 0, vitality: 0, intellect: 0, resolve: 0, influence: 0, wits: 0,
+          };
       const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
       const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
       const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
@@ -6926,21 +6927,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.render();
   }
 
-  /** Write back max(stored, earned, spent+unspent) so milestones stay unlocked. */
+  /** Persist Nach Ausgabe as progression.lifetimeXp so other systems stay aligned. */
   async #syncLifetimeXpFromProgress(): Promise<void> {
     if (this.#lifetimeSyncInFlight) return;
     if ((this.actor as any).type !== 'character') return;
     if (!this.actor.isOwner && !(game as any).user?.isGM) return;
     const sys: any = (this.actor as any).system ?? {};
-    const life = lifetimeXpForStoneProgress(sys);
+    const life = lifetimeXpForActor(this.actor);
     if (life == null) return;
     const stored = sys?.progression?.lifetimeXp;
     const storedN =
       typeof stored === 'number' && Number.isFinite(stored) ? Math.max(0, Math.floor(stored)) : null;
-    if (storedN != null && storedN >= life) return;
+    if (storedN === life) return;
     this.#lifetimeSyncInFlight = true;
     try {
-      await this.actor.update({ 'system.progression.lifetimeXp': life });
+      await this.actor.update({
+        'system.progression.lifetimeXp': life,
+        'system.progression.lifetimeXpSource': 'nachAusgabe',
+      });
     } catch (err) {
       console.warn('Mastery System | lifetimeXp sync failed', err);
     } finally {
@@ -6955,7 +6959,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       await this.#openV099Migration();
       return;
     }
-    const lifetime = lifetimeXpForStoneProgress(sys);
+    const lifetime = lifetimeXpForActor(this.actor);
     const needsLife = (this.actor as any).getFlag?.('mastery-system', V099_LIFETIME_FLAG) === true
       || lifetime == null;
     if (needsLife) {
@@ -6966,12 +6970,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ui.notifications?.warn('Only the owner or GM can assign Stones.');
       return;
     }
-    // Persist derived lifetime so later grants / slots stay in sync.
+    // Persist Nach Ausgabe so slot count and pools stay in sync.
     if (
       typeof sys?.progression?.lifetimeXp !== 'number' ||
-      Math.floor(Number(sys.progression.lifetimeXp) || 0) < lifetime
+      Math.floor(Number(sys.progression.lifetimeXp) || 0) !== lifetime
     ) {
-      await this.actor.update({ 'system.progression.lifetimeXp': lifetime });
+      await this.actor.update({
+        'system.progression.lifetimeXp': lifetime,
+        'system.progression.lifetimeXpSource': 'nachAusgabe',
+      });
     }
     const rank = getRulesMasteryRank(this.actor);
     const order = stoneOrderForActor(sys, lifetime);

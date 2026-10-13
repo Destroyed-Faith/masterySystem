@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { appraiseBuild, attributeXpAboveFreePackage, buildValueTableHtml, xpGrantToTarget } from '../src/progression/build-value';
+import {
+  appraiseBuild,
+  attributeXpAboveFreePackage,
+  buildValueTableHtml,
+  lifetimeXpForActor,
+  nachAusgabeXp,
+  xpGrantToTarget,
+} from '../src/progression/build-value';
 
 describe('build value at current rules', () => {
   it('prices nothing for the free Attribute package', () => {
@@ -137,5 +144,32 @@ describe('build value at current rules', () => {
     expect(xpGrantToTarget(160, 160)).toBe(0);
     expect(xpGrantToTarget(170, 150)).toBe(0);
     expect(xpGrantToTarget(136, 0)).toBe(0);
+  });
+
+  it('Lifetime XP for actors is Nach Ausgabe (net + all unspent XP)', () => {
+    const actor = {
+      type: 'character',
+      system: {
+        progression: { lifetimeXp: 137, v099Stones: true },
+        attributes: {
+          might: { value: 8 },
+          agility: { value: 4 },
+          vitality: { value: 3 },
+          intellect: { value: 3 },
+          resolve: { value: 2 },
+          influence: { value: 2 },
+          wits: { value: 2 },
+        },
+        skills: {},
+        points: { xp: 5, xpFree: 10 },
+        xp: { totalEarned: 100, freeEarned: 20 },
+      },
+      items: [{ type: 'artifact', name: 'Blade', system: { level: 2 } }],
+    };
+    const value = appraiseBuild(actor);
+    // attributes 16 (might 8) + artifact 8 = 24 net; +5 +10 unspent = 39
+    expect(nachAusgabeXp(actor)).toBe(value.net + value.unspentXp + value.unspentFreeXp);
+    expect(lifetimeXpForActor(actor)).toBe(nachAusgabeXp(actor));
+    expect(lifetimeXpForActor(actor)).not.toBe(137);
   });
 });

@@ -69,12 +69,14 @@ export class XpManagementSettings extends BaseApplication {
         });
         data.buildValues = game.user?.isGM === false ? [] : characters.map((actor) => {
             const value = appraiseBuild(actor);
+            const unspentTotal = value.unspentXp + value.unspentFreeXp;
             return {
                 id: actor.id,
                 name: actor.name,
                 hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
-                afterSpend: value.net + value.unspentFreeXp,
+                afterSpend: value.net + unspentTotal,
                 ...value,
+                unspentFreeXp: unspentTotal,
                 skillBasisLabel: value.skillBasis === 'snapshot' ? 'Snapshot' : 'Startregel',
                 skillNote: value.notes.filter((note) => note.startsWith('Skill-Start')).join(' '),
                 artifactNote: value.notes.filter((note) => note.includes('L')).join(' ') || 'Stufe 1 und Aktivieren: 0',

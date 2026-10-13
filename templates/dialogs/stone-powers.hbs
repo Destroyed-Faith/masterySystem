@@ -424,9 +424,15 @@
     <button type="button" class="dialog-btn dialog-btn-primary js-confirm-stones" title="Continue the committed resolutions.">
       <i class="fas fa-check"></i> Resume resolutions
     </button>
+    <button type="button" class="dialog-btn dialog-btn-secondary js-force-close" title="Close without finishing. Use if the dialog is stuck.">
+      Close window
+    </button>
     {{else}}
     <button type="button" class="dialog-btn dialog-btn-primary js-confirm-stones" {{#unless preparation.canConfirm}}disabled title="Roll Initiative first (Boost and Convert are optional)."{{else}}title="Commits the stone assignment. Pending Boost/Convert are skipped. Then resolves any powers that need a target."{{/unless}}>
       <i class="fas fa-check"></i> Confirm Stone Assignment
+    </button>
+    <button type="button" class="dialog-btn dialog-btn-secondary js-force-close" title="Close without confirming. Use if Confirm hangs.">
+      Close window
     </button>
     {{/if}}
   </div>

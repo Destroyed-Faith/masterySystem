@@ -2174,6 +2174,14 @@ export class StonePowersDialog extends BaseDialog {
         await (this as any).close({ closeSource: 'button', committed: true, alreadySettled: true });
       };
     }
+    // Escape hatch when Confirm / combat hooks hang — never leave the dialog stuck.
+    const forceCloseBtn = root.querySelector('.js-force-close');
+    if (forceCloseBtn) {
+      (forceCloseBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        await (this as any).close({ closeSource: 'button', committed: false, force: true });
+      };
+    }
 
     if (!this._resolutionRunning && !this._resolutionResumeStarted && this.#stoneResolutionPending()) {
       this._resolutionResumeStarted = true;
@@ -4118,8 +4126,22 @@ export class StonePowersDialog extends BaseDialog {
   
   async _onClose(_options: any): Promise<void> {
     const committed = _options?.committed === true;
+    const force = _options?.force === true;
     this.#pullSessionPartialsIntoInstance();
-    if (committed) {
+    const withTimeout = async <T>(p: Promise<T>, ms = 4000): Promise<T | undefined> => {
+      try {
+        return await Promise.race([
+          p,
+          new Promise<undefined>((resolve) => {
+            window.setTimeout(() => resolve(undefined), ms);
+          }),
+        ]);
+      } catch (err) {
+        console.warn('Mastery System | Stone Powers close step failed', err);
+        return undefined;
+      }
+    };
+    if (committed && !force) {
       // Confirm pays before close and passes alreadySettled. A plain close
       // (the window control during planning) must not pay or resolve.
       if (_options?.alreadySettled !== true) {
@@ -4136,7 +4158,7 @@ export class StonePowersDialog extends BaseDialog {
       // although the player pressed the button.
       try {
         const { confirmStonePowersForCombatant } = await import('../combat/stone-powers-flow.js');
-        await confirmStonePowersForCombatant(game.combat, this.combatant);
+        await withTimeout(confirmStonePowersForCombatant(game.combat, this.combatant));
       } catch (err) {
         console.warn('Mastery System | Could not register stone confirmation', err);
       }
@@ -4144,7 +4166,7 @@ export class StonePowersDialog extends BaseDialog {
         try {
           const { handleInitiativeConfirmed } = await import('../combat/encounter-start.js');
           const ini = Math.max(0, Math.floor(Number(this.combatant.initiative) || 0));
-          await handleInitiativeConfirmed(game.combat, this.combatant.id, ini);
+          await withTimeout(handleInitiativeConfirmed(game.combat, this.combatant.id, ini));
         } catch (err) {
           console.warn('Mastery System | Could not confirm Initiative Exchange', err);
         }
@@ -4179,7 +4201,7 @@ export class StonePowersDialog extends BaseDialog {
     this._helpKeyCleanup?.();
     this._helpKeyCleanup = undefined;
     if (this.resolve) {
-      this.resolve(committed);
+      this.resolve(committed && !force);
       this.resolve = undefined;
     }
     return super._onClose(_options);

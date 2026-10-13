@@ -51,7 +51,11 @@ export type LifetimeXpDerivation = {
  */
 export declare function deriveLifetimeXp(system: any): LifetimeXpDerivation;
 export declare function nextLifetimeXp(system: any, amount: number): number | null;
-/** Lifetime XP for Stone milestones — max(stored, earned, spent+unspent). */
+/**
+ * Lifetime XP from system counters only (stored / earned / spent+unspent).
+ * Character sheets and stone unlocks use `lifetimeXpForActor` (Nach Ausgabe)
+ * in `build-value.ts` instead — that matches the GM XP table.
+ */
 export declare function lifetimeXpForStoneProgress(system: any): number | null;
 /** Permanent Stones = 2 + floor(Lifetime XP / 20). */
 export declare function permanentStonesFromLifetimeXp(lifetimeXp: number): number;

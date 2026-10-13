@@ -189,7 +189,11 @@ export function nextLifetimeXp(system: any, amount: number): number | null {
   return Math.max(0, Math.floor(current) + add);
 }
 
-/** Lifetime XP for Stone milestones — max(stored, earned, spent+unspent). */
+/**
+ * Lifetime XP from system counters only (stored / earned / spent+unspent).
+ * Character sheets and stone unlocks use `lifetimeXpForActor` (Nach Ausgabe)
+ * in `build-value.ts` instead — that matches the GM XP table.
+ */
 export function lifetimeXpForStoneProgress(system: any): number | null {
   return deriveLifetimeXp(system).lifetimeXp;
 }

@@ -30,6 +30,18 @@ export declare function attributeXpAboveFreePackage(values: Record<string, numbe
     belowPackage: boolean;
 };
 export declare function appraiseBuild(actor: any): BuildValue;
+/**
+ * Nach Ausgabe (GM XP table): Netto Build-Wert + alle noch nicht ausgegebenen XP
+ * (`points.xp` + `points.xpFree`). Stone milestones and the sheet Lifetime label
+ * use this number so they match the settings table.
+ */
+export declare function nachAusgabeXp(actor: any): number;
+/**
+ * Lifetime XP for stone unlocks / sheet display.
+ * For character actors this is always {@link nachAusgabeXp} (GM XP table).
+ * Plain system blobs keep the earned/spent reconstruction fallback.
+ */
+export declare function lifetimeXpForActor(actorOrSystem: any): number | null;
 /** XP still to grant so Nach Ausgabe reaches `target`. Already at or above the target needs nothing. */
 export declare function xpGrantToTarget(afterSpend: number, target: number): number;
 /** GM settings table, with Bonus XP, history, and progression reset. */
