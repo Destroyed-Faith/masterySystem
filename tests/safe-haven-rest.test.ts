@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildSafeHavenRestUpdates, buildRestHealthBarUpdates } from '../src/utils/safe-haven-rest.js';
+import {
+  buildSafeHavenRestUpdates,
+  buildRestHealthBarUpdates,
+  safeHavenPoolMax,
+} from '../src/utils/safe-haven-rest.js';
 
 describe('buildSafeHavenRestUpdates', () => {
   it('restores active bar + 1 scarred bar, refreshes daily resources, leaves stress and bound stones alone', () => {
@@ -57,6 +61,58 @@ describe('buildSafeHavenRestUpdates', () => {
     const updates = buildSafeHavenRestUpdates({ mastery: { rank: 2 } });
     expect(updates['system.health.bars']).toBeUndefined();
     expect(updates['system.mastery.charges']).toBeUndefined();
+  });
+
+  it('releases Remove Scar Sealed Vitality stones and refills the Ready pool', () => {
+    const updates = buildSafeHavenRestUpdates({
+      attributes: { vitality: { value: 16 } },
+      stonePools: {
+        vitality: { current: 1, max: 2, sustained: 0, sealed: 1, burned: 0 },
+      },
+    });
+    expect(updates['system.stonePools.vitality.sealed']).toBe(0);
+    expect(updates['system.stonePools.vitality.burned']).toBe(0);
+    expect(updates['system.stonePools.vitality.max']).toBe(2);
+    expect(updates['system.stonePools.vitality.current']).toBe(2);
+  });
+
+  it('uses v0.9.9 stone assignments for Safe Haven refill (not floor(attr/8))', () => {
+    expect(
+      safeHavenPoolMax(
+        {
+          attributes: { vitality: { value: 10 } },
+          progression: { v099Stones: true, stoneAssignments: { vitality: 2 } },
+        },
+        'vitality',
+        { max: 2 },
+      ),
+    ).toBe(2);
+    const updates = buildSafeHavenRestUpdates({
+      attributes: { vitality: { value: 10 } },
+      progression: { v099Stones: true, stoneAssignments: { vitality: 2 } },
+      stonePools: {
+        vitality: { current: 0, max: 2, sustained: 0, sealed: 1, burned: 0 },
+      },
+    });
+    expect(updates['system.stonePools.vitality.sealed']).toBe(0);
+    expect(updates['system.stonePools.vitality.current']).toBe(2);
+  });
+
+  it('keeps Word of Recall Sealed stones held across Safe Haven Rest', () => {
+    const updates = buildSafeHavenRestUpdates(
+      {
+        attributes: { vitality: { value: 16 }, intellect: { value: 16 } },
+        stonePools: {
+          vitality: { current: 0, max: 2, sustained: 0, sealed: 2, burned: 0 },
+          intellect: { current: 1, max: 2, sustained: 0, sealed: 1, burned: 0 },
+        },
+      },
+      { sealHold: { attrCounts: { vitality: 2 }, generic: 0 } },
+    );
+    expect(updates['system.stonePools.vitality.sealed']).toBe(2);
+    expect(updates['system.stonePools.vitality.current']).toBe(0);
+    expect(updates['system.stonePools.intellect.sealed']).toBe(0);
+    expect(updates['system.stonePools.intellect.current']).toBe(2);
   });
 
   it('restores Reroll Points from Disadvantages when faithFractures.maximum is 0/stale', () => {

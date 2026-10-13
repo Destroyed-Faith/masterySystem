@@ -24,6 +24,10 @@ export interface SafeHavenSealHold {
     /** Generic `system.stones.sealed` count that must stay Sealed. */
     generic?: number;
 }
+/** Pool capacity for Safe Haven refill (matches Actor.prepareBaseData / combat refill). */
+export declare function safeHavenPoolMax(system: any, attr: string, pool: {
+    max?: unknown;
+} | null | undefined): number;
 /** Actor updates for one Safe Haven Rest (no flags / side effects). */
 export declare function buildSafeHavenRestUpdates(system: any, opts?: {
     sealHold?: SafeHavenSealHold | null;

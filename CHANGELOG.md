@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.616] - 2026-10-13
+
+### Fixed
+
+- **Safe Haven Rest / Remove Scar:** Sealed Vitality Stones (Remove Scar, Rituals) werden wieder freigegeben und der Ready-Pool korrekt aufgefüllt. Caps folgen v0.9.9-Zuweisung (nicht mehr nur `floor(Attribut/8)`); `sealed`/`burned`/`current` werden hart geschrieben.
+
 ## [0.9.615] - 2026-10-12
 
 ### Fixed

@@ -202,6 +202,22 @@ describe('payAndApplyRemoveScar', () => {
     await applySafeHavenRest(actor);
     expect(getRemoveScarResolvedMaxTier(actor)).toBe(0);
   });
+
+  it('Safe Haven Rest releases Sealed Vitality stones after Remove Scar', async () => {
+    const actor = makeActor({ current: 2, sealed: 0 });
+    actor.system.stonePools.vitality.max = 2;
+    actor.system.attributes = { vitality: { value: 16 } };
+    expect(await payAndApplyRemoveScar(actor, { targetTier: 1, skipTargetPrompt: true })).toBe(true);
+    expect(actor.system.stonePools.vitality).toMatchObject({ current: 1, sealed: 1, max: 2 });
+    await applySafeHavenRest(actor);
+    expect(getRemoveScarResolvedMaxTier(actor)).toBe(0);
+    expect(actor.system.stonePools.vitality).toMatchObject({
+      current: 2,
+      sealed: 0,
+      burned: 0,
+      max: 2,
+    });
+  });
 });
 
 describe('Titan Scars touch targeting', () => {
