@@ -18,6 +18,7 @@ export declare function readStoneCombatReady(actor: any, combatId?: string): Sto
 /**
  * Remaining Ready for one pool while this combat's ledger is active.
  * Returns null when out of combat or no ledger yet (caller falls back to pools).
+ * Never exceeds the lowest live `current` — spent through any path stays spent.
  */
 export declare function combatReadyRemaining(actor: any, attr: string, combatId?: string): number | null;
 export declare function writeStoneCombatReady(actor: any, ledger: StoneCombatReadyLedger): Promise<void>;
@@ -26,13 +27,16 @@ export declare function clearStoneCombatReady(actor: any): Promise<void>;
 export declare function snapshotStoneCombatReadyPools(actor: any): Record<string, number>;
 /**
  * Mirror ledger Ready values onto every world/token pool copy so a stale full
- * sibling cannot win the next Available read.
+ * sibling cannot win the next Available read. Only ever LOWERS a copy — a copy
+ * that is already below the ledger was spent through a path the ledger did
+ * not see, and raising it would resurrect spent stones.
  */
 export declare function mirrorStoneCombatReadyToPools(actor: any, ledger: StoneCombatReadyLedger): Promise<void>;
 /**
  * Ensure a combat ledger exists for this fight. Seeds from the lowest live
  * `current` across sync copies so a stale full world actor cannot inflate Ready.
- * Always re-mirrors onto sync copies (Round 2 open must crush stale full pools).
+ * An existing ledger is reconciled DOWN to the lowest live copy (spent is
+ * spent), then stale-full copies are lowered to the ledger.
  */
 export declare function ensureStoneCombatReady(actor: any, combat: {
     id?: string;

@@ -19,8 +19,8 @@ describe('Stone Recovery budget (Mastery Rank)', () => {
       { key: 'agility', max: 2, current: 0, sustained: 0 },
     ];
     const full = planStoneRecovery(pools, {}, 3);
-    expect(full.rows.map((r) => r.key)).toEqual(['agility']);
-    expect(full.rows[0]?.space).toBe(2);
+    expect(full.rows.find((r) => r.key === 'might')?.space).toBe(0);
+    expect(full.rows.find((r) => r.key === 'agility')?.space).toBe(2);
     expect(full.points).toBe(3);
 
     const empty = planStoneRecovery(
@@ -31,6 +31,9 @@ describe('Stone Recovery budget (Mastery Rank)', () => {
       {},
       3,
     );
-    expect(empty.rows).toHaveLength(0);
+    // Full pools stay listed so "−" can correct a wrongly-full pool; no "+" room.
+    expect(empty.rows.every((r) => r.space === 0 && !r.canAdd && r.canRemove)).toBe(true);
+    expect(empty.saturated).toBe(true);
+    expect(empty.canFinish).toBe(true);
   });
 });

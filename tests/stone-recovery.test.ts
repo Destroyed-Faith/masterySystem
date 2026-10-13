@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   clampStoneRecoveryAllocation,
   planStoneRecovery,
+  stoneRecoveryManualSpends,
   stoneRecoverySpace,
 } from '../src/stones/stone-recovery';
 
@@ -26,14 +27,31 @@ describe('recovery space', () => {
 describe('recovery plan', () => {
   const pools = [pool('might', 4, 1), pool('agility', 3, 3), pool('wits', 0, 0)];
 
-  it('lists only pools that can take a stone back', () => {
+  it('lists every pool with capacity (full pools keep the − correction)', () => {
     const plan = planStoneRecovery(pools, {}, 2);
-    expect(plan.rows.map((r) => r.key)).toEqual(['might']);
+    expect(plan.rows.map((r) => r.key)).toEqual(['might', 'agility']);
+    const full = plan.rows.find((r) => r.key === 'agility')!;
+    expect(full).toMatchObject({ space: 0, current: 3, canAdd: false, canRemove: true });
   });
 
   it('keeps a full pool listed while it holds allocated stones', () => {
     const plan = planStoneRecovery([pool('might', 2, 0)], { might: 2 }, 2);
     expect(plan.rows[0]).toMatchObject({ key: 'might', allocated: 2, canAdd: false, canRemove: true });
+  });
+
+  it('− below zero marks Ready stones as spent (manual correction, no budget)', () => {
+    const plan = planStoneRecovery([pool('might', 3, 3)], { might: -2 }, 3);
+    expect(plan.rows[0]).toMatchObject({ allocated: -2, canAdd: true, canRemove: true });
+    expect(plan.allocated).toBe(0);
+    expect(plan.remaining).toBe(3);
+    expect(stoneRecoveryManualSpends([pool('might', 3, 3)], { might: -2 })).toEqual({ might: 2 });
+    expect(clampStoneRecoveryAllocation([pool('might', 3, 3)], { might: -2 }, 3)).toEqual({});
+  });
+
+  it('− cannot take out more than the pool holds', () => {
+    const plan = planStoneRecovery([pool('might', 3, 1)], { might: -5 }, 3);
+    expect(plan.rows[0].allocated).toBe(-1);
+    expect(plan.rows[0].canRemove).toBe(false);
   });
 
   it('counts allocation and blocks the plus button once the points are gone', () => {

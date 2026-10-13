@@ -632,6 +632,11 @@
   font-size: 0.68rem;
   font-weight: 700;
   color: #81d4fa;
+  text-align: center;
+}
+
+.stone-powers-dialog .pool-recovery-value.is-negative {
+  color: #ef9a9a;
 }
 
 .stone-powers-dialog .stone-recovery-bar {

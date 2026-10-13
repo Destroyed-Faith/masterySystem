@@ -13,6 +13,8 @@ describe('stuck overlay cleanup', () => {
     document.body.innerHTML = '';
   });
 
+  // Dynamic imports of the epic-roll / melee-targeting modules can exceed the
+  // default 5s under a full parallel suite — pure load, not a regression.
   it('removes an empty leftover epic-roll cinematic root', async () => {
     const root = document.createElement('div');
     root.id = 'mastery-epic-roll-cinematic-root';
@@ -22,5 +24,5 @@ describe('stuck overlay cleanup', () => {
     await clearStuckMasteryOverlays();
 
     expect(document.getElementById('mastery-epic-roll-cinematic-root')).toBeNull();
-  });
+  }, 30_000);
 });

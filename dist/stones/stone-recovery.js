@@ -10,37 +10,53 @@ export function stoneRecoverySpace(pool) {
     const sustained = Math.max(0, Math.floor(Number(pool.sustained) || 0));
     return Math.max(0, max - sustained - current);
 }
+function poolCurrent(pool) {
+    return Math.max(0, Math.floor(Number(pool.current) || 0));
+}
+function poolMax(pool) {
+    return Math.max(0, Math.floor(Number(pool.max) || 0));
+}
+/** Allocation clamped to [-current, +space] for one pool. */
+function clampOwn(pool, raw) {
+    const n = Math.floor(Number(raw) || 0);
+    if (!Number.isFinite(n) || n === 0)
+        return 0;
+    if (n > 0)
+        return Math.min(stoneRecoverySpace(pool), n);
+    return Math.max(-poolCurrent(pool), n);
+}
 /**
- * Rows a player can act on, plus the running totals. Pools without space are
- * dropped: offering a plus button that can never be pressed only adds noise.
- * A pool that already holds allocated stones stays in the list so they can be
- * taken back out again.
+ * Rows a player can act on, plus the running totals. Every pool with capacity
+ * gets a row: "+" takes a spent stone back (Mastery Rank budget), "−" marks a
+ * stone as spent when the sheet wrongly shows it as Ready (manual correction,
+ * costs no budget). Confirm never blocks.
  */
 export function planStoneRecovery(pools, allocation, points) {
     const total = Math.max(0, Math.floor(Number(points) || 0));
     let allocated = 0;
-    const spaces = new Map();
     for (const pool of pools) {
-        const space = stoneRecoverySpace(pool);
-        spaces.set(pool.key, space);
-        allocated += Math.min(space, Math.max(0, Math.floor(Number(allocation[pool.key]) || 0)));
+        const own = clampOwn(pool, allocation[pool.key]);
+        if (own > 0)
+            allocated += own;
     }
     const remaining = Math.max(0, total - allocated);
     const rows = [];
     for (const pool of pools) {
-        const space = spaces.get(pool.key) ?? 0;
-        const own = Math.min(space, Math.max(0, Math.floor(Number(allocation[pool.key]) || 0)));
-        if (space <= 0 && own <= 0)
+        const space = stoneRecoverySpace(pool);
+        const current = poolCurrent(pool);
+        const own = clampOwn(pool, allocation[pool.key]);
+        if (poolMax(pool) <= 0 && own === 0)
             continue;
         rows.push({
             key: pool.key,
             space,
+            current,
             allocated: own,
-            canAdd: remaining > 0 && own < space,
-            canRemove: own > 0,
+            canAdd: own < 0 || (remaining > 0 && own < space),
+            canRemove: own > -current,
         });
     }
-    const saturated = rows.length === 0 || !rows.some((row) => row.allocated < row.space);
+    const saturated = remaining > 0 && !rows.some((row) => row.allocated >= 0 && row.allocated < row.space);
     return {
         points: total,
         allocated,
@@ -51,7 +67,7 @@ export function planStoneRecovery(pools, allocation, points) {
         canFinish: true,
     };
 }
-/** Allocation trimmed to what the pools can actually take, for the actor update. */
+/** Positive allocation trimmed to what the pools can actually take, for the actor update. */
 export function clampStoneRecoveryAllocation(pools, allocation, points) {
     const out = {};
     let left = Math.max(0, Math.floor(Number(points) || 0));
@@ -64,6 +80,19 @@ export function clampStoneRecoveryAllocation(pools, allocation, points) {
             continue;
         out[pool.key] = take;
         left -= take;
+    }
+    return out;
+}
+/**
+ * Manual "−" corrections: stones the player marks as spent (positive counts,
+ * clamped to what the pool currently holds). Costs no Mastery Rank budget.
+ */
+export function stoneRecoveryManualSpends(pools, allocation) {
+    const out = {};
+    for (const pool of pools) {
+        const own = clampOwn(pool, allocation[pool.key]);
+        if (own < 0)
+            out[pool.key] = -own;
     }
     return out;
 }

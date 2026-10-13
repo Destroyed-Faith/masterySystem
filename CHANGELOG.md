@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.641] - 2026-10-13
+
+### Fixed
+
+- **Stone Recovery +/− zurück:** Jeder Pool mit Kapazität zeigt in der Recovery wieder **+** und **−**. **+** holt einen ausgegebenen Stein zurück (Mastery-Rank-Budget), **−** markiert einen Stein als ausgegeben, wenn der Pool fälschlich voll angezeigt wird (manuelle Korrektur, kostet kein Budget). Confirm blockiert nie.
+- **Ledger hebt nie an:** `stoneCombatReady` wird beim Öffnen auf die niedrigste echte Kopie abgeglichen und spiegelt nur nach unten — ausgegebene Steine können nicht mehr durch eine volle Kopie zurückkommen.
+
 ## [0.9.640] - 2026-10-13
 
 ### Added

@@ -182,7 +182,7 @@
     <div class="stone-recovery-bar" role="region" aria-label="Stone Recovery">
       <div class="stone-recovery-copy">
         <strong>Stone Recovery</strong>
-        <span>Pick spent stones to take back — up to <b>{{recovery.points}}</b> (Mastery Rank). Confirm anytime; unused recovery is lost. Pools without room are hidden.</span>
+        <span>Pick spent stones to take back — up to <b>{{recovery.points}}</b> (Mastery Rank). <b>+</b> recovers a stone, <b>−</b> marks a stone as spent if the pool shows too many. Confirm anytime; unused recovery is lost.</span>
         {{#if recovery.saturated}}<span class="stone-recovery-note">No more room — the remaining {{recovery.remaining}} stone(s) are lost.</span>{{else if recovery.remaining}}<span class="stone-recovery-note">{{recovery.remaining}} unused — Confirm skips them.</span>{{/if}}
       </div>
       <div class="stone-recovery-actions">
@@ -203,11 +203,11 @@
           {{#if pool.blockedReason}}<span class="pool-blocked-reason" title="{{pool.blockedReason}}">{{pool.blockedReason}}</span>{{/if}}
         </div>
         {{#if pool.recoverShow}}
-        <div class="pool-recovery" title="{{pool.name}}: {{pool.recoverSpace}} spent stone(s) can come back">
-          <button type="button" class="pool-recovery-btn js-recover-remove" data-attribute="{{pool.key}}" {{#unless pool.recoverCanRemove}}disabled{{/unless}} aria-label="Recover one less">
+        <div class="pool-recovery" title="{{pool.name}}: {{pool.recoverSpace}} spent stone(s) can come back · − marks a stone as spent">
+          <button type="button" class="pool-recovery-btn js-recover-remove" data-attribute="{{pool.key}}" {{#unless pool.recoverCanRemove}}disabled{{/unless}} aria-label="One less (or mark one as spent)">
             <i class="fas fa-minus"></i>
           </button>
-          <span class="pool-recovery-value">+{{pool.recoverAlloc}}</span>
+          <span class="pool-recovery-value{{#if (lt pool.recoverAlloc 0)}} is-negative{{/if}}">{{pool.recoverAllocLabel}}</span>
           <button type="button" class="pool-recovery-btn js-recover-add" data-attribute="{{pool.key}}" {{#unless pool.recoverCanAdd}}disabled{{/unless}} aria-label="Recover one more">
             <i class="fas fa-plus"></i>
           </button>

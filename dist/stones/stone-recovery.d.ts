@@ -16,6 +16,12 @@ export interface StoneRecoveryRow {
     key: string;
     /** Free space the recovery could fill. */
     space: number;
+    /** Stones currently in the pool (manual "−" correction can take these out). */
+    current: number;
+    /**
+     * Positive = stones recovered into the pool. Negative = manual correction:
+     * the player marks stones as spent that the sheet wrongly shows as Ready.
+     */
     allocated: number;
     canAdd: boolean;
     canRemove: boolean;
@@ -36,12 +42,17 @@ export interface StoneRecoveryPlan {
 /** Space a pool offers: capacity minus Sustain, minus what is already in it. */
 export declare function stoneRecoverySpace(pool: StoneRecoveryPoolInput): number;
 /**
- * Rows a player can act on, plus the running totals. Pools without space are
- * dropped: offering a plus button that can never be pressed only adds noise.
- * A pool that already holds allocated stones stays in the list so they can be
- * taken back out again.
+ * Rows a player can act on, plus the running totals. Every pool with capacity
+ * gets a row: "+" takes a spent stone back (Mastery Rank budget), "−" marks a
+ * stone as spent when the sheet wrongly shows it as Ready (manual correction,
+ * costs no budget). Confirm never blocks.
  */
 export declare function planStoneRecovery(pools: readonly StoneRecoveryPoolInput[], allocation: Readonly<Record<string, number>>, points: number): StoneRecoveryPlan;
-/** Allocation trimmed to what the pools can actually take, for the actor update. */
+/** Positive allocation trimmed to what the pools can actually take, for the actor update. */
 export declare function clampStoneRecoveryAllocation(pools: readonly StoneRecoveryPoolInput[], allocation: Readonly<Record<string, number>>, points: number): Record<string, number>;
+/**
+ * Manual "−" corrections: stones the player marks as spent (positive counts,
+ * clamped to what the pool currently holds). Costs no Mastery Rank budget.
+ */
+export declare function stoneRecoveryManualSpends(pools: readonly StoneRecoveryPoolInput[], allocation: Readonly<Record<string, number>>): Record<string, number>;
 //# sourceMappingURL=stone-recovery.d.ts.map

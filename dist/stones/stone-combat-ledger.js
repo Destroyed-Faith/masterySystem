@@ -101,19 +101,17 @@ export function readStoneCombatReady(actor, combatId) {
 /**
  * Remaining Ready for one pool while this combat's ledger is active.
  * Returns null when out of combat or no ledger yet (caller falls back to pools).
+ * Never exceeds the lowest live `current` — spent through any path stays spent.
  */
 export function combatReadyRemaining(actor, attr, combatId) {
     const ledger = readStoneCombatReady(actor, combatId);
     if (!ledger)
         return null;
-    if (!Object.prototype.hasOwnProperty.call(ledger.pools, attr)) {
-        // Ledger exists but this key was never seeded — treat as 0 only if other
-        // pools exist; otherwise fall back so partial ledgers don't blank a pool.
-        if (Object.keys(ledger.pools).length === 0)
-            return null;
-        return Math.max(0, Math.floor(Number(ledger.pools[attr]) || 0));
+    if (!Object.prototype.hasOwnProperty.call(ledger.pools, attr) && Object.keys(ledger.pools).length === 0) {
+        return null;
     }
-    return Math.max(0, Math.floor(Number(ledger.pools[attr]) || 0));
+    const fromLedger = Math.max(0, Math.floor(Number(ledger.pools[attr]) || 0));
+    return Math.min(fromLedger, minLivePoolCurrent(actor, attr));
 }
 export async function writeStoneCombatReady(actor, ledger) {
     let owner = actor;
@@ -174,14 +172,16 @@ export function snapshotStoneCombatReadyPools(actor) {
 }
 /**
  * Mirror ledger Ready values onto every world/token pool copy so a stale full
- * sibling cannot win the next Available read.
+ * sibling cannot win the next Available read. Only ever LOWERS a copy — a copy
+ * that is already below the ledger was spent through a path the ledger did
+ * not see, and raising it would resurrect spent stones.
  */
 export async function mirrorStoneCombatReadyToPools(actor, ledger) {
     for (const target of listStonePoolSyncActors(actor)) {
         const patch = {};
         for (const [attr, n] of Object.entries(ledger.pools || {})) {
             const want = Math.max(0, Math.floor(Number(n) || 0));
-            if (readPoolCurrent(target, attr) !== want) {
+            if (readPoolCurrent(target, attr) > want) {
                 patch[`system.stonePools.${attr}.current`] = want;
             }
         }
@@ -198,7 +198,8 @@ export async function mirrorStoneCombatReadyToPools(actor, ledger) {
 /**
  * Ensure a combat ledger exists for this fight. Seeds from the lowest live
  * `current` across sync copies so a stale full world actor cannot inflate Ready.
- * Always re-mirrors onto sync copies (Round 2 open must crush stale full pools).
+ * An existing ledger is reconciled DOWN to the lowest live copy (spent is
+ * spent), then stale-full copies are lowered to the ledger.
  */
 export async function ensureStoneCombatReady(actor, combat) {
     if (!combat?.started || !combat.id)
@@ -211,6 +212,20 @@ export async function ensureStoneCombatReady(actor, combat) {
             pools: snapshotStoneCombatReadyPools(actor),
         };
         await writeStoneCombatReady(actor, ledger);
+    }
+    else {
+        let changed = false;
+        for (const key of POOL_KEYS) {
+            if (!Object.prototype.hasOwnProperty.call(ledger.pools, key))
+                continue;
+            const live = minLivePoolCurrent(actor, key);
+            if (live < ledger.pools[key]) {
+                ledger.pools[key] = live;
+                changed = true;
+            }
+        }
+        if (changed)
+            await writeStoneCombatReady(actor, ledger);
     }
     await mirrorStoneCombatReadyToPools(actor, ledger);
     return ledger;
