@@ -131,6 +131,17 @@ export interface ConditionalRider {
     dice: string;
 }
 /**
+ * Unconditional Passive Damage (catalog "Passive: Damage" / Killing Intent and
+ * siblings): sum `damageRider.flat` dice with no `vsCondition` / condition
+ * gate, plus legacy `rollDice.damage`. Conditional riders stay on
+ * `collectConditionalDamageRiders`. Returns e.g. `"2d8"` or `"0"`.
+ *
+ * Applies to every damage roll that goes through the damage dialog (melee,
+ * ranged, spell, artifact) — the dialog must also add the rolled total into
+ * `totalDamage`.
+ */
+export declare function sumUnconditionalPassiveDamageFormula(actor: any): string;
+/**
  * Collect conditional damage riders that apply to a single attack made by
  * `attacker` against `target`. Walks the attacker's slot-activated passives
  * and active buffs (same pool the aggregator uses) plus the currently

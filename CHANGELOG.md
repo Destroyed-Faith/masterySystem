@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.651] - 2026-10-13
+
+### Fixed
+
+- **Passive: Damage auf allen Schadenwürfen:** Unconditional `damageRider.flat` (Killing Intent / Passive: Damage) zählt jetzt in den Schadensdialog und in `totalDamage` — bei Waffen, Spells und Artifacts. Vorher wurde nur das Legacy-Feld `rollDice.damage` gelesen und der gewürfelte Passive-Anteil gar nicht addiert.
+
 ## [0.9.650] - 2026-10-13
 
 ### Fixed

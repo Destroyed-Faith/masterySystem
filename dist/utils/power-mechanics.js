@@ -1005,6 +1005,55 @@ function normalizeRiderDice(raw) {
         return null;
     return trimmed;
 }
+function d8CountFromRiderDice(dice) {
+    if (!dice)
+        return 0;
+    const m = /^(\d+)\s*d8\b/i.exec(dice);
+    if (m)
+        return Math.max(0, parseInt(m[1], 10));
+    if (/^d8$/i.test(dice))
+        return 1;
+    return 0;
+}
+/**
+ * Unconditional Passive Damage (catalog "Passive: Damage" / Killing Intent and
+ * siblings): sum `damageRider.flat` dice with no `vsCondition` / condition
+ * gate, plus legacy `rollDice.damage`. Conditional riders stay on
+ * `collectConditionalDamageRiders`. Returns e.g. `"2d8"` or `"0"`.
+ *
+ * Applies to every damage roll that goes through the damage dialog (melee,
+ * ranged, spell, artifact) — the dialog must also add the rolled total into
+ * `totalDamage`.
+ */
+export function sumUnconditionalPassiveDamageFormula(actor) {
+    if (!actor)
+        return '0';
+    let d8 = 0;
+    try {
+        for (const c of collectMechanicsContributions(actor)) {
+            if (c.sourceKind !== 'passive')
+                continue;
+            const mech = c.mechanics;
+            if (!mech)
+                continue;
+            // Target / self gates: not free on every hit.
+            if (mechanicsConditionGate(mech))
+                continue;
+            const rider = mech.damageRider;
+            if (rider?.flat && !rider.vsCondition) {
+                d8 += d8CountFromRiderDice(normalizeRiderDice(rider.flat));
+            }
+            const legacy = mech.rollDice?.damage;
+            if (typeof legacy === 'number' && legacy > 0)
+                d8 += Math.floor(legacy);
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | sumUnconditionalPassiveDamageFormula failed', err);
+        return '0';
+    }
+    return d8 > 0 ? `${d8}d8` : '0';
+}
 /**
  * Collect conditional damage riders that apply to a single attack made by
  * `attacker` against `target`. Walks the attacker's slot-activated passives

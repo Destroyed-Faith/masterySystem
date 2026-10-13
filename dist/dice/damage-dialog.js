@@ -5,7 +5,7 @@
 import { attributeScalingEnabled } from '../utils/calculations.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { collectMechanicsContributions } from '../utils/power-mechanics.js';
+import { collectMechanicsContributions, sumUnconditionalPassiveDamageFormula, } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
@@ -1032,21 +1032,13 @@ export function attachDamageCardHandlers(messageId) {
     });
 }
 /**
- * Sums `rollDice.damage` (d8 count) from only **slotted passive** mechanics
- * contributions — same source as the character attack breakdown.
+ * Unconditional Passive Damage (catalog "Passive: Damage" = damageRider.flat
+ * on all damage rolls — melee, ranged, spell, artifact). Conditional riders
+ * stay in `collectConditionalDamageRiders`.
  */
 async function calculatePassiveDamage(actor) {
     try {
-        const contributions = collectMechanicsContributions(actor);
-        let d8 = 0;
-        for (const c of contributions) {
-            if (c.sourceKind !== 'passive')
-                continue;
-            const n = c.mechanics?.rollDice?.damage;
-            if (typeof n === 'number' && n > 0)
-                d8 += Math.floor(n);
-        }
-        return d8 > 0 ? `${d8}d8` : '0';
+        return sumUnconditionalPassiveDamageFormula(actor);
     }
     catch (e) {
         console.warn('Mastery System | [DAMAGE DIALOG] calculatePassiveDamage failed', e);
@@ -2718,12 +2710,14 @@ skipPhasingPrompt = false) {
     catch (e) {
         console.warn('Mastery System | [CALCULATE DAMAGE] instant special riders failed', e);
     }
-    // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual + Active Buff Damage (Passives separate)
+    // Total damage = Weapon + Might + Power + Raises + Passive Damage (all hits) +
+    // Conditional / Active Buff / Manual / Instant specials.
     // (Mark floor bonus is added after the post-roll Mark prompt below.)
     let totalDamage = baseDamageRolled
         + stoneMightDamageRolled
         + mightMeleeBonus
         + powerDamageRolled
+        + passiveDamageRolled
         + raiseDamage
         + conditionalDamageRolled
         + activeBuffDamageRolled
