@@ -4,7 +4,7 @@
  * the token while Safe Haven / sheet GM tools update the world prototype.
  */
 
-import { STONE_POOL_ATTRIBUTE_KEYS, getActionEconomyActor } from '../combat/action-economy.js';
+import { getActionEconomyActor } from '../combat/action-economy.js';
 import {
   ATTRIBUTE_KEYS,
   effectiveStoneAssignments,
@@ -20,7 +20,18 @@ export interface StonePoolSealHold {
   generic?: number;
 }
 
-const POOL_KEYS = [...STONE_POOL_ATTRIBUTE_KEYS, 'colorless'] as const;
+// Hardcoded (not spread from action-economy): action-economy → ledger → this
+// module would otherwise read STONE_POOL_ATTRIBUTE_KEYS before it is defined.
+const POOL_KEYS = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+  'colorless',
+] as const;
 
 function inLiveCombat(): boolean {
   try {

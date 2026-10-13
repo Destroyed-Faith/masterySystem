@@ -23,6 +23,20 @@ import {
   minLivePoolCurrent,
 } from '../stones/stone-combat-ledger.js';
 
+/**
+ * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
+ * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
+ */
+export const STONE_POOL_ATTRIBUTE_KEYS = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+] as const;
+
 /** NPC ATK total = explicit per-phase/root slots (falls back to APR sum). */
 function npcAttackSlotsForEconomy(owner: any): number {
   if (!owner || owner.type !== 'npc') return 1;
@@ -1250,19 +1264,6 @@ export function stonePoolReservedStones(system: any, attr: string): number {
   const n = (v: unknown) => Math.max(0, Math.floor(Number(v) || 0));
   return n(p.sustained) + n(p.sealed) + n(p.burned);
 }
-
-/**
- * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
- */
-export const STONE_POOL_ATTRIBUTE_KEYS = [
-  'might',
-  'agility',
-  'vitality',
-  'intellect',
-  'resolve',
-  'influence',
-  'wits'
-] as const;
 
 /**
  * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.

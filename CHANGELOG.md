@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.638] - 2026-10-13
+
+### Fixed
+
+- **CI / Import-Cycle:** `stone-pool-sync` liest `STONE_POOL_ATTRIBUTE_KEYS` nicht mehr beim Modul-Init aus `action-economy` (Vitest/Release-Fail nach dem Combat-Ledger).
+
 ## [0.9.637] - 2026-10-13
 
 ### Fixed

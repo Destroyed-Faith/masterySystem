@@ -13,6 +13,19 @@ import { npcReactionSlotsForEconomy } from '../utils/npc-reactions.js';
 import { powerIdentityKeyFromItem } from '../utils/power-catalog.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { combatReadyRemaining, minLivePoolCurrent, } from '../stones/stone-combat-ledger.js';
+/**
+ * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
+ * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
+ */
+export const STONE_POOL_ATTRIBUTE_KEYS = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence',
+    'wits',
+];
 /** NPC ATK total = explicit per-phase/root slots (falls back to APR sum). */
 function npcAttackSlotsForEconomy(owner) {
     if (!owner || owner.type !== 'npc')
@@ -924,18 +937,6 @@ export function stonePoolReservedStones(system, attr) {
     const n = (v) => Math.max(0, Math.floor(Number(v) || 0));
     return n(p.sustained) + n(p.sealed) + n(p.burned);
 }
-/**
- * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
- */
-export const STONE_POOL_ATTRIBUTE_KEYS = [
-    'might',
-    'agility',
-    'vitality',
-    'intellect',
-    'resolve',
-    'influence',
-    'wits'
-];
 /**
  * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.
  * Pass the **combatant's** actor (token document for unlinked PCs) so data matches Stone Powers UI.

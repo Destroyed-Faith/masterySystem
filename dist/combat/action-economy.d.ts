@@ -4,6 +4,11 @@
  * Manages per-round action budgets, stone spending, and initiative shop bonuses
  * for the Mastery System combat rules.
  */
+/**
+ * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
+ * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
+ */
+export declare const STONE_POOL_ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
 export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 /**
  * Players Guide: doubling costs reset each turn, unless the power is
@@ -354,10 +359,6 @@ export declare function getStonePool(actor: Actor, attribute: AttributeKey): {
  * Burned (lost until Safe Haven Rest, e.g. Last Breath).
  */
 export declare function stonePoolReservedStones(system: any, attr: string): number;
-/**
- * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
- */
-export declare const STONE_POOL_ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
 /**
  * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.
  * Pass the **combatant's** actor (token document for unlinked PCs) so data matches Stone Powers UI.
