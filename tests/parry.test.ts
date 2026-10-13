@@ -2,29 +2,33 @@ import { describe, expect, it, vi } from 'vitest';
 
 const states = new Map<string, any>();
 
-vi.mock('../src/combat/action-economy.js', () => ({
-  getActionEconomyActor: (a: any) => a,
-  getRoundState: (actor: any) => {
-    const id = String(actor?.id ?? 'a');
-    if (!states.has(id)) {
-      states.set(id, {
-        combatId: 'c1',
-        round: 1,
-        turn: 0,
-        isPC: true,
-        movementActions: { total: 1, used: 0 },
-        attackActions: { total: 1, used: 0 },
-        reactionActions: { total: 1, used: 0 },
-        moveBonusMeters: 0,
-        stoneBonuses: { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 },
-      });
-    }
-    return states.get(id);
-  },
-  setRoundState: async (actor: any, state: any) => {
-    states.set(String(actor?.id ?? 'a'), { ...state });
-  },
-}));
+vi.mock('../src/combat/action-economy.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/combat/action-economy.js')>();
+  return {
+    ...actual,
+    getActionEconomyActor: (a: any) => a,
+    getRoundState: (actor: any) => {
+      const id = String(actor?.id ?? 'a');
+      if (!states.has(id)) {
+        states.set(id, {
+          combatId: 'c1',
+          round: 1,
+          turn: 0,
+          isPC: true,
+          movementActions: { total: 1, used: 0 },
+          attackActions: { total: 1, used: 0 },
+          reactionActions: { total: 1, used: 0 },
+          moveBonusMeters: 0,
+          stoneBonuses: { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 },
+        });
+      }
+      return states.get(id);
+    },
+    setRoundState: async (actor: any, state: any) => {
+      states.set(String(actor?.id ?? 'a'), { ...state });
+    },
+  };
+});
 
 import {
   applyParryDiceStrip,

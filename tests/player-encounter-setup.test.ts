@@ -28,10 +28,14 @@ vi.mock('../src/combat/encounter-start.js', () => ({
 vi.mock('../src/combat/stone-round-gate.js', () => ({
   isStonePowersDone: () => false,
 }));
-vi.mock('../src/combat/action-economy.js', () => ({
-  refillStonePoolsFromAttributes: (...args: unknown[]) => refillPools(...args),
-  syncStonePoolCapsFromAttributes: vi.fn(),
-}));
+vi.mock('../src/combat/action-economy.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/combat/action-economy.js')>();
+  return {
+    ...actual,
+    refillStonePoolsFromAttributes: (...args: unknown[]) => refillPools(...args),
+    syncStonePoolCapsFromAttributes: vi.fn(),
+  };
+});
 vi.mock('../src/combat/stone-powers-flow.js', () => ({
   handleStonePowersComplete: vi.fn(),
 }));

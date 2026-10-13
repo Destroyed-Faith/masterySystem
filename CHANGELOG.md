@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.630] - 2026-10-13
+
+### Fixed
+
+- **CI / Release-Tag:** Action-Economy-Mocks in Combat-Tests liefern wieder `STONE_POOL_ATTRIBUTE_KEYS` (via `importOriginal`), damit `stone-ready` → `stone-pool-sync` unter Vitest lädt und der Release-Workflow den Tag durchbringt.
+
 ## [0.9.629] - 2026-10-13
 
 ### Added

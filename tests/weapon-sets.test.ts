@@ -10,13 +10,17 @@ const refundMovementAction = vi.fn(async () => {
   if (movement.used > 0) movement.used -= 1;
 });
 
-vi.mock('../src/combat/action-economy.js', () => ({
-  consumeMovementAction: (...args: unknown[]) => consumeMovementAction(...args),
-  refundMovementAction: (...args: unknown[]) => refundMovementAction(...args),
-  getAvailableMovementActions: () => Math.max(0, movement.total - movement.used),
-  isNormalMovementReplaced: () => false,
-  getActionEconomyActor: (actor: unknown) => actor,
-}));
+vi.mock('../src/combat/action-economy.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/combat/action-economy.js')>();
+  return {
+    ...actual,
+    consumeMovementAction: (...args: unknown[]) => consumeMovementAction(...args),
+    refundMovementAction: (...args: unknown[]) => refundMovementAction(...args),
+    getAvailableMovementActions: () => Math.max(0, movement.total - movement.used),
+    isNormalMovementReplaced: () => false,
+    getActionEconomyActor: (actor: unknown) => actor,
+  };
+});
 
 vi.mock('../src/combat/combat-permissions.js', () => ({
   canCurrentUserUpdateDocument: () => true,

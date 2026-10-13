@@ -1,13 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('../src/combat/action-economy.js', () => ({
-  getActionEconomyActor: (a: unknown) => a,
-  getAvailableReactionActions: () => 1,
-  getReactionActionsSummary: () => ({ used: 0, total: 1, remaining: 1 }),
-  hasPowerBeenUsedThisRound: () => false,
-  markPowerUsedThisRound: vi.fn(),
-  spendReactionAction: vi.fn(async () => true),
-}));
+vi.mock('../src/combat/action-economy.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/combat/action-economy.js')>();
+  return {
+    ...actual,
+    getActionEconomyActor: (a: unknown) => a,
+    getAvailableReactionActions: () => 1,
+    getReactionActionsSummary: () => ({ used: 0, total: 1, remaining: 1 }),
+    hasPowerBeenUsedThisRound: () => false,
+    markPowerUsedThisRound: vi.fn(),
+    spendReactionAction: vi.fn(async () => true),
+  };
+});
 
 vi.mock('../src/utils/power-mechanics.js', () => ({
   resolvePowerMechanics: (item: any) => {

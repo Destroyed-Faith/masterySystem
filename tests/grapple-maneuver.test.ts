@@ -27,20 +27,24 @@ vi.mock('../src/dice/roll-handler.js', () => ({
 }));
 
 const economy = { available: 1, consumed: 0, refunded: 0 };
-vi.mock('../src/combat/action-economy.js', () => ({
-  getActionEconomyActor: (a: any) => a,
-  getAvailableAttackActions: () => economy.available,
-  consumeAttackAction: async () => {
-    if (economy.available <= 0) return false;
-    economy.available -= 1;
-    economy.consumed += 1;
-    return true;
-  },
-  refundAttackAction: async () => {
-    economy.available += 1;
-    economy.refunded += 1;
-  },
-}));
+vi.mock('../src/combat/action-economy.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/combat/action-economy.js')>();
+  return {
+    ...actual,
+    getActionEconomyActor: (a: any) => a,
+    getAvailableAttackActions: () => economy.available,
+    consumeAttackAction: async () => {
+      if (economy.available <= 0) return false;
+      economy.available -= 1;
+      economy.consumed += 1;
+      return true;
+    },
+    refundAttackAction: async () => {
+      economy.available += 1;
+      economy.refunded += 1;
+    },
+  };
+});
 
 import { COMBAT_MANEUVERS, getAvailableManeuvers, getManeuverById } from '../src/system/combat-maneuvers.js';
 import { GRAPPLE_MANEUVER_IDS, RADIAL_ATTACK_MANEUVER_IDS, getSegmentIdForOption } from '../src/radial-menu/options.js';
