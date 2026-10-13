@@ -27,6 +27,10 @@ export interface StoneRecoveryPlan {
     rows: StoneRecoveryRow[];
     /** No pool can take another stone — the rest of the points is simply lost. */
     saturated: boolean;
+    /**
+     * Always true: Confirm must never block. Unused Mastery Rank points are
+     * simply skipped (player may recover fewer stones than the budget).
+     */
     canFinish: boolean;
 }
 /** Space a pool offers: capacity minus Sustain, minus what is already in it. */

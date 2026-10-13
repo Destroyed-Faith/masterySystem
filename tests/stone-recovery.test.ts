@@ -44,16 +44,23 @@ describe('recovery plan', () => {
     expect(plan.canFinish).toBe(true);
   });
 
-  it('waits for the last point before it lets the player finish', () => {
+  it('lets the player finish with fewer stones than the Mastery Rank budget', () => {
     const plan = planStoneRecovery(pools, { might: 1 }, 2);
     expect(plan.remaining).toBe(1);
-    expect(plan.canFinish).toBe(false);
+    expect(plan.canFinish).toBe(true);
   });
 
-  it('lets the player finish when no pool has room for the rest', () => {
+  it('lets the player finish with zero allocation (skip unused recovery)', () => {
+    const plan = planStoneRecovery(pools, {}, 3);
+    expect(plan.allocated).toBe(0);
+    expect(plan.remaining).toBe(3);
+    expect(plan.canFinish).toBe(true);
+  });
+
+  it('marks saturated when every open pool is filled (leftover points lost)', () => {
     const plan = planStoneRecovery([pool('might', 2, 1)], {}, 3);
     expect(plan.rows[0].space).toBe(1);
-    expect(plan.canFinish).toBe(false);
+    expect(plan.canFinish).toBe(true);
 
     const filled = planStoneRecovery([pool('might', 2, 1)], { might: 1 }, 3);
     expect(filled.remaining).toBe(2);

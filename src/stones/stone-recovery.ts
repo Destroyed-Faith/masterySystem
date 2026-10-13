@@ -30,6 +30,10 @@ export interface StoneRecoveryPlan {
   rows: StoneRecoveryRow[];
   /** No pool can take another stone — the rest of the points is simply lost. */
   saturated: boolean;
+  /**
+   * Always true: Confirm must never block. Unused Mastery Rank points are
+   * simply skipped (player may recover fewer stones than the budget).
+   */
   canFinish: boolean;
 }
 
@@ -76,14 +80,15 @@ export function planStoneRecovery(
     });
   }
 
-  const saturated = !rows.some((row) => row.allocated < row.space);
+  const saturated = rows.length === 0 || !rows.some((row) => row.allocated < row.space);
   return {
     points: total,
     allocated,
     remaining,
     rows,
     saturated,
-    canFinish: remaining <= 0 || saturated,
+    // Never gate the fight on filling the Mastery Rank budget.
+    canFinish: true,
   };
 }
 

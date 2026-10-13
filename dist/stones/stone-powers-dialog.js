@@ -264,7 +264,7 @@ const STONE_RECOVERY_INACTIVE = {
     allocated: 0,
     remaining: 0,
     saturated: false,
-    canFinish: false,
+    canFinish: true,
 };
 function poolDisplayName(key) {
     if (key === 'wits')
@@ -1182,9 +1182,7 @@ export class StonePowersDialog extends BaseDialog {
     }
     /**
      * Recovery rows for the Available Stones area. Pools that cannot take a stone
-     * back get no controls — a plus button that can never be pressed is noise.
-     * With no room anywhere the step is skipped entirely instead of blocking the
-     * round behind a choice that does not exist.
+     * back get no steppers — but Confirm stays available so the step never blocks.
      */
     #buildStoneRecovery(combat, pools) {
         for (const pool of pools) {
@@ -1203,8 +1201,6 @@ export class StonePowersDialog extends BaseDialog {
         }
         const inputs = this.#recoveryPoolInputs(pools);
         const plan = planStoneRecovery(inputs, this._recoveryAlloc, this.#stoneRecoveryPoints());
-        if (!plan.rows.length)
-            return STONE_RECOVERY_INACTIVE;
         const byKey = new Map(plan.rows.map((row) => [row.key, row]));
         for (const pool of pools) {
             const row = byKey.get(String(pool.key));
@@ -1221,8 +1217,8 @@ export class StonePowersDialog extends BaseDialog {
             points: plan.points,
             allocated: plan.allocated,
             remaining: plan.remaining,
-            saturated: plan.saturated,
-            canFinish: plan.canFinish,
+            saturated: plan.saturated || plan.rows.length === 0,
+            canFinish: true,
         };
     }
     /** Current recovery plan, rebuilt from live pool numbers (handlers, commit). */
@@ -1314,10 +1310,7 @@ export class StonePowersDialog extends BaseDialog {
         if (!combat || !this.combatant)
             return;
         const { inputs, plan } = this.#currentRecoveryPlan();
-        if (!plan.canFinish) {
-            ui.notifications?.warn(`Stone Recovery: assign ${plan.remaining} more stone(s) first.`);
-            return;
-        }
+        // Confirm always proceeds — unused Mastery Rank points are skipped.
         this._recoveryCommitting = true;
         try {
             const allocation = clampStoneRecoveryAllocation(inputs, this._recoveryAlloc, plan.points);

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.636] - 2026-10-13
+
+### Fixed
+
+- **Stone Recovery blockiert nicht mehr:** Confirm geht mit jeder Zuweisung (auch 0 / weniger als Mastery Rank). Ungenutzte Recovery-Punkte verfallen. Kein „assign N more stones first“-Gate mehr.
+
 ## [0.9.635] - 2026-10-13
 
 ### Fixed

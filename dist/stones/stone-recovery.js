@@ -40,14 +40,15 @@ export function planStoneRecovery(pools, allocation, points) {
             canRemove: own > 0,
         });
     }
-    const saturated = !rows.some((row) => row.allocated < row.space);
+    const saturated = rows.length === 0 || !rows.some((row) => row.allocated < row.space);
     return {
         points: total,
         allocated,
         remaining,
         rows,
         saturated,
-        canFinish: remaining <= 0 || saturated,
+        // Never gate the fight on filling the Mastery Rank budget.
+        canFinish: true,
     };
 }
 /** Allocation trimmed to what the pools can actually take, for the actor update. */

@@ -182,14 +182,14 @@
     <div class="stone-recovery-bar" role="region" aria-label="Stone Recovery">
       <div class="stone-recovery-copy">
         <strong>Stone Recovery</strong>
-        <span>Pick which spent stones come back — <b>{{recovery.points}}</b> (Mastery Rank). Pools without room are hidden.</span>
-        {{#if recovery.saturated}}<span class="stone-recovery-note">All pools are full — the remaining {{recovery.remaining}} stone(s) are lost.</span>{{/if}}
+        <span>Pick spent stones to take back — up to <b>{{recovery.points}}</b> (Mastery Rank). Confirm anytime; unused recovery is lost. Pools without room are hidden.</span>
+        {{#if recovery.saturated}}<span class="stone-recovery-note">No more room — the remaining {{recovery.remaining}} stone(s) are lost.</span>{{else if recovery.remaining}}<span class="stone-recovery-note">{{recovery.remaining}} unused — Confirm skips them.</span>{{/if}}
       </div>
       <div class="stone-recovery-actions">
         <span class="stone-recovery-count{{#if recovery.remaining}} is-open{{/if}}">
           {{recovery.allocated}} / {{recovery.points}}
         </span>
-        <button type="button" class="dialog-btn dialog-btn-primary js-recovery-done" {{#unless recovery.canFinish}}disabled title="Assign all recovery stones first."{{/unless}}>
+        <button type="button" class="dialog-btn dialog-btn-primary js-recovery-done" title="Confirm with the stones you picked (unused Mastery Rank is skipped).">
           <i class="fas fa-check"></i> Recovery Done
         </button>
       </div>
