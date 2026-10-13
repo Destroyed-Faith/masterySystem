@@ -5,18 +5,21 @@ import {
   carouselHpBarShortName,
   carouselHpPenaltyLabel,
   hideCarouselHpNumbers,
+  hideCarouselNpcHpBars,
 } from '../src/ui/combat-carousel-hp.js';
 
-describe('hideCarouselHpNumbers', () => {
-  it('hides numbers on hostile and secret NPCs', () => {
+describe('hideCarouselHpNumbers / NPC bars', () => {
+  it('hides all NPC Health Bars from players (any disposition)', () => {
     expect(hideCarouselHpNumbers('npc', -1)).toBe(true);
-    expect(hideCarouselHpNumbers('npc', -2)).toBe(true);
+    expect(hideCarouselHpNumbers('npc', 0)).toBe(true);
+    expect(hideCarouselHpNumbers('npc', 1)).toBe(true);
+    expect(hideCarouselNpcHpBars('npc', false)).toBe(true);
   });
 
-  it('keeps numbers on PCs and friendly or neutral NPCs', () => {
+  it('keeps PC bars for players and NPC bars for the GM', () => {
     expect(hideCarouselHpNumbers('character', -1)).toBe(false);
-    expect(hideCarouselHpNumbers('npc', 1)).toBe(false);
-    expect(hideCarouselHpNumbers('npc', 0)).toBe(false);
+    expect(hideCarouselNpcHpBars('character', false)).toBe(false);
+    expect(hideCarouselNpcHpBars('npc', true)).toBe(false);
   });
 });
 

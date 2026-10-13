@@ -1,10 +1,16 @@
 import { isHealthBarScarred } from '../utils/calculations.js';
 import { HEALTH_PENALTY_FRACTIONS } from '../utils/constants.js';
-/** Hide exact HP numbers on hostile/secret NPC cards. The bar itself stays. */
-export function hideCarouselHpNumbers(actorType, disposition) {
-    if (actorType !== 'npc')
-        return false;
-    return Number(disposition) < 0;
+/**
+ * Hide NPC Health Bars from non-GM clients in the combat carousel.
+ * Disposition no longer matters — only the GM sees NPC damage bars.
+ * (`disposition` kept for call-site compatibility.)
+ */
+export function hideCarouselHpNumbers(actorType, _disposition) {
+    return actorType === 'npc';
+}
+/** True when this client must not see NPC Health Bars at all (not just numbers). */
+export function hideCarouselNpcHpBars(actorType, isGM) {
+    return !isGM && hideCarouselHpNumbers(actorType);
 }
 const SHORT_BAR_NAMES = {
     healthy: 'H',

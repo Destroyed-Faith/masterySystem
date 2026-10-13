@@ -4,7 +4,7 @@ import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPrepar
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
-import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import { buildCarouselHpSegments, hideCarouselHpNumbers, hideCarouselNpcHpBars, } from './combat-carousel-hp.js';
 import { carouselSideClass, findNextCombatantId, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
 import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, syncCarouselTopOffset, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { buildCarouselTooltip, readCarouselClientPrefs, resolveCarouselCompact, writeCarouselClientPrefs, } from './combat-carousel-settings.js';
@@ -296,7 +296,16 @@ export class CombatCarouselApp extends BaseCarousel {
             const ownsActor = typeof actor.testUserPermission === 'function' &&
                 !!game.user &&
                 actor.testUserPermission(game.user, 'OWNER');
-            const hideHpNumbers = !isGM && !ownsActor && hideCarouselHpNumbers(actor.type, disposition);
+            // NPC Health Bars: GM only. Players must not see fill, numbers, or scars.
+            const hideNpcHp = hideCarouselNpcHpBars(actor.type, isGM);
+            if (hideNpcHp) {
+                hpSegments = [];
+                hpTotalCurrent = 0;
+                hpTotalMax = 0;
+                hpScarredCount = 0;
+            }
+            const hideHpNumbers = hideNpcHp ||
+                (!isGM && !ownsActor && hideCarouselHpNumbers(actor.type, disposition));
             const visibleStatusIcons = prefs.showStatusIcons
                 ? statusIcons.filter((item) => item && item.icon)
                 : [];

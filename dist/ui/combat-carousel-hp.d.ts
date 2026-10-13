@@ -1,5 +1,11 @@
-/** Hide exact HP numbers on hostile/secret NPC cards. The bar itself stays. */
-export declare function hideCarouselHpNumbers(actorType: string | undefined, disposition: number): boolean;
+/**
+ * Hide NPC Health Bars from non-GM clients in the combat carousel.
+ * Disposition no longer matters — only the GM sees NPC damage bars.
+ * (`disposition` kept for call-site compatibility.)
+ */
+export declare function hideCarouselHpNumbers(actorType: string | undefined, _disposition?: number): boolean;
+/** True when this client must not see NPC Health Bars at all (not just numbers). */
+export declare function hideCarouselNpcHpBars(actorType: string | undefined, isGM: boolean): boolean;
 export interface CarouselHpSegment {
     name: string;
     shortName: string;

@@ -20,7 +20,11 @@ import {
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
-import { buildCarouselHpSegments, hideCarouselHpNumbers } from './combat-carousel-hp.js';
+import {
+  buildCarouselHpSegments,
+  hideCarouselHpNumbers,
+  hideCarouselNpcHpBars,
+} from './combat-carousel-hp.js';
 import {
   carouselSideClass,
   findNextCombatantId,
@@ -379,8 +383,17 @@ export class CombatCarouselApp extends BaseCarousel {
         typeof actor.testUserPermission === 'function' &&
         !!game.user &&
         actor.testUserPermission(game.user, 'OWNER');
+      // NPC Health Bars: GM only. Players must not see fill, numbers, or scars.
+      const hideNpcHp = hideCarouselNpcHpBars(actor.type, isGM);
+      if (hideNpcHp) {
+        hpSegments = [];
+        hpTotalCurrent = 0;
+        hpTotalMax = 0;
+        hpScarredCount = 0;
+      }
       const hideHpNumbers =
-        !isGM && !ownsActor && hideCarouselHpNumbers(actor.type, disposition);
+        hideNpcHp ||
+        (!isGM && !ownsActor && hideCarouselHpNumbers(actor.type, disposition));
       const visibleStatusIcons = prefs.showStatusIcons
         ? statusIcons.filter((item: any) => item && item.icon)
         : [];

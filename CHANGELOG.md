@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.649] - 2026-10-13
+
+### Fixed
+
+- **NSC-Schadensbalken nur für den GM:** Im Combat-Carousel sehen Spieler bei NSCs keine Health Bars mehr (weder Füllstand noch Zahlen/Scarred). Vorher wurden nur die Zahlen bei feindlichen NSCs versteckt, die Balken blieben sichtbar. PCs bleiben für alle sichtbar; der GM sieht weiterhin alles.
+
 ## [0.9.648] - 2026-10-13
 
 ### Fixed
