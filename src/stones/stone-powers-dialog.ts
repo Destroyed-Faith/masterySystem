@@ -160,6 +160,7 @@ import {
   stonePowersReopenBlocked,
 } from '../combat/stone-powers-session.js';
 import { listAttrStoneReadyViews } from './stone-ready.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import {
   getArtifactStoneFunctionStatus,
   getArtifactStoneSupportPrefill,
@@ -817,7 +818,8 @@ export class StonePowersDialog extends BaseDialog {
       /* ignore */
     }
 
-    // Align pools once on open to Audit readyExpected (Lifetime − seals − summons).
+    // Sync caps / out-of-combat refill. In combat this must NOT restore spent
+    // stones — Round 2+ Stone Recovery (Mastery Rank) owns mid-fight regen.
     try {
       const { alignStonePoolsToAuditReady } = await import('./stone-ready.js');
       await alignStonePoolsToAuditReady(actor);
@@ -899,15 +901,15 @@ export class StonePowersDialog extends BaseDialog {
     };
     const availablePowers = getAvailableStonePowers(this.actor);
 
-    // Available Stones = GM Übersicht "Erwartet Ready" (Lifetime − seals − summons).
-    // Dialog reservations (stones already dropped on powers) subtract from gems only.
+    // Available Stones = live pool.current (spent this fight), capped by Audit
+    // readyExpected. Round 2+ Stone Recovery puts Mastery Rank stones back here.
     const readyViews = listAttrStoneReadyViews(this.actor);
     const lifetimeStoneMode = readyViews.some((v) => v.lifetimeStoneMode);
 
     const pools: StoneDialogPoolRow[] = readyViews.map((view) => {
       const attr = view.key as AttributeKey;
       const sealedBurned = view.sealed + view.burned;
-      const spendable = view.readyExpected;
+      const spendable = poolSpendableStones(this.actor, attr);
       const reserved = this.#reservedStonesInDialogForAttr(attr);
       const poolDisplay = Math.max(0, spendable - reserved);
       const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
@@ -942,7 +944,7 @@ export class StonePowersDialog extends BaseDialog {
     if (!(this as any)._loggedAvailableSnapshot) {
       (this as any)._loggedAvailableSnapshot = true;
       try {
-        console.log('Mastery Stones | Available = Audit readyExpected', {
+        console.log('Mastery Stones | Available = live current ∩ Audit readyExpected', {
           dialogActor: {
             id: (this.actor as any)?.id,
             name: (this.actor as any)?.name,
@@ -1507,10 +1509,10 @@ export class StonePowersDialog extends BaseDialog {
     await this.#renderKeepingScroll();
   }
   
-  /** Stones a Mastery Rank buys back at the start of a round. */
+  /** Stones Mastery Rank buys back at the start of a round (Lifetime-XP MR). */
   #stoneRecoveryPoints(): number {
     const owner = getActionEconomyActor(this.actor) ?? this.actor;
-    return Math.max(1, Math.floor(Number((owner as any).system?.mastery?.rank) || 2));
+    return Math.max(1, getRulesMasteryRank(owner));
   }
 
   /**

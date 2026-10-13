@@ -155,7 +155,7 @@ describe('artifact link stone helpers', () => {
     expect(poolSpendableStones(actor, 'might')).toBe(1);
   });
 
-  it('Available Ready follows Lifetime assignment (Audit readyExpected), not pool.current', () => {
+  it('Available follows spent pool.current, capped by Lifetime readyExpected', () => {
     const actor = {
       system: {
         progression: {
@@ -168,7 +168,8 @@ describe('artifact link stone helpers', () => {
         },
       },
     };
-    expect(poolSpendableStones(actor, 'might')).toBe(3);
+    // Spent stones stay spent until Stone Recovery (MR) or end of combat.
+    expect(poolSpendableStones(actor, 'might')).toBe(0);
   });
 
   it('subtracts sealed/burned and summon-hold from Lifetime Ready', () => {

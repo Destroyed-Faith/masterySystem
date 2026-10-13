@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.634] - 2026-10-13
+
+### Fixed
+
+- **Stone Recovery zurück:** Available Stones folgen wieder dem echten `pool.current` (ausgegeben bleibt ausgegeben). Align füllt im Kampf nicht mehr alles auf. Ab Runde 2 greift Stone Recovery mit **Mastery Rank** Steinen (Lifetime-XP-MR).
+
 ## [0.9.633] - 2026-10-13
 
 ### Changed

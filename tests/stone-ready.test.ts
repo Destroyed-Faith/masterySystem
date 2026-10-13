@@ -35,21 +35,32 @@ describe('stone-ready (Audit = Available)', () => {
     familiars: [],
   };
 
-  it('ignores Attribute÷8 and pool.current — Ready = Lifetime − holds', () => {
+  it('Audit readyExpected ignores Attribute÷8; spendable follows live pool.current', () => {
     const might = getAttrStoneReadyView(base, 'might');
     expect(might.assigned).toBe(3);
     expect(might.max).toBe(3);
     expect(might.readyExpected).toBe(3);
-    expect(poolSpendableStones(base, 'might')).toBe(3);
+    // Spent this fight: current 0 → Available 0 (Recovery can refill MR stones).
+    expect(poolSpendableStones(base, 'might')).toBe(0);
 
     const vitality = getAttrStoneReadyView(base, 'vitality');
     expect(vitality.readyExpected).toBe(1); // 2 − sustained 1
+    expect(poolSpendableStones(base, 'vitality')).toBe(1); // current 1, capped at readyExpected
   });
 
-  it('matches poolSpendableStones for every attribute', () => {
-    for (const view of listAttrStoneReadyViews(base)) {
-      expect(poolSpendableStones(base, view.key)).toBe(view.readyExpected);
-    }
+  it('caps spendable at readyExpected even when pool.current is inflated', () => {
+    const actor = {
+      ...base,
+      system: {
+        ...base.system,
+        stonePools: {
+          ...base.system.stonePools,
+          might: { max: 3, current: 9, sealed: 0, burned: 0, sustained: 0 },
+        },
+      },
+    };
+    expect(getAttrStoneReadyView(actor, 'might').readyExpected).toBe(3);
+    expect(poolSpendableStones(actor, 'might')).toBe(3);
   });
 
   it('subtracts summon holds even when sustained flag lags', () => {

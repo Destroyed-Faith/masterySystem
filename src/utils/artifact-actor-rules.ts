@@ -107,17 +107,22 @@ function economyActor(actor: any): any {
 }
 
 /**
- * Spendable (Ready) stones — identical to GM Stone-Übersicht "Erwartet Ready".
- * Lifetime track − sealed − burned − max(sustained, summon/familiar).
+ * Spendable (Ready) stones for payment / Stone Powers gems.
+ *
+ * Live `pool.current`, capped by Audit `readyExpected` (Lifetime − seals −
+ * burned − sustain/summons). Never ignore spent stones: round 2+ recovery
+ * (Mastery Rank) only makes sense when depleted `current` is visible.
  */
 export function poolSpendableStones(actor: any, attr: string): number {
-  return getAttrStoneReadyView(actor, attr).readyExpected;
+  const view = getAttrStoneReadyView(actor, attr);
+  return Math.max(0, Math.min(view.current, view.readyExpected));
 }
 
 /** Debug snapshot for one pool (Available vs Audit). */
 export function debugPoolSpendableSnapshot(actor: any, attr: string): Record<string, unknown> {
   const econ = economyActor(actor);
   const view = getAttrStoneReadyView(actor, attr);
+  const spendable = Math.max(0, Math.min(view.current, view.readyExpected));
   return {
     attr,
     actorId: actor?.id,
@@ -133,7 +138,7 @@ export function debugPoolSpendableSnapshot(actor: any, attr: string): Record<str
     burned: view.burned,
     summonBound: view.summonBound,
     readyExpected: view.readyExpected,
-    spendable: view.readyExpected,
+    spendable,
   };
 }
 

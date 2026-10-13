@@ -40,8 +40,12 @@ export declare function getAttrStoneReadyView(actor: any, attr: string): AttrSto
 /** All attribute pools (no colorless) — Stone Powers Available row source. */
 export declare function listAttrStoneReadyViews(actor: any): AttrStoneReadyView[];
 /**
- * Persist max/current to Audit readyExpected on every economy copy.
- * Call once when opening Stone Powers so payment and gems match the Übersicht.
+ * Sync pool `max` / summon holds to the Lifetime Audit track.
+ *
+ * Out of combat: also refill `current` to readyExpected.
+ * In combat: never refill spent stones — round 2+ Stone Recovery (Mastery Rank)
+ * is the only way pools come back mid-fight. Only clamp `current` down when it
+ * exceeds readyExpected (e.g. after a sustain/seal increase).
  */
 export declare function alignStonePoolsToAuditReady(actor: any): Promise<boolean>;
 //# sourceMappingURL=stone-ready.d.ts.map

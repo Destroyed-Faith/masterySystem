@@ -28,6 +28,7 @@ import { canEditEncounterPassives, getAvailablePassives, getPassiveSlots, getPen
 import { debugPoolSpendableSnapshot, poolSpendableStones, } from '../utils/artifact-actor-rules.js';
 import { allowStonePowersAutoOpen, dismissStonePowersPrompt, logStonePowersGate, stonePowersReopenBlocked, } from '../combat/stone-powers-session.js';
 import { listAttrStoneReadyViews } from './stone-ready.js';
+import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getArtifactStoneFunctionStatus, getArtifactStoneSupportPrefill, } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 import { actorMasteryRank, changeNaturalRecoveryAllocation, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
@@ -535,7 +536,8 @@ export class StonePowersDialog extends BaseDialog {
         catch {
             /* ignore */
         }
-        // Align pools once on open to Audit readyExpected (Lifetime − seals − summons).
+        // Sync caps / out-of-combat refill. In combat this must NOT restore spent
+        // stones — Round 2+ Stone Recovery (Mastery Rank) owns mid-fight regen.
         try {
             const { alignStonePoolsToAuditReady } = await import('./stone-ready.js');
             await alignStonePoolsToAuditReady(actor);
@@ -611,14 +613,14 @@ export class StonePowersDialog extends BaseDialog {
             return best;
         };
         const availablePowers = getAvailableStonePowers(this.actor);
-        // Available Stones = GM Übersicht "Erwartet Ready" (Lifetime − seals − summons).
-        // Dialog reservations (stones already dropped on powers) subtract from gems only.
+        // Available Stones = live pool.current (spent this fight), capped by Audit
+        // readyExpected. Round 2+ Stone Recovery puts Mastery Rank stones back here.
         const readyViews = listAttrStoneReadyViews(this.actor);
         const lifetimeStoneMode = readyViews.some((v) => v.lifetimeStoneMode);
         const pools = readyViews.map((view) => {
             const attr = view.key;
             const sealedBurned = view.sealed + view.burned;
-            const spendable = view.readyExpected;
+            const spendable = poolSpendableStones(this.actor, attr);
             const reserved = this.#reservedStonesInDialogForAttr(attr);
             const poolDisplay = Math.max(0, spendable - reserved);
             const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
@@ -651,7 +653,7 @@ export class StonePowersDialog extends BaseDialog {
         if (!this._loggedAvailableSnapshot) {
             this._loggedAvailableSnapshot = true;
             try {
-                console.log('Mastery Stones | Available = Audit readyExpected', {
+                console.log('Mastery Stones | Available = live current ∩ Audit readyExpected', {
                     dialogActor: {
                         id: this.actor?.id,
                         name: this.actor?.name,
@@ -1144,10 +1146,10 @@ export class StonePowersDialog extends BaseDialog {
         }
         await this.#renderKeepingScroll();
     }
-    /** Stones a Mastery Rank buys back at the start of a round. */
+    /** Stones Mastery Rank buys back at the start of a round (Lifetime-XP MR). */
     #stoneRecoveryPoints() {
         const owner = getActionEconomyActor(this.actor) ?? this.actor;
-        return Math.max(1, Math.floor(Number(owner.system?.mastery?.rank) || 2));
+        return Math.max(1, getRulesMasteryRank(owner));
     }
     /**
      * Pools as recovery input. End-of-round Regeneration is one shared Mastery

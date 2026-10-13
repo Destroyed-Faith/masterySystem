@@ -124,12 +124,24 @@ export function listAttrStoneReadyViews(actor) {
     return ATTRIBUTE_KEYS.map((k) => getAttrStoneReadyView(actor, k));
 }
 /**
- * Persist max/current to Audit readyExpected on every economy copy.
- * Call once when opening Stone Powers so payment and gems match the Übersicht.
+ * Sync pool `max` / summon holds to the Lifetime Audit track.
+ *
+ * Out of combat: also refill `current` to readyExpected.
+ * In combat: never refill spent stones — round 2+ Stone Recovery (Mastery Rank)
+ * is the only way pools come back mid-fight. Only clamp `current` down when it
+ * exceeds readyExpected (e.g. after a sustain/seal increase).
  */
 export async function alignStonePoolsToAuditReady(actor) {
     if (!actor)
         return false;
+    let inCombat = false;
+    try {
+        const combat = globalThis.game?.combat;
+        inCombat = !!(combat?.started && Math.floor(Number(combat.round) || 0) >= 1);
+    }
+    catch {
+        inCombat = false;
+    }
     let changed = false;
     const boundMap = summonBoundSustainedByAttr(actor);
     for (const target of listStonePoolSyncActors(actor)) {
@@ -154,8 +166,13 @@ export async function alignStonePoolsToAuditReady(actor) {
             const curCurrent = Math.max(0, Math.floor(Number(pool.current) || 0));
             if (curMax !== want)
                 updates[`system.stonePools.${attr}.max`] = want;
-            if (curCurrent !== readyExpected)
+            if (!inCombat) {
+                if (curCurrent !== readyExpected)
+                    updates[`system.stonePools.${attr}.current`] = readyExpected;
+            }
+            else if (curCurrent > readyExpected) {
                 updates[`system.stonePools.${attr}.current`] = readyExpected;
+            }
         }
         if (!Object.keys(updates).length)
             continue;
