@@ -2,11 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.9.639] - 2026-10-13
+## [0.9.640] - 2026-10-13
 
 ### Added
 
 - **GM Power ersetzen:** Am Charakterbogen (Powers-Liste und Creation) zeigt der GM pro Power einen Swap-Button. Katalog-Picker nur gleiche Kategorie und gleiches Level; Flags `startingPower` / `gmGranted` / `xpPurchased` und `minLevel` bleiben erhalten — **0 XP**. Artifact-/Echo-Grants sind ausgeschlossen.
+
+## [0.9.639] - 2026-10-13
 
 ### Fixed
 

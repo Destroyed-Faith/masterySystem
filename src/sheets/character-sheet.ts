@@ -50,6 +50,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_OFFENSIVE_RANK, creationPower
 import { hasTowerWizardPackage } from '../creation/tower-wizard/tower-wizard-apply.js';
 import { showTowerWizardDialog } from '../creation/tower-wizard/tower-wizard-dialog.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
+import { showPowerReplaceDialog } from './character-sheet-power-replace-dialog.js';
 import { validateTowerWizardCreation } from '../creation/tower-wizard/tower-wizard-validation.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
@@ -491,6 +492,38 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } catch (error) {
       console.error('Mastery System | Failed to open Add Power dialog', error);
       ui.notifications?.error('Failed to open the Add Power dialog');
+    }
+  }
+
+  /** GM: replace a power with another of the same category and level (0 XP). */
+  async #onReplacePower(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      ui.notifications?.warn('Only the GM can replace powers.');
+      return;
+    }
+    const $button = $(event.currentTarget);
+    const itemId =
+      $button.data('item-id') ||
+      $button.attr('data-item-id') ||
+      $button.closest('.power-card, .creation-power').data('item-id') ||
+      $button.closest('.power-card, .creation-power').attr('data-item-id');
+    if (!itemId) {
+      ui.notifications?.error('Could not find power to replace.');
+      return;
+    }
+    const item = this.actor.items.get(String(itemId));
+    if (!item || item.type !== 'power') {
+      ui.notifications?.error('Power not found on this character.');
+      return;
+    }
+    try {
+      const replaced = await showPowerReplaceDialog(this.actor, item);
+      if (replaced) this.render();
+    } catch (error) {
+      console.error('Mastery System | Failed to replace power', error);
+      ui.notifications?.error('Failed to replace power');
     }
   }
 
@@ -3055,6 +3088,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     bindReliableControlClick(html, '.open-tower-wizard-btn', this.#onOpenTowerWizard.bind(this));
     bindReliableControlClick(html, '.open-manual-combat-package-btn', this.#onOpenManualCombatPackage.bind(this));
     bindReliableControlClick(html, '.add-power-btn, .gm-add-power-btn', this.#onAddPower.bind(this));
+    bindReliableControlClick(html, '.power-replace-btn', this.#onReplacePower.bind(this));
 
     // Echo creation / deck interactions
     bindReliableControlClick(html, '.choose-echo-btn', this.#onEchoChoose.bind(this));
@@ -6764,11 +6798,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+    const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+    const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
     creationButtons.prop('disabled', false);
     
     // Also enable power rank selects (they're select elements, not buttons)

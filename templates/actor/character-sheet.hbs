@@ -1692,6 +1692,11 @@
                   </div>
                   <div class="power-controls">
                     <span class="power-rank-static" title="Power rank at creation">Rank {{default this.system.level 1}}</span>
+                    {{#if (userIsGM)}}
+                    <button type="button" class="power-replace-btn" data-item-id="{{this.id}}" title="GM: Replace with another power of the same category and level (0 XP)">
+                      <i class="fas fa-right-left"></i>
+                    </button>
+                    {{/if}}
                     <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
                       <i class="fas fa-chevron-down"></i>
                     </button>
@@ -1873,6 +1878,11 @@
                   <button type="button" class="power-edit-mechanics" data-item-id="{{this.id}}" title="Edit structured Mechanics (armor/evade/riders/…) for aggregator + conditional engine">
                     <i class="fas fa-cogs"></i>
                   </button>
+                  {{#if (userIsGM)}}
+                  <button type="button" class="power-replace-btn" data-item-id="{{this.id}}" title="GM: Replace with another power of the same category and level (0 XP)">
+                    <i class="fas fa-right-left"></i>
+                  </button>
+                  {{/if}}
                   <button type="button" class="item-delete" data-item-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
