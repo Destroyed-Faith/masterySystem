@@ -1352,6 +1352,17 @@ prose-mirror#chat-message.chat-input > .editor-container {
   opacity: 0.85;
 }
 
+#chat-log .mastery-heal-scarred-pick.ms-heal-btn-disabled,
+#chat-log .mastery-heal-scarred-pick:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+}
+
+#chat-log .mastery-heal-roll-only {
+  font-weight: 600;
+}
+
 #chat-log .mastery-heal-scarred-resolved {
   margin-top: 0.35rem;
 }

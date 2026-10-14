@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.659] - 2026-10-14
+
+### Fixed
+
+- **Heal immer per Knopf:** Nie mehr stilles Auto-Würfeln. Chat-Karte mit Scarred-Buttons (0…N) und/oder **Roll heal Xd8** — Klick würfelt sichtbar in Foundry und wendet danach HP an.
+- **Scarred-Buttons auch wenn Pool leer:** Buttons bleiben sichtbar, Ausgaben über dem Rest-Pool sind grau/`disabled` bis Safe Haven Rest (Pool-Reset).
+- **Heal-HP auf offene Bars:** Würfelheilung füllt offene Health Levels (nicht Scarred bei 0 HP); kein „0 short of max“ mehr, wenn die aktive Bar voll war und tiefere Bars noch Raum haben.
+
 ## [0.9.658] - 2026-10-14
 
 ### Fixed

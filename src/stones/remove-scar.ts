@@ -113,7 +113,15 @@ export function buildRecoverScarredBarUpdates(actor: any, count: number): Record
   }
   if (recovered <= 0) return updates;
   const scarredCount = bars.filter((b: any) => (Number(b?.current) || 0) === 0).length;
-  const newActive = bars.findIndex((b: any) => (Number(b?.current) || 0) > 0);
+  // Prefer the first bar that still has room (damaged or still-Scarred), not the first full one.
+  let newActive = bars.findIndex((b: any) => {
+    const cur = Math.max(0, Math.floor(Number(b?.current) || 0));
+    const max = Math.max(0, Math.floor(Number(b?.max) || 0));
+    return max > 0 && cur < max;
+  });
+  if (newActive < 0) {
+    newActive = bars.findIndex((b: any) => (Number(b?.current) || 0) > 0);
+  }
   updates['system.health.bars'] = bars;
   updates['system.health.currentBar'] = Math.max(0, newActive);
   if (Object.prototype.hasOwnProperty.call(system?.health ?? {}, 'scarred')) {

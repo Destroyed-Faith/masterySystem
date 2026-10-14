@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  applyHealHpAcrossOpenBars,
   formatHealResultChat,
+  formatHealRollPromptChat,
   formatScarredPromptChat,
   getHealDiceFormula,
   getHlrRemainingOnCaster,
@@ -109,6 +111,25 @@ describe('artifact heal radial (Moonlight Mending)', () => {
   });
 });
 
+describe('applyHealHpAcrossOpenBars', () => {
+  it('fills open bars and skips Scarred (0 HP) bars', () => {
+    const applied = applyHealHpAcrossOpenBars(
+      {
+        currentBar: 0,
+        bars: [
+          { name: 'Healthy', max: 40, current: 40 },
+          { name: 'Bruised', max: 40, current: 0 },
+          { name: 'Injured', max: 40, current: 10 },
+        ],
+      },
+      50,
+    );
+    expect(applied.bars[1].current).toBe(0); // still Scarred
+    expect(applied.bars[2].current).toBe(40); // +30 into Injured
+    expect(applied.restored).toBe(30);
+  });
+});
+
 describe('heal chat formatting', () => {
   it('includes restored HP and numbered scarred pick buttons', () => {
     const html = formatHealResultChat({
@@ -151,6 +172,31 @@ describe('heal chat formatting', () => {
     expect(prompt).not.toMatch(/data-bars="3"/);
     expect(prompt).toMatch(/2<\/strong> \/ 2/);
     expect(prompt).toMatch(/a1/);
+    expect(prompt).toMatch(/roll 10d8/);
+
+    const spent = formatScarredPromptChat({
+      healerName: 'Oda',
+      targetName: 'Alaris',
+      targetActorId: 'a1',
+      maxBars: 1,
+      scarred: 2,
+      poolRemaining: 0,
+      poolMax: 1,
+      formula: '10d8',
+    });
+    expect(spent).toMatch(/data-bars="0"/);
+    expect(spent).toMatch(/data-bars="1"/);
+    expect(spent).toMatch(/disabled/);
+    expect(spent).toMatch(/used up/);
+
+    const rollOnly = formatHealRollPromptChat({
+      healerName: 'Oda',
+      targetName: 'Alaris',
+      powerName: 'Moonlight Mending',
+      formula: '10d8',
+    });
+    expect(rollOnly).toMatch(/Roll heal 10d8/);
+    expect(rollOnly).toMatch(/mastery-heal-roll-only/);
 
     const result = formatHealResultChat({
       sourceName: 'Oda',

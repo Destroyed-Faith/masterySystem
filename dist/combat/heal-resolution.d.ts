@@ -1,11 +1,11 @@
 /**
  * Combat Heal Actives — ally targeting, no attack roll, no Reactions.
  *
- * Order when Health Level Recovery is available and the target has Scarred bars:
- *   1) Chat prompt: spend 0..N from this Power's per–Safe-Haven HLR pool
- *   2) Apply Scarred / Health Level recovery
- *   3) Roll HP heal onto the (possibly restored) current Health Bar
- * Otherwise HP heal runs immediately.
+ * Always interactive in chat (never silent auto-roll):
+ *   1) If the Power has an HLR pool and the target is Scarred: buttons 0…N
+ *      (N > remaining are shown but disabled/gray until Safe Haven Rest)
+ *   2) On click: recover Scarred (if chosen), then roll heal dice visibly,
+ *      then apply HP into open (non-Scarred) Health Levels
  */
 import type { RadialCombatOption } from '../radial-menu/types.js';
 export declare const HEAL_CHAT_FLAG = "healResolution";
@@ -46,6 +46,18 @@ export declare function healPowerItemFromRadialOption(option: RadialCombatOption
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export declare function getHealDiceFormula(item: any): string | null;
 export declare function getHealAoETargetMode(item: any): 'target' | 'aoe' | 'self';
+/**
+ * Apply rolled HP across open Health Levels (current > 0), most severe first.
+ * Scarred bars (0 HP) are never filled by heal dice — only by Health Level Recovery.
+ */
+export declare function applyHealHpAcrossOpenBars(health: {
+    bars?: any[];
+    currentBar?: number;
+}, rolled: number): {
+    bars: any[];
+    currentBar: number;
+    restored: number;
+};
 export interface HealTargetResult {
     tokenId: string;
     actorId: string;
@@ -74,9 +86,16 @@ export declare function formatScarredPromptChat(args: {
     powerName?: string;
     formula?: string | null;
 }): string;
+/** No Scarred / no HLR — still require a click so dice are visible. */
+export declare function formatHealRollPromptChat(args: {
+    healerName: string;
+    targetName: string;
+    powerName?: string;
+    formula: string;
+}): string;
 /**
  * Resolve heal on one or more token targets (already chosen). No attack roll.
- * If HLR remains and a target is Scarred, prompts first — HP heal waits for the click.
+ * Always posts a chat card — Scarred picks and/or a Roll button; never auto-rolls.
  */
 export declare function resolveHealOnTokens(args: {
     casterToken: any;

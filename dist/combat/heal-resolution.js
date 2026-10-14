@@ -1,16 +1,17 @@
 /**
  * Combat Heal Actives — ally targeting, no attack roll, no Reactions.
  *
- * Order when Health Level Recovery is available and the target has Scarred bars:
- *   1) Chat prompt: spend 0..N from this Power's per–Safe-Haven HLR pool
- *   2) Apply Scarred / Health Level recovery
- *   3) Roll HP heal onto the (possibly restored) current Health Bar
- * Otherwise HP heal runs immediately.
+ * Always interactive in chat (never silent auto-roll):
+ *   1) If the Power has an HLR pool and the target is Scarred: buttons 0…N
+ *      (N > remaining are shown but disabled/gray until Safe Haven Rest)
+ *   2) On click: recover Scarred (if chosen), then roll heal dice visibly,
+ *      then apply HP into open (non-Scarred) Health Levels
  */
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getActiveSpecialValue } from '../system/active-specials.js';
-import { applyHealingToCurrentBar, escapeStoneChat, } from '../stones/stone-resolution.js';
+import { escapeStoneChat } from '../stones/stone-resolution.js';
 import { countScarredHealthBars, recoverScarredBars, } from '../stones/remove-scar.js';
+import { isHealthBarScarred } from '../utils/calculations.js';
 import { getActionEconomyActor } from './action-economy.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
@@ -253,11 +254,21 @@ function blightHealReduction(actor) {
         return 0;
     }
 }
-async function rollFormula(formula) {
+/** Roll heal dice; posts a Foundry roll message so the dice are visible. */
+async function rollHealDiceVisible(formula, opts) {
     const g = globalThis;
     const RollCls = g.Roll;
     if (typeof RollCls === 'function') {
         const roll = await new RollCls(formula).evaluate({ async: true });
+        try {
+            await roll.toMessage?.({
+                speaker: opts?.speaker ?? {},
+                flavor: opts?.flavor || 'Heal',
+            });
+        }
+        catch {
+            /* chat optional */
+        }
         return { total: Math.max(0, Math.floor(Number(roll.total) || 0)), formula };
     }
     // Test / offline fallback: average-ish
@@ -268,6 +279,39 @@ async function rollFormula(formula) {
         return { total: Math.max(0, n * Math.ceil(sides / 2)), formula };
     }
     return { total: 0, formula };
+}
+/**
+ * Apply rolled HP across open Health Levels (current > 0), most severe first.
+ * Scarred bars (0 HP) are never filled by heal dice — only by Health Level Recovery.
+ */
+export function applyHealHpAcrossOpenBars(health, rolled) {
+    const bars = (Array.isArray(health?.bars) ? health.bars : []).map((b) => ({ ...b }));
+    let remaining = Math.max(0, Math.floor(Number(rolled) || 0));
+    let restored = 0;
+    // Most severe open bar → healthier (matches damage overflow direction reversed).
+    for (let i = bars.length - 1; i >= 0 && remaining > 0; i -= 1) {
+        const cur = Math.max(0, Math.floor(Number(bars[i]?.current) || 0));
+        const max = Math.max(0, Math.floor(Number(bars[i]?.max) || 0));
+        if (max <= 0 || cur <= 0)
+            continue; // skip empty/scarred & broken max
+        const headroom = Math.max(0, max - cur);
+        if (headroom <= 0)
+            continue;
+        const add = Math.min(headroom, remaining);
+        bars[i] = { ...bars[i], current: cur + add };
+        remaining -= add;
+        restored += add;
+    }
+    let currentBar = Math.max(0, Math.min(bars.length - 1, Math.floor(Number(health?.currentBar) || 0)));
+    for (let i = 0; i < bars.length; i += 1) {
+        const cur = Math.max(0, Math.floor(Number(bars[i]?.current) || 0));
+        const max = Math.max(0, Math.floor(Number(bars[i]?.max) || 0));
+        if (max > 0 && cur < max) {
+            currentBar = i;
+            break;
+        }
+    }
+    return { bars, currentBar, restored };
 }
 export function formatHealResultChat(args) {
     const source = escapeStoneChat(args.sourceName);
@@ -291,10 +335,12 @@ export function formatHealResultChat(args) {
         const blight = r.blight > 0
             ? ` (Blight −${r.blight}: ${r.rolled} → ${r.afterBlight})`
             : '';
-        const cap = r.restored < r.afterBlight
-            ? ` Restored <strong>${r.restored}</strong> HP${blight} — current bar was only ${r.restored} short of max.`
-            : ` Restored <strong>${r.restored}</strong> HP${blight}.`;
-        return `<li><strong>${name}</strong> — rolled <strong>${r.rolled}</strong>.${cap}</li>`;
+        const cap = r.restored <= 0
+            ? ` Rolled <strong>${r.rolled}</strong>${blight} — <strong>0 HP</strong> applied (no open Health Level with room; recover Scarred first if needed).`
+            : r.restored < r.afterBlight
+                ? ` Restored <strong>${r.restored}</strong> / ${r.afterBlight} HP${blight} (open Health Level headroom).`
+                : ` Restored <strong>${r.restored}</strong> HP${blight}.`;
+        return `<li><strong>${name}</strong> —${cap}</li>`;
     })
         .join('');
     return `<div class="mastery-heal-resolution"><p><strong>${source}</strong> — ${power}</p>${scarredLine}${headline}<ul>${rows}</ul></div>`;
@@ -304,26 +350,46 @@ export function formatScarredPromptChat(args) {
     const target = escapeStoneChat(args.targetName);
     const power = escapeStoneChat(args.powerName || 'Heal');
     const formula = args.formula ? escapeStoneChat(args.formula) : '';
-    const max = Math.max(0, Math.min(args.maxBars, args.scarred, args.poolRemaining));
-    const healHint = formula ? ` → then heal ${formula}` : '';
+    // Show full band 0…min(scarred, poolMax); gray out spends above remaining.
+    const maxShown = Math.max(0, Math.min(args.maxBars, args.scarred, args.poolMax));
+    const remaining = Math.max(0, Math.floor(Number(args.poolRemaining) || 0));
+    const healHint = formula ? ` → then roll ${formula}` : '';
     const buttons = [];
-    for (let n = 0; n <= max; n += 1) {
+    for (let n = 0; n <= maxShown; n += 1) {
+        const disabled = n > remaining;
         const label = n === 0
             ? formula
-                ? `0 — skip Scarred, heal ${formula}`
+                ? `0 Scarred — roll ${formula}`
                 : '0 — skip Scarred'
-            : `${n} Scarred${healHint}`;
-        buttons.push(`<button type="button" class="mastery-heal-scarred-pick" data-bars="${n}">${label}</button>`);
+            : `${n} Scarred${healHint}${disabled ? ' (used up)' : ''}`;
+        buttons.push(`<button type="button" class="mastery-heal-scarred-pick${disabled ? ' ms-heal-btn-disabled' : ''}" data-bars="${n}"${disabled ? ' disabled title="Health Level Recovery already spent this Safe Haven Rest"' : ''}>${label}</button>`);
+    }
+    if (formula && maxShown <= 0) {
+        buttons.push(`<button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only" data-bars="0">Roll heal ${formula}</button>`);
     }
     const healPreview = formula
-        ? `<p class="ms-heal-preview">After your choice, <strong>${formula}</strong> is rolled and applied — you will see the HP healed here.</p>`
-        : `<p class="ms-heal-preview">After your choice, Scarred recovery is applied (this Power restores no HP by itself).</p>`;
-    return `<div class="mastery-heal-scarred-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-max-bars="${max}">
-  <p><strong>${healer}</strong> — <em>${power}</em>: choose Scarred recovery, then heal on click</p>
+        ? `<p class="ms-heal-preview"><strong>Click a button</strong> to recover Scarred (optional), then <strong>roll ${formula}</strong> in chat and apply the HP.</p>`
+        : `<p class="ms-heal-preview"><strong>Click a button</strong> to apply Scarred recovery (this Power has no HP dice).</p>`;
+    return `<div class="mastery-heal-scarred-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-max-bars="${maxShown}">
+  <p><strong>${healer}</strong> — <em>${power}</em>: Scarred zuerst, dann Heal würfeln</p>
   <p><strong>${target}</strong> has <strong>${args.scarred}</strong> Scarred Health Bar(s).</p>
-  <p>This Power's pool: <strong>${args.poolRemaining}</strong> / ${args.poolMax} Health Level(s) left this Safe Haven Rest.</p>
+  <p>This Power's pool: <strong>${remaining}</strong> / ${args.poolMax} Health Level(s) left this Safe Haven Rest.</p>
   ${healPreview}
   <div class="mastery-heal-scarred-actions">${buttons.join('')}</div>
+</div>`;
+}
+/** No Scarred / no HLR — still require a click so dice are visible. */
+export function formatHealRollPromptChat(args) {
+    const healer = escapeStoneChat(args.healerName);
+    const target = escapeStoneChat(args.targetName);
+    const power = escapeStoneChat(args.powerName || 'Heal');
+    const formula = escapeStoneChat(args.formula);
+    return `<div class="mastery-heal-scarred-prompt mastery-heal-roll-prompt">
+  <p><strong>${healer}</strong> — <em>${power}</em> on <strong>${target}</strong></p>
+  <p class="ms-heal-preview">Click to roll <strong>${formula}</strong> in chat and apply the healed HP.</p>
+  <div class="mastery-heal-scarred-actions">
+    <button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only" data-bars="0">Roll heal ${formula}</button>
+  </div>
 </div>`;
 }
 async function applyHpHealToActor(actor, rolled) {
@@ -334,11 +400,16 @@ async function applyHpHealToActor(actor, rolled) {
     if (!health || !Array.isArray(health.bars)) {
         return { restored: 0, afterBlight, blight };
     }
-    const applied = applyHealingToCurrentBar({ bars: health.bars, currentBar: health.currentBar }, afterBlight);
-    await owner.update?.({
+    const applied = applyHealHpAcrossOpenBars({ bars: health.bars, currentBar: health.currentBar }, afterBlight);
+    const scarredCount = applied.bars.filter((b) => isHealthBarScarred(b)).length;
+    const patch = {
         'system.health.bars': applied.bars,
         'system.health.currentBar': applied.currentBar,
-    });
+    };
+    if (Object.prototype.hasOwnProperty.call(health, 'scarred')) {
+        patch['system.health.scarred'] = scarredCount;
+    }
+    await owner.update?.(patch);
     return { restored: applied.restored, afterBlight, blight };
 }
 function snapshotHealPowerItem(powerItem) {
@@ -371,6 +442,9 @@ function resolveTokenById(tokenId) {
     }
 }
 async function applyHpHealPass(args) {
+    const g = globalThis;
+    const caster = args.casterToken?.actor;
+    const speaker = g.ChatMessage?.getSpeaker?.({ actor: caster, token: args.casterToken?.document });
     const results = [];
     for (const tok of args.targetTokens) {
         const actor = tok?.actor;
@@ -381,7 +455,10 @@ async function applyHpHealPass(args) {
         let restored = 0;
         let blight = 0;
         if (args.formula) {
-            const roll = await rollFormula(args.formula);
+            const roll = await rollHealDiceVisible(args.formula, {
+                flavor: `${args.powerName} — Heal (${actor.name || tok.name || 'Target'})`,
+                speaker,
+            });
             rolled = roll.total;
             const applied = await applyHpHealToActor(actor, rolled);
             afterBlight = applied.afterBlight;
@@ -400,8 +477,6 @@ async function applyHpHealPass(args) {
             scarredBefore,
         });
     }
-    const g = globalThis;
-    const caster = args.casterToken?.actor;
     const content = formatHealResultChat({
         sourceName: String(caster?.name || args.casterToken?.name || 'Healer'),
         powerName: args.powerName,
@@ -464,7 +539,7 @@ async function applyHpHealPass(args) {
 }
 /**
  * Resolve heal on one or more token targets (already chosen). No attack roll.
- * If HLR remains and a target is Scarred, prompts first — HP heal waits for the click.
+ * Always posts a chat card — Scarred picks and/or a Roll button; never auto-rolls.
  */
 export async function resolveHealOnTokens(args) {
     const caster = args.casterToken?.actor;
@@ -472,6 +547,7 @@ export async function resolveHealOnTokens(args) {
     const poolMax = healHealthLevelRecoveryForRank(powerItemRank(args.powerItem));
     const poolRemaining = getHlrRemainingOnCaster(caster, args.powerItem);
     const powerKey = healPowerHlrKey(args.powerItem);
+    const g = globalThis;
     // One Scarred recipient per use (AoE rule).
     let scarredTok = null;
     let scarredCount = 0;
@@ -486,70 +562,84 @@ export async function resolveHealOnTokens(args) {
             break;
         }
     }
-    const canOfferHlr = poolMax > 0 && poolRemaining > 0 && scarredTok && scarredCount > 0;
-    if (canOfferHlr) {
-        const maxBars = Math.min(poolRemaining, scarredCount, poolMax);
-        const g = globalThis;
-        const pending = {
-            casterTokenId: String(args.casterToken?.id || args.casterToken?.document?.id || ''),
+    const primaryTok = scarredTok || args.targetTokens[0];
+    const pending = {
+        casterTokenId: String(args.casterToken?.id || args.casterToken?.document?.id || ''),
+        powerName: args.powerName,
+        powerKey,
+        formula,
+        cleanseRank: 0,
+        powerItemSnapshot: snapshotHealPowerItem(args.powerItem),
+        targetTokenIds: args.targetTokens.map((t) => String(t.id || '')).filter(Boolean),
+        scarredTargetActorId: String(primaryTok?.actor?.id || ''),
+        scarredTargetTokenId: String(primaryTok?.id || ''),
+    };
+    try {
+        const { getCleanseRankFromPower } = await import('./cleanse-resolution.js');
+        pending.cleanseRank = getCleanseRankFromPower(args.powerItem);
+    }
+    catch {
+        pending.cleanseRank = 0;
+    }
+    // Show Scarred UI whenever the Power has an HLR band and the target is Scarred
+    // (even if remaining is 0 — buttons above remaining stay visible but grayed).
+    const offerScarredUi = poolMax > 0 && scarredTok && scarredCount > 0;
+    const content = offerScarredUi
+        ? formatScarredPromptChat({
+            healerName: String(caster?.name || 'Healer'),
+            targetName: String(scarredTok.actor?.name || scarredTok.name || 'Target'),
+            targetActorId: pending.scarredTargetActorId,
+            maxBars: Math.min(scarredCount, poolMax),
+            scarred: scarredCount,
+            poolRemaining,
+            poolMax,
             powerName: args.powerName,
-            powerKey,
             formula,
-            cleanseRank: 0,
-            powerItemSnapshot: snapshotHealPowerItem(args.powerItem),
-            targetTokenIds: args.targetTokens.map((t) => String(t.id || '')).filter(Boolean),
-            scarredTargetActorId: String(scarredTok.actor?.id || ''),
-            scarredTargetTokenId: String(scarredTok.id || ''),
-        };
-        try {
-            const { getCleanseRankFromPower } = await import('./cleanse-resolution.js');
-            pending.cleanseRank = getCleanseRankFromPower(args.powerItem);
-        }
-        catch {
-            pending.cleanseRank = 0;
-        }
-        try {
-            await g.ChatMessage?.create?.({
-                speaker: g.ChatMessage?.getSpeaker?.({ actor: caster, token: args.casterToken?.document }),
-                content: formatScarredPromptChat({
-                    healerName: String(caster?.name || 'Healer'),
-                    targetName: String(scarredTok.actor?.name || scarredTok.name || 'Target'),
-                    targetActorId: pending.scarredTargetActorId,
-                    maxBars,
-                    scarred: scarredCount,
-                    poolRemaining,
-                    poolMax,
-                    powerName: args.powerName,
-                    formula,
-                }),
-                flags: {
-                    'mastery-system': {
-                        [HEAL_CHAT_FLAG]: {
-                            kind: 'scarred-prompt',
-                            targetActorId: pending.scarredTargetActorId,
-                            casterActorId: String(caster?.id || ''),
-                            maxBars,
-                            poolRemaining,
-                            poolMax,
-                            powerKey,
-                            pendingHeal: pending,
-                            resolved: false,
-                        },
-                    },
-                },
-            });
-            g.ui?.notifications?.info?.(formula
-                ? `Scarred wählen — Klick würfelt ${formula} und zeigt den Heal.`
-                : 'Scarred wählen — Klick wendet die Recovery an.');
-        }
-        catch (err) {
-            console.warn('Mastery System | scarred heal prompt failed', err);
-            // Fall through to immediate heal if chat fails.
-            return applyHpHealPass({ ...args, formula });
-        }
+        })
+        : formula
+            ? formatHealRollPromptChat({
+                healerName: String(caster?.name || 'Healer'),
+                targetName: String(primaryTok?.actor?.name || primaryTok?.name || 'Target'),
+                powerName: args.powerName,
+                formula,
+            })
+            : null;
+    if (!content) {
+        // Health-Level-only with no Scarred target: nothing to do.
+        g.ui?.notifications?.info?.(`${args.powerName}: kein Scarred-Ziel und keine Heal-Würfel.`);
         return [];
     }
-    return applyHpHealPass({ ...args, formula });
+    try {
+        await g.ChatMessage?.create?.({
+            speaker: g.ChatMessage?.getSpeaker?.({ actor: caster, token: args.casterToken?.document }),
+            content,
+            flags: {
+                'mastery-system': {
+                    [HEAL_CHAT_FLAG]: {
+                        kind: 'scarred-prompt',
+                        targetActorId: pending.scarredTargetActorId,
+                        casterActorId: String(caster?.id || ''),
+                        maxBars: offerScarredUi ? Math.min(scarredCount, poolMax) : 0,
+                        poolRemaining,
+                        poolMax,
+                        powerKey,
+                        pendingHeal: pending,
+                        resolved: false,
+                    },
+                },
+            },
+        });
+        g.ui?.notifications?.info?.(offerScarredUi
+            ? formula
+                ? `Scarred wählen oder überspringen — Klick würfelt ${formula} sichtbar.`
+                : 'Scarred wählen — Klick wendet die Recovery an.'
+            : `Klick: ${formula} würfeln und Heal anwenden.`);
+    }
+    catch (err) {
+        console.warn('Mastery System | heal prompt failed', err);
+        return applyHpHealPass({ ...args, formula });
+    }
+    return [];
 }
 async function resolveScarredChoice(message, bars) {
     const flags = message?.getFlag?.('mastery-system', HEAL_CHAT_FLAG) ??
@@ -582,9 +672,12 @@ async function resolveScarredChoice(message, bars) {
         return;
     }
     const owner = getActionEconomyActor(target) ?? target;
+    const poolRem = Math.max(0, Math.floor(Number(flags.poolRemaining) || 0));
+    // Never spend more than the remaining Safe Haven pool (disabled buttons are a UI guard).
+    const spend = Math.max(0, Math.min(want, poolRem));
     let restored = 0;
-    if (want > 0) {
-        restored = await recoverScarredBars(owner, want);
+    if (spend > 0) {
+        restored = await recoverScarredBars(owner, spend);
         const casterTok = pending?.casterTokenId ? resolveTokenById(pending.casterTokenId) : null;
         const caster = casterTok?.actor ?? g.game?.actors?.get?.(String(flags.casterActorId || '')) ?? null;
         const powerKey = String(flags.powerKey || pending?.powerKey || '');
@@ -602,8 +695,8 @@ async function resolveScarredChoice(message, bars) {
     catch {
         /* ignore */
     }
-    const poolLeft = Math.max(0, Math.floor(Number(flags.poolRemaining) || 0) - restored);
-    const note = want <= 0
+    const poolLeft = Math.max(0, poolRem - restored);
+    const note = spend <= 0
         ? `<p><em>No Scarred Health Bar recovered — rolling HP heal now…</em></p>`
         : `<p><strong>${escapeStoneChat(owner.name)}</strong> — recovered <strong>${restored}</strong> Scarred Health Bar(s). Pool left: <strong>${poolLeft}</strong>. Rolling HP heal…</p>`;
     try {
