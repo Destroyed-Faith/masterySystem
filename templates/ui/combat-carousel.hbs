@@ -41,7 +41,7 @@
     {{#if controlsAllowed}}
     <!-- Left Controls (shown on hover) — GM only -->
     <div class="carousel-controls carousel-controls-left">
-      <button type="button" class="carousel-control-btn js-prev-turn" data-tooltip="Previous Turn" aria-label="Previous Turn">
+      <button type="button" class="carousel-control-btn js-prev-turn" title="Previous Turn" aria-label="Previous Turn">
         <i class="fas fa-chevron-left"></i>
       </button>
     </div>
@@ -234,7 +234,7 @@
 
           <!-- Sibling of the portrait so a click ends the turn instead of opening the sheet -->
           {{#if combatant.showEndTurn}}
-            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" data-tooltip="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn">
+            <button type="button" class="portrait-end-turn js-end-turn" data-action="msEndTurn" title="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn">
               <i class="fas fa-forward"></i>
               <span>Next Turn</span>
             </button>
@@ -264,14 +264,14 @@
       </button>
       {{/if}}
       {{#if controlsAllowed}}
-      <button type="button" class="carousel-control-btn js-next-turn" data-tooltip="Next Turn" aria-label="Next Turn">
+      <button type="button" class="carousel-control-btn js-next-turn" title="Next Turn" aria-label="Next Turn">
         <i class="fas fa-chevron-right"></i>
       </button>
-      <button type="button" class="carousel-control-btn js-next-round" data-tooltip="Next Round" aria-label="Next Round">
+      <button type="button" class="carousel-control-btn js-next-round" title="Next Round" aria-label="Next Round">
         <i class="fas fa-forward"></i>
       </button>
       {{else if showPlayerEndTurn}}
-      <button type="button" class="carousel-control-btn js-next-turn js-end-turn" data-action="msEndTurn" data-tooltip="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn">
+      <button type="button" class="carousel-control-btn js-next-turn js-end-turn" data-action="msEndTurn" title="Next entry in the Initiative tracker (advance one turn)." aria-label="Next Turn">
         <i class="fas fa-chevron-right"></i>
       </button>
       {{/if}}
@@ -292,7 +292,7 @@
         </button>
       {{/if}}
     </div>
-    <button type="button" class="carousel-resize-handle js-carousel-resize" data-tooltip="{{localize 'MASTERY.carousel.resizeHint'}}" aria-label="{{localize 'MASTERY.carousel.resizeHint'}}"></button>
+    <button type="button" class="carousel-resize-handle js-carousel-resize" title="{{localize 'MASTERY.carousel.resizeHint'}}" aria-label="{{localize 'MASTERY.carousel.resizeHint'}}"></button>
   {{/if}}
 </div>
 

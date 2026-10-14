@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.663] - 2026-10-14
+
+### Changed
+
+- **Minor Expressions · Tiers:** Schwellen an die aktuelle Attributskala angepasst (legacy 4/8/12/16/20 → **2/4/6/8/10**; Mindest-Attribut **2**).
+
+### Added
+
+- **Minor Expressions · Hover:** Tooltip zeigt denselben Inhalt wie der Chat-Post inkl. Uses und Hinweis auf **Use (post to chat)**.
+- **Minor Expressions · Menü:** Mastery-Scene-Control **Minor Expressions** öffnet/zeigt die schwebende Bar (Spieler).
+
+## [0.9.662] - 2026-10-14
+
+### Fixed
+
+- **Combat-Karussell Resize:** Zieher rechts unten robuster (größere Hit-Area, Delegation am App-Root, Drag überlebt Re-Renders, Refresh pausiert während Drag).
+- **Combat-Karussell Next Turn:** Layer/Hover-Diebstahl behoben — kein `translateY` unter das Portrait, höhere z-index, `overflow: visible`, Foundry-`data-tooltip` durch `title` ersetzt, Refresh pausiert während Button-Druck.
+- **Stone-Runde · Confirm-Chat:** Nach Confirm erscheint sofort die persönliche Stone-/Natural-Recovery-Karte (nicht erst am Rundenende).
+
+## [0.9.661] - 2026-10-14
+
+### Fixed
+
+- **Stone-Runde · Natural Recovery Auto:** Spieler mit **genau einem** negativen Diminishing Special brauchen nicht zu klicken — Plan wird automatisch gesetzt (nicht für NPCs). Regenbogen-Rahmen + Banner im Stone-Dialog; Chat zeigt „−X auto (only one Special)“.
+- **Stone-Runde · Summary:** Wenn der letzte PC bestätigt, Runden-Chat mit Stones **und** Natural Recovery (inkl. Auto). Am Rundenende werden offene Single-Effekt-Pläne nachgezogen.
+- **Damage / Tick:** Passive-Cleanse und Cleanse Maintenance nennen die Passive-/Buff-Quelle in den Übersichtzeilen.
+
 ## [0.9.660] - 2026-10-14
 
 ### Fixed

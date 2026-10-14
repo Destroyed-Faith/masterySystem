@@ -1390,3 +1390,26 @@ prose-mirror#chat-message.chat-input > .editor-container {
 #chat-log .ms-heal-scarred-line {
   margin: 0.25rem 0;
 }
+
+#chat-log .mastery-stone-round-summary,
+#chat-log .mastery-stone-assignment-summary {
+  line-height: 1.35;
+}
+
+#chat-log .ms-stone-nr-block.ms-stone-nr-auto,
+#chat-log .ms-stone-nr-line.ms-stone-nr-auto {
+  display: inline-block;
+  margin-top: 0.2rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgba(42, 49, 54, 0.95), rgba(42, 49, 54, 0.95)) padding-box,
+    linear-gradient(120deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff, #ff6b6b) border-box;
+}
+
+#chat-log .mastery-status-tick .ms-status-cleanse-passive,
+#chat-log .mastery-damage-roll .ms-special-passive-note {
+  font-weight: 600;
+  color: #b39ddb;
+}

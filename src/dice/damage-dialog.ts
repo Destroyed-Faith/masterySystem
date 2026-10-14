@@ -1507,8 +1507,9 @@ async function applyStatusEffectsToTarget(
 
     // Add new status effects from specials
     for (const specialName of specialsUsed) {
-      // Parse special name like "Lacerate(3)" to extract name and value
-      const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
+      // Parse special name like "Lacerate(3)" / "Cleanse(3) [Passive: Ward]" 
+      const parseName = String(specialName || '').replace(/\s*\[Passive:[^\]]*\]\s*$/i, '').trim();
+      const match = parseName.match(/^([^(]+)(?:\((\d+)\))?$/);
       if (match) {
         const effectName = match[1].trim();
         const effectValue = match[2] ? parseInt(match[2]) : null;
@@ -1534,15 +1535,20 @@ async function applyStatusEffectsToTarget(
         // freely across the target's eligible negative Specials right now.
         if (effectId === 'cleanse') {
           const x = Math.max(0, Math.floor(Number(effectValue) || 0));
+          const passiveTag = /\[Passive:\s*([^\]]+)\]/i.exec(specialName);
+          const passiveLabel = passiveTag?.[1]?.trim() || '';
+          const cleansePrefix = passiveLabel
+            ? `Passive Cleanse (${passiveLabel})`
+            : 'Cleanse';
           if (x > 0) {
             const { distributeCleanseAcrossList, formatCleanseDistribution } =
               await import('../system/pool-reduction.js');
             const cleansed = distributeCleanseAcrossList(list, x);
             if (cleansed.applied) {
               list = cleansed.statusEffects;
-              limitNotes.push(`Cleanse(${x}) → ${formatCleanseDistribution(cleansed)}`);
+              limitNotes.push(`${cleansePrefix}(${x}) → ${formatCleanseDistribution(cleansed)}`);
             } else {
-              limitNotes.push(`Cleanse(${x}) — no eligible Special to reduce`);
+              limitNotes.push(`${cleansePrefix}(${x}) — no eligible Special to reduce`);
             }
           }
           continue;
@@ -3001,7 +3007,13 @@ async function calculateDamageResult(
       } else if (selection.type === 'special') {
         const special = availableSpecials.find(s => s.id === selection.value);
         if (special) {
-          specialsUsed.push(special.effect || special.name);
+          const line = String(special.effect || special.name || '').trim();
+          if (line) {
+            // Tag Passive-sourced Specials so damage / Cleanse notes stay visible.
+            specialsUsed.push(
+              special.type === 'passive' ? `${line} [Passive: ${special.name || 'Passive'}]` : line,
+            );
+          }
         }
       }
     }

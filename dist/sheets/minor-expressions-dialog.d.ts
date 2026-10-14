@@ -1,6 +1,6 @@
 /**
  * Dialog: choose Minor Expressions (cantrips) per attribute view, capped
- * by Mastery Rank globally, attribute ≥ 4.
+ * by Mastery Rank globally, attribute ≥ 2.
  */
 import { type MinorExpressionAttribute } from '../utils/minor-expressions.js';
 export declare function showMinorExpressionsDialog(actor: any, options: {

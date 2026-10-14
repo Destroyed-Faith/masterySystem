@@ -177,12 +177,18 @@
   bottom: 0;
 }
 
+.minor-expressions-tip-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
 .minor-expressions-tip strong {
   font-size: 0.9rem;
 }
 
 .minor-expressions-tip-tier {
-  margin-left: 0.3rem;
+  margin-left: auto;
   font-size: 0.72rem;
   color: #d1c4e9;
 }
@@ -194,7 +200,9 @@
 }
 
 .minor-expressions-tip-body,
-.minor-expressions-tip-constraints {
+.minor-expressions-tip-constraints,
+.minor-expressions-tip-uses,
+.minor-expressions-tip-use-hint {
   margin: 0;
 }
 
@@ -204,6 +212,19 @@
   border-top: 1px dashed rgba(255, 255, 255, 0.18);
   font-size: 0.74rem;
   color: rgba(255, 255, 255, 0.7);
+}
+
+.minor-expressions-tip-uses {
+  margin-top: 0.4rem;
+  font-size: 0.74rem;
+  opacity: 0.85;
+}
+
+.minor-expressions-tip-use-hint {
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  color: #d1c4e9;
+  font-weight: 600;
 }
 
 /* Chat card */

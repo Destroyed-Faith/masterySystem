@@ -49,11 +49,28 @@ export declare class CombatCarouselApp extends BaseCarousel {
     _onClose(_options: any): Promise<void>;
     private compactViewportHandler;
     private resizeDrag;
+    /** Host element that owns delegated resize listeners (survives inner re-renders). */
+    private resizeRoot;
+    /** Defer live refreshes while resizing / pressing carousel controls. */
+    private interactionBusy;
+    private pendingRefreshAfterInteraction;
     /** Stay under actor sheets so the close button remains clickable. */
     bringToFront(): this;
     private pinBehindSheets;
     private applyCompactLayout;
+    private onResizePointerMove;
+    private onResizePointerUp;
+    private finishResizeDrag;
+    private onResizePointerDown;
+    private onResizeDblClick;
+    private onCarouselInteractivePointerDown;
+    private onCarouselInteractivePointerUp;
+    /**
+     * Resize + interaction guards: delegated from the Application root so a
+     * mid-drag / mid-hover `render()` does not drop the listeners.
+     */
     private bindResizeHandle;
+    private unbindResizeHandle;
     private bindCompactViewportWatch;
     private unbindCompactViewportWatch;
     /**
@@ -80,7 +97,8 @@ export declare class CombatCarouselApp extends BaseCarousel {
      */
     private hasRelevantChange;
     /**
-     * Debounced refresh to avoid excessive re-renders
+     * Debounced refresh to avoid excessive re-renders.
+     * Skips while resizing / pressing Next Turn so DOM swap cannot eat the click.
      */
     private refreshTimeout;
     private debouncedRefresh;

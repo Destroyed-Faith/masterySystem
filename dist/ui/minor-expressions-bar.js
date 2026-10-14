@@ -5,7 +5,8 @@
  * the per-Safe-Haven-Rest budget (Mastery Rank × 2).
  */
 var _a;
-import { buildMinorExpressionsBarModel, clampMinorExpressionsBarPosition, FLAG_SCOPE, MINOR_EXPRESSION_USES_FLAG, readMinorExpressionsBarCollapsed, readMinorExpressionsBarHidden, readMinorExpressionsBarPosition, readMinorExpressionUses, resolveMinorExpressionsBarActor, setMinorExpressionsBarCollapsed, setMinorExpressionsBarPosition, } from '../system/minor-expressions-bar.js';
+import { buildMinorExpressionsBarModel, clampMinorExpressionsBarPosition, FLAG_SCOPE, MINOR_EXPRESSION_USES_FLAG, readMinorExpressionsBarCollapsed, readMinorExpressionsBarHidden, readMinorExpressionsBarPosition, readMinorExpressionUses, resolveMinorExpressionsBarActor, setMinorExpressionsBarCollapsed, setMinorExpressionsBarHidden, setMinorExpressionsBarPosition, } from '../system/minor-expressions-bar.js';
+import { MINOR_EXPRESSION_MIN_ATTRIBUTE } from '../utils/minor-expressions.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseBar = HandlebarsApplicationMixin(ApplicationV2);
 const APP_ID = 'mastery-minor-expressions-bar';
@@ -111,7 +112,9 @@ export class MinorExpressionsBar extends BaseBar {
             actorName: String(actor?.name ?? ''),
             rows: model.rows.map((row) => ({
                 ...row,
-                tierLabel: row.tier ? `${row.attributeLabel} ${row.tier}` : `${row.attributeLabel} — needs 4`,
+                tierLabel: row.tier
+                    ? `${row.attributeLabel} ${row.tier}`
+                    : `${row.attributeLabel} — needs ${MINOR_EXPRESSION_MIN_ATTRIBUTE}`,
                 locked: !row.tier,
                 canUse: canUse && !!row.tier,
             })),
@@ -126,6 +129,8 @@ export class MinorExpressionsBar extends BaseBar {
             collapseLabel: loc('MASTERY.minorExpressionsBar.collapse', 'Hide Minor Expressions'),
             dragLabel: loc('MASTERY.minorExpressionsBar.drag', 'Drag to move'),
             useLabel: loc('MASTERY.minorExpressionsBar.use', 'Use (post to chat)'),
+            useHintLabel: loc('MASTERY.minorExpressionsBar.useHint', 'Click Use to post this to chat (same card as below).'),
+            useBlockedLabel: loc('MASTERY.minorExpressionsBar.useBlocked', 'No uses left, or this Expression is locked until the Attribute rises.'),
             undoLabel: loc('MASTERY.minorExpressionsBar.undo', 'Undo last use'),
             sheetLabel: loc('MASTERY.minorExpressionsBar.sheet', 'Open character sheet'),
             usesLabel: loc('MASTERY.minorExpressionsBar.uses', 'Uses until Safe Haven Rest'),
@@ -255,7 +260,7 @@ export class MinorExpressionsBar extends BaseBar {
         if (!row)
             return;
         if (!row.tier) {
-            ui.notifications?.warn(`${row.name}: ${row.attributeLabel} must be at least 4.`);
+            ui.notifications?.warn(`${row.name}: ${row.attributeLabel} must be at least ${MINOR_EXPRESSION_MIN_ATTRIBUTE}.`);
             return;
         }
         if (model.usesLeft <= 0) {
@@ -279,6 +284,28 @@ export class MinorExpressionsBar extends BaseBar {
     }
 }
 _a = MinorExpressionsBar;
+/** Show the floating panel from the Mastery scene-control menu (players). */
+export async function showMinorExpressionsBarFromMenu() {
+    const actor = MinorExpressionsBar.resolveActor();
+    if (!actor) {
+        if (game.user?.isGM) {
+            ui.notifications?.info('Minor Expressions is a player panel. Assign a character to a player user to use it.');
+        }
+        else {
+            ui.notifications?.warn('No owned character found for Minor Expressions.');
+        }
+        return;
+    }
+    const model = buildMinorExpressionsBarModel(actor);
+    if (!model.rows.length) {
+        ui.notifications?.warn(`${actor.name}: choose Minor Expressions on the character sheet first.`);
+        return;
+    }
+    await setMinorExpressionsBarHidden(false);
+    await setMinorExpressionsBarCollapsed(false);
+    await MinorExpressionsBar.refresh();
+    ui.notifications?.info(`Minor Expressions: ${model.usesLeft}/${model.usesMax} uses left until Safe Haven Rest. Hover a row, then Use to post to chat.`);
+}
 export function initializeMinorExpressionsBar() {
     const refresh = () => {
         void MinorExpressionsBar.refresh();

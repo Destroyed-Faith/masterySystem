@@ -30,10 +30,15 @@
           <i class="fas fa-comment-dots"></i>
         </button>
         <div class="minor-expressions-tip" hidden>
-          <strong>{{name}}</strong> <span class="minor-expressions-tip-tier">{{tierLabel}}</span>
+          <header class="minor-expressions-tip-head">
+            <strong>{{name}}</strong>
+            <span class="minor-expressions-tip-tier">{{tierLabel}}</span>
+          </header>
           <em class="minor-expressions-tip-tagline">{{tagline}}</em>
           <p class="minor-expressions-tip-body">{{body}}</p>
           {{#if constraints}}<p class="minor-expressions-tip-constraints">{{constraints}}</p>{{/if}}
+          <footer class="minor-expressions-tip-uses">{{../usesLeft}}/{{../usesMax}} uses left until Safe Haven Rest</footer>
+          <p class="minor-expressions-tip-use-hint">{{#if canUse}}{{../useHintLabel}}{{else}}{{../useBlockedLabel}}{{/if}}</p>
         </div>
       </li>
       {{/each}}

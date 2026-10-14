@@ -209,8 +209,12 @@
 #mastery-combat-carousel .window-content > *,
 #mastery-combat-carousel [data-application-part],
 #mastery-combat-carousel .mastery-carousel,
+#mastery-combat-carousel .carousel-combatants,
 #mastery-combat-carousel .carousel-combatant,
 #mastery-combat-carousel .carousel-portrait,
+#mastery-combat-carousel .carousel-controls,
+#mastery-combat-carousel .ms-carousel-favorites,
+#mastery-combat-carousel .portrait-end-turn,
 #mastery-combat-carousel button,
 #mastery-combat-carousel .carousel-resize-handle {
   pointer-events: auto !important;
@@ -219,10 +223,13 @@
 .portrait-end-turn,
 #mastery-combat-carousel .portrait-end-turn,
 #mastery-combat-carousel .js-end-turn,
-#mastery-combat-carousel .js-next-turn {
+#mastery-combat-carousel .js-next-turn,
+#mastery-combat-carousel .carousel-control-btn.js-next-turn,
+#mastery-combat-carousel .carousel-control-btn.js-end-turn {
   position: relative;
-  z-index: 40;
+  z-index: 80;
   pointer-events: auto !important;
+  isolation: isolate;
 }
 
 /* ========================================
@@ -272,12 +279,16 @@
   max-width: 148px;
   gap: 0.2rem;
   pointer-events: auto;
-  overflow: hidden;
+  /* visible: Next Turn must stay above the portrait hit-box (no clip / steal) */
+  overflow: visible;
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .carousel-portrait {
   position: relative;
+  z-index: 1;
   flex-shrink: 0;
   align-self: stretch;
   width: 100%;
@@ -577,7 +588,7 @@
   text-decoration: underline;
 }
 
-/* End Turn Button */
+/* End Turn Button — no translateY (would slide under the portrait and lose clicks) */
 .portrait-end-turn {
   width: 100%;
   padding: 0.5rem;
@@ -593,19 +604,21 @@
   font-size: 0.85rem;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, box-shadow 0.15s, filter 0.15s;
   box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4);
+  position: relative;
+  z-index: 80;
 }
 
 .portrait-end-turn:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(233, 69, 96, 0.6);
   background: linear-gradient(135deg, #ff6b7f 0%, #e94560 100%);
+  filter: brightness(1.05);
 }
 
 .portrait-end-turn:active {
-  transform: translateY(0);
   box-shadow: 0 2px 6px rgba(233, 69, 96, 0.4);
+  filter: brightness(0.98);
 }
 
 .portrait-end-turn i {
@@ -991,11 +1004,16 @@
   flex-shrink: 0;
   gap: 0.5rem;
   padding-top: 0;
-  opacity: 0;
-  transition: opacity 0.3s;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
 }
 
-.mastery-carousel:hover .carousel-controls {
+.mastery-carousel:hover .carousel-controls,
+.carousel-controls:focus-within,
+.carousel-controls:hover {
   opacity: 1;
 }
 
@@ -1012,12 +1030,15 @@
   color: #fff;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, box-shadow 0.15s, filter 0.15s;
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
 }
 
 .carousel-control-btn:hover {
   background: #e94560;
-  transform: scale(1.1);
+  filter: brightness(1.08);
   box-shadow: 0 4px 12px rgba(233, 69, 96, 0.6);
 }
 
@@ -1232,44 +1253,58 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
   max-width: min(96vw, var(--ms-carousel-user-width, 50vw)) !important;
 }
 
-/* Base .mastery-carousel uses height/max-height/overflow !important — must match. */
+/* Base .mastery-carousel uses height/max-height/overflow !important — must match.
+   Keep overflow-y visible enough that the corner resize grip stays hittable. */
 .mastery-carousel.is-user-sized {
   height: var(--ms-carousel-user-height, auto) !important;
   max-height: var(--ms-carousel-user-height, none) !important;
   overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow-y: visible !important;
 }
 
 .carousel-resize-handle {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border: none;
+  border-radius: 4px 0 10px 0;
   background:
-    linear-gradient(135deg, transparent 0 42%, rgba(255, 255, 255, 0.35) 42% 50%, transparent 50% 62%, rgba(255, 255, 255, 0.55) 62% 70%, transparent 70%);
+    linear-gradient(135deg, transparent 0 40%, rgba(255, 255, 255, 0.4) 40% 48%, transparent 48% 58%, rgba(255, 255, 255, 0.65) 58% 66%, transparent 66%),
+    rgba(233, 69, 96, 0.25);
   cursor: nwse-resize;
-  opacity: 0.55;
-  z-index: 60;
+  opacity: 0.85;
+  z-index: 120;
   pointer-events: auto !important;
   touch-action: none;
+  /* Larger invisible hit pad beyond the painted grip */
+  box-shadow: 0 0 0 6px transparent;
 }
 
 .mastery-carousel:hover .carousel-resize-handle,
-.mastery-carousel.is-user-sized .carousel-resize-handle {
-  opacity: 0.9;
+.mastery-carousel.is-user-sized .carousel-resize-handle,
+body.mastery-carousel-resizing .carousel-resize-handle {
+  opacity: 1;
 }
 
 .carousel-resize-handle:hover,
 .carousel-resize-handle:focus {
   opacity: 1;
+  background:
+    linear-gradient(135deg, transparent 0 40%, rgba(255, 255, 255, 0.55) 40% 48%, transparent 48% 58%, #fff 58% 66%, transparent 66%),
+    rgba(233, 69, 96, 0.45);
 }
 
 body.mastery-carousel-resizing {
-  cursor: nwse-resize;
-  user-select: none;
+  cursor: nwse-resize !important;
+  user-select: none !important;
+}
+
+body.mastery-carousel-resizing #mastery-combat-carousel,
+body.mastery-carousel-resizing #mastery-combat-carousel * {
+  cursor: nwse-resize !important;
 }
 
 .mastery-carousel.is-user-medium .portrait-image {

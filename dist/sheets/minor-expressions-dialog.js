@@ -1,6 +1,6 @@
 /**
  * Dialog: choose Minor Expressions (cantrips) per attribute view, capped
- * by Mastery Rank globally, attribute ≥ 4.
+ * by Mastery Rank globally, attribute ≥ 2.
  */
 import { MINOR_EXPRESSION_MIN_ATTRIBUTE, MINOR_EXPRESSION_TIERS, getMinorExpressionDefinition, isTierUnlocked, listMinorExpressionsByAttribute, sanitizeMinorExpressionIds, tierBodyForExpression, tierThresholdForAttributeValue } from '../utils/minor-expressions.js';
 const ATTR_LABEL = {

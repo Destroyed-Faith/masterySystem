@@ -175,6 +175,14 @@ export function readMinorExpressionsBarHidden() {
         return false;
     }
 }
+export async function setMinorExpressionsBarHidden(hidden) {
+    try {
+        await globalThis.game?.settings?.set?.(FLAG_SCOPE, MINOR_EXPRESSIONS_BAR_HIDDEN_SETTING, !!hidden);
+    }
+    catch (err) {
+        console.warn('Mastery System | setMinorExpressionsBarHidden failed', err);
+    }
+}
 export function readMinorExpressionsBarPosition() {
     try {
         return sanitizeMinorExpressionsBarPosition(globalThis.game?.settings?.get?.(FLAG_SCOPE, MINOR_EXPRESSIONS_BAR_POSITION_SETTING));

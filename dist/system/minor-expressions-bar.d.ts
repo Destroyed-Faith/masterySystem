@@ -22,7 +22,7 @@ export interface MinorExpressionBarRow {
     attribute: MinorExpressionAttribute;
     attributeLabel: string;
     attributeValue: number;
-    /** Resolved tier threshold (4/8/12/16/20) or null below the minimum. */
+    /** Resolved tier threshold (2/4/6/8/10) or null below the minimum. */
     tier: number | null;
     tagline: string;
     constraints: string;
@@ -58,6 +58,7 @@ export declare function registerMinorExpressionsBarSettings(): void;
 export declare function readMinorExpressionsBarCollapsed(): boolean;
 export declare function setMinorExpressionsBarCollapsed(collapsed: boolean): Promise<void>;
 export declare function readMinorExpressionsBarHidden(): boolean;
+export declare function setMinorExpressionsBarHidden(hidden: boolean): Promise<void>;
 export declare function readMinorExpressionsBarPosition(): MinorExpressionsBarPosition;
 export declare function setMinorExpressionsBarPosition(pos: MinorExpressionsBarPosition): Promise<void>;
 //# sourceMappingURL=minor-expressions-bar.d.ts.map

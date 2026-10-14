@@ -11519,7 +11519,7 @@ The following Attributes have Minor Expressions:
 - Influence
 - Wits
 
-Vitality does not have Minor Expressions. To choose a Minor Expression from an Attribute, that Attribute must be at least **4**. If an Attribute is lower than 4, its Minor Expressions are not available.
+Vitality does not have Minor Expressions. To choose a Minor Expression from an Attribute, that Attribute must be at least **2**. If an Attribute is lower than 2, its Minor Expressions are not available.
 
 ---
 
@@ -11531,7 +11531,7 @@ This is a global limit across all Attributes.
 
 Example:
 
-A Mastery Rank 2 character may choose **2 Minor Expressions total**. These may both come from the same eligible Attribute, or from different eligible Attributes, as long as each chosen Expression belongs to an Attribute with a value of at least 4.
+A Mastery Rank 2 character may choose **2 Minor Expressions total**. These may both come from the same eligible Attribute, or from different eligible Attributes, as long as each chosen Expression belongs to an Attribute with a value of at least 2.
 
 ---
 
@@ -11539,23 +11539,23 @@ A Mastery Rank 2 character may choose **2 Minor Expressions total**. These may b
 
 Minor Expressions grow automatically with the Attribute that unlocks them.
 
-Each Minor Expression has five possible tiers:
+Each Minor Expression has five possible tiers (legacy 4 / 8 / 12 / 16 / 20 thresholds halved to match the current Attribute scale):
 
 | Attribute Value | Expression Tier |
 |:---:|:---:|
+| 2 | Tier 2 |
 | 4 | Tier 4 |
+| 6 | Tier 6 |
 | 8 | Tier 8 |
-| 12 | Tier 12 |
-| 16 | Tier 16 |
-| 20 | Tier 20 |
+| 10 | Tier 10 |
 
 Use the highest tier whose threshold the Attribute has reached.
 
 Example:
 
-A character with **Intellect 11** uses the **Tier 8** version of their Intellect Minor Expressions.
+A character with **Intellect 5** uses the **Tier 4** version of their Intellect Minor Expressions.
 
-A character with **Might 4** uses the **Tier 4** version of their Might Minor Expressions.
+A character with **Might 2** uses the **Tier 2** version of their Might Minor Expressions.
 
 If the Attribute later increases, the Minor Expression improves automatically.
 
@@ -11580,6 +11580,10 @@ If the character has no Reroll Point pool, choosing Minor Expressions has no Rer
 ---
 
 ### Using Minor Expressions
+
+A character may use Minor Expressions a total of **Mastery Rank × 2** times until the next **Safe Haven Rest**. The shared budget covers all chosen Expressions; it is not a separate pool per Expression.
+
+In Foundry, open the floating Minor Expressions panel (or the Mastery scene-control button), hover an Expression to preview the chat card, then click **Use** to post it and spend one use.
 
 Minor Expressions are used outside direct combat resolution.
 

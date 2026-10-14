@@ -124,13 +124,16 @@
   {{/if}}
 
   {{#if naturalRecovery.show}}
-  <div class="natural-recovery-bar{{#if naturalRecovery.locked}} is-locked{{/if}}">
+  <div class="natural-recovery-bar{{#if naturalRecovery.locked}} is-locked{{/if}}{{#if naturalRecovery.autoSingle}} is-auto-single{{/if}}">
     <div class="natural-recovery-copy">
       <strong>{{naturalRecovery.title}}</strong>
       <span>{{naturalRecovery.hint}}</span>
+      {{#if naturalRecovery.autoBanner}}
+      <span class="natural-recovery-auto-banner">{{naturalRecovery.autoBanner}}</span>
+      {{/if}}
     </div>
     <div class="natural-recovery-actions">
-      <span class="natural-recovery-count{{#if naturalRecovery.remaining}} is-open{{/if}}">
+      <span class="natural-recovery-count{{#if naturalRecovery.remaining}} is-open{{/if}}{{#if naturalRecovery.autoSingle}} is-auto{{/if}}">
         {{naturalRecovery.allocated}} / {{naturalRecovery.masteryRank}}
       </span>
       <button type="button"
@@ -141,7 +144,7 @@
     </div>
     <div class="natural-recovery-rows">
       {{#each naturalRecovery.options}}
-      <div class="natural-recovery-row">
+      <div class="natural-recovery-row{{#if this.isAuto}} is-auto-single{{/if}}">
         <span class="natural-recovery-label">{{this.label}}</span>
         <div class="natural-recovery-stepper">
           <button type="button"

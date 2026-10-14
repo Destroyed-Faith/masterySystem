@@ -5,7 +5,9 @@ import {
   changeNaturalRecoveryAllocation,
   clampSpecialApplication,
   emptySpecialRoundApps,
+  ensureAutoNaturalRecoveryForSingleEffect,
   formatApplicationLimitNote,
+  formatNaturalRecoveryReceiptLines,
   greedyNaturalRecoveryPlan,
   isNegativeDiminishingSpecialId,
   listNaturalRecoveryOptions,
@@ -173,6 +175,42 @@ describe('natural special recovery', () => {
       { id: 'ruin', before: 5, after: 4, reduced: 1 },
       { id: 'slow', before: 2, after: 1, reduced: 1 },
     ]);
+  });
+
+  it('auto-fills Natural Recovery for a PC with exactly one Special', async () => {
+    const combat = { id: 'c1', round: 2 };
+    const actor: any = {
+      type: 'character',
+      name: 'Alaris',
+      system: {
+        mastery: { rank: 3 },
+        statusEffects: [{ id: 'ruin', value: 5 }],
+      },
+      flags: {},
+      setFlag: async (scope: string, key: string, value: unknown) => {
+        actor.flags[scope] = actor.flags[scope] || {};
+        actor.flags[scope][key] = value;
+      },
+      getFlag: (scope: string, key: string) => actor.flags?.[scope]?.[key],
+    };
+    const result = await ensureAutoNaturalRecoveryForSingleEffect(actor, combat);
+    expect(result.applied).toBe(true);
+    expect(result.autoSingle).toBe(true);
+    expect(result.reduced).toBe(3);
+    expect(result.specialId).toBe('ruin');
+    expect(resolveNaturalRecoveryPlan(actor, [{ id: 'ruin', value: 5 }], combat, 3)).toEqual([
+      { id: 'ruin', before: 5, after: 2, reduced: 3 },
+    ]);
+    expect(formatNaturalRecoveryReceiptLines(actor, combat)[0]).toMatch(/auto \(only one Special\)/);
+
+    const npc: any = {
+      type: 'npc',
+      system: { mastery: { rank: 3 }, statusEffects: [{ id: 'ruin', value: 5 }] },
+      flags: {},
+      setFlag: async () => undefined,
+      getFlag: () => null,
+    };
+    expect((await ensureAutoNaturalRecoveryForSingleEffect(npc, combat)).applied).toBe(false);
   });
 
   it('skips recovery when the player chose None', async () => {

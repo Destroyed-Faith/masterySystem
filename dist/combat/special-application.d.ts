@@ -106,6 +106,20 @@ export interface NaturalRecoveryChoice {
     /** True once the player assigned a split or explicitly skipped. */
     chosen: boolean;
     allocations: Record<string, number>;
+    /**
+     * Player character with exactly one eligible Special: plan was filled
+     * automatically (no click). Kept visible in UI / chat.
+     */
+    autoSingle?: boolean;
+}
+export interface AutoNaturalRecoveryResult {
+    applied: boolean;
+    autoSingle: boolean;
+    specialId?: string;
+    label?: string;
+    reduced?: number;
+    valueBefore?: number;
+    actorName?: string;
 }
 export interface NaturalRecoveryOption {
     id: string;
@@ -133,6 +147,26 @@ export declare function setNaturalRecoveryAllocations(actor: any, combat: {
     id?: string;
     round?: number;
 } | null | undefined, allocations: Record<string, number>, chosen?: boolean): Promise<void>;
+/**
+ * Player characters only: if exactly one negative Diminishing Special is up,
+ * auto-spend the full Mastery Rank on it (no click). Does not override an
+ * explicit skip or a player-made multi-split. NPCs are ignored.
+ */
+export declare function ensureAutoNaturalRecoveryForSingleEffect(actor: any, combat: {
+    id?: string;
+    round?: number;
+} | null | undefined): Promise<AutoNaturalRecoveryResult>;
+/** Auto-fill single-effect Natural Recovery for every PC in the combat. */
+export declare function ensureAutoNaturalRecoveryForAllPlayerCharacters(combat: {
+    id?: string;
+    round?: number;
+    combatants?: any;
+} | null | undefined): Promise<AutoNaturalRecoveryResult[]>;
+/** Chat lines for the stored Natural Recovery plan this Round. */
+export declare function formatNaturalRecoveryReceiptLines(actor: any, combat?: {
+    id?: string;
+    round?: number;
+} | null): string[];
 export declare function setNaturalRecoverySkipped(actor: any, combat: {
     id?: string;
     round?: number;

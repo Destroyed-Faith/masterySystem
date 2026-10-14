@@ -251,6 +251,7 @@ export function emptyNaturalRecoveryChoice(combat) {
         round: Math.max(0, Math.floor(Number(combat?.round) || 0)),
         chosen: false,
         allocations: {},
+        autoSingle: false,
     };
 }
 export function readNaturalRecoveryChoice(actor) {
@@ -270,6 +271,7 @@ export function readNaturalRecoveryChoice(actor) {
         round: Math.max(0, Math.floor(Number(src.round) || 0)),
         chosen: src.chosen === true,
         allocations,
+        autoSingle: src.autoSingle === true,
     };
 }
 export function matchingNaturalRecoveryChoice(actor, combat) {
@@ -336,9 +338,99 @@ export async function setNaturalRecoveryAllocations(actor, combat, allocations, 
     const next = {
         ...emptyNaturalRecoveryChoice(combat),
         chosen,
+        autoSingle: false,
         allocations: clampNaturalRecoveryAllocations(actorRecoveryEntries(actor), allocations, actorMasteryRank(actor)),
     };
     await writeNaturalRecoveryChoice(actor, next);
+}
+/**
+ * Player characters only: if exactly one negative Diminishing Special is up,
+ * auto-spend the full Mastery Rank on it (no click). Does not override an
+ * explicit skip or a player-made multi-split. NPCs are ignored.
+ */
+export async function ensureAutoNaturalRecoveryForSingleEffect(actor, combat) {
+    const empty = { applied: false, autoSingle: false };
+    if (!actor || String(actor.type || '') !== 'character' || !combat?.id)
+        return empty;
+    const entries = actorRecoveryEntries(actor);
+    if (entries.length !== 1)
+        return empty;
+    const only = entries[0];
+    const existing = matchingNaturalRecoveryChoice(actor, combat);
+    if (existing?.chosen) {
+        if (existing.autoSingle === true &&
+            naturalRecoveryAllocatedTotal(existing.allocations) > 0) {
+            const reduced = Math.max(0, Math.floor(Number(existing.allocations[only.id]) || 0));
+            return {
+                applied: true,
+                autoSingle: true,
+                specialId: only.id,
+                label: specialDisplayName(only.id),
+                reduced,
+                valueBefore: only.value,
+                actorName: String(actor.name || ''),
+            };
+        }
+        return empty;
+    }
+    const rank = actorMasteryRank(actor);
+    const amount = Math.min(rank, Math.max(0, only.value));
+    if (amount <= 0)
+        return empty;
+    const next = {
+        ...emptyNaturalRecoveryChoice(combat),
+        chosen: true,
+        autoSingle: true,
+        allocations: { [only.id]: amount },
+    };
+    await writeNaturalRecoveryChoice(actor, next);
+    return {
+        applied: true,
+        autoSingle: true,
+        specialId: only.id,
+        label: specialDisplayName(only.id),
+        reduced: amount,
+        valueBefore: only.value,
+        actorName: String(actor.name || ''),
+    };
+}
+/** Auto-fill single-effect Natural Recovery for every PC in the combat. */
+export async function ensureAutoNaturalRecoveryForAllPlayerCharacters(combat) {
+    if (!combat?.id)
+        return [];
+    const combatants = combat.combatants?.contents ?? combat.combatants ?? [];
+    const list = Array.isArray(combatants)
+        ? combatants
+        : typeof combatants[Symbol.iterator] === 'function'
+            ? Array.from(combatants)
+            : [];
+    const out = [];
+    for (const c of list) {
+        const actor = c?.actor;
+        if (!actor || String(actor.type || '') !== 'character')
+            continue;
+        const result = await ensureAutoNaturalRecoveryForSingleEffect(actor, combat);
+        if (result.applied)
+            out.push(result);
+    }
+    return out;
+}
+/** Chat lines for the stored Natural Recovery plan this Round. */
+export function formatNaturalRecoveryReceiptLines(actor, combat) {
+    const choice = matchingNaturalRecoveryChoice(actor, combat);
+    if (!choice?.chosen)
+        return [];
+    if (naturalRecoveryAllocatedTotal(choice.allocations) <= 0) {
+        return ['Natural Recovery: skipped'];
+    }
+    return Object.entries(choice.allocations)
+        .filter(([, n]) => Math.max(0, Math.floor(Number(n) || 0)) > 0)
+        .sort(([a], [b]) => specialDisplayName(a).localeCompare(specialDisplayName(b)))
+        .map(([id, n]) => {
+        const amt = Math.max(0, Math.floor(Number(n) || 0));
+        const auto = choice.autoSingle ? ' — auto (only one Special)' : '';
+        return `Natural Recovery −${amt}: ${specialDisplayName(id)}${auto}`;
+    });
 }
 export async function setNaturalRecoverySkipped(actor, combat) {
     if (!actor || !combat?.id)

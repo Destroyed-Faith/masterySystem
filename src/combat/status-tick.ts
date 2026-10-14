@@ -197,7 +197,20 @@ export async function processTurnStartStatusTick(actor: any): Promise<string> {
       if (cleansed.applied) {
         next.length = 0;
         next.push(...cleansed.statusEffects);
-        notes.push(`Cleanse(${cleanseX}) → ${formatCleanseDistribution(cleansed)}`);
+        const sourceNames = Array.isArray(bd?.cleanseMaintenance)
+          ? bd.cleanseMaintenance
+              .map((row: { source?: string; value?: number }) => {
+                const name = String(row?.source || '').trim();
+                const v = Math.max(0, Math.floor(Number(row?.value) || 0));
+                return name && v > 0 ? `${name} ${v}` : name;
+              })
+              .filter(Boolean)
+          : [];
+        const src =
+          sourceNames.length > 0
+            ? `Passive/Buff Cleanse Maintenance [${sourceNames.join(', ')}]`
+            : 'Cleanse Maintenance';
+        notes.push(`${src}: Cleanse(${cleanseX}) → ${formatCleanseDistribution(cleansed)}`);
       }
     }
   } catch (err) {

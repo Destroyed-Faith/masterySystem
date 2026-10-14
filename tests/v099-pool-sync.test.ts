@@ -157,12 +157,12 @@ describe('scales that were not compressed', () => {
     expect(JSON.stringify(split)).not.toMatch(/attribute.{0,12}80/i);
   });
 
-  it('unlocks Minor Expressions only at 4 / 8 / 12 / 16 / 20', () => {
-    expect([...MINOR_EXPRESSION_TIERS]).toEqual([4, 8, 12, 16, 20]);
-    expect(tierThresholdForAttributeValue(3)).toBeNull();
-    expect(tierThresholdForAttributeValue(4)).toBe(4);
-    expect(tierThresholdForAttributeValue(11)).toBe(8);
-    expect(tierThresholdForAttributeValue(20)).toBe(20);
+  it('unlocks Minor Expressions only at 2 / 4 / 6 / 8 / 10', () => {
+    expect([...MINOR_EXPRESSION_TIERS]).toEqual([2, 4, 6, 8, 10]);
+    expect(tierThresholdForAttributeValue(1)).toBeNull();
+    expect(tierThresholdForAttributeValue(2)).toBe(2);
+    expect(tierThresholdForAttributeValue(5)).toBe(4);
+    expect(tierThresholdForAttributeValue(10)).toBe(10);
   });
 
   it('uses the compressed Addiction Skill-pool penalties', () => {

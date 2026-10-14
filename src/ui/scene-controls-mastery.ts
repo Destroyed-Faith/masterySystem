@@ -127,6 +127,16 @@ const handleKnownNpcsMenu = onceAtATime(async () => {
   }
 });
 
+const handleMinorExpressionsBar = onceAtATime(async () => {
+  try {
+    const { showMinorExpressionsBarFromMenu } = await import('./minor-expressions-bar.js');
+    await showMinorExpressionsBarFromMenu();
+  } catch (err) {
+    console.error('Mastery System | [ERROR] Minor Expressions menu failed', err);
+    ui.notifications?.error('Minor Expressions menu failed - see console');
+  }
+});
+
 const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
   safeHavenRestAll: handlePartySafeHavenRest,
   nightRestAll: handleNightRest,
@@ -134,6 +144,7 @@ const MASTERY_TOOL_HANDLERS: Record<string, () => void> = {
   unluckMenu: handleUnluckMenu,
   knownNpcsMenu: handleKnownNpcsMenu,
   firstAid: handleFirstAid,
+  minorExpressionsBar: handleMinorExpressionsBar,
 };
 
 function bindMasteryToolClicks(): void {
@@ -228,6 +239,14 @@ export function initializeSceneControls(): void {
           visible: isGM,
           button: true,
           onClick: handleFirstAid,
+        },
+        {
+          name: 'minorExpressionsBar',
+          title: 'Minor Expressions',
+          icon: 'fas fa-wand-sparkles',
+          visible: true,
+          button: true,
+          onClick: handleMinorExpressionsBar,
         },
       ],
       activeTool: '',

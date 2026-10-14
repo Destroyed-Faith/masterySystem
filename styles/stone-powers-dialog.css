@@ -21,6 +21,42 @@
   background: rgba(236, 239, 241, 0.08);
 }
 
+.stone-powers-dialog .natural-recovery-bar.is-auto-single {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgba(30, 36, 40, 0.92), rgba(30, 36, 40, 0.92)) padding-box,
+    linear-gradient(
+      120deg,
+      #ff6b6b,
+      #ffd93d,
+      #6bcb77,
+      #4d96ff,
+      #c77dff,
+      #ff6b6b
+    ) border-box;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 12px rgba(77, 150, 255, 0.25);
+}
+
+.stone-powers-dialog .natural-recovery-auto-banner {
+  margin-top: 0.2rem;
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: #ffe082;
+}
+
+.stone-powers-dialog .natural-recovery-row.is-auto-single {
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgba(40, 48, 54, 0.95), rgba(40, 48, 54, 0.95)) padding-box,
+    linear-gradient(120deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff) border-box;
+}
+
+.stone-powers-dialog .natural-recovery-count.is-auto {
+  color: #ffe082;
+}
+
 .stone-powers-dialog .natural-recovery-copy {
   display: flex;
   flex-direction: column;

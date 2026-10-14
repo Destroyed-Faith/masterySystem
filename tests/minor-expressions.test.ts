@@ -27,33 +27,33 @@ describe('minor-expressions catalog', () => {
 });
 
 describe('tierThresholdForAttributeValue', () => {
-  it('returns null below 4', () => {
-    expect(tierThresholdForAttributeValue(3)).toBeNull();
+  it('returns null below 2', () => {
+    expect(tierThresholdForAttributeValue(1)).toBeNull();
     expect(tierThresholdForAttributeValue(0)).toBeNull();
   });
 
-  it('returns correct tier thresholds', () => {
+  it('returns correct tier thresholds (legacy 4–20 halved)', () => {
+    expect(tierThresholdForAttributeValue(2)).toBe(2);
+    expect(tierThresholdForAttributeValue(3)).toBe(2);
     expect(tierThresholdForAttributeValue(4)).toBe(4);
-    expect(tierThresholdForAttributeValue(7)).toBe(4);
+    expect(tierThresholdForAttributeValue(5)).toBe(4);
+    expect(tierThresholdForAttributeValue(6)).toBe(6);
+    expect(tierThresholdForAttributeValue(7)).toBe(6);
     expect(tierThresholdForAttributeValue(8)).toBe(8);
-    expect(tierThresholdForAttributeValue(11)).toBe(8);
-    expect(tierThresholdForAttributeValue(12)).toBe(12);
-    expect(tierThresholdForAttributeValue(15)).toBe(12);
-    expect(tierThresholdForAttributeValue(16)).toBe(16);
-    expect(tierThresholdForAttributeValue(19)).toBe(16);
-    expect(tierThresholdForAttributeValue(20)).toBe(20);
-    expect(tierThresholdForAttributeValue(40)).toBe(20);
+    expect(tierThresholdForAttributeValue(9)).toBe(8);
+    expect(tierThresholdForAttributeValue(10)).toBe(10);
+    expect(tierThresholdForAttributeValue(20)).toBe(10);
   });
 });
 
 describe('isTierUnlocked', () => {
   it('matches tier thresholds', () => {
+    expect(isTierUnlocked(1, 2)).toBe(false);
+    expect(isTierUnlocked(2, 2)).toBe(true);
     expect(isTierUnlocked(3, 4)).toBe(false);
     expect(isTierUnlocked(4, 4)).toBe(true);
     expect(isTierUnlocked(7, 8)).toBe(false);
     expect(isTierUnlocked(8, 8)).toBe(true);
-    expect(isTierUnlocked(15, 16)).toBe(false);
-    expect(isTierUnlocked(16, 16)).toBe(true);
   });
 });
 
@@ -80,8 +80,8 @@ describe('sanitizeMinorExpressionIds', () => {
     expect(out).toEqual(['might-hold-fast']);
   });
 
-  it('drops picks when attribute under 4', () => {
-    const v = get(attrs(3));
+  it('drops picks when attribute under 2', () => {
+    const v = get(attrs(1));
     const out = sanitizeMinorExpressionIds(['might-hold-fast'], v, 2);
     expect(out).toEqual([]);
   });
@@ -98,8 +98,8 @@ describe('sanitizeMinorExpressionIds', () => {
     expect(out[1]).toBe('agility-soft-step');
   });
 
-  it('drops wits picks when wits under 4', () => {
-    const v = get(attrs(8, 8, 8, 8, 8, 3));
+  it('drops wits picks when wits under 2', () => {
+    const v = get(attrs(8, 8, 8, 8, 8, 1));
     const out = sanitizeMinorExpressionIds(['wits-quick-read'], v, 3);
     expect(out).toEqual([]);
   });

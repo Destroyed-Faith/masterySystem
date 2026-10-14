@@ -12,14 +12,18 @@
 aside#tooltip,
 .locked-tooltip,
 #toolclip,
-.toolclip {
+.toolclip,
+.tooltip,
+.tooltipster-base {
   pointer-events: none !important;
 }
 
 #tooltip *,
 aside#tooltip *,
 #toolclip *,
-.toolclip * {
+.toolclip *,
+.tooltip *,
+.tooltipster-base * {
   pointer-events: none !important;
 }
 

@@ -169,6 +169,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-men
 import {
   actorMasteryRank,
   changeNaturalRecoveryAllocation,
+  ensureAutoNaturalRecoveryForSingleEffect,
   listNaturalRecoveryOptions,
   matchingNaturalRecoveryChoice,
   naturalRecoveryAllocatedTotal,
@@ -903,6 +904,14 @@ export class StonePowersDialog extends BaseDialog {
     this._stoneReviewMode = this.#isStoneAssignmentReviewMode();
     await this.#syncStonePowersRoundPlanWithCombat();
     this.#pullSessionPartialsIntoInstance();
+    // Player + exactly one Special → auto-fill Natural Recovery (visible, no click).
+    if (combat && String((this.actor as any)?.type || '') === 'character') {
+      try {
+        await ensureAutoNaturalRecoveryForSingleEffect(this.actor, combat);
+      } catch (err) {
+        console.warn('Mastery System | auto Natural Recovery skipped', err);
+      }
+    }
 
     const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
     const system = (poolOwner as any).system;
@@ -1464,6 +1473,8 @@ export class StonePowersDialog extends BaseDialog {
     const masteryRank = actorMasteryRank(this.actor);
     const allocated = options.reduce((sum, row) => sum + row.allocated, 0);
     const skipped = choice?.chosen === true && naturalRecoveryAllocatedTotal(choice.allocations) <= 0;
+    const autoSingle = choice?.autoSingle === true && allocated > 0 && !skipped;
+    const autoTarget = autoSingle ? options.find((row) => row.allocated > 0) : null;
     const show =
       !!this.combatant &&
       (this.actor as any).type === 'character' &&
@@ -1478,8 +1489,13 @@ export class StonePowersDialog extends BaseDialog {
         ...row,
         canAdd: row.canAdd && !locked,
         canRemove: row.canRemove && !locked,
+        isAuto: autoSingle && row.allocated > 0,
       })),
       skipped,
+      autoSingle,
+      autoBanner: autoTarget
+        ? `Auto −${autoTarget.allocated}: ${autoTarget.label} (only one Special — no click needed). Applies at turn start.`
+        : '',
       title: 'Natural Special Recovery',
       hint: `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`,
       noneLabel: 'None',
@@ -2591,6 +2607,10 @@ export class StonePowersDialog extends BaseDialog {
     this._resolutionResumeStarted = true;
     this._resolutionBatch = [];
     try {
+      const combatForNr = game.combat;
+      if (combatForNr && String((this.actor as any)?.type || '') === 'character') {
+        await ensureAutoNaturalRecoveryForSingleEffect(this.actor, combatForNr);
+      }
       await this.#commitPlannedFreeRanks();
       await this.#flushCompletedStonePaymentsFromAccumulators();
       this.#warnUnactivatedStones();
@@ -4312,6 +4332,26 @@ export class StonePowersDialog extends BaseDialog {
         } catch (err) {
           console.error('Mastery System | Stone payment on confirm failed', err);
         }
+      }
+      // Immediate per-player chat (stones + Natural Recovery), then mark done.
+      try {
+        if (game.combat) {
+          await ensureAutoNaturalRecoveryForSingleEffect(this.actor, game.combat);
+          const { announceActorStoneAssignment } = await import('../combat/stone-assignment-chat.js');
+          const { getActionEconomyActor } = await import('../combat/action-economy.js');
+          const owner = getActionEconomyActor(this.actor) ?? this.actor;
+          const plan = (owner as any).getFlag?.('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG) as
+            | StonePowersRoundPlanStored
+            | null
+            | undefined;
+          await announceActorStoneAssignment(
+            this.actor,
+            plan?.receipt ?? null,
+            encounterStoneRound(game.combat),
+          );
+        }
+      } catch (err) {
+        console.warn('Mastery System | stone assignment chat skipped', err);
       }
       // Every entry point counts as confirmed (player pipeline, GM fill, setup
       // status row, forced dialog) — otherwise the encounter stays blocked

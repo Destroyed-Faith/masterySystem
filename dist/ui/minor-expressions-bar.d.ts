@@ -42,6 +42,8 @@ export declare class MinorExpressionsBar extends BaseBar {
     _onRender(context: any, options: any): Promise<void>;
     applyStoredPosition(): void;
 }
+/** Show the floating panel from the Mastery scene-control menu (players). */
+export declare function showMinorExpressionsBarFromMenu(): Promise<void>;
 export declare function initializeMinorExpressionsBar(): void;
 export {};
 //# sourceMappingURL=minor-expressions-bar.d.ts.map

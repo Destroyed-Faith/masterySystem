@@ -42,7 +42,7 @@ export interface MinorExpressionBarRow {
   attribute: MinorExpressionAttribute;
   attributeLabel: string;
   attributeValue: number;
-  /** Resolved tier threshold (4/8/12/16/20) or null below the minimum. */
+  /** Resolved tier threshold (2/4/6/8/10) or null below the minimum. */
   tier: number | null;
   tagline: string;
   constraints: string;
@@ -208,6 +208,14 @@ export function readMinorExpressionsBarHidden(): boolean {
     return !!(globalThis as any).game?.settings?.get?.(FLAG_SCOPE, MINOR_EXPRESSIONS_BAR_HIDDEN_SETTING);
   } catch {
     return false;
+  }
+}
+
+export async function setMinorExpressionsBarHidden(hidden: boolean): Promise<void> {
+  try {
+    await (globalThis as any).game?.settings?.set?.(FLAG_SCOPE, MINOR_EXPRESSIONS_BAR_HIDDEN_SETTING, !!hidden);
+  } catch (err) {
+    console.warn('Mastery System | setMinorExpressionsBarHidden failed', err);
   }
 }
 

@@ -1,10 +1,10 @@
 /**
  * Minor Expressions (cantrips) — catalog and tier/scaling helpers.
- * Vitality has no catalog entries; selections are capped by mastery rank and require attribute ≥ 4.
- * Tiers follow the compressed scale: 4 / 8 / 12 / 16 / 20.
+ * Vitality has no catalog entries; selections are capped by mastery rank and require attribute ≥ 2.
+ * Tiers follow the current Attribute scale: 2 / 4 / 6 / 8 / 10 (legacy 4–20 halved).
  */
-export declare const MINOR_EXPRESSION_MIN_ATTRIBUTE = 4;
-export declare const MINOR_EXPRESSION_TIERS: readonly [4, 8, 12, 16, 20];
+export declare const MINOR_EXPRESSION_MIN_ATTRIBUTE = 2;
+export declare const MINOR_EXPRESSION_TIERS: readonly [2, 4, 6, 8, 10];
 export type MinorExpressionTier = (typeof MINOR_EXPRESSION_TIERS)[number];
 export type MinorExpressionAttribute = 'might' | 'agility' | 'intellect' | 'resolve' | 'influence' | 'wits';
 export interface MinorExpressionDefinition {

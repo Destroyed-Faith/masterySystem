@@ -317,7 +317,7 @@ export interface CharacterData {
     unspent?: number;
     placed?: Record<string, number>;
   };
-  /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 4 */
+  /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 2 */
   minorExpressions?: string[];
   /** Optional: default attribute pool per generic stone power; auto-filled each round when useDefaultsEachRound is true */
   stonePowersPrefs?: {

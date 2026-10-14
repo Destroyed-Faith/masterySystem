@@ -1138,6 +1138,7 @@ export class CombatCarouselApp extends BaseCarousel {
         // Remove hooks
         this.unregisterUpdateHooks();
         this.unbindCompactViewportWatch();
+        this.unbindResizeHandle();
         // Remove body class when carousel is closed
         document.body.classList.remove('mastery-carousel-open');
         document.body.classList.remove('mastery-carousel-compact');
@@ -1147,6 +1148,11 @@ export class CombatCarouselApp extends BaseCarousel {
     }
     compactViewportHandler = null;
     resizeDrag = null;
+    /** Host element that owns delegated resize listeners (survives inner re-renders). */
+    resizeRoot = null;
+    /** Defer live refreshes while resizing / pressing carousel controls. */
+    interactionBusy = false;
+    pendingRefreshAfterInteraction = false;
     /** Stay under actor sheets so the close button remains clickable. */
     bringToFront() {
         this.pinBehindSheets();
@@ -1159,39 +1165,48 @@ export class CombatCarouselApp extends BaseCarousel {
         el.style.zIndex = String(CAROUSEL_Z_INDEX);
     }
     applyCompactLayout() {
+        // Don't stomp user drag mid-flight (compact class + size apply rewrites vars).
+        if (this.resizeDrag)
+            return;
         applyCarouselCompactClass(this.element, isCompactCarouselViewport());
         this.pinBehindSheets();
     }
-    bindResizeHandle(root) {
-        const handle = root?.querySelector?.('.js-carousel-resize');
-        if (!handle || !root)
+    onResizePointerMove = (ev) => {
+        const drag = this.resizeDrag;
+        const root = this.resizeRoot ?? this.element;
+        if (!drag || !root || ev.pointerId !== drag.pointerId)
             return;
-        const onMove = (ev) => {
-            const drag = this.resizeDrag;
-            if (!drag || ev.pointerId !== drag.pointerId)
-                return;
-            ev.preventDefault();
-            const maxW = Math.max(CAROUSEL_MIN_WIDTH, Math.floor(window.innerWidth * 0.96));
-            const maxH = Math.max(CAROUSEL_MIN_HEIGHT, Math.floor(window.innerHeight * 0.7));
-            const width = clampCarouselWidth(drag.startW + (ev.clientX - drag.startX), maxW);
-            const height = clampCarouselHeight(drag.startH + (ev.clientY - drag.startY), maxH);
-            applyCarouselUserSize(root, { width, height });
-        };
-        const endDrag = (ev) => {
-            const drag = this.resizeDrag;
-            if (!drag || ev.pointerId !== drag.pointerId)
-                return;
-            this.resizeDrag = null;
-            document.body.classList.remove('mastery-carousel-resizing');
-            window.removeEventListener('pointermove', onMove, true);
-            window.removeEventListener('pointerup', endDrag, true);
-            window.removeEventListener('pointercancel', endDrag, true);
+        ev.preventDefault();
+        const maxW = Math.max(CAROUSEL_MIN_WIDTH, Math.floor(window.innerWidth * 0.96));
+        const maxH = Math.max(CAROUSEL_MIN_HEIGHT, Math.floor(window.innerHeight * 0.7));
+        const width = clampCarouselWidth(drag.startW + (ev.clientX - drag.startX), maxW);
+        const height = clampCarouselHeight(drag.startH + (ev.clientY - drag.startY), maxH);
+        applyCarouselUserSize(root, { width, height });
+    };
+    onResizePointerUp = (ev) => {
+        const drag = this.resizeDrag;
+        if (!drag || ev.pointerId !== drag.pointerId)
+            return;
+        this.finishResizeDrag(ev.pointerId);
+    };
+    finishResizeDrag(pointerId) {
+        const root = this.resizeRoot ?? this.element;
+        this.resizeDrag = null;
+        this.interactionBusy = false;
+        document.body.classList.remove('mastery-carousel-resizing');
+        window.removeEventListener('pointermove', this.onResizePointerMove, true);
+        window.removeEventListener('pointerup', this.onResizePointerUp, true);
+        window.removeEventListener('pointercancel', this.onResizePointerUp, true);
+        if (pointerId != null) {
             try {
-                handle.releasePointerCapture?.(ev.pointerId);
+                const handle = root?.querySelector?.('.js-carousel-resize');
+                handle?.releasePointerCapture?.(pointerId);
             }
             catch {
                 /* ignore */
             }
+        }
+        if (root) {
             const width = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10);
             const height = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10);
             writeCarouselUserSize({
@@ -1199,45 +1214,124 @@ export class CombatCarouselApp extends BaseCarousel {
                 height: Number.isFinite(height) ? height : null,
             });
             syncCarouselTopOffset(root);
+        }
+        if (this.pendingRefreshAfterInteraction) {
+            this.pendingRefreshAfterInteraction = false;
+            this.debouncedRefresh();
+        }
+    }
+    onResizePointerDown = (ev) => {
+        const root = this.resizeRoot;
+        if (!root || ev.button !== 0)
+            return;
+        const handle = ev.target?.closest?.('.js-carousel-resize');
+        if (!handle || !root.contains(handle))
+            return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        // Kill Foundry tooltip so it cannot sit under the cursor during drag.
+        try {
+            globalThis.game?.tooltip?.deactivate?.();
+        }
+        catch {
+            /* ignore */
+        }
+        const inner = root.querySelector('.mastery-carousel');
+        const startW = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10) ||
+            root.offsetWidth ||
+            Math.floor(window.innerWidth * 0.5);
+        const startH = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10) ||
+            inner?.offsetHeight ||
+            root.offsetHeight;
+        this.resizeDrag = {
+            pointerId: ev.pointerId,
+            startX: ev.clientX,
+            startY: ev.clientY,
+            startW,
+            startH,
         };
-        handle.onpointerdown = (ev) => {
-            if (ev.button !== 0)
-                return;
-            ev.preventDefault();
-            ev.stopPropagation();
-            const inner = root.querySelector('.mastery-carousel');
-            const startW = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-width'), 10) ||
-                root.offsetWidth ||
-                Math.floor(window.innerWidth * 0.5);
-            const startH = Number.parseInt(root.style.getPropertyValue('--ms-carousel-user-height'), 10) ||
-                inner?.offsetHeight ||
-                root.offsetHeight;
-            this.resizeDrag = {
-                pointerId: ev.pointerId,
-                startX: ev.clientX,
-                startY: ev.clientY,
-                startW,
-                startH,
-            };
-            try {
-                handle.setPointerCapture?.(ev.pointerId);
-            }
-            catch {
-                /* ignore */
-            }
-            document.body.classList.add('mastery-carousel-resizing');
-            window.addEventListener('pointermove', onMove, true);
-            window.addEventListener('pointerup', endDrag, true);
-            window.addEventListener('pointercancel', endDrag, true);
-        };
-        handle.ondblclick = (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            this.resizeDrag = null;
-            document.body.classList.remove('mastery-carousel-resizing');
-            writeCarouselUserSize({ width: null, height: null });
-            applyCarouselUserSize(root, { width: null, height: null });
-        };
+        this.interactionBusy = true;
+        try {
+            // Capture on window-level listeners; handle may be replaced by a refresh.
+            handle.setPointerCapture?.(ev.pointerId);
+        }
+        catch {
+            /* ignore */
+        }
+        document.body.classList.add('mastery-carousel-resizing');
+        window.addEventListener('pointermove', this.onResizePointerMove, true);
+        window.addEventListener('pointerup', this.onResizePointerUp, true);
+        window.addEventListener('pointercancel', this.onResizePointerUp, true);
+    };
+    onResizeDblClick = (ev) => {
+        const root = this.resizeRoot;
+        if (!root)
+            return;
+        const handle = ev.target?.closest?.('.js-carousel-resize');
+        if (!handle || !root.contains(handle))
+            return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (this.resizeDrag)
+            this.finishResizeDrag(this.resizeDrag.pointerId);
+        writeCarouselUserSize({ width: null, height: null });
+        applyCarouselUserSize(root, { width: null, height: null });
+    };
+    onCarouselInteractivePointerDown = (ev) => {
+        const t = ev.target;
+        if (!t?.closest?.('.js-next-turn, .js-end-turn, .portrait-end-turn, .js-prev-turn, .js-next-round, .carousel-control-btn, .js-carousel-resize')) {
+            return;
+        }
+        this.interactionBusy = true;
+        try {
+            globalThis.game?.tooltip?.deactivate?.();
+        }
+        catch {
+            /* ignore */
+        }
+    };
+    onCarouselInteractivePointerUp = () => {
+        if (this.resizeDrag)
+            return;
+        if (!this.interactionBusy)
+            return;
+        this.interactionBusy = false;
+        if (this.pendingRefreshAfterInteraction) {
+            this.pendingRefreshAfterInteraction = false;
+            this.debouncedRefresh();
+        }
+    };
+    /**
+     * Resize + interaction guards: delegated from the Application root so a
+     * mid-drag / mid-hover `render()` does not drop the listeners.
+     */
+    bindResizeHandle(root) {
+        if (!root)
+            return;
+        if (this.resizeRoot && this.resizeRoot !== root) {
+            this.unbindResizeHandle();
+        }
+        if (this.resizeRoot === root)
+            return;
+        this.resizeRoot = root;
+        root.addEventListener('pointerdown', this.onResizePointerDown, true);
+        root.addEventListener('dblclick', this.onResizeDblClick, true);
+        root.addEventListener('pointerdown', this.onCarouselInteractivePointerDown, true);
+        window.addEventListener('pointerup', this.onCarouselInteractivePointerUp, true);
+        window.addEventListener('pointercancel', this.onCarouselInteractivePointerUp, true);
+    }
+    unbindResizeHandle() {
+        if (this.resizeDrag)
+            this.finishResizeDrag(this.resizeDrag.pointerId);
+        const root = this.resizeRoot;
+        if (root) {
+            root.removeEventListener('pointerdown', this.onResizePointerDown, true);
+            root.removeEventListener('dblclick', this.onResizeDblClick, true);
+            root.removeEventListener('pointerdown', this.onCarouselInteractivePointerDown, true);
+        }
+        window.removeEventListener('pointerup', this.onCarouselInteractivePointerUp, true);
+        window.removeEventListener('pointercancel', this.onCarouselInteractivePointerUp, true);
+        this.resizeRoot = null;
     }
     bindCompactViewportWatch() {
         if (this.compactViewportHandler)
@@ -1469,14 +1563,24 @@ export class CombatCarouselApp extends BaseCarousel {
             updateData['flags.mastery-system.statusEffects'] !== undefined);
     }
     /**
-     * Debounced refresh to avoid excessive re-renders
+     * Debounced refresh to avoid excessive re-renders.
+     * Skips while resizing / pressing Next Turn so DOM swap cannot eat the click.
      */
     refreshTimeout = null;
     debouncedRefresh() {
+        if (this.resizeDrag || this.interactionBusy || document.body.classList.contains('mastery-carousel-resizing')) {
+            this.pendingRefreshAfterInteraction = true;
+            return;
+        }
         if (this.refreshTimeout !== null) {
             clearTimeout(this.refreshTimeout);
         }
         this.refreshTimeout = window.setTimeout(() => {
+            if (this.resizeDrag || this.interactionBusy) {
+                this.pendingRefreshAfterInteraction = true;
+                this.refreshTimeout = null;
+                return;
+            }
             if (this.rendered) {
                 CombatCarouselApp.refresh();
             }

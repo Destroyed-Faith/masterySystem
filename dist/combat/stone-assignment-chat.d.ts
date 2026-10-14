@@ -11,7 +11,8 @@ export interface StonePowersLaneSnapshot {
 export declare function formatStoneReceiptLines(receipt: StonePowersLaneSnapshot[] | null | undefined): string[];
 export declare function announceActorStoneAssignment(actor: any, receipt: StonePowersLaneSnapshot[] | null | undefined, round: number): Promise<void>;
 /**
- * After every PC/NPC with stone flow is done: one chat card listing who spent what.
+ * After every PC/NPC with stone flow is done: one chat card listing who spent what
+ * and Natural Special Recovery plans (incl. auto single-effect).
  * Idempotent per combat round (safe if multiple complete paths fire).
  */
 export declare function announceRoundStoneAssignments(combat: Combat, round: number): Promise<void>;

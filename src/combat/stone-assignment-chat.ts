@@ -5,6 +5,7 @@
 
 import { STONE_POWERS } from '../stones/stone-powers.js';
 import { getActionEconomyActor } from './action-economy.js';
+import { formatNaturalRecoveryReceiptLines } from './special-application.js';
 
 export const STONE_POWERS_ROUND_PLAN_FLAG = 'stonePowersRoundPlan';
 
@@ -50,21 +51,66 @@ export function formatStoneReceiptLines(receipt: StonePowersLaneSnapshot[] | nul
     .map(([id, n]) => `${powerLabel(id)} (${n} stone${n === 1 ? '' : 's'})`);
 }
 
+function escapeChat(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function formatCombatantStoneBlock(
+  actor: any,
+  combat: Combat | null | undefined,
+  receipt: StonePowersLaneSnapshot[] | null | undefined,
+): { stoneLines: string[]; recoveryLines: string[]; htmlLi: string } {
+  const name = escapeChat(actor?.name || 'Combatant');
+  const stoneLines = formatStoneReceiptLines(receipt);
+  const recoveryLines = formatNaturalRecoveryReceiptLines(actor, combat);
+  const stonePart =
+    stoneLines.length > 0
+      ? stoneLines.map((l) => escapeChat(l)).join('; ')
+      : '<em>no stones</em>';
+  const recoveryPart =
+    recoveryLines.length > 0
+      ? recoveryLines
+          .map((l) => {
+            const auto = /auto \(only one Special\)/i.test(l);
+            return `<span class="ms-stone-nr-line${auto ? ' ms-stone-nr-auto' : ''}">${escapeChat(l)}</span>`;
+          })
+          .join('; ')
+      : '';
+  const recoveryHtml = recoveryPart ? ` · ${recoveryPart}` : '';
+  return {
+    stoneLines,
+    recoveryLines,
+    htmlLi: `<li><strong>${name}</strong>: ${stonePart}${recoveryHtml}</li>`,
+  };
+}
+
 export async function announceActorStoneAssignment(
   actor: any,
   receipt: StonePowersLaneSnapshot[] | null | undefined,
   round: number,
 ): Promise<void> {
-  const lines = formatStoneReceiptLines(receipt);
+  const combat = (globalThis as any).game?.combat as Combat | null | undefined;
   const name = String(actor?.name || 'Combatant');
-  const body =
-    lines.length > 0
-      ? `<ul>${lines.map((l) => `<li>${l}</li>`).join('')}</ul>`
+  const stoneLines = formatStoneReceiptLines(receipt);
+  const recoveryLines = formatNaturalRecoveryReceiptLines(actor, combat);
+  const stoneBody =
+    stoneLines.length > 0
+      ? `<ul>${stoneLines.map((l) => `<li>${escapeChat(l)}</li>`).join('')}</ul>`
       : `<p><em>No stone powers activated this round.</em></p>`;
+  const recoveryBody =
+    recoveryLines.length > 0
+      ? `<div class="ms-stone-nr-block${recoveryLines.some((l) => /auto \(only one Special\)/i.test(l)) ? ' ms-stone-nr-auto' : ''}"><strong>Natural Special Recovery</strong><ul>${recoveryLines
+          .map((l) => `<li>${escapeChat(l)}</li>`)
+          .join('')}</ul></div>`
+      : '';
   try {
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
-      content: `<div class="mastery-stone-assignment-summary"><strong>${name}</strong> — Stones (Round ${round}):${body}</div>`,
+      content: `<div class="mastery-stone-assignment-summary"><strong>${escapeChat(name)}</strong> — Stones (Round ${round}):${stoneBody}${recoveryBody}</div>`,
     });
   } catch (err) {
     console.warn('Mastery System | stone assignment chat failed', err);
@@ -74,7 +120,8 @@ export async function announceActorStoneAssignment(
 const ROUND_STONE_SUMMARY_FLAG = 'stoneRoundSummaryPosted';
 
 /**
- * After every PC/NPC with stone flow is done: one chat card listing who spent what.
+ * After every PC/NPC with stone flow is done: one chat card listing who spent what
+ * and Natural Special Recovery plans (incl. auto single-effect).
  * Idempotent per combat round (safe if multiple complete paths fire).
  */
 export async function announceRoundStoneAssignments(combat: Combat, round: number): Promise<void> {
@@ -83,6 +130,14 @@ export async function announceRoundStoneAssignments(combat: Combat, round: numbe
     ((combat as any).getFlag?.('mastery-system', ROUND_STONE_SUMMARY_FLAG) as Record<string, boolean>) ||
     {};
   if (posted[String(round)]) return;
+
+  // Last confirm: auto-fill Natural Recovery for any PC with only one Special.
+  try {
+    const { ensureAutoNaturalRecoveryForAllPlayerCharacters } = await import('./special-application.js');
+    await ensureAutoNaturalRecoveryForAllPlayerCharacters(combat);
+  } catch (err) {
+    console.warn('Mastery System | auto Natural Recovery at round end failed', err);
+  }
 
   const blocks: string[] = [];
   const combatants = (combat as any).combatants?.contents ?? (combat as any).combatants ?? [];
@@ -94,20 +149,20 @@ export async function announceRoundStoneAssignments(combat: Combat, round: numbe
   for (const c of list) {
     const actor = c?.actor;
     if (!actor) continue;
+    // Round summary is for player characters (stone gate); NPCs stay out.
+    if (String(actor.type || '') !== 'character') continue;
     const owner = getActionEconomyActor(actor) ?? actor;
     const plan = owner.getFlag?.('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG) as
       | { combatId?: string; round?: number; receipt?: StonePowersLaneSnapshot[] }
       | null
       | undefined;
-    if (!plan || String(plan.combatId || '') !== String(combat.id || '')) continue;
-    if (Math.max(1, Math.floor(Number(plan.round) || 0)) !== round) continue;
-    const lines = formatStoneReceiptLines(plan.receipt);
-    const name = String(actor.name || c.name || 'Combatant');
-    if (lines.length === 0) {
-      blocks.push(`<li><strong>${name}</strong>: none</li>`);
-    } else {
-      blocks.push(`<li><strong>${name}</strong>: ${lines.join('; ')}</li>`);
-    }
+    const receipt =
+      plan &&
+      String(plan.combatId || '') === String(combat.id || '') &&
+      Math.max(1, Math.floor(Number(plan.round) || 0)) === round
+        ? plan.receipt
+        : null;
+    blocks.push(formatCombatantStoneBlock(actor, combat, receipt).htmlLi);
   }
   if (blocks.length === 0) return;
   try {
@@ -118,7 +173,7 @@ export async function announceRoundStoneAssignments(combat: Combat, round: numbe
       });
     }
     await ChatMessage.create({
-      content: `<div class="mastery-stone-round-summary"><strong>Round ${round} — Stone Assignments</strong><ul>${blocks.join('')}</ul></div>`,
+      content: `<div class="mastery-stone-round-summary"><strong>Round ${round} — Stones &amp; Natural Recovery</strong><ul>${blocks.join('')}</ul></div>`,
     });
   } catch (err) {
     console.warn('Mastery System | round stone summary chat failed', err);

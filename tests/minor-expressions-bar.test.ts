@@ -36,8 +36,8 @@ describe('Minor Expressions bar model', () => {
     expect(model.rows[0].body.length).toBeGreaterThan(10);
   });
 
-  it('locks below attribute 4 (tier null, tagline as body)', () => {
-    const model = buildMinorExpressionsBarModel(actor({ might: 3 }));
+  it('locks below attribute 2 (tier null, tagline as body)', () => {
+    const model = buildMinorExpressionsBarModel(actor({ might: 1 }));
     expect(model.rows[0].tier).toBeNull();
     expect(model.rows[0].body).toBe(model.rows[0].tagline);
   });
