@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.660] - 2026-10-14
+
+### Fixed
+
+- **Scarred-Buttons trotz sichtbarer Scarred Bars:** Heal las Scarred über `getActionEconomyActor` (oft World-Prototype). Carousel/Sheet zeigen den Token-Actor — bei unlinked Tokens wirkte das Ziel „ohne Scarred“. Scarred-Zählung und HP/Scarred-Apply nutzen jetzt den angezielten Battle-Actor.
+
 ## [0.9.659] - 2026-10-14
 
 ### Fixed

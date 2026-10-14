@@ -75,8 +75,23 @@ export function inferRemoveScarTargetTier(resolvedMax, supportPrefillTier = 0) {
     return resolved + 1;
 }
 export function countScarredHealthBars(actor) {
-    const bars = Array.isArray(actor?.system?.health?.bars) ? actor.system.health.bars : [];
-    return bars.filter((b) => (Number(b?.current) || 0) === 0).length;
+    const raw = actor?.system?.health?.bars;
+    let bars = [];
+    if (Array.isArray(raw)) {
+        bars = raw;
+    }
+    else if (raw && typeof raw === 'object') {
+        // Foundry sometimes stores bars as a numeric-key object; match actor prepare.
+        bars = Object.keys(raw)
+            .filter((k) => /^\d+$/.test(k))
+            .sort((a, b) => Number(a) - Number(b))
+            .map((k) => raw[k]);
+    }
+    return bars.filter((b) => {
+        const max = Math.max(0, Math.floor(Number(b?.max) || 0));
+        const current = Math.max(0, Math.floor(Number(b?.current) || 0));
+        return max > 0 && current <= 0;
+    }).length;
 }
 /** Restore up to `count` most-recent Scarred bars. Returns the actor update payload. */
 export function buildRecoverScarredBarUpdates(actor, count) {

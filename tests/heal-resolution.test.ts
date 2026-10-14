@@ -12,6 +12,7 @@ import {
   isHealPowerItem,
   isHealRadialOption,
 } from '../src/combat/heal-resolution';
+import { countScarredHealthBars } from '../src/stones/remove-scar';
 
 describe('healHealthLevelRecoveryForRank', () => {
   it('matches catalog bands (max 4)', () => {
@@ -108,6 +109,23 @@ describe('artifact heal radial (Moonlight Mending)', () => {
     const power = healPowerItemFromRadialOption(option as any);
     expect(power?.type).toBe('power');
     expect(getHealDiceFormula(power)).toBe('10d8');
+  });
+});
+
+describe('countScarredHealthBars', () => {
+  it('counts Scarred on array and numeric-key object bars', () => {
+    const bars = [
+      { name: 'Healthy', max: 40, current: 0 },
+      { name: 'Bruised', max: 40, current: 0 },
+      { name: 'Injured', max: 40, current: 0 },
+      { name: 'Wounded', max: 40, current: 12 },
+    ];
+    expect(countScarredHealthBars({ system: { health: { bars } } })).toBe(3);
+    expect(
+      countScarredHealthBars({
+        system: { health: { bars: { 0: bars[0], 1: bars[1], 2: bars[2], 3: bars[3] } } },
+      }),
+    ).toBe(3);
   });
 });
 

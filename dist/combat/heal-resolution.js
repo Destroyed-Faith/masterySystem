@@ -392,8 +392,16 @@ export function formatHealRollPromptChat(args) {
   </div>
 </div>`;
 }
+/**
+ * Health / Scarred live on the token's battle actor. Do NOT redirect through
+ * getActionEconomyActor here — that often returns the world prototype, which
+ * can have full bars while the placed (unlinked) token still shows Scarred.
+ */
+function healTargetActor(actor) {
+    return actor ?? null;
+}
 async function applyHpHealToActor(actor, rolled) {
-    const owner = getActionEconomyActor(actor) ?? actor;
+    const owner = healTargetActor(actor);
     const blight = blightHealReduction(owner);
     const afterBlight = Math.max(0, rolled - blight);
     const health = owner?.system?.health;
@@ -465,7 +473,7 @@ async function applyHpHealPass(args) {
             restored = applied.restored;
             blight = applied.blight;
         }
-        const scarredBefore = countScarredHealthBars(getActionEconomyActor(actor) ?? actor);
+        const scarredBefore = countScarredHealthBars(healTargetActor(actor));
         results.push({
             tokenId: String(tok.id || ''),
             actorId: String(actor.id || ''),
@@ -549,13 +557,15 @@ export async function resolveHealOnTokens(args) {
     const powerKey = healPowerHlrKey(args.powerItem);
     const g = globalThis;
     // One Scarred recipient per use (AoE rule).
+    // Read Scarred from the targeted token actor (same source as carousel/sheet),
+    // not getActionEconomyActor — world prototype can disagree on unlinked tokens.
     let scarredTok = null;
     let scarredCount = 0;
     for (const tok of args.targetTokens) {
-        const actor = tok?.actor;
+        const actor = healTargetActor(tok?.actor);
         if (!actor)
             continue;
-        const n = countScarredHealthBars(getActionEconomyActor(actor) ?? actor);
+        const n = countScarredHealthBars(actor);
         if (n > 0) {
             scarredTok = tok;
             scarredCount = n;
@@ -671,7 +681,8 @@ async function resolveScarredChoice(message, bars) {
         g.ui?.notifications?.warn?.('Heal target not found.');
         return;
     }
-    const owner = getActionEconomyActor(target) ?? target;
+    // Recover on the same actor the player sees (token battle actor), not world prototype.
+    const owner = healTargetActor(target);
     const poolRem = Math.max(0, Math.floor(Number(flags.poolRemaining) || 0));
     // Never spend more than the remaining Safe Haven pool (disabled buttons are a UI guard).
     const spend = Math.max(0, Math.min(want, poolRem));
