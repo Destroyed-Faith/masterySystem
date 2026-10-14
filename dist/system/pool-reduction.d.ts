@@ -58,7 +58,7 @@ export declare function challengePoolReduction(actor: any, targetRefs: string[])
  */
 export declare function mergeChallengeEntry(list: any[], newValue: number, sourceName: string, sourceUuid: string | null): any[];
 /** All active specials on the actor that Cleanse may target (dispellable, value > 0). */
-export declare function cleansableSpecials(actor: any): Array<{
+export declare function cleansableSpecials(actor: any, tokenHint?: any): Array<{
     id: string;
     value: number;
 }>;
@@ -106,10 +106,10 @@ export interface CleanseDistributeResult {
  * negative Specials that list Cleanse: Yes; distribution is free; unused
  * value is lost).
  *
- * - With `allocations` (specialId → points) the given split is applied,
- *   clamped to each Special's current value and the total budget X.
- * - Without `allocations` the budget is spent greedily: highest stack
- *   first, spilling over into the next until X is exhausted.
+ * - With `allocations` (object, even `{}`) the given split is applied
+ *   only — empty means spend nothing (chat card must not greedy-auto).
+ * - With `allocations` omitted / null the budget is spent greedily:
+ *   highest stack first, spilling over until X is exhausted.
  * Pure: does not persist — caller updates the actor.
  */
 export declare function distributeCleanseAcrossList(statusEffects: any[], cleanseX: number, allocations?: Record<string, number> | null): CleanseDistributeResult;

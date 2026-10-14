@@ -1265,6 +1265,7 @@ prose-mirror#chat-message.chat-input > .editor-container {
 
 /* =========================================
    Cleanse allocation prompt (ally Cleanse actives)
+   Same interaction language as Heal scarred buttons: big +/−, then Apply.
    ========================================= */
 
 #chat-log .mastery-cleanse-prompt {
@@ -1273,27 +1274,48 @@ prose-mirror#chat-message.chat-input > .editor-container {
 
 #chat-log .ms-cleanse-list {
   list-style: none;
-  margin: 0.35rem 0;
+  margin: 0.45rem 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 #chat-log .ms-cleanse-row {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  margin: 0.2rem 0;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.35rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(60, 120, 70, 0.35);
+  background: rgba(60, 120, 70, 0.08);
   flex-wrap: wrap;
 }
 
 #chat-log .ms-cleanse-label {
-  flex: 1 1 6rem;
+  flex: 1 1 7rem;
   min-width: 0;
+  font-weight: 600;
+}
+
+#chat-log .ms-cleanse-stack {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+#chat-log .ms-cleanse-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 #chat-log .ms-cleanse-alloc {
-  min-width: 1.5rem;
+  min-width: 1.75rem;
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
 }
 
 #chat-log .ms-cleanse-plus,
@@ -1306,21 +1328,35 @@ prose-mirror#chat-message.chat-input > .editor-container {
 .ms-theme-rulebook #chat-log .ms-cleanse-cancel {
   text-transform: none;
   letter-spacing: 0;
-  font-size: 13px;
-  padding: 0.2rem 0.45rem;
-  min-width: 1.75rem;
+  font-size: 14px;
+  padding: 0.35rem 0.65rem;
+  min-width: 2.25rem;
+}
+
+#chat-log .ms-cleanse-plus:disabled,
+#chat-log .ms-cleanse-minus:disabled,
+#chat-log .ms-cleanse-apply:disabled,
+#chat-log .ms-cleanse-cancel:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 #chat-log .mastery-cleanse-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin-top: 0.4rem;
+  margin-top: 0.5rem;
 }
 
 #chat-log .ms-cleanse-apply {
-  background: rgba(60, 120, 70, 0.35);
-  border-color: rgba(80, 160, 90, 0.5);
+  background: rgba(60, 120, 70, 0.4);
+  border-color: rgba(80, 160, 90, 0.55);
+  font-weight: 700;
+}
+
+#chat-log .ms-cleanse-remaining {
+  color: #2e7d32;
+  font-size: 1.05em;
 }
 
 #chat-log .mastery-cleanse-resolved {

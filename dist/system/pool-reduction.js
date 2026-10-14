@@ -18,7 +18,7 @@
  * that do NOT include the challenger as a target are reduced by X. If the
  * challenger is included, the pool is not reduced.
  */
-import { getActiveSpecialValue, readActiveSpecials, readActorStatusEffects } from './active-specials.js';
+import { getActiveSpecialValue, readActiveSpecials, readActorStatusEffects, statusEntryId, } from './active-specials.js';
 import { SPECIAL_EFFECTS_BY_ID } from '../utils/special-effects.js';
 /** Attributes whose rolled pools are reduced by Weaken(X). */
 export const WEAKEN_ATTRIBUTES = new Set(['might', 'agility', 'intellect']);
@@ -179,7 +179,22 @@ export function mergeChallengeEntry(list, newValue, sourceName, sourceUuid) {
     return list;
 }
 /** All active specials on the actor that Cleanse may target (dispellable, value > 0). */
-export function cleansableSpecials(actor) {
+export function cleansableSpecials(actor, tokenHint) {
+    // Prefer live token status (unlinked tokens) over a bare world-actor read.
+    const list = readActorStatusEffects(actor, tokenHint);
+    const seen = new Map();
+    for (const entry of list) {
+        const canon = statusEntryId(entry);
+        if (!canon || !isCleansable(canon))
+            continue;
+        const value = Math.max(0, Math.floor(Number(entry?.value ?? 0)));
+        if (value <= 0)
+            continue;
+        seen.set(canon, (seen.get(canon) ?? 0) + value);
+    }
+    if (seen.size > 0 || tokenHint != null || list.length > 0) {
+        return [...seen.entries()].map(([id, value]) => ({ id, value }));
+    }
     return readActiveSpecials(actor).filter((s) => s.value > 0 && isCleansable(s.id));
 }
 function isCleansable(id) {
@@ -250,10 +265,10 @@ export function applyCleanseToList(statusEffects, cleanseX, chosenId) {
  * negative Specials that list Cleanse: Yes; distribution is free; unused
  * value is lost).
  *
- * - With `allocations` (specialId → points) the given split is applied,
- *   clamped to each Special's current value and the total budget X.
- * - Without `allocations` the budget is spent greedily: highest stack
- *   first, spilling over into the next until X is exhausted.
+ * - With `allocations` (object, even `{}`) the given split is applied
+ *   only — empty means spend nothing (chat card must not greedy-auto).
+ * - With `allocations` omitted / null the budget is spent greedily:
+ *   highest stack first, spilling over until X is exhausted.
  * Pure: does not persist — caller updates the actor.
  */
 export function distributeCleanseAcrossList(statusEffects, cleanseX, allocations) {
@@ -286,7 +301,8 @@ export function distributeCleanseAcrossList(statusEffects, cleanseX, allocations
             reducedBy: result.reducedBy,
         });
     };
-    if (allocations && Object.keys(allocations).length > 0) {
+    if (allocations != null) {
+        // Explicit mode (chat allocator): never fall through to greedy.
         for (const [id, amount] of Object.entries(allocations)) {
             spendOn(String(id).toLowerCase(), Math.max(0, Math.floor(Number(amount) || 0)));
             if (budget <= 0)

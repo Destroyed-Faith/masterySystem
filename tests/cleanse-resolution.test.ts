@@ -3,6 +3,7 @@ import {
   formatCleansePromptChat,
   getCleanseRankFromPower,
   isCleansePowerItem,
+  listCleansableForActor,
 } from '../src/combat/cleanse-resolution';
 
 describe('isCleansePowerItem / getCleanseRankFromPower', () => {
@@ -46,7 +47,7 @@ describe('isCleansePowerItem / getCleanseRankFromPower', () => {
 });
 
 describe('formatCleansePromptChat', () => {
-  it('renders allocation controls for eligible specials', () => {
+  it('renders heal-style +/− allocation controls for eligible specials', () => {
     const html = formatCleansePromptChat({
       casterName: 'Oda',
       powerName: 'Cleanse',
@@ -60,8 +61,28 @@ describe('formatCleansePromptChat', () => {
     });
     expect(html).toMatch(/Cleanse\(5\)/);
     expect(html).toMatch(/ms-cleanse-plus/);
+    expect(html).toMatch(/ms-cleanse-minus/);
     expect(html).toMatch(/ms-cleanse-apply/);
-    expect(html).toMatch(/Hex\(4\)/);
+    expect(html).toMatch(/Apply Cleanse/);
+    expect(html).toMatch(/Hex/);
+    expect(html).toMatch(/\(4\)/);
     expect(html).toMatch(/data-target-actor-id="a1"/);
+    expect(html).toMatch(/ms-cleanse-remaining/);
+  });
+});
+
+describe('listCleansableForActor', () => {
+  it('reads cleansable stacks from the battle actor system data', () => {
+    const actor = {
+      id: 'tok-a',
+      system: {
+        statusEffects: [
+          { id: 'hex', name: 'Hex', value: 3 },
+          { id: 'stunned', name: 'Stunned', value: 1 },
+        ],
+      },
+    };
+    const rows = listCleansableForActor(actor);
+    expect(rows.some((r) => r.id === 'hex' && r.value === 3)).toBe(true);
   });
 });

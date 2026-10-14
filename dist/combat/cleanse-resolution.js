@@ -1,13 +1,13 @@
 /**
  * Combat Cleanse Actives — ally targeting, no attack roll / Reactions.
- * Posts a chat card so the healer distributes Cleanse(X) across eligible Specials.
+ * Posts a heal-style chat card so the caster distributes Cleanse(X) with +/−
+ * across eligible Specials on the target (token actor for unlinked tokens).
  */
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { specialDisplayName } from './special-application.js';
 import { cleansableSpecials, distributeCleanseAcrossList, formatCleanseDistribution, } from '../system/pool-reduction.js';
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { writeActorStatusList } from '../system/assign-status.js';
-import { getActionEconomyActor } from './action-economy.js';
 import { escapeStoneChat } from '../stones/stone-resolution.js';
 import { powerItemRank } from './heal-resolution.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
@@ -120,9 +120,16 @@ export function getCleanseRankFromPower(item) {
         return Math.max(0, parseInt(m[1], 10));
     return 0;
 }
-export function listCleansableForActor(actor) {
-    const owner = getActionEconomyActor(actor) ?? actor;
-    return cleansableSpecials(owner).map((s) => ({
+/**
+ * Battle actor for Cleanse reads/writes. Do NOT redirect through
+ * getActionEconomyActor — world prototypes often lack the token's Specials.
+ */
+export function cleanseTargetActor(actor) {
+    return actor ?? null;
+}
+export function listCleansableForActor(actor, tokenHint) {
+    const owner = cleanseTargetActor(actor);
+    return cleansableSpecials(owner, tokenHint ?? owner).map((s) => ({
         id: s.id,
         label: specialDisplayName(s.id),
         value: s.value,
@@ -139,30 +146,48 @@ export function formatCleansePromptChat(args) {
     }
     const rows = args.specials
         .map((s) => `<li class="ms-cleanse-row" data-special-id="${escapeStoneChat(s.id)}" data-max="${s.value}">
-        <span class="ms-cleanse-label">${escapeStoneChat(s.label)}(${s.value})</span>
-        <button type="button" class="ms-cleanse-minus" data-special-id="${escapeStoneChat(s.id)}">−</button>
-        <span class="ms-cleanse-alloc" data-special-id="${escapeStoneChat(s.id)}">0</span>
-        <button type="button" class="ms-cleanse-plus" data-special-id="${escapeStoneChat(s.id)}">+</button>
+        <span class="ms-cleanse-label">${escapeStoneChat(s.label)} <span class="ms-cleanse-stack">(${s.value})</span></span>
+        <div class="ms-cleanse-stepper">
+          <button type="button" class="ms-cleanse-minus mastery-heal-scarred-pick" data-special-id="${escapeStoneChat(s.id)}" title="−1" aria-label="Reduce ${escapeStoneChat(s.label)}">−</button>
+          <span class="ms-cleanse-alloc" data-special-id="${escapeStoneChat(s.id)}">0</span>
+          <button type="button" class="ms-cleanse-plus mastery-heal-scarred-pick" data-special-id="${escapeStoneChat(s.id)}" title="+1" aria-label="Cleanse ${escapeStoneChat(s.label)} +1">+</button>
+        </div>
       </li>`)
         .join('');
-    return `<div class="mastery-cleanse-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-cleanse-x="${x}">
+    return `<div class="mastery-cleanse-prompt mastery-heal-scarred-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-cleanse-x="${x}">
   <p><strong>${caster}</strong> — ${power}</p>
-  <p>Target: <strong>${target}</strong> — distribute <strong>Cleanse(${x})</strong> (unused points are lost).</p>
-  <p>Remaining: <strong class="ms-cleanse-remaining">${x}</strong></p>
+  <p><strong>${target}</strong> — distribute <strong>Cleanse(${x})</strong> (unused points are lost).</p>
+  <p class="ms-heal-preview"><strong>Use +/−</strong> on each Special, then <strong>Apply</strong>. Remaining budget: <strong class="ms-cleanse-remaining">${x}</strong>/${x}</p>
   <ul class="ms-cleanse-list">${rows}</ul>
-  <div class="mastery-cleanse-actions">
-    <button type="button" class="ms-cleanse-apply">Apply</button>
-    <button type="button" class="ms-cleanse-cancel">Cancel</button>
+  <div class="mastery-cleanse-actions mastery-heal-scarred-actions">
+    <button type="button" class="ms-cleanse-apply mastery-heal-scarred-pick">Apply Cleanse</button>
+    <button type="button" class="ms-cleanse-cancel mastery-heal-scarred-pick">Cancel</button>
   </div>
 </div>`;
 }
+function resolveTargetFromFlags(flags) {
+    const g = globalThis;
+    const actorId = String(flags?.targetActorId || '');
+    const tokenId = String(flags?.targetTokenId || '');
+    let token = null;
+    if (tokenId) {
+        token =
+            g.canvas?.tokens?.get?.(tokenId) ||
+                g.canvas?.tokens?.placeables?.find?.((t) => String(t.id) === tokenId || String(t.document?.id) === tokenId) ||
+                null;
+    }
+    const actor = cleanseTargetActor(token?.actor) ||
+        g.game?.actors?.get?.(actorId) ||
+        null;
+    return { actor, token };
+}
 export async function postCleansePromptForTarget(args) {
     const caster = args.casterToken?.actor;
-    const target = args.targetToken?.actor;
+    const target = cleanseTargetActor(args.targetToken?.actor);
     if (!target)
         return;
     const cleanseX = getCleanseRankFromPower(args.powerItem);
-    const specials = listCleansableForActor(target);
+    const specials = listCleansableForActor(target, args.targetToken);
     const g = globalThis;
     const content = formatCleansePromptChat({
         casterName: String(caster?.name || args.casterToken?.name || 'Caster'),
@@ -220,9 +245,23 @@ function refreshRemaining(root) {
     const remEl = root.querySelector('.ms-cleanse-remaining');
     if (remEl)
         remEl.textContent = String(rem);
-    root.querySelectorAll('.ms-cleanse-plus').forEach((btn) => {
-        btn.disabled = rem <= 0;
+    root.querySelectorAll('.ms-cleanse-row').forEach((rowEl) => {
+        const row = rowEl;
+        const id = String(row.dataset.specialId || '');
+        const max = Math.max(0, Math.floor(Number(row.dataset.max) || 0));
+        const cur = Math.max(0, Math.floor(Number(alloc[id] || 0)));
+        const plus = row.querySelector('.ms-cleanse-plus');
+        const minus = row.querySelector('.ms-cleanse-minus');
+        if (plus)
+            plus.disabled = rem <= 0 || cur >= max;
+        if (minus)
+            minus.disabled = cur <= 0;
     });
+    const applyBtn = root.querySelector('.ms-cleanse-apply');
+    if (applyBtn && !root.dataset.msLocked) {
+        applyBtn.disabled = spent <= 0;
+        applyBtn.title = spent <= 0 ? 'Allocate at least 1 with + first' : 'Apply Cleanse';
+    }
 }
 async function applyAllocations(message, allocations) {
     const flags = message?.getFlag?.('mastery-system', CLEANSE_CHAT_FLAG) ??
@@ -230,29 +269,16 @@ async function applyAllocations(message, allocations) {
     if (!flags || flags.resolved)
         return;
     const g = globalThis;
-    const actorId = String(flags.targetActorId || '');
-    const tokenId = String(flags.targetTokenId || '');
-    let target = (tokenId && g.canvas?.tokens?.get?.(tokenId)?.actor) ||
-        g.game?.actors?.get?.(actorId) ||
-        null;
-    if (!target && tokenId) {
-        try {
-            const tok = g.canvas?.tokens?.placeables?.find?.((t) => String(t.id) === tokenId || String(t.document?.id) === tokenId);
-            if (tok?.actor)
-                target = tok.actor;
-        }
-        catch {
-            /* ignore */
-        }
-    }
+    const { actor: target, token } = resolveTargetFromFlags(flags);
     if (!target) {
         g.ui?.notifications?.warn?.('Cleanse target not found.');
         return;
     }
-    const owner = getActionEconomyActor(target) ?? target;
+    const owner = cleanseTargetActor(target);
     const cleanseX = Math.max(0, Math.floor(Number(flags.cleanseX) || 0));
-    const list = readActorStatusEffects(owner);
-    const result = distributeCleanseAcrossList(list, cleanseX, allocations);
+    const list = readActorStatusEffects(owner, token);
+    // Always pass an object (even `{}`) so empty player choice never greedy-autos.
+    const result = distributeCleanseAcrossList(list, cleanseX, allocations ?? {});
     if (result.applied) {
         await writeActorStatusList(owner, result.statusEffects);
     }
@@ -264,7 +290,7 @@ async function applyAllocations(message, allocations) {
     }
     const summary = result.applied
         ? formatCleanseDistribution(result)
-        : 'no eligible Special reduced';
+        : 'nothing allocated — no Specials removed';
     const leftover = result.leftover > 0 ? ` (${result.leftover} unused, lost)` : '';
     const note = `<div class="mastery-cleanse-resolved"><p><strong>${escapeStoneChat(owner.name)}</strong> — Cleanse(${cleanseX}) → ${escapeStoneChat(summary)}${leftover}</p></div>`;
     try {
@@ -274,80 +300,133 @@ async function applyAllocations(message, allocations) {
         /* ignore */
     }
 }
+function findCleansePromptRoot(el) {
+    return el?.closest?.('.mastery-cleanse-prompt') ?? null;
+}
+function findChatMessageFromEl(el) {
+    const g = globalThis;
+    const msgEl = el?.closest?.('.chat-message, .message');
+    const id = msgEl?.dataset?.messageId || msgEl?.getAttribute?.('data-message-id');
+    if (!id)
+        return null;
+    return g.game?.messages?.get?.(id) ?? null;
+}
+function adjustAllocation(wrap, specialId, delta) {
+    const id = String(specialId || '');
+    if (!id || !delta)
+        return;
+    const row = wrap.querySelector(`.ms-cleanse-row[data-special-id="${id}"]`);
+    const allocEl = wrap.querySelector(`.ms-cleanse-alloc[data-special-id="${id}"]`);
+    if (!row || !allocEl)
+        return;
+    const max = Math.max(0, Math.floor(Number(row.dataset.max) || 0));
+    const budget = Math.max(0, Math.floor(Number(wrap.dataset.cleanseX) || 0));
+    const alloc = readAllocations(wrap);
+    const spent = Object.values(alloc).reduce((a, b) => a + b, 0);
+    const cur = Math.max(0, Math.floor(Number(allocEl.textContent) || 0));
+    if (delta > 0) {
+        if (spent >= budget || cur >= max)
+            return;
+        allocEl.textContent = String(cur + 1);
+    }
+    else if (delta < 0) {
+        if (cur <= 0)
+            return;
+        allocEl.textContent = String(cur - 1);
+    }
+    refreshRemaining(wrap);
+}
 function bindCleansePromptHtml(message, root) {
     const wrap = root.querySelector?.('.mastery-cleanse-prompt');
-    if (!wrap || wrap.dataset.msBound === '1')
+    if (!wrap)
         return;
     const flags = message?.getFlag?.('mastery-system', CLEANSE_CHAT_FLAG) ??
         message?.flags?.['mastery-system']?.[CLEANSE_CHAT_FLAG];
-    if (flags?.resolved)
-        return;
-    wrap.dataset.msBound = '1';
-    wrap.querySelectorAll('.ms-cleanse-plus').forEach((btn) => {
-        btn.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            const id = String(btn.dataset.specialId || '');
-            const row = wrap.querySelector(`.ms-cleanse-row[data-special-id="${id}"]`);
-            const allocEl = wrap.querySelector(`.ms-cleanse-alloc[data-special-id="${id}"]`);
-            if (!row || !allocEl)
-                return;
-            const max = Math.max(0, Math.floor(Number(row.dataset.max) || 0));
-            const budget = Math.max(0, Math.floor(Number(wrap.dataset.cleanseX) || 0));
-            const alloc = readAllocations(wrap);
-            const spent = Object.values(alloc).reduce((a, b) => a + b, 0);
-            const cur = Math.max(0, Math.floor(Number(allocEl.textContent) || 0));
-            if (spent >= budget || cur >= max)
-                return;
-            allocEl.textContent = String(cur + 1);
-            refreshRemaining(wrap);
-        });
-    });
-    wrap.querySelectorAll('.ms-cleanse-minus').forEach((btn) => {
-        btn.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            const id = String(btn.dataset.specialId || '');
-            const allocEl = wrap.querySelector(`.ms-cleanse-alloc[data-special-id="${id}"]`);
-            if (!allocEl)
-                return;
-            const cur = Math.max(0, Math.floor(Number(allocEl.textContent) || 0));
-            if (cur <= 0)
-                return;
-            allocEl.textContent = String(cur - 1);
-            refreshRemaining(wrap);
-        });
-    });
-    const applyBtn = wrap.querySelector('.ms-cleanse-apply');
-    const cancelBtn = wrap.querySelector('.ms-cleanse-cancel');
-    const lock = () => {
+    if (flags?.resolved) {
         wrap.querySelectorAll('button').forEach((b) => {
             b.disabled = true;
         });
-    };
-    applyBtn?.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        lock();
-        await applyAllocations(message, readAllocations(wrap));
-    });
-    cancelBtn?.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        lock();
-        try {
-            await message.setFlag?.('mastery-system', CLEANSE_CHAT_FLAG, { ...flags, resolved: true, cancelled: true });
-            await message.update?.({
-                content: `${message.content}<div class="mastery-cleanse-resolved"><p><em>Cleanse cancelled — no Specials removed.</em></p></div>`,
-            });
-        }
-        catch {
-            /* ignore */
-        }
-    });
+        return;
+    }
     refreshRemaining(wrap);
+}
+let cleanseChatDelegationBound = false;
+function bindCleanseChatDelegation() {
+    if (cleanseChatDelegationBound)
+        return;
+    const g = globalThis;
+    const doc = g.document;
+    if (!doc?.addEventListener)
+        return;
+    cleanseChatDelegationBound = true;
+    doc.addEventListener('click', async (ev) => {
+        const target = ev.target;
+        if (!target?.closest)
+            return;
+        const plus = target.closest('.ms-cleanse-plus');
+        const minus = target.closest('.ms-cleanse-minus');
+        const applyBtn = target.closest('.ms-cleanse-apply');
+        const cancelBtn = target.closest('.ms-cleanse-cancel');
+        if (!plus && !minus && !applyBtn && !cancelBtn)
+            return;
+        const wrap = findCleansePromptRoot(target);
+        if (!wrap)
+            return;
+        const message = findChatMessageFromEl(wrap);
+        const flags = message?.getFlag?.('mastery-system', CLEANSE_CHAT_FLAG) ??
+            message?.flags?.['mastery-system']?.[CLEANSE_CHAT_FLAG];
+        if (flags?.resolved)
+            return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (plus) {
+            adjustAllocation(wrap, String(plus.dataset.specialId || ''), 1);
+            return;
+        }
+        if (minus) {
+            adjustAllocation(wrap, String(minus.dataset.specialId || ''), -1);
+            return;
+        }
+        if (applyBtn) {
+            if (applyBtn.disabled)
+                return;
+            const spent = Object.values(readAllocations(wrap)).reduce((a, b) => a + b, 0);
+            if (spent <= 0)
+                return;
+            wrap.dataset.msLocked = '1';
+            wrap.querySelectorAll('button').forEach((b) => {
+                b.disabled = true;
+            });
+            await applyAllocations(message, readAllocations(wrap));
+            return;
+        }
+        if (cancelBtn) {
+            wrap.dataset.msLocked = '1';
+            wrap.querySelectorAll('button').forEach((b) => {
+                b.disabled = true;
+            });
+            try {
+                await message?.setFlag?.('mastery-system', CLEANSE_CHAT_FLAG, {
+                    ...flags,
+                    resolved: true,
+                    cancelled: true,
+                });
+                await message?.update?.({
+                    content: `${message.content}<div class="mastery-cleanse-resolved"><p><em>Cleanse cancelled — no Specials removed.</em></p></div>`,
+                });
+            }
+            catch {
+                /* ignore */
+            }
+        }
+    }, true);
 }
 export function registerCleanseChatHandlers() {
     const g = globalThis;
     const Hooks = g.Hooks;
     if (!Hooks?.on)
         return;
+    bindCleanseChatDelegation();
     Hooks.on('renderChatMessageHTML', (message, htmlRaw) => {
         try {
             const root = htmlRaw?.jquery || htmlRaw?.[0]

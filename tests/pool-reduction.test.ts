@@ -3,6 +3,7 @@ import {
   applyCleanseToList,
   attributePoolReduction,
   challengePoolReduction,
+  distributeCleanseAcrossList,
   mergeChallengeEntry,
   readChallengeState,
 } from '../src/system/pool-reduction.js';
@@ -110,6 +111,36 @@ describe('Cleanse(X) — one Special, no split', () => {
     ];
     const result = applyCleanseToList(list, 3);
     expect(result.applied).toBe(false);
+  });
+});
+
+describe('distributeCleanseAcrossList', () => {
+  const list = [
+    { id: 'ruin', name: 'Ruin', value: 8 },
+    { id: 'hex', name: 'Hex', value: 3 },
+  ];
+
+  it('greedy when allocations omitted', () => {
+    const result = distributeCleanseAcrossList(list, 5);
+    expect(result.applied).toBe(true);
+    expect(result.totalReduced).toBe(5);
+    expect(result.statusEffects.find((e) => e.id === 'ruin')?.value).toBe(3);
+  });
+
+  it('empty allocations object spends nothing (chat Apply safety)', () => {
+    const result = distributeCleanseAcrossList(list, 5, {});
+    expect(result.applied).toBe(false);
+    expect(result.totalReduced).toBe(0);
+    expect(result.leftover).toBe(5);
+    expect(result.statusEffects.find((e) => e.id === 'ruin')?.value).toBe(8);
+    expect(result.statusEffects.find((e) => e.id === 'hex')?.value).toBe(3);
+  });
+
+  it('honors an explicit split', () => {
+    const result = distributeCleanseAcrossList(list, 5, { hex: 2, ruin: 3 });
+    expect(result.totalReduced).toBe(5);
+    expect(result.statusEffects.find((e) => e.id === 'hex')?.value).toBe(1);
+    expect(result.statusEffects.find((e) => e.id === 'ruin')?.value).toBe(5);
   });
 });
 

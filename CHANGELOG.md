@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.664] - 2026-10-14
+
+### Fixed
+
+- **Cleanse-Chat wie Heal:** Nach Zielwahl erscheint eine Chat-Karte mit **+/−** pro cleansable Special und **Apply Cleanse** (Budget `Cleanse(X)`). Liest/schreibt den Token-Battle-Actor (unlinked Tokens). Klicks über Chat-Delegation, damit die Buttons nach Re-Render nicht tot sind. Apply ohne Allokation macht **nichts** mehr (kein greedy Auto-Distribute); Apply bleibt disabled bis mindestens 1 Punkt verteilt ist.
+
 ## [0.9.663] - 2026-10-14
 
 ### Changed

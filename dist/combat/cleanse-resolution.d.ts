@@ -1,6 +1,7 @@
 /**
  * Combat Cleanse Actives — ally targeting, no attack roll / Reactions.
- * Posts a chat card so the healer distributes Cleanse(X) across eligible Specials.
+ * Posts a heal-style chat card so the caster distributes Cleanse(X) with +/−
+ * across eligible Specials on the target (token actor for unlinked tokens).
  */
 import type { RadialCombatOption } from '../radial-menu/types.js';
 export declare const CLEANSE_CHAT_FLAG = "cleanseResolution";
@@ -18,7 +19,12 @@ export declare function isCleanseRadialOption(option: {
 export declare function cleansePowerItemFromRadialOption(option: RadialCombatOption | null | undefined): any | null;
 /** Cleanse(X) value from the power's level specials (or 0). */
 export declare function getCleanseRankFromPower(item: any): number;
-export declare function listCleansableForActor(actor: any): Array<{
+/**
+ * Battle actor for Cleanse reads/writes. Do NOT redirect through
+ * getActionEconomyActor — world prototypes often lack the token's Specials.
+ */
+export declare function cleanseTargetActor(actor: any): any;
+export declare function listCleansableForActor(actor: any, tokenHint?: any): Array<{
     id: string;
     label: string;
     value: number;
