@@ -1,13 +1,25 @@
 /**
  * Combat Heal Actives — ally targeting, no attack roll, no Reactions.
- * Rolls `mechanics.healing.flat`, applies to the current Health Bar, then
- * optionally offers Scarred / Health Level Recovery in chat.
+ *
+ * Order when Health Level Recovery is available and the target has Scarred bars:
+ *   1) Chat prompt: spend 0..N from this Power's per–Safe-Haven HLR pool
+ *   2) Apply Scarred / Health Level recovery
+ *   3) Roll HP heal onto the (possibly restored) current Health Bar
+ * Otherwise HP heal runs immediately.
  */
 import type { RadialCombatOption } from '../radial-menu/types.js';
 export declare const HEAL_CHAT_FLAG = "healResolution";
-/** Catalog Health Level Recovery band (heal Actives; 0 below L4). */
+/** Caster flag: `{ [powerKey]: spentLevels }` since last Safe Haven Rest. */
+export declare const HLR_SPENT_FLAG = "healthLevelRecoverySpent";
+/** Catalog Health Level Recovery band (heal Actives; 0 below L4, max 4 at L15–16). */
 export declare function healHealthLevelRecoveryForRank(rank: number): number;
 export declare function powerItemRank(item: any): number;
+/** Stable key for this Power's HLR pool on the caster. */
+export declare function healPowerHlrKey(powerItem: any): string;
+export declare function getHlrSpentOnCaster(caster: any, powerKey: string): number;
+export declare function getHlrRemainingOnCaster(caster: any, powerItem: any): number;
+export declare function spendHlrOnCaster(caster: any, powerKey: string, amount: number): Promise<number>;
+export declare function clearHlrSpentOnCaster(caster: any): Promise<void>;
 /** Catalog / artifact template ids that deliver heal (incl. heal+cleanse mixed). */
 export declare function isHealTemplateId(templateId: string | null | undefined): boolean;
 /** True for catalog heal Actives / Health Level Heal (not Cleanse/Dispel-only). */
@@ -49,6 +61,7 @@ export declare function formatHealResultChat(args: {
     powerName: string;
     results: HealTargetResult[];
     formula: string | null;
+    scarredRecovered?: number;
 }): string;
 export declare function formatScarredPromptChat(args: {
     healerName: string;
@@ -56,9 +69,14 @@ export declare function formatScarredPromptChat(args: {
     targetActorId: string;
     maxBars: number;
     scarred: number;
+    poolRemaining: number;
+    poolMax: number;
+    powerName?: string;
+    formula?: string | null;
 }): string;
 /**
  * Resolve heal on one or more token targets (already chosen). No attack roll.
+ * If HLR remains and a target is Scarred, prompts first — HP heal waits for the click.
  */
 export declare function resolveHealOnTokens(args: {
     casterToken: any;

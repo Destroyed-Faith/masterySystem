@@ -1327,3 +1327,55 @@ prose-mirror#chat-message.chat-input > .editor-container {
   margin-top: 0.35rem;
   opacity: 0.95;
 }
+
+/* Heal — Scarred / Health Level Recovery prompt (before HP heal) */
+#chat-log .mastery-heal-scarred-prompt .mastery-heal-scarred-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+#chat-log .mastery-heal-scarred-pick,
+#chat-log .mastery-heal-scarred-yes,
+#chat-log .mastery-heal-scarred-no,
+.ms-theme-rulebook #chat-log .mastery-heal-scarred-pick,
+.ms-theme-rulebook #chat-log .mastery-heal-scarred-yes,
+.ms-theme-rulebook #chat-log .mastery-heal-scarred-no {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  padding: 0.25rem 0.5rem;
+}
+
+#chat-log .mastery-heal-scarred-pick[data-bars="0"] {
+  opacity: 0.85;
+}
+
+#chat-log .mastery-heal-scarred-resolved {
+  margin-top: 0.35rem;
+}
+
+#chat-log .ms-heal-headline {
+  margin: 0.4rem 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+#chat-log .ms-heal-amount {
+  font-size: 1.35rem;
+  color: #6dcf8a;
+}
+
+#chat-log .ms-heal-roll {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+#chat-log .ms-heal-preview {
+  margin: 0.35rem 0;
+  opacity: 0.9;
+}
+
+#chat-log .ms-heal-scarred-line {
+  margin: 0.25rem 0;
+}

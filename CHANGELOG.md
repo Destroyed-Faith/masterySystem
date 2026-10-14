@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.658] - 2026-10-14
+
+### Fixed
+
+- **Heal → Scarred zuerst:** Wenn das Heal Health Level Recovery hat und das Ziel Scarred Bars hat, kommt **vor** dem HP-Heal eine Chat-Auswahl (0…N, max. 4). Pool pro Power / Safe Haven Rest auf dem Heiler; Reset bei Safe Haven Rest. Danach erst HP-Heal (und ggf. Cleanse).
+- **Heal sichtbar per Klick:** Buttons zeigen den kommenden Würfelpool (z. B. `10d8`); nach dem Klick erscheint auf derselben Chat-Karte die geheilte HP-Zahl (groß) plus Scarred-Recovery und eine Notification.
+
 ## [0.9.657] - 2026-10-14
 
 ### Fixed

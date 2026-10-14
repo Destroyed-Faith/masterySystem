@@ -1,22 +1,43 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   formatHealResultChat,
   formatScarredPromptChat,
   getHealDiceFormula,
+  getHlrRemainingOnCaster,
   healHealthLevelRecoveryForRank,
+  healPowerHlrKey,
   healPowerItemFromRadialOption,
   isHealPowerItem,
   isHealRadialOption,
 } from '../src/combat/heal-resolution';
 
 describe('healHealthLevelRecoveryForRank', () => {
-  it('matches catalog bands', () => {
+  it('matches catalog bands (max 4)', () => {
     expect(healHealthLevelRecoveryForRank(1)).toBe(0);
     expect(healHealthLevelRecoveryForRank(3)).toBe(0);
     expect(healHealthLevelRecoveryForRank(4)).toBe(1);
     expect(healHealthLevelRecoveryForRank(8)).toBe(2);
     expect(healHealthLevelRecoveryForRank(12)).toBe(3);
     expect(healHealthLevelRecoveryForRank(15)).toBe(4);
+    expect(healHealthLevelRecoveryForRank(16)).toBe(4);
+  });
+});
+
+describe('HLR pool on caster', () => {
+  it('tracks remaining against spent flag', () => {
+    const power = {
+      id: 'heal-1',
+      type: 'power',
+      system: { rank: 8, templateId: 'active-ranged-single-heal' },
+    };
+    const flags: Record<string, unknown> = {
+      'mastery-system:healthLevelRecoverySpent': { 'heal-1': 1 },
+    };
+    const caster = {
+      getFlag: vi.fn((scope: string, key: string) => flags[`${scope}:${key}`]),
+    };
+    expect(healPowerHlrKey(power)).toBe('heal-1');
+    expect(getHlrRemainingOnCaster(caster, power)).toBe(1); // pool 2 − spent 1
   });
 });
 
@@ -89,7 +110,7 @@ describe('artifact heal radial (Moonlight Mending)', () => {
 });
 
 describe('heal chat formatting', () => {
-  it('includes restored HP and scarred prompt buttons', () => {
+  it('includes restored HP and numbered scarred pick buttons', () => {
     const html = formatHealResultChat({
       sourceName: 'Oda',
       powerName: 'Melee Heal',
@@ -115,11 +136,43 @@ describe('heal chat formatting', () => {
       healerName: 'Oda',
       targetName: 'Alaris',
       targetActorId: 'a1',
-      maxBars: 1,
-      scarred: 1,
+      maxBars: 2,
+      scarred: 3,
+      poolRemaining: 2,
+      poolMax: 2,
+      powerName: 'Moonlight Mending',
+      formula: '10d8',
     });
-    expect(prompt).toMatch(/mastery-heal-scarred-yes/);
-    expect(prompt).toMatch(/mastery-heal-scarred-no/);
+    expect(prompt).toMatch(/10d8/);
+    expect(prompt).toMatch(/mastery-heal-scarred-pick/);
+    expect(prompt).toMatch(/data-bars="0"/);
+    expect(prompt).toMatch(/data-bars="1"/);
+    expect(prompt).toMatch(/data-bars="2"/);
+    expect(prompt).not.toMatch(/data-bars="3"/);
+    expect(prompt).toMatch(/2<\/strong> \/ 2/);
     expect(prompt).toMatch(/a1/);
+
+    const result = formatHealResultChat({
+      sourceName: 'Oda',
+      powerName: 'Moonlight Mending',
+      formula: '10d8',
+      scarredRecovered: 1,
+      results: [
+        {
+          tokenId: 't1',
+          actorId: 'a1',
+          name: 'Alaris',
+          rolled: 42,
+          afterBlight: 42,
+          restored: 30,
+          blight: 0,
+          scarredBefore: 0,
+        },
+      ],
+    });
+    expect(result).toMatch(/ms-heal-amount/);
+    expect(result).toMatch(/30/);
+    expect(result).toMatch(/42/);
+    expect(result).toMatch(/Scarred Health Bars restored/);
   });
 });

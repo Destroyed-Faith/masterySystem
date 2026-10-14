@@ -189,6 +189,13 @@ export async function applySafeHavenRest(actor) {
     catch (err) {
         console.warn('Mastery System | Safe Haven Remove Scar flag clear failed', err);
     }
+    try {
+        const { clearHlrSpentOnCaster } = await import('../combat/heal-resolution.js');
+        await clearHlrSpentOnCaster(actor);
+    }
+    catch (err) {
+        console.warn('Mastery System | Safe Haven HLR pool clear failed', err);
+    }
     // Minor Expression uses (Mastery Rank × 2 per Safe Haven Rest) refresh here.
     if (actor.getFlag?.('mastery-system', 'minorExpressionUses') != null) {
         updates['flags.mastery-system.minorExpressionUses'] = 0;
