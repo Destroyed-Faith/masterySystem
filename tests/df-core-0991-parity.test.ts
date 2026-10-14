@@ -358,7 +358,7 @@ function readZones(actor: any): PersistentSpellZone[] {
   return actor.flags['mastery-system'].spellZones ?? [];
 }
 
-describe('Lifetime XP is the only mechanical Mastery Rank', () => {
+describe('Stored Mastery Rank is mechanical; Lifetime XP only suggests', () => {
   const mismatched = {
     system: {
       mastery: { rank: 2 },
@@ -367,16 +367,17 @@ describe('Lifetime XP is the only mechanical Mastery Rank', () => {
     },
   };
 
-  it('resolves a stored MR2 with 100 Lifetime XP as MR3', () => {
-    expect(getRulesMasteryRank(mismatched)).toBe(3);
-    expect(castingBaseTnForMasteryRank(getRulesMasteryRank(mismatched))).toBe(22);
-    expect(speciallessSpellLimit(getRulesMasteryRank(mismatched))).toBe(3);
+  it('keeps stored MR2 even when Lifetime XP suggests MR3', () => {
+    expect(getRulesMasteryRank(mismatched)).toBe(2);
+    expect(masteryRankFromLifetimeXp(100)).toBe(3);
+    expect(castingBaseTnForMasteryRank(getRulesMasteryRank(mismatched))).toBe(14);
+    expect(speciallessSpellLimit(getRulesMasteryRank(mismatched))).toBe(2);
     expect(stoneConcentrationCap(2, 2, 100)).toBe(6);
-    expect(permanentColorlessCap(getRulesMasteryRank(mismatched))).toBe(3);
-    expect(activeBuffDurationRounds(mismatched)).toBe(3);
-    expect(getSkillRollDicePool(mismatched as any, 'not-a-skill', 'might').keepDice).toBe(3);
-    expect(basicAttackMasteryRank(mismatched)).toBe(3);
-    expect(actorMasteryRank(mismatched)).toBe(3);
+    expect(permanentColorlessCap(getRulesMasteryRank(mismatched))).toBe(2);
+    expect(activeBuffDurationRounds(mismatched)).toBe(2);
+    expect(getSkillRollDicePool(mismatched as any, 'not-a-skill', 'might').keepDice).toBe(2);
+    expect(basicAttackMasteryRank(mismatched)).toBe(2);
+    expect(actorMasteryRank(mismatched)).toBe(2);
   });
 
   it('uses Lifetime XP for the attribute cap and the Permanent Colorless cap', () => {

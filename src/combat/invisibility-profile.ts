@@ -1,6 +1,6 @@
 /**
  * Resolve Passive / Active Buff Invisibility into a combat profile.
- * Powers are the source of truth; perceptionCombat flags store Cloak Disruption.
+ * Powers are the source of truth. Cloak Disruption no longer applies.
  */
 
 import type { CombatSenseId } from './combat-senses.js';
@@ -8,11 +8,12 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
 import {
   getPerceptionCombatState,
+  isInvisibilitySuppressedByHealth,
   setPerceptionCombatState,
   type PerceptionCombatState,
 } from './perception-state.js';
 
-/** Default Special Combat Senses blocked when the Passive grants slots (until the player picks). */
+/** Default Special Combat Senses Obscured when the Passive grants slots (until the player picks). */
 export const DEFAULT_SPECIAL_SENSE_BLOCK_ORDER: CombatSenseId[] = [
   'lifeSense',
   'tremorSense',
@@ -22,13 +23,16 @@ export const DEFAULT_SPECIAL_SENSE_BLOCK_ORDER: CombatSenseId[] = [
 ];
 
 export interface InvisibilityProfile {
-  /** Combined Passive + Active Buff Invisibility Bonus (before Cloak Disruption). */
+  /** Combined Passive + Active Buff Invisibility Bonus. */
   baseBonus: number;
   /** How many Special Combat Sense slots the Passive grants (Active Buff adds 0). */
   specialSenseSlots: number;
-  /** Full blocked-sense list for targeting gates. */
+  /**
+   * Covered (Obscured) senses — Normal + Darkvision always when active,
+   * plus chosen Special Combat Senses from the Passive.
+   */
   blockedSenses: CombatSenseId[];
-  /** True when any invisibility source is present. */
+  /** True when any invisibility source is present and not health-suppressed. */
   active: boolean;
 }
 
@@ -101,7 +105,9 @@ export function resolveInvisibilityFromActor(actor: any): InvisibilityProfile {
     if (item?.type !== 'power') continue;
     const tid = String(item.system?.templateId || '');
     const sub = String(item.system?.subfamily || '').toLowerCase();
-    const isPassiveInv = tid === 'passive-invisibility' || (sub === 'invisibility' && String(item.system?.category || '').toLowerCase() === 'passive');
+    const isPassiveInv =
+      tid === 'passive-invisibility' ||
+      (sub === 'invisibility' && String(item.system?.category || '').toLowerCase() === 'passive');
     const isBuffInv = tid === 'ab-invisibility';
     if (!isPassiveInv && !isBuffInv) continue;
 
@@ -115,7 +121,12 @@ export function resolveInvisibilityFromActor(actor: any): InvisibilityProfile {
     } catch {
       /* catalog fallback below */
     }
-    if (bonus <= 0) bonus = catalogInvisibilityBonus(tid || (isPassiveInv ? 'passive-invisibility' : 'ab-invisibility'), rank);
+    if (bonus <= 0) {
+      bonus = catalogInvisibilityBonus(
+        tid || (isPassiveInv ? 'passive-invisibility' : 'ab-invisibility'),
+        rank,
+      );
+    }
     if (isPassiveInv && slots <= 0) {
       slots = catalogSpecialSenseSlots('passive-invisibility', rank);
     }
@@ -145,12 +156,24 @@ export function resolveInvisibilityFromActor(actor: any): InvisibilityProfile {
       const tid = String(flags.powerTemplateId || '');
       const mech = flags.mechanics && typeof flags.mechanics === 'object' ? flags.mechanics : null;
       let bonus = Math.max(0, Math.floor(Number(mech?.invisibilityBonus) || 0));
-      if (bonus <= 0 && (tid === 'ab-invisibility' || /invisibility/i.test(String(flags.powerName || effect.name || '')))) {
+      if (
+        bonus <= 0 &&
+        (tid === 'ab-invisibility' || /invisibility/i.test(String(flags.powerName || effect.name || '')))
+      ) {
         const rank = Math.max(1, Math.min(16, Math.floor(Number(flags.powerRank || flags.rank || 1) || 1)));
         bonus = catalogInvisibilityBonus('ab-invisibility', rank);
       }
       if (bonus > 0) baseBonus += bonus;
     }
+  }
+
+  if (isInvisibilitySuppressedByHealth(actor)) {
+    return {
+      baseBonus: 0,
+      specialSenseSlots,
+      blockedSenses: [],
+      active: false,
+    };
   }
 
   const blockedSenses: CombatSenseId[] =
@@ -166,29 +189,20 @@ export function resolveInvisibilityFromActor(actor: any): InvisibilityProfile {
   };
 }
 
-/** Effective bonus after Cloak Disruption, with Passive/Buff as the floor base. */
+/** Live Invisibility Bonus (0 when Incapacitated / suppressed). */
 export function effectiveInvisibilityBonusForActor(actor: any): number {
+  if (isInvisibilitySuppressedByHealth(actor)) return 0;
   const profile = resolveInvisibilityFromActor(actor);
+  if (profile.baseBonus > 0) return profile.baseBonus;
+  // Fallback: synced combat flag (tests / mid-sync).
   const st = getPerceptionCombatState(actor);
-  // Disruption absolute remaining (set after an attack/move).
-  if (
-    st.currentInvisibilityBonus !== undefined &&
-    st.invisibilityBonus !== undefined &&
-    st.currentInvisibilityBonus !== st.invisibilityBonus
-  ) {
-    return Math.max(0, Math.floor(Number(st.currentInvisibilityBonus) || 0));
-  }
-  if (st.currentInvisibilityBonus !== undefined && profile.baseBonus <= 0) {
-    return Math.max(0, Math.floor(Number(st.currentInvisibilityBonus) || 0));
-  }
-  // Prefer live power bonus when flags are stale / not yet synced.
-  if (st.currentInvisibilityBonus === undefined || st.currentInvisibilityBonus === st.invisibilityBonus) {
-    return Math.max(profile.baseBonus, Math.max(0, Math.floor(Number(st.invisibilityBonus) || 0)));
-  }
-  return Math.max(0, Math.floor(Number(st.currentInvisibilityBonus) || 0));
+  return Math.max(0, Math.floor(Number(st.invisibilityBonus) || 0));
 }
 
-/** Sense blocked using live Passive/Buff profile (not only stored flags). */
+/**
+ * Covered (Obscured) sense under Invisibility.
+ * Uncovered Special Combat Senses are unaffected — callers treat them as auto-perceive.
+ */
 export function isSenseBlockedForActor(target: any, senseId: CombatSenseId): boolean {
   const profile = resolveInvisibilityFromActor(target);
   if (profile.blockedSenses.includes(senseId)) return true;
@@ -198,24 +212,20 @@ export function isSenseBlockedForActor(target: any, senseId: CombatSenseId): boo
   return inv > 0 && (senseId === 'normalCombatAwareness' || senseId === 'darkvision');
 }
 
-/** Sync perceptionCombat base + blocked senses from powers (keeps disruption current when set). */
+/** Sync perceptionCombat base + covered senses from powers (+ visual presentation). */
 export async function syncInvisibilityFromPowers(actor: any): Promise<InvisibilityProfile> {
   const profile = resolveInvisibilityFromActor(actor);
   if (!actor?.setFlag) return profile;
-  const st = getPerceptionCombatState(actor);
-  const prevBase = Math.max(0, Math.floor(Number(st.invisibilityBonus) || 0));
   const patch: Partial<PerceptionCombatState> = {
     invisibilityBonus: profile.baseBonus,
     blockedSenses: profile.blockedSenses,
   };
-  if (!profile.active) {
-    patch.currentInvisibilityBonus = 0;
-  } else if (st.currentInvisibilityBonus === undefined || st.currentInvisibilityBonus === prevBase) {
-    patch.currentInvisibilityBonus = profile.baseBonus;
-  } else if (profile.baseBonus !== prevBase) {
-    const delta = profile.baseBonus - prevBase;
-    patch.currentInvisibilityBonus = Math.max(0, Math.floor(Number(st.currentInvisibilityBonus) || 0) + delta);
-  }
   await setPerceptionCombatState(actor, patch);
+  try {
+    const { syncInvisibilityPresentation } = await import('./invisibility-presentation.js');
+    await syncInvisibilityPresentation(actor);
+  } catch (err) {
+    console.warn('Mastery System | invisibility presentation sync failed', err);
+  }
   return profile;
 }

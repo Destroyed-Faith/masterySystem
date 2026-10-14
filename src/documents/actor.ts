@@ -37,11 +37,9 @@ import { getActorInventoryLoadZone, movementPenaltyForLoad } from '../utils/encu
 import { defensiveEvadeBonus } from '../utils/weapon-properties.js';
 import { getRoundState } from '../combat/action-economy.js';
 import {
-  deriveMasteryRankFromStones,
   getRulesMasteryRank,
   getWorldDefaultMasteryRank,
-  masteryRankFromLifetimeXp,
-  STARTING_MASTERY_RANK,
+  suggestedMasteryRank,
 } from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 import {
@@ -82,17 +80,13 @@ function clampSkillRanksInUpdate(actor: Actor, changed: any): void {
   const systemChange = changed?.system;
   if (!systemChange || typeof systemChange !== 'object') return;
 
-  const xpRaw = systemChange.progression?.lifetimeXp ?? (actor as any).system?.progression?.lifetimeXp;
-  const xpKnown = xpRaw != null && xpRaw !== '' && Number.isFinite(Number(xpRaw));
-  const rulesRank = xpKnown ? masteryRankFromLifetimeXp(Number(xpRaw) || 0) : null;
-  if (rulesRank != null) {
-    systemChange.mastery = { ...(systemChange.mastery ?? {}), rank: rulesRank };
-  }
-  const currentMr = rulesRank ?? getRulesMasteryRank(actor);
+  // Stored Mastery Rank is authoritative (GM may keep a character below the
+  // Lifetime-XP suggestion). Do not overwrite rank from XP here.
+  const currentMr = getRulesMasteryRank(actor);
   const nextMrRaw = systemChange.mastery?.rank;
   const nextMr =
     nextMrRaw != null && Number.isFinite(Number(nextMrRaw))
-      ? Math.max(1, Math.floor(Number(nextMrRaw)))
+      ? Math.max(1, Math.min(8, Math.floor(Number(nextMrRaw))))
       : currentMr;
   const maxSkill = calculateMaxSkillRank(nextMr);
   const masteryDropped = nextMr < currentMr;
@@ -341,18 +335,20 @@ export class MasteryActor extends Actor {
       }
 
       /**
-       * DF Core v0.9.9.1: Lifetime XP is the only mechanical Mastery Rank.
-       * When Lifetime XP is present, the stored field is the same number.
+       * Stored Mastery Rank is mechanical. Lifetime XP / Stones only fill
+       * `suggestedRank` for the sheet hint (GM may keep rank lower).
        */
       if (!system.mastery) {
         system.mastery = { rank: getWorldDefaultMasteryRank(), points: 0, experience: 0 };
       }
-      const lifetimeXp = (system as any).progression?.lifetimeXp;
-      const rulesRank = getRulesMasteryRank(system);
-      system.mastery.suggestedRank = lifetimeXp == null
-        ? deriveMasteryRankFromStones(system.stones.total)
-        : rulesRank;
-      system.mastery.rank = rulesRank;
+      const suggested = suggestedMasteryRank(system);
+      system.mastery.suggestedRank = suggested;
+      const storedRank = Math.floor(Number(system.mastery.rank) || 0);
+      if (storedRank < 1 || storedRank > 8) {
+        system.mastery.rank = suggested;
+      } else {
+        system.mastery.rank = storedRank;
+      }
       // New spec — MR 8 Divine Scale (Lesser/True/High/Apex God) for display.
       // `null` when total Stones < 50 (i.e. the actor is below Godlevel).
       system.mastery.divineScale = getDivineScale(system.stones.total);

@@ -21,6 +21,9 @@ export declare const SENSE_SLOT_SPECIAL_IDS: CombatSenseId[];
 export declare function parseCombatSenseLabel(raw: string | null | undefined): CombatSenseId | null;
 export declare function combatSenseDef(id: CombatSenseId): CombatSenseDefinition;
 export declare function isSpecialCombatSense(id: CombatSenseId): boolean;
-/** Standard skill-check TN for a creature's Mastery Rank (MR × 8). */
+/**
+ * Standard Skill Check TN by Mastery Rank (Players Guide).
+ * Same curve as Attribute Checks: (8 × MR) − 2 (MR2 → 14, not MR × 8).
+ */
 export declare function skillCheckTnByMasteryRank(masteryRank: number): number;
 //# sourceMappingURL=combat-senses.d.ts.map

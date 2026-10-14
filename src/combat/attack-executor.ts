@@ -500,18 +500,9 @@ export async function createAttackCard(
   // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
   let targetEvadeFromActor = getTargetEvade(target);
 
-  const {
-    resolveEvadeVsInvisibleAttacker,
-  } = await import('./perception-gate.js');
-  const { applyAttackCloakDisruption } = await import('./perception-combat-hooks.js');
-  const evadeVsInvisible = await resolveEvadeVsInvisibleAttacker(target, attacker, {
-    defenderToken: targetToken,
-    attackerToken: attackerToken,
-  });
-  if (evadeVsInvisible.evadeMultiplier < 1) {
-    targetEvadeFromActor = Math.max(0, Math.floor(targetEvadeFromActor * evadeVsInvisible.evadeMultiplier));
-  }
-  await applyAttackCloakDisruption(attacker);
+  // Attacking while invisible reveals position for the rest of the Round (full Evade).
+  const { revealInvisibleAttacker } = await import('./perception-gate.js');
+  await revealInvisibleAttacker(attacker);
 
   // Get power info if applicable
   let selectedPowerId: string | null = null;
@@ -865,7 +856,7 @@ export async function createAttackCard(
         }
       : {}),
     targetEvadeFromActor: tnKind !== 'evade' ? targetEvadeFromActor : undefined,
-    halfEvadeVsInvisible: evadeVsInvisible.evadeMultiplier < 1,
+    halfEvadeVsInvisible: false,
   };
   
   // Debug log before creating message
@@ -987,9 +978,6 @@ export async function createAttackCard(
 
   const evadeNoteParts: string[] = [];
   if (actorHasSurprise(target)) evadeNoteParts.push('half — Surprise');
-  if (evadeVsInvisible.evadeMultiplier < 1) {
-    evadeNoteParts.push('half — failed Perception vs invisible attacker');
-  }
   const evadeNote = evadeNoteParts.length ? ` (${evadeNoteParts.join('; ')})` : '';
   
   const keepShown = useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : masteryRank;

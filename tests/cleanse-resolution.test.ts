@@ -47,7 +47,7 @@ describe('isCleansePowerItem / getCleanseRankFromPower', () => {
 });
 
 describe('formatCleansePromptChat', () => {
-  it('renders heal-style +/− allocation controls for eligible specials', () => {
+  it('renders horizontal [−] Name stack [+] controls', () => {
     const html = formatCleansePromptChat({
       casterName: 'Oda',
       powerName: 'Cleanse',
@@ -59,15 +59,17 @@ describe('formatCleansePromptChat', () => {
         { id: 'sundered', label: 'Sundered', value: 2 },
       ],
     });
-    expect(html).toMatch(/Cleanse\(5\)/);
+    expect(html).toMatch(/Cleanse\(<strong>5<\/strong>\)/);
     expect(html).toMatch(/ms-cleanse-plus/);
     expect(html).toMatch(/ms-cleanse-minus/);
+    expect(html).toMatch(/ms-cleanse-stack-value/);
     expect(html).toMatch(/ms-cleanse-apply/);
     expect(html).toMatch(/Apply Cleanse/);
     expect(html).toMatch(/Hex/);
-    expect(html).toMatch(/\(4\)/);
+    expect(html).toMatch(/>4</);
     expect(html).toMatch(/data-target-actor-id="a1"/);
     expect(html).toMatch(/ms-cleanse-remaining/);
+    expect(html).toMatch(/Cancel \(refund Action\)/);
   });
 });
 

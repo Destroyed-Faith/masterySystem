@@ -86,8 +86,12 @@ export function combatSenseDef(id) {
 export function isSpecialCombatSense(id) {
     return SENSE_SLOT_SPECIAL_IDS.includes(id);
 }
-/** Standard skill-check TN for a creature's Mastery Rank (MR × 8). */
+/**
+ * Standard Skill Check TN by Mastery Rank (Players Guide).
+ * Same curve as Attribute Checks: (8 × MR) − 2 (MR2 → 14, not MR × 8).
+ */
 export function skillCheckTnByMasteryRank(masteryRank) {
-    return Math.max(8, Math.floor(Number(masteryRank) || 1) * 8);
+    const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+    return 8 * mr - 2;
 }
 //# sourceMappingURL=combat-senses.js.map

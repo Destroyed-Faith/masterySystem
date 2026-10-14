@@ -1,6 +1,7 @@
 import { getActionEconomyActor, getAvailableAttackActions, getAvailableMovementActions, getMovementRangeBonusMeters, getReactionActionsSummary, getRoundState, gmRefundCombatAction, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
 import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../combat/end-turn.js';
 import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
+import { effectiveInvisibilityBonusForActor } from '../combat/invisibility-profile.js';
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
 import { specialTokenIcon } from './special-token-assets.js';
@@ -135,6 +136,7 @@ export class CombatCarouselApp extends BaseCarousel {
             try {
                 const tokenDoc = combatant.token?.document ?? combatant.token ?? token?.document ?? token;
                 const effectList = readActorStatusEffects(actor, tokenDoc);
+                let sawInvisible = false;
                 for (const entry of effectList) {
                     const rawId = String(entry?.id ?? '').trim().toLowerCase();
                     const rawName = String(entry?.name ?? '').replace(/\(x\)/gi, '').trim();
@@ -147,13 +149,36 @@ export class CombatCarouselApp extends BaseCarousel {
                         MASTERY_STATUS_EFFECTS.find((e) => e.name.toLowerCase() === rawName.toLowerCase());
                     const label = reg?.name ?? rawName ?? rawId;
                     const tokenIcon = specialTokenIcon(rawId) ?? (reg ? specialTokenIcon(reg.id) : null);
+                    if (rawId === 'invisible')
+                        sawInvisible = true;
                     statusIcons.push({
                         icon: tokenIcon ?? reg?.img ?? 'systems/mastery-system/assets/icons/status/hazard.svg',
                         name: label,
-                        tooltip: value !== null ? `${label} (${value})` : label,
-                        kind: 'special',
-                        cssClass: tokenIcon ? 'status-icon status-effect-token' : undefined,
+                        tooltip: rawId === 'invisible' && value !== null
+                            ? `Invisible (+${value} Invisibility Bonus)`
+                            : value !== null
+                                ? `${label} (${value})`
+                                : label,
+                        kind: rawId === 'invisible' ? 'invisibility' : 'special',
+                        cssClass: tokenIcon
+                            ? 'status-icon status-effect-token'
+                            : rawId === 'invisible'
+                                ? 'status-icon is-invisible'
+                                : undefined,
                     });
+                }
+                // Fallback if presentation status not yet synced but power is live.
+                if (!sawInvisible) {
+                    const bonus = effectiveInvisibilityBonusForActor(actor);
+                    if (bonus > 0) {
+                        statusIcons.unshift({
+                            icon: 'systems/mastery-system/assets/icons/status/invisible.svg',
+                            name: 'Invisible',
+                            tooltip: `Invisible (+${bonus} Invisibility Bonus)`,
+                            kind: 'invisibility',
+                            cssClass: 'status-icon is-invisible',
+                        });
+                    }
                 }
             }
             catch (err) {

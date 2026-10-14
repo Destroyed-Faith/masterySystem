@@ -1,28 +1,34 @@
 /**
  * Resolve Passive / Active Buff Invisibility into a combat profile.
- * Powers are the source of truth; perceptionCombat flags store Cloak Disruption.
+ * Powers are the source of truth. Cloak Disruption no longer applies.
  */
 import type { CombatSenseId } from './combat-senses.js';
-/** Default Special Combat Senses blocked when the Passive grants slots (until the player picks). */
+/** Default Special Combat Senses Obscured when the Passive grants slots (until the player picks). */
 export declare const DEFAULT_SPECIAL_SENSE_BLOCK_ORDER: CombatSenseId[];
 export interface InvisibilityProfile {
-    /** Combined Passive + Active Buff Invisibility Bonus (before Cloak Disruption). */
+    /** Combined Passive + Active Buff Invisibility Bonus. */
     baseBonus: number;
     /** How many Special Combat Sense slots the Passive grants (Active Buff adds 0). */
     specialSenseSlots: number;
-    /** Full blocked-sense list for targeting gates. */
+    /**
+     * Covered (Obscured) senses — Normal + Darkvision always when active,
+     * plus chosen Special Combat Senses from the Passive.
+     */
     blockedSenses: CombatSenseId[];
-    /** True when any invisibility source is present. */
+    /** True when any invisibility source is present and not health-suppressed. */
     active: boolean;
 }
 /**
  * Live Invisibility profile from owned Passive: Invisibility + Active Buff: Invisibility.
  */
 export declare function resolveInvisibilityFromActor(actor: any): InvisibilityProfile;
-/** Effective bonus after Cloak Disruption, with Passive/Buff as the floor base. */
+/** Live Invisibility Bonus (0 when Incapacitated / suppressed). */
 export declare function effectiveInvisibilityBonusForActor(actor: any): number;
-/** Sense blocked using live Passive/Buff profile (not only stored flags). */
+/**
+ * Covered (Obscured) sense under Invisibility.
+ * Uncovered Special Combat Senses are unaffected — callers treat them as auto-perceive.
+ */
 export declare function isSenseBlockedForActor(target: any, senseId: CombatSenseId): boolean;
-/** Sync perceptionCombat base + blocked senses from powers (keeps disruption current when set). */
+/** Sync perceptionCombat base + covered senses from powers (+ visual presentation). */
 export declare function syncInvisibilityFromPowers(actor: any): Promise<InvisibilityProfile>;
 //# sourceMappingURL=invisibility-profile.d.ts.map

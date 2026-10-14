@@ -1,13 +1,13 @@
 /**
- * Combat perception runtime hooks — stealth results, cloak disruption, round/turn cleanup.
+ * Combat perception runtime hooks — stealth results, reveal, round/turn cleanup.
  */
 import type { CombatSenseId } from './combat-senses.js';
 export interface InvisibilityVeilPreset {
     id: string;
     label: string;
-    /** Base blocked senses (basic Invisibility). */
+    /** Covered senses (basic Invisibility). */
     blockedSenses: CombatSenseId[];
-    /** Additional senses blocked at higher veil levels. */
+    /** Additional senses covered at higher veil levels. */
     elevatedBlockedSenses?: CombatSenseId[];
 }
 /** Named veil presets from the Players Guide (Silent Veil, Hollow Veil). */
@@ -18,12 +18,16 @@ export declare function applyStealthRollResult(actor: any, result: {
     success: boolean;
     raises?: number;
 }): Promise<void>;
-/** Cloak Disruption reductions per rules table. */
-export declare function applyAttackCloakDisruption(attacker: any): Promise<void>;
-export declare function applyMovementCloakDisruption(actor: any, totalMovedM: number): Promise<void>;
-/** One Perception check per hidden/invisible target per round — reset on new round. */
+/** @deprecated Cloak Disruption removed — no-op (attack reveal is handled separately). */
+export declare function applyAttackCloakDisruption(_attacker: any): Promise<void>;
+/** @deprecated Cloak Disruption removed — movement no longer lowers Invisibility Bonus. */
+export declare function applyMovementCloakDisruption(_actor: any, _totalMovedM: number): Promise<void>;
+/** New Round: Perception attempts, attack-reveal, and Stealth-spent TN bonus. */
 export declare function clearPerceptionUsageForNewRound(): Promise<void>;
-/** Restore current Invisibility Bonus at the start of the creature's turn. */
+/**
+ * Start of this creature's turn: sync Invisibility profile; clear *their*
+ * Perception attempt flags so they may try once vs each invisible target again.
+ */
 export declare function processPerceptionTurnStart(actor: any): Promise<void>;
 /** Sync every combatant when combat begins so Passive Invisibility is live immediately. */
 export declare function syncAllCombatantInvisibility(combat?: any): Promise<void>;

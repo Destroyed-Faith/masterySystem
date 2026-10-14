@@ -13,6 +13,13 @@ import { powerItemRank } from './heal-resolution.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
 export const CLEANSE_CHAT_FLAG = 'cleanseResolution';
+/** Cast ids already refunded / committed (Cancel must not double-refund AoE cards). */
+const refundedCleanseCastIds = new Set();
+const committedCleanseCastIds = new Set();
+function newCleanseCastId() {
+    const g = globalThis;
+    return String(g.foundry?.utils?.randomID?.() || `cleanse-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+}
 export function isCleanseTemplateId(templateId) {
     const tid = String(templateId || '');
     if (!tid)
@@ -144,24 +151,23 @@ export function formatCleansePromptChat(args) {
         return `<div class="mastery-cleanse-resolution"><p><strong>${caster}</strong> — ${power}</p>
       <p>Target: <strong>${target}</strong> — Cleanse(${x}), but no eligible Specials.</p></div>`;
     }
+    // One compact row: [−] Name 9 [+] — the number is the remaining stack (starts at max).
     const rows = args.specials
         .map((s) => `<li class="ms-cleanse-row" data-special-id="${escapeStoneChat(s.id)}" data-max="${s.value}">
-        <span class="ms-cleanse-label">${escapeStoneChat(s.label)} <span class="ms-cleanse-stack">(${s.value})</span></span>
-        <div class="ms-cleanse-stepper">
-          <button type="button" class="ms-cleanse-minus mastery-heal-scarred-pick" data-special-id="${escapeStoneChat(s.id)}" title="−1" aria-label="Reduce ${escapeStoneChat(s.label)}">−</button>
-          <span class="ms-cleanse-alloc" data-special-id="${escapeStoneChat(s.id)}">0</span>
-          <button type="button" class="ms-cleanse-plus mastery-heal-scarred-pick" data-special-id="${escapeStoneChat(s.id)}" title="+1" aria-label="Cleanse ${escapeStoneChat(s.label)} +1">+</button>
-        </div>
+        <button type="button" class="ms-cleanse-minus" data-special-id="${escapeStoneChat(s.id)}" title="Cleanse −1 from ${escapeStoneChat(s.label)}" aria-label="Cleanse ${escapeStoneChat(s.label)} −1">−</button>
+        <span class="ms-cleanse-label">${escapeStoneChat(s.label)}</span>
+        <span class="ms-cleanse-stack-value" data-special-id="${escapeStoneChat(s.id)}">${s.value}</span>
+        <button type="button" class="ms-cleanse-plus" data-special-id="${escapeStoneChat(s.id)}" title="Undo −1 on ${escapeStoneChat(s.label)}" aria-label="Restore ${escapeStoneChat(s.label)} +1">+</button>
       </li>`)
         .join('');
-    return `<div class="mastery-cleanse-prompt mastery-heal-scarred-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-cleanse-x="${x}">
-  <p><strong>${caster}</strong> — ${power}</p>
-  <p><strong>${target}</strong> — distribute <strong>Cleanse(${x})</strong> (unused points are lost).</p>
-  <p class="ms-heal-preview"><strong>Use +/−</strong> on each Special, then <strong>Apply</strong>. Remaining budget: <strong class="ms-cleanse-remaining">${x}</strong>/${x}</p>
+    return `<div class="mastery-cleanse-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-cleanse-x="${x}">
+  <header class="ms-cleanse-head"><strong>${caster}</strong> — ${power}</header>
+  <p class="ms-cleanse-target"><strong>${target}</strong> · Cleanse(<strong>${x}</strong>) · budget <strong class="ms-cleanse-remaining">${x}</strong>/${x}</p>
+  <p class="ms-cleanse-hint">− lowers the stack · + undoes · Apply commits · Cancel refunds Action + Power</p>
   <ul class="ms-cleanse-list">${rows}</ul>
-  <div class="mastery-cleanse-actions mastery-heal-scarred-actions">
-    <button type="button" class="ms-cleanse-apply mastery-heal-scarred-pick">Apply Cleanse</button>
-    <button type="button" class="ms-cleanse-cancel mastery-heal-scarred-pick">Cancel</button>
+  <div class="mastery-cleanse-actions">
+    <button type="button" class="ms-cleanse-apply">Apply Cleanse</button>
+    <button type="button" class="ms-cleanse-cancel">Cancel (refund Action)</button>
   </div>
 </div>`;
 }
@@ -188,6 +194,10 @@ export async function postCleansePromptForTarget(args) {
         return;
     const cleanseX = getCleanseRankFromPower(args.powerItem);
     const specials = listCleansableForActor(target, args.targetToken);
+    if (!specials.length || cleanseX <= 0) {
+        // No eligible Specials — do not post an empty allocator (caller should filter).
+        return;
+    }
     const g = globalThis;
     const content = formatCleansePromptChat({
         casterName: String(caster?.name || args.casterToken?.name || 'Caster'),
@@ -203,11 +213,16 @@ export async function postCleansePromptForTarget(args) {
         flags: {
             'mastery-system': {
                 [CLEANSE_CHAT_FLAG]: {
-                    kind: specials.length && cleanseX > 0 ? 'prompt' : 'empty',
+                    kind: 'prompt',
+                    castId: String(args.castId || newCleanseCastId()),
                     targetActorId: String(target.id || ''),
                     targetTokenId: String(args.targetToken?.id || ''),
+                    casterActorId: String(caster?.id || ''),
+                    casterTokenId: String(args.casterToken?.id || ''),
+                    powerUsageId: String(args.powerUsageId || args.powerItem?.id || ''),
+                    spentAction: !!args.spentAction,
                     cleanseX,
-                    resolved: specials.length === 0 || cleanseX <= 0,
+                    resolved: false,
                 },
             },
         },
@@ -215,25 +230,52 @@ export async function postCleansePromptForTarget(args) {
 }
 /**
  * Resolve Cleanse on chosen tokens (ally targeting already done).
- * One interactive chat card per target.
+ * One interactive chat card per target that still has cleansable Specials.
  */
 export async function resolveCleanseOnTokens(args) {
+    const castId = newCleanseCastId();
+    let posted = 0;
     for (const tok of args.targetTokens) {
+        const specials = listCleansableForActor(tok?.actor, tok);
+        if (!specials.length)
+            continue;
         await postCleansePromptForTarget({
             casterToken: args.casterToken,
             powerItem: args.powerItem,
             powerName: args.powerName,
             targetToken: tok,
+            powerUsageId: args.powerUsageId,
+            spentAction: !!args.spentAction,
+            castId,
         });
+        posted += 1;
+    }
+    if (!posted) {
+        const g = globalThis;
+        g.ui?.notifications?.warn?.('Cleanse: no target with cleansable Specials.');
+        if (args.spentAction || args.powerUsageId) {
+            await refundCleanseCast({
+                castId,
+                casterActorId: String(args.casterToken?.actor?.id || ''),
+                casterTokenId: String(args.casterToken?.id || ''),
+                powerUsageId: String(args.powerUsageId || args.powerItem?.id || ''),
+                spentAction: !!args.spentAction,
+            });
+        }
     }
 }
+/** Allocated Cleanse points = original stack − current displayed stack. */
 function readAllocations(root) {
     const out = {};
-    root.querySelectorAll('.ms-cleanse-alloc').forEach((el) => {
-        const id = String(el.dataset.specialId || '');
-        const n = Math.max(0, Math.floor(Number(el.textContent) || 0));
-        if (id && n > 0)
-            out[id] = n;
+    root.querySelectorAll('.ms-cleanse-row').forEach((rowEl) => {
+        const row = rowEl;
+        const id = String(row.dataset.specialId || '');
+        const max = Math.max(0, Math.floor(Number(row.dataset.max) || 0));
+        const stackEl = row.querySelector('.ms-cleanse-stack-value');
+        const cur = Math.max(0, Math.floor(Number(stackEl?.textContent) || 0));
+        const spent = Math.max(0, max - cur);
+        if (id && spent > 0)
+            out[id] = spent;
     });
     return out;
 }
@@ -247,20 +289,58 @@ function refreshRemaining(root) {
         remEl.textContent = String(rem);
     root.querySelectorAll('.ms-cleanse-row').forEach((rowEl) => {
         const row = rowEl;
-        const id = String(row.dataset.specialId || '');
         const max = Math.max(0, Math.floor(Number(row.dataset.max) || 0));
-        const cur = Math.max(0, Math.floor(Number(alloc[id] || 0)));
+        const stackEl = row.querySelector('.ms-cleanse-stack-value');
+        const cur = Math.max(0, Math.floor(Number(stackEl?.textContent) || 0));
         const plus = row.querySelector('.ms-cleanse-plus');
         const minus = row.querySelector('.ms-cleanse-minus');
-        if (plus)
-            plus.disabled = rem <= 0 || cur >= max;
+        // − spends Cleanse (lower stack); + restores stack.
         if (minus)
-            minus.disabled = cur <= 0;
+            minus.disabled = rem <= 0 || cur <= 0;
+        if (plus)
+            plus.disabled = cur >= max;
     });
     const applyBtn = root.querySelector('.ms-cleanse-apply');
     if (applyBtn && !root.dataset.msLocked) {
         applyBtn.disabled = spent <= 0;
-        applyBtn.title = spent <= 0 ? 'Allocate at least 1 with + first' : 'Apply Cleanse';
+        applyBtn.title = spent <= 0 ? 'Lower a stack with − first' : 'Apply Cleanse';
+    }
+}
+async function refundCleanseCast(flags) {
+    const castId = String(flags.castId || '');
+    if (castId) {
+        if (committedCleanseCastIds.has(castId))
+            return false;
+        if (refundedCleanseCastIds.has(castId))
+            return false;
+        refundedCleanseCastIds.add(castId);
+    }
+    const g = globalThis;
+    const combat = g.game?.combat ?? null;
+    const tokenId = String(flags.casterTokenId || '');
+    const actorId = String(flags.casterActorId || '');
+    let actor = (tokenId && g.canvas?.tokens?.get?.(tokenId)?.actor) ||
+        g.game?.actors?.get?.(actorId) ||
+        null;
+    if (!actor && tokenId) {
+        const tok = g.canvas?.tokens?.placeables?.find?.((t) => String(t.id) === tokenId || String(t.document?.id) === tokenId);
+        if (tok?.actor)
+            actor = tok.actor;
+    }
+    if (!actor)
+        return false;
+    try {
+        const { refundAttackAction, unmarkPowerUsedThisRound } = await import('./action-economy.js');
+        if (flags.spentAction)
+            await refundAttackAction(actor, combat);
+        if (flags.powerUsageId)
+            await unmarkPowerUsedThisRound(actor, combat, String(flags.powerUsageId));
+        g.ui?.notifications?.info?.('Cleanse cancelled — Action and Power use restored.');
+        return true;
+    }
+    catch (err) {
+        console.warn('Mastery System | Cleanse cancel refund failed', err);
+        return false;
     }
 }
 async function applyAllocations(message, allocations) {
@@ -282,6 +362,9 @@ async function applyAllocations(message, allocations) {
     if (result.applied) {
         await writeActorStatusList(owner, result.statusEffects);
     }
+    const castId = String(flags.castId || '');
+    if (castId)
+        committedCleanseCastIds.add(castId);
     try {
         await message.setFlag?.('mastery-system', CLEANSE_CHAT_FLAG, { ...flags, resolved: true });
     }
@@ -311,28 +394,31 @@ function findChatMessageFromEl(el) {
         return null;
     return g.game?.messages?.get?.(id) ?? null;
 }
-function adjustAllocation(wrap, specialId, delta) {
+/** Adjust remaining stack display. Negative delta spends Cleanse; positive undoes. */
+function adjustStack(wrap, specialId, deltaStack) {
     const id = String(specialId || '');
-    if (!id || !delta)
+    if (!id || !deltaStack)
         return;
     const row = wrap.querySelector(`.ms-cleanse-row[data-special-id="${id}"]`);
-    const allocEl = wrap.querySelector(`.ms-cleanse-alloc[data-special-id="${id}"]`);
-    if (!row || !allocEl)
+    const stackEl = wrap.querySelector(`.ms-cleanse-stack-value[data-special-id="${id}"]`);
+    if (!row || !stackEl)
         return;
     const max = Math.max(0, Math.floor(Number(row.dataset.max) || 0));
     const budget = Math.max(0, Math.floor(Number(wrap.dataset.cleanseX) || 0));
     const alloc = readAllocations(wrap);
     const spent = Object.values(alloc).reduce((a, b) => a + b, 0);
-    const cur = Math.max(0, Math.floor(Number(allocEl.textContent) || 0));
-    if (delta > 0) {
-        if (spent >= budget || cur >= max)
+    const cur = Math.max(0, Math.floor(Number(stackEl.textContent) || 0));
+    if (deltaStack < 0) {
+        // Spend Cleanse: lower the displayed stack.
+        if (spent >= budget || cur <= 0)
             return;
-        allocEl.textContent = String(cur + 1);
+        stackEl.textContent = String(cur - 1);
     }
-    else if (delta < 0) {
-        if (cur <= 0)
+    else if (deltaStack > 0) {
+        // Undo: restore stack toward original max.
+        if (cur >= max)
             return;
-        allocEl.textContent = String(cur - 1);
+        stackEl.textContent = String(cur + 1);
     }
     refreshRemaining(wrap);
 }
@@ -379,12 +465,14 @@ function bindCleanseChatDelegation() {
             return;
         ev.preventDefault();
         ev.stopPropagation();
-        if (plus) {
-            adjustAllocation(wrap, String(plus.dataset.specialId || ''), 1);
+        if (minus) {
+            // − lowers the stack (spends Cleanse).
+            adjustStack(wrap, String(minus.dataset.specialId || ''), -1);
             return;
         }
-        if (minus) {
-            adjustAllocation(wrap, String(minus.dataset.specialId || ''), -1);
+        if (plus) {
+            // + restores the stack (undo spend).
+            adjustStack(wrap, String(plus.dataset.specialId || ''), 1);
             return;
         }
         if (applyBtn) {
@@ -412,8 +500,11 @@ function bindCleanseChatDelegation() {
                     cancelled: true,
                 });
                 await message?.update?.({
-                    content: `${message.content}<div class="mastery-cleanse-resolved"><p><em>Cleanse cancelled — no Specials removed.</em></p></div>`,
+                    content: `${message.content}<div class="mastery-cleanse-resolved"><p><em>Cleanse cancelled — Action and Power use restored.</em></p></div>`,
                 });
+                if (flags?.spentAction || flags?.powerUsageId) {
+                    await refundCleanseCast(flags);
+                }
             }
             catch {
                 /* ignore */

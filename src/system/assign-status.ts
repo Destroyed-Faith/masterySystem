@@ -37,6 +37,8 @@ function catalogById(id: string): (typeof MASTERY_STATUS_EFFECTS)[number] | unde
 /** Persistent conditions a GM can put on by hand. Instants resolve and vanish. */
 export function isAssignableStatusId(id: string): boolean {
   const key = String(id || '').trim().toLowerCase();
+  // Power-driven presentation — not assigned from the Token HUD palette.
+  if (key === 'invisible') return false;
   const catalog = catalogById(key);
   if (!catalog) return false;
   const def = getEffectById(key);

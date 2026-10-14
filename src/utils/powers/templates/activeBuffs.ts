@@ -658,9 +658,9 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         category: 'activeBuff',
         tags: [],
         fluff:
-            'Temporary Invisibility Bonus for Mastery Rank rounds. Blocks Normal Combat Awareness (and Darkvision). ' +
-            'Stacks with Passive: Invisibility (add both bonuses). Same targeting rules: Perception to locate before direct attacks; ' +
-            'AoE still hits; attacking triggers Cloak Disruption. Does not block Special Combat Senses by itself.',
+            'Temporary Invisibility Bonus for Mastery Rank rounds. Obscures Normal Combat Awareness (and Darkvision). ' +
+            'Stacks with Passive: Invisibility (add both bonuses). Perception TN uses (4×MR)+Bonus−(Lost Bars×MR)+Stealth Spent. ' +
+            'Attacking reveals position for the rest of the Round. Does not obscure Special Combat Senses by itself.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) =>
@@ -668,7 +668,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
                 duration: DURATION_MR_ROUNDS,
                 effectText:
                     `Gain **+${lvl} Invisibility Bonus** (stacks with Passive: Invisibility). ` +
-                    `Blocks Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn.`,
+                    `Obscures Normal Combat Awareness (and Darkvision). Direct attackers need Perception or cannot target you this turn. ` +
+                    `Attacking reveals you for the rest of the Round.`,
                 mechanics: {
                     duration: 'masteryRankRounds',
                     invisibilityBonus: lvl,

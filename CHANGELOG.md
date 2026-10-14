@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.670] - 2026-10-14
+
+### Added
+
+- **Invisibility · Presentation:** Status **Invisible** auf Charakterbogen/Statusleiste, Token-Icon, leicht transparente Token-Opacity (~50%), und Münz-Icon unter dem Combat-Carousel-Portrait (Tooltip mit Bonus).
+
+## [0.9.669] - 2026-10-14
+
+### Changed
+
+- **Invisibility · Perception TN:** `(4 × MR) + Invisibility Bonus − (Lost Health Bars × MR) + Stealth Spent`. Passive-Bonus = Power Level. Incapacitated unterdrückt Invisibility.
+- **Invisibility · Reveal:** Angriff revealt die Position für den Rest der Runde (kein Perception nötig). **Half-Evade** und **Cloak Disruption** (Move/Attack) entfernt.
+- **Invisibility · Retro-Stealth:** Nach dem Perception-Wurf darf das unsichtbare Ziel Stealth-Skill-Punkte (min/Schritte = MR) ausgeben; Bonus gilt round-wide bis Rundenwechsel.
+- **Invisibility · Located:** Erfolgreiche Perception lokalisiert bis zum **Ende der aktuellen Runde**.
+
+## [0.9.668] - 2026-10-14
+
+### Changed
+
+- **Cleanse · Chat-UI:** Horizontal `[−] Name Stack [+]`; die Zahl ist der verbleibende Stack (nicht mehr vertikaler Stepper).
+- **Cleanse · Cancel:** Erstattet Action + Power-Use für diesen Cast (AoE: einmal pro Cast-ID).
+- **Cleanse · Targeting:** Nur Alliierte mit cleansbaren Specials bekommen den grünen Ring (kein sinnloses Cleanse auf „saubere“ Ziele).
+
+## [0.9.667] - 2026-10-14
+
+### Fixed
+
+- **Invisibility · Perception TN:** Basis ist wieder **(8 × MR) − 2** (Regelbuch / Beispiel MR2→14), nicht mehr MR×8.
+- **Invisibility · Perception pro Runde:** Attempt-Flag wird bei Rundenwechsel und am Turn-Start des Beobachters geleert — erneuter Perception-Check in Runde 2+ möglich.
+
+## [0.9.666] - 2026-10-14
+
+### Fixed
+
+- **Powerliste · Effekt am Level:** Compact-Zeile zeigt Specials/Effekt der **aktuellen** Power Level-Zeile (z. B. Cleanse(5) bei L6), nicht mehr die L1-Sternchen-Zeile.
+
+### Changed
+
+- **Powerliste · Level-Up UX:** GM darf mehrere `+` stapeln und einmal Confirmen; `+` oben, `−` darunter (nur GM, XP-Refund); Confirm-Haken **pro Power** (zusätzlich zum Header).
+
+## [0.9.665] - 2026-10-14
+
+### Fixed
+
+- **Mastery Rank manuell:** Lifetime XP setzt MR nicht mehr zwingend. Gespeicherter Rang ist maßgeblich; XP/Steine zeigen nur den Vorschlag (`↗N`). GM kann den MR-Dropdown jederzeit runter- oder hochstellen.
+
 ## [0.9.664] - 2026-10-14
 
 ### Fixed

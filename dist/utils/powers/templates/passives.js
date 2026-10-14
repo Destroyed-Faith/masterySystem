@@ -50,9 +50,9 @@ const WARD_SPELL_RESISTANCE = [1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18, 
 const WARD_INCOMING = [1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10];
 /** Thornhide — Thorns Nd8 when you take final HP damage (L1 empty). */
 const THORNHIDE_DICE = [0, 1, 2, 2, 3, 4, 4, 5, 6, 6, 7, 8, 8, 9, 10, 10];
-/** Passive Invisibility bonus (+1…+10 with plateaus). */
-const INVIS_PASSIVE = [1, 2, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10];
-/** Passive Invisibility: Special Combat Senses blocked (0 below L4). */
+/** Passive Invisibility bonus = Power Level (rules: Bonus equals its Power Level). */
+const INVIS_PASSIVE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+/** Passive Invisibility: extra Special Combat Sense selections at PL 4 / 8 / 12 / 15. */
 const INVIS_PASSIVE_SENSES = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4];
 /** Passive: Parry — printed maximum Parry Pool (ceil(5 × Level / 2), capped by the Parry Attribute at runtime). */
 const PARRY_POOL = [3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40];
@@ -1060,26 +1060,25 @@ const RAW_PASSIVE_TEMPLATES = [
     basePassive({
         id: 'passive-invisibility', name: 'Invisibility', subfamily: 'invisibility',
         passiveType: 'Passive',
-        fluff: 'Always on once you have this Passive. You are harder to locate and target — not harder to hit after someone finds you. ' +
-            'Blocks Normal Combat Awareness (and Darkvision). Enemies who cannot perceive you must pass Perception ' +
-            '(TN = your Mastery Rank skill TN + your current Invisibility Bonus) before they can directly attack or target you; ' +
-            'on a failure their action is not spent. Area effects and zones still work. ' +
-            'When you attack, foes who fail Perception use half Evade, then Cloak Disruption lowers your bonus until your next turn. ' +
+        fluff: 'Always on once you have this Passive. Obscures Normal Combat Awareness (and Darkvision); higher levels add Special Combat Sense selections. ' +
+            'Perception TN = (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR) + Stealth Spent. ' +
+            'Uncovered Senses ignore Invisibility. Attacking reveals your position for the rest of the Round (Invisibility stays on). ' +
             'Does not grant Evade, Armor, DR, Temp HP, or Healing. Stacks with Active Buff: Invisibility.',
         perLevel: (lvl) => {
             const bonus = INVIS_PASSIVE[lvl - 1];
             const senses = INVIS_PASSIVE_SENSES[lvl - 1];
             const sensePart = senses <= 0
-                ? 'Blocks **Normal Combat Awareness** (and Darkvision).'
+                ? 'Obscures **Normal Combat Awareness** (and Darkvision).'
                 : senses === 1
-                    ? 'Blocks **Normal Combat Awareness** (and Darkvision) and **1** chosen Special Combat Sense.'
-                    : `Blocks **Normal Combat Awareness** (and Darkvision) and **${senses}** chosen Special Combat Senses.`;
+                    ? 'Obscures **Normal Combat Awareness** (and Darkvision) and **1** chosen Special Combat Sense.'
+                    : `Obscures **Normal Combat Awareness** (and Darkvision) and **${senses}** chosen Special Combat Senses.`;
             return {
-                text: `Always on. Gain **+${bonus} Invisibility Bonus** (raises Perception TN to locate/target you; not Evade). ` +
+                text: `Always on. Gain **+${bonus} Invisibility Bonus** (Power Level). ` +
                     `${sensePart} ` +
-                    `Before a direct attack/spell against you, an observer who lacks an unblocked Sense must succeed on Perception ` +
-                    `(TN = Mastery Rank skill TN + current Invisibility Bonus) or cannot target you this turn (action not spent). ` +
-                    `AoE/zones ignore this. Attacking from Invisibility: failed Perception → half Evade, then Cloak Disruption (−4 until your next turn; more from movement/damage).`,
+                    `Perception TN = **(4 × MR) + ${bonus} − (Lost Health Bars × MR) + Stealth Spent**. ` +
+                    `Uncovered Special Combat Senses perceive you normally (no Invisibility TN). ` +
+                    `Attacking reveals your location for the rest of the Round; Invisibility is not deactivated. ` +
+                    `Incapacitated suppresses Invisibility until you recover.`,
                 mechanics: {
                     invisibilityBonus: bonus,
                     blockedSpecialSenseSlots: senses,

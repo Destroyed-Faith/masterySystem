@@ -46,16 +46,22 @@ export declare function postCleansePromptForTarget(args: {
     powerItem: any;
     powerName: string;
     targetToken: any;
+    /** Radial option / item id marked used this round (for Cancel refund). */
+    powerUsageId?: string;
+    spentAction?: boolean;
+    castId?: string;
 }): Promise<void>;
 /**
  * Resolve Cleanse on chosen tokens (ally targeting already done).
- * One interactive chat card per target.
+ * One interactive chat card per target that still has cleansable Specials.
  */
 export declare function resolveCleanseOnTokens(args: {
     casterToken: any;
     powerItem: any;
     powerName: string;
     targetTokens: any[];
+    powerUsageId?: string;
+    spentAction?: boolean;
 }): Promise<void>;
 export declare function registerCleanseChatHandlers(): void;
 //# sourceMappingURL=cleanse-resolution.d.ts.map

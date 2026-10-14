@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" fill="#1a1a22" rx="6"/>
+  <!-- Faded silhouette -->
+  <ellipse cx="32" cy="22" rx="9" ry="10" fill="none" stroke="#9ec8ff" stroke-width="2.5" opacity="0.85"/>
+  <path d="M16 52c2-12 10-18 16-18s14 6 16 18" fill="none" stroke="#9ec8ff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <!-- Soft veil shimmer -->
+  <path d="M10 34h44" stroke="#cfe4ff" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.55"/>
+  <path d="M14 40h36" stroke="#cfe4ff" stroke-width="1.5" stroke-dasharray="3 4" opacity="0.35"/>
+</svg>

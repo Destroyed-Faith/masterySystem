@@ -1,10 +1,10 @@
 /**
  * Mastery Rank synchronisation helpers.
  *
- * DF Core v0.9.9.1: the only mechanical Mastery Rank is Lifetime XP.
- * `getRulesMasteryRank` is that rank. When Lifetime XP is missing (legacy
- * actors, NPCs, mid-migration), the stored `system.mastery.rank` is the
- * fallback. Stone count is not a Mastery Rank.
+ * Mechanical Mastery Rank is the stored `system.mastery.rank` (GM / sheet).
+ * Lifetime XP still yields a **suggested** rank (`suggestedMasteryRank` /
+ * `system.mastery.suggestedRank`) so the sheet can show e.g. ↗5 — the GM may
+ * leave the character below (or above) that suggestion.
  */
 
 import { MR_ADVANCEMENT } from './constants.js';
@@ -34,19 +34,33 @@ export function masteryRankFromLifetimeXp(lifetimeXp: number): number {
 }
 
 /**
- * The Mastery Rank used by rules calculations.
- * Lifetime XP wins over a stored `system.mastery.rank`.
+ * Suggested Mastery Rank from Lifetime XP (or permanent Stones when XP is unset).
+ * Display / sync hint only — does not override the stored rank.
  */
-export function getRulesMasteryRank(actorOrSystem: any): number {
+export function suggestedMasteryRank(actorOrSystem: any): number {
     const system = actorOrSystem?.system ?? actorOrSystem ?? null;
     if (!system || typeof system !== 'object') return getWorldDefaultMasteryRank();
     const xpRaw = system?.progression?.lifetimeXp;
     if (xpRaw != null && xpRaw !== '' && Number.isFinite(Number(xpRaw))) {
         return masteryRankFromLifetimeXp(Number(xpRaw));
     }
+    const totalStones = Number(system?.stones?.total ?? 0);
+    if (Number.isFinite(totalStones) && totalStones > 0) {
+        return deriveMasteryRankFromStones(totalStones);
+    }
+    return getWorldDefaultMasteryRank();
+}
+
+/**
+ * The Mastery Rank used by rules calculations: stored `system.mastery.rank`.
+ * Falls back to the XP/Stone suggestion only when no usable rank is stored.
+ */
+export function getRulesMasteryRank(actorOrSystem: any): number {
+    const system = actorOrSystem?.system ?? actorOrSystem ?? null;
+    if (!system || typeof system !== 'object') return getWorldDefaultMasteryRank();
     const stored = Math.floor(Number(system?.mastery?.rank) || 0);
     if (stored >= 1) return Math.min(8, stored);
-    return getWorldDefaultMasteryRank();
+    return suggestedMasteryRank(system);
 }
 
 /**
@@ -136,7 +150,7 @@ export async function syncActorMasteryRank(actor: any, options?: { applyBundle?:
  *     receives one new empty row per gained rank, capped at the new
  *     `system.mastery.rank`).
  *   • The "+1 Keep on all rolls" effect is implicit — dice subsystems
- *     use `getRulesMasteryRank`, which is Lifetime XP when that field exists.
+ *     use `getRulesMasteryRank` (stored Mastery Rank).
  *
  * The function is intentionally idempotent on the *target* rank: callers
  * may invoke it once with `delta = 1` per rank gained or with

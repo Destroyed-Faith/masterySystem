@@ -196,16 +196,25 @@ function collectSupportValidTargets(
   casterToken: any,
   rangeMeters: number,
   targetGroup: TargetGroup,
+  opts?: {
+    requireCleansable?: boolean;
+    hasCleansable?: (actor: any, token: any) => boolean;
+  },
 ): Set<string> {
   const out = new Set<string>();
   const allowSelf = utilitySingleTargetAllowsSelf(targetGroup);
   const casterCenter = casterToken.center;
+  const requireCleansable = !!opts?.requireCleansable;
+  const hasCleansable = opts?.hasCleansable;
   for (const targetToken of canvas.tokens?.placeables ?? []) {
     if (!targetToken?.id || !targetToken.actor) continue;
     if (!allowSelf && targetToken.id === casterToken.id) continue;
     if (tokenIsExcludedAsTarget(targetToken)) continue;
     if (!matchesTargetGroup(casterToken, targetToken, targetGroup)) continue;
     if (!isWithinMasteryPowerRange(casterCenter, targetToken.center, rangeMeters)) continue;
+    if (requireCleansable && hasCleansable && !hasCleansable(targetToken.actor, targetToken)) {
+      continue;
+    }
     out.add(targetToken.id);
   }
   return out;
@@ -236,7 +245,7 @@ function resolveSupportRangeMeters(option: RadialCombatOption): number {
   return 0;
 }
 
-function startSupportAllyTargetMode(token: any, option: RadialCombatOption): void {
+async function startSupportAllyTargetMode(token: any, option: RadialCombatOption): Promise<void> {
   const rangeMeters = resolveSupportRangeMeters(option);
   option.rangeMeters = rangeMeters;
   option.range = rangeMeters;
@@ -251,7 +260,16 @@ function startSupportAllyTargetMode(token: any, option: RadialCombatOption): voi
   const effectsContainer = resolveOverlayContainer();
   if (effectsContainer) effectsContainer.addChild(previewGraphics);
 
-  const validTargetIds = collectSupportValidTargets(token, rangeMeters, targetGroup);
+  const isCleanse = option.aoePlacementProfile === 'cleanse';
+  let hasCleansable: ((actor: any, tok: any) => boolean) | undefined;
+  if (isCleanse) {
+    const { listCleansableForActor } = await import('./combat/cleanse-resolution.js');
+    hasCleansable = (actor, tok) => listCleansableForActor(actor, tok).length > 0;
+  }
+  const validTargetIds = collectSupportValidTargets(token, rangeMeters, targetGroup, {
+    requireCleansable: isCleanse,
+    hasCleansable,
+  });
 
   // Soft green range disc / hex field (same footprint as attack aim, green).
   const casterId = token?.document?.id ?? token?.id;
@@ -756,7 +774,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
 
   // Heal / Cleanse: green area + rings + hit-pads (no aim line).
   if (isSupportPlacement(option)) {
-    startSupportAllyTargetMode(token, option);
+    void startSupportAllyTargetMode(token, option);
     return;
   }
   
@@ -1295,11 +1313,15 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
         './combat/cleanse-resolution.js'
       );
       const powerItem = cleansePowerItemFromRadialOption(state.option) ?? state.option.item;
+      const usageId = String(state.option.id || state.option.item?.id || '');
+      const spentAction = !!(state.option.costsAction && combat && actor);
       await resolveCleanseOnTokens({
         casterToken: state.casterToken,
         powerItem,
         powerName: String(state.option.name || state.option.item?.name || 'Cleanse'),
         targetTokens: targets,
+        powerUsageId: usageId,
+        spentAction,
       });
     } catch (err) {
       console.error('Mastery System | Cleanse resolve failed', err);

@@ -5,6 +5,61 @@
 
 import type { RangeSpec, AoeSpec, DurationSpec, PowerSpecial, PowerLevelRow } from '../types/item.js';
 import { formatEffectReference, getEffectById, getEffectBaseName } from './special-effects.js';
+import { getPowerDefinitionRank } from './power-definition-rank.js';
+
+/** Live sheet/compact view for a power at a given (or stored) level. */
+export interface PowerSheetLevelDisplay {
+  level: number;
+  definitionRank: number;
+  specials: Array<string | PowerSpecial>;
+  specialsLabel: string;
+  effect: string;
+  range: RangeSpec | null | undefined;
+  aoe: AoeSpec | null | undefined;
+  type: string;
+}
+
+/**
+ * Resolve specials / effect / range for the actor's current Power Level
+ * (not the stale root `system.specials` which often stays at L1).
+ */
+export function resolvePowerSheetLevelDisplay(
+  system: any,
+  levelOverride?: number | null,
+): PowerSheetLevelDisplay {
+  const level = Math.max(
+    1,
+    Math.floor(Number(levelOverride ?? system?.level ?? system?.rank ?? 1) || 1),
+  );
+  const levels = system?.levels;
+  const definitionRank = getPowerDefinitionRank(level, levels);
+  let row: PowerLevelRow | null = null;
+  if (levels && typeof levels === 'object' && !Array.isArray(levels)) {
+    row = (levels as Record<string, PowerLevelRow>)[String(definitionRank)] ?? null;
+  } else if (Array.isArray(levels)) {
+    row =
+      levels.find((r: any) => Number(r?.level) === definitionRank) ??
+      levels.find((r: any) => Number(r?.level) === level) ??
+      null;
+  }
+  const specials = Array.isArray(row?.specials)
+    ? row!.specials
+    : Array.isArray(system?.specials)
+      ? system.specials
+      : [];
+  const rowAny = row as (PowerLevelRow & { effectText?: string }) | null;
+  const effect = String(rowAny?.effectText ?? rowAny?.effect?.text ?? system?.effect ?? '');
+  return {
+    level,
+    definitionRank,
+    specials,
+    specialsLabel: renderSpecials(specials, system?.chosenSpecialKey),
+    effect,
+    range: (row?.range as RangeSpec | undefined) ?? system?.range,
+    aoe: (row?.aoe as AoeSpec | undefined) ?? system?.aoe,
+    type: String(row?.type || system?.powerType || system?.category || ''),
+  };
+}
 
 /** Radius-style AoE: definitions use either `radiusM` or legacy `m`. */
 function aoeRadiusM(aoe: AoeSpec): number | undefined {

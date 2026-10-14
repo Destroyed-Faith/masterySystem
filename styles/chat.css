@@ -1264,73 +1264,108 @@ prose-mirror#chat-message.chat-input > .editor-container {
 }
 
 /* =========================================
-   Cleanse allocation prompt (ally Cleanse actives)
-   Same interaction language as Heal scarred buttons: big +/−, then Apply.
+   Cleanse allocation prompt — horizontal: [−] Name 9 [+]
+   Foundry chat buttons default to block/full-width; override hard.
    ========================================= */
 
 #chat-log .mastery-cleanse-prompt {
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
+}
+
+#chat-log .ms-cleanse-head {
+  margin: 0 0 0.2rem;
+  font-size: 0.95em;
+}
+
+#chat-log .ms-cleanse-target {
+  margin: 0 0 0.15rem;
+  font-size: 0.92em;
+}
+
+#chat-log .ms-cleanse-hint {
+  margin: 0 0 0.35rem;
+  font-size: 0.8em;
+  opacity: 0.85;
 }
 
 #chat-log .ms-cleanse-list {
   list-style: none;
-  margin: 0.45rem 0;
+  margin: 0.35rem 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 #chat-log .ms-cleanse-row {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  justify-content: flex-start;
+  gap: 0.4rem;
   margin: 0;
-  padding: 0.35rem 0.45rem;
+  padding: 0.3rem 0.45rem;
   border-radius: 6px;
   border: 1px solid rgba(60, 120, 70, 0.35);
   background: rgba(60, 120, 70, 0.08);
-  flex-wrap: wrap;
 }
 
 #chat-log .ms-cleanse-label {
-  flex: 1 1 7rem;
+  flex: 1 1 auto;
   min-width: 0;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-#chat-log .ms-cleanse-stack {
-  font-weight: 500;
-  opacity: 0.85;
-}
-
-#chat-log .ms-cleanse-stepper {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-#chat-log .ms-cleanse-alloc {
-  min-width: 1.75rem;
+#chat-log .ms-cleanse-stack-value {
+  flex: 0 0 auto;
+  min-width: 1.5rem;
   text-align: center;
   font-weight: 700;
-  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.05em;
 }
 
 #chat-log .ms-cleanse-plus,
 #chat-log .ms-cleanse-minus,
-#chat-log .ms-cleanse-apply,
-#chat-log .ms-cleanse-cancel,
 .ms-theme-rulebook #chat-log .ms-cleanse-plus,
-.ms-theme-rulebook #chat-log .ms-cleanse-minus,
-.ms-theme-rulebook #chat-log .ms-cleanse-apply,
-.ms-theme-rulebook #chat-log .ms-cleanse-cancel {
+.ms-theme-rulebook #chat-log .ms-cleanse-minus {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem !important;
+  min-width: 2rem !important;
+  max-width: 2rem !important;
+  height: 2rem;
+  padding: 0 !important;
+  margin: 0;
   text-transform: none;
   letter-spacing: 0;
-  font-size: 14px;
+  font-size: 1.1rem;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+#chat-log .ms-cleanse-apply,
+#chat-log .ms-cleanse-cancel,
+.ms-theme-rulebook #chat-log .ms-cleanse-apply,
+.ms-theme-rulebook #chat-log .ms-cleanse-cancel {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  min-width: 0;
+  flex: 1 1 auto;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
   padding: 0.35rem 0.65rem;
-  min-width: 2.25rem;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 #chat-log .ms-cleanse-plus:disabled,
@@ -1343,9 +1378,10 @@ prose-mirror#chat-message.chat-input > .editor-container {
 
 #chat-log .mastery-cleanse-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 0.35rem;
-  margin-top: 0.5rem;
+  margin-top: 0.45rem;
 }
 
 #chat-log .ms-cleanse-apply {

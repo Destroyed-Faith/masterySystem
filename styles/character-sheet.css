@@ -3164,7 +3164,8 @@
 }
 
 .mastery-system.sheet.actor.character .power-increase-level,
-.mastery-system.sheet.actor.character .power-decrease-level {
+.mastery-system.sheet.actor.character .power-decrease-level,
+.mastery-system.sheet.actor.character .power-confirm-local {
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
@@ -3176,18 +3177,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  margin: 0;
+  min-width: 28px;
 }
 
 .mastery-system.sheet.actor.character .power-increase-level:hover:not(:disabled),
-.mastery-system.sheet.actor.character .power-decrease-level:hover:not(:disabled) {
+.mastery-system.sheet.actor.character .power-decrease-level:hover:not(:disabled),
+.mastery-system.sheet.actor.character .power-confirm-local:hover:not(:disabled) {
   background: var(--df-bg-header, #1b2124);
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   transform: scale(1.1);
   box-shadow: 0 3px 8px var(--df-shadow, rgba(0,0,0,0.5));
 }
 
+.mastery-system.sheet.actor.character .power-confirm-local:not(:disabled) {
+  background: rgba(60, 120, 70, 0.45);
+  border-color: rgba(80, 160, 90, 0.55);
+  color: #e8f5e9;
+}
+
 .mastery-system.sheet.actor.character .power-increase-level:disabled,
-.mastery-system.sheet.actor.character .power-decrease-level:disabled {
+.mastery-system.sheet.actor.character .power-decrease-level:disabled,
+.mastery-system.sheet.actor.character .power-confirm-local:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

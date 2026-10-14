@@ -9,7 +9,7 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
-import { renderSpecials } from './utils/power-rendering.js';
+import { renderSpecials, resolvePowerSheetLevelDisplay } from './utils/power-rendering.js';
 import { NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, preserveNpcExtraPowersInSystemUpdate, preserveNpcAttackSpecialsInSystemUpdate, } from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
 import { registerStatusHud } from './system/status-hud.js';
@@ -1329,6 +1329,20 @@ function registerHandlebarsHelpersImmediate() {
     Handlebars.registerHelper('powerSpecials', function (specials, chosenKey) {
         const key = typeof chosenKey === 'string' ? chosenKey : undefined;
         return renderSpecials(specials, key);
+    });
+    /** Compact specials for the power's current Level (not stale L1 root specials). */
+    Handlebars.registerHelper('powerSpecialsAtLevel', function (system, levelOverride) {
+        const override = levelOverride != null && levelOverride !== system && Number.isFinite(Number(levelOverride))
+            ? Number(levelOverride)
+            : undefined;
+        return resolvePowerSheetLevelDisplay(system, override).specialsLabel;
+    });
+    /** Compact effect text for the power's current Level. */
+    Handlebars.registerHelper('powerEffectAtLevel', function (system, levelOverride) {
+        const override = levelOverride != null && levelOverride !== system && Number.isFinite(Number(levelOverride))
+            ? Number(levelOverride)
+            : undefined;
+        return resolvePowerSheetLevelDisplay(system, override).effect;
     });
     // Helper to render RangeSpec
     Handlebars.registerHelper('renderRange', function (range) {

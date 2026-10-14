@@ -59,9 +59,10 @@ describe('combat-senses registry', () => {
     expect(parseCombatSenseLabel('')).toBeNull();
   });
 
-  it('skill check TN is MR × 8', () => {
-    expect(skillCheckTnByMasteryRank(2)).toBe(16);
-    expect(skillCheckTnByMasteryRank(1)).toBe(8);
+  it('skill check TN is (8 × MR) − 2', () => {
+    expect(skillCheckTnByMasteryRank(2)).toBe(14);
+    expect(skillCheckTnByMasteryRank(1)).toBe(6);
+    expect(skillCheckTnByMasteryRank(3)).toBe(22);
   });
 
   it('lists all special sense slot options', () => {
@@ -188,22 +189,51 @@ describe('perception state', () => {
     expect(isSenseBlockedOnTarget(target, 'lifeSense')).toBe(false);
   });
 
-  it('effective invisibility uses current bonus after cloak disruption', () => {
-    expect(effectiveInvisibilityBonus({ invisibilityBonus: 12, currentInvisibilityBonus: 4 })).toBe(4);
+  it('effective invisibility uses synced power bonus (cloak removed)', () => {
+    expect(effectiveInvisibilityBonus({ invisibilityBonus: 12, currentInvisibilityBonus: 4 })).toBe(12);
     expect(effectiveInvisibilityBonus({ invisibilityBonus: 12 })).toBe(12);
   });
 });
 
 describe('perception gate', () => {
-  it('Perception TN = MR×8 + invisibility + stealth raise', () => {
+  it('Invisibility TN = (4×MR) + bonus − (lost bars × MR) + stealth spent', () => {
     const target = mockActor({
-      system: { mastery: { rank: 3 } },
+      system: {
+        mastery: { rank: 3 },
+        health: {
+          currentBar: 0,
+          bars: [
+            { name: 'Healthy' },
+            { name: 'Bruised' },
+            { name: 'Injured' },
+            { name: 'Wounded' },
+            { name: 'Broken' },
+            { name: 'Incapacitated' },
+          ],
+        },
+      },
+      items: [
+        {
+          type: 'power',
+          system: {
+            templateId: 'passive-invisibility',
+            category: 'passive',
+            rank: 6,
+            levels: {
+              '6': { mechanics: { invisibilityBonus: 6, blockedSpecialSenseSlots: 1 } },
+            },
+          },
+        },
+      ],
     });
-    target.getFlag = vi.fn(() => ({
-      invisibilityBonus: 6,
-      stealthRaiseBonus: 4,
-    }));
-    expect(computePerceptionTn(target)).toBe(24 + 6 + 4);
+    // MR3 + PL6: 12 + 6 = 18
+    expect(computePerceptionTn(target)).toBe(18);
+
+    target.system.health.currentBar = 2; // Injured = 2 lost bars → −6
+    expect(computePerceptionTn(target)).toBe(12);
+
+    target.getFlag = vi.fn(() => ({ stealthSpentThisRound: 6 }));
+    expect(computePerceptionTn(target)).toBe(18);
   });
 
   it('Life Sense perceives invisible-to-normal living target', () => {

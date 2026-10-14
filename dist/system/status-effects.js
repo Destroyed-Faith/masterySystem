@@ -35,6 +35,8 @@ export const MASTERY_STATUS_EFFECTS = [
     { id: 'regeneration', name: 'Regeneration', img: ICON('regen') },
     { id: 'cleanse', name: 'Cleansed', img: ICON('light') },
     { id: 'advantage', name: 'Advantage', img: ICON('up') },
+    /** Presentation for live Passive/Buff Invisibility (not a cleansable Special). */
+    { id: 'invisible', name: 'Invisible', img: ICON('invisible') },
     { id: 'crit', name: 'Crit', img: ICON('explosion') },
     { id: 'penetration', name: 'Penetration', img: ICON('sword') },
     { id: 'exorcism', name: 'Exorcism', img: ICON('holy-shield') },

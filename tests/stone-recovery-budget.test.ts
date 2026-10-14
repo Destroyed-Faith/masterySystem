@@ -3,14 +3,14 @@ import { planStoneRecovery } from '../src/stones/stone-recovery.js';
 import { getRulesMasteryRank } from '../src/utils/mastery-rank-sync.js';
 
 describe('Stone Recovery budget (Mastery Rank)', () => {
-  it('rules MR from Lifetime XP is the recovery point budget', () => {
+  it('stored Mastery Rank is the recovery point budget (XP only suggests)', () => {
     const actor = {
       system: {
         mastery: { rank: 8 },
-        progression: { lifetimeXp: 100 }, // MR 3
+        progression: { lifetimeXp: 100 }, // suggests MR 3 — stored 8 wins
       },
     };
-    expect(getRulesMasteryRank(actor)).toBe(3);
+    expect(getRulesMasteryRank(actor)).toBe(8);
   });
 
   it('recovery space only exists when pools are spent below capacity', () => {

@@ -1,7 +1,7 @@
 /**
- * Combat perception runtime hooks — stealth results, cloak disruption, round/turn cleanup.
+ * Combat perception runtime hooks — stealth results, reveal, round/turn cleanup.
  */
-import { applyCloakDisruption, computeStealthRaiseBonus, getPerceptionCombatState, resetInvisibilityAtTurnStart, setPerceptionCombatState, clearPerceptionRoundUsage, } from './perception-state.js';
+import { computeStealthRaiseBonus, clearPerceptionRoundState, clearPerceptionRoundUsage, setPerceptionCombatState, } from './perception-state.js';
 import { syncInvisibilityFromPowers } from './invisibility-profile.js';
 /** Named veil presets from the Players Guide (Silent Veil, Hollow Veil). */
 export const INVISIBILITY_VEIL_PRESETS = {
@@ -45,46 +45,13 @@ export async function applyStealthRollResult(actor, result) {
         stealthRaiseBonus: 0,
     });
 }
-/** Cloak Disruption reductions per rules table. */
-export async function applyAttackCloakDisruption(attacker) {
-    if (!attacker)
-        return;
-    const profile = await syncInvisibilityFromPowers(attacker);
-    if (!profile.active)
-        return;
-    const st = getPerceptionCombatState(attacker);
-    const seeded = {
-        ...st,
-        invisibilityBonus: profile.baseBonus,
-        currentInvisibilityBonus: st.currentInvisibilityBonus !== undefined && st.currentInvisibilityBonus !== st.invisibilityBonus
-            ? st.currentInvisibilityBonus
-            : profile.baseBonus,
-        blockedSenses: profile.blockedSenses,
-    };
-    const next = applyCloakDisruption(seeded, 4);
-    await setPerceptionCombatState(attacker, next);
+/** @deprecated Cloak Disruption removed — no-op (attack reveal is handled separately). */
+export async function applyAttackCloakDisruption(_attacker) {
+    /* no-op */
 }
-export async function applyMovementCloakDisruption(actor, totalMovedM) {
-    if (!actor || totalMovedM <= 3)
-        return;
-    const profile = await syncInvisibilityFromPowers(actor);
-    if (!profile.active)
-        return;
-    const extraM = Math.max(0, totalMovedM - 3);
-    const reduction = Math.floor(extraM / 4) * 4;
-    if (reduction <= 0)
-        return;
-    const st = getPerceptionCombatState(actor);
-    const seeded = {
-        ...st,
-        invisibilityBonus: profile.baseBonus,
-        currentInvisibilityBonus: st.currentInvisibilityBonus !== undefined && st.currentInvisibilityBonus !== st.invisibilityBonus
-            ? st.currentInvisibilityBonus
-            : profile.baseBonus,
-        blockedSenses: profile.blockedSenses,
-    };
-    const next = applyCloakDisruption(seeded, reduction);
-    await setPerceptionCombatState(actor, next);
+/** @deprecated Cloak Disruption removed — movement no longer lowers Invisibility Bonus. */
+export async function applyMovementCloakDisruption(_actor, _totalMovedM) {
+    /* no-op */
 }
 async function forEachCombatActor(cb) {
     const combat = globalThis.game?.combat;
@@ -97,24 +64,23 @@ async function forEachCombatActor(cb) {
             await cb(actor);
     }
 }
-/** One Perception check per hidden/invisible target per round — reset on new round. */
+/** New Round: Perception attempts, attack-reveal, and Stealth-spent TN bonus. */
 export async function clearPerceptionUsageForNewRound() {
     await forEachCombatActor(async (actor) => {
-        await clearPerceptionRoundUsage(actor);
+        await clearPerceptionRoundState(actor);
     });
 }
-/** Restore current Invisibility Bonus at the start of the creature's turn. */
+/**
+ * Start of this creature's turn: sync Invisibility profile; clear *their*
+ * Perception attempt flags so they may try once vs each invisible target again.
+ */
 export async function processPerceptionTurnStart(actor) {
     if (!actor)
         return;
+    await clearPerceptionRoundUsage(actor);
     const profile = await syncInvisibilityFromPowers(actor);
-    if (!profile.active) {
-        await resetInvisibilityAtTurnStart(actor);
-        return;
-    }
     await setPerceptionCombatState(actor, {
         invisibilityBonus: profile.baseBonus,
-        currentInvisibilityBonus: profile.baseBonus,
         blockedSenses: profile.blockedSenses,
     });
 }
@@ -137,7 +103,9 @@ export function registerPerceptionCombatHooks() {
     let lastRound = 0;
     Hooks.on('combatStart', async (combat) => {
         try {
+            lastRound = Math.max(0, Math.floor(Number(combat?.round) || 1));
             await syncAllCombatantInvisibility(combat);
+            await clearPerceptionUsageForNewRound();
         }
         catch (err) {
             console.error('Mastery System | perception combatStart invisibility sync failed', err);
@@ -146,11 +114,11 @@ export function registerPerceptionCombatHooks() {
     Hooks.on('updateCombat', async (combat, changes) => {
         try {
             const round = Math.max(0, Math.floor(Number(combat?.round) || 0));
-            if (changes?.round !== undefined && round > 0 && round !== lastRound) {
+            if (round > 0 && round !== lastRound) {
                 lastRound = round;
                 await clearPerceptionUsageForNewRound();
             }
-            if (changes?.turn !== undefined) {
+            if (changes?.turn !== undefined || changes?.combatant !== undefined) {
                 const actor = combat?.combatant?.actor;
                 if (actor)
                     await processPerceptionTurnStart(actor);
@@ -160,7 +128,6 @@ export function registerPerceptionCombatHooks() {
             console.error('Mastery System | perception combat updateCombat hook failed', err);
         }
     });
-    // Keep profile fresh when the Passive is leveled or added mid-session.
     Hooks.on('updateItem', async (item) => {
         try {
             if (item?.type !== 'power')
@@ -193,6 +160,17 @@ export function registerPerceptionCombatHooks() {
     });
     Hooks.on('combatEnd', async () => {
         lastRound = 0;
+    });
+    // Health-bar changes can suppress / restore Invisibility (Incapacitated).
+    Hooks.on('updateActor', async (actor, changes) => {
+        try {
+            if (!actor || !changes?.system?.health)
+                return;
+            await syncInvisibilityFromPowers(actor);
+        }
+        catch (err) {
+            console.error('Mastery System | invisibility health sync failed', err);
+        }
     });
 }
 //# sourceMappingURL=perception-combat-hooks.js.map

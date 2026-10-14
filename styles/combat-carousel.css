@@ -653,6 +653,11 @@
 
 /* Effect-token art (Sundered, Hex, Blight, Slow, Expose). Four fit under a
    portrait: two rows of two when someone actually carries that many. */
+.status-icon.is-invisible {
+  box-shadow: 0 0 0 1px rgba(158, 200, 255, 0.55);
+  opacity: 0.92;
+}
+
 .status-icon.status-effect-token {
   width: 40px;
   height: 40px;

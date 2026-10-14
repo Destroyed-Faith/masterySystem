@@ -55,6 +55,7 @@ import { migrationStoneSlotLabel, releaseAllStoneSlots, releaseStoneSlot, stoneO
 import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { resolvePowerSheetLevelDisplay } from '../utils/power-rendering.js';
 import { calculatePowerDeletionRefund, getPowerMinLevel as resolvePowerMinLevel, } from '../utils/power-xp-refund.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext, isOptInRadialManeuverId } from '../utils/radial-maneuver-prefs.js';
@@ -2170,8 +2171,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!box.length)
             return;
         const rank = getRulesMasteryRank(this.actor);
-        const xpKnown = this.actor.system?.progression?.lifetimeXp != null
-            && this.actor.system?.progression?.lifetimeXp !== '';
         let select = box.find('.mastery-rank-select');
         if (!select.length) {
             const options = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -2181,25 +2180,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             select = box.find('.mastery-rank-select');
         }
         select.val(String(rank));
-        if (xpKnown) {
-            select.prop('disabled', true);
-            select.off('change.masteryRank');
-            const hint = box.find('.rank-stone-hint');
+        select.prop('disabled', false);
+        const suggested = Math.floor(Number(this.actor.system?.mastery?.suggestedRank) || 0);
+        const hint = box.find('.rank-stone-hint');
+        if (suggested >= 1 && suggested <= 8 && suggested !== rank) {
+            const tip = 'Suggested from Lifetime XP / Stones — you may keep Mastery Rank lower or higher.';
             if (hint.length) {
-                hint.text('Lifetime XP').attr('title', 'Mastery Rank comes from Lifetime XP');
+                hint.text(`↗${suggested}`).attr('title', tip);
             }
             else {
-                box.append(`<span class="rank-stone-hint" title="Mastery Rank comes from Lifetime XP">Lifetime XP</span>`);
-            }
-            return;
-        }
-        if (!box.find('.rank-stone-hint').length) {
-            const suggested = Math.floor(Number(this.actor.system?.mastery?.suggestedRank) || 0);
-            if (suggested >= 1 && suggested <= 8) {
-                box.append(`<span class="rank-stone-hint" title="Suggested from earned Stones until Lifetime XP is set">↗${suggested}</span>`);
+                box.append(`<span class="rank-stone-hint" title="${tip}">↗${suggested}</span>`);
             }
         }
-        select.prop('disabled', false);
+        else if (hint.length) {
+            hint.remove();
+        }
         select.off('change.masteryRank').on('change.masteryRank', async (ev) => {
             const newRank = Math.max(1, Math.min(8, Math.floor(Number($(ev.currentTarget).val()) || 2)));
             const oldRank = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 2));
@@ -3226,10 +3221,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Power level increase/decrease (with confirmation)
         html.off('click', '.power-increase-level').on('click', '.power-increase-level', this.#onPowerIncreaseLevel.bind(this));
         html.off('click', '.power-decrease-level').on('click', '.power-decrease-level', this.#onPowerDecreaseLevel.bind(this));
-        html.find('.confirm-power-level-changes').on('click', this.#onConfirmPowerLevelChanges.bind(this));
+        html
+            .off('click', '.confirm-power-level-changes')
+            .on('click', '.confirm-power-level-changes', this.#onConfirmPowerLevelChanges.bind(this));
         html.find('.cancel-power-level-changes').on('click', this.#onCancelPowerLevelChanges.bind(this));
-        // Initialize pending power level changes tracking
-        this._pendingPowerLevelChanges = {};
+        // Keep pending map across re-renders within the same sheet session.
+        if (!this._pendingPowerLevelChanges || typeof this._pendingPowerLevelChanges !== 'object') {
+            this._pendingPowerLevelChanges = {};
+        }
         // Initialize UI state for power level distribution
         this.#updatePowerLevelUI();
         // Active buff removal
@@ -3679,11 +3678,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         /**
-         * Once-per-step rule. Each Power may be increased by at most +1 per
-         * Upgrade Step — UNLESS the character is in the Free-XP phase, where
-         * upgrades may be stacked freely.
+         * Once-per-step: players may stage +1 per Power per session unless Free XP.
+         * GM (and Free XP) may stack several pending levels, then Confirm once.
          */
-        if (!this.#hasFreeXp()) {
+        const isGm = !!game.user?.isGM;
+        if (!this.#hasFreeXp() && !isGm) {
             if (pending + 1 > 1) {
                 ui.notifications?.warn(`${item.name} can only be increased by +1 Level per session. Use Free XP to raise it again.`);
                 return;
@@ -3724,8 +3723,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #onPowerDecreaseLevel(event) {
         event.preventDefault();
         event.stopPropagation();
-        // Check if user is owner
-        if (!this.actor.isOwner) {
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only the GM can decrease Power Levels (XP refund).');
+            return;
+        }
+        if (!this.actor.isOwner && !game.user?.isGM) {
             ui.notifications?.warn('Only the owner can distribute XP.');
             return;
         }
@@ -3777,10 +3779,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Update pending changes count and remaining XP
         html.find('#pending-power-level-changes-count').text(totalPendingChanges);
         html.find('#remaining-power-level-mp').text(Math.max(0, remainingXP));
-        // Once-per-step rule: powers already bumped this step have "+" disabled.
+        // Once-per-step rule: powers already bumped this step have "+" disabled (players).
         const bumpedPowers = new Set(Array.isArray(this.actor.system?.xp?.currentStep?.powers)
             ? this.actor.system.xp.currentStep.powers.map((v) => String(v ?? ''))
             : []);
+        const isGm = !!game.user?.isGM;
+        const unrestricted = this.#hasFreeXp() || isGm;
         // Update each power's pending display and button states
         const powers = this.actor.items.filter((item) => item.type === 'power');
         for (const power of powers) {
@@ -3789,6 +3793,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const currentLevel = power.system.level || 1;
             const effectiveLevel = currentLevel + pending;
             const minLevel = this.#getPowerMinLevel(power);
+            const display = resolvePowerSheetLevelDisplay(power.system, effectiveLevel);
             // Update pending change display (signed)
             const pendingChangeEl = html.find(`.power-level-pending-change[data-item-id="${itemId}"]`);
             const pendingDeltaEl = pendingChangeEl.find('.pending-delta');
@@ -3799,35 +3804,46 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             else {
                 pendingChangeEl.hide();
             }
-            // Update decrease button state
+            const badgeNum = html.find(`.power-level-badge[data-item-id="${itemId}"] .power-level-badge-num`);
+            if (badgeNum.length) {
+                badgeNum.text(String(effectiveLevel));
+                html
+                    .find(`.power-level-badge[data-item-id="${itemId}"]`)
+                    .attr('title', `Power Level ${effectiveLevel}`);
+            }
+            const specialText = html.find(`.power-special-compact[data-item-id="${itemId}"] .power-special-compact-text`);
+            if (specialText.length)
+                specialText.text(display.specialsLabel);
+            const effectText = html.find(`.power-effect-compact[data-item-id="${itemId}"] .power-effect-compact-text`);
+            if (effectText.length)
+                effectText.text(display.effect.replace(/\*\*/g, ''));
+            // Update decrease button state (GM only in template)
             const decreaseBtn = html.find(`.power-decrease-level[data-item-id="${itemId}"]`);
             decreaseBtn.prop('disabled', effectiveLevel <= minLevel);
             // Update increase button state
             const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
             const nextPending = pending + 1;
-            // Free-XP phase: spend freely (no per-step cap).
-            const wouldExceedStepCap = !this.#hasFreeXp() &&
-                (nextPending > 1 || (nextPending > 0 && bumpedPowers.has(itemId)));
+            const wouldExceedStepCap = !unrestricted && (nextPending > 1 || (nextPending > 0 && bumpedPowers.has(itemId)));
             if (effectiveLevel >= this.#getMaxPurchasablePowerLevel() || wouldExceedStepCap) {
                 increaseBtn.prop('disabled', true);
                 if (wouldExceedStepCap) {
-                    increaseBtn.attr('title', this.#hasFreeXp()
-                        ? ''
-                        : 'Bereits in dieser Sitzung erhöht. Free XP (★) hebt das Limit auf.');
+                    increaseBtn.attr('title', 'Bereits in dieser Sitzung erhöht. Free XP (★) oder GM hebt das Limit auf.');
                 }
             }
             else {
                 increaseBtn.removeAttr('title');
-                if (this.#hasFreeXp()) {
-                    increaseBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
+                if (unrestricted) {
+                    increaseBtn.attr('title', isGm && !this.#hasFreeXp()
+                        ? 'GM: mehrere Level stapeln, dann Confirm'
+                        : 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
                 }
                 const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: nextPending };
                 const simulateNetCost = this.#calculatePowerPendingNetCost(simulateMap);
                 increaseBtn.prop('disabled', simulateNetCost > availableXP);
             }
         }
-        // Update confirm/cancel buttons
-        const confirmBtn = html.find('#confirm-power-level-changes-btn');
+        // Update confirm/cancel buttons (header + per-power)
+        const confirmBtn = html.find('.confirm-power-level-changes');
         const cancelBtn = html.find('#cancel-power-level-changes-btn');
         if (totalPendingChanges > 0) {
             confirmBtn.prop('disabled', false);
@@ -3936,15 +3952,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
          * Step — UNLESS the character is in the Free-XP phase (unrestricted).
          * Mark each positively-bumped power; un-bump on refund.
          */
-        const unrestrictedPow = this.#hasFreeXp();
+        const unrestrictedPow = this.#hasFreeXp() || !!game.user?.isGM;
         const stepRulePow = await import('../utils/xp-step-rule.js');
         let stepAfterPow = stepRulePow.readStep(this.actor);
         for (const change of powerChanges) {
-            if (unrestrictedPow)
-                continue;
             const pending = this._pendingPowerLevelChanges[change.powerId] || 0;
             if (pending > 0) {
-                if (stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
+                if (!unrestrictedPow && stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
                     ui.notifications?.error(`${change.powerName} was already increased this session. Use Free XP to raise it again.`);
                     return;
                 }

@@ -3,6 +3,43 @@
  * Helper functions to render power data in the UI
  */
 import { formatEffectReference, getEffectById, getEffectBaseName } from './special-effects.js';
+import { getPowerDefinitionRank } from './power-definition-rank.js';
+/**
+ * Resolve specials / effect / range for the actor's current Power Level
+ * (not the stale root `system.specials` which often stays at L1).
+ */
+export function resolvePowerSheetLevelDisplay(system, levelOverride) {
+    const level = Math.max(1, Math.floor(Number(levelOverride ?? system?.level ?? system?.rank ?? 1) || 1));
+    const levels = system?.levels;
+    const definitionRank = getPowerDefinitionRank(level, levels);
+    let row = null;
+    if (levels && typeof levels === 'object' && !Array.isArray(levels)) {
+        row = levels[String(definitionRank)] ?? null;
+    }
+    else if (Array.isArray(levels)) {
+        row =
+            levels.find((r) => Number(r?.level) === definitionRank) ??
+                levels.find((r) => Number(r?.level) === level) ??
+                null;
+    }
+    const specials = Array.isArray(row?.specials)
+        ? row.specials
+        : Array.isArray(system?.specials)
+            ? system.specials
+            : [];
+    const rowAny = row;
+    const effect = String(rowAny?.effectText ?? rowAny?.effect?.text ?? system?.effect ?? '');
+    return {
+        level,
+        definitionRank,
+        specials,
+        specialsLabel: renderSpecials(specials, system?.chosenSpecialKey),
+        effect,
+        range: row?.range ?? system?.range,
+        aoe: row?.aoe ?? system?.aoe,
+        type: String(row?.type || system?.powerType || system?.category || ''),
+    };
+}
 /** Radius-style AoE: definitions use either `radiusM` or legacy `m`. */
 function aoeRadiusM(aoe) {
     return aoe.radiusM ?? aoe.m;

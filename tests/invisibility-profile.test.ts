@@ -66,15 +66,39 @@ describe('resolveInvisibilityFromActor', () => {
     expect(profile.baseBonus).toBe(2 + 3);
   });
 
-  it('effective bonus uses live passive when flags are empty', () => {
+  it('effective bonus uses live passive when flags are empty (bonus = Power Level)', () => {
     const item = {
       type: 'power',
       name: 'Passive: Invisibility',
       system: { templateId: 'passive-invisibility', category: 'passive', rank: 6 },
     };
     const actor = mockActor([item], {});
-    expect(effectiveInvisibilityBonusForActor(actor)).toBe(5);
+    expect(effectiveInvisibilityBonusForActor(actor)).toBe(6);
     expect(isSenseBlockedForActor(actor, 'normalCombatAwareness')).toBe(true);
     expect(isSenseBlockedForActor(actor, 'lifeSense')).toBe(true); // default slot fill at L6 = 1 sense
+  });
+
+  it('Incapacitated suppresses Invisibility bonus', () => {
+    const item = {
+      type: 'power',
+      name: 'Passive: Invisibility',
+      system: { templateId: 'passive-invisibility', category: 'passive', rank: 6 },
+    };
+    const actor = mockActor([item], {}) as any;
+    actor.system = {
+      health: {
+        currentBar: 5,
+        bars: [
+          { name: 'Healthy' },
+          { name: 'Bruised' },
+          { name: 'Injured' },
+          { name: 'Wounded' },
+          { name: 'Broken' },
+          { name: 'Incapacitated' },
+        ],
+      },
+    };
+    expect(effectiveInvisibilityBonusForActor(actor)).toBe(0);
+    expect(resolveInvisibilityFromActor(actor).active).toBe(false);
   });
 });

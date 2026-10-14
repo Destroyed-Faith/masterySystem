@@ -23,15 +23,12 @@ export async function setPerceptionCombatState(actor, patch) {
     const cur = getPerceptionCombatState(actor);
     await actor.setFlag('mastery-system', FLAG_KEY, { ...cur, ...patch });
 }
-/** Effective Invisibility Bonus from combat flags (after Cloak Disruption). */
+/** Effective Invisibility Bonus from combat flags (powers preferred via profile layer). */
 export function effectiveInvisibilityBonus(state) {
-    if (state.currentInvisibilityBonus !== undefined) {
-        return Math.max(0, Math.floor(Number(state.currentInvisibilityBonus) || 0));
-    }
     return Math.max(0, Math.floor(Number(state.invisibilityBonus) || 0));
 }
 /**
- * Sense blocked by stored veil list, or by any live Invisibility Bonus
+ * Sense Obscured by stored veil list, or by any live Invisibility Bonus
  * (Normal Combat Awareness + Darkvision). Special senses come from `blockedSenses`.
  */
 export function isSenseBlockedOnTarget(target, senseId) {
@@ -48,29 +45,41 @@ export function isSenseBlockedOnTarget(target, senseId) {
 export function computeStealthRaiseBonus(raises) {
     return Math.max(0, Math.floor(Number(raises) || 0)) * 2;
 }
-/** Cloak Disruption — reduce current invisibility bonus; clears stealth raise bonus. */
-export function applyCloakDisruption(state, amount) {
-    const base = effectiveInvisibilityBonus(state);
-    const next = Math.max(0, base - Math.max(0, Math.floor(Number(amount) || 0)));
-    return {
-        ...state,
-        currentInvisibilityBonus: next,
-        stealthRaiseBonus: 0,
-    };
+/** @deprecated Cloak Disruption removed from rules — no-op identity. */
+export function applyCloakDisruption(state, _amount) {
+    return { ...state };
 }
-export async function resetInvisibilityAtTurnStart(actor) {
-    const st = getPerceptionCombatState(actor);
-    if (st.invisibilityBonus === undefined && st.currentInvisibilityBonus === undefined)
+export async function markRevealedThisRound(actor, round) {
+    if (!actor)
         return;
-    await setPerceptionCombatState(actor, {
-        currentInvisibilityBonus: Math.max(0, Math.floor(Number(st.invisibilityBonus) || 0)),
-    });
+    const r = Math.max(1, Math.floor(Number(round) || globalThis.game?.combat?.round || 1));
+    await setPerceptionCombatState(actor, { revealedThisRound: r });
 }
+export function isRevealedThisRound(actor, round) {
+    const r = Math.max(1, Math.floor(Number(round) || globalThis.game?.combat?.round || 1));
+    const st = getPerceptionCombatState(actor);
+    return Math.floor(Number(st.revealedThisRound) || 0) === r;
+}
+/** Clear only this observer's Perception attempts (call on their turn start). */
 export async function clearPerceptionRoundUsage(actor) {
     const st = getPerceptionCombatState(actor);
     if (!st.perceptionUsedVs || Object.keys(st.perceptionUsedVs).length === 0)
         return;
     await setPerceptionCombatState(actor, { perceptionUsedVs: {} });
+}
+/** New Round: attempts + attack-reveal + retroactive Stealth TN bonus. */
+export async function clearPerceptionRoundState(actor) {
+    const st = getPerceptionCombatState(actor);
+    const hasAttempts = st.perceptionUsedVs && Object.keys(st.perceptionUsedVs).length > 0;
+    const hasReveal = !!st.revealedThisRound;
+    const hasSpend = (st.stealthSpentThisRound ?? 0) > 0;
+    if (!hasAttempts && !hasReveal && !hasSpend)
+        return;
+    await setPerceptionCombatState(actor, {
+        perceptionUsedVs: {},
+        revealedThisRound: 0,
+        stealthSpentThisRound: 0,
+    });
 }
 export function hasLocatedTarget(observer, target, round) {
     const tgtId = String(target?.id ?? '');
@@ -82,13 +91,49 @@ export function hasLocatedTarget(observer, target, round) {
         return false;
     return round <= (entry.expiresRound ?? entry.round);
 }
+/** Locate until end of the current Round (expiresRound = round). */
 export async function markLocatedTarget(observer, target, round) {
     const tgtId = String(target?.id ?? '');
     if (!tgtId)
         return;
     const st = getPerceptionCombatState(observer);
     const located = { ...(st.locatedTargets ?? {}) };
-    located[tgtId] = { targetId: tgtId, round, expiresRound: round + 1 };
+    located[tgtId] = { targetId: tgtId, round, expiresRound: round };
     await setPerceptionCombatState(observer, { locatedTargets: located });
+}
+/**
+ * Lost Health Bars for Invisibility TN (Healthy=0 … Broken=4).
+ * Incapacitated is handled separately via `isInvisibilitySuppressedByHealth`.
+ */
+export function lostHealthBarsForInvis(actor) {
+    const bars = Array.isArray(actor?.system?.health?.bars) ? actor.system.health.bars : [];
+    const idx = Math.max(0, Math.floor(Number(actor?.system?.health?.currentBar) || 0));
+    if (bars.length) {
+        const name = String(bars[idx]?.name || '').toLowerCase();
+        if (name.includes('incapacitat'))
+            return 4;
+        if (name.includes('broken'))
+            return 4;
+        if (name.includes('wound'))
+            return 3;
+        if (name.includes('injur'))
+            return 2;
+        if (name.includes('bruise'))
+            return 1;
+        if (name.includes('healthy') || idx === 0)
+            return 0;
+    }
+    // Index fallback: 0 Healthy … 4 Broken … 5+ Incapacitated
+    return Math.min(4, idx);
+}
+export function isInvisibilitySuppressedByHealth(actor) {
+    const bars = Array.isArray(actor?.system?.health?.bars) ? actor.system.health.bars : [];
+    const idx = Math.max(0, Math.floor(Number(actor?.system?.health?.currentBar) || 0));
+    if (bars.length) {
+        const name = String(bars[idx]?.name || '').toLowerCase();
+        if (name.includes('incapacitat'))
+            return true;
+    }
+    return idx >= 5;
 }
 //# sourceMappingURL=perception-state.js.map

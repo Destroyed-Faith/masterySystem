@@ -3,6 +3,22 @@
  * Helper functions to render power data in the UI
  */
 import type { RangeSpec, AoeSpec, DurationSpec, PowerSpecial, PowerLevelRow } from '../types/item.js';
+/** Live sheet/compact view for a power at a given (or stored) level. */
+export interface PowerSheetLevelDisplay {
+    level: number;
+    definitionRank: number;
+    specials: Array<string | PowerSpecial>;
+    specialsLabel: string;
+    effect: string;
+    range: RangeSpec | null | undefined;
+    aoe: AoeSpec | null | undefined;
+    type: string;
+}
+/**
+ * Resolve specials / effect / range for the actor's current Power Level
+ * (not the stale root `system.specials` which often stays at L1).
+ */
+export declare function resolvePowerSheetLevelDisplay(system: any, levelOverride?: number | null): PowerSheetLevelDisplay;
 /**
  * Render a RangeSpec to a human-readable string
  */

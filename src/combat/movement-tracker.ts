@@ -117,13 +117,6 @@ export async function handleTokenMovement(tokenDoc: any, changes: any): Promise<
   }
 
   try {
-    const { applyMovementCloakDisruption } = await import('./perception-combat-hooks.js');
-    await applyMovementCloakDisruption(actor, totalMoved);
-  } catch (err) {
-    console.debug?.('Mastery System | cloak disruption on move failed', err);
-  }
-
-  try {
     const { applyStoredSpellZonesOnEnter } = await import('./spell-zone-entry.js');
     await applyStoredSpellZonesOnEnter(actor, tokenDoc, combat);
   } catch (err) {
