@@ -639,6 +639,34 @@
         phaseIndex=""}}
     {{/if}}
 
+    {{!-- Skills (ratings feed Perception / skill rolls — same system.skills path as PCs) --}}
+    {{#if npcSkillGroups}}
+    <div class="npc-section npc-section--skills">
+      <h3 class="npc-section__title"><i class="fas fa-eye"></i> Skills</h3>
+      {{#if npcSkillPoolHint}}
+      <p class="npc-skills-hint"><i class="fas fa-info-circle"></i> {{npcSkillPoolHint}}</p>
+      {{/if}}
+      {{#each npcSkillGroups as |group|}}
+      <div class="npc-skill-cat{{#if (eq group.category "Perception")}} is-perception{{/if}}">
+        <div class="npc-skill-cat__label">{{group.category}}</div>
+        <div class="npc-skill-cat__grid">
+          {{#each group.skills as |skill|}}
+          <label class="npc-skill-field" title="{{skill.name}}">
+            <span class="npc-skill-field__name">{{skill.name}}</span>
+            <input type="number"
+                   name="system.skills.{{skill.key}}"
+                   value="{{skill.value}}"
+                   min="0"
+                   step="1"
+                   {{#unless @root.editable}}disabled{{/unless}}/>
+          </label>
+          {{/each}}
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/if}}
+
     {{!-- Notes --}}
     <div class="notes-panel npc-section npc-section--notes">
       <div class="form-group">

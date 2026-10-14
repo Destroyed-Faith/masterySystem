@@ -721,6 +721,19 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
+    root.querySelectorAll('.js-edit-initiative').forEach((el: HTMLElement) => {
+      const open = (ev: Event) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        void this.openInitiativeEditDialog();
+      };
+      el.onclick = open;
+      el.onkeydown = (ev: KeyboardEvent) => {
+        if (ev.key === 'Enter' || ev.key === ' ') open(ev);
+      };
+    });
+
     root.querySelectorAll('.js-edit-temp-hp').forEach((el: HTMLElement) => {
       el.onclick = (ev: MouseEvent) => {
         ev.preventDefault();
@@ -1622,6 +1635,158 @@ export class CombatCarouselApp extends BaseCarousel {
           cancel: { label: 'Cancel' },
         },
         default: 'save',
+        close: () => resolve(),
+      } as any).render(true);
+    });
+  }
+
+  /** GM: edit all combatant initiatives, then reorder the Foundry turn list + carousel. */
+  private async openInitiativeEditDialog(): Promise<void> {
+    if (!game.user?.isGM) return;
+    const combat = game.combats?.active;
+    if (!combat) {
+      (ui as any).notifications?.warn?.(
+        game.i18n?.localize('MASTERY.carousel.noCombat') || 'No active combat.',
+      );
+      return;
+    }
+
+    const loc = (key: string, fallback: string) => {
+      const full = `MASTERY.carousel.${key}`;
+      const t = game.i18n?.localize?.(full);
+      return t && t !== full ? t : fallback;
+    };
+
+    const turns: any[] = Array.isArray((combat as any).turns)
+      ? [...(combat as any).turns]
+      : Array.from((combat as any).combatants?.values?.() ?? []);
+    const escapeHtml = (s: string) =>
+      String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+    const rows = turns
+      .filter((c) => c?.actor)
+      .map((c) => {
+        const id = String(c.id || '');
+        const name = String(c.name || c.actor?.name || 'Combatant');
+        const ini = Math.floor(Number(c.initiative ?? 0) || 0);
+        return { id, name, ini };
+      });
+
+    if (!rows.length) return;
+
+    const rowHtml = rows
+      .map(
+        (r) => `<div class="ms-carousel-ini-row" data-combatant-id="${escapeHtml(r.id)}">
+          <span class="ms-carousel-ini-name" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</span>
+          <div class="ms-carousel-ini-controls">
+            <button type="button" class="js-ini-minus" title="−1" aria-label="−1">−</button>
+            <span class="ms-carousel-ini-value" data-value="${r.ini}">${r.ini}</span>
+            <button type="button" class="js-ini-plus" title="+1" aria-label="+1">+</button>
+          </div>
+        </div>`,
+      )
+      .join('');
+
+    const content = `<p class="notes" style="margin:0 0 0.4rem;">${loc(
+      'editInitiativeLead',
+      'Adjust each combatant\'s initiative with + / −, then OK to reorder the carousel.',
+    )}</p>
+      <div class="ms-carousel-ini-edit">${rowHtml}</div>`;
+
+    await new Promise<void>((resolve) => {
+      new Dialog({
+        title: loc('editInitiativeTitle', 'Edit Initiative'),
+        content,
+        buttons: {
+          ok: {
+            icon: '<i class="fas fa-check"></i>',
+            label: loc('editInitiativeOk', 'OK'),
+            callback: async (html: any) => {
+              const rootEl: HTMLElement | null =
+                html?.[0] ?? (html instanceof HTMLElement ? html : null);
+              if (!rootEl) return;
+              const updates: Array<{ id: string; initiative: number }> = [];
+              rootEl.querySelectorAll('.ms-carousel-ini-row').forEach((row) => {
+                const id = String((row as HTMLElement).dataset.combatantId || '');
+                const valEl = row.querySelector('.ms-carousel-ini-value') as HTMLElement | null;
+                const initiative = Math.floor(Number(valEl?.dataset.value ?? valEl?.textContent) || 0);
+                if (id) updates.push({ id, initiative });
+              });
+              try {
+                for (const u of updates) {
+                  const combatant = (combat as any).combatants?.get?.(u.id);
+                  if (!combatant?.update) continue;
+                  await combatant.update({ initiative: u.initiative });
+                  try {
+                    await combatant.setFlag?.('mastery-system', 'msInitiativeValue', u.initiative);
+                  } catch {
+                    /* flag optional */
+                  }
+                }
+                if (typeof (combat as any).setupTurns === 'function') {
+                  await (combat as any).setupTurns();
+                }
+                // Keep Foundry's current turn index on the same combatant when possible.
+                try {
+                  const currentId = resolveCurrentCombatantId(combat as any);
+                  if (currentId && typeof (combat as any).update === 'function') {
+                    const newTurns: any[] = Array.isArray((combat as any).turns)
+                      ? (combat as any).turns
+                      : [];
+                    const idx = newTurns.findIndex((c) => String(c?.id) === currentId);
+                    if (idx >= 0 && Number((combat as any).turn) !== idx) {
+                      await (combat as any).update({ turn: idx });
+                    }
+                  }
+                } catch {
+                  /* best-effort */
+                }
+                CombatCarouselApp.refresh();
+                (ui as any).notifications?.info?.(
+                  loc('editInitiativeDone', 'Initiative updated — carousel reordered.'),
+                );
+              } catch (err) {
+                console.error('Mastery System | carousel initiative edit failed', err);
+                (ui as any).notifications?.error?.(
+                  loc('editInitiativeFailed', 'Could not update initiative — see the console.'),
+                );
+              }
+            },
+          },
+          cancel: {
+            label: loc('editInitiativeCancel', 'Cancel'),
+          },
+        },
+        default: 'ok',
+        render: (html: any) => {
+          const rootEl: HTMLElement | null =
+            html?.[0] ?? (html instanceof HTMLElement ? html : null);
+          if (!rootEl) return;
+          const adjust = (btn: HTMLElement, delta: number) => {
+            const row = btn.closest('.ms-carousel-ini-row') as HTMLElement | null;
+            const valEl = row?.querySelector('.ms-carousel-ini-value') as HTMLElement | null;
+            if (!valEl) return;
+            const next = Math.floor(Number(valEl.dataset.value ?? valEl.textContent) || 0) + delta;
+            valEl.dataset.value = String(next);
+            valEl.textContent = String(next);
+          };
+          rootEl.querySelectorAll('.js-ini-plus').forEach((btn) => {
+            (btn as HTMLElement).onclick = (ev) => {
+              ev.preventDefault();
+              adjust(btn as HTMLElement, 1);
+            };
+          });
+          rootEl.querySelectorAll('.js-ini-minus').forEach((btn) => {
+            (btn as HTMLElement).onclick = (ev) => {
+              ev.preventDefault();
+              adjust(btn as HTMLElement, -1);
+            };
+          });
+        },
         close: () => resolve(),
       } as any).render(true);
     });

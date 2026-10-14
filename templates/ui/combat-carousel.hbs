@@ -74,8 +74,11 @@
             {{/if}}
           </div>
 
-          <!-- Initiative Badge -->
-          <div class="initiative-badge">{{combatant.initiative}}</div>
+          <!-- Initiative Badge — GM click opens edit dialog for the whole order -->
+          <div class="initiative-badge{{#if ../controlsAllowed}} is-editable js-edit-initiative{{/if}}"
+               {{#if ../controlsAllowed}}title="{{localize 'MASTERY.carousel.editInitiativeHint'}}" role="button" tabindex="0"{{/if}}>
+            {{combatant.initiative}}
+          </div>
 
           {{#if combatant.reactionTotal}}
           {{#unless combatant.showGmActionRefund}}

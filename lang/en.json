@@ -79,7 +79,14 @@
       "addDone": "Added {n} combatant(s).",
       "addFailed": "Could not add combatants — see the console.",
       "noCombat": "No active combat.",
-      "endCombat": "End combat"
+      "endCombat": "End combat",
+      "editInitiativeHint": "Edit initiative order (GM)",
+      "editInitiativeTitle": "Edit Initiative",
+      "editInitiativeLead": "Adjust each combatant's initiative with + / −, then OK to reorder the carousel.",
+      "editInitiativeOk": "OK",
+      "editInitiativeCancel": "Cancel",
+      "editInitiativeDone": "Initiative updated — carousel reordered.",
+      "editInitiativeFailed": "Could not update initiative — see the console."
     },
     "startEncounter": {
       "start": "Prepare Combat",

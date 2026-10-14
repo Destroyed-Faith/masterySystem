@@ -276,4 +276,11 @@ export async function runCombatEndCleanup(combat: any): Promise<void> {
   } catch (err) {
     console.warn('Mastery System | Absorption cleanup failed', err);
   }
+  // Perception attempts / locate / reveal must not survive into the next fight.
+  try {
+    const { resetPerceptionForCombatEnd } = await import('./perception-combat-hooks.js');
+    await resetPerceptionForCombatEnd(combat);
+  } catch (err) {
+    console.warn('Mastery System | Perception combat-end reset failed', err);
+  }
 }

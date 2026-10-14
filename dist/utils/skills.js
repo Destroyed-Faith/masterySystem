@@ -329,6 +329,49 @@ Roll: Wits keep Mastery · Opposed by: None (Environmental TN)
 Typical Raises: magical storms, rapid climate shifts, mountain/sea, long-range forecast.`,
     },
 };
+/** Canonical category order for sheets (Perception first — combat gate). */
+export const SKILL_CATEGORY_ORDER = [
+    SKILL_CATEGORIES.AWARENESS,
+    SKILL_CATEGORIES.PHYSICAL,
+    SKILL_CATEGORIES.KNOWLEDGE_CRAFT,
+    SKILL_CATEGORIES.SOCIAL,
+    SKILL_CATEGORIES.SURVIVAL,
+];
+/**
+ * Compact skill groups for NPC sheets: category → editable ratings.
+ * Values are the same `system.skills.<key>` path used by Perception / skill rolls.
+ */
+export function buildNpcSkillGroups(skillValues = {}) {
+    const byCat = {};
+    const values = skillValues && typeof skillValues === 'object' ? skillValues : {};
+    for (const [key, def] of Object.entries(SKILLS)) {
+        const category = def.category;
+        if (!byCat[category])
+            byCat[category] = [];
+        byCat[category].push({
+            key,
+            name: def.name,
+            value: Math.max(0, Math.floor(Number(values[key]) || 0)),
+        });
+    }
+    for (const list of Object.values(byCat)) {
+        list.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    const out = [];
+    const seen = new Set();
+    for (const category of SKILL_CATEGORY_ORDER) {
+        if (!byCat[category]?.length)
+            continue;
+        out.push({ category, skills: byCat[category] });
+        seen.add(category);
+    }
+    for (const category of Object.keys(byCat)) {
+        if (seen.has(category))
+            continue;
+        out.push({ category, skills: byCat[category] });
+    }
+    return out;
+}
 /**
  * Get all skills grouped by category
  */

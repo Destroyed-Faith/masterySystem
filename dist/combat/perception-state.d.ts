@@ -58,6 +58,11 @@ export declare function isRevealedThisRound(actor: any, round?: number): boolean
 export declare function clearPerceptionRoundUsage(actor: any): Promise<void>;
 /** New Round: attempts + attack-reveal + retroactive Stealth TN bonus. */
 export declare function clearPerceptionRoundState(actor: any): Promise<void>;
+/**
+ * Full combat-scoped perception wipe (combat end / new encounter).
+ * Keeps live Invisibility bonus fields — callers re-sync from powers afterwards.
+ */
+export declare function clearPerceptionCombatEncounterState(actor: any): Promise<void>;
 export declare function hasLocatedTarget(observer: any, target: any, round: number): boolean;
 /** Locate until end of the current Round (expiresRound = round). */
 export declare function markLocatedTarget(observer: any, target: any, round: number): Promise<void>;

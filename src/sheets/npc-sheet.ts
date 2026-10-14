@@ -35,6 +35,7 @@ import {
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
+import { buildNpcSkillGroups } from '../utils/skills.js';
 import {
   clampNpcInitiativeModifier,
   splitNpcInitiativeModifier,
@@ -500,6 +501,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         1,
         Math.floor(Number(context.system.mastery?.rank) || 2),
       );
+      if (!context.system.skills || typeof context.system.skills !== 'object') {
+        context.system.skills = {};
+      }
+      (context as any).npcSkillGroups = buildNpcSkillGroups(context.system.skills);
+      (context as any).npcSkillPoolHint = `Full attribute pool when rating ≥ 2×MR (${
+        (context as any).npcMasteryRank * 2
+      }). Perception is used for Invisibility checks.`;
     }
 
     if (isNpcLike && context.system) {

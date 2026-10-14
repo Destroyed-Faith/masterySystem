@@ -518,6 +518,69 @@
   z-index: 1;
 }
 
+.initiative-badge.is-editable {
+  cursor: pointer;
+}
+
+.initiative-badge.is-editable:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+/* Initiative edit dialog (opened from carousel badge) */
+.ms-carousel-ini-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-height: 60vh;
+  overflow: auto;
+  margin: 0;
+  padding: 0.15rem 0;
+}
+
+.ms-carousel-ini-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.35rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.ms-carousel-ini-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-carousel-ini-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 0 0 auto;
+}
+
+.ms-carousel-ini-controls button {
+  min-width: 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.ms-carousel-ini-value {
+  min-width: 2.25rem;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .ms-carousel-reactions {
   font-size: 0.65rem;
   color: #cce;

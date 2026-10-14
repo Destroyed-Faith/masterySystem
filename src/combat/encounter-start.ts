@@ -227,6 +227,12 @@ export async function beginEncounter(combat: Combat): Promise<void> {
       console.warn('Mastery System | Could not clear stale stone state before encounter', err);
     }
     try {
+      const { resetPerceptionForCombatEnd } = await import('./perception-combat-hooks.js');
+      await resetPerceptionForCombatEnd(combat);
+    } catch (err) {
+      console.warn('Mastery System | Could not clear stale perception state before encounter', err);
+    }
+    try {
       const { refillStonePoolsFromAttributes } = await import('./action-economy.js');
       for (const combatant of combat.combatants) {
         const actor = combatant.actor;

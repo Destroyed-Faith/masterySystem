@@ -7,6 +7,7 @@ import { writeActorStatusList } from '../system/assign-status.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
+import { buildNpcSkillGroups } from '../utils/skills.js';
 import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
@@ -434,6 +435,11 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             }
             context.system.combat = withNpcIniUi(context.system.combat);
             context.npcMasteryRank = Math.max(1, Math.floor(Number(context.system.mastery?.rank) || 2));
+            if (!context.system.skills || typeof context.system.skills !== 'object') {
+                context.system.skills = {};
+            }
+            context.npcSkillGroups = buildNpcSkillGroups(context.system.skills);
+            context.npcSkillPoolHint = `Full attribute pool when rating ≥ 2×MR (${context.npcMasteryRank * 2}). Perception is used for Invisibility checks.`;
         }
         if (isNpcLike && context.system) {
             context.npcSpecialSelectGroups = buildNpcSpecialSelectGroups();

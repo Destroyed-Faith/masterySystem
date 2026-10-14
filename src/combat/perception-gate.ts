@@ -248,6 +248,9 @@ export async function ensureCanTargetWithPerception(
   const outcome = await promptPerceptionCheck(observer, target, baseTn);
   const round = Math.max(1, Math.floor(Number((globalThis as any).game?.combat?.round) || 1));
 
+  // Cancel / close without rolling must not burn the once-per-round attempt.
+  if (outcome.cancelled) return false;
+
   const used = { ...(st.perceptionUsedVs ?? {}), [tgtId]: true };
   await setPerceptionCombatState(observer, { perceptionUsedVs: used });
 
@@ -373,9 +376,9 @@ async function promptPerceptionCheck(
   observer: any,
   target: any,
   tn: number,
-): Promise<{ success: boolean; total: number; tn: number }> {
+): Promise<{ success: boolean; total: number; tn: number; cancelled?: boolean }> {
   const Dialog: any = (globalThis as any).Dialog;
-  if (!Dialog) return { success: false, total: 0, tn };
+  if (!Dialog) return { success: false, total: 0, tn, cancelled: true };
 
   const obsName = String(observer?.name ?? 'Observer');
   const tgtName = String(target?.name ?? 'Target');
@@ -409,7 +412,7 @@ async function promptPerceptionCheck(
                   raises,
                 });
                 if (!ctx) {
-                  resolve({ success: false, total: 0, tn });
+                  resolve({ success: false, total: 0, tn, cancelled: true });
                   return;
                 }
                 const result = await masteryRoll({
@@ -440,7 +443,7 @@ async function promptPerceptionCheck(
                 resolve({ success, total, tn: effectiveTn });
               } catch (e) {
                 console.warn('Mastery System | perception roll failed', e);
-                resolve({ success: false, total: 0, tn });
+                resolve({ success: false, total: 0, tn, cancelled: true });
               }
             },
           },
@@ -454,14 +457,14 @@ async function promptPerceptionCheck(
           },
           cancel: {
             label: 'Cancel',
-            callback: () => resolve({ success: false, total: 0, tn }),
+            callback: () => resolve({ success: false, total: 0, tn, cancelled: true }),
           },
         },
         default: 'roll',
-        close: () => resolve({ success: false, total: 0, tn }),
+        close: () => resolve({ success: false, total: 0, tn, cancelled: true }),
       }).render(true);
     } catch {
-      resolve({ success: false, total: 0, tn });
+      resolve({ success: false, total: 0, tn, cancelled: true });
     }
   });
 }

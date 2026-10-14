@@ -5,6 +5,7 @@
 import type { CombatSenseId } from './combat-senses.js';
 import {
   computeStealthRaiseBonus,
+  clearPerceptionCombatEncounterState,
   clearPerceptionRoundState,
   clearPerceptionRoundUsage,
   setPerceptionCombatState,
@@ -76,21 +77,66 @@ export async function applyMovementCloakDisruption(_actor: any, _totalMovedM: nu
   /* no-op */
 }
 
-async function forEachCombatActor(cb: (actor: any) => Promise<void>): Promise<void> {
-  const combat = (globalThis as any).game?.combat;
-  if (!combat?.started) return;
-  const combatants = combat.combatants ?? [];
-  for (const c of combatants) {
-    const actor = c?.actor;
+async function forEachCombatActor(
+  cb: (actor: any) => Promise<void>,
+  combat?: any,
+): Promise<void> {
+  const c = combat ?? (globalThis as any).game?.combat;
+  if (!c) return;
+  const combatants = c.combatants ?? [];
+  for (const entry of combatants) {
+    const actor = entry?.actor;
     if (actor) await cb(actor);
   }
 }
 
 /** New Round: Perception attempts, attack-reveal, and Stealth-spent TN bonus. */
-export async function clearPerceptionUsageForNewRound(): Promise<void> {
+export async function clearPerceptionUsageForNewRound(combat?: any): Promise<void> {
   await forEachCombatActor(async (actor) => {
     await clearPerceptionRoundState(actor);
-  });
+  }, combat);
+}
+
+/**
+ * Combat end / new encounter: wipe attempt flags, locate results, reveal, stealth spend,
+ * and Hidden-from-Stealth — then re-sync Invisibility from powers.
+ */
+export async function resetPerceptionForCombatEnd(combat?: any): Promise<void> {
+  const c = combat ?? (globalThis as any).game?.combat;
+  const actors = new Set<any>();
+  await forEachCombatActor(async (actor) => {
+    actors.add(actor);
+  }, c);
+  // Also sweep world actors that still carry a stale perceptionCombat flag
+  // (deleteCombat can drop combatant.actor before hooks finish).
+  try {
+    const col = (globalThis as any).game?.actors;
+    const list: any[] = col
+      ? Array.isArray(col)
+        ? col
+        : Array.isArray(col.contents)
+          ? col.contents
+          : typeof col[Symbol.iterator] === 'function'
+            ? Array.from(col)
+            : []
+      : [];
+    for (const actor of list) {
+      const raw =
+        actor?.getFlag?.('mastery-system', 'perceptionCombat') ??
+        actor?.flags?.['mastery-system']?.perceptionCombat;
+      if (raw && typeof raw === 'object') actors.add(actor);
+    }
+  } catch {
+    /* best-effort */
+  }
+  for (const actor of actors) {
+    try {
+      await clearPerceptionCombatEncounterState(actor);
+      await syncInvisibilityFromPowers(actor);
+    } catch (err) {
+      console.warn('Mastery System | perception combat-end reset failed', actor?.name, err);
+    }
+  }
 }
 
 /**
@@ -127,8 +173,10 @@ export function registerPerceptionCombatHooks(): void {
   Hooks.on('combatStart', async (combat: any) => {
     try {
       lastRound = Math.max(0, Math.floor(Number(combat?.round) || 1));
+      // Wipe leftovers from the previous fight first (tokens often keep flags).
+      await resetPerceptionForCombatEnd(combat);
       await syncAllCombatantInvisibility(combat);
-      await clearPerceptionUsageForNewRound();
+      await clearPerceptionUsageForNewRound(combat);
     } catch (err) {
       console.error('Mastery System | perception combatStart invisibility sync failed', err);
     }
@@ -139,7 +187,7 @@ export function registerPerceptionCombatHooks(): void {
       const round = Math.max(0, Math.floor(Number(combat?.round) || 0));
       if (round > 0 && round !== lastRound) {
         lastRound = round;
-        await clearPerceptionUsageForNewRound();
+        await clearPerceptionUsageForNewRound(combat);
       }
       if (changes?.turn !== undefined || changes?.combatant !== undefined) {
         const actor = combat?.combatant?.actor;
@@ -174,8 +222,22 @@ export function registerPerceptionCombatHooks(): void {
     }
   });
 
-  Hooks.on('combatEnd', async () => {
+  Hooks.on('combatEnd', async (combat: any) => {
     lastRound = 0;
+    try {
+      await resetPerceptionForCombatEnd(combat);
+    } catch (err) {
+      console.error('Mastery System | perception combatEnd reset failed', err);
+    }
+  });
+
+  Hooks.on('deleteCombat', async (combat: any) => {
+    lastRound = 0;
+    try {
+      await resetPerceptionForCombatEnd(combat);
+    } catch (err) {
+      console.error('Mastery System | perception deleteCombat reset failed', err);
+    }
   });
 
   // Health-bar changes can suppress / restore Invisibility (Incapacitated).

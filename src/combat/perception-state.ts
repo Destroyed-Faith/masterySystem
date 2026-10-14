@@ -131,6 +131,39 @@ export async function clearPerceptionRoundState(actor: any): Promise<void> {
   });
 }
 
+/**
+ * Full combat-scoped perception wipe (combat end / new encounter).
+ * Keeps live Invisibility bonus fields — callers re-sync from powers afterwards.
+ */
+export async function clearPerceptionCombatEncounterState(actor: any): Promise<void> {
+  if (!actor?.setFlag && !actor?.unsetFlag) return;
+  const st = getPerceptionCombatState(actor);
+  const hasAnything =
+    !!st.hidden ||
+    (st.stealthRaiseBonus ?? 0) > 0 ||
+    (st.stealthSpentThisRound ?? 0) > 0 ||
+    !!st.revealedThisRound ||
+    (st.perceptionUsedVs && Object.keys(st.perceptionUsedVs).length > 0) ||
+    (st.locatedTargets && Object.keys(st.locatedTargets).length > 0);
+  if (!hasAnything && st.invisibilityBonus === undefined && !st.blockedSenses?.length) {
+    // Still unset stale flag blobs from older combats.
+    try {
+      await actor.unsetFlag?.('mastery-system', FLAG_KEY);
+    } catch {
+      /* ignore */
+    }
+    return;
+  }
+  await setPerceptionCombatState(actor, {
+    hidden: false,
+    stealthRaiseBonus: 0,
+    stealthSpentThisRound: 0,
+    revealedThisRound: 0,
+    perceptionUsedVs: {},
+    locatedTargets: {},
+  });
+}
+
 export function hasLocatedTarget(observer: any, target: any, round: number): boolean {
   const tgtId = String(target?.id ?? '');
   if (!tgtId) return false;

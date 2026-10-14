@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.672] - 2026-10-14
+
+### Fixed
+
+- **Perception · Attempt-Flags:** `perceptionUsedVs` / Locate / Reveal werden bei Kampfende, Delete Combat und neuem Encounter zurückgesetzt — kein „Already attempted Perception…“ mehr aus dem vorigen Kampf.
+- **Perception · Cancel:** Dialog schließen/Abbrechen verbraucht den einmaligen Perception-Versuch dieser Runde nicht mehr.
+
+### Added
+
+- **Carousel · Initiative bearbeiten:** GM klickt die Initiative-Badge → Dialog mit +/− für alle Combatants → OK ordnet das Karussell neu.
+- **NPC-Bogen · Skills:** Kompakter Skill-Block (Perception / Physical / Knowledge & Craft / Social / Survival) über Blood Color & Notes; `system.skills` steuert Perception-Checks und Skill-Würfe.
+
 ## [0.9.670] - 2026-10-14
 
 ### Added

@@ -78,6 +78,8 @@ export declare class CombatCarouselApp extends BaseCarousel {
      */
     private registerUpdateHooks;
     private openVitalsEditDialog;
+    /** GM: edit all combatant initiatives, then reorder the Foundry turn list + carousel. */
+    private openInitiativeEditDialog;
     /** Client-side carousel display preferences. */
     private openCarouselSettingsDialog;
     /**

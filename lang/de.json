@@ -79,7 +79,14 @@
       "addDone": "{n} Combatant(en) hinzugefügt.",
       "addFailed": "Combatants konnten nicht hinzugefügt werden — siehe Konsole.",
       "noCombat": "Kein aktiver Kampf.",
-      "endCombat": "Kampf beenden"
+      "endCombat": "Kampf beenden",
+      "editInitiativeHint": "Initiative-Reihenfolge bearbeiten (GM)",
+      "editInitiativeTitle": "Initiative bearbeiten",
+      "editInitiativeLead": "Initiative pro Combatant mit + / − anpassen, dann OK — das Karussell ordnet neu.",
+      "editInitiativeOk": "OK",
+      "editInitiativeCancel": "Abbrechen",
+      "editInitiativeDone": "Initiative aktualisiert — Karussell neu geordnet.",
+      "editInitiativeFailed": "Initiative konnte nicht aktualisiert werden — siehe Konsole."
     },
     "startEncounter": {
       "start": "Prepare Combat",

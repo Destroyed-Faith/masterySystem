@@ -189,6 +189,9 @@ export async function ensureCanTargetWithPerception(observer, target, opts) {
     const baseTn = computePerceptionTn(target, observer);
     const outcome = await promptPerceptionCheck(observer, target, baseTn);
     const round = Math.max(1, Math.floor(Number(globalThis.game?.combat?.round) || 1));
+    // Cancel / close without rolling must not burn the once-per-round attempt.
+    if (outcome.cancelled)
+        return false;
     const used = { ...(st.perceptionUsedVs ?? {}), [tgtId]: true };
     await setPerceptionCombatState(observer, { perceptionUsedVs: used });
     if (outcome.success) {
@@ -297,7 +300,7 @@ export async function promptRetroactiveStealthSpend(invisibleActor, observerResu
 async function promptPerceptionCheck(observer, target, tn) {
     const Dialog = globalThis.Dialog;
     if (!Dialog)
-        return { success: false, total: 0, tn };
+        return { success: false, total: 0, tn, cancelled: true };
     const obsName = String(observer?.name ?? 'Observer');
     const tgtName = String(target?.name ?? 'Target');
     const inv = effectiveInvisibilityBonusForActor(target);
@@ -328,7 +331,7 @@ async function promptPerceptionCheck(observer, target, tn) {
                                     raises,
                                 });
                                 if (!ctx) {
-                                    resolve({ success: false, total: 0, tn });
+                                    resolve({ success: false, total: 0, tn, cancelled: true });
                                     return;
                                 }
                                 const result = await masteryRoll({
@@ -357,7 +360,7 @@ async function promptPerceptionCheck(observer, target, tn) {
                             }
                             catch (e) {
                                 console.warn('Mastery System | perception roll failed', e);
-                                resolve({ success: false, total: 0, tn });
+                                resolve({ success: false, total: 0, tn, cancelled: true });
                             }
                         },
                     },
@@ -371,15 +374,15 @@ async function promptPerceptionCheck(observer, target, tn) {
                     },
                     cancel: {
                         label: 'Cancel',
-                        callback: () => resolve({ success: false, total: 0, tn }),
+                        callback: () => resolve({ success: false, total: 0, tn, cancelled: true }),
                     },
                 },
                 default: 'roll',
-                close: () => resolve({ success: false, total: 0, tn }),
+                close: () => resolve({ success: false, total: 0, tn, cancelled: true }),
             }).render(true);
         }
         catch {
-            resolve({ success: false, total: 0, tn });
+            resolve({ success: false, total: 0, tn, cancelled: true });
         }
     });
 }
