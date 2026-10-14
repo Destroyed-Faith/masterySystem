@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.673] - 2026-10-14
+
+### Changed
+
+- **Invisibility · Attacking:** Angriff unterbricht Invisibility nicht mehr — kein Round-Reveal, kein Tracking von „revealed this round“. Beobachter nutzen normale Perception. Gewöhnliches Stealth-Hiding endet weiterhin beim Angriff.
+
+### Fixed
+
+- **Perception · Token-Actor wipe:** `perceptionUsedVs` auf unlinked Token-Actors wird per `unsetFlag` + Replace geleert (ActorDelta-Merge ließ leere `{}` die alten Keys stehen).
+
 ## [0.9.672] - 2026-10-14
 
 ### Fixed

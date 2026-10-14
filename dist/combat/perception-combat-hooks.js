@@ -45,7 +45,7 @@ export async function applyStealthRollResult(actor, result) {
         stealthRaiseBonus: 0,
     });
 }
-/** @deprecated Cloak Disruption removed — no-op (attack reveal is handled separately). */
+/** @deprecated Cloak Disruption removed — attacking no longer reveals Invisibility. */
 export async function applyAttackCloakDisruption(_attacker) {
     /* no-op */
 }
@@ -64,14 +64,14 @@ async function forEachCombatActor(cb, combat) {
             await cb(actor);
     }
 }
-/** New Round: Perception attempts, attack-reveal, and Stealth-spent TN bonus. */
+/** New Round: Perception attempts and Stealth-spent TN bonus. */
 export async function clearPerceptionUsageForNewRound(combat) {
     await forEachCombatActor(async (actor) => {
         await clearPerceptionRoundState(actor);
     }, combat);
 }
 /**
- * Combat end / new encounter: wipe attempt flags, locate results, reveal, stealth spend,
+ * Combat end / new encounter: wipe attempt flags, locate results, stealth spend,
  * and Hidden-from-Stealth — then re-sync Invisibility from powers.
  */
 export async function resetPerceptionForCombatEnd(combat) {
@@ -80,6 +80,20 @@ export async function resetPerceptionForCombatEnd(combat) {
     await forEachCombatActor(async (actor) => {
         actors.add(actor);
     }, c);
+    // Unlinked token actors live on the Token, not in game.actors — that was the
+    // stale perceptionUsedVs hang after shutdown/restart.
+    try {
+        const placeables = globalThis.canvas?.tokens?.placeables ??
+            globalThis.canvas?.tokens?.ownedTokens ??
+            [];
+        for (const t of placeables) {
+            if (t?.actor)
+                actors.add(t.actor);
+        }
+    }
+    catch {
+        /* best-effort */
+    }
     // Also sweep world actors that still carry a stale perceptionCombat flag
     // (deleteCombat can drop combatant.actor before hooks finish).
     try {

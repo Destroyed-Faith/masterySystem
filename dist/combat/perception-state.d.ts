@@ -34,13 +34,20 @@ export interface PerceptionCombatState {
     /** Observer has used their one Perception check vs target this round (key = targetId). */
     perceptionUsedVs?: Record<string, boolean>;
     /**
-     * Invisible creature attacked this round — position revealed to everyone
-     * for the remainder of the round (no Perception needed).
+     * @deprecated Attack-reveal removed — attacking no longer reveals Invisibility.
+     * Ignored if still present on older actors; stripped on round/encounter clear.
      */
     revealedThisRound?: number;
 }
 export declare function emptyPerceptionCombatState(): PerceptionCombatState;
 export declare function getPerceptionCombatState(actor: any): PerceptionCombatState;
+/**
+ * Write perception combat flags with full replace semantics.
+ *
+ * Token ActorDelta / Foundry `mergeObject` keeps stale nested keys when you
+ * `setFlag({ perceptionUsedVs: {} })` — empty objects do not delete prior ids.
+ * Unset-then-set (same pattern as combat-snapshot) is required so clears stick.
+ */
 export declare function setPerceptionCombatState(actor: any, patch: Partial<PerceptionCombatState>): Promise<void>;
 /** Effective Invisibility Bonus from combat flags (powers preferred via profile layer). */
 export declare function effectiveInvisibilityBonus(state: PerceptionCombatState): number;
@@ -52,15 +59,15 @@ export declare function isSenseBlockedOnTarget(target: any, senseId: CombatSense
 export declare function computeStealthRaiseBonus(raises: number): number;
 /** @deprecated Cloak Disruption removed from rules — no-op identity. */
 export declare function applyCloakDisruption(state: PerceptionCombatState, _amount: number): PerceptionCombatState;
-export declare function markRevealedThisRound(actor: any, round?: number): Promise<void>;
-export declare function isRevealedThisRound(actor: any, round?: number): boolean;
 /** Clear only this observer's Perception attempts (call on their turn start). */
 export declare function clearPerceptionRoundUsage(actor: any): Promise<void>;
-/** New Round: attempts + attack-reveal + retroactive Stealth TN bonus. */
+/** New Round: attempts + retroactive Stealth TN bonus (+ strip legacy attack-reveal). */
 export declare function clearPerceptionRoundState(actor: any): Promise<void>;
 /**
  * Full combat-scoped perception wipe (combat end / new encounter).
- * Keeps live Invisibility bonus fields — callers re-sync from powers afterwards.
+ * Callers re-sync Invisibility from powers afterwards.
+ *
+ * Always `unsetFlag` — patching nested maps to `{}` does not clear Token ActorDelta.
  */
 export declare function clearPerceptionCombatEncounterState(actor: any): Promise<void>;
 export declare function hasLocatedTarget(observer: any, target: any, round: number): boolean;

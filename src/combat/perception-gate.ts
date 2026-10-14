@@ -19,10 +19,8 @@ import {
 import {
   getPerceptionCombatState,
   hasLocatedTarget,
-  isRevealedThisRound,
   lostHealthBarsForInvis,
   markLocatedTarget,
-  markRevealedThisRound,
   setPerceptionCombatState,
 } from './perception-state.js';
 import {
@@ -117,15 +115,6 @@ export function evaluatePerceptionGate(
     1,
     Math.floor(Number(opts?.combatRound) || (globalThis as any).game?.combat?.round || 1),
   );
-
-  if (isRevealedThisRound(target, round)) {
-    return {
-      canTarget: true,
-      needsPerceptionCheck: false,
-      reason: 'Revealed by attacking this round.',
-      senseUsed: getActiveCombatSense(observer),
-    };
-  }
 
   if (hasLocatedTarget(observer, target, round)) {
     return {
@@ -495,28 +484,34 @@ export function shouldUseHalfEvadeVsAttacker(
 }
 
 /**
- * Attacking while invisible: reveal position for the rest of the Round.
- * Evade is never halved.
+ * Attacking does not interrupt Invisibility. Evade is never halved.
+ * Ordinary Stealth hiding still ends on the attacker's side.
  */
 export async function resolveEvadeVsInvisibleAttacker(
   _defender: any,
   attacker: any,
   _opts?: { defenderToken?: any; attackerToken?: any },
 ): Promise<{ evadeMultiplier: 1 }> {
-  const inv = effectiveInvisibilityBonusForActor(attacker);
-  if (inv > 0 || getPerceptionCombatState(attacker).hidden) {
-    await markRevealedThisRound(attacker);
-  }
+  await endOrdinaryStealthOnAttack(attacker);
   return { evadeMultiplier: 1 };
 }
 
-/** Mark an invisible attacker as revealed for the current Round (public helper). */
+/**
+ * Attacking does not interrupt Invisibility — the creature stays Obscured to
+ * covered Combat Senses; observers use normal Perception to locate/target.
+ * Ordinary Stealth hiding (no Invisibility) ends when attacking.
+ */
+export async function endOrdinaryStealthOnAttack(attacker: any): Promise<void> {
+  if (!attacker) return;
+  const st = getPerceptionCombatState(attacker);
+  if (!st.hidden && !(st.stealthRaiseBonus ?? 0)) return;
+  await setPerceptionCombatState(attacker, {
+    hidden: false,
+    stealthRaiseBonus: 0,
+  });
+}
+
+/** @deprecated Use {@link endOrdinaryStealthOnAttack} — Invisibility is no longer revealed by attacking. */
 export async function revealInvisibleAttacker(attacker: any): Promise<void> {
-  const inv = effectiveInvisibilityBonusForActor(attacker);
-  if (inv <= 0 && !getPerceptionCombatState(attacker).hidden) return;
-  await markRevealedThisRound(attacker);
-  const g = globalThis as any;
-  g.ui?.notifications?.info?.(
-    `${attacker?.name ?? 'Creature'} revealed — Invisibility no longer hides them this Round.`,
-  );
+  await endOrdinaryStealthOnAttack(attacker);
 }

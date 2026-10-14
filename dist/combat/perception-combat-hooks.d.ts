@@ -18,14 +18,14 @@ export declare function applyStealthRollResult(actor: any, result: {
     success: boolean;
     raises?: number;
 }): Promise<void>;
-/** @deprecated Cloak Disruption removed — no-op (attack reveal is handled separately). */
+/** @deprecated Cloak Disruption removed — attacking no longer reveals Invisibility. */
 export declare function applyAttackCloakDisruption(_attacker: any): Promise<void>;
 /** @deprecated Cloak Disruption removed — movement no longer lowers Invisibility Bonus. */
 export declare function applyMovementCloakDisruption(_actor: any, _totalMovedM: number): Promise<void>;
-/** New Round: Perception attempts, attack-reveal, and Stealth-spent TN bonus. */
+/** New Round: Perception attempts and Stealth-spent TN bonus. */
 export declare function clearPerceptionUsageForNewRound(combat?: any): Promise<void>;
 /**
- * Combat end / new encounter: wipe attempt flags, locate results, reveal, stealth spend,
+ * Combat end / new encounter: wipe attempt flags, locate results, stealth spend,
  * and Hidden-from-Stealth — then re-sync Invisibility from powers.
  */
 export declare function resetPerceptionForCombatEnd(combat?: any): Promise<void>;

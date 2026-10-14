@@ -1107,7 +1107,8 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         fluff:
             'Always on once you have this Passive. Obscures Normal Combat Awareness (and Darkvision); higher levels add Special Combat Sense selections. ' +
             'Perception TN = (4 × MR) + Invisibility Bonus − (Lost Health Bars × MR) + Stealth Spent. ' +
-            'Uncovered Senses ignore Invisibility. Attacking reveals your position for the rest of the Round (Invisibility stays on). ' +
+            'Uncovered Senses ignore Invisibility. Attacking does not interrupt Invisibility — observers use normal Perception. ' +
+            'Ordinary Stealth hiding ends when attacking. ' +
             'Does not grant Evade, Armor, DR, Temp HP, or Healing. Stacks with Active Buff: Invisibility.',
         perLevel: (lvl) => {
             const bonus = INVIS_PASSIVE[lvl - 1]!;
@@ -1123,7 +1124,8 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
                     `${sensePart} ` +
                     `Perception TN = **(4 × MR) + ${bonus} − (Lost Health Bars × MR) + Stealth Spent**. ` +
                     `Uncovered Special Combat Senses perceive you normally (no Invisibility TN). ` +
-                    `Attacking reveals your location for the rest of the Round; Invisibility is not deactivated. ` +
+                    `Attacking does not interrupt Invisibility; observers use normal Perception to locate and target you. ` +
+                    `Ordinary Stealth hiding ends when attacking. ` +
                     `Incapacitated suppresses Invisibility until you recover.`,
                 mechanics: {
                     invisibilityBonus: bonus,

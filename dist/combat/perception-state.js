@@ -17,11 +17,44 @@ export function getPerceptionCombatState(actor) {
     }
     return emptyPerceptionCombatState();
 }
+/**
+ * Write perception combat flags with full replace semantics.
+ *
+ * Token ActorDelta / Foundry `mergeObject` keeps stale nested keys when you
+ * `setFlag({ perceptionUsedVs: {} })` — empty objects do not delete prior ids.
+ * Unset-then-set (same pattern as combat-snapshot) is required so clears stick.
+ */
 export async function setPerceptionCombatState(actor, patch) {
-    if (!actor?.setFlag)
+    if (!actor?.setFlag && !actor?.update)
         return;
     const cur = getPerceptionCombatState(actor);
-    await actor.setFlag('mastery-system', FLAG_KEY, { ...cur, ...patch });
+    const next = { ...cur, ...patch };
+    // Omit emptied maps so they are not re-created after unset.
+    if (patch.perceptionUsedVs && Object.keys(patch.perceptionUsedVs).length === 0) {
+        delete next.perceptionUsedVs;
+    }
+    if (patch.locatedTargets && Object.keys(patch.locatedTargets).length === 0) {
+        delete next.locatedTargets;
+    }
+    try {
+        await actor.unsetFlag?.('mastery-system', FLAG_KEY);
+    }
+    catch {
+        try {
+            await actor.update?.({ [`flags.mastery-system.-=${FLAG_KEY}`]: null });
+        }
+        catch {
+            /* continue and try setFlag */
+        }
+    }
+    if (Object.keys(next).length === 0)
+        return;
+    if (typeof actor.setFlag === 'function') {
+        await actor.setFlag('mastery-system', FLAG_KEY, next);
+    }
+    else {
+        await actor.update?.({ [`flags.mastery-system.${FLAG_KEY}`]: next });
+    }
 }
 /** Effective Invisibility Bonus from combat flags (powers preferred via profile layer). */
 export function effectiveInvisibilityBonus(state) {
@@ -49,17 +82,6 @@ export function computeStealthRaiseBonus(raises) {
 export function applyCloakDisruption(state, _amount) {
     return { ...state };
 }
-export async function markRevealedThisRound(actor, round) {
-    if (!actor)
-        return;
-    const r = Math.max(1, Math.floor(Number(round) || globalThis.game?.combat?.round || 1));
-    await setPerceptionCombatState(actor, { revealedThisRound: r });
-}
-export function isRevealedThisRound(actor, round) {
-    const r = Math.max(1, Math.floor(Number(round) || globalThis.game?.combat?.round || 1));
-    const st = getPerceptionCombatState(actor);
-    return Math.floor(Number(st.revealedThisRound) || 0) === r;
-}
 /** Clear only this observer's Perception attempts (call on their turn start). */
 export async function clearPerceptionRoundUsage(actor) {
     const st = getPerceptionCombatState(actor);
@@ -67,52 +89,58 @@ export async function clearPerceptionRoundUsage(actor) {
         return;
     await setPerceptionCombatState(actor, { perceptionUsedVs: {} });
 }
-/** New Round: attempts + attack-reveal + retroactive Stealth TN bonus. */
+/** New Round: attempts + retroactive Stealth TN bonus (+ strip legacy attack-reveal). */
 export async function clearPerceptionRoundState(actor) {
     const st = getPerceptionCombatState(actor);
     const hasAttempts = st.perceptionUsedVs && Object.keys(st.perceptionUsedVs).length > 0;
-    const hasReveal = !!st.revealedThisRound;
+    const hasLegacyReveal = !!st.revealedThisRound;
     const hasSpend = (st.stealthSpentThisRound ?? 0) > 0;
-    if (!hasAttempts && !hasReveal && !hasSpend)
+    if (!hasAttempts && !hasLegacyReveal && !hasSpend)
         return;
-    await setPerceptionCombatState(actor, {
-        perceptionUsedVs: {},
-        revealedThisRound: 0,
-        stealthSpentThisRound: 0,
-    });
+    const next = { ...st };
+    delete next.perceptionUsedVs;
+    delete next.revealedThisRound;
+    delete next.stealthSpentThisRound;
+    try {
+        await actor.unsetFlag?.('mastery-system', FLAG_KEY);
+    }
+    catch {
+        try {
+            await actor.update?.({ [`flags.mastery-system.-=${FLAG_KEY}`]: null });
+        }
+        catch {
+            /* continue */
+        }
+    }
+    if (Object.keys(next).length === 0)
+        return;
+    if (typeof actor.setFlag === 'function') {
+        await actor.setFlag('mastery-system', FLAG_KEY, next);
+    }
+    else {
+        await actor.update?.({ [`flags.mastery-system.${FLAG_KEY}`]: next });
+    }
 }
 /**
  * Full combat-scoped perception wipe (combat end / new encounter).
- * Keeps live Invisibility bonus fields — callers re-sync from powers afterwards.
+ * Callers re-sync Invisibility from powers afterwards.
+ *
+ * Always `unsetFlag` — patching nested maps to `{}` does not clear Token ActorDelta.
  */
 export async function clearPerceptionCombatEncounterState(actor) {
-    if (!actor?.setFlag && !actor?.unsetFlag)
+    if (!actor?.unsetFlag && !actor?.update)
         return;
-    const st = getPerceptionCombatState(actor);
-    const hasAnything = !!st.hidden ||
-        (st.stealthRaiseBonus ?? 0) > 0 ||
-        (st.stealthSpentThisRound ?? 0) > 0 ||
-        !!st.revealedThisRound ||
-        (st.perceptionUsedVs && Object.keys(st.perceptionUsedVs).length > 0) ||
-        (st.locatedTargets && Object.keys(st.locatedTargets).length > 0);
-    if (!hasAnything && st.invisibilityBonus === undefined && !st.blockedSenses?.length) {
-        // Still unset stale flag blobs from older combats.
+    try {
+        await actor.unsetFlag?.('mastery-system', FLAG_KEY);
+    }
+    catch {
         try {
-            await actor.unsetFlag?.('mastery-system', FLAG_KEY);
+            await actor.update?.({ [`flags.mastery-system.-=${FLAG_KEY}`]: null });
         }
         catch {
             /* ignore */
         }
-        return;
     }
-    await setPerceptionCombatState(actor, {
-        hidden: false,
-        stealthRaiseBonus: 0,
-        stealthSpentThisRound: 0,
-        revealedThisRound: 0,
-        perceptionUsedVs: {},
-        locatedTargets: {},
-    });
 }
 export function hasLocatedTarget(observer, target, round) {
     const tgtId = String(target?.id ?? '');

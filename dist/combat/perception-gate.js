@@ -10,7 +10,7 @@
  */
 import { COMBAT_SENSES } from './combat-senses.js';
 import { getActiveCombatSense, isNonSightCombatSense, listActorCombatSenses, } from './combat-sense-collection.js';
-import { getPerceptionCombatState, hasLocatedTarget, isRevealedThisRound, lostHealthBarsForInvis, markLocatedTarget, markRevealedThisRound, setPerceptionCombatState, } from './perception-state.js';
+import { getPerceptionCombatState, hasLocatedTarget, lostHealthBarsForInvis, markLocatedTarget, setPerceptionCombatState, } from './perception-state.js';
 import { effectiveInvisibilityBonusForActor, isSenseBlockedForActor, } from './invisibility-profile.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
 import { tokenIsExcludedAsTarget } from './defeated-token.js';
@@ -76,14 +76,6 @@ export function evaluatePerceptionGate(observer, target, opts) {
         return { canTarget: true, needsPerceptionCheck: false, reason: 'Self.' };
     }
     const round = Math.max(1, Math.floor(Number(opts?.combatRound) || globalThis.game?.combat?.round || 1));
-    if (isRevealedThisRound(target, round)) {
-        return {
-            canTarget: true,
-            needsPerceptionCheck: false,
-            reason: 'Revealed by attacking this round.',
-            senseUsed: getActiveCombatSense(observer),
-        };
-    }
     if (hasLocatedTarget(observer, target, round)) {
         return {
             canTarget: true,
@@ -406,23 +398,31 @@ export function shouldUseHalfEvadeVsAttacker(_defender, _attacker, _round) {
     return false;
 }
 /**
- * Attacking while invisible: reveal position for the rest of the Round.
- * Evade is never halved.
+ * Attacking does not interrupt Invisibility. Evade is never halved.
+ * Ordinary Stealth hiding still ends on the attacker's side.
  */
 export async function resolveEvadeVsInvisibleAttacker(_defender, attacker, _opts) {
-    const inv = effectiveInvisibilityBonusForActor(attacker);
-    if (inv > 0 || getPerceptionCombatState(attacker).hidden) {
-        await markRevealedThisRound(attacker);
-    }
+    await endOrdinaryStealthOnAttack(attacker);
     return { evadeMultiplier: 1 };
 }
-/** Mark an invisible attacker as revealed for the current Round (public helper). */
-export async function revealInvisibleAttacker(attacker) {
-    const inv = effectiveInvisibilityBonusForActor(attacker);
-    if (inv <= 0 && !getPerceptionCombatState(attacker).hidden)
+/**
+ * Attacking does not interrupt Invisibility — the creature stays Obscured to
+ * covered Combat Senses; observers use normal Perception to locate/target.
+ * Ordinary Stealth hiding (no Invisibility) ends when attacking.
+ */
+export async function endOrdinaryStealthOnAttack(attacker) {
+    if (!attacker)
         return;
-    await markRevealedThisRound(attacker);
-    const g = globalThis;
-    g.ui?.notifications?.info?.(`${attacker?.name ?? 'Creature'} revealed — Invisibility no longer hides them this Round.`);
+    const st = getPerceptionCombatState(attacker);
+    if (!st.hidden && !(st.stealthRaiseBonus ?? 0))
+        return;
+    await setPerceptionCombatState(attacker, {
+        hidden: false,
+        stealthRaiseBonus: 0,
+    });
+}
+/** @deprecated Use {@link endOrdinaryStealthOnAttack} — Invisibility is no longer revealed by attacking. */
+export async function revealInvisibleAttacker(attacker) {
+    await endOrdinaryStealthOnAttack(attacker);
 }
 //# sourceMappingURL=perception-gate.js.map

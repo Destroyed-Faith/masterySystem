@@ -57,8 +57,8 @@ export declare function targetUnseenByObserver(observer: any, target: any): bool
  */
 export declare function shouldUseHalfEvadeVsAttacker(_defender: any, _attacker: any, _round: number): boolean;
 /**
- * Attacking while invisible: reveal position for the rest of the Round.
- * Evade is never halved.
+ * Attacking does not interrupt Invisibility. Evade is never halved.
+ * Ordinary Stealth hiding still ends on the attacker's side.
  */
 export declare function resolveEvadeVsInvisibleAttacker(_defender: any, attacker: any, _opts?: {
     defenderToken?: any;
@@ -66,6 +66,12 @@ export declare function resolveEvadeVsInvisibleAttacker(_defender: any, attacker
 }): Promise<{
     evadeMultiplier: 1;
 }>;
-/** Mark an invisible attacker as revealed for the current Round (public helper). */
+/**
+ * Attacking does not interrupt Invisibility — the creature stays Obscured to
+ * covered Combat Senses; observers use normal Perception to locate/target.
+ * Ordinary Stealth hiding (no Invisibility) ends when attacking.
+ */
+export declare function endOrdinaryStealthOnAttack(attacker: any): Promise<void>;
+/** @deprecated Use {@link endOrdinaryStealthOnAttack} — Invisibility is no longer revealed by attacking. */
 export declare function revealInvisibleAttacker(attacker: any): Promise<void>;
 //# sourceMappingURL=perception-gate.d.ts.map

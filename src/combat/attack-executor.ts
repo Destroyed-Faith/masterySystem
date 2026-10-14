@@ -500,9 +500,9 @@ export async function createAttackCard(
   // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
   let targetEvadeFromActor = getTargetEvade(target);
 
-  // Attacking while invisible reveals position for the rest of the Round (full Evade).
-  const { revealInvisibleAttacker } = await import('./perception-gate.js');
-  await revealInvisibleAttacker(attacker);
+  // Attacking does not interrupt Invisibility; ordinary Stealth hiding ends.
+  const { endOrdinaryStealthOnAttack } = await import('./perception-gate.js');
+  await endOrdinaryStealthOnAttack(attacker);
 
   // Get power info if applicable
   let selectedPowerId: string | null = null;
