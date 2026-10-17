@@ -39,6 +39,7 @@ export declare function healingHandleLabel(args: {
     resolveStatus: ResolveHealBarStatus;
     dice: number;
     inCombat: boolean;
+    owned: boolean;
     poolMax: number;
     remaining: number;
 }): string;
@@ -48,6 +49,7 @@ export declare function buildHealingBarModel(args: {
     dice: number;
     inCombat: boolean;
     restoration: {
+        owned: boolean;
         poolMax: number;
         remaining: number;
         scarred: number;

@@ -84,6 +84,7 @@ async function modelFor(actor) {
         dice: row.dice,
         inCombat,
         restoration: {
+            owned: regen.level > 0,
             poolMax: regen.poolMax,
             remaining: regen.remaining,
             scarred: countScarredHealthBars(actor),
@@ -160,7 +161,7 @@ export class HealingBar extends BaseBar {
                 resolveDetail: '',
                 dice: 0,
                 inCombat: false,
-                restoration: { poolMax: 0, remaining: 0, scarred: 0, blocked: false },
+                restoration: { owned: false, poolMax: 0, remaining: 0, scarred: 0, blocked: false },
             });
         return {
             actorName: String(actor?.name ?? ''),

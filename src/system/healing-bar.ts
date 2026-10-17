@@ -63,6 +63,7 @@ export function healingHandleLabel(args: {
   resolveStatus: ResolveHealBarStatus;
   dice: number;
   inCombat: boolean;
+  owned: boolean;
   poolMax: number;
   remaining: number;
 }): string {
@@ -74,6 +75,7 @@ export function healingHandleLabel(args: {
     else parts.push('Heal —');
   }
   if (args.poolMax > 0) parts.push(`Rest ${Math.max(0, args.remaining)}/${args.poolMax}`);
+  else if (args.owned) parts.push('Rest —');
   return parts.join(' · ');
 }
 
@@ -82,12 +84,13 @@ export function buildHealingBarModel(args: {
   resolveDetail: string;
   dice: number;
   inCombat: boolean;
-  restoration: { poolMax: number; remaining: number; scarred: number; blocked: boolean };
+  restoration: { owned: boolean; poolMax: number; remaining: number; scarred: number; blocked: boolean };
 }): HealingBarModel {
   const poolMax = Math.max(0, Math.floor(Number(args.restoration.poolMax) || 0));
   const remaining = Math.max(0, Math.min(poolMax, Math.floor(Number(args.restoration.remaining) || 0)));
   const scarred = Math.max(0, Math.floor(Number(args.restoration.scarred) || 0));
-  const restorationVisible = poolMax > 0;
+  const owned = !!args.restoration.owned || poolMax > 0;
+  const restorationVisible = owned;
   const show = args.inCombat || args.resolveStatus !== 'idle' || restorationVisible;
   return {
     resolveStatus: args.resolveStatus,
@@ -98,13 +101,16 @@ export function buildHealingBarModel(args: {
     restorationPoolMax: poolMax,
     restorationScarred: scarred,
     restorationCanUse: restorationVisible && remaining > 0 && scarred > 0 && !args.restoration.blocked,
-    restorationDetail: restorationVisible
-      ? `${remaining}/${poolMax} Scarred Bars left today. Scarred now: ${scarred}.`
-      : '',
+    restorationDetail: !restorationVisible
+      ? ''
+      : poolMax <= 0
+        ? 'Owned. This Power Level has no Scarred Bars to restore yet.'
+        : `${remaining}/${poolMax} Scarred Bars left today. Scarred now: ${scarred}. Use restores one.`,
     handleLabel: healingHandleLabel({
       resolveStatus: args.resolveStatus,
       dice: Math.max(0, Math.floor(Number(args.dice) || 0)),
       inCombat: args.inCombat,
+      owned,
       poolMax,
       remaining,
     }),

@@ -16,6 +16,12 @@ export interface RegenDailyState {
     poolMax: number;
 }
 export declare function getTyhranDayIndex(): number;
+/** True for the Passive itself. Active Scarred Bar Restoration powers do not match. */
+export declare function isPassiveRestorationIdentity(args: {
+    templateId?: unknown;
+    name?: unknown;
+    type?: unknown;
+}): boolean;
 /** Slotted / owned Passive: Restoration power level (0 if none). */
 export declare function getPassiveRegenerationLevel(actor: any): number;
 export { regenerationPoolMaxForLevel, regenerationCatalogText };

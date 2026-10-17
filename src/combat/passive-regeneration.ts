@@ -62,44 +62,58 @@ export function getTyhranDayIndex(): number {
   }
 }
 
+function restorationPowerLevel(raw: unknown): number {
+  const n = Math.floor(Number(raw) || 0);
+  if (n <= 0) return 0;
+  return Math.max(1, Math.min(16, n));
+}
+
+/** True for the Passive itself. Active Scarred Bar Restoration powers do not match. */
+export function isPassiveRestorationIdentity(args: {
+  templateId?: unknown;
+  name?: unknown;
+  type?: unknown;
+}): boolean {
+  const tid = String(args.templateId || '').trim().toLowerCase();
+  const name = String(args.name || '').trim();
+  const type = String(args.type || '').trim().toLowerCase();
+  if (tid === PASSIVE_REGENERATION_TEMPLATE_ID || tid === PASSIVE_HEALING_LEGACY_ID) return true;
+  const passiveNamed = type === 'passive' || /^passive\b/i.test(name);
+  return passiveNamed && /restoration|regeneration/i.test(name);
+}
+
 /** Slotted / owned Passive: Restoration power level (0 if none). */
 export function getPassiveRegenerationLevel(actor: any): number {
-  const items = actor?.items;
-  if (!items) return 0;
   let best = 0;
-  for (const item of Array.from(items) as any[]) {
-    const tid = String(item?.system?.templateId || item?.system?.powerTemplateId || '');
-    const name = String(item?.name || '');
-    const isRegen =
-      tid === PASSIVE_REGENERATION_TEMPLATE_ID ||
-      tid === PASSIVE_HEALING_LEGACY_ID ||
-      /^passive-regeneration$/i.test(tid) ||
-      (/regeneration/i.test(name) && /passive/i.test(String(item?.type || 'passive')));
-    if (!isRegen && item?.type !== 'passive') {
-      // Also accept slotted passives stored as power items.
-      if (tid !== PASSIVE_REGENERATION_TEMPLATE_ID && tid !== 'passive-regeneration') continue;
-    }
-    if (!isRegen && tid !== PASSIVE_REGENERATION_TEMPLATE_ID && tid !== PASSIVE_HEALING_LEGACY_ID) {
-      continue;
-    }
-    const lvl = Math.max(1, Math.min(16, Math.floor(Number(item?.system?.rank ?? item?.system?.level ?? 1) || 1)));
+  const consider = (templateId: unknown, name: unknown, type: unknown, level: unknown) => {
+    if (!isPassiveRestorationIdentity({ templateId, name, type })) return;
+    const lvl = restorationPowerLevel(level) || 1;
     if (lvl > best) best = lvl;
-  }
-  // Slotted passives may live on system.passives / combat slots.
-  try {
-    const slots = actor?.system?.passives?.slots ?? actor?.system?.combatPassives ?? [];
-    const list = Array.isArray(slots) ? slots : Object.values(slots || {});
-    for (const slot of list as any[]) {
-      const p = slot?.passive ?? slot;
-      const tid = String(p?.templateId || p?.id || '');
-      if (tid !== PASSIVE_REGENERATION_TEMPLATE_ID && tid !== 'passive-regeneration' && tid !== PASSIVE_HEALING_LEGACY_ID) {
-        continue;
-      }
-      const lvl = Math.max(1, Math.min(16, Math.floor(Number(p?.rank ?? p?.level ?? 1) || 1)));
-      if (lvl > best) best = lvl;
+  };
+  const items = actor?.items;
+  if (items) {
+    const list = Array.isArray(items)
+      ? items
+      : typeof items[Symbol.iterator] === 'function'
+        ? Array.from(items as Iterable<any>)
+        : Array.isArray(items.contents)
+          ? items.contents
+          : [];
+    for (const item of list as any[]) {
+      const sys = item?.system ?? {};
+      consider(
+        sys.templateId || sys.powerTemplateId,
+        item?.name,
+        item?.type,
+        sys.rank ?? sys.level,
+      );
     }
-  } catch {
-    /* ignore */
+  }
+  const passives = actor?.system?.passives ?? {};
+  for (let i = 0; i < 6; i += 1) {
+    const raw = passives[`slot${i}`]?.passive ?? passives?.slots?.[i]?.passive;
+    if (!raw) continue;
+    consider(raw.templateId || raw.id, raw.name, 'passive', raw.rank ?? raw.level);
   }
   return best;
 }

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { getPassiveRegenerationLevel } from '../src/combat/passive-regeneration';
 import { buildHealingBarModel, healingHandleLabel, resolveHealingBarActor } from '../src/system/healing-bar';
 
-const restoration = { poolMax: 2, remaining: 1, scarred: 2, blocked: false };
+const restoration = { owned: true, poolMax: 2, remaining: 1, scarred: 2, blocked: false };
 
 describe('Healing bar model', () => {
   it('shows a prepared heal and the restoration pool on the grip', () => {
@@ -24,7 +25,7 @@ describe('Healing bar model', () => {
       resolveDetail: 'Not prepared.',
       dice: 0,
       inCombat: true,
-      restoration: { poolMax: 2, remaining: 2, scarred: 0, blocked: false },
+      restoration: { owned: true, poolMax: 2, remaining: 2, scarred: 0, blocked: false },
     });
     expect(model.resolveCanUse).toBe(false);
     expect(model.restorationCanUse).toBe(false);
@@ -37,16 +38,51 @@ describe('Healing bar model', () => {
       resolveDetail: '',
       dice: 0,
       inCombat: false,
-      restoration: { poolMax: 0, remaining: 0, scarred: 0, blocked: false },
+      restoration: { owned: false, poolMax: 0, remaining: 0, scarred: 0, blocked: false },
     });
     expect(model.show).toBe(false);
     expect(healingHandleLabel({
       resolveStatus: 'spent',
       dice: 0,
       inCombat: true,
+      owned: false,
       poolMax: 0,
       remaining: 0,
     })).toBe('Heal used');
+  });
+
+  it('keeps Passive: Restoration on the bar outside combat', () => {
+    const model = buildHealingBarModel({
+      resolveStatus: 'idle',
+      resolveDetail: '',
+      dice: 0,
+      inCombat: false,
+      restoration,
+    });
+    expect(model.show).toBe(true);
+    expect(model.restorationVisible).toBe(true);
+    expect(model.restorationCanUse).toBe(true);
+    expect(model.handleLabel).toBe('Rest 1/2');
+  });
+
+  it('recognises Passive: Restoration by name and by the slot record', () => {
+    const byName = {
+      items: [{ type: 'passive', name: 'Passive: Restoration', system: { level: 4 } }],
+    };
+    expect(getPassiveRegenerationLevel(byName)).toBe(4);
+    const bySlot = {
+      items: [],
+      system: {
+        passives: {
+          slot1: { passive: { id: 'item-1', name: 'Passive: Restoration', templateId: 'passive-regeneration', level: 6 } },
+        },
+      },
+    };
+    expect(getPassiveRegenerationLevel(bySlot)).toBe(6);
+    const active = {
+      items: [{ type: 'active', name: 'Melee Scarred Bar Restoration', system: { templateId: 'active-melee-health-level-heal', level: 8 } }],
+    };
+    expect(getPassiveRegenerationLevel(active)).toBe(0);
   });
 
   it('uses the player character, and the GM selected character', () => {

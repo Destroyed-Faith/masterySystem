@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.718] - 2026-10-17
+
+### Fixed
+
+- **Healing bar:** Passive: Restoration shows whenever you own it (including the renamed item and slotted `slot0`–`slot5` data), outside combat as well. **Use** restores one of your Scarred Bars from the daily pool. The sheet button is labeled Restoration.
+
 ## [0.9.717] - 2026-10-17
 
 ### Added
