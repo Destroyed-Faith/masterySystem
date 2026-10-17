@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, unslotPassive, canEditEncounterPassives, consumePendingPassiveSwap, getPendingPassiveSwaps, } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, findPassivePowerItem, formatPassiveDescription, slotPassive, unslotPassive, canEditEncounterPassives, consumePendingPassiveSwap, getPendingPassiveSwaps, } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -104,7 +104,20 @@ export class PassiveSelectionDialog extends BaseDialog {
         const actor = this.currentActor;
         if (!actor)
             return {};
-        const slots = getPassiveSlots(actor);
+        const slots = getPassiveSlots(actor).map((slot) => {
+            if (!slot.passive?.id)
+                return slot;
+            const item = findPassivePowerItem(actor, String(slot.passive.id));
+            const live = item ? formatPassiveDescription(item) : '';
+            const description = live || String(slot.passive.description || '').trim();
+            const name = String(slot.passive.name || '')
+                .replace(/^Passive:\s*/i, '')
+                .trim() || slot.passive.name;
+            return {
+                ...slot,
+                passive: { ...slot.passive, name, description },
+            };
+        });
         const available = getAvailablePassives(actor);
         const slottedIds = getSlottedPassiveIds(actor);
         const selectablePassives = available.filter((p) => !slottedIds.has(String(p.id)));
@@ -189,7 +202,7 @@ export class PassiveSelectionDialog extends BaseDialog {
                         return;
                     const slotIndex = Number(slot.dataset.slotIndex ?? 0);
                     const passiveId = ev.dataTransfer?.getData('text/plain') || '';
-                    if (!passiveId || !slot.classList.contains('empty'))
+                    if (!passiveId || !slot.classList.contains('empty') || slot.classList.contains('locked'))
                         return;
                     if (!this.#canMutate())
                         return;

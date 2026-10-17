@@ -1051,20 +1051,24 @@ const MIND_ILLUSION_EFFECT = [
 function healthLevelHealTemplate(flavour) {
     const isRanged = flavour === 'ranged';
     const pool = isRanged ? HL_HEAL_RANGED_POOL : HL_HEAL_MELEE_POOL;
+    // Display labels (R-canvas): Scarred Bar Restoration. Template ids unchanged for compatibility.
+    const displayName = isRanged
+        ? 'Ranged Scarred Bar Restoration'
+        : 'Melee Scarred Bar Restoration';
     return {
         templateId: isRanged ? 'active-ranged-health-level-heal' : 'active-melee-health-level-heal',
-        templateName: isRanged ? 'Ranged Health Level Heal' : 'Melee Health Level Heal',
-        name: isRanged ? 'Ranged Health Level Heal' : 'Melee Health Level Heal',
+        templateName: displayName,
+        name: displayName,
         subfamily: 'support-heal',
         category: 'active',
         tags: ['spell'],
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'Spend this Power\'s Health Level Recovery pool to restore lost Health Levels. It restores no HP by itself.',
+        fluff: 'Restores Scarred Health Bars. Does not restore HP.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
         levels: buildLevels((lvl) => {
             const hl = pool[lvl - 1];
-            const noun = hl === 1 ? 'Health Level' : 'Health Levels';
+            const noun = hl === 1 ? 'Scarred Health Bar' : 'Scarred Health Bars';
             const reach = isRanged
                 ? 'on one creature within range'
                 : 'on one creature you can touch or reach';
@@ -1072,8 +1076,9 @@ function healthLevelHealTemplate(flavour) {
                 type: 'Active, Support',
                 range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: `You may spend this Power's Health Level Recovery pool to restore lost Health Levels ${reach}. ` +
-                    `This Power restores no HP. **Pool:** restore up to **${hl} ${noun}** per Safe Haven Rest.`,
+                effectText: `Restores Scarred Health Bars. Does not restore HP. ` +
+                    `Spend this Power's Health Level Recovery pool ${reach}. ` +
+                    `**Pool:** restore up to **${hl} ${noun}** per Safe Haven Rest.`,
                 specials: [],
                 mechanics: {},
             });

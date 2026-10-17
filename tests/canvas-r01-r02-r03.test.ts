@@ -7,9 +7,9 @@ import {
 import {
   maximizeDiceFormula,
   maximizeDamageFormula,
-  offerMaximization,
   DAMAGE_MAX_FLAG,
 } from '../src/stones/stone-combat-effects.js';
+import { disableFoundryInvisibleTokenHide } from '../src/system/status-effects.js';
 import {
   evaluateThreatenedSpellcasting,
   isThreatenedByEnemyMelee,
@@ -71,17 +71,30 @@ describe('R-02 Maximization for Damage and Healing', () => {
       }),
     };
     (globalThis as any).game = { combat: { id: 'c1', round: 1 } };
-    (globalThis as any).Dialog = {
-      confirm: vi.fn(async () => true),
-    };
 
-    expect(await offerMaximization(actor, 'damage')).toBe(true);
+    const { spendMaximization, remainingMaximizations } = await import(
+      '../src/stones/stone-combat-effects.js'
+    );
+    expect(remainingMaximizations(actor)).toBe(3);
+    expect(await spendMaximization(actor)).toBe(true);
     expect(flag.remaining).toBe(2);
-    expect(await offerMaximization(actor, 'healing')).toBe(true);
+    expect(await spendMaximization(actor)).toBe(true);
     expect(flag.remaining).toBe(1);
-    expect(await offerMaximization(actor, 'damage')).toBe(true);
+    expect(await spendMaximization(actor)).toBe(true);
     expect(flag.remaining).toBe(0);
-    expect(await offerMaximization(actor, 'healing')).toBe(false);
+    expect(await spendMaximization(actor)).toBe(false);
+    expect(remainingMaximizations(actor)).toBe(0);
+  });
+});
+
+describe('Invisibility presentation vs Foundry hide', () => {
+  it('clears CONFIG.specialStatusEffects.INVISIBLE so tokens stay targetable', () => {
+    (globalThis as any).CONFIG = {
+      specialStatusEffects: { INVISIBLE: 'invisible', DEFEATED: 'dead' },
+    };
+    disableFoundryInvisibleTokenHide();
+    expect((globalThis as any).CONFIG.specialStatusEffects.INVISIBLE).toBe('');
+    expect((globalThis as any).CONFIG.specialStatusEffects.DEFEATED).toBe('dead');
   });
 });
 

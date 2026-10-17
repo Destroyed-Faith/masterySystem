@@ -21,7 +21,7 @@
  *
  * Runs GM-side only so a single client mutates the actor.
  */
-import { applyDamage, healDamage, applyStress } from '../utils/calculations.js';
+import { applyDamage, healDamage } from '../utils/calculations.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getEffectById } from '../utils/special-effects.js';
 import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
@@ -215,13 +215,7 @@ export async function processTurnStartStatusTick(actor) {
         extra['system.health.bars'] = bars;
         extra['system.health.currentBar'] = currentBar;
     }
-    // Apply Stress (Blight, ignores Stress Armor) to stress bars.
-    if (blightStress > 0 && Array.isArray(system?.stress?.bars) && system.stress.bars.length > 0) {
-        const bars = foundry.utils.duplicate(system.stress.bars);
-        const currentBar = applyStress(bars, Number(system.stress.currentBar ?? 0), blightStress);
-        extra['system.stress.bars'] = bars;
-        extra['system.stress.currentBar'] = currentBar;
-    }
+    // Mechanical Stress retired — Blight notes remain; no stress bar updates.
     try {
         await writeActorStatusList(actor, next, extra);
     }

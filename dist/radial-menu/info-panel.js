@@ -136,11 +136,21 @@ export function showRadialInfoPanel(token, option) {
             }
         }
     }
+    const optionId = String(option.id || '');
+    // Movement tradeoffs that lock/spend an Attack Action — surface loudly next to Movement.
+    const losesAttackAction = optionId === 'dash' ||
+        optionId === 'disengage' ||
+        optionId === 'flee' ||
+        optionId === 'stand-up';
+    const isFlee = optionId === 'flee';
     // Build info HTML
     let infoHTML = `
     <div class="ms-info-title">${option.name}</div>
     <div class="ms-info-meta">
-      <span class="ms-info-source">${option.source}</span> · <span class="ms-info-slot">${category}</span>
+      <span class="ms-info-source">${option.source}</span>
+      <span class="ms-info-slot">${category}</span>
+      ${losesAttackAction ? '<span class="ms-info-cost-warn">Lose one Attack Action</span>' : ''}
+      ${isFlee ? '<span class="ms-info-cost-warn">Escape — no way back</span>' : ''}
     </div>
   `;
     if (damageText) {
@@ -164,7 +174,10 @@ export function showRadialInfoPanel(token, option) {
             infoHTML += `<div class="ms-info-ammo"><strong>${quiverAmmunitionLabel(pair.quiver)}</strong></div>`;
         }
     }
-    infoHTML += `<div class="ms-info-desc">${option.description || 'No description available'}</div>`;
+    const rawDesc = String(option.maneuver?.effect || option.description || '').trim() ||
+        'No description available';
+    const descText = rawDesc.replace(/\*\*/g, '');
+    infoHTML += `<div class="ms-info-desc">${descText}</div>`;
     info.innerHTML = infoHTML;
 }
 /**

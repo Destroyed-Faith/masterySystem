@@ -7,9 +7,7 @@
  * Kept separate from `src/powers/passives.ts` so the sheet can stay
  * declarative and the core passives module remains free of UI concerns.
  */
-import { getPassiveSlots, getAvailablePassives, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, getPassiveSlotUnlockRank } from '../powers/passives.js';
-import { resolvePowerMechanics } from './power-mechanics.js';
-import { summarizePowerMechanics } from './power-mechanics-summary.js';
+import { getPassiveSlots, getAvailablePassives, getPassiveSlotCountForMasteryRank, MAX_PASSIVE_SLOTS, getPassiveSlotUnlockRank, formatPassiveDescription, findPassivePowerItem, } from '../powers/passives.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export function buildPassiveSlotView(actor) {
     const slotsRaw = getPassiveSlots(actor);
@@ -27,18 +25,19 @@ export function buildPassiveSlotView(actor) {
         const pid = s.passive?.id ? String(s.passive.id) : null;
         let summary = null;
         if (pid) {
-            const item = items.find?.((it) => String(it.id ?? it._id) === pid || it.name === pid);
-            if (item) {
-                const mech = resolvePowerMechanics(item);
-                const sum = summarizePowerMechanics(mech);
-                summary = sum || null;
-            }
+            const item = findPassivePowerItem(actor, pid) ||
+                items.find?.((it) => String(it.id ?? it._id) === pid || it.name === pid);
+            if (item)
+                summary = formatPassiveDescription(item) || null;
+            else if (s.passive?.description)
+                summary = String(s.passive.description);
         }
         return {
             index: s.slotIndex,
             slotKey: `slot${s.slotIndex}`,
             hasPassive: !!s.passive,
             isActive: !!s.passive,
+            locked: !!s.locked,
             passiveId: pid,
             passiveName: s.passive?.name ?? null,
             summary,
@@ -46,18 +45,17 @@ export function buildPassiveSlotView(actor) {
         };
     });
     const availableRows = available.map((p) => {
-        const item = items.find?.((it) => String(it.id ?? it._id) === String(p.id));
-        const mech = item ? resolvePowerMechanics(item) : null;
-        const sum = summarizePowerMechanics(mech);
+        const item = findPassivePowerItem(actor, String(p.id)) ||
+            items.find?.((it) => String(it.id ?? it._id) === String(p.id));
         return {
             id: String(p.id),
             name: p.name,
             category: p.category,
-            summary: sum,
+            summary: p.description || (item ? formatPassiveDescription(item) : ''),
             slottedInSlot: slotIdToIndex.has(String(p.id)) ? slotIdToIndex.get(String(p.id)) ?? null : null,
         };
     });
-    const activeCount = slotRows.filter((r) => r.hasPassive).length;
+    const activeCount = slotRows.filter((r) => r.hasPassive && !r.locked).length;
     return {
         slots: slotRows,
         availablePassives: availableRows,

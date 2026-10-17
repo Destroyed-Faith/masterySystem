@@ -78,6 +78,45 @@ export async function buildEpicRollContext(session, actor, attributeKeyOverride)
     if (session.roll.kind === 'attribute') {
         built = buildAttributeRollContext(actor, session.roll.attributeKey, tnSpec, stoneBonusRaises);
     }
+    if (session.roll.kind === 'fear') {
+        const { FEAR_CHECK_BAND_CLEAR, FEAR_CHECK_BAND_HARD } = await import('../combat/fear.js');
+        const resolveRaw = Math.max(0, Math.floor(Number(actor?.system?.attributes?.resolve?.value) || 0));
+        const { finalizeRolledPool } = await import('../dice/pool-finalize.js');
+        const finalized = finalizeRolledPool(actor, resolveRaw, 1, {
+            rollKind: 'generic',
+            poolAttribute: 'resolve',
+            applyPoolPenalties: true,
+        });
+        const label = `Fear Check (Resolve k1 — bands ${FEAR_CHECK_BAND_HARD} / ${FEAR_CHECK_BAND_CLEAR})`;
+        return {
+            label,
+            attributeKey: 'resolve',
+            isSkillRoll: false,
+            baseModifier: 0,
+            raiseTn: FEAR_CHECK_BAND_CLEAR,
+            rollOptions: {
+                numDice: finalized.numDice,
+                keepDice: 1,
+                skill: 0,
+                tn: FEAR_CHECK_BAND_CLEAR,
+                normalTn: FEAR_CHECK_BAND_CLEAR,
+                label,
+                flavor: [
+                    `No Skill Points / Raises · <${FEAR_CHECK_BAND_HARD} → +2 Fear · <${FEAR_CHECK_BAND_CLEAR} → +1 Fear · ≥${FEAR_CHECK_BAND_CLEAR} → none`,
+                    ...finalized.notes,
+                ].join(' · '),
+                actorId: String(actor.id ?? ''),
+                actorRef: actor,
+                rollKind: 'generic',
+                poolAttribute: 'resolve',
+                applyPoolPenalties: false,
+                applyFear: false,
+                guaranteedEights: 0,
+                raiseModel: 'margin',
+                isSkillRoll: false,
+            },
+        };
+    }
     if (!built)
         return null;
     return {
@@ -127,11 +166,22 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
         ui.notifications?.error('Could not build roll context.');
         return null;
     }
-    const rollResult = await masteryRoll({
+    let rollResult = await masteryRoll({
         ...ctx.rollOptions,
         skipChat: true,
     });
     await showMasteryRollDice3d(rollResult, ctx.rollOptions.skill ?? 0);
+    if (session.roll.kind === 'fear') {
+        const { fearGainedFromCheckTotal, FEAR_CHECK_BAND_CLEAR } = await import('../combat/fear.js');
+        const gained = fearGainedFromCheckTotal(rollResult.total);
+        rollResult = {
+            ...rollResult,
+            success: gained === 0,
+            raises: 0,
+            tn: FEAR_CHECK_BAND_CLEAR,
+            normalTn: FEAR_CHECK_BAND_CLEAR,
+        };
+    }
     const payload = {
         rollResult,
         skillKey: ctx.skillKey,
@@ -139,13 +189,15 @@ export async function executeEpicParticipantRoll(session, actorId, attributeKeyO
         baseModifier: ctx.baseModifier,
         raiseTn: ctx.raiseTn,
     };
-    const hasSkillSpend = !rollResult.success &&
+    const hasSkillSpend = session.roll.kind !== 'fear' &&
+        !rollResult.success &&
         !!ctx.isSkillRoll &&
         !!ctx.skillKey &&
         getSkillSpendOptions(actor, ctx.skillKey, rollResult, ctx.baseModifier).options.length > 0;
     const awaitingConfirm = shouldStageEpicFailure({
         success: !!rollResult.success,
         hasSkillSpend,
+        // Fear Checks: no Skill Points; Reroll Points remain available as a general meta resource.
         hasRerollPoint: canSpendEpicRerollPoint(actor),
         alreadyRerolled: isReroll || previous?.rerolled === true,
     });

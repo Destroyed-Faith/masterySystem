@@ -26,7 +26,7 @@ import { computeRaiseTns, resolveRaiseOutcome } from './raise-resolution.js';
 import { RAISE_INCREMENT, standardTnForMasteryRank } from '../utils/constants.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { spellResistanceAfterPenetration } from './target-defenses.js';
-import { applyStress, applyDamage, isStressTrackCollapsed, calculateMaxPowerLevel, attributeScalingEnabled, } from '../utils/calculations.js';
+import { applyDamage, calculateMaxPowerLevel, } from '../utils/calculations.js';
 /** Flag scope used for persistent spell-related state on actors. */
 const FLAG_SCOPE = 'mastery-system';
 /** Boolean flag: any HP lost to Blood Raises that is still outstanding. */
@@ -102,69 +102,13 @@ export async function applyBloodRaiseHpLoss(actor, amount) {
  * casts, Focus power-ups, etc.) ignores Stress Armor. Pass
  * `{ voluntary: true }` to bypass the armor.
  */
-export async function applyStressToActor(actor, amount, options) {
-    if (!actor || amount <= 0)
-        return 0;
-    const system = actor.system ?? {};
-    const stress = system.stress ?? {};
-    const bars = Array.isArray(stress.bars) ? stress.bars : undefined;
-    const currentBar = Number.isFinite(stress.currentBar) ? stress.currentBar : 0;
-    if (!bars || bars.length === 0)
-        return currentBar;
-    let appliedAmount = amount;
-    if (!options?.voluntary) {
-        const armor = attributeScalingEnabled()
-            ? Math.max(0, Math.floor(Number(system?.scaling?.resolveStressArmor ?? 0) || 0))
-            : 0;
-        if (armor > 0) {
-            appliedAmount = Math.max(0, amount - armor);
-            if (appliedAmount === 0) {
-                // Fully absorbed by armor — nothing to commit, but signal to the
-                // caller that the armor "ate" the entire hit.
-                return currentBar;
-            }
-        }
-    }
-    const wasCollapsed = isStressTrackCollapsed(bars, currentBar);
-    const barsClone = bars.map((b) => ({ ...b }));
-    const newCurrent = applyStress(barsClone, currentBar, appliedAmount);
-    // Store a clamped bar index for sheet UI; collapse is detected separately.
-    const storedBar = Math.min(Math.max(0, newCurrent), Math.max(0, barsClone.length - 1));
-    try {
-        await actor.update({
-            'system.stress.bars': barsClone,
-            'system.stress.currentBar': storedBar,
-        });
-    }
-    catch (err) {
-        console.warn('Mastery System | applyStressToActor failed', err);
-    }
-    // Players Guide: when the track fills, run the Stress Breakdown Check.
-    try {
-        const nowCollapsed = isStressTrackCollapsed(barsClone, newCurrent);
-        if (!wasCollapsed && nowCollapsed) {
-            const { maybeTriggerStressBreakdown } = await import('./stress-breakdown.js');
-            await maybeTriggerStressBreakdown(actor, { wasCollapsed: false });
-        }
-    }
-    catch (err) {
-        console.warn('Mastery System | stress breakdown trigger failed', err);
-    }
-    return storedBar;
+/** Legacy mechanical Stress — retired (Fear replaces mental pressure). No-op. */
+export async function applyStressToActor(_actor, _amount, _options) {
+    return 0;
 }
-/** Roll `1d8` and apply the result as stress. Returns the stress inflicted. */
-export async function applyFizzleStress(actor) {
-    try {
-        const roll = await new globalThis.Roll('1d8').evaluate({ async: true });
-        const amount = Math.max(1, Number(roll?.total) || 1);
-        await applyStressToActor(actor, amount);
-        return amount;
-    }
-    catch (err) {
-        console.warn('Mastery System | applyFizzleStress fallback to flat 4', err);
-        await applyStressToActor(actor, 4);
-        return 4;
-    }
+/** Legacy fizzle Stress — retired. No-op; returns 0 stress inflicted. */
+export async function applyFizzleStress(_actor) {
+    return 0;
 }
 /**
  * `combatEnd`/`deleteCombat` hook target: clears the per-combat Blood Raise
@@ -267,10 +211,7 @@ export async function rollSpell(params) {
     const fizzled = adjustedTotal < spellBase;
     const success = !fizzled && raiseOutcome !== 'fail';
     const raises = raiseOutcome === 'full' ? raiseSlots : 0;
-    let stressTaken = 0;
-    if (fizzled) {
-        stressTaken = await applyFizzleStress(actor);
-    }
+    const stressTaken = 0;
     return {
         castingRoll,
         baseTn,

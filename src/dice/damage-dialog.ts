@@ -23,6 +23,7 @@ import {
 } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
+import { remainingMaximizations } from '../stones/stone-combat-effects.js';
 import { applySpecialBoostToLabel, readSpecialBoost } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import {
@@ -1140,10 +1141,17 @@ function createDamageCardContent(
       ${raisesSection}
       ${markSpendSection}
       <div class="damage-actions">
-        <button class="roll-damage-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}">
+        <button type="button" class="roll-damage-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}" data-maximize="0">
           <i class="fas fa-dice"></i> Roll
         </button>
-        <button class="cancel-damage-btn">
+        ${(() => {
+          const maxLeft = remainingMaximizations(attacker);
+          if (maxLeft <= 0) return '';
+          return `<button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}" data-maximize="1" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8.">
+          <i class="fas fa-arrow-up"></i> Roll Maximum
+        </button>`;
+        })()}
+        <button type="button" class="cancel-damage-btn">
           <i class="fas fa-times"></i> Cancel
         </button>
       </div>
@@ -1172,7 +1180,8 @@ export function attachDamageCardHandlers(messageId: string): void {
       return;
     }
     rollDamageMessageLocks.add(lockKey);
-    $btn.prop('disabled', true);
+    const $allRollBtns = messageElement.find('.roll-damage-btn');
+    $allRollBtns.prop('disabled', true);
     let rollDamageCompleted = false;
     try {
     const message = (game as any).messages?.get(messageId);
@@ -1213,6 +1222,22 @@ export function attachDamageCardHandlers(messageId: string): void {
       ui.notifications?.error('Could not find damage card data');
       return;
     }
+
+    // Roll vs Roll Maximum — no confirm dialog. Button click is the decision.
+    activeDamageMaximized = false;
+    const wantMax =
+      String($btn.attr('data-maximize') ?? $btn.data('maximize') ?? '0') === '1';
+    if (wantMax) {
+      try {
+        const { spendMaximization } = await import('../stones/stone-combat-effects.js');
+        activeDamageMaximized = await spendMaximization(attacker);
+        if (!activeDamageMaximized) {
+          ui.notifications?.warn('No Maximization remaining — rolling normally.');
+        }
+      } catch (err) {
+        console.debug?.('Mastery System | Damage Maximization spend skipped', err);
+      }
+    }
     
     // Raise effects are pre-declared on the attack card — no post-roll picker.
     const raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
@@ -1247,9 +1272,10 @@ export function attachDamageCardHandlers(messageId: string): void {
     completeDamageCard(messageId, result);
     rollDamageCompleted = true;
     } finally {
+      activeDamageMaximized = false;
       rollDamageMessageLocks.delete(lockKey);
       if (!rollDamageCompleted) {
-        $btn.prop('disabled', false);
+        $allRollBtns.prop('disabled', false);
       }
     }
   });
@@ -1257,8 +1283,7 @@ export function attachDamageCardHandlers(messageId: string): void {
   messageElement.find('.cancel-damage-btn').off('click.msDmgCancel').on('click.msDmgCancel', function () {
     if (damageCardSettledMessageIds.has(messageId)) return;
     rollDamageMessageLocks.delete(`roll-dmg:${messageId}`);
-    const $btn = messageElement.find('.roll-damage-btn');
-    $btn.prop('disabled', false);
+    messageElement.find('.roll-damage-btn').prop('disabled', false);
     completeDamageCard(messageId, null);
   });
 }
@@ -2993,13 +3018,7 @@ export async function calculateDamageResult(
   const rollDetails: string[] = [];
   const damageChatRolls: any[] = [];
   for (const note of negationNotes) rollDetails.push(note);
-  activeDamageMaximized = false;
-  try {
-    const { offerMaximization } = await import('../stones/stone-combat-effects.js');
-    activeDamageMaximized = await offerMaximization(attacker, 'damage');
-  } catch (err) {
-    console.debug?.('Mastery System | Damage Maximization prompt skipped', err);
-  }
+  // Maximization is chosen on the damage card (Roll vs Roll Maximum), not here.
   if (activeDamageMaximized) {
     rollDetails.push('Maximization: every d8 is 8 (not a natural 8, does not explode)');
   }

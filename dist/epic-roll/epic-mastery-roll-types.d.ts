@@ -2,7 +2,7 @@
  * Epic Mastery Roll — shared types.
  */
 import type { MasteryRollResult } from '../types/index.js';
-export type EpicRollKind = 'skill' | 'attribute';
+export type EpicRollKind = 'skill' | 'attribute' | 'fear';
 export interface EpicTnConfig {
     challengeMR: number;
     baseTN: number;
@@ -16,7 +16,11 @@ export interface EpicAttributeRollConfig {
     kind: 'attribute';
     attributeKey: string;
 }
-export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig;
+/** Resolve k1 Fear Check — graded bands 8 / 16. No Skill Points / Raises / TN picker. */
+export interface EpicFearRollConfig {
+    kind: 'fear';
+}
+export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicFearRollConfig;
 export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 export interface EpicParticipant {
     actorId: string;

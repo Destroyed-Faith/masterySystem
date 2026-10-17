@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.708] - 2026-10-17
+
+### Fixed
+
+- **Counterattack:** Only offered when the reactor can actually reach the attacker (melee reach or equipped ranged weapon in range).
+- **Invisibility:** Tokens stay ghosted on the canvas instead of Foundry-hiding completely, so allies can still target for Heal etc.
+- **Dash / Disengage / Flee:** Radial info shows a loud **Lose one Attack Action** cost; Flee also flags **Escape — no way back**; copy spells out the Attack Action loss.
+
+### Changed
+
+- **Maximization:** Damage and Heal cards use **Roll** / **Roll Maximum** side by side — no confirm dialog.
+
 ## [0.9.707] - 2026-10-17
 
 ### Changed

@@ -40,6 +40,12 @@ export declare const MASTERY_STATUS_EFFECTS: MasteryStatusEffect[];
  */
 export declare function buildMasteryStatusEffects(): Required<MasteryStatusEffect>[];
 /**
+ * Mastery Invisibility is soft ghosting (token alpha) + perception gates.
+ * Foundry's special INVISIBLE status hides the token from other clients and
+ * makes allies unable to target for Heal etc. — never wire that up.
+ */
+export declare function disableFoundryInvisibleTokenHide(): void;
+/**
  * Register mastery conditions on `CONFIG.statusEffects`.
  * Foundry v12/v13 use an array; v14+ uses a record keyed by effect id.
  */

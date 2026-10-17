@@ -2,7 +2,10 @@
  * Passive Abilities System
  * Handles passive ability slots, activation, and management
  */
-/** Mastery Rank at which each passive slot unlocks (max 4 slots). */
+/**
+ * Mastery Rank at which each passive slot unlocks (Players Guide / passives.md).
+ * MR1→1, MR2→2, MR3–4→3, MR5–6→4, MR7→5, MR8→6.
+ */
 export declare const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[];
 export declare const MAX_PASSIVE_SLOTS: number;
 export interface PassiveSlot {
@@ -10,6 +13,8 @@ export interface PassiveSlot {
     passive: PassiveAbility | null;
     active: boolean;
     unlockMasteryRank: number;
+    /** True when Mastery Rank is below this slot's unlock rank (still shown in UI). */
+    locked: boolean;
 }
 export interface PassiveAbility {
     id: string;
@@ -23,12 +28,25 @@ export declare function getPassiveSlotCountForMasteryRank(masteryRank: number): 
 /** Mastery Rank required to unlock a slot index (0-based), or null if out of range. */
 export declare function getPassiveSlotUnlockRank(slotIndex: number): number | null;
 /**
- * Get all passive slots for an actor
- * Returns slots unlocked by Mastery Rank (MR 1/2/4/6 → up to 4 slots).
+ * All six Passive Slots for an actor (locked ones included so the UI can show
+ * unlock ranks). Combat effects and auto-fill should skip `locked` slots.
  */
 export declare function getPassiveSlots(actor: Actor): PassiveSlot[];
-/** Passive powers on the actor (items with powerType `passive`). */
+/** Unlocked Passive Slots only (usable at current Mastery Rank). */
+export declare function getUnlockedPassiveSlots(actor: Actor): PassiveSlot[];
+/** Plain combat-facing blurb for a Passive power item (Available + slotted). */
+export declare function formatPassiveDescription(item: any): string;
+/**
+ * World prototype + unlinked token actor often diverge: GM may grant a Passive on
+ * the sheet while Combat Select Passives reads the other. Union both.
+ */
+export declare function passiveItemSourceActors(actor: Actor | null | undefined): Actor[];
+/** True when a power item is a Passive (category, powerType, or catalog template). */
+export declare function isPassivePowerItem(item: any): boolean;
+/** Passive powers owned by the actor (sheet Passives + combat Available list). */
 export declare function getAvailablePassives(actor: Actor): PassiveAbility[];
+/** Find a Passive power item on the actor or its world/token counterpart. */
+export declare function findPassivePowerItem(actor: Actor, passiveId: string): any | null;
 /**
  * Item ids (or legacy fallbacks stored on slotted passive) already placed in a passive slot.
  * Used so the combat passive UI still lists other passives from the same tree.
@@ -68,6 +86,7 @@ export declare const EXCHANGE_PASSIVE_SWAPS_FLAG = "exchangePassiveSwapsPending"
  */
 export declare function passiveSlotsHaveOpenChoice(slots: Array<{
     passive?: unknown;
+    locked?: boolean;
 }>, availablePassiveCount: number, pendingSwaps: number): boolean;
 export declare function getPendingPassiveSwaps(actor: Actor | null | undefined): number;
 export declare function consumePendingPassiveSwap(actor: Actor): Promise<number>;

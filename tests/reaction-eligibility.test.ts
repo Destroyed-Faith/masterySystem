@@ -16,7 +16,31 @@ vi.mock('../src/combat/threatened-ranged.js', () => ({
   distanceBetweenTokensMeters: () => 1,
 }));
 
+vi.mock('../src/combat/threat-zone.js', () => ({
+  currentMeleeReachMeters: (actor: any) =>
+    Number.isFinite(Number(actor?.__meleeReachM)) ? Number(actor.__meleeReachM) : 2,
+}));
+
+vi.mock('../src/utils/unarmed-fallback.js', () => ({
+  resolveEquippedWeaponForAttackType: (_items: any[], attackType: string, actor: any) => {
+    if (attackType !== 'ranged') return null;
+    return actor?.__rangedWeapon ?? null;
+  },
+}));
+
+vi.mock('../src/utils/artifact-rules.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../src/utils/artifact-rules.js')>();
+  return {
+    ...actual,
+    parseArtifactWeaponRangeMeters: (raw: unknown) => {
+      const n = Number(String(raw ?? '').replace(/[^\d.]/g, ''));
+      return Number.isFinite(n) && n > 0 ? n : null;
+    },
+  };
+});
+
 import {
+  actorCanReachWithBasicAttack,
   evaluateReactionEligibility,
   isArmorAxisReaction,
   isCleanseReaction,
@@ -111,6 +135,46 @@ describe('reaction eligibility', () => {
     expect(isCounterDamageReaction(cd)).toBe(true);
     expect(evaluateReactionEligibility(cd, { ...hitCtx, rangeToAttackerM: 5 }).shown).toBe(false);
     expect(evaluateReactionEligibility(cd, hitCtx).shown).toBe(true);
+  });
+
+  it('hides Counterattack when the reactor cannot reach the attacker', () => {
+    const counter = { basicReaction: 'counterattack', id: 'basic-reaction-counterattack' };
+    expect(
+      evaluateReactionEligibility(counter, {
+        ...hitCtx,
+        rangeToAttackerM: 8,
+        canReachAttackerWithBasicAttack: false,
+      }).shown,
+    ).toBe(false);
+    expect(
+      evaluateReactionEligibility(counter, {
+        ...hitCtx,
+        rangeToAttackerM: 8,
+        canReachAttackerWithBasicAttack: true,
+      }).shown,
+    ).toBe(true);
+    // Unknown reach → keep available (theater of the mind / missing tokens).
+    expect(
+      evaluateReactionEligibility(counter, {
+        ...hitCtx,
+        canReachAttackerWithBasicAttack: null,
+      }).shown,
+    ).toBe(true);
+  });
+
+  it('actorCanReachWithBasicAttack: melee reach or equipped ranged weapon', () => {
+    const meleeOnly = { __meleeReachM: 2, items: [] };
+    expect(actorCanReachWithBasicAttack(meleeOnly, 1)).toBe(true);
+    expect(actorCanReachWithBasicAttack(meleeOnly, 6)).toBe(false);
+
+    const withBow = {
+      __meleeReachM: 2,
+      items: [],
+      __rangedWeapon: { system: { weaponType: 'ranged', range: '24m' } },
+    };
+    expect(actorCanReachWithBasicAttack(withBow, 12)).toBe(true);
+    expect(actorCanReachWithBasicAttack(withBow, 40)).toBe(false);
+    expect(actorCanReachWithBasicAttack(meleeOnly, null)).toBeNull();
   });
 
   it('classifies armor-axis and ghost-slip helpers', () => {

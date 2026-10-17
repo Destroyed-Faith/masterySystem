@@ -34,6 +34,25 @@ export class MasteryItem extends Item {
             const migrated = migratePowerData(system);
             Object.assign(system, migrated);
         }
+        // Keep category aligned with powerType / catalog templateId so combat
+        // Passive Select and the Powers tab agree (GM sheet edits often set only powerType).
+        const pt = String(system.powerType || '').trim().toLowerCase();
+        const tid = String(system.templateId || '').trim().toLowerCase();
+        if (pt === 'passive' || tid.startsWith('passive-')) {
+            system.category = 'passive';
+            if (pt !== 'passive')
+                system.powerType = 'passive';
+        }
+        else if (pt === 'reaction') {
+            system.category = 'reaction';
+        }
+        else if (pt === 'movement') {
+            system.category = 'movement';
+        }
+        else if (pt === 'buff' || pt === 'activebuff' || pt === 'active-buff') {
+            system.category = 'activeBuff';
+            system.powerType = 'buff';
+        }
     }
     /**
      * Prepare Artifact specific data

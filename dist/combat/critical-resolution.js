@@ -90,14 +90,23 @@ export function resolveCriticalAttackModifier(opts) {
     const stone = Math.max(0, Math.floor(Number(opts.stoneCritCharges) || 0));
     const special = Math.max(0, Math.floor(Number(opts.specialCritCharges) || 0));
     const sources = [];
-    if (buffRemaining > 0 || criticalX > 0)
+    if (buffRemaining > 0)
+        sources.push('active-buff');
+    else if (criticalX > 0)
         sources.push('active-buff');
     if (stone > 0)
         sources.push('stone-crit');
     if (special > 0)
         sources.push('special-crit');
     let consumeFrom = null;
-    if (buffRemaining > 0)
+    const pref = opts.preferredSource;
+    if (pref === 'active-buff' && buffRemaining > 0)
+        consumeFrom = 'active-buff';
+    else if (pref === 'stone-crit' && stone > 0)
+        consumeFrom = 'stone-crit';
+    else if (pref === 'special-crit' && special > 0)
+        consumeFrom = 'special-crit';
+    else if (buffRemaining > 0)
         consumeFrom = 'active-buff';
     else if (stone > 0)
         consumeFrom = 'stone-crit';
@@ -116,8 +125,26 @@ export function resolveCriticalAttackModifier(opts) {
         explodeFaces: CRITICAL_ATTACK_EXPLODE_FACES,
         damageDiceExplode: CRITICAL_DAMAGE_DICE_EXPLODE,
         consumeFrom,
-        sources,
+        sources: [
+            ...(buffRemaining > 0 ? ['active-buff'] : []),
+            ...(stone > 0 ? ['stone-crit'] : []),
+            ...(special > 0 ? ['special-crit'] : []),
+        ],
     };
+}
+/** Available Crit charge pools for UI (Roll vs Roll with Crit). */
+export function listAvailableCriticalSources(opts) {
+    const out = [];
+    const buff = Math.max(0, Math.floor(Number(opts.buffQuotaRemaining) || 0));
+    const stone = Math.max(0, Math.floor(Number(opts.stoneCritCharges) || 0));
+    const special = Math.max(0, Math.floor(Number(opts.specialCritCharges) || 0));
+    if (buff > 0)
+        out.push({ source: 'active-buff', remaining: buff, label: `Active Buff Critical (${buff})` });
+    if (stone > 0)
+        out.push({ source: 'stone-crit', remaining: stone, label: `Agility Stone Crit (${stone})` });
+    if (special > 0)
+        out.push({ source: 'special-crit', remaining: special, label: `Special Crit (${special})` });
+    return out;
 }
 /** Format for UI / chat — always Critical(X). */
 export function formatCriticalLabel(criticalX) {

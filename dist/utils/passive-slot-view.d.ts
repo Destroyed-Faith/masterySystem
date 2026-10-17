@@ -12,6 +12,7 @@ export interface PassiveSlotRow {
     slotKey: string;
     hasPassive: boolean;
     isActive: boolean;
+    locked: boolean;
     passiveId: string | null;
     passiveName: string | null;
     summary: string | null;

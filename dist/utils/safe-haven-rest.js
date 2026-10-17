@@ -94,6 +94,7 @@ export function buildSafeHavenRestUpdates(system, opts) {
     }
     const updates = {
         'system.skillsSpent': skillsSpent,
+        'system.fear': 0,
         ...echoUpdates,
     };
     if (faithMax > 0) {

@@ -1324,6 +1324,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             console.error('Mastery System | Failed to build combatStatsView', err);
             context.combatStatsView = null;
         }
+        // Always-on HP totals for the Attributes Health panel (independent of encounter chips).
+        try {
+            const sys = this.actor.system ?? {};
+            const healthBars = Array.isArray(sys.health?.bars) ? sys.health.bars : [];
+            let hpCur = 0;
+            let hpMax = 0;
+            let scarred = 0;
+            for (const b of healthBars) {
+                hpCur += Math.max(0, Math.floor(Number(b?.current ?? 0) || 0));
+                hpMax += Math.max(0, Math.floor(Number(b?.max ?? 0) || 0));
+                if (b?.scarred)
+                    scarred += 1;
+            }
+            const idx = Math.max(0, Math.min(Number(sys.health?.currentBar ?? 0) || 0, Math.max(0, healthBars.length - 1)));
+            const active = healthBars[idx];
+            const penalty = Number(active?.penalty ?? 0) || 0;
+            const levelName = penalty === 0 ? 'Healthy'
+                : penalty === -1 ? 'Bruised'
+                    : penalty === -2 ? 'Injured'
+                        : penalty === -4 ? 'Wounded'
+                            : penalty === -5 ? 'Broken'
+                                : penalty === -6 ? 'Incapacitated'
+                                    : String(active?.name ?? '—');
+            context.healthSheetSummary = {
+                current: hpCur,
+                max: hpMax,
+                tempHP: Math.max(0, Math.floor(Number(sys.health?.tempHP ?? 0) || 0)),
+                activeLevel: levelName,
+                activePenalty: penalty,
+                scarredCount: scarred,
+            };
+        }
+        catch {
+            context.healthSheetSummary = null;
+        }
         if (this.actor.type === 'character') {
             const sys = this.actor.system ?? {};
             const flag = (key) => {
@@ -1651,10 +1686,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Bucket key for sheet grouping (Powers tab, post-creation). Spell / unknown → `other` (shown as „Sonstiges“).
      */
     #powerTypeGroupKey(power) {
+        const sys = power?.system || {};
+        const tags = Array.isArray(sys.tags) ? sys.tags.map((x) => String(x).toLowerCase()) : [];
+        const tid = String(sys.templateId || '').trim().toLowerCase();
+        // Artifact Empowerment / Extension meta — not Combat Passives; keep out of Passives group.
+        if (tags.includes('artifact-only') ||
+            tid.startsWith('empower-buff-') ||
+            tid.startsWith('extend-buff-')) {
+            return 'other';
+        }
         const cat = resolvePowerCategoryFromItem(power);
         if (cat)
             return cat;
-        const raw = String(power?.system?.powerType ?? '')
+        const raw = String(sys.powerType ?? '')
             .trim()
             .toLowerCase()
             .replace(/\s+/g, '');
@@ -1691,7 +1735,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             activeBuff: 'Active Buffs',
             passive: 'Passives',
             reaction: 'Reactions',
-            other: 'Sonstiges'
+            other: 'Artifact / Other',
         };
         const out = [];
         for (const key of order) {
@@ -3206,6 +3250,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Power details toggle
         html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
         html
+            .off('click.msPowersCollapseAll', '.powers-collapse-all-btn')
+            .on('click.msPowersCollapseAll', '.powers-collapse-all-btn', this.#onPowersCollapseAllToggle.bind(this));
+        html
             .off('change.msPowerRename', '.power-display-name-input')
             .on('change.msPowerRename', '.power-display-name-input', this.#onPowerDisplayNameChange.bind(this));
         html
@@ -3811,9 +3858,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     .find(`.power-level-badge[data-item-id="${itemId}"]`)
                     .attr('title', `Power Level ${effectiveLevel}`);
             }
-            const specialText = html.find(`.power-special-compact[data-item-id="${itemId}"] .power-special-compact-text`);
-            if (specialText.length)
-                specialText.text(display.specialsLabel);
+            const specialWrap = html.find(`.power-special-compact[data-item-id="${itemId}"]`);
+            const specialText = specialWrap.find('.power-special-compact-text');
+            if (specialWrap.length) {
+                const label = String(display.specialsLabel || '').trim();
+                if (!label || label === '—') {
+                    specialWrap.hide();
+                }
+                else {
+                    specialWrap.show();
+                    if (specialText.length)
+                        specialText.text(label);
+                }
+            }
             const effectText = html.find(`.power-effect-compact[data-item-id="${itemId}"] .power-effect-compact-text`);
             if (effectText.length)
                 effectText.text(display.effect.replace(/\*\*/g, ''));
@@ -4333,10 +4390,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // at the familiar TN, but expose a 1–16 picker so any GM challenge MR
         // can be selected directly.
         const buildDifficulties = (challengeMR) => {
-            const std = Math.max(1, Math.floor(challengeMR)) * 8;
+            const std = standardTnForMasteryRank(challengeMR);
             return {
-                trivial: std - 8,
-                easy: std - 4,
+                trivial: Math.max(0, std - 8),
+                easy: Math.max(0, std - 4),
                 standard: std,
                 challenging: std + 4,
                 hard: std + 8,
@@ -5689,6 +5746,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             detailsSection.slideDown(200);
             toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
         }
+    }
+    /**
+     * Collapse / expand all Power type groups (Actives, Passives, …) and
+     * fold every per-card details panel so the tab is scannable again.
+     */
+    #onPowersCollapseAllToggle(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const $btn = $(event.currentTarget);
+        const root = this.element ? $(this.element) : $btn.closest('.sheet');
+        if (!root.length)
+            return;
+        const $groups = root.find('details.powers-type-group-details');
+        if ($groups.length === 0)
+            return;
+        const currentlyExpanded = $btn.attr('data-expanded') !== 'false';
+        const expand = !currentlyExpanded;
+        for (const el of $groups.toArray()) {
+            const details = el;
+            details.open = expand;
+        }
+        // Always fold card-level tables when collapsing; keep them folded on expand
+        // so the player opens only the groups/cards they need.
+        root.find('.power-card').each((_i, card) => {
+            const $card = $(card);
+            const $details = $card.find('.power-details-expanded');
+            const $compact = $card.find('.power-description-compact');
+            const $icon = $card.find('.power-toggle-details i');
+            $details.hide();
+            $compact.show();
+            $icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        });
+        $btn.attr('data-expanded', expand ? 'true' : 'false');
+        $btn.find('.powers-collapse-all-label').text(expand ? 'Alle einklappen' : 'Alle aufklappen');
+        const $icon = $btn.find('i').first();
+        $icon
+            .removeClass(expand ? 'fa-expand' : 'fa-compress')
+            .addClass(expand ? 'fa-compress' : 'fa-expand');
     }
     /**
      * Create a new item

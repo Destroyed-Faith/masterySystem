@@ -3,14 +3,15 @@
  */
 import { SKILLS } from '../utils/skills.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
+import { standardTnForMasteryRank } from '../utils/constants.js';
 import { defaultRollTitleForKind } from './epic-mastery-roll-types.js';
 import { startEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { isEpicRollPlayerCharacter, listEpicRollCandidateActors, saveEpicRollRecentPreset, } from './epic-mastery-roll-settings.js';
 import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-const CHALLENGE_MR_MIN = 2;
+const CHALLENGE_MR_MIN = 1;
 const CHALLENGE_MR_MAX = 8;
-const CHALLENGE_MR_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
+const CHALLENGE_MR_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8];
 function clampChallengeMR(value) {
     return Math.max(CHALLENGE_MR_MIN, Math.min(CHALLENGE_MR_MAX, Math.floor(value) || CHALLENGE_MR_MIN));
 }
@@ -40,7 +41,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         classes: ['mastery-system', 'epic-mastery-roll-config'],
         position: { width: 920, height: 640 },
         window: {
-            title: 'Skill Roll',
+            title: 'Rolls',
             resizable: true,
         },
     };
@@ -69,6 +70,10 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             this.skillKey = preset.roll.skillKey;
         if (preset.roll.kind === 'attribute')
             this.attributeKey = preset.roll.attributeKey;
+        if (preset.roll.kind === 'fear') {
+            this.tn.baseTN = 16;
+            this.tn.raises = 0;
+        }
         this.selectedIds = [...preset.actorIds].filter((id) => isEpicRollPlayerCharacter(game.actors?.get(id)));
     }
     async _prepareContext(_options) {
@@ -90,7 +95,11 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
             tn: this.tn,
             raiseTn,
             presets,
-            challengeMROptions: CHALLENGE_MR_OPTIONS,
+            challengeMROptions: CHALLENGE_MR_OPTIONS.map((mr) => ({
+                mr,
+                standardTn: standardTnForMasteryRank(mr),
+            })),
+            isFearRoll: this.rollKind === 'fear',
             rollKind: this.rollKind,
             skillKey: this.skillKey,
             attributeKey: this.attributeKey,
@@ -148,6 +157,17 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         });
         bindInput('[name="emr-roll-kind"]', (el) => {
             this.rollKind = el.value;
+            if (this.rollKind === 'fear') {
+                this.tn.baseTN = 16;
+                this.tn.raises = 0;
+                if (!this.sceneTitle.trim())
+                    this.sceneTitle = 'Fear Check';
+            }
+            else {
+                const p = buildDifficultyPresets(this.tn.challengeMR);
+                if (this.tn.baseTN === 8 || this.tn.baseTN === 16)
+                    this.tn.baseTN = p.standard;
+            }
             this.render(false);
         });
         bindInput('[name="emr-skill-key"]', (el) => {
@@ -185,12 +205,19 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
         }
     }
     buildRollConfig() {
+        if (this.rollKind === 'fear')
+            return { kind: 'fear' };
         if (this.rollKind === 'attribute') {
             return { kind: 'attribute', attributeKey: this.attributeKey };
         }
         return { kind: 'skill', skillKey: this.skillKey };
     }
     readCustomTnFromDom() {
+        if (this.rollKind === 'fear') {
+            this.tn.baseTN = 16;
+            this.tn.raises = 0;
+            return;
+        }
         const root = this.element;
         const preset = root.querySelector('[name="emr-base-tn-preset"]')?.value;
         if (preset === 'custom') {
@@ -201,11 +228,14 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     }
     async startSession() {
         this.readCustomTnFromDom();
+        const tn = this.rollKind === 'fear'
+            ? { challengeMR: this.tn.challengeMR, baseTN: 16, raises: 0 }
+            : { ...this.tn };
         const config = {
             title: this.sceneTitle.trim() || defaultRollTitleForKind(this.rollKind),
             flavor: this.flavor.trim(),
             showTn: this.showTn,
-            tn: { ...this.tn },
+            tn,
             roll: this.buildRollConfig(),
             actorIds: [...this.selectedIds].filter((id) => isEpicRollPlayerCharacter(game.actors?.get(id))),
         };
@@ -225,7 +255,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
 }
 export function showEpicMasteryRollConfigDialog(preset) {
     if (!game.user?.isGM) {
-        ui.notifications?.warn('Only the GM can start a Skill Roll.');
+        ui.notifications?.warn('Only the GM can start Rolls.');
         return;
     }
     const existing = foundry.applications.instances.get('mastery-epic-roll-config');

@@ -840,6 +840,7 @@
 
 .ms-info-meta {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
   margin: 0 0 0.75rem 0;
@@ -862,6 +863,20 @@
   text-transform: capitalize;
   font-weight: 600;
   color: #e94560;
+}
+
+/* Dash / Disengage / Flee — same weight as Movement, impossible to miss. */
+.ms-info-cost-warn {
+  background: rgba(233, 69, 96, 0.45);
+  border: 1px solid #e94560;
+  padding: 0.3rem 0.7rem;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: #ff6b81;
+  text-transform: none;
+  box-shadow: 0 0 0 1px rgba(233, 69, 96, 0.35);
 }
 
 .ms-info-range,

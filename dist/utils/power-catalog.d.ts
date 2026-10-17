@@ -192,6 +192,12 @@ export interface CatalogFilter {
     actorEchoKey?: string | null;
     /** Actor's Echo sub-choice (e.g. bane-greenwarden). Also matches requiresEcho. */
     actorSubChoiceKey?: string | null;
+    /**
+     * Include `artifact-only` catalog tags (buff extension / empowerment, etc.).
+     * Default false for Add Power pickers. Direct `templateId` lookups still
+     * include them so artifact grants keep working.
+     */
+    includeArtifactOnly?: boolean;
 }
 /** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
 export declare function echoRequirementMet(requires: string[] | undefined, echoKey?: string | null, subChoiceKey?: string | null): boolean;

@@ -498,23 +498,25 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             const groups = buildNpcSkillGroups(context.system.skills);
             for (const group of groups) {
                 for (const skill of group.skills) {
-                    if (skill.key !== 'perception')
-                        continue;
+                    const def = SKILLS[skill.key];
+                    const attrKey = String(def?.attributes?.[0] || 'wits');
                     try {
-                        const preview = buildSkillRollPoolPreview(this.actor, 'perception', 'wits');
+                        const preview = buildSkillRollPoolPreview(this.actor, skill.key, attrKey);
                         skill.poolPreview = preview.rollLabel;
                         skill.poolFull = preview.fullPoolReady;
                         skill.poolTooltip = preview.tooltip;
+                        skill.poolAttr = attrKey;
                     }
                     catch {
                         skill.poolPreview = '';
                         skill.poolFull = false;
                         skill.poolTooltip = '';
+                        skill.poolAttr = attrKey;
                     }
                 }
             }
             context.npcSkillGroups = groups;
-            context.npcSkillPoolHint = `Full attribute pool when skill rating ≥ 2×MR (${poolThreshold}). Perception checks use Wits. Set Wits + Perception together — rating alone does not add dice.`;
+            context.npcSkillPoolHint = `Full attribute pool when skill rating ≥ 2×MR (${poolThreshold}). Below that: half attribute pool (floor). Keep = MR (capped by pool). Preview uses the skill's primary attribute.`;
         }
         if (isNpcLike && context.system) {
             context.npcSpecialSelectGroups = buildNpcSpecialSelectGroups();
@@ -932,6 +934,31 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         return data;
     }
     /** Sync Ini malus/bonus selects → hidden net field + summary (MR d8 ± N). */
+    /** Live-update the pool label next to a skill input (same math as getData). */
+    #refreshNpcSkillPoolPreview(html, skillKey, skillRating) {
+        const def = SKILLS[skillKey];
+        const attrKey = String(def?.attributes?.[0] || 'wits');
+        let preview;
+        try {
+            preview = buildSkillRollPoolPreview(this.actor, skillKey, attrKey, skillRating);
+        }
+        catch {
+            return;
+        }
+        const field = html.find(`.npc-skill-field input[name="system.skills.${skillKey}"]`).closest('.npc-skill-field');
+        if (!field.length)
+            return;
+        let poolEl = field.find('.npc-skill-field__pool');
+        if (!poolEl.length) {
+            poolEl = globalThis.$(`<span class="npc-skill-field__pool"></span>`);
+            field.find('.npc-skill-field__name').after(poolEl);
+        }
+        poolEl
+            .text(preview.rollLabel)
+            .attr('title', preview.tooltip)
+            .toggleClass('is-full', !!preview.fullPoolReady)
+            .toggleClass('is-half', !preview.fullPoolReady);
+    }
     #syncNpcIniChip(chip) {
         const malusEl = chip.querySelector('select.npc-ini-malus');
         const bonusEl = chip.querySelector('select.npc-ini-bonus');
@@ -965,6 +992,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             input.value = String(value);
             try {
                 await this.actor.update({ [`system.skills.${key}`]: value });
+                this.#refreshNpcSkillPoolPreview(html, key, value);
             }
             catch (err) {
                 console.warn('Mastery System | NPC skill update failed', key, err);
@@ -981,6 +1009,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             input.value = String(value);
             try {
                 await this.actor.update({ [`system.attributes.${key}.value`]: value });
+                // Attribute change can unlock/half all skills that use it.
+                html.find('.npc-skill-field input[name^="system.skills."]').each((_, el) => {
+                    const inp = el;
+                    const sm = /^system\.skills\.([^.]+)$/.exec(String(inp.name || ''));
+                    if (!sm)
+                        return;
+                    this.#refreshNpcSkillPoolPreview(html, sm[1], Math.max(0, Math.floor(Number(inp.value) || 0)));
+                });
             }
             catch (err) {
                 console.warn('Mastery System | NPC attribute update failed', key, err);

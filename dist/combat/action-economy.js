@@ -5,7 +5,6 @@
  * for the Mastery System combat rules.
  */
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
-import { healStressFromBars } from '../utils/calculations.js';
 import { isLifetimeStoneMode, resolvedStonePoolMax, systemWithStoneProgression, } from '../progression/v099-rules.js';
 import { getStunnedRank } from '../system/auto-fail.js';
 import { sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots } from '../utils/npc-attack-model.js';
@@ -587,17 +586,7 @@ export async function applyInitiativeShopBonuses(actor, combatant, combat) {
     if (shopData.extraMovement > 0) {
         roundState.moveBonusMeters += shopData.extraMovement * 2; // Each purchase = +2m
     }
-    const owner = (getActionEconomyActor(actor) ?? actor);
-    if (shopData.removeStress && owner.system?.stress?.bars?.length) {
-        const roll = await new Roll('1d8').evaluate({ async: true });
-        const amount = roll.total ?? 0;
-        const stress = owner.system.stress;
-        const healed = healStressFromBars(stress.bars, stress.currentBar ?? 0, amount);
-        await owner.update({
-            'system.stress.bars': healed.bars,
-            'system.stress.currentBar': healed.currentBar
-        });
-    }
+    // Mechanical Stress retired — initiative shop "remove stress" is ignored.
     // Store shop data in round state
     roundState.initiativeShop = {
         round: shopData.round,

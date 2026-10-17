@@ -1,11 +1,13 @@
 /**
  * Combat resolution for Stone Abilities that outlive the Preparation click:
- * Reaction Denial, Movement Reduction, Not a Target, Damage Maximization.
+ * Reaction Denial, Movement Reduction, Not a Target, Maximization.
  */
 export declare const REACTION_DENIAL_FLAG = "reactionDenial";
 export declare const MOVEMENT_REDUCTION_FLAG = "movementReduction";
 export declare const NOT_A_TARGET_FLAG = "notATarget";
+/** Flag key kept as damageMaximization for saved character compatibility (R-02). */
 export declare const DAMAGE_MAX_FLAG = "damageMaximization";
+export declare const MAXIMIZATION_FLAG = "damageMaximization";
 export declare const ABSORPTION_PENDING_FLAG = "absorptionPendingStones";
 export declare const ABSORPTION_READY_FLAG = "absorptionReadyStones";
 export interface ReactionDenialState {
@@ -29,8 +31,11 @@ export interface NotATargetState {
 }
 /** Half a metre rounds up: 5 → 3, 7 → 4, 9 → 5. */
 export declare function halveMovementMeters(meters: number): number;
-/** Every d8 in a damage formula becomes 8. Flat bonuses stay. Forced 8s do not explode. */
+/** Every d8 in a damage/healing formula becomes 8. Flat bonuses stay. Forced 8s do not explode. */
 export declare function maximizeDamageFormula(formula: string): string;
+/** Alias — Maximization applies to Damage Rolls and Healing Rolls (R-02). */
+export declare const maximizeDiceFormula: typeof maximizeDamageFormula;
+export declare function getMaximizationRemaining(actor: any): number;
 export declare function sameCombatRound(state: {
     combatId?: string;
     round?: number;
@@ -67,6 +72,19 @@ export declare function markMovementReductionTargets(targets: Array<{
     id?: string;
     round?: number;
 } | null | undefined): Promise<number>;
+/** Remaining Maximizations for the current combat (0 when none / wrong combat). */
+export declare function remainingMaximizations(actor: any): number;
+/**
+ * Spend one Maximization charge. No dialog — the Roll / Roll Maximum buttons
+ * are the decision. Shared combat pool (`vitality.damageMaximization`) — R-02.
+ */
+export declare function spendMaximization(actor: any): Promise<boolean>;
+/**
+ * @deprecated Prefer Roll / Roll Maximum buttons + {@link spendMaximization}.
+ * Kept for tests and any legacy callers that still expect a confirm dialog.
+ */
+export declare function offerMaximization(actor: any, kind?: 'damage' | 'healing'): Promise<boolean>;
+/** @deprecated Use spendMaximization — kept for callers / Hunter's Scourge. */
 export declare function offerDamageMaximization(actor: any): Promise<boolean>;
 export declare function chooseCombatantActors(opts: {
     title: string;

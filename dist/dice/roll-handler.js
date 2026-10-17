@@ -327,6 +327,7 @@ export async function masteryRoll(options) {
                     checkContext: options.checkContext,
                     autoFailIntent: options.autoFailIntent,
                     applyPoolPenalties: !!options.applyPoolPenalties,
+                    ...(options.applyFear !== undefined ? { applyFear: options.applyFear } : {}),
                 });
                 numDice = finalized.numDice;
                 if (numDice <= 0) {

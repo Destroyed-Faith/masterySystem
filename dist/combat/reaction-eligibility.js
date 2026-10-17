@@ -6,10 +6,13 @@
  */
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
+import { parseArtifactWeaponRangeMeters } from '../utils/artifact-rules.js';
+import { resolveEquippedWeaponForAttackType } from '../utils/unarmed-fallback.js';
 import { isBasicReactionItem } from './basic-combat.js';
 import { isAllyReactionPower, isThreatenedDeclarationLegalReaction } from './defender-reactions.js';
 import { getPrimaryTokenForActor } from '../utils/mechanics-adjacency.js';
 import { distanceBetweenTokensMeters } from './threatened-ranged.js';
+import { currentMeleeReachMeters } from './threat-zone.js';
 function mechanicsOf(item) {
     if (item?.mechanics && typeof item.mechanics === 'object') {
         return item.mechanics;
@@ -206,6 +209,48 @@ export function distanceBetweenActorsMeters(a, b) {
         return null;
     }
 }
+function collectActorItems(actor) {
+    if (!actor?.items)
+        return [];
+    const items = actor.items;
+    if (Array.isArray(items))
+        return items;
+    if (items instanceof Map)
+        return Array.from(items.values());
+    if (typeof items.values === 'function')
+        return Array.from(items.values());
+    if (typeof items[Symbol.iterator] === 'function')
+        return [...items];
+    return [];
+}
+/**
+ * True when `actor` can land a Basic Attack on a creature `rangeM` meters away:
+ * melee reach (unarmed / Reach weapon / stones), or an equipped ranged weapon
+ * whose range covers the gap. Returns `null` when distance is unknown.
+ */
+export function actorCanReachWithBasicAttack(actor, rangeM) {
+    if (rangeM == null || !Number.isFinite(Number(rangeM)))
+        return null;
+    const dist = Math.max(0, Number(rangeM));
+    const meleeReach = Math.max(0, Number(currentMeleeReachMeters(actor)) || 0);
+    if (dist <= meleeReach + 0.05)
+        return true;
+    try {
+        const items = collectActorItems(actor);
+        const ranged = resolveEquippedWeaponForAttackType(items, 'ranged', actor);
+        if (!ranged || ranged?.system?.__virtualUnarmed)
+            return false;
+        if (String(ranged.system?.weaponType || '').toLowerCase() !== 'ranged')
+            return false;
+        const parsed = parseArtifactWeaponRangeMeters(ranged.system?.range);
+        // Authored metre value, else the catalog default for ranged weapons.
+        const weaponRange = parsed != null && parsed > 0 ? parsed : 24;
+        return dist <= weaponRange + 0.05;
+    }
+    catch {
+        return false;
+    }
+}
 /**
  * Evaluate whether a reaction should appear (and be clickable) for this context.
  */
@@ -324,6 +369,15 @@ export function evaluateReactionEligibility(power, ctx) {
     if (ctx.suppressCounterattack && basic === 'counterattack') {
         return { shown: false, enabled: false, reason: 'Counterattack already in progress' };
     }
+    // Basic Counterattack is a Basic Attack — hide when the reactor cannot reach
+    // the triggering creature (no melee reach, no equipped ranged weapon in range).
+    if (basic === 'counterattack' && ctx.canReachAttackerWithBasicAttack === false) {
+        return {
+            shown: false,
+            enabled: false,
+            reason: 'No Basic Attack reaches the triggering creature (melee reach or ranged weapon)',
+        };
+    }
     // DR reaction needs Passive / sheet DR.
     if (tid === 'reaction-damage-reduction' || (Number(mechanicsOf(power)?.damageReductionPct) || 0) > 0) {
         if (ctx.hasPassiveDR === false) {
@@ -377,13 +431,14 @@ export function evaluateReactionEligibility(power, ctx) {
 export function buildReactionTriggerContext(params) {
     const defender = params.defender ?? null;
     const attacker = params.attacker ?? null;
+    const rangeToAttackerM = distanceBetweenActorsMeters(defender, attacker);
     return {
         phase: params.phase,
         hit: !!params.hit,
         attackTotal: params.attackTotal ?? null,
         evadeTn: params.evadeTn ?? null,
         attackType: params.attackType ?? null,
-        rangeToAttackerM: distanceBetweenActorsMeters(defender, attacker),
+        rangeToAttackerM,
         allyDistanceM: params.allyDistanceM ?? null,
         hasPassiveDR: defender ? actorHasPassiveDR(defender) : undefined,
         hasPassivePhasing: defender ? actorHasPassivePhasing(defender) : undefined,
@@ -396,6 +451,9 @@ export function buildReactionTriggerContext(params) {
         isAoE: !!params.isAoE,
         movementThreat: params.movementThreat ?? null,
         suppressCounterattack: !!params.suppressCounterattack,
+        canReachAttackerWithBasicAttack: defender
+            ? actorCanReachWithBasicAttack(defender, rangeToAttackerM)
+            : null,
     };
 }
 //# sourceMappingURL=reaction-eligibility.js.map

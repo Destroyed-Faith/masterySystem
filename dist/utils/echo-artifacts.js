@@ -81,7 +81,7 @@ const STONEBOUND_SOLES = {
             range: 'Self',
             duration: 'Special',
             effect: "When you activate an Active Buff that grants Armor, you may increase that Buff's effective Power Level by +1 and its duration by +1 round (cannot exceed PL 16). Uses per Safe Haven Rest: half MR, rounded up.",
-            special: 'Armor Buff Empowerment',
+            special: 'Armor Empowerment',
         },
         {
             level: 4,
@@ -108,7 +108,7 @@ const STONEBOUND_SOLES = {
             range: 'Self',
             duration: 'Special',
             effect: 'When you activate an Active Buff that grants Armor, you may increase its Power Level by +2 and duration by +2 rounds (cannot exceed PL 16).',
-            special: 'Armor Buff Empowerment',
+            special: 'Armor Empowerment',
         },
         {
             level: 7,
@@ -135,7 +135,7 @@ const STONEBOUND_SOLES = {
             range: 'Self',
             duration: 'Special',
             effect: 'When you activate an Active Buff that grants Armor, you may increase its Power Level by +3 and duration by +3 rounds (cannot exceed PL 16).',
-            special: 'Armor Buff Empowerment',
+            special: 'Armor Empowerment',
         },
         {
             level: 10,
@@ -515,7 +515,7 @@ const WYRM_SCALES_LIGHT = {
             // Stage I only uses ab-evade; guide prints +6 Evade → AB Evade PL 3.
             stagePowerLevels: ['3', '10', '16'],
             stageTemplateIds: ['ab-evade', 'extend-buff-mobility', 'extend-buff-mobility'],
-            stageNames: ['Serpent Evasion I', 'Mobility Buff Extension II', 'Mobility Buff Extension III'],
+            stageNames: ['Serpent Evasion I', 'Mobility Extension II', 'Mobility Extension III'],
         },
         3: {
             name: 'Evasion Stone Support',
@@ -573,12 +573,12 @@ const WYRM_SCALES_LIGHT = {
         },
         {
             level: 5,
-            name: 'Mobility Buff Extension II',
+            name: 'Mobility Extension II',
             type: 'Support',
             range: 'Self',
             duration: 'Passive',
             effect: "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +2 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
-            special: 'Mobility Buff Extension',
+            special: 'Mobility Extension',
             powerTemplateId: 'extend-buff-mobility',
         },
         {
@@ -601,12 +601,12 @@ const WYRM_SCALES_LIGHT = {
         },
         {
             level: 8,
-            name: 'Mobility Buff Extension III',
+            name: 'Mobility Extension III',
             type: 'Support',
             range: 'Self',
             duration: 'Passive',
             effect: "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +3 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
-            special: 'Mobility Buff Extension',
+            special: 'Mobility Extension',
             powerTemplateId: 'extend-buff-mobility',
         },
         {
@@ -1060,7 +1060,7 @@ const JUDICATOR_FRAME = {
     requiresSubChoice: 'judicator',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
     // Three clean tracks mapped to real, editable Powers / Stone Functions:
-    //   L1 Armor Hasten → `empower-buff-armor` (Armor Buff Empowerment passive),
+    //   L1 Armor Hasten → `empower-buff-armor` (Armor Empowerment artifact meta),
     //   L2 Wits Core    → Stone Pool (Wits),
     //   L3 Regeneration → Stone Power Support (Influence: Regeneration).
     // The Stone Functions live on their own picks, so both apply mechanically.
@@ -1091,7 +1091,7 @@ const JUDICATOR_FRAME = {
             range: 'Self',
             duration: 'Passive',
             effect: 'When activating an Active Buff that grants Armor, empower it by +1 Power Level and +1 round (cannot exceed PL 16).',
-            special: 'Armor Buff Empowerment',
+            special: 'Armor Empowerment',
         },
         {
             level: 2,
@@ -1117,8 +1117,8 @@ const JUDICATOR_FRAME = {
             type: 'Active Buff Empowerment',
             range: 'Self',
             duration: 'Passive',
-            effect: 'Armor Buff Empowerment improves to +2 PL and +2 rounds.',
-            special: 'Armor Buff Empowerment',
+            effect: 'Armor Empowerment improves to +2 PL and +2 rounds.',
+            special: 'Armor Empowerment',
         },
         {
             level: 5,
@@ -1144,8 +1144,8 @@ const JUDICATOR_FRAME = {
             type: 'Active Buff Empowerment',
             range: 'Self',
             duration: 'Passive',
-            effect: 'Armor Buff Empowerment improves to +3 PL and +3 rounds.',
-            special: 'Armor Buff Empowerment',
+            effect: 'Armor Empowerment improves to +3 PL and +3 rounds.',
+            special: 'Armor Empowerment',
         },
         {
             level: 8,

@@ -558,6 +558,7 @@ prose-mirror#chat-message.chat-input > .editor-container {
 .ms-theme-rulebook #chat-log button,
 .ms-theme-rulebook #chat-log .roll-attack-btn,
 .ms-theme-rulebook #chat-log .roll-damage-btn,
+.ms-theme-rulebook #chat-log .roll-damage-max-btn,
 .ms-theme-rulebook #chat-log .apply-damage-btn,
 .ms-theme-rulebook #chat-log .apply-specials-btn,
 .ms-theme-rulebook #chat-log .apply-button,
@@ -578,6 +579,7 @@ prose-mirror#chat-message.chat-input > .editor-container {
 .ms-theme-rulebook #chat-log button:hover,
 .ms-theme-rulebook #chat-log .roll-attack-btn:hover,
 .ms-theme-rulebook #chat-log .roll-damage-btn:hover,
+.ms-theme-rulebook #chat-log .roll-damage-max-btn:hover,
 .ms-theme-rulebook #chat-log .apply-damage-btn:hover,
 .ms-theme-rulebook #chat-log .apply-specials-btn:hover,
 .ms-theme-rulebook #chat-log .apply-button:hover {
@@ -691,6 +693,16 @@ prose-mirror#chat-message.chat-input > .editor-container {
   background: rgba(0,0,0,0.12);
   border-top: 1px solid var(--ms-border);
   margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .roll-damage-max-btn,
+.ms-theme-rulebook #chat-log .mastery-heal-roll-max {
+  border-color: rgba(202, 178, 113, 0.55);
+  color: #e8d5a3;
 }
 
 /* --- Dice pool styling for mastery rolls --- */

@@ -183,20 +183,45 @@ export async function markMovementReductionTargets(
   return chosen.length;
 }
 
+function liveMaximizationFlag(actor: any): { raw: any; remaining: number; uses: number } | null {
+  const raw = actor?.getFlag?.('mastery-system', MAXIMIZATION_FLAG);
+  const combat = liveCombat();
+  if (!raw || Math.floor(Number(raw.remaining) || 0) <= 0) return null;
+  if (combat && raw.combatId && String(raw.combatId) !== combat.id) return null;
+  const remaining = Math.floor(Number(raw.remaining) || 0);
+  const uses = Math.max(remaining, Math.floor(Number(raw.uses) || 0));
+  return { raw, remaining, uses };
+}
+
+/** Remaining Maximizations for the current combat (0 when none / wrong combat). */
+export function remainingMaximizations(actor: any): number {
+  return liveMaximizationFlag(actor)?.remaining ?? 0;
+}
+
 /**
- * Offer to spend one Maximization on a complete Damage or Healing Roll.
- * Shared combat pool (`vitality.damageMaximization` flag) — R-02.
+ * Spend one Maximization charge. No dialog — the Roll / Roll Maximum buttons
+ * are the decision. Shared combat pool (`vitality.damageMaximization`) — R-02.
+ */
+export async function spendMaximization(actor: any): Promise<boolean> {
+  const live = liveMaximizationFlag(actor);
+  if (!live) return false;
+  await actor.setFlag?.('mastery-system', MAXIMIZATION_FLAG, {
+    ...live.raw,
+    remaining: Math.max(0, live.remaining - 1),
+  });
+  return true;
+}
+
+/**
+ * @deprecated Prefer Roll / Roll Maximum buttons + {@link spendMaximization}.
+ * Kept for tests and any legacy callers that still expect a confirm dialog.
  */
 export async function offerMaximization(
   actor: any,
   kind: 'damage' | 'healing' = 'damage',
 ): Promise<boolean> {
-  const raw = actor?.getFlag?.('mastery-system', MAXIMIZATION_FLAG);
-  const combat = liveCombat();
-  if (!raw || Math.floor(Number(raw.remaining) || 0) <= 0) return false;
-  if (combat && raw.combatId && String(raw.combatId) !== combat.id) return false;
-  const remaining = Math.floor(Number(raw.remaining) || 0);
-  const uses = Math.max(remaining, Math.floor(Number(raw.uses) || 0));
+  const live = liveMaximizationFlag(actor);
+  if (!live) return false;
   const DialogCtor = (globalThis as any).Dialog;
   let yes = false;
   const rollLabel = kind === 'healing' ? 'Healing Roll' : 'Damage Roll';
@@ -205,20 +230,16 @@ export async function offerMaximization(
       title: 'Maximization',
       content:
         `<p>Maximize this complete ${rollLabel}? Every d8 becomes 8. Forced 8s are not natural 8s and do not explode.</p>` +
-        `<p><strong>Maximization: ${remaining} / ${uses || remaining} remaining</strong></p>`,
+        `<p><strong>Maximization: ${live.remaining} / ${live.uses || live.remaining} remaining</strong></p>`,
     });
   }
   if (!yes) return false;
-  await actor.setFlag?.('mastery-system', MAXIMIZATION_FLAG, {
-    ...raw,
-    remaining: Math.max(0, remaining - 1),
-  });
-  return true;
+  return spendMaximization(actor);
 }
 
-/** @deprecated Use offerMaximization — kept for callers / Hunter's Scourge. */
+/** @deprecated Use spendMaximization — kept for callers / Hunter's Scourge. */
 export async function offerDamageMaximization(actor: any): Promise<boolean> {
-  return offerMaximization(actor, 'damage');
+  return spendMaximization(actor);
 }
 
 export async function chooseCombatantActors(opts: {

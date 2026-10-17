@@ -1250,6 +1250,7 @@
 }
 
 #chat-log .mastery-damage-card .roll-damage-btn,
+#chat-log .mastery-damage-card .roll-damage-max-btn,
 #chat-log .mastery-damage-card .cancel-damage-btn {
   background: var(--df-bg-panel);
   border: 1px solid var(--df-border-primary);
@@ -1264,10 +1265,16 @@
   transition: all 0.2s ease;
 }
 
-#chat-log .mastery-damage-card .roll-damage-btn:hover {
+#chat-log .mastery-damage-card .roll-damage-btn:hover,
+#chat-log .mastery-damage-card .roll-damage-max-btn:hover {
   background: var(--df-bg-header);
   border-color: var(--df-border-highlight);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#chat-log .mastery-damage-card .roll-damage-max-btn {
+  border-color: rgba(202, 178, 113, 0.55);
+  color: #e8d5a3;
 }
 
 #chat-log .mastery-damage-card .cancel-damage-btn {

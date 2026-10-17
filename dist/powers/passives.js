@@ -4,8 +4,15 @@
  */
 import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-/** Mastery Rank at which each passive slot unlocks (max 4 slots). */
-export const PASSIVE_SLOT_UNLOCK_RANKS = [1, 2, 4, 6];
+import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { summarizePowerMechanics } from '../utils/power-mechanics-summary.js';
+import { resolvePowerSheetLevelDisplay } from '../utils/power-rendering.js';
+/**
+ * Mastery Rank at which each passive slot unlocks (Players Guide / passives.md).
+ * MR1→1, MR2→2, MR3–4→3, MR5–6→4, MR7→5, MR8→6.
+ */
+export const PASSIVE_SLOT_UNLOCK_RANKS = [1, 2, 3, 5, 7, 8];
 export const MAX_PASSIVE_SLOTS = PASSIVE_SLOT_UNLOCK_RANKS.length;
 /** How many passive slots are available at the given Mastery Rank. */
 export function getPassiveSlotCountForMasteryRank(masteryRank) {
@@ -24,27 +31,68 @@ export function getPassiveSlotUnlockRank(slotIndex) {
     return PASSIVE_SLOT_UNLOCK_RANKS[slotIndex] ?? null;
 }
 /**
- * Get all passive slots for an actor
- * Returns slots unlocked by Mastery Rank (MR 1/2/4/6 → up to 4 slots).
+ * All six Passive Slots for an actor (locked ones included so the UI can show
+ * unlock ranks). Combat effects and auto-fill should skip `locked` slots.
  */
 export function getPassiveSlots(actor) {
     const system = actor.system;
     const passives = system.passives || {};
     const masteryRank = getRulesMasteryRank(actor);
-    const slotCount = getPassiveSlotCountForMasteryRank(masteryRank);
+    const unlocked = getPassiveSlotCountForMasteryRank(masteryRank);
     const slots = [];
-    for (let i = 0; i < slotCount; i++) {
+    for (let i = 0; i < MAX_PASSIVE_SLOTS; i++) {
+        const unlockMasteryRank = getPassiveSlotUnlockRank(i) ?? 1;
+        const locked = i >= unlocked;
         const slotData = passives[`slot${i}`] || {};
         const raw = slotData.passive;
-        const hasPassive = !!(raw && (raw.id || raw.name));
+        const hasPassive = !locked && !!(raw && (raw.id || raw.name));
         slots.push({
             slotIndex: i,
             passive: hasPassive ? raw : null,
             active: hasPassive && !!slotData.active,
-            unlockMasteryRank: getPassiveSlotUnlockRank(i) ?? 1,
+            unlockMasteryRank,
+            locked,
         });
     }
     return slots;
+}
+/** Unlocked Passive Slots only (usable at current Mastery Rank). */
+export function getUnlockedPassiveSlots(actor) {
+    return getPassiveSlots(actor).filter((s) => !s.locked);
+}
+/** Plain combat-facing blurb for a Passive power item (Available + slotted). */
+export function formatPassiveDescription(item) {
+    if (!item)
+        return '';
+    try {
+        const mech = resolvePowerMechanics(item);
+        const sum = summarizePowerMechanics(mech);
+        if (sum)
+            return sum;
+    }
+    catch {
+        /* ignore */
+    }
+    try {
+        const display = resolvePowerSheetLevelDisplay(item.system);
+        const effect = String(display.effect || '')
+            .replace(/\*\*/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        if (effect && effect !== '—')
+            return effect;
+    }
+    catch {
+        /* ignore */
+    }
+    const sys = item.system || {};
+    const raw = String(sys.effect || sys.description || sys.fluff || '')
+        .replace(/\*\*/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    if (raw && raw !== '—')
+        return raw;
+    return '';
 }
 function actorItemList(actor) {
     const raw = actor.items;
@@ -58,27 +106,151 @@ function actorItemList(actor) {
         return [...raw];
     return [];
 }
-/** Passive powers on the actor (items with powerType `passive`). */
+/**
+ * World prototype + unlinked token actor often diverge: GM may grant a Passive on
+ * the sheet while Combat Select Passives reads the other. Union both.
+ */
+export function passiveItemSourceActors(actor) {
+    if (!actor)
+        return [];
+    const sources = [];
+    const seen = new Set();
+    const seenObj = new WeakSet();
+    const add = (a) => {
+        if (!a)
+            return;
+        if (typeof a === 'object') {
+            if (seenObj.has(a))
+                return;
+            seenObj.add(a);
+        }
+        const key = String(a.uuid ?? a.id ?? '');
+        // Actors without id/uuid (tests / transient sheets) still contribute items.
+        if (key) {
+            if (seen.has(key))
+                return;
+            seen.add(key);
+        }
+        sources.push(a);
+    };
+    add(actor);
+    const anyA = actor;
+    const g = globalThis;
+    const worldId = String(anyA.isToken
+        ? (anyA.token?.actorId ?? anyA.token?.document?.actorId ?? anyA.id ?? '')
+        : (anyA.id ?? ''));
+    if (anyA.isToken && worldId) {
+        add(g.game?.actors?.get?.(worldId));
+    }
+    const considerTokenDoc = (doc) => {
+        if (!doc || doc.actorLink === true)
+            return;
+        if (worldId && String(doc.actorId ?? '') !== worldId)
+            return;
+        // Prefer the synthetic actor on the placeable; fall back to TokenDocument.actor.
+        const placeable = doc.object ?? doc;
+        add(placeable?.actor ?? doc.actor);
+    };
+    const placeables = g.canvas?.tokens?.placeables;
+    if (Array.isArray(placeables)) {
+        for (const t of placeables)
+            considerTokenDoc(t?.document ?? t);
+    }
+    const combatants = g.game?.combat?.combatants;
+    const bag = combatants
+        ? Array.isArray(combatants)
+            ? combatants
+            : Array.isArray(combatants.contents)
+                ? combatants.contents
+                : typeof combatants[Symbol.iterator] === 'function'
+                    ? [...combatants]
+                    : []
+        : [];
+    for (const c of bag) {
+        const tok = c?.token;
+        if (tok)
+            considerTokenDoc(tok.document ?? tok);
+        // Combatant.actor may already be the unlinked synthetic copy — only same world.
+        const ca = c?.actor;
+        if (!ca?.isToken)
+            continue;
+        const caWorld = String(c?.actorId ??
+            ca.token?.actorId ??
+            ca.token?.document?.actorId ??
+            '');
+        if (worldId && caWorld !== worldId)
+            continue;
+        add(ca);
+    }
+    return sources;
+}
+/** True when a power item is a Passive (category, powerType, or catalog template). */
+export function isPassivePowerItem(item) {
+    if (!item || item.type !== 'power')
+        return false;
+    const sys = item.system || {};
+    const tags = Array.isArray(sys.tags) ? sys.tags.map((t) => String(t).toLowerCase()) : [];
+    // Artifact meta (Empowerment / Extension) are not Combat Passive Slot picks.
+    if (tags.includes('artifact-only'))
+        return false;
+    const tid = String(sys.templateId || '').trim().toLowerCase();
+    if (tid.startsWith('empower-buff-') || tid.startsWith('extend-buff-'))
+        return false;
+    if (sys.category === 'passive')
+        return true;
+    if (sys.powerType === 'passive')
+        return true;
+    if (tid.startsWith('passive-'))
+        return true;
+    // Match Powers-tab grouping (legacy category / powerType shapes).
+    return resolvePowerCategoryFromItem(item) === 'passive';
+}
+function passiveAbilityFromItem(item) {
+    const itemSystem = item.system || {};
+    const name = String(item.name || 'Unknown Passive');
+    // Strip category prefix for compact combat UI ("Passive: Armor" → "Armor").
+    const shortName = name.replace(/^Passive:\s*/i, '').trim() || name;
+    return {
+        id: String(item.id || item._id || item.name || ''),
+        name: shortName,
+        description: formatPassiveDescription(item),
+        category: itemSystem.tree || itemSystem.category || 'General',
+        level: itemSystem.level || itemSystem.rank || 1,
+    };
+}
+/** Passive powers owned by the actor (sheet Passives + combat Available list). */
 export function getAvailablePassives(actor) {
-    const available = [];
-    const items = actorItemList(actor);
-    // Get all items that are powers with powerType 'passive'
-    for (const item of items) {
-        const itemSystem = item.system || {};
-        // Items with type 'power' and powerType 'passive' are passive abilities
-        if (item.type === 'power' && itemSystem.powerType === 'passive') {
-            // Extract category from tree or use a default
-            const category = itemSystem.tree || itemSystem.category || 'General';
-            available.push({
-                id: item.id || item._id || item.name,
-                name: item.name || 'Unknown Passive',
-                description: itemSystem.effect || itemSystem.description || '',
-                category: category,
-                level: itemSystem.level || 1
-            });
+    const byId = new Map();
+    for (const source of passiveItemSourceActors(actor)) {
+        for (const item of actorItemList(source)) {
+            if (!isPassivePowerItem(item))
+                continue;
+            const row = passiveAbilityFromItem(item);
+            if (!row.id)
+                continue;
+            if (!byId.has(row.id))
+                byId.set(row.id, row);
         }
     }
-    return available;
+    return [...byId.values()];
+}
+/** Find a Passive power item on the actor or its world/token counterpart. */
+export function findPassivePowerItem(actor, passiveId) {
+    const want = String(passiveId || '');
+    if (!want)
+        return null;
+    for (const source of passiveItemSourceActors(actor)) {
+        for (const item of actorItemList(source)) {
+            if (!isPassivePowerItem(item))
+                continue;
+            if (String(item.id) === want ||
+                String(item._id) === want ||
+                String(item.name) === want) {
+                return item;
+            }
+        }
+    }
+    return null;
 }
 /**
  * Item ids (or legacy fallbacks stored on slotted passive) already placed in a passive slot.
@@ -98,6 +270,16 @@ export function getSlottedPassiveIds(actor) {
  * Slot a passive ability into a slot
  */
 export async function slotPassive(actor, slotIndex, passiveId) {
+    const unlockAt = getPassiveSlotUnlockRank(slotIndex);
+    if (unlockAt == null) {
+        ui.notifications?.warn('That Passive Slot does not exist.');
+        return;
+    }
+    const masteryRank = getRulesMasteryRank(actor);
+    if (masteryRank < unlockAt) {
+        ui.notifications?.warn(`Passive Slot ${slotIndex + 1} unlocks at Mastery Rank ${unlockAt}.`);
+        return;
+    }
     const system = actor.system;
     if (!system.passives) {
         system.passives = {};
@@ -106,11 +288,7 @@ export async function slotPassive(actor, slotIndex, passiveId) {
     if (!system.passives[slotKey]) {
         system.passives[slotKey] = {};
     }
-    // Find the passive item by ID or name
-    const items = actorItemList(actor);
-    const passiveItem = items.find((item) => (item.id === passiveId || item._id === passiveId || item.name === passiveId) &&
-        item.type === 'power' &&
-        item.system?.powerType === 'passive');
+    const passiveItem = findPassivePowerItem(actor, passiveId);
     if (passiveItem) {
         const itemSystem = passiveItem.system || {};
         const templateId = String(itemSystem.templateId || '');
@@ -126,23 +304,24 @@ export async function slotPassive(actor, slotIndex, passiveId) {
                 return;
             }
         }
+        const row = passiveAbilityFromItem(passiveItem);
         system.passives[slotKey].passive = {
-            id: passiveItem.id || passiveItem._id || passiveItem.name,
-            name: passiveItem.name || 'Unknown Passive',
-            description: itemSystem.effect || itemSystem.description || '',
-            category: itemSystem.tree || itemSystem.category || 'General',
-            level: itemSystem.level || 1,
+            id: row.id,
+            name: row.name,
+            description: row.description,
+            category: row.category,
+            level: row.level,
             templateId,
             specialChoice,
         };
     }
     else {
-        // Fallback if item not found
+        ui.notifications?.warn(`Could not find Passive "${passiveId}" on this character (check world vs token actor items).`);
         system.passives[slotKey].passive = {
             id: passiveId,
             name: passiveId,
             description: '',
-            category: 'General'
+            category: 'General',
         };
     }
     // Slotted passives are always treated as active (no separate activate step).
@@ -237,12 +416,12 @@ export function pickDefaultPassiveIds(available, slotCount, seed) {
  * Already-slotted picks are the saved default and are left alone.
  */
 export async function ensureDefaultPassiveSlots(actor) {
-    const slots = getPassiveSlots(actor);
-    if (slots.some((s) => s.passive)) {
-        return slots.map((s) => String(s.passive?.id ?? '')).filter(Boolean);
+    const unlocked = getUnlockedPassiveSlots(actor);
+    if (unlocked.some((s) => s.passive)) {
+        return unlocked.map((s) => String(s.passive?.id ?? '')).filter(Boolean);
     }
     const available = getAvailablePassives(actor);
-    const picked = pickDefaultPassiveIds(available, slots.length, String(actor.id ?? actor.name ?? ''));
+    const picked = pickDefaultPassiveIds(available, unlocked.length, String(actor.id ?? actor.name ?? ''));
     for (let i = 0; i < picked.length; i += 1) {
         await slotPassive(actor, i, picked[i]);
     }
@@ -258,8 +437,9 @@ export const EXCHANGE_PASSIVE_SWAPS_FLAG = 'exchangePassiveSwapsPending';
 export function passiveSlotsHaveOpenChoice(slots, availablePassiveCount, pendingSwaps) {
     if (Math.max(0, Math.floor(pendingSwaps)) > 0)
         return true;
-    const filled = slots.filter((slot) => slot?.passive).length;
-    const empty = Math.max(0, slots.length - filled);
+    const usable = slots.filter((slot) => !slot?.locked);
+    const filled = usable.filter((slot) => slot?.passive).length;
+    const empty = Math.max(0, usable.length - filled);
     const spare = Math.max(0, Math.floor(availablePassiveCount) - filled);
     return empty > 0 && spare > 0;
 }

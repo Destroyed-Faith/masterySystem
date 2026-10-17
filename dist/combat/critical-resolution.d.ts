@@ -77,7 +77,19 @@ export declare function resolveCriticalAttackModifier(opts: {
     specialCritCharges?: number;
     /** Player checked Crit on this roll. Without it, no charge is spent. */
     declared?: boolean;
+    /** When multiple sources exist, prefer this one if it still has charges. */
+    preferredSource?: CriticalSource | null;
 }): CriticalAttackModifier;
+/** Available Crit charge pools for UI (Roll vs Roll with Crit). */
+export declare function listAvailableCriticalSources(opts: {
+    buffQuotaRemaining?: number;
+    stoneCritCharges?: number;
+    specialCritCharges?: number;
+}): Array<{
+    source: CriticalSource;
+    remaining: number;
+    label: string;
+}>;
 /** Format for UI / chat — always Critical(X). */
 export declare function formatCriticalLabel(criticalX: number): string;
 //# sourceMappingURL=critical-resolution.d.ts.map

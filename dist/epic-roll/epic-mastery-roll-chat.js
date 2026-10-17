@@ -68,7 +68,7 @@ export async function postEpicMasteryRollSummary(session) {
         : [];
     await ChatMessage.create({
         user: game.user?.id,
-        speaker: ChatMessage.getSpeaker({ alias: 'Skill Roll' }),
+        speaker: ChatMessage.getSpeaker({ alias: 'Rolls' }),
         content,
         style: CONST.CHAT_MESSAGE_STYLES.OTHER,
         whisper,

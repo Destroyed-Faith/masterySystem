@@ -8,7 +8,8 @@
  *
  * This stage then applies, in this exact order:
  *   (a) flat Special reductions — Disoriented (Auto-Fail engine),
- *       Weaken / Soulburn (by pool attribute), Challenge (attack targeting)
+ *       Weaken / Soulburn (by pool attribute), Challenge (attack targeting),
+ *       Fear (1 die per accumulated Fear)
  *   (b) percentage-based Health / Encumbrance penalty (dice loss floored)
  *   (c) A pool of 0 dice fails. Keep cannot exceed the dice that remain.
  */
@@ -25,7 +26,11 @@ export interface FinalizePoolOptions {
     autoFailIntent?: 'skill' | 'attack';
     /** Apply the percentage Health / Encumbrance penalty (default true). */
     applyPoolPenalties?: boolean;
+    /** When omitted, Fear applies to attribute / attack / skill pools (see `shouldApplyFearToPool`). */
+    applyFear?: boolean;
 }
+/** Whether Fear dice come off this pool (after flat specials, before Health %). */
+export declare function shouldApplyFearToPool(options?: FinalizePoolOptions): boolean;
 export interface FinalizePoolResult {
     numDice: number;
     /** Notes describing each applied stage (for flavor / preview tooltips). */

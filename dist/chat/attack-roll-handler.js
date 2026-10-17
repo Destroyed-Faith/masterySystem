@@ -590,11 +590,18 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 damageDice: spellDamageDice,
             });
             const critDeclared = button.attr('data-use-crit') === '1';
+            const preferredRaw = String(button.attr('data-crit-source') || '');
+            const preferredSource = preferredRaw === 'active-buff' ||
+                preferredRaw === 'stone-crit' ||
+                preferredRaw === 'special-crit'
+                ? preferredRaw
+                : null;
             const critMod = resolveCriticalAttackModifier({
                 activeBuffCriticalX: critLegal ? buffCriticalX : 0,
                 buffQuotaRemaining: critLegal ? syncedQuota.remaining : 0,
                 stoneCritCharges: critLegal ? critBank : 0,
                 declared: critDeclared,
+                preferredSource,
             });
             const npcCrit = !!sheetToHit?.crit ||
                 flags.npcCrit === true ||
@@ -661,30 +668,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             if (isSpellcasting) {
                 const spellBase = Math.floor(Number(flags.spellBaseTn));
                 const rolled = Math.floor(Number(result?.total) || 0);
-                if (Number.isFinite(spellBase) && spellBase > 0 && rolled < spellBase) {
-                    try {
-                        const { applyFizzleStress } = await import('../combat/spell-roll-handler.js');
-                        const { noteSplitSpellRoll } = await import('../combat/split-spell-stress.js');
-                        const splitPair = String(flags.splitPairId || '');
-                        const splitDecision = flags.splitAttack && splitPair
-                            ? noteSplitSpellRoll(splitPair, rolled, spellBase, 2)
-                            : 'stress';
-                        const caster = freshAttacker || game.actors?.get(flags.attackerId);
-                        if (caster && splitDecision === 'stress') {
-                            const stress = await applyFizzleStress(caster);
-                            const casterName = String(caster?.name ?? 'Caster');
-                            await globalThis.ChatMessage?.create?.({
-                                user: game.user?.id,
-                                speaker: globalThis.ChatMessage?.getSpeaker?.({ actor: caster }),
-                                content: `<p><strong>${casterName}</strong> fizzles (roll ${rolled} is below Base TN ${spellBase}) and takes <strong>${stress}</strong> Stress.</p>`,
-                            });
-                        }
-                    }
-                    catch (fizzleErr) {
-                        console.warn('Mastery System | fizzle stress failed', fizzleErr);
-                    }
-                }
-                else if (flags.persistentSpellZone === true && rolled >= spellBase) {
+                if (flags.persistentSpellZone === true && Number.isFinite(spellBase) && spellBase > 0 && rolled >= spellBase) {
                     try {
                         const { appendSpellZone, createPersistentSpellZone, readSpellZones, writeSpellZones } = await import('../combat/spell-zones.js');
                         const caster = freshAttacker || game.actors?.get(flags.attackerId);

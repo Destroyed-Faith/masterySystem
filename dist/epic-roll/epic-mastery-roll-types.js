@@ -75,7 +75,11 @@ export function skipParticipantInSession(session, actorId) {
 }
 /** Player-facing name for a group roll of this kind. */
 export function defaultRollTitleForKind(kind) {
-    return kind === 'attribute' ? 'Attribute Roll' : 'Skill Roll';
+    if (kind === 'fear')
+        return 'Fear Check';
+    if (kind === 'attribute')
+        return 'Attribute Roll';
+    return 'Skill Roll';
 }
 export function rollLabelForConfig(roll) {
     switch (roll.kind) {
@@ -83,6 +87,8 @@ export function rollLabelForConfig(roll) {
             return SKILLS[roll.skillKey]?.name ?? roll.skillKey;
         case 'attribute':
             return roll.attributeKey.charAt(0).toUpperCase() + roll.attributeKey.slice(1);
+        case 'fear':
+            return 'Fear Check';
         default:
             return 'Roll';
     }

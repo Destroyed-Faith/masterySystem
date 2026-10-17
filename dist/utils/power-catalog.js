@@ -421,6 +421,14 @@ export function filterCatalog(filter) {
             return false;
         if (filter.tag && !e.tags.includes(filter.tag))
             return false;
+        // Artifact-only meta-passives (e.g. "DR Buff Extension") must not appear
+        // next to real "Damage Reduction" in Add Power — unless explicitly asked
+        // or resolving a concrete templateId grant.
+        if (!filter.includeArtifactOnly &&
+            !filter.templateId &&
+            e.tags.includes('artifact-only')) {
+            return false;
+        }
         if (term) {
             const hay = `${e.name} ${e.templateName}`.toLowerCase();
             if (!hay.includes(term))
@@ -450,8 +458,9 @@ export function findCatalogEntry(templateId, special) {
 /** Unique list of subfamilies within a category (sorted). */
 export function getSubfamiliesByCategory(category) {
     const subs = new Set();
-    for (const e of getAllCatalogEntries())
-        if (e.category === category && e.subfamily)
+    // Use filterCatalog so artifact-only subfamilies (buff-extension, …) stay out of pickers.
+    for (const e of filterCatalog({ category }))
+        if (e.subfamily)
             subs.add(e.subfamily);
     return [...subs].sort();
 }

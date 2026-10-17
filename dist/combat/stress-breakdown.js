@@ -9,7 +9,7 @@
  *       A) Scar of Will — Mental Restriction (2 pts) + recover 2 Reroll Points
  *       B) Push It Down — GM gains 1d8 Misfortune Tokens
  */
-import { isStressTrackCollapsed, resetStressBarsToClear, } from '../utils/calculations.js';
+import { resetStressBarsToClear, } from '../utils/calculations.js';
 import { calculateDisadvantagePoints } from '../system/disadvantages.js';
 import { addMisfortuneTokens, registerMisfortuneTokenSettings } from '../system/misfortune-tokens.js';
 const FLAG_SCOPE = 'mastery-system';
@@ -88,53 +88,8 @@ function buildAfflictionChoiceHtml(actor, total, tn) {
  * Call after stress has been applied. If this hit collapsed the track for a
  * PC, post the Breakdown Check card (once).
  */
-export async function maybeTriggerStressBreakdown(actor, opts) {
-    if (!actor || actor.type !== 'character')
-        return false;
-    const bars = Array.isArray(actor.system?.stress?.bars)
-        ? actor.system.stress.bars
-        : [];
-    const currentBar = Math.floor(Number(actor.system?.stress?.currentBar) || 0);
-    const collapsed = isStressTrackCollapsed(bars, currentBar);
-    if (!collapsed)
-        return false;
-    if (opts?.wasCollapsed)
-        return false;
-    try {
-        if (actor.getFlag?.(FLAG_SCOPE, FLAG_PENDING))
-            return false;
-        await actor.setFlag?.(FLAG_SCOPE, FLAG_PENDING, true);
-    }
-    catch {
-        /* continue even if flag fails */
-    }
-    const mr = masteryRankOf(actor);
-    const tn = 8 * mr - 2;
-    const g = globalThis;
-    try {
-        await g.ChatMessage?.create?.({
-            user: g.game?.user?.id,
-            speaker: g.ChatMessage?.getSpeaker?.({ actor }),
-            content: `<div class="mastery-reaction-msg">${buildBreakdownPromptHtml(actor, tn, mr)}</div>`,
-            flags: {
-                [FLAG_SCOPE]: {
-                    stressBreakdown: { actorId: String(actor.id), phase: 'roll', tn, mr },
-                },
-            },
-        });
-        g.ui?.notifications?.warn?.(`${actor.name}: Stress Breakdown — roll the Wits check (TN ${tn}).`);
-    }
-    catch (err) {
-        console.warn('Mastery System | stress breakdown prompt failed', err);
-        try {
-            await actor.unsetFlag?.(FLAG_SCOPE, FLAG_PENDING);
-        }
-        catch {
-            /* ignore */
-        }
-        return false;
-    }
-    return true;
+export async function maybeTriggerStressBreakdown(_actor, _opts) {
+    return false;
 }
 async function handleRollClick(actorId) {
     const g = globalThis;
@@ -371,64 +326,5 @@ export async function consumeStressBreakdownVirtueKeep(actor) {
 }
 export function registerStressBreakdownChatHandlers() {
     registerStressBreakdownSettings();
-    if (hooksRegistered)
-        return;
-    hooksRegistered = true;
-    const $doc = $(document);
-    $doc
-        .off('click.msStressBreakdownRoll', '.ms-stress-breakdown-roll-btn')
-        .on('click.msStressBreakdownRoll', '.ms-stress-breakdown-roll-btn', async (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const btn = $(ev.currentTarget);
-        const actorId = String(btn.attr('data-actor-id') || '');
-        if (!actorId)
-            return;
-        btn.prop('disabled', true);
-        try {
-            await handleRollClick(actorId);
-        }
-        finally {
-            btn.prop('disabled', false);
-        }
-    });
-    $doc
-        .off('click.msStressAfflictionA', '.ms-stress-affliction-a-btn')
-        .on('click.msStressAfflictionA', '.ms-stress-affliction-a-btn', async (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const btn = $(ev.currentTarget);
-        const actorId = String(btn.attr('data-actor-id') || '');
-        if (!actorId)
-            return;
-        btn.prop('disabled', true);
-        try {
-            const ok = await handleAfflictionA(actorId);
-            if (ok) {
-                btn.closest('.mastery-stress-breakdown').find('button').prop('disabled', true);
-            }
-        }
-        finally {
-            btn.prop('disabled', false);
-        }
-    });
-    $doc
-        .off('click.msStressAfflictionB', '.ms-stress-affliction-b-btn')
-        .on('click.msStressAfflictionB', '.ms-stress-affliction-b-btn', async (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const btn = $(ev.currentTarget);
-        const actorId = String(btn.attr('data-actor-id') || '');
-        if (!actorId)
-            return;
-        btn.prop('disabled', true);
-        try {
-            await handleAfflictionB(actorId);
-            btn.closest('.mastery-stress-breakdown').find('button').prop('disabled', true);
-        }
-        finally {
-            btn.prop('disabled', false);
-        }
-    });
 }
 //# sourceMappingURL=stress-breakdown.js.map

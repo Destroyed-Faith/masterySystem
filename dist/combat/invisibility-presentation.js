@@ -3,6 +3,11 @@
  * - status entry on the actor (sheet + carousel coins)
  * - token status-bar ActiveEffect icon
  * - reduced token opacity while Invisible (not when Downed)
+ *
+ * Tokens stay on the canvas for everyone (ghosted). Foundry's special
+ * INVISIBLE hide is disabled in `applyMasteryStatusEffects` so allies can
+ * still target for Heal etc. Combat targeting of Obscured foes uses
+ * perception gates, not token visibility.
  */
 import { effectiveInvisibilityBonusForActor } from './invisibility-profile.js';
 import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';

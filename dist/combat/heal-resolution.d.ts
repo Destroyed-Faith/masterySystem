@@ -85,6 +85,7 @@ export declare function formatScarredPromptChat(args: {
     poolMax: number;
     powerName?: string;
     formula?: string | null;
+    maximizationRemaining?: number;
 }): string;
 /** No Scarred / no HLR — still require a click so dice are visible. */
 export declare function formatHealRollPromptChat(args: {
@@ -92,6 +93,8 @@ export declare function formatHealRollPromptChat(args: {
     targetName: string;
     powerName?: string;
     formula: string;
+    /** When > 0, show Roll Maximum beside Roll. */
+    maximizationRemaining?: number;
 }): string;
 /**
  * Resolve heal on one or more token targets (already chosen). No attack roll.

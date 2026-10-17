@@ -6,7 +6,7 @@ import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attr
 import { normalizeArtifactAttackAttribute } from "../utils/artifact-node-options.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { artifactToVirtualWeapon, createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
-import { evaluateThreatenedRanged } from "./threatened-ranged.js";
+import { evaluateThreatenedRanged, evaluateThreatenedSpellcasting, } from "./threatened-ranged.js";
 import { npcMaxRangeM, rangeTextFromMax } from "../utils/range-bands.js";
 import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcAttackExplodesOn7, npcAttackKeepDice, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
@@ -695,15 +695,32 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             raiseContext.weaponName = String(weapon.name || '').trim() || undefined;
         }
     }
-    const tr = attackType === "ranged"
-        ? evaluateThreatenedRanged(attackerToken, option)
-        : {
-            appliesRule: false,
-            threatened: false,
-            threateningEnemyTokenIds: [],
-            opportunityEnemyTokenIds: [],
-            rollDisadvantage: false
-        };
+    const emptyThreat = {
+        appliesRule: false,
+        threatened: false,
+        threateningEnemyTokenIds: [],
+        opportunityEnemyTokenIds: [],
+        rollDisadvantage: false,
+        debugReason: undefined,
+    };
+    const trRanged = attackType === 'ranged' ? evaluateThreatenedRanged(attackerToken, option) : emptyThreat;
+    // R-03: all spell casting rolls are disadvantaged in enemy melee reach.
+    const trSpell = tnKind === 'casting' ? evaluateThreatenedSpellcasting(attackerToken) : emptyThreat;
+    const tr = {
+        appliesRule: trRanged.appliesRule || trSpell.appliesRule,
+        threatened: trRanged.threatened || trSpell.threatened,
+        threateningEnemyTokenIds: [
+            ...new Set([
+                ...(trRanged.threateningEnemyTokenIds || []),
+                ...(trSpell.threateningEnemyTokenIds || []),
+            ]),
+        ],
+        opportunityEnemyTokenIds: trRanged.opportunityEnemyTokenIds || [],
+        rollDisadvantage: !!(trRanged.rollDisadvantage || trSpell.rollDisadvantage),
+        debugReason: trSpell.threatened
+            ? trSpell.debugReason
+            : trRanged.debugReason,
+    };
     const optionPaysAction = option.costsAction !== false;
     let costsThisCard = optionPaysAction;
     if (burstVolley) {
@@ -851,11 +868,16 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const oppNames = tr.opportunityEnemyTokenIds
         .map((id) => canvas.tokens?.get(id)?.name)
         .filter(Boolean);
+    const threatenedTitle = trSpell.threatened
+        ? 'Threatened Spellcasting'
+        : 'Threatened Ranged';
     const threatenedHtml = tr.threatened
         ? `<div class="mastery-threatened-ranged" style="border-left:4px solid #c0392b;padding:8px;margin:8px 0;background:rgba(192,57,43,0.08);">
-          <p><strong>Threatened Ranged</strong></p>
+          <p><strong>${threatenedTitle}</strong></p>
           <p><strong>Disadvantage:</strong> only <strong>one</strong> die showing 8 may explode; other 8s stay flat. Pool size and Keep are unchanged.</p>
-          <p>On <strong>declaration</strong> of this attack, enemies who have you in <em>their</em> melee reach may immediately spend a <strong>legal Reaction</strong> (hit/target-triggered reactions do not qualify): <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
+          ${trRanged.threatened
+            ? `<p>On <strong>declaration</strong> of this attack, enemies who have you in <em>their</em> melee reach may immediately spend a <strong>legal Reaction</strong> (hit/target-triggered reactions do not qualify): <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>`
+            : `<p>Caster is inside enemy melee reach — Casting Roll has Disadvantage.</p>`}
         </div>`
         : "";
     const aoeIdsAttr = aoeMelee && aoeMelee.secondaryTokenIds?.length
@@ -871,8 +893,75 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         Original damage is <strong>paused</strong> until you Roll this Counterattack (or Skip).
       </p>`
         : '';
-    const buttonHtml = `
-    <button class="roll-attack-btn" 
+    // Crit UI: separate Roll / Roll with Crit (no checkbox when no charges).
+    let critButtonHtml = '';
+    try {
+        const actionEco = await import('./action-economy.js');
+        const { critAppliesToAttackRoll, listAvailableCriticalSources, syncCriticalRoundQuota, combatRoundKey } = await import('./critical-resolution.js');
+        const spellDamageDice = Math.max(0, Math.floor(Number(raiseContext?.baseSnapshot?.damageDice) || 0)) +
+            Math.max(0, Math.floor(Number(aoeMelee?.powerBonusDice) || 0));
+        const critLegal = critAppliesToAttackRoll({
+            spell: tnKind === 'casting',
+            damageDice: spellDamageDice,
+        }) || npcCrit;
+        if (critLegal) {
+            const economyForStones = actionEco.getActionEconomyActor(attacker) ?? attacker;
+            const combatRef = globalThis.game?.combat;
+            const rsCrit = actionEco.getRoundState(economyForStones, combatRef);
+            const critBank = Math.max(0, Math.floor(Number(rsCrit?.stoneBonuses?.critRaises ?? 0) || 0));
+            let buffCriticalX = 0;
+            try {
+                const { getActiveBuffCriticalTier } = await import('../utils/active-buffs.js');
+                buffCriticalX = getActiveBuffCriticalTier(attacker);
+            }
+            catch {
+                buffCriticalX = 0;
+            }
+            const syncedQuota = syncCriticalRoundQuota(rsCrit.criticalQuota, combatRoundKey(combatRef), buffCriticalX);
+            const sources = listAvailableCriticalSources({
+                buffQuotaRemaining: syncedQuota.remaining,
+                stoneCritCharges: critBank,
+            });
+            if (npcCrit || sources.length > 0) {
+                const sourceSelect = sources.length > 1
+                    ? `<select class="crit-source-select" title="Choose Crit source">${sources
+                        .map((s) => `<option value="${s.source}">${attackCardEsc(s.label)}</option>`)
+                        .join('')}</select>`
+                    : sources.length === 1
+                        ? `<span class="crit-source-hint">${attackCardEsc(sources[0].label)}</span>`
+                        : `<span class="crit-source-hint">NPC Crit</span>`;
+                critButtonHtml = `
+    <span class="crit-roll-controls">
+      ${sourceSelect}
+      <button type="button" class="roll-attack-btn roll-attack-btn--crit"
+              data-use-crit="1"
+              data-attacker-id="${attacker.id}"
+              data-target-id="${target.id}"
+              data-target-token-id="${targetToken.id}"
+              data-attribute="${attribute}"
+              data-attribute-value="${attributeValue}"
+              data-mastery-rank="${masteryRank}"
+              data-normal-tn="${normalTn}"
+              data-target-evade="${normalTn}"
+              data-base-evade="${normalTn}"
+              data-raise-tn="${split?.splitIndex === 2 && split.sharedRaiseTn ? attackCardEsc(split.sharedRaiseTn) : normalTn}"
+              data-raise-slots="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseSlots || '0') : '0'}"
+              data-raise-plan="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
+              data-aoe-melee="${aoeMeleeAttr}"
+              data-aoe-secondary-ids="${aoeIdsAttr}"
+              data-aoe-power-dice="${aoeDiceAttr}"
+              data-crit-source="${sources[0]?.source || 'npc'}"
+              title="Spend one Crit application. Natural 7s and 8s explode.">
+        <i class="fas fa-bolt"></i> Roll with Crit
+      </button>
+    </span>`;
+            }
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | crit button preview failed', err);
+    }
+    const buttonAttrs = `
             data-attacker-id="${attacker.id}"
             data-target-id="${target.id}"
             data-target-token-id="${targetToken.id}"
@@ -887,10 +976,13 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             data-raise-plan="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
             data-aoe-melee="${aoeMeleeAttr}"
             data-aoe-secondary-ids="${aoeIdsAttr}"
-            data-aoe-power-dice="${aoeDiceAttr}">
+            data-aoe-power-dice="${aoeDiceAttr}"
+            data-use-crit="0"`;
+    const buttonHtml = `
+    <button class="roll-attack-btn" ${buttonAttrs}>
       <i class="fas fa-dice-d20"></i> Roll
     </button>
-    <label class="crit-declare-label" title="Spend one Crit charge. Natural 7s and 8s explode."><input type="checkbox" class="crit-declare"/> Crit</label>
+    ${critButtonHtml}
     ${skipAwaitedHtml}
   `;
     const raisePlanHtml = raiseContext
@@ -1113,16 +1205,27 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     const panel = messageElement.find('.raise-plan-panel');
     if (panel.attr('data-raise-bound') === '1')
         return;
-    const button = messageElement.find('.roll-attack-btn');
-    messageElement.find('.crit-declare').on('change', () => {
-        button.attr('data-use-crit', messageElement.find('.crit-declare').is(':checked') ? '1' : '0');
-    });
+    const button = messageElement.find('.roll-attack-btn').first();
+    const syncCritSource = () => {
+        const selected = String(messageElement.find('.crit-source-select').val() || '');
+        if (selected) {
+            messageElement.find('.roll-attack-btn--crit').attr('data-crit-source', selected);
+        }
+    };
+    messageElement.find('.crit-source-select').on('change', syncCritSource);
+    syncCritSource();
     button.attr('data-normal-tn', String(normalTn));
     button.attr('data-target-evade', String(normalTn));
     button.attr('data-base-evade', String(normalTn));
     button.attr('data-raise-tn', String(normalTn));
     button.attr('data-raise-slots', '0');
     button.attr('data-raise-plan', '[]');
+    messageElement.find('.roll-attack-btn--crit').each((_, el) => {
+        const $el = globalThis.$(el);
+        $el.attr('data-normal-tn', String(normalTn));
+        $el.attr('data-target-evade', String(normalTn));
+        $el.attr('data-base-evade', String(normalTn));
+    });
     if (!raiseContext || !panel.length)
         return;
     panel.attr('data-raise-bound', '1');
@@ -1339,12 +1442,15 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             specials: full.specials,
             weaponName: raiseContext.weaponName,
         }));
-        button.attr('data-raise-tn', String(raiseTn));
-        button.attr('data-raise-slots', String(slots));
-        button.attr('data-raise-plan', JSON.stringify(plan));
-        button.attr('data-raises', String(slots));
-        button.attr('data-blood-raises', '0');
-        button.removeAttr('data-raise-cost-waived');
+        messageElement.find('.roll-attack-btn').each((_, el) => {
+            const $btn = globalThis.$(el);
+            $btn.attr('data-raise-tn', String(raiseTn));
+            $btn.attr('data-raise-slots', String(slots));
+            $btn.attr('data-raise-plan', JSON.stringify(plan));
+            $btn.attr('data-raises', String(slots));
+            $btn.attr('data-blood-raises', '0');
+            $btn.removeAttr('data-raise-cost-waived');
+        });
         if (broadcast && !applyingRemote)
             broadcastRaisePlan(messageId, draft, summary);
     };

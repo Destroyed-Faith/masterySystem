@@ -45,20 +45,20 @@ export const COMBAT_MANEUVERS = [
     {
         id: "dash",
         name: "Dash",
-        description: "Focus entirely on movement (2× Speed).",
+        description: "Focus entirely on movement (2× Speed). You lose one Attack Action if you do that.",
         slot: "movement",
         category: "movement",
         tags: ["movement", "speed", "basic"],
-        effect: "Move up to **double your normal Speed**. You cannot perform your base Attack Action this Turn, but additional Attack Actions from Stones or another source may still be used. Provokes movement-triggered Reactions normally.",
+        effect: "Move up to **double your normal Speed**. **You lose one Attack Action if you do that** (your base Attack Action is locked this Turn; additional Attack Actions from Stones or another source may still be used). Provokes movement-triggered Reactions normally.",
     },
     {
         id: "disengage",
         name: "Disengage",
-        description: "Withdraw without provoking movement-triggered Reactions.",
+        description: "Withdraw without provoking movement-triggered Reactions. You lose one Attack Action if you do that.",
         slot: "movement",
         category: "movement",
         tags: ["movement", "defensive", "basic"],
-        effect: "Move up to your normal Speed **without provoking movement-triggered Reactions**. You cannot perform your base Attack Action this Turn unless another effect grants an additional Attack Action.",
+        effect: "Move up to your normal Speed **without provoking movement-triggered Reactions**. **You lose one Attack Action if you do that** (your base Attack Action is locked this Turn unless another effect grants an additional Attack Action).",
     },
     {
         id: "quick-load",
@@ -101,11 +101,11 @@ export const COMBAT_MANEUVERS = [
     {
         id: "flee",
         name: "Flee",
-        description: "Escape danger at 4× Speed.",
+        description: "Escape. No way back — you're getting out at 4× Speed. You lose one Attack Action if you do that.",
         slot: "movement",
         category: "movement",
         tags: ["movement", "escape", "basic"],
-        effect: "Move up to **4× your normal Speed** directly away from danger. Until the start of your next Turn you cannot make Attacks, use Reactions, or spend Stones. Provokes movement-triggered Reactions normally. The GM may transition into a chase if appropriate.",
+        effect: "**Escape.** You are leaving — no way back, goodbye. Move up to **4× your normal Speed** away from danger. Costs 1 Movement and **you lose one Attack Action if you do that**. Until the start of your next Turn you cannot make Attacks, use Reactions, or spend Stones. Provokes movement-triggered Reactions normally. The GM may start a chase if appropriate.",
     },
     // ========================================
     // BASIC REACTIONS (also injected into the Reaction Window)

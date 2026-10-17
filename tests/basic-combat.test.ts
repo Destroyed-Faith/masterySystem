@@ -75,8 +75,18 @@ describe('basic combat maneuvers catalog', () => {
   });
 
   it('Flee / Dash / Dive texts match current Basic Maneuver rules', () => {
-    expect(COMBAT_MANEUVERS.find((m) => m.id === 'flee')?.effect).toMatch(/4×/);
-    expect(COMBAT_MANEUVERS.find((m) => m.id === 'dash')?.effect).toMatch(/double/);
+    const flee = COMBAT_MANEUVERS.find((m) => m.id === 'flee');
+    const dash = COMBAT_MANEUVERS.find((m) => m.id === 'dash');
+    const disengage = COMBAT_MANEUVERS.find((m) => m.id === 'disengage');
+    expect(flee?.effect).toMatch(/4×/);
+    expect(flee?.effect).toMatch(/lose one Attack Action/i);
+    expect(flee?.effect).toMatch(/no way back/i);
+    expect(flee?.description).toMatch(/Escape/i);
+    expect(dash?.effect).toMatch(/double/);
+    expect(dash?.effect).toMatch(/lose one Attack Action/i);
+    expect(dash?.description).toMatch(/lose one Attack Action/i);
+    expect(disengage?.effect).toMatch(/lose one Attack Action/i);
+    expect(disengage?.description).toMatch(/lose one Attack Action/i);
     expect(COMBAT_MANEUVERS.find((m) => m.id === 'dive-for-cover')?.effect).toMatch(/2 × Mastery Rank/);
     expect(COMBAT_MANEUVERS.find((m) => m.id === 'stand-up')?.slot).toBe('movement');
   });

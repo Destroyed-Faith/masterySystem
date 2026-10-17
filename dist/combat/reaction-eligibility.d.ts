@@ -34,6 +34,12 @@ export interface ReactionTriggerContext {
     suppressCounterattack?: boolean;
     /** Set when this window is a Threat Zone entry or exit, not an attack. */
     movementThreat?: 'entry' | 'exit' | null;
+    /**
+     * Whether the reactor can make a Basic Attack that reaches the triggering
+     * creature (melee reach or equipped ranged weapon). `null` = unknown
+     * (distance/tokens missing) — Counterattack stays available.
+     */
+    canReachAttackerWithBasicAttack?: boolean | null;
 }
 export interface ReactionEligibility {
     shown: boolean;
@@ -60,6 +66,12 @@ export declare function actorHasPassiveDR(actor: any): boolean;
 export declare function actorHasPassivePhasing(actor: any): boolean;
 /** Meters between two actors' primary tokens, or null. */
 export declare function distanceBetweenActorsMeters(a: Actor | null | undefined, b: Actor | null | undefined): number | null;
+/**
+ * True when `actor` can land a Basic Attack on a creature `rangeM` meters away:
+ * melee reach (unarmed / Reach weapon / stones), or an equipped ranged weapon
+ * whose range covers the gap. Returns `null` when distance is unknown.
+ */
+export declare function actorCanReachWithBasicAttack(actor: any, rangeM: number | null | undefined): boolean | null;
 /**
  * Evaluate whether a reaction should appear (and be clickable) for this context.
  */

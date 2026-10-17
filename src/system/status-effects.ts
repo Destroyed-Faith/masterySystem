@@ -163,14 +163,30 @@ function applyMasteryStatusEffectsAsRecord(store: Record<string, any>): void {
 }
 
 /**
+ * Mastery Invisibility is soft ghosting (token alpha) + perception gates.
+ * Foundry's special INVISIBLE status hides the token from other clients and
+ * makes allies unable to target for Heal etc. — never wire that up.
+ */
+export function disableFoundryInvisibleTokenHide(): void {
+  try {
+    const special = (CONFIG as any).specialStatusEffects;
+    if (!special || typeof special !== 'object') return;
+    // Empty id → actor.statuses.has('') is always false.
+    special.INVISIBLE = '';
+  } catch (err) {
+    console.warn('Mastery System | could not clear CONFIG.specialStatusEffects.INVISIBLE', err);
+  }
+}
+
+/**
  * Register mastery conditions on `CONFIG.statusEffects`.
  * Foundry v12/v13 use an array; v14+ uses a record keyed by effect id.
  */
 export function applyMasteryStatusEffects(): void {
   if (isFoundryV14OrNewer()) {
     applyMasteryStatusEffectsAsRecord((CONFIG as any).statusEffects);
-    return;
+  } else {
+    (CONFIG as any).statusEffects = buildMasteryStatusEffects();
   }
-
-  (CONFIG as any).statusEffects = buildMasteryStatusEffects();
+  disableFoundryInvisibleTokenHide();
 }

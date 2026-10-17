@@ -77,4 +77,13 @@ export interface ThreatenedRangedResult {
     debugReason?: string;
 }
 export declare function evaluateThreatenedRanged(shooterToken: any, option: RadialCombatOption): ThreatenedRangedResult;
+/**
+ * R-03: every Spell Casting Roll gets Disadvantage while the caster is in
+ * at least one enemy's melee reach. Uses the same threat scan as Threatened Ranged.
+ * Does not invent new Reaction types — opportunity ids are empty unless a
+ * separate rule already opens them.
+ */
+export declare function evaluateThreatenedSpellcasting(casterToken: any): ThreatenedRangedResult;
+/** True when the token stands in at least one hostile's melee reach. */
+export declare function isThreatenedByEnemyMelee(token: any): boolean;
 //# sourceMappingURL=threatened-ranged.d.ts.map

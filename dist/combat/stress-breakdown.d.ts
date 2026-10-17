@@ -14,7 +14,7 @@ export declare function registerStressBreakdownSettings(): void;
  * Call after stress has been applied. If this hit collapsed the track for a
  * PC, post the Breakdown Check card (once).
  */
-export declare function maybeTriggerStressBreakdown(actor: any, opts?: {
+export declare function maybeTriggerStressBreakdown(_actor: any, _opts?: {
     wasCollapsed?: boolean;
 }): Promise<boolean>;
 /**

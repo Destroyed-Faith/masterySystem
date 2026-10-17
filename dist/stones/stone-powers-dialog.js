@@ -1143,7 +1143,7 @@ export class StonePowersDialog extends BaseDialog {
                 : '',
             title: 'Natural Special Recovery',
             hint: `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`,
-            noneLabel: 'None',
+            noneLabel: 'Skip Natural Recovery',
         };
     }
     #passivesCtaContext(combat) {

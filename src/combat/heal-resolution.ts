@@ -11,6 +11,7 @@
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getActiveSpecialValue } from '../system/active-specials.js';
 import { escapeStoneChat } from '../stones/stone-resolution.js';
+import { remainingMaximizations } from '../stones/stone-combat-effects.js';
 import {
   countScarredHealthBars,
   recoverScarredBars,
@@ -407,6 +408,7 @@ export function formatScarredPromptChat(args: {
   poolMax: number;
   powerName?: string;
   formula?: string | null;
+  maximizationRemaining?: number;
 }): string {
   const healer = escapeStoneChat(args.healerName);
   const target = escapeStoneChat(args.targetName);
@@ -415,6 +417,7 @@ export function formatScarredPromptChat(args: {
   // Show full band 0…min(scarred, poolMax); gray out spends above remaining.
   const maxShown = Math.max(0, Math.min(args.maxBars, args.scarred, args.poolMax));
   const remaining = Math.max(0, Math.floor(Number(args.poolRemaining) || 0));
+  const maxLeft = Math.max(0, Math.floor(Number(args.maximizationRemaining) || 0));
   const healHint = formula ? ` → then roll ${formula}` : '';
   const buttons: string[] = [];
   for (let n = 0; n <= maxShown; n += 1) {
@@ -426,16 +429,28 @@ export function formatScarredPromptChat(args: {
           : '0 — skip Scarred'
         : `${n} Scarred${healHint}${disabled ? ' (used up)' : ''}`;
     buttons.push(
-      `<button type="button" class="mastery-heal-scarred-pick${disabled ? ' ms-heal-btn-disabled' : ''}" data-bars="${n}"${disabled ? ' disabled title="Health Level Recovery already spent this Safe Haven Rest"' : ''}>${label}</button>`,
+      `<button type="button" class="mastery-heal-scarred-pick${disabled ? ' ms-heal-btn-disabled' : ''}" data-bars="${n}" data-maximize="0"${disabled ? ' disabled title="Health Level Recovery already spent this Safe Haven Rest"' : ''}>${label}</button>`,
     );
+    if (formula && maxLeft > 0 && !disabled) {
+      const maxLabel =
+        n === 0 ? `0 Scarred — Roll Maximum` : `${n} Scarred + Roll Maximum`;
+      buttons.push(
+        `<button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-max" data-bars="${n}" data-maximize="1" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8.">${maxLabel}</button>`,
+      );
+    }
   }
   if (formula && maxShown <= 0) {
     buttons.push(
-      `<button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only" data-bars="0">Roll heal ${formula}</button>`,
+      `<button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only" data-bars="0" data-maximize="0">Roll heal ${formula}</button>`,
     );
+    if (maxLeft > 0) {
+      buttons.push(
+        `<button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only mastery-heal-roll-max" data-bars="0" data-maximize="1" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8.">Roll Maximum</button>`,
+      );
+    }
   }
   const healPreview = formula
-    ? `<p class="ms-heal-preview"><strong>Click a button</strong> to recover Scarred (optional), then <strong>roll ${formula}</strong> in chat and apply the HP.</p>`
+    ? `<p class="ms-heal-preview"><strong>Click a button</strong> to recover Scarred (optional), then roll — use <strong>Roll Maximum</strong> to spend Maximization.</p>`
     : `<p class="ms-heal-preview"><strong>Click a button</strong> to apply Scarred recovery (this Power has no HP dice).</p>`;
   return `<div class="mastery-heal-scarred-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-max-bars="${maxShown}">
   <p><strong>${healer}</strong> — <em>${power}</em>: Scarred zuerst, dann Heal würfeln</p>
@@ -452,16 +467,24 @@ export function formatHealRollPromptChat(args: {
   targetName: string;
   powerName?: string;
   formula: string;
+  /** When > 0, show Roll Maximum beside Roll. */
+  maximizationRemaining?: number;
 }): string {
   const healer = escapeStoneChat(args.healerName);
   const target = escapeStoneChat(args.targetName);
   const power = escapeStoneChat(args.powerName || 'Heal');
   const formula = escapeStoneChat(args.formula);
+  const maxLeft = Math.max(0, Math.floor(Number(args.maximizationRemaining) || 0));
+  const maxBtn =
+    maxLeft > 0
+      ? `<button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only mastery-heal-roll-max" data-bars="0" data-maximize="1" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8.">Roll Maximum</button>`
+      : '';
   return `<div class="mastery-heal-scarred-prompt mastery-heal-roll-prompt">
   <p><strong>${healer}</strong> — <em>${power}</em> on <strong>${target}</strong></p>
-  <p class="ms-heal-preview">Click to roll <strong>${formula}</strong> in chat and apply the healed HP.</p>
+  <p class="ms-heal-preview">Choose <strong>Roll</strong> or <strong>Roll Maximum</strong> — then ${formula} posts in chat and HP is applied.</p>
   <div class="mastery-heal-scarred-actions">
-    <button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only" data-bars="0">Roll heal ${formula}</button>
+    <button type="button" class="mastery-heal-scarred-pick mastery-heal-roll-only" data-bars="0" data-maximize="0">Roll heal ${formula}</button>
+    ${maxBtn}
   </div>
 </div>`;
 }
@@ -555,6 +578,8 @@ async function applyHpHealPass(args: {
   scarredRecovered?: number;
   /** When set, append the heal result onto this chat message instead of a new one. */
   appendToMessage?: any;
+  /** True when the player clicked Roll Maximum on the heal card. */
+  maximize?: boolean;
 }): Promise<HealTargetResult[]> {
   const g = globalThis as any;
   const caster = args.casterToken?.actor;
@@ -563,10 +588,13 @@ async function applyHpHealPass(args: {
   // One Maximization for a shared AoE heal roll (first target rolls; others reuse).
   let sharedMaximized = false;
   let sharedRollTotal: number | null = null;
-  if (args.formula && caster && args.targetTokens.length > 0) {
+  if (args.formula && caster && args.targetTokens.length > 0 && args.maximize) {
     try {
-      const { offerMaximization } = await import('../stones/stone-combat-effects.js');
-      sharedMaximized = await offerMaximization(caster, 'healing');
+      const { spendMaximization } = await import('../stones/stone-combat-effects.js');
+      sharedMaximized = await spendMaximization(caster);
+      if (!sharedMaximized) {
+        g.ui?.notifications?.warn?.('No Maximization remaining — rolling heal normally.');
+      }
     } catch {
       sharedMaximized = false;
     }
@@ -725,6 +753,7 @@ export async function resolveHealOnTokens(args: {
   // Show Scarred UI whenever the Power has an HLR band and the target is Scarred
   // (even if remaining is 0 — buttons above remaining stay visible but grayed).
   const offerScarredUi = poolMax > 0 && scarredTok && scarredCount > 0;
+  const maxLeft = formula ? remainingMaximizations(caster) : 0;
   const content = offerScarredUi
     ? formatScarredPromptChat({
         healerName: String(caster?.name || 'Healer'),
@@ -736,6 +765,7 @@ export async function resolveHealOnTokens(args: {
         poolMax,
         powerName: args.powerName,
         formula,
+        maximizationRemaining: maxLeft,
       })
     : formula
       ? formatHealRollPromptChat({
@@ -743,6 +773,7 @@ export async function resolveHealOnTokens(args: {
           targetName: String(primaryTok?.actor?.name || primaryTok?.name || 'Target'),
           powerName: args.powerName,
           formula,
+          maximizationRemaining: maxLeft,
         })
       : null;
 
@@ -795,7 +826,11 @@ export async function resolveHealOnTokens(args: {
   return [];
 }
 
-async function resolveScarredChoice(message: any, bars: number): Promise<void> {
+async function resolveScarredChoice(
+  message: any,
+  bars: number,
+  maximize = false,
+): Promise<void> {
   const flags =
     message?.getFlag?.('mastery-system', HEAL_CHAT_FLAG) ??
     message?.flags?.['mastery-system']?.[HEAL_CHAT_FLAG];
@@ -900,6 +935,7 @@ async function resolveScarredChoice(message: any, bars: number): Promise<void> {
       formula: pending.formula,
       scarredRecovered: restored,
       appendToMessage: message,
+      maximize,
     });
   }
 }
@@ -923,18 +959,19 @@ function bindScarredPromptHtml(message: any, root: HTMLElement): void {
     btn.addEventListener('click', async (ev) => {
       ev.preventDefault();
       disable();
-      await resolveScarredChoice(message, Number(btn.dataset.bars || '0'));
+      const wantMax = String(btn.dataset.maximize || '0') === '1';
+      await resolveScarredChoice(message, Number(btn.dataset.bars || '0'), wantMax);
     });
   });
   yes?.addEventListener('click', async (ev) => {
     ev.preventDefault();
     disable();
-    await resolveScarredChoice(message, Number(yes.dataset.bars || '1'));
+    await resolveScarredChoice(message, Number(yes.dataset.bars || '1'), false);
   });
   no?.addEventListener('click', async (ev) => {
     ev.preventDefault();
     disable();
-    await resolveScarredChoice(message, 0);
+    await resolveScarredChoice(message, 0, false);
   });
 }
 

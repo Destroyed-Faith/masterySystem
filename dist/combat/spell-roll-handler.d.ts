@@ -56,11 +56,12 @@ export declare function applyBloodRaiseHpLoss(actor: any, amount: number): Promi
  * casts, Focus power-ups, etc.) ignores Stress Armor. Pass
  * `{ voluntary: true }` to bypass the armor.
  */
-export declare function applyStressToActor(actor: any, amount: number, options?: {
+/** Legacy mechanical Stress — retired (Fear replaces mental pressure). No-op. */
+export declare function applyStressToActor(_actor: any, _amount: number, _options?: {
     voluntary?: boolean;
 }): Promise<number>;
-/** Roll `1d8` and apply the result as stress. Returns the stress inflicted. */
-export declare function applyFizzleStress(actor: any): Promise<number>;
+/** Legacy fizzle Stress — retired. No-op; returns 0 stress inflicted. */
+export declare function applyFizzleStress(_actor: any): Promise<number>;
 /**
  * `combatEnd`/`deleteCombat` hook target: clears the per-combat Blood Raise
  * flag so HP becomes healable again once the fight is over. Intentionally
