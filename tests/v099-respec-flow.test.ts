@@ -7,8 +7,10 @@ import {
   migrationStoneSlotLabel,
   planFinalAttributes,
   releaseAllStoneSlots,
+  hydrateStoneSlotOrder,
   releaseStoneSlot,
   stoneOrderActorUpdate,
+  stoneOrderForActor,
   stonePlacementOptions,
   tallyStoneSlotOrder,
   unblockStonePoolsUpdate,
@@ -129,6 +131,50 @@ describe('Per-slot Stones', () => {
     expect(update['system.progression.stoneAssignments.agility']).toBe(1);
     expect(update['system.stonePools.might.current']).toBeUndefined();
     expect(update['system.stonePools.agility.current']).toBe(1);
+  });
+
+  it('does not wipe map assignments when the track was empty and a new Stone is placed', () => {
+    // Regression: empty stoneSlotOrder + map {might:1,agility:1} → click + Resolve
+    // used to write only [resolve] and zero Might/Agility pools.
+    const system = {
+      progression: {
+        v099Stones: true,
+        lifetimeXp: 40,
+        stoneSlotOrder: [null, null, null, null],
+        stoneAssignments: {
+          might: 1,
+          agility: 1,
+          vitality: 0,
+          intellect: 0,
+          resolve: 0,
+          influence: 0,
+          wits: 0,
+        },
+        permanentColorless: 0,
+      },
+      stonePools: {
+        might: { current: 1, max: 1 },
+        agility: { current: 1, max: 1 },
+        resolve: { current: 0, max: 0 },
+      },
+    };
+    const order = stoneOrderForActor(system, 40);
+    expect(order.slice(0, 2)).toEqual(['might', 'agility']);
+    expect(hydrateStoneSlotOrder([null, null, null, null], system.progression.stoneAssignments)).toEqual([
+      'might',
+      'agility',
+      null,
+      null,
+    ]);
+    const next = order.slice();
+    next[2] = 'resolve';
+    const update = stoneOrderActorUpdate(system, next);
+    expect(update['system.progression.stoneSlotOrder']).toEqual(['might', 'agility', 'resolve', null]);
+    expect(update['system.progression.stoneAssignments.might']).toBeUndefined(); // unchanged
+    expect(update['system.progression.stoneAssignments.agility']).toBeUndefined();
+    expect(update['system.progression.stoneAssignments.resolve']).toBe(1);
+    expect(update['system.stonePools.might.current']).toBeUndefined();
+    expect(update['system.stonePools.agility.current']).toBeUndefined();
   });
 
   it('releases one box, and both boxes of a Colorless pair', () => {

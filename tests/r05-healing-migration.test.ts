@@ -67,9 +67,9 @@ describe('R-05 healing migration — planning', () => {
     expect((plan as any).reason).toContain('Power Level 1');
   });
 
-  it('maps Passive: Healing to Passive: Regeneration at the same PL', () => {
+  it('maps Passive: Healing to Passive: Restoration at the same PL', () => {
     const plan = planR05HealingItem(item('Passive: Healing', 'passive-healing', 7, 'passive'));
-    expect(plan).toMatchObject({ kind: 'regeneration', rank: 7, rename: 'Passive: Regeneration' });
+    expect(plan).toMatchObject({ kind: 'regeneration', rank: 7, rename: 'Passive: Restoration' });
     expect(planR05HealingItem(item('Passive: Healing', '', 3, 'passive'))).toMatchObject({
       kind: 'regeneration',
     });
@@ -89,7 +89,10 @@ describe('R-05 healing migration — planning', () => {
   it('leaves unrelated powers and migrated items alone', () => {
     expect(planR05HealingItem(item('Fire Bolt', 'active-ranged-single-damage')).kind).toBe('none');
     expect(planR05HealingItem(item('Restoration', 'active-melee-health-level-heal')).kind).toBe('none');
-    expect(planR05HealingItem(item('Passive: Regeneration', 'passive-regeneration', 4, 'passive')).kind).toBe('none');
+    expect(planR05HealingItem(item('Passive: Restoration', 'passive-regeneration', 4, 'passive')).kind).toBe('none');
+    expect(
+      planR05HealingItem(item('Passive: Passive: Regeneration', 'passive-regeneration', 4, 'passive')),
+    ).toMatchObject({ kind: 'regeneration', rename: 'Passive: Restoration' });
     expect(planR05HealingItem(item('Buff', 'ab-healing', 4, 'power', { r05Retired: true })).kind).toBe('none');
   });
 
@@ -123,7 +126,7 @@ describe('R-05 healing migration — run', () => {
     expect(heal.system.templateId).toBe('active-melee-health-level-heal');
     expect(heal.name).toBe('Melee Scarred Bar Restoration');
     expect(regen.system.templateId).toBe('passive-regeneration');
-    expect(regen.name).toBe('Passive: Regeneration');
+    expect(regen.name).toBe('Passive: Restoration');
     expect(buff.flags['mastery-system'].r05Retired).toBe(true);
     expect(other.system.templateId).toBe('active-ranged-single-damage');
 

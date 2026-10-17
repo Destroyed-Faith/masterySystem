@@ -14,7 +14,7 @@ export const R05_RANGED_ST_POOL = [0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 
 export const R05_MELEE_AOE_POOL = [0, 1, 1, 2, 3, 3, 4, 4, 4, 5, 6, 6, 7, 8, 9, 9] as const;
 /** Ranged AoE Restoration pool (Safe Haven Rest). */
 export const R05_RANGED_AOE_POOL = [0, 0, 1, 2, 2, 3, 4, 4, 4, 5, 5, 6, 7, 7, 8, 8] as const;
-/** Passive: Regeneration daily pool (Tyhran Day). PL1 unavailable. */
+/** Passive: Restoration daily pool (Tyhran Day). PL1 unavailable. */
 export const R05_PASSIVE_REGEN_POOL = [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8] as const;
 
 export function clampPowerLevel(pl: number): number {
@@ -42,12 +42,12 @@ export function poolAt(table: readonly number[], pl: number): number {
   return Math.max(0, Math.floor(Number(table[idx]) || 0));
 }
 
-/** Passive: Regeneration daily pool for a Power Level. */
+/** Passive: Restoration daily pool for a Power Level. */
 export function regenerationPoolMaxForLevel(level: number): number {
   return poolAt(R05_PASSIVE_REGEN_POOL, level);
 }
 
-/** Catalog row text for Passive: Regeneration. */
+/** Catalog row text for Passive: Restoration. */
 export function regenerationCatalogText(level: number): string {
   const n = regenerationPoolMaxForLevel(level);
   if (n <= 0) {

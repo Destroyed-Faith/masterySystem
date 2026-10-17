@@ -1,5 +1,5 @@
 /**
- * R-05 Passive: Regeneration — daily Scarred-Bar self-restoration pool.
+ * R-05 Passive: Restoration — daily Scarred-Bar self-restoration pool.
  * Resets once per Tyhran calendar day (`currentDayIndex`).
  */
 import { regenerationPoolMaxForLevel, regenerationCatalogText } from './r05-pools.js';
@@ -16,7 +16,7 @@ export interface RegenDailyState {
     poolMax: number;
 }
 export declare function getTyhranDayIndex(): number;
-/** Slotted / owned Passive: Regeneration power level (0 if none). */
+/** Slotted / owned Passive: Restoration power level (0 if none). */
 export declare function getPassiveRegenerationLevel(actor: any): number;
 export { regenerationPoolMaxForLevel, regenerationCatalogText };
 export declare function getRegenerationState(actor: any): {

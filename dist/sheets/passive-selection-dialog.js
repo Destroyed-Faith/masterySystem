@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, findPassivePowerItem, formatPassiveDescription, slotPassive, unslotPassive, canEditEncounterPassives, consumePendingPassiveSwap, getPendingPassiveSwaps, } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, findPassivePowerItem, formatPassiveDescription, pruneStalePassiveSlots, slotPassive, unslotPassive, canEditEncounterPassives, consumePendingPassiveSwap, getPendingPassiveSwaps, } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -104,6 +104,12 @@ export class PassiveSelectionDialog extends BaseDialog {
         const actor = this.currentActor;
         if (!actor)
             return {};
+        try {
+            await pruneStalePassiveSlots(actor);
+        }
+        catch {
+            /* ignore */
+        }
         const slots = getPassiveSlots(actor).map((slot) => {
             if (!slot.passive?.id)
                 return slot;

@@ -400,7 +400,7 @@ export interface PowerMechanics {
   healthLevelRecovery?: number;
 
   /**
-   * R-05 Passive: Regeneration — Scarred Health Bars the bearer may restore (full HP)
+   * R-05 Passive: Restoration — Scarred Health Bars the bearer may restore (full HP)
    * per period. Not turn-start HP regen.
    */
   scarredBarRestoration?: {

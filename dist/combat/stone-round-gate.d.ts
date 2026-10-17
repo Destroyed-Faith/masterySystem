@@ -3,6 +3,12 @@
  * NPCs do not block. The GM cannot skip the wait with Next Turn.
  */
 export declare function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean;
+/**
+ * GM "Reset Stone Assignments": clear done markers so the dialog leaves review
+ * mode. Foundry flag object replaces do not drop missing keys — delete the
+ * combatant entry with ForcedDeletion / `-=key`.
+ */
+export declare function clearStonePowersDoneForCombatant(combat: Combat | null | undefined, combatant: Combatant | null | undefined): Promise<void>;
 export declare function pendingStoneCombatants(combat: Combat, round?: number): Combatant[];
 export declare function pendingStonePlayerNames(combat: Combat, round?: number): string[];
 export declare function arePlayerStonesReadyForRound(combat: Combat, round?: number): boolean;

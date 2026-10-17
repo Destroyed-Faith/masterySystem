@@ -3252,37 +3252,48 @@ export class StonePowersDialog extends BaseDialog {
     }
     this._plannedFreeRankIds.clear();
     this._resolutionBatch = [];
+    this._stoneRoundPlanHydratedKey = null;
     try {
       await clearStonePowersConfigurationLock(owner);
     } catch {
       /* best-effort */
     }
 
-    const state = ((combat as any).getFlag?.('mastery-system', 'stonePowersState') as any) || {};
-    const stonesDone = { ...(state.stonesDone || {}) };
-    delete stonesDone[this.combatant.id];
+    // Clear done markers with ForcedDeletion — object setFlag does not drop keys.
     try {
-      await (combat as any).setFlag('mastery-system', 'stonePowersState', { ...state, stonesDone });
-    } catch {
-      /* best-effort */
-    }
-    try {
-      await persistCombatantSetupStep(this.combatant, combat, { stonesDoneRound: 0 });
-    } catch {
-      /* best-effort */
+      const { clearStonePowersDoneForCombatant } = await import('../combat/stone-round-gate.js');
+      await clearStonePowersDoneForCombatant(combat, this.combatant);
+    } catch (err) {
+      console.warn('Mastery System | clearStonePowersDoneForCombatant failed', err);
     }
 
     this.#clearSessionStoneLanesForOwner();
     this._stonePaidLanes.clear();
     this._stoneReviewMode = false;
+    allowStonePowersAutoOpen();
+
+    // Reopen prep only after done flags are cleared — otherwise reconcile
+    // sees assignmentConfirmed and locks assignment again.
     try {
-      await this.#writePreparation(reopenPreparationAssignment(this.#readPreparation()));
+      const prep = readPreparationPhase(
+        (owner as any).getFlag?.('mastery-system', PREPARATION_PHASE_FLAG),
+        String(combat.id || ''),
+        encounterStoneRound(combat),
+      );
+      await this.#writePreparation(reopenPreparationAssignment(prep));
     } catch {
       /* the cleared stones-done flag still reopens the round */
     }
-    ui.notifications?.info(
-      `${String(owner.name || 'Character')}: Stone assignment reset. Paid stones are back in the pool.`,
-    );
+
+    if (this.#isStoneAssignmentReviewMode()) {
+      ui.notifications?.warn(
+        `${String(owner.name || 'Character')}: Reset ran, but assignment is still locked. Check combat flags / reload.`,
+      );
+    } else {
+      ui.notifications?.info(
+        `${String(owner.name || 'Character')}: Stone assignment reset. Paid stones are back in the pool.`,
+      );
+    }
     await this.#renderKeepingScroll();
   }
 

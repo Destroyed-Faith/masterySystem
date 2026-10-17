@@ -1,5 +1,5 @@
 /**
- * R-05 Passive: Regeneration — daily Scarred-Bar self-restoration pool.
+ * R-05 Passive: Restoration — daily Scarred-Bar self-restoration pool.
  * Resets once per Tyhran calendar day (`currentDayIndex`).
  */
 import { getCurrentDayIndex } from '../calendar/tyhra-calendar-settings.js';
@@ -45,7 +45,7 @@ export function getTyhranDayIndex() {
         return Math.max(0, Math.floor(Number(globalThis.game?.settings?.get?.('mastery-system', 'currentDayIndex')) || 0));
     }
 }
-/** Slotted / owned Passive: Regeneration power level (0 if none). */
+/** Slotted / owned Passive: Restoration power level (0 if none). */
 export function getPassiveRegenerationLevel(actor) {
     const items = actor?.items;
     if (!items)

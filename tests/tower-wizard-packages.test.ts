@@ -77,7 +77,7 @@ describe('tower-wizard-packages', () => {
     it('guided passive 2 uses technical names and rulebook values', () => {
         const groups = getSecondPassiveIntentGroups('evade', 'passive-evade');
         const armor = groups.find((g) => g.intentLabel === 'Armor');
-        const healing = groups.find((g) => g.intentLabel === 'Regeneration');
+        const healing = groups.find((g) => g.intentLabel === 'Restoration');
         const damage = groups.find((g) => g.intentLabel === 'Damage');
 
         expect(armor?.passives.map((p) => p.id)[0]).toBe('passive-fortified-frame');
@@ -86,7 +86,7 @@ describe('tower-wizard-packages', () => {
         expect(armor?.passives.some((p) => p.id === 'passive-echo-armor-value')).toBe(false);
         expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.mechanicsPreview).toMatch(/\+5 Armor/);
 
-        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Passive: Regeneration');
+        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Passive: Restoration');
         expect(healing?.passives.some((p) => p.id === 'passive-blood-feast')).toBe(false);
         // R-05: Scarred Bar pool per Tyhran Day (PL4 = 2 bars); no turn-start HP healing.
         const regenPreview = healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview;

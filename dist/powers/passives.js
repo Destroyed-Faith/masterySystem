@@ -3,6 +3,7 @@
  * Handles passive ability slots, activation, and management
  */
 import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
+import { patchForcedDelete } from '../utils/foundry-v14.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
@@ -45,7 +46,11 @@ export function getPassiveSlots(actor) {
         const locked = i >= unlocked;
         const slotData = passives[`slot${i}`] || {};
         const raw = slotData.passive;
-        const hasPassive = !locked && !!(raw && (raw.id || raw.name));
+        // Deleted power items leave ghost slot data — treat as empty so drops work.
+        const stale = !locked &&
+            !!raw?.id &&
+            !findPassivePowerItem(actor, String(raw.id));
+        const hasPassive = !locked && !stale && !!(raw && (raw.id || raw.name));
         slots.push({
             slotIndex: i,
             passive: hasPassive ? raw : null,
@@ -55,6 +60,38 @@ export function getPassiveSlots(actor) {
         });
     }
     return slots;
+}
+/**
+ * Clear combat Passive slots whose power item was deleted (ghost slots block drops).
+ * Safe to call often; no-ops when nothing is stale.
+ */
+export async function pruneStalePassiveSlots(actor) {
+    if (!actor)
+        return 0;
+    const system = actor.system || {};
+    const passives = system.passives || {};
+    const patch = {};
+    let cleared = 0;
+    for (let i = 0; i < MAX_PASSIVE_SLOTS; i++) {
+        const slotKey = `slot${i}`;
+        const raw = passives[slotKey]?.passive;
+        if (!raw?.id)
+            continue;
+        if (findPassivePowerItem(actor, String(raw.id)))
+            continue;
+        patchForcedDelete(patch, `system.passives.${slotKey}`);
+        cleared += 1;
+    }
+    if (cleared > 0) {
+        try {
+            await actor.update(patch);
+        }
+        catch (err) {
+            console.warn('Mastery System | pruneStalePassiveSlots failed', err);
+            return 0;
+        }
+    }
+    return cleared;
 }
 /** Unlocked Passive Slots only (usable at current Mastery Rank). */
 export function getUnlockedPassiveSlots(actor) {
@@ -358,8 +395,10 @@ export async function activatePassive(actor, slotIndex) {
 export async function unslotPassive(actor, slotIndex) {
     const slotKey = `slot${slotIndex}`;
     // Foundry diffs drop `null` on object replace, so the old passive would stay.
-    // The `-=` key deletes the slot on the document the player actually owns.
-    await actor.update({ [`system.passives.-=${slotKey}`]: null });
+    // V14+: ForcedDeletion; legacy: `-=slotN`.
+    const patch = {};
+    patchForcedDelete(patch, `system.passives.${slotKey}`);
+    await actor.update(patch);
 }
 /**
  * Get count of active passives
@@ -416,6 +455,7 @@ export function pickDefaultPassiveIds(available, slotCount, seed) {
  * Already-slotted picks are the saved default and are left alone.
  */
 export async function ensureDefaultPassiveSlots(actor) {
+    await pruneStalePassiveSlots(actor);
     const unlocked = getUnlockedPassiveSlots(actor);
     if (unlocked.some((s) => s.passive)) {
         return unlocked.map((s) => String(s.passive?.id ?? '')).filter(Boolean);

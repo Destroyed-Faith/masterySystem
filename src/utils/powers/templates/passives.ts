@@ -46,8 +46,8 @@ const INITIATIVE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 3
 /** Temporary HP curve (2 PP / 1 THP). */
 const TEMP_HP_UNCOND    = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
 
-/** R-05: ordinary HP-regen tables removed. Passive: Regeneration uses R05_PASSIVE_REGEN_POOL. */
-const RETIRED_HEAL_NOTE = 'Retired (R-05): ordinary HP healing was removed. Use Scarred Bar Restoration or Passive: Regeneration.';
+/** R-05: ordinary HP-regen tables removed. Passive: Restoration uses R05_PASSIVE_REGEN_POOL. */
+const RETIRED_HEAL_NOTE = 'Retired (R-05): ordinary HP healing was removed. Use Scarred Bar Restoration or Passive: Restoration.';
 
 /** Killing Intent — unconditional Damage (banded; L1 empty, L4 = +2d8). */
 const DMG_KILLING_INTENT = ['', '+1d8', '+1d8', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8',
@@ -542,7 +542,8 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         }),
     }),
     basePassive({
-        id: 'passive-regeneration', name: 'Passive: Regeneration', subfamily: 'regen',
+        // Short name only — basePassive prefixes `Passive: ` (never put Passive: here).
+        id: 'passive-regeneration', name: 'Restoration', subfamily: 'regen',
         fluff: 'Your body reclaims what was lost: scarred vitality knits back to full strength, a few times each Tyhran Day.',
         perLevel: (lvl) => {
             const pool = R05_PASSIVE_REGEN_POOL[lvl - 1] ?? 0;

@@ -855,7 +855,7 @@ export function isValidOffensiveActiveBuffId(templateId: string): boolean {
 }
 
 // R-05: Active Buff Healing / Healing Aura / Temporary HP + Healing are retired (no mechanics).
-// HP-free recovery now comes from Restoration Actives and Passive: Regeneration.
+// HP-free recovery now comes from Restoration Actives and Passive: Restoration.
 const SUPPORT_ACTIVE_BUFF_ORDER = [
     'ab-temp-hp',
     'ab-spell-resistance',
@@ -1187,7 +1187,7 @@ const PASSIVE2_INTENT_LABELS: Record<SecondPassiveBucket, { label: string; inten
     invisibility: { label: 'Invisibility' },
     health: { label: 'Increase Maximum Health' },
     'temporary-hp': { label: 'Temporary HP' },
-    sustain: { label: 'Regeneration' },
+    sustain: { label: 'Restoration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };

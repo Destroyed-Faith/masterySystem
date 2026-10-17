@@ -115,12 +115,12 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         powerName: 'Armor (Adjacent to 2+ Enemies)',
         explanation: 'Armor while at least two enemies are adjacent.',
     },
-    // R-05: ordinary HP regen is gone. Passive: Regeneration restores Scarred Health Bars
+    // R-05: ordinary HP regen is gone. Passive: Restoration restores Scarred Health Bars
     // on yourself from a daily (Tyhran Day) pool. Blood Feast / Battle Trance /
     // Stillness Recovery and every "+ Healing" combo are retired.
     'passive-regeneration': {
-        playerTitle: 'Passive: Regeneration',
-        powerName: 'Passive: Regeneration',
+        playerTitle: 'Passive: Restoration',
+        powerName: 'Passive: Restoration',
         explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each).',
     },
     'passive-killing-intent': {
@@ -204,7 +204,7 @@ export const GUIDED_PASSIVE2_BUCKET_LABELS = {
     invisibility: { label: 'Invisibility' },
     health: { label: 'Increase Maximum Health' },
     'temporary-hp': { label: 'Temporary HP' },
-    sustain: { label: 'Regeneration' },
+    sustain: { label: 'Restoration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };

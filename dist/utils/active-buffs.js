@@ -188,7 +188,7 @@ export async function activateActiveBuff(actor, power) {
     try {
         const { isR05RetiredHealingPower } = await import('../migrations/r05-healing-migration.js');
         if (isR05RetiredHealingPower(power)) {
-            ui.notifications?.warn(`${power.name} was retired in R-05 (use Restoration / Regeneration instead).`);
+            ui.notifications?.warn(`${power.name} was retired in R-05 (use Restoration / Passive: Restoration instead).`);
             return false;
         }
     }

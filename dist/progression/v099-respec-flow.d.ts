@@ -59,6 +59,12 @@ export interface StonePlacementOptions {
     colorlessReason: string;
 }
 export declare function stonePlacementOptions(order: readonly (string | null)[], storedRank?: number, lifetimeXp?: number | null, slotIndex?: number): StonePlacementOptions;
+/**
+ * Fill empty track boxes from `stoneAssignments` / permanent Colorless when the
+ * map is ahead of the track. Prevents the first + click from wiping the map
+ * (stoneOrderActorUpdate treats the track as authoritative).
+ */
+export declare function hydrateStoneSlotOrder(order: readonly (string | null)[], assignments: Record<string, number>, permanentColorless?: number): (string | null)[];
 /** Slot list for an actor. A stored order wins; otherwise the current sheet order. */
 export declare function stoneOrderForActor(system: any, lifetimeXp: number): (string | null)[];
 /** Actor update that keeps assignments, pools and the clicked slot order together. */

@@ -1383,7 +1383,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const stones = lifetimeXp == null ? 0 : permanentStonesFromLifetimeXp(lifetimeXp);
             const assigned = Object.values(assignments).reduce((sum, n) => sum + n, 0);
             const colorless = usesV099Stones(sys) ? permanentColorlessCount(sys) : 0;
-            const slotOrder = Array.isArray(sys?.progression?.stoneSlotOrder) ? sys.progression.stoneSlotOrder : null;
+            // Hydrated track (map → empty boxes) so the sheet matches combat pools.
+            const slotOrder = usesV099Stones(sys) && lifetimeXp != null
+                ? stoneOrderForActor(sys, lifetimeXp)
+                : Array.isArray(sys?.progression?.stoneSlotOrder)
+                    ? sys.progression.stoneSlotOrder
+                    : null;
             const stoneRedistribute = flag(STONE_REDISTRIBUTE_FLAG);
             const slots = buildStoneProgressionSlots(lifetimeXp ?? 0, assignments, undefined, colorless, slotOrder, 'visible').map((slot) => {
                 if (lifetimeXp == null) {
@@ -1455,7 +1460,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 show: regen.level > 0 && regen.poolMax > 0,
                 remaining: regen.remaining,
                 poolMax: regen.poolMax,
-                title: `Passive: Regeneration — ${regen.remaining}/${regen.poolMax} Scarred Bars left today (Tyhran Day)`,
+                title: `Passive: Restoration — ${regen.remaining}/${regen.poolMax} Scarred Bars left today (Tyhran Day)`,
             };
         }
         catch {
@@ -4872,11 +4877,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         ui.notifications?.info(SAFE_HAVEN_REST_INFO);
         this.render();
     }
-    /** R-05 Passive: Regeneration — restore own Scarred Bars from the daily pool. */
+    /** R-05 Passive: Restoration — restore own Scarred Bars from the daily pool. */
     async #onPassiveRegeneration(event) {
         event.preventDefault();
         if (!this.actor.isOwner) {
-            ui.notifications?.warn('Only the owner can use Passive: Regeneration.');
+            ui.notifications?.warn('Only the owner can use Passive: Restoration.');
             return;
         }
         const { activatePassiveRegeneration, getRegenerationState, syncRegenerationDayBoundary, } = await import('../combat/passive-regeneration.js');
@@ -4884,7 +4889,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await syncRegenerationDayBoundary(this.actor);
         const state = getRegenerationState(this.actor);
         if (state.level <= 0 || state.poolMax <= 0) {
-            ui.notifications?.warn('No Passive: Regeneration with a legal daily pool.');
+            ui.notifications?.warn('No Passive: Restoration with a legal daily pool.');
             return;
         }
         const scarred = countScarredHealthBars(this.actor);
@@ -4893,7 +4898,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         if (state.remaining <= 0) {
-            ui.notifications?.warn('Passive: Regeneration daily pool is exhausted (resets next Tyhran Day).');
+            ui.notifications?.warn('Passive: Restoration daily pool is exhausted (resets next Tyhran Day).');
             return;
         }
         const maxPick = Math.min(state.remaining, scarred);
@@ -4902,7 +4907,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (typeof DialogCls?.prompt === 'function') {
             try {
                 bars = await DialogCls.prompt({
-                    title: 'Passive: Regeneration',
+                    title: 'Passive: Restoration',
                     content: `<p>Restore your own Scarred Health Bars at full HP.</p>` +
                         `<p>Daily pool: <strong>${state.remaining}</strong> / ${state.poolMax} remaining. Scarred: <strong>${scarred}</strong>.</p>` +
                         `<p><label>Bars to restore now <input type="number" name="bars" value="1" min="1" max="${maxPick}" style="width:4em"/></label></p>`,
@@ -4921,16 +4926,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const result = await activatePassiveRegeneration(this.actor, Number(bars) || 1);
         if (!result.ok) {
             const msg = result.reason === 'incapacitated'
-                ? 'Incapacitated — cannot activate Passive: Regeneration.'
+                ? 'Incapacitated — cannot activate Passive: Restoration.'
                 : result.reason === 'exhausted'
-                    ? 'Daily Regeneration pool exhausted.'
+                    ? 'Daily Restoration pool exhausted.'
                     : result.reason === 'no-scarred'
                         ? 'No Scarred Health Bars to restore.'
                         : 'Could not restore Scarred Bars.';
             ui.notifications?.warn(msg);
             return;
         }
-        ui.notifications?.info(`Regeneration: restored ${result.restored} Scarred Bar(s) at full HP. Remaining today: ${result.remaining}.`);
+        ui.notifications?.info(`Restoration: restored ${result.restored} Scarred Bar(s) at full HP. Remaining today: ${result.remaining}.`);
         this.render();
     }
     /**
@@ -6648,7 +6653,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     async #onV099StoneSlot(ev) {
-        const sys = this.actor.system ?? {};
+        let sys = this.actor.system ?? {};
         const pending = this.actor.getFlag?.('mastery-system', V099_RESPEC_FLAG) === true;
         if (pending || !usesV099Stones(sys)) {
             await this.#openV099Migration();
@@ -6674,7 +6679,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             });
         }
         const rank = getRulesMasteryRank(this.actor);
-        const order = stoneOrderForActor(sys, lifetime);
+        let order = stoneOrderForActor(sys, lifetime);
+        // Persist hydrated track (assignments → empty boxes) before the click so a
+        // sparse/empty stoneSlotOrder cannot wipe the map on the next write.
+        const storedRaw = Array.isArray(sys?.progression?.stoneSlotOrder)
+            ? sys.progression.stoneSlotOrder.map((e) => (e == null || e === '' ? null : String(e)))
+            : null;
+        const needsHydratePersist = !storedRaw ||
+            storedRaw.length !== order.length ||
+            order.some((v, i) => (storedRaw[i] ?? null) !== (v ?? null));
+        if (needsHydratePersist) {
+            await this.actor.update(stoneOrderActorUpdate(sys, order));
+            sys = this.actor.system ?? sys;
+            order = stoneOrderForActor(sys, lifetime);
+        }
         const index = Math.floor(Number(ev?.currentTarget?.dataset?.slotIndex));
         if (!Number.isFinite(index) || index < 0 || index >= order.length) {
             ui.notifications?.warn(`Stone slot ${index} is not unlocked yet (Lifetime XP ${lifetime}, ${order.length} stones).`);

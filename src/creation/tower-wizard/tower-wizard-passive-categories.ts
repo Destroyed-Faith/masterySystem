@@ -25,7 +25,7 @@ const CATEGORY_DISPLAY_LABEL: Record<string, string> = {
     parry: 'Parry',
     invisibility: 'Invisibility',
     'temporary-hp': 'Temporary HP',
-    regeneration: 'Regeneration',
+    regeneration: 'Restoration',
     healing: 'Healing',
     recovery: 'Recovery',
     health: 'Health',

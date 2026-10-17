@@ -32,6 +32,11 @@ export declare function getPassiveSlotUnlockRank(slotIndex: number): number | nu
  * unlock ranks). Combat effects and auto-fill should skip `locked` slots.
  */
 export declare function getPassiveSlots(actor: Actor): PassiveSlot[];
+/**
+ * Clear combat Passive slots whose power item was deleted (ghost slots block drops).
+ * Safe to call often; no-ops when nothing is stale.
+ */
+export declare function pruneStalePassiveSlots(actor: Actor): Promise<number>;
 /** Unlocked Passive Slots only (usable at current Mastery Rank). */
 export declare function getUnlockedPassiveSlots(actor: Actor): PassiveSlot[];
 /** Plain combat-facing blurb for a Passive power item (Available + slotted). */

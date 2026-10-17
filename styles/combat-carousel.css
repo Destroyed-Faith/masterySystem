@@ -33,25 +33,29 @@
   display: flex !important;
 }
 
-.carousel-snapshot-btns {
-  position: absolute;
-  top: 0.35rem;
-  right: 2.35rem;
-  z-index: 8;
+/* Top toolbar: prepare actions + utility cogs in one flex row (no absolute overlap). */
+.ms-carousel-toolbar {
+  flex: 1 0 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  z-index: 5;
+}
+
+.carousel-utility-btns {
+  flex: 0 0 auto;
   display: inline-flex;
+  align-items: center;
   gap: 0.25rem;
+  margin-left: auto;
   pointer-events: auto;
 }
 
-.carousel-snapshot-btns .carousel-settings-cog {
-  position: static;
-}
-
 .carousel-settings-cog {
-  position: absolute;
-  top: 0.35rem;
-  right: 0.45rem;
-  z-index: 8;
+  position: static;
+  flex: 0 0 auto;
   width: 1.6rem;
   height: 1.6rem;
   border: 1px solid rgba(233, 69, 96, 0.45);
@@ -113,15 +117,26 @@
   top: auto;
   left: auto;
   right: auto;
-  flex: 1 0 100%;
+  flex: 1 1 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
   z-index: 5;
   font-size: 0.85rem;
   color: #a8dadc;
   margin: 0;
+  min-width: 0;
   min-height: 0;
+}
+
+.ms-carousel-prepare-bar-spacer {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .ms-carousel-prepare-bar.is-round-gate {
@@ -209,6 +224,8 @@
 #mastery-combat-carousel .window-content > *,
 #mastery-combat-carousel [data-application-part],
 #mastery-combat-carousel .mastery-carousel,
+#mastery-combat-carousel .ms-carousel-toolbar,
+#mastery-combat-carousel .carousel-utility-btns,
 #mastery-combat-carousel .carousel-combatants,
 #mastery-combat-carousel .carousel-combatant,
 #mastery-combat-carousel .carousel-portrait,

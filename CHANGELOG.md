@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.715] - 2026-10-17
+
+### Changed
+
+- **Passive: Restoration:** Catalog and sheet name is Passive: Restoration (was Regeneration). Double `Passive: Passive:` prefix removed.
+
+### Fixed
+
+- **Passive slots:** Deleting a Passive (e.g. Armor) no longer leaves a ghost slot that blocks new picks.
+- **Reset Stone Assignments:** Clears the round lock so stones can be assigned again.
+- **Lifetime stone track:** Placing a new Stone no longer wipes other Attribute assignments when the track lagged the map.
+- **Carousel toolbar:** Prepare buttons and snapshot/settings icons no longer overlap.
+
 ## [0.9.714] - 2026-10-17
 
 ### Fixed

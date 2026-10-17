@@ -24,7 +24,7 @@ export const R05_RETIRED_FLAG = 'r05Retired';
 export const R05_MIGRATION_NOTE_FLAG = 'r05MigrationNote';
 const FLAG_SCOPE = 'mastery-system';
 const REGEN_TEMPLATE_ID = 'passive-regeneration';
-const REGEN_NAME = 'Passive: Regeneration';
+const REGEN_NAME = 'Passive: Restoration';
 /** Healing-themed passive templates retired by R-05 (ordinary HP / heal riders). */
 export const R05_RETIRED_HEALING_PASSIVE_IDS = new Set([
     'passive-blood-feast',
@@ -109,7 +109,19 @@ export function planR05HealingItem(item) {
         return { kind: 'retire', reason: 'R-05: ordinary HP healing Active Buffs were retired.' };
     }
     if (R05_RETIRED_HEALING_PASSIVE_IDS.has(tid)) {
-        return { kind: 'retire', reason: 'R-05: ordinary HP healing Passives were retired. Use Passive: Regeneration.' };
+        return { kind: 'retire', reason: 'R-05: ordinary HP healing Passives were retired. Use Passive: Restoration.' };
+    }
+    // Rename catalog display: Passive: Regeneration / double-prefix → Passive: Restoration.
+    if (tid === REGEN_TEMPLATE_ID &&
+        name &&
+        name !== REGEN_NAME &&
+        /(?:Passive:\s*)*Regeneration$/i.test(name)) {
+        return {
+            kind: 'regeneration',
+            fromTemplateId: tid,
+            rank,
+            rename: REGEN_NAME,
+        };
     }
     return { kind: 'none' };
 }

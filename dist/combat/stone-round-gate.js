@@ -10,6 +10,47 @@ export function isStonePowersDone(combat, combatantId, round) {
     const combatant = combat.combatants.get(combatantId);
     return Number(readCombatantSetupStep(combatant, combat)?.stonesDoneRound) === Number(round);
 }
+/**
+ * GM "Reset Stone Assignments": clear done markers so the dialog leaves review
+ * mode. Foundry flag object replaces do not drop missing keys — delete the
+ * combatant entry with ForcedDeletion / `-=key`.
+ */
+export async function clearStonePowersDoneForCombatant(combat, combatant) {
+    if (!combat || !combatant)
+        return;
+    const { resolveLiveCombat } = await import('./combat-permissions.js');
+    const live = resolveLiveCombat(combat) ?? combat;
+    const combatantId = String(combatant.id || '');
+    if (!combatantId)
+        return;
+    const { patchForcedDelete } = await import('../utils/foundry-v14.js');
+    const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+    // Combatant step: 0 never equals the current round (≥1).
+    await persistCombatantSetupStep(combatant, live, { stonesDoneRound: 0 });
+    const g = globalThis;
+    if (!g.game?.user?.isGM)
+        return;
+    const patch = {};
+    patchForcedDelete(patch, `flags.mastery-system.stonePowersState.stonesDone.${combatantId}`);
+    try {
+        await live.update?.(patch);
+    }
+    catch (err) {
+        console.warn('Mastery System | clearStonePowersDoneForCombatant combat update failed', err);
+        try {
+            const state = live.flags?.['mastery-system']?.stonePowersState || {};
+            const stonesDone = { ...(state.stonesDone || {}) };
+            delete stonesDone[combatantId];
+            await live.setFlag?.('mastery-system', 'stonePowersState', {
+                ...state,
+                stonesDone,
+            });
+        }
+        catch (err2) {
+            console.warn('Mastery System | clearStonePowersDoneForCombatant fallback failed', err2);
+        }
+    }
+}
 function isPlayerCharacter(combatant) {
     return combatant.actor?.type === 'character';
 }

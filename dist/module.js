@@ -1160,6 +1160,18 @@ Hooks.once('init', async function () {
             void import('./utils/weapon-sets.js').then(({ pruneDeletedWeaponSetRefs }) => {
                 void pruneDeletedWeaponSetRefs(parent);
             });
+            // Ghost Passive slots after deleting Armor/etc. block combat picks — clear them.
+            if (item?.type === 'power') {
+                void import('./powers/passives.js').then(({ isPassivePowerItem, pruneStalePassiveSlots }) => {
+                    try {
+                        if (isPassivePowerItem(item))
+                            void pruneStalePassiveSlots(parent);
+                    }
+                    catch {
+                        void pruneStalePassiveSlots(parent);
+                    }
+                });
+            }
         }
     });
     Hooks.on('updateToken', (tokenDoc, changed) => {

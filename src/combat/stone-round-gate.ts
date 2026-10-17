@@ -15,6 +15,56 @@ export function isStonePowersDone(combat: Combat, combatantId: string, round: nu
   return Number(readCombatantSetupStep(combatant, combat)?.stonesDoneRound) === Number(round);
 }
 
+/**
+ * GM "Reset Stone Assignments": clear done markers so the dialog leaves review
+ * mode. Foundry flag object replaces do not drop missing keys — delete the
+ * combatant entry with ForcedDeletion / `-=key`.
+ */
+export async function clearStonePowersDoneForCombatant(
+  combat: Combat | null | undefined,
+  combatant: Combatant | null | undefined,
+): Promise<void> {
+  if (!combat || !combatant) return;
+  const { resolveLiveCombat } = await import('./combat-permissions.js');
+  const live = resolveLiveCombat(combat) ?? combat;
+  const combatantId = String(combatant.id || '');
+  if (!combatantId) return;
+
+  const { patchForcedDelete } = await import('../utils/foundry-v14.js');
+  const { persistCombatantSetupStep } = await import('./encounter-setup-flags.js');
+
+  // Combatant step: 0 never equals the current round (≥1).
+  await persistCombatantSetupStep(combatant, live, { stonesDoneRound: 0 });
+
+  const g = globalThis as any;
+  if (!g.game?.user?.isGM) return;
+
+  const patch: Record<string, unknown> = {};
+  patchForcedDelete(
+    patch,
+    `flags.mastery-system.stonePowersState.stonesDone.${combatantId}`,
+  );
+  try {
+    await (live as any).update?.(patch);
+  } catch (err) {
+    console.warn('Mastery System | clearStonePowersDoneForCombatant combat update failed', err);
+    try {
+      const state =
+        ((live as any).flags?.['mastery-system']?.stonePowersState as {
+          stonesDone?: Record<string, number>;
+        }) || {};
+      const stonesDone = { ...(state.stonesDone || {}) };
+      delete stonesDone[combatantId];
+      await (live as any).setFlag?.('mastery-system', 'stonePowersState', {
+        ...state,
+        stonesDone,
+      });
+    } catch (err2) {
+      console.warn('Mastery System | clearStonePowersDoneForCombatant fallback failed', err2);
+    }
+  }
+}
+
 function isPlayerCharacter(combatant: Combatant): boolean {
   return combatant.actor?.type === 'character';
 }

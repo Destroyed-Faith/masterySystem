@@ -13,6 +13,7 @@ import {
   getSlottedPassiveIds,
   findPassivePowerItem,
   formatPassiveDescription,
+  pruneStalePassiveSlots,
   slotPassive,
   unslotPassive,
   canEditEncounterPassives,
@@ -137,6 +138,12 @@ export class PassiveSelectionDialog extends BaseDialog {
   protected async _prepareContext(_options: any): Promise<any> {
     const actor = this.currentActor;
     if (!actor) return {};
+
+    try {
+      await pruneStalePassiveSlots(actor);
+    } catch {
+      /* ignore */
+    }
 
     const slots = getPassiveSlots(actor).map((slot) => {
       if (!slot.passive?.id) return slot;

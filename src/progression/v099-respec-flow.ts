@@ -237,25 +237,50 @@ export function stonePlacementOptions(
   };
 }
 
+/**
+ * Fill empty track boxes from `stoneAssignments` / permanent Colorless when the
+ * map is ahead of the track. Prevents the first + click from wiping the map
+ * (stoneOrderActorUpdate treats the track as authoritative).
+ */
+export function hydrateStoneSlotOrder(
+  order: readonly (string | null)[],
+  assignments: Record<string, number>,
+  permanentColorless = 0,
+): (string | null)[] {
+  const next = order.map((entry) => (entry == null || entry === '' ? null : String(entry)));
+  const progress = stoneSlotProgress(next);
+  const surplus: string[] = [];
+  for (const key of ATTRIBUTE_KEYS) {
+    const want = Math.max(0, Math.floor(Number(assignments[key]) || 0));
+    const have = progress.assignments[key] ?? 0;
+    for (let i = 0; i < want - have; i += 1) surplus.push(key);
+  }
+  const colorlessWant = Math.max(0, Math.floor(Number(permanentColorless) || 0));
+  for (let i = 0; i < colorlessWant - progress.colorless; i += 1) surplus.push('colorless');
+  if (!surplus.length) return next;
+  let si = 0;
+  for (let i = 0; i < next.length && si < surplus.length; i += 1) {
+    if (next[i] == null) next[i] = surplus[si++];
+  }
+  return next;
+}
+
 /** Slot list for an actor. A stored order wins; otherwise the current sheet order. */
 export function stoneOrderForActor(system: any, lifetimeXp: number): (string | null)[] {
   const total = permanentStonesFromLifetimeXp(lifetimeXp);
   const stored = system?.progression?.stoneSlotOrder;
+  const assignments = readAssignments(system);
+  const colorless = permanentColorlessCount(system);
   if (Array.isArray(stored)) {
     const next = stored.slice(0, total).map((entry) => {
       if (entry == null || entry === '') return null;
       return String(entry);
     });
     while (next.length < total) next.push(null);
-    return normalizeColorlessSlotOrder(next);
+    return hydrateStoneSlotOrder(normalizeColorlessSlotOrder(next), assignments, colorless);
   }
   const span = Math.max(20, Math.ceil(Math.max(0, lifetimeXp) / 20) * 20);
-  return buildStoneProgressionSlots(
-    lifetimeXp,
-    readAssignments(system),
-    span,
-    permanentColorlessCount(system),
-  )
+  return buildStoneProgressionSlots(lifetimeXp, assignments, span, colorless)
     .filter((slot) => slot.unlocked)
     .map((slot) => slot.attribute);
 }

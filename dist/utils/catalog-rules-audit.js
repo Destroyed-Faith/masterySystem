@@ -198,7 +198,7 @@ export const RULES_EXPECTED_PASSIVES = [
     { rulesName: 'Evade', id: 'passive-evade' },
     { rulesName: 'Initiative', id: 'passive-initiative' },
     { rulesName: 'Temporary HP', id: 'passive-temp-hp' },
-    { rulesName: 'Passive: Regeneration', id: 'passive-regeneration' },
+    { rulesName: 'Passive: Restoration', id: 'passive-regeneration' },
     { rulesName: 'Phasing', id: 'passive-ghostform' },
     { rulesName: 'Damage', id: 'passive-killing-intent' },
     { rulesName: 'Health', id: 'passive-deep-vitality' },
