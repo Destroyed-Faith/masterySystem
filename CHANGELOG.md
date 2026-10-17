@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.719] - 2026-10-17
+
+### Added
+
+- **Character sheet:** Above the Health bars, a fallback chip for prepared Resolve Healing and Passive: Restoration, each with **Use**.
+- **GM Scarred:** Per Health Bar, **Scarred** empties that bar. Press it again to fill that bar to maximum.
+
 ## [0.9.718] - 2026-10-17
 
 ### Fixed

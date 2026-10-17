@@ -1177,6 +1177,24 @@
                 </div>
               </div>
             </div>
+            {{#if healthFallback.show}}
+            <div class="health-fallback" title="Sheet fallback for the Healing bar">
+              {{#if healthFallback.healing.show}}
+              <span class="health-fallback-chip">
+                <i class="fas fa-heart-pulse"></i>
+                <span>Healing {{healthFallback.healing.detail}}</span>
+                <button type="button" class="health-fallback-heal" {{#unless healthFallback.healing.canUse}}disabled{{/unless}}>Use</button>
+              </span>
+              {{/if}}
+              {{#if healthFallback.restoration.show}}
+              <span class="health-fallback-chip">
+                <i class="fas fa-heart"></i>
+                <span>Restoration {{healthFallback.restoration.remaining}}/{{healthFallback.restoration.poolMax}}</span>
+                <button type="button" class="health-fallback-restoration" {{#unless healthFallback.restoration.canUse}}disabled{{/unless}}>Use</button>
+              </span>
+              {{/if}}
+            </div>
+            {{/if}}
             <div class="health-bars-list">
               {{#each system.health.bars as |bar index|}}
               <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}{{#if bar.scarred}} is-scarred{{/if}}">
@@ -1202,12 +1220,20 @@
                     {{/if}}
                   </span>
                   {{#if (userIsGM)}}
-                  <button type="button"
-                    class="gm-restore-health-bar"
-                    data-bar-index="{{index}}"
-                    title="Diese Bar und alle schwereren darunter (bis Incapacitated) auf Maximum setzen">
-                    <i class="fas fa-heart"></i> Wiederherstellen
-                  </button>
+                  <span class="health-bar-gm-actions">
+                    <button type="button"
+                      class="gm-toggle-scar-health-bar{{#if bar.scarred}} is-on{{/if}}"
+                      data-bar-index="{{index}}"
+                      title="{{#if bar.scarred}}Fill this Scarred bar back to maximum{{else}}Scar this bar (set it to 0){{/if}}">
+                      Scarred
+                    </button>
+                    <button type="button"
+                      class="gm-restore-health-bar"
+                      data-bar-index="{{index}}"
+                      title="Diese Bar und alle schwereren darunter (bis Incapacitated) auf Maximum setzen">
+                      <i class="fas fa-heart"></i> Wiederherstellen
+                    </button>
+                  </span>
                   {{/if}}
                 </div>
                 <div class="health-bar-inputs">

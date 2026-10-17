@@ -251,6 +251,39 @@ export function restoreHealthBarsFrom(bars: HealthBar[], fromIndex: number): num
 }
 
 /**
+ * GM toggle for one Health Bar. A bar with HP becomes Scarred (current 0).
+ * A Scarred bar (current 0) is filled to its maximum. Other bars stay as they are.
+ * Active bar = first bar that still has HP.
+ */
+export function toggleScarOnHealthBar(
+  bars: HealthBar[],
+  index: number,
+): { bars: HealthBar[]; currentBar: number; scarred: boolean } {
+  const next = (Array.isArray(bars) ? bars : []).map((bar) => ({ ...bar }));
+  const i = Math.floor(Number(index) || 0);
+  const bar = next[i];
+  if (!bar) {
+    const active = next.findIndex((row) => Math.floor(Number(row?.current) || 0) > 0);
+    return { bars: next, currentBar: active >= 0 ? active : 0, scarred: false };
+  }
+  const max = Math.max(0, Math.floor(Number(bar.max) || 0));
+  const current = Math.max(0, Math.floor(Number(bar.current) || 0));
+  const wasScarred = max > 0 && current <= 0;
+  bar.current = wasScarred ? max : 0;
+  (bar as HealthBar & { scarred?: boolean }).scarred = max > 0 && bar.current <= 0;
+  const active = next.findIndex((row) => {
+    const rowMax = Math.max(0, Math.floor(Number(row?.max) || 0));
+    const rowCur = Math.max(0, Math.floor(Number(row?.current) || 0));
+    return rowMax > 0 && rowCur > 0;
+  });
+  return {
+    bars: next,
+    currentBar: active >= 0 ? active : Math.max(0, next.length - 1),
+    scarred: max > 0 && bar.current <= 0,
+  };
+}
+
+/**
  * Calculate Stress Bar maximum.
  * Each bar = 2 × (Resolve + Intellect) (DF Core v0.9.9.0).
  */

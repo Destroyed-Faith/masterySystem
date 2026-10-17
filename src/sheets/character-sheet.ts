@@ -1659,10 +1659,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       };
     }
 
+    context.healthFallback = {
+      show: false,
+      healing: { show: false, canUse: false, detail: '' },
+      restoration: { show: false, canUse: false, remaining: 0, poolMax: 0 },
+    };
     try {
       const { getRegenerationState, syncRegenerationDayBoundary } = await import(
         '../combat/passive-regeneration.js'
       );
+      const { countScarredHealthBars } = await import('../stones/remove-scar.js');
+      const { isIncapacitated } = await import('../combat/death-check.js');
+      const {
+        describePendingHealing,
+        isResolveHealingPendingLive,
+        pendingHealingRound,
+      } = await import('../stones/resolve-healing-pending.js');
+      const { readActorResolveHealingPending } = await import('../stones/stone-resolution-ui.js');
       await syncRegenerationDayBoundary(this.actor);
       const regen = getRegenerationState(this.actor);
       context.regenerationPassive = {
@@ -1670,6 +1683,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         remaining: regen.remaining,
         poolMax: regen.poolMax,
         title: `Passive: Restoration — ${regen.remaining}/${regen.poolMax} Scarred Bars left today (Tyhran Day)`,
+      };
+      const canAct = !!(this.actor as any).isOwner || !!(game as any).user?.isGM;
+      const scarredNow = countScarredHealthBars(this.actor);
+      const blocked = isIncapacitated(this.actor);
+      const combat = (game as any).combat;
+      const combatRef = combat?.id ? { id: String(combat.id), round: Number(combat.round) || 0 } : null;
+      const pending = readActorResolveHealingPending(this.actor);
+      let healDetail = '';
+      let healCanUse = false;
+      let healShow = false;
+      if (pending && isResolveHealingPendingLive(pending, combatRef)) {
+        healShow = true;
+        healCanUse = canAct;
+        healDetail = describePendingHealing(pending.rank);
+      } else if (
+        pending?.spent &&
+        combatRef &&
+        pending.combatId === combatRef.id &&
+        pending.round === pendingHealingRound(combatRef)
+      ) {
+        healShow = true;
+        healDetail = 'used this Round';
+      }
+      const restorationShow = regen.level > 0 && regen.poolMax > 0;
+      context.healthFallback = {
+        show: healShow || restorationShow,
+        healing: { show: healShow, canUse: healCanUse, detail: healDetail },
+        restoration: {
+          show: restorationShow,
+          canUse: canAct && regen.remaining > 0 && scarredNow > 0 && !blocked,
+          remaining: regen.remaining,
+          poolMax: regen.poolMax,
+        },
       };
     } catch {
       context.regenerationPassive = { show: false, remaining: 0, poolMax: 0, title: '' };
@@ -2717,7 +2763,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     bindReliableControlClick(html, '.skill-roll, .skill-roll-compact', this.#onSkillRoll.bind(this));
     bindReliableControlClick(html, '.safe-haven-rest', this.#onSafeHavenRest.bind(this));
     bindReliableControlClick(html, '.passive-regeneration-activate', this.#onPassiveRegeneration.bind(this));
+    bindReliableControlClick(html, '.health-fallback-restoration', this.#onPassiveRegeneration.bind(this));
+    bindReliableControlClick(html, '.health-fallback-heal', this.#onSheetResolveHealing.bind(this));
     bindReliableControlClick(html, '.gm-restore-health-bar', this.#onGmRestoreHealthBar.bind(this));
+    bindReliableControlClick(html, '.gm-toggle-scar-health-bar', this.#onGmToggleScarHealthBar.bind(this));
     bindReliableControlClick(html, '.gm-restore-stress-bar', this.#onGmRestoreStressBar.bind(this));
     bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
     bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
@@ -5362,6 +5411,71 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
+   * GM: one bar only. HP present → Scarred (0). Already Scarred → filled to max.
+   */
+  async #onGmToggleScarHealthBar(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can scar or restore a single health bar.');
+      return;
+    }
+    const btn = event.currentTarget as HTMLElement;
+    const index = Math.floor(Number(btn?.dataset?.barIndex));
+    if (!Number.isFinite(index) || index < 0) return;
+    const system = (this.actor as any).system;
+    const rawBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
+    if (!rawBars.length) return;
+    const { toggleScarOnHealthBar } = await import('../utils/calculations.js');
+    const toggled = toggleScarOnHealthBar(rawBars, index);
+    await this.actor.update(
+      {
+        'system.health.bars': toggled.bars,
+        'system.health.currentBar': toggled.currentBar,
+      },
+      { render: false },
+    );
+    try {
+      const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
+      await syncNpcDefeatedPresentationAfterHpChange(this.actor);
+    } catch (downErr) {
+      console.warn('Mastery System | defeated token presentation failed', downErr);
+    }
+    const name = String(toggled.bars[index]?.name ?? `Bar ${index + 1}`);
+    (ui as any).notifications?.info?.(
+      toggled.scarred ? `${name} is Scarred.` : `${name} is filled again.`,
+    );
+    await this.render();
+  }
+
+  /** Sheet fallback for prepared Resolve Healing (same trigger as the Healing bar). */
+  async #onSheetResolveHealing(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const user = (game as any).user;
+    if (!this.actor.isOwner && !user?.isGM) {
+      (ui as any).notifications?.warn('Only the owner can use Healing.');
+      return;
+    }
+    const combat = (game as any).combat;
+    const bag = combat?.combatants;
+    const rows: any[] = [];
+    if (bag) {
+      if (typeof bag[Symbol.iterator] === 'function') rows.push(...bag);
+      else if (Array.isArray(bag.contents)) rows.push(...bag.contents);
+    }
+    const actorId = String((this.actor as any).id || '');
+    const combatant =
+      rows.find((row) => String(row?.actor?.id || row?.actorId || '') === actorId) ?? { id: '', actor: this.actor };
+    const { usePendingResolveHealing } = await import('../stones/stone-resolution-ui.js');
+    const result = await usePendingResolveHealing(this.actor, combatant);
+    if (!result.ok && result.reason === 'expired') {
+      (ui as any).notifications?.warn('Prepared Healing expired with the Round.');
+    }
+    await this.render();
+  }
+
+  /**
    * GM: restore this stress bar and all more-severe bars below it
    * (e.g. Stressed → also Not Well…Breaking). Same cascade as HP restore.
    */
@@ -5428,7 +5542,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /** R-05 Passive: Restoration — restore own Scarred Bars from the daily pool. */
   async #onPassiveRegeneration(event: JQuery.ClickEvent) {
     event.preventDefault();
-    if (!this.actor.isOwner) {
+    if (!this.actor.isOwner && !(game as any).user?.isGM) {
       (ui as any).notifications?.warn('Only the owner can use Passive: Restoration.');
       return;
     }

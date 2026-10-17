@@ -88,6 +88,16 @@ export declare function healDamage(bars: HealthBar[], currentBar: number, healin
  */
 export declare function restoreHealthBarsFrom(bars: HealthBar[], fromIndex: number): number;
 /**
+ * GM toggle for one Health Bar. A bar with HP becomes Scarred (current 0).
+ * A Scarred bar (current 0) is filled to its maximum. Other bars stay as they are.
+ * Active bar = first bar that still has HP.
+ */
+export declare function toggleScarOnHealthBar(bars: HealthBar[], index: number): {
+    bars: HealthBar[];
+    currentBar: number;
+    scarred: boolean;
+};
+/**
  * Calculate Stress Bar maximum.
  * Each bar = 2 × (Resolve + Intellect) (DF Core v0.9.9.0).
  */
