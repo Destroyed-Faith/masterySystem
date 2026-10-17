@@ -126,6 +126,16 @@ const handleKnownNpcsMenu = onceAtATime(async () => {
         ui.notifications?.error('Important NPCs menu failed - see console');
     }
 });
+const handleHealingBar = onceAtATime(async () => {
+    try {
+        const { showHealingBarFromMenu } = await import('./healing-bar.js');
+        await showHealingBarFromMenu();
+    }
+    catch (err) {
+        console.error('Mastery System | [ERROR] Healing bar failed', err);
+        ui.notifications?.error('Healing bar failed - see console');
+    }
+});
 const handleMinorExpressionsBar = onceAtATime(async () => {
     try {
         const { showMinorExpressionsBarFromMenu } = await import('./minor-expressions-bar.js');
@@ -144,6 +154,7 @@ const MASTERY_TOOL_HANDLERS = {
     knownNpcsMenu: handleKnownNpcsMenu,
     firstAid: handleFirstAid,
     minorExpressionsBar: handleMinorExpressionsBar,
+    healingBar: handleHealingBar,
 };
 function bindMasteryToolClicks() {
     const sceneControls = document.querySelector('#scene-controls');
@@ -243,6 +254,14 @@ export function initializeSceneControls() {
                     visible: true,
                     button: true,
                     onClick: handleMinorExpressionsBar,
+                },
+                {
+                    name: 'healingBar',
+                    title: 'Healing',
+                    icon: 'fas fa-heart-pulse',
+                    visible: true,
+                    button: true,
+                    onClick: handleHealingBar,
                 },
             ],
             activeTool: '',

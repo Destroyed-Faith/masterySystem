@@ -107,6 +107,12 @@ export declare function stressHealingRankProfile(tier: number): {
 export declare function isLegalStoneTarget(candidate: StoneTargetCandidate, rangeM: number): boolean;
 export declare function legalStoneTargets(candidates: readonly StoneTargetCandidate[], rangeM: number): StoneTargetCandidate[];
 export declare function hpRestoredFromRoll(current: number, max: number, rolled: number): number;
+/**
+ * Bar Resolve Healing may fill. A stored index that still has HP is that bar.
+ * An index at 0 is Scarred — skip it and use the first bar that still has HP.
+ * Returns -1 when every bar is empty (nothing for Healing to restore).
+ */
+export declare function healingTargetBarIndex(bars: readonly StoneBar[], storedIndex: number): number;
 export declare function applyHealingToCurrentBar(health: HealthSnapshot, rolled: number): {
     bars: StoneBar[];
     currentBar: number;

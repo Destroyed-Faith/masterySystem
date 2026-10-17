@@ -1,0 +1,34 @@
+<div class="known-npcs healing-panel {{#if collapsed}}is-collapsed{{/if}}">
+  <div class="known-npcs-chrome">
+    <button type="button" class="known-npcs-handle" title="{{dragLabel}}" aria-label="{{dragLabel}}">
+      <i class="fas fa-grip-vertical"></i>
+    </button>
+    <button type="button" class="known-npcs-toggle" data-action="toggle" title="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}" aria-label="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}">
+      <i class="fas fa-heart-pulse"></i>
+      <span>{{title}}</span>
+      <span class="healing-bar-budget" title="{{handleLabel}}">{{handleLabel}}</span>
+      <i class="fas {{#if collapsed}}fa-chevron-right{{else}}fa-chevron-left{{/if}}"></i>
+    </button>
+  </div>
+  {{#unless collapsed}}
+  <div class="known-npcs-list healing-bar-list">
+    <div class="healing-bar-actor">{{actorName}}</div>
+    <div class="healing-bar-row">
+      <div class="healing-bar-copy">
+        <span class="healing-bar-name">Resolve Healing</span>
+        <span class="healing-bar-detail">{{resolveDetail}}</span>
+      </div>
+      <button type="button" class="healing-bar-use" data-action="useHeal" {{#unless resolveCanUse}}disabled{{/unless}} title="{{useHealLabel}}" aria-label="{{useHealLabel}}">Use</button>
+    </div>
+    {{#if restorationVisible}}
+    <div class="healing-bar-row">
+      <div class="healing-bar-copy">
+        <span class="healing-bar-name">Passive: Restoration</span>
+        <span class="healing-bar-detail">{{restorationDetail}}</span>
+      </div>
+      <button type="button" class="healing-bar-use" data-action="useRestoration" {{#unless restorationCanUse}}disabled{{/unless}} title="{{useRestorationLabel}}" aria-label="{{useRestorationLabel}}">Use</button>
+    </div>
+    {{/if}}
+  </div>
+  {{/unless}}
+</div>

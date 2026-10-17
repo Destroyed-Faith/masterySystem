@@ -11,9 +11,9 @@ import { getActionEconomyActor } from '../combat/action-economy.js';
 import {
   RESOLVE_HEALING_PENDING_FLAG,
   armResolveHealingPending,
+  describePendingHealing,
   isResolveHealingPendingExpired,
   isResolveHealingPendingLive,
-  pendingHealingChatContent,
   pendingHealingLegalTargetIds,
   pendingHealingRound,
   readResolveHealingPending,
@@ -227,17 +227,12 @@ async function presentHealing(source: any, combatant: any, tier: number): Promis
   const pending = armResolveHealingPending(existing, String(combat.id), round, tier);
   await writeResolveHealingPending(source, pending);
   try {
-    await postStonePowerChat(
-      pendingHealingChatContent({
-        sourceName: String(source?.name || 'Someone'),
-        rank: pending.rank,
-        round,
-        actorId: String(combatant?.id || ''),
-      }),
-      { combatantId: String(combatant?.id || ''), round },
+    (globalThis as any).Hooks?.callAll?.('masteryHealingBarRefresh');
+    (globalThis as any).ui?.notifications?.info?.(
+      `Healing prepared (${describePendingHealing(pending.rank)}). Use it from the Healing bar.`,
     );
   } catch {
-    /* the flag is already written; chat is only a convenience */
+    /* the flag is already written */
   }
   return true;
 }

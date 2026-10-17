@@ -8,7 +8,7 @@
  */
 
 import { STONE_POWERS, resolveStonePowerId, scaleStoneTier } from './stone-powers.js';
-import { healDamage, healStressFromBars } from '../utils/calculations.js';
+import { healStressFromBars } from '../utils/calculations.js';
 
 export interface StoneBar {
   current: number;
@@ -315,17 +315,39 @@ export function hpRestoredFromRoll(current: number, max: number, rolled: number)
   return Math.max(0, Math.min(roll, cap - cur));
 }
 
+function barStillHasHp(bar: StoneBar | undefined): boolean {
+  const max = Math.max(0, Math.floor(Number(bar?.max) || 0));
+  const current = Math.max(0, Math.floor(Number(bar?.current) || 0));
+  return max > 0 && current > 0;
+}
+
+/**
+ * Bar Resolve Healing may fill. A stored index that still has HP is that bar.
+ * An index at 0 is Scarred — skip it and use the first bar that still has HP.
+ * Returns -1 when every bar is empty (nothing for Healing to restore).
+ */
+export function healingTargetBarIndex(bars: readonly StoneBar[], storedIndex: number): number {
+  const stored = Math.max(0, Math.min(Math.max(0, bars.length - 1), Math.floor(Number(storedIndex) || 0)));
+  if (barStillHasHp(bars[stored])) return stored;
+  return bars.findIndex((bar) => barStillHasHp(bar));
+}
+
 export function applyHealingToCurrentBar(
   health: HealthSnapshot,
   rolled: number,
 ): { bars: StoneBar[]; currentBar: number; restored: number; rolled: number } {
   const bars = (health.bars || []).map((bar) => readStoneBar(bar));
-  const currentBar = Math.max(0, Math.min(bars.length - 1, Math.floor(Number(health.currentBar) || 0)));
-  const before = bars[currentBar] ? Math.floor(Number(bars[currentBar].current) || 0) : 0;
+  const stored = Math.max(0, Math.min(Math.max(0, bars.length - 1), Math.floor(Number(health.currentBar) || 0)));
   const roll = Math.max(0, Math.floor(Number(rolled) || 0));
-  if (bars[currentBar]) healDamage(bars as any, currentBar, roll);
-  const restored = bars[currentBar] ? Math.floor(Number(bars[currentBar].current) || 0) - before : 0;
-  return { bars, currentBar, restored: Math.max(0, restored), rolled: roll };
+  const active = healingTargetBarIndex(bars, stored);
+  if (active < 0 || !bars[active]) {
+    return { bars, currentBar: stored, restored: 0, rolled: roll };
+  }
+  const before = Math.floor(Number(bars[active].current) || 0);
+  const max = Math.max(0, Math.floor(Number(bars[active].max) || 0));
+  const add = Math.min(Math.max(0, max - before), roll);
+  bars[active].current = before + add;
+  return { bars, currentBar: active, restored: add, rolled: roll };
 }
 
 export function stressRestoredFromBars(before: readonly StoneBar[], after: readonly StoneBar[]): number {

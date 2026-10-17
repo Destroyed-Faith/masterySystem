@@ -7,7 +7,7 @@ import { distanceBetweenActorsMeters } from '../combat/reaction-eligibility.js';
 import { STONE_POWERS, resolveStonePowerId } from './stone-powers.js';
 import { listSelectablePlayerActors } from './ally-stone-target.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
-import { RESOLVE_HEALING_PENDING_FLAG, armResolveHealingPending, isResolveHealingPendingExpired, isResolveHealingPendingLive, pendingHealingChatContent, pendingHealingLegalTargetIds, pendingHealingRound, readResolveHealingPending, triggerResolveHealing, } from './resolve-healing-pending.js';
+import { RESOLVE_HEALING_PENDING_FLAG, armResolveHealingPending, describePendingHealing, isResolveHealingPendingExpired, isResolveHealingPendingLive, pendingHealingLegalTargetIds, pendingHealingRound, readResolveHealingPending, triggerResolveHealing, } from './resolve-healing-pending.js';
 import { healingRankProfile, readHealthSnapshot, resolveHealthActor, resolveStressHealingSelection, stressHealingRankProfile, } from './stone-resolution.js';
 function escapeAttr(value) {
     return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -191,15 +191,11 @@ async function presentHealing(source, combatant, tier) {
     const pending = armResolveHealingPending(existing, String(combat.id), round, tier);
     await writeResolveHealingPending(source, pending);
     try {
-        await postStonePowerChat(pendingHealingChatContent({
-            sourceName: String(source?.name || 'Someone'),
-            rank: pending.rank,
-            round,
-            actorId: String(combatant?.id || ''),
-        }), { combatantId: String(combatant?.id || ''), round });
+        globalThis.Hooks?.callAll?.('masteryHealingBarRefresh');
+        globalThis.ui?.notifications?.info?.(`Healing prepared (${describePendingHealing(pending.rank)}). Use it from the Healing bar.`);
     }
     catch {
-        /* the flag is already written; chat is only a convenience */
+        /* the flag is already written */
     }
     return true;
 }

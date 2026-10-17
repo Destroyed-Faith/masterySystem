@@ -390,8 +390,18 @@ export function applyHealHpAcrossOpenBars(health, rolled) {
     let restored = 0;
     let currentBar = Math.max(0, Math.min(Math.max(0, bars.length - 1), Math.floor(Number(health?.currentBar) || 0)));
     const nameOf = (i) => String(bars[i]?.name || '').toLowerCase();
+    const barHasHp = (b) => {
+        const max = Math.max(0, Math.floor(Number(b?.max) || 0));
+        const cur = Math.max(0, Math.floor(Number(b?.current) || 0));
+        return max > 0 && cur > 0;
+    };
+    if (!barHasHp(bars[currentBar])) {
+        const open = bars.findIndex(barHasHp);
+        if (open >= 0)
+            currentBar = open;
+    }
     const incapacitated = nameOf(currentBar).includes('incapacitat') || currentBar >= 5;
-    if (incapacitated && remaining > 0) {
+    if (!barHasHp(bars[currentBar]) && incapacitated && remaining > 0) {
         const named = bars.findIndex((b) => String(b?.name || '').toLowerCase().includes('broken'));
         currentBar = named >= 0 ? named : Math.min(4, bars.length - 1);
     }

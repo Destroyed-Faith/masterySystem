@@ -44,6 +44,8 @@ import { registerKnownNpcSettings } from './system/known-npcs.js';
 import { initializeKnownNpcsBar } from './ui/known-npcs-bar.js';
 import { registerMinorExpressionsBarSettings } from './system/minor-expressions-bar.js';
 import { initializeMinorExpressionsBar } from './ui/minor-expressions-bar.js';
+import { registerHealingBarSettings } from './system/healing-bar.js';
+import { initializeHealingBar } from './ui/healing-bar.js';
 import { initializeSpecialTokenArea, registerSpecialTokenAreaSettings } from './ui/special-token-area.js';
 import { registerCarouselClientSettings } from './ui/combat-carousel-settings.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
@@ -132,6 +134,7 @@ function registerAllMasteryInitSettings() {
     registerUnluckSettings();
     registerKnownNpcSettings();
     registerMinorExpressionsBarSettings();
+    registerHealingBarSettings();
     registerSpecialTokenAreaSettings();
     registerCarouselClientSettings();
 }
@@ -249,6 +252,7 @@ Hooks.once('init', async function () {
     initializeHitBlockerProbe();
     initializeKnownNpcsBar();
     initializeMinorExpressionsBar();
+    initializeHealingBar();
     initializeSpecialTokenArea();
     // GM-only "Encounter erzeugen" button in the Actors directory header.
     Hooks.on('renderActorDirectory', (_app, html) => {
@@ -2256,6 +2260,7 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/ui/known-npcs-bar.hbs',
         'systems/mastery-system/templates/ui/known-npcs-gm-dialog.hbs',
         'systems/mastery-system/templates/ui/minor-expressions-bar.hbs',
+        'systems/mastery-system/templates/ui/healing-bar.hbs',
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);

@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.717] - 2026-10-17
+
+### Added
+
+- **Healing bar:** Collapsible grip (same chrome as Minor Expressions). Shows prepared Resolve Healing for this Round and the Passive: Restoration daily pool (`Rest 1/2`). **Use** triggers the heal or restores one own Scarred Bar. Scene-control tool **Healing** reopens it.
+
+### Fixed
+
+- **Resolve Healing:** Fills only the open Health Bar (the one that still has HP). A bar at 0 stays Scarred.
+
+### Changed
+
+- **Resolve Healing:** Preparing it no longer posts a "Use Healing now" chat card. The roll result still goes to chat.
+
 ## [0.9.716] - 2026-10-17
 
 ### Fixed

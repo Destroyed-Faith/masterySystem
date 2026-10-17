@@ -401,10 +401,32 @@ describe('Stone resolution — queue identity', () => {
     expect(text).toContain('21');
     expect(text).toContain('12 HP restored');
     const full = applyHealingToCurrentBar(
-      { bars: [{ current: 0, max: 30 }], currentBar: 0 },
+      { bars: [{ current: 9, max: 30 }], currentBar: 0 },
       21,
     );
     expect(full.restored).toBe(21);
+    const scarred = applyHealingToCurrentBar(
+      {
+        bars: [
+          { name: 'Healthy', current: 0, max: 20 },
+          { name: 'Bruised', current: 0, max: 20 },
+          { name: 'Wounded', current: 4, max: 20 },
+        ],
+        currentBar: 0,
+      },
+      40,
+    );
+    expect(scarred.bars[0].current).toBe(0);
+    expect(scarred.bars[1].current).toBe(0);
+    expect(scarred.bars[2].current).toBe(20);
+    expect(scarred.restored).toBe(16);
+    expect(scarred.currentBar).toBe(2);
+    const noOpen = applyHealingToCurrentBar(
+      { bars: [{ current: 0, max: 30 }], currentBar: 0 },
+      21,
+    );
+    expect(noOpen.restored).toBe(0);
+    expect(noOpen.bars[0].current).toBe(0);
     expect(stressHealingChatContent({
       sourceName: 'Caster',
       targetName: 'Ally',
