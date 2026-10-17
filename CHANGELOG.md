@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.701] - 2026-10-17
+
+### Changed
+
+- **R-01 Damage Negation:** Half-Pool-Limit entfernt — Negation bis `min(verfügbare Punkte, eingehende Damage Dice)`, volle Pool-Negation erlaubt.
+- **R-02 Maximization:** Vitality Stone Ability umbenannt (ID `vitality.damageMaximization` bleibt); gemeinsamer Vorrat für Damage- und Healing-Rolls.
+- **R-03 Threatened Spellcasting:** Jeder Spell Casting Roll erhält Disadvantage innerhalb gegnerischer Melee Reach (gleicher Threat-Scan wie Threatened Ranged).
+- **Critical UI:** Checkbox durch **Roll** / **Roll with Crit** ersetzt; Quellenwahl bei mehreren Crit-Quellen.
+- **Fear P1.4:** Runtime Fear (Resolve k1, TN 8/12), Pool-Reduktion vor Health-Penalties, Reset nur bei Safe Haven Rest.
+- **Legacy Stress:** Mechanische Stress-Pfade deaktiviert (UI versteckt; gespeicherte Daten bleiben ladbar).
+- **Restoration Labels:** Melee/Ranged Scarred Bar Restoration; klarere Targeting-Fehler.
+- **NPC Skills:** Pool-Vorschau neben allen Skill-Feldern inkl. Live-Update.
+
+### Fixed
+
+- Cleanse-Chat-Zeilen kompakter (`[−] Name | cur → new [+]`).
+- Natural Special Recovery: „Skip Natural Recovery“ statt „None“.
+- Damage-Negation-Dialog ohne Half-Pool-Texte.
+
+### Docs
+
+- `DESTROYED_FAITH_PENDING_RULE_CHANGES.md` (R-01–R-03 noch nicht in offiziellen Regelwerken).
+- `DESTROYED_FAITH_V0.9.9.5_CANVAS_TEST_FIXES.md`.
+
 ## [0.9.700] - 2026-10-17
 
 ### Changed

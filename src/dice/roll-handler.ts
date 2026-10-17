@@ -60,6 +60,8 @@ export interface RollOptions {
    * Mastery Rank. Zero dice fails. Keep cannot exceed the dice that remain.
    */
   applyPoolPenalties?: boolean;
+  /** Override Fear pool reduction in `finalizeRolledPool` (default: inferred). */
+  applyFear?: boolean;
   /**
    * Resolved actor instance for the pool-finalize stage. Needed for
    * unlinked-token (synthetic) actors whose id is not in `game.actors`.
@@ -530,6 +532,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
           checkContext: options.checkContext,
           autoFailIntent: options.autoFailIntent,
           applyPoolPenalties: !!options.applyPoolPenalties,
+          ...(options.applyFear !== undefined ? { applyFear: options.applyFear } : {}),
         });
         numDice = finalized.numDice;
         if (numDice <= 0) {

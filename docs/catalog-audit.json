@@ -1,6 +1,6 @@
 {
-  "version": "0.9.700",
-  "generatedAt": "2026-10-17T06:16:16.635Z",
+  "version": "0.9.701",
+  "generatedAt": "2026-10-17T07:30:28.563Z",
   "summary": {
     "correct": 190,
     "corrected": 3,
@@ -145,7 +145,7 @@
     {
       "category": "active",
       "id": "active-melee-health-level-heal",
-      "name": "Melee Health Level Heal",
+      "name": "Melee Scarred Bar Restoration",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -369,7 +369,7 @@
     {
       "category": "active",
       "id": "active-ranged-health-level-heal",
-      "name": "Ranged Health Level Heal",
+      "name": "Ranged Scarred Bar Restoration",
       "status": "correct",
       "notes": "Matches Rules entry"
     },

@@ -82,6 +82,10 @@ describe('Actor Data Model - template.json', () => {
       // maximum is dynamic (equal to the character's Disadvantage Points).
       expect(combatant.faithFractures.maximum).toBe(8);
     });
+
+    it('starts at Fear 0', () => {
+      expect(combatant.fear).toBe(0);
+    });
   });
 
   describe('Character Stone Pools', () => {

@@ -140,6 +140,8 @@ export function resolveCriticalAttackModifier(opts: {
   specialCritCharges?: number;
   /** Player checked Crit on this roll. Without it, no charge is spent. */
   declared?: boolean;
+  /** When multiple sources exist, prefer this one if it still has charges. */
+  preferredSource?: CriticalSource | null;
 }): CriticalAttackModifier {
   const criticalX = Math.max(0, Math.floor(Number(opts.activeBuffCriticalX) || 0));
   const buffRemaining = Math.max(0, Math.floor(Number(opts.buffQuotaRemaining) || 0));
@@ -147,12 +149,17 @@ export function resolveCriticalAttackModifier(opts: {
   const special = Math.max(0, Math.floor(Number(opts.specialCritCharges) || 0));
 
   const sources: CriticalSource[] = [];
-  if (buffRemaining > 0 || criticalX > 0) sources.push('active-buff');
+  if (buffRemaining > 0) sources.push('active-buff');
+  else if (criticalX > 0) sources.push('active-buff');
   if (stone > 0) sources.push('stone-crit');
   if (special > 0) sources.push('special-crit');
 
   let consumeFrom: CriticalSource | null = null;
-  if (buffRemaining > 0) consumeFrom = 'active-buff';
+  const pref = opts.preferredSource;
+  if (pref === 'active-buff' && buffRemaining > 0) consumeFrom = 'active-buff';
+  else if (pref === 'stone-crit' && stone > 0) consumeFrom = 'stone-crit';
+  else if (pref === 'special-crit' && special > 0) consumeFrom = 'special-crit';
+  else if (buffRemaining > 0) consumeFrom = 'active-buff';
   else if (stone > 0) consumeFrom = 'stone-crit';
   else if (special > 0) consumeFrom = 'special-crit';
 
@@ -169,8 +176,28 @@ export function resolveCriticalAttackModifier(opts: {
     explodeFaces: CRITICAL_ATTACK_EXPLODE_FACES,
     damageDiceExplode: CRITICAL_DAMAGE_DICE_EXPLODE,
     consumeFrom,
-    sources,
+    sources: [
+      ...(buffRemaining > 0 ? (['active-buff'] as CriticalSource[]) : []),
+      ...(stone > 0 ? (['stone-crit'] as CriticalSource[]) : []),
+      ...(special > 0 ? (['special-crit'] as CriticalSource[]) : []),
+    ],
   };
+}
+
+/** Available Crit charge pools for UI (Roll vs Roll with Crit). */
+export function listAvailableCriticalSources(opts: {
+  buffQuotaRemaining?: number;
+  stoneCritCharges?: number;
+  specialCritCharges?: number;
+}): Array<{ source: CriticalSource; remaining: number; label: string }> {
+  const out: Array<{ source: CriticalSource; remaining: number; label: string }> = [];
+  const buff = Math.max(0, Math.floor(Number(opts.buffQuotaRemaining) || 0));
+  const stone = Math.max(0, Math.floor(Number(opts.stoneCritCharges) || 0));
+  const special = Math.max(0, Math.floor(Number(opts.specialCritCharges) || 0));
+  if (buff > 0) out.push({ source: 'active-buff', remaining: buff, label: `Active Buff Critical (${buff})` });
+  if (stone > 0) out.push({ source: 'stone-crit', remaining: stone, label: `Agility Stone Crit (${stone})` });
+  if (special > 0) out.push({ source: 'special-crit', remaining: special, label: `Special Crit (${special})` });
+  return out;
 }
 
 /** Format for UI / chat — always Critical(X). */

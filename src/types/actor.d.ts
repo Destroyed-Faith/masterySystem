@@ -304,6 +304,8 @@ export interface CharacterData {
     currentBar: number;
   };
   combat: CombatData;
+  /** Accumulated Fear — flat dice removed from attribute pools until Safe Haven Rest. */
+  fear?: number;
   combatSenses?: CombatSensesData;
   resources: ResourcesData;
   skills: Record<string, number>;
@@ -549,6 +551,7 @@ export interface NpcData {
     tempHP: number;
   };
   combat: CombatData;
+  fear?: number;
   combatSenses?: CombatSensesData;
   resources: ResourcesData;
   skills: Record<string, number>;

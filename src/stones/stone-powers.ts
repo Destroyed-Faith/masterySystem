@@ -705,32 +705,33 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
     },
   },
   {
+    // Technical id kept for saved characters / Hunter's Scourge (R-02 rename).
     id: 'vitality.damageMaximization',
-    name: 'Damage Maximization',
+    name: 'Maximization',
     attribute: 'vitality',
     category: 'action',
     oncePerCombat: true,
     description:
-      'Once per combat, at the first Preparation Phase, the next 1/2/3/4 complete Damage Rolls you declare are maximized (every die is 8). Forced 8s are not natural 8s and do not explode. Cannot be activated again this combat.',
+      'Once per combat, at the first Preparation Phase, gain 1/2/3/4 Maximizations shared between complete Damage Rolls and Healing Rolls (every die is 8). Forced 8s are not natural 8s and do not explode. Cannot be activated again this combat.',
     tiers: [
-      { label: '1 Damage Roll', description: 'Maximize 1 complete Damage Roll this combat.', value: 1 },
-      { label: '2 Damage Rolls', description: 'Maximize 2 complete Damage Rolls this combat.', value: 2 },
-      { label: '3 Damage Rolls', description: 'Maximize 3 complete Damage Rolls this combat.', value: 3 },
-      { label: '4 Damage Rolls', description: 'Maximize 4 complete Damage Rolls this combat.', value: 4 },
+      { label: '1 Maximization', description: 'Maximize 1 complete Damage or Healing Roll this combat.', value: 1 },
+      { label: '2 Maximizations', description: 'Maximize 2 complete Damage or Healing Rolls this combat.', value: 2 },
+      { label: '3 Maximizations', description: 'Maximize 3 complete Damage or Healing Rolls this combat.', value: 3 },
+      { label: '4 Maximizations', description: 'Maximize 4 complete Damage or Healing Rolls this combat.', value: 4 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       const combatId = String(combat?.id || '');
       const prior = (actor as any).getFlag?.('mastery-system', 'damageMaximization');
       if (prior?.used && (!combatId || prior.combatId === combatId)) {
-        ui.notifications?.warn(`${(actor as any).name}: Damage Maximization was already used this combat.`);
+        ui.notifications?.warn(`${(actor as any).name}: Maximization was already activated this combat.`);
         return;
       }
       const uses = scaleStoneTier([1, 2, 3, 4], tier);
       if (uses <= 0) return;
       const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
       if (combat?.started && round > 1) {
-        ui.notifications?.warn(`${(actor as any).name}: Damage Maximization can only be activated in the first Preparation Phase.`);
+        ui.notifications?.warn(`${(actor as any).name}: Maximization can only be activated in the first Preparation Phase.`);
         return;
       }
       await (actor as any).setFlag?.('mastery-system', 'damageMaximization', {

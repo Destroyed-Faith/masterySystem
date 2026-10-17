@@ -32,6 +32,7 @@ describe('buildSafeHavenRestUpdates', () => {
       statusEffects: [{ id: 'bleed' }],
     });
 
+    expect(updates['system.fear']).toBe(0);
     expect(updates['system.skillsSpent']).toMatchObject({ athletics: 0 });
     expect(updates['system.faithFractures.current']).toBe(3);
     expect(updates['system.faithFractures.maximum']).toBe(3);

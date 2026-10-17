@@ -74,6 +74,7 @@
           "current": 0,
           "maximum": 8
         },
+        "fear": 0,
         "resources": {
           "reactions": {
             "value": 1,

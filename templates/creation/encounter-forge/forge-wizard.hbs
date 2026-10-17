@@ -174,10 +174,12 @@
                   {{#each specialOptions}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
                 </select>
               </div>
+              {{#if false}}
               <label class="encounter-gen-field encounter-gen-field--checkbox">
                 <input type="checkbox" data-field="attack-stress" data-enemy="{{enemyId}}" data-attack="{{id}}" {{#if stress}}checked{{/if}}/>
                 +1d8 Stress
               </label>
+              {{/if}}
               {{#if canRemove}}
                 <button type="button" class="encounter-gen-btn" data-action="remove-attack" data-enemy="{{enemyId}}" data-attack="{{id}}"><i class="fas fa-trash"></i></button>
               {{/if}}

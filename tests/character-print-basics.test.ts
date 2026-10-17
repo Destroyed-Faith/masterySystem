@@ -258,7 +258,7 @@ describe('character print table sheet', () => {
       .map((p: any) => p.name)
       .sort();
     expect(onceNames).toEqual(
-      ['Colorless Recovery', 'Damage Maximization', 'Initiative Boost', 'Phasing', 'Temporary HP'].sort(),
+      ['Colorless Recovery', 'Maximization', 'Initiative Boost', 'Phasing', 'Temporary HP'].sort(),
     );
     expect(ctx.stoneDashboard.combatReflexes).toBeUndefined();
   });

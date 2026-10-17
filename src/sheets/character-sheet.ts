@@ -2631,6 +2631,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
     bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
     bindReliableControlClick(html, '.gm-reset-reroll-points', this.#onGmResetRerollPoints.bind(this));
+    bindReliableControlClick(html, '.gm-fear-check', this.#onGmFearCheck.bind(this));
     bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
     bindReliableControlClick(html, '.v099-open-respec', (ev: JQuery.TriggeredEvent) => {
       ev.preventDefault();
@@ -5320,6 +5321,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.activeTab = 'minor-magic';
     (ui as any).notifications?.info(SAFE_HAVEN_REST_INFO);
     this.render();
+  }
+
+  /** GM: Resolve k1 Fear Check (TN 8 or 12). */
+  async #onGmFearCheck(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can run Fear Checks.');
+      return;
+    }
+    const { promptGmFearCheck } = await import('../combat/fear.js');
+    await promptGmFearCheck(this.actor);
+    this.render(false);
   }
 
   /**

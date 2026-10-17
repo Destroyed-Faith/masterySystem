@@ -134,6 +134,7 @@ export function buildSafeHavenRestUpdates(
 
   const updates: Record<string, unknown> = {
     'system.skillsSpent': skillsSpent,
+    'system.fear': 0,
     ...echoUpdates,
   };
   if (faithMax > 0) {

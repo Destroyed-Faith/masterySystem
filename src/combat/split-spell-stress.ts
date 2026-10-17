@@ -1,16 +1,12 @@
 /**
- * Split Spell fizzle stress.
- * The caster takes 1d8 Stress only when none of the split Casting Rolls
- * reach Spell Base TN. A placement that reaches Base but misses Final Spell TN
- * is resisted, not fizzled.
+ * Split Spell fizzle stress (legacy — mechanical Stress retired).
+ * Tracking remains for callers; never applies Stress.
  */
 
 const pending = new Map<string, number[]>();
 
-export function splitSpellShouldStress(totals: number[], spellBaseTn: number): boolean {
-  if (!totals.length) return false;
-  const base = Math.floor(Number(spellBaseTn) || 0);
-  return totals.every((t) => Math.floor(Number(t) || 0) < base);
+export function splitSpellShouldStress(_totals: number[], _spellBaseTn: number): boolean {
+  return false;
 }
 
 /**
@@ -24,7 +20,7 @@ export function noteSplitSpellRoll(
   expected = 2,
 ): 'pending' | 'stress' | 'clear' {
   const id = String(pairId || '').trim();
-  if (!id) return splitSpellShouldStress([total], spellBaseTn) ? 'stress' : 'clear';
+  if (!id) return 'clear';
   const row = pending.get(id) ?? [];
   row.push(Math.floor(Number(total) || 0));
   if (row.length < expected) {
@@ -32,7 +28,7 @@ export function noteSplitSpellRoll(
     return 'pending';
   }
   pending.delete(id);
-  return splitSpellShouldStress(row, spellBaseTn) ? 'stress' : 'clear';
+  return 'clear';
 }
 
 /** Test hook. */

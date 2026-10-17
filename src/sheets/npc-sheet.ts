@@ -577,21 +577,24 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       const groups = buildNpcSkillGroups(context.system.skills);
       for (const group of groups) {
         for (const skill of group.skills) {
-          if (skill.key !== 'perception') continue;
+          const def = SKILLS[skill.key];
+          const attrKey = String(def?.attributes?.[0] || 'wits');
           try {
-            const preview = buildSkillRollPoolPreview(this.actor as any, 'perception', 'wits');
+            const preview = buildSkillRollPoolPreview(this.actor as any, skill.key, attrKey);
             (skill as any).poolPreview = preview.rollLabel;
             (skill as any).poolFull = preview.fullPoolReady;
             (skill as any).poolTooltip = preview.tooltip;
+            (skill as any).poolAttr = attrKey;
           } catch {
             (skill as any).poolPreview = '';
             (skill as any).poolFull = false;
             (skill as any).poolTooltip = '';
+            (skill as any).poolAttr = attrKey;
           }
         }
       }
       (context as any).npcSkillGroups = groups;
-      (context as any).npcSkillPoolHint = `Full attribute pool when skill rating ≥ 2×MR (${poolThreshold}). Perception checks use Wits. Set Wits + Perception together — rating alone does not add dice.`;
+      (context as any).npcSkillPoolHint = `Full attribute pool when skill rating ≥ 2×MR (${poolThreshold}). Below that: half attribute pool (floor). Keep = MR (capped by pool). Preview uses the skill's primary attribute.`;
     }
 
     if (isNpcLike && context.system) {
@@ -1055,6 +1058,32 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   }
 
   /** Sync Ini malus/bonus selects → hidden net field + summary (MR d8 ± N). */
+  /** Live-update the pool label next to a skill input (same math as getData). */
+  #refreshNpcSkillPoolPreview(html: JQuery, skillKey: string, skillRating: number): void {
+    const def = SKILLS[skillKey];
+    const attrKey = String(def?.attributes?.[0] || 'wits');
+    let preview: ReturnType<typeof buildSkillRollPoolPreview>;
+    try {
+      preview = buildSkillRollPoolPreview(this.actor as any, skillKey, attrKey, skillRating);
+    } catch {
+      return;
+    }
+    const field = html.find(`.npc-skill-field input[name="system.skills.${skillKey}"]`).closest('.npc-skill-field');
+    if (!field.length) return;
+    let poolEl = field.find('.npc-skill-field__pool');
+    if (!poolEl.length) {
+      poolEl = (globalThis as any).$(
+        `<span class="npc-skill-field__pool"></span>`,
+      );
+      field.find('.npc-skill-field__name').after(poolEl);
+    }
+    poolEl
+      .text(preview.rollLabel)
+      .attr('title', preview.tooltip)
+      .toggleClass('is-full', !!preview.fullPoolReady)
+      .toggleClass('is-half', !preview.fullPoolReady);
+  }
+
   #syncNpcIniChip(chip: HTMLElement): void {
     const malusEl = chip.querySelector('select.npc-ini-malus') as HTMLSelectElement | null;
     const bonusEl = chip.querySelector('select.npc-ini-bonus') as HTMLSelectElement | null;
@@ -1087,6 +1116,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       input.value = String(value);
       try {
         await this.actor.update({ [`system.skills.${key}`]: value });
+        this.#refreshNpcSkillPoolPreview(html, key, value);
       } catch (err) {
         console.warn('Mastery System | NPC skill update failed', key, err);
       }
@@ -1101,12 +1131,29 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       input.value = String(value);
       try {
         await this.actor.update({ [`system.attributes.${key}.value`]: value });
+        // Attribute change can unlock/half all skills that use it.
+        html.find('.npc-skill-field input[name^="system.skills."]').each((_, el) => {
+          const inp = el as HTMLInputElement;
+          const sm = /^system\.skills\.([^.]+)$/.exec(String(inp.name || ''));
+          if (!sm) return;
+          this.#refreshNpcSkillPoolPreview(html, sm[1]!, Math.max(0, Math.floor(Number(inp.value) || 0)));
+        });
       } catch (err) {
         console.warn('Mastery System | NPC attribute update failed', key, err);
       }
     });
 
     makeFoundryTooltipInert();
+
+    html.find('.gm-fear-check').on('click', async (ev) => {
+      ev.preventDefault();
+      if (!(game as any).user?.isGM) {
+        (ui as any).notifications?.warn('Only a GM can run Fear Checks.');
+        return;
+      }
+      const { promptGmFearCheck } = await import('../combat/fear.js');
+      await promptGmFearCheck(this.actor);
+    });
 
     html.find('[data-npc-ini-chip]').each((_, el) => {
       const chip = el as HTMLElement;

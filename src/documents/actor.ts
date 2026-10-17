@@ -199,6 +199,15 @@ export class MasteryActor extends Actor {
   prepareBaseData() {
     super.prepareBaseData();
     const system = (this as any).system;
+
+    const actorType = (this as any).type;
+    if (actorType === 'character' || actorType === 'npc' || actorType === 'summon') {
+      if (system.fear == null || !Number.isFinite(Number(system.fear))) {
+        system.fear = 0;
+      } else {
+        system.fear = Math.max(0, Math.floor(Number(system.fear)));
+      }
+    }
     
     // Calculate derived values if needed
     if (system.attributes) {
@@ -499,18 +508,13 @@ export class MasteryActor extends Actor {
           });
         }
 
-        // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
-        const resolve = system.attributes.resolve?.value || 2;
-        const intellect = system.attributes.intellect?.value || 2;
-        // Stress bar max = Resolve + Intellect + manual Stress Bonus per bar.
-        const maxStress = Math.max(1, calculateStressBarMax(resolve, intellect) + stressBarBonus);
-        
-        if (!system.stress) {
-          system.stress = {
-            bars: initializeStressBars(resolve, intellect),
-            currentBar: 0
-          };
-        } else {
+        // Legacy stress data: migrate in place only (mechanical Stress retired).
+        if (system.stress) {
+          const resolve = system.attributes.resolve?.value || 2;
+          const intellect = system.attributes.intellect?.value || 2;
+          // Stress bar max = Resolve + Intellect + manual Stress Bonus per bar.
+          const maxStress = Math.max(1, calculateStressBarMax(resolve, intellect) + stressBarBonus);
+
           // Ensure bars is an array (migrate from object if needed)
           if (!Array.isArray(system.stress.bars)) {
             // Convert object to array if needed
@@ -582,16 +586,16 @@ export class MasteryActor extends Actor {
           if (system.stress.currentBar === undefined || system.stress.currentBar === null) {
             system.stress.currentBar = 0;
           }
-        }
 
-        // Enforce the bonus-adjusted max Stress on every bar regardless of
-        // which init/migration branch ran above.
-        if (Array.isArray(system.stress?.bars)) {
-          for (const bar of system.stress.bars) {
-            if (bar.max !== maxStress) {
-              const ratio = bar.max > 0 ? bar.current / bar.max : 1;
-              bar.max = maxStress;
-              bar.current = Math.min(Math.floor(maxStress * ratio), maxStress);
+          // Enforce the bonus-adjusted max Stress on every bar regardless of
+          // which migration branch ran above.
+          if (Array.isArray(system.stress?.bars)) {
+            for (const bar of system.stress.bars) {
+              if (bar.max !== maxStress) {
+                const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                bar.max = maxStress;
+                bar.current = Math.min(Math.floor(maxStress * ratio), maxStress);
+              }
             }
           }
         }

@@ -1700,6 +1700,14 @@ function exposeMasterySystemApi(): void {
     refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
     openTowerWizard: showTowerWizardDialog,
     openEncounterGenerator: showEncounterForgeDialog,
+    runFearCheck: async (actor: any, tn?: number) => {
+      const { runFearCheck } = await import('./combat/fear.js');
+      return runFearCheck(actor, tn);
+    },
+    promptGmFearCheck: async (actor: any) => {
+      const { promptGmFearCheck } = await import('./combat/fear.js');
+      return promptGmFearCheck(actor);
+    },
     // Force-rebuild every template-backed Power's baked level table from the
     // current catalog templates (use after editing/auditing power templates).
     resyncPowers: () => runPowerTemplateResyncMigration({ force: true, notify: true }),
@@ -2697,22 +2705,9 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       }
     }
     
-    // Initialize stress bars for characters only
-    if (actor.type === 'character') {
-      if (!data.system.stress) {
-        const resolve = data.system.attributes?.resolve?.value || 2;
-        const intellect = data.system.attributes?.intellect?.value || 2;
-        const maxStress = 2 * (resolve + intellect);
-        data.system.stress = {
-          bars: [
-            { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 }
-          ],
-          currentBar: 0
-        };
-      } else {
+    // Legacy stress data: migrate only when present (mechanical Stress retired).
+    if (actor.type === 'character' && data.system.stress) {
+      {
         // Migrate old format if needed
         if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
           const resolve = data.system.attributes?.resolve?.value || 2;
@@ -3386,8 +3381,7 @@ Hooks.once('ready', async function() {
   const { registerReactionFollowupChatHandlers } = await import('./combat/reaction-followups.js');
   registerReactionFollowupChatHandlers();
 
-  const { registerStressBreakdownChatHandlers } = await import('./combat/stress-breakdown.js');
-  registerStressBreakdownChatHandlers();
+  // Mechanical Stress breakdown retired — chat handlers not registered.
 
   const { registerWorldArtifactFlagSyncSocket } = await import('./utils/world-artifact-flag-sync.js');
   registerWorldArtifactFlagSyncSocket();

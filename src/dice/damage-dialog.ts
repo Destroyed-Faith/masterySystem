@@ -1242,28 +1242,7 @@ export function attachDamageCardHandlers(messageId: string): void {
       },
       true,
     );
-    // NSC signature attacks: Nd8 Stress on hit (plain dice; Stress Armor
-    // mitigates inside applyStressToActor). Applies alongside the HP damage.
-    const stressDice = Math.max(0, Math.floor(Number(flags.npcStressD8) || 0));
-    if (stressDice > 0 && target && !result.mitigation?.phased) {
-      try {
-        const stressRoll = await new (globalThis as any).Roll(`${stressDice}d8`).evaluate({ async: true });
-        const stressTotal = Math.max(0, Math.floor(Number(stressRoll?.total) || 0));
-        const { applyStressToActor } = await import('../combat/spell-roll-handler.js');
-        await applyStressToActor(target, stressTotal);
-        result.rollDetails = [
-          ...(result.rollDetails ?? []),
-          `Stress: ${stressDice}d8 → ${stressTotal}`,
-        ];
-        await ChatMessage.create({
-          user: (game as any).user?.id,
-          speaker: ChatMessage.getSpeaker({ actor: attacker }),
-          content: `<p><i class="fas fa-brain"></i> <strong>${(target as any).name}</strong> erleidet <strong>${stressTotal} Stress</strong> (${stressDice}d8).</p>`,
-        } as any);
-      } catch (err) {
-        console.warn('Mastery System | NPC stress damage failed', err);
-      }
-    }
+    // Mechanical npcStressD8 / Stress on hit retired.
 
     completeDamageCard(messageId, result);
     rollDamageCompleted = true;
@@ -3016,13 +2995,13 @@ export async function calculateDamageResult(
   for (const note of negationNotes) rollDetails.push(note);
   activeDamageMaximized = false;
   try {
-    const { offerDamageMaximization } = await import('../stones/stone-combat-effects.js');
-    activeDamageMaximized = await offerDamageMaximization(attacker);
+    const { offerMaximization } = await import('../stones/stone-combat-effects.js');
+    activeDamageMaximized = await offerMaximization(attacker, 'damage');
   } catch (err) {
     console.debug?.('Mastery System | Damage Maximization prompt skipped', err);
   }
   if (activeDamageMaximized) {
-    rollDetails.push('Damage Maximization: every d8 is 8 (not a natural 8, does not explode)');
+    rollDetails.push('Maximization: every d8 is 8 (not a natural 8, does not explode)');
   }
 
   const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');

@@ -80,6 +80,19 @@
           {{/if}}
         </div>
       </div>
+      <div class="points-box points-box-fear" title="Fear — removes 1 die per point from attribute pools until Safe Haven Rest">
+        <label>Fear</label>
+        <div class="points-display fear-display">
+          {{#if (userIsGM)}}
+          <input type="number" class="fear-value-input" name="system.fear" value="{{default system.fear 0}}" min="0" step="1" data-dtype="Number" title="GM: Fear level"/>
+          <button type="button" class="gm-fear-check" title="Fear Check (Resolve k1, TN 8 or 12)" aria-label="Fear Check">
+            <i class="fas fa-dice-d20"></i>
+          </button>
+          {{else}}
+          <span class="points-value">{{default system.fear 0}}</span>
+          {{/if}}
+        </div>
+      </div>
       {{#if skillsRedistributing}}
       <div class="points-box creation-points" title="Skill Points Remaining (+ sets a skill to 4; only 0 or 4 allowed)">
         <label>SP</label>
@@ -338,11 +351,13 @@
         <span class="chip-label">HP</span>
         <span class="chip-value">{{combatStatsView.hp.current}}/{{combatStatsView.hp.max}}</span>
       </div>
+      {{#if false}}
       <div class="combat-stats-chip combat-stats-chip-stress" title="Stress (Summe aller Stress-Bars).">
         <i class="fas fa-brain"></i>
         <span class="chip-label">Stress</span>
         <span class="chip-value">{{combatStatsView.stress.current}}/{{combatStatsView.stress.max}}</span>
       </div>
+      {{/if}}
     </div>
   </div>
   {{/if}}
@@ -1190,7 +1205,8 @@
             </div>
           </div>
           
-          <!-- Stress Bars -->
+          {{#if false}}
+          <!-- Stress Bars (mechanical track retired) -->
           <div class="stress-bars-container">
             <h4><i class="fas fa-brain"></i> Stress (2 × (Resolve + Intellect) per bar)</h4>
             <div class="stress-bars-list">
@@ -1221,6 +1237,7 @@
               {{/each}}
             </div>
           </div>
+          {{/if}}
         </div>
       </div>
       
@@ -1349,12 +1366,14 @@
               <label title="Added to every Health bar's max (4 bars). Negative values also allowed.">+ Health / bar</label>
               <input type="number" name="system.manual.health.barMaxBonus" value="{{system.manual.health.barMaxBonus}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
+            {{#if false}}
             <div class="manual-adjustments-row">
               <label title="Added to every Stress bar's max (4 bars). Negative values also allowed.">+ Stress / bar</label>
               <input type="number" name="system.manual.stress.barMaxBonus" value="{{system.manual.stress.barMaxBonus}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
+            {{/if}}
             <p class="manual-adjustments-note">
-              Current HP / Stress scale proportionally when you change these.
+              Current HP scales proportionally when you change Health / bar.
             </p>
           </div>
         </div>

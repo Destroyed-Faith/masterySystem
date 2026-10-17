@@ -199,11 +199,11 @@ describe('status-tick Tick + Decay engine', () => {
     ]);
   });
 
-  it('applies Blight as Stress and decays', async () => {
+  it('decays Blight without applying mechanical Stress', async () => {
     const { processTurnStartStatusTick } = await import('../src/combat/status-tick');
     const actor = makeActor([{ id: 'blight', value: 2 }]);
     await processTurnStartStatusTick(actor);
-    expect(actor.system.stress.bars[0].current).toBe(8);
+    expect(actor.system.stress.bars[0].current).toBe(10);
     expect(actor.system.statusEffects).toEqual([
       expect.objectContaining({ id: 'blight', value: 1 }),
     ]);

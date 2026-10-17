@@ -438,3 +438,42 @@ export function evaluateThreatenedRanged(
 
   return result;
 }
+
+/**
+ * R-03: every Spell Casting Roll gets Disadvantage while the caster is in
+ * at least one enemy's melee reach. Uses the same threat scan as Threatened Ranged.
+ * Does not invent new Reaction types — opportunity ids are empty unless a
+ * separate rule already opens them.
+ */
+export function evaluateThreatenedSpellcasting(casterToken: any): ThreatenedRangedResult {
+  if (!casterToken?.actor) {
+    return {
+      appliesRule: false,
+      threatened: false,
+      threateningEnemyTokenIds: [],
+      opportunityEnemyTokenIds: [],
+      rollDisadvantage: false,
+      debugReason: 'no-caster-actor',
+    };
+  }
+  const { threateningIds, rows } = scanThreateningEnemies(casterToken);
+  const threatened = threateningIds.length > 0;
+  const names = rows.filter((r) => r.threatens).map((r) => r.name);
+  return {
+    appliesRule: true,
+    threatened,
+    threateningEnemyTokenIds: threateningIds,
+    // Existing reaction windows for threatened casts stay on their own paths.
+    opportunityEnemyTokenIds: [],
+    rollDisadvantage: threatened,
+    debugReason: threatened
+      ? `spell-threatened-by:${names.join(',')}`
+      : 'no-enemy-in-melee-reach',
+  };
+}
+
+/** True when the token stands in at least one hostile's melee reach. */
+export function isThreatenedByEnemyMelee(token: any): boolean {
+  if (!token) return false;
+  return scanThreateningEnemies(token).threateningIds.length > 0;
+}

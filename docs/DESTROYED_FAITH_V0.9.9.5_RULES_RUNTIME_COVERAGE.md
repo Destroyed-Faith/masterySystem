@@ -228,3 +228,19 @@ Katalog: `ACTIVE_TEMPLATES` (64) → expandiert ~112 Picker-Einträge. PL 1–16
 - **Fear** (EXCLUDED / P1.4)
 - **Falling Damage** (EXCLUDED / P1.5)
 - Rein narrative Regeltexte ohne Runtime-Bedarf
+
+---
+
+## Nachtrag 2026-10-17 (Canvas fixes, R-01–R-03, Fear P1.4)
+
+**Hinweis:** Die Tabellen und Statuswerte oben bleiben die Verifikations-Momentaufnahme vom Final Runtime Verification-Lauf; dieser Abschnitt ergänzt nur.
+
+| Thema | Runtime | Tests (Typ) | Regelwerk |
+|-------|---------|-------------|-----------|
+| R-01 DN ohne Half-Pool | `damage-negation.ts`, `damage-dialog.ts` | `canvas-r01-r02-r03`, `damage-negation-npc` — **unit/integration** | Pending — `DESTROYED_FAITH_PENDING_RULE_CHANGES.md` |
+| R-02 Maximization Damage+Heal | `stone-powers.ts`, `stone-combat-effects.ts`, `heal-resolution.ts` | `canvas-r01-r02-r03` — **unit/integration** | Pending |
+| R-03 Threatened Spellcasting | `threatened-ranged.ts`, `attack-executor.ts` | `canvas-r01-r02-r03`, `threatened-ranged-hostility` — **unit/integration**; reach placement — **Canvas-only** | Pending |
+| Fear P1.4 | `fear.ts`, `pool-finalize.ts`, `safe-haven-rest.ts` | `fear.test.ts`, `safe-haven-rest.test.ts` — **unit/integration** | Core-Fear-Absatz; EXCLUDED-Zeile oben historisch |
+| Canvas fix bundle | siehe `DESTROYED_FAITH_V0.9.9.5_CANVAS_TEST_FIXES.md` | 2769 / 252 (full suite 2026-10-17) | Canvas-Abnahme manuell |
+
+Offizielle `docs/Rules/*` wurden nicht editiert.

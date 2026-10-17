@@ -173,12 +173,15 @@ export function formatCleansePromptChat(args: {
     return `<div class="mastery-cleanse-resolution"><p><strong>${caster}</strong> — ${power}</p>
       <p>Target: <strong>${target}</strong> — Cleanse(${x}), but no eligible Specials.</p></div>`;
   }
-  // One compact row: [−] Name 9 [+] — the number is the remaining stack (starts at max).
+  // Compact row: [−] Name | current → new [+]
   const rows = args.specials
     .map(
       (s) => `<li class="ms-cleanse-row" data-special-id="${escapeStoneChat(s.id)}" data-max="${s.value}">
         <button type="button" class="ms-cleanse-minus" data-special-id="${escapeStoneChat(s.id)}" title="Cleanse −1 from ${escapeStoneChat(s.label)}" aria-label="Cleanse ${escapeStoneChat(s.label)} −1">−</button>
         <span class="ms-cleanse-label">${escapeStoneChat(s.label)}</span>
+        <span class="ms-cleanse-arrow" aria-hidden="true">|</span>
+        <span class="ms-cleanse-stack-current" data-special-id="${escapeStoneChat(s.id)}">${s.value}</span>
+        <span class="ms-cleanse-arrow" aria-hidden="true">→</span>
         <span class="ms-cleanse-stack-value" data-special-id="${escapeStoneChat(s.id)}">${s.value}</span>
         <button type="button" class="ms-cleanse-plus" data-special-id="${escapeStoneChat(s.id)}" title="Undo −1 on ${escapeStoneChat(s.label)}" aria-label="Restore ${escapeStoneChat(s.label)} +1">+</button>
       </li>`,

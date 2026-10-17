@@ -8,7 +8,8 @@
  *
  * This stage then applies, in this exact order:
  *   (a) flat Special reductions — Disoriented (Auto-Fail engine),
- *       Weaken / Soulburn (by pool attribute), Challenge (attack targeting)
+ *       Weaken / Soulburn (by pool attribute), Challenge (attack targeting),
+ *       Fear (1 die per accumulated Fear)
  *   (b) percentage-based Health / Encumbrance penalty (dice loss floored)
  *   (c) A pool of 0 dice fails. Keep cannot exceed the dice that remain.
  */
@@ -19,6 +20,7 @@ import {
   challengePoolReduction,
   normalizeTargetRefs,
 } from '../system/pool-reduction.js';
+import { getFear } from '../combat/fear.js';
 import { applyHealthAndEncumbrancePenalties } from '../utils/encumbrance.js';
 
 export interface FinalizePoolOptions {
@@ -33,6 +35,19 @@ export interface FinalizePoolOptions {
   autoFailIntent?: 'skill' | 'attack';
   /** Apply the percentage Health / Encumbrance penalty (default true). */
   applyPoolPenalties?: boolean;
+  /** When omitted, Fear applies to attribute / attack / skill pools (see `shouldApplyFearToPool`). */
+  applyFear?: boolean;
+}
+
+/** Whether Fear dice come off this pool (after flat specials, before Health %). */
+export function shouldApplyFearToPool(options: FinalizePoolOptions = {}): boolean {
+  if (options.applyFear === false) return false;
+  if (options.applyFear === true) return true;
+  if (options.rollKind === 'damage') return false;
+  if (options.applyPoolPenalties === false) return false;
+  if (options.poolAttribute) return true;
+  if (options.rollKind === 'attack' || options.rollKind === 'skill') return true;
+  return false;
 }
 
 export interface FinalizePoolResult {
@@ -89,6 +104,14 @@ export function finalizeRolledPool(
     const challenge = challengePoolReduction(actor, refs);
     flatReduction += challenge.reduction;
     notes.push(...challenge.notes);
+  }
+
+  if (shouldApplyFearToPool(options)) {
+    const fearReduction = getFear(actor);
+    if (fearReduction > 0) {
+      flatReduction += fearReduction;
+      notes.push(`Fear: −${fearReduction} dice`);
+    }
   }
 
   if (flatReduction > 0) {

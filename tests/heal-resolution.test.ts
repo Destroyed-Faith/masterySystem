@@ -64,7 +64,7 @@ describe('isHealPowerItem / getHealDiceFormula', () => {
   it('detects Health Level Heal without HP formula', () => {
     const item = {
       type: 'power',
-      name: 'Melee Health Level Heal',
+      name: 'Melee Scarred Bar Restoration',
       system: {
         category: 'active',
         subfamily: 'support-heal',

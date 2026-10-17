@@ -1,12 +1,13 @@
 /**
- * Damage Negation — closed premium defensive subsystem (Rules/passives.md).
+ * Damage Negation — closed premium defensive subsystem.
  *
  * While the Damage Negation Passive is slotted, the actor gains a per-combat
  * Reserve of `4 × Passive Level` Damage Dice. Before an eligible Damage Pool
  * is rolled, the defender may spend points 1:1 to remove Damage Dice from the
- * pool assigned to them. All Damage Negation combined can never remove more
- * than half of the original Damage Dice (rounded down). The Reserve does not
- * refresh mid-combat and is lost when the combat ends.
+ * pool assigned to them.
+ *
+ * Pending rule R-01 (2026-10-17): there is no half-pool cap. Caps are only
+ * available negation points and the number of incoming damage dice.
  */
 
 import { getActionEconomyActor, getRoundState } from './action-economy.js';
@@ -42,9 +43,19 @@ export function damageNegationReserveForLevel(level: number): number {
   return 4 * lvl;
 }
 
-/** Maximum removable dice for one Damage Pool: floor(original dice / 2). */
+/**
+ * @deprecated R-01 removed the half-pool limit. Kept as alias returning the
+ * full original dice count so older callers keep a sensible upper bound.
+ */
 export function damageNegationHalfPoolCap(originalDice: number): number {
-  return Math.max(0, Math.floor(Math.max(0, Math.floor(Number(originalDice) || 0)) / 2));
+  return Math.max(0, Math.floor(Number(originalDice) || 0));
+}
+
+/** Max dice removable for one pool: min(original dice, available points). */
+export function damageNegationSpendCap(originalDice: number, available: number): number {
+  const dice = Math.max(0, Math.floor(Number(originalDice) || 0));
+  const pts = Math.max(0, Math.floor(Number(available) || 0));
+  return Math.min(dice, pts);
 }
 
 interface ReserveFlag {
@@ -90,6 +101,29 @@ export function getTempDamageNegation(actor: any, combat: any): number {
   }
 }
 
+/** Active Buff temporary Damage Negation (spend before Passive reserve). */
+export function getBuffDamageNegation(actor: any): number {
+  try {
+    const effects = actor?.effects;
+    const list = Array.isArray(effects)
+      ? effects
+      : Array.isArray(effects?.contents)
+        ? effects.contents
+        : [];
+    let best = 0;
+    for (const effect of list) {
+      if (effect?.disabled) continue;
+      const flags = effect?.flags?.['mastery-system'];
+      if (!flags?.activeBuff) continue;
+      const n = Math.max(0, Math.floor(Number(flags?.mechanics?.damageNegation ?? flags?.damageNegation) || 0));
+      if (n > best) best = n;
+    }
+    return best;
+  } catch {
+    return 0;
+  }
+}
+
 export interface DamageNegationSpend {
   /** Damage Dice removed from the pool assigned to this defender. */
   diceRemoved: number;
@@ -126,11 +160,43 @@ export function getNpcDamageNegationDice(actor: any): number {
   return Math.max(0, Math.min(20, Math.floor(Number(block.damageNegation) || 0)));
 }
 
+export function formatDamageNegationDialogContent(input: {
+  defenderName: string;
+  attackerName: string;
+  totalDice: number;
+  available: number;
+  reserve: number;
+  tempDn: number;
+  buffDn?: number;
+}): string {
+  const dice = Math.max(0, Math.floor(Number(input.totalDice) || 0));
+  const available = Math.max(0, Math.floor(Number(input.available) || 0));
+  const cap = damageNegationSpendCap(dice, available);
+  const parts: string[] = [];
+  if (input.buffDn && input.buffDn > 0) parts.push(`${input.buffDn} Buff`);
+  if (input.tempDn > 0) parts.push(`${input.tempDn} temporary`);
+  if (input.reserve > 0 || parts.length === 0) parts.push(`${input.reserve} Reserve`);
+  return (
+    `<div class="mastery-dn-dialog">` +
+    `<p><strong>${input.defenderName}</strong> vs ${input.attackerName}</p>` +
+    `<ul style="list-style:none;padding:0;margin:0.5em 0;">` +
+    `<li>Original Damage Pool: <strong>${dice}d8</strong></li>` +
+    `<li>Available Damage Negation: <strong>${available}</strong> (${parts.join(' + ')})</li>` +
+    `<li>Maximum Dice to Negate: <strong>${cap}</strong></li>` +
+    `</ul>` +
+    `<p><label>Dice to Negate: ` +
+    `<input type="number" name="dn-spend" value="0" min="0" max="${cap}" step="1" ` +
+    `style="width:5em" data-original="${dice}"/></label></p>` +
+    `<p class="mastery-dn-preview">Remaining Damage Pool: <strong><span data-dn-remaining>${dice}</span>d8</strong> · ` +
+    `Negation Points to Spend: <strong><span data-dn-spend>0</span></strong></p>` +
+    `</div>`
+  );
+}
+
 /**
- * PG attack sequence step 11: before the Damage Pool is rolled, apply Damage
- * Negation. NPCs/summons with sheet DN auto-remove that many dice (no dialog,
- * no depleting reserve — every eligible hit). Characters keep the spend prompt
- * against Passive Reserve + temporary stone DN. Never exceeds the Half-Pool Limit.
+ * Before the Damage Pool is rolled, apply Damage Negation. NPCs/summons with
+ * sheet DN auto-remove that many dice. Characters get a spend prompt.
+ * R-01: no half-pool limit — full negation of all damage dice is legal.
  */
 export async function promptDamageNegationSpend(
   target: any,
@@ -140,41 +206,53 @@ export async function promptDamageNegationSpend(
   try {
     const owner = getActionEconomyActor(target) ?? target;
     const combat = (globalThis as any).game?.combat ?? null;
-    const halfCap = damageNegationHalfPoolCap(opts.totalDice);
-    if (halfCap <= 0) return none;
+    const totalDice = Math.max(0, Math.floor(Number(opts.totalDice) || 0));
+    if (totalDice <= 0) return none;
 
     const npcDn = getNpcDamageNegationDice(owner);
     if (npcDn > 0) {
-      const remove = Math.min(halfCap, npcDn);
+      const remove = Math.min(totalDice, npcDn);
       if (remove <= 0) return none;
       return {
         diceRemoved: remove,
-        note: `Damage Negation −${remove} Damage Dice (NPC auto, before roll, half-pool cap ${halfCap})`,
+        note: `Damage Negation −${remove} Damage Dice (NPC auto, before roll)`,
       };
     }
 
     const reserve = getDamageNegationRemaining(owner, combat);
     const tempDn = getTempDamageNegation(owner, combat);
-    const available = reserve + tempDn;
+    const buffDn = getBuffDamageNegation(owner);
+    const available = reserve + tempDn + buffDn;
     if (available <= 0) return none;
 
-    const cap = Math.min(halfCap, available);
+    const cap = damageNegationSpendCap(totalDice, available);
     const name = String(owner?.name ?? 'Defender');
     const attackerName = String(opts.attacker?.name ?? 'the attacker');
+    const content = formatDamageNegationDialogContent({
+      defenderName: name,
+      attackerName,
+      totalDice,
+      available,
+      reserve,
+      tempDn,
+      buffDn,
+    });
+
     const picked = await new Promise<number>((resolve) => {
-      new Dialog({
+      const DialogCtor = (globalThis as any).Dialog;
+      if (typeof DialogCtor !== 'function') {
+        resolve(0);
+        return;
+      }
+      const dlg = new DialogCtor({
         title: `Damage Negation — ${name}`,
-        content:
-          `<p><strong>${name}</strong> is assigned a Damage Pool of <strong>${Math.floor(opts.totalDice)}d8</strong> from ${attackerName}.</p>` +
-          `<p>Damage Negation available: <strong>${available}</strong>` +
-          (tempDn > 0 ? ` (${reserve} Reserve + ${tempDn} temporary)` : ' (Reserve)') +
-          `. Half-Pool Limit: max <strong>${halfCap}</strong> dice may be removed.</p>` +
-          `<p><label>Remove Damage Dice: <input type="number" name="dn-spend" value="0" min="0" max="${cap}" step="1" style="width:5em"/></label></p>`,
+        content,
         buttons: {
           spend: {
             label: 'Remove Dice',
-            callback: (html: JQuery) => {
-              const v = Math.floor(Number(html.find('[name="dn-spend"]').val()) || 0);
+            callback: (html: any) => {
+              const root = html?.jquery ? html : (globalThis as any).$(html);
+              const v = Math.floor(Number(root.find('[name="dn-spend"]').val()) || 0);
               resolve(Math.max(0, Math.min(cap, v)));
             },
           },
@@ -182,13 +260,54 @@ export async function promptDamageNegationSpend(
         },
         default: 'skip',
         close: () => resolve(0),
-      }).render(true);
+        render: (html: any) => {
+          const root = html?.jquery ? html : (globalThis as any).$(html);
+          const input = root.find('[name="dn-spend"]');
+          const update = () => {
+            const v = Math.max(0, Math.min(cap, Math.floor(Number(input.val()) || 0)));
+            root.find('[data-dn-remaining]').text(String(totalDice - v));
+            root.find('[data-dn-spend]').text(String(v));
+          };
+          input.on('input change', update);
+          update();
+        },
+      });
+      dlg.render(true);
     });
     if (picked <= 0) return none;
 
-    // Temporary (stone) negation is consumed first, then the passive Reserve.
+    // Spend order: Active Buff temp → Stone temp → Passive reserve.
     let left = picked;
-    if (tempDn > 0 && combat) {
+    if (buffDn > 0 && left > 0) {
+      const useBuff = Math.min(buffDn, left);
+      left -= useBuff;
+      try {
+        const effects = owner?.effects;
+        const list = Array.isArray(effects)
+          ? effects
+          : Array.isArray(effects?.contents)
+            ? effects.contents
+            : [];
+        for (const effect of list) {
+          if (effect?.disabled) continue;
+          const flags = effect?.flags?.['mastery-system'];
+          if (!flags?.activeBuff) continue;
+          const cur = Math.max(0, Math.floor(Number(flags?.mechanics?.damageNegation) || 0));
+          if (cur <= 0) continue;
+          const next = Math.max(0, cur - useBuff);
+          if (flags.mechanics) flags.mechanics.damageNegation = next;
+          if (typeof effect.update === 'function') {
+            await effect.update({
+              'flags.mastery-system.mechanics.damageNegation': next,
+            });
+          }
+          break;
+        }
+      } catch (e) {
+        console.warn('Mastery System | buff Damage Negation spend failed', e);
+      }
+    }
+    if (tempDn > 0 && combat && left > 0) {
       const useTemp = Math.min(tempDn, left);
       left -= useTemp;
       try {
@@ -208,7 +327,6 @@ export async function promptDamageNegationSpend(
     if (left > 0) {
       const ok = await spendDamageNegation(owner, combat, left);
       if (!ok) {
-        // Reserve raced — apply what we could from temp only.
         return {
           diceRemoved: picked - left,
           note: `Damage Negation −${picked - left} dice`,
@@ -217,7 +335,7 @@ export async function promptDamageNegationSpend(
     }
     return {
       diceRemoved: picked,
-      note: `Damage Negation −${picked} Damage Dice (before roll, half-pool cap ${halfCap})`,
+      note: `Damage Negation −${picked} Damage Dice (before roll)`,
     };
   } catch (e) {
     console.warn('Mastery System | Damage Negation prompt failed', e);

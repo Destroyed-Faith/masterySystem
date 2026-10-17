@@ -186,13 +186,13 @@ describe('Spell resolution helpers', () => {
   });
 });
 
-describe('split Spell stress', () => {
-  it('stresses only when every split Casting Roll is below Spell Base TN', () => {
+describe('split Spell stress (retired)', () => {
+  it('never signals mechanical stress after split rolls complete', () => {
     resetSplitSpellRolls();
-    expect(splitSpellShouldStress([10, 12], 22)).toBe(true);
+    expect(splitSpellShouldStress([10, 12], 22)).toBe(false);
     expect(splitSpellShouldStress([22, 10], 22)).toBe(false);
     expect(noteSplitSpellRoll('pair-a', 10, 22)).toBe('pending');
-    expect(noteSplitSpellRoll('pair-a', 12, 22)).toBe('stress');
+    expect(noteSplitSpellRoll('pair-a', 12, 22)).toBe('clear');
     resetSplitSpellRolls();
     expect(noteSplitSpellRoll('pair-b', 10, 22)).toBe('pending');
     expect(noteSplitSpellRoll('pair-b', 30, 22)).toBe('clear');

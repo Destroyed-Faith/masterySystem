@@ -260,30 +260,56 @@ function blightHealReduction(actor: any): number {
 /** Roll heal dice; posts a Foundry roll message so the dice are visible. */
 async function rollHealDiceVisible(
   formula: string,
-  opts?: { flavor?: string; speaker?: unknown },
-): Promise<{ total: number; formula: string }> {
+  opts?: { flavor?: string; speaker?: unknown; maximized?: boolean },
+): Promise<{ total: number; formula: string; maximized?: boolean }> {
   const g = globalThis as any;
+  let useFormula = formula;
+  if (opts?.maximized) {
+    try {
+      const { maximizeDiceFormula } = await import('../stones/stone-combat-effects.js');
+      useFormula = maximizeDiceFormula(formula);
+    } catch {
+      useFormula = formula;
+    }
+  }
   const RollCls = g.Roll;
   if (typeof RollCls === 'function') {
-    const roll = await new RollCls(formula).evaluate({ async: true });
+    const roll = await new RollCls(useFormula).evaluate({ async: true });
     try {
+      const flavor =
+        (opts?.flavor || 'Heal') +
+        (opts?.maximized ? ' (Maximization: every d8 is 8)' : '');
       await roll.toMessage?.({
         speaker: opts?.speaker ?? {},
-        flavor: opts?.flavor || 'Heal',
+        flavor,
       });
     } catch {
       /* chat optional */
     }
-    return { total: Math.max(0, Math.floor(Number(roll.total) || 0)), formula };
+    return {
+      total: Math.max(0, Math.floor(Number(roll.total) || 0)),
+      formula: useFormula,
+      maximized: !!opts?.maximized,
+    };
   }
-  // Test / offline fallback: average-ish
-  const m = /^(\d+)d(\d+)/i.exec(formula);
+  // Test / headless fallback
+  const m = /^(\d+)d(\d+)/i.exec(useFormula);
   if (m) {
     const n = parseInt(m[1], 10);
     const sides = parseInt(m[2], 10);
-    return { total: Math.max(0, n * Math.ceil(sides / 2)), formula };
+    const total = opts?.maximized
+      ? Math.max(0, n * sides)
+      : Math.max(0, n * Math.ceil(sides / 2));
+    return { total, formula: useFormula, maximized: !!opts?.maximized };
   }
-  return { total: 0, formula };
+  if (opts?.maximized && /^\d+$/.test(String(useFormula).trim())) {
+    return {
+      total: Math.max(0, Math.floor(Number(useFormula) || 0)),
+      formula: useFormula,
+      maximized: true,
+    };
+  }
+  return { total: 0, formula: useFormula };
 }
 
 /**
@@ -534,6 +560,17 @@ async function applyHpHealPass(args: {
   const caster = args.casterToken?.actor;
   const speaker = g.ChatMessage?.getSpeaker?.({ actor: caster, token: args.casterToken?.document });
   const results: HealTargetResult[] = [];
+  // One Maximization for a shared AoE heal roll (first target rolls; others reuse).
+  let sharedMaximized = false;
+  let sharedRollTotal: number | null = null;
+  if (args.formula && caster && args.targetTokens.length > 0) {
+    try {
+      const { offerMaximization } = await import('../stones/stone-combat-effects.js');
+      sharedMaximized = await offerMaximization(caster, 'healing');
+    } catch {
+      sharedMaximized = false;
+    }
+  }
   for (const tok of args.targetTokens) {
     const actor = tok?.actor;
     if (!actor) continue;
@@ -542,11 +579,15 @@ async function applyHpHealPass(args: {
     let restored = 0;
     let blight = 0;
     if (args.formula) {
-      const roll = await rollHealDiceVisible(args.formula, {
-        flavor: `${args.powerName} — Heal (${actor.name || tok.name || 'Target'})`,
-        speaker,
-      });
-      rolled = roll.total;
+      if (sharedRollTotal == null) {
+        const roll = await rollHealDiceVisible(args.formula, {
+          flavor: `${args.powerName} — Heal (${actor.name || tok.name || 'Target'})`,
+          speaker,
+          maximized: sharedMaximized,
+        });
+        sharedRollTotal = roll.total;
+      }
+      rolled = sharedRollTotal;
       const applied = await applyHpHealToActor(actor, rolled);
       afterBlight = applied.afterBlight;
       restored = applied.restored;
@@ -707,7 +748,16 @@ export async function resolveHealOnTokens(args: {
 
   if (!content) {
     // Health-Level-only with no Scarred target: nothing to do.
-    g.ui?.notifications?.info?.(`${args.powerName}: kein Scarred-Ziel und keine Heal-Würfel.`);
+    const noPool = poolMax <= 0;
+    const noRemaining = poolRemaining <= 0;
+    const msg = noPool
+      ? `${args.powerName}: this Power has no Health Level Recovery pool at this rank.`
+      : noRemaining
+        ? `${args.powerName}: no Health Level Recovery remaining (refreshes on Safe Haven Rest).`
+        : scarredCount <= 0
+          ? `${args.powerName}: no Scarred Health Bars on the selected target. Does not restore HP.`
+          : `${args.powerName}: no valid Scarred target in range.`;
+    g.ui?.notifications?.warn?.(msg);
     return [];
   }
 

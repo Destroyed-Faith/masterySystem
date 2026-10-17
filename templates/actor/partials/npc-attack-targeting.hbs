@@ -90,6 +90,7 @@
       <label>Crit</label>
       <label class="npc-attack-checkbox-label"><input type="checkbox" name="{{path}}.npcCrit" {{#if atk.npcCrit}}checked{{/if}} data-dtype="Boolean" title="Attack dice explode on 7 and 8, like player Crit. Damage dice do not explode. Set per power."/></label>
     </div>
+    {{#if false}}
     <div class="npc-attack-field">
       <label>Stress (d8)</label>
       {{!-- title not data-tooltip: Foundry #tooltip overlays kill native &lt;select&gt; interaction --}}
@@ -105,5 +106,6 @@
         {{/each}}
       </select>
     </div>
+    {{/if}}
   </div>
 </div>

@@ -2,16 +2,24 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   damageNegationHalfPoolCap,
+  damageNegationSpendCap,
   getNpcDamageNegationDice,
   promptDamageNegationSpend,
   resolveNpcActiveCombatBlock,
 } from '../src/combat/damage-negation.js';
 
 describe('NPC Damage Negation', () => {
-  it('half-pool cap is floor(dice/2)', () => {
-    expect(damageNegationHalfPoolCap(4)).toBe(2);
-    expect(damageNegationHalfPoolCap(5)).toBe(2);
-    expect(damageNegationHalfPoolCap(1)).toBe(0);
+  it('R-01: deprecated half-pool helper returns full dice count', () => {
+    expect(damageNegationHalfPoolCap(4)).toBe(4);
+    expect(damageNegationHalfPoolCap(5)).toBe(5);
+    expect(damageNegationHalfPoolCap(1)).toBe(1);
+  });
+
+  it('spend cap is min(dice, available) with no half-pool limit', () => {
+    expect(damageNegationSpendCap(8, 16)).toBe(8);
+    expect(damageNegationSpendCap(8, 3)).toBe(3);
+    expect(damageNegationSpendCap(1, 1)).toBe(1);
+    expect(damageNegationSpendCap(7, 7)).toBe(7);
   });
 
   it('reads root combat.damageNegation for plain NPCs', () => {
@@ -47,7 +55,7 @@ describe('NPC Damage Negation', () => {
     ).toBe(0);
   });
 
-  it('auto-applies NPC DN without a dialog, capped at half pool', async () => {
+  it('auto-applies NPC DN without a dialog; full pool may be removed', async () => {
     const DialogSpy = vi.fn();
     (globalThis as any).Dialog = DialogSpy;
 
@@ -59,11 +67,11 @@ describe('NPC Damage Negation', () => {
     expect(spend.note).toMatch(/NPC auto/);
     expect(DialogSpy).not.toHaveBeenCalled();
 
-    const capped = await promptDamageNegationSpend(
+    const full = await promptDamageNegationSpend(
       { type: 'npc', system: { combat: { damageNegation: 10 } }, name: 'Golem' },
       { totalDice: 4 },
     );
-    expect(capped.diceRemoved).toBe(2);
+    expect(full.diceRemoved).toBe(4);
   });
 
   it('does nothing when NPC DN is 0', async () => {

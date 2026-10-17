@@ -428,6 +428,13 @@
             <span class="npc-combat-chip__label">Spell Res.</span>
             <input type="number" name="system.combat.spellResistance" value="{{default system.combat.spellResistance 0}}" min="0" max="99" step="1" data-dtype="Number" title="Spell Resistance — raises the Casting TN of spells against this NPC"/>
           </div>
+          <div class="npc-combat-chip" title="Fear — removes dice from attribute pools; Safe Haven Rest clears">
+            <span class="npc-combat-chip__label">Fear</span>
+            <input type="number" name="system.fear" value="{{default system.fear 0}}" min="0" step="1" data-dtype="Number"/>
+            {{#if (userIsGM)}}
+            <button type="button" class="gm-fear-check npc-gm-fear-check" title="Fear Check (Resolve k1)"><i class="fas fa-dice-d20"></i></button>
+            {{/if}}
+          </div>
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">DR %</span>
             <input type="number" name="system.combat.damageReduction" value="{{default system.combat.damageReduction 0}}" min="0" max="100" step="5" data-dtype="Number" title="Damage Reduction percent — applied after Armor"/>

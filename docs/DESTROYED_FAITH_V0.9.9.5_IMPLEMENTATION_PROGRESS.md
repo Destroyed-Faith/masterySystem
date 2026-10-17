@@ -348,3 +348,15 @@ Interne Regelabdeckung und Verdrahtung geprüft. Fixes in diesem Durchgang: Tele
 ## Offen, bewusst nicht angefasst
 
 Fear, Fallschaden und der gesamte P2-Katalog. P1.4 und P1.5 sind nicht begonnen.
+
+---
+
+## Canvas test fixes + pending rules (2026-10-17)
+
+**Nachtrag** (ohne Änderung historischer Audit-Verdikte in `docs/DESTROYED_FAITH_V0.9.9.5_IMPLEMENTATION_AUDIT.md` / Final Implementation Audit):
+
+- **Canvas-Test-Fixes** dokumentiert in `docs/DESTROYED_FAITH_V0.9.9.5_CANVAS_TEST_FIXES.md` (Critical UI, Threatened Ranged/Spell, NPC Perception-Pools, Restoration/Cleanse/Recovery/DN UI, Stress-Retirement, u. a.).
+- **Pending rule decisions R-01 / R-02 / R-03** in Runtime umgesetzt, Regelwerke unverändert — siehe `docs/DESTROYED_FAITH_PENDING_RULE_CHANGES.md`.
+- **Fear P1.4** im Code umgesetzt (`src/combat/fear.ts`, Pool-Integration, Safe Haven); Vitest `tests/fear.test.ts`. Foundry-Canvas-Abnahme weiterhin offen.
+
+Vitest-Gesamtlauf nach diesem Paket: **2769** bestanden, **0** fehlgeschlagen, **252** Dateien; `tsc --noEmit` Exit 0.
