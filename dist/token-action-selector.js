@@ -1176,6 +1176,14 @@ export async function handleChosenCombatOption(token, option) {
             if (option.rangeMeters === undefined)
                 option.rangeMeters = option.range;
             if (option.aoeShape === 'radius' && (option.aoeRadiusMeters ?? 0) > 0) {
+                // Melee / Self support AoE must not open the place-cursor (Touch parses as ~2 m).
+                const looksRanged = /ranged/i.test(String(option.name || '')) ||
+                    /ranged/i.test(String(option.artifactPowerTemplateId || ''));
+                const reach = Number(option.rangeMeters ?? option.range ?? 0) || 0;
+                if (!looksRanged && (option.burstMeleeAoE || (reach > 0 && reach <= 4))) {
+                    option.rangeMeters = 0;
+                    option.burstMeleeAoE = false;
+                }
                 startUtilityRadiusMode(token, option);
             }
             else {

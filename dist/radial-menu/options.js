@@ -1,7 +1,7 @@
 /**
  * Option Collection and Parsing for Radial Menu
  */
-import { getAvailableManeuvers } from '../system/combat-maneuvers';
+import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -815,7 +815,19 @@ export async function getAllCombatOptionsForActor(actor) {
             if (shape === 'radius' && rad !== undefined && rad > 0) {
                 aoeShape = 'radius';
                 aoeRadiusMeters = rad;
-                if (!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) {
+                // Melee / Self / center:self AoE is an aura around the caster — no placement.
+                // (Touch/Melee still parses to ~2 m reach; that must not open the green place-cursor.)
+                const aoeCenter = isAoeSpecObject(aoeStr) ? String(aoeStr.center || '') : '';
+                const rs = String(rangeStr || '').toLowerCase();
+                const typeStr = typeof levelData.type === 'string' ? levelData.type.toLowerCase() : '';
+                const selfCentered = aoeCenter === 'self' ||
+                    !rangeStr ||
+                    rs === 'self' ||
+                    rs === 'touch' ||
+                    rs === 'melee' ||
+                    range === 0 ||
+                    typeStr.includes('melee');
+                if (selfCentered) {
                     rangeMeters = 0;
                 }
             }

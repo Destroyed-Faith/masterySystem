@@ -1000,17 +1000,76 @@ function bindAoeRestorationHtml(message, root) {
         return;
     wrap.dataset.msBound = '1';
     const sumEl = wrap.querySelector('.ms-aoe-rest-sum');
-    const refreshSum = () => {
-        let total = 0;
+    const poolLeftEl = wrap.querySelector('.ms-aoe-rest-pool-left');
+    const commitBtn = wrap.querySelector('.ms-aoe-rest-commit');
+    const poolMax = Math.max(0, Math.floor(Number(wrap.dataset.pool) || 0));
+    const readAllocation = () => {
+        const allocation = {};
         wrap.querySelectorAll('.ms-aoe-rest-alloc').forEach((el) => {
-            total += Math.max(0, Math.floor(Number(el.value) || 0));
+            const node = el;
+            const id = String(node.dataset.actorId || '');
+            if (!id)
+                return;
+            allocation[id] = Math.max(0, Math.floor(Number(node.dataset.value) || 0));
         });
+        return allocation;
+    };
+    const refreshSteppers = () => {
+        const allocation = readAllocation();
+        let total = 0;
+        for (const n of Object.values(allocation))
+            total += n;
         if (sumEl)
             sumEl.textContent = String(total);
+        if (poolLeftEl)
+            poolLeftEl.textContent = String(Math.max(0, poolMax - total));
+        if (commitBtn)
+            commitBtn.disabled = total <= 0;
+        wrap.querySelectorAll('.ms-aoe-rest-stepper').forEach((stepEl) => {
+            const stepper = stepEl;
+            const actorId = String(stepper.dataset.actorId || '');
+            const scarred = Math.max(0, Math.floor(Number(stepper.dataset.scarred) || 0));
+            const current = allocation[actorId] ?? 0;
+            const others = total - current;
+            const maxFor = Math.min(scarred, Math.max(0, poolMax - others));
+            const dec = stepper.querySelector('.ms-aoe-rest-dec');
+            const inc = stepper.querySelector('.ms-aoe-rest-inc');
+            if (dec)
+                dec.disabled = current <= 0;
+            if (inc)
+                inc.disabled = current >= maxFor;
+        });
     };
-    wrap.querySelectorAll('.ms-aoe-rest-alloc').forEach((el) => {
-        el.addEventListener('change', refreshSum);
+    wrap.querySelectorAll('.ms-aoe-rest-dec, .ms-aoe-rest-inc').forEach((btn) => {
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            const button = ev.currentTarget;
+            const actorId = String(button.dataset.actorId || '');
+            const allocEl = wrap.querySelector(`.ms-aoe-rest-alloc[data-actor-id="${CSS.escape(actorId)}"]`);
+            const stepper = wrap.querySelector(`.ms-aoe-rest-stepper[data-actor-id="${CSS.escape(actorId)}"]`);
+            if (!allocEl || !stepper)
+                return;
+            const scarred = Math.max(0, Math.floor(Number(stepper.dataset.scarred) || 0));
+            const allocation = readAllocation();
+            let current = allocation[actorId] ?? 0;
+            if (button.classList.contains('ms-aoe-rest-dec')) {
+                current = Math.max(0, current - 1);
+            }
+            else {
+                let others = 0;
+                for (const [id, n] of Object.entries(allocation)) {
+                    if (id !== actorId)
+                        others += n;
+                }
+                const maxFor = Math.min(scarred, Math.max(0, poolMax - others));
+                current = Math.min(maxFor, current + 1);
+            }
+            allocEl.dataset.value = String(current);
+            allocEl.textContent = String(current);
+            refreshSteppers();
+        });
     });
+    refreshSteppers();
     wrap.querySelector('.ms-aoe-rest-cancel')?.addEventListener('click', async (ev) => {
         ev.preventDefault();
         try {
@@ -1032,13 +1091,7 @@ function bindAoeRestorationHtml(message, root) {
         const pending = flags.pending;
         if (!pending)
             return;
-        const allocation = {};
-        wrap.querySelectorAll('.ms-aoe-rest-alloc').forEach((el) => {
-            const sel = el;
-            const id = String(sel.dataset.actorId || '');
-            if (id)
-                allocation[id] = Math.max(0, Math.floor(Number(sel.value) || 0));
-        });
+        const allocation = readAllocation();
         try {
             const { commitAoeRestorationAllocation, validateAoeRestorationAllocation } = await import('./aoe-restoration.js');
             const check = validateAoeRestorationAllocation(pending, allocation);

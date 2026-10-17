@@ -15,6 +15,9 @@ import {
   isScarredRestorationTemplateId,
 } from '../src/combat/r05-restoration';
 import {
+  aoeRestorationMaxForTarget,
+  aoeRestorationPoolLeft,
+  formatAoeRestorationPromptChat,
   validateAoeRestorationAllocation,
   type AoeRestorationPending,
 } from '../src/combat/aoe-restoration';
@@ -151,6 +154,17 @@ describe('R-05 Test C — AoE allocation validation', () => {
     });
     expect(validateAoeRestorationAllocation(pending, { a: 3, b: 2, c: 1 }).ok).toBe(false);
     expect(validateAoeRestorationAllocation(pending, { a: 4 }).ok).toBe(false);
+  });
+
+  it('stepper caps: pool left and per-target max block over-allocation', () => {
+    expect(aoeRestorationPoolLeft(pending, { a: 2, b: 2 })).toBe(1);
+    expect(aoeRestorationMaxForTarget(pending, { a: 2, b: 2 }, 'c')).toBe(1);
+    expect(aoeRestorationMaxForTarget(pending, { a: 2, b: 2 }, 'a')).toBe(3); // scarred 3, pool left for a = 3
+    expect(aoeRestorationMaxForTarget(pending, { a: 3, b: 2 }, 'c')).toBe(0);
+    const html = formatAoeRestorationPromptChat(pending);
+    expect(html).toContain('ms-aoe-rest-stepper');
+    expect(html).toContain('ms-aoe-rest-inc');
+    expect(html).not.toContain('<select');
   });
 });
 

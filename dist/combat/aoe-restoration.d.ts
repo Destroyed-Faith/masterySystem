@@ -23,6 +23,10 @@ export declare function validateAoeRestorationAllocation(pending: AoeRestoration
     reason?: string;
     cleaned: Record<string, number>;
 };
+/** Pool points still free given current allocations (optionally ignoring one actor). */
+export declare function aoeRestorationPoolLeft(pending: AoeRestorationPending, allocation: Record<string, number>, excludeActorId?: string): number;
+/** Max bars this target may still receive without exceeding scarred or remaining pool. */
+export declare function aoeRestorationMaxForTarget(pending: AoeRestorationPending, allocation: Record<string, number>, actorId: string): number;
 export declare function formatAoeRestorationPromptChat(pending: AoeRestorationPending): string;
 export declare function commitAoeRestorationAllocation(caster: any, pending: AoeRestorationPending, allocation: Record<string, number>): Promise<{
     ok: boolean;

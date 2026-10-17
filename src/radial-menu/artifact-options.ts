@@ -399,6 +399,13 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                     ...(option.tags || []).filter((t) => t !== 'attack'),
                     support,
                 ];
+                // Melee / Self support AoE: centered on caster (no place-cursor, no hostile burst dialog).
+                if (option.burstMeleeAoE || range === 0 || /melee/i.test(rowType)) {
+                    option.burstMeleeAoE = false;
+                    option.burstMeleeRadiusMeters = undefined;
+                    option.rangeMeters = 0;
+                    option.range = 0;
+                }
             }
             out.push(option);
         }

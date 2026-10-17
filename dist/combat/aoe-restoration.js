@@ -31,29 +31,46 @@ export function validateAoeRestorationAllocation(pending, allocation) {
     }
     return { ok: true, total, cleaned };
 }
+/** Pool points still free given current allocations (optionally ignoring one actor). */
+export function aoeRestorationPoolLeft(pending, allocation, excludeActorId) {
+    let used = 0;
+    for (const [actorId, raw] of Object.entries(allocation || {})) {
+        if (excludeActorId && actorId === excludeActorId)
+            continue;
+        used += Math.max(0, Math.floor(Number(raw) || 0));
+    }
+    return Math.max(0, pending.poolRemaining - used);
+}
+/** Max bars this target may still receive without exceeding scarred or remaining pool. */
+export function aoeRestorationMaxForTarget(pending, allocation, actorId) {
+    const row = pending.targets.find((t) => t.actorId === actorId);
+    if (!row)
+        return 0;
+    return Math.min(row.scarred, aoeRestorationPoolLeft(pending, allocation, actorId));
+}
 export function formatAoeRestorationPromptChat(pending) {
     const power = escapeStoneChat(pending.powerName);
     const rows = pending.targets
         .map((t) => {
         const name = escapeStoneChat(t.name);
-        const max = Math.min(t.scarred, pending.poolRemaining);
-        const opts = [];
-        for (let n = 0; n <= max; n += 1) {
-            opts.push(`<option value="${n}"${n === 0 ? ' selected' : ''}>${n}</option>`);
-        }
-        return (`<li class="ms-aoe-rest-row" data-actor-id="${escapeStoneChat(t.actorId)}">` +
-            `<strong>${name}</strong> — Scarred ${t.scarred} ` +
-            `<select class="ms-aoe-rest-alloc" data-actor-id="${escapeStoneChat(t.actorId)}">${opts.join('')}</select>` +
+        const id = escapeStoneChat(t.actorId);
+        return (`<li class="ms-aoe-rest-row" data-actor-id="${id}">` +
+            `<span class="ms-aoe-rest-name"><strong>${name}</strong> — Scarred ${t.scarred}</span> ` +
+            `<span class="ms-aoe-rest-stepper" data-actor-id="${id}" data-scarred="${t.scarred}">` +
+            `<button type="button" class="ms-aoe-rest-dec" data-actor-id="${id}" aria-label="Fewer bars">−</button>` +
+            `<span class="ms-aoe-rest-alloc" data-actor-id="${id}" data-value="0">0</span>` +
+            `<button type="button" class="ms-aoe-rest-inc" data-actor-id="${id}" aria-label="More bars">+</button>` +
+            `</span>` +
             `</li>`);
     })
         .join('');
-    return (`<div class="mastery-aoe-restoration">` +
-        `<p><strong>${power}</strong> — distribute Scarred Bar Restoration (shared pool).</p>` +
-        `<p>Pool remaining: <strong>${pending.poolRemaining}</strong> / ${pending.poolMax}. ` +
+    return (`<div class="mastery-aoe-restoration" data-pool="${pending.poolRemaining}" data-pool-max="${pending.poolMax}">` +
+        `<p><strong>${power}</strong> — distribute Scarred Bar Restoration (allies in area).</p>` +
+        `<p>Pool left: <strong class="ms-aoe-rest-pool-left">${pending.poolRemaining}</strong> / ${pending.poolMax}. ` +
         `One point = one full Scarred Bar on one creature.</p>` +
         `<ul class="ms-aoe-rest-list">${rows}</ul>` +
         `<p class="ms-aoe-rest-total">Allocated: <strong class="ms-aoe-rest-sum">0</strong></p>` +
-        `<button type="button" class="ms-aoe-rest-commit"><i class="fas fa-check"></i> Apply Restoration</button>` +
+        `<button type="button" class="ms-aoe-rest-commit" disabled><i class="fas fa-check"></i> Apply Restoration</button>` +
         `<button type="button" class="ms-aoe-rest-cancel">Cancel</button>` +
         `</div>`);
 }

@@ -1487,6 +1487,63 @@ prose-mirror#chat-message.chat-input > .editor-container {
   margin: 0.25rem 0;
 }
 
+/* AoE Restoration — pool allocation steppers (− value +) */
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-list {
+  list-style: none;
+  margin: 0.35rem 0;
+  padding: 0;
+}
+
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+  margin: 0.25rem 0;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-stepper {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.28rem;
+  direction: ltr;
+}
+
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-dec,
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-inc {
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 3px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-dec:disabled,
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-inc:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-alloc {
+  min-width: 1.4rem;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#chat-log .mastery-aoe-restoration .ms-aoe-rest-commit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 #chat-log .mastery-stone-round-summary,
 #chat-log .mastery-stone-assignment-summary {
   line-height: 1.35;

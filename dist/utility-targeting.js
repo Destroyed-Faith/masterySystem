@@ -791,6 +791,34 @@ export function startUtilitySingleTargetMode(token, option) {
     canvas.stage.on('pointerdown', state.onPointerDown);
     window.addEventListener('keydown', state.onKeyDown);
 }
+/** Heal/Cleanse radius: allies only, no Allies/Enemies picker — resolve after center is known. */
+function isSupportRadiusAutoResolve(option) {
+    return ((option.aoePlacementProfile === 'heal' || option.aoePlacementProfile === 'cleanse') &&
+        option.aoeShape === 'radius');
+}
+/** Keep only tokens that match the option's target group (allies for heal/cleanse). */
+function pruneCandidatesToTargetGroup(state, casterToken, targetGroup) {
+    for (const [tokenId, candidate] of [...state.candidates.entries()]) {
+        if (!matchesTargetGroup(casterToken, candidate.token, targetGroup)) {
+            state.candidates.delete(tokenId);
+            state.selectedTargets.delete(tokenId);
+        }
+    }
+}
+function selectAllCandidates(state) {
+    state.selectedTargets.clear();
+    for (const [tokenId, candidate] of state.candidates.entries()) {
+        candidate.selected = true;
+        state.selectedTargets.add(tokenId);
+    }
+}
+function finalizeSupportRadiusTargets(state) {
+    const targetGroup = (state.option.defaultTargetGroup || 'ally');
+    pruneCandidatesToTargetGroup(state, state.casterToken, targetGroup);
+    selectAllCandidates(state);
+    updateCandidateVisuals(state);
+    void confirmUtilityTargets(state);
+}
 /**
  * Start radius utility mode
  */
@@ -802,6 +830,7 @@ export function startUtilityRadiusMode(token, option) {
     const rangeMeters = option.rangeMeters || option.range || 0;
     const radiusMeters = option.aoeRadiusMeters || 0;
     const targetGroup = option.defaultTargetGroup || 'ally';
+    const supportAuto = isSupportRadiusAutoResolve(option);
     // Create preview graphics
     const previewGraphics = new PIXI.Graphics();
     const rangeLineGraphics = new PIXI.Graphics();
@@ -939,6 +968,11 @@ export function startUtilityRadiusMode(token, option) {
                         if (state.center) {
                             state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
                         }
+                        if (supportAuto) {
+                            highlightRadiusArea(state);
+                            finalizeSupportRadiusTargets(state);
+                            return;
+                        }
                         // Default selection (allies never pre-selected while excluded)
                         for (const [tokenId, candidate] of state.candidates.entries()) {
                             if (state.excludeAllies && candidate.isAlly) {
@@ -1002,6 +1036,12 @@ export function startUtilityRadiusMode(token, option) {
     if (rangeMeters === 0) {
         state.center = { x: token.center.x, y: token.center.y };
         state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
+        if (supportAuto) {
+            // Melee / Self support AoE: allies in radius → chat allocation (no place / pick UI).
+            highlightRadiusArea(state);
+            finalizeSupportRadiusTargets(state);
+            return;
+        }
         // Default selection based on target group (allies never pre-selected while excluded)
         for (const [tokenId, candidate] of state.candidates.entries()) {
             if (state.excludeAllies && candidate.isAlly) {

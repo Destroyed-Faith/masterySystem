@@ -2,7 +2,7 @@
  * NPC Sheet for Mastery System
  * Simplified sheet for non-player characters
  */
-import { MasteryCharacterSheet } from './character-sheet';
+import { MasteryCharacterSheet } from './character-sheet.js';
 import { writeActorStatusList } from '../system/assign-status.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
 import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, } from '../utils/npc-attack-model.js';

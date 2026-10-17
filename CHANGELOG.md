@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.714] - 2026-10-17
+
+### Fixed
+
+- **AoE Restoration UX:** Melee AoE centers on the caster (no place-cursor); allies only, no Allies/Enemies picker. Chat allocation uses `−` / `+` steppers capped by the shared pool (no dropdowns / post-hoc over-pool errors). Ranged AoE still places, then the same stepper UI.
+
 ## [0.9.713] - 2026-10-17
 
 ### Changed
