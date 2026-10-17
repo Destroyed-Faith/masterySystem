@@ -1192,6 +1192,13 @@ Hooks.once('init', async function() {
   Hooks.on('masterySystem.roundStateUpdated', ({ actorId }: { actorId: string }) => {
     const actor = game.actors?.get(actorId) as Actor | undefined;
     if (actor) void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+    // Dash/Disengage lock base Attack — refresh A x/y on the carousel immediately.
+    try {
+      const carousel = CombatCarouselApp.instance as any;
+      if (carousel?.rendered) carousel.render({ force: false });
+    } catch {
+      /* ignore */
+    }
   });
 
   // Same as above: custom hook can miss some flag sync paths; document updates always reach the client.

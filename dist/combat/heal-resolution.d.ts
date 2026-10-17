@@ -11,8 +11,17 @@ import type { RadialCombatOption } from '../radial-menu/types.js';
 export declare const HEAL_CHAT_FLAG = "healResolution";
 /** Caster flag: `{ [powerKey]: spentLevels }` since last Safe Haven Rest. */
 export declare const HLR_SPENT_FLAG = "healthLevelRecoverySpent";
-/** Catalog Health Level Recovery band (heal Actives; 0 below L4, max 4 at L15–16). */
+/** Catalog Health Level Recovery band for HP-heal Actives (0 below L4, max 4 at L15–16). */
 export declare function healHealthLevelRecoveryForRank(rank: number): number;
+/** True for dedicated Scarred Bar Restoration (no HP dice — pool is the whole Power). */
+export declare function isScarredRestorationPower(item: any): boolean;
+/**
+ * Safe Haven Rest pool size for this Power:
+ * - Scarred Bar Restoration → catalog pool at Power Level (up to 12)
+ * - else authored `mechanics.healthLevelRecovery` when present
+ * - else the small HP-heal HLR band
+ */
+export declare function getPowerHlrPoolMax(powerItem: any): number;
 export declare function powerItemRank(item: any): number;
 /** Stable key for this Power's HLR pool on the caster. */
 export declare function healPowerHlrKey(powerItem: any): string;

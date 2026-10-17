@@ -393,6 +393,12 @@ export interface PowerMechanics {
   /** Generic heal dice or flat (aggregator lists under breakdown.healing). */
   healing?: PowerMechanicsHealing;
 
+  /**
+   * Scarred Bar Restoration / Heal HLR: Scarred Health Bars reopenable from this
+   * Power's Safe Haven Rest pool (not HP dice).
+   */
+  healthLevelRecovery?: number;
+
   /** Change an existing special stack (Walking Furnace, cleanse, consume Bulwark, …). */
   modifySpecial?: PowerMechanicsModifySpecial;
 

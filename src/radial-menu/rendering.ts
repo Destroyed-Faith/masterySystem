@@ -9,7 +9,11 @@ import { showRangePreview, clearRangePreview, resolveHoverPreviewMeters } from '
 import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel';
 import { handleChosenCombatOption } from '../token-action-selector';
 import type { CombatSlot } from '../system/combat-maneuvers';
-import { getAvailableActiveBuffActions, getRoundState } from '../combat/action-economy.js';
+import {
+  getAvailableActiveBuffActions,
+  getAvailableAttackActions,
+  getRoundState,
+} from '../combat/action-economy.js';
 /**
  * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
  * immediately fire pointerover for whichever slice is "under" the cursor.
@@ -379,14 +383,12 @@ export function renderInnerSegments(
             remaining = roundState.movementActions.total - roundState.movementActions.used;
             break;
           case 'attack':
-            remaining = roundState.attackActions.total - roundState.attackActions.used;
+          case 'utility':
+            // Includes Dash/Disengage/Parry baseAttackLocked — not just used count.
+            remaining = getAvailableAttackActions(actor, combat);
             break;
           case 'active-buff':
             remaining = getAvailableActiveBuffActions(actor, combat);
-            break;
-          case 'utility':
-            // Utility also uses attack pool
-            remaining = roundState.attackActions.total - roundState.attackActions.used;
             break;
         }
         
@@ -558,13 +560,11 @@ export function refreshInnerSegmentsVisual(
               remaining = roundState.movementActions.total - roundState.movementActions.used;
               break;
             case 'attack':
-              remaining = roundState.attackActions.total - roundState.attackActions.used;
+            case 'utility':
+              remaining = getAvailableAttackActions(actor, combat);
               break;
             case 'active-buff':
               remaining = getAvailableActiveBuffActions(actor, combat);
-              break;
-            case 'utility':
-              remaining = roundState.attackActions.total - roundState.attackActions.used;
               break;
           }
           

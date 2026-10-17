@@ -313,7 +313,11 @@ export class CombatCarouselApp extends BaseCarousel {
             const attackRemaining = getAvailableAttackActions(economyActor, combat);
             const movementRemaining = getAvailableMovementActions(economyActor, combat);
             const roundState = getRoundState(economyActor, combat);
-            const attackUsed = Math.max(0, Math.floor(Number(roundState.attackActions?.used) || 0));
+            const attackUsedRaw = Math.max(0, Math.floor(Number(roundState.attackActions?.used) || 0));
+            // Dash/Disengage/Parry lock the base Attack without incrementing `used` —
+            // count that lock so the carousel shows the Action as gone (e.g. A 0/1).
+            const attackLocked = roundState.baseAttackLocked ? 1 : 0;
+            const attackUsed = attackUsedRaw + attackLocked;
             const movementUsed = Math.max(0, Math.floor(Number(roundState.movementActions?.used) || 0));
             const attackTotal = Math.max(attackRemaining + attackUsed, Math.floor(Number(roundState.attackActions?.total) || 0));
             const movementTotal = Math.max(movementRemaining + movementUsed, Math.floor(Number(roundState.movementActions?.total) || 0));
@@ -419,7 +423,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 attackTotal,
                 movementRemaining,
                 movementTotal,
-                canRefundAttack: isGM && attackUsed > 0,
+                canRefundAttack: isGM && attackUsedRaw > 0,
                 canRefundMovement: isGM && movementUsed > 0,
                 canRefundReaction: isGM && reactSum.used > 0,
                 showGmActionRefund: isGM && !isEncounterPreparing(combat),

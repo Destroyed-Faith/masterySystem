@@ -1073,6 +1073,15 @@ Hooks.once('init', async function () {
         const actor = game.actors?.get(actorId);
         if (actor)
             void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+        // Dash/Disengage lock base Attack — refresh A x/y on the carousel immediately.
+        try {
+            const carousel = CombatCarouselApp.instance;
+            if (carousel?.rendered)
+                carousel.render({ force: false });
+        }
+        catch {
+            /* ignore */
+        }
     });
     // Same as above: custom hook can miss some flag sync paths; document updates always reach the client.
     Hooks.on('updateActor', (actor, changed) => {

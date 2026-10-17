@@ -6,6 +6,7 @@ import {
   formatScarredPromptChat,
   getHealDiceFormula,
   getHlrRemainingOnCaster,
+  getPowerHlrPoolMax,
   healHealthLevelRecoveryForRank,
   healPowerHlrKey,
   healPowerItemFromRadialOption,
@@ -13,9 +14,13 @@ import {
   isHealRadialOption,
 } from '../src/combat/heal-resolution';
 import { countScarredHealthBars } from '../src/stones/remove-scar';
+import {
+  HL_HEAL_MELEE_POOL,
+  HL_HEAL_RANGED_POOL,
+} from '../src/utils/powers/templates/actives';
 
 describe('healHealthLevelRecoveryForRank', () => {
-  it('matches catalog bands (max 4)', () => {
+  it('matches catalog bands for HP-heal Actives (max 4)', () => {
     expect(healHealthLevelRecoveryForRank(1)).toBe(0);
     expect(healHealthLevelRecoveryForRank(3)).toBe(0);
     expect(healHealthLevelRecoveryForRank(4)).toBe(1);
@@ -23,6 +28,25 @@ describe('healHealthLevelRecoveryForRank', () => {
     expect(healHealthLevelRecoveryForRank(12)).toBe(3);
     expect(healHealthLevelRecoveryForRank(15)).toBe(4);
     expect(healHealthLevelRecoveryForRank(16)).toBe(4);
+  });
+});
+
+describe('Scarred Bar Restoration pool', () => {
+  it('uses Restoration catalog pools, not the HP-heal HLR band', () => {
+    // Ranged L11 = 7 (rules); old bug used healHealthLevelRecoveryForRank → 2.
+    expect(HL_HEAL_RANGED_POOL[10]).toBe(7);
+    expect(HL_HEAL_MELEE_POOL[9]).toBe(7); // Melee L10
+    const ranged = {
+      id: 'rest-r',
+      type: 'power',
+      system: {
+        rank: 11,
+        templateId: 'active-ranged-health-level-heal',
+        levels: { '11': { mechanics: { healthLevelRecovery: 7 } } },
+      },
+    };
+    expect(getPowerHlrPoolMax(ranged)).toBe(7);
+    expect(healHealthLevelRecoveryForRank(11)).toBe(2);
   });
 });
 
@@ -41,6 +65,25 @@ describe('HLR pool on caster', () => {
     };
     expect(healPowerHlrKey(power)).toBe('heal-1');
     expect(getHlrRemainingOnCaster(caster, power)).toBe(1); // pool 2 − spent 1
+  });
+
+  it('Restoration remaining uses the full Scarred pool', () => {
+    const power = {
+      id: 'rest-1',
+      type: 'power',
+      system: {
+        rank: 11,
+        templateId: 'active-ranged-health-level-heal',
+        levels: { '11': { mechanics: { healthLevelRecovery: 7 } } },
+      },
+    };
+    const flags: Record<string, unknown> = {
+      'mastery-system:healthLevelRecoverySpent': { 'rest-1': 2 },
+    };
+    const caster = {
+      getFlag: vi.fn((scope: string, key: string) => flags[`${scope}:${key}`]),
+    };
+    expect(getHlrRemainingOnCaster(caster, power)).toBe(5); // 7 − 2
   });
 });
 

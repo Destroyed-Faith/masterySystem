@@ -16,10 +16,11 @@ import { isHealthBarScarred } from '../utils/calculations.js';
 import { getActionEconomyActor } from './action-economy.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
 import { getTemplate } from '../utils/powers/templates/index.js';
+import { HL_HEAL_MELEE_POOL, HL_HEAL_RANGED_POOL, } from '../utils/powers/templates/actives.js';
 export const HEAL_CHAT_FLAG = 'healResolution';
 /** Caster flag: `{ [powerKey]: spentLevels }` since last Safe Haven Rest. */
 export const HLR_SPENT_FLAG = 'healthLevelRecoverySpent';
-/** Catalog Health Level Recovery band (heal Actives; 0 below L4, max 4 at L15–16). */
+/** Catalog Health Level Recovery band for HP-heal Actives (0 below L4, max 4 at L15–16). */
 export function healHealthLevelRecoveryForRank(rank) {
     const lvl = Math.max(1, Math.min(16, Math.floor(Number(rank) || 1)));
     if (lvl >= 15)
@@ -31,6 +32,36 @@ export function healHealthLevelRecoveryForRank(rank) {
     if (lvl >= 4)
         return 1;
     return 0;
+}
+/** True for dedicated Scarred Bar Restoration (no HP dice — pool is the whole Power). */
+export function isScarredRestorationPower(item) {
+    const tid = String(item?.system?.templateId || '');
+    return /health-level-heal/i.test(tid);
+}
+/**
+ * Safe Haven Rest pool size for this Power:
+ * - Scarred Bar Restoration → catalog pool at Power Level (up to 12)
+ * - else authored `mechanics.healthLevelRecovery` when present
+ * - else the small HP-heal HLR band
+ */
+export function getPowerHlrPoolMax(powerItem) {
+    const rank = powerItemRank(powerItem);
+    try {
+        const fromMech = Number(resolvePowerMechanics(powerItem)?.healthLevelRecovery);
+        if (Number.isFinite(fromMech) && fromMech >= 0) {
+            return Math.floor(fromMech);
+        }
+    }
+    catch {
+        /* fall through */
+    }
+    const tid = String(powerItem?.system?.templateId || '');
+    if (/health-level-heal/i.test(tid)) {
+        const table = /ranged/i.test(tid) ? HL_HEAL_RANGED_POOL : HL_HEAL_MELEE_POOL;
+        const idx = Math.max(0, Math.min(15, rank - 1));
+        return Math.max(0, Math.floor(Number(table[idx]) || 0));
+    }
+    return healHealthLevelRecoveryForRank(rank);
 }
 export function powerItemRank(item) {
     const sys = item?.system ?? {};
@@ -59,7 +90,7 @@ export function getHlrSpentOnCaster(caster, powerKey) {
     return 0;
 }
 export function getHlrRemainingOnCaster(caster, powerItem) {
-    const poolMax = healHealthLevelRecoveryForRank(powerItemRank(powerItem));
+    const poolMax = getPowerHlrPoolMax(powerItem);
     if (poolMax <= 0)
         return 0;
     const spent = getHlrSpentOnCaster(caster, healPowerHlrKey(powerItem));
@@ -605,7 +636,7 @@ async function applyHpHealPass(args) {
 export async function resolveHealOnTokens(args) {
     const caster = args.casterToken?.actor;
     const formula = getHealDiceFormula(args.powerItem);
-    const poolMax = healHealthLevelRecoveryForRank(powerItemRank(args.powerItem));
+    const poolMax = getPowerHlrPoolMax(args.powerItem);
     const poolRemaining = getHlrRemainingOnCaster(caster, args.powerItem);
     const powerKey = healPowerHlrKey(args.powerItem);
     const g = globalThis;

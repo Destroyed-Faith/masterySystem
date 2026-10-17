@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.710] - 2026-10-17
+
+### Fixed
+
+- **Dash / Disengage:** Base Attack Action lock now shows on radial Atk count and carousel, and blocks spending Attacks (Extra Attacks from Stones still work).
+- **Scarred Bar Restoration:** Safe Haven Rest pool uses the Restoration catalog (e.g. up to 7 at higher levels), not the tiny HP-heal HLR band of 2.
+
 ## [0.9.709] - 2026-10-17
 
 ### Fixed

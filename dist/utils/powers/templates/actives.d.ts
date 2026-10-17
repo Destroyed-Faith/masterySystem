@@ -18,5 +18,9 @@
  * listed payload.
  */
 import type { PowerTemplate } from './_shared.js';
+/** Melee Scarred Bar Restoration — Health Level Recovery pool per Power Level (rules). L1 = 0 (not selectable). */
+export declare const HL_HEAL_MELEE_POOL: readonly [0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12];
+/** Ranged Scarred Bar Restoration — Health Level Recovery pool per Power Level (rules). L1 = 0 (not selectable). */
+export declare const HL_HEAL_RANGED_POOL: readonly [0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 10];
 export declare const ACTIVE_TEMPLATES: PowerTemplate[];
 //# sourceMappingURL=actives.d.ts.map

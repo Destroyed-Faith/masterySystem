@@ -655,19 +655,22 @@ export async function spendAttackAction(actor, combat) {
             return true;
         }
     }
-    const roundState = getRoundState(actor, combat);
-    const owner = getActionEconomyActor(actor) ?? actor;
-    const stunnedLock = Math.max(0, getStunnedRank(owner));
-    const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
-    if (roundState.attackActions.used >= effectiveTotal) {
-        if (stunnedLock > 0) {
-            ui.notifications?.warn(`Stunned (${stunnedLock}) — no attack actions remaining this round!`);
+    // Honor Dash/Disengage/Parry baseAttackLocked (and Stunned) the same way as the UI.
+    if (getAvailableAttackActions(actor, combat) <= 0) {
+        const owner = getActionEconomyActor(actor) ?? actor;
+        const rs = getRoundState(actor, combat);
+        if (getStunnedRank(owner) > 0) {
+            ui.notifications?.warn(`Stunned (${getStunnedRank(owner)}) — no attack actions remaining this round!`);
+        }
+        else if (rs.baseAttackLocked) {
+            ui.notifications?.warn('Base Attack Action locked (Dash / Disengage / Parry) — no Attacks left.');
         }
         else {
             ui.notifications?.warn('No attack actions remaining!');
         }
         return false;
     }
+    const roundState = getRoundState(actor, combat);
     roundState.attackActions.used += 1;
     await setRoundState(actor, roundState);
     await maybeLockStonePowersAfterCombatAction(actor, combat);

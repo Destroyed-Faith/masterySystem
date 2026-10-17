@@ -1011,8 +1011,10 @@ function autofireWeaponAttackTemplate() {
     };
 }
 // ─── Health Level Heal / Cleanse Absorption / Mental (Rules/actives.md) ───
-const HL_HEAL_MELEE_POOL = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-const HL_HEAL_RANGED_POOL = [1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 11, 12, 13];
+/** Melee Scarred Bar Restoration — Health Level Recovery pool per Power Level (rules). L1 = 0 (not selectable). */
+export const HL_HEAL_MELEE_POOL = [0, 1, 2, 3, 3, 4, 5, 6, 6, 7, 8, 9, 9, 10, 11, 12];
+/** Ranged Scarred Bar Restoration — Health Level Recovery pool per Power Level (rules). L1 = 0 (not selectable). */
+export const HL_HEAL_RANGED_POOL = [0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 7, 8, 8, 9, 10];
 const CLEANSE_ABSORPTION_RANK = [0, 0, 3, 4, 5, 6, 6, 6, 7, 8, 8, 8, 8, 8, 8, 8];
 const CLEANSE_ABSORPTION_BONUS = [
     '', '', 'I', 'I', 'I', 'I', 'II', 'III', 'III', 'III', 'III', 'IV', 'V', 'V', 'VI', 'VII',
@@ -1068,6 +1070,16 @@ function healthLevelHealTemplate(flavour) {
         roll: { kind: 'none', attribute: 'resolve' },
         levels: buildLevels((lvl) => {
             const hl = pool[lvl - 1];
+            if (hl <= 0) {
+                return activeRow({
+                    type: 'Active, Support',
+                    range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
+                    aoe: R_NONE,
+                    effectText: '**Not available at Power Level 1:** a Health Level costs 40 PP. This Power has no legal Level 1 version.',
+                    specials: [],
+                    mechanics: { healthLevelRecovery: 0 },
+                });
+            }
             const noun = hl === 1 ? 'Scarred Health Bar' : 'Scarred Health Bars';
             const reach = isRanged
                 ? 'on one creature within range'
@@ -1080,7 +1092,7 @@ function healthLevelHealTemplate(flavour) {
                     `Spend this Power's Health Level Recovery pool ${reach}. ` +
                     `**Pool:** restore up to **${hl} ${noun}** per Safe Haven Rest.`,
                 specials: [],
-                mechanics: {},
+                mechanics: { healthLevelRecovery: hl },
             });
         }),
     };
