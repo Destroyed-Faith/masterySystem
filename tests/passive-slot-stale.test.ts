@@ -51,4 +51,19 @@ describe('stale Passive slots after item delete', () => {
     expect(getSlottedPassiveIds(actor).has('gone-armor')).toBe(false);
     expect(getSlottedPassiveIds(actor).has('live-rest')).toBe(true);
   });
+
+  it('keeps catalog-id slots when the actor has no matching item (aura fixtures)', () => {
+    const actor = makeActor({
+      masteryRank: 1,
+      passives: {
+        slot0: {
+          active: true,
+          passive: { id: 'passive-special-aura', name: 'Special Aura' },
+        },
+      },
+      items: [],
+    });
+    expect(getPassiveSlots(actor)[0]?.passive?.id).toBe('passive-special-aura');
+    expect(getPassiveSlots(actor)[0]?.active).toBe(true);
+  });
 });

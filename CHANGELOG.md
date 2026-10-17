@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.716] - 2026-10-17
+
+### Fixed
+
+- **Passive slots / Special Aura:** Catalog template slot ids (e.g. `passive-special-aura`) are no longer treated as missing items, so aura fixtures and legacy catalog slots stay filled after the ghost-slot cleanup.
+
 ## [0.9.715] - 2026-10-17
 
 ### Changed

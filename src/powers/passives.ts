@@ -52,6 +52,28 @@ export function getPassiveSlotUnlockRank(slotIndex: number): number | null {
   return PASSIVE_SLOT_UNLOCK_RANKS[slotIndex] ?? null;
 }
 
+/** Slot ids that are catalog template ids, not embedded Item ids (fixtures / legacy). */
+function isCatalogTemplateSlotId(id: string): boolean {
+  return /^(passive|active|ab|reaction|empower|extend)-/i.test(id);
+}
+
+/**
+ * True when the slot points at an embedded power that is no longer on the actor.
+ * Catalog template ids and actors with no item collection stay filled.
+ */
+function passiveSlotReferencesMissingItem(actor: Actor, raw: any): boolean {
+  const id = String(raw?.id || '');
+  if (!id || isCatalogTemplateSlotId(id)) return false;
+  const rawItems = (actor as any)?.items;
+  const hasCollection =
+    Array.isArray(rawItems) ||
+    Array.isArray(rawItems?.contents) ||
+    typeof rawItems?.[Symbol.iterator] === 'function' ||
+    typeof rawItems?.get === 'function';
+  if (!hasCollection) return false;
+  return !findPassivePowerItem(actor, id);
+}
+
 /**
  * All six Passive Slots for an actor (locked ones included so the UI can show
  * unlock ranks). Combat effects and auto-fill should skip `locked` slots.
@@ -69,10 +91,7 @@ export function getPassiveSlots(actor: Actor): PassiveSlot[] {
     const slotData = passives[`slot${i}`] || {};
     const raw = slotData.passive;
     // Deleted power items leave ghost slot data — treat as empty so drops work.
-    const stale =
-      !locked &&
-      !!raw?.id &&
-      !findPassivePowerItem(actor, String(raw.id));
+    const stale = !locked && passiveSlotReferencesMissingItem(actor, raw);
     const hasPassive = !locked && !stale && !!(raw && (raw.id || raw.name));
     slots.push({
       slotIndex: i,
@@ -100,7 +119,7 @@ export async function pruneStalePassiveSlots(actor: Actor): Promise<number> {
     const slotKey = `slot${i}`;
     const raw = passives[slotKey]?.passive;
     if (!raw?.id) continue;
-    if (findPassivePowerItem(actor, String(raw.id))) continue;
+    if (!passiveSlotReferencesMissingItem(actor, raw)) continue;
     patchForcedDelete(patch, `system.passives.${slotKey}`);
     cleared += 1;
   }
