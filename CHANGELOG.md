@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.709] - 2026-10-17
+
+### Fixed
+
+- **CI:** Comment wording in Counterattack reach helper no longer trips the removed Martial Skills scan (`Ranged Weapons`).
+
 ## [0.9.708] - 2026-10-17
 
 ### Fixed

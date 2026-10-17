@@ -243,7 +243,7 @@ export function actorCanReachWithBasicAttack(actor, rangeM) {
         if (String(ranged.system?.weaponType || '').toLowerCase() !== 'ranged')
             return false;
         const parsed = parseArtifactWeaponRangeMeters(ranged.system?.range);
-        // Authored metre value, else the catalog default for ranged weapons.
+        // Authored metre value, else the catalog default for a ranged armament.
         const weaponRange = parsed != null && parsed > 0 ? parsed : 24;
         return dist <= weaponRange + 0.05;
     }
