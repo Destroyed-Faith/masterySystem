@@ -11,6 +11,8 @@ import {
   getPassiveSlots,
   getAvailablePassives,
   getSlottedPassiveIds,
+  findPassivePowerItem,
+  formatPassiveDescription,
   slotPassive,
   unslotPassive,
   canEditEncounterPassives,
@@ -136,7 +138,19 @@ export class PassiveSelectionDialog extends BaseDialog {
     const actor = this.currentActor;
     if (!actor) return {};
 
-    const slots = getPassiveSlots(actor);
+    const slots = getPassiveSlots(actor).map((slot) => {
+      if (!slot.passive?.id) return slot;
+      const item = findPassivePowerItem(actor, String(slot.passive.id));
+      const live = item ? formatPassiveDescription(item) : '';
+      const description = live || String(slot.passive.description || '').trim();
+      const name = String(slot.passive.name || '')
+        .replace(/^Passive:\s*/i, '')
+        .trim() || slot.passive.name;
+      return {
+        ...slot,
+        passive: { ...slot.passive, name, description },
+      };
+    });
     const available = getAvailablePassives(actor);
     const slottedIds = getSlottedPassiveIds(actor);
     const selectablePassives = available.filter((p: any) => !slottedIds.has(String(p.id)));
@@ -225,7 +239,7 @@ export class PassiveSelectionDialog extends BaseDialog {
           const slotIndex = Number(slot.dataset.slotIndex ?? 0);
           const passiveId = ev.dataTransfer?.getData('text/plain') || '';
 
-          if (!passiveId || !slot.classList.contains('empty')) return;
+          if (!passiveId || !slot.classList.contains('empty') || slot.classList.contains('locked')) return;
           if (!this.#canMutate()) return;
           if (this.#combatRound() > 1) {
             if (this.freedSlots.has(slotIndex)) {

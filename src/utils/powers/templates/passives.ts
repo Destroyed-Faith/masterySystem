@@ -514,7 +514,7 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
             const pct = damageReductionPct(lvl);
             return pct === 0
                 ? {
-                    text: 'No Damage Reduction yet (10% from Level 3).',
+                    text: 'Damage Reduction starts at Level 3 (10%).',
                     mechanics: { damageReductionPct: 0 },
                 }
                 : { text: `Gain **${pct}% Damage Reduction**.`, mechanics: { damageReductionPct: pct } };

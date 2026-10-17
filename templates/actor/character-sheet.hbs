@@ -1617,6 +1617,15 @@
           <i class="fas fa-plus"></i> Add Power
           <span class="add-power-cost">1 XP</span>
         </button>
+        <button
+          type="button"
+          class="powers-collapse-all-btn"
+          data-expanded="true"
+          title="Alle Power-Gruppen (Actives, Passives, Reactions, …) und Detailkarten ein- oder ausklappen"
+        >
+          <i class="fas fa-compress"></i>
+          <span class="powers-collapse-all-label">Alle einklappen</span>
+        </button>
         <div class="power-level-distribution-controls">
           <button type="button" class="confirm-power-level-changes" id="confirm-power-level-changes-btn" disabled>
             <i class="fas fa-check"></i> Confirm Changes
@@ -1854,6 +1863,7 @@
             <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">
               <i class="fas fa-grip-lines-vertical powers-type-group-handle" aria-hidden="true"></i>
               <span class="powers-type-group-label-text">{{this.groupLabel}}</span>
+              <span class="powers-type-group-count" title="{{this.powers.length}} in this group">({{this.powers.length}})</span>
             </summary>
             <div class="powers-type-group-list">
             {{#each this.powers}}

@@ -1,13 +1,20 @@
 <div class="passive-selection-overlay">
   <section class="passive-slots-section">
     <h3>Passive Slots</h3>
+    <p class="passive-slots-legend">All six slots shown. Unlock order: MR 1 → 2 → 3 → 5 → 7 → 8. Locked slots open when your Mastery Rank reaches that number.</p>
     <div class="slots-grid">
       {{#each slots as |slot|}}
-        <div class="passive-slot {{#if slot.passive}}active{{/if}} {{#unless slot.passive}}empty{{/unless}} droppable-slot" 
-             data-slot-index="{{slot.slotIndex}}">
+        <div class="passive-slot {{#if slot.locked}}locked{{else}}{{#if slot.passive}}active{{else}}empty droppable-slot{{/if}}{{/if}}"
+             data-slot-index="{{slot.slotIndex}}"
+             {{#if slot.locked}}title="Unlocks at Mastery Rank {{slot.unlockMasteryRank}}"{{/if}}>
           <div class="slot-header">
-            <span class="slot-number">Slot {{inc slot.slotIndex}} <span class="slot-unlock">(MR {{slot.unlockMasteryRank}}+)</span></span>
-            {{#if slot.passive}}
+            <span class="slot-number">
+              Slot {{inc slot.slotIndex}}
+              <span class="slot-unlock">MR {{slot.unlockMasteryRank}}+</span>
+            </span>
+            {{#if slot.locked}}
+              <span class="slot-locked-badge">Locked</span>
+            {{else if slot.passive}}
               {{#if ../canEdit}}
               <button type="button" class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Clear slot">
                 <i class="fas fa-times"></i>
@@ -15,11 +22,17 @@
               {{/if}}
             {{/if}}
           </div>
-          
-          {{#if slot.passive}}
+
+          {{#if slot.locked}}
+            <div class="slot-body locked-slot">
+              <p>Opens at <strong>Mastery Rank {{slot.unlockMasteryRank}}</strong></p>
+            </div>
+          {{else if slot.passive}}
             <div class="slot-body">
               <h4>{{slot.passive.name}}</h4>
+              {{#if slot.passive.description}}
               <p class="passive-effect">{{slot.passive.description}}</p>
+              {{/if}}
             </div>
           {{else}}
             <div class="slot-body empty-slot">

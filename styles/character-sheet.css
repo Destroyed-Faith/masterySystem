@@ -2921,8 +2921,26 @@
 }
 
 .mastery-system.sheet.actor.character .powers-type-group-details > summary .powers-type-group-label-text {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
+}
+
+.mastery-system.sheet.actor.character .powers-type-group-count {
+  flex: 0 0 auto;
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.45rem;
+  font-size: 0.78em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: rgba(230, 235, 240, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+.mastery-system.sheet.actor.character .powers-type-group-details > summary .powers-type-group-label-text + .powers-type-group-count {
+  margin-right: auto;
 }
 
 .mastery-system.sheet.actor.character .powers-type-group-details > summary.powers-type-group-details-summary::-webkit-details-marker {
@@ -9192,7 +9210,8 @@ aside#tooltip,
   border-bottom: 2px solid var(--df-border-primary, #3a3f44);
 }
 
-.mastery-system.sheet.actor.character .add-power-btn {
+.mastery-system.sheet.actor.character .add-power-btn,
+.mastery-system.sheet.actor.character .powers-collapse-all-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -9205,11 +9224,22 @@ aside#tooltip,
   cursor: pointer;
 }
 
-.mastery-system.sheet.actor.character .add-power-btn:hover {
+.mastery-system.sheet.actor.character .powers-collapse-all-btn {
+  border-color: rgba(160, 180, 200, 0.4);
+  color: #d5e2ef;
+}
+
+.mastery-system.sheet.actor.character .add-power-btn:hover,
+.mastery-system.sheet.actor.character .powers-collapse-all-btn:hover {
   border-color: rgba(201, 162, 39, 0.75);
   background: linear-gradient(to bottom, #454e55, #323940);
   color: #fff6d0;
 }
+
+.mastery-system.sheet.actor.character .powers-collapse-all-btn:hover {
+  border-color: rgba(180, 200, 220, 0.7);
+}
+
 
 .mastery-system.sheet.actor.character .add-power-btn .add-power-cost {
   padding: 1px 7px;

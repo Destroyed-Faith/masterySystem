@@ -122,6 +122,13 @@
   padding-bottom: 0.5rem;
 }
 
+.passive-slots-legend {
+  margin: -0.35rem 0 0.85rem 0;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: rgba(200, 210, 220, 0.85);
+}
+
 .slots-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -134,6 +141,51 @@
   border-radius: 8px;
   padding: 1rem;
   transition: all 0.3s ease;
+}
+
+.passive-slot.locked {
+  opacity: 0.72;
+  border-style: dotted;
+  border-color: rgba(168, 178, 190, 0.45);
+  background: rgba(22, 33, 62, 0.55);
+  cursor: not-allowed;
+}
+
+.passive-slot.locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.passive-slot .slot-unlock {
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #ffe0a8;
+  background: rgba(201, 162, 39, 0.18);
+  border: 1px solid rgba(201, 162, 39, 0.4);
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.passive-slot.locked .slot-unlock {
+  color: #cfd8dc;
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.passive-slot .slot-locked-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #90a4ae;
+}
+
+.passive-slot .locked-slot {
+  color: rgba(200, 210, 220, 0.8);
+  font-size: 0.88rem;
 }
 
 .passive-slot.active {

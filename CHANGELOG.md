@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.707] - 2026-10-17
+
+### Changed
+
+- **Powers tab:** Collapse/expand-all control; group headers show counts (`Actives (4)`, …).
+- **Combat Select Passives:** Always show all 6 slots with unlock badges (MR 1 / 2 / 3 / 5 / 7 / 8); locked slots labeled until Mastery Rank opens them.
+- **Passive blurbs:** Available and slotted Passives use mechanics/effect summaries (Damage Reduction no longer blank at low levels).
+
 ## [0.9.706] - 2026-10-17
 
 ### Fixed

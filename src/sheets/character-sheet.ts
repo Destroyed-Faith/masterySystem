@@ -3552,6 +3552,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Power details toggle
     html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
+    html
+      .off('click.msPowersCollapseAll', '.powers-collapse-all-btn')
+      .on('click.msPowersCollapseAll', '.powers-collapse-all-btn', this.#onPowersCollapseAllToggle.bind(this));
 
     html
       .off('change.msPowerRename', '.power-display-name-input')
@@ -6376,6 +6379,48 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       detailsSection.slideDown(200);
       toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
     }
+  }
+
+  /**
+   * Collapse / expand all Power type groups (Actives, Passives, …) and
+   * fold every per-card details panel so the tab is scannable again.
+   */
+  #onPowersCollapseAllToggle(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const $btn = $(event.currentTarget);
+    const root = this.element ? $(this.element) : $btn.closest('.sheet');
+    if (!root.length) return;
+
+    const $groups = root.find('details.powers-type-group-details');
+    if ($groups.length === 0) return;
+
+    const currentlyExpanded = $btn.attr('data-expanded') !== 'false';
+    const expand = !currentlyExpanded;
+
+    for (const el of $groups.toArray()) {
+      const details = el as HTMLDetailsElement;
+      details.open = expand;
+    }
+
+    // Always fold card-level tables when collapsing; keep them folded on expand
+    // so the player opens only the groups/cards they need.
+    root.find('.power-card').each((_i, card) => {
+      const $card = $(card);
+      const $details = $card.find('.power-details-expanded');
+      const $compact = $card.find('.power-description-compact');
+      const $icon = $card.find('.power-toggle-details i');
+      $details.hide();
+      $compact.show();
+      $icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+    });
+
+    $btn.attr('data-expanded', expand ? 'true' : 'false');
+    $btn.find('.powers-collapse-all-label').text(expand ? 'Alle einklappen' : 'Alle aufklappen');
+    const $icon = $btn.find('i').first();
+    $icon
+      .removeClass(expand ? 'fa-expand' : 'fa-compress')
+      .addClass(expand ? 'fa-compress' : 'fa-expand');
   }
 
   /**

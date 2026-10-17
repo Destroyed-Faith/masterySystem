@@ -6,6 +6,9 @@
 import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
+import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { summarizePowerMechanics } from '../utils/power-mechanics-summary.js';
+import { resolvePowerSheetLevelDisplay } from '../utils/power-rendering.js';
 
 /**
  * Mastery Rank at which each passive slot unlocks (Players Guide / passives.md).
@@ -20,6 +23,8 @@ export interface PassiveSlot {
   passive: PassiveAbility | null;
   active: boolean;
   unlockMasteryRank: number;
+  /** True when Mastery Rank is below this slot's unlock rank (still shown in UI). */
+  locked: boolean;
 }
 
 export interface PassiveAbility {
@@ -47,29 +52,66 @@ export function getPassiveSlotUnlockRank(slotIndex: number): number | null {
 }
 
 /**
- * Get all passive slots for an actor
- * Returns slots unlocked by Mastery Rank (up to 6 at MR 8).
+ * All six Passive Slots for an actor (locked ones included so the UI can show
+ * unlock ranks). Combat effects and auto-fill should skip `locked` slots.
  */
 export function getPassiveSlots(actor: Actor): PassiveSlot[] {
   const system = (actor.system as any);
   const passives = system.passives || {};
   const masteryRank = getRulesMasteryRank(actor);
-  const slotCount = getPassiveSlotCountForMasteryRank(masteryRank);
+  const unlocked = getPassiveSlotCountForMasteryRank(masteryRank);
   const slots: PassiveSlot[] = [];
 
-  for (let i = 0; i < slotCount; i++) {
+  for (let i = 0; i < MAX_PASSIVE_SLOTS; i++) {
+    const unlockMasteryRank = getPassiveSlotUnlockRank(i) ?? 1;
+    const locked = i >= unlocked;
     const slotData = passives[`slot${i}`] || {};
     const raw = slotData.passive;
-    const hasPassive = !!(raw && (raw.id || raw.name));
+    const hasPassive = !locked && !!(raw && (raw.id || raw.name));
     slots.push({
       slotIndex: i,
       passive: hasPassive ? raw : null,
       active: hasPassive && !!slotData.active,
-      unlockMasteryRank: getPassiveSlotUnlockRank(i) ?? 1,
+      unlockMasteryRank,
+      locked,
     });
   }
 
   return slots;
+}
+
+/** Unlocked Passive Slots only (usable at current Mastery Rank). */
+export function getUnlockedPassiveSlots(actor: Actor): PassiveSlot[] {
+  return getPassiveSlots(actor).filter((s) => !s.locked);
+}
+
+/** Plain combat-facing blurb for a Passive power item (Available + slotted). */
+export function formatPassiveDescription(item: any): string {
+  if (!item) return '';
+  try {
+    const mech = resolvePowerMechanics(item);
+    const sum = summarizePowerMechanics(mech);
+    if (sum) return sum;
+  } catch {
+    /* ignore */
+  }
+  try {
+    const display = resolvePowerSheetLevelDisplay((item as any).system);
+    const effect = String(display.effect || '')
+      .replace(/\*\*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (effect && effect !== '—') return effect;
+  } catch {
+    /* ignore */
+  }
+  const sys = (item.system as any) || {};
+  const raw = String(sys.effect || sys.description || sys.fluff || '')
+    .replace(/\*\*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (raw && raw !== '—') return raw;
+  return '';
 }
 
 function actorItemList(actor: Actor): any[] {
@@ -177,10 +219,13 @@ export function isPassivePowerItem(item: any): boolean {
 
 function passiveAbilityFromItem(item: any): PassiveAbility {
   const itemSystem = (item.system as any) || {};
+  const name = String(item.name || 'Unknown Passive');
+  // Strip category prefix for compact combat UI ("Passive: Armor" → "Armor").
+  const shortName = name.replace(/^Passive:\s*/i, '').trim() || name;
   return {
     id: String(item.id || item._id || item.name || ''),
-    name: item.name || 'Unknown Passive',
-    description: itemSystem.effect || itemSystem.description || '',
+    name: shortName,
+    description: formatPassiveDescription(item),
     category: itemSystem.tree || itemSystem.category || 'General',
     level: itemSystem.level || itemSystem.rank || 1,
   };
@@ -238,6 +283,17 @@ export function getSlottedPassiveIds(actor: Actor): Set<string> {
  * Slot a passive ability into a slot
  */
 export async function slotPassive(actor: Actor, slotIndex: number, passiveId: string): Promise<void> {
+  const unlockAt = getPassiveSlotUnlockRank(slotIndex);
+  if (unlockAt == null) {
+    ui.notifications?.warn('That Passive Slot does not exist.');
+    return;
+  }
+  const masteryRank = getRulesMasteryRank(actor);
+  if (masteryRank < unlockAt) {
+    ui.notifications?.warn(`Passive Slot ${slotIndex + 1} unlocks at Mastery Rank ${unlockAt}.`);
+    return;
+  }
+
   const system = (actor.system as any);
   if (!system.passives) {
     system.passives = {};
@@ -267,12 +323,13 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
         return;
       }
     }
+    const row = passiveAbilityFromItem(passiveItem);
     system.passives[slotKey].passive = {
-      id: passiveItem.id || passiveItem._id || passiveItem.name,
-      name: passiveItem.name || 'Unknown Passive',
-      description: itemSystem.effect || itemSystem.description || '',
-      category: itemSystem.tree || itemSystem.category || 'General',
-      level: itemSystem.level || itemSystem.rank || 1,
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      category: row.category,
+      level: row.level,
       templateId,
       specialChoice,
     };
@@ -399,14 +456,14 @@ export function pickDefaultPassiveIds(
  * Already-slotted picks are the saved default and are left alone.
  */
 export async function ensureDefaultPassiveSlots(actor: Actor): Promise<string[]> {
-  const slots = getPassiveSlots(actor);
-  if (slots.some((s) => s.passive)) {
-    return slots.map((s) => String(s.passive?.id ?? '')).filter(Boolean);
+  const unlocked = getUnlockedPassiveSlots(actor);
+  if (unlocked.some((s) => s.passive)) {
+    return unlocked.map((s) => String(s.passive?.id ?? '')).filter(Boolean);
   }
   const available = getAvailablePassives(actor);
   const picked = pickDefaultPassiveIds(
     available,
-    slots.length,
+    unlocked.length,
     String((actor as { id?: string }).id ?? (actor as { name?: string }).name ?? ''),
   );
   for (let i = 0; i < picked.length; i += 1) {
@@ -424,13 +481,14 @@ export const EXCHANGE_PASSIVE_SWAPS_FLAG = 'exchangePassiveSwapsPending';
  * A full set (no third slot, or nothing left to assign) stays quiet.
  */
 export function passiveSlotsHaveOpenChoice(
-  slots: Array<{ passive?: unknown }>,
+  slots: Array<{ passive?: unknown; locked?: boolean }>,
   availablePassiveCount: number,
   pendingSwaps: number,
 ): boolean {
   if (Math.max(0, Math.floor(pendingSwaps)) > 0) return true;
-  const filled = slots.filter((slot) => slot?.passive).length;
-  const empty = Math.max(0, slots.length - filled);
+  const usable = slots.filter((slot) => !slot?.locked);
+  const filled = usable.filter((slot) => slot?.passive).length;
+  const empty = Math.max(0, usable.length - filled);
   const spare = Math.max(0, Math.floor(availablePassiveCount) - filled);
   return empty > 0 && spare > 0;
 }

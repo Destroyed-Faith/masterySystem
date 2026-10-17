@@ -4,11 +4,13 @@ import {
   consumePendingPassiveSwap,
   ensureDefaultPassiveSlots,
   EXCHANGE_PASSIVE_SWAPS_FLAG,
+  formatPassiveDescription,
   getAvailablePassives,
   getPassiveSlotCountForMasteryRank,
   getPassiveSlots,
   getPassiveSlotUnlockRank,
   getPendingPassiveSwaps,
+  getUnlockedPassiveSlots,
   MAX_PASSIVE_SLOTS,
   PASSIVE_SLOT_UNLOCK_RANKS,
   pickDefaultPassiveIds,
@@ -50,6 +52,35 @@ describe('passive slot unlocks', () => {
       },
     } as unknown as Actor;
     expect(getPassiveSlots(actor)[0]?.passive).toBeNull();
+  });
+
+  it('always shows all six slots with lock flags by Mastery Rank', () => {
+    const actor = {
+      system: { mastery: { rank: 2 }, passives: {} },
+    } as unknown as Actor;
+    const slots = getPassiveSlots(actor);
+    expect(slots).toHaveLength(6);
+    expect(slots.map((s) => s.locked)).toEqual([false, false, true, true, true, true]);
+    expect(slots.map((s) => s.unlockMasteryRank)).toEqual([1, 2, 3, 5, 7, 8]);
+    expect(getUnlockedPassiveSlots(actor)).toHaveLength(2);
+  });
+
+  it('formats Damage Reduction with a readable blurb even at 0% (L1–2)', () => {
+    const item = {
+      id: 'dr',
+      name: 'Passive: Damage Reduction',
+      type: 'power',
+      system: {
+        category: 'passive',
+        level: 2,
+        templateId: 'passive-damage-reduction',
+        effect: 'Damage Reduction starts at Level 3 (10%).',
+        levels: {
+          '2': { effect: { text: 'Damage Reduction starts at Level 3 (10%).' }, mechanics: { damageReductionPct: 0 } },
+        },
+      },
+    };
+    expect(formatPassiveDescription(item)).toMatch(/Damage Reduction/i);
   });
 
   it('clears a slot with a Foundry delete key instead of nulling the object', async () => {
@@ -232,7 +263,7 @@ describe('default passive picks', () => {
     });
     const first = await ensureDefaultPassiveSlots(actor);
     expect(first).toEqual(['stride', 'ward']);
-    expect(getPassiveSlots(actor).map((s) => s.passive?.id)).toEqual(['stride', 'ward']);
+    expect(getUnlockedPassiveSlots(actor).map((s) => s.passive?.id)).toEqual(['stride', 'ward']);
     const second = await ensureDefaultPassiveSlots(actor);
     expect(second).toEqual(first);
   });
