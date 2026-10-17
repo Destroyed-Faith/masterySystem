@@ -1452,6 +1452,11 @@
           <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Skill Points, Vitality save uses, and Reroll Points">
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
+          {{#if regenerationPassive.show}}
+          <button type="button" class="passive-regeneration-activate" title="{{regenerationPassive.title}}">
+            <i class="fas fa-heart"></i> Regeneration ({{regenerationPassive.remaining}}/{{regenerationPassive.poolMax}})
+          </button>
+          {{/if}}
           <button type="button" class="social-combat-btn" title="Run a 3-phase Social Combat encounter">
             <i class="fas fa-comments"></i> Social Combat
           </button>

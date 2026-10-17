@@ -35,14 +35,14 @@
     "levelProgression": [
       {
         "level": 7,
-        "name": "Single Heal III",
-        "type": "Ranged",
+        "name": "Sentinel Restoration III",
+        "type": "Active, Support",
         "range": "68m",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Heal one creature for **40d8 HP**. Restore **4 Health Levels** per Safe Haven Rest.",
+        "effect": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **10 Scarred Health Bars** per Safe Haven Rest.",
         "special": "",
-        "powerTemplateId": "active-ranged-single-heal"
+        "powerTemplateId": "active-ranged-health-level-heal"
       },
       {
         "level": 5,
@@ -84,8 +84,8 @@
       {
         "level": 1,
         "kind": "power",
-        "powerTemplateId": "active-ranged-single-heal",
-        "displayName": "Single Heal"
+        "powerTemplateId": "active-ranged-health-level-heal",
+        "displayName": "Sentinel Restoration"
       },
       {
         "level": 2,
@@ -123,7 +123,7 @@
     "powers": [
       {
         "id": "sentinelFrame-pw-7",
-        "name": "Single Heal III",
+        "name": "Sentinel Restoration III",
         "category": "active",
         "tags": [],
         "cost": {
@@ -311,7 +311,7 @@
             "specials": []
           },
           "16": {
-            "type": "Ranged",
+            "type": "Active, Support",
             "range": {
               "kind": "distance",
               "m": 68
@@ -321,7 +321,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Heal one creature for **40d8 HP**. Restore **4 Health Levels** per Safe Haven Rest."
+              "text": "Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. Spend this Power's pool on one creature within range. **Pool:** restore up to **10 Scarred Health Bars** per Safe Haven Rest."
             },
             "specials": [],
             "lvl": 7

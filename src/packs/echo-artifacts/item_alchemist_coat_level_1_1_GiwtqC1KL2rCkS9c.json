@@ -60,7 +60,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "vitality",
-          "stonePowerId": "vitality.extendActiveBuff"
+          "stonePowerId": "vitality.damageMaximization"
         },
         "displayName": "Alchemist Stone"
       },

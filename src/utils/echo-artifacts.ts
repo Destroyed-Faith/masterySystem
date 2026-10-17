@@ -1168,11 +1168,11 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'sentinel',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
-  // Printed table: Heal 1/4/7, Resolve Pool 2/6, Healing Support 3/8,
-  // Ward 5/9. The 1/2/3 compiler covers Heal + Pool + Healing;
-  // Ward is an extra Stone Function from Artifact Level 5.
+  // Printed table: Restoration 1/4/7 (R-05; ordinary Single Heal retired),
+  // Resolve Pool 2/6, Healing Support 3/8, Ward 5/9. The 1/2/3 compiler covers
+  // Restoration + Pool + Healing; Ward is an extra Stone Function from Artifact Level 5.
   progressionPickSpecs: {
-    1: { templateId: 'active-ranged-single-heal', name: 'Single Heal' },
+    1: { templateId: 'active-ranged-health-level-heal', name: 'Sentinel Restoration' },
     2: { name: 'Resolve Core', stoneFunction: { kind: 'stonePool', attribute: 'resolve' } },
     3: {
       name: 'Healing Support',
@@ -1203,12 +1203,12 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   levelProgression: [
     {
       level: 1,
-      name: 'Single Heal I',
-      type: 'Active',
-      range: '8 m',
+      name: 'Sentinel Restoration I',
+      type: 'Active, Support',
+      range: '20 m',
       duration: 'Instant',
-      effect: 'Use a single-target healing Active at Power Level 4.',
-      special: 'Healing',
+      effect: 'Restore up to 2 Scarred Health Bars per Safe Haven Rest on one creature (full HP each). Does not heal HP.',
+      special: 'Ranged Single Target Restoration (PL 4)',
     },
     {
       level: 2,
@@ -1231,12 +1231,12 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 4,
-      name: 'Single Heal II',
-      type: 'Active',
-      range: '8 m',
+      name: 'Sentinel Restoration II',
+      type: 'Active, Support',
+      range: '44 m',
       duration: 'Instant',
-      effect: 'Single Heal improves to Power Level 10.',
-      special: 'Healing',
+      effect: 'Sentinel Restoration improves to Power Level 10: pool of 6 Scarred Health Bars per Safe Haven Rest. Replaces Sentinel Restoration I.',
+      special: 'Ranged Single Target Restoration (PL 10)',
     },
     {
       level: 5,
@@ -1258,12 +1258,12 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
     },
     {
       level: 7,
-      name: 'Single Heal III',
-      type: 'Active',
-      range: '8 m',
+      name: 'Sentinel Restoration III',
+      type: 'Active, Support',
+      range: '68 m',
       duration: 'Instant',
-      effect: 'Single Heal improves to Power Level 16.',
-      special: 'Healing',
+      effect: 'Sentinel Restoration improves to Power Level 16: pool of 10 Scarred Health Bars per Safe Haven Rest. Replaces Sentinel Restoration II.',
+      special: 'Ranged Single Target Restoration (PL 16)',
     },
     {
       level: 8,
@@ -1579,7 +1579,7 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
   slot: 'amulet',
   baseProfile: 'noArmorBody',
   description:
-    'Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Healing Aura, and Single Heal.',
+    'Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Melee AoE Restoration (Hearth Circle), and Ranged Single Target Restoration (Remembered Hands).',
   restriction:
     'The Ringchain occupies the Amulet Slot. A Halfling with the Ringchain cannot wear another Amulet Artifact. Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.',
   extraStoneFunctions: [
@@ -1624,12 +1624,13 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
     {
       level: 3,
       name: 'Hearth Circle I',
-      type: 'Active Buff',
-      range: 'Self',
+      type: 'Active, Support',
+      range: 'Melee Reach',
       aoe: 'Radius 2 m',
-      duration: 'Mastery Rank Rounds',
-      effect: 'At the end of each of your turns, allies inside the aura heal 3d8 HP. Each creature can be affected only once per Round.',
-      special: 'Active Buff: Healing Aura (PL 4)',
+      duration: 'Instant',
+      effect: 'Restore up to 2 Scarred Health Bars per Safe Haven Rest among allies within 2 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP.',
+      special: 'Melee AoE Restoration (PL 4)',
+      powerTemplateId: 'active-melee-aoe-restoration',
     },
     {
       level: 4,
@@ -1637,8 +1638,9 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       type: 'Active, Support',
       range: '44 m',
       duration: 'Instant',
-      effect: 'Heal one creature for 13d8 HP. This profile has a pool of 2 Health Levels per Safe Haven Rest.',
-      special: 'Ranged Single Target Heal (PL 10)',
+      effect: 'Restore up to 6 Scarred Health Bars per Safe Haven Rest on one creature at a time (full HP each). Does not heal HP.',
+      special: 'Ranged Single Target Restoration (PL 10)',
+      powerTemplateId: 'active-ranged-health-level-heal',
     },
     {
       level: 5,
@@ -1664,18 +1666,20 @@ const RINGCHAIN_OF_KEPT_NAMES: EchoArtifactDefinition = {
       type: 'Active, Support',
       range: '68 m',
       duration: 'Instant',
-      effect: 'Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I.',
-      special: 'Ranged Single Target Heal (PL 16)',
+      effect: 'Restore up to 10 Scarred Health Bars per Safe Haven Rest on one creature at a time (full HP each). Does not heal HP. Replaces Remembered Hands I.',
+      special: 'Ranged Single Target Restoration (PL 16)',
+      powerTemplateId: 'active-ranged-health-level-heal',
     },
     {
       level: 8,
       name: 'Hearth Circle II',
-      type: 'Active Buff',
-      range: 'Self',
+      type: 'Active, Support',
+      range: 'Melee Reach',
       aoe: 'Radius 4 m',
-      duration: 'Mastery Rank Rounds',
-      effect: 'At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I.',
-      special: 'Active Buff: Healing Aura (PL 16)',
+      duration: 'Instant',
+      effect: 'Restore up to 9 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.',
+      special: 'Melee AoE Restoration (PL 16)',
+      powerTemplateId: 'active-melee-aoe-restoration',
     },
     {
       level: 9,

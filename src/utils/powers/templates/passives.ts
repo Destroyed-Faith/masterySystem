@@ -24,6 +24,7 @@
 import type { PowerTemplate } from './_shared.js';
 import { buildLevels, passiveRow } from './_shared.js';
 import type { PowerMechanics } from '../../../types/item.js';
+import { R05_PASSIVE_REGEN_POOL, regenerationCatalogText } from '../../../combat/r05-pools.js';
 
 // ─── Per-spec progression tables ─────────────────────────────────────────
 
@@ -45,11 +46,8 @@ const INITIATIVE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 3
 /** Temporary HP curve (2 PP / 1 THP). */
 const TEMP_HP_UNCOND    = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
 
-/** Regeneration / unconditional Healing (Rules: 8 PP per HP). */
-const HEAL_UNCOND       = [2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40];
-
-/** Conditional Healing (Blood Feast / Battle Trance / Stillness Recovery; 4 PP per HP). */
-const HEAL_COND         = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+/** R-05: ordinary HP-regen tables removed. Passive: Regeneration uses R05_PASSIVE_REGEN_POOL. */
+const RETIRED_HEAL_NOTE = 'Retired (R-05): ordinary HP healing was removed. Use Scarred Bar Restoration or Passive: Regeneration.';
 
 /** Killing Intent — unconditional Damage (banded; L1 empty, L4 = +2d8). */
 const DMG_KILLING_INTENT = ['', '+1d8', '+1d8', '+2d8', '+2d8', '+3d8', '+3d8', '+4d8',
@@ -291,7 +289,6 @@ const COMB_DMG_HEAL = { dmg: COMB_DMG_BANDED, heal: COMB_HEAL };
 const COMB_DMG_THP = { dmg: COMB_DMG_BANDED, thp: THP_5 };
 const COMB_AWARE_EVADE = { evade: COMB_EVADE_HALF };
 const COMB_AWARE_DMG = { dmg: COMB_DMG_BANDED };
-const COMB_HEALTH_HEAL = { heal: COMB_HEAL };
 const COMB_HEALTH_THP = { thp: THP_5 };
 
 const CC_ARMOR_THP = { armor: CC_HALF, thp: THP_5 };
@@ -304,7 +301,6 @@ const CC_DMG_HEAL = { dmg: CC_DMG_BANDED, heal: CC_HEAL };
 const CC_DMG_THP = { dmg: CC_DMG_BANDED, thp: THP_5 };
 const CC_AWARE_EVADE = { evade: CC_EVADE_HALF };
 const CC_AWARE_DMG = { dmg: CC_DMG_BANDED };
-const CC_HEALTH_HEAL = { heal: CC_HEAL };
 const CC_HEALTH_THP = { thp: THP_5 };
 
 // ─── Helpers for sense-milestone text ────────────────────────────────────
@@ -546,12 +542,17 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         }),
     }),
     basePassive({
-        id: 'passive-regeneration', name: 'Healing', subfamily: 'regen',
-        fluff: 'Your body steadily reclaims lost vitality while the fight continues.',
-        perLevel: (lvl) => ({
-            text: `At the start of your turn, heal **${HEAL_UNCOND[lvl - 1]} HP**.`,
-            mechanics: { regen: HEAL_UNCOND[lvl - 1] },
-        }),
+        id: 'passive-regeneration', name: 'Passive: Regeneration', subfamily: 'regen',
+        fluff: 'Your body reclaims what was lost: scarred vitality knits back to full strength, a few times each Tyhran Day.',
+        perLevel: (lvl) => {
+            const pool = R05_PASSIVE_REGEN_POOL[lvl - 1] ?? 0;
+            return {
+                text: regenerationCatalogText(lvl),
+                mechanics: pool > 0
+                    ? { scarredBarRestoration: { pool, period: 'tyhranDay', target: 'self' } }
+                    : {},
+            };
+        },
     }),
     basePassive({
         id: 'passive-ghostform', name: 'Phasing', subfamily: 'phasing',
@@ -700,27 +701,27 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         }),
     }),
     basePassive({
-        id: 'passive-blood-feast', name: 'Healing (Wounded or Worse)', subfamily: 'recovery',
-        fluff: 'Pain opens the hunger that keeps you standing.',
-        perLevel: (lvl) => ({
-            text: `At the start of your turn, if you are **Wounded or worse**, heal **${HEAL_COND[lvl - 1]} HP**.`,
-            mechanics: { regen: HEAL_COND[lvl - 1], conditionExpr: 'self.healthState <= wounded' },
+        id: 'passive-blood-feast', name: 'Blood Feast (Retired)', subfamily: 'recovery',
+        fluff: 'Pain opens the hunger that keeps you standing. (Retired in R-05.)',
+        perLevel: () => ({
+            text: RETIRED_HEAL_NOTE,
+            mechanics: {},
         }),
     }),
     basePassive({
-        id: 'passive-battle-trance', name: 'Healing (Adjacent to Enemy)', subfamily: 'recovery',
-        fluff: 'The closer death stands, the clearer your body remembers how to live.',
-        perLevel: (lvl) => ({
-            text: `At the start of your turn, if at least one enemy is adjacent to you, heal **${HEAL_COND[lvl - 1]} HP**.`,
-            mechanics: { regen: HEAL_COND[lvl - 1], conditionExpr: 'self.adjacentEnemies >= 1' },
+        id: 'passive-battle-trance', name: 'Battle Trance (Retired)', subfamily: 'recovery',
+        fluff: 'The closer death stands, the clearer your body remembers how to live. (Retired in R-05.)',
+        perLevel: () => ({
+            text: RETIRED_HEAL_NOTE,
+            mechanics: {},
         }),
     }),
     basePassive({
-        id: 'passive-stillness-recovery', name: 'Healing (Moved 0 m Last Turn)', subfamily: 'recovery',
-        fluff: 'Breath returns where motion ends.',
-        perLevel: (lvl) => ({
-            text: `At the start of your turn, if you moved **0 m** on your last turn, heal **${HEAL_COND[lvl - 1]} HP**.`,
-            mechanics: { regen: HEAL_COND[lvl - 1], conditionExpr: 'self.lastTurnMoved == 0' },
+        id: 'passive-stillness-recovery', name: 'Stillness Recovery (Retired)', subfamily: 'recovery',
+        fluff: 'Breath returns where motion ends. (Retired in R-05.)',
+        perLevel: () => ({
+            text: RETIRED_HEAL_NOTE,
+            mechanics: {},
         }),
     }),
 
@@ -744,20 +745,13 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'passive-armor-healing', name: 'Armor + Healing', subfamily: 'combined',
-        fluff: 'You are hard to hurt, and you mend what still lands.',
+        id: 'passive-armor-healing', name: 'Armor (R-05 Retired Combo)', subfamily: 'combined',
+        fluff: 'You are hard to hurt. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
-            const heal = COMB_ARMOR_HEAL.heal[lvl - 1];
             const arm = COMB_ARMOR_HEAL.armor[lvl - 1]!;
-            const text = arm > 0
-                ? `Gain **+${arm} Armor**. At the start of your turn, heal **${heal} HP**.`
-                : `At the start of your turn, heal **${heal} HP**.`;
             return {
-                text,
-                mechanics: {
-                    ...(arm > 0 ? { armor: arm } : {}),
-                    regen: heal,
-                },
+                text: arm > 0 ? `Gain **+${arm} Armor**. HP regen retired (R-05).` : RETIRED_HEAL_NOTE,
+                mechanics: arm > 0 ? { armor: arm } : {},
             };
         },
     }),
@@ -793,20 +787,13 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'passive-evade-healing', name: 'Evade + Healing', subfamily: 'combined',
-        fluff: 'Hard to hit, quick to mend.',
+        id: 'passive-evade-healing', name: 'Evade (R-05 Retired Combo)', subfamily: 'combined',
+        fluff: 'Hard to hit. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
-            const heal = COMB_EVADE_HEAL.heal[lvl - 1];
             const ev = COMB_EVADE_HEAL.evade[lvl - 1]!;
-            const text = ev > 0
-                ? `Gain **+${ev} Evade**. At the start of your turn, heal **${heal} HP**.`
-                : `At the start of your turn, heal **${heal} HP**.`;
             return {
-                text,
-                mechanics: {
-                    ...(ev > 0 ? { evade: ev } : {}),
-                    regen: heal,
-                },
+                text: ev > 0 ? `Gain **+${ev} Evade**. HP regen retired (R-05).` : RETIRED_HEAL_NOTE,
+                mechanics: ev > 0 ? { evade: ev } : {},
             };
         },
     }),
@@ -828,18 +815,13 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'passive-damage-healing', name: 'Damage + Healing', subfamily: 'combined',
-        fluff: 'You hurt them; you mend yourself.',
+        id: 'passive-damage-healing', name: 'Damage (R-05 Retired Combo)', subfamily: 'combined',
+        fluff: 'You hurt them. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
             const dmg = COMB_DMG_HEAL.dmg[lvl - 1]!;
-            const heal = COMB_DMG_HEAL.heal[lvl - 1];
-            const head = dmg ? `Gain **${dmg} Damage** on all damage rolls you make. ` : '';
             return {
-                text: `${head}At the start of your turn, heal **${heal} HP**.`,
-                mechanics: {
-                    ...(dmg ? { damageRider: { flat: dmg } } : {}),
-                    regen: heal,
-                },
+                text: dmg ? `Gain **${dmg} Damage** on all damage rolls you make. HP regen retired (R-05).` : RETIRED_HEAL_NOTE,
+                mechanics: dmg ? { damageRider: { flat: dmg } } : {},
             };
         },
     }),
@@ -889,16 +871,14 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'passive-health-healing', name: 'Health + Healing', subfamily: 'combined',
-        fluff: 'Deep reserves that refill themselves.',
+        id: 'passive-health-healing', name: 'Health (R-05 Retired Combo)', subfamily: 'combined',
+        fluff: 'Deep reserves. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
             const bars = combinedHealthBars(lvl);
             const barStr = healthBarText(bars);
-            const heal = COMB_HEALTH_HEAL.heal[lvl - 1];
-            const head = barStr ? `Gain ${barStr}. ` : '';
             return {
-                text: `${head}At the start of your turn, heal **${heal} HP**.`,
-                mechanics: { regen: heal },
+                text: barStr ? `Gain ${barStr}. HP regen retired (R-05).` : RETIRED_HEAL_NOTE,
+                mechanics: {},
             };
         },
     }),
@@ -931,13 +911,12 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         }),
     }),
     basePassive({
-        id: 'conditional-passive-armor-healing', name: 'Armor / Healing (Conditional)', subfamily: 'conditional-combined',
-        fluff: 'Plant your feet and the world starts healing you.',
+        id: 'conditional-passive-armor-healing', name: 'Armor (Conditional, R-05 Retired Combo)', subfamily: 'conditional-combined',
+        fluff: 'Plant your feet and the world cannot move you. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => ({
-            text: `If you moved **0 m** on your last turn, gain **+${CC_ARMOR_HEAL.armor[lvl - 1]} Armor** and heal **${CC_ARMOR_HEAL.heal[lvl - 1]} HP** at the start of your turn.`,
+            text: `If you moved **0 m** on your last turn, gain **+${CC_ARMOR_HEAL.armor[lvl - 1]} Armor**. HP regen retired (R-05).`,
             mechanics: {
                 armor: CC_ARMOR_HEAL.armor[lvl - 1],
-                regen: CC_ARMOR_HEAL.heal[lvl - 1],
                 conditionExpr: 'self.lastTurnMoved == 0',
             },
         }),
@@ -981,21 +960,17 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'conditional-passive-evade-healing', name: 'Evade / Healing (Conditional)', subfamily: 'conditional-combined',
-        fluff: 'You move, you mend.',
+        id: 'conditional-passive-evade-healing', name: 'Evade (Conditional, R-05 Retired Combo)', subfamily: 'conditional-combined',
+        fluff: 'You move, you slip away. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
             const ev = CC_EVADE_HEAL.evade[lvl - 1]!;
-            const heal = CC_EVADE_HEAL.heal[lvl - 1];
-            const text = ev > 0
-                ? `If you moved at least **8 m** on your last turn, gain **+${ev} Evade** and heal **${heal} HP** at the start of your turn.`
-                : `If you moved at least **8 m** on your last turn, heal **${heal} HP** at the start of your turn.`;
             return {
-                text,
-                mechanics: {
-                    ...(ev > 0 ? { evade: ev } : {}),
-                    regen: heal,
-                    conditionExpr: 'self.lastTurnMoved >= 8',
-                },
+                text: ev > 0
+                    ? `If you moved at least **8 m** on your last turn, gain **+${ev} Evade**. HP regen retired (R-05).`
+                    : RETIRED_HEAL_NOTE,
+                mechanics: ev > 0
+                    ? { evade: ev, conditionExpr: 'self.lastTurnMoved >= 8' }
+                    : {},
             };
         },
     }),
@@ -1018,19 +993,17 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'conditional-passive-damage-healing', name: 'Damage / Healing (Conditional)', subfamily: 'conditional-combined',
-        fluff: 'Your own blood teaches you how to strike and endure at once.',
+        id: 'conditional-passive-damage-healing', name: 'Damage (Conditional, R-05 Retired Combo)', subfamily: 'conditional-combined',
+        fluff: 'Your own blood teaches you how to strike. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
             const dmg = CC_DMG_HEAL.dmg[lvl - 1]!;
-            const heal = CC_DMG_HEAL.heal[lvl - 1];
-            const dmgStr = dmg ? `gain **${dmg} Damage** on all damage rolls you make and ` : '';
             return {
-                text: `While you are affected by **Lacerate**, ${dmgStr}heal **${heal} HP** at the start of your turn.`,
-                mechanics: {
-                    ...(dmg ? { damageRider: { flat: dmg } } : {}),
-                    regen: heal,
-                    conditionExpr: 'self.hasSpecial.lacerate',
-                },
+                text: dmg
+                    ? `While you are affected by **Lacerate**, gain **${dmg} Damage** on all damage rolls you make. HP regen retired (R-05).`
+                    : RETIRED_HEAL_NOTE,
+                mechanics: dmg
+                    ? { damageRider: { flat: dmg }, conditionExpr: 'self.hasSpecial.lacerate' }
+                    : {},
             };
         },
     }),
@@ -1091,18 +1064,16 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         },
     }),
     basePassive({
-        id: 'conditional-passive-health-healing', name: 'Health / Healing (Conditional)', subfamily: 'conditional-combined',
-        fluff: 'The worse it gets, the harder your body fights back.',
+        id: 'conditional-passive-health-healing', name: 'Health (Conditional, R-05 Retired Combo)', subfamily: 'conditional-combined',
+        fluff: 'The worse it gets, the deeper your reserves run. (HP-regen half retired in R-05.)',
         perLevel: (lvl) => {
             const bars = combinedHealthBars(lvl);
             const barStr = healthBarText(bars);
-            const heal = CC_HEALTH_HEAL.heal[lvl - 1];
-            const head = barStr
-                ? `At the start of combat, if you are Wounded or worse, gain ${barStr} for that combat. `
-                : '';
             return {
-                text: `${head}At the start of your turn, if you are **Wounded or worse**, heal **${heal} HP**.`,
-                mechanics: { regen: heal, conditionExpr: 'self.healthState <= wounded' },
+                text: barStr
+                    ? `At the start of combat, if you are Wounded or worse, gain ${barStr} for that combat. HP regen retired (R-05).`
+                    : RETIRED_HEAL_NOTE,
+                mechanics: {},
             };
         },
     }),

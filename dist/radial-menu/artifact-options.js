@@ -165,12 +165,17 @@ function rowDescription(row) {
 /** Heal / Cleanse support actives on artifacts (Moonlight Mending, …). */
 function artifactRowSupportProfile(row) {
     const tid = String(row.powerTemplateId || '');
-    if (/heal-cleanse/i.test(tid) || (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))) {
+    if (/heal-cleanse/i.test(tid) ||
+        /aoe-restoration/i.test(tid) ||
+        (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))) {
         return 'heal';
     }
     if (/\bcleanse\b/i.test(tid) && !/heal/i.test(tid))
         return 'cleanse';
     const blob = `${row.name || ''} ${row.effect || ''} ${row.special || ''}`;
+    // R-05: authored Restoration rows (Hearth Circle, Remembered Hands, …) have no template id.
+    if (/\b(?:single target|aoe)\s+restoration\b/i.test(blob))
+        return 'heal';
     if (/\bcleanse\b/i.test(blob) && !/\bheal\b/i.test(blob))
         return 'cleanse';
     if (/\bheal\b/i.test(blob) && !/\b(requiem|exorcism|damage)\b/i.test(blob))

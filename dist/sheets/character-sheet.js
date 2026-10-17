@@ -1432,6 +1432,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             console.error('Mastery System | getData returned invalid context', context);
             return {};
         }
+        try {
+            const { buildActorSheetIdentityContext } = await import('./actor-sheet-identity.js');
+            context.sheetIdentity = buildActorSheetIdentityContext(this.actor);
+        }
+        catch (err) {
+            console.warn('Mastery System | sheet identity context failed', err);
+            context.sheetIdentity = {
+                kind: 'original',
+                isUnlinkedToken: false,
+                showOriginalBadge: false,
+                originalActorId: null,
+                originalActorName: null,
+                canOpenOriginal: false,
+            };
+        }
+        try {
+            const { getRegenerationState, syncRegenerationDayBoundary } = await import('../combat/passive-regeneration.js');
+            await syncRegenerationDayBoundary(this.actor);
+            const regen = getRegenerationState(this.actor);
+            context.regenerationPassive = {
+                show: regen.level > 0 && regen.poolMax > 0,
+                remaining: regen.remaining,
+                poolMax: regen.poolMax,
+                title: `Passive: Regeneration — ${regen.remaining}/${regen.poolMax} Scarred Bars left today (Tyhran Day)`,
+            };
+        }
+        catch {
+            context.regenerationPassive = { show: false, remaining: 0, poolMax: 0, title: '' };
+        }
         return context;
     }
     /** @override */
@@ -1536,6 +1565,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const root = this.element;
         if (!root)
             return;
+        try {
+            const { bindActorSheetIdentityControls } = await import('./actor-sheet-identity.js');
+            bindActorSheetIdentityControls(root, this.actor);
+        }
+        catch (err) {
+            console.warn('Mastery System | sheet identity controls failed', err);
+        }
         // Persist reconstructed Lifetime XP when earned/unspent outgrew a stale
         // stored value — otherwise the 140 stone stays locked after XP grants.
         void this.#syncLifetimeXpFromProgress();
@@ -2404,6 +2440,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.attribute-roll', this.#onAttributeRoll.bind(this));
         bindReliableControlClick(html, '.skill-roll, .skill-roll-compact', this.#onSkillRoll.bind(this));
         bindReliableControlClick(html, '.safe-haven-rest', this.#onSafeHavenRest.bind(this));
+        bindReliableControlClick(html, '.passive-regeneration-activate', this.#onPassiveRegeneration.bind(this));
         bindReliableControlClick(html, '.gm-restore-health-bar', this.#onGmRestoreHealthBar.bind(this));
         bindReliableControlClick(html, '.gm-restore-stress-bar', this.#onGmRestoreStressBar.bind(this));
         bindReliableControlClick(html, '.social-combat-btn', this.#onSocialCombat.bind(this));
@@ -4833,6 +4870,67 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await applySafeHavenRest(this.actor);
         this.activeTab = 'minor-magic';
         ui.notifications?.info(SAFE_HAVEN_REST_INFO);
+        this.render();
+    }
+    /** R-05 Passive: Regeneration — restore own Scarred Bars from the daily pool. */
+    async #onPassiveRegeneration(event) {
+        event.preventDefault();
+        if (!this.actor.isOwner) {
+            ui.notifications?.warn('Only the owner can use Passive: Regeneration.');
+            return;
+        }
+        const { activatePassiveRegeneration, getRegenerationState, syncRegenerationDayBoundary, } = await import('../combat/passive-regeneration.js');
+        const { countScarredHealthBars } = await import('../stones/remove-scar.js');
+        await syncRegenerationDayBoundary(this.actor);
+        const state = getRegenerationState(this.actor);
+        if (state.level <= 0 || state.poolMax <= 0) {
+            ui.notifications?.warn('No Passive: Regeneration with a legal daily pool.');
+            return;
+        }
+        const scarred = countScarredHealthBars(this.actor);
+        if (scarred <= 0) {
+            ui.notifications?.info('No Scarred Health Bars to restore.');
+            return;
+        }
+        if (state.remaining <= 0) {
+            ui.notifications?.warn('Passive: Regeneration daily pool is exhausted (resets next Tyhran Day).');
+            return;
+        }
+        const maxPick = Math.min(state.remaining, scarred);
+        const DialogCls = globalThis.Dialog;
+        let bars = 1;
+        if (typeof DialogCls?.prompt === 'function') {
+            try {
+                bars = await DialogCls.prompt({
+                    title: 'Passive: Regeneration',
+                    content: `<p>Restore your own Scarred Health Bars at full HP.</p>` +
+                        `<p>Daily pool: <strong>${state.remaining}</strong> / ${state.poolMax} remaining. Scarred: <strong>${scarred}</strong>.</p>` +
+                        `<p><label>Bars to restore now <input type="number" name="bars" value="1" min="1" max="${maxPick}" style="width:4em"/></label></p>`,
+                    label: 'Restore',
+                    callback: (html) => {
+                        const root = html?.jquery ? html[0] : html;
+                        const input = root?.querySelector?.('input[name="bars"]');
+                        return Math.max(1, Math.min(maxPick, Math.floor(Number(input?.value) || 1)));
+                    },
+                });
+            }
+            catch {
+                return;
+            }
+        }
+        const result = await activatePassiveRegeneration(this.actor, Number(bars) || 1);
+        if (!result.ok) {
+            const msg = result.reason === 'incapacitated'
+                ? 'Incapacitated — cannot activate Passive: Regeneration.'
+                : result.reason === 'exhausted'
+                    ? 'Daily Regeneration pool exhausted.'
+                    : result.reason === 'no-scarred'
+                        ? 'No Scarred Health Bars to restore.'
+                        : 'Could not restore Scarred Bars.';
+            ui.notifications?.warn(msg);
+            return;
+        }
+        ui.notifications?.info(`Regeneration: restored ${result.restored} Scarred Bar(s) at full HP. Remaining today: ${result.remaining}.`);
         this.render();
     }
     /**

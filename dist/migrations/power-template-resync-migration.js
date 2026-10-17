@@ -114,36 +114,44 @@ export async function resyncActorPowerTemplates(actor, options = {}) {
     const items = Array.from(actor.items ?? []).filter((i) => i?.type === 'power');
     let updated = 0;
     for (const item of items) {
-        const sys = item.system ?? {};
-        const template = resolveTemplateForItem(item);
-        if (!template?.levels)
-            continue;
-        const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
-        const levels = bindLevels(template, chosenSpecialKey);
-        const rank = Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1)));
-        const levelRow = levels[String(rank)];
-        if (!levelRow)
-            continue;
-        if (!force && levelsSignature(sys.levels) === levelsSignature(levels))
-            continue;
         try {
-            await item.update({
-                'system.levels': levels,
-                'system.fluff': template.fluff || '',
-                'system.description': template.fluff || '',
-                'system.range': renderRange(levelRow.range),
-                'system.aoe': renderAoe(levelRow.aoe),
-                'system.duration': renderDuration(levelRow.duration),
-                'system.effect': levelRow.effect?.text || '',
-                'system.specials': (levelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
-            });
-            updated++;
+            if (await resyncPowerItemFromTemplate(item, { force }))
+                updated++;
         }
         catch (err) {
             console.warn(`Mastery System | power-resync: failed for "${item.name}" on ${actor.name}`, err);
         }
     }
     return updated;
+}
+/**
+ * Resync one template-backed power item. Returns true when it wrote an update.
+ * Throws when the Foundry update itself fails (callers log per item).
+ */
+export async function resyncPowerItemFromTemplate(item, options = {}) {
+    const sys = item?.system ?? {};
+    const template = resolveTemplateForItem(item);
+    if (!template?.levels)
+        return false;
+    const chosenSpecialKey = sys.chosenSpecial?.key ? String(sys.chosenSpecial.key) : null;
+    const levels = bindLevels(template, chosenSpecialKey);
+    const rank = Math.max(1, Math.min(16, Number(sys.rank ?? sys.level ?? 1)));
+    const levelRow = levels[String(rank)];
+    if (!levelRow)
+        return false;
+    if (options.force !== true && levelsSignature(sys.levels) === levelsSignature(levels))
+        return false;
+    await item.update({
+        'system.levels': levels,
+        'system.fluff': template.fluff || '',
+        'system.description': template.fluff || '',
+        'system.range': renderRange(levelRow.range),
+        'system.aoe': renderAoe(levelRow.aoe),
+        'system.duration': renderDuration(levelRow.duration),
+        'system.effect': levelRow.effect?.text || '',
+        'system.specials': (levelRow.specials || []).map((s) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
+    });
+    return true;
 }
 /**
  * Resync every template-backed power item from its current template.

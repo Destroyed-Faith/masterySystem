@@ -1746,7 +1746,7 @@ export class StonePowersDialog extends BaseDialog {
       if (!row) continue;
       pool.recoverShow = true;
       pool.recoverAlloc = row.allocated;
-      pool.recoverAllocLabel = row.allocated > 0 ? `+${row.allocated}` : '0';
+      pool.recoverAllocLabel = String(row.allocated);
       pool.recoverSpace = row.space;
       pool.recoverCanAdd = row.canAdd;
       pool.recoverCanRemove = row.canRemove;

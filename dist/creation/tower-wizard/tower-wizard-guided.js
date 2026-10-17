@@ -95,11 +95,6 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         powerName: 'Armor',
         explanation: 'Permanent Armor.',
     },
-    'passive-armor-healing': {
-        playerTitle: 'Armor + Healing',
-        powerName: 'Armor + Healing',
-        explanation: 'Permanent Armor plus start-of-turn Healing.',
-    },
     'passive-armor-health': {
         playerTitle: 'Armor + Health',
         powerName: 'Armor + Health',
@@ -120,25 +115,13 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         powerName: 'Armor (Adjacent to 2+ Enemies)',
         explanation: 'Armor while at least two enemies are adjacent.',
     },
+    // R-05: ordinary HP regen is gone. Passive: Regeneration restores Scarred Health Bars
+    // on yourself from a daily (Tyhran Day) pool. Blood Feast / Battle Trance /
+    // Stillness Recovery and every "+ Healing" combo are retired.
     'passive-regeneration': {
-        playerTitle: 'Healing',
-        powerName: 'Healing',
-        explanation: 'At the start of your turn, heal HP.',
-    },
-    'passive-battle-trance': {
-        playerTitle: 'Healing (Adjacent to Enemy)',
-        powerName: 'Healing (Adjacent to Enemy)',
-        explanation: 'Start-of-turn Healing while at least one enemy is adjacent.',
-    },
-    'passive-blood-feast': {
-        playerTitle: 'Healing (Wounded or Worse)',
-        powerName: 'Healing (Wounded or Worse)',
-        explanation: 'Start-of-turn Healing while you are Wounded or worse.',
-    },
-    'passive-stillness-recovery': {
-        playerTitle: 'Healing (Moved 0 m Last Turn)',
-        powerName: 'Healing (Moved 0 m Last Turn)',
-        explanation: 'Start-of-turn Healing if you moved 0 m on your last turn.',
+        playerTitle: 'Passive: Regeneration',
+        powerName: 'Passive: Regeneration',
+        explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each).',
     },
     'passive-killing-intent': {
         playerTitle: 'Damage',
@@ -169,11 +152,6 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         playerTitle: 'Evade + Temporary HP',
         powerName: 'Evade + Temporary HP',
         explanation: 'Permanent Evade plus Temporary HP at combat start.',
-    },
-    'passive-evade-healing': {
-        playerTitle: 'Evade + Healing',
-        powerName: 'Evade + Healing',
-        explanation: 'Permanent Evade plus start-of-turn Healing.',
     },
     'passive-damage-reduction': {
         playerTitle: 'Damage Reduction',
@@ -210,11 +188,6 @@ const GUIDED_PASSIVE2_WRAPPERS = {
         powerName: 'Health',
         explanation: 'Extra Health Bars.',
     },
-    'passive-health-healing': {
-        playerTitle: 'Health + Healing',
-        powerName: 'Health + Healing',
-        explanation: 'Extra Health Bars plus start-of-turn Healing.',
-    },
     'passive-health-temp-hp': {
         playerTitle: 'Health + Temporary HP',
         powerName: 'Health + Temporary HP',
@@ -231,14 +204,13 @@ export const GUIDED_PASSIVE2_BUCKET_LABELS = {
     invisibility: { label: 'Invisibility' },
     health: { label: 'Increase Maximum Health' },
     'temporary-hp': { label: 'Temporary HP' },
-    sustain: { label: 'Healing' },
+    sustain: { label: 'Regeneration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };
 const PASSIVE2_CARD_ORDER = {
     armor: [
         'passive-fortified-frame',
-        'passive-armor-healing',
         'passive-armor-health',
         'passive-armor-temp-hp',
         'passive-stone-stance',
@@ -246,11 +218,6 @@ const PASSIVE2_CARD_ORDER = {
     ],
     sustain: [
         'passive-regeneration',
-        'passive-health-healing',
-        'passive-evade-healing',
-        'passive-battle-trance',
-        'passive-blood-feast',
-        'passive-stillness-recovery',
     ],
     offense: [
         'passive-killing-intent',
@@ -410,9 +377,9 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
         specials: [
             {
                 specialKey: 'heal',
-                playerTitle: 'Restore Hit Points — Healing',
-                powerName: 'Healing',
-                explanation: 'Heal one creature. Your Special Attack slot becomes recovery instead of a rider.',
+                playerTitle: 'Reopen Scarred Health Bars — Restoration',
+                powerName: 'Restoration',
+                explanation: 'Restore Scarred Health Bars on one creature (full HP each) from a pool that refreshes at Safe Haven Rest. It does not heal HP.',
                 whenToUse: '',
             },
             {
@@ -450,7 +417,8 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
 const DEDICATED_SPECIAL_TEMPLATE_IDS = {
     push: (d) => findCatalogEntry(`active-${d}-control-push-pull`) ? `active-${d}-control-push-pull` : null,
     pull: (d) => findCatalogEntry(`active-${d}-control-push-pull`) ? `active-${d}-control-push-pull` : null,
-    heal: (d) => findCatalogEntry(`active-${d}-single-heal`) ? `active-${d}-single-heal` : null,
+    // R-05: ordinary single-target Heal is retired; the dedicated support Active is Restoration.
+    heal: (d) => findCatalogEntry(`active-${d}-health-level-heal`) ? `active-${d}-health-level-heal` : null,
     cleanse: (d) => findCatalogEntry(`active-${d}-single-cleanse`) ? `active-${d}-single-cleanse` : null,
 };
 export const GUIDED_DELIVERY_OPTIONS = [

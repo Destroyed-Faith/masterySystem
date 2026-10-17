@@ -1684,7 +1684,21 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             // Copy bars array to mutate. Always deplete from bar 0 (left / Healthy) first
             // so the segmented HP strip matches the wound track; do not use currentBar
             // as the starting index.
-            const bars = [...system.health.bars];
+            // R-05 §8: a prepared Resolve Healing may be triggered before HP is reduced.
+            let liveBars = system.health.bars;
+            try {
+                const { offerPendingResolveHealingBeforeDamage } = await import('../stones/stone-resolution-ui.js');
+                const pendingHeal = await offerPendingResolveHealingBeforeDamage(target, remaining);
+                if (pendingHeal.used > 0) {
+                    const refreshed = target.system?.health?.bars;
+                    if (Array.isArray(refreshed) && refreshed.length)
+                        liveBars = refreshed;
+                }
+            }
+            catch (pendingErr) {
+                console.warn('Mastery System | pending Resolve Healing offer failed', pendingErr);
+            }
+            const bars = [...liveBars];
             let barIndex = applyDamageToBars(bars, 0, remaining);
             try {
                 const { maybeApplyLastBreath } = await import('../stones/last-breath.js');

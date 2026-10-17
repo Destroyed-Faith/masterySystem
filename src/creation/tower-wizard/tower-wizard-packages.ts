@@ -204,7 +204,7 @@ const PASSIVE_SUBFAMILY_LABELS: Record<string, string> = {
     'damage-reduction': 'Damage Reduction',
     evade: 'Evade',
     'temp-hp': 'Temporary HP',
-    regen: 'Healing',
+    regen: 'Regeneration',
     phasing: 'Phasing',
     health: 'Health',
     recovery: 'Recovery',
@@ -359,7 +359,7 @@ const OFFENSE_GROUP_HEAL = '__heal__';
 const OFFENSE_SYNTHETIC_GROUP_LABELS: Record<string, string> = {
     [OFFENSE_GROUP_NORMAL]: 'Normal Attacks',
     [OFFENSE_GROUP_CONTROL]: 'Control',
-    [OFFENSE_GROUP_HEAL]: 'Healing',
+    [OFFENSE_GROUP_HEAL]: 'Restoration & Cleanse',
     [OFFENSE_UTILITY_GROUP_KEY]: 'Other Actives',
 };
 
@@ -371,7 +371,8 @@ const OFFENSE_GROUP_ORDER = [
 
 const NORMAL_ATTACK_PATTERN_ORDER = ['weapon-single', 'weapon-split', 'weapon-aoe', 'weapon-autofire'];
 
-const HEAL_PATTERN_ORDER = ['single-heal', 'aoe-heal', 'single-cleanse', 'aoe-cleanse', 'heal-cleanse-mixed'];
+// R-05: ordinary Single/AoE Heal Actives are retired; Scarred Bar Restoration replaces them.
+const HEAL_PATTERN_ORDER = ['health-level-heal', 'aoe-restoration', 'single-cleanse', 'aoe-cleanse', 'heal-cleanse-mixed'];
 
 const CONTROL_PATTERN_ORDER = ['damage-stunned'];
 
@@ -452,7 +453,7 @@ function offenseSpecialGroupTooltip(groupKey: string, specialKey: string | null)
         return 'Positioning, disables, and hard control — push, pull, prone, disarm, stun, and similar effects.';
     }
     if (groupKey === OFFENSE_GROUP_HEAL) {
-        return 'Restore hit points and remove afflictions using Heal and Cleanse.';
+        return 'Reopen Scarred Health Bars with Restoration and remove afflictions with Cleanse. Neither restores ordinary HP.';
     }
     if (groupKey === OFFENSE_UTILITY_GROUP_KEY) {
         return 'Barriers, illusion, zones, and other Actives that do not fit the categories above.';
@@ -853,17 +854,16 @@ export function isValidOffensiveActiveBuffId(templateId: string): boolean {
     return getOffensiveActiveBuffOptions().some((b) => b.id === templateId);
 }
 
+// R-05: Active Buff Healing / Healing Aura / Temporary HP + Healing are retired (no mechanics).
+// HP-free recovery now comes from Restoration Actives and Passive: Regeneration.
 const SUPPORT_ACTIVE_BUFF_ORDER = [
-    'ab-healing',
     'ab-temp-hp',
     'ab-spell-resistance',
     'ab-cleanse-maintenance',
     'ab-armor-aura',
-    'ab-healing-aura',
     'ab-immovable-temp-hp',
     'ab-armor-temp-hp',
     'ab-evade-temp-hp',
-    'ab-temp-hp-healing',
     'ab-armor-evade',
     'ab-growth-form',
 ] as const;
@@ -871,11 +871,6 @@ const SUPPORT_ACTIVE_BUFF_ORDER = [
 const SUPPORT_BUFF_GROUP_ORDER = ['Recovery', 'Ward', 'Auras', 'Combined utility', 'Form'] as const;
 
 const SUPPORT_BUFF_META: Record<string, { groupLabel: string; label: string; explanation: string }> = {
-    'ab-healing': {
-        groupLabel: 'Recovery',
-        label: 'Turn-start healing',
-        explanation: 'Sustain yourself or allies with steady healing while the buff lasts.',
-    },
     'ab-temp-hp': {
         groupLabel: 'Recovery',
         label: 'Temporary HP buffer',
@@ -896,11 +891,6 @@ const SUPPORT_BUFF_META: Record<string, { groupLabel: string; label: string; exp
         label: 'Armor Aura',
         explanation: 'Share Armor with nearby allies.',
     },
-    'ab-healing-aura': {
-        groupLabel: 'Auras',
-        label: 'Healing Aura',
-        explanation: 'Support allies with shared healing pressure.',
-    },
     'ab-immovable-temp-hp': {
         groupLabel: 'Auras',
         label: 'Immovable + Temporary HP',
@@ -915,11 +905,6 @@ const SUPPORT_BUFF_META: Record<string, { groupLabel: string; label: string; exp
         groupLabel: 'Combined utility',
         label: 'Evade + Temporary HP',
         explanation: 'Slip hits and buffer what gets through.',
-    },
-    'ab-temp-hp-healing': {
-        groupLabel: 'Combined utility',
-        label: 'Temporary HP + Healing',
-        explanation: 'Buffer plus sustain for longer fights.',
     },
     'ab-armor-evade': {
         groupLabel: 'Combined utility',
@@ -1095,7 +1080,6 @@ const PASSIVE1_VARIANT_IDS: Record<DefensePackageId, readonly string[]> = {
         'passive-stone-stance',
         'passive-surrounded-bulwark',
         'conditional-passive-armor-temp-hp',
-        'conditional-passive-armor-healing',
         'conditional-passive-armor-health',
     ],
     evade: [
@@ -1103,10 +1087,8 @@ const PASSIVE1_VARIANT_IDS: Record<DefensePackageId, readonly string[]> = {
         'passive-flowing-step',
         'passive-duelist-footwork',
         'passive-evade-temp-hp',
-        'passive-evade-healing',
         'passive-evade-damage',
         'conditional-passive-evade-temp-hp',
-        'conditional-passive-evade-healing',
         'conditional-passive-evade-damage',
     ],
     'damage-reduction': ['passive-damage-reduction'],
@@ -1136,10 +1118,6 @@ const PASSIVE1_VARIANT_COPY: Record<string, { description: string; mechanicsPrev
         description: 'Armor and Temporary HP when allies are nearby. Tactical, team-aware defense.',
         mechanicsPreview: 'Gain Armor plus Temporary HP only while the listed condition is true.',
     },
-    'conditional-passive-armor-healing': {
-        description: 'Armor and healing when you stand still. Rewards holding a position.',
-        mechanicsPreview: 'Gain Armor and healing only while the listed condition is true.',
-    },
     'conditional-passive-armor-health': {
         description: 'Armor and extra health when allies are nearby. A durable anchor for the party.',
         mechanicsPreview: 'Gain Armor and health only while the listed condition is true.',
@@ -1160,10 +1138,6 @@ const PASSIVE1_VARIANT_COPY: Record<string, { description: string; mechanicsPrev
         description: 'Adds another small defensive layer with Temporary HP, but is less focused than pure Evade.',
         mechanicsPreview: 'Gain Evade plus Temporary HP.',
     },
-    'passive-evade-healing': {
-        description: 'Evade plus sustain. Hard to hit and quick to mend.',
-        mechanicsPreview: 'Gain Evade plus healing.',
-    },
     'passive-evade-damage': {
         description: 'Evade plus damage. A hybrid skirmisher profile.',
         mechanicsPreview: 'Gain Evade plus bonus damage.',
@@ -1171,10 +1145,6 @@ const PASSIVE1_VARIANT_COPY: Record<string, { description: string; mechanicsPrev
     'conditional-passive-evade-temp-hp': {
         description: 'Evade and Temporary HP when you move enough. Rewards aggressive repositioning.',
         mechanicsPreview: 'Gain Evade plus Temporary HP only while the listed condition is true.',
-    },
-    'conditional-passive-evade-healing': {
-        description: 'Evade and healing after heavy movement. A mobile sustain build.',
-        mechanicsPreview: 'Gain Evade plus healing only while the listed condition is true.',
     },
     'conditional-passive-evade-damage': {
         description: 'Evade and damage after movement. Hit-and-run tactics.',
@@ -1217,7 +1187,7 @@ const PASSIVE2_INTENT_LABELS: Record<SecondPassiveBucket, { label: string; inten
     invisibility: { label: 'Invisibility' },
     health: { label: 'Increase Maximum Health' },
     'temporary-hp': { label: 'Temporary HP' },
-    sustain: { label: 'Healing' },
+    sustain: { label: 'Regeneration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };

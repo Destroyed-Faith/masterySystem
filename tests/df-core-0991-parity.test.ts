@@ -58,8 +58,8 @@ const ctx = {
 
 describe('special-less Spell cap', () => {
   it('allows a ranged heal with no Special and rejects melee', () => {
-    expect(activeTemplateCanBeSpell('active-ranged-single-heal')).toBe(true);
-    expect(activeTemplateCanBeSpell('active-melee-single-heal')).toBe(false);
+    expect(activeTemplateCanBeSpell('active-ranged-health-level-heal')).toBe(true);
+    expect(activeTemplateCanBeSpell('active-melee-health-level-heal')).toBe(false);
   });
 
   it('caps special-less Spells at Mastery Rank and ignores Spells that have a Special', () => {
@@ -76,8 +76,8 @@ describe('special-less Spell cap', () => {
   });
 
   it('does not treat Spell Delivery as a second Power identity', () => {
-    const martial = powerIdentityKey({ templateId: 'active-ranged-single-heal', chosenSpecial: null });
-    const spell = powerIdentityKey({ templateId: 'active-ranged-single-heal', chosenSpecial: null });
+    const martial = powerIdentityKey({ templateId: 'active-ranged-health-level-heal', chosenSpecial: null });
+    const spell = powerIdentityKey({ templateId: 'active-ranged-health-level-heal', chosenSpecial: null });
     expect(spell).toBe(martial);
     expect(powerIdentityKey({
       templateId: 'active-ranged-damage-t4',

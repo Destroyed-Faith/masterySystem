@@ -8,10 +8,11 @@
  * message, not as a sheet counter.
  *
  * Natural Recovery: after Ticks at the start of the creature's Turn, the
- * creature chooses *one* negative Diminishing Special and reduces it by
- * Mastery Rank (minimum 0). Unused reduction is lost and cannot move to
- * another Special. A stored Stone Powers plan still applies at turn start;
- * otherwise the HUD applies the choice. A Special that reaches 0 ends.
+ * creature distributes Mastery Rank reduction across negative Diminishing
+ * Specials (Stone Powers dialog: draft with +/−, then Apply, or Skip).
+ * Unused reduction is lost. A confirmed Stone Powers plan applies at turn
+ * start; otherwise the HUD can apply a single-Special choice. A Special that
+ * reaches 0 ends.
  */
 export declare const SPECIAL_ROUND_APPS_FLAG = "specialRoundApps";
 export declare const NATURAL_RECOVERY_FLAG = "naturalSpecialRecovery";
@@ -175,6 +176,11 @@ export declare function changeNaturalRecoveryAllocation(actor: any, combat: {
     id?: string;
     round?: number;
 } | null | undefined, specialId: string, delta: number): Promise<void>;
+/** Lock the current Natural Recovery draft so it applies after Ticks. */
+export declare function confirmNaturalRecoveryAllocations(actor: any, combat: {
+    id?: string;
+    round?: number;
+} | null | undefined): Promise<boolean>;
 /**
  * A stored Stone Powers plan (or skip) wins for this Round. With no plan the
  * HUD applies one Special after Ticks — the tick engine does not auto-spend.

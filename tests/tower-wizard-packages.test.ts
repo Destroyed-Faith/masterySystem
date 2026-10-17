@@ -77,7 +77,7 @@ describe('tower-wizard-packages', () => {
     it('guided passive 2 uses technical names and rulebook values', () => {
         const groups = getSecondPassiveIntentGroups('evade', 'passive-evade');
         const armor = groups.find((g) => g.intentLabel === 'Armor');
-        const healing = groups.find((g) => g.intentLabel === 'Healing');
+        const healing = groups.find((g) => g.intentLabel === 'Regeneration');
         const damage = groups.find((g) => g.intentLabel === 'Damage');
 
         expect(armor?.passives.map((p) => p.id)[0]).toBe('passive-fortified-frame');
@@ -86,9 +86,12 @@ describe('tower-wizard-packages', () => {
         expect(armor?.passives.some((p) => p.id === 'passive-echo-armor-value')).toBe(false);
         expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.mechanicsPreview).toMatch(/\+5 Armor/);
 
-        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Healing');
+        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Passive: Regeneration');
         expect(healing?.passives.some((p) => p.id === 'passive-blood-feast')).toBe(false);
-        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview).toMatch(/heal 10 HP/);
+        // R-05: Scarred Bar pool per Tyhran Day (PL4 = 2 bars); no turn-start HP healing.
+        const regenPreview = healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview;
+        expect(regenPreview).toMatch(/2 Scarred Health Bars/);
+        expect(regenPreview).not.toMatch(/heal \d+ HP/);
 
         expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Damage');
         expect(damage?.passives.some((p) => p.id === 'passive-momentum')).toBe(false);
@@ -160,7 +163,8 @@ describe('tower-wizard-packages', () => {
         expect(cards.some((c) => c.powerName === 'Hex')).toBe(false);
         expect(cards.some((c) => c.powerName === 'Disarm')).toBe(false);
         expect(cards.some((c) => c.powerName === 'Stun')).toBe(false);
-        expect(cards.some((c) => c.powerName === 'Healing')).toBe(true);
+        expect(cards.some((c) => c.powerName === 'Restoration')).toBe(true);
+        expect(cards.some((c) => c.powerName === 'Healing')).toBe(false);
         expect(cards.some((c) => c.powerName === 'Cleanse')).toBe(true);
         expect(cards.some((c) => /dispel/i.test(c.powerName))).toBe(false);
         expect(groups.some((g) => g.label === 'Help allies')).toBe(true);
@@ -179,9 +183,9 @@ describe('tower-wizard-packages', () => {
         expect(names('spell')).toContain('Challenge');
         expect(names('spell')).toContain('Lacerate');
         expect(names('spell')).toContain('Ruin');
-        expect(names('melee')).toContain('Healing');
+        expect(names('melee')).toContain('Restoration');
         expect(names('melee')).toContain('Cleanse');
-        expect(names('spell')).toContain('Healing');
+        expect(names('spell')).toContain('Restoration');
         expect(names('spell')).toContain('Cleanse');
     });
 
@@ -340,12 +344,16 @@ describe('tower-wizard-packages', () => {
         );
     });
 
-    it('offense groups combine heal and cleanse support actives', () => {
+    it('offense groups combine restoration and cleanse support actives', () => {
         const groups = getOffenseActiveSpecialGroups(null);
-        const healing = groups.find((g) => g.groupLabel === 'Healing');
+        const healing = groups.find((g) => g.groupLabel === 'Restoration & Cleanse');
         expect(healing).toBeDefined();
         const labels = healing!.patterns.map((p) => p.label);
-        expect(labels.some((l) => /heal/i.test(l))).toBe(true);
+        expect(labels.some((l) => /restoration/i.test(l))).toBe(true);
+        // R-05: retired ordinary Single/AoE Heal patterns never appear.
+        expect(healing!.patterns.some((p) => /single-heal|aoe-heal/.test(p.patternId))).toBe(false);
+        expect(healing!.patterns.some((p) => p.patternId.includes('health-level-heal'))).toBe(true);
+        expect(healing!.patterns.some((p) => p.patternId.includes('aoe-restoration'))).toBe(true);
         expect(labels.some((l) => /cleanse/i.test(l))).toBe(true);
         expect(healing!.patterns.some((p) => p.patternId.includes('heal-cleanse-mixed'))).toBe(true);
     });

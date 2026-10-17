@@ -176,7 +176,7 @@ describe('Power Catalog (Templates refactor)', () => {
 
     it('any legal ranged active may become a spell, including damage-only', () => {
         expect(activeTemplateCanBeSpell('active-ranged-damage-t4')).toBe(true);
-        expect(activeTemplateCanBeSpell('active-ranged-single-heal')).toBe(true);
+        expect(activeTemplateCanBeSpell('active-ranged-health-level-heal')).toBe(true);
         expect(activeTemplateCanBeSpell('active-melee-damage-t4')).toBe(false);
         expect(activeTemplateCanBeSpell('active-melee-weapon-single')).toBe(false);
     });

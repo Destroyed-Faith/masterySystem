@@ -46,7 +46,7 @@
       },
       {
         "level": 5,
-        "name": "Mobility Buff Extension II",
+        "name": "Mobility Extension II",
         "type": "Support",
         "range": "Self",
         "aoe": "",
@@ -92,8 +92,8 @@
         ],
         "stageNames": [
           "Serpent Evasion I",
-          "Mobility Buff Extension II",
-          "Mobility Buff Extension III"
+          "Mobility Extension II",
+          "Mobility Extension III"
         ]
       },
       {
@@ -329,7 +329,7 @@
       },
       {
         "id": "wyrmScalesLight-pw-5",
-        "name": "Mobility Buff Extension II",
+        "name": "Mobility Extension II",
         "category": "passive",
         "tags": [],
         "cost": {

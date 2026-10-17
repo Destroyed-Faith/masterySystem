@@ -145,6 +145,52 @@ Fear still accumulates; each Fear point removes 1 die from attribute-based pools
 
 ---
 
+---
+
+## R-05 — Healing / Restoration Separation (full Scarred Bars)
+
+### New rule text (summary)
+
+Ordinary HP healing is no longer provided by Active Powers, Healing Passives, or recurring Healing Buffs/Auras.
+
+- **Resolve Stone Ability: Healing** is the primary ordinary HP heal (ranks 4/8/12/16 d8). Payment in Preparation creates a **pending** effect for the Round; the player triggers it later (including before an incoming damage instance applies HP). Unused pending heals expire at Round end; Stones stay spent. Maximization (R-02) still applies to the Healing Roll.
+- **Restoration Powers** (Melee/Ranged ST + Melee/Ranged AoE) spend a Safe Haven Rest pool (40 PP per Scarred Bar). Each restored Scarred Bar returns at **full current max HP** and becomes a normal Active Bar candidate. No Healing Dice.
+- **Passive: Regeneration** replaces Passive: Healing. Daily Tyhran Day pool `floor(PL/2)` Scarred Bars on Self only; no turn-start heal; cannot activate while Incapacitated.
+- **Damage Transfer** is unchanged.
+- End-of-combat / Night Rest / Day Rest / Safe Haven / Remove Scar keep their existing bar **counts**, but any Scarred Bar they restore uses the same full-HP transition.
+
+### Contradicts official rules (conceptual citations)
+
+| Source | Section / topic | Official text (intent) |
+|--------|-----------------|-------------------------|
+| `docs/Rules/actives.md` | Support Actives: Healing vs Restoration | Healing restores HP only; Restoration reopens Scarred Bars **without** restoring HP; separate Healing Power required for HP. |
+| `docs/Rules/passives.md` | Passive: Healing | Turn-start Nd8 HP heal; never restores Scarred Bars. |
+| `docs/Rules/active-buffs.md` | Active Buff: Healing / Healing Aura | Recurring HP heal / aura pulses. |
+| `docs/Rules/players-guide.md` | Health / Restoration notes | Restoration reopens Scarred Bars but does not restore HP. |
+| Artifact tables (Players Guide / artefacts.md) | Moonlight Mending, Resting Soul, Hearth Circle, … | Printed as Heal / Healing Buff / Healing Aura. |
+
+### Runtime paths changed
+
+| Area | Files |
+|------|--------|
+| Pool tables + PP checks | `src/combat/r05-pools.ts`, `r05-restoration.ts` |
+| Canonical restore | `restoreScarredHealthBars`, `buildRecoverScarredBarUpdates` (`remove-scar.ts`) |
+| ST / AoE Restoration UI | `heal-resolution.ts`, `aoe-restoration.ts` |
+| Passive Regeneration | `passive-regeneration.ts`, character sheet button |
+| Resolve pending heal | `stones/resolve-healing-pending.ts`, stone UI, damage apply hook |
+| Catalog | `templates/actives.ts`, `passives.ts`, `activeBuffs.ts` |
+| Artifacts / packs / Tower Wizard | `general-artifacts.ts`, `echo-artifacts.ts`, packs, tower-wizard\* |
+| Actor migration | `migrations/r05-healing-migration.ts` |
+| Spec + tests | `docs/DESTROYED_FAITH_R05_HEALING_REWORK.md`, `tests/r05-*.test.ts` |
+
+### Later official rulebook edits required
+
+1. Rewrite Healing / Restoration chapters in `actives.md`, `passives.md`, `active-buffs.md`, Players Guide Health & Recovery.
+2. Replace artifact heal rows with Restoration / Regeneration mappings.
+3. Document pending Resolve Healing timing and Tyhran Day Regeneration reset.
+
+---
+
 ## Tracking
 
 | Id | Status in runtime | Rulebooks updated |
@@ -153,5 +199,6 @@ Fear still accumulates; each Fear point removes 1 die from attribute-based pools
 | R-02 | Implemented | No |
 | R-03 | Implemented | No |
 | R-04 | Implemented | No |
+| R-05 | Implemented | No |
 
 When the official v0.9.9.x (or later) rules release incorporates these decisions, remove or archive the corresponding rows from this file and update `docs/DESTROYED_FAITH_V0.9.9.5_RULES_RUNTIME_COVERAGE.md` status notes.

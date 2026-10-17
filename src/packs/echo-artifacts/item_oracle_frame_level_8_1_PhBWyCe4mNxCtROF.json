@@ -51,8 +51,8 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Influence Ability: Aid Roll Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
-        "special": "influence.aidRoll"
+        "effect": "Supports the Influence Ability: Cleanse Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally.",
+        "special": "influence.cleanse"
       },
       {
         "level": 6,
@@ -90,7 +90,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "influence",
-          "stonePowerId": "influence.aidRoll"
+          "stonePowerId": "influence.cleanse"
         },
         "displayName": "Oracle Aid"
       },
@@ -332,7 +332,7 @@
       {
         "id": "oracleFrame-pw-8",
         "name": "Oracle Aid III",
-        "fluff": "Special: influence.aidRoll",
+        "fluff": "Special: influence.cleanse",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -531,7 +531,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Influence Ability: Aid Roll Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
+              "text": "Supports the Influence Ability: Cleanse Stone Power and pre-fills Rank 4. Ranks 1, 2, 3 must still be paid normally."
             },
             "specials": [],
             "lvl": 8

@@ -175,7 +175,7 @@ describe('Moonlight Greatsword', () => {
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks.map((p) => p.kind)).toEqual(['power', 'power', 'power']);
     expect(picks.map((p) => p.powerTemplateId)).toEqual([
-      'active-ranged-single-heal',
+      'active-ranged-health-level-heal',
       'active-ranged-aoe-targeted-special',
       'ab-damage-aura',
     ]);
@@ -189,6 +189,17 @@ describe('Moonlight Greatsword', () => {
 
     const mending = sysAt(tree, 7).powers.find((p: any) => /Moonlight Mending/.test(p.name));
     expect(mending.category).toBe('active');
+
+    // R-05: Ranged ST Restoration at PL 4 / 10 / 16 (pools 2 / 6 / 10), no heal dice.
+    const mendingRows = resolvedProgression(def).filter((r: any) => /Moonlight Mending/.test(r.name)) as any[];
+    expect(mendingRows.map((r) => r.level)).toEqual([1, 4, 7]);
+    for (const r of mendingRows) {
+      expect(r.powerTemplateId).toBe('active-ranged-health-level-heal');
+      expect(r.effect).not.toMatch(/\d+d8 HP/);
+    }
+    expect(mendingRows[0].effect).toMatch(/\b2 Scarred Health Bars\b/);
+    expect(mendingRows[1].effect).toMatch(/\b6 Scarred Health Bars\b/);
+    expect(mendingRows[2].effect).toMatch(/\b10 Scarred Health Bars\b/);
     const shadow = sysAt(tree, 6).powers.find((p: any) => /Moonlight Shadow/.test(p.name));
     expect(shadow.category).toBe('activeBuff');
   });
@@ -239,12 +250,13 @@ describe('Soul Sigil', () => {
     }
   });
 
-  it('builds its three lines from standard Powers (Soul Shell support + Phasing reaction + Phasing buff)', () => {
+  it('builds its three lines from standard Powers (Soul Shell support + Phasing reaction + Self Restoration)', () => {
     const def = getGeneralArtifact('soulSigil')!;
     const picks = buildEchoProgressionPicks(def) as any[];
     expect(picks[0].kind).toBe('stoneFunction');
     expect(picks[1]).toMatchObject({ kind: 'power', powerTemplateId: 'reaction-phasing' });
-    expect(picks[2]).toMatchObject({ kind: 'power', powerTemplateId: 'ab-phasing' });
+    // R-05: Resting Soul is one-time Self Restoration (Melee ST Restoration pools), not an AB Healing buff.
+    expect(picks[2]).toMatchObject({ kind: 'power', powerTemplateId: 'active-melee-health-level-heal' });
 
     const byLevel = new Map(resolvedProgression(def).map((r: any) => [r.level, r]));
     for (const lvl of [1, 4, 7]) expect((byLevel.get(lvl) as any).name).toMatch(/Soul Shell/);
@@ -255,8 +267,21 @@ describe('Soul Sigil', () => {
     // The Phasing lines are real catalog Powers, not authored text.
     const reaction = sysAt(tree, 8).powers.find((p: any) => /Uncanny Soul/.test(p.name));
     expect(reaction.category).toBe('reaction');
-    const buff = sysAt(tree, 9).powers.find((p: any) => /Resting Soul/.test(p.name));
-    expect(buff.category).toBe('activeBuff');
+    const resting = sysAt(tree, 9).powers.find((p: any) => /Resting Soul/.test(p.name));
+    expect(resting.category).toBe('active');
+
+    // Self-only Restoration sized from Melee ST pools PL4 / PL10 / PL16 = 3 / 7 / 12; no turn-start heal.
+    const rows = resolvedProgression(def).filter((r: any) => /Resting Soul/.test(r.name)) as any[];
+    expect(rows.map((r) => r.level)).toEqual([3, 6, 9]);
+    expect(rows[0].effect).toMatch(/3 Scarred Health Bars on yourself/);
+    expect(rows[1].effect).toMatch(/7 Scarred Health Bars on yourself/);
+    expect(rows[2].effect).toMatch(/12 Scarred Health Bars on yourself/);
+    for (const r of rows) {
+      expect(r.powerTemplateId).toBe('active-melee-health-level-heal');
+      expect(r.effect).toMatch(/No turn-start healing|replaces Resting Soul/);
+      expect(r.effect).not.toMatch(/\d+d8 HP/);
+    }
+    expect(resting.category).not.toBe('activeBuff');
   });
 });
 

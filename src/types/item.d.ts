@@ -399,6 +399,16 @@ export interface PowerMechanics {
    */
   healthLevelRecovery?: number;
 
+  /**
+   * R-05 Passive: Regeneration — Scarred Health Bars the bearer may restore (full HP)
+   * per period. Not turn-start HP regen.
+   */
+  scarredBarRestoration?: {
+    pool: number;
+    period: 'tyhranDay' | 'safeHavenRest';
+    target: 'self' | 'target' | 'allies';
+  };
+
   /** Change an existing special stack (Walking Furnace, cleanse, consume Bulwark, …). */
   modifySpecial?: PowerMechanicsModifySpecial;
 

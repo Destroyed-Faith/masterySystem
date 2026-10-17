@@ -237,7 +237,7 @@ describe('Damage Transfer / Vampyr', () => {
       expect(rangedRow.aoe?.shape).toBe('none');
     }
     expect(isDamageTransferPower({ system: { templateId: melee!.templateId } })).toBe(true);
-    expect(isDamageTransferPower({ system: { templateId: 'active-melee-single-heal' } })).toBe(false);
+    expect(isDamageTransferPower({ system: { templateId: 'active-melee-health-level-heal' } })).toBe(false);
   });
 
   it('runs through applyDamageToTarget, the resolver the attack card calls', async () => {

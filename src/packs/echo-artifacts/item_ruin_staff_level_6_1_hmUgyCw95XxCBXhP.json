@@ -46,8 +46,8 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Intellect Ability: Raise Focus Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
-        "special": "intellect.raiseFocus"
+        "effect": "Supports the Intellect Ability: Raises Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
+        "special": "intellect.raises"
       },
       {
         "level": 5,
@@ -77,7 +77,7 @@
     "stoneFunction": {
       "kind": "stonePowerSupport",
       "attribute": "intellect",
-      "stonePowerId": "intellect.raiseFocus"
+      "stonePowerId": "intellect.raises"
     },
     "extraStoneFunctions": [],
     "progressionPicks": [
@@ -87,7 +87,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "intellect",
-          "stonePowerId": "intellect.raiseFocus"
+          "stonePowerId": "intellect.raises"
         },
         "displayName": "Witch Stone"
       },
@@ -130,7 +130,7 @@
       {
         "id": "witchStaffRuin-pw-4",
         "name": "Witch Stone II",
-        "fluff": "Special: intellect.raiseFocus",
+        "fluff": "Special: intellect.raises",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -257,7 +257,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Intellect Ability: Raise Focus Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
+              "text": "Supports the Intellect Ability: Raises Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
             },
             "specials": [],
             "lvl": 4

@@ -29,13 +29,14 @@ const MOONLIGHT_GREATSWORD = {
         { slot: 'c', label: 'Weapon Special', note: 'Expose(4) from L7, Expose(8) + True Moonlight at L10.' },
     ],
     // The three Level Progression lines are standard catalog Powers, only renamed:
-    //   L1 Moonlight Mending  → Ranged Single-Target Heal (stages I/II/III @ L1/4/7),
+    //   L1 Moonlight Mending  → Ranged Single Target Restoration (R-05; stages I/II/III
+    //                           @ L1/4/7 = PL 4/10/16, pools 2/6/10 Scarred Bars),
     //   L2 Moonlight Judgment → Ranged AoE Targeted Special (Requiem),
     //   L3 Moonlight Shadow   → Damage Aura Active Buff (stages I/II/III @ L3/6/9).
     // The 1–9 rows are derived from these picks; only the bespoke L10 Ultimate
     // ("True Moonlight") is authored verbatim below.
     progressionPickSpecs: {
-        1: { templateId: 'active-ranged-single-heal', name: 'Moonlight Mending' },
+        1: { templateId: 'active-ranged-health-level-heal', name: 'Moonlight Mending' },
         2: { templateId: 'active-ranged-aoe-targeted-special', special: 'requiem', name: 'Moonlight Judgment' },
         3: { templateId: 'ab-damage-aura', name: 'Moonlight Shadow' },
     },
@@ -76,12 +77,22 @@ const SOUL_SIGIL = {
     // The three Level Progression lines are standard, not authored:
     //   L1 Soul Shell    → Temporary HP Stone Power Support (from `stoneFunction`),
     //   L2 Uncanny Soul  → Phasing Reaction (stages I/II/III @ L2/5/8),
-    //   L3 Resting Soul  → Phasing Active Buff (stages I/II/III @ L3/6/9).
+    //   L3 Resting Soul  → R-05 one-time SELF Restoration (stages I/II/III @ L3/6/9),
+    //                      sized from the Melee ST Restoration pool at PL 4/10/16
+    //                      (3 / 7 / 12 Scarred Bars). No turn-start HP heal.
     // The 1–9 rows derive from these picks; only the bespoke L10 Ultimate
     // ("True Soul Sigil") is authored verbatim below.
     progressionPickSpecs: {
         2: { templateId: 'reaction-phasing', name: 'Uncanny Soul' },
-        3: { templateId: 'ab-phasing', name: 'Resting Soul' },
+        3: {
+            templateId: 'active-melee-health-level-heal',
+            name: 'Resting Soul',
+            stageEffectTexts: [
+                'Restore up to **3 Scarred Health Bars on yourself only** (full HP each), once per Safe Haven Rest. No turn-start healing; no HP dice.',
+                'Restore up to **7 Scarred Health Bars on yourself only** (full HP each), once per Safe Haven Rest. This replaces Resting Soul I.',
+                'Restore up to **12 Scarred Health Bars on yourself only** (full HP each), once per Safe Haven Rest. This replaces Resting Soul II.',
+            ],
+        },
     },
     levelProgression: [
         {

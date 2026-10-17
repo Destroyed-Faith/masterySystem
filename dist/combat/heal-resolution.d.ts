@@ -13,7 +13,10 @@ export declare const HEAL_CHAT_FLAG = "healResolution";
 export declare const HLR_SPENT_FLAG = "healthLevelRecoverySpent";
 /** Catalog Health Level Recovery band for HP-heal Actives (0 below L4, max 4 at L15–16). */
 export declare function healHealthLevelRecoveryForRank(rank: number): number;
-/** True for dedicated Scarred Bar Restoration (no HP dice — pool is the whole Power). */
+/**
+ * True for dedicated Scarred Bar Restoration (ST + AoE; no HP dice — pool is the
+ * whole Power, restored bars return at full HP).
+ */
 export declare function isScarredRestorationPower(item: any): boolean;
 /**
  * Safe Haven Rest pool size for this Power:
@@ -52,6 +55,15 @@ export declare function isHealRadialOption(option: {
  * catalog snapshot from an artifact progression row (templateId + stage rank).
  */
 export declare function healPowerItemFromRadialOption(option: RadialCombatOption | null | undefined): any | null;
+/**
+ * Infer a Restoration template id (+ printed PL) from artifact row text such as
+ * "Ranged Single Target Restoration (PL 10)" / "Melee AoE Restoration (PL 4)" and
+ * legacy "Ranged Single Target Heal (PL 16)" / "Healing Aura (PL 4)" technical references.
+ */
+export declare function inferRestorationTemplateFromArtifactText(text: string | null | undefined): {
+    templateId: string;
+    pl: number | null;
+} | null;
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export declare function getHealDiceFormula(item: any): string | null;
 export declare function getHealAoETargetMode(item: any): 'target' | 'aoe' | 'self';

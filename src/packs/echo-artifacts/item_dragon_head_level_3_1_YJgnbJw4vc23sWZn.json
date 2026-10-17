@@ -42,8 +42,8 @@
         "level": 1,
         "name": "Breath Weapon I",
         "type": "Ranged AoE",
-        "range": "20m",
-        "aoe": "Radius 3m",
+        "range": "Self",
+        "aoe": "Cone 6m",
         "duration": "Instant",
         "effect": "Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.",
         "special": "Ruin(4)",
@@ -168,13 +168,12 @@
           "4": {
             "type": "Ranged AoE",
             "range": {
-              "kind": "distance",
-              "m": 20
+              "kind": "self"
             },
             "aoe": {
-              "shape": "radius",
-              "m": 3,
-              "radiusM": 3
+              "shape": "cone",
+              "m": 6,
+              "radiusM": 6
             },
             "duration": {
               "kind": "instant"

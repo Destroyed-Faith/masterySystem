@@ -855,6 +855,18 @@ Hooks.once('init', async function () {
             console.error('Mastery System | passive-triggers combatStart failed', err);
         }
     });
+    // R-05 §8: prepared Resolve Healing expires at the end of its Round (Stones stay spent).
+    Hooks.on('updateCombat', async (combat, changes) => {
+        if (changes?.round === undefined || !game.user?.isGM)
+            return;
+        try {
+            const { expireStaleResolveHealingPending } = await import('./stones/stone-resolution-ui.js');
+            await expireStaleResolveHealingPending(combat);
+        }
+        catch (err) {
+            console.error('Mastery System | pending Resolve Healing expiry failed', err);
+        }
+    });
     Hooks.on('updateCombat', async (combat, changes) => {
         if (changes?.turn === undefined)
             return;
@@ -950,6 +962,14 @@ Hooks.once('init', async function () {
     Hooks.on('combatEnd', async (combat) => {
         if (!game.user?.isGM)
             return;
+        try {
+            // Combat is over: any prepared Healing is stale (null round compare clears everything).
+            const { expireStaleResolveHealingPending } = await import('./stones/stone-resolution-ui.js');
+            await expireStaleResolveHealingPending({ id: null, combatants: combat?.combatants });
+        }
+        catch (err) {
+            console.error('Mastery System | combatEnd pending Resolve Healing cleanup failed', err);
+        }
         try {
             await clearTempHPSourcesForCombat(combat);
         }
@@ -2195,6 +2215,7 @@ async function preloadTemplates() {
     const templatePaths = [
         // Actor sheets (only load existing templates)
         'systems/mastery-system/templates/actor/character-sheet.hbs',
+        'systems/mastery-system/templates/actor/partials/actor-identity-banner.hbs',
         'systems/mastery-system/templates/actor/partials/combat-senses-config.hbs',
         'systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs',
         'systems/mastery-system/templates/actor/partials/npc-combat-ini.hbs',
@@ -3113,6 +3134,8 @@ Hooks.once('ready', async function () {
     registerRaisePlanChatHooks();
     const { registerHealChatHandlers } = await import('./combat/heal-resolution.js');
     registerHealChatHandlers();
+    const { registerResolveHealingChatHandlers } = await import('./stones/stone-resolution-ui.js');
+    registerResolveHealingChatHandlers();
     const { registerCleanseChatHandlers } = await import('./combat/cleanse-resolution.js');
     registerCleanseChatHandlers();
     const { registerPerceptionCombatHooks } = await import('./combat/perception-combat-hooks.js');
@@ -3180,6 +3203,15 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Special-Effect rename migration failed', error);
+    }
+    // Migration: R-05 — ordinary HP heal powers → Scarred-Bar Restoration / Passive Regeneration;
+    // retired healing buffs/passives are flagged so they cannot activate. Idempotent.
+    try {
+        const { runR05HealingMigration } = await import('./migrations/r05-healing-migration.js');
+        await runR05HealingMigration(migrationActors);
+    }
+    catch (error) {
+        console.warn('Mastery System | R-05 healing migration failed', error);
     }
     // Migration: Rules v2 — strip Saving Throws, saveSpell→spellAttack, retire
     // Active Buff Special Application auras, clear removed Special statuses.

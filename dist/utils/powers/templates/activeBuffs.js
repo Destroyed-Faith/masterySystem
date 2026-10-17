@@ -20,7 +20,8 @@ const AB_ARMOR_EVADE_ARMOR = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29
 const AB_ARMOR_EVADE_EVADE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const AB_TEMP = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
 // Active Buff: Healing heals FLAT HP at the start of each turn (4 PP / 1 HP).
-const AB_HEAL = [10, 17, 25, 32, 40, 47, 55, 62, 70, 77, 85, 92, 100, 107, 115, 122];
+/** R-05: Healing Active Buffs are retired; rows keep this explanatory text and carry no mechanics. */
+const R05_RETIRED_HEALING_BUFF_TEXT = '**Retired (R-05):** ordinary HP healing buffs were removed. Use Scarred Bar Restoration or Passive: Regeneration. Not available at any Power Level.';
 // Active Buff: Damage — +1d8 = 15 PP → +3d8 (L1) … +33d8 (L16).
 const AB_DAMAGE = ['3d8', '5d8', '7d8', '9d8', '11d8', '13d8', '15d8', '17d8', '19d8', '21d8', '23d8', '25d8', '27d8', '29d8', '31d8', '33d8'];
 // Active Buff: Penetration — same curve as Armor (Penetration(5) … Penetration(65)).
@@ -34,7 +35,6 @@ const AURA_ARMOR = [4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30, 33, 36, 38, 41, 44]
 // --- Active Buff Aura tables (banded radius L1–7=2m, L8–14=3m, L15–16=4m) ---
 const AURA_BAND_RADIUS = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4];
 const AURA_DAMAGE = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
-const AURA_HEALING = ['1d8', '1d8', '2d8', '3d8', '4d8', '4d8', '5d8', '5d8', '6d8', '7d8', '8d8', '9d8', '10d8', '10d8', '10d8', '11d8'];
 // --- Growth Form tables ---
 const GF_ARMOR = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const GF_EVADE_PEN = [1, 1, 2, 4, 4, 5, 5, 6, 6, 7, 7, 10, 10, 11, 11, 12];
@@ -173,13 +173,13 @@ export const ACTIVE_BUFF_TEMPLATES = [
         subfamily: 'recovery',
         category: 'activeBuff',
         tags: [],
-        fluff: 'You draw out rest, vitality, fortitude, or sustaining magic across the duration of the buff.',
+        fluff: 'Retired in R-05: ordinary HP healing buffs were removed.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
-        levels: buildLevels((lvl) => activeBuffRow({
+        levels: buildLevels(() => activeBuffRow({
             duration: DURATION_MR_ROUNDS,
-            effectText: `At the start of your turn, heal **${AB_HEAL[lvl - 1]} HP**.`,
-            mechanics: { healing: { flat: String(AB_HEAL[lvl - 1]), trigger: 'startOfTurn', target: 'self' }, duration: 'masteryRankRounds' },
+            effectText: R05_RETIRED_HEALING_BUFF_TEXT,
+            mechanics: {},
         })),
     },
     {
@@ -278,21 +278,20 @@ export const ACTIVE_BUFF_TEMPLATES = [
     },
     {
         templateId: 'ab-temp-hp-healing',
-        templateName: 'Temporary HP + Healing',
-        name: 'Active Buff: Temporary HP + Healing',
+        templateName: 'Temporary HP (R-05: healing retired)',
+        name: 'Active Buff: Temporary HP (R-05 Retired Combo)',
         subfamily: 'combined',
         category: 'activeBuff',
         tags: [],
-        fluff: 'A buffer and sustained recovery, woven together.',
+        fluff: 'A temporary buffer. The sustained-recovery half was retired in R-05.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
             const temp = [5, 8, 12, 16, 20, 23, 27, 31, 35, 38, 42, 46, 50, 53, 57, 61][lvl - 1];
-            const heal = [5, 9, 13, 16, 20, 24, 28, 31, 35, 39, 43, 46, 50, 54, 58, 61][lvl - 1];
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Gain **${temp} Temporary HP**. Recover **${heal} HP** at the start of each of your turns.`,
-                mechanics: { tempHP: String(temp), healing: { flat: String(heal), trigger: 'startOfTurn', target: 'self' }, duration: 'masteryRankRounds' },
+                effectText: `Gain **${temp} Temporary HP**. The turn-start healing half was retired in R-05.`,
+                mechanics: { tempHP: String(temp), duration: 'masteryRankRounds' },
             });
         }),
     },
@@ -493,19 +492,14 @@ export const ACTIVE_BUFF_TEMPLATES = [
         subfamily: 'aura',
         category: 'activeBuff',
         tags: [],
-        fluff: 'You radiate restorative force, warmth, blessing, blood magic, life energy, or stabilizing power.',
+        fluff: 'Retired in R-05: ordinary HP healing auras were removed.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
-        levels: buildLevels((lvl) => {
-            const r = AURA_BAND_RADIUS[lvl - 1];
-            const dice = AURA_HEALING[lvl - 1];
-            return activeBuffRow({
-                aoe: { shape: 'aura', radiusM: r, targetFilter: 'allies', center: 'self' },
-                duration: DURATION_MR_ROUNDS,
-                effectText: `At the end of each of your turns, allies within **${r} m** heal **${dice} HP**.`,
-                mechanics: { auraPayload: { kind: 'healing', dice, targets: 'allies', radiusM: r }, duration: 'masteryRankRounds' },
-            });
-        }),
+        levels: buildLevels(() => activeBuffRow({
+            duration: DURATION_MR_ROUNDS,
+            effectText: R05_RETIRED_HEALING_BUFF_TEXT,
+            mechanics: {},
+        })),
     },
     // Active Buff Auras never apply or increase Specials (Rules/active-buffs.md).
     // Special interaction is Active Buff: Special Overdrive only; Passive Special Aura lives in passives.

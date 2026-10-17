@@ -93,14 +93,14 @@
         {{#if (eq initiativeExchange.mode "receipt")}}
         <span class="initiative-exchange-receipt">{{initiativeExchange.receipt}}</span>
         {{else}}
-        <div class="initiative-exchange-stepper" title="Colorless Stones to buy for {{initiativeExchange.costPerStone}} Initiative each (max {{initiativeExchange.maxConvert}}).">
+        <div class="initiative-exchange-stepper" dir="ltr" title="Colorless Stones to buy for {{initiativeExchange.costPerStone}} Initiative each (max {{initiativeExchange.maxConvert}}).">
           <span class="initiative-exchange-stepper-label">Colorless</span>
           <button type="button" class="initiative-exchange-btn js-convert-count-remove" {{#unless initiativeExchange.canConvertLess}}disabled{{/unless}} aria-label="One stone less">
-            <i class="fas fa-minus"></i>
+            −
           </button>
           <span class="initiative-exchange-value">{{initiativeExchange.convertCount}}</span>
           <button type="button" class="initiative-exchange-btn js-convert-count-add" {{#unless initiativeExchange.canConvertMore}}disabled{{/unless}} aria-label="One stone more">
-            <i class="fas fa-plus"></i>
+            +
           </button>
         </div>
         <button type="button" class="dialog-btn initiative-inline-btn js-convert-initiative-colorless" title="{{#if initiativeExchange.convertCount}}Convert Initiative into Colorless Stones that are Ready immediately{{else}}Optional — skip Convert and continue (or Confirm Stone Assignment below){{/if}}" {{#if initiativeExchange.locked}}disabled{{/if}}>
@@ -153,13 +153,13 @@
       {{#each naturalRecovery.options}}
       <div class="natural-recovery-row{{#if this.isAuto}} is-auto-single{{/if}}">
         <span class="natural-recovery-label">{{this.label}}</span>
-        <div class="natural-recovery-stepper">
+        <div class="natural-recovery-stepper" dir="ltr">
           <button type="button"
                   class="natural-recovery-step js-nsr-remove"
                   data-special-id="{{this.id}}"
                   {{#unless this.canRemove}}disabled{{/unless}}
                   aria-label="One less">
-            <i class="fas fa-minus"></i>
+            −
           </button>
           <span class="natural-recovery-value">{{this.allocated}}</span>
           <button type="button"
@@ -167,7 +167,7 @@
                   data-special-id="{{this.id}}"
                   {{#unless this.canAdd}}disabled{{/unless}}
                   aria-label="One more">
-            <i class="fas fa-plus"></i>
+            +
           </button>
         </div>
       </div>
@@ -250,24 +250,24 @@
           {{#if pool.blockedReason}}<span class="pool-blocked-reason" title="{{pool.blockedReason}}">{{pool.blockedReason}}</span>{{/if}}
         </div>
         {{#if pool.recoverShow}}
-        <div class="pool-recovery" title="{{pool.name}}: {{pool.recoverSpace}} spent stone(s) can come back">
+        <div class="pool-recovery" dir="ltr" title="{{pool.name}}: {{pool.recoverSpace}} spent stone(s) can come back">
           <button type="button" class="pool-recovery-btn js-recover-remove" data-attribute="{{pool.key}}" {{#unless pool.recoverCanRemove}}disabled{{/unless}} aria-label="One less">
-            <i class="fas fa-minus"></i>
+            −
           </button>
           <span class="pool-recovery-value">{{pool.recoverAllocLabel}}</span>
           <button type="button" class="pool-recovery-btn js-recover-add" data-attribute="{{pool.key}}" {{#unless pool.recoverCanAdd}}disabled{{/unless}} aria-label="Recover one more">
-            <i class="fas fa-plus"></i>
+            +
           </button>
         </div>
         {{/if}}
         {{#if pool.gmAdjustShow}}
-        <div class="pool-gm-adjust" title="GM override: {{pool.name}} Ready stones {{pool.gmAdjustLabel}} — − takes a stone away, + gives one back">
+        <div class="pool-gm-adjust" dir="ltr" title="GM override: {{pool.name}} Ready stones {{pool.gmAdjustLabel}} — − takes a stone away, + gives one back">
           <button type="button" class="pool-recovery-btn pool-gm-btn js-gm-pool-remove" data-attribute="{{pool.key}}" {{#unless pool.gmAdjustCanRemove}}disabled{{/unless}} aria-label="GM: take one stone away">
-            <i class="fas fa-minus"></i>
+            −
           </button>
           <span class="pool-gm-value">GM {{pool.gmAdjustLabel}}</span>
           <button type="button" class="pool-recovery-btn pool-gm-btn js-gm-pool-add" data-attribute="{{pool.key}}" {{#unless pool.gmAdjustCanAdd}}disabled{{/unless}} aria-label="GM: give one stone back">
-            <i class="fas fa-plus"></i>
+            +
           </button>
         </div>
         {{/if}}

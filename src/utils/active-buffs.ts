@@ -202,6 +202,17 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     console.warn('Mastery System | activateActiveBuff called with non-buff power', power.name);
     return false;
   }
+
+  // R-05: ordinary HP healing buffs are retired and flagged by the migration; they cannot activate.
+  try {
+    const { isR05RetiredHealingPower } = await import('../migrations/r05-healing-migration.js');
+    if (isR05RetiredHealingPower(power)) {
+      ui.notifications?.warn(`${power.name} was retired in R-05 (use Restoration / Regeneration instead).`);
+      return false;
+    }
+  } catch {
+    /* guard is best-effort */
+  }
   
   // Check if this is a true active buff (not a utility)
   const isTrueBuff = isTrueActiveBuff(power);

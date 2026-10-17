@@ -51,14 +51,14 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Vitality Ability: Extend Active Buff Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
-        "special": "vitality.extendActiveBuff"
+        "effect": "Supports the Vitality Ability: Maximization Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
+        "special": "vitality.damageMaximization"
       }
     ],
     "stoneFunction": {
       "kind": "stonePowerSupport",
       "attribute": "vitality",
-      "stonePowerId": "vitality.extendActiveBuff"
+      "stonePowerId": "vitality.damageMaximization"
     },
     "extraStoneFunctions": [],
     "progressionPicks": [
@@ -74,7 +74,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "vitality",
-          "stonePowerId": "vitality.extendActiveBuff"
+          "stonePowerId": "vitality.damageMaximization"
         },
         "displayName": "Alchemist Stone"
       },
@@ -309,7 +309,7 @@
       {
         "id": "alchemistCoat-pw-2",
         "name": "Alchemist Stone I",
-        "fluff": "Special: vitality.extendActiveBuff",
+        "fluff": "Special: vitality.damageMaximization",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -364,7 +364,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Vitality Ability: Extend Active Buff Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
+              "text": "Supports the Vitality Ability: Maximization Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally."
             },
             "specials": [],
             "lvl": 2

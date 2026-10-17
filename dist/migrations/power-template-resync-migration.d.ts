@@ -32,6 +32,13 @@ export declare function resyncActorPowerTemplates(actor: any, options?: {
     force?: boolean;
 }): Promise<number>;
 /**
+ * Resync one template-backed power item. Returns true when it wrote an update.
+ * Throws when the Foundry update itself fails (callers log per item).
+ */
+export declare function resyncPowerItemFromTemplate(item: any, options?: {
+    force?: boolean;
+}): Promise<boolean>;
+/**
  * Resync every template-backed power item from its current template.
  * @param options.force ignore the diff check and rewrite every matched item.
  * @returns number of power items updated.

@@ -134,11 +134,14 @@ function accumulate(scores, f) {
         scores.sustain += 2.5;
     if (has(mech, 'healing'))
         scores.sustain += 3;
+    // R-05: Passive Regeneration / Restoration Actives carry Scarred Bar mechanics, not HP regen.
+    if (has(mech, 'scarredBarRestoration') || has(mech, 'healthLevelRecovery'))
+        scores.sustain += 3;
     if (SUSTAIN_SUBFAMILIES.has(f.subfamily))
         scores.sustain += 2.5;
     if (specials.has('regeneration'))
         scores.sustain += 2;
-    if (/heal|cleanse/.test(id))
+    if (/heal|cleanse|restoration|regeneration/.test(id))
         scores.sustain += 2;
     // tempHP also reinforces a defensive lean
     if (has(mech, 'tempHP'))

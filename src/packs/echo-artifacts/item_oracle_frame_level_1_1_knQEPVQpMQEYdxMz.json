@@ -70,7 +70,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "influence",
-          "stonePowerId": "influence.aidRoll"
+          "stonePowerId": "influence.cleanse"
         },
         "displayName": "Oracle Aid"
       },

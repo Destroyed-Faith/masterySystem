@@ -4,7 +4,7 @@ import {
   buildEchoArtifactTree,
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../src/artifacts/echo-artifact-tree-builder.js';
-import { ECHO_ARTIFACTS, getEchoArtifact } from '../src/utils/echo-artifacts.js';
+import { ECHO_ARTIFACTS, getEchoArtifact, buildEchoProgressionPicks } from '../src/utils/echo-artifacts.js';
 import { visibleAbilityRows, resolveFullLevelProgression } from '../src/utils/artifact-visible-abilities.js';
 import { getEchoArtifactIcon } from '../src/utils/item-icons.js';
 
@@ -307,9 +307,9 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(field?.aoe).toContain('10');
   });
 
-  it('Sentinel: Single Heal Active + Resolve Stone Pool + Resolve Healing Support', () => {
+  it('Sentinel: Ranged Restoration Active + Resolve Stone Pool + Resolve Healing Support', () => {
     expect(pick('sentinelFrame', 1).kind).toBe('power');
-    expect(pick('sentinelFrame', 1).powerTemplateId).toBe('active-ranged-single-heal');
+    expect(pick('sentinelFrame', 1).powerTemplateId).toBe('active-ranged-health-level-heal');
 
     const l2 = pick('sentinelFrame', 2);
     expect(l2.kind).toBe('stoneFunction');
@@ -322,6 +322,38 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
       attribute: 'resolve',
       stonePowerId: 'resolve.healing',
     });
+  });
+
+  it('R-05: Sentinel Frame stages Ranged ST Restoration at PL 4 / 10 / 16 (no Single Heal)', () => {
+    const def = getEchoArtifact('sentinelFrame')!;
+    const picks = buildEchoProgressionPicks(def) as any[];
+    expect(picks[0].powerTemplateId).toBe('active-ranged-health-level-heal');
+    const rows = resolveFullLevelProgression(def.levelProgression, picks as any).filter((r: any) =>
+      /Sentinel Restoration/.test(r.name),
+    ) as any[];
+    expect(rows.map((r) => r.level)).toEqual([1, 4, 7]);
+    expect(rows[0].effect).toMatch(/\b2 Scarred Health Bars\b/);
+    expect(rows[1].effect).toMatch(/\b6 Scarred Health Bars\b/);
+    expect(rows[2].effect).toMatch(/\b10 Scarred Health Bars\b/);
+    for (const r of rows) {
+      expect(r.powerTemplateId).not.toMatch(/single-heal/);
+      expect(r.effect).not.toMatch(/\d+d8/);
+    }
+  });
+
+  it('R-05: Ringchain Hearth Circle / Remembered Hands are Restoration rows with template ids', () => {
+    const def = getEchoArtifact('ringchainOfKeptNames')!;
+    const byName = (n: string) => def.levelProgression.find((r: any) => r.name === n) as any;
+    expect(byName('Hearth Circle I')).toMatchObject({ powerTemplateId: 'active-melee-aoe-restoration', aoe: 'Radius 2 m' });
+    expect(byName('Hearth Circle II')).toMatchObject({ powerTemplateId: 'active-melee-aoe-restoration', aoe: 'Radius 4 m' });
+    expect(byName('Hearth Circle I').effect).toMatch(/up to 2 Scarred Health Bars/);
+    expect(byName('Hearth Circle II').effect).toMatch(/up to 9 Scarred Health Bars/);
+    expect(byName('Remembered Hands I')).toMatchObject({ powerTemplateId: 'active-ranged-health-level-heal' });
+    expect(byName('Remembered Hands I').effect).toMatch(/up to 6 Scarred Health Bars/);
+    expect(byName('Remembered Hands II').effect).toMatch(/up to 10 Scarred Health Bars/);
+    for (const row of def.levelProgression as any[]) {
+      expect(`${row.effect} ${row.special}`).not.toMatch(/Healing Aura|Single Target Heal|\d+d8 HP/);
+    }
   });
 
   it('exposes all three Stone Functions as level-gated picks on every node', () => {

@@ -61,8 +61,8 @@
         "range": "Self",
         "aoe": "",
         "duration": "Instant",
-        "effect": "Supports the Influence Ability: Regeneration Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
-        "special": "influence.regeneration"
+        "effect": "Supports the Influence Ability: Colorless Recovery Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally.",
+        "special": "influence.colorlessRecovery"
       }
     ],
     "stoneFunction": null,
@@ -89,7 +89,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "influence",
-          "stonePowerId": "influence.regeneration"
+          "stonePowerId": "influence.colorlessRecovery"
         },
         "displayName": "Regeneration Support"
       }
@@ -526,7 +526,7 @@
       {
         "id": "judicatorFrame-pw-6",
         "name": "Regeneration Support II",
-        "fluff": "Special: influence.regeneration",
+        "fluff": "Special: influence.colorlessRecovery",
         "category": "passive",
         "tags": [
           "stone-function"
@@ -653,7 +653,7 @@
               "kind": "instant"
             },
             "effect": {
-              "text": "Supports the Influence Ability: Regeneration Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
+              "text": "Supports the Influence Ability: Colorless Recovery Stone Power and pre-fills Rank 3. Ranks 1, 2 must still be paid normally."
             },
             "specials": [],
             "lvl": 6

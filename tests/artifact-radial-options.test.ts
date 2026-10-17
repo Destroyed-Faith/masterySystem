@@ -54,7 +54,7 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
           name: 'Moonlight Mending I',
           type: 'Active',
           effect: 'Heal one creature for 10d8 HP',
-          powerTemplateId: 'active-ranged-single-heal',
+          powerTemplateId: 'active-ranged-health-level-heal',
           range: '20 m',
         },
       ],
@@ -70,7 +70,7 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(opts.some((o) => o.id.startsWith('artifact-weapon:'))).toBe(false);
     expect(opts[0].aoePlacementProfile).toBe('heal');
     expect(opts[0].defaultTargetGroup).toBe('ally');
-    expect(opts[0].artifactPowerTemplateId).toBe('active-ranged-single-heal');
+    expect(opts[0].artifactPowerTemplateId).toBe('active-ranged-health-level-heal');
   });
 
   it('keeps the named weapon swing when the actor has no Active power of their own', () => {

@@ -11,7 +11,8 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { getActiveSpecialValue } from '../system/active-specials.js';
 import { escapeStoneChat } from '../stones/stone-resolution.js';
 import { remainingMaximizations } from '../stones/stone-combat-effects.js';
-import { countScarredHealthBars, recoverScarredBars, } from '../stones/remove-scar.js';
+import { countScarredHealthBars } from '../stones/remove-scar.js';
+import { isScarredRestorationTemplateId, restoreScarredHealthBars, poolAt, R05_MELEE_AOE_POOL, R05_RANGED_AOE_POOL, } from './r05-restoration.js';
 import { isHealthBarScarred } from '../utils/calculations.js';
 import { getActionEconomyActor } from './action-economy.js';
 import { artifactLevelToTemplateRank } from '../utils/artifact-spell-pick.js';
@@ -33,10 +34,13 @@ export function healHealthLevelRecoveryForRank(rank) {
         return 1;
     return 0;
 }
-/** True for dedicated Scarred Bar Restoration (no HP dice — pool is the whole Power). */
+/**
+ * True for dedicated Scarred Bar Restoration (ST + AoE; no HP dice — pool is the
+ * whole Power, restored bars return at full HP).
+ */
 export function isScarredRestorationPower(item) {
     const tid = String(item?.system?.templateId || '');
-    return /health-level-heal/i.test(tid);
+    return isScarredRestorationTemplateId(tid);
 }
 /**
  * Safe Haven Rest pool size for this Power:
@@ -58,9 +62,15 @@ export function getPowerHlrPoolMax(powerItem) {
     const tid = String(powerItem?.system?.templateId || '');
     if (/health-level-heal/i.test(tid)) {
         const table = /ranged/i.test(tid) ? HL_HEAL_RANGED_POOL : HL_HEAL_MELEE_POOL;
-        const idx = Math.max(0, Math.min(15, rank - 1));
-        return Math.max(0, Math.floor(Number(table[idx]) || 0));
+        return poolAt(table, rank);
     }
+    if (/aoe-restoration/i.test(tid)) {
+        const table = /ranged/i.test(tid) ? R05_RANGED_AOE_POOL : R05_MELEE_AOE_POOL;
+        return poolAt(table, rank);
+    }
+    // R-05: Heal + Cleanse mixed is cleanse-only now — no Health Level Recovery pool.
+    if (/heal-cleanse/i.test(tid))
+        return 0;
     return healHealthLevelRecoveryForRank(rank);
 }
 export function powerItemRank(item) {
@@ -138,6 +148,8 @@ export function isHealTemplateId(templateId) {
         return false;
     if (/health-level-heal/i.test(tid))
         return true;
+    if (/aoe-restoration/i.test(tid))
+        return true;
     if (/heal-cleanse/i.test(tid))
         return true;
     if (/\bheal\b/i.test(tid) && !/cleanse|dispel/i.test(tid))
@@ -162,6 +174,8 @@ export function isHealPowerItem(item) {
     const tid = String(sys.templateId || '');
     const sub = String(sys.subfamily || '');
     if (/health-level-heal/i.test(tid))
+        return true;
+    if (/aoe-restoration/i.test(tid))
         return true;
     if (/support-heal/i.test(sub))
         return true;
@@ -193,6 +207,10 @@ export function isHealRadialOption(option) {
         return true;
     if (option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option))
         return true;
+    if (option.item?.type === 'artifact' &&
+        inferRestorationTemplateFromArtifactText(`${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`)) {
+        return true;
+    }
     if (option.item && isHealPowerItem(option.item))
         return true;
     return false;
@@ -225,30 +243,54 @@ export function healPowerItemFromRadialOption(option) {
             },
         };
     }
-    // Legacy / test rows: "Heal 10d8" in the effect column, no templateId.
-    if (option.item?.type === 'artifact' && artifactRowLooksLikeHeal(option)) {
-        const blob = `${option.description || ''} ${option.artifactRowSpecial || ''}`;
-        const m = /(\d+)\s*d\s*8/i.exec(blob);
-        if (m) {
-            const dice = `${m[1]}d8`;
+    // Authored / legacy artifact rows without a template id. R-05: ordinary HP-heal rows
+    // ("Heal 10d8", "Ranged Single Target Heal (PL n)") are migrated to Scarred Bar
+    // Restoration — never to a rolled HP heal.
+    if (option.item?.type === 'artifact') {
+        const blob = `${option.name || ''} ${option.description || ''} ${option.artifactRowSpecial || ''}`;
+        const inferred = inferRestorationTemplateFromArtifactText(blob);
+        if (inferred || artifactRowLooksLikeHeal(option)) {
+            const templateId = inferred?.templateId ?? 'active-ranged-health-level-heal';
+            const tpl = getTemplate(templateId);
+            const rankKey = inferred?.pl ?? artifactLevelToTemplateRank(option.artifactRowLevel || 1);
+            const rank = Math.max(1, Math.floor(Number(rankKey) || 1));
             return {
                 type: 'power',
                 id: option.id,
                 name: option.name,
                 system: {
-                    templateId: 'active-ranged-single-heal',
+                    templateId,
                     category: 'active',
                     subfamily: 'support-heal',
-                    rank: 4,
-                    level: 4,
-                    levels: {
-                        '4': { mechanics: { healing: { flat: dice, target: 'target' } } },
-                    },
+                    rank,
+                    level: rank,
+                    levels: tpl?.levels ?? {},
                 },
             };
         }
     }
     return option.item?.type === 'power' ? option.item : null;
+}
+/**
+ * Infer a Restoration template id (+ printed PL) from artifact row text such as
+ * "Ranged Single Target Restoration (PL 10)" / "Melee AoE Restoration (PL 4)" and
+ * legacy "Ranged Single Target Heal (PL 16)" / "Healing Aura (PL 4)" technical references.
+ */
+export function inferRestorationTemplateFromArtifactText(text) {
+    const blob = String(text || '');
+    if (!blob)
+        return null;
+    const plMatch = /\(\s*PL\s*(\d{1,2})\s*\)/i.exec(blob);
+    const pl = plMatch ? Math.max(1, Math.min(16, parseInt(plMatch[1], 10))) : null;
+    const ranged = /\branged\b/i.test(blob);
+    const melee = /\bmelee\b/i.test(blob);
+    if (/\bAoE\s+(?:Restoration|Heal)\b/i.test(blob) || /\bHealing\s+Aura\b/i.test(blob)) {
+        return { templateId: ranged && !melee ? 'active-ranged-aoe-restoration' : 'active-melee-aoe-restoration', pl };
+    }
+    if (/\bSingle\s+Target\s+(?:Restoration|Heal)\b/i.test(blob) || /\bScarred\s+Bar\s+Restoration\b/i.test(blob)) {
+        return { templateId: melee && !ranged ? 'active-melee-health-level-heal' : 'active-ranged-health-level-heal', pl };
+    }
+    return null;
 }
 /** Dice formula from mechanics, e.g. "4d8", or null for Health-Level-only heals. */
 export function getHealDiceFormula(item) {
@@ -374,7 +416,7 @@ export function formatHealResultChat(args) {
         ? `<p class="ms-heal-headline">Healed <strong class="ms-heal-amount">${totalRestored}</strong> HP <span class="ms-heal-roll">(rolled ${totalRolled} on ${escapeStoneChat(args.formula)})</span></p>`
         : args.formula
             ? `<p class="ms-heal-headline">Heal roll on <strong>${escapeStoneChat(args.formula)}</strong> — no HP restored (bar full or no valid bar).</p>`
-            : `<p class="ms-heal-headline">No HP heal from this Power (Health Level Recovery only).</p>`;
+            : `<p class="ms-heal-headline">Scarred Health Bars restored at full HP. This Power does not roll or restore ordinary HP.</p>`;
     const scarredLine = (args.scarredRecovered ?? 0) > 0
         ? `<p class="ms-heal-scarred-line">Scarred Health Bars restored: <strong>${args.scarredRecovered}</strong></p>`
         : '';
@@ -382,7 +424,7 @@ export function formatHealResultChat(args) {
         .map((r) => {
         const name = escapeStoneChat(r.name);
         if (!args.formula) {
-            return `<li><strong>${name}</strong> — no HP heal. Scarred bars left: ${r.scarredBefore}.</li>`;
+            return `<li><strong>${name}</strong> — Scarred bars remaining: ${r.scarredBefore}.</li>`;
         }
         const blight = r.blight > 0
             ? ` (Blight −${r.blight}: ${r.rolled} → ${r.afterBlight})`
@@ -429,9 +471,12 @@ export function formatScarredPromptChat(args) {
     }
     const healPreview = formula
         ? `<p class="ms-heal-preview"><strong>Click a button</strong> to recover Scarred (optional), then roll — use <strong>Roll Maximum</strong> to spend Maximization.</p>`
-        : `<p class="ms-heal-preview"><strong>Click a button</strong> to apply Scarred recovery (this Power has no HP dice).</p>`;
+        : `<p class="ms-heal-preview"><strong>Click a button</strong> to restore Scarred Health Bars — each restored bar returns at full HP (no Healing Dice).</p>`;
+    const headline = formula
+        ? `<p><strong>${healer}</strong> — <em>${power}</em>: Scarred zuerst, dann Heal würfeln</p>`
+        : `<p><strong>${healer}</strong> — <em>${power}</em>: restore Scarred Health Bars (full HP)</p>`;
     return `<div class="mastery-heal-scarred-prompt" data-target-actor-id="${escapeStoneChat(args.targetActorId)}" data-max-bars="${maxShown}">
-  <p><strong>${healer}</strong> — <em>${power}</em>: Scarred zuerst, dann Heal würfeln</p>
+  ${headline}
   <p><strong>${target}</strong> has <strong>${args.scarred}</strong> Scarred Health Bar(s).</p>
   <p>This Power's pool: <strong>${remaining}</strong> / ${args.poolMax} Health Level(s) left this Safe Haven Rest.</p>
   ${healPreview}
@@ -640,7 +685,36 @@ export async function resolveHealOnTokens(args) {
     const poolRemaining = getHlrRemainingOnCaster(caster, args.powerItem);
     const powerKey = healPowerHlrKey(args.powerItem);
     const g = globalThis;
-    // One Scarred recipient per use (AoE rule).
+    // R-05: AoE Restoration — shared pool distributed across eligible allies.
+    const tid = String(args.powerItem?.system?.templateId || '');
+    if (/aoe-restoration/i.test(tid) && !formula) {
+        try {
+            const { buildAoeRestorationPending, formatAoeRestorationPromptChat, AOE_RESTORATION_CHAT_FLAG, } = await import('./aoe-restoration.js');
+            const pendingAoe = buildAoeRestorationPending({
+                caster,
+                powerItem: args.powerItem,
+                powerName: args.powerName,
+                targetTokens: args.targetTokens,
+            });
+            if (pendingAoe) {
+                await g.ChatMessage?.create?.({
+                    speaker: g.ChatMessage?.getSpeaker?.({ actor: caster, token: args.casterToken?.document }),
+                    content: formatAoeRestorationPromptChat(pendingAoe),
+                    flags: {
+                        'mastery-system': {
+                            [AOE_RESTORATION_CHAT_FLAG]: { kind: 'aoe-prompt', pending: pendingAoe, resolved: false },
+                        },
+                    },
+                });
+                g.ui?.notifications?.info?.('Distribute Scarred Bar Restoration among allies, then Apply.');
+                return [];
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | AoE Restoration prompt failed', err);
+        }
+    }
+    // Single-target Scarred recipient (ST Restoration / legacy heal+HLR).
     // Read Scarred from the targeted token actor (same source as carousel/sheet),
     // not getActionEconomyActor — world prototype can disagree on unlinked tokens.
     let scarredTok = null;
@@ -701,6 +775,24 @@ export async function resolveHealOnTokens(args) {
                 maximizationRemaining: maxLeft,
             })
             : null;
+    if (!content && !formula && pending.cleanseRank > 0 && poolMax <= 0) {
+        // R-05: Cleanse-only (ex Heal + Cleanse mixed) — no HP / Scarred step; go straight to Cleanse.
+        try {
+            const { postCleansePromptForTarget } = await import('./cleanse-resolution.js');
+            for (const tok of args.targetTokens) {
+                await postCleansePromptForTarget({
+                    casterToken: args.casterToken,
+                    powerItem: args.powerItem,
+                    powerName: args.powerName,
+                    targetToken: tok,
+                });
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | cleanse-only prompt failed', err);
+        }
+        return [];
+    }
     if (!content) {
         // Health-Level-only with no Scarred target: nothing to do.
         const noPool = poolMax <= 0;
@@ -784,7 +876,7 @@ async function resolveScarredChoice(message, bars, maximize = false) {
     const spend = Math.max(0, Math.min(want, poolRem));
     let restored = 0;
     if (spend > 0) {
-        restored = await recoverScarredBars(owner, spend);
+        restored = (await restoreScarredHealthBars(owner, spend)).restored;
         const casterTok = pending?.casterTokenId ? resolveTokenById(pending.casterTokenId) : null;
         const caster = casterTok?.actor ?? g.game?.actors?.get?.(String(flags.casterActorId || '')) ?? null;
         const powerKey = String(flags.powerKey || pending?.powerKey || '');
@@ -803,9 +895,18 @@ async function resolveScarredChoice(message, bars, maximize = false) {
         /* ignore */
     }
     const poolLeft = Math.max(0, poolRem - restored);
-    const note = spend <= 0
-        ? `<p><em>No Scarred Health Bar recovered — rolling HP heal now…</em></p>`
-        : `<p><strong>${escapeStoneChat(owner.name)}</strong> — recovered <strong>${restored}</strong> Scarred Health Bar(s). Pool left: <strong>${poolLeft}</strong>. Rolling HP heal…</p>`;
+    // Restoration-only Powers (no heal formula): restore + spend HLR, then stop — no HP dice.
+    const restorationOnly = !pending?.formula && isScarredRestorationTemplateId(pending?.powerItemSnapshot?.system?.templateId);
+    const ownerName = escapeStoneChat(owner.name);
+    const note = restorationOnly
+        ? spend <= 0
+            ? `<p><em>No Scarred Health Bar restored.</em></p>`
+            : restored > 0
+                ? `<p><strong>${ownerName}</strong> — restored <strong>${restored}</strong> Scarred Health Bar(s) at full HP. Pool left: <strong>${poolLeft}</strong>.</p>`
+                : `<p><strong>${ownerName}</strong> — no Scarred Health Bar could be restored.</p>`
+        : spend <= 0
+            ? `<p><em>No Scarred Health Bar recovered — rolling HP heal now…</em></p>`
+            : `<p><strong>${ownerName}</strong> — recovered <strong>${restored}</strong> Scarred Health Bar(s) at full HP. Pool left: <strong>${poolLeft}</strong>. Rolling HP heal…</p>`;
     try {
         await message.update?.({
             content: `${message.content}<div class="mastery-heal-scarred-resolved">${note}</div>`,
@@ -813,6 +914,12 @@ async function resolveScarredChoice(message, bars, maximize = false) {
     }
     catch {
         /* ignore */
+    }
+    if (restorationOnly) {
+        if (restored > 0) {
+            g.ui?.notifications?.info?.(`${pending?.powerName || 'Restoration'}: restored ${restored} Scarred Health Bar(s) at full HP.`);
+        }
+        return;
     }
     // Continue with the deferred HP heal on the same card (and optional Cleanse).
     if (pending) {
@@ -887,6 +994,80 @@ function bindScarredPromptHtml(message, root) {
         await resolveScarredChoice(message, 0, false);
     });
 }
+function bindAoeRestorationHtml(message, root) {
+    const wrap = root.querySelector?.('.mastery-aoe-restoration');
+    if (!wrap || wrap.dataset.msBound === '1')
+        return;
+    wrap.dataset.msBound = '1';
+    const sumEl = wrap.querySelector('.ms-aoe-rest-sum');
+    const refreshSum = () => {
+        let total = 0;
+        wrap.querySelectorAll('.ms-aoe-rest-alloc').forEach((el) => {
+            total += Math.max(0, Math.floor(Number(el.value) || 0));
+        });
+        if (sumEl)
+            sumEl.textContent = String(total);
+    };
+    wrap.querySelectorAll('.ms-aoe-rest-alloc').forEach((el) => {
+        el.addEventListener('change', refreshSum);
+    });
+    wrap.querySelector('.ms-aoe-rest-cancel')?.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        try {
+            await message.update?.({
+                content: `${message.content}<p><em>AoE Restoration cancelled.</em></p>`,
+            });
+        }
+        catch {
+            /* ignore */
+        }
+    });
+    wrap.querySelector('.ms-aoe-rest-commit')?.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        const g = globalThis;
+        const flags = message?.getFlag?.('mastery-system', 'aoeRestoration') ??
+            message?.flags?.['mastery-system']?.aoeRestoration;
+        if (!flags || flags.resolved || flags.kind !== 'aoe-prompt')
+            return;
+        const pending = flags.pending;
+        if (!pending)
+            return;
+        const allocation = {};
+        wrap.querySelectorAll('.ms-aoe-rest-alloc').forEach((el) => {
+            const sel = el;
+            const id = String(sel.dataset.actorId || '');
+            if (id)
+                allocation[id] = Math.max(0, Math.floor(Number(sel.value) || 0));
+        });
+        try {
+            const { commitAoeRestorationAllocation, validateAoeRestorationAllocation } = await import('./aoe-restoration.js');
+            const check = validateAoeRestorationAllocation(pending, allocation);
+            if (!check.ok) {
+                g.ui?.notifications?.warn?.(check.reason === 'over-pool'
+                    ? 'Allocation exceeds the remaining Restoration pool.'
+                    : check.reason === 'over-scarred'
+                        ? 'Cannot restore more Scarred Bars than a target has.'
+                        : 'Choose how many Scarred Bars to restore, then Apply.');
+                return;
+            }
+            const caster = g.game?.actors?.get?.(pending.casterActorId) ?? null;
+            const result = await commitAoeRestorationAllocation(caster, pending, allocation);
+            await message.setFlag?.('mastery-system', 'aoeRestoration', { ...flags, resolved: true });
+            const lines = result.results
+                .map((r) => `<li><strong>${escapeStoneChat(r.name)}</strong> — ${r.restored} Bar(s) at full HP</li>`)
+                .join('');
+            await message.update?.({
+                content: `${message.content}<div class="ms-aoe-rest-done"><p>Spent <strong>${result.spent}</strong> Restoration point(s).</p><ul>${lines}</ul></div>`,
+            });
+            if (result.ok) {
+                g.ui?.notifications?.info?.(`AoE Restoration: ${result.spent} Scarred Bar(s) restored at full HP.`);
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | AoE Restoration commit failed', err);
+        }
+    });
+}
 /** Register chat button handlers for Scarred recovery prompts. */
 export function registerHealChatHandlers() {
     const g = globalThis;
@@ -901,6 +1082,7 @@ export function registerHealChatHandlers() {
             if (!root?.querySelector)
                 return;
             bindScarredPromptHtml(message, root);
+            bindAoeRestorationHtml(message, root);
         }
         catch (err) {
             console.warn('Mastery System | heal scarred chat bind failed', err);

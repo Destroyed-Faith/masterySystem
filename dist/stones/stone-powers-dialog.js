@@ -32,7 +32,7 @@ import { listAttrStoneReadyViews } from './stone-ready.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { getArtifactStoneFunctionStatus, getArtifactStoneSupportPrefill, } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
-import { actorMasteryRank, changeNaturalRecoveryAllocation, ensureAutoNaturalRecoveryForSingleEffect, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
+import { actorMasteryRank, changeNaturalRecoveryAllocation, confirmNaturalRecoveryAllocations, ensureAutoNaturalRecoveryForSingleEffect, listNaturalRecoveryOptions, matchingNaturalRecoveryChoice, naturalRecoveryAllocatedTotal, setNaturalRecoverySkipped, } from '../combat/special-application.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /** Payment-Lane geometry per Ability: Normal 1+2+4+8 (15), Premium 2+4+6+8 (20). */
@@ -1119,11 +1119,21 @@ export class StonePowersDialog extends BaseDialog {
         const masteryRank = actorMasteryRank(this.actor);
         const allocated = options.reduce((sum, row) => sum + row.allocated, 0);
         const skipped = choice?.chosen === true && naturalRecoveryAllocatedTotal(choice.allocations) <= 0;
+        const confirmed = choice?.chosen === true && allocated > 0 && !skipped;
         const autoSingle = choice?.autoSingle === true && allocated > 0 && !skipped;
         const autoTarget = autoSingle ? options.find((row) => row.allocated > 0) : null;
         const show = !!this.combatant &&
             this.actor.type === 'character' &&
             (options.length > 0 || skipped);
+        const i18n = globalThis.game?.i18n;
+        const loc = (key, fallback) => {
+            const raw = i18n?.localize?.(`MASTERY.specials.${key}`);
+            return raw && raw !== `MASTERY.specials.${key}` ? String(raw) : fallback;
+        };
+        const locFormat = (key, data, fallback) => {
+            const raw = i18n?.format?.(`MASTERY.specials.${key}`, data);
+            return raw && raw !== `MASTERY.specials.${key}` ? String(raw) : fallback;
+        };
         return {
             show,
             locked,
@@ -1137,13 +1147,16 @@ export class StonePowersDialog extends BaseDialog {
                 isAuto: autoSingle && row.allocated > 0,
             })),
             skipped,
+            confirmed,
+            canConfirm: allocated > 0 && !locked,
             autoSingle,
             autoBanner: autoTarget
-                ? `Auto −${autoTarget.allocated}: ${autoTarget.label} (only one Special — no click needed). Applies at turn start.`
+                ? locFormat('naturalRecoveryAutoBanner', { amount: autoTarget.allocated, label: autoTarget.label }, `Auto −${autoTarget.allocated}: ${autoTarget.label} (only one Special — no click needed). Applies at turn start.`)
                 : '',
-            title: 'Natural Special Recovery',
-            hint: `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`,
-            noneLabel: 'Skip Natural Recovery',
+            title: loc('naturalRecoveryPick', 'Natural Special Recovery'),
+            hint: locFormat('naturalRecoveryDistributeHint', { rank: masteryRank }, `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute with +/−, then Apply. Unused reduction is lost.`),
+            confirmLabel: loc('naturalRecoveryApply', 'Apply Natural Recovery'),
+            noneLabel: loc('naturalRecoverySkip', 'Skip Natural Recovery'),
         };
     }
     #passivesCtaContext(combat) {
@@ -1337,7 +1350,7 @@ export class StonePowersDialog extends BaseDialog {
                 continue;
             pool.recoverShow = true;
             pool.recoverAlloc = row.allocated;
-            pool.recoverAllocLabel = row.allocated > 0 ? `+${row.allocated}` : '0';
+            pool.recoverAllocLabel = String(row.allocated);
             pool.recoverSpace = row.space;
             pool.recoverCanAdd = row.canAdd;
             pool.recoverCanRemove = row.canRemove;
@@ -1655,7 +1668,7 @@ export class StonePowersDialog extends BaseDialog {
             };
         }
     }
-    /** Natural Stone Recovery steppers and skip button. */
+    /** Natural Special Recovery steppers, Apply, and Skip. */
     #bindNaturalRecoveryControls(root) {
         root.querySelectorAll('.js-nsr-add, .js-nsr-remove').forEach((el) => {
             const btn = el;
@@ -1667,6 +1680,15 @@ export class StonePowersDialog extends BaseDialog {
                 void this.#changeNaturalRecovery(btn.dataset.specialId ?? '', delta);
             });
         });
+        const confirm = root.querySelector('.js-nsr-confirm');
+        if (confirm) {
+            confirm.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                if (confirm.disabled)
+                    return;
+                void this.#confirmNaturalRecovery();
+            });
+        }
         const skip = root.querySelector('.js-nsr-skip');
         if (skip) {
             skip.addEventListener('click', (ev) => {
@@ -1685,6 +1707,18 @@ export class StonePowersDialog extends BaseDialog {
         if (!id)
             return;
         await changeNaturalRecoveryAllocation(this.actor, combat, id, delta);
+        await this.#renderKeepingScroll();
+    }
+    async #confirmNaturalRecovery() {
+        const combat = game.combat;
+        if (!combat || this.#isStoneDialogLocked())
+            return;
+        const ok = await confirmNaturalRecoveryAllocations(this.actor, combat);
+        if (!ok) {
+            globalThis.ui?.notifications?.warn?.(globalThis.game?.i18n?.localize?.('MASTERY.specials.naturalRecoveryApplyEmpty') ||
+                'Allocate at least 1 Mastery Rank to a Special, or Skip.');
+            return;
+        }
         await this.#renderKeepingScroll();
     }
     async #skipNaturalRecovery() {

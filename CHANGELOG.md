@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.713] - 2026-10-17
+
+### Changed
+
+- **R-05 Healing / Restoration:** Ordinary HP heal Actives/Buffs/Auras retired. Resolve Healing stays (pending per Round). Restoration ST/AoE and Passive: Regeneration restore Scarred Bars at full HP. Artifact + actor migration; docs in `DESTROYED_FAITH_R05_HEALING_REWORK.md`.
+
+### Fixed
+
+- **Stone Powers steppers:** Recovery / Natural Special Recovery / GM adjust show clear `−` · value · `+` (LTR).
+
 ## [0.9.712] - 2026-10-17
 
 ### Fixed

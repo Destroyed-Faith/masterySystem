@@ -1,8 +1,8 @@
 {
-  "version": "0.9.712",
-  "generatedAt": "2026-10-17T07:30:28.563Z",
+  "version": "0.9.713",
+  "generatedAt": "2026-10-17T14:05:32.142Z",
   "summary": {
-    "correct": 190,
+    "correct": 188,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -60,8 +60,8 @@
     },
     {
       "category": "active",
-      "id": "active-melee-aoe-heal",
-      "name": "Melee AoE Heal",
+      "id": "active-melee-aoe-restoration",
+      "name": "Melee AoE Restoration",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -138,7 +138,7 @@
     {
       "category": "active",
       "id": "active-melee-heal-cleanse-mixed",
-      "name": "Melee Heal + Cleanse (Mixed)",
+      "name": "Melee Cleanse (Mixed)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -160,13 +160,6 @@
       "category": "active",
       "id": "active-melee-single-dispel",
       "name": "Melee Single-Target Dispel",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "active",
-      "id": "active-melee-single-heal",
-      "name": "Melee Single-Target Heal",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -277,8 +270,8 @@
     },
     {
       "category": "active",
-      "id": "active-ranged-aoe-heal",
-      "name": "Ranged AoE Heal",
+      "id": "active-ranged-aoe-restoration",
+      "name": "Ranged AoE Restoration",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -362,7 +355,7 @@
     {
       "category": "active",
       "id": "active-ranged-heal-cleanse-mixed",
-      "name": "Ranged Heal + Cleanse (Mixed)",
+      "name": "Ranged Cleanse (Mixed)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -391,13 +384,6 @@
       "category": "active",
       "id": "active-ranged-single-dispel",
       "name": "Ranged Single-Target Dispel",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "active",
-      "id": "active-ranged-single-heal",
-      "name": "Ranged Single-Target Heal",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -642,7 +628,7 @@
     {
       "category": "activeBuff",
       "id": "ab-temp-hp-healing",
-      "name": "Active Buff: Temporary HP + Healing",
+      "name": "Active Buff: Temporary HP (R-05 Retired Combo)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -985,56 +971,56 @@
     {
       "category": "passive",
       "id": "empower-buff-armor",
-      "name": "Passive: Armor Buff Empowerment",
+      "name": "Artifact: Armor Empowerment",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "empower-buff-damage",
-      "name": "Passive: Damage Buff Empowerment",
+      "name": "Artifact: Damage Empowerment",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "empower-buff-evade",
-      "name": "Passive: Evade Buff Empowerment",
+      "name": "Artifact: Evade Empowerment",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "empower-buff-wind",
-      "name": "Passive: Wind Buff Empowerment",
+      "name": "Artifact: Wind Empowerment",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "extend-buff-armor",
-      "name": "Passive: Armor Buff Extension",
+      "name": "Artifact: Armor Extension",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "extend-buff-damage-reduction",
-      "name": "Passive: DR Buff Extension",
+      "name": "Artifact: Damage Reduction Extension",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "extend-buff-evade",
-      "name": "Passive: Evade Buff Extension",
+      "name": "Artifact: Evade Extension",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
     {
       "category": "passive",
       "id": "extend-buff-mobility",
-      "name": "Passive: Mobility Buff Extension",
+      "name": "Artifact: Mobility Extension",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
@@ -1090,7 +1076,7 @@
     {
       "category": "passive",
       "id": "passive-echo-armor-value",
-      "name": "Passive: Echo Armor Value",
+      "name": "Artifact: Echo Armor Value",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
     },
@@ -1160,9 +1146,9 @@
     {
       "category": "passive",
       "id": "passive-regeneration",
-      "name": "Passive: Healing",
+      "name": "Passive: Passive: Regeneration",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "passive",

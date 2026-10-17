@@ -23,6 +23,13 @@ import { buildLevels, activeRow } from './_shared.js';
 import type { ActiveSpecialSlot, ActiveSpecialTier, AoeSpec, RangeSpec, SpellHints } from '../../../types/item.js';
 import { getEligibleSpecialsForTier } from './_specials.js';
 import { solveDamageRow } from '../pp-budget.js';
+import {
+    R05_MELEE_AOE_POOL,
+    R05_RANGED_AOE_POOL,
+    meleeAoeRadiusMeters,
+    rangedAoeRadiusMeters,
+    rangedRangeMeters,
+} from '../../../combat/r05-pools.js';
 
 const MELEE_RANGE: RangeSpec = { kind: 'melee', note: 'Melee Reach' };
 const R_NONE: AoeSpec = { shape: 'none' };
@@ -365,13 +372,8 @@ function controlTemplate(def: {
 }
 
 // ─── Support progression tables (per variant) — Source: Actives.md ───────
-// Heal HP dice (the value before "d8"), one curve per flavour/shape.
-const HEAL_DICE_MELEE_SINGLE: readonly number[] = [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48];
-const HEAL_DICE_RANGED_SINGLE: readonly number[] = [3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40];
-const HEAL_DICE_MELEE_AOE: readonly number[] = [1, 4, 7, 10, 13, 13, 16, 18, 18, 21, 24, 27, 28, 28, 31, 34];
-const HEAL_DICE_RANGED_AOE: readonly number[] = [1, 3, 6, 8, 11, 13, 15, 15, 18, 20, 21, 21, 24, 24, 24, 26];
-const HEAL_AOE_RADIUS_MELEE: readonly number[] = [2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5];
-const HEAL_AOE_RADIUS_RANGED: readonly number[] = [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5];
+// R-05: ordinary HP-heal support Actives are retired (no heal dice tables).
+// Scarred Bar Restoration pools live in combat/r05-restoration.ts.
 // Cleanse rank (0 = no version available at that Power rank).
 const CLEANSE_MELEE_SINGLE: readonly number[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const CLEANSE_RANGED_SINGLE: readonly number[] = [1, 1, 2, 3, 4, 5, 6, 6, 7, 8, 9, 10, 11, 11, 12, 13];
@@ -387,40 +389,24 @@ const DISPEL_RANGED_AOE: readonly number[] = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 5, 5
 const DISPEL_AOE_RADIUS_MELEE: readonly number[] = [0, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5];
 const DISPEL_AOE_RADIUS_RANGED: readonly number[] = [0, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4];
 
-/** Health Level Recovery band shared by all healing Actives (none below L4). */
-function healthLevelRecovery(lvl: number): number {
-    return lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
-}
-function hlrText(lvl: number, aoe: boolean): string {
-    const hl = healthLevelRecovery(lvl);
-    if (hl <= 0) return '';
-    const noun = hl === 1 ? 'Health Level' : 'Health Levels';
-    const base = ` Restore **${hl} ${noun}** per Safe Haven Rest.`;
-    return aoe ? `${base} Only one affected creature may receive Health Level Recovery per use.` : base;
-}
-
 function supportTemplate(def: {
     id: string;
     flavour: 'melee' | 'ranged';
     aoe: boolean;
-    mode: 'heal' | 'cleanse' | 'dispel';
+    mode: 'cleanse' | 'dispel';
     name: string;
 }): PowerTemplate {
     const isRanged = def.flavour === 'ranged';
     const spellHints: SpellHints = { defaultResolution: 'spellAttack' };
-    const healTable = def.aoe
-        ? (isRanged ? HEAL_DICE_RANGED_AOE : HEAL_DICE_MELEE_AOE)
-        : (isRanged ? HEAL_DICE_RANGED_SINGLE : HEAL_DICE_MELEE_SINGLE);
     const cleanseTable = def.aoe
         ? (isRanged ? CLEANSE_RANGED_AOE : CLEANSE_MELEE_AOE)
         : (isRanged ? CLEANSE_RANGED_SINGLE : CLEANSE_MELEE_SINGLE);
     const dispelTable = def.aoe
         ? (isRanged ? DISPEL_RANGED_AOE : DISPEL_MELEE_AOE)
         : (isRanged ? DISPEL_RANGED_SINGLE : DISPEL_MELEE_SINGLE);
-    const healRadius = isRanged ? HEAL_AOE_RADIUS_RANGED : HEAL_AOE_RADIUS_MELEE;
     const cleanseRadius = isRanged ? CLEANSE_AOE_RADIUS_RANGED : CLEANSE_AOE_RADIUS_MELEE;
     const dispelRadius = isRanged ? DISPEL_AOE_RADIUS_RANGED : DISPEL_AOE_RADIUS_MELEE;
-    const radiusTable = def.mode === 'heal' ? healRadius : def.mode === 'cleanse' ? cleanseRadius : dispelRadius;
+    const radiusTable = def.mode === 'cleanse' ? cleanseRadius : dispelRadius;
 
     function aoeAt(lvl: number): AoeSpec {
         if (!def.aoe) return R_NONE;
@@ -440,20 +426,6 @@ function supportTemplate(def: {
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
         levels: buildLevels((lvl) => {
-            if (def.mode === 'heal') {
-                const dice = healTable[lvl - 1];
-                const effect = def.aoe
-                    ? `Heal affected creatures for **${dice}d8 HP**.${hlrText(lvl, true)}`
-                    : `Heal one creature for **${dice}d8 HP**.${hlrText(lvl, false)}`;
-                return activeRow({
-                    type: def.aoe ? (isRanged ? 'Ranged AoE' : 'Melee AoE') : isRanged ? 'Ranged' : 'Melee',
-                    range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
-                    aoe: aoeAt(lvl),
-                    effectText: effect,
-                    specials: [],
-                    mechanics: { healing: { flat: `${dice}d8`, target: def.aoe ? 'aoe' : 'target' } },
-                });
-            }
             if (def.mode === 'cleanse') {
                 const rank = cleanseTable[lvl - 1];
                 const effect = rank <= 0
@@ -505,30 +477,23 @@ function mixedTemplate(def: {
         tags: ['spell'],
         spellHints: { defaultResolution: 'spellAttack' },
         fluff: def.kind === 'heal-cleanse'
-            ? 'A single act of restoration that both heals and clears a lingering affliction.'
+            ? 'R-05: cleanse-only. A single act of restoration that clears a lingering affliction. It no longer heals HP.'
             : 'A blow that both damages and strips a magical effect.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
             if (def.kind === 'heal-cleanse') {
-                // Heal scales every other level (Melee 3·⌊lvl/2⌋, Ranged 2·⌊lvl/2⌋),
-                // Cleanse rank = ⌈lvl/2⌉. Source: Actives.md heal+cleanse tables.
-                const heal = (isRanged ? 2 : 3) * Math.floor(lvl / 2);
+                // R-05: HP healing and Health Level Recovery removed; cleanse rank
+                // (⌈lvl/2⌉) is kept. Template id kept for compatibility.
                 const cleanseRank = Math.ceil(lvl / 2);
-                // Melee mixed grants Health Level Recovery (1 from L8, 2 from L15);
-                // ranged mixed grants none.
-                const hl = isRanged ? 0 : lvl >= 15 ? 2 : lvl >= 8 ? 1 : 0;
-                const hlText = hl > 0 ? ` Restore **${hl} ${hl === 1 ? 'Health Level' : 'Health Levels'}** per Safe Haven Rest.` : '';
-                const effect = heal <= 0
-                    ? `Remove one negative effect up to **Cleanse(${cleanseRank})**.`
-                    : `Heal one creature for **${heal}d8 HP** and remove one negative effect up to **Cleanse(${cleanseRank})**.${hlText}`;
+                const effect = `Remove one negative effect up to **Cleanse(${cleanseRank})**. Does not restore HP (R-05).`;
                 return activeRow({
                     type: isRanged ? 'Ranged' : 'Melee',
                     range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
                     aoe: R_NONE,
                     effectText: effect,
                     specials: [{ key: 'cleanse', rank: cleanseRank }],
-                    mechanics: heal > 0 ? { healing: { flat: `${heal}d8`, target: 'target' } } : {},
+                    mechanics: {},
                 });
             }
             // damage-dispel — irregular damage curve per Actives.md.
@@ -591,11 +556,8 @@ function buildActiveTemplates(): PowerTemplate[] {
     controlTemplate({ id: 'active-melee-control-push-prone', flavour: 'melee', name: 'Melee Control — Push + Prone', specials: ['push', 'prone'] }),
     controlTemplate({ id: 'active-ranged-control-push-prone', flavour: 'ranged', name: 'Ranged Control — Push + Prone', specials: ['push', 'prone'] }),
 
-    // Support — heal / cleanse / dispel × (single-target, aoe) × (melee, ranged) = 12
-    supportTemplate({ id: 'active-melee-single-heal', flavour: 'melee', aoe: false, mode: 'heal', name: 'Melee Single-Target Heal' }),
-    supportTemplate({ id: 'active-ranged-single-heal', flavour: 'ranged', aoe: false, mode: 'heal', name: 'Ranged Single-Target Heal' }),
-    supportTemplate({ id: 'active-melee-aoe-heal', flavour: 'melee', aoe: true, mode: 'heal', name: 'Melee AoE Heal' }),
-    supportTemplate({ id: 'active-ranged-aoe-heal', flavour: 'ranged', aoe: true, mode: 'heal', name: 'Ranged AoE Heal' }),
+    // Support — cleanse / dispel × (single-target, aoe) × (melee, ranged) = 8
+    // (R-05: ordinary HP-heal support templates retired; see Restoration below)
     supportTemplate({ id: 'active-melee-single-cleanse', flavour: 'melee', aoe: false, mode: 'cleanse', name: 'Melee Single-Target Cleanse' }),
     supportTemplate({ id: 'active-ranged-single-cleanse', flavour: 'ranged', aoe: false, mode: 'cleanse', name: 'Ranged Single-Target Cleanse' }),
     supportTemplate({ id: 'active-melee-aoe-cleanse', flavour: 'melee', aoe: true, mode: 'cleanse', name: 'Melee AoE Cleanse' }),
@@ -606,8 +568,8 @@ function buildActiveTemplates(): PowerTemplate[] {
     supportTemplate({ id: 'active-ranged-aoe-dispel', flavour: 'ranged', aoe: true, mode: 'dispel', name: 'Ranged AoE Dispel' }),
 
     // Mixed — heal+cleanse / damage+dispel × (melee, ranged) = 4
-    mixedTemplate({ id: 'active-melee-heal-cleanse-mixed', flavour: 'melee', name: 'Melee Heal + Cleanse (Mixed)', kind: 'heal-cleanse' }),
-    mixedTemplate({ id: 'active-ranged-heal-cleanse-mixed', flavour: 'ranged', name: 'Ranged Heal + Cleanse (Mixed)', kind: 'heal-cleanse' }),
+    mixedTemplate({ id: 'active-melee-heal-cleanse-mixed', flavour: 'melee', name: 'Melee Cleanse (Mixed)', kind: 'heal-cleanse' }),
+    mixedTemplate({ id: 'active-ranged-heal-cleanse-mixed', flavour: 'ranged', name: 'Ranged Cleanse (Mixed)', kind: 'heal-cleanse' }),
     mixedTemplate({ id: 'active-melee-damage-dispel-mixed', flavour: 'melee', name: 'Melee Damage + Dispel (Mixed)', kind: 'damage-dispel' }),
     mixedTemplate({ id: 'active-ranged-damage-dispel-mixed', flavour: 'ranged', name: 'Ranged Damage + Dispel (Mixed)', kind: 'damage-dispel' }),
 
@@ -675,6 +637,8 @@ function buildActiveTemplates(): PowerTemplate[] {
     // Support leftovers + Mental Powers (Rules/actives.md 2026-07)
     healthLevelHealTemplate('melee'),
     healthLevelHealTemplate('ranged'),
+    aoeRestorationTemplate('melee'),
+    aoeRestorationTemplate('ranged'),
     cleanseAbsorptionTemplate(),
     mentalAttackTemplate(),
     mindIllusionTemplate(),
@@ -1155,7 +1119,8 @@ function healthLevelHealTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
         category: 'active',
         tags: ['spell'],
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'Restores Scarred Health Bars. Does not restore HP.',
+        fluff:
+            'Restores Scarred Health Bars. Each restored bar returns at full HP. No Healing Dice; the pool refreshes on Safe Haven Rest.',
         cost: { action: 'attack' },
         roll: { kind: 'none', attribute: 'resolve' },
         levels: buildLevels((lvl) => {
@@ -1180,8 +1145,63 @@ function healthLevelHealTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
                 range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
                 aoe: R_NONE,
                 effectText:
-                    `Restores Scarred Health Bars. Does not restore HP. ` +
-                    `Spend this Power's Health Level Recovery pool ${reach}. ` +
+                    `Restores Scarred Health Bars. Each restored bar returns at **full HP**. No Healing Dice. ` +
+                    `Spend this Power's pool ${reach}. ` +
+                    `**Pool:** restore up to **${hl} ${noun}** per Safe Haven Rest.`,
+                specials: [],
+                mechanics: { healthLevelRecovery: hl },
+            });
+        }),
+    };
+}
+
+/**
+ * R-05 AoE Scarred Bar Restoration (Melee / Ranged). Pool per Safe Haven Rest.
+ * Radius: Melee PL1–5 2 m, PL6–8 3 m, PL9–16 4 m; Ranged PL1–8 2 m, PL9–16 3 m.
+ */
+function aoeRestorationTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const pool = isRanged ? R05_RANGED_AOE_POOL : R05_MELEE_AOE_POOL;
+    const displayName = isRanged ? 'Ranged AoE Restoration' : 'Melee AoE Restoration';
+    return {
+        templateId: isRanged ? 'active-ranged-aoe-restoration' : 'active-melee-aoe-restoration',
+        templateName: displayName,
+        name: displayName,
+        subfamily: 'support-heal',
+        category: 'active',
+        tags: ['spell'],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff:
+            'Restores Scarred Health Bars of allies in an area. Each restored bar returns at full HP. No Healing Dice; the pool refreshes on Safe Haven Rest.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none', attribute: 'resolve' },
+        levels: buildLevels((lvl) => {
+            const hl = pool[lvl - 1]!;
+            const radiusM = isRanged ? rangedAoeRadiusMeters(lvl) : meleeAoeRadiusMeters(lvl);
+            const range: RangeSpec = isRanged ? { kind: 'distance', m: rangedRangeMeters(lvl) } : MELEE_RANGE;
+            const aoe: AoeSpec = {
+                shape: 'radius',
+                radiusM,
+                center: isRanged ? 'targetPoint' : 'self',
+                targetFilter: 'allies',
+            };
+            if (hl <= 0) {
+                return activeRow({
+                    type: isRanged ? 'Ranged AoE' : 'Melee AoE',
+                    range,
+                    aoe,
+                    effectText: `**Not available at Power Level ${lvl}:** the ${radiusM} m radius and Restoration cost leave no budget for a Scarred Health Bar (40 PP). No legal version at this level.`,
+                    specials: [],
+                    mechanics: { healthLevelRecovery: 0 },
+                });
+            }
+            const noun = hl === 1 ? 'Scarred Health Bar' : 'Scarred Health Bars';
+            return activeRow({
+                type: isRanged ? 'Ranged AoE' : 'Melee AoE',
+                range,
+                aoe,
+                effectText:
+                    `Restores Scarred Health Bars of allies within **${radiusM} m**. Each restored bar returns at **full HP**. No Healing Dice. ` +
                     `**Pool:** restore up to **${hl} ${noun}** per Safe Haven Rest.`,
                 specials: [],
                 mechanics: { healthLevelRecovery: hl },

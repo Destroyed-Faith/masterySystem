@@ -25,7 +25,7 @@ describe('artifact-spell-pick', () => {
       artifactPickCanBeSpell({ powerTemplateId: 'active-ranged-single-cleanse' }),
     ).toBe(true);
     expect(
-      artifactPickCanBeSpell({ powerTemplateId: 'active-ranged-single-heal' }),
+      artifactPickCanBeSpell({ powerTemplateId: 'active-ranged-health-level-heal' }),
     ).toBe(true);
     expect(
       artifactPickCanBeSpell({ powerTemplateId: 'active-melee-weapon-single' }),

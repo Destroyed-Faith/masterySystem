@@ -79,7 +79,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "influence",
-          "stonePowerId": "influence.regeneration"
+          "stonePowerId": "influence.colorlessRecovery"
         },
         "displayName": "Regeneration Support"
       }
