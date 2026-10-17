@@ -2403,6 +2403,7 @@ async function preloadTemplates() {
   const templatePaths = [
     // Actor sheets (only load existing templates)
     'systems/mastery-system/templates/actor/character-sheet.hbs',
+    'systems/mastery-system/templates/actor/partials/actor-identity-banner.hbs',
     'systems/mastery-system/templates/actor/partials/combat-senses-config.hbs',
     'systems/mastery-system/templates/actor/partials/npc-attack-targeting.hbs',
     'systems/mastery-system/templates/actor/partials/npc-combat-ini.hbs',

@@ -1,0 +1,26 @@
+{{#if sheetIdentity.isUnlinkedToken}}
+  <aside class="ms-actor-identity-banner ms-actor-identity-unlinked" role="status" aria-live="polite">
+    <div class="ms-actor-identity-banner-icon" aria-hidden="true">
+      <i class="fas fa-unlink"></i>
+    </div>
+    <div class="ms-actor-identity-banner-body">
+      <strong class="ms-actor-identity-banner-title">{{localize "MASTERY.sheetIdentity.unlinkedTitle"}}</strong>
+      <p class="ms-actor-identity-banner-text">{{localize "MASTERY.sheetIdentity.unlinkedBody"}}</p>
+      {{#if sheetIdentity.canOpenOriginal}}
+        <button type="button" class="ms-actor-identity-open-original" data-action="open-original-actor">
+          <i class="fas fa-user"></i>
+          {{localize "MASTERY.sheetIdentity.openOriginal"}}
+          {{#if sheetIdentity.originalActorName}}
+            <span class="ms-actor-identity-original-name">({{sheetIdentity.originalActorName}})</span>
+          {{/if}}
+        </button>
+      {{/if}}
+    </div>
+  </aside>
+{{else if sheetIdentity.showOriginalBadge}}
+  <aside class="ms-actor-identity-badge ms-actor-identity-original" role="status">
+    <i class="fas fa-check-circle" aria-hidden="true"></i>
+    <span class="ms-actor-identity-badge-title">{{localize "MASTERY.sheetIdentity.originalTitle"}}</span>
+    <span class="ms-actor-identity-badge-text">{{localize "MASTERY.sheetIdentity.originalBody"}}</span>
+  </aside>
+{{/if}}

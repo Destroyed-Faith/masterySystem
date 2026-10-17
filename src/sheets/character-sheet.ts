@@ -1637,6 +1637,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       console.error('Mastery System | getData returned invalid context', context);
       return {};
     }
+
+    try {
+      const { buildActorSheetIdentityContext } = await import('./actor-sheet-identity.js');
+      context.sheetIdentity = buildActorSheetIdentityContext(this.actor);
+    } catch (err) {
+      console.warn('Mastery System | sheet identity context failed', err);
+      context.sheetIdentity = {
+        kind: 'original',
+        isUnlinkedToken: false,
+        showOriginalBadge: false,
+        originalActorId: null,
+        originalActorName: null,
+        canOpenOriginal: false,
+      };
+    }
     
     return context;
   }
@@ -1751,6 +1766,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     await super._onRender?.(context, options);
     const root = this.element as HTMLElement;
     if (!root) return;
+
+    try {
+      const { bindActorSheetIdentityControls } = await import('./actor-sheet-identity.js');
+      bindActorSheetIdentityControls(root, this.actor);
+    } catch (err) {
+      console.warn('Mastery System | sheet identity controls failed', err);
+    }
 
     // Persist reconstructed Lifetime XP when earned/unspent outgrew a stale
     // stored value — otherwise the 140 stone stays locked after XP grants.

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.711] - 2026-10-17
+
+### Added
+
+- **Unlinked Token sheet warning:** Character/NPC sheets opened from an unlinked token show a clear temporary-copy banner (EN/DE) with optional **Open Original Character** when permitted. Original Actors and linked tokens show a small permanent badge instead. No link/sync or edit-lock changes.
+
 ## [0.9.710] - 2026-10-17
 
 ### Fixed

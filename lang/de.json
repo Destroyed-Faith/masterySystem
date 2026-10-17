@@ -53,6 +53,16 @@
       "powerAlreadyUsedThisRound": "Diese Power wurde in dieser Runde bereits genutzt.",
       "reactionUseWhenDamaged": "Reaktions-Powers wählst du bei eingehendem Schaden (Dialog nach Phasing). Sie starten nicht über das Radial in deinem Zug."
     },
+    "sheetIdentity": {
+      "unlinkedTitle": "UNLINKED TOKEN – TEMPORÄRE KOPIE",
+      "unlinkedBody": "Änderungen hier betreffen nur diesen Token. Sie aktualisieren NICHT deinen Original-Charakter. Öffne deinen Charakter im Actor-Verzeichnis für dauerhafte Änderungen.",
+      "originalTitle": "ORIGINAL-CHARAKTER – DAUERHAFT",
+      "originalBody": "Änderungen an diesem Charakter werden am Original-Actor gespeichert.",
+      "openOriginal": "Original-Charakter öffnen",
+      "originalMissing": "Original-Charakter konnte nicht gefunden werden.",
+      "originalNoPermission": "Du hast keine Berechtigung, den Original-Charakter zu öffnen.",
+      "originalOpenFailed": "Original-Charakterbogen konnte nicht geöffnet werden."
+    },
     "carousel": {
       "compactHint": "Kompaktes Carousel — Fenster oder Zoom ist unter 1024×768.",
       "resizeHint": "Karussell-Größe ziehen. Doppelklick setzt die volle Größe zurück.",
