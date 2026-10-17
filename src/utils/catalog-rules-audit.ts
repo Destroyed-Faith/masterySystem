@@ -265,14 +265,14 @@ export const RULES_EXPECTED_ACTIVES: ReadonlyArray<{ rulesName: string; id: stri
  * for Active Buff empowerment & extension axes).
  */
 export const SYSTEM_SUPPORT_PASSIVE_IDS: ReadonlyArray<{ rulesName: string; id: string }> = [
-    { rulesName: 'Damage Buff Empowerment', id: 'empower-buff-damage' },
-    { rulesName: 'Armor Buff Empowerment', id: 'empower-buff-armor' },
-    { rulesName: 'Evade Buff Empowerment', id: 'empower-buff-evade' },
-    { rulesName: 'Wind Buff Empowerment', id: 'empower-buff-wind' },
-    { rulesName: 'Armor Buff Extension', id: 'extend-buff-armor' },
-    { rulesName: 'DR Buff Extension', id: 'extend-buff-damage-reduction' },
-    { rulesName: 'Evade Buff Extension', id: 'extend-buff-evade' },
-    { rulesName: 'Mobility Buff Extension', id: 'extend-buff-mobility' },
+    { rulesName: 'Damage Empowerment', id: 'empower-buff-damage' },
+    { rulesName: 'Armor Empowerment', id: 'empower-buff-armor' },
+    { rulesName: 'Evade Empowerment', id: 'empower-buff-evade' },
+    { rulesName: 'Wind Empowerment', id: 'empower-buff-wind' },
+    { rulesName: 'Armor Extension', id: 'extend-buff-armor' },
+    { rulesName: 'Damage Reduction Extension', id: 'extend-buff-damage-reduction' },
+    { rulesName: 'Evade Extension', id: 'extend-buff-evade' },
+    { rulesName: 'Mobility Extension', id: 'extend-buff-mobility' },
     { rulesName: 'Echo Armor Value', id: 'passive-echo-armor-value' },
 ];
 

@@ -111,6 +111,21 @@ describe('getAvailablePassives', () => {
     expect(getAvailablePassives(actor).map((p) => p.id).sort()).toEqual(['a', 'b']);
   });
 
+  it('excludes artifact-only Empowerment/Extension from combat Available', () => {
+    const actor = {
+      items: [
+        { id: 'dr', name: 'Damage Reduction', type: 'power', system: { category: 'passive', templateId: 'passive-damage-reduction' } },
+        {
+          id: 'ext',
+          name: 'Damage Reduction Extension',
+          type: 'power',
+          system: { category: 'passive', templateId: 'extend-buff-damage-reduction', tags: ['artifact-only'] },
+        },
+      ],
+    } as unknown as Actor;
+    expect(getAvailablePassives(actor).map((p) => p.id)).toEqual(['dr']);
+  });
+
   it('includes catalog templateId passive-* even when category defaults to active', () => {
     const actor = {
       items: [

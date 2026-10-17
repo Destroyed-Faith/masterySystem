@@ -76,6 +76,18 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(hits.length).toBeGreaterThan(0);
     });
 
+    it('hides artifact-only Empowerment/Extension from Add Power pickers', () => {
+        const passives = filterCatalog({ category: 'passive' });
+        expect(passives.some((e) => e.templateId === 'passive-damage-reduction')).toBe(true);
+        expect(passives.some((e) => e.tags.includes('artifact-only'))).toBe(false);
+        expect(passives.some((e) => e.templateId.startsWith('empower-buff-'))).toBe(false);
+        expect(passives.some((e) => e.templateId.startsWith('extend-buff-'))).toBe(false);
+        // Direct grant lookup still resolves.
+        const grant = filterCatalog({ templateId: 'extend-buff-mobility' });
+        expect(grant).toHaveLength(1);
+        expect(grant[0].templateName).toBe('Mobility Extension');
+    });
+
     it('exposes the pure weapon-attack templates (no Special slot)', () => {
         const entries = getAllCatalogEntries();
         const weaponIds = [

@@ -2687,7 +2687,14 @@
 .mastery-system.sheet.actor.character .power-controls,
 .mastery-system.sheet.actor.character .spell-controls {
   display: flex;
+  align-items: center;
   gap: 8px;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .power-controls {
+  margin-left: auto;
 }
 
 .mastery-system.sheet.actor.character .item-edit,
@@ -2943,8 +2950,8 @@
   font-size: 15px;
   font-weight: bold;
   color: var(--df-text-primary, #d0d0d0);
-  min-width: 120px;
-  flex-shrink: 0;
+  min-width: 0;
+  flex: 1 1 12rem;
   font-family: var(--df-font-head);
   display: flex;
   align-items: center;
@@ -3170,7 +3177,9 @@
 
 .mastery-system.sheet.actor.character .power-level-controls {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
   gap: 4px;
   margin-right: 4px;
 }

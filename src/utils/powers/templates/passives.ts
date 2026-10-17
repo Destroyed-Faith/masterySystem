@@ -325,11 +325,16 @@ function senseText(info: { count: number; presence: boolean }): string {
  */
 const BUFF_EMPOWER = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3];
 
+/**
+ * Artifact lineage meta — not Combat Passive Slot picks and not Add-Power
+ * catalog entries (`artifact-only`). Names omit redundant "Buff" (the effect
+ * always targets an Active Buff axis).
+ */
 function empowermentPassive(def: { id: string; name: string; axisLabel: string }): PowerTemplate {
     return {
         templateId: def.id,
         templateName: def.name,
-        name: `Passive: ${def.name}`,
+        name: `Artifact: ${def.name}`,
         subfamily: 'buff-empowerment',
         category: 'passive',
         tags: ['artifact-only'],
@@ -350,24 +355,24 @@ function empowermentPassive(def: { id: string; name: string; axisLabel: string }
     };
 }
 
-/** Damage / Armor / Evade / Wind buff-empowerment lineage passives. */
+/** Damage / Armor / Evade / Wind empowerment lineage (artifact grants only). */
 const EMPOWER_BUFF_TEMPLATES: PowerTemplate[] = [
-    empowermentPassive({ id: 'empower-buff-damage', name: 'Damage Buff Empowerment', axisLabel: 'Damage' }),
-    empowermentPassive({ id: 'empower-buff-armor', name: 'Armor Buff Empowerment', axisLabel: 'Armor' }),
-    empowermentPassive({ id: 'empower-buff-evade', name: 'Evade Buff Empowerment', axisLabel: 'Evade' }),
+    empowermentPassive({ id: 'empower-buff-damage', name: 'Damage Empowerment', axisLabel: 'Damage' }),
+    empowermentPassive({ id: 'empower-buff-armor', name: 'Armor Empowerment', axisLabel: 'Armor' }),
+    empowermentPassive({ id: 'empower-buff-evade', name: 'Evade Empowerment', axisLabel: 'Evade' }),
     empowermentPassive({
         id: 'empower-buff-wind',
-        name: 'Wind Buff Empowerment',
+        name: 'Wind Empowerment',
         axisLabel: 'Evade or movement-related positioning',
     }),
 ];
 
-/** Buff duration extension only (Wyrm / Serpent Scales L2 lines). Uses same PL banding as empowerment. */
+/** Duration extension only (Wyrm / Serpent Scales). Same PL banding as empowerment. */
 function buffExtensionPassive(def: { id: string; name: string; axisLabel: string }): PowerTemplate {
     return {
         templateId: def.id,
         templateName: def.name,
-        name: `Passive: ${def.name}`,
+        name: `Artifact: ${def.name}`,
         subfamily: 'buff-extension',
         category: 'passive',
         tags: ['artifact-only'],
@@ -388,17 +393,18 @@ function buffExtensionPassive(def: { id: string; name: string; axisLabel: string
 const BUFF_EXTENSION_TEMPLATES: PowerTemplate[] = [
     buffExtensionPassive({
         id: 'extend-buff-armor',
-        name: 'Armor Buff Extension',
+        name: 'Armor Extension',
         axisLabel: 'Armor',
     }),
     buffExtensionPassive({
         id: 'extend-buff-damage-reduction',
-        name: 'DR Buff Extension',
+        // Extends Active Buff: Damage Reduction — not Passive: Damage Reduction.
+        name: 'Damage Reduction Extension',
         axisLabel: 'Damage Reduction',
     }),
     buffExtensionPassive({
         id: 'extend-buff-evade',
-        name: 'Evade Buff Extension',
+        name: 'Evade Extension',
         axisLabel: 'Evade',
     }),
 ];
@@ -406,8 +412,8 @@ const BUFF_EXTENSION_TEMPLATES: PowerTemplate[] = [
 function mobilityBuffExtensionPassive(): PowerTemplate {
     return {
         templateId: 'extend-buff-mobility',
-        templateName: 'Mobility Buff Extension',
-        name: 'Passive: Mobility Buff Extension',
+        templateName: 'Mobility Extension',
+        name: 'Artifact: Mobility Extension',
         subfamily: 'buff-extension',
         category: 'passive',
         tags: ['artifact-only'],
@@ -429,7 +435,7 @@ function mobilityBuffExtensionPassive(): PowerTemplate {
 const ECHO_ARMOR_VALUE_PASSIVE: PowerTemplate = {
     templateId: 'passive-echo-armor-value',
     templateName: 'Echo Armor Value',
-    name: 'Passive: Echo Armor Value',
+    name: 'Artifact: Echo Armor Value',
     subfamily: 'armor',
     category: 'passive',
     tags: ['artifact-only'],
@@ -507,7 +513,10 @@ const RAW_PASSIVE_TEMPLATES: PowerTemplate[] = [
         perLevel: (lvl) => {
             const pct = damageReductionPct(lvl);
             return pct === 0
-                ? { text: '—', mechanics: {} }
+                ? {
+                    text: 'No Damage Reduction yet (10% from Level 3).',
+                    mechanics: { damageReductionPct: 0 },
+                }
                 : { text: `Gain **${pct}% Damage Reduction**.`, mechanics: { damageReductionPct: pct } };
         },
     }),

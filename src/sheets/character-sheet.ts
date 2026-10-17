@@ -1909,9 +1909,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Bucket key for sheet grouping (Powers tab, post-creation). Spell / unknown → `other` (shown as „Sonstiges“).
    */
   #powerTypeGroupKey(power: any): 'movement' | 'active' | 'activeBuff' | 'passive' | 'reaction' | 'other' {
+    const sys = (power?.system as any) || {};
+    const tags = Array.isArray(sys.tags) ? sys.tags.map((x: any) => String(x).toLowerCase()) : [];
+    const tid = String(sys.templateId || '').trim().toLowerCase();
+    // Artifact Empowerment / Extension meta — not Combat Passives; keep out of Passives group.
+    if (
+      tags.includes('artifact-only') ||
+      tid.startsWith('empower-buff-') ||
+      tid.startsWith('extend-buff-')
+    ) {
+      return 'other';
+    }
     const cat = resolvePowerCategoryFromItem(power);
     if (cat) return cat;
-    const raw = String((power?.system as any)?.powerType ?? '')
+    const raw = String(sys.powerType ?? '')
       .trim()
       .toLowerCase()
       .replace(/\s+/g, '');
@@ -1944,7 +1955,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       activeBuff: 'Active Buffs',
       passive: 'Passives',
       reaction: 'Reactions',
-      other: 'Sonstiges'
+      other: 'Artifact / Other',
     };
     const out: { groupKey: string; groupLabel: string; powers: any[] }[] = [];
     for (const key of order) {
@@ -4244,8 +4255,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           .find(`.power-level-badge[data-item-id="${itemId}"]`)
           .attr('title', `Power Level ${effectiveLevel}`);
       }
-      const specialText = html.find(`.power-special-compact[data-item-id="${itemId}"] .power-special-compact-text`);
-      if (specialText.length) specialText.text(display.specialsLabel);
+      const specialWrap = html.find(`.power-special-compact[data-item-id="${itemId}"]`);
+      const specialText = specialWrap.find('.power-special-compact-text');
+      if (specialWrap.length) {
+        const label = String(display.specialsLabel || '').trim();
+        if (!label || label === '—') {
+          specialWrap.hide();
+        } else {
+          specialWrap.show();
+          if (specialText.length) specialText.text(label);
+        }
+      }
       const effectText = html.find(`.power-effect-compact[data-item-id="${itemId}"] .power-effect-compact-text`);
       if (effectText.length) effectText.text(display.effect.replace(/\*\*/g, ''));
 

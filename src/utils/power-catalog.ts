@@ -371,6 +371,13 @@ export interface CatalogFilter {
     actorEchoKey?: string | null;
     /** Actor's Echo sub-choice (e.g. bane-greenwarden). Also matches requiresEcho. */
     actorSubChoiceKey?: string | null;
+
+    /**
+     * Include `artifact-only` catalog tags (buff extension / empowerment, etc.).
+     * Default false for Add Power pickers. Direct `templateId` lookups still
+     * include them so artifact grants keep working.
+     */
+    includeArtifactOnly?: boolean;
 }
 
 /** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
@@ -511,6 +518,16 @@ export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
         if (filter.special && !(e.specialKeys.includes(filter.special))) return false;
         if (filter.effectType && !e.effectTypes.includes(filter.effectType)) return false;
         if (filter.tag && !e.tags.includes(filter.tag)) return false;
+        // Artifact-only meta-passives (e.g. "DR Buff Extension") must not appear
+        // next to real "Damage Reduction" in Add Power — unless explicitly asked
+        // or resolving a concrete templateId grant.
+        if (
+            !filter.includeArtifactOnly &&
+            !filter.templateId &&
+            e.tags.includes('artifact-only')
+        ) {
+            return false;
+        }
         if (term) {
             const hay = `${e.name} ${e.templateName}`.toLowerCase();
             if (!hay.includes(term)) return false;
@@ -543,7 +560,8 @@ export function findCatalogEntry(
 /** Unique list of subfamilies within a category (sorted). */
 export function getSubfamiliesByCategory(category: PowerCategory): string[] {
     const subs = new Set<string>();
-    for (const e of getAllCatalogEntries()) if (e.category === category && e.subfamily) subs.add(e.subfamily);
+    // Use filterCatalog so artifact-only subfamilies (buff-extension, …) stay out of pickers.
+    for (const e of filterCatalog({ category })) if (e.subfamily) subs.add(e.subfamily);
     return [...subs].sort();
 }
 

@@ -1879,9 +1879,11 @@
                     <i class="fas fa-sword"></i> {{powerDamage (lookup this.system.roll 'damage')}}
                   </span>
                   {{/if}}
+                  {{#unless (eq (powerSpecialsAtLevel this.system) "—")}}
                   <span class="power-special-compact" data-item-id="{{this.id}}" title="Power Special at current Level">
                     <i class="fas fa-star"></i> <span class="power-special-compact-text">{{powerSpecialsAtLevel this.system}}</span>
                   </span>
+                  {{/unless}}
                   <span class="power-category-compact" title="Category">
                     <i class="fas fa-crosshairs"></i> {{powerCategory this.system.range this.system.aoe}}
                   </span>

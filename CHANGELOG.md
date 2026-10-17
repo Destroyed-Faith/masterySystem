@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.706] - 2026-10-17
+
+### Fixed
+
+- **Add Power / Combat Passives:** Artifact-only Empowerment & Extension meta no longer appear as buyable Passives next to real Damage Reduction; excluded from Combat Available; sheet groups them under Artifact / Other.
+- **Naming:** Dropped redundant “Buff” from Empowerment/Extension labels (`Armor Empowerment`, `Mobility Extension`, `Damage Reduction Extension`, …); catalog prefix `Artifact:`.
+- **Power cards:** Hide empty Special star (“—”); keep +/- level controls on one row; clearer Damage Reduction L1–2 effect text.
+
 ## [0.9.705] - 2026-10-17
 
 ### Changed

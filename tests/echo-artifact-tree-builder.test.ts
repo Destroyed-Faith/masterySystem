@@ -232,8 +232,8 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     ]);
     expect(l2Pick.stageNames).toEqual([
       'Serpent Evasion I',
-      'Mobility Buff Extension II',
-      'Mobility Buff Extension III',
+      'Mobility Extension II',
+      'Mobility Extension III',
     ]);
 
     const l3 = pick('wyrmScalesLight', 3);
@@ -249,7 +249,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     const l2Rows = (tree.nodes[1].itemData.system as any).levelProgression as any[];
     expect(l2Rows.some((r: any) => r.name === 'Serpent Evasion I')).toBe(true);
     const l5Rows = (tree.nodes[4].itemData.system as any).levelProgression as any[];
-    expect(l5Rows.some((r: any) => r.name === 'Mobility Buff Extension II')).toBe(true);
+    expect(l5Rows.some((r: any) => r.name === 'Mobility Extension II')).toBe(true);
     const l10 = (tree.nodes[9].itemData.system as any).levelProgression as any[];
     expect(l10.some((r: any) => r.name === 'True Serpent Form')).toBe(true);
   });

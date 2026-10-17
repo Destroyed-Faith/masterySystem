@@ -163,9 +163,13 @@ export function passiveItemSourceActors(actor: Actor | null | undefined): Actor[
 export function isPassivePowerItem(item: any): boolean {
   if (!item || item.type !== 'power') return false;
   const sys = (item.system as any) || {};
+  const tags = Array.isArray(sys.tags) ? sys.tags.map((t: any) => String(t).toLowerCase()) : [];
+  // Artifact meta (Empowerment / Extension) are not Combat Passive Slot picks.
+  if (tags.includes('artifact-only')) return false;
+  const tid = String(sys.templateId || '').trim().toLowerCase();
+  if (tid.startsWith('empower-buff-') || tid.startsWith('extend-buff-')) return false;
   if (sys.category === 'passive') return true;
   if (sys.powerType === 'passive') return true;
-  const tid = String(sys.templateId || '').trim().toLowerCase();
   if (tid.startsWith('passive-')) return true;
   // Match Powers-tab grouping (legacy category / powerType shapes).
   return resolvePowerCategoryFromItem(item) === 'passive';
