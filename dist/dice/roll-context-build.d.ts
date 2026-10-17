@@ -4,8 +4,7 @@
  *
  * Builders return the BASE pool (attribute + skill full-/half-pool rule +
  * equipment flat penalties). Specials (Weaken / Soulburn / Disoriented),
- * the percentage Health / Encumbrance penalty, and the final Minimum Pool
- * (= Mastery Rank) are applied centrally by `masteryRoll` via
+ * the percentage Health / Encumbrance penalty are applied centrally by `masteryRoll` via
  * `finalizeRolledPool` (`applyPoolPenalties: true`), so previews and final
  * rolls share one calculation.
  */
@@ -29,6 +28,10 @@ export declare function isSkillFullPoolReady(skillRating: number, masteryRank: n
  */
 export declare function buildOpposedSkillTn(setupFinalResult: number, _unusedRaises?: number): number;
 export declare function buildDifficultyPresets(challengeMR: number): Record<string, number>;
+/** Skill rating from `system.skills.<key>` (number or `{ value }` / `{ rank }`). */
+export declare function readSkillRating(system: any, skillKey: string): number;
+/** Attribute pool size from `system.attributes.<key>.value` (or a bare number). */
+export declare function readAttributePoolValue(system: any, attributeKey: string): number;
 export interface SkillRollPoolPreview {
     attributeKey: string;
     /** Compact sheet label, e.g. `8k2`. */

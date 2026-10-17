@@ -76,10 +76,20 @@ export declare function showDamageDialog(attacker: Actor, target: Actor, weaponI
  */
 export declare function attachDamageCardHandlers(messageId: string): void;
 /**
- * Ward total on the defender: Passive `wardIncoming` + Stone Ward (`tempWard`)
- * + Stone `incomingSpecialReduction`. Applied per incoming hostile Special.
+ * Ward total on the defender: Passive `wardIncoming` plus the Stone
+ * Special Negation. `tempWard` and `incomingSpecialReduction` store the
+ * same grant, so the higher one counts once.
  */
 export declare function getIncomingWardTotal(target: Actor | null | undefined): number;
+/**
+ * Ward — reduces every eligible hostile Special(X). `value: null` means fully
+ * blocked. Positive effects (e.g. Regeneration) pass through unchanged.
+ */
+export declare function applyWardToIncomingSpecial(target: Actor, effectId: string | undefined, effectName: string, effectValue: number | null): {
+    value: number | null;
+    ward: number;
+    before: number | null;
+};
 /**
  * Result of the full defensive pipeline for one strike. Exposed so that the
  * chat card assembly (and split-attack logging) can render a single-line
@@ -101,6 +111,8 @@ export interface AppliedDamageSummary {
     phased: boolean;
     /** `true` if Reaction: Evade raised Evade above the attack total. */
     negatedByEvade?: boolean;
+    /** HP restored to the attacker by Damage Transfer for this instance. */
+    transferHealing?: number;
 }
 /**
  * Apply damage to target actor — full defensive pipeline:
@@ -127,11 +139,43 @@ export interface ApplyDamageOptions {
      * Ignore-Armor stones). Reduces the target's Armor before subtraction.
      */
     armorPenetration?: number;
+    /** This strike is a Damage Transfer power. Healing follows real HP lost. */
+    damageTransfer?: boolean;
+    /** Stable id for this damage instance. A second event with the same id does not heal again. */
+    damageInstanceId?: string | null;
+    /** Explicit miss. Damage Transfer does not heal, and no bars are written. */
+    attackSucceeded?: boolean;
 }
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
 export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
 /** Full defensive pipeline (phasing → reactions → armor/DR → temp HP → bars). */
 export declare function applyDamageToTarget(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;
+/**
+ * Calculate damage result from selections
+ */
+export declare function calculateDamageResult(baseDamage: string, powerDamage: string, passiveDamage: string, raises: number, raiseSelections: Map<number, {
+    type: 'special' | 'damage';
+    value: string;
+}>, availableSpecials: SpecialOption[], attacker: Actor, target: Actor, stoneDamageBonusDice?: number, npcAutoDamageDice?: number, npcAutoSpecialStrings?: string[], selectedPowerId?: string | null, splitAttack?: boolean, attackType?: 'melee' | 'ranged', 
+/**
+ * Offer a Faith Fracture damage reroll after rolling, before applying.
+ * The reroll recursion passes `false` — any roll may be rerolled at most once.
+ */
+allowFaithReroll?: boolean, attackContext?: {
+    attackTotal?: number | null;
+    evadeTn?: number | null;
+    armorPenetration?: number;
+}, 
+/**
+ * When true, roll dice + status effects but do not apply HP yet.
+ * Caller posts damage chat → Reaction Window → `applyDamageToTarget`.
+ */
+skipApply?: boolean, 
+/**
+ * Phasing was already offered for this strike (e.g. Faith-Fracture reroll
+ * recursion) — do not prompt again.
+ */
+skipPhasingPrompt?: boolean): Promise<DamageResult>;
 /**
  * After HP is applied for a hit, open Push/Pull destination picking when the
  * specials list includes Push(X) / Pull(X). Safe no-op when metres are 0.

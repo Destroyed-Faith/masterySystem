@@ -4,7 +4,7 @@
 import { initializeHealthBars, initializeStressBars, calculateHealthBarMax, isHealthBarScarred, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier, getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { buildActorMechanicsBreakdown, buildBuffMechanicsBreakdown, buildPassiveMechanicsBreakdown, resolvePowerMechanics, } from '../utils/power-mechanics.js';
-import { passiveDamageNegationReserveForLevel, passiveParryPoolForLevel, } from '../utils/powers/templates/passives.js';
+import { fortitudeMultiplierForLevel, passiveDamageNegationReserveForLevel, passiveParryPoolForLevel, } from '../utils/powers/templates/passives.js';
 import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
@@ -328,15 +328,14 @@ export class MasteryActor extends Actor {
                 const healthBarBonus = Math.max(-9999, system.manual.health.barMaxBonus || 0);
                 const stressBarBonus = Math.max(-9999, system.manual.stress.barMaxBonus || 0);
                 const vitality = system.attributes.vitality?.value || 2;
-                // Absorption Passive (Rules/passives.md): each normal Health Bar gains
-                // +4 Max HP per Passive Level (bar formula: Vitality × 4 + Absorption HP).
-                let absorptionHp = 0;
+                // Fortitude (v0.9.9.5): Vitality × multiplier. Absorption no longer adds HP.
+                let fortitudeMult = 4;
                 try {
                     for (const item of this.items ?? []) {
                         if (item?.type === 'power' &&
-                            String(item.system?.templateId ?? '') === 'passive-absorption') {
+                            String(item.system?.templateId ?? '') === 'passive-fortitude') {
                             const lvl = Math.max(1, Math.min(16, Math.floor(Number(item.system?.level) || 1)));
-                            absorptionHp = 4 * lvl;
+                            fortitudeMult = fortitudeMultiplierForLevel(lvl);
                             break;
                         }
                     }
@@ -344,9 +343,7 @@ export class MasteryActor extends Actor {
                 catch {
                     /* items not yet initialized on first prepare */
                 }
-                // Health bar max = Vitality × 4 + Absorption HP + manual Health Bonus per bar.
-                // A negative bonus is clamped at 1 so HP never collapses to 0.
-                const maxHP = Math.max(1, calculateHealthBarMax(vitality) + absorptionHp + healthBarBonus);
+                const maxHP = Math.max(1, calculateHealthBarMax(vitality, fortitudeMult) + healthBarBonus);
                 if (!system.health) {
                     system.health = {
                         bars: initializeHealthBars(vitality),
@@ -1301,17 +1298,17 @@ export class MasteryActor extends Actor {
     async heal(amount) {
         const system = this.system;
         if (system.health && system.health.bars && Array.isArray(system.health.bars)) {
-            const currentBar = system.health.bars[system.health.currentBar || 0];
-            if (currentBar) {
-                currentBar.current = Math.min(currentBar.current + amount, currentBar.max);
-                await this.update({ 'system.health': system.health });
-                try {
-                    const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
-                    await syncNpcDefeatedPresentationAfterHpChange(this);
-                }
-                catch (downErr) {
-                    console.warn('Mastery System | defeated token presentation failed', downErr);
-                }
+            const { applyHealHpAcrossOpenBars } = await import('../combat/heal-resolution.js');
+            const applied = applyHealHpAcrossOpenBars({ bars: system.health.bars, currentBar: system.health.currentBar }, amount);
+            system.health.bars = applied.bars;
+            system.health.currentBar = applied.currentBar;
+            await this.update({ 'system.health': system.health });
+            try {
+                const { syncNpcDefeatedPresentationAfterHpChange } = await import('../combat/defeated-token.js');
+                await syncNpcDefeatedPresentationAfterHpChange(this);
+            }
+            catch (downErr) {
+                console.warn('Mastery System | defeated token presentation failed', downErr);
             }
         }
     }

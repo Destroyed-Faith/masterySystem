@@ -52,6 +52,9 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneScroll;
     /** Stone Recovery (round 2+): stones the player takes back, per pool. */
     private _recoveryAlloc;
+    private _recoveryColorlessIds;
+    private _crRank;
+    private _crPicked;
     /** Round the current recovery belongs to — a new round starts from scratch. */
     private _recoveryRound;
     /** Recovery still open: the power matrix below stays locked. */

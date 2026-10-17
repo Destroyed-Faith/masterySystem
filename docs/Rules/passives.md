@@ -14,6 +14,8 @@
 ![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/LogosBanners/Destroyed%20Faith%20Banner%20Beige.png)  {position:absolute,top:0px,right:55px,width:700px}
 
 
+
+<!-- LIMITED POWER MODIFIER: NOT AVAILABLE for this Power Type. The Limited variant applies exclusively to eligible Instant Active Powers; see Core. -->
 \page
 {{pageNumber,auto}}
 {{wide
@@ -57,7 +59,9 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Passives
-Version: v0.9.9.0 (2026-09-22)
+Version: v0.9.9.5 (2026-10-15)
+> **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
+
 }}
 
 }}
@@ -70,20 +74,18 @@ Version: v0.9.9.0 (2026-09-22)
 - #### [{{ Passive Design Rules}}{{ 4}}](#p4)
 - #### [{{ Passive Categories}}{{ 5}}](#p5)
 - #### [{{ Passive Limits}}{{ 6}}](#p6)
-- #### [{{ Passive Catalog}}{{ 7}}](#p7)
-- #### [{{ Conditional Passives}}{{ 13}}](#p13)
-- #### [{{ Combined Passives}}{{ 21}}](#p21)
-- #### [{{ Conditional Combined Passives}}{{ 30}}](#p30)
-- #### [{{ Passive: Special Aura + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken}}{{ 42}}](#p42)
-- #### [{{ Ward Passives}}{{ 45}}](#p45)
-- #### [{{ Passive: Telepathy}}{{ 47}}](#p47)
-- #### [{{ Passive: Summon Tokens}}{{ 48}}](#p48)
-- #### [{{ Passive: Thorns}}{{ 49}}](#p49)
-- #### [{{ Passive: Invisibility}}{{ 50}}](#p50)
-- #### [{{ Passive: Initiative}}{{ 51}}](#p51)
-- #### [{{ Parry Passives}}{{ 52}}](#p52)
-- #### [{{ Absorption Passives}}{{ 55}}](#p55)
-- #### [{{ Damage Negation Passives}}{{ 59}}](#p59)
+- #### [{{ Passive Catalog}}{{ 8}}](#p8)
+- #### [{{ Passive: Fortitude}}{{ 14}}](#p14)
+- #### [{{ Passive: Special Aura}}{{ 18}}](#p18)
+- #### [{{ Spell Resistance and Special Negation Passives}}{{ 19}}](#p19)
+- #### [{{ Passive: Telepathy}}{{ 21}}](#p21)
+- #### [{{ Passive: Summon Tokens}}{{ 22}}](#p22)
+- #### [{{ Passive: Thorns}}{{ 23}}](#p23)
+- #### [{{ Passive: Invisibility}}{{ 24}}](#p24)
+- #### [{{ Passive: Initiative}}{{ 25}}](#p25)
+- #### [{{ Parry Passives}}{{ 26}}](#p26)
+- #### [{{ Absorption Passives}}{{ 29}}](#p29)
+- #### [{{ Damage Negation Passives}}{{ 33}}](#p33)
 
 }}
 \page
@@ -94,7 +96,7 @@ Version: v0.9.9.0 (2026-09-22)
 
 Passives represent reliable, always-available parts of a character’s combat identity.
 
-They require no Action, Movement, Reaction, or activation roll. A Passive provides its effect while it is slotted, unless its own entry states an additional condition or requirement.
+They require no Action, Movement, Reaction, or activation roll. A Passive provides its stated effect while slotted; specific event-based subsystems (such as Absorption or Thorns) retain their exact triggering rules. There are no alternate Conditional Passive purchase variants.
 
 Passives are selected before combat and cannot normally be changed during combat.
 
@@ -106,9 +108,9 @@ The technical Power name defines rules identity and data identity. Power Level c
 
 A character-facing name is not part of this catalogue and never creates a second mechanical Power.
 
-Combined Passives use `+` between their two categories. Slashes are reserved for alternatives from which one option must be chosen when learning the Power.
+Combined Passive catalogue entries were already retired in v0.9.9.2 and remain retired in v0.9.9.5. Slashes remain reserved for alternatives from which one option must be chosen when learning the Power.
 
-For a Conditional Passive, the condition in parentheses is part of the technical Power name.
+No Conditional Passive variants are selectable. Passive effects use the exact catalogue names below; Subsystem Passives may keep their own explicit event triggers.
 
 Foundry VTT must store the technical Power name separately from Power Level, category or categories, condition, chosen option, and any character-facing label. Rules comparisons use the technical Power name and category data, not the character-facing label.
 
@@ -175,9 +177,7 @@ Passive choices cannot normally be changed during combat.
 
 ### Passive Categories
 
-A **Pure Passive** belongs to exactly one Passive Category.
-
-A **Combined Passive** belongs to exactly two Passive Categories and counts as both categories for all loadout, stacking, and duplication rules.
+Every current Passive belongs to exactly one Passive Category. Combining two Passive Categories in a single Passive is not available in this release. Dedicated single-category subsystems such as Absorption retain their exact rules.
 
 A character cannot benefit from two Passives that use the same category unless a rule explicitly allows it.
 
@@ -191,15 +191,16 @@ The current Passive Categories are:
 | **Damage**           | Reliable offensive output                                  |
 | **Health**           | Additional Health Bars or structural durability            |
 | **Temporary HP**     | Frontloaded protective HP                                  |
-| **Healing**          | Recovery and regeneration                                  |
+| **Healing**          | Ongoing healing of current HP                             |
 | **Telepathy**        | Telepathic Access, communication, and voluntary Mind Links |
 | **Phasing**          | Limited complete hit negation                              |
 | **Special Aura**     | Increases one existing eligible Special(X) inside an aura  |
-| **Ward**             | Spell Resistance and protection against ongoing effects    |
-| **Initiative**       | Initiative Score and Initiative Shop interaction           |
-| **Invisibility**     | Target denial, Perception TN, and Combat Sense blocking    |
-| **Parry**            | Attack Pool interception through a Parry Pool              |
-| **Absorption**       | Additional Health and power generated from actual HP loss  |
+| **Spell Resistance** | Increases the Final Spell TN against the character |
+| **Special Negation** | Reduces eligible incoming hostile numeric Specials |
+| **Initiative**       | Initiative Score and Initiative Exchange interaction           |
+| **Invisibility**     | Target denial, Perception TN, and Combat Sense obscuration    |
+| **Parry**            | Martial Attack Pool or Spell Casting Pool interception      |
+| **Absorption**       | Temporary Colorless Stones from newly Scarred Health Bars (maximum four triggers per combat)       |
 | **Damage Negation**  | Removal of Damage Dice through a combat reserve            |
 | **Summon**           | Support for existing Summon Bonds and their Summon Tokens |
 
@@ -214,20 +215,9 @@ If category tracking is used, write the category in a separate **Category** fiel
 \page
 {{pageNumber,auto}}
 {{wide
-### Pure and Combined Passives
+### Single-Category Passives
 
-A Pure Passive uses one mechanical category.
-
-A Combined Passive combines exactly two approved categories and must fit both effects into the same Passive PP budget.
-
-A Combined Passive does not receive a complete PP budget for each included category.
-
-A Combined Passive:
-
-* occupies one Passive Slot,
-* counts as both included categories,
-* may not add a third category,
-* and may not include a closed or dedicated subsystem unless that subsystem explicitly allows combination use.
+Each Passive occupies one Passive Slot and belongs to one Passive Category. Two-axis Combined Passives, including their Conditional variants, are retired for this release. Existing dedicated subsystems, including Absorption, remain legal exactly as printed. Characters that previously used a removed Combined Passive must select a current catalogue entry instead.
 
 ---
 
@@ -274,7 +264,8 @@ These include:
 
 * Damage Reduction
 * Phasing
-* Ward
+* Spell Resistance
+* Special Negation
 * Initiative
 * Invisibility
 * Parry
@@ -296,7 +287,7 @@ Unused PP may remain unused in milestone-based or closed subsystem progressions.
 
 Combat Senses use the **Sense Slot** rules from the Core Rulebook.
 
-A Sense Option does not use a Passive Slot and may not be recreated as an Awareness Passive, a Combined Passive axis, or a Conditional Combined Passive axis.
+A Sense Option does not use a Passive Slot and may not be recreated as an Awareness Passive or hidden inside another Passive.
 
 Every character has one Sense Slot. Additional Sense Options increase the choices available before a scene or combat; they do not create additional Sense Slots and do not allow several Special Combat Senses to operate at the same time.
 
@@ -396,8 +387,8 @@ This is the only accepted Damage Reduction passive. If a build wants Damage Redu
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage Reduction | Self | — | Permanent | — |
-| **2** | Passive, Damage Reduction | Self | — | Permanent | — |
+| **1** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
 | **3** | Passive, Damage Reduction | Self | — | Permanent | Gain **10% DR**. |
 | **4** | Passive, Damage Reduction | Self | — | Permanent | Gain **10% DR**. |
 | **5** | Passive, Damage Reduction | Self | — | Permanent | Gain **10% DR**. |
@@ -470,43 +461,7 @@ You are not faster in one moment. You are harder to catch in every moment.
 | **15** | Passive, Evade | Self | — | Permanent | Gain **+15 Evade**. |
 | **16** | Passive, Evade | Self | — | Permanent | Gain **+16 Evade**. |
 
----
 
-<h3 id="passive-evade-temporary-hp">
-  Passive: Evade + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Evade Half = 20 PP per +1 Evade<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CALCULATION<br>
-      Each level combines the listed Evade value with the listed start-of-combat Temporary HP value.<br>
-      Evade PP + Temporary HP PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Evade and Temporary HP. No Armor, no Damage Reduction, no Healing, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Evade**. At the start of combat, gain **80 Temporary HP**. |
 }}
 
 \page
@@ -519,50 +474,53 @@ You are not faster in one moment. You are harder to catch in every moment.
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Unconditional Healing / Regeneration = 8 PP per HP<br><br>
-      CALCULATION<br>
-      L1 → heal 2 HP = 16 PP ≈ 20 target<br>
-      L2 → heal 5 HP = 40 PP = 40 target<br>
-      L3 → heal 7 HP = 56 PP ≈ 60 target<br>
-      L4 → heal 10 HP = 80 PP = 80 target<br>
-      L5 → heal 12 HP = 96 PP ≈ 100 target<br>
-      L6 → heal 15 HP = 120 PP = 120 target<br>
-      L7 → heal 17 HP = 136 PP ≈ 140 target<br>
-      L8 → heal 20 HP = 160 PP = 160 target<br>
-      L9 → heal 22 HP = 176 PP ≈ 180 target<br>
-      L10 → heal 25 HP = 200 PP = 200 target<br>
-      L11 → heal 27 HP = 216 PP ≈ 220 target<br>
-      L12 → heal 30 HP = 240 PP = 240 target<br>
-      L13 → heal 32 HP = 256 PP ≈ 260 target<br>
-      L14 → heal 35 HP = 280 PP = 280 target<br>
-      L15 → heal 37 HP = 296 PP ≈ 300 target<br>
-      L16 → heal 40 HP = 320 PP = 320 target<br><br>
-      NOTES — Pure unconditional Healing passive. Because it is always active, Healing uses the doubled unconditional price. This effect restores current HP at the start of your turn. It never restores lost Health Levels or Health Bars.
+      Passive target = 20 PP x Power Level.<br>
+      Healing Dice = 20 PP per 1d8 of Healing, priced by the die rather than expected HP.<br><br>
+      LEVEL-BY-LEVEL PRICE AUDIT (recalculated dice)<br>
+      L1: Healing 1d8 (20 PP) = 20 / 20 PP; 0 PP unused.<br>
+      L2: Healing 2d8 (40 PP) = 40 / 40 PP; 0 PP unused.<br>
+      L3: Healing 3d8 (60 PP) = 60 / 60 PP; 0 PP unused.<br>
+      L4: Healing 4d8 (80 PP) = 80 / 80 PP; 0 PP unused.<br>
+      L5: Healing 5d8 (100 PP) = 100 / 100 PP; 0 PP unused.<br>
+      L6: Healing 6d8 (120 PP) = 120 / 120 PP; 0 PP unused.<br>
+      L7: Healing 7d8 (140 PP) = 140 / 140 PP; 0 PP unused.<br>
+      L8: Healing 8d8 (160 PP) = 160 / 160 PP; 0 PP unused.<br>
+      L9: Healing 9d8 (180 PP) = 180 / 180 PP; 0 PP unused.<br>
+      L10: Healing 10d8 (200 PP) = 200 / 200 PP; 0 PP unused.<br>
+      L11: Healing 11d8 (220 PP) = 220 / 220 PP; 0 PP unused.<br>
+      L12: Healing 12d8 (240 PP) = 240 / 240 PP; 0 PP unused.<br>
+      L13: Healing 13d8 (260 PP) = 260 / 260 PP; 0 PP unused.<br>
+      L14: Healing 14d8 (280 PP) = 280 / 280 PP; 0 PP unused.<br>
+      L15: Healing 15d8 (300 PP) = 300 / 300 PP; 0 PP unused.<br>
+      L16: Healing 16d8 (320 PP) = 320 / 320 PP; 0 PP unused.<br>
+<br>
+      NOTES: Pure unconditional Healing triggers at the start of each turn. It restores current HP only, never Scarred Health Bars. The listed Healing Dice fill each target budget as far as whole dice permit. This is a beta balance revision and still requires playtesting.
     </span>
   </span>
 </h3>
 
 Your body steadily reclaims lost vitality while the fight continues.
 
+**Healing Dice (all Passives):** Passive: Healing rolls its listed Healing Dice at the start of each turn, restoring that many current HP within the current Active Health Bar. All Healing Dice in this catalogue are d8 and cost 20 PP per 1d8, not their expected or rolled HP. The unconditional Healing Passive has exactly 1d8 per Power Level. No Conditional Healing variants remain.
+
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
-| **2** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **5 HP**. |
-| **3** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **7 HP**. |
-| **4** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **10 HP**. |
-| **5** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **12 HP**. |
-| **6** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **15 HP**. |
-| **7** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **17 HP**. |
-| **8** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **20 HP**. |
-| **9** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **22 HP**. |
-| **10** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **25 HP**. |
-| **11** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **27 HP**. |
-| **12** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **30 HP**. |
-| **13** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **32 HP**. |
-| **14** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **35 HP**. |
-| **15** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **37 HP**. |
-| **16** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **40 HP**. |
+| **1** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **1d8 HP**. |
+| **2** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **2d8 HP**. |
+| **3** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **3d8 HP**. |
+| **4** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **4d8 HP**. |
+| **5** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **5d8 HP**. |
+| **6** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **6d8 HP**. |
+| **7** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **7d8 HP**. |
+| **8** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **8d8 HP**. |
+| **9** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **9d8 HP**. |
+| **10** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **10d8 HP**. |
+| **11** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **11d8 HP**. |
+| **12** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **12d8 HP**. |
+| **13** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **13d8 HP**. |
+| **14** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **14d8 HP**. |
+| **15** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **15d8 HP**. |
+| **16** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **16d8 HP**. |
 
 ---
 }}
@@ -609,9 +567,9 @@ Your body no longer fully agrees to be where the world says it is.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Phasing | Self | — | Permanent | — |
-| **2** | Passive, Phasing | Self | — | Permanent | — |
-| **3** | Passive, Phasing | Self | — | Permanent | — |
+| **1** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
 | **4** | Passive, Phasing | Self | — | Permanent | At the start of combat, gain **1 Phasing charge**. Each charge lets you ignore one hit against you. |
 | **5** | Passive, Phasing | Self | — | Permanent | At the start of combat, gain **1 Phasing charge**. Each charge lets you ignore one hit against you. |
 | **6** | Passive, Phasing | Self | — | Permanent | At the start of combat, gain **1 Phasing charge**. Each charge lets you ignore one hit against you. |
@@ -666,7 +624,7 @@ Your blows carry more weight because your intent no longer wavers.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Permanent | — |
+| **1** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
 | **2** | Passive, Damage | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. |
 | **3** | Passive, Damage | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. |
 | **4** | Passive, Damage | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. |
@@ -743,1642 +701,60 @@ Your body does not merely endure more punishment. It learns to fail more slowly.
 
 \page
 {{pageNumber,auto}}
-
 {{wide
 
-## Conditional Passives
-
-Conditional Passives become efficient only when the character earns, creates, or maintains a meaningful combat condition.
-
-They use the normal baseline cost instead of the doubled unconditional cost.
-
-A Conditional Passive must have a clear trigger or state that can realistically fail in combat.
-
-## Conditional Armor Passives
-
-<h3 id="conditional-passive-armor-no-movement">
-  Conditional Passive: Armor (Moved 0 m Last Turn)
+<h3 id="passive-fortitude">
+  Passive: Fortitude
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Armor = 7.5 PP per +1 Armor<br><br>
-      CONDITION<br>
-      This Armor applies only if you moved 0 m on your last turn.<br><br>
-      NOTES — Conditional Armor passive. The character trades mobility for durability. No Evade, no Damage Reduction, no Temporary HP, no Healing, no Phasing.
+      Passive target = 20 PP per Power Level.<br>
+      Fortitude is a dedicated Health-category milestone Passive.<br>
+      Each +1 to the Health Bar Vitality multiplier costs 80 PP.<br><br>
+
+      PROGRESSION<br>
+      Levels 1–3: No effect (0 PP invested).<br>
+      Levels 4–7: Vitality × 5 (80 PP).<br>
+      Levels 8–11: Vitality × 6 (160 PP).<br>
+      Levels 12–15: Vitality × 7 (240 PP).<br>
+      Level 16: Vitality × 8 (320 PP).<br><br>
+
+      IDENTITY AND RESTRICTIONS<br>
+      Applies to the maximum size of each normal Health Bar while slotted; does not add Health Bars.<br>
+      Does not Heal damage or restore Scarred Health Bars.<br>
+      This is a Health-category Passive, so it cannot be slotted with Passive: Health.<br>
+      Passive: Absorption is a separate category and no longer grants extra HP.<br>
+      This Passive does not grant Stones, Armor, Evade, Damage Reduction, Damage Dice, or a new creature size.
     </span>
   </span>
 </h3>
 
-You become hardest to break when you refuse to yield even a step.
+You endure more before a wound becomes a scar. Fortitude makes your existing Health Bars larger; it does not create additional bars or change your body's size.
 
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+3 Armor** until the start of your next turn. |
-| **2** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+5 Armor** until the start of your next turn. |
-| **3** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+8 Armor** until the start of your next turn. |
-| **4** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+10 Armor** until the start of your next turn. |
-| **5** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+13 Armor** until the start of your next turn. |
-| **6** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+16 Armor** until the start of your next turn. |
-| **7** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+19 Armor** until the start of your next turn. |
-| **8** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+21 Armor** until the start of your next turn. |
-| **9** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+24 Armor** until the start of your next turn. |
-| **10** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+27 Armor** until the start of your next turn. |
-| **11** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+29 Armor** until the start of your next turn. |
-| **12** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+32 Armor** until the start of your next turn. |
-| **13** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+35 Armor** until the start of your next turn. |
-| **14** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+37 Armor** until the start of your next turn. |
-| **15** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+40 Armor** until the start of your next turn. |
-| **16** | Passive, Armor | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+43 Armor** until the start of your next turn. |
+**Health per normal Bar = Vitality × Fortitude Multiplier** while this Passive is slotted. Without Fortitude, the multiplier remains ×4.
+
+| **Level** | **Type** | **Range** | **Duration** | **HP Multiplier** | **Invested PP** |
+|:--:|:--|:--:|:--:|:--:|--:|
+| **1** | Unavailable | Self | Permanent | **×4** (no effect) | 0 (unavailable) |
+| **2** | Unavailable | Self | Permanent | **×4** (no effect) | 0 (unavailable) |
+| **3** | Unavailable | Self | Permanent | **×4** (no effect) | 0 (unavailable) |
+| **4** | Passive, Health | Self | Permanent | **×5** | 80 |
+| **5** | Passive, Health | Self | Permanent | **×5** | 80 |
+| **6** | Passive, Health | Self | Permanent | **×5** | 80 |
+| **7** | Passive, Health | Self | Permanent | **×5** | 80 |
+| **8** | Passive, Health | Self | Permanent | **×6** | 160 |
+| **9** | Passive, Health | Self | Permanent | **×6** | 160 |
+| **10** | Passive, Health | Self | Permanent | **×6** | 160 |
+| **11** | Passive, Health | Self | Permanent | **×6** | 160 |
+| **12** | Passive, Health | Self | Permanent | **×7** | 240 |
+| **13** | Passive, Health | Self | Permanent | **×7** | 240 |
+| **14** | Passive, Health | Self | Permanent | **×7** | 240 |
+| **15** | Passive, Health | Self | Permanent | **×7** | 240 |
+| **16** | Passive, Health | Self | Permanent | **×8** | 320 |
+
+Fortitude is an alternative to **Passive: Health** (additional Health Bars), not a second simultaneous Health-category Passive. It increases maximum capacity only: it does not refill previously lost HP or reopen Scarred Health Bars. It provides no Armor, Damage, or other bonus.
 
 ---
-
-<h3 id="conditional-passive-armor-adjacent-enemies">
-  Conditional Passive: Armor (Adjacent to 2+ Enemies)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Armor = 7.5 PP per +1 Armor<br><br>
-      CONDITION<br>
-      This Armor applies only while you are adjacent to at least two enemies.<br><br>
-      NOTES — Conditional Armor passive. The character becomes stronger when surrounded, but gains no benefit in duels or at range.
-    </span>
-  </span>
-</h3>
-
-A single enemy can test you. A crowd only gives you something to brace against.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+3 Armor**. |
-| **2** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+5 Armor**. |
-| **3** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+8 Armor**. |
-| **4** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+10 Armor**. |
-| **5** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+13 Armor**. |
-| **6** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+16 Armor**. |
-| **7** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+19 Armor**. |
-| **8** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+21 Armor**. |
-| **9** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+24 Armor**. |
-| **10** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+27 Armor**. |
-| **11** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+29 Armor**. |
-| **12** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+32 Armor**. |
-| **13** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+35 Armor**. |
-| **14** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+37 Armor**. |
-| **15** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+40 Armor**. |
-| **16** | Passive, Armor | Self | — | Conditional | While adjacent to at least **two enemies**, gain **+43 Armor**. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Conditional Evade Passives
-
-<h3 id="conditional-passive-evade-movement">
-  Conditional Passive: Evade (Moved 8+ m This Turn)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Evade = 15 PP per +1 Evade<br><br>
-      CONDITION<br>
-      This Evade applies only after you move at least 8 m on your turn.<br><br>
-      NOTES — Conditional Evade passive. Requires a full movement commitment. No Armor, no Healing, no Damage Reduction, no Phasing.
-    </span>
-  </span>
-</h3>
-
-You are safest when you refuse to become a fixed point.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+1 Evade** until the start of your next turn. |
-| **2** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+3 Evade** until the start of your next turn. |
-| **3** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. |
-| **4** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+5 Evade** until the start of your next turn. |
-| **5** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+7 Evade** until the start of your next turn. |
-| **6** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. |
-| **7** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+9 Evade** until the start of your next turn. |
-| **8** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+11 Evade** until the start of your next turn. |
-| **9** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+12 Evade** until the start of your next turn. |
-| **10** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+13 Evade** until the start of your next turn. |
-| **11** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+15 Evade** until the start of your next turn. |
-| **12** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+16 Evade** until the start of your next turn. |
-| **13** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+17 Evade** until the start of your next turn. |
-| **14** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+19 Evade** until the start of your next turn. |
-| **15** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+20 Evade** until the start of your next turn. |
-| **16** | Passive, Evade | Self | — | Conditional | If you moved at least **8 m** on your turn, gain **+21 Evade** until the start of your next turn. |
-
----
-
-<h3 id="conditional-passive-evade-single-enemy">
-  Conditional Passive: Evade (Exactly 1 Adjacent Enemy)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Evade = 15 PP per +1 Evade<br><br>
-      CONDITION<br>
-      This Evade applies only while exactly one enemy is adjacent to you.<br><br>
-      NOTES — Conditional Evade passive. Strong in duels, weak against groups and ranged pressure.
-    </span>
-  </span>
-</h3>
-
-You do not dodge the battlefield. You reduce it to a duel.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+1 Evade**. |
-| **2** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+3 Evade**. |
-| **3** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+4 Evade**. |
-| **4** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+5 Evade**. |
-| **5** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+7 Evade**. |
-| **6** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+8 Evade**. |
-| **7** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+9 Evade**. |
-| **8** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+11 Evade**. |
-| **9** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+12 Evade**. |
-| **10** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+13 Evade**. |
-| **11** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+15 Evade**. |
-| **12** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+16 Evade**. |
-| **13** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+17 Evade**. |
-| **14** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+19 Evade**. |
-| **15** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+20 Evade**. |
-| **16** | Passive, Evade | Self | — | Conditional | While exactly **one enemy** is adjacent to you, gain **+21 Evade**. |
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-
-## Conditional Damage Passives
-
-<h3 id="conditional-passive-damage-movement">
-  Conditional Passive: Damage (Moved 8+ m This Turn)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d8 Damage<br><br>
-      CONDITION<br>
-      This Damage applies only after you move at least 8 m on your turn.<br><br>
-      NOTES — Conditional Damage passive. Requires a full movement commitment. No Attack Dice, no Special rider, no extra attack.
-    </span>
-  </span>
-</h3>
-
-Speed becomes weight. Weight becomes impact.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1d8 Damage** on all damage rolls you make until the end of your turn. |
-| **2** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2d8 Damage** on all damage rolls you make until the end of your turn. |
-| **3** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+3d8 Damage** on all damage rolls you make until the end of your turn. |
-| **4** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4d8 Damage** on all damage rolls you make until the end of your turn. |
-| **5** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+5d8 Damage** on all damage rolls you make until the end of your turn. |
-| **6** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6d8 Damage** on all damage rolls you make until the end of your turn. |
-| **7** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+7d8 Damage** on all damage rolls you make until the end of your turn. |
-| **8** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8d8 Damage** on all damage rolls you make until the end of your turn. |
-| **9** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+9d8 Damage** on all damage rolls you make until the end of your turn. |
-| **10** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10d8 Damage** on all damage rolls you make until the end of your turn. |
-| **11** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+11d8 Damage** on all damage rolls you make until the end of your turn. |
-| **12** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+12d8 Damage** on all damage rolls you make until the end of your turn. |
-| **13** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+13d8 Damage** on all damage rolls you make until the end of your turn. |
-| **14** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+14d8 Damage** on all damage rolls you make until the end of your turn. |
-| **15** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+15d8 Damage** on all damage rolls you make until the end of your turn. |
-| **16** | Passive, Damage | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+16d8 Damage** on all damage rolls you make until the end of your turn. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="conditional-passive-damage-unperceived">
-  Conditional Passive: Damage (Target Cannot Perceive You)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d8 Damage<br><br>
-      CONDITION<br>
-      This Damage applies only against targets that cannot see or otherwise perceive you.<br><br>
-      NOTES — Conditional Damage passive. The damage applies to attacks made from Hidden or equivalent unseen positioning. This passive does not grant Hidden, invisibility, Phasing, or any stealth action.
-    </span>
-  </span>
-</h3>
-
-The wound arrives before the enemy understands where you are.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+1d8 Damage** on damage rolls you make. |
-| **2** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+2d8 Damage** on damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+3d8 Damage** on damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+4d8 Damage** on damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+5d8 Damage** on damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+6d8 Damage** on damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+7d8 Damage** on damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+8d8 Damage** on damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+9d8 Damage** on damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+10d8 Damage** on damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+11d8 Damage** on damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+12d8 Damage** on damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+13d8 Damage** on damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+14d8 Damage** on damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+15d8 Damage** on damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Conditional | Against a target that cannot see or otherwise perceive you, gain **+16d8 Damage** on damage rolls you make. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="conditional-passive-damage-lacerate">
-  Conditional Passive: Damage (Affected by Lacerate)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d8 Damage<br><br>
-      CONDITION<br>
-      This Damage applies only while you are affected by Lacerate.<br><br>
-      NOTES — Conditional Damage passive. This passive does not apply Lacerate, increase Lacerate, reduce Lacerate, or make Lacerate harder to remove. It only rewards fighting while you personally suffer Lacerate.
-    </span>
-  </span>
-</h3>
-
-Your own blood teaches your hands to stop hesitating.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d8 Damage** on all damage rolls you make. |
-| **2** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d8 Damage** on all damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d8 Damage** on all damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d8 Damage** on all damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d8 Damage** on all damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d8 Damage** on all damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d8 Damage** on all damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+8d8 Damage** on all damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+9d8 Damage** on all damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+10d8 Damage** on all damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+11d8 Damage** on all damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+12d8 Damage** on all damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+13d8 Damage** on all damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+14d8 Damage** on all damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+15d8 Damage** on all damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Conditional | While you are affected by **Lacerate**, gain **+16d8 Damage** on all damage rolls you make. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="conditional-passive-damage-injured-target">
-  Conditional Passive: Damage (Target Injured or Worse)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Damage = 20 PP per +1d8 Damage<br><br>
-      CONDITION<br>
-      This Damage applies only against targets that are Injured or worse.<br><br>
-      NOTES — Conditional Damage passive. This is a finisher profile. It does not improve opening damage and does not apply a Special.
-    </span>
-  </span>
-</h3>
-
-You do not waste strength on enemies who have not started dying.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+1d8 Damage** on damage rolls you make. |
-| **2** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+2d8 Damage** on damage rolls you make. |
-| **3** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+3d8 Damage** on damage rolls you make. |
-| **4** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+4d8 Damage** on damage rolls you make. |
-| **5** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+5d8 Damage** on damage rolls you make. |
-| **6** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+6d8 Damage** on damage rolls you make. |
-| **7** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+7d8 Damage** on damage rolls you make. |
-| **8** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+8d8 Damage** on damage rolls you make. |
-| **9** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+9d8 Damage** on damage rolls you make. |
-| **10** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+10d8 Damage** on damage rolls you make. |
-| **11** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+11d8 Damage** on damage rolls you make. |
-| **12** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+12d8 Damage** on damage rolls you make. |
-| **13** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+13d8 Damage** on damage rolls you make. |
-| **14** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+14d8 Damage** on damage rolls you make. |
-| **15** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+15d8 Damage** on damage rolls you make. |
-| **16** | Passive, Damage | Self | — | Conditional | Against targets that are **Injured or worse**, gain **+16d8 Damage** on damage rolls you make. |
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="conditional-passive-healing-wounded">
-  Conditional Passive: Healing (Wounded or Worse)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Healing = 4 PP per 1 HP healed<br><br>
-      CONDITION<br>
-      This Healing applies only while you are Wounded or worse.<br><br>
-      NOTES — Conditional Healing passive. This restores current HP only. It never restores lost Health Bars.
-    </span>
-  </span>
-</h3>
-
-Pain opens the hunger that keeps you standing.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **5 HP**. |
-| **2** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **10 HP**. |
-| **3** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **15 HP**. |
-| **4** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **20 HP**. |
-| **5** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **25 HP**. |
-| **6** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **30 HP**. |
-| **7** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **35 HP**. |
-| **8** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **40 HP**. |
-| **9** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **45 HP**. |
-| **10** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **50 HP**. |
-| **11** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **55 HP**. |
-| **12** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **60 HP**. |
-| **13** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **65 HP**. |
-| **14** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **70 HP**. |
-| **15** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **75 HP**. |
-| **16** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **80 HP**. |
-
----
-
-<h3 id="conditional-passive-healing-adjacent-enemy">
-  Conditional Passive: Healing (Adjacent to Enemy)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Healing = 4 PP per 1 HP healed<br><br>
-      CONDITION<br>
-      This Healing applies only while at least one enemy is adjacent to you.<br><br>
-      NOTES — Conditional Healing passive. Rewards staying in melee. This restores current HP only and never restores lost Health Bars.
-    </span>
-  </span>
-</h3>
-
-The closer death stands, the clearer your body remembers how to live.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **5 HP**. |
-| **2** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **10 HP**. |
-| **3** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **15 HP**. |
-| **4** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **20 HP**. |
-| **5** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **25 HP**. |
-| **6** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **30 HP**. |
-| **7** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **35 HP**. |
-| **8** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **40 HP**. |
-| **9** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **45 HP**. |
-| **10** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **50 HP**. |
-| **11** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **55 HP**. |
-| **12** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **60 HP**. |
-| **13** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **65 HP**. |
-| **14** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **70 HP**. |
-| **15** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **75 HP**. |
-| **16** | Passive, Healing | Self | — | Conditional | At the start of your turn, if at least one enemy is adjacent to you, heal **80 HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="conditional-passive-healing-no-movement">
-  Conditional Passive: Healing (Moved 0 m Last Turn)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Healing = 4 PP per 1 HP healed<br><br>
-      CONDITION<br>
-      This Healing applies only if you moved 0 m on your last turn.<br><br>
-      NOTES — Conditional Healing passive. The character trades movement for recovery. This restores current HP only and never restores lost Health Bars.
-    </span>
-  </span>
-</h3>
-
-Breath returns where motion ends.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **5 HP**. |
-| **2** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **10 HP**. |
-| **3** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **15 HP**. |
-| **4** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **20 HP**. |
-| **5** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **25 HP**. |
-| **6** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **30 HP**. |
-| **7** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **35 HP**. |
-| **8** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **40 HP**. |
-| **9** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **45 HP**. |
-| **10** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **50 HP**. |
-| **11** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **55 HP**. |
-| **12** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **60 HP**. |
-| **13** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **65 HP**. |
-| **14** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **70 HP**. |
-| **15** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **75 HP**. |
-| **16** | Passive, Healing | Self | — | Conditional | At the start of your turn, if you moved **0 m** on your last turn, heal **80 HP**. |
-
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Combined Passives
-
-Combined Passives blend exactly two existing Passive axes into one Passive.
-
-They are meant for hybrid character concepts: not as strong in one axis as a pure Passive, but broader and more flexible.
-
-A Combined Passive still occupies one Passive slot.
-
-For loadout and stacking purposes, a Combined Passive counts as **both included Passive categories**.
-
-Example:
-
-> **Passive: Armor + Temporary HP** counts as both **Armor** and **Temporary HP**.  
-> You cannot also benefit from another active **Armor** Passive or another active **Temporary HP** Passive at the same time.
-
-## Combined Passive Rules
-
-A Combined Passive:
-
-- combines exactly **two** Passive axes,
-- uses the Passive Curve,
-- splits its value between both axes,
-- may not add a third mechanical axis,
-- may not hide an Active effect,
-- may not grant free attacks, Actions, Reactions, Movement Powers, Summons, Images, Barriers, Walls, or Persistent Zones.
-
-Combined Passives may use:
-
-- **Armor**
-- **Evade**
-- **Damage**
-- **Health**
-- **Temporary HP**
-- **Healing**
-
-Combined Passives may not use:
-
-- **Damage Reduction**
-- **Phasing**
-- **Special**, until Special Passive rules are finalized
-- **Stunned**
-- **Attack Dice**
-- **Attribute bonuses**
-- **generic Roll bonuses**
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-
-<h3 id="passive-armor-temporary-hp">
-  Passive: Armor + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Armor Half = 15 PP per +1 Armor<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CALCULATION<br>
-      Each level combines the listed Armor value with the listed start-of-combat Temporary HP value.<br>
-      Armor PP + Temporary HP PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Armor and Temporary HP. No Damage Reduction, no Evade, no Healing, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Armor**. At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Armor**. At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Armor**. At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Armor**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Armor**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Armor**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Armor**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Armor**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Armor**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Armor**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Armor**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Armor**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Armor**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Armor**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+10 Armor**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Armor + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+11 Armor**. At the start of combat, gain **80 Temporary HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="passive-armor-healing">
-  Passive: Armor + Healing
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Armor Half = 15 PP per +1 Armor<br>
-      Healing Half = 8 PP per HP healed<br><br>
-      CALCULATION<br>
-      Each level combines the listed Armor value with the listed start-of-turn Healing value.<br>
-      Armor PP + Healing PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Armor and Healing. Healing restores current HP only and never restores lost Health Bars. No Damage Reduction, no Temporary HP, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Armor + Healing | Self | — | Permanent | Gain **+1 Armor**. At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Armor + Healing | Self | — | Permanent | Gain **+1 Armor**. At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Armor + Healing | Self | — | Permanent | Gain **+2 Armor**. At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Armor + Healing | Self | — | Permanent | Gain **+3 Armor**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Armor + Healing | Self | — | Permanent | Gain **+3 Armor**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Armor + Healing | Self | — | Permanent | Gain **+4 Armor**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Armor + Healing | Self | — | Permanent | Gain **+5 Armor**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Armor + Healing | Self | — | Permanent | Gain **+5 Armor**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Armor + Healing | Self | — | Permanent | Gain **+6 Armor**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Armor + Healing | Self | — | Permanent | Gain **+7 Armor**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Armor + Healing | Self | — | Permanent | Gain **+7 Armor**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Armor + Healing | Self | — | Permanent | Gain **+8 Armor**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Armor + Healing | Self | — | Permanent | Gain **+9 Armor**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Armor + Healing | Self | — | Permanent | Gain **+9 Armor**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Armor + Healing | Self | — | Permanent | Gain **+10 Armor**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Armor + Healing | Self | — | Permanent | Gain **+11 Armor**. At the start of your turn, heal **20 HP**. |
-
----
-
-<h3 id="passive-armor-health">
-  Passive: Armor + Health
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Armor Half = 15 PP per +1 Armor<br>
-      Health Half = milestone structural Health progression<br><br>
-      HEALTH HALF<br>
-      L1-L3 → no extra Health Bar<br>
-      L4-L7 → +1 Wounded Health Bar<br>
-      L8-L11 → +1 Wounded Health Bar and +1 Injured Health Bar<br>
-      L12-L16 → +1 Wounded Health Bar, +1 Injured Health Bar, and +1 Bruised Health Bar<br><br>
-      NOTES — Counts as both Armor and Health. Combined Health never grants a Healthy Health Bar. No Damage Reduction, no Temporary HP, no Healing, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Armor + Health | Self | — | Permanent | Gain **+1 Armor**. |
-| **2** | Passive: Armor + Health | Self | — | Permanent | Gain **+1 Armor**. |
-| **3** | Passive: Armor + Health | Self | — | Permanent | Gain **+2 Armor**. |
-| **4** | Passive: Armor + Health | Self | — | Permanent | Gain **+3 Armor** and **+1 Wounded Health Bar**. |
-| **5** | Passive: Armor + Health | Self | — | Permanent | Gain **+3 Armor** and **+1 Wounded Health Bar**. |
-| **6** | Passive: Armor + Health | Self | — | Permanent | Gain **+4 Armor** and **+1 Wounded Health Bar**. |
-| **7** | Passive: Armor + Health | Self | — | Permanent | Gain **+5 Armor** and **+1 Wounded Health Bar**. |
-| **8** | Passive: Armor + Health | Self | — | Permanent | Gain **+5 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **9** | Passive: Armor + Health | Self | — | Permanent | Gain **+6 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **10** | Passive: Armor + Health | Self | — | Permanent | Gain **+7 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **11** | Passive: Armor + Health | Self | — | Permanent | Gain **+7 Armor**, **+1 Wounded Health Bar**, and **+1 Injured Health Bar**. |
-| **12** | Passive: Armor + Health | Self | — | Permanent | Gain **+8 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **13** | Passive: Armor + Health | Self | — | Permanent | Gain **+9 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **14** | Passive: Armor + Health | Self | — | Permanent | Gain **+9 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **15** | Passive: Armor + Health | Self | — | Permanent | Gain **+10 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-| **16** | Passive: Armor + Health | Self | — | Permanent | Gain **+11 Armor**, **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-<h3 id="passive-evade-temporary-hp">
-  Passive: Evade + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Evade Half = 10 PP per +1 Evade<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CALCULATION<br>
-      Each level combines the listed Evade value with the listed start-of-combat Temporary HP value.<br>
-      Evade PP + Temporary HP PP should match the Passive Curve target.<br><br>
-      NOTES — Counts as both Evade and Temporary HP. No Armor, no Damage Reduction, no Healing, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Evade**. At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2 Evade**. At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3 Evade**. At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4 Evade**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+5 Evade**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+6 Evade**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+7 Evade**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+8 Evade**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+9 Evade**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+10 Evade**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+11 Evade**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+12 Evade**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+13 Evade**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+14 Evade**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+15 Evade**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Evade + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+16 Evade**. At the start of combat, gain **80 Temporary HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="passive-evade-healing">
-  Passive: Evade + Healing
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Evade Half = 20 PP per +1 Evade<br>
-      Healing Half = 8 PP per HP healed<br><br>
-      CALCULATION<br>
-      Each level combines the listed Evade value with the listed start-of-turn Healing value.<br>
-      Evade PP + Healing PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Evade and Healing. Healing restores current HP only and never restores lost Health Bars. No Armor, no Damage Reduction, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Evade + Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Evade + Healing | Self | — | Permanent | Gain **+1 Evade**. At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Evade + Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Evade + Healing | Self | — | Permanent | Gain **+2 Evade**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Evade + Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Evade + Healing | Self | — | Permanent | Gain **+3 Evade**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Evade + Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Evade + Healing | Self | — | Permanent | Gain **+4 Evade**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Evade + Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Evade + Healing | Self | — | Permanent | Gain **+5 Evade**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Evade + Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Evade + Healing | Self | — | Permanent | Gain **+6 Evade**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Evade + Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Evade + Healing | Self | — | Permanent | Gain **+7 Evade**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Evade + Healing | Self | — | Permanent | Gain **+8 Evade**. At the start of your turn, heal **20 HP**. |
-
----
-
-<h3 id="passive-evade-damage">
-  Passive: Evade + Damage
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Evade Half = 20 PP per +1 Evade<br>
-      Damage Half = 40 PP per +1d8 Damage<br><br>
-      CALCULATION<br>
-      Each level combines the listed Evade value with the listed Damage value.<br>
-      Evade PP + Damage PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Evade and Damage. No Attack Dice, no crit rider, no Special rider, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Evade + Damage | Self | — | Permanent | Gain **+1 Evade**. |
-| **2** | Passive: Evade + Damage | Self | — | Permanent | Gain **+1 Evade**. |
-| **3** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade**. |
-| **4** | Passive: Evade + Damage | Self | — | Permanent | Gain **+2 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **5** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **6** | Passive: Evade + Damage | Self | — | Permanent | Gain **+3 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **7** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+1d8 Damage** on all damage rolls you make. |
-| **8** | Passive: Evade + Damage | Self | — | Permanent | Gain **+4 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **9** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **10** | Passive: Evade + Damage | Self | — | Permanent | Gain **+5 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **11** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+2d8 Damage** on all damage rolls you make. |
-| **12** | Passive: Evade + Damage | Self | — | Permanent | Gain **+6 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **13** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **14** | Passive: Evade + Damage | Self | — | Permanent | Gain **+7 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **15** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+3d8 Damage** on all damage rolls you make. |
-| **16** | Passive: Evade + Damage | Self | — | Permanent | Gain **+8 Evade** and **+4d8 Damage** on all damage rolls you make. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-<h3 id="passive-damage-healing">
-  Passive: Damage + Healing
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Damage Half = 40 PP per +1d8 Damage<br>
-      Healing Half = 8 PP per HP healed<br><br>
-      CALCULATION<br>
-      Each level combines the listed Damage value with the listed start-of-turn Healing value.<br>
-      Damage PP + Healing PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Damage and Healing. Healing restores current HP only and never restores lost Health Bars. No Special rider, no Attack Dice, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Damage + Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Damage + Healing | Self | — | Permanent | Gain **+1d8 Damage** on all damage rolls you make. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Damage + Healing | Self | — | Permanent | Gain **+2d8 Damage** on all damage rolls you make. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Damage + Healing | Self | — | Permanent | Gain **+3d8 Damage** on all damage rolls you make. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Damage + Healing | Self | — | Permanent | Gain **+4d8 Damage** on all damage rolls you make. At the start of your turn, heal **20 HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="passive-damage-temporary-hp">
-  Passive: Damage + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Damage Half = 40 PP per +1d8 Damage<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CALCULATION<br>
-      Each level combines the listed Damage value with the listed start-of-combat Temporary HP value.<br>
-      Damage PP + Temporary HP PP should approximately match the Passive Curve target.<br><br>
-      NOTES — Counts as both Damage and Temporary HP. No Healing, no Special rider, no Attack Dice, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1d8 Damage** on all damage rolls you make. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+2d8 Damage** on all damage rolls you make. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+3d8 Damage** on all damage rolls you make. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Damage + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+4d8 Damage** on all damage rolls you make. At the start of combat, gain **80 Temporary HP**. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-<h3 id="passive-health-healing">
-  Passive: Health + Healing
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Health Half = milestone structural Health progression<br>
-      Healing Half = 8 PP per HP healed<br><br>
-      HEALTH HALF<br>
-      L1-L3 → no extra Health Bar<br>
-      L4-L7 → +1 Wounded Health Bar<br>
-      L8-L11 → +1 Wounded Health Bar and +1 Injured Health Bar<br>
-      L12-L16 → +1 Wounded Health Bar, +1 Injured Health Bar, and +1 Bruised Health Bar<br><br>
-      NOTES — Counts as both Health and Healing. Combined Health never grants a Healthy Health Bar. Healing restores current HP only and never restores lost Health Bars.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Health + Healing | Self | — | Permanent | At the start of your turn, heal **1 HP**. |
-| **2** | Passive: Health + Healing | Self | — | Permanent | At the start of your turn, heal **2 HP**. |
-| **3** | Passive: Health + Healing | Self | — | Permanent | At the start of your turn, heal **3 HP**. |
-| **4** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **5 HP**. |
-| **5** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **6 HP**. |
-| **6** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **7 HP**. |
-| **7** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**. At the start of your turn, heal **8 HP**. |
-| **8** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **10 HP**. |
-| **9** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **11 HP**. |
-| **10** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **12 HP**. |
-| **11** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of your turn, heal **13 HP**. |
-| **12** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **15 HP**. |
-| **13** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **16 HP**. |
-| **14** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **17 HP**. |
-| **15** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **18 HP**. |
-| **16** | Passive: Health + Healing | Self | — | Permanent | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of your turn, heal **20 HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="passive-health-temporary-hp">
-  Passive: Health + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Combined Passive = two half-budget axes<br>
-      Health Half = milestone structural Health progression<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      HEALTH HALF<br>
-      L1-L3 → no extra Health Bar<br>
-      L4-L7 → +1 Wounded Health Bar<br>
-      L8-L11 → +1 Wounded Health Bar and +1 Injured Health Bar<br>
-      L12-L16 → +1 Wounded Health Bar, +1 Injured Health Bar, and +1 Bruised Health Bar<br><br>
-      NOTES — Counts as both Health and Temporary HP. Combined Health never grants a Healthy Health Bar. Temporary HP is gained once at the start of combat only.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **5 Temporary HP**. |
-| **2** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **10 Temporary HP**. |
-| **3** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | At the start of combat, gain **15 Temporary HP**. |
-| **4** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **20 Temporary HP**. |
-| **5** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **25 Temporary HP**. |
-| **6** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **30 Temporary HP**. |
-| **7** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**. At the start of combat, gain **35 Temporary HP**. |
-| **8** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **40 Temporary HP**. |
-| **9** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **45 Temporary HP**. |
-| **10** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **50 Temporary HP**. |
-| **11** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar** and **+1 Injured Health Bar**. At the start of combat, gain **55 Temporary HP**. |
-| **12** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **60 Temporary HP**. |
-| **13** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **65 Temporary HP**. |
-| **14** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **70 Temporary HP**. |
-| **15** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **75 Temporary HP**. |
-| **16** | Passive: Health + Temporary HP | Self | — | Permanent / Start of Combat | Gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar**. At the start of combat, gain **80 Temporary HP**. |
-
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-## Conditional Combined Passives
-
-Conditional Combined Passives blend exactly two existing Passive axes into one Passive, but only while a meaningful combat condition is met.
-
-They are stronger than unconditional Combined Passives because the character must earn, create, or maintain the condition.
-
-A Conditional Combined Passive still occupies one Passive slot.
-
-For loadout and stacking purposes, a Conditional Combined Passive counts as **both included Passive categories**.
-
-Example:
-
-> **Conditional Passive: Armor + Healing** counts as both **Armor** and **Healing**.  
-> You cannot also benefit from another active **Armor** Passive or another active **Healing** Passive at the same time.
-
-## Conditional Combined Passive Rules
-
-A Conditional Combined Passive:
-
-- combines exactly **two** Passive axes,
-- uses the Passive Curve,
-- uses the conditional baseline for each included axis,
-- splits its value between both axes,
-- requires a clear combat condition,
-- may not add a third mechanical axis,
-- may not hide an Active effect,
-- may not grant free attacks, Actions, Reactions, Movement Powers, Summons, Images, Barriers, Walls, or Persistent Zones.
-
-Conditional Combined Passives may use:
-
-- **Armor**
-- **Evade**
-- **Damage**
-- **Health**
-- **Temporary HP**
-- **Healing**
-
-Conditional Combined Passives may not use:
-
-- **Damage Reduction**
-- **Phasing**
-- **Special**, until Special Passive rules are finalized
-- **Stunned**
-- **Attack Dice**
-- **Attribute bonuses**
-- **generic Roll bonuses**
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-## Conditional Combined Value Baselines
-
-| **Axis** | **Conditional Combined Baseline** |
-|:--|:--|
-| **Armor Half** | Conditional Armor at half budget: **7.5 PP per +1 Armor** |
-| **Evade Half** | Conditional Evade at half budget: **15 PP per +1 Evade** |
-| **Damage Half** | Conditional Damage at half budget: **20 PP per +1d8 Damage** |
-| **Healing Half** | Conditional Healing at half budget: **4 PP per 1 HP healed** |
-| **Temporary HP Half** | Start-of-combat Temporary HP at half budget: **2 PP per 1 Temporary HP** |
-| **Health Half** | Milestone structural Health progression; no Healthy bar in Combined Passives |
-
-### Conditional Health / Temporary HP Timing
-
-If a Conditional Combined Passive grants **Temporary HP**, check its condition at the start of combat or at the first listed trigger.  
-If the condition is true, gain the Temporary HP once. It does not refresh.
-
-If a Conditional Combined Passive grants **Health Bars**, check its condition at the start of combat.  
-If the condition is true, gain the listed Health Bars for that combat. These Health Bars are structural for that combat and do not appear or disappear round by round.
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-
-## Conditional Combined Passive Catalog
-
-<h3 id="conditional-passive-armor-temporary-hp-adjacent-ally">
-  Conditional Passive: Armor + Temporary HP (Adjacent to Ally)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Armor + Temporary HP<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Armor Half = 7.5 PP per +1 Armor<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CONDITION<br>
-      Armor applies while you are adjacent to at least one ally.<br>
-      Temporary HP is gained at the start of combat only if you start combat adjacent to at least one ally.<br><br>
-      CALCULATION<br>
-      L1 → +1 Armor = 7.5 PP + 5 THP = 10 PP → 17.5 PP ≈ 20 target<br>
-      L2 → +3 Armor = 22.5 PP + 10 THP = 20 PP → 42.5 PP ≈ 40 target<br>
-      L3 → +4 Armor = 30 PP + 15 THP = 30 PP → 60 PP = 60 target<br>
-      L4 → +5 Armor = 37.5 PP + 20 THP = 40 PP → 77.5 PP ≈ 80 target<br>
-      L5 → +7 Armor = 52.5 PP + 25 THP = 50 PP → 102.5 PP ≈ 100 target<br>
-      L6 → +8 Armor = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
-      L7 → +9 Armor = 67.5 PP + 35 THP = 70 PP → 137.5 PP ≈ 140 target<br>
-      L8 → +11 Armor = 82.5 PP + 40 THP = 80 PP → 162.5 PP ≈ 160 target<br>
-      L9 → +12 Armor = 90 PP + 45 THP = 90 PP → 180 PP = 180 target<br>
-      L10 → +13 Armor = 97.5 PP + 50 THP = 100 PP → 197.5 PP ≈ 200 target<br>
-      L11 → +15 Armor = 112.5 PP + 55 THP = 110 PP → 222.5 PP ≈ 220 target<br>
-      L12 → +16 Armor = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
-      L13 → +17 Armor = 127.5 PP + 65 THP = 130 PP → 257.5 PP ≈ 260 target<br>
-      L14 → +19 Armor = 142.5 PP + 70 THP = 140 PP → 282.5 PP ≈ 280 target<br>
-      L15 → +20 Armor = 150 PP + 75 THP = 150 PP → 300 PP = 300 target<br>
-      L16 → +21 Armor = 157.5 PP + 80 THP = 160 PP → 317.5 PP ≈ 320 target<br><br>
-      NOTES — Counts as both Armor and Temporary HP. No Damage Reduction, no Evade, no Healing, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+1 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **5 Temporary HP**. |
-| **2** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+3 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **10 Temporary HP**. |
-| **3** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+4 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **15 Temporary HP**. |
-| **4** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+5 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **20 Temporary HP**. |
-| **5** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+7 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **25 Temporary HP**. |
-| **6** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+8 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **30 Temporary HP**. |
-| **7** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+9 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **35 Temporary HP**. |
-| **8** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+11 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **40 Temporary HP**. |
-| **9** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+12 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **45 Temporary HP**. |
-| **10** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+13 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **50 Temporary HP**. |
-| **11** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+15 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **55 Temporary HP**. |
-| **12** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+16 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **60 Temporary HP**. |
-| **13** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+17 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **65 Temporary HP**. |
-| **14** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+19 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **70 Temporary HP**. |
-| **15** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+20 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **75 Temporary HP**. |
-| **16** | Passive | Self | — | Conditional / Start of Combat | While adjacent to at least one ally, gain **+21 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **80 Temporary HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-armor-healing-no-movement">
-  Conditional Passive: Armor + Healing (Moved 0 m Last Turn)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Armor + Healing<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Armor Half = 7.5 PP per +1 Armor<br>
-      Healing Half = 4 PP per HP healed<br><br>
-      CONDITION<br>
-      This passive applies only if you moved 0 m on your last turn.<br><br>
-      CALCULATION<br>
-      L1 → +1 Armor = 7.5 PP + heal 2 HP = 8 PP → 15.5 PP ≈ 20 target<br>
-      L2 → +3 Armor = 22.5 PP + heal 5 HP = 20 PP → 42.5 PP ≈ 40 target<br>
-      L3 → +4 Armor = 30 PP + heal 7 HP = 28 PP → 58 PP ≈ 60 target<br>
-      L4 → +5 Armor = 37.5 PP + heal 10 HP = 40 PP → 77.5 PP ≈ 80 target<br>
-      L5 → +7 Armor = 52.5 PP + heal 12 HP = 48 PP → 100.5 PP ≈ 100 target<br>
-      L6 → +8 Armor = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
-      L7 → +9 Armor = 67.5 PP + heal 17 HP = 68 PP → 135.5 PP ≈ 140 target<br>
-      L8 → +11 Armor = 82.5 PP + heal 20 HP = 80 PP → 162.5 PP ≈ 160 target<br>
-      L9 → +12 Armor = 90 PP + heal 22 HP = 88 PP → 178 PP ≈ 180 target<br>
-      L10 → +13 Armor = 97.5 PP + heal 25 HP = 100 PP → 197.5 PP ≈ 200 target<br>
-      L11 → +15 Armor = 112.5 PP + heal 27 HP = 108 PP → 220.5 PP ≈ 220 target<br>
-      L12 → +16 Armor = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
-      L13 → +17 Armor = 127.5 PP + heal 32 HP = 128 PP → 255.5 PP ≈ 260 target<br>
-      L14 → +19 Armor = 142.5 PP + heal 35 HP = 140 PP → 282.5 PP ≈ 280 target<br>
-      L15 → +20 Armor = 150 PP + heal 37 HP = 148 PP → 298 PP ≈ 300 target<br>
-      L16 → +21 Armor = 157.5 PP + heal 40 HP = 160 PP → 317.5 PP ≈ 320 target<br><br>
-      NOTES — Counts as both Armor and Healing. Healing restores current HP only and never restores lost Health Bars. No Damage Reduction, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+1 Armor** and heal **2 HP** at the start of your turn. |
-| **2** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+3 Armor** and heal **5 HP** at the start of your turn. |
-| **3** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+4 Armor** and heal **7 HP** at the start of your turn. |
-| **4** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+5 Armor** and heal **10 HP** at the start of your turn. |
-| **5** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+7 Armor** and heal **12 HP** at the start of your turn. |
-| **6** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+8 Armor** and heal **15 HP** at the start of your turn. |
-| **7** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+9 Armor** and heal **17 HP** at the start of your turn. |
-| **8** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+11 Armor** and heal **20 HP** at the start of your turn. |
-| **9** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+12 Armor** and heal **22 HP** at the start of your turn. |
-| **10** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+13 Armor** and heal **25 HP** at the start of your turn. |
-| **11** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+15 Armor** and heal **27 HP** at the start of your turn. |
-| **12** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+16 Armor** and heal **30 HP** at the start of your turn. |
-| **13** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+17 Armor** and heal **32 HP** at the start of your turn. |
-| **14** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+19 Armor** and heal **35 HP** at the start of your turn. |
-| **15** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+20 Armor** and heal **37 HP** at the start of your turn. |
-| **16** | Passive | Self | — | Conditional | If you moved **0 m** on your last turn, gain **+21 Armor** and heal **40 HP** at the start of your turn. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-armor-health-adjacent-ally">
-  Conditional Passive: Armor + Health (Adjacent to Ally)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Armor + Health<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two axes, one conditional value axis and one structural milestone axis<br>
-      Armor Half = 7.5 PP per +1 Armor<br>
-      Health Half = milestone structural Health progression<br><br>
-      CONDITION<br>
-      At the start of combat, if you are adjacent to at least one ally, gain the listed Health Bars for that combat.<br>
-      While adjacent to at least one ally, gain the listed Armor.<br><br>
-      HEALTH HALF<br>
-      L1-L3 → no extra Health Bar<br>
-      L4-L7 → +1 Wounded Health Bar<br>
-      L8-L11 → +1 Wounded Health Bar and +1 Injured Health Bar<br>
-      L12-L16 → +1 Wounded Health Bar, +1 Injured Health Bar, and +1 Bruised Health Bar<br><br>
-      NOTES — Counts as both Armor and Health. Combined Health never grants a Healthy Health Bar. No Damage Reduction, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+1 Armor**. |
-| **2** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+3 Armor**. |
-| **3** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+4 Armor**. |
-| **4** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+5 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat. |
-| **5** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+7 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat. |
-| **6** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+8 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat. |
-| **7** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+9 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat. |
-| **8** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+11 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. |
-| **9** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+12 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. |
-| **10** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+13 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. |
-| **11** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+15 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. |
-| **12** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+16 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. |
-| **13** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+17 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. |
-| **14** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+19 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. |
-| **15** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+20 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. |
-| **16** | Passive | Self | — | Conditional / Combat | While adjacent to at least one ally, gain **+21 Armor**. At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-## Conditional Combined Value Baselines
-
-| **Axis** | **Conditional Combined Baseline** |
-|:--|:--|
-| **Armor Half** | Conditional Armor at half budget: **7.5 PP per +1 Armor** |
-| **Evade Half** | Conditional Evade at half budget: **15 PP per +1 Evade** |
-| **Damage Half** | Conditional Damage at half budget: **20 PP per +1d8 Damage** |
-| **Healing Half** | Conditional Healing at half budget: **4 PP per 1 HP healed** |
-| **Temporary HP Half** | Start-of-combat Temporary HP at half budget: **2 PP per 1 Temporary HP** |
-| **Health Half** | Milestone structural Health progression; no Healthy bar in Combined Passives |
-
-<h3 id="conditional-passive-evade-temporary-hp-movement">
-  Conditional Passive: Evade + Temporary HP (Moved 8+ m)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Evade + Temporary HP<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Evade Half = 15 PP per +1 Evade<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CONDITION<br>
-      Evade applies if you moved at least 8 m on your turn.<br>
-      Temporary HP is gained once after you first move at least 8 m this combat.<br><br>
-      CALCULATION<br>
-      L1 → no Evade = 0 PP + 5 THP = 10 PP → 10 PP below 20 target<br>
-      L2 → +1 Evade = 15 PP + 10 THP = 20 PP → 35 PP ≈ 40 target<br>
-      L3 → +2 Evade = 30 PP + 15 THP = 30 PP → 60 PP = 60 target<br>
-      L4 → +2 Evade = 30 PP + 20 THP = 40 PP → 70 PP below 80 target<br>
-      L5 → +3 Evade = 45 PP + 25 THP = 50 PP → 95 PP ≈ 100 target<br>
-      L6 → +4 Evade = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
-      L7 → +4 Evade = 60 PP + 35 THP = 70 PP → 130 PP below 140 target<br>
-      L8 → +5 Evade = 75 PP + 40 THP = 80 PP → 155 PP ≈ 160 target<br>
-      L9 → +6 Evade = 90 PP + 45 THP = 90 PP → 180 PP = 180 target<br>
-      L10 → +6 Evade = 90 PP + 50 THP = 100 PP → 190 PP below 200 target<br>
-      L11 → +7 Evade = 105 PP + 55 THP = 110 PP → 215 PP ≈ 220 target<br>
-      L12 → +8 Evade = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
-      L13 → +8 Evade = 120 PP + 65 THP = 130 PP → 250 PP below 260 target<br>
-      L14 → +9 Evade = 135 PP + 70 THP = 140 PP → 275 PP ≈ 280 target<br>
-      L15 → +10 Evade = 150 PP + 75 THP = 150 PP → 300 PP = 300 target<br>
-      L16 → +10 Evade = 150 PP + 80 THP = 160 PP → 310 PP below 320 target<br><br>
-      NOTES — Counts as both Evade and Temporary HP. No Armor, no Damage Reduction, no Healing, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional / Once per Combat | Once per combat, after you first move at least **8 m**, gain **5 Temporary HP**. |
-| **2** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+1 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **10 Temporary HP**. |
-| **3** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+2 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **15 Temporary HP**. |
-| **4** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+2 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **20 Temporary HP**. |
-| **5** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+3 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **25 Temporary HP**. |
-| **6** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **30 Temporary HP**. |
-| **7** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+4 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **35 Temporary HP**. |
-| **8** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+5 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **40 Temporary HP**. |
-| **9** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+6 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **45 Temporary HP**. |
-| **10** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+6 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **50 Temporary HP**. |
-| **11** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+7 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **55 Temporary HP**. |
-| **12** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **60 Temporary HP**. |
-| **13** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+8 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **65 Temporary HP**. |
-| **14** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+9 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **70 Temporary HP**. |
-| **15** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+10 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **75 Temporary HP**. |
-| **16** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** on your turn, gain **+10 Evade** until the start of your next turn. Once per combat, after you first move at least **8 m**, gain **80 Temporary HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-evade-healing-movement">
-  Conditional Passive: Evade + Healing (Moved 8+ m Last Turn)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Evade + Healing<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Evade Half = 15 PP per +1 Evade<br>
-      Healing Half = 4 PP per HP healed<br><br>
-      CONDITION<br>
-      This passive applies if you moved at least 8 m on your last turn.<br><br>
-      CALCULATION<br>
-      L1 → no Evade = 0 PP + heal 2 HP = 8 PP → 8 PP below 20 target<br>
-      L2 → +1 Evade = 15 PP + heal 5 HP = 20 PP → 35 PP ≈ 40 target<br>
-      L3 → +2 Evade = 30 PP + heal 7 HP = 28 PP → 58 PP ≈ 60 target<br>
-      L4 → +2 Evade = 30 PP + heal 10 HP = 40 PP → 70 PP below 80 target<br>
-      L5 → +3 Evade = 45 PP + heal 12 HP = 48 PP → 93 PP ≈ 100 target<br>
-      L6 → +4 Evade = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
-      L7 → +4 Evade = 60 PP + heal 17 HP = 68 PP → 128 PP below 140 target<br>
-      L8 → +5 Evade = 75 PP + heal 20 HP = 80 PP → 155 PP ≈ 160 target<br>
-      L9 → +6 Evade = 90 PP + heal 22 HP = 88 PP → 178 PP ≈ 180 target<br>
-      L10 → +6 Evade = 90 PP + heal 25 HP = 100 PP → 190 PP below 200 target<br>
-      L11 → +7 Evade = 105 PP + heal 27 HP = 108 PP → 213 PP ≈ 220 target<br>
-      L12 → +8 Evade = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
-      L13 → +8 Evade = 120 PP + heal 32 HP = 128 PP → 248 PP below 260 target<br>
-      L14 → +9 Evade = 135 PP + heal 35 HP = 140 PP → 275 PP ≈ 280 target<br>
-      L15 → +10 Evade = 150 PP + heal 37 HP = 148 PP → 298 PP ≈ 300 target<br>
-      L16 → +10 Evade = 150 PP + heal 40 HP = 160 PP → 310 PP below 320 target<br><br>
-      NOTES — Counts as both Evade and Healing. Healing restores current HP only and never restores lost Health Bars.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, heal **2 HP** at the start of your turn. |
-| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+1 Evade** and heal **5 HP** at the start of your turn. |
-| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+2 Evade** and heal **7 HP** at the start of your turn. |
-| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+2 Evade** and heal **10 HP** at the start of your turn. |
-| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+3 Evade** and heal **12 HP** at the start of your turn. |
-| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+4 Evade** and heal **15 HP** at the start of your turn. |
-| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+4 Evade** and heal **17 HP** at the start of your turn. |
-| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+5 Evade** and heal **20 HP** at the start of your turn. |
-| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+6 Evade** and heal **22 HP** at the start of your turn. |
-| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+6 Evade** and heal **25 HP** at the start of your turn. |
-| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+7 Evade** and heal **27 HP** at the start of your turn. |
-| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+8 Evade** and heal **30 HP** at the start of your turn. |
-| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+8 Evade** and heal **32 HP** at the start of your turn. |
-| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+9 Evade** and heal **35 HP** at the start of your turn. |
-| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+10 Evade** and heal **37 HP** at the start of your turn. |
-| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** on your last turn, gain **+10 Evade** and heal **40 HP** at the start of your turn. |
-
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-evade-damage-movement">
-  Conditional Passive: Evade + Damage (Moved 8+ m This Turn)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Evade + Damage<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Evade Half = 15 PP per +1 Evade<br>
-      Damage Half = 20 PP per +1d8 Damage<br><br>
-      CONDITION<br>
-      This passive applies if you moved at least 8 m on your turn.<br><br>
-      CALCULATION<br>
-      L1 → +1 Evade = 15 PP + no Damage = 0 PP → 15 PP ≈ 20 target<br>
-      L2 → +1 Evade = 15 PP + +1d8 Damage = 20 PP → 35 PP ≈ 40 target<br>
-      L3 → +2 Evade = 30 PP + +1d8 Damage = 20 PP → 50 PP below 60 target<br>
-      L4 → +2 Evade = 30 PP + +2d8 Damage = 40 PP → 70 PP below 80 target<br>
-      L5 → +3 Evade = 45 PP + +2d8 Damage = 40 PP → 85 PP below 100 target<br>
-      L6 → +4 Evade = 60 PP + +3d8 Damage = 60 PP → 120 PP = 120 target<br>
-      L7 → +4 Evade = 60 PP + +3d8 Damage = 60 PP → 120 PP below 140 target<br>
-      L8 → +5 Evade = 75 PP + +4d8 Damage = 80 PP → 155 PP ≈ 160 target<br>
-      L9 → +6 Evade = 90 PP + +4d8 Damage = 80 PP → 170 PP below 180 target<br>
-      L10 → +6 Evade = 90 PP + +5d8 Damage = 100 PP → 190 PP below 200 target<br>
-      L11 → +7 Evade = 105 PP + +5d8 Damage = 100 PP → 205 PP below 220 target<br>
-      L12 → +8 Evade = 120 PP + +6d8 Damage = 120 PP → 240 PP = 240 target<br>
-      L13 → +8 Evade = 120 PP + +6d8 Damage = 120 PP → 240 PP below 260 target<br>
-      L14 → +9 Evade = 135 PP + +7d8 Damage = 140 PP → 275 PP ≈ 280 target<br>
-      L15 → +10 Evade = 150 PP + +7d8 Damage = 140 PP → 290 PP below 300 target<br>
-      L16 → +10 Evade = 150 PP + +8d8 Damage = 160 PP → 310 PP below 320 target<br><br>
-      NOTES — Counts as both Evade and Damage. No Attack Dice, no crit rider, no Special rider, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1 Evade** until the start of your next turn. |
-| **2** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+1 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
-| **3** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2 Evade** until the start of your next turn and **+1d8 Damage** on all damage rolls you make until the end of your turn. |
-| **4** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+2 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
-| **5** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+3 Evade** until the start of your next turn and **+2d8 Damage** on all damage rolls you make until the end of your turn. |
-| **6** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
-| **7** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+4 Evade** until the start of your next turn and **+3d8 Damage** on all damage rolls you make until the end of your turn. |
-| **8** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+5 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
-| **9** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+4d8 Damage** on all damage rolls you make until the end of your turn. |
-| **10** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+6 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
-| **11** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+7 Evade** until the start of your next turn and **+5d8 Damage** on all damage rolls you make until the end of your turn. |
-| **12** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
-| **13** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+8 Evade** until the start of your next turn and **+6d8 Damage** on all damage rolls you make until the end of your turn. |
-| **14** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+9 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
-| **15** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+7d8 Damage** on all damage rolls you make until the end of your turn. |
-| **16** | Passive | Self | — | Conditional | If you moved at least **8 m** this turn, gain **+10 Evade** until the start of your next turn and **+8d8 Damage** on all damage rolls you make until the end of your turn. |
-
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-damage-healing-lacerate">
-  Conditional Passive: Damage + Healing (Affected by Lacerate)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Damage + Healing<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Damage Half = 20 PP per +1d8 Damage<br>
-      Healing Half = 4 PP per HP healed<br><br>
-      CONDITION<br>
-      This passive applies only while you are affected by Lacerate.<br><br>
-      CALCULATION<br>
-      L1 → no Damage = 0 PP + heal 2 HP = 8 PP → 8 PP below 20 target<br>
-      L2 → +1d8 Damage = 20 PP + heal 5 HP = 20 PP → 40 PP = 40 target<br>
-      L3 → +1d8 Damage = 20 PP + heal 7 HP = 28 PP → 48 PP below 60 target<br>
-      L4 → +2d8 Damage = 40 PP + heal 10 HP = 40 PP → 80 PP = 80 target<br>
-      L5 → +2d8 Damage = 40 PP + heal 12 HP = 48 PP → 88 PP below 100 target<br>
-      L6 → +3d8 Damage = 60 PP + heal 15 HP = 60 PP → 120 PP = 120 target<br>
-      L7 → +3d8 Damage = 60 PP + heal 17 HP = 68 PP → 128 PP below 140 target<br>
-      L8 → +4d8 Damage = 80 PP + heal 20 HP = 80 PP → 160 PP = 160 target<br>
-      L9 → +4d8 Damage = 80 PP + heal 22 HP = 88 PP → 168 PP below 180 target<br>
-      L10 → +5d8 Damage = 100 PP + heal 25 HP = 100 PP → 200 PP = 200 target<br>
-      L11 → +5d8 Damage = 100 PP + heal 27 HP = 108 PP → 208 PP below 220 target<br>
-      L12 → +6d8 Damage = 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
-      L13 → +6d8 Damage = 120 PP + heal 32 HP = 128 PP → 248 PP below 260 target<br>
-      L14 → +7d8 Damage = 140 PP + heal 35 HP = 140 PP → 280 PP = 280 target<br>
-      L15 → +7d8 Damage = 140 PP + heal 37 HP = 148 PP → 288 PP below 300 target<br>
-      L16 → +8d8 Damage = 160 PP + heal 40 HP = 160 PP → 320 PP = 320 target<br><br>
-      NOTES — Counts as both Damage and Healing. This passive does not apply Lacerate, increase Lacerate, reduce Lacerate, or make Lacerate harder to remove. Healing restores current HP only and never restores lost Health Bars. No Special rider, no Attack Dice, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, heal **2 HP** at the start of your turn. |
-| **2** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d8 Damage** on all damage rolls you make and heal **5 HP** at the start of your turn. |
-| **3** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+1d8 Damage** on all damage rolls you make and heal **7 HP** at the start of your turn. |
-| **4** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d8 Damage** on all damage rolls you make and heal **10 HP** at the start of your turn. |
-| **5** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+2d8 Damage** on all damage rolls you make and heal **12 HP** at the start of your turn. |
-| **6** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d8 Damage** on all damage rolls you make and heal **15 HP** at the start of your turn. |
-| **7** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+3d8 Damage** on all damage rolls you make and heal **17 HP** at the start of your turn. |
-| **8** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d8 Damage** on all damage rolls you make and heal **20 HP** at the start of your turn. |
-| **9** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+4d8 Damage** on all damage rolls you make and heal **22 HP** at the start of your turn. |
-| **10** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d8 Damage** on all damage rolls you make and heal **25 HP** at the start of your turn. |
-| **11** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+5d8 Damage** on all damage rolls you make and heal **27 HP** at the start of your turn. |
-| **12** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d8 Damage** on all damage rolls you make and heal **30 HP** at the start of your turn. |
-| **13** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+6d8 Damage** on all damage rolls you make and heal **32 HP** at the start of your turn. |
-| **14** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d8 Damage** on all damage rolls you make and heal **35 HP** at the start of your turn. |
-| **15** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+7d8 Damage** on all damage rolls you make and heal **37 HP** at the start of your turn. |
-| **16** | Passive | Self | — | Conditional | While you are affected by **Lacerate**, gain **+8d8 Damage** on all damage rolls you make and heal **40 HP** at the start of your turn. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-damage-temporary-hp-movement">
-  Conditional Passive: Damage + Temporary HP (Moved 8+ m)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Damage + Temporary HP<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = two conditional half-budget axes<br>
-      Damage Half = 20 PP per +1d8 Damage<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CONDITION<br>
-      Damage applies if you moved at least 8 m on your turn.<br>
-      Temporary HP is gained once after you first move at least 8 m this combat.<br><br>
-      CALCULATION<br>
-      L1 → no Damage = 0 PP + 5 THP = 10 PP → 10 PP below 20 target<br>
-      L2 → +1d8 Damage = 20 PP + 10 THP = 20 PP → 40 PP = 40 target<br>
-      L3 → +1d8 Damage = 20 PP + 15 THP = 30 PP → 50 PP below 60 target<br>
-      L4 → +2d8 Damage = 40 PP + 20 THP = 40 PP → 80 PP = 80 target<br>
-      L5 → +2d8 Damage = 40 PP + 25 THP = 50 PP → 90 PP below 100 target<br>
-      L6 → +3d8 Damage = 60 PP + 30 THP = 60 PP → 120 PP = 120 target<br>
-      L7 → +3d8 Damage = 60 PP + 35 THP = 70 PP → 130 PP below 140 target<br>
-      L8 → +4d8 Damage = 80 PP + 40 THP = 80 PP → 160 PP = 160 target<br>
-      L9 → +4d8 Damage = 80 PP + 45 THP = 90 PP → 170 PP below 180 target<br>
-      L10 → +5d8 Damage = 100 PP + 50 THP = 100 PP → 200 PP = 200 target<br>
-      L11 → +5d8 Damage = 100 PP + 55 THP = 110 PP → 210 PP below 220 target<br>
-      L12 → +6d8 Damage = 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
-      L13 → +6d8 Damage = 120 PP + 65 THP = 130 PP → 250 PP below 260 target<br>
-      L14 → +7d8 Damage = 140 PP + 70 THP = 140 PP → 280 PP = 280 target<br>
-      L15 → +7d8 Damage = 140 PP + 75 THP = 150 PP → 290 PP below 300 target<br>
-      L16 → +8d8 Damage = 160 PP + 80 THP = 160 PP → 320 PP = 320 target<br><br>
-      NOTES — Counts as both Damage and Temporary HP. Temporary HP is gained once per combat only and does not refresh if you move 8 m again. No Healing, no Special rider, no Attack Dice, no Phasing.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional / Once per Combat | Once per combat, after you first move at least **8 m**, gain **5 Temporary HP**. |
-| **2** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+1d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **10 Temporary HP**. |
-| **3** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+1d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **15 Temporary HP**. |
-| **4** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+2d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **20 Temporary HP**. |
-| **5** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+2d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **25 Temporary HP**. |
-| **6** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+3d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **30 Temporary HP**. |
-| **7** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+3d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **35 Temporary HP**. |
-| **8** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+4d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **40 Temporary HP**. |
-| **9** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+4d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **45 Temporary HP**. |
-| **10** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+5d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **50 Temporary HP**. |
-| **11** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+5d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **55 Temporary HP**. |
-| **12** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+6d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **60 Temporary HP**. |
-| **13** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+6d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **65 Temporary HP**. |
-| **14** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+7d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **70 Temporary HP**. |
-| **15** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+7d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **75 Temporary HP**. |
-| **16** | Passive | Self | — | Conditional / Once per Combat | If you moved at least **8 m** this turn, gain **+8d8 Damage** on all damage rolls you make until the end of your turn. Once per combat, after you first move at least **8 m**, gain **80 Temporary HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-health-healing-wounded">
-  Conditional Passive: Health + Healing (Wounded or Worse)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Health + Healing<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = one structural milestone axis and one conditional healing axis<br>
-      Health Half = milestone structural Health progression<br>
-      Healing Half = 4 PP per HP healed<br><br>
-      CONDITION<br>
-      At the start of combat, if you are Wounded or worse, gain the listed Health Bars for that combat.<br>
-      Healing applies at the start of your turn only while you are Wounded or worse.<br><br>
-      HEALTH HALF<br>
-      L1-L3 → no extra Health Bar<br>
-      L4-L7 → +1 Wounded Health Bar<br>
-      L8-L11 → +1 Wounded Health Bar and +1 Injured Health Bar<br>
-      L12-L16 → +1 Wounded Health Bar, +1 Injured Health Bar, and +1 Bruised Health Bar<br><br>
-      CALCULATION<br>
-      L1 → Health 0 PP + heal 2 HP = 8 PP → 8 PP below 20 target<br>
-      L2 → Health 0 PP + heal 5 HP = 20 PP → 20 PP below 40 target<br>
-      L3 → Health 0 PP + heal 7 HP = 28 PP → 28 PP below 60 target<br>
-      L4 → Wounded Bar 25 PP + heal 10 HP = 40 PP → 65 PP below 80 target<br>
-      L5 → Wounded Bar 25 PP + heal 12 HP = 48 PP → 73 PP below 100 target<br>
-      L6 → Wounded Bar 25 PP + heal 15 HP = 60 PP → 85 PP below 120 target<br>
-      L7 → Wounded Bar 25 PP + heal 17 HP = 68 PP → 93 PP below 140 target<br>
-      L8 → Wounded/Injured 65 PP + heal 20 HP = 80 PP → 145 PP below 160 target<br>
-      L9 → Wounded/Injured 65 PP + heal 22 HP = 88 PP → 153 PP below 180 target<br>
-      L10 → Wounded/Injured 65 PP + heal 25 HP = 100 PP → 165 PP below 200 target<br>
-      L11 → Wounded/Injured 65 PP + heal 27 HP = 108 PP → 173 PP below 220 target<br>
-      L12 → Wounded/Injured/Bruised 120 PP + heal 30 HP = 120 PP → 240 PP = 240 target<br>
-      L13 → Wounded/Injured/Bruised 120 PP + heal 32 HP = 128 PP → 248 PP below 260 target<br>
-      L14 → Wounded/Injured/Bruised 120 PP + heal 35 HP = 140 PP → 260 PP below 280 target<br>
-      L15 → Wounded/Injured/Bruised 120 PP + heal 37 HP = 148 PP → 268 PP below 300 target<br>
-      L16 → Wounded/Injured/Bruised 120 PP + heal 40 HP = 160 PP → 280 PP below 320 target<br><br>
-      NOTES — Counts as both Health and Healing. Combined Health never grants a Healthy Health Bar. Healing restores current HP only and never restores lost Health Bars. Leftover PP is intentionally ignored to keep structural Health readable.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **2 HP**. |
-| **2** | Passive | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **5 HP**. |
-| **3** | Passive | Self | — | Conditional | At the start of your turn, if you are **Wounded or worse**, heal **7 HP**. |
-| **4** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **10 HP**. |
-| **5** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **12 HP**. |
-| **6** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **15 HP**. |
-| **7** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **17 HP**. |
-| **8** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **20 HP**. |
-| **9** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **22 HP**. |
-| **10** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **25 HP**. |
-| **11** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar** and **+1 Injured Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **27 HP**. |
-| **12** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **30 HP**. |
-| **13** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **32 HP**. |
-| **14** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **35 HP**. |
-| **15** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **37 HP**. |
-| **16** | Passive | Self | — | Conditional / Combat | At the start of combat, if you are **Wounded or worse**, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, and **+1 Bruised Health Bar** for that combat. At the start of your turn, if you are **Wounded or worse**, heal **40 HP**. |
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-
-{{wide
-<h3 id="conditional-passive-health-temporary-hp-adjacent-ally">
-  Conditional Passive: Health + Temporary HP (Adjacent to Ally at Combat Start)
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      CATEGORIES<br>
-      Health + Temporary HP<br><br>
-      BASELINES<br>
-      Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16<br>
-      Conditional Combined Passive = one structural milestone axis and one Temporary HP axis<br>
-      Health Half = milestone structural Health progression<br>
-      Temporary HP Half = 2 PP per Temporary HP<br><br>
-      CONDITION<br>
-      At the start of combat, if you are adjacent to at least one ally, gain the listed Health Bars and Temporary HP.<br><br>
-      HEALTH HALF<br>
-      L1-L3 → no extra Health Bar<br>
-      L4-L7 → +1 Wounded Health Bar<br>
-      L8-L11 → +1 Wounded Health Bar and +1 Injured Health Bar<br>
-      L12-L16 → +1 Wounded Health Bar, +1 Injured Health Bar, and +1 Bruised Health Bar<br><br>
-      CALCULATION<br>
-      L1 → Health 0 PP + 5 THP = 10 PP → 10 PP below 20 target<br>
-      L2 → Health 0 PP + 10 THP = 20 PP → 20 PP below 40 target<br>
-      L3 → Health 0 PP + 15 THP = 30 PP → 30 PP below 60 target<br>
-      L4 → Wounded Bar 25 PP + 20 THP = 40 PP → 65 PP below 80 target<br>
-      L5 → Wounded Bar 25 PP + 25 THP = 50 PP → 75 PP below 100 target<br>
-      L6 → Wounded Bar 25 PP + 30 THP = 60 PP → 85 PP below 120 target<br>
-      L7 → Wounded Bar 25 PP + 35 THP = 70 PP → 95 PP below 140 target<br>
-      L8 → Wounded/Injured 65 PP + 40 THP = 80 PP → 145 PP below 160 target<br>
-      L9 → Wounded/Injured 65 PP + 45 THP = 90 PP → 155 PP below 180 target<br>
-      L10 → Wounded/Injured 65 PP + 50 THP = 100 PP → 165 PP below 200 target<br>
-      L11 → Wounded/Injured 65 PP + 55 THP = 110 PP → 175 PP below 220 target<br>
-      L12 → Wounded/Injured/Bruised 120 PP + 60 THP = 120 PP → 240 PP = 240 target<br>
-      L13 → Wounded/Injured/Bruised 120 PP + 65 THP = 130 PP → 250 PP below 260 target<br>
-      L14 → Wounded/Injured/Bruised 120 PP + 70 THP = 140 PP → 260 PP below 280 target<br>
-      L15 → Wounded/Injured/Bruised 120 PP + 75 THP = 150 PP → 270 PP below 300 target<br>
-      L16 → Wounded/Injured/Bruised 120 PP + 80 THP = 160 PP → 280 PP below 320 target<br><br>
-      NOTES — Counts as both Health and Temporary HP. Combined Health never grants a Healthy Health Bar. Temporary HP is gained once at the start of combat only. Leftover PP is intentionally ignored to keep structural Health readable.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **5 Temporary HP**. |
-| **2** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **10 Temporary HP**. |
-| **3** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **15 Temporary HP**. |
-| **4** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat and **20 Temporary HP**. |
-| **5** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat and **25 Temporary HP**. |
-| **6** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat and **30 Temporary HP**. |
-| **7** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar** for that combat and **35 Temporary HP**. |
-| **8** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar** for that combat, and **40 Temporary HP**. |
-| **9** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar** for that combat, and **45 Temporary HP**. |
-| **10** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar** for that combat, and **50 Temporary HP**. |
-| **11** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar** for that combat, and **55 Temporary HP**. |
-| **12** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar** for that combat, and **60 Temporary HP**. |
-| **13** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar** for that combat, and **65 Temporary HP**. |
-| **14** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar** for that combat, and **70 Temporary HP**. |
-| **15** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar** for that combat, and **75 Temporary HP**. |
-| **16** | Passive | Self | — | Start of Combat | At the start of combat, if you are adjacent to at least one ally, gain **+1 Wounded Health Bar**, **+1 Injured Health Bar**, **+1 Bruised Health Bar** for that combat, and **80 Temporary HP**. |
-
 }}
 
 \page
@@ -2399,11 +775,11 @@ If the creature leaves the aura, the increase immediately ends.
 
 Multiple Special Auras affecting the same Special do not stack. Only the strongest applicable aura applies.
 
-#### Example: Passive: Special Aura + Weaken
+#### Example: Special Aura (Weaken)
 
 A creature inside the aura is affected by **Weaken(2)**. The Passive Special Aura increases it to **Weaken(3)** while that creature remains inside the aura. When it leaves, the Special returns to its normal current value. The aura never applies Weaken to an unaffected creature.
 
-#### Example: Passive: Special Aura + Soulburn
+#### Example: Special Aura (Soulburn)
 
 A creature inside the aura is affected by **Soulburn(3)**. The aura treats it as **Soulburn(4)** while the creature remains inside. The +1 increase ends immediately when the creature leaves the aura.
 
@@ -2444,7 +820,6 @@ A Passive Special Aura may only affect a Special if all of the following are tru
 {{wide
 Common eligible examples include:
 
-- **Blight(X)**
 - **Challenge(X)**
 - **Corrode(X)**
 - **Disoriented(X)**
@@ -2526,7 +901,7 @@ The aura is always centered on the user.
 
 {{wide
 <h3 id="passive-special-aura">
-  Passive: Special Aura + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken
+  Passive: Special Aura
   <span class="tooltip">🛈
     <span class="tooltiptext">
       CATEGORIES<br>
@@ -2568,9 +943,9 @@ The aura is always centered on the user.
 
 Choose one eligible diminishing **Special(X)** when you take this Passive.
 
-The learned Power's technical name is **Passive: Special Aura + the chosen Special**.
+The technical Power name is **Passive: Special Aura**. Record the selected eligible Special separately as its fixed **Special choice**. Learning or obtaining a second source cannot grant another Special Aura slot or a second independently selectable Special; the single-category rule applies normally.
 
-While a creature inside your aura is already affected by that Special, increase that Special by **+1 step**.
+While a creature inside your aura is already affected by that Special, increase its **effective value by +1**. The target's stored Special stacks remain unchanged; the aura contributes to the current effect (including an applicable Tick) while the target is in range, but creates no application points and does not use the Special Application Limit. Natural Special Recovery, Cleanse and Decay modify the stored stacks, and the effective +1 disappears when the aura no longer applies.
 
 This aura does not apply the Special by itself.
 
@@ -2582,9 +957,9 @@ Multiple Special Auras affecting the same Special do not stack. Only the stronge
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Self | — | Permanent | — |
-| **2** | Passive | Self | — | Permanent | — |
-| **3** | Passive | Self | — | Permanent | — |
+| **1** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Permanent | No effect at this PL; unavailable for selection. |
 | **4** | Passive | Self | 2 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
 | **5** | Passive | Self | 3 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
 | **6** | Passive | Self | 4 m radius | Permanent | The **Special(X)** chosen when you learned this Power gains **+1 step** while affecting a creature inside the aura. |
@@ -2606,11 +981,11 @@ Multiple Special Auras affecting the same Special do not stack. Only the stronge
 {{pageNumber,auto}}
 {{wide
 
-## Ward Passives
+## Spell Resistance and Special Negation Passives
 
-Ward Passives are reliable defensive Passives that protect against Spell pressure or negative ongoing creature effects.
+Spell Resistance and Special Negation are separate Passive categories. They may be slotted at the same time, subject to the normal Passive Slot limit. Spell Resistance protects against Spell delivery, while Special Negation reduces incoming eligible numeric Specials.
 
-Ward Passives are not Spells.  
+These defensive Passives are not Spells.  
 They do not apply Specials.  
 They do not grant Absorption.  
 They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Damage, Penetration, Critical, Movement, or control unless a specific entry says otherwise.
@@ -2625,8 +1000,8 @@ They do not grant Armor, Evade, Damage Reduction, Phasing, Temporary HP, Healing
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16.<br>
       Spell Resistance = 15 PP per +1 Spell Resistance.<br><br>
       DESIGN STRUCTURE<br>
-      This is a pure Ward Passive with exactly one axis: Spell Resistance.<br>
-      Spell Resistance increases the Base TN of Spells against you.<br>
+      This is a pure Spell Resistance Passive with exactly one axis: Spell Resistance.<br>
+      Spell Resistance increases the Final Spell TN against you; the Spell Base TN is unchanged.<br>
       It applies only against Powers with the Spell tag.<br>
       It does not protect against normal attacks, martial Actives, weapon attacks, non-Spell Specials, environmental damage, or non-Spell effects.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
@@ -2658,88 +1033,88 @@ Your body, mind, soul, or warding pattern rejects hostile spell structure.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Ward | Self | — | Permanent | Gain **+1 Spell Resistance**. |
-| **2** | Passive, Ward | Self | — | Permanent | Gain **+2 Spell Resistance**. |
-| **3** | Passive, Ward | Self | — | Permanent | Gain **+4 Spell Resistance**. |
-| **4** | Passive, Ward | Self | — | Permanent | Gain **+5 Spell Resistance**. |
-| **5** | Passive, Ward | Self | — | Permanent | Gain **+6 Spell Resistance**. |
-| **6** | Passive, Ward | Self | — | Permanent | Gain **+8 Spell Resistance**. |
-| **7** | Passive, Ward | Self | — | Permanent | Gain **+9 Spell Resistance**. |
-| **8** | Passive, Ward | Self | — | Permanent | Gain **+10 Spell Resistance**. |
-| **9** | Passive, Ward | Self | — | Permanent | Gain **+12 Spell Resistance**. |
-| **10** | Passive, Ward | Self | — | Permanent | Gain **+13 Spell Resistance**. |
-| **11** | Passive, Ward | Self | — | Permanent | Gain **+14 Spell Resistance**. |
-| **12** | Passive, Ward | Self | — | Permanent | Gain **+16 Spell Resistance**. |
-| **13** | Passive, Ward | Self | — | Permanent | Gain **+17 Spell Resistance**. |
-| **14** | Passive, Ward | Self | — | Permanent | Gain **+18 Spell Resistance**. |
-| **15** | Passive, Ward | Self | — | Permanent | Gain **+20 Spell Resistance**. |
-| **16** | Passive, Ward | Self | — | Permanent | Gain **+21 Spell Resistance**. |
+| **1** | Passive, Spell Resistance | Self | — | Permanent | Gain **+1 Spell Resistance**. |
+| **2** | Passive, Spell Resistance | Self | — | Permanent | Gain **+2 Spell Resistance**. |
+| **3** | Passive, Spell Resistance | Self | — | Permanent | Gain **+4 Spell Resistance**. |
+| **4** | Passive, Spell Resistance | Self | — | Permanent | Gain **+5 Spell Resistance**. |
+| **5** | Passive, Spell Resistance | Self | — | Permanent | Gain **+6 Spell Resistance**. |
+| **6** | Passive, Spell Resistance | Self | — | Permanent | Gain **+8 Spell Resistance**. |
+| **7** | Passive, Spell Resistance | Self | — | Permanent | Gain **+9 Spell Resistance**. |
+| **8** | Passive, Spell Resistance | Self | — | Permanent | Gain **+10 Spell Resistance**. |
+| **9** | Passive, Spell Resistance | Self | — | Permanent | Gain **+12 Spell Resistance**. |
+| **10** | Passive, Spell Resistance | Self | — | Permanent | Gain **+13 Spell Resistance**. |
+| **11** | Passive, Spell Resistance | Self | — | Permanent | Gain **+14 Spell Resistance**. |
+| **12** | Passive, Spell Resistance | Self | — | Permanent | Gain **+16 Spell Resistance**. |
+| **13** | Passive, Spell Resistance | Self | — | Permanent | Gain **+17 Spell Resistance**. |
+| **14** | Passive, Spell Resistance | Self | — | Permanent | Gain **+18 Spell Resistance**. |
+| **15** | Passive, Spell Resistance | Self | — | Permanent | Gain **+20 Spell Resistance**. |
+| **16** | Passive, Spell Resistance | Self | — | Permanent | Gain **+21 Spell Resistance**. |
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-<h3 id="passive-ward">
-  Passive: Ward
+<h3 id="passive-special-negation">
+  Passive: Special Negation
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 / 40 / 60 / 80 PP, continued linearly to Level 16.<br>
-      Ward is a closed premium defensive subsystem protecting against incoming Specials.<br><br>
+      Special Negation is a closed premium defensive subsystem protecting against incoming Specials.<br><br>
 
    DESIGN STRUCTURE<br>
-      This is a pure Ward Passive with exactly one axis: automatic reduction of incoming eligible Specials.<br>
-      Whenever an eligible hostile Special(X) would be applied to you, reduce its value by your Ward before the Special is applied.<br>
+      This is a pure Special Negation Passive with exactly one axis: automatic reduction of incoming eligible Specials.<br>
+      Whenever an eligible hostile Special(X) would be applied to you, reduce its value by your Special Negation before the Special is applied.<br>
       If the Special is reduced to 0 or less, it is not applied.<br>
-      Ward requires no Action, Movement, Reaction, Stone, roll, or active decision.<br><br>
+      Special Negation requires no Action, Movement, Reaction, Stone, roll, or active decision.<br><br>
 
   SEPARATE SPECIALS<br>
-      Ward is applied separately to every eligible Special carried by the same Attack or effect.<br>
-      If an Attack would apply several eligible Specials, reduce each Special by your full Ward value.<br><br>
+      Special Negation is applied separately to every eligible Special carried by the same Attack or effect.<br>
+      If an Attack would apply several eligible Specials, reduce each Special by your full Special Negation value.<br><br>
 
    EXISTING SPECIALS<br>
-      Ward does not reduce Specials already affecting you.<br>
+      Special Negation does not reduce Specials already affecting you.<br>
       If a new application would increase, replace, or refresh an existing Special, reduce the incoming Special value before applying the normal stacking, replacement, or refresh rules.<br><br>
 
    ELIGIBLE SPECIALS<br>
       Eligible Specials are hostile numeric creature effects that can normally be reduced by Cleanse, including Blight(X), Challenge(X), Corrode(X), Disoriented(X), Expose(X), Hex(X), Lacerate(X), Mark(X), Root(X), Ruin(X), Slow(X), Soulburn(X), Sundered(X), and Weaken(X).<br>
       The delivery method is irrelevant.<br>
-      Ward may protect against Specials delivered by Attacks, Spells, Area Effects, creature abilities, or other hostile effects.<br><br>
+      Special Negation may protect against Specials delivered by Attacks, Spells, Area Effects, creature abilities, or other hostile effects.<br><br>
 
   INELIGIBLE EFFECTS<br>
-      Ward does not affect Damage Dice, Attack Dice, flat damage, forced movement, Prone, Disarm, Stunned, or other binary effects without a reducible numeric value.<br>
-      Ward cannot affect battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, non-creature effects, or effects that require Dispel or a dedicated rule.<br><br>
+      Special Negation does not affect Damage Dice, Attack Dice, flat damage, forced movement, Prone, Disarm, Stunned, or other binary effects without a reducible numeric value.<br>
+      Special Negation cannot affect battlefield objects, Barriers, Walls, Images, Summons, Illusion Fields, Persistent Zones, terrain effects, non-creature effects, or effects that require Dispel or a dedicated rule.<br><br>
 
    SCALING<br>
-      L1 = Ward 1.<br>
-      L2 = Ward 2.<br>
-      L3 = Ward 3.<br>
-      L4 = Ward 4.<br>
-      L5 = Ward 4.<br>
-      L6 = Ward 5.<br>
-      L7 = Ward 5.<br>
-      L8 = Ward 6.<br>
-      L9 = Ward 6.<br>
-      L10 = Ward 7.<br>
-      L11 = Ward 7.<br>
-      L12 = Ward 8.<br>
-      L13 = Ward 8.<br>
-      L14 = Ward 9.<br>
-      L15 = Ward 9.<br>
-      L16 = Ward 10.<br><br>
+      L1 = Special Negation 1.<br>
+      L2 = Special Negation 2.<br>
+      L3 = Special Negation 3.<br>
+      L4 = Special Negation 4.<br>
+      L5 = Special Negation 4.<br>
+      L6 = Special Negation 5.<br>
+      L7 = Special Negation 5.<br>
+      L8 = Special Negation 6.<br>
+      L9 = Special Negation 6.<br>
+      L10 = Special Negation 7.<br>
+      L11 = Special Negation 7.<br>
+      L12 = Special Negation 8.<br>
+      L13 = Special Negation 8.<br>
+      L14 = Special Negation 9.<br>
+      L15 = Special Negation 9.<br>
+      L16 = Special Negation 10.<br><br>
 
   EXAMPLE<br>
-      You have Ward 2.<br>
+      You have Special Negation 2.<br>
       An Attack would apply Soulburn(3) and Mark(4) to you.<br>
       Soulburn(3) is reduced to Soulburn(1).<br>
       Mark(4) is reduced to Mark(2).<br>
       The Attack's damage and all other effects resolve normally.<br><br>
 
    NOTES<br>
-      Ward prevents or reduces incoming Specials before they are applied.<br>
-      Ward is not Cleanse and does not remove existing Specials.<br>
-      Ward is not Spell Resistance and does not increase the Target Number of hostile Spells.<br>
+      Special Negation prevents or reduces incoming Specials before they are applied.<br>
+      Special Negation is not Cleanse and does not remove existing Specials.<br>
+      Special Negation is not Spell Resistance and does not increase the Target Number of hostile Spells.<br>
       This Passive grants no Armor, Evade, Parry, Damage Negation, Damage Reduction, Phasing, Temporary HP, Healing, Attack Dice, Absorption, Damage, Penetration, Critical, Movement, control, free Attack, or additional Reaction.
     </span>
   </span>
@@ -2749,32 +1124,32 @@ Your body, armor, blood, mind, or spirit reduces hostile afflictions before they
 
 ---
 
-Whenever an eligible hostile **Special(X)** would be applied to you, reduce its value by your **Ward** before the Special is applied.
+Whenever an eligible hostile **Special(X)** would be applied to you, reduce its value by your **Special Negation** before the Special is applied.
 
 If the Special is reduced to **0 or less**, it is not applied.
 
-Ward applies separately to every eligible Special delivered by the same Attack or effect.
+Special Negation applies separately to every eligible Special delivered by the same Attack or effect.
 
-Ward does not reduce Specials already affecting you.
+Special Negation does not reduce Specials already affecting you.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **1**. |
-| **2** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **2**. |
-| **3** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **3**. |
-| **4** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **4**. |
-| **5** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **4**. |
-| **6** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **5**. |
-| **7** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **5**. |
-| **8** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **6**. |
-| **9** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **6**. |
-| **10** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **7**. |
-| **11** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **7**. |
-| **12** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **8**. |
-| **13** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **8**. |
-| **14** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **9**. |
-| **15** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **9**. |
-| **16** | Passive, Ward | Self | — | Permanent | Reduce every incoming eligible hostile Special by **10**. |
+| **1** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **1**. |
+| **2** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **2**. |
+| **3** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **3**. |
+| **4** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **4**. |
+| **5** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **4**. |
+| **6** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **5**. |
+| **7** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **5**. |
+| **8** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **6**. |
+| **9** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **6**. |
+| **10** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **7**. |
+| **11** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **7**. |
+| **12** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **8**. |
+| **13** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **8**. |
+| **14** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **9**. |
+| **15** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **9**. |
+| **16** | Passive, Special Negation | Self | — | Permanent | Reduce every incoming eligible hostile Special by **10**. |
 
 ---
 
@@ -2811,7 +1186,7 @@ A Mind Link allows only the communication and voluntary sharing listed by the Pa
       Passive curve = 20 PP per level<br>
       Telepathy is an access and utility Passive.<br>
       Mind Link is included and does not require a second Power.<br>
-      Telepathy does not deal d
+      Telepathy does not deal damage.<br>
       DESIGN STRUCTURE<br>
       This Passive scales through Range, linked creatures, voluntary communication, shared impressions, shared senses, and willing memory sharing.<br>
       It is required for Mental Attack, Mind Illusion, Mind Probe, and Mental Control unless a specific Power says otherwise.<br><br>
@@ -2976,7 +1351,7 @@ Your body punishes those who harm you.
 
 | **Level** | **Type** | **Category** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Damage | Self | — | Permanent | — |
+| **1** | Unavailable | Damage | Self | — | Permanent | No effect at this PL; unavailable for selection. |
 | **2** | Passive | Damage | Self | — | Permanent | Gain **Thorns 1d8**. |
 | **3** | Passive | Damage | Self | — | Permanent | Gain **Thorns 2d8**. |
 | **4** | Passive | Damage | Self | — | Permanent | Gain **Thorns 2d8**. |
@@ -3014,41 +1389,54 @@ Passive: Thorns follows all normal Thorns rules.
       CATEGORY<br>
       Invisibility<br><br>
 
-BASELINES<br>
+      BASELINES<br>
       Passive curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br>
-      Passive: Invisibility grants a stable Invisibility Bonus and may block Special Combat Senses at higher levels.<br><br>
+      Invisibility is a premium defensive axis based on perception, sense obscuration, and target denial.<br>
+      Each Power Level grants +1 Invisibility Bonus, up to +16 at Level 16.<br><br>
 
- DESIGN STRUCTURE<br>
+      DESIGN STRUCTURE<br>
       Passive: Invisibility does not reduce damage.<br>
-      Passive: Invisibility does not increase Evade.<br>
-      Passive: Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
-      Instead, it increases the Perception TN required to locate, target, or read the invisible creature.<br><br>
+      It does not increase Evade.<br>
+      It does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
+      Instead, it increases the Perception TN required to locate, target, or read the invisible creature through affected Combat Senses.<br><br>
 
- PROGRESSION<br>
-      The Invisibility Bonus from Passive: Invisibility is capped at +10 and stretched across Levels 1–16.<br>
-      Passive: Invisibility always blocks Normal Combat Awareness.<br>
-      At higher levels, it also blocks selected Special Combat Senses.<br><br>
+      PROGRESSION<br>
+      Invisibility Bonus = Power Level.<br>
+      Passive: Invisibility always Obscures Normal Combat Awareness, including Darkvision.<br>
+      At Levels 4, 8, 12, and 15, one additional Special Combat Sense may be selected.<br>
+      Each selection must be different.<br>
+      Unselected Special Combat Senses remain unaffected.<br><br>
+
       LEVEL-BY-LEVEL STRUCTURE<br>
-      L1 → +1 Invisibility Bonus, blocks Normal Combat Awareness.<br>
-      L2 → +2 Invisibility Bonus, blocks Normal Combat Awareness.<br>
-      L3 → +3 Invisibility Bonus, blocks Normal Combat Awareness.<br>
-      L4 → +4 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L5 → +4 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L6 → +5 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L7 → +5 Invisibility Bonus, blocks Normal Combat Awareness + 1 Special Combat Sense.<br>
-      L8 → +6 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L9 → +6 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L10 → +7 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L11 → +7 Invisibility Bonus, blocks Normal Combat Awareness + 2 Special Combat Senses.<br>
-      L12 → +8 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
-      L13 → +8 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
-      L14 → +9 Invisibility Bonus, blocks Normal Combat Awareness + 3 Special Combat Senses.<br>
-      L15 → +9 Invisibility Bonus, blocks Normal Combat Awareness + 4 Special Combat Senses.<br>
-      L16 → +10 Invisibility Bonus, blocks Normal Combat Awareness + 4 Special Combat Senses.<br><br>
+      L1 → +1 Invisibility Bonus, Normal Combat Awareness.<br>
+      L2 → +2 Invisibility Bonus, Normal Combat Awareness.<br>
+      L3 → +3 Invisibility Bonus, Normal Combat Awareness.<br>
+      L4 → +4 Invisibility Bonus, +1 Special Combat Sense.<br>
+      L5 → +5 Invisibility Bonus, +1 Special Combat Sense.<br>
+      L6 → +6 Invisibility Bonus, +1 Special Combat Sense.<br>
+      L7 → +7 Invisibility Bonus, +1 Special Combat Sense.<br>
+      L8 → +8 Invisibility Bonus, +2 Special Combat Senses.<br>
+      L9 → +9 Invisibility Bonus, +2 Special Combat Senses.<br>
+      L10 → +10 Invisibility Bonus, +2 Special Combat Senses.<br>
+      L11 → +11 Invisibility Bonus, +2 Special Combat Senses.<br>
+      L12 → +12 Invisibility Bonus, +3 Special Combat Senses.<br>
+      L13 → +13 Invisibility Bonus, +3 Special Combat Senses.<br>
+      L14 → +14 Invisibility Bonus, +3 Special Combat Senses.<br>
+      L15 → +15 Invisibility Bonus, +4 Special Combat Senses.<br>
+      L16 → +16 Invisibility Bonus, +4 Special Combat Senses.<br><br>
 
-NOTES<br>
-      This Passive is intentionally not priced as simple Evade. It does not make the user harder to hit after being located; it makes the user harder to locate, target, and read. Area effects, zones, environmental damage, and effects that do not require precise targeting are not stopped by Invisibility.
+      DETECTION<br>
+      Base Perception TN = (4 × Mastery Rank) + Invisibility Bonus.<br>
+      Lost Health Bars reduce this TN by Mastery Rank per Bar.<br>
+      Stealth Skill Points may be spent retroactively to increase the TN for the current Round.<br>
+      See Core Rules: Stealth, Hidden, and Invisibility.<br><br>
+
+      NOTES<br>
+      Invisibility Obscures affected Senses; it does not Block them completely.<br>
+      Observers may attempt Perception normally against the Invisibility TN.<br>
+      A Clear, unaffected Combat Sense bypasses Invisibility.<br>
+      Invisibility does not protect against Area Effects, zones, environmental damage, or effects that do not require precise targeting.<br>
+      Lost Health Bars reduce the Invisibility Perception TN according to the Core.
     </span>
   </span>
 </h3>
@@ -3057,30 +1445,42 @@ You are hard to find, hard to read, and harder to fight directly.
 
 | **Level** | **Type** | **Category** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|
-| **1** | Passive | Invisibility | Self | — | Permanent | Gain **+1 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **2** | Passive | Invisibility | Self | — | Permanent | Gain **+2 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **3** | Passive | Invisibility | Self | — | Permanent | Gain **+3 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **4** | Passive | Invisibility | Self | — | Permanent | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **5** | Passive | Invisibility | Self | — | Permanent | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **6** | Passive | Invisibility | Self | — | Permanent | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **7** | Passive | Invisibility | Self | — | Permanent | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
-| **8** | Passive | Invisibility | Self | — | Permanent | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **9** | Passive | Invisibility | Self | — | Permanent | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **10** | Passive | Invisibility | Self | — | Permanent | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **11** | Passive | Invisibility | Self | — | Permanent | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
-| **12** | Passive | Invisibility | Self | — | Permanent | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
-| **13** | Passive | Invisibility | Self | — | Permanent | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
-| **14** | Passive | Invisibility | Self | — | Permanent | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
-| **15** | Passive | Invisibility | Self | — | Permanent | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
-| **16** | Passive | Invisibility | Self | — | Permanent | Gain **+10 Invisibility Bonus**. Blocks **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
+| **1** | Passive | Invisibility | Self | — | Permanent | **+1 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **2** | Passive | Invisibility | Self | — | Permanent | **+2 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **3** | Passive | Invisibility | Self | — | Permanent | **+3 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **4** | Passive | Invisibility | Self | — | Permanent | **+4 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **5** | Passive | Invisibility | Self | — | Permanent | **+5 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **6** | Passive | Invisibility | Self | — | Permanent | **+6 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **7** | Passive | Invisibility | Self | — | Permanent | **+7 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **1 chosen Special Combat Sense**. |
+| **8** | Passive | Invisibility | Self | — | Permanent | **+8 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **9** | Passive | Invisibility | Self | — | Permanent | **+9 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **10** | Passive | Invisibility | Self | — | Permanent | **+10 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **11** | Passive | Invisibility | Self | — | Permanent | **+11 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **2 chosen Special Combat Senses**. |
+| **12** | Passive | Invisibility | Self | — | Permanent | **+12 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
+| **13** | Passive | Invisibility | Self | — | Permanent | **+13 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
+| **14** | Passive | Invisibility | Self | — | Permanent | **+14 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **3 chosen Special Combat Senses**. |
+| **15** | Passive | Invisibility | Self | — | Permanent | **+15 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
+| **16** | Passive | Invisibility | Self | — | Permanent | **+16 Invisibility Bonus**. Obscures **Normal Combat Awareness** and **4 chosen Special Combat Senses**. |
 
-The Invisibility Bonus increases the Perception TN required to locate, target, or read you.
+### Combat Sense Coverage
 
-**Perception TN = normal Skill Check TN by your Mastery Rank + current Invisibility Bonus**
+Passive: Invisibility always Obscures **Normal Combat Awareness**, including **Darkvision**.
 
-Your current Invisibility Bonus may be reduced by **Cloak Disruption**.
+At Power Levels **4, 8, 12, and 15**, choose one additional Special Combat Sense:
 
-Passive: Invisibility may stack with **Active Buff: Invisibility**. If both are active, add both Invisibility Bonuses together and combine their blocked Combat Senses.
+- **Life Sense**
+- **Mage Sense**
+- **Tremor Sense**
+- **Sonar Sense**
+- **Predator Sense**
+
+Each Special Combat Sense may be selected only once. Selections are permanent unless the character is rebuilt.
+
+A Sense covered by Invisibility is **Obscured**, not Blocked. The observer must succeed on a Perception Check to locate the creature.
+
+A Special Combat Sense not covered by Invisibility functions normally. If that Sense can clearly perceive the creature, the observer can locate and target it without an Invisibility Perception Check.
+
+**Agility Stone Ability — Invisibility Boost:** For the current Round, add **+1 / +2 / +4 / +8** (Ranks 1–4) to an existing Invisibility Bonus. This increases the resulting Invisibility Perception TN, but does not grant Invisibility or obscure any additional Combat Sense.
 
 
 }}
@@ -3099,8 +1499,8 @@ Passive: Invisibility may stack with **Active Buff: Invisibility**. If both are 
       +1 Initiative = 10 PP.<br><br>
   DESIGN STRUCTURE<br>
   This is a pure Initiative Passive with exactly one mechanical axis: Initiative.<br>
-  The bonus is added to the character's initial Initiative Score before the Initiative Shop opens.<br>
-  The bonus may therefore be spent in the initial Initiative Shop or retained to determine Initiative Order.<br><br>
+  The bonus is added to the character's initial Initiative Score before the Initiative Exchange opens.<br>
+  The bonus may therefore be spent in the initial Initiative Exchange or retained to determine Initiative Order.<br><br>
 
   LEVEL-BY-LEVEL CALCULATION<br>
   L1 target 20 PP → +2 Initiative = 20 PP.<br>
@@ -3122,9 +1522,9 @@ Passive: Invisibility may stack with **Active Buff: Invisibility**. If both are 
 
   NOTES<br>
   This Passive does not reroll Initiative.<br>
-  It does not reopen the Initiative Shop during combat.<br>
+  It does not reopen the Initiative Exchange during combat.<br>
   It does not grant additional Turns, Actions, Reactions, Movement, Attack Dice, Evade, Armor, or any other rider.<br>
-  Initiative gained from this Passive follows all normal Initiative Shop and Initiative Order rules.
+  Initiative gained from this Passive follows all normal Initiative Exchange and Initiative Order rules.
 </span>
 
   </span>
@@ -3157,19 +1557,19 @@ You enter combat already moving through possibilities that others have not yet r
 
 ### Initiative Passive Rules
 
-Add the Passive's Initiative bonus to your Initiative Score after rolling Initiative and before using the initial Initiative Shop.
+Add the Passive's Initiative bonus to your Initiative Score after rolling Initiative and before using the initial Initiative Exchange.
 
 The bonus becomes part of your Initiative Score.
 
-You may spend it in the Initiative Shop as normal.
+You may spend it in the Initiative Exchange as normal.
 
-Any Initiative remaining after Shop purchases determines your position in Initiative Order.
+Any Initiative remaining after Initiative conversions determines your position in Initiative Order.
 
 This Passive applies only once when Initiative is initially determined at the start of combat.
 
-It does not apply again when another Power grants Initiative, changes Initiative, rerolls Initiative, or reopens the Initiative Shop unless that rule explicitly says to recalculate the complete Initiative Score.
+It does not apply again when another Power grants Initiative, changes Initiative, rerolls Initiative, or reopens the Initiative Exchange unless that rule explicitly says to recalculate the complete Initiative Score.
 
-This Passive does not open the Initiative Shop.
+This Passive does not open the Initiative Exchange.
 
 
 
@@ -3179,133 +1579,115 @@ This Passive does not open the Initiative Shop.
 \page
 {{pageNumber,auto}}
 {{wide
-{{wide
+
 
 ## Parry Passives
 
 Parry is a dedicated defensive subsystem and one of the primary Defense Pillars of the Mastery System.
 
-Unlike **Evade**, which sets the Target Number an Attack must overcome, Parry directly disrupts the incoming Attack before it is rolled.
+When learning **Passive: Parry**, choose one Parry delivery:
 
-Parry removes **Attack Dice** from an eligible Attack Pool.
+- **Martial Parry** disrupts eligible Martial Attack Pools.
+- **Spell Parry** disrupts eligible hostile Spell Casting Pools.
 
-A partially parried Attack may still hit or miss normally. An Attack whose entire Attack Pool is removed is **Fully Parried** and does not resolve.
+This choice is permanent unless the Power is retrained. Both deliveries use the same Parry Pool, Power Level progression, Active Buff support, and core Parry rules. They differ only in what they can intercept.
 
-Parry does not require a Contest, defensive roll, or comparison against the Attack result. It is resolved entirely through the character's Parry Pool.
-
-Only characters with an appropriate **Parry Passive** may use this subsystem.
+Parry does not require a Contest or defensive roll. It removes dice before the triggering roll is made.
 
 ---
 
-### Parry Requirements
+### Parry Attribute and Requirements
 
-Parry requires a suitable melee weapon, shield, natural weapon, or another implement explicitly capable of parrying the triggering Attack.
+When learning **Martial Parry**, choose **Might** or **Agility** as your Parry Attribute. Martial Parry requires a suitable melee weapon, shield, natural weapon, or another implement explicitly capable of parrying the triggering Attack.
 
-When learning a Parry Passive, choose either **Might** or **Agility** as your **Parry Attribute**.
+When learning **Spell Parry**, choose **Intellect**, **Resolve**, or **Influence** as your Parry Attribute. Spell Parry represents counter-magic, disruption, warding, severing a spell pattern, or another magical interception method. It does not require a melee weapon or shield unless the character's fiction or another rule says otherwise.
 
-The chosen Attribute cannot normally be changed unless the Power is retrained.
-
-A weapon, shield, natural weapon, Artifact, Passive, or other rule may define which kinds of direct Attacks it is capable of parrying.
+The chosen delivery and Attribute cannot normally be changed unless the Power is retrained.
 
 ---
 
 ### Entering Parry
 
-At the beginning of your Turn, you may enter **Parry** until the beginning of your next Turn.
+At the beginning of your Turn, before using your base Attack Action, you may enter **Parry** until the beginning of your next Turn.
 
-Entering Parry represents committing your Turn to active defense.
+Entering Parry consumes only your **base Attack Action** for that Turn.
 
 While Parrying:
 
-* You cannot use an **Attack Action**, including additional Attack Actions.
+* You cannot use your normal base Attack Action.
+* Additional Attack Actions gained from **Extra Attack** or another legal source remain available.
 * You may use your Movement normally.
 * You may use Reactions normally.
 * You gain a **Parry Pool** equal to your chosen Parry Attribute, up to the maximum allowed by your Parry Passive's Level.
 
-A character cannot enter Parry after using an Attack Action during the same Turn.
+A character cannot enter Parry after using their base Attack Action during the same Turn.
 
 ---
 
-### Spending Parry
+### Martial Parry
 
-When an eligible direct Attack targets you, the attacker first declares the Attack, its targets, any Raises, and any division of the Attack Pool.
+When an eligible direct Martial Attack targets you, the attacker first declares the Attack, its targets, Raises, and any division of the Attack Pool.
 
 Before the Attack Roll is made, you may spend points from your Parry Pool.
 
-For every point of Parry spent:
+For every point of Parry spent, remove **1 Attack Die** from the Attack Pool assigned to you. Removed Attack Dice are not rolled.
 
-* Remove **1 Attack Die** from the Attack Pool assigned to you.
-* Removed Attack Dice are not rolled.
+Martial Parry normally applies only to eligible direct Martial Attacks targeting you. It does not normally affect Area Attacks, environmental damage, ongoing damage, automatic damage, Persistent Zones, or effects without an Attack Roll.
 
-You choose how many points to spend against each eligible Attack.
+The wielded implement must be capable of parrying the triggering Attack unless another rule explicitly expands its use.
 
-Your Parry Pool is shared across all eligible Attacks against you until the beginning of your next Turn.
-
-If Parry reduces an Attack Pool below its normal Keep value, roll the remaining Attack Dice and keep all remaining dice.
+---
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
-#### Example
 
-An enemy attacks with **8k3**.
+### Spell Parry
 
-You spend 6 Parry and remove 6 Attack Dice.
+When you are a target of, or a valid creature inside, a hostile Spell whose source is within **22 m** and whose casting you can perceive, you may use Spell Parry before its Casting Roll.
 
-The Attack becomes **2k2**.
+For every point of Parry spent, remove **1 Casting Die** from that Spell's Casting Pool. Removed Casting Dice are not rolled.
 
-The enemy rolls the remaining 2 dice and keeps both.
+Spell Parry can affect a direct Spell or a Spell AoE if you are one of its valid affected creatures. Because a Spell AoE uses one Casting Roll for the entire area, reducing that Casting Pool affects the roll used against every creature in that AoE.
+
+Spell Parry does not affect effects without a Casting Roll, environmental magic, ongoing damage, already-created Persistent Zones, or a Spell whose source is more than **22 m** away.
 
 ---
 
-### Fully Parried Attacks
+### Reduced Keep
 
-If you reduce the triggering Attack Pool to **0 Attack Dice**, the Attack is **Fully Parried**.
+If Parry reduces an eligible Attack Pool or Casting Pool below its normal Keep value, roll the remaining dice and keep all remaining dice.
 
-A Fully Parried Attack:
+---
 
-* makes no Attack Roll,
-* does not hit,
+### Fully Parried and Fully Countered Effects
+
+If Parry reduces the eligible Pool to **0 dice**, a Martial Attack is **Fully Parried** and a Spell is **Fully Countered**. These are the two delivery names for the same zero-dice Parry result. Counterspell is not a separate Power.
+
+A Fully Parried or Fully Countered effect:
+
+* makes no Attack Roll or Casting Roll,
+* does not hit or successfully cast,
 * rolls no Damage Dice,
 * deals no damage,
 * applies no Specials,
-* applies no on-hit effects,
-* and does not resolve any effect that requires the Attack to hit.
+* applies no on-hit or on-success effects,
+* and does not resolve any effect that requires the Attack to hit or the Spell to cast successfully.
 
-A Fully Parried Attack may trigger abilities such as **Riposte** or **Reflection**.
+
+A Fully Parried or Fully Countered effect may trigger abilities such as **Riposte** or **Reflection** only when that ability's own requirements are met. Weapon-based Parry Reactions still require a Fully Parried Martial Attack.
 
 Unspent Parry is lost at the beginning of your next Turn.
 
 ---
 
+### Shared Parry Limitations
 
+Parry removes dice from the delivery roll. It does not increase Evade, reduce Damage Dice, reduce Specials directly, or grant another defense.
 
-### Parry Limitations
-
-Parry normally applies only to eligible direct Attacks that make an Attack Roll against you.
-
-Parry does not normally affect:
-
-* Area Attacks
-* Area Effects
-* environmental damage
-* ongoing damage
-* automatic damage
-* Persistent Zones
-* effects that do not make an Attack Roll
-* Attacks that the wielded implement is not capable of parrying
-
-A specific Passive, Active Buff, Reaction, Artifact, weapon, shield, natural weapon, or other ability may explicitly expand which Attacks can be parried.
-
-Parry does not increase Evade and does not reduce Damage Dice.
-
-It modifies the incoming Attack Pool before the Attack Roll is made.
-
-Any Attack Dice that remain are rolled normally against the character's Evade.
+A specific Passive, Active Buff, Reaction, Artifact, weapon, shield, natural weapon, focus, or other ability may explicitly expand which effects can be parried.
 
 ---
-
 }}
 
 \page
@@ -3318,94 +1700,71 @@ Any Attack Dice that remain are rolled normally against the character's Evade.
     <span class="tooltiptext">
       BASELINES<br>
       Passive curve = 20 PP per Level.<br>
-      Parry is a closed defensive subsystem and a primary Defense Pillar beside Armor, Evade, and Absorption.<br>
-      This Power is a dedicated subsystem exception and does not make generic Attack Dice removal available to other Passives.<br><br>
+      Parry is a closed defensive subsystem and a primary Defense Pillar beside Armor and Evade.<br><br>
+      DELIVERY CHOICE<br>
+      When learning this Passive, choose Martial Parry or Spell Parry.<br>
+      Martial Parry chooses Might or Agility as its Parry Attribute and removes Attack Dice from eligible Martial Attacks targeting you.<br>
+      Spell Parry chooses Intellect, Resolve, or Influence as its Parry Attribute and removes Casting Dice from eligible hostile Spells whose source is within 22 m when you are a target or valid creature in the Spell's area.<br><br>
+      ACTION COST<br>
+      At the beginning of your Turn, before using your base Attack Action, you may enter Parry until the beginning of your next Turn.<br>
+      Entering Parry consumes only the base Attack Action for that Turn.<br>
+      Additional Attack Actions from Extra Attack or another legal source remain available.<br>
+      Movement and Reactions remain available.<br><br>
+      PARRY POOL<br>
+      Your Parry Pool equals your chosen Parry Attribute, limited by ceil(5 × this Power's Level / 2).<br>
+      The Pool is shared across all eligible effects until the beginning of your next Turn.<br><br>
+      RESOLUTION<br>
+      Spend 1 Parry to remove 1 die from the eligible Attack Pool or Casting Pool before its roll.<br>
+      If the Pool reaches 0 dice, a Martial Attack is Fully Parried and a Spell is Fully Countered. Either result means the effect does not resolve.<br>
+      A Fully Countered Spell makes no Casting Roll and has no additional penalty.<br><br>
+      LEVEL CAP<br>
+      L1 = maximum 3 Parry<br>
+      L2 = maximum 5 Parry<br>
+      L3 = maximum 8 Parry<br>
+      L4 = maximum 10 Parry<br>
+      L5 = maximum 13 Parry<br>
+      L6 = maximum 15 Parry<br>
+      L7 = maximum 18 Parry<br>
+      L8 = maximum 20 Parry<br>
+      L9 = maximum 23 Parry<br>
+      L10 = maximum 25 Parry<br>
+      L11 = maximum 28 Parry<br>
+      L12 = maximum 30 Parry<br>
+      L13 = maximum 33 Parry<br>
+      L14 = maximum 35 Parry<br>
+      L15 = maximum 38 Parry<br>
+      L16 = maximum 40 Parry<br><br>
 
-  DESIGN STRUCTURE<br>
-  When learning this Passive, choose Might or Agility as your Parry Attribute.<br>
-  At the beginning of your Turn, you may enter Parry until the beginning of your next Turn.<br>
-  Entering Parry prevents you from using Attack Actions during that Turn, including additional Attack Actions.<br>
-  Movement and Reactions remain available.<br><br>
-
-  PARRY POOL<br>
-  Your Parry Pool equals your chosen Parry Attribute, limited by ceil(5 × this Power's Level / 2).<br>
-  The Pool is shared across all eligible Attacks until the beginning of your next Turn.<br>
-  This preserves Attribute investment while requiring the Passive itself to be developed.<br><br>
-
-  POWER-CAP ALIGNMENT<br>
-  Level 4 = maximum 10 Parry.<br>
-  Level 8 = maximum 20 Parry.<br>
-  Level 12 = maximum 30 Parry.<br>
-  Level 16 = maximum 40 Parry.<br>
-  This allows the subsystem to scale alongside long-term Attribute progression without exceeding the normal Attribute cap.<br><br>
-
-  RESOLUTION<br>
-  Before an eligible direct Attack is rolled, spend 1 Parry to remove 1 Attack Die from the Attack Pool assigned to you.<br>
-  Removed Attack Dice are not rolled.<br>
-  Parry does not require a roll or Contest.<br><br>
-
-  REDUCED KEEP<br>
-  If the remaining Attack Pool contains fewer dice than its normal Keep value, roll and keep all remaining dice.<br><br>
-
-  FULL PARRY<br>
-  If the triggering Attack Pool is reduced to 0 Attack Dice, the Attack is Fully Parried.<br>
-  No Attack Roll is made.<br>
-  The Attack does not hit, deal damage, apply Specials, or resolve on-hit effects.<br>
-  A Fully Parried Attack may trigger Riposte or Reflection.<br><br>
-
-  LEVEL CAP<br>
-  L1 = maximum 3 Parry<br>
-  L2 = maximum 5 Parry<br>
-  L3 = maximum 8 Parry<br>
-  L4 = maximum 10 Parry<br>
-  L5 = maximum 13 Parry<br>
-  L6 = maximum 15 Parry<br>
-  L7 = maximum 18 Parry<br>
-  L8 = maximum 20 Parry<br>
-  L9 = maximum 23 Parry<br>
-  L10 = maximum 25 Parry<br>
-  L11 = maximum 28 Parry<br>
-  L12 = maximum 30 Parry<br>
-  L13 = maximum 33 Parry<br>
-  L14 = maximum 35 Parry<br>
-  L15 = maximum 38 Parry<br>
-  L16 = maximum 40 Parry<br><br>
-
-  LIMITS<br>
-  Parry normally affects only eligible direct Attacks that make an Attack Roll.<br>
-  It does not affect Area Attacks, Area Effects, environmental damage, ongoing damage, automatic damage, Persistent Zones, or effects without an Attack Roll.<br><br>
-
-  NOTES<br>
-  This Passive grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, free Attack, or additional Reaction.<br>
-  Parry removes Attack Dice, not Damage Dice.<br>
-  Parry is declared voluntarily and represents committing the Turn to active defense.
-</span>
-
+      NOTES<br>
+      This Passive grants no Armor, Evade, Damage Reduction, Phasing, Temporary HP, free Attack, or additional Reaction.<br>
+      Parry removes delivery dice, not Damage Dice.<br>
+    </span>
   </span>
 </h3>
 
-You abandon direct offense and place every movement of your weapon, shield, or body between yourself and the enemy.
+You commit your base action to active interception: steel against steel, or will against spellcraft.
 
 ---
 
-**Requirement:** A suitable melee weapon, shield, natural weapon, or another Parry-capable implement.
+When learning this Passive, choose one delivery and Parry Attribute:
 
-When learning this Passive, choose **Might** or **Agility** as your Parry Attribute.
+- **Martial Parry:** Might or Agility.
+- **Spell Parry:** Intellect, Resolve, or Influence.
 
-At the beginning of your Turn, you may enter **Parry** until the beginning of your next Turn.
+At the beginning of your Turn, before using your base Attack Action, you may enter **Parry** until the beginning of your next Turn.
 
 While Parrying:
 
-* You cannot use an Attack Action, including additional Attack Actions.
-* You may use your Movement and Reactions normally.
+* You cannot use your **base Attack Action** that Turn.
+* Additional Attack Actions from Extra Attack or another legal source remain available.
+* You may use Movement and Reactions normally.
 * Gain a Parry Pool equal to your chosen Parry Attribute, up to the maximum listed for this Power's Level.
-* Before an eligible direct Attack against you is rolled, you may spend Parry.
-* Each point spent removes **1 Attack Die** from the Attack Pool assigned to you.
-* Removed Attack Dice are not rolled.
-* The Parry Pool is shared across all eligible Attacks against you.
+* Martial Parry spends 1 Parry to remove 1 Attack Die from an eligible direct Martial Attack targeting you.
+* Spell Parry spends 1 Parry to remove 1 Casting Die from an eligible hostile Spell whose source is within **22 m** when you are a target or valid creature in its area.
+* The Parry Pool is shared across all eligible effects until the beginning of your next Turn.
 * Unspent Parry is lost at the beginning of your next Turn.
 
-If you reduce the triggering Attack Pool to **0 Attack Dice**, the Attack is **Fully Parried**.
+If you reduce the eligible Pool to **0 dice**, a Martial Attack is **Fully Parried** and a Spell is **Fully Countered**. Either result means the effect does not resolve.
 
 | **Level** | **Type**       | **Range** |     **Duration**     | **Maximum Parry Pool** |
 | :-------: | :------------- | :-------: | :------------------: | :--------------------: |
@@ -3437,49 +1796,30 @@ If you reduce the triggering Attack Pool to **0 Attack Dice**, the Attack is **F
 
 ## Absorption Passives
 
-Absorption is a closed premium Passive subsystem built around accepting real physical injury and converting that suffering into immediate power.
+Absorption is a closed premium Passive subsystem built around accepting real physical injury and converting that suffering into Colorless Stones for later Preparation Phases.
 
 Unlike other defensive systems, Absorption does not prevent damage.
 
 * **Evade** avoids the Attack.
-* **Parry** removes incoming Attack Dice.
+* **Parry** removes incoming Attack Dice or Casting Dice according to its chosen delivery.
 * **Armor** reduces rolled damage.
 * **Damage Reduction** reduces remaining damage.
 * **Phasing** ignores an incoming hit.
 * **Absorption** allows the damage to enter the character's Health Bars.
 
-An Absorption character is designed to withstand significantly more physical punishment than a normal character. As the character loses real HP, that damage generates short-lived **Temporary Colorless Stones** that may be used to fuel existing Stone Abilities.
+Absorption does not improve survivability directly. Instead, as eligible hostile damage Scars a Health Bar, that event earns combat-limited **Temporary Colorless Stones** for use during subsequent Preparation Phases.
 
 Absorption does not create a separate resource pool, charge system, or list of unique expenditures. It uses the existing Stone economy.
 
-Only the dedicated **Absorption Passive** may generate Temporary Colorless Stones from lost HP.
+Only the dedicated **Absorption Passive** may generate Temporary Colorless Stones from eligible Scarred Health Bars.
 
 ---
 
-### Absorption Health
+### Absorption Is Stone Generation Only
 
-Absorption increases the amount of real physical damage the character can sustain.
+Passive: Absorption does **not** increase Maximum HP, Health Bar size or Health Bar count. It does not grant Temporary HP, prevent damage or restore HP. Normal Health calculations remain unchanged unless another legal effect, such as **Passive: Fortitude**, modifies them.
 
-While the Absorption Passive is slotted, each normal Health Bar gains additional Maximum HP according to the Passive's Level.
-
-The size of each normal Health Bar becomes:
-
-`Vitality × 2 + Absorption HP`
-
-The final **Incapacitated** box remains unchanged.
-
-The additional HP granted by Absorption are real HP.
-
-They:
-
-* are part of the character's normal Health Bars,
-* may be restored through normal Healing,
-* count as actual HP loss when damaged,
-* may generate Temporary Colorless Stones,
-* do not function as Temporary HP,
-* do not create a separate Health Pool,
-* do not prevent Health Penalties,
-* and do not restore destroyed or Scarred Health Bars.
+Absorption generates Temporary Colorless Stones when **eligible hostile damage causes a Health Bar to become Scarred**. Its bonus is Stone generation, not extra Health. No HP-loss threshold or remainder is tracked.
 
 ---
 
@@ -3487,55 +1827,32 @@ They:
 \page
 {{pageNumber,auto}}
 {{wide
-### Eligible Absorption Damage
+### Eligible Absorption Triggers
 
-Absorption counts only damage that actually removes current HP from one of the character's Health Bars.
+Resolve hostile damage normally. After all defenses, an **Absorption trigger** occurs whenever that damage causes one of your Health Bars to become **Scarred** while Passive: Absorption is slotted.
 
-Resolve the damage normally.
+No trigger occurs from damage fully prevented by defenses or Temporary HP, from merely losing HP without Scarring a Health Bar, or from Scarred Bars caused by:
 
-Only the final amount entered as HP loss counts as **Absorbed Damage**.
+* self-inflicted damage or damage from your own Powers;
+* HP or Health Bars voluntarily paid or sacrificed as a Power cost;
+* damage intentionally caused by a willing ally;
+* another effect that Scars a bar without eligible hostile damage.
 
-The following does not generate Absorbed Damage:
+Damage can Scar more than one Health Bar at once. **Each bar that becomes Scarred counts as one trigger**, subject to the limit below.
 
-* Damage prevented by Evade
-* Damage prevented because Parry removed Attack Dice or Fully Parried the Attack
-* Damage prevented by Armor
-* Damage prevented by Damage Reduction
-* Attacks ignored through Phasing
-* Attacks returned through Reflection
-* Damage applied to Temporary HP
-* Damage prevented by resistance or immunity
-* Self-inflicted damage
-* HP paid as a cost
-* Damage caused by the character's own Powers
-* Damage intentionally caused by a willing ally
+### Maximum Four Triggers Per Combat
 
-Only hostile damage caused by an enemy or hostile combat effect may generate Absorbed Damage.
+**Passive: Absorption triggers at most four times per combat in total, regardless of how many Health Bars you have.** Track only a counter from 0 to 4.
 
----
+For each eligible trigger, earn the number of Temporary Colorless Stones printed for your Passive's Power Level (one Stone per two Power Levels, rounding up: 1 to 8 Stones per trigger). The Stones become Ready at the start of your next Preparation Phase, not immediately.
 
-### Absorption Threshold
+A single damage instance Scarring two Health Bars uses **two** of the four available triggers. Once all four have been used, no further Absorption Stones or Absorption Reaction/Active Buff bonuses can be earned from later Scarred Bars during that combat.
 
-Track eligible HP lost while the Absorption Passive is slotted.
-
-Whenever the accumulated Absorbed Damage reaches the character's **Vitality**, reduce the accumulated amount by the character's Vitality and gain **1 Temporary Colorless Stone**.
-
-Excess Absorbed Damage carries over toward the next Stone.
-
-There is no limit to how many Temporary Colorless Stones may be generated from a single damage instance, provided enough actual HP are lost.
+Restoration, Remove Scar, and unslotting or re-slotting the Passive **do not reset** the counter. Only the start of a new combat resets it. There is no HP-by-HP tracking and no carried-over damage remainder.
 
 #### Example
 
-A character has **Vitality 8**.
-
-The character loses **30 actual HP** from a hostile Attack.
-
-* At 8 damage, the character gains the first Temporary Colorless Stone.
-* At 16 damage, the character gains the second Stone.
-* At 24 damage, the character gains the third Stone.
-* The remaining 6 damage carries over toward the next Stone.
-
-The character therefore gains **3 Temporary Colorless Stones** and retains **6 accumulated Absorbed Damage**.
+A character has **Passive: Absorption Level 16** (8 Stones per trigger). One hostile attack Scars two Health Bars. This uses **two of four** triggers and earns **16 Temporary Colorless Stones**, payable at the next Preparation Phase. Only **two triggers** remain for the combat, even if the character has many more Health Bars.
 
 ---
 
@@ -3545,26 +1862,24 @@ The character therefore gains **3 Temporary Colorless Stones** and retains **6 a
 {{wide
 ### Temporary Colorless Stones
 
-Temporary Colorless Stones represent unstable power created through immediate physical suffering.
+Temporary Colorless Stones represent power earned through an eligible Scarred Health Bar during combat.
 
-A Temporary Colorless Stone may be spent as a Stone of any Attribute when paying for an eligible Stone Ability.
+When an eligible Health Bar becomes Scarred, **record** the number of Stones earned from that trigger. Receive them in the **Ready** state at the start of your **next Preparation Phase**, before making Stone choices. They are not available immediately when damage is taken.
+
+A Temporary Colorless Stone may pay the normal cost of any eligible unlocked Stone Ability, as a Stone of any Attribute.
 
 Temporary Colorless Stones follow these rules:
 
-* They are gained in the **Ready** state.
-* They may be spent during the Round in which they are gained.
-* They remain available until the end of the character's next Turn.
-* Any unused Temporary Colorless Stones disappear at the end of that Turn.
-* When spent, they disappear instead of becoming Exhausted.
-* They do not regenerate.
-* They cannot be Sealed, Bound, Burned, transferred, stored, or invested.
-* They do not satisfy permanent Stone requirements.
-* They cannot be used outside combat.
-* They cannot remain available beyond the end of the character's next Turn.
+* **Unspent** Absorption Stones remain Ready until used or until combat ends, even if you take no further damage.
+* **When spent**, Absorption Colorless Stones become **Exhausted** and remain in the Colorless Pool until combat ends. Like all Colorless Stones, they are **not recoverable by default**.
+* **Influence Stone Ability: Colorless Recovery** may be activated **once per combat** at one Rank to make up to **2 / 4 / 8 / 16** Colorless Stones of **any source**, including Absorption Stones, eligible for normal Stone Recovery **until combat ends**. Its activation Stones become **Exhausted, not Sealed**.
+* Eligible Absorption Stones remain in the Colorless Pool whether Ready or Exhausted; they return Ready **only through the normal shared MR Stones per Round recovery**, never automatically.
+* At combat end, **all** Absorption Stones disappear, including unspent Ready Stones, reusable Exhausted Stones, and Stones earned but not yet received. No damage remainder is tracked.
+* Absorption Stones cannot be Sealed, Bound, Burned, transferred, or invested. They do not satisfy permanent Stone requirements, and they cannot be used outside combat.
 
-Accumulated Absorbed Damage that has not yet reached the character's Vitality remains until another eligible damage instance is suffered.
+**Colorless Recovery** changes only which existing Colorless Stones are **eligible for normal recovery**. It creates no extra Stones and provides no additional Stone Recovery.
 
-All remaining accumulated Absorbed Damage disappears when combat ends.
+Absorption uses only the four-trigger counter per combat. It never tracks accumulated HP loss or partial progress toward the next Stone.
 
 ---
 
@@ -3574,9 +1889,8 @@ Absorption is a closed premium subsystem.
 
 Only the dedicated **Absorption Passive** may:
 
-* increase Health Bar size through Absorption HP,
-* track Absorbed Damage,
-* or generate Temporary Colorless Stones from lost HP.
+* track eligible Health Bars becoming Scarred (maximum four triggers per combat),
+* and generate Temporary Colorless Stones from those triggers.
 
 No other Passive, Active, Active Buff, Reaction, Movement Power, Spell, Artifact Function, Special, rider, or item-like effect may generate Temporary Colorless Stones from damage unless it explicitly belongs to the Absorption subsystem.
 
@@ -3593,60 +1907,61 @@ Absorption may not appear as a secondary rider on another Passive.
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Passive curve = 20 PP per Level.<br>
-      Absorption is a closed premium Passive subsystem.<br><br>
+      Passive budget = 20 PP per Power Level.<br>
+      Absorption is a dedicated Stone-generation Passive. It never grants HP or reduces damage.<br><br>
 
-  CORE IDENTITY<br>
-  This Passive grants additional real HP to every normal Health Bar.<br>
-  Actual HP lost through eligible hostile damage is accumulated as Absorbed Damage.<br>
-  Whenever accumulated Absorbed Damage reaches the character's Vitality, the character gains 1 Temporary Colorless Stone.<br><br>
+      TRIGGER<br>
+      Each Health Bar Scarred by eligible hostile damage triggers Absorption once.<br>
+      One damage instance may Scar multiple bars; each bar counts separately.<br>
+      Merely losing HP without Scarring a bar earns nothing.<br>
+      Self-inflicted damage, ally-assisted damage, voluntary costs, and prevented damage do not count.<br><br>
 
-  HEALTH SCALING<br>
-  Each Power Level grants +4 Maximum HP to every normal Health Bar.<br>
-  The Health Bar formula becomes Vitality × 2 + Absorption HP.<br><br>
+      POWER-LEVEL SCALING<br>
+      L1-2: 1 Stone per trigger; L3-4: 2; L5-6: 3; L7-8: 4.<br>
+      L9-10: 5; L11-12: 6; L13-14: 7; L15-16: 8.<br><br>
 
-  STONE GENERATION<br>
-  Only actual HP removed from Health Bars counts.<br>
-  Temporary HP, prevented damage, self-inflicted damage, Power costs, and willing ally damage do not count.<br>
-  Excess Absorbed Damage carries over toward the next Stone.<br><br>
+      LIMIT AND PAYOUT<br>
+      Maximum 4 Absorption triggers per combat across all Health Bars.<br>
+      Track a counter 0-4; no HP threshold or remainder.<br>
+      Restoration, Remove Scar, or swapping Passives do not reset the counter.<br>
+      Stones are received Ready at the next Preparation Phase and expire at combat end.<br><br>
 
-  TEMPORARY COLORLESS STONES<br>
-  Temporary Colorless Stones are gained Ready.<br>
-  They may be spent as Stones of any Attribute.<br>
-  When spent, they disappear instead of becoming Exhausted.<br>
-  Unspent Stones disappear at the end of the character's next Turn.<br><br>
+      COLORLESS RECOVERY<br>
+      Spent Stones become Exhausted and are not recoverable by default.<br>
+      Influence: Colorless Recovery may designate eligible Colorless Stones for normal shared MR-per-Round Stone Recovery, once per combat. It adds no Recovery.<br><br>
 
-  RESTRICTIONS<br>
-  This Passive grants no Armor, Evade, Damage Reduction, Phasing, Parry, Temporary HP, Healing, Attack Dice, free Attacks, or additional Reactions.<br>
-  It does not prevent or reduce incoming damage.<br><br>
-
-  NOTES<br>
-  Absorption is designed for characters who intentionally accept real Health damage and immediately convert that suffering into existing Stone Abilities.
-</span>
+      RESTRICTIONS<br>
+      No HP, Health Bars, Healing, Armor, Evade, defense or extra actions are granted.<br>
+      The Absorption Reaction and Active Buff add Stones only to valid Absorption trigger events.
+    </span>
 
   </span>
 </h3>
 
-Your body does not reject pain. It consumes it, turning every wound into a brief surge of unstable power.
+Your body does not reject pain. It consumes it, turning wounds into power for the battle still to come.
 
-| **Level** | **Type**            | **Range** | **AoE** | **Duration** | **Additional HP per Health Bar** | **Stone Generation**                                                  |
-| :-------: | :------------------ | :-------: | :-----: | :----------: | :------------------------------: | :-------------------------------------------------------------------- |
-|   **1**   | Passive, Absorption |    Self   |    —    |   Permanent  |             **+4 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **2**   | Passive, Absorption |    Self   |    —    |   Permanent  |             **+8 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **3**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+12 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **4**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+16 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **5**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+20 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **6**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+24 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **7**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+28 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **8**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+32 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **9**   | Passive, Absorption |    Self   |    —    |   Permanent  |            **+36 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **10**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+40 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **11**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+44 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **12**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+48 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **13**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+52 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **14**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+56 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **15**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+60 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
-|   **16**  | Passive, Absorption |    Self   |    —    |   Permanent  |            **+64 HP**            | Gain **1 Temporary Colorless Stone** per **Vitality** actual HP lost. |
+**Trigger:** A Health Bar becomes Scarred from eligible hostile damage while this Passive is slotted. Each qualifying bar uses one of **four total triggers per combat**; Stones arrive in the next Preparation Phase.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Stone Generation** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Passive, Absorption | Self | — | Permanent | **1 Temporary Colorless Stone** per Scarred Bar; max **4 triggers/combat**. |
+| **2** | Passive, Absorption | Self | — | Permanent | **1 Temporary Colorless Stone** per Scarred Bar; max **4 triggers/combat**. |
+| **3** | Passive, Absorption | Self | — | Permanent | **2 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **4** | Passive, Absorption | Self | — | Permanent | **2 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **5** | Passive, Absorption | Self | — | Permanent | **3 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **6** | Passive, Absorption | Self | — | Permanent | **3 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **7** | Passive, Absorption | Self | — | Permanent | **4 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **8** | Passive, Absorption | Self | — | Permanent | **4 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **9** | Passive, Absorption | Self | — | Permanent | **5 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **10** | Passive, Absorption | Self | — | Permanent | **5 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **11** | Passive, Absorption | Self | — | Permanent | **6 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **12** | Passive, Absorption | Self | — | Permanent | **6 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **13** | Passive, Absorption | Self | — | Permanent | **7 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **14** | Passive, Absorption | Self | — | Permanent | **7 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **15** | Passive, Absorption | Self | — | Permanent | **8 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+| **16** | Passive, Absorption | Self | — | Permanent | **8 Temporary Colorless Stones** per Scarred Bar; max **4 triggers/combat**. |
+
+No HP-loss threshold, fractional Stone progress, or extra Health bonus applies. Bonus Stones from an Absorption Reaction or Active Buff do **not** spend additional triggers, but require a valid trigger.
 
 ---
 
@@ -3661,7 +1976,7 @@ Your body does not reject pain. It consumes it, turning every wound into a brief
 
 Damage Negation is a closed premium defensive subsystem that reduces incoming damage before it is rolled.
 
-Unlike **Parry**, Damage Negation does not interfere with the Attack Pool and cannot prevent an Attack from hitting.
+Unlike **Parry**, Damage Negation does not interfere with an Attack Pool or Casting Pool and cannot prevent an Attack from hitting or a Spell from being successfully cast.
 
 Unlike **Armor**, Damage Negation does not reduce the rolled damage result.
 
@@ -3759,10 +2074,10 @@ Damage Negation is resolved after an Attack has hit or another effect has succes
 
 The normal defensive order is:
 
-1. Build the Attack Pool.
-2. Apply Parry and other Attack Pool modifications.
-3. Roll the Attack against Evade.
-4. Determine whether the Attack hits.
+1. Build the relevant Attack Pool or Casting Pool.
+2. Apply eligible Parry and other legal delivery-pool modifications.
+3. Make the Attack Roll against Evade or the Casting Roll against the applicable Spell TN.
+4. Determine whether the Attack hits or the Spell successfully affects the character.
 5. Resolve Phasing or another effect that completely ignores the hit.
 6. Build the Damage Pool assigned to the character.
 7. Apply Damage Negation.
@@ -3773,7 +2088,7 @@ The normal defensive order is:
 12. Apply the remaining damage to current HP.
 13. Determine whether actual HP loss triggers Absorption.
 
-If an Attack is Fully Parried, misses, or is ignored through Phasing, no Damage Pool is rolled and no Damage Negation needs to be spent.
+If an effect is Fully Parried, Fully Countered, misses, fails to cast successfully against the character, or is ignored through Phasing, no Damage Pool is rolled and no Damage Negation needs to be spent.
 
 ---
 }}
@@ -3802,7 +2117,7 @@ Damage Negation does not prevent or remove:
 
 
 
-A Special or on-hit effect applies normally unless another defense, such as **Ward**, prevents or reduces it.
+A Special or on-hit effect applies normally unless another defense, such as **Special Negation**, prevents or reduces it.
 
 Reducing an Attack's Damage Pool does not cause the Attack to miss.
 
@@ -3843,13 +2158,13 @@ Damage Negation may be combined with the primary Defense Pillars and other premi
 
 #### Parry
 
-Parry removes **Attack Dice** before the Attack Roll.
+Parry removes **Attack Dice** or **Casting Dice** before the relevant delivery roll, according to the chosen Parry delivery.
 
-Damage Negation removes **Damage Dice** after the Attack has hit but before damage is rolled.
+Damage Negation removes **Damage Dice** only after the Attack has hit or the Spell has successfully created a Damage Pool, but before damage is rolled.
 
-A partially parried Attack that still hits may be reduced through Damage Negation.
+A partially parried Martial Attack that still hits, or a partially parried Spell that still succeeds, may be reduced through Damage Negation.
 
-Damage Negation cannot cause a Fully Parried result and cannot trigger Riposte or Reflection.
+Damage Negation cannot cause a Fully Parried or Fully Countered result and cannot trigger Riposte or Reflection.
 
 #### Armor
 
@@ -3861,7 +2176,7 @@ Armor reduces the rolled damage result afterward.
 
 Damage Negation removes Damage Dice before the damage roll.
 
-Damage Reduction reduces the remaining damage after Armor.
+Damage Reduction is a **percentage** of damage remaining after Armor. Calculate Passive DR first; add eligible Active Buff and Reaction bonuses under their own printed total-DR caps, then add Resolve Stone Ability: Damage Reduction outside those source caps. The total cannot exceed **100%**. Round the **remaining damage up** to a whole number. For example, 13 post-Armor damage at 30% DR becomes **10 damage**. The Core Attack and Defense Sequence defines the full order.
 
 #### Phasing
 
@@ -3932,7 +2247,8 @@ It may not be bundled with:
 * Damage Reduction
 * Phasing
 * Absorption
-* Ward
+* Spell Resistance
+* Special Negation
 * Damage
 * Movement
 * Specials
@@ -3993,7 +2309,7 @@ unless a dedicated Damage Negation entry explicitly states otherwise.
   Each additional Level adds +4 Negation for another 20 PP.<br><br>
 
   RESTRICTIONS<br>
-  This Passive grants no Armor, Evade, Parry, Damage Reduction, Phasing, Temporary HP, Healing, Absorption, Ward, Reaction, free Attack, or additional action economy.<br><br>
+  This Passive grants no Armor, Evade, Parry, Damage Reduction, Phasing, Temporary HP, Healing, Absorption, Special Negation, Reaction, free Attack, or additional action economy.<br><br>
 
   NOTES<br>
   Damage Negation may combine with other defensive systems, but its own effect is limited exclusively to removing Damage Dice.<br>
@@ -4043,9 +2359,3 @@ All remaining Damage Negation is lost when the Combat ends.
 
 }}
 
-\page
-{{pageNumber,auto}}
-{{wide
-
-
-}}

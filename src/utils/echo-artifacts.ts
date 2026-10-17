@@ -1319,7 +1319,7 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
       stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'influence',
-        stonePowerId: 'influence.regeneration',
+        stonePowerId: 'influence.colorlessRecovery',
       },
     },
   },
@@ -1452,7 +1452,7 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
       stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'influence',
-        stonePowerId: 'influence.aidRoll',
+        stonePowerId: 'influence.cleanse',
       },
     },
     3: { name: 'Influence Core', stoneFunction: { kind: 'stonePool', attribute: 'influence' } },

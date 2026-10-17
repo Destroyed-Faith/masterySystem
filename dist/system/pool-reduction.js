@@ -6,8 +6,8 @@
  *   2. Skill full-/half-pool rule
  *   3. flat pool changes — including Weaken / Soulburn / Challenge / Disoriented
  *   4. percentage-based Health Penalty (dice loss rounded down)
- *   5. Minimum Pool = Mastery Rank (applied LAST)
- *   6. Keep = Mastery Rank unless a rule explicitly changes it
+ *   5. Keep cannot exceed the dice that remain. A pool of 0 dice fails.
+ *   6. There is no Minimum Pool floor at Mastery Rank.
  *
  * Weaken(X):   −X dice from every rolled pool based on Might, Agility, or Intellect.
  * Soulburn(X): −X dice from every rolled pool based on Wits, Influence, or Resolve.

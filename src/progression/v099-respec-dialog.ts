@@ -322,7 +322,7 @@ export function openStoneSlotChoice(args: {
     )
     .join('');
   const colorlessBtn = args.colorless
-    ? `<button type="button" class="v099-pick" data-choice="colorless">Combine with another box into a Permanent Colorless Stone</button>`
+    ? `<button type="button" class="v099-pick" data-choice="colorless">Permanent Colorless Stone</button>`
     : args.colorlessHint
       ? `<p class="v099-pick-hint">${args.colorlessHint}</p>`
       : '';
@@ -340,7 +340,7 @@ export function openStoneSlotChoice(args: {
       {
         title: args.label,
         content: `<form class="v099-respec-form" onsubmit="return false;">
-          <p class="v099-pick-intro">Choose where this Stone goes. A Permanent Colorless Stone takes this box and one other open box.</p>
+          <p class="v099-pick-intro">Choose where this Stone goes. One earned Stone becomes one Permanent Colorless Stone. The 2 starting Stones stay Attribute Stones.</p>
           <div class="v099-pick-list"><div class="v099-pick-attrs">${attrButtons}</div>${colorlessBtn}${clearBtn}</div>
         </form>`,
         buttons: {
@@ -371,11 +371,6 @@ export function openStoneSlotChoice(args: {
       });
     };
     dialog.render(true);
-  }).then(async (choice) => {
-    if (choice.kind !== 'colorless') return choice;
-    const partner = await openPartnerChoice(args.label, args.partners);
-    if (partner == null) return { kind: 'cancel' };
-    return { kind: 'colorless', otherIndex: partner };
   });
 }
 
@@ -443,7 +438,7 @@ function openStoneStep(
       {
         title: 'v0.9.9 Stone migration',
         content: `<form class="v099-respec-form" onsubmit="return false;">
-          <p>Click a box. Start is two Stones; every further box is one Stone at that Lifetime XP. Pick an Attribute, or combine two open boxes into one Permanent Colorless Stone.</p>
+          <p>Click a box. The 2 starting Stones stay Attribute Stones. Every later Stone can be an Attribute Stone or one Permanent Colorless Stone.</p>
           <p class="v099-stone-meta"></p>
           <div class="v099-stone-grid"></div>
           <div class="v099-form-actions">
@@ -533,7 +528,7 @@ function openStoneStep(
     };
 
     const onSlot = async (index: number) => {
-      const options = stonePlacementOptions(order, storedRank, draft.lifetimeXp);
+        const options = stonePlacementOptions(order, storedRank, draft.lifetimeXp, index);
       const progress = stoneSlotProgress(order);
       const partners = progress.openIndexes
         .filter((i) => i !== index)
@@ -557,12 +552,8 @@ function openStoneStep(
         } else order[index] = null;
       } else if (choice.kind === 'attribute' && choice.key) {
         order[index] = choice.key;
-      } else if (choice.kind === 'colorless' && choice.otherIndex != null && choice.otherIndex !== index) {
-        if (!order[index] && !order[choice.otherIndex]) {
-          const pair = `colorless#${index}-${choice.otherIndex}`;
-          order[index] = pair;
-          order[choice.otherIndex] = pair;
-        }
+      } else if (choice.kind === 'colorless' && index >= 2 && !order[index]) {
+        order[index] = 'colorless';
       }
       paint();
     };

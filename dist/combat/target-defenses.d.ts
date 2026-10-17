@@ -8,7 +8,7 @@
  * bonuses still stack on top via `*FromActiveBuffs`.
  */
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
-export declare function getTargetEvade(targetActor: any): number;
+export declare function getTargetEvade(targetActor: any, attacker?: any): number;
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */
 export declare function getTargetArmor(targetActor: any): number;
 /** Spell Resistance used vs spells (`attack-executor.getTargetSpellResistance`). */

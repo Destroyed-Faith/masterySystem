@@ -48,22 +48,22 @@ function senseInRange(observerToken, targetToken, senseId) {
     return distanceMeters(oc, tc) <= def.rangeM;
 }
 /**
- * Perception TN vs an invisible (or hidden+invis) creature.
- * Hidden-only (no invis) still uses legacy stealthRaiseBonus on top of a flat base
- * so non-invis Stealth keeps working until a separate rewrite.
+ * Perception TN vs an invisible creature, or the Stealth Final Result when only Hidden.
+ * A Stealth check is not added on top of an Invisibility TN.
  */
 export function computePerceptionTn(target, _observer) {
     const mr = Math.max(1, targetMasteryRank(target));
     const inv = effectiveInvisibilityBonusForActor(target);
     const st = getPerceptionCombatState(target);
     const stealthSpent = Math.max(0, Math.floor(Number(st.stealthSpentThisRound) || 0));
-    const stealthRaise = Math.max(0, Math.floor(Number(st.stealthRaiseBonus) || 0));
     if (inv > 0) {
         const lostBars = lostHealthBarsForInvis(target);
         return Math.max(0, 4 * mr + inv - lostBars * mr + stealthSpent);
     }
-    // Hidden without Invisibility — legacy raise bonus until Stealth rewrite.
-    return Math.max(0, 4 * mr + stealthRaise + stealthSpent);
+    const stealthTn = Math.max(0, Math.floor(Number(st.stealthPerceptionTn) || 0));
+    if (st.hidden && stealthTn > 0)
+        return stealthTn;
+    return Math.max(0, 4 * mr);
 }
 /**
  * Whether `observer` can directly perceive `target` for targeting without a new Perception check.
@@ -314,10 +314,12 @@ async function promptPerceptionCheck(observer, target, tn) {
                         callback: async () => {
                             try {
                                 const { masteryRoll } = await import('../dice/roll-handler.js');
-                                const { buildSkillRollContext } = await import('../dice/roll-context-build.js');
+                                const { buildSkillRollContext, buildSkillRollPoolPreview, readSkillRating, } = await import('../dice/roll-context-build.js');
                                 const obsMr = targetMasteryRank(observer);
                                 const presets = buildDifficultyPresets(obsMr);
                                 const raises = Math.max(0, Math.ceil((tn - presets.standard) / 4));
+                                const skillRating = readSkillRating(observer?.system, 'perception');
+                                const preview = buildSkillRollPoolPreview(observer, 'perception', 'wits');
                                 const ctx = buildSkillRollContext(observer, 'perception', 'wits', {
                                     baseTN: tn,
                                     raises,
@@ -326,10 +328,11 @@ async function promptPerceptionCheck(observer, target, tn) {
                                     resolve({ success: false, total: 0, tn, cancelled: true });
                                     return;
                                 }
+                                const poolNote = `Perception ${skillRating} · Wits pool ${preview.rollLabel}${preview.fullPoolReady ? ' (full)' : ' (half)'}`;
                                 const result = await masteryRoll({
                                     ...ctx.rollOptions,
                                     label: ctx.label,
-                                    flavor: ctx.rollOptions.flavor,
+                                    flavor: `${poolNote}. ${ctx.rollOptions.flavor ?? ''}`.trim(),
                                     actorId: String(observer?.id ?? ''),
                                     skillKey: 'perception',
                                     isSkillRoll: true,
@@ -414,11 +417,12 @@ export async function endOrdinaryStealthOnAttack(attacker) {
     if (!attacker)
         return;
     const st = getPerceptionCombatState(attacker);
-    if (!st.hidden && !(st.stealthRaiseBonus ?? 0))
+    if (!st.hidden && !(st.stealthRaiseBonus ?? 0) && !(st.stealthPerceptionTn ?? 0))
         return;
     await setPerceptionCombatState(attacker, {
         hidden: false,
         stealthRaiseBonus: 0,
+        stealthPerceptionTn: 0,
     });
 }
 /** @deprecated Use {@link endOrdinaryStealthOnAttack} — Invisibility is no longer revealed by attacking. */

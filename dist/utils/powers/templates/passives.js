@@ -56,8 +56,24 @@ const INVIS_PASSIVE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const INVIS_PASSIVE_SENSES = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4];
 /** Passive: Parry — printed maximum Parry Pool (ceil(5 × Level / 2), capped by the Parry Attribute at runtime). */
 const PARRY_POOL = [3, 5, 8, 10, 13, 15, 18, 20, 23, 25, 28, 30, 33, 35, 38, 40];
-/** Absorption — +4 HP per Health Bar per level. */
-const ABSORPTION_HP_PER_BAR = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
+/** Absorption — Temporary Colorless Stones per Scarred Health Bar (L1–2 = 1 … L15–16 = 8). */
+export function absorptionStonesPerTrigger(level) {
+    const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
+    return Math.ceil(lvl / 2);
+}
+/** Fortitude — Health Bar multiplier. Levels 1–3 are unavailable (stay ×4). */
+export function fortitudeMultiplierForLevel(level) {
+    const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
+    if (lvl <= 3)
+        return 4;
+    if (lvl <= 7)
+        return 5;
+    if (lvl <= 11)
+        return 6;
+    if (lvl <= 15)
+        return 7;
+    return 8;
+}
 /** Damage Negation — combat reserve Damage Dice = 4 × Level. */
 const DAMAGE_NEGATION_RESERVE = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
 function clampPassiveLevel(level) {
@@ -401,6 +417,40 @@ const RETIRED_AWARENESS_PASSIVE_IDS = new Set([
     'conditional-passive-awareness-evade',
     'conditional-passive-awareness-damage',
 ]);
+/** v0.9.9.5: Combined and Conditional Passives are retired. Templates stay defined so owned items still resolve. */
+const RETIRED_COMBINED_PASSIVE_IDS = new Set([
+    'passive-stone-stance',
+    'passive-surrounded-bulwark',
+    'passive-flowing-step',
+    'passive-duelist-footwork',
+    'passive-momentum',
+    'passive-ambusher',
+    'passive-bloodlust',
+    'passive-executioner',
+    'passive-blood-feast',
+    'passive-battle-trance',
+    'passive-stillness-recovery',
+    'passive-armor-temp-hp',
+    'passive-armor-healing',
+    'passive-armor-health',
+    'passive-evade-temp-hp',
+    'passive-evade-healing',
+    'passive-evade-damage',
+    'passive-damage-healing',
+    'passive-damage-temp-hp',
+    'passive-health-healing',
+    'passive-health-temp-hp',
+    'conditional-passive-armor-temp-hp',
+    'conditional-passive-armor-healing',
+    'conditional-passive-armor-health',
+    'conditional-passive-evade-temp-hp',
+    'conditional-passive-evade-healing',
+    'conditional-passive-evade-damage',
+    'conditional-passive-damage-healing',
+    'conditional-passive-damage-temp-hp',
+    'conditional-passive-health-healing',
+    'conditional-passive-health-temp-hp',
+]);
 const RAW_PASSIVE_TEMPLATES = [
     // ─── Base unconditional (Armor / DR / Evade / THP / Healing / Phasing / Damage / Health) ───
     basePassive({
@@ -487,6 +537,21 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
+        id: 'passive-fortitude', name: 'Fortitude', subfamily: 'health',
+        passiveType: 'Passive, Health',
+        fluff: 'Fortitude enlarges each normal Health Bar. It does not add bars, heal, or reopen Scarred bars. Cannot be slotted with Passive: Health.',
+        perLevel: (lvl) => {
+            const mult = fortitudeMultiplierForLevel(lvl);
+            if (lvl <= 3) {
+                return { text: 'Unavailable. No effect at this Power Level.', mechanics: {} };
+            }
+            return {
+                text: `Each normal Health Bar holds **Vitality × ${mult}** while this Passive is slotted.`,
+                mechanics: { healthBarMultiplier: mult },
+            };
+        },
+    }),
+    basePassive({
         id: 'passive-heightened-senses', name: 'Heightened Senses', subfamily: 'awareness',
         fluff: 'You no longer trust only your eyes. The world reaches you through sound, pressure, breath, and presence.',
         perLevel: (lvl) => {
@@ -507,9 +572,9 @@ const RAW_PASSIVE_TEMPLATES = [
         }),
     }),
     basePassive({
-        id: 'passive-ward', name: 'Ward', subfamily: 'ward',
-        passiveType: 'Passive, Ward',
-        fluff: 'Eligible hostile Specials strike a prepared ward and arrive already reduced.',
+        id: 'passive-ward', name: 'Special Negation', subfamily: 'ward',
+        passiveType: 'Passive, Special Negation',
+        fluff: 'Whenever an eligible hostile Special(X) would be applied, reduce its value by Special Negation before it is applied.',
         perLevel: (lvl) => {
             const amt = WARD_INCOMING[lvl - 1];
             return {
@@ -1014,11 +1079,15 @@ const RAW_PASSIVE_TEMPLATES = [
         fluff: 'Choose one eligible diminishing Special(X). Inside your aura, it bites a little deeper.',
         perLevel: (lvl) => {
             const radius = specialAuraRadius(lvl);
-            if (radius === 0)
-                return { text: '—', mechanics: {} };
+            if (radius === 0) {
+                return { text: 'No effect at this PL; unavailable for selection.', mechanics: { specialAuraUnavailable: true } };
+            }
             return {
                 text: `While a creature inside your **${radius} m** aura is already affected by your chosen eligible **Special(X)**, increase that Special by **+1 step**. This aura never applies, refreshes, extends, spreads, or triggers the Special.`,
-                mechanics: { modifySpecial: { type: 'chosen', mode: 'increaseExisting', amount: 1 } },
+                mechanics: {
+                    specialAura: { radiusM: radius, step: 1 },
+                    modifySpecial: { type: 'chosen', mode: 'increaseExisting', amount: 1 },
+                },
             };
         },
     }),
@@ -1106,13 +1175,13 @@ const RAW_PASSIVE_TEMPLATES = [
     basePassive({
         id: 'passive-absorption', name: 'Absorption', subfamily: 'absorption',
         passiveType: 'Passive, Absorption',
-        fluff: 'Extra HP per bar and Temporary Colorless Stones from Vitality HP lost.',
+        fluff: 'Scarred Health Bars from hostile damage become Temporary Colorless Stones. No extra HP.',
         perLevel: (lvl) => {
-            const hp = ABSORPTION_HP_PER_BAR[lvl - 1];
+            const stones = absorptionStonesPerTrigger(lvl);
             return {
-                text: `Gain **+${hp} HP** per Health Bar. Track Absorbed Damage; each Vitality actual HP lost yields ` +
-                    `**1 Temporary Colorless Stone** (Ready; until the end of your next turn).`,
-                mechanics: {},
+                text: `**${stones} Temporary Colorless Stone${stones === 1 ? '' : 's'}** per Scarred Health Bar ` +
+                    `(max 4 triggers per combat). Stones arrive Ready at the next Preparation Phase and expire at combat end. No extra HP.`,
+                mechanics: { absorptionStonesPerTrigger: stones },
             };
         },
     }),
@@ -1140,5 +1209,5 @@ const RAW_PASSIVE_TEMPLATES = [
     mobilityBuffExtensionPassive(),
     ECHO_ARMOR_VALUE_PASSIVE,
 ];
-export const PASSIVE_TEMPLATES = RAW_PASSIVE_TEMPLATES.filter((t) => !RETIRED_AWARENESS_PASSIVE_IDS.has(t.templateId));
+export const PASSIVE_TEMPLATES = RAW_PASSIVE_TEMPLATES.filter((t) => !RETIRED_AWARENESS_PASSIVE_IDS.has(t.templateId) && !RETIRED_COMBINED_PASSIVE_IDS.has(t.templateId));
 //# sourceMappingURL=passives.js.map

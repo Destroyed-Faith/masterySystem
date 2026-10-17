@@ -50,16 +50,17 @@ describe('applyStoneRegenAllocation', () => {
     expect(actor.updates['system.stonePools.vitality.current']).toBeUndefined();
   });
 
-  it('restores Exhausted Permanent Colorless Stones from the shared budget', async () => {
+  it('does not restore Exhausted Permanent Colorless Stones from the shared budget', async () => {
     const actor = mockRegenActor({
       might: { current: 0, max: 4, sustained: 0 },
       colorless: { current: 0, max: 2, sustained: 0 },
     });
     await applyStoneRegenAllocation(actor as unknown as Actor, { colorless: 2 } as any);
-    expect(actor.updates['system.stonePools.colorless.current']).toBe(2);
+    // v0.9.9.5: ordinary regeneration does not return Colorless Stones.
+    expect(actor.updates['system.stonePools.colorless.current']).toBeUndefined();
   });
 
-  it('supports mixtures: Attribute and Colorless share one allocation', async () => {
+  it('restores Attribute Stones and leaves Colorless spent in the same allocation', async () => {
     const actor = mockRegenActor({
       might: { current: 0, max: 4, sustained: 0 },
       colorless: { current: 0, max: 2, sustained: 0 },
@@ -69,29 +70,27 @@ describe('applyStoneRegenAllocation', () => {
       colorless: 2,
     } as any);
     expect(actor.updates['system.stonePools.might.current']).toBe(2);
-    expect(actor.updates['system.stonePools.colorless.current']).toBe(2);
+    expect(actor.updates['system.stonePools.colorless.current']).toBeUndefined();
   });
 
-  it('overflows Colorless regen into Exhausted Initiative Colorless Stones', async () => {
+  it('does not return Exhausted Initiative Colorless Stones through ordinary regen', async () => {
     const actor = mockRegenActor({
       colorless: { current: 1, max: 2, sustained: 0 },
     });
     await addInitiativeColorlessStones(actor, 2);
-    await spendTempColorlessStones(actor, 2); // both Initiative stones Exhausted
+    await spendTempColorlessStones(actor, 2);
     await applyStoneRegenAllocation(actor as unknown as Actor, { colorless: 3 } as any);
-    // 1 into the Permanent pool (up to max), 2 back to Ready Initiative.
-    expect(actor.updates['system.stonePools.colorless.current']).toBe(2);
-    expect(getInitiativeColorlessStones(actor)).toBe(2);
-    expect(getExhaustedInitiativeColorlessStones(actor)).toBe(0);
+    expect(actor.updates['system.stonePools.colorless.current']).toBeUndefined();
+    expect(getExhaustedInitiativeColorlessStones(actor)).toBe(2);
   });
 
-  it('regenerates Exhausted Initiative Colorless Stones when no Permanent pool exists', async () => {
+  it('leaves Exhausted Initiative Colorless Stones spent when no Permanent pool exists', async () => {
     const actor = mockRegenActor({});
     await addInitiativeColorlessStones(actor, 2);
     await spendTempColorlessStones(actor, 1);
     await applyStoneRegenAllocation(actor as unknown as Actor, { colorless: 1 } as any);
-    expect(getInitiativeColorlessStones(actor)).toBe(2);
-    expect(getExhaustedInitiativeColorlessStones(actor)).toBe(0);
+    expect(getInitiativeColorlessStones(actor)).toBe(1);
+    expect(getExhaustedInitiativeColorlessStones(actor)).toBe(1);
   });
 
   it('does not exceed pool max minus sustained', async () => {

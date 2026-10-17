@@ -6,6 +6,7 @@
 
 import {
   countRaiseSlots,
+  paidRaiseSlots,
   parseDeclaredRaises,
   resolvePowerSnapshot,
   resolveRaiseOutcome,
@@ -301,7 +302,33 @@ export async function executeAttackRollFromCard(
       }
       const raisePlanRaw = button.attr('data-raise-plan') || '[]';
       const declaredRaises: DeclaredRaise[] = parseDeclaredRaises(raisePlanRaw);
-      let declaredRaiseSlots = countRaiseSlots(declaredRaises);
+      const freeRaiseSlots = declaredRaises.reduce(
+        (sum, raise) => sum + (raise.free ? (raise.slots === 2 ? 2 : 1) : 0),
+        0,
+      );
+      if (freeRaiseSlots > 0 && freshAttacker) {
+        try {
+          const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
+          const rs = getRoundState(freshAttacker, (game as any).combat ?? null);
+          const have = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
+          const spend = Math.min(have, freeRaiseSlots);
+          if (rs?.stoneBonuses) {
+            rs.stoneBonuses.freeRaises = have - spend;
+            await setRoundState(freshAttacker, rs);
+          }
+          if (spend < freeRaiseSlots) {
+            let left = freeRaiseSlots - spend;
+            for (let i = declaredRaises.length - 1; i >= 0 && left > 0; i -= 1) {
+              if (!declaredRaises[i].free) continue;
+              declaredRaises[i].free = false;
+              left -= declaredRaises[i].slots === 2 ? 2 : 1;
+            }
+          }
+        } catch (err) {
+          console.warn('Mastery System | Free Raise spend failed', err);
+        }
+      }
+      let declaredRaiseSlots = paidRaiseSlots(declaredRaises);
 
       // The Raise TN we actually roll against is the ground truth for how many
       // Raise slots were declared (Normal TN + 4 per slot). The JSON plan attr
@@ -364,9 +391,13 @@ export async function executeAttackRollFromCard(
       // split-attack strikes, because that would bypass the pool halving.
       // NPC/summon clicks re-read the sheet row so a stale card cannot keep Might 2.
       let numDice: number;
-      if (sheetToHit) {
+      if (flags.splitPoolAssigned === true && Number.isFinite(Number(flags.attributeValue))) {
+        numDice = Math.max(0, Math.floor(Number(flags.attributeValue)));
+      } else if (sheetToHit) {
         numDice = sheetToHit.dice;
-        if (flags.splitAttack === true) numDice = Math.max(0, Math.floor(numDice / 2));
+        if (flags.splitAttack === true && flags.splitPoolAssigned !== true) {
+          numDice = Math.max(0, Math.floor(numDice / 2));
+        }
       } else if (npcPool > 0) {
         numDice = npcPool;
       } else if (flags.splitAttack === true && Number.isFinite(Number(flags.attributeValue)) && Number(flags.attributeValue) > 0) {
@@ -377,7 +408,7 @@ export async function executeAttackRollFromCard(
         numDice = flags.attributeValue ?? 2;
       }
       
-      // Note: Minimum Pool (= Mastery Rank), Specials (Weaken / Soulburn /
+      // Note: Specials (Weaken / Soulburn /
       // Challenge / Disoriented) and the Health / Encumbrance percentage
       // penalty are applied centrally inside `masteryRoll` in canonical
       // order (`applyPoolPenalties: true`).
@@ -622,7 +653,7 @@ export async function executeAttackRollFromCard(
       const {
         resolveCriticalAttackModifier,
         syncCriticalRoundQuota,
-        consumeCriticalQuota,
+        applyDeclaredCritSpend,
         combatRoundKey,
         critAppliesToAttackRoll,
       } = await import('../combat/critical-resolution.js');
@@ -644,10 +675,12 @@ export async function executeAttackRollFromCard(
         spell: tnKind === 'casting',
         damageDice: spellDamageDice,
       });
+      const critDeclared = button.attr('data-use-crit') === '1';
       const critMod = resolveCriticalAttackModifier({
         activeBuffCriticalX: critLegal ? buffCriticalX : 0,
         buffQuotaRemaining: critLegal ? syncedQuota.remaining : 0,
         stoneCritCharges: critLegal ? critBank : 0,
+        declared: critDeclared,
       });
       const npcCrit =
         !!sheetToHit?.crit ||
@@ -712,17 +745,11 @@ export async function executeAttackRollFromCard(
       // Consume one Critical application (buff quota preferred, else stone Crit charge).
       if (critMod.applyCritical && critMod.consumeFrom && !isFaithReroll) {
         const rs2 = actionEco.getRoundState(economyForStones, combatRef);
-        if (critMod.consumeFrom === 'active-buff') {
-          rs2.criticalQuota = consumeCriticalQuota(
-            syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX),
-          );
-        } else if (critMod.consumeFrom === 'stone-crit') {
-          if (!rs2.stoneBonuses) {
-            rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-          }
-          const curCrit = Math.max(0, Math.floor(Number(rs2.stoneBonuses.critRaises ?? 0) || 0));
-          rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
+        if (!rs2.stoneBonuses) {
+          rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
         }
+        rs2.criticalQuota = syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX);
+        applyDeclaredCritSpend(rs2, critMod);
         await actionEco.setRoundState(economyForStones, rs2);
       }
 
@@ -961,20 +988,8 @@ export async function executeAttackRollFromCard(
           const equippedWeaponForLog = items.find((item: any) => 
             item.type === 'weapon' && (item.system as any)?.equipped === true
           );
-          let stoneBonusRaises = 0;
+          const stoneBonusRaises = 0;
           const isSpellPower = !!updatedFlags.powerIsSpell;
-          if (raiseOutcome === 'full' && !isSpellPower) {
-            try {
-              const { getRoundState } = await import('../combat/action-economy.js');
-              const combatNow = (game as any).combat;
-              if (freshAttackerForDialog && combatNow) {
-                const rs = getRoundState(freshAttackerForDialog, combatNow);
-                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
-              }
-            } catch (e) {
-              console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Could not read stone raise bonus', e);
-            }
-          }
 
           let resolvedPowerSnapshot: PowerSnapshot | null = null;
           if (updatedFlags.basePowerSnapshot) {
@@ -1200,6 +1215,7 @@ export async function executeAttackRollFromCard(
                   const { applyDamageToTarget, resolveForcedMovementAfterDamage } = await import(
                     '../dice/damage-dialog.js'
                   );
+                  const { damageTransferApplies } = await import('../combat/damage-transfer.js');
                   damageResult.mitigation = await applyDamageToTarget(
                     target as any,
                     damageResult.totalDamage,
@@ -1215,6 +1231,12 @@ export async function executeAttackRollFromCard(
                       reactionMitigation: preDamage.mitigation,
                       skipPhasing: true,
                       skipReactionPrompt: true,
+                      attackSucceeded: true,
+                      damageTransfer: damageTransferApplies({
+                        damageTransfer: updatedFlags.damageTransfer === true,
+                        hit: true,
+                      }),
+                      damageInstanceId: `${messageId}:damage-transfer`,
                     },
                   );
                   if (!damageResult.mitigation?.phased) {
@@ -1373,7 +1395,12 @@ export async function executeAttackRollFromCard(
       // Split Attack: Strike 2 only after Strike 1 fully finishes (hit or miss).
       if (flags.splitAttack === true && Math.floor(Number(flags.splitIndex) || 0) === 1) {
         try {
-          const { spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+          const { rememberSplitSharedRaises, spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+          rememberSplitSharedRaises(String(flags.splitPairId || ''), {
+            plan: button.attr('data-raise-plan'),
+            slots: button.attr('data-raise-slots'),
+            tn: button.attr('data-raise-tn'),
+          });
           await spawnSplitStrike2IfPending(flags.splitPairId);
         } catch (split2Err) {
           console.warn('Mastery System | Split Strike 2 spawn failed', split2Err);

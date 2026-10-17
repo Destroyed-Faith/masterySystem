@@ -207,11 +207,10 @@ export async function rollSpell(params) {
     const system = actor?.system ?? {};
     const attrValue = Number(system.attributes?.[castingAttribute]?.value ?? 0);
     const masteryRank = Number(masteryRankOverride ?? getRulesMasteryRank(actor));
-    // Base pool = casting attribute. Specials (Weaken / Soulburn), the
-    // Health/Encumbrance percentage penalty, and the Minimum Pool (= MR)
-    // are applied centrally inside `masteryRoll` in canonical order.
+    // Base pool = casting attribute. Specials and the Health penalty are
+    // applied in `masteryRoll`. The pool may be smaller than Mastery Rank.
     const numDice = Math.max(0, attrValue);
-    const keepDice = Math.max(1, masteryRank);
+    const keepDice = numDice <= 0 ? 0 : Math.max(1, masteryRank);
     const bloodApplied = Math.max(0, Math.floor(bloodRaises));
     const raiseSlots = Math.max(0, Math.floor(declaredRaiseSlots ?? declaredRaises ?? 0));
     const spellBase = castingBaseTnForMasteryRank(masteryRank, { mental: mentalPower }) +

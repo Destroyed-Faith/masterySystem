@@ -81,13 +81,11 @@ export const STONE_RESOLUTION_QUEUE_FLAG = 'stoneResolutionQueue';
  */
 const INTERACTIVE_STONE_POWER_IDS = new Set([
     'resolve.healing',
-    'resolve.stressHealing',
     'agility.safeMovement',
-    'influence.aidRoll',
-    'influence.regeneration',
-    'influence.passiveSwap',
+    'influence.cleanse',
     'influence.notATarget',
-    'wits.readIntent',
+    'wits.reactionDenial',
+    'wits.movementReduction',
 ]);
 export function stoneResolutionKind(powerId) {
     const id = resolveStonePowerId(powerId);

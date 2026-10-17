@@ -270,13 +270,13 @@ describe('perception gate', () => {
 });
 
 describe('perception combat hooks', () => {
-  it('stealth success sets hidden and raise bonus', async () => {
+  it('stealth success stores the Final Result as the Perception TN', async () => {
     const actor = mockActor();
-    await applyStealthRollResult(actor, { success: true, raises: 3 });
+    await applyStealthRollResult(actor, { success: true, finalResult: 21 });
     expect(actor.setFlag).toHaveBeenCalledWith(
       'mastery-system',
       'perceptionCombat',
-      expect.objectContaining({ hidden: true, stealthRaiseBonus: 6 }),
+      expect.objectContaining({ hidden: true, stealthPerceptionTn: 21, stealthRaiseBonus: 0 }),
     );
   });
 

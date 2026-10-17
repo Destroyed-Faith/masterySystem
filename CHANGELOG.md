@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+## [0.9.700] - 2026-10-17
+
+### Changed
+
+- **Destroyed Faith Core v0.9.9.5:** Foundry-Runtime für die eingefrorenen Regelquellen unter `docs/Rules/` (inkl. Movement v0.9.9.5 vom 2026-10-16). `system.json` meldet DF Core v0.9.9.5.
+- **Regeln v0.9.9.5:** Core, Actives, Active Buffs, Passives, Reactions, Artifacts und Movement. Combined- und Conditional-Passives sind nicht mehr wählbar (bestehende Items bleiben). Neu: **Fortitude**, **Special Negation** (früher Ward), Absorption mit Steinen pro Scarred Bar (max. 4 Trigger).
+- **Combat / Movement:** Threat Zones, Movement Reduction, zehn Movement Powers (inkl. Teleport with Ally im Guided Path), Flee + GM-Pursuit, Token-Drag-Gate gegen Bypass von Flee/Movement Powers.
+- **Damage:** Damage Transfer (Vampyr), Core-DR-Formel `ceil(Damage × (1 − DR/100))`, Special Aura, Summon Damage/Armor Auras, Damage-/Healing-Aura-Pulse am Zugende.
+- **Stones:** Colorless Recovery, defensive Stone-Boni bis zum Beginn des nächsten eigenen Zuges, verdrahtete 0.9.9.5-Abilities (u. a. Movement Enhancement/Reduction, Reaction Denial, Damage Maximization).
+- **Stealth / Surprise / Invisibility:** Perception-TN = Stealth Final Result; Surprise Priority ohne Initiative-Änderung; Angriff revealt Invisibility nicht (Hausregel).
+- **Dauerhaft farblose Steine:** 1:1; kein Mastery-Rank-Cap auf Colorless.
+
+### Fixed
+
+- Token-Drag umgeht Flee / Movement-Power-Resolver nicht mehr.
+- Defensive Stone-Boni enden am eigenen Turn-Start, nicht beim Spotlight-Ende.
+- Damage Reduction rundet den verbleibenden Schaden (Core), nicht den Reduktionsbetrag.
+- NPC Skill-Pool / Perception-Speicherung und Pool-Vorschau.
+
+### Docs
+
+- Runtime-Abdeckungsmatrix und Final Runtime Verification: READY FOR FOUNDRY TESTING.
+- Dispel-Actives sowie Fear / Falling Damage bleiben bewusst unvollständig bzw. ausgeschlossen.
+
 ## [0.9.673] - 2026-10-14
 
 ### Changed

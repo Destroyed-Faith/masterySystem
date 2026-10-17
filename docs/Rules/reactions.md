@@ -13,6 +13,8 @@
 
 ![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/LogosBanners/Destroyed%20Faith%20Banner%20Beige.png)  {position:absolute,top:0px,right:55px,width:700px}
 
+
+<!-- LIMITED POWER MODIFIER: NOT AVAILABLE for this Power Type. The Limited variant applies exclusively to eligible Instant Active Powers; see Core. -->
 \page
 {{pageNumber,auto}}
 {{wide
@@ -56,7 +58,9 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Reactions
-Version: v0.9.9.0 (2026-09-22)
+Version: v0.9.9.5 (2026-10-15)
+> **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
+
 }}
 
 }}
@@ -68,27 +72,25 @@ Version: v0.9.9.0 (2026-09-22)
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Reactions}}{{ 4}}](#p4)
 - #### [{{ Reaction Rules}}{{ 4}}](#p4)
-- #### [{{ Pure Defense}}{{ 7}}](#p7)
-- #### [{{ Reaction: Armor}}{{ 7}}](#p7)
-- #### [{{ Reaction: Evade}}{{ 8}}](#p8)
-- #### [{{ Reaction: Temporary HP}}{{ 8}}](#p8)
-- #### [{{ Defensive Combinations}}{{ 9}}](#p9)
-- #### [{{ Ally Protection}}{{ 11}}](#p11)
-- #### [{{ Restricted Utility}}{{ 14}}](#p14)
-- #### [{{ Reaction: Reposition}}{{ 15}}](#p15)
-- #### [{{ Reaction: Cleanse}}{{ 15}}](#p15)
-- #### [{{ Closed Premium}}{{ 16}}](#p16)
-- #### [{{ Reaction: Damage Reduction}}{{ 16}}](#p16)
-- #### [{{ Reaction: Phasing}}{{ 17}}](#p17)
-- #### [{{ Counter Effects}}{{ 18}}](#p18)
-- #### [{{ Reaction: Damage}}{{ 19}}](#p19)
-- #### [{{ Reaction: Damage + Push}}{{ 20}}](#p20)
-- #### [{{ Reaction: Special Increase + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken}}{{ 21}}](#p21)
-- #### [{{ Reaction: Initiative}}{{ 22}}](#p22)
-- #### [{{ Reaction: Parry + Weapon Damage}}{{ 23}}](#p23)
-- #### [{{ Reaction: Parry + Attack Reflection}}{{ 24}}](#p24)
-- #### [{{ Absorption Reaction}}{{ 26}}](#p26)
-- #### [{{ Reaction: Absorption Damage Multiplier}}{{ 27}}](#p27)
+- #### [{{ Pure Defense}}{{ 8}}](#p8)
+- #### [{{ Reaction: Armor}}{{ 8}}](#p8)
+- #### [{{ Reaction: Evade}}{{ 9}}](#p9)
+- #### [{{ Reaction: Temporary HP}}{{ 9}}](#p9)
+- #### [{{ Ally Protection}}{{ 10}}](#p10)
+- #### [{{ Restricted Utility}}{{ 13}}](#p13)
+- #### [{{ Reaction: Reposition}}{{ 14}}](#p14)
+- #### [{{ Reaction: Cleanse}}{{ 14}}](#p14)
+- #### [{{ Closed Premium}}{{ 15}}](#p15)
+- #### [{{ Reaction: Damage Reduction}}{{ 15}}](#p15)
+- #### [{{ Reaction: Phasing}}{{ 16}}](#p16)
+- #### [{{ Counter Effects}}{{ 17}}](#p17)
+- #### [{{ Reaction: Damage}}{{ 18}}](#p18)
+- #### [{{ Reaction: Damage + Push}}{{ 19}}](#p19)
+- #### [{{ Reaction: Initiative}}{{ 20}}](#p20)
+- #### [{{ Reaction: Parry + Weapon Damage}}{{ 21}}](#p21)
+- #### [{{ Reaction: Parry + Attack Reflection}}{{ 22}}](#p22)
+- #### [{{ Absorption Reaction}}{{ 24}}](#p24)
+- #### [{{ Reaction: Absorption Surge}}{{ 25}}](#p25)
 
 }}
 \page
@@ -140,7 +142,15 @@ A character normally has **1 Reaction per Round**.
 
 A Reaction does not grant additional Reactions unless its entry explicitly says so.
 
-A Reaction resolves at the timing defined by its Trigger and effect.
+A Reaction resolves at its **Trigger Window**:
+
+- **Attack Trigger:** after the attack and target or area are declared, before the Attack Roll or Casting Roll.
+- **Hit Trigger:** after a hit is confirmed, before Phasing, Specials, and damage resolve.
+- **Damage Trigger:** after the Damage Roll is known, before Armor and the remaining damage mitigation.
+- **Incoming Effect Trigger:** after Special Negation, before the remaining Special takes effect.
+- **Ongoing Effect Trigger:** immediately before an existing Special's next tick or effect.
+
+**Ally Triggers** use the same windows for the ally. Specific printed Trigger conditions control the exact timing of individual Reactions; for example, **Absorption Surge** triggers after an eligible Health Bar is Scarred. An effect that explicitly resolves after the triggering event retains its printed resolution timing.
 
 If a Reaction modifies an incoming attack, it applies only to the triggering attack.
 
@@ -224,7 +234,6 @@ Standard counter effects may use:
 
 * Reaction: Damage
 * Reaction: Damage + Push
-* Special Increase
 
 Counter Effects are not Attack Actions.
 
@@ -242,15 +251,15 @@ These include:
 * Reaction: Initiative
 * Reaction: Parry + Weapon Damage
 * Reaction: Parry + Attack Reflection
-* Reaction: Absorption Damage Multiplier
+* Reaction: Absorption Surge
 
 Each dedicated Reaction follows only the exception written in its own entry.
 
 For example:
 
-* Reaction: Parry + Weapon Damage may use Weapon Damage after a fully parried melee Attack.
-* Reaction: Parry + Attack Reflection may return a fully intercepted Attack through the Parry subsystem.
-* Reaction: Absorption Damage Multiplier may multiply eligible actual HP loss for Absorption calculations.
+* Reaction: Parry + Weapon Damage requires Martial Parry and may use Weapon Damage after a fully parried melee Attack.
+* Reaction: Parry + Attack Reflection may return a fully intercepted direct Martial Attack or direct Spell through the matching Parry delivery.
+* Reaction: Absorption Surge may grant extra Temporary Colorless Stones when a valid Absorption trigger occurs.
 * Reaction: Initiative may change Initiative Order during combat.
 
 These exceptions do not create general permission for other Reactions to copy those effects.
@@ -275,7 +284,7 @@ Reactions may not normally grant:
 * maintained defensive states,
 * or unrelated offensive riders.
 
-A Reaction may apply or increase a Special only if it is the dedicated **Reaction: Special Increase** or another explicitly approved subsystem exception.
+A Reaction may not increase an existing Special through a standalone Reaction effect. Any expressly approved Reaction with a different, fully defined effect (such as Reaction: Damage + Push) remains governed by its own entry.
 
 Closed or dedicated subsystem Reactions may not be combined with unrelated defensive or offensive axes unless their entry explicitly says otherwise.
 
@@ -500,160 +509,6 @@ A sudden buffer forms between you and the incoming harm.
 {{pageNumber,auto}}
 {{wide
 
-## Reactions — Defensive Combinations
-
-Defensive Combination Reactions combine exactly two normal defensive axes.
-
-They are still narrow, immediate answers to a specific trigger.
-
-A Defensive Combination Reaction may not include:
-
-- Attack Dice, Critical, Specials, Reaction: Damage, hard control, movement or offensive riders.
-
-Damage Reduction and Phasing remain closed premium Reaction entries and may not be combined with any other axis.
-
----
-
-
-<h3 id="reaction-armor-temporary-hp">
-  Reaction: Armor + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      +1 Armor = 10 PP.<br>
-      Temporary HP against a triggering damage instance = 4 PP per 1 Temporary HP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a Defensive Combination Reaction with exactly two axes: Armor and Temporary HP.<br>
-      Armor increases by +1 per level.<br>
-      The remaining PP is spent on Temporary HP.<br>
-      This creates a one-hit anti-burst response: Armor reduces the incoming hit, and Temporary HP absorbs damage that still gets through.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → +1 Armor (10) + 2 Temporary HP (8) = 18 PP, close to target.<br>
-      L2 target 40 PP → +2 Armor (20) + 5 Temporary HP (20) = 40 PP, exactly on target.<br>
-      L3 target 60 PP → +3 Armor (30) + 7 Temporary HP (28) = 58 PP, close to target.<br>
-      L4 target 80 PP → +4 Armor (40) + 10 Temporary HP (40) = 80 PP, exactly on target.<br>
-      L5 target 100 PP → +5 Armor (50) + 12 Temporary HP (48) = 98 PP, close to target.<br>
-      L6 target 120 PP → +6 Armor (60) + 15 Temporary HP (60) = 120 PP, exactly on target.<br>
-      L7 target 140 PP → +7 Armor (70) + 17 Temporary HP (68) = 138 PP, close to target.<br>
-      L8 target 160 PP → +8 Armor (80) + 20 Temporary HP (80) = 160 PP, exactly on target.<br>
-      L9 target 180 PP → +9 Armor (90) + 22 Temporary HP (88) = 178 PP, close to target.<br>
-      L10 target 200 PP → +10 Armor (100) + 25 Temporary HP (100) = 200 PP, exactly on target.<br>
-      L11 target 220 PP → +11 Armor (110) + 27 Temporary HP (108) = 218 PP, close to target.<br>
-      L12 target 240 PP → +12 Armor (120) + 30 Temporary HP (120) = 240 PP, exactly on target.<br>
-      L13 target 260 PP → +13 Armor (130) + 32 Temporary HP (128) = 258 PP, close to target.<br>
-      L14 target 280 PP → +14 Armor (140) + 35 Temporary HP (140) = 280 PP, exactly on target.<br>
-      L15 target 300 PP → +15 Armor (150) + 37 Temporary HP (148) = 298 PP, close to target.<br>
-      L16 target 320 PP → +16 Armor (160) + 40 Temporary HP (160) = 320 PP, exactly on target.<br>
-      <br>
-      NOTES<br>
-      The Temporary HP applies only to the triggering damage instance. Any remaining Temporary HP from this Reaction disappears at the end of your next turn.<br>
-      This Reaction grants no Evade, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
-    </span>
-  </span>
-</h3>
-
-You both harden yourself and absorb the force that still breaks through.
-
-**Allowed Triggers:** Hit Trigger or Damage Trigger.
-
-Choose one of these Triggers when you learn this Reaction Effect.
-
-| **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
-|:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+1 Armor** and **2 Temporary HP** against the triggering damage instance.  |
-| **2** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+2 Armor** and **5 Temporary HP** against the triggering damage instance.  |
-| **3** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+3 Armor** and **7 Temporary HP** against the triggering damage instance.  |
-| **4** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+4 Armor** and **10 Temporary HP** against the triggering damage instance.  |
-| **5** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+5 Armor** and **12 Temporary HP** against the triggering damage instance.  |
-| **6** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+6 Armor** and **15 Temporary HP** against the triggering damage instance.  |
-| **7** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+7 Armor** and **17 Temporary HP** against the triggering damage instance.  |
-| **8** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+8 Armor** and **20 Temporary HP** against the triggering damage instance.  |
-| **9** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+9 Armor** and **22 Temporary HP** against the triggering damage instance.  |
-| **10** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+10 Armor** and **25 Temporary HP** against the triggering damage instance.  |
-| **11** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+11 Armor** and **27 Temporary HP** against the triggering damage instance.  |
-| **12** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+12 Armor** and **30 Temporary HP** against the triggering damage instance.  |
-| **13** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+13 Armor** and **32 Temporary HP** against the triggering damage instance.  |
-| **14** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+14 Armor** and **35 Temporary HP** against the triggering damage instance.  |
-| **15** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+15 Armor** and **37 Temporary HP** against the triggering damage instance.  |
-| **16** | Reaction | Hit Trigger or Damage Trigger | Self | — | Gain **+16 Armor** and **40 Temporary HP** against the triggering damage instance.  |
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="reaction-evade-temporary-hp">
-  Reaction: Evade + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Reaction curve = 20 PP at Level 1, +20 PP per level after that.<br>
-      +1 Evade = 20 PP.<br>
-      Temporary HP against a triggering damage instance = 4 PP per 1 Temporary HP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a Defensive Combination Reaction with exactly two axes: Evade and Temporary HP.<br>
-      The listed Temporary HP progression remains unchanged.<br>
-      Remaining PP is spent on Evade using the premium Evade price.<br>
-      This creates a one-hit avoidance-and-buffer response: Evade may cause the attack to miss, while Temporary HP protects you if the attack still connects.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → no Evade (0) + 2 Temporary HP (8) = 8 PP, 12 PP below target.<br>
-      L2 target 40 PP → +1 Evade (20) + 5 Temporary HP (20) = 40 PP, exactly on target.<br>
-      L3 target 60 PP → +1 Evade (20) + 7 Temporary HP (28) = 48 PP, 12 PP below target.<br>
-      L4 target 80 PP → +2 Evade (40) + 10 Temporary HP (40) = 80 PP, exactly on target.<br>
-      L5 target 100 PP → +2 Evade (40) + 12 Temporary HP (48) = 88 PP, 12 PP below target.<br>
-      L6 target 120 PP → +3 Evade (60) + 15 Temporary HP (60) = 120 PP, exactly on target.<br>
-      L7 target 140 PP → +3 Evade (60) + 17 Temporary HP (68) = 128 PP, 12 PP below target.<br>
-      L8 target 160 PP → +4 Evade (80) + 20 Temporary HP (80) = 160 PP, exactly on target.<br>
-      L9 target 180 PP → +4 Evade (80) + 22 Temporary HP (88) = 168 PP, 12 PP below target.<br>
-      L10 target 200 PP → +5 Evade (100) + 25 Temporary HP (100) = 200 PP, exactly on target.<br>
-      L11 target 220 PP → +5 Evade (100) + 27 Temporary HP (108) = 208 PP, 12 PP below target.<br>
-      L12 target 240 PP → +6 Evade (120) + 30 Temporary HP (120) = 240 PP, exactly on target.<br>
-      L13 target 260 PP → +6 Evade (120) + 32 Temporary HP (128) = 248 PP, 12 PP below target.<br>
-      L14 target 280 PP → +7 Evade (140) + 35 Temporary HP (140) = 280 PP, exactly on target.<br>
-      L15 target 300 PP → +7 Evade (140) + 37 Temporary HP (148) = 288 PP, 12 PP below target.<br>
-      L16 target 320 PP → +8 Evade (160) + 40 Temporary HP (160) = 320 PP, exactly on target.<br>
-      <br>
-      NOTES<br>
-      The Evade applies only against the triggering attack. The Temporary HP applies only to the triggering damage instance.<br>
-      Any remaining Temporary HP from this Reaction disappears at the end of your next turn.<br>
-      This Reaction grants no Armor, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
-    </span>
-  </span>
-</h3>
-
-You slip the worst angle of the attack and form a sudden buffer against whatever still connects.
-
-**Allowed Triggers:** Attack Trigger.
-
-
-| **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
-|:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Attack Trigger | Self | — | If the triggering attack deals damage, gain **2 Temporary HP** against that damage instance.  |
-| **2** | Reaction | Attack Trigger | Self | — | Gain **+1 Evade** against the triggering attack. If it still deals damage, gain **5 Temporary HP** against that damage instance.  |
-| **3** | Reaction | Attack Trigger | Self | — | Gain **+1 Evade** against the triggering attack. If it still deals damage, gain **7 Temporary HP** against that damage instance.  |
-| **4** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. If it still deals damage, gain **10 Temporary HP** against that damage instance.  |
-| **5** | Reaction | Attack Trigger | Self | — | Gain **+2 Evade** against the triggering attack. If it still deals damage, gain **12 Temporary HP** against that damage instance.  |
-| **6** | Reaction | Attack Trigger | Self | — | Gain **+3 Evade** against the triggering attack. If it still deals damage, gain **15 Temporary HP** against that damage instance.  |
-| **7** | Reaction | Attack Trigger | Self | — | Gain **+3 Evade** against the triggering attack. If it still deals damage, gain **17 Temporary HP** against that damage instance.  |
-| **8** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. If it still deals damage, gain **20 Temporary HP** against that damage instance.  |
-| **9** | Reaction | Attack Trigger | Self | — | Gain **+4 Evade** against the triggering attack. If it still deals damage, gain **22 Temporary HP** against that damage instance.  |
-| **10** | Reaction | Attack Trigger | Self | — | Gain **+5 Evade** against the triggering attack. If it still deals damage, gain **25 Temporary HP** against that damage instance.  |
-| **11** | Reaction | Attack Trigger | Self | — | Gain **+5 Evade** against the triggering attack. If it still deals damage, gain **27 Temporary HP** against that damage instance.  |
-| **12** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. If it still deals damage, gain **30 Temporary HP** against that damage instance.  |
-| **13** | Reaction | Attack Trigger | Self | — | Gain **+6 Evade** against the triggering attack. If it still deals damage, gain **32 Temporary HP** against that damage instance.  |
-| **14** | Reaction | Attack Trigger | Self | — | Gain **+7 Evade** against the triggering attack. If it still deals damage, gain **35 Temporary HP** against that damage instance.  |
-| **15** | Reaction | Attack Trigger | Self | — | Gain **+7 Evade** against the triggering attack. If it still deals damage, gain **37 Temporary HP** against that damage instance.  |
-| **16** | Reaction | Attack Trigger | Self | — | Gain **+8 Evade** against the triggering attack. If it still deals damage, gain **40 Temporary HP** against that damage instance.  |
-
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
 ## Reactions — Ally Protection
 
 Ally Protection Reactions allow you to protect one nearby ally against a triggering attack, hit, or damage instance.
@@ -785,7 +640,7 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Ally Attack Trigger | 4 m | — | — |
+| **1** | Unavailable | Ally Attack Trigger | 4 m | — | No effect at this PL; unavailable for selection. |
 | **2** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+1 Evade** against the triggering attack. |
 | **3** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+2 Evade** against the triggering attack. |
 | **4** | Reaction | Ally Attack Trigger | 4 m | — | The ally gains **+3 Evade** against the triggering attack. |
@@ -924,9 +779,9 @@ You recover position only after the immediate danger has resolved.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Hit Trigger or Damage Trigger | Self | — | — |
-| **2** | Reaction | Hit Trigger or Damage Trigger | Self | — | — |
-| **3** | Reaction | Hit Trigger or Damage Trigger | Self | — | — |
+| **1** | Unavailable | Hit Trigger or Damage Trigger | Self | — | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Hit Trigger or Damage Trigger | Self | — | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Hit Trigger or Damage Trigger | Self | — | No effect at this PL; unavailable for selection. |
 | **4** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
 | **5** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
 | **6** | Reaction | Hit Trigger or Damage Trigger | Self | — | After the triggering event resolves, move up to **2 m**. |
@@ -955,7 +810,8 @@ You recover position only after the immediate danger has resolved.
       DESIGN STRUCTURE<br>
       This is a restricted self-cleansing Reaction.<br>
       It may affect only the triggering incoming Special or the triggering Special already affecting you.<br>
-      If the Special has less than X remaining, it ends and unused Cleanse points are lost.<br><br>
+      If the Special has less than X remaining, it ends and unused Cleanse points are lost.<br>
+      Timed Blight is Cleanse-eligible and does not modify the Reaction Trigger or Cleanse value.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → Cleanse(2) = 12 PP.<br>
       L2 target 40 PP → Cleanse(4) = 40 PP.<br>
@@ -1077,9 +933,9 @@ Your existing damage resistance spikes for one decisive hit.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Damage Trigger | Self | — | — |
-| **2** | Reaction | Damage Trigger | Self | — | — |
-| **3** | Reaction | Damage Trigger | Self | — | — |
+| **1** | Unavailable | Damage Trigger | Self | — | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Damage Trigger | Self | — | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Damage Trigger | Self | — | No effect at this PL; unavailable for selection. |
 | **4** | Reaction | Damage Trigger | Self | — | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** against the triggering damage instance, up to **30% total DR**. |
 | **5** | Reaction | Damage Trigger | Self | — | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** against the triggering damage instance, up to **30% total DR**. |
 | **6** | Reaction | Damage Trigger | Self | — | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** against the triggering damage instance, up to **30% total DR**. |
@@ -1093,6 +949,8 @@ Your existing damage resistance spikes for one decisive hit.
 | **14** | Reaction | Damage Trigger | Self | — | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** against the triggering damage instance, up to **50% total DR**. |
 | **15** | Reaction | Damage Trigger | Self | — | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** against the triggering damage instance, up to **60% total DR**. |
 | **16** | Reaction | Damage Trigger | Self | — | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** against the triggering damage instance, up to **60% total DR**. |
+
+**Combination order:** Against the triggering damage instance, calculate Passive DR plus an eligible capped Active Buff first; add this Reaction's +10% only up to its own printed total-DR cap. A Reaction cap does not lower DR already present. Then add **Resolve Stone Ability: Damage Reduction**, outside Buff and Reaction caps, and apply the Core's global 100% cap and rounding of the remaining damage **up**.
 
 ---
 }}
@@ -1152,9 +1010,9 @@ You vanish from the hit at the last possible instant.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | Hit Trigger | Self | — | — |
-| **2** | Reaction | Hit Trigger | Self | — | — |
-| **3** | Reaction | Hit Trigger | Self | — | — |
+| **1** | Unavailable | Hit Trigger | Self | — | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Hit Trigger | Self | — | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Hit Trigger | Self | — | No effect at this PL; unavailable for selection. |
 | **4** | Reaction | Hit Trigger | Self | — | If you currently have **Phasing from a Passive**, ignore the triggering hit, up to a maximum of **2 total Phasing charges this combat**. |
 | **5** | Reaction | Hit Trigger | Self | — | If you currently have **Phasing from a Passive**, ignore the triggering hit, up to a maximum of **2 total Phasing charges this combat**. |
 | **6** | Reaction | Hit Trigger | Self | — | If you currently have **Phasing from a Passive**, ignore the triggering hit, up to a maximum of **2 total Phasing charges this combat**. |
@@ -1185,7 +1043,7 @@ A Counter Effect may use the Hit Trigger or the Threat Zone Movement Trigger onl
 
 If the Counter Effect uses the Hit Trigger, the triggering creature must be within the listed fixed range.
 
-If the Counter Effect uses the Threat Zone Movement Trigger, the triggering creature must be within your Threat Zone when the Reaction resolves.
+**Threat Zone Movement Trigger:** A creature entering or leaving your Threat Zone without Safe Movement/Disengage triggers your eligible movement Reaction. Resolve entry after the step into your Zone and exit before the step out; the creature is within your Threat Zone when the Reaction resolves. Each distinct boundary crossing can trigger once, subject to your available Reactions.
 
 A Counter Effect does not make an attack roll.  
 It does not use weapon damage.  
@@ -1193,7 +1051,7 @@ It does not trigger on-hit effects.
 It does not apply Specials.  
 It does not increase Specials.  
 It does not benefit from Critical.  
-It does not benefit from Active Buff: Damage, Active Buff: Penetration, Active Buff: Critical, or Active Buff: Special Increase.
+It does not benefit from Active Buff: Damage or Active Buff: Critical.
 
 Reaction: Damage is fixed Reaction damage.
 
@@ -1377,98 +1235,6 @@ If you choose Threat Zone Movement Trigger, the triggering creature must be with
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-special-increase">
-  Reaction: Special Increase + Blight / Challenge / Corrode / Disoriented / Expose / Hex / Lacerate / Mark / Ruin / Slow / Soulburn / Sundered / Weaken
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Special Increase is a restricted Reaction subsystem.<br>
-      It does not use normal linear Reaction scaling.<br>
-      It never applies a Special by itself.<br>
-      It only increases one already existing eligible Special(X) on the triggering creature.<br><br>
-      CORE RULES<br>
-      Choose one eligible Special(X) when you take this Reaction.<br>
-      The learned Reaction's technical name is Reaction: Special Increase + the chosen Special.<br>
-      All Special Increase variants share the same base Reaction Effect for duplicate rules.<br>
-      The chosen Special must be numeric, diminishing, and able to increase meaningfully by +1 or more.<br>
-      This Reaction can only trigger when a creature within 2 m hits you with an attack and is already affected by the chosen Special(X).<br>
-      If the triggering creature is not already affected by the chosen Special, this Reaction has no effect.<br>
-      This Reaction affects only the triggering creature.<br><br>
-      ELIGIBLE SPECIALS<br>
-      Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
-      INELIGIBLE SPECIALS<br>
-      This Reaction may not affect binary Specials, hard control, forced behavior, Stunned, Prone, Immovable, full-turn or full-reaction denial, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
-      REACTION SPECIAL INCREASE MILESTONES<br>
-      L1–3 → no effect.<br>
-      L4–7 → increase the chosen existing Special by +1.<br>
-      L8–15 → increase by +2; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +1 instead.<br>
-      L16 → increase by +3; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +2 instead.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 20 PP → no effect because the first Special Increase milestone has not been reached.<br>
-      L2 target 40 PP → no effect because the first Special Increase milestone has not been reached.<br>
-      L3 target 60 PP → no effect because the first Special Increase milestone has not been reached.<br>
-      L4 target 80 PP → first Special Increase milestone: increase one existing chosen Special on the triggering creature by +1.<br>
-      L5 target 100 PP → same Special Increase band as L4; no filler is added.<br>
-      L6 target 120 PP → same Special Increase band as L4; no filler is added.<br>
-      L7 target 140 PP → same Special Increase band as L4; no filler is added.<br>
-      L8 target 160 PP → second Special Increase milestone: increase one existing chosen Special on the triggering creature by +2, or +1 for Challenge / Disoriented / Soulburn / Weaken.<br>
-      L9 target 180 PP → same Special Increase band as L8; no filler is added.<br>
-      L10 target 200 PP → same Special Increase band as L8; no filler is added.<br>
-      L11 target 220 PP → same Special Increase band as L8; no filler is added.<br>
-      L12 target 240 PP → same Special Increase band as L8; no filler is added.<br>
-      L13 target 260 PP → same Special Increase band as L8; no filler is added.<br>
-      L14 target 280 PP → same Special Increase band as L8; no filler is added.<br>
-      L15 target 300 PP → same Special Increase band as L8; no filler is added.<br>
-      L16 target 320 PP → third Special Increase milestone: increase one existing chosen Special on the triggering creature by +3, or +2 for Challenge / Disoriented / Soulburn / Weaken.<br><br>
-      DESIGN NOTE<br>
-      This Reaction is intentionally narrower than Active Buff: Special Increase.<br>
-      It can only affect the triggering creature, only if that creature hits you, and only if the chosen Special is already present.<br>
-      It does not add damage, defense, movement, push, control, or any other rider.<br>
-      Unused PP remains unused instead of being converted into filler bonuses.<br><br>
-      NOTES<br>
-      This is not Special Application.<br>
-      This Reaction never starts a Special by itself.<br>
-      It only escalates an existing numeric pressure effect on the creature that hit you.<br>
-      Weaken and Soulburn may be chosen, but only when the triggering creature is already affected by the chosen Special.
-    </span>
-  </span>
-</h3>
-
-The enemy drives an existing condition deeper into itself by triggering your prepared punishment.
-
-The learned Reaction's technical name is **Reaction: Special Increase + the chosen Special**.
-
-All Special Increase variants share the same base **Reaction: Special Increase** identity for duplicate rules.
-
-**Allowed Triggers:** Hit Trigger.
-
-The triggering creature must be within **2 m** and already affected by your chosen eligible **Special(X)**.
-
-| **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
-|:--:|:--|:--|:--:|:--:|:--|
-| **1** | Reaction | When a creature within range hits you with an attack | 2 m | — | — |
-| **2** | Reaction | When a creature within range hits you with an attack | 2 m | — | — |
-| **3** | Reaction | When a creature within range hits you with an attack | 2 m | — | — |
-| **4** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
-| **5** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
-| **6** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
-| **7** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+1**. |
-| **8** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **9** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **10** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **11** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **12** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **13** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **14** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **15** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **16** | Reaction | When a creature within range hits you with an attack | 2 m | — | If the triggering creature is already affected by your chosen eligible **Special(X)**, increase that Special by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
 <h3 id="reaction-initiative">
   Reaction: Initiative
   <span class="tooltip">🛈
@@ -1510,7 +1276,7 @@ The triggering creature must be within **2 m** and already affected by your chos
   NOTES<br>
   This Reaction does not affect the triggering attack.<br>
   It does not grant Evade, Armor, Damage Reduction, Phasing, Temporary HP, Movement, an Attack Action, an additional Turn, or another Reaction.<br>
-  It does not reroll Initiative and does not open the Initiative Shop.
+  It does not reroll Initiative and does not open the Initiative Exchange.
 </span>
 
   </span>
@@ -1555,9 +1321,9 @@ Add the gained Initiative to your current Initiative Score.
 
 Initiative gained through this Reaction remains part of your Initiative Score until it is spent or changed by another rule.
 
-Reaction: Initiative does not open the Initiative Shop.
+Reaction: Initiative does not open the Initiative Exchange.
 
-The gained Initiative may be spent only when another rule explicitly opens the Initiative Shop.
+The gained Initiative may be spent only when another rule explicitly opens the Initiative Exchange.
 
 After gaining Initiative, update your position in Initiative Order.
 
@@ -1598,7 +1364,7 @@ Duplicate sources do not stack and do not grant additional uses.
   It may be used multiple times per Round if the character has additional Reactions available.<br><br>
 
   REQUIREMENTS<br>
-  Requires Passive: Parry and a suitable melee weapon or natural weapon.<br>
+  Requires Passive: Parry with **Martial Parry** delivery and a suitable melee weapon or natural weapon.<br>
   You must currently be Parrying.<br><br>
 
   TRIGGER<br>
@@ -1632,7 +1398,7 @@ You turn a completely intercepted strike aside and immediately answer with your 
 
 ---
 
-**Requirement:** **Passive: Parry** and a suitable melee weapon or natural weapon
+**Requirement:** **Passive: Parry (Martial Parry)** and a suitable melee weapon or natural weapon
 
 **Trigger:** After you reduce all Attack Dice of a direct melee Attack to **0** by spending Parry.
 
@@ -1671,11 +1437,14 @@ Reaction: Parry + Weapon Damage may be used multiple times during the same Round
 
 Reaction: Parry + Attack Reflection is a premium extension of the Parry subsystem.
 
-It does not function as an independent defensive ability. A character can use Attack Reflection only while Parrying and only after completely neutralizing an eligible Attack through the expenditure of Parry.
+It does not function as an independent defensive ability. A character can use Attack Reflection only while Parrying and only after completely neutralizing an eligible effect through the expenditure of Parry.
 
-Attack Reflection represents catching, redirecting, reversing, or otherwise turning an incoming Attack back upon its source.
+Attack Reflection works with the delivery chosen for **Passive: Parry**:
 
-Unlike **Reaction: Parry + Weapon Damage**, which creates a separate counterattack using the character's own weapon, Attack Reflection returns the original Attack itself.
+- **Martial Parry** may reflect an eligible direct Martial Attack.
+- **Spell Parry** may reflect an eligible direct single-target Spell.
+
+Unlike **Reaction: Parry + Weapon Damage**, which requires Martial Parry and creates a separate counterattack using the character's own weapon, Attack Reflection returns the original effect itself.
 
 ---
 
@@ -1685,41 +1454,41 @@ To use Attack Reflection:
 
 * You must have **Passive: Parry**.
 * You must currently be Parrying.
-* The triggering Attack must target only you.
-* The Attack must be eligible for Parry.
-* You must reduce all Attack Dice of the triggering Attack to **0** by spending Parry.
-* The Attack must have an identifiable source that can legally receive the reflected effect.
+* The triggering effect must target only you.
+* The effect must be eligible for your chosen Parry delivery.
+* You must reduce the triggering Attack Pool or Casting Pool to **0 dice** by spending Parry.
+* The effect must have an identifiable source that can legally receive the reflected effect.
 
-Attack Reflection cannot be used merely because an Attack deals no damage after Armor, Damage Reduction, resistance, immunity, Temporary HP, or another defensive effect.
+Attack Reflection cannot be used merely because an effect deals no damage after Armor, Damage Reduction, resistance, immunity, Temporary HP, or another defensive effect. The effect must be completely neutralized through Parry.
 
-The Attack must be completely neutralized through Parry.
+Spell AoEs, multi-target Spells, Martial AoEs, and other multi-target effects cannot be reflected through this Reaction even if your own exposure is Fully Parried or Fully Countered.
 
 ---
 
 #### Resolving Attack Reflection
 
-After reducing all Attack Dice of an eligible Attack to 0 through Parry, you may spend **1 Reaction** to use Attack Reflection.
+After reducing the eligible Pool to 0 through Parry, you may spend **1 Reaction** to use Attack Reflection.
 
-The original Attack is redirected back upon its source.
+The original direct effect is redirected back upon its source.
 
-* No new Attack Roll is made.
-* The source suffers the Damage Dice and direct damage effects originally intended for you.
-* The reflected Attack cannot generate new Raises or a new Critical result.
-* The source applies its own Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.
+* No new Attack Roll or Casting Roll is made.
+* The source suffers the Damage Dice, Specials, and direct success effects that would normally have applied to the original target on a successful hit or cast, insofar as the source can legally receive them.
+* The reflected effect cannot generate new Raises or a new Critical result.
+* The source applies its own Armor, Damage Reduction, resistance, immunity, Special Negation (for eligible Specials), and other legal mitigation normally.
 * Attack Reflection does not grant additional Reactions.
 
-Attack Reflection and Reaction: Parry + Weapon Damage cannot both be used against the same triggering Attack.
+Attack Reflection and Reaction: Parry + Weapon Damage cannot both be used against the same triggering Martial Attack.
 
 ---
 
 #### Attack Reflection Limitations
 
-Attack Reflection works only against direct single-target Attacks that target only you.
+Attack Reflection works only against direct single-target effects that target only you and are eligible for your chosen Parry delivery.
 
 Attack Reflection does not affect:
 
-* Area Effects
-* Attacks that target multiple creatures
+* Area Effects or AoEs
+* effects that target multiple creatures
 * environmental damage
 * ongoing damage
 * Persistent Zones
@@ -1736,28 +1505,28 @@ Additional Reactions do not bypass Attack Reflection's per-Combat use limit.
 {{wide
 **Requirement:** **Passive: Parry**
 
-**Trigger:** After you reduce all Attack Dice of a direct Attack that targets only you to **0** by spending Parry.
+**Trigger:** After you reduce the eligible Pool of a direct single-target Martial Attack or Spell that targets only you to **0 dice** by spending Parry.
 
-Spend **1 Reaction** to redirect the triggering Attack back upon its source.
+Spend **1 Reaction** to redirect the triggering effect back upon its source.
 
-No new Attack Roll is made.
+No new Attack Roll or Casting Roll is made.
 
-The source suffers the Damage Dice and direct damage effects originally intended for you and applies its own legal defenses normally.
+The source receives the triggering effect's legal Damage Dice, Specials, and direct success effects and applies its own legal defenses normally.
 
-Attack Reflection and Reaction: Parry + Weapon Damage cannot both be used against the same triggering Attack.
+Attack Reflection and Reaction: Parry + Weapon Damage cannot both be used against the same triggering Martial Attack.
 
 Attack Reflection may be used a number of times per Combat equal to **half your Mastery Rank, rounded down, minimum 1**. This grants **1 use at MR 1–3**, **2 uses at MR 4–5**, **3 uses at MR 6–7**, and **4 uses at MR 8**.
 
 | **Mastery Rank** | **Type**        | **Trigger**                    |  **Cost**  | **Uses per Combat** | **Effect**                                           |
 | :--------------: | :-------------- | :----------------------------- | :--------: | :-----------------: | :--------------------------------------------------- |
-|       **1**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **1**        | Redirect the triggering Attack back upon its source. |
-|       **2**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **1**        | Redirect the triggering Attack back upon its source. |
-|       **3**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **1**        | Redirect the triggering Attack back upon its source. |
-|       **4**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **2**        | Redirect the triggering Attack back upon its source. |
-|       **5**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **2**        | Redirect the triggering Attack back upon its source. |
-|       **6**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **3**        | Redirect the triggering Attack back upon its source. |
-|       **7**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **3**        | Redirect the triggering Attack back upon its source. |
-|       **8**      | Reaction, Parry | Fully parry an eligible Attack | 1 Reaction |        **4**        | Redirect the triggering Attack back upon its source. |
+|       **1**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **1**        | Redirect the triggering effect back upon its source. |
+|       **2**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **1**        | Redirect the triggering effect back upon its source. |
+|       **3**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **1**        | Redirect the triggering effect back upon its source. |
+|       **4**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **2**        | Redirect the triggering effect back upon its source. |
+|       **5**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **2**        | Redirect the triggering effect back upon its source. |
+|       **6**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **3**        | Redirect the triggering effect back upon its source. |
+|       **7**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **3**        | Redirect the triggering effect back upon its source. |
+|       **8**      | Reaction, Parry | Fully Parry or Fully Counter an eligible effect | 1 Reaction |        **4**        | Redirect the triggering effect back upon its source. |
 
 
 }}
@@ -1767,52 +1536,19 @@ Attack Reflection may be used a number of times per Combat equal to **half your 
 
 ## Absorption Reaction
 
-The Absorption Reaction allows a character to draw an exceptional amount of power from one particularly dangerous injury.
+**Reaction: Absorption Surge** draws extra Colorless Stones from a valid Absorption event. It does not alter or prevent damage and never creates an additional Absorption trigger.
 
-The Reaction does not increase the damage suffered and does not prevent any part of it. Instead, the actual HP lost from the triggering damage instance counts multiple times when calculating Absorbed Damage.
+**Requirement:** Passive: Absorption must be slotted.
 
-This Reaction requires **Passive: Absorption**.
+**Allowed Trigger:** Damage Trigger, after a hostile damage instance causes **at least one eligible Health Bar to become Scarred** and uses at least one of the Passive's **four triggers per combat**.
 
-Without **Passive: Absorption**, it has no effect.
+Spend **1 Reaction** to gain the bonus Stones listed for the Reaction's Power Level. The bonus applies **once to the triggering damage instance**, even if it Scars multiple Health Bars. The Passive separately earns its normal Stones for each eligible Scarred bar.
 
----
-
-### Reaction: Absorption Damage Multiplier
-
-After a hostile damage instance has been completely resolved, determine how many actual HP were removed from the character's Health Bars.
-
-When using this Reaction, that actual HP loss counts additional times as Absorbed Damage.
-
-This affects only the triggering damage instance.
-
-It does not alter:
-
-* the amount of HP actually lost,
-* the damage dealt by the source,
-* the character's Maximum HP,
-* Health Penalties,
-* Healing,
-* or any other defensive calculation.
-
-Temporary HP loss and prevented damage still do not count.
+The bonus Stones are paid out at the start of your next Preparation Phase along with the Passive's Stones. A damage instance that consumes the **fourth and final** trigger can still receive this bonus; later instances cannot.
 
 #### Example
 
-A character has Vitality 8 and loses 18 actual HP from a hostile Attack.
-
-Normally, the character records 18 Absorbed Damage and generates:
-
-* 2 Temporary Colorless Stones,
-* with 2 Absorbed Damage carried over.
-
-If the character uses a version of Reaction: Absorption Damage Multiplier that causes the HP loss to count twice, the 18 actual HP count as 36 Absorbed Damage.
-
-The character generates:
-
-* 4 Temporary Colorless Stones,
-* with 4 Absorbed Damage carried over.
-
-The character still loses only 18 actual HP.
+Passive: Absorption Level 16 earns **8 Stones per trigger**. A single hit Scars two eligible Health Bars (two triggers), earning **16 Stones**. Reaction: Absorption Surge Level 16 adds **8 Stones once**, for a total of **24 Stones** pending payout. Two of the Passive's four triggers remain. No HP-loss amount or remainder is tracked for Absorption.
 
 ---
 }}
@@ -1821,92 +1557,60 @@ The character still loses only 18 actual HP.
 {{pageNumber,auto}}
 {{wide
 
-<h3 id="reaction-absorption-damage-multiplier">
-  Reaction: Absorption Damage Multiplier
+<h3 id="reaction-absorption-surge">
+  Reaction: Absorption Surge
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      ABSORPTION SUBSYSTEM<br>
-      Reaction: Absorption Damage Multiplier is a closed premium Absorption Reaction.<br>
-      It requires Passive: Absorption and has no effect without it.<br><br>
-  ALLOWED TRIGGER<br>
-  Damage Trigger only.<br>
-  Trigger after an eligible hostile damage instance removes actual HP from one or more of your Health Bars.<br><br>
-
-  CORE EFFECT<br>
-  The actual HP lost from the triggering damage instance counts additional times as Absorbed Damage.<br>
-  This does not increase the real damage suffered.<br>
-  It only increases the amount recorded for Absorption Stone generation.<br><br>
-
-  SCALING<br>
-  L1–4 = the HP loss counts twice.<br>
-  L5–8 = the HP loss counts three times.<br>
-  L9–12 = the HP loss counts four times.<br>
-  L13–16 = the HP loss counts five times.<br><br>
-
-  ELIGIBLE DAMAGE<br>
-  Only actual HP removed from Health Bars counts.<br>
-  Damage applied to Temporary HP does not count.<br>
-  Damage prevented by Evade, Parry, Armor, Damage Reduction, Phasing, Attack Reflection, resistance, immunity, or another defense does not count.<br>
-  Self-inflicted damage, HP costs, damage from your own Powers, and damage intentionally caused by a willing ally do not count.<br><br>
-
-  RESOLUTION<br>
-  Apply the triggering damage normally before using this Reaction.<br>
-  Determine the actual HP lost.<br>
-  Multiply that value only for the purpose of Absorbed Damage and Temporary Colorless Stone generation.<br><br>
-
-  RESTRICTIONS<br>
-  This Reaction grants no HP, Healing, Temporary HP, Armor, Evade, Damage Reduction, Phasing, Parry, damage prevention, Attack Dice, free Attacks, or additional Reactions.<br>
-  It applies only to the triggering damage instance.<br><br>
-
-  NOTES<br>
-  Reaction: Absorption Damage Multiplier consumes 1 Reaction.<br>
-  A character may normally use it only once per Round.<br>
-  Unused PP is intentionally ignored because Absorption is a closed premium milestone subsystem.
-</span>
-
-
+      CLOSED ABSORPTION REACTION<br>
+      Requires Passive: Absorption; costs 1 Reaction.<br><br>
+      TRIGGER<br>
+      After an eligible hostile damage instance Scars one or more Health Bars, and uses at least one of the Passive's four triggers for this combat.<br><br>
+      EFFECT<br>
+      Gain additional Temporary Colorless Stones once per triggering damage instance. The Passive pays its normal Stones per bar separately.<br>
+      L1-2: +1; L3-4: +2; L5-6: +3; L7-8: +4.<br>
+      L9-10: +5; L11-12: +6; L13-14: +7; L15-16: +8.<br><br>
+      TIMING<br>
+      Bonus Stones become Ready at the next Preparation Phase, and expire at combat end.<br>
+      This does not create a fifth Absorption trigger or increase Stone Recovery.<br><br>
+      RESTRICTIONS<br>
+      Grants no HP, Healing, damage prevention, Armor, Evade, extra actions, or other effects. Cannot trigger on voluntary costs, self-inflicted damage, or damage that does not Scar an eligible bar.<br>
+      The same named Reaction can normally be used at most once per Round.
+    </span>
   </span>
 </h3>
 
-You accept a devastating wound without resistance and force your body to extract far more power from the suffering than it normally could.
+You seize the power released by a fresh scar and draw even more Colorless Stones from the wound.
 
----
-
-**Requirement:** **Passive: Absorption**
+**Requirement:** Passive: Absorption
 
 **Allowed Trigger:** Damage Trigger
 
-**Trigger:** After an eligible hostile damage instance removes actual HP from your Health Bars.
+**Trigger:** An eligible hostile damage instance Scars one or more of your Health Bars, using at least one of Passive: Absorption's four triggers for this combat.
 
-The actual HP lost from the triggering damage instance counts multiple times as **Absorbed Damage**, as listed below.
+Pay **1 Reaction** to gain the additional Temporary Colorless Stones shown below. The bonus is granted **once per damage instance**, not once per Health Bar. These Stones become Ready in your next Preparation Phase.
 
-This does not increase the amount of real HP lost.
+| **Level** | **Type** | **Allowed Trigger** | **Range** | **AoE** | **Effect** |
+|:--:|:--|:--|:--:|:--:|:--|
+| **1** | Reaction, Absorption | Damage Trigger | Self | — | **+1 Temporary Colorless Stone** on a valid Absorption-triggering damage instance (once per instance). |
+| **2** | Reaction, Absorption | Damage Trigger | Self | — | **+1 Temporary Colorless Stone** on a valid Absorption-triggering damage instance (once per instance). |
+| **3** | Reaction, Absorption | Damage Trigger | Self | — | **+2 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **4** | Reaction, Absorption | Damage Trigger | Self | — | **+2 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **5** | Reaction, Absorption | Damage Trigger | Self | — | **+3 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **6** | Reaction, Absorption | Damage Trigger | Self | — | **+3 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **7** | Reaction, Absorption | Damage Trigger | Self | — | **+4 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **8** | Reaction, Absorption | Damage Trigger | Self | — | **+4 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **9** | Reaction, Absorption | Damage Trigger | Self | — | **+5 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **10** | Reaction, Absorption | Damage Trigger | Self | — | **+5 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **11** | Reaction, Absorption | Damage Trigger | Self | — | **+6 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **12** | Reaction, Absorption | Damage Trigger | Self | — | **+6 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **13** | Reaction, Absorption | Damage Trigger | Self | — | **+7 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **14** | Reaction, Absorption | Damage Trigger | Self | — | **+7 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **15** | Reaction, Absorption | Damage Trigger | Self | — | **+8 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
+| **16** | Reaction, Absorption | Damage Trigger | Self | — | **+8 Temporary Colorless Stones** on a valid Absorption-triggering damage instance (once per instance). |
 
-| **Level** | **Type**             | **Allowed Trigger** | **Range** | **AoE** | **Effect**                                                                                        |
-| :-------: | :------------------- | :------------------ | :-------: | :-----: | :------------------------------------------------------------------------------------------------ |
-|   **1**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **twice** as Absorbed Damage.       |
-|   **2**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **twice** as Absorbed Damage.       |
-|   **3**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **twice** as Absorbed Damage.       |
-|   **4**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **twice** as Absorbed Damage.       |
-|   **5**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **three times** as Absorbed Damage. |
-|   **6**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **three times** as Absorbed Damage. |
-|   **7**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **three times** as Absorbed Damage. |
-|   **8**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **three times** as Absorbed Damage. |
-|   **9**   | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **four times** as Absorbed Damage.  |
-|   **10**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **four times** as Absorbed Damage.  |
-|   **11**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **four times** as Absorbed Damage.  |
-|   **12**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **four times** as Absorbed Damage.  |
-|   **13**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **five times** as Absorbed Damage.  |
-|   **14**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **five times** as Absorbed Damage.  |
-|   **15**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **five times** as Absorbed Damage.  |
-|   **16**  | Reaction, Absorption | Damage Trigger      |    Self   |    —    | The actual HP lost from the triggering damage instance counts **five times** as Absorbed Damage.  |
+The Reaction adds no Absorption triggers and provides no additional Stone Recovery.
 
 ---
 
 }}
 
-\page
-{{pageNumber,auto}}
-{{wide
-
-}}

@@ -17,9 +17,8 @@ export interface PerceptionGateResult {
     senseUsed?: CombatSenseId;
 }
 /**
- * Perception TN vs an invisible (or hidden+invis) creature.
- * Hidden-only (no invis) still uses legacy stealthRaiseBonus on top of a flat base
- * so non-invis Stealth keeps working until a separate rewrite.
+ * Perception TN vs an invisible creature, or the Stealth Final Result when only Hidden.
+ * A Stealth check is not added on top of an Invisibility TN.
  */
 export declare function computePerceptionTn(target: any, _observer?: any): number;
 /**

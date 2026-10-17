@@ -1,8 +1,6 @@
 /**
- * Surprise — a GM-set token status, not a rulebook surprise round.
- *
- * While the status is on, Evade is halved. Applying it pins Initiative at 0
- * so everyone who still has a normal score acts first.
+ * Surprise status marks a creature as unaware for contests.
+ * Round-1 Surprise Priority is a separate flag and does not change Initiative.
  */
 import { hasActiveSpecial, coerceStatusEffectsArray, readActorStatusEffects, statusEntryId, } from '../system/active-specials.js';
 export const SURPRISE_STATUS_ID = 'surprise';
@@ -79,12 +77,12 @@ export function actorHasSurprise(actor) {
             : [];
     return list.some((effect) => effectCarriesSurprise(effect));
 }
-/** Half Evade, rounded down. Unsurprised scores pass through. */
-export function evadeAfterSurprise(evade, surprised) {
-    const n = Math.max(0, Math.floor(Number(evade) || 0));
-    if (!surprised)
-        return n;
-    return Math.floor(n / 2);
+/**
+ * The old Surprise status halved Evade. Core v0.9.9.5 does not.
+ * The score passes through. `surprised` stays in the signature so older callers compile.
+ */
+export function evadeAfterSurprise(evade, _surprised) {
+    return Math.max(0, Math.floor(Number(evade) || 0));
 }
 function combatantList(combat) {
     const bag = combat?.combatants;
@@ -114,52 +112,55 @@ export function combatantsForActor(combat, actor) {
         return false;
     });
 }
-/** Pin every matching combatant at Initiative 0. GM only. No-op outside combat. */
-export async function pinSurprisedInitiative(actor, combat) {
-    const game = globalThis.game;
-    if (!game?.user?.isGM)
+/**
+ * Surprise Priority (Core v0.9.9.5): during Round 1 this creature acts before
+ * combatants without the flag. The Initiative Score itself is not changed.
+ */
+/** Round 1, or before combat has started, and only against an unaware target. */
+export function surprisePriorityShouldGrant(opts) {
+    if (!opts.targetUnaware)
+        return false;
+    if (!opts.combatStarted)
+        return true;
+    return Math.floor(Number(opts.round) || 1) <= 1;
+}
+/** Attack against an unaware creature at the start of a fight. Initiative numbers stay put. */
+export async function applySurprisePriorityForAttack(attacker, target, combat) {
+    const { detectTargetUnaware } = await import('../contests/contest-card.js');
+    const unaware = await detectTargetUnaware(attacker, target);
+    const grant = surprisePriorityShouldGrant({
+        combatStarted: combat?.started === true,
+        round: Number(combat?.round) || 1,
+        targetUnaware: unaware,
+    });
+    if (grant)
+        await grantSurprisePriority(attacker, true);
+    return grant;
+}
+export async function grantSurprisePriority(actor, enabled = true) {
+    if (!actor?.setFlag)
         return;
-    const tracker = combat ?? game.combat;
-    if (!tracker?.combatants || !actor)
-        return;
-    const matches = combatantsForActor(tracker, actor);
-    let changed = false;
-    for (const combatant of matches) {
-        const current = Number(combatant.initiative);
-        if (current !== 0)
-            changed = true;
+    if (!enabled) {
+        await actor.unsetFlag?.('mastery-system', 'surprisePriority');
+    }
+    else {
+        await actor.setFlag('mastery-system', 'surprisePriority', true);
+    }
+    const combat = globalThis.game?.combat;
+    if (combat && typeof combat.setupTurns === 'function') {
         try {
-            await combatant.update({ initiative: 0 });
+            await combat.setupTurns();
         }
         catch (err) {
-            console.warn('Mastery System | Surprise initiative pin failed', err);
-            continue;
-        }
-        try {
-            await combatant.setFlag?.('mastery-system', 'msInitiativeValue', 0);
-            await combatant.unsetFlag?.('mastery-system', 'pendingInitiativeShop');
-            if (actor.type !== 'character') {
-                await combatant.setFlag?.('mastery-system', 'npcInitiativeRolled', true);
-            }
-        }
-        catch {
-            /* flags are best-effort */
+            console.warn('Mastery System | Surprise Priority reorder failed', err);
         }
     }
-    if (!changed || matches.length === 0)
-        return;
-    try {
-        const ChatMessage = globalThis.ChatMessage;
-        if (typeof ChatMessage?.create === 'function') {
-            const name = String(actor.name || 'Creature');
-            await ChatMessage.create({
-                speaker: typeof ChatMessage.getSpeaker === 'function' ? ChatMessage.getSpeaker({ actor }) : undefined,
-                content: `<p><strong>Surprise</strong> — ${name}: Evade halved, Initiative 0.</p>`,
-            });
-        }
-    }
-    catch (err) {
-        console.warn('Mastery System | Surprise chat note failed', err);
-    }
+}
+/**
+ * Retired. Surprise no longer pins Initiative at 0 or halves Evade.
+ * Round-1 order is Surprise Priority (`grantSurprisePriority`).
+ */
+export async function pinSurprisedInitiative(_actor, _combat) {
+    return;
 }
 //# sourceMappingURL=surprise.js.map

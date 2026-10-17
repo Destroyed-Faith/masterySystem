@@ -145,17 +145,16 @@ describe('distributeCleanseAcrossList', () => {
 });
 
 describe('finalizeRolledPool order', () => {
-  it('applies flat Special reduction before MR floor', () => {
+  it('does not raise a reduced pool back to Mastery Rank', () => {
     const actor = actorWithSpecials([{ id: 'weaken', value: 10 }]);
-    // Pretend no health/encumbrance penalty path by giving full HP.
     const result = finalizeRolledPool(actor, 12, 4, {
       rollKind: 'attack',
       poolAttribute: 'might',
       applyPoolPenalties: false,
     });
-    // 12 − 10 = 2, then MR floor 4 → 4
-    expect(result.numDice).toBe(4);
+    // 12 − 10 = 2. v0.9.9.5 has no Mastery Rank floor.
+    expect(result.numDice).toBe(2);
     expect(result.notes.some((n) => /Weaken/.test(n))).toBe(true);
-    expect(result.notes.some((n) => /Minimum Pool/.test(n))).toBe(true);
+    expect(result.notes.some((n) => /Minimum Pool/.test(n))).toBe(false);
   });
 });

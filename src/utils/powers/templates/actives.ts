@@ -680,6 +680,10 @@ function buildActiveTemplates(): PowerTemplate[] {
     mindIllusionTemplate(),
     mindProbeTemplate(),
     mentalControlTemplate(),
+
+    // Damage Transfer (Vampyr) — printed dice, one target, no area.
+    damageTransferTemplate('melee'),
+    damageTransferTemplate('ranged'),
     ];
 }
 
@@ -1337,6 +1341,44 @@ const MENTAL_CONTROL_ROWS: readonly { targets: string; duration: string; scope: 
     { targets: 'MR + 3 creatures', duration: '2 weeks', scope: 'Impose a broad behavioral program around one defined noncombat purpose.' },
     { targets: 'MR + 4 creatures', duration: '1 month', scope: 'Impose complex noncombat control around one defined purpose, including linked instructions, attitudes, and conditional behavior.' },
 ];
+
+/** Printed Melee Single Target Damage Transfer dice, PL 1–16 (actives.md). */
+const MELEE_DAMAGE_TRANSFER_DICE = [1, 2, 3, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19] as const;
+
+function damageTransferTemplate(kind: 'melee' | 'ranged'): PowerTemplate {
+    const melee = kind === 'melee';
+    const name = melee
+        ? 'Melee Single Target Damage Transfer'
+        : 'Ranged Single Target Damage Transfer';
+    return {
+        templateId: melee
+            ? 'active-melee-single-target-damage-transfer'
+            : 'active-ranged-single-target-damage-transfer',
+        templateName: name,
+        name,
+        subfamily: 'damage-single',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff:
+            'Vampyr. One target, one damage roll, no area. The attacker heals HP equal to the real HP this damage instance removes from the target after mitigation, capped by the attacker’s current Health Bar.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: melee ? 'might' : 'agility' },
+        levels: buildLevels((lvl) => {
+            const d = melee ? MELEE_DAMAGE_TRANSFER_DICE[lvl - 1]! : lvl;
+            return activeRow({
+                type: melee ? 'Melee' : 'Ranged',
+                range: melee ? MELEE_RANGE : rangedRange(lvl),
+                aoe: R_NONE,
+                effectText:
+                    `Deal **${d}d8 damage** on hit. The attacker heals HP equal to the real HP this damage instance removes from the target. No separate healing dice.`,
+                dice: `${d}d8`,
+                specials: [],
+                mechanics: { damageTransfer: true, damageRider: { flat: `${d}d8` } },
+            });
+        }),
+    };
+}
 
 function mentalControlTemplate(): PowerTemplate {
     return {

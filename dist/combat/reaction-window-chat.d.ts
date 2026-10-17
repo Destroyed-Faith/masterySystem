@@ -51,6 +51,8 @@ export interface ReactionWindowState {
     spellPowerDamageDice?: number;
     attackType?: 'melee' | 'ranged' | null;
     isAoE?: boolean;
+    /** Threat Zone boundary this card was opened for. */
+    movementThreat?: 'entry' | 'exit' | null;
     /**
      * True when this chat card was replaced by a newer copy posted below
      * (post-attack summary repost). Not a real close — waiters must not resolve.
@@ -117,6 +119,8 @@ export declare function runInteractiveReactionWindow(params: {
     spellPowerDamageDice?: number;
     attackType?: 'melee' | 'ranged' | null;
     isAoE?: boolean;
+    /** Threat Zone entry (after arrival) or exit (before departure). */
+    movementThreat?: 'entry' | 'exit' | null;
 }): Promise<ReactionPhaseResult>;
 export declare function registerReactionWindowChatHandlers(): void;
 //# sourceMappingURL=reaction-window-chat.d.ts.map

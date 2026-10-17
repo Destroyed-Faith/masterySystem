@@ -110,8 +110,8 @@ describe('Safe Movement', () => {
 describe('Slip', () => {
   it('uses 4/8/12/16 m and is armed on confirm without moving', () => {
     expect([1, 2, 3, 4].map((tier) => slipMeters(tier))).toEqual([4, 8, 12, 16]);
-    expect(stoneResolutionKind('agility.slip')).toBe('automatic');
-    expect(STONE_POWERS['agility.slip'].tiers.map((tier) => tier.value)).toEqual([4, 8, 12, 16]);
+    expect(stoneResolutionKind('agility.invisibilityBoost')).toBe('automatic');
+    expect(STONE_POWERS['agility.invisibilityBoost'].tiers.map((tier) => tier.value)).toEqual([1, 2, 4, 8]);
     const fired: string[] = [];
     const committed = simulateConfirmAssignment(
       { locked: false, fired: [], queue: null },
@@ -119,13 +119,13 @@ describe('Slip', () => {
         combatId: 'combat-1',
         round: 1,
         powers: [
-          { powerId: 'agility.slip', tier: 3 },
+          { powerId: 'agility.invisibilityBoost', tier: 3 },
           { powerId: 'agility.safeMovement', tier: 2 },
         ],
         onAutomatic: (power) => fired.push(power.powerId),
       },
     );
-    expect(fired).toEqual(['agility.slip']);
+    expect(fired).toEqual(['agility.invisibilityBoost']);
     expect(committed.queue?.tickets.map((ticket) => ticket.powerId)).toEqual(['agility.safeMovement']);
     expect(committed.locked).toBe(true);
   });

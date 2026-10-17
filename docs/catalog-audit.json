@@ -1,8 +1,8 @@
 {
-  "version": "0.9.673",
-  "generatedAt": "2026-10-13T21:27:13.849Z",
+  "version": "0.9.700",
+  "generatedAt": "2026-10-17T06:16:16.635Z",
   "summary": {
-    "correct": 218,
+    "correct": 190,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -167,6 +167,13 @@
       "category": "active",
       "id": "active-melee-single-heal",
       "name": "Melee Single-Target Heal",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
+      "id": "active-melee-single-target-damage-transfer",
+      "name": "Melee Single Target Damage Transfer",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -396,6 +403,13 @@
     },
     {
       "category": "active",
+      "id": "active-ranged-single-target-damage-transfer",
+      "name": "Ranged Single Target Damage Transfer",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "active",
       "id": "active-ranged-targeted-special",
       "name": "Ranged Targeted Special Attack",
       "status": "correct",
@@ -567,7 +581,7 @@
       "id": "ab-penetration",
       "name": "Active Buff: Penetration",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
@@ -728,7 +742,7 @@
       "id": "huntersScourge",
       "name": "Hunter's Scourge",
       "status": "correct",
-      "notes": "Present in echo catalog (curated expected list)"
+      "notes": "Present in echo catalog; referenced in docs/Rules/artefacts.md"
     },
     {
       "category": "artifact",
@@ -956,27 +970,6 @@
     },
     {
       "category": "passive",
-      "id": "conditional-passive-armor-healing",
-      "name": "Passive: Armor / Healing (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-armor-health",
-      "name": "Passive: Armor / Health (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-armor-temp-hp",
-      "name": "Passive: Armor / Temporary HP (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
       "id": "conditional-passive-awareness-damage",
       "name": "conditional awareness-damage",
       "status": "correct",
@@ -988,55 +981,6 @@
       "name": "conditional awareness-evade",
       "status": "correct",
       "notes": "Retired Awareness passive correctly filtered from PASSIVE_TEMPLATES (Sense Slot)"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-damage-healing",
-      "name": "Passive: Damage / Healing (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-damage-temp-hp",
-      "name": "Passive: Damage / Temporary HP (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-evade-damage",
-      "name": "Passive: Evade / Damage (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-evade-healing",
-      "name": "Passive: Evade / Healing (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-evade-temp-hp",
-      "name": "Passive: Evade / Temporary HP (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-health-healing",
-      "name": "Passive: Health / Healing (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "conditional-passive-health-temp-hp",
-      "name": "Passive: Health / Temporary HP (Conditional)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
@@ -1103,34 +1047,6 @@
     },
     {
       "category": "passive",
-      "id": "passive-ambusher",
-      "name": "Passive: Damage (Target Cannot Perceive You)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-armor-healing",
-      "name": "Passive: Armor + Healing",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-armor-health",
-      "name": "Passive: Armor + Health",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-armor-temp-hp",
-      "name": "Passive: Armor + Temporary HP",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
       "id": "passive-awareness-damage",
       "name": "awareness-damage",
       "status": "correct",
@@ -1145,36 +1061,8 @@
     },
     {
       "category": "passive",
-      "id": "passive-battle-trance",
-      "name": "Passive: Healing (Adjacent to Enemy)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-blood-feast",
-      "name": "Passive: Healing (Wounded or Worse)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-bloodlust",
-      "name": "Passive: Damage (Affected by Lacerate)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
       "id": "passive-bound-host",
       "name": "Passive: Summon Tokens",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-damage-healing",
-      "name": "Passive: Damage + Healing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1194,22 +1082,8 @@
     },
     {
       "category": "passive",
-      "id": "passive-damage-temp-hp",
-      "name": "Passive: Damage + Temporary HP",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
       "id": "passive-deep-vitality",
       "name": "Passive: Health",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-duelist-footwork",
-      "name": "Passive: Evade (Exactly 1 Adjacent Enemy)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1229,41 +1103,6 @@
     },
     {
       "category": "passive",
-      "id": "passive-evade-damage",
-      "name": "Passive: Evade + Damage",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-evade-healing",
-      "name": "Passive: Evade + Healing",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-evade-temp-hp",
-      "name": "Passive: Evade + Temporary HP",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-executioner",
-      "name": "Passive: Damage (Target Injured or Worse)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-flowing-step",
-      "name": "Passive: Evade (Moved 8+ m This Turn)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
       "id": "passive-fortified-frame",
       "name": "Passive: Armor",
       "status": "correct",
@@ -1271,22 +1110,15 @@
     },
     {
       "category": "passive",
+      "id": "passive-fortitude",
+      "name": "Passive: Fortitude",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
       "id": "passive-ghostform",
       "name": "Passive: Phasing",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-health-healing",
-      "name": "Passive: Health + Healing",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-health-temp-hp",
-      "name": "Passive: Health + Temporary HP",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1320,13 +1152,6 @@
     },
     {
       "category": "passive",
-      "id": "passive-momentum",
-      "name": "Passive: Damage (Moved 8+ m This Turn)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
       "id": "passive-parry",
       "name": "Passive: Parry",
       "status": "correct",
@@ -1344,33 +1169,12 @@
       "id": "passive-special-aura",
       "name": "Passive: Special Aura",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
       "id": "passive-spell-resistance",
       "name": "Passive: Spell Resistance",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-stillness-recovery",
-      "name": "Passive: Healing (Moved 0 m Last Turn)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-stone-stance",
-      "name": "Passive: Armor (Moved 0 m Last Turn)",
-      "status": "correct",
-      "notes": "Matches Rules entry"
-    },
-    {
-      "category": "passive",
-      "id": "passive-surrounded-bulwark",
-      "name": "Passive: Armor (Adjacent to 2+ Enemies)",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1386,7 +1190,7 @@
       "id": "passive-temp-hp",
       "name": "Passive: Temporary HP",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "passive",
@@ -1398,7 +1202,7 @@
     {
       "category": "passive",
       "id": "passive-ward",
-      "name": "Passive: Ward",
+      "name": "Passive: Special Negation",
       "status": "correct",
       "notes": "Matches Rules entry"
     },

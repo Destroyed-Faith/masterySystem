@@ -14,19 +14,21 @@ import { getRulesMasteryRank } from './mastery-rank-sync.js';
  * Returns the extra rounds for the buff being activated right now (0 if none)
  * and clears the pending marker so only ONE Active Buff per turn benefits.
  */
-async function consumePendingBuffExtension(actor: Actor): Promise<number> {
+async function consumePendingBuffExtension(actor: Actor): Promise<{ rounds: number; powerLevels: number }> {
   try {
     const combat = (game as any).combat ?? null;
     const roundState = getRoundState(actor, combat);
     const sb: any = roundState?.stoneBonuses;
     const pending = Math.max(0, Math.floor(Number(sb?.extendActiveBuffRounds ?? 0) || 0));
-    if (pending <= 0) return 0;
+    const pl = Math.max(0, Math.floor(Number(sb?.activeBuffPlBonus ?? 0) || 0));
+    if (pending <= 0 && pl <= 0) return { rounds: 0, powerLevels: 0 };
     sb.extendActiveBuffRounds = 0;
+    sb.activeBuffPlBonus = 0;
     await setRoundState(actor, roundState);
-    return pending;
+    return { rounds: pending, powerLevels: pl };
   } catch (err) {
-    console.warn('Mastery System | Extend Active Buff lookup failed', err);
-    return 0;
+    console.warn('Mastery System | Active Buff Empowerment lookup failed', err);
+    return { rounds: 0, powerLevels: 0 };
   }
 }
 
@@ -227,8 +229,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
   // Vitality Stone Power "Extend Active Buff": +1..+4 rounds on ONE Active
   // Buff activated this turn. Consumed here so a second activation this turn
   // doesn't benefit again.
-  const extendRounds = await consumePendingBuffExtension(actor);
-  const durationRounds = masteryRank + extendRounds;
+  const empower = await consumePendingBuffExtension(actor);
+  const durationRounds = masteryRank + empower.rounds;
 
   // Calculate duration in rounds
   // Duration is "Mastery Rank rounds" (+ Extend Active Buff, if pending)
@@ -247,7 +249,7 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
   const rawRank = Number(powerSys.rank);
   const levelFromRank =
     Number.isFinite(rawRank) && rawRank >= 1 ? Math.floor(rawRank) : masteryRank;
-  const powerLevelKey = Math.max(1, Math.min(16, levelFromRank));
+  const powerLevelKey = Math.max(1, Math.min(16, levelFromRank + empower.powerLevels));
 
   let rankMechanicsRaw: Record<string, unknown> | null = null;
   const fromLevel = powerSys.levels?.[String(powerLevelKey)]?.mechanics;
@@ -313,7 +315,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
         powerTemplateId: powerSys?.templateId ? String(powerSys.templateId) : null,
         masteryRank: masteryRank,
         durationRounds: durationRounds,
-        extendedRounds: extendRounds,
+        extendedRounds: empower.rounds,
+        empoweredPowerLevels: empower.powerLevels,
         activatedRound: currentRound,
         isUtility: isUtility(power), // Store whether this is a utility
         mechanics: rankMechanics
@@ -342,7 +345,7 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     // Create the effect on the actor
     const created = await (actor as any).createEmbeddedDocuments('ActiveEffect', [effectData]);
     ui.notifications?.info(
-      `Activated ${power.name} (Duration: ${durationRounds} rounds${extendRounds > 0 ? `, incl. +${extendRounds} from Extend Active Buff` : ''})`,
+      `Activated ${power.name} (Duration: ${durationRounds} rounds${empower.rounds > 0 ? `, incl. +${empower.rounds} from Active Buff Empowerment` : ''})`,
     );
 
     try {
@@ -353,8 +356,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
       const lines: string[] = [
         `<p><strong>${esc(String(power.name))}</strong> — active <strong>${durationRounds}</strong> round${durationRounds === 1 ? '' : 's'}.</p>`,
       ];
-      if (extendRounds > 0) {
-        lines.push(`<p>Extend Active Buff (Vitality Stone): <strong>+${extendRounds}</strong> round${extendRounds === 1 ? '' : 's'}.</p>`);
+      if (empower.rounds > 0 || empower.powerLevels > 0) {
+        lines.push(`<p>Active Buff Empowerment: <strong>+${empower.powerLevels}</strong> Power Level, <strong>+${empower.rounds}</strong> round${empower.rounds === 1 ? '' : 's'}.</p>`);
       }
       const rm: any = rankMechanics ?? {};
       if (typeof rm.damageReductionPct === 'number' && rm.damageReductionPct > 0) {

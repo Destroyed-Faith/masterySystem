@@ -9,6 +9,7 @@
  */
 import { getEffect, getEffectById, canonicalSpecialId } from '../utils/special-effects.js';
 import { tokenDocOfActor } from './status-target.js';
+import { specialAuraEffectiveStep } from '../combat/aura-modifiers.js';
 function readMasteryFlag(actor, key) {
     if (!actor)
         return undefined;
@@ -150,7 +151,9 @@ export function getActiveSpecialValue(actor, id) {
         if (s.id === id)
             total += s.value;
     }
-    return total;
+    if (total <= 0)
+        return total;
+    return total + specialAuraEffectiveStep(actor, id);
 }
 /**
  * Whether a given Special is present on a creature at all — including

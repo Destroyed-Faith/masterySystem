@@ -142,12 +142,29 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
   
   if (passiveItem) {
     const itemSystem = (passiveItem.system as any) || {};
+    const templateId = String(itemSystem.templateId || '');
+    const specialChoice = String(itemSystem.chosenSpecial?.key || itemSystem.specialChoice || '')
+      .trim()
+      .toLowerCase();
+    if (templateId === 'passive-special-aura') {
+      const { SPECIAL_AURA_ELIGIBLE, SPECIAL_AURA_RADIUS_M } = await import('../combat/aura-modifiers.js');
+      const level = Math.floor(Number(itemSystem.level || itemSystem.rank) || 1);
+      const radius = level >= 1 && level <= 16 ? SPECIAL_AURA_RADIUS_M[level - 1] : 0;
+      if (!radius || !SPECIAL_AURA_ELIGIBLE.has(specialChoice)) {
+        ui.notifications?.warn(
+          'Special Aura needs one eligible diminishing Special and an available Power Level.',
+        );
+        return;
+      }
+    }
     system.passives[slotKey].passive = {
       id: passiveItem.id || passiveItem._id || passiveItem.name,
       name: passiveItem.name || 'Unknown Passive',
       description: itemSystem.effect || itemSystem.description || '',
       category: itemSystem.tree || itemSystem.category || 'General',
-      level: itemSystem.level || 1
+      level: itemSystem.level || 1,
+      templateId,
+      specialChoice,
     };
   } else {
     // Fallback if item not found

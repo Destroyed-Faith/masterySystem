@@ -53,6 +53,13 @@ export type CriticalAttackModifier = {
  * New round → remaining = Critical(X). Same round → keep spent charges.
  */
 export declare function syncCriticalRoundQuota(existing: CriticalRoundQuota | null | undefined, roundKey: string, buffCriticalX: number): CriticalRoundQuota;
+/** Spend the declared Crit charge. No-op when the roll did not select Crit. */
+export declare function applyDeclaredCritSpend(state: {
+    stoneBonuses?: {
+        critRaises?: number;
+    };
+    criticalQuota?: CriticalRoundQuota | null;
+}, mod: CriticalAttackModifier): boolean;
 export declare function consumeCriticalQuota(quota: CriticalRoundQuota): CriticalRoundQuota;
 export declare function combatRoundKey(combat: {
     id?: string;
@@ -68,6 +75,8 @@ export declare function resolveCriticalAttackModifier(opts: {
     buffQuotaRemaining?: number;
     stoneCritCharges?: number;
     specialCritCharges?: number;
+    /** Player checked Crit on this roll. Without it, no charge is spent. */
+    declared?: boolean;
 }): CriticalAttackModifier;
 /** Format for UI / chat — always Critical(X). */
 export declare function formatCriticalLabel(criticalX: number): string;

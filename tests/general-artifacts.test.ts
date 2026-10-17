@@ -291,7 +291,7 @@ describe('Frostbound Returning Axe', () => {
     expect(sysAt(tree, 1).stoneFunction).toEqual({
       kind: 'stonePowerSupport',
       attribute: 'might',
-      stonePowerId: 'might.ignoreArmor',
+      stonePowerId: 'might.armorReduction',
     });
   });
 
@@ -723,7 +723,7 @@ describe('Staff of the Dark', () => {
     });
     expect(picks[1]).toMatchObject({
       kind: 'power',
-      powerTemplateId: 'active-ranged-weapon-single',
+      powerTemplateId: 'active-ranged-single-target-damage-transfer',
       isSpell: true,
     });
     expect(picks[2]).toMatchObject({
@@ -742,11 +742,13 @@ describe('Staff of the Dark', () => {
       expect(row.type).toBe('Melee AoE');
       expect(row.special).toMatch(/hex/i);
     }
+    const lifeTakenDice: Record<number, string> = { 2: '4d8', 5: '10d8', 8: '16d8' };
     for (const lvl of [2, 5, 8]) {
       const row = byLevel.get(lvl) as any;
       expect(row.name).toMatch(/Life Taken/);
       expect(row.type).toBe('Ranged');
-      expect(row.effect).toMatch(/7d8|17d8|27d8/);
+      expect(row.effect).toContain(lifeTakenDice[lvl]);
+      expect(row.effect).toMatch(/real HP/i);
     }
     for (const lvl of [3, 6, 9]) {
       const row = byLevel.get(lvl) as any;
@@ -762,6 +764,12 @@ describe('Staff of the Dark', () => {
     expect(lifeTaken).toBeTruthy();
     expect(lifeTaken.tags).toContain('spell');
     expect(lifeTaken.category).toBe('active');
+    expect(lifeTaken.levels?.['10']?.effect?.text).toContain('10d8');
+    expect(lifeTaken.levels?.['10']?.effect?.text).toMatch(/real HP/i);
+    const pick = sysAt(tree, 5).progressionPicks.find((p: any) => /Life Taken/.test(String(p.displayName || p.name || '')));
+    expect(pick?.powerTemplateId ?? sysAt(tree, 5).progressionPicks[1]?.powerTemplateId).toBe(
+      'active-ranged-single-target-damage-transfer',
+    );
   });
 
   it('Vision of the End is an Active Spell with Ruin', () => {
@@ -881,7 +889,7 @@ describe("Lor-Keth's Staff", () => {
     expect(sysAt(tree, 3).stoneFunction).toEqual({
       kind: 'stonePowerSupport',
       attribute: 'might',
-      stonePowerId: 'might.ignoreArmor',
+      stonePowerId: 'might.armorReduction',
     });
   });
 
@@ -911,7 +919,7 @@ describe("Lor-Keth's Staff", () => {
     expect(picks[2]).toMatchObject({
       kind: 'stoneFunction',
       displayName: 'Might Ignore Armor Support',
-      stoneFunction: { kind: 'stonePowerSupport', stonePowerId: 'might.ignoreArmor' },
+      stoneFunction: { kind: 'stonePowerSupport', stonePowerId: 'might.armorReduction' },
     });
     // No authored slots — Node Editor can edit the Challenge / Armor lines.
     expect(picks.every((p) => p.kind !== 'authored')).toBe(true);

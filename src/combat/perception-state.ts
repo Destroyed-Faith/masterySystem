@@ -9,9 +9,11 @@ export interface PerceptionCombatState {
   /** Hidden from observers (Stealth success without Invisibility). */
   hidden?: boolean;
   /**
-   * Legacy: +2 Perception TN per Raise on a Stealth check (Hidden without Invis).
-   * Kept for non-invis Hidden until a separate Stealth rewrite.
+   * Ordinary Stealth: the check's Final Result is the Perception TN.
+   * Not added to an Invisibility TN.
    */
+  stealthPerceptionTn?: number;
+  /** @deprecated Raise bonus. Cleared; ordinary Stealth uses stealthPerceptionTn. */
   stealthRaiseBonus?: number;
   /**
    * Round-wide TN bonus from retroactive Stealth Skill Point spending
@@ -220,12 +222,7 @@ export function lostHealthBarsForInvis(actor: any): number {
   return Math.min(4, idx);
 }
 
-export function isInvisibilitySuppressedByHealth(actor: any): boolean {
-  const bars = Array.isArray(actor?.system?.health?.bars) ? actor.system.health.bars : [];
-  const idx = Math.max(0, Math.floor(Number(actor?.system?.health?.currentBar) || 0));
-  if (bars.length) {
-    const name = String(bars[idx]?.name || '').toLowerCase();
-    if (name.includes('incapacitat')) return true;
-  }
-  return idx >= 5;
+/** Invisibility persists through Incapacitated. Lost bars still change the Perception TN. */
+export function isInvisibilitySuppressedByHealth(_actor: any): boolean {
+  return false;
 }

@@ -15,7 +15,6 @@ import {
   formatNpcInitiativeSigned,
   getNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
-import { actorHasSurprise, pinSurprisedInitiative } from './surprise.js';
 import { requestSetCombatantInitiative } from './gm-relay.js';
 
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -180,19 +179,6 @@ export async function rollInitiativeForCombatant(
     };
   }
 
-  // Surprise pins Initiative at 0 so the surprisers (normal scores) act first.
-  // A later roll must not overwrite that pin.
-  if (actorHasSurprise(actor)) {
-    await pinSurprisedInitiative(actor);
-    return {
-      diceTotal: 0,
-      totalInitiative: 0,
-      equipmentInitiativeModifier: 0,
-      masteryRank: getMasteryRank(actor),
-      rollResult: null,
-    };
-  }
-
   const gameAny = (globalThis as any).game;
   const combat = gameAny?.combat;
   const combatId = combat?.id ? String(combat.id) : '';
@@ -352,7 +338,6 @@ export async function rollInitiativeForCombatant(
 export function needsNpcInitiativeRoll(combatant: Combatant, force = false): boolean {
   const t = combatant.actor?.type;
   if (t !== 'npc' && t !== 'summon' && t !== 'divine') return false;
-  if (actorHasSurprise(combatant.actor)) return false;
   if (force) return true;
   if (combatant.getFlag?.('mastery-system', 'npcInitiativeRolled')) return false;
   const ini = combatant.initiative;
@@ -384,15 +369,6 @@ export async function rollNpcInitiativeOnly(combat: Combat, opts: { force?: bool
  */
 export async function executeInitiativePhase(combat: Combat): Promise<void> {
   if (!game.user?.isGM) return;
-  const seen = new Set<string>();
-  for (const combatant of combat.combatants) {
-    const actor = combatant.actor;
-    const id = String(actor?.id ?? '');
-    if (!actor || !id || seen.has(id)) continue;
-    if (!actorHasSurprise(actor)) continue;
-    seen.add(id);
-    await pinSurprisedInitiative(actor, combat);
-  }
   await rollNpcInitiativeOnly(combat);
 
   // Combatants with null initiative are omitted from `combat.turns`. Pin leftovers.
@@ -402,43 +378,80 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
       await c.update({ initiative: 0 });
     }
   }
+  for (const c of combat.combatants) {
+    await ensureInitiativeTieBreak(c);
+  }
   if (typeof (combat as any).setupTurns === 'function') {
     await (combat as any).setupTurns();
   }
   await syncCombatTurnToHighestInitiativeFirst(combat);
 }
 
-function isPlayerCombatant(combatant: any): boolean {
-  return combatant?.actor?.type === 'character';
-}
-
 function initiativeAttrValue(combatant: any, key: 'agility' | 'wits' | 'intellect' | 'resolve'): number {
   return Math.floor(Number(combatant?.actor?.system?.attributes?.[key]?.value) || 0);
 }
 
+function masteryRankOf(combatant: any): number {
+  const system = combatant?.actor?.system;
+  return Math.max(0, Math.floor(Number(system?.mastery?.rank ?? system?.masteryRank) || 0));
+}
+
+/** Stable d8 from the first sort. Missing flags sort as 0 until `ensureInitiativeTieBreak` stores one. */
+export function tieBreakD8(combatant: any): number {
+  const raw = combatant?.getFlag?.('mastery-system', 'initiativeTieD8');
+  const n = Math.floor(Number(raw) || 0);
+  return n >= 1 && n <= 8 ? n : 0;
+}
+
+export async function ensureInitiativeTieBreak(combatant: any): Promise<number> {
+  const existing = tieBreakD8(combatant);
+  if (existing) return existing;
+  const rolled = 1 + Math.floor(Math.random() * 8);
+  await combatant?.setFlag?.('mastery-system', 'initiativeTieD8', rolled);
+  return rolled;
+}
+
 /**
  * Sort compare: lower result acts first.
- * Higher initiative first. Ties: player (character) before NPC/summon.
- * Player vs player (or any remaining tie): Agility, then Wits, then Intellect, then Resolve.
+ * Higher initiative first. Ties: Mastery Rank, then Agility pool, then a stored d8.
  */
 export function compareInitiativeCombatants(a: any, b: any): number {
   const aDefeated = !!a?.defeated;
   const bDefeated = !!b?.defeated;
   if (aDefeated !== bDefeated) return aDefeated ? 1 : -1;
 
+  const priority = (c: any): number => {
+    try {
+      const combat = c?.combat ?? c?.parent;
+      const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
+      if (round > 1) return 0;
+      return c?.getFlag?.('mastery-system', 'surprisePriority') ||
+        c?.actor?.getFlag?.('mastery-system', 'surprisePriority')
+        ? 1
+        : 0;
+    } catch {
+      return 0;
+    }
+  };
+  const pa = priority(a);
+  const pb = priority(b);
+  if (pa !== pb) return pb - pa;
+
   const ia = Number.isFinite(Number(a?.initiative)) ? Number(a.initiative) : Number.NEGATIVE_INFINITY;
   const ib = Number.isFinite(Number(b?.initiative)) ? Number(b.initiative) : Number.NEGATIVE_INFINITY;
   if (ia !== ib) return ib - ia;
 
-  const aPlayer = isPlayerCombatant(a);
-  const bPlayer = isPlayerCombatant(b);
-  if (aPlayer !== bPlayer) return aPlayer ? -1 : 1;
+  const aRank = masteryRankOf(a);
+  const bRank = masteryRankOf(b);
+  if (aRank !== bRank) return bRank - aRank;
 
-  for (const key of ['agility', 'wits', 'intellect', 'resolve'] as const) {
-    const av = initiativeAttrValue(a, key);
-    const bv = initiativeAttrValue(b, key);
-    if (av !== bv) return bv - av;
-  }
+  const aAgi = initiativeAttrValue(a, 'agility');
+  const bAgi = initiativeAttrValue(b, 'agility');
+  if (aAgi !== bAgi) return bAgi - aAgi;
+
+  const aDie = tieBreakD8(a);
+  const bDie = tieBreakD8(b);
+  if (aDie !== bDie) return bDie - aDie;
 
   const aid = String(a?.id ?? '');
   const bid = String(b?.id ?? '');

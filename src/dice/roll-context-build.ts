@@ -4,8 +4,7 @@
  *
  * Builders return the BASE pool (attribute + skill full-/half-pool rule +
  * equipment flat penalties). Specials (Weaken / Soulburn / Disoriented),
- * the percentage Health / Encumbrance penalty, and the final Minimum Pool
- * (= Mastery Rank) are applied centrally by `masteryRoll` via
+ * the percentage Health / Encumbrance penalty are applied centrally by `masteryRoll` via
  * `finalizeRolledPool` (`applyPoolPenalties: true`), so previews and final
  * rolls share one calculation.
  */
@@ -64,6 +63,26 @@ function capAttr(key: string): string {
   return key.charAt(0).toUpperCase() + key.slice(1);
 }
 
+/** Skill rating from `system.skills.<key>` (number or `{ value }` / `{ rank }`). */
+export function readSkillRating(system: any, skillKey: string): number {
+  const raw = system?.skills?.[skillKey];
+  if (raw == null) return 0;
+  if (typeof raw === 'object') {
+    return Math.max(0, Math.floor(Number((raw as any).value ?? (raw as any).rank ?? 0) || 0));
+  }
+  return Math.max(0, Math.floor(Number(raw) || 0));
+}
+
+/** Attribute pool size from `system.attributes.<key>.value` (or a bare number). */
+export function readAttributePoolValue(system: any, attributeKey: string): number {
+  const raw = system?.attributes?.[attributeKey];
+  if (raw == null) return 0;
+  if (typeof raw === 'object') {
+    return Math.max(0, Math.floor(Number((raw as any).value) || 0));
+  }
+  return Math.max(0, Math.floor(Number(raw) || 0));
+}
+
 export interface SkillRollPoolPreview {
   attributeKey: string;
   /** Compact sheet label, e.g. `8k2`. */
@@ -105,8 +124,9 @@ export function buildSkillRollPoolPreview(
 ): SkillRollPoolPreview {
   const system = (actor as any).system;
   const masteryRank = getRulesMasteryRank(actor);
-  const skillRating = skillRatingOverride ?? Number(system.skills?.[skillKey] ?? 0);
-  const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
+  const skillRating =
+    skillRatingOverride ?? readSkillRating(system, skillKey);
+  const attributeValue = readAttributePoolValue(system, attributeKey);
   const poolThreshold = skillFullPoolThreshold(masteryRank);
   const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
   const pool = getSkillRollDicePool(actor, skillKey, attributeKey, skillRatingOverride);
@@ -119,7 +139,7 @@ export function buildSkillRollPoolPreview(
     tooltip = `${attrLabel} ${attributeValue} → full pool ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} ≥ ${poolThreshold}, 2×MR)`;
   } else {
     const reduced = reducedSkillAttributePool(attributeValue);
-    tooltip = `${attrLabel} ${attributeValue} → ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; floor(${attributeValue}/2) = ${reduced}, MR floor ${masteryRank})`;
+    tooltip = `${attrLabel} ${attributeValue} → ${pool.numDice}d8, keep ${pool.keepDice} (skill ${skillRating} < ${poolThreshold}; floor(${attributeValue}/2) = ${reduced})`;
   }
   const penaltyParts: string[] = [];
   if (pool.equipPenalty > 0) penaltyParts.push(`−${pool.equipPenalty} equip`);
@@ -178,8 +198,8 @@ export function getSkillRollDicePool(
     };
   }
 
-  const attributeValue = Number(system.attributes?.[attributeKey]?.value ?? 0);
-  const skillRating = skillRatingOverride ?? Number(system.skills?.[skillKey] ?? 0);
+  const attributeValue = readAttributePoolValue(system, attributeKey);
+  const skillRating = skillRatingOverride ?? readSkillRating(system, skillKey);
   const fullPoolReady = isSkillFullPoolReady(skillRating, masteryRank);
 
   let baseAttrPool = attributeValue;
@@ -210,7 +230,7 @@ export function getSkillRollDicePool(
   return {
     numDice: finalized.numDice,
     baseDice,
-    keepDice: masteryRank,
+    keepDice: finalized.numDice <= 0 ? 0 : Math.min(masteryRank, finalized.numDice),
     halfPool,
     equipPenalty,
     finalizeNotes: finalized.notes,
@@ -248,8 +268,8 @@ export function buildSkillRollContext(
 
   const system = (actor as any).system;
   const masteryRank = getRulesMasteryRank(actor);
-  const attributeValue = Number(system.attributes?.[attributeKey]?.value) || 0;
-  const skillRating = Number(system?.skills?.[skillKey] ?? 0);
+  const attributeValue = readAttributePoolValue(system, attributeKey);
+  const skillRating = readSkillRating(system, skillKey);
   const poolThreshold = skillFullPoolThreshold(masteryRank);
 
   const pool = getSkillRollDicePool(actor, skillKey, attributeKey);
@@ -264,7 +284,7 @@ export function buildSkillRollContext(
       ? ` Equipped armor/shield physical penalty: −${pool.equipPenalty}d8.`
       : '';
 
-  const flavor = `Attribute pool: ${pool.baseDice}d8 base, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${equipPenaltyFlavor}${halfPoolFlavor}`;
+  const flavor = `Attribute pool: ${pool.baseDice}d8 base, keep highest ${pool.keepDice}. Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.${equipPenaltyFlavor}${halfPoolFlavor}`;
 
   return {
     label: `${skillDef.name} Check`,
@@ -272,7 +292,7 @@ export function buildSkillRollContext(
     skillKey,
     rollOptions: {
       numDice: pool.baseDice,
-      keepDice: masteryRank,
+      keepDice: pool.keepDice,
       skill: 0,
       ...buildTnRollFields(tnSpec, stoneBonusRaises),
       label: `${skillDef.name} Check`,
@@ -298,17 +318,18 @@ export function buildAttributeRollContext(
 ): BuiltRollContext | null {
   const system = (actor as any).system;
   const masteryRank = getRulesMasteryRank(actor);
-  const numDice = Number(system.attributes?.[attributeKey]?.value) || 0;
+  const numDice = readAttributePoolValue(system, attributeKey);
 
   const attrLabel = capAttr(attributeKey);
-  const flavor = `Attribute pool: ${numDice}d8 base, keep highest ${masteryRank} (MR). Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.`;
+  const keepDice = numDice <= 0 ? 0 : Math.min(masteryRank, numDice);
+  const flavor = `Attribute pool: ${numDice}d8 base, keep highest ${keepDice}. Base TN: ${tnSpec.baseTN}, Raises: ${tnSpec.raises}.`;
 
   return {
     label: `${attrLabel} Check`,
     attributeKey,
     rollOptions: {
       numDice,
-      keepDice: masteryRank,
+      keepDice,
       skill: 0,
       ...buildTnRollFields(tnSpec, stoneBonusRaises),
       label: `${attrLabel} Check`,

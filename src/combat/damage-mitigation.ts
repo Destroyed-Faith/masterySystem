@@ -72,16 +72,15 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
   const afterArmor = Math.max(0, raw - armor);
 
   // Step 2 — DR% in sequence: continuous sheet DR first, then per-hit reaction DR
-  // on the remainder (each step uses ceil on the reduction — defender-favorable).
-  const reductionBase =
-    drBase > 0 ? Math.min(afterArmor, Math.ceil((afterArmor * drBase) / 100)) : 0;
-  const afterBaseDr = Math.max(0, afterArmor - reductionBase);
-  const reductionReact =
+  // on the remainder. Core: Final damage = ceil(max(0, Damage) × (1 − DR / 100)).
+  // Round the remaining damage, not the subtracted reduction.
+  const afterBaseDr =
+    drBase > 0 ? Math.max(0, Math.ceil(afterArmor * (1 - drBase / 100))) : afterArmor;
+  const afterDr =
     drReact > 0 && afterBaseDr > 0
-      ? Math.min(afterBaseDr, Math.ceil((afterBaseDr * drReact) / 100))
-      : 0;
-  const afterDr = Math.max(0, afterBaseDr - reductionReact);
-  const reductionTotal = reductionBase + reductionReact;
+      ? Math.max(0, Math.ceil(afterBaseDr * (1 - drReact / 100)))
+      : afterBaseDr;
+  const reductionTotal = Math.max(0, afterArmor - afterDr);
   const effectiveDrPct =
     afterArmor > 0 ? Math.min(100, Math.round((100 * reductionTotal) / afterArmor)) : 0;
   // Step 3 — 8s-minimum rule.

@@ -24,6 +24,8 @@ export interface RadialCombatOption {
     /** Phase index for phased bosses; null/undefined = use actor system.npcActivePhaseIndex */
     npcPhaseIndex?: number | null;
     range?: number;
+    /** Movement Power distance before Enhancement and before Movement Reduction. */
+    basisMeters?: number;
     meleeReachMeters?: number;
     /**
      * @deprecated Legacy Short/min band. Ignored — flat maximum only.

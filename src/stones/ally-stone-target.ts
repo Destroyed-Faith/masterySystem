@@ -62,13 +62,42 @@ function worldAndCombatActors(): any[] {
   return out;
 }
 
+export function listSelectableCreatures(
+  actors: Iterable<any> | null | undefined,
+  casterId?: string,
+): AllyPlayerChoice[] {
+  const self = String(casterId || '').trim();
+  const seen = new Set<string>();
+  const out: AllyPlayerChoice[] = [];
+  for (const raw of actors ?? []) {
+    const actor = (raw as { actor?: any })?.actor ?? raw;
+    if (!actor) continue;
+    const type = String(actor.type || '');
+    if (type !== 'character' && type !== 'npc') continue;
+    const id = String(actor.id || '').trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push({
+      id,
+      name: String(actor.name || 'Creature'),
+      isSelf: !!self && id === self,
+    });
+  }
+  out.sort((a, b) => Number(a.isSelf) - Number(b.isSelf) || a.name.localeCompare(b.name));
+  return out;
+}
+
 export async function promptSelectablePlayerTarget(options: {
   caster: any;
   title: string;
   hint: string;
+  anyCreature?: boolean;
 }): Promise<any | null> {
   const caster = options.caster;
-  const choices = listSelectablePlayerActors(worldAndCombatActors(), String(caster?.id || ''));
+  const pool = worldAndCombatActors();
+  const choices = options.anyCreature
+    ? listSelectableCreatures(pool, String(caster?.id || ''))
+    : listSelectablePlayerActors(pool, String(caster?.id || ''));
   if (!choices.length) return null;
   const DialogV2 = (globalThis as any).foundry?.applications?.api?.DialogV2;
   if (typeof DialogV2?.prompt !== 'function') return null;
@@ -81,7 +110,7 @@ export async function promptSelectablePlayerTarget(options: {
       .join('');
     const id = await DialogV2.prompt({
       window: { title: options.title },
-      content: `<form class="mastery-dialog-form"><p class="md-hint">${options.hint}</p><label class="md-label">Player</label><select name="target" class="md-select">${optionsHtml}</select></form>`,
+      content: `<form class="mastery-dialog-form"><p class="md-hint">${options.hint}</p><label class="md-label">${options.anyCreature ? 'Creature' : 'Player'}</label><select name="target" class="md-select">${optionsHtml}</select></form>`,
       ok: {
         label: 'Give',
         callback: (_event: unknown, button: any) => String(button?.form?.elements?.target?.value || ''),

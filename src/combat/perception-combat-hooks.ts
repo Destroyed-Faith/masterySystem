@@ -4,10 +4,10 @@
 
 import type { CombatSenseId } from './combat-senses.js';
 import {
-  computeStealthRaiseBonus,
   clearPerceptionCombatEncounterState,
   clearPerceptionRoundState,
   clearPerceptionRoundUsage,
+  getPerceptionCombatState,
   setPerceptionCombatState,
 } from './perception-state.js';
 import { syncInvisibilityFromPowers } from './invisibility-profile.js';
@@ -47,22 +47,36 @@ export function blockedSensesForVeil(presetId: string, elevated = false): Combat
   return [...new Set(out)];
 }
 
-/** Apply a Stealth skill check result to the rolling actor's perception combat state. */
+/** Apply a Stealth skill check result. Final Result becomes the Perception TN. */
 export async function applyStealthRollResult(
   actor: any,
-  result: { success: boolean; raises?: number },
+  result: { success: boolean; raises?: number; finalResult?: number },
 ): Promise<void> {
   if (!actor?.setFlag) return;
-  const raises = Math.max(0, Math.floor(Number(result.raises) || 0));
-  if (result.success) {
+  const total = Math.max(0, Math.floor(Number(result.finalResult) || 0));
+  if (result.success && total > 0) {
     await setPerceptionCombatState(actor, {
       hidden: true,
-      stealthRaiseBonus: computeStealthRaiseBonus(raises),
+      stealthPerceptionTn: total,
+      stealthRaiseBonus: 0,
     });
     return;
   }
   await setPerceptionCombatState(actor, {
     hidden: false,
+    stealthPerceptionTn: 0,
+    stealthRaiseBonus: 0,
+  });
+}
+
+/** Ordinary Stealth hiding ends. Invisibility is left alone. */
+export async function breakOrdinaryStealth(actor: any, _reason?: string): Promise<void> {
+  if (!actor) return;
+  const st = getPerceptionCombatState(actor);
+  if (!st.hidden && !(st.stealthPerceptionTn ?? 0) && !(st.stealthRaiseBonus ?? 0)) return;
+  await setPerceptionCombatState(actor, {
+    hidden: false,
+    stealthPerceptionTn: 0,
     stealthRaiseBonus: 0,
   });
 }

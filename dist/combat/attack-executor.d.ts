@@ -8,9 +8,33 @@ export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetrati
 interface SplitContext {
     splitPairId: string;
     splitIndex: 1 | 2;
-    /** Halved attack pool for this strike (Math.floor(original / 2)). */
+    /** This strike's share of the attack pool. Strike 2 carries the remainder. */
     attributePool: number;
+    secondPool?: number;
+    sharedRaisePlan?: string;
+    sharedRaiseSlots?: string;
+    sharedRaiseTn?: string;
 }
+/** Split one attack pool across two strikes. No Mastery Rank floor. */
+export declare function divideSplitAttackPool(total: number): {
+    first: number;
+    second: number;
+};
+/** Combatants other than the attacker. One alternative target is enough. */
+export declare function listSplitSecondTargetIds(tokenIds: readonly string[], attackerTokenId: string): string[];
+export declare function rememberSplitSharedRaises(pairId: string, raises: {
+    plan?: string;
+    slots?: string;
+    tn?: string;
+}): void;
+export declare function peekPendingSplit(pairId: string): {
+    targetTokenId: string;
+    secondPool: number;
+    sharedRaisePlan?: string;
+} | null;
+type SplitSecondTargetFn = (attackerToken: any, primaryTargetToken: any, option: RadialCombatOption) => Promise<string | null>;
+/** Tests and the attack card use this to choose the second Split Attack token. */
+export declare function setSplitSecondTargetResolver(fn: SplitSecondTargetFn | null): void;
 /**
  * After Strike 1 of a Split Attack fully resolves (hit or miss), post Strike 2.
  * Safe to call more than once — the pending entry is consumed on first spawn.
@@ -47,6 +71,11 @@ export declare function getMasteryRank(actor: any): number;
 /** True when the wielded weapon (real or artifact-virtual) has the Finesse innate. */
 export declare function weaponHasFinesse(weapon: any | null): boolean;
 export declare function getAttackAttribute(actor: any, weapon: any | null, option: RadialCombatOption, attackType: "melee" | "ranged"): string;
+/** Queue strike 2 against a chosen token. One other combatant is a valid choice. */
+export declare function openSplitPair(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: 'melee' | 'ranged'): Promise<{
+    pairId: string;
+    secondTargetId: string;
+}>;
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */

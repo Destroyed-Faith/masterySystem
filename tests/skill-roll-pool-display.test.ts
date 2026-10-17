@@ -69,10 +69,11 @@ describe('skill roll pool preview', () => {
     expect(full.numDice).toBe(8);
   });
 
-  it('respects MR floor when attribute is low', () => {
+  it('allows a skill pool below Mastery Rank', () => {
     const actor = mockActor({ masteryRank: 3, skills: { athletics: 6 }, attributes: { might: 2 } });
     const preview = buildSkillRollPoolPreview(actor, 'athletics', 'might', 6);
-    expect(preview.numDice).toBe(3);
-    expect(preview.keepDice).toBe(3);
+    // v0.9.9.5 removed the Mastery Rank floor. Keep cannot exceed the dice present.
+    expect(preview.numDice).toBe(2);
+    expect(preview.keepDice).toBe(2);
   });
 });

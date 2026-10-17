@@ -3,21 +3,28 @@
  *
  * Initiative Exchange: convert remaining Initiative into Initiative Colorless
  * Stones at `4 × Mastery Rank` Initiative per Stone. They join the Colorless
- * Pool for the current combat, may pay any part of an unlocked Stone
- * Ability's normal cost, and use Ready / Exhausted normally: spending one
- * makes it Exhausted, and it may return through normal end-of-Round Stone
- * Regeneration. They disappear when combat ends — Ready or Exhausted — and
- * can never be burned, Sealed, or Bound.
+ * Pool for the current combat and may pay any part of an unlocked Stone
+ * Ability's normal cost. Spending one makes it Exhausted. Colorless Stones
+ * are not recovered at the end of the Round unless Colorless Recovery has
+ * designated them. They disappear when combat ends — Ready or Exhausted —
+ * and can never be Burned, Sealed, or Bound.
  *
  * Item-granted stones stay on the actor and follow that item's own rule
  * (Absorption: vanish when spent, gone at the end of the next turn). Combat
  * cleanup must not treat them as leftover Initiative.
  *
  * Permanent Colorless Stones (progression, `system.stonePools.colorless`)
- * share the same combat Colorless Pool for spending and Regeneration but
- * survive the combat.
+ * are 1:1 after the 2 starting Attribute Stones. Spent Colorless Stones stay
+ * Exhausted unless Colorless Recovery designated them. Permanent Colorless
+ * Stones return Ready at the end of combat unless Sealed or Bound.
  */
 export declare const COLORLESS_STONE_ATTR = "colorless";
+export declare const COLORLESS_RECOVERY_FLAG = "colorlessRecovery";
+/**
+ * Designated Colorless Stones that are Exhausted right now.
+ * A numeric `remaining` budget does not make every Colorless Stone recoverable.
+ */
+export declare function colorlessRecoveryBudget(actor: any): number;
 export declare const COLORLESS_GEM_STYLE: {
     fill: string;
     stroke: string;
@@ -35,16 +42,21 @@ export declare function getInitiativeColorlessTotal(actor: any): number;
 /** Colorless Stones that did not come from Initiative (Absorption / items). */
 export declare function getItemColorlessStones(actor: any): number;
 export declare function setTempColorlessStones(actor: any, count: number): Promise<void>;
+/**
+ * Absorption Stones wait until the next Preparation Phase. They are not spendable yet.
+ */
+export declare function queueAbsorptionStones(actor: any, amount: number, combat: any): Promise<number>;
+/** Move queued Absorption Stones into the spendable pile at the next Preparation Phase. */
+export declare function releaseAbsorptionStonesForPreparation(actor: any, combat: any): Promise<number>;
 /** Item / Absorption grant — does not count as leftover Initiative. */
 export declare function addTempColorlessStones(actor: any, amount: number): Promise<number>;
 /** Initiative Exchange grant — gained Ready, alive until the combat ends. */
 export declare function addInitiativeColorlessStones(actor: any, amount: number): Promise<number>;
 export declare function copyColorlessPile(from: any, to: any): Promise<void>;
 /**
- * Permanent Colorless Stones (v0.9.9): converted 2:1 from unassigned
- * permanent progression Stones. They live in `system.stonePools.colorless`,
- * use the normal Stone states, become Exhausted when spent, and regenerate
- * normally. Temporary Colorless Stones stay a separate combat resource.
+ * Permanent Colorless Stones live in `system.stonePools.colorless`.
+ * They become Exhausted when spent and are not restored by Stone Recovery
+ * unless Colorless Recovery designated them. They return Ready at combat end.
  */
 export declare function getPermanentColorlessStones(actor: any): {
     current: number;

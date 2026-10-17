@@ -121,7 +121,7 @@ export function buildStoneAuditReport(actor) {
         permanentStones,
         permanentColorless: colorless,
         assignedTotal,
-        unassigned: Math.max(0, permanentStones - assignedTotal - 2 * colorless),
+        unassigned: Math.max(0, permanentStones - assignedTotal - colorless),
         slots,
         pools,
         bonds: listStoneAuditBonds(actor),

@@ -13,6 +13,8 @@ import {
   initializeCombatRoundState,
   clearStonePowersConfigurationLocksInCombat,
   clearCombatStoneTurnBonusesForActor,
+  armDefensiveStoneExpiry,
+  releaseDefensiveStoneExpiry,
 } from '../combat/action-economy.js';
 import {
   runMasteryCombatRoundAdvancePipeline,
@@ -76,6 +78,7 @@ export function initializeStoneHooks(): void {
         if (prevActor && canCurrentUserUpdateDocument(prevActor)) {
           try {
             await clearCombatStoneTurnBonusesForActor(prevActor, combat);
+            await armDefensiveStoneExpiry(prevActor, combat);
           } catch (e) {
             console.warn('Mastery System | clearCombatStoneTurnBonusesForActor failed', e);
           }
@@ -91,6 +94,11 @@ export function initializeStoneHooks(): void {
       const currentCombatant = combat.combatant;
 
       if (currentCombatant && currentCombatant.actor && canCurrentUserUpdateDocument(currentCombatant.actor)) {
+        try {
+          await releaseDefensiveStoneExpiry(currentCombatant.actor, combat);
+        } catch (e) {
+          console.warn('Mastery System | releaseDefensiveStoneExpiry failed', e);
+        }
         await resetTurnState(currentCombatant.actor, combat);
       }
     }

@@ -14,7 +14,10 @@
 ![The mirror](https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/LogosBanners/Destroyed%20Faith%20Banner%20Beige.png)  {position:absolute,top:0px,right:55px,width:700px}
 
 
+
+<!-- LIMITED POWER MODIFIER: NOT AVAILABLE for this Power Type. The Limited variant applies exclusively to eligible Instant Active Powers; see Core. -->
 \page
+
 {{pageNumber,auto}}
 {{wide
 © 2025 Daniel Rodrigo Navarro Melendo. All rights reserved.
@@ -57,7 +60,9 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Active Buffs
-Version: v0.9.9.0 (2026-09-22)
+Version: v0.9.9.5 (2026-10-15)
+> **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
+
 }}
 
 }}
@@ -72,37 +77,35 @@ Version: v0.9.9.0 (2026-09-22)
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Active Buffs}}{{ 4}}](#p4)
 - #### [{{ Active Buff Rules}}{{ 4}}](#p4)
+- #### [{{ Single-Focus Active Buffs}}{{ 5}}](#p5)
 - #### [{{ Critical Restriction}}{{ 6}}](#p6)
-- #### [{{ Pure Defensive}}{{ 7}}](#p7)
-- #### [{{ Defensive Combinations}}{{ 14}}](#p14)
-- #### [{{ Pure Offensive}}{{ 19}}](#p19)
-- #### [{{ Offensive Combinations}}{{ 22}}](#p22)
-- #### [{{ Active Buff: Critical}}{{ 24}}](#p24)
-- #### [{{ Active Buff: Special Increase + Blight / Challenge / Corrode / Disoriented / Exorcism / Expose / Hex / Lacerate / Mark / Requiem / Ruin / Slow / Soulburn / Sundered / Weaken}}{{ 27}}](#p27)
-- #### [{{ Active Buff: Spell Resistance}}{{ 28}}](#p28)
-- #### [{{ Active Buff: Self Cleanse}}{{ 29}}](#p29)
-- #### [{{ Active Buff Auras}}{{ 30}}](#p30)
-- #### [{{ Active Buff: Damage Aura}}{{ 32}}](#p32)
-- #### [{{ Active Buff: Healing Aura}}{{ 32}}](#p32)
-- #### [{{ Active Buff: Size + Damage + Armor}}{{ 34}}](#p34)
-- #### [{{ Active Buff: Summon Damage Aura}}{{ 36}}](#p36)
-- #### [{{ Active Buff: Summon Armor Aura}}{{ 37}}](#p37)
-- #### [{{ Active Buff: Thorns}}{{ 38}}](#p38)
-- #### [{{ Active Buff: Invisibility}}{{ 39}}](#p39)
-- #### [{{ Active Buff: Parry Recovery}}{{ 40}}](#p40)
-- #### [{{ Absorption Subsystem}}{{ 41}}](#p41)
-- #### [{{ Active Buff: Absorption Stone Increase}}{{ 42}}](#p42)
-- #### [{{ Active Buff: Damage Negation Pool}}{{ 43}}](#p43)
+- #### [{{ Pure Defensive Buffs}}{{ 7}}](#p7)
+- #### [{{ Pure Offensive Buffs}}{{ 14}}](#p14)
+- #### [{{ Active Buff: Critical}}{{ 16}}](#p16)
+- #### [{{ Active Buff: Spell Resistance}}{{ 20}}](#p20)
+- #### [{{ Active Buff: Self Cleanse}}{{ 21}}](#p21)
+- #### [{{ Active Buff Auras}}{{ 22}}](#p22)
+- #### [{{ Active Buff: Damage Aura}}{{ 24}}](#p24)
+- #### [{{ Active Buff: Healing Aura}}{{ 24}}](#p24)
+- #### [{{ Active Buff: Summon Damage Aura}}{{ 25}}](#p25)
+- #### [{{ Active Buff: Summon Armor Aura}}{{ 26}}](#p26)
+- #### [{{ Active Buff: Thorns}}{{ 27}}](#p27)
+- #### [{{ Active Buff: Invisibility}}{{ 28}}](#p28)
+- #### [{{ Active Buff: Parry Recovery}}{{ 29}}](#p29)
+- #### [{{ Absorption Subsystem}}{{ 30}}](#p30)
+- #### [{{ Active Buff: Absorption Stone Increase}}{{ 31}}](#p31)
+- #### [{{ Active Buff: Damage Negation Pool}}{{ 32}}](#p32)
 
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 ## Active Buffs
 
 Active Buffs are temporary combat enhancements.
 
-They temporarily modify one or more listed mechanical values or intensify a dedicated combat subsystem.
+They temporarily modify one listed mechanical focus or intensify a dedicated combat subsystem.
 
 Unlike Passives, Active Buffs are not permanently active.
 
@@ -159,6 +162,7 @@ The round in which the Active Buff is activated counts as the first round of its
 ::
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 ### Linear Scaling Rule
@@ -171,37 +175,24 @@ A standard Active Buff does not gain a new axis, rider, Special, condition, subs
 
 ---
 
-### Pure and Combination Active Buffs
+### Single-Focus Active Buffs
 
-A **Pure Active Buff** has exactly one mechanical axis.
+For this beta release, each selectable Active Buff is **single-focus**:
+it increases one purchased mechanical axis or implements one explicitly
+listed dedicated subsystem (such as Critical, Phasing, Invisibility or Absorption).
 
-Examples include:
-
-* Armor
-* Evade
-* Temporary HP
-* Healing
-* Damage
-* Penetration
-* Thorns
-
-A **Combination Active Buff** has exactly two mechanical axes.
-
-Examples include:
-
-* Armor + Temporary HP
-* Evade + Temporary HP
-* Temporary HP + Healing
-* Armor + Evade
-* Damage + Penetration
-
-Both axes must fit into the same Active Buff PP budget.
-
-A Combination Active Buff does not receive a complete PP budget for each axis.
+Pure axes include **Armor, Evade, Temporary HP, Healing and Damage**.
+All mixed-axis Active Buffs are retired from the selectable catalogue.
+Do not build an Armor + Temporary HP, Damage + Penetration, Size + Damage + Armor,
+or other multi-axis package by combining pure catalogue prices.
+Auras purchase coverage for their single listed effect, not a second effect.
 
 ---
 ::
 ### Active Buff Limits
+
+**Approved Power Point exceptions (16 October 2026):** Active Buff: Damage may exceed its target budget by **5 PP** across its progression. Active Buff: Healing Aura at PL 1 costs **55 PP against the 40 PP target** (+15 PP). These printed values are approved and remain unchanged.
+
 
 Standard Active Buffs may not grant:
 
@@ -214,18 +205,17 @@ Standard Active Buffs may not grant:
 * hidden Movement Powers,
 * or unrelated secondary effects.
 
-An Active Buff may interact with an existing eligible Special only through the dedicated **Active Buff: Special Increase** entry.
-
-Special Increase never applies a Special by itself.
+Active Buffs do not apply or increase Specials. **Intellect Stone Ability: Special Boost** remains available under its own Stone Ability rules; the **Universal Raise Effect: Special Increase** is a different rule.
 
 ---
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 ### Critical Restriction
 
-Critical is a closed offensive subsystem.
+Critical is a closed offensive subsystem that can modify qualifying **Martial Attacks and damaging Spells**.
 
 Critical may be granted only through:
 
@@ -244,7 +234,7 @@ Critical may not appear as a secondary rider.
 ::
 ### Dedicated Active Buff Subsystems
 
-Some Active Buffs are dedicated extensions of another subsystem and do not follow normal Pure or Combination construction.
+Some Active Buffs are dedicated extensions of another subsystem and follow their own exact single-focus subsystem construction rules.
 
 These include:
 
@@ -255,13 +245,12 @@ These include:
 * Active Buff: Parry Recovery
 * Active Buff: Absorption Stone Increase
 * Active Buff: Damage Negation Pool
-* Active Buff: Special Increase
 
 A subsystem Active Buff may require the matching Passive.
 
 If the requirement is not met, the Active Buff has no effect.
 
-Dedicated subsystem Active Buffs may not be used as templates for unrelated combination buffs.
+Dedicated subsystem Active Buffs cannot authorize an unrelated second mechanical axis.
 
 ---
 ::
@@ -274,8 +263,8 @@ This is an explicit exception to normal subsystem stacking.
 If both are active:
 
 * add both Invisibility Bonuses together,
-* Passive Invisibility continues to block its chosen Special Combat Senses,
-* and Active Buff: Invisibility continues to block Normal Combat Awareness.
+* Passive Invisibility continues to Obscure its chosen Special Combat Senses,
+* and Active Buff: Invisibility continues to Obscure Normal Combat Awareness.
 
 This exception applies only to the Invisibility subsystem and does not allow a character to maintain a second Active Buff.
 
@@ -283,6 +272,7 @@ This exception applies only to the Invisibility subsystem and does not allow a c
 
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -347,6 +337,7 @@ You reinforce your body, armor, stance, magic, skin, or guard with a temporary d
 ---
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -412,6 +403,7 @@ You become harder to target, harder to read, harder to pin down, or harder to st
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -478,6 +470,7 @@ You project your defense outward, turning personal protection into shared battle
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -545,6 +538,7 @@ A temporary protective layer rebuilds itself again and again while the buff hold
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -553,36 +547,29 @@ A temporary protective layer rebuilds itself again and again while the buff hold
   <span class="tooltip">🛈
     <span class="tooltiptext">
       BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      Regeneration in combat = 4 PP per 1 HP healed at the start of your turn.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a pure Defensive Active Buff with exactly one axis: start-of-turn healing.<br>
-      The full Active Buff budget is spent on repeated HP recovery.<br>
-      At the start of each of your turns while the buff lasts, you heal the listed HP.<br>
-      Because healing is priced in 4 PP steps, exact curve matching is not always possible with whole HP values.<br>
-      Values are rounded down to whole HP to avoid fractional healing.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → Heal 10 HP × 4 = 40 PP, exactly on target.<br>
-      L2 target 70 PP → Heal 17 HP × 4 = 68 PP, close to target.<br>
-      L3 target 100 PP → Heal 25 HP × 4 = 100 PP, exactly on target.<br>
-      L4 target 130 PP → Heal 32 HP × 4 = 128 PP, close to target.<br>
-      L5 target 160 PP → Heal 40 HP × 4 = 160 PP, exactly on target.<br>
-      L6 target 190 PP → Heal 47 HP × 4 = 188 PP, close to target.<br>
-      L7 target 220 PP → Heal 55 HP × 4 = 220 PP, exactly on target.<br>
-      L8 target 250 PP → Heal 62 HP × 4 = 248 PP, close to target.<br>
-      L9 target 280 PP → Heal 70 HP × 4 = 280 PP, exactly on target.<br>
-      L10 target 310 PP → Heal 77 HP × 4 = 308 PP, close to target.<br>
-      L11 target 340 PP → Heal 85 HP × 4 = 340 PP, exactly on target.<br>
-      L12 target 370 PP → Heal 92 HP × 4 = 368 PP, close to target.<br>
-      L13 target 400 PP → Heal 100 HP × 4 = 400 PP, exactly on target.<br>
-      L14 target 430 PP → Heal 107 HP × 4 = 428 PP, close to target.<br>
-      L15 target 460 PP → Heal 115 HP × 4 = 460 PP, exactly on target.<br>
-      L16 target 490 PP → Heal 122 HP × 4 = 488 PP, close to target.<br><br>
-      NOTES<br>
-      This heals real HP.<br>
-      It does not grant Temporary HP.<br>
-      It does not restore lost Health Levels unless another rule explicitly allows that.<br>
-      It grants no Armor, no Evade, no Damage Reduction, no Phasing, and no secondary rider.
+      Active Buff target = 30 PP x Power Level + 10 PP.<br>
+      Healing = 20 PP per 1d8 Healing; no expected-HP conversion.<br>
+      This dedicated pure buff heals current HP at the start of each Turn for MR Rounds.<br>
+      Healing Dice are recalculated with 20 PP per die; other printed axes are unchanged.<br><br>
+      LEVEL-BY-LEVEL PRICE AUDIT<br>
+      L1: Healing 2d8 (40 PP) = 40 / 40 PP; 0 PP unused.<br>
+      L2: Healing 3d8 (60 PP) = 60 / 70 PP; 10 PP unused.<br>
+      L3: Healing 5d8 (100 PP) = 100 / 100 PP; 0 PP unused.<br>
+      L4: Healing 6d8 (120 PP) = 120 / 130 PP; 10 PP unused.<br>
+      L5: Healing 8d8 (160 PP) = 160 / 160 PP; 0 PP unused.<br>
+      L6: Healing 9d8 (180 PP) = 180 / 190 PP; 10 PP unused.<br>
+      L7: Healing 11d8 (220 PP) = 220 / 220 PP; 0 PP unused.<br>
+      L8: Healing 12d8 (240 PP) = 240 / 250 PP; 10 PP unused.<br>
+      L9: Healing 14d8 (280 PP) = 280 / 280 PP; 0 PP unused.<br>
+      L10: Healing 15d8 (300 PP) = 300 / 310 PP; 10 PP unused.<br>
+      L11: Healing 17d8 (340 PP) = 340 / 340 PP; 0 PP unused.<br>
+      L12: Healing 18d8 (360 PP) = 360 / 370 PP; 10 PP unused.<br>
+      L13: Healing 20d8 (400 PP) = 400 / 400 PP; 0 PP unused.<br>
+      L14: Healing 21d8 (420 PP) = 420 / 430 PP; 10 PP unused.<br>
+      L15: Healing 23d8 (460 PP) = 460 / 460 PP; 0 PP unused.<br>
+      L16: Healing 24d8 (480 PP) = 480 / 490 PP; 10 PP unused.<br>
+<br>
+      NOTE: Real HP Healing never restores Scarred Health Bars or Temporary HP. Special-priced Healing Auras use their separate 35 PP/d8 payload rate due to repeated multi-target delivery.
     </span>
   </span>
 </h3>
@@ -591,27 +578,28 @@ Your body, spirit, blessing, mutation, or magic repeatedly restores itself while
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **10 HP**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **17 HP**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **25 HP**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **32 HP**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **40 HP**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **47 HP**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **55 HP**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **62 HP**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **70 HP**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **77 HP**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **85 HP**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **92 HP**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **100 HP**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **107 HP**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **115 HP**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **122 HP**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **2d8 HP**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **3d8 HP**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **5d8 HP**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **6d8 HP**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **8d8 HP**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **9d8 HP**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **11d8 HP**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **12d8 HP**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **14d8 HP**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **15d8 HP**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **17d8 HP**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **18d8 HP**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **20d8 HP**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **21d8 HP**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **23d8 HP**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | At the start of your turn, heal **24d8 HP**. |
 
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -667,9 +655,9 @@ Your existing damage resistance hardens, but only if you already possess a true 
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | — |
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
 | **4** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%**, up to a maximum of **20% total DR**. |
 | **5** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%**, up to a maximum of **20% total DR**. |
 | **6** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%**, up to a maximum of **20% total DR**. |
@@ -684,10 +672,13 @@ Your existing damage resistance hardens, but only if you already possess a true 
 | **15** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%**, up to a maximum of **50% total DR**. |
 | **16** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%**, up to a maximum of **50% total DR**. |
 
+**Combination order:** The +10% Buff increases the current non-Stone DR subtotal only up to this Buff's printed total-DR cap. A separate qualifying Reaction adds its own eligible bonus under its cap. **Resolve Stone Ability: Damage Reduction** is added afterward, outside these printed caps. Apply the Core's 100% global cap and round the **remaining damage up**.
+
 ---
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -743,9 +734,9 @@ You do not become tougher. You become less present.
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | — |
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
 | **4** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Phasing from a Passive**, gain **1 additional Phasing charge** for the duration, up to a maximum of **2 total Phasing charges this combat**. |
 | **5** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Phasing from a Passive**, gain **1 additional Phasing charge** for the duration, up to a maximum of **2 total Phasing charges this combat**. |
 | **6** | Active Buff | Self | — | Mastery Rank Rounds | If you currently have **Phasing from a Passive**, gain **1 additional Phasing charge** for the duration, up to a maximum of **2 total Phasing charges this combat**. |
@@ -763,305 +754,7 @@ You do not become tougher. You become less present.
 ---
 }}
 \page
-{{pageNumber,auto}}
-{{wide
 
-## Active Buffs — Defensive Combinations
-
-Defensive Combination Active Buffs combine exactly two defensive axes.
-
-They are used when a Tree should not be purely defensive in only one direction, but still needs a clear and readable protection pattern.
-
-A Defensive Combination Active Buff must obey the following rules:
-
-- It uses the normal **Active Buff curve**.
-- It has exactly **two mechanical axes**.
-- Both axes must fit into the same PP budget.
-- It does not receive a full budget for each axis.
-- It may not add Damage Reduction.
-- It may not add Phasing.
-- It may not add offensive riders, Specials, Movement, Control, or extra actions.
-
-If a Tree wants a more complex identity, that complexity should come from the Tree’s other Powers, not from hiding extra mechanics inside the Active Buff.
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-armor-temporary-hp">
-  Active Buff: Armor + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1 Armor = 7.5 PP.<br>
-      Fixed Temporary HP during combat = 4 PP per 1 Temporary HP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a Defensive Combination Active Buff with exactly two axes: Armor and fixed Temporary HP.<br>
-      Armor is the primary structural axis and increases by +1 per level.<br>
-      Remaining PP is spent on a fixed Temporary HP buffer gained when the buff is activated.<br>
-      This Temporary HP does not refresh each round.<br>
-      The result is an anti-burst defensive buff: Armor reduces incoming hits while Temporary HP absorbs the first damage that gets through.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +2 Armor (15) + 7 Temporary HP (28) = 43 PP, slightly above target.<br>
-      L2 target 70 PP → +3 Armor (22.5) + 12 Temporary HP (48) = 70.5 PP, close to target.<br>
-      L3 target 100 PP → +4 Armor (30) + 17 Temporary HP (68) = 98 PP, close to target.<br>
-      L4 target 130 PP → +5 Armor (37.5) + 23 Temporary HP (92) = 129.5 PP, close to target.<br>
-      L5 target 160 PP → +6 Armor (45) + 29 Temporary HP (116) = 161 PP, close to target.<br>
-      L6 target 190 PP → +7 Armor (52.5) + 34 Temporary HP (136) = 188.5 PP, close to target.<br>
-      L7 target 220 PP → +8 Armor (60) + 40 Temporary HP (160) = 220 PP, exactly on target.<br>
-      L8 target 250 PP → +9 Armor (67.5) + 46 Temporary HP (184) = 251.5 PP, close to target.<br>
-      L9 target 280 PP → +10 Armor (75) + 51 Temporary HP (204) = 279 PP, close to target.<br>
-      L10 target 310 PP → +11 Armor (82.5) + 57 Temporary HP (228) = 310.5 PP, close to target.<br>
-      L11 target 340 PP → +12 Armor (90) + 62 Temporary HP (248) = 338 PP, close to target.<br>
-      L12 target 370 PP → +13 Armor (97.5) + 68 Temporary HP (272) = 369.5 PP, close to target.<br>
-      L13 target 400 PP → +14 Armor (105) + 74 Temporary HP (296) = 401 PP, close to target.<br>
-      L14 target 430 PP → +15 Armor (112.5) + 79 Temporary HP (316) = 428.5 PP, close to target.<br>
-      L15 target 460 PP → +16 Armor (120) + 85 Temporary HP (340) = 460 PP, exactly on target.<br>
-      L16 target 490 PP → +17 Armor (127.5) + 91 Temporary HP (364) = 491.5 PP, close to target.<br><br>
-      NOTES<br>
-      This buff grants fixed Temporary HP when activated, not refreshing Temporary HP.<br>
-      It grants no Evade, no Healing, no Damage Reduction, no Phasing, and no offensive rider.<br>
-      Use this for armored, plated, warded, shielded, stone-skinned, or anti-burst defensive identities.
-    </span>
-  </span>
-</h3>
-
-You reinforce yourself with both a hardened defensive layer and a temporary damage buffer.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Armor** and **7 Temporary HP**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Armor** and **12 Temporary HP**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Armor** and **17 Temporary HP**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Armor** and **23 Temporary HP**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Armor** and **29 Temporary HP**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Armor** and **34 Temporary HP**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Armor** and **40 Temporary HP**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Armor** and **46 Temporary HP**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Armor** and **51 Temporary HP**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Armor** and **57 Temporary HP**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Armor** and **62 Temporary HP**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Armor** and **68 Temporary HP**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Armor** and **74 Temporary HP**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Armor** and **79 Temporary HP**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Armor** and **85 Temporary HP**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+17 Armor** and **91 Temporary HP**. |
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-
-<h3 id="active-buff-evade-temporary-hp">
-  Active Buff: Evade + Temporary HP
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1 Evade = 15 PP.<br>
-      Refreshing Temporary HP in combat = 4 PP per 1 Temporary HP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a Defensive Combination Active Buff with exactly two axes: Evade and refreshing Temporary HP.<br>
-      The listed refreshing Temporary HP progression remains unchanged.<br>
-      Remaining PP is spent on Evade using the premium Evade price.<br>
-      At the start of each of your turns, if your Temporary HP from this buff is below the listed value, restore it up to that value.<br>
-      This creates a hybrid defense: Evade prevents clean hits, while the buffer absorbs damage that still connects.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → no Evade (0) + refresh up to 8 Temporary HP (32) = 32 PP, 8 PP below target.<br>
-      L2 target 70 PP → +1 Evade (15) + refresh up to 12 Temporary HP (48) = 63 PP, 7 PP below target.<br>
-      L3 target 100 PP → +2 Evade (30) + refresh up to 17 Temporary HP (68) = 98 PP, 2 PP below target.<br>
-      L4 target 130 PP → +2 Evade (30) + refresh up to 22 Temporary HP (88) = 118 PP, 12 PP below target.<br>
-      L5 target 160 PP → +3 Evade (45) + refresh up to 28 Temporary HP (112) = 157 PP, 3 PP below target.<br>
-      L6 target 190 PP → +4 Evade (60) + refresh up to 32 Temporary HP (128) = 188 PP, 2 PP below target.<br>
-      L7 target 220 PP → +4 Evade (60) + refresh up to 38 Temporary HP (152) = 212 PP, 8 PP below target.<br>
-      L8 target 250 PP → +5 Evade (75) + refresh up to 42 Temporary HP (168) = 243 PP, 7 PP below target.<br>
-      L9 target 280 PP → +5 Evade (75) + refresh up to 48 Temporary HP (192) = 267 PP, 13 PP below target.<br>
-      L10 target 310 PP → +6 Evade (90) + refresh up to 52 Temporary HP (208) = 298 PP, 12 PP below target.<br>
-      L11 target 340 PP → +7 Evade (105) + refresh up to 58 Temporary HP (232) = 337 PP, 3 PP below target.<br>
-      L12 target 370 PP → +8 Evade (120) + refresh up to 62 Temporary HP (248) = 368 PP, 2 PP below target.<br>
-      L13 target 400 PP → +8 Evade (120) + refresh up to 68 Temporary HP (272) = 392 PP, 8 PP below target.<br>
-      L14 target 430 PP → +9 Evade (135) + refresh up to 72 Temporary HP (288) = 423 PP, 7 PP below target.<br>
-      L15 target 460 PP → +9 Evade (135) + refresh up to 78 Temporary HP (312) = 447 PP, 13 PP below target.<br>
-      L16 target 490 PP → +10 Evade (150) + refresh up to 82 Temporary HP (328) = 478 PP, 12 PP below target.<br>
-<br>
-      NOTES<br>
-      This buff grants refreshing Temporary HP, not real healing.<br>
-      It grants no Armor, no Healing, no Damage Reduction, no Phasing, and no offensive rider.<br>
-      Use this for elusive shield, mist-body, shadow-buffer, kinetic guard, or skirmisher-defense identities.
-    </span>
-  </span>
-</h3>
-
-You avoid the cleanest hits, and what still connects is swallowed by a temporary buffer that rebuilds itself.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **8 Temporary HP**, restore it up to **8 Temporary HP**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+1 Evade**. At the start of each of your turns, if you have less than **12 Temporary HP**, restore it up to **12 Temporary HP**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Evade**. At the start of each of your turns, if you have less than **17 Temporary HP**, restore it up to **17 Temporary HP**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Evade**. At the start of each of your turns, if you have less than **22 Temporary HP**, restore it up to **22 Temporary HP**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Evade**. At the start of each of your turns, if you have less than **28 Temporary HP**, restore it up to **28 Temporary HP**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Evade**. At the start of each of your turns, if you have less than **32 Temporary HP**, restore it up to **32 Temporary HP**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Evade**. At the start of each of your turns, if you have less than **38 Temporary HP**, restore it up to **38 Temporary HP**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Evade**. At the start of each of your turns, if you have less than **42 Temporary HP**, restore it up to **42 Temporary HP**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Evade**. At the start of each of your turns, if you have less than **48 Temporary HP**, restore it up to **48 Temporary HP**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Evade**. At the start of each of your turns, if you have less than **52 Temporary HP**, restore it up to **52 Temporary HP**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Evade**. At the start of each of your turns, if you have less than **58 Temporary HP**, restore it up to **58 Temporary HP**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. At the start of each of your turns, if you have less than **62 Temporary HP**, restore it up to **62 Temporary HP**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Evade**. At the start of each of your turns, if you have less than **68 Temporary HP**, restore it up to **68 Temporary HP**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Evade**. At the start of each of your turns, if you have less than **72 Temporary HP**, restore it up to **72 Temporary HP**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Evade**. At the start of each of your turns, if you have less than **78 Temporary HP**, restore it up to **78 Temporary HP**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Evade**. At the start of each of your turns, if you have less than **82 Temporary HP**, restore it up to **82 Temporary HP**. |
-
-
----
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-temporary-hp-healing">
-  Active Buff: Temporary HP + Healing
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      Refreshing Temporary HP in combat = 4 PP per 1 Temporary HP.<br>
-      Regeneration in combat = 4 PP per 1 HP healed at the start of your turn.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a Defensive Combination Active Buff with exactly two axes: refreshing Temporary HP and start-of-turn healing.<br>
-      Both axes use the same price: 4 PP per point.<br>
-      The budget is split roughly evenly between the two effects.<br>
-      Temporary HP protects against future damage while Healing restores real HP already lost.<br>
-      The two values are deliberately kept close to each other for readability and clean play.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → 5 Temporary HP (20) + heal 5 HP (20) = 40 PP, exactly on target.<br>
-      L2 target 70 PP → 8 Temporary HP (32) + heal 9 HP (36) = 68 PP, close to target.<br>
-      L3 target 100 PP → 12 Temporary HP (48) + heal 13 HP (52) = 100 PP, exactly on target.<br>
-      L4 target 130 PP → 16 Temporary HP (64) + heal 16 HP (64) = 128 PP, close to target.<br>
-      L5 target 160 PP → 20 Temporary HP (80) + heal 20 HP (80) = 160 PP, exactly on target.<br>
-      L6 target 190 PP → 23 Temporary HP (92) + heal 24 HP (96) = 188 PP, close to target.<br>
-      L7 target 220 PP → 27 Temporary HP (108) + heal 28 HP (112) = 220 PP, exactly on target.<br>
-      L8 target 250 PP → 31 Temporary HP (124) + heal 31 HP (124) = 248 PP, close to target.<br>
-      L9 target 280 PP → 35 Temporary HP (140) + heal 35 HP (140) = 280 PP, exactly on target.<br>
-      L10 target 310 PP → 38 Temporary HP (152) + heal 39 HP (156) = 308 PP, close to target.<br>
-      L11 target 340 PP → 42 Temporary HP (168) + heal 43 HP (172) = 340 PP, exactly on target.<br>
-      L12 target 370 PP → 46 Temporary HP (184) + heal 46 HP (184) = 368 PP, close to target.<br>
-      L13 target 400 PP → 50 Temporary HP (200) + heal 50 HP (200) = 400 PP, exactly on target.<br>
-      L14 target 430 PP → 53 Temporary HP (212) + heal 54 HP (216) = 428 PP, close to target.<br>
-      L15 target 460 PP → 57 Temporary HP (228) + heal 58 HP (232) = 460 PP, exactly on target.<br>
-      L16 target 490 PP → 61 Temporary HP (244) + heal 61 HP (244) = 488 PP, close to target.<br><br>
-      NOTES<br>
-      Temporary HP and Healing are separate effects.<br>
-      Temporary HP never counts as real healing.<br>
-      Healing never restores Temporary HP.<br>
-      This buff grants no Armor, no Evade, no Damage Reduction, no Phasing, and no offensive rider.
-    </span>
-  </span>
-</h3>
-
-A protective buffer rebuilds around you while your real wounds recover beneath it.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **5 Temporary HP**, restore it up to **5 Temporary HP**. Then heal **5 HP**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **8 Temporary HP**, restore it up to **8 Temporary HP**. Then heal **9 HP**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **12 Temporary HP**, restore it up to **12 Temporary HP**. Then heal **13 HP**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **16 Temporary HP**, restore it up to **16 Temporary HP**. Then heal **16 HP**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **20 Temporary HP**, restore it up to **20 Temporary HP**. Then heal **20 HP**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **23 Temporary HP**, restore it up to **23 Temporary HP**. Then heal **24 HP**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **27 Temporary HP**, restore it up to **27 Temporary HP**. Then heal **28 HP**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **31 Temporary HP**, restore it up to **31 Temporary HP**. Then heal **31 HP**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **35 Temporary HP**, restore it up to **35 Temporary HP**. Then heal **35 HP**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **38 Temporary HP**, restore it up to **38 Temporary HP**. Then heal **39 HP**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **42 Temporary HP**, restore it up to **42 Temporary HP**. Then heal **43 HP**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **46 Temporary HP**, restore it up to **46 Temporary HP**. Then heal **46 HP**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **50 Temporary HP**, restore it up to **50 Temporary HP**. Then heal **50 HP**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **53 Temporary HP**, restore it up to **53 Temporary HP**. Then heal **54 HP**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **57 Temporary HP**, restore it up to **57 Temporary HP**. Then heal **58 HP**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your turns, if you have less than **61 Temporary HP**, restore it up to **61 Temporary HP**. Then heal **61 HP**. |
-
----
-
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-armor-evade">
-  Active Buff: Armor + Evade
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1 Armor = 7.5 PP.<br>
-      +1 Evade = 15 PP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a Defensive Combination Active Buff with exactly two axes: Armor and Evade.<br>
-      Armor is the mitigation axis.<br>
-      Evade is the avoidance axis.<br>
-      The progression uses a stable pattern: Armor increases by +2 per level, and Evade increases by +1 per level.<br>
-      This creates a clean mixed-defense profile that stays close to the Active Buff curve across all levels.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +3 Armor (22.5) + +1 Evade (15) = 37.5 PP, 2.5 PP below target.<br>
-      L2 target 70 PP → +5 Armor (37.5) + +2 Evade (30) = 67.5 PP, 2.5 PP below target.<br>
-      L3 target 100 PP → +7 Armor (52.5) + +3 Evade (45) = 97.5 PP, 2.5 PP below target.<br>
-      L4 target 130 PP → +9 Armor (67.5) + +4 Evade (60) = 127.5 PP, 2.5 PP below target.<br>
-      L5 target 160 PP → +11 Armor (82.5) + +5 Evade (75) = 157.5 PP, 2.5 PP below target.<br>
-      L6 target 190 PP → +13 Armor (97.5) + +6 Evade (90) = 187.5 PP, 2.5 PP below target.<br>
-      L7 target 220 PP → +15 Armor (112.5) + +7 Evade (105) = 217.5 PP, 2.5 PP below target.<br>
-      L8 target 250 PP → +17 Armor (127.5) + +8 Evade (120) = 247.5 PP, 2.5 PP below target.<br>
-      L9 target 280 PP → +19 Armor (142.5) + +9 Evade (135) = 277.5 PP, 2.5 PP below target.<br>
-      L10 target 310 PP → +21 Armor (157.5) + +10 Evade (150) = 307.5 PP, 2.5 PP below target.<br>
-      L11 target 340 PP → +23 Armor (172.5) + +11 Evade (165) = 337.5 PP, 2.5 PP below target.<br>
-      L12 target 370 PP → +25 Armor (187.5) + +12 Evade (180) = 367.5 PP, 2.5 PP below target.<br>
-      L13 target 400 PP → +27 Armor (202.5) + +13 Evade (195) = 397.5 PP, 2.5 PP below target.<br>
-      L14 target 430 PP → +29 Armor (217.5) + +14 Evade (210) = 427.5 PP, 2.5 PP below target.<br>
-      L15 target 460 PP → +31 Armor (232.5) + +15 Evade (225) = 457.5 PP, 2.5 PP below target.<br>
-      L16 target 490 PP → +33 Armor (247.5) + +16 Evade (240) = 487.5 PP, 2.5 PP below target.<br>
-<br>
-      DESIGN NOTE<br>
-      This buff is intentionally slightly below the exact curve by 2.5 PP at every level.<br>
-      That small remainder is left unused because the values create a perfectly clean repeating pattern without exceeding the curve.<br><br>
-      NOTES<br>
-      This is the standard mixed mitigation-and-avoidance buff.<br>
-      It grants no Temporary HP, no Healing, no Damage Reduction, no Phasing, and no offensive rider.
-    </span>
-  </span>
-</h3>
-
-You reinforce both your ability to absorb hits and your ability to avoid clean contact.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Armor** and **+1 Evade**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Armor** and **+2 Evade**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Armor** and **+3 Evade**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Armor** and **+4 Evade**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Armor** and **+5 Evade**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Armor** and **+6 Evade**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Armor** and **+7 Evade**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+17 Armor** and **+8 Evade**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+19 Armor** and **+9 Evade**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+21 Armor** and **+10 Evade**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+23 Armor** and **+11 Evade**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+25 Armor** and **+12 Evade**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+27 Armor** and **+13 Evade**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+29 Armor** and **+14 Evade**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+31 Armor** and **+15 Evade**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+33 Armor** and **+16 Evade**. |
-
----
-}}
-
-\page
 {{pageNumber,auto}}
 {{wide
 
@@ -1080,8 +773,7 @@ They may improve:
 
 - damage,
 - Critical value,
-- Penetration,
-- or one other clearly defined offensive axis.
+- or one other expressly approved offensive axis.
 
 They may not grant Attack Dice.
 
@@ -1091,11 +783,12 @@ They may not grant free actions.
 
 They may not apply detection, reveal, awareness, or sensor effects.
 
-They may not add defensive benefits unless the entry is built as a separate Offensive Combination Active Buff and explicitly pays for both axes.
+They may not add defensive benefits or a second purchased mechanical axis.
 
 ---
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -1163,163 +856,13 @@ Your attacks carry additional force, energy, precision, fury, momentum, or super
 ---
 }}
 \page
-{{pageNumber,auto}}
-{{wide
 
-<h3 id="active-buff-penetration">
-  Active Buff: Penetration
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      Penetration(1) = 7.5 PP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is a pure offensive Active Buff with exactly one axis: Penetration.<br>
-      The full Active Buff budget is spent on bypassing Armor.<br>
-      Penetration is priced at the same rate as Armor because it directly counters Armor value.<br>
-      Values are rounded down or to the nearest clean whole number to avoid fractional Penetration values.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → Penetration(5) = 37.5 PP, close to target.<br>
-      L2 target 70 PP → Penetration(9) = 67.5 PP, close to target.<br>
-      L3 target 100 PP → Penetration(13) = 97.5 PP, close to target.<br>
-      L4 target 130 PP → Penetration(17) = 127.5 PP, close to target.<br>
-      L5 target 160 PP → Penetration(21) = 157.5 PP, close to target.<br>
-      L6 target 190 PP → Penetration(25) = 187.5 PP, close to target.<br>
-      L7 target 220 PP → Penetration(29) = 217.5 PP, close to target.<br>
-      L8 target 250 PP → Penetration(33) = 247.5 PP, close to target.<br>
-      L9 target 280 PP → Penetration(37) = 277.5 PP, close to target.<br>
-      L10 target 310 PP → Penetration(41) = 307.5 PP, close to target.<br>
-      L11 target 340 PP → Penetration(45) = 337.5 PP, close to target.<br>
-      L12 target 370 PP → Penetration(49) = 367.5 PP, close to target.<br>
-      L13 target 400 PP → Penetration(53) = 397.5 PP, close to target.<br>
-      L14 target 430 PP → Penetration(57) = 427.5 PP, close to target.<br>
-      L15 target 460 PP → Penetration(61) = 457.5 PP, close to target.<br>
-      L16 target 490 PP → Penetration(65) = 487.5 PP, close to target.<br><br>
-      NOTES<br>
-      This buff grants no bonus damage dice, no Critical, no Attack Dice, no Special, no Extra Attack, and no defensive benefit.<br>
-      It is the clean default for armor-breaking offensive builds.
-    </span>
-  </span>
-</h3>
-
-Your attacks cut, pierce, corrode, phase, crush, or bypass protection more effectively.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(5)**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(9)**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(13)**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(17)**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(21)**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(25)**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(29)**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(33)**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(37)**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(41)**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(45)**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(49)**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(53)**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(57)**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(61)**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Penetration(65)**. |
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-## Active Buffs — Offensive Combinations
-
-Offensive Combination Active Buffs combine exactly two offensive axes.
-
-They are used when a Tree wants a stronger tactical identity than a pure offensive buff, but still needs the effect to remain clean, readable, and easy to balance.
-
-An Offensive Combination Active Buff must obey the following rules:
-
-- It uses the normal **Active Buff curve**.
-- It has exactly **two mechanical axes**.
-- Both axes must fit into the same PP budget.
-- It does not receive a full budget for each axis.
-- It may not grant Attack Dice.
-- It may not grant extra attacks.
-- It may not grant free actions.
-- It may not grant detection, reveal, awareness, or sensor effects.
-- It may not include defensive benefits unless built as a separate defensive or hybrid entry.
-
----
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-damage-penetration">
-  Active Buff: Damage + Penetration
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1d8 Damage = 15 PP.<br>
-      Penetration(1) = 7.5 PP.<br><br>
-      DESIGN STRUCTURE<br>
-      This is an Offensive Combination Active Buff with exactly two axes: bonus damage and Penetration.<br>
-      Damage is the primary axis and increases by +1d8 per level.<br>
-      Penetration is the secondary axis and receives the remaining PP budget.<br>
-      This creates a clear armor-breaking striker buff: every level adds more damage and more Armor bypass.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → +1d8 damage (15) + Penetration(3) (22.5) = 37.5 PP, close to target.<br>
-      L2 target 70 PP → +2d8 damage (30) + Penetration(5) (37.5) = 67.5 PP, close to target.<br>
-      L3 target 100 PP → +3d8 damage (45) + Penetration(7) (52.5) = 97.5 PP, close to target.<br>
-      L4 target 130 PP → +4d8 damage (60) + Penetration(9) (67.5) = 127.5 PP, close to target.<br>
-      L5 target 160 PP → +5d8 damage (75) + Penetration(11) (82.5) = 157.5 PP, close to target.<br>
-      L6 target 190 PP → +6d8 damage (90) + Penetration(13) (97.5) = 187.5 PP, close to target.<br>
-      L7 target 220 PP → +7d8 damage (105) + Penetration(15) (112.5) = 217.5 PP, close to target.<br>
-      L8 target 250 PP → +8d8 damage (120) + Penetration(17) (127.5) = 247.5 PP, close to target.<br>
-      L9 target 280 PP → +9d8 damage (135) + Penetration(19) (142.5) = 277.5 PP, close to target.<br>
-      L10 target 310 PP → +10d8 damage (150) + Penetration(21) (157.5) = 307.5 PP, close to target.<br>
-      L11 target 340 PP → +11d8 damage (165) + Penetration(23) (172.5) = 337.5 PP, close to target.<br>
-      L12 target 370 PP → +12d8 damage (180) + Penetration(25) (187.5) = 367.5 PP, close to target.<br>
-      L13 target 400 PP → +13d8 damage (195) + Penetration(27) (202.5) = 397.5 PP, close to target.<br>
-      L14 target 430 PP → +14d8 damage (210) + Penetration(29) (217.5) = 427.5 PP, close to target.<br>
-      L15 target 460 PP → +15d8 damage (225) + Penetration(31) (232.5) = 457.5 PP, close to target.<br>
-      L16 target 490 PP → +16d8 damage (240) + Penetration(33) (247.5) = 487.5 PP, close to target.<br><br>
-      NOTES<br>
-      This buff grants no Attack Dice, no Critical, no Special, no Extra Attack, and no defensive benefit.<br>
-      It is the standard offensive combination for characters who want both higher damage and Armor bypass.
-    </span>
-  </span>
-</h3>
-
-Your attacks strike harder and punch through protection more effectively.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+1d8 damage** and **Penetration(3)**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+2d8 damage** and **Penetration(5)**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+3d8 damage** and **Penetration(7)**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+4d8 damage** and **Penetration(9)**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+5d8 damage** and **Penetration(11)**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+6d8 damage** and **Penetration(13)**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+7d8 damage** and **Penetration(15)**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+8d8 damage** and **Penetration(17)**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+9d8 damage** and **Penetration(19)**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+10d8 damage** and **Penetration(21)**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+11d8 damage** and **Penetration(23)**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+12d8 damage** and **Penetration(25)**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+13d8 damage** and **Penetration(27)**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+14d8 damage** and **Penetration(29)**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+15d8 damage** and **Penetration(31)**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **+16d8 damage** and **Penetration(33)**. |
-
----
-}}
-\page
 {{pageNumber,auto}}
 {{wide
 
 ### Critical Restriction
 
-Critical is a closed offensive subsystem.
+Critical is a closed offensive subsystem that can modify qualifying **Martial Attacks and damaging Spells**.
 
 Critical may only be granted by **Active Buff: Critical** or the dedicated **Agility Ability: Crit**. Artifact Stone Power Support may pre-fill named tiers of **Agility Ability: Crit**, but never grants Critical directly.
 
@@ -1329,7 +872,7 @@ Critical may not appear as a secondary rider.
 
 Critical may not be combined with Damage, Penetration, Attack Dice, Special Application, Extra Attacks, defensive effects, or any other filler value.
 
-If a character uses **Active Buff: Critical**, it consumes the maintained Active Buff slot. Critical gained through **Agility Ability: Crit** follows that Stone Ability's own cost and timing instead.
+If a character uses **Active Buff: Critical**, it consumes the maintained Active Buff slot. **Critical(X)** permits **X designated Martial Attack or damaging Spell Casting Pools per combat** while the Buff is active; on those rolls, **7s and 8s explode**. The allowance does not refresh by reactivating the Buff during that combat. Critical gained through **Agility Ability: Crit** follows that Stone Ability's own per-Round allowance instead.
 
 
 <h3 id="active-buff-critical">
@@ -1339,13 +882,13 @@ If a character uses **Active Buff: Critical**, it consumes the maintained Active
       BASELINES<br>
       Critical as an Active Buff is a premium offensive subsystem.<br>
       It does not use normal linear +30 PP scaling.<br>
-      A sustained Critical buff affects all qualifying attacks made while the buff lasts, so it is not priced like a single-hit Critical rider.<br><br>
+      Active Buff: Critical supplies its printed Critical(X) allowance of **X chosen qualifying Attack/Casting Pools per combat** while maintained; natural 7s and 8s explode on those chosen rolls. Reactivating the Buff in that combat does not refill its allowance.<br><br>
       ACTIVE BUFF CRITICAL MILESTONES<br>
       L1–3 → no effect<br>
-      L4–7 → attacks gain Critical(1)<br>
-      L8–11 → attacks gain Critical(2)<br>
-      L12–14 → attacks gain Critical(3)<br>
-      L15–16 → attacks gain Critical(4)<br><br>
+      L4–7 → Martial Attacks and damaging Spells gain Critical(1)<br>
+      L8–11 → Martial Attacks and damaging Spells gain Critical(2)<br>
+      L12–14 → Martial Attacks and damaging Spells gain Critical(3)<br>
+      L15–16 → Martial Attacks and damaging Spells gain Critical(4)<br><br>
       EFFECTIVE COSTS<br>
       Critical(1) unlocks at Level 4, matching the 130 PP Active Buff tier.<br>
       Critical(2) unlocks at Level 8, matching the 250 PP Active Buff tier.<br>
@@ -1380,199 +923,38 @@ If a character uses **Active Buff: Critical**, it consumes the maintained Active
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(1)**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(1)**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(1)**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(1)**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(2)**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(2)**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(2)**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(2)**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(3)**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(3)**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(3)**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(4)**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Your attacks gain **Critical(4)**. |
+| **1** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | — | Mastery Rank Rounds | No effect at this PL; unavailable for selection. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(1)**: while maintained, designate up to **1** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(1)**: while maintained, designate up to **1** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(1)**: while maintained, designate up to **1** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(1)**: while maintained, designate up to **1** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(2)**: while maintained, designate up to **2** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(2)**: while maintained, designate up to **2** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(2)**: while maintained, designate up to **2** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(2)**: while maintained, designate up to **2** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(3)**: while maintained, designate up to **3** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(3)**: while maintained, designate up to **3** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(3)**: while maintained, designate up to **3** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(4)**: while maintained, designate up to **4** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **Critical(4)**: while maintained, designate up to **4** qualifying Martial Attack or damaging Spell Casting Pools this combat; natural 7s and 8s explode on those rolls. |
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
 ### Active Buff Special Rules
 
-Active Buffs do not apply Specials.
-
-The only core Active Buff interaction with Specials is **Active Buff: Special Increase**.
-
-Special Increase never starts a Special. It only increases one chosen eligible Special already affecting the creature you hit.
-
-Special Increase may only increase an already existing eligible **Special(X)**.
-
-It never applies a Special by itself.  
-It never creates a new Special on an unaffected target.  
-It never refreshes, spreads, copies, transfers, or re-triggers a Special unless the entry explicitly says so.
-
-A Special is eligible for Special Increase only if all of the following are true:
-
-- the Special is written as **Special(X)**,
-- the Special uses numeric scaling,
-- the Special is not binary,
-- the Special is not hard control,
-- increasing X by +1 or more is meaningful,
-- the Special does not remove or deny an entire turn,
-- the Special does not deny all actions,
-- the Special does not deny all reactions,
-- the Special does not grant or modify Damage Reduction,
-- the Special does not grant or modify Phasing.
-
-Common eligible examples include:
-
-- **Blight(X)**
-- **Challenge(X)**
-- **Corrode(X)**
-- **Disoriented(X)**
-- **Expose(X)**
-- **Hex(X)**
-- **Lacerate(X)**
-- **Mark(X)**
-- **Ruin(X)**
-- **Exorcism(X)**
-- **Requiem(X)**
-- **Slow(X)**
-- **Soulburn(X)**
-- **Sundered(X)**
-- **Weaken(X)**
+Active Buffs do not apply or increase Specials. **Intellect Stone Ability: Special Boost** remains available under its own Stone Ability rules; the **Universal Raise Effect: Special Increase** is a different rule.
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
-Common ineligible examples include:
-
-- **Stunned**
-- **Prone**
-- **Immovable**
-- any Special without **(X)**
-- any binary Special
-- any hard-control effect
-- any forced-behavior effect
-- any full-turn denial effect
-- any full-reaction denial effect
-- any effect that grants, increases, or modifies **Damage Reduction**
-- any effect that grants, increases, or modifies **Phasing**
-- **Barriers**
-- **Walls**
-- **Images**
-- **Summons**
-- **Illusion Fields**
-- **Persistent Zones**
-
-Special Increase is meant to escalate pressure, not to multiply hard control.
-
-It may push an existing numeric wound, mark, weakness, exposure, corrosion, curse, or pool-reduction effect beyond its normal value.  
-It may not escalate knockdown, stun, forced behavior, full action denial, or other binary control effects.
-}}
-
-\page
-{{pageNumber,auto}}
-{{wide
-<h3 id="active-buff-special-increase">
-  Active Buff: Special Increase + Blight / Challenge / Corrode / Disoriented / Exorcism / Expose / Hex / Lacerate / Mark / Requiem / Ruin / Slow / Soulburn / Sundered / Weaken
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Special Increase is a closed offensive Active Buff subsystem.<br>
-      It does not use normal linear +30 PP scaling.<br>
-      It never applies a Special by itself.<br>
-      It only increases one already existing eligible Special(X).<br><br>
-      CORE RULES<br>
-      Choose one eligible Special(X) when you take this Active Buff.<br>
-      The learned Power's technical name is Active Buff: Special Increase + the chosen Special.<br>
-      The chosen Special must be numeric, diminishing, and able to increase meaningfully by +1 or more.<br>
-      The first time each round you hit a creature already affected by the chosen Special(X), increase that Special by the listed value.<br>
-      This can trigger only once per round.<br>
-      If the target is not already affected by the chosen Special, this buff does nothing.<br><br>
-      ELIGIBLE SPECIALS<br>
-      Common eligible examples include **Blight(X)**, **Challenge(X)**, **Corrode(X)**, **Disoriented(X)**, **Expose(X)**, **Hex(X)**, **Lacerate(X)**, **Mark(X)**, **Ruin(X)**, **Exorcism(X)**, **Requiem(X)**, **Slow(X)**, **Soulburn(X)**, **Sundered(X)**, and **Weaken(X)**.<br><br>
-      INELIGIBLE SPECIALS<br>
-      This buff may not affect binary Specials, hard control, forced behavior, Stunned, Immovable, Prone, Damage Reduction, Phasing, Barriers, Walls, Images, Summons, Illusion Fields, or Persistent Zones.<br><br>
-      ACTIVE BUFF SPECIAL INCREASE MILESTONES<br>
-      L1–3 → no effect.<br>
-      L4–7 → first qualifying hit each round increases the chosen existing Special by +1.<br>
-      L8–11 → increase by +2; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +1 instead.<br>
-      L12–14 → increase by +3; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +2 instead.<br>
-      L15–16 → increase by +4; if the chosen Special is Challenge, Disoriented, Soulburn, or Weaken, increase by +2 instead.<br><br>
-      LEVEL-BY-LEVEL CALCULATION<br>
-      L1 target 40 PP → no effect because the first Special Increase milestone has not been reached.<br>
-      L2 target 70 PP → no effect because the first Special Increase milestone has not been reached.<br>
-      L3 target 100 PP → no effect because the first Special Increase milestone has not been reached.<br>
-      L4 target 130 PP → first Special Increase milestone: increase one existing chosen Special by +1 on the first qualifying hit each round.<br>
-      L5 target 160 PP → same Special Increase band as L4; no filler is added.<br>
-      L6 target 190 PP → same Special Increase band as L4; no filler is added.<br>
-      L7 target 220 PP → same Special Increase band as L4; no filler is added.<br>
-      L8 target 250 PP → second Special Increase milestone: increase one existing chosen Special by +2, or +1 for Challenge / Disoriented / Soulburn / Weaken, on the first qualifying hit each round.<br>
-      L9 target 280 PP → same Special Increase band as L8; no filler is added.<br>
-      L10 target 310 PP → same Special Increase band as L8; no filler is added.<br>
-      L11 target 340 PP → same Special Increase band as L8; no filler is added.<br>
-      L12 target 370 PP → third Special Increase milestone: increase one existing chosen Special by +3, or +2 for Challenge / Disoriented / Soulburn / Weaken, on the first qualifying hit each round.<br>
-      L13 target 400 PP → same Special Increase band as L12; no filler is added.<br>
-      L14 target 430 PP → same Special Increase band as L12; no filler is added.<br>
-      L15 target 460 PP → fourth Special Increase milestone: increase one existing chosen Special by +4, or +2 for Challenge / Disoriented / Soulburn / Weaken, on the first qualifying hit each round.<br>
-      L16 target 490 PP → same Special Increase band as L15; no filler is added.<br><br>
-      DESIGN NOTE<br>
-      Special Increase is intentionally not smoothed across all levels.<br>
-      It is a high-impact offensive escalation state and must not be bundled with Damage, Penetration, Critical, Attack Dice, Extra Attacks, defensive effects, Special Application, or any other filler value.<br>
-      Unused PP remains unused instead of being converted into other bonuses.<br><br>
-      NOTES<br>
-      Active Buffs do not apply Specials.<br>
-      Special Increase is the only core Active Buff interaction with Specials and only increases an already existing Special.<br>
-      If a character wants Special Increase, they must spend their maintained Active Buff slot on this dedicated buff.
-    </span>
-  </span>
-</h3>
-
-You push an existing condition past its normal limits, turning setup into escalation.
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
-|:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | — |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+1**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+2** (**+1** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+3** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+4** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | For the **Special(X)** chosen when you learned this Power, the first time each round you hit a creature already affected by it, increase it by **+4** (**+2** for **Challenge, Disoriented, Soulburn, or Weaken**). |
-
----
-:
-#### Example: Active Buff: Special Increase + Weaken
-
-A creature is already affected by **Weaken(2)**. At Active Buff Level 8, the first qualifying hit each round increases it by **+1**, producing **Weaken(3)**. If the creature has no Weaken value before the hit, Special Increase does nothing.
-
-#### Example: Active Buff: Special Increase + Soulburn
-
-A creature is already affected by **Soulburn(2)**. At Active Buff Level 12, the first qualifying hit each round increases it by **+2**, producing **Soulburn(4)**. This increases only the existing Special; it does not alter Attributes, Keep, or derived values.
-
----
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
 
 <h3 id="active-buff-spell-resistance">
   Active Buff: Spell Resistance
@@ -1636,6 +1018,7 @@ You raise a temporary ward that makes hostile spell structure harder to force th
 
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -1650,7 +1033,8 @@ You raise a temporary ward that makes hostile spell structure harder to force th
       This is a pure defensive Active Buff with exactly one axis: recurring self-Cleanse.<br>
       At the start of your turn while this buff lasts, reduce one eligible negative ongoing creature effect affecting you by the listed value.<br>
       This Cleanse cannot be split across multiple effects.<br>
-      This Cleanse does not trigger Absorption.<br><br>
+      This Cleanse does not trigger Absorption.<br>
+      Self Cleanse has no secondary effect. Timed Blight may be reduced by Cleanse like other eligible negative Specials.<br><br>
       ELIGIBLE EFFECTS<br>
       Eligible effects are numeric creature effects that can normally be reduced by Cleanse, including Blight(X), Challenge(X), Corrode(X), Disoriented(X), Expose(X), Hex(X), Lacerate(X), Mark(X), Root(X), Ruin(X), Slow(X), Soulburn(X), Sundered(X), and Weaken(X).<br><br>
       INELIGIBLE EFFECTS<br>
@@ -1706,6 +1090,7 @@ You enter a cleansing state that steadily pushes hostile conditions out of you.
 
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -1761,6 +1146,7 @@ Active Buff Auras use hard-capped radius bands.
 ---
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 ### Active Buff Aura Payload Budget
@@ -1819,6 +1205,7 @@ An Active Buff Aura is a maintained battlefield presence, not a movement lawnmow
 
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -1843,7 +1230,7 @@ An Active Buff Aura is a maintained battlefield presence, not a movement lawnmow
       It cannot generate Raises.<br>
       It cannot Crit.<br>
       It does not use weapon damage.<br>
-      It does not benefit from Active Buff: Damage, Active Buff: Penetration, Active Buff: Critical, or Special Increase.<br>
+      It does not benefit from Active Buff: Damage or Active Buff: Critical.<br>
       Targets apply Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 → PP 40 − Radius 2 m (20) = 20 Payload. Minimum function exception grants 1d8.<br>
@@ -1898,7 +1285,7 @@ You radiate harmful force, flame, thorns, shadow, frost, pressure, divine wrath,
       BASELINES<br>
       Active Buff curve = 40 PP at Level 1, then +30 PP per level up to Level 16.<br>
       Aura radius bands: L1–7 = 2 m for 20 PP, L8–14 = 3 m for 50 PP, L15–16 = 4 m for 90 PP.<br>
-      Aura Healing = 35 PP per 1d8 healing, matching the Aura Damage pricing for automatic repeated aura payloads.<br><br>
+      Aura Healing = 35 PP per 1d8 (20 PP base Healing + 15 PP dedicated repeated multi-target premium), matching the existing 35 PP/d8 Aura Damage benchmark.<br><br>
       DESIGN STRUCTURE<br>
       This is a single-payload Active Buff Aura.<br>
       The aura spends its Payload Budget only on healing dice.<br>
@@ -1912,22 +1299,22 @@ You radiate harmful force, flame, thorns, shadow, frost, pressure, divine wrath,
       It does not restore lost Health Bars unless another rule explicitly says so.<br>
       Roll the listed healing dice separately for each affected ally.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
-      L1 → PP 40 − Radius 2 m (20) = 20 Payload. Minimum function exception grants 1d8 healing.<br>
-      L2 → PP 70 − Radius 2 m (20) = 50 Payload → 1d8 healing.<br>
-      L3 → PP 100 − Radius 2 m (20) = 80 Payload → 2d8 healing.<br>
-      L4 → PP 130 − Radius 2 m (20) = 110 Payload → 3d8 healing.<br>
-      L5 → PP 160 − Radius 2 m (20) = 140 Payload → 4d8 healing.<br>
-      L6 → PP 190 − Radius 2 m (20) = 170 Payload → 4d8 healing.<br>
-      L7 → PP 220 − Radius 2 m (20) = 200 Payload → 5d8 healing.<br>
-      L8 → PP 250 − Radius 3 m (50) = 200 Payload → 5d8 healing.<br>
-      L9 → PP 280 − Radius 3 m (50) = 230 Payload → 6d8 healing.<br>
-      L10 → PP 310 − Radius 3 m (50) = 260 Payload → 7d8 healing.<br>
-      L11 → PP 340 − Radius 3 m (50) = 290 Payload → 8d8 healing.<br>
-      L12 → PP 370 − Radius 3 m (50) = 320 Payload → 9d8 healing.<br>
-      L13 → PP 400 − Radius 3 m (50) = 350 Payload → 10d8 healing.<br>
-      L14 → PP 430 − Radius 3 m (50) = 380 Payload → 10d8 healing.<br>
-      L15 → PP 460 − Radius 4 m (90) = 370 Payload → 10d8 healing.<br>
-      L16 → PP 490 − Radius 4 m (90) = 400 Payload → 11d8 healing.
+      L1: Healing 1d8 (35 PP) + Radius (20 PP) = 55 / 40 PP; minimum legal effect; +15 PP.<br>
+      L2: Healing 1d8 (35 PP) + Radius (20 PP) = 55 / 70 PP; 15 PP unused.<br>
+      L3: Healing 2d8 (70 PP) + Radius (20 PP) = 90 / 100 PP; 10 PP unused.<br>
+      L4: Healing 3d8 (105 PP) + Radius (20 PP) = 125 / 130 PP; 5 PP unused.<br>
+      L5: Healing 4d8 (140 PP) + Radius (20 PP) = 160 / 160 PP; 0 PP unused.<br>
+      L6: Healing 4d8 (140 PP) + Radius (20 PP) = 160 / 190 PP; 30 PP unused.<br>
+      L7: Healing 5d8 (175 PP) + Radius (20 PP) = 195 / 220 PP; 25 PP unused.<br>
+      L8: Healing 5d8 (175 PP) + Radius (50 PP) = 225 / 250 PP; 25 PP unused.<br>
+      L9: Healing 6d8 (210 PP) + Radius (50 PP) = 260 / 280 PP; 20 PP unused.<br>
+      L10: Healing 7d8 (245 PP) + Radius (50 PP) = 295 / 310 PP; 15 PP unused.<br>
+      L11: Healing 8d8 (280 PP) + Radius (50 PP) = 330 / 340 PP; 10 PP unused.<br>
+      L12: Healing 9d8 (315 PP) + Radius (50 PP) = 365 / 370 PP; 5 PP unused.<br>
+      L13: Healing 10d8 (350 PP) + Radius (50 PP) = 400 / 400 PP; 0 PP unused.<br>
+      L14: Healing 10d8 (350 PP) + Radius (50 PP) = 400 / 430 PP; 30 PP unused.<br>
+      L15: Healing 10d8 (350 PP) + Radius (90 PP) = 440 / 460 PP; 20 PP unused.<br>
+      L16: Healing 11d8 (385 PP) + Radius (90 PP) = 475 / 490 PP; 15 PP unused.<br>
     </span>
   </span>
 </h3>
@@ -1956,134 +1343,7 @@ You radiate restorative force, warmth, blessing, blood magic, life energy, or st
 ---
 }}
 \page
-{{pageNumber,auto}}
-{{wide
 
-\page
-{{pageNumber,auto}}
-{{wide
-
-<h3 id="active-buff-size-damage-armor">
-  Active Buff: Size + Damage + Armor
-  <span class="tooltip">🛈
-    <span class="tooltiptext">
-      BASELINES<br>
-      Active Buff curve = 40 / 70 / 100 / 130 PP, then +30 PP per level up to Level 16.<br>
-      +1d8 Damage = 15 PP.<br>
-      +1 Armor = 7.5 PP.<br><br>
-
- DESIGN STRUCTURE<br>
-      This is a Form Active Buff with two paid axes: Damage and Armor.<br>
-      The Size Stage, Footprint, Reach Bonus, Titanic Stability, and Drawbacks are part of the form package.<br>
-      Active Buff: Size + Damage + Armor is intentionally written as a Tree Exception Active Buff because it combines offensive scaling, defensive scaling, battlefield-size rules, and stability rules in one maintained state.<br><br>
-
-  SIZE PACKAGE<br>
-      Enlarged Frame is still 1 hex and grants no Reach Bonus.<br>
-      Large Form occupies 3 connected hexes and grants +2 m Reach.<br>
-      Massive Form occupies 3 connected hexes and grants +3 m Reach.<br>
-      Huge Form occupies 7 connected hexes and grants +4 m Reach.<br>
-      True Giant Form occupies 7 connected hexes and grants +5 m Reach.<br><br>
-
-  TITANIC STABILITY<br>
-      Active Buff: Size + Damage + Armor does not grant full Immovable.<br>
-      Instead, larger Size Stages reduce Push, Pull, and forced movement by a fixed distance.<br>
-      Large Form reduces Push, Pull, and forced movement by 2 m.<br>
-      Massive Form reduces Push, Pull, and forced movement by 4 m.<br>
-      Huge Form reduces Push, Pull, and forced movement by 6 m.<br>
-      True Giant Form reduces Push, Pull, and forced movement by 8 m.<br>
-      Large Form and Massive Form are immune to Prone effects caused by creatures smaller than you.<br>
-      Huge Form and True Giant Form are immune to standard Prone effects.<br>
-      Legendary effects, collapsing terrain, falling ground, divine effects, or GM-defined environmental disasters may ignore this stability.<br><br>
-
-  DRAWBACK PACKAGE<br>
-      A larger body is easier to target, harder to hide, worse at using cover, and more vulnerable to area effects.<br>
-      Enemies may target any hex you occupy.<br>
-      If any hex you occupy is inside an AoE, you are affected by that AoE.<br>
-      You cannot benefit from cover that would not reasonably cover your current Size Stage.<br>
-      If you cannot fit into a space, you must squeeze or cannot enter that space. While squeezing, double the listed Evade penalty.<br><br>
-
-  REACH LIMIT<br>
-      The Reach Bonus applies only to melee attacks and touch-range effects.<br>
-      It does not increase spell range, ranged weapon range, aura size, movement, AoE, cone size, breath size, zone size, or the range of non-melee Powers.<br><br>
-
-  CALCULATION<br>
-      L1 → +1d8 Damage (15) +2 Armor (15) = 30 PP, under target because the form has minor drawbacks.<br>
-      L2 → +2d8 Damage (30) +4 Armor (30) = 60 PP, close to target after drawbacks.<br>
-      L3 → +3d8 Damage (45) +6 Armor (45) = 90 PP, close to target after drawbacks.<br>
-      L4 → +4d8 Damage (60) +8 Armor (60) = 120 PP, close to target after Large Form package.<br>
-      L5 → +5d8 Damage (75) +10 Armor (75) = 150 PP, close to target after drawbacks.<br>
-      L6 → +6d8 Damage (90) +12 Armor (90) = 180 PP, close to target after drawbacks.<br>
-      L7 → +7d8 Damage (105) +14 Armor (105) = 210 PP, close to target after drawbacks.<br>
-      L8 → +8d8 Damage (120) +16 Armor (120) = 240 PP, close to target after Massive Form package.<br>
-      L9 → +9d8 Damage (135) +18 Armor (135) = 270 PP, close to target after drawbacks.<br>
-      L10 → +10d8 Damage (150) +20 Armor (150) = 300 PP, close to target after drawbacks.<br>
-      L11 → +11d8 Damage (165) +22 Armor (165) = 330 PP, close to target after drawbacks.<br>
-      L12 → +12d8 Damage (180) +24 Armor (180) = 360 PP, close to target after Huge Form package.<br>
-      L13 → +13d8 Damage (195) +26 Armor (195) = 390 PP, close to target after drawbacks.<br>
-      L14 → +14d8 Damage (210) +28 Armor (210) = 420 PP, close to target after drawbacks.<br>
-      L15 → +15d8 Damage (225) +30 Armor (225) = 450 PP, close to target after drawbacks.<br>
-      L16 → +16d8 Damage (240) +32 Armor (240) = 480 PP, close to target after True Giant package.<br><br>
-
-  NOTES<br>
-      This Active Buff grants no Attack Dice, no Critical, no Penetration, no Special Application, no Special Increase, no Extra Attacks, no Damage Reduction, no Phasing, and no Movement Power.<br>
-      Active Buff: Size + Damage + Armor does not grant bonus movement.<br>
-      Active Buff: Size + Damage + Armor uses your maintained Active Buff slot.
-    </span>
-  </span>
-</h3>
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Size Stage** | **Footprint** | **Reach Bonus** | **Titanic Stability** | **Effect** | **Drawback** |
-|:--:|:--|:--:|:--:|:--:|:--|:--:|:--:|:--|:--|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Enlarged Frame | 1 hex | — | — | Gain **+1d8 Damage** and **+2 Armor**. | **-1 Evade**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Enlarged Frame | 1 hex | — | — | Gain **+2d8 Damage** and **+4 Armor**. | **-1 Evade**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Enlarged Frame | 1 hex | — | — | Gain **+3d8 Damage** and **+6 Armor**. | **-2 Evade**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **4 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+4d8 Damage** and **+8 Armor**. | **-4 Evade** and **-4 Initiative**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **5 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+5d8 Damage** and **+10 Armor**. | **-4 Evade** and **-4 Initiative**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **6 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+6d8 Damage** and **+12 Armor**. | **-5 Evade** and **-4 Initiative**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Large Form | 3 hexes | +2 m | Reduce Push, Pull, and forced movement by **7 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+7d8 Damage** and **+14 Armor**. | **-5 Evade** and **-4 Initiative**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **8 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+8d8 Damage** and **+16 Armor**. | **-6 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **9 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+9d8 Damage** and **+18 Armor**. | **-6 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **10 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+10d8 Damage** and **+20 Armor**. | **-7 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Massive Form | 3 hexes | +3 m | Reduce Push, Pull, and forced movement by **11 m**. Immune to Prone effects caused by creatures smaller than you. | Gain **+11d8 Damage** and **+22 Armor**. | **-7 Evade**, **-8 Initiative**, and **-1d8 Agility-based Physical Skills**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **12 m**. Immune to standard Prone effects. | Gain **+12d8 Damage** and **+24 Armor**. | **-10 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **13 m**. Immune to standard Prone effects. | Gain **+13d8 Damage** and **+26 Armor**. | **-10 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
-
-}}
-\page
-{{pageNumber,auto}}
-{{wide
-
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Size Stage** | **Footprint** | **Reach Bonus** | **Titanic Stability** | **Effect** | **Drawback** |
-|:--:|:--|:--:|:--:|:--:|:--|:--:|:--:|:--|:--|:--|
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **14 m**. Immune to standard Prone effects. | Gain **+14d8 Damage** and **+28 Armor**. | **-11 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Huge Form | 7 hexes | +4 m | Reduce Push, Pull, and forced movement by **15 m**. Immune to standard Prone effects. | Gain **+15d8 Damage** and **+30 Armor**. | **-11 Evade**, **-12 Initiative**, and **-2d8 Agility-based Physical Skills**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | True Giant Form | 7 hexes | +5 m | Reduce Push, Pull, and forced movement by **16 m**. Immune to standard Prone effects. | Gain **+16d8 Damage** and **+32 Armor**. | **-12 Evade**, **-16 Initiative**, and **-2d8 Agility-based Physical Skills**. |
-
-#### Active Buff: Size + Damage + Armor Rules
-
-While this Active Buff is active, the following rules apply:
-
-- **Occupied Space:** You occupy all hexes listed by your current Size Stage.
-- **Targeting:** Enemies may target any hex you occupy.
-- **Area Effects:** If any hex you occupy is inside an AoE, you are affected by that AoE.
-- **Cover:** You cannot benefit from cover that would not reasonably cover your current Size Stage.
-- **Squeezing:** If your current Size Stage cannot physically fit into a space, you must squeeze or cannot enter that space. While squeezing, double the listed Evade penalty.
-- **Reach:** Your Reach Bonus applies only to melee attacks and touch-range effects.
-- **No Range Extension:** This Reach Bonus does not increase spell range, ranged weapon range, aura size, movement, AoE, cone size, breath size, zone size, or the range of non-melee Powers.
-- **Titanic Stability:** While Large Form or larger, reduce any Push, Pull, or forced movement applied to you by the amount listed for your Size Stage.
-- **Prone Resistance:** While in Large Form or Massive Form, you are immune to Prone effects caused by creatures smaller than you.
-- **Prone Immunity:** While in Huge Form or True Giant Form, you are immune to standard Prone effects.
-- **Stability Limit:** Titanic Stability is not full Immovable. It does not prevent teleportation, falling if the ground disappears, being carried by collapsing terrain, Root, Stunned, Slow, grapple-like restraints, legendary effects, divine effects, or GM-defined environmental disasters.
-- **Grapple Presence:** While Large Form or larger, gain Advantage on checks to start or end Grappled against smaller creatures.
-- **Massive Stability:** While Huge Form or larger, creatures smaller than you have Disadvantage on checks to move you by force unless they are also magically enlarged or larger than Medium.
-- **No Bonus Movement:** Active Buff: Size + Damage + Armor does not grant additional movement.
-- **Maintained Buff:** Active Buff: Size + Damage + Armor uses your maintained Active Buff slot. If you activate another maintained Active Buff, Active Buff: Size + Damage + Armor ends unless another rule explicitly allows both to coexist.
-
-
-
-
-}}
-\page
 {{pageNumber,auto}}
 {{wide
 
@@ -2147,6 +1407,7 @@ The bonus ends when this Active Buff ends.
 
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -2209,6 +1470,7 @@ The bonus is lost immediately when the Summon leaves the radius.
 The bonus ends when this Active Buff ends.
 }}
 \page
+
 {{pageNumber,auto}}
 {{wide
 <h3 id="active-buff-thorns">
@@ -2284,6 +1546,7 @@ This Active Buff follows all normal Thorns rules.
 
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -2293,20 +1556,20 @@ This Active Buff follows all normal Thorns rules.
     <span class="tooltiptext">
       BASELINES<br>
       Active Buff curve = 40 PP at Level 1, 70 PP at Level 2, 100 PP at Level 3, 130 PP at Level 4, then +30 PP per level after that.<br>
-      Invisibility is a premium defensive axis based on perception, sense blocking, and target denial.<br><br>
+      Invisibility is a premium defensive axis based on perception, sense obscuration, and target denial.<br><br>
       DESIGN STRUCTURE<br>
-      Active Buff: Invisibility grants a stronger temporary Invisibility Bonus than the Passive line.<br>
-      Unlike Passive Invisibility, this Active Buff blocks only Normal Combat Awareness.<br>
-      It does not block Special Combat Senses by itself.<br><br>
+      Active Buff: Invisibility grants a temporary Invisibility Bonus equal to its Power Level.<br>
+      Unlike Passive Invisibility, this Active Buff Obscures only Normal Combat Awareness.<br>
+      It does not Obscure Special Combat Senses by itself.<br><br>
       RESTRICTIONS<br>
       Active Buff: Invisibility does not reduce damage.<br>
       Active Buff: Invisibility does not increase Evade.<br>
       Active Buff: Invisibility does not grant Armor, Damage Reduction, Phasing, Temporary HP, or Healing.<br>
-      Active Buff: Invisibility does not grant Special Combat Sense blocking.<br><br>
+      Active Buff: Invisibility does not grant Special Combat Sense Obscuration.<br><br>
       SUBSYSTEM EXCEPTION<br>
       Active Buff: Invisibility may stack with Passive Invisibility.<br>
       If both are active, add both Invisibility Bonuses together.<br>
-      If Passive Invisibility blocks Special Combat Senses, those blocks still apply while this Active Buff is active.<br>
+      If Passive Invisibility Obscures selected Special Combat Senses, they remain Obscured while this Active Buff is active.<br>
       This is an explicit Invisibility subsystem exception and does not apply to other Active Buffs.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 40 PP → +1 Invisibility Bonus, Normal Combat Awareness only.<br>
@@ -2326,7 +1589,7 @@ This Active Buff follows all normal Thorns rules.
       L15 target 460 PP → +15 Invisibility Bonus, Normal Combat Awareness only.<br>
       L16 target 490 PP → +16 Invisibility Bonus, Normal Combat Awareness only.<br><br>
       NOTES<br>
-      This Active Buff is intentionally narrow. It gives a high temporary Invisibility Bonus, but only against Normal Combat Awareness. Special Combat Senses remain a counter unless blocked by Passive Invisibility or another explicit Invisibility subsystem rule.
+      This Active Buff is intentionally narrow. It gives a high temporary Invisibility Bonus, but only against Normal Combat Awareness. Special Combat Senses not Obscured by Passive Invisibility or another explicit Invisibility rule remain unaffected and can locate the creature normally.
     </span>
   </span>
 </h3>
@@ -2335,36 +1598,37 @@ You vanish behind shimmer, shadow, distortion, mist, bent light, or predatory ca
 
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+1 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
-| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Invisibility Bonus**. Blocks **Normal Combat Awareness**. |
+| **1** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+1 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **2** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+2 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **3** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+3 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **4** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+4 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **5** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+5 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **6** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+6 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **7** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+7 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **8** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+8 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **9** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+9 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **10** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+10 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **11** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+11 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **12** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+12 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **13** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+13 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **14** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+14 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **15** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+15 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
+| **16** | Active Buff | Self | — | Mastery Rank Rounds | Gain **+16 Invisibility Bonus**. Obscures **Normal Combat Awareness**. |
 
 The Invisibility Bonus increases the Perception TN required to locate, target, or read you.
 
-**Perception TN = normal Skill Check TN by your Mastery Rank + current Invisibility Bonus**
+**Perception TN = (4 × Mastery Rank) + current Invisibility Bonus − (Lost Health Bars × Mastery Rank) + Stealth Points spent this Round**
 
-Your current Invisibility Bonus may be reduced by **Cloak Disruption**.
+Lost Health Bars reduce the Perception TN by Mastery Rank per lost Health Bar, as defined in the Core.
 
 This Active Buff may stack with **Passive Invisibility**. If both are active, add both Invisibility Bonuses together.
 
-This Active Buff does not block Special Combat Senses unless another explicit Invisibility subsystem rule says otherwise.
+This Active Buff does not Obscure Special Combat Senses by itself. Passive Invisibility may Obscure selected Special Combat Senses, as defined in the Core.
 }}
 
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -2391,9 +1655,9 @@ This Active Buff does not block Special Combat Senses unless another explicit In
   The recovery limit resets at the beginning of each new Round.<br><br>
 
   EXAMPLE<br>
-  You spend 5 Parry to remove 5 Attack Dice while using Active Buff: Parry Recovery Level 4.<br>
-  After the Attack resolves, regain up to 4 Parry.<br>
-  The Attack therefore consumes only 1 Parry from your Pool.<br>
+  You spend 5 Parry to remove 5 Attack Dice from a Martial Attack or 5 Casting Dice from a Spell while using Active Buff: Parry Recovery Level 4.<br>
+  After the triggering effect resolves, regain up to 4 Parry.<br>
+  The triggering effect therefore consumes only 1 Parry from your Pool.<br>
   You have reached this Buff's recovery limit and cannot regain further Parry until the beginning of the next Round.<br><br>
 
   NOTES<br>
@@ -2406,7 +1670,7 @@ This Active Buff does not block Special Combat Senses unless another explicit In
   </span>
 </h3>
 
-You settle into an enduring defensive rhythm, recovering your guard after every intercepted strike.
+You settle into an enduring defensive rhythm, recovering your guard after every intercepted attack or spell.
 
 ---
 
@@ -2444,15 +1708,16 @@ The recovery limit resets at the beginning of each new Round.
 
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
 
 ## Absorption Subsystem
 
-This subsystem Active Buff increases the conversion of real physical injury into Temporary Colorless Stones.
+This subsystem Active Buff increases the number of Temporary Colorless Stones earned from an eligible Scarred Health Bar.
 
-It does not prevent damage, grant additional HP, restore Health Bars, or make the character safer. Instead, it improves the yield of the Absorption Passive while the character continues to suffer actual HP loss.
+It does not prevent damage, grant additional HP, restore Health Bars, or make the character safer. Instead, it increases the yield of the Absorption Passive when eligible hostile damage Scars a Health Bar.
 
 This Active Buff requires the **Absorption Passive**.
 
@@ -2460,17 +1725,17 @@ Without the Absorption Passive, it has no effect.
 
 The additional Temporary Colorless Stones follow all normal Absorption rules:
 
-* They are gained in the **Ready** state.
-* They may be used as Stones of any Attribute.
-* They disappear when spent instead of becoming Exhausted.
-* They disappear if they have not been spent by the end of the character's next Turn.
-* They cannot be stored, regenerated, transferred, Sealed, Bound, Burned, or invested.
+* They are **earned** on the first valid Absorption trigger of that Round (among the Passive's four triggers per combat) and are received **Ready at the start of the next Preparation Phase**.
+* They may pay for any eligible unlocked Stone Ability, as Stones of any Attribute.
+* Unspent Stones remain available until combat ends.
+* Spent Absorption Stones become **Exhausted** and remain until combat ends. Like all Colorless Stones, they cannot normally recover; **Influence Stone Ability: Colorless Recovery**, activated **once per combat**, may designate up to **2 / 4 / 8 / 16 Colorless Stones** of any source as eligible for normal Stone Recovery **until combat ends**. Its activation Stones are **Exhausted, not Sealed**.
+* They provide no extra Stone Recovery and cannot be transferred, Sealed, Bound, Burned, or invested.
 
 ---
 
 ### Active Buff: Absorption Stone Increase
 
-While this Active Buff is maintained, the first time during each Round that the Absorption Passive generates one or more Temporary Colorless Stones, gain additional Temporary Colorless Stones according to this Power's Level.
+While this Active Buff is maintained, the **first valid Absorption trigger each Round** grants additional Temporary Colorless Stones according to this Power's Level. This is subject to the Passive's **four-trigger limit per combat**.
 
 This bonus is applied only once per Round.
 
@@ -2478,19 +1743,16 @@ The bonus is triggered by a successful Absorption harvest, not by each individua
 
 #### Example
 
-A character with Vitality 8 loses 24 actual HP and generates 3 Temporary Colorless Stones through the Absorption Passive.
+A character with **Passive: Absorption Level 8** has **4 Stones per eligible Scarred Health Bar**. Hostile damage Scars one Health Bar, consuming one of the Passive's four triggers. If the character maintains **Active Buff: Absorption Stone Increase Level 4**, this first trigger of the Round adds **1 Stone**.
 
-If the character maintains **Active Buff: Absorption Stone Increase Level 4**, the first harvest of that Round grants 1 additional Temporary Colorless Stone.
-
-The character gains a total of 4 Temporary Colorless Stones.
-
-Further damage during the same Round may still generate normal Temporary Colorless Stones, but it does not trigger the Active Buff's bonus again.
+The character earns **5 Temporary Colorless Stones**, which become Ready in the next Preparation Phase. A second valid trigger in the same Round grants the Passive's Stones but no further bonus from this Active Buff. After four total Passive triggers in this combat, the Active Buff can no longer grant bonus Stones.
 
 ---
 }}
 
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 
@@ -2508,8 +1770,8 @@ Further damage during the same Round may still generate normal Temporary Colorle
   This Power occupies the character's maintained Active Buff slot.<br><br>
 
   CORE EFFECT<br>
-  The first time during each Round that the Absorption Passive generates one or more Temporary Colorless Stones, gain additional Temporary Colorless Stones.<br>
-  This bonus applies once per Round, regardless of how many Stones the triggering damage generated.<br><br>
+  On the first valid Passive: Absorption trigger each Round (a hostile-damage-Scarred Health Bar), gain additional Temporary Colorless Stones.<br>
+  This bonus applies once per Round and only if the damage instance uses at least one of the Passive's four triggers for this combat.<br><br>
 
   MILESTONES<br>
   L1–4 = +1 Temporary Colorless Stone.<br>
@@ -2519,9 +1781,9 @@ Further damage during the same Round may still generate normal Temporary Colorle
 
   TEMPORARY STONES<br>
   Additional Stones follow all normal Absorption rules.<br>
-  They are gained Ready.<br>
-  They disappear when spent.<br>
-  Unspent Stones disappear at the end of the character's next Turn.<br><br>
+  They are received Ready at the start of the next Preparation Phase.<br>
+  Spent Stones become Exhausted and cannot recover without Influence: Colorless Recovery.<br>
+  Ready or Exhausted Stones disappear when combat ends.<br><br>
 
   RESTRICTIONS<br>
   This Buff grants no Maximum HP, Healing, Temporary HP, Armor, Evade, Damage Reduction, Phasing, Parry, Attack Dice, Damage, free Attacks, or additional Reactions.<br>
@@ -2529,7 +1791,7 @@ Further damage during the same Round may still generate normal Temporary Colorle
   It does not generate Stones unless the Absorption Passive generates at least one Stone normally.<br><br>
 
   NOTES<br>
-  The character must continue taking actual HP damage to benefit from this Power.<br>
+  The character must lose an eligible Health Bar to hostile damage to benefit from this Power.<br>
   Unused PP is intentionally ignored because Absorption is a closed premium milestone subsystem.
 </span>
 
@@ -2543,34 +1805,35 @@ You open yourself fully to violence, drawing a greater surge of unstable power f
 
 **Requirement:** Absorption Passive
 
-The first time during each Round that your Absorption Passive generates one or more Temporary Colorless Stones, gain the additional Stones listed below.
+The first valid Absorption trigger of each Round grants the additional Stones listed below, **only if the damage instance uses at least one of the Passive's four triggers for this combat**.
 
 This bonus can trigger only **once per Round**.
 
 | **Level** | **Type**                | **Range** | **AoE** |     **Duration**    | **Effect**                                                                           |
 | :-------: | :---------------------- | :-------: | :-----: | :-----------------: | :----------------------------------------------------------------------------------- |
-|   **1**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+1 Temporary Colorless Stone**.  |
-|   **2**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+1 Temporary Colorless Stone**.  |
-|   **3**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+1 Temporary Colorless Stone**.  |
-|   **4**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+1 Temporary Colorless Stone**.  |
-|   **5**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+2 Temporary Colorless Stones**. |
-|   **6**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+2 Temporary Colorless Stones**. |
-|   **7**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+2 Temporary Colorless Stones**. |
-|   **8**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+2 Temporary Colorless Stones**. |
-|   **9**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+3 Temporary Colorless Stones**. |
-|   **10**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+3 Temporary Colorless Stones**. |
-|   **11**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+3 Temporary Colorless Stones**. |
-|   **12**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+3 Temporary Colorless Stones**. |
-|   **13**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+4 Temporary Colorless Stones**. |
-|   **14**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+4 Temporary Colorless Stones**. |
-|   **15**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+4 Temporary Colorless Stones**. |
-|   **16**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first Absorption harvest each Round generates **+4 Temporary Colorless Stones**. |
+|   **1**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+1 Temporary Colorless Stone**.  |
+|   **2**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+1 Temporary Colorless Stone**.  |
+|   **3**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+1 Temporary Colorless Stone**.  |
+|   **4**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+1 Temporary Colorless Stone**.  |
+|   **5**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+2 Temporary Colorless Stones**. |
+|   **6**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+2 Temporary Colorless Stones**. |
+|   **7**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+2 Temporary Colorless Stones**. |
+|   **8**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+2 Temporary Colorless Stones**. |
+|   **9**   | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+3 Temporary Colorless Stones**. |
+|   **10**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+3 Temporary Colorless Stones**. |
+|   **11**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+3 Temporary Colorless Stones**. |
+|   **12**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+3 Temporary Colorless Stones**. |
+|   **13**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+4 Temporary Colorless Stones**. |
+|   **14**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+4 Temporary Colorless Stones**. |
+|   **15**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+4 Temporary Colorless Stones**. |
+|   **16**  | Active Buff, Absorption |    Self   |    —    | Mastery Rank Rounds | The first valid Absorption trigger each Round generates **+4 Temporary Colorless Stones**. |
 
 ---
 
 }}
 
 \page
+
 {{pageNumber,auto}}
 {{wide
 <h3 id="active-buff-damage-negation-pool">
@@ -2613,7 +1876,7 @@ This bonus can trigger only **once per Round**.
   NOTES<br>
   This Buff does not restore the long-term Damage Negation Reserve.<br>
   Temporary Damage Negation cannot be stored or carried into another Round.<br>
-  This Buff grants no Armor, Evade, Parry, Damage Reduction, Phasing, Temporary HP, Healing, Absorption, Ward, Reaction, free Attack, or additional action economy.<br>
+  This Buff grants no Armor, Evade, Parry, Damage Reduction, Phasing, Temporary HP, Healing, Absorption, Spell Resistance, Special Negation, Reaction, free Attack, or additional action economy.<br>
   It uses the character's maintained Active Buff slot.
 </span>
 

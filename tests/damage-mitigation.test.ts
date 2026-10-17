@@ -4,10 +4,10 @@
  * the five load-bearing behaviours from the plan:
  *
  *   1. Armor is subtracted first.
- *   2. DR% reduction amount is rounded up (defender-favorable).
+ *   2. Final damage after DR = ceil(Damage × (1 − DR / 100)).
  *   3. The 8s-minimum rule kicks in when reduced damage ≤ 0.
  *   4. Reaction-DR applies after continuous DR on the remaining damage (sequential
- *      percentages, each reduction ceil'd defender-favorably).
+ *      percentages, each step using the Core remaining-damage ceil).
  *   5. The resulting `breakdownLine` reflects the actual sequence for chat
  *      logging (Raw → Armor → DR → 8s-min → result).
  */
@@ -67,14 +67,14 @@ describe('applyDefensiveMitigation', () => {
       damageReductionPct: 30,
       reactionDrPct: 20,
     });
-    // 40 − 30% (12) = 28 → 20% of 28 = ceil(5.6) = 6 off → 22
-    expect(result.mitigatedDamage).toBe(22);
-    expect(result.drPercent).toBe(45);
+    // ceil(40 × 0.70) = 28 → ceil(28 × 0.80) = ceil(22.4) = 23
+    expect(result.mitigatedDamage).toBe(23);
+    expect(result.drPercent).toBe(43);
     expect(result.breakdownLine).toContain('DR 30%');
     expect(result.breakdownLine).toContain('Reaction DR 20%');
   });
 
-  it('clamps DR% values above 100', () => {
+  it('clamps each DR% input to 100 and applies sequential remaining-damage ceils', () => {
     const result = applyDefensiveMitigation({
       rawDamage: 10,
       count8s: 0,
@@ -82,8 +82,16 @@ describe('applyDefensiveMitigation', () => {
       damageReductionPct: 80,
       reactionDrPct: 80,
     });
-    expect(result.drPercent).toBe(100);
-    expect(result.mitigatedDamage).toBe(0);
+    // ceil(10 × 0.20) = 2 → ceil(2 × 0.20) = 1 (stacking order unchanged)
+    expect(result.mitigatedDamage).toBe(1);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 10,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 100,
+      }).mitigatedDamage,
+    ).toBe(0);
   });
 
   it('treats negative / NaN inputs as zero', () => {
@@ -106,9 +114,9 @@ describe('applyDefensiveMitigation', () => {
       armorTotal: 5,
       damageReductionPct: 50,
     });
-    // 20 − 5 = 15 → 50% reduction ceils to 8 off → 7 (8s-min not used; 7 > 0)
-    expect(result.mitigatedDamage).toBe(7);
-    expect(result.breakdownLine.endsWith('→ 7')).toBe(true);
+    // 20 − 5 = 15 → ceil(15 × 0.50) = 8
+    expect(result.mitigatedDamage).toBe(8);
+    expect(result.breakdownLine.endsWith('→ 8')).toBe(true);
     expect(result.breakdownLine).not.toContain('→ →');
   });
 
@@ -126,14 +134,74 @@ describe('applyDefensiveMitigation', () => {
     expect(result.breakdownLine).toBe('Raw 44 → Armor 11 → Guard +8 → 25');
   });
 
-  it('favors defender on fractional DR% (e.g. 10% of 18 after armor)', () => {
+  it('uses ceil on remaining damage (Core): 10 @ 25% → 8, 13 @ 30% → 10', () => {
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 10,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 25,
+      }).mitigatedDamage,
+    ).toBe(8);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 13,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 30,
+      }).mitigatedDamage,
+    ).toBe(10);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 10,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 0,
+      }).mitigatedDamage,
+    ).toBe(10);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 10,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 50,
+      }).mitigatedDamage,
+    ).toBe(5);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 1,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 25,
+      }).mitigatedDamage,
+    ).toBe(1);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 3,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 50,
+      }).mitigatedDamage,
+    ).toBe(2);
+    expect(
+      applyDefensiveMitigation({
+        rawDamage: 0,
+        count8s: 0,
+        armorTotal: 0,
+        damageReductionPct: 50,
+      }).mitigatedDamage,
+    ).toBe(0);
+  });
+
+  it('applies Armor before the Core DR remaining-damage ceil', () => {
     const result = applyDefensiveMitigation({
       rawDamage: 20,
       count8s: 0,
       armorTotal: 2,
       damageReductionPct: 10,
     });
-    expect(result.mitigatedDamage).toBe(16);
+    // 18 × 0.90 = 16.2 → ceil 17
+    expect(result.mitigatedDamage).toBe(17);
   });
 });
 

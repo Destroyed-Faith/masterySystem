@@ -210,7 +210,7 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(ids).toEqual([
       'resolve.damageReduction',
       'resolve.healing',
-      'resolve.stressHealing',
+      'resolve.activeBuffEmpowerment',
       'resolve.ward',
     ]);
   });
@@ -222,14 +222,14 @@ describe('Stone Powers — pool layout (new spec)', () => {
       'vitality.damageNegation',
       'vitality.tempHp',
       'vitality.removeScar',
-      'vitality.extendActiveBuff',
+      'vitality.damageMaximization',
     ]);
   });
 
   it('Might pool leads with Parry (Premium)', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.might.map((p) => p.id);
     expect(ids[0]).toBe('might.parry');
-    expect(ids).toEqual(['might.parry', 'might.meleeDamage', 'might.armor', 'might.ignoreArmor']);
+    expect(ids).toEqual(['might.parry', 'might.meleeDamage', 'might.armor', 'might.armorReduction']);
   });
 
   it('each attribute list leads with its Premium ability', () => {
@@ -238,8 +238,8 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(STONE_POWERS_BY_ATTRIBUTE.intellect[0].id).toBe('intellect.specialBoost');
     expect(STONE_POWERS_BY_ATTRIBUTE.intellect.map((p) => p.id)).toEqual([
       'intellect.specialBoost',
-      'intellect.spellPenetration',
-      'intellect.raiseFocus',
+      'intellect.rangeAoe',
+      'intellect.raises',
       'intellect.spellResistance',
     ]);
     expect(STONE_POWERS_BY_ATTRIBUTE.influence[0].id).toBe('influence.notATarget');
@@ -556,7 +556,8 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
     const combat = { id: 'combat-1', round: 1, turn: 0, combatants: [{ actor, id: 'c1' }] };
     await clearCombatStoneTurnBonusesForActor(actor as any, combat as any);
     expect(actor.system.health.tempHP).toBe(40);
-    expect(actor._roundState.stoneBonuses.evadeBonus).toBe(0);
+    // v0.9.9.5: Evade lasts until the start of the next own turn, not spotlight end.
+    expect(actor._roundState.stoneBonuses.evadeBonus).toBe(8);
     await resetTempHpAfterCombat(combat);
     expect(actor.system.health.tempHP).toBe(0);
   });
@@ -580,42 +581,44 @@ describe('Vitality — Damage Negation (Premium, four Ranks)', () => {
   });
 });
 
-describe('Vitality — Extend Active Buff stores +1/+2/+3/+4 pending rounds', () => {
-  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('T%i stores +%i rounds', async (tier, expected) => {
+describe('Resolve — Active Buff Empowerment stores PL and rounds', () => {
+  it.each([[1, 1], [2, 2], [3, 3], [4, 4]])('T%i stores +%i', async (tier, expected) => {
     const actor = makeMockActor();
-    await STONE_POWERS['vitality.extendActiveBuff'].apply({
+    await STONE_POWERS['resolve.activeBuffEmpowerment'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
       cost: 2 ** (tier - 1),
     });
     expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(expected);
+    expect(actor._roundState.stoneBonuses.activeBuffPlBonus).toBe(expected);
   });
 
-  it('keeps the highest pending extension (totals, no stacking)', async () => {
+  it('keeps the highest empowerment (no stacking)', async () => {
     const actor = makeMockActor();
-    const power = STONE_POWERS['vitality.extendActiveBuff'];
+    const power = STONE_POWERS['resolve.activeBuffEmpowerment'];
     await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 3, cost: 4 });
     await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
     expect(actor._roundState.stoneBonuses.extendActiveBuffRounds).toBe(3);
+    expect(actor._roundState.stoneBonuses.activeBuffPlBonus).toBe(3);
   });
 });
 
-describe('Intellect — Raise Focus scales +4/+8/+12/+16 Raise-TN bonus', () => {
+describe('Intellect — Raises grants a shared allowance', () => {
   it.each([
-    [1, 4],
-    [2, 8],
-    [3, 12],
-    [4, 16],
-  ])('T%i adds +%i to Raise TN check only', async (tier, expected) => {
+    [1, 2],
+    [2, 4],
+    [3, 6],
+    [4, 8],
+  ])('T%i stores %i Raises', async (tier, expected) => {
     const actor = makeMockActor();
-    await STONE_POWERS['intellect.raiseFocus'].apply({
+    await STONE_POWERS['intellect.raises'].apply({
       actor: actor as any,
       combatant: makeMockCombatant() as any,
       tier,
       cost: 2 ** (tier - 1),
     });
-    expect(actor._roundState.stoneBonuses.spellRaiseTnBonus).toBe(expected);
+    expect(actor._roundState.stoneBonuses.freeRaises).toBe(expected);
   });
 });
 
@@ -888,7 +891,7 @@ describe('Agility — Crit (Premium, four Ranks)', () => {
 });
 
 describe('Influence powers are GM-manual (flag-driven)', () => {
-  it.each(['influence.aidRoll', 'influence.regeneration', 'influence.passiveSwap', 'influence.notATarget'])(
+  it.each(['influence.cleanse', 'influence.colorlessRecovery', 'influence.notATarget'])(
     '%s sets a pending flag with tier-scaled payload',
     async (id) => {
       const actor = makeMockActor();
@@ -904,18 +907,18 @@ describe('Influence powers are GM-manual (flag-driven)', () => {
   );
 });
 
-describe('Resolve Ward and Influence Regeneration copy', () => {
-  it('names Ward with what it actually does', () => {
+describe('Resolve Special Negation and Colorless Recovery', () => {
+  it('names Special Negation with what it actually does', () => {
     const power = STONE_POWERS['resolve.ward'];
-    expect(power.name).toMatch(/incoming Specials/i);
+    expect(power.name).toMatch(/Special Negation/i);
     expect(power.description).toMatch(/hostile Special/i);
     expect(power.tiers[0]?.description).toMatch(/reduced by 2/i);
   });
 
-  it('grants Regeneration(2/4/6/8) to one ally within 8/16/24/32 m', async () => {
-    const power = STONE_POWERS['influence.regeneration'];
-    expect(power.name).toBe('Regeneration');
-    expect(power.tiers.map((t) => t.value)).toEqual([2, 4, 6, 8]);
+  it('designates 2/4/8/16 Colorless Stones for recovery once per combat', async () => {
+    const power = STONE_POWERS['influence.colorlessRecovery'];
+    expect(power.name).toBe('Colorless Recovery');
+    expect(power.tiers.map((t) => t.value)).toEqual([2, 4, 8, 16]);
     const actor = makeMockActor();
     await power.apply({
       actor: actor as any,
@@ -923,7 +926,7 @@ describe('Resolve Ward and Influence Regeneration copy', () => {
       tier: 1,
       cost: 1,
     });
-    expect(actor._flags.pendingAllyRegeneration).toEqual({ value: 2, moveMeters: 0, range: 8 });
+    expect(actor._flags.colorlessRecovery.eligible).toBe(2);
     const actorT4 = makeMockActor();
     await power.apply({
       actor: actorT4 as any,
@@ -931,7 +934,7 @@ describe('Resolve Ward and Influence Regeneration copy', () => {
       tier: 4,
       cost: 8,
     });
-    expect(actorT4._flags.pendingAllyRegeneration).toEqual({ value: 8, moveMeters: 0, range: 32 });
+    expect(actorT4._flags.colorlessRecovery.eligible).toBe(16);
   });
 });
 
@@ -944,6 +947,6 @@ describe('STONE_POWERS_BY_ATTRIBUTE — GM editor coverage', () => {
     }
     expect(STONE_POWERS_BY_ATTRIBUTE.wits.some((p) => p.id === 'wits.initiativeBoost')).toBe(true);
     expect(STONE_POWERS_BY_ATTRIBUTE.vitality.some((p) => p.id === 'vitality.tempHp')).toBe(true);
-    expect(STONE_POWERS_BY_ATTRIBUTE.might.some((p) => p.id === 'might.ignoreArmor')).toBe(true);
+    expect(STONE_POWERS_BY_ATTRIBUTE.might.some((p) => p.id === 'might.armorReduction')).toBe(true);
   });
 });

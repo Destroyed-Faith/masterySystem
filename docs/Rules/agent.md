@@ -3,9 +3,9 @@
 **Public technical reference for Power design, pricing, and mechanical audit**
 
 **Framework version:** 1.1  
-**Rules status:** Destroyed Faith 0.9.9.x Beta  
-**Canonical sync:** 2026-09-22  
-**Primary Core baseline:** Destroyed Faith Core v0.9.9.0 (2026-09-22)  
+**Rules status:** Destroyed Faith 0.9.9.5 Beta  
+**Canonical sync:** 2026-10-15  
+**Primary Core baseline:** Destroyed Faith Core v0.9.9.5 (2026-10-15)  
 **Scope:** Powers, Specials, Movement, Artifacts, Stone Power Support, and the separation between character construction math and encounter calibration.
 
 ---
@@ -56,13 +56,13 @@ This public audit was checked against:
 
 | Source | Version used |
 |---|---|
-| Destroyed Faith Core | v0.9.9.0, 2026-09-22 |
-| Actives | v0.9.9.0, 2026-09-22 |
-| Active Buffs | v0.9.9.0, 2026-09-22 |
-| Passives | v0.9.9.0, 2026-09-22 |
-| Reactions | v0.9.9.0, 2026-09-22 |
+| Destroyed Faith Core | v0.9.9.5, 2026-10-15 |
+| Actives | v0.9.9.5, 2026-10-15 |
+| Active Buffs | v0.9.9.5, 2026-10-15 |
+| Passives | v0.9.9.5, 2026-10-15 |
+| Reactions | v0.9.9.5, 2026-10-15 |
 | Movement Powers | v0.9.8, 2026-08-01 |
-| Artifacts | v0.9.8, 2026-07-31, with later file-level corrections present in the audited copy |
+| Artifacts | v0.9.9.5, 2026-10-15 |
 | Quick Encounter | v0.7 Beta, based on Core v0.9.8.2, with MR3-MR6 appendix present in the audited copy |
 | Alaris Quick Play Sheet | audited runtime reference, 2026-09-02 |
 

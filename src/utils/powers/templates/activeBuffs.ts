@@ -47,7 +47,7 @@ const GF_INIT_PEN = [0, 0, 0, 4, 4, 4, 4, 8, 8, 8, 8, 12, 12, 12, 12, 16];
 const GF_PHYS_PEN = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2];
 
 /** Summon Damage / Armor Aura — radius bands (Players Guide Summons). */
-const SUMMON_AURA_RADIUS = [8, 8, 8, 8, 16, 16, 16, 16, 24, 24, 24, 24, 32, 32, 32, 32];
+const SUMMON_AURA_RADIUS = [8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 40];
 const SUMMON_DMG_AURA = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 
@@ -552,8 +552,8 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
         roll: { kind: 'none' },
         // Damage + Armor are paid axes; the size/footprint/reach/stability rider
         // and the Evade/Initiative/Physical-skill drawbacks are the form package.
-        // The visible token resize + reach + forced-movement reduction are wired
-        // in a follow-up step (mechanics.growthForm carries the data).
+        // Token resize, reach, forced-movement reduction, and Prone resistance
+        // are applied from mechanics.growthForm.
         levels: buildLevels((lvl) => {
             const dmg = `${lvl}d8`;
             const armor = GF_ARMOR[lvl - 1];
@@ -606,7 +606,10 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
                 aoe: { shape: 'aura', radiusM: r, targetFilter: 'allies', center: 'self', note: 'own summons only' },
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Own Summons within **${r} m** gain **+${dice}d8 Damage** on their attacks.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                mechanics: {
+                    duration: 'masteryRankRounds',
+                    summonDamageAura: { dice, radiusM: r },
+                },
             });
         }),
     },
@@ -628,7 +631,10 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
                 aoe: { shape: 'aura', radiusM: r, targetFilter: 'allies', center: 'self', note: 'own summons only' },
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Own Summons within **${r} m** gain **+${armor} Armor**.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                mechanics: {
+                    duration: 'masteryRankRounds',
+                    summonArmorAura: { armor, radiusM: r },
+                },
             });
         }),
     },

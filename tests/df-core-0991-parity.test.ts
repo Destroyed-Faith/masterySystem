@@ -373,7 +373,7 @@ describe('Stored Mastery Rank is mechanical; Lifetime XP only suggests', () => {
     expect(castingBaseTnForMasteryRank(getRulesMasteryRank(mismatched))).toBe(14);
     expect(speciallessSpellLimit(getRulesMasteryRank(mismatched))).toBe(2);
     expect(stoneConcentrationCap(2, 2, 100)).toBe(6);
-    expect(permanentColorlessCap(getRulesMasteryRank(mismatched))).toBe(2);
+    expect(permanentColorlessCap(2)).toBe(0);
     expect(activeBuffDurationRounds(mismatched)).toBe(2);
     expect(getSkillRollDicePool(mismatched as any, 'not-a-skill', 'might').keepDice).toBe(2);
     expect(basicAttackMasteryRank(mismatched)).toBe(2);
@@ -402,11 +402,11 @@ describe('Stored Mastery Rank is mechanical; Lifetime XP only suggests', () => {
       permanentColorless: 2,
       storedRank: 2,
       lifetimeXp: 100,
-    })).toMatchObject({ ok: true, masteryRank: 3, cap: 3 });
+    })).toMatchObject({ ok: true, cap: 4 });
     expect(canConvertToPermanentColorless({
       assignments: emptyAssignments(),
       totalPermanent: 6,
-      permanentColorless: 2,
+      permanentColorless: 4,
       storedRank: 2,
     }).ok).toBe(false);
   });

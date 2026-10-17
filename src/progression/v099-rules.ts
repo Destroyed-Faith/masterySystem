@@ -257,19 +257,23 @@ export function sumAssignments(assignments: Record<string, number>): number {
   return ATTRIBUTE_KEYS.reduce((sum, key) => sum + Math.max(0, Math.floor(Number(assignments[key]) || 0)), 0);
 }
 
-/** Permanent Colorless Stones owned by this character (2:1 conversion of unassigned Stones). */
+/** Permanent Colorless Stones owned by this character (1:1, after the 2 starting Stones). */
 export function permanentColorlessCount(system: any): number {
   return Math.max(0, Math.floor(Number(system?.progression?.permanentColorless) || 0));
 }
 
-/** A character may possess at most Mastery Rank Permanent Colorless Stones. */
-export function permanentColorlessCap(masteryRank: number): number {
-  return Math.max(1, Math.floor(Number(masteryRank) || 1));
+/**
+ * How many earned Stones may be Permanent Colorless.
+ * The 2 starting Stones stay Attribute Stones. There is no Mastery Rank cap.
+ * `totalPermanent` is the earned stone count, not the Mastery Rank.
+ */
+export function permanentColorlessCap(totalPermanent: number): number {
+  return Math.max(0, Math.floor(Number(totalPermanent) || 0) - 2);
 }
 
 /**
- * Unassigned permanent progression Stones: earned total minus assigned minus
- * the two consumed by each Permanent Colorless Stone conversion.
+ * Unassigned permanent progression Stones: earned total minus assigned
+ * Attribute Stones minus Permanent Colorless Stones (1:1).
  */
 export function unassignedPermanentStones(args: {
   assignments: Record<string, number>;
@@ -278,13 +282,12 @@ export function unassignedPermanentStones(args: {
 }): number {
   const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
   const colorless = Math.max(0, Math.floor(Number(args.permanentColorless) || 0));
-  return total - sumAssignments(args.assignments) - 2 * colorless;
+  return total - sumAssignments(args.assignments) - colorless;
 }
 
 /**
- * Convert 2 unassigned permanent Stones into 1 Permanent Colorless Stone.
- * The conversion is permanent. The cap is the Lifetime-XP Mastery Rank.
- * Temporary Colorless Stones are a different pool and do not change this cap.
+ * Convert 1 unassigned earned Stone into 1 Permanent Colorless Stone.
+ * The 2 starting Stones cannot be converted. There is no Mastery Rank cap.
  */
 export function canConvertToPermanentColorless(args: {
   assignments: Record<string, number>;
@@ -296,18 +299,23 @@ export function canConvertToPermanentColorless(args: {
   const total = Math.max(0, Math.floor(Number(args.totalPermanent) || 0));
   void args.storedRank;
   const masteryRank = masteryRankForStoneLimits(total, args.lifetimeXp);
-  const cap = permanentColorlessCap(masteryRank);
+  const cap = permanentColorlessCap(total);
   const colorless = Math.max(0, Math.floor(Number(args.permanentColorless) || 0));
   if (colorless >= cap) {
-    return { ok: false, masteryRank, cap, reason: `Permanent Colorless Stones are capped at Mastery Rank (${cap}).` };
+    return {
+      ok: false,
+      masteryRank,
+      cap,
+      reason: 'The 2 starting Stones stay Attribute Stones.',
+    };
   }
   const unassigned = unassignedPermanentStones({
     assignments: args.assignments,
     totalPermanent: total,
     permanentColorless: colorless,
   });
-  if (unassigned < 2) {
-    return { ok: false, masteryRank, cap, reason: 'The conversion needs 2 unassigned permanent Stones.' };
+  if (unassigned < 1) {
+    return { ok: false, masteryRank, cap, reason: 'The conversion needs 1 unassigned permanent Stone.' };
   }
   return { ok: true, masteryRank, cap };
 }
@@ -356,7 +364,10 @@ export function assignmentsAreLegal(
 ): { ok: boolean; reason?: string } {
   const total = Math.max(0, Math.floor(totalPermanent));
   const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
-  const assignable = total - 2 * colorless;
+  if (colorless > permanentColorlessCap(total)) {
+    return { ok: false, reason: 'The 2 starting Stones stay Attribute Stones.' };
+  }
+  const assignable = total - colorless;
   if (assignable < 0) {
     return { ok: false, reason: 'More Permanent Colorless Stones than earned progression allows.' };
   }
@@ -415,9 +426,8 @@ export function buildStoneProgressionSlots(
       const n = Math.max(0, Math.floor(Number(assignments[key]) || 0));
       for (let i = 0; i < n; i += 1) queue.push(key);
     }
-    // Each Permanent Colorless Stone replaced two earned progression Stones.
     const colorless = Math.max(0, Math.floor(Number(permanentColorless) || 0));
-    for (let i = 0; i < colorless * 2; i += 1) queue.push('colorless');
+    for (let i = 0; i < colorless; i += 1) queue.push('colorless');
   }
   const slots: StoneProgressSlot[] = [];
   const count = 2 + span / 20;

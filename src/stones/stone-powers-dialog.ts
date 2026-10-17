@@ -74,6 +74,16 @@ import {
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import {
+  assignLaterColorlessRecovery,
+  colorlessRecoveryPreparationOpen,
+  colorlessRecoverySpec,
+  commitColorlessRecovery,
+  designatedExhaustedColorlessIds,
+  listColorlessStones,
+  readColorlessRecovery,
+  syncColorlessStoneLedger,
+} from './colorless-recovery.js';
+import {
   COLORLESS_GEM_STYLE,
   COLORLESS_STONE_ATTR,
   colorlessStoneInitiativeCost,
@@ -505,6 +515,7 @@ type StoneRecoveryContext = {
   remaining: number;
   saturated: boolean;
   canFinish: boolean;
+  colorlessChoices?: Array<{ id: string; label: string; picked: boolean; canPick: boolean }>;
 };
 
 const STONE_RECOVERY_INACTIVE: StoneRecoveryContext = {
@@ -514,6 +525,7 @@ const STONE_RECOVERY_INACTIVE: StoneRecoveryContext = {
   remaining: 0,
   saturated: false,
   canFinish: true,
+  colorlessChoices: [],
 };
 
 function poolDisplayName(key: string): string {
@@ -753,6 +765,9 @@ export class StonePowersDialog extends BaseDialog {
   private _stoneScroll = { content: 0, dialog: 0, frame: 0 };
   /** Stone Recovery (round 2+): stones the player takes back, per pool. */
   private _recoveryAlloc: Record<string, number> = {};
+  private _recoveryColorlessIds: string[] = [];
+  private _crRank = 1;
+  private _crPicked: string[] = [];
   /** Round the current recovery belongs to — a new round starts from scratch. */
   private _recoveryRound = 0;
   /** Recovery still open: the power matrix below stays locked. */
@@ -915,6 +930,11 @@ export class StonePowersDialog extends BaseDialog {
 
     const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
     const system = (poolOwner as any).system;
+    try {
+      await syncColorlessStoneLedger(poolOwner);
+    } catch {
+      /* ledger is optional until Colorless Stones exist */
+    }
 
     // Artifact "Stone Power Support" Stone Functions pre-fill an activation to
     // a higher tier. Resolve them once (off the same actor the economy uses)
@@ -1448,6 +1468,7 @@ export class StonePowersDialog extends BaseDialog {
       stoneResolutionHold,
       unactivatedStones,
       recovery,
+      colorlessRecovery: this.#colorlessRecoveryPanel(combat, poolOwner),
       /** Ziehen sobald Initiative steht — Convert/Boost müssen nicht erst bestätigt sein. */
       dragStonesEnabled:
         !stonePlanLocked &&
@@ -1555,26 +1576,104 @@ export class StonePowersDialog extends BaseDialog {
     await this.#renderKeepingScroll();
   }
   
+  #colorlessRecoveryPanel(combat: any, owner: any) {
+    const character = String(owner?.type || (this.actor as any)?.type || '') === 'character';
+    const record = readColorlessRecovery(owner, combat?.id ? String(combat.id) : undefined);
+    const open = colorlessRecoveryPreparationOpen(owner, combat);
+    const stones = listColorlessStones(owner).filter((row) => row.state === 'ready' || row.state === 'exhausted');
+    if (!character || !combat) return { show: false };
+    if (!record) {
+      const rank = Math.min(4, Math.max(1, this._crRank || 1));
+      const spec = colorlessRecoverySpec(rank);
+      const picked = this._crPicked.filter((id) => stones.some((row) => row.id === id));
+      return {
+        show: open,
+        mode: 'activate',
+        rank,
+        cost: spec?.cost ?? 0,
+        capacity: spec?.capacity ?? 0,
+        free: Math.max(0, (spec?.capacity ?? 0) - picked.length),
+        stones: stones.map((row) => ({
+          id: row.id,
+          label: `${row.source} · ${row.state}`,
+          checked: picked.includes(row.id),
+          disabled: !picked.includes(row.id) && picked.length >= (spec?.capacity ?? 0),
+        })),
+      };
+    }
+    const free = Math.max(0, record.capacity - record.selectedIds.length);
+    const fresh = this._crPicked.filter((id) => !record.selectedIds.includes(id) && stones.some((row) => row.id === id));
+    return {
+      show: true,
+      mode: 'assign',
+      rank: record.rank,
+      cost: 0,
+      capacity: record.capacity,
+      free,
+      stones: stones.map((row) => {
+        const held = record.selectedIds.includes(row.id);
+        return {
+          id: row.id,
+          label: `${row.source} · ${row.state}${held ? ' · designated' : ''}`,
+          checked: held || fresh.includes(row.id),
+          disabled: held || (!fresh.includes(row.id) && fresh.length >= free),
+        };
+      }),
+    };
+  }
+
   /** Stones Mastery Rank buys back at the start of a round (Lifetime-XP MR). */
   #stoneRecoveryPoints(): number {
     const owner = getActionEconomyActor(this.actor) ?? this.actor;
     return Math.max(1, getRulesMasteryRank(owner));
   }
 
+  #pickedRecoverableColorless(): string[] {
+    const owner = getActionEconomyActor(this.actor) ?? this.actor;
+    const legal = new Set(designatedExhaustedColorlessIds(owner));
+    return this._recoveryColorlessIds.filter((id) => legal.has(id));
+  }
+
+  #colorlessRecoveryChoices(): Array<{ id: string; label: string; picked: boolean; canPick: boolean }> {
+    const owner = getActionEconomyActor(this.actor) ?? this.actor;
+    const rows = listColorlessStones(owner);
+    const record = readColorlessRecovery(owner);
+    if (!record) return [];
+    const picked = new Set(this.#pickedRecoverableColorless());
+    const room = Math.max(
+      0,
+      this.#stoneRecoveryPoints() - this.#currentAttributeRecoveryCount() - picked.size,
+    );
+    return rows
+      .filter((row) => record.selectedIds.includes(row.id) && row.state === 'exhausted')
+      .map((row) => {
+        const isPicked = picked.has(row.id);
+        return {
+          id: row.id,
+          label: `${row.source} ${row.id}`,
+          picked: isPicked,
+          canPick: isPicked || room > 0,
+        };
+      });
+  }
+
+  #currentAttributeRecoveryCount(): number {
+    return Object.values(this._recoveryAlloc).reduce((sum, n) => sum + Math.max(0, Math.floor(Number(n) || 0)), 0);
+  }
+
   /**
-   * Pools as recovery input. End-of-round Regeneration is one shared Mastery
-   * Rank budget across Attribute Stone Pools and the Colorless Pool
-   * (Exhausted Permanent and Initiative Colorless Stones). Item-granted
-   * Colorless Stones offer no regen space — they follow their source's rule.
+   * Attribute pools only. Designated Colorless Stones are individual choices
+   * and share this same Mastery Rank limit.
    */
   #recoveryPoolInputs(pools: StoneDialogPoolRow[]): StoneRecoveryPoolInput[] {
-    return pools.map((pool) => ({
-      key: String(pool.key),
-      max: pool.max,
-      current: pool.current,
-      // Sealed / Burned stones block regen space exactly like Sustain.
-      sustained: pool.sustained + (pool.sealedBurned ?? 0),
-    }));
+    return pools
+      .filter((pool) => String(pool.key) !== COLORLESS_STONE_ATTR)
+      .map((pool) => ({
+        key: String(pool.key),
+        max: pool.max,
+        current: pool.current,
+        sustained: pool.sustained + (pool.sealedBurned ?? 0),
+      }));
   }
 
   /**
@@ -1608,10 +1707,16 @@ export class StonePowersDialog extends BaseDialog {
     if (this._recoveryRound !== round) {
       this._recoveryRound = round;
       this._recoveryAlloc = {};
+      this._recoveryColorlessIds = [];
     }
 
     const inputs = this.#recoveryPoolInputs(pools);
-    const plan = planStoneRecovery(inputs, this._recoveryAlloc, this.#stoneRecoveryPoints());
+    const pickedColorless = this.#pickedRecoverableColorless();
+    const plan = planStoneRecovery(
+      inputs,
+      this._recoveryAlloc,
+      Math.max(0, this.#stoneRecoveryPoints() - pickedColorless.length),
+    );
 
     const byKey = new Map(plan.rows.map((row) => [row.key, row]));
     for (const pool of pools) {
@@ -1625,13 +1730,15 @@ export class StonePowersDialog extends BaseDialog {
       pool.recoverCanRemove = row.canRemove;
     }
 
+    const choices = this.#colorlessRecoveryChoices();
     return {
       active: true,
-      points: plan.points,
-      allocated: plan.allocated,
+      points: this.#stoneRecoveryPoints(),
+      allocated: plan.allocated + pickedColorless.length,
       remaining: plan.remaining,
-      saturated: plan.saturated || plan.rows.length === 0,
+      saturated: plan.saturated && choices.every((row) => !row.canPick),
       canFinish: true,
+      colorlessChoices: choices,
     };
   }
 
@@ -1654,16 +1761,13 @@ export class StonePowersDialog extends BaseDialog {
           Math.max(0, Number(pool?.burned) || 0),
       };
     });
-    const colorless = this.#colorlessPoolSnapshot();
-    inputs.push({
-      key: COLORLESS_STONE_ATTR,
-      max: colorless.max,
-      current: colorless.spendable,
-      sustained: colorless.permReserved,
-    });
     return {
       inputs,
-      plan: planStoneRecovery(inputs, this._recoveryAlloc, this.#stoneRecoveryPoints()),
+      plan: planStoneRecovery(
+        inputs,
+        this._recoveryAlloc,
+        Math.max(0, this.#stoneRecoveryPoints() - this.#pickedRecoverableColorless().length),
+      ),
     };
   }
 
@@ -1744,7 +1848,11 @@ export class StonePowersDialog extends BaseDialog {
       const mayWrite = canCurrentUserUpdateDocument(this.actor) || canCurrentUserUpdateDocument(owner);
       if (total > 0 && mayWrite) {
         const { applyStoneRegenAllocation } = await import('../combat/action-economy.js');
-        await applyStoneRegenAllocation(this.actor, allocation as any);
+        await applyStoneRegenAllocation(this.actor, {
+          ...allocation,
+          colorlessIds: this.#pickedRecoverableColorless(),
+          recoveryLimit: this.#stoneRecoveryPoints(),
+        });
       }
       const { confirmStoneRecoveryForCombatant } = await import('../combat/stone-powers-flow.js');
       await confirmStoneRecoveryForCombatant(combat, this.combatant);
@@ -1861,6 +1969,78 @@ export class StonePowersDialog extends BaseDialog {
         if (this.#changeStoneRecovery(attr, -1)) await this.#renderKeepingScroll();
       };
     });
+
+    root.querySelectorAll('.js-recover-colorless').forEach((el: Element) => {
+      (el as HTMLInputElement).onchange = async () => {
+        const id = (el as HTMLInputElement).dataset.stoneId || '';
+        if (!id) return;
+        const on = (el as HTMLInputElement).checked;
+        this._recoveryColorlessIds = this._recoveryColorlessIds.filter((row) => row !== id);
+        if (on) this._recoveryColorlessIds.push(id);
+        await this.#renderKeepingScroll();
+      };
+    });
+
+    root.querySelectorAll('.js-cr-rank').forEach((el: Element) => {
+      (el as HTMLButtonElement).onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        this._crRank = Math.min(4, Math.max(1, Number((el as HTMLButtonElement).dataset.rank) || 1));
+        const spec = colorlessRecoverySpec(this._crRank);
+        this._crPicked = this._crPicked.slice(0, spec?.capacity ?? 0);
+        await this.#renderKeepingScroll();
+      };
+    });
+    root.querySelectorAll('.js-cr-stone').forEach((el: Element) => {
+      (el as HTMLInputElement).onchange = async () => {
+        const id = (el as HTMLInputElement).dataset.stoneId || '';
+        if (!id) return;
+        const on = (el as HTMLInputElement).checked;
+        this._crPicked = this._crPicked.filter((row) => row !== id);
+        if (on) this._crPicked.push(id);
+        await this.#renderKeepingScroll();
+      };
+    });
+    const crConfirm = root.querySelector('.js-cr-confirm') as HTMLButtonElement | null;
+    if (crConfirm) {
+      crConfirm.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const combat = game.combat;
+        const owner = getActionEconomyActor(this.actor) ?? this.actor;
+        const record = readColorlessRecovery(owner, combat?.id ? String(combat.id) : undefined);
+        if (!record) {
+          const result = await commitColorlessRecovery({
+            actor: this.actor,
+            combatant: this.combatant,
+            rank: this._crRank,
+            selectedIds: this._crPicked,
+            combat,
+          });
+          if (!result.ok) {
+            ui.notifications?.warn(
+              result.reason === 'preparation'
+                ? 'Colorless Recovery can only be activated during a Preparation Phase.'
+                : result.reason === 'once'
+                  ? 'Colorless Recovery was already used this combat.'
+                  : result.reason === 'cost'
+                    ? 'Not enough Stones. The cost is Exhausted, not Sealed.'
+                    : 'Colorless Recovery was not activated.',
+            );
+          } else {
+            this._crPicked = [];
+            ui.notifications?.info('Colorless Recovery designated the chosen Stones. None were regenerated.');
+          }
+        } else {
+          const fresh = this._crPicked.filter((id) => !record.selectedIds.includes(id));
+          const result = await assignLaterColorlessRecovery(owner, fresh);
+          if (!result.ok) ui.notifications?.warn('No free Colorless Recovery slot was filled.');
+          else {
+            this._crPicked = [];
+            ui.notifications?.info(`Designated ${result.added.length} more Colorless Stone(s).`);
+          }
+        }
+        await this.#renderKeepingScroll();
+      };
+    }
 
     const doneBtn = root.querySelector('.js-recovery-done') as HTMLButtonElement | null;
     if (doneBtn) {
@@ -2258,6 +2438,7 @@ export class StonePowersDialog extends BaseDialog {
       this.#bindStoneRecoveryControls(root);
     } else {
       this.#bindStoneDragAndDrop(root, appWindow);
+      this.#bindStoneRecoveryControls(root);
     }
     this.#reconcileFilledLaneClasses(appWindow);
     this.#syncAccumulatorGems(appWindow);
@@ -2669,6 +2850,10 @@ export class StonePowersDialog extends BaseDialog {
     const { powerId, middle, uses: usesInKey } = parsed;
     const def = STONE_POWERS[powerId];
     if (!def) return false;
+    if (powerId === 'influence.colorlessRecovery') {
+      ui.notifications?.warn('Choose Colorless Recovery in its panel. Dragging Stones onto the card does not activate it.');
+      return false;
+    }
     if (powerId === 'wits.initiativeBoost') {
       if (this.#stoneOccGetRaw(accKey).length) this.#stoneOccDelete(accKey);
       return false;

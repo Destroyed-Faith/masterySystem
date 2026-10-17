@@ -17,6 +17,46 @@ import { combatReadyRemaining, minLivePoolCurrent, } from '../stones/stone-comba
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
  * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
  */
+export const DEFENSIVE_STONE_KEYS = [
+    'evadeBonus',
+    'tempArmor',
+    'spellResistanceBonus',
+    'damageReductionBoostPct',
+    'incomingSpecialReduction',
+    'tempWard',
+    'tempParryPool',
+    'tempDamageNegation',
+];
+export function snapshotDefensiveStones(sb) {
+    const out = {};
+    if (!sb)
+        return out;
+    const bag = sb;
+    for (const key of DEFENSIVE_STONE_KEYS) {
+        const n = Math.max(0, Math.floor(Number(bag[key]) || 0));
+        if (n > 0)
+            out[key] = n;
+    }
+    return out;
+}
+export function defensiveSnapshotPending(snap) {
+    return !!snap && DEFENSIVE_STONE_KEYS.some((key) => Math.floor(Number(snap[key]) || 0) > 0);
+}
+/** Subtract the snapshot taken at the previous spotlight end. Later purchases stay. */
+export function applyDefensiveStoneExpiry(sb, snap) {
+    if (!snap)
+        return sb;
+    const bag = sb;
+    const dropFrom = snap;
+    for (const key of DEFENSIVE_STONE_KEYS) {
+        const drop = Math.max(0, Math.floor(Number(dropFrom[key]) || 0));
+        if (drop <= 0)
+            continue;
+        const cur = Math.max(0, Math.floor(Number(bag[key]) || 0));
+        bag[key] = Math.max(0, cur - drop);
+    }
+    return sb;
+}
 export const STONE_POOL_ATTRIBUTE_KEYS = [
     'might',
     'agility',
@@ -79,12 +119,9 @@ const STONE_USAGE_ATTR_KEYS = [
     'resolve',
     'influence'
 ];
-/**
- * Players Guide: doubling costs reset each turn, unless the power is
- * “cumulative per combat”. Exchange Passive uses that exception.
- */
-export function stonePowerCostPersistsForCombat(abilityKey) {
-    return String(abilityKey || '').trim() === 'generic.exchangePassive';
+/** Doubling costs reset each turn. Exchange Passive is retired. */
+export function stonePowerCostPersistsForCombat(_abilityKey) {
+    return false;
 }
 function genericStoneUsageFlagKey(abilityKey, round, turn, combat) {
     if (stonePowerCostPersistsForCombat(abilityKey)) {
@@ -347,6 +384,22 @@ export function getMovementRangeBonusMeters(actor, combat) {
     const rs = getRoundState(actor, combat);
     return (Number(rs.moveBonusMeters) || 0) + (Number(rs.stoneBonuses?.extraMoveMeters) || 0);
 }
+/** Intellect Range & AoE Boost. Existing range, reach, or radius only — callers add this to a value they already have. */
+export function getStoneAreaBonusMeters(actor, kind) {
+    if (!actor)
+        return 0;
+    try {
+        const rs = actor.getFlag?.('mastery-system', 'roundState');
+        const sb = rs?.stoneBonuses;
+        if (!sb)
+            return 0;
+        const key = kind === 'reach' ? 'meleeReachBonusM' : kind === 'aoe' ? 'aoeRadiusBonusM' : 'rangeBonusM';
+        return Math.max(0, Math.floor(Number(sb[key]) || 0));
+    }
+    catch {
+        return 0;
+    }
+}
 /**
  * Set round state on actor.
  *
@@ -384,6 +437,34 @@ export async function setRoundState(actor, state) {
     }
     await o.setFlag('mastery-system', 'roundState', toSave);
     Hooks.callAll('masterySystem.roundStateUpdated', { actorId: o.id });
+}
+/** Free Raises left this Round (Intellect Stone Ability). */
+export function freeRaisePool(actor) {
+    if (!actor)
+        return 0;
+    try {
+        const combat = (globalThis.game?.combat ?? null);
+        const rs = getRoundState(actor, combat);
+        return Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
+    }
+    catch {
+        return 0;
+    }
+}
+/** Spend declared Free Raises. They leave the pool whether the roll hits or misses. */
+export async function consumeFreeRaises(actor, requested) {
+    const want = Math.max(0, Math.floor(Number(requested) || 0));
+    if (!actor || want <= 0)
+        return 0;
+    const combat = (globalThis.game?.combat ?? null);
+    const rs = getRoundState(actor, combat);
+    const have = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
+    const spend = Math.min(have, want);
+    if (spend <= 0 || !rs.stoneBonuses)
+        return 0;
+    rs.stoneBonuses.freeRaises = have - spend;
+    await setRoundState(actor, rs);
+    return spend;
 }
 /**
  * Whether this power item has already been used this round (combat powers only).
@@ -569,6 +650,10 @@ async function maybeLockStonePowersAfterCombatAction(actor, combat) {
     await lockStonePowersConfigurationForRound(actor, combat);
 }
 export async function spendAttackAction(actor, combat) {
+    if (isFleeLocked(actor, combat)) {
+        ui.notifications?.warn('Flee: you cannot make Attacks until the start of your next Turn.');
+        return false;
+    }
     if (actor.type === 'summon') {
         const { resolveSummonBondContext, spendSummonAttack } = await import('../stones/summon-combat.js');
         const ctx = resolveSummonBondContext(actor);
@@ -620,18 +705,21 @@ export async function spendMovementAction(actor, combat) {
 /**
  * Spend Movement for a Movement Power — replaces normal Movement for the round.
  */
-export async function spendMovementPowerAction(actor, combat) {
+export async function spendMovementPowerAction(actor, combat, templateId) {
     const roundState = getRoundState(actor, combat);
-    if (roundState.movementPowerUsedThisRound) {
-        ui.notifications?.warn('A Movement Power was already used this round.');
+    const id = String(templateId || '').trim();
+    const used = roundState.usedMovementPowerIds ?? [];
+    if (id && used.includes(id)) {
+        ui.notifications?.warn('That Movement Power was already used this round.');
         return false;
     }
     if (roundState.movementActions.used >= roundState.movementActions.total) {
         ui.notifications?.warn('No movement actions remaining!');
         return false;
     }
-    roundState.movementActions.used = roundState.movementActions.total;
-    roundState.movementPowerUsedThisRound = true;
+    roundState.movementActions.used += 1;
+    if (id)
+        roundState.usedMovementPowerIds = [...used, id];
     await setRoundState(actor, roundState);
     await maybeLockStonePowersAfterCombatAction(actor, combat);
     return true;
@@ -643,7 +731,7 @@ export function isNormalMovementReplaced(actor, combat) {
 /**
  * Spend a reaction action
  */
-export async function spendReactionAction(actor, combat) {
+export async function spendReactionAction(actor, combat, context) {
     if (actor.type === 'summon') {
         const { resolveSummonBondContext, spendSummonBondReaction } = await import('../stones/summon-combat.js');
         const ctx = resolveSummonBondContext(actor);
@@ -670,9 +758,27 @@ export async function spendReactionAction(actor, combat) {
         ui.notifications?.warn('No reaction actions remaining!');
         return false;
     }
+    try {
+        const { denyReactionIfMarked } = await import('../stones/stone-combat-effects.js');
+        const denial = await denyReactionIfMarked(actor, context);
+        if (denial.denied) {
+            ui.notifications?.warn(denial.reason || 'Reaction denied.');
+            return false;
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | Reaction Denial check failed', err);
+    }
     roundState.reactionActions.used += 1;
     await setRoundState(actor, roundState);
     await maybeLockStonePowersAfterCombatAction(actor, combat);
+    try {
+        const { breakOrdinaryStealth } = await import('./perception-combat-hooks.js');
+        await breakOrdinaryStealth(actor, 'reaction');
+    }
+    catch {
+        /* best-effort */
+    }
     return true;
 }
 /**
@@ -1353,11 +1459,10 @@ export async function applyAutomaticStoneRegen(actor) {
     }
 }
 /**
- * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen
- * pools). One shared budget: the `colorless` key restores Exhausted Permanent
- * Colorless Stones first, then Exhausted Initiative Colorless Stones (both
- * are equivalent while the combat lasts; Permanent ones are the character's
- * own Stones, so they come back first).
+ * Apply a player-chosen regen allocation. Attribute Stones and designated
+ * Colorless Stones share one limit when `recoveryLimit` is set (Mastery Rank).
+ * Colorless Stones regenerate only by id, and only when Colorless Recovery
+ * designated that Stone. The designation itself is not consumed.
  */
 export async function applyStoneRegenAllocation(actor, allocation) {
     const owner = getActionEconomyActor(actor) ?? actor;
@@ -1373,40 +1478,32 @@ export async function applyStoneRegenAllocation(actor, allocation) {
         'influence',
         'wits',
     ];
+    const colorlessIds = allocation.colorlessIds ?? [];
+    const limit = allocation.recoveryLimit;
+    let room = limit == null ? Number.POSITIVE_INFINITY : Math.max(0, Math.floor(Number(limit) || 0));
+    let spentAttributes = 0;
     for (const attr of keys) {
         const add = Math.max(0, Math.floor(Number(allocation[attr]) || 0));
-        if (!add)
+        if (!add || room <= 0)
             continue;
+        const take = Math.min(add, room);
         const pool = getStonePool(owner, attr);
         const reserved = stonePoolReservedStones(system, attr);
         const cap = Math.max(0, pool.max - reserved);
         const before = combatReadyRemaining(owner, attr) ?? minLivePoolCurrent(owner, attr);
-        const next = Math.min(cap, before + add);
-        if (next !== before) {
+        const next = Math.min(cap, before + take);
+        const gained = Math.max(0, next - before);
+        if (gained > 0) {
             await setCombatPoolCurrent(owner, attr, next, combat);
+            room -= gained;
+            spentAttributes += gained;
         }
     }
-    let colorlessLeft = Math.max(0, Math.floor(Number(allocation.colorless) || 0));
-    if (colorlessLeft > 0) {
-        const pool = system?.stonePools?.colorless;
-        if (pool && typeof pool === 'object') {
-            const max = Math.max(0, Math.floor(Number(pool.max) || 0));
-            const reserved = stonePoolReservedStones(system, 'colorless');
-            const cap = Math.max(0, max - reserved);
-            const before = combatReadyRemaining(owner, 'colorless') ?? minLivePoolCurrent(owner, 'colorless');
-            const next = Math.min(cap, before + colorlessLeft);
-            if (next !== before) {
-                await setCombatPoolCurrent(owner, 'colorless', next, combat);
-                colorlessLeft -= next - before;
-            }
-        }
-    }
-    if (colorlessLeft > 0) {
-        const { restoreInitiativeColorlessStones, copyColorlessPile } = await import('../stones/colorless-stones.js');
-        const restored = await restoreInitiativeColorlessStones(owner, colorlessLeft);
-        if (restored > 0 && owner !== actor) {
-            await copyColorlessPile(owner, actor);
-        }
+    void spentAttributes;
+    if (room > 0 && colorlessIds.length) {
+        const { restoreDesignatedColorlessStones } = await import('../stones/colorless-recovery.js');
+        const restored = await restoreDesignatedColorlessStones(owner, colorlessIds.slice(0, room));
+        room -= restored.length;
     }
 }
 /**
@@ -1483,6 +1580,13 @@ export async function restoreStonesAfterCombat(combat) {
         catch {
             /* ignore */
         }
+        try {
+            const { clearColorlessRecovery } = await import('../stones/colorless-recovery.js');
+            await clearColorlessRecovery(owner);
+        }
+        catch {
+            /* ignore */
+        }
     }
 }
 /**
@@ -1549,6 +1653,7 @@ export async function resetTurnState(actor, combat) {
     roundState.safeMovementThisTurn = false;
     roundState.movementPowerUsedThisRound = false;
     roundState.fleeLock = false;
+    roundState.fleeCommitted = false;
     try {
         await owner.unsetFlag?.('mastery-system', 'pendingSlip');
         await owner.unsetFlag?.('mastery-system', 'slipMovementActive');
@@ -1571,9 +1676,11 @@ export async function resetTurnState(actor, combat) {
     await setRoundState(actor, roundState);
 }
 /**
- * Clear per-turn stone power bonuses on an actor when their spotlight in the
- * initiative tracker ends (e.g. +8 Evade, +damage dice, armor pen — "this turn").
- * Does not remove round-long initiative-shop totals on `stoneBonuses.extraAttacks` etc.
+ * Clear offensive / casting "this turn" stone bonuses when the spotlight ends.
+ * Defensive stones that last until the start of the next own turn
+ * (Parry, Armor, Evade, Damage Negation, Damage Reduction, Spell Resistance,
+ * Special Negation / Ward) are preserved here and armed via
+ * `armDefensiveStoneExpiry` for removal in `releaseDefensiveStoneExpiry`.
  */
 export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
     if (!combat)
@@ -1583,71 +1690,92 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
     if (!roundState.stoneBonuses)
         return;
     const sb = roundState.stoneBonuses;
-    const changed = (sb.evadeBonus ?? 0) !== 0 ||
-        (sb.damageBonus ?? 0) !== 0 ||
+    const changed = (sb.damageBonus ?? 0) !== 0 ||
         (sb.meleeDamageBonusDice ?? 0) !== 0 ||
-        (sb.armorPenetration ?? 0) !== 0 ||
-        (sb.meleeIgnoreArmor ?? 0) !== 0 ||
-        (sb.freeRaises ?? 0) !== 0 ||
-        (sb.critRaises ?? 0) !== 0 ||
-        (sb.tempArmor ?? 0) !== 0 ||
         (sb.spellPoolDice ?? 0) !== 0 ||
         (sb.spellKeepDice ?? 0) !== 0 ||
         (sb.ignoreWoundPenalties ?? 0) !== 0 ||
         (sb.spellAutoRaises ?? 0) !== 0 ||
         (sb.spellRaiseTnBonus ?? 0) !== 0 ||
         (sb.spellPenetration ?? 0) !== 0 ||
-        (sb.spellResistanceBonus ?? 0) !== 0 ||
-        (sb.specialBoost ?? 0) !== 0 ||
-        (sb.spellSpecialBoost ?? 0) !== 0 ||
-        (sb.damageReductionBoostPct ?? 0) !== 0 ||
-        (sb.tempWard ?? 0) !== 0 ||
-        (sb.tempParryPool ?? 0) !== 0 ||
-        (sb.tempDamageNegation ?? 0) !== 0 ||
         (sb.phasingChargesFromStones ?? 0) !== 0 ||
-        (sb.extendActiveBuffRounds ?? 0) !== 0;
+        (sb.tempHpGrantedThisTurn ?? 0) !== 0;
     if (!changed)
         return;
     // Vitality Temporary HP lasts until depleted or combat ends — do not strip
-    // it when the actor's spotlight ends. Combat-end cleanup still zeroes it.
-    // Round-long bonuses persist through spotlight changes; per-turn bonuses
-    // reset when the actor's spotlight in the initiative tracker ends.
+    // the HP pool when the actor's spotlight ends. Combat-end cleanup still zeroes it.
+    // Defensive keys below are copied through unchanged.
+    const defensive = snapshotDefensiveStones(sb);
     roundState.stoneBonuses = {
         extraAttacks: sb.extraAttacks ?? 0,
         extraReactions: sb.extraReactions ?? 0,
         extraMoveMeters: sb.extraMoveMeters ?? 0,
-        evadeBonus: 0,
+        armorPenetration: sb.armorPenetration ?? 0,
+        meleeIgnoreArmor: sb.meleeIgnoreArmor ?? 0,
+        freeRaises: sb.freeRaises ?? 0,
+        critRaises: sb.critRaises ?? 0,
+        specialBoost: sb.specialBoost ?? 0,
+        spellSpecialBoost: sb.spellSpecialBoost ?? 0,
+        invisibilityBonus: sb.invisibilityBonus ?? 0,
+        rangeBonusM: sb.rangeBonusM ?? 0,
+        meleeReachBonusM: sb.meleeReachBonusM ?? 0,
+        aoeRadiusBonusM: sb.aoeRadiusBonusM ?? 0,
+        enemyEvadeReduction: sb.enemyEvadeReduction ?? 0,
+        extendActiveBuffRounds: sb.extendActiveBuffRounds ?? 0,
+        activeBuffPlBonus: sb.activeBuffPlBonus ?? 0,
+        evadeBonus: defensive.evadeBonus ?? 0,
         damageBonus: 0,
         meleeDamageBonusDice: 0,
-        armorPenetration: 0,
-        meleeIgnoreArmor: 0,
-        freeRaises: 0,
-        critRaises: 0,
-        tempArmor: 0,
+        tempArmor: defensive.tempArmor ?? 0,
         spellPoolDice: 0,
         spellKeepDice: 0,
         tempHpGrantedThisTurn: 0,
         ignoreWoundPenalties: 0,
-        // "one Active Buff you activate this turn" — an unconsumed extension dies with the turn.
-        extendActiveBuffRounds: 0,
         secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
         spellAutoRaises: 0,
         spellRaiseTnBonus: 0,
         spellPenetration: 0,
-        spellResistanceBonus: 0,
+        spellResistanceBonus: defensive.spellResistanceBonus ?? 0,
         extraSpellActions: sb.extraSpellActions ?? 0,
-        specialBoost: 0,
-        spellSpecialBoost: 0,
-        damageReductionBoostPct: 0,
-        incomingSpecialReduction: 0,
-        tempWard: 0,
-        tempParryPool: 0,
-        tempDamageNegation: 0,
+        damageReductionBoostPct: defensive.damageReductionBoostPct ?? 0,
+        incomingSpecialReduction: defensive.incomingSpecialReduction ?? 0,
+        tempWard: defensive.tempWard ?? 0,
+        tempParryPool: defensive.tempParryPool ?? 0,
+        tempDamageNegation: defensive.tempDamageNegation ?? 0,
         phasingChargesFromStones: 0,
         initiativeBonus: sb.initiativeBonus ?? 0,
         reactionRangeBonus: sb.reactionRangeBonus ?? 0,
         extraPassives: sb.extraPassives ?? 0,
+        defensiveExpiry: sb.defensiveExpiry ?? null,
     };
+    await setRoundState(owner, roundState);
+}
+/** Remember defensive stones when this actor's spotlight ends. Do not remove them yet. */
+export async function armDefensiveStoneExpiry(actor, combat) {
+    if (!combat)
+        return;
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const roundState = getRoundState(owner, combat);
+    const sb = roundState.stoneBonuses;
+    if (!sb || defensiveSnapshotPending(sb.defensiveExpiry))
+        return;
+    const snap = snapshotDefensiveStones(sb);
+    if (!defensiveSnapshotPending(snap))
+        return;
+    sb.defensiveExpiry = snap;
+    await setRoundState(owner, roundState);
+}
+/** At the start of this actor's next turn, drop the stones snapshotted last spotlight. */
+export async function releaseDefensiveStoneExpiry(actor, combat) {
+    if (!combat)
+        return;
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const roundState = getRoundState(owner, combat);
+    const sb = roundState.stoneBonuses;
+    if (!sb || !defensiveSnapshotPending(sb.defensiveExpiry))
+        return;
+    applyDefensiveStoneExpiry(sb, sb.defensiveExpiry);
+    sb.defensiveExpiry = null;
     await setRoundState(owner, roundState);
 }
 /**
@@ -1655,6 +1783,8 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
  * Clears bonuses and re-applies initiative shop for new round
  */
 export async function resetRoundState(actor, combatant, combat) {
+    const previous = actor.getFlag?.('mastery-system', 'roundState');
+    const keepFlee = previous?.fleeLock === true && String(previous.combatId ?? '') === String(combat?.id ?? '');
     // Create fresh round state
     const isPC = actor.type === 'character';
     const npcSlots = !isPC && actor.type === 'npc' ? npcAttackSlotsForEconomy(actor) : 1;
@@ -1688,6 +1818,17 @@ export async function resetRoundState(actor, combatant, combat) {
     roundState.usedPowerIdsThisRound = [];
     roundState.npcAttackUsesThisRound = {};
     roundState.combatId = combat.id ?? '';
+    const storedSb = actor.getFlag?.('mastery-system', 'roundState')?.stoneBonuses;
+    if (storedSb && roundState.stoneBonuses) {
+        for (const key of DEFENSIVE_STONE_KEYS) {
+            roundState.stoneBonuses[key] = Math.max(0, Math.floor(Number(storedSb[key]) || 0));
+        }
+        roundState.stoneBonuses.defensiveExpiry = storedSb.defensiveExpiry ?? null;
+    }
+    if (keepFlee) {
+        roundState.fleeLock = true;
+        roundState.fleeCommitted = true;
+    }
     await setRoundState(actor, roundState);
 }
 //# sourceMappingURL=action-economy.js.map

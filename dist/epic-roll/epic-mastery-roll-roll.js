@@ -6,18 +6,9 @@ import { buildAttributeRollContext, buildSkillRollContext, getSkillRollDicePool,
 import { SKILLS } from '../utils/skills.js';
 import { participantResultFromRoll } from './epic-mastery-roll-types.js';
 import { getSkillSpendOptions } from './epic-mastery-roll-skill-spend.js';
-async function resolveStoneBonusRaises(actor) {
-    try {
-        const { getRoundState } = await import('../combat/action-economy.js');
-        const combat = game.combat;
-        if (!combat)
-            return 0;
-        const rs = getRoundState(actor, combat);
-        return Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
-    }
-    catch {
-        return 0;
-    }
+async function resolveStoneBonusRaises(_actor) {
+    // Free Raises are declared on the roll. They are not applied automatically.
+    return 0;
 }
 export async function pickSkillAttribute(actor, skillKey) {
     const def = SKILLS[skillKey];

@@ -133,8 +133,7 @@ export function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[] {
       if (!key || seen.has(`special:${key}`)) continue;
       seen.add(`special:${key}`);
     } else if (raise.effect === 'damage') {
-      if (seen.has('damage')) continue;
-      seen.add('damage');
+      // Each Damage Raise is its own +MR (or ceil(MR/2) for AoE) bonus.
     }
     out.push(raise);
   }
@@ -146,7 +145,7 @@ export function countRaiseSlots(raises: DeclaredRaise[]): number {
   return raises.reduce((sum, r) => sum + (r.slots === 2 ? 2 : 1), 0);
 }
 
-/** Slots that still pay Raise Cost. A free Raise still raises the TN. */
+/** Slots that increase the Raise TN. A Free Raise has no TN increase and no Raise Cost. */
 export function paidRaiseSlots(raises: DeclaredRaise[]): number {
   return raises.reduce((sum, r) => {
     if (r.free) return sum;
@@ -234,39 +233,28 @@ export function applyRaiseCost(
   return next;
 }
 
+function damageRaiseDice(masteryRank: number, aoe: boolean): number {
+  const mr = Math.max(1, Math.floor(masteryRank));
+  return aoe ? Math.ceil(mr / 2) : mr;
+}
+
 function applyOneRaiseEffect(
   snap: PowerSnapshot,
   raise: DeclaredRaise,
   masteryRank: number,
-  isSpell: boolean,
+  _isSpell: boolean,
 ): void {
-  const mr = Math.max(1, Math.floor(masteryRank));
   switch (raise.effect) {
     case 'damage':
-      snap.damageDice += isSpell ? 1 : mr;
+      snap.damageDice += damageRaiseDice(masteryRank, snap.hasAoe);
       break;
     case 'specialPlus': {
       const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
       if (!key) break;
-      const printed = Math.max(0, Math.floor(Number(raise.printedRank) || 0));
       const sp = snap.specials.find((s) => s.key === key);
-      if (printed > 0) {
-        if (sp) sp.rank = printed;
-        else snap.specials.push({ key, rank: printed });
-        break;
-      }
-      if (sp) sp.rank += mr;
+      if (sp) sp.rank += Math.max(1, Math.floor(masteryRank));
       break;
     }
-    case 'rangePlus':
-      if (snap.hasRange && snap.rangeM != null) snap.rangeM += 4;
-      break;
-    case 'aoeRadiusPlus':
-      if (snap.hasAoe && snap.aoeRadiusM != null) snap.aoeRadiusM += 1;
-      break;
-    case 'durationPlus':
-      if (snap.hasDuration) snap.durationSteps += 1;
-      break;
     default:
       break;
   }
@@ -280,9 +268,8 @@ function applyStoneBonusRaises(
   isSpell: boolean,
 ): void {
   const n = Math.max(0, Math.floor(count));
-  const mr = Math.max(1, Math.floor(masteryRank));
   for (let i = 0; i < n; i++) {
-    snap.damageDice += isSpell ? 1 : mr;
+    snap.damageDice += damageRaiseDice(masteryRank, snap.hasAoe);
   }
 }
 
@@ -353,7 +340,7 @@ export function buildAvailableRaiseOptions(
   isSpell: boolean,
 ): RaiseOption[] {
   const options: RaiseOption[] = [];
-  const damageLabel = isSpell ? '+1d8 Zauberschaden' : '+MR Schaden';
+  const damageLabel = snapshot.hasAoe ? '+ceil(MR/2) d8 Schaden' : '+MR Schaden';
   options.push({
     id: 'damage',
     label: damageLabel,
@@ -370,24 +357,6 @@ export function buildAvailableRaiseOptions(
       targetSpecialKey: sp.key,
       printedRank: sp.rank,
       slots: 1,
-    });
-  }
-
-  if (snapshot.hasAoe) {
-    options.push({
-      id: 'aoe',
-      label: '+1 m AoE Radius (2 Raises)',
-      effect: 'aoeRadiusPlus',
-      slots: 2,
-    });
-  }
-
-  if (isSpell && snapshot.hasDuration) {
-    options.push({
-      id: 'duration',
-      label: '+1 Duration Step (2 Raises)',
-      effect: 'durationPlus',
-      slots: 2,
     });
   }
 

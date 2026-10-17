@@ -6,7 +6,7 @@
  * - End-of-round regeneration
  * - Post-combat full restore
  */
-import { resetTurnState, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat, clearCombatStoneTurnBonusesForActor, } from '../combat/action-economy.js';
+import { resetTurnState, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat, clearCombatStoneTurnBonusesForActor, armDefensiveStoneExpiry, releaseDefensiveStoneExpiry, } from '../combat/action-economy.js';
 import { runMasteryCombatRoundAdvancePipeline, runPlayerOwnedRoundAdvance, } from '../combat/stone-powers-flow.js';
 import { endMinorMagicRestForCombat } from '../utils/minor-magic-items.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
@@ -57,6 +57,7 @@ export function initializeStoneHooks() {
                 if (prevActor && canCurrentUserUpdateDocument(prevActor)) {
                     try {
                         await clearCombatStoneTurnBonusesForActor(prevActor, combat);
+                        await armDefensiveStoneExpiry(prevActor, combat);
                     }
                     catch (e) {
                         console.warn('Mastery System | clearCombatStoneTurnBonusesForActor failed', e);
@@ -70,6 +71,12 @@ export function initializeStoneHooks() {
         if (changes.turn !== undefined) {
             const currentCombatant = combat.combatant;
             if (currentCombatant && currentCombatant.actor && canCurrentUserUpdateDocument(currentCombatant.actor)) {
+                try {
+                    await releaseDefensiveStoneExpiry(currentCombatant.actor, combat);
+                }
+                catch (e) {
+                    console.warn('Mastery System | releaseDefensiveStoneExpiry failed', e);
+                }
                 await resetTurnState(currentCombatant.actor, combat);
             }
         }

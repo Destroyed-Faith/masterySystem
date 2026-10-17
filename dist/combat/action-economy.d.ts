@@ -8,13 +8,16 @@
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
  * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
  */
+export declare const DEFENSIVE_STONE_KEYS: readonly ["evadeBonus", "tempArmor", "spellResistanceBonus", "damageReductionBoostPct", "incomingSpecialReduction", "tempWard", "tempParryPool", "tempDamageNegation"];
+export type DefensiveStoneSnapshot = Partial<Record<(typeof DEFENSIVE_STONE_KEYS)[number], number>>;
+export declare function snapshotDefensiveStones(sb: object | null | undefined): DefensiveStoneSnapshot;
+export declare function defensiveSnapshotPending(snap: DefensiveStoneSnapshot | null | undefined): boolean;
+/** Subtract the snapshot taken at the previous spotlight end. Later purchases stay. */
+export declare function applyDefensiveStoneExpiry<T extends object>(sb: T, snap: DefensiveStoneSnapshot | null | undefined): T;
 export declare const STONE_POOL_ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
 export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
-/**
- * Players Guide: doubling costs reset each turn, unless the power is
- * “cumulative per combat”. Exchange Passive uses that exception.
- */
-export declare function stonePowerCostPersistsForCombat(abilityKey: string): boolean;
+/** Doubling costs reset each turn. Exchange Passive is retired. */
+export declare function stonePowerCostPersistsForCombat(_abilityKey: string): boolean;
 /**
  * Nutzungszähler für General-Stonepowers (generic.*): ein Wert pro Macht/Zug — unabhängig davon,
  * welcher Pool bezahlt hat. Sonst startet jede Farbe wieder bei Kosten 1 und die UI bleibt leer.
@@ -64,6 +67,8 @@ export interface RoundState {
      * base Move/Dash maneuvers are unavailable (Rules v0.9.8).
      */
     movementPowerUsedThisRound?: boolean;
+    /** Technical Movement Power ids already used this round. Each id spends one Movement, not the rest. */
+    usedMovementPowerIds?: string[];
     /**
      * One Active Buff activation per round. The radial Buff slice shows 1 or 0
      * regardless of how many Attack Actions remain.
@@ -81,6 +86,8 @@ export interface RoundState {
      * Flee: until start of next Turn — no Attacks, Reactions, or Stones.
      */
     fleeLock?: boolean;
+    /** Set when Flee actually commits, so a second hook does not spend again. */
+    fleeCommitted?: boolean;
     /** Quick Load Reload(1) spends this Turn (capped at Mastery Rank). */
     quickLoadReloadThisTurn?: number;
     /**
@@ -128,8 +135,18 @@ export interface RoundState {
         meleeDamageBonusDice?: number;
         /** Generic armor-penetration on attacks (legacy field — kept for compatibility). */
         armorPenetration?: number;
-        /** Might.IgnoreArmor — ignore this much armor on melee attacks this turn. */
+        /** Armor Reduction — ignore this much Armor on damaging attacks this round. Highest rank wins. */
         meleeIgnoreArmor?: number;
+        /** Agility Invisibility Boost, added only when Invisibility is already active. */
+        invisibilityBonus?: number;
+        /** Intellect Range & AoE Boost. */
+        rangeBonusM?: number;
+        meleeReachBonusM?: number;
+        aoeRadiusBonusM?: number;
+        /** Resolve Active Buff Empowerment — extra Power Levels on one Active Buff this round. */
+        activeBuffPlBonus?: number;
+        /** Influence Enemy Evade Reduction against this character's attacks. */
+        enemyEvadeReduction?: number;
         evadeBonus?: number;
         /** Legacy: number of attacks-this-round that may have Crit(1). Consumed by attack-roll-handler. */
         critRaises?: number;
@@ -186,6 +203,8 @@ export interface RoundState {
         tempWard?: number;
         /** Might.Parry — temporary Parry Pool until the start of your next turn. */
         tempParryPool?: number;
+        /** Snapshot of defensive stones taken when this actor's spotlight ended. */
+        defensiveExpiry?: DefensiveStoneSnapshot | null;
         /** Vitality.Damage Negation — temporary negation reserve until the start of your next turn. */
         tempDamageNegation?: number;
         /** Wits.Phasing — phasing charges granted by stone power (consumed by phasing system). */
@@ -224,6 +243,8 @@ export declare function syncPcExtraAttackTotal(state: RoundState): void;
 export declare function getRoundState(actor: Actor, combat: Combat | null): RoundState;
 /** Extra movement distance (m) this round from initiative shop, stones, etc. — for range previews, not action counts. */
 export declare function getMovementRangeBonusMeters(actor: Actor, combat: Combat | null): number;
+/** Intellect Range & AoE Boost. Existing range, reach, or radius only — callers add this to a value they already have. */
+export declare function getStoneAreaBonusMeters(actor: Actor | null | undefined, kind: 'range' | 'reach' | 'aoe'): number;
 /**
  * Set round state on actor.
  *
@@ -232,6 +253,10 @@ export declare function getMovementRangeBonusMeters(actor: Actor, combat: Combat
  * rounds. Always replace the whole `roundState` flag (unset, then set).
  */
 export declare function setRoundState(actor: Actor, state: RoundState): Promise<void>;
+/** Free Raises left this Round (Intellect Stone Ability). */
+export declare function freeRaisePool(actor: Actor | null | undefined): number;
+/** Spend declared Free Raises. They leave the pool whether the roll hits or misses. */
+export declare function consumeFreeRaises(actor: Actor | null | undefined, requested: number): Promise<number>;
 export declare function hasPowerBeenUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): boolean;
 /**
  * Record a power as used this round. No-op if already recorded.
@@ -274,13 +299,16 @@ export declare function spendMovementAction(actor: Actor, combat: Combat | null)
 /**
  * Spend Movement for a Movement Power — replaces normal Movement for the round.
  */
-export declare function spendMovementPowerAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+export declare function spendMovementPowerAction(actor: Actor, combat: Combat | null, templateId?: string): Promise<boolean>;
 /** True when base Move/Dash should be blocked because a Movement Power replaced Movement. */
 export declare function isNormalMovementReplaced(actor: Actor, combat: Combat | null): boolean;
 /**
  * Spend a reaction action
  */
-export declare function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+export declare function spendReactionAction(actor: Actor, combat: Combat | null, context?: {
+    reactionId?: string;
+    triggerId?: string;
+}): Promise<boolean>;
 export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
 /** Remaining Active Buff activations this round: always 1 or 0. */
 export declare function remainingActiveBuffActions(usedThisRound: boolean | undefined, attackActionsAvailable: number): number;
@@ -399,13 +427,15 @@ export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor
  */
 export declare function applyAutomaticStoneRegen(actor: Actor): Promise<void>;
 /**
- * Apply a player-chosen regen allocation (Mastery Rank stones back into chosen
- * pools). One shared budget: the `colorless` key restores Exhausted Permanent
- * Colorless Stones first, then Exhausted Initiative Colorless Stones (both
- * are equivalent while the combat lasts; Permanent ones are the character's
- * own Stones, so they come back first).
+ * Apply a player-chosen regen allocation. Attribute Stones and designated
+ * Colorless Stones share one limit when `recoveryLimit` is set (Mastery Rank).
+ * Colorless Stones regenerate only by id, and only when Colorless Recovery
+ * designated that Stone. The designation itself is not consumed.
  */
-export declare function applyStoneRegenAllocation(actor: Actor, allocation: Partial<Record<AttributeKey | 'colorless', number>>): Promise<void>;
+export declare function applyStoneRegenAllocation(actor: Actor, allocation: Partial<Record<AttributeKey | 'colorless', number>> & {
+    colorlessIds?: string[];
+    recoveryLimit?: number;
+}): Promise<void>;
 /**
  * Round advance no longer auto-fills pools. Players pick which stones come back
  * in the Stone Recovery step of the Stone Powers dialog.
@@ -425,11 +455,17 @@ export declare function initializeCombatRoundState(combat: Combat): Promise<void
  */
 export declare function resetTurnState(actor: Actor, combat: Combat | null): Promise<void>;
 /**
- * Clear per-turn stone power bonuses on an actor when their spotlight in the
- * initiative tracker ends (e.g. +8 Evade, +damage dice, armor pen — "this turn").
- * Does not remove round-long initiative-shop totals on `stoneBonuses.extraAttacks` etc.
+ * Clear offensive / casting "this turn" stone bonuses when the spotlight ends.
+ * Defensive stones that last until the start of the next own turn
+ * (Parry, Armor, Evade, Damage Negation, Damage Reduction, Spell Resistance,
+ * Special Negation / Ward) are preserved here and armed via
+ * `armDefensiveStoneExpiry` for removal in `releaseDefensiveStoneExpiry`.
  */
 export declare function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: Combat | null): Promise<void>;
+/** Remember defensive stones when this actor's spotlight ends. Do not remove them yet. */
+export declare function armDefensiveStoneExpiry(actor: Actor, combat: Combat | null): Promise<void>;
+/** At the start of this actor's next turn, drop the stones snapshotted last spotlight. */
+export declare function releaseDefensiveStoneExpiry(actor: Actor, combat: Combat | null): Promise<void>;
 /**
  * Reset round state (called on round change)
  * Clears bonuses and re-applies initiative shop for new round

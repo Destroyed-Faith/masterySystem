@@ -20,44 +20,21 @@ function actorWithUsage(): Actor {
   } as unknown as Actor;
 }
 
-describe('Exchange Passive cost is cumulative per combat', () => {
-  it('is the only general power that keeps doubling across rounds', () => {
-    expect(stonePowerCostPersistsForCombat('generic.exchangePassive')).toBe(true);
+describe('Movement Enhancement does not keep a rising cost across rounds', () => {
+  it('resets with the turn, like the other generic abilities', () => {
+    expect(stonePowerCostPersistsForCombat('generic.movementEnhancement')).toBe(false);
     expect(stonePowerCostPersistsForCombat('generic.extraMovement')).toBe(false);
-    expect(STONE_POWERS['generic.exchangePassive']?.description).toMatch(/Exhausted, not Burned/);
+    expect(STONE_POWERS['generic.movementEnhancement']?.name).toBe('Movement Enhancement');
   });
 
-  it('first unlock costs 1, the next round costs 2, then 4', async () => {
+  it('does not carry Movement Enhancement into the next round', async () => {
     const actor = actorWithUsage();
     const combatR1 = { id: 'c1', round: 1, turn: 0 } as Combat;
     const combatR2 = { id: 'c1', round: 2, turn: 0 } as Combat;
-
-    expect(getGenericStonePowerUsageCount(actor, 'generic.exchangePassive', combatR1)).toBe(0);
     expect(calculateStoneCost(0)).toBe(1);
-
-    await incrementGenericStonePowerUsage(actor, 'generic.exchangePassive', combatR1);
-    expect(getGenericStonePowerUsageCount(actor, 'generic.exchangePassive', combatR2)).toBe(1);
-    expect(calculateStoneCost(1)).toBe(2);
-
-    await incrementGenericStonePowerUsage(actor, 'generic.exchangePassive', combatR2);
-    expect(getGenericStonePowerUsageCount(actor, 'generic.exchangePassive', combatR2)).toBe(2);
-    expect(calculateStoneCost(2)).toBe(4);
-  });
-
-  it('does not carry the count into a different combat', async () => {
-    const actor = actorWithUsage();
-    await incrementGenericStonePowerUsage(actor, 'generic.exchangePassive', {
-      id: 'c1',
-      round: 1,
-      turn: 0,
-    } as Combat);
-    expect(
-      getGenericStonePowerUsageCount(actor, 'generic.exchangePassive', {
-        id: 'c2',
-        round: 1,
-        turn: 0,
-      } as Combat),
-    ).toBe(0);
+    await incrementGenericStonePowerUsage(actor, 'generic.movementEnhancement', combatR1);
+    expect(getGenericStonePowerUsageCount(actor, 'generic.movementEnhancement', combatR1)).toBe(1);
+    expect(getGenericStonePowerUsageCount(actor, 'generic.movementEnhancement', combatR2)).toBe(0);
   });
 
   it('still resets Extra Movement each turn', async () => {

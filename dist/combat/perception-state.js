@@ -187,14 +187,8 @@ export function lostHealthBarsForInvis(actor) {
     // Index fallback: 0 Healthy … 4 Broken … 5+ Incapacitated
     return Math.min(4, idx);
 }
-export function isInvisibilitySuppressedByHealth(actor) {
-    const bars = Array.isArray(actor?.system?.health?.bars) ? actor.system.health.bars : [];
-    const idx = Math.max(0, Math.floor(Number(actor?.system?.health?.currentBar) || 0));
-    if (bars.length) {
-        const name = String(bars[idx]?.name || '').toLowerCase();
-        if (name.includes('incapacitat'))
-            return true;
-    }
-    return idx >= 5;
+/** Invisibility persists through Incapacitated. Lost bars still change the Perception TN. */
+export function isInvisibilitySuppressedByHealth(_actor) {
+    return false;
 }
 //# sourceMappingURL=perception-state.js.map

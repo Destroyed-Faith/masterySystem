@@ -19,7 +19,7 @@ function actorWith(roundState: Record<string, unknown> | null, combat?: Record<s
 
 describe('DF Core 0.9.9.1 spell corners', () => {
   it('aliases Spell Raises onto Raise Focus and keeps Spell Action retired', () => {
-    expect(resolveStonePowerId('intellect.spellRaises')).toBe('intellect.raiseFocus');
+    expect(resolveStonePowerId('intellect.spellRaises')).toBe('intellect.raises');
     expect(isRetiredStonePower('intellect.spellAction')).toBe(true);
     expect(resolveStonePowerId('intellect.spellAction')).toBe('intellect.spellAction');
   });

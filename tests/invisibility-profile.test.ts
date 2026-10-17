@@ -78,7 +78,7 @@ describe('resolveInvisibilityFromActor', () => {
     expect(isSenseBlockedForActor(actor, 'lifeSense')).toBe(true); // default slot fill at L6 = 1 sense
   });
 
-  it('Incapacitated suppresses Invisibility bonus', () => {
+  it('Incapacitated does not remove the Invisibility bonus', () => {
     const item = {
       type: 'power',
       name: 'Passive: Invisibility',
@@ -98,7 +98,7 @@ describe('resolveInvisibilityFromActor', () => {
         ],
       },
     };
-    expect(effectiveInvisibilityBonusForActor(actor)).toBe(0);
-    expect(resolveInvisibilityFromActor(actor).active).toBe(false);
+    expect(effectiveInvisibilityBonusForActor(actor)).toBe(6);
+    expect(resolveInvisibilityFromActor(actor).active).toBe(true);
   });
 });

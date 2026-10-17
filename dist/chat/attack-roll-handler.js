@@ -3,7 +3,7 @@
  * Handles clicks on .roll-attack-btn buttons in chat messages
  * Moved from module.ts to avoid circular dependencies
  */
-import { countRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRaiseOutcome, } from '../combat/raise-resolution.js';
+import { paidRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRaiseOutcome, } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -253,7 +253,32 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             }
             const raisePlanRaw = button.attr('data-raise-plan') || '[]';
             const declaredRaises = parseDeclaredRaises(raisePlanRaw);
-            let declaredRaiseSlots = countRaiseSlots(declaredRaises);
+            const freeRaiseSlots = declaredRaises.reduce((sum, raise) => sum + (raise.free ? (raise.slots === 2 ? 2 : 1) : 0), 0);
+            if (freeRaiseSlots > 0 && freshAttacker) {
+                try {
+                    const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
+                    const rs = getRoundState(freshAttacker, game.combat ?? null);
+                    const have = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
+                    const spend = Math.min(have, freeRaiseSlots);
+                    if (rs?.stoneBonuses) {
+                        rs.stoneBonuses.freeRaises = have - spend;
+                        await setRoundState(freshAttacker, rs);
+                    }
+                    if (spend < freeRaiseSlots) {
+                        let left = freeRaiseSlots - spend;
+                        for (let i = declaredRaises.length - 1; i >= 0 && left > 0; i -= 1) {
+                            if (!declaredRaises[i].free)
+                                continue;
+                            declaredRaises[i].free = false;
+                            left -= declaredRaises[i].slots === 2 ? 2 : 1;
+                        }
+                    }
+                }
+                catch (err) {
+                    console.warn('Mastery System | Free Raise spend failed', err);
+                }
+            }
+            let declaredRaiseSlots = paidRaiseSlots(declaredRaises);
             // The Raise TN we actually roll against is the ground truth for how many
             // Raise slots were declared (Normal TN + 4 per slot). The JSON plan attr
             // is more fragile — a chat re-render resets the button to its static
@@ -310,10 +335,14 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // split-attack strikes, because that would bypass the pool halving.
             // NPC/summon clicks re-read the sheet row so a stale card cannot keep Might 2.
             let numDice;
-            if (sheetToHit) {
+            if (flags.splitPoolAssigned === true && Number.isFinite(Number(flags.attributeValue))) {
+                numDice = Math.max(0, Math.floor(Number(flags.attributeValue)));
+            }
+            else if (sheetToHit) {
                 numDice = sheetToHit.dice;
-                if (flags.splitAttack === true)
+                if (flags.splitAttack === true && flags.splitPoolAssigned !== true) {
                     numDice = Math.max(0, Math.floor(numDice / 2));
+                }
             }
             else if (npcPool > 0) {
                 numDice = npcPool;
@@ -327,7 +356,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             else {
                 numDice = flags.attributeValue ?? 2;
             }
-            // Note: Minimum Pool (= Mastery Rank), Specials (Weaken / Soulburn /
+            // Note: Specials (Weaken / Soulburn /
             // Challenge / Disoriented) and the Health / Encumbrance percentage
             // penalty are applied centrally inside `masteryRoll` in canonical
             // order (`applyPoolPenalties: true`).
@@ -544,7 +573,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 buffCriticalX = 0;
             }
             // Critical(X) = X Critical attacks per Round; explode threshold always 7–8 on Attack Dice.
-            const { resolveCriticalAttackModifier, syncCriticalRoundQuota, consumeCriticalQuota, combatRoundKey, critAppliesToAttackRoll, } = await import('../combat/critical-resolution.js');
+            const { resolveCriticalAttackModifier, syncCriticalRoundQuota, applyDeclaredCritSpend, combatRoundKey, critAppliesToAttackRoll, } = await import('../combat/critical-resolution.js');
             const roundKey = combatRoundKey(combatRef);
             const syncedQuota = syncCriticalRoundQuota(rsCrit.criticalQuota, roundKey, buffCriticalX);
             if (!rsCrit.criticalQuota ||
@@ -560,10 +589,12 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 spell: tnKind === 'casting',
                 damageDice: spellDamageDice,
             });
+            const critDeclared = button.attr('data-use-crit') === '1';
             const critMod = resolveCriticalAttackModifier({
                 activeBuffCriticalX: critLegal ? buffCriticalX : 0,
                 buffQuotaRemaining: critLegal ? syncedQuota.remaining : 0,
                 stoneCritCharges: critLegal ? critBank : 0,
+                declared: critDeclared,
             });
             const npcCrit = !!sheetToHit?.crit ||
                 flags.npcCrit === true ||
@@ -620,16 +651,11 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // Consume one Critical application (buff quota preferred, else stone Crit charge).
             if (critMod.applyCritical && critMod.consumeFrom && !isFaithReroll) {
                 const rs2 = actionEco.getRoundState(economyForStones, combatRef);
-                if (critMod.consumeFrom === 'active-buff') {
-                    rs2.criticalQuota = consumeCriticalQuota(syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX));
+                if (!rs2.stoneBonuses) {
+                    rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
                 }
-                else if (critMod.consumeFrom === 'stone-crit') {
-                    if (!rs2.stoneBonuses) {
-                        rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-                    }
-                    const curCrit = Math.max(0, Math.floor(Number(rs2.stoneBonuses.critRaises ?? 0) || 0));
-                    rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
-                }
+                rs2.criticalQuota = syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX);
+                applyDeclaredCritSpend(rs2, critMod);
                 await actionEco.setRoundState(economyForStones, rs2);
             }
             if (isSpellcasting) {
@@ -856,21 +882,8 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     }
                     // Find equipped weapon for logging purposes
                     const equippedWeaponForLog = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-                    let stoneBonusRaises = 0;
+                    const stoneBonusRaises = 0;
                     const isSpellPower = !!updatedFlags.powerIsSpell;
-                    if (raiseOutcome === 'full' && !isSpellPower) {
-                        try {
-                            const { getRoundState } = await import('../combat/action-economy.js');
-                            const combatNow = game.combat;
-                            if (freshAttackerForDialog && combatNow) {
-                                const rs = getRoundState(freshAttackerForDialog, combatNow);
-                                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
-                            }
-                        }
-                        catch (e) {
-                            console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Could not read stone raise bonus', e);
-                        }
-                    }
                     let resolvedPowerSnapshot = null;
                     if (updatedFlags.basePowerSnapshot) {
                         const mr = Math.max(1, Math.floor(freshAttackerForDialog
@@ -1055,6 +1068,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                 // phased strike never reaches this deferred-apply branch.
                                 {
                                     const { applyDamageToTarget, resolveForcedMovementAfterDamage } = await import('../dice/damage-dialog.js');
+                                    const { damageTransferApplies } = await import('../combat/damage-transfer.js');
                                     damageResult.mitigation = await applyDamageToTarget(target, damageResult.totalDamage, freshAttackerForDialog, damageResult.count8s ?? 0, {
                                         attackTotal: attackCtx.attackTotal ?? null,
                                         evadeTn: attackCtx.evadeTn ?? null,
@@ -1062,6 +1076,12 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                         reactionMitigation: preDamage.mitigation,
                                         skipPhasing: true,
                                         skipReactionPrompt: true,
+                                        attackSucceeded: true,
+                                        damageTransfer: damageTransferApplies({
+                                            damageTransfer: updatedFlags.damageTransfer === true,
+                                            hit: true,
+                                        }),
+                                        damageInstanceId: `${messageId}:damage-transfer`,
                                     });
                                     if (!damageResult.mitigation?.phased) {
                                         await resolveForcedMovementAfterDamage(freshAttackerForDialog, target, damageResult.specialsUsed);
@@ -1201,7 +1221,12 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             // Split Attack: Strike 2 only after Strike 1 fully finishes (hit or miss).
             if (flags.splitAttack === true && Math.floor(Number(flags.splitIndex) || 0) === 1) {
                 try {
-                    const { spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+                    const { rememberSplitSharedRaises, spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+                    rememberSplitSharedRaises(String(flags.splitPairId || ''), {
+                        plan: button.attr('data-raise-plan'),
+                        slots: button.attr('data-raise-slots'),
+                        tn: button.attr('data-raise-tn'),
+                    });
                     await spawnSplitStrike2IfPending(flags.splitPairId);
                 }
                 catch (split2Err) {

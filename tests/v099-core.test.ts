@@ -306,7 +306,7 @@ describe('Martial Damage and Tier 4 cap', () => {
 
   it('keeps the persisted id and the player-facing name', () => {
     expect(STONE_POWERS['might.meleeDamage'].id).toBe('might.meleeDamage');
-    expect(STONE_POWERS['might.meleeDamage'].name).toBe('Martial Damage');
+    expect(STONE_POWERS['might.meleeDamage'].name).toBe('Damage');
     expect(STONE_POWERS['might.meleeDamage'].tiers).toHaveLength(4);
   });
 

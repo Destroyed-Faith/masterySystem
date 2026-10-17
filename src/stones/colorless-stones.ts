@@ -3,22 +3,48 @@
  *
  * Initiative Exchange: convert remaining Initiative into Initiative Colorless
  * Stones at `4 × Mastery Rank` Initiative per Stone. They join the Colorless
- * Pool for the current combat, may pay any part of an unlocked Stone
- * Ability's normal cost, and use Ready / Exhausted normally: spending one
- * makes it Exhausted, and it may return through normal end-of-Round Stone
- * Regeneration. They disappear when combat ends — Ready or Exhausted — and
- * can never be burned, Sealed, or Bound.
+ * Pool for the current combat and may pay any part of an unlocked Stone
+ * Ability's normal cost. Spending one makes it Exhausted. Colorless Stones
+ * are not recovered at the end of the Round unless Colorless Recovery has
+ * designated them. They disappear when combat ends — Ready or Exhausted —
+ * and can never be Burned, Sealed, or Bound.
  *
  * Item-granted stones stay on the actor and follow that item's own rule
  * (Absorption: vanish when spent, gone at the end of the next turn). Combat
  * cleanup must not treat them as leftover Initiative.
  *
  * Permanent Colorless Stones (progression, `system.stonePools.colorless`)
- * share the same combat Colorless Pool for spending and Regeneration but
- * survive the combat.
+ * are 1:1 after the 2 starting Attribute Stones. Spent Colorless Stones stay
+ * Exhausted unless Colorless Recovery designated them. Permanent Colorless
+ * Stones return Ready at the end of combat unless Sealed or Bound.
  */
 
 export const COLORLESS_STONE_ATTR = 'colorless';
+
+export const COLORLESS_RECOVERY_FLAG = 'colorlessRecovery';
+
+/**
+ * Designated Colorless Stones that are Exhausted right now.
+ * A numeric `remaining` budget does not make every Colorless Stone recoverable.
+ */
+export function colorlessRecoveryBudget(actor: any): number {
+  const raw = actor?.getFlag?.('mastery-system', COLORLESS_RECOVERY_FLAG);
+  if (!raw || typeof raw !== 'object' || (raw as { used?: boolean }).used !== true) return 0;
+  const combatId = String((globalThis as any).game?.combat?.id || '');
+  const stored = String((raw as { combatId?: string }).combatId || '');
+  if (stored && combatId && stored !== combatId) return 0;
+  const selected = new Set(
+    (Array.isArray((raw as { selectedIds?: unknown[] }).selectedIds)
+      ? (raw as { selectedIds: unknown[] }).selectedIds
+      : []
+    ).map((id) => String(id || '')),
+  );
+  if (!selected.size) return 0;
+  const ledger = actor?.getFlag?.('mastery-system', 'colorlessStoneLedger') as
+    | { stones?: Array<{ id?: string; state?: string }> }
+    | undefined;
+  return (ledger?.stones ?? []).filter((row) => selected.has(String(row?.id || '')) && row?.state === 'exhausted').length;
+}
 
 export const COLORLESS_GEM_STYLE = { fill: '#eceff1', stroke: '#90a4ae' };
 
@@ -26,6 +52,8 @@ const FLAG_COUNT = 'tempColorlessStones';
 const FLAG_INITIATIVE = 'initiativeColorlessStones';
 const FLAG_INITIATIVE_EXHAUSTED = 'initiativeColorlessExhausted';
 const FLAG_ABSORPTION_EXPIRY = 'absorptionStoneExpiry';
+const FLAG_ABSORPTION_PENDING = 'absorptionPendingStones';
+const FLAG_ABSORPTION_READY = 'absorptionReadyStones';
 const FLAG_BOOST_USED = 'msInitiativeBoostUsed';
 
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -104,6 +132,42 @@ export async function setTempColorlessStones(actor: any, count: number): Promise
   }
 }
 
+/**
+ * Absorption Stones wait until the next Preparation Phase. They are not spendable yet.
+ */
+export async function queueAbsorptionStones(actor: any, amount: number, combat: any): Promise<number> {
+  const add = Math.max(0, Math.floor(Number(amount) || 0));
+  if (add <= 0 || !actor) return 0;
+  const prev = actor.getFlag?.('mastery-system', FLAG_ABSORPTION_PENDING) as
+    | { combatId?: string; amount?: number }
+    | undefined;
+  const same = prev && String(prev.combatId || '') === String(combat?.id || '');
+  const next = (same ? Math.max(0, Math.floor(Number(prev?.amount) || 0)) : 0) + add;
+  await actor.setFlag?.('mastery-system', FLAG_ABSORPTION_PENDING, {
+    combatId: String(combat?.id || ''),
+    earnedRound: Math.max(1, Math.floor(Number(combat?.round) || 1)),
+    amount: next,
+  });
+  return next;
+}
+
+/** Move queued Absorption Stones into the spendable pile at the next Preparation Phase. */
+export async function releaseAbsorptionStonesForPreparation(actor: any, combat: any): Promise<number> {
+  const pending = actor?.getFlag?.('mastery-system', FLAG_ABSORPTION_PENDING) as
+    | { combatId?: string; earnedRound?: number; amount?: number }
+    | undefined;
+  if (!pending || String(pending.combatId || '') !== String(combat?.id || '')) return 0;
+  const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
+  if (round <= Math.floor(Number(pending.earnedRound) || 1)) return 0;
+  const amount = Math.max(0, Math.floor(Number(pending.amount) || 0));
+  await actor.unsetFlag?.('mastery-system', FLAG_ABSORPTION_PENDING);
+  if (amount <= 0) return 0;
+  await addTempColorlessStones(actor, amount);
+  const ready = Math.max(0, Math.floor(Number(actor.getFlag?.('mastery-system', FLAG_ABSORPTION_READY)) || 0));
+  await actor.setFlag?.('mastery-system', FLAG_ABSORPTION_READY, ready + amount);
+  return amount;
+}
+
 /** Item / Absorption grant — does not count as leftover Initiative. */
 export async function addTempColorlessStones(actor: any, amount: number): Promise<number> {
   const add = Math.max(0, Math.floor(Number(amount) || 0));
@@ -150,10 +214,9 @@ export async function copyColorlessPile(from: any, to: any): Promise<void> {
 }
 
 /**
- * Permanent Colorless Stones (v0.9.9): converted 2:1 from unassigned
- * permanent progression Stones. They live in `system.stonePools.colorless`,
- * use the normal Stone states, become Exhausted when spent, and regenerate
- * normally. Temporary Colorless Stones stay a separate combat resource.
+ * Permanent Colorless Stones live in `system.stonePools.colorless`.
+ * They become Exhausted when spent and are not restored by Stone Recovery
+ * unless Colorless Recovery designated them. They return Ready at combat end.
  */
 export function getPermanentColorlessStones(actor: any): { current: number; max: number } {
   const pool = actor?.system?.stonePools?.colorless ?? {};
@@ -181,6 +244,18 @@ export function getSpendableColorlessStones(actor: any): number {
 export async function spendColorlessStones(actor: any, amount: number): Promise<boolean> {
   const n = Math.max(0, Math.floor(Number(amount) || 0));
   if (n <= 0) return true;
+  try {
+    const combat = (globalThis as any).game?.combat ?? null;
+    const { isFleeLocked } = await import('../combat/action-economy.js');
+    if (combat && isFleeLocked(actor, combat)) {
+      (globalThis as any).ui?.notifications?.warn?.(
+        'Flee: you cannot spend Stones until the start of your next Turn.',
+      );
+      return false;
+    }
+  } catch {
+    /* economy unavailable */
+  }
   const temp = getTempColorlessStones(actor);
   const fromTemp = Math.min(n, temp);
   const fromPermanent = n - fromTemp;
@@ -294,6 +369,18 @@ export async function clearInitiativeColorlessStones(actor: any): Promise<void> 
   const remain = total - drop;
   await actor?.unsetFlag?.('mastery-system', FLAG_INITIATIVE);
   await actor?.unsetFlag?.('mastery-system', FLAG_INITIATIVE_EXHAUSTED);
+  await actor?.unsetFlag?.('mastery-system', FLAG_ABSORPTION_PENDING);
+  const absorptionReady = Math.max(0, Math.floor(Number(actor?.getFlag?.('mastery-system', FLAG_ABSORPTION_READY)) || 0));
+  await actor?.unsetFlag?.('mastery-system', FLAG_ABSORPTION_READY);
+  if (absorptionReady > 0) {
+    const afterInit = Math.max(0, (total - drop) - absorptionReady);
+    if (afterInit <= 0) {
+      await actor?.unsetFlag?.('mastery-system', FLAG_COUNT);
+      return;
+    }
+    await actor?.setFlag?.('mastery-system', FLAG_COUNT, afterInit);
+    return;
+  }
   if (remain <= 0) {
     await actor?.unsetFlag?.('mastery-system', FLAG_COUNT);
     return;
@@ -409,6 +496,12 @@ export async function clearColorlessStonesForCombat(combat: any): Promise<void> 
     if (!actor) continue;
     try {
       await clearInitiativeColorlessStones(actor);
+    } catch {
+      /* best-effort */
+    }
+    try {
+      const { clearColorlessRecovery } = await import('./colorless-recovery.js');
+      await clearColorlessRecovery(actor);
     } catch {
       /* best-effort */
     }

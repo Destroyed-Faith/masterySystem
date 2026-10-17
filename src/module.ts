@@ -634,6 +634,15 @@ Hooks.once('init', async function() {
 
     // Hide all initiative roll buttons
     $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+    if (game.user?.isGM && $html.find('.ms-pursuit-open').length === 0) {
+      const pursuitButton = $(`<button type="button" class="ms-pursuit-open">Pursuit</button>`);
+      pursuitButton.on('click', () => {
+        void import('./combat/pursuit-dialog.js').then((mod) => mod.openPursuitDialog(game.combat));
+      });
+      const header = $html.find('.combat-tracker-header, .encounter-controls, header').first();
+      if (header.length) header.append(pursuitButton);
+      else $html.prepend(pursuitButton);
+    }
     const trackerCombat = game.combat as Combat | null | undefined;
     const trackerPreparing = !!(
       trackerCombat &&
@@ -1005,6 +1014,8 @@ Hooks.once('init', async function() {
         const { processTurnEndSpecials, announceStatusTick } = await import('./combat/status-tick.js');
         const endSummary = await processTurnEndSpecials(endingActor);
         await announceStatusTick(endingActor, endSummary);
+        const { pulseActiveBuffAuras } = await import('./combat/aura-pulse.js');
+        await pulseActiveBuffAuras(endingActor);
         // Incapacitated PCs roll a Death Check at the end of each of their turns.
         const { maybeRollDeathCheck } = await import('./combat/death-check.js');
         await maybeRollDeathCheck(endingActor);
@@ -1038,12 +1049,38 @@ Hooks.once('init', async function() {
       console.error('Mastery System | movement reset failed', err);
     }
   });
+  Hooks.on('preUpdateToken', async (tokenDoc: any, changes: any) => {
+    if (changes?.x === undefined && changes?.y === undefined) return;
+    try {
+      const { applyMovementCapToTokenChange } = await import('./combat/movement-allowance.js');
+      applyMovementCapToTokenChange(tokenDoc, changes);
+    } catch (err) {
+      console.error('Mastery System | Movement Reduction cap failed', err);
+    }
+    try {
+      const { resolveThreatZoneOnTokenChange } = await import('./combat/threat-zone.js');
+      const tokens = tokenDoc?.parent?.tokens?.contents ?? tokenDoc?.parent?.tokens ?? [];
+      const list = typeof tokens?.values === 'function' ? Array.from(tokens.values()) : Array.isArray(tokens) ? tokens : [];
+      await resolveThreatZoneOnTokenChange(tokenDoc, changes, 'before-update', list);
+    } catch (err) {
+      console.error('Mastery System | Threat Zone exit failed', err);
+    }
+  });
   Hooks.on('updateToken', async (tokenDoc: any, changes: any) => {
     try {
       const { handleTokenMovement } = await import('./combat/movement-tracker.js');
       await handleTokenMovement(tokenDoc, changes);
     } catch (err) {
       console.error('Mastery System | token movement tracking failed', err);
+    }
+    if (changes?.x === undefined && changes?.y === undefined) return;
+    try {
+      const { resolveThreatZoneOnTokenChange } = await import('./combat/threat-zone.js');
+      const tokens = tokenDoc?.parent?.tokens?.contents ?? tokenDoc?.parent?.tokens ?? [];
+      const list = typeof tokens?.values === 'function' ? Array.from(tokens.values()) : Array.isArray(tokens) ? tokens : [];
+      await resolveThreatZoneOnTokenChange(tokenDoc, changes, 'after-update', list);
+    } catch (err) {
+      console.error('Mastery System | Threat Zone entry failed', err);
     }
   });
   Hooks.on('combatEnd', async (combat: Combat) => {

@@ -90,10 +90,21 @@ export async function handleTokenMovement(tokenDoc: any, changes: any): Promise<
   const newY = changes.y !== undefined ? Number(changes.y) : Number(tokenDoc.y);
   const moved = metersBetween(scene, oldX, oldY, newX, newY);
   if (moved <= 0) return;
+  const eventKey = `${oldX}:${oldY}:${newX}:${newY}`;
+  if (String(actor.getFlag(FLAG_SCOPE, 'movementEventKey') ?? '') === eventKey) return;
+  await actor.setFlag(FLAG_SCOPE, 'movementEventKey', eventKey);
 
   const prevMoved = Number(actor.getFlag(FLAG_SCOPE, FLAG_MOVED) ?? 0);
   const totalMoved = prevMoved + moved;
   await actor.setFlag(FLAG_SCOPE, FLAG_MOVED, totalMoved);
+  if (totalMoved > 3) {
+    try {
+      const { breakOrdinaryStealth } = await import('./perception-combat-hooks.js');
+      await breakOrdinaryStealth(actor, 'movement');
+    } catch {
+      /* best-effort */
+    }
+  }
 
   // Safe Movement, Disengage, and Slip do not open movement-triggered Reactions.
   try {

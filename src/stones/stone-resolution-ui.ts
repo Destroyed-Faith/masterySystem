@@ -202,7 +202,6 @@ export async function presentStoneResolution(
   if (ticket.status === 'resolved') return true;
   const powerId = resolveStonePowerId(ticket.powerId);
   if (powerId === 'resolve.healing') return presentHealing(actor, combatant, ticket.tier);
-  if (powerId === 'resolve.stressHealing') return presentStressHealing(actor, combatant, ticket.tier);
   if (powerId === 'agility.safeMovement') {
     const { presentSafeMovement } = await import('./agility-movement-ui.js');
     return presentSafeMovement(actor, ticket.tier);
@@ -212,8 +211,8 @@ export async function presentStoneResolution(
   const canPrompt =
     typeof (globalThis as any).foundry?.applications?.api?.DialogV2?.prompt === 'function';
   await power.apply({ actor, combatant, tier: ticket.tier, cost: 0 });
-  if (powerId === 'influence.regeneration' && canPrompt) {
-    const waiting = actor?.getFlag?.('mastery-system', 'pendingAllyRegeneration');
+  if (powerId === 'influence.cleanse' && canPrompt) {
+    const waiting = actor?.getFlag?.('mastery-system', 'pendingCleanse');
     if (waiting) return false;
   }
   try {

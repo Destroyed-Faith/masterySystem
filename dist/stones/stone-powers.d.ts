@@ -75,7 +75,7 @@ export declare function isPremiumStonePower(powerId: string): boolean;
  */
 export declare const RETIRED_STONE_POWER_IDS: readonly ["intellect.spellAction"];
 export declare function isRetiredStonePower(powerId: string): boolean;
-export declare const RETIRED_STONE_POWER_MESSAGE = "Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks. Spell Penetration is a different ability.";
+export declare const RETIRED_STONE_POWER_MESSAGE = "Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks.";
 /** Per-Rank payment segment sizes for one Ability (Normal 1/2/4/8, Premium 2/4/6/8). */
 export declare function stonePowerSegmentSizes(powerId: string): readonly number[];
 /** Additional Stones to activate `rank` (1..4) of this Ability. 0 outside 1..4. */

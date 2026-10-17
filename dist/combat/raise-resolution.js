@@ -54,9 +54,7 @@ export function dedupeDeclaredRaises(raises) {
             seen.add(`special:${key}`);
         }
         else if (raise.effect === 'damage') {
-            if (seen.has('damage'))
-                continue;
-            seen.add('damage');
+            // Each Damage Raise is its own +MR (or ceil(MR/2) for AoE) bonus.
         }
         out.push(raise);
     }
@@ -66,7 +64,7 @@ export function dedupeDeclaredRaises(raises) {
 export function countRaiseSlots(raises) {
     return raises.reduce((sum, r) => sum + (r.slots === 2 ? 2 : 1), 0);
 }
-/** Slots that still pay Raise Cost. A free Raise still raises the TN. */
+/** Slots that increase the Raise TN. A Free Raise has no TN increase and no Raise Cost. */
 export function paidRaiseSlots(raises) {
     return raises.reduce((sum, r) => {
         if (r.free)
@@ -142,41 +140,24 @@ export function applyRaiseCost(snapshot, cost) {
     next.specials = next.specials.filter((sp) => sp.rank > 0);
     return next;
 }
-function applyOneRaiseEffect(snap, raise, masteryRank, isSpell) {
+function damageRaiseDice(masteryRank, aoe) {
     const mr = Math.max(1, Math.floor(masteryRank));
+    return aoe ? Math.ceil(mr / 2) : mr;
+}
+function applyOneRaiseEffect(snap, raise, masteryRank, _isSpell) {
     switch (raise.effect) {
         case 'damage':
-            snap.damageDice += isSpell ? 1 : mr;
+            snap.damageDice += damageRaiseDice(masteryRank, snap.hasAoe);
             break;
         case 'specialPlus': {
             const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
             if (!key)
                 break;
-            const printed = Math.max(0, Math.floor(Number(raise.printedRank) || 0));
             const sp = snap.specials.find((s) => s.key === key);
-            if (printed > 0) {
-                if (sp)
-                    sp.rank = printed;
-                else
-                    snap.specials.push({ key, rank: printed });
-                break;
-            }
             if (sp)
-                sp.rank += mr;
+                sp.rank += Math.max(1, Math.floor(masteryRank));
             break;
         }
-        case 'rangePlus':
-            if (snap.hasRange && snap.rangeM != null)
-                snap.rangeM += 4;
-            break;
-        case 'aoeRadiusPlus':
-            if (snap.hasAoe && snap.aoeRadiusM != null)
-                snap.aoeRadiusM += 1;
-            break;
-        case 'durationPlus':
-            if (snap.hasDuration)
-                snap.durationSteps += 1;
-            break;
         default:
             break;
     }
@@ -184,9 +165,8 @@ function applyOneRaiseEffect(snap, raise, masteryRank, isSpell) {
 /** Apply stone bonus as default damage raise (martial +MR, spell +1d8 each). */
 function applyStoneBonusRaises(snap, count, masteryRank, isSpell) {
     const n = Math.max(0, Math.floor(count));
-    const mr = Math.max(1, Math.floor(masteryRank));
     for (let i = 0; i < n; i++) {
-        snap.damageDice += isSpell ? 1 : mr;
+        snap.damageDice += damageRaiseDice(masteryRank, snap.hasAoe);
     }
 }
 /**
@@ -231,7 +211,7 @@ export function previewAfterRaiseCost(base, declaredRaises, masteryRank, isSpell
 }
 export function buildAvailableRaiseOptions(snapshot, isSpell) {
     const options = [];
-    const damageLabel = isSpell ? '+1d8 Zauberschaden' : '+MR Schaden';
+    const damageLabel = snapshot.hasAoe ? '+ceil(MR/2) d8 Schaden' : '+MR Schaden';
     options.push({
         id: 'damage',
         label: damageLabel,
@@ -247,22 +227,6 @@ export function buildAvailableRaiseOptions(snapshot, isSpell) {
             targetSpecialKey: sp.key,
             printedRank: sp.rank,
             slots: 1,
-        });
-    }
-    if (snapshot.hasAoe) {
-        options.push({
-            id: 'aoe',
-            label: '+1 m AoE Radius (2 Raises)',
-            effect: 'aoeRadiusPlus',
-            slots: 2,
-        });
-    }
-    if (isSpell && snapshot.hasDuration) {
-        options.push({
-            id: 'duration',
-            label: '+1 Duration Step (2 Raises)',
-            effect: 'durationPlus',
-            slots: 2,
         });
     }
     return options;

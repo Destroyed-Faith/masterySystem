@@ -231,7 +231,9 @@ function createRadialOptionSlice(
       category: segmentId === 'active-buff' ? 'attack' : segmentId as CombatSlot,  // For backward compatibility
       kind: option.source === 'power' ? 'power' : 'maneuver',
       optionId: option.id,
-      optionSource: option.source
+      optionSource: option.source,
+      powerType: option.powerType,
+      basisMeters: option.basisMeters,
     });
     // Trigger handler
     handleChosenCombatOption(token, option);

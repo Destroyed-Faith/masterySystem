@@ -56,9 +56,8 @@ export interface RollOptions {
   targetRefs?: string[];
   /**
    * When true, `masteryRoll` applies the percentage-based Health /
-   * Encumbrance penalty and the final Minimum Pool (= Mastery Rank) itself —
-   * in canonical order AFTER all flat pool reductions. Callers that set this
-   * must NOT pre-apply those penalties.
+   * Encumbrance penalty after flat reductions. A pool may stay below
+   * Mastery Rank. Zero dice fails. Keep cannot exceed the dice that remain.
    */
   applyPoolPenalties?: boolean;
   /**
@@ -436,7 +435,18 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       : declaredRaiseSlots > 0
         ? normalTnVal + declaredRaiseSlots * RAISE_INCREMENT
         : normalTnVal;
-  const stoneBonusRaises = Math.max(0, Math.floor(options.stoneBonusRaises ?? 0));
+  let stoneBonusRaises = Math.max(0, Math.floor(options.stoneBonusRaises ?? 0));
+  if (stoneBonusRaises > 0 && options.actorId && !options.isRerollResult) {
+    try {
+      const actor = (globalThis as any).game?.actors?.get?.(options.actorId);
+      if (actor) {
+        const { consumeFreeRaises } = await import('../combat/action-economy.js');
+        stoneBonusRaises = await consumeFreeRaises(actor, stoneBonusRaises);
+      }
+    } catch (err) {
+      console.warn('Mastery System | Free Raise spend failed', err);
+    }
+  }
   const raiseModel = options.raiseModel ?? 'power';
   const bloodRaises = Math.max(0, Math.floor(options.bloodRaises ?? 0));
   const raiseTnRollBonus = Math.max(0, Math.floor(options.raiseTnRollBonus ?? 0));
@@ -504,7 +514,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   // modifiers) + mechanics/manual flat modifiers. `finalizeRolledPool` then
   // applies, in canonical order: flat Special reductions (Disoriented /
   // Weaken / Soulburn / Challenge) → percentage Health & Encumbrance penalty
-  // (only when `applyPoolPenalties` is set) → Minimum Pool = Mastery Rank.
+  // (only when `applyPoolPenalties` is set). There is no Mastery Rank floor.
   let autoFailReason: string | undefined;
   if (options.actorId || options.actorRef) {
     try {
@@ -522,7 +532,13 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
           applyPoolPenalties: !!options.applyPoolPenalties,
         });
         numDice = finalized.numDice;
-        autoFailReason = finalized.autoFailReason;
+        if (numDice <= 0) {
+          keepDice = 0;
+          autoFailReason = finalized.autoFailReason || 'Pool of 0 dice';
+        } else if (keepDice > numDice) {
+          keepDice = numDice;
+        }
+        autoFailReason = autoFailReason || finalized.autoFailReason;
         for (const note of finalized.notes) {
           flavor = flavor ? `${flavor} | ${note}` : note;
         }
@@ -751,6 +767,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
         await applyStealthRollResult(actor, {
           success: !!result.success,
           raises: result.raises ?? 0,
+          finalResult: result.total,
         });
       }
     } catch (stealthErr) {
@@ -1085,7 +1102,7 @@ export async function quickRoll(
   const actorData = actor.system as any;
 
   // Base pool = attribute value. Specials, Health/Encumbrance penalties and
-  // the final Minimum Pool (= Mastery Rank) are applied centrally inside
+  // A pool below Mastery Rank is legal. Zero dice fails inside
   // `masteryRoll` in canonical order (`applyPoolPenalties: true`).
   const numDice = actorData.attributes?.[attributeName]?.value || 0;
 

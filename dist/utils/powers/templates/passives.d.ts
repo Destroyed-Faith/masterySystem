@@ -21,6 +21,10 @@
  * falls back to descriptive behaviour for rows without a mechanical delta.
  */
 import type { PowerTemplate } from './_shared.js';
+/** Absorption — Temporary Colorless Stones per Scarred Health Bar (L1–2 = 1 … L15–16 = 8). */
+export declare function absorptionStonesPerTrigger(level: number): number;
+/** Fortitude — Health Bar multiplier. Levels 1–3 are unavailable (stay ×4). */
+export declare function fortitudeMultiplierForLevel(level: number): number;
 /** Max Parry Pool dice for Passive: Parry at the given power level. */
 export declare function passiveParryPoolForLevel(level: number): number;
 /** Combat Damage Negation reserve for Passive: Damage Negation at level. */

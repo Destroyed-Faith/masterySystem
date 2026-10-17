@@ -130,10 +130,10 @@ describe('countScarredHealthBars', () => {
 });
 
 describe('applyHealHpAcrossOpenBars', () => {
-  it('fills open bars and skips Scarred (0 HP) bars', () => {
+  it('fills only the active bar and does not spill into other open bars', () => {
     const applied = applyHealHpAcrossOpenBars(
       {
-        currentBar: 0,
+        currentBar: 2,
         bars: [
           { name: 'Healthy', max: 40, current: 40 },
           { name: 'Bruised', max: 40, current: 0 },
@@ -142,8 +142,9 @@ describe('applyHealHpAcrossOpenBars', () => {
       },
       50,
     );
-    expect(applied.bars[1].current).toBe(0); // still Scarred
-    expect(applied.bars[2].current).toBe(40); // +30 into Injured
+    expect(applied.bars[1].current).toBe(0);
+    expect(applied.bars[2].current).toBe(40);
+    expect(applied.bars[0].current).toBe(40);
     expect(applied.restored).toBe(30);
   });
 });

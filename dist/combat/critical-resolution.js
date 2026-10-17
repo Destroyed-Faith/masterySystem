@@ -51,6 +51,23 @@ export function syncCriticalRoundQuota(existing, roundKey, buffCriticalX) {
         remaining: Math.max(0, Math.floor(Number(existing.remaining) || 0)),
     };
 }
+/** Spend the declared Crit charge. No-op when the roll did not select Crit. */
+export function applyDeclaredCritSpend(state, mod) {
+    if (!mod.applyCritical || !mod.consumeFrom)
+        return false;
+    if (mod.consumeFrom === 'stone-crit') {
+        const current = Math.max(0, Math.floor(Number(state.stoneBonuses?.critRaises) || 0));
+        if (!state.stoneBonuses || current <= 0)
+            return false;
+        state.stoneBonuses.critRaises = current - 1;
+        return true;
+    }
+    if (mod.consumeFrom === 'active-buff' && state.criticalQuota) {
+        state.criticalQuota = consumeCriticalQuota(state.criticalQuota);
+        return true;
+    }
+    return false;
+}
 export function consumeCriticalQuota(quota) {
     return {
         ...quota,
@@ -86,7 +103,9 @@ export function resolveCriticalAttackModifier(opts) {
         consumeFrom = 'stone-crit';
     else if (special > 0)
         consumeFrom = 'special-crit';
-    const applyCritical = consumeFrom != null;
+    const applyCritical = opts.declared === true && consumeFrom != null;
+    if (!applyCritical)
+        consumeFrom = null;
     return {
         criticalX,
         buffQuotaRemaining: buffRemaining,

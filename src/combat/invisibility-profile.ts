@@ -193,10 +193,18 @@ export function resolveInvisibilityFromActor(actor: any): InvisibilityProfile {
 export function effectiveInvisibilityBonusForActor(actor: any): number {
   if (isInvisibilitySuppressedByHealth(actor)) return 0;
   const profile = resolveInvisibilityFromActor(actor);
-  if (profile.baseBonus > 0) return profile.baseBonus;
-  // Fallback: synced combat flag (tests / mid-sync).
   const st = getPerceptionCombatState(actor);
-  return Math.max(0, Math.floor(Number(st.invisibilityBonus) || 0));
+  let bonus = profile.baseBonus > 0
+    ? profile.baseBonus
+    : Math.max(0, Math.floor(Number(st.invisibilityBonus) || 0));
+  if (bonus <= 0) return 0;
+  try {
+    const rs = actor.getFlag?.('mastery-system', 'roundState');
+    bonus += Math.max(0, Math.floor(Number(rs?.stoneBonuses?.invisibilityBonus) || 0));
+  } catch {
+    /* ignore */
+  }
+  return bonus;
 }
 
 /**

@@ -20,9 +20,9 @@ export declare function calculateTotalStones(attributes: Record<string, Attribut
 export declare function updateAttributeStones(attribute: AttributeData): void;
 /**
  * Calculate Health Bar maximum HP.
- * Each normal bar = Vitality × 4 (DF Core v0.9.9.0).
+ * Each normal bar = Vitality × multiplier (default ×4; Fortitude raises it).
  */
-export declare function calculateHealthBarMax(vitality: number): number;
+export declare function calculateHealthBarMax(vitality: number, multiplier?: number): number;
 /** A Health Bar with boxes remaining is open; current 0 on a real bar is Scarred. */
 export declare function isHealthBarScarred(bar: {
     current?: unknown;

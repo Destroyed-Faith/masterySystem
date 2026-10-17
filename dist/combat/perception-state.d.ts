@@ -7,9 +7,11 @@ export interface PerceptionCombatState {
     /** Hidden from observers (Stealth success without Invisibility). */
     hidden?: boolean;
     /**
-     * Legacy: +2 Perception TN per Raise on a Stealth check (Hidden without Invis).
-     * Kept for non-invis Hidden until a separate Stealth rewrite.
+     * Ordinary Stealth: the check's Final Result is the Perception TN.
+     * Not added to an Invisibility TN.
      */
+    stealthPerceptionTn?: number;
+    /** @deprecated Raise bonus. Cleared; ordinary Stealth uses stealthPerceptionTn. */
     stealthRaiseBonus?: number;
     /**
      * Round-wide TN bonus from retroactive Stealth Skill Point spending
@@ -78,5 +80,6 @@ export declare function markLocatedTarget(observer: any, target: any, round: num
  * Incapacitated is handled separately via `isInvisibilitySuppressedByHealth`.
  */
 export declare function lostHealthBarsForInvis(actor: any): number;
-export declare function isInvisibilitySuppressedByHealth(actor: any): boolean;
+/** Invisibility persists through Incapacitated. Lost bars still change the Perception TN. */
+export declare function isInvisibilitySuppressedByHealth(_actor: any): boolean;
 //# sourceMappingURL=perception-state.d.ts.map

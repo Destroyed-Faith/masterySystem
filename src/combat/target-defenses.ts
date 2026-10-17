@@ -8,17 +8,25 @@
  * bonuses still stack on top via `*FromActiveBuffs`.
  */
 
-import { actorHasSurprise, evadeAfterSurprise } from './surprise.js';
-
 /** Evade used at attack resolution (`attack-executor.getTargetEvade`). */
-export function getTargetEvade(targetActor: any): number {
+export function getTargetEvade(targetActor: any, attacker?: any): number {
   if (!targetActor || !targetActor.system) return 6;
 
   const system = targetActor.system as any;
   const combat = system.combat || {};
   const base = combat.evadeTotal ?? combat.evade ?? 6;
   const buffBonus = Number(combat.evadeFromActiveBuffs ?? 0);
-  return evadeAfterSurprise(base + buffBonus, actorHasSurprise(targetActor));
+  let evade = Math.max(0, Math.floor(Number(base) + Number(buffBonus) || 0));
+  if (attacker) {
+    try {
+      const rs = attacker.getFlag?.('mastery-system', 'roundState');
+      const cut = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.enemyEvadeReduction) || 0));
+      if (cut > 0) evade = Math.max(0, evade - cut);
+    } catch {
+      /* ignore */
+    }
+  }
+  return evade;
 }
 
 /** Armor used at damage resolution (`damage-dialog`: armorTotal + buffs). */

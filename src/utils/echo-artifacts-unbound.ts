@@ -210,7 +210,7 @@ const PREDATOR_CROWN_INTELLECT = makePredatorCrown({
     level: 1,
     kind: 'stonePowerSupport',
     attribute: 'intellect',
-    stonePowerId: 'intellect.raiseFocus',
+    stonePowerId: 'intellect.raises',
     name: 'Predator Stone',
   },
 });
@@ -332,7 +332,7 @@ function makeWitchStaff(opts: {
       level: 1,
       kind: 'stonePowerSupport',
       attribute: 'intellect',
-      stonePowerId: 'intellect.raiseFocus',
+      stonePowerId: 'intellect.raises',
       name: 'Witch Stone',
     },
     progressionPickSpecs: {
@@ -411,7 +411,7 @@ const ALCHEMIST_COAT: EchoArtifactDefinition = {
     level: 2,
     kind: 'stonePowerSupport',
     attribute: 'vitality',
-    stonePowerId: 'vitality.extendActiveBuff',
+    stonePowerId: 'vitality.damageMaximization',
     name: 'Alchemist Stone',
   },
   progressionPickSpecs: {

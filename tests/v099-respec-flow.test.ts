@@ -84,18 +84,19 @@ describe('Per-slot Stones', () => {
     expect(slots[2].abbrev).toBe('MIG');
   });
 
-  it('combines two boxes into one Permanent Colorless Stone', () => {
-    const order = ['might', 'colorless#0-2', 'colorless#0-2', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+  it('turns one earned Stone into one Permanent Colorless Stone', () => {
+    const order = ['might', 'agility', 'colorless', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
     const tallied = tallyStoneSlotOrder(order);
     expect(tallied.ok).toBe(true);
     expect(tallied.colorless).toBe(1);
     expect(tallied.assignments.might).toBe(1);
     const open = ['might', null, null, null, null, null, null, null];
-    expect(stonePlacementOptions(open, 2).colorless).toBe(true);
+    expect(stonePlacementOptions(open, 2, null, 0).colorless).toBe(false);
+    expect(stonePlacementOptions(open, 2, null, 2).colorless).toBe(true);
   });
 
   it('accepts the slot order in the migration plan', () => {
-    const order = ['might', 'colorless#0-2', 'colorless#0-2', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+    const order = ['might', 'agility', 'colorless', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
     const actor = {
       system: {
         mastery: { rank: 3 },

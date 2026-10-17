@@ -14,7 +14,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
     let quota = syncCriticalRoundQuota(null, 'c:1', 1);
     expect(quota.remaining).toBe(1);
 
-    const first = resolveCriticalAttackModifier({
+    const first = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 1,
       buffQuotaRemaining: quota.remaining,
     });
@@ -24,7 +24,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
     quota = consumeCriticalQuota(quota);
     expect(quota.remaining).toBe(0);
 
-    const second = resolveCriticalAttackModifier({
+    const second = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 1,
       buffQuotaRemaining: quota.remaining,
     });
@@ -36,7 +36,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
     let quota = syncCriticalRoundQuota(null, 'c:1', 2);
     expect(quota.remaining).toBe(2);
     for (let i = 0; i < 2; i++) {
-      const m = resolveCriticalAttackModifier({
+      const m = resolveCriticalAttackModifier({ declared: true,
         activeBuffCriticalX: 2,
         buffQuotaRemaining: quota.remaining,
       });
@@ -45,7 +45,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
     }
     expect(quota.remaining).toBe(0);
     expect(
-      resolveCriticalAttackModifier({
+      resolveCriticalAttackModifier({ declared: true,
         activeBuffCriticalX: 2,
         buffQuotaRemaining: quota.remaining,
       }).applyCritical,
@@ -56,7 +56,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
     let quota = syncCriticalRoundQuota(null, 'c:1', 3);
     for (let i = 0; i < 3; i++) {
       expect(
-        resolveCriticalAttackModifier({
+        resolveCriticalAttackModifier({ declared: true,
           activeBuffCriticalX: 3,
           buffQuotaRemaining: quota.remaining,
         }).applyCritical,
@@ -71,7 +71,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
     expect(quota.granted).toBe(4);
     for (let i = 0; i < 4; i++) {
       expect(
-        resolveCriticalAttackModifier({
+        resolveCriticalAttackModifier({ declared: true,
           activeBuffCriticalX: 4,
           buffQuotaRemaining: quota.remaining,
         }).applyCritical,
@@ -79,7 +79,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
       quota = consumeCriticalQuota(quota);
     }
     expect(
-      resolveCriticalAttackModifier({
+      resolveCriticalAttackModifier({ declared: true,
         activeBuffCriticalX: 4,
         buffQuotaRemaining: quota.remaining,
       }).applyCritical,
@@ -109,7 +109,7 @@ describe('Critical(X) — attacks-per-round quota', () => {
 describe('Critical(X) — fixed explode threshold, not strength', () => {
   it('uses explode faces 7–8 for every Critical value', () => {
     for (const x of [1, 2, 3, 4]) {
-      const m = resolveCriticalAttackModifier({
+      const m = resolveCriticalAttackModifier({ declared: true,
         activeBuffCriticalX: x,
         buffQuotaRemaining: x,
       });
@@ -121,7 +121,7 @@ describe('Critical(X) — fixed explode threshold, not strength', () => {
 
   it('never marks Damage Dice as exploding', () => {
     for (const x of [1, 2, 3, 4]) {
-      const m = resolveCriticalAttackModifier({
+      const m = resolveCriticalAttackModifier({ declared: true,
         activeBuffCriticalX: x,
         buffQuotaRemaining: x,
       });
@@ -131,11 +131,11 @@ describe('Critical(X) — fixed explode threshold, not strength', () => {
   });
 
   it('does not interpret X as Critical strength / lower explode threshold', () => {
-    const c1 = resolveCriticalAttackModifier({
+    const c1 = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 1,
       buffQuotaRemaining: 1,
     });
-    const c4 = resolveCriticalAttackModifier({
+    const c4 = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 4,
       buffQuotaRemaining: 4,
     });
@@ -147,7 +147,7 @@ describe('Critical(X) — fixed explode threshold, not strength', () => {
   });
 
   it('multiple sources never improve the explode threshold', () => {
-    const m = resolveCriticalAttackModifier({
+    const m = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 4,
       buffQuotaRemaining: 4,
       stoneCritCharges: 3,
@@ -159,7 +159,7 @@ describe('Critical(X) — fixed explode threshold, not strength', () => {
   });
 
   it('falls back to stone Crit charges when buff quota is spent', () => {
-    const m = resolveCriticalAttackModifier({
+    const m = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 2,
       buffQuotaRemaining: 0,
       stoneCritCharges: 1,

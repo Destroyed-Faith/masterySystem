@@ -230,7 +230,7 @@ describe('Summon actor restrictions', () => {
 describe('Critical resolution (quota model)', () => {
   it('Critical(X) grants X attacks per round with fixed 7–8 explode', () => {
     let quota = syncCriticalRoundQuota(null, 'c:1', 2);
-    const m = resolveCriticalAttackModifier({
+    const m = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 2,
       buffQuotaRemaining: quota.remaining,
     });
@@ -242,7 +242,7 @@ describe('Critical resolution (quota model)', () => {
   });
 
   it('stone Crit charges also enable explode-on-7–8', () => {
-    const m = resolveCriticalAttackModifier({ stoneCritCharges: 2 });
+    const m = resolveCriticalAttackModifier({ declared: true, stoneCritCharges: 2 });
     expect(m.explodeOn78).toBe(true);
     expect(m.sources).toContain('stone-crit');
   });

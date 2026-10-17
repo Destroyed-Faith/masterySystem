@@ -9,7 +9,7 @@ import {
 
 describe('evadeAfterSurprise', () => {
   it('halves Evade while surprised and leaves a normal score alone', () => {
-    expect(evadeAfterSurprise(17, true)).toBe(8);
+    expect(evadeAfterSurprise(17, true)).toBe(17);
     expect(evadeAfterSurprise(17, false)).toBe(17);
     expect(evadeAfterSurprise(0, true)).toBe(0);
   });
@@ -46,14 +46,17 @@ describe('statusListHasSurprise', () => {
 });
 
 describe('getTargetEvade', () => {
-  it('halves the live Evade total when Surprise is on', () => {
+  it('does not halve Evade when the old Surprise status is on', () => {
     const actor = {
       system: {
         combat: { evadeTotal: 17, evadeFromActiveBuffs: 8 },
         statusEffects: [{ id: 'surprise' }],
       },
     };
-    expect(getTargetEvade(actor)).toBe(12);
-    expect(getTargetEvade({ system: { combat: { evadeTotal: 17, evadeFromActiveBuffs: 8 } } })).toBe(25);
+    expect(getTargetEvade(actor)).toBe(25);
+    const attacker = {
+      getFlag: () => ({ stoneBonuses: { enemyEvadeReduction: 4 } }),
+    };
+    expect(getTargetEvade(actor, attacker)).toBe(21);
   });
 });

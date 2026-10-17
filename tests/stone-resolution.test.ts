@@ -52,9 +52,9 @@ describe('Stone resolution — allocation does not execute', () => {
       { powerId: 'wits.initiativeBoost', tier: 2 },
     ];
     const revised = planned.filter((row) => row.powerId !== 'wits.initiativeBoost');
-    revised.push({ powerId: 'resolve.stressHealing', tier: 3 });
+    revised.push({ powerId: 'influence.cleanse', tier: 3 });
     expect(effectsFromAllocation()).toEqual([]);
-    expect(revised.map((row) => row.powerId)).toEqual(['resolve.healing', 'resolve.stressHealing']);
+    expect(revised.map((row) => row.powerId)).toEqual(['resolve.healing', 'influence.cleanse']);
   });
 
   it('Healing and Stress Healing apply() do not roll or heal by themselves', async () => {
@@ -71,7 +71,7 @@ describe('Stone resolution — allocation does not execute', () => {
       tier: 4,
       cost: 8,
     });
-    await STONE_POWERS['resolve.stressHealing'].apply({
+    await STONE_POWERS['influence.cleanse'].apply({
       actor: actor as any,
       combatant: {} as any,
       tier: 4,
@@ -87,10 +87,10 @@ describe('Stone resolution — confirm locks and fires automatic powers once', (
     expect(stoneResolutionKind('resolve.damageReduction')).toBe('passive');
     expect(stoneResolutionKind('wits.initiativeBoost')).toBe('automatic');
     expect(stoneResolutionKind('generic.extraAttack')).toBe('automatic');
-    expect(stoneResolutionKind('agility.slip')).toBe('automatic');
+    expect(stoneResolutionKind('agility.invisibilityBoost')).toBe('automatic');
     expect(stoneResolutionKind('resolve.healing')).toBe('interactive');
-    expect(stoneResolutionKind('resolve.stressHealing')).toBe('interactive');
-    expect(stoneResolutionKind('influence.regeneration')).toBe('interactive');
+    expect(stoneResolutionKind('influence.cleanse')).toBe('interactive');
+    expect(stoneResolutionKind('influence.colorlessRecovery')).toBe('automatic');
   });
 
   it('confirm locks the assignment and runs Initiative Boost exactly once', () => {
@@ -169,9 +169,9 @@ describe('Stone resolution — Healing and Stress Healing', () => {
     expect(stressHealingRankProfile(4)).toEqual({ dice: 4, rangeM: 16 });
     expect(splitCommitEffects([
       { powerId: 'resolve.healing', tier: 2 },
-      { powerId: 'resolve.stressHealing', tier: 1 },
+      { powerId: 'influence.cleanse', tier: 1 },
       { powerId: 'wits.initiativeBoost', tier: 1 },
-    ]).interactive.map((row) => row.powerId)).toEqual(['resolve.healing', 'resolve.stressHealing']);
+    ]).interactive.map((row) => row.powerId)).toEqual(['resolve.healing', 'influence.cleanse']);
   });
 
   it('offers only self and allies inside the Healing range', () => {
@@ -336,7 +336,7 @@ describe('Stone resolution — queue identity', () => {
       powers: [
         { powerId: 'generic.extraAttack', tier: 1 },
         { powerId: 'resolve.healing', tier: 2 },
-        { powerId: 'resolve.stressHealing', tier: 1 },
+        { powerId: 'influence.cleanse', tier: 1 },
       ],
       onAutomatic: () => undefined,
     });
@@ -349,7 +349,7 @@ describe('Stone resolution — queue identity', () => {
         queue: markStoneResolutionResolved(state.queue!, ticket.id),
       };
     }
-    expect(order).toEqual(['resolve.healing', 'resolve.stressHealing']);
+    expect(order).toEqual(['resolve.healing', 'influence.cleanse']);
     expect(state.fired).toEqual(['generic.extraAttack:1']);
   });
 
@@ -360,11 +360,11 @@ describe('Stone resolution — queue identity', () => {
     ]);
     const second = enqueueStoneResolutions(first, 'c', 1, [
       { powerId: 'resolve.healing', tier: 2 },
-      { powerId: 'resolve.stressHealing', tier: 1 },
+      { powerId: 'influence.cleanse', tier: 1 },
     ]);
     expect(second.tickets.map((ticket) => ticket.id)).toEqual([
       'c:1:resolve.healing:2',
-      'c:1:resolve.stressHealing:1',
+      'c:1:influence.cleanse:1',
     ]);
     expect(first.tickets).toHaveLength(1);
   });
@@ -372,18 +372,18 @@ describe('Stone resolution — queue identity', () => {
   it('resolving one ticket cannot overwrite the others', () => {
     const queue = enqueueStoneResolutions(null, 'c', 4, [
       { powerId: 'resolve.healing', tier: 1 },
-      { powerId: 'resolve.stressHealing', tier: 4 },
-      { powerId: 'influence.regeneration', tier: 2 },
+      { powerId: 'influence.cleanse', tier: 4 },
+      { powerId: 'wits.reactionDenial', tier: 2 },
     ]);
     const healed = markStoneResolutionResolved(queue, queue.tickets[0].id);
     expect(healed.tickets[0].status).toBe('resolved');
     expect(healed.tickets[1]).toMatchObject({
-      powerId: 'resolve.stressHealing',
+      powerId: 'influence.cleanse',
       tier: 4,
       status: 'pending',
     });
     expect(healed.tickets[2]).toMatchObject({
-      powerId: 'influence.regeneration',
+      powerId: 'wits.reactionDenial',
       tier: 2,
       status: 'pending',
     });

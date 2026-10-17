@@ -639,6 +639,28 @@
         phaseIndex=""}}
     {{/if}}
 
+    {{!-- Attributes (skill rolls use these pools; NPCs default to 2 if unset) --}}
+    {{#if npcAttributes}}
+    <div class="npc-section npc-section--attributes">
+      <h3 class="npc-section__title"><i class="fas fa-dumbbell"></i> Attributes</h3>
+      <div class="npc-attr-strip">
+        {{#each npcAttributes as |attr|}}
+        <label class="npc-attr-chip" title="{{attr.label}}">
+          <span class="npc-attr-chip__label">{{attr.label}}</span>
+          <input type="number"
+                 name="system.attributes.{{attr.key}}.value"
+                 value="{{attr.value}}"
+                 min="1"
+                 max="40"
+                 step="1"
+                 data-dtype="Number"
+                 {{#unless @root.editable}}disabled{{/unless}}/>
+        </label>
+        {{/each}}
+      </div>
+    </div>
+    {{/if}}
+
     {{!-- Skills (ratings feed Perception / skill rolls — same system.skills path as PCs) --}}
     {{#if npcSkillGroups}}
     <div class="npc-section npc-section--skills">
@@ -651,13 +673,17 @@
         <div class="npc-skill-cat__label">{{group.category}}</div>
         <div class="npc-skill-cat__grid">
           {{#each group.skills as |skill|}}
-          <label class="npc-skill-field" title="{{skill.name}}">
+          <label class="npc-skill-field" title="{{#if skill.poolTooltip}}{{skill.poolTooltip}}{{else}}{{skill.name}}{{/if}}">
             <span class="npc-skill-field__name">{{skill.name}}</span>
+            {{#if skill.poolPreview}}
+            <span class="npc-skill-field__pool{{#if skill.poolFull}} is-full{{else}} is-half{{/if}}" title="{{skill.poolTooltip}}">{{skill.poolPreview}}</span>
+            {{/if}}
             <input type="number"
                    name="system.skills.{{skill.key}}"
                    value="{{skill.value}}"
                    min="0"
                    step="1"
+                   data-dtype="Number"
                    {{#unless @root.editable}}disabled{{/unless}}/>
           </label>
           {{/each}}

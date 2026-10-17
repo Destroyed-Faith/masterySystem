@@ -30,10 +30,11 @@ export function updateAttributeStones(attribute) {
 }
 /**
  * Calculate Health Bar maximum HP.
- * Each normal bar = Vitality × 4 (DF Core v0.9.9.0).
+ * Each normal bar = Vitality × multiplier (default ×4; Fortitude raises it).
  */
-export function calculateHealthBarMax(vitality) {
-    return Math.max(0, Math.floor(Number(vitality) || 0)) * 4;
+export function calculateHealthBarMax(vitality, multiplier = 4) {
+    const mult = Math.max(4, Math.floor(Number(multiplier) || 4));
+    return Math.max(0, Math.floor(Number(vitality) || 0)) * mult;
 }
 /** A Health Bar with boxes remaining is open; current 0 on a real bar is Scarred. */
 export function isHealthBarScarred(bar) {

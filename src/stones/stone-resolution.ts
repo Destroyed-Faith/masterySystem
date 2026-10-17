@@ -94,13 +94,11 @@ export type StoneResolutionKind = 'passive' | 'automatic' | 'interactive';
  */
 const INTERACTIVE_STONE_POWER_IDS = new Set<string>([
   'resolve.healing',
-  'resolve.stressHealing',
   'agility.safeMovement',
-  'influence.aidRoll',
-  'influence.regeneration',
-  'influence.passiveSwap',
+  'influence.cleanse',
   'influence.notATarget',
-  'wits.readIntent',
+  'wits.reactionDenial',
+  'wits.movementReduction',
 ]);
 
 export type StoneResolutionStatus = 'pending' | 'resolved';

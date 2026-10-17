@@ -55,12 +55,15 @@ describe('Rules v0.9.8 catalog alignment samples', () => {
     expect(levels['16']?.mechanics?.critical).toBe(4);
   });
 
-  it('Summon Armor Aura uses banded radii 8/16/24/32', () => {
+  it('Summon Armor Aura uses the printed 8–40 m radii', () => {
     const aura = ACTIVE_BUFF_TEMPLATES.find((t) => t.templateId === 'ab-summon-armor-aura');
     expect(aura).toBeTruthy();
     const levels = aura!.levels as Record<string, any>;
     expect(String(levels['1']?.effect?.text || '')).toMatch(/8 m/);
+    expect(String(levels['2']?.effect?.text || '')).toMatch(/10 m/);
     expect(String(levels['5']?.effect?.text || '')).toMatch(/16 m/);
-    expect(String(levels['16']?.effect?.text || '')).toMatch(/32 m/);
+    expect(String(levels['16']?.effect?.text || '')).toMatch(/40 m/);
+    expect(levels['16']?.mechanics?.summonArmorAura?.armor).toBe(32);
+    expect(levels['16']?.mechanics?.summonArmorAura?.radiusM).toBe(40);
   });
 });

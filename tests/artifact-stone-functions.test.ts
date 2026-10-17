@@ -72,9 +72,9 @@ describe('Artifact Stone Function aggregator — multiple functions per artifact
     const pool = records.find((r) => r.kind === 'stonePool');
     const support = records.find((r) => r.kind === 'stonePowerSupport');
     expect(pool?.attribute).toBe('wits');
-    expect(support?.stonePowerId).toBe('influence.regeneration');
+    expect(support?.stonePowerId).toBe('influence.colorlessRecovery');
     // Regeneration support pre-fills Tier 3 at level 6.
-    expect(getArtifactStoneSupportPrefill(actor, 'influence.regeneration', 'influence')).toBe(3);
+    expect(getArtifactStoneSupportPrefill(actor, 'influence.colorlessRecovery', 'influence')).toBe(3);
   });
 
   it('Titan Scars supports Might Melee Damage and Vitality Remove Scar', () => {

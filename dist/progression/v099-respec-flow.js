@@ -62,12 +62,29 @@ export function isColorlessSlot(choice) {
     const value = choice == null ? '' : String(choice);
     return value === 'colorless' || value.startsWith('colorless#');
 }
+/**
+ * Old saves stored one Permanent Colorless Stone as two linked boxes (`colorless#a-b`).
+ * The current rule is 1:1, so the second box is released.
+ */
+export function normalizeColorlessSlotOrder(order) {
+    const seen = new Set();
+    return order.map((raw) => {
+        const choice = raw == null ? '' : String(raw);
+        if (!choice.startsWith('colorless#'))
+            return raw == null || raw === '' ? null : String(raw);
+        if (seen.has(choice))
+            return null;
+        seen.add(choice);
+        return 'colorless';
+    });
+}
 export function stoneSlotProgress(order) {
+    const normalized = normalizeColorlessSlotOrder(order);
     const assignments = emptyAssignments();
-    let colorlessBoxes = 0;
+    let colorless = 0;
     let filled = 0;
     const openIndexes = [];
-    order.forEach((raw, index) => {
+    normalized.forEach((raw, index) => {
         const choice = raw == null ? '' : String(raw);
         if (!choice) {
             openIndexes.push(index);
@@ -75,26 +92,35 @@ export function stoneSlotProgress(order) {
         }
         filled += 1;
         if (isColorlessSlot(choice)) {
-            colorlessBoxes += 1;
+            colorless += 1;
             return;
         }
         if (ATTRIBUTE_KEYS.includes(choice)) {
             assignments[choice] += 1;
         }
     });
-    return { assignments, colorless: Math.floor(colorlessBoxes / 2), filled, openIndexes };
+    return { assignments, colorless, filled, openIndexes };
 }
-/** A finished slot list: every box filled, Colorless boxes in pairs. */
+/** A finished slot list: every box filled. Colorless is 1:1 and cannot use a starting Stone. */
 export function tallyStoneSlotOrder(order) {
+    const normalized = normalizeColorlessSlotOrder(order);
     const assignments = emptyAssignments();
-    const pairs = new Map();
-    for (const raw of order) {
-        const choice = raw == null ? '' : String(raw);
+    let colorless = 0;
+    for (let index = 0; index < normalized.length; index += 1) {
+        const choice = normalized[index] == null ? '' : String(normalized[index]);
         if (!choice) {
             return { ok: false, reason: 'Assign every unlocked Stone first.', assignments, colorless: 0 };
         }
         if (isColorlessSlot(choice)) {
-            pairs.set(choice, (pairs.get(choice) ?? 0) + 1);
+            if (index < 2) {
+                return {
+                    ok: false,
+                    reason: 'The 2 starting Stones stay Attribute Stones.',
+                    assignments,
+                    colorless: 0,
+                };
+            }
+            colorless += 1;
             continue;
         }
         if (!ATTRIBUTE_KEYS.includes(choice)) {
@@ -102,21 +128,9 @@ export function tallyStoneSlotOrder(order) {
         }
         assignments[choice] += 1;
     }
-    let colorless = 0;
-    for (const count of pairs.values()) {
-        if (count !== 2) {
-            return {
-                ok: false,
-                reason: 'Permanent Colorless Stones use two boxes each.',
-                assignments,
-                colorless: 0,
-            };
-        }
-        colorless += 1;
-    }
     return { ok: true, assignments, colorless };
 }
-export function stonePlacementOptions(order, storedRank = 1, lifetimeXp) {
+export function stonePlacementOptions(order, storedRank = 1, lifetimeXp, slotIndex) {
     const progress = stoneSlotProgress(order);
     const total = order.length;
     const attributes = ATTRIBUTE_KEYS.filter((key) => canPlacePermanentStone({
@@ -127,6 +141,7 @@ export function stonePlacementOptions(order, storedRank = 1, lifetimeXp) {
         permanentColorless: progress.colorless,
         lifetimeXp,
     }).ok);
+    const starting = slotIndex != null && slotIndex < 2;
     const convert = canConvertToPermanentColorless({
         assignments: progress.assignments,
         totalPermanent: total,
@@ -134,12 +149,11 @@ export function stonePlacementOptions(order, storedRank = 1, lifetimeXp) {
         storedRank,
         lifetimeXp,
     });
-    const anotherOpen = progress.openIndexes.length >= 2;
     return {
         attributes,
-        colorless: convert.ok && anotherOpen,
-        colorlessReason: !anotherOpen
-            ? 'Combining into a Permanent Colorless Stone needs a second open box.'
+        colorless: convert.ok && !starting,
+        colorlessReason: starting
+            ? 'The 2 starting Stones stay Attribute Stones.'
             : convert.reason || '',
     };
 }
@@ -155,7 +169,7 @@ export function stoneOrderForActor(system, lifetimeXp) {
         });
         while (next.length < total)
             next.push(null);
-        return next;
+        return normalizeColorlessSlotOrder(next);
     }
     const span = Math.max(20, Math.ceil(Math.max(0, lifetimeXp) / 20) * 20);
     return buildStoneProgressionSlots(lifetimeXp, readAssignments(system), span, permanentColorlessCount(system))
@@ -205,15 +219,24 @@ export function stoneOrderActorUpdate(system, order) {
     }
     return updates;
 }
-/** Drop one box. A Permanent Colorless pair drops both boxes. */
+/** Drop one box. A legacy Colorless pair still drops both boxes, because they were one Stone. */
 export function releaseStoneSlot(order, index) {
-    const next = order.map((entry) => (entry == null || entry === '' ? null : String(entry)));
+    const raw = order.map((entry) => (entry == null || entry === '' ? null : String(entry)));
+    const current = index >= 0 && index < raw.length ? raw[index] : null;
+    if (current && current.startsWith('colorless#')) {
+        for (let i = 0; i < raw.length; i += 1) {
+            if (raw[i] === current)
+                raw[i] = null;
+        }
+        return raw;
+    }
+    const next = normalizeColorlessSlotOrder(raw);
     if (index < 0 || index >= next.length)
         return next;
-    const current = next[index];
-    if (isColorlessSlot(current)) {
+    const chosen = next[index];
+    if (isColorlessSlot(chosen)) {
         for (let i = 0; i < next.length; i += 1) {
-            if (next[i] === current)
+            if (next[i] === chosen)
                 next[i] = null;
         }
     }

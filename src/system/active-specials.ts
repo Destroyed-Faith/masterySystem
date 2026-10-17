@@ -10,6 +10,7 @@
 
 import { getEffect, getEffectById, canonicalSpecialId } from '../utils/special-effects.js';
 import { tokenDocOfActor } from './status-target.js';
+import { specialAuraEffectiveStep } from '../combat/aura-modifiers.js';
 
 export interface ActiveSpecial {
   id: string;
@@ -169,7 +170,8 @@ export function getActiveSpecialValue(actor: any, id: string): number {
   for (const s of readActiveSpecials(actor)) {
     if (s.id === id) total += s.value;
   }
-  return total;
+  if (total <= 0) return total;
+  return total + specialAuraEffectiveStep(actor, id);
 }
 
 /**

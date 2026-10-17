@@ -291,7 +291,14 @@ export async function runMasteryCombatRoundAdvancePipeline(
 
   for (const combatant of combat.combatants) {
     const actor = combatant.actor;
-    if (actor) await resetRoundState(actor, combatant, combat);
+    if (!actor) continue;
+    try {
+      const { releaseAbsorptionStonesForPreparation } = await import('../stones/colorless-stones.js');
+      await releaseAbsorptionStonesForPreparation(actor, combat);
+    } catch (err) {
+      console.warn('Mastery System | Absorption stone release failed', err);
+    }
+    await resetRoundState(actor, combatant, combat);
   }
   await regenStonesEndOfRound(combat);
   if (combat.started) {

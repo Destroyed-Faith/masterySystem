@@ -1376,14 +1376,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 lifetimeLabel: lifetimeXp == null ? '—' : String(lifetimeXp),
                 lifetimeXp,
                 permanentStones: stones,
-                unassigned: Math.max(0, stones - assigned - 2 * colorless),
+                unassigned: Math.max(0, stones - assigned - colorless),
                 permanentColorless: colorless,
-                permanentColorlessCap: permanentColorlessCap(concentrationCap / 2),
+                permanentColorlessCap: permanentColorlessCap(stones),
                 concentrationCap,
                 stoneSummary: lifetimeXp == null
                     ? 'Enter Lifetime XP during the v0.9.9 migration.'
                     : `${assigned}/${stones} Stones assigned` +
-                        (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(concentrationCap / 2)})` : '') +
+                        (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(stones)})` : '') +
                         ` · max ${concentrationCap} per Attribute`,
                 slots,
                 rows: chunkLifetimeSlots(slots, Math.max(1, slots.length)),
@@ -4051,10 +4051,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const actorData = this.actor.system;
         let numDice = actorData.attributes?.[attribute]?.value || 0;
-        const keepDice = getRulesMasteryRank(this.actor);
-        // Players Guide minimum-pool rule (~5888–5899) — apply *before* the
-        // health penalty so the percentage scales with the post-floor pool.
-        numDice = Math.max(numDice, keepDice);
+        let keepDice = getRulesMasteryRank(this.actor);
+        if (numDice > 0 && keepDice > numDice)
+            keepDice = numDice;
         const { applyHealthAndEncumbrancePenalties } = await import('../utils/encumbrance.js');
         const poolPenalties = applyHealthAndEncumbrancePenalties(numDice, this.actor);
         numDice = poolPenalties.numDice;
@@ -4064,18 +4063,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             flavor += ` (Health penalty: −${poolPenalties.healthPenaltyDice} dice)`;
         }
         const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
-        let stoneBonusRaises = 0;
-        try {
-            const { getRoundState } = await import('../combat/action-economy.js');
-            const combat = game.combat;
-            if (combat) {
-                const rs = getRoundState(this.actor, combat);
-                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
-            }
-        }
-        catch {
-            /* ignore */
-        }
+        const stoneBonusRaises = Math.max(0, Math.floor(Number(rollOptions.freeRaises) || 0));
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
             numDice,
@@ -4101,6 +4089,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
         const standardTN = standardTnForMasteryRank(masteryRank);
+        const { freeRaisePool } = await import('../combat/action-economy.js');
+        const freePool = freeRaisePool(this.actor);
         const contestOpponents = listContestOpponents(this.actor);
         const contestSection = isContestAttributeKey(attributeKey)
             ? buildContestSectionHtml(this.actor, { fixedAttribute: attributeKey, opponents: contestOpponents })
@@ -4153,6 +4143,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             · Raise TN: <strong><span id="attr-final-tn-display">${difficulties.standard}</span></strong>
           </div>
         </div>
+        <div class="md-group ms-check-only">
+          <label class="md-label">Free Raises <span class="md-sublabel">(no TN, no Raise Cost, ${freePool} left this Round)</span></label>
+          <input type="number" name="freeRaises" value="0" min="0" max="${freePool}" step="1" class="md-input" ${freePool > 0 ? '' : 'disabled'} />
+        </div>
         ${contestSection}
       </form>
     `;
@@ -4170,6 +4164,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                                     mode: 'contest',
                                     baseTN: 0,
                                     raises: 0,
+                                    freeRaises: 0,
                                     finalTN: 0,
                                     ...(contest ? { contest } : {}),
                                     contestOpponents,
@@ -4185,8 +4180,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                                 baseTN = parseInt(baseTNSelect) || difficulties.standard;
                             }
                             const raises = parseInt(html.find('[name="raises"]').val()) || 0;
+                            const freeRaises = Math.max(0, Math.min(freePool, parseInt(html.find('[name="freeRaises"]').val()) || 0));
                             const finalTN = baseTN + raises * 4;
-                            resolve({ mode: 'check', baseTN, raises, finalTN });
+                            resolve({ mode: 'check', baseTN, raises, freeRaises, finalTN });
                         }
                     },
                     cancel: {
@@ -4293,18 +4289,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             .map((n) => ` ${n}.`)
             .join('');
         const raiseTn = rollOptions.baseTN + rollOptions.raises * 4;
-        let stoneBonusRaises = 0;
-        try {
-            const { getRoundState } = await import('../combat/action-economy.js');
-            const combat = game.combat;
-            if (combat) {
-                const rs = getRoundState(this.actor, combat);
-                stoneBonusRaises = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
-            }
-        }
-        catch {
-            /* ignore */
-        }
+        const stoneBonusRaises = Math.max(0, Math.floor(Number(rollOptions.freeRaises) || 0));
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
             numDice,
@@ -4338,6 +4323,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute, opts) {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
+        const { freeRaisePool } = await import('../combat/action-economy.js');
+        const freePool = freeRaisePool(this.actor);
         // Echo card rolls (marginOnly) stay pure Skill Checks.
         const allowContest = !opts?.marginOnly;
         const contestOpponents = allowContest ? listContestOpponents(this.actor) : [];
@@ -4458,6 +4445,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             · Raise TN: <strong><span id="final-tn-display">${difficulties.standard}</span></strong>
           </div>
         </div>`}
+        <div class="md-group">
+          <label class="md-label">Free Raises <span class="md-sublabel">(no TN, no Raise Cost, ${freePool} left this Round)</span></label>
+          <input type="number" name="freeRaises" value="0" min="0" max="${freePool}" step="1" class="md-input" ${freePool > 0 ? '' : 'disabled'} />
+        </div>
         </div>
         ${skillContestSection}
       </form>
@@ -4477,6 +4468,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                                     attributeKey: contest?.attributeKey ?? defaultAttribute,
                                     baseTN: 0,
                                     raises: 0,
+                                    freeRaises: 0,
                                     finalTN: 0,
                                     ...(contest ? { contest } : {}),
                                     contestOpponents,
@@ -4498,12 +4490,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             const raises = marginOnly
                                 ? 0
                                 : parseInt(html.find('[name="raises"]').val()) || 0;
+                            const freeRaises = Math.max(0, Math.min(freePool, parseInt(html.find('[name="freeRaises"]').val()) || 0));
                             const finalTN = baseTN + raises * 4;
                             resolve({
                                 mode: 'check',
                                 attributeKey,
                                 baseTN,
                                 raises,
+                                freeRaises,
                                 finalTN,
                             });
                         }
@@ -6499,7 +6493,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (filled && !redistribute)
             return;
         const base = filled ? releaseStoneSlot(order, index) : order.slice();
-        const options = stonePlacementOptions(base, rank, lifetime);
+        const options = stonePlacementOptions(base, rank, lifetime, index);
         const progress = stoneSlotProgress(base);
         const gmCombine = redistribute && base.length >= 2;
         if (!filled && !options.attributes.length && !options.colorless && !gmCombine) {
@@ -6511,9 +6505,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             attributeChoices: options.attributes,
             counts: progress.assignments,
             colorless: options.colorless || gmCombine,
-            colorlessHint: gmCombine
-                ? 'Zwei Felder werden ein Permanent Colorless Stone. Das zweite Feld darf belegt sein.'
-                : options.colorlessReason,
+            colorlessHint: options.colorlessReason,
             allowClear: filled,
             partners: (gmCombine
                 ? base.map((_, i) => i)
@@ -6534,12 +6526,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         else if (choice.kind === 'attribute' && choice.key) {
             next[index] = choice.key;
         }
-        else if (choice.kind === 'colorless' && choice.otherIndex != null && choice.otherIndex !== index) {
-            next = releaseStoneSlot(next, choice.otherIndex);
-            next[index] = null;
-            const pair = `colorless#${index}-${choice.otherIndex}`;
-            next[index] = pair;
-            next[choice.otherIndex] = pair;
+        else if (choice.kind === 'colorless' && index >= 2) {
+            next[index] = 'colorless';
         }
         else
             return;

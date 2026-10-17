@@ -12,7 +12,8 @@ import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, getAvailableActiveBuffActions, markActiveBuffUsedThisRound, spendMovementPowerAction, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, getAvailableActiveBuffActions, markActiveBuffUsedThisRound, isNormalMovementReplaced, refundAttackAction, markPowerUsedThisRound, markNpcAttackUsedThisRound, canUseNpcAttackThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { movementMetersAfterStoneEffects } from './stones/stone-combat-effects.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
 import { highlightHexesInRange, highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
@@ -103,25 +104,47 @@ export function initializeTokenActionSelector() {
         targetCol.append(actionIcon);
     });
     // Hook into token updates to intercept movement
-    Hooks.on('preUpdateToken', async (tokenDoc, change, _options, userId) => {
+    Hooks.on('preUpdateToken', async (tokenDoc, change, options, userId) => {
         // Only react to position changes
         if (change.x === undefined && change.y === undefined) {
             return;
+        }
+        const combat = game.combat;
+        const guidedActive = !!activeMovementState &&
+            String(activeMovementState.token?.document?.id || activeMovementState.token?.id || '') ===
+                String(tokenDoc.id);
+        const action = tokenDoc.getFlag('mastery-system', 'currentAction') || {};
+        const traversal = String(tokenDoc.getFlag('mastery-system', 'movementTraversal') || '');
+        const { gateTokenMovementUpdate } = await import('./combat/token-move-gate.js');
+        const gate = gateTokenMovementUpdate({
+            change,
+            options,
+            isLocalUser: userId === game.user.id,
+            combatStarted: !!(combat && combat.started === true),
+            guidedActive,
+            currentAction: action,
+            traversal,
+        });
+        if (!gate.allow) {
+            ui.notifications?.warn?.(gate.reason);
+            return false;
         }
         // Only for the user performing the move
         if (userId !== game.user.id) {
             return;
         }
         // Out of combat: free movement, no Movement-action gate / warning.
-        const combat = game.combat;
         if (!combat || combat.started !== true) {
             return;
         }
-        // If guided movement is active, allow the movement (it's already validated)
-        if (activeMovementState && activeMovementState.token.document.id === tokenDoc.id) {
-            return; // Allow movement
+        // Authorized guided / resolver writes skip the HUD action gate and cap here.
+        const { isMasteryAuthorizedMove } = await import('./combat/token-move-gate.js');
+        if (isMasteryAuthorizedMove(options)) {
+            return;
         }
-        const action = tokenDoc.getFlag('mastery-system', 'currentAction') || {};
+        if (traversal === 'forced' || traversal === 'reaction') {
+            return;
+        }
         // If nothing is selected, block movement
         if (!action.category || !action.optionId) {
             ui.notifications.warn('Bitte zuerst im Token-HUD eine Movement-Aktion wählen.');
@@ -132,8 +155,8 @@ export function initializeTokenActionSelector() {
             ui.notifications.warn('Du hast aktuell keine Movement-Aktion gewählt.');
             return false;
         }
-        // At this point, movement is allowed
-        // The flag will be cleared after successful movement in the updateToken hook
+        const { applyMovementCapToTokenChange } = await import('./combat/movement-allowance.js');
+        applyMovementCapToTokenChange(tokenDoc, change, combat);
         return;
     });
     // Hook into token updates to clear flag after successful movement
@@ -356,10 +379,10 @@ function getDefaultMovementRange(token, option) {
     const combat = game.combat ?? null;
     const bonusM = actor ? getMovementRangeBonusMeters(actor, combat) : 0;
     if (actor?.system?.combat?.speed) {
-        return actor.system.combat.speed + bonusM;
+        return movementMetersAfterStoneEffects(actor, actor.system.combat.speed + bonusM);
     }
     // Default fallback
-    return 6 + bonusM; // Default movement in meters
+    return movementMetersAfterStoneEffects(actor, 6 + bonusM);
 }
 /**
  * Start guided movement mode for a token
@@ -536,6 +559,17 @@ function handleMovementPointerDown(ev, state) {
 /**
  * Attempt to commit movement to a destination
  */
+function movementTraversalKind(option) {
+    const id = String(option?.movementTemplateId || option?.id || option?.templateId || '').toLowerCase();
+    const name = String(option?.name || '').toLowerCase();
+    if (id.includes('teleport') || name.includes('teleport') || option?.tags?.includes('teleport'))
+        return 'teleport';
+    if (id === 'disengage' || name.includes('disengage'))
+        return 'disengage';
+    if (id.includes('safe-movement') || name.includes('safe movement'))
+        return 'safe';
+    return 'path';
+}
 async function attemptCommitMovement(destX, destY, state) {
     const origin = state.origin;
     const token = state.token;
@@ -574,8 +608,61 @@ async function attemptCommitMovement(destX, destY, state) {
         metersUsed = d;
     }
     try {
-        await token.document.update({ x: destTL.x, y: destTL.y }, { animate: true });
-        // Movement action was already spent when the option started.
+        const templateId = String(state.option.movementTemplateId || state.option.item?.system?.templateId || '');
+        if (state.option.source === 'power' && state.option.powerType === 'movement' && templateId) {
+            const { executeMovementPower, resolveTeleportAllyForGuidedMove } = await import('./combat/movement-powers.js');
+            const level = Number(state.option.item?.system?.level) || 1;
+            const placeables = canvas.tokens?.placeables ?? [];
+            let ally;
+            if (templateId === 'movement-teleport-with-ally') {
+                const picked = await resolveTeleportAllyForGuidedMove({
+                    mover: token.document ?? token,
+                    dest: { x: destTL.x, y: destTL.y },
+                    tokens: placeables,
+                });
+                if (!picked) {
+                    ui.notifications?.warn('Teleport with Ally needs a willing ally within 2 m.');
+                    return;
+                }
+                ally = picked;
+            }
+            const result = await executeMovementPower({
+                token: token.document ?? token,
+                templateId,
+                level,
+                dest: { x: destTL.x, y: destTL.y },
+                tokens: placeables,
+                ally,
+            });
+            if (!result.ok) {
+                ui.notifications?.warn(result.reason || 'Movement Power was not completed.');
+                return;
+            }
+            state.movedOnce = true;
+            state.origin = getTokenHexCenter(token);
+            if (movementBudgetExhausted(state.budget))
+                endGuidedMovement(true);
+            else {
+                paintStaticMovementRange(state);
+                notifyGuidedMovementChanged();
+            }
+            return;
+        }
+        const moveId = String(state.option.maneuver?.id || state.option.id || '');
+        if (moveId === 'flee' && !state.fleeCommitted) {
+            const { commitFlee } = await import('./combat/flee.js');
+            const fled = await commitFlee(token.actor, globalThis.game?.combat ?? null);
+            if (!fled.ok) {
+                ui.notifications?.warn(fled.reason || 'Flee was not completed.');
+                return;
+            }
+            state.fleeCommitted = true;
+        }
+        const traversal = moveId === 'flee' ? 'path' : movementTraversalKind(state.option);
+        await token.document.setFlag?.('mastery-system', 'movementTraversal', traversal);
+        const { MASTERY_AUTHORIZED_MOVE } = await import('./combat/token-move-gate.js');
+        await token.document.update({ x: destTL.x, y: destTL.y }, { animate: true, [MASTERY_AUTHORIZED_MOVE]: true });
+        // Movement action was already spent when the option started (except Flee, which commits above).
         if (stepsUsed > 0) {
             state.budget = spendMovementSteps(state.budget, stepsUsed);
         }
@@ -834,25 +921,37 @@ export async function handleChosenCombatOption(token, option) {
     // Check and consume movement action if needed
     if (option.costsMovement) {
         const isMovementPower = option.source === 'power' && option.powerType === 'movement';
+        if (isMovementPower && option.disabled) {
+            ui.notifications?.warn('This Movement Power has no effect at its current Power Level.');
+            return;
+        }
         if (!isMovementPower && isNormalMovementReplaced(actor, combat)) {
             ui.notifications?.warn('A Movement Power already replaced your normal Movement this round.');
             return;
+        }
+        const moveId = String(option.maneuver?.id || option.id || '');
+        if (moveId === 'flee') {
+            const { canDeclareFlee } = await import('./combat/flee.js');
+            const check = canDeclareFlee(actor, combat);
+            if (!check.ok) {
+                ui.notifications?.warn(check.reason || 'Flee is not available.');
+                return;
+            }
         }
         const available = getAvailableMovementActions(actor, combat);
         if (available <= 0) {
             ui.notifications?.warn('No Movement actions left this round.');
             return; // Menu stays open
         }
-        const consumed = isMovementPower
-            ? await spendMovementPowerAction(actor, combat)
-            : await consumeMovementAction(actor, combat);
-        if (!consumed) {
-            ui.notifications?.warn('Failed to consume movement action.');
-            return;
+        if (!isMovementPower && moveId !== 'flee') {
+            const consumed = await consumeMovementAction(actor, combat);
+            if (!consumed) {
+                ui.notifications?.warn('Failed to consume movement action.');
+                return;
+            }
         }
-        // Dash / Disengage / Flee side-effects
-        const moveId = String(option.maneuver?.id || option.id || '');
-        if (moveId === 'dash' || moveId === 'disengage' || moveId === 'flee') {
+        // Dash / Disengage side-effects. Flee spends and locks only after the move commits.
+        if (moveId === 'dash' || moveId === 'disengage') {
             try {
                 const { applyBasicMovementManeuverFlags } = await import('./combat/action-economy.js');
                 await applyBasicMovementManeuverFlags(actor, combat, moveId);

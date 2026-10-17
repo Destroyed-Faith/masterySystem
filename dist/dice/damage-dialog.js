@@ -14,6 +14,9 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { applySpecialBoostToLabel, readSpecialBoost } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
+import { applyLimitedToTransferPowerDamage, martialWeaponDamageApplies, settleDamageTransfer, } from '../combat/damage-transfer.js';
+import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
+import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
 import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice, listActorSpellFocusSources } from '../utils/artifact-base-values.js';
@@ -334,6 +337,12 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     // Resolve weapon with priority: forced > active Weapon Set > weaponId > equipped scan > unarmed
     let weaponForDamage = null;
     const attackTypeForWeapon = flags?.attackType === 'ranged' ? 'ranged' : 'melee';
+    const weaponDelivery = !isNpcAttackFlow &&
+        martialWeaponDamageApplies({
+            ignoreWeaponDamage: flags?.ignoreWeaponDamage === true,
+            powerIsSpell: flags?.powerIsSpell === true,
+            npcIsSpell: flags?.npcIsSpell === true,
+        });
     // Method 0: Forced weapon (artifact / natural weapon attack) — this attack
     // always rolls that weapon's dice, regardless of what else is equipped and
     // regardless of attack type (a melee artifact weapon also backs the
@@ -351,7 +360,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     }
     // Method 1: Active Weapon Set (Claws / Tails / set main-hand) — must beat a
     // stale weaponId or leftover equipped conventional 1d8 item.
-    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage && actorToUse) {
+    if (weaponDelivery && !weaponForDamage && actorToUse) {
         weaponForDamage = resolveEquippedWeaponForAttackType(items, attackTypeForWeapon, actorToUse);
     }
     // Method 2: weaponId from the attack card (when set resolution found nothing)
@@ -385,18 +394,18 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
     // Method 3: Virtual unarmed when no equipped weapon (melee only)
-    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && !weaponForDamage) {
+    if (weaponDelivery && !weaponForDamage) {
         weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, attackTypeForWeapon);
     }
-    if (flags?.ignoreWeaponDamage) {
+    if (!weaponDelivery) {
         weaponForDamage = null;
     }
     // Resolve base damage using helper (returns string directly)
-    let baseDamage = isNpcAttackFlow || flags?.ignoreWeaponDamage ? '0' : resolveWeaponBaseDamage(weaponForDamage);
+    let baseDamage = weaponDelivery ? resolveWeaponBaseDamage(weaponForDamage) : '0';
     // Weapon properties (PG "Weapon Properties"):
     //   Versatile — +2d8 weapon damage while wielded two-handed.
     //   Set — +1d8 weapon damage when the wielder did not move this round.
-    if (!isNpcAttackFlow && !flags?.ignoreWeaponDamage && weaponForDamage) {
+    if (weaponDelivery && weaponForDamage) {
         try {
             const { versatileBonusDice, setBonusDice } = await import('../utils/weapon-properties.js');
             const versatile = versatileBonusDice(weaponForDamage);
@@ -413,7 +422,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     // Sanitize base damage before use
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
     // Weapon specials should come from the same resolved weapon (only once)
-    const weaponSpecials = isNpcAttackFlow || flags?.ignoreWeaponDamage
+    const weaponSpecials = !weaponDelivery
         ? []
         : (weaponForDamage?.system?.specials ?? [])
             .map(normalizeWeaponSpecial)
@@ -515,6 +524,10 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 }
                 powerSpecials = powerSystem.specials || [];
             }
+            powerDamage = applyLimitedToTransferPowerDamage(powerDamage, {
+                damageTransfer: flags?.damageTransfer === true || levelData?.mechanics?.damageTransfer === true,
+                limited: flags?.limited === true || powerSystem?.limited === true,
+            });
             selectedPowerData = {
                 id: selectedPower.id,
                 name: selectedPower.name,
@@ -1191,8 +1204,9 @@ async function consumeTargetMark(target, spend) {
     }
 }
 /**
- * Ward total on the defender: Passive `wardIncoming` + Stone Ward (`tempWard`)
- * + Stone `incomingSpecialReduction`. Applied per incoming hostile Special.
+ * Ward total on the defender: Passive `wardIncoming` plus the Stone
+ * Special Negation. `tempWard` and `incomingSpecialReduction` store the
+ * same grant, so the higher one counts once.
  */
 export function getIncomingWardTotal(target) {
     if (!target)
@@ -1201,8 +1215,8 @@ export function getIncomingWardTotal(target) {
     try {
         const combat = globalThis.game?.combat ?? null;
         const sb = getRoundState(target, combat)?.stoneBonuses;
-        ward += Math.max(0, Math.floor(Number(sb?.tempWard ?? 0) || 0));
-        ward += Math.max(0, Math.floor(Number(sb?.incomingSpecialReduction ?? 0) || 0));
+        const stoneWard = Math.max(Math.max(0, Math.floor(Number(sb?.tempWard ?? 0) || 0)), Math.max(0, Math.floor(Number(sb?.incomingSpecialReduction ?? 0) || 0)));
+        ward += stoneWard;
     }
     catch {
         /* no combat state — stones contribute 0 */
@@ -1230,7 +1244,7 @@ export function getIncomingWardTotal(target) {
  * Ward — reduces every eligible hostile Special(X). `value: null` means fully
  * blocked. Positive effects (e.g. Regeneration) pass through unchanged.
  */
-function applyWardToIncomingSpecial(target, effectId, effectName, effectValue) {
+export function applyWardToIncomingSpecial(target, effectId, effectName, effectValue) {
     if (effectValue == null)
         return { value: effectValue, ward: 0, before: effectValue };
     const id = String(effectId || effectName || '').toLowerCase();
@@ -1285,6 +1299,11 @@ async function applyStatusEffectsToTarget(target, specialsUsed, attacker) {
                     const { hasActiveSpecial } = await import('../system/active-specials.js');
                     if (hasActiveSpecial(target, 'immovable')) {
                         limitNotes.push(`${target.name} is Immovable — Prone has no effect.`);
+                        continue;
+                    }
+                    const { growthFormBlocksProne } = await import('../combat/growth-form.js');
+                    if (growthFormBlocksProne(target, attacker)) {
+                        limitNotes.push(`${target.name} Growth Form — Prone has no effect.`);
                         continue;
                     }
                 }
@@ -1415,7 +1434,21 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         breakdownLine: '',
         phased: false,
     };
+    const transferEnabled = attackContext?.damageTransfer === true && attackContext?.attackSucceeded !== false;
+    const finishTransfer = async (realHpLost) => {
+        if (!transferEnabled)
+            return 0;
+        return settleDamageTransfer({
+            enabled: true,
+            attacker,
+            realHpLost,
+            instanceId: attackContext?.damageInstanceId,
+        });
+    };
     try {
+        if (attackContext?.attackSucceeded === false) {
+            return { ...empty, breakdownLine: 'Miss — no damage', transferHealing: 0 };
+        }
         // Step 0: Phasing — opt-in prompt for the target owner. If consumed, the
         // strike inflicts no damage and skips all riders (the caller in the attack
         // pipeline is responsible for skipping on-hit specials when phased).
@@ -1431,6 +1464,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                     return {
                         ...empty,
                         phased: true,
+                        transferHealing: await finishTransfer(0),
                         breakdownLine: `Raw ${empty.rawDamage} → Phased (ignored)`,
                     };
                 }
@@ -1511,6 +1545,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                     ...empty,
                     negatedByEvade: true,
                     phased: !!reactMit.phasedByReaction,
+                    transferHealing: await finishTransfer(0),
                     breakdownLine: line,
                 };
             }
@@ -1535,7 +1570,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                 hasBars: !!(system.health && system.health.bars),
                 barsLength: system.health?.bars?.length || 0
             });
-            return empty;
+            return { ...empty, transferHealing: await finishTransfer(0) };
         }
         // Snapshot pre-hit wound track so blood FX can distinguish chip vs level loss.
         const oldBarIndex = Math.max(0, Math.floor(Number(system.health.currentBar) || 0));
@@ -1543,7 +1578,9 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             current: Number(b?.current) || 0,
         }));
         // Step 1: Flat Armor + Guard/reaction Armor + percentage DR + 8s-min floor.
-        const baseArmorTotal = Number(system.combat?.armorTotal ?? 0) + Number(system.combat?.armorFromActiveBuffs ?? 0);
+        const baseArmorTotal = Number(system.combat?.armorTotal ?? 0) +
+            Number(system.combat?.armorFromActiveBuffs ?? 0) +
+            summonArmorAuraBonus(target);
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
             count8s,
@@ -1786,8 +1823,29 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         // resolves, eligible actual HP loss may generate Temporary Colorless Stones.
         if (barDamage > 0) {
             try {
-                const { accumulateAbsorbedDamage } = await import('../combat/absorption.js');
-                await accumulateAbsorbedDamage(target, barDamage, attacker);
+                const { breakOrdinaryStealth } = await import('../combat/perception-combat-hooks.js');
+                await breakOrdinaryStealth(target, 'damage');
+            }
+            catch {
+                /* stealth break is best-effort */
+            }
+            try {
+                let scars = 0;
+                const before = barsBefore;
+                const after = barsAfter;
+                const n = Math.min(before.length, after.length);
+                for (let i = 0; i < n; i++) {
+                    if (i === n - 1 && n > 1)
+                        continue;
+                    const wasOpen = Math.floor(Number(before[i]?.current) || 0) > 0;
+                    const nowScarred = Math.floor(Number(after[i]?.current) || 0) <= 0;
+                    if (wasOpen && nowScarred)
+                        scars += 1;
+                }
+                if (scars > 0) {
+                    const { grantAbsorptionForScarredBars } = await import('../combat/absorption.js');
+                    await grantAbsorptionForScarredBars(target, scars);
+                }
             }
             catch (absorbErr) {
                 console.debug?.('Mastery System | Absorption harvest skipped', absorbErr);
@@ -1812,6 +1870,8 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
         else {
             tail.push('Bars 0');
         }
+        const realHpLost = hpLostFromHealthUpdate({ barsBefore, barsAfter });
+        const transferHealing = await finishTransfer(realHpLost);
         return {
             rawDamage: mitigation.rawDamage,
             armorApplied: mitigation.armorApplied,
@@ -1823,6 +1883,7 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
             min8sUsed: mitigation.min8sUsed,
             breakdownLine: `${mitigation.breakdownLine} → ${tail.join(' → ')}`,
             phased: false,
+            transferHealing,
         };
     }
     catch (error) {
@@ -2367,7 +2428,7 @@ async function promptMarkSpend(attacker, target, markOnTarget, totalDamage, roll
 /**
  * Calculate damage result from selections
  */
-async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0, npcAutoDamageDice = 0, npcAutoSpecialStrings = [], selectedPowerId = null, splitAttack = false, attackType = 'melee', 
+export async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0, npcAutoDamageDice = 0, npcAutoSpecialStrings = [], selectedPowerId = null, splitAttack = false, attackType = 'melee', 
 /**
  * Offer a Faith Fracture damage reroll after rolling, before applying.
  * The reroll recursion passes `false` — any roll may be rerolled at most once.
@@ -2488,6 +2549,17 @@ skipPhasingPrompt = false) {
     const damageChatRolls = [];
     for (const note of negationNotes)
         rollDetails.push(note);
+    activeDamageMaximized = false;
+    try {
+        const { offerDamageMaximization } = await import('../stones/stone-combat-effects.js');
+        activeDamageMaximized = await offerDamageMaximization(attacker);
+    }
+    catch (err) {
+        console.debug?.('Mastery System | Damage Maximization prompt skipped', err);
+    }
+    if (activeDamageMaximized) {
+        rollDetails.push('Damage Maximization: every d8 is 8 (not a natural 8, does not explode)');
+    }
     const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
     const baseDamageRolled = baseRoll.total;
     if (baseRoll.line)
@@ -2529,6 +2601,16 @@ skipPhasingPrompt = false) {
         rollDetails.push(powerRoll.line);
     if (powerRoll.roll)
         damageChatRolls.push(powerRoll.roll);
+    let summonAuraRolled = 0;
+    const summonAuraDice = summonDamageAuraBonusDice(attacker);
+    if (summonAuraDice > 0) {
+        const auraRoll = await rollDiceWithDetail(`${summonAuraDice}d8`, 'Summon Damage Aura');
+        summonAuraRolled = auraRoll.total;
+        if (auraRoll.line)
+            rollDetails.push(auraRoll.line);
+        if (auraRoll.roll)
+            damageChatRolls.push(auraRoll.roll);
+    }
     const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
     const passiveDamageRolled = passiveRoll.total;
     if (passiveRoll.line)
@@ -2766,6 +2848,7 @@ skipPhasingPrompt = false) {
         + stoneMightDamageRolled
         + mightMeleeBonus
         + powerDamageRolled
+        + summonAuraRolled
         + passiveDamageRolled
         + raiseDamage
         + conditionalDamageRolled
@@ -2847,8 +2930,8 @@ skipPhasingPrompt = false) {
         if (m)
             hitArmorPenetration += Math.max(0, parseInt(m[1], 10) || 0);
     }
-    // Might "Ignore Armor" stones grant melee armor penetration for the round.
-    if (attackType === 'melee' && attacker) {
+    // Armor Reduction ignores Armor on every damaging attack this round.
+    if (attacker) {
         try {
             const combatRef = globalThis.game?.combat ?? null;
             if (combatRef) {
@@ -2981,7 +3064,8 @@ function summarizeRollDiceFaces(roll) {
 /**
  * Roll one damage pool (Foundry v13+: must evaluate asynchronously — sync mode throws for standard dice).
  */
-async function rollDiceWithDetail(diceNotation, label) {
+let activeDamageMaximized = false;
+async function rollDiceWithDetail(diceNotation, label, maximize = activeDamageMaximized) {
     if (!diceNotation || diceNotation === "0") {
         return { total: 0, line: "", roll: null };
     }
@@ -2993,7 +3077,13 @@ async function rollDiceWithDetail(diceNotation, label) {
     if (formula === "0") {
         return { total: 0, line: "", roll: null };
     }
-    formula = masteryApplyExplodingD8(formula);
+    if (maximize) {
+        const { maximizeDamageFormula } = await import('../stones/stone-combat-effects.js');
+        formula = maximizeDamageFormula(formula);
+    }
+    else {
+        formula = masteryApplyExplodingD8(formula);
+    }
     try {
         const RollCtor = globalThis.Roll;
         const roll = new RollCtor(formula);

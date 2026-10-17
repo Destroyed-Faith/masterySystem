@@ -288,27 +288,21 @@ export function applyHealHpAcrossOpenBars(health, rolled) {
     const bars = (Array.isArray(health?.bars) ? health.bars : []).map((b) => ({ ...b }));
     let remaining = Math.max(0, Math.floor(Number(rolled) || 0));
     let restored = 0;
-    // Most severe open bar → healthier (matches damage overflow direction reversed).
-    for (let i = bars.length - 1; i >= 0 && remaining > 0; i -= 1) {
-        const cur = Math.max(0, Math.floor(Number(bars[i]?.current) || 0));
-        const max = Math.max(0, Math.floor(Number(bars[i]?.max) || 0));
-        if (max <= 0 || cur <= 0)
-            continue; // skip empty/scarred & broken max
-        const headroom = Math.max(0, max - cur);
-        if (headroom <= 0)
-            continue;
-        const add = Math.min(headroom, remaining);
-        bars[i] = { ...bars[i], current: cur + add };
-        remaining -= add;
-        restored += add;
+    let currentBar = Math.max(0, Math.min(Math.max(0, bars.length - 1), Math.floor(Number(health?.currentBar) || 0)));
+    const nameOf = (i) => String(bars[i]?.name || '').toLowerCase();
+    const incapacitated = nameOf(currentBar).includes('incapacitat') || currentBar >= 5;
+    if (incapacitated && remaining > 0) {
+        const named = bars.findIndex((b) => String(b?.name || '').toLowerCase().includes('broken'));
+        currentBar = named >= 0 ? named : Math.min(4, bars.length - 1);
     }
-    let currentBar = Math.max(0, Math.min(bars.length - 1, Math.floor(Number(health?.currentBar) || 0)));
-    for (let i = 0; i < bars.length; i += 1) {
-        const cur = Math.max(0, Math.floor(Number(bars[i]?.current) || 0));
-        const max = Math.max(0, Math.floor(Number(bars[i]?.max) || 0));
-        if (max > 0 && cur < max) {
-            currentBar = i;
-            break;
+    const bar = bars[currentBar];
+    if (bar && remaining > 0) {
+        const cur = Math.max(0, Math.floor(Number(bar.current) || 0));
+        const max = Math.max(0, Math.floor(Number(bar.max) || 0));
+        const add = Math.min(Math.max(0, max - cur), remaining);
+        if (add > 0) {
+            bars[currentBar] = { ...bar, current: cur + add };
+            restored += add;
         }
     }
     return { bars, currentBar, restored };

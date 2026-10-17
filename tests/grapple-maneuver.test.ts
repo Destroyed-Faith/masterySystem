@@ -452,8 +452,8 @@ describe('Grapple never carries an attack payload (source contract)', () => {
   it('the rules text no longer grants Pressure damage', () => {
     const guide = src('docs/Rules/players-guide.md');
     expect(guide).not.toMatch(/\*\*Pressure:\*\*/);
-    expect(guide).toMatch(/### Opposed Attribute Contests/);
-    expect(guide).toMatch(/Grapple never deals damage/);
-    expect(guide).toMatch(/Surprise Grapple/);
+    expect(guide).toMatch(/## Opposed Attribute Contests/);
+    expect(guide).toMatch(/Grapple itself never deals damage/);
+    expect(guide).toMatch(/unaware of her, Alaris rolls with \*\*Advantage\*\*/);
   });
 });

@@ -58,7 +58,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Movement
-Version: v0.9.8 (2026-08-01)
+Version: v0.9.9.5 (2026-10-16)
 }}
 
 }}
@@ -96,9 +96,9 @@ Version: v0.9.8 (2026-08-01)
 
 ## Movement Powers
 
-Movement Powers replace your normal Movement for the round.
+Using a Movement Power spends **one Movement** and replaces the distance and movement mode of that Movement. Additional Movements can be used normally, but the same Movement Power cannot be used twice in one Round unless it expressly says otherwise.
 
-They are used to change **how** you move, **where** you can move, or **what kind of path** you may take.
+Movement Powers change **how** you move, **where** you can move, or **what kind of path** you may take.
 
 A Movement Power is not an Attack Action, not an Active Buff, not a Reaction, and not a Special-delivery system.
 
@@ -118,11 +118,11 @@ Foundry must store the technical Power name separately from Power Level and any 
 
 ### Normal Movement Baseline
 
-A normal character can move **8 m** with their normal Movement.
+A normal character can move **8 m** with their normal Movement, unless their Speed is different.
 
-When you use a Movement Power, the listed distance is your **total Movement for that Movement Power**.
+When you use a Movement Power that lists a distance, that distance is your **total Movement for that Movement Power**.
 
-It is not added on top of your normal 8 m Movement unless an entry explicitly says otherwise.
+It is not added on top of your normal Speed unless an entry explicitly says otherwise. **Phase Passage** is the exception to the printed-distance format: use your normal Speed for the total route, with a separate cap on material thickness. Stone **Movement Enhancement** adds to a Movement Power's travel distance as described in the Core; printed PL distance caps do not limit those separate bonuses. Movement Enhancement does not increase the Phase Passage material-thickness limit.
 
 ---
 
@@ -169,9 +169,11 @@ It is an Active Buff, Active Power, or Tree-specific exception.
 
 Movement Powers provoke movement-triggered Reactions normally unless the entry explicitly says otherwise.
 
-Only **Movement: Safe Movement** prevents movement-triggered Reactions by default.
+Only **Movement: Safe Movement** prevents movement-triggered Reactions by default among Movement Powers; the **Agility: Safe Movement** Stone Ability and **Disengage** prevent them for their protected movement as described in the Core. A movement protected from Reactions still triggers **Lacerate** if it changes position.
 
-Teleport does not provoke movement-triggered Reactions through the intervening path because it does not move through those spaces.
+A creature's **Threat Zone** is the area within its current **Melee Reach**, measured from the edge of its occupied Hex footprint. An enemy Threat Zone is triggered when a creature enters or leaves its boundary without Safe Movement or Disengage. This includes Teleport **at its departure and destination when they cross a Threat Zone boundary**. Teleport does not provoke through intervening spaces because it does not traverse them. Entry resolves after arrival in the Zone; exit resolves before departure.
+
+**Movement Events and Lacerate:** Any actual change of position using a Movement Power, including Teleport or Teleport with Ally, is one Movement Event for that moving creature and triggers existing Lacerate(X) once. Distance, path length and whether movement is voluntary are irrelevant. No intermediate-space triggers are invented for a Teleport. A carried ally who changes position has their own Movement Event.
 
 ---
 }}
@@ -208,7 +210,7 @@ Last-second repositioning is handled only by **Reaction: Reposition**, not by Mo
       Ground Dash is valued at roughly 10 PP per meter above normal Movement, but it is hard-capped to avoid extreme high-level movement.<br>
       The listed distance is total Movement, not bonus Movement.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You move along legal ground paths.<br>
       You do not ignore terrain, creatures, walls, hazards, zones, elevation, or engagement.<br>
       This Movement provokes movement-triggered Reactions normally.<br><br>
@@ -259,7 +261,7 @@ You commit your Movement to speed, crossing ground faster than a normal combatan
       Safe Movement is valued at roughly 25 PP per meter because preventing movement-triggered Reactions is a major tactical advantage.<br>
       It is intentionally shorter than Ground Dash.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You move along a legal ground path without provoking movement-triggered Reactions.<br>
       You still obey terrain, walls, creatures, hazards, zones, elevation, and movement restrictions.<br>
       This is not Teleport and does not skip intervening spaces.<br><br>
@@ -312,15 +314,15 @@ You move with perfect timing, slipping past openings without giving enemies a cl
       Teleport is valued at roughly 30 PP per meter.<br><br>
       PRICING LOGIC<br>
       Teleport is more valuable than Flight because it skips intervening spaces.<br>
-      It does not move through the path and therefore does not provoke movement-triggered Reactions through that path.<br>
+      It does not move through the intervening path and therefore does not provoke Reactions through intervening spaces. Threat Zone entry and exit at its endpoints still trigger normally.<br>
       It can bypass gaps, hazards, enemies, and many positioning problems, so its distance is tightly capped.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You instantly relocate to a visible legal space within range.<br>
       You must end in a legal free space.<br><br>
       RESTRICTIONS<br>
       You cannot teleport into solid matter, sealed spaces, occupied spaces, or invalid spaces.<br>
-      You must see or clearly know the destination unless a Tree explicitly says otherwise.<br>
+      You must see the destination unless a Tree explicitly says otherwise.<br>
       This does not carry allies unless using Movement: Teleport with Ally.<br><br>
       DISTANCE CAP<br>
       Teleport scales to a hard cap of 16 m.<br><br>
@@ -368,7 +370,7 @@ You fold distance and appear somewhere else without crossing the space between.
       This Movement is intentionally shorter than normal Teleport.<br>
       Moving an ally is a major tactical advantage, especially for rescue, extraction, engagement, and terrain bypass.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You teleport yourself and one willing ally within 2 m to visible legal spaces within range.<br>
       The ally must be willing and within 2 m when you use this Movement.<br>
       Both destinations must be legal free spaces.<br><br>
@@ -376,7 +378,7 @@ You fold distance and appear somewhere else without crossing the space between.
       This cannot move unwilling creatures.<br>
       This cannot carry more than one ally.<br>
       This does not carry additional creatures or oversized objects unless a Tree explicitly says otherwise.<br>
-      This does not provoke movement-triggered Reactions through the path because it is teleportation.<br><br>
+      This does not provoke movement-triggered Reactions through the intervening path because it is teleportation; Threat Zone entry and exit at its endpoints still trigger normally.<br><br>
       DISTANCE CAP<br>
       Teleport with Ally scales to a hard cap of 12 m.<br><br>
       NOTES<br>
@@ -424,7 +426,7 @@ You fold distance around yourself and one nearby ally, pulling them through the 
       Flight is cheaper than Teleport because it still follows a path and can be interacted with along that path.<br>
       It is more expensive than Ground Dash because it opens three-dimensional movement and bypasses many ground obstacles.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You may fly up to the listed distance.<br>
       This flight lasts only for this Movement unless another rule grants sustained flight or hovering.<br><br>
       RESTRICTIONS<br>
@@ -475,7 +477,7 @@ You lift from the ground and move through the air under your own power.
       Leap is burst movement through a jump arc.<br>
       Leap is valued at roughly 15 PP per horizontal meter because it can cross gaps and height, but still needs a legal arc and landing point.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You may leap up to the listed distance horizontally, or up to half the listed distance vertically.<br>
       You must have a legal landing point.<br><br>
       RESTRICTIONS<br>
@@ -530,7 +532,7 @@ You launch yourself in a powerful arc, crossing gaps or height that normal movem
       Wall Walk is cheaper than Flight because it still requires a valid surface and follows a path.<br>
       It is more expensive than Ground Dash because it changes which surfaces count as legal movement.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You may move along vertical or inverted solid surfaces up to the listed distance.<br>
       You must remain in contact with a valid surface unless another rule says otherwise.<br><br>
       RESTRICTIONS<br>
@@ -585,7 +587,7 @@ You cling, crawl, run, or move across surfaces that normal movement cannot use.
       Burrow is not slower than Teleport because it is cheaper.<br>
       Instead, Burrow uses the same 1–16 m distance band as Teleport, but it only works through suitable material and has stricter terrain rules.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       You may move through suitable loose earth, sand, mud, snow, ash, or similar soft material.<br>
       This is not general phasing and does not pass through stone, metal, worked walls, magical barriers, or solid structures unless a Tree explicitly says otherwise.<br><br>
       RESTRICTIONS<br>
@@ -645,7 +647,7 @@ You force your way through soft material beneath or around the battlefield.
       These are separate subsystems.<br>
       This Movement never grants defensive Phasing, never ignores attacks, and never creates or spends Phasing charges.<br><br>
       RESTRICTIONS<br>
-      You may pass through up to the listed total thickness of solid material during the Movement.<br>
+      Move up to your normal Speed during this Movement. Within that route, you may pass through up to the listed total thickness of solid material.<br>
       You must end in a legal free space.<br>
       You cannot remain inside solid material after the Movement ends.<br>
       This cannot bypass magical barriers unless a Tree explicitly says otherwise.<br><br>
@@ -657,7 +659,7 @@ You force your way through soft material beneath or around the battlefield.
   </span>
 </h3>
 
-You briefly become able to pass through matter, but only as movement, not as protection.
+You briefly become able to pass through matter, but only as movement, not as protection. Your total movement distance is your normal Speed; the level entry caps the **combined thickness of solid material** passed through during that movement.
 
 | **Level** | **Type** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--:|:--:|:--|
@@ -696,7 +698,7 @@ You briefly become able to pass through matter, but only as movement, not as pro
       It does not use weapon damage, does not make an attack roll, and does not gain offensive riders.<br>
       Targets apply Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally.<br><br>
       DESIGN STRUCTURE<br>
-      This Movement replaces your normal Movement for the round.<br>
+      Using this Power spends one Movement and replaces its normal distance and movement mode.<br>
       Move up to the listed distance in a legal path.<br>
       The first time during this Movement that you move through or directly over a creature's space, that creature takes the listed damage.<br>
       Each creature can be damaged by this Movement only once.<br><br>
@@ -706,7 +708,7 @@ You briefly become able to pass through matter, but only as movement, not as pro
       This cannot generate Raises.<br>
       This does not apply Specials.<br>
       This does not increase Specials.<br>
-      This does not benefit from Critical, Active Buff: Damage, Active Buff: Penetration, or Active Buff: Special Increase.<br>
+      This does not benefit from Critical or Active Buff: Damage.<br>
       Trample provokes movement-triggered Reactions normally unless another rule explicitly prevents them.<br><br>
       PATH CAP<br>
       Trample movement scales to a hard cap of 24 m.<br><br>

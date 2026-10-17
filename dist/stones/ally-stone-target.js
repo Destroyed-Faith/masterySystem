@@ -51,9 +51,36 @@ function worldAndCombatActors() {
     }
     return out;
 }
+export function listSelectableCreatures(actors, casterId) {
+    const self = String(casterId || '').trim();
+    const seen = new Set();
+    const out = [];
+    for (const raw of actors ?? []) {
+        const actor = raw?.actor ?? raw;
+        if (!actor)
+            continue;
+        const type = String(actor.type || '');
+        if (type !== 'character' && type !== 'npc')
+            continue;
+        const id = String(actor.id || '').trim();
+        if (!id || seen.has(id))
+            continue;
+        seen.add(id);
+        out.push({
+            id,
+            name: String(actor.name || 'Creature'),
+            isSelf: !!self && id === self,
+        });
+    }
+    out.sort((a, b) => Number(a.isSelf) - Number(b.isSelf) || a.name.localeCompare(b.name));
+    return out;
+}
 export async function promptSelectablePlayerTarget(options) {
     const caster = options.caster;
-    const choices = listSelectablePlayerActors(worldAndCombatActors(), String(caster?.id || ''));
+    const pool = worldAndCombatActors();
+    const choices = options.anyCreature
+        ? listSelectableCreatures(pool, String(caster?.id || ''))
+        : listSelectablePlayerActors(pool, String(caster?.id || ''));
     if (!choices.length)
         return null;
     const DialogV2 = globalThis.foundry?.applications?.api?.DialogV2;
@@ -68,7 +95,7 @@ export async function promptSelectablePlayerTarget(options) {
             .join('');
         const id = await DialogV2.prompt({
             window: { title: options.title },
-            content: `<form class="mastery-dialog-form"><p class="md-hint">${options.hint}</p><label class="md-label">Player</label><select name="target" class="md-select">${optionsHtml}</select></form>`,
+            content: `<form class="mastery-dialog-form"><p class="md-hint">${options.hint}</p><label class="md-label">${options.anyCreature ? 'Creature' : 'Player'}</label><select name="target" class="md-select">${optionsHtml}</select></form>`,
             ok: {
                 label: 'Give',
                 callback: (_event, button) => String(button?.form?.elements?.target?.value || ''),

@@ -19,8 +19,8 @@ import { getRoundState, setRoundState, syncPcExtraAttackTotal, } from '../combat
 import { initiativeBoostAmount, isInitiativeBoostUsedThisCombat, isPhasingStoneUsedThisCombat, isTempHpStoneUsedThisCombat, markInitiativeBoostUsedThisCombat, markPhasingStoneUsedThisCombat, markTempHpStoneUsedThisCombat, } from './colorless-stones.js';
 import { augmentPhasingCharges } from '../combat/phasing.js';
 import { applyRemoveScarEffect } from './remove-scar.js';
-import { applyRegenerationAndMove, promptSelectablePlayerTarget } from './ally-stone-target.js';
-import { PENDING_SAFE_MOVEMENT_FLAG, PENDING_SLIP_FLAG, safeMovementMeters, slipMeters, } from './agility-movement.js';
+import { promptSelectablePlayerTarget } from './ally-stone-target.js';
+import { PENDING_SAFE_MOVEMENT_FLAG, safeMovementMeters, } from './agility-movement.js';
 /** Ranks shown in the dialog / Players Guide. Rank 4 is the last Rank. */
 export const STONE_TIER_VISIBLE = 4;
 /** Highest Rank a Stone Ability can reach. */
@@ -31,8 +31,19 @@ export const STONE_TIER_HARD_MAX = 4;
 export const STONE_POWER_ID_ALIASES = {
     'resolve.damageReductionBoost': 'resolve.damageReduction',
     'resolve.specialReduction': 'resolve.ward',
-    /** DF Core 0.9.9.1: Spell Raises became Raise Focus (generic, Raise TN only). */
-    'intellect.spellRaises': 'intellect.raiseFocus',
+    'generic.exchange passive': 'generic.movementEnhancement',
+    'might.ignoreArmor': 'might.armorReduction',
+    'agility.slip': 'agility.invisibilityBoost',
+    'vitality.extendActiveBuff': 'vitality.damageMaximization',
+    'intellect.spellPenetration': 'intellect.rangeAoe',
+    'intellect.raiseFocus': 'intellect.raises',
+    'intellect.spellRaises': 'intellect.raises',
+    'resolve.stressHealing': 'resolve.activeBuffEmpowerment',
+    'influence.aidRoll': 'influence.cleanse',
+    'influence.regeneration': 'influence.colorlessRecovery',
+    'influence.passiveSwap': 'influence.enemyEvadeReduction',
+    'wits.readIntent': 'wits.reactionDenial',
+    'wits.reactionRange': 'wits.movementReduction',
 };
 export function resolveStonePowerId(powerId) {
     const id = String(powerId || '').trim();
@@ -66,7 +77,7 @@ const RETIRED_STONE_POWER_SET = new Set(RETIRED_STONE_POWER_IDS);
 export function isRetiredStonePower(powerId) {
     return RETIRED_STONE_POWER_SET.has(resolveStonePowerId(powerId));
 }
-export const RETIRED_STONE_POWER_MESSAGE = 'Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks. Spell Penetration is a different ability.';
+export const RETIRED_STONE_POWER_MESSAGE = 'Spell Action is retired. Extra Attack covers spells, ranged attacks, and martial attacks.';
 /** Additional-Stone cost per Rank (index 0 = Rank 1). */
 const NORMAL_RANK_COSTS = [1, 2, 4, 8];
 const PREMIUM_RANK_COSTS = [2, 4, 6, 8];
@@ -276,23 +287,26 @@ const GENERIC_POWERS_RAW = [
         },
     },
     {
-        id: 'generic.exchangePassive',
-        name: 'Exchange Passive',
+        id: 'generic.movementEnhancement',
+        name: 'Movement Enhancement',
         attribute: 'generic',
-        category: 'passive',
-        description: 'Swap active Passives with other Passives you know (T1..T4: 1/1/2/2 swaps). Cost is cumulative per combat (1, then 2, then 4…). Stones become Exhausted, not Burned.',
+        category: 'action',
+        description: 'Add 4/8/12/16 m to every Movement Action this round (Move, Dash, Disengage, Movement Power). Dash doubles Speed first, then this bonus is added once. It does not grant actions, change base Speed, overcome Root or Immovable, or benefit Quick Load.',
         tiers: [
-            { label: 'Swap 1', description: 'Swap 1 active Passive with another Passive you know.', value: 1 },
-            { label: 'Swap 1', description: 'Swap 1 active Passive with another Passive you know.', value: 1 },
-            { label: 'Swap 2', description: 'Swap 2 active Passives with other Passives you know.', value: 2 },
-            { label: 'Swap 2', description: 'Swap 2 active Passives with other Passives you know.', value: 2 },
+            { label: '+4 m', description: 'Every Movement Action this round gains +4 m.', value: 4 },
+            { label: '+8 m', description: 'Every Movement Action this round gains +8 m.', value: 8 },
+            { label: '+12 m', description: 'Every Movement Action this round gains +12 m.', value: 12 },
+            { label: '+16 m', description: 'Every Movement Action this round gains +16 m.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
-            const swaps = Math.ceil(tier / 2);
-            const flagKey = 'exchangePassiveSwapsPending';
-            const prior = Number(actor.getFlag?.('mastery-system', flagKey) ?? 0) || 0;
-            await actor.setFlag?.('mastery-system', flagKey, prior + swaps);
-            ui.notifications?.info(`${actor.name}: Exchange Passive — ${swaps} passive swap(s) pending.`);
+            const combat = game.combat;
+            const bonus = scaleStoneTier([4, 8, 12, 16], tier);
+            if (bonus <= 0)
+                return;
+            const roundState = getRoundState(actor, combat);
+            const sb = ensureStoneBonuses(roundState);
+            sb.extraMoveMeters = Math.max(sb.extraMoveMeters ?? 0, bonus);
+            await setRoundState(actor, roundState);
         },
     },
 ];
@@ -302,7 +316,7 @@ const GENERIC_POWERS_RAW = [
 const MIGHT_POWERS_RAW = [
     {
         id: 'might.meleeDamage',
-        name: 'Martial Damage',
+        name: 'Damage',
         attribute: 'might',
         category: 'action',
         description: 'Add bonus damage dice to your next Martial Attack this turn (+2/+4/+8/+16). Melee, ranged, natural weapons, and Martial AoE all qualify. Spell Attacks do not.',
@@ -351,26 +365,26 @@ const MIGHT_POWERS_RAW = [
         },
     },
     {
-        id: 'might.ignoreArmor',
-        name: 'Ignore Armor',
+        id: 'might.armorReduction',
+        name: 'Armor Reduction',
         attribute: 'might',
         category: 'action',
-        description: 'All your melee attacks this turn ignore this much Armor (4/8/16/32).',
+        description: 'All your damaging attacks this round ignore 4/8/16/32 Armor. Highest rank wins. Stacks with Corrode and Weapon Penetration. Effective Armor cannot fall below 0. Listed Armor does not change.',
         tiers: [
-            { label: 'Ignore 4 Armor', description: 'All your melee attacks this turn ignore 4 Armor.', value: 4 },
-            { label: 'Ignore 8 Armor', description: 'All your melee attacks this turn ignore 8 Armor.', value: 8 },
-            { label: 'Ignore 16 Armor', description: 'All your melee attacks this turn ignore 16 Armor.', value: 16 },
-            { label: 'Ignore 32 Armor', description: 'All your melee attacks this turn ignore 32 Armor.', value: 32 },
+            { label: 'Ignore 4 Armor', description: 'Damaging attacks this round ignore 4 Armor.', value: 4 },
+            { label: 'Ignore 8 Armor', description: 'Damaging attacks this round ignore 8 Armor.', value: 8 },
+            { label: 'Ignore 16 Armor', description: 'Damaging attacks this round ignore 16 Armor.', value: 16 },
+            { label: 'Ignore 32 Armor', description: 'Damaging attacks this round ignore 32 Armor.', value: 32 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
             const bonus = scaleStoneTier([4, 8, 16, 32], tier);
+            if (bonus <= 0)
+                return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.meleeIgnoreArmor = (sb.meleeIgnoreArmor ?? 0) + bonus;
-            // Mirror into the legacy armorPenetration aggregator until consumers
-            // are updated to read the melee-specific field.
-            sb.armorPenetration = (sb.armorPenetration ?? 0) + bonus;
+            sb.armorPenetration = Math.max(sb.armorPenetration ?? 0, bonus);
+            sb.meleeIgnoreArmor = Math.max(sb.meleeIgnoreArmor ?? 0, bonus);
             await setRoundState(actor, roundState);
         },
     },
@@ -467,44 +481,26 @@ const AGILITY_POWERS_RAW = [
         },
     },
     {
-        id: 'agility.slip',
-        name: 'Slip',
+        id: 'agility.invisibilityBoost',
+        name: 'Invisibility Boost',
         attribute: 'agility',
-        category: 'reaction',
-        description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move 4/8/12/16 m. This does not use your normal Movement and does not provoke movement-triggered Reactions.',
+        category: 'action',
+        description: 'Add +1/+2/+4/+8 to an existing Invisibility Bonus this round. Does not grant Invisibility and does not change which senses are Obscured.',
         tiers: [
-            { label: 'Slip 4 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 4 m. This does not use your normal Movement.', value: 4 },
-            { label: 'Slip 8 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 8 m. This does not use your normal Movement.', value: 8 },
-            { label: 'Slip 12 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 12 m. This does not use your normal Movement.', value: 12 },
-            { label: 'Slip 16 m on miss', description: 'Once before the start of your next turn, when an enemy misses you with an Attack, you may move up to 16 m. This does not use your normal Movement.', value: 16 },
+            { label: '+1 Invisibility', description: 'Add +1 to your existing Invisibility Bonus this round.', value: 1 },
+            { label: '+2 Invisibility', description: 'Add +2 to your existing Invisibility Bonus this round.', value: 2 },
+            { label: '+4 Invisibility', description: 'Add +4 to your existing Invisibility Bonus this round.', value: 4 },
+            { label: '+8 Invisibility', description: 'Add +8 to your existing Invisibility Bonus this round.', value: 8 },
         ],
         apply: async ({ actor, tier }) => {
-            const meters = slipMeters(tier);
-            if (meters <= 0)
-                return;
             const combat = game.combat;
-            await actor.setFlag?.('mastery-system', PENDING_SLIP_FLAG, {
-                meters,
-                used: false,
-                actorId: String(actor.id || ''),
-                armedCombatId: combat?.id ?? null,
-                armedRound: Math.floor(Number(combat?.round) || 0),
-                armedTurn: Math.floor(Number(combat?.turn) || 0),
-            });
-            try {
-                const ChatMessage = globalThis.ChatMessage;
-                if (typeof ChatMessage?.create === 'function') {
-                    const source = String(actor.name || 'Someone')
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;');
-                    await ChatMessage.create({
-                        content: `<div class="mastery-stone-resolution"><p><strong>${source}</strong> — Slip</p><p>Ready: up to <strong>${meters} m</strong> when an enemy misses you with an Attack, once before your next Turn. This does not move you now and does not spend Movement.</p></div>`,
-                    });
-                }
-            }
-            catch {
-                /* the armed flag is the trigger */
-            }
+            const bonus = scaleStoneTier([1, 2, 4, 8], tier);
+            if (bonus <= 0)
+                return;
+            const roundState = getRoundState(actor, combat);
+            const sb = ensureStoneBonuses(roundState);
+            sb.invisibilityBonus = Math.max(sb.invisibilityBonus ?? 0, bonus);
+            await setRoundState(actor, roundState);
         },
     },
 ];
@@ -586,28 +582,40 @@ const VITALITY_POWERS_RAW = [
         },
     },
     {
-        id: 'vitality.extendActiveBuff',
-        name: 'Extend Active Buff',
+        id: 'vitality.damageMaximization',
+        name: 'Damage Maximization',
         attribute: 'vitality',
         category: 'action',
-        description: 'Increase the duration of one Active Buff you activate this turn (+1 / +2 / +3 / +4 rounds).',
+        oncePerCombat: true,
+        description: 'Once per combat, at the first Preparation Phase, the next 1/2/3/4 complete Damage Rolls you declare are maximized (every die is 8). Forced 8s are not natural 8s and do not explode. Cannot be activated again this combat.',
         tiers: [
-            { label: '+1 round', description: 'Increase the duration of one Active Buff you activate this turn by +1 round.', value: 1 },
-            { label: '+2 rounds', description: 'Increase the duration of one Active Buff you activate this turn by +2 rounds.', value: 2 },
-            { label: '+3 rounds', description: 'Increase the duration of one Active Buff you activate this turn by +3 rounds.', value: 3 },
-            { label: '+4 rounds', description: 'Increase the duration of one Active Buff you activate this turn by +4 rounds.', value: 4 },
+            { label: '1 Damage Roll', description: 'Maximize 1 complete Damage Roll this combat.', value: 1 },
+            { label: '2 Damage Rolls', description: 'Maximize 2 complete Damage Rolls this combat.', value: 2 },
+            { label: '3 Damage Rolls', description: 'Maximize 3 complete Damage Rolls this combat.', value: 3 },
+            { label: '4 Damage Rolls', description: 'Maximize 4 complete Damage Rolls this combat.', value: 4 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const rounds = scaleStoneTier([1, 2, 3, 4], tier);
-            const roundState = getRoundState(actor, combat);
-            const sb = ensureStoneBonuses(roundState);
-            // Tiers are TOTALS (+1/+2/+3/+4) — keep the highest, don't stack. The
-            // pending extension is consumed by the next Active Buff activation
-            // (see activateActiveBuff) and cleared at end of turn.
-            sb.extendActiveBuffRounds = Math.max(sb.extendActiveBuffRounds ?? 0, rounds);
-            await setRoundState(actor, roundState);
-            ui.notifications?.info(`${actor.name}: Extend Active Buff — the next Active Buff activated this turn lasts +${rounds} round${rounds === 1 ? '' : 's'}.`);
+            const combatId = String(combat?.id || '');
+            const prior = actor.getFlag?.('mastery-system', 'damageMaximization');
+            if (prior?.used && (!combatId || prior.combatId === combatId)) {
+                ui.notifications?.warn(`${actor.name}: Damage Maximization was already used this combat.`);
+                return;
+            }
+            const uses = scaleStoneTier([1, 2, 3, 4], tier);
+            if (uses <= 0)
+                return;
+            const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
+            if (combat?.started && round > 1) {
+                ui.notifications?.warn(`${actor.name}: Damage Maximization can only be activated in the first Preparation Phase.`);
+                return;
+            }
+            await actor.setFlag?.('mastery-system', 'damageMaximization', {
+                uses,
+                remaining: uses,
+                combatId,
+                used: true,
+            });
         },
     },
 ];
@@ -616,45 +624,50 @@ const VITALITY_POWERS_RAW = [
 // ---------------------------------------------------------------------------
 const INTELLECT_POWERS_RAW = [
     {
-        id: 'intellect.spellPenetration',
-        name: 'Spell Penetration',
+        id: 'intellect.rangeAoe',
+        name: 'Range & AoE Boost',
         attribute: 'intellect',
         category: 'action',
-        description: 'Until the start of your next turn, ignore 4 / 8 / 12 / 16 Spell Resistance. ' +
-            'This never reduces a Spell Base TN or a Mental Power Base TN, and it cannot reduce Spell Resistance below 0.',
+        description: 'This round: +10/+20/+30/+40 m Range, +2/+4/+6/+8 m Melee Reach, and +1/+2/+3/+4 m to an existing AoE radius. Does not create range or an AoE.',
         tiers: [
-            { label: 'Ignore 4 Spell Resistance', description: 'Ignore 4 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 4 },
-            { label: 'Ignore 8 Spell Resistance', description: 'Ignore 8 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 8 },
-            { label: 'Ignore 12 Spell Resistance', description: 'Ignore 12 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 12 },
-            { label: 'Ignore 16 Spell Resistance', description: 'Ignore 16 Spell Resistance until the start of your next turn. Spell Base TN is unchanged.', value: 16 },
+            { label: '+10 m / +2 m / +1 m', description: '+10 m Range, +2 m Melee Reach, +1 m existing AoE radius.', value: 10 },
+            { label: '+20 m / +4 m / +2 m', description: '+20 m Range, +4 m Melee Reach, +2 m existing AoE radius.', value: 20 },
+            { label: '+30 m / +6 m / +3 m', description: '+30 m Range, +6 m Melee Reach, +3 m existing AoE radius.', value: 30 },
+            { label: '+40 m / +8 m / +4 m', description: '+40 m Range, +8 m Melee Reach, +4 m existing AoE radius.', value: 40 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const bonus = scaleStoneTier([4, 8, 12, 16], tier);
+            const range = scaleStoneTier([10, 20, 30, 40], tier);
+            if (range <= 0)
+                return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.spellPenetration = Math.max(sb.spellPenetration ?? 0, bonus);
+            sb.rangeBonusM = Math.max(sb.rangeBonusM ?? 0, range);
+            sb.meleeReachBonusM = Math.max(sb.meleeReachBonusM ?? 0, scaleStoneTier([2, 4, 6, 8], tier));
+            sb.aoeRadiusBonusM = Math.max(sb.aoeRadiusBonusM ?? 0, scaleStoneTier([1, 2, 3, 4], tier));
             await setRoundState(actor, roundState);
         },
     },
     {
-        id: 'intellect.raiseFocus',
-        name: 'Raise Focus',
+        id: 'intellect.raises',
+        name: 'Raises',
         attribute: 'intellect',
         category: 'action',
-        description: 'Your Martial and Spell Power rolls this turn gain +4 / +8 / +12 / +16 for meeting the Raise TN only. The normal success TN does not change.',
+        description: 'A shared allowance of 2/4/6/8 Raises this round. They do not increase the TN. Unused Raises expire at the end of the Round. Spent whether the roll succeeds or fails.',
         tiers: [
-            { label: '+4 Raise TN', description: 'Martial and Spell Power rolls this turn gain +4 for the Raise TN only.', value: 4 },
-            { label: '+8 Raise TN', description: 'Martial and Spell Power rolls this turn gain +8 for the Raise TN only.', value: 8 },
-            { label: '+12 Raise TN', description: 'Martial and Spell Power rolls this turn gain +12 for the Raise TN only.', value: 12 },
-            { label: '+16 Raise TN', description: 'Martial and Spell Power rolls this turn gain +16 for the Raise TN only.', value: 16 },
+            { label: '2 Raises', description: '2 Raises this round. They do not increase the TN.', value: 2 },
+            { label: '4 Raises', description: '4 Raises this round. They do not increase the TN.', value: 4 },
+            { label: '6 Raises', description: '6 Raises this round. They do not increase the TN.', value: 6 },
+            { label: '8 Raises', description: '8 Raises this round. They do not increase the TN.', value: 8 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const bonus = scaleStoneTier([4, 8, 12, 16], tier);
+            const bonus = scaleStoneTier([2, 4, 6, 8], tier);
+            if (bonus <= 0)
+                return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.spellRaiseTnBonus = Math.max(sb.spellRaiseTnBonus ?? 0, bonus);
+            sb.freeRaises = Math.max(sb.freeRaises ?? 0, bonus);
             await setRoundState(actor, roundState);
         },
     },
@@ -726,20 +739,27 @@ const RESOLVE_POWERS_RAW = [
         },
     },
     {
-        id: 'resolve.stressHealing',
-        name: 'Stress Healing',
+        id: 'resolve.activeBuffEmpowerment',
+        name: 'Active Buff Empowerment',
         attribute: 'resolve',
         category: 'action',
-        description: 'Remove Stress from yourself or one ally within range. ' +
-            'T1: 1d8@2 m, T2: 2d8@4 m, T3: 3d8@8 m, T4: 4d8@16 m.',
+        description: 'One Active Buff this round gains +1/+2/+3/+4 Power Level and +1/+2/+3/+4 Rounds. Power Level still caps at 16. Multiple sources do not stack.',
         tiers: [
-            { label: '−1d8 Stress (2 m)', description: 'Remove 1d8 Stress from yourself or one ally within 2 m.', value: 1 },
-            { label: '−2d8 Stress (4 m)', description: 'Remove 2d8 Stress from yourself or one ally within 4 m.', value: 2 },
-            { label: '−3d8 Stress (8 m)', description: 'Remove 3d8 Stress from yourself or one ally within 8 m.', value: 3 },
-            { label: '−4d8 Stress (16 m)', description: 'Remove 4d8 Stress from yourself or one ally within 16 m.', value: 4 },
+            { label: '+1 PL, +1 Round', description: 'One Active Buff this round gains +1 Power Level and +1 Round.', value: 1 },
+            { label: '+2 PL, +2 Rounds', description: 'One Active Buff this round gains +2 Power Level and +2 Rounds.', value: 2 },
+            { label: '+3 PL, +3 Rounds', description: 'One Active Buff this round gains +3 Power Level and +3 Rounds.', value: 3 },
+            { label: '+4 PL, +4 Rounds', description: 'One Active Buff this round gains +4 Power Level and +4 Rounds.', value: 4 },
         ],
-        apply: async () => {
-            // Target, roll, and chat belong to the post-commit resolution queue.
+        apply: async ({ actor, tier }) => {
+            const combat = game.combat;
+            const bonus = scaleStoneTier([1, 2, 3, 4], tier);
+            if (bonus <= 0)
+                return;
+            const roundState = getRoundState(actor, combat);
+            const sb = ensureStoneBonuses(roundState);
+            sb.extendActiveBuffRounds = Math.max(sb.extendActiveBuffRounds ?? 0, bonus);
+            sb.activeBuffPlBonus = Math.max(sb.activeBuffPlBonus ?? 0, bonus);
+            await setRoundState(actor, roundState);
         },
     },
     {
@@ -768,7 +788,7 @@ const RESOLVE_POWERS_RAW = [
     },
     {
         id: 'resolve.ward',
-        name: 'Ward (incoming Specials −X)',
+        name: 'Special Negation',
         attribute: 'resolve',
         category: 'passive',
         description: 'Ward reduces every incoming hostile Special(X) by this value until the start of your next turn (+2 / +4 / +8 / +12). Creates Ward if you do not have it. Positive effects such as Regeneration are not reduced.',
@@ -795,78 +815,85 @@ const RESOLVE_POWERS_RAW = [
 // ---------------------------------------------------------------------------
 const INFLUENCE_POWERS_RAW = [
     {
-        id: 'influence.aidRoll',
-        name: 'Aid Roll',
+        id: 'influence.cleanse',
+        name: 'Cleanse',
         attribute: 'influence',
         category: 'action',
-        description: 'One ally within range gains a flat bonus to all rolls this round except damage rolls. T1: +2@8 m, T2: +4@16 m, T3: +8@24 m, T4: +12@32 m.',
+        description: 'Cleanse(2/4/8/16) on one creature within 20 m.',
         tiers: [
-            { label: 'Ally +2 (8 m)', description: 'One ally within 8 m gains +2 to all rolls this round except damage rolls.', value: 2 },
-            { label: 'Ally +4 (16 m)', description: 'One ally within 16 m gains +4 to all rolls this round except damage rolls.', value: 4 },
-            { label: 'Ally +8 (24 m)', description: 'One ally within 24 m gains +8 to all rolls this round except damage rolls.', value: 8 },
-            { label: 'Ally +12 (32 m)', description: 'One ally within 32 m gains +12 to all rolls this round except damage rolls.', value: 12 },
+            { label: 'Cleanse(2)', description: 'Cleanse(2) on one creature within 20 m.', value: 2 },
+            { label: 'Cleanse(4)', description: 'Cleanse(4) on one creature within 20 m.', value: 4 },
+            { label: 'Cleanse(8)', description: 'Cleanse(8) on one creature within 20 m.', value: 8 },
+            { label: 'Cleanse(16)', description: 'Cleanse(16) on one creature within 20 m.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
-            const bonus = scaleStoneTier([2, 4, 8, 12], tier);
-            const meters = scaleStoneTier([8, 16, 24, 32], tier);
-            await actor.setFlag?.('mastery-system', 'pendingAidRoll', { bonus, range: meters });
-            ui.notifications?.info(`${actor.name}: Aid Roll — choose 1 ally within ${meters} m (+${bonus} to all rolls this round except damage).`);
-        },
-    },
-    {
-        id: 'influence.regeneration',
-        name: 'Regeneration',
-        attribute: 'influence',
-        category: 'action',
-        description: 'One ally within 8 / 16 / 24 / 32 m gains Regeneration(2 / 4 / 6 / 8).',
-        tiers: [
-            { label: 'Regeneration(2) — 8 m', description: 'One ally within 8 m gains Regeneration(2).', value: 2 },
-            { label: 'Regeneration(4) — 16 m', description: 'One ally within 16 m gains Regeneration(4).', value: 4 },
-            { label: 'Regeneration(6) — 24 m', description: 'One ally within 24 m gains Regeneration(6).', value: 6 },
-            { label: 'Regeneration(8) — 32 m', description: 'One ally within 32 m gains Regeneration(8).', value: 8 },
-        ],
-        apply: async ({ actor, tier }) => {
-            const value = scaleStoneTier([2, 4, 6, 8], tier);
-            const range = scaleStoneTier([8, 16, 24, 32], tier);
-            const payload = { value, moveMeters: 0, range };
-            await actor.setFlag?.('mastery-system', 'pendingAllyRegeneration', payload);
-            const hint = `They gain Regeneration(${value}).`;
+            const value = scaleStoneTier([2, 4, 8, 16], tier);
+            if (value <= 0)
+                return;
+            await actor.setFlag?.('mastery-system', 'pendingCleanse', { value, range: 20 });
             const target = await promptSelectablePlayerTarget({
                 caster: actor,
-                title: 'Regeneration',
-                hint,
+                title: 'Cleanse',
+                hint: `Cleanse(${value}) on one creature within 20 m.`,
+                anyCreature: true,
             });
-            if (target) {
-                await applyRegenerationAndMove(target, value, 0);
-                await actor.unsetFlag?.('mastery-system', 'pendingAllyRegeneration');
-                ui.notifications?.info(`${target.name}: Regeneration(${value}) — one ally within ${range} m.`);
+            if (!target)
                 return;
+            try {
+                const { distanceBetweenActorsMeters } = await import('../combat/reaction-eligibility.js');
+                const meters = distanceBetweenActorsMeters(actor, target);
+                if (meters != null && meters > 20.05) {
+                    ui.notifications?.warn(`${actor.name}: Cleanse only reaches 20 m.`);
+                    return;
+                }
             }
-            ui.notifications?.info(`${actor.name}: Regeneration — choose one ally within ${range} m (${hint})`);
+            catch {
+                /* distance unknown — still apply */
+            }
+            const { applyCleanseToActor } = await import('../system/pool-reduction.js');
+            await applyCleanseToActor(target, value);
+            await actor.unsetFlag?.('mastery-system', 'pendingCleanse');
         },
     },
     {
-        id: 'influence.passiveSwap',
-        name: 'Passive Swap',
+        id: 'influence.colorlessRecovery',
+        name: 'Colorless Recovery',
         attribute: 'influence',
         category: 'action',
-        description: 'Help allies swap an active Passive. T1: 1 ally next turn, T2: 1 ally immediate, T3: 2 allies next turn, T4: 2 allies immediate.',
+        oncePerCombat: true,
+        description: 'Once per combat, make 2/4/8/16 Colorless Stones eligible for the existing Mastery Rank recovery until combat ends. Activation stones are Exhausted, not Sealed. Does not recover them immediately and cannot be raised or used again.',
         tiers: [
-            { label: '1 ally swap (next turn) — 8 m', description: 'One ally within 8 m may swap 1 active Passive with another Passive they know on their next turn.', value: 1 },
-            { label: '1 ally swap (immediate) — 16 m', description: 'One ally within 16 m may swap 1 active Passive immediately.', value: 1 },
-            { label: '2 ally swaps (next turn) — 24 m', description: 'Two allies within 24 m may each swap 1 active Passive on their next turn.', value: 2 },
-            { label: '2 ally swaps (immediate) — 32 m', description: 'Two allies within 32 m may each swap 1 active Passive immediately.', value: 2 },
+            { label: '2 Colorless Stones', description: '2 Colorless Stones may be recovered with Stone Recovery until combat ends.', value: 2 },
+            { label: '4 Colorless Stones', description: '4 Colorless Stones may be recovered with Stone Recovery until combat ends.', value: 4 },
+            { label: '8 Colorless Stones', description: '8 Colorless Stones may be recovered with Stone Recovery until combat ends.', value: 8 },
+            { label: '16 Colorless Stones', description: '16 Colorless Stones may be recovered with Stone Recovery until combat ends.', value: 16 },
         ],
         apply: async ({ actor, tier }) => {
-            const allyCount = Math.ceil(tier / 2);
-            const meters = scaleStoneTier([8, 16, 24, 32], tier);
-            const immediate = tier % 2 === 0;
-            await actor.setFlag?.('mastery-system', 'pendingAllyPassiveSwap', {
-                allies: allyCount,
-                range: meters,
-                immediate,
-            });
-            ui.notifications?.info(`${actor.name}: Passive Swap — ${allyCount} ally(ies) within ${meters} m may swap 1 active Passive ${immediate ? 'immediately' : 'on their next turn'}.`);
+            const { recordColorlessRecoveryActivation } = await import('./colorless-recovery.js');
+            await recordColorlessRecoveryActivation(actor, tier);
+        },
+    },
+    {
+        id: 'influence.enemyEvadeReduction',
+        name: 'Enemy Evade Reduction',
+        attribute: 'influence',
+        category: 'action',
+        description: 'Enemies have −1/−2/−4/−8 Evade against your attacks only. This is not a Special on the target.',
+        tiers: [
+            { label: '−1 Evade', description: 'Your attacks this round treat enemy Evade as 1 lower.', value: 1 },
+            { label: '−2 Evade', description: 'Your attacks this round treat enemy Evade as 2 lower.', value: 2 },
+            { label: '−4 Evade', description: 'Your attacks this round treat enemy Evade as 4 lower.', value: 4 },
+            { label: '−8 Evade', description: 'Your attacks this round treat enemy Evade as 8 lower.', value: 8 },
+        ],
+        apply: async ({ actor, tier }) => {
+            const combat = game.combat;
+            const bonus = scaleStoneTier([1, 2, 4, 8], tier);
+            if (bonus <= 0)
+                return;
+            const roundState = getRoundState(actor, combat);
+            const sb = ensureStoneBonuses(roundState);
+            sb.enemyEvadeReduction = Math.max(sb.enemyEvadeReduction ?? 0, bonus);
+            await setRoundState(actor, roundState);
         },
     },
     {
@@ -886,11 +913,22 @@ const INFLUENCE_POWERS_RAW = [
             const meters = scaleStoneTier([8, 16, 24, 32], tier);
             if (enemies <= 0)
                 return;
-            await actor.setFlag?.('mastery-system', 'pendingNotATarget', {
-                enemies,
-                range: meters,
+            const { chooseCombatantActors, NOT_A_TARGET_FLAG } = await import('./stone-combat-effects.js');
+            const picked = await chooseCombatantActors({
+                title: 'Not a Target',
+                hint: `Choose up to ${enemies} enemies within ${meters} m.`,
+                caster: actor,
+                max: enemies,
+                maxRangeM: meters,
             });
-            ui.notifications?.info(`${actor.name}: Not a Target — up to ${enemies} enemy(ies) within ${meters} m cannot target you next attack this round.`);
+            const combat = game.combat;
+            await actor.setFlag?.('mastery-system', NOT_A_TARGET_FLAG, {
+                enemyIds: picked.map((target) => String(target.id || '')).filter(Boolean),
+                usedIds: [],
+                range: meters,
+                combatId: String(combat?.id || ''),
+                round: Math.max(1, Math.floor(Number(combat?.round) || 1)),
+            });
         },
     },
 ];
@@ -982,48 +1020,69 @@ const WITS_POWERS_RAW = [
         },
     },
     {
-        id: 'wits.readIntent',
-        name: 'Read Intent',
+        id: 'wits.reactionDenial',
+        name: 'Reaction Denial',
         attribute: 'wits',
         category: 'action',
-        description: 'Choose creatures you can see; the GM reveals their planned actions / damage / movement / defense / support. ' +
-            'T1: 1 creature (actions); T2: 1 (+ damage); T3: 2 (+ damage); T4: 3 (actions + damage + movement + defense + support).',
+        description: 'Prevent the next 1/2/3/4 Reactions of one chosen enemy this round. A denied declaration does not consume their Reaction, and they cannot declare that same Reaction against the same trigger.',
         tiers: [
-            { label: '1 creature: actions', description: 'Choose 1 creature you can see. The GM must reveal its planned actions for this round: attacks, movement, defensive options, and support actions.', value: 1 },
-            { label: '1 creature: actions + damage', description: 'Choose 1 creature you can see. The GM must also reveal the expected damage of its planned attacks.', value: 1 },
-            { label: '2 creatures: actions + damage', description: 'Choose 2 creatures you can see. The GM must reveal their planned actions and expected damage.', value: 2 },
-            { label: '3 creatures: full intent', description: 'Choose 3 creatures you can see. The GM must reveal their planned actions, expected damage, movement, defensive options, and support actions.', value: 3 },
+            { label: 'Deny 1 Reaction', description: 'One chosen enemy loses their next Reaction this round.', value: 1 },
+            { label: 'Deny 2 Reactions', description: 'One chosen enemy loses their next 2 Reactions this round.', value: 2 },
+            { label: 'Deny 3 Reactions', description: 'One chosen enemy loses their next 3 Reactions this round.', value: 3 },
+            { label: 'Deny 4 Reactions', description: 'One chosen enemy loses their next 4 Reactions this round.', value: 4 },
         ],
         apply: async ({ actor, tier }) => {
-            const targets = scaleStoneTier([1, 1, 2, 3], tier);
-            const detail = tier >= 4
-                ? 'actions + expected damage + movement + defensive options + support'
-                : tier >= 2
-                    ? 'actions + expected damage'
-                    : 'actions';
-            await actor.setFlag?.('mastery-system', 'pendingReadIntent', { targets, detail });
-            ui.notifications?.info(`${actor.name}: Read Intent — GM, reveal ${targets} creature(s)' ${detail}.`);
+            const count = scaleStoneTier([1, 2, 3, 4], tier);
+            if (count <= 0)
+                return;
+            const { chooseCombatantActors, REACTION_DENIAL_FLAG } = await import('./stone-combat-effects.js');
+            const [enemy] = await chooseCombatantActors({
+                title: 'Reaction Denial',
+                hint: `Choose one enemy. Their next ${count} Reactions this Round are denied.`,
+                caster: actor,
+                max: 1,
+            });
+            if (!enemy) {
+                await actor.setFlag?.('mastery-system', 'pendingReactionDenial', { count });
+                return;
+            }
+            const combat = game.combat;
+            await enemy.setFlag?.('mastery-system', REACTION_DENIAL_FLAG, {
+                remaining: count,
+                combatId: String(combat?.id || ''),
+                round: Math.max(1, Math.floor(Number(combat?.round) || 1)),
+                denied: [],
+            });
         },
     },
     {
-        id: 'wits.reactionRange',
-        name: 'Reaction Range',
+        id: 'wits.movementReduction',
+        name: 'Movement Reduction',
         attribute: 'wits',
-        category: 'reaction',
-        description: 'Increase the range of your Reactions this round (+2 / +4 / +8 / +16 m).',
+        category: 'action',
+        description: 'Halve each Movement Action of 1/2/3/4 chosen enemies this round. Round a half-metre up (5→3, 7→4, 9→5).',
         tiers: [
-            { label: '+2 m Reaction Range', description: 'Increase the range of your Reactions by +2 m this round.', value: 2 },
-            { label: '+4 m Reaction Range', description: 'Increase the range of your Reactions by +4 m this round.', value: 4 },
-            { label: '+8 m Reaction Range', description: 'Increase the range of your Reactions by +8 m this round.', value: 8 },
-            { label: '+16 m Reaction Range', description: 'Increase the range of your Reactions by +16 m this round.', value: 16 },
+            { label: '1 enemy', description: 'Halve each Movement Action of 1 chosen enemy this round.', value: 1 },
+            { label: '2 enemies', description: 'Halve each Movement Action of 2 chosen enemies this round.', value: 2 },
+            { label: '3 enemies', description: 'Halve each Movement Action of 3 chosen enemies this round.', value: 3 },
+            { label: '4 enemies', description: 'Halve each Movement Action of 4 chosen enemies this round.', value: 4 },
         ],
         apply: async ({ actor, tier }) => {
-            const combat = game.combat;
-            const meters = scaleStoneTier([2, 4, 8, 16], tier);
-            const roundState = getRoundState(actor, combat);
-            const sb = ensureStoneBonuses(roundState);
-            sb.reactionRangeBonus = (sb.reactionRangeBonus ?? 0) + meters;
-            await setRoundState(actor, roundState);
+            const count = scaleStoneTier([1, 2, 3, 4], tier);
+            if (count <= 0)
+                return;
+            const { chooseCombatantActors, markMovementReductionTargets } = await import('./stone-combat-effects.js');
+            const picked = await chooseCombatantActors({
+                title: 'Movement Reduction',
+                hint: `Choose up to ${count} enemies. Each of their Movement Actions is halved this Round.`,
+                caster: actor,
+                max: count,
+            });
+            if (!picked.length) {
+                await actor.setFlag?.('mastery-system', 'pendingMovementReduction', { count });
+                return;
+            }
+            await markMovementReductionTargets(picked, count, game.combat);
         },
     },
 ];

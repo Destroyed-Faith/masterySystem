@@ -229,7 +229,7 @@ describe('character print table sheet', () => {
     expect(ctx.stoneDashboard.powerGroups.length).toBeGreaterThan(0);
     const mightGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'might');
     expect(mightGroup).toBeTruthy();
-    const melee = mightGroup.powers.find((p: any) => /martial damage/i.test(p.name));
+    const melee = mightGroup.powers.find((p: any) => p.name === 'Damage');
     expect(melee.summary).toMatch(/2\/4\/8\/16/);
     expect(melee.paymentTiers.map((t: any) => t.label)).toEqual(['R1', 'R2', 'R3', 'R4']);
     expect(melee.paymentTiers.map((t: any) => t.layout)).toEqual(['t1', 't2', 't3', 't4']);
@@ -252,10 +252,14 @@ describe('character print table sheet', () => {
     const vitalityGroup = ctx.stoneDashboard.powerGroups.find((g: any) => g.key === 'vitality');
     const tempHp = vitalityGroup.powers.find((p: any) => /temporary hp/i.test(p.name));
     expect(tempHp.oncePerCombat).toBe(true);
-    const onceCount = ctx.stoneDashboard.powerGroups
+    const onceNames = ctx.stoneDashboard.powerGroups
       .flatMap((g: any) => g.powers)
-      .filter((p: any) => p.oncePerCombat).length;
-    expect(onceCount).toBe(3);
+      .filter((p: any) => p.oncePerCombat)
+      .map((p: any) => p.name)
+      .sort();
+    expect(onceNames).toEqual(
+      ['Colorless Recovery', 'Damage Maximization', 'Initiative Boost', 'Phasing', 'Temporary HP'].sort(),
+    );
     expect(ctx.stoneDashboard.combatReflexes).toBeUndefined();
   });
 

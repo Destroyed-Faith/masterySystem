@@ -35,7 +35,51 @@ import {
   reduceStatusEffectAt,
   statusEntryId,
 } from '../system/active-specials.js';
-import { buildNpcSkillGroups } from '../utils/skills.js';
+import { buildNpcSkillGroups, SKILLS } from '../utils/skills.js';
+import {
+  buildSkillRollPoolPreview,
+  skillFullPoolThreshold,
+} from '../dice/roll-context-build.js';
+
+const NPC_SHEET_ATTRIBUTES = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits',
+] as const;
+
+function coerceNpcSkillsRecord(
+  submitted: unknown,
+  existing: unknown,
+): Record<string, number> {
+  const out: Record<string, number> = {};
+  const ex =
+    existing && typeof existing === 'object' ? (existing as Record<string, unknown>) : {};
+  const sub =
+    submitted && typeof submitted === 'object' ? (submitted as Record<string, unknown>) : {};
+  const keys = new Set([...Object.keys(ex), ...Object.keys(sub), ...Object.keys(SKILLS)]);
+  for (const key of keys) {
+    const raw = Object.prototype.hasOwnProperty.call(sub, key) ? sub[key] : ex[key];
+    if (raw == null || raw === '') {
+      if (Object.prototype.hasOwnProperty.call(ex, key)) {
+        out[key] = Math.max(0, Math.floor(Number(ex[key]) || 0));
+      }
+      continue;
+    }
+    if (typeof raw === 'object') {
+      out[key] = Math.max(
+        0,
+        Math.floor(Number((raw as any).value ?? (raw as any).rank ?? 0) || 0),
+      );
+      continue;
+    }
+    out[key] = Math.max(0, Math.floor(Number(raw) || 0));
+  }
+  return out;
+}
 import {
   clampNpcInitiativeModifier,
   splitNpcInitiativeModifier,
@@ -504,10 +548,50 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       if (!context.system.skills || typeof context.system.skills !== 'object') {
         context.system.skills = {};
       }
-      (context as any).npcSkillGroups = buildNpcSkillGroups(context.system.skills);
-      (context as any).npcSkillPoolHint = `Full attribute pool when rating ≥ 2×MR (${
-        (context as any).npcMasteryRank * 2
-      }). Perception is used for Invisibility checks.`;
+      if (!context.system.attributes || typeof context.system.attributes !== 'object') {
+        context.system.attributes = {};
+      }
+      const mr = (context as any).npcMasteryRank as number;
+      const poolThreshold = skillFullPoolThreshold(mr);
+      (context as any).npcAttributes = NPC_SHEET_ATTRIBUTES.map((key) => {
+        const raw = context.system.attributes?.[key];
+        const value =
+          typeof raw === 'object'
+            ? Math.max(0, Math.floor(Number(raw?.value) || 0))
+            : Math.max(0, Math.floor(Number(raw) || 0));
+        return {
+          key,
+          label: key.charAt(0).toUpperCase() + key.slice(1),
+          value: value || 2,
+        };
+      });
+      // Ensure nested .value shape for form names system.attributes.X.value
+      for (const row of (context as any).npcAttributes as Array<{ key: string; value: number }>) {
+        const cur = context.system.attributes[row.key];
+        if (!cur || typeof cur !== 'object') {
+          context.system.attributes[row.key] = { value: row.value, stones: 0 };
+        } else if (cur.value == null) {
+          cur.value = row.value;
+        }
+      }
+      const groups = buildNpcSkillGroups(context.system.skills);
+      for (const group of groups) {
+        for (const skill of group.skills) {
+          if (skill.key !== 'perception') continue;
+          try {
+            const preview = buildSkillRollPoolPreview(this.actor as any, 'perception', 'wits');
+            (skill as any).poolPreview = preview.rollLabel;
+            (skill as any).poolFull = preview.fullPoolReady;
+            (skill as any).poolTooltip = preview.tooltip;
+          } catch {
+            (skill as any).poolPreview = '';
+            (skill as any).poolFull = false;
+            (skill as any).poolTooltip = '';
+          }
+        }
+      }
+      (context as any).npcSkillGroups = groups;
+      (context as any).npcSkillPoolHint = `Full attribute pool when skill rating ≥ 2×MR (${poolThreshold}). Perception checks use Wits. Set Wits + Perception together — rating alone does not add dice.`;
     }
 
     if (isNpcLike && context.system) {
@@ -925,6 +1009,27 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       delete data.system.statusEffects;
     }
 
+    // Skills / attributes must stay numeric on token ActorDelta (string "4" from
+    // form fields without dtype used to look fine on the sheet but still fail
+    // some comparisons; coerce every submit so Perception pool unlocks stick).
+    data.system.skills = coerceNpcSkillsRecord(data.system.skills, existingSystem.skills);
+    if (data.system.attributes && typeof data.system.attributes === 'object') {
+      const attrs = { ...(existingSystem.attributes || {}), ...data.system.attributes };
+      for (const key of NPC_SHEET_ATTRIBUTES) {
+        const raw = attrs[key];
+        const value =
+          typeof raw === 'object'
+            ? Math.max(0, Math.floor(Number(raw?.value) || 0))
+            : Math.max(0, Math.floor(Number(raw) || 0));
+        attrs[key] = {
+          ...(typeof raw === 'object' && raw ? raw : {}),
+          value: value > 0 ? value : 2,
+          stones: Math.max(0, Math.floor(Number((raw as any)?.stones) || 0)),
+        };
+      }
+      data.system.attributes = attrs;
+    }
+
     data.system = sanitizeNpcSystemAttackTargeting(data.system);
     console.log('[MS NPC Targeting] FORM SUBMIT sanitized', {
       actorId: this.actor?.id,
@@ -970,6 +1075,36 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   /** @override */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+    // Persist skill / attribute numbers immediately so Perception pool unlocks
+    // are not lost when another control re-renders before form expand settles.
+    html.find('.npc-skill-field input[name^="system.skills."]').on('change', async (ev) => {
+      const input = ev.currentTarget as HTMLInputElement;
+      const name = String(input?.name || '');
+      const m = /^system\.skills\.([^.]+)$/.exec(name);
+      if (!m) return;
+      const key = m[1]!;
+      const value = Math.max(0, Math.floor(Number(input.value) || 0));
+      input.value = String(value);
+      try {
+        await this.actor.update({ [`system.skills.${key}`]: value });
+      } catch (err) {
+        console.warn('Mastery System | NPC skill update failed', key, err);
+      }
+    });
+    html.find('.npc-attr-chip input[name^="system.attributes."]').on('change', async (ev) => {
+      const input = ev.currentTarget as HTMLInputElement;
+      const name = String(input?.name || '');
+      const m = /^system\.attributes\.([^.]+)\.value$/.exec(name);
+      if (!m) return;
+      const key = m[1]!;
+      const value = Math.max(1, Math.floor(Number(input.value) || 0));
+      input.value = String(value);
+      try {
+        await this.actor.update({ [`system.attributes.${key}.value`]: value });
+      } catch (err) {
+        console.warn('Mastery System | NPC attribute update failed', key, err);
+      }
+    });
 
     makeFoundryTooltipInert();
 

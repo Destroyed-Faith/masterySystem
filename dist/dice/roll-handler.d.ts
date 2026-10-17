@@ -35,9 +35,8 @@ export interface RollOptions {
     targetRefs?: string[];
     /**
      * When true, `masteryRoll` applies the percentage-based Health /
-     * Encumbrance penalty and the final Minimum Pool (= Mastery Rank) itself —
-     * in canonical order AFTER all flat pool reductions. Callers that set this
-     * must NOT pre-apply those penalties.
+     * Encumbrance penalty after flat reductions. A pool may stay below
+     * Mastery Rank. Zero dice fails. Keep cannot exceed the dice that remain.
      */
     applyPoolPenalties?: boolean;
     /**

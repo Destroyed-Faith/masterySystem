@@ -21,6 +21,7 @@
  */
 
 import type { RadialCombatOption } from './types.js';
+import { getStoneAreaBonusMeters } from '../combat/action-economy.js';
 import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
@@ -345,7 +346,7 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             }
             if (aoe.shape !== 'none' && (aoe.radiusM ?? 0) > 0) {
                 option.aoeShape = aoe.shape;
-                option.aoeRadiusMeters = aoe.radiusM;
+                option.aoeRadiusMeters = (aoe.radiusM ?? 0) + getStoneAreaBonusMeters(actor, 'aoe');
                 option.defaultTargetGroup = 'enemy';
                 // Melee / Self AoE: self-centered burst. Everything else with a
                 // cast range (incl. type "Active" + "68 m" + Radius 7 m) is a

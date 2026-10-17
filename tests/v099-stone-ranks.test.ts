@@ -97,14 +97,14 @@ describe('Permanent Colorless Stones — conversion and caps', () => {
       storedRank: 2,
     });
     expect(check.ok).toBe(true);
-    // After one conversion: 4 − 2 = 2 unassigned remain.
+    // After one conversion: 4 − 1 = 3 unassigned remain.
     expect(
       unassignedPermanentStones({ assignments, totalPermanent: 6, permanentColorless: 1 }),
-    ).toBe(2);
+    ).toBe(3);
   });
 
-  it('needs 2 unassigned Stones', () => {
-    const assignments = { ...emptyAssignments(), might: 5 };
+  it('needs 1 unassigned Stone', () => {
+    const assignments = { ...emptyAssignments(), might: 6 };
     const check = canConvertToPermanentColorless({
       assignments,
       totalPermanent: 6,
@@ -112,21 +112,20 @@ describe('Permanent Colorless Stones — conversion and caps', () => {
       storedRank: 2,
     });
     expect(check.ok).toBe(false);
-    expect(check.reason).toMatch(/2 unassigned/);
+    expect(check.reason).toMatch(/1 unassigned/);
   });
 
-  it('caps Permanent Colorless Stones at Mastery Rank', () => {
-    expect(permanentColorlessCap(2)).toBe(2);
-    expect(permanentColorlessCap(8)).toBe(8);
-    // 6 earned Stones = MR2 → at most 2 Permanent Colorless Stones.
+  it('keeps the 2 starting Stones as Attribute Stones', () => {
+    expect(permanentColorlessCap(2)).toBe(0);
+    expect(permanentColorlessCap(8)).toBe(6);
     const check = canConvertToPermanentColorless({
       assignments: emptyAssignments(),
       totalPermanent: 6,
-      permanentColorless: 2,
+      permanentColorless: 4,
       storedRank: 2,
     });
     expect(check.ok).toBe(false);
-    expect(check.reason).toMatch(/capped at Mastery Rank/);
+    expect(check.reason).toMatch(/starting Stones/);
   });
 
   it('does not consume the MR × 2 Attribute Stone limit', () => {
@@ -173,7 +172,7 @@ describe('Permanent Colorless Stones — conversion and caps', () => {
 
   it('assignmentsAreLegal accounts for converted Stones', () => {
     const assignments = { ...emptyAssignments(), might: 4, agility: 2 };
-    expect(assignmentsAreLegal(assignments, 8, 2, 1).ok).toBe(true);
+    expect(assignmentsAreLegal(assignments, 8, 2, 2).ok).toBe(true);
     expect(assignmentsAreLegal(assignments, 8, 2, 0).ok).toBe(false);
   });
 

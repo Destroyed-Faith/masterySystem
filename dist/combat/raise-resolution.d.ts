@@ -77,7 +77,7 @@ raiseTnRollBonus?: number): RaiseOutcome;
 export declare function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[];
 /** Total raise slots from declared raise plan. */
 export declare function countRaiseSlots(raises: DeclaredRaise[]): number;
-/** Slots that still pay Raise Cost. A free Raise still raises the TN. */
+/** Slots that increase the Raise TN. A Free Raise has no TN increase and no Raise Cost. */
 export declare function paidRaiseSlots(raises: DeclaredRaise[]): number;
 export declare function describeDeclaredRaise(raise: DeclaredRaise): string;
 /** One line the whole table can read: which Raises were picked, and which are free. */

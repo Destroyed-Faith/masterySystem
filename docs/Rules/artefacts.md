@@ -57,7 +57,7 @@ The Homebrewery
 ::::::::::::::::::::::::::::::::
 {{homebreweryCredits
 Destroyed Faith — DF Core Artefacts
-Version: v0.9.8 (2026-07-31)
+Version: v0.9.9.5 approved Artifact catalogue (2026-10-16)
 }}
 
 }}
@@ -69,24 +69,26 @@ Version: v0.9.8 (2026-07-31)
 
 - #### [{{ Artwork Credits}}{{ 2}}](#p2)
 - #### [{{ Artifacts}}{{ 4}}](#p4)
-- #### [{{ Base Item Values}}{{ 6}}](#p6)
-- #### [{{ Damage Baseline}}{{ 11}}](#p11)
-- #### [{{ Thrown Weapon Baseline}}{{ 11}}](#p11)
-- #### [{{ Returning Weapon Baseline}}{{ 12}}](#p12)
-- #### [{{ Weapon Special Baseline}}{{ 12}}](#p12)
-- #### [{{ Hand Artifacts}}{{ 13}}](#p13)
-- #### [{{ Shield Baseline}}{{ 14}}](#p14)
-- #### [{{ Body Armor Baseline}}{{ 15}}](#p15)
-- #### [{{ No-Armor Body Baseline}}{{ 16}}](#p16)
-- #### [{{ Body Power Access}}{{ 16}}](#p16)
-- #### [{{ Robe Artifacts}}{{ 18}}](#p18)
-- #### [{{ Head Baseline}}{{ 19}}](#p19)
-- #### [{{ Artifact Sense Options}}{{ 20}}](#p20)
-- #### [{{ Feet Baseline}}{{ 24}}](#p24)
-- #### [{{ Minor Movement Base Values}}{{ 25}}](#p25)
-- #### [{{ Amulet and Ring Baseline}}{{ 30}}](#p30)
-- #### [{{ Stone Functions}}{{ 32}}](#p32)
-- #### [{{ Artifact Examples}}{{ 36}}](#p36)
+- #### [{{ Binding and Awakening an Artifact}}{{ 5}}](#p5)
+- #### [{{ Artifact Progression}}{{ 5}}](#p5)
+- #### [{{ Base Item Values}}{{ 7}}](#p7)
+- #### [{{ Damage Baseline}}{{ 13}}](#p13)
+- #### [{{ Thrown Weapon Baseline}}{{ 14}}](#p14)
+- #### [{{ Returning Weapon Baseline}}{{ 15}}](#p15)
+- #### [{{ Weapon Special Baseline}}{{ 15}}](#p15)
+- #### [{{ Hand Artifacts}}{{ 16}}](#p16)
+- #### [{{ Shield Baseline}}{{ 17}}](#p17)
+- #### [{{ Body Armor Baseline}}{{ 18}}](#p18)
+- #### [{{ Artifact Body Armor Progressions}}{{ 19}}](#p19)
+- #### [{{ Body Power Access}}{{ 20}}](#p20)
+- #### [{{ Robe Artifacts}}{{ 22}}](#p22)
+- #### [{{ Head Baseline}}{{ 23}}](#p23)
+- #### [{{ Artifact Sense Options}}{{ 24}}](#p24)
+- #### [{{ Feet Baseline}}{{ 28}}](#p28)
+- #### [{{ Minor Movement Base Values}}{{ 29}}](#p29)
+- #### [{{ Amulet and Ring Baseline}}{{ 34}}](#p34)
+- #### [{{ Stone Functions}}{{ 36}}](#p36)
+- #### [{{ Artifact Examples}}{{ 40}}](#p40)
 
 }}
 
@@ -94,6 +96,14 @@ Version: v0.9.8 (2026-07-31)
 {{pageNumber,auto}}
 {{wide
 ## Artifacts
+
+> **Hunter's Scourge (Core-only):** The Relic Hunter Echo Artifact is defined in the current Core, not separately reprinted in this standalone catalogue. Hunter's Scourge grants **Vitality: Damage Maximization Stone Power Support** at Artifact Levels 2 / 5 / 8 (Ranks 2 / 3 / 4). The normal **Limited Scourge Strike may be maximized** using one prepared Damage Maximization use. Refer to the current Core for the definitive mechanic.
+
+> **CURRENT ARTIFACT CATALOGUE:** These are the approved standalone Artifact profiles for v0.9.9.5. The Core supplies the universal Artifact, Stone, Transformation, and Awakening rules; the current four Power catalogues supply the named Powers. Echo Artifacts printed in Core use their Core tables. All Artifact Level 10 effects use Artifact Awakening.
+
+> **Catalogue scope:** Artifact Levels 1–10 and their listed base profiles are the current profiles. Historical migration notes, retired combined Powers and old Ultimate drafts are archived separately.
+
+> **Named slot exception:** Hunter's Scourge in the current Core is the explicitly approved Hand-slot exception for **Vitality: Damage Maximization Stone Power Support**. It does not grant Vitality Stones or bypass the normal need to unlock the Ability. This does not change the permitted Attributes of ordinary Hand Artifact Stone Functions.
 
 Artifacts are bound objects, inherited manifestations, living relics, forged weapons, awakened armor, cursed tokens, supernatural body features, or similar relics that occupy real Equipment Slots.
 
@@ -145,6 +155,60 @@ The following Slots do not exist:
 Hands are represented by **Main Hand** and **Off Hand**.
 
 A Focus is a function, not a Slot. If an Artifact functions as a focus, it must still occupy a real Slot.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Binding and Awakening an Artifact
+
+A newly acquired Artifact is initially **dormant**.
+
+To use it, the character must bind the Artifact through an **Attunement Ritual**. The ritual permanently establishes the bond between character and Artifact, but does **not** permanently bind, Seal, Burn, or otherwise reserve a Stone.
+
+Once the Attunement Ritual is completed, the Artifact awakens at **Artifact Level 1**.
+
+**Artifact Level 1 is free.** No XP is required to awaken an Artifact for the first time.
+
+The Artifact immediately counts against the character's **Artifact Capacity** and occupies its required **Equipment Slot or Slots**.
+
+---
+
+### Artifact Progression
+
+Artifacts have **10 Artifact Levels**. Level 10 grants the universal **Artifact Awakening** rule in the current Core, using the existing Power and Stone mechanics. The historical bespoke Ultimate drafts are not used.
+
+As an Artifact grows, it may improve its Base Profile, unlock new Powers, or strengthen existing functions. At Level 10, use the universal Artifact Awakening rule in the current Core.
+
+Players do not freely purchase arbitrary effects for an Artifact. Each Artifact has a fixed mechanical structure that represents its identity, history, and supernatural nature.
+
+#### Artifact Level Cap by Mastery Rank
+
+| **Mastery Rank** | **Maximum Artifact Level** |
+|:--:|:--:|
+| **MR 1** | **Level 1** |
+| **MR 2** | **Level 2** |
+| **MR 3** | **Level 4** |
+| **MR 4** | **Level 6** |
+| **MR 5** | **Level 8** |
+| **MR 6+** | **Level 10** |
+
+A character may not **increase** an Artifact beyond the maximum Artifact Level allowed by their current Mastery Rank, even if they have enough XP. If Mastery Rank is later reduced, an already awakened Artifact does not automatically lose Levels; it simply cannot be advanced further until its Level is legal again.
+
+#### Artifact Advancement Costs
+
+| **Artifact Advancement** | **XP Cost** |
+|:--|:--:|
+| Bind and awaken a new Artifact at Level 1 | **Free** |
+| Increase an Artifact to Level 2 or 3 | **8 XP per Level** |
+| Increase an Artifact to Level 4, 5, or 6 | **16 XP per Level** |
+| Increase an Artifact to Level 7, 8, or 9 | **32 XP per Level** |
+| Increase an Artifact to Level 10 | **64 XP** |
+
+An Artifact may only be increased by **one Level during the same Upgrade Step**.
+
+The XP cost is determined by the **new Artifact Level reached**, not by the Artifact's current Level.
 
 ---
 }}
@@ -253,13 +317,13 @@ They define what the Artifact physically or inherently is.
 | **Base Value B** | Level 4 | Level 7 | — |
 | **Base Value C** | Level 7 | — | — |
 
-Base Value A is the Artifact’s primary identity.
+Base Value A is the Artifact's primary identity.
 
 Base Value B is a secondary feature.
 
 Base Value C is a late base feature.
 
-Artifact Level 10 may upgrade one Base Value into an Ultimate Base Value if the Artifact’s Ultimate is written that way.
+Artifact Level 10 grants Artifact Awakening; it does not create a new Ultimate Base Value.
 
 ---
 }}
@@ -299,7 +363,7 @@ A one-handed Weapon, Shield, Claw, Gauntlet, Hand Focus, or similar Artifact tha
 
 A two-handed Artifact that permanently occupies both **Main Hand** and **Off Hand** may have up to **three Base Values** and may use Base Value C.
 
-A Body Artifact may have only one Base Value, regardless of whether it is armor, scales, robes, skin, plating, clothing, or another body-based form.
+A Body Artifact may have only one Base Value, regardless of whether it is armor, scales, robes, skin, plating, clothing, or another body-based form. A Body Armor Base Value may contain its linked **Armor and Evade values** as defined by the Body Armor progression. That linked defensive profile still counts as one Base Value.
 
 A Head Artifact may have up to two Base Values.
 
@@ -318,9 +382,7 @@ The legal distributions are:
 Combinations such as 3 + 2, 3 + 3, or 4 + 0 are not legal. If only one of the two Slots is occupied, that Artifact is still limited to three Base Values.
 
 Echo Artifacts do not receive additional Base Values.
-
 Echo-bound means the Artifact is part of the character's origin and cannot normally be removed, replaced, sold, stolen, or unbound. It does not increase the Artifact's Base Value limit.
-
 If an Artifact needs additional functionality beyond its allowed Base Values, that functionality must be written into the Level Progression table.
 }}
 \page
@@ -331,14 +393,14 @@ If an Artifact needs additional functionality beyond its allowed Base Values, th
 | Base Value Type | Examples |
 |---|---|
 | **Damage** | Weapon Damage, Bite Damage, Claw Damage, Tail Damage |
-| **Armor** | Body Armor, Head Armor, Shield Value |
-| **Evade** | No-Armor Body Evade, light supernatural defense |
-| **Movement** | walking, climbing, swimming, tunneling, flying |
+| **Armor** | Body Armor defensive profile, Head Armor, Feet Minor Armor, Shield Value |
+| **Evade** | linked Body Armor Evade progression, minor Head or Feet Evade |
+| **Movement** | walking, climbing, swimming, tunneling, flying; **Immovable on Feet Base Value B only** (declare during Stone allocation; lasts 1 Round) |
 | **Thrown Range** | thrown weapon range |
 | **Weapon Special** | Penetration, Challenge, Corrode, Disoriented, Expose, Hex, Lacerate, Mark, Ruin, Slow, Soulburn, Sundered, Weaken, Push, Brutal Impact, Finesse |
 | **Minor Slot Feature** | Returning, Spell Focus, Shadow Stealth, Breath Interaction |
 
-A Base Value must fit the Artifact’s Slot.
+A Base Value must fit the Artifact's Slot.
 
 A Base Value is never a full Active, Active Buff, Reaction, Stone Function, or Movement Power.
 
@@ -377,7 +439,65 @@ When an Artifact grants a normal Power through its Level Progression, use the fo
 | Improved | Power Level 10 |
 | Greater | Power Level 16 |
 
-Artifact Level 10 may grant an Ultimate version of the Artifact's concept.
+Artifact Level 10 grants the universal Artifact Awakening benefits defined in the current Core.
+
+---
+
+### Technical References and Power Identity
+
+The **Artifact Name** is the character-facing name of an Artifact Function. The **Technical Reference** is its mechanical identity for rules interactions and Foundry VTT.
+
+The Artifact Name remains visible. The Technical Reference is recorded separately and may be shown in a tooltip or expanded rules view.
+
+**PL** means effective Power Level. Power Level, Artifact stage, source, and source restrictions are not part of the base Power identity.
+
+- If a Technical Reference names a catalogue Power, use that Power's complete rules at the listed PL.
+- An explicit Artifact restriction may limit the catalogue Power to the Artifact, its weapon, its Range, a fixed target, a fixed Trigger, or another written delivery profile.
+- **New/revised Artifact Functions must use an existing exact catalogue Power or Stone Ability.** Do not invent Artifact-specific Damage or Special potency. An explicitly printed Artifact-specific exception remains limited to that Artifact. New functions must match a current catalogue or Stone Ability.
+- Successive stages of one Artifact Function use the same base Technical Reference. Stage numerals such as I, II, and III remain part of the Artifact Name only. Changing PL, capacity, distance, uses, or another parenthetical source-profile value does not create a new base identity.
+- **Artifact Active**, **Artifact Active Buff**, and **Artifact Reaction** are Artifact-exclusive Powers. They follow the normal Power Use Limit under their exact base Technical Reference.
+- **Artifact Function**, **Stone Power Support**, **Stone Battery**, **Sense Option**, **Base Completion**, and **Ultimate** are not catalogue Powers unless their Technical Reference explicitly names one.
+- The retired bespoke Ultimate drafts do not grant additional effects. Artifact Level 10 follows the current Core's universal Artifact Awakening rule.
+
+If an Artifact summary conflicts with a referenced catalogue Power, the catalogue Power controls except for an explicit Artifact override written into that source profile.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+#### Duplicate Power Sources
+
+A Power's identity is its base **Technical Reference**, not its Artifact Name, character-facing name, source, or current PL.
+
+If several sources grant the same base Technical Reference, they grant one Power with several source profiles.
+
+- Duplicate sources do not stack.
+- Duplicate sources do not grant another use of the Power.
+- Duplicate sources do not bypass the once-per-round Power Use Limit or any other use restriction.
+- All source profiles share the same spent state until that state normally resets.
+- Use the highest currently available and legal Power Level among those source profiles.
+- If the highest profile cannot legally be used because its Artifact, weapon, target, Range, Trigger, or other source restriction is unavailable, use the highest remaining legal profile.
+- A later Artifact row with the same base Technical Reference is an upgrade of the same Artifact source. It replaces the earlier Artifact profile and never creates another copy.
+
+A character cannot intentionally purchase or select a second copy of the same base Technical Reference to gain another use.
+
+---
+
+#### Artifact Overlap and Retraining
+
+If an Artifact first grants a Technical Power that the character has already purchased with their own advancement resources, the character may choose one of the following options:
+
+1. Keep the purchased version as a fallback source.
+2. Retrain the purchased Power and its paid upgrades at no additional cost during the next legal retraining or downtime opportunity.
+
+The replacement choices must follow all normal requirements and may not exceed the total advancement value actually paid for the replaced Power and its upgrades.
+
+This retraining grants no bonus XP, Power Points, or other advancement resources. A Power received for free has no refundable or retrainable advancement value.
+
+If the purchased version is retained and the Artifact becomes unavailable, the character falls back to the purchased profile at its own PL. If the purchased version was retrained, the character loses access to the Power while the Artifact is unavailable.
+
+Foundry VTT must never delete, refund, or retrain a purchased Power automatically. It should identify the overlap, combine the source profiles for use tracking, and show the retraining choice to the player and GM.
 
 ---
 
@@ -385,7 +505,10 @@ Artifact Level 10 may grant an Ultimate version of the Artifact's concept.
 
 | Rule | Value |
 |---|---|
-| Artifact Capacity | Usually 1 |
+| Maximum bound Artifacts | 4 |
+| Default Artifact Capacity cost | 1 |
+| Binding Stone cost | None |
+| First awakening | Level 1 after Attunement; free |
 | Artifact Levels | 1-10 |
 | Power Stages | Basic, Improved, Greater, Ultimate |
 | Default Power Levels | Level 1-3 = PL 4, Level 4-6 = PL 10, Level 7-9 = PL 16 |
@@ -394,7 +517,10 @@ Artifact Level 10 may grant an Ultimate version of the Artifact's concept.
 | Slot Bypass | Not allowed |
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Slot Power Access
 
 | Slot Group | Primary Access | Secondary Access | Not Allowed |
@@ -402,7 +528,7 @@ Artifact Level 10 may grant an Ultimate version of the Artifact's concept.
 | **Main Hand / Off Hand** | Actives | Reactions if written as Shield, Counter, or Guard | Movement, Passives, defensive Active Buffs |
 | **Body** | Armor, Active Buff Support, defensive systems | Defensive Actives, defensive Stone Functions | Weapon Damage, Movement, Sense Support, offensive Actives |
 | **Head** | Reactions, Sense Support, Head Actives | Ammo, Breath, Gaze, Roar | Body Armor functions, Movement, Passive Reinforcement |
-| **Feet** | Movement | terrain movement modes | Damage, Specials, Armor, Active Buffs, Reactions |
+| **Feet** | Movement | terrain movement modes, Minor Armor | Weapon Damage, offensive Specials, Body Armor, Active Buffs, Reactions, Extra Attacks, general Passive Reinforcement |
 | **Amulet / Ring** | Passive Reinforcement, Ward / Spell Resistance Support | Actives, Reactions, Stone Functions | Weapon Damage, Body Armor, Movement, Extra Attacks |
 
 ---
@@ -416,43 +542,24 @@ If an Artifact grants a Reaction, it follows all normal Reaction rules.
 
 A Reaction answers one immediate trigger.
 
-A Reaction only applies to the triggering attack, hit, damage instance, defensive event, or declared trigger.
+A Reaction normally applies only to the triggering attack, hit, damage instance, defensive event, or declared Trigger.
 
-After that triggering event is fully resolved, every benefit granted by the Reaction immediately expires.
+If the referenced Reaction explicitly gives an effect a different duration, that specific duration controls. For example, remaining Temporary HP from **Reaction: Temporary HP** lasts until the end of the user's next Turn, and Initiative gained through **Reaction: Initiative** follows its own permanent Initiative rules.
 
-This includes Armor, Evade, Temporary HP, Damage Reduction, Phasing, Counter Effects, Ally Protection, Special Increase, and any other Reaction effect.
-
-A Reaction never creates a maintained state.
-
-A Reaction is not an Active Buff.
-
-A Reaction is not a Support Power.
-
-A Reaction does not remain until the end of the turn, the end of the round, or the end of the next turn.
+A Reaction is not an Active Buff or a Support Power. It creates no maintained state **unless its exact Technical Reference explicitly says otherwise**.
 
 ---
 
 #### Duplicate Reaction Sources
 
-A character cannot benefit from the same Reaction more than once.
+Reactions follow the universal **Duplicate Power Sources** rule above.
 
-If multiple sources grant the same Reaction, such as a Tree, Artifact, Echo, Item, Shield, Weapon, Armor, or other feature, those sources do not create additional Reaction uses.
+The chosen Trigger is stored separately and does not create a second copy of the same Reaction Effect. If multiple sources grant the same base Reaction Effect with different Triggers, they share one spent state and use the highest currently legal source profile.
 
-The source only determines how the character gains access to the Reaction.
-
-It does not create a new Power.
-
-If a character gains the same Reaction from multiple sources, use the highest available version of that Reaction.
-
-Duplicate sources do not stack, do not grant additional uses, and do not allow the character to use the same Reaction more than once in the same round.
-
-A character still normally has only one Reaction per round.
+A character still normally has only one Reaction per Round.
 
 ---
-}}
-\page
-{{pageNumber,auto}}
-{{wide
+
 ## Damage Baseline
 
 If an Artifact grants its own Weapon Damage, Natural Weapon Damage, Bite Damage, Claw Damage, Tail Damage, or similar direct attack damage, use this default scaling unless the Artifact writes a weaker custom table.
@@ -475,7 +582,10 @@ This damage is Weapon Damage if the Artifact says it is Weapon Damage.
 This damage does not automatically apply to other Powers unless the Artifact explicitly says so.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ## Thrown Weapon Baseline
 
 If an Artifact Weapon is written as **Thrown**, use the following default thrown range scaling unless the Artifact writes a custom range.
@@ -528,23 +638,23 @@ Weaken and Soulburn use the Start PP 8 weapon progression. They reduce dice pool
 
 An Artifact Weapon may gain one numeric Weapon Special through its Base or custom Weapon table.
 
-Diminishing Specials are grouped by Start PP so more powerful effects scale more slowly.
+Numeric Weapon Specials use the listed baseline groups. **Blight is Timed**, not Diminishing; its printed X counts affected-creature Turns. Challenge and the direct pool-reduction Specials have compressed costs in the current AGENT and therefore require a separate budget review before old Artifact weapon values are treated as up-to-date.
 
 | Special Group | Eligible Specials | Level 1 | Level 4 | Level 7 | Level 10 |
 |---|---|---:|---:|---:|---:|
-| **Start PP 3** | Blight | 2 | 4 | 7 | 9 or Ultimate |
-| **Start PP 4** | Lacerate, Mark, Ruin, Slow | 2 | 4 | 6 | 8 or Ultimate |
-| **Start PP 6** | Challenge, Corrode, Hex, Sundered | 1 | 3 | 4 | 6 or Ultimate |
-| **Start PP 8** | Disoriented, Expose, Soulburn, Weaken | 1 | 2 | 4 | 5 or Ultimate |
+| **Start PP 3** | Blight | 2 | 4 | 7 | 9 |
+| **Start PP 4** | Lacerate, Mark, Ruin, Slow | 2 | 4 | 6 | 8 |
+| **Start PP 6** | Challenge, Corrode, Hex, Sundered | 1 | 3 | 4 | 6 |
+| **Start PP 8** | Disoriented, Expose, Soulburn, Weaken | 1 | 2 | 4 | 5 |
 
 Use these separate baselines for Instant Specials:
 
 | Special | Level 1 | Level 4 | Level 7 | Level 10 |
 |---|---:|---:|---:|---:|
-| Penetration | 2 | 4 | 6 | 8 or Ultimate |
-| Push / Pull | 2 m | 4 m | 6 m | 8 m or Ultimate |
-| Precision | 1 | 2 | 3 | 4 or Ultimate |
-| Brutal Impact | 3 | 5 | 7 | 9 or Ultimate |
+| Penetration | 2 | 4 | 6 | 8 |
+| Push / Pull | 2 m | 4 m | 6 m | 8 m |
+| Precision | 1 | 2 | 3 | 4 |
+| Brutal Impact | 3 | 5 | 7 | 9 |
 
 Qualitative traits such as Finesse, Light, Reach, Thrown, Returning, and Spell Focus do not scale by number.
 
@@ -628,7 +738,7 @@ It occupies Main Hand or Off Hand.
 
 | Shield Base | Shield Value | Evade | Initiative | Skill Penalty |
 |---|---:|---:|---:|---|
-| Parry Shield | +1 | +4 | - | -1d8 Physical Skills |
+| Parry Shield | +1 | +2 | - | -1d8 Physical Skills |
 | Medium Shield | +4 | +0 | - | -2d8 Physical Skills |
 | Tower Shield | +8 | -4 | -4 | -2d8 Physical Skills |
 
@@ -645,83 +755,121 @@ A Shield Artifact may not grant full Weapon Damage progression unless it is expl
 {{wide
 ## Body Armor Baseline
 
-Magical Armor is Magical Armor.
+Magical Body Armor is built from a normal Armor chassis.
 
-The mundane armor profile determines the starting armor style and drawbacks.
+Choose **Light Armor**, **Medium Armor**, or **Heavy Armor** when the Artifact is created. A Robe is handled separately under **Robe Artifacts**.
 
-The magical Artifact Armor Bonus is the same for all Body Armor Artifacts.
+The chosen Armor type determines the Artifact's starting Armor, its normal Evade modifier, and any Initiative or Skill penalties.
 
-| Body Base | Base Armor | Evade | Initiative | Skill Penalty |
+| Body Base | Starting Armor | Base Evade Modifier | Initiative | Skill Penalty |
 |---|---:|---:|---:|---|
-| Robe / No Armor | 0 | special | - | - |
+| Robe / No Armor | 0 | +0 | - | - |
 | Light Armor | 4 | +0 | - | - |
 | Medium Armor | 8 | -2 | -4 | -1d8 Physical Skills |
 | Heavy Armor | 12 | -4 | -8 | -2d8 Physical Skills |
 
-The armor being natural, grown, forged, summoned, worn, or made of shadow does not remove its drawbacks unless the Artifact explicitly says so.
+The armor being natural, grown, forged, summoned, worn, made of shadow, or represented by another supernatural form does not remove its Armor-type drawbacks unless the Artifact explicitly says so.
 
 ---
 
-#### Artifact Armor Bonus
+#### Building Body Armor Artifacts
 
-All magical Body Armor Artifacts use the same Artifact Armor Bonus.
+Body Armor Artifacts do **not** add a separate universal Artifact Armor Bonus to mundane Armor.
 
-| Artifact Level | Artifact Armor Bonus |
-|---:|---:|
-| Level 1 | +4 Armor |
-| Level 2 | +5 Armor |
-| Level 3 | +6 Armor |
-| Level 4 | +7 Armor |
-| Level 5 | +8 Armor |
-| Level 6 | +9 Armor |
-| Level 7 | +10 Armor |
-| Level 8 | +11 Armor |
-| Level 9 | +12 Armor |
-| Level 10 | +14 Armor or Ultimate Armor Effect |
+Instead, every Body Armor Artifact uses the complete Level progression of its chosen Armor type below.
 
-Total Armor = Base Armor + Artifact Armor Bonus.
+- **Light Armor** uses linked Armor and Evade progression. Armor begins at **4** and reaches **8**. Evade begins at **+2** and increases by **+1 every Artifact Level**, reaching **+11** at Level 10.
+- **Medium Armor** uses linked Armor and Evade progression. Armor begins at **8** and reaches **12**. Its Artifact Evade Bonus begins at **+1** and increases by **+1 every two Artifact Levels**, reaching **+5**. The normal Medium Armor **-2 Evade** modifier still applies.
+- **Heavy Armor** is primarily Armor. Armor begins at **12** and reaches **16**. It keeps its normal **-4 Evade** modifier, but from Artifact Level 6 onward it gains a fixed **+2 Artifact Evade Bonus**, reducing the final Armor-based modifier to **-2 Evade**.
 
-Example totals:
+For all three Armor types, Armor increases by **+1 every two Artifact Levels** after Level 2.
 
-| Body Base | Level 1 | Level 5 | Level 10 |
-|---|---:|---:|---:|
-| Light Armor | 8 Armor | 12 Armor | 18 Armor |
-| Medium Armor | 12 Armor | 16 Armor | 22 Armor |
-| Heavy Armor | 16 Armor | 20 Armor | 26 Armor |
+The Armor and Evade entries printed in these tables are one linked **Body Armor Base Value**. They do not consume separate Base Value slots.
 
-This keeps Armor useful without making it the only defensive path.
+The listed Armor is the **total Armor provided by the Body Artifact at that Artifact Level**. Do not add the mundane Starting Armor a second time.
 
-Other systems such as Armor Active Buffs, Armor Stone Powers, Shields, and Reactions may still increase Armor through their own rules.
+For Medium and Heavy Armor, calculate the final Evade modifier by combining the Armor type's normal Base Evade Modifier with the Artifact Evade Bonus shown in its progression table.
+
+Initiative and Physical Skill penalties remain unchanged at all Artifact Levels unless a specific Artifact explicitly overrides them.
+
+Armor and Evade values from the Body Armor progression cannot be traded, redistributed, or converted into each other.
 
 ---
 }}
 \page
 {{pageNumber,auto}}
 {{wide
-## No-Armor Body Baseline
+## Artifact Body Armor Progressions
 
-A Body Artifact with 0 Armor may grant Evade instead of Armor.
+### Light Armor Artifact
 
-Use this default Evade scaling. The Artifact starts from a +6 Evade base and increases by +1 Evade per Artifact Level:
+Light Armor is the mobile defensive Artifact path. It gains the strongest Evade progression while retaining a modest Armor layer.
 
 | Artifact Level | Armor | Evade Bonus |
 |---:|---:|---:|
-| Level 1 | 0 | +7 Evade |
-| Level 2 | 0 | +8 Evade |
-| Level 3 | 0 | +9 Evade |
-| Level 4 | 0 | +10 Evade |
-| Level 5 | 0 | +11 Evade |
-| Level 6 | 0 | +12 Evade |
-| Level 7 | 0 | +13 Evade |
-| Level 8 | 0 | +14 Evade |
-| Level 9 | 0 | +15 Evade |
-| Level 10 | 0 | +16 Evade |
+| Level 1 | 4 | +2 Evade |
+| Level 2 | 4 | +3 Evade |
+| Level 3 | 5 | +4 Evade |
+| Level 4 | 5 | +5 Evade |
+| Level 5 | 6 | +6 Evade |
+| Level 6 | 6 | +7 Evade |
+| Level 7 | 7 | +8 Evade |
+| Level 8 | 7 | +9 Evade |
+| Level 9 | 8 | +10 Evade |
+| Level 10 | 8 | +11 Evade |
 
-This replaces Armor.
+Light Armor has no inherent Evade, Initiative, or Physical Skill penalty. The listed Evade Bonus is therefore its final Armor-based Evade modifier.
 
-If the wearer is hit, this Artifact provides no Armor unless another Power grants Armor separately.
+---
 
-No-Armor Body Artifacts are intended for builds that rely on Evade, Temporary HP, Phasing, Reactions, or other defensive systems.
+### Medium Armor Artifact
+
+Medium Armor balances Armor with a slower Evade progression.
+
+| Artifact Level | Armor | Artifact Evade Bonus | Final Evade Modifier |
+|---:|---:|---:|---:|
+| Level 1 | 8 | +1 Evade | -1 Evade |
+| Level 2 | 8 | +1 Evade | -1 Evade |
+| Level 3 | 9 | +2 Evade | +0 Evade |
+| Level 4 | 9 | +2 Evade | +0 Evade |
+| Level 5 | 10 | +3 Evade | +1 Evade |
+| Level 6 | 10 | +3 Evade | +1 Evade |
+| Level 7 | 11 | +4 Evade | +2 Evade |
+| Level 8 | 11 | +4 Evade | +2 Evade |
+| Level 9 | 12 | +5 Evade | +3 Evade |
+| Level 10 | 12 | +5 Evade | +3 Evade |
+
+The **Final Evade Modifier** already includes Medium Armor's normal **-2 Evade** modifier.
+
+Medium Armor keeps **-4 Initiative** and **-1d8 Physical Skills** at every Artifact Level unless the Artifact explicitly says otherwise.
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+### Heavy Armor Artifact
+
+Heavy Armor remains the strongest Armor-focused path. Its Evade drawback remains meaningful, but a developed Heavy Armor Artifact recovers part of that penalty.
+
+| Artifact Level | Armor | Artifact Evade Bonus | Final Evade Modifier |
+|---:|---:|---:|---:|
+| Level 1 | 12 | +0 Evade | -4 Evade |
+| Level 2 | 12 | +0 Evade | -4 Evade |
+| Level 3 | 13 | +0 Evade | -4 Evade |
+| Level 4 | 13 | +0 Evade | -4 Evade |
+| Level 5 | 14 | +0 Evade | -4 Evade |
+| Level 6 | 14 | +2 Evade | -2 Evade |
+| Level 7 | 15 | +2 Evade | -2 Evade |
+| Level 8 | 15 | +2 Evade | -2 Evade |
+| Level 9 | 16 | +2 Evade | -2 Evade |
+| Level 10 | 16 | +2 Evade | -2 Evade |
+
+The **Final Evade Modifier** already includes Heavy Armor's normal **-4 Evade** modifier.
+
+Heavy Armor keeps **-8 Initiative** and **-2d8 Physical Skills** at every Artifact Level unless the Artifact explicitly says otherwise.
+
+A Heavy Armor Artifact never follows the Light or Medium Evade progression merely because its appearance is light, spectral, natural, or magical.
 
 ---
 
@@ -801,9 +949,11 @@ A Robe is a Body Artifact with no Armor Base.
 
 It grants no Armor.
 
-It does not receive Artifact Armor Bonus.
+It does not use a Light, Medium, or Heavy Body Armor progression.
 
 It has no Armor drawbacks.
+
+A Robe does not gain Evade as a replacement for Armor.
 
 Instead, it supports one existing defensive build.
 
@@ -858,7 +1008,7 @@ Head Armor is Minor Armor.
 
 Head Armor is not Body Armor.
 
-Only Head Artifacts and Shield Artifacts may grant Armor outside the Body Slot unless a specific Artifact says otherwise.
+Only Head, Feet, and Shield Artifacts may grant Armor outside the Body Slot. Head and Feet Armor use the **Minor Armor Baseline** unless a specific Artifact explicitly says otherwise.
 
 ---
 
@@ -1011,13 +1161,17 @@ Feet Artifacts represent boots, hooves, talons, movement organs, supernatural st
 
 Feet Artifacts may grant Movement Powers or movement qualities.
 
+**Immovable - Feet Base Value B only (ruling 16 October 2026):** A wearer of a Feet Artifact with Immovable as its Base B may declare it during Stone Ability allocation in the Round's Preparation Phase, before any actions. The declaration costs no extra Action or Stone and lasts until that Round ends. During the Round voluntary Movement is 0 m and the wearer cannot be forcibly displaced; Evade and other non-movement defenses remain normal. Immovable must be declared again each Round in which it is wanted. No generic Power, additional Artifact Level function, A/C Base Value, or body-slot option is created. Stonebound Soles still retain Tunneling as Base B; no existing Artifact is silently altered.
+
 Feet Artifacts may grant Tremor Sense as a separate Sense Option.
+
+Feet Artifacts may grant **Minor Armor** only through the Minor Armor Baseline below. Minor Armor is not Body Armor and does not grant a Body Armor progression.
 
 Feet Artifacts may not grant:
 
 - Weapon Damage
 - offensive Specials
-- Armor
+- Body Armor or a full Body Armor progression
 - Active Buffs
 - Reactions
 - Extra Attacks
@@ -1039,7 +1193,7 @@ Feet Evade is a minor Artifact value. It increases by +1 Evade every two Artifac
 | Level 7 | +4 Evade |
 | Level 8 | +4 Evade |
 | Level 9 | +5 Evade |
-| Level 10 | +5 Evade or Ultimate Footwork |
+| Level 10 | +5 Evade  |
 
 
 #### Minor Armor Baseline: Head / Feet
@@ -1259,13 +1413,18 @@ A Base Value may not create a Movement Power.
 \page
 {{pageNumber,auto}}
 {{wide
+
+> **Design decision — divine artifacts:** Exactly **eight divine artifacts** exist in the setting. Known examples are the **Book of Light**, the **Moonsword**, and the **Lantern of the Hollow Star**. Five identities are not established in this release; do not invent them. Divine artifacts are exceptional, and the Sentinel Echo artifacts may exceed normal Stone-function limits because Sentinels are god-created beings. The Lantern retains its three Stone-linked functions as an explicit unique exception.
+
+> **Current ruling (16 October 2026):** Might Stone Ability: **Armor Reduction** (Ranks 1-4: 4/8/16/32) reduces effective Armor for all damaging attacks by its user that Round. It stacks additively with qualifying **Weapon Special: Penetration(X)** and with **Corrode(X)** on the target, to a minimum effective Armor of 0; no Armor penalty persists from the Stone Ability. Generic Penetration Actives and Active Buffs remain retired. **Immovable** is Feet Artifact Base Value B only, declared during Stone Allocation before the Round; 0 m voluntary Movement in exchange for forced-displacement immunity for that Round, with no change to Evade. Stonebound Soles keep their existing Tunneling Base B. Level 10 follows the current Core Artifact Awakening rule; mechanical size changes use Transformation and visual changes use Form. This is the current standalone Artifact catalogue.
+
 #### Stonebound Soles
 
 Stonebound Soles are a Dwarf Echo Artifact representing ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Feet | Dwarven Feet | Armor / Tunneling / Tremor Sense Option / Immovable / Safe Movement / Armor Buff Empowerment | Echo-bound |
+| Feet | Dwarven Feet | Armor / Tunneling / Tremor Sense Option / Artifact Active Buff: Temporary HP / Movement: Safe Movement / Armor Active Buff Empowerment | Echo-bound |
 
 Stonebound Soles occupy the Feet Slot.
 
@@ -1288,7 +1447,7 @@ Stonebound Soles are Echo-bound and cannot normally be removed, replaced, sold, 
 | Level 7 | +4 Armor | +2 m Tunneling |
 | Level 8 | +4 Armor | +3 m Tunneling |
 | Level 9 | +5 Armor | +3 m Tunneling |
-| Level 10 | +5 Armor, True Stonebound Soles | +4 m Tunneling |
+| Level 10 | +5 Armor | +4 m Tunneling |
 
 The Armor from Stonebound Soles is minor Armor from the Feet Slot. It stacks with Body Armor and Shield Armor as normal Armor resolution.
 
@@ -1310,15 +1469,7 @@ It does not perceive flying, hovering, swimming, fully airborne, incorporeal, or
 
 ### Immovable
 
-While Immovable, you cannot be pushed, pulled, knocked Prone, or forcibly moved by normal effects.
-
-While Immovable, you cannot use Movement Powers and your Movement becomes **0 m**.
-
-You cannot increase Evade through Stone Powers, Actives, Active Buffs, or Reactions while Immovable. Passive Evade still applies, but attacks against you do not need to beat your Evade while you are Immovable.
-
-You may still use Armor, Temporary HP, Damage Reduction, resistance, immunity, Reactions, and other legal defensive effects normally.
-
-Immovable ends when the effect granting it ends.
+Only a wearer with Immovable as **Feet Artifact Base Value B** may declare Immovable during the Preparation Phase, while distributing Stone Abilities for the coming Round. The declaration has no additional Action or Stone cost and lasts **one Round**. The wearer cannot move voluntarily (0 m) and cannot be forcibly displaced by Push, Pull, knockback, or equivalent effects during that Round. Normal Evade and other defenses still function; Immovable does not prevent Prone or other non-displacement effects. A new declaration is required for each later Round. See the current Core for the normative effect.
 
 ---
 }}
@@ -1327,18 +1478,18 @@ Immovable ends when the effect granting it ends.
 {{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Anchoring Stance I** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **40 Temporary HP**. | Immovable + Temporary HP |
-| **2** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **3** | **Stoneweave Guard I** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+1** and its duration by **+1 round**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **4** | **Anchoring Stance II** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **220 Temporary HP**. | Immovable + Temporary HP |
-| **5** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **6** | **Stoneweave Guard II** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+2** and its duration by **+2 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **7** | **Anchoring Stance III** | Active Buff | Self | — | 2 Rounds | You become **Immovable** and gain **400 Temporary HP**. | Immovable + Temporary HP |
-| **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions. | Safe Movement |
-| **9** | **Stoneweave Guard III** | Support | Self | — | Special | When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by **+3** and its duration by **+3 rounds**. The Active Buff cannot exceed Power Level 16. Uses per Safe Haven Rest: half Mastery Rank, rounded up. | Armor Buff Empowerment |
-| **10** | **True Stonebound Soles** | Ultimate | Self | — | Special | Stonebound Soles fully awaken. Choose or define one final Armor, Tunneling, Immovable, Safe Movement, or stone-defense effect with GM approval. | True Stonebound Soles |
+| **1** | **Anchoring Stance I** | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 4)**: at the start of each turn while the Buff lasts, restore Temporary HP from this Buff up to **32** (no real HP); it lasts Mastery Rank Rounds. | **Active Buff: Temporary HP (PL 4)** |
+| **2** | **Stone-Sure Step I** | Movement | Self | — | Instant | Move up to **8 m** along a legal ground path without provoking movement-triggered Reactions. | **Movement: Safe Movement (PL 4)** |
+| **3** | **Stoneweave Guard I** | Artifact Function | Self | — | Special | When you activate an Armor-granting Active Buff, you may increase its effective PL by **+1** and its duration by **+1 Round**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+1 PL, +1 Round)** |
+| **4** | **Anchoring Stance II** | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 10)**: at the start of each turn while the Buff lasts, restore Temporary HP from this Buff up to **77** (no real HP); it lasts Mastery Rank Rounds. This replaces Anchoring Stance I. | **Active Buff: Temporary HP (PL 10)** |
+| **5** | **Stone-Sure Step II** | Movement | Self | — | Instant | Move up to **14 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step I. | **Movement: Safe Movement (PL 10)** |
+| **6** | **Stoneweave Guard II** | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+2 PL** and **+2 Rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+2 PL, +2 Rounds)** |
+| **7** | **Anchoring Stance III** | Active Buff | Self | — | Mastery Rank Rounds | Use standard **Active Buff: Temporary HP (PL 16)**: at the start of each turn while the Buff lasts, restore Temporary HP from this Buff up to **122** (no real HP); it lasts Mastery Rank Rounds. This replaces Anchoring Stance II. | **Active Buff: Temporary HP (PL 16)** |
+| **8** | **Stone-Sure Step III** | Movement | Self | — | Instant | Move up to **20 m** along a legal ground path without provoking movement-triggered Reactions. This replaces Stone-Sure Step II. | **Movement: Safe Movement (PL 16)** |
+| **9** | **Stoneweave Guard III** | Artifact Function | Self | — | Special | Armor Active Buff Empowerment improves to **+3 PL** and **+3 Rounds**, to a maximum of PL 16. Uses per Safe Haven Rest: half MR, rounded up. | **Artifact Function: Armor Active Buff Empowerment (+3 PL, +3 Rounds)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Stonebound Soles)** |
 
 ---
 
@@ -1406,7 +1557,7 @@ An Amulet or Ring may reinforce one chosen Passive.
 | Level 1-3 | Passive counts as +1 level |
 | Level 4-6 | Passive counts as +2 levels |
 | Level 7-9 | Passive counts as +3 levels |
-| Level 10 | Passive counts as +4 levels or Ultimate |
+| Level 10 | Passive counts as +4 levels |
 
 This cannot raise a Passive above its normal maximum.
 
@@ -1427,9 +1578,9 @@ Choose one Support type when the Artifact is created:
 
 | Support Type | Level 1-3 | Level 4-6 | Level 7-9 | Level 10 |
 |---|---:|---:|---:|---:|
-| **Ward Reinforcement** | +1 Ward | +2 Ward | +3 Ward | +4 Ward or Ultimate |
-| **Spell Resistance Reinforcement** | +1 Spell Resistance | +2 Spell Resistance | +3 Spell Resistance | +4 Spell Resistance or Ultimate |
-| **Cleanse Reinforcement** | +1 Cleanse | +2 Cleanse | +3 Cleanse | +4 Cleanse or Ultimate |
+| **Ward Reinforcement** | +1 Ward | +2 Ward | +3 Ward | +4 Ward |
+| **Spell Resistance Reinforcement** | +1 Spell Resistance | +2 Spell Resistance | +3 Spell Resistance | +4 Spell Resistance |
+| **Cleanse Reinforcement** | +1 Cleanse | +2 Cleanse | +3 Cleanse | +4 Cleanse |
 
 The character must already have the supported Passive or Power.
 
@@ -1462,36 +1613,30 @@ Stone Functions must fit the Artifact's Slot.
 
 #### Stone Power Support
 
-Stone Power Support pre-fills a higher tier of one preselected Stone Power chosen when the Artifact is created.
+**The current Core Stone Ability Rank rules apply.** Every Stone Ability has Ranks 1–4. Stone Power Support pre-fills exactly one named **Rank** of one eligible Stone Ability chosen when the Artifact is designed. The supported Rank's *incremental cost* is paid by the Artifact; **all lower Ranks must still be purchased and resolved normally**. The older claim that Crit, Parry, Extra Attack, or other premium Abilities begin at Rank 2 is retired and invalid. **Premium Stone Abilities DO have Rank 1.**
 
-The chosen Stone Power must fit the Artifact's Slot and theme.
+The chosen Stone Ability must fit the Artifact's Slot and theme. A character must have unlocked that Stone Ability normally. Support creates no extra activation or uses, and respects all existing timing, once-per-combat limits, and restrictions of that Stone Ability. The character cannot use unsupported lower Ranks for free. For **Agility Ability: Crit**, the Support only pre-fills its chosen Rank and never independently grants Critical or a Critical Weapon Special.
 
-Stone Power Support never pre-fills Tier 1.
+| Artifact Level | Supported Rank | Lower Ranks still payable | Normal cost of lower Ranks | Premium cost of lower Ranks |
+|---:|---:|---|---:|---:|
+| Level 1–3 | Rank 2 | Rank 1 | 1 Stone | 2 Stones |
+| Level 4–6 | Rank 3 | Ranks 1 and 2 | 3 Stones | 6 Stones |
+| Level 7–9 | Rank 4 | Ranks 1, 2 and 3 | 7 Stones | 12 Stones |
 
-The character must always pay all lower tiers themselves.
-
-If the required lower tiers are not paid, the pre-filled tier has no effect.
-
-When Stone Power Support is linked to the **Agility Ability: Crit**, it only pre-fills the named Tier of that Stone Ability. It never grants Critical directly and never creates an independent Critical weapon rider.
-
-Stone Power Support can be used a number of times per Safe Haven Rest equal to the character's Mastery Rank.
-
-| Artifact Level | Pre-filled Tier | Character Must Pay |
-|---:|---:|---|
-| Level 1-3 | Tier 2 | Tier 1 |
-| Level 4-6 | Tier 3 | Tier 1 + Tier 2 |
-| Level 7-9 | Tier 4 | Tier 1 + Tier 2 + Tier 3 |
+The Artifact does not change standard costs. If a specific approved Artifact explicitly imposes an additional rest-based use limit, apply it in addition to the supported Ability's normal timing; do not infer a universal extra MR-times limit from a legacy draft.
 
 ---
 
-#### Stone Power Cost Chain
+#### Stone Ability Cost Chains (Core)
 
-| Stone Power Tier | Stone Cost |
-|---:|---:|
-| Tier 1 | 1 Stone |
-| Tier 2 | 2 Stones |
-| Tier 3 | 4 Stones |
-| Tier 4 | 8 Stones |
+| Rank | Normal incremental | Normal cumulative | Premium incremental | Premium cumulative |
+|---:|---:|---:|---:|---:|
+| Rank 1 | 1 | 1 | 2 | 2 |
+| Rank 2 | 2 | 3 | 4 | 6 |
+| Rank 3 | 4 | 7 | 6 | 12 |
+| Rank 4 | 8 | 15 | 8 | 20 |
+
+Premium Abilities are exactly: Extra Attack, Parry, Crit, Damage Negation, Special Boost, Damage Reduction, Not a Target, and Phasing. Normal applies to all others.
 
 ---
 
@@ -1664,7 +1809,6 @@ A Feet Artifact that teleports uses Movement. It does not also deal damage unles
 ### Artifact Examples
 
 }}
-
 \page
 {{pageNumber,auto}}
 {{wide
@@ -1674,7 +1818,7 @@ The Moonlight Greatsword is a two-handed Artifact Weapon forged from pale lunar 
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand + Off Hand | Two-Handed Weapon | Weapon Damage / Requiem / Expose / Moonlight Functions | Bound |
+| Main Hand + Off Hand | Two-Handed Weapon | Weapon Damage / Spell Focus (+4d8) Base B / Expose Base C / Moonlight Functions | Bound |
 
 The Moonlight Greatsword occupies both hand Slots.
 A character with the Moonlight Greatsword cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item at the same time. Moonlight Greatsword attacks may use **Might or Agility**.
@@ -1683,18 +1827,20 @@ A character with the Moonlight Greatsword cannot use another weapon, shield, han
 
 #### Weapon Base
 
-| Artifact Level | Base Value A: Weapon Damage | Base Value B: Weapon Special | Base Value C: Weapon Special |
+| Artifact Level | Base Value A: Weapon Damage | Base Value B: Spell Focus | Base Value C: Weapon Special |
 |---:|---:|---|---|
 | Level 1 | 4d8 | — | — |
 | Level 2 | 5d8 | — | — |
 | Level 3 | 6d8 | — | — |
-| Level 4 | 8d8 | Requiem(4) | — |
-| Level 5 | 9d8 | Requiem(4) | — |
-| Level 6 | 10d8 | Requiem(4) | — |
-| Level 7 | 12d8 | Requiem(8) | Expose(4) |
-| Level 8 | 13d8 | Requiem(8) | Expose(4) |
-| Level 9 | 14d8 | Requiem(8) | Expose(4) |
-| Level 10 | 16d8 | Requiem(8) | Expose(8), True Moonlight |
+| Level 4 | 8d8 | Spell Focus (+4d8) | — |
+| Level 5 | 9d8 | Spell Focus (+4d8) | — |
+| Level 6 | 10d8 | Spell Focus (+4d8) | — |
+| Level 7 | 12d8 | Spell Focus (+4d8) | Expose(4) |
+| Level 8 | 13d8 | Spell Focus (+4d8) | Expose(4) |
+| Level 9 | 14d8 | Spell Focus (+4d8) | Expose(4) |
+| Level 10 | 16d8 | Spell Focus (+4d8) | Expose(8), True Moonlight |
+
+**Spell Focus source:** Base Value B uses the existing **Runestaff's two-handed Spell Focus (+4d8)** property from the Core weapon table; this is not a new damage progression. It applies only to damaging Spells and is **never doubled by Limited**. Moonlight Mending is Healing and therefore gains no damage from the Focus.
 
 ---
 }}
@@ -1703,18 +1849,18 @@ A character with the Moonlight Greatsword cannot use another weapon, shield, han
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Moonlight Mending I** | Active | 20 m | - | Instant | Heal one creature for **10d8 HP**. | Restore **1 Health Level** per Safe Haven Rest. |
-| **2** | **Moonlight Judgment I** | Active | 20 m | Radius 3 m | Instant | Make one ranged AoE Attack Roll and compare it separately against the Evade of each creature in the radius. Every creature hit takes **Weapon Damage**. A **Deathless** creature hit also gains **Requiem(6)**. Each creature that would be hit may use **Dive for Cover** before payload. | Requiem(6) |
-| **3** | **Moonlight Shadow I**¹ | Artifact Only Active Buff | Self | 2 m radius | Mastery Rank Rounds | Use the normal **Active Buff: Damage Aura** at **Power Level 4**. At the end of each of your turns, enemies in the aura take **3d8 damage**. | Damage Aura |
-| **4** | **Moonlight Mending II** | Active | 44 m | - | Instant | Heal one creature for **25d8 HP**. | Restore **2 Health Levels** per Safe Haven Rest. |
-| **5** | **Moonlight Judgment II** | Active | 32 m | Radius 3 m | Instant | Make one ranged AoE Attack Roll and compare it separately against the Evade of each creature in the radius. Every creature hit takes **Weapon Damage**. A **Deathless** creature hit also gains **Requiem(14)**. Each creature that would be hit may use **Dive for Cover** before payload. | Requiem(14) |
-| **6** | **Moonlight Shadow II**¹ | Artifact Only Active Buff | Self | 3 m radius | Mastery Rank Rounds | Use the normal **Active Buff: Damage Aura** at **Power Level 10**. At the end of each of your turns, enemies in the aura take **7d8 damage**. | Damage Aura |
-| **7** | **Moonlight Mending III** | Active | 68 m | - | Instant | Heal one creature for **40d8 HP**. | Restore **4 Health Levels** per Safe Haven Rest. |
-| **8** | **Moonlight Judgment III** | Active | 32 m | Radius 3 m | Instant | Make one ranged AoE Attack Roll and compare it separately against the Evade of each creature in the radius. Every creature hit takes **Weapon Damage**. A **Deathless** creature hit also gains **Requiem(19)**. Each creature that would be hit may use **Dive for Cover** before payload. | Requiem(19) |
-| **9** | **Moonlight Shadow III**¹ | Artifact Only Active Buff | Self | 4 m radius | Mastery Rank Rounds | Use the normal **Active Buff: Damage Aura** at **Power Level 16**. At the end of each of your turns, enemies in the aura take **11d8 damage**. | Damage Aura |
-| **10** | **True Moonlight** | Ultimate | Self | - | Special | The Moonlight Greatsword fully awakens. Choose or define one final Moonlight effect with GM approval. | True Moonlight |
+| **1** | **Moonlight Mending I** | Active, Support | 20 m | None | Instant | Heal one creature for **5d8 HP** in its current Health Bar; does not restore Scarred Health Bars. | **Ranged Single Target Heal (PL 4)** |
+| **2** | **Moonlight Judgment I** | Artifact Active, Spell | 20 m | Radius 3 m | Instant | Cast **Limited Ranged AoE Attack** (PL 4) as one damaging Spell AoE; printed **+3d8 Power Damage** becomes **+6d8** for this use. Base B is not yet unlocked; no Focus bonus. **2 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No weapon damage and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 4)** |
+| **3** | **Moonlight Shadow I**¹ | Active Buff | Self | Radius 2 m | Mastery Rank Rounds | At the end of each of your Turns, enemies in the aura take **3d8 damage**. Each creature can be affected only once per Round. | **Active Buff: Damage Aura (PL 4)** |
+| **4** | **Moonlight Mending II** | Active, Support | 44 m | None | Instant | Heal one creature for **12d8 HP** in its current Health Bar; does not restore Scarred Health Bars. Replaces Moonlight Mending I. | **Ranged Single Target Heal (PL 10)** |
+| **5** | **Moonlight Judgment II** | Artifact Active, Spell | 44 m | Radius 6 m | Instant | Cast **Limited Ranged AoE Attack** (PL 10) as one damaging Spell AoE; printed **+4d8 Power Damage** becomes **+8d8** for this use. Because Base B is unlocked, add the normal **+4d8 Spell Focus** (not doubled). **5 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No weapon damage and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 10)** |
+| **6** | **Moonlight Shadow II**¹ | Active Buff | Self | Radius 3 m | Mastery Rank Rounds | At the end of each of your Turns, enemies in the aura take **7d8 damage**. Each creature can be affected only once per Round. This replaces Moonlight Shadow I. | **Active Buff: Damage Aura (PL 10)** |
+| **7** | **Moonlight Mending III** | Active, Support | 68 m | None | Instant | Heal one creature for **20d8 HP** in its current Health Bar; does not restore Scarred Health Bars. Replaces Moonlight Mending II. | **Ranged Single Target Heal (PL 16)** |
+| **8** | **Moonlight Judgment III** | Artifact Active, Spell | 68 m | Radius 8 m | Instant | Cast **Limited Ranged AoE Attack** (PL 16) as one damaging Spell AoE; printed **+8d8 Power Damage** becomes **+16d8** for this use. Because Base B is unlocked, add the normal **+4d8 Spell Focus** (not doubled). **8 uses/Safe Haven Rest** for this named Limited Power; one use spent on declaration, miss also costs a use. No weapon damage and no Specials. | **Ranged AoE Attack (Limited; Spell delivery; PL 16)** |
+| **9** | **Moonlight Shadow III**¹ | Active Buff | Self | Radius 4 m | Mastery Rank Rounds | At the end of each of your Turns, enemies in the aura take **11d8 damage**. Each creature can be affected only once per Round. This replaces Moonlight Shadow II. | **Active Buff: Damage Aura (PL 16)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Moonlight Greatsword)** |
 
 ¹ **Moonlight Shadow Uses:** Moonlight Shadow can be used a number of times per Safe Haven Rest equal to half the wielder's Mastery Rank, rounded up in the player's favor. For example, MR 2 grants 1 use, MR 3 grants 2 uses, MR 4 grants 2 uses, and MR 5 grants 3 uses.
 
@@ -1728,36 +1874,37 @@ A character with the Moonlight Greatsword cannot use another weapon, shield, han
 
 The Soul Sigil is a bound Body Artifact that appears as thin silver lines running across the bearer's skin.
 
-The Sigil is not armor in the traditional sense. It does not harden the body, turn away blades, or absorb impact through plates, scales, or mail. Instead, it pulls the bearer slightly out of harm's path, catches damage in a temporary soul shell, and slowly knits the body back together through silver soul-light.
+The Sigil is not armor in the traditional sense. It does not form plates, scales, or mail. Instead, it pulls the bearer slightly out of harm's path, catches part of an impact in a thin soul-shell, and slowly knits the body back together through silver soul-light.
 
 | Slot | Base Type | Artifact Bonus | Binding |
 |---|---|---|---|
-| Body | Soul Sigil / Soul Tattoo | Evade / Temporary HP / Regeneration | Bound |
+| Body | Soul Sigil / Light Soul Armor | Hybrid Defense / Reaction: Temporary HP / Active Buff: Healing | Bound |
 
-The Soul Sigil occupies the Body Slot. The Soul Sigil counts as Body Armor for Slot purposes, but it grants no Armor. 
+The Soul Sigil occupies the Body Slot. For rules purposes, its Silver Veil uses the standard **Light Armor Artifact** progression and therefore includes both Armor and Evade as one linked Body Armor Base Value.
 The Soul Sigil cannot be worn together with another Body Artifact.
 
 ---
 
 #### Silver Veil Base
 
-Silver Veil starts from a +6 Evade base and increases by +1 Evade per Artifact Level.
+Silver Veil uses the standard **Light Armor Artifact** progression: it begins with **4 Armor and +2 Evade**, then increases Evade by +1 per Artifact Level while Armor increases by +1 every two Artifact Levels.
 
 | Artifact Level | Armor | Evade Bonus |
 |---:|---:|---:|
-| Level 1 | 0 | +7 Evade |
-| Level 2 | 0 | +8 Evade |
-| Level 3 | 0 | +9 Evade |
-| Level 4 | 0 | +10 Evade |
-| Level 5 | 0 | +11 Evade |
-| Level 6 | 0 | +12 Evade |
-| Level 7 | 0 | +13 Evade |
-| Level 8 | 0 | +14 Evade |
-| Level 9 | 0 | +15 Evade |
-| Level 10 | 0 | +16 Evade |
+| Level 1 | 4 | +2 Evade |
+| Level 2 | 4 | +3 Evade |
+| Level 3 | 5 | +4 Evade |
+| Level 4 | 5 | +5 Evade |
+| Level 5 | 6 | +6 Evade |
+| Level 6 | 6 | +7 Evade |
+| Level 7 | 7 | +8 Evade |
+| Level 8 | 7 | +9 Evade |
+| Level 9 | 8 | +10 Evade |
+| Level 10 | 8 | +11 Evade |
 
-Silver Veil is not Armor.
-If the bearer is hit without Temporary HP, the Soul Sigil provides no Armor against that damage.
+The listed Armor represents the Soul Sigil's protective soul-shell rather than mundane plates or mail. Mechanically, it is Armor and applies normally when the bearer is hit.
+
+The listed Armor and Evade are Silver Veil's complete Body Armor Base values for that Artifact Level. Do not add a second Armor progression to them.
 
 ---
 }}
@@ -1766,18 +1913,18 @@ If the bearer is hit without Temporary HP, the Soul Sigil provides no Armor agai
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Soul Shell I** | Stone Power Support | Self | - | Instant | The Soul Sigil supports the **Temporary HP Stone Power** and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Temporary HP Stone Power |
-| **2** | **Uncanny Soul I** | Reaction | Self | - | Triggering damage instance only | When you would take damage, gain **20 Temporary HP** against the triggering damage instance. After that damage instance is resolved, these Temporary HP immediately disappear. | Temporary HP |
-| **3** | **Resting Soul I** | Active Buff | Self | - | Mastery Rank +1 rounds | Use the normal **Active Buff: Healing** at **Power Level 4**. At the start of each of your turns while active, heal **32 HP**. | Healing |
-| **4** | **Soul Shell II** | Stone Power Support | Self | - | Instant | The Soul Sigil now pre-fills **Tier 3** of the Temporary HP Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Temporary HP Stone Power |
-| **5** | **Uncanny Soul II** | Reaction | Self | - | Triggering damage instance only | When you would take damage, gain **50 Temporary HP** against the triggering damage instance. After that damage instance is resolved, these Temporary HP immediately disappear. | Temporary HP |
-| **6** | **Resting Soul II** | Active Buff | Self | - | Mastery Rank +1 rounds | Use the normal **Active Buff: Healing** at **Power Level 10**. At the start of each of your turns while active, heal **77 HP**. | Healing |
-| **7** | **Soul Shell III** | Stone Power Support | Self | - | Instant | The Soul Sigil now pre-fills **Tier 4** of the Temporary HP Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect. | Temporary HP Stone Power |
-| **8** | **Uncanny Soul III** | Reaction | Self | - | Triggering damage instance only | When you would take damage, gain **80 Temporary HP** against the triggering damage instance. After that damage instance is resolved, these Temporary HP immediately disappear. | Temporary HP |
-| **9** | **Resting Soul III** | Active Buff | Self | - | Mastery Rank +1 rounds | Use the normal **Active Buff: Healing** at **Power Level 16**. At the start of each of your turns while active, heal **122 HP**. | Healing |
-| **10** | **True Soul Sigil** | Ultimate | Self | - | Special | The Soul Sigil fully awakens. Choose or define one final Soul effect with GM approval. | True Soul Sigil |
+| **1** | **Soul Shell I** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of the Temporary HP Stone Power. Rank 1 must still be paid. | **Temporary HP Stone Power (Stone Power Support, Rank 2)** |
+| **2** | **Uncanny Soul I** | Reaction | Self | — | Triggering damage instance; remainder until end of next Turn | Gain **20 Temporary HP** against the triggering damage instance. Any Temporary HP remaining afterward lasts until the end of your next Turn. | **Reaction: Temporary HP (PL 4)** |
+| **3** | **Resting Soul I** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your Turns while active, heal **6d8 HP** in the current Health Bar. | **Active Buff: Healing (PL 4)** |
+| **4** | **Soul Shell II** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of the Temporary HP Stone Power. Ranks 1 and 2 must still be paid. This replaces Soul Shell I. | **Temporary HP Stone Power (Stone Power Support, Rank 3)** |
+| **5** | **Uncanny Soul II** | Reaction | Self | — | Triggering damage instance; remainder until end of next Turn | Gain **50 Temporary HP** against the triggering damage instance. Any Temporary HP remaining afterward lasts until the end of your next Turn. This replaces Uncanny Soul I. | **Reaction: Temporary HP (PL 10)** |
+| **6** | **Resting Soul II** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your Turns while active, heal **15d8 HP** in the current Health Bar. This replaces Resting Soul I. | **Active Buff: Healing (PL 10)** |
+| **7** | **Soul Shell III** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of the Temporary HP Stone Power. Ranks 1, 2, and 3 must still be paid. This replaces Soul Shell II. | **Temporary HP Stone Power (Stone Power Support, Rank 4)** |
+| **8** | **Uncanny Soul III** | Reaction | Self | — | Triggering damage instance; remainder until end of next Turn | Gain **80 Temporary HP** against the triggering damage instance. Any Temporary HP remaining afterward lasts until the end of your next Turn. This replaces Uncanny Soul II. | **Reaction: Temporary HP (PL 16)** |
+| **9** | **Resting Soul III** | Active Buff | Self | — | Mastery Rank Rounds | At the start of each of your Turns while active, heal **24d8 HP** in the current Health Bar. This replaces Resting Soul II. | **Active Buff: Healing (PL 16)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Soul Sigil)** |
 
 ---
 
@@ -1796,7 +1943,7 @@ When thrown, it cuts through the air and returns to the wielder's hand after the
 
 | Slot | Base Type | Artifact Bonus | Binding |
 |---|---|---|---|
-| Main Hand | Handaxe / One-Handed Weapon | Weapon Damage / Thrown / Returning / Ignore Armor Support / Slow Attack / Special Increase Reaction | Bound |
+| Main Hand | Handaxe / One-Handed Weapon | Weapon Damage / Thrown / Returning / Ranged Slow / Stormpower (Might Armor Reduction Stone Support) / Ivaldi's Anvil (Melee AoE Attack, PL 4/10/16) | Bound |
 
 ---
 
@@ -1821,21 +1968,27 @@ Returning does not change the action cost of attacks or Actives.
 
 After a thrown attack or Active granted by this Artifact is resolved, the Axe returns to the wielder.
 
----
+The ordinary Thrown Base Value range applies to ordinary throws. Frost Throw is a separately granted Ranged Single Target Special: Slow Active, so it uses its **catalogue Power Range**, not the shorter ordinary thrown range. This does not change the Axe Base Value or add another attack.
 
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Stormpower I** | Stone Power Support | Self | — | Instant | This Artifact supports the **Ignore Armor Stone Power** and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Ignore Armor |
-| **2** | **Frost Throw I** | Active | Thrown Range | — | Instant | Make a ranged attack with the Axe. On hit, deal **Handaxe Damage + 1d8 damage** and apply **Slow(4)**. The Axe returns after the attack resolves. | Slow |
-| **3** | **Rainshield I** | Reaction | 2 m | — | Triggering attack only | Use **Reaction: Special Increase** at **Power Level 4**. This can only increase one existing eligible Special(X) on the triggering creature. | Special Increase |
-| **4** | **Stormpower II** | Stone Power Support | Self | — | Instant | This Artifact now pre-fills **Tier 3** of the Ignore Armor Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Ignore Armor |
-| **5** | **Frost Throw II** | Active | Thrown Range | — | Instant | Make a ranged attack with the Axe. On hit, deal **Handaxe Damage + 3d8 damage** and apply **Slow(8)**. The Axe returns after the attack resolves. | Slow |
-| **6** | **Rainshield II** | Reaction | 2 m | — | Triggering attack only | Use **Reaction: Special Increase** at **Power Level 10**. This can only increase one existing eligible Special(X) on the triggering creature. | Special Increase |
-| **7** | **Stormpower III** | Stone Power Support | Self | — | Instant | This Artifact now pre-fills **Tier 4** of the Ignore Armor Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Ignore Armor |
-| **8** | **Frost Throw III** | Active | Thrown Range | — | Instant | Make a ranged attack with the Axe. On hit, deal **Handaxe Damage + 5d8 damage** and apply **Slow(10)**. The Axe returns after the attack resolves. | Slow |
-| **9** | **Rainshield III** | Reaction | 2 m | — | Triggering attack only | Use **Reaction: Special Increase** at **Power Level 16**. This can only increase one existing eligible Special(X) on the triggering creature. | Special Increase |
+| **1** | **Stormpower I** | Stone Power Support | Self | — | Preparation Phase | Pre-fill **Rank 2** of **Might: Armor Reduction** (the 2-Stone incremental Rank cost). Rank 1 must still be activated and paid normally (**1 Stone**). The Stone Ability must be unlocked. | **Might Ability: Armor Reduction (Stone Power Support, Rank 2)** |
+| **2** | **Frost Throw I** | Active, Special | 20 m | — | Instant | Use **Ranged Single Target Special: Slow (PL 4)** with the thrown/returning Axe; on hit apply **Slow(6)**, no damage. The Axe returns after the attack resolves. | **Ranged Single Target Special: Slow (PL 4; thrown Axe)** |
+| **3** | **Ivaldi's Anvil I** | Active (Primary Action, Martial) | Self | Radius 3 m | Instant | Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **4d8** bonus damage. | **Melee AoE Attack (PL 4; Frostbound Returning Axe only)** |
+| **4** | **Stormpower II** | Stone Power Support | Self | — | Preparation Phase | Pre-fill **Rank 3** of **Might: Armor Reduction** (the 4-Stone incremental Rank cost). Ranks 1 and 2 must still be activated and paid normally (**3 Stones total**). This replaces Stormpower I; no second activation is granted. | **Might Ability: Armor Reduction (Stone Power Support, Rank 3)** |
+| **5** | **Frost Throw II** | Active, Special | 44 m | — | Instant | Use **Ranged Single Target Special: Slow (PL 10)** with the thrown/returning Axe; on hit apply **Slow(10)**, no damage. The Axe returns after the attack resolves. This replaces Frost Throw I. | **Ranged Single Target Special: Slow (PL 10; thrown Axe)** |
+| **6** | **Ivaldi's Anvil II** | Active (Primary Action, Martial) | Self | Radius 6 m | Instant | Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **7d8** bonus damage. This replaces Ivaldi's Anvil I; it does not grant an additional use. | **Melee AoE Attack (PL 10; Frostbound Returning Axe only)** |
+| **7** | **Stormpower III** | Stone Power Support | Self | — | Preparation Phase | Pre-fill **Rank 4** of **Might: Armor Reduction** (the 8-Stone incremental Rank cost). Ranks 1, 2 and 3 must still be activated and paid normally (**7 Stones total**). This replaces Stormpower II; no second activation is granted. | **Might Ability: Armor Reduction (Stone Power Support, Rank 4)** |
+| **8** | **Frost Throw III** | Active, Special | 68 m | — | Instant | Use **Ranged Single Target Special: Slow (PL 16)** with the thrown/returning Axe; on hit apply **Slow(13)**, no damage. The Axe returns after the attack resolves. This replaces Frost Throw II. | **Ranged Single Target Special: Slow (PL 16; thrown Axe)** |
+| **9** | **Ivaldi's Anvil III** | Active (Primary Action, Martial) | Self | Radius 8 m | Instant | Make one melee AoE attack with the Axe. Each creature hit takes the Axe's Weapon Damage + **13d8** bonus damage. This replaces Ivaldi's Anvil II; it does not grant an additional use. | **Melee AoE Attack (PL 16; Frostbound Returning Axe only)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | **Frost Throw III** and **Ivaldi's Anvil III** each gain the universal action-free Awakening use. **Stormpower III** supports one cost-free Rank-4 Armor Reduction activation with all lower Ranks included. | **Artifact Level 10: Awakening (Frostbound Returning Axe)** |
 
 ---
 }}
@@ -1879,31 +2032,33 @@ The listed Shield Armor already includes the normal **+4 Shield Value** of a Med
 Shield Armor stacks with other Armor as normal.
 
 ---
-
-#### Level Progression
-
-| **Artifact Level** | **Name**                  | **Type**            | **Range** |  **AoE**  |   **Duration**   | **Effect**                                                                                                                                                                                                                                               | **Special**     |
-| :----------------: | :------------------------ | :------------------ | :-------: | :-------: | :--------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------- |
-|        **1**       | **Frozen Reserve I**      | Stone Power Support |    Self   |     —     |      Instant     | The Frostshield supports the **Temporary HP Stone Power** and pre-fills **Tier 2**. The wielder must pay Tier 1.                                                                                                                                         | Temporary HP    |
-|        **2**       | **Glacial Intercept I**   | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+7 Armor** against the triggering attack or damage instance.                                                                                                                    | Ally Armor      |
-|        **3**       | **Frostwave I**           | Active              |    Self   |  Cone 6 m |      Instant     | Make one AoE Attack Roll and compare it separately against the Evade of each hostile creature inside the Cone. Each creature hit gains **Slow(3)** and may use **Dive for Cover** before the Special is applied. Frostwave deals no damage. | Slow(3) |
-|        **4**       | **Frozen Reserve II**     | Stone Power Support |    Self   |     —     |      Instant     | The Frostshield now pre-fills **Tier 3** of the Temporary HP Stone Power. The wielder must pay Tier 1 and Tier 2.                                                                                                                                        | Temporary HP    |
-|        **5**       | **Glacial Intercept II**  | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+19 Armor** against the triggering attack or damage instance.                                                                                                                   | Ally Armor      |
-|        **6**       | **Frostwave II**          | Active              |    Self   | Cone 10 m |      Instant     | Make one AoE Attack Roll and compare it separately against the Evade of each hostile creature inside the Cone. Each creature hit gains **Slow(5)** and may use **Dive for Cover** before the Special is applied. Frostwave deals no damage. | Slow(5) |
-|        **7**       | **Frozen Reserve III**    | Stone Power Support |    Self   |     —     |      Instant     | The Frostshield now pre-fills **Tier 4** of the Temporary HP Stone Power. The wielder must pay Tier 1, Tier 2, and Tier 3.                                                                                                                               | Temporary HP    |
-|        **8**       | **Glacial Intercept III** | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+31 Armor** against the triggering attack or damage instance.                                                                                                                   | Ally Armor      |
-|        **9**       | **Frostwave III**         | Active              |    Self   | Cone 14 m |      Instant     | Make one AoE Attack Roll and compare it separately against the Evade of each hostile creature inside the Cone. Each creature hit takes **+1d8 damage**, gains **Slow(7)**, and may use **Dive for Cover** before the payload is applied. | Slow(7) |
-|       **10**       | **Heart of Winter**       | Ultimate            |    Self   |     —     |     Permanent    | The Frostshield fully awakens. Its Shield Armor increases to **+14 Armor**. Once per Combat, when you use **Glacial Intercept**, the protected ally also gains **Temporary HP equal to your Mastery Rank × 10** after the triggering damage is resolved. | Heart of Winter |
-
----
-
----
-
 }}
 \page
 {{pageNumber,auto}}
 {{wide
+#### Level Progression
+
+| **Artifact Level** | **Artifact Name**         | **Type**            | **Range** |  **AoE**  |   **Duration**   | **Effect**                                                                                                                                                                                                                                               | **Technical Reference** |
+| :----------------: | :------------------------ | :------------------ | :-------: | :-------: | :--------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------- |
+|        **1**       | **Frozen Reserve I**      | Stone Power Support |    Self   |     —     |      Instant     | Pre-fill **Rank 2** of the Temporary HP Stone Power. Rank 1 must still be paid. | **Temporary HP Stone Power (Stone Power Support, Rank 2)** |
+|        **2**       | **Glacial Intercept I**   | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+7 Armor** against the triggering attack or damage instance. | **Reaction: Ally Armor (PL 4)** |
+| **3** | **Frostwave I** | Artifact Active | Self | Radius 3 m | Instant | Make one AoE Attack Roll and compare it separately against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Slow(5)**; **no damage**. | **Melee AoE Special: Slow (PL 4)** |
+|        **4**       | **Frozen Reserve II**     | Stone Power Support |    Self   |     —     |      Instant     | Pre-fill **Rank 3** of the Temporary HP Stone Power. Ranks 1 and 2 must still be paid. This replaces Frozen Reserve I. | **Temporary HP Stone Power (Stone Power Support, Rank 3)** |
+|        **5**       | **Glacial Intercept II**  | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+19 Armor** against the triggering attack or damage instance. This replaces Glacial Intercept I. | **Reaction: Ally Armor (PL 10)** |
+| **6** | **Frostwave II** | Artifact Active | Self | Radius 5 m | Instant | Make one AoE Attack Roll and compare it separately against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Slow(9)**; **no damage**. This replaces Frostwave I. | **Melee AoE Special: Slow (PL 10)** |
+|        **7**       | **Frozen Reserve III**    | Stone Power Support |    Self   |     —     |      Instant     | Pre-fill **Rank 4** of the Temporary HP Stone Power. Ranks 1, 2, and 3 must still be paid. This replaces Frozen Reserve II. | **Temporary HP Stone Power (Stone Power Support, Rank 4)** |
+|        **8**       | **Glacial Intercept III** | Reaction            |    4 m    |     —     | Triggering event | When an ally within range is hit or would take damage, that ally gains **+31 Armor** against the triggering attack or damage instance. This replaces Glacial Intercept II. | **Reaction: Ally Armor (PL 16)** |
+| **9** | **Frostwave III** | Artifact Active | Self | Radius 7 m | Instant | Make one AoE Attack Roll and compare it separately against the Evade of each creature in the area; individual defenses and Dive for Cover apply. Each creature hit gains **Slow(10)**; **no damage**. This replaces Frostwave II. | **Melee AoE Special: Slow (PL 16)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Heart of Winter)** |
+
+---
+
+---
+}}
+\page
+{{pageNumber,auto}}
 {{wide
+
 
 #### Heartseeker
 
@@ -1913,7 +2068,7 @@ Its mechanism draws with supernatural force, aligning every bolt along invisible
 
 | Slot                 | Base Type      | Artifact Functions                                                                                    | Binding |
 | -------------------- | -------------- | ----------------------------------------------------------------------------------------------------- | ------- |
-| Main Hand + Off Hand | Heavy Crossbow | Weapon Damage / Precision / Ranged Split Attack / Crit Stone Power Support / Damage + Penetration | Bound   |
+| Main Hand + Off Hand | Heavy Crossbow | Weapon Damage / Precision / Ranged Split Attack / Crit Stone Power Support / Armorbreaker (Ranged Single Target Special: Corrode) | Bound   |
 
 Heartseeker occupies both the **Main Hand** and **Off Hand** Slots.
 
@@ -1950,21 +2105,24 @@ The Precision granted by Base Value B is added to the normal **Precision(4)** of
 Penetration and Precision apply only to attacks made with Heartseeker.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Level Progression
 
-| **Artifact Level** | **Name**                  | **Type**            | **Range** | **AoE** |     **Duration**    | **Effect**                                                                                                                                                                                                                                                                          | **Special**          |
+| **Artifact Level** | **Artifact Name**         | **Type**            | **Range** | **AoE** |     **Duration**    | **Effect**                                                                                                                                                                                                                                                                          | **Technical Reference** |
 | :----------------: | :------------------------ | :------------------ | :-------: | :-----: | :-----------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------- |
-|        **1**       | **Divided Execution I**   | Active              |    20 m   |    —    |       Instant       | Use **Ranged Split Attack** at **Power Level 4**. Make up to **2 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Each successful hit deals full Heartseeker Weapon Damage + ** damage**.   | Ranged Split Attack  |
-|        **2**       | **Killing Focus I**       | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker supports the **Agility Ability: Crit** Stone Power and pre-fills **Rank 2**. Rank 1 must still be paid normally.                                                                                                                                                     | Crit Stone Power |
-|        **3**       | **Armorbreaker I**        | Active Buff         |    Self   |    —    | Mastery Rank Rounds | Use **Active Buff: Damage + Penetration** at **Power Level 4**. Your attacks gain **+4d8 damage** and **Penetration(9)** while the Buff lasts. This uses your maintained Active Buff slot.                                                                                          | Damage + Penetration |
-|        **4**       | **Divided Execution II**  | Active              |    44 m   |    —    |       Instant       | Use **Ranged Split Attack** at **Power Level 10**. Make up to **3 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Each successful hit deals full Heartseeker Weapon Damage + ** damage**. | Ranged Split Attack  |
-|        **5**       | **Killing Focus II**      | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker now pre-fills **Rank 3** of the **Agility Ability: Crit** Stone Power. Ranks 1 and 2 must still be paid normally.                                                                                                                                                    | Crit Stone Power |
-|        **6**       | **Armorbreaker II**       | Active Buff         |    Self   |    —    | Mastery Rank Rounds | Use **Active Buff: Damage + Penetration** at **Power Level 10**. Your attacks gain **+10d8 damage** and **Penetration(21)** while the Buff lasts. This uses your maintained Active Buff slot.                                                                                       | Damage + Penetration |
-|        **7**       | **Divided Execution III** | Active              |    68 m   |    —    |       Instant       | Use **Ranged Split Attack** at **Power Level 16**. Make up to **4 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Each successful hit deals full Heartseeker Weapon Damage + ** damage**. | Ranged Split Attack  |
-|        **8**       | **Killing Focus III**     | Stone Power Support |    Self   |    —    |       Instant       | Heartseeker now pre-fills **Rank 4** of the **Agility Ability: Crit** Stone Power. Ranks 1, 2, and 3 must still be paid normally.                                                                                                                                                | Crit Stone Power |
-|        **9**       | **Armorbreaker III**      | Active Buff         |    Self   |    —    | Mastery Rank Rounds | Use **Active Buff: Damage + Penetration** at **Power Level 16**. Your attacks gain **+16d8 damage** and **Penetration(33)** while the Buff lasts. This uses your maintained Active Buff slot.                                                                                       | Damage + Penetration |
-|       **10**       | **True Heartseeker**      | Ultimate            |    Self   |    —    |       Special       | Heartseeker fully awakens. Its additional Precision increases to **Precision(4)**. Choose or define one final Split Attack, **Crit Stone Power Support**, Precision, Damage, Penetration, or execution-themed effect with GM approval. This effect may not grant Critical independently.                                                                  | True Heartseeker     |
+|        **1**       | **Divided Execution I**   | Active              |    20 m   |    —    |       Instant       | Make up to **2 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to Heartseeker's Weapon Damage + **5d8 damage**. | **Ranged Split Attack (PL 4, Heartseeker only)** |
+|        **2**       | **Killing Focus I**       | Stone Power Support |    Self   |    —    |       Instant       | Pre-fill **Rank 2** of **Agility Ability: Crit**. Rank 1 must still be paid (Premium cost: 2 Stones). | **Agility Ability: Crit (Stone Power Support, Rank 2)** |
+|        **3**       | **Armorbreaker I** | Artifact Active (Special) | 20 m | — | Instant | Make one ranged Special Attack against one creature. On a hit apply **Corrode(5)**; **no damage** (neither Power Damage nor Weapon Damage). | **Ranged Single Target Special: Corrode (PL 4)** |
+|        **4**       | **Divided Execution II**  | Active              |    44 m   |    —    |       Instant       | Make up to **2 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to Heartseeker's Weapon Damage + **13d8 damage**. This replaces Divided Execution I. | **Ranged Split Attack (PL 10, Heartseeker only)** |
+|        **5**       | **Killing Focus II**      | Stone Power Support |    Self   |    —    |       Instant       | Pre-fill **Rank 3** of **Agility Ability: Crit**. **Ranks 1 and 2** must still be paid (Premium cumulative: 6 Stones). This replaces Killing Focus I. | **Agility Ability: Crit (Stone Power Support, Rank 3)** |
+|        **6**       | **Armorbreaker II** | Artifact Active (Special) | 44 m | — | Instant | Make one ranged Special Attack against one creature. On a hit apply **Corrode(8)**; **no damage** (neither Power Damage nor Weapon Damage). This replaces Armorbreaker I. | **Ranged Single Target Special: Corrode (PL 10)** |
+|        **7**       | **Divided Execution III** | Active              |    68 m   |    —    |       Instant       | Make up to **2 ranged weapon attacks** with Heartseeker. Split your Attack Pool between them. Each successful attack rolls its full Damage Pool equal to Heartseeker's Weapon Damage + **21d8 damage**. This replaces Divided Execution II. | **Ranged Split Attack (PL 16, Heartseeker only)** |
+|        **8**       | **Killing Focus III**     | Stone Power Support |    Self   |    —    |       Instant       | Pre-fill **Rank 4** of **Agility Ability: Crit**. **Ranks 1, 2 and 3** must still be paid (Premium cumulative: 12 Stones). This replaces Killing Focus II. | **Agility Ability: Crit (Stone Power Support, Rank 4)** |
+|        **9**       | **Armorbreaker III** | Artifact Active (Special) | 68 m | — | Instant | Make one ranged Special Attack against one creature. On a hit apply **Corrode(11)**; **no damage** (neither Power Damage nor Weapon Damage). This replaces Armorbreaker II. | **Ranged Single Target Special: Corrode (PL 16)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Heartseeker)** |
 
 
 
@@ -1974,8 +2132,6 @@ Penetration and Precision apply only to attacks made with Heartseeker.
 {{wide
 
 
-{{wide
-
 #### Falcon Wide Brim
 
 Falcon Wide Brim is a carefully tailored, wide-brimmed Artifact Hat made for hunters, marksmen, scouts, and combatants who control the rhythm of battle through awareness, positioning, and initiative.
@@ -1984,7 +2140,7 @@ Its broad brim hides the wearer's eyes and movements, allowing them to watch the
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Head | Tailored Wide-Brimmed Hat | Evade / Predator Sense Option / Initiative Boost Stone Power Support / Reposition / Initiative Gain | Bound |
+| Head | Tailored Wide-Brimmed Hat | Evade / Predator Sense Option / Initiative Boost Stone Power Support / Reaction: Reposition / Reaction: Initiative | Bound |
 
 Falcon Wide Brim occupies the **Head Slot**.
 
@@ -2013,21 +2169,24 @@ At Artifact Level 4, Falcon Wide Brim adds **Predator Sense** to the wearer's av
 Predator Sense is separate from the Evade Base Value. It does not consume Base Value B, does not scale with Artifact Level, and uses the normal Sense Slot rules.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Falcon Initiative I** | Stone Power Support | Self | — | Instant | Falcon Wide Brim supports the **Wits Ability: Initiative Boost** and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Initiative Boost |
-| **2** | **Falcon Step I** | Reaction | Self | — | Instant | Use **Reaction: Reposition** at **Power Level 4**. After the triggering event resolves, move up to **2 m** using normal legal movement. | Reposition |
-| **3** | **Falcon Momentum I** | Reaction | Self | — | Permanent | Use **Reaction: Initiative Gain** at **Power Level 4**. After the triggering attack resolves, gain **+8 Initiative**. | Initiative Gain |
-| **4** | **Falcon Initiative II** | Stone Power Support | Self | — | Instant | Falcon Wide Brim now pre-fills **Tier 3** of **Initiative Boost**. You must still pay Tier 1 and Tier 2 yourself. If the lower Tiers are not paid, the pre-filled Tier 3 has no effect. | Initiative Boost |
-| **5** | **Falcon Step II** | Reaction | Self | — | Instant | Use **Reaction: Reposition** at **Power Level 10**. After the triggering event resolves, move up to **4 m** using normal legal movement. | Reposition |
-| **6** | **Falcon Momentum II** | Reaction | Self | — | Permanent | Use **Reaction: Initiative Gain** at **Power Level 10**. After the triggering attack resolves, gain **+20 Initiative**. | Initiative Gain |
-| **7** | **Falcon Initiative III** | Stone Power Support | Self | — | Instant | Falcon Wide Brim now pre-fills **Tier 4** of **Initiative Boost**. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower Tiers are not paid, the pre-filled Tier 4 has no effect. | Initiative Boost |
-| **8** | **Falcon Step III** | Reaction | Self | — | Instant | Use **Reaction: Reposition** at **Power Level 16**. After the triggering event resolves, move up to **8 m** using normal legal movement. | Reposition |
-| **9** | **Falcon Momentum III** | Reaction | Self | — | Permanent | Use **Reaction: Initiative Gain** at **Power Level 16**. After the triggering attack resolves, gain **+32 Initiative**. | Initiative Gain |
-| **10** | **True Falcon Wide Brim** | Base Completion | Self | — | Permanent | Falcon Wide Brim reaches its final Base Value and grants **+5 Evade**. Its Predator Sense option remains available separately. It gains no additional Power. | — |
+| **1** | **Falcon Initiative I** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of **Wits Ability: Initiative Boost**. Rank 1 must still be paid. | **Wits Ability: Initiative Boost (Stone Power Support, Rank 2)** |
+| **2** | **Falcon Step I** | Reaction | Self | — | Instant | After the triggering event resolves, move up to **2 m** using normal legal movement. | **Reaction: Reposition (PL 4)** |
+| **3** | **Falcon Momentum I** | Reaction | Self | — | Permanent | After the triggering attack resolves, gain **+8 Initiative**. | **Reaction: Initiative (PL 4)** |
+| **4** | **Falcon Initiative II** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of **Wits Ability: Initiative Boost**. Ranks 1 and 2 must still be paid. This replaces Falcon Initiative I. | **Wits Ability: Initiative Boost (Stone Power Support, Rank 3)** |
+| **5** | **Falcon Step II** | Reaction | Self | — | Instant | After the triggering event resolves, move up to **4 m** using normal legal movement. This replaces Falcon Step I. | **Reaction: Reposition (PL 10)** |
+| **6** | **Falcon Momentum II** | Reaction | Self | — | Permanent | After the triggering attack resolves, gain **+20 Initiative**. This replaces Falcon Momentum I. | **Reaction: Initiative (PL 10)** |
+| **7** | **Falcon Initiative III** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of **Wits Ability: Initiative Boost**. Ranks 1, 2, and 3 must still be paid. This replaces Falcon Initiative II. | **Wits Ability: Initiative Boost (Stone Power Support, Rank 4)** |
+| **8** | **Falcon Step III** | Reaction | Self | — | Instant | After the triggering event resolves, move up to **8 m** using normal legal movement. This replaces Falcon Step II. | **Reaction: Reposition (PL 16)** |
+| **9** | **Falcon Momentum III** | Reaction | Self | — | Permanent | After the triggering attack resolves, gain **+32 Initiative**. This replaces Falcon Momentum II. | **Reaction: Initiative (PL 16)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Falcon Wide Brim)** |
 
 
 }}
@@ -2040,10 +2199,12 @@ Shadowgrave Armor is a bound Body Artifact formed from living shadow, grave-cold
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Body | Shadow Armor | Hybrid Defense / Temporary HP Stone Support / Hands of the Grave / Deathly Reprisal | Bound |
+| Body | Shadow Armor | Hybrid Defense / Temporary HP Stone Power Support / Melee Push / Pull (Push only) / Reaction: Damage + Push | Bound |
 
 Shadowgrave Armor occupies the Body Slot. The bearer cannot wear another Body Artifact or mundane armor while Shadowgrave Armor is bound.
 Shadowgrave Armor does not grant Damage Reduction. Shadowgrave Armor does not grant Phasing.
+
+Shadowgrave Armor uses the standard **Light Armor Artifact** progression. Its Armor and Evade values form one linked Body Armor Base Value, and no second Armor progression is added to the values below.
 
 ---
 
@@ -2051,16 +2212,16 @@ Shadowgrave Armor does not grant Damage Reduction. Shadowgrave Armor does not gr
 
 | Artifact Level | Base Value A: Hybrid Defense | Drawbacks |
 |---:|---|---|
-| Level 1 | 4 Armor, +4 Evade | — |
-| Level 2 | 4 Armor, +5 Evade | — |
-| Level 3 | 5 Armor, +6 Evade | — |
-| Level 4 | 5 Armor, +7 Evade | — |
-| Level 5 | 6 Armor, +8 Evade | — |
-| Level 6 | 6 Armor, +9 Evade | — |
-| Level 7 | 7 Armor, +10 Evade | — |
-| Level 8 | 7 Armor, +11 Evade | — |
-| Level 9 | 8 Armor, +12 Evade | — |
-| Level 10 | 9 Armor, +13 Evade, True Shadowgrave Armor | — |
+| Level 1 | 4 Armor, +2 Evade | — |
+| Level 2 | 4 Armor, +3 Evade | — |
+| Level 3 | 5 Armor, +4 Evade | — |
+| Level 4 | 5 Armor, +5 Evade | — |
+| Level 5 | 6 Armor, +6 Evade | — |
+| Level 6 | 6 Armor, +7 Evade | — |
+| Level 7 | 7 Armor, +8 Evade | — |
+| Level 8 | 7 Armor, +9 Evade | — |
+| Level 9 | 8 Armor, +10 Evade | — |
+| Level 10 | 8 Armor, +11 Evade, True Shadowgrave Armor | — |
 
 ---
 }}
@@ -2069,18 +2230,18 @@ Shadowgrave Armor does not grant Damage Reduction. Shadowgrave Armor does not gr
 {{wide
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Shadow Shell I** | Stone Power Support | Self | — | Instant | Shadowgrave Armor supports the **Temporary HP Stone Power** and pre-fills **Tier 2**. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect. | Temporary HP Stone Power |
-| **2** | **Deathly Reprisal I** | Reaction | Self | — | Triggering attack only | When a creature within 2 m hits you with an attack, deal **2d8 damage** to the triggering creature and push it **4 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
-| **3** | **Hands of the Grave I** | Active | 20 m | Radius 3 m | Instant | Spectral hands claw out of the ground at a target point. This is the catalog **Ranged AoE Special** (Root). Extra damage dice are 0 — the payload is **Root(3)**. | Root(3) |
-| **4** | **Shadow Shell II** | Stone Power Support | Self | — | Instant | Shadowgrave Armor now pre-fills **Tier 3** of the Temporary HP Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect. | Temporary HP Stone Power |
-| **5** | **Deathly Reprisal II** | Reaction | Self | — | Triggering attack only | When a creature within 2 m hits you with an attack, deal **6d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
-| **6** | **Hands of the Grave II** | Active | 44 m | Radius 5 m | Instant | Spectral hands claw out of the ground at a target point. Catalog **Ranged AoE Special** (Root). Extra damage dice are 0 — the payload is **Root(6)**. | Root(6) |
-| **7** | **Shadow Shell III** | Stone Power Support | Self | — | Instant | Shadowgrave Armor now pre-fills **Tier 4** of the Temporary HP Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect. | Temporary HP Stone Power |
-| **8** | **Deathly Reprisal III** | Reaction | Self | — | Triggering attack only | When a creature within 2 m hits you with an attack, deal **12d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies Armor, Damage Reduction, resistance, immunity, and other legal mitigation normally. | Counter Damage + Push |
-| **9** | **Hands of the Grave III** | Active | 68 m | Radius 7 m | Instant | Spectral hands claw out of the ground at a target point. Catalog **Ranged AoE Special** (Root). Extra damage dice are 0 — the payload is **Root(7)**. | Root(7) |
-| **10** | **True Shadowgrave Armor** | Ultimate | Self | — | Special | Shadowgrave Armor fully awakens. Choose or define one final Shadowgrave effect with GM approval. | True Shadowgrave Armor |
+| **1** | **Shadow Shell I** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2** of the Temporary HP Stone Power. Rank 1 must still be paid. | **Temporary HP Stone Power (Stone Power Support, Rank 2)** |
+| **2** | **Grave Call I** | Active, Control | Melee Reach | — | Instant | Make the normal **Melee Push / Pull** melee Attack Roll; on hit **Push 8 m** with no damage or Prone. | **Melee Push / Pull: Push (PL 4)** |
+| **3** | **Deathly Reprisal I** | Reaction | 2 m | — | Triggering attack only | When a creature hits you with a melee attack, deal **2d8 damage** to the triggering creature and push it **4 m**. The triggering creature applies all legal mitigation normally. | **Reaction: Damage + Push (PL 4)** |
+| **4** | **Shadow Shell II** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3** of the Temporary HP Stone Power. Ranks 1 and 2 must still be paid. This replaces Shadow Shell I. | **Temporary HP Stone Power (Stone Power Support, Rank 3)** |
+| **5** | **Grave Call II** | Active, Control | Melee Reach | — | Instant | Make the normal **Melee Push / Pull** melee Attack Roll; on hit **Push 20 m** with no damage or Prone. This replaces Grave Call I. | **Melee Push / Pull: Push (PL 10)** |
+| **6** | **Deathly Reprisal II** | Reaction | 2 m | — | Triggering attack only | When a creature hits you with a melee attack, deal **6d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies all legal mitigation normally. This replaces Deathly Reprisal I. | **Reaction: Damage + Push (PL 10)** |
+| **7** | **Shadow Shell III** | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4** of the Temporary HP Stone Power. Ranks 1, 2, and 3 must still be paid. This replaces Shadow Shell II. | **Temporary HP Stone Power (Stone Power Support, Rank 4)** |
+| **8** | **Grave Call III** | Active, Control | Melee Reach | — | Instant | Make the normal **Melee Push / Pull** melee Attack Roll; on hit **Push 32 m** with no damage or Prone. This replaces Grave Call II. | **Melee Push / Pull: Push (PL 16)** |
+| **9** | **Deathly Reprisal III** | Reaction | 2 m | — | Triggering attack only | When a creature hits you with a melee attack, deal **12d8 damage** to the triggering creature and push it **8 m**. The triggering creature applies all legal mitigation normally. This replaces Deathly Reprisal II. | **Reaction: Damage + Push (PL 16)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Shadowgrave Armor)** |
 
 }}
 \page
@@ -2094,7 +2255,7 @@ The Staff of the Dark is a bound arcane staff made from dark metallic wood, curv
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand or Off Hand | One-Handed Arcane Staff | Weapon Damage / Hex / Spell Focus / Dark Spell Actives / Life Transfer | Bound |
+| Main Hand or Off Hand | One-Handed Arcane Staff | Weapon Damage / Hex / Spell Focus / Ranged Single Target Special: Hex / Ranged Single Target Special: Soulburn / Ranged Single Target Damage Transfer (catalogue PL 4/10/16) | Bound |
 
 The Staff of the Dark occupies one hand Slot. The Staff of the Dark may be used with **Resolve or Influence**. The Staff of the Dark counts as a **Spell Focus**.
 
@@ -2116,22 +2277,25 @@ The Staff of the Dark occupies one hand Slot. The Staff of the Dark may be used 
 | Level 10 | 11d8 | Hex(5), True Staff of the Dark |
 
 
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 
 #### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Might of the Dark I** | Active, Spell | Self | Radius 3 m | Instant | Catalog **Melee AoE Special** (Hex). Extra damage dice are 0 — every creature in the area suffers **Hex(4)**. | **Hex(4)** |
-| **2** | **Life Taken I** | Active, Spell | 20 m | — | Instant | Catalog **Ranged Single Attack**. On hit, deal Staff Weapon Damage + **7d8 damage**. | — |
-| **3** | **Vision of the End I** | Active, Spell | 20 m | — | Instant | Catalog **Ranged Single Special** (Ruin). | **Ruin** |
-| **4** | **Might of the Dark II** | Active, Spell | Self | Radius 6 m | Instant | Catalog **Melee AoE Special** (Hex). Extra damage dice are 0 — every creature in the area suffers **Hex(6)**. | **Hex(6)** |
-| **5** | **Life Taken II** | Active, Spell | 44 m | — | Instant | Catalog **Ranged Single Attack**. On hit, deal Staff Weapon Damage + **17d8 damage**. | — |
-| **6** | **Vision of the End II** | Active, Spell | 44 m | — | Instant | Catalog **Ranged Single Special** (Ruin). | **Ruin** |
-| **7** | **Might of the Dark III** | Active, Spell | Self | Radius 7 m | Instant | Catalog **Melee AoE Special** (Hex). Extra damage dice are 0 — every creature in the area suffers **Hex(8)**. | **Hex(8)** |
-| **8** | **Life Taken III** | Active, Spell | 68 m | — | Instant | Catalog **Ranged Single Attack**. On hit, deal Staff Weapon Damage + **27d8 damage**. | — |
-| **9** | **Vision of the End III** | Active, Spell | 68 m | — | Instant | Catalog **Ranged Single Special** (Ruin). | **Ruin** |
-| **10** | **True Staff of the Dark** | Ultimate | Self | — | Special | The Staff of the Dark fully awakens. Choose or define one final Staff of the Dark effect with GM approval. | True Staff of the Dark |
+| **1** | **Might of the Dark I** | Active, Spell, Special | 20 m | — | Instant | Make a standard Spell Casting Roll against one target; on success apply **Hex(5)**, **no damage**. | **Ranged Single Target Special: Hex (PL 4; Spell delivery)** |
+| **2** | **Life Taken I** | Artifact Active, Spell | 20 m | — | Instant | Make a ranged Spell attack; on hit, deal **4d8 printed Power Damage** (no Weapon Damage for Spell delivery). Heal yourself for the actual HP removed from the target after mitigation, limited to your current active Health Bar. | **Ranged Single Target Damage Transfer (PL 4; Spell delivery)** |
+| **3** | **Vision of the End I** | Active, Spell, Special | 20 m | — | Instant | Make a standard Spell Casting Roll against one target; on success apply **Soulburn(2)**, **no damage**. | **Ranged Single Target Special: Soulburn (PL 4; Spell delivery)** |
+| **4** | **Might of the Dark II** | Active, Spell, Special | 44 m | — | Instant | Make a standard Spell Casting Roll against one target; on success apply **Hex(8)**, **no damage**. This replaces Might of the Dark I. | **Ranged Single Target Special: Hex (PL 10; Spell delivery)** |
+| **5** | **Life Taken II** | Artifact Active, Spell | 44 m | — | Instant | Make a ranged Spell attack; on hit, deal **10d8 printed Power Damage** (no Weapon Damage for Spell delivery). Heal yourself for the actual HP removed from the target after mitigation, limited to your current active Health Bar. This replaces Life Taken I. | **Ranged Single Target Damage Transfer (PL 10; Spell delivery)** |
+| **6** | **Vision of the End II** | Active, Spell, Special | 44 m | — | Instant | Make a standard Spell Casting Roll against one target; on success apply **Soulburn(3)**, **no damage**. This replaces Vision of the End I. | **Ranged Single Target Special: Soulburn (PL 10; Spell delivery)** |
+| **7** | **Might of the Dark III** | Active, Spell, Special | 68 m | — | Instant | Make a standard Spell Casting Roll against one target; on success apply **Hex(11)**, **no damage**. This replaces Might of the Dark II. | **Ranged Single Target Special: Hex (PL 16; Spell delivery)** |
+| **8** | **Life Taken III** | Artifact Active, Spell | 68 m | — | Instant | Make a ranged Spell attack; on hit, deal **16d8 printed Power Damage** (no Weapon Damage for Spell delivery). Heal yourself for the actual HP removed from the target after mitigation, limited to your current active Health Bar. This replaces Life Taken II. | **Ranged Single Target Damage Transfer (PL 16; Spell delivery)** |
+| **9** | **Vision of the End III** | Active, Spell, Special | 68 m | — | Instant | Make a standard Spell Casting Roll against one target; on success apply **Soulburn(4)**, **no damage**. This replaces Vision of the End II. | **Ranged Single Target Special: Soulburn (PL 16; Spell delivery)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Staff of the Dark)** |
 
 }}
 \page
@@ -2146,7 +2310,7 @@ In its dormant state, it appears as a claw-like knuckle guard. When activated, i
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Main Hand or Off Hand | Medium Shield | Shield Value / Force Reversal / Crystalized / Crystal Rain | Bound |
+| Main Hand or Off Hand | Medium Shield | Shield Value / Reaction: Damage + Push / Ranged AoE Special: Root / Ranged AoE Attack | Bound |
 
 The Starfallen Forceshield occupies one hand Slot. A character with the Starfallen Forceshield cannot use another weapon, shield, hand focus, claw Artifact, or hand-based magical item in the same hand.
 
@@ -2170,21 +2334,24 @@ The Starfallen Forceshield occupies one hand Slot. A character with the Starfall
 Shield Value stacks with Armor Value as normal Armor resolution.
 
 ---
-
+}}
+\page
+{{pageNumber,auto}}
+{{wide
 ### Level Progression
 
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Force Reversal I** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **2d8 damage** to the triggering creature and push it **4 m**. | Counter Damage + Push |
-| **2** | **Crystalized I** | Active | 20 m | Radius 2 m | Instant | Deal **+1d8 damage** on hit. | **Root(4)** |
-| **3** | **Crystal Rain I** | Active | 20 m | Radius 2 m | Instant | Deal **+7d8 damage** on hit. | — |
-| **4** | **Force Reversal II** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **6d8 damage** to the triggering creature and push it **8 m**. | Counter Damage + Push |
-| **5** | **Crystalized II** | Active | 44 m | Radius 3 m | Instant | Deal **+2d8 damage** on hit. | **Root(8)** |
-| **6** | **Crystal Rain II** | Active | 44 m | Radius 3 m | Instant | Deal **+17d8 damage** on hit. | — |
-| **7** | **Force Reversal III** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **12d8 damage** to the triggering creature and push it **8 m**. | Counter Damage + Push |
-| **8** | **Crystalized III** | Active | 68 m | Radius 4 m | Instant | Deal **+2d8 damage** on hit. | **Root(10)** |
-| **9** | **Crystal Rain III** | Active | 68 m | Radius 4 m | Instant | Deal **+27d8 damage** on hit. | — |
-| **10** | **True Starfallen Forceshield** | Ultimate | Self | — | Special | The Starfallen Forceshield fully awakens. Choose or define one final Starfallen Forceshield effect with GM approval. | True Starfallen Forceshield |
+| **1** | **Force Reversal I** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **2d8 damage** to the triggering creature and push it **4 m**. | **Reaction: Damage + Push (PL 4)** |
+| **2** | **Crystalized I** | Artifact Active, Spell | 20 m | Radius 3 m | Instant | Use **Ranged AoE Special: Root (PL 4)** with Spell delivery. Apply **Root(3)** to hit creatures; no damage. | **Ranged AoE Special: Root (PL 4; Spell delivery)** |
+| **3** | **Crystal Rain I** | Artifact Active, Spell | 20 m | Radius 3 m | Instant | Use **Ranged AoE Attack (PL 4)** with Spell delivery. Each creature hit takes **+3d8 printed Power Damage** (no Weapon Damage with Spell delivery). | **Ranged AoE Attack (PL 4; Spell delivery)** |
+| **4** | **Force Reversal II** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **6d8 damage** to the triggering creature and push it **8 m**. This replaces Force Reversal I. | **Reaction: Damage + Push (PL 10)** |
+| **5** | **Crystalized II** | Artifact Active, Spell | 44 m | Radius 6 m | Instant | Use **Ranged AoE Special: Root (PL 10)** with Spell delivery. Apply **Root(5)** to hit creatures; no damage. This replaces Crystalized I. | **Ranged AoE Special: Root (PL 10; Spell delivery)** |
+| **6** | **Crystal Rain II** | Artifact Active, Spell | 44 m | Radius 6 m | Instant | Use **Ranged AoE Attack (PL 10)** with Spell delivery. Each creature hit takes **+4d8 printed Power Damage** (no Weapon Damage with Spell delivery). This replaces Crystal Rain I. | **Ranged AoE Attack (PL 10; Spell delivery)** |
+| **7** | **Force Reversal III** | Reaction | 2 m | — | Triggering attack only | When a creature within range hits you with an attack, deal **12d8 damage** to the triggering creature and push it **8 m**. This replaces Force Reversal II. | **Reaction: Damage + Push (PL 16)** |
+| **8** | **Crystalized III** | Artifact Active, Spell | 68 m | Radius 7 m | Instant | Use **Ranged AoE Special: Root (PL 16)** with Spell delivery. Apply **Root(7)** to hit creatures; no damage. This replaces Crystalized II. | **Ranged AoE Special: Root (PL 16; Spell delivery)** |
+| **9** | **Crystal Rain III** | Artifact Active, Spell | 68 m | Radius 8 m | Instant | Use **Ranged AoE Attack (PL 16)** with Spell delivery. Each creature hit takes **+8d8 printed Power Damage** (no Weapon Damage with Spell delivery). This replaces Crystal Rain II. | **Ranged AoE Attack (PL 16; Spell delivery)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply the universal **Artifact Awakening** benefits to this Artifact's highest granted Powers, supported Stone Abilities and Stone resources. Passive effects stay unchanged. | **Artifact Level 10: Awakening (Starfallen Forceshield)** |
 
 }}
 \page
@@ -2201,9 +2368,7 @@ It grants no Armor, no Evade, no Weapon Damage, and no Base Value.
 
 | Slot | Base Type | Artifact Functions | Binding |
 |---|---|---|---|
-| Amulet | Lantern | Stone Battery / Resolve Pool / Recovery | Bound |
-
-The Lantern is one of the eight Artifacts that may carry **three Stone Functions** at once.
+| Amulet | Lantern | Stone Battery / Lantern Light / Soul Reserve (three expressly permitted Stone-linked functions) | Bound |
 
 The Lantern of the Hollow Star occupies the Amulet Slot.
 
@@ -2222,30 +2387,26 @@ The Lantern has no Base Value.
 
 All of its power is written into its Level Progression.
 
----
-
-#### Level Progression
-
-| **Artifact Level** | **Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
-|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
-| **1** | **Stone Battery I** | Stone Battery | Self | — | Passive | Gain a **Resolve Stone Battery** (capacity **10**). | Stone Battery |
-| **2** | **Resolve Pool I** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, store **2 Resolve Stones**. These Stones may only be used for this Artifact's listed Resolve Stone functions. | Stone Pool |
-| **3** | **Recovery I** | Stone Refresh | Self | — | Instant | Restore **1** spent Resolve Stone. | Stone Refresh |
-| **4** | **Stone Battery II** | Stone Battery | Self | — | Passive | Gain a **Resolve Stone Battery** (capacity **20**). | Stone Battery |
-| **5** | **Resolve Pool II** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, store **4 Resolve Stones**. These Stones may only be used for this Artifact's listed Resolve Stone functions. | Stone Pool |
-| **6** | **Recovery II** | Stone Refresh | Self | — | Instant | Restore **2** spent Resolve Stones. | Stone Refresh |
-| **7** | **Stone Battery III** | Stone Battery | Self | — | Passive | Gain a **Resolve Stone Battery** (capacity **40**). | Stone Battery |
-| **8** | **Resolve Pool III** | Stone Pool | Self | — | Passive | After each Safe Haven Rest, store **8 Resolve Stones**. These Stones may only be used for this Artifact's listed Resolve Stone functions. | Stone Pool |
-| **9** | **Recovery III** | Stone Refresh | Self | — | Instant | Restore **4** spent Resolve Stones. | Stone Refresh |
-| **10** | **True Hollow Star** | Ultimate | Self | — | Special | The Lantern fully awakens. Choose or define one final Stone Battery, Resolve Pool, Recovery, or stored-stone effect with GM approval. | True Hollow Star |
-
-
 }}
 \page
 {{pageNumber,auto}}
 {{wide
 
+#### Level Progression
 
+| **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Technical Reference** |
+|:--:|:--|:--|:--:|:--:|:--:|:--|:--|
+| **1** | **Stone Battery I** | Artifact Function | Self | — | Passive | The Lantern is a **Stone Battery** with a capacity of **10 Stones**. It starts empty, does not refill after a Safe Haven Rest, and can only be charged through GM-approved sources unless its Level-10 Artifact Awakening is used. | **Artifact Function: Hollow Star Stone Battery (Capacity 10)** |
+| **2** | **Lantern Glow I** | Artifact Function | Self | Radius 8 m | Passive | The Lantern sheds pale light in the area. The light may reveal magical darkness, hidden deathly traces, spirit marks, or similar supernatural traces if the GM allows it. | **Artifact Function: Hollow Star Lantern Light (8 m)** |
+| **3** | **Soul Reserve I** | Artifact Function | Self | — | Passive | Once per Safe Haven Rest, you may spend **1 Stone** from the Lantern Battery for a Power you use, ignoring the Artifact's normal Slot-function restriction. | **Artifact Function: Hollow Star Soul Reserve (1 use)** |
+| **4** | **Stone Battery II** | Artifact Function | Self | — | Passive | The Lantern Battery capacity increases to **20 Stones**. It starts empty, does not refill after a Safe Haven Rest, and can only be charged through GM-approved sources unless its Level-10 Artifact Awakening is used. This replaces Stone Battery I. | **Artifact Function: Hollow Star Stone Battery (Capacity 20)** |
+| **5** | **Lantern Glow II** | Artifact Function | Self | Radius 16 m | Passive | The Lantern sheds pale light in the area. The light may reveal stronger magical darkness, deathly traces, spirit marks, cursed residue, or similar supernatural traces if the GM allows it. This replaces Lantern Glow I. | **Artifact Function: Hollow Star Lantern Light (16 m)** |
+| **6** | **Soul Reserve II** | Artifact Function | Self | — | Passive | Twice per Safe Haven Rest, you may spend **1 Stone** from the Lantern Battery for a Power you use, ignoring the Artifact's normal Slot-function restriction. This replaces Soul Reserve I. | **Artifact Function: Hollow Star Soul Reserve (2 uses)** |
+| **7** | **Stone Battery III** | Artifact Function | Self | — | Passive | The Lantern Battery capacity increases to **40 Stones**. It starts empty, does not refill after a Safe Haven Rest, and can only be charged through GM-approved sources unless its Level-10 Artifact Awakening is used. This replaces Stone Battery II. | **Artifact Function: Hollow Star Stone Battery (Capacity 40)** |
+| **8** | **Lantern Glow III** | Artifact Function | Self | Radius 24 m | Passive | The Lantern sheds pale light in the area. The light may reveal magical darkness, deathly traces, spirit marks, cursed residue, hidden undead, or similar supernatural traces if the GM allows it. This replaces Lantern Glow II. | **Artifact Function: Hollow Star Lantern Light (24 m)** |
+| **9** | **Soul Reserve III** | Artifact Function | Self | — | Passive | Three times per Safe Haven Rest, you may spend **1 Stone** from the Lantern Battery for a Power you use, ignoring the Artifact's normal Slot-function restriction. This replaces Soul Reserve II. | **Artifact Function: Hollow Star Soul Reserve (3 uses)** |
+| **10** | **Artifact Awakening** | Artifact Function | Self | — | Special | Apply **Artifact Awakening**. **Stone Battery III** may be refilled to **40 Stones** at the start of one combat, with the universal one-combat refill limit. Lantern Glow III and Soul Reserve III retain their listed effects; no separate Ultimate is added. | **Artifact Level 10: Awakening (Lantern of the Hollow Star)** |
 
 
 }}
+

@@ -39,6 +39,11 @@ export interface StoneSlotProgress {
     openIndexes: number[];
 }
 export declare function isColorlessSlot(choice: string | null | undefined): boolean;
+/**
+ * Old saves stored one Permanent Colorless Stone as two linked boxes (`colorless#a-b`).
+ * The current rule is 1:1, so the second box is released.
+ */
+export declare function normalizeColorlessSlotOrder(order: readonly (string | null)[]): (string | null)[];
 export declare function stoneSlotProgress(order: readonly (string | null)[]): StoneSlotProgress;
 export interface StoneSlotTally {
     ok: boolean;
@@ -46,19 +51,19 @@ export interface StoneSlotTally {
     assignments: Record<AttributeKeyName, number>;
     colorless: number;
 }
-/** A finished slot list: every box filled, Colorless boxes in pairs. */
+/** A finished slot list: every box filled. Colorless is 1:1 and cannot use a starting Stone. */
 export declare function tallyStoneSlotOrder(order: readonly (string | null)[]): StoneSlotTally;
 export interface StonePlacementOptions {
     attributes: AttributeKeyName[];
     colorless: boolean;
     colorlessReason: string;
 }
-export declare function stonePlacementOptions(order: readonly (string | null)[], storedRank?: number, lifetimeXp?: number | null): StonePlacementOptions;
+export declare function stonePlacementOptions(order: readonly (string | null)[], storedRank?: number, lifetimeXp?: number | null, slotIndex?: number): StonePlacementOptions;
 /** Slot list for an actor. A stored order wins; otherwise the current sheet order. */
 export declare function stoneOrderForActor(system: any, lifetimeXp: number): (string | null)[];
 /** Actor update that keeps assignments, pools and the clicked slot order together. */
 export declare function stoneOrderActorUpdate(system: any, order: readonly (string | null)[]): Record<string, unknown>;
-/** Drop one box. A Permanent Colorless pair drops both boxes. */
+/** Drop one box. A legacy Colorless pair still drops both boxes, because they were one Stone. */
 export declare function releaseStoneSlot(order: readonly (string | null)[], index: number): (string | null)[];
 /** Every earned box becomes empty again. Lifetime XP is untouched. */
 export declare function releaseAllStoneSlots(order: readonly (string | null)[]): (string | null)[];

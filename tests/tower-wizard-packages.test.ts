@@ -82,29 +82,23 @@ describe('tower-wizard-packages', () => {
 
         expect(armor?.passives.map((p) => p.id)[0]).toBe('passive-fortified-frame');
         expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.label).toBe('Armor');
-        expect(armor?.passives.find((p) => p.id === 'passive-armor-healing')?.label).toBe('Armor + Healing');
+        expect(armor?.passives.some((p) => p.id === 'passive-armor-healing')).toBe(false);
         expect(armor?.passives.some((p) => p.id === 'passive-echo-armor-value')).toBe(false);
         expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.mechanicsPreview).toMatch(/\+5 Armor/);
-        expect(armor?.passives.find((p) => p.id === 'passive-armor-healing')?.mechanicsPreview).toMatch(/\+3 Armor/);
-        expect(armor?.passives.find((p) => p.id === 'passive-armor-healing')?.mechanicsPreview).toMatch(/heal 5 HP/);
 
         expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Healing');
-        expect(healing?.passives.find((p) => p.id === 'passive-blood-feast')?.label).toBe('Healing (Wounded or Worse)');
-        expect(healing?.passives.find((p) => p.id === 'passive-battle-trance')?.label).toBe('Healing (Adjacent to Enemy)');
-        expect(healing?.passives.find((p) => p.id === 'passive-stillness-recovery')?.label).toBe('Healing (Moved 0 m Last Turn)');
+        expect(healing?.passives.some((p) => p.id === 'passive-blood-feast')).toBe(false);
         expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview).toMatch(/heal 10 HP/);
-        expect(healing?.passives.find((p) => p.id === 'passive-blood-feast')?.mechanicsPreview).toMatch(/heal 20 HP/);
 
         expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Damage');
-        expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.label).toBe('Damage (Moved 8+ m This Turn)');
+        expect(damage?.passives.some((p) => p.id === 'passive-momentum')).toBe(false);
         expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.mechanicsPreview).toMatch(/\+2d8 Damage/);
-        expect(damage?.passives.find((p) => p.id === 'passive-momentum')?.mechanicsPreview).toMatch(/\+4d8 Damage/);
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {
         const variants = getPassive1VariantOptions('armor');
         expect(variants.map((v) => v.templateId)).toContain('passive-fortified-frame');
-        expect(variants.map((v) => v.templateId)).toContain('passive-armor-temp-hp');
+        expect(variants.map((v) => v.templateId)).not.toContain('passive-armor-temp-hp');
         expect(variants.find((v) => v.templateId === 'passive-fortified-frame')?.isRecommended).toBe(true);
     });
 
@@ -236,7 +230,8 @@ describe('tower-wizard-packages', () => {
     it('second passive groups include evade hybrids when Passive 1 is not evade', () => {
         const groups = getSecondPassiveGroups('armor', 'passive-fortified-frame');
         const allIds = groups.flatMap((g) => g.passives.map((p) => p.id));
-        expect(allIds).toContain('passive-evade-temp-hp');
+        expect(allIds).toContain('passive-evade');
+        expect(allIds).not.toContain('passive-evade-temp-hp');
         expect(allIds).not.toContain('passive-evade-damage');
     });
 
@@ -424,15 +419,15 @@ describe('tower-wizard-packages', () => {
         const groups = getCategoryPickerGroups('passive', TOWER_WIZARD_DEFENSIVE_RANK);
         const bloodlust = groups
             .flatMap((g) => g.cards)
-            .find((c) => c.templateId === 'passive-bloodlust');
+            .find((c) => c.templateId === 'passive-killing-intent');
         expect(bloodlust).toBeDefined();
-        expect(bloodlust!.mechanics).toMatch(/lacerate/i);
+        expect(bloodlust!.mechanics).toMatch(/damage/i);
         expect(bloodlust!.mechanics).toMatch(/d8/i);
         expect(bloodlust!.mechanics).not.toContain('**');
     });
 
     it('catalogMechanicsText reads the effect text for the requested rank', () => {
-        const entry = findCatalogEntry('passive-bloodlust', null)!;
+        const entry = findCatalogEntry('passive-killing-intent', null)!;
         expect(entry).toBeDefined();
         const r4 = catalogMechanicsText(entry, 4);
         const r1 = catalogMechanicsText(entry, 1);

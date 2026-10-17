@@ -66,10 +66,12 @@ export declare function rollNpcInitiativeOnly(combat: Combat, opts?: {
  * PCs roll inside the Stone Powers dialog.
  */
 export declare function executeInitiativePhase(combat: Combat): Promise<void>;
+/** Stable d8 from the first sort. Missing flags sort as 0 until `ensureInitiativeTieBreak` stores one. */
+export declare function tieBreakD8(combatant: any): number;
+export declare function ensureInitiativeTieBreak(combatant: any): Promise<number>;
 /**
  * Sort compare: lower result acts first.
- * Higher initiative first. Ties: player (character) before NPC/summon.
- * Player vs player (or any remaining tie): Agility, then Wits, then Intellect, then Resolve.
+ * Higher initiative first. Ties: Mastery Rank, then Agility pool, then a stored d8.
  */
 export declare function compareInitiativeCombatants(a: any, b: any): number;
 /** Remaining shop score after purchases. May be negative — do not clamp to 0. */

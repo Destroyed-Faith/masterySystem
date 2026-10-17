@@ -83,6 +83,8 @@ export interface ReactionWindowState {
   spellPowerDamageDice?: number;
   attackType?: 'melee' | 'ranged' | null;
   isAoE?: boolean;
+  /** Threat Zone boundary this card was opened for. */
+  movementThreat?: 'entry' | 'exit' | null;
   /**
    * True when this chat card was replaced by a newer copy posted below
    * (post-attack summary repost). Not a real close — waiters must not resolve.
@@ -290,6 +292,7 @@ function filterEntriesForCard(
         multiTarget: !!state.multiTarget,
         attackType: state.attackType ?? null,
         isAoE: !!state.isAoE,
+        movementThreat: state.movementThreat ?? null,
       });
       const powers = e.powers.filter((p) => {
         if (!evaluateReactionEligibility(p, ctx).shown) return false;
@@ -318,8 +321,9 @@ function buildReactionWindowHtml(
   const remainingN = actionable.length;
   const remainingSuffix =
     !state.resolved && remainingN > 0 ? ` — ${remainingN} remaining` : '';
-  const title =
-    phase === 'defender'
+  const title = state.movementThreat
+    ? `⚡ Threat Zone — ${state.movementThreat === 'entry' ? 'entered' : 'leaving'}`
+    : phase === 'defender'
       ? '⚡ Reaction Window — Target'
       : phase === 'allies'
         ? `⚡ Reaction Window — Allies${remainingSuffix}`
@@ -329,7 +333,11 @@ function buildReactionWindowHtml(
 
   const hasThreatened = (state.opportunityEnemyTokenIds?.length ?? 0) > 0;
   let hitLine: string;
-  if (phase === 'opportunity') {
+  if (state.movementThreat === 'entry') {
+    hitLine = `<p><strong>${escHtml(attackerName)}</strong> entered the Threat Zone of <strong>${escHtml(defenderName)}</strong>. Legal Movement Reactions may be spent.</p>`;
+  } else if (state.movementThreat === 'exit') {
+    hitLine = `<p><strong>${escHtml(attackerName)}</strong> is leaving the Threat Zone of <strong>${escHtml(defenderName)}</strong>. Legal Movement Reactions may be spent before the exit.</p>`;
+  } else if (phase === 'opportunity') {
     hitLine = `<p><strong>${escHtml(attackerName)}</strong> declared a Threatened Ranged attack — enemies who have the shooter in melee reach may immediately spend a <strong>legal Reaction</strong>.</p>`;
   } else if (phase === 'others') {
     hitLine = hasThreatened
@@ -741,7 +749,10 @@ async function executeReactionSpend(params: {
     return { state, note: 'No Reactions left.' };
   }
 
-  const spent = await spendReactionAction(economy, combat);
+  const spent = await spendReactionAction(economy, combat, {
+    reactionId: String(power?.id || power?.name || 'reaction'),
+    triggerId: String(params.state.eventId || 'trigger'),
+  });
   if (!spent) {
     return { state, note: 'Could not spend Reaction.' };
   }
@@ -1451,6 +1462,8 @@ export async function runInteractiveReactionWindow(params: {
   spellPowerDamageDice?: number;
   attackType?: 'melee' | 'ranged' | null;
   isAoE?: boolean;
+  /** Threat Zone entry (after arrival) or exit (before departure). */
+  movementThreat?: 'entry' | 'exit' | null;
 }): Promise<ReactionPhaseResult> {
   const phase: ReactionWindowPhase = params.phase ?? 'defender';
   const empty = emptyPhaseResult(params.eventId);
@@ -1502,13 +1515,15 @@ export async function runInteractiveReactionWindow(params: {
     spellPowerDamageDice: Math.max(0, Math.floor(Number(params.spellPowerDamageDice) || 0)),
     attackType: params.attackType ?? null,
     isAoE: !!params.isAoE,
+    movementThreat: params.movementThreat ?? null,
   };
 
   const actionable = filterEntriesForCard(entries, state);
   // Threatened Ranged named OAs must always produce a post-attack card — even
   // when every threatener is out of Reactions (explain why; don't silent-skip).
   const mustShowOpportunityCard =
-    oppIds.length > 0 && (phase === 'others' || phase === 'opportunity');
+    !!state.movementThreat ||
+    (oppIds.length > 0 && (phase === 'others' || phase === 'opportunity'));
   if (!actionable.length) {
     if (!mustShowOpportunityCard) {
       // No meaningful reaction left (miss + only Evade, no Reactions, NPC skip, …).

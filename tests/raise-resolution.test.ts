@@ -145,7 +145,7 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(snap.specials[0].rank).toBe(6);
   });
 
-  it('a Special Raise turns the printed rank on; it does not add MR on top', () => {
+  it('a Special Raise adds Mastery Rank to a special already on the power', () => {
     const latent = buildAvailableRaiseOptions(
       {
         ...examplePower(),
@@ -159,9 +159,8 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(precision?.printedRank).toBe(2);
     const base = examplePower();
     base.damageDice = 4;
-    base.specials = [];
+    base.specials = [{ key: 'precision', rank: 2 }];
     const declared = declaredRaiseFromOptionId('special:precision', latent);
-    expect(declared?.printedRank).toBe(2);
     const snap = resolvePowerSnapshot({
       base,
       declaredRaises: declared ? [declared] : [],
@@ -169,11 +168,21 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
       masteryRank: 2,
       isSpell: false,
     });
-    expect(snap.specials).toEqual([{ key: 'precision', rank: 2 }]);
+    expect(snap.specials).toEqual([{ key: 'precision', rank: 4 }]);
     expect(snap.damageDice).toBe(4);
+    const missing = examplePower();
+    missing.specials = [];
+    const none = resolvePowerSnapshot({
+      base: missing,
+      declaredRaises: declared ? [declared] : [],
+      outcome: 'full',
+      masteryRank: 2,
+      isSpell: false,
+    });
+    expect(none.specials).toEqual([]);
   });
 
-  it('a damage Raise and a Special Raise are each once per attack', () => {
+  it('stacks Damage Raises and applies each Special Raise once', () => {
     const raises: DeclaredRaise[] = [
       { effect: 'specialPlus', targetSpecialKey: 'penetration', slots: 1, label: 'Increase Penetration(3) by +MR' },
       { effect: 'specialPlus', targetSpecialKey: 'penetration', slots: 1, label: 'Increase Penetration(3) by +MR' },
@@ -184,6 +193,7 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(dedupeDeclaredRaises(raises).map((r) => r.targetSpecialKey ?? r.effect)).toEqual([
       'penetration',
       'precision',
+      'damage',
       'damage',
     ]);
     const base = examplePower();
@@ -200,8 +210,8 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     });
     expect(snap.specials.find((s) => s.key === 'penetration')?.rank).toBe(5);
     expect(snap.specials.find((s) => s.key === 'precision')?.rank).toBe(6);
-    expect(snap.damageDice).toBe(8 + 2);
-    expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(3);
+    expect(snap.damageDice).toBe(8 + 4);
+    expect(paidRaiseSlots(dedupeDeclaredRaises(raises))).toBe(4);
   });
 
   it('writes the hit as weapon plus power plus raise', () => {
@@ -371,7 +381,7 @@ describe('stone bonus raises on full success', () => {
     expect(snapshotToDamageFormula(snap)).toBe('11d8');
   });
 
-  it('adds +1d8 spell damage per bonus raise', () => {
+  it('adds +MR damage per bonus raise for spells too', () => {
     const snap = resolvePowerSnapshot({
       base: examplePower(),
       declaredRaises: [],
@@ -380,7 +390,7 @@ describe('stone bonus raises on full success', () => {
       isSpell: true,
       stoneBonusRaises: 2,
     });
-    expect(snapshotToDamageFormula(snap)).toBe('10d8');
+    expect(snapshotToDamageFormula(snap)).toBe('14d8');
   });
 });
 

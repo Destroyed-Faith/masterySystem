@@ -13,11 +13,14 @@ export interface InvisibilityVeilPreset {
 /** Named veil presets from the Players Guide (Silent Veil, Hollow Veil). */
 export declare const INVISIBILITY_VEIL_PRESETS: Record<string, InvisibilityVeilPreset>;
 export declare function blockedSensesForVeil(presetId: string, elevated?: boolean): CombatSenseId[];
-/** Apply a Stealth skill check result to the rolling actor's perception combat state. */
+/** Apply a Stealth skill check result. Final Result becomes the Perception TN. */
 export declare function applyStealthRollResult(actor: any, result: {
     success: boolean;
     raises?: number;
+    finalResult?: number;
 }): Promise<void>;
+/** Ordinary Stealth hiding ends. Invisibility is left alone. */
+export declare function breakOrdinaryStealth(actor: any, _reason?: string): Promise<void>;
 /** @deprecated Cloak Disruption removed — attacking no longer reveals Invisibility. */
 export declare function applyAttackCloakDisruption(_attacker: any): Promise<void>;
 /** @deprecated Cloak Disruption removed — movement no longer lowers Invisibility Bonus. */

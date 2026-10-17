@@ -10,7 +10,7 @@
  *   (a) flat Special reductions — Disoriented (Auto-Fail engine),
  *       Weaken / Soulburn (by pool attribute), Challenge (attack targeting)
  *   (b) percentage-based Health / Encumbrance penalty (dice loss floored)
- *   (c) Minimum Pool = Mastery Rank (applied LAST)
+ *   (c) A pool of 0 dice fails. Keep cannot exceed the dice that remain.
  */
 import { evaluateAutoFail } from '../system/auto-fail.js';
 import { attributePoolReduction, challengePoolReduction, normalizeTargetRefs, } from '../system/pool-reduction.js';
@@ -27,7 +27,6 @@ export function finalizeRolledPool(actor, basePool, keepDice, options = {}) {
         return { numDice, notes };
     const kind = options.rollKind;
     let flatReduction = 0;
-    let anyStageApplied = false;
     // (a1) Auto-Fail engine — Disoriented pool penalty + forced failures.
     if (options.checkContext) {
         const intent = options.autoFailIntent ?? (kind === 'attack' ? 'attack' : 'skill');
@@ -56,7 +55,6 @@ export function finalizeRolledPool(actor, basePool, keepDice, options = {}) {
     }
     if (flatReduction > 0) {
         numDice = Math.max(0, numDice - flatReduction);
-        anyStageApplied = true;
     }
     // (b) Percentage Health penalty (encumbrance affects Movement only).
     if (options.applyPoolPenalties !== false) {
@@ -64,18 +62,11 @@ export function finalizeRolledPool(actor, basePool, keepDice, options = {}) {
         if (penalties.healthPenaltyDice > 0) {
             notes.push(`Health penalty: −${penalties.healthPenaltyDice} dice`);
         }
-        if (penalties.numDice !== numDice)
-            anyStageApplied = true;
         numDice = penalties.numDice;
-        anyStageApplied = anyStageApplied || options.applyPoolPenalties === true;
     }
-    // (c) Minimum Pool = Mastery Rank — applied last.
-    if (anyStageApplied || options.applyPoolPenalties !== false) {
-        const mrFloor = Math.max(1, Math.floor(keepDice));
-        if (numDice < mrFloor) {
-            notes.push(`Minimum Pool: raised to ${mrFloor}d8 (Mastery Rank)`);
-            numDice = mrFloor;
-        }
+    if (numDice <= 0) {
+        notes.push('Pool of 0 dice — the roll fails');
+        return { numDice: 0, notes, autoFailReason: autoFailReason ?? 'Pool of 0 dice' };
     }
     return { numDice, notes, ...(autoFailReason ? { autoFailReason } : {}) };
 }

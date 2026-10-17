@@ -32,6 +32,8 @@ export interface ReactionTriggerContext {
     statusSurface?: boolean;
     isAoE?: boolean;
     suppressCounterattack?: boolean;
+    /** Set when this window is a Threat Zone entry or exit, not an attack. */
+    movementThreat?: 'entry' | 'exit' | null;
 }
 export interface ReactionEligibility {
     shown: boolean;
@@ -80,5 +82,6 @@ export declare function buildReactionTriggerContext(params: {
     statusSurface?: boolean;
     isAoE?: boolean;
     attackType?: 'melee' | 'ranged' | null;
+    movementThreat?: 'entry' | 'exit' | null;
 }): ReactionTriggerContext;
 //# sourceMappingURL=reaction-eligibility.d.ts.map

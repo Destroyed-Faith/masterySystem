@@ -1,0 +1,235 @@
+/**
+ * Combat resolution for Stone Abilities that outlive the Preparation click:
+ * Reaction Denial, Movement Reduction, Not a Target, Damage Maximization.
+ */
+export const REACTION_DENIAL_FLAG = 'reactionDenial';
+export const MOVEMENT_REDUCTION_FLAG = 'movementReduction';
+export const NOT_A_TARGET_FLAG = 'notATarget';
+export const DAMAGE_MAX_FLAG = 'damageMaximization';
+export const ABSORPTION_PENDING_FLAG = 'absorptionPendingStones';
+export const ABSORPTION_READY_FLAG = 'absorptionReadyStones';
+/** Half a metre rounds up: 5 → 3, 7 → 4, 9 → 5. */
+export function halveMovementMeters(meters) {
+    const n = Math.max(0, Number(meters) || 0);
+    if (n <= 0)
+        return 0;
+    return Math.round(n / 2);
+}
+/** Every d8 in a damage formula becomes 8. Flat bonuses stay. Forced 8s do not explode. */
+export function maximizeDamageFormula(formula) {
+    return String(formula || '').replace(/(\d*)d8(?:x\d+)?/gi, (_match, count) => {
+        const n = count ? Math.max(1, parseInt(count, 10) || 1) : 1;
+        return String(8 * n);
+    });
+}
+export function sameCombatRound(state, combatId, round) {
+    if (!state)
+        return false;
+    if (String(state.combatId || '') !== String(combatId || ''))
+        return false;
+    return Math.floor(Number(state.round) || 0) === Math.floor(Number(round) || 0);
+}
+export function reactionDenialDecision(state, attempt) {
+    if (!state || !sameCombatRound(state, attempt.combatId, attempt.round)) {
+        return { allow: true, next: state ?? null };
+    }
+    const reactionId = String(attempt.reactionId || 'reaction');
+    const triggerId = String(attempt.triggerId || 'trigger');
+    const already = (state.denied || []).some((row) => row.reactionId === reactionId && row.triggerId === triggerId);
+    if (already) {
+        return {
+            allow: false,
+            next: state,
+            reason: 'That Reaction was already denied against this trigger.',
+        };
+    }
+    if (state.remaining <= 0)
+        return { allow: true, next: state };
+    return {
+        allow: false,
+        next: {
+            ...state,
+            remaining: state.remaining - 1,
+            denied: [...(state.denied || []), { reactionId, triggerId }],
+        },
+        reason: 'Reaction Denial: the declaration does not resolve and does not spend a Reaction.',
+    };
+}
+export function notATargetDecision(state, attackerId, otherValidTargets, combatId, round) {
+    if (!state || !sameCombatRound(state, combatId, round))
+        return { block: false, next: state ?? null };
+    const id = String(attackerId || '');
+    if (!id || !(state.enemyIds || []).includes(id))
+        return { block: false, next: state };
+    if ((state.usedIds || []).includes(id))
+        return { block: false, next: state };
+    if (otherValidTargets <= 0)
+        return { block: false, next: state };
+    return {
+        block: true,
+        next: { ...state, usedIds: [...(state.usedIds || []), id] },
+        reason: 'Not a Target: that enemy cannot target you with this attack.',
+    };
+}
+function liveCombat() {
+    const combat = globalThis.game?.combat;
+    if (!combat?.id)
+        return null;
+    return { id: String(combat.id), round: Math.max(1, Math.floor(Number(combat.round) || 1)) };
+}
+export function readReactionDenial(actor) {
+    const raw = actor?.getFlag?.('mastery-system', REACTION_DENIAL_FLAG);
+    if (!raw || typeof raw !== 'object')
+        return null;
+    return {
+        remaining: Math.max(0, Math.floor(Number(raw.remaining) || 0)),
+        combatId: String(raw.combatId || ''),
+        round: Math.floor(Number(raw.round) || 0),
+        denied: Array.isArray(raw.denied) ? raw.denied : [],
+    };
+}
+export async function denyReactionIfMarked(actor, attempt = {}) {
+    const combat = liveCombat();
+    if (!combat)
+        return { denied: false };
+    const decision = reactionDenialDecision(readReactionDenial(actor), {
+        reactionId: attempt.reactionId || 'reaction',
+        triggerId: attempt.triggerId || 'trigger',
+        combatId: combat.id,
+        round: combat.round,
+    });
+    if (decision.allow)
+        return { denied: false };
+    if (decision.next) {
+        await actor?.setFlag?.('mastery-system', REACTION_DENIAL_FLAG, decision.next);
+    }
+    return { denied: true, reason: decision.reason };
+}
+export function movementReductionActive(actor) {
+    const combat = liveCombat();
+    if (!combat)
+        return false;
+    const raw = actor?.getFlag?.('mastery-system', MOVEMENT_REDUCTION_FLAG);
+    return sameCombatRound(raw, combat.id, combat.round);
+}
+export function movementMetersAfterStoneEffects(actor, meters) {
+    if (!movementReductionActive(actor))
+        return Math.max(0, Number(meters) || 0);
+    return halveMovementMeters(meters);
+}
+/** Write the round-scoped flag on the first `count` chosen enemies. Rank 1–4 is that count. */
+export async function markMovementReductionTargets(targets, count, combat) {
+    const cap = Math.max(0, Math.floor(Number(count) || 0));
+    const chosen = targets.slice(0, cap);
+    const payload = {
+        combatId: String(combat?.id || ''),
+        round: Math.max(1, Math.floor(Number(combat?.round) || 1)),
+    };
+    for (const target of chosen) {
+        await target?.setFlag?.('mastery-system', MOVEMENT_REDUCTION_FLAG, payload);
+    }
+    return chosen.length;
+}
+export async function offerDamageMaximization(actor) {
+    const raw = actor?.getFlag?.('mastery-system', DAMAGE_MAX_FLAG);
+    const combat = liveCombat();
+    if (!raw || Math.floor(Number(raw.remaining) || 0) <= 0)
+        return false;
+    if (combat && raw.combatId && String(raw.combatId) !== combat.id)
+        return false;
+    const DialogCtor = globalThis.Dialog;
+    let yes = false;
+    if (typeof DialogCtor?.confirm === 'function') {
+        yes = await DialogCtor.confirm({
+            title: 'Damage Maximization',
+            content: `<p>Maximize this complete Damage Roll? Every d8 becomes 8. Forced 8s do not explode.</p><p><strong>${Math.floor(Number(raw.remaining) || 0)}</strong> left this combat.</p>`,
+        });
+    }
+    if (!yes)
+        return false;
+    await actor.setFlag?.('mastery-system', DAMAGE_MAX_FLAG, {
+        ...raw,
+        remaining: Math.max(0, Math.floor(Number(raw.remaining) || 0) - 1),
+    });
+    return true;
+}
+export async function chooseCombatantActors(opts) {
+    const combat = globalThis.game?.combat;
+    const bag = combat?.combatants;
+    const rows = bag
+        ? typeof bag.values === 'function'
+            ? Array.from(bag.values())
+            : Array.isArray(bag)
+                ? bag
+                : []
+        : [];
+    const casterId = String(opts.caster?.id || '');
+    const maxRange = Math.max(0, Number(opts.maxRangeM) || 0);
+    let distanceBetween = null;
+    if (maxRange > 0) {
+        try {
+            const mod = await import('../combat/reaction-eligibility.js');
+            distanceBetween = mod.distanceBetweenActorsMeters;
+        }
+        catch {
+            distanceBetween = null;
+        }
+    }
+    const choices = rows
+        .map((c) => c?.actor)
+        .filter((actor) => {
+        if (!actor || String(actor.id || '') === casterId)
+            return false;
+        if (!distanceBetween || maxRange <= 0)
+            return true;
+        const meters = distanceBetween(opts.caster, actor);
+        return meters == null || meters <= maxRange + 0.05;
+    });
+    if (!choices.length)
+        return [];
+    const DialogCtor = globalThis.Dialog;
+    if (typeof DialogCtor !== 'function')
+        return [];
+    const picked = [];
+    const max = Math.max(1, Math.floor(opts.max) || 1);
+    let remaining = choices.slice();
+    while (picked.length < max && remaining.length) {
+        const buttons = remaining
+            .map((actor, index) => `<button type="button" class="stone-target-pick" data-index="${index}">${String(actor.name || 'Creature')}</button>`)
+            .join('');
+        const choice = await new Promise((resolve) => {
+            let settled = false;
+            const finish = (value) => {
+                if (settled)
+                    return;
+                settled = true;
+                resolve(value);
+            };
+            const dialog = new DialogCtor({
+                title: opts.title,
+                content: `<form class="mastery-stone-target" onsubmit="return false;"><p>${opts.hint}</p><div>${buttons}</div></form>`,
+                buttons: { cancel: { label: 'Done', callback: () => finish(null) } },
+                default: 'cancel',
+                close: () => finish(null),
+            }, { width: 420 });
+            dialog.activateListeners = function activate(html) {
+                DialogCtor.prototype?.activateListeners?.call(dialog, html);
+                const root = html?.jquery ? html[0] : html;
+                root?.querySelectorAll?.('.stone-target-pick')?.forEach((btn) => {
+                    btn.addEventListener('click', (ev) => {
+                        ev.preventDefault();
+                        finish(Math.floor(Number(btn.dataset.index)));
+                        dialog.close();
+                    });
+                });
+            };
+            dialog.render(true);
+        });
+        if (choice == null || !remaining[choice])
+            break;
+        picked.push(remaining[choice]);
+        remaining = remaining.filter((_, index) => index !== choice);
+    }
+    return picked;
+}
+//# sourceMappingURL=stone-combat-effects.js.map

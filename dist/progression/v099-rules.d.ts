@@ -73,13 +73,17 @@ export declare function stoneConcentrationCap(totalPermanentStones: number, stor
 export declare function emptyAssignments(): Record<AttributeKeyName, number>;
 export declare function readAssignments(source: any): Record<AttributeKeyName, number>;
 export declare function sumAssignments(assignments: Record<string, number>): number;
-/** Permanent Colorless Stones owned by this character (2:1 conversion of unassigned Stones). */
+/** Permanent Colorless Stones owned by this character (1:1, after the 2 starting Stones). */
 export declare function permanentColorlessCount(system: any): number;
-/** A character may possess at most Mastery Rank Permanent Colorless Stones. */
-export declare function permanentColorlessCap(masteryRank: number): number;
 /**
- * Unassigned permanent progression Stones: earned total minus assigned minus
- * the two consumed by each Permanent Colorless Stone conversion.
+ * How many earned Stones may be Permanent Colorless.
+ * The 2 starting Stones stay Attribute Stones. There is no Mastery Rank cap.
+ * `totalPermanent` is the earned stone count, not the Mastery Rank.
+ */
+export declare function permanentColorlessCap(totalPermanent: number): number;
+/**
+ * Unassigned permanent progression Stones: earned total minus assigned
+ * Attribute Stones minus Permanent Colorless Stones (1:1).
  */
 export declare function unassignedPermanentStones(args: {
     assignments: Record<string, number>;
@@ -87,9 +91,8 @@ export declare function unassignedPermanentStones(args: {
     permanentColorless?: number;
 }): number;
 /**
- * Convert 2 unassigned permanent Stones into 1 Permanent Colorless Stone.
- * The conversion is permanent. The cap is the Lifetime-XP Mastery Rank.
- * Temporary Colorless Stones are a different pool and do not change this cap.
+ * Convert 1 unassigned earned Stone into 1 Permanent Colorless Stone.
+ * The 2 starting Stones cannot be converted. There is no Mastery Rank cap.
  */
 export declare function canConvertToPermanentColorless(args: {
     assignments: Record<string, number>;

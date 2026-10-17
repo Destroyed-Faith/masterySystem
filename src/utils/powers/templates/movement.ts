@@ -142,11 +142,46 @@ export const MOVEMENT_TEMPLATES: PowerTemplate[] = [
                 specials: [],
                 mechanics: {
                     movementBonus: trampleDistances[lvl - 1],
-                    damageRider: { flat: `+${trampleDice[lvl - 1]}d8` },
-                    applyWhen: 'attack-rider',
+                    movementMode: 'trample',
+                    trampleDice: trampleDice[lvl - 1],
+                    applyWhen: 'manual',
                     duration: 'instant',
                 },
             })),
         } satisfies PowerTemplate;
-    })(),
+        })(),
 ];
+
+const MOVEMENT_MODE_BY_ID: Record<string, string> = {
+    'movement-ground-dash': 'ground-dash',
+    'movement-safe-movement': 'safe',
+    'movement-teleport': 'teleport',
+    'movement-teleport-with-ally': 'teleport-ally',
+    'movement-flight': 'flight',
+    'movement-leap': 'leap',
+    'movement-wall-walk': 'wall-walk',
+    'movement-burrow': 'burrow',
+    'movement-phase-passage': 'phase-passage',
+    'movement-trample': 'trample',
+};
+
+for (const template of MOVEMENT_TEMPLATES) {
+    const mode = MOVEMENT_MODE_BY_ID[template.templateId];
+    if (!mode) continue;
+    for (const row of Object.values(template.levels)) {
+        const mechanics = row.mechanics as {
+            movementBonus?: number;
+            movementMode?: string;
+            verticalMeters?: number;
+            materialThicknessMeters?: number;
+            movementUnavailable?: boolean;
+        };
+        mechanics.movementMode = mode;
+        const printed = Number(mechanics.movementBonus) || 0;
+        if (mode === 'leap') mechanics.verticalMeters = Math.floor(printed / 2);
+        if (mode === 'phase-passage') mechanics.materialThicknessMeters = printed;
+        if ((mode === 'teleport-ally' || mode === 'phase-passage') && printed <= 0) {
+            mechanics.movementUnavailable = true;
+        }
+    }
+}

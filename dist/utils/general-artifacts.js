@@ -109,7 +109,7 @@ const FROSTBOUND_RETURNING_AXE = {
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
-        stonePowerId: 'might.ignoreArmor',
+        stonePowerId: 'might.armorReduction',
         level: 1,
         name: 'Stormpower',
     },
@@ -209,7 +209,7 @@ const STAFF_OF_THE_DARK = {
     ],
     // The three Level Progression lines are standard catalog Spells, not authored:
     //   L1 Might of the Dark → Melee AoE Special (Hex) around the caster
-    //   L2 Life Taken        → Ranged Single Attack (7 / 17 / 27 d8 extra, no Special)
+    //   L2 Life Taken        → Ranged Single Target Damage Transfer (PL 4 / 10 / 16, spell, no weapon damage)
     //   L3 Vision of the End → Ranged Single Special (Ruin; Soulburn is gone)
     // Only the bespoke L10 Ultimate is authored verbatim below.
     progressionPickSpecs: {
@@ -221,7 +221,7 @@ const STAFF_OF_THE_DARK = {
             castingAttribute: 'resolve',
         },
         2: {
-            templateId: 'active-ranged-weapon-single',
+            templateId: 'active-ranged-single-target-damage-transfer',
             name: 'Life Taken',
             isSpell: true,
             castingAttribute: 'resolve',
@@ -406,7 +406,7 @@ const LOR_KETHS_STAFF = {
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
-        stonePowerId: 'might.ignoreArmor',
+        stonePowerId: 'might.armorReduction',
         level: 3,
         name: 'Might Ignore Armor Support',
     },

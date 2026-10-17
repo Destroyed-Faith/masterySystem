@@ -168,7 +168,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l3.stoneFunction).toEqual({
       kind: 'stonePowerSupport',
       attribute: 'influence',
-      stonePowerId: 'influence.regeneration',
+      stonePowerId: 'influence.colorlessRecovery',
     });
   });
 
@@ -292,7 +292,7 @@ describe('Echo Artifact tree builder — Sentinel frames map to catalog Powers +
     expect(l2.stoneFunction).toEqual({
       kind: 'stonePowerSupport',
       attribute: 'influence',
-      stonePowerId: 'influence.aidRoll',
+      stonePowerId: 'influence.cleanse',
     });
 
     const l3 = pick('oracleFrame', 3);

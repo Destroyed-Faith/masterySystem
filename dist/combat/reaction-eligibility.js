@@ -278,7 +278,15 @@ export function evaluateReactionEligibility(power, ctx) {
             return { shown: false, enabled: false, reason: 'Not an ally reaction' };
         }
     }
-    const threatenedWindow = phase === 'others' || phase === 'opportunity';
+    if (ctx.movementThreat) {
+        const blob = `${tid} ${subfamilyOf(power)} ${String(power?.system?.trigger || '')} ${String(power?.name || '')}`.toLowerCase();
+        const movementLegal = /movement|enter|leave|threat|reposition/.test(blob);
+        const retiredUniversal = String(power?.id || '') === 'basic-reaction-opportunity-attack';
+        if (!movementLegal || retiredUniversal) {
+            return { shown: false, enabled: false, reason: 'Not a Movement Reaction for this Threat Zone' };
+        }
+    }
+    const threatenedWindow = !ctx.movementThreat && (phase === 'others' || phase === 'opportunity');
     if (threatenedWindow) {
         // Threatened Ranged opens at DECLARATION — the reactor was not hit,
         // targeted, or damaged, so hit-trigger reactions are illegal here.
@@ -386,6 +394,7 @@ export function buildReactionTriggerContext(params) {
         hpLost: !!params.hpLost,
         statusSurface: !!params.statusSurface,
         isAoE: !!params.isAoE,
+        movementThreat: params.movementThreat ?? null,
         suppressCounterattack: !!params.suppressCounterattack,
     };
 }

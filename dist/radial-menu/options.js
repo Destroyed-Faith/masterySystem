@@ -6,7 +6,10 @@ import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.
 import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-import { getAvailableAttackActions, getMovementRangeBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { getAvailableAttackActions, getMovementRangeBonusMeters, getStoneAreaBonusMeters, getNpcAttackUsesThisRound, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { movementReductionActive } from '../stones/stone-combat-effects.js';
+import { movementActionMeters } from '../combat/movement-allowance.js';
+import { readGrowthFormRider } from '../combat/growth-form.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcAttacksPerRoundCap, npcAttackUsageKey, npcDamageDiceFormula, resolveNpcAttackList, resolveNpcAttackTargeting, } from '../utils/npc-attack-model.js';
 import { logNpcAttackListDump, logNpcTargeting } from '../utils/npc-targeting-debug.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
@@ -17,6 +20,9 @@ import { filterCatalog } from '../utils/power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from '../utils/power-item-builder.js';
 import { buildConsumableRadialOptions } from '../utils/consumable-slots.js';
 import { getActiveAmmoPair, quiverAmmunitionLabel } from '../utils/ammunition.js';
+function meleeReachBonusMeters(actor) {
+    return getStoneAreaBonusMeters(actor, 'reach') + (readGrowthFormRider(actor)?.reachBonusM ?? 0);
+}
 /** Attack-slot maneuvers the radial shows (Basic Attack is injected separately). */
 export const RADIAL_ATTACK_MANEUVER_IDS = [
     'parry-stance',
@@ -319,25 +325,18 @@ function getWeaponRange(actor) {
  */
 function calculateRange(actor, optionId, slot, rangeStr, levelData) {
     const moveBonus = getMovementRangeBonusMeters(actor, game.combat ?? null);
-    // Special case: Disengage uses actor's movement
-    if (optionId === 'disengage') {
+    const reduced = movementReductionActive(actor);
+    const maneuverKind = optionId === 'disengage' || optionId === 'move' || optionId === 'dash' || optionId === 'flee'
+        ? optionId
+        : null;
+    if (maneuverKind) {
         const actorSpeed = actor.system?.combat?.speed || 8;
-        return actorSpeed + moveBonus;
-    }
-    // Special case: Move uses actor's speed
-    if (optionId === 'move') {
-        const actorSpeed = actor.system?.combat?.speed || 8;
-        return actorSpeed + moveBonus;
-    }
-    // Special case: Dash uses 2x actor's speed
-    if (optionId === 'dash') {
-        const actorSpeed = actor.system?.combat?.speed || 8;
-        return actorSpeed * 2 + moveBonus;
-    }
-    // Flee: 4× Speed directly away from danger
-    if (optionId === 'flee') {
-        const actorSpeed = actor.system?.combat?.speed || 8;
-        return actorSpeed * 4 + moveBonus;
+        return movementActionMeters({
+            kind: maneuverKind,
+            speed: actorSpeed,
+            enhancement: moveBonus,
+            reduced,
+        }).meters;
     }
     // Quick Load does not move
     if (optionId === 'quick-load') {
@@ -365,10 +364,11 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
         const reachBonus = getReachBonus(actor);
         const meleeDefault = 2 + reachBonus;
         const weaponRange = getWeaponRange(actor);
+        const reachBonusM = meleeReachBonusMeters(actor);
         if (weaponRange !== undefined && weaponRange > 0 && weaponRange <= 8) {
-            return weaponRange;
+            return weaponRange + reachBonusM;
         }
-        return meleeDefault;
+        return meleeDefault + reachBonusM;
     }
     // For powers with no range specified: use weapon range if available
     if (!rangeStr || rangeStr.trim() === '') {
@@ -386,7 +386,7 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
         if (!range && (levelData.type?.toLowerCase() === 'melee' || levelData.range?.toLowerCase() === 'melee')) {
             const weaponRange = getWeaponRange(actor);
             if (weaponRange !== undefined) {
-                return weaponRange;
+                return weaponRange + meleeReachBonusMeters(actor);
             }
         }
     }
@@ -394,8 +394,19 @@ function calculateRange(actor, optionId, slot, rangeStr, levelData) {
     if (!range && isMelee) {
         const weaponRange = getWeaponRange(actor);
         if (weaponRange !== undefined) {
-            return weaponRange;
+            return weaponRange + meleeReachBonusMeters(actor);
         }
+    }
+    if (range && range > 0)
+        range += getStoneAreaBonusMeters(actor, 'range');
+    if (slot === 'movement' && range && range > 0) {
+        return movementActionMeters({
+            kind: 'power',
+            speed: actor.system?.combat?.speed || 0,
+            enhancement: moveBonus,
+            powerMeters: range,
+            reduced: movementReductionActive(actor),
+        }).meters;
     }
     return range;
 }
@@ -874,6 +885,7 @@ export async function getAllCombatOptionsForActor(actor) {
             slot: slot,
             source: 'power',
             range: range,
+            basisMeters: undefined,
             item: item,
             powerType: powerType,
             tags: Array.isArray(tags) ? tags : [],
@@ -922,6 +934,25 @@ export async function getAllCombatOptionsForActor(actor) {
             option.allowManualTargetSelection = true;
             option.aoePlacementProfile = 'hostile-zone';
             option.zoneDurationNote = zoneDurationNote;
+        }
+        if (powerType === 'movement') {
+            const { movementPowerBudget } = await import('../combat/movement-powers.js');
+            const templateId = String(item.system?.templateId || '');
+            const level = Number(item.system?.level) || 1;
+            const budget = movementPowerBudget({
+                templateId,
+                level,
+                speed: Number(actor.system?.combat?.speed) || 0,
+                enhancement: getMovementRangeBonusMeters(actor, globalThis.game?.combat ?? null),
+                reduced: movementReductionActive(actor),
+            });
+            if (budget) {
+                option.basisMeters = budget.basisMeters;
+                option.range = budget.allowedMeters;
+                option.movementTemplateId = templateId;
+                if (!budget.available)
+                    option.disabled = true;
+            }
         }
         // Separate movement powers from others
         if (slot === 'movement' || powerType === 'movement') {

@@ -4517,8 +4517,66 @@
   background: rgba(0, 0, 0, 0.2);
 }
 
+.mastery-system.sheet.actor.npc .npc-section--attributes {
+  margin-bottom: 0.65rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-attr-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.35rem 0.45rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-attr-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.3rem 0.35rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 0.72rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-attr-chip__label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.npc .npc-attr-chip input[type="number"] {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+  padding: 0.15rem 0.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .mastery-system.sheet.actor.npc .npc-section--skills {
   margin-bottom: 0.65rem;
+}
+
+.mastery-system.sheet.actor.npc .npc-skill-field__pool {
+  flex: 0 0 auto;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  opacity: 0.95;
+}
+
+.mastery-system.sheet.actor.npc .npc-skill-field__pool.is-full {
+  color: #9dffa8;
+  background: rgba(60, 140, 80, 0.25);
+}
+
+.mastery-system.sheet.actor.npc .npc-skill-field__pool.is-half {
+  color: #ffc98a;
+  background: rgba(160, 100, 40, 0.28);
 }
 
 .mastery-system.sheet.actor.npc .npc-skills-hint {

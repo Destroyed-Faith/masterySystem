@@ -91,6 +91,28 @@ export function syncCriticalRoundQuota(
   };
 }
 
+/** Spend the declared Crit charge. No-op when the roll did not select Crit. */
+export function applyDeclaredCritSpend(
+  state: {
+    stoneBonuses?: { critRaises?: number };
+    criticalQuota?: CriticalRoundQuota | null;
+  },
+  mod: CriticalAttackModifier,
+): boolean {
+  if (!mod.applyCritical || !mod.consumeFrom) return false;
+  if (mod.consumeFrom === 'stone-crit') {
+    const current = Math.max(0, Math.floor(Number(state.stoneBonuses?.critRaises) || 0));
+    if (!state.stoneBonuses || current <= 0) return false;
+    state.stoneBonuses.critRaises = current - 1;
+    return true;
+  }
+  if (mod.consumeFrom === 'active-buff' && state.criticalQuota) {
+    state.criticalQuota = consumeCriticalQuota(state.criticalQuota);
+    return true;
+  }
+  return false;
+}
+
 export function consumeCriticalQuota(
   quota: CriticalRoundQuota,
 ): CriticalRoundQuota {
@@ -116,6 +138,8 @@ export function resolveCriticalAttackModifier(opts: {
   buffQuotaRemaining?: number;
   stoneCritCharges?: number;
   specialCritCharges?: number;
+  /** Player checked Crit on this roll. Without it, no charge is spent. */
+  declared?: boolean;
 }): CriticalAttackModifier {
   const criticalX = Math.max(0, Math.floor(Number(opts.activeBuffCriticalX) || 0));
   const buffRemaining = Math.max(0, Math.floor(Number(opts.buffQuotaRemaining) || 0));
@@ -132,7 +156,8 @@ export function resolveCriticalAttackModifier(opts: {
   else if (stone > 0) consumeFrom = 'stone-crit';
   else if (special > 0) consumeFrom = 'special-crit';
 
-  const applyCritical = consumeFrom != null;
+  const applyCritical = opts.declared === true && consumeFrom != null;
+  if (!applyCritical) consumeFrom = null;
 
   return {
     criticalX,

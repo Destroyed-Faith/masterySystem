@@ -10,7 +10,7 @@
  *   (a) flat Special reductions — Disoriented (Auto-Fail engine),
  *       Weaken / Soulburn (by pool attribute), Challenge (attack targeting)
  *   (b) percentage-based Health / Encumbrance penalty (dice loss floored)
- *   (c) Minimum Pool = Mastery Rank (applied LAST)
+ *   (c) A pool of 0 dice fails. Keep cannot exceed the dice that remain.
  */
 import { type CheckContext } from '../system/auto-fail.js';
 export interface FinalizePoolOptions {

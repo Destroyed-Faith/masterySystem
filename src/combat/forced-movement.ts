@@ -529,7 +529,9 @@ async function commitForcedMove(state: ForcedMoveState, destTL: { x: number; y: 
   }
 
   try {
+    await state.movedToken.document.setFlag?.('mastery-system', 'movementTraversal', 'forced');
     await state.movedToken.document.update({ x: destTL.x, y: destTL.y }, { animate: true });
+    await state.movedToken.document.unsetFlag?.('mastery-system', 'movementTraversal');
     const dir = state.mode === 'push' ? 'away from' : 'toward';
     g.ui?.notifications?.info?.(
       `${state.label}: moved ${String(state.movedToken.name)} ${state.meters} m ${dir} ${String(state.referenceToken.name)}.`,
@@ -537,6 +539,7 @@ async function commitForcedMove(state: ForcedMoveState, destTL: { x: number; y: 
     endForcedMovement('moved');
   } catch (err) {
     console.warn('Mastery System | Forced movement update failed', err);
+    await state.movedToken.document.unsetFlag?.('mastery-system', 'movementTraversal');
     g.ui?.notifications?.error?.('Failed to move token.');
     endForcedMovement('skipped');
   }
@@ -734,6 +737,21 @@ export async function offerForcedMovementFromActors(params: {
 
   let pushM = Math.max(0, Math.floor(Number(params.pushM) || 0));
   let pullM = Math.max(0, Math.floor(Number(params.pullM) || 0));
+  try {
+    const { reduceForcedMeters } = await import('./growth-form.js');
+    const nextPush = reduceForcedMeters(params.movedActor, pushM);
+    const nextPull = reduceForcedMeters(params.movedActor, pullM);
+    if ((pushM > 0 && nextPush < pushM) || (pullM > 0 && nextPull < pullM)) {
+      (globalThis as any).ui?.notifications?.info?.(
+        `${(params.movedActor as any)?.name ?? 'Target'} Growth Form reduces forced movement.`,
+      );
+    }
+    pushM = nextPush;
+    pullM = nextPull;
+    if (pushM <= 0 && pullM <= 0) return ['skipped'];
+  } catch {
+    /* growth form unavailable */
+  }
   const prefix = params.labelPrefix ? `${params.labelPrefix} — ` : '';
 
   // Dual-axis powers: pick one direction, do not run Push then Pull.

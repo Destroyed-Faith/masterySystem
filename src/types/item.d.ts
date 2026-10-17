@@ -265,6 +265,13 @@ export interface PowerMechanics {
   regen?: number;
 
   /**
+   * Damage Transfer (Vampyr). After this hit's damage resolution, the attacker
+   * heals HP equal to the real HP this one damage instance removed from the
+   * target. Not a separate heal roll and not Life Absorption.
+   */
+  damageTransfer?: boolean;
+
+  /**
    * Spell Resistance — increases the Base TN of Spell-tagged Powers against
    * this actor. Ward passives / Spell Resistance active buffs only.
    */
@@ -286,6 +293,10 @@ export interface PowerMechanics {
    * before it is applied (Players Guide "Ward"). Ward passives only.
    */
   wardIncoming?: number;
+  /** Passive: Fortitude — normal Health Bars use Vitality × this (4 = no change). */
+  healthBarMultiplier?: number;
+  /** Passive: Absorption — Temporary Colorless Stones per Scarred Health Bar. */
+  absorptionStonesPerTrigger?: number;
 
   /**
    * Invisibility Bonus — raises Perception TN to locate/target/read you
@@ -419,8 +430,18 @@ export interface PowerMechanics {
     vsConditionDamage?: string;                                           // "+2d8" extra under condition
   };
 
-  /** Flat movement bonus in meters. */
+  /** Flat movement bonus in meters. For Phase Passage this is material thickness, not travel. */
   movementBonus?: number;
+  /** Which of the ten Movement Powers this row is. */
+  movementMode?: string;
+  /** Leap vertical cap. Not added to the horizontal cap. */
+  verticalMeters?: number;
+  /** Phase Passage cumulative material thickness. Movement Enhancement does not raise it. */
+  materialThicknessMeters?: number;
+  /** Trample contact damage, in d8. Not an attack rider. */
+  trampleDice?: number;
+  /** Printed dash: this Power Level cannot be used. */
+  movementUnavailable?: boolean;
   /** Ignore difficult-terrain movement penalties. */
   ignoreTerrain?: boolean;
 
@@ -474,13 +495,14 @@ export interface PowerMechanics {
     | 'self-hp-below-50'
     | null;
 
-  /**
-   * Active Buff Aura payload (Damage / Healing / Special auras). Carries
-   * the per-level payload so the runtime can resolve "at the end of each of your
-   * turns" effects. Geometry (radius/shape) also lives on the row's `aoe`; this
-   * block restates the radius for convenience. NOTE: payload *resolution* is not
-   * yet wired — these are authored as catalog data for a follow-up step.
-   */
+  /** Passive Special Aura. The chosen Special is stored on the passive, not here. */
+  specialAura?: { radiusM: number; step: 1 };
+  specialAuraUnavailable?: boolean;
+  /** Active Buff: extra damage dice for the owner's own Summons inside the radius. */
+  summonDamageAura?: { dice: number; radiusM: number };
+  /** Active Buff: extra Armor for the owner's own Summons inside the radius. */
+  summonArmorAura?: { armor: number; radiusM: number };
+  /** End-of-turn pulse for Damage Aura and Healing Aura only. */
   auraPayload?: {
     kind: 'damage' | 'healing' | 'special';
     /** Damage / Healing dice (e.g. "5d8"). */
@@ -498,7 +520,8 @@ export interface PowerMechanics {
    * Growth Form package (Titan-style size buff). Damage/Armor are carried via
    * the normal `damageRider`/`armor`/`evade`/`initiativeD8` fields; this block
    * holds the size/footprint/reach/stability rider. NOTE: the visible token
-   * resize, reach, and forced-movement reduction are wired in a follow-up step.
+   * Token resize is applied for Artifact Growth Form. Reach, forced-movement
+   * reduction, and Prone resistance are read by `growth-form.ts`.
    */
   growthForm?: {
     /** Size stage label (e.g. "Large Form"). */
