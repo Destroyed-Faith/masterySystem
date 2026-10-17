@@ -1,10 +1,21 @@
 /**
- * Fear (Players Guide) — accumulated dread that removes dice from attribute pools.
+ * Fear — accumulated dread that removes dice from attribute pools.
  * Only GM-driven or explicit rule calls should invoke Fear Checks.
+ *
+ * Pending graded Fear Check (canvas decision, 2026-10-17):
+ * Resolve k1 — no TN picker. Bands: <8 → +2 Fear, <16 → +1 Fear, ≥16 → +0.
+ * Official players-guide still describes TN 8/12 binary until rulebooks are updated.
  */
 
-export const FEAR_CHECK_TN_NORMAL = 8;
-export const FEAR_CHECK_TN_EXTREME = 12;
+/** Soft band: below this total → +2 Fear. */
+export const FEAR_CHECK_BAND_HARD = 8;
+/** Clear band: at/above this total → +0 Fear; between hard and clear → +1. */
+export const FEAR_CHECK_BAND_CLEAR = 16;
+
+/** @deprecated Use FEAR_CHECK_BAND_HARD — kept for older imports. */
+export const FEAR_CHECK_TN_NORMAL = FEAR_CHECK_BAND_HARD;
+/** @deprecated Graded Fear Check no longer uses a separate extreme TN. */
+export const FEAR_CHECK_TN_EXTREME = FEAR_CHECK_BAND_CLEAR;
 
 export function getFear(actor: any): number {
   return Math.max(0, Math.floor(Number(actor?.system?.fear) || 0));
@@ -23,26 +34,44 @@ export async function applyFearDelta(actor: any, delta: number): Promise<number>
   return next;
 }
 
+/**
+ * Fear gained from a Resolve k1 Fear Check total.
+ * < 8 → 2, < 16 → 1, ≥ 16 → 0.
+ */
+export function fearGainedFromCheckTotal(total: number): number {
+  const t = Math.floor(Number(total) || 0);
+  if (t < FEAR_CHECK_BAND_HARD) return 2;
+  if (t < FEAR_CHECK_BAND_CLEAR) return 1;
+  return 0;
+}
+
+export function formatFearCheckBandNote(total: number, fearGained: number): string {
+  if (fearGained >= 2) return `Total ${total} < ${FEAR_CHECK_BAND_HARD} → +2 Fear`;
+  if (fearGained === 1) {
+    return `Total ${total} < ${FEAR_CHECK_BAND_CLEAR} → +1 Fear`;
+  }
+  return `Total ${total} ≥ ${FEAR_CHECK_BAND_CLEAR} → no Fear`;
+}
+
 export interface FearCheckResult {
   rolled: boolean;
   total?: number;
+  /** Clear-band reference (16) for display — not a binary pass TN. */
   tn: number;
+  /** True when no Fear was gained (total ≥ 16). */
   success?: boolean;
+  fearGained?: number;
   fearBefore?: number;
   fearAfter?: number;
   poolDice?: number;
 }
 
 /**
- * Resolve k1 Fear Check (Resolve pool, keep 1). No Skill Points, no Raises.
- * Failure adds +1 Fear (accumulates).
+ * Resolve k1 Fear Check. No Skill Points, no Raises, no TN picker.
+ * Graded outcome vs bands 8 / 16.
  */
-export async function runFearCheck(
-  actor: any,
-  tn: number = FEAR_CHECK_TN_NORMAL,
-): Promise<FearCheckResult> {
-  if (!actor) return { rolled: false, tn };
-  const targetTn = Math.max(0, Math.floor(Number(tn) || FEAR_CHECK_TN_NORMAL));
+export async function runFearCheck(actor: any, _ignoredTn?: number): Promise<FearCheckResult> {
+  if (!actor) return { rolled: false, tn: FEAR_CHECK_BAND_CLEAR };
   const fearBefore = getFear(actor);
   const resolveRaw = Math.max(
     0,
@@ -58,19 +87,22 @@ export async function runFearCheck(
   const poolDice = finalized.numDice;
 
   const { masteryRoll } = await import('../dice/roll-handler.js');
-  const label = `Fear Check (Resolve k1 vs TN ${targetTn})`;
+  const label = `Fear Check (Resolve k1 — bands ${FEAR_CHECK_BAND_HARD} / ${FEAR_CHECK_BAND_CLEAR})`;
   const flavorParts = [
-    'No Skill Points / Raises',
+    `No Skill Points / Raises · <${FEAR_CHECK_BAND_HARD} → +2 Fear · <${FEAR_CHECK_BAND_CLEAR} → +1 Fear · ≥${FEAR_CHECK_BAND_CLEAR} → none`,
     ...finalized.notes,
   ];
+
   if (poolDice <= 0) {
-    const fearAfter = await applyFearDelta(actor, 1);
+    const fearGained = fearGainedFromCheckTotal(0);
+    const fearAfter = await applyFearDelta(actor, fearGained);
     try {
       await (globalThis as any).ChatMessage?.create?.({
         speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor }),
         content:
           `<div class="mastery-fear-check"><strong>${actor.name}</strong> — ${label}: ` +
-          `<strong>Pool 0</strong> → Failure. Fear ${fearBefore} → <strong>${fearAfter}</strong>.</div>`,
+          `<strong>Pool 0</strong> → ${formatFearCheckBandNote(0, fearGained)}. ` +
+          `Fear ${fearBefore} → <strong>${fearAfter}</strong>.</div>`,
       });
     } catch {
       /* chat optional in tests */
@@ -78,8 +110,9 @@ export async function runFearCheck(
     return {
       rolled: true,
       total: 0,
-      tn: targetTn,
+      tn: FEAR_CHECK_BAND_CLEAR,
       success: false,
+      fearGained,
       fearBefore,
       fearAfter,
       poolDice: 0,
@@ -90,8 +123,8 @@ export async function runFearCheck(
     numDice: poolDice,
     keepDice: 1,
     skill: 0,
-    tn: targetTn,
-    normalTn: targetTn,
+    tn: FEAR_CHECK_BAND_CLEAR,
+    normalTn: FEAR_CHECK_BAND_CLEAR,
     label,
     flavor: flavorParts.join(' · '),
     actorId: String(actor.id ?? ''),
@@ -103,62 +136,41 @@ export async function runFearCheck(
     guaranteedEights: 0,
     raiseModel: 'margin',
     isSkillRoll: false,
+    skipChat: true,
   });
 
   const total = Math.floor(Number(result?.total) || 0);
-  const success = total >= targetTn;
+  const fearGained = fearGainedFromCheckTotal(total);
   let fearAfter = fearBefore;
-  if (!success) {
-    fearAfter = await applyFearDelta(actor, 1);
+  if (fearGained > 0) {
+    fearAfter = await applyFearDelta(actor, fearGained);
+  }
+
+  try {
+    await (globalThis as any).ChatMessage?.create?.({
+      speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor }),
+      content:
+        `<div class="mastery-fear-check"><strong>${actor.name}</strong> — ${label}: ` +
+        `${formatFearCheckBandNote(total, fearGained)}. Fear ${fearBefore} → <strong>${fearAfter}</strong>.</div>`,
+    });
+  } catch {
+    /* optional */
   }
 
   return {
     rolled: true,
     total,
-    tn: targetTn,
-    success,
+    tn: FEAR_CHECK_BAND_CLEAR,
+    success: fearGained === 0,
+    fearGained,
     fearBefore,
     fearAfter,
     poolDice,
   };
 }
 
-/** GM dialog: pick TN 8 or 12, then roll a Fear Check for this actor. */
+/** GM helper: run a graded Fear Check for one actor (no TN picker). */
 export async function promptGmFearCheck(actor: any): Promise<FearCheckResult | null> {
   if (!actor) return null;
-  const DialogCls = (globalThis as any).Dialog;
-  if (!DialogCls) {
-    return runFearCheck(actor, FEAR_CHECK_TN_NORMAL);
-  }
-  return new Promise((resolve) => {
-    new DialogCls(
-      {
-        title: `Fear Check — ${actor.name}`,
-        content: `<p>Roll <strong>Resolve k1</strong>. Current Fear: <strong>${getFear(actor)}</strong>.</p>`,
-        buttons: {
-          normal: {
-            icon: '<i class="fas fa-dice-d20"></i>',
-            label: `TN ${FEAR_CHECK_TN_NORMAL} (normal)`,
-            callback: () => {
-              void runFearCheck(actor, FEAR_CHECK_TN_NORMAL).then(resolve);
-            },
-          },
-          extreme: {
-            icon: '<i class="fas fa-skull"></i>',
-            label: `TN ${FEAR_CHECK_TN_EXTREME} (extreme)`,
-            callback: () => {
-              void runFearCheck(actor, FEAR_CHECK_TN_EXTREME).then(resolve);
-            },
-          },
-          cancel: {
-            icon: '<i class="fas fa-times"></i>',
-            label: 'Cancel',
-            callback: () => resolve(null),
-          },
-        },
-        default: 'normal',
-      },
-      { width: 360 },
-    ).render(true);
-  });
+  return runFearCheck(actor);
 }

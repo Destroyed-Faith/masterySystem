@@ -54,6 +54,16 @@ function mockActor(overrides: Record<string, unknown> = {}): Actor {
   return { ...base, ...overrides } as unknown as Actor;
 }
 
+describe('Challenge MR Standard TN', () => {
+  it('uses (8 × Challenge MR) − 2, not 8 × MR', () => {
+    expect(buildDifficultyPresets(1).standard).toBe(6);
+    expect(buildDifficultyPresets(2).standard).toBe(14);
+    expect(buildDifficultyPresets(5).standard).toBe(38);
+    expect(buildDifficultyPresets(2).easy).toBe(10);
+    expect(buildDifficultyPresets(2).challenging).toBe(18);
+  });
+});
+
 describe('Skill Roll participant filter', () => {
   it('accepts character sheets and rejects NPC, summon, and other actors', () => {
     expect(isEpicRollPlayerCharacter(mockActor())).toBe(true);

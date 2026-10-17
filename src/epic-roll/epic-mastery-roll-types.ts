@@ -5,7 +5,7 @@
 import { SKILLS } from '../utils/skills.js';
 import type { MasteryRollResult } from '../types/index.js';
 
-export type EpicRollKind = 'skill' | 'attribute';
+export type EpicRollKind = 'skill' | 'attribute' | 'fear';
 
 export interface EpicTnConfig {
   challengeMR: number;
@@ -23,7 +23,12 @@ export interface EpicAttributeRollConfig {
   attributeKey: string;
 }
 
-export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig;
+/** Resolve k1 Fear Check — graded bands 8 / 16. No Skill Points / Raises / TN picker. */
+export interface EpicFearRollConfig {
+  kind: 'fear';
+}
+
+export type EpicRollConfig = EpicSkillRollConfig | EpicAttributeRollConfig | EpicFearRollConfig;
 
 export type EpicParticipantStatus = 'pending' | 'awaiting_spend' | 'rolled' | 'skipped';
 
@@ -204,7 +209,9 @@ export function skipParticipantInSession(
 
 /** Player-facing name for a group roll of this kind. */
 export function defaultRollTitleForKind(kind: EpicRollKind): string {
-  return kind === 'attribute' ? 'Attribute Roll' : 'Skill Roll';
+  if (kind === 'fear') return 'Fear Check';
+  if (kind === 'attribute') return 'Attribute Roll';
+  return 'Skill Roll';
 }
 
 export function rollLabelForConfig(roll: EpicRollConfig): string {
@@ -213,6 +220,8 @@ export function rollLabelForConfig(roll: EpicRollConfig): string {
       return SKILLS[roll.skillKey]?.name ?? roll.skillKey;
     case 'attribute':
       return roll.attributeKey.charAt(0).toUpperCase() + roll.attributeKey.slice(1);
+    case 'fear':
+      return 'Fear Check';
     default:
       return 'Roll';
   }

@@ -110,6 +110,41 @@ Runtime **extends** threatened geometry from `src/combat/threatened-ranged.ts` (
 
 ---
 
+## R-04 — Graded Fear Check (bands 8 / 16)
+
+### New rule text (summary)
+
+A Fear Check is always **Resolve k1** (no Skill Points, no Raises). There is **no TN picker**. Read the kept total against fixed bands:
+
+| Total | Fear gained |
+|------:|------------:|
+| **&lt; 8** | **+2 Fear** |
+| **&lt; 16** (and ≥ 8) | **+1 Fear** |
+| **≥ 16** | **+0 Fear** |
+
+Fear still accumulates; each Fear point removes 1 die from attribute-based pools before Health %; Safe Haven Rest clears Fear to 0. Healing / Cleanse / Night Rest / Day Rest / combat end do not clear Fear.
+
+### Contradicts official rules
+
+| Source | Official text (intent) |
+|--------|-------------------------|
+| `docs/Rules/players-guide.md` — Fear (Furcht) | Binary check: TN **8** (normal) or **12** (extreme); success → +0 Fear; failure → **+1 Fear**. |
+
+### Runtime paths changed
+
+| Area | Files |
+|------|--------|
+| Band math + check | `src/combat/fear.ts` (`fearGainedFromCheckTotal`, `runFearCheck`) |
+| GM group Rolls | `src/epic-roll/*` (Fear Check type; no TN picker) |
+| Tests | `tests/fear.test.ts` |
+
+### Later official rulebook edits required
+
+1. Replace the TN 8 / 12 binary Fear Check table with the graded 8 / 16 band table.
+2. Update Fear Check examples accordingly.
+
+---
+
 ## Tracking
 
 | Id | Status in runtime | Rulebooks updated |
@@ -117,5 +152,6 @@ Runtime **extends** threatened geometry from `src/combat/threatened-ranged.ts` (
 | R-01 | Implemented | No |
 | R-02 | Implemented | No |
 | R-03 | Implemented | No |
+| R-04 | Implemented | No |
 
 When the official v0.9.9.x (or later) rules release incorporates these decisions, remove or archive the corresponding rows from this file and update `docs/DESTROYED_FAITH_V0.9.9.5_RULES_RUNTIME_COVERAGE.md` status notes.

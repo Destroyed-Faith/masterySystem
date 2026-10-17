@@ -80,14 +80,11 @@
           {{/if}}
         </div>
       </div>
-      <div class="points-box points-box-fear" title="Fear — removes 1 die per point from attribute pools until Safe Haven Rest">
+      <div class="points-box points-box-fear" title="Fear — removes 1 die per point from attribute pools until Safe Haven Rest. GM: call Fear Checks via Rolls in chat.">
         <label>Fear</label>
         <div class="points-display fear-display">
           {{#if (userIsGM)}}
-          <input type="number" class="fear-value-input" name="system.fear" value="{{default system.fear 0}}" min="0" step="1" data-dtype="Number" title="GM: Fear level"/>
-          <button type="button" class="gm-fear-check" title="Fear Check (Resolve k1, TN 8 or 12)" aria-label="Fear Check">
-            <i class="fas fa-dice-d20"></i>
-          </button>
+          <input type="number" class="fear-value-input" name="system.fear" value="{{default system.fear 0}}" min="0" step="1" data-dtype="Number" title="GM: Fear level (checks via Rolls in chat)"/>
           {{else}}
           <span class="points-value">{{default system.fear 0}}</span>
           {{/if}}

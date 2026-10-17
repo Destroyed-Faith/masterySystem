@@ -4,6 +4,7 @@
 
 import { SKILLS } from '../utils/skills.js';
 import { buildDifficultyPresets } from '../dice/roll-context-build.js';
+import { standardTnForMasteryRank } from '../utils/constants.js';
 import type {
   EpicMasteryRollPreset,
   EpicMasteryRollStartConfig,
@@ -20,9 +21,9 @@ import {
 import { resolveActorPortraitSrc, portraitFallbackSrc } from './epic-mastery-roll-portraits.js';
 
 const ATTRIBUTES = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-const CHALLENGE_MR_MIN = 2;
+const CHALLENGE_MR_MIN = 1;
 const CHALLENGE_MR_MAX = 8;
-const CHALLENGE_MR_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
+const CHALLENGE_MR_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8];
 
 function clampChallengeMR(value: number): number {
   return Math.max(CHALLENGE_MR_MIN, Math.min(CHALLENGE_MR_MAX, Math.floor(value) || CHALLENGE_MR_MIN));
@@ -57,7 +58,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     classes: ['mastery-system', 'epic-mastery-roll-config'],
     position: { width: 920, height: 640 },
     window: {
-      title: 'Skill Roll',
+      title: 'Rolls',
       resizable: true,
     },
   };
@@ -86,6 +87,10 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     this.rollKind = preset.roll.kind;
     if (preset.roll.kind === 'skill') this.skillKey = preset.roll.skillKey;
     if (preset.roll.kind === 'attribute') this.attributeKey = preset.roll.attributeKey;
+    if (preset.roll.kind === 'fear') {
+      this.tn.baseTN = 16;
+      this.tn.raises = 0;
+    }
     this.selectedIds = [...preset.actorIds].filter((id) =>
       isEpicRollPlayerCharacter(game.actors?.get(id)),
     );
@@ -113,7 +118,11 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
       tn: this.tn,
       raiseTn,
       presets,
-      challengeMROptions: CHALLENGE_MR_OPTIONS,
+      challengeMROptions: CHALLENGE_MR_OPTIONS.map((mr) => ({
+        mr,
+        standardTn: standardTnForMasteryRank(mr),
+      })),
+      isFearRoll: this.rollKind === 'fear',
       rollKind: this.rollKind,
       skillKey: this.skillKey,
       attributeKey: this.attributeKey,
@@ -172,6 +181,14 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
     });
     bindInput('[name="emr-roll-kind"]', (el) => {
       this.rollKind = (el as HTMLSelectElement).value as EpicRollKind;
+      if (this.rollKind === 'fear') {
+        this.tn.baseTN = 16;
+        this.tn.raises = 0;
+        if (!this.sceneTitle.trim()) this.sceneTitle = 'Fear Check';
+      } else {
+        const p = buildDifficultyPresets(this.tn.challengeMR);
+        if (this.tn.baseTN === 8 || this.tn.baseTN === 16) this.tn.baseTN = p.standard;
+      }
       this.render(false);
     });
     bindInput('[name="emr-skill-key"]', (el) => {
@@ -213,6 +230,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
   }
 
   private buildRollConfig(): EpicRollConfig {
+    if (this.rollKind === 'fear') return { kind: 'fear' };
     if (this.rollKind === 'attribute') {
       return { kind: 'attribute', attributeKey: this.attributeKey };
     }
@@ -220,6 +238,11 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
   }
 
   private readCustomTnFromDom(): void {
+    if (this.rollKind === 'fear') {
+      this.tn.baseTN = 16;
+      this.tn.raises = 0;
+      return;
+    }
     const root = this.element as HTMLElement;
     const preset = root.querySelector<HTMLSelectElement>('[name="emr-base-tn-preset"]')?.value;
     if (preset === 'custom') {
@@ -231,11 +254,16 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
   private async startSession(): Promise<void> {
     this.readCustomTnFromDom();
 
+    const tn =
+      this.rollKind === 'fear'
+        ? { challengeMR: this.tn.challengeMR, baseTN: 16, raises: 0 }
+        : { ...this.tn };
+
     const config: EpicMasteryRollStartConfig = {
       title: this.sceneTitle.trim() || defaultRollTitleForKind(this.rollKind),
       flavor: this.flavor.trim(),
       showTn: this.showTn,
-      tn: { ...this.tn },
+      tn,
       roll: this.buildRollConfig(),
       actorIds: [...this.selectedIds].filter((id) =>
         isEpicRollPlayerCharacter(game.actors?.get(id)),
@@ -260,7 +288,7 @@ export class EpicMasteryRollConfigDialog extends BaseDialog {
 
 export function showEpicMasteryRollConfigDialog(preset?: EpicMasteryRollPreset): void {
   if (!game.user?.isGM) {
-    ui.notifications?.warn('Only the GM can start a Skill Roll.');
+    ui.notifications?.warn('Only the GM can start Rolls.');
     return;
   }
 

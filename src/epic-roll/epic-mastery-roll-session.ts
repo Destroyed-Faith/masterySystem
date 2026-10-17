@@ -137,6 +137,18 @@ export async function ingestEpicMasteryRollResult(
   }
 
   const staged = opts?.staged ?? result.awaitingConfirm === true;
+  if (!staged && activeSession.roll.kind === 'fear' && !result.skipped) {
+    try {
+      const { applyFearDelta, fearGainedFromCheckTotal } = await import('../combat/fear.js');
+      const gained = fearGainedFromCheckTotal(result.total);
+      if (gained > 0) {
+        const actor = game.actors?.get(result.actorId);
+        if (actor) await applyFearDelta(actor, gained);
+      }
+    } catch (err) {
+      console.warn('Mastery System | Fear Check apply on ingest failed', err);
+    }
+  }
   activeSession = mergeParticipantResult(activeSession, result, { staged });
   await syncEpicMasteryRollSession(activeSession);
 }

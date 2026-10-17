@@ -7,9 +7,10 @@ vi.mock('../src/dice/roll-handler.js', () => ({
 }));
 
 import {
-  FEAR_CHECK_TN_EXTREME,
-  FEAR_CHECK_TN_NORMAL,
+  FEAR_CHECK_BAND_CLEAR,
+  FEAR_CHECK_BAND_HARD,
   applyFearDelta,
+  fearGainedFromCheckTotal,
   getFear,
   runFearCheck,
   setFear,
@@ -56,6 +57,22 @@ describe('getFear / setFear / applyFearDelta', () => {
     const next = await applyFearDelta(actor, -10);
     expect(next).toBe(0);
     expect(getFear(actor)).toBe(0);
+  });
+});
+
+describe('fearGainedFromCheckTotal — graded bands 8 / 16', () => {
+  it('awards +2 / +1 / +0 by total', () => {
+    expect(fearGainedFromCheckTotal(0)).toBe(2);
+    expect(fearGainedFromCheckTotal(7)).toBe(2);
+    expect(fearGainedFromCheckTotal(8)).toBe(1);
+    expect(fearGainedFromCheckTotal(15)).toBe(1);
+    expect(fearGainedFromCheckTotal(16)).toBe(0);
+    expect(fearGainedFromCheckTotal(40)).toBe(0);
+  });
+
+  it('exposes band constants', () => {
+    expect(FEAR_CHECK_BAND_HARD).toBe(8);
+    expect(FEAR_CHECK_BAND_CLEAR).toBe(16);
   });
 });
 
@@ -125,35 +142,39 @@ describe('finalizeRolledPool — Fear reduction order', () => {
   });
 });
 
-describe('Fear Check TN constants', () => {
-  it('uses TN 8 normal and TN 12 extreme', () => {
-    expect(FEAR_CHECK_TN_NORMAL).toBe(8);
-    expect(FEAR_CHECK_TN_EXTREME).toBe(12);
-  });
-});
-
 describe('runFearCheck', () => {
   beforeEach(() => {
     masteryRollMock.mockReset();
+    (globalThis as any).ChatMessage = { create: vi.fn(), getSpeaker: () => ({}) };
   });
 
-  it('accumulates +1 Fear on failure', async () => {
+  it('adds +2 Fear when total is below 8', async () => {
     const actor = actorWithFear(1, { resolve: 8 });
-    masteryRollMock.mockResolvedValue({ total: 3, kept: [3], skill: 0, tn: 8 });
-    const result = await runFearCheck(actor, FEAR_CHECK_TN_NORMAL);
+    masteryRollMock.mockResolvedValue({ total: 3, kept: [3], skill: 0, tn: 16 });
+    const result = await runFearCheck(actor);
+    expect(result.fearGained).toBe(2);
     expect(result.success).toBe(false);
     expect(result.fearBefore).toBe(1);
-    expect(result.fearAfter).toBe(2);
-    expect(getFear(actor)).toBe(2);
+    expect(result.fearAfter).toBe(3);
+    expect(getFear(actor)).toBe(3);
   });
 
-  it('does not add Fear on success', async () => {
+  it('adds +1 Fear when total is 8–15', async () => {
     const actor = actorWithFear(2, { resolve: 8 });
-    masteryRollMock.mockResolvedValue({ total: 12, kept: [8], skill: 0, tn: 12 });
-    const result = await runFearCheck(actor, FEAR_CHECK_TN_EXTREME);
+    masteryRollMock.mockResolvedValue({ total: 12, kept: [8], skill: 0, tn: 16 });
+    const result = await runFearCheck(actor);
+    expect(result.fearGained).toBe(1);
+    expect(result.success).toBe(false);
+    expect(result.fearAfter).toBe(3);
+  });
+
+  it('adds no Fear when total is 16+', async () => {
+    const actor = actorWithFear(2, { resolve: 8 });
+    masteryRollMock.mockResolvedValue({ total: 16, kept: [8], skill: 0, tn: 16 });
+    const result = await runFearCheck(actor);
+    expect(result.fearGained).toBe(0);
     expect(result.success).toBe(true);
     expect(result.fearAfter).toBe(2);
-    expect(result.tn).toBe(12);
   });
 
   it('applies existing Fear to the Resolve pool before rolling', async () => {
@@ -163,18 +184,19 @@ describe('runFearCheck', () => {
       expect(opts.keepDice).toBe(1);
       expect(opts.applyFear).toBe(false);
       expect(opts.applyPoolPenalties).toBe(false);
-      return { total: 8, kept: [8], skill: 0, tn: 8 };
+      return { total: 8, kept: [8], skill: 0, tn: 16 };
     });
-    await runFearCheck(actor, FEAR_CHECK_TN_NORMAL);
+    await runFearCheck(actor);
     expect(masteryRollMock).toHaveBeenCalledOnce();
   });
 
-  it('fails and adds Fear when the reduced pool is 0', async () => {
+  it('treats pool 0 as total 0 → +2 Fear', async () => {
     const actor = actorWithFear(10, { resolve: 8 });
-    const result = await runFearCheck(actor, FEAR_CHECK_TN_NORMAL);
+    const result = await runFearCheck(actor);
     expect(result.success).toBe(false);
     expect(result.poolDice).toBe(0);
-    expect(getFear(actor)).toBe(11);
+    expect(result.fearGained).toBe(2);
+    expect(getFear(actor)).toBe(12);
     expect(masteryRollMock).not.toHaveBeenCalled();
   });
 });

@@ -43,8 +43,8 @@ function injectEpicRollButton(controlsEl: HTMLElement | null | undefined): void 
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'emr-chat-launch';
-  button.title = 'Skill Roll — group skill or attribute check';
-  button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Skill Roll</span>';
+  button.title = 'Rolls — group skill, attribute, or Fear Check';
+  button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
 
   button.addEventListener('click', (ev) => {
     ev.preventDefault();

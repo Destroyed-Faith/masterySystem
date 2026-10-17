@@ -45,6 +45,7 @@
         <select name="emr-roll-kind" class="emr-select">
           <option value="skill" {{#if (eq rollKind "skill")}}selected{{/if}}>Skill Roll</option>
           <option value="attribute" {{#if (eq rollKind "attribute")}}selected{{/if}}>Attribute Roll</option>
+          <option value="fear" {{#if (eq rollKind "fear")}}selected{{/if}}>Fear Check</option>
         </select>
       </div>
 
@@ -70,23 +71,40 @@
       </div>
       {{/if}}
 
+      {{#if (eq rollKind "fear")}}
+      <div class="emr-field">
+        <p class="emr-hint">Resolve k1 for every selected character. No TN picker, no Skill Points, no Raises.</p>
+        <ul class="emr-hint-list">
+          <li>Total &lt; 8 → <strong>+2 Fear</strong></li>
+          <li>Total &lt; 16 → <strong>+1 Fear</strong></li>
+          <li>Total ≥ 16 → <strong>no Fear</strong></li>
+        </ul>
+      </div>
+      {{/if}}
+
     </section>
 
     <section class="emr-config-col emr-config-settings">
       <h3><i class="fas fa-sliders-h"></i> Configuration</h3>
       <div class="emr-field">
         <label class="emr-label">Scene Title</label>
-        <input type="text" name="emr-title" class="emr-input" value="{{title}}" placeholder="Skill Roll" />
+        <input type="text" name="emr-title" class="emr-input" value="{{title}}" placeholder="Rolls" />
       </div>
       <div class="emr-field">
         <label class="emr-label">Flavor / Notes</label>
         <textarea name="emr-flavor" class="emr-textarea" rows="2">{{flavor}}</textarea>
       </div>
+
+      {{#if (eq rollKind "fear")}}
       <div class="emr-field">
-        <label class="emr-label">Challenge MR</label>
+        <p class="emr-hint">Bands are fixed (8 / 16). Challenge MR and difficulty do not apply.</p>
+      </div>
+      {{else}}
+      <div class="emr-field">
+        <label class="emr-label">Challenge MR <span class="emr-sublabel">Standard TN = (8 × MR) − 2</span></label>
         <select name="emr-challenge-mr" class="emr-select">
-          {{#each challengeMROptions as |mr|}}
-          <option value="{{mr}}" {{#if (eq ../tn.challengeMR mr)}}selected{{/if}}>MR {{mr}} (TN {{multiply mr 8}})</option>
+          {{#each challengeMROptions as |opt|}}
+          <option value="{{opt.mr}}" {{#if (eq ../tn.challengeMR opt.mr)}}selected{{/if}}>MR {{opt.mr}} (Standard {{opt.standardTn}})</option>
           {{/each}}
         </select>
       </div>
@@ -114,6 +132,8 @@
       <div class="emr-tn-preview">
         Normal TN: <strong>{{tn.baseTN}}</strong> · Raise TN: <strong>{{raiseTn}}</strong>
       </div>
+      {{/if}}
+
       <div class="emr-field emr-checkbox-field">
         <label>
           <input type="checkbox" name="emr-show-tn" {{#if showTn}}checked{{/if}} />
@@ -125,7 +145,7 @@
 
   <footer class="emr-config-footer">
     <button type="button" class="emr-btn emr-btn-primary" data-action="emr-start">
-      <i class="fas fa-dice-d20"></i> Start Skill Roll
+      <i class="fas fa-dice-d20"></i> Start Rolls
     </button>
   </footer>
 </div>

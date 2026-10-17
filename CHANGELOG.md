@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.703] - 2026-10-17
+
+### Changed
+
+- **Rolls (Chat):** GM group tool renamed from Skill Roll → **Rolls**; supports Skill, Attribute, and **Fear Check**.
+- **Fear Check (R-04):** Graded Resolve k1 bands — total &lt; 8 → +2 Fear, &lt; 16 → +1 Fear, ≥ 16 → +0 Fear. No TN picker.
+- **Challenge MR TNs:** Skill/Rolls difficulty uses Standard TN = `(8 × Challenge MR) − 2` (fixed old `8 × MR` display/buckets).
+
+### Fixed
+
+- Fear dice button removed from PC/NPC sheets (Fear value remains; checks via Rolls).
+- Fear input box sizing on the character sheet header.
+
+### Docs
+
+- Pending rule R-04 graded Fear Check in `DESTROYED_FAITH_PENDING_RULE_CHANGES.md`.
+
 ## [0.9.702] - 2026-10-17
 
 ### Fixed

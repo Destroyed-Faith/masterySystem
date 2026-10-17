@@ -144,6 +144,18 @@
   max-width: 92px;
 }
 
+.mastery-system.sheet.actor.character .points-box.points-box-fear {
+  min-width: 52px;
+  max-width: 64px;
+}
+
+.mastery-system.sheet.actor.character .points-box.points-box-fear .fear-value-input {
+  width: 2.4em;
+  min-width: 2.4em;
+  text-align: center;
+  font-weight: 700;
+}
+
 .mastery-system.sheet.actor.character .points-box.points-box-faith label {
   font-size: 7px;
   line-height: 1.15;

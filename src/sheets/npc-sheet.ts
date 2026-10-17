@@ -1145,16 +1145,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
 
     makeFoundryTooltipInert();
 
-    html.find('.gm-fear-check').on('click', async (ev) => {
-      ev.preventDefault();
-      if (!(game as any).user?.isGM) {
-        (ui as any).notifications?.warn('Only a GM can run Fear Checks.');
-        return;
-      }
-      const { promptGmFearCheck } = await import('../combat/fear.js');
-      await promptGmFearCheck(this.actor);
-    });
-
     html.find('[data-npc-ini-chip]').each((_, el) => {
       const chip = el as HTMLElement;
       const onChange = () => this.#syncNpcIniChip(chip);
