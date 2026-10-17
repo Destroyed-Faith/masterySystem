@@ -5,6 +5,7 @@
 
 import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
+import { resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 
 /**
  * Mastery Rank at which each passive slot unlocks (Players Guide / passives.md).
@@ -80,34 +81,138 @@ function actorItemList(actor: Actor): any[] {
   return [];
 }
 
-/** True when a power item is a Passive (category or legacy powerType). */
+/**
+ * World prototype + unlinked token actor often diverge: GM may grant a Passive on
+ * the sheet while Combat Select Passives reads the other. Union both.
+ */
+export function passiveItemSourceActors(actor: Actor | null | undefined): Actor[] {
+  if (!actor) return [];
+  const sources: Actor[] = [];
+  const seen = new Set<string>();
+  const seenObj = new WeakSet<object>();
+  const add = (a: any) => {
+    if (!a) return;
+    if (typeof a === 'object') {
+      if (seenObj.has(a)) return;
+      seenObj.add(a);
+    }
+    const key = String(a.uuid ?? a.id ?? '');
+    // Actors without id/uuid (tests / transient sheets) still contribute items.
+    if (key) {
+      if (seen.has(key)) return;
+      seen.add(key);
+    }
+    sources.push(a as Actor);
+  };
+  add(actor);
+  const anyA = actor as any;
+  const g = globalThis as any;
+  const worldId = String(
+    anyA.isToken
+      ? (anyA.token?.actorId ?? anyA.token?.document?.actorId ?? anyA.id ?? '')
+      : (anyA.id ?? ''),
+  );
+
+  if (anyA.isToken && worldId) {
+    add(g.game?.actors?.get?.(worldId));
+  }
+
+  const considerTokenDoc = (doc: any) => {
+    if (!doc || doc.actorLink === true) return;
+    if (worldId && String(doc.actorId ?? '') !== worldId) return;
+    // Prefer the synthetic actor on the placeable; fall back to TokenDocument.actor.
+    const placeable = doc.object ?? doc;
+    add(placeable?.actor ?? doc.actor);
+  };
+
+  const placeables = g.canvas?.tokens?.placeables;
+  if (Array.isArray(placeables)) {
+    for (const t of placeables) considerTokenDoc(t?.document ?? t);
+  }
+
+  const combatants = g.game?.combat?.combatants;
+  const bag = combatants
+    ? Array.isArray(combatants)
+      ? combatants
+      : Array.isArray(combatants.contents)
+        ? combatants.contents
+        : typeof combatants[Symbol.iterator] === 'function'
+          ? [...combatants]
+          : []
+    : [];
+  for (const c of bag) {
+    const tok = (c as any)?.token;
+    if (tok) considerTokenDoc(tok.document ?? tok);
+    // Combatant.actor may already be the unlinked synthetic copy — only same world.
+    const ca = (c as any)?.actor;
+    if (!ca?.isToken) continue;
+    const caWorld = String(
+      (c as any)?.actorId ??
+        ca.token?.actorId ??
+        ca.token?.document?.actorId ??
+        '',
+    );
+    if (worldId && caWorld !== worldId) continue;
+    add(ca);
+  }
+
+  return sources;
+}
+
+/** True when a power item is a Passive (category, powerType, or catalog template). */
 export function isPassivePowerItem(item: any): boolean {
   if (!item || item.type !== 'power') return false;
   const sys = (item.system as any) || {};
   if (sys.category === 'passive') return true;
   if (sys.powerType === 'passive') return true;
-  return false;
+  const tid = String(sys.templateId || '').trim().toLowerCase();
+  if (tid.startsWith('passive-')) return true;
+  // Match Powers-tab grouping (legacy category / powerType shapes).
+  return resolvePowerCategoryFromItem(item) === 'passive';
+}
+
+function passiveAbilityFromItem(item: any): PassiveAbility {
+  const itemSystem = (item.system as any) || {};
+  return {
+    id: String(item.id || item._id || item.name || ''),
+    name: item.name || 'Unknown Passive',
+    description: itemSystem.effect || itemSystem.description || '',
+    category: itemSystem.tree || itemSystem.category || 'General',
+    level: itemSystem.level || itemSystem.rank || 1,
+  };
 }
 
 /** Passive powers owned by the actor (sheet Passives + combat Available list). */
 export function getAvailablePassives(actor: Actor): PassiveAbility[] {
-  const available: PassiveAbility[] = [];
-  const items = actorItemList(actor);
-
-  for (const item of items) {
-    if (!isPassivePowerItem(item)) continue;
-    const itemSystem = (item.system as any) || {};
-    const category = itemSystem.tree || itemSystem.category || 'General';
-    available.push({
-      id: item.id || item._id || item.name,
-      name: item.name || 'Unknown Passive',
-      description: itemSystem.effect || itemSystem.description || '',
-      category: category,
-      level: itemSystem.level || itemSystem.rank || 1,
-    });
+  const byId = new Map<string, PassiveAbility>();
+  for (const source of passiveItemSourceActors(actor)) {
+    for (const item of actorItemList(source)) {
+      if (!isPassivePowerItem(item)) continue;
+      const row = passiveAbilityFromItem(item);
+      if (!row.id) continue;
+      if (!byId.has(row.id)) byId.set(row.id, row);
+    }
   }
+  return [...byId.values()];
+}
 
-  return available;
+/** Find a Passive power item on the actor or its world/token counterpart. */
+export function findPassivePowerItem(actor: Actor, passiveId: string): any | null {
+  const want = String(passiveId || '');
+  if (!want) return null;
+  for (const source of passiveItemSourceActors(actor)) {
+    for (const item of actorItemList(source)) {
+      if (!isPassivePowerItem(item)) continue;
+      if (
+        String(item.id) === want ||
+        String(item._id) === want ||
+        String(item.name) === want
+      ) {
+        return item;
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -139,14 +244,8 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
     system.passives[slotKey] = {};
   }
   
-  // Find the passive item by ID or name
-  const items = actorItemList(actor);
-  const passiveItem = items.find((item: any) => 
-    (item.id === passiveId || item._id === passiveId || item.name === passiveId) && 
-    item.type === 'power' && 
-    (item.system as any)?.powerType === 'passive'
-  );
-  
+  const passiveItem = findPassivePowerItem(actor, passiveId);
+
   if (passiveItem) {
     const itemSystem = (passiveItem.system as any) || {};
     const templateId = String(itemSystem.templateId || '');
@@ -169,17 +268,19 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
       name: passiveItem.name || 'Unknown Passive',
       description: itemSystem.effect || itemSystem.description || '',
       category: itemSystem.tree || itemSystem.category || 'General',
-      level: itemSystem.level || 1,
+      level: itemSystem.level || itemSystem.rank || 1,
       templateId,
       specialChoice,
     };
   } else {
-    // Fallback if item not found
+    ui.notifications?.warn(
+      `Could not find Passive "${passiveId}" on this character (check world vs token actor items).`,
+    );
     system.passives[slotKey].passive = {
       id: passiveId,
       name: passiveId,
       description: '',
-      category: 'General'
+      category: 'General',
     };
   }
   

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
   canEditEncounterPassives,
   consumePendingPassiveSwap,
@@ -95,6 +95,11 @@ function actorWithPassives(opts: {
 }
 
 describe('getAvailablePassives', () => {
+  afterEach(() => {
+    delete (globalThis as any).game;
+    delete (globalThis as any).canvas;
+  });
+
   it('includes category=passive even when powerType is missing', () => {
     const actor = {
       items: [
@@ -104,6 +109,89 @@ describe('getAvailablePassives', () => {
       ],
     } as unknown as Actor;
     expect(getAvailablePassives(actor).map((p) => p.id).sort()).toEqual(['a', 'b']);
+  });
+
+  it('includes catalog templateId passive-* even when category defaults to active', () => {
+    const actor = {
+      items: [
+        {
+          id: 'gm',
+          name: 'GM Passive',
+          type: 'power',
+          system: { category: 'active', powerType: 'active', templateId: 'passive-damage-negation' },
+        },
+      ],
+    } as unknown as Actor;
+    expect(getAvailablePassives(actor).map((p) => p.id)).toEqual(['gm']);
+  });
+
+  it('unions passives from an unlinked token actor and its world prototype', () => {
+    const world = {
+      id: 'Actor.world',
+      uuid: 'Actor.world',
+      isToken: false,
+      items: [
+        { id: 'w1', name: 'World Passive', type: 'power', system: { powerType: 'passive' } },
+      ],
+    };
+    const tokenActor = {
+      id: 'Actor.token',
+      uuid: 'Scene.x.Token.y.Actor.token',
+      isToken: true,
+      token: { actorId: 'Actor.world', document: { actorId: 'Actor.world', actorLink: false } },
+      items: [
+        { id: 't1', name: 'Token Passive', type: 'power', system: { category: 'passive' } },
+      ],
+    };
+    (globalThis as any).game = {
+      actors: { get: (id: string) => (id === 'Actor.world' ? world : null) },
+      combat: { combatants: [] },
+    };
+    (globalThis as any).canvas = { tokens: { placeables: [] } };
+    const ids = getAvailablePassives(tokenActor as unknown as Actor)
+      .map((p) => p.id)
+      .sort();
+    expect(ids).toEqual(['t1', 'w1']);
+  });
+
+  it('unions passives from combat unlinked token when reading the world actor', () => {
+    const world = {
+      id: 'Actor.world',
+      uuid: 'Actor.world',
+      isToken: false,
+      items: [],
+    };
+    const tokenActor = {
+      id: 'Actor.token',
+      uuid: 'Scene.x.Token.y.Actor.token',
+      isToken: true,
+      token: { actorId: 'Actor.world', document: { actorId: 'Actor.world', actorLink: false } },
+      items: [
+        {
+          id: 'gm',
+          name: 'GM Grant',
+          type: 'power',
+          system: { category: 'passive', powerType: 'passive', templateId: 'passive-ward' },
+        },
+      ],
+    };
+    (globalThis as any).game = {
+      actors: { get: (id: string) => (id === 'Actor.world' ? world : null) },
+      combat: {
+        combatants: [
+          {
+            actor: tokenActor,
+            token: {
+              actorId: 'Actor.world',
+              actorLink: false,
+              actor: tokenActor,
+            },
+          },
+        ],
+      },
+    };
+    (globalThis as any).canvas = { tokens: { placeables: [] } };
+    expect(getAvailablePassives(world as unknown as Actor).map((p) => p.id)).toEqual(['gm']);
   });
 });
 

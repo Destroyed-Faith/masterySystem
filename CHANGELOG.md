@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.704] - 2026-10-17
+
+### Fixed
+
+- **Combat Select Passives:** GM-granted Passives show in Available again — union world prototype + unlinked token (and combat tokens); recognize `category` / `powerType` / `templateId: passive-*`; `slotPassive` uses the same finder. Item prepare syncs category/powerType for catalog passives.
+
 ## [0.9.703] - 2026-10-17
 
 ### Changed
