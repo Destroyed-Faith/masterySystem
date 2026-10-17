@@ -4,21 +4,10 @@ vi.mock('../src/utils/artifact-embedded-sync.js', () => ({
   pushWorldArtifactNodeToEmbeddedActors: vi.fn(async () => undefined),
 }));
 
-vi.mock('../src/artifacts/echo-artifact-tree-builder.js', async (importOriginal) => {
-  const actual = await importOriginal<
-    typeof import('../src/artifacts/echo-artifact-tree-builder.js')
-  >();
-  const heartseeker = actual
-    .buildAllGeneralArtifactTrees()
-    .find((t) => t.echoArtifactKey === 'heartseeker')!;
-  return {
-    ...actual,
-    buildAllEchoArtifactTrees: () => [],
-    buildAllGeneralArtifactTrees: () => [heartseeker],
-  };
-});
-
-import { ECHO_ARTIFACT_SEED_VERSION } from '../src/artifacts/echo-artifact-tree-builder.js';
+import {
+  buildAllGeneralArtifactTrees,
+  ECHO_ARTIFACT_SEED_VERSION,
+} from '../src/artifacts/echo-artifact-tree-builder.js';
 
 function mkWorldItem(node: {
   nodeId: string;
@@ -58,17 +47,15 @@ function mkWorldItem(node: {
 describe('seedArtifactLibrary — incomplete tree repair', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.resetModules();
   });
 
   it('creates missing nodes when an existing tree has fewer items than the catalog', async () => {
-    const { buildAllGeneralArtifactTrees } = await import(
-      '../src/artifacts/echo-artifact-tree-builder.js'
-    );
-    const tree = buildAllGeneralArtifactTrees()[0];
-    expect(tree.echoArtifactKey).toBe('heartseeker');
-    expect(tree.nodes.length).toBe(10);
+    const tree = buildAllGeneralArtifactTrees().find((t) => t.echoArtifactKey === 'heartseeker');
+    expect(tree).toBeDefined();
+    expect(tree!.nodes.length).toBe(10);
 
-    const rootNode = tree.nodes[0];
+    const rootNode = tree!.nodes[0];
     const existing = [
       mkWorldItem({
         nodeId: rootNode.nodeId,
@@ -100,8 +87,9 @@ describe('seedArtifactLibrary — incomplete tree repair', () => {
     };
     (globalThis as any).Folder = { create: vi.fn(async () => ({ id: 'folder-new' })) };
 
-    const { seedArtifactLibrary } = await import('../src/utils/seed-artifact-library.js');
-    const touched = await seedArtifactLibrary();
+    // Repair one tree only — avoids mocking the whole catalog away from seedArtifactLibrary.
+    const { repairArtifactTreeByKey } = await import('../src/utils/seed-artifact-library.js');
+    const touched = await repairArtifactTreeByKey('heartseeker');
 
     expect(touched).toBe(10);
     expect(createdDocs).toHaveLength(9);
