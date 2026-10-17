@@ -8,10 +8,11 @@
  * message, not as a sheet counter.
  *
  * Natural Recovery: after Ticks at the start of the creature's Turn, the
- * creature chooses *one* negative Diminishing Special and reduces it by
- * Mastery Rank (minimum 0). Unused reduction is lost and cannot move to
- * another Special. A stored Stone Powers plan still applies at turn start;
- * otherwise the HUD applies the choice. A Special that reaches 0 ends.
+ * creature distributes Mastery Rank reduction across negative Diminishing
+ * Specials (Stone Powers dialog: draft with +/−, then Apply, or Skip).
+ * Unused reduction is lost. A confirmed Stone Powers plan applies at turn
+ * start; otherwise the HUD can apply a single-Special choice. A Special that
+ * reaches 0 ends.
  */
 
 import { getEffect, getEffectBaseName, getEffectById } from '../utils/special-effects.js';
@@ -583,7 +584,21 @@ export async function changeNaturalRecoveryAllocation(
   const skipped = choice?.chosen === true && naturalRecoveryAllocatedTotal(choice.allocations) <= 0;
   const current = skipped ? {} : { ...(choice?.allocations ?? {}) };
   current[specialId] = Math.max(0, Math.floor(Number(current[specialId]) || 0) + Math.trunc(Number(delta) || 0));
-  await setNaturalRecoveryAllocations(actor, combat, current, true);
+  // Draft only — Apply / Skip locks the plan for turn start (`chosen: true`).
+  await setNaturalRecoveryAllocations(actor, combat, current, false);
+}
+
+/** Lock the current Natural Recovery draft so it applies after Ticks. */
+export async function confirmNaturalRecoveryAllocations(
+  actor: any,
+  combat: { id?: string; round?: number } | null | undefined,
+): Promise<boolean> {
+  if (!actor || !combat?.id) return false;
+  const choice = matchingNaturalRecoveryChoice(actor, combat);
+  const allocations = choice?.allocations ?? {};
+  if (naturalRecoveryAllocatedTotal(allocations) <= 0) return false;
+  await setNaturalRecoveryAllocations(actor, combat, allocations, true);
+  return true;
 }
 
 /**

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.712] - 2026-10-17
+
+### Fixed
+
+- **Natural Special Recovery:** Stone Powers dialog now has **Apply Natural Recovery** next to Skip. +/− only drafts the split; Apply locks it for turn start (unused MR is still lost). EN/DE.
+
 ## [0.9.711] - 2026-10-17
 
 ### Added

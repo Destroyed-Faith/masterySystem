@@ -179,6 +179,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-men
 import {
   actorMasteryRank,
   changeNaturalRecoveryAllocation,
+  confirmNaturalRecoveryAllocations,
   ensureAutoNaturalRecoveryForSingleEffect,
   listNaturalRecoveryOptions,
   matchingNaturalRecoveryChoice,
@@ -1494,12 +1495,22 @@ export class StonePowersDialog extends BaseDialog {
     const masteryRank = actorMasteryRank(this.actor);
     const allocated = options.reduce((sum, row) => sum + row.allocated, 0);
     const skipped = choice?.chosen === true && naturalRecoveryAllocatedTotal(choice.allocations) <= 0;
+    const confirmed = choice?.chosen === true && allocated > 0 && !skipped;
     const autoSingle = choice?.autoSingle === true && allocated > 0 && !skipped;
     const autoTarget = autoSingle ? options.find((row) => row.allocated > 0) : null;
     const show =
       !!this.combatant &&
       (this.actor as any).type === 'character' &&
       (options.length > 0 || skipped);
+    const i18n = (globalThis as any).game?.i18n;
+    const loc = (key: string, fallback: string) => {
+      const raw = i18n?.localize?.(`MASTERY.specials.${key}`);
+      return raw && raw !== `MASTERY.specials.${key}` ? String(raw) : fallback;
+    };
+    const locFormat = (key: string, data: Record<string, unknown>, fallback: string) => {
+      const raw = i18n?.format?.(`MASTERY.specials.${key}`, data);
+      return raw && raw !== `MASTERY.specials.${key}` ? String(raw) : fallback;
+    };
     return {
       show,
       locked,
@@ -1513,13 +1524,24 @@ export class StonePowersDialog extends BaseDialog {
         isAuto: autoSingle && row.allocated > 0,
       })),
       skipped,
+      confirmed,
+      canConfirm: allocated > 0 && !locked,
       autoSingle,
       autoBanner: autoTarget
-        ? `Auto −${autoTarget.allocated}: ${autoTarget.label} (only one Special — no click needed). Applies at turn start.`
+        ? locFormat(
+            'naturalRecoveryAutoBanner',
+            { amount: autoTarget.allocated, label: autoTarget.label },
+            `Auto −${autoTarget.allocated}: ${autoTarget.label} (only one Special — no click needed). Applies at turn start.`,
+          )
         : '',
-      title: 'Natural Special Recovery',
-      hint: `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute freely. Unused reduction is lost.`,
-      noneLabel: 'Skip Natural Recovery',
+      title: loc('naturalRecoveryPick', 'Natural Special Recovery'),
+      hint: locFormat(
+        'naturalRecoveryDistributeHint',
+        { rank: masteryRank },
+        `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute with +/−, then Apply. Unused reduction is lost.`,
+      ),
+      confirmLabel: loc('naturalRecoveryApply', 'Apply Natural Recovery'),
+      noneLabel: loc('naturalRecoverySkip', 'Skip Natural Recovery'),
     };
   }
 
@@ -2052,7 +2074,7 @@ export class StonePowersDialog extends BaseDialog {
     }
   }
 
-  /** Natural Stone Recovery steppers and skip button. */
+  /** Natural Special Recovery steppers, Apply, and Skip. */
   #bindNaturalRecoveryControls(root: HTMLElement): void {
     root.querySelectorAll('.js-nsr-add, .js-nsr-remove').forEach((el) => {
       const btn = el as HTMLButtonElement;
@@ -2063,6 +2085,14 @@ export class StonePowersDialog extends BaseDialog {
         void this.#changeNaturalRecovery(btn.dataset.specialId ?? '', delta);
       });
     });
+    const confirm = root.querySelector('.js-nsr-confirm') as HTMLButtonElement | null;
+    if (confirm) {
+      confirm.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        if (confirm.disabled) return;
+        void this.#confirmNaturalRecovery();
+      });
+    }
     const skip = root.querySelector('.js-nsr-skip') as HTMLButtonElement | null;
     if (skip) {
       skip.addEventListener('click', (ev) => {
@@ -2079,6 +2109,20 @@ export class StonePowersDialog extends BaseDialog {
     const id = String(specialId || '').trim();
     if (!id) return;
     await changeNaturalRecoveryAllocation(this.actor, combat, id, delta);
+    await this.#renderKeepingScroll();
+  }
+
+  async #confirmNaturalRecovery(): Promise<void> {
+    const combat = (game as any).combat as Combat | null;
+    if (!combat || this.#isStoneDialogLocked()) return;
+    const ok = await confirmNaturalRecoveryAllocations(this.actor, combat);
+    if (!ok) {
+      (globalThis as any).ui?.notifications?.warn?.(
+        (globalThis as any).game?.i18n?.localize?.('MASTERY.specials.naturalRecoveryApplyEmpty') ||
+          'Allocate at least 1 Mastery Rank to a Special, or Skip.',
+      );
+      return;
+    }
     await this.#renderKeepingScroll();
   }
 

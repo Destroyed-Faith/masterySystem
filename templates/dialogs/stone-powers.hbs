@@ -137,6 +137,13 @@
         {{naturalRecovery.allocated}} / {{naturalRecovery.masteryRank}}
       </span>
       <button type="button"
+              class="natural-recovery-pick natural-recovery-apply js-nsr-confirm{{#if naturalRecovery.confirmed}} is-selected{{/if}}"
+              {{#unless naturalRecovery.canConfirm}}disabled{{/unless}}
+              title="Apply the allocated Natural Recovery at the start of your turn (unused Mastery Rank is lost).">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        {{naturalRecovery.confirmLabel}}
+      </button>
+      <button type="button"
               class="natural-recovery-pick js-nsr-skip{{#if naturalRecovery.skipped}} is-selected{{/if}}"
               {{#if naturalRecovery.locked}}disabled{{/if}}>
         {{naturalRecovery.noneLabel}}

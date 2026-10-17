@@ -4,6 +4,7 @@ import {
   applyNaturalRecoveryToValue,
   changeNaturalRecoveryAllocation,
   clampSpecialApplication,
+  confirmNaturalRecoveryAllocations,
   emptySpecialRoundApps,
   ensureAutoNaturalRecoveryForSingleEffect,
   formatApplicationLimitNote,
@@ -168,6 +169,12 @@ describe('natural special recovery', () => {
     };
     await changeNaturalRecoveryAllocation(actor, combat, 'slow', 1);
     await changeNaturalRecoveryAllocation(actor, combat, 'ruin', 1);
+    // Draft until Apply — turn start ignores unconfirmed allocations.
+    expect(resolveNaturalRecoveryPlan(actor, [
+      { id: 'slow', value: 2 },
+      { id: 'ruin', value: 5 },
+    ], combat, 2)).toEqual([]);
+    expect(await confirmNaturalRecoveryAllocations(actor, combat)).toBe(true);
     expect(resolveNaturalRecoveryPlan(actor, [
       { id: 'slow', value: 2 },
       { id: 'ruin', value: 5 },
@@ -175,6 +182,15 @@ describe('natural special recovery', () => {
       { id: 'ruin', before: 5, after: 4, reduced: 1 },
       { id: 'slow', before: 2, after: 1, reduced: 1 },
     ]);
+  });
+
+  it('does not confirm Natural Recovery with an empty allocation', async () => {
+    const combat = { id: 'c1', round: 1 };
+    const actor: any = {
+      system: { mastery: { rank: 2 }, statusEffects: [{ id: 'hex', value: 4 }] },
+      flags: {},
+    };
+    expect(await confirmNaturalRecoveryAllocations(actor, combat)).toBe(false);
   });
 
   it('auto-fills Natural Recovery for a PC with exactly one Special', async () => {

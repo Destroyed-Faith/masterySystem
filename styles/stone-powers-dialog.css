@@ -101,6 +101,23 @@
   background: rgba(201, 162, 39, 0.28);
 }
 
+.stone-powers-dialog .natural-recovery-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-color: rgba(129, 199, 132, 0.55);
+  background: rgba(67, 160, 71, 0.22);
+}
+
+.stone-powers-dialog .natural-recovery-apply:hover:not(:disabled) {
+  background: rgba(67, 160, 71, 0.38);
+}
+
+.stone-powers-dialog .natural-recovery-apply.is-selected {
+  border-color: #81c784;
+  background: rgba(67, 160, 71, 0.42);
+}
+
 .stone-powers-dialog .natural-recovery-pick:disabled {
   opacity: 0.4;
   cursor: default;
