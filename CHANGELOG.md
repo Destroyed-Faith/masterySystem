@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.705] - 2026-10-17
+
+### Changed
+
+- **Character Sheet Health:** After Stress retirement, the Health panel uses the full former two-column width; summary chips (total HP, active wound level, scarred), Temp HP in the header, and slightly roomier bar rows.
+
 ## [0.9.704] - 2026-10-17
 
 ### Fixed

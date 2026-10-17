@@ -1526,6 +1526,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.combatStatsView = null;
     }
 
+    // Always-on HP totals for the Attributes Health panel (independent of encounter chips).
+    try {
+      const sys: any = (this.actor as any).system ?? {};
+      const healthBars = Array.isArray(sys.health?.bars) ? sys.health.bars : [];
+      let hpCur = 0;
+      let hpMax = 0;
+      let scarred = 0;
+      for (const b of healthBars) {
+        hpCur += Math.max(0, Math.floor(Number(b?.current ?? 0) || 0));
+        hpMax += Math.max(0, Math.floor(Number(b?.max ?? 0) || 0));
+        if (b?.scarred) scarred += 1;
+      }
+      const idx = Math.max(0, Math.min(Number(sys.health?.currentBar ?? 0) || 0, Math.max(0, healthBars.length - 1)));
+      const active = healthBars[idx];
+      const penalty = Number(active?.penalty ?? 0) || 0;
+      const levelName =
+        penalty === 0 ? 'Healthy'
+          : penalty === -1 ? 'Bruised'
+            : penalty === -2 ? 'Injured'
+              : penalty === -4 ? 'Wounded'
+                : penalty === -5 ? 'Broken'
+                  : penalty === -6 ? 'Incapacitated'
+                    : String(active?.name ?? '—');
+      context.healthSheetSummary = {
+        current: hpCur,
+        max: hpMax,
+        tempHP: Math.max(0, Math.floor(Number(sys.health?.tempHP ?? 0) || 0)),
+        activeLevel: levelName,
+        activePenalty: penalty,
+        scarredCount: scarred,
+      };
+    } catch {
+      context.healthSheetSummary = null;
+    }
+
     if (this.actor.type === 'character') {
       const sys: any = (this.actor as any).system ?? {};
       const flag = (key: string) => {

@@ -6663,10 +6663,10 @@ aside#tooltip,
   color: #e67e22;
 }
 
-/* ========== Health & Stress Section ========== */
+/* ========== Health Section (full width after Stress retirement) ========== */
 .mastery-system.sheet.actor.character .health-stress-section {
   margin-top: 0.75rem;
-  padding: 0.6rem;
+  padding: 0.75rem 0.85rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -6678,12 +6678,97 @@ aside#tooltip,
   gap: 0.75rem;
 }
 
+/* Stress column removed — Health claims the former two-column span. */
+.mastery-system.sheet.actor.character .health-stress-grid--solo {
+  grid-template-columns: 1fr;
+}
+
 .mastery-system.sheet.actor.character .health-bars-container,
 .mastery-system.sheet.actor.character .stress-bars-container {
   background: rgba(0, 0, 0, 0.2);
-  padding: 0.5rem;
+  padding: 0.65rem 0.75rem;
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.sheet.actor.character .health-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.sheet.actor.character .health-section-title-block {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.character .health-section-title-block h4 {
+  margin-bottom: 0.2rem;
+}
+
+.mastery-system.sheet.actor.character .health-section-sub,
+.mastery-system.sheet.actor.character .health-section-foot {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.mastery-system.sheet.actor.character .health-section-foot {
+  margin-top: 0.55rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mastery-system.sheet.actor.character .health-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.75rem;
+}
+
+.mastery-system.sheet.actor.character .health-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ffcdd2;
+  background: rgba(244, 67, 54, 0.15);
+  border: 1px solid rgba(255, 138, 128, 0.35);
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mastery-system.sheet.actor.character .health-meta-chip i {
+  color: #ff8a80;
+  font-size: 0.7rem;
+}
+
+.mastery-system.sheet.actor.character .health-meta-chip strong {
+  color: #fff;
+  font-weight: 800;
+}
+
+.mastery-system.sheet.actor.character .health-meta-chip--level {
+  color: #c8e6c9;
+  background: rgba(102, 255, 102, 0.1);
+  border-color: rgba(102, 255, 102, 0.3);
+}
+
+.mastery-system.sheet.actor.character .health-meta-chip--scar {
+  color: #ffcc80;
+  background: rgba(121, 85, 72, 0.4);
+  border-color: rgba(255, 183, 77, 0.45);
 }
 
 .mastery-system.sheet.actor.character .health-bars-container h4,
@@ -6700,19 +6785,45 @@ aside#tooltip,
 .mastery-system.sheet.actor.character .stress-bars-list {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
 .mastery-system.sheet.actor.character .health-bar-row,
 .mastery-system.sheet.actor.character .stress-bar-row {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.3rem;
+  gap: 0.25rem;
+  padding: 0.4rem 0.5rem;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s;
+}
+
+/* Full-width Health: name + inputs on one row, boxes on a second line. */
+.mastery-system.sheet.actor.character .health-stress-grid--solo .health-bar-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 0.75rem;
+  row-gap: 0.3rem;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+}
+
+.mastery-system.sheet.actor.character .health-stress-grid--solo .health-bar-info {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.character .health-stress-grid--solo .health-bar-inputs {
+  grid-column: 2;
+  justify-self: end;
+}
+
+.mastery-system.sheet.actor.character .health-stress-grid--solo .health-bar-boxes {
+  grid-column: 1 / -1;
+  margin-top: 0.1rem;
 }
 
 .mastery-system.sheet.actor.character .health-bar-row.active,
@@ -6855,6 +6966,10 @@ aside#tooltip,
   margin-top: 0.2rem;
 }
 
+.mastery-system.sheet.actor.character .health-stress-grid--solo .health-bar-boxes {
+  gap: 0.14rem;
+}
+
 .mastery-system.sheet.actor.character .health-box,
 .mastery-system.sheet.actor.character .stress-box {
   width: 0.4rem;
@@ -6862,6 +6977,11 @@ aside#tooltip,
   border-radius: 2px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .health-stress-grid--solo .health-box {
+  width: 0.52rem;
+  height: 0.52rem;
 }
 
 .mastery-system.sheet.actor.character .health-box.filled {
@@ -6883,9 +7003,9 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .health-temp-hp {
-  margin-top: 0.4rem;
-  padding-top: 0.4rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -6898,9 +7018,9 @@ aside#tooltip,
 }
 
 .mastery-system.sheet.actor.character .health-temp-hp input {
-  width: 2.5rem;
-  padding: 0.15rem 0.25rem;
-  font-size: 0.7rem;
+  width: 2.75rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.72rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 3px;
   background: rgba(0, 0, 0, 0.3);

@@ -1144,12 +1144,38 @@
       
       <div style="margin-top: 30px;"></div>
       
-      <!-- Health & Stress Section -->
+      <!-- Health Section (Stress track retired — Health uses the full width) -->
       <div class="health-stress-section">
-        <div class="health-stress-grid">
-          <!-- Health Bars -->
+        <div class="health-stress-grid health-stress-grid--solo">
           <div class="health-bars-container">
-            <h4><i class="fas fa-heart"></i> Health (Vitality × 4 per bar)</h4>
+            <div class="health-section-header">
+              <div class="health-section-title-block">
+                <h4><i class="fas fa-heart"></i> Health</h4>
+                <p class="health-section-sub">
+                  Vitality × 4 per wound bar. Green highlight = active bar (pool penalty from that level).
+                </p>
+              </div>
+              <div class="health-summary-meta">
+                {{#if healthSheetSummary}}
+                <span class="health-meta-chip" title="Sum of all wound bars">
+                  <i class="fas fa-heart"></i>
+                  <strong>{{healthSheetSummary.current}}</strong>/{{healthSheetSummary.max}} HP
+                </span>
+                <span class="health-meta-chip health-meta-chip--level" title="Active wound level (drives pool penalty)">
+                  {{healthSheetSummary.activeLevel}}
+                </span>
+                {{#if healthSheetSummary.scarredCount}}
+                <span class="health-meta-chip health-meta-chip--scar" title="Scarred wound bars">
+                  {{healthSheetSummary.scarredCount}} Scarred
+                </span>
+                {{/if}}
+                {{/if}}
+                <div class="health-temp-hp">
+                  <label title="Temporary hit points — absorbed before wound bars">Temp HP</label>
+                  <input type="number" name="system.health.tempHP" value="{{default system.health.tempHP 0}}" data-dtype="Number" min="0" />
+                </div>
+              </div>
+            </div>
             <div class="health-bars-list">
               {{#each system.health.bars as |bar index|}}
               <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}{{#if bar.scarred}} is-scarred{{/if}}">
@@ -1196,12 +1222,11 @@
               </div>
               {{/each}}
             </div>
-            <div class="health-temp-hp">
-              <label>Temp HP:</label>
-              <input type="number" name="system.health.tempHP" value="{{default system.health.tempHP 0}}" data-dtype="Number" min="0" />
-            </div>
+            <p class="health-section-foot">
+              Scarred bars stay empty until Remove Scar or a Safe Haven Rest. Temp HP is spent before any wound bar.
+            </p>
           </div>
-          
+
           {{#if false}}
           <!-- Stress Bars (mechanical track retired) -->
           <div class="stress-bars-container">
