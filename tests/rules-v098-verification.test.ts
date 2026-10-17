@@ -96,9 +96,12 @@ describe('Combat Senses vs Passive slots', () => {
   it('Passive slots scale by Mastery Rank independently of Sense Slots', () => {
     expect(getPassiveSlotCountForMasteryRank(1)).toBe(1);
     expect(getPassiveSlotCountForMasteryRank(2)).toBe(2);
-    expect(getPassiveSlotCountForMasteryRank(3)).toBe(2);
+    expect(getPassiveSlotCountForMasteryRank(3)).toBe(3);
     expect(getPassiveSlotCountForMasteryRank(4)).toBe(3);
+    expect(getPassiveSlotCountForMasteryRank(5)).toBe(4);
     expect(getPassiveSlotCountForMasteryRank(6)).toBe(4);
+    expect(getPassiveSlotCountForMasteryRank(7)).toBe(5);
+    expect(getPassiveSlotCountForMasteryRank(8)).toBe(6);
   });
 
   it('Darkvision is a minor upgrade; special Sense Slot picks are separate; Normal Combat Awareness exists', () => {

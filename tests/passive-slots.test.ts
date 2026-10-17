@@ -4,6 +4,7 @@ import {
   consumePendingPassiveSwap,
   ensureDefaultPassiveSlots,
   EXCHANGE_PASSIVE_SWAPS_FLAG,
+  getAvailablePassives,
   getPassiveSlotCountForMasteryRank,
   getPassiveSlots,
   getPassiveSlotUnlockRank,
@@ -15,27 +16,30 @@ import {
 } from '../src/powers/passives.js';
 
 describe('passive slot unlocks', () => {
-  it('defines four slots unlocked at MR 1, 2, 4, and 6', () => {
-    expect(PASSIVE_SLOT_UNLOCK_RANKS).toEqual([1, 2, 4, 6]);
-    expect(MAX_PASSIVE_SLOTS).toBe(4);
+  it('matches passives.md: unlocks at MR 1, 2, 3, 5, 7, 8', () => {
+    expect(PASSIVE_SLOT_UNLOCK_RANKS).toEqual([1, 2, 3, 5, 7, 8]);
+    expect(MAX_PASSIVE_SLOTS).toBe(6);
   });
 
-  it('returns slot counts by mastery rank', () => {
+  it('returns slot counts by mastery rank (Core table)', () => {
     expect(getPassiveSlotCountForMasteryRank(1)).toBe(1);
     expect(getPassiveSlotCountForMasteryRank(2)).toBe(2);
-    expect(getPassiveSlotCountForMasteryRank(3)).toBe(2);
+    expect(getPassiveSlotCountForMasteryRank(3)).toBe(3);
     expect(getPassiveSlotCountForMasteryRank(4)).toBe(3);
-    expect(getPassiveSlotCountForMasteryRank(5)).toBe(3);
+    expect(getPassiveSlotCountForMasteryRank(5)).toBe(4);
     expect(getPassiveSlotCountForMasteryRank(6)).toBe(4);
-    expect(getPassiveSlotCountForMasteryRank(8)).toBe(4);
+    expect(getPassiveSlotCountForMasteryRank(7)).toBe(5);
+    expect(getPassiveSlotCountForMasteryRank(8)).toBe(6);
   });
 
   it('maps slot indices to unlock ranks', () => {
     expect(getPassiveSlotUnlockRank(0)).toBe(1);
     expect(getPassiveSlotUnlockRank(1)).toBe(2);
-    expect(getPassiveSlotUnlockRank(2)).toBe(4);
-    expect(getPassiveSlotUnlockRank(3)).toBe(6);
-    expect(getPassiveSlotUnlockRank(4)).toBeNull();
+    expect(getPassiveSlotUnlockRank(2)).toBe(3);
+    expect(getPassiveSlotUnlockRank(3)).toBe(5);
+    expect(getPassiveSlotUnlockRank(4)).toBe(7);
+    expect(getPassiveSlotUnlockRank(5)).toBe(8);
+    expect(getPassiveSlotUnlockRank(6)).toBeNull();
   });
 
   it('treats empty passive objects as vacant slots', () => {
@@ -89,6 +93,19 @@ function actorWithPassives(opts: {
   };
   return actor as unknown as Actor;
 }
+
+describe('getAvailablePassives', () => {
+  it('includes category=passive even when powerType is missing', () => {
+    const actor = {
+      items: [
+        { id: 'a', name: 'A', type: 'power', system: { category: 'passive', effect: 'ok' } },
+        { id: 'b', name: 'B', type: 'power', system: { powerType: 'passive', effect: 'ok' } },
+        { id: 'c', name: 'C', type: 'power', system: { category: 'active' } },
+      ],
+    } as unknown as Actor;
+    expect(getAvailablePassives(actor).map((p) => p.id).sort()).toEqual(['a', 'b']);
+  });
+});
 
 describe('default passive picks', () => {
   it('slots every known passive when they fit the unlocked count', () => {

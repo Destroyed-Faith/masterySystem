@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.702] - 2026-10-17
+
+### Fixed
+
+- **Passive Slots:** Unlock table aligned with Core (`passives.md`): MR1→1, MR2→2, MR3–4→3, MR5–6→4, MR7→5, MR8→6 (was wrongly capped at MR 1/2/4/6 → max 4).
+- **Combat Select Passives:** Available list also accepts `category: passive` (not only `powerType`); clearer empty-state when everything is already slotted.
+
 ## [0.9.701] - 2026-10-17
 
 ### Changed

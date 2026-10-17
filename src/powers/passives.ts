@@ -6,8 +6,11 @@
 import { findCombatantByActorId, readCombatantSetupStep } from '../combat/encounter-setup-flags.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 
-/** Mastery Rank at which each passive slot unlocks (max 4 slots). */
-export const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[] = [1, 2, 4, 6];
+/**
+ * Mastery Rank at which each passive slot unlocks (Players Guide / passives.md).
+ * MR1→1, MR2→2, MR3–4→3, MR5–6→4, MR7→5, MR8→6.
+ */
+export const PASSIVE_SLOT_UNLOCK_RANKS: readonly number[] = [1, 2, 3, 5, 7, 8];
 
 export const MAX_PASSIVE_SLOTS = PASSIVE_SLOT_UNLOCK_RANKS.length;
 
@@ -44,7 +47,7 @@ export function getPassiveSlotUnlockRank(slotIndex: number): number | null {
 
 /**
  * Get all passive slots for an actor
- * Returns slots unlocked by Mastery Rank (MR 1/2/4/6 → up to 4 slots).
+ * Returns slots unlocked by Mastery Rank (up to 6 at MR 8).
  */
 export function getPassiveSlots(actor: Actor): PassiveSlot[] {
   const system = (actor.system as any);
@@ -77,29 +80,33 @@ function actorItemList(actor: Actor): any[] {
   return [];
 }
 
-/** Passive powers on the actor (items with powerType `passive`). */
+/** True when a power item is a Passive (category or legacy powerType). */
+export function isPassivePowerItem(item: any): boolean {
+  if (!item || item.type !== 'power') return false;
+  const sys = (item.system as any) || {};
+  if (sys.category === 'passive') return true;
+  if (sys.powerType === 'passive') return true;
+  return false;
+}
+
+/** Passive powers owned by the actor (sheet Passives + combat Available list). */
 export function getAvailablePassives(actor: Actor): PassiveAbility[] {
   const available: PassiveAbility[] = [];
   const items = actorItemList(actor);
-  
-  // Get all items that are powers with powerType 'passive'
+
   for (const item of items) {
+    if (!isPassivePowerItem(item)) continue;
     const itemSystem = (item.system as any) || {};
-    // Items with type 'power' and powerType 'passive' are passive abilities
-    if (item.type === 'power' && itemSystem.powerType === 'passive') {
-      // Extract category from tree or use a default
-      const category = itemSystem.tree || itemSystem.category || 'General';
-      
-      available.push({
-        id: item.id || item._id || item.name,
-        name: item.name || 'Unknown Passive',
-        description: itemSystem.effect || itemSystem.description || '',
-        category: category,
-        level: itemSystem.level || 1
-      });
-    }
+    const category = itemSystem.tree || itemSystem.category || 'General';
+    available.push({
+      id: item.id || item._id || item.name,
+      name: item.name || 'Unknown Passive',
+      description: itemSystem.effect || itemSystem.description || '',
+      category: category,
+      level: itemSystem.level || itemSystem.rank || 1,
+    });
   }
-  
+
   return available;
 }
 
