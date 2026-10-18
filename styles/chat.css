@@ -57,24 +57,35 @@ body.ms-chat-panel-closed .ms-chat-rolls-row {
   display: none !important;
 }
 
-#sidebar-tabs > .emr-chat-launch {
+.ms-rolls-globe-host {
+  position: relative;
+}
+
+.emr-chat-launch.is-icon-only {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 32px;
+  width: 28px !important;
+  height: 28px;
   margin: 0;
   padding: 0;
+  z-index: 6;
   border: none;
   background: transparent;
   color: var(--ms-accent, #c9a227);
+  overflow: visible;
 }
 
-#sidebar-tabs > .emr-chat-launch span {
+body.ms-chat-panel-closed #chat-controls,
+body.ms-chat-panel-closed .ms-rolls-globe-host {
+  overflow: visible;
+}
+
+.emr-chat-launch.is-icon-only span {
   display: none;
 }
 
-#sidebar-tabs > .emr-chat-launch i {
+.emr-chat-launch.is-icon-only i {
   font-size: 16px;
 }
 

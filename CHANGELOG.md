@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.744] - 2026-10-18
+
+### Changed
+
+- **Chat:** Off the chat tab, Rolls is only the golden d8 above the Public globe. The word Rolls is not shown there.
+- **Chat:** A quick d8 card shows the total and the faces. The Nd8k formula line is not repeated.
+
 ## [0.9.743] - 2026-10-18
 
 ### Changed

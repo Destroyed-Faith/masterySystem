@@ -16,7 +16,7 @@ export declare function resolveQuickD8Pool(dice: number, keep: number, rng?: () 
     keptIndices: number[];
     total: number;
 };
-/** Chat closed: hide the dice row and park Rolls as a d8 above the chat tab. */
+/** Chat closed: only the golden d8, sitting above the Public globe. */
 export declare function syncChatRollChrome(): void;
 export declare function initializeQuickD8Bar(): void;
 //# sourceMappingURL=quick-d8-bar.d.ts.map

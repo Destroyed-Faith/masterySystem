@@ -110,7 +110,7 @@ async function rollFromBar(bar) {
     const keepSelect = bar.querySelector('.ms-quick-d8-keep');
     const parsed = quickD8Formula(diceInput?.value, keepSelect?.value);
     if (!parsed) {
-        ui.notifications?.warn?.('Würfelanzahl: 1–99.');
+        ui.notifications?.warn?.('Dice count: 1–99.');
         diceInput?.focus();
         return;
     }
@@ -129,21 +129,19 @@ async function rollFromBar(bar) {
     const content = `
     <div class="dice-roll ms-quick-d8-result">
       <div class="dice-result">
-        <div class="dice-formula">${parsed.formula}</div>
         <h4 class="dice-total">${pool.total}</h4>
-        <div class="dice-formula ms-quick-d8-short">${parsed.shortLabel}</div>
       </div>
       <div class="ms-quick-d8-faces">${faces}</div>
     </div>`;
     const g = globalThis;
     const speaker = g.ChatMessage?.getSpeaker?.() ?? {};
-    const rolls = buildQuickD8DisplayRoll(g, pool);
     if (typeof g.ChatMessage?.create === 'function') {
-        await g.ChatMessage.create({ speaker, content, rolls });
+        await g.ChatMessage.create({ speaker, content });
         return;
     }
+    const rolls = buildQuickD8DisplayRoll(g, pool);
     if (rolls[0] && typeof rolls[0].toMessage === 'function') {
-        await rolls[0].toMessage({ speaker, flavor: parsed.formula, content });
+        await rolls[0].toMessage({ speaker, content });
     }
 }
 function buildQuickD8DisplayRoll(g, pool) {
@@ -187,8 +185,8 @@ function injectQuickD8Bar(controls) {
     dice.step = '1';
     dice.inputMode = 'numeric';
     dice.placeholder = '2';
-    dice.title = 'Anzahl d8 (1–99)';
-    dice.setAttribute('aria-label', 'Anzahl d8');
+    dice.title = 'Number of d8 (1–99)';
+    dice.setAttribute('aria-label', 'Number of d8');
     if (rememberedDice)
         dice.value = rememberedDice;
     const dieWord = document.createElement('span');
@@ -199,7 +197,7 @@ function injectQuickD8Bar(controls) {
     keepLabel.textContent = 'Keep';
     const keep = document.createElement('select');
     keep.className = 'ms-quick-d8-keep';
-    keep.title = 'Mastery Rank — so viele d8 behalten';
+    keep.title = 'Mastery Rank — how many d8 to keep';
     keep.setAttribute('aria-label', 'Keep, Mastery Rank');
     const initialKeep = rememberedKeep ?? defaultKeep();
     for (let rank = 1; rank <= MAX_MASTERY_RANK; rank++) {
@@ -214,8 +212,8 @@ function injectQuickD8Bar(controls) {
     button.type = 'button';
     button.className = 'ms-quick-d8-roll';
     button.innerHTML = '<i class="fas fa-dice-d8" aria-hidden="true"></i>';
-    button.title = 'Nd8 behalten nach Mastery Rank';
-    button.setAttribute('aria-label', 'Würfeln');
+    button.title = 'Roll Nd8, keep Mastery Rank';
+    button.setAttribute('aria-label', 'Roll');
     const submit = (ev) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -231,36 +229,72 @@ function injectQuickD8Bar(controls) {
     row.append(bar);
 }
 function isChatPanelOpen() {
+    const panel = document.querySelector('#chat');
+    if (panel instanceof HTMLElement)
+        return panel.classList.contains('active');
     const sidebar = document.querySelector('#sidebar');
-    if (!sidebar)
-        return true;
-    if (sidebar.classList.contains('collapsed'))
+    if (sidebar?.classList.contains('collapsed'))
         return false;
     const g = globalThis;
-    const tab = g.ui?.sidebar?.activeTab ?? g.ui?.sidebar?.tabName;
+    const app = g.ui?.sidebar;
+    const tab = app?.tabGroups?.primary ?? app?.tabGroups?.main ?? app?.activeTab ?? app?.tabName;
     if (typeof tab === 'string' && tab)
         return tab === 'chat';
-    const active = sidebar.querySelector('#sidebar-tabs .active[data-tab], #sidebar-tabs [data-tab].active');
-    const name = active?.getAttribute('data-tab');
-    return !name || name === 'chat';
+    const active = document.querySelector('#sidebar-tabs [data-tab].active, #sidebar-tabs [data-tab][aria-pressed="true"]');
+    return active?.getAttribute('data-tab') === 'chat';
 }
-/** Chat closed: hide the dice row and park Rolls as a d8 above the chat tab. */
+/** Foundry's Public roll control — the globe next to "Public as User". */
+function findPublicGlobe() {
+    const controls = document.querySelector('#chat-controls');
+    if (!(controls instanceof HTMLElement))
+        return null;
+    const icon = controls.querySelector('i.fa-globe, .fa-globe');
+    const fromIcon = icon?.closest('a, button');
+    if (fromIcon instanceof HTMLElement)
+        return fromIcon;
+    const labeled = controls.querySelector('.roll-type-select, [data-action="rollMode"], [data-tooltip*="Public"], [aria-label*="Public"]');
+    return labeled instanceof HTMLElement ? labeled : null;
+}
+function clearCompactRolls(button) {
+    button.classList.remove('is-icon-only');
+    button.style.position = '';
+    button.style.left = '';
+    button.style.bottom = '';
+    button.style.width = '';
+    button.style.height = '';
+}
+/** Chat closed: only the golden d8, sitting above the Public globe. */
 export function syncChatRollChrome() {
     const open = isChatPanelOpen();
     document.body.classList.toggle('ms-chat-panel-closed', !open);
     const button = document.querySelector('.emr-chat-launch');
-    if (!button)
+    if (!(button instanceof HTMLElement))
         return;
     if (open) {
+        clearCompactRolls(button);
         const controls = document.querySelector('#chat-controls');
         if (controls instanceof HTMLElement)
             parkRollsButton(controls);
         return;
     }
-    const tabs = document.querySelector('#sidebar-tabs');
-    const chatTab = tabs?.querySelector('[data-tab="chat"]');
-    if (tabs && chatTab && button.parentElement !== tabs)
-        chatTab.before(button);
+    button.classList.add('is-icon-only');
+    const globe = findPublicGlobe();
+    const controls = document.querySelector('#chat-controls');
+    const host = globe?.parentElement ?? (controls instanceof HTMLElement ? controls : null);
+    if (!host)
+        return;
+    if (button.parentElement !== host)
+        host.insertBefore(button, globe ?? host.firstChild);
+    host.classList.add('ms-rolls-globe-host');
+    const anchor = globe ?? host;
+    const hostRect = host.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    const size = 28;
+    button.style.position = 'absolute';
+    button.style.width = `${size}px`;
+    button.style.height = `${size}px`;
+    button.style.bottom = 'calc(100% + 2px)';
+    button.style.left = `${Math.max(0, anchorRect.left - hostRect.left + (anchorRect.width - size) / 2)}px`;
 }
 function tryInject(elements, htmlRoot) {
     injectQuickD8Bar(resolveChatControls(elements, htmlRoot));
