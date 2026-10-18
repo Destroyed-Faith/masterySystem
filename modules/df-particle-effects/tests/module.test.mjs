@@ -3,10 +3,19 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { BEHAVIOR_TYPE, isSystemPackageUrl, MODULE_ID } from "../scripts/constants.mjs";
+import { BEHAVIOR_TYPE, blankSeedToNull, isSystemPackageUrl, MODULE_ID } from "../scripts/constants.mjs";
 import { collectPolygonTreeContours, regionMaskOperations } from "../scripts/geometry.mjs";
 
 const moduleRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+test("a blank random seed is stored as null", () => {
+  assert.equal(blankSeedToNull(""), null);
+  assert.equal(blankSeedToNull("   "), null);
+  assert.equal(blankSeedToNull(null), null);
+  assert.equal(blankSeedToNull(undefined), null);
+  assert.equal(blankSeedToNull(12), 12);
+  assert.equal(blankSeedToNull("12"), "12");
+});
 
 test("polygon tree walk keeps outer rings and hole rings", () => {
   const hole = [4, 4, 6, 4, 6, 6, 4, 6];

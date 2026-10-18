@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.730] - 2026-10-18
+
+### Fixed
+
+- **Regions:** Saving DF: Particle Effects with an empty Random Seed no longer fails validation. Blank means the layout is derived from the region.
+
 ## [0.9.729] - 2026-10-18
 
 ### Fixed

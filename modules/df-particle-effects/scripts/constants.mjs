@@ -55,6 +55,13 @@ export function qualitySettingKey() {
   return hostedBySystem() ? "dfParticleFireQuality" : "quality";
 }
 
+/** Blank form values for the optional seed. Foundry otherwise rejects "". */
+export function blankSeedToNull(value) {
+  if (value === "" || value === null || value === undefined) return null;
+  if (typeof value === "string" && value.trim() === "") return null;
+  return value;
+}
+
 export const LOG_PREFIX = "df-particle-effects |";
 
 /**
