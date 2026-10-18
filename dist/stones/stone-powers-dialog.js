@@ -10,7 +10,7 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, getAvailableStonePowers, activateStonePower, activateGenericStonePowerMixed } from './stone-activation.js';
 import { STONE_RESOLUTION_QUEUE_FLAG, enqueueStoneResolutions, markStoneResolutionResolved, pendingStoneResolutions, readStoneResolutionQueue, stoneResolutionKind, } from './stone-resolution.js';
 import { presentStoneResolution } from './stone-resolution-ui.js';
-import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, isPremiumStonePower, isRetiredStonePower, RETIRED_STONE_POWER_MESSAGE, effectiveStoneSupportPrefillTier, stonePowerRankCost, stonePowerSegmentSizes, stonePaymentLaneCount, stonePaymentLanesForTier, stoneSupportPrefillLanes, completeStoneRankPayment, partitionStoneLanesByCompleteRanks, } from './stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, STONE_POWER_SUPPORT_TIER_SHIFT, STONE_TIER_HARD_MAX, resolveStonePowerId, isPremiumStonePower, isRetiredStonePower, RETIRED_STONE_POWER_MESSAGE, effectiveStoneSupportPrefillTier, stonePowerRankCost, stonePowerSegmentSizes, stonePaymentLaneCount, stonePaymentLanesForTier, stoneSupportPrefillLanes, completeStoneRankPayment, partitionStoneLanesByCompleteRanks, orderWitsDialogColumn, } from './stone-powers.js';
 import { getStoneUsageCount, getGenericStonePowerUsageCount, getStonePool, setStonePool, getRoundState, setRoundState, isStonePowersConfigurationLocked, clearStonePowersConfigurationLock, clearCombatStoneTurnBonusesForActor, getActionEconomyActor } from '../combat/action-economy.js';
 import { isStonePowersDone } from '../combat/stone-round-gate.js';
 import { actorHasSurprise } from '../combat/surprise.js';
@@ -807,7 +807,9 @@ export class StonePowersDialog extends BaseDialog {
                 removeScarPayment.barsRecovered > 0;
             const oncePerCombatUsed = !!power.oncePerCombat &&
                 isOncePerCombatPowerUsed(this.combatant, power.id, this.actor);
+            const barSpend = power.id === 'wits.initiativeBoost';
             const canAfford = !retired &&
+                !barSpend &&
                 !tierCapped && !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
             const gross = spendableForAttr(attrKey);
             const reserved = this.#reservedStonesInDialogForAttr(attrKey);
@@ -832,7 +834,7 @@ export class StonePowersDialog extends BaseDialog {
                 review: this._stoneReviewMode,
             });
             const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn, power.id);
-            const laneSegs = buildStonePaymentLanes(power.id, usesThisTurn, spendableNet, stonePlanLocked || stoneResolutionHold || retired, occupied, `${power.id}/${attrKey}`, supportLanes);
+            const laneSegs = buildStonePaymentLanes(power.id, usesThisTurn, barSpend ? 0 : spendableNet, stonePlanLocked || stoneResolutionHold || retired || barSpend, barSpend ? [] : occupied, `${power.id}/${attrKey}`, barSpend ? undefined : supportLanes);
             return {
                 id: power.id,
                 name: power.name,
@@ -867,6 +869,15 @@ export class StonePowersDialog extends BaseDialog {
                         canAfford: false,
                     }
                     : {}),
+                ...(barSpend
+                    ? {
+                        rankCaption: 'Spent in the Initiative bar',
+                        pendingActivation: false,
+                        pendingLabel: '',
+                        waveReady: false,
+                        depositLocked: true,
+                    }
+                    : { depositLocked: false }),
                 ...laneSegs
             };
         };
@@ -889,7 +900,7 @@ export class StonePowersDialog extends BaseDialog {
         };
         // Separate generic and attribute-specific powers (Premium leads the row)
         const genericPowers = orderPowersRampFirst(availablePowers.filter((p) => p.attribute === 'generic'), (p) => isPremiumStonePower(p.id), (p) => !!p.oncePerCombat);
-        const attributeSpecificPowers = availablePowers.filter((p) => p.attribute !== 'generic' && p.id !== 'wits.initiativeBoost');
+        const attributeSpecificPowers = availablePowers.filter((p) => p.attribute !== 'generic');
         const generalPowers = genericPowers.map((power) => {
             const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
             const retired = isRetiredStonePower(power.id);
@@ -973,8 +984,9 @@ export class StonePowersDialog extends BaseDialog {
             const rawDefs = STONE_POWERS_BY_ATTRIBUTE[attr];
             if (!rawDefs?.length)
                 return null;
-            const matrixDefs = rawDefs.filter((def) => def.id !== 'wits.initiativeBoost');
-            const defs = orderPowersRampFirst(matrixDefs, (def) => isPremiumStonePower(def.id), (def) => !!def.oncePerCombat);
+            const defs = attr === 'wits'
+                ? orderWitsDialogColumn(rawDefs)
+                : orderPowersRampFirst(rawDefs, (def) => isPremiumStonePower(def.id), (def) => !!def.oncePerCombat);
             const preparedMap = new Map((powersByAttribute[attr] || []).map((p) => [p.id, p]));
             const cells = [];
             const cols = Math.max(ATTR_MATRIX_COLS, defs.length);
@@ -3127,6 +3139,10 @@ export class StonePowersDialog extends BaseDialog {
             ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
             return;
         }
+        if (powerId === 'wits.initiativeBoost') {
+            ui.notifications?.info('Initiative Boost is spent in the Initiative bar.');
+            return;
+        }
         const onceDef = STONE_POWERS[powerId];
         if (onceDef?.oncePerCombat && isOncePerCombatPowerUsed(this.combatant, powerId, this.actor)) {
             ui.notifications?.warn(`${onceDef.name} may be used only once per combat.`);
@@ -3649,6 +3665,10 @@ export class StonePowersDialog extends BaseDialog {
                 '';
             const isGeneric = slot.dataset.isGeneric === 'true' ||
                 slot.getAttribute('data-is-generic') === 'true';
+            if (powerId === 'wits.initiativeBoost') {
+                ui.notifications?.info('Initiative Boost is spent in the Initiative bar.');
+                return;
+            }
             if (STONE_POWERS[powerId]?.oncePerCombat &&
                 isOncePerCombatPowerUsed(this.combatant, powerId, this.actor)) {
                 ui.notifications?.warn(`${STONE_POWERS[powerId].name} may be used only once per combat.`);
@@ -3815,6 +3835,8 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             const resolved = resolvePowerCardContext(t);
             if (!resolved)
+                return;
+            if (resolved.powerId === 'wits.initiativeBoost')
                 return;
             ev.preventDefault();
             ev.stopPropagation();

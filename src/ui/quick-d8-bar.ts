@@ -10,13 +10,44 @@ const MAX_DICE = 99;
 export function quickD8Formula(
   diceRaw: unknown,
   keepRaw: unknown,
-): { dice: number; keep: number; formula: string } | null {
+): { dice: number; keep: number; formula: string; shortLabel: string } | null {
   const dice = Math.floor(Number(diceRaw));
   if (!Number.isFinite(dice) || dice < 1 || dice > MAX_DICE) return null;
   let keep = Math.floor(Number(keepRaw));
   if (!Number.isFinite(keep)) keep = 1;
   keep = Math.max(1, Math.min(MAX_MASTERY_RANK, keep, dice));
-  return { dice, keep, formula: `${dice}d8kh${keep}` };
+  return {
+    dice,
+    keep,
+    formula: `${dice}d8k${keep}`,
+    shortLabel: `${dice}k${keep}`,
+  };
+}
+
+/** One d8. An 8 is rolled again and added until the face is not 8. */
+export function explodeD8Chain(rng: () => number = Math.random): number[] {
+  const faces: number[] = [];
+  while (faces.length < 32) {
+    const face = Math.floor(rng() * 8) + 1;
+    faces.push(face);
+    if (face !== 8) break;
+  }
+  return faces;
+}
+
+export function resolveQuickD8Pool(
+  dice: number,
+  keep: number,
+  rng: () => number = Math.random,
+): { chains: number[][]; totals: number[]; keptIndices: number[]; total: number } {
+  const chains = Array.from({ length: dice }, () => explodeD8Chain(rng));
+  const totals = chains.map((faces) => faces.reduce((sum, face) => sum + face, 0));
+  const ranked = totals
+    .map((value, index) => ({ value, index }))
+    .sort((a, b) => b.value - a.value || a.index - b.index);
+  const keptIndices = ranked.slice(0, keep).map((row) => row.index).sort((a, b) => a - b);
+  const total = keptIndices.reduce((sum, index) => sum + totals[index]!, 0);
+  return { chains, totals, keptIndices, total };
 }
 
 function defaultKeep(): number {
@@ -98,16 +129,58 @@ async function rollFromBar(bar: HTMLElement): Promise<void> {
   if (diceInput) diceInput.value = rememberedDice;
   if (keepSelect) keepSelect.value = String(parsed.keep);
 
+  const pool = resolveQuickD8Pool(parsed.dice, parsed.keep);
+  const faces = pool.chains.map((chain, index) => {
+    const shown = chain.length > 1 ? `${chain.join('+')}=${pool.totals[index]}` : String(pool.totals[index]);
+    const kept = pool.keptIndices.includes(index);
+    return kept ? `<strong>${shown}</strong>` : shown;
+  }).join(', ');
+
+  const content = `
+    <div class="dice-roll ms-quick-d8-result">
+      <div class="dice-result">
+        <div class="dice-formula">${parsed.formula}</div>
+        <h4 class="dice-total">${pool.total}</h4>
+        <div class="dice-formula ms-quick-d8-short">${parsed.shortLabel}</div>
+      </div>
+      <div class="ms-quick-d8-faces">${faces}</div>
+    </div>`;
+
   const g = globalThis as any;
-  const RollCls = g.Roll;
-  if (typeof RollCls !== 'function') return;
-  const roll = new RollCls(parsed.formula);
-  await roll.evaluate();
   const speaker = g.ChatMessage?.getSpeaker?.() ?? {};
-  await roll.toMessage({
-    speaker,
-    flavor: `${parsed.dice}d8 · Keep ${parsed.keep}`,
+  const rolls = buildQuickD8DisplayRoll(g, pool);
+  if (typeof g.ChatMessage?.create === 'function') {
+    await g.ChatMessage.create({ speaker, content, rolls });
+    return;
+  }
+  if (rolls[0] && typeof rolls[0].toMessage === 'function') {
+    await rolls[0].toMessage({ speaker, flavor: parsed.formula, content });
+  }
+}
+
+function buildQuickD8DisplayRoll(g: any, pool: { chains: number[][]; keptIndices: number[] }): any[] {
+  const Die = g.foundry?.dice?.terms?.Die;
+  const OperatorTerm = g.foundry?.dice?.terms?.OperatorTerm;
+  const RollCls = g.Roll;
+  if (!Die || !OperatorTerm || typeof RollCls?.fromTerms !== 'function') return [];
+
+  const kept = new Set(pool.keptIndices);
+  const terms: any[] = [];
+  pool.chains.forEach((faces, index) => {
+    if (index > 0) terms.push(new OperatorTerm({ operator: '+' }));
+    const results = faces.map((face, faceIndex) => ({
+      result: face,
+      active: true,
+      discarded: !kept.has(index),
+      exploded: faceIndex < faces.length - 1,
+      rerolled: false,
+    }));
+    const die = new Die({ faces: 8, number: 1, results });
+    die._evaluated = true;
+    terms.push(die);
   });
+
+  return [RollCls.fromTerms(terms)];
 }
 
 function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
@@ -174,11 +247,40 @@ function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
   row.append(bar);
 }
 
+function isChatPanelOpen(): boolean {
+  const sidebar = document.querySelector('#sidebar');
+  if (!sidebar) return true;
+  if (sidebar.classList.contains('collapsed')) return false;
+  const g = globalThis as any;
+  const tab = g.ui?.sidebar?.activeTab ?? g.ui?.sidebar?.tabName;
+  if (typeof tab === 'string' && tab) return tab === 'chat';
+  const active = sidebar.querySelector('#sidebar-tabs .active[data-tab], #sidebar-tabs [data-tab].active');
+  const name = active?.getAttribute('data-tab');
+  return !name || name === 'chat';
+}
+
+/** Chat closed: hide the dice row and park Rolls as a d8 above the chat tab. */
+export function syncChatRollChrome(): void {
+  const open = isChatPanelOpen();
+  document.body.classList.toggle('ms-chat-panel-closed', !open);
+  const button = document.querySelector('.emr-chat-launch');
+  if (!button) return;
+  if (open) {
+    const controls = document.querySelector('#chat-controls');
+    if (controls instanceof HTMLElement) parkRollsButton(controls);
+    return;
+  }
+  const tabs = document.querySelector('#sidebar-tabs');
+  const chatTab = tabs?.querySelector('[data-tab="chat"]');
+  if (tabs && chatTab && button.parentElement !== tabs) chatTab.before(button);
+}
+
 function tryInject(
   elements?: Record<string, HTMLElement>,
   htmlRoot?: HTMLElement | JQuery | null,
 ): void {
   injectQuickD8Bar(resolveChatControls(elements, htmlRoot));
+  syncChatRollChrome();
 }
 
 export function initializeQuickD8Bar(): void {
@@ -196,6 +298,9 @@ export function initializeQuickD8Bar(): void {
   });
   Hooks.on('changeSidebarTab', () => {
     window.setTimeout(() => tryInject(), 0);
+  });
+  Hooks.on('collapseSidebar', () => {
+    window.setTimeout(() => syncChatRollChrome(), 0);
   });
   Hooks.once('ready', () => {
     window.setTimeout(() => tryInject(), 250);

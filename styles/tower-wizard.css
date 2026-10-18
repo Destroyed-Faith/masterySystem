@@ -440,6 +440,61 @@
   word-break: break-word;
 }
 
+.tower-wizard-passive-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.tower-wizard-app .tower-wizard-passive-tiles button.tower-wizard-passive-tile {
+  position: relative;
+  flex: 1 1 132px;
+  width: auto;
+  max-width: 200px;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 10px;
+  overflow: visible;
+}
+
+.tower-wizard-passive-tile .chip-label {
+  font-family: var(--df-font-head, 'Laviossa', serif);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+.tower-wizard-tile-tip {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  width: min(280px, 70vw);
+  padding: 10px 12px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  background: var(--df-bg-primary, #1a1f22);
+  color: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+.tower-wizard-passive-tile:hover .tower-wizard-tile-tip,
+.tower-wizard-passive-tile:focus-visible .tower-wizard-tile-tip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .tower-wizard-card-power {
   font-size: 0.78rem;
   opacity: 0.65;

@@ -6,6 +6,17 @@ export declare function quickD8Formula(diceRaw: unknown, keepRaw: unknown): {
     dice: number;
     keep: number;
     formula: string;
+    shortLabel: string;
 } | null;
+/** One d8. An 8 is rolled again and added until the face is not 8. */
+export declare function explodeD8Chain(rng?: () => number): number[];
+export declare function resolveQuickD8Pool(dice: number, keep: number, rng?: () => number): {
+    chains: number[][];
+    totals: number[];
+    keptIndices: number[];
+    total: number;
+};
+/** Chat closed: hide the dice row and park Rolls as a d8 above the chat tab. */
+export declare function syncChatRollChrome(): void;
 export declare function initializeQuickD8Bar(): void;
 //# sourceMappingURL=quick-d8-bar.d.ts.map

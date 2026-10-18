@@ -134,6 +134,11 @@ export declare function resolveOncePerCombatStoneTier(powerId: string, placedCou
     playerTier: number;
 };
 export declare const STONE_POWERS: Record<string, StonePower>;
+/** Stone Powers dialog: Premium Phasing leads. Initiative Boost is last and not a drop target. */
+export declare const WITS_DIALOG_COLUMN_ORDER: readonly ["wits.phasing", "wits.reactionDenial", "wits.movementReduction", "wits.initiativeBoost"];
+export declare function orderWitsDialogColumn<T extends {
+    id: string;
+}>(defs: readonly T[]): T[];
 export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]>;
 /**
  * Convert a usage count (0-indexed; activations this turn BEFORE this one)

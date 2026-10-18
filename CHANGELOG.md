@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.743] - 2026-10-18
+
+### Changed
+
+- **Chat:** Quick d8 rolls explode on 8 and add each extra face. The card shows `12d8k2` above the total and `12k2` under it.
+- **Chat:** Off the chat tab, the dice row hides. Rolls is a d8 above the chat icon. The Rolls button uses a d8.
+- **Stone Powers:** Wits column is Phasing, Reaction Denial, Movement Reduction, then Initiative Boost. Initiative Boost stays visible and does not take stones; those are spent in the Initiative bar.
+- **Combat Package Wizard:** On Pick one, each option is a name tile in a row. Hover a tile for the full description.
+
 ## [0.9.742] - 2026-10-18
 
 ### Changed

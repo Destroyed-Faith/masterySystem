@@ -350,7 +350,7 @@
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
-        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}{{#if boostUsed}} is-once-used{{/if}}{{#if retired}} is-retired{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if retired}}Parked — use Extra Attack. {{/if}}{{#if boostUsed}}Already used this combat. {{/if}}{{#if pendingLabel}}{{pendingLabel}} · {{/if}}Left-click: fill the next Rank block with {{attribute}} stones (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8) · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}">
+        <div class="power-card power-card-general{{#if activated}} is-activated{{/if}}{{#if pendingActivation}} is-pending{{/if}}{{#if boostUsed}} is-once-used{{/if}}{{#if retired}} is-retired{{/if}}{{#if depositLocked}} is-deposit-locked{{/if}}"{{#if activated}} data-activation-count="{{activationCount}}" style="--stone-activation-ring: {{ringPx}}px;"{{/if}} title="{{#if depositLocked}}Spent in the Initiative bar. Stones cannot be placed here.{{else}}{{#if retired}}Parked — use Extra Attack. {{/if}}{{#if boostUsed}}Already used this combat. {{/if}}{{#if pendingLabel}}{{pendingLabel}} · {{/if}}Left-click: fill the next Rank block with {{attribute}} stones (Normal 1 → 2 → 4 → 8, Premium 2 → 4 → 6 → 8) · Right-click: clear all · Drag: pull from the pool{{#if activated}} · Activated ({{activationCount}}×){{/if}}{{/if}}">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" data-acc-key="{{accKey}}">
               <div class="ms-stone-drop-slot-cluster{{#if hideLeadSegment}} is-ramp-skip{{/if}}" role="group">
@@ -362,7 +362,7 @@
                        data-pay-attribute="{{../attribute}}"
                        data-slot-index="{{ls.slotIndex}}"
                        data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}">
+                       title="{{#if ../depositLocked}}Spent in the Initiative bar{{else}}{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (provided by the artifact)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -373,7 +373,7 @@
                   {{#each paymentMid as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-pay-attribute="{{../attribute}}" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}">
+                       title="{{#if ../depositLocked}}Spent in the Initiative bar{{else}}{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (provided by the artifact)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -383,7 +383,7 @@
                   {{#each paymentQuad as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-pay-attribute="{{../attribute}}" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}">
+                       title="{{#if ../depositLocked}}Spent in the Initiative bar{{else}}{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (provided by the artifact)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}
@@ -393,7 +393,7 @@
                   {{#each paymentOct as |ls|}}
                   <div class="ms-stone-drop-slot slot-{{ls.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                        data-power-id="{{../id}}" data-pay-attribute="{{../attribute}}" data-slot-index="{{ls.slotIndex}}" data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}">
+                       title="{{#if ../depositLocked}}Spent in the Initiative bar{{else}}{{#if (eq ls.state 'active')}}Drop a matching {{../attribute}} stone{{/if}}{{#if (eq ls.state 'filled')}}Placed — drag back to the pool to free it{{/if}}{{#if (eq ls.state 'support')}}Prefilled by the artifact — do not place your own stones here{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Later{{else}}Not enough stones{{/if}}{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (provided by the artifact)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}

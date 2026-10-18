@@ -9,6 +9,7 @@ import {
   requestEpicMasteryRoll,
   showEpicMasteryRollConfigDialog,
 } from './epic-mastery-roll-config-dialog.js';
+import { syncChatRollChrome } from '../ui/quick-d8-bar.js';
 
 function resolveChatControls(
   elements?: Record<string, HTMLElement>,
@@ -59,10 +60,11 @@ function injectEpicRollButton(controlsEl: HTMLElement | null | undefined): void 
     button.type = 'button';
     button.className = 'emr-chat-launch';
     button.title = 'Rolls — group skill, attribute, or Fear Check';
-    button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
+    button.innerHTML = '<i class="fas fa-dice-d8"></i><span>Rolls</span>';
 
     button.addEventListener('click', (ev) => {
       ev.preventDefault();
+      ev.stopPropagation();
       showEpicMasteryRollConfigDialog();
     });
 
@@ -72,8 +74,13 @@ function injectEpicRollButton(controlsEl: HTMLElement | null | undefined): void 
     });
   }
 
+  const icon = button.querySelector('i');
+  icon?.classList.remove('fa-dice-d20');
+  icon?.classList.add('fas', 'fa-dice-d8');
+
   const row = ensureRollsRow(controlsEl);
   if (button.parentElement !== row) row.append(button);
+  syncChatRollChrome();
 }
 
 function tryInjectEpicRollButton(

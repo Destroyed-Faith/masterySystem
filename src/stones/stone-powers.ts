@@ -1265,6 +1265,19 @@ export const STONE_POWERS: Record<string, StonePower> = {};
   STONE_POWERS[power.id] = power;
 });
 
+/** Stone Powers dialog: Premium Phasing leads. Initiative Boost is last and not a drop target. */
+export const WITS_DIALOG_COLUMN_ORDER = [
+  'wits.phasing',
+  'wits.reactionDenial',
+  'wits.movementReduction',
+  'wits.initiativeBoost',
+] as const;
+
+export function orderWitsDialogColumn<T extends { id: string }>(defs: readonly T[]): T[] {
+  const rank = new Map<string, number>(WITS_DIALOG_COLUMN_ORDER.map((id, index) => [id, index]));
+  return [...defs].sort((a, b) => (rank.get(a.id) ?? 50) - (rank.get(b.id) ?? 50));
+}
+
 export const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]> = {
   generic: leadPremium(GENERIC_POWERS),
   might: leadPremium(MIGHT_POWERS),

@@ -1075,7 +1075,8 @@
   opacity: 0.72;
 }
 
-.stone-powers-dialog .power-card-general.is-retired {
+.stone-powers-dialog .power-card-general.is-retired,
+.stone-powers-dialog .power-card-general.is-deposit-locked {
   opacity: 0.55;
 }
 

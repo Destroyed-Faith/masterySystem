@@ -22,6 +22,7 @@ import {
   highestCompleteStoneTierFromPlaced,
   isPremiumStonePower,
   isRetiredStonePower,
+  orderWitsDialogColumn,
   partitionStoneLanesByCompleteRanks,
   resolveOncePerCombatStoneTier,
   scaleStoneTier,
@@ -248,12 +249,18 @@ describe('Stone Powers — pool layout (new spec)', () => {
       'influence.enemyEvadeReduction',
       'influence.colorlessRecovery',
     ]);
-    // Phasing is Premium and Once a Combat — Once wins and sits on the right.
+    // Registry still parks Once-a-Combat on the right. The dialog reorders Wits itself.
     expect(STONE_POWERS_BY_ATTRIBUTE.wits.map((p) => p.id)).toEqual([
       'wits.reactionDenial',
       'wits.movementReduction',
       'wits.initiativeBoost',
       'wits.phasing',
+    ]);
+    expect(orderWitsDialogColumn(STONE_POWERS_BY_ATTRIBUTE.wits).map((p) => p.id)).toEqual([
+      'wits.phasing',
+      'wits.reactionDenial',
+      'wits.movementReduction',
+      'wits.initiativeBoost',
     ]);
   });
 

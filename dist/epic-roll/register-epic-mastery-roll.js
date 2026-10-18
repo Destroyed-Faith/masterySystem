@@ -5,6 +5,7 @@ import { registerEpicMasteryRollSettings, loadEpicRollRecentPresets } from './ep
 import { registerEpicMasteryRollSocket } from './epic-mastery-roll-socket.js';
 import { getActiveEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { requestEpicMasteryRoll, showEpicMasteryRollConfigDialog, } from './epic-mastery-roll-config-dialog.js';
+import { syncChatRollChrome } from '../ui/quick-d8-bar.js';
 function resolveChatControls(elements, htmlRoot) {
     if (elements) {
         for (const key of ['#chat-controls', 'chat-controls']) {
@@ -52,9 +53,10 @@ function injectEpicRollButton(controlsEl) {
         button.type = 'button';
         button.className = 'emr-chat-launch';
         button.title = 'Rolls — group skill, attribute, or Fear Check';
-        button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
+        button.innerHTML = '<i class="fas fa-dice-d8"></i><span>Rolls</span>';
         button.addEventListener('click', (ev) => {
             ev.preventDefault();
+            ev.stopPropagation();
             showEpicMasteryRollConfigDialog();
         });
         button.addEventListener('contextmenu', (ev) => {
@@ -62,9 +64,13 @@ function injectEpicRollButton(controlsEl) {
             showEpicRollRecentMenu();
         });
     }
+    const icon = button.querySelector('i');
+    icon?.classList.remove('fa-dice-d20');
+    icon?.classList.add('fas', 'fa-dice-d8');
     const row = ensureRollsRow(controlsEl);
     if (button.parentElement !== row)
         row.append(button);
+    syncChatRollChrome();
 }
 function tryInjectEpicRollButton(elements, htmlRoot) {
     injectEpicRollButton(resolveChatControls(elements, htmlRoot));
