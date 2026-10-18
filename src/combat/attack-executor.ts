@@ -1540,7 +1540,8 @@ function setupRaisesHandler(
     const opts = raiseContext!.raiseOptions
       .filter((o) => {
         if (o.id === currentId) return true;
-        if (o.effect === 'damage' || o.effect === 'specialPlus') return !takenSpecialIds.has(o.id);
+        // Special Raises are once per attack. Damage Raises stack (+MR d8 each).
+        if (o.effect === 'specialPlus') return !takenSpecialIds.has(o.id);
         return true;
       })
       .map(
@@ -1677,6 +1678,7 @@ function setupRaisesHandler(
     return spellAllocFromParts(d8Paid, spPaid);
   };
 
+  /** Special Raises only — Damage Raises may be chosen multiple times (+MR d8 each). */
   const lockSpecialRaises = (): string | null => {
     const rows = panel.find('.raise-plan-row').toArray() as HTMLElement[];
     const owner = new Map<string, HTMLElement>();
@@ -1685,7 +1687,7 @@ function setupRaisesHandler(
       const select = $(rowEl).find('.raise-effect-select');
       const id = String(select.val() || '');
       const opt = raiseContext!.raiseOptions.find((o) => o.id === id);
-      if (!opt || (opt.effect !== 'specialPlus' && opt.effect !== 'damage')) continue;
+      if (!opt || opt.effect !== 'specialPlus') continue;
       const prev = owner.get(opt.id);
       if (prev && prev !== rowEl) {
         select.val('');

@@ -110,6 +110,26 @@ describe('raise cost — MR3 martial example (8d8 Ignite(3), 1 Raise)', () => {
     expect(snap.specials[0].rank).toBe(3);
   });
 
+  it('two Damage Raises at MR 2 stack to +4d8', () => {
+    const base = examplePower();
+    base.damageDice = 3;
+    const twoDamage: DeclaredRaise[] = [
+      { effect: 'damage', slots: 1 },
+      { effect: 'damage', slots: 1 },
+    ];
+    expect(dedupeDeclaredRaises(twoDamage)).toHaveLength(2);
+    const snap = resolvePowerSnapshot({
+      base,
+      declaredRaises: twoDamage,
+      outcome: 'full',
+      masteryRank: 2,
+      isSpell: false,
+    });
+    // 3d8 power + 2×(+MR d8) = 3 + 4 = 7d8
+    expect(snapshotToDamageFormula(snap)).toBe('7d8');
+    expect(snap.damageDice - base.damageDice).toBe(4);
+  });
+
   it('a free Raise does not pay; the next one still does', () => {
     const base = examplePower();
     const raises: DeclaredRaise[] = [
