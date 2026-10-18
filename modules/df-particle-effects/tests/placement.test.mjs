@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { evenOddContains, gridCellArea, pointInRing } from "../scripts/geometry.mjs";
-import { allocateBudget, desiredEmberCount, desiredFlameCount, planFlameSites } from "../scripts/placement.mjs";
+import { allocateBudget, desiredEmberCount, desiredFlameCount, planFlameSites, planSingleFlameSite, wantedEmberCount } from "../scripts/placement.mjs";
 import { deriveSeed, mulberry32 } from "../scripts/random.mjs";
 
 const OUTER = [0, 0, 100, 0, 100, 100, 0, 100];
@@ -78,6 +78,30 @@ test("the same seed rebuilds the same sites, and another seed does not", () => {
   assert.deepEqual(first, second);
   const other = planFlameSites({ ...options, seed: options.seed + 1 });
   assert.notDeepEqual(first, other);
+});
+
+test("a single flame sits in the middle and steps out of a center hole", () => {
+  const bounds = { x: 0, y: 0, width: 10, height: 10 };
+  const open = planSingleFlameSite({
+    bounds,
+    contains: (x, y) => x >= 0 && y >= 0 && x <= 10 && y <= 10,
+    seed: 3,
+    edgeFactor: () => 1,
+  });
+  assert.equal(open.length, 1);
+  assert.equal(open[0].x, 5);
+  assert.equal(open[0].y, 5);
+
+  const holed = planSingleFlameSite({
+    bounds,
+    contains: (x, y) => x >= 0 && y >= 0 && x <= 10 && y <= 10 && !(x > 4 && x < 6 && y > 4 && y < 6),
+    seed: 3,
+    edgeFactor: () => 1,
+  });
+  assert.equal(holed.length, 1);
+  assert.equal(holed[0].x > 4 && holed[0].x < 6 && holed[0].y > 4 && holed[0].y < 6, false);
+  assert.equal(wantedEmberCount({ arrangement: "single", emberAmount: 0 }, 1), 0);
+  assert.ok(wantedEmberCount({ arrangement: "single", emberAmount: 100 }, 1) > 1);
 });
 
 test("derived seeds are stable and mulberry32 stays in range", () => {

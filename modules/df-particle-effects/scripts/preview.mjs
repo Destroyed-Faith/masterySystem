@@ -52,6 +52,7 @@ export function readDraft(form) {
     system: {
       enabled: checked(form, "system.enabled", true),
       effectType: text(form, "system.effectType") || EFFECT_NATURAL_FIRE,
+      arrangement: text(form, "system.arrangement") || "field",
       density: numberValue(form, "system.density", 40),
       flameScale: numberValue(form, "system.flameScale", 1),
       flameSpeed: numberValue(form, "system.flameSpeed", 1),

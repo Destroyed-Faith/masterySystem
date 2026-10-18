@@ -8,6 +8,8 @@ export const BEHAVIOR_TYPE = `${MODULE_ID}.particleEffects`;
 export const SYSTEM_BEHAVIOR_TYPE = "particleEffects";
 
 export const EFFECT_NATURAL_FIRE = "naturalFire";
+export const ARRANGEMENT_FIELD = "field";
+export const ARRANGEMENT_SINGLE = "single";
 
 export const TYPE_LABEL_KEY = "TYPES.RegionBehavior.df-particle-effects.particleEffects";
 export const SYSTEM_TYPE_LABEL_KEY = "TYPES.RegionBehavior.particleEffects";

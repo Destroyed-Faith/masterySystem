@@ -583,6 +583,10 @@
     "EFFECTS": {
       "naturalFire": "Natural Fire"
     },
+    "ARRANGEMENT": {
+      "field": "Field",
+      "single": "Single flame"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Enabled",
@@ -592,9 +596,13 @@
         "label": "Effect Type",
         "hint": "Natural Fire is the only effect in this version. Later effects can be added here without a new behavior type."
       },
+      "arrangement": {
+        "label": "Arrangement",
+        "hint": "Single flame stacks the sprites into one fire at the center of the region. Field scatters many flames. Density only affects Field."
+      },
       "density": {
         "label": "Density",
-        "hint": "How many flame sites to place for this region's area, counted in grid cells. 0 hides the flames. This does not follow the browser window size."
+        "hint": "How many flame sites to place for this region's area, counted in grid cells. 0 hides a field of flames. Single flame ignores density."
       },
       "flameScale": {
         "label": "Flame Scale",

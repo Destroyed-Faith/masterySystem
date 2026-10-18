@@ -1,4 +1,4 @@
-import { FLAMES_PER_CELL_AT_FULL_DENSITY } from "./constants.mjs";
+import { ARRANGEMENT_SINGLE, FLAMES_PER_CELL_AT_FULL_DENSITY } from "./constants.mjs";
 import { clamp } from "./geometry.mjs";
 import { mulberry32 } from "./random.mjs";
 
@@ -12,6 +12,53 @@ export function desiredFlameCount(area, cellArea, density) {
 export function desiredEmberCount(flameCount, emberAmount) {
   if (!(flameCount > 0) || !(emberAmount > 0)) return 0;
   return Math.max(1, Math.round(flameCount * (clamp(emberAmount, 0, 100) / 100) * 1.75));
+}
+
+export function wantedFlameCount(config, area, cellArea) {
+  if (config?.arrangement === ARRANGEMENT_SINGLE) return 1;
+  return desiredFlameCount(area, cellArea, config?.density ?? 0);
+}
+
+export function wantedEmberCount(config, flameCount) {
+  const amount = clamp(config?.emberAmount ?? 0, 0, 100);
+  if (!(amount > 0)) return 0;
+  if (config?.arrangement === ARRANGEMENT_SINGLE) return Math.max(1, Math.round((amount / 100) * 12));
+  return desiredEmberCount(flameCount, amount);
+}
+
+/**
+ * One base point inside the region, nearest the center. A hole at the center is skipped.
+ */
+export function planSingleFlameSite(options) {
+  const bounds = options.bounds;
+  const contains = options.contains;
+  if (!bounds || !(bounds.width > 0) || !(bounds.height > 0) || typeof contains !== "function") return [];
+  const center = { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 };
+  const found = contains(center.x, center.y) ? center : searchInterior(bounds, contains, options.seed);
+  if (!found) return [];
+  const edgeFactor = typeof options.edgeFactor === "function" ? options.edgeFactor : () => 1;
+  return [{
+    x: found.x,
+    y: found.y,
+    edge: clamp(Number(edgeFactor(found.x, found.y)) || 0, 0, 1),
+  }];
+}
+
+function searchInterior(bounds, contains, seed) {
+  const rng = mulberry32((seed ?? 1) >>> 0);
+  const cx = bounds.x + bounds.width / 2;
+  const cy = bounds.y + bounds.height / 2;
+  for (let ring = 1; ring <= 8; ring += 1) {
+    const rx = (bounds.width / 2) * (ring / 8);
+    const ry = (bounds.height / 2) * (ring / 8);
+    for (let step = 0; step < 24; step += 1) {
+      const angle = (step / 24) * Math.PI * 2 + rng() * 0.04;
+      const x = cx + Math.cos(angle) * rx;
+      const y = cy + Math.sin(angle) * ry;
+      if (contains(x, y)) return { x, y };
+    }
+  }
+  return null;
 }
 
 /**

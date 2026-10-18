@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.739] - 2026-10-18
+
+### Added
+
+- **Regions:** DF: Particle Effects can be one stacked flame in the middle of the region. Arrangement **Single flame**. **Field** still scatters many flames.
+
 ## [0.9.738] - 2026-10-18
 
 ### Changed

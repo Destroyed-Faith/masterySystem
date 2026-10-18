@@ -1,4 +1,4 @@
-import { EFFECT_NATURAL_FIRE, FLAME_HEIGHT_IN_CELLS, LOG_PREFIX } from "./constants.mjs";
+import { EFFECT_NATURAL_FIRE, FLAME_HEIGHT_IN_CELLS, LOG_PREFIX, ARRANGEMENT_SINGLE } from "./constants.mjs";
 import { clamp } from "./geometry.mjs";
 import { deriveSeed, mulberry32 } from "./random.mjs";
 
@@ -90,6 +90,10 @@ export class NaturalFireEffect {
   }
 
   #buildFlames(PIXI, assets, sites, rng) {
+    if (this.config.arrangement === ARRANGEMENT_SINGLE && sites[0]) {
+      this.#buildSingleFlame(PIXI, assets, sites[0], rng);
+      return;
+    }
     const scale = clamp(Number(this.config.flameScale) || 1, 0.25, 2);
     sites.forEach((site, index) => {
       const siteRng = mulberry32(deriveSeed([this.config.effectType, index, rng()]));
@@ -106,6 +110,33 @@ export class NaturalFireEffect {
         this.#addFlameLayer(PIXI, assets, site, "small", 0.5, offset, scale * 0.7, siteRng, 2);
       }
     });
+  }
+
+  /**
+   * One fireplace flame. The stills share one base and flicker on their own.
+   * They are not animation frames.
+   */
+  #buildSingleFlame(PIXI, assets, site, rng) {
+    const scale = clamp(Number(this.config.flameScale) || 1, 0.25, 2);
+    const stack = [
+      { group: "large", alpha: 0.72, offset: -0.05, scale: 1.08, depth: 0 },
+      { group: "large", alpha: 1, offset: 0.045, scale: 0.92, depth: 1 },
+      { group: "medium", alpha: 0.88, offset: 0, scale: 0.7, depth: 2 },
+      { group: "small", alpha: 0.75, offset: 0.02, scale: 0.48, depth: 3 },
+    ];
+    for (const layer of stack) {
+      this.#addFlameLayer(
+        PIXI,
+        assets,
+        site,
+        layer.group,
+        layer.alpha,
+        layer.offset * this.gridSize * scale,
+        scale * layer.scale,
+        rng,
+        layer.depth,
+      );
+    }
   }
 
   #addFlameLayer(PIXI, assets, site, group, alphaBase, offsetX, scale, rng, depth) {

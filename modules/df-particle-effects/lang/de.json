@@ -11,6 +11,10 @@
     "EFFECTS": {
       "naturalFire": "Natürliches Feuer"
     },
+    "ARRANGEMENT": {
+      "field": "Feld",
+      "single": "Eine Flamme"
+    },
     "FIELDS": {
       "enabled": {
         "label": "Aktiv",
@@ -20,9 +24,13 @@
         "label": "Effekttyp",
         "hint": "In dieser Version gibt es nur natürliches Feuer. Weitere Typen können später hier ergänzt werden, ohne einen neuen Behavior-Typ anzulegen."
       },
+      "arrangement": {
+        "label": "Anordnung",
+        "hint": "Eine Flamme stapelt die Bilder zu einem Feuer in der Mitte der Region. Feld verteilt viele Flammen. Die Dichte gilt nur für Feld."
+      },
       "density": {
         "label": "Dichte",
-        "hint": "Anzahl der Feuerstellen relativ zur Regionsfläche, gezählt in Rasterzellen. 0 blendet die Flammen aus. Die Dichte hängt nicht von der Fenstergröße ab."
+        "hint": "Anzahl der Feuerstellen relativ zur Regionsfläche, gezählt in Rasterzellen. 0 blendet ein Feld aus. Eine Flamme ignoriert die Dichte."
       },
       "flameScale": {
         "label": "Flammengröße",

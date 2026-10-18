@@ -1,5 +1,7 @@
 import { loadFireAssets } from "./assets.mjs";
 import {
+  ARRANGEMENT_FIELD,
+  ARRANGEMENT_SINGLE,
   behaviorTypeId,
   EFFECT_NATURAL_FIRE,
   LOG_PREFIX,
@@ -10,7 +12,13 @@ import {
 } from "./constants.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
 import { NaturalFireEffect } from "./fire-effect.mjs";
-import { allocateBudget, desiredEmberCount, desiredFlameCount, planFlameSites } from "./placement.mjs";
+import {
+  allocateBudget,
+  planFlameSites,
+  planSingleFlameSite,
+  wantedEmberCount,
+  wantedFlameCount,
+} from "./placement.mjs";
 import { deriveSeed } from "./random.mjs";
 
 export class ParticleRenderer {
@@ -103,13 +111,13 @@ export class ParticleRenderer {
     const active = collectActiveBehaviors(scene, this.#preview);
     const flameBudget = allocateBudget(
       active.map((entry) =>
-        Math.min(limits.perRegionFlames, desiredFlameCount(entry.area, grid.cellArea, entry.config.density)),
+        Math.min(limits.perRegionFlames, wantedFlameCount(entry.config, entry.area, grid.cellArea)),
       ),
       limits.sceneFlames,
     );
     const emberBudget = allocateBudget(
       active.map((entry, index) =>
-        Math.min(limits.perRegionEmbers, desiredEmberCount(flameBudget[index], entry.config.emberAmount)),
+        Math.min(limits.perRegionEmbers, wantedEmberCount(entry.config, flameBudget[index])),
       ),
       limits.sceneEmbers,
     );
@@ -251,6 +259,7 @@ export function fireLayoutSignature(config) {
   return [
     config.enabled ? 1 : 0,
     config.effectType,
+    config.arrangement,
     config.density,
     config.flameScale,
     config.emberAmount,
@@ -265,16 +274,21 @@ function behaviorKey(behavior, region = behavior?.parent) {
 
 function createEffect(entry, assets, grid, maxFlames, maxEmbers) {
   const fadeRadius = (clampNumber(entry.config.edgeFade, 0, 100) / 100) * grid.size * entry.config.flameScale;
-  const sites = planFlameSites({
+  const siteOptions = {
     bounds: entry.bounds,
-    area: entry.area,
-    cellArea: grid.cellArea,
-    density: entry.config.density,
-    seed: entry.seed,
-    maxFlames,
     contains: (x, y) => entry.tree.testPoint({ x, y }),
+    seed: entry.seed,
     edgeFactor: (x, y) => edgeFactor(entry.tree, x, y, fadeRadius),
-  });
+  };
+  const sites = entry.config.arrangement === ARRANGEMENT_SINGLE
+    ? planSingleFlameSite(siteOptions)
+    : planFlameSites({
+      ...siteOptions,
+      area: entry.area,
+      cellArea: grid.cellArea,
+      density: entry.config.density,
+      maxFlames,
+    });
   if (!sites.length) return null;
 
   const mask = buildRegionMask(entry.tree);
@@ -286,7 +300,7 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers) {
   return new NaturalFireEffect({
     assets,
     sites,
-    emberCount: Math.min(maxEmbers, desiredEmberCount(sites.length, entry.config.emberAmount)),
+    emberCount: Math.min(maxEmbers, wantedEmberCount(entry.config, sites.length)),
     config: entry.config,
     gridSize: grid.size,
     seed: entry.seed,
@@ -446,6 +460,7 @@ function readConfig(behavior) {
   return {
     enabled: system.enabled !== false && behavior.disabled !== true,
     effectType: system.effectType || EFFECT_NATURAL_FIRE,
+    arrangement: system.arrangement === ARRANGEMENT_SINGLE ? ARRANGEMENT_SINGLE : ARRANGEMENT_FIELD,
     density: clampNumber(system.density ?? 40, 0, 100),
     flameScale: clampNumber(system.flameScale ?? 1, 0.25, 2),
     flameSpeed: clampNumber(system.flameSpeed ?? 1, 0.1, 3),
