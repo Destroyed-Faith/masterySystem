@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.745] - 2026-10-18
+
+### Changed
+
+- **Chat:** The dice row no longer leaves a second copy beside the chat.
+
 ## [0.9.744] - 2026-10-18
 
 ### Changed

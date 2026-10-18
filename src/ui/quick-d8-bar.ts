@@ -61,27 +61,39 @@ function defaultKeep(): number {
 let rememberedDice = '';
 let rememberedKeep: number | null = null;
 
-function resolveChatControls(
-  elements?: Record<string, HTMLElement>,
-  htmlRoot?: HTMLElement | JQuery | null,
-): HTMLElement | null {
-  if (elements) {
-    for (const key of ['#chat-controls', 'chat-controls']) {
-      const el = elements[key];
-      if (el instanceof HTMLElement) return el;
+/** The chat controls actually on screen. Foundry sometimes leaves an older copy in the DOM. */
+export function canonicalChatControls(): HTMLElement | null {
+  const nodes = Array.from(document.querySelectorAll('#chat-controls')).filter(
+    (el): el is HTMLElement => el instanceof HTMLElement,
+  );
+  if (!nodes.length) return null;
+  let best = nodes[0]!;
+  let bestRight = -Infinity;
+  for (const el of nodes) {
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 4 || rect.height < 4) continue;
+    if (rect.right >= bestRight) {
+      best = el;
+      bestRight = rect.right;
     }
-    for (const el of Object.values(elements)) {
-      if (el instanceof HTMLElement && el.id === 'chat-controls') return el;
-    }
   }
-  if (htmlRoot instanceof HTMLElement) {
-    return htmlRoot.querySelector('#chat-controls');
+  return best;
+}
+
+function pruneStrayRollChrome(controls: HTMLElement): void {
+  const parent = controls.parentElement;
+  document.querySelectorAll('.ms-chat-roll-row, .ms-chat-rolls-row').forEach((row) => {
+    if (!(row instanceof HTMLElement)) return;
+    if (parent && row.parentElement === parent) return;
+    row.remove();
+  });
+  if (!parent) return;
+  for (const className of ['.ms-chat-roll-row', '.ms-chat-rolls-row']) {
+    const rows = Array.from(parent.querySelectorAll(`:scope > ${className}`));
+    for (const extra of rows.slice(1)) extra.remove();
   }
-  if (htmlRoot && typeof (htmlRoot as JQuery).find === 'function') {
-    const found = (htmlRoot as JQuery).find('#chat-controls');
-    if (found.length) return found[0] ?? null;
-  }
-  return document.querySelector('#chat-controls');
+  const bars = Array.from(parent.querySelectorAll('.ms-quick-d8'));
+  for (const extra of bars.slice(1)) extra.remove();
 }
 
 /** GM Rolls button sits on its own line, above the quick d8 row. */
@@ -182,9 +194,11 @@ function buildQuickD8DisplayRoll(g: any, pool: { chains: number[][]; keptIndices
 }
 
 function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
-  if (!controls) return;
-  parkRollsButton(controls);
-  const row = ensureD8Row(controls);
+  const live = canonicalChatControls() ?? controls ?? null;
+  if (!live) return;
+  pruneStrayRollChrome(live);
+  parkRollsButton(live);
+  const row = ensureD8Row(live);
   if (row.querySelector('.ms-quick-d8')) return;
 
   const bar = document.createElement('div');
@@ -286,12 +300,13 @@ function clearCompactRolls(button: HTMLElement): void {
 export function syncChatRollChrome(): void {
   const open = isChatPanelOpen();
   document.body.classList.toggle('ms-chat-panel-closed', !open);
+  const controlsNow = canonicalChatControls();
+  if (controlsNow) pruneStrayRollChrome(controlsNow);
   const button = document.querySelector('.emr-chat-launch');
   if (!(button instanceof HTMLElement)) return;
   if (open) {
     clearCompactRolls(button);
-    const controls = document.querySelector('#chat-controls');
-    if (controls instanceof HTMLElement) parkRollsButton(controls);
+    if (controlsNow) parkRollsButton(controlsNow);
     return;
   }
 
@@ -317,7 +332,9 @@ function tryInject(
   elements?: Record<string, HTMLElement>,
   htmlRoot?: HTMLElement | JQuery | null,
 ): void {
-  injectQuickD8Bar(resolveChatControls(elements, htmlRoot));
+  injectQuickD8Bar(canonicalChatControls());
+  void elements;
+  void htmlRoot;
   syncChatRollChrome();
 }
 

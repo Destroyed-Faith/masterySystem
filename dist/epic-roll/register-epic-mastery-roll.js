@@ -5,8 +5,11 @@ import { registerEpicMasteryRollSettings, loadEpicRollRecentPresets } from './ep
 import { registerEpicMasteryRollSocket } from './epic-mastery-roll-socket.js';
 import { getActiveEpicMasteryRollSession } from './epic-mastery-roll-session.js';
 import { requestEpicMasteryRoll, showEpicMasteryRollConfigDialog, } from './epic-mastery-roll-config-dialog.js';
-import { syncChatRollChrome } from '../ui/quick-d8-bar.js';
+import { canonicalChatControls, syncChatRollChrome } from '../ui/quick-d8-bar.js';
 function resolveChatControls(elements, htmlRoot) {
+    const live = canonicalChatControls();
+    if (live)
+        return live;
     if (elements) {
         for (const key of ['#chat-controls', 'chat-controls']) {
             const el = elements[key];
