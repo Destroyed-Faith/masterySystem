@@ -304,6 +304,11 @@
   initial-value: 0deg;
 }
 
+.stone-powers-dialog .initiative-boost-bar .initiative-exchange-row,
+.stone-powers-dialog .initiative-boost-bar .initiative-exchange-actions {
+  flex-wrap: wrap;
+}
+
 .stone-powers-dialog .initiative-boost-ranks {
   display: flex;
   flex-wrap: wrap;

@@ -27,25 +27,44 @@ function resolveChatControls(elements, htmlRoot) {
     }
     return document.querySelector('#chat-controls');
 }
+function ensureRollsRow(controlsEl) {
+    const parent = controlsEl.parentElement;
+    if (!parent)
+        return controlsEl;
+    let row = parent.querySelector(':scope > .ms-chat-rolls-row');
+    if (!row) {
+        row = document.createElement('div');
+        row.className = 'ms-chat-rolls-row';
+        const d8 = parent.querySelector(':scope > .ms-chat-roll-row');
+        if (d8)
+            d8.before(row);
+        else
+            controlsEl.before(row);
+    }
+    return row;
+}
 function injectEpicRollButton(controlsEl) {
     if (!game.user?.isGM || !controlsEl)
         return;
-    if (controlsEl.querySelector('.emr-chat-launch'))
-        return;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'emr-chat-launch';
-    button.title = 'Rolls — group skill, attribute, or Fear Check';
-    button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
-    button.addEventListener('click', (ev) => {
-        ev.preventDefault();
-        showEpicMasteryRollConfigDialog();
-    });
-    button.addEventListener('contextmenu', (ev) => {
-        ev.preventDefault();
-        showEpicRollRecentMenu();
-    });
-    controlsEl.prepend(button);
+    let button = document.querySelector('.emr-chat-launch');
+    if (!button) {
+        button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'emr-chat-launch';
+        button.title = 'Rolls — group skill, attribute, or Fear Check';
+        button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
+        button.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            showEpicMasteryRollConfigDialog();
+        });
+        button.addEventListener('contextmenu', (ev) => {
+            ev.preventDefault();
+            showEpicRollRecentMenu();
+        });
+    }
+    const row = ensureRollsRow(controlsEl);
+    if (button.parentElement !== row)
+        row.append(button);
 }
 function tryInjectEpicRollButton(elements, htmlRoot) {
     injectEpicRollButton(resolveChatControls(elements, htmlRoot));

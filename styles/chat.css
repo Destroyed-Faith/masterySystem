@@ -11,26 +11,64 @@ prose-mirror#chat-message.chat-input > .menu-container {
   display: none !important;
 }
 
+#chat-form,
+#chat .chat-form {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+}
+
+#chat-form #chat-message.chat-input,
+#chat-message.chat-input,
+prose-mirror#chat-message.chat-input {
+  min-height: 0;
+  height: auto;
+}
+
 #chat-form #chat-message.chat-input > .editor-container,
 #chat-message.chat-input > .editor-container,
 prose-mirror#chat-message.chat-input > .editor-container {
-  min-height: 2.5rem;
+  min-height: 0;
+  height: auto;
 }
 
 #chat-form #chat-message.chat-input .editor-content.ProseMirror,
 #chat-message.chat-input .editor-content.ProseMirror {
-  min-height: 2.25rem;
-  padding: 0.35rem 0.5rem;
+  min-height: 1.6rem;
+  max-height: 3.2rem;
+  padding: 0.2rem 0.45rem;
+  overflow-y: auto;
 }
 
-/* Quick d8 bar — dice count, Keep (Mastery Rank), Roll. Sits above the composer. */
+/* Rolls on its own line; quick d8 on the next line, above Foundry's buttons. */
+.ms-chat-rolls-row {
+  width: 100%;
+  margin: 0 0 4px;
+  box-sizing: border-box;
+}
+
+.ms-chat-rolls-row .emr-chat-launch {
+  width: 100%;
+  margin: 0;
+}
+
+.ms-chat-roll-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: 0 0 4px;
+  box-sizing: border-box;
+}
+
 .ms-quick-d8 {
   display: flex;
   align-items: center;
   gap: 4px;
-  flex: 0 0 100%;
-  width: 100%;
-  margin: 0 0 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -52,6 +90,7 @@ prose-mirror#chat-message.chat-input > .editor-container {
   text-align: center;
 }
 
+.ms-quick-d8-die,
 .ms-quick-d8-keep-label {
   flex: 0 0 auto;
   font-size: 11px;
@@ -65,13 +104,11 @@ prose-mirror#chat-message.chat-input > .editor-container {
 }
 
 .ms-quick-d8-roll {
-  margin-left: auto;
-  padding: 0 10px;
+  width: 28px;
+  padding: 0;
   cursor: pointer;
   color: var(--ms-accent, #c9a227);
-  font-family: var(--ms-font-head, inherit);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: 14px;
 }
 
 .ms-quick-d8-roll:hover {

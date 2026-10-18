@@ -36,27 +36,44 @@ function resolveChatControls(
   return document.querySelector('#chat-controls');
 }
 
+function ensureRollsRow(controlsEl: HTMLElement): HTMLElement {
+  const parent = controlsEl.parentElement;
+  if (!parent) return controlsEl;
+  let row = parent.querySelector(':scope > .ms-chat-rolls-row') as HTMLElement | null;
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'ms-chat-rolls-row';
+    const d8 = parent.querySelector(':scope > .ms-chat-roll-row');
+    if (d8) d8.before(row);
+    else controlsEl.before(row);
+  }
+  return row;
+}
+
 function injectEpicRollButton(controlsEl: HTMLElement | null | undefined): void {
   if (!game.user?.isGM || !controlsEl) return;
-  if (controlsEl.querySelector('.emr-chat-launch')) return;
 
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'emr-chat-launch';
-  button.title = 'Rolls — group skill, attribute, or Fear Check';
-  button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
+  let button = document.querySelector('.emr-chat-launch') as HTMLButtonElement | null;
+  if (!button) {
+    button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'emr-chat-launch';
+    button.title = 'Rolls — group skill, attribute, or Fear Check';
+    button.innerHTML = '<i class="fas fa-dice-d20"></i><span>Rolls</span>';
 
-  button.addEventListener('click', (ev) => {
-    ev.preventDefault();
-    showEpicMasteryRollConfigDialog();
-  });
+    button.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      showEpicMasteryRollConfigDialog();
+    });
 
-  button.addEventListener('contextmenu', (ev) => {
-    ev.preventDefault();
-    showEpicRollRecentMenu();
-  });
+    button.addEventListener('contextmenu', (ev) => {
+      ev.preventDefault();
+      showEpicRollRecentMenu();
+    });
+  }
 
-  controlsEl.prepend(button);
+  const row = ensureRollsRow(controlsEl);
+  if (button.parentElement !== row) row.append(button);
 }
 
 function tryInjectEpicRollButton(

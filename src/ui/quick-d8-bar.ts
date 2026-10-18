@@ -30,24 +30,58 @@ function defaultKeep(): number {
 let rememberedDice = '';
 let rememberedKeep: number | null = null;
 
-function resolveChatForm(
+function resolveChatControls(
   elements?: Record<string, HTMLElement>,
   htmlRoot?: HTMLElement | JQuery | null,
 ): HTMLElement | null {
   if (elements) {
-    for (const key of ['#chat-form', 'chat-form']) {
+    for (const key of ['#chat-controls', 'chat-controls']) {
       const el = elements[key];
       if (el instanceof HTMLElement) return el;
     }
+    for (const el of Object.values(elements)) {
+      if (el instanceof HTMLElement && el.id === 'chat-controls') return el;
+    }
   }
   if (htmlRoot instanceof HTMLElement) {
-    return htmlRoot.querySelector('#chat-form') ?? (htmlRoot.id === 'chat-form' ? htmlRoot : null);
+    return htmlRoot.querySelector('#chat-controls');
   }
   if (htmlRoot && typeof (htmlRoot as JQuery).find === 'function') {
-    const found = (htmlRoot as JQuery).find('#chat-form');
+    const found = (htmlRoot as JQuery).find('#chat-controls');
     if (found.length) return found[0] ?? null;
   }
-  return document.querySelector('#chat-form');
+  return document.querySelector('#chat-controls');
+}
+
+/** GM Rolls button sits on its own line, above the quick d8 row. */
+function parkRollsButton(controls: HTMLElement): void {
+  const rolls = document.querySelector('.emr-chat-launch');
+  if (!rolls) return;
+  const parent = controls.parentElement;
+  if (!parent) return;
+  let row = parent.querySelector(':scope > .ms-chat-rolls-row') as HTMLElement | null;
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'ms-chat-rolls-row';
+    const d8 = parent.querySelector(':scope > .ms-chat-roll-row');
+    if (d8) d8.before(row);
+    else controls.before(row);
+  }
+  if (rolls.parentElement !== row) row.append(rolls);
+}
+
+/** Quick d8 fields, one line above Foundry's chat buttons. */
+function ensureD8Row(controls: HTMLElement): HTMLElement {
+  const parent = controls.parentElement;
+  let row = parent?.querySelector(':scope > .ms-chat-roll-row') as HTMLElement | null;
+  if (!row) {
+    row = document.createElement('div');
+    row.className = 'ms-chat-roll-row';
+    controls.before(row);
+  }
+  const rollsRow = parent?.querySelector(':scope > .ms-chat-rolls-row');
+  if (rollsRow && row.previousElementSibling !== rollsRow) rollsRow.after(row);
+  return row;
 }
 
 async function rollFromBar(bar: HTMLElement): Promise<void> {
@@ -76,8 +110,11 @@ async function rollFromBar(bar: HTMLElement): Promise<void> {
   });
 }
 
-function injectQuickD8Bar(form: HTMLElement | null | undefined): void {
-  if (!form || form.querySelector('.ms-quick-d8')) return;
+function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
+  if (!controls) return;
+  parkRollsButton(controls);
+  const row = ensureD8Row(controls);
+  if (row.querySelector('.ms-quick-d8')) return;
 
   const bar = document.createElement('div');
   bar.className = 'ms-quick-d8';
@@ -89,10 +126,14 @@ function injectQuickD8Bar(form: HTMLElement | null | undefined): void {
   dice.max = String(MAX_DICE);
   dice.step = '1';
   dice.inputMode = 'numeric';
-  dice.placeholder = 'd8';
+  dice.placeholder = '2';
   dice.title = 'Anzahl d8 (1–99)';
   dice.setAttribute('aria-label', 'Anzahl d8');
   if (rememberedDice) dice.value = rememberedDice;
+
+  const dieWord = document.createElement('span');
+  dieWord.className = 'ms-quick-d8-die';
+  dieWord.textContent = 'd8';
 
   const keepLabel = document.createElement('span');
   keepLabel.className = 'ms-quick-d8-keep-label';
@@ -114,8 +155,9 @@ function injectQuickD8Bar(form: HTMLElement | null | undefined): void {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'ms-quick-d8-roll';
-  button.textContent = 'Roll';
+  button.innerHTML = '<i class="fas fa-dice-d8" aria-hidden="true"></i>';
   button.title = 'Nd8 behalten nach Mastery Rank';
+  button.setAttribute('aria-label', 'Würfeln');
 
   const submit = (ev: Event) => {
     ev.preventDefault();
@@ -128,15 +170,15 @@ function injectQuickD8Bar(form: HTMLElement | null | undefined): void {
     submit(ev);
   });
 
-  bar.append(dice, keepLabel, keep, button);
-  form.prepend(bar);
+  bar.append(dice, dieWord, keepLabel, keep, button);
+  row.append(bar);
 }
 
 function tryInject(
   elements?: Record<string, HTMLElement>,
   htmlRoot?: HTMLElement | JQuery | null,
 ): void {
-  injectQuickD8Bar(resolveChatForm(elements, htmlRoot));
+  injectQuickD8Bar(resolveChatControls(elements, htmlRoot));
 }
 
 export function initializeQuickD8Bar(): void {

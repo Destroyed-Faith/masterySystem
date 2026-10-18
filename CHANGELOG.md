@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.742] - 2026-10-18
+
+### Changed
+
+- **Chat:** Rolls sits on its own line above the quick d8 row. The message box is shorter so both fit above Foundry's chat buttons.
+- **Stone Powers:** Initiative Boost buttons in the top bar name the Wits Stones spent and the Initiative gained. Only tiers you can pay are shown.
+
 ## [0.9.741] - 2026-10-18
 
 ### Added

@@ -1787,17 +1787,23 @@ export class StonePowersDialog extends BaseDialog {
         const prefill = effectiveStoneSupportPrefillTier('wits.initiativeBoost', getArtifactStoneSupportPrefill(this.actor, 'wits.initiativeBoost', 'wits'));
         const wits = poolSpendableStones(this.actor, 'wits');
         const mr = getMasteryRank(getActionEconomyActor(this.actor) ?? this.actor);
-        const ranks = [1, 2, 3, 4].map((tier) => {
+        const ranks = [1, 2, 3, 4]
+            .map((tier) => {
             const cost = initiativeBoostRankCost(tier, prefill) ?? 0;
             const bonus = initiativeBoostAmount(tier, mr);
             return {
                 tier,
                 cost,
                 bonus,
-                label: `Rank ${tier} · ${cost} Wits · +${bonus} Initiative`,
+                // Cost is the Wits Stones this click spends. Bonus is Initiative gained.
+                label: cost === 0
+                    ? `Artifact already paid this rank · +${bonus} Initiative`
+                    : `Spend ${cost} Wits Stone${cost === 1 ? '' : 's'} · +${bonus} Initiative`,
+                button: cost === 0 ? `Support → +${bonus}` : `${cost} Wits → +${bonus}`,
                 affordable: !locked && wits >= cost,
             };
-        });
+        })
+            .filter((row) => row.affordable);
         const exchangeMode = step === 'roll' ? 'roll' : step === 'exchange' ? 'buy' : state.exchange === 'done' ? 'receipt' : 'hidden';
         const exchangeReceipt = state.exchangeStones > 0
             ? `${state.exchangeStones} Initiative Colorless Stone(s) are Ready and can be spent in this Round.`

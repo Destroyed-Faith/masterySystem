@@ -49,16 +49,15 @@
     <div class="initiative-exchange-row">
       <div class="initiative-exchange-copy">
         <strong>Initiative Boost</strong>
-        <span class="initiative-exchange-note">Optional · once per combat · Wits only · before Exchange</span>
+        <span class="initiative-exchange-note">Spend Wits Stones:</span>
       </div>
       <div class="initiative-exchange-actions">
         {{#each preparation.ranks}}
         <button type="button"
                 class="dialog-btn initiative-inline-btn js-initiative-boost"
                 data-tier="{{this.tier}}"
-                {{#unless this.affordable}}disabled{{/unless}}
                 title="{{this.label}}">
-          R{{this.tier}} (+{{this.bonus}})
+          {{this.button}}
         </button>
         {{/each}}
         <button type="button" class="dialog-btn initiative-inline-btn js-skip-initiative-boost" {{#if preparation.boostLocked}}disabled{{/if}}>
