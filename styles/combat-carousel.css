@@ -287,6 +287,15 @@
    Portrait Card
    ======================================== */
 
+.carousel-card-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
 .carousel-combatant {
   display: flex;
   flex-direction: column;
@@ -301,6 +310,18 @@
   box-sizing: border-box;
   position: relative;
   z-index: 1;
+}
+
+.carousel-combatant.has-side-hp {
+  width: 176px;
+  max-width: 176px;
+}
+
+.carousel-card-row .carousel-portrait {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  max-width: none;
 }
 
 .carousel-portrait {
@@ -1089,6 +1110,56 @@
   text-decoration-color: rgba(255, 183, 77, 0.95);
 }
 
+/* GM-only vertical Health rail beside player characters. Bar 0 sits at the top. */
+.ms-hp-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  width: 22px;
+  flex: 0 0 22px;
+  min-height: 0;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.ms-hp-rail .ms-hp-temp,
+.ms-hp-rail .ms-hp-scarred-count {
+  margin: 0;
+  padding: 0 1px;
+  text-align: center;
+  font-size: 0.55rem;
+  line-height: 1.2;
+}
+
+.ms-hp-rail-track {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: 2px;
+  min-height: 64px;
+  padding: 2px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+}
+
+.ms-hp-rail .ms-hp-segment {
+  flex: 1 1 0;
+  width: 100%;
+  height: auto;
+  min-height: 8px;
+}
+
+.ms-hp-rail .ms-hp-segment-fill {
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-height: 100%;
+}
+
 /* ========================================
    Carousel Controls (Left/Right)
    ======================================== */
@@ -1238,6 +1309,7 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
 
 .mastery-carousel.is-compact .portrait-image,
 .mastery-carousel.is-compact .ms-hp-bar-track,
+.mastery-carousel.is-compact .ms-hp-rail,
 .mastery-carousel.is-compact .ms-hp-scar-legend,
 .mastery-carousel.is-compact .ms-carousel-combat-strip,
 .mastery-carousel.is-compact .ms-carousel-reactions,
@@ -1426,7 +1498,13 @@ body.mastery-carousel-resizing #mastery-combat-carousel * {
   width: 120px;
 }
 
+.mastery-carousel.is-user-medium .carousel-combatant.has-side-hp {
+  width: 148px;
+  max-width: 148px;
+}
+
 .mastery-carousel.is-user-rail .portrait-image,
+.mastery-carousel.is-user-rail .ms-hp-rail,
 .mastery-carousel.is-user-rail .ms-hp-bar-track,
 .mastery-carousel.is-user-rail .ms-hp-scar-legend,
 .mastery-carousel.is-user-rail .ms-carousel-combat-strip,

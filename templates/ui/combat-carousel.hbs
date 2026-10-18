@@ -56,7 +56,8 @@
     <!-- Combatants Row -->
     <div class="carousel-combatants">
       {{#each combatants as |combatant|}}
-        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}}" data-combatant-id="{{combatant.id}}">
+        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}}{{#if combatant.showSideHp}} has-side-hp{{/if}}" data-combatant-id="{{combatant.id}}">
+        <div class="carousel-card-row">
         <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}} {{combatant.dispositionClass}}" 
              data-combatant-id="{{combatant.id}}">
           {{#if combatant.richTooltip}}
@@ -136,46 +137,7 @@
           </div>
           {{/if}}
 
-          <!-- Segmented HP Bar. Top line is only for cushions (Temp HP, Guard). -->
-          {{#if combatant.hpSegments.length}}
-            <div class="ms-hp-bar">
-              <div class="ms-hp-bar-header">
-                {{#unless combatant.hideHpNumbers}}
-                {{#if combatant.tempHP}}<span class="ms-hp-temp{{#if combatant.canEditVitals}} js-edit-temp-hp{{/if}}" data-actor-id="{{combatant.actorId}}" data-temp="{{combatant.tempHP}}" title="Temporary HP{{#if combatant.canEditVitals}} — click to edit{{/if}}">+{{combatant.tempHP}}</span>{{/if}}
-                {{#if combatant.hpScarredCount}}<span class="ms-hp-scarred-count" title="Scarred Health Bars — empty until Remove Scar">Scarred {{combatant.hpScarredCount}}</span>{{/if}}
-                {{/unless}}
-              </div>
-              <div class="ms-hp-bar-track">
-                {{#each combatant.hpSegments as |seg|}}
-                  <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}{{#if seg.scarred}} is-scarred{{/if}}{{#if ../canEditVitals}} js-edit-hp-bar{{/if}}"
-                       style="flex-basis: {{seg.widthPct}}%"
-                       data-actor-id="{{../actorId}}"
-                       data-bar-index="{{@index}}"
-                       data-current="{{seg.current}}"
-                       data-max="{{seg.max}}"
-                       data-scarred="{{#if seg.scarred}}1{{else}}0{{/if}}"
-                       title="{{#unless ../hideHpNumbers}}{{seg.hoverTitle}}{{else}}{{seg.name}}{{/unless}}{{#if ../canEditVitals}} — click to edit{{/if}}">
-                    {{#if seg.max}}
-                      {{#unless seg.scarred}}
-                      {{#with (divide seg.current seg.max)}}
-                        <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
-                      {{/with}}
-                      {{/unless}}
-                    {{/if}}
-                  </div>
-                {{/each}}
-              </div>
-              <div class="ms-hp-scar-legend" aria-hidden="true">
-                {{#each combatant.hpSegments as |seg|}}
-                  <span class="ms-hp-legend-name{{#if seg.scarred}} is-scarred{{/if}}"
-                        style="flex-basis: {{seg.widthPct}}%"
-                        title="{{#unless ../hideHpNumbers}}{{seg.hoverTitle}}{{else}}{{seg.name}}{{/unless}}">{{seg.penaltyLabel}}</span>
-                {{/each}}
-              </div>
-            </div>
-          {{/if}}
-
-          <!-- Status Icons -->
+          <!-- Status Icons stay under the portrait -->
           {{#if combatant.statusIcons}}
             <div class="status-icons">
               {{#each combatant.statusIcons as |statusIcon|}}
@@ -211,6 +173,33 @@
               </button>
             {{/if}}
           </div>
+        </div>
+
+          {{#if combatant.showSideHp}}
+          <aside class="ms-hp-rail" aria-label="Health">
+            {{#if combatant.tempHP}}
+            <span class="ms-hp-temp" title="Temporary HP">+{{combatant.tempHP}}</span>
+            {{/if}}
+            {{#if combatant.hpScarredCount}}
+            <span class="ms-hp-scarred-count" title="Scarred Health Bars">{{combatant.hpScarredCount}}</span>
+            {{/if}}
+            <div class="ms-hp-rail-track">
+              {{#each combatant.hpSegments as |seg|}}
+                <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}{{#if seg.scarred}} is-scarred{{/if}}"
+                     style="flex-grow: {{seg.widthPct}}"
+                     title="{{seg.hoverTitle}}: {{seg.current}}/{{seg.max}}">
+                  {{#if seg.max}}
+                    {{#unless seg.scarred}}
+                    {{#with (divide seg.current seg.max)}}
+                      <div class="ms-hp-segment-fill" style="height: {{multiply this 100}}%"></div>
+                    {{/with}}
+                    {{/unless}}
+                  {{/if}}
+                </div>
+              {{/each}}
+            </div>
+          </aside>
+          {{/if}}
         </div>
 
           <!-- Sibling of the portrait so a click ends the turn instead of opening the sheet -->

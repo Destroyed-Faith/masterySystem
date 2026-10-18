@@ -178,15 +178,16 @@ describe('writeDefeatedPresentation', () => {
     (globalThis as any).canvas = prev.canvas;
   });
 
-  it('ghosts the token and marks the combatant defeated', async () => {
+  it('ghosts the token and removes a defeated NPC from combat', async () => {
     const actor = npc({ system: { health: health(0) } });
     const token = mockToken({ id: 'dog-tok', actor });
     const combatant = {
+      id: 'c-dog',
       tokenId: 'dog-tok',
+      actor,
       defeated: false,
-      update: vi.fn(async (patch: Record<string, unknown>) => {
-        combatant.defeated = !!patch.defeated;
-      }),
+      delete: vi.fn(async () => undefined),
+      update: vi.fn(),
     };
     (globalThis as any).game = {
       combat: { combatants: [combatant] },
@@ -201,6 +202,35 @@ describe('writeDefeatedPresentation', () => {
 
     expect(token.document.alpha).toBe(DEFEATED_TOKEN_ALPHA);
     expect(token.document.getFlag('mastery-system', 'downed')).toBe(true);
+    expect(combatant.delete).toHaveBeenCalled();
+    expect(combatant.update).not.toHaveBeenCalled();
+  });
+
+  it('keeps a defeated player character in combat (marks defeated only)', async () => {
+    const actor = { type: 'character', system: { health: health(0) } };
+    const token = mockToken({ id: 'pc-tok', actor });
+    const combatant = {
+      id: 'c-pc',
+      tokenId: 'pc-tok',
+      actor,
+      defeated: false,
+      delete: vi.fn(),
+      update: vi.fn(async (patch: Record<string, unknown>) => {
+        combatant.defeated = !!patch.defeated;
+      }),
+    };
+    (globalThis as any).game = {
+      combat: { combatants: [combatant] },
+      scenes: { viewed: { tokens: { get: () => token.document } }, active: { tokens: { get: () => token.document } } },
+    };
+    (globalThis as any).canvas = {
+      scene: { tokens: { get: (id: string) => (id === 'pc-tok' ? token.document : null) } },
+      tokens: { get: (id: string) => (id === 'pc-tok' ? token : null) },
+    };
+
+    await writeDefeatedPresentation({ actor, tokenId: 'pc-tok', defeated: true });
+
+    expect(combatant.delete).not.toHaveBeenCalled();
     expect(combatant.update).toHaveBeenCalledWith({ defeated: true });
   });
 

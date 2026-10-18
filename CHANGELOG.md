@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.737] - 2026-10-18
+
+### Changed
+
+- **Combat Carousel:** Health is a vertical rail beside player characters, GM only. The top segment is the first Health Bar. NPCs have no Health bar in the carousel. Status tokens stay under the portrait.
+- **Radial menu:** Bite is no longer listed under Attack. Breath Weapon on Dragon Head carries Bite automatically.
+- **Combat:** Dead NPCs leave the tracker and carousel immediately. Player characters always stay.
+
 ## [0.9.736] - 2026-10-18
 
 ### Fixed

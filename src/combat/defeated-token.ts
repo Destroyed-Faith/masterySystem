@@ -185,9 +185,18 @@ async function writeTokenGhost(doc: any, defeated: boolean): Promise<void> {
   }
 }
 
-/** GM-side / local writes: ghost the token and mark the combatant defeated. */
+/**
+ * True when a defeated combatant should leave combat (and the carousel) entirely.
+ * Player characters always stay — Last Breath / Death Checks still need a seat.
+ */
+export function shouldRemoveDefeatedCombatant(actor: any): boolean {
+  return !!actor && !isPlayerCharacterActor(actor);
+}
+
+/** GM-side / local writes: ghost the token; drop NPC combatants; mark PCs defeated. */
 export async function writeDefeatedPresentation(args: DefeatedPresentationArgs): Promise<void> {
   const docs = collectTokenDocs(args.actor, args.tokenId);
+  const actor = args.actor ?? docs[0]?.actor;
   for (const doc of docs) {
     try {
       await writeTokenGhost(doc, args.defeated);
@@ -195,7 +204,21 @@ export async function writeDefeatedPresentation(args: DefeatedPresentationArgs):
       console.warn('Mastery System | defeated token ghost failed', err);
     }
     const combatant = findCombatantForToken(doc);
-    if (combatant && !!combatant.defeated !== !!args.defeated) {
+    if (!combatant) continue;
+    const combatantActor = combatant.actor ?? actor ?? doc.actor;
+    if (args.defeated && shouldRemoveDefeatedCombatant(combatantActor)) {
+      // Dead NPCs / summons leave the tracker — no turn, no carousel card.
+      try {
+        if (typeof combatant.delete === 'function') await combatant.delete();
+        else if (typeof combatant.parent?.deleteEmbeddedDocuments === 'function') {
+          await combatant.parent.deleteEmbeddedDocuments('Combatant', [combatant.id]);
+        }
+      } catch (err) {
+        console.warn('Mastery System | remove defeated combatant failed', err);
+      }
+      continue;
+    }
+    if (!!combatant.defeated !== !!args.defeated) {
       try {
         await combatant.update?.({ defeated: !!args.defeated });
       } catch (err) {

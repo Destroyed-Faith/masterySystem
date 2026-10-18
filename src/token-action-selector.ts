@@ -998,44 +998,6 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     return;
   }
 
-  // Free natural-weapon source toggle (Bite) — no combat / action gate.
-  const naturalSelectMatch = /^natural-weapon-select:(.+)$/.exec(String(option.id || ''));
-  const isNaturalWeaponSelect =
-    !!naturalSelectMatch || (option.tags || []).includes('natural-weapon-select');
-  if (isNaturalWeaponSelect) {
-    const actor = token?.actor;
-    if (!actor) {
-      ui.notifications?.warn('No actor found for token!');
-      return;
-    }
-    closeRadialMenu();
-    const itemId =
-      naturalSelectMatch?.[1] ||
-      String(option.id || '').replace(/^natural-weapon-select:/, '').trim();
-    if (!itemId) return;
-    const {
-      getPreferredNaturalWeaponId,
-      setPreferredNaturalWeapon,
-    } = await import('./utils/unarmed-fallback.js');
-    const current = getPreferredNaturalWeaponId(actor);
-    if (current === itemId) {
-      await setPreferredNaturalWeapon(actor, null);
-      ui.notifications?.info?.('Waffe: Hände / Weapon Set.');
-    } else {
-      await setPreferredNaturalWeapon(actor, itemId);
-      const item =
-        (typeof actor.items?.get === 'function' ? actor.items.get(itemId) : null) ||
-        (Array.isArray(actor.items)
-          ? actor.items.find((i: any) => String(i?.id) === itemId)
-          : null);
-      const label =
-        String(item?.system?.naturalWeapon?.name || item?.system?.artifactWeapon?.name || 'Bite').trim() ||
-        'Bite';
-      ui.notifications?.info?.(`${label} aktiv — Powers und Basic Attack nutzen diesen Schaden.`);
-    }
-    return;
-  }
-
   // Check combat exists
   const combat = game.combat;
   if (!combat) {

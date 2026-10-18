@@ -26,10 +26,7 @@ import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
-import {
-  artifactCarriesWeaponProfile,
-  getPreferredNaturalWeaponId,
-} from '../utils/unarmed-fallback.js';
+import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
 import { breathConeMeters, isBreathWeaponName } from '../utils/breath-weapon.js';
 
 const REACTION_TYPES = new Set(['Reaction']);
@@ -139,20 +136,6 @@ function shouldEmitArtifactWeaponAttack(sys: any, actorHasActivePower: boolean):
   return !actorHasActivePower;
 }
 
-function naturalWeaponDisplayName(sys: any, item: any): string {
-  const aw = sys?.artifactWeapon;
-  const nw = sys?.naturalWeapon;
-  const cleanItemName = String(item?.name || '')
-    .replace(/\s*-\s*Level\s+\d+-\d+\s*$/i, '')
-    .trim();
-  return (
-    (typeof nw?.name === 'string' && nw.name.trim()) ||
-    (typeof aw?.name === 'string' && aw.name.trim()) ||
-    cleanItemName ||
-    'Natural Weapon'
-  );
-}
-
 function isArtifactEquipped(item: any): boolean {
     if (!item) return false;
     if (getArtifactBindingKind(item) === 'echo') return true;
@@ -221,28 +204,15 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             : [];
         const hasOwnActivePower = actorHasOwnActivePower(actor);
 
-        // Natural weapon (Bite): free weapon-source toggle — not an Attack Action.
+        // Natural weapons (Bite) are never listed in the radial Attack ring —
+        // Breath Weapon on the same artifact carries them via forcedWeaponItemId.
         // Weapon-kind artifacts keep a swing button only when the actor has no
-        // Single Attack / another Active — those powers roll this weapon's dice.
+        // Single Attack / another Active.
         const aw = sys.artifactWeapon;
-        if (isDeclaredNaturalWeapon(sys) && aw?.damage) {
-            const biteName = naturalWeaponDisplayName(sys, item);
-            const preferredId = getPreferredNaturalWeaponId(actor);
-            const biteActive = preferredId === String(item.id);
-            out.push({
-                id: `natural-weapon-select:${item.id}`,
-                name: biteActive ? 'Waffe: Hände' : `Waffe: ${biteName}`,
-                description: biteActive
-                    ? `${biteName} (${aw.damage}) aktiv — tippen für Hände / Weapon Set. Kostenlos.`
-                    : `Martial Powers und Basic Attack nutzen ${biteName} (${aw.damage}). Kostenlos, kein Movement.`,
-                slot: 'attack',
-                source: 'maneuver',
-                range: 0,
-                tags: ['artifact', 'natural-weapon-select'],
-                costsMovement: false,
-                costsAction: false,
-            });
-        } else if (shouldEmitArtifactWeaponAttack(sys, hasOwnActivePower)) {
+        if (
+            !(isDeclaredNaturalWeapon(sys) && aw?.damage) &&
+            shouldEmitArtifactWeaponAttack(sys, hasOwnActivePower)
+        ) {
             const isRangedWeapon = resolveArtifactWeaponKind(aw, sys.baseProfile) === 'ranged';
             const isWeaponKind = sys.artifactKind === 'weapon';
             // Strip the generated " - Level N-M" suffix so the radial shows a
@@ -422,6 +392,10 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
                 option.allowManualTargetSelection = true;
                 option.aoePlacementProfile = 'hostile-zone';
                 option.description = `${description} · Kegel ${coneM} m`;
+                // Bite / natural weapon on this artifact rides with Breath — not a separate Attack entry.
+                if (!option.forcedWeaponItemId && artifactCarriesWeaponProfile(item)) {
+                    option.forcedWeaponItemId = item.id;
+                }
             }
             // Support heals/cleanses are type "Active" but must not use hostile red aim.
             const support = artifactRowSupportProfile(row);

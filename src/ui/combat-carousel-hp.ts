@@ -18,6 +18,14 @@ export function hideCarouselNpcHpBars(
   return !isGM && hideCarouselHpNumbers(actorType);
 }
 
+/**
+ * Vertical Health rail beside a carousel portrait.
+ * GM only, and only on player characters — NPCs stay without a bar.
+ */
+export function showCarouselSideHp(actorType: string | undefined, isGM: boolean): boolean {
+  return isGM && actorType === 'character';
+}
+
 export interface CarouselHpSegment {
   name: string;
   shortName: string;

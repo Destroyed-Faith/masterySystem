@@ -26,6 +26,7 @@ import {
   buildCarouselHpSegments,
   hideCarouselHpNumbers,
   hideCarouselNpcHpBars,
+  showCarouselSideHp,
 } from './combat-carousel-hp.js';
 import {
   carouselSideClass,
@@ -193,6 +194,9 @@ export class CombatCarouselApp extends BaseCarousel {
     for (const combatant of turns) {
       const actor = combatant.actor;
       if (!actor) continue;
+      // Dead NPCs leave combat; if one is still marked defeated, hide the card.
+      // Player characters always stay visible even when defeated / at 0 HP.
+      if (combatant.defeated && String(actor.type || '') !== 'character') continue;
 
       const tokenId = combatant.tokenId || combatant.token?.id;
       const token = tokenId ? canvas.tokens?.get(tokenId) : null;
@@ -379,13 +383,16 @@ export class CombatCarouselApp extends BaseCarousel {
         typeof actor.testUserPermission === 'function' &&
         !!game.user &&
         actor.testUserPermission(game.user, 'OWNER');
-      // NPC Health Bars: GM only. Players must not see fill, numbers, or scars.
+      // Side Health rail: GM only, player characters only. NPCs have no bar.
       const hideNpcHp = hideCarouselNpcHpBars(actor.type, isGM);
-      if (hideNpcHp) {
+      const showSideHp = showCarouselSideHp(actor.type, isGM);
+      if (!showSideHp) {
         hpSegments = [];
-        hpTotalCurrent = 0;
-        hpTotalMax = 0;
-        hpScarredCount = 0;
+        if (hideNpcHp || actor.type !== 'character') {
+          hpTotalCurrent = 0;
+          hpTotalMax = 0;
+          hpScarredCount = 0;
+        }
       }
       const hideHpNumbers =
         hideNpcHp ||
@@ -512,6 +519,7 @@ export class CombatCarouselApp extends BaseCarousel {
         hpScarredCount,
         tempHP,
         hpSegments,
+        showSideHp: showSideHp && hpSegments.length > 0,
         hideHpNumbers,
         combatStrip: prefs.showCombatStrip ? combatStrip : null,
         richTooltip: tip,

@@ -6,6 +6,11 @@
 export declare function hideCarouselHpNumbers(actorType: string | undefined, _disposition?: number): boolean;
 /** True when this client must not see NPC Health Bars at all (not just numbers). */
 export declare function hideCarouselNpcHpBars(actorType: string | undefined, isGM: boolean): boolean;
+/**
+ * Vertical Health rail beside a carousel portrait.
+ * GM only, and only on player characters — NPCs stay without a bar.
+ */
+export declare function showCarouselSideHp(actorType: string | undefined, isGM: boolean): boolean;
 export interface CarouselHpSegment {
     name: string;
     shortName: string;

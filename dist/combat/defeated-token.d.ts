@@ -24,7 +24,12 @@ export interface DefeatedPresentationArgs {
     tokenId?: string;
     defeated: boolean;
 }
-/** GM-side / local writes: ghost the token and mark the combatant defeated. */
+/**
+ * True when a defeated combatant should leave combat (and the carousel) entirely.
+ * Player characters always stay — Last Breath / Death Checks still need a seat.
+ */
+export declare function shouldRemoveDefeatedCombatant(actor: any): boolean;
+/** GM-side / local writes: ghost the token; drop NPC combatants; mark PCs defeated. */
 export declare function writeDefeatedPresentation(args: DefeatedPresentationArgs): Promise<void>;
 /** Ghost / restore a token. Players relay to the GM (token + combat writes). */
 export declare function applyDefeatedPresentation(args: DefeatedPresentationArgs): Promise<void>;

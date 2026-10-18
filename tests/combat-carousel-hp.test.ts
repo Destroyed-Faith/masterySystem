@@ -6,6 +6,7 @@ import {
   carouselHpPenaltyLabel,
   hideCarouselHpNumbers,
   hideCarouselNpcHpBars,
+  showCarouselSideHp,
 } from '../src/ui/combat-carousel-hp.js';
 
 describe('hideCarouselHpNumbers / NPC bars', () => {
@@ -20,6 +21,13 @@ describe('hideCarouselHpNumbers / NPC bars', () => {
     expect(hideCarouselHpNumbers('character', -1)).toBe(false);
     expect(hideCarouselNpcHpBars('character', false)).toBe(false);
     expect(hideCarouselNpcHpBars('npc', true)).toBe(false);
+  });
+
+  it('shows the side Health rail only for the GM on player characters', () => {
+    expect(showCarouselSideHp('character', true)).toBe(true);
+    expect(showCarouselSideHp('character', false)).toBe(false);
+    expect(showCarouselSideHp('npc', true)).toBe(false);
+    expect(showCarouselSideHp('summon', true)).toBe(false);
   });
 });
 
