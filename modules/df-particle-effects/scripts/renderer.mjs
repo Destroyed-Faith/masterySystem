@@ -296,32 +296,109 @@ function createEffect(entry, assets, grid, maxFlames, maxEmbers) {
 
 /**
  * Opaque mask from the region polygon tree.
- * PixiJS 8 (Foundry 14) has no even-odd fill argument. Holes are `cut()` after `fill()`.
- * Foundry already resolved rectangles, ellipses, polygons, and shape order into this tree.
+ * Foundry 14 replaces PIXI.Graphics with SmoothGraphics, which does not expose poly/cut.
+ * The original PixiJS 8 class is PIXI.LegacyGraphics. Holes are cut() after fill().
  */
 export function buildRegionMask(tree) {
-  const PIXI = globalThis.PIXI;
-  if (!PIXI?.Graphics || typeof PIXI.Graphics.prototype.poly !== "function" || typeof PIXI.Graphics.prototype.cut !== "function") {
-    console.warn(`${LOG_PREFIX} PIXI.Graphics.poly/cut is missing. This build targets Foundry 14 / PixiJS 8.`);
+  const painter = resolveMaskPainter(globalThis.PIXI);
+  if (!painter) {
+    warnMaskOnce(
+      `${LOG_PREFIX} PIXI graphics has no poly/cut. Fire was skipped so it cannot spill outside.`,
+    );
     return null;
   }
 
   const operations = regionMaskOperations(tree);
   if (!operations.some((operation) => operation.op === "fill")) return null;
 
+  let graphics;
   try {
-    const graphics = new PIXI.Graphics();
-    graphics.eventMode = "none";
-    for (const operation of operations) {
-      graphics.poly(Array.from(operation.points));
-      if (operation.op === "fill") graphics.fill({ color: 0xffffff, alpha: 1 });
-      else graphics.cut();
-    }
+    graphics = new painter.Ctor();
+    if ("eventMode" in graphics) graphics.eventMode = "none";
+    const draw = painter.mode === "context" ? graphics.context : graphics;
+    if (painter.mode === "legacy-hole") drawLegacyHoleMask(graphics, operations);
+    else drawCutMask(draw, operations);
     return graphics;
   } catch (error) {
-    console.warn(`${LOG_PREFIX} region mask failed.`, error);
+    warnMaskOnce(`${LOG_PREFIX} region mask failed.`);
+    console.warn(LOG_PREFIX, error);
+    try {
+      graphics?.destroy?.();
+    } catch {
+      /* already broken */
+    }
     return null;
   }
+}
+
+let maskWarningShown = false;
+
+function warnMaskOnce(message) {
+  if (maskWarningShown) return;
+  maskWarningShown = true;
+  console.warn(message);
+}
+
+/**
+ * Pick a graphics class that can fill a polygon and cut holes out of it.
+ * LegacyGraphics is checked first because Foundry's PIXI.Graphics is SmoothGraphics.
+ */
+export function resolveMaskPainter(pixi) {
+  const candidates = [pixi?.LegacyGraphics, pixi?.Graphics].filter((Ctor) => typeof Ctor === "function");
+  for (const Ctor of candidates) {
+    if (isCutPainter(Ctor.prototype)) return { Ctor, mode: "prototype" };
+  }
+  for (const Ctor of candidates) {
+    let graphics;
+    try {
+      graphics = new Ctor();
+    } catch {
+      continue;
+    }
+    let mode = null;
+    if (isCutPainter(graphics)) mode = "instance";
+    else if (isCutPainter(graphics.context)) mode = "context";
+    else if (typeof graphics.drawPolygon === "function" && typeof graphics.beginHole === "function") mode = "legacy-hole";
+    try {
+      graphics.destroy?.();
+    } catch {
+      /* probe only */
+    }
+    if (mode) return { Ctor, mode };
+  }
+  return null;
+}
+
+function isCutPainter(target) {
+  return Boolean(target)
+    && typeof target.poly === "function"
+    && typeof target.cut === "function"
+    && typeof target.fill === "function";
+}
+
+function drawCutMask(draw, operations) {
+  for (const operation of operations) {
+    draw.poly(Array.from(operation.points));
+    if (operation.op === "fill") draw.fill({ color: 0xffffff, alpha: 1 });
+    else draw.cut();
+  }
+}
+
+function drawLegacyHoleMask(graphics, operations) {
+  let filling = false;
+  for (const operation of operations) {
+    if (operation.op === "fill") {
+      if (filling) graphics.endFill?.();
+      graphics.beginFill?.(0xffffff, 1);
+      filling = true;
+      graphics.drawPolygon(Array.from(operation.points));
+    } else if (filling) {
+      graphics.beginHole?.();
+      graphics.drawPolygon(Array.from(operation.points));
+      graphics.endHole?.();
+    }
+  }
+  if (filling) graphics.endFill?.();
 }
 
 function edgeFactor(tree, x, y, fadeRadius) {

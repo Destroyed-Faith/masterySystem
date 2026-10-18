@@ -5,7 +5,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { BEHAVIOR_TYPE, blankSeedToNull, isSystemPackageUrl, MODULE_ID } from "../scripts/constants.mjs";
 import { readDraft } from "../scripts/preview.mjs";
-import { fireLayoutSignature } from "../scripts/renderer.mjs";
+import { fireLayoutSignature, resolveMaskPainter } from "../scripts/renderer.mjs";
 import { collectPolygonTreeContours, regionMaskOperations } from "../scripts/geometry.mjs";
 
 const moduleRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -64,6 +64,19 @@ function fakeForm(values, checks) {
     },
   };
 }
+
+test("region masks use LegacyGraphics when Foundry replaced PIXI.Graphics", () => {
+  class SmoothGraphics {}
+  class LegacyGraphics {
+    poly() { return this; }
+    cut() { return this; }
+    fill() { return this; }
+  }
+  const painter = resolveMaskPainter({ Graphics: SmoothGraphics, LegacyGraphics });
+  assert.equal(painter.Ctor, LegacyGraphics);
+  assert.equal(painter.mode, "prototype");
+  assert.equal(resolveMaskPainter({ Graphics: SmoothGraphics }), null);
+});
 
 test("polygon tree walk keeps outer rings and hole rings", () => {
   const hole = [4, 4, 6, 4, 6, 6, 4, 6];

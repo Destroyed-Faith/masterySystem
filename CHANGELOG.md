@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.736] - 2026-10-18
+
+### Fixed
+
+- **Regions:** Fire draws again. Foundry's PIXI.Graphics is SmoothGraphics and has no polygon cut, so the mask now uses PIXI.LegacyGraphics.
+
 ## [0.9.735] - 2026-10-18
 
 ### Added
