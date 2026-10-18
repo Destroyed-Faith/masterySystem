@@ -1,0 +1,10 @@
+DF FIRE SPRITES V1
+
+30 Flame sprites (8 large, 10 medium, 12 small), 10 ember variants.
+All exported as individual RGBA PNGs with transparent backgrounds.
+Flame files are 256x256; ember files are 128x128.
+
+IMPORTANT: These are *still image variants*, not successive animation frames.
+To animate in Foundry, use overlays with small independent scale/opacity changes, anchored to flame base, and ember movement.
+These images were generated and processed for the user and do not copy FXMaster+ assets.
+Review in Foundry VTT for visual suitability.

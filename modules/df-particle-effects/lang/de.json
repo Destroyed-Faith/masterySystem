@@ -1,0 +1,62 @@
+{
+  "TYPES": {
+    "RegionBehavior": {
+      "df-particle-effects": {
+        "particleEffects": "DF: Particle Effects"
+      }
+    }
+  },
+  "DF_PARTICLE_EFFECTS": {
+    "TypeHint": "Visuelles natürliches Feuer, auf diese Region beschnitten. Es verursacht keinen Schaden und ändert keine Token.",
+    "EFFECTS": {
+      "naturalFire": "Natürliches Feuer"
+    },
+    "FIELDS": {
+      "enabled": {
+        "label": "Aktiv",
+        "hint": "Schaltet dieses Feuer aus, ohne das Behavior zu löschen. Die eingebaute Option „Deaktiviert“ der Region blendet es ebenfalls aus."
+      },
+      "effectType": {
+        "label": "Effekttyp",
+        "hint": "In dieser Version gibt es nur natürliches Feuer. Weitere Typen können später hier ergänzt werden, ohne einen neuen Behavior-Typ anzulegen."
+      },
+      "density": {
+        "label": "Dichte",
+        "hint": "Anzahl der Feuerstellen relativ zur Regionsfläche, gezählt in Rasterzellen. 0 blendet die Flammen aus. Die Dichte hängt nicht von der Fenstergröße ab."
+      },
+      "flameScale": {
+        "label": "Flammengröße",
+        "hint": "Größe jeder Flamme relativ zum Szenenraster. Die Flammenbasis bleibt am Boden."
+      },
+      "flameSpeed": {
+        "label": "Flammengeschwindigkeit",
+        "hint": "Tempo von Flackern, Wiegen und aufsteigenden Funken."
+      },
+      "opacity": {
+        "label": "Deckkraft",
+        "hint": "Gesamtdeckkraft von Flammen und Funken."
+      },
+      "emberAmount": {
+        "label": "Glutmenge",
+        "hint": "Wie viele aufsteigende Funken gezeichnet werden, relativ zur Anzahl der Flammen. 0 schaltet Funken ab."
+      },
+      "edgeFade": {
+        "label": "Randausblendung",
+        "hint": "0 lässt den Rand hart. Höhere Werte blenden Flammen aus, deren Basis nahe an der Grenze liegt. Sprites werden trotzdem auf die Region maskiert, inklusive Löcher."
+      },
+      "randomSeed": {
+        "label": "Zufallsseed",
+        "hint": "Leer oder 0 behält eine stabile Verteilung aus Szene, Region und Behavior. Jede andere Zahl mischt nur dieses Feuer neu."
+      }
+    },
+    "SETTINGS": {
+      "quality": {
+        "name": "Feuerqualität",
+        "hint": "Begrenzt Flammen und Funken pro Region und pro Szene. Senke den Wert, wenn eine sehr große Feuerregion die Bildrate drückt. Die gespeicherten Regionseinstellungen bleiben unverändert.",
+        "low": "Niedrig",
+        "medium": "Mittel",
+        "high": "Hoch"
+      }
+    }
+  }
+}

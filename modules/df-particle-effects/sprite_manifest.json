@@ -1,0 +1,369 @@
+{
+  "pack": "Destroyed Faith - Natural Fire Sprites (Prototype v1)",
+  "license": "Generated for this project; no third-party FXMaster+ assets used.",
+  "flames": [
+    {
+      "file": "assets/fire/flames/flame_large_01.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_02.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_03.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_04.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_05.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_06.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_07.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_large_08.png",
+      "size": 256,
+      "group": "large",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_01.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_02.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_03.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_04.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_05.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_06.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_07.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_08.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_09.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_medium_10.png",
+      "size": 256,
+      "group": "medium",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_01.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_02.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_03.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_04.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_05.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_06.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_07.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_08.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_09.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_10.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_11.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    },
+    {
+      "file": "assets/fire/flames/flame_small_12.png",
+      "size": 256,
+      "group": "small",
+      "pivot": [
+        0.5,
+        0.93
+      ]
+    }
+  ],
+  "embers": [
+    {
+      "file": "assets/fire/embers/ember_01.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_02.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_03.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_04.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_05.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_06.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_07.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_08.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_09.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "file": "assets/fire/embers/ember_10.png",
+      "size": 128,
+      "group": "ember",
+      "pivot": [
+        0.5,
+        0.5
+      ]
+    }
+  ],
+  "notes": "These are still-image variants, NOT coherent sequential animation frames. Animate via anchored scale/opacity/warp and particles, not rapid frame cycling."
+}

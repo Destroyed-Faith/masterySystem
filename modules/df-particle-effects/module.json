@@ -1,0 +1,41 @@
+{
+  "id": "df-particle-effects",
+  "title": "Destroyed Faith – Particle Effects",
+  "description": "Region-bound particle effects for Destroyed Faith. Draw a Scene Region, add the DF: Particle Effects behavior, and Natural Fire renders inside that region only.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Daniel Rodrigo Navarro Melendo",
+      "url": "https://destroyedfaith.com/"
+    }
+  ],
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "esmodules": ["scripts/main.mjs"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json"
+    }
+  ],
+  "documentTypes": {
+    "RegionBehavior": {
+      "particleEffects": {}
+    }
+  },
+  "url": "https://destroyedfaith.com/",
+  "flags": {
+    "hotReload": {
+      "extensions": ["json"],
+      "paths": ["lang"]
+    }
+  }
+}

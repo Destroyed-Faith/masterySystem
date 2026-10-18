@@ -1,0 +1,62 @@
+{
+  "TYPES": {
+    "RegionBehavior": {
+      "df-particle-effects": {
+        "particleEffects": "DF: Particle Effects"
+      }
+    }
+  },
+  "DF_PARTICLE_EFFECTS": {
+    "TypeHint": "Visual natural fire clipped to this region. It does not deal damage or change tokens.",
+    "EFFECTS": {
+      "naturalFire": "Natural Fire"
+    },
+    "FIELDS": {
+      "enabled": {
+        "label": "Enabled",
+        "hint": "Turn this fire on or off without deleting the behavior. The region's own Disabled checkbox also hides it."
+      },
+      "effectType": {
+        "label": "Effect Type",
+        "hint": "Natural Fire is the only effect in this version. Later effects can be added here without a new behavior type."
+      },
+      "density": {
+        "label": "Density",
+        "hint": "How many flame sites to place for this region's area, counted in grid cells. 0 hides the flames. This does not follow the browser window size."
+      },
+      "flameScale": {
+        "label": "Flame Scale",
+        "hint": "Size of each flame relative to the scene grid. The flame base stays on the ground."
+      },
+      "flameSpeed": {
+        "label": "Flame Speed",
+        "hint": "How fast flicker, sway, and rising embers move."
+      },
+      "opacity": {
+        "label": "Opacity",
+        "hint": "Overall opacity of flames and embers."
+      },
+      "emberAmount": {
+        "label": "Ember Amount",
+        "hint": "How many rising sparks to draw, relative to the number of flames. 0 disables sparks."
+      },
+      "edgeFade": {
+        "label": "Edge Fade",
+        "hint": "0 keeps a hard edge. Higher values fade flames whose base sits near the boundary. Sprites are still masked to the region, including holes."
+      },
+      "randomSeed": {
+        "label": "Random Seed",
+        "hint": "Leave empty or 0 to keep a stable layout derived from this scene, region, and behavior. Any other number reshuffles only this fire."
+      }
+    },
+    "SETTINGS": {
+      "quality": {
+        "name": "Fire quality",
+        "hint": "Caps flames and embers per region and per scene. Lower this if a very large fire region drops frames. The saved region settings do not change.",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
+    }
+  }
+}
