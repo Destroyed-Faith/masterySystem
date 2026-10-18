@@ -137,29 +137,45 @@ export function findPowerItemOnActor(actor, pid) {
     }
     return null;
 }
+/** Drop sheet suffixes so "Ranged Split Attack I" still matches the catalog name. */
+function canonicalPowerLookupName(raw) {
+    return String(raw || '')
+        .replace(/^active buff:\s*/i, '')
+        .replace(/^passive:\s*/i, '')
+        .replace(/^active:\s*/i, '')
+        .replace(/\s*×\s*\d+\s*$/u, '')
+        .replace(/\s+(?:i{1,3}|iv|vi{0,3}|ix|x(?:i{0,3}|iv|v|vi{0,3})?)\s*$/i, '')
+        .trim()
+        .toLowerCase();
+}
 export function resolvePowerMechanics(powerItem) {
     if (!powerItem)
         return null;
     const sys = powerItem.system ?? {};
     const raw = Number(sys.rank ?? sys.level ?? 1);
     const rank = Math.max(1, Math.min(16, Number.isFinite(raw) ? Math.floor(raw) : 1));
+    const fromCatalog = resolveMechanicsFromCatalog(powerItem, rank);
     // Prefer live catalog when templateId matches so template reprices (e.g. Evade)
     // apply immediately without waiting for a baked-levels resync.
     const templateId = sys.templateId ? String(sys.templateId).trim() : '';
-    if (templateId) {
-        const fromCatalog = resolveMechanicsFromCatalog(powerItem, rank);
-        if (fromCatalog)
-            return fromCatalog;
-    }
+    if (templateId && fromCatalog)
+        return fromCatalog;
     const levels = sys.levels ?? {};
     const rankBlock = levels[String(rank)] ?? null;
     const rankMech = rankBlock?.mechanics;
-    if (rankMech && typeof rankMech === 'object')
-        return rankMech;
     const topMech = sys.mechanics;
-    if (topMech && typeof topMech === 'object')
-        return topMech;
-    const fromCatalog = resolveMechanicsFromCatalog(powerItem, rank);
+    const baked = rankMech && typeof rankMech === 'object'
+        ? rankMech
+        : topMech && typeof topMech === 'object'
+            ? topMech
+            : null;
+    // Legacy snapshots stored damageRider before `splitAttack` existed. A name
+    // like "Ranged Split Attack I" still has to divide the pool and post strike 2.
+    if (baked && fromCatalog?.splitAttack === true && baked.splitAttack !== true) {
+        return { ...baked, splitAttack: true };
+    }
+    if (baked)
+        return baked;
     if (fromCatalog)
         return fromCatalog;
     return null;
@@ -195,34 +211,14 @@ function resolveMechanicsFromCatalog(powerItem, rank) {
     const templateId = sys.templateId ? String(sys.templateId) : undefined;
     if (!name && !templateId)
         return null;
-    const stripPowerPrefixes = (raw) => String(raw || '')
-        .replace(/^active buff:\s*/i, '')
-        .replace(/^passive:\s*/i, '')
-        .replace(/^active:\s*/i, '')
-        .trim();
     let def = undefined;
     if (templateId) {
         def = ALL_POWER_TEMPLATES.find((t) => t?.templateId === templateId);
     }
     if (!def && name) {
-        const stripped = stripPowerPrefixes(name);
-        const lower = stripped.toLowerCase();
-        def = ALL_POWER_TEMPLATES.find((t) => t?.templateName === name ||
-            t?.name === name ||
-            t?.templateName === stripped ||
-            t?.name === stripped ||
-            String(t?.templateName || '')
-                .toLowerCase()
-                .replace(/^active buff:\s*/i, '')
-                .replace(/^passive:\s*/i, '')
-                .replace(/^active:\s*/i, '')
-                .trim() === lower ||
-            String(t?.name || '')
-                .toLowerCase()
-                .replace(/^active buff:\s*/i, '')
-                .replace(/^passive:\s*/i, '')
-                .replace(/^active:\s*/i, '')
-                .trim() === lower);
+        const lower = canonicalPowerLookupName(name);
+        def = ALL_POWER_TEMPLATES.find((t) => canonicalPowerLookupName(String(t?.templateName || '')) === lower ||
+            canonicalPowerLookupName(String(t?.name || '')) === lower);
     }
     if (!def)
         return null;

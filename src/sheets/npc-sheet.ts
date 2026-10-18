@@ -28,6 +28,7 @@ import {
   buildNpcAttackValuesReplacePatch,
   NPC_EXTRA_POWERS_UPDATE,
   NPC_ATTACK_SPECIALS_UPDATE,
+  NPC_REACTIONS_UPDATE,
 } from '../utils/npc-attack-model.js';
 import {
   coerceStatusEffectsArray,
@@ -962,7 +963,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
           npcReactions: (() => {
             const prevRows = coerceNpcReactionsArray(prev.npcReactions);
             const nextRows = coerceNpcReactionsArray(phase.npcReactions ?? prev.npcReactions);
-            return nextRows.map((row, ri) => mergeNpcAttackRowSpecials(prevRows[ri], row));
+            // Actor length wins — stale form must not resurrect a deleted reaction.
+            return prevRows.map((row, ri) => mergeNpcAttackRowSpecials(row, nextRows[ri]));
           })(),
           npcReactionSlots: clampNpcReactionSlots(phase.npcReactionSlots ?? prev.npcReactionSlots),
           attackSlots: clampNpcAttackSlots(
@@ -993,8 +995,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       const nextRows = coerceNpcReactionsArray(
         data.system.npcReactions ?? existingSystem.npcReactions,
       );
-      data.system.npcReactions = nextRows.map((row, ri) =>
-        mergeNpcAttackRowSpecials(prevRows[ri], row),
+      // Actor length wins — stale form must not resurrect a deleted reaction.
+      data.system.npcReactions = prevRows.map((row, ri) =>
+        mergeNpcAttackRowSpecials(row, nextRows[ri]),
       );
     }
     data.system.npcReactionSlots = clampNpcReactionSlots(
@@ -1821,29 +1824,47 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     updateOptions?: Record<string, unknown>,
   ): Promise<void> {
     const system = (this.actor as any).system;
+    // Same Foundry merge pitfall as extras: shorter arrays need `-=N` keys or
+    // deleted reactions stick around as object-shaped leftovers.
+    const reactionsOpt = { [NPC_REACTIONS_UPDATE]: true, ...(updateOptions || {}) };
     const phaseIndex =
       phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== ''
         ? Number(phaseRaw)
         : null;
     if (phaseIndex != null && Number.isFinite(phaseIndex)) {
-      const phases = dup(coerceNpcPhasesArray(system.phases));
+      const previousRaw = system.phases;
+      const phases = dup(coerceNpcPhasesArray(previousRaw));
       if (!phases[phaseIndex]) return;
-      const rows = mutator(coerceNpcReactionsArray(phases[phaseIndex].npcReactions));
+      const previousRows = phases[phaseIndex].npcReactions;
+      const rows = mutator(coerceNpcReactionsArray(previousRows));
       phases[phaseIndex].npcReactions = rows;
       if (extra?.slots != null) phases[phaseIndex].npcReactionSlots = extra.slots;
       else if (clampNpcReactionSlots(phases[phaseIndex].npcReactionSlots) <= 0 && rows.length > 0) {
         phases[phaseIndex].npcReactionSlots = 1;
       }
-      await (this.actor as any).update({ 'system.phases': phases }, updateOptions);
+      await (this.actor as any).update(
+        {
+          ...buildNpcPhasesReplacePatch(previousRaw, phases),
+          ...buildNpcAttackValuesReplacePatch(
+            `system.phases.${phaseIndex}.npcReactions`,
+            previousRows,
+            rows,
+          ),
+        },
+        reactionsOpt,
+      );
       return;
     }
-    const rows = mutator(coerceNpcReactionsArray(system.npcReactions));
-    const patch: Record<string, unknown> = { 'system.npcReactions': rows };
+    const previousRows = system.npcReactions;
+    const rows = mutator(coerceNpcReactionsArray(previousRows));
+    const patch: Record<string, unknown> = {
+      ...buildNpcAttackValuesReplacePatch('system.npcReactions', previousRows, rows),
+    };
     if (extra?.slots != null) patch['system.npcReactionSlots'] = extra.slots;
     else if (clampNpcReactionSlots(system.npcReactionSlots) <= 0 && rows.length > 0) {
       patch['system.npcReactionSlots'] = 1;
     }
-    await (this.actor as any).update(patch, updateOptions);
+    await (this.actor as any).update(patch, reactionsOpt);
   }
 
   async #onNpcReactionAddCustom(event: JQuery.ClickEvent) {
@@ -1892,6 +1913,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   async #onNpcReactionDelete(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    event.stopImmediatePropagation();
     const $t = $(event.currentTarget);
     const index = parseInt(String($t.data('reaction-index') ?? '-1'), 10);
     if (index < 0) return;

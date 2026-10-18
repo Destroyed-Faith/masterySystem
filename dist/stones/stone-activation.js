@@ -57,7 +57,7 @@ export async function activateStonePower(options) {
         ui.notifications?.warn(RETIRED_STONE_POWER_MESSAGE);
         return false;
     }
-    if (power.oncePerCombat && isOncePerCombatPowerUsed(combatant, power.id)) {
+    if (power.oncePerCombat && isOncePerCombatPowerUsed(combatant, power.id, actor)) {
         ui.notifications?.warn(`${power.name} may be used only once per combat.`);
         return false;
     }
@@ -119,7 +119,7 @@ export async function activateStonePower(options) {
         await power.apply({ actor, combatant, tier, cost });
     }, cost, colorlessSpent);
     if (ok && power.oncePerCombat) {
-        await markOncePerCombatPowerUsed(combatant, power.id);
+        await markOncePerCombatPowerUsed(combatant, power.id, actor);
     }
     if (ok)
         await recordExtraStoneRankUsage(actor, abilityId, poolAttribute, options.ranksGained);

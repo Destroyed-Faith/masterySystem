@@ -301,6 +301,9 @@ export function mergeNpcAttackValueLists(existing: unknown, submitted: unknown):
 /** Foundry `actor.update` option: this write *is* the extras add/delete. */
 export const NPC_EXTRA_POWERS_UPDATE = 'msNpcExtraPowers';
 
+/** Foundry `actor.update` option: this write *is* the npcReactions add/delete. */
+export const NPC_REACTIONS_UPDATE = 'msNpcReactions';
+
 /**
  * Keep extra-power rows when a form submit replaces `system.phases` /
  * `system.attackValues` without the latest button-driven rows.
@@ -344,9 +347,11 @@ export function preserveNpcExtraPowersInSystemUpdate(currentSystem: any, updateS
 export function preserveNpcAttackSpecialsInSystemUpdate(
   currentSystem: any,
   updateSystem: any,
+  opts?: { skipReactions?: boolean },
 ): void {
   if (!updateSystem || typeof updateSystem !== 'object') return;
   const current = currentSystem && typeof currentSystem === 'object' ? currentSystem : {};
+  const skipReactions = !!opts?.skipReactions;
 
   if (Object.prototype.hasOwnProperty.call(updateSystem, 'npcBaseAttack') && updateSystem.npcBaseAttack) {
     updateSystem.npcBaseAttack = sanitizeNpcAttackTargetingFields(
@@ -364,11 +369,13 @@ export function preserveNpcAttackSpecialsInSystemUpdate(
     );
   }
 
-  if (Object.prototype.hasOwnProperty.call(updateSystem, 'npcReactions')) {
+  // Prefer actor list length (like extras): stale form submits must not resurrect
+  // a just-deleted reaction or drop a just-added one.
+  if (!skipReactions && Object.prototype.hasOwnProperty.call(updateSystem, 'npcReactions')) {
     const prevRows = coerceNpcPhasesArray(current.npcReactions);
     const nextRows = coerceNpcPhasesArray(updateSystem.npcReactions);
-    updateSystem.npcReactions = nextRows.map((row: any, i: number) =>
-      row && typeof row === 'object' ? mergeNpcAttackRowSpecials(prevRows[i], row) : row,
+    updateSystem.npcReactions = prevRows.map((row: any, i: number) =>
+      row && typeof row === 'object' ? mergeNpcAttackRowSpecials(row, nextRows[i]) : row,
     );
   }
 
@@ -397,11 +404,11 @@ export function preserveNpcAttackSpecialsInSystemUpdate(
           : row,
       );
     }
-    if (phase.npcReactions != null) {
+    if (!skipReactions && phase.npcReactions != null) {
       const prevRows = coerceNpcPhasesArray(prev.npcReactions);
       const nextRows = coerceNpcPhasesArray(phase.npcReactions);
-      next.npcReactions = nextRows.map((row: any, ri: number) =>
-        row && typeof row === 'object' ? mergeNpcAttackRowSpecials(prevRows[ri], row) : row,
+      next.npcReactions = prevRows.map((row: any, ri: number) =>
+        row && typeof row === 'object' ? mergeNpcAttackRowSpecials(row, nextRows[ri]) : row,
       );
     }
     return next;

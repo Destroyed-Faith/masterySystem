@@ -73,7 +73,10 @@ export declare function computeRaiseTns(normalTn: number, declaredRaiseSlots: nu
 export declare function resolveRaiseOutcome(total: number, normalTn: number, declaredRaiseSlots: number, 
 /** Intellect Raise Focus: bonus applied only when checking Raise TN. */
 raiseTnRollBonus?: number): RaiseOutcome;
-/** +MR Schaden once per attack. Each Special (Penetration, Precision, …) once as well. */
+/**
+ * Special Raises (Penetration, Precision, …) once per attack.
+ * Damage Raises stack — each adds +MR d8 (AoE: +ceil(MR/2) d8).
+ */
 export declare function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[];
 /** Total raise slots from declared raise plan. */
 export declare function countRaiseSlots(raises: DeclaredRaise[]): number;

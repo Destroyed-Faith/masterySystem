@@ -59,6 +59,8 @@ export declare function sanitizeNpcAttackTargetingFields<T extends Record<string
 export declare function mergeNpcAttackValueLists(existing: unknown, submitted: unknown): any[];
 /** Foundry `actor.update` option: this write *is* the extras add/delete. */
 export declare const NPC_EXTRA_POWERS_UPDATE = "msNpcExtraPowers";
+/** Foundry `actor.update` option: this write *is* the npcReactions add/delete. */
+export declare const NPC_REACTIONS_UPDATE = "msNpcReactions";
 /**
  * Keep extra-power rows when a form submit replaces `system.phases` /
  * `system.attackValues` without the latest button-driven rows.
@@ -69,7 +71,9 @@ export declare function preserveNpcExtraPowersInSystemUpdate(currentSystem: any,
  * as an object or races an empty specials list.
  * Does not change attackValues / phases list length (extras add/delete own that).
  */
-export declare function preserveNpcAttackSpecialsInSystemUpdate(currentSystem: any, updateSystem: any): void;
+export declare function preserveNpcAttackSpecialsInSystemUpdate(currentSystem: any, updateSystem: any, opts?: {
+    skipReactions?: boolean;
+}): void;
 /**
  * Sanitize all NPC attack targeting on a `system` blob (sheet submit / updates).
  * Coerces object-shaped `phases` to a real array so combat and sheet share one shape.

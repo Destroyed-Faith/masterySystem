@@ -13,6 +13,7 @@ import { renderSpecials, resolvePowerSheetLevelDisplay } from './utils/power-ren
 import {
   NPC_EXTRA_POWERS_UPDATE,
   NPC_ATTACK_SPECIALS_UPDATE,
+  NPC_REACTIONS_UPDATE,
   preserveNpcExtraPowersInSystemUpdate,
   preserveNpcAttackSpecialsInSystemUpdate,
 } from './utils/npc-attack-model.js';
@@ -2593,8 +2594,12 @@ Hooks.on('preUpdateActor', (actor: any, updateData: any, options: any, _userId: 
     }
     // Same race for attack specials (form expands specials.0 as an object /
     // stale submit clears a just-added row). Skip when the write *is* add/delete/select.
+    // Reaction list add/delete uses NPC_REACTIONS_UPDATE so length is not clamped
+    // back to the pre-click actor rows.
     if (updateData.system && !options?.[NPC_ATTACK_SPECIALS_UPDATE]) {
-      preserveNpcAttackSpecialsInSystemUpdate(actor.system, updateData.system);
+      preserveNpcAttackSpecialsInSystemUpdate(actor.system, updateData.system, {
+        skipReactions: !!options?.[NPC_REACTIONS_UPDATE],
+      });
     }
   }
 });

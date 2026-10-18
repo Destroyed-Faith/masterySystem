@@ -891,10 +891,10 @@ export function buildCharacterPrintContext(actor, options = {}) {
                 entry.rollLabel = 'Effect';
                 entry.battleFootnote = 'Basic Reaction — may negate the hit if Evade exceeds the attack total.';
             }
-            else if (key === 'counterattack') {
-                entry.damageRoll = `Weapon + ${mrDice}`;
-                entry.rollLabel = 'Damage';
-                entry.battleFootnote = 'Basic Reaction — Basic Attack vs the triggering creature.';
+            else if (key === 'dive-for-cover') {
+                entry.damageRoll = `Move ${mr2} m`;
+                entry.rollLabel = 'Effect';
+                entry.battleFootnote = 'Basic Reaction — leave an AoE completely to avoid the hit.';
             }
             battleReactions.push(entry);
         }

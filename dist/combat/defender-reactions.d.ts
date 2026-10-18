@@ -26,6 +26,8 @@ export interface DefenderReactionMitigation {
     effectiveEvade?: number;
     /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
     counterattack?: boolean;
+    /** Dive for Cover: left the AoE completely — not affected. */
+    escapedByDiveForCover?: boolean;
     /** Interpose: ally actor id taking half of the damage. */
     interposeActorId?: string;
     interposeActorName?: string;

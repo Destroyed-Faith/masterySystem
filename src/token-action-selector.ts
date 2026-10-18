@@ -408,26 +408,48 @@ async function openMasteryActionRadialMenu(token: any) {
 
 /**
  * Snap a world point to the center of its grid cell (hex/square).
- * Prefer this over `token.center` after an animated move — the placeable
- * may still be mid-animation at the previous hex.
+ * Foundry `getOffset` / `getCenterPoint` require a `{x,y}` point — never bare x,y args.
  */
 function hexCenterFromWorldPoint(point: { x: number; y: number }): { x: number; y: number } {
-  if (!canvas.grid?.getOffset || !canvas.grid?.getTopLeftPoint) {
+  const grid: any = canvas.grid;
+  if (!grid?.getOffset) {
     return { x: point.x, y: point.y };
   }
   try {
-    const offset = canvas.grid.getOffset(point.x, point.y) as any;
-    if (offset && (offset.i !== undefined || offset.col !== undefined)) {
-      const i = offset.i ?? offset.col ?? 0;
-      const j = offset.j ?? offset.row ?? 0;
-      const tl = canvas.grid.getTopLeftPoint({ i, j });
-      if (tl && tl.x !== undefined && tl.y !== undefined) {
-        const gridSize = canvas.grid.size || 100;
-        return { x: tl.x + gridSize / 2, y: tl.y + gridSize / 2 };
+    const offset = grid.getOffset({ x: point.x, y: point.y });
+    if (typeof grid.getCenterPoint === 'function') {
+      const c = grid.getCenterPoint(offset);
+      if (c && Number.isFinite(c.x) && Number.isFinite(c.y)) {
+        return { x: c.x, y: c.y };
+      }
+    }
+    if (typeof grid.getTopLeftPoint === 'function') {
+      const tl = grid.getTopLeftPoint(offset);
+      if (tl && Number.isFinite(tl.x) && Number.isFinite(tl.y)) {
+        const sizeX = Number(grid.sizeX) || Number(grid.size) || 100;
+        const sizeY = Number(grid.sizeY) || Number(grid.size) || 100;
+        return { x: tl.x + sizeX / 2, y: tl.y + sizeY / 2 };
       }
     }
   } catch (error) {
     console.warn('Mastery System | Could not snap world point to hex center', error);
+  }
+  return { x: point.x, y: point.y };
+}
+
+/** Top-left of the grid cell containing a world point (for preview dest args). */
+function gridTopLeftFromWorldPoint(point: { x: number; y: number }): { x: number; y: number } {
+  const grid: any = canvas.grid;
+  if (!grid?.getOffset || !grid?.getTopLeftPoint) {
+    return { x: point.x, y: point.y };
+  }
+  try {
+    const tl = grid.getTopLeftPoint(grid.getOffset({ x: point.x, y: point.y }));
+    if (tl && Number.isFinite(tl.x) && Number.isFinite(tl.y)) {
+      return { x: tl.x, y: tl.y };
+    }
+  } catch {
+    /* fall through */
   }
   return { x: point.x, y: point.y };
 }
@@ -460,7 +482,7 @@ function hexKeyUnderTokenAtTopLeft(token: any, topLeft: { x: number; y: number }
   const grid: any = canvas.grid;
   if (!grid?.getOffset) return null;
   const c = tokenCenterFromTopLeft(token, topLeft);
-  const o = grid.getOffset(c.x, c.y) as any;
+  const o = grid.getOffset({ x: c.x, y: c.y }) as any;
   if (o?.i === undefined || o?.j === undefined) return null;
   return `${o.i},${o.j}`;
 }
@@ -610,8 +632,9 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): Pro
   // Attach keyboard listener for ESC
   window.addEventListener("keydown", state.onKeyDown);
   
-  // Initial preview at origin (zero-length)
-  refreshMovementPreview(state, origin.x, origin.y);
+  // Initial preview at origin (zero-length). Preview expects token top-left, not center.
+  const originTL = gridTopLeftFromWorldPoint(origin);
+  refreshMovementPreview(state, originTL.x, originTL.y);
   notifyGuidedMovementChanged();
   ui.notifications?.info?.(
     `Move up to ${Math.round(maxRangeMeters)} m. Click to step; right-click to finish; Esc cancels leftover.`,
@@ -817,7 +840,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
         return;
       }
       state.movedOnce = true;
-      state.origin = hexCenterFromWorldPoint(destCenter);
+      state.origin = destCenter;
       if (movementBudgetExhausted(state.budget)) endGuidedMovement(true);
       else {
         paintStaticMovementRange(state);
@@ -857,7 +880,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     }
     state.movedOnce = true;
     // Destination we just wrote — do not read token.center (still animating).
-    state.origin = hexCenterFromWorldPoint(destCenter);
+    state.origin = destCenter;
     state.blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
 
     try {
@@ -874,7 +897,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
 
     // Re-center yellow remaining range on the new hex; no history trail.
     paintStaticMovementRange(state);
-    refreshMovementPreview(state, state.origin.x, state.origin.y);
+    refreshMovementPreview(state, destTL.x, destTL.y);
     notifyGuidedMovementChanged();
     ui.notifications?.info?.(
       `${Math.max(0, Math.round(state.budget.remainingMeters))} m left — click to step, right-click to finish.`,

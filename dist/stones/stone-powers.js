@@ -524,7 +524,7 @@ const VITALITY_POWERS_RAW = [
         apply: async ({ actor, combatant, tier }) => {
             const c = combatant ??
                 game.combat?.combatants?.find((x) => x.actor?.id === actor.id);
-            if (c && isTempHpStoneUsedThisCombat(c)) {
+            if (isTempHpStoneUsedThisCombat(c, actor)) {
                 ui.notifications?.warn(`${actor.name}: Temporary HP already used this combat.`);
                 return;
             }
@@ -534,8 +534,7 @@ const VITALITY_POWERS_RAW = [
             // health math read/consume that. Persists until depleted or combat ends.
             const current = Math.max(0, Number(actor.system?.health?.tempHP ?? 0) || 0);
             await actor.update?.({ 'system.health.tempHP': current + hp });
-            if (c)
-                await markTempHpStoneUsedThisCombat(c);
+            await markTempHpStoneUsedThisCombat(c, actor);
             ui.notifications?.info(`${actor.name}: ${hp} Temp HP until depleted or combat ends.`);
         },
     },
@@ -953,7 +952,7 @@ const WITS_POWERS_RAW = [
         apply: async ({ actor, combatant, tier }) => {
             const combat = game.combat;
             const c = combatant ?? combat?.combatants?.find((x) => x.actor?.id === actor.id);
-            if (c && isInitiativeBoostUsedThisCombat(c)) {
+            if (isInitiativeBoostUsedThisCombat(c, actor)) {
                 ui.notifications?.warn(`${actor.name}: Initiative Boost already used this combat.`);
                 return;
             }
@@ -968,8 +967,7 @@ const WITS_POWERS_RAW = [
                 await c.update({ initiative: cur + bonus });
                 await c.setFlag('mastery-system', 'msInitiativeValue', cur + bonus);
             }
-            if (c)
-                await markInitiativeBoostUsedThisCombat(c);
+            await markInitiativeBoostUsedThisCombat(c, actor);
             ui.notifications?.info(`${actor.name}: Initiative Boost +${bonus} (MR ${mr} × ${2 ** (tier - 1)}).`);
             try {
                 const ChatMessage = globalThis.ChatMessage;
@@ -1002,7 +1000,7 @@ const WITS_POWERS_RAW = [
             { label: '4 Phasing Charges', description: 'Gain 4 Phasing Charges (once per combat).', value: 4 },
         ],
         apply: async ({ actor, combatant, tier }) => {
-            if (combatant && isPhasingStoneUsedThisCombat(combatant)) {
+            if (isPhasingStoneUsedThisCombat(combatant, actor)) {
                 ui.notifications?.warn(`${actor.name}: Phasing already used this combat.`);
                 return;
             }
@@ -1015,8 +1013,7 @@ const WITS_POWERS_RAW = [
                 ownerId: 'wits.phasing',
                 name: 'Phasing (Stone Power)',
             });
-            if (combatant)
-                await markPhasingStoneUsedThisCombat(combatant);
+            await markPhasingStoneUsedThisCombat(combatant, actor);
             ui.notifications?.info(`${actor.name}: Phasing — ${charges} charge(s) (once per combat).`);
         },
     },

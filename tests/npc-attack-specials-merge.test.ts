@@ -126,6 +126,36 @@ describe('preserveNpcAttackSpecialsInSystemUpdate', () => {
     preserveNpcAttackSpecialsInSystemUpdate(current, update);
     expect(update.phases[0].npcBaseAttack.specials).toEqual([{ special: 'stun' }]);
   });
+
+  it('does not resurrect a deleted npcReaction from a stale longer form submit', () => {
+    const current = {
+      npcReactions: [{ id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' }],
+    };
+    const update = {
+      npcReactions: [
+        { id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' },
+        { id: 'b', name: 'Evade', source: 'basic', basicId: 'evade' },
+      ],
+    };
+    preserveNpcAttackSpecialsInSystemUpdate(current, update);
+    expect(update.npcReactions).toHaveLength(1);
+    expect(update.npcReactions[0].basicId).toBe('guard');
+  });
+
+  it('leaves intentional reaction-list writes alone when skipReactions is set', () => {
+    const current = {
+      npcReactions: [
+        { id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' },
+        { id: 'b', name: 'Evade', source: 'basic', basicId: 'evade' },
+      ],
+    };
+    const update = {
+      npcReactions: [{ id: 'a', name: 'Guard', source: 'basic', basicId: 'guard' }],
+    };
+    preserveNpcAttackSpecialsInSystemUpdate(current, update, { skipReactions: true });
+    expect(update.npcReactions).toHaveLength(1);
+    expect(update.npcReactions[0].basicId).toBe('guard');
+  });
 });
 
 describe('sanitizeNpcAttackTargetingFields specials', () => {

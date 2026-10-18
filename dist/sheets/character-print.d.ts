@@ -30,7 +30,7 @@ export declare function summarizeStonePowerPrint(power: {
 /** Options for the printable character sheet. */
 export interface CharacterPrintOptions {
     /**
-     * When true, seed Guard / Evade / Counterattack onto the battle page
+     * When true, seed Guard / Evade / Dive for Cover onto the battle page
      * (same universal options as radial / Reaction Window).
      * Defaults to true for the table sheet (layout `full`).
      */

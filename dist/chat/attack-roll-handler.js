@@ -972,7 +972,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     });
                     // Allies protect before damage (Armor / Evade / Temp HP / Interpose).
                     let preDamage = phase1;
-                    if (!phase1.mitigation?.negatedByEvade && !phase1.mitigation?.phasedByReaction) {
+                    if (!phase1.mitigation?.negatedByEvade &&
+                        !phase1.mitigation?.phasedByReaction &&
+                        !phase1.mitigation?.escapedByDiveForCover) {
                         try {
                             preDamage = await runInteractiveReactionWindow({
                                 defender: target,
@@ -998,7 +1000,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                         }
                     }
                     const primaryNegated = !!preDamage.mitigation?.negatedByEvade || !!preDamage.mitigation?.phasedByReaction;
-                    let primaryEscaped = false;
+                    const primaryEscaped = !!preDamage.mitigation?.escapedByDiveForCover;
                     let damageResult = null;
                     if (primaryNegated) {
                         try {
@@ -1023,18 +1025,9 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             console.warn('Mastery System | evade-negated follow-up failed', negErr);
                         }
                     }
-                    else {
-                        // Dive for Cover applies to EVERY creature in the area — the primary
-                        // target may spend its Reaction to escape before damage is rolled.
-                        if (isAreaAttack) {
-                            const { promptDiveForCoverEscape } = await import('../combat/aoe-melee-resolution.js');
-                            const primaryTok = canvas?.tokens?.placeables?.find((t) => t?.id === updatedFlags.targetTokenId) ?? null;
-                            primaryEscaped = await promptDiveForCoverEscape(target, primaryTok);
-                        }
-                        if (!primaryEscaped) {
-                            const { showDamageDialog } = await import('../dice/damage-dialog.js');
-                            damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, 0, updatedFlags);
-                        }
+                    else if (!primaryEscaped) {
+                        const { showDamageDialog } = await import('../dice/damage-dialog.js');
+                        damageResult = await showDamageDialog(freshAttackerForDialog, target, weaponId, updatedFlags.selectedPowerId || null, 0, updatedFlags);
                         if (damageResult) {
                             // Post damage rolls first (HP not applied yet when pendingApply).
                             const dmgMsg = await rollAndDisplayDamage(damageResult, attacker, target, updatedFlags);
@@ -1077,7 +1070,7 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                                 }
                             }
                         }
-                        else if (!primaryEscaped) {
+                        else {
                             console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
                         }
                     }

@@ -378,6 +378,18 @@ export function evaluateReactionEligibility(power, ctx) {
             reason: 'No Basic Attack reaches the triggering creature (melee reach or ranged weapon)',
         };
     }
+    // Dive for Cover — AoE hits only (not Autofire / non-area).
+    if (basic === 'dive-for-cover') {
+        if (!ctx.isAoE || ctx.allowDiveForCover === false) {
+            return { shown: false, enabled: false, reason: 'Dive for Cover requires an AoE hit' };
+        }
+        if (phase !== 'defender') {
+            return { shown: false, enabled: false, reason: 'Dive for Cover is a defender reaction' };
+        }
+        if (!ctx.hit) {
+            return { shown: false, enabled: false, reason: 'Dive for Cover requires a hit' };
+        }
+    }
     // DR reaction needs Passive / sheet DR.
     if (tid === 'reaction-damage-reduction' || (Number(mechanicsOf(power)?.damageReductionPct) || 0) > 0) {
         if (ctx.hasPassiveDR === false) {
@@ -449,6 +461,7 @@ export function buildReactionTriggerContext(params) {
         hpLost: !!params.hpLost,
         statusSurface: !!params.statusSurface,
         isAoE: !!params.isAoE,
+        allowDiveForCover: params.allowDiveForCover,
         movementThreat: params.movementThreat ?? null,
         suppressCounterattack: !!params.suppressCounterattack,
         canReachAttackerWithBasicAttack: defender

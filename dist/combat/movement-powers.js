@@ -409,7 +409,7 @@ export async function executeMovementPower(input) {
     if (!spent)
         return fail('The Movement could not be spent.', spec.traversal);
     const { MASTERY_AUTHORIZED_MOVE } = await import('./token-move-gate.js');
-    const auth = { [MASTERY_AUTHORIZED_MOVE]: true };
+    const auth = { [MASTERY_AUTHORIZED_MOVE]: true, showRuler: false };
     const write = typeof token.update === 'function'
         ? token.update.bind(token)
         : null;

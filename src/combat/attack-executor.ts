@@ -271,7 +271,9 @@ function detectSplitAttack(option: RadialCombatOption): boolean {
       return true;
     }
     const mech = resolvePowerMechanics(option.item);
-    return mech?.splitAttack === true;
+    if (mech?.splitAttack === true) return true;
+    const label = `${option.name || ''} ${option.item?.name || ''}`;
+    return /\b(?:melee|ranged)\s+split attack\b/i.test(label);
   } catch {
     return false;
   }

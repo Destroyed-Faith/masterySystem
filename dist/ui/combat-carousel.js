@@ -1,6 +1,6 @@
 import { getActionEconomyActor, getAvailableAttackActions, getAvailableMovementActions, getMovementRangeBonusMeters, getReactionActionsSummary, getRoundState, gmRefundCombatAction, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
 import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../combat/end-turn.js';
-import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
+import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, isStonePowersDone, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
 import { effectiveInvisibilityBonusForActor } from '../combat/invisibility-profile.js';
 import { readActorStatusEffects } from '../system/active-specials.js';
 import { MASTERY_STATUS_EFFECTS } from '../system/status-effects.js';
@@ -121,6 +121,8 @@ export class CombatCarouselApp extends BaseCarousel {
         const isGM = game.user?.isGM || false;
         const prefs = readCarouselClientPrefs();
         const guidedMove = getActiveGuidedMovementSummary();
+        const preparing = isEncounterPreparing(combat);
+        const roundForStones = Math.max(1, Number(combat.round) || 1);
         for (const combatant of turns) {
             const actor = combatant.actor;
             if (!actor)
@@ -412,11 +414,18 @@ export class CombatCarouselApp extends BaseCarousel {
                         .filter(Boolean);
                 })()
                 : [];
+            const isPc = actor.type === 'character';
+            const stonesDoneForRound = isPc && (preparing || !!combat.started)
+                ? isStonePowersDone(combat, String(combatant.id), roundForStones)
+                : false;
+            const stonePending = isPc && (preparing || !!combat.started) && !stonesDoneForRound;
             combatants.push({
                 id: combatant.id,
                 name: combatant.name || actor.name,
                 img: portraitImg,
                 initiative: combatant.initiative ?? 0,
+                stoneReady: isPc && stonesDoneForRound,
+                stonePending,
                 reactionRemaining: reactSum.remaining,
                 reactionTotal: reactSum.total,
                 attackRemaining,
@@ -477,7 +486,6 @@ export class CombatCarouselApp extends BaseCarousel {
         for (const row of combatants) {
             row.isNext = String(row.id) === String(nextCombatantId);
         }
-        const preparing = isEncounterPreparing(combat);
         const stonesReady = arePlayerStonesReadyForRound(combat);
         const startBlockers = preparing ? encounterStartBlockers(combat) : [];
         const startBlockedTpl = game.i18n?.localize('MASTERY.encounterSetup.startBlocked') || 'Still open: {list}';

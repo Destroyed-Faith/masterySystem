@@ -36,7 +36,15 @@ export declare function diveForCoverDeciderUserId(defender: any): {
     userId: string;
 };
 export declare function promptDiveForCoverEscape(defender: any, tok: any | null): Promise<boolean>;
-/** Dive for Cover prompt on THIS client (caller already checked who may decide). */
+/**
+ * After Dive for Cover is chosen (Reaction already spent via the Reaction Window),
+ * let the table move the token and confirm whether it left the area.
+ */
+export declare function confirmDiveForCoverOutside(defender: any, tok: any | null, moveM?: number): Promise<boolean>;
+/**
+ * @deprecated Prefer choosing Dive for Cover in the Reaction Window.
+ * Kept for remote socket fallback / legacy callers.
+ */
 export declare function promptDiveForCoverEscapeLocal(defender: any, tok: any | null): Promise<boolean>;
 /** Per-creature AoE defense TN (Evade or Final Spell TN) before Raise increments. */
 export declare function aoeCreatureNormalTn(params: {

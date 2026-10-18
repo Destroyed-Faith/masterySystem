@@ -51,6 +51,8 @@ export interface ReactionWindowState {
     spellPowerDamageDice?: number;
     attackType?: 'melee' | 'ranged' | null;
     isAoE?: boolean;
+    /** When false, hide Dive for Cover (e.g. Autofire). Default: allowed on AoE. */
+    allowDiveForCover?: boolean;
     /** Threat Zone boundary this card was opened for. */
     movementThreat?: 'entry' | 'exit' | null;
     /**
@@ -119,6 +121,8 @@ export declare function runInteractiveReactionWindow(params: {
     spellPowerDamageDice?: number;
     attackType?: 'melee' | 'ranged' | null;
     isAoE?: boolean;
+    /** When false, hide Dive for Cover even on AoE (e.g. Autofire). */
+    allowDiveForCover?: boolean;
     /** Threat Zone entry (after arrival) or exit (before departure). */
     movementThreat?: 'entry' | 'exit' | null;
 }): Promise<ReactionPhaseResult>;

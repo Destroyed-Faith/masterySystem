@@ -190,6 +190,7 @@ function filterEntriesForCard(entries, state, actors) {
             multiTarget: !!state.multiTarget,
             attackType: state.attackType ?? null,
             isAoE: !!state.isAoE,
+            allowDiveForCover: state.allowDiveForCover,
             movementThreat: state.movementThreat ?? null,
         });
         const powers = e.powers.filter((p) => {
@@ -651,6 +652,29 @@ async function executeReactionSpend(params) {
             powerName: power.name,
         };
         note = ` <em>(Interpose — ${actorName} will take half of the damage dealt to ${String(defender.name ?? 'the target')}.)</em>`;
+        return { state, note };
+    }
+    // Dive for Cover — Reaction already spent; confirm whether the token left the AoE.
+    if (power?.basicReaction === 'dive-for-cover') {
+        try {
+            const { diveForCoverDistanceM, confirmDiveForCoverOutside } = await import('./aoe-melee-resolution.js');
+            const { getPrimaryTokenForActor } = await import('../utils/mechanics-adjacency.js');
+            const moveM = diveForCoverDistanceM(actor);
+            const tok = getPrimaryTokenForActor(actor);
+            const outside = await confirmDiveForCoverOutside(actor, tok, moveM);
+            state.mitigation = {
+                ...(state.mitigation || emptyMitigation()),
+                powerName: power.name,
+                escapedByDiveForCover: outside,
+            };
+            note = outside
+                ? ' <em>(Dive for Cover — outside the area, not affected.)</em>'
+                : ' <em>(Dive for Cover — still inside, affected normally.)</em>';
+        }
+        catch (err) {
+            console.warn('Mastery System | Dive for Cover failed', err);
+            note = ' <em>(Dive for Cover — resolve at the table.)</em>';
+        }
         return { state, note };
     }
     // Ally mitigation merges into the shared defender mitigation (pre-damage allies phase).
@@ -1280,6 +1304,7 @@ export async function runInteractiveReactionWindow(params) {
         spellPowerDamageDice: Math.max(0, Math.floor(Number(params.spellPowerDamageDice) || 0)),
         attackType: params.attackType ?? null,
         isAoE: !!params.isAoE,
+        allowDiveForCover: params.allowDiveForCover,
         movementThreat: params.movementThreat ?? null,
     };
     const actionable = filterEntriesForCard(entries, state);

@@ -31,6 +31,8 @@ export interface ReactionTriggerContext {
     /** Ongoing/status application surface (Cleanse) — not the attack window. */
     statusSurface?: boolean;
     isAoE?: boolean;
+    /** When false, Dive for Cover is hidden even if `isAoE` (e.g. Autofire). */
+    allowDiveForCover?: boolean;
     suppressCounterattack?: boolean;
     /** Set when this window is a Threat Zone entry or exit, not an attack. */
     movementThreat?: 'entry' | 'exit' | null;
@@ -93,6 +95,7 @@ export declare function buildReactionTriggerContext(params: {
     hpLost?: boolean;
     statusSurface?: boolean;
     isAoE?: boolean;
+    allowDiveForCover?: boolean;
     attackType?: 'melee' | 'ranged' | null;
     movementThreat?: 'entry' | 'exit' | null;
 }): ReactionTriggerContext;

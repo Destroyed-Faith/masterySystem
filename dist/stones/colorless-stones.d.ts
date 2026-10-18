@@ -97,15 +97,25 @@ export declare function clearTempColorlessStones(actor: any): Promise<void>;
  * actor.
  */
 export declare function clearInitiativeColorlessStones(actor: any): Promise<void>;
-export declare function isInitiativeBoostUsedThisCombat(combatant: any): boolean;
-export declare function markInitiativeBoostUsedThisCombat(combatant: any): Promise<void>;
-export declare function isPhasingStoneUsedThisCombat(combatant: any): boolean;
-export declare function markPhasingStoneUsedThisCombat(combatant: any): Promise<void>;
-export declare function isTempHpStoneUsedThisCombat(combatant: any): boolean;
-export declare function markTempHpStoneUsedThisCombat(combatant: any): Promise<void>;
+/** All once-per-combat flag keys (for combat-end cleanup). */
+export declare const ONCE_PER_COMBAT_STONE_FLAGS: readonly ["msInitiativeBoostUsed", "msPhasingStoneUsed", "msTempHpStoneUsed"];
 export declare function oncePerCombatFlagForPower(powerId: string): string | null;
-export declare function isOncePerCombatPowerUsed(combatant: any, powerId: string): boolean;
-export declare function markOncePerCombatPowerUsed(combatant: any, powerId: string): Promise<void>;
+/**
+ * Once-per-combat Stone Powers are stored on the **actor** (combatId-scoped),
+ * with a legacy combatant boolean kept in sync. Actor is authoritative so
+ * round-2 stone confirm cannot re-grant Temp HP / Boost / Phasing when the
+ * combatant flag failed to stick for a player-owned combatant.
+ */
+export declare function isOncePerCombatPowerUsed(combatant: any, powerId: string, actor?: any): boolean;
+export declare function markOncePerCombatPowerUsed(combatant: any, powerId: string, actor?: any): Promise<void>;
+/** Clear actor once-per-combat stone marks (new fight / combat end). */
+export declare function clearOncePerCombatStoneFlags(actor: any): Promise<void>;
+export declare function isInitiativeBoostUsedThisCombat(combatant: any, actor?: any): boolean;
+export declare function markInitiativeBoostUsedThisCombat(combatant: any, actor?: any): Promise<void>;
+export declare function isPhasingStoneUsedThisCombat(combatant: any, actor?: any): boolean;
+export declare function markPhasingStoneUsedThisCombat(combatant: any, actor?: any): Promise<void>;
+export declare function isTempHpStoneUsedThisCombat(combatant: any, actor?: any): boolean;
+export declare function markTempHpStoneUsedThisCombat(combatant: any, actor?: any): Promise<void>;
 /** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank. Tier 4 is the last tier. */
 export declare function initiativeBoostAmount(tier: number, masteryRank: number): number;
 export declare function maxConvertibleColorlessStones(initiative: number, masteryRank: number): number;

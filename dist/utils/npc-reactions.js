@@ -7,7 +7,7 @@
 import { filterCatalog } from './power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from './power-item-builder.js';
 import { coerceNpcAttackSpecials, coerceNpcPhasesArray, npcSpecialEffectString, } from './npc-attack-model.js';
-import { buildBasicReactionItems } from '../combat/basic-combat.js';
+import { buildBasicReactionItems, buildCounterattackReactionItem, } from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export const NPC_STANDARD_REACTIONS = [
@@ -119,22 +119,6 @@ export function npcReactionSlotsForEconomy(actor) {
         return 0;
     return slots;
 }
-function buildDiveForCoverItem(actor) {
-    const mr = getRulesMasteryRank(actor);
-    const moveM = mr * 2;
-    return {
-        id: 'basic-reaction-dive-for-cover',
-        name: 'Dive for Cover',
-        type: 'basic-reaction',
-        system: {
-            powerType: 'reaction',
-            templateId: 'basic-dive-for-cover',
-            description: `Move up to ${moveM} m (2 × MR). If you leave the AoE completely, you are not affected.`,
-        },
-        basicReaction: 'dive-for-cover',
-        mechanics: {},
-    };
-}
 function buildNpcInterposeItem() {
     return {
         id: 'basic-reaction-interpose',
@@ -153,8 +137,8 @@ function materializeBasic(actor, basicId) {
     const id = String(basicId || '');
     if (id === 'interpose')
         return buildNpcInterposeItem();
-    if (id === 'dive-for-cover')
-        return buildDiveForCoverItem(actor);
+    if (id === 'counterattack')
+        return buildCounterattackReactionItem(actor);
     const basics = buildBasicReactionItems(actor);
     return basics.find((b) => b.basicReaction === id) ?? null;
 }

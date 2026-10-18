@@ -122,7 +122,28 @@ export async function promptDiveForCoverEscape(defender, tok) {
     }
     return promptDiveForCoverEscapeLocal(defender, tok);
 }
-/** Dive for Cover prompt on THIS client (caller already checked who may decide). */
+/**
+ * After Dive for Cover is chosen (Reaction already spent via the Reaction Window),
+ * let the table move the token and confirm whether it left the area.
+ */
+export async function confirmDiveForCoverOutside(defender, tok, moveM) {
+    const meters = Math.max(0, Math.floor(Number(moveM) || diveForCoverDistanceM(defender)));
+    const outside = await confirmSpendReaction(`Dive for Cover — ${defender.name}`, `<p>Move the token up to <strong>${meters} m</strong> now.</p>` +
+        `<p>Is <strong>${defender.name}</strong> completely <strong>outside</strong> the AoE after the move?</p>` +
+        `<p class="notes">This movement does not provoke Reactions.</p>`);
+    await ChatMessage.create({
+        user: game.user?.id,
+        speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
+        content: `<p><strong>${defender.name}</strong> — Dive for Cover (${meters} m): ${outside
+            ? '<strong>outside the area</strong> — not affected.'
+            : '<strong>still inside</strong> — affected normally.'}</p>`,
+    });
+    return outside;
+}
+/**
+ * @deprecated Prefer choosing Dive for Cover in the Reaction Window.
+ * Kept for remote socket fallback / legacy callers.
+ */
 export async function promptDiveForCoverEscapeLocal(defender, tok) {
     if (!actorParticipatesInReactions(defender))
         return false;
@@ -140,16 +161,7 @@ export async function promptDiveForCoverEscapeLocal(defender, tok) {
     const consumed = await spendReactionAction(economyDef, combat);
     if (!consumed)
         return false;
-    const outside = await confirmSpendReaction(`Dive for Cover — ${defender.name}`, `<p>Move the token up to <strong>${moveM} m</strong> now.</p>` +
-        `<p>Is <strong>${defender.name}</strong> completely <strong>outside</strong> the AoE after the move?</p>`);
-    await ChatMessage.create({
-        user: game.user?.id,
-        speaker: ChatMessage.getSpeaker({ actor: defender, token: tok?.document }),
-        content: `<p><strong>${defender.name}</strong> — Dive for Cover (${moveM} m): ${outside
-            ? '<strong>outside the area</strong> — not affected.'
-            : '<strong>still inside</strong> — affected normally.'}</p>`,
-    });
-    return outside;
+    return confirmDiveForCoverOutside(defender, tok, moveM);
 }
 /** Per-creature AoE defense TN (Evade or Final Spell TN) before Raise increments. */
 export function aoeCreatureNormalTn(params) {
@@ -192,9 +204,12 @@ export async function resolveAoeFullPayloadOnTarget(params) {
         hit: true,
         phase: 'defender',
         isAoE: true,
+        allowDiveForCover: allowDive,
     });
     let preDamage = phase1;
-    if (!phase1.mitigation?.negatedByEvade && !phase1.mitigation?.phasedByReaction) {
+    if (!phase1.mitigation?.negatedByEvade &&
+        !phase1.mitigation?.phasedByReaction &&
+        !phase1.mitigation?.escapedByDiveForCover) {
         try {
             preDamage = await runInteractiveReactionWindow({
                 defender,
@@ -211,11 +226,15 @@ export async function resolveAoeFullPayloadOnTarget(params) {
                 priorMitigation: phase1.mitigation,
                 silentIfEmpty: true,
                 isAoE: true,
+                allowDiveForCover: allowDive,
             });
         }
         catch {
             /* ignore */
         }
+    }
+    if (preDamage.mitigation?.escapedByDiveForCover) {
+        return 'escaped';
     }
     if (preDamage.mitigation?.negatedByEvade || preDamage.mitigation?.phasedByReaction) {
         await ChatMessage.create({
@@ -224,11 +243,6 @@ export async function resolveAoeFullPayloadOnTarget(params) {
             content: `<p><strong>AoE</strong> → <strong>${defender.name}</strong>: hit <strong>negated</strong> by reaction. No damage.</p>`,
         });
         return 'negated';
-    }
-    if (allowDive) {
-        const escaped = await promptDiveForCoverEscape(defender, tok);
-        if (escaped)
-            return 'escaped';
     }
     const targetFlags = {
         ...flags,

@@ -16,8 +16,9 @@ import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, 
 import { movementMetersAfterStoneEffects } from './stones/stone-combat-effects.js';
 import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
-import { highlightHexesInRange, highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
+import { highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysWithinStepsFromPoint, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
 import { createMovementBudget, movementBudgetExhausted, spendMovementMeters, spendMovementSteps, } from './ui/guided-movement-budget.js';
+import { clearTokenMovementHistory } from './ui/token-movement-history.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
 const MOVEMENT_RANGE_COLOR = 0xffe066;
 const MOVEMENT_RANGE_ALPHA = 0.45;
@@ -282,41 +283,68 @@ async function openMasteryActionRadialMenu(token) {
     openRadialMenuForActor(token, allOptions);
 }
 /**
- * Get hex center position for a token
- * Uses Foundry grid APIs - no calibration math needed
+ * Snap a world point to the center of its grid cell (hex/square).
+ * Foundry `getOffset` / `getCenterPoint` require a `{x,y}` point — never bare x,y args.
  */
-function getTokenHexCenter(token) {
-    if (!token || !canvas.grid) {
-        return { x: token?.x || 0, y: token?.y || 0 };
+function hexCenterFromWorldPoint(point) {
+    const grid = canvas.grid;
+    if (!grid?.getOffset) {
+        return { x: point.x, y: point.y };
     }
-    // Use token center directly - grid.getOffset will handle conversion to hex coordinates
-    const center = token.center || { x: token.x, y: token.y };
-    // For hex grids, optionally get the actual hex center pixel position
-    // But for movement preview, we can use token.center directly since grid.getOffset handles conversion
-    const isHexGrid = canvas.grid.type === CONST.GRID_TYPES.HEXAGONAL;
-    if (isHexGrid && canvas.grid?.getOffset && canvas.grid?.getTopLeftPoint) {
-        try {
-            const offset = canvas.grid.getOffset(center.x, center.y);
-            if (offset && (offset.i !== undefined || offset.col !== undefined)) {
-                const i = offset.i ?? offset.col ?? 0;
-                const j = offset.j ?? offset.row ?? 0;
-                // Get top-left point of the hex, then add half grid size to get center
-                const tl = canvas.grid.getTopLeftPoint({ i, j });
-                if (tl && tl.x !== undefined && tl.y !== undefined) {
-                    const gridSize = canvas.grid.size || 100;
-                    return {
-                        x: tl.x + gridSize / 2,
-                        y: tl.y + gridSize / 2
-                    };
-                }
+    try {
+        const offset = grid.getOffset({ x: point.x, y: point.y });
+        if (typeof grid.getCenterPoint === 'function') {
+            const c = grid.getCenterPoint(offset);
+            if (c && Number.isFinite(c.x) && Number.isFinite(c.y)) {
+                return { x: c.x, y: c.y };
             }
         }
-        catch (error) {
-            console.warn('Mastery System | Could not calculate hex center, using token center', error);
+        if (typeof grid.getTopLeftPoint === 'function') {
+            const tl = grid.getTopLeftPoint(offset);
+            if (tl && Number.isFinite(tl.x) && Number.isFinite(tl.y)) {
+                const sizeX = Number(grid.sizeX) || Number(grid.size) || 100;
+                const sizeY = Number(grid.sizeY) || Number(grid.size) || 100;
+                return { x: tl.x + sizeX / 2, y: tl.y + sizeY / 2 };
+            }
         }
     }
-    // Fallback to token center
-    return center;
+    catch (error) {
+        console.warn('Mastery System | Could not snap world point to hex center', error);
+    }
+    return { x: point.x, y: point.y };
+}
+/** Top-left of the grid cell containing a world point (for preview dest args). */
+function gridTopLeftFromWorldPoint(point) {
+    const grid = canvas.grid;
+    if (!grid?.getOffset || !grid?.getTopLeftPoint) {
+        return { x: point.x, y: point.y };
+    }
+    try {
+        const tl = grid.getTopLeftPoint(grid.getOffset({ x: point.x, y: point.y }));
+        if (tl && Number.isFinite(tl.x) && Number.isFinite(tl.y)) {
+            return { x: tl.x, y: tl.y };
+        }
+    }
+    catch {
+        /* fall through */
+    }
+    return { x: point.x, y: point.y };
+}
+/**
+ * Get hex center position for a token.
+ * Uses document x/y when present so mid-animation placeables are not trusted.
+ */
+function getTokenHexCenter(token) {
+    if (!token)
+        return { x: 0, y: 0 };
+    const doc = token.document ?? token;
+    const docX = Number(doc?.x);
+    const docY = Number(doc?.y);
+    if (Number.isFinite(docX) && Number.isFinite(docY)) {
+        return hexCenterFromWorldPoint(tokenCenterFromTopLeft(token, { x: docX, y: docY }));
+    }
+    const center = token.center || { x: token.x || 0, y: token.y || 0 };
+    return hexCenterFromWorldPoint(center);
 }
 /** Pixel center of the token if its top-left were `tl`. */
 function tokenCenterFromTopLeft(token, tl) {
@@ -330,7 +358,7 @@ function hexKeyUnderTokenAtTopLeft(token, topLeft) {
     if (!grid?.getOffset)
         return null;
     const c = tokenCenterFromTopLeft(token, topLeft);
-    const o = grid.getOffset(c.x, c.y);
+    const o = grid.getOffset({ x: c.x, y: c.y });
     if (o?.i === undefined || o?.j === undefined)
         return null;
     return `${o.i},${o.j}`;
@@ -354,14 +382,15 @@ function collectBlockedHexKeysFromOtherTokens(movingToken) {
     return keys;
 }
 function paintStaticMovementRange(state) {
-    const token = state.token;
     if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS)
         return;
     const steps = Math.max(0, state.budget.remainingSteps);
     if (steps <= 0)
         return;
-    highlightHexesInRange(token.id, steps, state.highlightIdRange, MOVEMENT_RANGE_COLOR, MOVEMENT_RANGE_ALPHA);
-    const reachable = collectHexKeysInRangeForToken(token.id, steps);
+    // Always paint from `state.origin` — not `token.center`, which lags during
+    // Foundry's move animation and would keep the yellow blob at the start hex.
+    highlightHexesWithinStepsFromPoint(state.origin, steps, state.highlightIdRange, MOVEMENT_RANGE_COLOR, MOVEMENT_RANGE_ALPHA);
+    const reachable = collectHexKeysWithinStepsFromPoint(state.origin, steps);
     if (reachable) {
         highlightTabuHexesOnLayer(state.highlightIdRange, state.blockedHexKeys, reachable, TABU_OVERLAY_COLOR, TABU_OVERLAY_ALPHA);
     }
@@ -396,6 +425,8 @@ export function startGuidedMovement(token, option) {
     });
     // Ensure token is controlled by this user
     token.control({ releaseOthers: false });
+    // Drop any leftover Foundry walked-path trail from a prior move.
+    void clearTokenMovementHistory(token.document ?? token);
     // Get hex center as origin (for hex grids, this is the center of the hex the token is in)
     const origin = getTokenHexCenter(token);
     const maxRangeMeters = getDefaultMovementRange(token, option);
@@ -455,8 +486,9 @@ export function startGuidedMovement(token, option) {
     canvas.stage.on("pointerdown", state.onDown);
     // Attach keyboard listener for ESC
     window.addEventListener("keydown", state.onKeyDown);
-    // Initial preview at origin (zero-length)
-    refreshMovementPreview(state, origin.x, origin.y);
+    // Initial preview at origin (zero-length). Preview expects token top-left, not center.
+    const originTL = gridTopLeftFromWorldPoint(origin);
+    refreshMovementPreview(state, originTL.x, originTL.y);
     notifyGuidedMovementChanged();
     ui.notifications?.info?.(`Move up to ${Math.round(maxRangeMeters)} m. Click to step; right-click to finish; Esc cancels leftover.`);
     return done;
@@ -639,7 +671,7 @@ async function attemptCommitMovement(destX, destY, state) {
                 return;
             }
             state.movedOnce = true;
-            state.origin = getTokenHexCenter(token);
+            state.origin = destCenter;
             if (movementBudgetExhausted(state.budget))
                 endGuidedMovement(true);
             else {
@@ -661,8 +693,14 @@ async function attemptCommitMovement(destX, destY, state) {
         const traversal = moveId === 'flee' ? 'path' : movementTraversalKind(state.option);
         await token.document.setFlag?.('mastery-system', 'movementTraversal', traversal);
         const { MASTERY_AUTHORIZED_MOVE } = await import('./combat/token-move-gate.js');
-        await token.document.update({ x: destTL.x, y: destTL.y }, { animate: true, [MASTERY_AUTHORIZED_MOVE]: true });
+        await token.document.update({ x: destTL.x, y: destTL.y }, {
+            animate: true,
+            // Foundry V14 TokenRuler — do not keep a walked-path trail for this step.
+            showRuler: false,
+            [MASTERY_AUTHORIZED_MOVE]: true,
+        });
         // Movement action was already spent when the option started (except Flee, which commits above).
+        await clearTokenMovementHistory(token.document);
         if (stepsUsed > 0) {
             state.budget = spendMovementSteps(state.budget, stepsUsed);
         }
@@ -670,7 +708,8 @@ async function attemptCommitMovement(destX, destY, state) {
             state.budget = spendMovementMeters(state.budget, metersUsed);
         }
         state.movedOnce = true;
-        state.origin = getTokenHexCenter(token);
+        // Destination we just wrote — do not read token.center (still animating).
+        state.origin = destCenter;
         state.blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
         try {
             clearHexHighlight(state.highlightIdRange);
@@ -683,8 +722,9 @@ async function attemptCommitMovement(destX, destY, state) {
             endGuidedMovement(true);
             return;
         }
+        // Re-center yellow remaining range on the new hex; no history trail.
         paintStaticMovementRange(state);
-        refreshMovementPreview(state, state.origin.x, state.origin.y);
+        refreshMovementPreview(state, destTL.x, destTL.y);
         notifyGuidedMovementChanged();
         ui.notifications?.info?.(`${Math.max(0, Math.round(state.budget.remainingMeters))} m left — click to step, right-click to finish.`);
     }
@@ -717,6 +757,8 @@ export function endGuidedMovement(success) {
     if (state.ruler && state.ruler.clear) {
         state.ruler.clear();
     }
+    // Never leave Foundry's pink walked-path trail after guided movement ends.
+    void clearTokenMovementHistory(state.token?.document ?? state.token);
     // Clear preview graphics
     if (state.previewGraphics && state.previewGraphics.parent) {
         state.previewGraphics.parent.removeChild(state.previewGraphics);

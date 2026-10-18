@@ -10,7 +10,7 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
 import { renderSpecials, resolvePowerSheetLevelDisplay } from './utils/power-rendering.js';
-import { NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, preserveNpcExtraPowersInSystemUpdate, preserveNpcAttackSpecialsInSystemUpdate, } from './utils/npc-attack-model.js';
+import { NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, NPC_REACTIONS_UPDATE, preserveNpcExtraPowersInSystemUpdate, preserveNpcAttackSpecialsInSystemUpdate, } from './utils/npc-attack-model.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
 import { registerStatusHud } from './system/status-hud.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
@@ -60,7 +60,7 @@ import { applyPlayerVisionToCreateData, planTokenCreateSightUpdate, runPlayerVis
 import { initializeSceneEditor } from './scene-editor/register.js';
 import { initializeHitBlockerProbe } from './debug/hit-blocker-probe.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
-import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
+import { arePlayerStonesReadyForRound, initializeStoneRoundGate, isStonePowersDone, } from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
@@ -408,8 +408,16 @@ Hooks.once('init', async function () {
         const $tokenName = $combatant.find('.token-name');
         if ($tokenName.length === 0)
             return;
-        // Remove existing initiative display
-        $tokenName.find('.ms-initiative-value').remove();
+        // Remove existing initiative display / stone-ready mark
+        $tokenName.find('.ms-initiative-value, .ms-stone-ready-mark').remove();
+        // PC stone-assignment ready mark next to Initiative (✓ done / ✗ still open).
+        const actor = freshCombatant.actor;
+        if (actor?.type === 'character') {
+            const round = Math.max(1, Number(combat.round) || 1);
+            const done = isStonePowersDone(combat, String(freshCombatant.id), round);
+            const mark = $(`<span class="ms-stone-ready-mark${done ? ' is-ready' : ' is-pending'}" title="${done ? 'Stone assignment confirmed' : 'Stone assignment still open'}">${done ? '✓' : '✗'}</span>`);
+            $tokenName.prepend(mark);
+        }
         // Add updated initiative value
         const $initiativeSpan = $('<span class="ms-initiative-value">[' + initiativeValue + ']</span>');
         $tokenName.prepend($initiativeSpan);
@@ -1091,6 +1099,13 @@ Hooks.once('init', async function () {
     registerImageUrlShareHooks();
     // Initialize token action selector
     initializeTokenActionSelector();
+    try {
+        const { initializeTokenMovementHistoryPolicy } = await import('./ui/token-movement-history.js');
+        initializeTokenMovementHistoryPolicy();
+    }
+    catch (err) {
+        console.warn('Mastery System | token movement history policy failed', err);
+    }
     registerStatusHud();
     // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)
     Hooks.on('masterySystem.roundStateUpdated', ({ actorId }) => {
@@ -2351,8 +2366,12 @@ Hooks.on('preUpdateActor', (actor, updateData, options, _userId) => {
         }
         // Same race for attack specials (form expands specials.0 as an object /
         // stale submit clears a just-added row). Skip when the write *is* add/delete/select.
+        // Reaction list add/delete uses NPC_REACTIONS_UPDATE so length is not clamped
+        // back to the pre-click actor rows.
         if (updateData.system && !options?.[NPC_ATTACK_SPECIALS_UPDATE]) {
-            preserveNpcAttackSpecialsInSystemUpdate(actor.system, updateData.system);
+            preserveNpcAttackSpecialsInSystemUpdate(actor.system, updateData.system, {
+                skipReactions: !!options?.[NPC_REACTIONS_UPDATE],
+            });
         }
     }
 });

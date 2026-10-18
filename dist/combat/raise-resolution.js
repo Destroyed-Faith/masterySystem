@@ -42,7 +42,10 @@ raiseTnRollBonus = 0) {
     const { raiseTn } = computeRaiseTns(normal, slots);
     return t + raiseBonus >= raiseTn ? 'full' : 'partial';
 }
-/** +MR Schaden once per attack. Each Special (Penetration, Precision, …) once as well. */
+/**
+ * Special Raises (Penetration, Precision, …) once per attack.
+ * Damage Raises stack — each adds +MR d8 (AoE: +ceil(MR/2) d8).
+ */
 export function dedupeDeclaredRaises(raises) {
     const seen = new Set();
     const out = [];
@@ -52,9 +55,6 @@ export function dedupeDeclaredRaises(raises) {
             if (!key || seen.has(`special:${key}`))
                 continue;
             seen.add(`special:${key}`);
-        }
-        else if (raise.effect === 'damage') {
-            // Each Damage Raise is its own +MR (or ceil(MR/2) for AoE) bonus.
         }
         out.push(raise);
     }

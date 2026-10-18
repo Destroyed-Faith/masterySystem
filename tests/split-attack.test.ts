@@ -109,6 +109,27 @@ describe('Split-Attack power declaration', () => {
     const item = makePowerItem(1, power);
     expect(resolvePowerMechanics(item)?.splitAttack).toBeFalsy();
   });
+
+  it('treats a roman-suffixed catalog name with legacy mechanics as Split Attack', () => {
+    const item = {
+      name: 'Ranged Split Attack I',
+      type: 'power',
+      system: {
+        rank: 4,
+        levels: {
+          '4': {
+            mechanics: {
+              applyWhen: 'attack-rider',
+              damageRider: { flat: '+5d8' },
+            },
+          },
+        },
+      },
+    };
+    const mech = resolvePowerMechanics(item);
+    expect(mech?.splitAttack).toBe(true);
+    expect(mech?.damageRider?.flat).toBe('+5d8');
+  });
 });
 
 describe('pool-halving rule (Math.floor(original / 2)) — accuracy only', () => {

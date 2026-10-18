@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.731] - 2026-10-18
+
+### Fixed
+
+- **Guided movement:** Remaining range is measured from the destination hex. `getOffset` now receives a point, so the preview line no longer starts off-canvas.
+- **NPC sheet:** The reaction trash button actually removes the row. Stale form submits cannot put a deleted reaction back.
+- **Split Attack:** Powers named like “Ranged Split Attack I” with older saved mechanics still split the attack pool and post the second strike. Each hit still deals full damage.
+
 ## [0.9.730] - 2026-10-18
 
 ### Fixed

@@ -161,7 +161,10 @@ function detectSplitAttack(option) {
             return true;
         }
         const mech = resolvePowerMechanics(option.item);
-        return mech?.splitAttack === true;
+        if (mech?.splitAttack === true)
+            return true;
+        const label = `${option.name || ''} ${option.item?.name || ''}`;
+        return /\b(?:melee|ranged)\s+split attack\b/i.test(label);
     }
     catch {
         return false;
@@ -1235,7 +1238,8 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             .filter((o) => {
             if (o.id === currentId)
                 return true;
-            if (o.effect === 'damage' || o.effect === 'specialPlus')
+            // Special Raises are once per attack. Damage Raises stack (+MR d8 each).
+            if (o.effect === 'specialPlus')
                 return !takenSpecialIds.has(o.id);
             return true;
         })
@@ -1370,6 +1374,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             return undefined;
         return spellAllocFromParts(d8Paid, spPaid);
     };
+    /** Special Raises only — Damage Raises may be chosen multiple times (+MR d8 each). */
     const lockSpecialRaises = () => {
         const rows = panel.find('.raise-plan-row').toArray();
         const owner = new Map();
@@ -1378,7 +1383,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             const select = $(rowEl).find('.raise-effect-select');
             const id = String(select.val() || '');
             const opt = raiseContext.raiseOptions.find((o) => o.id === id);
-            if (!opt || (opt.effect !== 'specialPlus' && opt.effect !== 'damage'))
+            if (!opt || opt.effect !== 'specialPlus')
                 continue;
             const prev = owner.get(opt.id);
             if (prev && prev !== rowEl) {
