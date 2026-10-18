@@ -23,6 +23,61 @@ prose-mirror#chat-message.chat-input > .editor-container {
   padding: 0.35rem 0.5rem;
 }
 
+/* Quick d8 bar — dice count, Keep (Mastery Rank), Roll. Sits above the composer. */
+.ms-quick-d8 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 100%;
+  width: 100%;
+  margin: 0 0 4px;
+  box-sizing: border-box;
+}
+
+.ms-quick-d8-count,
+.ms-quick-d8-keep,
+.ms-quick-d8-roll {
+  height: 26px;
+  box-sizing: border-box;
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: 4px;
+  background: var(--ms-panel2, #1b2124);
+  color: var(--ms-text, #d0d0d0);
+  font-size: 12px;
+}
+
+.ms-quick-d8-count {
+  width: 3.2rem;
+  padding: 0 4px;
+  text-align: center;
+}
+
+.ms-quick-d8-keep-label {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--ms-muted, #a0a0a0);
+}
+
+.ms-quick-d8-keep {
+  width: 3rem;
+  padding: 0 2px;
+}
+
+.ms-quick-d8-roll {
+  margin-left: auto;
+  padding: 0 10px;
+  cursor: pointer;
+  color: var(--ms-accent, #c9a227);
+  font-family: var(--ms-font-head, inherit);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ms-quick-d8-roll:hover {
+  border-color: var(--ms-accent, #c9a227);
+}
+
 /* =========================================
    General Chat Styling (applies to all chat messages)
    ========================================= */

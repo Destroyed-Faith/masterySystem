@@ -64,6 +64,7 @@ import { arePlayerStonesReadyForRound, initializeStoneRoundGate, isStonePowersDo
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
+import { initializeQuickD8Bar } from './ui/quick-d8-bar.js';
 import { initializeTyhraCalendar } from './calendar/tyhra-calendar-hooks.js';
 import { initializeProseMirrorFontColor } from './editor/prosemirror-font-color.js';
 import { registerImageUrlShareHooks } from './ui/image-url-share.js';
@@ -1094,6 +1095,7 @@ Hooks.once('init', async function () {
     initializeEncounterStart();
     registerEncounterSocket();
     initializeEpicMasteryRoll();
+    initializeQuickD8Bar();
     initializeTyhraCalendar();
     initializeProseMirrorFontColor();
     registerImageUrlShareHooks();

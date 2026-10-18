@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.741] - 2026-10-18
+
+### Added
+
+- **Chat:** Quick d8 bar above the composer. Type a dice count (1–99), pick Keep (Mastery Rank 1–8), press Roll. Raw pool only — no Fear or Health reductions.
+
 ## [0.9.740] - 2026-10-18
 
 ### Fixed
