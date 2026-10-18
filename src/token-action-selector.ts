@@ -44,10 +44,9 @@ import {
   snapWorldTopLeft,
 } from './utils/grid-snap.js';
 import {
-  highlightHexesInRange,
   highlightHexesWithinStepsFromPoint,
   clearHexHighlight,
-  collectHexKeysInRangeForToken,
+  collectHexKeysWithinStepsFromPoint,
   highlightTabuHexesOnLayer
 } from './utils/hex-highlighting.js';
 import {
@@ -408,44 +407,45 @@ async function openMasteryActionRadialMenu(token: any) {
 
 
 /**
- * Get hex center position for a token
- * Uses Foundry grid APIs - no calibration math needed
+ * Snap a world point to the center of its grid cell (hex/square).
+ * Prefer this over `token.center` after an animated move — the placeable
+ * may still be mid-animation at the previous hex.
+ */
+function hexCenterFromWorldPoint(point: { x: number; y: number }): { x: number; y: number } {
+  if (!canvas.grid?.getOffset || !canvas.grid?.getTopLeftPoint) {
+    return { x: point.x, y: point.y };
+  }
+  try {
+    const offset = canvas.grid.getOffset(point.x, point.y) as any;
+    if (offset && (offset.i !== undefined || offset.col !== undefined)) {
+      const i = offset.i ?? offset.col ?? 0;
+      const j = offset.j ?? offset.row ?? 0;
+      const tl = canvas.grid.getTopLeftPoint({ i, j });
+      if (tl && tl.x !== undefined && tl.y !== undefined) {
+        const gridSize = canvas.grid.size || 100;
+        return { x: tl.x + gridSize / 2, y: tl.y + gridSize / 2 };
+      }
+    }
+  } catch (error) {
+    console.warn('Mastery System | Could not snap world point to hex center', error);
+  }
+  return { x: point.x, y: point.y };
+}
+
+/**
+ * Get hex center position for a token.
+ * Uses document x/y when present so mid-animation placeables are not trusted.
  */
 function getTokenHexCenter(token: any): { x: number; y: number } {
-  if (!token || !canvas.grid) {
-    return { x: token?.x || 0, y: token?.y || 0 };
+  if (!token) return { x: 0, y: 0 };
+  const doc = token.document ?? token;
+  const docX = Number(doc?.x);
+  const docY = Number(doc?.y);
+  if (Number.isFinite(docX) && Number.isFinite(docY)) {
+    return hexCenterFromWorldPoint(tokenCenterFromTopLeft(token, { x: docX, y: docY }));
   }
-  
-  // Use token center directly - grid.getOffset will handle conversion to hex coordinates
-  const center = token.center || { x: token.x, y: token.y };
-  
-  // For hex grids, optionally get the actual hex center pixel position
-  // But for movement preview, we can use token.center directly since grid.getOffset handles conversion
-  const isHexGrid = canvas.grid.type === CONST.GRID_TYPES.HEXAGONAL;
-  
-  if (isHexGrid && canvas.grid?.getOffset && canvas.grid?.getTopLeftPoint) {
-    try {
-      const offset = canvas.grid.getOffset(center.x, center.y) as any;
-      if (offset && (offset.i !== undefined || offset.col !== undefined)) {
-        const i = offset.i ?? offset.col ?? 0;
-        const j = offset.j ?? offset.row ?? 0;
-        // Get top-left point of the hex, then add half grid size to get center
-        const tl = canvas.grid.getTopLeftPoint({ i, j });
-        if (tl && tl.x !== undefined && tl.y !== undefined) {
-          const gridSize = canvas.grid.size || 100;
-          return {
-            x: tl.x + gridSize / 2,
-            y: tl.y + gridSize / 2
-          };
-        }
-      }
-    } catch (error) {
-      console.warn('Mastery System | Could not calculate hex center, using token center', error);
-    }
-  }
-  
-  // Fallback to token center
-  return center;
+  const center = token.center || { x: token.x || 0, y: token.y || 0 };
+  return hexCenterFromWorldPoint(center);
 }
 
 /** Pixel center of the token if its top-left were `tl`. */
@@ -481,18 +481,19 @@ function collectBlockedHexKeysFromOtherTokens(movingToken: any): Set<string> {
 }
 
 function paintStaticMovementRange(state: MovementState): void {
-  const token = state.token;
   if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) return;
   const steps = Math.max(0, state.budget.remainingSteps);
   if (steps <= 0) return;
-  highlightHexesInRange(
-    token.id,
+  // Always paint from `state.origin` — not `token.center`, which lags during
+  // Foundry's move animation and would keep the yellow blob at the start hex.
+  highlightHexesWithinStepsFromPoint(
+    state.origin,
     steps,
     state.highlightIdRange,
     MOVEMENT_RANGE_COLOR,
     MOVEMENT_RANGE_ALPHA
   );
-  const reachable = collectHexKeysInRangeForToken(token.id, steps);
+  const reachable = collectHexKeysWithinStepsFromPoint(state.origin, steps);
   if (reachable) {
     highlightTabuHexesOnLayer(
       state.highlightIdRange,
@@ -816,7 +817,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
         return;
       }
       state.movedOnce = true;
-      state.origin = getTokenHexCenter(token);
+      state.origin = hexCenterFromWorldPoint(destCenter);
       if (movementBudgetExhausted(state.budget)) endGuidedMovement(true);
       else {
         paintStaticMovementRange(state);
@@ -855,7 +856,8 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
       state.budget = spendMovementMeters(state.budget, metersUsed);
     }
     state.movedOnce = true;
-    state.origin = getTokenHexCenter(token);
+    // Destination we just wrote — do not read token.center (still animating).
+    state.origin = hexCenterFromWorldPoint(destCenter);
     state.blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
 
     try {

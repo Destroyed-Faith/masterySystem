@@ -156,6 +156,24 @@ export function clearHexHighlight(highlightLayerId: string): void {
  * Highlight all grid cells within `rangeSteps` adjacency steps of a canvas point (AoE center, etc.).
  * Uses the same v13 API as ranged/melee (`highlightPosition` + `getTopLeftPoint({i,j})`).
  */
+/** Hex keys reachable within `rangeSteps` of a canvas point (not a live token center). */
+export function collectHexKeysWithinStepsFromPoint(
+  center: { x: number; y: number },
+  rangeSteps: number,
+): Set<string> | null {
+  const grid: any = canvas.grid;
+  if (!grid) return null;
+  const RANGE = Math.max(0, Math.floor(Number(rangeSteps)));
+  if (!Number.isFinite(RANGE)) return null;
+  const startRaw = grid.getOffset(center);
+  const start: IJ | null = pixelOffsetToIJ(startRaw);
+  if (!start) return null;
+  const getNeighbors = getNeighborFn(grid);
+  if (!getNeighbors) return null;
+  const all = collectHexOffsetsWithinSteps(start, RANGE, getNeighbors, ijKey);
+  return new Set(all.map(ijKey));
+}
+
 export function highlightHexesWithinStepsFromPoint(
   center: { x: number; y: number },
   rangeSteps: number,

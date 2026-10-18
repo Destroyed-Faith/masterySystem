@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.728] - 2026-10-18
+
+### Fixed
+
+- **Guided movement:** After a step, the yellow remaining range re-centers on the destination hex (not the start hex still shown while the token animates).
+
 ## [0.9.727] - 2026-10-18
 
 ### Fixed
