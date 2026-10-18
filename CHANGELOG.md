@@ -4,10 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.9.722] - 2026-10-18
+## [0.9.723] - 2026-10-18
 
 ### Fixed
 
+- **Release:** Changelog heading included on the tagged commit so version validation passes (0.9.722 failed for that reason).
 - **CI:** Stone Powers pool-layout tests match Premium-left / Once-a-Combat-right ordering.
 
 ## [0.9.721] - 2026-10-18

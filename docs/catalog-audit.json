@@ -1,6 +1,6 @@
 {
-  "version": "0.9.722",
-  "generatedAt": "2026-10-17T14:05:32.142Z",
+  "version": "0.9.723",
+  "generatedAt": "2026-10-18T11:19:31.388Z",
   "summary": {
     "correct": 188,
     "corrected": 3,
@@ -1146,7 +1146,7 @@
     {
       "category": "passive",
       "id": "passive-regeneration",
-      "name": "Passive: Passive: Regeneration",
+      "name": "Passive: Restoration",
       "status": "correct",
       "notes": "Matches curated RULES_EXPECTED manifest"
     },
