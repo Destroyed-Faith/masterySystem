@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.722] - 2026-10-18
+
+### Fixed
+
+- **CI:** Stone Powers pool-layout tests match Premium-left / Once-a-Combat-right ordering.
+
 ## [0.9.721] - 2026-10-18
 
 ### Changed
