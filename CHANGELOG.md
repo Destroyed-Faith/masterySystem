@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Combat Carousel:** Stress bars removed from combatant cards (no toggle; HP bars unchanged).
+
+## [0.9.733] - 2026-10-18
+
+### Fixed
+
+- **Regions:** Random Seed on DF: Particle Effects is a text field. Leaving it empty saves. The layout is then derived from the region.
+
 ## [0.9.732] - 2026-10-18
 
 ### Fixed

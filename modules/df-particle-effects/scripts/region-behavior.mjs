@@ -1,4 +1,4 @@
-import { behaviorTypeId, blankSeedToNull, EFFECT_NATURAL_FIRE, typeLabelKey } from "./constants.mjs";
+import { behaviorTypeId, EFFECT_NATURAL_FIRE, typeLabelKey } from "./constants.mjs";
 
 /**
  * Foundry v14 region behavior. Fields live on RegionBehavior.system and use the
@@ -10,24 +10,6 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
 
   static defineSchema() {
     const fields = foundry.data.fields;
-
-    class OptionalSeedField extends fields.NumberField {
-      _cast(value) {
-        if (blankSeedToNull(value) === null) return null;
-        return super._cast(value);
-      }
-
-      _cleanType(value, options, state) {
-        if (blankSeedToNull(value) === null) return null;
-        return super._cleanType(value, options, state);
-      }
-
-      _validateType(value) {
-        if (blankSeedToNull(value) === null) return;
-        return super._validateType(value);
-      }
-    }
-
     return {
       enabled: new fields.BooleanField({
         required: true,
@@ -102,13 +84,12 @@ export class ParticleEffectsBehavior extends foundry.data.regionBehaviors.Region
         label: "DF_PARTICLE_EFFECTS.FIELDS.edgeFade.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.edgeFade.hint",
       }),
-      randomSeed: new OptionalSeedField({
+      randomSeed: new fields.StringField({
         required: false,
         nullable: true,
-        integer: true,
-        initial: null,
-        min: 0,
-        max: 2147483646,
+        blank: true,
+        initial: "",
+        trim: true,
         label: "DF_PARTICLE_EFFECTS.FIELDS.randomSeed.label",
         hint: "DF_PARTICLE_EFFECTS.FIELDS.randomSeed.hint",
       }),
