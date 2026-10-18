@@ -277,45 +277,6 @@ export class CombatCarouselApp extends BaseCarousel {
         console.warn('Mastery System | [CAROUSEL] Failed to build HP segments:', err);
       }
 
-      // Segmented Stress bar — same layout as HP (Healthy → Breaking).
-      const stressSegments: Array<{
-        name: string;
-        current: number;
-        max: number;
-        severity: number;
-        widthPct: number;
-      }> = [];
-      let stressTotalCurrent = 0;
-      let stressTotalMax = 0;
-      try {
-        const bars = (actor.system as any)?.stress?.bars;
-        if (Array.isArray(bars) && bars.length > 0) {
-          for (const bar of bars) {
-            const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
-            const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
-            stressTotalCurrent += cur;
-            stressTotalMax += mx;
-          }
-          if (stressTotalMax > 0) {
-            bars.forEach((bar: any, idx: number) => {
-              const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
-              const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
-              const severity = Math.min(3, idx);
-              const widthPct = mx > 0 ? (mx / stressTotalMax) * 100 : 0;
-              stressSegments.push({
-                name: String(bar?.name ?? `Stress ${idx + 1}`),
-                current: cur,
-                max: mx,
-                severity,
-                widthPct,
-              });
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('Mastery System | [CAROUSEL] Failed to build Stress segments:', err);
-      }
-
       // Use actor portrait, not token image
       const portraitImg = actor.img || (actor.prototypeToken as any)?.texture?.src || combatant.img;
 
@@ -449,8 +410,6 @@ export class CombatCarouselApp extends BaseCarousel {
         reactionTotal: reactSum.total,
         tempHP,
         hpScarredCount,
-        stressCurrent: stressTotalCurrent,
-        stressMax: stressTotalMax,
       });
 
       const speedMeters =
@@ -554,9 +513,6 @@ export class CombatCarouselApp extends BaseCarousel {
         tempHP,
         hpSegments,
         hideHpNumbers,
-        stressTotalCurrent,
-        stressTotalMax,
-        stressSegments: prefs.showStressBar ? stressSegments : [],
         combatStrip: prefs.showCombatStrip ? combatStrip : null,
         richTooltip: tip,
         hasToken: !!token,
@@ -775,7 +731,7 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
-    root.querySelectorAll('.js-edit-hp-bar, .js-edit-stress-bar').forEach((el: HTMLElement) => {
+    root.querySelectorAll('.js-edit-hp-bar').forEach((el: HTMLElement) => {
       el.onclick = (ev: MouseEvent) => {
         ev.preventDefault();
         ev.stopPropagation();
@@ -787,15 +743,14 @@ export class CombatCarouselApp extends BaseCarousel {
         const tokenId = combatant?.tokenId || combatant?.token?.id;
         const actor = resolveLiveActor(actorId, tokenId) ?? combatant?.actor;
         if (!actor) return;
-        const pool = el.classList.contains('js-edit-stress-bar') ? 'stress' : 'health';
         const barIndex = Math.max(0, Math.floor(Number(el.dataset.barIndex) || 0));
         const current = Math.max(0, Math.floor(Number(el.dataset.current) || 0));
         const max = Math.max(0, Math.floor(Number(el.dataset.max) || 0));
         const scarred = el.dataset.scarred === '1';
         void this.openVitalsEditDialog({
           actor,
-          title: `${pool === 'health' ? 'Health' : 'Stress'} bar — ${actor.name}`,
-          pool,
+          title: `Health bar — ${actor.name}`,
+          pool: 'health',
           barIndex,
           current,
           max,
@@ -1541,7 +1496,7 @@ export class CombatCarouselApp extends BaseCarousel {
   }
 
   /**
-   * Register hooks for live HP/Stress updates
+   * Register hooks for live HP / vitals updates
    */
   private registerUpdateHooks(): void {
     // Unregister any existing hooks first
@@ -1605,7 +1560,7 @@ export class CombatCarouselApp extends BaseCarousel {
   private async openVitalsEditDialog(opts: {
     actor: any;
     title: string;
-    pool: 'health' | 'stress';
+    pool: 'health';
     barIndex?: number;
     current?: number;
     max?: number;
@@ -1827,7 +1782,6 @@ export class CombatCarouselApp extends BaseCarousel {
         <label><input type="checkbox" name="showStatusIcons"${prefs.showStatusIcons ? ' checked' : ''}/> Status effect coins</label>
         <label><input type="checkbox" name="showNextMark"${prefs.showNextMark ? ' checked' : ''}/> Next-turn mark</label>
         <label><input type="checkbox" name="showDisposition"${prefs.showDisposition ? ' checked' : ''}/> PC blue / NPC red borders</label>
-        <label><input type="checkbox" name="showStressBar"${prefs.showStressBar ? ' checked' : ''}/> Stress bar</label>
         <label>Tooltips
           <select name="tooltipMode">
             <option value="full"${prefs.tooltipMode === 'full' ? ' selected' : ''}>Full</option>
@@ -1855,7 +1809,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 showStatusIcons: !!form.querySelector<HTMLInputElement>('[name="showStatusIcons"]')?.checked,
                 showNextMark: !!form.querySelector<HTMLInputElement>('[name="showNextMark"]')?.checked,
                 showDisposition: !!form.querySelector<HTMLInputElement>('[name="showDisposition"]')?.checked,
-                showStressBar: !!form.querySelector<HTMLInputElement>('[name="showStressBar"]')?.checked,
               };
               await writeCarouselClientPrefs(next);
               CombatCarouselApp.refresh();
@@ -1911,7 +1864,7 @@ export class CombatCarouselApp extends BaseCarousel {
   }
 
   /**
-   * Check if update data contains relevant HP/Stress changes
+   * Check if update data contains relevant HP / vitals changes
    */
   private hasRelevantChange(updateData: any, source: 'actor' | 'token'): boolean {
     if (!updateData) return false;

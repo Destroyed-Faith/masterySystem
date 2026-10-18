@@ -515,7 +515,6 @@
 }
 
 .ms-hp-segment.js-edit-hp-bar,
-.ms-hp-segment.js-edit-stress-bar,
 .ms-hp-temp.js-edit-temp-hp {
   cursor: pointer;
 }
@@ -1090,16 +1089,6 @@
   text-decoration-color: rgba(255, 183, 77, 0.95);
 }
 
-/* Stress bar — same shell as HP; cool palette Healthy → Breaking. */
-.ms-stress-bar {
-  margin-top: 2px;
-}
-
-.ms-stress-severity-0 .ms-hp-segment-fill { background: #4aa3e0; } /* healthy: blue */
-.ms-stress-severity-1 .ms-hp-segment-fill { background: #6b8cff; } /* stressed: indigo */
-.ms-stress-severity-2 .ms-hp-segment-fill { background: #9b6bdb; } /* not well: violet */
-.ms-stress-severity-3 .ms-hp-segment-fill { background: #b84a8a; } /* breaking: magenta */
-
 /* ========================================
    Carousel Controls (Left/Right)
    ======================================== */
@@ -1303,8 +1292,7 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
   max-width: 90px;
 }
 
-.mastery-carousel.is-compact .ms-hp-bar,
-.mastery-carousel.is-compact .ms-stress-bar {
+.mastery-carousel.is-compact .ms-hp-bar {
   min-width: 0;
   margin: 0;
   padding: 0;

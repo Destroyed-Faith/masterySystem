@@ -7,7 +7,6 @@ export interface CarouselClientPrefs {
     showNextMark: boolean;
     showDisposition: boolean;
     tooltipMode: CarouselTooltipMode;
-    showStressBar: boolean;
 }
 export declare const CAROUSEL_CLIENT_PREFS_KEY = "carouselClientPrefs";
 export declare const DEFAULT_CAROUSEL_CLIENT_PREFS: CarouselClientPrefs;
@@ -38,7 +37,5 @@ export declare function buildCarouselTooltip(input: {
     reactionTotal?: number;
     tempHP?: number;
     hpScarredCount?: number;
-    stressCurrent?: number;
-    stressMax?: number;
 }): CarouselTooltipLines | null;
 //# sourceMappingURL=combat-carousel-settings.d.ts.map

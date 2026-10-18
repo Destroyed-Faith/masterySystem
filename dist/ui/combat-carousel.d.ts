@@ -74,7 +74,7 @@ export declare class CombatCarouselApp extends BaseCarousel {
     private bindCompactViewportWatch;
     private unbindCompactViewportWatch;
     /**
-     * Register hooks for live HP/Stress updates
+     * Register hooks for live HP / vitals updates
      */
     private registerUpdateHooks;
     private openVitalsEditDialog;
@@ -95,7 +95,7 @@ export declare class CombatCarouselApp extends BaseCarousel {
      */
     private isRelevantToken;
     /**
-     * Check if update data contains relevant HP/Stress changes
+     * Check if update data contains relevant HP / vitals changes
      */
     private hasRelevantChange;
     /**

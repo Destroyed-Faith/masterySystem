@@ -8,7 +8,6 @@ export interface CarouselClientPrefs {
   showNextMark: boolean;
   showDisposition: boolean;
   tooltipMode: CarouselTooltipMode;
-  showStressBar: boolean;
 }
 
 export const CAROUSEL_CLIENT_PREFS_KEY = 'carouselClientPrefs';
@@ -20,7 +19,6 @@ export const DEFAULT_CAROUSEL_CLIENT_PREFS: CarouselClientPrefs = {
   showNextMark: true,
   showDisposition: true,
   tooltipMode: 'full',
-  showStressBar: true,
 };
 
 function asBool(value: unknown, fallback: boolean): boolean {
@@ -44,7 +42,6 @@ export function normalizeCarouselClientPrefs(raw: unknown): CarouselClientPrefs 
     showNextMark: asBool(src.showNextMark, true),
     showDisposition: asBool(src.showDisposition, true),
     tooltipMode: tip,
-    showStressBar: asBool(src.showStressBar, true),
   };
 }
 
@@ -110,8 +107,6 @@ export function buildCarouselTooltip(input: {
   reactionTotal?: number;
   tempHP?: number;
   hpScarredCount?: number;
-  stressCurrent?: number;
-  stressMax?: number;
 }): CarouselTooltipLines | null {
   if (input.mode === 'off') return null;
   const lines: string[] = [`Initiative ${input.initiative}`];
@@ -133,8 +128,5 @@ export function buildCarouselTooltip(input: {
   }
   if ((input.tempHP ?? 0) > 0) lines.push(`Temp HP +${input.tempHP}`);
   if ((input.hpScarredCount ?? 0) > 0) lines.push(`Scarred ${input.hpScarredCount}`);
-  if (input.stressMax != null) {
-    lines.push(`Stress ${input.stressCurrent ?? 0}/${input.stressMax}`);
-  }
   return { title: input.name, lines };
 }

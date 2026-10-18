@@ -175,37 +175,6 @@
             </div>
           {{/if}}
 
-          <!-- Segmented Stress Bar (same layout as HP; stress severity colors) -->
-          {{#if combatant.stressSegments.length}}
-            <div class="ms-hp-bar ms-stress-bar"{{#unless combatant.hideHpNumbers}} title="Stress: {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}"{{else}} title="Stress"{{/unless}}>
-              <div class="ms-hp-bar-header">
-                <span class="ms-hp-bar-label">Stress</span>
-                {{#unless combatant.hideHpNumbers}}
-                <span class="ms-hp-bar-totals">
-                  {{combatant.stressTotalCurrent}}/{{combatant.stressTotalMax}}
-                </span>
-                {{/unless}}
-              </div>
-              <div class="ms-hp-bar-track">
-                {{#each combatant.stressSegments as |seg|}}
-                  <div class="ms-hp-segment ms-stress-severity-{{seg.severity}}{{#if ../canEditVitals}} js-edit-stress-bar{{/if}}"
-                       style="flex-basis: {{seg.widthPct}}%"
-                       data-actor-id="{{../actorId}}"
-                       data-bar-index="{{@index}}"
-                       data-current="{{seg.current}}"
-                       data-max="{{seg.max}}"
-                       title="{{#unless ../hideHpNumbers}}{{seg.name}}: {{seg.current}}/{{seg.max}}{{else}}{{seg.name}}{{/unless}}{{#if ../canEditVitals}} — click to edit{{/if}}">
-                    {{#if seg.max}}
-                      {{#with (divide seg.current seg.max)}}
-                        <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
-                      {{/with}}
-                    {{/if}}
-                  </div>
-                {{/each}}
-              </div>
-            </div>
-          {{/if}}
-
           <!-- Status Icons -->
           {{#if combatant.statusIcons}}
             <div class="status-icons">

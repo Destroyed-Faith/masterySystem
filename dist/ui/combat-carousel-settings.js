@@ -6,7 +6,6 @@ export const DEFAULT_CAROUSEL_CLIENT_PREFS = {
     showNextMark: true,
     showDisposition: true,
     tooltipMode: 'full',
-    showStressBar: true,
 };
 function asBool(value, fallback) {
     return typeof value === 'boolean' ? value : fallback;
@@ -26,7 +25,6 @@ export function normalizeCarouselClientPrefs(raw) {
         showNextMark: asBool(src.showNextMark, true),
         showDisposition: asBool(src.showDisposition, true),
         tooltipMode: tip,
-        showStressBar: asBool(src.showStressBar, true),
     };
 }
 export function registerCarouselClientSettings() {
@@ -90,9 +88,6 @@ export function buildCarouselTooltip(input) {
         lines.push(`Temp HP +${input.tempHP}`);
     if ((input.hpScarredCount ?? 0) > 0)
         lines.push(`Scarred ${input.hpScarredCount}`);
-    if (input.stressMax != null) {
-        lines.push(`Stress ${input.stressCurrent ?? 0}/${input.stressMax}`);
-    }
     return { title: input.name, lines };
 }
 //# sourceMappingURL=combat-carousel-settings.js.map

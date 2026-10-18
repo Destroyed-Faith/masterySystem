@@ -53,10 +53,7 @@ describe('buildCarouselTooltip', () => {
       statusTooltips: [],
       hideVitals: true,
       armor: 2,
-      stressCurrent: 4,
-      stressMax: 10,
     });
-    expect(hidden?.lines.join(' ')).not.toContain('Stress');
     expect(hidden?.lines.join(' ')).not.toContain('Armor');
   });
 

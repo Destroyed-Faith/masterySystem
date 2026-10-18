@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.734] - 2026-10-18
+
 ### Changed
 
 - **Combat Carousel:** Stress bars removed from combatant cards (no toggle; HP bars unchanged).
