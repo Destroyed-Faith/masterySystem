@@ -215,13 +215,13 @@ describe('Stone Powers — pool layout (new spec)', () => {
     ]);
   });
 
-  it('Vitality pool leads with the Premium ability', () => {
+  it('Vitality pool: Premium left, Once a Combat on the right', () => {
     const ids = STONE_POWERS_BY_ATTRIBUTE.vitality.map((p) => p.id);
     expect(ids[0]).toBe('vitality.damageNegation');
     expect(ids).toEqual([
       'vitality.damageNegation',
-      'vitality.tempHp',
       'vitality.removeScar',
+      'vitality.tempHp',
       'vitality.damageMaximization',
     ]);
   });
@@ -232,7 +232,7 @@ describe('Stone Powers — pool layout (new spec)', () => {
     expect(ids).toEqual(['might.parry', 'might.meleeDamage', 'might.armor', 'might.armorReduction']);
   });
 
-  it('each attribute list leads with its Premium ability', () => {
+  it('each attribute list: Premium left, Once a Combat on the right', () => {
     expect(STONE_POWERS_BY_ATTRIBUTE.generic[0].id).toBe('generic.extraAttack');
     expect(STONE_POWERS_BY_ATTRIBUTE.agility[0].id).toBe('agility.crit');
     expect(STONE_POWERS_BY_ATTRIBUTE.intellect[0].id).toBe('intellect.specialBoost');
@@ -242,8 +242,19 @@ describe('Stone Powers — pool layout (new spec)', () => {
       'intellect.raises',
       'intellect.spellResistance',
     ]);
-    expect(STONE_POWERS_BY_ATTRIBUTE.influence[0].id).toBe('influence.notATarget');
-    expect(STONE_POWERS_BY_ATTRIBUTE.wits[0].id).toBe('wits.phasing');
+    expect(STONE_POWERS_BY_ATTRIBUTE.influence.map((p) => p.id)).toEqual([
+      'influence.notATarget',
+      'influence.cleanse',
+      'influence.enemyEvadeReduction',
+      'influence.colorlessRecovery',
+    ]);
+    // Phasing is Premium and Once a Combat — Once wins and sits on the right.
+    expect(STONE_POWERS_BY_ATTRIBUTE.wits.map((p) => p.id)).toEqual([
+      'wits.reactionDenial',
+      'wits.movementReduction',
+      'wits.initiativeBoost',
+      'wits.phasing',
+    ]);
   });
 
   it('every registry key matches its power.id', () => {
