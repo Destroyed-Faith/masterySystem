@@ -865,7 +865,7 @@
   transition: all 0.2s;
 }
 
-/* Portrait Controls (shown on hover) */
+/* Portrait Controls (shown on hover) — above the side Health rail */
 .portrait-controls {
   position: absolute;
   top: 0.25rem;
@@ -875,6 +875,7 @@
   gap: 0.25rem;
   opacity: 0;
   transition: opacity 0.2s;
+  z-index: 6;
 }
 
 .carousel-portrait:hover .portrait-controls {
@@ -1129,6 +1130,8 @@
   box-sizing: border-box;
   pointer-events: auto;
   overflow: visible;
+  position: relative;
+  z-index: 1;
 }
 
 .ms-hp-rail .ms-hp-temp,

@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.740] - 2026-10-18
+
+### Fixed
+
+- **Combat Carousel:** Defeat / Hidden / Remove / Ping sit above the Health rail again.
+
 ## [0.9.739] - 2026-10-18
 
 ### Added

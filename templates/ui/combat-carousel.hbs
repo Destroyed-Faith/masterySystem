@@ -137,25 +137,6 @@
             </div>
           {{/if}}
 
-          <!-- Portrait Controls (shown on hover) -->
-          <div class="portrait-controls">
-            {{#if ../controlsAllowed}}
-              <button type="button" class="portrait-control-btn js-toggle-defeated" title="{{localize 'MASTERY.carousel.toggleDefeated'}}" aria-label="{{localize 'MASTERY.carousel.toggleDefeated'}}">
-                <i class="fas fa-skull"></i>
-              </button>
-              <button type="button" class="portrait-control-btn js-toggle-hidden" title="{{localize 'MASTERY.carousel.toggleHidden'}}" aria-label="{{localize 'MASTERY.carousel.toggleHidden'}}">
-                <i class="fas fa-eye-slash"></i>
-              </button>
-              <button type="button" class="portrait-control-btn js-remove-combatant" title="{{localize 'MASTERY.carousel.removeCombatant'}}" aria-label="{{localize 'MASTERY.carousel.removeCombatant'}}">
-                <i class="fas fa-user-minus"></i>
-              </button>
-            {{/if}}
-            {{#if combatant.hasToken}}
-              <button type="button" class="portrait-control-btn js-ping" title="Ping Token" aria-label="Ping Token">
-                <i class="fas fa-bullseye"></i>
-              </button>
-            {{/if}}
-          </div>
           </div>
 
           {{#if combatant.showSideHp}}
@@ -183,6 +164,26 @@
             </div>
           </aside>
           {{/if}}
+
+          <!-- Above the Health rail so hover controls stay clickable -->
+          <div class="portrait-controls">
+            {{#if ../controlsAllowed}}
+              <button type="button" class="portrait-control-btn js-toggle-defeated" title="{{localize 'MASTERY.carousel.toggleDefeated'}}" aria-label="{{localize 'MASTERY.carousel.toggleDefeated'}}">
+                <i class="fas fa-skull"></i>
+              </button>
+              <button type="button" class="portrait-control-btn js-toggle-hidden" title="{{localize 'MASTERY.carousel.toggleHidden'}}" aria-label="{{localize 'MASTERY.carousel.toggleHidden'}}">
+                <i class="fas fa-eye-slash"></i>
+              </button>
+              <button type="button" class="portrait-control-btn js-remove-combatant" title="{{localize 'MASTERY.carousel.removeCombatant'}}" aria-label="{{localize 'MASTERY.carousel.removeCombatant'}}">
+                <i class="fas fa-user-minus"></i>
+              </button>
+            {{/if}}
+            {{#if combatant.hasToken}}
+              <button type="button" class="portrait-control-btn js-ping" title="Ping Token" aria-label="Ping Token">
+                <i class="fas fa-bullseye"></i>
+              </button>
+            {{/if}}
+          </div>
         </div>
 
           <!-- Sibling of the portrait so a click ends the turn instead of opening the sheet -->
