@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { BEHAVIOR_TYPE, MODULE_ID } from "../scripts/constants.mjs";
+import { BEHAVIOR_TYPE, isSystemPackageUrl, MODULE_ID } from "../scripts/constants.mjs";
 import { collectPolygonTreeContours, regionMaskOperations } from "../scripts/geometry.mjs";
 
 const moduleRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -42,6 +42,27 @@ test("module manifest registers the region behavior subtype", () => {
   for (const file of ["scripts/main.mjs", "lang/en.json", "lang/de.json", "sprite_manifest.json"]) {
     assert.equal(fs.existsSync(path.join(moduleRoot, file)), true, file);
   }
+});
+
+test("system package urls are not treated as the standalone module", () => {
+  assert.equal(
+    isSystemPackageUrl("https://forge.example/systems/mastery-system/modules/df-particle-effects/scripts/main.mjs"),
+    true,
+  );
+  assert.equal(
+    isSystemPackageUrl(
+      "https://assets.forge-vtt.com/bazaar/mastery-system/0.9.728/modules/df-particle-effects/scripts/main.mjs",
+    ),
+    true,
+  );
+  assert.equal(
+    isSystemPackageUrl("https://forge.example/modules/df-particle-effects/scripts/main.mjs"),
+    false,
+  );
+  assert.equal(
+    isSystemPackageUrl("https://assets.forge-vtt.com/bazaar/df-particle-effects/1.0.0/scripts/main.mjs"),
+    false,
+  );
 });
 
 test("both languages show the behavior as DF: Particle Effects", () => {

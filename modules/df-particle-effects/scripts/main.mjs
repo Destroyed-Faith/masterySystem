@@ -6,7 +6,10 @@ const renderer = new ParticleRenderer();
 
 Hooks.once("init", () => {
   if (skipBecauseSystemProvidesIt()) return;
-  registerBehaviorType();
+  const registered = registerBehaviorType();
+  if (registered) {
+    console.info(`df-particle-effects | registered region behavior "${behaviorTypeId()}"`);
+  }
   registerSettings(renderer);
 
   Hooks.on("canvasReady", () => renderer.syncScene());

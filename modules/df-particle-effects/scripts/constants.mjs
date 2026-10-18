@@ -12,9 +12,27 @@ export const EFFECT_NATURAL_FIRE = "naturalFire";
 export const TYPE_LABEL_KEY = "TYPES.RegionBehavior.df-particle-effects.particleEffects";
 export const SYSTEM_TYPE_LABEL_KEY = "TYPES.RegionBehavior.particleEffects";
 
-/** True when this file was loaded from the system package, not from Data/modules. */
+/**
+ * True when this file was loaded from the system package, not from Data/modules.
+ * The Forge often serves the system from a bazaar URL
+ * (`.../mastery-system/<version>/modules/df-particle-effects/...`) that does not
+ * contain `/systems/mastery-system/`. A standalone install is `/modules/df-particle-effects/...`.
+ */
+export function isSystemPackageUrl(url) {
+  const decoded = decodeURIComponent(String(url || ""));
+  const marker = `/modules/${MODULE_ID}/`;
+  const at = decoded.indexOf(marker);
+  if (at === -1) return false;
+  const before = decoded.slice(0, at);
+  return (
+    before.includes(`/systems/${SYSTEM_ID}`) ||
+    before.includes(`/${SYSTEM_ID}/`) ||
+    before.endsWith(`/${SYSTEM_ID}`)
+  );
+}
+
 export function hostedBySystem() {
-  return import.meta.url.includes(`/systems/${SYSTEM_ID}/`);
+  return isSystemPackageUrl(import.meta.url);
 }
 
 export function behaviorTypeId() {

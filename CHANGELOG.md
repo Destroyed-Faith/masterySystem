@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Regions:** DF: Particle Effects registers when the system is loaded from The Forge. The Create Behavior list shows **DF: Particle Effects**.
+
 ## [0.9.728] - 2026-10-18
 
 ### Fixed
