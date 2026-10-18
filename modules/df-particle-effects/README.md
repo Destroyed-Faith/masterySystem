@@ -80,9 +80,13 @@ Erwartet ist ein Eintrag `df-particle-effects/module.json`.
 
 ## The Forge
 
-Es gibt **keine Manifest-URL** in diesem Modul. Eine URL wird hier nicht erfunden. Foundrys Feld „Manifest URL“ funktioniert erst, wenn `module.json` und das ZIP unter echten, erreichbaren Adressen liegen und die Felder `manifest` und `download` in `module.json` auf diese Adressen zeigen. Zum Hosten eignet sich jeder Dienst, der beide Dateien als direkte Downloads ausliefert. Danach im Foundry-Setup **Install Module** die Manifest-URL eintragen.
+Manifest-URL für Foundry und The Forge:
 
-Ohne öffentlichen Host, direkt auf The Forge:
+`https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/modules/df-particle-effects/module.json`
+
+Das ZIP hängt am System-Release, aktuell `v0.9.720`, Datei `df-particle-effects.zip`. Foundry liest `download` aus der Manifest-Datei.
+
+Ohne Manifest, direkt auf The Forge:
 
 1. Das ZIP wie oben bauen.
 2. Auf The Forge einloggen und **My Foundry** öffnen.

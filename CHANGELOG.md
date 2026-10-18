@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.720] - 2026-10-18
+
+### Added
+
+- **Particle effects:** New module **Destroyed Faith – Particle Effects** (`df-particle-effects`, module version 1.0.0). In a Scene Region, **Behaviors → DF: Particle Effects** renders Natural Fire inside that region only. The system rules are unchanged. The module zip is attached to this release as `df-particle-effects.zip`.
+
 ## [0.9.719] - 2026-10-17
 
 ### Added

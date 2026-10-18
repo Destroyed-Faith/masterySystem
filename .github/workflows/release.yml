@@ -55,6 +55,11 @@ jobs:
       - name: Package release ZIP
         run: npm run release:package
 
+      - name: Package particle module ZIP
+        run: |
+          node modules/df-particle-effects/scripts/package.mjs
+          test -f release/df-particle-effects.zip
+
       - name: Extract changelog notes
         run: |
           VERSION="${{ steps.tag_version.outputs.VERSION }}"
@@ -79,12 +84,13 @@ jobs:
           TAG="${{ steps.tag_version.outputs.TAG }}"
           VERSION="${{ steps.tag_version.outputs.VERSION }}"
           ZIP="dist-release/mastery-system-${VERSION}.zip"
+          MODULE_ZIP="release/df-particle-effects.zip"
           for attempt in 1 2 3 4 5 6; do
             if gh release view "$TAG" >/dev/null 2>&1; then
-              if gh release upload "$TAG" "$ZIP" --clobber; then
+              if gh release upload "$TAG" "$ZIP" "$MODULE_ZIP" --clobber; then
                 exit 0
               fi
-            elif gh release create "$TAG" "$ZIP" \
+            elif gh release create "$TAG" "$ZIP" "$MODULE_ZIP" \
               --title "$TAG" \
               --notes-file release_notes.md \
               --latest; then

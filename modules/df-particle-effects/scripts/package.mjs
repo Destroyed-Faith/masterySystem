@@ -7,30 +7,39 @@ const moduleRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".
 const repoRoot = path.resolve(moduleRoot, "../..");
 const outDir = path.join(repoRoot, "release");
 const outFile = path.join(outDir, "df-particle-effects.zip");
+const parent = path.dirname(moduleRoot);
+const name = path.basename(moduleRoot);
 
 fs.mkdirSync(outDir, { recursive: true });
 if (fs.existsSync(outFile)) fs.unlinkSync(outFile);
 
-const result = spawnSync(
-  "tar",
-  [
-    "-a",
-    "-c",
-    "-f",
-    outFile,
-    "--exclude",
-    "df-particle-effects/tests",
-    "--exclude",
-    "df-particle-effects/scripts/package.mjs",
-    "-C",
-    path.dirname(moduleRoot),
-    "df-particle-effects",
-  ],
-  { stdio: "inherit" },
+const zip = spawnSync(
+  "zip",
+  ["-r", "-q", outFile, name, "-x", `${name}/tests/*`, "-x", `${name}/scripts/package.mjs`],
+  { cwd: parent, stdio: "inherit" },
 );
 
-if (result.status !== 0) {
-  process.exit(result.status ?? 1);
+if (zip.error || zip.status !== 0) {
+  const tar = spawnSync(
+    "tar",
+    [
+      "-a",
+      "-c",
+      "-f",
+      outFile,
+      "--exclude",
+      `${name}/tests`,
+      "--exclude",
+      `${name}/scripts/package.mjs`,
+      "-C",
+      parent,
+      name,
+    ],
+    { stdio: "inherit" },
+  );
+  if (tar.status !== 0) {
+    process.exit(tar.status ?? 1);
+  }
 }
 
 console.log(`Wrote ${outFile}`);

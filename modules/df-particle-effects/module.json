@@ -32,6 +32,8 @@
     }
   },
   "url": "https://destroyedfaith.com/",
+  "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/modules/df-particle-effects/module.json",
+  "download": "https://github.com/Destroyed-Faith/masterySystem/releases/download/v0.9.720/df-particle-effects.zip",
   "flags": {
     "hotReload": {
       "extensions": ["json"],
