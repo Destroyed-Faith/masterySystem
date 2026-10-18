@@ -5,6 +5,10 @@
  * automatically (Players Guide: unarmed = inherent, not an item).
  */
 export declare const VIRTUAL_UNARMED_WEAPON_ID = "__mastery_virtual_unarmed__";
+/** Actor flag: melee Powers / Basic Attack use this natural-weapon artifact id. */
+export declare const PREFERRED_NATURAL_WEAPON_FLAG = "preferredNaturalWeaponId";
+export declare function getPreferredNaturalWeaponId(actor: any): string | null;
+export declare function setPreferredNaturalWeapon(actor: any, itemId: string | null): Promise<void>;
 /** Canonical virtual weapon shape (compatible with damage / attack resolution). */
 export declare function createVirtualUnarmedWeapon(): {
     id: string;
@@ -31,6 +35,8 @@ export declare function isLegacyUnarmedItem(item: any): boolean;
  * True when a wieldable artifact is an actual attack weapon.
  * Body armor (Serpent Scales, etc.) must never count — a stale empty
  * `artifactWeapon: {}` blob used to look "truthy" and fall back to 1d8.
+ * Declared natural weapons (Dragon Head Bite on headArmor) do count when they
+ * bake a damage string, even though the Base Profile is not a hand weapon.
  */
 export declare function artifactCarriesWeaponProfile(artifact: any): boolean;
 /**
@@ -42,8 +48,9 @@ export declare function artifactCarriesWeaponProfile(artifact: any): boolean;
 export declare function artifactToVirtualWeapon(artifact: any): any | null;
 /**
  * Resolve equipped weapon for an attack type.
- * When `actor` is provided, the active Weapon Set main-hand wins (matches UI).
- * Otherwise conventional weapons win; an artifact natural weapon is used when
+ * Preferred natural weapon (Bite toggle) wins for melee when set.
+ * Otherwise the active Weapon Set main-hand wins (matches UI).
+ * Then conventional weapons; an artifact natural weapon is used when
  * no conventional weapon of that type is equipped. Melee finally falls back to
  * virtual unarmed; ranged returns null.
  */

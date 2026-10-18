@@ -3,10 +3,17 @@
  * (echo Claws stay equipped after a swap — stale 1d8 must not beat 6d8 Claws).
  */
 import { describe, expect, it } from 'vitest';
-import { resolveEquippedWeaponForAttackType } from '../src/utils/unarmed-fallback';
+import {
+  PREFERRED_NATURAL_WEAPON_FLAG,
+  resolveEquippedWeaponForAttackType,
+} from '../src/utils/unarmed-fallback';
 import { WEAPON_SETS_FLAG, WEAPON_SETS_SCHEMA } from '../src/utils/weapon-sets';
 
-function makeActor(items: any[], sets: { active: 1 | 2; mainhand: string | null }) {
+function makeActor(
+  items: any[],
+  sets: { active: 1 | 2; mainhand: string | null },
+  preferredNaturalWeaponId?: string | null,
+) {
   const byId = new Map(items.map((i) => [i.id, i]));
   return {
     items: {
@@ -15,6 +22,7 @@ function makeActor(items: any[], sets: { active: 1 | 2; mainhand: string | null 
       [Symbol.iterator]: () => items[Symbol.iterator](),
     },
     getFlag: (_s: string, key: string) => {
+      if (key === PREFERRED_NATURAL_WEAPON_FLAG) return preferredNaturalWeaponId ?? undefined;
       if (key !== WEAPON_SETS_FLAG) return undefined;
       return {
         schemaVersion: WEAPON_SETS_SCHEMA,
@@ -108,6 +116,47 @@ describe('resolveEquippedWeaponForAttackType — active Weapon Set', () => {
     const resolved = resolveEquippedWeaponForAttackType([scales, sword], 'melee', actor);
     expect(resolved?.id).toBe('wpn-sword');
     expect(resolved?.system?.damage).toBe('8d8');
+  });
+
+  it('preferred natural weapon (Bite) beats the active Weapon Set for melee', () => {
+    const head = {
+      id: 'art-head',
+      name: 'Dragon Head',
+      type: 'artifact',
+      system: {
+        equipped: true,
+        binding: 'echo',
+        baseProfile: 'headArmor',
+        currentLevel: 3,
+        naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
+        artifactWeapon: {
+          damage: '3d8',
+          name: 'Bite',
+          weaponType: 'melee',
+          hands: 0,
+          isNatural: true,
+          specials: [],
+        },
+      },
+      getFlag: () => ({ slot: 'head' }),
+    };
+    const claws = {
+      id: 'art-claws',
+      name: 'Dragon Claws',
+      type: 'artifact',
+      system: {
+        equipped: true,
+        binding: 'echo',
+        baseProfile: 'twoHandedWeapon',
+        currentLevel: 2,
+        artifactWeapon: { damage: '6d8', weaponType: 'melee', hands: 2, specials: [] },
+      },
+      getFlag: () => ({ slot: 'mainhand' }),
+    };
+    const actor = makeActor([head, claws], { active: 1, mainhand: 'art-claws' }, 'art-head');
+    const resolved = resolveEquippedWeaponForAttackType([head, claws], 'melee', actor);
+    expect(resolved?.id).toBe('art-head');
+    expect(resolved?.system?.damage).toBe('3d8');
   });
 
   it('stowed fists force Unarmed even when an artifact is still equipped', () => {

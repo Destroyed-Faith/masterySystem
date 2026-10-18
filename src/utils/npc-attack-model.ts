@@ -369,14 +369,20 @@ export function preserveNpcAttackSpecialsInSystemUpdate(
     );
   }
 
-  // Prefer actor list length (like extras): stale form submits must not resurrect
-  // a just-deleted reaction or drop a just-added one.
+  // Prefer actor list length when the form is longer/stale (blocks resurrection).
+  // Honor a shorter form list (trash stripped fields / last reaction removed).
   if (!skipReactions && Object.prototype.hasOwnProperty.call(updateSystem, 'npcReactions')) {
     const prevRows = coerceNpcPhasesArray(current.npcReactions);
     const nextRows = coerceNpcPhasesArray(updateSystem.npcReactions);
-    updateSystem.npcReactions = prevRows.map((row: any, i: number) =>
-      row && typeof row === 'object' ? mergeNpcAttackRowSpecials(row, nextRows[i]) : row,
-    );
+    if (nextRows.length < prevRows.length) {
+      updateSystem.npcReactions = nextRows.map((row: any, i: number) =>
+        row && typeof row === 'object' ? mergeNpcAttackRowSpecials(prevRows[i], row) : row,
+      );
+    } else {
+      updateSystem.npcReactions = prevRows.map((row: any, i: number) =>
+        row && typeof row === 'object' ? mergeNpcAttackRowSpecials(row, nextRows[i]) : row,
+      );
+    }
   }
 
   if (!Object.prototype.hasOwnProperty.call(updateSystem, 'phases') || updateSystem.phases == null) {
@@ -407,9 +413,15 @@ export function preserveNpcAttackSpecialsInSystemUpdate(
     if (!skipReactions && phase.npcReactions != null) {
       const prevRows = coerceNpcPhasesArray(prev.npcReactions);
       const nextRows = coerceNpcPhasesArray(phase.npcReactions);
-      next.npcReactions = prevRows.map((row: any, ri: number) =>
-        row && typeof row === 'object' ? mergeNpcAttackRowSpecials(row, nextRows[ri]) : row,
-      );
+      if (nextRows.length < prevRows.length) {
+        next.npcReactions = nextRows.map((row: any, ri: number) =>
+          row && typeof row === 'object' ? mergeNpcAttackRowSpecials(prevRows[ri], row) : row,
+        );
+      } else {
+        next.npcReactions = prevRows.map((row: any, ri: number) =>
+          row && typeof row === 'object' ? mergeNpcAttackRowSpecials(row, nextRows[ri]) : row,
+        );
+      }
     }
     return next;
   });

@@ -1023,8 +1023,8 @@ const DRAGON_HEAD: EchoArtifactDefinition = {
     'A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.',
   restriction:
     'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
-  // The Bite is a real, usable natural weapon (1d8…10d8) even though the Head
-  // slot's artifactKind is gear. Occupies no hand slots.
+  // Bite Weapon Damage (1d8…10d8): martial weapon source for Powers / Basic
+  // Attack (free radial toggle), not a standalone Attack Action. Occupies no hands.
   naturalWeapon: { name: 'Bite', weaponType: 'melee', hands: 0 },
   // The three Level Progression lines are real, editable catalog Powers, just
   // flavored with the Dragon Head names. Breath Weapon = a Ranged AoE Special

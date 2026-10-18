@@ -101,6 +101,23 @@ import {
 import { isKnownNpcReleased, toggleKnownNpc } from '../system/known-npcs.js';
 import { KnownNpcsBar } from '../ui/known-npcs-bar.js';
 
+/**
+ * Merge reaction rows from a form submit with the actor snapshot.
+ * - Missing submit key → keep actor (other fields edited).
+ * - Shorter submit → honor form (trash stripped fields / last row removed).
+ * - Longer/stale submit → actor length wins (blocks resurrection after delete).
+ * Button-driven add/delete also sets `#npcReactionWriteLock` for in-flight races.
+ */
+function mergeNpcReactionSubmitRows(existing: unknown, submitted: unknown): any[] {
+  const prevRows = coerceNpcReactionsArray(existing);
+  if (submitted === undefined) return prevRows;
+  const nextRows = coerceNpcReactionsArray(submitted);
+  if (nextRows.length < prevRows.length) {
+    return nextRows.map((row, ri) => mergeNpcAttackRowSpecials(prevRows[ri], row));
+  }
+  return prevRows.map((row, ri) => mergeNpcAttackRowSpecials(row, nextRows[ri]));
+}
+
 /** Attach Ini malus/bonus split fields for the sheet dropdowns. */
 function withNpcIniUi(combat: Record<string, any> | null | undefined): Record<string, any> {
   const c = combat && typeof combat === 'object' ? { ...combat } : {};
@@ -389,6 +406,12 @@ function buildNpcSpecialSelectGroups(): NpcSpecialSelectGroup[] {
 }
 
 export class MasteryNpcSheet extends MasteryCharacterSheet {
+  /**
+   * While a button-driven reaction list write is in flight, form submits must
+   * use this snapshot — otherwise a racing submit restores the deleted row.
+   */
+  #npcReactionWriteLock: { phaseIndex: number | null; rows: any[] } | null = null;
+
   /** @override */
   static DEFAULT_OPTIONS = {
     classes: ['npc'],
@@ -961,10 +984,9 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
               : phase.npcBaseAttack ?? prev.npcBaseAttack,
           attackValues: mergeNpcAttackValueLists(prev.attackValues, phase.attackValues),
           npcReactions: (() => {
-            const prevRows = coerceNpcReactionsArray(prev.npcReactions);
-            const nextRows = coerceNpcReactionsArray(phase.npcReactions ?? prev.npcReactions);
-            // Actor length wins — stale form must not resurrect a deleted reaction.
-            return prevRows.map((row, ri) => mergeNpcAttackRowSpecials(row, nextRows[ri]));
+            const lock = this.#npcReactionWriteLock;
+            if (lock && lock.phaseIndex === i) return lock.rows;
+            return mergeNpcReactionSubmitRows(prev.npcReactions, phase.npcReactions);
           })(),
           npcReactionSlots: clampNpcReactionSlots(phase.npcReactionSlots ?? prev.npcReactionSlots),
           attackSlots: clampNpcAttackSlots(
@@ -991,14 +1013,17 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       );
     }
     {
-      const prevRows = coerceNpcReactionsArray(existingSystem.npcReactions);
-      const nextRows = coerceNpcReactionsArray(
-        data.system.npcReactions ?? existingSystem.npcReactions,
-      );
-      // Actor length wins — stale form must not resurrect a deleted reaction.
-      data.system.npcReactions = prevRows.map((row, ri) =>
-        mergeNpcAttackRowSpecials(row, nextRows[ri]),
-      );
+      const lock = this.#npcReactionWriteLock;
+      if (lock && lock.phaseIndex == null) {
+        data.system.npcReactions = lock.rows;
+      } else {
+        data.system.npcReactions = mergeNpcReactionSubmitRows(
+          existingSystem.npcReactions,
+          Object.prototype.hasOwnProperty.call(data.system, 'npcReactions')
+            ? data.system.npcReactions
+            : undefined,
+        );
+      }
     }
     data.system.npcReactionSlots = clampNpcReactionSlots(
       data.system.npcReactionSlots ?? existingSystem.npcReactionSlots,
@@ -1347,7 +1372,12 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     html.find('.npc-reaction-add-custom').on('click', this.#onNpcReactionAddCustom.bind(this));
     html.find('.npc-reaction-add-standard').on('click', this.#onNpcReactionAddStandard.bind(this));
     html.find('.npc-reaction-add-catalog').on('click', this.#onNpcReactionAddCatalog.bind(this));
-    html.find('.npc-reaction-delete').on('click', this.#onNpcReactionDelete.bind(this));
+    html.find('.npc-reaction-delete').on('click', (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+      void this.#onNpcReactionDelete(ev);
+    });
     html.find('.npc-reaction-catalog-filter').on('input', (ev: JQuery.TriggeredEvent) => {
       const input = ev.currentTarget as HTMLInputElement;
       const term = String(input.value || '').trim().toLowerCase();
@@ -1817,6 +1847,18 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     return Math.max(1, Math.floor(Number((this.actor as any).system?.mastery?.rank) || 2));
   }
 
+  #clearNpcReactionWriteLock(rows: any[]): void {
+    // Keep the lock through microtasks / a frame so form submits flushed by
+    // DOM surgery or the actor update still see the intended list.
+    queueMicrotask(() => {
+      requestAnimationFrame(() => {
+        if (this.#npcReactionWriteLock?.rows === rows) {
+          this.#npcReactionWriteLock = null;
+        }
+      });
+    });
+  }
+
   async #mutateNpcReactions(
     phaseRaw: unknown,
     mutator: (rows: any[]) => any[],
@@ -1842,17 +1884,24 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       else if (clampNpcReactionSlots(phases[phaseIndex].npcReactionSlots) <= 0 && rows.length > 0) {
         phases[phaseIndex].npcReactionSlots = 1;
       }
-      await (this.actor as any).update(
-        {
-          ...buildNpcPhasesReplacePatch(previousRaw, phases),
-          ...buildNpcAttackValuesReplacePatch(
-            `system.phases.${phaseIndex}.npcReactions`,
-            previousRows,
-            rows,
-          ),
-        },
-        reactionsOpt,
-      );
+      this.#npcReactionWriteLock = { phaseIndex, rows };
+      try {
+        await (this.actor as any).update(
+          {
+            ...buildNpcPhasesReplacePatch(previousRaw, phases),
+            ...buildNpcAttackValuesReplacePatch(
+              `system.phases.${phaseIndex}.npcReactions`,
+              previousRows,
+              rows,
+            ),
+          },
+          reactionsOpt,
+        );
+      } catch (err) {
+        this.#npcReactionWriteLock = null;
+        throw err;
+      }
+      this.#clearNpcReactionWriteLock(rows);
       return;
     }
     const previousRows = system.npcReactions;
@@ -1860,11 +1909,19 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     const patch: Record<string, unknown> = {
       ...buildNpcAttackValuesReplacePatch('system.npcReactions', previousRows, rows),
     };
+    if (rows.length === 0) patch['system.npcReactions'] = [];
     if (extra?.slots != null) patch['system.npcReactionSlots'] = extra.slots;
     else if (clampNpcReactionSlots(system.npcReactionSlots) <= 0 && rows.length > 0) {
       patch['system.npcReactionSlots'] = 1;
     }
-    await (this.actor as any).update(patch, reactionsOpt);
+    this.#npcReactionWriteLock = { phaseIndex: null, rows };
+    try {
+      await (this.actor as any).update(patch, reactionsOpt);
+    } catch (err) {
+      this.#npcReactionWriteLock = null;
+      throw err;
+    }
+    this.#clearNpcReactionWriteLock(rows);
   }
 
   async #onNpcReactionAddCustom(event: JQuery.ClickEvent) {
@@ -1914,15 +1971,47 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    const $t = $(event.currentTarget);
-    const index = parseInt(String($t.data('reaction-index') ?? '-1'), 10);
-    if (index < 0) return;
-    await this.#mutateNpcReactions($t.data('phase-index'), (rows) => {
-      if (index >= rows.length) return rows;
-      const next = [...rows];
-      next.splice(index, 1);
-      return next;
-    });
+    const btn = event.currentTarget as HTMLElement;
+    const card =
+      (btn.closest('.npc-reaction-card') as HTMLElement | null) ||
+      (btn.closest('[data-reaction-index]') as HTMLElement | null);
+    // Prefer dataset on the card — jQuery .data() can cache stale values.
+    const index = parseInt(
+      String(card?.dataset.reactionIndex ?? btn.dataset.reactionIndex ?? '-1'),
+      10,
+    );
+    if (!Number.isFinite(index) || index < 0) return;
+    const phaseRaw = card?.dataset.phaseIndex ?? btn.dataset.phaseIndex;
+
+    // Lock the shortened list *before* DOM surgery — remove() can flush a form
+    // submit that would otherwise merge with the still-long actor list.
+    const phaseIndex =
+      phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== ''
+        ? Number(phaseRaw)
+        : null;
+    const system = (this.actor as any).system;
+    let currentRows: any[];
+    if (phaseIndex != null && Number.isFinite(phaseIndex)) {
+      const phases = coerceNpcPhasesArray(system.phases);
+      if (!phases[phaseIndex]) return;
+      currentRows = coerceNpcReactionsArray(phases[phaseIndex].npcReactions);
+    } else {
+      currentRows = coerceNpcReactionsArray(system.npcReactions);
+    }
+    if (index >= currentRows.length) return;
+    const rows = currentRows.slice(0, index).concat(currentRows.slice(index + 1));
+    this.#npcReactionWriteLock = {
+      phaseIndex: phaseIndex != null && Number.isFinite(phaseIndex) ? phaseIndex : null,
+      rows,
+    };
+
+    // Drop named inputs so a racing form submit cannot resurrect the row.
+    if (card) {
+      card.querySelectorAll('[name]').forEach((el) => el.removeAttribute('name'));
+      card.remove();
+    }
+
+    await this.#mutateNpcReactions(phaseRaw, () => rows);
   }
 
   async #onPhaseAdd(event: JQuery.ClickEvent) {

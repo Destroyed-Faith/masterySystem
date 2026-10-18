@@ -9,6 +9,74 @@ import { resolveArtifactWeaponKind, weaponBasicsForProfile } from './artifact-ru
 import { backfillArtifactWeaponSpecials } from './weapon-specials.js';
 import { peekWeaponSets } from './weapon-sets.js';
 export const VIRTUAL_UNARMED_WEAPON_ID = '__mastery_virtual_unarmed__';
+/** Actor flag: melee Powers / Basic Attack use this natural-weapon artifact id. */
+export const PREFERRED_NATURAL_WEAPON_FLAG = 'preferredNaturalWeaponId';
+export function getPreferredNaturalWeaponId(actor) {
+    if (!actor)
+        return null;
+    try {
+        const fromFlag = actor.getFlag?.('mastery-system', PREFERRED_NATURAL_WEAPON_FLAG);
+        if (fromFlag != null && String(fromFlag).trim())
+            return String(fromFlag).trim();
+    }
+    catch {
+        /* ignore */
+    }
+    const nested = actor.flags?.['mastery-system']?.[PREFERRED_NATURAL_WEAPON_FLAG];
+    if (nested != null && String(nested).trim())
+        return String(nested).trim();
+    return null;
+}
+export async function setPreferredNaturalWeapon(actor, itemId) {
+    if (!actor)
+        return;
+    const next = itemId != null && String(itemId).trim() ? String(itemId).trim() : null;
+    if (typeof actor.setFlag === 'function' && typeof actor.unsetFlag === 'function') {
+        if (next)
+            await actor.setFlag('mastery-system', PREFERRED_NATURAL_WEAPON_FLAG, next);
+        else
+            await actor.unsetFlag('mastery-system', PREFERRED_NATURAL_WEAPON_FLAG);
+        return;
+    }
+    actor.flags = actor.flags || {};
+    actor.flags['mastery-system'] = actor.flags['mastery-system'] || {};
+    if (next)
+        actor.flags['mastery-system'][PREFERRED_NATURAL_WEAPON_FLAG] = next;
+    else
+        delete actor.flags['mastery-system'][PREFERRED_NATURAL_WEAPON_FLAG];
+}
+function findActorItemById(actor, itemId) {
+    if (!actor?.items || !itemId)
+        return null;
+    if (typeof actor.items.get === 'function') {
+        const direct = actor.items.get(itemId);
+        if (direct)
+            return direct;
+    }
+    if (Array.isArray(actor.items)) {
+        return actor.items.find((i) => String(i?.id) === itemId) ?? null;
+    }
+    if (typeof actor.items.values === 'function') {
+        return (Array.from(actor.items.values()).find((i) => String(i?.id) === itemId) ?? null);
+    }
+    return null;
+}
+/** Preferred natural weapon (Bite) when the actor toggled it on and it is still wieldable. */
+function tryResolvePreferredNaturalWeapon(actor, attackType) {
+    if (!actor || attackType !== 'melee')
+        return undefined;
+    const preferredId = getPreferredNaturalWeaponId(actor);
+    if (!preferredId)
+        return undefined;
+    const item = findActorItemById(actor, preferredId);
+    if (!item || !isArtifactWieldable(item) || !artifactCarriesWeaponProfile(item)) {
+        return undefined;
+    }
+    const vw = artifactToVirtualWeapon(item);
+    if (!vw || !itemMatchesAttackType(vw, attackType))
+        return undefined;
+    return vw;
+}
 /** Canonical virtual weapon shape (compatible with damage / attack resolution). */
 export function createVirtualUnarmedWeapon() {
     return {
@@ -78,17 +146,23 @@ function artifactLevel(sys) {
  * True when a wieldable artifact is an actual attack weapon.
  * Body armor (Serpent Scales, etc.) must never count — a stale empty
  * `artifactWeapon: {}` blob used to look "truthy" and fall back to 1d8.
+ * Declared natural weapons (Dragon Head Bite on headArmor) do count when they
+ * bake a damage string, even though the Base Profile is not a hand weapon.
  */
 export function artifactCarriesWeaponProfile(artifact) {
     const sys = artifact?.system || {};
     const level = artifactLevel(sys);
     if (deriveArtifactWeaponDamage(sys.baseProfile, level) != null)
         return true;
+    const aw = sys.artifactWeapon;
+    const dmg = typeof aw?.damage === 'string' ? aw.damage.trim() : '';
+    const natural = !!sys.naturalWeapon || aw?.isNatural === true || aw?.naturalWeapon === true;
+    if (natural && dmg.length > 0)
+        return true;
     // Non-weapon profiles (bodyArmor, robe, …) never become attack weapons.
     if (!weaponBasicsForProfile(sys.baseProfile))
         return false;
-    const dmg = sys.artifactWeapon?.damage;
-    return typeof dmg === 'string' && dmg.trim().length > 0;
+    return dmg.length > 0;
 }
 /**
  * Convert an equipped artifact that carries weapon damage into a weapon-shaped
@@ -210,12 +284,16 @@ function tryResolveActiveSetWeapon(actor, attackType) {
 }
 /**
  * Resolve equipped weapon for an attack type.
- * When `actor` is provided, the active Weapon Set main-hand wins (matches UI).
- * Otherwise conventional weapons win; an artifact natural weapon is used when
+ * Preferred natural weapon (Bite toggle) wins for melee when set.
+ * Otherwise the active Weapon Set main-hand wins (matches UI).
+ * Then conventional weapons; an artifact natural weapon is used when
  * no conventional weapon of that type is equipped. Melee finally falls back to
  * virtual unarmed; ranged returns null.
  */
 export function resolveEquippedWeaponForAttackType(items, attackType, actor) {
+    const preferred = tryResolvePreferredNaturalWeapon(actor, attackType);
+    if (preferred !== undefined)
+        return preferred;
     const fromSet = tryResolveActiveSetWeapon(actor, attackType);
     if (fromSet !== undefined)
         return fromSet;

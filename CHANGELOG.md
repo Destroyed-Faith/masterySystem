@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.732] - 2026-10-18
+
+### Fixed
+
+- **NPC sheet:** Reaction trash removes the row reliably — lock before DOM strip, honor a shorter form list, and keep the write lock briefly so racing submits cannot put the reaction back.
+- **Dragon Head / natural weapons:** Bite is a free weapon-source toggle (Waffe: Bite ↔ Hände), not a standalone Attack Action. Martial powers and Basic Attack use Bite when selected; Breath Weapon stays its own Active.
+
 ## [0.9.731] - 2026-10-18
 
 ### Fixed

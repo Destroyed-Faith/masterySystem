@@ -26,7 +26,10 @@ import type { ArtifactLevelProgressionRow } from '../types/item.js';
 import { artifactPowersUnlocked, getArtifactBindingKind } from '../utils/artifact-actor-rules.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind } from '../utils/artifact-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
-import { artifactCarriesWeaponProfile } from '../utils/unarmed-fallback.js';
+import {
+  artifactCarriesWeaponProfile,
+  getPreferredNaturalWeaponId,
+} from '../utils/unarmed-fallback.js';
 import { breathConeMeters, isBreathWeaponName } from '../utils/breath-weapon.js';
 
 const REACTION_TYPES = new Set(['Reaction']);
@@ -111,29 +114,43 @@ function actorHasOwnActivePower(actor: any): boolean {
     });
 }
 
-/** Extra natural attack (Dragon Head Bite) — never a leftover 1d8 on armor / staff / lantern. */
+/** Natural weapon profile (Dragon Head Bite) — never a leftover 1d8 on armor / staff / lantern. */
 function isDeclaredNaturalWeapon(sys: any): boolean {
-    const aw = sys?.artifactWeapon;
-    if (sys?.naturalWeapon) return true;
-    if (aw?.isNatural === true || aw?.naturalWeapon === true) return true;
-    const profile = String(sys?.baseProfile || '');
-    const kind = String(sys?.artifactKind || '');
-    if (kind === 'weapon' || kind === 'armor' || kind === 'shield') return false;
-    return (profile === 'headArmor' || profile === 'head') && !!String(aw?.name || '').trim();
+  const aw = sys?.artifactWeapon;
+  if (sys?.naturalWeapon) return true;
+  if (aw?.isNatural === true || aw?.naturalWeapon === true) return true;
+  const profile = String(sys?.baseProfile || '');
+  const kind = String(sys?.artifactKind || '');
+  if (kind === 'weapon' || kind === 'armor' || kind === 'shield') return false;
+  return (profile === 'headArmor' || profile === 'head') && !!String(aw?.name || '').trim();
 }
 
 /**
- * Standalone "swing this artifact" buttons are opt-in:
- *   • declared natural weapons (Dragon Head Bite) — always, they are extra attacks
- *   • weapon-kind artifacts — only when the actor has no own Active (no Single Attack)
- * Everything else (armor, shield, lantern, staff, feet, missing kind, leftover blobs) stays out.
+ * Standalone "swing this artifact" buttons are opt-in for weapon-kind artifacts
+ * only when the actor has no own Active (no Single Attack). Declared natural
+ * weapons (Bite) are a free weapon-source toggle, not an Attack Action.
+ * Everything else (armor, shield, lantern, staff, feet, missing kind) stays out.
  */
 function shouldEmitArtifactWeaponAttack(sys: any, actorHasActivePower: boolean): boolean {
-    const aw = sys?.artifactWeapon;
-    if (!aw?.damage) return false;
-    if (isDeclaredNaturalWeapon(sys)) return true;
-    if (String(sys?.artifactKind || '') !== 'weapon') return false;
-    return !actorHasActivePower;
+  const aw = sys?.artifactWeapon;
+  if (!aw?.damage) return false;
+  if (isDeclaredNaturalWeapon(sys)) return false;
+  if (String(sys?.artifactKind || '') !== 'weapon') return false;
+  return !actorHasActivePower;
+}
+
+function naturalWeaponDisplayName(sys: any, item: any): string {
+  const aw = sys?.artifactWeapon;
+  const nw = sys?.naturalWeapon;
+  const cleanItemName = String(item?.name || '')
+    .replace(/\s*-\s*Level\s+\d+-\d+\s*$/i, '')
+    .trim();
+  return (
+    (typeof nw?.name === 'string' && nw.name.trim()) ||
+    (typeof aw?.name === 'string' && aw.name.trim()) ||
+    cleanItemName ||
+    'Natural Weapon'
+  );
 }
 
 function isArtifactEquipped(item: any): boolean {
@@ -204,11 +221,28 @@ export function buildArtifactRadialOptions(actor: any): RadialCombatOption[] {
             : [];
         const hasOwnActivePower = actorHasOwnActivePower(actor);
 
-        // Extra natural-weapon button only (see shouldEmitArtifactWeaponAttack).
-        // Weapon-kind artifacts stay off the radial when the actor already has
+        // Natural weapon (Bite): free weapon-source toggle — not an Attack Action.
+        // Weapon-kind artifacts keep a swing button only when the actor has no
         // Single Attack / another Active — those powers roll this weapon's dice.
         const aw = sys.artifactWeapon;
-        if (shouldEmitArtifactWeaponAttack(sys, hasOwnActivePower)) {
+        if (isDeclaredNaturalWeapon(sys) && aw?.damage) {
+            const biteName = naturalWeaponDisplayName(sys, item);
+            const preferredId = getPreferredNaturalWeaponId(actor);
+            const biteActive = preferredId === String(item.id);
+            out.push({
+                id: `natural-weapon-select:${item.id}`,
+                name: biteActive ? 'Waffe: Hände' : `Waffe: ${biteName}`,
+                description: biteActive
+                    ? `${biteName} (${aw.damage}) aktiv — tippen für Hände / Weapon Set. Kostenlos.`
+                    : `Martial Powers und Basic Attack nutzen ${biteName} (${aw.damage}). Kostenlos, kein Movement.`,
+                slot: 'attack',
+                source: 'maneuver',
+                range: 0,
+                tags: ['artifact', 'natural-weapon-select'],
+                costsMovement: false,
+                costsAction: false,
+            });
+        } else if (shouldEmitArtifactWeaponAttack(sys, hasOwnActivePower)) {
             const isRangedWeapon = resolveArtifactWeaponKind(aw, sys.baseProfile) === 'ranged';
             const isWeaponKind = sys.artifactKind === 'weapon';
             // Strip the generated " - Level N-M" suffix so the radial shows a

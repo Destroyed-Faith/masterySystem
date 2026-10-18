@@ -103,7 +103,7 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(opts).toEqual([]);
   });
 
-  it('still adds an extra natural-weapon attack on gear (Dragon Head Bite)', () => {
+  it('offers Bite as a free weapon-source toggle, not a standalone Attack Action', () => {
     const head = {
       id: 'dh',
       type: 'artifact',
@@ -123,9 +123,12 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     };
     const opts = buildArtifactRadialOptions(actor([head]));
     expect(opts).toHaveLength(1);
-    expect(opts[0].id).toBe('artifact-weapon:dh');
-    expect(opts[0].name).toBe('Bite');
-    expect(opts[0].tags).toContain('natural-weapon');
+    expect(opts[0].id).toBe('natural-weapon-select:dh');
+    expect(opts[0].name).toBe('Waffe: Bite');
+    expect(opts[0].tags).toContain('natural-weapon-select');
+    expect(opts[0].costsAction).toBe(false);
+    expect(opts[0].costsMovement).toBe(false);
+    expect(opts.some((o) => o.id.startsWith('artifact-weapon:'))).toBe(false);
   });
 
   it('aims Breath Weapon as a cone in front of the figure, not a placed radius', () => {
@@ -159,7 +162,8 @@ describe('buildArtifactRadialOptions weapon buttons', () => {
     expect(breath?.aoeShape).toBe('cone');
     expect(breath?.aoeRadiusMeters).toBe(6);
     expect(breath?.burstMeleeAoE).toBe(false);
-    expect(opts.some((option) => option.name === 'Bite')).toBe(true);
+    expect(opts.some((option) => option.id === 'natural-weapon-select:dh2')).toBe(true);
+    expect(opts.some((option) => option.id.startsWith('artifact-weapon:'))).toBe(false);
   });
 
   it('ignores leftover 1d8 blobs on staff, lantern, feet, and items with no kind', () => {
@@ -233,7 +237,7 @@ describe('catalog: no leftover artifact swings next to Single Attack', () => {
     expect(throwOpt?.artifactIsSpell).toBeFalsy();
   });
 
-  it('general and echo L1 nodes never add a basic weapon button when Single Attack exists, except Dragon Head Bite', () => {
+  it('general and echo L1 nodes never add a basic weapon swing when Single Attack exists; Bite is a free select', () => {
     const trees = [...buildAllGeneralArtifactTrees(), ...buildAllEchoArtifactTrees()];
     for (const tree of trees) {
       const l1 = tree.nodes[0];
@@ -244,10 +248,13 @@ describe('catalog: no leftover artifact swings next to Single Attack', () => {
       }
       const opts = buildArtifactRadialOptions(actor([item, single]));
       const swings = opts.filter((o) => o.id.startsWith('artifact-weapon:'));
+      expect(swings, tree.folderName).toEqual([]);
+      const selects = opts.filter((o) => o.id.startsWith('natural-weapon-select:'));
       if (tree.echoArtifactKey === 'dragonHead' || String(tree.echoArtifactKey || '').startsWith('predatorCrown')) {
-        expect(swings.map((o) => o.name), tree.folderName).toEqual(['Bite']);
+        expect(selects.map((o) => o.name), tree.folderName).toEqual(['Waffe: Bite']);
+        expect(selects[0]?.costsAction).toBe(false);
       } else {
-        expect(swings, tree.folderName).toEqual([]);
+        expect(selects, tree.folderName).toEqual([]);
       }
     }
   });
