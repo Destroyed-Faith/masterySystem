@@ -1,6 +1,7 @@
 import { behaviorTypeId, hostedBySystem, SYSTEM_ID, typeLabelKey } from "./constants.mjs";
 import { registerBehaviorType } from "./region-behavior.mjs";
 import { ParticleRenderer, registerSettings } from "./renderer.mjs";
+import { registerPreview } from "./preview.mjs";
 
 const renderer = new ParticleRenderer();
 
@@ -11,6 +12,7 @@ Hooks.once("init", () => {
     console.info(`df-particle-effects | registered region behavior "${behaviorTypeId()}"`);
   }
   registerSettings(renderer);
+  registerPreview(renderer);
 
   Hooks.on("canvasReady", () => renderer.syncScene());
   Hooks.on("canvasTearDown", () => renderer.clear());

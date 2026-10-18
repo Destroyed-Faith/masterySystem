@@ -18,6 +18,8 @@ export class ParticleRenderer {
   #instances = new Map();
   #tickerBound = null;
   #time = 0;
+  /** @type {null | { key: string, behavior: object, config: object, layout: string }} */
+  #preview = null;
 
   syncScene() {
     this.#syncScene().catch((error) => {
@@ -52,6 +54,32 @@ export class ParticleRenderer {
     this.syncScene();
   }
 
+  /**
+   * Show unsaved form values on the viewed scene. Closing the sheet clears this.
+   * Speed and opacity update the running animation. Layout fields rebuild the fire.
+   */
+  setPreview(behavior, draft) {
+    if (!behavior || !this.#isViewedScene(behaviorScene(behavior))) return;
+    const config = readConfig({ system: draft?.system ?? {}, disabled: draft?.disabled === true });
+    const key = behaviorKey(behavior);
+    const layout = fireLayoutSignature(config);
+    const effect = this.#instances.get(key);
+    if (this.#preview?.key === key && this.#preview.layout === layout && effect && config.enabled) {
+      effect.config = config;
+      this.#preview = { key, behavior, config, layout };
+      return;
+    }
+    this.#preview = { key, behavior, config, layout };
+    this.syncScene();
+  }
+
+  clearPreview(behavior) {
+    if (!this.#preview) return;
+    if (behavior && behaviorKey(behavior) !== this.#preview.key) return;
+    this.#preview = null;
+    this.syncScene();
+  }
+
   async #syncScene() {
     const token = ++this.#generation;
     const scene = globalThis.canvas?.scene;
@@ -72,7 +100,7 @@ export class ParticleRenderer {
 
     const grid = readGrid();
     const limits = readQualityLimits();
-    const active = collectActiveBehaviors(scene);
+    const active = collectActiveBehaviors(scene, this.#preview);
     const flameBudget = allocateBudget(
       active.map((entry) =>
         Math.min(limits.perRegionFlames, desiredFlameCount(entry.area, grid.cellArea, entry.config.density)),
@@ -157,46 +185,82 @@ export function registerSettings(renderer) {
   });
 }
 
-function collectActiveBehaviors(scene) {
+function collectActiveBehaviors(scene, preview = null) {
   const active = [];
+  let sawPreview = false;
   for (const region of scene.regions ?? []) {
     for (const behavior of region.behaviors ?? []) {
       if (behavior?.type !== behaviorTypeId()) continue;
-      try {
-        const config = readConfig(behavior);
-        if (!config.enabled) continue;
-        if (config.effectType !== EFFECT_NATURAL_FIRE) {
-          console.warn(
-            `${LOG_PREFIX} effect type "${config.effectType}" is not implemented. That behavior was skipped.`,
-          );
-          continue;
-        }
-        const tree = region.polygonTree;
-        if (!tree || typeof tree.testPoint !== "function") {
-          console.warn(`${LOG_PREFIX} region ${region.id} has no polygon tree. Fire was skipped.`);
-          continue;
-        }
-        if (tree.isEmpty) continue;
-        const bounds = copyBounds(tree.bounds);
-        const area = Number(tree.area) || 0;
-        if (!bounds || !(area > 0)) continue;
-        active.push({
-          key: behavior.uuid || `${region.id}:${behavior.id}`,
-          region,
-          behavior,
-          tree,
-          bounds,
-          area,
-          config,
-          elevation: visualElevation(region),
-          seed: layoutSeed(scene, region, behavior, config.randomSeed),
-        });
-      } catch (error) {
-        console.warn(`${LOG_PREFIX} skipped region ${region?.id}.`, error);
-      }
+      const usePreview = preview && behaviorKey(behavior) === preview.key;
+      if (usePreview) sawPreview = true;
+      const entry = describeBehavior(scene, region, behavior, usePreview ? preview.config : null);
+      if (entry) active.push(entry);
+    }
+  }
+  if (preview && !sawPreview) {
+    const region = preview.behavior?.parent;
+    const regionScene = region?.parent;
+    if (region && regionScene?.id === scene.id) {
+      const entry = describeBehavior(scene, region, preview.behavior, preview.config);
+      if (entry) active.push(entry);
     }
   }
   return active;
+}
+
+function describeBehavior(scene, region, behavior, configOverride) {
+  try {
+    const config = configOverride ?? readConfig(behavior);
+    if (!config.enabled) return null;
+    if (config.effectType !== EFFECT_NATURAL_FIRE) {
+      if (!configOverride) {
+        console.warn(
+          `${LOG_PREFIX} effect type "${config.effectType}" is not implemented. That behavior was skipped.`,
+        );
+      }
+      return null;
+    }
+    const tree = region.polygonTree;
+    if (!tree || typeof tree.testPoint !== "function") {
+      console.warn(`${LOG_PREFIX} region ${region.id} has no polygon tree. Fire was skipped.`);
+      return null;
+    }
+    if (tree.isEmpty) return null;
+    const bounds = copyBounds(tree.bounds);
+    const area = Number(tree.area) || 0;
+    if (!bounds || !(area > 0)) return null;
+    return {
+      key: behaviorKey(behavior, region),
+      region,
+      behavior,
+      tree,
+      bounds,
+      area,
+      config,
+      elevation: visualElevation(region),
+      seed: layoutSeed(scene, region, behavior, config.randomSeed),
+    };
+  } catch (error) {
+    console.warn(`${LOG_PREFIX} skipped region ${region?.id}.`, error);
+    return null;
+  }
+}
+
+/** Fields that change sprite placement. Speed and opacity animate without a rebuild. */
+export function fireLayoutSignature(config) {
+  return [
+    config.enabled ? 1 : 0,
+    config.effectType,
+    config.density,
+    config.flameScale,
+    config.emberAmount,
+    config.edgeFade,
+    config.randomSeed ?? "",
+  ].join("|");
+}
+
+function behaviorKey(behavior, region = behavior?.parent) {
+  return behavior?.uuid || `${region?.id}:${behavior?.id}`;
 }
 
 function createEffect(entry, assets, grid, maxFlames, maxEmbers) {

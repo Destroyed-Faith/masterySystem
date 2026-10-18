@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.735] - 2026-10-18
+
+### Added
+
+- **Regions:** DF: Particle Effects previews on the map while its behavior window is open. Close without saving and the preview goes away.
+
 ## [0.9.734] - 2026-10-18
 
 ### Changed

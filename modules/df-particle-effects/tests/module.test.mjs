@@ -4,6 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { BEHAVIOR_TYPE, blankSeedToNull, isSystemPackageUrl, MODULE_ID } from "../scripts/constants.mjs";
+import { readDraft } from "../scripts/preview.mjs";
+import { fireLayoutSignature } from "../scripts/renderer.mjs";
 import { collectPolygonTreeContours, regionMaskOperations } from "../scripts/geometry.mjs";
 
 const moduleRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -16,6 +18,52 @@ test("a blank random seed is stored as null", () => {
   assert.equal(blankSeedToNull(12), 12);
   assert.equal(blankSeedToNull("12"), "12");
 });
+
+test("the behavior form previews speed without rebuilding the layout", () => {
+  const form = fakeForm({
+    "system.effectType": "naturalFire",
+    "system.density": "80",
+    "system.flameScale": "1.5",
+    "system.flameSpeed": "2",
+    "system.opacity": "0.4",
+    "system.emberAmount": "10",
+    "system.edgeFade": "0",
+    "system.randomSeed": "",
+  }, {
+    "system.enabled": true,
+    disabled: false,
+  });
+  const draft = readDraft(form);
+  assert.equal(draft.system.density, 80);
+  assert.equal(draft.system.flameSpeed, 2);
+  assert.equal(draft.system.enabled, true);
+  const base = {
+    enabled: true,
+    effectType: "naturalFire",
+    density: 80,
+    flameScale: 1.5,
+    emberAmount: 10,
+    edgeFade: 0,
+    randomSeed: null,
+    flameSpeed: 1,
+    opacity: 0.9,
+  };
+  const faster = { ...base, flameSpeed: 2, opacity: 0.4 };
+  assert.equal(fireLayoutSignature(base), fireLayoutSignature(faster));
+  assert.notEqual(fireLayoutSignature(base), fireLayoutSignature({ ...base, density: 10 }));
+});
+
+function fakeForm(values, checks) {
+  return {
+    querySelector(selector) {
+      const name = /name="([^"]+)"/.exec(selector)?.[1];
+      if (!name) return null;
+      if (Object.prototype.hasOwnProperty.call(checks, name)) return { checked: checks[name], value: "" };
+      if (Object.prototype.hasOwnProperty.call(values, name)) return { value: values[name], checked: false };
+      return null;
+    },
+  };
+}
 
 test("polygon tree walk keeps outer rings and hole rings", () => {
   const hole = [4, 4, 6, 4, 6, 6, 4, 6];

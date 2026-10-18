@@ -586,7 +586,7 @@
     "FIELDS": {
       "enabled": {
         "label": "Aktiv",
-        "hint": "Schaltet dieses Feuer aus, ohne das Behavior zu löschen. Die eingebaute Option „Deaktiviert“ der Region blendet es ebenfalls aus."
+        "hint": "Schaltet dieses Feuer aus, ohne das Behavior zu löschen. Die eingebaute Option „Deaktiviert“ der Region blendet es ebenfalls aus. Solange dieses Fenster offen ist, zeigt die Karte eine Vorschau. Ohne Speichern verschwindet sie wieder."
       },
       "effectType": {
         "label": "Effekttyp",

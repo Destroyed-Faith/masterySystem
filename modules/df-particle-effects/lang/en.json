@@ -14,7 +14,7 @@
     "FIELDS": {
       "enabled": {
         "label": "Enabled",
-        "hint": "Turn this fire on or off without deleting the behavior. The region's own Disabled checkbox also hides it."
+        "hint": "Turn this fire on or off without deleting the behavior. The region's own Disabled checkbox also hides it. While this window is open, the map previews your changes. Close it without saving and the preview goes away."
       },
       "effectType": {
         "label": "Effect Type",
