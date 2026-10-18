@@ -137,6 +137,18 @@ describe('reaction eligibility', () => {
     expect(evaluateReactionEligibility(cd, hitCtx).shown).toBe(true);
   });
 
+  it('shows Dive for Cover only on AoE hits', () => {
+    const dive = { basicReaction: 'dive-for-cover', id: 'basic-reaction-dive-for-cover' };
+    expect(evaluateReactionEligibility(dive, hitCtx).shown).toBe(false);
+    expect(evaluateReactionEligibility(dive, { ...hitCtx, isAoE: true }).shown).toBe(true);
+    expect(
+      evaluateReactionEligibility(dive, { ...hitCtx, isAoE: true, allowDiveForCover: false }).shown,
+    ).toBe(false);
+    expect(
+      evaluateReactionEligibility(dive, { ...hitCtx, isAoE: true, hit: false }).shown,
+    ).toBe(false);
+  });
+
   it('hides Counterattack when the reactor cannot reach the attacker', () => {
     const counter = { basicReaction: 'counterattack', id: 'basic-reaction-counterattack' };
     expect(

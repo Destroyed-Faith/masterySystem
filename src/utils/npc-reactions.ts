@@ -13,7 +13,10 @@ import {
   coerceNpcPhasesArray,
   npcSpecialEffectString,
 } from './npc-attack-model.js';
-import { buildBasicReactionItems } from '../combat/basic-combat.js';
+import {
+  buildBasicReactionItems,
+  buildCounterattackReactionItem,
+} from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
@@ -158,23 +161,6 @@ export function npcReactionSlotsForEconomy(actor: any): number {
   return slots;
 }
 
-function buildDiveForCoverItem(actor: any): any {
-  const mr = getRulesMasteryRank(actor);
-  const moveM = mr * 2;
-  return {
-    id: 'basic-reaction-dive-for-cover',
-    name: 'Dive for Cover',
-    type: 'basic-reaction',
-    system: {
-      powerType: 'reaction',
-      templateId: 'basic-dive-for-cover',
-      description: `Move up to ${moveM} m (2 × MR). If you leave the AoE completely, you are not affected.`,
-    },
-    basicReaction: 'dive-for-cover',
-    mechanics: {},
-  };
-}
-
 function buildNpcInterposeItem(): any {
   return {
     id: 'basic-reaction-interpose',
@@ -194,7 +180,7 @@ function buildNpcInterposeItem(): any {
 function materializeBasic(actor: any, basicId: string): any | null {
   const id = String(basicId || '');
   if (id === 'interpose') return buildNpcInterposeItem();
-  if (id === 'dive-for-cover') return buildDiveForCoverItem(actor);
+  if (id === 'counterattack') return buildCounterattackReactionItem(actor);
   const basics = buildBasicReactionItems(actor);
   return basics.find((b) => b.basicReaction === id) ?? null;
 }

@@ -43,6 +43,8 @@ export interface ReactionTriggerContext {
   /** Ongoing/status application surface (Cleanse) — not the attack window. */
   statusSurface?: boolean;
   isAoE?: boolean;
+  /** When false, Dive for Cover is hidden even if `isAoE` (e.g. Autofire). */
+  allowDiveForCover?: boolean;
   suppressCounterattack?: boolean;
   /** Set when this window is a Threat Zone entry or exit, not an attack. */
   movementThreat?: 'entry' | 'exit' | null;
@@ -420,6 +422,19 @@ export function evaluateReactionEligibility(power: any, ctx: ReactionTriggerCont
     };
   }
 
+  // Dive for Cover — AoE hits only (not Autofire / non-area).
+  if (basic === 'dive-for-cover') {
+    if (!ctx.isAoE || ctx.allowDiveForCover === false) {
+      return { shown: false, enabled: false, reason: 'Dive for Cover requires an AoE hit' };
+    }
+    if (phase !== 'defender') {
+      return { shown: false, enabled: false, reason: 'Dive for Cover is a defender reaction' };
+    }
+    if (!ctx.hit) {
+      return { shown: false, enabled: false, reason: 'Dive for Cover requires a hit' };
+    }
+  }
+
   // DR reaction needs Passive / sheet DR.
   if (tid === 'reaction-damage-reduction' || (Number(mechanicsOf(power)?.damageReductionPct) || 0) > 0) {
     if (ctx.hasPassiveDR === false) {
@@ -493,6 +508,7 @@ export function buildReactionTriggerContext(params: {
   hpLost?: boolean;
   statusSurface?: boolean;
   isAoE?: boolean;
+  allowDiveForCover?: boolean;
   attackType?: 'melee' | 'ranged' | null;
   movementThreat?: 'entry' | 'exit' | null;
 }): ReactionTriggerContext {
@@ -516,6 +532,7 @@ export function buildReactionTriggerContext(params: {
     hpLost: !!params.hpLost,
     statusSurface: !!params.statusSurface,
     isAoE: !!params.isAoE,
+    allowDiveForCover: params.allowDiveForCover,
     movementThreat: params.movementThreat ?? null,
     suppressCounterattack: !!params.suppressCounterattack,
     canReachAttackerWithBasicAttack: defender

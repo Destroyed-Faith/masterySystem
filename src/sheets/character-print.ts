@@ -163,7 +163,7 @@ function stonePowerPaymentTiersForPrint(
 /** Options for the printable character sheet. */
 export interface CharacterPrintOptions {
   /**
-   * When true, seed Guard / Evade / Counterattack onto the battle page
+   * When true, seed Guard / Evade / Dive for Cover onto the battle page
    * (same universal options as radial / Reaction Window).
    * Defaults to true for the table sheet (layout `full`).
    */
@@ -1019,10 +1019,10 @@ export function buildCharacterPrintContext(
         entry.damageRoll = `+${mr2} Evade`;
         entry.rollLabel = 'Effect';
         entry.battleFootnote = 'Basic Reaction — may negate the hit if Evade exceeds the attack total.';
-      } else if (key === 'counterattack') {
-        entry.damageRoll = `Weapon + ${mrDice}`;
-        entry.rollLabel = 'Damage';
-        entry.battleFootnote = 'Basic Reaction — Basic Attack vs the triggering creature.';
+      } else if (key === 'dive-for-cover') {
+        entry.damageRoll = `Move ${mr2} m`;
+        entry.rollLabel = 'Effect';
+        entry.battleFootnote = 'Basic Reaction — leave an AoE completely to avoid the hit.';
       }
       battleReactions.push(entry);
     }

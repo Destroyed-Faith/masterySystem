@@ -43,6 +43,8 @@ export interface DefenderReactionMitigation {
   effectiveEvade?: number;
   /** Basic Counterattack: spawn a Basic Attack after this hit resolves. */
   counterattack?: boolean;
+  /** Dive for Cover: left the AoE completely — not affected. */
+  escapedByDiveForCover?: boolean;
   /** Interpose: ally actor id taking half of the damage. */
   interposeActorId?: string;
   interposeActorName?: string;
@@ -262,7 +264,7 @@ export function buildOpportunityAttackReactionItem(actor: any): any {
  */
 export function isThreatenedDeclarationLegalReaction(item: any): boolean {
   // All Basic Reactions trigger off being hit/targeted (Guard, Evade,
-  // Counterattack, Interpose, Dive for Cover) or a Skill Check (Aid).
+  // Interpose, Dive for Cover, optional Counterattack) or a Skill Check (Aid).
   if (String(item?.basicReaction || '')) return false;
   if (isThreatenedRangedOffensiveReaction(item)) return false;
   const trig = String(item?.system?.trigger ?? '').toLowerCase();

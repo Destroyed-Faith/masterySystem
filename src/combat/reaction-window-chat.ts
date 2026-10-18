@@ -83,6 +83,8 @@ export interface ReactionWindowState {
   spellPowerDamageDice?: number;
   attackType?: 'melee' | 'ranged' | null;
   isAoE?: boolean;
+  /** When false, hide Dive for Cover (e.g. Autofire). Default: allowed on AoE. */
+  allowDiveForCover?: boolean;
   /** Threat Zone boundary this card was opened for. */
   movementThreat?: 'entry' | 'exit' | null;
   /**
@@ -292,6 +294,7 @@ function filterEntriesForCard(
         multiTarget: !!state.multiTarget,
         attackType: state.attackType ?? null,
         isAoE: !!state.isAoE,
+        allowDiveForCover: state.allowDiveForCover,
         movementThreat: state.movementThreat ?? null,
       });
       const powers = e.powers.filter((p) => {
@@ -817,6 +820,31 @@ async function executeReactionSpend(params: {
       powerName: power.name,
     };
     note = ` <em>(Interpose — ${actorName} will take half of the damage dealt to ${String((defender as any).name ?? 'the target')}.)</em>`;
+    return { state, note };
+  }
+
+  // Dive for Cover — Reaction already spent; confirm whether the token left the AoE.
+  if (power?.basicReaction === 'dive-for-cover') {
+    try {
+      const { diveForCoverDistanceM, confirmDiveForCoverOutside } = await import(
+        './aoe-melee-resolution.js'
+      );
+      const { getPrimaryTokenForActor } = await import('../utils/mechanics-adjacency.js');
+      const moveM = diveForCoverDistanceM(actor);
+      const tok = getPrimaryTokenForActor(actor);
+      const outside = await confirmDiveForCoverOutside(actor, tok, moveM);
+      state.mitigation = {
+        ...(state.mitigation || emptyMitigation()),
+        powerName: power.name,
+        escapedByDiveForCover: outside,
+      };
+      note = outside
+        ? ' <em>(Dive for Cover — outside the area, not affected.)</em>'
+        : ' <em>(Dive for Cover — still inside, affected normally.)</em>';
+    } catch (err) {
+      console.warn('Mastery System | Dive for Cover failed', err);
+      note = ' <em>(Dive for Cover — resolve at the table.)</em>';
+    }
     return { state, note };
   }
 
@@ -1462,6 +1490,8 @@ export async function runInteractiveReactionWindow(params: {
   spellPowerDamageDice?: number;
   attackType?: 'melee' | 'ranged' | null;
   isAoE?: boolean;
+  /** When false, hide Dive for Cover even on AoE (e.g. Autofire). */
+  allowDiveForCover?: boolean;
   /** Threat Zone entry (after arrival) or exit (before departure). */
   movementThreat?: 'entry' | 'exit' | null;
 }): Promise<ReactionPhaseResult> {
@@ -1515,6 +1545,7 @@ export async function runInteractiveReactionWindow(params: {
     spellPowerDamageDice: Math.max(0, Math.floor(Number(params.spellPowerDamageDice) || 0)),
     attackType: params.attackType ?? null,
     isAoE: !!params.isAoE,
+    allowDiveForCover: params.allowDiveForCover,
     movementThreat: params.movementThreat ?? null,
   };
 

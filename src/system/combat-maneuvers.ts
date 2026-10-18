@@ -203,12 +203,12 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
   {
     id: "counterattack",
     name: "Counterattack",
-    description: "Basic Attack against the creature that hit you.",
+    description: "Basic Attack against the creature that hit you (NPC / power option — not a universal Basic Reaction).",
     slot: "reaction",
     category: "tactical-reaction",
-    tags: ["reaction", "tactical", "basic", "basic-reaction", "melee"],
+    tags: ["reaction", "tactical", "melee"],
     effect:
-      "Trigger: a creature hits you with an Attack and is a valid target. Immediately make a **Basic Attack** (Weapon Damage + MR × 2d8). No Active Power effects.",
+      "Trigger: a creature hits you with an Attack and is a valid target. Immediately make a **Basic Attack** (Weapon Damage + MR × 2d8). No Active Power effects. Not a universal Basic Reaction.",
   },
   {
     id: "dive-for-cover",

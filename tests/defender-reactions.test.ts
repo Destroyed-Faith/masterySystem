@@ -56,7 +56,7 @@ describe('defender-reactions', () => {
 
     const list = getEligibleReactionPowers(defender, combat);
     expect(list.map((x: any) => x.id).sort()).toEqual([
-      'basic-reaction-counterattack',
+      'basic-reaction-dive-for-cover',
       'basic-reaction-evade',
       'basic-reaction-guard',
       'gs',
@@ -78,11 +78,11 @@ describe('defender-reactions', () => {
       },
       { id: 'basic-reaction-evade', name: 'Evade', basicReaction: 'evade' },
       { id: 'basic-reaction-guard', name: 'Guard', basicReaction: 'guard' },
-      { id: 'basic-reaction-counterattack', name: 'Counterattack', basicReaction: 'counterattack' },
+      { id: 'basic-reaction-dive-for-cover', name: 'Dive for Cover', basicReaction: 'dive-for-cover' },
     ];
     const deduped = dedupeOverlappingBasicReactions(powers);
     expect(deduped.map((p: any) => p.id).sort()).toEqual([
-      'basic-reaction-counterattack',
+      'basic-reaction-dive-for-cover',
       'ev-power',
       'guard-power',
     ]);
@@ -104,7 +104,7 @@ describe('defender-reactions', () => {
 
     const list = getEligibleReactionPowers(defender, combat);
     expect(list.map((x: any) => x.id).sort()).toEqual([
-      'basic-reaction-counterattack',
+      'basic-reaction-dive-for-cover',
       'basic-reaction-guard',
       'ev-power',
     ]);

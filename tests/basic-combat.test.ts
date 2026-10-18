@@ -24,33 +24,38 @@ describe('basic-combat helpers', () => {
     expect(getMasteryRank({ system: {} })).toBe(2);
   });
 
-  it('builds Guard / Evade / Counterattack with MR×2 bonuses', () => {
+  it('builds Guard / Evade / Dive for Cover with MR×2 bonuses', () => {
     const items = buildBasicReactionItems({ system: { mastery: { rank: 3 } } });
     expect(items.map((i) => i.id)).toEqual([
       BASIC_REACTION_IDS.guard,
       BASIC_REACTION_IDS.evade,
-      BASIC_REACTION_IDS.counterattack,
+      BASIC_REACTION_IDS.diveForCover,
     ]);
     expect(items[0].mechanics.armor).toBe(6);
     expect(items[1].mechanics.evade).toBe(6);
+    expect(items[2].basicReaction).toBe('dive-for-cover');
     expect(items.every(isBasicReactionItem)).toBe(true);
   });
 });
 
 describe('basic combat maneuvers catalog', () => {
-  it('includes Guard/Evade/Counterattack/Quick Load/Flee and radial prefs cover core basics', () => {
+  it('includes Guard/Evade/Dive/Quick Load/Flee and radial prefs cover core basics', () => {
     const ids = new Set(COMBAT_MANEUVERS.map((m) => m.id));
     for (const id of [
       'guard',
       'evade',
-      'counterattack',
+      'dive-for-cover',
       'quick-load',
       'weapon-swap',
       'flee',
-      'dive-for-cover',
     ]) {
       expect(ids.has(id)).toBe(true);
     }
+    // Counterattack remains in the catalog but is not a universal Basic Reaction.
+    expect(ids.has('counterattack')).toBe(true);
+    expect(COMBAT_MANEUVERS.find((m) => m.id === 'counterattack')?.tags).not.toContain(
+      'basic-reaction',
+    );
     expect(ids.has('initiative-delay')).toBe(false);
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('quick-load');
     expect(RADIAL_STANDARD_MANEUVER_IDS).toContain('weapon-swap');
