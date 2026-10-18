@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.738] - 2026-10-18
+
+### Changed
+
+- **Combat Carousel:** Health rail sits inside the portrait border. Movement strip under names removed.
+
 ## [0.9.737] - 2026-10-18
 
 ### Changed

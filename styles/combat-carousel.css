@@ -287,15 +287,6 @@
    Portrait Card
    ======================================== */
 
-.carousel-card-row {
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  gap: 4px;
-  width: 100%;
-  min-width: 0;
-}
-
 .carousel-combatant {
   display: flex;
   flex-direction: column;
@@ -313,15 +304,8 @@
 }
 
 .carousel-combatant.has-side-hp {
-  width: 176px;
-  max-width: 176px;
-}
-
-.carousel-card-row .carousel-portrait {
-  flex: 1 1 auto;
-  width: auto;
-  min-width: 0;
-  max-width: none;
+  width: 168px;
+  max-width: 168px;
 }
 
 .carousel-portrait {
@@ -345,6 +329,27 @@
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
   opacity: 0.8;
+}
+
+.carousel-portrait.has-side-hp {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.3rem;
+  padding: 0.4rem 0.35rem 0.4rem 0.45rem;
+}
+
+.carousel-portrait-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.carousel-portrait.has-side-hp .carousel-portrait-body {
+  width: auto;
 }
 
 .carousel-portrait:hover {
@@ -1110,45 +1115,52 @@
   text-decoration-color: rgba(255, 183, 77, 0.95);
 }
 
-/* GM-only vertical Health rail beside player characters. Bar 0 sits at the top. */
+/* GM-only vertical Health rail inside the portrait border. Bar 0 sits at the top. */
 .ms-hp-rail {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 2px;
-  width: 22px;
-  flex: 0 0 22px;
+  gap: 1px;
+  width: 16px;
+  flex: 0 0 16px;
+  align-self: stretch;
   min-height: 0;
+  max-width: 16px;
   box-sizing: border-box;
   pointer-events: auto;
+  overflow: visible;
 }
 
 .ms-hp-rail .ms-hp-temp,
 .ms-hp-rail .ms-hp-scarred-count {
   margin: 0;
-  padding: 0 1px;
+  padding: 0;
   text-align: center;
-  font-size: 0.55rem;
-  line-height: 1.2;
+  font-size: 0.5rem;
+  line-height: 1.15;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
 .ms-hp-rail-track {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  gap: 2px;
-  min-height: 64px;
-  padding: 2px;
+  gap: 1px;
+  min-height: 52px;
+  padding: 1px;
   box-sizing: border-box;
   background: rgba(0, 0, 0, 0.35);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .ms-hp-rail .ms-hp-segment {
   flex: 1 1 0;
   width: 100%;
   height: auto;
-  min-height: 8px;
+  min-height: 6px;
 }
 
 .ms-hp-rail .ms-hp-segment-fill {
@@ -1499,8 +1511,8 @@ body.mastery-carousel-resizing #mastery-combat-carousel * {
 }
 
 .mastery-carousel.is-user-medium .carousel-combatant.has-side-hp {
-  width: 148px;
-  max-width: 148px;
+  width: 140px;
+  max-width: 140px;
 }
 
 .mastery-carousel.is-user-rail .portrait-image,

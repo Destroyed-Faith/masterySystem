@@ -1,4 +1,4 @@
-import { getActionEconomyActor, getAvailableAttackActions, getAvailableMovementActions, getMovementRangeBonusMeters, getReactionActionsSummary, getRoundState, gmRefundCombatAction, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
+import { getActionEconomyActor, getAvailableAttackActions, getAvailableMovementActions, getReactionActionsSummary, getRoundState, gmRefundCombatAction, hasPowerBeenUsedThisRound, } from '../combat/action-economy.js';
 import { canViewerSeeEndTurn, requestEndTurn, userMayEndCurrentTurn } from '../combat/end-turn.js';
 import { arePlayerStonesReadyForRound, encounterStartBlockers, isEncounterPreparing, isStonePowersDone, pendingStonePlayerNames, warnIfPlayerStonesPending, } from '../combat/stone-round-gate.js';
 import { effectiveInvisibilityBonusForActor } from '../combat/invisibility-profile.js';
@@ -9,8 +9,7 @@ import { buildCarouselHpSegments, hideCarouselHpNumbers, hideCarouselNpcHpBars, 
 import { carouselSideClass, findNextCombatantId, resolveCurrentCombatantId, } from './combat-carousel-helpers.js';
 import { applyCarouselCompactClass, applyCarouselUserSize, CAROUSEL_MIN_HEIGHT, CAROUSEL_MIN_WIDTH, CAROUSEL_Z_INDEX, clampCarouselHeight, clampCarouselWidth, clearCarouselTopOffset, isCompactCarouselViewport, syncCarouselTopOffset, writeCarouselUserSize, } from './combat-carousel-layout.js';
 import { buildCarouselTooltip, readCarouselClientPrefs, resolveCarouselCompact, writeCarouselClientPrefs, } from './combat-carousel-settings.js';
-import { PENDING_SAFE_MOVEMENT_FLAG, PENDING_SLIP_FLAG, } from '../stones/agility-movement.js';
-import { getActiveGuidedMovementSummary, handleChosenCombatOption } from '../token-action-selector.js';
+import { handleChosenCombatOption } from '../token-action-selector.js';
 import { applyCarouselVitalsEdit } from './carousel-vitals-edit.js';
 import { readPowerFavorites, togglePowerFavorite } from './power-favorites.js';
 import { getAllCombatOptionsForActor } from '../token-radial-menu.js';
@@ -120,7 +119,6 @@ export class CombatCarouselApp extends BaseCarousel {
         const currentCombatantId = resolveCurrentCombatantId(combat);
         const isGM = game.user?.isGM || false;
         const prefs = readCarouselClientPrefs();
-        const guidedMove = getActiveGuidedMovementSummary();
         const preparing = isEncounterPreparing(combat);
         const roundForStones = Math.max(1, Number(combat.round) || 1);
         for (const combatant of turns) {
@@ -332,38 +330,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 tempHP,
                 hpScarredCount,
             });
-            const speedMeters = Math.max(0, Math.floor(Number(actor.system?.combat?.speed ?? 0) || 0)) +
-                getMovementRangeBonusMeters(economyActor, combat);
-            const tokenDocId = String(token?.id ?? tokenId ?? '');
-            const moveActive = !!guidedMove &&
-                (guidedMove.tokenId === tokenDocId ||
-                    (guidedMove.actorId != null && guidedMove.actorId === String(actor.id || '')));
-            const pendingSafe = (() => {
-                try {
-                    const raw = economyActor?.getFlag?.('mastery-system', PENDING_SAFE_MOVEMENT_FLAG);
-                    const m = Math.max(0, Math.floor(Number(raw?.meters ?? raw) || 0));
-                    return m > 0 ? m : 0;
-                }
-                catch {
-                    return 0;
-                }
-            })();
-            const pendingSlip = (() => {
-                try {
-                    const raw = economyActor?.getFlag?.('mastery-system', PENDING_SLIP_FLAG);
-                    if (raw && typeof raw === 'object' && raw.used === true)
-                        return 0;
-                    const m = Math.max(0, Math.floor(Number(raw?.meters ?? raw) || 0));
-                    return m > 0 ? m : 0;
-                }
-                catch {
-                    return 0;
-                }
-            })();
-            const showMoveStrip = !hideHpNumbers &&
-                (ownsActor ||
-                    combatant.id === currentCombatantId ||
-                    moveActive);
             const favoritePowers = ownsActor && actor.type === 'character'
                 ? (() => {
                     const ids = readPowerFavorites(actor);
@@ -432,18 +398,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 richTooltip: tip,
                 hasToken: !!token,
                 tokenId: tokenId,
-                moveStrip: showMoveStrip
-                    ? {
-                        movementRemaining,
-                        movementTotal,
-                        speedMeters,
-                        moveActive,
-                        remainingMeters: moveActive ? Math.round(guidedMove.remainingMeters) : null,
-                        maxMeters: moveActive ? Math.round(guidedMove.maxMeters) : speedMeters,
-                        safeMeters: pendingSafe,
-                        slipMeters: pendingSlip,
-                    }
-                    : null,
                 favoritePowers,
                 canEditVitals: isGM,
                 actorId: String(actor.id || ''),

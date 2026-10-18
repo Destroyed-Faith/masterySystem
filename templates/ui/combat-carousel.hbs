@@ -57,9 +57,9 @@
     <div class="carousel-combatants">
       {{#each combatants as |combatant|}}
         <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}}{{#if combatant.showSideHp}} has-side-hp{{/if}}" data-combatant-id="{{combatant.id}}">
-        <div class="carousel-card-row">
-        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}} {{combatant.dispositionClass}}" 
+        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}} {{combatant.dispositionClass}}{{#if combatant.showSideHp}} has-side-hp{{/if}}"
              data-combatant-id="{{combatant.id}}">
+          <div class="carousel-portrait-body">
           {{#if combatant.richTooltip}}
           <div class="ms-carousel-rich-tip" hidden>
             <strong class="ms-carousel-rich-tip-title">{{combatant.richTooltip.title}}</strong>
@@ -112,23 +112,6 @@
           <!-- Name — opens Stone Powers (Passives live in that dialog) -->
           <div class="portrait-name js-open-stone-powers" title="{{localize 'MASTERY.encounterSetup.stones'}}">{{combatant.name}}</div>
 
-          {{#if combatant.moveStrip}}
-          <div class="ms-carousel-move-strip" title="Movement actions and meters">
-            <span class="ms-car-move">M <strong>{{combatant.moveStrip.movementRemaining}}</strong>/{{combatant.moveStrip.movementTotal}}</span>
-            {{#if combatant.moveStrip.moveActive}}
-              <span class="ms-car-move is-live"><strong>{{combatant.moveStrip.remainingMeters}}</strong> m left</span>
-            {{else}}
-              <span class="ms-car-move">{{combatant.moveStrip.speedMeters}} m</span>
-            {{/if}}
-            {{#if combatant.moveStrip.safeMeters}}
-              <span class="ms-car-move-badge" title="Safe Movement armed">Safe {{combatant.moveStrip.safeMeters}} m</span>
-            {{/if}}
-            {{#if combatant.moveStrip.slipMeters}}
-              <span class="ms-car-move-badge" title="Slip armed">Slip {{combatant.moveStrip.slipMeters}} m</span>
-            {{/if}}
-          </div>
-          {{/if}}
-
           {{#if combatant.combatStrip}}
           <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR%) — Hover für Herkunft{{/if}}">
             <span class="ms-cs ms-cs-arm" title="Armor total">A <strong>{{combatant.combatStrip.armor}}</strong></span>
@@ -173,7 +156,7 @@
               </button>
             {{/if}}
           </div>
-        </div>
+          </div>
 
           {{#if combatant.showSideHp}}
           <aside class="ms-hp-rail" aria-label="Health">
