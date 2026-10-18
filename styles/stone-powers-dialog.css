@@ -726,6 +726,20 @@
   background: rgba(129, 212, 250, 0.12);
 }
 
+.stone-powers-dialog .once-combat-stamp {
+  margin-left: auto;
+  padding: 0.08rem 0.4rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 193, 7, 0.55);
+  background: rgba(255, 193, 7, 0.16);
+  color: #ffe082;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 .stone-powers-dialog .stone-recovery-copy {
   display: flex;
   flex-direction: column;

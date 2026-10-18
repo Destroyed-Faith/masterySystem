@@ -1235,9 +1235,10 @@ function finalize(list: StonePowerDraft[]): StonePower[] {
 }
 
 function leadPremium(list: StonePower[]): StonePower[] {
-  const lead = list.filter((p) => p.premium);
-  const rest = list.filter((p) => !p.premium);
-  return [...lead, ...rest];
+  const lead = list.filter((p) => p.premium && !p.oncePerCombat);
+  const mid = list.filter((p) => !p.premium && !p.oncePerCombat);
+  const once = list.filter((p) => p.oncePerCombat);
+  return [...lead, ...mid, ...once];
 }
 
 const GENERIC_POWERS = finalize(GENERIC_POWERS_RAW);

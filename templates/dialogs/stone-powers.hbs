@@ -188,37 +188,6 @@
                 aria-label="How does this work?">?</button>
       </div>
     </div>
-    {{#if colorlessRecovery.show}}
-    <div class="stone-recovery-bar" role="region" aria-label="Colorless Recovery">
-      <div class="stone-recovery-copy">
-        <strong>Colorless Recovery</strong>
-        {{#if (eq colorlessRecovery.mode "activate")}}
-        <span>Preparation only, once per combat. Rank {{colorlessRecovery.rank}} costs <b>{{colorlessRecovery.cost}}</b> Stones. They become Exhausted, not Sealed. Up to <b>{{colorlessRecovery.capacity}}</b> Colorless Stones can be designated. Free slots: {{colorlessRecovery.free}}. This does not regenerate them.</span>
-        {{else}}
-        <span>Rank {{colorlessRecovery.rank}} stays for this combat. Capacity {{colorlessRecovery.capacity}}. Free slots: {{colorlessRecovery.free}}. New Colorless Stones can fill a free slot without paying again.</span>
-        {{/if}}
-      </div>
-      <div class="stone-recovery-actions">
-        {{#if (eq colorlessRecovery.mode "activate")}}
-        <button type="button" class="dialog-btn js-cr-rank" data-rank="1">Rank 1</button>
-        <button type="button" class="dialog-btn js-cr-rank" data-rank="2">Rank 2</button>
-        <button type="button" class="dialog-btn js-cr-rank" data-rank="3">Rank 3</button>
-        <button type="button" class="dialog-btn js-cr-rank" data-rank="4">Rank 4</button>
-        {{/if}}
-        <button type="button" class="dialog-btn dialog-btn-primary js-cr-confirm">
-          {{#if (eq colorlessRecovery.mode "activate")}}Activate{{else}}Assign free slots{{/if}}
-        </button>
-      </div>
-      <div class="stone-recovery-colorless">
-        {{#each colorlessRecovery.stones}}
-        <label>
-          <input type="checkbox" class="js-cr-stone" data-stone-id="{{id}}" {{#if checked}}checked{{/if}} {{#if disabled}}disabled{{/if}} />
-          {{label}}
-        </label>
-        {{/each}}
-      </div>
-    </div>
-    {{/if}}
     {{#if recovery.active}}
     <div class="stone-recovery-bar" role="region" aria-label="Stone Recovery">
       <div class="stone-recovery-copy">
@@ -378,6 +347,9 @@
       <summary class="powers-attr-label js-stone-section-toggle" data-attribute="{{attrKey}}" data-section="{{attrKey}}">
         <i class="fas fa-chevron-right" aria-hidden="true"></i>
         <span>{{attrName}}</span>
+        {{#if hasOncePerCombat}}
+        <span class="once-combat-stamp" title="This attribute has Stone Powers that can be used only once per combat. Those sit on the right.">Once a Combat</span>
+        {{/if}}
       </summary>
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}

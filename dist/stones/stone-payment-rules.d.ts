@@ -28,11 +28,10 @@ export declare function shouldSettleStoneWave(args: {
     usesInKey: number;
 }): boolean;
 /**
- * Card order inside a power row. Every row holds exactly one Premium power
- * (2 / 4 / 6 / 8 Rank costs). It leads the row; the remaining cards keep
- * their order.
+ * Card order inside a power row. Premium leads (left). Once-per-combat
+ * abilities sit on the right. Everything else keeps relative order in the middle.
  */
-export declare function orderPowersRampFirst<T>(powers: readonly T[], isPremium: (power: T) => boolean): T[];
+export declare function orderPowersRampFirst<T>(powers: readonly T[], isPremium: (power: T) => boolean, isOncePerCombat?: (power: T) => boolean): T[];
 /**
  * Whether an attribute (or General) section starts expanded in the Stone
  * Powers dialog. Sections with freely spendable stones of that attribute

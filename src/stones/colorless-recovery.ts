@@ -234,15 +234,24 @@ export async function recordColorlessRecoveryActivation(actor: any, tier: number
   }
   const draft = actor?.getFlag?.('mastery-system', DRAFT_FLAG) as { ids?: string[] } | undefined;
   const stones = await syncColorlessStoneLedger(actor);
-  const legal = new Set(
-    stones.filter((row) => row.state === 'ready' || row.state === 'exhausted').map((row) => row.id),
-  );
+  const eligible = stones.filter((row) => row.state === 'ready' || row.state === 'exhausted');
+  const legal = new Set(eligible.map((row) => row.id));
   const selectedIds: string[] = [];
+  const hadExplicitDraft = Array.isArray(draft?.ids);
   for (const id of draft?.ids ?? []) {
     const key = String(id || '');
     if (!key || selectedIds.includes(key) || !legal.has(key)) continue;
     selectedIds.push(key);
     if (selectedIds.length >= spec.capacity) break;
+  }
+  // Stone-card activation has no picker — fill capacity from held Colorless Stones.
+  // An explicit draft (including empty) keeps free slots for later assignment.
+  if (!hadExplicitDraft) {
+    for (const row of eligible) {
+      if (selectedIds.length >= spec.capacity) break;
+      if (selectedIds.includes(row.id)) continue;
+      selectedIds.push(row.id);
+    }
   }
   await writeRecovery(actor, {
     combatId,

@@ -139,6 +139,17 @@ describe('power row order', () => {
   it('leaves a row without a ramp power untouched', () => {
     expect(orderPowersRampFirst(row, () => false)).toEqual(row);
   });
+
+  it('keeps Premium left and Once a Combat on the right', () => {
+    const powers = ['tempHp', 'damageNegation', 'removeScar', 'maximization'];
+    expect(
+      orderPowersRampFirst(
+        powers,
+        (id) => id === 'damageNegation',
+        (id) => id === 'tempHp' || id === 'maximization',
+      ),
+    ).toEqual(['damageNegation', 'removeScar', 'tempHp', 'maximization']);
+  });
 });
 
 describe('dialog section expand/collapse', () => {

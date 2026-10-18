@@ -55,17 +55,22 @@ export function shouldSettleStoneWave(args) {
     return Number(args.currentUses) === Number(args.usesInKey);
 }
 /**
- * Card order inside a power row. Every row holds exactly one Premium power
- * (2 / 4 / 6 / 8 Rank costs). It leads the row; the remaining cards keep
- * their order.
+ * Card order inside a power row. Premium leads (left). Once-per-combat
+ * abilities sit on the right. Everything else keeps relative order in the middle.
  */
-export function orderPowersRampFirst(powers, isPremium) {
+export function orderPowersRampFirst(powers, isPremium, isOncePerCombat) {
     const lead = [];
-    const rest = [];
+    const mid = [];
+    const once = [];
     for (const power of powers) {
-        (isPremium(power) ? lead : rest).push(power);
+        if (isOncePerCombat?.(power))
+            once.push(power);
+        else if (isPremium(power))
+            lead.push(power);
+        else
+            mid.push(power);
     }
-    return [...lead, ...rest];
+    return [...lead, ...mid, ...once];
 }
 /**
  * Whether an attribute (or General) section starts expanded in the Stone

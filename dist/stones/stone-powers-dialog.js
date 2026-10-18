@@ -889,7 +889,7 @@ export class StonePowersDialog extends BaseDialog {
             return { attrKey, usesThisTurn, spendable, nextCost };
         };
         // Separate generic and attribute-specific powers (Premium leads the row)
-        const genericPowers = orderPowersRampFirst(availablePowers.filter(p => p.attribute === 'generic'), (p) => isPremiumStonePower(p.id));
+        const genericPowers = orderPowersRampFirst(availablePowers.filter((p) => p.attribute === 'generic'), (p) => isPremiumStonePower(p.id), (p) => !!p.oncePerCombat);
         const attributeSpecificPowers = availablePowers.filter((p) => p.attribute !== 'generic' && p.id !== 'wits.initiativeBoost');
         const generalPowers = genericPowers.map((power) => {
             const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
@@ -974,7 +974,8 @@ export class StonePowersDialog extends BaseDialog {
             const rawDefs = STONE_POWERS_BY_ATTRIBUTE[attr];
             if (!rawDefs?.length)
                 return null;
-            const defs = orderPowersRampFirst(rawDefs, (def) => isPremiumStonePower(def.id));
+            const matrixDefs = rawDefs.filter((def) => def.id !== 'wits.initiativeBoost');
+            const defs = orderPowersRampFirst(matrixDefs, (def) => isPremiumStonePower(def.id), (def) => !!def.oncePerCombat);
             const preparedMap = new Map((powersByAttribute[attr] || []).map((p) => [p.id, p]));
             const cells = [];
             const cols = Math.max(ATTR_MATRIX_COLS, defs.length);
@@ -990,15 +991,18 @@ export class StonePowersDialog extends BaseDialog {
                 }
                 cells.push({
                     ...p,
+                    oncePerCombat: !!def.oncePerCombat,
                     effectLong: def.effect || p.description || '',
                 });
             }
             const hasSpendable = this.#sectionHasSpendable(attr, pools);
+            const hasOncePerCombat = defs.some((def) => !!def.oncePerCombat);
             return {
                 attrKey: attr,
                 attrName: poolDisplayName(attr),
                 cells,
                 hasSpendable,
+                hasOncePerCombat,
                 sectionOpen: stoneDialogSectionStartsOpen({
                     sectionHasSpendable: hasSpendable,
                     sectionHasAssigned: this.#sectionHasAssigned(attr),
@@ -1095,7 +1099,6 @@ export class StonePowersDialog extends BaseDialog {
             stoneResolutionHold,
             unactivatedStones,
             recovery,
-            colorlessRecovery: this.#colorlessRecoveryPanel(combat, poolOwner),
             /** Ziehen sobald Initiative steht — Convert/Boost müssen nicht erst bestätigt sein. */
             dragStonesEnabled: !stonePlanLocked &&
                 !recovery.active &&
@@ -2446,10 +2449,6 @@ export class StonePowersDialog extends BaseDialog {
         const def = STONE_POWERS[powerId];
         if (!def)
             return false;
-        if (powerId === 'influence.colorlessRecovery') {
-            ui.notifications?.warn('Choose Colorless Recovery in its panel. Dragging Stones onto the card does not activate it.');
-            return false;
-        }
         if (powerId === 'wits.initiativeBoost') {
             if (this.#stoneOccGetRaw(accKey).length)
                 this.#stoneOccDelete(accKey);
@@ -2465,6 +2464,13 @@ export class StonePowersDialog extends BaseDialog {
         const combat = game.combat;
         if (!combat)
             return false;
+        if (powerId === 'influence.colorlessRecovery') {
+            const { colorlessRecoveryPreparationOpen } = await import('./colorless-recovery.js');
+            if (!colorlessRecoveryPreparationOpen(this.actor, combat)) {
+                ui.notifications?.warn('Colorless Recovery can only be activated during a Preparation Phase.');
+                return false;
+            }
+        }
         const currentUses = powerId === REMOVE_SCAR_POWER_ID
             ? getRemoveScarResolvedMaxTier(this.actor)
             : isGenericUnifiedAccKey(accKey)

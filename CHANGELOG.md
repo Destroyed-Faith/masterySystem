@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.721] - 2026-10-18
+
+### Changed
+
+- **Stone Powers:** Colorless Recovery is only the Influence card again (no separate activation bar). Drop Influence Stones on it during Preparation.
+- **Stone Powers:** Once-a-Combat abilities sit on the right of each attribute row. The attribute heading shows an **Once a Combat** stamp. Power cards themselves are unchanged.
+
 ## [0.9.720] - 2026-10-18
 
 ### Added
