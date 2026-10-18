@@ -240,6 +240,12 @@ export async function clearStaleStoneStateBeforeEncounter(combat: any): Promise<
     } catch (err) {
       console.warn('Mastery System | Could not clear stale stone combat ledger', err);
     }
+    try {
+      const { clearOncePerCombatStoneFlags } = await import('../stones/colorless-stones.js');
+      await clearOncePerCombatStoneFlags(actor);
+    } catch (err) {
+      console.warn('Mastery System | Could not clear once-per-combat stone flags', err);
+    }
   }
 }
 
@@ -247,6 +253,14 @@ export async function clearStaleStoneStateBeforeEncounter(combat: any): Promise<
 export async function runCombatEndCleanup(combat: any): Promise<void> {
   if (!combat) return;
   await resetTempHpAfterCombat(combat);
+  for (const actor of collectCleanupActors(combat)) {
+    try {
+      const { clearOncePerCombatStoneFlags } = await import('../stones/colorless-stones.js');
+      await clearOncePerCombatStoneFlags(actor);
+    } catch (err) {
+      console.warn('Mastery System | once-per-combat stone flag cleanup failed', err);
+    }
+  }
   await clearColorlessStonesAfterCombat(combat);
   await clearNpcOngoingEffectsAfterCombat(combat);
   // Grapples do not outlive the fight (the `grappled` status was wiped above).

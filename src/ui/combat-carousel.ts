@@ -14,6 +14,7 @@ import {
   arePlayerStonesReadyForRound,
   encounterStartBlockers,
   isEncounterPreparing,
+  isStonePowersDone,
   pendingStonePlayerNames,
   warnIfPlayerStonesPending,
 } from '../combat/stone-round-gate.js';
@@ -186,6 +187,8 @@ export class CombatCarouselApp extends BaseCarousel {
     const isGM = game.user?.isGM || false;
     const prefs = readCarouselClientPrefs();
     const guidedMove = getActiveGuidedMovementSummary();
+    const preparing = isEncounterPreparing(combat);
+    const roundForStones = Math.max(1, Number(combat.round) || 1);
 
     for (const combatant of turns) {
       const actor = combatant.actor;
@@ -505,11 +508,21 @@ export class CombatCarouselApp extends BaseCarousel {
             })()
           : [];
 
+      const isPc = actor.type === 'character';
+      const stonesDoneForRound =
+        isPc && (preparing || !!(combat as any).started)
+          ? isStonePowersDone(combat, String(combatant.id), roundForStones)
+          : false;
+      const stonePending =
+        isPc && (preparing || !!(combat as any).started) && !stonesDoneForRound;
+
       combatants.push({
         id: combatant.id,
         name: combatant.name || actor.name,
         img: portraitImg,
         initiative: combatant.initiative ?? 0,
+        stoneReady: isPc && stonesDoneForRound,
+        stonePending,
         reactionRemaining: reactSum.remaining,
         reactionTotal: reactSum.total,
         attackRemaining,
@@ -573,7 +586,6 @@ export class CombatCarouselApp extends BaseCarousel {
     for (const row of combatants) {
       row.isNext = String(row.id) === String(nextCombatantId);
     }
-    const preparing = isEncounterPreparing(combat);
     const stonesReady = arePlayerStonesReadyForRound(combat);
     const startBlockers = preparing ? encounterStartBlockers(combat) : [];
     const startBlockedTpl =

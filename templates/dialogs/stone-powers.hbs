@@ -126,16 +126,37 @@
   {{#if naturalRecovery.show}}
   <div class="natural-recovery-bar{{#if naturalRecovery.locked}} is-locked{{/if}}{{#if naturalRecovery.autoSingle}} is-auto-single{{/if}}">
     <div class="natural-recovery-copy">
-      <strong>{{naturalRecovery.title}}</strong>
-      <span>{{naturalRecovery.hint}}</span>
-      {{#if naturalRecovery.autoBanner}}
-      <span class="natural-recovery-auto-banner">{{naturalRecovery.autoBanner}}</span>
-      {{/if}}
+      <strong class="natural-recovery-title{{#if naturalRecovery.remaining}} is-open{{/if}}{{#if naturalRecovery.autoSingle}} is-auto{{/if}}">
+        {{naturalRecovery.title}}
+        <span class="natural-recovery-count">({{naturalRecovery.allocated}} / {{naturalRecovery.masteryRank}})</span>
+      </strong>
+      <span class="natural-recovery-hint">{{naturalRecovery.hint}}</span>
     </div>
     <div class="natural-recovery-actions">
-      <span class="natural-recovery-count{{#if naturalRecovery.remaining}} is-open{{/if}}{{#if naturalRecovery.autoSingle}} is-auto{{/if}}">
-        {{naturalRecovery.allocated}} / {{naturalRecovery.masteryRank}}
-      </span>
+      <div class="natural-recovery-rows">
+        {{#each naturalRecovery.options}}
+        <div class="natural-recovery-row{{#if this.isAuto}} is-auto-single{{/if}}">
+          <span class="natural-recovery-label">{{this.label}}</span>
+          <div class="natural-recovery-stepper" dir="ltr">
+            <button type="button"
+                    class="natural-recovery-step js-nsr-remove"
+                    data-special-id="{{this.id}}"
+                    {{#unless this.canRemove}}disabled{{/unless}}
+                    aria-label="One less">
+              −
+            </button>
+            <span class="natural-recovery-value">{{this.allocated}}</span>
+            <button type="button"
+                    class="natural-recovery-step js-nsr-add"
+                    data-special-id="{{this.id}}"
+                    {{#unless this.canAdd}}disabled{{/unless}}
+                    aria-label="One more">
+              +
+            </button>
+          </div>
+        </div>
+        {{/each}}
+      </div>
       <button type="button"
               class="natural-recovery-pick natural-recovery-apply js-nsr-confirm{{#if naturalRecovery.confirmed}} is-selected{{/if}}"
               {{#unless naturalRecovery.canConfirm}}disabled{{/unless}}
@@ -148,30 +169,6 @@
               {{#if naturalRecovery.locked}}disabled{{/if}}>
         {{naturalRecovery.noneLabel}}
       </button>
-    </div>
-    <div class="natural-recovery-rows">
-      {{#each naturalRecovery.options}}
-      <div class="natural-recovery-row{{#if this.isAuto}} is-auto-single{{/if}}">
-        <span class="natural-recovery-label">{{this.label}}</span>
-        <div class="natural-recovery-stepper" dir="ltr">
-          <button type="button"
-                  class="natural-recovery-step js-nsr-remove"
-                  data-special-id="{{this.id}}"
-                  {{#unless this.canRemove}}disabled{{/unless}}
-                  aria-label="One less">
-            −
-          </button>
-          <span class="natural-recovery-value">{{this.allocated}}</span>
-          <button type="button"
-                  class="natural-recovery-step js-nsr-add"
-                  data-special-id="{{this.id}}"
-                  {{#unless this.canAdd}}disabled{{/unless}}
-                  aria-label="One more">
-            +
-          </button>
-        </div>
-      </div>
-      {{/each}}
     </div>
   </div>
   {{/if}}

@@ -92,7 +92,11 @@ import {
 import { initializeSceneEditor } from './scene-editor/register.js';
 import { initializeHitBlockerProbe } from './debug/hit-blocker-probe.js';
 import { initializeStonePowersFlow } from './combat/stone-powers-flow.js';
-import { arePlayerStonesReadyForRound, initializeStoneRoundGate } from './combat/stone-round-gate.js';
+import {
+  arePlayerStonesReadyForRound,
+  initializeStoneRoundGate,
+  isStonePowersDone,
+} from './combat/stone-round-gate.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { registerEpicMasteryRollSettings } from './epic-roll/epic-mastery-roll-settings.js';
 import { initializeEpicMasteryRoll } from './epic-roll/register-epic-mastery-roll.js';
@@ -497,9 +501,22 @@ Hooks.once('init', async function() {
     const $tokenName = $combatant.find('.token-name');
     if ($tokenName.length === 0) return;
     
-    // Remove existing initiative display
-    $tokenName.find('.ms-initiative-value').remove();
-    
+    // Remove existing initiative display / stone-ready mark
+    $tokenName.find('.ms-initiative-value, .ms-stone-ready-mark').remove();
+
+    // PC stone-assignment ready mark next to Initiative (✓ done / ✗ still open).
+    const actor = freshCombatant.actor;
+    if (actor?.type === 'character') {
+      const round = Math.max(1, Number(combat.round) || 1);
+      const done = isStonePowersDone(combat, String(freshCombatant.id), round);
+      const mark = $(
+        `<span class="ms-stone-ready-mark${done ? ' is-ready' : ' is-pending'}" title="${
+          done ? 'Stone assignment confirmed' : 'Stone assignment still open'
+        }">${done ? '✓' : '✗'}</span>`,
+      );
+      $tokenName.prepend(mark);
+    }
+
     // Add updated initiative value
     const $initiativeSpan = $('<span class="ms-initiative-value">[' + initiativeValue + ']</span>');
     $tokenName.prepend($initiativeSpan);

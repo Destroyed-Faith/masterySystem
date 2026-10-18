@@ -388,55 +388,122 @@ export async function clearInitiativeColorlessStones(actor: any): Promise<void> 
   await actor?.setFlag?.('mastery-system', FLAG_COUNT, remain);
 }
 
-export function isInitiativeBoostUsedThisCombat(combatant: any): boolean {
-  return !!combatant?.getFlag?.('mastery-system', FLAG_BOOST_USED);
-}
-
-export async function markInitiativeBoostUsedThisCombat(combatant: any): Promise<void> {
-  await combatant?.setFlag?.('mastery-system', FLAG_BOOST_USED, true);
-}
-
 const FLAG_PHASING_STONE = 'msPhasingStoneUsed';
-
-export function isPhasingStoneUsedThisCombat(combatant: any): boolean {
-  return !!combatant?.getFlag?.('mastery-system', FLAG_PHASING_STONE);
-}
-
-export async function markPhasingStoneUsedThisCombat(combatant: any): Promise<void> {
-  await combatant?.setFlag?.('mastery-system', FLAG_PHASING_STONE, true);
-}
-
 const FLAG_TEMP_HP_STONE = 'msTempHpStoneUsed';
 
-export function isTempHpStoneUsedThisCombat(combatant: any): boolean {
-  return !!combatant?.getFlag?.('mastery-system', FLAG_TEMP_HP_STONE);
-}
-
-export async function markTempHpStoneUsedThisCombat(combatant: any): Promise<void> {
-  await combatant?.setFlag?.('mastery-system', FLAG_TEMP_HP_STONE, true);
-}
-
-/** Combatant flags for Stone Powers that may fire only once per encounter. */
+/** Combatant / actor flags for Stone Powers that may fire only once per encounter. */
 const ONCE_PER_COMBAT_FLAGS: Record<string, string> = {
   'wits.initiativeBoost': FLAG_BOOST_USED,
   'wits.phasing': FLAG_PHASING_STONE,
   'vitality.tempHp': FLAG_TEMP_HP_STONE,
 };
 
+/** All once-per-combat flag keys (for combat-end cleanup). */
+export const ONCE_PER_COMBAT_STONE_FLAGS = [
+  FLAG_BOOST_USED,
+  FLAG_PHASING_STONE,
+  FLAG_TEMP_HP_STONE,
+] as const;
+
 export function oncePerCombatFlagForPower(powerId: string): string | null {
   return ONCE_PER_COMBAT_FLAGS[String(powerId || '')] ?? null;
 }
 
-export function isOncePerCombatPowerUsed(combatant: any, powerId: string): boolean {
-  const flag = oncePerCombatFlagForPower(powerId);
-  if (!flag) return false;
-  return !!combatant?.getFlag?.('mastery-system', flag);
+function currentCombatId(): string {
+  return String((globalThis as any).game?.combat?.id || '');
 }
 
-export async function markOncePerCombatPowerUsed(combatant: any, powerId: string): Promise<void> {
+function resolveOncePerCombatActor(combatant: any, actor?: any): any {
+  return actor ?? combatant?.actor ?? null;
+}
+
+/** True when a once-per-combat flag is set for the live combat (actor preferred). */
+function readOncePerCombatFlag(holder: any, flag: string, combatId: string): boolean {
+  const raw = holder?.getFlag?.('mastery-system', flag);
+  if (raw === true) return true;
+  if (raw && typeof raw === 'object' && (raw as { used?: boolean }).used === true) {
+    const stored = String((raw as { combatId?: string }).combatId || '');
+    if (!combatId || !stored || stored === combatId) return true;
+  }
+  return false;
+}
+
+/**
+ * Once-per-combat Stone Powers are stored on the **actor** (combatId-scoped),
+ * with a legacy combatant boolean kept in sync. Actor is authoritative so
+ * round-2 stone confirm cannot re-grant Temp HP / Boost / Phasing when the
+ * combatant flag failed to stick for a player-owned combatant.
+ */
+export function isOncePerCombatPowerUsed(
+  combatant: any,
+  powerId: string,
+  actor?: any,
+): boolean {
+  const flag = oncePerCombatFlagForPower(powerId);
+  if (!flag) return false;
+  const combatId = currentCombatId();
+  const economy = resolveOncePerCombatActor(combatant, actor);
+  if (economy && readOncePerCombatFlag(economy, flag, combatId)) return true;
+  if (combatant && readOncePerCombatFlag(combatant, flag, combatId)) return true;
+  return false;
+}
+
+export async function markOncePerCombatPowerUsed(
+  combatant: any,
+  powerId: string,
+  actor?: any,
+): Promise<void> {
   const flag = oncePerCombatFlagForPower(powerId);
   if (!flag) return;
-  await combatant?.setFlag?.('mastery-system', flag, true);
+  const combatId = currentCombatId();
+  const payload = combatId ? { combatId, used: true as const } : true;
+  const economy = resolveOncePerCombatActor(combatant, actor);
+  if (economy?.setFlag) {
+    await economy.setFlag('mastery-system', flag, payload);
+  }
+  // Dual-write legacy combatant boolean for older snapshots / GM views.
+  if (combatant?.setFlag) {
+    await combatant.setFlag('mastery-system', flag, true);
+  }
+}
+
+/** Clear actor once-per-combat stone marks (new fight / combat end). */
+export async function clearOncePerCombatStoneFlags(actor: any): Promise<void> {
+  if (!actor?.unsetFlag) return;
+  for (const flag of ONCE_PER_COMBAT_STONE_FLAGS) {
+    try {
+      await actor.unsetFlag('mastery-system', flag);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+export function isInitiativeBoostUsedThisCombat(combatant: any, actor?: any): boolean {
+  return isOncePerCombatPowerUsed(combatant, 'wits.initiativeBoost', actor);
+}
+
+export async function markInitiativeBoostUsedThisCombat(
+  combatant: any,
+  actor?: any,
+): Promise<void> {
+  await markOncePerCombatPowerUsed(combatant, 'wits.initiativeBoost', actor);
+}
+
+export function isPhasingStoneUsedThisCombat(combatant: any, actor?: any): boolean {
+  return isOncePerCombatPowerUsed(combatant, 'wits.phasing', actor);
+}
+
+export async function markPhasingStoneUsedThisCombat(combatant: any, actor?: any): Promise<void> {
+  await markOncePerCombatPowerUsed(combatant, 'wits.phasing', actor);
+}
+
+export function isTempHpStoneUsedThisCombat(combatant: any, actor?: any): boolean {
+  return isOncePerCombatPowerUsed(combatant, 'vitality.tempHp', actor);
+}
+
+export async function markTempHpStoneUsedThisCombat(combatant: any, actor?: any): Promise<void> {
+  await markOncePerCombatPowerUsed(combatant, 'vitality.tempHp', actor);
 }
 
 /** Initiative Boost tier scale: 1 / 2 / 4 / 8 × Mastery Rank. Tier 4 is the last tier. */

@@ -648,7 +648,7 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
       const c =
         combatant ??
         (game as any).combat?.combatants?.find((x: any) => x.actor?.id === (actor as any).id);
-      if (c && isTempHpStoneUsedThisCombat(c)) {
+      if (isTempHpStoneUsedThisCombat(c, actor)) {
         ui.notifications?.warn(`${(actor as any).name}: Temporary HP already used this combat.`);
         return;
       }
@@ -658,7 +658,7 @@ const VITALITY_POWERS_RAW: StonePowerDraft[] = [
       // health math read/consume that. Persists until depleted or combat ends.
       const current = Math.max(0, Number((actor as any).system?.health?.tempHP ?? 0) || 0);
       await (actor as any).update?.({ 'system.health.tempHP': current + hp });
-      if (c) await markTempHpStoneUsedThisCombat(c);
+      await markTempHpStoneUsedThisCombat(c, actor);
       ui.notifications?.info(`${(actor as any).name}: ${hp} Temp HP until depleted or combat ends.`);
     },
   },
@@ -1085,7 +1085,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
     apply: async ({ actor, combatant, tier }) => {
       const combat = (game as any).combat;
       const c = combatant ?? combat?.combatants?.find((x: any) => x.actor?.id === (actor as any).id);
-      if (c && isInitiativeBoostUsedThisCombat(c)) {
+      if (isInitiativeBoostUsedThisCombat(c, actor)) {
         ui.notifications?.warn(`${(actor as any).name}: Initiative Boost already used this combat.`);
         return;
       }
@@ -1101,7 +1101,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
         await c.update({ initiative: cur + bonus });
         await c.setFlag('mastery-system', 'msInitiativeValue', cur + bonus);
       }
-      if (c) await markInitiativeBoostUsedThisCombat(c);
+      await markInitiativeBoostUsedThisCombat(c, actor);
       ui.notifications?.info(
         `${(actor as any).name}: Initiative Boost +${bonus} (MR ${mr} × ${2 ** (tier - 1)}).`,
       );
@@ -1136,7 +1136,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
       { label: '4 Phasing Charges', description: 'Gain 4 Phasing Charges (once per combat).', value: 4 },
     ],
     apply: async ({ actor, combatant, tier }) => {
-      if (combatant && isPhasingStoneUsedThisCombat(combatant)) {
+      if (isPhasingStoneUsedThisCombat(combatant, actor)) {
         ui.notifications?.warn(`${(actor as any).name}: Phasing already used this combat.`);
         return;
       }
@@ -1148,7 +1148,7 @@ const WITS_POWERS_RAW: StonePowerDraft[] = [
         ownerId: 'wits.phasing',
         name: 'Phasing (Stone Power)',
       });
-      if (combatant) await markPhasingStoneUsedThisCombat(combatant);
+      await markPhasingStoneUsedThisCombat(combatant, actor);
       ui.notifications?.info(
         `${(actor as any).name}: Phasing — ${charges} charge(s) (once per combat).`,
       );

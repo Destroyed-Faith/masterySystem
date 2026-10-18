@@ -37,13 +37,6 @@
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 12px rgba(77, 150, 255, 0.25);
 }
 
-.stone-powers-dialog .natural-recovery-auto-banner {
-  margin-top: 0.2rem;
-  font-weight: 700;
-  font-size: 0.86rem;
-  color: #ffe082;
-}
-
 .stone-powers-dialog .natural-recovery-row.is-auto-single {
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
@@ -53,16 +46,26 @@
     linear-gradient(120deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #c77dff) border-box;
 }
 
-.stone-powers-dialog .natural-recovery-count.is-auto {
-  color: #ffe082;
-}
-
 .stone-powers-dialog .natural-recovery-copy {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
+  flex: 1 1 100%;
+  width: 100%;
   font-size: 0.88rem;
-  max-width: 36rem;
+}
+
+.stone-powers-dialog .natural-recovery-title {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.stone-powers-dialog .natural-recovery-hint {
+  display: block;
+  width: 100%;
+  line-height: 1.35;
 }
 
 .stone-powers-dialog .natural-recovery-actions {
@@ -70,16 +73,24 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 0.45rem;
+  flex: 1 1 100%;
+  width: 100%;
 }
 
 .stone-powers-dialog .natural-recovery-count {
-  font-size: 0.8rem;
+  font-size: 0.9em;
   font-weight: 700;
   color: #c9a227;
 }
 
+.stone-powers-dialog .natural-recovery-title.is-open .natural-recovery-count,
 .stone-powers-dialog .natural-recovery-count.is-open {
   color: #ffcc80;
+}
+
+.stone-powers-dialog .natural-recovery-title.is-auto .natural-recovery-count,
+.stone-powers-dialog .natural-recovery-count.is-auto {
+  color: #ffe082;
 }
 
 .stone-powers-dialog .natural-recovery-pick {
@@ -126,8 +137,9 @@
 .stone-powers-dialog .natural-recovery-rows {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem 0.75rem;
-  width: 100%;
+  flex: 0 1 auto;
 }
 
 .stone-powers-dialog .natural-recovery-row {

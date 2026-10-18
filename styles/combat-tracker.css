@@ -100,6 +100,23 @@
   text-align: center;
 }
 
+/* Stone assignment ready mark next to Initiative */
+#combat .combatant .token-name .ms-stone-ready-mark {
+  display: inline-block;
+  margin-right: 0.3rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+#combat .combatant .token-name .ms-stone-ready-mark.is-ready {
+  color: #81c784;
+}
+
+#combat .combatant .token-name .ms-stone-ready-mark.is-pending {
+  color: #ef9a9a;
+}
+
 /* Stone Powers Button */
 #combat .combatant .token-initiative .ms-stone-powers-btn {
   background: rgba(139, 0, 0, 0.8);

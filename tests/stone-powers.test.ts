@@ -528,11 +528,26 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
   it('refuses a second activation in the same combat', async () => {
     const actor = makeMockActor();
     const combatant = makeMockCombatant();
+    (combatant as any).actor = actor;
     const power = STONE_POWERS['vitality.tempHp'];
     await power.apply({ actor: actor as any, combatant: combatant as any, tier: 1, cost: 1 });
     await power.apply({ actor: actor as any, combatant: combatant as any, tier: 4, cost: 8 });
     expect(actor.system.health.tempHP).toBe(20);
     expect(combatant._flags['msTempHpStoneUsed']).toBe(true);
+    expect(actor._flags['msTempHpStoneUsed']).toBeTruthy();
+  });
+
+  it('blocks a second grant even when only the actor flag is set (round reopen)', async () => {
+    const actor = makeMockActor();
+    const combatant = makeMockCombatant();
+    (combatant as any).actor = actor;
+    const power = STONE_POWERS['vitality.tempHp'];
+    await power.apply({ actor: actor as any, combatant: combatant as any, tier: 2, cost: 2 });
+    expect(actor.system.health.tempHP).toBe(40);
+    // Simulate a flaky combatant flag that did not stick into round 2.
+    delete combatant._flags['msTempHpStoneUsed'];
+    await power.apply({ actor: actor as any, combatant: combatant as any, tier: 4, cost: 8 });
+    expect(actor.system.health.tempHP).toBe(40);
   });
 
   it('activateStonePower blocks a second Temporary HP use', async () => {
@@ -540,7 +555,8 @@ describe('Vitality — Temporary HP scales 20/40/80/160', () => {
     const { markTempHpStoneUsedThisCombat } = await import('../src/stones/colorless-stones');
     const actor = makeMockActor();
     const combatant = makeMockCombatant();
-    await markTempHpStoneUsedThisCombat(combatant);
+    (combatant as any).actor = actor;
+    await markTempHpStoneUsedThisCombat(combatant, actor);
     const ok = await activateStonePower({
       actor: actor as any,
       combatant: combatant as any,

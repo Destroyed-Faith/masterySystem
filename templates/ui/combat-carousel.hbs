@@ -79,8 +79,13 @@
           </div>
 
           <!-- Initiative Badge — GM click opens edit dialog for the whole order -->
-          <div class="initiative-badge{{#if ../controlsAllowed}} is-editable js-edit-initiative{{/if}}"
+          <div class="initiative-badge{{#if ../controlsAllowed}} is-editable js-edit-initiative{{/if}}{{#if combatant.stoneReady}} is-stone-ready{{/if}}{{#if combatant.stonePending}} is-stone-pending{{/if}}"
                {{#if ../controlsAllowed}}title="{{localize 'MASTERY.carousel.editInitiativeHint'}}" role="button" tabindex="0"{{/if}}>
+            {{#if combatant.stoneReady}}
+            <span class="ms-stone-ready-mark" title="Stone assignment confirmed">✓</span>
+            {{else if combatant.stonePending}}
+            <span class="ms-stone-ready-mark is-pending" title="Stone assignment still open">✗</span>
+            {{/if}}
             {{combatant.initiative}}
           </div>
 

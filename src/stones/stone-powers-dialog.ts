@@ -1130,8 +1130,7 @@ export class StonePowersDialog extends BaseDialog {
         removeScarPayment.barsRecovered > 0;
       const oncePerCombatUsed =
         !!power.oncePerCombat &&
-        !!this.combatant &&
-        isOncePerCombatPowerUsed(this.combatant, power.id);
+        isOncePerCombatPowerUsed(this.combatant, power.id, this.actor);
       const canAfford =
         !retired &&
         !tierCapped && !oncePerCombatUsed && pool.current >= nextCost && hasCombat && removeScarOpen;
@@ -1451,7 +1450,7 @@ export class StonePowersDialog extends BaseDialog {
       canConvertMore: !exchangeLocked && convertCount < maxConvert,
       canConvertLess: !exchangeLocked && convertCount > 0,
       locked: exchangeLocked,
-      boostUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
+      boostUsed: isInitiativeBoostUsedThisCombat(this.combatant, this.actor),
       mode: preparation.exchangeMode,
       receipt: preparation.exchangeReceipt,
     };
@@ -1506,7 +1505,6 @@ export class StonePowersDialog extends BaseDialog {
     const skipped = choice?.chosen === true && naturalRecoveryAllocatedTotal(choice.allocations) <= 0;
     const confirmed = choice?.chosen === true && allocated > 0 && !skipped;
     const autoSingle = choice?.autoSingle === true && allocated > 0 && !skipped;
-    const autoTarget = autoSingle ? options.find((row) => row.allocated > 0) : null;
     const show =
       !!this.combatant &&
       (this.actor as any).type === 'character' &&
@@ -1536,13 +1534,6 @@ export class StonePowersDialog extends BaseDialog {
       confirmed,
       canConfirm: allocated > 0 && !locked,
       autoSingle,
-      autoBanner: autoTarget
-        ? locFormat(
-            'naturalRecoveryAutoBanner',
-            { amount: autoTarget.allocated, label: autoTarget.label },
-            `Auto −${autoTarget.allocated}: ${autoTarget.label} (only one Special — no click needed). Applies at turn start.`,
-          )
-        : '',
       title: loc('naturalRecoveryPick', 'Natural Special Recovery'),
       hint: locFormat(
         'naturalRecoveryDistributeHint',
@@ -2190,7 +2181,7 @@ export class StonePowersDialog extends BaseDialog {
     const round = encounterStoneRound(combat);
     const raw = owner?.getFlag?.('mastery-system', PREPARATION_PHASE_FLAG);
     return reconcilePreparationPhase(readPreparationPhase(raw, String(combat?.id || ''), round), {
-      boostAlreadyUsed: this.combatant ? isInitiativeBoostUsedThisCombat(this.combatant) : false,
+      boostAlreadyUsed: isInitiativeBoostUsedThisCombat(this.combatant, this.actor),
       assignmentConfirmed: this.#isStoneAssignmentReviewMode(),
     });
   }
@@ -3608,11 +3599,7 @@ export class StonePowersDialog extends BaseDialog {
       return;
     }
     const onceDef = STONE_POWERS[powerId];
-    if (
-      onceDef?.oncePerCombat &&
-      this.combatant &&
-      isOncePerCombatPowerUsed(this.combatant, powerId)
-    ) {
+    if (onceDef?.oncePerCombat && isOncePerCombatPowerUsed(this.combatant, powerId, this.actor)) {
       ui.notifications?.warn(`${onceDef.name} may be used only once per combat.`);
       return;
     }
@@ -4192,8 +4179,7 @@ export class StonePowersDialog extends BaseDialog {
         slot.getAttribute('data-is-generic') === 'true';
       if (
         STONE_POWERS[powerId]?.oncePerCombat &&
-        this.combatant &&
-        isOncePerCombatPowerUsed(this.combatant, powerId)
+        isOncePerCombatPowerUsed(this.combatant, powerId, this.actor)
       ) {
         ui.notifications?.warn(`${STONE_POWERS[powerId].name} may be used only once per combat.`);
         return;

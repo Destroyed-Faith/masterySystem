@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.726] - 2026-10-18
+
+### Changed
+
+- **Stone Powers · Natural Special Recovery:** Count sits in the title `(allocated / MR)`. Special steppers sit beside Apply / Skip. Auto-banner text removed; hint uses the full width.
+
+### Added
+
+- **Combat carousel / tracker:** Ready mark next to Initiative — ✓ when that PC confirmed stones for the round, ✗ while still open.
+
+### Fixed
+
+- **Temporary HP (Vitality):** Once-per-combat mark is stored on the actor (combat-scoped). Round 2+ stone confirm no longer re-grants +20/+40/….
+
 ## [0.9.725] - 2026-10-18
 
 ### Changed
