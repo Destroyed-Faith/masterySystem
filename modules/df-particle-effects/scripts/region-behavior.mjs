@@ -1,4 +1,4 @@
-import { BEHAVIOR_TYPE, EFFECT_NATURAL_FIRE, TYPE_LABEL_KEY } from "./constants.mjs";
+import { behaviorTypeId, EFFECT_NATURAL_FIRE, typeLabelKey } from "./constants.mjs";
 
 /**
  * Foundry v14 region behavior. Fields live on RegionBehavior.system and use the
@@ -107,9 +107,10 @@ export function registerBehaviorType() {
     return false;
   }
 
-  config.dataModels[BEHAVIOR_TYPE] = ParticleEffectsBehavior;
-  if (config.typeIcons) config.typeIcons[BEHAVIOR_TYPE] = "fa-solid fa-fire";
-  if (config.typeLabels) config.typeLabels[BEHAVIOR_TYPE] = TYPE_LABEL_KEY;
-  if (config.typeHints) config.typeHints[BEHAVIOR_TYPE] = "DF_PARTICLE_EFFECTS.TypeHint";
+  const behaviorType = behaviorTypeId();
+  config.dataModels[behaviorType] = ParticleEffectsBehavior;
+  if (config.typeIcons) config.typeIcons[behaviorType] = "fa-solid fa-fire";
+  if (config.typeLabels) config.typeLabels[behaviorType] = typeLabelKey();
+  if (config.typeHints) config.typeHints[behaviorType] = "DF_PARTICLE_EFFECTS.TypeHint";
   return true;
 }

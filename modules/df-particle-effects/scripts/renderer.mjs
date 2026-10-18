@@ -1,11 +1,12 @@
 import { loadFireAssets } from "./assets.mjs";
 import {
-  BEHAVIOR_TYPE,
+  behaviorTypeId,
   EFFECT_NATURAL_FIRE,
   LOG_PREFIX,
-  MODULE_ID,
   PRIMARY_TILE_SORT,
   QUALITY_LIMITS,
+  qualitySettingKey,
+  settingsNamespace,
 } from "./constants.mjs";
 import { gridCellArea, regionMaskOperations } from "./geometry.mjs";
 import { NaturalFireEffect } from "./fire-effect.mjs";
@@ -140,7 +141,7 @@ export class ParticleRenderer {
 }
 
 export function registerSettings(renderer) {
-  globalThis.game.settings.register(MODULE_ID, "quality", {
+  globalThis.game.settings.register(settingsNamespace(), qualitySettingKey(), {
     name: "DF_PARTICLE_EFFECTS.SETTINGS.quality.name",
     hint: "DF_PARTICLE_EFFECTS.SETTINGS.quality.hint",
     scope: "client",
@@ -160,7 +161,7 @@ function collectActiveBehaviors(scene) {
   const active = [];
   for (const region of scene.regions ?? []) {
     for (const behavior of region.behaviors ?? []) {
-      if (behavior?.type !== BEHAVIOR_TYPE) continue;
+      if (behavior?.type !== behaviorTypeId()) continue;
       try {
         const config = readConfig(behavior);
         if (!config.enabled) continue;
@@ -332,7 +333,7 @@ function readGrid() {
 }
 
 function readQualityLimits() {
-  const selected = globalThis.game?.settings?.get?.(MODULE_ID, "quality");
+  const selected = globalThis.game?.settings?.get?.(settingsNamespace(), qualitySettingKey());
   return QUALITY_LIMITS[selected] ?? QUALITY_LIMITS.medium;
 }
 

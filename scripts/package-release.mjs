@@ -117,6 +117,13 @@ copyFiltered('styles', stage);
 copyFiltered('assets', stage);
 copyFiltered('lang', stage);
 
+copyFiltered('modules/df-particle-effects', stage, (rel) => {
+  if (rel.includes('/tests/')) return false;
+  if (rel.endsWith('/scripts/package.mjs')) return false;
+  if (rel.endsWith('.zip')) return false;
+  return true;
+});
+
 if (existsSync(join(root, 'packs'))) {
   copyFiltered('packs', stage, (rel) => {
     // Skip LevelDB junk logs if any; keep pack data.

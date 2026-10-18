@@ -1,10 +1,11 @@
-import { BEHAVIOR_TYPE, TYPE_LABEL_KEY } from "./constants.mjs";
+import { behaviorTypeId, hostedBySystem, SYSTEM_ID, typeLabelKey } from "./constants.mjs";
 import { registerBehaviorType } from "./region-behavior.mjs";
 import { ParticleRenderer, registerSettings } from "./renderer.mjs";
 
 const renderer = new ParticleRenderer();
 
 Hooks.once("init", () => {
+  if (skipBecauseSystemProvidesIt()) return;
   registerBehaviorType();
   registerSettings(renderer);
 
@@ -26,8 +27,18 @@ Hooks.once("init", () => {
 Hooks.on("ready", () => {
   const config = globalThis.CONFIG?.RegionBehavior;
   if (!config) return;
-  const label = globalThis.game?.i18n?.localize?.(TYPE_LABEL_KEY);
-  if (config.typeLabels && label && label !== TYPE_LABEL_KEY) config.typeLabels[BEHAVIOR_TYPE] = label;
+  if (skipBecauseSystemProvidesIt()) return;
+  const labelKey = typeLabelKey();
+  const behaviorType = behaviorTypeId();
+  const label = globalThis.game?.i18n?.localize?.(labelKey);
+  if (config.typeLabels && label && label !== labelKey) config.typeLabels[behaviorType] = label;
   const hint = globalThis.game?.i18n?.localize?.("DF_PARTICLE_EFFECTS.TypeHint");
-  if (config.typeHints && hint && hint !== "DF_PARTICLE_EFFECTS.TypeHint") config.typeHints[BEHAVIOR_TYPE] = hint;
+  if (config.typeHints && hint && hint !== "DF_PARTICLE_EFFECTS.TypeHint") config.typeHints[behaviorType] = hint;
 });
+
+function skipBecauseSystemProvidesIt() {
+  if (hostedBySystem()) return false;
+  const system = globalThis.game?.system;
+  if (system?.id !== SYSTEM_ID) return false;
+  return globalThis.foundry?.utils?.isNewerVersion?.(system.version, "0.9.723") === true;
+}

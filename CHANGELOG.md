@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.724] - 2026-10-18
+
+### Added
+
+- **Regions:** **DF: Particle Effects** is part of the system. Update the system and reload the world. There is no second package to enable. In a region, **Behaviors → Create Behavior** lists **DF: Particle Effects**. Natural Fire renders inside that region only.
+
 ## [0.9.723] - 2026-10-18
 
 ### Fixed

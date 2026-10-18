@@ -1,4 +1,4 @@
-import { LOG_PREFIX, MODULE_ID } from "./constants.mjs";
+import { assetRoot, LOG_PREFIX } from "./constants.mjs";
 
 let loading = null;
 let library = null;
@@ -23,7 +23,7 @@ export function getFireAssets() {
 }
 
 async function loadLibrary() {
-  const manifestUrl = `modules/${MODULE_ID}/sprite_manifest.json`;
+  const manifestUrl = `${assetRoot()}/sprite_manifest.json`;
   const response = await fetch(manifestUrl);
   if (!response.ok) {
     throw new Error(`${LOG_PREFIX} sprite_manifest.json could not be loaded (${response.status}).`);
@@ -56,7 +56,7 @@ async function loadLibrary() {
 }
 
 async function loadEntryTexture(entry) {
-  const src = `modules/${MODULE_ID}/${entry.file}`;
+  const src = `${assetRoot()}/${entry.file}`;
   try {
     const texture = await loadTexture(src);
     if (!texture) {

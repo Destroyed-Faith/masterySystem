@@ -1,11 +1,41 @@
 export const MODULE_ID = "df-particle-effects";
+export const SYSTEM_ID = "mastery-system";
 
-/** Document subtype stored on RegionBehavior.type. The module id is the required prefix. */
+/** Standalone-module subtype. Foundry prefixes module subtypes with the module id. */
 export const BEHAVIOR_TYPE = `${MODULE_ID}.particleEffects`;
+
+/** System subtype. No package prefix. This is the entry inside Mastery System. */
+export const SYSTEM_BEHAVIOR_TYPE = "particleEffects";
 
 export const EFFECT_NATURAL_FIRE = "naturalFire";
 
 export const TYPE_LABEL_KEY = "TYPES.RegionBehavior.df-particle-effects.particleEffects";
+export const SYSTEM_TYPE_LABEL_KEY = "TYPES.RegionBehavior.particleEffects";
+
+/** True when this file was loaded from the system package, not from Data/modules. */
+export function hostedBySystem() {
+  return import.meta.url.includes(`/systems/${SYSTEM_ID}/`);
+}
+
+export function behaviorTypeId() {
+  return hostedBySystem() ? SYSTEM_BEHAVIOR_TYPE : BEHAVIOR_TYPE;
+}
+
+export function typeLabelKey() {
+  return hostedBySystem() ? SYSTEM_TYPE_LABEL_KEY : TYPE_LABEL_KEY;
+}
+
+export function assetRoot() {
+  return hostedBySystem() ? `systems/${SYSTEM_ID}/modules/${MODULE_ID}` : `modules/${MODULE_ID}`;
+}
+
+export function settingsNamespace() {
+  return hostedBySystem() ? SYSTEM_ID : MODULE_ID;
+}
+
+export function qualitySettingKey() {
+  return hostedBySystem() ? "dfParticleFireQuality" : "quality";
+}
 
 export const LOG_PREFIX = "df-particle-effects |";
 
