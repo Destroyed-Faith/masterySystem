@@ -57,6 +57,7 @@ import {
   spendMovementSteps,
   type MovementBudget,
 } from './ui/guided-movement-budget.js';
+import { clearTokenMovementHistory } from './ui/token-movement-history.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
 const MOVEMENT_RANGE_COLOR = 0xffe066;
 const MOVEMENT_RANGE_ALPHA = 0.45;
@@ -537,6 +538,8 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): Pro
   
   // Ensure token is controlled by this user
   token.control({ releaseOthers: false });
+  // Drop any leftover Foundry walked-path trail from a prior move.
+  void clearTokenMovementHistory(token.document ?? token);
   
   // Get hex center as origin (for hex grids, this is the center of the hex the token is in)
   const origin = getTokenHexCenter(token);
@@ -836,9 +839,15 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     const { MASTERY_AUTHORIZED_MOVE } = await import('./combat/token-move-gate.js');
     await token.document.update(
       { x: destTL.x, y: destTL.y },
-      { animate: true, [MASTERY_AUTHORIZED_MOVE]: true },
+      {
+        animate: true,
+        // Foundry V14 TokenRuler — do not keep a walked-path trail for this step.
+        showRuler: false,
+        [MASTERY_AUTHORIZED_MOVE]: true,
+      },
     );
     // Movement action was already spent when the option started (except Flee, which commits above).
+    await clearTokenMovementHistory(token.document);
 
     if (stepsUsed > 0) {
       state.budget = spendMovementSteps(state.budget, stepsUsed);
@@ -861,6 +870,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
       return;
     }
 
+    // Re-center yellow remaining range on the new hex; no history trail.
     paintStaticMovementRange(state);
     refreshMovementPreview(state, state.origin.x, state.origin.y);
     notifyGuidedMovementChanged();
@@ -897,6 +907,9 @@ export function endGuidedMovement(success: boolean): void {
   if (state.ruler && state.ruler.clear) {
     state.ruler.clear();
   }
+
+  // Never leave Foundry's pink walked-path trail after guided movement ends.
+  void clearTokenMovementHistory(state.token?.document ?? state.token);
   
   // Clear preview graphics
   if (state.previewGraphics && state.previewGraphics.parent) {

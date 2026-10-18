@@ -1224,6 +1224,12 @@ Hooks.once('init', async function() {
   registerImageUrlShareHooks();
   // Initialize token action selector
   initializeTokenActionSelector();
+  try {
+    const { initializeTokenMovementHistoryPolicy } = await import('./ui/token-movement-history.js');
+    initializeTokenMovementHistoryPolicy();
+  } catch (err) {
+    console.warn('Mastery System | token movement history policy failed', err);
+  }
   registerStatusHud();
 
   // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)

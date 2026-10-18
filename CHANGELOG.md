@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.727] - 2026-10-18
+
+### Fixed
+
+- **Guided movement:** Foundry’s pink walked-path history no longer stays on the token after a step or when selecting it. Mid-move only shows yellow remaining range from the current hex and the green continue preview.
+
 ## [0.9.726] - 2026-10-18
 
 ### Changed
