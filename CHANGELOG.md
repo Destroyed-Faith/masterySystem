@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.725] - 2026-10-18
+
+### Changed
+
+- **Reactions:** Dive for Cover is a universal Basic Reaction in the Reaction Window (with Guard / Evade). No separate spend dialog. Counterattack is no longer a universal Basic Reaction (NPC config / powers only).
+
+### Fixed
+
+- **Raises:** Damage Raises stack again — each adds +MR d8 (AoE: +ceil(MR/2) d8). Two Damage Raises at MR 2 grant +4d8 on preview and roll, not +2d8. Special Raises stay once per attack.
+
 ## [0.9.724] - 2026-10-18
 
 ### Added
