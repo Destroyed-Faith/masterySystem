@@ -123,6 +123,18 @@ describe('buildNpcPhasesReplacePatch / buildNpcAttackValuesReplacePatch', () => 
     expect(nested['system.phases.0.attackValues.-=1']).toBeNull();
     expect(nested['system.phases.0.attackValues.-=2']).toBeNull();
   });
+
+  it('indexes reaction deletes without replacing the whole array', async () => {
+    const { buildNpcIndexedListPatch } = await import('../src/utils/npc-attack-model.js');
+    const patch = buildNpcIndexedListPatch(
+      'system.npcReactions',
+      [{ name: 'Guard' }, { name: 'Evade' }],
+      [{ name: 'Guard' }],
+    );
+    expect(patch['system.npcReactions']).toBeUndefined();
+    expect(patch['system.npcReactions.0']).toEqual({ name: 'Guard' });
+    expect(patch['system.npcReactions.-=1']).toBeNull();
+  });
 });
 
 describe('isValidNpcAttackWritePath', () => {

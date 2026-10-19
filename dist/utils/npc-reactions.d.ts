@@ -10,7 +10,7 @@ export interface NpcReactionRow {
     id: string;
     name: string;
     source: NpcReactionSource;
-    /** Standard maneuver: guard | evade | counterattack | dive-for-cover | interpose */
+    /** Standard maneuver: guard | evade | dive-for-cover | interpose */
     basicId?: string;
     /** Catalog templateId */
     templateId?: string;
@@ -24,6 +24,15 @@ export declare const NPC_STANDARD_REACTIONS: Array<{
     description: string;
 }>;
 export declare function newNpcReactionId(): string;
+/** Counterattack is a character maneuver. NPCs do not configure or fire it. */
+export declare function isNpcCounterattackRow(row: {
+    source?: string;
+    basicId?: string;
+} | null | undefined): boolean;
+export declare function omitNpcCounterattackRows<T extends {
+    source?: string;
+    basicId?: string;
+}>(rows: T[]): T[];
 export declare function coerceNpcReactionsArray(raw: unknown): NpcReactionRow[];
 export declare function normalizeNpcReactionRow(row: Record<string, unknown> | null | undefined): NpcReactionRow;
 export declare function clampNpcReactionSlots(raw: unknown): number;

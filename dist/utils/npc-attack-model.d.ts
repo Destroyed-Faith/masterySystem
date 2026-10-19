@@ -122,6 +122,12 @@ export declare function buildNpcPhasesReplacePatch(previousRaw: unknown, nextPha
  * Same for attackValues (extras) lists that may be object-shaped.
  * `pathPrefix` is e.g. `system.attackValues` or `system.phases.0.attackValues`.
  */
+/**
+ * Replace one numeric list by index writes plus `-=N` deletes.
+ * Do not also assign the whole array in the same update: Foundry's expand
+ * drops the deletion keys and the removed row comes back.
+ */
+export declare function buildNpcIndexedListPatch(pathPrefix: string, previousRaw: unknown, nextRows: any[]): Record<string, unknown>;
 export declare function buildNpcAttackValuesReplacePatch(pathPrefix: string, previousRaw: unknown, nextRows: any[]): Record<string, unknown>;
 /** Default single-bar NPC / phase HP block (editable current/max). */
 export declare function defaultNpcHealth(): {

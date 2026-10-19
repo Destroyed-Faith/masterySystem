@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  NPC_STANDARD_REACTIONS,
   actorParticipatesInReactions,
   clampNpcReactionSlots,
   coerceNpcReactionsArray,
   materializeNpcReactionPowers,
+  newStandardNpcReaction,
   npcReactionSlotsForEconomy,
   resolveNpcReactionConfig,
 } from '../src/utils/npc-reactions.js';
@@ -63,6 +65,25 @@ describe('NPC reaction opt-in', () => {
     expect(cfg.phaseIndex).toBe(1);
     expect(cfg.slots).toBe(3);
     expect(cfg.rows[0]?.basicId).toBe('guard');
+  });
+
+  it('does not offer or fire Counterattack', () => {
+    expect(NPC_STANDARD_REACTIONS.map((row) => row.id)).not.toContain('counterattack');
+    expect(newStandardNpcReaction('counterattack')).toBeNull();
+    const npc = {
+      type: 'npc',
+      system: {
+        mastery: { rank: 2 },
+        npcReactionSlots: 1,
+        npcReactions: [
+          { id: 'c', name: 'Counterattack', source: 'basic', basicId: 'counterattack' },
+          { id: 'g', name: 'Guard', source: 'basic', basicId: 'guard' },
+        ],
+      },
+    };
+    const cfg = resolveNpcReactionConfig(npc.system);
+    expect(cfg.rows.map((row) => row.basicId)).toEqual(['guard']);
+    expect(materializeNpcReactionPowers(npc).map((p: any) => p.basicReaction)).toEqual(['guard']);
   });
 
   it('clamps slots and coerces object-shaped arrays', () => {

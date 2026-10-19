@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.747] - 2026-10-19
+
+### Fixed
+
+- **NPC sheet:** The reaction trash button removes the row and it stays gone.
+
+### Changed
+
+- **NPC reactions:** Counterattack is no longer an NPC reaction. Existing Counterattack rows are removed when the sheet opens. Characters still have Counterattack.
+
 ## [0.9.746] - 2026-10-19
 
 ### Changed

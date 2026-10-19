@@ -13,10 +13,7 @@ import {
   coerceNpcPhasesArray,
   npcSpecialEffectString,
 } from './npc-attack-model.js';
-import {
-  buildBasicReactionItems,
-  buildCounterattackReactionItem,
-} from '../combat/basic-combat.js';
+import { buildBasicReactionItems } from '../combat/basic-combat.js';
 import { getEffect } from './special-effects.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
@@ -26,7 +23,7 @@ export interface NpcReactionRow {
   id: string;
   name: string;
   source: NpcReactionSource;
-  /** Standard maneuver: guard | evade | counterattack | dive-for-cover | interpose */
+  /** Standard maneuver: guard | evade | dive-for-cover | interpose */
   basicId?: string;
   /** Catalog templateId */
   templateId?: string;
@@ -42,13 +39,25 @@ export const NPC_STANDARD_REACTIONS: Array<{
 }> = [
   { id: 'guard', name: 'Guard', description: '+MR × 2 Armor vs the triggering hit.' },
   { id: 'evade', name: 'Evade', description: '+MR × 2 Evade vs the triggering attack.' },
-  { id: 'counterattack', name: 'Counterattack', description: 'Basic Attack against the creature that hit you.' },
   { id: 'dive-for-cover', name: 'Dive for Cover', description: 'Move 2 × MR m to leave an AoE.' },
   { id: 'interpose', name: 'Interpose', description: 'Take half of an adjacent ally’s damage.' },
 ];
 
 export function newNpcReactionId(): string {
   return `npc-rx-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+/** Counterattack is a character maneuver. NPCs do not configure or fire it. */
+export function isNpcCounterattackRow(
+  row: { source?: string; basicId?: string } | null | undefined,
+): boolean {
+  return String(row?.source || '') === 'basic' && String(row?.basicId || '') === 'counterattack';
+}
+
+export function omitNpcCounterattackRows<T extends { source?: string; basicId?: string }>(
+  rows: T[],
+): T[] {
+  return rows.filter((row) => !isNpcCounterattackRow(row));
 }
 
 export function coerceNpcReactionsArray(raw: unknown): NpcReactionRow[] {
@@ -130,13 +139,15 @@ export function resolveNpcReactionConfig(system: any): {
       Math.min(phases.length - 1, Math.floor(Number(system.npcActivePhaseIndex) || 0)),
     );
     const phase = phases[pi] || {};
-    const rows = coerceNpcReactionsArray(phase.npcReactions ?? system.npcReactions);
+    const rows = omitNpcCounterattackRows(
+      coerceNpcReactionsArray(phase.npcReactions ?? system.npcReactions),
+    );
     const slots = clampNpcReactionSlots(phase.npcReactionSlots ?? system.npcReactionSlots);
     return { slots, rows, phaseIndex: pi };
   }
   return {
     slots: clampNpcReactionSlots(system.npcReactionSlots),
-    rows: coerceNpcReactionsArray(system.npcReactions),
+    rows: omitNpcCounterattackRows(coerceNpcReactionsArray(system.npcReactions)),
     phaseIndex: null,
   };
 }
@@ -179,8 +190,8 @@ function buildNpcInterposeItem(): any {
 
 function materializeBasic(actor: any, basicId: string): any | null {
   const id = String(basicId || '');
+  if (id === 'counterattack') return null;
   if (id === 'interpose') return buildNpcInterposeItem();
-  if (id === 'counterattack') return buildCounterattackReactionItem(actor);
   const basics = buildBasicReactionItems(actor);
   return basics.find((b) => b.basicReaction === id) ?? null;
 }
