@@ -169,7 +169,7 @@ const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
     // on yourself from a daily (Tyhran Day) pool. Blood Feast / Battle Trance /
     // Stillness Recovery and every "+ Healing" combo are retired.
     'passive-regeneration': {
-        playerTitle: 'Passive: Restoration',
+        playerTitle: 'Restoration',
         powerName: 'Passive: Restoration',
         explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each).',
     },

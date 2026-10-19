@@ -17,6 +17,18 @@ export interface PowerSpellOptions {
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;
 }
+/**
+ * Short sheet name for a newly created power Item.
+ * Catalog / rules identity stays on `entry.name` and `templateId`; only the
+ * player-editable Item.name uses this (existing items are not renamed).
+ *
+ * Examples:
+ *   Passive: Restoration → Restoration
+ *   Ranged Damage — Tier 6 — Hex → Ranged Hex
+ *   Melee AoE Damage — Tier 4 — Slow → Melee AoE Slow
+ *   Melee Single Attack → Melee Attack
+ */
+export declare function defaultPowerItemDisplayName(entry: CatalogEntry): string;
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 export declare function buildPowerItemFromCatalogEntry(entry: CatalogEntry, rank: number, spell?: PowerSpellOptions): Record<string, unknown> | null;
 export declare function resolveGrantSpecEntry(spec: PowerGrantSpec): CatalogEntry | null;

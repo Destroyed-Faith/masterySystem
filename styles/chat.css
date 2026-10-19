@@ -53,7 +53,11 @@ prose-mirror#chat-message.chat-input > .editor-container {
 }
 
 body.ms-chat-panel-closed .ms-chat-roll-row,
-body.ms-chat-panel-closed .ms-chat-rolls-row {
+body.ms-chat-panel-closed .ms-chat-rolls-row,
+#sidebar.collapsed .ms-chat-roll-row,
+#sidebar.collapsed .ms-chat-rolls-row,
+.ms-chat-roll-row[hidden],
+.ms-chat-rolls-row[hidden] {
   display: none !important;
 }
 
@@ -61,12 +65,13 @@ body.ms-chat-panel-closed .ms-chat-rolls-row {
   position: relative;
 }
 
+#sidebar-tabs > .emr-chat-launch.is-icon-only,
 .emr-chat-launch.is-icon-only {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px !important;
-  height: 28px;
+  width: 32px !important;
+  height: 32px;
   margin: 0;
   padding: 0;
   z-index: 6;
@@ -74,6 +79,7 @@ body.ms-chat-panel-closed .ms-chat-rolls-row {
   background: transparent;
   color: var(--ms-accent, #c9a227);
   overflow: visible;
+  flex: 0 0 auto;
 }
 
 body.ms-chat-panel-closed #chat-controls,
@@ -82,7 +88,7 @@ body.ms-chat-panel-closed .ms-rolls-globe-host {
 }
 
 .emr-chat-launch.is-icon-only span {
-  display: none;
+  display: none !important;
 }
 
 .emr-chat-launch.is-icon-only i {

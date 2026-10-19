@@ -259,73 +259,97 @@ function injectQuickD8Bar(controls: HTMLElement | null | undefined): void {
   row.append(bar);
 }
 
-function isChatPanelOpen(): boolean {
-  const panel = document.querySelector('#chat');
-  if (panel instanceof HTMLElement) return panel.classList.contains('active');
+function sidebarIsCollapsed(): boolean {
   const sidebar = document.querySelector('#sidebar');
-  if (sidebar?.classList.contains('collapsed')) return false;
+  if (sidebar?.classList.contains('collapsed')) return true;
+  const g = globalThis as any;
+  const app = g.ui?.sidebar;
+  if (app && app.expanded === false) return true;
+  return false;
+}
+
+function activeSidebarTab(): string | null {
   const g = globalThis as any;
   const app = g.ui?.sidebar;
   const tab = app?.tabGroups?.primary ?? app?.tabGroups?.main ?? app?.activeTab ?? app?.tabName;
-  if (typeof tab === 'string' && tab) return tab === 'chat';
+  if (typeof tab === 'string' && tab) return tab;
   const active = document.querySelector(
     '#sidebar-tabs [data-tab].active, #sidebar-tabs [data-tab][aria-pressed="true"]',
   );
-  return active?.getAttribute('data-tab') === 'chat';
+  return active?.getAttribute('data-tab') ?? null;
 }
 
-/** Foundry's Public roll control — the globe next to "Public as User". */
-function findPublicGlobe(): HTMLElement | null {
-  const controls = document.querySelector('#chat-controls');
-  if (!(controls instanceof HTMLElement)) return null;
-  const icon = controls.querySelector('i.fa-globe, .fa-globe');
-  const fromIcon = icon?.closest('a, button');
-  if (fromIcon instanceof HTMLElement) return fromIcon;
-  const labeled = controls.querySelector(
-    '.roll-type-select, [data-action="rollMode"], [data-tooltip*="Public"], [aria-label*="Public"]',
-  );
-  return labeled instanceof HTMLElement ? labeled : null;
+/**
+ * Full Rolls + d8 Keep rows only when the chat panel is the open, expanded
+ * sidebar tab. Collapsed sidebar / other tabs → icon only (or hidden for players).
+ */
+function isChatPanelOpen(): boolean {
+  if (sidebarIsCollapsed()) return false;
+  const tab = activeSidebarTab();
+  if (tab && tab !== 'chat') return false;
+  const panel = document.querySelector('#chat');
+  if (panel instanceof HTMLElement) {
+    if (!panel.classList.contains('active')) return false;
+    const rect = panel.getBoundingClientRect();
+    if (rect.width < 80 || rect.height < 80) return false;
+    return true;
+  }
+  return tab === 'chat';
+}
+
+function setRollRowsHidden(hidden: boolean): void {
+  document.querySelectorAll('.ms-chat-roll-row, .ms-chat-rolls-row').forEach((row) => {
+    if (row instanceof HTMLElement) row.hidden = hidden;
+  });
 }
 
 function clearCompactRolls(button: HTMLElement): void {
   button.classList.remove('is-icon-only');
   button.style.position = '';
   button.style.left = '';
+  button.style.top = '';
   button.style.bottom = '';
   button.style.width = '';
   button.style.height = '';
 }
 
-/** Chat closed: only the golden d8, sitting above the Public globe. */
+/** Chat closed / sidebar collapsed: only the golden d8 above the chat tab. */
 export function syncChatRollChrome(): void {
   const open = isChatPanelOpen();
   document.body.classList.toggle('ms-chat-panel-closed', !open);
   const controlsNow = canonicalChatControls();
   if (controlsNow) pruneStrayRollChrome(controlsNow);
+  setRollRowsHidden(!open);
+
   const button = document.querySelector('.emr-chat-launch');
   if (!(button instanceof HTMLElement)) return;
   if (open) {
     clearCompactRolls(button);
     if (controlsNow) parkRollsButton(controlsNow);
+    setRollRowsHidden(false);
     return;
   }
 
+  clearCompactRolls(button);
   button.classList.add('is-icon-only');
-  const globe = findPublicGlobe();
-  const controls = document.querySelector('#chat-controls');
-  const host = globe?.parentElement ?? (controls instanceof HTMLElement ? controls : null);
-  if (!host) return;
-  if (button.parentElement !== host) host.insertBefore(button, globe ?? host.firstChild);
+
+  const tabs = document.querySelector('#sidebar-tabs');
+  const chatTab = tabs?.querySelector('[data-tab="chat"]');
+  if (tabs && chatTab instanceof HTMLElement) {
+    if (button.parentElement !== tabs) chatTab.before(button);
+    return;
+  }
+
+  // Fallback: park above Foundry's Public globe if the chat tab is missing.
+  const controls = controlsNow ?? document.querySelector('#chat-controls');
+  if (!(controls instanceof HTMLElement)) return;
+  const icon = controls.querySelector('i.fa-globe, .fa-globe');
+  const globe = icon?.closest('a, button');
+  const host = (globe instanceof HTMLElement ? globe.parentElement : null) ?? controls;
+  if (button.parentElement !== host) {
+    host.insertBefore(button, globe instanceof HTMLElement ? globe : host.firstChild);
+  }
   host.classList.add('ms-rolls-globe-host');
-  const anchor = globe ?? host;
-  const hostRect = host.getBoundingClientRect();
-  const anchorRect = anchor.getBoundingClientRect();
-  const size = 28;
-  button.style.position = 'absolute';
-  button.style.width = `${size}px`;
-  button.style.height = `${size}px`;
-  button.style.bottom = 'calc(100% + 2px)';
-  button.style.left = `${Math.max(0, anchorRect.left - hostRect.left + (anchorRect.width - size) / 2)}px`;
 }
 
 function tryInject(
@@ -347,7 +371,10 @@ export function initializeQuickD8Bar(): void {
   });
   Hooks.on('renderSidebarTab', (app: any, html: HTMLElement | JQuery, data?: { tab?: string }) => {
     const tab = data?.tab ?? app?.tab?.name ?? app?.options?.tab?.id;
-    if (tab && tab !== 'chat') return;
+    if (tab && tab !== 'chat') {
+      window.setTimeout(() => syncChatRollChrome(), 0);
+      return;
+    }
     const root = html instanceof HTMLElement ? html : (html as JQuery)?.[0];
     tryInject(undefined, root ?? html);
   });
@@ -357,7 +384,15 @@ export function initializeQuickD8Bar(): void {
   Hooks.on('collapseSidebar', () => {
     window.setTimeout(() => syncChatRollChrome(), 0);
   });
+  Hooks.on('expandSidebar', () => {
+    window.setTimeout(() => tryInject(), 0);
+  });
   Hooks.once('ready', () => {
+    // Foundry reparents chat controls after ready; sync a few times so the
+    // full Rolls / Keep strip never sticks beside the collapsed tab rail.
+    tryInject();
+    window.setTimeout(() => syncChatRollChrome(), 0);
     window.setTimeout(() => tryInject(), 250);
+    window.setTimeout(() => syncChatRollChrome(), 800);
   });
 }

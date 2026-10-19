@@ -12,7 +12,7 @@ import type {
 } from '../types/item.js';
 import { renderRange, renderAoe, renderDuration } from './power-rendering.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
-import { SPECIAL_EFFECTS_BY_ID } from './special-effects.js';
+import { getEffectById } from './special-effects.js';
 import { bindPoolSpecialsOnRow } from './powers/pool-special-ranks.js';
 import { injectOptionalWeaponAoeChosenSpecial } from '../artifacts/progression-compiler.js';
 import {
@@ -41,6 +41,47 @@ export interface PowerSpellOptions {
     isSpell: boolean;
     castingAttribute?: CastingAttribute;
     spellResolution?: SpellResolution;
+}
+
+function specialDisplayLabel(key: string): string {
+    const hit = getEffectById(key);
+    if (hit?.name) return String(hit.name).replace(/\(X\)/gi, '').trim();
+    return key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+/**
+ * Short sheet name for a newly created power Item.
+ * Catalog / rules identity stays on `entry.name` and `templateId`; only the
+ * player-editable Item.name uses this (existing items are not renamed).
+ *
+ * Examples:
+ *   Passive: Restoration → Restoration
+ *   Ranged Damage — Tier 6 — Hex → Ranged Hex
+ *   Melee AoE Damage — Tier 4 — Slow → Melee AoE Slow
+ *   Melee Single Attack → Melee Attack
+ */
+export function defaultPowerItemDisplayName(entry: CatalogEntry): string {
+    const specialKey = entry.chosenSpecial?.key?.trim();
+    if (entry.category === 'active' && specialKey) {
+        const id = String(entry.templateId || '');
+        const delivery = /ranged/i.test(id) ? 'Ranged' : /melee/i.test(id) ? 'Melee' : '';
+        const shape = /zone|persistent/i.test(id) ? ' Zone' : /aoe/i.test(id) ? ' AoE' : '';
+        const special = specialDisplayLabel(specialKey);
+        if (delivery) return `${delivery}${shape} ${special}`.replace(/\s+/g, ' ').trim();
+        return special;
+    }
+
+    let name = String(entry.templateName || entry.name || '').trim();
+    name = name
+        .replace(/^(Passive|Reaction|Active Buff|Active|Movement|Artifact):\s*/i, '')
+        .replace(/\s*[—–-]\s*Tier\s*\d+\s*$/i, '')
+        .replace(/\bSingle Attack\b/i, 'Attack')
+        .trim();
+
+    // Bare "Melee Damage" / "Ranged AoE Damage" leftovers without a special.
+    name = name.replace(/\s+Damage\s*$/i, '').trim();
+
+    return name || String(entry.name || 'Power');
 }
 
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
@@ -93,7 +134,7 @@ export function buildPowerItemFromCatalogEntry(
         : baseTags.filter((t: string) => t !== 'spell');
 
     return {
-        name: entry.name,
+        name: defaultPowerItemDisplayName(entry),
         type: 'power',
         system: {
             category: template.category,

@@ -18,7 +18,7 @@ export declare function resolveQuickD8Pool(dice: number, keep: number, rng?: () 
 };
 /** The chat controls actually on screen. Foundry sometimes leaves an older copy in the DOM. */
 export declare function canonicalChatControls(): HTMLElement | null;
-/** Chat closed: only the golden d8, sitting above the Public globe. */
+/** Chat closed / sidebar collapsed: only the golden d8 above the chat tab. */
 export declare function syncChatRollChrome(): void;
 export declare function initializeQuickD8Bar(): void;
 //# sourceMappingURL=quick-d8-bar.d.ts.map

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.746] - 2026-10-19
+
+### Changed
+
+- **Chat:** On boot and with a collapsed sidebar, Rolls and the Keep row stay hidden. Only the golden d8 sits above the chat tab until chat is open.
+- **Combat Package Wizard:** The Restoration passive tile is labeled Restoration, not Passive: Restoration.
+- **Powers:** New powers get short sheet names (Restoration, Ranged Hex, Melee AoE Slow). Existing items keep their names.
+
 ## [0.9.745] - 2026-10-18
 
 ### Changed

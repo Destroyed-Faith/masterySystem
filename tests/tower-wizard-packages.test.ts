@@ -86,7 +86,7 @@ describe('tower-wizard-packages', () => {
         expect(armor?.passives.some((p) => p.id === 'passive-echo-armor-value')).toBe(false);
         expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.mechanicsPreview).toMatch(/\+5 Armor/);
 
-        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Passive: Restoration');
+        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Restoration');
         expect(healing?.passives.some((p) => p.id === 'passive-blood-feast')).toBe(false);
         // R-05: Scarred Bar pool per Tyhran Day (PL4 = 2 bars); no turn-start HP healing.
         const regenPreview = healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview;
