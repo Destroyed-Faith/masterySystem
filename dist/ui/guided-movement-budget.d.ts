@@ -11,4 +11,19 @@ export declare function spendMovementSteps(budget: MovementBudget, stepsUsed: nu
 /** Spend a gridless/scene-distance leg in meters. */
 export declare function spendMovementMeters(budget: MovementBudget, metersUsed: number): MovementBudget;
 export declare function movementBudgetExhausted(budget: MovementBudget): boolean;
+/**
+ * After a region boundary stop (or other early halt), spend only the distance
+ * actually walked — not the originally intended destination.
+ */
+export declare function reconcileGuidedSpendAfterHalt(input: {
+    intendedSteps: number;
+    intendedMeters: number;
+    actualSteps: number | null;
+    actualMeters: number;
+    gridless: boolean;
+}): {
+    stepsUsed: number;
+    metersUsed: number;
+    haltedShort: boolean;
+};
 //# sourceMappingURL=guided-movement-budget.d.ts.map

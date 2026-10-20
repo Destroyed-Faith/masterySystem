@@ -42,3 +42,33 @@ export function spendMovementMeters(budget: MovementBudget, metersUsed: number):
 export function movementBudgetExhausted(budget: MovementBudget): boolean {
   return budget.remainingSteps <= 0 || budget.remainingMeters <= 0.01;
 }
+
+/**
+ * After a region boundary stop (or other early halt), spend only the distance
+ * actually walked — not the originally intended destination.
+ */
+export function reconcileGuidedSpendAfterHalt(input: {
+  intendedSteps: number;
+  intendedMeters: number;
+  actualSteps: number | null;
+  actualMeters: number;
+  gridless: boolean;
+}): { stepsUsed: number; metersUsed: number; haltedShort: boolean } {
+  if (input.gridless) {
+    const metersUsed = Math.max(0, Number(input.actualMeters) || 0);
+    const intended = Math.max(0, Number(input.intendedMeters) || 0);
+    return {
+      stepsUsed: 0,
+      metersUsed,
+      haltedShort: metersUsed + 0.01 < intended,
+    };
+  }
+  const intendedSteps = Math.max(0, Math.floor(Number(input.intendedSteps) || 0));
+  const actualSteps =
+    input.actualSteps == null ? intendedSteps : Math.max(0, Math.floor(Number(input.actualSteps) || 0));
+  return {
+    stepsUsed: actualSteps,
+    metersUsed: 0,
+    haltedShort: actualSteps < intendedSteps,
+  };
+}

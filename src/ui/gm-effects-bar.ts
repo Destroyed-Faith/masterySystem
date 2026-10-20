@@ -70,10 +70,6 @@ export class GmEffectsBar extends BaseBar {
         event.preventDefault();
         void this.#dialogAction('adjust');
       },
-      surprisePriority: function (this: GmEffectsBar, event: Event) {
-        event.preventDefault();
-        void this.#dialogAction('surprise');
-      },
       undoLast: function (this: GmEffectsBar, event: Event) {
         event.preventDefault();
         void this.#dialogAction('undo');
@@ -224,7 +220,7 @@ export class GmEffectsBar extends BaseBar {
     fn(api);
   }
 
-  async #dialogAction(kind: 'apply' | 'remove' | 'adjust' | 'surprise' | 'undo'): Promise<void> {
+  async #dialogAction(kind: 'apply' | 'remove' | 'adjust' | 'undo'): Promise<void> {
     const { CombatCarouselApp } = await carouselApi();
     const targets = CombatCarouselApp.selectedEffectRefs();
     const dialogs = await import('./gm-effect-dialogs.js');
@@ -236,8 +232,6 @@ export class GmEffectsBar extends BaseBar {
       await dialogs.openGmRemoveSpecialDialog(targets);
     } else if (kind === 'adjust') {
       await dialogs.openGmAdjustSpecialDialog(targets);
-    } else if (kind === 'surprise') {
-      await dialogs.openGmSurprisePriorityDialog(targets);
     }
     CombatCarouselApp.refresh();
   }

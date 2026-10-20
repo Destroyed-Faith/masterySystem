@@ -564,7 +564,7 @@
     },
     "regionBehavior": {
       "applySpecial": {
-        "TypeHint": "Apply a Special when tokens enter this region and/or at round end while still inside.",
+        "TypeHint": "Apply a Special when tokens enter (stop at the boundary; remaining movement stays usable) and/or at round end while still inside.",
         "FIELDS": {
           "specialId": {
             "label": "Special",
@@ -580,7 +580,7 @@
           },
           "applyOnEnter": {
             "label": "On enter",
-            "hint": "Apply immediately when a token enters the region."
+            "hint": "Stop at the region boundary, apply the Special, then allow remaining Movement Action meters on a new move."
           },
           "applyOnRoundEnd": {
             "label": "On round end (while inside)",

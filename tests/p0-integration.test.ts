@@ -135,7 +135,7 @@ describe('P0 split attack two targets', () => {
 });
 
 describe('P0 surprise priority from an attack', () => {
-  it('stores Surprise edges and sorts the attacker first without changing initiative', async () => {
+  it('marks the target surprised and sorts them last without changing initiative', async () => {
     const flags: Record<string, unknown> = {};
     const combatFlags: Record<string, unknown> = {};
     const attacker = {
@@ -168,10 +168,8 @@ describe('P0 surprise priority from an attack', () => {
     const granted = await applySurprisePriorityForAttack(attacker, target, combat);
     expect(granted).toBe(true);
     expect(flags.surprisePriority).toBe(true);
-    expect(combatFlags.surpriseEdges).toEqual([
-      { attackerId: 'ambusher', targetId: 'victim' },
-    ]);
-    expect(combatFlags.surpriseOrderIds?.[0]).toBe('ambusher');
+    expect(combatFlags.surprisedCombatantIds).toEqual(['victim']);
+    expect(combatFlags.surpriseOrderIds).toEqual(['ambusher', 'victim']);
     const surprising = {
       id: 'ambusher',
       initiative: 4,
@@ -188,6 +186,7 @@ describe('P0 surprise priority from an attack', () => {
     };
     expect(compareInitiativeCombatants(surprising, surprised)).toBeLessThan(0);
     expect(surprising.initiative).toBe(4);
+    expect(surprised.initiative).toBe(12);
   });
 });
 

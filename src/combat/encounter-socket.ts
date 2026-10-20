@@ -75,6 +75,16 @@ async function handleEncounterSocket(payload: any): Promise<void> {
     applyRemoteRaisePlan(payload);
     return;
   }
+  if (payload.type === 'regionApplySpecial') {
+    if (!game.user?.isGM) return;
+    try {
+      const { handleRegionApplySpecialSocket } = await import('../regions/apply-special-behavior.js');
+      await handleRegionApplySpecialSocket(payload);
+    } catch (err) {
+      console.warn('Mastery System | regionApplySpecial socket failed', err);
+    }
+    return;
+  }
   if (payload.action) return;
 
   const { type, combatId, combatantId, actorId, userId, data, finalInitiative, round } = payload;

@@ -106,8 +106,7 @@ export function combatantsForActor(combat: any, actor: any): any[] {
 }
 
 /**
- * Surprise Priority (Core v0.9.9.5): during Round 1 this creature acts before
- * combatants without the flag. The Initiative Score itself is not changed.
+ * Surprise (Round 1): the unaware target acts last. Initiative Score unchanged.
  */
 /** Round 1, or before combat has started, and only against an unaware target. */
 export function surprisePriorityShouldGrant(opts: {
@@ -134,8 +133,8 @@ export async function applySurprisePriorityForAttack(attacker: any, target: any,
 }
 
 /**
- * Grant Surprise Priority. Prefer attacker→target combatant edges (Round-1 order).
- * Legacy actor flag is still set for UI markers, but ordering uses edges.
+ * Mark the target combatant(s) as surprised for Round 1 (act last).
+ * Initiative scores are unchanged. `actor` is the ambusher (legacy flag marker).
  */
 export async function grantSurprisePriority(
   actor: any,
@@ -143,33 +142,42 @@ export async function grantSurprisePriority(
   target?: any,
   combatArg?: any,
 ): Promise<void> {
-  if (!actor?.setFlag) return;
+  const combat = combatArg ?? (globalThis as any).game?.combat;
   if (!enabled) {
-    await actor.unsetFlag?.('mastery-system', 'surprisePriority');
+    await actor?.unsetFlag?.('mastery-system', 'surprisePriority');
+    if (!combat || !target) return;
+    try {
+      const { readSurprisedCombatantIds, writeSurprisedCombatantIds, applySurpriseOrderToCombat } =
+        await import('./surprise-order.js');
+      const remove = new Set(combatantsForActor(combat, target).map((c) => String(c.id)));
+      const next = readSurprisedCombatantIds(combat).filter((id) => !remove.has(id));
+      await writeSurprisedCombatantIds(combat, next);
+      await applySurpriseOrderToCombat(combat);
+    } catch (err) {
+      console.warn('Mastery System | Surprise clear failed', err);
+    }
     return;
   }
-  await actor.setFlag('mastery-system', 'surprisePriority', true);
-  const combat = combatArg ?? (globalThis as any).game?.combat;
+  // Legacy UI marker on the ambusher (ordering uses combat surprisedIds).
+  if (actor?.setFlag) await actor.setFlag('mastery-system', 'surprisePriority', true);
   if (!combat) return;
   try {
-    const attackers = combatantsForActor(combat, actor);
     const targets = target ? combatantsForActor(combat, target) : [];
-    if (attackers.length && targets.length) {
-      const { addSurpriseEdges } = await import('./surprise-order.js');
-      const result = await addSurpriseEdges(
+    if (targets.length) {
+      const { markCombatantsSurprised } = await import('./surprise-order.js');
+      const result = await markCombatantsSurprised(
         combat,
-        attackers.map((c) => String(c.id)),
         targets.map((c) => String(c.id)),
       );
       if (!result.ok) {
-        console.warn('Mastery System | Surprise Priority edges rejected', result.error);
+        console.warn('Mastery System | Surprise mark rejected', result.error);
       }
       return;
     }
     const { applySurpriseOrderToCombat } = await import('./surprise-order.js');
     await applySurpriseOrderToCombat(combat);
   } catch (err) {
-    console.warn('Mastery System | Surprise Priority reorder failed', err);
+    console.warn('Mastery System | Surprise reorder failed', err);
   }
 }
 

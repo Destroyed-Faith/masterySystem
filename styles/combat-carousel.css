@@ -908,6 +908,17 @@
   border-color: #ef5350;
 }
 
+.portrait-control-btn.js-toggle-surprise.is-active {
+  background: rgba(255, 193, 7, 0.35);
+  border-color: #ffd166;
+  color: #ffd166;
+}
+
+.portrait-control-btn.js-toggle-surprise.is-active:hover {
+  background: rgba(255, 193, 7, 0.55);
+  border-color: #ffd166;
+}
+
 .carousel-control-btn.js-add-combatants:hover {
   background: rgba(46, 125, 50, 0.75);
   border-color: #81c784;

@@ -57,10 +57,6 @@ export class GmEffectsBar extends BaseBar {
                 event.preventDefault();
                 void this.#dialogAction('adjust');
             },
-            surprisePriority: function (event) {
-                event.preventDefault();
-                void this.#dialogAction('surprise');
-            },
             undoLast: function (event) {
                 event.preventDefault();
                 void this.#dialogAction('undo');
@@ -207,9 +203,6 @@ export class GmEffectsBar extends BaseBar {
         }
         else if (kind === 'adjust') {
             await dialogs.openGmAdjustSpecialDialog(targets);
-        }
-        else if (kind === 'surprise') {
-            await dialogs.openGmSurprisePriorityDialog(targets);
         }
         CombatCarouselApp.refresh();
     }

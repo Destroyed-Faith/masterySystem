@@ -17,7 +17,7 @@ import { movementMetersAfterStoneEffects } from './stones/stone-combat-effects.j
 import { gridStepsFromMeters, gridStepsBetweenCenters, masteryPowerMaxSteps, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
 import { eventWorldPoint, resolveOverlayContainer, snapWorldTopLeft, } from './utils/grid-snap.js';
 import { highlightHexesWithinStepsFromPoint, clearHexHighlight, collectHexKeysWithinStepsFromPoint, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
-import { createMovementBudget, movementBudgetExhausted, spendMovementMeters, spendMovementSteps, } from './ui/guided-movement-budget.js';
+import { createMovementBudget, movementBudgetExhausted, reconcileGuidedSpendAfterHalt, spendMovementMeters, spendMovementSteps, } from './ui/guided-movement-budget.js';
 import { clearTokenMovementHistory } from './ui/token-movement-history.js';
 /** Same yellow tone as radial range preview (`range-preview.ts`). */
 const MOVEMENT_RANGE_COLOR = 0xffe066;
@@ -699,17 +699,46 @@ async function attemptCommitMovement(destX, destY, state) {
             showRuler: false,
             [MASTERY_AUTHORIZED_MOVE]: true,
         });
+        // Region OnEnter pause/stop may halt at the boundary before dest — wait, then spend only walked distance.
+        try {
+            const anim = token.object?.movementAnimationPromise ?? token.document?.object?.movementAnimationPromise;
+            if (anim && typeof anim.then === 'function')
+                await anim;
+        }
+        catch {
+            /* ignore */
+        }
+        const doc = token.document ?? token;
+        const actualTL = { x: Number(doc.x) || 0, y: Number(doc.y) || 0 };
+        const actualCenter = tokenCenterFromTopLeft(token, actualTL);
+        let actualSteps = null;
+        let actualMeters = 0;
+        if (!gridless && grid?.getOffset) {
+            actualSteps = gridStepsBetweenCenters(origin, actualCenter, state.budget.remainingSteps);
+        }
+        else {
+            actualMeters = measureSceneDistanceBetweenPoints(origin, actualCenter);
+        }
+        const reconciled = reconcileGuidedSpendAfterHalt({
+            intendedSteps: stepsUsed,
+            intendedMeters: metersUsed,
+            actualSteps,
+            actualMeters,
+            gridless,
+        });
+        stepsUsed = reconciled.stepsUsed;
+        metersUsed = reconciled.metersUsed;
         // Movement action was already spent when the option started (except Flee, which commits above).
         await clearTokenMovementHistory(token.document);
         if (stepsUsed > 0) {
             state.budget = spendMovementSteps(state.budget, stepsUsed);
         }
-        else {
+        else if (metersUsed > 0) {
             state.budget = spendMovementMeters(state.budget, metersUsed);
         }
         state.movedOnce = true;
-        // Destination we just wrote — do not read token.center (still animating).
-        state.origin = destCenter;
+        // Use the document position after any region stop — not the intended dest.
+        state.origin = actualCenter;
         state.blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
         try {
             clearHexHighlight(state.highlightIdRange);
@@ -724,9 +753,12 @@ async function attemptCommitMovement(destX, destY, state) {
         }
         // Re-center yellow remaining range on the new hex; no history trail.
         paintStaticMovementRange(state);
-        refreshMovementPreview(state, destTL.x, destTL.y);
+        refreshMovementPreview(state, actualTL.x, actualTL.y);
         notifyGuidedMovementChanged();
-        ui.notifications?.info?.(`${Math.max(0, Math.round(state.budget.remainingMeters))} m left — click to step, right-click to finish.`);
+        const left = Math.max(0, Math.round(state.budget.remainingMeters));
+        ui.notifications?.info?.(reconciled.haltedShort
+            ? `Stopped at region boundary — ${left} m left; click to continue.`
+            : `${left} m left — click to step, right-click to finish.`);
     }
     catch (error) {
         console.error('Mastery System | Error during token movement', error);

@@ -26,7 +26,9 @@ export declare function tokenHasStatus(actor: any, statusId: string): boolean;
 export declare function syncTokenStatusIcons(actor: any): Promise<void>;
 export declare function isMirroringStatusIcons(actor: any): boolean;
 export declare function writeTokenStatusJson(token: any, encoded: string): Promise<void>;
-export declare function writeActorStatusList(actor: any, list: RawStatusEntry[], extra?: Record<string, unknown>): Promise<void>;
+export declare function writeActorStatusList(actor: any, list: RawStatusEntry[], extra?: Record<string, unknown>, opts?: {
+    deferVisuals?: boolean;
+}): Promise<void>;
 /**
  * Turn a catalog status on or off for this actor.
  * `value` sets the rank when the status is new or when a number is passed.

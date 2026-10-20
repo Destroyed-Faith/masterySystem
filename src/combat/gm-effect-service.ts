@@ -50,6 +50,8 @@ export interface GmEffectApplyRequest {
   source?: GmEffectSource | null;
   /** Audit label for chat. */
   reason?: string;
+  /** Defer token icon / sheet redraw (safe during movement animation). */
+  deferVisuals?: boolean;
 }
 
 export interface GmEffectTargetResult {
@@ -420,7 +422,7 @@ export async function applyGmEffect(req: GmEffectApplyRequest): Promise<GmEffect
           timestamp: Date.now(),
         };
         filtered.push(entry);
-        await writeActorStatusList(actor, filtered);
+        await writeActorStatusList(actor, filtered, {}, { deferVisuals: !!req.deferVisuals });
         notes.push('GM Override – exact value set');
       } else {
         const sourceActor = req.source?.uuid
@@ -434,6 +436,7 @@ export async function applyGmEffect(req: GmEffectApplyRequest): Promise<GmEffect
           skipReactiveCleanse: true,
           requireChallengeSource: specialId === 'challenge',
           tokenHint: tokenDocOfActor(actor),
+          deferVisuals: !!req.deferVisuals,
         });
         notes.push(...applyNotes);
       }

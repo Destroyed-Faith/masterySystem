@@ -25,6 +25,8 @@ export interface GmEffectApplyRequest {
     source?: GmEffectSource | null;
     /** Audit label for chat. */
     reason?: string;
+    /** Defer token icon / sheet redraw (safe during movement animation). */
+    deferVisuals?: boolean;
 }
 export interface GmEffectTargetResult {
     name: string;

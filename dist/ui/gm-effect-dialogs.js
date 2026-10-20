@@ -1,10 +1,9 @@
 /**
- * GM dialogs for carousel Special apply / area apply / Surprise assignment.
+ * GM dialogs for carousel Special apply / area apply.
  */
 import { applyGmEffect, adjustGmEffect, collectTargetsByScope, formatSpecialLine, listGmAssignableSpecials, previewGmEffectApply, removeGmEffect, resolveGmEffectActor, undoLastGmEffectBulk, } from '../combat/gm-effect-service.js';
 import { getEffectById, getEffectBaseName } from '../utils/special-effects.js';
 import { readActorStatusEffects, statusEntryId } from '../system/active-specials.js';
-import { addSurpriseEdges, applySurpriseOrderToCombat, computeSurpriseOrderForCombat } from '../combat/surprise-order.js';
 function esc(text) {
     return String(text || '')
         .replace(/&/g, '&amp;')
@@ -324,129 +323,6 @@ async function runArea(html, selected, mode) {
         return;
     }
     await runApply(root, targets, mode);
-}
-export async function openGmSurprisePriorityDialog(attackerRefs) {
-    if (!assertGm())
-        return;
-    const combat = globalThis.game?.combat;
-    if (!combat) {
-        globalThis.ui?.notifications?.warn?.('No active combat.');
-        return;
-    }
-    const attackerIds = attackerRefs.map((r) => String(r.combatantId || '')).filter(Boolean);
-    if (!attackerIds.length) {
-        globalThis.ui?.notifications?.warn?.('Select attacking combatants first.');
-        return;
-    }
-    const bag = combat.combatants;
-    const list = bag?.contents
-        ? bag.contents
-        : typeof bag?.values === 'function'
-            ? Array.from(bag.values())
-            : Array.from(bag ?? []);
-    const attackerSet = new Set(attackerIds);
-    const candidates = list.filter((c) => !attackerSet.has(String(c.id)));
-    const checks = candidates
-        .map((c) => `<label><input type="checkbox" class="js-gm-surprise-tgt" value="${esc(String(c.id))}" /> ${esc(String(c.name || c.actor?.name || c.id))} (Ini ${Number(c.initiative) || 0})</label>`)
-        .join('<br/>');
-    const DialogCtor = globalThis.Dialog;
-    await new Promise((resolve) => {
-        new DialogCtor({
-            title: 'Surprise Priority',
-            content: `<form>
-        <p>Attackers surprise which combatants?</p>
-        <div class="ms-gm-surprise-targets">${checks || '<em>No opposing combatants.</em>'}</div>
-      </form>`,
-            buttons: {
-                ok: {
-                    label: 'Confirm',
-                    callback: async (html) => {
-                        const $ = globalThis.$;
-                        const targetIds = [];
-                        $(html)
-                            .find('.js-gm-surprise-tgt:checked')
-                            .each((_, el) => {
-                            targetIds.push(String(el.value));
-                        });
-                        if (!targetIds.length) {
-                            globalThis.ui?.notifications?.warn?.('Select at least one surprised combatant.');
-                            return;
-                        }
-                        const result = await addSurpriseEdges(combat, attackerIds, targetIds);
-                        if (!result.ok) {
-                            globalThis.ui?.notifications?.error?.(result.error);
-                            return;
-                        }
-                        const { MASTERY_SKIP_TURN_BONUS_CLEAR } = await import('../combat/combat-update-options.js');
-                        if (typeof combat.setupTurns === 'function')
-                            await combat.setupTurns();
-                        try {
-                            const { syncCombatTurnToHighestInitiativeFirst } = await import('../combat/initiative-roll.js');
-                            await syncCombatTurnToHighestInitiativeFirst(combat);
-                        }
-                        catch {
-                            await combat.update?.({ turn: combat.turn }, { [MASTERY_SKIP_TURN_BONUS_CLEAR]: true });
-                        }
-                        globalThis.ui?.notifications?.info?.(`Surprise order: ${result.orderIds
-                            .map((id) => list.find((c) => String(c.id) === id)?.name || id)
-                            .join(' → ')}`);
-                    },
-                },
-                cancel: { label: 'Cancel' },
-            },
-            default: 'ok',
-            close: () => resolve(),
-        }).render(true);
-    });
-}
-export async function openGmRecalculateSurpriseDialog() {
-    if (!assertGm())
-        return;
-    const combat = globalThis.game?.combat;
-    if (!combat)
-        return;
-    const preview = computeSurpriseOrderForCombat(combat);
-    if (!preview.ok) {
-        globalThis.ui?.notifications?.error?.(preview.error);
-        return;
-    }
-    const bag = combat.combatants;
-    const list = bag?.contents
-        ? bag.contents
-        : typeof bag?.values === 'function'
-            ? Array.from(bag.values())
-            : Array.from(bag ?? []);
-    const line = preview.orderIds
-        .map((id, i) => {
-        const c = list.find((x) => String(x.id) === id);
-        return `${i + 1}. ${c?.name || id} (${Number(c?.initiative) || 0})`;
-    })
-        .join('<br/>');
-    const DialogCtor = globalThis.Dialog;
-    await new Promise((resolve) => {
-        new DialogCtor({
-            title: 'Recalculate Surprise Order',
-            content: `<p>Pending Round 1 order (Initiative Scores unchanged):</p><p>${line}</p>`,
-            buttons: {
-                apply: {
-                    label: 'Apply',
-                    callback: async () => {
-                        const result = await applySurpriseOrderToCombat(combat);
-                        if (!result.ok) {
-                            globalThis.ui?.notifications?.error?.(result.error);
-                            return;
-                        }
-                        if (typeof combat.setupTurns === 'function')
-                            await combat.setupTurns();
-                        globalThis.ui?.notifications?.info?.('Surprise order recalculated.');
-                    },
-                },
-                cancel: { label: 'Cancel' },
-            },
-            default: 'apply',
-            close: () => resolve(),
-        }).render(true);
-    });
 }
 export async function requestUndoLastGmEffect() {
     const r = await undoLastGmEffectBulk();

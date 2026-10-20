@@ -195,7 +195,7 @@ export async function applySpecialStringsToTarget(target, specialsUsed, attacker
             }
         }
         const { writeActorStatusList } = await import('../system/assign-status.js');
-        await writeActorStatusList(target, list, appsUpdate);
+        await writeActorStatusList(target, list, appsUpdate, { deferVisuals: !!options?.deferVisuals });
         if (!options?.skipReactiveCleanse) {
             try {
                 const { maybeOfferReactiveCleanseChat } = await import('./reaction-followups.js');

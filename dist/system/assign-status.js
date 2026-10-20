@@ -290,7 +290,7 @@ async function persistStatusList(actor, list, extra = {}) {
         console.warn('Mastery System | system.statusEffects write dropped', err);
     }
 }
-export async function writeActorStatusList(actor, list, extra = {}) {
+export async function writeActorStatusList(actor, list, extra = {}, opts) {
     if (!actor)
         return;
     const before = readActorStatusEffects(actor);
@@ -298,16 +298,29 @@ export async function writeActorStatusList(actor, list, extra = {}) {
     void import('../ui/special-token-arrival.js')
         .then((mod) => mod.announceStatusGains(actor, before, list))
         .catch(() => undefined);
-    await syncTokenStatusIcons(actor);
-    const sheet = actor.sheet;
-    if (sheet?.rendered) {
-        try {
-            await sheet.render(false);
+    const finishVisuals = async () => {
+        await syncTokenStatusIcons(actor);
+        const sheet = actor.sheet;
+        if (sheet?.rendered) {
+            try {
+                await sheet.render(false);
+            }
+            catch {
+                /* sheet may already be redrawing */
+            }
         }
-        catch {
-            /* sheet may already be redrawing */
+    };
+    if (opts?.deferVisuals) {
+        const anim = tokenDocOfActor(actor)?.object?.movementAnimationPromise;
+        if (anim && typeof anim.then === 'function') {
+            void anim.then(() => finishVisuals()).catch(() => void finishVisuals());
         }
+        else {
+            void Promise.resolve().then(() => finishVisuals());
+        }
+        return;
     }
+    await finishVisuals();
 }
 /**
  * Turn a catalog status on or off for this actor.

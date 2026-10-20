@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.751] - 2026-10-20
+
+### Changed
+
+- **Regions:** Apply Specials OnEnter uses `TOKEN_MOVE_IN` — pause at the boundary, apply after animation, then stop; remaining Movement Action meters stay usable.
+- **Combat Carousel:** Surprise is a Round-1 portrait toggle; Apply-to-Area globe removed (use Region Behavior instead).
+
+### Fixed
+
+- **Regions:** Entering an Apply Specials region no longer desyncs token sprite from document/ring position mid-move.
+
 ## [0.9.750] - 2026-10-20
 
 ### Changed

@@ -322,7 +322,7 @@ export async function applyGmEffect(req) {
                     timestamp: Date.now(),
                 };
                 filtered.push(entry);
-                await writeActorStatusList(actor, filtered);
+                await writeActorStatusList(actor, filtered, {}, { deferVisuals: !!req.deferVisuals });
                 notes.push('GM Override – exact value set');
             }
             else {
@@ -337,6 +337,7 @@ export async function applyGmEffect(req) {
                     skipReactiveCleanse: true,
                     requireChallengeSource: specialId === 'challenge',
                     tokenHint: tokenDocOfActor(actor),
+                    deferVisuals: !!req.deferVisuals,
                 });
                 notes.push(...applyNotes);
             }

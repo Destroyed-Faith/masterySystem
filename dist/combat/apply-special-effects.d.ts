@@ -27,6 +27,8 @@ export interface ApplySpecialStringsOptions {
      * Combat damage always has an attacker; GM tools should set this.
      */
     requireChallengeSource?: boolean;
+    /** Defer token icon sync / sheet render (region apply during movement). */
+    deferVisuals?: boolean;
 }
 /**
  * Apply status effects from specials to a target actor.

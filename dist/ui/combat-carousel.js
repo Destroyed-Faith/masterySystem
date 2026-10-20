@@ -14,6 +14,7 @@ import { applyCarouselVitalsEdit } from './carousel-vitals-edit.js';
 import { readPowerFavorites, togglePowerFavorite } from './power-favorites.js';
 import { getAllCombatOptionsForActor } from '../token-radial-menu.js';
 import { resolveLiveActor } from '../system/status-target.js';
+import { isCombatantSurprised, toggleSurprisedCombatant } from '../combat/surprise-order.js';
 import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
 import { readDeferredIds } from '../combat/turn-defer.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -434,6 +435,8 @@ export class CombatCarouselApp extends BaseCarousel {
                 img: portraitImg,
                 initiative: combatant.initiative ?? 0,
                 isEffectSelected: CombatCarouselApp._selectedCombatantIds.has(String(combatant.id)),
+                isSurprised: Math.max(1, Number(combat.round) || 1) === 1 &&
+                    isCombatantSurprised(combat, String(combatant.id)),
                 isDeferred: deferredIds.includes(String(combatant.id)),
                 stoneReady: isPc && stonesDoneForRound,
                 stonePending,
@@ -649,28 +652,6 @@ export class CombatCarouselApp extends BaseCarousel {
                 if (!game.user?.isGM)
                     return;
                 CombatCarouselApp.setManageEffectsMode(!CombatCarouselApp._manageEffectsMode);
-            };
-        });
-        root.querySelectorAll('.js-apply-area').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { openGmApplyToAreaDialog } = await import('./gm-effect-dialogs.js');
-                await openGmApplyToAreaDialog(CombatCarouselApp.selectedEffectRefs());
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-recalc-surprise').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { openGmRecalculateSurpriseDialog } = await import('./gm-effect-dialogs.js');
-                await openGmRecalculateSurpriseDialog();
-                CombatCarouselApp.refresh();
             };
         });
         root.querySelectorAll('.js-defer-turn').forEach((btn) => {
@@ -1065,6 +1046,39 @@ export class CombatCarouselApp extends BaseCarousel {
                 if (!game.user?.isGM)
                     return;
                 await combatant.update({ hidden: !combatant.hidden });
+            };
+        });
+        // GM: Round-1 Surprise — combatant acts last; initiative score unchanged.
+        root.querySelectorAll('.js-toggle-surprise').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const portrait = btn.closest('.carousel-portrait');
+                const combatantId = portrait?.dataset.combatantId;
+                if (!combatantId)
+                    return;
+                const combat = game.combats?.active;
+                if (!combat)
+                    return;
+                if (Math.max(1, Number(combat.round) || 1) > 1) {
+                    ui.notifications?.warn?.('Surprise only applies in Round 1.');
+                    return;
+                }
+                const result = await toggleSurprisedCombatant(combat, combatantId);
+                if (!result.ok) {
+                    ui.notifications?.warn?.(result.error || 'Surprise toggle failed.');
+                    return;
+                }
+                try {
+                    const { syncCombatTurnToHighestInitiativeFirst } = await import('../combat/initiative-roll.js');
+                    await syncCombatTurnToHighestInitiativeFirst(combat);
+                }
+                catch {
+                    /* ignore */
+                }
+                CombatCarouselApp.refresh();
             };
         });
         // GM: remove combatant from combat + carousel (token stays on the scene).

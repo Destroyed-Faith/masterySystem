@@ -1,6 +1,11 @@
 /**
  * Region Behavior: Destroyed Faith — Apply Specials
- * Applies a configured Special on TOKEN_ENTER and/or TOKEN_ROUND_END (while inside).
+ *
+ * On enter (measured move): TOKEN_MOVE_IN → pause → wait animation → apply → stopMovement
+ *   so the token stops at the boundary without sprite/document desync; remaining
+ *   Movement Action meters stay usable for a new drag.
+ * Non-move enter (create/teleport/behavior activate): TOKEN_ENTER, deferred apply.
+ * Round end while inside: TOKEN_ROUND_END.
  */
 
 import {
@@ -11,10 +16,13 @@ import {
   type GmEffectSideFilter,
   type GmEffectTargetRef,
 } from '../combat/gm-effect-service.js';
+import { ENCOUNTER_SOCKET } from '../combat/combat-permissions.js';
 import { getEffectBaseName, getEffectById } from '../utils/special-effects.js';
 
 /** System RegionBehavior subtype (no package prefix — matches system.json documentTypes). */
 export const APPLY_SPECIAL_BEHAVIOR_TYPE = 'applySpecial';
+
+export const REGION_APPLY_PAUSE_KEY = 'mastery-applySpecial';
 
 export type RegionSpecialTrigger = 'enter' | 'roundEnd';
 
@@ -73,14 +81,72 @@ export function buildSpecialChoices(): Record<string, string> {
   return out;
 }
 
-async function applyFromBehavior(
+/** True when Foundry reports this enter came from measured movement (prefer MOVE_IN). */
+export function regionEventLooksLikeMeasuredMove(event: any): boolean {
+  if (!event) return false;
+  if (event.data?.movement != null) return true;
+  if (event.data?.moved === true) return true;
+  return false;
+}
+
+const recentMoveInKeys = new Map<string, number>();
+const MOVE_IN_DEDUPE_MS = 2500;
+
+export function markRegionMoveInHandled(tokenId: string, regionId: string, at = Date.now()): void {
+  const key = `${String(tokenId)}:${String(regionId)}`;
+  recentMoveInKeys.set(key, at);
+  for (const [k, t] of recentMoveInKeys) {
+    if (at - t > MOVE_IN_DEDUPE_MS * 2) recentMoveInKeys.delete(k);
+  }
+}
+
+export function wasRegionMoveInRecentlyHandled(
+  tokenId: string,
+  regionId: string,
+  now = Date.now(),
+): boolean {
+  const t = recentMoveInKeys.get(`${String(tokenId)}:${String(regionId)}`);
+  return t != null && now - t < MOVE_IN_DEDUPE_MS;
+}
+
+/** Skip TOKEN_ENTER apply when MOVE_IN already handled this crossing. */
+export function shouldSkipTokenEnterAfterMoveIn(event: any, regionId: string): boolean {
+  const token = event?.data?.token ?? event?.token;
+  const tokenId = String(token?.id || '');
+  if (!tokenId || !regionId) return false;
+  // Only skip when MOVE_IN actually ran — do not blanket-skip measured ENTER
+  // (guided updates still rely on ENTER if MOVE_IN did not fire).
+  return wasRegionMoveInRecentlyHandled(tokenId, regionId);
+}
+
+async function awaitTokenMovementAnimation(token: any): Promise<void> {
+  const promise = token?.object?.movementAnimationPromise;
+  if (promise && typeof promise.then === 'function') {
+    try {
+      await promise;
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+/** True when this client is the user who triggered the region event (Foundry fires on all users). */
+export function isRegionEventSelf(event: any): boolean {
+  if (event?.user?.isSelf === true) return true;
+  const g = globalThis as any;
+  const uid = event?.user?.id;
+  if (uid != null && String(uid) === String(g.game?.user?.id)) return true;
+  return false;
+}
+
+export async function applyFromBehavior(
   behaviorSystem: ApplySpecialBehaviorSystem,
   token: any,
   trigger: RegionSpecialTrigger,
   reason: string,
+  opts?: { deferVisuals?: boolean },
 ): Promise<void> {
   const g = globalThis as any;
-  if (!g.game?.user?.isGM) return;
   if (!regionSpecialTriggerEnabled(behaviorSystem, trigger)) return;
   const specialId = String(behaviorSystem.specialId || '')
     .trim()
@@ -92,6 +158,27 @@ async function applyFromBehavior(
   const def = getEffectById(specialId);
   const value = def?.hasValue ? Math.max(1, Math.floor(Number(behaviorSystem.value) || 1)) : null;
   const mode = (String(behaviorSystem.mode || 'rules') === 'exact' ? 'exact' : 'rules') as GmEffectMode;
+
+  if (!g.game?.user?.isGM) {
+    try {
+      g.game?.socket?.emit?.(ENCOUNTER_SOCKET, {
+        type: 'regionApplySpecial',
+        tokenId: ref.tokenId,
+        actorId: ref.actorId,
+        sceneId: String(token?.parent?.id || token?.scene?.id || g.canvas?.scene?.id || ''),
+        specialId,
+        value,
+        mode,
+        sideFilter: behaviorSystem.sideFilter || 'all',
+        reason,
+        deferVisuals: !!opts?.deferVisuals,
+      });
+    } catch (err) {
+      console.warn('Mastery System | region apply relay failed', err);
+    }
+    return;
+  }
+
   try {
     await applyGmEffect({
       targets: [ref],
@@ -99,10 +186,77 @@ async function applyFromBehavior(
       value,
       mode,
       reason,
+      deferVisuals: !!opts?.deferVisuals,
     });
   } catch (err) {
     console.warn('Mastery System | Region Apply Specials failed', err);
   }
+}
+
+/** Handle measured move into region: pause → animate → apply → stop (keep rest meters). */
+export async function handleRegionTokenMoveIn(
+  sys: ApplySpecialBehaviorSystem,
+  event: any,
+  regionName: string,
+  regionId: string,
+): Promise<void> {
+  if (!regionSpecialTriggerEnabled(sys, 'enter')) return;
+  // Only the moving user may pause/stop; only they should kick off apply (GM path or socket).
+  if (!isRegionEventSelf(event)) return;
+  const token = event?.data?.token ?? event?.token;
+  if (!token) return;
+  const tokenId = String(token.id || '');
+  markRegionMoveInHandled(tokenId, regionId);
+
+  if (typeof token.pauseMovement === 'function') {
+    try {
+      token.pauseMovement(REGION_APPLY_PAUSE_KEY);
+    } catch (err) {
+      console.warn('Mastery System | pauseMovement failed', err);
+    }
+  }
+
+  await awaitTokenMovementAnimation(token);
+
+  try {
+    token.object?.refresh?.();
+  } catch {
+    /* ignore */
+  }
+
+  // Visual sync after animation; deferVisuals avoids a second desync if anything is still tweening.
+  await applyFromBehavior(sys, token, 'enter', `Region enter: ${regionName}`, { deferVisuals: true });
+
+  if (typeof token.stopMovement === 'function') {
+    try {
+      token.stopMovement();
+    } catch (err) {
+      console.warn('Mastery System | stopMovement failed', err);
+    }
+  }
+}
+
+/** Non-move enter: apply without blocking animation; skip if MOVE_IN already ran. */
+export async function handleRegionTokenEnter(
+  sys: ApplySpecialBehaviorSystem,
+  event: any,
+  regionName: string,
+  regionId: string,
+): Promise<void> {
+  if (!regionSpecialTriggerEnabled(sys, 'enter')) return;
+  if (!isRegionEventSelf(event)) return;
+  if (shouldSkipTokenEnterAfterMoveIn(event, regionId)) return;
+  const token = event?.data?.token ?? event?.token;
+  if (!token) return;
+
+  const run = async () => {
+    await awaitTokenMovementAnimation(token);
+    await applyFromBehavior(sys, token, 'enter', `Region enter: ${regionName}`, {
+      deferVisuals: true,
+    });
+  };
+  // Never block the region/enter pipeline with heavy awaits from the sync caller.
+  void run().catch((err) => console.warn('Mastery System | Region TOKEN_ENTER apply failed', err));
 }
 
 function BehaviorBase(): any {
@@ -182,14 +336,21 @@ export function createApplySpecialRegionBehaviorType(): any {
     }
 
     static events: Record<string, (this: any, event: any) => Promise<void>> = {
+      tokenMoveIn: async function (this: any, event: any) {
+        const sys = this as ApplySpecialBehaviorSystem;
+        const regionName = String(this?.region?.name || this?.behavior?.parent?.name || 'Region');
+        const regionId = String(this?.region?.id || this?.behavior?.parent?.id || regionName);
+        await handleRegionTokenMoveIn(sys, event, regionName, regionId);
+      },
       tokenEnter: async function (this: any, event: any) {
         const sys = this as ApplySpecialBehaviorSystem;
-        if (!regionSpecialTriggerEnabled(sys, 'enter')) return;
-        const token = event?.data?.token ?? event?.token;
         const regionName = String(this?.region?.name || this?.behavior?.parent?.name || 'Region');
-        await applyFromBehavior(sys, token, 'enter', `Region enter: ${regionName}`);
+        const regionId = String(this?.region?.id || this?.behavior?.parent?.id || regionName);
+        await handleRegionTokenEnter(sys, event, regionName, regionId);
       },
       tokenRoundEnd: async function (this: any, event: any) {
+        const g = globalThis as any;
+        if (!g.game?.user?.isGM) return;
         const sys = this as ApplySpecialBehaviorSystem;
         if (!regionSpecialTriggerEnabled(sys, 'roundEnd')) return;
         const token = event?.data?.token ?? event?.token;
@@ -200,6 +361,10 @@ export function createApplySpecialRegionBehaviorType(): any {
   }
 
   const CONST = (globalThis as any).CONST;
+  if (CONST?.REGION_EVENTS?.TOKEN_MOVE_IN) {
+    ApplySpecialRegionBehaviorType.events[CONST.REGION_EVENTS.TOKEN_MOVE_IN] =
+      ApplySpecialRegionBehaviorType.events.tokenMoveIn;
+  }
   if (CONST?.REGION_EVENTS?.TOKEN_ENTER) {
     ApplySpecialRegionBehaviorType.events[CONST.REGION_EVENTS.TOKEN_ENTER] =
       ApplySpecialRegionBehaviorType.events.tokenEnter;
@@ -229,4 +394,46 @@ export function registerApplySpecialRegionBehavior(): boolean {
     config.typeHints[APPLY_SPECIAL_BEHAVIOR_TYPE] = 'MASTERY.regionBehavior.applySpecial.TypeHint';
   }
   return true;
+}
+
+/** GM socket: player relayed a region apply. */
+export async function handleRegionApplySpecialSocket(payload: any): Promise<void> {
+  const g = globalThis as any;
+  if (!g.game?.user?.isGM) return;
+  const specialId = String(payload?.specialId || '')
+    .trim()
+    .toLowerCase();
+  if (!specialId) return;
+  const tokenId = String(payload?.tokenId || '');
+  const sceneId = String(payload?.sceneId || '');
+  const scene =
+    (sceneId && g.game?.scenes?.get?.(sceneId)) || g.canvas?.scene || g.game?.scenes?.active;
+  const token = tokenId ? scene?.tokens?.get?.(tokenId) : null;
+  const ref = token
+    ? gmEffectTargetFromTokenDoc(token)
+    : {
+        actorId: String(payload?.actorId || '') || null,
+        tokenId: tokenId || null,
+        name: '?',
+        disposition: 0,
+      };
+  if (!ref?.actorId && !ref?.tokenId) return;
+  if (!regionSpecialPassesSideFilter(ref.disposition, payload?.sideFilter)) return;
+  const mode = (String(payload?.mode || 'rules') === 'exact' ? 'exact' : 'rules') as GmEffectMode;
+  const value =
+    payload?.value != null && Number.isFinite(Number(payload.value))
+      ? Math.max(1, Math.floor(Number(payload.value)))
+      : null;
+  try {
+    await applyGmEffect({
+      targets: [ref],
+      specialId,
+      value,
+      mode,
+      reason: String(payload?.reason || 'Region enter'),
+      deferVisuals: !!payload?.deferVisuals,
+    });
+  } catch (err) {
+    console.warn('Mastery System | regionApplySpecial socket failed', err);
+  }
 }

@@ -15,8 +15,7 @@ export declare function actorHasSurprise(actor: any): boolean;
 export declare function evadeAfterSurprise(evade: number, _surprised: boolean): number;
 export declare function combatantsForActor(combat: any, actor: any): any[];
 /**
- * Surprise Priority (Core v0.9.9.5): during Round 1 this creature acts before
- * combatants without the flag. The Initiative Score itself is not changed.
+ * Surprise (Round 1): the unaware target acts last. Initiative Score unchanged.
  */
 /** Round 1, or before combat has started, and only against an unaware target. */
 export declare function surprisePriorityShouldGrant(opts: {
@@ -27,8 +26,8 @@ export declare function surprisePriorityShouldGrant(opts: {
 /** Attack against an unaware creature at the start of a fight. Initiative numbers stay put. */
 export declare function applySurprisePriorityForAttack(attacker: any, target: any, combat: any): Promise<boolean>;
 /**
- * Grant Surprise Priority. Prefer attacker→target combatant edges (Round-1 order).
- * Legacy actor flag is still set for UI markers, but ordering uses edges.
+ * Mark the target combatant(s) as surprised for Round 1 (act last).
+ * Initiative scores are unchanged. `actor` is the ambusher (legacy flag marker).
  */
 export declare function grantSurprisePriority(actor: any, enabled?: boolean, target?: any, combatArg?: any): Promise<void>;
 /**

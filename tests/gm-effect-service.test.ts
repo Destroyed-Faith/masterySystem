@@ -50,7 +50,7 @@ describe('Surprise vs initiative scores', () => {
       { id: 't', initiative: 18 },
     ];
     const before = combatants.map((c) => c.initiative);
-    buildSurpriseRound1Order(combatants, [{ attackerId: 't', targetId: 'g' }]);
+    buildSurpriseRound1Order(combatants, ['g']);
     expect(combatants.map((c) => c.initiative)).toEqual(before);
   });
 });

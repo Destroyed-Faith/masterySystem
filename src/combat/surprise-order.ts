@@ -1,12 +1,7 @@
 /**
- * Round-1 Surprise Priority ordering from explicit attacker→target edges.
- * Initiative Scores are never modified — only turn sequence.
+ * Round-1 Surprise ordering: surprised combatants act last (among themselves
+ * still sorted by initiative). Initiative Scores are never modified.
  */
-
-export interface SurpriseEdge {
-  attackerId: string;
-  targetId: string;
-}
 
 export interface SurpriseOrderCombatant {
   id: string;
@@ -22,8 +17,34 @@ export type SurpriseOrderResult =
   | { ok: true; orderIds: string[] }
   | { ok: false; error: string; cycleIds?: string[] };
 
+/** @deprecated Legacy edge shape — migrated into surprisedCombatantIds (targets). */
+export interface SurpriseEdge {
+  attackerId: string;
+  targetId: string;
+}
+
+const SURPRISED_IDS_FLAG = 'surprisedCombatantIds';
+/** Legacy flag; still read for migration. */
 const SURPRISE_EDGES_FLAG = 'surpriseEdges';
 const SURPRISE_ORDER_FLAG = 'surpriseOrderIds';
+
+function asIdList(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const entry of raw) {
+    const id = String(entry || '').trim();
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
+}
+
+/** Migrate legacy attacker→target edges into a set of surprised (target) ids. */
+export function surprisedIdsFromLegacyEdges(edges: SurpriseEdge[]): string[] {
+  return asIdList(edges.map((e) => e.targetId));
+}
 
 export function readSurpriseEdges(combat: any): SurpriseEdge[] {
   const raw =
@@ -39,13 +60,29 @@ export function readSurpriseEdges(combat: any): SurpriseEdge[] {
     .filter((e) => e.attackerId && e.targetId && e.attackerId !== e.targetId);
 }
 
+export function readSurprisedCombatantIds(combat: any): string[] {
+  const raw =
+    typeof combat?.getFlag === 'function'
+      ? combat.getFlag('mastery-system', SURPRISED_IDS_FLAG)
+      : combat?.flags?.['mastery-system']?.[SURPRISED_IDS_FLAG];
+  const fromFlag = asIdList(raw);
+  if (fromFlag.length) return fromFlag;
+  // Migration: flatten legacy edges to surprised targets.
+  return surprisedIdsFromLegacyEdges(readSurpriseEdges(combat));
+}
+
+export function isCombatantSurprised(combat: any, combatantId: string): boolean {
+  const id = String(combatantId || '').trim();
+  if (!id) return false;
+  return readSurprisedCombatantIds(combat).includes(id);
+}
+
 export function readSurpriseOrderIds(combat: any): string[] {
   const raw =
     typeof combat?.getFlag === 'function'
       ? combat.getFlag('mastery-system', SURPRISE_ORDER_FLAG)
       : combat?.flags?.['mastery-system']?.[SURPRISE_ORDER_FLAG];
-  if (!Array.isArray(raw)) return [];
-  return raw.map((id) => String(id || '').trim()).filter(Boolean);
+  return asIdList(raw);
 }
 
 /** Base initiative order without Surprise (higher initiative first). */
@@ -69,96 +106,66 @@ export function sortByInitiativeOnly(combatants: SurpriseOrderCombatant[]): Surp
 }
 
 /**
- * Build Round-1 order: preserve initiative priority wherever compatible with
- * edges “attacker before target”. Detect cycles.
+ * Round-1 order: non-surprised by initiative, then surprised by initiative.
+ * Accepts either a surprised-id list or (legacy) edges — edges are flattened to targets.
  */
 export function buildSurpriseRound1Order(
   combatants: SurpriseOrderCombatant[],
-  edges: SurpriseEdge[],
+  surprisedIdsOrEdges: string[] | SurpriseEdge[],
 ): SurpriseOrderResult {
   const active = combatants.filter((c) => c.id);
   const base = sortByInitiativeOnly(active);
   const living = base.filter((c) => !c.defeated);
   const defeatedIds = base.filter((c) => c.defeated).map((c) => c.id);
-  const ids = new Set(living.map((c) => c.id));
-  const baseIndex = new Map(living.map((c, i) => [c.id, i]));
 
-  const relevant = edges.filter((e) => ids.has(e.attackerId) && ids.has(e.targetId));
-  if (!relevant.length) {
-    return { ok: true, orderIds: [...living.map((c) => c.id), ...defeatedIds] };
+  let surprisedSet: Set<string>;
+  if (
+    Array.isArray(surprisedIdsOrEdges) &&
+    surprisedIdsOrEdges.length > 0 &&
+    typeof surprisedIdsOrEdges[0] === 'object' &&
+    surprisedIdsOrEdges[0] != null &&
+    'targetId' in (surprisedIdsOrEdges[0] as SurpriseEdge)
+  ) {
+    surprisedSet = new Set(surprisedIdsFromLegacyEdges(surprisedIdsOrEdges as SurpriseEdge[]));
+  } else {
+    surprisedSet = new Set(asIdList(surprisedIdsOrEdges as string[]));
   }
 
-  const preds = new Map<string, Set<string>>();
-  const succs = new Map<string, Set<string>>();
-  for (const id of ids) {
-    preds.set(id, new Set());
-    succs.set(id, new Set());
-  }
-  for (const e of relevant) {
-    preds.get(e.targetId)!.add(e.attackerId);
-    succs.get(e.attackerId)!.add(e.targetId);
-  }
-
-  const indeg = new Map<string, number>();
-  for (const id of ids) indeg.set(id, preds.get(id)!.size);
-
-  const ready = living.filter((c) => (indeg.get(c.id) ?? 0) === 0).map((c) => c.id);
-  const order: string[] = [];
-
-  while (ready.length) {
-    ready.sort((a, b) => (baseIndex.get(a) ?? 0) - (baseIndex.get(b) ?? 0));
-    const next = ready.shift()!;
-    order.push(next);
-    for (const succ of succs.get(next) ?? []) {
-      const n = (indeg.get(succ) ?? 0) - 1;
-      indeg.set(succ, n);
-      if (n === 0) ready.push(succ);
-    }
-  }
-
-  if (order.length !== ids.size) {
-    const remaining = [...ids].filter((id) => !order.includes(id));
-    return {
-      ok: false,
-      error: 'Contradictory Surprise relationships form a cycle.',
-      cycleIds: remaining,
-    };
-  }
-
-  return { ok: true, orderIds: [...order, ...defeatedIds] };
+  const front = living.filter((c) => !surprisedSet.has(c.id));
+  const back = living.filter((c) => surprisedSet.has(c.id));
+  return {
+    ok: true,
+    orderIds: [...front.map((c) => c.id), ...back.map((c) => c.id), ...defeatedIds],
+  };
 }
 
-export async function writeSurpriseEdges(combat: any, edges: SurpriseEdge[]): Promise<void> {
+export async function writeSurprisedCombatantIds(combat: any, ids: string[]): Promise<void> {
   if (!combat?.setFlag) return;
-  const cleaned = edges
-    .map((e) => ({
-      attackerId: String(e.attackerId || '').trim(),
-      targetId: String(e.targetId || '').trim(),
-    }))
-    .filter((e) => e.attackerId && e.targetId && e.attackerId !== e.targetId);
-  await combat.setFlag('mastery-system', SURPRISE_EDGES_FLAG, cleaned);
-}
-
-export async function writeSurpriseOrderIds(combat: any, orderIds: string[]): Promise<void> {
-  if (!combat?.setFlag) return;
-  await combat.setFlag('mastery-system', SURPRISE_ORDER_FLAG, orderIds.map(String));
-}
-
-export async function clearSurpriseOrderState(combat: any): Promise<void> {
-  if (!combat) return;
+  await combat.setFlag('mastery-system', SURPRISED_IDS_FLAG, asIdList(ids));
+  // Drop legacy edges so migration does not re-add stale targets.
   try {
     await combat.unsetFlag?.('mastery-system', SURPRISE_EDGES_FLAG);
   } catch {
     /* ignore */
   }
-  try {
-    await combat.unsetFlag?.('mastery-system', SURPRISE_ORDER_FLAG);
-  } catch {
-    /* ignore */
+}
+
+export async function writeSurpriseOrderIds(combat: any, orderIds: string[]): Promise<void> {
+  if (!combat?.setFlag) return;
+  await combat.setFlag('mastery-system', SURPRISE_ORDER_FLAG, asIdList(orderIds));
+}
+
+export async function clearSurpriseOrderState(combat: any): Promise<void> {
+  if (!combat) return;
+  for (const key of [SURPRISED_IDS_FLAG, SURPRISE_EDGES_FLAG, SURPRISE_ORDER_FLAG]) {
+    try {
+      await combat.unsetFlag?.('mastery-system', key);
+    } catch {
+      /* ignore */
+    }
   }
 }
 
-/** Recalculate and persist Round-1 order from edges; returns result. */
 export function computeSurpriseOrderForCombat(combat: any): SurpriseOrderResult {
   const bag = combat?.combatants;
   const list: any[] = bag?.contents
@@ -174,7 +181,7 @@ export function computeSurpriseOrderForCombat(combat: any): SurpriseOrderResult 
     agility: Number(c.actor?.system?.attributes?.agility?.value ?? c.actor?.system?.attributes?.agility) || 0,
     tieD8: Number(c.getFlag?.('mastery-system', 'initiativeTieD8')) || 0,
   }));
-  return buildSurpriseRound1Order(combatants, readSurpriseEdges(combat));
+  return buildSurpriseRound1Order(combatants, readSurprisedCombatantIds(combat));
 }
 
 export async function applySurpriseOrderToCombat(combat: any): Promise<SurpriseOrderResult> {
@@ -192,28 +199,41 @@ export async function applySurpriseOrderToCombat(combat: any): Promise<SurpriseO
   return result;
 }
 
+/** Mark combatants as surprised (Round 1: act last). Idempotent union. */
+export async function markCombatantsSurprised(
+  combat: any,
+  combatantIds: string[],
+): Promise<SurpriseOrderResult> {
+  const next = asIdList([...readSurprisedCombatantIds(combat), ...combatantIds]);
+  await writeSurprisedCombatantIds(combat, next);
+  return applySurpriseOrderToCombat(combat);
+}
+
+/** Toggle one combatant’s surprised state for Round 1. */
+export async function toggleSurprisedCombatant(
+  combat: any,
+  combatantId: string,
+): Promise<SurpriseOrderResult & { surprised: boolean }> {
+  const id = String(combatantId || '').trim();
+  if (!id) return { ok: false, error: 'Missing combatant', surprised: false };
+  const current = new Set(readSurprisedCombatantIds(combat));
+  if (current.has(id)) current.delete(id);
+  else current.add(id);
+  await writeSurprisedCombatantIds(combat, [...current]);
+  const result = await applySurpriseOrderToCombat(combat);
+  return { ...result, surprised: current.has(id) };
+}
+
+/**
+ * @deprecated Use markCombatantsSurprised(targetIds). Kept for callers that
+ * still pass attacker/target pairs — only targets are marked surprised.
+ */
 export async function addSurpriseEdges(
   combat: any,
-  attackerIds: string[],
+  _attackerIds: string[],
   targetIds: string[],
 ): Promise<SurpriseOrderResult> {
-  const existing = readSurpriseEdges(combat);
-  const next = [...existing];
-  const key = (a: string, t: string) => `${a}>${t}`;
-  const have = new Set(next.map((e) => key(e.attackerId, e.targetId)));
-  for (const a of attackerIds) {
-    for (const t of targetIds) {
-      const aid = String(a).trim();
-      const tid = String(t).trim();
-      if (!aid || !tid || aid === tid) continue;
-      const k = key(aid, tid);
-      if (have.has(k)) continue;
-      have.add(k);
-      next.push({ attackerId: aid, targetId: tid });
-    }
-  }
-  await writeSurpriseEdges(combat, next);
-  return applySurpriseOrderToCombat(combat);
+  return markCombatantsSurprised(combat, targetIds);
 }
 
 /** Clear actor surprisePriority flags after Round 1. */

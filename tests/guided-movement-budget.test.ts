@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createMovementBudget,
   movementBudgetExhausted,
+  reconcileGuidedSpendAfterHalt,
   spendMovementMeters,
   spendMovementSteps,
 } from '../src/ui/guided-movement-budget.js';
@@ -21,5 +22,20 @@ describe('guided movement budget', () => {
     const after = spendMovementMeters(budget, 6);
     expect(movementBudgetExhausted(after)).toBe(true);
     expect(after.remainingMeters).toBe(0);
+  });
+
+  it('reconciles a region halt so leftover meters stay available', () => {
+    const budget = createMovementBudget(12, 6);
+    const halt = reconcileGuidedSpendAfterHalt({
+      intendedSteps: 4,
+      intendedMeters: 0,
+      actualSteps: 1,
+      actualMeters: 0,
+      gridless: false,
+    });
+    const after = spendMovementSteps(budget, halt.stepsUsed);
+    expect(halt.haltedShort).toBe(true);
+    expect(after.remainingSteps).toBe(5);
+    expect(after.remainingMeters).toBeCloseTo(10);
   });
 });

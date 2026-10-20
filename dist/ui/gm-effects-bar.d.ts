@@ -28,7 +28,6 @@ export declare class GmEffectsBar extends BaseBar {
             applySpecial: (this: GmEffectsBar, event: Event) => void;
             removeSpecial: (this: GmEffectsBar, event: Event) => void;
             adjustSpecial: (this: GmEffectsBar, event: Event) => void;
-            surprisePriority: (this: GmEffectsBar, event: Event) => void;
             undoLast: (this: GmEffectsBar, event: Event) => void;
         };
     };

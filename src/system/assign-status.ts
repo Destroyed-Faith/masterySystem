@@ -314,6 +314,7 @@ export async function writeActorStatusList(
   actor: any,
   list: RawStatusEntry[],
   extra: Record<string, unknown> = {},
+  opts?: { deferVisuals?: boolean },
 ): Promise<void> {
   if (!actor) return;
   const before = readActorStatusEffects(actor);
@@ -321,15 +322,29 @@ export async function writeActorStatusList(
   void import('../ui/special-token-arrival.js')
     .then((mod) => mod.announceStatusGains(actor, before, list))
     .catch(() => undefined);
-  await syncTokenStatusIcons(actor);
-  const sheet = actor.sheet;
-  if (sheet?.rendered) {
-    try {
-      await sheet.render(false);
-    } catch {
-      /* sheet may already be redrawing */
+
+  const finishVisuals = async () => {
+    await syncTokenStatusIcons(actor);
+    const sheet = actor.sheet;
+    if (sheet?.rendered) {
+      try {
+        await sheet.render(false);
+      } catch {
+        /* sheet may already be redrawing */
+      }
     }
+  };
+
+  if (opts?.deferVisuals) {
+    const anim = tokenDocOfActor(actor)?.object?.movementAnimationPromise;
+    if (anim && typeof anim.then === 'function') {
+      void anim.then(() => finishVisuals()).catch(() => void finishVisuals());
+    } else {
+      void Promise.resolve().then(() => finishVisuals());
+    }
+    return;
   }
+  await finishVisuals();
 }
 
 /**

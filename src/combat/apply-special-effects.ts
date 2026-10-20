@@ -87,6 +87,8 @@ export interface ApplySpecialStringsOptions {
    * Combat damage always has an attacker; GM tools should set this.
    */
   requireChallengeSource?: boolean;
+  /** Defer token icon sync / sheet render (region apply during movement). */
+  deferVisuals?: boolean;
 }
 
 /**
@@ -240,7 +242,7 @@ export async function applySpecialStringsToTarget(
     }
 
     const { writeActorStatusList } = await import('../system/assign-status.js');
-    await writeActorStatusList(target, list, appsUpdate);
+    await writeActorStatusList(target, list, appsUpdate, { deferVisuals: !!options?.deferVisuals });
 
     if (!options?.skipReactiveCleanse) {
       try {

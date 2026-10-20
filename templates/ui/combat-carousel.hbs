@@ -31,14 +31,6 @@
         <button type="button" class="carousel-settings-cog js-manage-effects{{#if manageEffectsMode}} is-active{{/if}}" title="Manage Effects / Effekte verwalten" aria-label="Manage Effects" aria-pressed="{{#if manageEffectsMode}}true{{else}}false{{/if}}">
           <i class="fas fa-hand-sparkles"></i>
         </button>
-        <button type="button" class="carousel-settings-cog js-apply-area" title="Apply to Area / Auf Bereich anwenden" aria-label="Apply to Area">
-          <i class="fas fa-globe"></i>
-        </button>
-        {{#if isRound1}}
-        <button type="button" class="carousel-settings-cog js-recalc-surprise" title="Recalculate Surprise Order" aria-label="Recalculate Surprise Order">
-          <i class="fas fa-shuffle"></i>
-        </button>
-        {{/if}}
         <button type="button" class="carousel-settings-cog js-defer-turn" title="Defer Turn / Zug zurückstellen" aria-label="Defer Turn">
           <i class="fas fa-hourglass-half"></i>
         </button>
@@ -191,6 +183,11 @@
               <button type="button" class="portrait-control-btn js-toggle-hidden" title="{{localize 'MASTERY.carousel.toggleHidden'}}" aria-label="{{localize 'MASTERY.carousel.toggleHidden'}}">
                 <i class="fas fa-eye-slash"></i>
               </button>
+              {{#if ../isRound1}}
+              <button type="button" class="portrait-control-btn js-toggle-surprise{{#if combatant.isSurprised}} is-active{{/if}}" title="Surprise (Round 1: act last)" aria-label="Surprise" aria-pressed="{{#if combatant.isSurprised}}true{{else}}false{{/if}}">
+                <i class="fas fa-bolt"></i>
+              </button>
+              {{/if}}
               <button type="button" class="portrait-control-btn js-remove-combatant" title="{{localize 'MASTERY.carousel.removeCombatant'}}" aria-label="{{localize 'MASTERY.carousel.removeCombatant'}}">
                 <i class="fas fa-user-minus"></i>
               </button>

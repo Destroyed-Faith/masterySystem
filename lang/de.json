@@ -564,7 +564,7 @@
     },
     "regionBehavior": {
       "applySpecial": {
-        "TypeHint": "Wendet ein Special an, wenn Token die Region betreten und/oder am Rundenende noch darin stehen.",
+        "TypeHint": "Wendet ein Special an, wenn Token die Region betreten (Stop an der Grenze; Restbewegung bleibt nutzbar) und/oder am Rundenende noch darin stehen.",
         "FIELDS": {
           "specialId": {
             "label": "Special",
@@ -580,7 +580,7 @@
           },
           "applyOnEnter": {
             "label": "Beim Betreten",
-            "hint": "Sofort anwenden, wenn ein Token die Region betritt."
+            "hint": "An der Regionsgrenze stoppen, Special anwenden; Restmeter der Movement Action bleiben für einen neuen Zug nutzbar."
           },
           "applyOnRoundEnd": {
             "label": "Am Rundenende (solange drin)",
