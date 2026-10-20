@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.754] - 2026-10-20
+
+### Changed
+
+- **Active Buff picker:** Add/Replace Power dropdowns and Tower Wizard catalogue paths offer exactly the final 18 rulebook Active Buffs with canonical labels (`Active Buff: Armor`, …); retired/combined buffs stay in templates for legacy characters but are hidden from new selection.
+
 ## [0.9.753] - 2026-10-20
 
 ### Changed
