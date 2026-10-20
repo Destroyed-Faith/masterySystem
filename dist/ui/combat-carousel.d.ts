@@ -47,6 +47,13 @@ export declare class CombatCarouselApp extends BaseCarousel {
      * Refresh the carousel (re-render with current combat state)
      */
     static refresh(): void;
+    static isManageEffectsMode(): boolean;
+    static selectedEffectCount(): number;
+    static selectedEffectRefs(): import('../combat/gm-effect-service.js').GmEffectTargetRef[];
+    static setManageEffectsMode(on: boolean): void;
+    static selectAllForEffects(): void;
+    static clearEffectSelection(): void;
+    static selectSideForEffects(side: string): void;
     _prepareContext(_options: any): Promise<any>;
     _onRender(_context: any, _options: any): Promise<void>;
     _onClose(_options: any): Promise<void>;

@@ -555,6 +555,53 @@
         "unwired": "This artifact is not linked to its evolution tree yet.",
         "wire": "Link to world tree"
       }
+    },
+    "gmEffectsBar": {
+      "title": "Manage Effects",
+      "expand": "Show Manage Effects",
+      "collapse": "Hide Manage Effects",
+      "drag": "Drag to move"
+    },
+    "regionBehavior": {
+      "applySpecial": {
+        "TypeHint": "Apply a Special when tokens enter this region and/or at round end while still inside.",
+        "FIELDS": {
+          "specialId": {
+            "label": "Special",
+            "hint": "Which Special to apply."
+          },
+          "value": {
+            "label": "Value (X)",
+            "hint": "Used when the Special has a numeric rank (e.g. Ignite(2))."
+          },
+          "sideFilter": {
+            "label": "Side filter",
+            "hint": "Which token dispositions are affected."
+          },
+          "applyOnEnter": {
+            "label": "On enter",
+            "hint": "Apply immediately when a token enters the region."
+          },
+          "applyOnRoundEnd": {
+            "label": "On round end (while inside)",
+            "hint": "Apply again at combat round end to tokens still inside."
+          },
+          "mode": {
+            "label": "Apply mode",
+            "hint": "Normally follows stacking/cap rules; Override sets the stored value exactly."
+          }
+        },
+        "SIDE": {
+          "all": "All",
+          "friendly": "Friendly",
+          "neutral": "Neutral",
+          "hostile": "Hostile"
+        },
+        "MODE": {
+          "rules": "Apply Normally",
+          "exact": "GM Override"
+        }
+      }
     }
   },
   "TYPES": {
@@ -575,7 +622,8 @@
       "schtick": "Schtick"
     },
     "RegionBehavior": {
-      "particleEffects": "DF: Particle Effects"
+      "particleEffects": "DF: Particle Effects",
+      "applySpecial": "Destroyed Faith: Apply Specials"
     }
   },
   "DF_PARTICLE_EFFECTS": {

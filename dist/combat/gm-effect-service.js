@@ -9,14 +9,14 @@ import { resolveLiveActor, tokenDocOfActor, tokenIdOfActor } from '../system/sta
 import { applySpecialStringsToTarget } from './apply-special-effects.js';
 import { specialDisplayName } from './special-application.js';
 let lastUndo = null;
-function dispositionSide(d) {
+export function dispositionSide(d) {
     if (d >= 1)
         return 'friendly';
     if (d <= -1)
         return 'hostile';
     return 'neutral';
 }
-function matchesSide(disposition, filter) {
+export function matchesSide(disposition, filter) {
     if (filter === 'all')
         return true;
     return dispositionSide(Math.floor(Number(disposition) || 0)) === filter;

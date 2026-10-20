@@ -81,13 +81,13 @@ interface UndoSnapshot {
 
 let lastUndo: UndoSnapshot | null = null;
 
-function dispositionSide(d: number): GmEffectSideFilter {
+export function dispositionSide(d: number): GmEffectSideFilter {
   if (d >= 1) return 'friendly';
   if (d <= -1) return 'hostile';
   return 'neutral';
 }
 
-function matchesSide(disposition: number | undefined, filter: GmEffectSideFilter): boolean {
+export function matchesSide(disposition: number | undefined, filter: GmEffectSideFilter): boolean {
   if (filter === 'all') return true;
   return dispositionSide(Math.floor(Number(disposition) || 0)) === filter;
 }

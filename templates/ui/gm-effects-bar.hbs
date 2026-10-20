@@ -1,0 +1,35 @@
+<div class="known-npcs gm-effects-panel {{#if collapsed}}is-collapsed{{/if}}">
+  <div class="known-npcs-chrome">
+    <button type="button" class="known-npcs-handle" title="{{dragLabel}}" aria-label="{{dragLabel}}">
+      <i class="fas fa-grip-vertical"></i>
+    </button>
+    <button type="button" class="known-npcs-toggle" data-action="toggle" title="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}" aria-label="{{#if collapsed}}{{expandLabel}}{{else}}{{collapseLabel}}{{/if}}">
+      <i class="fas fa-hand-sparkles"></i>
+      <span>{{title}}</span>
+      <span class="gm-effects-bar-count">{{selectedCount}} selected</span>
+      <i class="fas {{#if collapsed}}fa-chevron-right{{else}}fa-chevron-left{{/if}}"></i>
+    </button>
+  </div>
+  {{#unless collapsed}}
+  <div class="known-npcs-list gm-effects-bar-list">
+    <div class="gm-effects-bar-row">
+      <button type="button" class="gm-effects-bar-btn" data-action="selectAll">Select All</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="clearSelection">Clear Selection</button>
+    </div>
+    <div class="gm-effects-bar-row">
+      <button type="button" class="gm-effects-bar-btn" data-action="selectSide" data-side="friendly">Friends</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="selectSide" data-side="neutral">Neutral</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="selectSide" data-side="hostile">Hostiles</button>
+    </div>
+    {{#if hasSelection}}
+    <div class="gm-effects-bar-row gm-effects-bar-row--actions">
+      <button type="button" class="gm-effects-bar-btn is-accent" data-action="applySpecial">Apply Special</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="removeSpecial">Remove Special</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="adjustSpecial">Adjust Existing</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="surprisePriority">Surprise Priority</button>
+      <button type="button" class="gm-effects-bar-btn" data-action="undoLast">Undo Last</button>
+    </div>
+    {{/if}}
+  </div>
+  {{/unless}}
+</div>

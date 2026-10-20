@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.750] - 2026-10-20
+
+### Changed
+
+- **Combat Carousel:** Manage Effects opens a floating bar with grip handle (like Healing / Important NPCs); the inline effect toolbar is removed.
+- **Regions:** New Region Behavior “Destroyed Faith: Apply Specials” — Special, side filter, apply on enter and/or at round end while inside.
+
 ## [0.9.749] - 2026-10-20
 
 ### Changed

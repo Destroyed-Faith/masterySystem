@@ -84,6 +84,7 @@ export class CombatCarouselApp extends BaseCarousel {
         }
         CombatCarouselApp._manageEffectsMode = false;
         CombatCarouselApp._selectedCombatantIds.clear();
+        void import('./gm-effects-bar.js').then((m) => m.GmEffectsBar.closeInstance()).catch(() => undefined);
     }
     /**
      * Get the singleton instance
@@ -99,6 +100,69 @@ export class CombatCarouselApp extends BaseCarousel {
         if (instance && instance.rendered) {
             instance.render({ force: true });
         }
+        void import('./gm-effects-bar.js').then((m) => m.GmEffectsBar.refresh()).catch(() => undefined);
+    }
+    static isManageEffectsMode() {
+        return !!(game.user?.isGM && CombatCarouselApp._manageEffectsMode);
+    }
+    static selectedEffectCount() {
+        return CombatCarouselApp._selectedCombatantIds.size;
+    }
+    static selectedEffectRefs() {
+        const combat = game.combats?.active;
+        if (!combat)
+            return [];
+        const refs = [];
+        for (const id of CombatCarouselApp._selectedCombatantIds) {
+            const c = combat.combatants?.get?.(id);
+            if (!c)
+                continue;
+            refs.push({
+                combatantId: String(c.id),
+                actorId: String(c.actorId ?? c.actor?.id ?? ''),
+                tokenId: String(c.tokenId ?? c.token?.id ?? ''),
+                name: String(c.name ?? c.actor?.name ?? ''),
+                disposition: Number((c.token?.document ?? c.token)?.disposition ?? c.actor?.token?.disposition ?? 0),
+            });
+        }
+        return refs;
+    }
+    static setManageEffectsMode(on) {
+        if (!game.user?.isGM)
+            return;
+        CombatCarouselApp._manageEffectsMode = !!on;
+        if (!CombatCarouselApp._manageEffectsMode) {
+            CombatCarouselApp._selectedCombatantIds.clear();
+        }
+        CombatCarouselApp.refresh();
+    }
+    static selectAllForEffects() {
+        const combat = game.combats?.active;
+        CombatCarouselApp._selectedCombatantIds.clear();
+        const turns = Array.isArray(combat?.turns) ? combat.turns : Array.from(combat?.combatants ?? []);
+        for (const c of turns) {
+            if (c?.id)
+                CombatCarouselApp._selectedCombatantIds.add(String(c.id));
+        }
+        CombatCarouselApp.refresh();
+    }
+    static clearEffectSelection() {
+        CombatCarouselApp._selectedCombatantIds.clear();
+        CombatCarouselApp.refresh();
+    }
+    static selectSideForEffects(side) {
+        const combat = game.combats?.active;
+        CombatCarouselApp._selectedCombatantIds.clear();
+        const turns = Array.isArray(combat?.turns) ? combat.turns : Array.from(combat?.combatants ?? []);
+        for (const c of turns) {
+            if (!c?.id)
+                continue;
+            const d = Math.floor(Number((c.token?.document ?? c.token)?.disposition ?? c.actor?.token?.disposition ?? 0) || 0);
+            const match = side === 'friendly' ? d >= 1 : side === 'hostile' ? d <= -1 : side === 'neutral' ? d === 0 : true;
+            if (match)
+                CombatCarouselApp._selectedCombatantIds.add(String(c.id));
+        }
+        CombatCarouselApp.refresh();
     }
     async _prepareContext(_options) {
         const combat = game.combats?.active;
@@ -578,126 +642,13 @@ export class CombatCarouselApp extends BaseCarousel {
                 void this.openCarouselSettingsDialog();
             };
         });
-        const selectedRefs = () => {
-            const combat = game.combats?.active;
-            const refs = [];
-            for (const id of CombatCarouselApp._selectedCombatantIds) {
-                const c = combat?.combatants?.get?.(id);
-                if (!c)
-                    continue;
-                refs.push({
-                    combatantId: String(c.id),
-                    actorId: String(c.actorId ?? c.actor?.id ?? ''),
-                    tokenId: String(c.tokenId ?? c.token?.id ?? ''),
-                    name: String(c.name ?? c.actor?.name ?? ''),
-                    disposition: Number((c.token?.document ?? c.token)?.disposition ?? c.actor?.token?.disposition ?? 0),
-                });
-            }
-            return refs;
-        };
         root.querySelectorAll('.js-manage-effects').forEach((btn) => {
             btn.onclick = (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();
                 if (!game.user?.isGM)
                     return;
-                CombatCarouselApp._manageEffectsMode = !CombatCarouselApp._manageEffectsMode;
-                if (!CombatCarouselApp._manageEffectsMode) {
-                    CombatCarouselApp._selectedCombatantIds.clear();
-                }
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-clear-fx').forEach((btn) => {
-            btn.onclick = (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                CombatCarouselApp._selectedCombatantIds.clear();
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-select-all-fx').forEach((btn) => {
-            btn.onclick = (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                root.querySelectorAll('.carousel-combatant').forEach((el) => {
-                    const id = el.dataset.combatantId;
-                    if (id)
-                        CombatCarouselApp._selectedCombatantIds.add(id);
-                });
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-select-side-fx').forEach((btn) => {
-            btn.onclick = (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                const side = String(btn.dataset.side || 'all');
-                CombatCarouselApp._selectedCombatantIds.clear();
-                root.querySelectorAll('.carousel-combatant').forEach((el) => {
-                    const card = el;
-                    const id = card.dataset.combatantId;
-                    const d = Math.floor(Number(card.dataset.disposition) || 0);
-                    const match = side === 'friendly' ? d >= 1 : side === 'hostile' ? d <= -1 : side === 'neutral' ? d === 0 : true;
-                    if (id && match)
-                        CombatCarouselApp._selectedCombatantIds.add(id);
-                });
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-apply-fx').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { openGmApplySpecialDialog } = await import('./gm-effect-dialogs.js');
-                await openGmApplySpecialDialog(selectedRefs());
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-remove-fx').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { openGmRemoveSpecialDialog } = await import('./gm-effect-dialogs.js');
-                await openGmRemoveSpecialDialog(selectedRefs());
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-adjust-fx').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { openGmAdjustSpecialDialog } = await import('./gm-effect-dialogs.js');
-                await openGmAdjustSpecialDialog(selectedRefs());
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-surprise-fx').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { openGmSurprisePriorityDialog } = await import('./gm-effect-dialogs.js');
-                await openGmSurprisePriorityDialog(selectedRefs());
-                CombatCarouselApp.refresh();
-            };
-        });
-        root.querySelectorAll('.js-undo-fx').forEach((btn) => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                ev.stopPropagation();
-                if (!game.user?.isGM)
-                    return;
-                const { requestUndoLastGmEffect } = await import('./gm-effect-dialogs.js');
-                await requestUndoLastGmEffect();
-                CombatCarouselApp.refresh();
+                CombatCarouselApp.setManageEffectsMode(!CombatCarouselApp._manageEffectsMode);
             };
         });
         root.querySelectorAll('.js-apply-area').forEach((btn) => {
@@ -707,7 +658,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 if (!game.user?.isGM)
                     return;
                 const { openGmApplyToAreaDialog } = await import('./gm-effect-dialogs.js');
-                await openGmApplyToAreaDialog(selectedRefs());
+                await openGmApplyToAreaDialog(CombatCarouselApp.selectedEffectRefs());
                 CombatCarouselApp.refresh();
             };
         });

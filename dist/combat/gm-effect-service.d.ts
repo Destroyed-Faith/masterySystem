@@ -45,6 +45,8 @@ export interface GmEffectOperationResult {
     errors: string[];
     undoId: string | null;
 }
+export declare function dispositionSide(d: number): GmEffectSideFilter;
+export declare function matchesSide(disposition: number | undefined, filter: GmEffectSideFilter): boolean;
 /** Legal persistent Specials for the GM picker (instants/support excluded except Cleanse). */
 export declare function listGmAssignableSpecials(): SpecialEffect[];
 export declare function formatSpecialLine(specialId: string, value?: number | null): string;

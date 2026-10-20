@@ -555,6 +555,53 @@
         "unwired": "Dieses Artefakt ist noch nicht mit seinem Evolutionsbaum verbunden.",
         "wire": "Mit World-Tree verbinden"
       }
+    },
+    "gmEffectsBar": {
+      "title": "Effekte verwalten",
+      "expand": "Effekte-Leiste zeigen",
+      "collapse": "Effekte-Leiste verbergen",
+      "drag": "Ziehen zum Verschieben"
+    },
+    "regionBehavior": {
+      "applySpecial": {
+        "TypeHint": "Wendet ein Special an, wenn Token die Region betreten und/oder am Rundenende noch darin stehen.",
+        "FIELDS": {
+          "specialId": {
+            "label": "Special",
+            "hint": "Welches Special angewendet wird."
+          },
+          "value": {
+            "label": "Wert (X)",
+            "hint": "Wenn das Special einen Zahlenwert hat (z. B. Ignite(2))."
+          },
+          "sideFilter": {
+            "label": "Seitenfilter",
+            "hint": "Welche Token-Dispositionen betroffen sind."
+          },
+          "applyOnEnter": {
+            "label": "Beim Betreten",
+            "hint": "Sofort anwenden, wenn ein Token die Region betritt."
+          },
+          "applyOnRoundEnd": {
+            "label": "Am Rundenende (solange drin)",
+            "hint": "Am Kampf-Rundenende erneut auf Token anwenden, die noch drinstehen."
+          },
+          "mode": {
+            "label": "Anwendungsmodus",
+            "hint": "Normal folgt Stapel-/Cap-Regeln; Override setzt den gespeicherten Wert exakt."
+          }
+        },
+        "SIDE": {
+          "all": "Alle",
+          "friendly": "Freundlich",
+          "neutral": "Neutral",
+          "hostile": "Feindlich"
+        },
+        "MODE": {
+          "rules": "Normal anwenden",
+          "exact": "SL-Override"
+        }
+      }
     }
   },
   "TYPES": {
@@ -575,7 +622,8 @@
       "schtick": "Schtick"
     },
     "RegionBehavior": {
-      "particleEffects": "DF: Particle Effects"
+      "particleEffects": "DF: Particle Effects",
+      "applySpecial": "Destroyed Faith: Apply Specials"
     }
   },
   "DF_PARTICLE_EFFECTS": {

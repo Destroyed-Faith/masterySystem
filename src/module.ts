@@ -71,6 +71,9 @@ import { registerMinorExpressionsBarSettings } from './system/minor-expressions-
 import { initializeMinorExpressionsBar } from './ui/minor-expressions-bar.js';
 import { registerHealingBarSettings } from './system/healing-bar.js';
 import { initializeHealingBar } from './ui/healing-bar.js';
+import { registerGmEffectsBarSettings } from './system/gm-effects-bar.js';
+import { initializeGmEffectsBar } from './ui/gm-effects-bar.js';
+import { registerApplySpecialRegionBehavior } from './regions/apply-special-behavior.js';
 import { initializeSpecialTokenArea, registerSpecialTokenAreaSettings } from './ui/special-token-area.js';
 import { registerCarouselClientSettings } from './ui/combat-carousel-settings.js';
 import { initializeEncounterStart, beginEncounter, launchLiveCombat } from './combat/encounter-start.js';
@@ -220,6 +223,7 @@ function registerAllMasteryInitSettings(): void {
   registerKnownNpcSettings();
   registerMinorExpressionsBarSettings();
   registerHealingBarSettings();
+  registerGmEffectsBarSettings();
   registerSpecialTokenAreaSettings();
   registerCarouselClientSettings();
 }
@@ -341,7 +345,15 @@ Hooks.once('init', async function() {
   initializeKnownNpcsBar();
   initializeMinorExpressionsBar();
   initializeHealingBar();
+  initializeGmEffectsBar();
   initializeSpecialTokenArea();
+  try {
+    if (registerApplySpecialRegionBehavior()) {
+      console.info('Mastery System | registered Region Behavior "applySpecial"');
+    }
+  } catch (err) {
+    console.warn('Mastery System | Apply Specials Region Behavior registration failed', err);
+  }
 
   // GM-only "Encounter erzeugen" button in the Actors directory header.
   Hooks.on('renderActorDirectory', (_app: any, html: any) => {
@@ -2536,6 +2548,8 @@ async function preloadTemplates() {
     'systems/mastery-system/templates/ui/known-npcs-gm-dialog.hbs',
     'systems/mastery-system/templates/ui/minor-expressions-bar.hbs',
     'systems/mastery-system/templates/ui/healing-bar.hbs',
+    'systems/mastery-system/templates/ui/gm-effects-bar.hbs',
+    'systems/mastery-system/templates/ui/combat-carousel.hbs',
   ];
   
   try {
