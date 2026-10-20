@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.748] - 2026-10-20
+
+### Fixed
+
+- **Combat Raises:** Paid and Free Raise counts are declared before the roll; Damage/Special allocation happens after a successful Final TN hit on the damage card.
+- **Combat Raises:** Unassigned Free/stone Raises are never auto-converted to Damage. Special-only Powers no longer invent Damage Raises.
+- **Combat Raises:** AoE, Split Attack, and Autofire keep one shared allocation for successful targets; misses receive no Raise payload.
+
 ## [0.9.747] - 2026-10-19
 
 ### Fixed

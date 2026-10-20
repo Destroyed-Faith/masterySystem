@@ -21,8 +21,82 @@ import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-
 import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice, listActorSpellFocusSources } from '../utils/artifact-base-values.js';
-import { bindChosenSpecialIntoLevelData, countRaiseSlots, computeTotalRaiseCost, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from '../combat/raise-resolution.js';
-import { RAISE_INCREMENT } from '../utils/constants.js';
+import { bindChosenSpecialIntoLevelData, buildAvailableRaiseOptions, declaredRaiseFromOptionId, isRaiseAllocationComplete, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from '../combat/raise-resolution.js';
+/** Shared Raise allocation for Split / AoE / Autofire of one Power use. */
+const sharedRaiseAllocByKey = new Map();
+function raiseAllocShareKey(flags) {
+    if (!flags)
+        return '';
+    const split = String(flags.splitPairId || '').trim();
+    if (split)
+        return `split:${split}`;
+    if (flags.autofire === true) {
+        return `autofire:${flags.attackerId}:${flags.attackTotal}:${flags.raiseTn}`;
+    }
+    if (flags.aoeMeleeWeapon === true || String(flags.aoeMeleeWeapon) === 'true') {
+        return `aoe:${flags.attackerId}:${flags.attackTotal}:${flags.raiseTn}`;
+    }
+    return '';
+}
+export function rememberSharedRaiseAllocation(key, plan) {
+    const k = String(key || '').trim();
+    if (!k || !plan.length)
+        return;
+    sharedRaiseAllocByKey.set(k, plan.map((r) => ({ ...r })));
+}
+export function peekSharedRaiseAllocation(key) {
+    const k = String(key || '').trim();
+    if (!k)
+        return null;
+    const plan = sharedRaiseAllocByKey.get(k);
+    return plan ? plan.map((r) => ({ ...r })) : null;
+}
+function cloneBaseForDisplay(base) {
+    return {
+        ...base,
+        specials: base.specials.map((s) => ({ ...s })),
+    };
+}
+function buildRaiseAllocPanelHtml(slots, options, preset, locked) {
+    if (slots <= 0 || !options.length)
+        return '';
+    const rows = [];
+    for (let i = 0; i < slots; i++) {
+        const pre = preset[i];
+        const preId = pre?.effect === 'damage'
+            ? 'damage'
+            : pre?.effect === 'specialPlus' && pre.targetSpecialKey
+                ? `special:${pre.targetSpecialKey}`
+                : '';
+        const opts = options
+            .map((o) => {
+            const sel = o.id === preId ? ' selected' : '';
+            return `<option value="${escapeHtmlAttr(o.id)}"${sel}>${escapeHtmlAttr(o.label)}</option>`;
+        })
+            .join('');
+        rows.push(`
+      <div class="raise-alloc-row">
+        <span class="raise-alloc-index">${i + 1}.</span>
+        <select class="raise-alloc-select" data-slot="${i}" ${locked ? 'disabled' : ''}>
+          <option value="">— choose effect —</option>
+          ${opts}
+        </select>
+      </div>`);
+    }
+    return `
+    <div class="raises-section raise-alloc-panel" data-raise-alloc-slots="${slots}" data-raise-alloc-locked="${locked ? '1' : '0'}">
+      <p class="raises-description"><strong>Allocate ${slots} Raise${slots === 1 ? '' : 's'}</strong> (Damage or existing Special). Same Special may receive multiple Raises.</p>
+      <div class="raise-alloc-rows">${rows.join('')}</div>
+      <p class="raise-alloc-preview md-sublabel"></p>
+    </div>`;
+}
+function escapeHtmlAttr(raw) {
+    return String(raw || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
 import { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 import { isTargetedSpecialValidTarget } from '../utils/creature-type.js';
 import { resolveLiveActor, tokenIdOfActor } from '../system/status-target.js';
@@ -578,70 +652,88 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     let shownRaiseDamage = '';
     let shownSpecials = '';
     let resolvedPowerSnapshot = null;
+    let raiseAllocSlots = 0;
+    let raiseAllocOptions = [];
+    let raiseAllocPreset = [];
+    let raiseAllocLocked = false;
     if (flags?.basePowerSnapshot && flags?.raiseOutcome) {
         const masteryRank = actorToUse
             ? getRulesMasteryRank(actorToUse)
             : Math.max(1, Math.floor(Number(flags.masteryRank) || 2));
         const isSpell = !!flags.powerIsSpell;
-        const declaredRaises = Array.isArray(flags.declaredRaises)
+        const baseSnap = flags.basePowerSnapshot;
+        const outcome = flags.raiseOutcome;
+        raiseAllocSlots = Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
+        raiseAllocOptions = Array.isArray(flags.raiseOptions)
+            ? flags.raiseOptions
+            : buildAvailableRaiseOptions(baseSnap, isSpell, {
+                hasWeaponDamage: Math.max(0, Math.floor(Number(flags.weaponDamageDice) || 0)) > 0,
+            });
+        const shareKey = raiseAllocShareKey(flags);
+        const shared = shareKey ? peekSharedRaiseAllocation(shareKey) : null;
+        let declaredRaises = Array.isArray(flags.declaredRaises)
             ? [...flags.declaredRaises]
             : [];
-        // Same safety net as the roll handler: the Raise TN actually rolled
-        // against implies how many Raise slots were declared. If the transported
-        // plan lost entries (fragile DOM attr), pad with default damage Raises so
-        // the Raise Cost is subtracted on a partial outcome.
-        const normalTnFromFlags = Math.max(0, Math.floor(Number(flags.normalTn) || 0));
-        const raiseTnFromFlags = Math.max(0, Math.floor(Number(flags.raiseTn) || 0));
-        const tnImpliedSlots = normalTnFromFlags > 0 && raiseTnFromFlags > normalTnFromFlags
-            ? Math.round((raiseTnFromFlags - normalTnFromFlags) / RAISE_INCREMENT)
-            : 0;
-        for (let i = countRaiseSlots(declaredRaises); i < tnImpliedSlots; i++) {
-            declaredRaises.push({ effect: 'damage', slots: 1 });
+        if (shared?.length) {
+            declaredRaises = shared;
+            raiseAllocLocked = true;
         }
-        const outcome = flags.raiseOutcome;
-        resolvedPowerSnapshot = resolvePowerSnapshot({
-            base: flags.basePowerSnapshot,
-            declaredRaises,
-            outcome,
-            masteryRank,
-            isSpell,
-            stoneBonusRaises: Math.max(0, Number(flags.stoneBonusRaises) || 0),
-            spellCostOverride: flags.spellCostOverride,
-            waiveRaiseCost: !!flags.waiveRaiseCost,
-        });
-        powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
-        const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
-        if (!selectedPowerData) {
-            selectedPowerData = {
-                id: selectedPowerId || 'artifact-power',
-                name: String(flags?.selectedPowerName || flags?.npcAttackName || 'Power'),
-                level: Math.max(1, Number(flags?.selectedPowerLevel) || 1),
-                specials: resolvedSpecials,
-                damage: powerDamage,
-            };
+        else if (declaredRaises.length && isRaiseAllocationComplete(declaredRaises, raiseAllocSlots, raiseAllocOptions)) {
+            raiseAllocLocked = true;
+        }
+        if (String(outcome) !== 'full') {
+            raiseOutcomeLine = 'Miss against Final TN — no damage or Specials.';
+            resolvedPowerSnapshot = null;
+            raiseAllocSlots = 0;
+        }
+        else if (raiseAllocSlots > 0 && !isRaiseAllocationComplete(declaredRaises, raiseAllocSlots, raiseAllocOptions)) {
+            // Hit — wait for post-roll allocation on this card.
+            raiseAllocPreset = declaredRaises;
+            resolvedPowerSnapshot = cloneBaseForDisplay(baseSnap);
+            powerDamage = snapshotToDamageFormula(baseSnap);
+            const baseSpecials = snapshotToSpecialStrings(baseSnap);
+            powerSpecials.length = 0;
+            powerSpecials.push(...baseSpecials);
+            shownPowerDamage = `${baseSnap.damageDice}d8`;
+            shownSpecials = baseSpecials.join(', ');
+            raiseOutcomeLine = `Allocate ${raiseAllocSlots} successful Raise${raiseAllocSlots === 1 ? '' : 's'} before rolling damage.`;
         }
         else {
-            selectedPowerData.damage = powerDamage;
-            selectedPowerData.specials = resolvedSpecials;
-        }
-        powerSpecials.length = 0;
-        powerSpecials.push(...resolvedSpecials);
-        const basePowerDice = Math.max(0, Math.floor(Number(flags.basePowerSnapshot.damageDice) || 0));
-        const resolvedPowerDice = Math.max(0, Math.floor(resolvedPowerSnapshot.damageDice));
-        if (outcome === 'full') {
+            resolvedPowerSnapshot = resolvePowerSnapshot({
+                base: baseSnap,
+                declaredRaises,
+                outcome: 'full',
+                masteryRank,
+                isSpell,
+            });
+            powerDamage = snapshotToDamageFormula(resolvedPowerSnapshot);
+            const resolvedSpecials = snapshotToSpecialStrings(resolvedPowerSnapshot);
+            if (!selectedPowerData) {
+                selectedPowerData = {
+                    id: selectedPowerId || 'artifact-power',
+                    name: String(flags?.selectedPowerName || flags?.npcAttackName || 'Power'),
+                    level: Math.max(1, Number(flags?.selectedPowerLevel) || 1),
+                    specials: resolvedSpecials,
+                    damage: powerDamage,
+                };
+            }
+            else {
+                selectedPowerData.damage = powerDamage;
+                selectedPowerData.specials = resolvedSpecials;
+            }
+            powerSpecials.length = 0;
+            powerSpecials.push(...resolvedSpecials);
+            const basePowerDice = Math.max(0, Math.floor(Number(baseSnap.damageDice) || 0));
+            const resolvedPowerDice = Math.max(0, Math.floor(resolvedPowerSnapshot.damageDice));
             shownPowerDamage = `${basePowerDice}d8`;
             const extra = resolvedPowerDice - basePowerDice;
             if (extra > 0)
                 shownRaiseDamage = `+${extra}d8`;
             shownSpecials = resolvedSpecials.join(', ');
             raiseOutcomeLine = '';
-        }
-        else if (outcome === 'partial') {
-            const lostCost = flags.waiveRaiseCost
-                ? 0
-                : computeTotalRaiseCost(paidRaiseSlots(declaredRaises), masteryRank);
-            shownPowerDamage = `${resolvedPowerDice}d8`;
-            raiseOutcomeLine = lostCost > 0 ? `Raise verfehlt, −${lostCost}d8` : 'Raise verfehlt';
+            raiseAllocPreset = declaredRaises;
+            if (raiseAllocSlots > 0)
+                raiseAllocLocked = true;
         }
     }
     const specialBoost = readSpecialBoost(actorToUse);
@@ -761,7 +853,12 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             weaponName: weaponDisplayName,
             spellFocusSources,
             castingNoWeapon: !!flags?.ignoreWeaponDamage,
-        }, formatSplitStrikeBanner(flags));
+        }, formatSplitStrikeBanner(flags), {
+            slots: raiseAllocSlots,
+            options: raiseAllocOptions,
+            preset: raiseAllocPreset,
+            locked: raiseAllocLocked,
+        });
         const targetTokenId = tokenIdOfActor(target, flags?.targetTokenId) || null;
         const chatData = {
             user: game.user?.id,
@@ -783,6 +880,18 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     raiseOutcome: flags?.raiseOutcome ?? null,
                     raiseOutcomeLine,
                     resolvedPowerSnapshot,
+                    basePowerSnapshot: flags?.basePowerSnapshot ?? null,
+                    raiseOptions: raiseAllocOptions,
+                    successfulRaiseSlots: raiseAllocSlots,
+                    declaredRaises: raiseAllocPreset,
+                    freeRaiseSlots: Math.max(0, Math.floor(Number(flags?.freeRaiseSlots) || 0)),
+                    declaredRaiseSlots: Math.max(0, Math.floor(Number(flags?.declaredRaiseSlots) || 0)),
+                    raiseTn: flags?.raiseTn ?? null,
+                    aoeMeleeWeapon: flags?.aoeMeleeWeapon ?? null,
+                    autofire: flags?.autofire ?? null,
+                    powerIsSpell: !!flags?.powerIsSpell,
+                    weaponDamageDice: flags?.weaponDamageDice ?? null,
+                    masteryRank: flags?.masteryRank ?? null,
                     stoneDamageBonusDice,
                     availableSpecials,
                     weaponSpecials,
@@ -826,10 +935,16 @@ function formatSplitStrikeBanner(flags) {
     const title = powerName || `${attackKind} Split Attack`;
     return `${title} — Strike ${idx} of 2`;
 }
-function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}, splitBanner = '') {
-    const raisesSection = raiseOutcomeLine
-        ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
-        : '';
+function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = [], raiseOutcomeLine = '', targetMarkValue = 0, hitSplit = {}, splitBanner = '', raiseAlloc = {}) {
+    const allocPanel = buildRaiseAllocPanelHtml(Math.max(0, Math.floor(Number(raiseAlloc.slots) || 0)), Array.isArray(raiseAlloc.options) ? raiseAlloc.options : [], Array.isArray(raiseAlloc.preset) ? raiseAlloc.preset : [], !!raiseAlloc.locked);
+    const raisesSection = [
+        raiseOutcomeLine
+            ? `<div class="raises-section raise-outcome-line"><p>${damageCardHtmlEsc(raiseOutcomeLine)}</p></div>`
+            : '',
+        allocPanel,
+    ]
+        .filter(Boolean)
+        .join('');
     const targetWard = getIncomingWardTotal(target);
     const hasIncomingSpecials = !!(hitSplit.specials ||
         (Array.isArray(availableSpecials) && availableSpecials.length > 0) ||
@@ -968,6 +1083,19 @@ export function attachDamageCardHandlers(messageId) {
         console.warn('Mastery System | Could not find damage card message element', messageId);
         return;
     }
+    const allocPanel = messageElement.find('.raise-alloc-panel');
+    if (allocPanel.length && allocPanel.attr('data-raise-alloc-locked') !== '1') {
+        const refreshAllocPreview = () => {
+            const slots = Math.max(0, Math.floor(Number(allocPanel.attr('data-raise-alloc-slots')) || 0));
+            const chosen = allocPanel.find('.raise-alloc-select').toArray().map((el) => String($(el).val() || ''));
+            const filled = chosen.filter(Boolean).length;
+            allocPanel
+                .find('.raise-alloc-preview')
+                .text(filled >= slots ? 'Allocation complete.' : `Choose ${slots - filled} more Raise effect${slots - filled === 1 ? '' : 's'}.`);
+        };
+        allocPanel.find('.raise-alloc-select').off('change.msRaiseAlloc').on('change.msRaiseAlloc', refreshAllocPreview);
+        refreshAllocPreview();
+    }
     messageElement.find('.roll-damage-btn').off('click.msRollDamage').on('click.msRollDamage', async function () {
         const $btn = $(this);
         const lockKey = `roll-dmg:${messageId}`;
@@ -989,7 +1117,7 @@ export function attachDamageCardHandlers(messageId) {
                 return;
             }
             // Get flags early so we can use targetTokenId for target resolution
-            const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
+            let flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
             const attackerId = $btn.data('attacker-id');
             const targetId = $btn.data('target-id');
             const attacker = resolveLiveActor(attackerId, flags?.attackerTokenId) || game.actors?.get(attackerId);
@@ -1014,6 +1142,97 @@ export function attachDamageCardHandlers(messageId) {
                 ui.notifications?.error('Could not find damage card data');
                 return;
             }
+            // Post-roll Raise allocation (required before damage when slots remain).
+            const needSlots = Math.max(0, Math.floor(Number(flags.successfulRaiseSlots) || 0));
+            const raiseOptions = Array.isArray(flags.raiseOptions) ? flags.raiseOptions : [];
+            let allocatedPlan = Array.isArray(flags.declaredRaises)
+                ? [...flags.declaredRaises]
+                : [];
+            const shareKey = raiseAllocShareKey(flags);
+            const shared = shareKey ? peekSharedRaiseAllocation(shareKey) : null;
+            if (shared?.length)
+                allocatedPlan = shared;
+            if (needSlots > 0 && flags.raiseOutcome === 'full' && flags.basePowerSnapshot) {
+                if (!isRaiseAllocationComplete(allocatedPlan, needSlots, raiseOptions)) {
+                    const fromUi = [];
+                    messageElement.find('.raise-alloc-select').each((_i, el) => {
+                        const id = String($(el).val() || '');
+                        if (!id)
+                            return;
+                        const dr = declaredRaiseFromOptionId(id, raiseOptions);
+                        if (dr)
+                            fromUi.push(dr);
+                    });
+                    if (!isRaiseAllocationComplete(fromUi, needSlots, raiseOptions)) {
+                        ui.notifications?.warn('Allocate every successful Raise before rolling damage.');
+                        return;
+                    }
+                    allocatedPlan = fromUi;
+                }
+                if (shareKey)
+                    rememberSharedRaiseAllocation(shareKey, allocatedPlan);
+                const mr = attacker
+                    ? getRulesMasteryRank(attacker)
+                    : Math.max(1, Math.floor(Number(flags.masteryRank) || 2));
+                const resolved = resolvePowerSnapshot({
+                    base: flags.basePowerSnapshot,
+                    declaredRaises: allocatedPlan,
+                    outcome: 'full',
+                    masteryRank: mr,
+                    isSpell: !!flags.powerIsSpell,
+                });
+                const resolvedSpecials = snapshotToSpecialStrings(resolved);
+                // On-hit application reads `effect` / `name` strings (e.g. "Lacerate(5)"),
+                // not bare numeric `value` — keep labels in sync with allocated Raises.
+                const avail = Array.isArray(flags.availableSpecials)
+                    ? flags.availableSpecials.map((s) => ({ ...s }))
+                    : [];
+                for (const label of resolvedSpecials) {
+                    const m = String(label).match(/^([^(]+)\((\d+)\)$/);
+                    if (!m)
+                        continue;
+                    const name = m[1].trim();
+                    const rank = parseInt(m[2], 10);
+                    const hit = avail.find((s) => {
+                        const raw = String(s?.effect || s?.name || '').trim();
+                        const base = raw.replace(/\(\d+\)\s*$/, '').trim().toLowerCase();
+                        return base === name.toLowerCase() || raw.toLowerCase().startsWith(name.toLowerCase());
+                    });
+                    if (hit) {
+                        hit.value = rank;
+                        hit.name = label;
+                        hit.effect = label;
+                        if (hit.type === 'power-special') {
+                            hit.description = `Power special: ${label}`;
+                        }
+                    }
+                    else {
+                        avail.push({
+                            id: `power-special-${name.toLowerCase().replace(/\s+/g, '-')}`,
+                            name: label,
+                            type: 'power-special',
+                            description: `Power special: ${label}`,
+                            effect: label,
+                            value: rank,
+                        });
+                    }
+                }
+                flags = {
+                    ...flags,
+                    declaredRaises: allocatedPlan,
+                    powerDamage: snapshotToDamageFormula(resolved),
+                    resolvedPowerSnapshot: resolved,
+                    availableSpecials: avail,
+                };
+                try {
+                    await message.setFlag?.('mastery-system', 'declaredRaises', allocatedPlan);
+                    await message.setFlag?.('mastery-system', 'powerDamage', flags.powerDamage);
+                    await message.setFlag?.('mastery-system', 'resolvedPowerSnapshot', resolved);
+                }
+                catch {
+                    /* best-effort */
+                }
+            }
             // Roll vs Roll Maximum — no confirm dialog. Button click is the decision.
             activeDamageMaximized = false;
             const wantMax = String($btn.attr('data-maximize') ?? $btn.data('maximize') ?? '0') === '1';
@@ -1029,7 +1248,6 @@ export function attachDamageCardHandlers(messageId) {
                     console.debug?.('Mastery System | Damage Maximization spend skipped', err);
                 }
             }
-            // Raise effects are pre-declared on the attack card — no post-roll picker.
             const raiseSelections = new Map();
             // Mark spend is chosen AFTER the roll via a post-roll prompt inside
             // calculateDamageResult (exact "total → new total" options per spend).

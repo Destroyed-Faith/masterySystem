@@ -2,6 +2,9 @@
  * Damage Dialog for Mastery System
  * Appears after successful attack roll to calculate and apply damage
  */
+import { type DeclaredRaise } from '../combat/raise-resolution.js';
+export declare function rememberSharedRaiseAllocation(key: string, plan: DeclaredRaise[]): void;
+export declare function peekSharedRaiseAllocation(key: string): DeclaredRaise[] | null;
 export { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 /**
  * Re-attach Roll / Cancel listeners when the log re-renders (Foundry v13

@@ -29,7 +29,7 @@
  * UI integration (chat cards / dialogs) can build on top of these
  * primitives without re-deriving any thresholds.
  */
-import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
+import { resolveDeclaredRaiseBands } from '../combat/raise-resolution.js';
 export const SOCIAL_COMBAT_DEFAULT_BASE_TN = 16;
 export const SOCIAL_COMBAT_RAISE_TN_INCREMENT = 4;
 /** Players Guide 5096–5100. */
@@ -76,7 +76,8 @@ export function phaseTnWithRaises(baseTn, raises) {
 }
 /** Resolve a Lead roll under the dual-TN Raise rules. */
 export function resolveLeadRollOutcome(total, normalTn, declaredRaises) {
-    const raiseOutcome = resolveRaiseOutcome(total, normalTn, declaredRaises);
+    // Social keeps Base TN vs Raise TN bands (not combat's all-or-nothing Final TN).
+    const raiseOutcome = resolveDeclaredRaiseBands(total, normalTn, declaredRaises);
     const success = raiseOutcome !== 'fail';
     const raises = raiseOutcome === 'full' ? Math.max(0, Math.floor(declaredRaises)) : 0;
     return { success, raises, raiseOutcome };

@@ -161,7 +161,7 @@ export async function rollSpell(params) {
         (Number(gmModifier) || 0);
     const effectiveSr = target && !supportMode ? spellResistanceAfterPenetration(target, actor) : 0;
     const baseTn = spellBase + effectiveSr;
-    const { raiseTn } = computeRaiseTns(baseTn, raiseSlots);
+    const { raiseTn, finalTn } = computeRaiseTns(baseTn, raiseSlots);
     // HP cost for Blood Raises fires *before* the roll per the SRD wording.
     let bloodHpLost = 0;
     if (bloodApplied > 0) {
@@ -170,8 +170,7 @@ export async function rollSpell(params) {
     const label = `Cast ${spellName} (Lvl ${spellLevel})`;
     const autoFlavor = [
         flavor,
-        `Spell — Casting TN ${baseTn}${supportMode ? ' (support)' : ''}`,
-        raiseSlots > 0 ? `+${raiseSlots} Raise${raiseSlots === 1 ? '' : 's'} (Raise TN ${raiseTn})` : undefined,
+        `Spell — Base TN ${spellBase}${supportMode ? ' (support)' : ''}; Final TN ${finalTn}${raiseSlots > 0 ? ` (+${raiseSlots} Paid Raise${raiseSlots === 1 ? '' : 's'})` : ''}`,
         bloodApplied > 0 ? `Blood Raises: ${bloodApplied} (−${bloodHpLost} HP)` : undefined,
         gmModifier ? `GM ${gmModifier > 0 ? '+' : ''}${gmModifier}` : undefined,
     ]
@@ -181,9 +180,9 @@ export async function rollSpell(params) {
         numDice,
         keepDice,
         skill: 0,
-        tn: baseTn,
+        tn: finalTn,
         normalTn: baseTn,
-        raiseTn,
+        raiseTn: finalTn,
         declaredRaiseSlots: raiseSlots,
         label,
         flavor: autoFlavor,
@@ -207,16 +206,17 @@ export async function rollSpell(params) {
     catch {
         /* ignore */
     }
+    // Spell Base TN only decides fizzle. Payload requires the raised Final TN.
     const raiseOutcome = resolveRaiseOutcome(adjustedTotal, baseTn, raiseSlots, raiseTnRollBonus);
     const fizzled = adjustedTotal < spellBase;
-    const success = !fizzled && raiseOutcome !== 'fail';
+    const success = !fizzled && raiseOutcome === 'full';
     const raises = raiseOutcome === 'full' ? raiseSlots : 0;
     const stressTaken = 0;
     return {
         castingRoll,
         baseTn,
-        raiseTn,
-        finalTn: raiseSlots > 0 ? raiseTn : baseTn,
+        raiseTn: finalTn,
+        finalTn,
         declaredRaises: raiseSlots,
         raiseOutcome,
         bloodRaises: bloodApplied,

@@ -59,7 +59,7 @@ export declare function aoeCreatureNormalTn(params: {
 }): number;
 /**
  * Hit check for one creature against a shared AoE roll.
- * Declared Raises add +4 per slot to that creature's TN (same as single-target).
+ * Final TN = Base TN + (Paid Raises × 4) is the only success threshold.
  */
 export declare function aoeCreatureHitCheck(params: {
     attackTotal: number;
@@ -68,6 +68,7 @@ export declare function aoeCreatureHitCheck(params: {
 }): {
     hit: boolean;
     raiseTn: number;
+    finalTn: number;
 };
 /**
  * Apply full printed payload to one AoE target via the normal damage dialog.

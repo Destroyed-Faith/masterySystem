@@ -102,14 +102,13 @@ export async function resolveAutofireChain(params) {
                 willing: flags.willingSpellTarget === true,
             })
             : getTargetEvade(defender);
-        const defenseName = isSpell ? 'Final Spell TN' : 'Evade';
-        const raiseTn = raiseSlots > 0 ? normalTn + raiseSlots * RAISE_INCREMENT : normalTn;
-        const hit = attackTotal >= normalTn;
+        const finalTn = raiseSlots > 0 ? normalTn + raiseSlots * RAISE_INCREMENT : normalTn;
+        const hit = attackTotal >= finalTn;
         if (!hit) {
             await ChatMessage.create({
                 user: game.user?.id,
                 speaker: ChatMessage.getSpeaker({ actor: attacker }),
-                content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): miss (roll ${attackTotal} vs ${defenseName} ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}). <strong>Chain ends.</strong></p>`,
+                content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): miss (roll ${attackTotal} vs Final TN ${finalTn}${raiseSlots > 0 ? ` = ${normalTn} + ${raiseSlots}×${RAISE_INCREMENT}` : ''}). <strong>Chain ends.</strong></p>`,
             });
             if (!isSpell) {
                 try {
@@ -130,15 +129,20 @@ export async function resolveAutofireChain(params) {
         await ChatMessage.create({
             user: game.user?.id,
             speaker: ChatMessage.getSpeaker({ actor: attacker }),
-            content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): hit (roll ${attackTotal} vs ${defenseName} ${normalTn}).</p>`,
+            content: `<p><strong>Autofire</strong> → <strong>${defender.name}</strong> (#${i + 1}): HIT (roll ${attackTotal} vs Final TN ${finalTn}).</p>`,
         });
+        const paidSlots = Math.max(0, Math.floor(Number(raiseSlots) || 0));
+        const freeSlots = Math.max(0, Math.floor(Number(flags.freeRaiseSlots) || 0));
         const creatureFlags = {
             ...flags,
-            raiseOutcome: raiseSlots > 0 && attackTotal < raiseTn
-                ? 'partial'
-                : flags.raiseOutcome === 'fail'
-                    ? 'partial'
-                    : flags.raiseOutcome || 'full',
+            raiseOutcome: 'full',
+            normalTn,
+            raiseTn: finalTn,
+            declaredRaiseSlots: paidSlots,
+            freeRaiseSlots: freeSlots,
+            successfulRaiseSlots: paidSlots + freeSlots,
+            declaredRaises: Array.isArray(flags.declaredRaises) ? flags.declaredRaises : [],
+            stoneBonusRaises: 0,
             autofire: true,
         };
         const outcome = await resolveAoeFullPayloadOnTarget({
@@ -148,7 +152,7 @@ export async function resolveAutofireChain(params) {
             weaponId,
             flags: creatureFlags,
             attackTotal,
-            evadeTn: normalTn,
+            evadeTn: finalTn,
             allowDiveForCover: false,
         });
         // Reaction: Evade that turns a hit into a miss ends the Autofire chain.

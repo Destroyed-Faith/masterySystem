@@ -9,7 +9,7 @@
  * Stones are Sealed on the attempt (success or failure) until Safe Haven Rest.
  * Any Stone color may pay the cost.
  */
-import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
+import { resolveDeclaredRaiseBands } from '../combat/raise-resolution.js';
 import { standardTnForMasteryRank } from './constants.js';
 export const RITUAL_CATEGORY_LABELS = {
     physical: 'Physical',
@@ -74,7 +74,7 @@ export function ritualMaxRaise(ritual) {
 /** Declared-raise resolution: fail / Raise 0 only / full declared level. */
 export function resolveRitualDeclaredOutcome(opts) {
     const declared = Math.max(0, Math.floor(Number(opts.declaredRaises) || 0));
-    const outcome = resolveRaiseOutcome(opts.rollTotal, opts.baseTn, declared);
+    const outcome = resolveDeclaredRaiseBands(opts.rollTotal, opts.baseTn, declared);
     if (outcome === 'fail')
         return { success: false, appliedRaise: 0, kind: 'fail' };
     if (outcome === 'partial')

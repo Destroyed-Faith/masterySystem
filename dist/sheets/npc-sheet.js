@@ -5,7 +5,7 @@
 import { MasteryCharacterSheet } from './character-sheet.js';
 import { writeActorStatusList } from '../system/assign-status.js';
 import { ALL_SPECIAL_EFFECTS, getEffectBaseName, } from '../utils/special-effects.js';
-import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, buildNpcIndexedListPatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, NPC_REACTIONS_UPDATE, } from '../utils/npc-attack-model.js';
+import { coerceNpcPhasesArray, coerceNpcAttackSpecials, defaultNpcHealth, displayNpcSpecialName, ensureNpcHealthState, npcHealthHasBars, sumNpcAttackSlotsFromPowers, resolveNpcAttackSlots, clampNpcAttackSlots, sanitizeNpcSystemAttackTargeting, mergeNpcAttackValueLists, mergeNpcAttackRowSpecials, isValidNpcAttackWritePath, buildNpcPhasesReplacePatch, buildNpcAttackValuesReplacePatch, NPC_EXTRA_POWERS_UPDATE, NPC_ATTACK_SPECIALS_UPDATE, NPC_REACTIONS_UPDATE, } from '../utils/npc-attack-model.js';
 import { coerceStatusEffectsArray, readActorStatusEffects, reduceStatusEffectAt, statusEntryId, } from '../system/active-specials.js';
 import { buildNpcSkillGroups, SKILLS } from '../utils/skills.js';
 import { buildSkillRollPoolPreview, skillFullPoolThreshold, } from '../dice/roll-context-build.js';
@@ -42,7 +42,7 @@ function coerceNpcSkillsRecord(submitted, existing) {
 import { clampNpcInitiativeModifier, splitNpcInitiativeModifier, } from '../utils/npc-initiative.js';
 import { openNpcPrintSheet } from './npc-print.js';
 import { copyDocumentImageLink } from '../ui/image-url-share.js';
-import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
+import { makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { creatureTypeSelectOptions } from '../utils/creature-type.js';
 import { NPC_STANDARD_REACTIONS, clampNpcReactionSlots, coerceNpcReactionsArray, isNpcCounterattackRow, omitNpcCounterattackRows, listNpcCatalogReactions, newCatalogNpcReaction, newCustomNpcReaction, newStandardNpcReaction, } from '../utils/npc-reactions.js';
 import { isKnownNpcReleased, toggleKnownNpc } from '../system/known-npcs.js';
@@ -348,6 +348,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
      * use this snapshot — otherwise a racing submit restores the deleted row.
      */
     #npcReactionWriteLock = null;
+    #npcReactionDeleteAbort = null;
     /** @override */
     static DEFAULT_OPTIONS = {
         classes: ['npc'],
@@ -384,6 +385,14 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             'toggle-known-npc': function (event) {
                 event.preventDefault();
                 void this.#onToggleKnownNpc();
+            },
+            deleteNpcReaction: function (event, target) {
+                event.preventDefault();
+                event.stopPropagation();
+                const btn = target?.closest?.('.npc-reaction-delete');
+                if (!btn || btn.dataset.msReactionDeleting === '1')
+                    return;
+                void this.#onNpcReactionDeleteFrom(btn);
             },
         },
     };
@@ -1229,11 +1238,25 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         html.find('.npc-reaction-add-custom').on('click', this.#onNpcReactionAddCustom.bind(this));
         html.find('.npc-reaction-add-standard').on('click', this.#onNpcReactionAddStandard.bind(this));
         html.find('.npc-reaction-add-catalog').on('click', this.#onNpcReactionAddCatalog.bind(this));
-        // pointerdown: a Foundry tooltip between mousedown and mouseup swallows click,
-        // so the trash button looked dead.
-        bindReliableControlClick(html, '.npc-reaction-delete', (ev) => {
-            void this.#onNpcReactionDelete(ev);
-        });
+        // Capture on the sheet root: a delegated click/pointerdown never reached this
+        // button (hover still painted it), so the trash looked dead.
+        this.#npcReactionDeleteAbort?.abort();
+        this.#npcReactionDeleteAbort = new AbortController();
+        const reactionRoot = (html[0] ?? html);
+        reactionRoot?.addEventListener('pointerdown', (ev) => {
+            const target = ev.target;
+            const btn = target instanceof Element
+                ? target.closest('.npc-reaction-delete')
+                : null;
+            if (!btn || !reactionRoot.contains(btn))
+                return;
+            const pe = ev;
+            if (typeof pe.button === 'number' && pe.button !== 0)
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            void this.#onNpcReactionDeleteFrom(btn);
+        }, { capture: true, signal: this.#npcReactionDeleteAbort.signal });
         void this.#purgeNpcCounterattackRows();
         html.find('.npc-reaction-catalog-filter').on('input', (ev) => {
             const input = ev.currentTarget;
@@ -1712,10 +1735,28 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             return;
         await this.#mutateNpcReactions('', (list) => list.filter((row) => !isNpcCounterattackRow(row)));
     }
+    /** Drop object-shaped leftovers after the array itself has been replaced. */
+    async #deleteNpcListTail(pathPrefix, previousRaw, nextLength) {
+        let prevMax = -1;
+        if (Array.isArray(previousRaw))
+            prevMax = previousRaw.length - 1;
+        else if (previousRaw && typeof previousRaw === 'object') {
+            for (const key of Object.keys(previousRaw)) {
+                if (/^\d+$/.test(key))
+                    prevMax = Math.max(prevMax, Number(key));
+            }
+        }
+        if (prevMax < nextLength)
+            return;
+        const patch = {};
+        for (let i = nextLength; i <= prevMax; i++)
+            patch[`${pathPrefix}.-=${i}`] = null;
+        await this.actor.update(patch, { [NPC_REACTIONS_UPDATE]: true, diff: false });
+    }
     async #mutateNpcReactions(phaseRaw, mutator, extra, updateOptions) {
         const system = this.actor.system;
-        // diff:false so Foundry does not expand-away `-=N` deletion keys.
-        // Index writes only — assigning the whole array in the same update drops them.
+        // diff:false writes the shortened array as-is. A normal diff keeps the
+        // deleted index, so the row came straight back.
         const reactionsOpt = { [NPC_REACTIONS_UPDATE]: true, diff: false, ...(updateOptions || {}) };
         const phaseIndex = phaseRaw !== undefined && phaseRaw !== null && String(phaseRaw) !== ''
             ? Number(phaseRaw)
@@ -1727,7 +1768,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             const previousRows = phases[phaseIndex].npcReactions;
             const rows = mutator(coerceNpcReactionsArray(previousRows));
             const patch = {
-                ...buildNpcIndexedListPatch(`system.phases.${phaseIndex}.npcReactions`, previousRows, rows),
+                [`system.phases.${phaseIndex}.npcReactions`]: rows,
             };
             if (extra?.slots != null) {
                 patch[`system.phases.${phaseIndex}.npcReactionSlots`] = extra.slots;
@@ -1738,6 +1779,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             this.#npcReactionWriteLock = { phaseIndex, rows };
             try {
                 await this.actor.update(patch, reactionsOpt);
+                await this.#deleteNpcListTail(`system.phases.${phaseIndex}.npcReactions`, previousRows, rows.length);
             }
             catch (err) {
                 this.#npcReactionWriteLock = null;
@@ -1749,7 +1791,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const previousRows = system.npcReactions;
         const rows = mutator(coerceNpcReactionsArray(previousRows));
         const patch = {
-            ...buildNpcIndexedListPatch('system.npcReactions', previousRows, rows),
+            'system.npcReactions': rows,
         };
         if (extra?.slots != null)
             patch['system.npcReactionSlots'] = extra.slots;
@@ -1759,6 +1801,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         this.#npcReactionWriteLock = { phaseIndex: null, rows };
         try {
             await this.actor.update(patch, reactionsOpt);
+            await this.#deleteNpcListTail('system.npcReactions', previousRows, rows.length);
         }
         catch (err) {
             this.#npcReactionWriteLock = null;
@@ -1811,17 +1854,16 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             return [...rows, row];
         });
     }
-    async #onNpcReactionDelete(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        const btn = event.currentTarget;
+    async #onNpcReactionDeleteFrom(btn) {
+        if (btn.dataset.msReactionDeleting === '1')
+            return;
         const card = btn.closest('.npc-reaction-card') ||
             btn.closest('[data-reaction-index]');
         // Prefer dataset on the card — jQuery .data() can cache stale values.
         const index = parseInt(String(card?.dataset.reactionIndex ?? btn.dataset.reactionIndex ?? '-1'), 10);
         if (!Number.isFinite(index) || index < 0)
             return;
+        btn.dataset.msReactionDeleting = '1';
         const phaseRaw = card?.dataset.phaseIndex ?? btn.dataset.phaseIndex;
         // Lock the shortened list *before* DOM surgery — remove() can flush a form
         // submit that would otherwise merge with the still-long actor list.

@@ -1006,6 +1006,33 @@
   width: 100%;
 }
 
+#chat-log .mastery-attack-card .raise-count-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+#chat-log .mastery-attack-card .raise-count-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--df-text-muted);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#chat-log .mastery-attack-card .raise-paid-count,
+#chat-log .mastery-attack-card .raise-free-count {
+  width: 4.5rem;
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: var(--df-text-primary);
+}
+
 #chat-log .mastery-attack-card .raise-plan-live {
   font-weight: 700;
   color: #ffd166;
@@ -1195,6 +1222,43 @@
   font-size: 0.8rem;
   font-family: 'Cormorant Garamond', serif;
   margin-bottom: 10px;
+}
+
+#chat-log .mastery-damage-card .raise-alloc-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+#chat-log .mastery-damage-card .raise-alloc-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+#chat-log .mastery-damage-card .raise-alloc-index {
+  flex: 0 0 auto;
+  color: var(--df-text-muted);
+  font-size: 0.8rem;
+  min-width: 1.4rem;
+}
+
+#chat-log .mastery-damage-card .raise-alloc-select {
+  flex: 1 1 auto;
+  width: 100%;
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-damage-card .raise-alloc-preview {
+  margin: 0.35rem 0 0;
+  color: #ffd166;
+  font-size: 0.8rem;
 }
 
 #chat-log .mastery-damage-card .raise-item {

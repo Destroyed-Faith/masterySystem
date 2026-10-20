@@ -29,7 +29,6 @@
  * UI integration (chat cards / dialogs) can build on top of these
  * primitives without re-deriving any thresholds.
  */
-import { type RaiseOutcome } from '../combat/raise-resolution.js';
 export declare const SOCIAL_COMBAT_DEFAULT_BASE_TN = 16;
 export declare const SOCIAL_COMBAT_RAISE_TN_INCREMENT = 4;
 /** Players Guide 5096–5100. */
@@ -90,7 +89,7 @@ export interface PhaseLeadRollResult {
     tn: number;
     total: number;
     success: boolean;
-    raiseOutcome: RaiseOutcome;
+    raiseOutcome: 'fail' | 'partial' | 'full';
     /** Raises credited only on full Raise success. */
     raises: number;
 }

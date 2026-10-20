@@ -10,7 +10,7 @@
  * Any Stone color may pay the cost.
  */
 
-import { resolveRaiseOutcome } from '../combat/raise-resolution.js';
+import { resolveDeclaredRaiseBands } from '../combat/raise-resolution.js';
 import { standardTnForMasteryRank } from './constants.js';
 
 export type RitualSkillCategory =
@@ -120,7 +120,7 @@ export function resolveRitualDeclaredOutcome(opts: {
   declaredRaises: number;
 }): RitualDeclaredOutcome {
   const declared = Math.max(0, Math.floor(Number(opts.declaredRaises) || 0));
-  const outcome = resolveRaiseOutcome(opts.rollTotal, opts.baseTn, declared);
+  const outcome = resolveDeclaredRaiseBands(opts.rollTotal, opts.baseTn, declared);
   if (outcome === 'fail') return { success: false, appliedRaise: 0, kind: 'fail' };
   if (outcome === 'partial') return { success: true, appliedRaise: 0, kind: 'raise0' };
   return { success: true, appliedRaise: declared, kind: 'full' };

@@ -677,10 +677,12 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       declaredRaiseSlots,
       raiseTnRollBonus,
     );
-    success = raiseOutcome !== 'fail';
+    success = raiseOutcome === 'full';
     raises =
       raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
   }
+  // Power combat: the decisive TN is Final TN (Base + Paid Raises × 4).
+  const reportedTn = raiseModel === 'power' ? raiseTnVal : normalTnVal;
   // Create result object
   const result: MasteryRollResult & {
     keptIndices?: number[];
@@ -695,7 +697,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     kept: keptValues,
     keptIndices: keptIndices,
     skill,
-    tn: normalTnVal,
+    tn: reportedTn,
     raises,
     success,
     exploded,
@@ -978,25 +980,27 @@ async function sendRollToChat(
             </div>
           </div>
           
-          ${result.tn > 0 || (result as any).raiseTn > result.tn ? `
+          ${result.tn > 0 || (result as any).raiseTn > 0 ? `
             <div class="roll-result ${successClass}">
               <div class="result-line">
-                <span>Normal TN:</span>
-                <span class="value">${result.tn}</span>
+                <span>Final TN:</span>
+                <span class="value">${(result as any).raiseTn || result.tn}</span>
               </div>
-              ${(result as any).raiseTn > result.tn ? `
-              <div class="result-line">
-                <span>Raise TN:</span>
-                <span class="value">${(result as any).raiseTn}</span>
+              ${(result as any).normalTn != null && (result as any).raiseTn > (result as any).normalTn ? `
+              <div class="result-line md-sublabel">
+                <span>Base TN:</span>
+                <span class="value">${(result as any).normalTn} (+${Math.round((((result as any).raiseTn - (result as any).normalTn) / 4))} Paid Raise)</span>
               </div>` : ''}
               <div class="result-line">
                 <span><strong>Result:</strong></span>
                 <span class="value"><strong>${
-                  (result as any).raiseOutcome === 'partial'
-                    ? 'SUCCESS (Raise failed)'
-                    : result.success
+                  result.success
+                    ? isSkillRoll
                       ? 'SUCCESS'
-                      : 'FAILURE'
+                      : 'HIT'
+                    : isSkillRoll
+                      ? 'FAILURE'
+                      : 'MISS'
                 }</strong></span>
               </div>
               ${result.raises > 0 ? `

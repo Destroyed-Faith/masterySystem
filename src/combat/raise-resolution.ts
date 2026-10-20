@@ -1,8 +1,10 @@
 /**
- * Raise resolution — Players Guide Raise rules.
+ * Combat Raise resolution — Players Guide Universal Combat Raise Catalog.
  *
- * Declared Raises create a Raise TN (+4 each) while Normal TN stays fixed.
- * Raise Cost is paid before the roll; restored only on full Raise success.
+ * One decisive Final TN per target:
+ *   Final TN = Applicable Base TN + (Paid Raises × 4)
+ * Free Raises do not increase TN. Meeting the Final TN is the only hit path —
+ * there is no "hit Normal TN / Raises Failed" partial outcome.
  */
 
 import { RAISE_INCREMENT } from '../utils/constants.js';
@@ -21,7 +23,8 @@ export type RaiseEffectKind =
   | 'aoeRadiusPlus'
   | 'durationPlus';
 
-export type RaiseOutcome = 'fail' | 'partial' | 'full';
+/** Combat outcomes: miss the Final TN, or hit with all declared Raises. */
+export type RaiseOutcome = 'fail' | 'full';
 
 export interface PowerSpecialEntry {
   key: string;
@@ -44,18 +47,17 @@ export interface DeclaredRaise {
   targetSpecialKey?: string;
   /** Raise slots consumed (1 or 2 per option). */
   slots: 1 | 2;
-  /** GM marked this one Raise free. The others still pay. */
+  /** Free Raise (Intellect): no TN increase. */
   free?: boolean;
-  /** Printed rank turned on by a Special Raise. Not added on top of MR. */
+  /** Printed rank shown in the Raise menu. */
   printedRank?: number;
   /** Attack-card label, so the table can see which Raise was picked. */
   label?: string;
 }
 
+/** @deprecated Combat Raises have no Raise Cost. Kept for legacy call sites. */
 export interface RaiseCostAllocation {
-  /** d8 removed from damage pool for spell mixed cost. */
   damageDice: number;
-  /** Special rank value removed, keyed by special key. */
   specialByKey: Record<string, number>;
 }
 
@@ -64,7 +66,6 @@ export interface RaiseOption {
   label: string;
   effect: RaiseEffectKind;
   targetSpecialKey?: string;
-  /** Printed rank this Raise turns on. A Special is off until this Raise. */
   printedRank?: number;
   slots: 1 | 2;
 }
@@ -72,14 +73,17 @@ export interface RaiseOption {
 export interface ResolvePowerSnapshotParams {
   base: PowerSnapshot;
   declaredRaises: DeclaredRaise[];
-  outcome: RaiseOutcome;
+  outcome: RaiseOutcome | 'partial' | string;
   masteryRank: number;
   isSpell: boolean;
-  /** Free bonus raise effects on full success (stones). */
+  /**
+   * @deprecated Do not use for combat. Unassigned Free Raises must be allocated
+   * explicitly — never auto-converted to Damage.
+   */
   stoneBonusRaises?: number;
-  /** Player-chosen spell raise cost split (from attack card). */
+  /** @deprecated Ignored — Combat Raises have no Raise Cost. */
   spellCostOverride?: RaiseCostAllocation;
-  /** GM / NPC: do not strip damage or specials to pay Raise Cost. */
+  /** @deprecated Ignored — Combat Raises have no Raise Cost. */
   waiveRaiseCost?: boolean;
 }
 
@@ -90,55 +94,76 @@ function cloneSnapshot(s: PowerSnapshot): PowerSnapshot {
   };
 }
 
-export function computeRaiseTns(
-  normalTn: number,
-  declaredRaiseSlots: number,
-): { normalTn: number; raiseTn: number } {
-  const base = Math.max(0, Math.floor(normalTn));
-  const slots = Math.max(0, Math.floor(declaredRaiseSlots));
-  return {
-    normalTn: base,
-    raiseTn: slots > 0 ? base + slots * RAISE_INCREMENT : base,
-  };
+/** Normalize stored / legacy outcomes. `partial` is always a miss for payload. */
+export function normalizeRaiseOutcome(raw: unknown): RaiseOutcome {
+  return String(raw || '').toLowerCase() === 'full' ? 'full' : 'fail';
+}
+
+/** Final TN for one target resolution. Free Raises are not included in `paidRaiseSlots`. */
+export function computeFinalTn(baseTn: number, paidRaiseSlots: number): number {
+  const base = Math.max(0, Math.floor(baseTn));
+  const slots = Math.max(0, Math.floor(paidRaiseSlots));
+  return base + slots * RAISE_INCREMENT;
 }
 
 /**
- * All-or-nothing: partial only when declared raises > 0 and total meets Normal TN
- * but not Raise TN.
+ * Base TN plus Final TN (sole success threshold).
+ * `raiseTn` is an alias of `finalTn` for older callers.
+ */
+export function computeRaiseTns(
+  normalTn: number,
+  declaredRaiseSlots: number,
+): { normalTn: number; raiseTn: number; finalTn: number } {
+  const base = Math.max(0, Math.floor(normalTn));
+  const finalTn = computeFinalTn(base, declaredRaiseSlots);
+  return { normalTn: base, raiseTn: finalTn, finalTn };
+}
+
+/**
+ * Combat: all-or-nothing against the Final TN.
+ * Meeting Base TN but missing Final TN is a miss — never a partial hit.
  */
 export function resolveRaiseOutcome(
   total: number,
   normalTn: number,
   declaredRaiseSlots: number,
-  /** Intellect Raise Focus: bonus applied only when checking Raise TN. */
+  /** Optional roll bonus applied only when Paid Raises raised the TN. */
   raiseTnRollBonus = 0,
 ): RaiseOutcome {
+  const t = Number(total) || 0;
+  const base = Math.max(0, Math.floor(normalTn));
+  const slots = Math.max(0, Math.floor(declaredRaiseSlots));
+  const finalTn = computeFinalTn(base, slots);
+  const bonus = slots > 0 ? Math.max(0, Math.floor(raiseTnRollBonus)) : 0;
+  return t + bonus >= finalTn ? 'full' : 'fail';
+}
+
+/**
+ * Noncombat declared-raise bands (Rituals, Social): Base TN vs Raise TN.
+ * Combat must not use this — use `resolveRaiseOutcome` instead.
+ */
+export function resolveDeclaredRaiseBands(
+  total: number,
+  normalTn: number,
+  declaredRaiseSlots: number,
+  raiseTnRollBonus = 0,
+): 'fail' | 'partial' | 'full' {
   const t = Number(total) || 0;
   const normal = Math.max(0, Math.floor(normalTn));
   const slots = Math.max(0, Math.floor(declaredRaiseSlots));
   const raiseBonus = Math.max(0, Math.floor(raiseTnRollBonus));
   if (t < normal) return 'fail';
   if (slots <= 0) return 'full';
-  const { raiseTn } = computeRaiseTns(normal, slots);
-  return t + raiseBonus >= raiseTn ? 'full' : 'partial';
+  const finalTn = computeFinalTn(normal, slots);
+  return t + raiseBonus >= finalTn ? 'full' : 'partial';
 }
 
 /**
- * Special Raises (Penetration, Precision, …) once per attack.
- * Damage Raises stack — each adds +MR d8 (AoE: +ceil(MR/2) d8).
+ * Damage Raises stack. Special Raises stack when assigned to the same Special.
+ * (Older code deduped Special Raises once — that contradicted the catalog.)
  */
 export function dedupeDeclaredRaises(raises: DeclaredRaise[]): DeclaredRaise[] {
-  const seen = new Set<string>();
-  const out: DeclaredRaise[] = [];
-  for (const raise of raises) {
-    if (raise.effect === 'specialPlus') {
-      const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
-      if (!key || seen.has(`special:${key}`)) continue;
-      seen.add(`special:${key}`);
-    }
-    out.push(raise);
-  }
-  return out;
+  return raises.filter((r) => r && typeof r.effect === 'string');
 }
 
 /** Total raise slots from declared raise plan. */
@@ -146,7 +171,7 @@ export function countRaiseSlots(raises: DeclaredRaise[]): number {
   return raises.reduce((sum, r) => sum + (r.slots === 2 ? 2 : 1), 0);
 }
 
-/** Slots that increase the Raise TN. A Free Raise has no TN increase and no Raise Cost. */
+/** Slots that increase the Final TN. Free Raises do not. */
 export function paidRaiseSlots(raises: DeclaredRaise[]): number {
   return raises.reduce((sum, r) => {
     if (r.free) return sum;
@@ -177,18 +202,16 @@ export function formatDeclaredRaiseList(raises: DeclaredRaise[]): string {
   const picked = raises.filter((r) => r.effect);
   if (!picked.length) return 'Noch kein Raise gewählt.';
   return picked
-    .map((r, i) => `${i + 1}. ${describeDeclaredRaise(r)}${r.free ? ' — kostenlos' : ''}`)
+    .map((r, i) => `${i + 1}. ${describeDeclaredRaise(r)}${r.free ? ' — Free' : ''}`)
     .join(' · ');
 }
 
-/** Martial: MR d8 per raise slot. Spell: MR total value per raise slot. */
+/** @deprecated Combat Raises have no Raise Cost. */
 export function raiseCostPerSlot(masteryRank: number): number {
   return Math.max(1, Math.floor(masteryRank));
 }
 
-/**
- * Default spell cost split: damage dice first, then special rank (largest first).
- */
+/** @deprecated Combat Raises have no Raise Cost. */
 export function defaultSpellCostAllocation(
   snapshot: PowerSnapshot,
   totalValue: number,
@@ -212,14 +235,12 @@ export function defaultSpellCostAllocation(
   return out;
 }
 
-export function computeTotalRaiseCost(
-  raiseSlots: number,
-  masteryRank: number,
-): number {
+/** @deprecated Combat Raises have no Raise Cost. */
+export function computeTotalRaiseCost(raiseSlots: number, masteryRank: number): number {
   return raiseCostPerSlot(masteryRank) * Math.max(0, Math.floor(raiseSlots));
 }
 
-/** Apply raise cost to a snapshot (pre-roll state). */
+/** @deprecated Combat Raises have no Raise Cost. */
 export function applyRaiseCost(
   snapshot: PowerSnapshot,
   cost: RaiseCostAllocation,
@@ -234,7 +255,8 @@ export function applyRaiseCost(
   return next;
 }
 
-function damageRaiseDice(masteryRank: number, aoe: boolean): number {
+/** Dice added by one Damage Raise. Single target: MR. AoE: ceil(MR/2). */
+export function damageRaiseDicePerRaise(masteryRank: number, aoe: boolean): number {
   const mr = Math.max(1, Math.floor(masteryRank));
   return aoe ? Math.ceil(mr / 2) : mr;
 }
@@ -243,11 +265,10 @@ function applyOneRaiseEffect(
   snap: PowerSnapshot,
   raise: DeclaredRaise,
   masteryRank: number,
-  _isSpell: boolean,
 ): void {
   switch (raise.effect) {
     case 'damage':
-      snap.damageDice += damageRaiseDice(masteryRank, snap.hasAoe);
+      snap.damageDice += damageRaiseDicePerRaise(masteryRank, snap.hasAoe);
       break;
     case 'specialPlus': {
       const key = String(raise.targetSpecialKey || '').trim().toLowerCase();
@@ -261,99 +282,118 @@ function applyOneRaiseEffect(
   }
 }
 
-/** Apply stone bonus as default damage raise (martial +MR, spell +1d8 each). */
-function applyStoneBonusRaises(
-  snap: PowerSnapshot,
-  count: number,
-  masteryRank: number,
-  isSpell: boolean,
-): void {
-  const n = Math.max(0, Math.floor(count));
-  for (let i = 0; i < n; i++) {
-    snap.damageDice += damageRaiseDice(masteryRank, snap.hasAoe);
+/**
+ * Successful Raise slots available for post-roll allocation.
+ * Free Raises do not raise TN but still grant effects when the Final TN is met.
+ */
+export function successfulRaiseSlotCount(paidSlots: number, freeSlots: number): number {
+  return Math.max(0, Math.floor(paidSlots)) + Math.max(0, Math.floor(freeSlots));
+}
+
+/** True when every Raise slot has an eligible effect chosen. */
+export function isRaiseAllocationComplete(
+  plan: DeclaredRaise[],
+  requiredSlots: number,
+  options: RaiseOption[],
+): boolean {
+  const need = Math.max(0, Math.floor(requiredSlots));
+  if (need <= 0) return true;
+  // No eligible effects (e.g. Special-only Power with no numeric Specials and no Damage).
+  if (!options.length) return plan.length === 0;
+  if (countRaiseSlots(plan) !== need) return false;
+  const allowed = new Set(options.map((o) => o.id));
+  for (const raise of plan) {
+    if (!raise?.effect) return false;
+    if (raise.effect === 'damage') {
+      if (!options.some((o) => o.effect === 'damage')) return false;
+      continue;
+    }
+    if (raise.effect === 'specialPlus') {
+      const id = `special:${String(raise.targetSpecialKey || '').toLowerCase()}`;
+      if (!allowed.has(id)) return false;
+      continue;
+    }
+    return false;
   }
+  return true;
 }
 
 /**
- * Resolve final power snapshot from base, declared raises, outcome, and stone bonus.
+ * Resolve final power snapshot from base, declared raises, and outcome.
+ * Fail → base unchanged (caller must not apply payload).
+ * Full → apply every explicitly allocated Raise effect only.
+ * Never invent Damage Raises for unassigned slots.
  */
 export function resolvePowerSnapshot(params: ResolvePowerSnapshotParams): PowerSnapshot {
-  const {
-    base,
-    declaredRaises,
-    outcome,
-    masteryRank,
-    isSpell,
-    stoneBonusRaises = 0,
-    spellCostOverride,
-    waiveRaiseCost = false,
-  } = params;
+  const { base, declaredRaises, outcome, masteryRank } = params;
 
-  const raises = dedupeDeclaredRaises(declaredRaises);
-
-  if (outcome === 'fail') {
+  const raises = dedupeDeclaredRaises(declaredRaises).filter((r) => !!r.effect);
+  if (normalizeRaiseOutcome(outcome) !== 'full') {
     return cloneSnapshot(base);
   }
 
-  const slots = waiveRaiseCost ? 0 : paidRaiseSlots(raises);
-  const costValue = computeTotalRaiseCost(slots, masteryRank);
-  const costAlloc = isSpell
-    ? spellCostOverride ?? defaultSpellCostAllocation(base, costValue)
-    : { damageDice: costValue, specialByKey: {} as Record<string, number> };
-
-  if (outcome === 'partial') {
-    return applyRaiseCost(base, costAlloc);
-  }
-
-  // Full success: cost restored (start from base), then apply raise effects + stones.
   const snap = cloneSnapshot(base);
   for (const r of raises) {
-    applyOneRaiseEffect(snap, r, masteryRank, isSpell);
-  }
-  if (stoneBonusRaises > 0) {
-    applyStoneBonusRaises(snap, stoneBonusRaises, masteryRank, isSpell);
+    applyOneRaiseEffect(snap, r, masteryRank);
   }
   return snap;
 }
 
-/** Pre-roll snapshot after paying raise cost (for UI preview). */
+/** Pre-roll preview: Combat Raises do not strip the pool. */
 export function previewAfterRaiseCost(
   base: PowerSnapshot,
-  declaredRaises: DeclaredRaise[],
-  masteryRank: number,
-  isSpell: boolean,
-  spellCostOverride?: RaiseCostAllocation,
+  _declaredRaises: DeclaredRaise[],
+  _masteryRank: number,
+  _isSpell: boolean,
+  _spellCostOverride?: RaiseCostAllocation,
 ): PowerSnapshot {
-  const unique = dedupeDeclaredRaises(declaredRaises);
-  const slots = paidRaiseSlots(unique);
-  if (slots <= 0) return cloneSnapshot(base);
-  const costValue = computeTotalRaiseCost(slots, masteryRank);
-  const cost =
-    spellCostOverride ??
-    (isSpell
-      ? defaultSpellCostAllocation(base, costValue)
-      : { damageDice: costValue, specialByKey: {} });
-  return applyRaiseCost(base, cost);
+  return cloneSnapshot(base);
+}
+
+/**
+ * Sum every legal Damage Pool component for regression checks.
+ * Raise dice are the bonus from successful Damage Raises only.
+ */
+export function sumCombatDamagePoolDice(parts: {
+  weaponDice?: number;
+  powerDice?: number;
+  passiveDice?: number;
+  raiseDice?: number;
+  otherDice?: number;
+}): number {
+  return (
+    Math.max(0, Math.floor(Number(parts.weaponDice) || 0)) +
+    Math.max(0, Math.floor(Number(parts.powerDice) || 0)) +
+    Math.max(0, Math.floor(Number(parts.passiveDice) || 0)) +
+    Math.max(0, Math.floor(Number(parts.raiseDice) || 0)) +
+    Math.max(0, Math.floor(Number(parts.otherDice) || 0))
+  );
 }
 
 export function buildAvailableRaiseOptions(
   snapshot: PowerSnapshot,
-  isSpell: boolean,
+  _isSpell: boolean,
+  opts?: { hasWeaponDamage?: boolean },
 ): RaiseOption[] {
   const options: RaiseOption[] = [];
-  const damageLabel = snapshot.hasAoe ? '+ceil(MR/2) d8 Schaden' : '+MR Schaden';
-  options.push({
-    id: 'damage',
-    label: damageLabel,
-    effect: 'damage',
-    slots: 1,
-  });
+  const canDamage =
+    Math.max(0, Math.floor(snapshot.damageDice)) > 0 || !!opts?.hasWeaponDamage;
+  if (canDamage) {
+    const per = snapshot.hasAoe ? 'ceil(MR/2)' : 'MR';
+    options.push({
+      id: 'damage',
+      label: `+${per} d8 Damage`,
+      effect: 'damage',
+      slots: 1,
+    });
+  }
 
   for (const sp of snapshot.specials) {
+    if (sp.rank <= 0) continue;
     const name = displaySpecialName(sp.key);
     options.push({
       id: `special:${sp.key}`,
-      label: `${name} an (Rang ${sp.rank})`,
+      label: `+MR ${name} (now ${sp.rank})`,
       effect: 'specialPlus',
       targetSpecialKey: sp.key,
       printedRank: sp.rank,
@@ -448,24 +488,21 @@ export function describeSnapshotDelta(
 }
 
 export function formatRaiseResultLine(params: {
-  outcome: 'full' | 'partial';
+  outcome: 'full' | 'fail' | 'partial';
   base: PowerSnapshot;
   resolved: PowerSnapshot;
   declared: DeclaredRaise[];
   lostCostLabel?: string;
   weaponDice?: number;
 }): string {
-  const delta = describeSnapshotDelta(params.base, params.resolved, params.weaponDice);
   const picked = params.declared.length
     ? ` Gewählt: ${formatDeclaredRaiseList(params.declared)}.`
     : '';
-  if (params.outcome === 'partial') {
-    const cost = params.lostCostLabel
-      ? ` Die Kosten von ${params.lostCostLabel} bleiben weg.`
-      : '';
-    return `Raise verfehlt.${cost} ${delta}${picked}`;
+  if (normalizeRaiseOutcome(params.outcome) !== 'full') {
+    return `Miss against Final TN — no Raises apply.${picked}`;
   }
-  return `Raise gelungen. ${delta}${picked}`;
+  const delta = describeSnapshotDelta(params.base, params.resolved, params.weaponDice);
+  return `Hit. Raises apply. ${delta}${picked}`;
 }
 
 export function formatSnapshotSummary(snapshot: PowerSnapshot): string {
@@ -532,8 +569,6 @@ export function buildPowerSnapshotFromLevelData(
           }
         } else if (s && typeof s === 'object') {
           const key = String(s.key ?? s.type ?? '').toLowerCase();
-          // An unbound `SPECIAL` picker placeholder is not a real Special —
-          // never let it reach the damage/status pipeline as "Special(X)".
           if (key === 'special') continue;
           const rank = Number(s.rank ?? s.value ?? 1);
           if (key) specials.push({ key, rank: Math.max(0, rank) });
@@ -590,11 +625,7 @@ export function buildPowerSnapshotFromLevelData(
 
 /**
  * Bind the `SPECIAL` picker placeholder in a level row to the item's chosen
- * Special. Catalog Martial/support templates carry `{ key: 'SPECIAL' }` rows;
- * item creation binds them into `system.levels`, but whenever level data is
- * (re-)read from the raw template the placeholder must be bound again —
- * otherwise the damage pipeline emits a meaningless "Special(X)" instead of
- * e.g. "Sundered(X)" and no status effect lands on the target.
+ * Special.
  */
 export function bindChosenSpecialIntoLevelData(
   levelData: any | null,
@@ -604,7 +635,6 @@ export function bindChosenSpecialIntoLevelData(
 ): any | null {
   if (!levelData || !chosenSpecialKey) return levelData;
   const pl = Number(level) || 1;
-  // Weapon AoE (Tail Sweep): no SPECIAL placeholder — inject the pick's Special.
   const injected = injectOptionalWeaponAoeChosenSpecial(
     levelData,
     chosenSpecialKey,
@@ -676,8 +706,6 @@ export async function loadPowerSnapshotForArtifactOption(
     if (powerDef?.levels) {
       levelData = powerDef.levels[pl] ?? null;
       if (levelData && chosenKey) {
-        // Weapon AoE picks (Tail Sweep Push) have empty catalog specials —
-        // bindChosenSpecialIntoLevelData injects the chosen Special.
         levelData = bindChosenSpecialIntoLevelData(
           levelData,
           chosenKey,
@@ -729,8 +757,6 @@ export async function loadPowerSnapshotForItem(
     if (powerDef?.levels) {
       const { getPowerDefinitionRank } = await import('../utils/power-definition-rank.js');
       definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
-      // Prefer the item's own bound levels (SPECIAL placeholder already
-      // replaced by chosenSpecial at item creation) over the raw template.
       const levelsSource = powerSystem.levels || powerDef.levels;
       if (Array.isArray(levelsSource)) {
         levelData = levelsSource.find((l: any) => l.level === definitionRank);

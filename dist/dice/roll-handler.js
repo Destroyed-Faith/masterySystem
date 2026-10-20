@@ -467,10 +467,12 @@ export async function masteryRoll(options) {
     }
     else {
         raiseOutcome = resolveRaiseOutcome(total, normalTnVal, declaredRaiseSlots, raiseTnRollBonus);
-        success = raiseOutcome !== 'fail';
+        success = raiseOutcome === 'full';
         raises =
             raiseOutcome === 'full' ? declaredRaiseSlots + stoneBonusRaises : 0;
     }
+    // Power combat: the decisive TN is Final TN (Base + Paid Raises × 4).
+    const reportedTn = raiseModel === 'power' ? raiseTnVal : normalTnVal;
     // Create result object
     const result = {
         total,
@@ -478,7 +480,7 @@ export async function masteryRoll(options) {
         kept: keptValues,
         keptIndices: keptIndices,
         skill,
-        tn: normalTnVal,
+        tn: reportedTn,
         raises,
         success,
         exploded,
@@ -720,24 +722,26 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             </div>
           </div>
           
-          ${result.tn > 0 || result.raiseTn > result.tn ? `
+          ${result.tn > 0 || result.raiseTn > 0 ? `
             <div class="roll-result ${successClass}">
               <div class="result-line">
-                <span>Normal TN:</span>
-                <span class="value">${result.tn}</span>
+                <span>Final TN:</span>
+                <span class="value">${result.raiseTn || result.tn}</span>
               </div>
-              ${result.raiseTn > result.tn ? `
-              <div class="result-line">
-                <span>Raise TN:</span>
-                <span class="value">${result.raiseTn}</span>
+              ${result.normalTn != null && result.raiseTn > result.normalTn ? `
+              <div class="result-line md-sublabel">
+                <span>Base TN:</span>
+                <span class="value">${result.normalTn} (+${Math.round(((result.raiseTn - result.normalTn) / 4))} Paid Raise)</span>
               </div>` : ''}
               <div class="result-line">
                 <span><strong>Result:</strong></span>
-                <span class="value"><strong>${result.raiseOutcome === 'partial'
-            ? 'SUCCESS (Raise failed)'
-            : result.success
+                <span class="value"><strong>${result.success
+            ? isSkillRoll
                 ? 'SUCCESS'
-                : 'FAILURE'}</strong></span>
+                : 'HIT'
+            : isSkillRoll
+                ? 'FAILURE'
+                : 'MISS'}</strong></span>
               </div>
               ${result.raises > 0 ? `
                 <div class="result-line">

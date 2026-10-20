@@ -29,6 +29,7 @@ export interface MasteryRollResult {
   /** Raise TN — declared raise effects only when total meets this. */
   raiseTn?: number;
   /** Outcome of the dual-TN raise check. */
+  /** `partial` is legacy and must be treated as fail for combat payload. */
   raiseOutcome?: 'fail' | 'partial' | 'full';
   /** Stone-granted bonus raises applied on full raise success only. */
   stoneBonusRaises?: number;

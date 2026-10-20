@@ -22,6 +22,7 @@ export declare class MasterySummonSheet extends MasteryNpcSheet {
             msNpcPrintCompactSheet: (this: any) => void;
             msCopyPictureLink: (this: any) => void;
             'toggle-known-npc': (this: any, event: Event) => void;
+            deleteNpcReaction: (this: any, event: Event, target: HTMLElement) => void;
         };
     };
     /** @override */

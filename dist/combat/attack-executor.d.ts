@@ -13,6 +13,7 @@ interface SplitContext {
     secondPool?: number;
     sharedRaisePlan?: string;
     sharedRaiseSlots?: string;
+    sharedRaiseFree?: string;
     sharedRaiseTn?: string;
 }
 /** Split one attack pool across two strikes. No Mastery Rank floor. */
@@ -25,6 +26,7 @@ export declare function listSplitSecondTargetIds(tokenIds: readonly string[], at
 export declare function rememberSplitSharedRaises(pairId: string, raises: {
     plan?: string;
     slots?: string;
+    free?: string;
     tn?: string;
 }): void;
 export declare function peekPendingSplit(pairId: string): {
@@ -83,17 +85,21 @@ export declare function createAttackCard(attackerToken: any, targetToken: any, o
 export declare function createMeleeAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, burstVolley?: MeleeBurstVolleyContext | null, aoeMelee?: AoeMeleeWeaponContext | null): Promise<string | null>;
 export declare function createRangedAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, aoeZone?: AoeMeleeWeaponContext | null): Promise<string | null>;
 /**
- * Setup raise-plan editor on attack cards (new Raise rules).
- * The chosen Raises are broadcast so the GM sees them without a chat re-render.
+ * Pre-roll Raise counts on attack cards (effects allocated after a hit).
  */
-type RaiseDraftRow = {
-    optionId: string;
-    free: boolean;
+type RaiseCountDraft = {
+    paid: number;
+    free: number;
 };
 export declare function applyRemoteRaisePlan(payload: {
     messageId?: string;
-    draft?: RaiseDraftRow[];
+    draft?: RaiseCountDraft | Array<{
+        optionId?: string;
+        free?: boolean;
+    }>;
     summary?: string;
+    paid?: number;
+    free?: number;
 }): void;
 export declare function registerRaisePlanChatHooks(): void;
 //# sourceMappingURL=attack-executor.d.ts.map

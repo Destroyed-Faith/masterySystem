@@ -30,7 +30,7 @@
  * primitives without re-deriving any thresholds.
  */
 
-import { resolveRaiseOutcome, type RaiseOutcome } from '../combat/raise-resolution.js';
+import { resolveDeclaredRaiseBands } from '../combat/raise-resolution.js';
 
 export const SOCIAL_COMBAT_DEFAULT_BASE_TN = 16;
 export const SOCIAL_COMBAT_RAISE_TN_INCREMENT = 4;
@@ -117,7 +117,7 @@ export interface PhaseLeadRollResult {
     tn: number;
     total: number;
     success: boolean;
-    raiseOutcome: RaiseOutcome;
+    raiseOutcome: 'fail' | 'partial' | 'full';
     /** Raises credited only on full Raise success. */
     raises: number;
 }
@@ -161,7 +161,8 @@ export function resolveLeadRollOutcome(
     normalTn: number,
     declaredRaises: number,
 ): Pick<PhaseLeadRollResult, 'success' | 'raises' | 'raiseOutcome'> {
-    const raiseOutcome = resolveRaiseOutcome(total, normalTn, declaredRaises);
+    // Social keeps Base TN vs Raise TN bands (not combat's all-or-nothing Final TN).
+    const raiseOutcome = resolveDeclaredRaiseBands(total, normalTn, declaredRaises);
     const success = raiseOutcome !== 'fail';
     const raises = raiseOutcome === 'full' ? Math.max(0, Math.floor(declaredRaises)) : 0;
     return { success, raises, raiseOutcome };

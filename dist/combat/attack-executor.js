@@ -22,7 +22,7 @@ import { ENCOUNTER_SOCKET } from "./combat-permissions.js";
 import { isDamageTransferPower, isDamageTransferTemplateId } from "./damage-transfer.js";
 export { getTargetEvade, getTargetSpellResistance, spellResistanceAfterPenetration, } from "./target-defenses.js";
 import { listActorSpellFocusSources } from "../utils/artifact-base-values.js";
-import { buildAvailableRaiseOptions, computeRaiseTns, countRaiseSlots, declaredRaiseFromOptionId, dedupeDeclaredRaises, describeDeclaredRaise, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, paidRaiseSlots, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
+import { buildAvailableRaiseOptions, computeRaiseTns, formatHitBreakdown, loadPowerSnapshotForArtifactOption, loadPowerSnapshotForItem, snapshotToDamageFormula, snapshotToSpecialStrings, } from "./raise-resolution.js";
 /** Split one attack pool across two strikes. No Mastery Rank floor. */
 export function divideSplitAttackPool(total) {
     const n = Math.max(0, Math.floor(Number(total) || 0));
@@ -50,6 +50,7 @@ export function rememberSplitSharedRaises(pairId, raises) {
         return;
     pending.sharedRaisePlan = String(raises.plan ?? '[]');
     pending.sharedRaiseSlots = String(raises.slots ?? '0');
+    pending.sharedRaiseFree = String(raises.free ?? '0');
     pending.sharedRaiseTn = String(raises.tn ?? '');
 }
 export function peekPendingSplit(pairId) {
@@ -130,6 +131,7 @@ export async function spawnSplitStrike2IfPending(splitPairId) {
         secondPool: pending.secondPool,
         sharedRaisePlan: pending.sharedRaisePlan,
         sharedRaiseSlots: pending.sharedRaiseSlots,
+        sharedRaiseFree: pending.sharedRaiseFree,
         sharedRaiseTn: pending.sharedRaiseTn,
     }, null, null);
 }
@@ -683,10 +685,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             };
         }
     }
+    let raiseOptionSource = raiseContext?.baseSnapshot ?? null;
     if (raiseContext && !raiseContext.isSpell && !isNpcAttack) {
         const parked = parkWeaponSpecialsForRaises(raiseContext.baseSnapshot, powerOnHitKeys);
         raiseContext.baseSnapshot = parked.onHit;
-        raiseContext.raiseOptions = buildAvailableRaiseOptions(parked.raiseSource, false);
+        raiseOptionSource = parked.raiseSource;
     }
     // Non-spell attack powers are weapon-carried: the wielded weapon's dice roll
     // on top of the power's bonus dice, so the preview can show the real total.
@@ -697,6 +700,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         if (weapon && !option.ignoreWeaponDamage) {
             raiseContext.weaponName = String(weapon.name || '').trim() || undefined;
         }
+        raiseContext.raiseOptions = buildAvailableRaiseOptions(raiseOptionSource ?? raiseContext.baseSnapshot, false, { hasWeaponDamage: (raiseContext.weaponDamageDice ?? 0) > 0 });
     }
     const emptyThreat = {
         appliesRule: false,
@@ -949,6 +953,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
               data-base-evade="${normalTn}"
               data-raise-tn="${split?.splitIndex === 2 && split.sharedRaiseTn ? attackCardEsc(split.sharedRaiseTn) : normalTn}"
               data-raise-slots="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseSlots || '0') : '0'}"
+              data-free-raises="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseFree || '0') : '0'}"
               data-raise-plan="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
               data-aoe-melee="${aoeMeleeAttr}"
               data-aoe-secondary-ids="${aoeIdsAttr}"
@@ -976,6 +981,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             data-base-evade="${normalTn}"
             data-raise-tn="${split?.splitIndex === 2 && split.sharedRaiseTn ? attackCardEsc(split.sharedRaiseTn) : normalTn}"
             data-raise-slots="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseSlots || '0') : '0'}"
+            data-free-raises="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaiseFree || '0') : '0'}"
             data-raise-plan="${split?.splitIndex === 2 ? attackCardEsc(split.sharedRaisePlan || '[]') : '[]'}"
             data-aoe-melee="${aoeMeleeAttr}"
             data-aoe-secondary-ids="${aoeIdsAttr}"
@@ -991,23 +997,21 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const raisePlanHtml = raiseContext
         ? `
     <div class="raise-plan-panel">
-      ${raiseContext.isSpell
-            ? `<div class="spell-cost-split-row md-sublabel">
-          <p class="spell-cost-hint">Declare a Raise first.</p>
-          <label class="spell-cost-label">Pay Raise cost with
-          <select class="spell-cost-select" disabled>
-            <option value="">— declare a Raise first —</option>
-          </select>
-          </label>
-        </div>`
-            : ''}
-      <div class="raise-plan-rows"></div>
-      <button type="button" class="add-raise-btn"><i class="fas fa-plus"></i> Add Raise</button>
+      <p class="raise-tn-rule hint">+${RAISE_INCREMENT} TN per Paid Raise; Free Raises do not increase TN. Allocate effects after a hit.</p>
+      <div class="raise-count-row">
+        <label class="raise-count-label">Paid Raises
+          <input type="number" class="raise-paid-count" min="0" max="8" step="1" value="0" />
+        </label>
+        <label class="raise-count-label">Free Raises
+          <input type="number" class="raise-free-count" min="0" max="8" step="1" value="0" />
+        </label>
+      </div>
+      <p class="raise-plan-live md-sublabel">Final TN <strong class="raise-tn-display">${normalTn}</strong> — effects chosen after the roll.</p>
     </div>`
         : '';
     const raisesTitle = tnKind === 'casting'
-        ? `Ein Raise vor dem Wurf. Jeder macht die Raise TN um +${RAISE_INCREMENT} schwerer. Die Kosten gehen vorher von der Power weg und kommen nur zurück, wenn die Raise TN fällt.${aoeMelee ? ' AoE: derselbe Wurf gilt einzeln gegen jede Final Spell TN.' : ''}`
-        : `Ein Raise vor dem Wurf. Jeder macht die Raise TN um +${RAISE_INCREMENT} schwerer. Die normale TN bleibt ${normalTn}. Kosten vorher weg, Bonus nur wenn die Raise TN fällt.${aoeMelee ? ' AoE: derselbe Wurf gilt einzeln gegen jedes Evade.' : ''}`;
+        ? `Declare Paid and Free Raise counts before the roll. +${RAISE_INCREMENT} Final TN per Paid Raise. Allocate Damage/Specials after a hit.${aoeMelee ? ' AoE: one roll, each creature checked against its own Final TN.' : ''}`
+        : `Declare Paid and Free Raise counts before the roll. Base ${normalTn}. +${RAISE_INCREMENT} Final TN per Paid Raise. Allocate after a hit.${aoeMelee ? ' AoE: one roll, each creature checked against its own Final TN.' : ''}`;
     const evadeNote = '';
     const keepShown = useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : masteryRank;
     const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
@@ -1051,7 +1055,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         <div class="detail-row">
           <span class="detail-label">${tnLabel}:</span>
           <span class="detail-value">${tnValue}${evadeNote}${aoeMelee ? ' — jede Kreatur extra' : ''}${raiseContext
-        ? ` · Raise TN <strong class="raise-tn-display">${normalTn}</strong>`
+        ? ` · Final TN <strong class="raise-tn-display">${normalTn}</strong>`
         : ''}</span>
         </div>
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
@@ -1060,7 +1064,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         : ''}
         ${npcAttackDetailHtml}
         ${hitLine
-        ? `<div class="detail-row"><span class="detail-label">Wenn du triffst:</span><span class="detail-value raise-cost-display">${attackCardEsc(hitLine)}</span></div>`
+        ? `<div class="detail-row"><span class="detail-label">On hit:</span><span class="detail-value raise-cost-display">${attackCardEsc(hitLine)}</span></div>`
         : ''}
       </div>
       <div class="attack-controls">
@@ -1149,8 +1153,10 @@ const raisePlanAppliers = new Map();
 export function applyRemoteRaisePlan(payload) {
     const id = String(payload?.messageId || '');
     const apply = raisePlanAppliers.get(id);
+    const paid = Math.max(0, Math.floor(Number(payload?.paid ?? payload?.draft?.paid) || 0));
+    const free = Math.max(0, Math.floor(Number(payload?.free ?? payload?.draft?.free) || 0));
     if (apply) {
-        apply(Array.isArray(payload.draft) ? payload.draft : [], String(payload.summary || ''));
+        apply({ paid, free }, String(payload.summary || ''));
         return;
     }
     const live = globalThis.document?.querySelector?.(`.message[data-message-id="${CSS.escape(id)}"] .raise-plan-live`);
@@ -1163,6 +1169,8 @@ function broadcastRaisePlan(messageId, draft, summary) {
         type: 'raisePlanLive',
         messageId,
         fromUserId: gameAny.user?.id ?? null,
+        paid: draft.paid,
+        free: draft.free,
         draft,
         summary,
     });
@@ -1233,29 +1241,6 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         return;
     panel.attr('data-raise-bound', '1');
     const maxSlots = 8;
-    const buildOptionHtml = (currentId, takenSpecialIds) => {
-        const opts = raiseContext.raiseOptions
-            .filter((o) => {
-            if (o.id === currentId)
-                return true;
-            // Special Raises are once per attack. Damage Raises stack (+MR d8 each).
-            if (o.effect === 'specialPlus')
-                return !takenSpecialIds.has(o.id);
-            return true;
-        })
-            .map((o) => `<option value="${o.id}">${o.label} (${o.slots} slot${o.slots > 1 ? 's' : ''})</option>`)
-            .join('');
-        return `<option value="">— Raise effect —</option>${opts}`;
-    };
-    const specialName = (optionId) => {
-        const opt = raiseContext.raiseOptions.find((o) => o.id === optionId);
-        if (!opt)
-            return 'Dieses Special';
-        if (opt.targetSpecialKey) {
-            return opt.targetSpecialKey.charAt(0).toUpperCase() + opt.targetSpecialKey.slice(1);
-        }
-        return opt.label;
-    };
     const isGM = !!globalThis.game?.user?.isGM;
     const freeRaisePool = () => {
         try {
@@ -1269,262 +1254,72 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         }
     };
     let applyingRemote = false;
-    const readDraft = () => {
-        const draft = [];
-        panel.find('.raise-plan-row').each((_i, row) => {
-            const optionId = String($(row).find('.raise-effect-select').val() || '');
-            const free = $(row).find('.raise-free').is(':checked') || $(row).attr('data-free') === '1';
-            draft.push({ optionId, free });
-        });
-        return draft;
+    // Split Strike 2 may already carry shared Paid counts from Strike 1.
+    const presetPaid = Math.max(0, Math.floor(Number(button.attr('data-raise-slots')) || 0));
+    const presetFree = Math.max(0, Math.floor(Number(button.attr('data-free-raises')) || 0));
+    if (presetPaid > 0)
+        panel.find('.raise-paid-count').val(String(presetPaid));
+    if (presetFree > 0)
+        panel.find('.raise-free-count').val(String(presetFree));
+    panel.find('.raise-free-count').attr('max', String(Math.max(freeRaisePool(), presetFree)));
+    const readCounts = () => {
+        const paid = Math.max(0, Math.min(maxSlots, Math.floor(Number(panel.find('.raise-paid-count').val()) || 0)));
+        const free = Math.max(0, Math.min(maxSlots, Math.floor(Number(panel.find('.raise-free-count').val()) || 0)));
+        return { paid, free };
     };
-    const collectPlan = () => {
-        const plan = [];
-        for (const row of readDraft()) {
-            if (!row.optionId)
-                continue;
-            const dr = declaredRaiseFromOptionId(row.optionId, raiseContext.raiseOptions);
-            if (!dr)
-                continue;
-            if (row.free)
-                dr.free = true;
-            plan.push(dr);
+    const updatePreview = (broadcast = false) => {
+        let { paid, free } = readCounts();
+        const pool = freeRaisePool();
+        if (!isGM && free > pool) {
+            free = pool;
+            panel.find('.raise-free-count').val(String(free));
+            if (!applyingRemote)
+                ui.notifications?.warn?.(`Free Raises left: ${pool}.`);
         }
-        return dedupeDeclaredRaises(plan);
-    };
-    const summaryFor = (draft) => {
-        if (!draft.length)
-            return 'Noch kein Raise gewählt.';
-        const parts = draft.map((row, index) => {
-            const dr = row.optionId
-                ? declaredRaiseFromOptionId(row.optionId, raiseContext.raiseOptions)
-                : null;
-            if (dr && row.free)
-                dr.free = true;
-            const name = dr ? describeDeclaredRaise(dr) : 'noch offen';
-            return `${index + 1}. ${name}${row.free ? ' — kostenlos' : ''}`;
-        });
-        return `Raises: ${parts.join(' · ')}`;
-    };
-    const totalSpecialRank = raiseContext.baseSnapshot.specials.reduce((sum, sp) => sum + Math.max(0, sp.rank), 0);
-    /** Distribute a special-value payment over the power's specials (largest rank first). */
-    const spellAllocFromParts = (d8Paid, spPaid) => {
-        const alloc = { damageDice: d8Paid, specialByKey: {} };
-        if (spPaid > 0) {
-            const sorted = [...raiseContext.baseSnapshot.specials].sort((a, b) => b.rank - a.rank);
-            let rem = spPaid;
-            for (const sp of sorted) {
-                if (rem <= 0)
-                    break;
-                const take = Math.min(sp.rank, rem);
-                if (take > 0) {
-                    alloc.specialByKey[sp.key] = take;
-                    rem -= take;
-                }
-            }
+        if (paid + free > maxSlots) {
+            free = Math.max(0, maxSlots - paid);
+            panel.find('.raise-free-count').val(String(free));
         }
-        return alloc;
-    };
-    /**
-     * Rebuild the spell-cost dropdown: every option is a complete, valid split
-     * (d8 + special value = total cost), so nothing has to be typed and the
-     * numbers can never disagree with the cost.
-     */
-    const rebuildSpellCostSelect = (costTotal) => {
-        const sel = panel.find('.spell-cost-select');
-        if (!sel.length)
-            return;
-        const hint = panel.find('.spell-cost-hint');
-        if (costTotal <= 0) {
-            hint.show();
-            sel.prop('disabled', true).html('<option value="">— declare a Raise first —</option>');
-            return;
-        }
-        hint.hide();
-        const prev = String(sel.val() || '');
-        const maxD8 = Math.min(costTotal, raiseContext.baseSnapshot.damageDice);
-        const minD8 = Math.max(0, costTotal - totalSpecialRank);
-        const optionHtml = [];
-        for (let d8 = maxD8; d8 >= minD8; d8--) {
-            const sp = costTotal - d8;
-            const parts = [];
-            if (d8 > 0)
-                parts.push(`${d8}d8 damage`);
-            if (sp > 0)
-                parts.push(`cost ${sp} from Special rank`);
-            optionHtml.push(`<option value="${d8}|${sp}">${parts.join(' + ')}</option>`);
-        }
-        if (!optionHtml.length) {
-            sel.prop('disabled', true).html(`<option value="">Not enough damage/Special to pay ${costTotal}</option>`);
-            return;
-        }
-        sel.prop('disabled', false).html(optionHtml.join(''));
-        if (prev && sel.find(`option[value="${prev}"]`).length) {
-            sel.val(prev);
-        }
-    };
-    const readSpellCostSelection = (costTotal) => {
-        const raw = String(panel.find('.spell-cost-select').val() || '');
-        const m = raw.match(/^(\d+)\|(\d+)$/);
-        if (!m)
-            return undefined;
-        const d8Paid = parseInt(m[1], 10);
-        const spPaid = parseInt(m[2], 10);
-        if (d8Paid + spPaid !== costTotal)
-            return undefined;
-        return spellAllocFromParts(d8Paid, spPaid);
-    };
-    /** Special Raises only — Damage Raises may be chosen multiple times (+MR d8 each). */
-    const lockSpecialRaises = () => {
-        const rows = panel.find('.raise-plan-row').toArray();
-        const owner = new Map();
-        let cleared = null;
-        for (const rowEl of rows) {
-            const select = $(rowEl).find('.raise-effect-select');
-            const id = String(select.val() || '');
-            const opt = raiseContext.raiseOptions.find((o) => o.id === id);
-            if (!opt || opt.effect !== 'specialPlus')
-                continue;
-            const prev = owner.get(opt.id);
-            if (prev && prev !== rowEl) {
-                select.val('');
-                cleared = specialName(opt.id);
-            }
-            else {
-                owner.set(opt.id, rowEl);
-            }
-        }
-        const taken = new Set(owner.keys());
-        for (const rowEl of rows) {
-            const select = $(rowEl).find('.raise-effect-select');
-            const current = String(select.val() || '');
-            select.html(buildOptionHtml(current, taken));
-            if (current)
-                select.val(current);
-        }
-        return cleared;
-    };
-    const updatePreview = (broadcast = false, announceDuplicate = false) => {
-        const cleared = lockSpecialRaises();
-        if (announceDuplicate && cleared && !applyingRemote) {
-            ui.notifications?.warn?.(`${cleared} nur einmal pro Angriff.`);
-        }
-        const draft = readDraft();
-        const plan = collectPlan();
-        const slots = countRaiseSlots(plan);
-        const paid = paidRaiseSlots(plan);
-        const { raiseTn } = computeRaiseTns(normalTn, paid);
-        let spellCostOverride;
-        if (raiseContext.isSpell) {
-            const costTotal = paid > 0 ? raiseContext.masteryRank * paid : 0;
-            rebuildSpellCostSelect(costTotal);
-            if (paid > 0) {
-                spellCostOverride = readSpellCostSelection(costTotal);
-            }
-            if (spellCostOverride) {
-                button.attr('data-spell-cost', JSON.stringify(spellCostOverride));
-            }
-            else {
-                button.removeAttr('data-spell-cost');
-            }
-        }
-        const summary = summaryFor(draft);
-        panel.find('.raise-plan-live').text(summary);
-        messageElement.find('.raise-tn-display').text(String(raiseTn));
-        const full = plan.length
-            ? resolvePowerSnapshot({
-                base: raiseContext.baseSnapshot,
-                declaredRaises: plan,
-                outcome: 'full',
-                masteryRank: raiseContext.masteryRank,
-                isSpell: raiseContext.isSpell,
-                spellCostOverride,
-            })
-            : raiseContext.baseSnapshot;
-        const raiseDice = Math.max(0, full.damageDice - raiseContext.baseSnapshot.damageDice);
+        panel.find('.raise-paid-count').val(String(paid));
+        const { finalTn } = computeRaiseTns(normalTn, paid);
+        const summary = paid + free > 0
+            ? `Paid ${paid} · Free ${free} → Final TN ${finalTn}. Allocate effects after a hit.`
+            : `Final TN ${finalTn} — no Raises declared.`;
+        panel.find('.raise-plan-live').html(`Final TN <strong class="raise-tn-display">${finalTn}</strong> — ${paid + free > 0 ? `Paid ${paid}, Free ${free}. Effects after hit.` : 'effects chosen after the roll.'}`);
+        messageElement.find('.raise-tn-display').text(String(finalTn));
+        // Pre-roll preview shows the base on-hit line (no Raise effects yet).
         messageElement.find('.raise-cost-display').text(formatHitBreakdown(raiseContext.weaponDamageDice, raiseContext.baseSnapshot.damageDice, {
-            raiseDice,
-            specials: full.specials,
+            raiseDice: 0,
+            specials: raiseContext.baseSnapshot.specials,
             weaponName: raiseContext.weaponName,
         }));
         messageElement.find('.roll-attack-btn').each((_, el) => {
             const $btn = globalThis.$(el);
-            $btn.attr('data-raise-tn', String(raiseTn));
-            $btn.attr('data-raise-slots', String(slots));
-            $btn.attr('data-raise-plan', JSON.stringify(plan));
-            $btn.attr('data-raises', String(slots));
+            $btn.attr('data-raise-tn', String(finalTn));
+            $btn.attr('data-raise-slots', String(paid));
+            $btn.attr('data-free-raises', String(free));
+            $btn.attr('data-raise-plan', '[]');
+            $btn.attr('data-raises', String(paid + free));
             $btn.attr('data-blood-raises', '0');
             $btn.removeAttr('data-raise-cost-waived');
+            $btn.removeAttr('data-spell-cost');
         });
         if (broadcast && !applyingRemote)
-            broadcastRaisePlan(messageId, draft, summary);
+            broadcastRaisePlan(messageId, { paid, free }, summary);
     };
-    const bindRow = (row, initial) => {
-        if (initial?.optionId)
-            row.find('.raise-effect-select').val(initial.optionId);
-        row.find('.raise-effect-select').on('change', () => {
-            const slots = countRaiseSlots(collectPlan());
-            if (slots > maxSlots) {
-                ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
-                row.find('.raise-effect-select').val('');
-            }
-            updatePreview(true, true);
-        });
-        row.find('.raise-free').on('change', () => {
-            const pool = freeRaisePool();
-            const marked = panel.find('.raise-free:checked').length;
-            if (!isGM && marked > pool) {
-                row.find('.raise-free').prop('checked', false);
-                ui.notifications?.warn?.(`Free Raises left: ${pool}.`);
-            }
-            row.attr('data-free', row.find('.raise-free').is(':checked') ? '1' : '0');
-            updatePreview(true);
-        });
-        row.find('.remove-raise-btn').on('click', (ev) => {
-            ev.preventDefault();
-            row.remove();
-            updatePreview(true);
-        });
-    };
-    const addRow = (initial, broadcast = true) => {
-        const currentSlots = countRaiseSlots(collectPlan());
-        if (!initial && currentSlots >= maxSlots) {
-            ui.notifications?.warn?.(`Maximum ${maxSlots} Raise slots.`);
-            return;
-        }
-        const freePool = freeRaisePool();
-        const freeBox = isGM || freePool > 0
-            ? `<label class="raise-free-label" title="Free Raise: keine höhere TN, kein Raise Cost"><input type="checkbox" class="raise-free"${initial?.free ? ' checked' : ''}/> Free</label>`
-            : '';
-        const row = $(`
-      <div class="raise-plan-row" data-free="${initial?.free ? '1' : '0'}">
-        <select class="raise-effect-select">${buildOptionHtml('', new Set())}</select>
-        ${freeBox}
-        <button type="button" class="remove-raise-btn" title="Remove"><i class="fas fa-times"></i></button>
-      </div>
-    `);
-        panel.find('.raise-plan-rows').append(row);
-        bindRow(row, initial);
-        updatePreview(broadcast);
-    };
-    raisePlanAppliers.set(messageId, (draft, summary) => {
+    raisePlanAppliers.set(messageId, (draft, _summary) => {
         applyingRemote = true;
         try {
-            panel.find('.raise-plan-rows').empty();
-            for (const row of draft)
-                addRow(row, false);
-            if (!draft.length)
-                panel.find('.raise-plan-live').text(summary || 'Noch kein Raise gewählt.');
+            panel.find('.raise-paid-count').val(String(draft.paid));
+            panel.find('.raise-free-count').val(String(draft.free));
+            updatePreview(false);
         }
         finally {
             applyingRemote = false;
         }
     });
-    panel.find('.add-raise-btn').off('click.masteryRaisePlan').on('click.masteryRaisePlan', (ev) => {
-        ev.preventDefault();
-        addRow();
-    });
-    panel.find('.spell-cost-select')
+    panel
+        .find('.raise-paid-count, .raise-free-count')
         .off('input.masteryRaisePlan change.masteryRaisePlan')
         .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview(true));
     updatePreview(false);

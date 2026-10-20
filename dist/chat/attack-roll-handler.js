@@ -3,7 +3,7 @@
  * Handles clicks on .roll-attack-btn buttons in chat messages
  * Moved from module.ts to avoid circular dependencies
  */
-import { paidRaiseSlots, parseDeclaredRaises, resolvePowerSnapshot, resolveRaiseOutcome, } from '../combat/raise-resolution.js';
+import { parseDeclaredRaises, resolveRaiseOutcome, successfulRaiseSlotCount, } from '../combat/raise-resolution.js';
 import { RAISE_INCREMENT } from '../utils/constants.js';
 import { resolveNpcSheetToHit } from '../utils/npc-attack-model.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -251,53 +251,25 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 }
                 flags.willingSpellTarget = true;
             }
-            const raisePlanRaw = button.attr('data-raise-plan') || '[]';
-            const declaredRaises = parseDeclaredRaises(raisePlanRaw);
-            const freeRaiseSlots = declaredRaises.reduce((sum, raise) => sum + (raise.free ? (raise.slots === 2 ? 2 : 1) : 0), 0);
+            // Pre-roll: only Paid / Free counts. Effects are allocated after a hit.
+            let declaredRaiseSlots = Math.max(0, readAttackButtonDataInt(button, 'raise-slots', 0));
+            let freeRaiseSlots = Math.max(0, readAttackButtonDataInt(button, 'free-raises', 0));
+            const tnImpliedPaid = Math.max(0, Math.round((raiseTn - normalTn) / RAISE_INCREMENT));
+            if (tnImpliedPaid > declaredRaiseSlots) {
+                declaredRaiseSlots = tnImpliedPaid;
+            }
+            // Split Strike 2 may already carry a shared post-hit allocation.
+            let declaredRaises = parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
             if (freeRaiseSlots > 0 && freshAttacker) {
                 try {
-                    const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
-                    const rs = getRoundState(freshAttacker, game.combat ?? null);
-                    const have = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
-                    const spend = Math.min(have, freeRaiseSlots);
-                    if (rs?.stoneBonuses) {
-                        rs.stoneBonuses.freeRaises = have - spend;
-                        await setRoundState(freshAttacker, rs);
-                    }
-                    if (spend < freeRaiseSlots) {
-                        let left = freeRaiseSlots - spend;
-                        for (let i = declaredRaises.length - 1; i >= 0 && left > 0; i -= 1) {
-                            if (!declaredRaises[i].free)
-                                continue;
-                            declaredRaises[i].free = false;
-                            left -= declaredRaises[i].slots === 2 ? 2 : 1;
-                        }
-                    }
+                    const { consumeFreeRaises } = await import('../combat/action-economy.js');
+                    const spent = await consumeFreeRaises(freshAttacker, freeRaiseSlots);
+                    freeRaiseSlots = spent;
                 }
                 catch (err) {
                     console.warn('Mastery System | Free Raise spend failed', err);
+                    freeRaiseSlots = 0;
                 }
-            }
-            let declaredRaiseSlots = paidRaiseSlots(declaredRaises);
-            // The Raise TN we actually roll against is the ground truth for how many
-            // Raise slots were declared (Normal TN + 4 per slot). The JSON plan attr
-            // is more fragile — a chat re-render resets the button to its static
-            // `data-raise-plan="[]"`. If the plan carries fewer slots than the TN
-            // implies, rebuild the missing ones as default damage Raises so the
-            // Raise Cost is still paid on a partial and the effects land on a full.
-            const tnImpliedSlots = Math.max(0, Math.round((raiseTn - normalTn) / RAISE_INCREMENT));
-            if (tnImpliedSlots > declaredRaiseSlots) {
-                console.warn('Mastery System | [ROLL ATTACK] Raise plan lost — rebuilding from Raise TN', {
-                    messageId,
-                    raiseTn,
-                    normalTn,
-                    tnImpliedSlots,
-                    parsedPlanSlots: declaredRaiseSlots,
-                });
-                for (let i = declaredRaiseSlots; i < tnImpliedSlots; i++) {
-                    declaredRaises.push({ effect: 'damage', slots: 1 });
-                }
-                declaredRaiseSlots = tnImpliedSlots;
             }
             // Compute numDice from ACTOR at click time (not from stale flags)
             // This ensures we always use the current attribute value.
@@ -540,8 +512,10 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 ? ' — AoE: same roll compared separately against each creature'
                 : '';
             const rollFlavorBase = tnKind === 'casting'
-                ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${normalTn}${declaredRaiseSlots > 0 ? ` (Raise TN ${raiseTn})` : ''}${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`
-                : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${normalTn}${declaredRaiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''})${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
+                ? `Roll ${numDice}d8 keep ${keepDice} vs Final TN ${raiseTn}${declaredRaiseSlots > 0 ? ` (Base ${normalTn} + ${declaredRaiseSlots}×${RAISE_INCREMENT})` : ''}${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`
+                : `Roll ${numDice}d8 keep ${keepDice} vs Final TN ${raiseTn}${declaredRaiseSlots > 0
+                    ? ` (${targetActorForFlavor?.name || 'Target'} Evade ${normalTn} + ${declaredRaiseSlots}×${RAISE_INCREMENT})`
+                    : ` (${targetActorForFlavor?.name || 'Target'} Evade ${normalTn})`}${aoeFlavorHint}${advantageNote}${disadvantageNote}${parryFlavorNote}`;
             const rollFlavor = opts.faithReroll
                 ? `${rollFlavorBase}${faithRerollNote(opts.faithReroll)}`
                 : rollFlavorBase;
@@ -724,16 +698,21 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                             ...flags,
                             raiseOutcome,
                             attackTotal: Math.floor(Number(result?.total) || 0),
-                            declaredRaises,
+                            declaredRaises: [],
                             declaredRaiseSlots,
+                            freeRaiseSlots,
+                            successfulRaiseSlots: raiseOutcome === 'full'
+                                ? successfulRaiseSlotCount(declaredRaiseSlots, freeRaiseSlots)
+                                : 0,
+                            stoneBonusRaises: 0,
                         },
                         weaponId: flags.weaponId || null,
                     });
                 }
                 return;
             }
-            // Partial or full success → damage dialog; fail → stop.
-            if (raiseOutcome !== 'fail') {
+            // Final TN hit only → damage dialog. Miss Final TN → no payload.
+            if (raiseOutcome === 'full') {
                 // Always get fresh actors to ensure latest items. Reuse the
                 // speaker-resolved `freshAttacker` (token actor for unlinked tokens) so
                 // the damage dialog sees the right attributes AND equipped items; do
@@ -866,68 +845,30 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     }
                     // Find equipped weapon for logging purposes
                     const equippedWeaponForLog = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-                    const stoneBonusRaises = 0;
-                    const isSpellPower = !!updatedFlags.powerIsSpell;
-                    let resolvedPowerSnapshot = null;
-                    if (updatedFlags.basePowerSnapshot) {
-                        const mr = Math.max(1, Math.floor(freshAttackerForDialog
-                            ? getRulesMasteryRank(freshAttackerForDialog)
-                            : Number(updatedFlags.masteryRank) || 2));
-                        let spellCostOverride;
-                        const spellCostRaw = button.attr('data-spell-cost');
-                        if (spellCostRaw) {
-                            try {
-                                spellCostOverride = JSON.parse(spellCostRaw);
-                            }
-                            catch {
-                                /* ignore */
-                            }
-                        }
-                        resolvedPowerSnapshot = resolvePowerSnapshot({
-                            base: updatedFlags.basePowerSnapshot,
-                            declaredRaises,
-                            outcome: raiseOutcome,
-                            masteryRank: mr,
-                            isSpell: isSpellPower,
-                            stoneBonusRaises,
-                            spellCostOverride,
-                            waiveRaiseCost: button.attr('data-raise-cost-waived') === '1',
-                        });
+                    const successfulRaiseSlots = raiseOutcome === 'full'
+                        ? successfulRaiseSlotCount(declaredRaiseSlots, freeRaiseSlots)
+                        : 0;
+                    // Effects are allocated on the damage card — do not invent Damage Raises here.
+                    const baseSnap = updatedFlags.basePowerSnapshot;
+                    if (baseSnap && declaredRaises.length > 0 && successfulRaiseSlots > 0) {
+                        // Shared Split/AoE plan already allocated — apply later in damage dialog.
                     }
-                    if (resolvedPowerSnapshot) {
-                        updatedFlags.resolvedPowerSnapshot = resolvedPowerSnapshot;
-                        if (resolvedPowerSnapshot.rangeM != null) {
-                            updatedFlags.resolvedRangeM = resolvedPowerSnapshot.rangeM;
-                        }
-                        if (resolvedPowerSnapshot.aoeRadiusM != null) {
-                            updatedFlags.resolvedAoeRadiusM = resolvedPowerSnapshot.aoeRadiusM;
-                        }
-                        if (resolvedPowerSnapshot.durationSteps > 0) {
-                            updatedFlags.resolvedDurationSteps = resolvedPowerSnapshot.durationSteps;
-                        }
-                    }
-                    const spellCostRaw2 = button.attr('data-spell-cost');
-                    let spellCostOverride;
-                    if (spellCostRaw2) {
-                        try {
-                            spellCostOverride = JSON.parse(spellCostRaw2);
-                        }
-                        catch {
-                            /* ignore */
-                        }
+                    else {
+                        declaredRaises = [];
                     }
                     updatedFlags = {
                         ...updatedFlags,
                         raiseOutcome,
                         declaredRaises,
                         declaredRaiseSlots,
-                        stoneBonusRaises,
+                        freeRaiseSlots,
+                        successfulRaiseSlots,
+                        stoneBonusRaises: 0,
+                        raiseOptions: updatedFlags.raiseOptions ?? null,
                         normalTn,
                         raiseTn,
                         // Needed so Reaction: Evade can compare Evade+bonus vs this total.
                         attackTotal: Math.floor(Number(result?.total) || 0),
-                        ...(spellCostOverride ? { spellCostOverride } : {}),
-                        waiveRaiseCost: button.attr('data-raise-cost-waived') === '1',
                     };
                     // Import and show damage dialog - pass only IDs, not full objects
                     // Debug log before calling showDamageDialog
@@ -1199,9 +1140,13 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
             if (flags.splitAttack === true && Math.floor(Number(flags.splitIndex) || 0) === 1) {
                 try {
                     const { rememberSplitSharedRaises, spawnSplitStrike2IfPending } = await import('../combat/attack-executor.js');
+                    const { peekSharedRaiseAllocation } = await import('../dice/damage-dialog.js');
+                    const sharedPlan = peekSharedRaiseAllocation(`split:${flags.splitPairId}`) ||
+                        parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
                     rememberSplitSharedRaises(String(flags.splitPairId || ''), {
-                        plan: button.attr('data-raise-plan'),
-                        slots: button.attr('data-raise-slots'),
+                        plan: JSON.stringify(sharedPlan),
+                        slots: String(declaredRaiseSlots),
+                        free: String(freeRaiseSlots),
                         tn: button.attr('data-raise-tn'),
                     });
                     await spawnSplitStrike2IfPending(flags.splitPairId);

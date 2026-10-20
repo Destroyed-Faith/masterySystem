@@ -4916,6 +4916,8 @@
 }
 
 .mastery-system.sheet.actor.npc .npc-attack-delete {
+  position: relative;
+  z-index: 3;
   flex-shrink: 0;
   width: 36px;
   height: 36px;

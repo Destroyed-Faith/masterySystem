@@ -178,13 +178,13 @@ export function aoeCreatureNormalTn(params) {
 }
 /**
  * Hit check for one creature against a shared AoE roll.
- * Declared Raises add +4 per slot to that creature's TN (same as single-target).
+ * Final TN = Base TN + (Paid Raises × 4) is the only success threshold.
  */
 export function aoeCreatureHitCheck(params) {
     const slots = Math.max(0, Math.floor(Number(params.declaredRaiseSlots) || 0));
-    const raiseTn = slots > 0 ? params.normalTn + slots * RAISE_INCREMENT : params.normalTn;
+    const finalTn = slots > 0 ? params.normalTn + slots * RAISE_INCREMENT : params.normalTn;
     const total = Math.floor(Number(params.attackTotal) || 0);
-    return { hit: total >= params.normalTn, raiseTn };
+    return { hit: total >= finalTn, raiseTn: finalTn, finalTn };
 }
 /**
  * Apply full printed payload to one AoE target via the normal damage dialog.
@@ -408,7 +408,7 @@ export async function resolveAoeMeleeSecondaries(params) {
             caster: attacker,
             willing: flags.willingSpellTarget === true,
         });
-        const { hit, raiseTn } = aoeCreatureHitCheck({
+        const { hit, finalTn } = aoeCreatureHitCheck({
             attackTotal,
             normalTn,
             declaredRaiseSlots: raiseSlots,
@@ -417,7 +417,7 @@ export async function resolveAoeMeleeSecondaries(params) {
             await ChatMessage.create({
                 user: game.user?.id,
                 speaker: ChatMessage.getSpeaker({ actor: attacker }),
-                content: `<p><strong>AoE</strong> → <strong>${defender.name}</strong>: miss (roll ${attackTotal} vs ${isSpell ? 'Final Spell TN' : 'Evade'} ${normalTn}${raiseSlots > 0 ? `, Raise TN ${raiseTn}` : ''}).</p>`,
+                content: `<p><strong>AoE</strong> → <strong>${defender.name}</strong>: miss (roll ${attackTotal} vs Final TN ${finalTn}${raiseSlots > 0 ? ` = ${normalTn} + ${raiseSlots}×${RAISE_INCREMENT}` : ''}).</p>`,
             });
             if (!isSpell) {
                 try {
@@ -435,15 +435,18 @@ export async function resolveAoeMeleeSecondaries(params) {
             }
             continue;
         }
-        // Declared Raises raise each creature's TN; if the roll meets Normal TN but
-        // not Raise TN, still a hit without raise benefits — use partial flags.
+        const paidSlots = Math.max(0, Math.floor(Number(raiseSlots) || 0));
+        const freeSlots = Math.max(0, Math.floor(Number(flags.freeRaiseSlots) || 0));
         const creatureFlags = {
             ...flags,
-            raiseOutcome: raiseSlots > 0 && attackTotal < raiseTn
-                ? 'partial'
-                : flags.raiseOutcome === 'fail'
-                    ? 'partial'
-                    : flags.raiseOutcome || 'full',
+            raiseOutcome: 'full',
+            normalTn,
+            raiseTn: finalTn,
+            declaredRaiseSlots: paidSlots,
+            freeRaiseSlots: freeSlots,
+            successfulRaiseSlots: paidSlots + freeSlots,
+            declaredRaises: Array.isArray(flags.declaredRaises) ? flags.declaredRaises : [],
+            stoneBonusRaises: 0,
         };
         await resolveAoeFullPayloadOnTarget({
             attacker,
@@ -452,7 +455,7 @@ export async function resolveAoeMeleeSecondaries(params) {
             weaponId,
             flags: creatureFlags,
             attackTotal,
-            evadeTn: normalTn,
+            evadeTn: finalTn,
             allowDiveForCover: true,
         });
     }
