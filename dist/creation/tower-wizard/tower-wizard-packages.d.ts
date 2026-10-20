@@ -3,7 +3,8 @@
  */
 import type { PowerCategory } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
-import { buildGuidedBuildSummary } from './tower-wizard-guided.js';
+import { buildGuidedBuildSummary, getGuidedFirstPassiveIntentGroups, getGuidedPassiveSelectionGroups, getGuidedSecondPassiveIntentGroups } from './tower-wizard-guided.js';
+export { getGuidedFirstPassiveIntentGroups, getGuidedPassiveSelectionGroups, getGuidedSecondPassiveIntentGroups, };
 import type { CatalogEntry } from '../../utils/power-catalog.js';
 import type { DefensePackageId, DefensePackagePreview, OffenseActiveOverride, OffenseActiveVariant, OffensePackageId, PackageReviewRow, ResolvedGrant, TowerWizardDefensePackage, TowerWizardOffensePackage, TowerWizardSelection, PackageGrantKey, PackageCustomizationNote, PackagePowerOverride, Passive1VariantOption, ReviewPowerRow, SecondPassiveGroup, SecondPassiveIntentGroup, OffenseActiveGroup, OffenseActivePick, OffenseActiveSpecialGroup, PowerPickerGroup, WizardOffensiveActiveBuff, WizardOffensiveActiveBuffGroup, WizardActiveBuffPreview, TowerWizardStep } from './tower-wizard-types.js';
 export declare function grantKeyCategory(grantKey: PackageGrantKey): PowerCategory;
@@ -47,12 +48,20 @@ export declare function isValidReplacementActiveBuffId(templateId: string, mode:
 /** @deprecated use getOffensiveActiveBuffOptions() */
 export declare const WIZARD_OFFENSIVE_ACTIVE_BUFFS: WizardOffensiveActiveBuff[];
 export declare const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[];
+/**
+ * Derive the Active Buff / Reaction recommendation axis from the first Passive.
+ * Non-defensive first Passives fall back to Armor for Buff/Reaction defaults only.
+ */
+export declare function deriveDefenseIdFromPassive1(passive1TemplateId: string | null | undefined): DefensePackageId;
 export declare function getDefaultPassive1TemplateId(defenseId: DefensePackageId): string;
 export declare function resolvePassive1TemplateId(selection: Partial<TowerWizardSelection>): string | undefined;
+/** @deprecated Legacy defense-package variant check — prefer {@link isValidWizardPassive1}. */
 export declare function isValidPassive1Variant(defenseId: DefensePackageId, templateId: string): boolean;
+export declare function isValidWizardPassive1(templateId: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): boolean;
 export declare function getPassive1VariantOptions(defenseId: DefensePackageId): Passive1VariantOption[];
 export declare function buildDefensePackagePreview(selection: Partial<TowerWizardSelection>): DefensePackagePreview | null;
-export declare function getSecondPassiveIntentGroups(defenseId: DefensePackageId, passive1TemplateId?: string, actorEchoKey?: string | null): SecondPassiveIntentGroup[];
+export declare function getFirstPassiveIntentGroups(actorEchoKey?: string | null, actorSubChoiceKey?: string | null): SecondPassiveIntentGroup[];
+export declare function getSecondPassiveIntentGroups(_defenseId: DefensePackageId | undefined, passive1TemplateId?: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): SecondPassiveIntentGroup[];
 export declare const WIZARD_STEP_ORDER: TowerWizardStep[];
 export declare function packageNeedsReplacementBuffStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function getVisibleWizardSteps(selection: Partial<TowerWizardSelection>): TowerWizardStep[];
@@ -60,7 +69,7 @@ export declare const TOWER_WIZARD_OFFENSE_PACKAGES: TowerWizardOffensePackage[];
 export declare function getDefensePackage(id: DefensePackageId): TowerWizardDefensePackage | undefined;
 export declare function getOffensePackage(id: OffensePackageId): TowerWizardOffensePackage | undefined;
 export declare function getAvailableOffensePackages(): TowerWizardOffensePackage[];
-export declare function getSecondPassiveGroups(defenseId: DefensePackageId, passive1TemplateId?: string, actorEchoKey?: string | null): SecondPassiveGroup[];
+export declare function getSecondPassiveGroups(defenseId: DefensePackageId, passive1TemplateId?: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): SecondPassiveGroup[];
 export declare function resolveActiveBuffSpec(selection: TowerWizardSelection): PowerGrantSpec;
 export declare function packageNeedsOffensiveBuffStep(selection: Partial<TowerWizardSelection>): boolean;
 export declare function playerFacingPowerName(spec: PowerGrantSpec, resolved?: ResolvedGrant): string;

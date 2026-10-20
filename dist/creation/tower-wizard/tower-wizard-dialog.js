@@ -3,7 +3,10 @@
  */
 import { applyTowerWizardPackage } from './tower-wizard-apply.js';
 import { TOWER_WIZARD_COPY } from './tower-wizard-copy.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, getDefaultPassive1TemplateId, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getSecondPassiveIntentGroups, getPassive1VariantOptions, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildManualPackageReview, buildDefensePackagePreview, collectOverrideIdentityKeys, collectPackageIdentityKeys, getDefensePackage, deriveDefenseIdFromPassive1, TOWER_WIZARD_DEFENSE_PACKAGES, buildPackageReview, getCatalogSubfamily, getFirstPassiveIntentGroups, getSecondPassiveIntentGroups, getOffenseActiveSpecialGroups, getGuidedSpecialFocusGroups, GUIDED_DELIVERY_OPTIONS, resolveGuidedCoreAttackPick, getDefensiveActiveBuffChoiceBody, getDefaultActiveBuffPreview, getOffensiveActiveBuffGroups, getSupportActiveBuffGroups, getVisibleWizardSteps, initializeOffenseOverrides, isManualBuildMode, packageNeedsDeliveryStep, packageNeedsReplacementBuffStep, packageNeedsWeakenSaveStep, resolvePassive1TemplateId, selectionUsesCatalogOffense, WIZARD_STEP_ORDER, } from './tower-wizard-packages.js';
+import { isAllowedSecondPassive } from './tower-wizard-passive-categories.js';
+import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
+import { findCatalogEntry } from '../../utils/power-catalog.js';
 import { showTowerWizardPowerPicker } from './tower-wizard-power-picker.js';
 import { computeBuildRoleRating } from './tower-wizard-build-rating.js';
 import { collectRelevantWarnings, validateTowerWizardSelection } from './tower-wizard-validation.js';
@@ -30,8 +33,9 @@ function defaultSelection() {
 }
 export class TowerWizardDialog extends BaseDialog {
     actor;
-    step = 'defense';
+    step = 'passive1';
     selection = defaultSelection();
+    secondPassiveNeedsReselect = false;
     static DEFAULT_OPTIONS = {
         id: 'tower-wizard-dialog',
         classes: ['mastery-system', 'tower-wizard-app'],
@@ -63,9 +67,10 @@ export class TowerWizardDialog extends BaseDialog {
             const specs = buildPackageGrantSpecsFromOverrides(this.selection);
             if (!specs)
                 return null;
+            const p1 = resolvePassive1TemplateId(this.selection);
             return {
                 ...this.selection,
-                defenseId: this.selection.defenseId ?? 'armor',
+                defenseId: this.selection.defenseId ?? deriveDefenseIdFromPassive1(p1),
                 secondPassiveTemplateId: this.selection.secondPassiveTemplateId ?? '',
                 activeBuffMode: this.selection.activeBuffMode ?? 'defensive',
                 delivery: this.selection.delivery ?? 'melee',
@@ -73,8 +78,12 @@ export class TowerWizardDialog extends BaseDialog {
                 manualBuildMode: true,
             };
         }
-        if (!this.selection.defenseId || !this.selection.secondPassiveTemplateId) {
+        const passive1Id = resolvePassive1TemplateId(this.selection);
+        if (!passive1Id || !this.selection.secondPassiveTemplateId) {
             return null;
+        }
+        if (!this.selection.defenseId) {
+            this.selection.defenseId = deriveDefenseIdFromPassive1(passive1Id);
         }
         if (!selectionUsesCatalogOffense(this.selection) && !this.selection.offenseId) {
             return null;
@@ -101,19 +110,29 @@ export class TowerWizardDialog extends BaseDialog {
         const visibleSteps = getVisibleWizardSteps(this.selection);
         const stepIndex = Math.max(1, visibleSteps.indexOf(this.step) + 1);
         const copy = TOWER_WIZARD_COPY;
-        const defense = this.selection.defenseId ? getDefensePackage(this.selection.defenseId) : undefined;
-        const echoKey = this.actor.system?.echo?.key ?? null;
+        const echoSys = this.actor.system;
+        const echoKey = echoSys?.echo?.key ?? null;
+        const echoSubChoiceKey = echoSys?.echo?.subChoiceKey ?? null;
         const echoContext = buildTowerWizardEchoContext(this.actor);
-        const passive1Id = this.selection.passive1TemplateId
-            ?? (this.selection.defenseId ? getDefaultPassive1TemplateId(this.selection.defenseId) : undefined);
-        const passiveIntentGroups = this.selection.defenseId && passive1Id
-            ? getSecondPassiveIntentGroups(this.selection.defenseId, passive1Id, echoKey)
+        const passive1Id = resolvePassive1TemplateId(this.selection);
+        if (passive1Id && !this.selection.defenseId) {
+            this.selection.defenseId = deriveDefenseIdFromPassive1(passive1Id);
+        }
+        const defense = this.selection.defenseId ? getDefensePackage(this.selection.defenseId) : undefined;
+        const firstPassiveIntentGroups = this.step === 'passive1'
+            ? getFirstPassiveIntentGroups(echoKey, echoSubChoiceKey)
             : [];
-        const passive1Variants = this.selection.defenseId
-            ? getPassive1VariantOptions(this.selection.defenseId)
+        const secondPassiveIntentGroups = this.step === 'passive2' && passive1Id
+            ? getSecondPassiveIntentGroups(this.selection.defenseId, passive1Id, echoKey, echoSubChoiceKey)
             : [];
         const defensePackagePreview = buildDefensePackagePreview(this.selection);
-        const secondPassivePreviewRows = (defensePackagePreview?.rows ?? []).filter((row) => row.label === 'Main Defense' || row.label === 'Passive 1' || row.label === 'Passive Category');
+        const firstPassiveEntry = passive1Id ? findCatalogEntry(passive1Id) : null;
+        const firstPassivePreview = passive1Id
+            ? {
+                label: passiveWizardChoiceLabel(firstPassiveEntry?.templateName ?? firstPassiveEntry?.name ?? passive1Id),
+                canonicalName: firstPassiveEntry?.name ?? `Passive: ${passive1Id}`,
+            }
+            : null;
         const passive2Subtitle = copy.passive2.subtitleForCategory();
         const selectedPickIds = new Set((this.selection.offenseActivePicks ?? []).map((p) => p.pickId));
         const offenseSpecialGroups = getOffenseActiveSpecialGroups(echoKey, selectedPickIds);
@@ -155,10 +174,11 @@ export class TowerWizardDialog extends BaseDialog {
             copy,
             selection: this.selection,
             defensePackages: TOWER_WIZARD_DEFENSE_PACKAGES,
-            passive1Variants,
             defensePackagePreview,
-            secondPassivePreviewRows,
-            secondPassiveIntentGroups: passiveIntentGroups,
+            firstPassiveIntentGroups,
+            secondPassiveIntentGroups,
+            firstPassivePreview,
+            secondPassiveNeedsReselect: this.secondPassiveNeedsReselect,
             passive2Subtitle,
             offenseSpecialGroups,
             offensePickCount,
@@ -185,7 +205,8 @@ export class TowerWizardDialog extends BaseDialog {
             defensiveActiveBuffChoiceBody: this.selection.defenseId
                 ? getDefensiveActiveBuffChoiceBody(this.selection.defenseId)
                 : '',
-            isDefense: this.step === 'defense',
+            isDefense: false,
+            isPassive1: this.step === 'passive1',
             isDefensePassiveVariant: false,
             isPassive2: this.step === 'passive2',
             isActiveBuffChoice: this.step === 'activeBuffChoice',
@@ -196,7 +217,7 @@ export class TowerWizardDialog extends BaseDialog {
             isWeakenSave: this.step === 'weakenSave',
             isDelivery: this.step === 'delivery',
             isReview: this.step === 'review',
-            showBack: this.step !== 'defense' && (this.step !== 'review' || manualMode),
+            showBack: this.step !== 'passive1' && (this.step !== 'review' || manualMode),
             showNext: this.step === 'offense',
             canAdvance: this.#canAdvance(),
         };
@@ -237,10 +258,12 @@ export class TowerWizardDialog extends BaseDialog {
     }
     #canAdvance() {
         switch (this.step) {
+            case 'passive1':
+                return !!resolvePassive1TemplateId(this.selection);
             case 'defense':
-                return !!this.selection.defenseId && !!resolvePassive1TemplateId(this.selection);
+                return !!resolvePassive1TemplateId(this.selection);
             case 'passive2':
-                return !!this.selection.secondPassiveTemplateId;
+                return !!this.selection.secondPassiveTemplateId && !this.secondPassiveNeedsReselect;
             case 'activeBuffChoice':
                 return !!this.selection.activeBuffMode;
             case 'offensiveBuff':
@@ -295,7 +318,7 @@ export class TowerWizardDialog extends BaseDialog {
             }
             break;
         }
-        return prev ?? 'defense';
+        return prev ?? 'passive1';
     }
     #advanceAfterSelection() {
         if (!this.#canAdvance())
@@ -439,22 +462,40 @@ export class TowerWizardDialog extends BaseDialog {
     async _onRender(context, options) {
         await super._onRender(context, options);
         const root = $(this.element);
-        root.find('.js-tw-select-defense').on('click', (ev) => {
+        root.find('.js-tw-select-passive1').on('click', (ev) => {
             const el = $(ev.currentTarget);
             el.addClass('is-picked');
-            const defenseId = el.data('defense-id');
+            const templateId = String(el.data('passive-id') || '');
+            if (!templateId)
+                return;
             this.selection.manualBuildMode = false;
-            this.selection.defenseId = defenseId;
-            this.selection.passive1TemplateId = getDefaultPassive1TemplateId(defenseId);
-            this.selection.secondPassiveTemplateId = undefined;
+            this.selection.passive1TemplateId = templateId;
+            this.selection.defenseId = deriveDefenseIdFromPassive1(templateId);
             this.selection.activeBuffMode = 'defensive';
             this.selection.offensiveActiveBuffId = undefined;
-            this.selection.customizedSlots = { passive1: false, activeBuff: false, reaction: false };
+            this.selection.customizedSlots = { passive1: true, activeBuff: false, reaction: false };
             this.selection.offenseId = undefined;
             this.selection.offenseActivePicks = undefined;
             this.selection.guidedAttackDelivery = undefined;
             this.selection.offenseActiveOverrides = undefined;
             this.#clearPowerOverrides();
+            const echoSys = this.actor.system;
+            const prevSecond = this.selection.secondPassiveTemplateId;
+            if (prevSecond) {
+                const stillLegal = isAllowedSecondPassive(prevSecond, templateId, echoSys?.echo?.key ?? null, echoSys?.echo?.subChoiceKey ?? null);
+                if (stillLegal) {
+                    this.secondPassiveNeedsReselect = false;
+                }
+                else {
+                    this.selection.secondPassiveTemplateId = undefined;
+                    this.secondPassiveNeedsReselect = true;
+                }
+            }
+            else {
+                this.secondPassiveNeedsReselect = false;
+            }
+            this.#removePowerOverride('passive-1');
+            this.#removePowerOverride('passive-2');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
         root.find('.js-tw-select-delivery').on('click', (ev) => {
@@ -494,27 +535,10 @@ export class TowerWizardDialog extends BaseDialog {
             this.#syncGuidedOffenseOverrides();
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
-        root.find('.js-tw-select-passive1-variant').on('click', (ev) => {
-            const el = $(ev.currentTarget);
-            el.addClass('is-picked');
-            const templateId = String(el.data('passive-id') || '');
-            const defenseId = this.selection.defenseId;
-            if (!defenseId || !templateId)
-                return;
-            this.selection.passive1TemplateId = templateId;
-            const defaultId = getDefaultPassive1TemplateId(defenseId);
-            this.selection.customizedSlots = {
-                ...(this.selection.customizedSlots ?? {}),
-                passive1: templateId !== defaultId,
-            };
-            this.selection.secondPassiveTemplateId = undefined;
-            this.#removePowerOverride('passive-1');
-            this.#removePowerOverride('passive-2');
-            window.setTimeout(() => this.#advanceAfterSelection(), 120);
-        });
         root.find('.js-tw-select-passive2').on('click', (ev) => {
             $(ev.currentTarget).addClass('is-picked');
             this.selection.secondPassiveTemplateId = String($(ev.currentTarget).data('passive-id') || '');
+            this.secondPassiveNeedsReselect = false;
             this.#removePowerOverride('passive-2');
             window.setTimeout(() => this.#advanceAfterSelection(), 120);
         });
@@ -604,8 +628,8 @@ export class TowerWizardDialog extends BaseDialog {
         });
         root.find('.js-tw-reset-power').on('click', (ev) => {
             const grantKey = String($(ev.currentTarget).data('grant-key') || '');
-            if (grantKey === 'passive-1' && this.selection.defenseId) {
-                this.selection.passive1TemplateId = getDefaultPassive1TemplateId(this.selection.defenseId);
+            if (grantKey === 'passive-1') {
+                // Guided builds choose Passive 1 freely — reset only clears a review override.
                 this.selection.customizedSlots = {
                     ...(this.selection.customizedSlots ?? {}),
                     passive1: false,

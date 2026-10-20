@@ -2,20 +2,17 @@
  * Tower Wizard — validation for selections and finalize.
  */
 import { CATEGORY_LABELS, CATEGORY_ORDER, activeTemplateCanBeSpell, findCatalogEntry, TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, TOWER_WIZARD_POWER_TOTAL, creationPowerRequirementsForMasteryRank, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem, } from '../../utils/power-catalog.js';
-import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, getDefaultPassive1TemplateId, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidPassive1Variant, isValidReplacementActiveBuffId, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
+import { buildPackageGrantSpecs, buildPackageGrantSpecsFromOverrides, buildPackageReview, catalogEntryMatchesGrantKey, getDefensePackage, deriveDefenseIdFromPassive1, getDefaultPassive1TemplateId, getOffensePackage, grantKeyCategory, isManualBuildMode, isValidReplacementActiveBuffId, isValidWizardPassive1, resolveGrant, resolvePassive1TemplateId, selectionUsesCatalogOffense, } from './tower-wizard-packages.js';
 import { getPassiveCategoryConflictMessage, isAllowedSecondPassive, } from './tower-wizard-passive-categories.js';
 import { collectEchoAdvisorWarnings, } from './tower-wizard-echo-advisor.js';
-export function isValidSecondPassiveForDefense(defenseId, templateId, passive1TemplateId) {
-    const defense = getDefensePackage(defenseId);
-    if (!defense)
-        return false;
-    const passive1 = passive1TemplateId ?? getDefaultPassive1TemplateId(defense.id);
+export function isValidSecondPassiveForDefense(_defenseId, templateId, passive1TemplateId, actorEchoKey, actorSubChoiceKey) {
+    const passive1 = passive1TemplateId;
     if (!passive1)
         return false;
     const entry = findCatalogEntry(templateId);
     if (entry?.category !== 'passive')
         return false;
-    return isAllowedSecondPassive(templateId, passive1);
+    return isAllowedSecondPassive(templateId, passive1, actorEchoKey, actorSubChoiceKey);
 }
 export function validatePowerOverrideForGrantKey(selection, override) {
     const entry = findCatalogEntry(override.templateId, override.special);
@@ -106,15 +103,14 @@ export function validateTowerWizardSelection(selection) {
     if (isManualBuildMode(selection)) {
         return validateManualWizardSelection(selection);
     }
-    if (!selection.defenseId)
-        return 'Choose a defensive style.';
     const passive1Id = resolvePassive1TemplateId(selection);
-    if (!passive1Id || !isValidPassive1Variant(selection.defenseId, passive1Id)) {
-        return 'Choose a Passive 1 variant for your defense package.';
+    if (!passive1Id || !isValidWizardPassive1(passive1Id)) {
+        return 'Choose your first Passive.';
     }
+    const defenseId = selection.defenseId ?? deriveDefenseIdFromPassive1(passive1Id);
     if (!selection.secondPassiveTemplateId)
         return 'Choose a second Passive.';
-    if (!isValidSecondPassiveForDefense(selection.defenseId, selection.secondPassiveTemplateId, passive1Id)) {
+    if (!isValidSecondPassiveForDefense(defenseId, selection.secondPassiveTemplateId, passive1Id)) {
         const conflict = getPassiveCategoryConflictMessage(passive1Id, selection.secondPassiveTemplateId);
         return conflict ?? 'That second Passive is not available for your package.';
     }
@@ -125,14 +121,18 @@ export function validateTowerWizardSelection(selection) {
         return 'Choose a support Active Buff.';
     }
     if (selection.offensiveActiveBuffId
-        && !isValidReplacementActiveBuffId(selection.offensiveActiveBuffId, selection.activeBuffMode ?? 'defensive', selection.defenseId)) {
+        && !isValidReplacementActiveBuffId(selection.offensiveActiveBuffId, selection.activeBuffMode ?? 'defensive', defenseId)) {
         return 'That Active Buff replacement is not available.';
     }
     if (!selection.offenseId && !selectionUsesCatalogOffense(selection)) {
         return 'Choose exactly two Actives.';
     }
     if (selectionUsesCatalogOffense(selection)) {
-        const pickErr = validateOffenseActivePicks(selection);
+        const pickErr = validateOffenseActivePicks({
+            ...selection,
+            defenseId,
+            passive1TemplateId: passive1Id,
+        });
         if (pickErr)
             return pickErr;
     }
@@ -147,7 +147,11 @@ export function validateTowerWizardSelection(selection) {
             return 'Choose which Save to pressure for Weaken.';
         }
     }
-    const full = selection;
+    const full = {
+        ...selection,
+        defenseId,
+        passive1TemplateId: passive1Id,
+    };
     for (const override of full.powerOverrides ?? []) {
         const overrideErr = validatePowerOverrideForGrantKey(full, override);
         if (overrideErr)

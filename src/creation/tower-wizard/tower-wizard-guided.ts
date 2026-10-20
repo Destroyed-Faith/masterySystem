@@ -3,10 +3,12 @@
  */
 
 import {
+    isAllowedFirstPassive,
     isAllowedSecondPassive,
     secondPassiveCardWarning,
     type SecondPassiveBucket,
 } from './tower-wizard-passive-categories.js';
+import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
 import type {
     DefensePackageId,
     DeliveryMode,
@@ -174,8 +176,8 @@ const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
     // on yourself from a daily (Tyhran Day) pool. Blood Feast / Battle Trance /
     // Stillness Recovery and every "+ Healing" combo are retired.
     'passive-regeneration': {
-        playerTitle: 'Passive: Regeneration',
-        powerName: 'Passive: Regeneration',
+        playerTitle: 'Regeneration',
+        powerName: 'Regeneration',
         explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each).',
     },
     'passive-killing-intent': {
@@ -549,38 +551,97 @@ function echoAllowsEntry(
     return echoRequirementMet(entry.requiresEcho, actorEchoKey, actorSubChoiceKey);
 }
 
-export function wrapGuidedPassive2Card(templateId: string): SecondPassiveOption | null {
+/** Defensive catalogue Passives — optional recommendation chips on Step 1 only. */
+const WIZARD_RECOMMENDED_SURVIVABILITY = new Set([
+    'passive-fortified-frame',
+    'passive-evade',
+    'passive-damage-reduction',
+    'passive-ghostform',
+    'passive-parry',
+    'passive-damage-negation',
+    'passive-temp-hp',
+    'passive-deep-vitality',
+    'passive-fortitude',
+    'passive-spell-resistance',
+    'passive-ward',
+    'passive-invisibility',
+]);
+
+export function wrapGuidedPassiveCard(
+    templateId: string,
+    opts?: { recommended?: boolean },
+): SecondPassiveOption | null {
     if (isPassiveHiddenFromGuidedPassive2(templateId)) return null;
 
     const entry = findCatalogEntry(templateId);
     if (!entry) return null;
 
     const wrapper = GUIDED_PASSIVE2_WRAPPERS[templateId];
-    const powerName = String(entry.name || wrapper?.powerName || secondPassiveCatalogName(templateId)).trim();
+    const canonicalName = String(entry.name || wrapper?.powerName || secondPassiveCatalogName(templateId)).trim();
+    const shortLabel = passiveWizardChoiceLabel(
+        wrapper?.playerTitle || wrapper?.powerName || entry.templateName || canonicalName,
+    );
     const mechanicsPreview = catalogMechanicsText(entry, 4);
     const hint = wrapper?.explanation || entry.description?.trim() || '';
 
     return {
         id: templateId,
-        label: powerName,
+        label: shortLabel,
         hint,
-        powerName,
+        powerName: canonicalName,
         mechanicsPreview: mechanicsPreview ? `PL 4 — ${mechanicsPreview}` : '',
         warning: secondPassiveCardWarning(templateId),
+        recommended: opts?.recommended === true,
     };
 }
 
-export function getGuidedSecondPassiveIntentGroups(
-    passive1TemplateId: string,
-    actorEchoKey?: string | null,
+/** @deprecated Use {@link wrapGuidedPassiveCard}. */
+export function wrapGuidedPassive2Card(templateId: string): SecondPassiveOption | null {
+    return wrapGuidedPassiveCard(templateId);
+}
+
+export interface GuidedPassiveSelectionOptions {
+    /** When set, exclude this Passive and enforce category compatibility (Step 2). */
+    excludeTemplateId?: string | null;
+    actorEchoKey?: string | null;
+    actorSubChoiceKey?: string | null;
+    /** Mark survivability recommendations (Step 1 only). */
+    markRecommended?: boolean;
+}
+
+/**
+ * Shared Passive catalogue provider for Wizard Steps 1 and 2.
+ * Step 1: omit `excludeTemplateId`. Step 2: pass Passive 1 as `excludeTemplateId`.
+ */
+export function getGuidedPassiveSelectionGroups(
+    opts: GuidedPassiveSelectionOptions = {},
 ): SecondPassiveIntentGroup[] {
+    const {
+        excludeTemplateId,
+        actorEchoKey,
+        actorSubChoiceKey,
+        markRecommended = false,
+    } = opts;
     const groups: SecondPassiveIntentGroup[] = [];
 
     for (const groupId of PASSIVE_SELECTION_GROUP_ORDER) {
         const passives: SecondPassiveOption[] = [];
         for (const templateId of PASSIVE_SELECTION_GROUPS[groupId]) {
-            if (!isAllowedSecondPassive(templateId, passive1TemplateId, actorEchoKey)) continue;
-            const card = wrapGuidedPassive2Card(templateId);
+            if (excludeTemplateId) {
+                if (!isAllowedSecondPassive(
+                    templateId,
+                    excludeTemplateId,
+                    actorEchoKey,
+                    actorSubChoiceKey,
+                )) {
+                    continue;
+                }
+            } else if (!isAllowedFirstPassive(templateId, actorEchoKey, actorSubChoiceKey)) {
+                continue;
+            }
+            const card = wrapGuidedPassiveCard(templateId, {
+                recommended: markRecommended && WIZARD_RECOMMENDED_SURVIVABILITY.has(templateId),
+            });
             if (!card) continue;
             passives.push(card);
         }
@@ -593,6 +654,30 @@ export function getGuidedSecondPassiveIntentGroups(
         });
     }
     return groups;
+}
+
+export function getGuidedSecondPassiveIntentGroups(
+    passive1TemplateId: string,
+    actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
+): SecondPassiveIntentGroup[] {
+    if (!passive1TemplateId) return [];
+    return getGuidedPassiveSelectionGroups({
+        excludeTemplateId: passive1TemplateId,
+        actorEchoKey,
+        actorSubChoiceKey,
+    });
+}
+
+export function getGuidedFirstPassiveIntentGroups(
+    actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
+): SecondPassiveIntentGroup[] {
+    return getGuidedPassiveSelectionGroups({
+        actorEchoKey,
+        actorSubChoiceKey,
+        markRecommended: true,
+    });
 }
 
 export function guidedDeliveryToCombatDelivery(mode: GuidedAttackDelivery): DeliveryMode {
@@ -782,8 +867,8 @@ export function buildGuidedBuildSummary(
 
     if (passive1Row) {
         slots.push({
-            role: 'Main Passive',
-            text: `${passive1Row.playerName} is your main defense. It keeps you alive through your chosen defensive package.`,
+            role: 'First Passive',
+            text: `${passive1Row.playerName} is your first Passive. It defines a core part of how your character fights or survives.`,
         });
     }
 

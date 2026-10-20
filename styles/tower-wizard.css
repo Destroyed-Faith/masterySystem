@@ -445,19 +445,47 @@
   flex-wrap: wrap;
   align-items: stretch;
   gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tower-wizard-passive-select-step .tower-wizard-passive-group-label {
+  margin: 10px 0 6px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.tower-wizard-passive-select-step .tower-wizard-recommend-note {
+  margin: 0 0 10px;
+  font-size: 0.86rem;
+  opacity: 0.85;
 }
 
 .tower-wizard-app .tower-wizard-passive-tiles button.tower-wizard-passive-tile {
   position: relative;
-  flex: 1 1 132px;
+  flex: 1 1 148px;
   width: auto;
-  max-width: 200px;
+  max-width: 220px;
   min-height: 64px;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 12px 10px;
   overflow: visible;
+}
+
+.tower-wizard-app .tower-wizard-passive-tiles button.tower-wizard-passive-tile.is-recommended {
+  border-color: color-mix(in srgb, var(--df-accent, #c9a227) 55%, var(--df-border-primary, #3a3f44));
+}
+
+.tower-wizard-chip-compact {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  line-height: 1.2;
 }
 
 .tower-wizard-passive-tile .chip-label {

@@ -10,6 +10,7 @@ import type { TowerWizardSelection } from '../src/creation/tower-wizard/tower-wi
 
 const baseSelection: TowerWizardSelection = {
     defenseId: 'armor',
+    passive1TemplateId: 'passive-fortified-frame',
     secondPassiveTemplateId: 'passive-temp-hp',
     activeBuffMode: 'defensive',
     offenseId: 'direct-damage',

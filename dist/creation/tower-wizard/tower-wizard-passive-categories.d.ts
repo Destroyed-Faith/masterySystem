@@ -12,7 +12,10 @@ export declare function getNormalizedPassiveCategories(templateId: string): stri
 export declare function formatPassiveCategoryLabel(category: string): string;
 export declare function formatPassiveCategoryList(templateId: string): string;
 export declare function passivesAreCategoryCompatible(passive1TemplateId: string, passive2TemplateId: string): boolean;
-export declare function isAllowedSecondPassive(passive2TemplateId: string, passive1TemplateId: string, actorEchoKey?: string | null): boolean;
+export declare function isLegalPassiveForEchoAndPrerequisites(templateId: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): boolean;
+/** First Passive: any canonical catalogue entry that meets Echo / prerequisites. */
+export declare function isAllowedFirstPassive(templateId: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): boolean;
+export declare function isAllowedSecondPassive(passive2TemplateId: string, passive1TemplateId: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): boolean;
 export declare function getPassiveCategoryConflictMessage(passive1TemplateId: string, passive2TemplateId: string): string | null;
 export declare function secondPassiveBucketFor(templateId: string): SecondPassiveBucket;
 export declare function secondPassiveCardWarning(_templateId: string): string | undefined;

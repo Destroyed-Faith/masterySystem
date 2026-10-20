@@ -8,7 +8,7 @@ export type OffensePackageId = 'lacerate-push' | 'ruin' | 'slow' | 'expose' | 'c
 export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 export type GuidedAttackDelivery = 'melee' | 'ranged' | 'spell' | 'natural';
-export type TowerWizardStep = 'defense' | 'defensePassiveVariant' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offenseDelivery' | 'offenseSpecial' | 'offense' | 'weakenSave' | 'delivery' | 'review';
+export type TowerWizardStep = 'passive1' | 'defense' | 'defensePassiveVariant' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offenseDelivery' | 'offenseSpecial' | 'offense' | 'weakenSave' | 'delivery' | 'review';
 export type OffenseActiveVariant = 'weapon-single' | 'weapon-aoe' | 'weapon-split' | 'damage-t3' | 'damage-t4' | 'damage-t4-spell';
 export type PackageGrantKey = 'passive-1' | 'passive-2' | 'active-buff' | 'reaction' | 'offense-0' | 'offense-1';
 export interface PackagePowerOverride {
@@ -65,8 +65,13 @@ export interface OffenseActivePick {
     special?: string | null;
 }
 export interface TowerWizardSelection {
+    /**
+     * Recommended Active Buff / Reaction axis derived from the first Passive when
+     * that Passive matches a defense package; otherwise a safe default for package
+     * Buff/Reaction recommendations only (never forces a defensive Passive).
+     */
     defenseId: DefensePackageId;
-    /** Passive 1 variant; defaults to the defense package recommendation when unset. */
+    /** First Passive (canonical catalogue templateId). Required for guided builds. */
     passive1TemplateId?: string;
     secondPassiveTemplateId: string;
     activeBuffMode: ActiveBuffMode;
@@ -133,10 +138,12 @@ export interface SecondPassiveOption {
     label: string;
     hint: string;
     warning?: string;
-    /** Catalog / system power name (Guided Mode secondary text). */
+    /** Catalog / system power name (full canonical heading when available). */
     powerName?: string;
     whenToUse?: string;
     mechanicsPreview?: string;
+    /** Optional survivability recommendation chip (Step 1). */
+    recommended?: boolean;
 }
 export interface SecondPassiveGroup {
     groupLabel: string;

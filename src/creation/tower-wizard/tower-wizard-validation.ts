@@ -21,14 +21,15 @@ import {
     buildPackageReview,
     catalogEntryMatchesGrantKey,
     getDefensePackage,
+    deriveDefenseIdFromPassive1,
     getDefaultPassive1TemplateId,
     getOffensePackage,
     grantKeyCategory,
     isManualBuildMode,
     isValidOffensiveActiveBuffId,
-    isValidPassive1Variant,
     isValidReplacementActiveBuffId,
     isValidSupportActiveBuffId,
+    isValidWizardPassive1,
     resolveGrant,
     resolvePassive1TemplateId,
     selectionUsesCatalogOffense,
@@ -45,17 +46,17 @@ import {
 } from './tower-wizard-echo-advisor.js';
 
 export function isValidSecondPassiveForDefense(
-    defenseId: string,
+    _defenseId: string,
     templateId: string,
     passive1TemplateId?: string,
+    actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
 ): boolean {
-    const defense = getDefensePackage(defenseId as TowerWizardSelection['defenseId']);
-    if (!defense) return false;
-    const passive1 = passive1TemplateId ?? getDefaultPassive1TemplateId(defense.id);
+    const passive1 = passive1TemplateId;
     if (!passive1) return false;
     const entry = findCatalogEntry(templateId);
     if (entry?.category !== 'passive') return false;
-    return isAllowedSecondPassive(templateId, passive1);
+    return isAllowedSecondPassive(templateId, passive1, actorEchoKey, actorSubChoiceKey);
 }
 
 export function validatePowerOverrideForGrantKey(
@@ -142,14 +143,14 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
     if (isManualBuildMode(selection)) {
         return validateManualWizardSelection(selection);
     }
-    if (!selection.defenseId) return 'Choose a defensive style.';
     const passive1Id = resolvePassive1TemplateId(selection);
-    if (!passive1Id || !isValidPassive1Variant(selection.defenseId, passive1Id)) {
-        return 'Choose a Passive 1 variant for your defense package.';
+    if (!passive1Id || !isValidWizardPassive1(passive1Id)) {
+        return 'Choose your first Passive.';
     }
+    const defenseId = selection.defenseId ?? deriveDefenseIdFromPassive1(passive1Id);
     if (!selection.secondPassiveTemplateId) return 'Choose a second Passive.';
     if (!isValidSecondPassiveForDefense(
-        selection.defenseId,
+        defenseId,
         selection.secondPassiveTemplateId,
         passive1Id,
     )) {
@@ -167,7 +168,7 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
         && !isValidReplacementActiveBuffId(
             selection.offensiveActiveBuffId,
             selection.activeBuffMode ?? 'defensive',
-            selection.defenseId,
+            defenseId,
         )
     ) {
         return 'That Active Buff replacement is not available.';
@@ -176,7 +177,11 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
         return 'Choose exactly two Actives.';
     }
     if (selectionUsesCatalogOffense(selection)) {
-        const pickErr = validateOffenseActivePicks(selection as TowerWizardSelection);
+        const pickErr = validateOffenseActivePicks({
+            ...selection,
+            defenseId,
+            passive1TemplateId: passive1Id,
+        } as TowerWizardSelection);
         if (pickErr) return pickErr;
     } else if (!selection.offenseId) {
         return 'Choose exactly two Actives.';
@@ -188,7 +193,11 @@ export function validateTowerWizardSelection(selection: Partial<TowerWizardSelec
         }
     }
 
-    const full = selection as TowerWizardSelection;
+    const full = {
+        ...selection,
+        defenseId,
+        passive1TemplateId: passive1Id,
+    } as TowerWizardSelection;
     for (const override of full.powerOverrides ?? []) {
         const overrideErr = validatePowerOverrideForGrantKey(full, override);
         if (overrideErr) return overrideErr;

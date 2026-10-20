@@ -5,6 +5,7 @@
  * any category with Passive 1.
  */
 import { echoRequirementMet, findCatalogEntry } from '../../utils/power-catalog.js';
+import { isCanonicalPassiveTemplateId } from '../../utils/passive-selection-groups.js';
 /** Categories hidden from the guided Second Passive step (retired Awareness only). */
 const GUIDED_SECOND_PASSIVE_HIDDEN_CATEGORIES = new Set([
     'awareness',
@@ -245,17 +246,30 @@ export function passivesAreCategoryCompatible(passive1TemplateId, passive2Templa
 function isHiddenFromGuidedSecondPassive(categories) {
     return categories.some((c) => GUIDED_SECOND_PASSIVE_HIDDEN_CATEGORIES.has(normalizePassiveCategory(c)));
 }
-function isLegalForEchoAndPrerequisites(templateId, actorEchoKey) {
+export function isLegalPassiveForEchoAndPrerequisites(templateId, actorEchoKey, actorSubChoiceKey) {
     const entry = findCatalogEntry(templateId);
     if (!entry)
         return false;
     if (entry.requiresEcho?.length) {
-        if (!echoRequirementMet(entry.requiresEcho, actorEchoKey))
+        if (!echoRequirementMet(entry.requiresEcho, actorEchoKey, actorSubChoiceKey))
             return false;
     }
     return true;
 }
-export function isAllowedSecondPassive(passive2TemplateId, passive1TemplateId, actorEchoKey) {
+/** First Passive: any canonical catalogue entry that meets Echo / prerequisites. */
+export function isAllowedFirstPassive(templateId, actorEchoKey, actorSubChoiceKey) {
+    if (!templateId)
+        return false;
+    if (!isCanonicalPassiveTemplateId(templateId))
+        return false;
+    const entry = findCatalogEntry(templateId);
+    if (!entry || entry.category !== 'passive')
+        return false;
+    if (entry.tags?.includes('artifact-only'))
+        return false;
+    return isLegalPassiveForEchoAndPrerequisites(templateId, actorEchoKey, actorSubChoiceKey);
+}
+export function isAllowedSecondPassive(passive2TemplateId, passive1TemplateId, actorEchoKey, actorSubChoiceKey) {
     if (!passive1TemplateId || !passive2TemplateId)
         return false;
     if (passive2TemplateId === passive1TemplateId)
@@ -267,8 +281,9 @@ export function isAllowedSecondPassive(passive2TemplateId, passive1TemplateId, a
         return false;
     if (!passivesAreCategoryCompatible(passive1TemplateId, passive2TemplateId))
         return false;
-    if (!isLegalForEchoAndPrerequisites(passive2TemplateId, actorEchoKey))
+    if (!isLegalPassiveForEchoAndPrerequisites(passive2TemplateId, actorEchoKey, actorSubChoiceKey)) {
         return false;
+    }
     return true;
 }
 export function getPassiveCategoryConflictMessage(passive1TemplateId, passive2TemplateId) {

@@ -11,7 +11,6 @@ import {
     getCategoryPickerGroups,
     getOffenseActiveGroups,
     getOffenseActiveSpecialGroups,
-    getPassive1VariantOptions,
     getSecondPassiveGroups,
     getSecondPassiveIntentGroups,
     getVisibleWizardSteps,
@@ -30,6 +29,7 @@ import type { TowerWizardSelection } from '../src/creation/tower-wizard/tower-wi
 
 const baseSelection: TowerWizardSelection = {
     defenseId: 'armor',
+    passive1TemplateId: 'passive-fortified-frame',
     secondPassiveTemplateId: 'passive-temp-hp',
     activeBuffMode: 'defensive',
     offenseId: 'direct-damage',
@@ -70,7 +70,7 @@ describe('tower-wizard-packages', () => {
         expect(allIds).not.toContain('extend-buff-damage-reduction');
     });
 
-    it('guided passive 2 uses catalogue groups and canonical names', () => {
+    it('guided passive selection uses short choice labels and PL previews', () => {
         const groups = getSecondPassiveIntentGroups('evade', 'passive-evade');
         expect(groups.map((g) => g.intentLabel)).toEqual(
             expect.arrayContaining(['Offensive', 'Defensive', 'Utility & Mobility']),
@@ -80,32 +80,20 @@ describe('tower-wizard-packages', () => {
         const regen = all.find((p) => p.id === 'passive-regeneration');
         const damage = all.find((p) => p.id === 'passive-killing-intent');
 
-        expect(armor?.label).toBe('Passive: Armor');
+        expect(armor?.label).toBe('Armor');
+        expect(armor?.powerName).toBe('Passive: Armor');
         expect(armor?.mechanicsPreview).toMatch(/PL 4/);
         expect(armor?.mechanicsPreview).toMatch(/\+5 Armor/);
         expect(all.some((p) => p.id === 'passive-armor-healing')).toBe(false);
 
-        expect(regen?.label).toBe('Passive: Regeneration');
+        expect(regen?.label).toBe('Regeneration');
         expect(regen?.mechanicsPreview).toMatch(/2 Scarred Health Bars/);
         expect(regen?.mechanicsPreview).not.toMatch(/heal \d+ HP/);
         expect(all.some((p) => p.id === 'passive-blood-feast')).toBe(false);
 
-        expect(damage?.label).toBe('Passive: Damage');
+        expect(damage?.label).toBe('Damage');
         expect(damage?.mechanicsPreview).toMatch(/\+2d8 Damage/);
         expect(all.some((p) => p.id === 'passive-momentum')).toBe(false);
-    });
-
-    it('armor Passive 1 variants include fortified frame and conditional options', () => {
-        const variants = getPassive1VariantOptions('armor');
-        expect(variants.map((v) => v.templateId)).toContain('passive-fortified-frame');
-        expect(variants.map((v) => v.templateId)).not.toContain('passive-armor-temp-hp');
-        expect(variants.find((v) => v.templateId === 'passive-fortified-frame')?.isRecommended).toBe(true);
-    });
-
-    it('damage reduction Passive 1 variant is locked to the premium package', () => {
-        const variants = getPassive1VariantOptions('damage-reduction');
-        expect(variants).toHaveLength(1);
-        expect(variants[0]?.isLocked).toBe(true);
     });
 
     it('second passive groups list DR, Phasing, Parry, and Negation under Defensive', () => {
@@ -116,11 +104,13 @@ describe('tower-wizard-packages', () => {
         expect(defensive?.passives.some((p) => p.id === 'passive-parry')).toBe(true);
         expect(defensive?.passives.some((p) => p.id === 'passive-damage-negation')).toBe(true);
         expect(defensive?.passives.find((p) => p.id === 'passive-damage-reduction')?.label).toBe(
-            'Passive: Damage Reduction',
+            'Damage Reduction',
         );
     });
 
-    it('guided step order includes Passive 1 variant after defense', () => {
+    it('guided step order uses free Passive 1 then Passive 2', () => {
+        expect(WIZARD_STEP_ORDER[0]).toBe('passive1');
+        expect(WIZARD_STEP_ORDER).not.toContain('defense');
         expect(WIZARD_STEP_ORDER).not.toContain('defensePassiveVariant');
         expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).not.toContain(
             'defensePassiveVariant',

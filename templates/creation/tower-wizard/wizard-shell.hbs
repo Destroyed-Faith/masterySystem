@@ -19,51 +19,54 @@
     </div>
     {{/if}}
 
-    {{#if isDefense}}
-    <section class="tower-wizard-step">
-      <h3>{{copy.defense.question}}</h3>
-      <div class="tower-wizard-cards">
-        {{#each defensePackagesWithEcho}}
-        <button type="button" class="tower-wizard-card tower-wizard-defense-card js-tw-select-defense{{#if (eq ../selection.defenseId this.id)}} is-selected{{/if}}{{#if this.echoConflict}} has-echo-conflict{{/if}}{{#if this.echoRecommended}} is-echo-recommended{{/if}}" data-defense-id="{{this.id}}">
-          <span class="tower-wizard-defense-copy">
-            <span class="tower-wizard-card-title">{{this.label}}</span>
-            <span class="tower-wizard-card-text">{{this.explanation}}</span>
+    {{#if isPassive1}}
+    <section class="tower-wizard-step tower-wizard-passive-select-step">
+      <h3>{{copy.passive1.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.passive1.body}}</p>
+      <p class="tower-wizard-prose tower-wizard-recommend-note">{{copy.passive1.recommendNote}}</p>
+      <h4>{{copy.passive1.nowChoose}}</h4>
+      {{#each firstPassiveIntentGroups}}
+      <h4 class="tower-wizard-passive-group-label">{{this.intentLabel}}</h4>
+      <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
+        {{#each this.passives}}
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive1{{#if (eq ../../selection.passive1TemplateId this.id)}} is-selected{{/if}}{{#if this.recommended}} is-recommended{{/if}}" data-passive-id="{{this.id}}" title="{{this.powerName}}">
+          <span class="chip-label">{{this.label}}</span>
+          {{#if this.recommended}}<span class="tower-wizard-chip tower-wizard-chip-compact">{{../../copy.defensePassiveVariant.recommended}}</span>{{/if}}
+          <span class="tower-wizard-tile-tip">
+            <span class="tower-wizard-tile-tip-body">{{this.hint}}</span>
+            {{#if this.mechanicsPreview}}<span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>{{/if}}
           </span>
-          <span class="tower-wizard-defense-name">{{this.mechanicLabel}}</span>
-          {{#if this.echoRecommended}}<span class="tower-wizard-chip">{{../copy.echo.defenseRecommended}}</span>{{/if}}
-          {{#if this.echoConflict}}<span class="tower-wizard-warn">{{../copy.echo.defenseConflict}}: {{this.echoConflict.artifactName}} ({{this.echoConflict.displayName}})</span>{{/if}}
-          {{#if this.warning}}<span class="tower-wizard-warn">{{this.warning}}</span>{{/if}}
         </button>
         {{/each}}
       </div>
+      {{/each}}
     </section>
     {{/if}}
 
     {{#if isPassive2}}
-    <section class="tower-wizard-step">
+    <section class="tower-wizard-step tower-wizard-passive-select-step">
       <h3>{{copy.passive2.heading}}</h3>
       <p class="tower-wizard-prose">{{passive2Subtitle}}</p>
-      {{#if secondPassivePreviewRows.length}}
+      {{#if firstPassivePreview}}
       <div class="tower-wizard-package-preview">
         <h4>{{copy.passive2.alreadySelected}}</h4>
         <ul class="tower-wizard-package-preview-list">
-          {{#each secondPassivePreviewRows}}
           <li class="tower-wizard-package-preview-row">
-            <span class="tower-wizard-package-preview-key">{{this.label}}</span>
-            <span class="tower-wizard-package-preview-value">{{this.value}}</span>
+            <span class="tower-wizard-package-preview-key">{{copy.passive2.alreadySelected}}</span>
+            <span class="tower-wizard-package-preview-value">{{firstPassivePreview.label}}</span>
           </li>
-          {{/each}}
         </ul>
       </div>
       {{/if}}
+      {{#if secondPassiveNeedsReselect}}
+      <p class="tower-wizard-warn">{{copy.passive2.revalidateNote}}</p>
+      {{/if}}
       <h4>{{copy.passive2.nowChoose}}</h4>
       {{#each secondPassiveIntentGroups}}
-      {{#if this.warning}}<p class="tower-wizard-warn">{{this.warning}}</p>{{/if}}
-      {{/each}}
+      <h4 class="tower-wizard-passive-group-label">{{this.intentLabel}}</h4>
       <div class="tower-wizard-passive-grid tower-wizard-passive-tiles">
-        {{#each secondPassiveIntentGroups}}
         {{#each this.passives}}
-        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive2{{#if (eq ../../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}">
+        <button type="button" class="tower-wizard-passive-card tower-wizard-passive-tile js-tw-select-passive2{{#if (eq ../../selection.secondPassiveTemplateId this.id)}} is-selected{{/if}}" data-passive-id="{{this.id}}" title="{{this.powerName}}">
           <span class="chip-label">{{this.label}}</span>
           <span class="tower-wizard-tile-tip">
             <span class="tower-wizard-tile-tip-body">{{this.hint}}</span>
@@ -71,8 +74,8 @@
           </span>
         </button>
         {{/each}}
-        {{/each}}
       </div>
+      {{/each}}
     </section>
     {{/if}}
 

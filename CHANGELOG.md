@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.756] - 2026-10-20
+
+### Changed
+
+- **Combat Package Wizard:** First and second Passive steps now freely select from the full 28-Passive catalogue (short choice labels). Main Defense is no longer forced as Passive 1; Buff/Reaction recommendations are derived when applicable.
+- **Combat Package Wizard:** Passive: Thorns eligibility also checks the Echo sub-choice (Green Warden).
+
 ## [0.9.755] - 2026-10-20
 
 ### Changed

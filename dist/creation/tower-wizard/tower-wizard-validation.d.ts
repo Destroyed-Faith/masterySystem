@@ -3,7 +3,7 @@
  */
 import type { PackagePowerOverride, TowerWizardSelection } from './tower-wizard-types.js';
 import type { TowerWizardEchoContext } from './tower-wizard-echo-advisor.js';
-export declare function isValidSecondPassiveForDefense(defenseId: string, templateId: string, passive1TemplateId?: string): boolean;
+export declare function isValidSecondPassiveForDefense(_defenseId: string, templateId: string, passive1TemplateId?: string, actorEchoKey?: string | null, actorSubChoiceKey?: string | null): boolean;
 export declare function validatePowerOverrideForGrantKey(selection: TowerWizardSelection, override: PackagePowerOverride): string | null;
 export declare function validateOffenseActivePicks(selection: TowerWizardSelection): string | null;
 export declare function validateManualWizardSelection(selection: Partial<TowerWizardSelection>): string | null;

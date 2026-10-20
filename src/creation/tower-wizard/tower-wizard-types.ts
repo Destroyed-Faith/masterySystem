@@ -31,6 +31,7 @@ export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 export type GuidedAttackDelivery = 'melee' | 'ranged' | 'spell' | 'natural';
 
 export type TowerWizardStep =
+    | 'passive1'
     | 'defense'
     | 'defensePassiveVariant'
     | 'passive2'
@@ -123,8 +124,13 @@ export interface OffenseActivePick {
 }
 
 export interface TowerWizardSelection {
+    /**
+     * Recommended Active Buff / Reaction axis derived from the first Passive when
+     * that Passive matches a defense package; otherwise a safe default for package
+     * Buff/Reaction recommendations only (never forces a defensive Passive).
+     */
     defenseId: DefensePackageId;
-    /** Passive 1 variant; defaults to the defense package recommendation when unset. */
+    /** First Passive (canonical catalogue templateId). Required for guided builds. */
     passive1TemplateId?: string;
     secondPassiveTemplateId: string;
     activeBuffMode: ActiveBuffMode;
@@ -198,10 +204,12 @@ export interface SecondPassiveOption {
     label: string;
     hint: string;
     warning?: string;
-    /** Catalog / system power name (Guided Mode secondary text). */
+    /** Catalog / system power name (full canonical heading when available). */
     powerName?: string;
     whenToUse?: string;
     mechanicsPreview?: string;
+    /** Optional survivability recommendation chip (Step 1). */
+    recommended?: boolean;
 }
 
 export interface SecondPassiveGroup {

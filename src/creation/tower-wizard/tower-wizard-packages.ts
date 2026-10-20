@@ -19,13 +19,16 @@ import {
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 import {
     formatPassiveCategoryList,
+    isAllowedFirstPassive,
     isAllowedSecondPassive,
     secondPassiveBucketFor,
-    secondPassiveCardWarning,
     type SecondPassiveBucket,
 } from './tower-wizard-passive-categories.js';
+import { passiveWizardChoiceLabel } from './tower-wizard-passive-labels.js';
 import {
     buildGuidedBuildSummary,
+    getGuidedFirstPassiveIntentGroups,
+    getGuidedPassiveSelectionGroups,
     getGuidedSecondPassiveIntentGroups,
     getGuidedSpecialFocusGroups,
     GUIDED_DELIVERY_OPTIONS,
@@ -33,6 +36,12 @@ import {
     resolveGuidedSpecialPick,
     getDefensiveActiveBuffChoiceBody,
 } from './tower-wizard-guided.js';
+
+export {
+    getGuidedFirstPassiveIntentGroups,
+    getGuidedPassiveSelectionGroups,
+    getGuidedSecondPassiveIntentGroups,
+};
 import type { CatalogEntry } from '../../utils/power-catalog.js';
 import type {
     DefensePackageId,
@@ -1089,7 +1098,17 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     },
 ];
 
-/** Passive 1 defaults per main defense (final catalogue only — no combined variants). */
+/** Passive 1 → recommended Buff/Reaction axis (not a forced Passive purchase). */
+const PASSIVE1_TO_DEFENSE_AXIS: Partial<Record<string, DefensePackageId>> = {
+    'passive-fortified-frame': 'armor',
+    'passive-evade': 'evade',
+    'passive-damage-reduction': 'damage-reduction',
+    'passive-ghostform': 'phasing',
+    'passive-parry': 'parry',
+    'passive-damage-negation': 'damage-negation',
+};
+
+/** Passive 1 defaults per defense axis (legacy / review reset helpers). */
 const PASSIVE1_VARIANT_IDS: Record<DefensePackageId, readonly string[]> = {
     armor: ['passive-fortified-frame'],
     evade: ['passive-evade'],
@@ -1098,6 +1117,15 @@ const PASSIVE1_VARIANT_IDS: Record<DefensePackageId, readonly string[]> = {
     parry: ['passive-parry'],
     'damage-negation': ['passive-damage-negation'],
 };
+
+/**
+ * Derive the Active Buff / Reaction recommendation axis from the first Passive.
+ * Non-defensive first Passives fall back to Armor for Buff/Reaction defaults only.
+ */
+export function deriveDefenseIdFromPassive1(passive1TemplateId: string | null | undefined): DefensePackageId {
+    const id = String(passive1TemplateId || '').trim();
+    return PASSIVE1_TO_DEFENSE_AXIS[id] ?? 'armor';
+}
 
 const PASSIVE1_VARIANT_COPY: Record<string, { description: string; mechanicsPreview: string }> = {
     'passive-fortified-frame': {
@@ -1231,12 +1259,21 @@ export function getDefaultPassive1TemplateId(defenseId: DefensePackageId): strin
 
 export function resolvePassive1TemplateId(selection: Partial<TowerWizardSelection>): string | undefined {
     if (selection.passive1TemplateId) return selection.passive1TemplateId;
-    if (selection.defenseId) return getDefaultPassive1TemplateId(selection.defenseId);
     return undefined;
 }
 
+/** @deprecated Legacy defense-package variant check — prefer {@link isValidWizardPassive1}. */
 export function isValidPassive1Variant(defenseId: DefensePackageId, templateId: string): boolean {
+    if (isCanonicalPassiveTemplateId(templateId)) return true;
     return PASSIVE1_VARIANT_IDS[defenseId]?.includes(templateId) ?? false;
+}
+
+export function isValidWizardPassive1(
+    templateId: string,
+    actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
+): boolean {
+    return isAllowedFirstPassive(templateId, actorEchoKey, actorSubChoiceKey);
 }
 
 export function getPassive1VariantOptions(defenseId: DefensePackageId): Passive1VariantOption[] {
@@ -1282,27 +1319,40 @@ export function buildDefensePackagePreview(selection: Partial<TowerWizardSelecti
     return {
         mainDefenseLabel: DEFENSE_MAIN_LABEL[defenseId],
         rows: [
-            { label: 'Main Defense', value: DEFENSE_MAIN_LABEL[defenseId] },
-            { label: 'Passive 1', value: passive1?.displayName ?? passive1Id ?? '—' },
+            {
+                label: 'First Passive',
+                value: passive1
+                    ? passiveWizardChoiceLabel(passive1.displayName)
+                    : (passive1Id ?? '—'),
+            },
             { label: 'Passive Category', value: passive1Id ? formatPassiveCategoryList(passive1Id) : '—' },
-            { label: 'Active Buff', value: buffResolved.displayName },
-            { label: 'Reaction', value: reactionResolved.displayName },
+            {
+                label: 'Recommended Buff / Reaction',
+                value: `${DEFENSE_MAIN_LABEL[defenseId]} (${buffResolved.displayName} / ${reactionResolved.displayName})`,
+            },
         ],
     };
 }
 
+export function getFirstPassiveIntentGroups(
+    actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
+): SecondPassiveIntentGroup[] {
+    return getGuidedFirstPassiveIntentGroups(actorEchoKey, actorSubChoiceKey);
+}
+
 export function getSecondPassiveIntentGroups(
-    defenseId: DefensePackageId,
+    _defenseId: DefensePackageId | undefined,
     passive1TemplateId?: string,
     actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
 ): SecondPassiveIntentGroup[] {
-    const passive1 = passive1TemplateId ?? getDefaultPassive1TemplateId(defenseId);
-    if (!passive1) return [];
-    return getGuidedSecondPassiveIntentGroups(passive1, actorEchoKey);
+    if (!passive1TemplateId) return [];
+    return getGuidedSecondPassiveIntentGroups(passive1TemplateId, actorEchoKey, actorSubChoiceKey);
 }
 
 export const WIZARD_STEP_ORDER: TowerWizardStep[] = [
-    'defense',
+    'passive1',
     'passive2',
     'activeBuffChoice',
     'offensiveBuff',
@@ -1434,8 +1484,9 @@ export function getSecondPassiveGroups(
     defenseId: DefensePackageId,
     passive1TemplateId?: string,
     actorEchoKey?: string | null,
+    actorSubChoiceKey?: string | null,
 ): SecondPassiveGroup[] {
-    return getSecondPassiveIntentGroups(defenseId, passive1TemplateId, actorEchoKey).map((g) => ({
+    return getSecondPassiveIntentGroups(defenseId, passive1TemplateId, actorEchoKey, actorSubChoiceKey).map((g) => ({
         groupLabel: g.intentLabel,
         passives: g.passives,
     }));
@@ -1495,9 +1546,13 @@ export function sortOffensePackagesForDefense(_defenseId: DefensePackageId): Tow
 
 export function secondPassiveLabel(templateId: string): string {
     const entry = findCatalogEntry(templateId);
-    if (entry?.name && /^Passive:/i.test(entry.name)) return entry.name;
-    if (SECOND_PASSIVE_LABELS[templateId]) return SECOND_PASSIVE_LABELS[templateId];
-    return entry?.name ?? entry?.templateName ?? templateId;
+    if (entry?.name && /^Passive:/i.test(entry.name)) {
+        return passiveWizardChoiceLabel(entry.name);
+    }
+    if (SECOND_PASSIVE_LABELS[templateId]) {
+        return passiveWizardChoiceLabel(SECOND_PASSIVE_LABELS[templateId]);
+    }
+    return passiveWizardChoiceLabel(entry?.name ?? entry?.templateName ?? templateId);
 }
 
 export function secondPassiveHint(templateId: string, description?: string): string {

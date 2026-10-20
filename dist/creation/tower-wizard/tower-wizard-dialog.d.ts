@@ -8,6 +8,7 @@ export declare class TowerWizardDialog extends BaseDialog {
     private actor;
     private step;
     private selection;
+    private secondPassiveNeedsReselect;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
