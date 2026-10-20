@@ -57,7 +57,7 @@ export declare function isItemInAnyConsumableSlot(actor: {
 export declare function actorParticipatesInActiveCombat(actor: {
     id?: string;
 }): boolean;
-export type ConsumableEquipError = 'not-consumable' | 'in-combat' | 'slot-oob' | 'occupied' | 'missing-item';
+export type ConsumableEquipError = 'not-consumable' | 'slot-oob' | 'occupied' | 'missing-item';
 export declare function validateEquipConsumable(opts: {
     actor: {
         id?: string;
@@ -70,6 +70,7 @@ export declare function validateEquipConsumable(opts: {
     };
     item: any;
     index: number;
+    /** @deprecated Ignored — Consumable Slots may be changed in combat like Powers. */
     inCombat?: boolean;
 }): ConsumableEquipError | null;
 export declare function validateUnequipConsumable(opts: {
@@ -77,6 +78,7 @@ export declare function validateUnequipConsumable(opts: {
         id?: string;
     };
     item: any;
+    /** @deprecated Ignored — Consumable Slots may be changed in combat like Powers. */
     inCombat?: boolean;
 }): ConsumableEquipError | null;
 export declare function equipErrorMessage(error: ConsumableEquipError): string;

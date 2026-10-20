@@ -13,9 +13,9 @@
  * keep this dialog empty.
  */
 // Types are available globally in Foundry VTT
-import { seedGeneralItemsStorage } from '../utils/seed-general-items.js';
-import { getItemIcon } from '../utils/item-icons.js';
-import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
+import { seedGeneralItemsStorage } from '../utils/seed-general-items';
+import { getItemIcon } from '../utils/item-icons';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -63,12 +63,14 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             const img = rawImg ||
                 getItemIcon(item.name, item.type, item.system) ||
                 'icons/svg/item-bag.svg';
+            const isCustom = item.getFlag?.('mastery-system', 'customCatalogItem') === true;
             return {
                 id: item.id,
                 name: item.name,
                 img,
                 type: item.type,
-                system: item.system
+                system: item.system,
+                isCustom: !!isCustom,
             };
         };
         const byName = (a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
@@ -373,6 +375,34 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     async _onRender(element, _options) {
         await super._onRender?.(element, _options);
         const $scope = this.#getStorageScope(element);
+        $scope
+            .off('click.customCatalog', '.js-create-custom-catalog-item')
+            .on('click.customCatalog', '.js-create-custom-catalog-item', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const { openCustomCatalogItemDialog } = await import('../ui/custom-catalog-item-dialog.js');
+            await openCustomCatalogItemDialog({
+                actor: this._actor,
+                onCreated: async () => {
+                    await this.render({ force: true });
+                },
+            });
+        });
+        $scope
+            .off('click.customCatalogDel', '.js-delete-catalog-item')
+            .on('click.customCatalogDel', '.js-delete-catalog-item', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (!game.user?.isGM)
+                return;
+            const itemId = String($(ev.currentTarget).attr('data-item-id') || '');
+            if (!itemId)
+                return;
+            const { deleteCatalogStorageItem } = await import('../utils/custom-catalog-items.js');
+            if (await deleteCatalogStorageItem(itemId)) {
+                await this.render({ force: true });
+            }
+        });
         // Enable drag and drop for storage items
         const storageItemEls = $scope.find('.storage-item');
         storageItemEls.each((_index, itemEl) => {

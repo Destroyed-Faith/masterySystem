@@ -374,6 +374,12 @@ async function applyTriggerToOwners(actor, owners, triggerKinds, combat) {
             }
         }
         for (const triggerKind of triggerKinds) {
+            // Active Buff: Temporary HP refreshes at Preparation, not at Turn Start.
+            if (owner.ownerKind === 'buff' &&
+                triggerKind === 'turnStartSelf' &&
+                owner.mechanics?.preparationTempHP === true) {
+                continue;
+            }
             const triggerBlock = owner.mechanics.triggers?.[triggerKind];
             if (!triggerBlock)
                 continue;
@@ -475,6 +481,13 @@ export async function clearTempHPSourcesForBuffEffect(actor, effectId) {
     const nextTempHP = Math.max(0, currentTempHP(actor) - removedValue);
     await safeActorUpdate(actor, buildSourcesPatch(next, prevKeys, nextTempHP));
 }
+function tempHPKindPriority(kind) {
+    if (kind === 'reaction-instance')
+        return 0;
+    if (kind === 'one-shot')
+        return 1;
+    return 2; // refresh + unknown
+}
 /**
  * Compute the result of consuming incoming damage from the actor's tempHP
  * pools **without** writing to the actor. Returns both the numeric result
@@ -482,9 +495,10 @@ export async function clearTempHPSourcesForBuffEffect(actor, effectId) {
  * merges tempHP + bar updates into a single atomic `actor.update`.
  *
  * Consumption order:
- *   1. one-shot sources, oldest first;
- *   2. refresh sources, oldest first;
- *   3. any unsourced manual tempHP residual (mirror minus sources).
+ *   1. reaction-instance sources, oldest first;
+ *   2. one-shot sources, oldest first;
+ *   3. refresh sources, oldest first;
+ *   4. any unsourced manual tempHP residual (mirror minus sources).
  */
 export function previewTempHPConsumption(actor, incoming) {
     const damage = Math.max(0, Math.floor(Number(incoming) || 0));
@@ -504,8 +518,8 @@ export function previewTempHPConsumption(actor, incoming) {
     const sortedKeys = prevKeys.slice().sort((a, b) => {
         const sa = sources[a];
         const sb = sources[b];
-        const ka = sa.kind === 'one-shot' ? 0 : 1;
-        const kb = sb.kind === 'one-shot' ? 0 : 1;
+        const ka = tempHPKindPriority(sa.kind);
+        const kb = tempHPKindPriority(sb.kind);
         if (ka !== kb)
             return ka - kb;
         return (Number(sa.createdAt) || 0) - (Number(sb.createdAt) || 0);
@@ -545,6 +559,59 @@ export async function consumeTempHPFromSources(actor, incoming) {
         await safeActorUpdate(actor, preview.patch);
     }
     return { reducedBy: preview.reducedBy, remainingDamage: preview.remainingDamage };
+}
+const REACTION_INSTANCE_KEY_PREFIX = 'reaction:instance:';
+/**
+ * Grant Temporary HP that protects only the next (triggering) damage instance.
+ * Unused remainder must be cleared via {@link clearReactionInstanceTempHP}.
+ */
+export async function grantReactionInstanceTempHP(actor, amount, opts) {
+    const n = Math.max(0, Math.floor(Number(amount) || 0));
+    if (!actor || n <= 0)
+        return 0;
+    const combatId = String(opts?.combat?.id ?? globalThis.game?.combat?.id ?? '');
+    const key = `${REACTION_INSTANCE_KEY_PREFIX}${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
+    const source = {
+        value: n,
+        declared: n,
+        kind: 'reaction-instance',
+        origin: {
+            ownerKind: 'reaction',
+            powerId: key,
+            name: opts?.powerName || 'Reaction Temporary HP',
+            triggerKind: 'reactionInstance',
+        },
+        combatId,
+        createdAt: Date.now(),
+    };
+    await upsertTempHPSource(actor, key, source);
+    return n;
+}
+/**
+ * Strip any unused Reaction-instance Temporary HP after the triggering damage
+ * instance has resolved. Does not touch Passive / Buff / Stone Temp HP.
+ */
+export async function clearReactionInstanceTempHP(actor) {
+    if (!actor)
+        return 0;
+    const sources = getTempHPSources(actor);
+    const prevKeys = Object.keys(sources);
+    if (prevKeys.length === 0)
+        return 0;
+    let removed = 0;
+    const next = {};
+    for (const [k, src] of Object.entries(sources)) {
+        if (src.kind === 'reaction-instance' || src.origin?.ownerKind === 'reaction') {
+            removed += Math.max(0, Number(src.value) || 0);
+            continue;
+        }
+        next[k] = src;
+    }
+    if (removed <= 0)
+        return 0;
+    const nextTempHP = Math.max(0, currentTempHP(actor) - removed);
+    await safeActorUpdate(actor, buildSourcesPatch(next, prevKeys, nextTempHP));
+    return removed;
 }
 /**
  * Remove every sourced temp-HP pool for the given combat (or all of them, if
@@ -615,6 +682,15 @@ export async function applyPassiveTriggerToCombat(triggerKind, combat) {
     const actors = getCombatActors(combat);
     for (const actor of actors) {
         await applyPassiveTrigger(actor, triggerKind, combat);
+        if (triggerKind === 'combatStart') {
+            try {
+                const { grantPassiveCombatCharges } = await import('./passive-combat-charges.js');
+                await grantPassiveCombatCharges(actor, combat);
+            }
+            catch (err) {
+                console.warn('Mastery System | Passive Critical/Maximization grant failed', err);
+            }
+        }
     }
 }
 /** Convenience: clear sources on every combatant in the combat. */

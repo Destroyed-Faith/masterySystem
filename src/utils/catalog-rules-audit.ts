@@ -126,7 +126,7 @@ export const RULES_EXPECTED_ACTIVE_BUFFS: ReadonlyArray<{ rulesName: string; id:
     { rulesName: 'Critical', id: 'ab-critical' },
     { rulesName: 'Special Overdrive', id: 'ab-special-overdrive' },
     { rulesName: 'Spell Resistance', id: 'ab-spell-resistance' },
-    { rulesName: 'Cleanse Maintenance', id: 'ab-cleanse-maintenance' },
+    { rulesName: 'Self Cleanse', id: 'ab-cleanse-maintenance' },
     { rulesName: 'Damage Aura', id: 'ab-damage-aura' },
     { rulesName: 'Healing Aura', id: 'ab-healing-aura' },
     { rulesName: 'Growth Form', id: 'ab-growth-form' },
@@ -135,8 +135,8 @@ export const RULES_EXPECTED_ACTIVE_BUFFS: ReadonlyArray<{ rulesName: string; id:
     { rulesName: 'Thorns', id: 'ab-thorns' },
     { rulesName: 'Invisibility', id: 'ab-invisibility' },
     { rulesName: 'Parry Recovery', id: 'ab-reinforced-parry' },
-    { rulesName: 'Intensified Absorption', id: 'ab-intensified-absorption' },
-    { rulesName: 'Reinforced Damage Negation', id: 'ab-reinforced-damage-negation' },
+    { rulesName: 'Absorption Stone Increase', id: 'ab-intensified-absorption' },
+    { rulesName: 'Damage Negation Pool', id: 'ab-reinforced-damage-negation' },
     // Documented in Rules/actives.md as Active Buff — Immovable + Temporary HP
     { rulesName: 'Immovable + Temporary HP', id: 'ab-immovable-temp-hp' },
 ];
@@ -296,6 +296,14 @@ export const RULES_EXPECTED_PASSIVES: ReadonlyArray<{ rulesName: string; id: str
     { rulesName: 'Parry', id: 'passive-parry' },
     { rulesName: 'Absorption', id: 'passive-absorption' },
     { rulesName: 'Damage Negation', id: 'passive-damage-negation' },
+    { rulesName: 'Critical', id: 'passive-critical' },
+    { rulesName: 'Maximization', id: 'passive-maximization' },
+    { rulesName: 'Armor Reduction', id: 'passive-armor-reduction' },
+    { rulesName: 'Enemy Evade Reduction', id: 'passive-enemy-evade-reduction' },
+    { rulesName: 'Self Cleanse', id: 'passive-self-cleanse' },
+    { rulesName: 'Speed', id: 'passive-speed' },
+    { rulesName: 'Spell Resistance Piercing', id: 'passive-spell-resistance-piercing' },
+    { rulesName: 'Special Amplification', id: 'passive-special-amplification' },
 ];
 
 /** Named artifacts expected from Rules/artefacts.md (+ echo set). */
@@ -785,7 +793,7 @@ export function runCatalogRulesAudit(options: CatalogAuditOptions = {}): Catalog
         decisionIds: new Set(),
         notesForId: (id, rulesName) => {
             if (id === 'ab-critical') {
-                return 'Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode';
+                return 'Critical(X) = X Critical designations per combat while maintained; Attack Dice explode on 7–8; Damage Dice never explode';
             }
             if (id === 'ab-evade') {
                 const tpl = abMap.get(id)?.template;

@@ -988,11 +988,15 @@ async function executeReactionSpend(params: {
     note += ` <em>(+${iniGain} Initiative applies after this attack fully resolves.)</em>`;
   }
 
-  // Grant Temp HP onto the defender immediately so mitigation can absorb it.
+  // Grant one-instance Temp HP onto the defender so mitigation can absorb it.
+  // Unused remainder is stripped after the triggering damage instance resolves.
   if (state.hit && !evEval.negates && tempHpGain > 0) {
     try {
-      const cur = Math.max(0, Math.floor(Number((defender as any).system?.health?.tempHP ?? 0) || 0));
-      await (defender as any).update?.({ 'system.health.tempHP': cur + tempHpGain });
+      const { grantReactionInstanceTempHP } = await import('./passive-triggers.js');
+      await grantReactionInstanceTempHP(defender, tempHpGain, {
+        combat: (globalThis as any).game?.combat ?? null,
+        powerName: String(power?.name || 'Reaction Temporary HP'),
+      });
     } catch (err) {
       console.warn('Mastery System | reaction Temp HP grant failed', err);
     }
@@ -1000,23 +1004,80 @@ async function executeReactionSpend(params: {
 
   // Counter Damage (+ optional Push confirm).
   // Threatened Ranged reactors were not the hit target — still allowed vs shooter.
+  // No Attack/Casting Roll → no Critical. Eligible Damage Rolls may spend ONE
+  // Maximization (Passive or Stone) immediately before the damage roll.
   const allowOffensiveVsShooter = state.hit || role === 'opportunity';
   if (allowOffensiveVsShooter && attacker && isCounterDamageReaction(power)) {
     const flat = String(mech?.damageRider?.flat ?? '').replace(/^\+/, '');
     if (flat) {
       try {
-        const roll = await new (globalThis as any).Roll(flat).evaluate({ async: true });
+        let useFormula = flat;
+        let maximized = false;
+        const {
+          listAvailableMaximizationSources,
+          maximizeDiceFormula,
+          remainingMaximizations,
+          spendMaximization,
+        } = await import('../stones/stone-combat-effects.js');
+        if (remainingMaximizations(actor) > 0 && /\d*d8/i.test(flat)) {
+          const sources = listAvailableMaximizationSources(actor);
+          const DialogCtor = (globalThis as any).Dialog;
+          let preferred: 'stone' | 'passive' | null = null;
+          let wantMax = false;
+          if (typeof DialogCtor?.confirm === 'function') {
+            const srcHint = sources.map((s) => s.label).join(' · ') || 'Maximization';
+            wantMax = await DialogCtor.confirm({
+              title: `Maximization — ${actorName}`,
+              content:
+                `<p>Maximize this Counter Damage roll? Every remaining d8 becomes 8 (not natural 8s).</p>` +
+                `<p><em>${escHtml(srcHint)}</em></p>` +
+                `<p>Counter Damage has no Attack/Casting Roll and never gains Critical.</p>`,
+            });
+          }
+          if (wantMax) {
+            if (sources.length === 1) preferred = sources[0]!.source;
+            else if (sources.length > 1 && typeof DialogCtor === 'function') {
+              preferred = await new Promise<'stone' | 'passive' | null>((resolve) => {
+                const buttons: Record<string, any> = {};
+                for (const s of sources) {
+                  buttons[s.source] = {
+                    label: s.label,
+                    callback: () => resolve(s.source),
+                  };
+                }
+                buttons.skip = { label: 'Cancel maximize', callback: () => resolve(null) };
+                new DialogCtor({
+                  title: 'Choose Maximization source',
+                  content: '<p>Spend <strong>one</strong> charge from exactly one source.</p>',
+                  buttons,
+                  default: sources[0]!.source,
+                  close: () => resolve(null),
+                }).render(true);
+              });
+            }
+            if (preferred || sources.length === 1) {
+              const spent = await spendMaximization(actor, preferred ?? sources[0]?.source ?? null);
+              if (spent) {
+                useFormula = maximizeDiceFormula(flat);
+                maximized = true;
+              }
+            }
+          }
+        }
+        const roll = await new (globalThis as any).Roll(useFormula).evaluate({ async: true });
         const total = Math.max(0, Math.floor(Number(roll?.total) || 0));
         const { applyDamageToTarget } = await import('../dice/damage-dialog.js');
+        // No armorPenetration: Passive Armor Reduction applies to damaging Attacks only.
         await applyDamageToTarget(attacker as any, total, actor as any, 0, {
           skipPhasing: true,
           skipReactionPrompt: true,
         });
-        note += ` <em>(Counter Damage ${flat} → ${total} to ${String((attacker as any).name)}.)</em>`;
+        const maxNote = maximized ? ' (Maximized)' : '';
+        note += ` <em>(Counter Damage ${flat}${maxNote} → ${total} to ${String((attacker as any).name)}.)</em>`;
         await (globalThis as any).ChatMessage?.create?.({
           user: (globalThis as any).game?.user?.id,
           speaker: (globalThis as any).ChatMessage?.getSpeaker?.({ actor }),
-          content: `<p class="mastery-reaction-msg"><strong>${escHtml(actorName)}</strong> Counter Damage: <strong>${escHtml(flat)}</strong> → <strong>${total}</strong> to <strong>${escHtml(String((attacker as any).name))}</strong>.</p>`,
+          content: `<p class="mastery-reaction-msg"><strong>${escHtml(actorName)}</strong> Counter Damage: <strong>${escHtml(flat)}</strong>${maximized ? ' <em>(Maximized)</em>' : ''} → <strong>${total}</strong> to <strong>${escHtml(String((attacker as any).name))}</strong>.</p>`,
         });
       } catch (err) {
         console.warn('Mastery System | Counter Damage failed', err);

@@ -13,7 +13,10 @@ export declare function getTargetEvade(targetActor: any, attacker?: any): number
 export declare function getTargetArmor(targetActor: any): number;
 /** Spell Resistance used vs spells (`attack-executor.getTargetSpellResistance`). */
 export declare function getTargetSpellResistance(targetActor: any): number;
-/** Intellect Spell Penetration on the caster. Never applied to a Base TN. */
+/**
+ * Spell Resistance ignored by the caster (Stone Penetration + Passive Piercing).
+ * Never applied to Spell Base TN.
+ */
 export declare function getCasterSpellPenetration(caster: any): number;
 /**
  * Spell Resistance after Spell Penetration.

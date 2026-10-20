@@ -8,7 +8,12 @@
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
  * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
  */
-export declare const DEFENSIVE_STONE_KEYS: readonly ["evadeBonus", "tempArmor", "spellResistanceBonus", "damageReductionBoostPct", "incomingSpecialReduction", "tempWard", "tempParryPool", "tempDamageNegation"];
+/**
+ * Defensive Stone bonuses that last until the start of the owner's next turn.
+ * Vitality Stone Damage Negation is intentionally excluded — it is a Round-End
+ * temporary pool (see `tempDamageNegation` on stoneBonuses / resetRoundState).
+ */
+export declare const DEFENSIVE_STONE_KEYS: readonly ["evadeBonus", "tempArmor", "spellResistanceBonus", "damageReductionBoostPct", "incomingSpecialReduction", "tempWard", "tempParryPool"];
 export type DefensiveStoneSnapshot = Partial<Record<(typeof DEFENSIVE_STONE_KEYS)[number], number>>;
 export declare function snapshotDefensiveStones(sb: object | null | undefined): DefensiveStoneSnapshot;
 export declare function defensiveSnapshotPending(snap: DefensiveStoneSnapshot | null | undefined): boolean;
@@ -70,10 +75,15 @@ export interface RoundState {
     /** Technical Movement Power ids already used this round. Each id spends one Movement, not the rest. */
     usedMovementPowerIds?: string[];
     /**
-     * One Active Buff activation per round. The radial Buff slice shows 1 or 0
-     * regardless of how many Attack Actions remain.
+     * One Active Buff activation per Preparation Phase / Round.
      */
     activeBuffUsedThisRound?: boolean;
+    /**
+     * Base Attack Action committed during Preparation for an Active Buff.
+     * Survives `resetTurnState` so Basic Action Kit init cannot restore it.
+     * Cleared in `resetRoundState` for the next Round.
+     */
+    prepBaseAttackCommitted?: boolean;
     /**
      * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
      */
@@ -101,8 +111,8 @@ export interface RoundState {
         reactionsUsed: number;
     }>;
     /**
-     * Active Buff Critical(X) per-round attack quota.
-     * Refreshes when `roundKey` changes (`combatId:round`).
+     * Active Buff Critical(X) per-combat designation quota.
+     * Keyed by combat id; does not refresh on new Rounds or Buff reactivation.
      */
     criticalQuota?: {
         roundKey: string;
@@ -266,6 +276,20 @@ export declare function markPowerUsedThisRound(actor: Actor, combat: Combat | nu
  * Undo mark (e.g. attack roll failed after spending an action).
  */
 export declare function unmarkPowerUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): Promise<void>;
+export type UsedPowerRefundKind = 'combatPower' | 'movementPower' | 'activeBuff';
+export interface UsedPowerRefundEntry {
+    /** Key stored on roundState (item id, identity key, or template id). */
+    key: string;
+    name: string;
+    kind: UsedPowerRefundKind;
+}
+/** Powers / movement powers / Active Buff already spent this round (for GM restore). */
+export declare function listUsedPowersThisRound(actor: Actor, combat: Combat | null): UsedPowerRefundEntry[];
+/**
+ * GM recovery: clear one used-power mark so the Power can be used again this round.
+ * Does not refund Attack/Movement/Reaction actions — use +A / +M / +R for that.
+ */
+export declare function refundUsedPowerThisRound(actor: Actor, combat: Combat | null, entry: Pick<UsedPowerRefundEntry, 'key' | 'kind'>): Promise<boolean>;
 /** How many times this NPC attack option was already used this round. */
 export declare function getNpcAttackUsesThisRound(actor: Actor, combat: Combat | null, npcAttackOptionId: string): number;
 /** Whether this NPC attack still has remaining uses this round (maxUses is 1–5). */
@@ -314,8 +338,19 @@ export declare function getAvailableAttackActions(actor: Actor, combat: Combat |
 export declare function remainingActiveBuffActions(usedThisRound: boolean | undefined, attackActionsAvailable: number): number;
 export declare function getAvailableActiveBuffActions(actor: Actor, combat: Combat | null): number;
 export declare function markActiveBuffUsedThisRound(actor: Actor, combat: Combat | null): Promise<void>;
+/**
+ * Dash / Disengage forfeit the base Attack Action. That Action cannot also have
+ * paid for Active Buff activation in Preparation (`prepBaseAttackCommitted`).
+ */
+export declare function canForfeitBaseAttackForManeuver(actor: Actor, combat: Combat | null, maneuverId: string): {
+    ok: boolean;
+    reason?: string;
+};
 /** Apply Dash / Disengage / Flee side-effects after spending Movement. */
-export declare function applyBasicMovementManeuverFlags(actor: Actor, combat: Combat | null, maneuverId: string): Promise<void>;
+export declare function applyBasicMovementManeuverFlags(actor: Actor, combat: Combat | null, maneuverId: string): Promise<{
+    ok: boolean;
+    reason?: string;
+}>;
 export declare function isFleeLocked(actor: Actor, combat: Combat | null): boolean;
 /**
  * Get available movement actions (remaining count)
@@ -457,9 +492,10 @@ export declare function resetTurnState(actor: Actor, combat: Combat | null): Pro
 /**
  * Clear offensive / casting "this turn" stone bonuses when the spotlight ends.
  * Defensive stones that last until the start of the next own turn
- * (Parry, Armor, Evade, Damage Negation, Damage Reduction, Spell Resistance,
- * Special Negation / Ward) are preserved here and armed via
- * `armDefensiveStoneExpiry` for removal in `releaseDefensiveStoneExpiry`.
+ * (Parry, Armor, Evade, Damage Reduction, Spell Resistance, Special Negation /
+ * Ward) are preserved here and armed via `armDefensiveStoneExpiry`.
+ * Stone Damage Negation is a Round-End pool — preserved here, cleared in
+ * `resetRoundState`.
  */
 export declare function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: Combat | null): Promise<void>;
 /** Remember defensive stones when this actor's spotlight ends. Do not remove them yet. */

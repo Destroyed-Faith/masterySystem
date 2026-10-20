@@ -228,8 +228,8 @@ describe('Summon actor restrictions', () => {
 });
 
 describe('Critical resolution (quota model)', () => {
-  it('Critical(X) grants X attacks per round with fixed 7–8 explode', () => {
-    let quota = syncCriticalRoundQuota(null, 'c:1', 2);
+  it('Critical(X) grants X designations per combat with fixed 7–8 explode', () => {
+    let quota = syncCriticalRoundQuota(null, 'c1', 2);
     const m = resolveCriticalAttackModifier({ declared: true,
       activeBuffCriticalX: 2,
       buffQuotaRemaining: quota.remaining,

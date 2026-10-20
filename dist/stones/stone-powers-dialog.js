@@ -1094,6 +1094,7 @@ export class StonePowersDialog extends BaseDialog {
             actor: this.actor,
             pools,
             passivesCta: this.#passivesCtaContext(combat),
+            activeBuffPrep: await this.#activeBuffPrepContext(combat, stonePlanLocked || stoneReviewMode),
             initiativeExchange,
             preparation,
             attributePowerMatrix,
@@ -1167,6 +1168,58 @@ export class StonePowersDialog extends BaseDialog {
             hint: locFormat('naturalRecoveryDistributeHint', { rank: masteryRank }, `At the start of your turn, after Ticks, reduce negative Diminishing Specials by a total of your Mastery Rank (${masteryRank}). Distribute with +/−, then Apply. Unused reduction is lost.`),
             confirmLabel: loc('naturalRecoveryApply', 'Apply Natural Recovery'),
             noneLabel: loc('naturalRecoverySkip', 'Skip Natural Recovery'),
+        };
+    }
+    async #activeBuffPrepContext(combat, locked) {
+        const { listActivatableActiveBuffPowers, readBuffLifecycleFlags, formatActiveBuffDurationLabel, preparationTargetRound, isActiveBuffPreparationWindow, } = await import('../combat/active-buff-lifecycle.js');
+        const { getActiveBuffs, getTrueActiveBuffs } = await import('../utils/active-buffs.js');
+        const { getRoundState } = await import('../combat/action-economy.js');
+        const powers = await listActivatableActiveBuffPowers(this.actor);
+        const round = combat ? preparationTargetRound(combat) : 1;
+        const maintained = getTrueActiveBuffs(this.actor);
+        const current = maintained[0] ?? null;
+        const life = current ? readBuffLifecycleFlags(current) : null;
+        const durationLabel = life
+            ? formatActiveBuffDurationLabel(life.activationRound, life.lastActiveRound, round)
+            : '';
+        const rs = combat ? getRoundState(this.actor, combat) : null;
+        const alreadyCommitted = !!(rs?.prepBaseAttackCommitted || rs?.activeBuffUsedThisRound);
+        const windowOpen = combat ? isActiveBuffPreparationWindow(this.actor, combat) : false;
+        const currentFlags = current?.flags?.['mastery-system'] ?? {};
+        const currentLevel = Math.max(1, Math.floor(Number(currentFlags.effectiveLevel ?? currentFlags.level ?? 1) || 1));
+        const currentEffect = String(currentFlags.effectText ||
+            currentFlags.mechanics?.effectText ||
+            current?.description ||
+            '').replace(/<[^>]+>/g, '').trim();
+        const unavailableReason = !windowOpen
+            ? 'Active Buffs can be chosen only during the Preparation Phase.'
+            : alreadyCommitted
+                ? 'Base Attack Action already committed for an Active Buff this Preparation.'
+                : locked
+                    ? 'Stone plan is locked — Active Buff selection is unavailable.'
+                    : '';
+        return {
+            show: powers.length > 0 || !!current,
+            locked: locked || !windowOpen || alreadyCommitted,
+            alreadyCommitted,
+            windowOpen,
+            currentName: current ? String(current.name || 'Active Buff') : '',
+            currentLevel: current ? currentLevel : 0,
+            currentEffect,
+            durationLabel,
+            maintaining: !!current,
+            options: powers.map((p) => ({
+                id: String(p.id || p._id || ''),
+                name: String(p.name || 'Active Buff'),
+                level: Math.max(1, Math.floor(Number(p.system?.rank ?? p.system?.level ?? 1) || 1)),
+                isCurrent: !!current && String((current.flags?.['mastery-system']?.powerId) || '') === String(p.id || ''),
+            })),
+            hint: alreadyCommitted
+                ? 'Base Attack Action already committed for an Active Buff this Preparation. Maintaining costs nothing next Round until you replace it.'
+                : current
+                    ? 'Keep the maintained Buff free of charge, or replace it (costs this Round\'s base Attack Action).'
+                    : 'Activating or replacing an Active Buff commits your base Attack Action for the upcoming Round.',
+            unavailableReason,
         };
     }
     #passivesCtaContext(combat) {
@@ -2082,6 +2135,33 @@ export class StonePowersDialog extends BaseDialog {
         this.#bindNaturalRecoveryControls(root);
         this.#bindSectionToggles(root);
         this.#bindStoneHelp(root);
+        const buffBtns = root.querySelectorAll('.js-activate-active-buff');
+        buffBtns.forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (this.#isStoneDialogLocked())
+                    return;
+                const powerId = String(btn.dataset.powerId || '');
+                if (!powerId)
+                    return;
+                const item = this.actor.items?.get?.(powerId) ||
+                    this.actor.items?.find?.((it) => it.id === powerId || it._id === powerId);
+                if (!item) {
+                    ui.notifications?.warn('Active Buff power not found on this character.');
+                    return;
+                }
+                try {
+                    const { activateActiveBuff } = await import('../utils/active-buffs.js');
+                    const ok = await activateActiveBuff(this.actor, item);
+                    if (ok)
+                        await this.#renderKeepingScroll();
+                }
+                catch (err) {
+                    console.warn('Mastery System | Preparation Active Buff activate failed', err);
+                }
+            };
+        });
         const passivesCta = root.querySelector('.js-open-passives');
         if (passivesCta) {
             passivesCta.onclick = async (ev) => {

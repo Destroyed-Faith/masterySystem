@@ -679,13 +679,25 @@ export async function executeAttackRollFromCard(
       const preferredSource =
         preferredRaw === 'active-buff' ||
         preferredRaw === 'stone-crit' ||
+        preferredRaw === 'passive-crit' ||
         preferredRaw === 'special-crit'
           ? preferredRaw
           : null;
+      let passiveCritCharges = 0;
+      try {
+        const { getPassiveCriticalRemaining, grantPassiveCombatCharges } = await import(
+          '../combat/passive-combat-charges.js'
+        );
+        if (combatRef?.id) await grantPassiveCombatCharges(economyForStones, combatRef);
+        passiveCritCharges = getPassiveCriticalRemaining(economyForStones, combatRef);
+      } catch {
+        passiveCritCharges = 0;
+      }
       const critMod = resolveCriticalAttackModifier({
         activeBuffCriticalX: critLegal ? buffCriticalX : 0,
         buffQuotaRemaining: critLegal ? syncedQuota.remaining : 0,
         stoneCritCharges: critLegal ? critBank : 0,
+        passiveCritCharges: critLegal ? passiveCritCharges : 0,
         declared: critDeclared,
         preferredSource,
       });
@@ -749,15 +761,20 @@ export async function executeAttackRollFromCard(
         ...(isFaithReroll ? { isRerollResult: true } : {}),
       });
 
-      // Consume one Critical application (buff quota preferred, else stone Crit charge).
+      // Consume one Critical application (exactly one source — never double-spend).
       if (critMod.applyCritical && critMod.consumeFrom && !isFaithReroll) {
-        const rs2 = actionEco.getRoundState(economyForStones, combatRef);
-        if (!rs2.stoneBonuses) {
-          rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+        if (critMod.consumeFrom === 'passive-crit') {
+          const { spendPassiveCriticalCharge } = await import('../combat/passive-combat-charges.js');
+          await spendPassiveCriticalCharge(economyForStones, combatRef);
+        } else {
+          const rs2 = actionEco.getRoundState(economyForStones, combatRef);
+          if (!rs2.stoneBonuses) {
+            rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+          }
+          rs2.criticalQuota = syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX);
+          applyDeclaredCritSpend(rs2, critMod);
+          await actionEco.setRoundState(economyForStones, rs2);
         }
-        rs2.criticalQuota = syncCriticalRoundQuota(rs2.criticalQuota, combatRoundKey(combatRef), buffCriticalX);
-        applyDeclaredCritSpend(rs2, critMod);
-        await actionEco.setRoundState(economyForStones, rs2);
       }
 
       if (isSpellcasting) {

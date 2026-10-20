@@ -65,7 +65,11 @@ export class MinorMagicPanel {
             ruleTips: [
                 {
                     label: 'Safe Haven',
-                    text: 'Create, replace, or dismiss only during a Safe Haven Rest. Use the Safe Haven Rest button on this tab, then fill empty places. Existing items stay and still count, even if someone else carries them.',
+                    text: 'Create or replace only during a Safe Haven Rest. Use the Safe Haven Rest button on this tab, then fill empty places. Existing items stay and still count, even if someone else carries them.',
+                },
+                {
+                    label: 'Give & Shatter',
+                    text: 'You may Give your items to other players anytime (a connected GM is required for the hand-off). Shatter anytime — including charges you already gave away — to destroy them and free the slot. When someone uses a charge, it leaves your limit automatically.',
                 },
                 {
                     label: 'What it stores',

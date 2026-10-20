@@ -59,6 +59,7 @@ The Homebrewery
 {{homebreweryCredits
 Destroyed Faith — DF Core Reactions
 Version: v0.9.9.5 (2026-10-15)
+Playtest revision: 2026-10-20 (working draft; no release or version bump)
 > **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
 
 }}
@@ -156,6 +157,8 @@ If a Reaction modifies an incoming attack, it applies only to the triggering att
 
 If it modifies a hit or damage instance, it applies only to the triggering hit or damage instance.
 
+**Reaction Temporary HP:** Temporary HP granted by a Reaction protect only against its triggering damage instance. Any unused amount disappears immediately after that instance finishes resolving. It never carries over to another hit, damage instance, or Round. Temporary HP granted by other sources follow their own duration rules.
+
 A Reaction does not normally create a maintained state.
 
 It is not an Active Buff and does not remain active for the rest of the Round unless the entry explicitly states otherwise.
@@ -235,9 +238,7 @@ Standard counter effects may use:
 * Reaction: Damage
 * Reaction: Damage + Push
 
-Counter Effects are not Attack Actions.
-
-They do not make attack rolls, generate Raises, use offensive Active Buffs, apply Specials, or trigger normal on-hit effects unless their entry explicitly says otherwise.
+**Counter Effects** resolve their printed immediate effect from the relevant Reaction trigger. They use the Reaction's cost and damage/effect values, rather than creating another Attack Action or a new Attack Roll. A specific Reaction entry explicitly defines any additional roll, Raise, Special or on-hit interaction it is allowed to create.
 
 
 ### Dedicated Reaction Exceptions
@@ -451,7 +452,7 @@ You slip, twist, blur, or move just enough to make one attack fail to find you c
       DESIGN STRUCTURE<br>
       This is a pure Defensive Reaction with exactly one axis: Temporary HP.<br>
       The Temporary HP is gained immediately against the triggering damage instance.<br>
-      Any Temporary HP left after that damage instance remains until the end of your next turn, then disappears.<br>
+      Any unused Temporary HP disappear immediately after the triggering damage instance resolves and cannot protect against subsequent damage instances.<br>
       Since Temporary HP costs 4 PP per HP and the Reaction curve increases by 20 PP per level, this progression matches the curve exactly.<br><br>
       LEVEL-BY-LEVEL CALCULATION<br>
       L1 target 20 PP → 5 Temporary HP = 20 PP, exactly on target.<br>
@@ -482,6 +483,7 @@ A sudden buffer forms between you and the incoming harm.
 
 **Allowed Triggers:** Damage Trigger.
 
+**Temporary HP Duration:** The Temporary HP granted by this Reaction apply exclusively to the triggering damage instance. They absorb eligible damage from that instance only. Any remaining Temporary HP disappear immediately after it has resolved; they never protect against a later attack or damage instance, even within the same Round.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|
@@ -695,7 +697,7 @@ You pull an ally out of the clean line of attack, distort the angle, warn them, 
       L16 target 320 PP → Ally premium (10) + 77 Temporary HP (308) = 318 PP, close to target.<br><br>
       NOTES<br>
       This Reaction protects one ally only.<br>
-      Any remaining Temporary HP from this Reaction disappears at the end of that ally's next turn.<br>
+      Any unused Temporary HP from this Reaction disappear immediately after the triggering damage instance resolves and cannot protect the ally against subsequent damage instances.<br>
       It grants no Armor, no Evade, no Damage Reduction, no Phasing, no Attack Dice, and no offensive rider.
     </span>
   </span>
@@ -705,6 +707,7 @@ You throw a ward, shield, blessing, barrier, or protective impulse over an ally 
 
 **Allowed Triggers:** Ally Hit or Damage Trigger.
 
+**Temporary HP Duration:** The granted Temporary HP protect the ally exclusively against the triggering hit or damage instance. Any unused Temporary HP disappear immediately after that instance resolves; they cannot protect against a later attack or damage instance, even within the same Round.
 
 | **Level** | **Type** | **Allowed Triggers** | **Range** | **AoE** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--|

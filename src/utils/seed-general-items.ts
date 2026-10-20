@@ -2,7 +2,23 @@ import { WEAPONS, masteryWeaponCatalogKey } from './weapons';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
 import { getItemIcon, normalizeWeaponNameKey } from './item-icons';
 import { migrateItemAmmunitionFields } from './ammunition';
-const STORAGE_FOLDER_NAME = 'General Items Storage';
+export const STORAGE_FOLDER_NAME = 'General Items Storage';
+
+/** World Item folder that holds the shared mundane catalog. */
+export async function getOrCreateGeneralItemsStorageFolder(): Promise<any | null> {
+  const g = globalThis as any;
+  const existing = g.game?.folders?.find?.(
+    (f: any) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item',
+  );
+  if (existing) return existing;
+  if (!g.game?.user?.isGM) return null;
+  try {
+    return await (g.Folder as any).create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
+  } catch (err) {
+    console.warn('Mastery System | Could not create General Items Storage folder', err);
+    return null;
+  }
+}
 
 const GEAR_ITEMS: Array<{ name: string; price?: number; weight?: number; inventorySize: string }> = [
   { name: 'Backpack', inventorySize: '2x3' },
@@ -161,10 +177,8 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
     // Non-GMs cannot seed items
     return [];
   }
-  const existingFolder = (game as any).folders?.find((f: any) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
-  const folder = existingFolder
-    ? existingFolder
-    : await (Folder as any).create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
+  const folder = await getOrCreateGeneralItemsStorageFolder();
+  if (!folder) return [];
   const existingItems = Array.from((game as any).items || []).filter((item: any) => item.folder?.id === folder.id);
   const existingNames = new Set(existingItems.map((item: any) => item.name));
   const existingWeaponCatalogKeys = new Set(

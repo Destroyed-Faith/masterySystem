@@ -215,8 +215,8 @@ describe('Power Catalog (Templates refactor)', () => {
         const template = findTemplateById('ab-critical');
         expect(template).toBeDefined();
         const levels = template!.levels;
-        expect(levels['1'].effect?.text).toBe('—');
-        expect(levels['3'].effect?.text).toBe('—');
+        expect(levels['1'].effect?.text).toMatch(/unavailable for selection/i);
+        expect(levels['3'].effect?.text).toMatch(/unavailable for selection/i);
         expect(levels['4'].effect?.text).toContain('Critical(1)');
         expect(levels['7'].effect?.text).toContain('Critical(1)');
         expect(levels['8'].effect?.text).toContain('Critical(2)');

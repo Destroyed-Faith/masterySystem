@@ -9,6 +9,8 @@
 export declare function findAbsorptionItem(actor: any): any | null;
 /** v0.9.9.5: Absorption grants no extra HP. */
 export declare function absorptionHpPerBar(_actor: any): number;
+/** Active Buff: Absorption Stone Increase — printed extra Stones on first trigger/Round. */
+export declare function getAbsorptionStoneIncreaseFromActiveBuff(actor: any): number;
 export declare function getAbsorbedDamage(actor: any, combat: any): number;
 /**
  * PG attack sequence step 18: after the damage instance has fully resolved,

@@ -11,8 +11,8 @@ import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers
 import { applyMeleeUnarmedFallback, artifactToVirtualWeapon } from '../utils/unarmed-fallback.js';
 import { coerceNpcAttackSpecials, displayNpcSpecialName, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
-import { remainingMaximizations } from '../stones/stone-combat-effects.js';
-import { applySpecialBoostToLabel, readSpecialBoost } from '../combat/special-boost.js';
+import { listAvailableMaximizationSources, remainingMaximizations, } from '../stones/stone-combat-effects.js';
+import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { applyLimitedToTransferPowerDamage, martialWeaponDamageApplies, settleDamageTransfer, } from '../combat/damage-transfer.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
@@ -734,9 +734,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 raiseAllocLocked = true;
         }
     }
-    const specialBoost = readSpecialBoost(actorToUse);
-    if (specialBoost > 0 && shownSpecials) {
-        shownSpecials = applySpecialBoostToLabel(shownSpecials, specialBoost);
+    if (shownSpecials) {
+        shownSpecials = applySpecialDeliveryBonuses(shownSpecials, actorToUse);
     }
     let npcAutoDamageDice = 0;
     let npcStressD8 = 0;
@@ -1056,7 +1055,16 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
         const maxLeft = remainingMaximizations(attacker);
         if (maxLeft <= 0)
             return '';
-        return `<button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8.">
+        const sources = listAvailableMaximizationSources(attacker);
+        const sourceSelect = sources.length > 1
+            ? `<select class="max-source-select" title="Choose Maximization source">${sources
+                .map((s) => `<option value="${s.source}">${s.label}</option>`)
+                .join('')}</select>`
+            : sources.length === 1
+                ? `<span class="max-source-hint">${sources[0].label}</span>`
+                : '';
+        const preferred = sources[0]?.source || 'stone';
+        return `${sourceSelect}<button type="button" class="roll-damage-btn roll-damage-max-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" data-maximize="1" data-max-source="${preferred}" title="Spend 1 Maximization (${maxLeft} left). Every d8 becomes 8 (artificial, not natural).">
           <i class="fas fa-arrow-up"></i> Roll Maximum
         </button>`;
     })()}
@@ -1094,6 +1102,14 @@ export function attachDamageCardHandlers(messageId) {
         allocPanel.find('.raise-alloc-select').off('change.msRaiseAlloc').on('change.msRaiseAlloc', refreshAllocPreview);
         refreshAllocPreview();
     }
+    const syncMaxSource = () => {
+        const selected = String(messageElement.find('.max-source-select').val() || '');
+        if (selected) {
+            messageElement.find('.roll-damage-max-btn').attr('data-max-source', selected);
+        }
+    };
+    messageElement.find('.max-source-select').off('change.msMaxSource').on('change.msMaxSource', syncMaxSource);
+    syncMaxSource();
     messageElement.find('.roll-damage-btn').off('click.msRollDamage').on('click.msRollDamage', async function () {
         const $btn = $(this);
         const lockKey = `roll-dmg:${messageId}`;
@@ -1237,7 +1253,9 @@ export function attachDamageCardHandlers(messageId) {
             if (wantMax) {
                 try {
                     const { spendMaximization } = await import('../stones/stone-combat-effects.js');
-                    activeDamageMaximized = await spendMaximization(attacker);
+                    const maxSourceRaw = String($btn.attr('data-max-source') || 'stone');
+                    const maxSource = maxSourceRaw === 'stone' || maxSourceRaw === 'passive' ? maxSourceRaw : null;
+                    activeDamageMaximized = await spendMaximization(attacker, maxSource);
                     if (!activeDamageMaximized) {
                         ui.notifications?.warn('No Maximization remaining — rolling normally.');
                     }
@@ -1295,8 +1313,7 @@ async function calculatePassiveDamage(actor) {
 async function collectAvailableSpecials(actor, weapon, selectedPower) {
     const specials = [];
     const items = actor.items || [];
-    const specialBoost = readSpecialBoost(actor);
-    const boosted = (label) => applySpecialBoostToLabel(label, specialBoost);
+    const boosted = (label) => applySpecialDeliveryBonuses(label, actor);
     // Get power specials from selected power (e.g., "Lacerate(3)")
     if (selectedPower && selectedPower.specials && selectedPower.specials.length > 0) {
         for (const specialName of selectedPower.specials) {
@@ -1776,6 +1793,14 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                 }
                 throw e;
             }
+        }
+        // Reaction Temporary HP protects only this damage instance — strip leftovers.
+        try {
+            const { clearReactionInstanceTempHP } = await import('../combat/passive-triggers.js');
+            await clearReactionInstanceTempHP(target);
+        }
+        catch (reactionThpErr) {
+            console.warn('Mastery System | [APPLY DAMAGE] reaction Temp HP expiry failed', reactionThpErr);
         }
         // Blood FX under the hit token: light/medium stains for chips, heavy pool on level loss.
         if (barDamage > 0 && globalThis.canvas?.ready) {
@@ -2945,7 +2970,8 @@ skipPhasingPrompt = false) {
         if (m)
             hitArmorPenetration += Math.max(0, parseInt(m[1], 10) || 0);
     }
-    // Armor Reduction ignores Armor on every damaging attack this round.
+    // Armor Reduction ignores Armor on every damaging attack this round
+    // (Might Stone Ability) plus Passive: Armor Reduction while slotted.
     if (attacker) {
         try {
             const combatRef = globalThis.game?.combat ?? null;
@@ -2957,6 +2983,17 @@ skipPhasingPrompt = false) {
         }
         catch (err) {
             console.debug?.('Mastery System | [CALCULATE DAMAGE] stone penetration lookup skipped', err);
+        }
+        try {
+            const { slottedPassiveLevel, PASSIVE_ARMOR_REDUCTION_TEMPLATE_ID, } = await import('../combat/passive-combat-charges.js');
+            const { passiveArmorReductionForLevel } = await import('../utils/powers/templates/passives.js');
+            const arLvl = slottedPassiveLevel(attacker, PASSIVE_ARMOR_REDUCTION_TEMPLATE_ID);
+            if (arLvl > 0) {
+                hitArmorPenetration += Math.max(0, passiveArmorReductionForLevel(arLvl));
+            }
+        }
+        catch (err) {
+            console.debug?.('Mastery System | [CALCULATE DAMAGE] Passive Armor Reduction skipped', err);
         }
     }
     if (hitArmorPenetration > 0) {

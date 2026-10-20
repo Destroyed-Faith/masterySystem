@@ -44,6 +44,39 @@
   </button>
   {{/if}}
 
+  {{#if activeBuffPrep.show}}
+  <div class="active-buff-prep-bar{{#if activeBuffPrep.locked}} is-locked{{/if}}">
+    <div class="active-buff-prep-copy">
+      <strong>Active Buff</strong>
+      {{#if activeBuffPrep.maintaining}}
+      <span class="active-buff-prep-current">Maintaining <em>{{activeBuffPrep.currentName}}</em> (PL {{activeBuffPrep.currentLevel}}){{#if activeBuffPrep.durationLabel}} — {{activeBuffPrep.durationLabel}}{{/if}}. Keep free (no Attack Action).</span>
+      {{#if activeBuffPrep.currentEffect}}
+      <span class="active-buff-prep-effect">{{activeBuffPrep.currentEffect}}</span>
+      {{/if}}
+      {{else}}
+      <span class="active-buff-prep-note">Optional — activate one for the upcoming Round (costs your base Attack Action).</span>
+      {{/if}}
+      <span class="active-buff-prep-hint">{{activeBuffPrep.hint}}</span>
+      {{#if activeBuffPrep.unavailableReason}}
+      <span class="active-buff-prep-unavailable">{{activeBuffPrep.unavailableReason}}</span>
+      {{/if}}
+    </div>
+    {{#unless activeBuffPrep.locked}}
+    <div class="active-buff-prep-actions">
+      {{#each activeBuffPrep.options}}
+      <button type="button"
+              class="dialog-btn js-activate-active-buff{{#if this.isCurrent}} is-current{{/if}}"
+              data-power-id="{{this.id}}"
+              title="{{#if this.isCurrent}}Already maintained — keep free{{else}}{{#if ../activeBuffPrep.maintaining}}Replace with {{this.name}} (PL {{this.level}}) — costs base Attack Action{{else}}Activate {{this.name}} (PL {{this.level}}) — costs base Attack Action{{/if}}{{/if}}"
+              {{#if this.isCurrent}}disabled{{/if}}>
+        {{this.name}} (PL {{this.level}}){{#unless ../activeBuffPrep.maintaining}}{{else}}{{#unless this.isCurrent}} — replace{{/unless}}{{/unless}}
+      </button>
+      {{/each}}
+    </div>
+    {{/unless}}
+  </div>
+  {{/if}}
+
   {{#if preparation.showBoost}}
   <div class="initiative-exchange-bar initiative-boost-bar">
     <div class="initiative-exchange-row">

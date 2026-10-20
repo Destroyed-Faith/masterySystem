@@ -142,6 +142,12 @@ export async function runPlayerOwnedRoundAdvance(combat: Combat, newRound: numbe
     }
   }
   try {
+    const { onCombatRoundAdvanceActiveBuffs } = await import('./active-buff-lifecycle.js');
+    await onCombatRoundAdvanceActiveBuffs(combat, newRound);
+  } catch (err) {
+    console.warn('Mastery System | Player Active Buff Round advance failed', err);
+  }
+  try {
     await regenStonesEndOfRound(combat);
   } catch (err) {
     console.warn('Mastery System | Player stone regen failed', err);
@@ -299,6 +305,12 @@ export async function runMasteryCombatRoundAdvancePipeline(
       console.warn('Mastery System | Absorption stone release failed', err);
     }
     await resetRoundState(actor, combatant, combat);
+  }
+  try {
+    const { onCombatRoundAdvanceActiveBuffs } = await import('./active-buff-lifecycle.js');
+    await onCombatRoundAdvanceActiveBuffs(combat, newRound);
+  } catch (err) {
+    console.warn('Mastery System | Active Buff Round advance failed', err);
   }
   await regenStonesEndOfRound(combat);
   if (combat.started) {

@@ -175,11 +175,12 @@ export function getTrueActiveBuffs(actor) {
     });
 }
 /**
- * Activate an active buff power
- * Creates an ActiveEffect that lasts for Mastery Rank rounds
- * Only one true active buff can be active at a time (utilities can stack)
+ * Activate an active buff power during the Preparation Phase.
+ * Duration is complete Combat Rounds ending at Round End:
+ * lastActiveRound = activationRound + effectiveDuration - 1.
+ * Only one true active buff can be active at a time (utilities can stack).
  */
-export async function activateActiveBuff(actor, power) {
+export async function activateActiveBuff(actor, power, opts) {
     if (!isActiveBuff(power)) {
         console.warn('Mastery System | activateActiveBuff called with non-buff power', power.name);
         return false;
@@ -194,6 +195,66 @@ export async function activateActiveBuff(actor, power) {
     }
     catch {
         /* guard is best-effort */
+    }
+    const combat = game.combat ?? null;
+    if (!opts?.allowOutsidePreparation) {
+        if (!combat) {
+            ui.notifications?.warn(`${power.name} can only be activated during the Preparation Phase of combat.`);
+            return false;
+        }
+        try {
+            const { isActiveBuffPreparationWindow } = await import('../combat/active-buff-lifecycle.js');
+            if (!isActiveBuffPreparationWindow(actor, combat)) {
+                ui.notifications?.warn(`${power.name}: Active Buffs activate only during Preparation (not during your Turn).`);
+                return false;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Active Buff Preparation gate failed', err);
+            return false;
+        }
+    }
+    // Active Buff: Damage Negation Pool requires slotted Passive: Damage Negation
+    // (even when that Passive's combat Reserve is already 0).
+    const tplId = String(power?.system?.templateId || '').toLowerCase();
+    if (tplId === 'ab-reinforced-damage-negation') {
+        try {
+            const { slottedPassiveLevel } = await import('../combat/passive-combat-charges.js');
+            if (slottedPassiveLevel(actor, 'passive-damage-negation') <= 0) {
+                ui.notifications?.warn(`${power.name} requires Passive: Damage Negation to be slotted (Reserve may be 0).`);
+                return false;
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | DN Buff requirement check failed', err);
+        }
+    }
+    // Commit base Attack Action for the upcoming Round (survives turn reset).
+    if (!opts?.skipActionCommit && combat && isTrueActiveBuff(power)) {
+        try {
+            const { commitPrepBaseAttackAction, isActiveBuffPreparationWindow, } = await import('../combat/active-buff-lifecycle.js');
+            const { getAvailableAttackActions, getRoundState } = await import('../combat/action-economy.js');
+            const rs = getRoundState(actor, combat);
+            if (rs.activeBuffUsedThisRound || rs.prepBaseAttackCommitted) {
+                ui.notifications?.warn('You already activated or replaced an Active Buff this Preparation.');
+                return false;
+            }
+            if (getAvailableAttackActions(actor, combat) <= 0) {
+                ui.notifications?.warn('Cannot activate an Active Buff — no base Attack Action available to commit.');
+                return false;
+            }
+            if (isActiveBuffPreparationWindow(actor, combat)) {
+                const ok = await commitPrepBaseAttackAction(actor, combat);
+                if (!ok) {
+                    ui.notifications?.warn('Failed to commit the base Attack Action for this Active Buff.');
+                    return false;
+                }
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Active Buff action commit failed', err);
+            return false;
+        }
     }
     // Check if this is a true active buff (not a utility)
     const isTrueBuff = isTrueActiveBuff(power);
@@ -213,22 +274,22 @@ export async function activateActiveBuff(actor, power) {
         }
     }
     const masteryRank = activeBuffDurationRounds(actor);
-    const currentRound = getCurrentRound();
-    // Vitality Stone Power "Extend Active Buff": +1..+4 rounds on ONE Active
-    // Buff activated this turn. Consumed here so a second activation this turn
-    // doesn't benefit again.
+    const { preparationTargetRound, computeLastActiveRound, } = await import('../combat/active-buff-lifecycle.js');
+    const activationRound = combat ? preparationTargetRound(combat) : Math.max(1, getCurrentRound());
+    // Resolve Stone Ability: Active Buff Empowerment — may improve PL and duration
+    // for a Buff activated in the same Preparation Phase.
     const empower = await consumePendingBuffExtension(actor);
     const durationRounds = masteryRank + empower.rounds;
-    // Calculate duration in rounds
-    // Duration is "Mastery Rank rounds" (+ Extend Active Buff, if pending)
-    // Foundry's ActiveEffect duration uses rounds/turns/seconds
+    const lastActiveRound = computeLastActiveRound(activationRound, durationRounds);
+    // Foundry duration is set long enough that native countdown does not cut the
+    // Buff mid-Round; authoritative expiry is Round End via lifecycle.
     const duration = {
-        startRound: currentRound,
-        startTurn: game.combat?.turn || 0,
-        rounds: durationRounds,
+        startRound: activationRound,
+        startTurn: 0,
+        rounds: durationRounds + 1,
         turns: 0,
         seconds: null,
-        combat: game.combat?.id || null
+        combat: combat?.id || null,
     };
     // Snapshot level-specific mechanics (powers use levels["1"]..["16"]; `rank` is 1–16).
     const powerSys = power.system || {};
@@ -278,6 +339,8 @@ export async function activateActiveBuff(actor, power) {
         (typeof drSnap !== 'number' || !Number.isFinite(drSnap) || drSnap <= 0)) {
         ui.notifications?.warn('Active Buff: Damage Reduction — snapshot has no valid DR%; check power item `levels` / `rank`.');
     }
+    const levelRow = powerSys.levels?.[String(powerLevelKey)];
+    const effectText = String(levelRow?.effect || levelRow?.effectText || power.system?.description || power.system?.effect || '').trim();
     // Create ActiveEffect data - simplified structure for Foundry VTT
     const effectData = {
         name: power.name,
@@ -293,15 +356,24 @@ export async function activateActiveBuff(actor, power) {
                 powerTemplateId: powerSys?.templateId ? String(powerSys.templateId) : null,
                 masteryRank: masteryRank,
                 durationRounds: durationRounds,
+                effectiveDuration: durationRounds,
+                activationRound,
+                activatedRound: activationRound,
+                lastActiveRound,
+                durationMode: 'round-end',
+                combatId: combat?.id ? String(combat.id) : null,
                 extendedRounds: empower.rounds,
                 empoweredPowerLevels: empower.powerLevels,
-                activatedRound: currentRound,
-                isUtility: isUtility(power), // Store whether this is a utility
-                mechanics: rankMechanics
+                effectiveLevel: powerLevelKey,
+                level: powerLevelKey,
+                effectText,
+                isUtility: isUtility(power),
+                mechanics: rankMechanics,
+                preparationTempHP: tplId === 'ab-temp-hp' || tplId === 'ab-temp-hp-healing',
             }
         },
         // Add description directly (not in system.description.value)
-        description: power.system?.description || power.system?.effect || ''
+        description: effectText || power.system?.description || power.system?.effect || ''
     };
     // Add duration if in combat
     if (game.combat) {
@@ -321,13 +393,34 @@ export async function activateActiveBuff(actor, power) {
     try {
         // Create the effect on the actor
         const created = await actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
-        ui.notifications?.info(`Activated ${power.name} (Duration: ${durationRounds} rounds${empower.rounds > 0 ? `, incl. +${empower.rounds} from Active Buff Empowerment` : ''})`);
+        if (!created?.length) {
+            if (combat && !opts?.skipActionCommit) {
+                try {
+                    const { clearPrepBaseAttackCommitment } = await import('../combat/active-buff-lifecycle.js');
+                    await clearPrepBaseAttackCommitment(actor, combat);
+                }
+                catch {
+                    /* best-effort */
+                }
+            }
+            ui.notifications?.error(`Failed to activate ${power.name}`);
+            return false;
+        }
+        ui.notifications?.info(`Activated ${power.name} (Rounds ${activationRound}–${lastActiveRound}${empower.rounds > 0 ? `, incl. +${empower.rounds} from Active Buff Empowerment` : ''})`);
+        // Grant Prep resources immediately (Temp HP / DN Pool) for the activation Round.
+        try {
+            const { processActiveBuffPreparation } = await import('../combat/active-buff-lifecycle.js');
+            await processActiveBuffPreparation(actor, combat);
+        }
+        catch (prepErr) {
+            console.warn('Mastery System | Active Buff Preparation resource grant failed', prepErr);
+        }
         try {
             const ChatCls = globalThis.ChatMessage;
             const esc = globalThis.foundry?.utils?.escapeHTML?.bind(globalThis.foundry.utils) ??
                 ((s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
             const lines = [
-                `<p><strong>${esc(String(power.name))}</strong> — active <strong>${durationRounds}</strong> round${durationRounds === 1 ? '' : 's'}.</p>`,
+                `<p><strong>${esc(String(power.name))}</strong> — active through <strong>Round ${lastActiveRound}</strong> (expires at Round End; Prep activation).</p>`,
             ];
             if (empower.rounds > 0 || empower.powerLevels > 0) {
                 lines.push(`<p>Active Buff Empowerment: <strong>+${empower.powerLevels}</strong> Power Level, <strong>+${empower.rounds}</strong> round${empower.rounds === 1 ? '' : 's'}.</p>`);
@@ -355,6 +448,19 @@ export async function activateActiveBuff(actor, power) {
     }
     catch (error) {
         console.error('Mastery System | Failed to activate active buff', error);
+        if (combat && !opts?.skipActionCommit) {
+            try {
+                const { clearPrepBaseAttackCommitment } = await import('../combat/active-buff-lifecycle.js');
+                const { getRoundState, setRoundState } = await import('../combat/action-economy.js');
+                await clearPrepBaseAttackCommitment(actor, combat);
+                const rs = getRoundState(actor, combat);
+                rs.activeBuffUsedThisRound = false;
+                await setRoundState(actor, rs);
+            }
+            catch {
+                /* best-effort undo */
+            }
+        }
         ui.notifications?.error(`Failed to activate ${power.name}`);
         return false;
     }

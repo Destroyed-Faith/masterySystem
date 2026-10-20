@@ -75,11 +75,11 @@ export const COMBAT_MANEUVERS = [
     {
         id: "weapon-swap",
         name: "Weapon Swap",
-        description: "Switch to your other prepared Weapon Set.",
+        description: "Switch to another prepared Weaponslot. Free anytime.",
         slot: "movement",
         category: "movement",
         tags: ["movement", "basic", "weapon-swap"],
-        effect: "Activate the prepared Weapon Set that is not currently in your hands. In combat this costs 1 Movement. Out of combat it is free. The inactive set may be empty — that is Unarmed.",
+        effect: "Activate another prepared Weaponslot (I, II, …). Free anytime, including in combat. Empty slots stay available so you can equip mid-fight. Stowing weapons fights Unarmed without deleting the prepared sets.",
     },
     {
         id: "stand-up",

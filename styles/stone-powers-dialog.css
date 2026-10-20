@@ -8,6 +8,54 @@
   overflow-y: auto;
 }
 
+.stone-powers-dialog .active-buff-prep-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.45rem 0.75rem;
+  padding: 0.5rem 0.65rem;
+  margin-bottom: 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(204, 136, 255, 0.4);
+  background: rgba(204, 136, 255, 0.08);
+}
+
+.stone-powers-dialog .active-buff-prep-bar.is-locked {
+  opacity: 0.75;
+}
+
+.stone-powers-dialog .active-buff-prep-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 12rem;
+  flex: 1 1 14rem;
+  font-size: 0.85rem;
+}
+
+.stone-powers-dialog .active-buff-prep-effect {
+  opacity: 0.9;
+  font-size: 0.8rem;
+  line-height: 1.25;
+}
+
+.stone-powers-dialog .active-buff-prep-unavailable {
+  opacity: 0.85;
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
+.stone-powers-dialog .active-buff-prep-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.stone-powers-dialog .js-activate-active-buff.is-current {
+  opacity: 0.65;
+}
+
 .stone-powers-dialog .natural-recovery-bar {
   display: flex;
   flex-wrap: wrap;

@@ -1,7 +1,7 @@
 /**
  * Option Collection and Parsing for Radial Menu
  */
-import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
+import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { describeActiveWeaponProfile } from '../utils/weapon-sets.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -1053,7 +1053,7 @@ export async function getAllCombatOptionsForActor(actor) {
             : maneuver.name;
         const maneuverDescription = maneuver.id === 'weapon-swap'
             ? (globalThis.game?.i18n?.localize?.('MASTERY.weaponSets.pickPrompt') ||
-                'Pick in chat what you want to wear. Costs 1 Movement in combat.')
+                'Pick in chat what you want to wear. Free anytime.')
             : (maneuver.description || (maneuver.effect || ''));
         const maneuverOption = {
             id: maneuver.id,
@@ -1140,22 +1140,13 @@ export async function getAllCombatOptionsForActor(actor) {
     options.push(...nonMovementOptions);
     // NSC-defined attacks (same segment as other attacks)
     options.push(...npcAttackOptions);
-    // NSC catalog Active Buffs (Buff segment) — NPCs have no power list on sheet.
-    try {
-        options.push(...buildNpcCatalogActiveBuffOptions(actor));
-    }
-    catch (err) {
-        console.warn('Mastery System | Could not build NPC Active Buff radial options:', err);
-    }
     // Add non-movement maneuvers
     const nonMovementManeuvers = allManeuvers.filter(m => m.slot !== 'movement');
     options.push(...nonMovementManeuvers);
-    // --- ARTIFACT POWERS (Level Progression → Active / Active Buff / Movement / Support) ---
-    // Surfaces unlocked artifact actives from every equipped artifact's
-    // `system.levelProgression` rows (level ≤ currentLevel). Reactions
-    // are handled by the defender-reactions pipeline, not the radial menu.
+    // --- ARTIFACT POWERS (Level Progression → Active / Movement / Support) ---
+    // Active Buff rows are excluded — they activate during Preparation only.
     try {
-        const artifactOptions = buildArtifactRadialOptions(actor);
+        const artifactOptions = buildArtifactRadialOptions(actor).filter((opt) => getSegmentIdForOption(opt) !== 'active-buff');
         if (artifactOptions.length > 0) {
             options.push(...artifactOptions);
         }
@@ -1171,7 +1162,7 @@ export async function getAllCombatOptionsForActor(actor) {
     catch (err) {
         console.warn('Mastery System | Could not build consumable radial options:', err);
     }
-    // Logging
-    return options;
+    // Strip any remaining Active Buff options from the combat radial.
+    return options.filter((opt) => getSegmentIdForOption(opt) !== 'active-buff');
 }
 //# sourceMappingURL=options.js.map

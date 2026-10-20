@@ -7823,7 +7823,7 @@ Stone Ability costs reset each **Preparation Phase** unless an Ability explicitl
 :
 #### Temporary Defensive Stone Values
 
-Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**, or **Special Negation** create the listed defense if you do not already have it. If you already have that defense, add the listed value to your existing value. All temporary values expire at the start of your next turn. All normal limits and resolution rules still apply.
+Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**, or **Special Negation** create the listed defense if you do not already have it. If you already have that defense, add the listed value to your existing value. Temporary **Parry**, **Damage Reduction**, and **Special Negation** expire at the start of your next turn. Temporary **Damage Negation** is one consumable pool for the current Round and expires at Round End. All normal limits and resolution rules still apply.
 
 ---
 :
@@ -7865,7 +7865,7 @@ Stone Abilities that grant **Parry**, **Damage Negation**, **Damage Reduction**,
 
 | **Stone Ability** | **Rank 1** | **Rank 2** | **Rank 3** | **Rank 4** |
 |:--|:--|:--|:--|:--|
-| **Damage Negation** | Gain **+4 Damage Negation** until the start of your next turn. | Gain **+8 Damage Negation** until the start of your next turn. | Gain **+12 Damage Negation** until the start of your next turn. | Gain **+16 Damage Negation** until the start of your next turn. |
+| **Damage Negation** | Gain **+2 Damage Negation** until Round End. | Gain **+4 Damage Negation** until Round End. | Gain **+8 Damage Negation** until Round End. | Gain **+12 Damage Negation** until Round End. |
 | **Temporary HP** | Gain **20 Temporary HP**. | Gain **40 Temporary HP**. | Gain **80 Temporary HP**. | Gain **160 Temporary HP**. |
 | **Damage Maximization** | Once per combat, maximize **1** complete Damage Roll. | Once per combat, maximize **2** complete Damage Rolls. | Once per combat, maximize **3** complete Damage Rolls. | Once per combat, maximize **4** complete Damage Rolls. |
 | **Remove Scar** | Recover **1 Scarred Health Bar**. Seal **1 Vitality Stone**. | Recover **1 Scarred Health Bar**. Seal **2 Vitality Stones**. | Recover **1 Scarred Health Bar**. Seal **4 Vitality Stones**. | Recover **1 Scarred Health Bar**. Seal **8 Vitality Stones**. |
@@ -7911,7 +7911,9 @@ Stone Power Support interacts with Remove Scar normally. A supported Rank is con
 
 **Range & AoE Boost** applies for the current Round to eligible existing attack/Powers with Range, Melee Reach or an AoE radius. Its selected Rank grants **+10 / +20 / +30 / +40 m Range**, **+2 / +4 / +6 / +8 m Melee Reach** and **+1 / +2 / +3 / +4 m to the radius of an existing AoE**. Apply each bonus only to a delivery component that already exists; the Ability does not grant new Range, create an AoE, add a target, or create a second attack. These are temporary delivery bonuses even when the normal Power's purchased radius cap has been reached; they do not alter the Power's purchased base profile.
 
-**Special Boost is a Premium Stone Ability.** It adds its Rank bonus (**+2 / +4 / +8 / +12**) to the incoming numeric **Special(X)** of every eligible effect you deliver in the current Round, including Martial Attacks, Spells, weapons, Powers, Artifacts, Reactions and persistent effects applying during that Round. Add successful Raise Special Increase first, then Special Boost; the target applies **Special Negation** to the combined value, and only then apply the per-Round **Special Application Limit** and store the surviving Diminishing stacks. This Ability neither creates a new Special nor increases binary or nonnumeric Specials. All Special-specific limits remain in force.
+**Special Boost is a Premium Stone Ability.** It adds its Rank bonus (**+2 / +4 / +8 / +12**) to the incoming numeric **Special(X)** of every eligible effect you deliver in the current Round, including Martial Attacks, Spells, weapons, Powers, Artifacts, Reactions and persistent effects applying during that Round.
+
+**Special application order (authoritative):** printed Special(X) → successful Raise Special Increase → Intellect Stone Special Boost → **Passive: Special Amplification** (if slotted) → target Vulnerability → target Special Negation → per-Round **Special Application Limit** (4 × Mastery Rank). Passive: Special Amplification increases only eligible numeric Specials freshly delivered by the owner's qualifying attack; it is distinct from Passive: Special Aura. Special Boost and Special Amplification neither create a new Special nor increase binary or nonnumeric Specials. All Special-specific limits remain in force.
 
 }}
 \page
@@ -8398,6 +8400,7 @@ Each combat follows this structure:
    - Resolve **Initiative Boost** first. Any Stones used for Initiative Boost are committed and spent immediately.
    - Resolve **Initiative Exchange** and convert Initiative into Initiative Colorless Stones.
    - After Initiative Exchange, creatures commit and spend their remaining Ready Stones and any Initiative Colorless Stones on their other Stone Abilities for the Round.
+   - Characters may activate or replace **one Active Buff** for the upcoming Round, committing their **base Attack Action** for that Round. Maintaining an existing Buff costs no Action. Round-based Buff resources (such as Temporary HP and Damage Negation Pool) refresh here once per Round.
    - Defensive and passive Stone values that apply during the Round become active immediately.
    - Stone Abilities that require the creature's Turn or a specific trigger are prepared now, but resolve only when their normal timing occurs.
    - Once all Stone choices are complete, determine Initiative Order and lock it for this Round.
@@ -8405,9 +8408,11 @@ Each combat follows this structure:
 2. **Resolve Turns**
    - Creatures act in Initiative Order.
    - Each creature takes one Turn per Round.
+   - Active Buffs remain fully effective for the whole Round regardless of Initiative; their duration is not reduced at Turn start or Turn end.
 
 3. **End the Round**
    - Resolve end-of-round effects.
+   - Active Buffs whose final Round just ended expire here (Round End), after eligible effects for that Round have resolved.
    - Regenerate Exhausted Stones as normal.
 
 4. **Start a New Round**
@@ -8423,6 +8428,10 @@ At the start of each Round, each character normally has:
 - **1 Movement**
 - **1 Attack Action**
 - **1 Reaction**
+
+If the character committed their **base Attack Action** during Preparation to activate or replace an Active Buff, that base Attack Action is not restored when the Round or Turn begins. Additional Attack Actions granted by Stones or other legal sources remain available.
+
+That same committed base Attack Action cannot also pay for **Dash**, **Disengage**, or **Parry**. Entering Parry normally consumes the base Attack Action at the beginning of the Turn; if Preparation already committed it to an Active Buff, the character may instead spend one legally available **additional Attack Action** to enter Parry. The same Attack Action cannot pay for both effects. Activating **Active Buff: Parry Recovery** does not enter Parry.
 
 Some Powers, Items, or Stones may grant additional Movements, Attack Actions, or Reactions.
 
@@ -8491,9 +8500,10 @@ An Attack Action may be used to:
 - make a weapon attack,
 - use an Active Power,
 - cast a Spell,
-- activate an Active Buff,
 - use an item,
 - or perform another action that costs an Attack Action.
+
+**Active Buffs** are not activated during your Turn. They are activated during the Preparation Phase and already spend the base Attack Action of the upcoming Round when chosen there.
 
 ---
 
@@ -8732,7 +8742,7 @@ Before the Damage Pool is rolled, the target may spend Damage Negation. Each poi
 
 Normally, roll all remaining Damage Dice. Damage Dice do not explode unless a rule explicitly states otherwise. **Vitality: Damage Maximization** replaces the rolls of the chosen Damage Dice with fixed results of 8; use the following rule before making that roll.
 
-If **Vitality: Damage Maximization** was activated once at the first Preparation Phase of this combat and has an unused maximization available, the damage dealer may spend **one use before this Damage Roll**. In that case every remaining Damage Die in this complete Damage Pool has result **8** instead of being rolled; the forced 8s are not natural 8s. Resolve Armor, Damage Reduction and other mitigation normally. One shared AoE Damage Roll costs one maximization; separate rolls cost separate maximizations. Damage Maximization may enhance a **Limited Power**, and it neither multiplies damage nor creates an additional attack.
+If **Vitality: Damage Maximization** was activated once at the first Preparation Phase of this combat and has an unused maximization available, or **Passive: Maximization** has an unused per-Combat charge, the damage dealer may spend **one use from exactly one source before this Damage Roll**. In that case every remaining Damage Die in this complete Damage Pool (after Damage Negation) has result **8** instead of being rolled; the forced 8s are not natural 8s. Resolve Armor, Damage Reduction and other mitigation normally. One shared AoE Damage Roll costs one maximization; separate rolls cost separate maximizations. The same Maximization resolution applies to eligible Healing Rolls. Passive and Stone allowances do not stack on one roll. Damage Maximization may enhance a **Limited Power**, and it neither multiplies damage nor creates an additional attack.
 
 After determining the Damage Roll result, the attacker may spend any **Mark already on the target before this hit began** to set that Damage Roll's floor. Decide the amount **after viewing Damage Dice but before Damage-Trigger Reactions**; change qualifying die results and reduce the target's stored Mark immediately. Mark newly applied by this hit becomes available for **later hits**, not this hit. Then resolve eligible **Damage-Trigger Reactions** against the resulting Damage Roll before Armor and other damage mitigation. A Reaction requiring a later event, such as Scarring, resolves at that specifically stated event.
 
@@ -9477,7 +9487,7 @@ Focus entirely on movement.
 
 Move up to **double your normal Speed**.
 
-You cannot perform your base Attack Action this Turn, but additional Attack Actions gained through Stones or another explicit source may still be used.
+You forfeit your base Attack Action this Turn; additional Attack Actions gained through Stones or another explicit source may still be used. If Preparation already committed that base Attack Action to an Active Buff, you cannot Dash by forfeiting it again.
 
 This movement provokes movement-triggered Reactions normally.
 
@@ -9487,7 +9497,7 @@ Withdraw carefully.
 
 Move up to your normal Speed without provoking movement-triggered Reactions.
 
-You cannot perform your base Attack Action this Turn, but additional Attack Actions gained through Stones or another explicit source may still be used.
+You forfeit your base Attack Action this Turn; additional Attack Actions gained through Stones or another explicit source may still be used. If Preparation already committed that base Attack Action to an Active Buff, you cannot Disengage by forfeiting it again.
 
 #### Quick Load
 
@@ -10257,7 +10267,7 @@ You may distribute the Cleanse value freely between those eligible Specials. If 
 
 #### Until Broken / Until Used Effects
 
-**Critical is not a general Special.** **Critical(X)** designates X qualifying Attack or Casting Pools to explode on 7–8 as defined in Core Terms, with the source determining the available combat or Round allowance. It may be granted only through the dedicated **Active Buff: Critical** or the **Agility Ability: Crit** Stone Ability. Artifact Stone Power Support may pre-fill named Ranks of the Crit Stone Ability, but it never grants Critical directly.
+**Critical is not a general Special.** **Critical(X)** designates X qualifying Attack or Casting Pools to explode on 7–8 as defined in Core Terms, with the source determining the available combat or Round allowance. It may be granted through the dedicated **Active Buff: Critical**, the **Agility Ability: Crit** Stone Ability, or **Passive: Critical** (per-Combat free charges while slotted). Artifact Stone Power Support may pre-fill named Ranks of the Crit Stone Ability, but it never grants Critical directly. Before a roll, choose exactly one available source; two sources on the same roll neither strengthen explosions nor consume two charges.
 
 | **Effect** | **What It Does** | **Duration** | **Stacking** | **Cleanse** |
 |:--|:--|:--:|:--:|:--:|
@@ -11125,19 +11135,27 @@ See: <a href="https://homebrewery.naturalcrit.com/share/m74ur1W6_7MQ" target="_b
 
 Active Buffs are temporary combat enhancements.
 
-They represent a character entering a stance, invoking protection, empowering their body, reinforcing allies, or activating a short-lived combat state. 
-An Active Buff usually costs **1 Attack Action** to activate and lasts **Mastery Rank Rounds**.
+They represent a character entering a stance, invoking protection, empowering their body, reinforcing allies, or activating a short-lived combat state.
 
-The round in which the Active Buff is activated counts as the **first round** of its duration. An Active Buff expires at the end of your turn in its final round unless the Buff states another timing.
-This means activating an Active Buff is part of your current turn: you spend the Attack Action now, the Buff becomes active immediately, and its duration has already begun.
+An Active Buff is activated exclusively during the **Preparation Phase** before the upcoming Combat Round. Activation commits the character's **base Attack Action** for that Round (not merely the Basic Attack maneuver). That base Attack Action is unavailable during the character's Turn and cannot also pay for Dash, Disengage, or Parry. Additional Attack Actions from Stones or other legal sources remain available — including, when Preparation already committed the base Action, spending one such additional Attack Action to enter Parry. Maintaining an already-active Buff costs no Attack Action.
+
+An Active Buff normally lasts **Mastery Rank complete Combat Rounds**. The Round for which it is activated during Preparation counts as the **first Round** of its duration. It applies throughout that Round regardless of Initiative and expires at **Round End** of its final Round:
+
+`lastActiveRound = activationRound + effectiveDuration − 1`
+
+**Example (MR1):** Activated during Preparation for Round 1 → active through all of Round 1 → expires at Round End of Round 1.
+
+**Example (MR2):** Activated during Preparation for Round 1 → active through Rounds 1 and 2 → expires at Round End of Round 2.
+
+Ordinary Active Buff activation or replacement is not permitted during a character's Turn.
 
 ---
 
 #### Active Buff Limits
 
-A character may activate **only one Active Buff per round**. A character may normally maintain only **one Active Buff** at a time.
+A character may activate or replace **at most one Active Buff per Preparation Phase**. A character may normally maintain only **one Active Buff** at a time.
 
-If a character activates a new Active Buff while already maintaining another Active Buff, the previous Active Buff ends immediately unless a rule explicitly allows both to coexist. Active Buffs cannot be stacked with themselves.
+If a character activates a new Active Buff while already maintaining another Active Buff, the previous Active Buff ends immediately unless a rule explicitly allows both to coexist. Active Buffs cannot be stacked with themselves. Reactivation does not refresh once-per-Combat resources unless an explicit rule permits it.
 
 ---
 

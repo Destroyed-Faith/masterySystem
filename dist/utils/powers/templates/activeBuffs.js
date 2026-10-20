@@ -1,8 +1,8 @@
 /**
  * Active Buff Power Templates
  *
- * Source: Rules/active-buffs.md — Levels 1..16.
- * Duration: Mastery Rank Rounds unless noted.
+ * Source: docs/Rules/active-buffs.md — Final Playtest catalogue (18 Buffs), Levels 1..16.
+ * Duration: Mastery Rank complete Rounds (Round-End expiry) unless noted.
  * Active Buff PP curve = 40 / 70 / 100 / 130 PP, then +30 per level (cap L16 = 490 PP).
  */
 import { buildLevels, activeBuffRow } from './_shared.js';
@@ -28,7 +28,7 @@ const AB_DAMAGE = ['3d8', '5d8', '7d8', '9d8', '11d8', '13d8', '15d8', '17d8', '
 const AB_PENETRATION = [5, 9, 13, 17, 21, 25, 29, 33, 37, 41, 45, 49, 53, 57, 61, 65];
 /** Active Buff: Spell Resistance (+2 per level). */
 const AB_SPELL_RESISTANCE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-/** Active Buff: Cleanse Maintenance (+1 per level). */
+/** Active Buff: Self Cleanse (+1 per level; Start of Turn). */
 const AB_CLEANSE_MAINTENANCE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 const AURA_RADIUS = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 const AURA_ARMOR = [4, 6, 9, 12, 14, 17, 20, 22, 25, 28, 30, 33, 36, 38, 41, 44];
@@ -46,7 +46,7 @@ const SUMMON_DMG_AURA = [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8];
 const SUMMON_ARMOR_AURA = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
 /** Active Buff: Parry Recovery — 1 Parry per Power Level per Round. */
 const REINFORCED_PARRY = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
-/** Intensified Absorption — extra Temporary Colorless Stones on first harvest. */
+/** Active Buff: Absorption Stone Increase — extra Temporary Colorless Stones on first harvest/Round. */
 const INTENSIFIED_ABSORPTION = [1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4];
 /** Size-stage package per Growth Form level (footprint / reach / stability / prone band). */
 function growthStageForLevel(lvl) {
@@ -107,7 +107,7 @@ export const ACTIVE_BUFF_TEMPLATES = [
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => activeBuffRow({
             duration: DURATION_MR_ROUNDS,
-            effectText: `Gain **+${AB_SPELL_RESISTANCE[lvl - 1]} Spell Resistance**.`,
+            effectText: `Gain **+${AB_SPELL_RESISTANCE[lvl - 1]} Spell Resistance** (increases Final Spell TN against you).`,
             mechanics: {
                 spellResistance: AB_SPELL_RESISTANCE[lvl - 1],
                 duration: 'masteryRankRounds',
@@ -116,12 +116,12 @@ export const ACTIVE_BUFF_TEMPLATES = [
     },
     {
         templateId: 'ab-cleanse-maintenance',
-        templateName: 'Cleanse Maintenance',
-        name: 'Active Buff: Cleanse Maintenance',
+        templateName: 'Self Cleanse',
+        name: 'Active Buff: Self Cleanse',
         subfamily: 'ward',
         category: 'activeBuff',
         tags: [],
-        fluff: 'You enter a cleansing state that steadily pushes hostile conditions out of you.',
+        fluff: 'You enter a cleansing state that steadily pushes hostile conditions out of you at the start of each Turn.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
@@ -162,8 +162,13 @@ export const ACTIVE_BUFF_TEMPLATES = [
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => activeBuffRow({
             duration: DURATION_MR_ROUNDS,
-            effectText: `Gain **${AB_TEMP[lvl - 1]} Temporary HP**.`,
-            mechanics: { tempHP: String(AB_TEMP[lvl - 1]), duration: 'masteryRankRounds' },
+            effectText: `During the activation Preparation Phase, gain **${AB_TEMP[lvl - 1]} Temporary HP**. ` +
+                `During each later Preparation Phase while maintained, restore this Buff's Temporary HP up to **${AB_TEMP[lvl - 1]}**.`,
+            mechanics: {
+                tempHP: String(AB_TEMP[lvl - 1]),
+                duration: 'masteryRankRounds',
+                preparationTempHP: true,
+            },
         })),
     },
     {
@@ -374,18 +379,18 @@ export const ACTIVE_BUFF_TEMPLATES = [
         subfamily: 'offensive',
         category: 'activeBuff',
         tags: [],
-        fluff: 'While this buff lasts, Critical(X) lets X attacks per Round explode Attack Dice on 7–8. X is the per-round attack quota — never a lower explode threshold.',
+        fluff: 'While maintained, Critical(X) designates X Martial Attack or damaging Spell Casting Pools per combat (7s and 8s explode). Reactivation does not refill the allowance. Independent from Agility Stone Crit and Passive: Critical.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
-        // SRD: L1–3 no effect; L4–7 Critical(1); L8–11 Critical(2); L12–14 Critical(3); L15–16 Critical(4).
-        // Critical(X) = X Critical-capable attacks per Round; explode threshold always 7–8 on Attack Dice.
+        // Final catalogue: L1–3 unavailable; L4–7 Critical(1); L8–11 Critical(2); L12–14 Critical(3); L15–16 Critical(4).
+        // Critical(X) = X designations per combat while maintained; explode threshold always 7–8.
         levels: buildLevels((lvl) => {
             const criticalTier = lvl >= 15 ? 4 : lvl >= 12 ? 3 : lvl >= 8 ? 2 : lvl >= 4 ? 1 : 0;
             return activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: criticalTier === 0
-                    ? '—'
-                    : `Your attacks gain **Critical(${criticalTier})** (${criticalTier} Critical attack${criticalTier === 1 ? '' : 's'} per Round; Attack Dice explode on 7–8).`,
+                    ? 'No effect at this PL; unavailable for selection.'
+                    : `Gain **Critical(${criticalTier})** (${criticalTier} designated roll${criticalTier === 1 ? '' : 's'} per combat; natural 7s and 8s explode).`,
                 mechanics: criticalTier === 0
                     ? { duration: 'masteryRankRounds' }
                     : { critical: criticalTier, duration: 'masteryRankRounds' },
@@ -663,12 +668,12 @@ export const ACTIVE_BUFF_TEMPLATES = [
     },
     {
         templateId: 'ab-intensified-absorption',
-        templateName: 'Intensified Absorption',
-        name: 'Active Buff: Intensified Absorption',
+        templateName: 'Absorption Stone Increase',
+        name: 'Active Buff: Absorption Stone Increase',
         subfamily: 'absorption',
         category: 'activeBuff',
         tags: [],
-        fluff: 'Requires Absorption Passive. The first harvest each Round yields extra Temporary Colorless Stones.',
+        fluff: 'Requires Absorption Passive. On the first eligible Absorption trigger each Round, grant extra Temporary Colorless Stones (within the Passive four-trigger Combat limit).',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
@@ -677,27 +682,34 @@ export const ACTIVE_BUFF_TEMPLATES = [
             return activeBuffRow({
                 type: 'Active Buff, Absorption',
                 duration: DURATION_MR_ROUNDS,
-                effectText: `Requires **Absorption** Passive. The first Absorption harvest each Round generates **+${extra} Temporary Colorless ${noun}**.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                effectText: `Requires **Absorption** Passive. First eligible Absorption trigger per Round grants **+${extra} Colorless ${noun}**.`,
+                mechanics: {
+                    duration: 'masteryRankRounds',
+                    absorptionStoneIncrease: extra,
+                },
             });
         }),
     },
     {
         templateId: 'ab-reinforced-damage-negation',
-        templateName: 'Reinforced Damage Negation',
-        name: 'Active Buff: Reinforced Damage Negation',
+        templateName: 'Damage Negation Pool',
+        name: 'Active Buff: Damage Negation Pool',
         subfamily: 'damage-negation',
         category: 'activeBuff',
         tags: [],
-        fluff: 'Requires Damage Negation Passive. A separate per-Round pool spent before the combat reserve.',
+        fluff: 'Requires slotted Passive: Damage Negation (even at 0 Reserve). Separate Temporary DN pool equal to Buff PL each Round: refresh at Preparation while maintained, unused expires at Round End.',
         cost: { action: 'attack' },
         roll: { kind: 'none' },
         levels: buildLevels((lvl) => activeBuffRow({
             type: 'Active Buff, Damage Negation',
             duration: DURATION_MR_ROUNDS,
-            effectText: `Requires **Damage Negation** Passive. Each Round gain **${lvl} Reinforced Negation Die` +
-                `${lvl === 1 ? '' : 'ce'}** (spend before the reserve). Shared half-pool cap with the Passive reserve.`,
-            mechanics: { duration: 'masteryRankRounds' },
+            effectText: `Requires slotted **Passive: Damage Negation**. During activation Preparation and each later Preparation while maintained, gain **${lvl} Temporary Damage Negation** for that Round. ` +
+                `Unused points expire at Round End. Spend before the Passive Reserve.`,
+            mechanics: {
+                damageNegation: lvl,
+                damageNegationPoolMax: lvl,
+                duration: 'masteryRankRounds',
+            },
         })),
     },
 ];

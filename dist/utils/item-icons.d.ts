@@ -24,6 +24,14 @@ export declare function getItemIconHintFromCreateData(data: {
     flags?: Record<string, Record<string, unknown>>;
 }): ItemIconSystemHint;
 /**
+ * Unique mundane item icons available in the system (gear / weapons / armor / shields + defaults).
+ * Used by the custom catalog creator — excludes Echo/General Artifact art.
+ */
+export declare function listMundaneItemIconChoices(): Array<{
+    path: string;
+    label: string;
+}>;
+/**
  * Resolve the best icon path for an item by name and type.
  * For armor and shields, pass `system` (with `type` tier) so renamed items still match the correct art.
  * Returns null if no custom icon is available.

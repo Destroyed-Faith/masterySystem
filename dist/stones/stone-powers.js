@@ -543,21 +543,21 @@ const VITALITY_POWERS_RAW = [
         name: 'Damage Negation',
         attribute: 'vitality',
         category: 'passive',
-        description: 'Premium. Gain Damage Negation until the start of your next turn (R1–R4: +4/+8/+12/+16). Creates it if you do not have it.',
+        description: 'Premium. Gain one consumable Temporary Damage Negation pool for the current Round (R1–R4: +2/+4/+8/+12). Unused points expire at Round End.',
         tiers: [
-            { label: '+4 Damage Negation', description: 'Gain +4 Damage Negation until the start of your next turn.', value: 4 },
-            { label: '+8 Damage Negation', description: 'Gain +8 Damage Negation until the start of your next turn.', value: 8 },
-            { label: '+12 Damage Negation', description: 'Gain +12 Damage Negation until the start of your next turn.', value: 12 },
-            { label: '+16 Damage Negation', description: 'Gain +16 Damage Negation until the start of your next turn.', value: 16 },
+            { label: '+2 Damage Negation', description: 'Gain +2 Damage Negation until Round End.', value: 2 },
+            { label: '+4 Damage Negation', description: 'Gain +4 Damage Negation until Round End.', value: 4 },
+            { label: '+8 Damage Negation', description: 'Gain +8 Damage Negation until Round End.', value: 8 },
+            { label: '+12 Damage Negation', description: 'Gain +12 Damage Negation until Round End.', value: 12 },
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
-            const bonus = scaleStoneTier([4, 8, 12, 16], tier);
+            const bonus = scaleStoneTier([2, 4, 8, 12], tier);
             if (bonus <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            // Re-activation ADDs (PG "Temporary Defensive Stone Values").
+            // Re-activation ADDs into the current Round pool; unspent expires at Round End.
             sb.tempDamageNegation = (sb.tempDamageNegation ?? 0) + bonus;
             await setRoundState(actor, roundState);
         },

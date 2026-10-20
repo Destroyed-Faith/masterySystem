@@ -60,6 +60,7 @@ The Homebrewery
 {{homebreweryCredits
 Destroyed Faith — DF Core Passives
 Version: v0.9.9.5 (2026-10-15)
+Playtest revision: 2026-10-20 (working draft; no release or version bump)
 > **Unavailable lower Power Levels (v0.9.9.5):** A row explicitly marked `Unavailable` grants no effect and cannot be purchased, selected, activated, or received as a valid Artifact Power Level. The first level with an actual effect is the minimum selectable Power Level. No missing effect or new strength value is implied.
 
 }}
@@ -86,6 +87,10 @@ Version: v0.9.9.5 (2026-10-15)
 - #### [{{ Parry Passives}}{{ 26}}](#p26)
 - #### [{{ Absorption Passives}}{{ 29}}](#p29)
 - #### [{{ Damage Negation Passives}}{{ 33}}](#p33)
+- #### [{{ Offensive Passive Extensions}}{{ 39}}](#p39)
+- #### [{{ Passive: Armor Reduction}}{{ 39}}](#p39)
+- #### [{{ Passive: Critical}}{{ 40}}](#p40)
+- #### [{{ Passive: Maximization}}{{ 41}}](#p41)
 
 }}
 \page
@@ -96,7 +101,7 @@ Version: v0.9.9.5 (2026-10-15)
 
 Passives represent reliable, always-available parts of a character’s combat identity.
 
-They require no Action, Movement, Reaction, or activation roll. A Passive provides its stated effect while slotted; specific event-based subsystems (such as Absorption or Thorns) retain their exact triggering rules. There are no alternate Conditional Passive purchase variants.
+They require no Action, Movement, Reaction, or activation roll. A Passive provides its stated effect while slotted; the Regeneration subtype is voluntarily triggered at a legal action boundary and spends its daily pool, rather than activating automatically; specific event-based subsystems (such as Absorption or Thorns) retain their exact triggering rules. There are no alternate Conditional Passive purchase variants.
 
 Passives are selected before combat and cannot normally be changed during combat.
 
@@ -189,9 +194,12 @@ The current Passive Categories are:
 | **Damage Reduction** | Percentage-based mitigation applied after Armor            |
 | **Evade**            | Avoidance and defensive positioning                        |
 | **Damage**           | Reliable offensive output                                  |
+| **Armor Reduction** | Ignores Armor on your own damaging Attacks only             |
+| **Critical**         | Limited free Critical-designated Attack/Casting rolls per Combat |
+| **Maximization**     | Limited free Maximization uses on Damage/Healing rolls per Combat |
 | **Health**           | Additional Health Bars or structural durability            |
 | **Temporary HP**     | Frontloaded protective HP                                  |
-| **Healing**          | Ongoing healing of current HP                             |
+| **Regeneration**     | Limited self-only full Scarred Bar restoration per Tyhran Day |
 | **Telepathy**        | Telepathic Access, communication, and voluntary Mind Links |
 | **Phasing**          | Limited complete hit negation                              |
 | **Special Aura**     | Increases one existing eligible Special(X) inside an aura  |
@@ -203,6 +211,23 @@ The current Passive Categories are:
 | **Absorption**       | Temporary Colorless Stones from newly Scarred Health Bars (maximum four triggers per combat)       |
 | **Damage Negation**  | Removal of Damage Dice through a combat reserve            |
 | **Summon**           | Support for existing Summon Bonds and their Summon Tokens |
+| **Enemy Evade Reduction** | Reduces target Evade vs the owner's Martial Attack Rolls only |
+| **Self Cleanse**     | Additional start-of-Turn Cleanse(X) after Natural Recovery |
+| **Speed**            | Flat increase to the normal Speed statistic                |
+| **Spell Resistance Piercing** | Ignores SR against Spells cast by the owner          |
+| **Special Amplification** | Increases eligible Special(X) delivered by the owner's attacks |
+
+### Passive Selection Groups (UI browsing only)
+
+Selection groups organise catalogue browsing in character creation and Passive pickers. They are **not** mechanical Passive Categories and do **not** change slot exclusivity.
+
+| **Selection Group** | **Passives** |
+| :------------------ | :----------- |
+| **Offensive** (8) | Damage, Armor Reduction, Critical, Maximization, Special Aura, Enemy Evade Reduction, Spell Resistance Piercing, Special Amplification |
+| **Defensive** (15) | Armor, Evade, Damage Reduction, Health, Fortitude, Regeneration, Phasing, Spell Resistance, Special Negation, Invisibility, Parry, Thorns, Damage Negation, Temporary HP, Self Cleanse |
+| **Utility & Mobility** (5) | Telepathy, Initiative, Summon Tokens, Absorption, Speed |
+
+Each Power appears in exactly one selection group. Mechanical Category restrictions (for example Health vs Fortitude) remain unchanged.
 
 The **Type** of every Passive remains:
 
@@ -249,6 +274,8 @@ Passives may not normally generate Stones.
 
 **Passive: Summon Tokens** is the explicit Summon exception: it may grant bonus Summon Tokens to Summon Bonds that already exist. It does not create a Summon Bond, add Summon Bodies, or grant Extra Attacks.
 
+The dedicated **Passive: Critical** and **Passive: Maximization** are explicit, limited Combat-roll exceptions: they supply a fixed allowance of uses, not extra Attack Actions, extra rolls, free Stone Ability ranks, or unlimited roll modifiers. Their allowed timing and consumption follow their own entries.
+
 A Passive may never use the **Spell** or **Charged** tag.
 
 }}
@@ -271,6 +298,8 @@ These include:
 * Parry
 * Absorption
 * Damage Negation
+* Critical
+* Maximization
 * Summon
 
 These systems may only be created, increased, restored, or modified through their dedicated entries and explicitly named subsystem extensions.
@@ -469,65 +498,68 @@ You are not faster in one moment. You are harder to catch in every moment.
 
 {{wide
 
-<h3 id="passive-healing">
-  Passive: Healing
+<h3 id="passive-regeneration">
+  Passive: Regeneration
   <span class="tooltip">🛈
     <span class="tooltiptext">
-      BASELINES<br>
-      Passive target = 20 PP x Power Level.<br>
-      Healing Dice = 20 PP per 1d8 of Healing, priced by the die rather than expected HP.<br><br>
-      LEVEL-BY-LEVEL PRICE AUDIT (recalculated dice)<br>
-      L1: Healing 1d8 (20 PP) = 20 / 20 PP; 0 PP unused.<br>
-      L2: Healing 2d8 (40 PP) = 40 / 40 PP; 0 PP unused.<br>
-      L3: Healing 3d8 (60 PP) = 60 / 60 PP; 0 PP unused.<br>
-      L4: Healing 4d8 (80 PP) = 80 / 80 PP; 0 PP unused.<br>
-      L5: Healing 5d8 (100 PP) = 100 / 100 PP; 0 PP unused.<br>
-      L6: Healing 6d8 (120 PP) = 120 / 120 PP; 0 PP unused.<br>
-      L7: Healing 7d8 (140 PP) = 140 / 140 PP; 0 PP unused.<br>
-      L8: Healing 8d8 (160 PP) = 160 / 160 PP; 0 PP unused.<br>
-      L9: Healing 9d8 (180 PP) = 180 / 180 PP; 0 PP unused.<br>
-      L10: Healing 10d8 (200 PP) = 200 / 200 PP; 0 PP unused.<br>
-      L11: Healing 11d8 (220 PP) = 220 / 220 PP; 0 PP unused.<br>
-      L12: Healing 12d8 (240 PP) = 240 / 240 PP; 0 PP unused.<br>
-      L13: Healing 13d8 (260 PP) = 260 / 260 PP; 0 PP unused.<br>
-      L14: Healing 14d8 (280 PP) = 280 / 280 PP; 0 PP unused.<br>
-      L15: Healing 15d8 (300 PP) = 300 / 300 PP; 0 PP unused.<br>
-      L16: Healing 16d8 (320 PP) = 320 / 320 PP; 0 PP unused.<br>
-<br>
-      NOTES: Pure unconditional Healing triggers at the start of each turn. It restores current HP only, never Scarred Health Bars. The listed Healing Dice fill each target budget as far as whole dice permit. This is a beta balance revision and still requires playtesting.
+      Self-only Scarred-Bar Regeneration, consciously activated from a finite daily pool.<br>
+      Passive budget = 20 PP × PL.<br>
+      Full Scarred Bar restoration cost = 40 PP per Bar.<br>
+      Bars per Tyhran Day = floor(PL / 2).<br>
+      PL 1 is not selectable: its 20 PP cannot purchase one full Bar.<br>
+      Choose an eligible action boundary while capable of acting; restore Self at 1 daily point per Scarred Bar.<br>
+      Activation uses the prepared Passive directly (no Attack Action, Reaction or Casting Roll).<br>
+      Day = four Watches / 40 Tyhran Hours; reset once at the next in-game day boundary.<br>
+      Apply recovery prospectively, after earlier completed damage has resolved.<br><br>
+      LEVEL-BY-LEVEL PRICE AUDIT<br>
+      L1: 0 Bars × 40 PP = 0 / 20 PP; 20 PP unused; NOT SELECTABLE.<br>
+      L2: 1 Bars × 40 PP = 40 / 40 PP; 0 PP unused.<br>
+      L3: 1 Bars × 40 PP = 40 / 60 PP; 20 PP unused.<br>
+      L4: 2 Bars × 40 PP = 80 / 80 PP; 0 PP unused.<br>
+      L5: 2 Bars × 40 PP = 80 / 100 PP; 20 PP unused.<br>
+      L6: 3 Bars × 40 PP = 120 / 120 PP; 0 PP unused.<br>
+      L7: 3 Bars × 40 PP = 120 / 140 PP; 20 PP unused.<br>
+      L8: 4 Bars × 40 PP = 160 / 160 PP; 0 PP unused.<br>
+      L9: 4 Bars × 40 PP = 160 / 180 PP; 20 PP unused.<br>
+      L10: 5 Bars × 40 PP = 200 / 200 PP; 0 PP unused.<br>
+      L11: 5 Bars × 40 PP = 200 / 220 PP; 20 PP unused.<br>
+      L12: 6 Bars × 40 PP = 240 / 240 PP; 0 PP unused.<br>
+      L13: 6 Bars × 40 PP = 240 / 260 PP; 20 PP unused.<br>
+      L14: 7 Bars × 40 PP = 280 / 280 PP; 0 PP unused.<br>
+      L15: 7 Bars × 40 PP = 280 / 300 PP; 20 PP unused.<br>
+      L16: 8 Bars × 40 PP = 320 / 320 PP; 0 PP unused.<br>
     </span>
   </span>
 </h3>
 
-Your body steadily reclaims lost vitality while the fight continues.
+**Regeneration** gives the character a pool of **Self-only Scarred-Bar recoveries**. Spend **1 point to restore 1 of your own Scarred Bars at full current HP**. Activate at a legal action boundary during or outside combat while capable of acting. The Passive requires **no Casting Roll, Attack Action or Reaction** and resolves after any earlier completed damage instance.
 
-**Healing Dice (all Passives):** Passive: Healing rolls its listed Healing Dice at the start of each turn, restoring that many current HP within the current Active Health Bar. All Healing Dice in this catalogue are d8 and cost 20 PP per 1d8, not their expected or rolled HP. The unconditional Healing Passive has exactly 1d8 per Power Level. No Conditional Healing variants remain.
+**Daily pool:** Spend the allowance in one activation or across several. The pool resets **once per Tyhran Day (4 Watches / 40 Tyhran Hours)** and tracks points already spent through combat, rest and equipment changes. A higher PL increases the pool's maximum while preserving points spent during the current day. **PL 2** is the first available Rank. An Incapacitated character receives recovery from an eligible external source.
 
-| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+| **PL** | **Type** | **Target** | **Duration** | **Bars per Tyhran Day** | **Effect** |
 |:--:|:--|:--:|:--:|:--:|:--|
-| **1** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **1d8 HP**. |
-| **2** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **2d8 HP**. |
-| **3** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **3d8 HP**. |
-| **4** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **4d8 HP**. |
-| **5** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **5d8 HP**. |
-| **6** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **6d8 HP**. |
-| **7** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **7d8 HP**. |
-| **8** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **8d8 HP**. |
-| **9** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **9d8 HP**. |
-| **10** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **10d8 HP**. |
-| **11** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **11d8 HP**. |
-| **12** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **12d8 HP**. |
-| **13** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **13d8 HP**. |
-| **14** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **14d8 HP**. |
-| **15** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **15d8 HP**. |
-| **16** | Passive, Healing | Self | — | Permanent | At the start of your turn, heal **16d8 HP**. |
+| **1** | Passive, Regeneration | Self | Until spent; daily reset | **—** | Not available: no full Bar can be purchased. |
+| **2** | Passive, Regeneration | Self | Until spent; daily reset | **1** | Restore up to **1 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **3** | Passive, Regeneration | Self | Until spent; daily reset | **1** | Restore up to **1 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **4** | Passive, Regeneration | Self | Until spent; daily reset | **2** | Restore up to **2 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **5** | Passive, Regeneration | Self | Until spent; daily reset | **2** | Restore up to **2 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **6** | Passive, Regeneration | Self | Until spent; daily reset | **3** | Restore up to **3 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **7** | Passive, Regeneration | Self | Until spent; daily reset | **3** | Restore up to **3 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **8** | Passive, Regeneration | Self | Until spent; daily reset | **4** | Restore up to **4 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **9** | Passive, Regeneration | Self | Until spent; daily reset | **4** | Restore up to **4 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **10** | Passive, Regeneration | Self | Until spent; daily reset | **5** | Restore up to **5 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **11** | Passive, Regeneration | Self | Until spent; daily reset | **5** | Restore up to **5 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **12** | Passive, Regeneration | Self | Until spent; daily reset | **6** | Restore up to **6 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **13** | Passive, Regeneration | Self | Until spent; daily reset | **6** | Restore up to **6 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **14** | Passive, Regeneration | Self | Until spent; daily reset | **7** | Restore up to **7 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **15** | Passive, Regeneration | Self | Until spent; daily reset | **7** | Restore up to **7 of your own Scarred Bars** to full HP (1 point per Bar). |
+| **16** | Passive, Regeneration | Self | Until spent; daily reset | **8** | Restore up to **8 of your own Scarred Bars** to full HP (1 point per Bar). |
 
 ---
 }}
-
 \page
-{{pageNumber,auto}}
 
+{{pageNumber,auto}}
 {{wide
 
 <h3 id="passive-phasing">
@@ -1441,7 +1473,7 @@ Passive: Thorns follows all normal Thorns rules.
   </span>
 </h3>
 
-You are hard to find, hard to read, and harder to fight directly.
+You are hard to find, hard to read, and harder to fight directly. **This Passive is permanent while slotted: attacking, casting, moving, reacting, taking damage, or being detected does not remove it or reveal your position automatically.** Normal Combat Awareness remains Obscured after an attack. A direct attacker uses the free Perception Check and the normal Combat Sense rules in Core; a successful Check permits targeting only for that observer during the current Round, without making you visible.
 
 | **Level** | **Type** | **Category** | **Range** | **AoE** | **Duration** | **Effect** |
 |:--:|:--|:--|:--:|:--:|:--:|:--|
@@ -1610,17 +1642,17 @@ The chosen delivery and Attribute cannot normally be changed unless the Power is
 
 At the beginning of your Turn, before using your base Attack Action, you may enter **Parry** until the beginning of your next Turn.
 
-Entering Parry consumes only your **base Attack Action** for that Turn.
+Entering Parry normally consumes the character's **base Attack Action** at the beginning of their Turn. If that Action was already committed during Preparation to activate an Active Buff, the character may instead spend one legally available **additional Attack Action** to enter Parry. The same Attack Action cannot pay for both effects.
 
 While Parrying:
 
 * You cannot use your normal base Attack Action.
-* Additional Attack Actions gained from **Extra Attack** or another legal source remain available.
+* Additional Attack Actions gained from **Extra Attack** or another legal source remain available for other uses once Parry has been paid for.
 * You may use your Movement normally.
 * You may use Reactions normally.
 * You gain a **Parry Pool** equal to your chosen Parry Attribute, up to the maximum allowed by your Parry Passive's Level.
 
-A character cannot enter Parry after using their base Attack Action during the same Turn.
+Activating **Active Buff: Parry Recovery** does **not** enter Parry. Without a remaining base Attack Action or a legal additional Attack Action, the Buff stays active but provides no Parry Recovery until Parry is entered legally. A character cannot enter Parry after using every eligible Attack Action that could pay for it during the same Turn.
 
 ---
 
@@ -1707,8 +1739,9 @@ A specific Passive, Active Buff, Reaction, Artifact, weapon, shield, natural wea
       Spell Parry chooses Intellect, Resolve, or Influence as its Parry Attribute and removes Casting Dice from eligible hostile Spells whose source is within 22 m when you are a target or valid creature in the Spell's area.<br><br>
       ACTION COST<br>
       At the beginning of your Turn, before using your base Attack Action, you may enter Parry until the beginning of your next Turn.<br>
-      Entering Parry consumes only the base Attack Action for that Turn.<br>
-      Additional Attack Actions from Extra Attack or another legal source remain available.<br>
+      Entering Parry normally consumes the base Attack Action for that Turn.<br>
+      If that Action was already committed during Preparation to activate an Active Buff, spend one legally available additional Attack Action instead. The same Attack Action cannot pay for both effects.<br>
+      Active Buff: Parry Recovery does not enter Parry by itself.<br>
       Movement and Reactions remain available.<br><br>
       PARRY POOL<br>
       Your Parry Pool equals your chosen Parry Attribute, limited by ceil(5 × this Power's Level / 2).<br>
@@ -1974,20 +2007,9 @@ No HP-loss threshold, fractional Stone progress, or extra Health bonus applies. 
 
 ## Damage Negation Passives
 
-Damage Negation is a closed premium defensive subsystem that reduces incoming damage before it is rolled.
+**Damage Negation** removes **Damage Dice before they are rolled**, after a hit or other eligible damage effect is established. A character with the dedicated Passive has a **finite Damage Negation Reserve for the current Combat**. Each point spent removes one Damage Die from a pool assigned to that character; the defender chooses how many dice to remove, up to the full pool and available reserve.
 
-Unlike **Parry**, Damage Negation does not interfere with an Attack Pool or Casting Pool and cannot prevent an Attack from hitting or a Spell from being successfully cast.
-
-Unlike **Armor**, Damage Negation does not reduce the rolled damage result.
-
-Unlike **Damage Reduction**, Damage Negation does not reduce damage by a percentage after the roll.
-
-Instead, Damage Negation removes a limited number of **Damage Dice** from incoming Damage Pools before those dice are rolled.
-
-Damage Negation uses a limited reserve that is shared across all eligible damage instances during a Combat.
-
-Only characters with the dedicated **Damage Negation Passive** have a Damage Negation Reserve.
-
+This operates at a different step from Parry (delivery dice), Armor (rolled damage) and percentage Damage Reduction (remaining damage). Each system keeps its own trigger and calculation.
 ---
 
 ### Damage Negation Reserve
@@ -1996,16 +2018,7 @@ While the Damage Negation Passive is slotted, you gain a **Damage Negation Reser
 
 The Reserve represents the total number of Damage Dice you may remove during that Combat.
 
-The Reserve:
-
-* begins at its maximum at the beginning of each Combat,
-* is shared across all eligible damage instances during that Combat,
-* does not refresh at the beginning of a Round,
-* does not refresh when a new enemy enters the existing Combat,
-* does not refresh during a new phase or wave of the same encounter,
-* and is lost when the Combat ends.
-
-A new Reserve is gained only when a genuinely new Combat begins.
+The Reserve begins at its printed maximum when a **new Combat begins**, is spent across all eligible damage instances in that Combat, and expires when that Combat ends. Rounds, reinforcements and phases of the same encounter use the same running Reserve.
 
 Spending Damage Negation does not require an Action, Movement, Reaction, Stone, or roll.
 
@@ -2035,36 +2048,29 @@ If the same Damage Pool would normally be rolled once for several creatures, rol
 \page
 {{pageNumber,auto}}
 {{wide
-### Half-Pool Limit
+### Choosing Damage Dice to Negate
 
-Damage Negation can never remove more than half of the original Damage Dice assigned to you.
+Before an eligible Damage Pool is rolled, choose how many Damage Dice to remove, from **0 up to all incoming Damage Dice assigned to you**. The only limits are the size of that Damage Pool and your **available Damage Negation** from legal sources. Spend **1 Damage Negation per removed Damage Die**. All sources used against the same Pool count toward this expenditure; **no minimum number of incoming dice must remain**.
 
-The maximum number of Damage Dice that may be removed is:
+You may remove **every Damage Die** if your available Damage Negation is sufficient. A Pool reduced to **0d8** has no Damage Dice to roll. The Attack still hit, and any independently applicable Specials, on-hit effects, or flat damage remain subject to their own rules.
 
-`Original Damage Dice ÷ 2, rounded down`
-
-At least half of the original Damage Dice, rounded up, must remain.
-
-This limit applies to the total amount removed by all Damage Negation effects combined.
-
-
+If you have Temporary Damage Negation from an Active Buff as well as a long-term Passive Reserve, **spend Temporary Damage Negation first**, then the Passive Reserve. You may also choose to spend nothing.
 
 #### Examples
 
-An Attack would deal **12d8 damage**.
+An Attack would deal **12d8 damage**, and you have **8 Damage Negation** available from Passive: Damage Negation Level 4.
 
-* You may remove no more than **6 Damage Dice**.
-* At least **6d8 damage** must still be rolled.
+* You may remove **0–8 Damage Dice**.
+* Spending all 8 points leaves **4d8** to be rolled.
 
-An Attack would deal **7d8 damage**.
+An Attack would deal **7d8 damage**, but you have only **3 Damage Negation** available.
 
-* You may remove no more than **3 Damage Dice**.
-* At least **4d8 damage** must still be rolled.
+* You may remove **0–3 Damage Dice**.
+* Spending all 3 leaves **4d8** to be rolled.
 
-An effect would deal **1d8 damage**.
+An effect would deal **1d8 damage**, and you have **1 Damage Negation** available.
 
-* No Damage Dice may be removed.
-* The original **1d8** must still be rolled.
+* You may remove the single Damage Die; **0d8** remains.
 
 ---
 
@@ -2098,29 +2104,7 @@ If an effect is Fully Parried, Fully Countered, misses, fails to cast successful
 {{wide
 ### Attack Effects and Specials
 
-Damage Negation affects only Damage Dice.
-
-It does not alter whether the triggering Attack hit.
-
-Damage Negation does not prevent or remove:
-
-* Specials
-* on-hit effects
-* forced movement
-* control effects
-* Marks
-* conditions
-* ongoing effects
-* flat damage
-* automatic effects
-* or another payload that does not depend on the number of Damage Dice rolled
-
-
-
-A Special or on-hit effect applies normally unless another defense, such as **Special Negation**, prevents or reduces it.
-
-Reducing an Attack's Damage Pool does not cause the Attack to miss.
-
+Damage Negation changes the **number of Damage Dice** rolled against you. The triggering hit remains successful; its independent payloads resolve through their own rules, including Specials, forced movement, control, Marks, conditions, flat damage and ongoing effects. **Special Negation** and other relevant defenses handle those effects separately.
 ---
 
 ### Eligible Damage
@@ -2136,15 +2120,7 @@ This may include:
 * ongoing damage that rolls Damage Dice
 * other hostile effects that create a Damage Pool
 
-Damage Negation cannot affect:
-
-* flat damage without Damage Dice
-* HP loss that is not damage
-* HP paid as a cost
-* self-inflicted damage
-* Healing
-* Temporary HP loss that is not caused by a Damage Pool
-* effects that do not roll Damage Dice
+Eligible damage must create a rolled Damage Pool assigned to the character. **Flat damage, HP paid as a cost, self-inflicted damage, direct non-damage HP loss, ordinary Healing and standalone Temporary HP loss** follow their own rules instead.
 
 ---
 }}
@@ -2200,62 +2176,12 @@ Damage prevented through Damage Negation does not count as actual HP loss and ca
 
 ### Combat Duration
 
-A Damage Negation Reserve exists only for the duration of the current Combat.
-
-The Reserve does not refresh merely because:
-
-* a new Round begins,
-* Initiative is recalculated,
-* reinforcements arrive,
-* a boss changes phase,
-* enemies retreat temporarily while the encounter continues,
-* or the battlefield changes.
-
-These events remain part of the same Combat unless the Game Master determines that the encounter has genuinely ended.
-
-When the Combat ends:
-
-* all unspent Damage Negation is lost,
-* the Reserve is removed,
-* and no remaining points may be carried into another Combat.
-
-At the beginning of the next Combat, the character gains a new Reserve at its full listed value.
-
+The Reserve persists from **Combat Start to Combat End**. The GM determines when an encounter truly ends; new Rounds, initiative changes, reinforcements, boss phases and changes of battlefield within the same encounter continue to draw from the same remaining Reserve. **At the start of a genuinely new Combat**, the character gains a fresh Reserve at its full listed value.
 ---
 
 ### Closed Premium Subsystem
 
-Damage Negation is a closed premium defensive subsystem.
-
-Only dedicated Damage Negation Powers may:
-
-* create a Damage Negation Reserve,
-* increase a Damage Negation Reserve,
-* generate temporary Damage Negation,
-* restore spent Damage Negation,
-* or remove Damage Dice through Damage Negation.
-
-Damage Negation may not appear as a secondary rider.
-
-It may not be bundled with:
-
-* Armor
-* Evade
-* Parry
-* Temporary HP
-* Healing
-* Damage Reduction
-* Phasing
-* Absorption
-* Spell Resistance
-* Special Negation
-* Damage
-* Movement
-* Specials
-* or another filler effect
-
-unless a dedicated Damage Negation entry explicitly states otherwise.
-
+**Damage Negation is a dedicated premium effect.** Its purchasable mechanical axis is removing Damage Dice before they are rolled. The dedicated Damage Negation Passive establishes the Combat Reserve; eligible supporting Stone Abilities, Active Buffs and other explicitly printed Damage Negation sources provide their own listed points and timing. Other offense, defense and action-economy effects follow their separate Power definitions.
 ---
 
 }}
@@ -2271,7 +2197,7 @@ unless a dedicated Damage Negation entry explicitly states otherwise.
       BASELINES<br>
       Passive curve = 20 PP per Level.<br>
       Damage Negation is a closed premium defensive subsystem.<br>
-      Combat Damage Negation = 5 PP per removable Damage Die per Combat.<br><br>
+      Combat Damage Negation = 10 PP per removable Damage Die per Combat.<br><br>
 
   DESIGN STRUCTURE<br>
   While this Passive is slotted, gain a Damage Negation Reserve at the beginning of each Combat.<br>
@@ -2285,12 +2211,12 @@ unless a dedicated Damage Negation entry explicitly states otherwise.
   Unspent Damage Negation is lost when the Combat ends.<br><br>
 
   SCALING<br>
-  Each Power Level grants 4 points of Damage Negation Reserve.<br>
+  Each Power Level grants 2 points of Damage Negation Reserve.<br>
   Each point removes 1 Damage Die from one eligible Damage Pool before it is rolled.<br><br>
 
-  HALF-POOL LIMIT<br>
-  Damage Negation can never remove more than half of the original Damage Dice assigned to you, rounded down.<br>
-  At least half of the original Damage Dice, rounded up, must remain.<br><br>
+  SPENDING LIMIT<br>
+  Choose freely how many incoming Damage Dice to remove, from 0 to the entire Damage Pool, limited only by the available Damage Negation and the number of incoming Damage Dice.<br>
+  Each removed Damage Die costs 1 Damage Negation. A Pool may be reduced to 0d8.<br><br>
 
   RESOLUTION<br>
   Damage Negation is used after an Attack hits or another hostile effect creates a Damage Pool, but before the Damage Dice are rolled.<br>
@@ -2302,18 +2228,17 @@ unless a dedicated Damage Negation entry explicitly states otherwise.
   It does not prevent Specials, on-hit effects, forced movement, control effects, flat damage, or another non-damage payload.<br><br>
 
   CALCULATION<br>
-  L1 target 20 PP → 4 Negation = 20 PP.<br>
-  L2 target 40 PP → 8 Negation = 40 PP.<br>
-  L3 target 60 PP → 12 Negation = 60 PP.<br>
-  L4 target 80 PP → 16 Negation = 80 PP.<br>
-  Each additional Level adds +4 Negation for another 20 PP.<br><br>
+  L1 target 20 PP → 2 Negation = 20 PP.<br>
+  L2 target 40 PP → 4 Negation = 40 PP.<br>
+  L3 target 60 PP → 6 Negation = 60 PP.<br>
+  L4 target 80 PP → 8 Negation = 80 PP.<br>
+  Each additional Level adds +2 Negation for another 20 PP.<br><br>
 
-  RESTRICTIONS<br>
-  This Passive grants no Armor, Evade, Parry, Damage Reduction, Phasing, Temporary HP, Healing, Absorption, Special Negation, Reaction, free Attack, or additional action economy.<br><br>
+  EFFECT SCOPE<br>
+  This Passive removes Damage Dice from an incoming eligible Damage Pool; other defensive axes use their own abilities.<br><br>
 
   NOTES<br>
-  Damage Negation may combine with other defensive systems, but its own effect is limited exclusively to removing Damage Dice.<br>
-  The Reserve refreshes at the beginning of each new Combat and is lost when that Combat ends.
+  Its Combat Reserve refreshes at the beginning of each genuinely new Combat and is spent over that Combat.
 </span>
 
 
@@ -2330,7 +2255,7 @@ When an eligible Damage Pool would be rolled against you, spend points from the 
 
 Each point spent removes **1 Damage Die** from the Damage Pool assigned to you.
 
-Damage Negation cannot remove more than half of the original Damage Dice assigned to you, rounded down.
+You may remove **any number from 0 to all assigned Damage Dice**, limited by your available Damage Negation. Removing all Damage Dice leaves **0d8**; the hit and other non-dice effects remain valid.
 
 The Reserve does not refresh during the Combat.
 
@@ -2338,24 +2263,357 @@ All remaining Damage Negation is lost when the Combat ends.
 
 | **Level** | **Type**                 | **Range** |     **Duration**    | **Damage Negation Reserve** |
 | :-------: | :----------------------- | :-------: | :-----------------: | :-------------------------: |
-|   **1**   | Passive, Damage Negation |    Self   | Until end of Combat |      **4 Damage Dice**      |
-|   **2**   | Passive, Damage Negation |    Self   | Until end of Combat |      **8 Damage Dice**      |
-|   **3**   | Passive, Damage Negation |    Self   | Until end of Combat |      **12 Damage Dice**     |
-|   **4**   | Passive, Damage Negation |    Self   | Until end of Combat |      **16 Damage Dice**     |
-|   **5**   | Passive, Damage Negation |    Self   | Until end of Combat |      **20 Damage Dice**     |
-|   **6**   | Passive, Damage Negation |    Self   | Until end of Combat |      **24 Damage Dice**     |
-|   **7**   | Passive, Damage Negation |    Self   | Until end of Combat |      **28 Damage Dice**     |
-|   **8**   | Passive, Damage Negation |    Self   | Until end of Combat |      **32 Damage Dice**     |
-|   **9**   | Passive, Damage Negation |    Self   | Until end of Combat |      **36 Damage Dice**     |
-|   **10**  | Passive, Damage Negation |    Self   | Until end of Combat |      **40 Damage Dice**     |
-|   **11**  | Passive, Damage Negation |    Self   | Until end of Combat |      **44 Damage Dice**     |
-|   **12**  | Passive, Damage Negation |    Self   | Until end of Combat |      **48 Damage Dice**     |
-|   **13**  | Passive, Damage Negation |    Self   | Until end of Combat |      **52 Damage Dice**     |
-|   **14**  | Passive, Damage Negation |    Self   | Until end of Combat |      **56 Damage Dice**     |
-|   **15**  | Passive, Damage Negation |    Self   | Until end of Combat |      **60 Damage Dice**     |
-|   **16**  | Passive, Damage Negation |    Self   | Until end of Combat |      **64 Damage Dice**     |
+|   **1**   | Passive, Damage Negation |    Self   | Until end of Combat |      **2 Damage Dice**      |
+|   **2**   | Passive, Damage Negation |    Self   | Until end of Combat |      **4 Damage Dice**      |
+|   **3**   | Passive, Damage Negation |    Self   | Until end of Combat |      **6 Damage Dice**     |
+|   **4**   | Passive, Damage Negation |    Self   | Until end of Combat |      **8 Damage Dice**     |
+|   **5**   | Passive, Damage Negation |    Self   | Until end of Combat |      **10 Damage Dice**     |
+|   **6**   | Passive, Damage Negation |    Self   | Until end of Combat |      **12 Damage Dice**     |
+|   **7**   | Passive, Damage Negation |    Self   | Until end of Combat |      **14 Damage Dice**     |
+|   **8**   | Passive, Damage Negation |    Self   | Until end of Combat |      **16 Damage Dice**     |
+|   **9**   | Passive, Damage Negation |    Self   | Until end of Combat |      **18 Damage Dice**     |
+|   **10**  | Passive, Damage Negation |    Self   | Until end of Combat |      **20 Damage Dice**     |
+|   **11**  | Passive, Damage Negation |    Self   | Until end of Combat |      **22 Damage Dice**     |
+|   **12**  | Passive, Damage Negation |    Self   | Until end of Combat |      **24 Damage Dice**     |
+|   **13**  | Passive, Damage Negation |    Self   | Until end of Combat |      **26 Damage Dice**     |
+|   **14**  | Passive, Damage Negation |    Self   | Until end of Combat |      **28 Damage Dice**     |
+|   **15**  | Passive, Damage Negation |    Self   | Until end of Combat |      **30 Damage Dice**     |
+|   **16**  | Passive, Damage Negation |    Self   | Until end of Combat |      **32 Damage Dice**     |
 
 ---
 
 }}
 
+\page
+{{pageNumber,auto}}
+{{wide
+
+## Offensive Passive Extensions
+
+The following three single-category Passives are part of the 2026-10-20 playtest revision. They follow the ordinary Passive Slot limit and 20 PP per Power Level purchase curve. Each has its own Category, so a character may legally slot **Passive: Damage** together with **Passive: Armor Reduction**, for example, if sufficient Passive Slots are available. Neither Critical nor Maximization requires the corresponding Stone Ability.
+
+---
+
+<h3 id="passive-armor-reduction">
+  Passive: Armor Reduction
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      BASELINES<br>
+      Passive curve = 20 PP per Level.<br>
+      Offensive Armor Reduction follows the exact numeric progression of Passive: Armor.<br>
+      Pricing model = 15 PP per point, with ordinary rounding to the nearest eligible integer milestone.<br><br>
+      SCALING<br>
+      PL 1: ignore 1 Armor; PL 4: ignore 5 Armor; PL 8: ignore 11 Armor; PL 16: ignore 21 Armor.<br>
+      APPLIES TO<br>
+      Eligible damaging Attacks made by this character, including damaging Martial and Spell attacks. Evaluate each AoE target independently.<br>
+      DOES NOT<br>
+      Reduce listed Armor for allies, apply Corrode, create Penetration, change Attack Pools or Target Numbers, or bypass Damage Reduction.<br>
+      STACKING<br>
+      Add legal attacker-specific Armor Reduction from Stones and eligible Penetration; use target Corrode normally. Effective Armor cannot drop below 0.<br>
+    </span>
+  </span>
+</h3>
+
+Your strikes instinctively find the weak points in armor and hardened defenses.
+
+When you make an eligible **damaging Attack**, reduce only the **Armor counted against that Attack** by the listed amount. This applies to your own melee, ranged, weapon-based, natural-weapon, and damaging Spell attacks, including legal attack-based Reactions and AoEs. For an AoE, evaluate each hit target's Armor separately. The passive never changes the defender's listed Armor and provides no reduction to another attacker.
+
+This is **Armor Reduction**, not a Special and not an extra Damage Die. It adds to existing legal attacker-specific Armor Reduction (such as **Might Stone Ability: Armor Reduction**) and qualifying weapon **Penetration(X)**, after applicable target-side **Corrode(X)** has modified Armor. Effective Armor cannot fall below **0**. It does not alter Evade, Spell TN, Raises, Special application, Damage Reduction, or Armor-ignoring ongoing effect damage.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **1 Armor** on your own eligible damaging Attacks. |
+| **2** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **3 Armor** on your own eligible damaging Attacks. |
+| **3** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **4 Armor** on your own eligible damaging Attacks. |
+| **4** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **5 Armor** on your own eligible damaging Attacks. |
+| **5** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **7 Armor** on your own eligible damaging Attacks. |
+| **6** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **8 Armor** on your own eligible damaging Attacks. |
+| **7** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **9 Armor** on your own eligible damaging Attacks. |
+| **8** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **11 Armor** on your own eligible damaging Attacks. |
+| **9** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **12 Armor** on your own eligible damaging Attacks. |
+| **10** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **13 Armor** on your own eligible damaging Attacks. |
+| **11** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **15 Armor** on your own eligible damaging Attacks. |
+| **12** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **16 Armor** on your own eligible damaging Attacks. |
+| **13** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **17 Armor** on your own eligible damaging Attacks. |
+| **14** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **19 Armor** on your own eligible damaging Attacks. |
+| **15** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **20 Armor** on your own eligible damaging Attacks. |
+| **16** | Passive, Armor Reduction | Self | -- | Permanent | Ignore **21 Armor** on your own eligible damaging Attacks. |
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
+<h3 id="passive-critical">
+  Passive: Critical
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      BASELINES<br>
+      Dedicated limited-use offensive Passive. Same PL milestones as Passive: Phasing.<br>
+      PL 1-3: Unavailable. PL 4-7: 1 roll. PL 8-14: 2 rolls. PL 15-16: 3 rolls.<br>
+      Nominal milestone investments: 80 / 160 / 300 PP.<br>
+      TIMING<br>
+      Declare BEFORE an eligible Martial Attack Roll or damaging Spell Casting Roll.<br>
+      EFFECT<br>
+      Critical(1): natural 7s and 8s explode on that Pool. Does NOT alter Damage Dice.<br>
+      SOURCE<br>
+      These are free per-Combat uses in addition to legal Stone or Active Buff Critical uses, not automatic Crit on every attack.<br>
+    </span>
+  </span>
+</h3>
+
+You reserve a handful of attacks for moments of perfect timing.
+
+At the beginning of each Combat, while this Passive is slotted, gain the listed number of **free Critical roll charges**. Each charge may designate one eligible **Martial Attack Pool or damaging Spell Casting Pool** as **Critical(1)**, following the normal Critical rule: natural **7s and 8s explode**, including subsequent qualifying explosion rolls. Critical modifies the Attack/Casting Pool, **not Damage Dice**. The usual Disadvantage restrictions still apply.
+
+Choose to spend a Passive Critical charge **before the eligible roll**. The charge is consumed when that roll is made, whether the attack hits or misses. One charge covers one complete Attack/Casting Pool, including an AoE roll with multiple targets. It grants no additional Attack, Casting Roll, Action, Reaction, or automatic success.
+
+Passive Critical charges form a separate allowance from **Agility Stone Ability: Crit** and **Active Buff: Critical**. If more than one source is available, choose exactly **one source** for a roll. Two Critical sources do not double the explosion benefit and must not spend two uses. Unused Passive charges expire at Combat end. They never refresh at Round start.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | -- | Permanent | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | -- | Permanent | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | -- | Permanent | No effect at this PL; unavailable for selection. |
+| **4** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **1 free Critical roll** for this Combat. |
+| **5** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **1 free Critical roll** for this Combat. |
+| **6** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **1 free Critical roll** for this Combat. |
+| **7** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **1 free Critical roll** for this Combat. |
+| **8** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **9** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **10** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **11** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **12** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **13** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **14** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **2 free Critical rolls** for this Combat. |
+| **15** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **3 free Critical rolls** for this Combat. |
+| **16** | Passive, Critical | Self | -- | Permanent | At Combat start, gain **3 free Critical rolls** for this Combat. |
+
+---
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+
+<h3 id="passive-maximization">
+  Passive: Maximization
+  <span class="tooltip">&#9432;
+    <span class="tooltiptext">
+      BASELINES<br>
+      Dedicated limited-use offensive/Healing-roll Passive. Same PL milestones as Passive: Phasing.<br>
+      PL 1-3: Unavailable. PL 4-7: 1 use. PL 8-14: 2 uses. PL 15-16: 3 uses.<br>
+      Nominal milestone investments: 80 / 160 / 300 PP.<br>
+      TIMING<br>
+      Declare immediately before one eligible Damage or Healing Roll, after Damage Negation where applicable.<br>
+      EFFECT<br>
+      Set each remaining d8 result in the complete roll to artificial 8. No natural-8 triggers.<br>
+      SOURCE<br>
+      Free per-Combat uses; separate from Vitality Stone Ability: Maximization.<br>
+    </span>
+  </span>
+</h3>
+
+Your finishing blows and restorative surges never waste their potential.
+
+At the beginning of each Combat, while this Passive is slotted, gain the listed number of **free Maximization uses**. Immediately before an eligible **Damage Roll or Healing Roll**, declare one use from this shared Passive allowance. Apply the normal Maximization rule to the entire eligible roll: every remaining d8 has an **artificial result of 8**. Do not generate exploding dice, minimum-damage triggers, or other effects requiring **natural 8s**.
+
+Build the legal Damage Pool and allow **Damage Negation before Maximization**. A Maximization use does not add dice, modify an Attack/Casting Pool, bypass Armor, modify damage sources, or grant an Action or additional roll. Eligible Rolls are precisely those eligible for the existing **Vitality Stone Ability: Maximization**, including qualifying Damage and Healing Rolls. A shared AoE Damage Roll spends one use; independently rolled Damage Pools require separate uses. If a failed attack never creates an eligible Damage Roll, no use is spent.
+
+Passive Maximization charges are separate from **Vitality Stone Ability: Maximization** charges. They do **not** grant a Vitality Stone Ability Rank and do not require paying Stones. If both sources are available, designate one source per roll; spending two uses on the same roll provides no extra benefit and is not permitted. Unused Passive uses expire when Combat ends and never refresh during the Combat.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Unavailable | Self | -- | Permanent | No effect at this PL; unavailable for selection. |
+| **2** | Unavailable | Self | -- | Permanent | No effect at this PL; unavailable for selection. |
+| **3** | Unavailable | Self | -- | Permanent | No effect at this PL; unavailable for selection. |
+| **4** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **1 free Maximization use** for this Combat. |
+| **5** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **1 free Maximization use** for this Combat. |
+| **6** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **1 free Maximization use** for this Combat. |
+| **7** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **1 free Maximization use** for this Combat. |
+| **8** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **9** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **10** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **11** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **12** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **13** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **14** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **2 free Maximization uses** for this Combat. |
+| **15** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **3 free Maximization uses** for this Combat. |
+| **16** | Passive, Maximization | Self | -- | Permanent | At Combat start, gain **3 free Maximization uses** for this Combat. |
+
+---
+}}
+
+\page
+{{pageNumber,auto}}
+{{wide
+##### Expanded Playtest Passives (2026-10-20)
+
+> **Source note:** The Homebrewery file `Destroyed_Faith_Passives_Expanded_Playtest_2026-10-20.md` was not available in the workspace Downloads at import time. The six Passives below use the author-approved formulas from the implementation task. Existing Parry / Active Buff Preparation action-cost wording above is preserved.
+
+<h3 id="passive-temporary-hp">
+  Passive: Temporary HP
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      Category: Temporary HP. Amount = 5 × Power Level. Once at Combat start while slotted; no per-Turn or Preparation refresh. Distinct Temporary HP source.
+    </span>
+  </span>
+</h3>
+
+While slotted, at **Combat start** (before any legal combat damage), gain Temporary HP equal to **5 × Power Level**. The pool remains until depleted or Combat end. It does not heal real HP, restore Scarred Bars, or trigger Absorption. Distinct from Active Buff Temporary HP, Vitality Stone Temporary HP, Artifact buffers and Reaction Temporary HP. Refreshing an Active Buff never refills this Passive pool.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **5 Temporary HP**. |
+| **2** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **10 Temporary HP**. |
+| **3** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **15 Temporary HP**. |
+| **4** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **20 Temporary HP**. |
+| **5** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **25 Temporary HP**. |
+| **6** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **30 Temporary HP**. |
+| **7** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **35 Temporary HP**. |
+| **8** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **40 Temporary HP**. |
+| **9** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **45 Temporary HP**. |
+| **10** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **50 Temporary HP**. |
+| **11** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **55 Temporary HP**. |
+| **12** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **60 Temporary HP**. |
+| **13** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **65 Temporary HP**. |
+| **14** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **70 Temporary HP**. |
+| **15** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **75 Temporary HP**. |
+| **16** | Passive, Temporary HP | Self | — | Permanent | At Combat start, gain **80 Temporary HP**. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="passive-enemy-evade-reduction">
+  Passive: Enemy Evade Reduction
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      Category: Enemy Evade Reduction. Amount = ceil(PL / 2). Owner's Martial Attack Rolls only; per AoE target. Never Spell Final TN.
+    </span>
+  </span>
+</h3>
+
+Against your own eligible **Martial Attack Rolls**, reduce the targeted enemy's effective Evade by **ceil(Power Level / 2)** (minimum 0). Includes Martial AoEs (per target) and Martial Reaction attacks that use a Martial Attack Roll. Does not modify stored Evade, create Expose(X), add Attack Dice, or change Spell Final TN.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1**–**2** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **1** vs your Martial Attack Rolls. |
+| **3**–**4** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **2** vs your Martial Attack Rolls. |
+| **5**–**6** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **3** vs your Martial Attack Rolls. |
+| **7**–**8** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **4** vs your Martial Attack Rolls. |
+| **9**–**10** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **5** vs your Martial Attack Rolls. |
+| **11**–**12** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **6** vs your Martial Attack Rolls. |
+| **13**–**14** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **7** vs your Martial Attack Rolls. |
+| **15**–**16** | Passive, Enemy Evade Reduction | Self | — | Permanent | Reduce target Evade by **8** vs your Martial Attack Rolls. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="passive-self-cleanse">
+  Passive: Self Cleanse
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      Category: Self Cleanse. Cleanse(ceil(PL/2)) once at start of each own Turn after Tick + Natural Recovery + Diminishing Decay; before Persistent Zones.
+    </span>
+  </span>
+</h3>
+
+At the start of each of your Turns — after Special Ticks, Natural Special Recovery and Diminishing Decay, and before Persistent Zone start-of-Turn applications — gain an additional **Cleanse(ceil(PL / 2))** on yourself. This is **additional** to Natural Special Recovery. Freely distribute among eligible negative Specials (including Cleanse-eligible Root). Does not heal HP or cost an Action.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1**–**2** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(1)**. |
+| **3**–**4** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(2)**. |
+| **5**–**6** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(3)**. |
+| **7**–**8** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(4)**. |
+| **9**–**10** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(5)**. |
+| **11**–**12** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(6)**. |
+| **13**–**14** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(7)**. |
+| **15**–**16** | Passive, Self Cleanse | Self | — | Permanent | Start of Turn: **Cleanse(8)**. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="passive-speed">
+  Passive: Speed
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      Category: Speed. +PL meters to the Speed statistic once. Dash doubles the increased Speed. Movement Enhancement after Movement Action distance.
+    </span>
+  </span>
+</h3>
+
+Increase your normal Speed by **+Power Level meters**. Applied once to the Speed statistic. Dash doubles the increased Speed. Stone Movement Enhancement is added once after calculating the Movement Action distance (including Dash). Slow, Root, Immovable and other restrictions apply normally; minimum effective Speed 0.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1** | Passive, Speed | Self | — | Permanent | Gain **+1 m** Speed. |
+| **2** | Passive, Speed | Self | — | Permanent | Gain **+2 m** Speed. |
+| **3** | Passive, Speed | Self | — | Permanent | Gain **+3 m** Speed. |
+| **4** | Passive, Speed | Self | — | Permanent | Gain **+4 m** Speed. |
+| **5** | Passive, Speed | Self | — | Permanent | Gain **+5 m** Speed. |
+| **6** | Passive, Speed | Self | — | Permanent | Gain **+6 m** Speed. |
+| **7** | Passive, Speed | Self | — | Permanent | Gain **+7 m** Speed. |
+| **8** | Passive, Speed | Self | — | Permanent | Gain **+8 m** Speed. |
+| **9** | Passive, Speed | Self | — | Permanent | Gain **+9 m** Speed. |
+| **10** | Passive, Speed | Self | — | Permanent | Gain **+10 m** Speed. |
+| **11** | Passive, Speed | Self | — | Permanent | Gain **+11 m** Speed. |
+| **12** | Passive, Speed | Self | — | Permanent | Gain **+12 m** Speed. |
+| **13** | Passive, Speed | Self | — | Permanent | Gain **+13 m** Speed. |
+| **14** | Passive, Speed | Self | — | Permanent | Gain **+14 m** Speed. |
+| **15** | Passive, Speed | Self | — | Permanent | Gain **+15 m** Speed. |
+| **16** | Passive, Speed | Self | — | Permanent | Gain **+16 m** Speed. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="passive-spell-resistance-piercing">
+  Passive: Spell Resistance Piercing
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      Category: Spell Resistance Piercing. Ignore ceil(PL/2) SR vs owner's Spells. Never reduces Spell Base TN. AoE: shared Casting Roll, per-target Final TN.
+    </span>
+  </span>
+</h3>
+
+When you cast a Spell, ignore **ceil(Power Level / 2)** of each target's Spell Resistance against that Spell. Remaining SR = max(0, target SR − piercing). Final Spell TN = Spell Base TN + remaining SR. Does not reduce Spell Base TN, stored SR, Evade, or SR against other casters. Spell AoEs keep one shared Casting Roll with per-target Final TN.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1**–**2** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **1** Spell Resistance. |
+| **3**–**4** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **2** Spell Resistance. |
+| **5**–**6** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **3** Spell Resistance. |
+| **7**–**8** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **4** Spell Resistance. |
+| **9**–**10** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **5** Spell Resistance. |
+| **11**–**12** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **6** Spell Resistance. |
+| **13**–**14** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **7** Spell Resistance. |
+| **15**–**16** | Passive, Spell Resistance Piercing | Self | — | Permanent | Ignore **8** Spell Resistance. |
+
+}}
+\page
+{{pageNumber,auto}}
+{{wide
+<h3 id="passive-special-amplification">
+  Passive: Special Amplification
+  <span class="tooltip">🛈
+    <span class="tooltiptext">
+      Category: Special Amplification. +ceil(PL/4) to eligible numeric Special(X) you deliver. Pipeline: printed → Raise Special Increase → Stone Special Boost → this Passive → Vulnerability → Special Negation → 4×MR limit. Distinct from Special Aura.
+    </span>
+  </span>
+</h3>
+
+When your qualifying successful Martial or Spell Attack delivers an eligible numeric **Special(X)**, increase that Special by **ceil(Power Level / 4)** after printed X, successful Raise Special Increase and Intellect Stone Special Boost, and before target Vulnerability, Special Negation and the 4 × Mastery Rank application limit. Does not create Specials, amplify aura ticks, ongoing damage, ally or independent Summon attacks, binary Specials or hard control. Narrow exception to the default Passive prohibition on independently applying new Specials.
+
+| **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
+|:--:|:--|:--:|:--:|:--:|:--|
+| **1**–**4** | Passive, Special Amplification | Self | — | Permanent | Delivered eligible Special(X) gains **+1**. |
+| **5**–**8** | Passive, Special Amplification | Self | — | Permanent | Delivered eligible Special(X) gains **+2**. |
+| **9**–**12** | Passive, Special Amplification | Self | — | Permanent | Delivered eligible Special(X) gains **+3**. |
+| **13**–**16** | Passive, Special Amplification | Self | — | Permanent | Delivered eligible Special(X) gains **+4**. |
+
+---
+}}

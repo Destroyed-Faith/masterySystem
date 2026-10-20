@@ -868,6 +868,8 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
         animate: true,
         // Foundry V14 TokenRuler — do not keep a walked-path trail for this step.
         showRuler: false,
+        // Portrait tokens: do not spin to face the move vector.
+        autoRotate: false,
         [MASTERY_AUTHORIZED_MOVE]: true,
       },
     );
@@ -1092,99 +1094,11 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   const segmentId = getSegmentIdForOption(option);
   const isActiveBuff = segmentId === 'active-buff';
   
-  if (isActiveBuff && option.source === 'power' && option.item) {
-    if (getAvailableActiveBuffActions(actor, combat) <= 0) {
-      const attacksLeft = getAvailableAttackActions(actor, combat);
-      ui.notifications?.warn(
-        attacksLeft <= 0
-          ? 'No Actions left this round.'
-          : 'Already used your Active Buff this round.',
-      );
-      return;
-    }
-
-    // Check and consume attack action if needed (active buffs cost an action)
-    if (option.costsAction) {
-      const available = getAvailableAttackActions(actor, combat);
-      if (available <= 0) {
-        ui.notifications?.warn('No Actions left this round.');
-        return; // Menu stays open
-      }
-      
-      const consumed = await consumeAttackAction(actor, combat);
-      if (!consumed) {
-        ui.notifications?.warn('Failed to consume attack action.');
-        return;
-      }
-    }
-    
-    closeRadialMenu();
-
-    // Artifact Active Buffs (e.g. Titan Scars → Growth Form) have no backing
-    // power item, so they use a dedicated activation path that can also grow
-    // the token. Detected via the 'artifact' tag.
-    if ((option.tags || []).includes('artifact')) {
-      // @ts-ignore - .js extension in dynamic import
-      const { activateArtifactActiveBuff } = await import('./utils/artifact-active-buffs.js');
-      const ok = await activateArtifactActiveBuff(actor, option.item, option);
-      if (!ok && option.costsAction) {
-        await refundAttackAction(actor, combat);
-      }
-      if (ok) {
-        await markActiveBuffUsedThisRound(actor, combat);
-        // NOTE: deliberately not marking the artifact item "used this round" —
-        // a single artifact item carries several rows, and the per-item guard
-        // would otherwise block the actor's other artifact abilities (Bite,
-        // Stone supports, etc.) for the rest of the round.
-        if (token.hud) token.hud.render();
-        const sheet0 = actor.sheet;
-        if (sheet0 && sheet0.rendered) sheet0.render();
-        const carousel0 = (window as any).masteryCombatCarousel;
-        if (carousel0 && carousel0.rendered) carousel0.render();
-      }
-      return;
-    }
-
-    // Dynamic import for active buffs utilities
-    // @ts-ignore - TypeScript doesn't recognize the .js extension in dynamic imports
-    const activeBuffsModule = await import('./utils/active-buffs.js');
-    const { activateActiveBuff, isPowerActiveAsBuff } = activeBuffsModule;
-    
-    // Check if already active
-    if (isPowerActiveAsBuff(actor, option.item.id)) {
-      ui.notifications?.warn(`${option.name} is already active!`);
-      if (option.costsAction) {
-        await refundAttackAction(actor, combat);
-      }
-      return;
-    }
-    
-    // Activate the buff directly on self
-    const success = await activateActiveBuff(actor, option.item);
-    if (!success && option.costsAction) {
-      await refundAttackAction(actor, combat);
-      console.warn('Mastery System | [RADIAL FLOW] active buff: refunded attack (activation failed)');
-    }
-    if (success) {
-      await markActiveBuffUsedThisRound(actor, combat);
-      if (option.item?.id) {
-        await markPowerUsedThisRound(actor, combat, option.item.id);
-      }
-      // Refresh token HUD to show updated status
-      if (token.hud) {
-        token.hud.render();
-      }
-      // Refresh character sheet if open
-      const sheet = actor.sheet;
-      if (sheet && sheet.rendered) {
-        sheet.render();
-      }
-      // Refresh combat carousel if open
-      const carousel = (window as any).masteryCombatCarousel;
-      if (carousel && carousel.rendered) {
-        carousel.render();
-      }
-    }
+  if (isActiveBuff) {
+    // Reject in the combat execution path — Buffs activate only in Preparation.
+    ui.notifications?.warn(
+      'Active Buffs are activated during the Preparation Phase (Stone Powers), not from the radial menu.',
+    );
     return;
   }
 
@@ -1230,6 +1144,16 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       return; // Menu stays open
     }
 
+    // Dash / Disengage cannot forfeit a base Attack Action already spent on Prep Buff activation.
+    if (moveId === 'dash' || moveId === 'disengage') {
+      const { canForfeitBaseAttackForManeuver } = await import('./combat/action-economy.js');
+      const forfeit = canForfeitBaseAttackForManeuver(actor, combat, moveId);
+      if (!forfeit.ok) {
+        ui.notifications?.warn(forfeit.reason || 'Cannot forfeit the base Attack Action again.');
+        return;
+      }
+    }
+
     if (!isMovementPower && moveId !== 'flee') {
       const consumed = await consumeMovementAction(actor, combat);
       if (!consumed) {
@@ -1242,7 +1166,11 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     if (moveId === 'dash' || moveId === 'disengage') {
       try {
         const { applyBasicMovementManeuverFlags } = await import('./combat/action-economy.js');
-        await applyBasicMovementManeuverFlags(actor, combat, moveId);
+        const flags = await applyBasicMovementManeuverFlags(actor, combat, moveId);
+        if (!flags.ok) {
+          ui.notifications?.warn(flags.reason || 'Cannot apply Dash/Disengage.');
+          return;
+        }
       } catch (err) {
         console.warn('Mastery System | movement maneuver flags failed', err);
       }
@@ -1426,7 +1354,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         const choice = await Dialog.wait({
           title: 'Parry',
           content:
-            '<p>Parry has one pool and two deliveries. Martial strips Attack Dice (Might or Agility). Spell strips Casting Dice from a perceived direct Spell whose origin is within 22 m (Intellect, Resolve, or Influence). Entering spends only the base Attack Action.</p>',
+            '<p>Parry has one pool and two deliveries. Martial strips Attack Dice (Might or Agility). Spell strips Casting Dice from a perceived direct Spell whose origin is within 22 m (Intellect, Resolve, or Influence). Entering normally spends the base Attack Action. If that Action was already committed during Preparation to an Active Buff, spend one additional Attack Action instead.</p>',
           buttons: {
             martial: { label: 'Martial', callback: () => 'martial' },
             spell: { label: 'Spell', callback: () => 'spell' },
@@ -1524,7 +1452,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
 
   // A grappler attacking with a weapon has to let go first (unarmed Basic
   // Attack and spells keep the hold). Asked once, before targeting starts.
-  if (option.slot === 'attack' && segmentId !== 'active-buff') {
+  if (option.slot === 'attack') {
     try {
       const { attackRequiresGrappleRelease } = await import('./combat/grapple-state.js');
       const { describeActiveWeaponProfile } = await import('./utils/weapon-sets.js');
@@ -1558,7 +1486,6 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   }
 
   const isMeleeAttack =
-    segmentId !== 'active-buff' &&
     option.slot === 'attack' &&
     (isNpcMelee ||
       (option.source !== 'npc-attack' && (option.range === undefined || option.range <= 4)));
@@ -1823,7 +1750,6 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   }
 
   const isRangedAttack =
-    segmentId !== "active-buff" &&
     option.slot === "attack" &&
     option.range !== undefined &&
     option.range > 4;

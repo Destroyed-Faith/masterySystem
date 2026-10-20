@@ -875,6 +875,19 @@ export class MasteryActor extends Actor {
                     phasingCharges = charges;
                     phasingSource = label;
                 }
+                // Surface Passive Critical / Maximization / Armor Reduction on combat specials.
+                const critCh = Math.max(0, Math.floor(Number(mech?.passiveCritical?.combatStart?.charges) || 0));
+                const maxCh = Math.max(0, Math.floor(Number(mech?.passiveMaximization?.combatStart?.charges) || 0));
+                const ar = Math.max(0, Math.floor(Number(mech?.armorReduction) || 0));
+                if (tid === 'passive-critical' && critCh > 0) {
+                    system.combat.passiveCriticalCharges = Math.max(Number(system.combat.passiveCriticalCharges) || 0, critCh);
+                }
+                if (tid === 'passive-maximization' && maxCh > 0) {
+                    system.combat.passiveMaximizationCharges = Math.max(Number(system.combat.passiveMaximizationCharges) || 0, maxCh);
+                }
+                if (tid === 'passive-armor-reduction' && ar > 0) {
+                    system.combat.passiveArmorReduction = Math.max(Number(system.combat.passiveArmorReduction) || 0, ar);
+                }
             }
         }
         catch {
@@ -909,6 +922,36 @@ export class MasteryActor extends Actor {
                 : []),
             ...(parryPool > 0
                 ? [{ label: parrySource || 'Parry', detail: 'Passive · pool', value: parryPool, display: String(parryPool) }]
+                : []),
+            ...(Number(system.combat.passiveArmorReduction) > 0
+                ? [
+                    {
+                        label: 'Armor Reduction',
+                        detail: 'Passive · per damaging attack',
+                        value: Number(system.combat.passiveArmorReduction),
+                        display: String(system.combat.passiveArmorReduction),
+                    },
+                ]
+                : []),
+            ...(Number(system.combat.passiveCriticalCharges) > 0
+                ? [
+                    {
+                        label: 'Critical',
+                        detail: 'Passive · free rolls / combat (not Stone Crit)',
+                        value: Number(system.combat.passiveCriticalCharges),
+                        display: String(system.combat.passiveCriticalCharges),
+                    },
+                ]
+                : []),
+            ...(Number(system.combat.passiveMaximizationCharges) > 0
+                ? [
+                    {
+                        label: 'Maximization',
+                        detail: 'Passive · free uses / combat (not Stone Maximization)',
+                        value: Number(system.combat.passiveMaximizationCharges),
+                        display: String(system.combat.passiveMaximizationCharges),
+                    },
+                ]
                 : []),
         ];
         if (iniD8MechBonus !== 0) {
@@ -1207,6 +1250,17 @@ export class MasteryActor extends Actor {
             system.scaling.witsInitiativeBonus = calculateWitsInitiativeBonus(wits);
             system.scaling.armorBreaker = calculateArmorBreaker(might);
             system.scaling.baseEvade = calculateBaseEvade(masteryRank);
+        }
+        // Passive: Speed — add once to the Speed statistic before load/Slow/Root.
+        try {
+            const speedBonus = Math.max(0, Math.floor(Number(passiveMechBreakdown.totals.speedBonus) || 0));
+            if (speedBonus > 0) {
+                system.combat.speed = Math.max(0, Number(system.combat.speed ?? 8) + speedBonus);
+                system.combat.speedFromPassives = speedBonus;
+            }
+        }
+        catch (err) {
+            console.debug?.('Mastery System | Passive Speed skipped', err);
         }
         // Encumbrance (PG load table): Encumbered −4 m / Overloaded −6 m Movement.
         // Load affects Movement only — there is no dice-pool penalty.

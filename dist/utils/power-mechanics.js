@@ -25,10 +25,14 @@ export function emptyBreakdown() {
         initiative: [],
         initiativeD8: [],
         movementBonus: [],
+        speedBonus: [],
         regen: [],
         spellResistance: [],
         cleanseMaintenance: [],
         wardIncoming: [],
+        enemyEvadeReduction: [],
+        spellResistancePiercing: [],
+        specialAmplification: [],
         tempHP: [],
         healing: [],
         modifySpecialDeclared: [],
@@ -41,10 +45,14 @@ export function emptyBreakdown() {
             initiative: 0,
             initiativeD8: 0,
             movementBonus: 0,
+            speedBonus: 0,
             regen: 0,
             spellResistance: 0,
             cleanseMaintenance: 0,
             wardIncoming: 0,
+            enemyEvadeReduction: 0,
+            spellResistancePiercing: 0,
+            specialAmplification: 0,
             damageReductionPct: 0,
             rollDice: { attack: 0, skill: 0, damage: 0 },
         },
@@ -365,6 +373,10 @@ export function collectMechanicsContributions(actor) {
             typeof mech.wardIncoming === 'number' ||
             typeof mech.initiative === 'number' ||
             typeof mech.initiativeD8 === 'number' ||
+            typeof mech.speedBonus === 'number' ||
+            typeof mech.enemyEvadeReduction === 'number' ||
+            typeof mech.spellResistancePiercing === 'number' ||
+            typeof mech.specialAmplification === 'number' ||
             typeof mech.rollDice?.attack === 'number' ||
             typeof mech.rollDice?.skill === 'number' ||
             typeof mech.rollDice?.damage === 'number' ||
@@ -568,10 +580,14 @@ export function aggregateMechanics(contributions, actor) {
         pushNum(bd.initiative, source, mechanics.initiative);
         pushNum(bd.initiativeD8, source, mechanics.initiativeD8);
         pushNum(bd.movementBonus, source, mechanics.movementBonus);
+        pushNum(bd.speedBonus, source, mechanics.speedBonus);
         pushNum(bd.regen, source, mechanics.regen);
         pushNum(bd.spellResistance, source, mechanics.spellResistance);
         pushNum(bd.cleanseMaintenance, source, mechanics.cleanseMaintenance);
         pushNum(bd.wardIncoming, source, mechanics.wardIncoming);
+        pushNum(bd.enemyEvadeReduction, source, mechanics.enemyEvadeReduction);
+        pushNum(bd.spellResistancePiercing, source, mechanics.spellResistancePiercing);
+        pushNum(bd.specialAmplification, source, mechanics.specialAmplification);
         // Damage Reduction — closed subsystem, whitelisted by power name.
         const drPctRaw = mechanics.damageReductionPct;
         const drPctNum = typeof drPctRaw === 'number' && Number.isFinite(drPctRaw)
@@ -618,10 +634,14 @@ export function aggregateMechanics(contributions, actor) {
     bd.totals.initiative = sum(bd.initiative);
     bd.totals.initiativeD8 = sum(bd.initiativeD8);
     bd.totals.movementBonus = sum(bd.movementBonus);
+    bd.totals.speedBonus = sum(bd.speedBonus);
     bd.totals.regen = sum(bd.regen);
     bd.totals.spellResistance = sum(bd.spellResistance);
     bd.totals.cleanseMaintenance = sum(bd.cleanseMaintenance);
     bd.totals.wardIncoming = sum(bd.wardIncoming);
+    bd.totals.enemyEvadeReduction = sum(bd.enemyEvadeReduction);
+    bd.totals.spellResistancePiercing = sum(bd.spellResistancePiercing);
+    bd.totals.specialAmplification = sum(bd.specialAmplification);
     bd.totals.rollDice.attack = sum(bd.rollDice.attack);
     bd.totals.rollDice.skill = sum(bd.rollDice.skill);
     bd.totals.rollDice.damage = sum(bd.rollDice.damage);

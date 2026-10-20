@@ -26,6 +26,11 @@ import {
  * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
  * Declared early so circular imports (ledger → pool-sync → here) never see `undefined`.
  */
+/**
+ * Defensive Stone bonuses that last until the start of the owner's next turn.
+ * Vitality Stone Damage Negation is intentionally excluded — it is a Round-End
+ * temporary pool (see `tempDamageNegation` on stoneBonuses / resetRoundState).
+ */
 export const DEFENSIVE_STONE_KEYS = [
   'evadeBonus',
   'tempArmor',
@@ -34,7 +39,6 @@ export const DEFENSIVE_STONE_KEYS = [
   'incomingSpecialReduction',
   'tempWard',
   'tempParryPool',
-  'tempDamageNegation',
 ] as const;
 
 export type DefensiveStoneSnapshot = Partial<Record<(typeof DEFENSIVE_STONE_KEYS)[number], number>>;
@@ -244,10 +248,15 @@ export interface RoundState {
   /** Technical Movement Power ids already used this round. Each id spends one Movement, not the rest. */
   usedMovementPowerIds?: string[];
   /**
-   * One Active Buff activation per round. The radial Buff slice shows 1 or 0
-   * regardless of how many Attack Actions remain.
+   * One Active Buff activation per Preparation Phase / Round.
    */
   activeBuffUsedThisRound?: boolean;
+  /**
+   * Base Attack Action committed during Preparation for an Active Buff.
+   * Survives `resetTurnState` so Basic Action Kit init cannot restore it.
+   * Cleared in `resetRoundState` for the next Round.
+   */
+  prepBaseAttackCommitted?: boolean;
   /**
    * Dash / Disengage: base Attack Action locked this Turn (stone extras still ok).
    */
@@ -273,8 +282,8 @@ export interface RoundState {
     { bondId: string; attacksUsed: number; specialApplied: boolean; reactionsUsed: number }
   >;
   /**
-   * Active Buff Critical(X) per-round attack quota.
-   * Refreshes when `roundKey` changes (`combatId:round`).
+   * Active Buff Critical(X) per-combat designation quota.
+   * Keyed by combat id; does not refresh on new Rounds or Buff reactivation.
    */
   criticalQuota?: {
     roundKey: string;
@@ -781,6 +790,130 @@ export async function unmarkPowerUsedThisRound(
   await setRoundState(actor, rs);
 }
 
+export type UsedPowerRefundKind = 'combatPower' | 'movementPower' | 'activeBuff';
+
+export interface UsedPowerRefundEntry {
+  /** Key stored on roundState (item id, identity key, or template id). */
+  key: string;
+  name: string;
+  kind: UsedPowerRefundKind;
+}
+
+function collectActorItems(actor: Actor | null | undefined): any[] {
+  const items = (actor as any)?.items;
+  if (!items) return [];
+  if (Array.isArray(items)) return items;
+  if (typeof items.values === 'function') return Array.from(items.values());
+  if (typeof items.contents !== 'undefined') return Array.from(items.contents ?? []);
+  return [];
+}
+
+function resolveUsedCombatPowerName(actor: Actor, key: string): string {
+  const items = collectActorItems(actor);
+  const byId = items.find((it) => String(it?.id) === key);
+  if (byId?.name) return String(byId.name);
+  for (const it of items) {
+    if (it?.type !== 'power' && it?.type !== 'echo') continue;
+    try {
+      if (powerIdentityKeyFromItem(it) === key) return String(it.name || key);
+    } catch {
+      /* ignore */
+    }
+  }
+  return key;
+}
+
+function resolveUsedMovementPowerName(actor: Actor, templateId: string): string {
+  const items = collectActorItems(actor);
+  const match = items.find(
+    (it) =>
+      (it?.type === 'power' || it?.type === 'echo') &&
+      String(it?.system?.templateId || '') === templateId,
+  );
+  return match?.name ? String(match.name) : templateId;
+}
+
+/** Powers / movement powers / Active Buff already spent this round (for GM restore). */
+export function listUsedPowersThisRound(
+  actor: Actor,
+  combat: Combat | null,
+): UsedPowerRefundEntry[] {
+  const economy = (getActionEconomyActor(actor) ?? actor) as Actor;
+  const rs = getRoundState(economy, combat);
+  const out: UsedPowerRefundEntry[] = [];
+  for (const key of rs.usedPowerIdsThisRound ?? []) {
+    const k = String(key || '');
+    if (!k) continue;
+    out.push({
+      key: k,
+      name: resolveUsedCombatPowerName(economy, k),
+      kind: 'combatPower',
+    });
+  }
+  for (const key of rs.usedMovementPowerIds ?? []) {
+    const k = String(key || '');
+    if (!k) continue;
+    out.push({
+      key: k,
+      name: resolveUsedMovementPowerName(economy, k),
+      kind: 'movementPower',
+    });
+  }
+  if (rs.activeBuffUsedThisRound) {
+    out.push({
+      key: 'activeBuff',
+      name: 'Active Buff (this round)',
+      kind: 'activeBuff',
+    });
+  }
+  return out;
+}
+
+/**
+ * GM recovery: clear one used-power mark so the Power can be used again this round.
+ * Does not refund Attack/Movement/Reaction actions — use +A / +M / +R for that.
+ */
+export async function refundUsedPowerThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  entry: Pick<UsedPowerRefundEntry, 'key' | 'kind'>,
+): Promise<boolean> {
+  const economy = (getActionEconomyActor(actor) ?? actor) as Actor;
+  const rs = getRoundState(economy, combat);
+  const key = String(entry?.key || '');
+  if (!key) return false;
+
+  if (entry.kind === 'activeBuff') {
+    if (!rs.activeBuffUsedThisRound) return false;
+    rs.activeBuffUsedThisRound = false;
+    await setRoundState(economy, rs);
+    return true;
+  }
+
+  if (entry.kind === 'movementPower') {
+    const arr = rs.usedMovementPowerIds ?? [];
+    if (!arr.includes(key)) return false;
+    rs.usedMovementPowerIds = arr.filter((id) => id !== key);
+    if (!rs.usedMovementPowerIds.length) {
+      rs.movementPowerUsedThisRound = false;
+    }
+    await setRoundState(economy, rs);
+    return true;
+  }
+
+  const arr = rs.usedPowerIdsThisRound ?? [];
+  if (!arr.includes(key)) {
+    // Also accept item id when the list stored an identity (or vice versa).
+    const identity = powerUseIdentity(economy, key);
+    if (!arr.includes(identity) && !arr.includes(key)) return false;
+    rs.usedPowerIdsThisRound = arr.filter((id) => id !== key && id !== identity);
+  } else {
+    rs.usedPowerIdsThisRound = arr.filter((id) => id !== key);
+  }
+  await setRoundState(economy, rs);
+  return true;
+}
+
 /** How many times this NPC attack option was already used this round. */
 export function getNpcAttackUsesThisRound(
   actor: Actor,
@@ -1119,7 +1252,10 @@ export function getAvailableAttackActions(actor: Actor, combat: Combat | null): 
   if (roundState.fleeLock) return 0;
   const owner = getActionEconomyActor(actor) ?? actor;
   const stunnedLock = Math.max(0, getStunnedRank(owner));
-  const baseLock = roundState.baseAttackLocked ? 1 : 0;
+  // Prep Active Buff commitment and Dash/Disengage both consume the single base
+  // Attack Action — they do not stack as a double lock.
+  const baseLock =
+    roundState.baseAttackLocked || roundState.prepBaseAttackCommitted ? 1 : 0;
   const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock - baseLock);
   const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
   return n;
@@ -1150,14 +1286,44 @@ export async function markActiveBuffUsedThisRound(actor: Actor, combat: Combat |
   await setRoundState(actor, roundState);
 }
 
+/**
+ * Dash / Disengage forfeit the base Attack Action. That Action cannot also have
+ * paid for Active Buff activation in Preparation (`prepBaseAttackCommitted`).
+ */
+export function canForfeitBaseAttackForManeuver(
+  actor: Actor,
+  combat: Combat | null,
+  maneuverId: string,
+): { ok: boolean; reason?: string } {
+  const id = String(maneuverId || '');
+  if (id !== 'dash' && id !== 'disengage') return { ok: true };
+  const rs = getRoundState(actor, combat);
+  if (rs.prepBaseAttackCommitted) {
+    return {
+      ok: false,
+      reason:
+        'Base Attack Action already committed to an Active Buff this Round. Dash and Disengage cannot forfeit that same Action.',
+    };
+  }
+  if (rs.baseAttackLocked) {
+    return {
+      ok: false,
+      reason: 'Base Attack Action already forfeited this Round.',
+    };
+  }
+  return { ok: true };
+}
+
 /** Apply Dash / Disengage / Flee side-effects after spending Movement. */
 export async function applyBasicMovementManeuverFlags(
   actor: Actor,
   combat: Combat | null,
   maneuverId: string,
-): Promise<void> {
+): Promise<{ ok: boolean; reason?: string }> {
   const id = String(maneuverId || '');
-  if (!id) return;
+  if (!id) return { ok: true };
+  const check = canForfeitBaseAttackForManeuver(actor, combat, id);
+  if (!check.ok) return check;
   const rs = getRoundState(actor, combat);
   if (id === 'dash') {
     rs.baseAttackLocked = true;
@@ -1169,6 +1335,7 @@ export async function applyBasicMovementManeuverFlags(
     rs.baseAttackLocked = true;
   }
   await setRoundState(actor, rs);
+  return { ok: true };
 }
 
 export function isFleeLocked(actor: Actor, combat: Combat | null): boolean {
@@ -2067,6 +2234,8 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
   roundState.movementActions.used = 0;
   roundState.attackActions.used = 0;
   // Basic maneuver turn locks expire at the start of your next Turn.
+  // prepBaseAttackCommitted intentionally survives — Preparation spent the base
+  // Attack Action for this Round's Active Buff.
   roundState.baseAttackLocked = false;
   roundState.safeMovementThisTurn = false;
   roundState.movementPowerUsedThisRound = false;
@@ -2099,9 +2268,10 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
 /**
  * Clear offensive / casting "this turn" stone bonuses when the spotlight ends.
  * Defensive stones that last until the start of the next own turn
- * (Parry, Armor, Evade, Damage Negation, Damage Reduction, Spell Resistance,
- * Special Negation / Ward) are preserved here and armed via
- * `armDefensiveStoneExpiry` for removal in `releaseDefensiveStoneExpiry`.
+ * (Parry, Armor, Evade, Damage Reduction, Spell Resistance, Special Negation /
+ * Ward) are preserved here and armed via `armDefensiveStoneExpiry`.
+ * Stone Damage Negation is a Round-End pool — preserved here, cleared in
+ * `resetRoundState`.
  */
 export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: Combat | null): Promise<void> {
   if (!combat) return;
@@ -2125,6 +2295,7 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
   // the HP pool when the actor's spotlight ends. Combat-end cleanup still zeroes it.
   // Defensive keys below are copied through unchanged.
   const defensive = snapshotDefensiveStones(sb);
+  const stoneDnRoundPool = Math.max(0, Math.floor(Number(sb.tempDamageNegation) || 0));
   roundState.stoneBonuses = {
     extraAttacks: sb.extraAttacks ?? 0,
     extraReactions: sb.extraReactions ?? 0,
@@ -2160,7 +2331,7 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     incomingSpecialReduction: defensive.incomingSpecialReduction ?? 0,
     tempWard: defensive.tempWard ?? 0,
     tempParryPool: defensive.tempParryPool ?? 0,
-    tempDamageNegation: defensive.tempDamageNegation ?? 0,
+    tempDamageNegation: stoneDnRoundPool,
     phasingChargesFromStones: 0,
     initiativeBonus: sb.initiativeBonus ?? 0,
     reactionRangeBonus: sb.reactionRangeBonus ?? 0,
@@ -2222,6 +2393,9 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
     moveBonusMeters: 0,
     usedPowerIdsThisRound: [],
     npcAttackUsesThisRound: {},
+    // New Round: Preparation commitment must be re-earned if a Buff is activated.
+    prepBaseAttackCommitted: false,
+    activeBuffUsedThisRound: false,
     stoneBonuses: {
       extraAttacks: 0,
       extraReactions: 0,
@@ -2246,6 +2420,9 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
       (roundState.stoneBonuses as DefensiveStoneSnapshot)[key] = Math.max(0, Math.floor(Number(storedSb[key]) || 0));
     }
     roundState.stoneBonuses.defensiveExpiry = storedSb.defensiveExpiry ?? null;
+    // Stone Damage Negation is a Round pool: unused points expire before the
+    // next Preparation Phase / Round (do not copy forward).
+    roundState.stoneBonuses.tempDamageNegation = 0;
   }
   if (keepFlee) {
     roundState.fleeLock = true;

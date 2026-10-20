@@ -49,19 +49,25 @@ export interface TempHPSource {
     value: number;
     /** "At-least" target for refresh kinds; rolled amount for one-shot kinds. */
     declared: number;
-    /** `one-shot` survives the combat; `refresh` is raised on each turn-start. */
-    kind: 'one-shot' | 'refresh';
+    /**
+     * - `one-shot` survives the combat
+     * - `refresh` is raised on each turn-start
+     * - `reaction-instance` protects only the triggering damage instance; unused
+     *   remainder is stripped immediately after that instance resolves
+     */
+    kind: 'one-shot' | 'refresh' | 'reaction-instance';
     origin: {
         /**
          * What granted this pool:
          * - `passive` → a slot-activated passive item (ownerId = item id)
          * - `buff` → a live ActiveEffect flagged activeBuff (ownerId = effect id)
+         * - `reaction` → Reaction Temporary HP / Ally Temporary HP (one instance)
          *
          * Legacy sources written by 0.4.272 may omit this field; code that reads
          * existing sources treats absent `ownerKind` as `'passive'` for
          * backward compatibility.
          */
-        ownerKind?: 'passive' | 'buff';
+        ownerKind?: 'passive' | 'buff' | 'reaction';
         /**
          * Alias for ownerId. Kept under the historical `powerId` name so the
          * persisted flag shape stays stable across the 0.4.272 → 0.4.273
@@ -69,7 +75,7 @@ export interface TempHPSource {
          */
         powerId: string;
         name: string;
-        triggerKind: TriggerKind;
+        triggerKind: TriggerKind | 'reactionInstance';
     };
     /** Combat this source belongs to; cleared on matching `combatEnd`. */
     combatId: string;
@@ -158,9 +164,10 @@ export interface TempHPConsumptionPreview extends TempHPConsumptionResult {
  * merges tempHP + bar updates into a single atomic `actor.update`.
  *
  * Consumption order:
- *   1. one-shot sources, oldest first;
- *   2. refresh sources, oldest first;
- *   3. any unsourced manual tempHP residual (mirror minus sources).
+ *   1. reaction-instance sources, oldest first;
+ *   2. one-shot sources, oldest first;
+ *   3. refresh sources, oldest first;
+ *   4. any unsourced manual tempHP residual (mirror minus sources).
  */
 export declare function previewTempHPConsumption(actor: any, incoming: number): TempHPConsumptionPreview;
 /**
@@ -170,6 +177,19 @@ export declare function previewTempHPConsumption(actor: any, incoming: number): 
  * with other updates (e.g. health-bar changes) into a single write.
  */
 export declare function consumeTempHPFromSources(actor: any, incoming: number): Promise<TempHPConsumptionResult>;
+/**
+ * Grant Temporary HP that protects only the next (triggering) damage instance.
+ * Unused remainder must be cleared via {@link clearReactionInstanceTempHP}.
+ */
+export declare function grantReactionInstanceTempHP(actor: any, amount: number, opts?: {
+    combat?: any;
+    powerName?: string;
+}): Promise<number>;
+/**
+ * Strip any unused Reaction-instance Temporary HP after the triggering damage
+ * instance has resolved. Does not touch Passive / Buff / Stone Temp HP.
+ */
+export declare function clearReactionInstanceTempHP(actor: any): Promise<number>;
 /**
  * Remove every sourced temp-HP pool for the given combat (or all of them, if
  * no combat is passed — use the no-arg form defensively on `deleteCombat`).

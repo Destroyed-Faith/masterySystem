@@ -36,7 +36,7 @@ import { parseInventorySize, fitsInGrid, rectsOverlap, findFirstFit, } from '../
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
-import { peekWeaponSets } from '../utils/weapon-sets.js';
+import { listWeaponSetIndexes, peekWeaponSets } from '../utils/weapon-sets.js';
 import { parseMaxRangeM, DEFAULT_WEAPON_RANGE_M } from '../utils/range-bands.js';
 import { formatArtifactWeaponRangeDisplay, resolveArtifactWeaponKind, artifactSystemHasSpellFocus, spellFocusDiceFromSystem, } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
@@ -1480,7 +1480,7 @@ function formatCompactWeaponPiece(item) {
 function buildCompactWeaponSetTiles(actor) {
     const state = peekWeaponSets(actor);
     const tiles = [];
-    for (const index of [1, 2]) {
+    for (const index of listWeaponSetIndexes(state)) {
         const hands = state.sets[index] || { mainhand: null, offhand: null };
         const orderedIds = [];
         for (const id of [hands.mainhand, hands.offhand]) {

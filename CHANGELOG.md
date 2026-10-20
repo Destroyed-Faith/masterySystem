@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.753] - 2026-10-20
+
+### Changed
+
+- **Active Buffs:** Final playtest catalogue sync — prep-only buffs (`prepBaseAttackCommitted`), DN = PL, Critical Buff once per combat; Parry Extra Attack pays when prep committed the base Attack; Dash/Disengage no longer double-forfeit prep.
+- **Passives:** Six Expanded Passives (Temp HP, Enemy Evade, SR Pierce, Self Cleanse, Speed, Special Amp); catalogue at 28 with Offensive/Defensive/Utility selection groups in Tower Wizard and sheet UI.
+- **Rules:** `active-buffs.md`, `passives.md`, `players-guide.md`, and reactions docs updated for the playtest package.
+
 ## [0.9.752] - 2026-10-20
 
 ### Changed

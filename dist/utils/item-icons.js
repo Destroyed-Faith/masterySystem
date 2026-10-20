@@ -241,6 +241,68 @@ export function getItemIconHintFromCreateData(data) {
     };
 }
 /**
+ * Unique mundane item icons available in the system (gear / weapons / armor / shields + defaults).
+ * Used by the custom catalog creator — excludes Echo/General Artifact art.
+ */
+export function listMundaneItemIconChoices() {
+    const seen = new Set();
+    const out = [];
+    const push = (path, label) => {
+        const p = String(path || '').trim();
+        if (!p || seen.has(p))
+            return;
+        seen.add(p);
+        out.push({ path: p, label });
+    };
+    // Dedicated PNGs under assets/icons/items (non-artifact).
+    const assetFiles = [
+        [`${ICON_BASE}/gear/Glass Bottle.png`, 'Glass Bottle'],
+        [`${ICON_BASE}/gear/Rope.png`, 'Rope'],
+        [`${ICON_BASE}/gear/Bedroll.png`, 'Bedroll'],
+        [`${ICON_BASE}/gear/Herbs Pouch.png`, 'Pouch'],
+        [`${ICON_BASE}/gear/Whistle.png`, 'Whistle'],
+        [`${ICON_BASE}/gear/Soap.png`, 'Soap'],
+        [`${ICON_BASE}/weapons/Dagger.png`, 'Dagger'],
+        [`${ICON_BASE}/weapons/shortsword.png`, 'Short Sword'],
+        [`${ICON_BASE}/weapons/rapier.png`, 'Rapier'],
+        [`${ICON_BASE}/weapons/spear.png`, 'Spear'],
+        [`${ICON_BASE}/weapons/Whip.png`, 'Whip'],
+        [`${ICON_BASE}/weapons/Shortbow.png`, 'Shortbow'],
+        [`${ICON_BASE}/weapons/Arrow.png`, 'Arrow / Quiver'],
+        [`${ICON_BASE}/weapons/Bolts.png`, 'Bolts'],
+        [`${ICON_BASE}/armor/LightArmor.png`, 'Light Armor'],
+        [`${ICON_BASE}/armor/ArmorMedium.png`, 'Medium Armor'],
+        [`${ICON_BASE}/armor/HeavyArmor.png`, 'Heavy Armor'],
+        [`${ICON_BASE}/shields/ShieldParry.png`, 'Parry Shield'],
+        [`${ICON_BASE}/shields/MediumShield.png`, 'Medium Shield'],
+        [`${ICON_BASE}/shields/TowerShield.png`, 'Tower Shield'],
+    ];
+    for (const [path, label] of assetFiles)
+        push(path, label);
+    for (const [label, path] of Object.entries(GEAR_ICONS))
+        push(path, label);
+    for (const [label, path] of Object.entries(WEAPON_ICONS))
+        push(path, label);
+    for (const [label, path] of Object.entries(ARMOR_ICONS))
+        push(path, label);
+    for (const [label, path] of Object.entries(SHIELD_ICONS))
+        push(path, label);
+    const coreFallbacks = [
+        ['icons/svg/item-bag.svg', 'Bag'],
+        ['icons/svg/chest.svg', 'Chest'],
+        ['icons/svg/sword.svg', 'Sword'],
+        ['icons/svg/shield.svg', 'Shield'],
+        ['icons/svg/armor.svg', 'Armor'],
+        ['icons/svg/aura.svg', 'Aura'],
+        ['icons/svg/lightning.svg', 'Lightning'],
+        ['icons/svg/mystery-man.svg', 'Figure'],
+    ];
+    for (const [path, label] of coreFallbacks)
+        push(path, label);
+    out.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
+    return out;
+}
+/**
  * Resolve the best icon path for an item by name and type.
  * For armor and shields, pass `system` (with `type` tier) so renamed items still match the correct art.
  * Returns null if no custom icon is available.

@@ -45,6 +45,30 @@ function absorptionLevel(actor: any): number {
   return Math.max(1, Math.min(16, Math.floor(Number(item.system?.level) || 1)));
 }
 
+/** Active Buff: Absorption Stone Increase — printed extra Stones on first trigger/Round. */
+export function getAbsorptionStoneIncreaseFromActiveBuff(actor: any): number {
+  if (!actor) return 0;
+  try {
+    // Lazy import avoids circular dependency with active-buffs helpers.
+    const effects = Array.isArray(actor.effects)
+      ? actor.effects
+      : typeof actor.effects?.contents !== 'undefined'
+        ? Array.from(actor.effects.contents)
+        : [];
+    let best = 0;
+    for (const eff of effects) {
+      const flags = eff?.flags?.['mastery-system'] ?? {};
+      if (!flags.activeBuff) continue;
+      const fromMech = Math.floor(Number(flags.mechanics?.absorptionStoneIncrease) || 0);
+      const fromFlag = Math.floor(Number(flags.absorptionStoneIncrease) || 0);
+      best = Math.max(best, fromMech, fromFlag);
+    }
+    return Math.max(0, best);
+  } catch {
+    return 0;
+  }
+}
+
 interface AccumFlag {
   combatId: string;
   value: number;
@@ -87,7 +111,26 @@ export async function grantAbsorptionForScarredBars(actor: any, newlyScarred: nu
   if (triggers <= 0) return 0;
 
   const { absorptionStonesPerTrigger } = await import('../utils/powers/templates/passives.js');
-  const stones = triggers * absorptionStonesPerTrigger(lvl);
+  let stones = triggers * absorptionStonesPerTrigger(lvl);
+  // Active Buff: Absorption Stone Increase — once on the first eligible trigger this Round.
+  const round = Math.max(1, Math.floor(Number(combat.round) || 1));
+  const bonusFlag = owner?.getFlag?.(FLAG_SCOPE, 'absorptionBuffBonusRound') as
+    | { combatId?: string; round?: number }
+    | undefined;
+  const bonusAlready =
+    bonusFlag &&
+    String(bonusFlag.combatId) === String(combat.id) &&
+    Math.floor(Number(bonusFlag.round) || 0) === round;
+  if (!bonusAlready) {
+    const buffBonus = getAbsorptionStoneIncreaseFromActiveBuff(owner);
+    if (buffBonus > 0) {
+      stones += buffBonus;
+      await owner.setFlag?.(FLAG_SCOPE, 'absorptionBuffBonusRound', {
+        combatId: String(combat.id),
+        round,
+      });
+    }
+  }
   await owner.setFlag?.(FLAG_SCOPE, FLAG_TRIGGERS, {
     combatId: String(combat.id),
     count: used + triggers,

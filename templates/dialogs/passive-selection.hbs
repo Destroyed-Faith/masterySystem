@@ -47,17 +47,22 @@
   {{#if canEdit}}
   <section class="available-passives-section">
     <h3>Available Passives</h3>
-    {{#if availablePassives}}
-      <div class="passives-list">
-        {{#each availablePassives as |passive|}}
-          <div class="passive-item draggable-passive" 
-               draggable="true"
-               data-passive-id="{{passive.id}}">
-            <h4>{{passive.name}}</h4>
-            <p class="passive-effect">{{passive.description}}</p>
-          </div>
-        {{/each}}
+    {{#if selectionGroups}}
+      {{#each selectionGroups as |group|}}
+      <div class="passive-selection-group" data-group="{{group.id}}">
+        <h4 class="passive-selection-group-label">{{group.label}}</h4>
+        <div class="passives-list">
+          {{#each group.passives as |passive|}}
+            <div class="passive-item draggable-passive"
+                 draggable="true"
+                 data-passive-id="{{passive.id}}">
+              <h4>{{passive.name}}</h4>
+              <p class="passive-effect">{{passive.description}}</p>
+            </div>
+          {{/each}}
+        </div>
       </div>
+      {{/each}}
     {{else}}
       <div class="no-passives">
         <p><em>No unslotted Passives. Everything you own is already in a slot — clear a slot (×) to swap, or buy another Passive on the sheet.</em></p>

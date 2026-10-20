@@ -20,7 +20,12 @@ export function getTargetEvade(targetActor: any, attacker?: any): number {
   if (attacker) {
     try {
       const rs = attacker.getFlag?.('mastery-system', 'roundState');
-      const cut = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.enemyEvadeReduction) || 0));
+      const stoneCut = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.enemyEvadeReduction) || 0));
+      const passiveCut = Math.max(
+        0,
+        Math.floor(Number(attacker.system?.derived?.mechanicsBreakdown?.totals?.enemyEvadeReduction) || 0),
+      );
+      const cut = stoneCut + passiveCut;
       if (cut > 0) evade = Math.max(0, evade - cut);
     } catch {
       /* ignore */
@@ -58,15 +63,29 @@ export function getTargetSpellResistance(targetActor: any): number {
   );
 }
 
-/** Intellect Spell Penetration on the caster. Never applied to a Base TN. */
+/**
+ * Spell Resistance ignored by the caster (Stone Penetration + Passive Piercing).
+ * Never applied to Spell Base TN.
+ */
 export function getCasterSpellPenetration(caster: any): number {
   if (!caster) return 0;
+  let stone = 0;
+  let passive = 0;
   try {
     const rs = caster.getFlag?.('mastery-system', 'roundState');
-    return Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellPenetration ?? 0) || 0));
+    stone = Math.max(0, Math.floor(Number(rs?.stoneBonuses?.spellPenetration ?? 0) || 0));
   } catch {
-    return 0;
+    /* ignore */
   }
+  try {
+    passive = Math.max(
+      0,
+      Math.floor(Number(caster.system?.derived?.mechanicsBreakdown?.totals?.spellResistancePiercing) || 0),
+    );
+  } catch {
+    /* ignore */
+  }
+  return stone + passive;
 }
 
 /**

@@ -58,7 +58,7 @@ import {
 import { normalizeSlotKey } from '../utils/equip-slots.js';
 import { isEchoArtifactInventoryHidden } from '../utils/echo-artifact-equip.js';
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
-import { peekWeaponSets, type WeaponSetIndex } from '../utils/weapon-sets.js';
+import { listWeaponSetIndexes, peekWeaponSets, type WeaponSetIndex } from '../utils/weapon-sets.js';
 import { parseMaxRangeM, DEFAULT_WEAPON_RANGE_M } from '../utils/range-bands.js';
 import {
   formatArtifactWeaponRangeDisplay,
@@ -1661,7 +1661,7 @@ function buildCompactWeaponSetTiles(actor: any): {
     specials: string;
   }[] = [];
 
-  for (const index of [1, 2] as WeaponSetIndex[]) {
+  for (const index of listWeaponSetIndexes(state)) {
     const hands = state.sets[index] || { mainhand: null, offhand: null };
     const orderedIds: string[] = [];
     for (const id of [hands.mainhand, hands.offhand]) {

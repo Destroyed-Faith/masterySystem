@@ -20,12 +20,22 @@ export declare function activeBuffDurationRounds(actor: any): number;
  * Get all true active buffs (excluding utilities) on an actor
  */
 export declare function getTrueActiveBuffs(actor: Actor): any[];
+export interface ActivateActiveBuffOptions {
+    /**
+     * When true, skip the Preparation-window gate (internal/tests only).
+     * Normal callers must activate during Preparation.
+     */
+    allowOutsidePreparation?: boolean;
+    /** When true, do not commit the base Attack Action (caller already did / maintain). */
+    skipActionCommit?: boolean;
+}
 /**
- * Activate an active buff power
- * Creates an ActiveEffect that lasts for Mastery Rank rounds
- * Only one true active buff can be active at a time (utilities can stack)
+ * Activate an active buff power during the Preparation Phase.
+ * Duration is complete Combat Rounds ending at Round End:
+ * lastActiveRound = activationRound + effectiveDuration - 1.
+ * Only one true active buff can be active at a time (utilities can stack).
  */
-export declare function activateActiveBuff(actor: Actor, power: any): Promise<boolean>;
+export declare function activateActiveBuff(actor: Actor, power: any, opts?: ActivateActiveBuffOptions): Promise<boolean>;
 /**
  * Get all active buffs on an actor
  */

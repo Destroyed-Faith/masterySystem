@@ -38,6 +38,7 @@ import { COMBAT_MANEUVERS, getAvailableManeuvers } from '../src/system/combat-ma
 import { RADIAL_STANDARD_MANEUVER_IDS } from '../src/utils/radial-maneuver-prefs.js';
 import { buildWeaponSwapCardHtml } from '../src/chat/weapon-swap-card.js';
 import {
+  addWeaponSetSlot,
   describeWeaponSetHands,
   describeWeaponSwap,
   describeActiveWeaponProfile,
@@ -53,6 +54,7 @@ import {
   resetWeaponSetLocks,
   resolveSwapTarget,
   swapWeaponSet,
+  weaponSetCount,
   WEAPON_SWAP_ID,
 } from '../src/utils/weapon-sets.js';
 
@@ -293,7 +295,7 @@ describe('weapon set apply + swap', () => {
     expect(movement.used).toBe(0);
   });
 
-  it('is free out of combat and spends exactly one movement action in combat', async () => {
+  it('is free out of combat and in combat (no Movement spend)', async () => {
     const sword = makeItem('sword', { type: 'weapon', equipped: true, slot: 'mainhand' });
     const actor = makeActor([sword], {
       schemaVersion: 1,
@@ -306,12 +308,12 @@ describe('weapon set apply + swap', () => {
 
     (globalThis as any).game.combat = { active: true, combatants: [{ actorId: 'actor-1' }] };
     const back = await swapWeaponSet(actor);
-    expect(back).toMatchObject({ ok: true, spentMovement: true, active: 1 });
-    expect(consumeMovementAction).toHaveBeenCalledTimes(1);
-    expect(movement.used).toBe(1);
+    expect(back).toMatchObject({ ok: true, spentMovement: false, active: 1 });
+    expect(consumeMovementAction).not.toHaveBeenCalled();
+    expect(movement.used).toBe(0);
   });
 
-  it('blocks the swap when no movement remains and leaves the active set unchanged', async () => {
+  it('still swaps in combat when no Movement remains', async () => {
     movement.used = 1;
     (globalThis as any).game.combat = { active: true, combatants: [{ actorId: 'actor-1' }] };
     const sword = makeItem('sword', { type: 'weapon', equipped: true, slot: 'mainhand' });
@@ -325,11 +327,11 @@ describe('weapon set apply + swap', () => {
       },
     });
     const result = await swapWeaponSet(actor);
-    expect(result).toEqual({ ok: false, reason: 'no-movement' });
-    expect(peekWeaponSets(actor).active).toBe(1);
-    expect(sword.system.equipped).toBe(true);
-    expect(bow.system.equipped).toBe(false);
-    expect((globalThis as any).ui.notifications.warn).toHaveBeenCalled();
+    expect(result).toMatchObject({ ok: true, swapped: true, active: 2, spentMovement: false });
+    expect(peekWeaponSets(actor).active).toBe(2);
+    expect(sword.system.equipped).toBe(false);
+    expect(bow.system.equipped).toBe(true);
+    expect(consumeMovementAction).not.toHaveBeenCalled();
   });
 
   it('allows swapping onto a fully empty set and clears previous hand effects', async () => {
@@ -481,8 +483,8 @@ describe('weapon set labels', () => {
         2: { mainhand: null, offhand: null },
       },
     });
-    expect(listWeaponSwapChoices(emptySecond).map((choice) => choice.target)).toEqual([1, 'unarmed']);
-    expect(listEquipmentWeaponSetChoices(emptySecond).map((choice) => choice.target)).toEqual([1]);
+    expect(listWeaponSwapChoices(emptySecond).map((choice) => choice.target)).toEqual([1, 2, 'unarmed']);
+    expect(listEquipmentWeaponSetChoices(emptySecond).map((choice) => choice.target)).toEqual([1, 2]);
     expect(listEquipmentWeaponSetChoices(actor).map((choice) => choice.target)).toEqual([1, 2]);
 
     const stowed = await swapWeaponSet(actor, 'unarmed');
@@ -506,5 +508,20 @@ describe('weapon set labels', () => {
     expect(peekWeaponSets(actor).stowed).toBe(false);
     expect(bow.system.equipped).toBe(true);
     expect(sword.system.equipped).toBe(false);
+  });
+
+  it('GM can add a third Weaponslot', async () => {
+    const sword = makeItem('sword', { type: 'weapon', equipped: true, slot: 'mainhand' });
+    const actor = makeActor([sword], {
+      schemaVersion: 1,
+      active: 1,
+      sets: { 1: { mainhand: 'sword', offhand: null }, 2: { mainhand: null, offhand: null } },
+    });
+    expect(weaponSetCount(peekWeaponSets(actor))).toBe(2);
+    const next = await addWeaponSetSlot(actor);
+    expect(next).toBeTruthy();
+    expect(weaponSetCount(next!)).toBe(3);
+    expect(listEquipmentWeaponSetChoices(actor).map((c) => c.target)).toEqual([1, 2, 3]);
+    expect(listEquipmentWeaponSetChoices(actor).map((c) => c.shortLabel)).toEqual(['I', 'II', 'III']);
   });
 });

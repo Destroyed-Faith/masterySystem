@@ -22,6 +22,8 @@ export interface PassiveAbility {
     description: string;
     category: string;
     level?: number;
+    /** Catalog templateId when known (selection-group browsing). */
+    templateId?: string;
 }
 /** How many passive slots are available at the given Mastery Rank. */
 export declare function getPassiveSlotCountForMasteryRank(masteryRank: number): number;

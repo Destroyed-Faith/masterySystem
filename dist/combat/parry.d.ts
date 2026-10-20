@@ -3,7 +3,9 @@
  * Martial: strip Attack Dice (Might or Agility). 0 dice = Fully Parried.
  * Spell: strip Casting Dice (Intellect, Resolve, or Influence) from a direct
  * Spell whose origin is within 22 m. 0 dice = Fully Countered.
- * Entering Parry spends only the base Attack Action. Extra Attacks remain.
+ * Entering Parry normally spends the base Attack Action. If that Action was
+ * already committed during Preparation to activate an Active Buff, Parry may
+ * instead spend one legally available additional Attack Action (e.g. Extra Attack).
  */
 export declare const SPELL_PARRY_ORIGIN_M = 22;
 export type ParryDelivery = 'martial' | 'spell';
@@ -50,8 +52,10 @@ export declare function computeParryStrip(attackDice: number, pool: number): {
     fullyParried: boolean;
 };
 /**
- * Enter Passive Parry for the round. Spends only the base Attack Action
- * (`baseAttackLocked`). Extra Attack actions stay available.
+ * Enter Passive Parry for the round.
+ * Normal: spends the base Attack Action (`baseAttackLocked`).
+ * Prep Active Buff commit: spends one available additional Attack Action instead.
+ * Active Buff: Parry Recovery never grants free Parry on its own.
  */
 export declare function enterParry(actor: Actor, combat: Combat | null, opts?: {
     delivery?: ParryDelivery;

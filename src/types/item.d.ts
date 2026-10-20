@@ -248,6 +248,11 @@ export interface PowerMechanicsTriggers {
 export interface PowerMechanics {
   /** Flat Armor bonus/malus (before equipment scaling). */
   armor?: number;
+  /**
+   * Attacker-side Armor Reduction for this Passive holder's eligible damaging
+   * Attacks/Spells (Passive: Armor Reduction). Never lowers listed Armor.
+   */
+  armorReduction?: number;
   /** Flat Evade bonus/malus. */
   evade?: number;
   /** Flat Initiative bonus added to the initial Initiative Score (before the Initiative Shop). */
@@ -272,10 +277,23 @@ export interface PowerMechanics {
   damageTransfer?: boolean;
 
   /**
-   * Spell Resistance — increases the Base TN of Spell-tagged Powers against
-   * this actor. Ward passives / Spell Resistance active buffs only.
+   * Spell Resistance — increases Final Spell TN (not Spell Base TN) of
+   * Spell-tagged Powers against this actor. Ward passives / Spell Resistance
+   * active buffs only.
    */
   spellResistance?: number;
+  /**
+   * Active Buff: Damage Negation Pool — temporary DN points for the current
+   * Round (spent before Passive Reserve). Refreshed at Preparation while maintained.
+   */
+  damageNegation?: number;
+  /** Printed Temporary DN pool size for refresh (Active Buff DN Pool). */
+  damageNegationPoolMax?: number;
+  /**
+   * Active Buff Temporary HP refreshes during Preparation (once per Round),
+   * not at the owner's Start of Turn.
+   */
+  preparationTempHP?: boolean;
   /** Active Buff: Parry Recovery — maximum Parry refunded per Round. */
   parryRecoveryPerRound?: number;
   /** Reaction may be used again this Round. Each use still costs 1 Reaction. */
@@ -283,10 +301,18 @@ export interface PowerMechanics {
 
   /**
    * Recurring self-Cleanse at the start of each turn. The value may be
-   * distributed freely across eligible Specials (Cleanse rule). Ward
-   * passives / Cleanse Maintenance active buffs only.
+   * distributed freely across eligible Specials (Cleanse rule).
+   * Passive: Self Cleanse / Active Buff: Self Cleanse.
    */
   cleanseMaintenance?: number;
+  /** Passive: Enemy Evade Reduction — cut to target Evade vs owner's Martial attacks. */
+  enemyEvadeReduction?: number;
+  /** Passive: Spell Resistance Piercing — ignore this much SR vs owner's Spells. */
+  spellResistancePiercing?: number;
+  /** Passive: Special Amplification — +N to eligible delivered numeric Special(X). */
+  specialAmplification?: number;
+  /** Passive: Speed — flat meters added once to the Speed statistic. */
+  speedBonus?: number;
 
   /**
    * Ward — reduces every incoming eligible hostile Special(X) by this value
@@ -297,6 +323,8 @@ export interface PowerMechanics {
   healthBarMultiplier?: number;
   /** Passive: Absorption — Temporary Colorless Stones per Scarred Health Bar. */
   absorptionStonesPerTrigger?: number;
+  /** Active Buff: Absorption Stone Increase — extra Stones on first eligible trigger per Round. */
+  absorptionStoneIncrease?: number;
 
   /**
    * Invisibility Bonus — raises Perception TN to locate/target/read you
@@ -359,6 +387,22 @@ export interface PowerMechanics {
   };
 
   /**
+   * Active Buff: Critical(X) — X Critical-capable attacks per Round.
+   * (Not Passive: Critical combat charges — see passiveCritical.)
+   */
+  critical?: number;
+
+  /** Passive: Critical — free Critical(1) designations per Combat. */
+  passiveCritical?: {
+    combatStart?: { charges: number };
+  };
+
+  /** Passive: Maximization — free Damage/Healing maximizations per Combat. */
+  passiveMaximization?: {
+    combatStart?: { charges: number };
+  };
+
+  /**
    * Auto-fail condition metadata — declarative mapping from this condition
    * (when present on an actor) to forced skill/attack fails. Currently only
    * `Disoriented` consumes this at runtime via `autoFail.checkTags`; the
@@ -382,13 +426,6 @@ export interface PowerMechanics {
     /** Attack actions lost; 'perRank' means condition rank, number is flat. */
     attackActions: 'perRank' | number;
   };
-
-  /**
-   * Critical subsystem — closed offensive axis. Only `Active Buff: Critical`
-   * may declare this field. Milestone bands grant Critical(N) to qualifying
-   * attacks while the buff is active (not linear per-level scaling).
-   */
-  critical?: number;
 
   /** Generic heal dice or flat (aggregator lists under breakdown.healing). */
   healing?: PowerMechanicsHealing;

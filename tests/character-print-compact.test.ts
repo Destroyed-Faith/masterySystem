@@ -422,7 +422,8 @@ describe('Quick Play character print', () => {
     };
     const negCtx = buildCharacterCompactPrintContext(withNegation) as any;
     expect(negCtx.defenseSpecialLabel).toBe('Damage Negation');
-    expect(negCtx.defenseSpecialBoxes).toHaveLength(16);
+    // Passive DN reserve = 2 × PL (PL4 → 8 dice), not one box per Power Level.
+    expect(negCtx.defenseSpecialBoxes).toHaveLength(8);
     expect(negCtx.hasDefenseSpecial).toBe(true);
     expect(negCtx.hasPhasing).toBe(false);
 

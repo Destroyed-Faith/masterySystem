@@ -603,7 +603,7 @@ describe('Vitality — Damage Negation (Premium, four Ranks)', () => {
     expect(STONE_POWERS['vitality.damageNegation'].tiers).toHaveLength(4);
   });
 
-  it.each([[1, 4], [2, 8], [3, 12], [4, 16]])('R%i grants +%i Damage Negation', async (tier, expected) => {
+  it.each([[1, 2], [2, 4], [3, 8], [4, 12]])('R%i grants +%i Damage Negation', async (tier, expected) => {
     const actor = makeMockActor();
     await STONE_POWERS['vitality.damageNegation'].apply({
       actor: actor as any,

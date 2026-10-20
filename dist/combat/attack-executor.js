@@ -925,9 +925,20 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
                 buffCriticalX = 0;
             }
             const syncedQuota = syncCriticalRoundQuota(rsCrit.criticalQuota, combatRoundKey(combatRef), buffCriticalX);
+            let passiveCritCharges = 0;
+            try {
+                const { getPassiveCriticalRemaining, grantPassiveCombatCharges } = await import('./passive-combat-charges.js');
+                if (combatRef?.id)
+                    await grantPassiveCombatCharges(economyForStones, combatRef);
+                passiveCritCharges = getPassiveCriticalRemaining(economyForStones, combatRef);
+            }
+            catch {
+                passiveCritCharges = 0;
+            }
             const sources = listAvailableCriticalSources({
                 buffQuotaRemaining: syncedQuota.remaining,
                 stoneCritCharges: critBank,
+                passiveCritCharges,
             });
             if (npcCrit || sources.length > 0) {
                 const sourceSelect = sources.length > 1

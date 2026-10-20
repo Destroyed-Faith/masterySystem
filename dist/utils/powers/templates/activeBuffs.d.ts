@@ -1,8 +1,8 @@
 /**
  * Active Buff Power Templates
  *
- * Source: Rules/active-buffs.md — Levels 1..16.
- * Duration: Mastery Rank Rounds unless noted.
+ * Source: docs/Rules/active-buffs.md — Final Playtest catalogue (18 Buffs), Levels 1..16.
+ * Duration: Mastery Rank complete Rounds (Round-End expiry) unless noted.
  * Active Buff PP curve = 40 / 70 / 100 / 130 PP, then +30 per level (cap L16 = 490 PP).
  */
 import type { PowerTemplate } from './_shared.js';

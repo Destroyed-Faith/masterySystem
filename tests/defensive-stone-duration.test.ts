@@ -59,7 +59,6 @@ describe('Defensive stone duration — until start of next own turn', () => {
         evadeBonus: 16,
         tempParryPool: 4,
         damageReductionBoostPct: 20,
-        tempDamageNegation: 8,
         spellResistanceBonus: 8,
         incomingSpecialReduction: 4,
         tempWard: 2,
@@ -75,7 +74,6 @@ describe('Defensive stone duration — until start of next own turn', () => {
     expect(mid.stoneBonuses.evadeBonus).toBe(16);
     expect(mid.stoneBonuses.tempParryPool).toBe(4);
     expect(mid.stoneBonuses.damageReductionBoostPct).toBe(20);
-    expect(mid.stoneBonuses.tempDamageNegation).toBe(8);
     expect(mid.stoneBonuses.spellResistanceBonus).toBe(8);
     expect(mid.stoneBonuses.incomingSpecialReduction).toBe(4);
     expect(mid.stoneBonuses.tempWard).toBe(2);
@@ -116,7 +114,6 @@ describe('Defensive stone duration — until start of next own turn', () => {
     expect(next.stoneBonuses.evadeBonus).toBe(0);
     expect(next.stoneBonuses.tempParryPool).toBe(0);
     expect(next.stoneBonuses.damageReductionBoostPct).toBe(0);
-    expect(next.stoneBonuses.tempDamageNegation).toBe(0);
     expect(next.stoneBonuses.spellResistanceBonus).toBe(0);
     expect(next.stoneBonuses.defensiveExpiry).toBeNull();
     for (const key of DEFENSIVE_STONE_KEYS) {

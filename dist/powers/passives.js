@@ -272,6 +272,7 @@ function passiveAbilityFromItem(item) {
         description: formatPassiveDescription(item),
         category: itemSystem.tree || itemSystem.category || 'General',
         level: itemSystem.level || itemSystem.rank || 1,
+        templateId: String(itemSystem.templateId || '').trim() || undefined,
     };
 }
 /** Passive powers owned by the actor (sheet Passives + combat Available list). */

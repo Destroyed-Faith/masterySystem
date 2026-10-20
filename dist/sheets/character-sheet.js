@@ -30,7 +30,7 @@ import { copyDocumentImageLink, openImageViewer, } from '../ui/image-url-share.j
 import { SummonBondDialog } from '../stones/summon-bond-dialog.js';
 import { RitualWorkshopController } from '../stones/ritual-workshop-dialog.js';
 import { MinorMagicPanel } from '../stones/minor-magic-dialog.js';
-import { canGiveBackMinorMagic, dismissMinorMagicItem, giveMinorMagicItemToActor, listMinorMagicGiveTargets, minorMagicSheetView, readMinorMagicFlag, returnMinorMagicItemToCreator, useMinorMagicItem, } from '../utils/minor-magic-items.js';
+import { canGiveBackMinorMagic, dismissMinorMagicByLedgerKey, dismissMinorMagicItem, giveMinorMagicItemToActor, listMinorMagicGiveTargets, minorMagicSheetView, readMinorMagicFlag, returnMinorMagicItemToCreator, useMinorMagicItem, } from '../utils/minor-magic-items.js';
 import { applySafeHavenRest, SAFE_HAVEN_REST_INFO } from '../utils/safe-haven-rest.js';
 import { buildConsumableSlotView, equippedConsumableActionRows, equipConsumableToSlot, isConsumableItem, itemOccupyingConsumableSlot, listCarriedConsumableItems, readConsumableSlotIndex, transferConsumableToActor, unequipConsumable, useEquippedConsumable, validateUnequipConsumable, } from '../utils/consumable-slots.js';
 import { dissolveSummonBond, getSummonBondsFromActor, tokensSummary, } from '../stones/summon-bond-bind.js';
@@ -43,7 +43,7 @@ import { buildCancelSkillsRedistributeUpdates, buildFinishSkillsRedistributeUpda
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { bindReliableControlClick, makeFoundryTooltipInert } from '../ui/tooltip-passthrough.js';
 import { getNormalizedEquipSlots, listCarriedItemsForPaperdollSlot, normalizeSlotKey } from '../utils/equip-slots.js';
-import { canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, peekWeaponSets, listEquipmentWeaponSetChoices, swapWeaponSet, syncActiveWeaponSetFromHands, } from '../utils/weapon-sets.js';
+import { addWeaponSetSlot, canMarkTwoHandedGrip, ensureWeaponSets, isHiddenInInactiveWeaponSet, isNaturallyTwoHandedItem, listEquipmentWeaponSetChoices, MAX_WEAPON_SET_COUNT, parseWeaponSwapTarget, peekWeaponSets, swapWeaponSet, syncActiveWeaponSetFromHands, weaponSetCount, } from '../utils/weapon-sets.js';
 import { canLoadAmmunitionOnto, findAmmoContainerFromDropPath, isAmmoContainer, isAmmunitionItem, loadAmmunitionIntoContainer, quiverAmmunitionLabel, requiresAmmunition, validateHandEquip, } from '../utils/ammunition.js';
 import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standardTnForMasteryRank } from '../utils/constants.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
@@ -2089,6 +2089,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             weaponSets: {
                 active: weaponSets.active,
                 stowed: weaponSets.stowed === true,
+                canAddSlot: !!globalThis.game?.user?.isGM && weaponSetCount(weaponSets) < MAX_WEAPON_SET_COUNT,
                 choices: listEquipmentWeaponSetChoices(this.actor).map((choice) => ({
                     target: choice.target,
                     label: choice.shortLabel,
@@ -2610,10 +2611,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!canCurrentUserUpdateDocument(this.actor))
                 return;
             const raw = String(ev.currentTarget?.dataset?.weaponSet || '');
-            const target = raw === 'unarmed' ? 'unarmed' : raw === '2' ? 2 : raw === '1' ? 1 : null;
-            if (!target)
+            const target = parseWeaponSwapTarget(raw);
+            if (!target || target === 'unarmed')
                 return;
             await swapWeaponSet(this.actor, target);
+        });
+        html.on('click', '[data-action="addWeaponSet"]', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (!globalThis.game?.user?.isGM)
+                return;
+            await addWeaponSetSlot(this.actor);
         });
         bindReliableControlClick(html, '[data-action="openArtifactEvolution"]', async (ev) => {
             ev.preventDefault();
@@ -2801,10 +2809,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.on('click.minorMagic', '.js-sheet-minor-magic-dismiss', async (ev) => {
             ev.preventDefault();
             const id = ev.currentTarget.dataset.itemId;
-            const item = id ? this.actor.items.get(id) : null;
-            if (!item)
+            if (!id)
                 return;
-            const res = await dismissMinorMagicItem(this.actor, item);
+            const item = this.actor.items.get(id);
+            const res = item
+                ? await dismissMinorMagicItem(this.actor, item)
+                : await dismissMinorMagicByLedgerKey(this.actor, id);
             if (!res.ok)
                 ui.notifications?.warn(res.error);
             this.render(false);
@@ -2944,6 +2954,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             .on('change', '.radial-maneuver-hide-one', this.#onRadialManeuverHideOne.bind(this));
         // Equipment handlers
         bindReliableControlClick(html, '.general-items-btn', this.#onGeneralItemsClick.bind(this));
+        bindReliableControlClick(html, '.custom-catalog-item-btn, [data-action="openCustomCatalogItem"]', async (ev) => {
+            ev.preventDefault();
+            const { openCustomCatalogItemDialog } = await import('../ui/custom-catalog-item-dialog.js');
+            await openCustomCatalogItemDialog({
+                actor: this.actor,
+                onCreated: async () => {
+                    try {
+                        await this.render(false);
+                    }
+                    catch {
+                        /* ignore */
+                    }
+                },
+            });
+        });
         bindReliableControlClick(html, '.store-btn', this.#onStoreClick.bind(this));
         if (this.actor.isOwner) {
             void this.#purgeLegacyUnarmedItems();
@@ -6445,10 +6470,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         $scope.find('input[name="name"], textarea').prop('disabled', true);
         $scope.find('select:not(.power-rank-select):not(.attr-creation-select):not(.mastery-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
+        const buttonsToDisable = $scope.find('button:not(.header-control):not(.sheet-gm-menu-toggle):not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.gm-refresh-xp):not(.gm-stone-audit):not(.gm-unblock-stones):not(.gm-toggle-stone-redistribute):not(.gm-release-all-stones):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.open-tower-wizard-btn):not(.open-manual-combat-package-btn):not(.add-power-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-replace-btn):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.custom-catalog-item-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.remove-echo-card-btn):not(.echo-card-use-btn):not(.open-languages-btn)');
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
+        const creationButtons = $scope.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .gm-refresh-xp, .gm-stone-audit, .gm-unblock-stones, .gm-toggle-stone-redistribute, .gm-release-all-stones, .sheet-gm-menu-toggle, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .open-tower-wizard-btn, .open-manual-combat-package-btn, .add-spell-creation-btn, .item-delete, .power-replace-btn, .general-items-btn, .custom-catalog-item-btn, .choose-echo-btn, .add-echo-card-btn, .remove-echo-card-btn, .echo-card-use-btn, .open-languages-btn');
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         $scope.find('.power-rank-select').prop('disabled', false);

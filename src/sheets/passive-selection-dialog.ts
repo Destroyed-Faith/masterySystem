@@ -22,6 +22,12 @@ import {
 } from '../powers/passives.js';
 import { shouldShowEncounterDialogLocally } from '../combat/combat-permissions.js';
 import { getActionEconomyActor } from '../combat/action-economy.js';
+import {
+  PASSIVE_SELECTION_GROUP_LABELS,
+  PASSIVE_SELECTION_GROUP_ORDER,
+  passiveSelectionGroupFor,
+  type PassiveSelectionGroupId,
+} from '../utils/passive-selection-groups.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 // Type workaround for Mixin
@@ -161,12 +167,34 @@ export class PassiveSelectionDialog extends BaseDialog {
     const available = getAvailablePassives(actor);
     const slottedIds = getSlottedPassiveIds(actor);
     const selectablePassives = available.filter((p: any) => !slottedIds.has(String(p.id)));
+    const grouped = new Map<PassiveSelectionGroupId | 'other', typeof selectablePassives>();
+    for (const p of selectablePassives) {
+      const item = findPassivePowerItem(actor, String(p.id));
+      const tid = String(p.templateId || item?.system?.templateId || '');
+      const group = passiveSelectionGroupFor(tid) ?? 'other';
+      const list = grouped.get(group) ?? [];
+      list.push(p);
+      grouped.set(group, list);
+    }
+    const selectionGroups = [
+      ...PASSIVE_SELECTION_GROUP_ORDER.map((id) => ({
+        id,
+        label: PASSIVE_SELECTION_GROUP_LABELS[id],
+        passives: grouped.get(id) ?? [],
+      })),
+      {
+        id: 'other' as const,
+        label: 'Other',
+        passives: grouped.get('other') ?? [],
+      },
+    ].filter((g) => g.passives.length > 0);
 
     const canEdit = this.#canMutate();
     return {
       actor,
       slots,
       availablePassives: selectablePassives,
+      selectionGroups,
       isFirst: this.currentIndex === 0,
       isLast: this.currentIndex === this.pcs.length - 1,
       isGM: game.user?.isGM ?? false,

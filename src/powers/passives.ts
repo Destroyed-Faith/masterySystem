@@ -34,6 +34,8 @@ export interface PassiveAbility {
   description: string;
   category: string;
   level?: number;
+  /** Catalog templateId when known (selection-group browsing). */
+  templateId?: string;
 }
 
 /** How many passive slots are available at the given Mastery Rank. */
@@ -282,6 +284,7 @@ function passiveAbilityFromItem(item: any): PassiveAbility {
     description: formatPassiveDescription(item),
     category: itemSystem.tree || itemSystem.category || 'General',
     level: itemSystem.level || itemSystem.rank || 1,
+    templateId: String(itemSystem.templateId || '').trim() || undefined,
   };
 }
 

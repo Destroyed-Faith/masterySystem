@@ -1,8 +1,24 @@
-import { WEAPONS, masteryWeaponCatalogKey } from './weapons.js';
-import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
-import { getItemIcon, normalizeWeaponNameKey } from './item-icons.js';
-import { migrateItemAmmunitionFields } from './ammunition.js';
-const STORAGE_FOLDER_NAME = 'General Items Storage';
+import { WEAPONS, masteryWeaponCatalogKey } from './weapons';
+import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
+import { getItemIcon, normalizeWeaponNameKey } from './item-icons';
+import { migrateItemAmmunitionFields } from './ammunition';
+export const STORAGE_FOLDER_NAME = 'General Items Storage';
+/** World Item folder that holds the shared mundane catalog. */
+export async function getOrCreateGeneralItemsStorageFolder() {
+    const g = globalThis;
+    const existing = g.game?.folders?.find?.((f) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
+    if (existing)
+        return existing;
+    if (!g.game?.user?.isGM)
+        return null;
+    try {
+        return await g.Folder.create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
+    }
+    catch (err) {
+        console.warn('Mastery System | Could not create General Items Storage folder', err);
+        return null;
+    }
+}
 const GEAR_ITEMS = [
     { name: 'Backpack', inventorySize: '2x3' },
     { name: 'Belt Pouch', inventorySize: '1x1' },
@@ -137,10 +153,9 @@ export async function seedGeneralItemsStorage() {
         // Non-GMs cannot seed items
         return [];
     }
-    const existingFolder = game.folders?.find((f) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
-    const folder = existingFolder
-        ? existingFolder
-        : await Folder.create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
+    const folder = await getOrCreateGeneralItemsStorageFolder();
+    if (!folder)
+        return [];
     const existingItems = Array.from(game.items || []).filter((item) => item.folder?.id === folder.id);
     const existingNames = new Set(existingItems.map((item) => item.name));
     const existingWeaponCatalogKeys = new Set(existingItems.map((item) => masteryWeaponCatalogKey(item.name || '')));

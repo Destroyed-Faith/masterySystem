@@ -21,6 +21,7 @@ import {
   resolveEquippedWeaponForAttackType,
 } from '../utils/unarmed-fallback.js';
 import {
+  listWeaponSetIndexes,
   peekWeaponSets,
   type WeaponSetIndex,
 } from '../utils/weapon-sets.js';
@@ -280,7 +281,11 @@ function resolveWeaponForPrint(
 ): any | null {
   try {
     const state = peekWeaponSets(actor);
-    const order: WeaponSetIndex[] = [state.active, state.active === 1 ? 2 : 1];
+    const indexes = listWeaponSetIndexes(state);
+    const order: WeaponSetIndex[] = [
+      state.active,
+      ...indexes.filter((idx) => idx !== state.active),
+    ];
     for (const idx of order) {
       const hands = state.sets[idx] || { mainhand: null, offhand: null };
       const seen = new Set<string>();

@@ -154,23 +154,74 @@ function liveMaximizationFlag(actor) {
     const uses = Math.max(remaining, Math.floor(Number(raw.uses) || 0));
     return { raw, remaining, uses };
 }
-/** Remaining Maximizations for the current combat (0 when none / wrong combat). */
-export function remainingMaximizations(actor) {
+/** Remaining stone Maximizations for the current combat. */
+export function remainingStoneMaximizations(actor) {
     return liveMaximizationFlag(actor)?.remaining ?? 0;
 }
+function readPassiveMaximizationRemainingSync(actor) {
+    const combat = liveCombat();
+    const raw = actor?.getFlag?.('mastery-system', 'passiveMaximizationCharges');
+    if (!raw)
+        return 0;
+    if (combat && raw.combatId && String(raw.combatId) !== String(combat.id))
+        return 0;
+    return Math.max(0, Math.floor(Number(raw.remaining) || 0));
+}
+/** Total Maximizations (stone + Passive) available for UI enablement. */
+export function remainingMaximizations(actor) {
+    return remainingStoneMaximizations(actor) + readPassiveMaximizationRemainingSync(actor);
+}
+export function listAvailableMaximizationSources(actor) {
+    const out = [];
+    const stone = remainingStoneMaximizations(actor);
+    const passive = readPassiveMaximizationRemainingSync(actor);
+    if (stone > 0)
+        out.push({ source: 'stone', remaining: stone, label: `Vitality Stone Maximization (${stone})` });
+    if (passive > 0)
+        out.push({ source: 'passive', remaining: passive, label: `Passive: Maximization (${passive})` });
+    return out;
+}
 /**
- * Spend one Maximization charge. No dialog — the Roll / Roll Maximum buttons
- * are the decision. Shared combat pool (`vitality.damageMaximization`) — R-02.
+ * Spend one Maximization charge from exactly one source.
+ * Prefer `preferred` when that source still has charges; else stone then Passive.
  */
-export async function spendMaximization(actor) {
-    const live = liveMaximizationFlag(actor);
-    if (!live)
+export async function spendMaximization(actor, preferred) {
+    const stoneLive = liveMaximizationFlag(actor);
+    const stoneLeft = stoneLive?.remaining ?? 0;
+    let passiveLeft = 0;
+    try {
+        const { getPassiveMaximizationRemaining, grantPassiveCombatCharges } = await import('../combat/passive-combat-charges.js');
+        const combat = liveCombat();
+        if (combat?.id)
+            await grantPassiveCombatCharges(actor, combat);
+        passiveLeft = getPassiveMaximizationRemaining(actor, combat);
+    }
+    catch {
+        passiveLeft = 0;
+    }
+    let pick = null;
+    if (preferred === 'stone' && stoneLeft > 0)
+        pick = 'stone';
+    else if (preferred === 'passive' && passiveLeft > 0)
+        pick = 'passive';
+    else if (stoneLeft > 0)
+        pick = 'stone';
+    else if (passiveLeft > 0)
+        pick = 'passive';
+    if (!pick)
         return false;
-    await actor.setFlag?.('mastery-system', MAXIMIZATION_FLAG, {
-        ...live.raw,
-        remaining: Math.max(0, live.remaining - 1),
-    });
-    return true;
+    if (pick === 'stone' && stoneLive) {
+        await actor.setFlag?.('mastery-system', MAXIMIZATION_FLAG, {
+            ...stoneLive.raw,
+            remaining: Math.max(0, stoneLive.remaining - 1),
+        });
+        return true;
+    }
+    if (pick === 'passive') {
+        const { spendPassiveMaximizationCharge } = await import('../combat/passive-combat-charges.js');
+        return spendPassiveMaximizationCharge(actor, liveCombat());
+    }
+    return false;
 }
 /**
  * @deprecated Prefer Roll / Roll Maximum buttons + {@link spendMaximization}.

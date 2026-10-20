@@ -168,7 +168,6 @@ export function actorParticipatesInActiveCombat(actor: { id?: string }): boolean
 
 export type ConsumableEquipError =
   | 'not-consumable'
-  | 'in-combat'
   | 'slot-oob'
   | 'occupied'
   | 'missing-item';
@@ -177,14 +176,13 @@ export function validateEquipConsumable(opts: {
   actor: { id?: string; items?: Iterable<any>; system?: { mastery?: { rank?: unknown } } };
   item: any;
   index: number;
+  /** @deprecated Ignored — Consumable Slots may be changed in combat like Powers. */
   inCombat?: boolean;
 }): ConsumableEquipError | null {
   if (!opts.item) return 'missing-item';
   if (!isConsumableItem(opts.item)) return 'not-consumable';
   const count = actorConsumableSlotCount(opts.actor);
   if (opts.index < 0 || opts.index >= count) return 'slot-oob';
-  const inCombat = opts.inCombat ?? actorParticipatesInActiveCombat(opts.actor);
-  if (inCombat) return 'in-combat';
   const occupant = itemOccupyingConsumableSlot(opts.actor, opts.index);
   if (occupant && occupant.id !== opts.item.id) return 'occupied';
   return null;
@@ -193,12 +191,11 @@ export function validateEquipConsumable(opts: {
 export function validateUnequipConsumable(opts: {
   actor: { id?: string };
   item: any;
+  /** @deprecated Ignored — Consumable Slots may be changed in combat like Powers. */
   inCombat?: boolean;
 }): ConsumableEquipError | null {
   if (!opts.item) return 'missing-item';
   if (readConsumableSlotIndex(opts.item) == null) return null;
-  const inCombat = opts.inCombat ?? actorParticipatesInActiveCombat(opts.actor);
-  if (inCombat) return 'in-combat';
   return null;
 }
 
@@ -208,11 +205,6 @@ export function equipErrorMessage(error: ConsumableEquipError): string {
       return localizeConsumable(
         'MASTERY.consumable.notConsumable',
         'Only consumable items can occupy a Consumable Slot.',
-      );
-    case 'in-combat':
-      return localizeConsumable(
-        'MASTERY.consumable.lockedInCombat',
-        'Consumable Slots cannot be changed during combat.',
       );
     case 'slot-oob':
       return localizeConsumable(
@@ -272,7 +264,8 @@ export function buildConsumableSlotView(actor: any): {
   }>;
 } {
   const count = actorConsumableSlotCount(actor);
-  const locked = actorParticipatesInActiveCombat(actor);
+  // Slots stay editable in combat — equipping puts the item on the Attack radial immediately.
+  const locked = false;
   const equipped = listEquippedConsumableItems(actor);
   const byIndex = new Map(equipped.map((row) => [row.index, row.item]));
   const slots = Array.from({ length: count }, (_, index) => {
@@ -542,15 +535,47 @@ export function rankChangeNotification(names: string[]): string {
 export async function transferConsumableToActor(targetActor: any, sourceItem: any): Promise<any | null> {
   if (!sourceItem || !targetActor) return null;
   if (sourceItem.parent?.id === targetActor.id) return sourceItem;
-  const data = itemDataForConsumableTransfer(sourceItem);
-  const [created] = await targetActor.createEmbeddedDocuments('Item', [data]);
   const sourceActor = sourceItem.parent;
-  if (sourceActor?.deleteEmbeddedDocuments && sourceItem.id) {
-    await sourceActor.deleteEmbeddedDocuments('Item', [sourceItem.id], {
-      [MINOR_MAGIC_TRANSFER_DELETE]: true,
-    } as any);
+  const { canCurrentUserUpdateDocument } = await import('../combat/combat-permissions.js');
+  const canWriteTarget = canCurrentUserUpdateDocument(targetActor);
+  const canWriteSource = !sourceActor || canCurrentUserUpdateDocument(sourceActor);
+
+  if (canWriteTarget && canWriteSource) {
+    const data = itemDataForConsumableTransfer(sourceItem);
+    const [created] = await targetActor.createEmbeddedDocuments('Item', [data]);
+    if (sourceActor?.deleteEmbeddedDocuments && sourceItem.id) {
+      await sourceActor.deleteEmbeddedDocuments('Item', [sourceItem.id], {
+        [MINOR_MAGIC_TRANSFER_DELETE]: true,
+      } as any);
+    }
+    return created ?? null;
   }
-  return created ?? null;
+
+  const instanceKey = (() => {
+    const minor = readMinorMagicFlag(sourceItem);
+    return minor
+      ? String(minor.instanceId || sourceItem.id || '').trim()
+      : String(sourceItem.id || '').trim();
+  })();
+  const { requestGmTransferEmbeddedItem } = await import('../combat/gm-relay.js');
+  const ok = await requestGmTransferEmbeddedItem({
+    sourceActorId: String(sourceActor?.id || ''),
+    sourceItemId: String(sourceItem.id || ''),
+    targetActorId: String(targetActor.id || ''),
+  });
+  if (!ok) return null;
+
+  // Resolve the moved item on the target (GM already created it).
+  const items = targetActor.items ? Array.from(targetActor.items as Iterable<any>) : [];
+  if (instanceKey) {
+    const byInstance = items.find((it: any) => {
+      const minor = readMinorMagicFlag(it);
+      if (!minor) return String(it.id || '') === instanceKey;
+      return String(minor.instanceId || it.id || '') === instanceKey;
+    });
+    if (byInstance) return byInstance;
+  }
+  return items[items.length - 1] ?? null;
 }
 
 export async function consumeEquippedConsumableAfterSuccess(

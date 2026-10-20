@@ -76,12 +76,14 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         rawImg ||
         getItemIcon(item.name, item.type, item.system) ||
         'icons/svg/item-bag.svg';
+      const isCustom = item.getFlag?.('mastery-system', 'customCatalogItem') === true;
       return {
         id: item.id,
         name: item.name,
         img,
         type: item.type,
-        system: item.system
+        system: item.system,
+        isCustom: !!isCustom,
       };
     };
 
@@ -403,6 +405,34 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     await super._onRender?.(element, _options);
 
     const $scope = this.#getStorageScope(element);
+
+    $scope
+      .off('click.customCatalog', '.js-create-custom-catalog-item')
+      .on('click.customCatalog', '.js-create-custom-catalog-item', async (ev: JQuery.ClickEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const { openCustomCatalogItemDialog } = await import('../ui/custom-catalog-item-dialog.js');
+        await openCustomCatalogItemDialog({
+          actor: this._actor,
+          onCreated: async () => {
+            await this.render({ force: true });
+          },
+        });
+      });
+
+    $scope
+      .off('click.customCatalogDel', '.js-delete-catalog-item')
+      .on('click.customCatalogDel', '.js-delete-catalog-item', async (ev: JQuery.ClickEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!(game as any).user?.isGM) return;
+        const itemId = String($(ev.currentTarget).attr('data-item-id') || '');
+        if (!itemId) return;
+        const { deleteCatalogStorageItem } = await import('../utils/custom-catalog-items.js');
+        if (await deleteCatalogStorageItem(itemId)) {
+          await this.render({ force: true });
+        }
+      });
     // Enable drag and drop for storage items
     const storageItemEls = $scope.find('.storage-item');
     storageItemEls.each((_index, itemEl) => {

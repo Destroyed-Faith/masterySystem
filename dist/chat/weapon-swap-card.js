@@ -5,7 +5,7 @@
  * the player clicks the set they want. Movement is spent only on that click.
  */
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
-import { listWeaponSwapChoices, swapWeaponSet, } from '../utils/weapon-sets.js';
+import { listWeaponSwapChoices, parseWeaponSwapTarget, swapWeaponSet, } from '../utils/weapon-sets.js';
 function loc(key, fallback) {
     const raw = globalThis.game?.i18n?.localize?.(`MASTERY.weaponSets.${key}`);
     return raw && raw !== `MASTERY.weaponSets.${key}` ? raw : fallback;
@@ -16,15 +16,6 @@ function escapeHtml(value) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
-}
-function parseTarget(raw) {
-    if (raw === 'unarmed')
-        return 'unarmed';
-    if (raw === '1')
-        return 1;
-    if (raw === '2')
-        return 2;
-    return null;
 }
 /** Chat card: one button per set that is not already worn. */
 export function buildWeaponSwapCardHtml(actor) {
@@ -116,7 +107,7 @@ export function registerWeaponSwapChatHandler() {
         const btn = $(ev.currentTarget);
         const card = btn.closest('.ms-weapon-swap');
         const messageId = String(btn.closest('.message, .chat-message').attr('data-message-id') || '');
-        const target = parseTarget(String(btn.attr('data-target') || ''));
+        const target = parseWeaponSwapTarget(String(btn.attr('data-target') || ''));
         if (!target)
             return;
         const flightKey = messageId || `${btn.attr('data-actor-id')}:${String(target)}`;

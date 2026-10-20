@@ -11148,6 +11148,18 @@ aside#tooltip,
   border-color: var(--df-accent, #c9a227);
 }
 
+.df-weapon-set-switch.df-weapon-set-add {
+  min-width: 1.55rem;
+  font-weight: 800;
+  color: #ffd166;
+  border-color: rgba(255, 209, 102, 0.55);
+}
+
+.df-weapon-set-switch.df-weapon-set-add:hover {
+  border-color: #ffd166;
+  color: #fff;
+}
+
 .df-weapon-set-switch.is-active {
   background: var(--df-accent, #c9a227);
   color: #1a1a1a;

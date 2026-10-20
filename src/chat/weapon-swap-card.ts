@@ -8,8 +8,8 @@
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
 import {
   listWeaponSwapChoices,
+  parseWeaponSwapTarget,
   swapWeaponSet,
-  type WeaponSwapTarget,
 } from '../utils/weapon-sets.js';
 
 function loc(key: string, fallback: string): string {
@@ -23,13 +23,6 @@ function escapeHtml(value: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
-}
-
-function parseTarget(raw: string): WeaponSwapTarget | null {
-  if (raw === 'unarmed') return 'unarmed';
-  if (raw === '1') return 1;
-  if (raw === '2') return 2;
-  return null;
 }
 
 /** Chat card: one button per set that is not already worn. */
@@ -120,7 +113,7 @@ export function registerWeaponSwapChatHandler(): void {
       const btn = $(ev.currentTarget);
       const card = btn.closest('.ms-weapon-swap');
       const messageId = String(btn.closest('.message, .chat-message').attr('data-message-id') || '');
-      const target = parseTarget(String(btn.attr('data-target') || ''));
+      const target = parseWeaponSwapTarget(String(btn.attr('data-target') || ''));
       if (!target) return;
       const flightKey = messageId || `${btn.attr('data-actor-id')}:${String(target)}`;
       if (swapsInFlight.has(flightKey)) return;

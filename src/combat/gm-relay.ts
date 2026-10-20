@@ -262,3 +262,149 @@ export async function requestDelayInitiative(): Promise<boolean> {
     initiative,
   });
 }
+
+function requesterOwnsActor(requester: any, actor: any): boolean {
+  if (!requester || !actor) return false;
+  if (requester.isGM) return true;
+  return typeof actor.testUserPermission === 'function'
+    ? !!actor.testUserPermission(requester, 'OWNER')
+    : false;
+}
+
+/** Move an embedded Item to another actor (player give / give-back). */
+export async function requestGmTransferEmbeddedItem(args: {
+  sourceActorId: string;
+  sourceItemId: string;
+  targetActorId: string;
+}): Promise<boolean> {
+  const g = globalThis as any;
+  if (g.game?.user?.isGM) {
+    return applyGmTransferEmbeddedItem(args, g.game.user);
+  }
+  return askGm({
+    type: 'gmTransferEmbeddedItem',
+    sourceActorId: String(args.sourceActorId || ''),
+    sourceItemId: String(args.sourceItemId || ''),
+    targetActorId: String(args.targetActorId || ''),
+  });
+}
+
+export async function applyGmTransferEmbeddedItem(
+  args: {
+    sourceActorId?: string;
+    sourceItemId?: string;
+    targetActorId?: string;
+  },
+  requester: any,
+): Promise<boolean> {
+  const g = globalThis as any;
+  const source = g.game?.actors?.get?.(String(args.sourceActorId || ''));
+  const target = g.game?.actors?.get?.(String(args.targetActorId || ''));
+  const item = source?.items?.get?.(String(args.sourceItemId || ''));
+  if (!source || !target || !item) return false;
+  if (!requesterOwnsActor(requester, source)) return false;
+  const { itemDataForConsumableTransfer } = await import('../utils/consumable-slots.js');
+  const { MINOR_MAGIC_TRANSFER_DELETE } = await import('../utils/minor-magic-items.js');
+  const data = itemDataForConsumableTransfer(item);
+  const [created] = await target.createEmbeddedDocuments('Item', [data]);
+  await source.deleteEmbeddedDocuments('Item', [item.id], {
+    [MINOR_MAGIC_TRANSFER_DELETE]: true,
+  } as any);
+  return !!created;
+}
+
+export async function requestGmDeleteEmbeddedItem(args: {
+  actorId: string;
+  itemId: string;
+}): Promise<boolean> {
+  const g = globalThis as any;
+  if (g.game?.user?.isGM) {
+    const actor = g.game?.actors?.get?.(String(args.actorId || ''));
+    if (!actor?.deleteEmbeddedDocuments || !args.itemId) return false;
+    await actor.deleteEmbeddedDocuments('Item', [String(args.itemId)]);
+    return true;
+  }
+  return askGm({
+    type: 'gmDeleteEmbeddedItem',
+    actorId: String(args.actorId || ''),
+    itemId: String(args.itemId || ''),
+  });
+}
+
+export async function requestGmUpdateEmbeddedItem(args: {
+  actorId: string;
+  itemId: string;
+  update: Record<string, unknown>;
+}): Promise<boolean> {
+  const g = globalThis as any;
+  if (g.game?.user?.isGM) {
+    const actor = g.game?.actors?.get?.(String(args.actorId || ''));
+    const item = actor?.items?.get?.(String(args.itemId || ''));
+    if (!item?.update || !args.update) return false;
+    await item.update(args.update);
+    return true;
+  }
+  return askGm({
+    type: 'gmUpdateEmbeddedItem',
+    actorId: String(args.actorId || ''),
+    itemId: String(args.itemId || ''),
+    update: args.update ?? {},
+  });
+}
+
+/** Creator recalls/shatters a charge on another actor by ledger key. */
+export async function requestGmDeleteMinorMagicByKey(args: {
+  creatorId: string;
+  ledgerKey: string;
+  holderActorId: string;
+}): Promise<boolean> {
+  const g = globalThis as any;
+  if (g.game?.user?.isGM) {
+    return applyGmDeleteMinorMagicByKey(args, g.game.user);
+  }
+  return askGm({
+    type: 'gmDeleteMinorMagicByKey',
+    creatorId: String(args.creatorId || ''),
+    ledgerKey: String(args.ledgerKey || ''),
+    holderActorId: String(args.holderActorId || ''),
+  });
+}
+
+export async function applyGmDeleteMinorMagicByKey(
+  args: {
+    creatorId?: string;
+    ledgerKey?: string;
+    holderActorId?: string;
+  },
+  requester: any,
+): Promise<boolean> {
+  const g = globalThis as any;
+  const creator = g.game?.actors?.get?.(String(args.creatorId || ''));
+  if (!requesterOwnsActor(requester, creator)) return false;
+  const key = String(args.ledgerKey || '').trim();
+  if (!key) return false;
+  const {
+    findMinorMagicItemByLedgerKey,
+    ledgerKeyForMinorMagic,
+    readMinorMagicFlag,
+    isMinorMagicCreatedBy,
+  } = await import('../utils/minor-magic-items.js');
+  const found = findMinorMagicItemByLedgerKey(key);
+  if (found) {
+    const flag = readMinorMagicFlag(found.item);
+    if (!flag || !isMinorMagicCreatedBy(flag, String(args.creatorId || ''))) return false;
+    await found.actor.deleteEmbeddedDocuments('Item', [found.item.id]);
+    return true;
+  }
+  const holder = g.game?.actors?.get?.(String(args.holderActorId || ''));
+  if (!holder?.items) return true; // nothing to delete; creator will free the ledger slot
+  for (const item of holder.items) {
+    const flag = readMinorMagicFlag(item);
+    if (flag && ledgerKeyForMinorMagic(flag, item.id) === key) {
+      if (!isMinorMagicCreatedBy(flag, String(args.creatorId || ''))) return false;
+      await holder.deleteEmbeddedDocuments('Item', [item.id]);
+      return true;
+    }
+  }
+  return true;
+}

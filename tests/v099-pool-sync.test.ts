@@ -143,9 +143,9 @@ describe('Parry Recovery and Passive Parry', () => {
 
 describe('scales that were not compressed', () => {
   it('keeps Damage Negation, Health, Stress, and Passive Skill Value', () => {
-    expect(passiveDamageNegationReserveForLevel(1)).toBe(4);
-    expect(passiveDamageNegationReserveForLevel(16)).toBe(64);
-    expect(STONE_POWERS['vitality.damageNegation'].tiers.map((t) => t.value)).toEqual([4, 8, 12, 16]);
+    expect(passiveDamageNegationReserveForLevel(1)).toBe(2);
+    expect(passiveDamageNegationReserveForLevel(16)).toBe(32);
+    expect(STONE_POWERS['vitality.damageNegation'].tiers.map((t) => t.value)).toEqual([2, 4, 8, 12]);
     expect(calculateHealthBarMax(7)).toBe(28);
     expect(calculateStressBarMax(4, 3)).toBe(14);
     expect(passiveSkillValue(6)).toBe(12);

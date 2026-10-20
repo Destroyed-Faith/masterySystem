@@ -98,7 +98,7 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
         roll: { kind: 'none' },
         levels: buildLevels((lvl) =>
             reactionRow({
-                effectText: `Gain **${TEMP_HP[lvl - 1]} Temporary HP** against the triggering damage instance. Remaining Temporary HP disappears at the end of your next turn.`,
+                effectText: `Gain **${TEMP_HP[lvl - 1]} Temporary HP** against the triggering damage instance. Any unused Temporary HP disappears immediately after that instance resolves.`,
                 mechanics: { tempHP: String(TEMP_HP[lvl - 1]) },
             }),
         ),
@@ -136,8 +136,8 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
             const ev = COMBO_E.evade[lvl - 1]!;
             const temp = COMBO_E.temp[lvl - 1]!;
             const effectText = ev > 0
-                ? `Gain **+${ev} Evade** against the triggering attack. If it still deals damage, gain **${temp} Temporary HP** against that damage instance. Any remaining Temporary HP from this Reaction disappears at the end of your next turn.`
-                : `If the triggering attack deals damage, gain **${temp} Temporary HP** against that damage instance. Any remaining Temporary HP from this Reaction disappears at the end of your next turn.`;
+                ? `Gain **+${ev} Evade** against the triggering attack. If it still deals damage, gain **${temp} Temporary HP** against that damage instance. Any unused Temporary HP disappears immediately after that instance resolves.`
+                : `If the triggering attack deals damage, gain **${temp} Temporary HP** against that damage instance. Any unused Temporary HP disappears immediately after that instance resolves.`;
             return reactionRow({
                 effectText,
                 mechanics: {
@@ -207,7 +207,7 @@ export const REACTION_TEMPLATES: PowerTemplate[] = [
         levels: buildLevels((lvl) =>
             reactionRow({
                 range: ALLY_4M,
-                effectText: `The ally gains **${ALLY_TEMP[lvl - 1]} Temporary HP** against the triggering damage instance.`,
+                effectText: `The ally gains **${ALLY_TEMP[lvl - 1]} Temporary HP** against the triggering damage instance. Any unused Temporary HP disappears immediately after that instance resolves.`,
                 mechanics: { tempHP: String(ALLY_TEMP[lvl - 1]) },
             }),
         ),

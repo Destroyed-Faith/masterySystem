@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   applyCreateToLedger,
+  applyHolderToLedger,
   applyReleaseToLedger,
   canManageMinorMagic,
   countHeldMinorMagicItems,
@@ -322,13 +323,23 @@ describe('limit and ledger', () => {
     expect(ledgerKeyForMinorMagic(moved, 'new-item')).toBe('old-item');
   });
 
-  it('create and dismiss require a Safe Haven Rest window', () => {
+  it('tracks who currently carries each charge on the creator ledger', () => {
+    let ledger = applyCreateToLedger(emptyMinorMagicLedger(), 'mm-1', 'Potion', 'act-1');
+    expect(ledger.holders?.['mm-1']).toBe('act-1');
+    ledger = applyHolderToLedger(ledger, 'mm-1', 'act-2');
+    expect(ledger.holders?.['mm-1']).toBe('act-2');
+    const released = applyReleaseToLedger(ledger, 'mm-1');
+    expect(released?.holders?.['mm-1']).toBeUndefined();
+  });
+
+  it('create requires a Safe Haven Rest window; shatter does not', () => {
     const actor = {
       ...actorStub(2),
       getFlag: () => undefined,
     };
     expect(canManageMinorMagic(actor)).toBe(false);
     expect(validateCreateMinorMagic(actor, powerItem(), 'potion')).toMatch(/Safe Haven Rest/);
+    expect(validateCreateMinorMagic(actor, powerItem(), 'potion')).not.toMatch(/dismiss/i);
 
     const resting = {
       ...actor,
@@ -457,6 +468,7 @@ describe('give and give back', () => {
     const holder = {
       ...actorWithItems([potion], 2),
       id: 'act-2',
+      name: 'Ally',
       getFlag: () => undefined,
     };
     const holderView = minorMagicSheetView(holder);
@@ -464,16 +476,45 @@ describe('give and give back', () => {
     expect(holderView.items[0].canGiveBack).toBe(true);
     expect(holderView.items[0].canDismiss).toBe(false);
 
+    (globalThis as any).game = {
+      actors: { get: (id: string) => (id === 'act-2' ? { id: 'act-2', name: 'Ally' } : null) },
+    };
     const creator = {
       ...actorStub(2),
       items: { [Symbol.iterator]: () => [][Symbol.iterator]() },
       getFlag: (_scope: string, key: string) =>
-        key === 'minorMagicLedger' ? { itemIds: ['mm-1'], labels: { 'mm-1': 'Potion of Heal' } } : undefined,
+        key === 'minorMagicLedger'
+          ? {
+              itemIds: ['mm-1'],
+              labels: { 'mm-1': 'Potion of Heal' },
+              holders: { 'mm-1': 'act-2' },
+            }
+          : undefined,
     };
     const creatorView = minorMagicSheetView(creator);
     expect(creatorView.givenAway).toBe(1);
     expect(creatorView.items[0].givenAway).toBe(true);
     expect(creatorView.items[0].canGive).toBe(false);
+    expect(creatorView.items[0].canDismiss).toBe(true);
+    expect(creatorView.items[0].holderName).toBe('Ally');
+    expect(creatorView.items[0].locationLabel).toMatch(/Shatter anytime/i);
+    delete (globalThis as any).game;
+  });
+
+  it('lets the creator shatter their own carried charge without a Safe Haven Rest', () => {
+    const potion = {
+      ...minorItem('act-1'),
+      flags: { 'mastery-system': { minorMagic: flag } },
+    };
+    const creator = {
+      ...actorWithItems([potion], 2),
+      id: 'act-1',
+      name: 'Hero',
+      getFlag: () => undefined,
+    };
+    const view = minorMagicSheetView(creator);
+    expect(view.items[0].canDismiss).toBe(true);
+    expect(view.items[0].locationLabel).toMatch(/Shatter anytime/i);
   });
 
   it('moves the item to another actor and keeps the creator ledger untouched', async () => {
@@ -491,12 +532,23 @@ describe('give and give back', () => {
         return [item];
       },
     };
-    const source = { id: 'act-1', name: 'Hero', deleteEmbeddedDocuments: async (_t: string, ids: string[]) => deleted.push(...ids) };
+    const source = {
+      id: 'act-1',
+      name: 'Hero',
+      getFlag: () => ({ itemIds: ['mm-1'], labels: { 'mm-1': 'Potion of Heal' }, holders: { 'mm-1': 'act-1' } }),
+      setFlag: async () => {},
+      deleteEmbeddedDocuments: async (_t: string, ids: string[]) => deleted.push(...ids),
+    };
+    (globalThis as any).game = {
+      user: { isGM: true },
+      actors: { get: (id: string) => (id === 'act-1' ? source : id === 'act-2' ? target : null) },
+    };
     const item = { ...minorItem('act-1'), parent: source };
     const result = await giveMinorMagicItemToActor(source, item, target);
     expect(result.ok).toBe(true);
     expect(created).toHaveLength(1);
     expect(deleted).toEqual(['item-1']);
+    delete (globalThis as any).game;
   });
 
   it('returns a received item to the creator', async () => {
@@ -506,6 +558,8 @@ describe('give and give back', () => {
       name: 'Hero',
       type: 'character',
       hasPlayerOwner: true,
+      getFlag: () => ({ itemIds: ['mm-1'], labels: { 'mm-1': 'Potion of Heal' }, holders: { 'mm-1': 'act-2' } }),
+      setFlag: async () => {},
       items: { [Symbol.iterator]: () => [][Symbol.iterator]() },
       createEmbeddedDocuments: async (_type: string, docs: any[]) => {
         const item = { ...docs[0], id: 'item-3', update: async () => {}, parent: { id: 'act-1' } };
@@ -514,7 +568,10 @@ describe('give and give back', () => {
       },
     };
     const holder = { id: 'act-2', name: 'Ally', deleteEmbeddedDocuments: async () => {} };
-    (globalThis as any).game = { actors: { get: (id: string) => (id === 'act-1' ? creator : null) } };
+    (globalThis as any).game = {
+      user: { isGM: true },
+      actors: { get: (id: string) => (id === 'act-1' ? creator : null) },
+    };
     const result = await returnMinorMagicItemToCreator(holder, { ...minorItem('act-2'), parent: holder });
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.creator.id).toBe('act-1');

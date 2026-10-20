@@ -2,6 +2,11 @@
   <div class="storage-header">
     <h3><i class="fas fa-box"></i> General Items Storage</h3>
     <p>Drag items from storage into your equipment</p>
+    <div class="storage-toolbar">
+      <button type="button" class="storage-toolbar-btn js-create-custom-catalog-item" title="{{localize 'MASTERY.customCatalog.buttonHint'}}">
+        <i class="fas fa-plus"></i> {{localize "MASTERY.customCatalog.button"}}
+      </button>
+    </div>
   </div>
 
   <div class="storage-content">
@@ -19,10 +24,18 @@
                 {{#if this.items.length}}
                   <div class="storage-items-grid">
                     {{#each this.items}}
-                      <div class="storage-item df-draggable-item" data-item-id="{{this.id}}" draggable="true" title="{{this.name}}">
+                      <div class="storage-item df-draggable-item{{#if this.isCustom}} is-custom{{/if}}" data-item-id="{{this.id}}" data-custom="{{#if this.isCustom}}1{{else}}0{{/if}}" draggable="true" title="{{this.name}}">
                         <img class="item-icon" src="{{this.img}}" alt="{{this.name}}" />
                         <div class="item-name">{{this.name}}</div>
                         <div class="item-type">{{this.type}}</div>
+                        {{#if this.isCustom}}
+                        <span class="storage-item-custom-badge">{{localize "MASTERY.customCatalog.badge"}}</span>
+                        {{/if}}
+                        {{#if ../../isGM}}
+                        <button type="button" class="storage-item-delete js-delete-catalog-item" data-item-id="{{this.id}}" title="{{localize 'MASTERY.customCatalog.deleteHint'}}" aria-label="{{localize 'MASTERY.customCatalog.delete'}}">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                        {{/if}}
                       </div>
                     {{/each}}
                   </div>

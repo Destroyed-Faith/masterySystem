@@ -1,19 +1,14 @@
 /**
- * Prepared weapon sets for the two hand slots, plus the shared Weapon Swap.
+ * Prepared weapon sets for the hand slots, plus the shared Weapon Swap.
+ *
+ * Default: two slots (I / II). GM may add more (III…). Switching is always free
+ * (sheet + combat) so forgotten loadouts can be fixed mid-fight.
  *
  * Only the active set is mechanically equipped (`system.equipped` + slot flag).
  * Sets store item-id references — never duplicated items.
  */
 
-import {
-  consumeMovementAction,
-  getActionEconomyActor,
-  getAvailableMovementActions,
-  isNormalMovementReplaced,
-  refundMovementAction,
-} from '../combat/action-economy.js';
 import { canCurrentUserUpdateDocument } from '../combat/combat-permissions.js';
-import { actorParticipatesInActiveCombat } from './consumable-slots.js';
 import { formatArtifactWeaponRangeDisplay } from './artifact-rules.js';
 import { isEchoBoundArtifact } from './echo-artifact-equip.js';
 import {
@@ -25,8 +20,13 @@ import {
 export const WEAPON_SWAP_ID = 'weapon-swap';
 export const WEAPON_SETS_FLAG = 'weaponSets';
 export const WEAPON_SETS_SCHEMA = 1;
+/** Always at least two prepared Weaponslots. */
+export const DEFAULT_WEAPON_SET_COUNT = 2;
+/** Soft cap so the paperdoll row stays usable. */
+export const MAX_WEAPON_SET_COUNT = 8;
 
-export type WeaponSetIndex = 1 | 2;
+/** 1-based slot index (I = 1, II = 2, …). */
+export type WeaponSetIndex = number;
 
 export interface WeaponSetHands {
   mainhand: string | null;
@@ -36,9 +36,11 @@ export interface WeaponSetHands {
 export interface WeaponSetsState {
   schemaVersion: number;
   active: WeaponSetIndex;
-  /** Weapons put away. Both sets stay stored; Basic Attack is Unarmed. */
+  /** Weapons put away. All sets stay stored; Basic Attack is Unarmed. */
   stowed?: boolean;
-  sets: Record<WeaponSetIndex, WeaponSetHands>;
+  /** Number of prepared slots (≥ 2). Extra slots are GM-added. */
+  count?: number;
+  sets: Record<number, WeaponSetHands>;
 }
 
 export type WeaponSwapTarget = WeaponSetIndex | 'unarmed';
@@ -46,7 +48,7 @@ export type WeaponSwapTarget = WeaponSetIndex | 'unarmed';
 export type SwapWeaponSetResult =
   | { ok: true; swapped: false; active: WeaponSetIndex }
   | { ok: true; swapped: true; active: WeaponSetIndex; spentMovement: boolean }
-  | { ok: false; reason: 'busy' | 'permission' | 'no-movement' | 'spend-failed' | 'apply-failed' };
+  | { ok: false; reason: 'busy' | 'permission' | 'apply-failed' };
 
 const swapLocks = new Set<string>();
 
@@ -77,8 +79,36 @@ export function emptyWeaponSetsState(): WeaponSetsState {
     schemaVersion: WEAPON_SETS_SCHEMA,
     active: 1,
     stowed: false,
+    count: DEFAULT_WEAPON_SET_COUNT,
     sets: { 1: emptyHands(), 2: emptyHands() },
   };
+}
+
+const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'] as const;
+
+export function weaponSetRoman(index: number): string {
+  const n = Math.floor(Number(index) || 0);
+  if (n >= 1 && n <= ROMAN.length) return ROMAN[n - 1];
+  return String(n);
+}
+
+export function weaponSetCount(state: WeaponSetsState | null | undefined): number {
+  if (!state) return DEFAULT_WEAPON_SET_COUNT;
+  const fromField = Math.floor(Number(state.count) || 0);
+  let fromKeys = 0;
+  for (const key of Object.keys(state.sets || {})) {
+    const n = Math.floor(Number(key) || 0);
+    if (n > fromKeys) fromKeys = n;
+  }
+  return Math.min(
+    MAX_WEAPON_SET_COUNT,
+    Math.max(DEFAULT_WEAPON_SET_COUNT, fromField, fromKeys),
+  );
+}
+
+export function listWeaponSetIndexes(state: WeaponSetsState): WeaponSetIndex[] {
+  const count = weaponSetCount(state);
+  return Array.from({ length: count }, (_, i) => i + 1);
 }
 
 export function isTwoHandedSet(set: WeaponSetHands): boolean {
@@ -87,11 +117,20 @@ export function isTwoHandedSet(set: WeaponSetHands): boolean {
 
 export function weaponSetAssignedIds(state: WeaponSetsState): Set<string> {
   const ids = new Set<string>();
-  for (const hands of [state.sets[1], state.sets[2]]) {
+  for (const index of listWeaponSetIndexes(state)) {
+    const hands = state.sets[index];
     if (hands?.mainhand) ids.add(hands.mainhand);
     if (hands?.offhand) ids.add(hands.offhand);
   }
   return ids;
+}
+
+function handsEqual(a: WeaponSetHands | null | undefined, b: WeaponSetHands | null | undefined): boolean {
+  return (a?.mainhand || null) === (b?.mainhand || null) && (a?.offhand || null) === (b?.offhand || null);
+}
+
+function isGameMaster(): boolean {
+  return !!(globalThis as any).game?.user?.isGM;
 }
 
 export function isItemAssignedToWeaponSet(actor: any, itemId: string | null | undefined): boolean {
@@ -180,9 +219,33 @@ export function isInitializedWeaponSets(raw: unknown): raw is WeaponSetsState {
   if (!raw || typeof raw !== 'object') return false;
   const s = raw as WeaponSetsState;
   if (s.schemaVersion !== WEAPON_SETS_SCHEMA) return false;
-  if (s.active !== 1 && s.active !== 2) return false;
-  if (!s.sets?.[1] || !s.sets?.[2]) return false;
+  const active = Math.floor(Number(s.active) || 0);
+  if (active < 1) return false;
+  if (!s.sets || typeof s.sets !== 'object') return false;
+  if (!s.sets[1]) return false;
   return true;
+}
+
+/** Normalize count/active and ensure every slot 1..count exists. */
+export function normalizeWeaponSetsState(state: WeaponSetsState): WeaponSetsState {
+  const count = weaponSetCount(state);
+  const sets: Record<number, WeaponSetHands> = {};
+  for (let i = 1; i <= count; i++) {
+    const hands = state.sets?.[i] || emptyHands();
+    sets[i] = {
+      mainhand: hands.mainhand ? String(hands.mainhand) : null,
+      offhand: hands.offhand ? String(hands.offhand) : null,
+    };
+  }
+  let active = Math.floor(Number(state.active) || 1);
+  if (active < 1 || active > count) active = 1;
+  return {
+    schemaVersion: WEAPON_SETS_SCHEMA,
+    active,
+    stowed: state.stowed === true,
+    count,
+    sets,
+  };
 }
 
 export function pruneWeaponSetRefs(state: WeaponSetsState, validIds: Set<string>): WeaponSetsState {
@@ -190,28 +253,37 @@ export function pruneWeaponSetRefs(state: WeaponSetsState, validIds: Set<string>
     mainhand: hands.mainhand && validIds.has(hands.mainhand) ? hands.mainhand : null,
     offhand: hands.offhand && validIds.has(hands.offhand) ? hands.offhand : null,
   });
-  return {
-    schemaVersion: WEAPON_SETS_SCHEMA,
-    active: state.active === 2 ? 2 : 1,
-    stowed: state.stowed === true,
-    sets: {
-      1: clean(state.sets[1] || emptyHands()),
-      2: clean(state.sets[2] || emptyHands()),
-    },
-  };
+  const base = normalizeWeaponSetsState(state);
+  const sets: Record<number, WeaponSetHands> = {};
+  for (const index of listWeaponSetIndexes(base)) {
+    sets[index] = clean(base.sets[index] || emptyHands());
+  }
+  return { ...base, sets };
 }
 
 export function buildInitialWeaponSets(currentHands: WeaponSetHands): WeaponSetsState {
-  return {
+  return normalizeWeaponSetsState({
     schemaVersion: WEAPON_SETS_SCHEMA,
     active: 1,
     stowed: false,
+    count: DEFAULT_WEAPON_SET_COUNT,
     sets: { 1: { ...currentHands }, 2: emptyHands() },
-  };
+  });
 }
 
-export function resolveSwapTarget(active: WeaponSetIndex, requested?: WeaponSetIndex): WeaponSetIndex | null {
-  const target = requested ?? (active === 1 ? 2 : 1);
+export function resolveSwapTarget(
+  active: WeaponSetIndex,
+  requested?: WeaponSetIndex,
+  count = DEFAULT_WEAPON_SET_COUNT,
+): WeaponSetIndex | null {
+  const n = Math.max(DEFAULT_WEAPON_SET_COUNT, Math.floor(Number(count) || DEFAULT_WEAPON_SET_COUNT));
+  const target =
+    requested != null && Number.isFinite(Number(requested))
+      ? Math.floor(Number(requested))
+      : active >= n
+        ? 1
+        : active + 1;
+  if (target < 1 || target > n) return null;
   if (target === active) return null;
   return target;
 }
@@ -236,7 +308,7 @@ export function peekWeaponSets(actor: any): WeaponSetsState {
 }
 
 export async function persistWeaponSets(actor: any, state: WeaponSetsState): Promise<void> {
-  const next = pruneWeaponSetRefs(state, validItemIds(actor));
+  const next = pruneWeaponSetRefs(normalizeWeaponSetsState(state), validItemIds(actor));
   if (typeof actor.update === 'function') {
     await actor.update({ [`flags.mastery-system.${WEAPON_SETS_FLAG}`]: next });
     return;
@@ -264,17 +336,24 @@ export async function ensureWeaponSets(actor: any): Promise<WeaponSetsState> {
     const pruned = pruneWeaponSetRefs(raw, validItemIds(actor));
     const normalized: WeaponSetsState = {
       ...pruned,
-      sets: {
-        1: normalizeAmmoWeaponSetHands(actor, pruned.sets[1]),
-        2: normalizeAmmoWeaponSetHands(actor, pruned.sets[2]),
-      },
+      sets: Object.fromEntries(
+        listWeaponSetIndexes(pruned).map((index) => [
+          index,
+          normalizeAmmoWeaponSetHands(actor, pruned.sets[index] || emptyHands()),
+        ]),
+      ),
     };
-    const changed =
-      normalized.sets[1].mainhand !== raw.sets[1].mainhand ||
-      normalized.sets[1].offhand !== raw.sets[1].offhand ||
-      normalized.sets[2].mainhand !== raw.sets[2].mainhand ||
-      normalized.sets[2].offhand !== raw.sets[2].offhand;
-    if (changed) await persistWeaponSets(actor, normalized);
+    const countChanged = weaponSetCount(normalized) !== weaponSetCount(raw) || raw.count == null;
+    let handsChanged = false;
+    for (const index of listWeaponSetIndexes(normalized)) {
+      if (!handsEqual(normalized.sets[index], raw.sets?.[index])) {
+        handsChanged = true;
+        break;
+      }
+    }
+    if (countChanged || handsChanged || normalized.active !== raw.active) {
+      await persistWeaponSets(actor, normalized);
+    }
     return normalized;
   }
   const initial = buildInitialWeaponSets(readHandsFromEquippedItems(actor));
@@ -286,13 +365,44 @@ export async function pruneDeletedWeaponSetRefs(actor: any): Promise<WeaponSetsS
   const raw = readStoredState(actor);
   if (!isInitializedWeaponSets(raw)) return null;
   const pruned = pruneWeaponSetRefs(raw, validItemIds(actor));
-  const changed =
-    pruned.sets[1].mainhand !== raw.sets[1].mainhand ||
-    pruned.sets[1].offhand !== raw.sets[1].offhand ||
-    pruned.sets[2].mainhand !== raw.sets[2].mainhand ||
-    pruned.sets[2].offhand !== raw.sets[2].offhand;
+  let changed = weaponSetCount(pruned) !== weaponSetCount(raw) || pruned.active !== raw.active;
+  if (!changed) {
+    for (const index of listWeaponSetIndexes(pruned)) {
+      if (!handsEqual(pruned.sets[index], raw.sets?.[index])) {
+        changed = true;
+        break;
+      }
+    }
+  }
   if (changed) await persistWeaponSets(actor, pruned);
   return pruned;
+}
+
+/** GM: append one empty Weaponslot (III, IV, …). */
+export async function addWeaponSetSlot(actor: any): Promise<WeaponSetsState | null> {
+  if (!actor) return null;
+  if (typeof (globalThis as any).game !== 'undefined' && !isGameMaster()) {
+    (globalThis as any).ui?.notifications?.warn?.(
+      loc('addDenied', 'Only the GM can add Weaponslots.'),
+    );
+    return null;
+  }
+  const state = await ensureWeaponSets(actor);
+  const count = weaponSetCount(state);
+  if (count >= MAX_WEAPON_SET_COUNT) {
+    (globalThis as any).ui?.notifications?.warn?.(
+      loc('addMax', `At most ${MAX_WEAPON_SET_COUNT} Weaponslots.`),
+    );
+    return state;
+  }
+  const next = normalizeWeaponSetsState({
+    ...state,
+    count: count + 1,
+    sets: { ...state.sets, [count + 1]: emptyHands() },
+  });
+  await persistWeaponSets(actor, next);
+  await refreshWeaponSetSurfaces(actor);
+  return next;
 }
 
 export async function syncActiveWeaponSetFromHands(actor: any): Promise<WeaponSetsState> {
@@ -415,11 +525,6 @@ async function refreshWeaponSetSurfaces(actor: any): Promise<void> {
   }
 }
 
-function activeCombat(): any | null {
-  const combat = (globalThis as any).game?.combat;
-  return combat?.active ? combat : null;
-}
-
 function itemById(actor: any, id: string | null | undefined): any | null {
   if (!id) return null;
   return collectItems(actor).find((it) => String(it.id) === String(id)) ?? null;
@@ -458,19 +563,22 @@ export interface WeaponSwapPreview {
 /** What Weapon Swap will do with the sets as they are stored right now. */
 export function describeWeaponSwap(actor: any): WeaponSwapPreview {
   const state = peekWeaponSets(actor);
-  const next: WeaponSetIndex = state.active === 1 ? 2 : 1;
+  const count = weaponSetCount(state);
+  const next: WeaponSetIndex = state.active >= count ? 1 : state.active + 1;
   const from = describeWeaponSetHands(actor, state.sets[state.active]);
   const to = describeWeaponSetHands(actor, state.sets[next]);
+  const fromN = weaponSetRoman(state.active);
+  const toN = weaponSetRoman(next);
   const formatted = (globalThis as any).game?.i18n?.format?.('MASTERY.weaponSets.swapDetail', {
-    fromN: state.active,
+    fromN,
     from,
-    toN: next,
+    toN,
     to,
   });
   const line =
     formatted && formatted !== 'MASTERY.weaponSets.swapDetail'
       ? formatted
-      : `Set ${state.active}: ${from} → Set ${next}: ${to}. Costs 1 Movement in combat.`;
+      : `Set ${fromN}: ${from} → Set ${toN}: ${to}. Free anytime.`;
   return { active: state.active, next, from, to, line };
 }
 
@@ -488,7 +596,7 @@ export interface WeaponSwapChoice {
 function setChoice(actor: any, state: WeaponSetsState, index: WeaponSetIndex): WeaponSwapChoice {
   const summary = describeWeaponSetHands(actor, state.sets[index]);
   const active = state.stowed !== true && state.active === index;
-  const roman = index === 1 ? 'I' : 'II';
+  const roman = weaponSetRoman(index);
   const name = active
     ? fmt('choiceWearing', { n: roman, hands: summary }, `Wearing · Set ${roman}: ${summary}`)
     : fmt('choiceSwitch', { n: roman, hands: summary }, `Set ${roman}: ${summary}`);
@@ -497,7 +605,7 @@ function setChoice(actor: any, state: WeaponSetsState, index: WeaponSetIndex): W
     : fmt(
         'choiceSwitchDetail',
         { n: roman, hands: summary },
-        `Switch to Set ${roman}: ${summary}. Costs 1 Movement in combat.`,
+        `Switch to Set ${roman}: ${summary}. Free anytime.`,
       );
   return { target: index, shortLabel: roman, summary, name, description, active };
 }
@@ -514,44 +622,46 @@ function unarmedChoice(state: WeaponSetsState): WeaponSwapChoice {
       ? loc('stowWearingDetail', 'Wearing this. Unarmed.')
       : loc(
           'stowDetail',
-          'Stow weapons and fight unarmed. Both sets stay saved. Costs 1 Movement in combat.',
+          'Stow weapons and fight unarmed. All Weaponslots stay saved. Free anytime.',
         ),
     active,
   };
 }
 
-function setHasGear(actor: any, hands: WeaponSetHands | null | undefined): boolean {
-  const set = hands || emptyHands();
-  return !!(itemById(actor, set.mainhand) || itemById(actor, set.offhand));
-}
-
 /**
- * Filled sets, then Fists. An empty set is not a button — if Set II is empty
- * the card offers the worn set and Fists, not an empty Set II as well.
- * Fists stays on the card whenever another set still has a weapon.
+ * Radial / chat: every prepared Weaponslot (even empty), then Fists.
+ * Empty slots stay visible so you can switch onto them and equip mid-fight.
  */
 export function listWeaponSwapChoices(actor: any): WeaponSwapChoice[] {
   const state = peekWeaponSets(actor);
-  const filled = ([1, 2] as WeaponSetIndex[]).filter((index) => setHasGear(actor, state.sets[index]));
+  const indexes = listWeaponSetIndexes(state);
   const fists = unarmedChoice(state);
   if (state.stowed) {
-    return [fists, ...filled.map((index) => setChoice(actor, state, index))];
+    return [fists, ...indexes.map((index) => setChoice(actor, state, index))];
   }
-  const worn = filled
+  const worn = indexes
     .filter((index) => index === state.active)
     .map((index) => setChoice(actor, state, index));
-  const others = filled
+  const others = indexes
     .filter((index) => index !== state.active)
     .map((index) => setChoice(actor, state, index));
   return [...worn, ...others, fists];
 }
 
 /**
- * Sheet / paperdoll: only real Weapon Sets. Unarmed is not a slot you can
- * fill — it stays on the radial menu (and as empty-hand labeling).
+ * Sheet / paperdoll: every prepared Weaponslot (I, II, …), including empty ones.
+ * Unarmed is not a paperdoll slot — it stays on the radial menu.
  */
 export function listEquipmentWeaponSetChoices(actor: any): WeaponSwapChoice[] {
-  return listWeaponSwapChoices(actor).filter((choice) => choice.target !== 'unarmed');
+  const state = peekWeaponSets(actor);
+  return listWeaponSetIndexes(state).map((index) => setChoice(actor, state, index));
+}
+
+export function parseWeaponSwapTarget(raw: string | number | null | undefined): WeaponSwapTarget | null {
+  if (raw === 'unarmed') return 'unarmed';
+  const n = Math.floor(Number(raw) || 0);
+  if (n >= 1 && n <= MAX_WEAPON_SET_COUNT) return n;
+  return null;
 }
 
 function fmt(key: string, data: Record<string, string | number>, fallback: string): string {
@@ -638,8 +748,9 @@ export function describeActiveWeaponProfile(actor: any): ActiveWeaponProfile {
 
 /**
  * Shared Weapon Swap. Sheet buttons and the radial pass a target:
- * set 1, set 2, or `unarmed` (stow both sets and fight with fists).
- * `target` omitted = toggle to the other set.
+ * set index (1..N) or `unarmed` (stow all sets and fight with fists).
+ * `target` omitted = cycle to the next prepared slot.
+ * Always free (in or out of combat) so loadouts can be fixed anytime.
  */
 export async function swapWeaponSet(
   actor: any,
@@ -657,41 +768,19 @@ export async function swapWeaponSet(
     }
 
     const state = await ensureWeaponSets(actor);
-    const next: WeaponSwapTarget =
-      target === 'unarmed' || target === 1 || target === 2
-        ? target
-        : state.active === 1
-          ? 2
-          : 1;
+    const count = weaponSetCount(state);
+    let next: WeaponSwapTarget;
+    if (target === 'unarmed') {
+      next = 'unarmed';
+    } else if (typeof target === 'number' && target >= 1 && target <= count) {
+      next = target;
+    } else {
+      next = resolveSwapTarget(state.active, undefined, count) ?? (state.active >= count ? 1 : state.active + 1);
+    }
     const alreadyThere =
       next === 'unarmed' ? state.stowed === true : state.stowed !== true && state.active === next;
     if (alreadyThere) {
       return { ok: true, swapped: false, active: state.active };
-    }
-
-    const combat = activeCombat();
-    const inCombat = !!combat && actorParticipatesInActiveCombat(actor);
-    let spentMovement = false;
-    const economyActor = (getActionEconomyActor(actor) ?? actor) as any;
-
-    if (inCombat) {
-      if (isNormalMovementReplaced(economyActor, combat)) {
-        (globalThis as any).ui?.notifications?.warn(
-          loc('movementReplaced', 'A Movement Power already replaced your normal Movement this round.'),
-        );
-        return { ok: false, reason: 'no-movement' };
-      }
-      if (getAvailableMovementActions(economyActor, combat) <= 0) {
-        (globalThis as any).ui?.notifications?.warn(
-          loc('noMovement', 'No Movement Action available to switch Weapon Sets.'),
-        );
-        return { ok: false, reason: 'no-movement' };
-      }
-      const spent = await consumeMovementAction(economyActor, combat);
-      if (!spent) {
-        return { ok: false, reason: 'spend-failed' };
-      }
-      spentMovement = true;
     }
 
     const nextActive: WeaponSetIndex = next === 'unarmed' ? state.active : next;
@@ -703,20 +792,13 @@ export async function swapWeaponSet(
     const destination =
       next === 'unarmed'
         ? loc('stowedNow', 'Weapons stowed — unarmed.')
-        : `Set ${next}: ${describeWeaponSetHands(actor, state.sets[next])}`;
+        : `Set ${weaponSetRoman(next)}: ${describeWeaponSetHands(actor, state.sets[next])}`;
 
     try {
       await persistWeaponSets(actor, nextState);
       await applyWeaponSetHands(actor, next === 'unarmed' ? emptyHands() : state.sets[next] || emptyHands());
     } catch (err) {
       console.warn('Mastery System | Weapon set apply failed', err);
-      if (spentMovement) {
-        try {
-          await refundMovementAction(economyActor, combat);
-        } catch {
-          /* ignore */
-        }
-      }
       return { ok: false, reason: 'apply-failed' };
     }
 
@@ -724,9 +806,7 @@ export async function swapWeaponSet(
     try {
       const ChatMessage = (globalThis as any).ChatMessage;
       if (!options?.quiet && typeof ChatMessage?.create === 'function') {
-        const note = spentMovement
-          ? loc('swappedCombat', 'Movement spent.')
-          : loc('swappedFree', 'Free — not in combat.');
+        const note = loc('swappedFree', 'Free anytime.');
         await ChatMessage.create({
           speaker:
             typeof ChatMessage.getSpeaker === 'function' ? ChatMessage.getSpeaker({ actor }) : undefined,
@@ -736,7 +816,7 @@ export async function swapWeaponSet(
     } catch (err) {
       console.warn('Mastery System | Weapon swap chat note failed', err);
     }
-    return { ok: true, swapped: true, active: nextActive, spentMovement };
+    return { ok: true, swapped: true, active: nextActive, spentMovement: false };
   } finally {
     if (key) swapLocks.delete(key);
   }

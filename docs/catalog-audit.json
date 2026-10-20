@@ -1,8 +1,8 @@
 {
-  "version": "0.9.752",
-  "generatedAt": "2026-10-20T08:43:06.141Z",
+  "version": "0.9.753",
+  "generatedAt": "2026-10-20T19:08:49.416Z",
   "summary": {
-    "correct": 188,
+    "correct": 196,
     "corrected": 3,
     "missing": 0,
     "obsolete": 0,
@@ -481,16 +481,16 @@
     {
       "category": "activeBuff",
       "id": "ab-cleanse-maintenance",
-      "name": "Active Buff: Cleanse Maintenance",
+      "name": "Active Buff: Self Cleanse",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "activeBuff",
       "id": "ab-critical",
       "name": "Active Buff: Critical",
       "status": "correct",
-      "notes": "Critical(X) = X Critical attacks per Round; Attack Dice explode on 7–8; Damage Dice never explode"
+      "notes": "Critical(X) = X Critical designations per combat while maintained; Attack Dice explode on 7–8; Damage Dice never explode"
     },
     {
       "category": "activeBuff",
@@ -532,14 +532,14 @@
       "id": "ab-healing",
       "name": "Active Buff: Healing",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
       "id": "ab-healing-aura",
       "name": "Active Buff: Healing Aura",
       "status": "correct",
-      "notes": "Matches Rules entry"
+      "notes": "Matches curated RULES_EXPECTED manifest"
     },
     {
       "category": "activeBuff",
@@ -551,9 +551,9 @@
     {
       "category": "activeBuff",
       "id": "ab-intensified-absorption",
-      "name": "Active Buff: Intensified Absorption",
+      "name": "Active Buff: Absorption Stone Increase",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "activeBuff",
@@ -579,7 +579,7 @@
     {
       "category": "activeBuff",
       "id": "ab-reinforced-damage-negation",
-      "name": "Active Buff: Reinforced Damage Negation",
+      "name": "Active Buff: Damage Negation Pool",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1033,6 +1033,13 @@
     },
     {
       "category": "passive",
+      "id": "passive-armor-reduction",
+      "name": "Passive: Armor Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
       "id": "passive-awareness-damage",
       "name": "awareness-damage",
       "status": "correct",
@@ -1049,6 +1056,13 @@
       "category": "passive",
       "id": "passive-bound-host",
       "name": "Passive: Summon Tokens",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-critical",
+      "name": "Passive: Critical",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1079,6 +1093,13 @@
       "name": "Artifact: Echo Armor Value",
       "status": "correct",
       "notes": "System support passive (buff empowerment / extension / echo armor)"
+    },
+    {
+      "category": "passive",
+      "id": "passive-enemy-evade-reduction",
+      "name": "Passive: Enemy Evade Reduction",
+      "status": "correct",
+      "notes": "Matches Rules entry"
     },
     {
       "category": "passive",
@@ -1138,6 +1159,13 @@
     },
     {
       "category": "passive",
+      "id": "passive-maximization",
+      "name": "Passive: Maximization",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
       "id": "passive-parry",
       "name": "Passive: Parry",
       "status": "correct",
@@ -1152,6 +1180,20 @@
     },
     {
       "category": "passive",
+      "id": "passive-self-cleanse",
+      "name": "Passive: Self Cleanse",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-special-amplification",
+      "name": "Passive: Special Amplification",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
       "id": "passive-special-aura",
       "name": "Passive: Special Aura",
       "status": "correct",
@@ -1159,8 +1201,22 @@
     },
     {
       "category": "passive",
+      "id": "passive-speed",
+      "name": "Passive: Speed",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
       "id": "passive-spell-resistance",
       "name": "Passive: Spell Resistance",
+      "status": "correct",
+      "notes": "Matches Rules entry"
+    },
+    {
+      "category": "passive",
+      "id": "passive-spell-resistance-piercing",
+      "name": "Passive: Spell Resistance Piercing",
       "status": "correct",
       "notes": "Matches Rules entry"
     },
@@ -1176,7 +1232,7 @@
       "id": "passive-temp-hp",
       "name": "Passive: Temporary HP",
       "status": "correct",
-      "notes": "Matches curated RULES_EXPECTED manifest"
+      "notes": "Matches Rules entry"
     },
     {
       "category": "passive",

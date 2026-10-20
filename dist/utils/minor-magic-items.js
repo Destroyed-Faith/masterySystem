@@ -2,8 +2,8 @@
  * Minor Magic Items — store one use of a purchased Active Power in a
  * temporary object (potion, grenade, rune, prepared weapon, trap, charm).
  *
- * Create / replace / dismiss only during a Safe Haven Rest. No Stones.
- * Combat resolution of the stored Power comes in a later pass.
+ * Create / replace only during a Safe Haven Rest. Give and Shatter anytime.
+ * No Stones.
  */
 import { collectInventoryBandRects, findFirstFit } from './inventory-grid.js';
 import { ZONE_WIDTH_COLS } from './encumbrance.js';
@@ -62,7 +62,7 @@ const FORM_ICONS = {
 /** Delete option: the item is moving to another actor, not being spent. */
 export const MINOR_MAGIC_TRANSFER_DELETE = 'masterySystemMinorMagicTransfer';
 export function emptyMinorMagicLedger() {
-    return { itemIds: [], labels: {} };
+    return { itemIds: [], labels: {}, holders: {} };
 }
 export function normalizeMinorMagicLedger(raw) {
     const src = raw && typeof raw === 'object' ? raw : {};
@@ -88,7 +88,16 @@ export function normalizeMinorMagicLedger(raw) {
                 labels[id] = name;
         }
     }
-    return { itemIds, labels };
+    const holders = {};
+    if (src.holders && typeof src.holders === 'object') {
+        for (const [key, value] of Object.entries(src.holders)) {
+            const id = String(key || '').trim();
+            const actorId = String(value || '').trim();
+            if (id && actorId)
+                holders[id] = actorId;
+        }
+    }
+    return { itemIds, labels, holders };
 }
 export function ledgerKeyForMinorMagic(flag, itemId) {
     return String(flag?.instanceId || itemId || '').trim();
@@ -116,22 +125,39 @@ export function shouldReleaseMinorMagicOnDelete(flag, options) {
 export function countHeldMinorMagicItems(ledger) {
     return ledger.itemIds.length;
 }
-export function applyCreateToLedger(ledger, itemId, label) {
+export function applyCreateToLedger(ledger, itemId, label, holderActorId) {
     const id = String(itemId || '').trim();
     const labels = { ...(ledger.labels || {}) };
+    const holders = { ...(ledger.holders || {}) };
     if (label && id)
         labels[id] = label;
+    if (holderActorId && id)
+        holders[id] = String(holderActorId);
     if (!id || ledger.itemIds.includes(id))
-        return { itemIds: [...ledger.itemIds], labels };
-    return { itemIds: [...ledger.itemIds, id], labels };
+        return { itemIds: [...ledger.itemIds], labels, holders };
+    return { itemIds: [...ledger.itemIds, id], labels, holders };
+}
+export function applyHolderToLedger(ledger, itemId, holderActorId) {
+    const id = String(itemId || '').trim();
+    const holder = String(holderActorId || '').trim();
+    if (!id || !holder || !ledger.itemIds.includes(id)) {
+        return { itemIds: [...ledger.itemIds], labels: { ...(ledger.labels || {}) }, holders: { ...(ledger.holders || {}) } };
+    }
+    return {
+        itemIds: [...ledger.itemIds],
+        labels: { ...(ledger.labels || {}) },
+        holders: { ...(ledger.holders || {}), [id]: holder },
+    };
 }
 export function applyReleaseToLedger(ledger, itemId) {
     const id = String(itemId || '').trim();
     if (!id || !ledger.itemIds.includes(id))
         return null;
     const labels = { ...(ledger.labels || {}) };
+    const holders = { ...(ledger.holders || {}) };
     delete labels[id];
-    return { itemIds: ledger.itemIds.filter((existing) => existing !== id), labels };
+    delete holders[id];
+    return { itemIds: ledger.itemIds.filter((existing) => existing !== id), labels, holders };
 }
 export function canManageMinorMagic(actor) {
     return actor?.getFlag?.('mastery-system', MINOR_MAGIC_REST_FLAG) === true;
@@ -538,9 +564,21 @@ export function getActorMinorMagicLedger(actor) {
     return normalizeMinorMagicLedger(actor.getFlag?.('mastery-system', MINOR_MAGIC_LEDGER_FLAG));
 }
 export async function setActorMinorMagicLedger(actor, ledger) {
-    await actor.setFlag?.('mastery-system', MINOR_MAGIC_LEDGER_FLAG, ledger);
+    const { canCurrentUserUpdateDocument } = await import('../combat/combat-permissions.js');
+    if (canCurrentUserUpdateDocument(actor)) {
+        if (typeof actor.setFlag === 'function') {
+            await actor.setFlag('mastery-system', MINOR_MAGIC_LEDGER_FLAG, ledger);
+            return;
+        }
+        await actor.update?.({ [`flags.mastery-system.${MINOR_MAGIC_LEDGER_FLAG}`]: ledger });
+        return;
+    }
+    const { updateActorViaGm } = await import('../combat/gm-relay.js');
+    await updateActorViaGm(actor, {
+        [`flags.mastery-system.${MINOR_MAGIC_LEDGER_FLAG}`]: ledger,
+    });
 }
-export const MINOR_MAGIC_REST_REQUIRED = 'Create, replace, or dismiss Minor Magic Items only during a Safe Haven Rest.';
+export const MINOR_MAGIC_REST_REQUIRED = 'Create or replace Minor Magic Items only during a Safe Haven Rest.';
 function canCreateMinorMagic(actor, power, form) {
     if (!canManageMinorMagic(actor))
         return MINOR_MAGIC_REST_REQUIRED;
@@ -618,7 +656,7 @@ export async function createMinorMagicItem(actor, opts) {
     ]);
     if (!created?.id)
         return { ok: false, error: 'Could not create the item.' };
-    const ledger = applyCreateToLedger(getActorMinorMagicLedger(actor), instanceId, name);
+    const ledger = applyCreateToLedger(getActorMinorMagicLedger(actor), instanceId, name, String(actor.id || ''));
     await setActorMinorMagicLedger(actor, ledger);
     return { ok: true, item: created };
 }
@@ -656,8 +694,43 @@ export async function resolveMinorMagicCreator(flag, fallback) {
     const fromWorld = globalThis.game?.actors?.get?.(flag.creatorId);
     return fromWorld || fallback || null;
 }
+async function noteMinorMagicHolder(flag, itemId, holderActorId) {
+    const creator = await resolveMinorMagicCreator(flag);
+    if (!creator)
+        return;
+    const key = ledgerKeyForMinorMagic(flag, itemId);
+    if (!key)
+        return;
+    const next = applyHolderToLedger(getActorMinorMagicLedger(creator), key, String(holderActorId || ''));
+    await setActorMinorMagicLedger(creator, next);
+}
+export function resolveActorName(actorId) {
+    const id = String(actorId || '').trim();
+    if (!id)
+        return '';
+    const actor = globalThis.game?.actors?.get?.(id);
+    return String(actor?.name || '').trim();
+}
+/** Find a live Minor Magic Item by stable instance id across world actors. */
+export function findMinorMagicItemByLedgerKey(ledgerKey) {
+    const key = String(ledgerKey || '').trim();
+    if (!key)
+        return null;
+    const actors = globalThis.game?.actors;
+    const list = actors && typeof actors[Symbol.iterator] === 'function' ? Array.from(actors) : [];
+    for (const actor of list) {
+        for (const item of listMinorMagicItemsOnActor(actor)) {
+            const flag = readMinorMagicFlag(item);
+            if (ledgerKeyForMinorMagic(flag, item.id) === key) {
+                return { actor, item };
+            }
+        }
+    }
+    return null;
+}
 export async function giveMinorMagicItemToActor(sourceActor, item, targetActor) {
-    if (!item || !readMinorMagicFlag(item))
+    const flag = readMinorMagicFlag(item);
+    if (!item || !flag)
         return { ok: false, error: 'Not a Minor Magic Item.' };
     if (!targetActor)
         return { ok: false, error: 'Choose who receives the item.' };
@@ -671,22 +744,38 @@ export async function giveMinorMagicItemToActor(sourceActor, item, targetActor) 
             error: `${String(targetActor.name || 'That character')} has no inventory space for a 1×1 item.`,
         };
     }
+    const instanceKey = ledgerKeyForMinorMagic(flag, item.id);
     const { transferConsumableToActor } = await import('./consumable-slots.js');
     const moved = await transferConsumableToActor(targetActor, item);
-    if (!moved)
-        return { ok: false, error: `Could not give ${item.name} to ${targetActor.name}.` };
+    if (!moved) {
+        return {
+            ok: false,
+            error: `Could not give ${item.name} to ${targetActor.name}. A GM must be connected so players can hand items to each other.`,
+        };
+    }
     try {
-        await moved.update?.({
-            'flags.mastery-system.equipment': {
-                container: 'inventory',
-                band: slot.band,
-                grid: { x: slot.x, y: slot.y },
-            },
-        });
+        const { canCurrentUserUpdateDocument } = await import('../combat/combat-permissions.js');
+        const equipment = {
+            container: 'inventory',
+            band: slot.band,
+            grid: { x: slot.x, y: slot.y },
+        };
+        if (canCurrentUserUpdateDocument(moved)) {
+            await moved.update?.({ 'flags.mastery-system.equipment': equipment });
+        }
+        else {
+            const { requestGmUpdateEmbeddedItem } = await import('../combat/gm-relay.js');
+            await requestGmUpdateEmbeddedItem({
+                actorId: String(targetActor.id || ''),
+                itemId: String(moved.id || ''),
+                update: { 'flags.mastery-system.equipment': equipment },
+            });
+        }
     }
     catch {
         /* item is on the other sheet even if the grid stamp fails */
     }
+    await noteMinorMagicHolder(flag, instanceKey || moved.id, String(targetActor.id || ''));
     return { ok: true, item: moved };
 }
 export async function returnMinorMagicItemToCreator(holder, item) {
@@ -845,9 +934,47 @@ export async function useMinorMagicItem(actor, item, mode = 'use', trapTrigger) 
     }
     return { ok: true };
 }
+async function deleteMinorMagicItemDocument(holder, item) {
+    if (!holder?.deleteEmbeddedDocuments || !item?.id)
+        return false;
+    const { canCurrentUserUpdateDocument } = await import('../combat/combat-permissions.js');
+    if (canCurrentUserUpdateDocument(holder)) {
+        await holder.deleteEmbeddedDocuments('Item', [item.id]);
+        return true;
+    }
+    const { requestGmDeleteEmbeddedItem } = await import('../combat/gm-relay.js');
+    return requestGmDeleteEmbeddedItem({
+        actorId: String(holder.id || ''),
+        itemId: String(item.id || ''),
+    });
+}
 export async function dismissMinorMagicItem(actor, item) {
-    if (!canManageMinorMagic(actor))
-        return { ok: false, error: MINOR_MAGIC_REST_REQUIRED };
+    const flag = readMinorMagicFlag(item);
+    if (!flag)
+        return { ok: false, error: 'Not a Minor Magic Item.' };
+    if (!isMinorMagicCreatedBy(flag, actor?.id)) {
+        return { ok: false, error: 'Only the creator can shatter this Minor Magic Item.' };
+    }
+    // Creator may shatter even when someone else holds it (remote dismiss).
+    if (item.parent && String(item.parent.id || '') !== String(actor.id || '')) {
+        const itemName = String(item.name || 'Minor Magic Item');
+        const deleted = await deleteMinorMagicItemDocument(item.parent, item);
+        if (!deleted) {
+            return {
+                ok: false,
+                error: 'Could not shatter that item. A GM must be connected.',
+            };
+        }
+        await releaseOnCreator(actor, ledgerKeyForMinorMagic(flag, item.id));
+        const ChatMessage = globalThis.ChatMessage;
+        if (ChatMessage?.create) {
+            await ChatMessage.create({
+                speaker: ChatMessage.getSpeaker?.({ actor }) ?? {},
+                content: buildMinorMagicChatHtml(itemName, flag, 'dismiss'),
+            });
+        }
+        return { ok: true };
+    }
     const result = await consumeMinorMagicItem(actor, item, 'dismiss');
     if (!result.ok)
         return result;
@@ -856,6 +983,56 @@ export async function dismissMinorMagicItem(actor, item) {
         await ChatMessage.create({
             speaker: ChatMessage.getSpeaker?.({ actor }) ?? {},
             content: buildMinorMagicChatHtml(item.name, result.flag, 'dismiss'),
+        });
+    }
+    return { ok: true };
+}
+/** Shatter a charge by ledger key — works for items you carry or gave away. */
+export async function dismissMinorMagicByLedgerKey(creator, ledgerKey) {
+    const key = String(ledgerKey || '').trim();
+    if (!creator || !key)
+        return { ok: false, error: 'Nothing to dismiss.' };
+    const local = listMinorMagicItemsOnActor(creator).find((it) => {
+        const flag = readMinorMagicFlag(it);
+        return ledgerKeyForMinorMagic(flag, it.id) === key;
+    });
+    if (local)
+        return dismissMinorMagicItem(creator, local);
+    const found = findMinorMagicItemByLedgerKey(key);
+    if (found) {
+        const flag = readMinorMagicFlag(found.item);
+        if (!flag || !isMinorMagicCreatedBy(flag, creator?.id)) {
+            return { ok: false, error: 'Only the creator can shatter this Minor Magic Item.' };
+        }
+        return dismissMinorMagicItem(creator, found.item);
+    }
+    // Holder not visible locally — still free the creator slot and ask GM to delete if known.
+    const ledger = getActorMinorMagicLedger(creator);
+    if (!ledger.itemIds.includes(key)) {
+        return { ok: false, error: 'That Minor Magic Item is no longer on your limit.' };
+    }
+    const holderId = String(ledger.holders?.[key] || '').trim();
+    if (holderId && holderId !== String(creator.id || '')) {
+        const { requestGmDeleteMinorMagicByKey } = await import('../combat/gm-relay.js');
+        const deleted = await requestGmDeleteMinorMagicByKey({
+            creatorId: String(creator.id || ''),
+            ledgerKey: key,
+            holderActorId: holderId,
+        });
+        if (!deleted) {
+            return {
+                ok: false,
+                error: 'Could not shatter that item. A GM must be connected.',
+            };
+        }
+    }
+    await releaseOnCreator(creator, key);
+    const ChatMessage = globalThis.ChatMessage;
+    const label = ledger.labels?.[key] || 'Minor Magic Item';
+    if (ChatMessage?.create) {
+        await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker?.({ actor: creator }) ?? {},
+            content: `<div class="minor-magic-chat"><h4>Dismissed: ${label}</h4><p>The charge shattered and no longer counts against your Minor Magic limit.</p></div>`,
         });
     }
     return { ok: true };
@@ -875,10 +1052,12 @@ export function minorMagicSheetView(actor) {
     const limit = minorMagicLimit(actor);
     const held = countHeldMinorMagicItems(ledger);
     const canManage = canManageMinorMagic(actor);
+    const selfId = String(actor?.id || '');
     const localKeys = new Set();
     const items = listMinorMagicItemsOnActor(actor).map((it) => {
         const flag = readMinorMagicFlag(it);
-        localKeys.add(ledgerKeyForMinorMagic(flag, it.id));
+        const key = ledgerKeyForMinorMagic(flag, it.id);
+        localKeys.add(key);
         const mine = isMinorMagicCreatedBy(flag, actor?.id);
         return {
             id: it.id,
@@ -891,26 +1070,38 @@ export function minorMagicSheetView(actor) {
             received: !mine,
             canGive: true,
             canGiveBack: !mine,
-            canDismiss: canManage && mine,
+            canDismiss: mine,
             creatorName: flag.creatorName || '',
+            holderName: String(actor?.name || ''),
+            locationLabel: mine
+                ? 'With you — 1 charge. Shatter anytime to free the slot.'
+                : `From ${flag.creatorName || 'creator'} — Give Back so they can hand it out again.`,
         };
     });
     for (const key of ledger.itemIds) {
         if (localKeys.has(key))
             continue;
+        const holderId = String(ledger.holders?.[key] || '').trim();
+        const holderName = resolveActorName(holderId) ||
+            (holderId && holderId !== selfId ? 'another character' : '');
+        const where = holderName
+            ? `With ${holderName}`
+            : 'With another character';
         items.push({
             id: key,
             name: ledger.labels?.[key] || 'Minor Magic Item',
             formLabel: 'Given away',
             powerName: '',
-            summary: 'Carried by another character — still counts against your limit until it is used or dismissed.',
+            summary: `${where} — still counts as 1 of your ${limit} charges until they use it or you shatter it.`,
             actionCost: '',
             givenAway: true,
             received: false,
             canGive: false,
             canGiveBack: false,
-            canDismiss: false,
+            canDismiss: true,
             creatorName: '',
+            holderName,
+            locationLabel: `${where}. Shatter anytime to destroy it and free your slot.`,
         });
     }
     return {

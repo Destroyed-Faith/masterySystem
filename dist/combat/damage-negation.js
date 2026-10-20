@@ -2,9 +2,9 @@
  * Damage Negation — closed premium defensive subsystem.
  *
  * While the Damage Negation Passive is slotted, the actor gains a per-combat
- * Reserve of `4 × Passive Level` Damage Dice. Before an eligible Damage Pool
- * is rolled, the defender may spend points 1:1 to remove Damage Dice from the
- * pool assigned to them.
+ * Reserve of `2 × Passive Level` Damage Dice (playtest 2026-10-20; was 4 × PL).
+ * Before an eligible Damage Pool is rolled, the defender may spend points 1:1
+ * to remove Damage Dice from the pool assigned to them.
  *
  * Pending rule R-01 (2026-10-17): there is no half-pool cap. Caps are only
  * available negation points and the number of incoming damage dice.
@@ -38,8 +38,13 @@ export function findDamageNegationItem(actor) {
     }
     return null;
 }
-/** Reserve size for a Passive level (4 Damage Dice per level). */
+/** Reserve size for a Passive level (2 Damage Dice per level; playtest 2026-10-20). */
 export function damageNegationReserveForLevel(level) {
+    const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
+    return 2 * lvl;
+}
+/** Legacy reserve size before the 2026-10-20 playtest (4 × PL). */
+export function legacyDamageNegationReserveForLevel(level) {
     const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
     return 4 * lvl;
 }
@@ -57,6 +62,19 @@ export function damageNegationSpendCap(originalDice, available) {
     return Math.min(dice, pts);
 }
 /**
+ * Migrate an in-progress Reserve when the formula changed (4×PL → 2×PL).
+ * Preserves spent points: remaining = max(0, newMax − spent).
+ */
+export function migrateDamageNegationRemaining(opts) {
+    const level = Math.max(1, Math.min(16, Math.floor(Number(opts.level) || 1)));
+    const newMax = damageNegationReserveForLevel(level);
+    const storedMax = Math.floor(Number(opts.maxAtInit) || 0);
+    const priorMax = storedMax > 0 ? storedMax : legacyDamageNegationReserveForLevel(level);
+    const remaining = Math.max(0, Math.floor(Number(opts.remaining) || 0));
+    const spent = Math.max(0, priorMax - remaining);
+    return Math.max(0, Math.min(newMax, newMax - spent));
+}
+/**
  * Remaining passive Reserve for the current combat. Lazily initialized to the
  * full listed value the first time it is read during a combat.
  */
@@ -65,27 +83,37 @@ export function getDamageNegationRemaining(actor, combat) {
     const item = findDamageNegationItem(owner);
     if (!item || !combat?.id)
         return 0;
-    const max = damageNegationReserveForLevel(Number(item.system?.level) || 1);
+    const level = Number(item.system?.level) || 1;
+    const max = damageNegationReserveForLevel(level);
     const flag = owner?.getFlag?.(FLAG_SCOPE, FLAG_RESERVE);
     if (!flag || flag.combatId !== String(combat.id))
         return max;
-    return Math.max(0, Math.min(max, Math.floor(Number(flag.remaining) || 0)));
+    const migrated = migrateDamageNegationRemaining({
+        level,
+        remaining: Number(flag.remaining) || 0,
+        maxAtInit: flag.maxAtInit,
+    });
+    return migrated;
 }
 export async function spendDamageNegation(actor, combat, amount) {
     const n = Math.max(0, Math.floor(Number(amount) || 0));
     if (n <= 0)
         return true;
     const owner = getActionEconomyActor(actor) ?? actor;
+    const item = findDamageNegationItem(owner);
+    const level = Number(item?.system?.level) || 1;
+    const max = damageNegationReserveForLevel(level);
     const remaining = getDamageNegationRemaining(owner, combat);
     if (remaining < n || !combat?.id)
         return false;
     await owner?.setFlag?.(FLAG_SCOPE, FLAG_RESERVE, {
         combatId: String(combat.id),
         remaining: remaining - n,
+        maxAtInit: max,
     });
     return true;
 }
-/** Stone-granted temporary Damage Negation available this turn (round state). */
+/** Stone-granted temporary Damage Negation available this Round (round state). */
 export function getTempDamageNegation(actor, combat) {
     if (!combat)
         return 0;
@@ -322,6 +350,67 @@ export async function promptDamageNegationSpend(target, opts) {
     catch (e) {
         console.warn('Mastery System | Damage Negation prompt failed', e);
         return none;
+    }
+}
+/**
+ * Refresh Active Buff: Damage Negation Pool to its printed max for every
+ * maintained buff on the actor. Called at Preparation / Round advance so the
+ * new Round's temporary pool is available; unused prior-Round points do not carry.
+ */
+export async function refreshBuffDamageNegationPools(actor) {
+    if (!actor)
+        return;
+    try {
+        const effects = actor?.effects;
+        const list = Array.isArray(effects)
+            ? effects
+            : Array.isArray(effects?.contents)
+                ? effects.contents
+                : typeof effects?.values === 'function'
+                    ? Array.from(effects.values())
+                    : [];
+        for (const effect of list) {
+            if (effect?.disabled)
+                continue;
+            const flags = effect?.flags?.['mastery-system'];
+            if (!flags?.activeBuff)
+                continue;
+            const tid = String(flags.powerTemplateId ?? flags.templateId ?? '').toLowerCase();
+            const name = String(effect?.name ?? flags.powerName ?? '').toLowerCase();
+            const isDnBuff = tid === 'ab-reinforced-damage-negation' ||
+                name.includes('damage negation pool') ||
+                name.includes('reinforced damage negation');
+            if (!isDnBuff)
+                continue;
+            const mech = flags.mechanics && typeof flags.mechanics === 'object' ? flags.mechanics : {};
+            const max = Math.max(0, Math.floor(Number(mech.damageNegationPoolMax ?? mech.damageNegation ?? flags.damageNegationPoolMax) || 0));
+            if (max <= 0)
+                continue;
+            if (typeof effect.update === 'function') {
+                await effect.update({
+                    'flags.mastery-system.mechanics.damageNegation': max,
+                    'flags.mastery-system.mechanics.damageNegationPoolMax': max,
+                });
+            }
+            else if (mech) {
+                mech.damageNegation = max;
+                mech.damageNegationPoolMax = max;
+            }
+        }
+    }
+    catch (err) {
+        console.warn('Mastery System | refresh Buff Damage Negation pools failed', err);
+    }
+}
+/** Refresh Buff DN pools for every combatant (Preparation / Round advance). */
+export async function refreshBuffDamageNegationPoolsForCombat(combat) {
+    if (!combat?.combatants)
+        return;
+    for (const c of combat.combatants) {
+        const actor = c?.actor;
+        if (!actor)
+            continue;
+        await refreshBuffDamageNegationPools(actor);
     }
 }
 /** Combat end: the Reserve is lost; a fresh one is gained next combat. */

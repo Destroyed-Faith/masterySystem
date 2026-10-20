@@ -285,6 +285,12 @@ export async function runCombatEndCleanup(combat: any): Promise<void> {
     console.warn('Mastery System | Damage Negation cleanup failed', err);
   }
   try {
+    const { clearPassiveCombatChargesForCombat } = await import('./passive-combat-charges.js');
+    await clearPassiveCombatChargesForCombat(combat);
+  } catch (err) {
+    console.warn('Mastery System | Passive Critical/Maximization cleanup failed', err);
+  }
+  try {
     const { clearAbsorptionForCombat } = await import('./absorption.js');
     await clearAbsorptionForCombat(combat, collectColorlessCleanupActors(combat));
   } catch (err) {

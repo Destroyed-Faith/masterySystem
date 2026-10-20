@@ -17,11 +17,14 @@ const GUIDED_SECOND_PASSIVE_HIDDEN_CATEGORIES = new Set([
 
 const CATEGORY_DISPLAY_LABEL: Record<string, string> = {
     armor: 'Armor',
+    'armor-reduction': 'Armor Reduction',
     evade: 'Evade',
     initiative: 'Initiative',
     'damage-reduction': 'Damage Reduction',
     'damage-negation': 'Damage Negation',
     phasing: 'Phasing',
+    critical: 'Critical',
+    maximization: 'Maximization',
     parry: 'Parry',
     invisibility: 'Invisibility',
     'temporary-hp': 'Temporary HP',
@@ -31,6 +34,11 @@ const CATEGORY_DISPLAY_LABEL: Record<string, string> = {
     health: 'Health',
     damage: 'Damage',
     'special-aura': 'Special Aura',
+    'enemy-evade-reduction': 'Enemy Evade Reduction',
+    'self-cleanse': 'Self Cleanse',
+    speed: 'Speed',
+    'spell-resistance-piercing': 'Spell Resistance Piercing',
+    'special-amplification': 'Special Amplification',
     awareness: 'Awareness',
     ward: 'Ward',
 };
@@ -50,12 +58,24 @@ const PASSIVE_TEMPLATE_CATEGORIES: Readonly<Record<string, readonly string[]>> =
     'passive-ghostform': ['phasing'],
     'passive-parry': ['parry'],
     'passive-damage-negation': ['damage-negation'],
+    'passive-armor-reduction': ['armor-reduction'],
+    'passive-critical': ['critical'],
+    'passive-maximization': ['maximization'],
     'passive-invisibility': ['invisibility'],
     'passive-killing-intent': ['damage'],
     'passive-deep-vitality': ['health'],
     'passive-heightened-senses': ['awareness'],
     'passive-spell-resistance': ['ward'],
     'passive-ward': ['ward'],
+    'passive-enemy-evade-reduction': ['enemy-evade-reduction'],
+    'passive-self-cleanse': ['self-cleanse'],
+    'passive-speed': ['speed'],
+    'passive-spell-resistance-piercing': ['spell-resistance-piercing'],
+    'passive-special-amplification': ['special-amplification'],
+    'passive-telepathy-mind-link': ['telepathy'],
+    'passive-bound-host': ['summon-tokens'],
+    'passive-absorption': ['absorption'],
+    'passive-thornhide': ['thorns'],
     'passive-momentum': ['damage'],
     'passive-ambusher': ['damage'],
     'passive-bloodlust': ['damage'],
@@ -92,10 +112,13 @@ const PASSIVE_TEMPLATE_CATEGORIES: Readonly<Record<string, readonly string[]>> =
 
 const SUBFAMILY_DEFAULT_CATEGORY: Readonly<Record<string, string>> = {
     armor: 'armor',
+    'armor-reduction': 'armor-reduction',
     evade: 'evade',
     'damage-reduction': 'damage-reduction',
     'damage-negation': 'damage-negation',
     phasing: 'phasing',
+    critical: 'critical',
+    maximization: 'maximization',
     parry: 'parry',
     invisibility: 'invisibility',
     'temp-hp': 'temporary-hp',
@@ -106,18 +129,34 @@ const SUBFAMILY_DEFAULT_CATEGORY: Readonly<Record<string, string>> = {
     ward: 'ward',
     recovery: 'recovery',
     'special-aura': 'special-aura',
+    'enemy-evade-reduction': 'enemy-evade-reduction',
+    'self-cleanse': 'self-cleanse',
+    speed: 'speed',
+    'spell-resistance-piercing': 'spell-resistance-piercing',
+    'special-amplification': 'special-amplification',
+    telepathy: 'telepathy',
+    absorption: 'absorption',
+    thorns: 'thorns',
 };
 
 export type SecondPassiveBucket =
     | 'armor'
+    | 'armor-reduction'
     | 'evade'
     | 'parry'
     | 'damage-reduction'
     | 'damage-negation'
     | 'phasing'
+    | 'critical'
+    | 'maximization'
     | 'invisibility'
     | 'health'
     | 'temporary-hp'
+    | 'self-cleanse'
+    | 'speed'
+    | 'enemy-evade-reduction'
+    | 'spell-resistance-piercing'
+    | 'special-amplification'
     | 'sustain'
     | 'offense'
     | 'advanced';
@@ -135,11 +174,24 @@ export function inferPassiveCategoriesFromTemplateId(templateId: string): string
     const cats = new Set<string>();
 
     if (id.includes('damage-reduction')) cats.add('damage-reduction');
-    if (id.includes('damage-negation') || id.includes('negation')) cats.add('damage-negation');
+    if (id.includes('damage-negation') || (id.includes('negation') && !id.includes('special-negation'))) {
+        cats.add('damage-negation');
+    }
     if (id.includes('ghostform') || id.includes('phasing')) cats.add('phasing');
+    if (id.includes('passive-critical') || id.endsWith('-critical')) cats.add('critical');
+    if (id.includes('passive-maximization') || id.endsWith('-maximization')) cats.add('maximization');
+    if (id.includes('armor-reduction')) cats.add('armor-reduction');
     if (id.includes('passive-parry') || id.endsWith('-parry')) cats.add('parry');
     if (id.includes('invisibility')) cats.add('invisibility');
-    if (id.includes('fortified') || id.includes('stone-stance') || id.includes('surrounded-bulwark') || id.includes('-armor-') || id.startsWith('passive-armor') || id.includes('conditional-passive-armor')) {
+    if (
+        !id.includes('armor-reduction') &&
+        (id.includes('fortified') ||
+            id.includes('stone-stance') ||
+            id.includes('surrounded-bulwark') ||
+            id.includes('-armor-') ||
+            id === 'passive-armor' ||
+            id.includes('conditional-passive-armor'))
+    ) {
         cats.add('armor');
     }
     if (id.includes('passive-evade') || id.includes('-evade-') || id.includes('flowing-step') || id.includes('duelist-footwork') || id.includes('conditional-passive-evade')) {
@@ -164,7 +216,7 @@ export function inferPassiveCategoriesFromTemplateId(templateId: string): string
         || id.includes('ambusher')
         || id.includes('bloodlust')
         || id.includes('executioner')
-        || (id.includes('damage') && !id.includes('damage-reduction'))
+        || (id.includes('damage') && !id.includes('damage-reduction') && !id.includes('damage-negation'))
     ) {
         cats.add('damage');
     }
@@ -264,8 +316,16 @@ export function secondPassiveBucketFor(templateId: string): SecondPassiveBucket 
     if (c.has('damage-reduction')) return 'damage-reduction';
     if (c.has('phasing')) return 'phasing';
     if (c.has('damage-negation')) return 'damage-negation';
+    if (c.has('armor-reduction')) return 'armor-reduction';
+    if (c.has('critical')) return 'critical';
+    if (c.has('maximization')) return 'maximization';
     if (c.has('parry')) return 'parry';
     if (c.has('invisibility')) return 'invisibility';
+    if (c.has('enemy-evade-reduction')) return 'enemy-evade-reduction';
+    if (c.has('spell-resistance-piercing')) return 'spell-resistance-piercing';
+    if (c.has('special-amplification')) return 'special-amplification';
+    if (c.has('self-cleanse')) return 'self-cleanse';
+    if (c.has('speed')) return 'speed';
 
     if (c.has('special-aura')) return 'offense';
 

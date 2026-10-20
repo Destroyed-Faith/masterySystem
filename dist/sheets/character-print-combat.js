@@ -11,7 +11,7 @@ import { artifactIsSpellFocusOnly, resolveArtifactWeaponKind, } from '../utils/a
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice } from '../utils/artifact-base-values.js';
 import { isLegacyUnarmedItem, isVirtualUnarmedWeapon, resolveEquippedWeaponForAttackType, } from '../utils/unarmed-fallback.js';
-import { peekWeaponSets, } from '../utils/weapon-sets.js';
+import { listWeaponSetIndexes, peekWeaponSets, } from '../utils/weapon-sets.js';
 import { addD8Formulas, parseD8Count } from '../utils/dice-formula.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 export function isSpellPowerSys(sys) {
@@ -253,7 +253,11 @@ function itemMatchesAttackType(item, attackType) {
 function resolveWeaponForPrint(actor, items, attackType) {
     try {
         const state = peekWeaponSets(actor);
-        const order = [state.active, state.active === 1 ? 2 : 1];
+        const indexes = listWeaponSetIndexes(state);
+        const order = [
+            state.active,
+            ...indexes.filter((idx) => idx !== state.active),
+        ];
         for (const idx of order) {
             const hands = state.sets[idx] || { mainhand: null, offhand: null };
             const seen = new Set();

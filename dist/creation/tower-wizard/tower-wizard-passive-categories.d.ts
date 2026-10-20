@@ -4,7 +4,7 @@
  * Combined passives occupy every listed category. Passive 2 must not share
  * any category with Passive 1.
  */
-export type SecondPassiveBucket = 'armor' | 'evade' | 'parry' | 'damage-reduction' | 'damage-negation' | 'phasing' | 'invisibility' | 'health' | 'temporary-hp' | 'sustain' | 'offense' | 'advanced';
+export type SecondPassiveBucket = 'armor' | 'armor-reduction' | 'evade' | 'parry' | 'damage-reduction' | 'damage-negation' | 'phasing' | 'critical' | 'maximization' | 'invisibility' | 'health' | 'temporary-hp' | 'self-cleanse' | 'speed' | 'enemy-evade-reduction' | 'spell-resistance-piercing' | 'special-amplification' | 'sustain' | 'offense' | 'advanced';
 export declare function normalizePassiveCategory(category: string): string;
 export declare function inferPassiveCategoriesFromTemplateId(templateId: string): string[];
 export declare function getPassiveMechanicalCategories(templateId: string): string[];

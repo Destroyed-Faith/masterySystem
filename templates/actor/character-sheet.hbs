@@ -2101,6 +2101,9 @@
           <button type="button" class="general-items-btn" aria-label="Open General Items Storage">
             <i class="fas fa-box"></i> General Items
           </button>
+          <button type="button" class="custom-catalog-item-btn" data-action="openCustomCatalogItem" title="{{localize 'MASTERY.customCatalog.buttonHint'}}" aria-label="{{localize 'MASTERY.customCatalog.button'}}">
+            <i class="fas fa-plus"></i> {{localize "MASTERY.customCatalog.button"}}
+          </button>
           {{#if creationComplete}}
           <button type="button" class="progression-hub-btn stone-powers-btn-header{{#if hasSpendableXp}} xp-available{{/if}}" data-action="openProgressionHub" data-expand-section="artifacts">
             <i class="fas fa-layer-group"></i> Progression
@@ -2208,6 +2211,9 @@
               {{#each equipmentUi.weaponSets.choices}}
               <button type="button" class="df-weapon-set-switch{{#if this.active}} is-active{{/if}}" data-action="switchWeaponSet" data-weapon-set="{{this.target}}" title="{{this.title}}" aria-pressed="{{#if this.active}}true{{else}}false{{/if}}">{{this.label}}</button>
               {{/each}}
+              {{#if equipmentUi.weaponSets.canAddSlot}}
+              <button type="button" class="df-weapon-set-switch df-weapon-set-add" data-action="addWeaponSet" title="{{localize 'MASTERY.weaponSets.addSlotHint'}}" aria-label="{{localize 'MASTERY.weaponSets.addSlot'}}">+</button>
+              {{/if}}
               {{#if equipmentUi.weaponSets.stowed}}
               <span class="df-weapon-set-unarmed" title="{{localize 'MASTERY.weaponSets.stowedStatusHint'}}">{{localize "MASTERY.weaponSets.emptyHandLabel"}}</span>
               {{/if}}
@@ -2242,7 +2248,7 @@
                 </div>
               {{/each}}
               {{#each consumableSlots.inlineSlots}}
-                <div class="df-consumable-slot df-dropzone slot-consumable-{{this.index}}{{#unless this.empty}} is-filled{{/unless}}{{#if @root.consumableSlots.locked}} is-locked{{/if}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
+                <div class="df-consumable-slot df-dropzone slot-consumable-{{this.index}}{{#unless this.empty}} is-filled{{/unless}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
                   <div class="df-slot-label">{{this.label}}</div>
                   {{#if this.item}}
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.name}}{{#if this.powerName}} — {{this.powerName}}{{/if}}">
@@ -2256,7 +2262,7 @@
               {{/each}}
             </div>
             {{#if consumableSlots.extraSlots.length}}
-            <div class="df-consumable-more{{#if consumableSlots.locked}} is-locked{{/if}}">
+            <div class="df-consumable-more">
               {{#each consumableSlots.extraSlots}}
                 <div class="df-consumable-slot df-dropzone slot-consumable-{{this.index}}{{#unless this.empty}} is-filled{{/unless}}" data-df-drop="consumable-slot" data-slot-index="{{this.index}}" title="{{this.label}}">
                   <div class="df-slot-label">{{this.label}}</div>
@@ -2272,10 +2278,7 @@
               {{/each}}
             </div>
             {{/if}}
-            <div class="df-consumable-panel{{#if consumableSlots.locked}} is-locked{{/if}}">
-              {{#if consumableSlots.locked}}
-              <p class="df-consumable-lock-hint">{{localize "MASTERY.consumable.lockedInCombat"}}</p>
-              {{/if}}
+            <div class="df-consumable-panel">
             </div>
             {{#if equippedConsumableActions.length}}
             <div class="df-consumable-actions">
@@ -2459,11 +2462,11 @@
       <div class="summons-tab-content">
         <div class="summons-tab-header">
           <h3><i class="fas fa-flask"></i> Minor Magic Items</h3>
-          <button type="button" class="safe-haven-rest dialog-btn dialog-btn-primary" title="Rest at a Safe Haven to create, replace, or dismiss Minor Magic Items">
+          <button type="button" class="safe-haven-rest dialog-btn dialog-btn-primary" title="Rest at a Safe Haven to create or replace Minor Magic Items">
             <i class="fas fa-bed"></i> Safe Haven Rest
           </button>
         </div>
-        <p class="summons-tab-hint">Store one use of a purchased Active Power. Limit {{minorMagicView.held}} / {{minorMagicView.limit}} (Mastery Rank).{{#if minorMagicView.givenAway}} {{minorMagicView.givenAway}} given to other characters — still count until used or dismissed.{{/if}} Press <strong>Safe Haven Rest</strong> to create, replace, or dismiss. Use, Give, or Give Back from this tab or by right-clicking the item in Equipment. No Stones.</p>
+        <p class="summons-tab-hint">Store one use of a purchased Active Power. Charges: <strong>{{minorMagicView.held}} / {{minorMagicView.limit}}</strong> (Mastery Rank).{{#if minorMagicView.givenAway}} {{minorMagicView.givenAway}} currently with other characters — still count until used or you shatter them.{{/if}} <strong>Safe Haven Rest</strong> is only needed to create or replace. You can <strong>Give</strong> your items to other players anytime, and <strong>Shatter</strong> (destroy / recall) any of your charges anytime — even ones you already handed out. Use or Give Back from this tab or by right-clicking the item in Equipment. No Stones.</p>
         <div class="minor-magic-tab-embed">
           {{#with minorMagicPanel}}
           {{> "systems/mastery-system/templates/dialogs/minor-magic.hbs"}}
@@ -2475,22 +2478,22 @@
           <li class="summons-bond-card" data-item-id="{{this.id}}">
             <div class="summons-bond-main">
               <strong>{{this.name}}</strong>
-              <span class="summons-bond-meta">{{this.formLabel}} · {{this.powerName}} · {{this.actionCost}}</span>
-              <span class="summons-bond-meta">{{this.summary}}</span>
-              {{#if this.received}}<span class="summons-bond-meta">From {{this.creatorName}} — Give Back so they can give it again.</span>{{/if}}
+              <span class="summons-bond-meta">{{this.formLabel}}{{#if this.powerName}} · {{this.powerName}}{{/if}}{{#if this.actionCost}} · {{this.actionCost}}{{/if}} · 1 charge</span>
+              {{#if this.summary}}<span class="summons-bond-meta">{{this.summary}}</span>{{/if}}
+              {{#if this.locationLabel}}<span class="summons-bond-meta">{{this.locationLabel}}</span>{{/if}}
             </div>
             <div class="summons-bond-actions">
               {{#unless this.givenAway}}
               <button type="button" class="js-sheet-minor-magic-use dialog-btn dialog-btn-primary" data-item-id="{{this.id}}">Use</button>
               <button type="button" class="js-sheet-minor-magic-trap dialog-btn" data-item-id="{{this.id}}">Arm Trap</button>
-              <button type="button" class="js-sheet-minor-magic-give dialog-btn" data-item-id="{{this.id}}">Give</button>
+              <button type="button" class="js-sheet-minor-magic-give dialog-btn" data-item-id="{{this.id}}" title="Hand this item to another player">Give</button>
               {{#if this.canGiveBack}}
               <button type="button" class="js-sheet-minor-magic-give-back dialog-btn" data-item-id="{{this.id}}">Give Back</button>
               {{/if}}
-              {{#if this.canDismiss}}
-              <button type="button" class="js-sheet-minor-magic-dismiss dialog-btn" data-item-id="{{this.id}}">Dismiss</button>
-              {{/if}}
               {{/unless}}
+              {{#if this.canDismiss}}
+              <button type="button" class="js-sheet-minor-magic-dismiss dialog-btn" data-item-id="{{this.id}}" title="Shatter this charge anytime — frees your Minor Magic slot">Shatter</button>
+              {{/if}}
             </div>
           </li>
           {{/each}}

@@ -47,4 +47,35 @@ export declare function requestDefeatedPresentation(args: {
     defeated: boolean;
 }): Promise<boolean>;
 export declare function requestDelayInitiative(): Promise<boolean>;
+/** Move an embedded Item to another actor (player give / give-back). */
+export declare function requestGmTransferEmbeddedItem(args: {
+    sourceActorId: string;
+    sourceItemId: string;
+    targetActorId: string;
+}): Promise<boolean>;
+export declare function applyGmTransferEmbeddedItem(args: {
+    sourceActorId?: string;
+    sourceItemId?: string;
+    targetActorId?: string;
+}, requester: any): Promise<boolean>;
+export declare function requestGmDeleteEmbeddedItem(args: {
+    actorId: string;
+    itemId: string;
+}): Promise<boolean>;
+export declare function requestGmUpdateEmbeddedItem(args: {
+    actorId: string;
+    itemId: string;
+    update: Record<string, unknown>;
+}): Promise<boolean>;
+/** Creator recalls/shatters a charge on another actor by ledger key. */
+export declare function requestGmDeleteMinorMagicByKey(args: {
+    creatorId: string;
+    ledgerKey: string;
+    holderActorId: string;
+}): Promise<boolean>;
+export declare function applyGmDeleteMinorMagicByKey(args: {
+    creatorId?: string;
+    ledgerKey?: string;
+    holderActorId?: string;
+}, requester: any): Promise<boolean>;
 //# sourceMappingURL=gm-relay.d.ts.map

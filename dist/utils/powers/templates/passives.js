@@ -33,8 +33,35 @@ const EVADE_COND = [1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21];
 const EVADE_UNCOND = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 /** Initiative curve (10 PP / +1 Initiative). */
 const INITIATIVE_UNCOND = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
-/** Temporary HP curve (2 PP / 1 THP). */
-const TEMP_HP_UNCOND = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160];
+/**
+ * Passive: Temporary HP — 5 × PL (Expanded Playtest 2026-10-20).
+ * Granted once at Combat start; no per-Round refresh.
+ */
+const TEMP_HP_UNCOND = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80];
+/** ceil(PL / 2) — Enemy Evade Reduction, Self Cleanse, Spell Resistance Piercing. */
+export function ceilPassiveHalfLevel(level) {
+    const lvl = Math.max(0, Math.min(16, Math.floor(Number(level) || 0)));
+    if (lvl <= 0)
+        return 0;
+    return Math.ceil(lvl / 2);
+}
+/** ceil(PL / 4) — Special Amplification. */
+export function ceilPassiveQuarterLevel(level) {
+    const lvl = Math.max(0, Math.min(16, Math.floor(Number(level) || 0)));
+    if (lvl <= 0)
+        return 0;
+    return Math.ceil(lvl / 4);
+}
+/** Passive: Temporary HP amount at Power Level. */
+export function passiveTemporaryHpForLevel(level) {
+    const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
+    return TEMP_HP_UNCOND[lvl - 1];
+}
+/** Passive: Speed bonus meters (= PL). */
+export function passiveSpeedMetersForLevel(level) {
+    const lvl = Math.max(1, Math.min(16, Math.floor(Number(level) || 1)));
+    return lvl;
+}
 /** R-05: ordinary HP-regen tables removed. Passive: Restoration uses R05_PASSIVE_REGEN_POOL. */
 const RETIRED_HEAL_NOTE = 'Retired (R-05): ordinary HP healing was removed. Use Scarred Bar Restoration or Passive: Restoration.';
 /** Killing Intent — unconditional Damage (banded; L1 empty, L4 = +2d8). */
@@ -73,8 +100,13 @@ export function fortitudeMultiplierForLevel(level) {
         return 7;
     return 8;
 }
-/** Damage Negation — combat reserve Damage Dice = 4 × Level. */
-const DAMAGE_NEGATION_RESERVE = [4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64];
+/**
+ * Damage Negation — combat reserve Damage Dice = 2 × Level
+ * (playtest 2026-10-20; previously 4 × Level).
+ */
+const DAMAGE_NEGATION_RESERVE = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32];
+/** Same numeric curve as Passive: Armor — reused by Passive: Armor Reduction. */
+export const PASSIVE_ARMOR_CURVE = ARMOR_UNCOND;
 function clampPassiveLevel(level) {
     const n = Math.floor(Number(level) || 0);
     return Math.max(1, Math.min(16, n));
@@ -191,15 +223,27 @@ function damageReductionPct(lvl) {
         return 20;
     return 30;
 }
-/** Ghostform Phasing charges by level. */
-function phasingCharges(lvl) {
-    if (lvl <= 3)
+/**
+ * Ghostform Phasing / Passive Critical / Passive Maximization combat charges.
+ * PL 1–3 unavailable (0); PL 4–7 → 1; PL 8–14 → 2; PL 15–16 → 3.
+ */
+export function phasingStyleCombatCharges(lvl) {
+    const level = Math.max(1, Math.min(16, Math.floor(Number(lvl) || 1)));
+    if (level <= 3)
         return 0;
-    if (lvl <= 7)
+    if (level <= 7)
         return 1;
-    if (lvl <= 14)
+    if (level <= 14)
         return 2;
     return 3;
+}
+/** @deprecated Prefer {@link phasingStyleCombatCharges}. */
+function phasingCharges(lvl) {
+    return phasingStyleCombatCharges(lvl);
+}
+/** Armor Reduction ignored against the holder's eligible damaging attacks. */
+export function passiveArmorReductionForLevel(level) {
+    return PASSIVE_ARMOR_CURVE[clampPassiveLevel(level) - 1] ?? 0;
 }
 /** Special Aura radius (meters) by level. */
 function specialAuraRadius(lvl) {
@@ -496,11 +540,16 @@ const RAW_PASSIVE_TEMPLATES = [
     }),
     basePassive({
         id: 'passive-temp-hp', name: 'Temporary HP', subfamily: 'temp-hp',
-        fluff: 'A reserve layer of protection that exists only at the moment battle begins.',
-        perLevel: (lvl) => ({
-            text: `At the start of combat, gain **${TEMP_HP_UNCOND[lvl - 1]} Temporary HP**.`,
-            mechanics: { triggers: { combatStart: { tempHP: String(TEMP_HP_UNCOND[lvl - 1]) } } },
-        }),
+        fluff: 'A distinct Temporary HP buffer granted once at Combat start while slotted. It lasts until depleted or Combat end and never refreshes from Active Buff Preparation.',
+        perLevel: (lvl) => {
+            const thp = TEMP_HP_UNCOND[lvl - 1];
+            return {
+                text: `While slotted, at Combat start (before any legal combat damage), gain **${thp} Temporary HP** (5 × Power Level). ` +
+                    `The pool remains until depleted or Combat end. Does not heal real HP, restore Scarred Bars, or trigger Absorption. ` +
+                    `Distinct from Active Buff / Stone / Reaction Temporary HP sources.`,
+                mechanics: { triggers: { combatStart: { tempHP: String(thp) } } },
+            };
+        },
     }),
     basePassive({
         // Short name only — basePassive prefixes `Passive: ` (never put Passive: here).
@@ -1174,9 +1223,138 @@ const RAW_PASSIVE_TEMPLATES = [
         perLevel: (lvl) => {
             const dice = DAMAGE_NEGATION_RESERVE[lvl - 1];
             return {
-                text: `Combat reserve **${dice} Damage Dice**. Spend before the damage roll; at most half the pool (floor). ` +
-                    `No mid-combat refresh.`,
+                text: `Combat reserve **${dice} Damage Dice** (2 × Power Level). Spend 1:1 to remove Damage Dice after a hit is established but before they are rolled. ` +
+                    `Shared across the Combat; does not refresh each Round. Nominal catalogue cost 10 PP per removed Die; purchase is still 20 PP per PL. ` +
+                    `Does not alter the hit, Specials, flat damage, or on-hit effects. Distinct from Vitality Stone Ability: Damage Negation (temporary).`,
                 mechanics: {},
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-armor-reduction', name: 'Armor Reduction', subfamily: 'armor-reduction',
+        passiveType: 'Passive, Armor Reduction',
+        fluff: 'Your strikes ignore a slice of the Armor that would otherwise blunt them — without changing the target\'s listed Armor.',
+        perLevel: (lvl) => {
+            const amount = PASSIVE_ARMOR_CURVE[lvl - 1];
+            return {
+                text: `On each eligible damaging Attack or damaging Spell you make, ignore **${amount} Armor** counted against that attack only ` +
+                    `(same curve as Passive: Armor). Does not lower listed Armor, does not help allies, does not apply Corrode/Expose, ` +
+                    `and does not change Attack TN, Casting TN, or Raises. Combines with legal Corrode, Might Stone Armor Reduction, and Weapon Penetration(X); effective Armor never below 0.`,
+                mechanics: { armorReduction: amount },
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-critical', name: 'Critical', subfamily: 'critical',
+        passiveType: 'Passive, Critical',
+        fluff: 'Free Critical(1) roll designations each Combat — separate from Active Buff Critical and Agility Stone Crit.',
+        perLevel: (lvl) => {
+            const charges = phasingStyleCombatCharges(lvl);
+            return charges === 0
+                ? { text: 'Unavailable.', mechanics: {} }
+                : {
+                    text: `At the start of combat, gain **${charges} free Critical(1) roll${charges === 1 ? '' : 's'}** for this Combat. ` +
+                        `Before one eligible Martial Attack Roll or damaging Spell Casting Roll, spend one charge to designate that complete roll as Critical(1): natural 7s and 8s explode in the Attack/Casting Pool. ` +
+                        `Not a Damage Die bonus. A miss still spends the charge. One shared AoE roll costs one charge. ` +
+                        `Does not require Agility Stone Crit or Active Buff: Critical. Choose exactly one Critical source per roll.`,
+                    mechanics: { passiveCritical: { combatStart: { charges } } },
+                };
+        },
+    }),
+    basePassive({
+        id: 'passive-maximization', name: 'Maximization', subfamily: 'maximization',
+        passiveType: 'Passive, Maximization',
+        fluff: 'Free Maximization uses each Combat for Damage or Healing Rolls — separate from Vitality Stone Maximization.',
+        perLevel: (lvl) => {
+            const charges = phasingStyleCombatCharges(lvl);
+            return charges === 0
+                ? { text: 'Unavailable.', mechanics: {} }
+                : {
+                    text: `At the start of combat, gain **${charges} free Maximization use${charges === 1 ? '' : 's'}** shared between complete Damage Rolls and Healing Rolls this Combat. ` +
+                        `Declare immediately before an eligible Damage or Healing Roll (after Damage Negation for damage). Remaining d8s become artificial 8s — not natural 8s. ` +
+                        `A miss with no Damage Roll does not spend a use. One shared AoE Damage Roll costs one use. ` +
+                        `Does not require Vitality Stone Maximization. Choose exactly one Maximization source per roll.`,
+                    mechanics: { passiveMaximization: { combatStart: { charges } } },
+                };
+        },
+    }),
+    // ─── Expanded Playtest 2026-10-20 — five new catalogue Passives ───────
+    basePassive({
+        id: 'passive-enemy-evade-reduction',
+        name: 'Enemy Evade Reduction',
+        subfamily: 'enemy-evade-reduction',
+        passiveType: 'Passive, Enemy Evade Reduction',
+        fluff: 'Your Martial Attack Rolls treat the targeted enemy as slightly easier to hit. Only your attacks; never changes their stored Evade.',
+        perLevel: (lvl) => {
+            const cut = ceilPassiveHalfLevel(lvl);
+            return {
+                text: `Against your own eligible Martial Attack Rolls (including Martial AoE targets and Martial Reaction attacks that use a Martial Attack Roll), ` +
+                    `reduce the target's effective Evade by **${cut}** (minimum 0). Does not modify stored Evade, create Expose, add Attack Dice, or change Spell Final TN.`,
+                mechanics: { enemyEvadeReduction: cut },
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-self-cleanse',
+        name: 'Self Cleanse',
+        subfamily: 'self-cleanse',
+        passiveType: 'Passive, Self Cleanse',
+        fluff: 'At the start of each of your Turns, after Tick, Natural Special Recovery and Diminishing Decay, cleanse yourself once more.',
+        perLevel: (lvl) => {
+            const amt = ceilPassiveHalfLevel(lvl);
+            return {
+                text: `At the start of each of your Turns — after Special Ticks, Natural Special Recovery and Diminishing Decay, and before Persistent Zone start-of-Turn applications — ` +
+                    `gain an additional **Cleanse(${amt})** on yourself. Freely distribute among eligible negative Specials (including Cleanse-eligible Root). ` +
+                    `Does not replace Natural Special Recovery, heal HP, cost an Action, or cleanse non-eligible effects.`,
+                mechanics: { cleanseMaintenance: amt },
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-speed',
+        name: 'Speed',
+        subfamily: 'speed',
+        passiveType: 'Passive, Speed',
+        fluff: 'Your normal Speed statistic increases. Dash doubles the increased Speed.',
+        perLevel: (lvl) => {
+            const meters = passiveSpeedMetersForLevel(lvl);
+            return {
+                text: `Increase your normal Speed by **+${meters} m**. Applied once to the Speed statistic (not as a separate per-Movement-Action bonus). ` +
+                    `Dash doubles the increased Speed. Stone Movement Enhancement is added once after the Movement Action distance (including Dash). ` +
+                    `Slow, Root, Immovable and other restrictions apply normally; minimum effective Speed 0.`,
+                mechanics: { speedBonus: meters },
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-spell-resistance-piercing',
+        name: 'Spell Resistance Piercing',
+        subfamily: 'spell-resistance-piercing',
+        passiveType: 'Passive, Spell Resistance Piercing',
+        fluff: 'Your Spells ignore a slice of the target\'s Spell Resistance. Shared Casting Rolls still use per-target Final Spell TN.',
+        perLevel: (lvl) => {
+            const pierce = ceilPassiveHalfLevel(lvl);
+            return {
+                text: `When you cast a Spell, ignore **${pierce}** of each target's Spell Resistance against that Spell ` +
+                    `(remaining SR = max(0, target SR − piercing)). Final Spell TN = Spell Base TN + remaining SR. ` +
+                    `Does not reduce Spell Base TN, stored SR, Evade, or SR against other casters. AoE Spells keep one Casting Roll with per-target Final TN.`,
+                mechanics: { spellResistancePiercing: pierce },
+            };
+        },
+    }),
+    basePassive({
+        id: 'passive-special-amplification',
+        name: 'Special Amplification',
+        subfamily: 'special-amplification',
+        passiveType: 'Passive, Special Amplification',
+        fluff: 'Increases eligible numeric Special(X) values you successfully deliver with your own Martial/Spell Attacks. Distinct from Special Aura.',
+        perLevel: (lvl) => {
+            const amp = ceilPassiveQuarterLevel(lvl);
+            return {
+                text: `When your qualifying successful Martial or Spell Attack delivers an eligible numeric Special(X), increase that Special by **+${amp}** ` +
+                    `after printed X, successful Raise Special Increase and Intellect Stone Special Boost, and before target Vulnerability, Special Negation and the 4 × MR application limit. ` +
+                    `Does not create Specials, amplify aura ticks, ongoing damage, ally/Summon attacks, binary Specials or hard control.`,
+                mechanics: { specialAmplification: amp },
             };
         },
     }),

@@ -142,11 +142,15 @@ export interface MechanicsBreakdown {
   initiative: MechanicsBreakdownEntry[];
   initiativeD8: MechanicsBreakdownEntry[];
   movementBonus: MechanicsBreakdownEntry[];
+  speedBonus: MechanicsBreakdownEntry[];
   regen: MechanicsBreakdownEntry[];
   spellResistance: MechanicsBreakdownEntry[];
   cleanseMaintenance: MechanicsBreakdownEntry[];
   /** Ward — incoming hostile Special reduction rows. */
   wardIncoming: MechanicsBreakdownEntry[];
+  enemyEvadeReduction: MechanicsBreakdownEntry[];
+  spellResistancePiercing: MechanicsBreakdownEntry[];
+  specialAmplification: MechanicsBreakdownEntry[];
   tempHP: Array<{ source: string; value: string }>;
   /** Heal dice or flat strings from `PowerMechanics.healing` (not summed numerically). */
   healing: MechanicsBreakdownDiceStringEntry[];
@@ -174,11 +178,15 @@ export interface MechanicsBreakdown {
     initiative: number;
     initiativeD8: number;
     movementBonus: number;
+    speedBonus: number;
     regen: number;
     spellResistance: number;
     cleanseMaintenance: number;
     /** Ward — total incoming hostile Special reduction. */
     wardIncoming: number;
+    enemyEvadeReduction: number;
+    spellResistancePiercing: number;
+    specialAmplification: number;
     /** Final DR % after gating and clamping (0–100). */
     damageReductionPct: number;
     rollDice: { attack: number; skill: number; damage: number };

@@ -1148,6 +1148,25 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
 
+    // GM: restore Powers marked used this round (retry after a botched use).
+    root.querySelectorAll('.js-refund-powers').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (!game.user?.isGM) return;
+        const portrait = btn.closest('.carousel-portrait') as HTMLElement | null;
+        const combatantId = portrait?.dataset.combatantId;
+        if (!combatantId) return;
+        const combat = game.combats?.active;
+        const combatant = combat?.combatants?.get(combatantId);
+        const actor = combatant?.actor;
+        if (!combat || !actor) return;
+        const { openGmRefundPowersDialog } = await import('./gm-refund-powers-dialog.js');
+        await openGmRefundPowersDialog(actor, combat);
+        await this.render({ force: true });
+      };
+    });
+
     // GM: Round-1 Surprise — combatant acts last; initiative score unchanged.
     root.querySelectorAll('.js-toggle-surprise').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {

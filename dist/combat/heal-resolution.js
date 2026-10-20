@@ -580,7 +580,7 @@ async function applyHpHealPass(args) {
     if (args.formula && caster && args.targetTokens.length > 0 && args.maximize) {
         try {
             const { spendMaximization } = await import('../stones/stone-combat-effects.js');
-            sharedMaximized = await spendMaximization(caster);
+            sharedMaximized = await spendMaximization(caster, args.maxSource ?? null);
             if (!sharedMaximized) {
                 g.ui?.notifications?.warn?.('No Maximization remaining — rolling heal normally.');
             }

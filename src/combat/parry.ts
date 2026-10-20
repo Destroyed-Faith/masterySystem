@@ -3,11 +3,14 @@
  * Martial: strip Attack Dice (Might or Agility). 0 dice = Fully Parried.
  * Spell: strip Casting Dice (Intellect, Resolve, or Influence) from a direct
  * Spell whose origin is within 22 m. 0 dice = Fully Countered.
- * Entering Parry spends only the base Attack Action. Extra Attacks remain.
+ * Entering Parry normally spends the base Attack Action. If that Action was
+ * already committed during Preparation to activate an Active Buff, Parry may
+ * instead spend one legally available additional Attack Action (e.g. Extra Attack).
  */
 
 import {
   getActionEconomyActor,
+  getAvailableAttackActions,
   getRoundState,
   setRoundState,
   type RoundState,
@@ -171,8 +174,10 @@ export function computeParryStrip(attackDice: number, pool: number): {
 }
 
 /**
- * Enter Passive Parry for the round. Spends only the base Attack Action
- * (`baseAttackLocked`). Extra Attack actions stay available.
+ * Enter Passive Parry for the round.
+ * Normal: spends the base Attack Action (`baseAttackLocked`).
+ * Prep Active Buff commit: spends one available additional Attack Action instead.
+ * Active Buff: Parry Recovery never grants free Parry on its own.
  */
 export async function enterParry(
   actor: Actor,
@@ -208,11 +213,34 @@ export async function enterParry(
       attribute: rs.parry.attribute,
     };
   }
-  if (rs.baseAttackLocked || Math.floor(Number(rs.attackActions?.used) || 0) > 0) {
-    return {
-      ok: false,
-      reason: 'Parry spends the base Attack Action and must be entered before that action is used.',
+
+  const prepCommitted = !!rs.prepBaseAttackCommitted;
+  const used = Math.max(0, Math.floor(Number(rs.attackActions?.used) || 0));
+
+  if (prepCommitted) {
+    // Base Action already paid for Active Buff activation — require a real extra Action.
+    const availableExtras = getAvailableAttackActions(economy, combat);
+    if (availableExtras <= 0) {
+      return {
+        ok: false,
+        reason:
+          'Base Attack Action was committed to an Active Buff. Enter Parry with one additional Attack Action (e.g. Stone: Extra Attack), or wait until a later Round.',
+      };
+    }
+    rs.attackActions = {
+      ...rs.attackActions,
+      total: Math.max(1, Math.floor(Number(rs.attackActions?.total) || 1)),
+      used: used + 1,
     };
+    rs.baseAttackLocked = true;
+  } else {
+    if (rs.baseAttackLocked || used > 0) {
+      return {
+        ok: false,
+        reason: 'Parry spends the base Attack Action and must be entered before that action is used.',
+      };
+    }
+    rs.baseAttackLocked = true;
   }
 
   rs.parry = {
@@ -224,7 +252,6 @@ export async function enterParry(
     entryPool: computed.max,
     recoveredThisRound: 0,
   };
-  rs.baseAttackLocked = true;
   await setRoundState(economy, rs);
 
   return {

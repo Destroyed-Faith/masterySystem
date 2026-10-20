@@ -74,6 +74,7 @@ import { registerImageUrlShareHooks } from './ui/image-url-share.js';
 import { requestEpicMasteryRoll } from './epic-roll/epic-mastery-roll-config-dialog.js';
 import { getActiveEpicMasteryRollSession } from './epic-roll/epic-mastery-roll-session.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
+import { registerTokenAutoRotateHooks } from './combat/token-auto-rotate.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 import { seedArtifactLibrary, forceRefreshEchoArtifactLibrary } from './utils/seed-artifact-library.js';
@@ -311,6 +312,7 @@ Hooks.once('init', async function () {
     initializeStoneRoundGate();
     // Initialize Divine Clash hooks
     initializeDivineClashHooks();
+    registerTokenAutoRotateHooks();
     // Initialize Artifact Awakening system
     initializeArtifactAwakening();
     // Initialize combat hooks

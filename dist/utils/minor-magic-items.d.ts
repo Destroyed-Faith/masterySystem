@@ -2,8 +2,8 @@
  * Minor Magic Items — store one use of a purchased Active Power in a
  * temporary object (potion, grenade, rune, prepared weapon, trap, charm).
  *
- * Create / replace / dismiss only during a Safe Haven Rest. No Stones.
- * Combat resolution of the stored Power comes in a later pass.
+ * Create / replace only during a Safe Haven Rest. Give and Shatter anytime.
+ * No Stones.
  */
 export declare const MINOR_MAGIC_FLAG = "minorMagic";
 export declare const MINOR_MAGIC_LEDGER_FLAG = "minorMagicLedger";
@@ -56,6 +56,8 @@ export interface MinorMagicLedger {
     itemIds: string[];
     /** Display names for given-away items (keyed by instance id). */
     labels?: Record<string, string>;
+    /** Who currently carries each charge (instance id → actor id). */
+    holders?: Record<string, string>;
 }
 /** Delete option: the item is moving to another actor, not being spent. */
 export declare const MINOR_MAGIC_TRANSFER_DELETE = "masterySystemMinorMagicTransfer";
@@ -66,7 +68,8 @@ export declare function newMinorMagicInstanceId(fallback?: string): string;
 export declare function prepareMinorMagicFlagForTransfer(flag: MinorMagicItemFlag, sourceItemId: string): MinorMagicItemFlag;
 export declare function shouldReleaseMinorMagicOnDelete(flag: MinorMagicItemFlag | null | undefined, options?: Record<string, unknown> | null): boolean;
 export declare function countHeldMinorMagicItems(ledger: MinorMagicLedger): number;
-export declare function applyCreateToLedger(ledger: MinorMagicLedger, itemId: string, label?: string): MinorMagicLedger;
+export declare function applyCreateToLedger(ledger: MinorMagicLedger, itemId: string, label?: string, holderActorId?: string): MinorMagicLedger;
+export declare function applyHolderToLedger(ledger: MinorMagicLedger, itemId: string, holderActorId: string): MinorMagicLedger;
 export declare function applyReleaseToLedger(ledger: MinorMagicLedger, itemId: string): MinorMagicLedger | null;
 export declare function canManageMinorMagic(actor: any): boolean;
 export declare function beginMinorMagicRest(actor: {
@@ -151,9 +154,11 @@ export declare function getActorMinorMagicLedger(actor: {
     getFlag?: (scope: string, key: string) => unknown;
 }): MinorMagicLedger;
 export declare function setActorMinorMagicLedger(actor: {
+    id?: string;
     setFlag?: (scope: string, key: string, value: unknown) => Promise<unknown>;
+    update?: (data: Record<string, unknown>) => Promise<unknown>;
 }, ledger: MinorMagicLedger): Promise<void>;
-export declare const MINOR_MAGIC_REST_REQUIRED = "Create, replace, or dismiss Minor Magic Items only during a Safe Haven Rest.";
+export declare const MINOR_MAGIC_REST_REQUIRED = "Create or replace Minor Magic Items only during a Safe Haven Rest.";
 export declare function validateCreateMinorMagic(actor: any, power: any, form: MinorMagicForm): string | null;
 export declare function createMinorMagicItem(actor: any, opts: {
     powerId: string;
@@ -172,6 +177,12 @@ export declare function canGiveBackMinorMagic(actor: {
 }, item: any): boolean;
 export declare function listMinorMagicGiveTargets(excludeActorId?: string): any[];
 export declare function resolveMinorMagicCreator(flag: MinorMagicItemFlag, fallback?: any): Promise<any>;
+export declare function resolveActorName(actorId?: string): string;
+/** Find a live Minor Magic Item by stable instance id across world actors. */
+export declare function findMinorMagicItemByLedgerKey(ledgerKey: string): {
+    actor: any;
+    item: any;
+} | null;
 export declare function giveMinorMagicItemToActor(sourceActor: any, item: any, targetActor: any): Promise<{
     ok: true;
     item: any;
@@ -220,6 +231,13 @@ export declare function dismissMinorMagicItem(actor: any, item: any): Promise<{
     ok: false;
     error: string;
 }>;
+/** Shatter a charge by ledger key — works for items you carry or gave away. */
+export declare function dismissMinorMagicByLedgerKey(creator: any, ledgerKey: string): Promise<{
+    ok: true;
+} | {
+    ok: false;
+    error: string;
+}>;
 export declare function onMinorMagicItemDeleted(item: any, options?: Record<string, unknown> | null): Promise<void>;
 export declare function minorMagicSheetView(actor: any): {
     limit: number;
@@ -240,6 +258,8 @@ export declare function minorMagicSheetView(actor: any): {
         canGiveBack?: boolean;
         canDismiss?: boolean;
         creatorName?: string;
+        holderName?: string;
+        locationLabel?: string;
     }>;
 };
 //# sourceMappingURL=minor-magic-items.d.ts.map

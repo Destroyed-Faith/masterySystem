@@ -72,13 +72,21 @@ export declare function markMovementReductionTargets(targets: Array<{
     id?: string;
     round?: number;
 } | null | undefined): Promise<number>;
-/** Remaining Maximizations for the current combat (0 when none / wrong combat). */
+export type MaximizationSource = 'stone' | 'passive';
+/** Remaining stone Maximizations for the current combat. */
+export declare function remainingStoneMaximizations(actor: any): number;
+/** Total Maximizations (stone + Passive) available for UI enablement. */
 export declare function remainingMaximizations(actor: any): number;
+export declare function listAvailableMaximizationSources(actor: any): Array<{
+    source: MaximizationSource;
+    remaining: number;
+    label: string;
+}>;
 /**
- * Spend one Maximization charge. No dialog — the Roll / Roll Maximum buttons
- * are the decision. Shared combat pool (`vitality.damageMaximization`) — R-02.
+ * Spend one Maximization charge from exactly one source.
+ * Prefer `preferred` when that source still has charges; else stone then Passive.
  */
-export declare function spendMaximization(actor: any): Promise<boolean>;
+export declare function spendMaximization(actor: any, preferred?: MaximizationSource | null): Promise<boolean>;
 /**
  * @deprecated Prefer Roll / Roll Maximum buttons + {@link spendMaximization}.
  * Kept for tests and any legacy callers that still expect a confirm dialog.

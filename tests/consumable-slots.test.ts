@@ -249,14 +249,13 @@ describe('attack economy and consume rules', () => {
     expect(buildConsumableSlotView(actor).slots[0].empty).toBe(true);
   });
 
-  it('14. an emptied slot cannot be refilled during the same combat', () => {
+  it('14. consumable slots can be filled during combat (like Powers)', () => {
     const item = consumableItem('c1', null);
-    expect(validateEquipConsumable({ actor: actorStub(2, []), item, index: 0, inCombat: true })).toBe(
-      'in-combat',
-    );
+    expect(validateEquipConsumable({ actor: actorStub(2, []), item, index: 0, inCombat: true })).toBeNull();
+    expect(buildConsumableSlotView(actorStub(2, [])).locked).toBe(false);
   });
 
-  it('15. after combat the emptied slot can be filled again', () => {
+  it('15. consumable slots can also be filled out of combat', () => {
     const item = consumableItem('c1', null);
     expect(validateEquipConsumable({ actor: actorStub(2, []), item, index: 0, inCombat: false })).toBeNull();
   });

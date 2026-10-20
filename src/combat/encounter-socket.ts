@@ -154,7 +154,18 @@ async function handleEncounterSocket(payload: any): Promise<void> {
     return;
   }
 
-  if (type === 'gmActorUpdate' || type === 'gmMessageUpdate' || type === 'gmNextTurn' || type === 'gmDelayInitiative' || type === 'gmSetInitiative' || type === 'gmDefeatedPresentation') {
+  if (
+    type === 'gmActorUpdate' ||
+    type === 'gmMessageUpdate' ||
+    type === 'gmNextTurn' ||
+    type === 'gmDelayInitiative' ||
+    type === 'gmSetInitiative' ||
+    type === 'gmDefeatedPresentation' ||
+    type === 'gmTransferEmbeddedItem' ||
+    type === 'gmDeleteEmbeddedItem' ||
+    type === 'gmUpdateEmbeddedItem' ||
+    type === 'gmDeleteMinorMagicByKey'
+  ) {
     if (!game.user?.isGM) return;
     let ok = false;
     try {
@@ -166,6 +177,58 @@ async function handleEncounterSocket(payload: any): Promise<void> {
           await message.update(payload.update);
           ok = true;
         }
+      } else if (type === 'gmTransferEmbeddedItem') {
+        const { applyGmTransferEmbeddedItem } = await import('./gm-relay.js');
+        const requester = (game as any).users?.get?.(payload.replyTo);
+        ok = await applyGmTransferEmbeddedItem(payload, requester);
+      } else if (type === 'gmDeleteEmbeddedItem') {
+        const actor = game.actors?.get?.(String(payload.actorId || ''));
+        const itemId = String(payload.itemId || '');
+        const requester = (game as any).users?.get?.(payload.replyTo);
+        const owns =
+          !!requester &&
+          !!actor &&
+          (requester.isGM ||
+            (typeof actor.testUserPermission === 'function' &&
+              actor.testUserPermission(requester, 'OWNER')));
+        // Creator shatter on another PC: allow when requester owns the item's creator flag.
+        let allowed = owns;
+        if (!allowed && actor && itemId && requester) {
+          const item = actor.items?.get?.(itemId);
+          const flag = item?.getFlag?.('mastery-system', 'minorMagic') ??
+            item?.flags?.['mastery-system']?.minorMagic;
+          const creatorId = String(flag?.creatorId || '');
+          const creator = creatorId ? game.actors?.get?.(creatorId) : null;
+          allowed =
+            !!creator &&
+            (requester.isGM ||
+              (typeof creator.testUserPermission === 'function' &&
+                creator.testUserPermission(requester, 'OWNER')));
+        }
+        if (allowed && actor?.deleteEmbeddedDocuments && itemId) {
+          await actor.deleteEmbeddedDocuments('Item', [itemId]);
+          ok = true;
+        }
+      } else if (type === 'gmUpdateEmbeddedItem') {
+        const actor = game.actors?.get?.(String(payload.actorId || ''));
+        const item = actor?.items?.get?.(String(payload.itemId || ''));
+        const update = payload.update;
+        const keys = update && typeof update === 'object' ? Object.keys(update) : [];
+        const equipmentOnly =
+          keys.length > 0 &&
+          keys.every(
+            (k) =>
+              k === 'flags.mastery-system.equipment' ||
+              k.startsWith('flags.mastery-system.equipment.'),
+          );
+        if (item?.update && equipmentOnly) {
+          await item.update(update);
+          ok = true;
+        }
+      } else if (type === 'gmDeleteMinorMagicByKey') {
+        const { applyGmDeleteMinorMagicByKey } = await import('./gm-relay.js');
+        const requester = (game as any).users?.get?.(payload.replyTo);
+        ok = await applyGmDeleteMinorMagicByKey(payload, requester);
       } else if (type === 'gmDefeatedPresentation') {
         const { writeDefeatedPresentation } = await import('./defeated-token.js');
         let actor: any = null;

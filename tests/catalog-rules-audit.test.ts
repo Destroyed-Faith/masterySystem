@@ -93,10 +93,10 @@ describe('catalog-rules-audit report', () => {
         expect(report.entries.length).toBeGreaterThan(50);
         expect(report.summary.correct + report.summary.corrected).toBeGreaterThan(50);
 
-        // Critical(X) is fully defined: X attacks/round, explode 7–8
+        // Critical(X) is fully defined: X designations/combat, explode 7–8
         const crit = report.entries.find((e) => e.id === 'ab-critical');
         expect(crit?.status).toBe('correct');
-        expect(crit?.notes).toMatch(/Critical\(X\).*per Round/i);
+        expect(crit?.notes).toMatch(/Critical\(X\).*per combat/i);
         expect(report.summary['requires-rule-decision']).toBe(0);
 
         // Artifact Summon Token Generator is correct (4 tokens — not a conflict)
