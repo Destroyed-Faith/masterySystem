@@ -262,7 +262,13 @@
   flex: 1;
   scrollbar-width: thin;
   scrollbar-color: #e94560 rgba(255, 255, 255, 0.1);
-  padding: 0;
+  /* Room so selection rings are not clipped by the scrollport / toolbar above */
+  padding: 4px 2px 2px;
+  box-sizing: border-box;
+}
+
+.mastery-carousel.is-manage-effects .carousel-combatants {
+  padding-top: 6px;
 }
 
 .carousel-combatants::-webkit-scrollbar {
@@ -1352,6 +1358,10 @@ body.mastery-carousel-open.mastery-carousel-compact #ui-top {
   gap: 0.4rem;
 }
 
+.mastery-carousel.is-compact.is-manage-effects .carousel-combatants {
+  padding-top: 6px;
+}
+
 .mastery-carousel.is-compact .carousel-combatant {
   width: auto;
   min-width: 88px;
@@ -1644,9 +1654,23 @@ body.mastery-carousel-resizing #mastery-combat-carousel * {
   color: #9ecbff;
 }
 
+/* Manage-Effects selection: permanent gold border (not only on hover; not clipped by outer glow). */
 .carousel-portrait.is-fx-selected,
-.carousel-combatant.is-fx-selected .carousel-portrait {
-  box-shadow: 0 0 0 3px #ffd166, 0 0 12px rgba(255, 209, 102, 0.55);
+.carousel-combatant.is-fx-selected .carousel-portrait,
+.carousel-portrait.is-fx-selected:hover,
+.carousel-combatant.is-fx-selected .carousel-portrait:hover,
+.carousel-portrait.is-fx-selected.is-current,
+.carousel-portrait.is-fx-selected.is-next,
+.carousel-portrait.is-fx-selected.disp-pc,
+.carousel-portrait.is-fx-selected.disp-npc,
+.carousel-combatant.is-fx-selected .carousel-portrait.is-current,
+.carousel-combatant.is-fx-selected .carousel-portrait.is-next,
+.carousel-combatant.is-fx-selected .carousel-portrait.disp-pc,
+.carousel-combatant.is-fx-selected .carousel-portrait.disp-npc {
+  border: 3px solid #ffd166 !important;
+  border-style: solid !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 230, 150, 0.9) !important;
+  opacity: 1 !important;
 }
 
 .carousel-portrait.is-deferred::after,

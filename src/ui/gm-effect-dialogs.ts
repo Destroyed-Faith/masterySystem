@@ -96,25 +96,27 @@ export async function openGmApplySpecialDialog(targets: GmEffectTargetRef[]): Pr
     const dialog = new DialogCtor({
       title: `Apply Special (${targets.length})`,
       content: `<form class="ms-gm-effect-dialog">
-        <label>Special
-          <input type="search" class="js-gm-fx-filter" placeholder="Search…" />
-          <select class="js-gm-fx-special" size="10">${opts}</select>
+        <label class="ms-gm-fx-field">Special
+          <select class="js-gm-fx-special">${opts}</select>
         </label>
-        <label class="js-gm-fx-value-wrap">X
+        <label class="ms-gm-fx-field js-gm-fx-value-wrap">Value (X)
           <input type="number" class="js-gm-fx-value" min="1" max="40" value="1" />
         </label>
-        <div class="js-gm-fx-desc md-sublabel"></div>
-        <div class="js-gm-fx-preview"></div>
+        <details class="ms-gm-fx-explain">
+          <summary>Explanation</summary>
+          <div class="js-gm-fx-desc md-sublabel"></div>
+          <div class="js-gm-fx-preview"></div>
+        </details>
       </form>`,
       buttons: {
         rules: {
-          label: 'Apply Normally',
+          label: 'Add Normally to Existing Specials',
           callback: async (html: any) => {
             await runApply(html, targets, 'rules');
           },
         },
         exact: {
-          label: 'GM Override – Set Exact Value',
+          label: 'GM Override',
           callback: async (html: any) => {
             await runApply(html, targets, 'exact');
           },
@@ -129,9 +131,13 @@ export async function openGmApplySpecialDialog(targets: GmEffectTargetRef[]): Pr
         const sync = () => {
           const id = String(root.find('.js-gm-fx-special').val() || '');
           const def = getEffectById(id);
-          root.find('.js-gm-fx-value-wrap').toggle(!!def?.hasValue);
-          root.find('.js-gm-fx-desc').text(def?.description || '');
-          const value = Math.max(1, Math.floor(Number(root.find('.js-gm-fx-value').val()) || 1));
+          const valueWrap = root.find('.js-gm-fx-value-wrap');
+          const valueInput = root.find('.js-gm-fx-value');
+          // Keep the value row visible; disable when the Special has no rank.
+          valueWrap.toggleClass('is-disabled', !def?.hasValue);
+          valueInput.prop('disabled', !def?.hasValue);
+          root.find('.js-gm-fx-desc').text(def?.description || 'No description.');
+          const value = Math.max(1, Math.floor(Number(valueInput.val()) || 1));
           const preview = previewGmEffectApply({
             targets,
             specialId: id,
@@ -152,12 +158,6 @@ export async function openGmApplySpecialDialog(targets: GmEffectTargetRef[]): Pr
           );
         };
         root.find('.js-gm-fx-special, .js-gm-fx-value').on('change input', sync);
-        root.find('.js-gm-fx-filter').on('input', () => {
-          const q = String(root.find('.js-gm-fx-filter').val() || '').toLowerCase();
-          root.find('.js-gm-fx-special option').each((_: number, el: HTMLOptionElement) => {
-            el.hidden = !!q && !el.textContent?.toLowerCase().includes(q);
-          });
-        });
         sync();
       },
     });

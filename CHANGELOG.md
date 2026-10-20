@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.752] - 2026-10-20
+
+### Changed
+
+- **Manage Effects:** Apply Special uses a dropdown + always-visible Value field; Explanation/preview is collapsible. Buttons renamed to “Add Normally to Existing Specials” and “GM Override”.
+- **Combat Carousel:** Effect-selection gold border stays visible without hover and is no longer clipped at the top of the rail.
+
 ## [0.9.751] - 2026-10-20
 
 ### Changed
