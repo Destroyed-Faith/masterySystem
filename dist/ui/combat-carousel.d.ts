@@ -5,6 +5,9 @@ export declare class CombatCarouselApp extends BaseCarousel {
     private static _instance;
     /** Prevents double `nextTurn` / `previousTurn` from rapid clicks on carousel controls. */
     private static _turnNavigationBusy;
+    /** GM Effect Management Mode — client-only, never selects canvas Tokens. */
+    private static _manageEffectsMode;
+    private static _selectedCombatantIds;
     private hookEntries;
     static DEFAULT_OPTIONS: {
         id: string;

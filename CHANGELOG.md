@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.749] - 2026-10-20
+
+### Changed
+
+- **Combat Raises:** Paid Raises are chosen from a TN dropdown (Keine Raises / N Raise(s) — TN X). Free Raises are GM-only or auto-filled from Intellect Stone pool; players cannot edit them.
+- **Combat Carousel:** GM Manage Effects mode (multi-select, Apply to Area), Surprise edges with Round-1 order, and Defer Turn.
+
+### Fixed
+
+- **Combat Raises:** Declared Paid/Free Raises and Final TN persist on the attack card and survive Faith Fracture / GM rerolls (chat re-render no longer resets Raises to Base TN).
+
 ## [0.9.748] - 2026-10-20
 
 ### Fixed

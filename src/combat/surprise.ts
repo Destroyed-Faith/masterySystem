@@ -129,24 +129,47 @@ export async function applySurprisePriorityForAttack(attacker: any, target: any,
     round: Number(combat?.round) || 1,
     targetUnaware: unaware,
   });
-  if (grant) await grantSurprisePriority(attacker, true);
+  if (grant) await grantSurprisePriority(attacker, true, target, combat);
   return grant;
 }
 
-export async function grantSurprisePriority(actor: any, enabled = true): Promise<void> {
+/**
+ * Grant Surprise Priority. Prefer attacker→target combatant edges (Round-1 order).
+ * Legacy actor flag is still set for UI markers, but ordering uses edges.
+ */
+export async function grantSurprisePriority(
+  actor: any,
+  enabled = true,
+  target?: any,
+  combatArg?: any,
+): Promise<void> {
   if (!actor?.setFlag) return;
   if (!enabled) {
     await actor.unsetFlag?.('mastery-system', 'surprisePriority');
-  } else {
-    await actor.setFlag('mastery-system', 'surprisePriority', true);
+    return;
   }
-  const combat = (globalThis as any).game?.combat;
-  if (combat && typeof combat.setupTurns === 'function') {
-    try {
-      await combat.setupTurns();
-    } catch (err) {
-      console.warn('Mastery System | Surprise Priority reorder failed', err);
+  await actor.setFlag('mastery-system', 'surprisePriority', true);
+  const combat = combatArg ?? (globalThis as any).game?.combat;
+  if (!combat) return;
+  try {
+    const attackers = combatantsForActor(combat, actor);
+    const targets = target ? combatantsForActor(combat, target) : [];
+    if (attackers.length && targets.length) {
+      const { addSurpriseEdges } = await import('./surprise-order.js');
+      const result = await addSurpriseEdges(
+        combat,
+        attackers.map((c) => String(c.id)),
+        targets.map((c) => String(c.id)),
+      );
+      if (!result.ok) {
+        console.warn('Mastery System | Surprise Priority edges rejected', result.error);
+      }
+      return;
     }
+    const { applySurpriseOrderToCombat } = await import('./surprise-order.js');
+    await applySurpriseOrderToCombat(combat);
+  } catch (err) {
+    console.warn('Mastery System | Surprise Priority reorder failed', err);
   }
 }
 

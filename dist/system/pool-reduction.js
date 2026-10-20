@@ -50,11 +50,9 @@ export function attributePoolReduction(actor, poolAttribute) {
     return out;
 }
 /** Read the current Challenge state on an actor (one challenger at a time). */
-export function readChallengeState(actor) {
+export function readChallengeState(actor, tokenHint) {
     const state = { value: 0, challengerUuid: null, challengerName: null };
-    const list = actor?.system?.statusEffects;
-    if (!Array.isArray(list))
-        return state;
+    const list = readActorStatusEffects(actor, tokenHint);
     for (const entry of list) {
         const id = String(entry?.id ?? '').toLowerCase();
         const name = String(entry?.name ?? '').toLowerCase();
@@ -66,7 +64,6 @@ export function readChallengeState(actor) {
                 state.challengerName = String(entry.source);
         }
     }
-    // Fallback via canonical reader in case entries only carry legacy names.
     if (state.value === 0)
         state.value = getActiveSpecialValue(actor, 'challenge');
     return state;

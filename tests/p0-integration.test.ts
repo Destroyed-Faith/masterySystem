@@ -135,8 +135,9 @@ describe('P0 split attack two targets', () => {
 });
 
 describe('P0 surprise priority from an attack', () => {
-  it('sets the flag and sorts the attacker first without changing initiative', async () => {
+  it('stores Surprise edges and sorts the attacker first without changing initiative', async () => {
     const flags: Record<string, unknown> = {};
+    const combatFlags: Record<string, unknown> = {};
     const attacker = {
       id: 'ambusher',
       setFlag: async (_s: string, key: string, value: unknown) => {
@@ -145,20 +146,44 @@ describe('P0 surprise priority from an attack', () => {
       getFlag: (_s: string, key: string) => flags[key],
     };
     const target = { id: 'victim', statuses: { has: (id: string) => id === 'surprise' } };
-    vi.stubGlobal('game', { combat: { started: false, round: 1, setupTurns: async () => undefined } });
-    const granted = await applySurprisePriorityForAttack(attacker, target, (globalThis as any).game.combat);
+    const combatantA = { id: 'ambusher', actorId: 'ambusher', actor: attacker, initiative: 4 };
+    const combatantV = { id: 'victim', actorId: 'victim', actor: target, initiative: 12 };
+    const combat = {
+      started: false,
+      round: 1,
+      setupTurns: async () => undefined,
+      combatants: {
+        contents: [combatantA, combatantV],
+        values: () => [combatantA, combatantV][Symbol.iterator](),
+      },
+      setFlag: async (_s: string, key: string, value: unknown) => {
+        combatFlags[key] = value;
+      },
+      getFlag: (_s: string, key: string) => combatFlags[key],
+      unsetFlag: async (_s: string, key: string) => {
+        delete combatFlags[key];
+      },
+    };
+    vi.stubGlobal('game', { combat });
+    const granted = await applySurprisePriorityForAttack(attacker, target, combat);
     expect(granted).toBe(true);
     expect(flags.surprisePriority).toBe(true);
+    expect(combatFlags.surpriseEdges).toEqual([
+      { attackerId: 'ambusher', targetId: 'victim' },
+    ]);
+    expect(combatFlags.surpriseOrderIds?.[0]).toBe('ambusher');
     const surprising = {
       id: 'ambusher',
       initiative: 4,
       actor: attacker,
-      getFlag: (_s: string, key: string) => (key === 'surprisePriority' ? true : 0),
+      combat,
+      getFlag: () => 0,
     };
     const surprised = {
       id: 'victim',
       initiative: 12,
-      actor: { getFlag: () => false },
+      actor: target,
+      combat,
       getFlag: () => 0,
     };
     expect(compareInitiativeCombatants(surprising, surprised)).toBeLessThan(0);

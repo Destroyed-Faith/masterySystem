@@ -26,7 +26,11 @@ export declare function surprisePriorityShouldGrant(opts: {
 }): boolean;
 /** Attack against an unaware creature at the start of a fight. Initiative numbers stay put. */
 export declare function applySurprisePriorityForAttack(attacker: any, target: any, combat: any): Promise<boolean>;
-export declare function grantSurprisePriority(actor: any, enabled?: boolean): Promise<void>;
+/**
+ * Grant Surprise Priority. Prefer attacker→target combatant edges (Round-1 order).
+ * Legacy actor flag is still set for UI markers, but ordering uses edges.
+ */
+export declare function grantSurprisePriority(actor: any, enabled?: boolean, target?: any, combatArg?: any): Promise<void>;
 /**
  * Retired. Surprise no longer pins Initiative at 0 or halves Evade.
  * Round-1 order is Surprise Priority (`grantSurprisePriority`).

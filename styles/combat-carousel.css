@@ -1590,3 +1590,67 @@ body.mastery-carousel-resizing #mastery-combat-carousel * {
   font-size: 0.7rem;
 }
 
+/* GM Effect Management Mode */
+.carousel-settings-cog.js-manage-effects.is-active {
+  outline: 2px solid #ffd166;
+  color: #ffd166;
+}
+
+.ms-carousel-effect-bar,
+.ms-carousel-deferred-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-bottom: 1px solid rgba(255, 209, 102, 0.35);
+  font-size: 0.8rem;
+}
+
+.ms-carousel-effect-count {
+  font-weight: 700;
+  color: #ffd166;
+  margin-right: 0.35rem;
+}
+
+.ms-carousel-effect-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f5f0e6;
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.ms-carousel-effect-btn:hover {
+  border-color: #ffd166;
+  color: #ffd166;
+}
+
+.ms-carousel-deferred-bar {
+  color: #9ecbff;
+}
+
+.carousel-portrait.is-fx-selected,
+.carousel-combatant.is-fx-selected .carousel-portrait {
+  box-shadow: 0 0 0 3px #ffd166, 0 0 12px rgba(255, 209, 102, 0.55);
+}
+
+.carousel-portrait.is-deferred::after,
+.carousel-combatant.is-deferred .carousel-portrait::after {
+  content: 'Deferred';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  background: rgba(30, 80, 140, 0.9);
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 3;
+}
+

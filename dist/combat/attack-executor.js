@@ -994,24 +994,32 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     ${critButtonHtml}
     ${skipAwaitedHtml}
   `;
+    const raisePaidOptions = Array.from({ length: 9 }, (_, paid) => {
+        const finalTn = normalTn + paid * RAISE_INCREMENT;
+        const label = paid === 0
+            ? 'Keine Raises'
+            : `${paid} Raise${paid === 1 ? '' : 's'} — TN ${finalTn}`;
+        return `<option value="${paid}">${attackCardEsc(label)}</option>`;
+    }).join('');
     const raisePlanHtml = raiseContext
         ? `
     <div class="raise-plan-panel">
-      <p class="raise-tn-rule hint">+${RAISE_INCREMENT} TN per Paid Raise; Free Raises do not increase TN. Allocate effects after a hit.</p>
+      <p class="raise-tn-rule hint">+${RAISE_INCREMENT} TN je Paid Raise. Free Raises erhöhen die TN nicht. Effekte nach dem Treffer zuweisen.</p>
       <div class="raise-count-row">
         <label class="raise-count-label">Paid Raises
-          <input type="number" class="raise-paid-count" min="0" max="8" step="1" value="0" />
+          <select class="raise-paid-count" aria-label="Paid Raises">${raisePaidOptions}</select>
         </label>
-        <label class="raise-count-label">Free Raises
+        <label class="raise-count-label raise-free-gm-only" title="Nur GM — oder aus Intellect Stone Free Raises">
+          Free Raises <span class="raise-free-pool-hint md-sublabel"></span>
           <input type="number" class="raise-free-count" min="0" max="8" step="1" value="0" />
         </label>
       </div>
-      <p class="raise-plan-live md-sublabel">Final TN <strong class="raise-tn-display">${normalTn}</strong> — effects chosen after the roll.</p>
+      <p class="raise-plan-live md-sublabel">Effekte nach einem Treffer zuweisen.</p>
     </div>`
         : '';
     const raisesTitle = tnKind === 'casting'
-        ? `Declare Paid and Free Raise counts before the roll. +${RAISE_INCREMENT} Final TN per Paid Raise. Allocate Damage/Specials after a hit.${aoeMelee ? ' AoE: one roll, each creature checked against its own Final TN.' : ''}`
-        : `Declare Paid and Free Raise counts before the roll. Base ${normalTn}. +${RAISE_INCREMENT} Final TN per Paid Raise. Allocate after a hit.${aoeMelee ? ' AoE: one roll, each creature checked against its own Final TN.' : ''}`;
+        ? `Paid Raises im Dropdown wählen (TN steht in der Option). Free Raises nur GM / Stones. Effekte nach dem Treffer.${aoeMelee ? ' AoE: ein Wurf, jede Kreatur gegen ihre eigene Final TN.' : ''}`
+        : `Paid Raises im Dropdown wählen (Base ${normalTn}). Free Raises nur GM / Stones. Effekte nach dem Treffer.${aoeMelee ? ' AoE: ein Wurf, jede Kreatur gegen ihre eigene Final TN.' : ''}`;
     const evadeNote = '';
     const keepShown = useSheetPool ? npcAttackKeepDice(sheetAttackRow, masteryRank) : masteryRank;
     const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
@@ -1055,7 +1063,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         <div class="detail-row">
           <span class="detail-label">${tnLabel}:</span>
           <span class="detail-value">${tnValue}${evadeNote}${aoeMelee ? ' — jede Kreatur extra' : ''}${raiseContext
-        ? ` · Final TN <strong class="raise-tn-display">${normalTn}</strong>`
+        ? ` · Raises im Dropdown`
         : ''}</span>
         </div>
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
@@ -1214,8 +1222,6 @@ export function registerRaisePlanChatHooks() {
 }
 function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     const panel = messageElement.find('.raise-plan-panel');
-    if (panel.attr('data-raise-bound') === '1')
-        return;
     const button = messageElement.find('.roll-attack-btn').first();
     const syncCritSource = () => {
         const selected = String(messageElement.find('.crit-source-select').val() || '');
@@ -1225,12 +1231,28 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     };
     messageElement.find('.crit-source-select').on('change', syncCritSource);
     syncCritSource();
+    const gameAny = globalThis.game;
+    const msg = gameAny?.messages?.get?.(messageId);
+    const msFlags = msg?.getFlag?.('mastery-system') || msg?.flags?.['mastery-system'] || {};
+    const persistedPaid = Math.max(0, Math.floor(Number(msFlags.declaredRaiseSlots) || 0));
+    const persistedFree = Math.max(0, Math.floor(Number(msFlags.freeRaiseSlots) || 0));
+    const persistedTn = Math.max(0, Math.floor(Number(msFlags.raiseTn) || 0) || normalTn + persistedPaid * RAISE_INCREMENT);
     button.attr('data-normal-tn', String(normalTn));
     button.attr('data-target-evade', String(normalTn));
     button.attr('data-base-evade', String(normalTn));
-    button.attr('data-raise-tn', String(normalTn));
-    button.attr('data-raise-slots', '0');
-    button.attr('data-raise-plan', '[]');
+    // Never wipe persisted Raises on chat re-render (Faith Fracture / HUD refresh).
+    if (persistedPaid > 0 || persistedFree > 0 || Number(msFlags.raiseTn) > 0) {
+        button.attr('data-raise-tn', String(persistedTn));
+        button.attr('data-raise-slots', String(persistedPaid));
+        button.attr('data-free-raises', String(persistedFree));
+    }
+    else if (!button.attr('data-raise-slots')) {
+        button.attr('data-raise-tn', String(normalTn));
+        button.attr('data-raise-slots', '0');
+        button.attr('data-free-raises', '0');
+    }
+    if (!button.attr('data-raise-plan'))
+        button.attr('data-raise-plan', '[]');
     messageElement.find('.roll-attack-btn--crit').each((_, el) => {
         const $el = globalThis.$(el);
         $el.attr('data-normal-tn', String(normalTn));
@@ -1239,13 +1261,18 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
     });
     if (!raiseContext || !panel.length)
         return;
+    if (panel.attr('data-raise-bound') === '1') {
+        // Already wired — button attrs were refreshed from flags above. Do not
+        // overwrite the select (player may still be choosing Raises).
+        return;
+    }
     panel.attr('data-raise-bound', '1');
     const maxSlots = 8;
-    const isGM = !!globalThis.game?.user?.isGM;
+    const isGM = !!gameAny?.user?.isGM;
     const freeRaisePool = () => {
         try {
             const id = String(button.attr('data-attacker-id') || '');
-            const actor = globalThis.game?.actors?.get?.(id);
+            const actor = gameAny?.actors?.get?.(id);
             const rs = actor?.getFlag?.('mastery-system', 'roundState');
             return Math.max(0, Math.floor(Number(rs?.stoneBonuses?.freeRaises) || 0));
         }
@@ -1254,27 +1281,59 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         }
     };
     let applyingRemote = false;
-    // Split Strike 2 may already carry shared Paid counts from Strike 1.
-    const presetPaid = Math.max(0, Math.floor(Number(button.attr('data-raise-slots')) || 0));
-    const presetFree = Math.max(0, Math.floor(Number(button.attr('data-free-raises')) || 0));
-    if (presetPaid > 0)
-        panel.find('.raise-paid-count').val(String(presetPaid));
-    if (presetFree > 0)
-        panel.find('.raise-free-count').val(String(presetFree));
-    panel.find('.raise-free-count').attr('max', String(Math.max(freeRaisePool(), presetFree)));
+    // Split Strike 2 / persisted flags / stone Free Raises (auto-filled once).
+    const presetPaid = Math.max(persistedPaid, Math.floor(Number(button.attr('data-raise-slots')) || 0));
+    const poolNow = freeRaisePool();
+    const freeAlreadySet = msFlags.freeRaiseSlots != null ||
+        button.attr('data-free-raises-set') === '1' ||
+        Math.floor(Number(button.attr('data-free-raises')) || 0) > 0 ||
+        persistedFree > 0;
+    const presetFree = freeAlreadySet
+        ? Math.max(persistedFree, Math.floor(Number(button.attr('data-free-raises')) || 0))
+        : poolNow;
+    panel.find('.raise-paid-count').val(String(presetPaid));
+    panel.find('.raise-free-count').val(String(presetFree));
+    panel.find('.raise-free-count').attr('max', String(Math.max(poolNow, presetFree, 8)));
+    if (!freeAlreadySet && presetFree > 0) {
+        button.attr('data-free-raises-set', '1');
+    }
+    // Players never edit Free Raises — Stones auto-fill or GM adjusts.
+    if (!isGM) {
+        panel.find('.raise-free-count').prop('disabled', true).attr('readonly', 'readonly');
+        panel.find('.raise-free-gm-only').attr('title', 'Free Raises: nur der GM oder Intellect Stones');
+    }
     const readCounts = () => {
         const paid = Math.max(0, Math.min(maxSlots, Math.floor(Number(panel.find('.raise-paid-count').val()) || 0)));
-        const free = Math.max(0, Math.min(maxSlots, Math.floor(Number(panel.find('.raise-free-count').val()) || 0)));
+        let free = Math.max(0, Math.min(maxSlots, Math.floor(Number(panel.find('.raise-free-count').val()) || 0)));
+        if (!isGM) {
+            // Players cannot change Free Raises — keep persisted / button value.
+            free = Math.max(persistedFree, Math.floor(Number(button.attr('data-free-raises')) || 0));
+            panel.find('.raise-free-count').val(String(free));
+        }
         return { paid, free };
+    };
+    const persistCounts = async (paid, free, finalTn) => {
+        try {
+            const m = gameAny?.messages?.get?.(messageId);
+            if (!m?.setFlag)
+                return;
+            await m.setFlag('mastery-system', 'declaredRaiseSlots', paid);
+            await m.setFlag('mastery-system', 'freeRaiseSlots', free);
+            await m.setFlag('mastery-system', 'raiseTn', finalTn);
+            await m.setFlag('mastery-system', 'normalTn', normalTn);
+        }
+        catch (err) {
+            console.warn('Mastery System | persist raise counts failed', err);
+        }
     };
     const updatePreview = (broadcast = false) => {
         let { paid, free } = readCounts();
         const pool = freeRaisePool();
-        if (!isGM && free > pool) {
-            free = pool;
-            panel.find('.raise-free-count').val(String(free));
-            if (!applyingRemote)
-                ui.notifications?.warn?.(`Free Raises left: ${pool}.`);
+        panel
+            .find('.raise-free-pool-hint')
+            .text(pool > 0 ? `(Steine: ${pool})` : '');
+        if (isGM && free > pool && pool >= 0) {
+            // GM may still force Free Raises above the pool for adjudication.
         }
         if (paid + free > maxSlots) {
             free = Math.max(0, maxSlots - paid);
@@ -1283,11 +1342,11 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         panel.find('.raise-paid-count').val(String(paid));
         const { finalTn } = computeRaiseTns(normalTn, paid);
         const summary = paid + free > 0
-            ? `Paid ${paid} · Free ${free} → Final TN ${finalTn}. Allocate effects after a hit.`
-            : `Final TN ${finalTn} — no Raises declared.`;
-        panel.find('.raise-plan-live').html(`Final TN <strong class="raise-tn-display">${finalTn}</strong> — ${paid + free > 0 ? `Paid ${paid}, Free ${free}. Effects after hit.` : 'effects chosen after the roll.'}`);
-        messageElement.find('.raise-tn-display').text(String(finalTn));
-        // Pre-roll preview shows the base on-hit line (no Raise effects yet).
+            ? `Paid ${paid} · Free ${free} → Final TN ${finalTn}. Effekte nach dem Treffer.`
+            : `Keine Raises — TN ${finalTn}.`;
+        panel.find('.raise-plan-live').text(free > 0
+            ? `Free Raises: ${free} (keine TN-Erhöhung). Effekte nach dem Treffer.`
+            : 'Effekte nach einem Treffer zuweisen.');
         messageElement.find('.raise-cost-display').text(formatHitBreakdown(raiseContext.weaponDamageDice, raiseContext.baseSnapshot.damageDice, {
             raiseDice: 0,
             specials: raiseContext.baseSnapshot.specials,
@@ -1304,6 +1363,7 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
             $btn.removeAttr('data-raise-cost-waived');
             $btn.removeAttr('data-spell-cost');
         });
+        void persistCounts(paid, free, finalTn);
         if (broadcast && !applyingRemote)
             broadcastRaisePlan(messageId, { paid, free }, summary);
     };
@@ -1311,7 +1371,8 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         applyingRemote = true;
         try {
             panel.find('.raise-paid-count').val(String(draft.paid));
-            panel.find('.raise-free-count').val(String(draft.free));
+            if (isGM)
+                panel.find('.raise-free-count').val(String(draft.free));
             updatePreview(false);
         }
         finally {
@@ -1319,9 +1380,15 @@ function setupRaisesHandler(messageElement, messageId, normalTn, raiseContext) {
         }
     });
     panel
-        .find('.raise-paid-count, .raise-free-count')
+        .find('.raise-paid-count')
         .off('input.masteryRaisePlan change.masteryRaisePlan')
         .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview(true));
+    if (isGM) {
+        panel
+            .find('.raise-free-count')
+            .off('input.masteryRaisePlan change.masteryRaisePlan')
+            .on('input.masteryRaisePlan change.masteryRaisePlan', () => updatePreview(true));
+    }
     updatePreview(false);
 }
 //# sourceMappingURL=attack-executor.js.map

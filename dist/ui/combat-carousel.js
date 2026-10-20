@@ -15,6 +15,7 @@ import { readPowerFavorites, togglePowerFavorite } from './power-favorites.js';
 import { getAllCombatOptionsForActor } from '../token-radial-menu.js';
 import { resolveLiveActor } from '../system/status-target.js';
 import { forceEncounterDialog, forceEncounterDialogForAll, } from '../combat/encounter-setup-status.js';
+import { readDeferredIds } from '../combat/turn-defer.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
@@ -30,6 +31,9 @@ export class CombatCarouselApp extends BaseCarousel {
     static _instance = null;
     /** Prevents double `nextTurn` / `previousTurn` from rapid clicks on carousel controls. */
     static _turnNavigationBusy = false;
+    /** GM Effect Management Mode — client-only, never selects canvas Tokens. */
+    static _manageEffectsMode = false;
+    static _selectedCombatantIds = new Set();
     hookEntries = [];
     static DEFAULT_OPTIONS = {
         id: 'mastery-combat-carousel',
@@ -78,6 +82,8 @@ export class CombatCarouselApp extends BaseCarousel {
             CombatCarouselApp._instance.close();
             CombatCarouselApp._instance = null;
         }
+        CombatCarouselApp._manageEffectsMode = false;
+        CombatCarouselApp._selectedCombatantIds.clear();
     }
     /**
      * Get the singleton instance
@@ -118,6 +124,7 @@ export class CombatCarouselApp extends BaseCarousel {
         }
         const currentCombatantId = resolveCurrentCombatantId(combat);
         const isGM = game.user?.isGM || false;
+        const deferredIds = readDeferredIds(combat);
         const prefs = readCarouselClientPrefs();
         const preparing = isEncounterPreparing(combat);
         const roundForStones = Math.max(1, Number(combat.round) || 1);
@@ -362,6 +369,8 @@ export class CombatCarouselApp extends BaseCarousel {
                 name: combatant.name || actor.name,
                 img: portraitImg,
                 initiative: combatant.initiative ?? 0,
+                isEffectSelected: CombatCarouselApp._selectedCombatantIds.has(String(combatant.id)),
+                isDeferred: deferredIds.includes(String(combatant.id)),
                 stoneReady: isPc && stonesDoneForRound,
                 stonePending,
                 reactionRemaining: reactSum.remaining,
@@ -437,6 +446,9 @@ export class CombatCarouselApp extends BaseCarousel {
             showShutdown: isGM,
         };
         const nextCombatant = combatants.find((c) => c.isNext) ?? null;
+        const manageEffectsMode = isGM && CombatCarouselApp._manageEffectsMode;
+        const selectedCount = CombatCarouselApp._selectedCombatantIds.size;
+        const deferredQueue = combatants.filter((c) => c.isDeferred).map((c) => c.name);
         return {
             active: true,
             compact: resolveCarouselCompact(prefs, isCompactCarouselViewport()),
@@ -446,6 +458,11 @@ export class CombatCarouselApp extends BaseCarousel {
                 ? { id: nextCombatant.id, name: nextCombatant.name, img: nextCombatant.img, hasToken: nextCombatant.hasToken }
                 : null,
             controlsAllowed: isGM,
+            manageEffectsMode,
+            selectedCount,
+            showEffectToolbar: manageEffectsMode && selectedCount > 0,
+            deferredQueueLabel: deferredQueue.length ? `Deferred: ${deferredQueue.join(', ')}` : '',
+            isRound1: Math.max(1, Number(combat.round) || 1) === 1,
             showPlayerEndTurn: !isGM && userMayEndCurrentTurn(game.user, combat),
             currentRound: combat.round || 1,
             currentTurn: combat.turn || 0,
@@ -559,6 +576,170 @@ export class CombatCarouselApp extends BaseCarousel {
                 ev.preventDefault();
                 ev.stopPropagation();
                 void this.openCarouselSettingsDialog();
+            };
+        });
+        const selectedRefs = () => {
+            const combat = game.combats?.active;
+            const refs = [];
+            for (const id of CombatCarouselApp._selectedCombatantIds) {
+                const c = combat?.combatants?.get?.(id);
+                if (!c)
+                    continue;
+                refs.push({
+                    combatantId: String(c.id),
+                    actorId: String(c.actorId ?? c.actor?.id ?? ''),
+                    tokenId: String(c.tokenId ?? c.token?.id ?? ''),
+                    name: String(c.name ?? c.actor?.name ?? ''),
+                    disposition: Number((c.token?.document ?? c.token)?.disposition ?? c.actor?.token?.disposition ?? 0),
+                });
+            }
+            return refs;
+        };
+        root.querySelectorAll('.js-manage-effects').forEach((btn) => {
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                CombatCarouselApp._manageEffectsMode = !CombatCarouselApp._manageEffectsMode;
+                if (!CombatCarouselApp._manageEffectsMode) {
+                    CombatCarouselApp._selectedCombatantIds.clear();
+                }
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-clear-fx').forEach((btn) => {
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                CombatCarouselApp._selectedCombatantIds.clear();
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-select-all-fx').forEach((btn) => {
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                root.querySelectorAll('.carousel-combatant').forEach((el) => {
+                    const id = el.dataset.combatantId;
+                    if (id)
+                        CombatCarouselApp._selectedCombatantIds.add(id);
+                });
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-select-side-fx').forEach((btn) => {
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const side = String(btn.dataset.side || 'all');
+                CombatCarouselApp._selectedCombatantIds.clear();
+                root.querySelectorAll('.carousel-combatant').forEach((el) => {
+                    const card = el;
+                    const id = card.dataset.combatantId;
+                    const d = Math.floor(Number(card.dataset.disposition) || 0);
+                    const match = side === 'friendly' ? d >= 1 : side === 'hostile' ? d <= -1 : side === 'neutral' ? d === 0 : true;
+                    if (id && match)
+                        CombatCarouselApp._selectedCombatantIds.add(id);
+                });
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-apply-fx').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { openGmApplySpecialDialog } = await import('./gm-effect-dialogs.js');
+                await openGmApplySpecialDialog(selectedRefs());
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-remove-fx').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { openGmRemoveSpecialDialog } = await import('./gm-effect-dialogs.js');
+                await openGmRemoveSpecialDialog(selectedRefs());
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-adjust-fx').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { openGmAdjustSpecialDialog } = await import('./gm-effect-dialogs.js');
+                await openGmAdjustSpecialDialog(selectedRefs());
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-surprise-fx').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { openGmSurprisePriorityDialog } = await import('./gm-effect-dialogs.js');
+                await openGmSurprisePriorityDialog(selectedRefs());
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-undo-fx').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { requestUndoLastGmEffect } = await import('./gm-effect-dialogs.js');
+                await requestUndoLastGmEffect();
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-apply-area').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { openGmApplyToAreaDialog } = await import('./gm-effect-dialogs.js');
+                await openGmApplyToAreaDialog(selectedRefs());
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-recalc-surprise').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const { openGmRecalculateSurpriseDialog } = await import('./gm-effect-dialogs.js');
+                await openGmRecalculateSurpriseDialog();
+                CombatCarouselApp.refresh();
+            };
+        });
+        root.querySelectorAll('.js-defer-turn').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                if (!game.user?.isGM)
+                    return;
+                const combat = game.combats?.active;
+                if (!combat)
+                    return;
+                const { deferCombatantTurn } = await import('../combat/turn-defer.js');
+                const id = [...CombatCarouselApp._selectedCombatantIds][0] ||
+                    String(combat.combatant?.id || '');
+                const result = await deferCombatantTurn(combat, id);
+                ui.notifications?.[result.ok ? 'info' : 'warn']?.(result.message);
+                if (typeof combat.setupTurns === 'function') {
+                    await combat.setupTurns();
+                }
+                CombatCarouselApp.refresh();
             };
         });
         root.querySelectorAll('.js-edit-initiative').forEach((el) => {
@@ -709,6 +890,18 @@ export class CombatCarouselApp extends BaseCarousel {
                     return;
                 }
                 const combatantId = portrait.dataset.combatantId;
+                if (CombatCarouselApp._manageEffectsMode && game.user?.isGM && combatantId) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    if (CombatCarouselApp._selectedCombatantIds.has(combatantId)) {
+                        CombatCarouselApp._selectedCombatantIds.delete(combatantId);
+                    }
+                    else {
+                        CombatCarouselApp._selectedCombatantIds.add(combatantId);
+                    }
+                    CombatCarouselApp.refresh();
+                    return;
+                }
                 if (hit?.closest?.('.portrait-image')) {
                     ev.preventDefault();
                     ev.stopPropagation();

@@ -1035,6 +1035,27 @@ Hooks.once('init', async function() {
     }
   });
   Hooks.on('updateCombat', async (combat: Combat, changes: any) => {
+    if (changes?.round !== undefined && game.user?.isGM) {
+      const round = Math.max(1, Math.floor(Number((combat as any).round) || 1));
+      if (round >= 2) {
+        try {
+          const { clearSurpriseOrderState, clearActorSurprisePriorityFlags } = await import(
+            './combat/surprise-order.js'
+          );
+          await clearSurpriseOrderState(combat);
+          await clearActorSurprisePriorityFlags(combat);
+        } catch (err) {
+          console.warn('Mastery System | Surprise Round-2 clear failed', err);
+        }
+        try {
+          const { clearDeferStateForNewRound } = await import('./combat/turn-defer.js');
+          await clearDeferStateForNewRound(combat);
+        } catch (err) {
+          console.warn('Mastery System | Defer Round clear failed', err);
+        }
+      }
+    }
+
     if (changes?.turn === undefined) return;
 
     // End-of-turn resolution for the creature whose turn just ended (Slow, Brace).
@@ -1042,6 +1063,14 @@ Hooks.once('init', async function() {
       const prevId = (combat as any)?.previous?.combatantId;
       const endingActor = prevId ? (combat as any)?.combatants?.get?.(prevId)?.actor : null;
       if (endingActor && canCurrentUserUpdateDocument(endingActor)) {
+        if (prevId && game.user?.isGM) {
+          try {
+            const { markTurnCompleted } = await import('./combat/turn-defer.js');
+            await markTurnCompleted(combat, String(prevId));
+          } catch {
+            /* optional */
+          }
+        }
         const { processTurnEndMovement } = await import('./combat/movement-tracker.js');
         await processTurnEndMovement(endingActor);
         const { processTurnEndSpecials, announceStatusTick } = await import('./combat/status-tick.js');
@@ -1063,6 +1092,18 @@ Hooks.once('init', async function() {
     const currentCombatant = (combat as any)?.combatant;
     const turnActor = currentCombatant?.actor;
     if (!turnActor || !canCurrentUserUpdateDocument(turnActor)) return;
+    const combatantId = String(currentCombatant?.id ?? '');
+    try {
+      const { shouldRunTurnStartEffects, markTurnStarted } = await import('./combat/turn-defer.js');
+      if (!shouldRunTurnStartEffects(combat, combatantId)) {
+        return;
+      }
+      if (game.user?.isGM && combatantId) {
+        await markTurnStarted(combat, combatantId);
+      }
+    } catch (err) {
+      console.warn('Mastery System | turn-start defer gate failed', err);
+    }
     try {
       await applyPassiveTrigger(turnActor, 'turnStartSelf', combat);
     } catch (err) {

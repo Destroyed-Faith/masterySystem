@@ -14,7 +14,6 @@ import {
   npcSpecialEffectString,
 } from './npc-attack-model.js';
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
-import { getEffect } from './special-effects.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 
 export type NpcReactionSource = 'basic' | 'catalog' | 'custom';
@@ -262,57 +261,11 @@ export async function applyNpcReactionSpecialsToTarget(
   specials: string[],
   sourceActor: any,
 ): Promise<string[]> {
-  const limitNotes: string[] = [];
-  if (!target || !specials?.length) return limitNotes;
-  const { readActorStatusEffects } = await import('../system/active-specials.js');
-  const list: any[] = readActorStatusEffects(target).map((entry) => ({ ...entry }));
-  const sourceName = String(sourceActor?.name ?? 'NPC');
-  const combat = (globalThis as any).game?.combat ?? null;
-  const {
-    actorMasteryRank,
-    clampSpecialApplication,
-    formatApplicationLimitNote,
-    specialRoundAppsUpdate,
-  } = await import('../combat/special-application.js');
-  let workingApps: ReturnType<typeof clampSpecialApplication>['nextApps'] = null;
-  let appsUpdate: Record<string, unknown> = {};
-  for (const raw of specials) {
-    const match = String(raw || '').match(/^([^(]+)(?:\((\d+)\))?$/);
-    if (!match) continue;
-    const effectName = match[1].trim();
-    let effectValue = match[2] ? parseInt(match[2], 10) : null;
-    const effectId = getEffect(effectName)?.id;
-    if (effectValue != null && effectValue > 0 && effectId) {
-      const clamp = clampSpecialApplication(target, effectId, effectValue, combat, workingApps);
-      if (clamp.nextApps) {
-        workingApps = clamp.nextApps;
-        appsUpdate = specialRoundAppsUpdate(clamp.nextApps);
-      }
-      if (clamp.ignored > 0) {
-        limitNotes.push(
-          formatApplicationLimitNote(effectId, clamp.ignored, clamp.limit, actorMasteryRank(target)),
-        );
-      }
-      effectValue = clamp.applied;
-      if (effectValue <= 0) continue;
-    }
-    const existing = list.find((e: any) => (effectId && e.id === effectId) || e.name === effectName);
-    if (existing) {
-      if (effectValue != null) existing.value = (existing.value || 0) + effectValue;
-      if (effectId && !existing.id) existing.id = effectId;
-    } else {
-      list.push({
-        id: effectId,
-        name: effectName,
-        value: effectValue,
-        source: sourceName,
-        timestamp: Date.now(),
-      });
-    }
-  }
-  const { writeActorStatusList } = await import('../system/assign-status.js');
-  await writeActorStatusList(target, list, appsUpdate);
-  return limitNotes;
+  if (!target || !specials?.length) return [];
+  const { applySpecialStringsToTarget } = await import('../combat/apply-special-effects.js');
+  return applySpecialStringsToTarget(target, specials, sourceActor, {
+    skipReactiveCleanse: true,
+  });
 }
 
 export function newCustomNpcReaction(masteryRank: number): NpcReactionRow {

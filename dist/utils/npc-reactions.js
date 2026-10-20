@@ -8,7 +8,6 @@ import { filterCatalog } from './power-catalog.js';
 import { buildPowerItemFromCatalogEntry } from './power-item-builder.js';
 import { coerceNpcAttackSpecials, coerceNpcPhasesArray, npcSpecialEffectString, } from './npc-attack-model.js';
 import { buildBasicReactionItems } from '../combat/basic-combat.js';
-import { getEffect } from './special-effects.js';
 import { getRulesMasteryRank } from './mastery-rank-sync.js';
 export const NPC_STANDARD_REACTIONS = [
     { id: 'guard', name: 'Guard', description: '+MR × 2 Armor vs the triggering hit.' },
@@ -217,56 +216,12 @@ export function materializeNpcReactionPowers(actor) {
     return out;
 }
 export async function applyNpcReactionSpecialsToTarget(target, specials, sourceActor) {
-    const limitNotes = [];
     if (!target || !specials?.length)
-        return limitNotes;
-    const { readActorStatusEffects } = await import('../system/active-specials.js');
-    const list = readActorStatusEffects(target).map((entry) => ({ ...entry }));
-    const sourceName = String(sourceActor?.name ?? 'NPC');
-    const combat = globalThis.game?.combat ?? null;
-    const { actorMasteryRank, clampSpecialApplication, formatApplicationLimitNote, specialRoundAppsUpdate, } = await import('../combat/special-application.js');
-    let workingApps = null;
-    let appsUpdate = {};
-    for (const raw of specials) {
-        const match = String(raw || '').match(/^([^(]+)(?:\((\d+)\))?$/);
-        if (!match)
-            continue;
-        const effectName = match[1].trim();
-        let effectValue = match[2] ? parseInt(match[2], 10) : null;
-        const effectId = getEffect(effectName)?.id;
-        if (effectValue != null && effectValue > 0 && effectId) {
-            const clamp = clampSpecialApplication(target, effectId, effectValue, combat, workingApps);
-            if (clamp.nextApps) {
-                workingApps = clamp.nextApps;
-                appsUpdate = specialRoundAppsUpdate(clamp.nextApps);
-            }
-            if (clamp.ignored > 0) {
-                limitNotes.push(formatApplicationLimitNote(effectId, clamp.ignored, clamp.limit, actorMasteryRank(target)));
-            }
-            effectValue = clamp.applied;
-            if (effectValue <= 0)
-                continue;
-        }
-        const existing = list.find((e) => (effectId && e.id === effectId) || e.name === effectName);
-        if (existing) {
-            if (effectValue != null)
-                existing.value = (existing.value || 0) + effectValue;
-            if (effectId && !existing.id)
-                existing.id = effectId;
-        }
-        else {
-            list.push({
-                id: effectId,
-                name: effectName,
-                value: effectValue,
-                source: sourceName,
-                timestamp: Date.now(),
-            });
-        }
-    }
-    const { writeActorStatusList } = await import('../system/assign-status.js');
-    await writeActorStatusList(target, list, appsUpdate);
-    return limitNotes;
+        return [];
+    const { applySpecialStringsToTarget } = await import('../combat/apply-special-effects.js');
+    return applySpecialStringsToTarget(target, specials, sourceActor, {
+        skipReactiveCleanse: true,
+    });
 }
 export function newCustomNpcReaction(masteryRank) {
     return {

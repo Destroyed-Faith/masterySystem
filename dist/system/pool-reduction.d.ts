@@ -39,7 +39,7 @@ export interface ChallengeState {
     challengerName: string | null;
 }
 /** Read the current Challenge state on an actor (one challenger at a time). */
-export declare function readChallengeState(actor: any): ChallengeState;
+export declare function readChallengeState(actor: any, tokenHint?: unknown): ChallengeState;
 /**
  * Resolve targets to their underlying actor references for challenger matching.
  * Accepts actor ids / uuids and token ids (resolved on the active scene).

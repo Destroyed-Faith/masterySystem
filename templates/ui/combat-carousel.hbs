@@ -28,6 +28,20 @@
       {{/if}}
       <div class="carousel-utility-btns">
         {{#if controlsAllowed}}
+        <button type="button" class="carousel-settings-cog js-manage-effects{{#if manageEffectsMode}} is-active{{/if}}" title="Manage Effects / Effekte verwalten" aria-label="Manage Effects" aria-pressed="{{#if manageEffectsMode}}true{{else}}false{{/if}}">
+          <i class="fas fa-hand-sparkles"></i>
+        </button>
+        <button type="button" class="carousel-settings-cog js-apply-area" title="Apply to Area / Auf Bereich anwenden" aria-label="Apply to Area">
+          <i class="fas fa-globe"></i>
+        </button>
+        {{#if isRound1}}
+        <button type="button" class="carousel-settings-cog js-recalc-surprise" title="Recalculate Surprise Order" aria-label="Recalculate Surprise Order">
+          <i class="fas fa-shuffle"></i>
+        </button>
+        {{/if}}
+        <button type="button" class="carousel-settings-cog js-defer-turn" title="Defer Turn / Zug zurückstellen" aria-label="Defer Turn">
+          <i class="fas fa-hourglass-half"></i>
+        </button>
         <button type="button" class="carousel-settings-cog js-save-combat" title="{{localize 'MASTERY.combatSnapshot.saveHint'}}" aria-label="{{localize 'MASTERY.combatSnapshot.save'}}">
           <i class="fas fa-download"></i>
         </button>
@@ -40,6 +54,26 @@
         </button>
       </div>
     </div>
+    {{#if manageEffectsMode}}
+    <div class="ms-carousel-effect-bar">
+      <span class="ms-carousel-effect-count">{{selectedCount}} selected</span>
+      <button type="button" class="ms-carousel-effect-btn js-select-all-fx">Select All</button>
+      <button type="button" class="ms-carousel-effect-btn js-clear-fx">Clear Selection</button>
+      <button type="button" class="ms-carousel-effect-btn js-select-side-fx" data-side="friendly">Friends</button>
+      <button type="button" class="ms-carousel-effect-btn js-select-side-fx" data-side="neutral">Neutral</button>
+      <button type="button" class="ms-carousel-effect-btn js-select-side-fx" data-side="hostile">Hostiles</button>
+      {{#if showEffectToolbar}}
+      <button type="button" class="ms-carousel-effect-btn js-apply-fx">Apply Special</button>
+      <button type="button" class="ms-carousel-effect-btn js-remove-fx">Remove Special</button>
+      <button type="button" class="ms-carousel-effect-btn js-adjust-fx">Adjust Existing</button>
+      <button type="button" class="ms-carousel-effect-btn js-surprise-fx">Surprise Priority</button>
+      <button type="button" class="ms-carousel-effect-btn js-undo-fx">Undo Last</button>
+      {{/if}}
+    </div>
+    {{/if}}
+    {{#if deferredQueueLabel}}
+    <div class="ms-carousel-deferred-bar">{{deferredQueueLabel}}</div>
+    {{/if}}
     {{#unless preparing}}
     {{#if stonesReady}}
     {{#if controlsAllowed}}
@@ -56,8 +90,8 @@
     <!-- Combatants Row -->
     <div class="carousel-combatants">
       {{#each combatants as |combatant|}}
-        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}}{{#if combatant.showSideHp}} has-side-hp{{/if}}" data-combatant-id="{{combatant.id}}">
-        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}} {{combatant.dispositionClass}}{{#if combatant.showSideHp}} has-side-hp{{/if}}"
+        <div class="carousel-combatant{{#if combatant.isCurrent}} is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}}{{#if combatant.showSideHp}} has-side-hp{{/if}}{{#if combatant.isEffectSelected}} is-fx-selected{{/if}}{{#if combatant.isDeferred}} is-deferred{{/if}}" data-combatant-id="{{combatant.id}}" data-disposition="{{combatant.disposition}}">
+        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}}{{#if combatant.isNext}} is-next{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}} {{combatant.dispositionClass}}{{#if combatant.showSideHp}} has-side-hp{{/if}}{{#if combatant.isEffectSelected}} is-fx-selected{{/if}}{{#if combatant.isDeferred}} is-deferred{{/if}}"
              data-combatant-id="{{combatant.id}}">
           <div class="carousel-portrait-body">
           {{#if combatant.richTooltip}}

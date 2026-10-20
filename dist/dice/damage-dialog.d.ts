@@ -78,21 +78,8 @@ export declare function showDamageDialog(attacker: Actor, target: Actor, weaponI
  * Bind damage-card UI (roll, cancel). Safe to call again after chat HTML refresh.
  */
 export declare function attachDamageCardHandlers(messageId: string): void;
-/**
- * Ward total on the defender: Passive `wardIncoming` plus the Stone
- * Special Negation. `tempWard` and `incomingSpecialReduction` store the
- * same grant, so the higher one counts once.
- */
-export declare function getIncomingWardTotal(target: Actor | null | undefined): number;
-/**
- * Ward — reduces every eligible hostile Special(X). `value: null` means fully
- * blocked. Positive effects (e.g. Regeneration) pass through unchanged.
- */
-export declare function applyWardToIncomingSpecial(target: Actor, effectId: string | undefined, effectName: string, effectValue: number | null): {
-    value: number | null;
-    ward: number;
-    before: number | null;
-};
+import { applyWardToIncomingSpecial, getIncomingWardTotal } from '../combat/apply-special-effects.js';
+export { applyWardToIncomingSpecial, getIncomingWardTotal };
 /**
  * Result of the full defensive pipeline for one strike. Exposed so that the
  * chat card assembly (and split-attack logging) can render a single-line

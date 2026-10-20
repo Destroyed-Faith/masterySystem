@@ -7,6 +7,7 @@ import {
   isPassiveSelectionLocked,
   readCombatantSetupStep,
 } from './encounter-setup-flags.js';
+import { pendingDeferredBlocksRoundAdvance } from './turn-defer.js';
 
 export function isStonePowersDone(combat: Combat, combatantId: string, round: number): boolean {
   const done = (combat.flags as any)?.['mastery-system']?.stonePowersState?.stonesDone?.[combatantId];
@@ -272,6 +273,12 @@ export function initializeStoneRoundGate(): void {
     if (userId !== game.user?.id) return;
     if (changes?.turn === undefined && changes?.round === undefined) return;
     if (warnIfPlayerStonesPending(combat)) return false;
+    if (changes?.round !== undefined && pendingDeferredBlocksRoundAdvance(combat)) {
+      (globalThis as any).ui?.notifications?.warn?.(
+        'Deferred combatants must still act this Round before advancing.',
+      );
+      return false;
+    }
     return;
   });
 }

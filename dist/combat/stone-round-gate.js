@@ -3,6 +3,7 @@
  * NPCs do not block. The GM cannot skip the wait with Next Turn.
  */
 import { isPassiveSelectionLocked, readCombatantSetupStep, } from './encounter-setup-flags.js';
+import { pendingDeferredBlocksRoundAdvance } from './turn-defer.js';
 export function isStonePowersDone(combat, combatantId, round) {
     const done = combat.flags?.['mastery-system']?.stonePowersState?.stonesDone?.[combatantId];
     if (Number(done) === Number(round))
@@ -245,6 +246,10 @@ export function initializeStoneRoundGate() {
             return;
         if (warnIfPlayerStonesPending(combat))
             return false;
+        if (changes?.round !== undefined && pendingDeferredBlocksRoundAdvance(combat)) {
+            globalThis.ui?.notifications?.warn?.('Deferred combatants must still act this Round before advancing.');
+            return false;
+        }
         return;
     });
 }

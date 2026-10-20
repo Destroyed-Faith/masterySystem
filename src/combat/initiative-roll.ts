@@ -16,6 +16,8 @@ import {
   getNpcInitiativeModifier,
 } from '../utils/npc-initiative.js';
 import { requestSetCombatantInitiative } from './gm-relay.js';
+import { readSurpriseOrderIds } from './surprise-order.js';
+import { compareByDeferOrder } from './turn-defer.js';
 
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 
@@ -381,6 +383,15 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
   for (const c of combat.combatants) {
     await ensureInitiativeTieBreak(c);
   }
+  try {
+    const { applySurpriseOrderToCombat } = await import('./surprise-order.js');
+    const surprise = await applySurpriseOrderToCombat(combat);
+    if (!surprise.ok) {
+      console.warn('Mastery System | Surprise order after initiative phase', surprise.error);
+    }
+  } catch (err) {
+    console.warn('Mastery System | Surprise order apply failed', err);
+  }
   if (typeof (combat as any).setupTurns === 'function') {
     await (combat as any).setupTurns();
   }
@@ -420,22 +431,24 @@ export function compareInitiativeCombatants(a: any, b: any): number {
   const bDefeated = !!b?.defeated;
   if (aDefeated !== bDefeated) return aDefeated ? 1 : -1;
 
-  const priority = (c: any): number => {
-    try {
-      const combat = c?.combat ?? c?.parent;
+  {
+    const combat = a?.combat ?? a?.parent ?? b?.combat ?? b?.parent;
+    if (combat) {
+      const deferCmp = compareByDeferOrder(combat, String(a?.id ?? ''), String(b?.id ?? ''));
+      if (deferCmp != null) return deferCmp;
       const round = Math.max(1, Math.floor(Number(combat?.round) || 1));
-      if (round > 1) return 0;
-      return c?.getFlag?.('mastery-system', 'surprisePriority') ||
-        c?.actor?.getFlag?.('mastery-system', 'surprisePriority')
-        ? 1
-        : 0;
-    } catch {
-      return 0;
+      if (round <= 1) {
+        const order = readSurpriseOrderIds(combat);
+        if (order.length) {
+          const iaOrd = order.indexOf(String(a?.id ?? ''));
+          const ibOrd = order.indexOf(String(b?.id ?? ''));
+          if (iaOrd >= 0 && ibOrd >= 0 && iaOrd !== ibOrd) return iaOrd - ibOrd;
+          if (iaOrd >= 0 && ibOrd < 0) return -1;
+          if (ibOrd >= 0 && iaOrd < 0) return 1;
+        }
+      }
     }
-  };
-  const pa = priority(a);
-  const pb = priority(b);
-  if (pa !== pb) return pb - pa;
+  }
 
   const ia = Number.isFinite(Number(a?.initiative)) ? Number(a.initiative) : Number.NEGATIVE_INFINITY;
   const ib = Number.isFinite(Number(b?.initiative)) ? Number(b.initiative) : Number.NEGATIVE_INFINITY;

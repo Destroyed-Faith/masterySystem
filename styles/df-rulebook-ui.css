@@ -1023,7 +1023,18 @@
   letter-spacing: 0;
 }
 
-#chat-log .mastery-attack-card .raise-paid-count,
+#chat-log .mastery-attack-card select.raise-paid-count {
+  width: min(100%, 14rem);
+  min-width: 11rem;
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--df-text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
 #chat-log .mastery-attack-card .raise-free-count {
   width: 4.5rem;
   background: var(--df-bg-panel);
@@ -1031,6 +1042,17 @@
   border-radius: 4px;
   padding: 4px 6px;
   color: var(--df-text-primary);
+}
+
+#chat-log .mastery-attack-card .raise-free-count:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+#chat-log .mastery-attack-card .raise-free-pool-hint {
+  font-weight: 400;
+  text-transform: none;
+  margin-left: 0.15rem;
 }
 
 #chat-log .mastery-attack-card .raise-plan-live {

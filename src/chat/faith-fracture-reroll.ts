@@ -305,6 +305,30 @@ async function triggerAttackFaithReroll(
     (ui as any).notifications?.warn('Attack card not found in the chat log — cannot rerun the attack roll.');
     return;
   }
+  // Chat re-render resets button data-* attrs to the original card HTML (often 0).
+  // Restore declared Raises from the attack-card message flags before re-rolling.
+  try {
+    const card = (game as any).messages?.get?.(attackCardMessageId);
+    const f = card?.getFlag?.('mastery-system') || card?.flags?.['mastery-system'] || {};
+    const paid = Math.max(0, Math.floor(Number(f.declaredRaiseSlots) || 0));
+    const free = Math.max(0, Math.floor(Number(f.freeRaiseSlots) || 0));
+    const raiseTn = Math.max(0, Math.floor(Number(f.raiseTn) || 0));
+    const normalTn = Math.max(0, Math.floor(Number(f.normalTn ?? f.baseEvade) || 0));
+    if (paid > 0 || free > 0 || raiseTn > 0) {
+      button.attr('data-raise-slots', String(paid));
+      button.attr('data-free-raises', String(free));
+      if (raiseTn > 0) button.attr('data-raise-tn', String(raiseTn));
+      if (normalTn > 0) {
+        button.attr('data-normal-tn', String(normalTn));
+        button.attr('data-target-evade', String(normalTn));
+        button.attr('data-base-evade', String(normalTn));
+      }
+      button.closest('.mastery-attack-card').find('.raise-paid-count').val(String(paid));
+      button.closest('.mastery-attack-card').find('.raise-free-count').val(String(free));
+    }
+  } catch (restoreErr) {
+    console.warn('Mastery System | restore raise flags for faith reroll failed', restoreErr);
+  }
   const { executeAttackRollFromCard } = await import('./attack-roll-handler.js');
   await executeAttackRollFromCard(button, attackCardMessageId, { faithReroll: note });
 }

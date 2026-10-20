@@ -237,9 +237,20 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                     attackerItems = Array.from(freshAttacker.items.values());
                 }
             }
-            // Normal TN vs Raise TN (new Raise rules)
-            let normalTn = readAttackButtonDataInt(button, 'normal-tn', readAttackButtonDataInt(button, 'target-evade', flags.normalTn ?? flags.baseEvade ?? 0));
+            // Normal TN vs Raise TN (new Raise rules).
+            // Prefer attack-card message flags over DOM attrs — chat re-renders reset
+            // the button HTML to the original content (slots 0), which would wipe
+            // Raises on Faith Fracture / GM reroll.
+            const flagNormalTn = Math.max(0, Math.floor(Number(flags.normalTn ?? flags.baseEvade) || 0));
+            const flagRaiseTn = Math.max(0, Math.floor(Number(flags.raiseTn) || 0));
+            const flagPaid = Math.max(0, Math.floor(Number(flags.declaredRaiseSlots) || 0));
+            const flagFree = Math.max(0, Math.floor(Number(flags.freeRaiseSlots) || 0));
+            let normalTn = readAttackButtonDataInt(button, 'normal-tn', readAttackButtonDataInt(button, 'target-evade', flagNormalTn));
+            if (flagNormalTn > 0)
+                normalTn = flagNormalTn;
             let raiseTn = readAttackButtonDataInt(button, 'raise-tn', normalTn);
+            if (flagRaiseTn > 0)
+                raiseTn = flagRaiseTn;
             const willingSpell = flags.tnKind === 'casting' &&
                 button.closest('.mastery-attack-card').find('input.willing-spell-target').prop('checked') === true;
             if (willingSpell) {
@@ -252,15 +263,36 @@ export async function executeAttackRollFromCard(button, messageId, opts = {}) {
                 flags.willingSpellTarget = true;
             }
             // Pre-roll: only Paid / Free counts. Effects are allocated after a hit.
-            let declaredRaiseSlots = Math.max(0, readAttackButtonDataInt(button, 'raise-slots', 0));
-            let freeRaiseSlots = Math.max(0, readAttackButtonDataInt(button, 'free-raises', 0));
+            let declaredRaiseSlots = Math.max(flagPaid, readAttackButtonDataInt(button, 'raise-slots', 0));
+            let freeRaiseSlots = Math.max(flagFree, readAttackButtonDataInt(button, 'free-raises', 0));
+            // On faith reroll, flags are authoritative (DOM often shows the stale card HTML).
+            if (isFaithReroll && (flagPaid > 0 || flagRaiseTn > 0 || flagFree > 0)) {
+                declaredRaiseSlots = flagPaid;
+                freeRaiseSlots = flagFree;
+                raiseTn = flagRaiseTn > 0 ? flagRaiseTn : normalTn + flagPaid * RAISE_INCREMENT;
+            }
             const tnImpliedPaid = Math.max(0, Math.round((raiseTn - normalTn) / RAISE_INCREMENT));
             if (tnImpliedPaid > declaredRaiseSlots) {
                 declaredRaiseSlots = tnImpliedPaid;
             }
+            // Keep the attack card flags in sync so every subsequent reroll sees Raises.
+            try {
+                await message.setFlag?.('mastery-system', 'declaredRaiseSlots', declaredRaiseSlots);
+                await message.setFlag?.('mastery-system', 'freeRaiseSlots', freeRaiseSlots);
+                await message.setFlag?.('mastery-system', 'raiseTn', raiseTn);
+                await message.setFlag?.('mastery-system', 'normalTn', normalTn);
+                button.attr('data-raise-slots', String(declaredRaiseSlots));
+                button.attr('data-free-raises', String(freeRaiseSlots));
+                button.attr('data-raise-tn', String(raiseTn));
+                button.attr('data-free-raises-set', '1');
+            }
+            catch (persistErr) {
+                console.warn('Mastery System | could not persist raise slots on attack card', persistErr);
+            }
             // Split Strike 2 may already carry a shared post-hit allocation.
             let declaredRaises = parseDeclaredRaises(button.attr('data-raise-plan') || '[]');
-            if (freeRaiseSlots > 0 && freshAttacker) {
+            // Free Raises were already spent on the original roll — do not consume again.
+            if (!isFaithReroll && freeRaiseSlots > 0 && freshAttacker) {
                 try {
                     const { consumeFreeRaises } = await import('../combat/action-economy.js');
                     const spent = await consumeFreeRaises(freshAttacker, freeRaiseSlots);
