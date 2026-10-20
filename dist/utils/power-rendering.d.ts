@@ -44,5 +44,16 @@ export declare function renderPowerLevelRow(levelRow: PowerLevelRow, level: numb
 /**
  * Render a power level table for every defined level 1..16 (rows only when data exists).
  */
+/**
+ * Selection-panel summary for Add/Replace Power dialogs.
+ * Uses authoritative catalog level rows — does not invent rules text.
+ */
+export declare function renderCatalogSelectionDetailsHtml(entry: {
+    name: string;
+    templateName?: string;
+    category?: string;
+    description?: string;
+    raw?: any;
+}, selectedLevel?: number): string;
 export declare function renderPowerLevelTable(levels: Record<string, PowerLevelRow> | null | undefined, showTrigger?: boolean, chosenKey?: string): string;
 //# sourceMappingURL=power-rendering.d.ts.map

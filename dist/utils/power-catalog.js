@@ -38,6 +38,36 @@ export const CATEGORY_LABELS = {
     reaction: 'Reaction',
     passive: 'Passive',
 };
+/**
+ * Final Active Buff catalogue (`docs/Rules/active-buffs.md` TOC order).
+ * New-Power pickers may only offer these 18; legacy templates remain in
+ * `ACTIVE_BUFF_TEMPLATES` for owned items and direct `templateId` grants.
+ */
+export const FINAL_ACTIVE_BUFF_TEMPLATE_IDS = [
+    'ab-armor',
+    'ab-evade',
+    'ab-armor-aura',
+    'ab-temp-hp',
+    'ab-damage-reduction',
+    'ab-phasing',
+    'ab-spell-resistance',
+    'ab-cleanse-maintenance',
+    'ab-invisibility',
+    'ab-reinforced-parry',
+    'ab-reinforced-damage-negation',
+    'ab-damage',
+    'ab-critical',
+    'ab-damage-aura',
+    'ab-summon-damage-aura',
+    'ab-thorns',
+    'ab-summon-armor-aura',
+    'ab-intensified-absorption',
+];
+const FINAL_ACTIVE_BUFF_INDEX = new Map(FINAL_ACTIVE_BUFF_TEMPLATE_IDS.map((id, i) => [id, i]));
+/** True when `templateId` is in the official 18-buff selection catalogue. */
+export function isSelectableActiveBuffTemplateId(templateId) {
+    return FINAL_ACTIVE_BUFF_INDEX.has(String(templateId || '').trim());
+}
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export const SUBFAMILY_LABELS = {
     'damage-single': 'Single-Target Special Attack',
@@ -271,6 +301,37 @@ export const EFFECT_TYPE_LABELS = {
     damageRider: 'Damage Rider',
     movementBonus: 'Movement',
 };
+/**
+ * Visible `<option>` label for a catalog entry.
+ * Active Buffs use the canonical rulebook heading (`Active Buff: Armor`).
+ */
+export function catalogSelectOptionLabel(entry) {
+    if (entry.category === 'activeBuff') {
+        return String(entry.name || entry.templateName || entry.templateId).trim();
+    }
+    const badges = [];
+    if (entry.chosenSpecial)
+        badges.push(entry.chosenSpecial.key);
+    const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
+    const sub = labelPowerSubfamily(entry.subfamily);
+    const subPart = sub ? ` · ${sub}` : '';
+    return `${entry.templateName}${badgeStr}${subPart} [${CATEGORY_LABELS[entry.category]}]`;
+}
+/** Sort Active Buff entries into rulebook TOC order; other categories keep input order. */
+export function sortCatalogEntriesForPicker(entries) {
+    return entries
+        .map((e, i) => ({ e, i }))
+        .sort((a, b) => {
+        if (a.e.category === 'activeBuff' && b.e.category === 'activeBuff') {
+            const aOrd = FINAL_ACTIVE_BUFF_INDEX.get(a.e.templateId) ?? 999;
+            const bOrd = FINAL_ACTIVE_BUFF_INDEX.get(b.e.templateId) ?? 999;
+            if (aOrd !== bOrd)
+                return aOrd - bOrd;
+        }
+        return a.i - b.i;
+    })
+        .map(({ e }) => e);
+}
 /** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
 export function echoRequirementMet(requires, echoKey, subChoiceKey) {
     if (!requires?.length)
@@ -406,7 +467,7 @@ export function filterCatalog(filter) {
     const term = (filter.search || '').trim().toLowerCase();
     const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
     const subChoiceKey = (filter.actorSubChoiceKey || '').trim().toLowerCase();
-    return entries.filter((e) => {
+    const filtered = entries.filter((e) => {
         if (filter.category && e.category !== filter.category)
             return false;
         if (filter.subfamily && e.subfamily !== filter.subfamily)
@@ -429,6 +490,14 @@ export function filterCatalog(filter) {
             e.tags.includes('artifact-only')) {
             return false;
         }
+        // Final Active Buff catalogue only — unless resolving a concrete templateId
+        // (legacy owned powers / grants) or an explicit include flag.
+        if (e.category === 'activeBuff' &&
+            !filter.includeNonFinalActiveBuffs &&
+            !filter.templateId &&
+            !isSelectableActiveBuffTemplateId(e.templateId)) {
+            return false;
+        }
         if (term) {
             const hay = `${e.name} ${e.templateName}`.toLowerCase();
             if (!hay.includes(term))
@@ -440,6 +509,7 @@ export function filterCatalog(filter) {
         }
         return true;
     });
+    return sortCatalogEntriesForPicker(filtered);
 }
 /** Resolve a single catalog entry by template id and optional special key. */
 export function findCatalogEntry(templateId, special) {

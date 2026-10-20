@@ -4,13 +4,16 @@ import {
     filterCatalog,
     getSubfamiliesByCategory,
     CATEGORY_ORDER,
+    FINAL_ACTIVE_BUFF_TEMPLATE_IDS,
     _resetCatalogCache,
     activeTemplateCanBeSpell,
     actorAlreadyHasPower,
+    catalogSelectOptionLabel,
     findDuplicatePowerLabel,
     powerIdentityKeyFromEntry,
     findTemplateById,
     isDispelCatalogEntry,
+    isSelectableActiveBuffTemplateId,
     labelPowerSubfamily,
     powerSubfamilyHint,
 } from '../src/utils/power-catalog';
@@ -86,6 +89,27 @@ describe('Power Catalog (Templates refactor)', () => {
         const grant = filterCatalog({ templateId: 'extend-buff-mobility' });
         expect(grant).toHaveLength(1);
         expect(grant[0].templateName).toBe('Mobility Extension');
+    });
+
+    it('offers exactly the final 18 Active Buffs with canonical rulebook labels', () => {
+        const buffs = filterCatalog({ category: 'activeBuff' });
+        expect(buffs).toHaveLength(FINAL_ACTIVE_BUFF_TEMPLATE_IDS.length);
+        expect(buffs.map((e) => e.templateId)).toEqual([...FINAL_ACTIVE_BUFF_TEMPLATE_IDS]);
+        expect(buffs[0].templateId).toBe('ab-armor');
+        expect(catalogSelectOptionLabel(buffs[0])).toBe('Active Buff: Armor');
+        for (const e of buffs) {
+            expect(isSelectableActiveBuffTemplateId(e.templateId)).toBe(true);
+            expect(catalogSelectOptionLabel(e)).toBe(e.name);
+            expect(catalogSelectOptionLabel(e).startsWith('Active Buff:')).toBe(true);
+            expect(catalogSelectOptionLabel(e)).not.toMatch(/·|\[Active Buff\]/);
+        }
+        expect(buffs.some((e) => e.templateId === 'ab-healing')).toBe(false);
+        expect(buffs.some((e) => e.templateId === 'ab-penetration')).toBe(false);
+        expect(buffs.some((e) => e.templateId === 'ab-growth-form')).toBe(false);
+        // Legacy templates remain resolvable for owned / granted powers.
+        const legacy = filterCatalog({ templateId: 'ab-healing' });
+        expect(legacy).toHaveLength(1);
+        expect(legacy[0].templateId).toBe('ab-healing');
     });
 
     it('exposes the pure weapon-attack templates (no Special slot)', () => {

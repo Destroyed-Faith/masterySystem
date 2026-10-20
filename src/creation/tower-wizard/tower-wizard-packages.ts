@@ -10,6 +10,7 @@ import {
     echoRequirementMet,
     findCatalogEntry,
     getAllCatalogEntries,
+    isSelectableActiveBuffTemplateId,
     powerIdentityKey,
     powerIdentityKeyFromEntry,
     activeTemplateCanBeSpell,
@@ -674,6 +675,12 @@ export function getCategoryPickerGroups(
 
     for (const entry of getAllCatalogEntries()) {
         if (entry.category !== category) continue;
+        if (
+            category === 'activeBuff' &&
+            !isSelectableActiveBuffTemplateId(entry.templateId)
+        ) {
+            continue;
+        }
         if (!catalogEntryHasRank(entry, rank)) continue;
         if (entry.requiresEcho?.length) {
             if (!echoRequirementMet(entry.requiresEcho, echoKey, subChoiceKey)) continue;
@@ -689,7 +696,10 @@ export function getCategoryPickerGroups(
         list.push({
             templateId: entry.templateId,
             special: entry.chosenSpecial?.key ?? null,
-            label: entry.templateName || entry.name,
+            label:
+                category === 'activeBuff'
+                    ? entry.name || entry.templateName
+                    : entry.templateName || entry.name,
             hint: categoryCardHint(entry),
             mechanics: catalogMechanicsText(entry, rank),
             identityKey,
@@ -749,40 +759,34 @@ const OFFENSIVE_ACTIVE_BUFF_META: Record<
 > = {
     'ab-damage': {
         groupLabel: 'Raw damage',
-        label: 'Flat damage on every attack',
+        label: 'Active Buff: Damage',
         explanation: 'The simplest offensive buff — your weapon and power hits deal extra damage every time they land.',
-    },
-    'ab-penetration': {
-        groupLabel: 'Armor break',
-        label: 'Ignore enemy Armor',
-        explanation: 'Best against heavily armored targets. Your attacks treat part of their Armor as gone.',
-    },
-    'ab-damage-penetration': {
-        groupLabel: 'Armor break',
-        label: 'Damage and Armor penetration',
-        explanation: 'A hybrid buff for sustained pressure — hit harder and punch through Armor at the same time.',
     },
     'ab-critical': {
         groupLabel: 'Critical hits',
-        label: 'Critical subsystem',
+        label: 'Active Buff: Critical',
         explanation: 'Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.',
     },
-    'ab-special-overdrive': {
-        groupLabel: 'Special effects',
-        label: 'Boost a Special on your attacks',
-        explanation: 'Pick a Special you already use (Mark, Lacerate, Slow, …) and make it hit harder while the buff lasts.',
+    'ab-damage-aura': {
+        groupLabel: 'Auras',
+        label: 'Active Buff: Damage Aura',
+        explanation: 'End-of-turn damage pulse against nearby enemies while maintained.',
+    },
+    'ab-thorns': {
+        groupLabel: 'Retaliation',
+        label: 'Active Buff: Thorns',
+        explanation: 'When you take final HP damage, retaliate with Thorns dice (capped by the loss).',
     },
 };
 
 const OFFENSIVE_ACTIVE_BUFF_ORDER = [
     'ab-damage',
-    'ab-penetration',
-    'ab-damage-penetration',
     'ab-critical',
-    'ab-special-overdrive',
+    'ab-damage-aura',
+    'ab-thorns',
 ] as const;
 
-const OFFENSIVE_BUFF_GROUP_ORDER = ['Raw damage', 'Armor break', 'Critical hits', 'Special effects'] as const;
+const OFFENSIVE_BUFF_GROUP_ORDER = ['Raw damage', 'Critical hits', 'Auras', 'Retaliation'] as const;
 
 function stripMarkdown(text: string): string {
     return text.replace(/\*\*/g, '').trim();
@@ -854,67 +858,72 @@ export function isValidOffensiveActiveBuffId(templateId: string): boolean {
     return getOffensiveActiveBuffOptions().some((b) => b.id === templateId);
 }
 
-// R-05: Active Buff Healing / Healing Aura / Temporary HP + Healing are retired (no mechanics).
-// HP-free recovery now comes from Restoration Actives and Passive: Restoration.
+/** Support-mode Active Buffs from the final rulebook catalogue (non-package fillers). */
 const SUPPORT_ACTIVE_BUFF_ORDER = [
     'ab-temp-hp',
     'ab-spell-resistance',
     'ab-cleanse-maintenance',
     'ab-armor-aura',
-    'ab-immovable-temp-hp',
-    'ab-armor-temp-hp',
-    'ab-evade-temp-hp',
-    'ab-armor-evade',
-    'ab-growth-form',
+    'ab-invisibility',
+    'ab-summon-damage-aura',
+    'ab-summon-armor-aura',
+    'ab-intensified-absorption',
+    'ab-reinforced-parry',
+    'ab-reinforced-damage-negation',
 ] as const;
 
-const SUPPORT_BUFF_GROUP_ORDER = ['Recovery', 'Ward', 'Auras', 'Combined utility', 'Form'] as const;
+const SUPPORT_BUFF_GROUP_ORDER = ['Recovery', 'Ward', 'Auras', 'Summon', 'Specialty'] as const;
 
 const SUPPORT_BUFF_META: Record<string, { groupLabel: string; label: string; explanation: string }> = {
     'ab-temp-hp': {
         groupLabel: 'Recovery',
-        label: 'Temporary HP buffer',
+        label: 'Active Buff: Temporary HP',
         explanation: 'Frontload protection for the opening of a fight.',
     },
     'ab-spell-resistance': {
         groupLabel: 'Ward',
-        label: 'Spell Resistance',
+        label: 'Active Buff: Spell Resistance',
         explanation: 'Reject hostile spell structure for the duration.',
     },
     'ab-cleanse-maintenance': {
         groupLabel: 'Ward',
-        label: 'Self Cleanse',
+        label: 'Active Buff: Self Cleanse',
         explanation: 'At the start of your turn, steadily reduce one negative ongoing effect on you.',
     },
     'ab-armor-aura': {
         groupLabel: 'Auras',
-        label: 'Armor Aura',
+        label: 'Active Buff: Armor Aura',
         explanation: 'Share Armor with nearby allies.',
     },
-    'ab-immovable-temp-hp': {
-        groupLabel: 'Auras',
-        label: 'Immovable + Temporary HP',
-        explanation: 'Anchor yourself and allies with layered protection.',
+    'ab-invisibility': {
+        groupLabel: 'Ward',
+        label: 'Active Buff: Invisibility',
+        explanation: 'Temporary Invisibility Bonus that obscures Normal Combat Awareness.',
     },
-    'ab-armor-temp-hp': {
-        groupLabel: 'Combined utility',
-        label: 'Armor + Temporary HP',
-        explanation: 'Layer Armor and a protective buffer.',
+    'ab-summon-damage-aura': {
+        groupLabel: 'Summon',
+        label: 'Active Buff: Summon Damage Aura',
+        explanation: 'Your summons deal extra damage while inside your bonded aura.',
     },
-    'ab-evade-temp-hp': {
-        groupLabel: 'Combined utility',
-        label: 'Evade + Temporary HP',
-        explanation: 'Slip hits and buffer what gets through.',
+    'ab-summon-armor-aura': {
+        groupLabel: 'Summon',
+        label: 'Active Buff: Summon Armor Aura',
+        explanation: 'Your summons gain Armor while inside your bonded aura.',
     },
-    'ab-armor-evade': {
-        groupLabel: 'Combined utility',
-        label: 'Armor + Evade',
-        explanation: 'Hybrid defensive profile for unpredictable threats.',
+    'ab-intensified-absorption': {
+        groupLabel: 'Specialty',
+        label: 'Active Buff: Absorption Stone Increase',
+        explanation: 'Requires Absorption Passive — extra Temporary Colorless Stones on the first trigger each Round.',
     },
-    'ab-growth-form': {
-        groupLabel: 'Form',
-        label: 'Growth Form',
-        explanation: 'Utility form shift with defensive reach and presence.',
+    'ab-reinforced-parry': {
+        groupLabel: 'Specialty',
+        label: 'Active Buff: Parry Recovery',
+        explanation: 'Requires Parry Passive — regain spent Parry up to a per-round cap.',
+    },
+    'ab-reinforced-damage-negation': {
+        groupLabel: 'Specialty',
+        label: 'Active Buff: Damage Negation Pool',
+        explanation: 'Requires slotted Damage Negation Passive — temporary DN pool refreshed each Preparation.',
     },
 };
 

@@ -277,16 +277,20 @@ describe('tower-wizard-packages', () => {
         expect(review.offenseRows[0]?.playerName).not.toMatch(/tier/i);
     });
 
-    it('offensive active buff options include five catalog buffs with rank previews', () => {
+    it('offensive active buff options stay within the final rulebook catalogue', () => {
         const options = getOffensiveActiveBuffOptions();
-        expect(options.length).toBeGreaterThanOrEqual(5);
-        expect(options.map((o) => o.id)).toContain('ab-special-overdrive');
+        expect(options.length).toBeGreaterThanOrEqual(2);
+        expect(options.map((o) => o.id)).toContain('ab-damage');
+        expect(options.map((o) => o.id)).toContain('ab-critical');
+        expect(options.map((o) => o.id)).not.toContain('ab-special-overdrive');
+        expect(options.map((o) => o.id)).not.toContain('ab-penetration');
         for (const opt of options) {
             expect(opt.rankPreview.length).toBeGreaterThan(0);
             expect(opt.groupLabel.length).toBeGreaterThan(0);
+            expect(opt.label.startsWith('Active Buff:')).toBe(true);
         }
         const groups = getOffensiveActiveBuffGroups();
-        expect(groups.length).toBeGreaterThanOrEqual(3);
+        expect(groups.length).toBeGreaterThanOrEqual(2);
     });
 
     it('default active buff preview reflects defense package', () => {

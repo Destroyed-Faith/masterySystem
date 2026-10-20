@@ -4,9 +4,9 @@
  */
 import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-import { renderPowerLevelTable } from '../utils/power-rendering.js';
+import { renderCatalogSelectionDetailsHtml, renderPowerLevelTable, } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
-import { CATEGORY_LABELS, activeTemplateCanBeSpell, collectOwnedPowerIdentityKeys, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, } from '../utils/power-catalog.js';
+import { activeTemplateCanBeSpell, catalogSelectOptionLabel, collectOwnedPowerIdentityKeys, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, } from '../utils/power-catalog.js';
 import { applyPowerReplace, describePowerReplaceConstraints, isNonReplaceableGrantedPower, } from '../utils/power-replace.js';
 function escapeHtml(value) {
     return String(value)
@@ -16,9 +16,9 @@ function escapeHtml(value) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
 }
-function renderEntryDetails(entry, $description, $levelTable) {
+function renderEntryDetails(entry, $description, $levelTable, selectedLevel = 1) {
     const raw = entry.raw;
-    $description.text(raw.description || raw.fluff || '');
+    $description.html(renderCatalogSelectionDetailsHtml(entry, selectedLevel));
     if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
         const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l) => l?.trigger);
         $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));
@@ -304,14 +304,9 @@ export async function showPowerReplaceDialog(actor, powerItem) {
                     else {
                         $powerSelect.append('<option value="">-- Select a Power --</option>');
                         for (const e of available) {
-                            const badges = [];
-                            if (e.chosenSpecial)
-                                badges.push(e.chosenSpecial.key);
-                            const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
-                            const label = `${e.templateName}${badgeStr} · ${labelPowerSubfamily(e.subfamily)} [${CATEGORY_LABELS[e.category]}]`;
                             const opt = document.createElement('option');
                             opt.value = e.name;
-                            opt.textContent = label;
+                            opt.textContent = catalogSelectOptionLabel(e);
                             $powerSelect.append(opt);
                         }
                     }
@@ -350,7 +345,7 @@ export async function showPowerReplaceDialog(actor, powerItem) {
                         refreshSpellEligibility(undefined);
                         return;
                     }
-                    renderEntryDetails(entry, $description, $levelTable);
+                    renderEntryDetails(entry, $description, $levelTable, level);
                     $details.show();
                     refreshSpellEligibility(entry);
                     const template = findTemplateById(entry.templateId);

@@ -26,7 +26,10 @@ import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { powerLevelCost } from '../utils/constants.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-import { renderPowerLevelTable } from '../utils/power-rendering.js';
+import {
+    renderCatalogSelectionDetailsHtml,
+    renderPowerLevelTable,
+} from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import {
     buildPowerItemFromCatalogEntry,
@@ -50,6 +53,7 @@ import {
     powerHasConfiguredSpecial,
     collectOwnedPowerIdentityKeys,
     countPowersByCategory,
+    catalogSelectOptionLabel,
     filterCatalog,
     findCatalogEntryByName,
     labelPowerSubfamily,
@@ -556,13 +560,9 @@ export async function showPowerCreationDialog(
                 } else {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
                     for (const e of available) {
-                        const badges: string[] = [];
-                        if (e.chosenSpecial) badges.push(e.chosenSpecial.key);
-                        const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
-                        const label = `${e.templateName}${badgeStr} · ${labelPowerSubfamily(e.subfamily)} [${CATEGORY_LABELS[e.category]}]`;
                         const opt = document.createElement('option');
                         opt.value = e.name;
-                        opt.textContent = label;
+                        opt.textContent = catalogSelectOptionLabel(e);
                         opt.dataset.templateId = e.templateId;
                         $powerSelect.append(opt);
                     }
@@ -641,7 +641,11 @@ export async function showPowerCreationDialog(
                     refreshSpellEligibility(undefined);
                     return;
                 }
-                renderEntryDetails(entry, $description, $levelTable);
+                const selectedLevel = Math.max(
+                    1,
+                    Math.floor(Number($rankSelect.val()) || 1),
+                );
+                renderEntryDetails(entry, $description, $levelTable, selectedLevel);
                 $details.show();
                 refreshSpellEligibility(entry);
 
@@ -664,9 +668,14 @@ export async function showPowerCreationDialog(
 }
 
 /** Render the description + level table of a catalog entry into the dialog. */
-function renderEntryDetails(entry: CatalogEntry, $description: JQuery, $levelTable: JQuery): void {
+function renderEntryDetails(
+    entry: CatalogEntry,
+    $description: JQuery,
+    $levelTable: JQuery,
+    selectedLevel: number = 1,
+): void {
     const raw: any = entry.raw;
-    $description.text(raw.description || raw.fluff || '');
+    $description.html(renderCatalogSelectionDetailsHtml(entry, selectedLevel));
     if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
         const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l: any) => l?.trigger);
         $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));

@@ -69,9 +69,9 @@ const AXIS_SATURATION: Record<RoleAxisKey, number> = {
 
 const OFFENSIVE_ACTIVE_BUFFS = new Set([
     'ab-damage',
-    'ab-penetration',
     'ab-critical',
-    'ab-damage-penetration',
+    'ab-damage-aura',
+    'ab-thorns',
 ]);
 
 const OFFENSIVE_SPECIALS = new Set([

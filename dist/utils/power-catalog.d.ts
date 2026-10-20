@@ -24,6 +24,15 @@ import { type PowerTemplate } from './powers/templates/index.js';
 /** Category keys used in filter UI (in display order). */
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
+/**
+ * Final Active Buff catalogue (`docs/Rules/active-buffs.md` TOC order).
+ * New-Power pickers may only offer these 18; legacy templates remain in
+ * `ACTIVE_BUFF_TEMPLATES` for owned items and direct `templateId` grants.
+ */
+export declare const FINAL_ACTIVE_BUFF_TEMPLATE_IDS: readonly ["ab-armor", "ab-evade", "ab-armor-aura", "ab-temp-hp", "ab-damage-reduction", "ab-phasing", "ab-spell-resistance", "ab-cleanse-maintenance", "ab-invisibility", "ab-reinforced-parry", "ab-reinforced-damage-negation", "ab-damage", "ab-critical", "ab-damage-aura", "ab-summon-damage-aura", "ab-thorns", "ab-summon-armor-aura", "ab-intensified-absorption"];
+export type FinalActiveBuffTemplateId = (typeof FINAL_ACTIVE_BUFF_TEMPLATE_IDS)[number];
+/** True when `templateId` is in the official 18-buff selection catalogue. */
+export declare function isSelectableActiveBuffTemplateId(templateId: string | null | undefined): boolean;
 /** Player-facing names for catalog subfamilies (not raw keys like `damage-single`). */
 export declare const SUBFAMILY_LABELS: Record<string, string>;
 export declare const SUBFAMILY_HINTS: Record<string, string>;
@@ -198,7 +207,20 @@ export interface CatalogFilter {
      * include them so artifact grants keep working.
      */
     includeArtifactOnly?: boolean;
+    /**
+     * Include Active Buffs outside the final 18-buff rulebook catalogue
+     * (retired Healing, Combined buffs, Penetration, …). Default false for
+     * pickers. Direct `templateId` lookups still resolve legacy templates.
+     */
+    includeNonFinalActiveBuffs?: boolean;
 }
+/**
+ * Visible `<option>` label for a catalog entry.
+ * Active Buffs use the canonical rulebook heading (`Active Buff: Armor`).
+ */
+export declare function catalogSelectOptionLabel(entry: CatalogEntry): string;
+/** Sort Active Buff entries into rulebook TOC order; other categories keep input order. */
+export declare function sortCatalogEntriesForPicker(entries: CatalogEntry[]): CatalogEntry[];
 /** True when the actor's Echo key or sub-choice satisfies an optional requiresEcho list. */
 export declare function echoRequirementMet(requires: string[] | undefined, echoKey?: string | null, subChoiceKey?: string | null): boolean;
 /** Dispel actives are retired — cleanse covers table play; hide from all pickers. */

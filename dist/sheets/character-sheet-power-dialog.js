@@ -20,12 +20,12 @@ import { calculateMaxPowerLevel } from '../utils/calculations.js';
 import { castingBaseTnForMasteryRank } from '../combat/spell-roll-handler.js';
 import { powerLevelCost } from '../utils/constants.js';
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
-import { renderPowerLevelTable } from '../utils/power-rendering.js';
+import { renderCatalogSelectionDetailsHtml, renderPowerLevelTable, } from '../utils/power-rendering.js';
 import { setupPowerCatalogDialogChrome } from '../utils/legacy-dialog-resize.js';
 import { buildPowerItemFromCatalogEntry, } from '../utils/power-item-builder.js';
 import { applyXpCost, getXpState, } from '../progression/progression-hub-actions.js';
 import { appendXpHistory, currentXpUser } from '../utils/xp-history.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_DEFENSIVE_RANK, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, powerHasConfiguredSpecial, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_DEFENSIVE_RANK, CREATION_OFFENSIVE_RANK, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, activeTemplateCanBeSpell, canLearnAnotherSpeciallessSpell, countSpeciallessSpells, powerHasConfiguredSpecial, collectOwnedPowerIdentityKeys, countPowersByCategory, catalogSelectOptionLabel, filterCatalog, findCatalogEntryByName, labelPowerSubfamily, powerIdentityKeyFromEntry, powerSubfamilyHint, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 import { creationBaselineRank } from '../utils/power-xp-refund.js';
 /**
  * Show the template-based Power picker.
@@ -469,14 +469,9 @@ export async function showPowerCreationDialog(actor, options) {
                 else {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
                     for (const e of available) {
-                        const badges = [];
-                        if (e.chosenSpecial)
-                            badges.push(e.chosenSpecial.key);
-                        const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
-                        const label = `${e.templateName}${badgeStr} · ${labelPowerSubfamily(e.subfamily)} [${CATEGORY_LABELS[e.category]}]`;
                         const opt = document.createElement('option');
                         opt.value = e.name;
-                        opt.textContent = label;
+                        opt.textContent = catalogSelectOptionLabel(e);
                         opt.dataset.templateId = e.templateId;
                         $powerSelect.append(opt);
                     }
@@ -550,7 +545,8 @@ export async function showPowerCreationDialog(actor, options) {
                     refreshSpellEligibility(undefined);
                     return;
                 }
-                renderEntryDetails(entry, $description, $levelTable);
+                const selectedLevel = Math.max(1, Math.floor(Number($rankSelect.val()) || 1));
+                renderEntryDetails(entry, $description, $levelTable, selectedLevel);
                 $details.show();
                 refreshSpellEligibility(entry);
                 const template = findTemplateById(entry.templateId);
@@ -569,9 +565,9 @@ export async function showPowerCreationDialog(actor, options) {
     dialog.render(true);
 }
 /** Render the description + level table of a catalog entry into the dialog. */
-function renderEntryDetails(entry, $description, $levelTable) {
+function renderEntryDetails(entry, $description, $levelTable, selectedLevel = 1) {
     const raw = entry.raw;
-    $description.text(raw.description || raw.fluff || '');
+    $description.html(renderCatalogSelectionDetailsHtml(entry, selectedLevel));
     if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
         const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l) => l?.trigger);
         $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger, entry.chosenSpecial?.key));

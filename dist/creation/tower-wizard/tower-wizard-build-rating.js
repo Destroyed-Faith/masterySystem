@@ -26,9 +26,9 @@ const AXIS_SATURATION = {
 };
 const OFFENSIVE_ACTIVE_BUFFS = new Set([
     'ab-damage',
-    'ab-penetration',
     'ab-critical',
-    'ab-damage-penetration',
+    'ab-damage-aura',
+    'ab-thorns',
 ]);
 const OFFENSIVE_SPECIALS = new Set([
     'lacerate', 'ruin', 'challenge', 'blight', 'corrode', 'expose',

@@ -267,6 +267,88 @@ const MAX_LEVEL_TABLE = 16;
 /**
  * Render a power level table for every defined level 1..16 (rows only when data exists).
  */
+/**
+ * Selection-panel summary for Add/Replace Power dialogs.
+ * Uses authoritative catalog level rows — does not invent rules text.
+ */
+export function renderCatalogSelectionDetailsHtml(
+  entry: {
+    name: string;
+    templateName?: string;
+    category?: string;
+    description?: string;
+    raw?: any;
+  },
+  selectedLevel: number = 1,
+): string {
+  const raw: any = entry.raw ?? {};
+  const level = Math.max(1, Math.min(16, Math.floor(Number(selectedLevel) || 1)));
+  const levels = raw.levels && typeof raw.levels === 'object' ? raw.levels : null;
+  const row: PowerLevelRow | null = levels?.[String(level)] ?? null;
+  const canonical = String(entry.name || entry.templateName || '').trim();
+  const fluff = String(raw.fluff || entry.description || '').trim();
+  const effect = String(
+    (row as any)?.effect?.text ?? (row as any)?.effectText ?? '',
+  ).trim();
+  let duration = '—';
+  if (row?.duration) {
+    const d = row.duration as DurationSpec;
+    duration =
+      d.kind === 'masteryRankRounds'
+        ? 'Mastery Rank complete Combat Rounds (ends at Round End)'
+        : renderDuration(d);
+  }
+  const costAction = String(raw.cost?.action || '').toLowerCase();
+  let activation = '—';
+  if (entry.category === 'activeBuff' || String(raw.category || '') === 'activeBuff') {
+    activation =
+      costAction === 'attack'
+        ? 'Preparation Phase — commit your base Attack Action for the upcoming Round'
+        : 'Preparation Phase activation';
+  } else if (costAction === 'attack') {
+    activation = 'Attack Action';
+  } else if (costAction === 'movement') {
+    activation = 'Movement Action';
+  } else if (costAction) {
+    activation = costAction;
+  }
+  const restrictBits: string[] = [];
+  const typeStr = String(row?.type || '').trim();
+  if (typeStr && typeStr !== 'Active Buff') restrictBits.push(typeStr);
+  const hay = `${fluff}\n${effect}`;
+  const req = hay.match(/Requires[^.]*\./i);
+  if (req) restrictBits.push(req[0].replace(/\*\*/g, '').trim());
+  const unavailable = /unavailable|no effect at this/i.test(effect);
+  if (unavailable) {
+    restrictBits.push(`Power Level ${level} is unavailable or has no effect in the catalogue.`);
+  }
+
+  const esc = (s: string) =>
+    String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+  const mdLite = (s: string) => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  let html = `<div class="pc-selection-summary">`;
+  html += `<p class="pc-selection-name"><strong>${esc(canonical)}</strong></p>`;
+  if (fluff) html += `<p class="pc-selection-fluff">${mdLite(fluff)}</p>`;
+  html += `<p class="pc-selection-effect"><strong>Effect (Level ${level}):</strong> ${
+    effect ? mdLite(effect) : '—'
+  }</p>`;
+  html += `<p class="pc-selection-duration"><strong>Duration:</strong> ${esc(duration)}</p>`;
+  html += `<p class="pc-selection-activation"><strong>Activation:</strong> ${esc(activation)}</p>`;
+  if (restrictBits.length) {
+    html += `<p class="pc-selection-restrictions"><strong>Notes / Prerequisites:</strong> ${esc(
+      restrictBits.join(' '),
+    )}</p>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 export function renderPowerLevelTable(
   levels: Record<string, PowerLevelRow> | null | undefined,
   showTrigger: boolean = false,
