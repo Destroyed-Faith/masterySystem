@@ -41,7 +41,7 @@ export const PASSIVE_SELECTION_GROUPS: Readonly<
     'passive-damage-reduction',
     'passive-deep-vitality', // Health
     'passive-fortitude',
-    'passive-regeneration', // Restoration (R-05 identity preserved)
+    'passive-regeneration', // Regeneration
     'passive-ghostform', // Phasing
     'passive-spell-resistance',
     'passive-ward', // Special Negation

@@ -34,13 +34,13 @@ export const TOWER_WIZARD_COPY = {
         heading: 'What should your Active Buff do?',
         body: 'You can maintain only one Active Buff at a time. This is the power you activate to change how you fight for several rounds.',
         defaultHeading: 'Your package Active Buff',
-        rankNote: 'At Rank 4',
+        rankNote: 'At PL 4',
         defensiveTitle: 'Keep your defensive Buff',
         defensiveBody: 'Keep the Buff that improves your main defense.',
         offensiveTitle: 'Replace it with an offensive Buff',
-        offensiveBody: 'Use your Buff slot to make your attacks stronger instead of improving your defense. Examples: more damage, ignore Armor, better critical hits, or improve a Special.',
+        offensiveBody: 'Use your Buff slot to make your attacks stronger instead of improving your defense. Examples: Active Buff: Damage, Active Buff: Critical, Active Buff: Damage Aura, or Active Buff: Thorns.',
         supportTitle: 'Replace it with a support Buff',
-        supportBody: 'Use your Buff slot to help allies or protect the group. Examples: healing, auras, protection, or cleanse / anti-magic support.',
+        supportBody: 'Use your Buff slot for Temporary HP, auras, Invisibility, Self Cleanse, Spell Resistance, or Summon support from the final catalogue.',
     },
 
     offensiveBuff: {
@@ -48,19 +48,19 @@ export const TOWER_WIZARD_COPY = {
         supportHeading: 'Choose your support Active Buff',
         body: 'This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time.',
         replacing: 'Replacing',
-        rankPreview: 'At Rank 4',
-        durationNote: 'Duration',
+        rankPreview: 'At PL 4',
+        durationNote: 'In combat: activate during Preparation (commits base Attack Action)',
     },
 
     offenseDelivery: {
-        heading: 'How do you mainly attack?',
-        body: 'This sets your reliable Core Attack. Use it when you simply want to deal damage.',
-        coreNote: 'This is your reliable attack. Use it when you simply want to deal damage.',
+        heading: 'Attack style',
+        body: 'Choose Melee, Ranged, or Spell for your Core Weapon Attack. Then pick your Special Focus below.',
+        coreNote: 'Your Core Attack is a Weapon Attack matching this style.',
     },
 
     offenseSpecial: {
-        heading: 'What should your Special Attack do?',
-        body: 'Your Core Attack is for reliable damage. Your Special Attack changes the fight by adding a tactical effect.',
+        heading: 'How do you fight?',
+        body: 'Choose your Core Attack style, then the Special that defines your second Active Power.',
         whenToUse: 'When to use it',
         powerLabel: 'Power',
         emptyCatalog: 'No Special Attacks are available for this attack style in the catalog.',

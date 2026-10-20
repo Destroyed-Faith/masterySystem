@@ -270,11 +270,11 @@ export class TowerWizardDialog extends BaseDialog {
                 ? getDefensiveActiveBuffChoiceBody(this.selection.defenseId)
                 : '',
             isDefense: this.step === 'defense',
-            isDefensePassiveVariant: this.step === 'defensePassiveVariant',
+            isDefensePassiveVariant: false,
             isPassive2: this.step === 'passive2',
             isActiveBuffChoice: this.step === 'activeBuffChoice',
             isOffensiveBuff: this.step === 'offensiveBuff',
-            isOffenseDelivery: this.step === 'offenseDelivery',
+            isOffenseDelivery: false,
             isOffenseSpecial: this.step === 'offenseSpecial',
             isOffense: this.step === 'offense',
             isWeakenSave: this.step === 'weakenSave',
@@ -321,18 +321,13 @@ export class TowerWizardDialog extends BaseDialog {
     #canAdvance(): boolean {
         switch (this.step) {
             case 'defense':
-                return !!this.selection.defenseId;
-            case 'defensePassiveVariant':
-                return !!resolvePassive1TemplateId(this.selection);
+                return !!this.selection.defenseId && !!resolvePassive1TemplateId(this.selection);
             case 'passive2':
                 return !!this.selection.secondPassiveTemplateId;
             case 'activeBuffChoice':
                 return !!this.selection.activeBuffMode;
             case 'offensiveBuff':
                 return !!this.selection.offensiveActiveBuffId;
-            case 'offenseDelivery':
-                return !!this.selection.guidedAttackDelivery
-                    && !!(this.selection.offenseActivePicks?.[0]);
             case 'offenseSpecial':
                 return (this.selection.offenseActivePicks?.length ?? 0) === 2;
             case 'offense':
@@ -569,13 +564,14 @@ export class TowerWizardDialog extends BaseDialog {
             }
             this.selection.guidedAttackDelivery = mode;
             this.selection.delivery = resolved.delivery;
+            // Core Attack only — special focus is chosen on the same step.
             this.selection.offenseActivePicks = [resolved.pick];
             this.selection.offenseId = undefined;
             this.selection.offenseActiveOverrides = undefined;
             this.#removePowerOverride('offense-0');
             this.#removePowerOverride('offense-1');
             this.#syncGuidedOffenseOverrides();
-            window.setTimeout(() => this.#advanceAfterSelection(), 120);
+            this.render();
         });
 
         root.find('.js-tw-select-special-focus').on('click', (ev) => {

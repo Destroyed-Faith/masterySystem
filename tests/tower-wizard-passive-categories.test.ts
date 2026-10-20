@@ -20,10 +20,11 @@ describe('tower-wizard-passive-categories', () => {
         expect(passivesAreCategoryCompatible('passive-fortified-frame', 'passive-damage-healing')).toBe(true);
     });
 
-    it('isAllowedSecondPassive hides awareness and ward passives from guided step', () => {
+    it('isAllowedSecondPassive hides retired awareness but keeps catalogue ward Passives', () => {
         expect(isAllowedSecondPassive('passive-heightened-senses', 'passive-fortified-frame')).toBe(false);
-        expect(isAllowedSecondPassive('passive-spell-resistance', 'passive-fortified-frame')).toBe(false);
         expect(isAllowedSecondPassive('passive-awareness-evade', 'passive-fortified-frame')).toBe(false);
+        expect(isAllowedSecondPassive('passive-spell-resistance', 'passive-fortified-frame')).toBe(true);
+        expect(isAllowedSecondPassive('passive-ward', 'passive-fortified-frame')).toBe(true);
     });
 
     it('isAllowedSecondPassive rejects same id and same-category passives', () => {

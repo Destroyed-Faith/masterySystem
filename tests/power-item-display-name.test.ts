@@ -20,17 +20,17 @@ function entry(partial: Partial<CatalogEntry> & Pick<CatalogEntry, 'name' | 'tem
 }
 
 describe('defaultPowerItemDisplayName', () => {
-  it('strips Passive / Reaction / Active Buff prefixes', () => {
+  it('keeps full catalogue headings for Passives and Active Buffs', () => {
     expect(
       defaultPowerItemDisplayName(
         entry({
-          name: 'Passive: Restoration',
-          templateName: 'Restoration',
+          name: 'Passive: Regeneration',
+          templateName: 'Regeneration',
           templateId: 'passive-regeneration',
           category: 'passive',
         }),
       ),
-    ).toBe('Restoration');
+    ).toBe('Passive: Regeneration');
     expect(
       defaultPowerItemDisplayName(
         entry({
@@ -46,11 +46,11 @@ describe('defaultPowerItemDisplayName', () => {
         entry({
           name: 'Active Buff: Temporary HP',
           templateName: 'Temporary HP',
-          templateId: 'buff-temp-hp',
+          templateId: 'ab-temp-hp',
           category: 'activeBuff',
         }),
       ),
-    ).toBe('Temporary HP');
+    ).toBe('Active Buff: Temporary HP');
   });
 
   it('shortens special actives to Delivery [AoE|Zone] Special', () => {

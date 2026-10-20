@@ -48,54 +48,51 @@ describe('tower-wizard-packages', () => {
     });
 
     it('second passive groups exclude Passive 1 and every same-category passive', () => {
-        const groups = getSecondPassiveIntentGroups('armor', 'passive-stone-stance');
+        const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
         const allIds = groups.flatMap((g) => g.passives.map((p) => p.id));
         const labels = groups.map((g) => g.intentLabel);
 
-        expect(allIds).not.toContain('passive-stone-stance');
         expect(allIds).not.toContain('passive-fortified-frame');
-        expect(allIds).not.toContain('passive-surrounded-bulwark');
         expect(allIds).not.toContain('passive-armor-temp-hp');
         expect(allIds).not.toContain('conditional-passive-armor-healing');
         expect(allIds).not.toContain('passive-heightened-senses');
-        expect(labels).not.toContain('Reinforce your Main Defense');
-        expect(labels).not.toContain('Add Awareness / Utility');
-        expect(labels).toContain('Evade');
-        expect(labels).toContain('Damage Reduction');
-        expect(labels).toContain('Phasing');
+        expect(labels).toEqual(['Offensive', 'Defensive', 'Utility & Mobility']);
         expect(allIds).toContain('passive-evade');
         expect(allIds).toContain('passive-damage-reduction');
         expect(allIds).toContain('passive-temp-hp');
         expect(allIds).toContain('passive-parry');
         expect(allIds).toContain('passive-damage-negation');
         expect(allIds).toContain('passive-invisibility');
-        expect(allIds).not.toContain('passive-special-aura');
+        // Special Aura / Thorns remain catalogue identities; Thorns needs Green Warden Echo.
+        expect(allIds).toContain('passive-special-aura');
+        expect(allIds).not.toContain('passive-thornhide');
         expect(allIds).not.toContain('passive-ambusher');
         expect(allIds).not.toContain('extend-buff-damage-reduction');
     });
 
-    it('guided passive 2 uses technical names and rulebook values', () => {
+    it('guided passive 2 uses catalogue groups and canonical names', () => {
         const groups = getSecondPassiveIntentGroups('evade', 'passive-evade');
-        const armor = groups.find((g) => g.intentLabel === 'Armor');
-        const healing = groups.find((g) => g.intentLabel === 'Restoration');
-        const damage = groups.find((g) => g.intentLabel === 'Damage');
+        expect(groups.map((g) => g.intentLabel)).toEqual(
+            expect.arrayContaining(['Offensive', 'Defensive', 'Utility & Mobility']),
+        );
+        const all = groups.flatMap((g) => g.passives);
+        const armor = all.find((p) => p.id === 'passive-fortified-frame');
+        const regen = all.find((p) => p.id === 'passive-regeneration');
+        const damage = all.find((p) => p.id === 'passive-killing-intent');
 
-        expect(armor?.passives.map((p) => p.id)[0]).toBe('passive-fortified-frame');
-        expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.label).toBe('Armor');
-        expect(armor?.passives.some((p) => p.id === 'passive-armor-healing')).toBe(false);
-        expect(armor?.passives.some((p) => p.id === 'passive-echo-armor-value')).toBe(false);
-        expect(armor?.passives.find((p) => p.id === 'passive-fortified-frame')?.mechanicsPreview).toMatch(/\+5 Armor/);
+        expect(armor?.label).toBe('Passive: Armor');
+        expect(armor?.mechanicsPreview).toMatch(/PL 4/);
+        expect(armor?.mechanicsPreview).toMatch(/\+5 Armor/);
+        expect(all.some((p) => p.id === 'passive-armor-healing')).toBe(false);
 
-        expect(healing?.passives.find((p) => p.id === 'passive-regeneration')?.label).toBe('Restoration');
-        expect(healing?.passives.some((p) => p.id === 'passive-blood-feast')).toBe(false);
-        // R-05: Scarred Bar pool per Tyhran Day (PL4 = 2 bars); no turn-start HP healing.
-        const regenPreview = healing?.passives.find((p) => p.id === 'passive-regeneration')?.mechanicsPreview;
-        expect(regenPreview).toMatch(/2 Scarred Health Bars/);
-        expect(regenPreview).not.toMatch(/heal \d+ HP/);
+        expect(regen?.label).toBe('Passive: Regeneration');
+        expect(regen?.mechanicsPreview).toMatch(/2 Scarred Health Bars/);
+        expect(regen?.mechanicsPreview).not.toMatch(/heal \d+ HP/);
+        expect(all.some((p) => p.id === 'passive-blood-feast')).toBe(false);
 
-        expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.label).toBe('Damage');
-        expect(damage?.passives.some((p) => p.id === 'passive-momentum')).toBe(false);
-        expect(damage?.passives.find((p) => p.id === 'passive-killing-intent')?.mechanicsPreview).toMatch(/\+2d8 Damage/);
+        expect(damage?.label).toBe('Passive: Damage');
+        expect(damage?.mechanicsPreview).toMatch(/\+2d8 Damage/);
+        expect(all.some((p) => p.id === 'passive-momentum')).toBe(false);
     });
 
     it('armor Passive 1 variants include fortified frame and conditional options', () => {
@@ -111,29 +108,30 @@ describe('tower-wizard-packages', () => {
         expect(variants[0]?.isLocked).toBe(true);
     });
 
-    it('second passive intent groups list DR, Phasing, Parry, and Negation by name', () => {
+    it('second passive groups list DR, Phasing, Parry, and Negation under Defensive', () => {
         const groups = getSecondPassiveIntentGroups('armor', 'passive-fortified-frame');
-        const dr = groups.find((g) => g.intentLabel === 'Damage Reduction');
-        const phasing = groups.find((g) => g.intentLabel === 'Phasing');
-        const parry = groups.find((g) => g.intentLabel === 'Parry');
-        const negation = groups.find((g) => g.intentLabel === 'Damage Negation');
-        expect(dr?.passives.some((p) => p.id === 'passive-damage-reduction')).toBe(true);
-        expect(phasing?.passives.some((p) => p.id === 'passive-ghostform')).toBe(true);
-        expect(parry?.passives.some((p) => p.id === 'passive-parry')).toBe(true);
-        expect(negation?.passives.some((p) => p.id === 'passive-damage-negation')).toBe(true);
-        expect(dr?.passives.find((p) => p.id === 'passive-damage-reduction')?.warning).toBeUndefined();
+        const defensive = groups.find((g) => g.intentLabel === 'Defensive');
+        expect(defensive?.passives.some((p) => p.id === 'passive-damage-reduction')).toBe(true);
+        expect(defensive?.passives.some((p) => p.id === 'passive-ghostform')).toBe(true);
+        expect(defensive?.passives.some((p) => p.id === 'passive-parry')).toBe(true);
+        expect(defensive?.passives.some((p) => p.id === 'passive-damage-negation')).toBe(true);
+        expect(defensive?.passives.find((p) => p.id === 'passive-damage-reduction')?.label).toBe(
+            'Passive: Damage Reduction',
+        );
     });
 
     it('guided step order includes Passive 1 variant after defense', () => {
-        expect(WIZARD_STEP_ORDER.indexOf('defensePassiveVariant')).toBe(1);
-        expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).toContain('defensePassiveVariant');
+        expect(WIZARD_STEP_ORDER).not.toContain('defensePassiveVariant');
+        expect(getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' })).not.toContain(
+            'defensePassiveVariant',
+        );
     });
 
-    it('guided step order includes delivery and special focus before review', () => {
-        expect(WIZARD_STEP_ORDER).toContain('offenseDelivery');
+    it('guided step order merges attack style into special focus before review', () => {
+        expect(WIZARD_STEP_ORDER).not.toContain('offenseDelivery');
         expect(WIZARD_STEP_ORDER).toContain('offenseSpecial');
         const steps = getVisibleWizardSteps({ defenseId: 'armor', activeBuffMode: 'defensive' });
-        expect(steps).toContain('offenseDelivery');
+        expect(steps).not.toContain('offenseDelivery');
         expect(steps).toContain('offenseSpecial');
         expect(steps).not.toContain('offense');
     });

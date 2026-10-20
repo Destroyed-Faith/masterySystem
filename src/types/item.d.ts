@@ -313,6 +313,8 @@ export interface PowerMechanics {
   specialAmplification?: number;
   /** Passive: Speed — flat meters added once to the Speed statistic. */
   speedBonus?: number;
+  /** Passive / Active Buff: Thorns — Nd8 retaliation on final HP damage. */
+  thornsDice?: number;
 
   /**
    * Ward — reduces every incoming eligible hostile Special(X) by this value

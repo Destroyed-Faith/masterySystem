@@ -28,30 +28,30 @@ export declare const TOWER_WIZARD_COPY: {
         readonly heading: "What should your Active Buff do?";
         readonly body: "You can maintain only one Active Buff at a time. This is the power you activate to change how you fight for several rounds.";
         readonly defaultHeading: "Your package Active Buff";
-        readonly rankNote: "At Rank 4";
+        readonly rankNote: "At PL 4";
         readonly defensiveTitle: "Keep your defensive Buff";
         readonly defensiveBody: "Keep the Buff that improves your main defense.";
         readonly offensiveTitle: "Replace it with an offensive Buff";
-        readonly offensiveBody: "Use your Buff slot to make your attacks stronger instead of improving your defense. Examples: more damage, ignore Armor, better critical hits, or improve a Special.";
+        readonly offensiveBody: "Use your Buff slot to make your attacks stronger instead of improving your defense. Examples: Active Buff: Damage, Active Buff: Critical, Active Buff: Damage Aura, or Active Buff: Thorns.";
         readonly supportTitle: "Replace it with a support Buff";
-        readonly supportBody: "Use your Buff slot to help allies or protect the group. Examples: healing, auras, protection, or cleanse / anti-magic support.";
+        readonly supportBody: "Use your Buff slot for Temporary HP, auras, Invisibility, Self Cleanse, Spell Resistance, or Summon support from the final catalogue.";
     };
     readonly offensiveBuff: {
         readonly heading: "Choose your offensive Active Buff";
         readonly supportHeading: "Choose your support Active Buff";
         readonly body: "This replaces your defensive Active Buff for the whole package. You only run one Active Buff at a time.";
         readonly replacing: "Replacing";
-        readonly rankPreview: "At Rank 4";
-        readonly durationNote: "Duration";
+        readonly rankPreview: "At PL 4";
+        readonly durationNote: "In combat: activate during Preparation (commits base Attack Action)";
     };
     readonly offenseDelivery: {
-        readonly heading: "How do you mainly attack?";
-        readonly body: "This sets your reliable Core Attack. Use it when you simply want to deal damage.";
-        readonly coreNote: "This is your reliable attack. Use it when you simply want to deal damage.";
+        readonly heading: "Attack style";
+        readonly body: "Choose Melee, Ranged, or Spell for your Core Weapon Attack. Then pick your Special Focus below.";
+        readonly coreNote: "Your Core Attack is a Weapon Attack matching this style.";
     };
     readonly offenseSpecial: {
-        readonly heading: "What should your Special Attack do?";
-        readonly body: "Your Core Attack is for reliable damage. Your Special Attack changes the fight by adding a tactical effect.";
+        readonly heading: "How do you fight?";
+        readonly body: "Choose your Core Attack style, then the Special that defines your second Active Power.";
         readonly whenToUse: "When to use it";
         readonly powerLabel: "Power";
         readonly emptyCatalog: "No Special Attacks are available for this attack style in the catalog.";

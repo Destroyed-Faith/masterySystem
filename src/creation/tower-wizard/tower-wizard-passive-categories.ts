@@ -7,10 +7,9 @@
 
 import { echoRequirementMet, findCatalogEntry } from '../../utils/power-catalog.js';
 
-/** Categories hidden from the guided Second Passive step. */
+/** Categories hidden from the guided Second Passive step (retired Awareness only). */
 const GUIDED_SECOND_PASSIVE_HIDDEN_CATEGORIES = new Set([
     'awareness',
-    'ward',
     'sense',
     'utility-awareness',
 ]);
@@ -28,7 +27,7 @@ const CATEGORY_DISPLAY_LABEL: Record<string, string> = {
     parry: 'Parry',
     invisibility: 'Invisibility',
     'temporary-hp': 'Temporary HP',
-    regeneration: 'Restoration',
+    regeneration: 'Regeneration',
     healing: 'Healing',
     recovery: 'Recovery',
     health: 'Health',
@@ -64,6 +63,7 @@ const PASSIVE_TEMPLATE_CATEGORIES: Readonly<Record<string, readonly string[]>> =
     'passive-invisibility': ['invisibility'],
     'passive-killing-intent': ['damage'],
     'passive-deep-vitality': ['health'],
+    'passive-fortitude': ['health'],
     'passive-heightened-senses': ['awareness'],
     'passive-spell-resistance': ['ward'],
     'passive-ward': ['ward'],

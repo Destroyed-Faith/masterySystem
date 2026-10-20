@@ -2,7 +2,7 @@
  * Tower Wizard — declarative defense/offense package definitions.
  */
 import { getEffectById } from '../../utils/special-effects.js';
-import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, echoRequirementMet, findCatalogEntry, getAllCatalogEntries, isSelectableActiveBuffTemplateId, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
+import { TOWER_WIZARD_DEFENSIVE_RANK, TOWER_WIZARD_OFFENSIVE_RANK, echoRequirementMet, findCatalogEntry, getAllCatalogEntries, isSelectableActiveBuffTemplateId, isCanonicalPassiveTemplateId, powerIdentityKey, powerIdentityKeyFromEntry, activeTemplateCanBeSpell, } from '../../utils/power-catalog.js';
 import { formatPassiveCategoryList, } from './tower-wizard-passive-categories.js';
 import { buildGuidedBuildSummary, getGuidedSecondPassiveIntentGroups, } from './tower-wizard-guided.js';
 const DEF_RANK = TOWER_WIZARD_DEFENSIVE_RANK;
@@ -554,6 +554,10 @@ export function getCategoryPickerGroups(category, rank, options) {
             !isSelectableActiveBuffTemplateId(entry.templateId)) {
             continue;
         }
+        if (category === 'passive' &&
+            !isCanonicalPassiveTemplateId(entry.templateId)) {
+            continue;
+        }
         if (!catalogEntryHasRank(entry, rank))
             continue;
         if (entry.requiresEcho?.length) {
@@ -573,7 +577,7 @@ export function getCategoryPickerGroups(category, rank, options) {
         list.push({
             templateId: entry.templateId,
             special: entry.chosenSpecial?.key ?? null,
-            label: category === 'activeBuff'
+            label: category === 'activeBuff' || category === 'passive'
                 ? entry.name || entry.templateName
                 : entry.templateName || entry.name,
             hint: categoryCardHint(entry),
@@ -621,7 +625,7 @@ function buildPackageId(selection) {
     }
     return `${selection.defenseId}__${selection.offenseId ?? 'unknown'}`;
 }
-const ACTIVE_BUFF_DURATION_NOTE = 'Lasts for your Mastery Rank in rounds. Costs your Attack action to activate.';
+const ACTIVE_BUFF_DURATION_NOTE = 'Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action).';
 const OFFENSIVE_ACTIVE_BUFF_META = {
     'ab-damage': {
         groupLabel: 'Raw damage',
@@ -929,25 +933,10 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES = [
         },
     },
 ];
-/** Passive 1 variants offered per main defense (catalog template ids). */
+/** Passive 1 defaults per main defense (final catalogue only — no combined variants). */
 const PASSIVE1_VARIANT_IDS = {
-    armor: [
-        'passive-fortified-frame',
-        'passive-armor-temp-hp',
-        'passive-stone-stance',
-        'passive-surrounded-bulwark',
-        'conditional-passive-armor-temp-hp',
-        'conditional-passive-armor-health',
-    ],
-    evade: [
-        'passive-evade',
-        'passive-flowing-step',
-        'passive-duelist-footwork',
-        'passive-evade-temp-hp',
-        'passive-evade-damage',
-        'conditional-passive-evade-temp-hp',
-        'conditional-passive-evade-damage',
-    ],
+    armor: ['passive-fortified-frame'],
+    evade: ['passive-evade'],
     'damage-reduction': ['passive-damage-reduction'],
     phasing: ['passive-ghostform'],
     parry: ['passive-parry'],
@@ -1049,7 +1038,7 @@ const PASSIVE2_INTENT_LABELS = {
     'enemy-evade-reduction': { label: 'Enemy Evade Reduction' },
     'spell-resistance-piercing': { label: 'Spell Resistance Piercing' },
     'special-amplification': { label: 'Special Amplification' },
-    sustain: { label: 'Restoration' },
+    sustain: { label: 'Regeneration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };
@@ -1148,11 +1137,9 @@ export function getSecondPassiveIntentGroups(defenseId, passive1TemplateId, acto
 }
 export const WIZARD_STEP_ORDER = [
     'defense',
-    'defensePassiveVariant',
     'passive2',
     'activeBuffChoice',
     'offensiveBuff',
-    'offenseDelivery',
     'offenseSpecial',
     'offense',
     'weakenSave',
@@ -1306,6 +1293,10 @@ export function playerFacingPowerName(spec, resolved) {
         return 'Push / Pull';
     if (spec.isSpell)
         return 'Spell Attack';
+    // Passives / Active Buffs: always the full catalogue heading.
+    const canon = resolved?.mechanicalName ?? findCatalogEntry(tid)?.name;
+    if (canon && /^(Passive|Active Buff):/i.test(canon))
+        return canon;
     if (resolved?.displayName && !resolved.displayName.match(/tier\s*\d/i)) {
         return resolved.displayName;
     }
@@ -1321,10 +1312,12 @@ export function sortOffensePackagesForDefense(_defenseId) {
     return [...getAvailableOffensePackages()].sort((a, b) => a.label.localeCompare(b.label));
 }
 export function secondPassiveLabel(templateId) {
+    const entry = findCatalogEntry(templateId);
+    if (entry?.name && /^Passive:/i.test(entry.name))
+        return entry.name;
     if (SECOND_PASSIVE_LABELS[templateId])
         return SECOND_PASSIVE_LABELS[templateId];
-    const entry = findCatalogEntry(templateId);
-    return entry?.templateName ?? entry?.name ?? templateId;
+    return entry?.name ?? entry?.templateName ?? templateId;
 }
 export function secondPassiveHint(templateId, description) {
     if (description?.trim())
@@ -1335,10 +1328,16 @@ export function secondPassiveHint(templateId, description) {
 export function resolveGrant(spec) {
     const entry = findCatalogEntry(spec.templateId, spec.special ?? null);
     const status = entry ? 'ok' : 'missing';
+    const mechanicalName = entry?.name ?? spec.templateId;
+    const useCanon = entry?.category === 'passive' ||
+        entry?.category === 'activeBuff' ||
+        /^(Passive|Active Buff):/i.test(String(mechanicalName));
     return {
         spec,
-        displayName: entry?.templateName ?? secondPassiveLabel(spec.templateId),
-        mechanicalName: entry?.name ?? spec.templateId,
+        displayName: useCanon
+            ? mechanicalName
+            : (entry?.templateName ?? secondPassiveLabel(spec.templateId)),
+        mechanicalName,
         category: entry?.category ?? 'unknown',
         status,
     };

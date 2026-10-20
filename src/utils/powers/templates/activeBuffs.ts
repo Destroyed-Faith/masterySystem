@@ -655,7 +655,7 @@ export const ACTIVE_BUFF_TEMPLATES: PowerTemplate[] = [
             activeBuffRow({
                 duration: DURATION_MR_ROUNDS,
                 effectText: `Gain **Thorns ${lvl}d8**. When you take final HP damage, deal that much (capped by the loss) to the source.`,
-                mechanics: { duration: 'masteryRankRounds' },
+                mechanics: { duration: 'masteryRankRounds', thornsDice: lvl },
             }),
         ),
     },

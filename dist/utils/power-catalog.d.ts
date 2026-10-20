@@ -21,6 +21,10 @@
  */
 import type { ActiveSpecialTier, ChosenSpecial, EmbeddedPowerData, PowerCategory } from '../types/item.js';
 import { type PowerTemplate } from './powers/templates/index.js';
+import { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId } from './passive-selection-groups.js';
+/** Final Passive catalogue (28) — TOC order Offensive → Defensive → Utility. */
+export declare const FINAL_PASSIVE_TEMPLATE_IDS: readonly string[];
+export { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId };
 /** Category keys used in filter UI (in display order). */
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
@@ -213,6 +217,12 @@ export interface CatalogFilter {
      * pickers. Direct `templateId` lookups still resolve legacy templates.
      */
     includeNonFinalActiveBuffs?: boolean;
+    /**
+     * Include Passives outside the final 28-passive rulebook catalogue.
+     * Default false for pickers. Direct `templateId` lookups still resolve
+     * legacy / artifact-only templates.
+     */
+    includeNonFinalPassives?: boolean;
 }
 /**
  * Visible `<option>` label for a catalog entry.

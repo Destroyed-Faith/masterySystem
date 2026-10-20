@@ -553,7 +553,7 @@ const RAW_PASSIVE_TEMPLATES = [
     }),
     basePassive({
         // Short name only — basePassive prefixes `Passive: ` (never put Passive: here).
-        id: 'passive-regeneration', name: 'Restoration', subfamily: 'regen',
+        id: 'passive-regeneration', name: 'Regeneration', subfamily: 'regen',
         fluff: 'Your body reclaims what was lost: scarred vitality knits back to full strength, a few times each Tyhran Day.',
         perLevel: (lvl) => {
             const pool = R05_PASSIVE_REGEN_POOL[lvl - 1] ?? 0;
@@ -1153,7 +1153,7 @@ const RAW_PASSIVE_TEMPLATES = [
                 return { text: '—', mechanics: {} };
             return {
                 text: `Gain **Thorns ${d}d8**. When you take final HP damage, deal that much (capped by the loss) to the source.`,
-                mechanics: {},
+                mechanics: { thornsDice: d },
             };
         },
     }),

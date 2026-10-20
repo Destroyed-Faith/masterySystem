@@ -1898,6 +1898,16 @@ export async function applyDamageToTarget(target, damage, attacker, count8s = 0,
                 console.debug?.('Mastery System | Absorption harvest skipped', absorbErr);
             }
         }
+        // Thorns — retaliate on final HP bar damage (Passive / Active Buff).
+        if (barDamage > 0 && !attackContext?.skipThorns && attacker) {
+            try {
+                const { maybeApplyThornsRetaliation } = await import('../combat/thorns.js');
+                await maybeApplyThornsRetaliation(target, attacker, barDamage);
+            }
+            catch (thornsErr) {
+                console.debug?.('Mastery System | Thorns retaliation skipped', thornsErr);
+            }
+        }
         const tail = [];
         if (bulwarkNote) {
             tail.push(bulwarkNote);

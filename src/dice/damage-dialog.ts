@@ -1761,6 +1761,8 @@ export interface ApplyDamageOptions {
   damageInstanceId?: string | null;
   /** Explicit miss. Damage Transfer does not heal, and no bars are written. */
   attackSucceeded?: boolean;
+  /** Skip Thorns retaliation (used when applying Thorns damage itself). */
+  skipThorns?: boolean;
 }
 
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
@@ -2242,6 +2244,16 @@ export async function applyDamageToTarget(
         }
       } catch (absorbErr) {
         console.debug?.('Mastery System | Absorption harvest skipped', absorbErr);
+      }
+    }
+
+    // Thorns — retaliate on final HP bar damage (Passive / Active Buff).
+    if (barDamage > 0 && !attackContext?.skipThorns && attacker) {
+      try {
+        const { maybeApplyThornsRetaliation } = await import('../combat/thorns.js');
+        await maybeApplyThornsRetaliation(target, attacker, barDamage);
+      } catch (thornsErr) {
+        console.debug?.('Mastery System | Thorns retaliation skipped', thornsErr);
       }
     }
 

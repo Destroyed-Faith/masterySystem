@@ -3,7 +3,6 @@
  */
 
 import {
-    secondPassiveBucketFor,
     isAllowedSecondPassive,
     secondPassiveCardWarning,
     type SecondPassiveBucket,
@@ -26,10 +25,16 @@ import type { PackageReview } from './tower-wizard-packages.js';
 import {
     echoRequirementMet,
     findCatalogEntry,
-    getAllCatalogEntries,
+    isCanonicalPassiveTemplateId,
     powerIdentityKeyFromEntry,
     type CatalogEntry,
 } from '../../utils/power-catalog.js';
+import {
+    PASSIVE_SELECTION_GROUP_LABELS,
+    PASSIVE_SELECTION_GROUP_ORDER,
+    PASSIVE_SELECTION_GROUPS,
+    type PassiveSelectionGroupId,
+} from '../../utils/passive-selection-groups.js';
 import { getEffectById } from '../../utils/special-effects.js';
 
 function capitalizeSpecial(key: string): string {
@@ -103,12 +108,13 @@ interface GuidedSpecialWrapper {
     modes?: readonly GuidedSpecialMode[];
 }
 
-/** Passives never shown in Guided Passive 2. */
+/**
+ * Passives never shown in Guided Passive 2.
+ * Canonical catalogue Passives are NOT listed here — eligibility is category /
+ * Echo / slot rules only. Keep retired / artifact-only / conditional IDs.
+ */
 const GUIDED_HIDDEN_PASSIVE2 = new Set([
-    'passive-special-aura',
     'passive-heightened-senses',
-    'passive-spell-resistance',
-    'passive-ward',
     'passive-awareness-evade',
     'passive-awareness-damage',
     'passive-ambusher',
@@ -128,7 +134,6 @@ const GUIDED_HIDDEN_PASSIVE2 = new Set([
     'conditional-passive-armor-health',
     'conditional-passive-health-healing',
     'conditional-passive-health-temp-hp',
-    'passive-initiative',
     'passive-echo-armor-value',
     'empower-buff-damage',
     'empower-buff-armor',
@@ -169,8 +174,8 @@ const GUIDED_PASSIVE2_WRAPPERS: Record<string, GuidedPassiveWrapper> = {
     // on yourself from a daily (Tyhran Day) pool. Blood Feast / Battle Trance /
     // Stillness Recovery and every "+ Healing" combo are retired.
     'passive-regeneration': {
-        playerTitle: 'Restoration',
-        powerName: 'Passive: Restoration',
+        playerTitle: 'Passive: Regeneration',
+        powerName: 'Passive: Regeneration',
         explanation: 'Restore Scarred Health Bars on yourself a few times per Tyhran Day (full HP each).',
     },
     'passive-killing-intent': {
@@ -267,7 +272,7 @@ export const GUIDED_PASSIVE2_BUCKET_LABELS: Record<
     'enemy-evade-reduction': { label: 'Enemy Evade Reduction' },
     'spell-resistance-piercing': { label: 'Spell Resistance Piercing' },
     'special-amplification': { label: 'Special Amplification' },
-    sustain: { label: 'Restoration' },
+    sustain: { label: 'Regeneration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };
@@ -522,14 +527,13 @@ export const GUIDED_DELIVERY_OPTIONS: GuidedDeliveryOption[] = [
 ];
 
 export function isPassiveHiddenFromGuidedPassive2(templateId: string): boolean {
+    if (!isCanonicalPassiveTemplateId(templateId)) return true;
     if (GUIDED_HIDDEN_PASSIVE2.has(templateId)) return true;
     if (templateId.startsWith('conditional-passive-')) return true;
     if (templateId.startsWith('extend-buff-') || templateId.startsWith('empower-buff-')) return true;
     const entry = findCatalogEntry(templateId);
     if (entry?.tags.includes('artifact-only')) return true;
-    if (GUIDED_PASSIVE2_WRAPPERS[templateId]) return false;
-    const bucket = secondPassiveBucketFor(templateId);
-    return bucket === 'advanced';
+    return false;
 }
 
 function catalogEntryHasRank(entry: CatalogEntry, rank: number): boolean {
@@ -552,29 +556,16 @@ export function wrapGuidedPassive2Card(templateId: string): SecondPassiveOption 
     if (!entry) return null;
 
     const wrapper = GUIDED_PASSIVE2_WRAPPERS[templateId];
-    const powerName = wrapper?.powerName ?? secondPassiveCatalogName(templateId);
+    const powerName = String(entry.name || wrapper?.powerName || secondPassiveCatalogName(templateId)).trim();
     const mechanicsPreview = catalogMechanicsText(entry, 4);
-
-    if (wrapper) {
-        return {
-            id: templateId,
-            label: wrapper.playerTitle,
-            hint: wrapper.explanation,
-            powerName,
-            mechanicsPreview,
-            warning: secondPassiveCardWarning(templateId),
-        };
-    }
-
-    const bucket = secondPassiveBucketFor(templateId);
-    if (bucket === 'offense' || bucket === 'advanced') return null;
+    const hint = wrapper?.explanation || entry.description?.trim() || '';
 
     return {
         id: templateId,
         label: powerName,
-        hint: entry.description?.trim() || '',
+        hint,
         powerName,
-        mechanicsPreview,
+        mechanicsPreview: mechanicsPreview ? `PL 4 — ${mechanicsPreview}` : '',
         warning: secondPassiveCardWarning(templateId),
     };
 }
@@ -583,33 +574,22 @@ export function getGuidedSecondPassiveIntentGroups(
     passive1TemplateId: string,
     actorEchoKey?: string | null,
 ): SecondPassiveIntentGroup[] {
-    const byBucket = new Map<SecondPassiveBucket, SecondPassiveOption[]>();
-
-    for (const entry of getAllCatalogEntries()) {
-        if (entry.category !== 'passive') continue;
-        if (!findCatalogEntry(entry.templateId)) continue;
-        if (!isAllowedSecondPassive(entry.templateId, passive1TemplateId, actorEchoKey)) continue;
-
-        const card = wrapGuidedPassive2Card(entry.templateId);
-        if (!card) continue;
-
-        const bucket = secondPassiveBucketFor(entry.templateId);
-        const list = byBucket.get(bucket) ?? [];
-        if (list.some((p) => p.id === card.id)) continue;
-        list.push(card);
-        byBucket.set(bucket, list);
-    }
-
     const groups: SecondPassiveIntentGroup[] = [];
-    for (const bucket of PASSIVE2_BUCKET_ORDER) {
-        const passives = byBucket.get(bucket);
-        if (!passives?.length) continue;
-        const meta = GUIDED_PASSIVE2_BUCKET_LABELS[bucket];
+
+    for (const groupId of PASSIVE_SELECTION_GROUP_ORDER) {
+        const passives: SecondPassiveOption[] = [];
+        for (const templateId of PASSIVE_SELECTION_GROUPS[groupId]) {
+            if (!isAllowedSecondPassive(templateId, passive1TemplateId, actorEchoKey)) continue;
+            const card = wrapGuidedPassive2Card(templateId);
+            if (!card) continue;
+            passives.push(card);
+        }
+        if (!passives.length) continue;
         groups.push({
-            intentLabel: meta.label,
-            intentHint: meta.intentHint,
-            warning: meta.warning,
-            passives: sortPassive2Cards(bucket, passives),
+            intentLabel: PASSIVE_SELECTION_GROUP_LABELS[groupId as PassiveSelectionGroupId],
+            intentHint: undefined,
+            warning: undefined,
+            passives,
         });
     }
     return groups;

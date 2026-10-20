@@ -11,6 +11,7 @@ import {
     findCatalogEntry,
     getAllCatalogEntries,
     isSelectableActiveBuffTemplateId,
+    isCanonicalPassiveTemplateId,
     powerIdentityKey,
     powerIdentityKeyFromEntry,
     activeTemplateCanBeSpell,
@@ -681,6 +682,12 @@ export function getCategoryPickerGroups(
         ) {
             continue;
         }
+        if (
+            category === 'passive' &&
+            !isCanonicalPassiveTemplateId(entry.templateId)
+        ) {
+            continue;
+        }
         if (!catalogEntryHasRank(entry, rank)) continue;
         if (entry.requiresEcho?.length) {
             if (!echoRequirementMet(entry.requiresEcho, echoKey, subChoiceKey)) continue;
@@ -697,7 +704,7 @@ export function getCategoryPickerGroups(
             templateId: entry.templateId,
             special: entry.chosenSpecial?.key ?? null,
             label:
-                category === 'activeBuff'
+                category === 'activeBuff' || category === 'passive'
                     ? entry.name || entry.templateName
                     : entry.templateName || entry.name,
             hint: categoryCardHint(entry),
@@ -751,7 +758,8 @@ function buildPackageId(selection: TowerWizardSelection): string {
     return `${selection.defenseId}__${selection.offenseId ?? 'unknown'}`;
 }
 
-const ACTIVE_BUFF_DURATION_NOTE = 'Lasts for your Mastery Rank in rounds. Costs your Attack action to activate.';
+const ACTIVE_BUFF_DURATION_NOTE =
+    'Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action).';
 
 const OFFENSIVE_ACTIVE_BUFF_META: Record<
     string,
@@ -1081,25 +1089,10 @@ export const TOWER_WIZARD_DEFENSE_PACKAGES: TowerWizardDefensePackage[] = [
     },
 ];
 
-/** Passive 1 variants offered per main defense (catalog template ids). */
+/** Passive 1 defaults per main defense (final catalogue only — no combined variants). */
 const PASSIVE1_VARIANT_IDS: Record<DefensePackageId, readonly string[]> = {
-    armor: [
-        'passive-fortified-frame',
-        'passive-armor-temp-hp',
-        'passive-stone-stance',
-        'passive-surrounded-bulwark',
-        'conditional-passive-armor-temp-hp',
-        'conditional-passive-armor-health',
-    ],
-    evade: [
-        'passive-evade',
-        'passive-flowing-step',
-        'passive-duelist-footwork',
-        'passive-evade-temp-hp',
-        'passive-evade-damage',
-        'conditional-passive-evade-temp-hp',
-        'conditional-passive-evade-damage',
-    ],
+    armor: ['passive-fortified-frame'],
+    evade: ['passive-evade'],
     'damage-reduction': ['passive-damage-reduction'],
     phasing: ['passive-ghostform'],
     parry: ['passive-parry'],
@@ -1204,7 +1197,7 @@ const PASSIVE2_INTENT_LABELS: Record<SecondPassiveBucket, { label: string; inten
     'enemy-evade-reduction': { label: 'Enemy Evade Reduction' },
     'spell-resistance-piercing': { label: 'Spell Resistance Piercing' },
     'special-amplification': { label: 'Special Amplification' },
-    sustain: { label: 'Restoration' },
+    sustain: { label: 'Regeneration' },
     offense: { label: 'Damage' },
     advanced: { label: 'Advanced / Other' },
 };
@@ -1310,11 +1303,9 @@ export function getSecondPassiveIntentGroups(
 
 export const WIZARD_STEP_ORDER: TowerWizardStep[] = [
     'defense',
-    'defensePassiveVariant',
     'passive2',
     'activeBuffChoice',
     'offensiveBuff',
-    'offenseDelivery',
     'offenseSpecial',
     'offense',
     'weakenSave',
@@ -1479,6 +1470,9 @@ export function playerFacingPowerName(spec: PowerGrantSpec, resolved?: ResolvedG
     if (tid.includes('weapon-split')) return 'Split Attack';
     if (tid.includes('control-push-pull')) return 'Push / Pull';
     if (spec.isSpell) return 'Spell Attack';
+    // Passives / Active Buffs: always the full catalogue heading.
+    const canon = resolved?.mechanicalName ?? findCatalogEntry(tid)?.name;
+    if (canon && /^(Passive|Active Buff):/i.test(canon)) return canon;
     if (resolved?.displayName && !resolved.displayName.match(/tier\s*\d/i)) {
         return resolved.displayName;
     }
@@ -1500,9 +1494,10 @@ export function sortOffensePackagesForDefense(_defenseId: DefensePackageId): Tow
 }
 
 export function secondPassiveLabel(templateId: string): string {
-    if (SECOND_PASSIVE_LABELS[templateId]) return SECOND_PASSIVE_LABELS[templateId];
     const entry = findCatalogEntry(templateId);
-    return entry?.templateName ?? entry?.name ?? templateId;
+    if (entry?.name && /^Passive:/i.test(entry.name)) return entry.name;
+    if (SECOND_PASSIVE_LABELS[templateId]) return SECOND_PASSIVE_LABELS[templateId];
+    return entry?.name ?? entry?.templateName ?? templateId;
 }
 
 export function secondPassiveHint(templateId: string, description?: string): string {
@@ -1514,10 +1509,17 @@ export function secondPassiveHint(templateId: string, description?: string): str
 export function resolveGrant(spec: PowerGrantSpec): ResolvedGrant {
     const entry = findCatalogEntry(spec.templateId, spec.special ?? null);
     const status = entry ? 'ok' : 'missing';
+    const mechanicalName = entry?.name ?? spec.templateId;
+    const useCanon =
+        entry?.category === 'passive' ||
+        entry?.category === 'activeBuff' ||
+        /^(Passive|Active Buff):/i.test(String(mechanicalName));
     return {
         spec,
-        displayName: entry?.templateName ?? secondPassiveLabel(spec.templateId),
-        mechanicalName: entry?.name ?? spec.templateId,
+        displayName: useCanon
+            ? mechanicalName
+            : (entry?.templateName ?? secondPassiveLabel(spec.templateId)),
+        mechanicalName,
         category: entry?.category ?? 'unknown',
         status,
     };

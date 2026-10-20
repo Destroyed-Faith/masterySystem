@@ -71,9 +71,14 @@ export function defaultPowerItemDisplayName(entry: CatalogEntry): string {
         return special;
     }
 
+    // Passives / Active Buffs keep the full catalogue heading (Passive: Armor).
+    if (entry.category === 'passive' || entry.category === 'activeBuff') {
+        return String(entry.name || entry.templateName || entry.templateId || 'Power').trim();
+    }
+
     let name = String(entry.templateName || entry.name || '').trim();
     name = name
-        .replace(/^(Passive|Reaction|Active Buff|Active|Movement|Artifact):\s*/i, '')
+        .replace(/^(Reaction|Active|Movement|Artifact):\s*/i, '')
         .replace(/\s*[—–-]\s*Tier\s*\d+\s*$/i, '')
         .replace(/\bSingle Attack\b/i, 'Attack')
         .trim();

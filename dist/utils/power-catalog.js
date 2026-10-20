@@ -22,6 +22,10 @@
 import { ALL_POWER_TEMPLATES } from './powers/templates/index.js';
 import { POWER_LEVEL_KEYS } from '../types/power-levels.js';
 import { ALL_SPECIAL_EFFECTS } from './special-effects.js';
+import { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId, PASSIVE_SELECTION_GROUP_ORDER, PASSIVE_SELECTION_GROUPS, } from './passive-selection-groups.js';
+/** Final Passive catalogue (28) — TOC order Offensive → Defensive → Utility. */
+export const FINAL_PASSIVE_TEMPLATE_IDS = PASSIVE_SELECTION_GROUP_ORDER.flatMap((g) => PASSIVE_SELECTION_GROUPS[g]);
+export { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId };
 // ─── Constants the UI imports ────────────────────────────────────────────
 /** Category keys used in filter UI (in display order). */
 export const CATEGORY_ORDER = [
@@ -306,7 +310,7 @@ export const EFFECT_TYPE_LABELS = {
  * Active Buffs use the canonical rulebook heading (`Active Buff: Armor`).
  */
 export function catalogSelectOptionLabel(entry) {
-    if (entry.category === 'activeBuff') {
+    if (entry.category === 'activeBuff' || entry.category === 'passive') {
         return String(entry.name || entry.templateName || entry.templateId).trim();
     }
     const badges = [];
@@ -498,12 +502,22 @@ export function filterCatalog(filter) {
             !isSelectableActiveBuffTemplateId(e.templateId)) {
             return false;
         }
+        // Final Passive catalogue (28) — same gate pattern.
+        if (e.category === 'passive' &&
+            !filter.includeNonFinalPassives &&
+            !filter.includeArtifactOnly &&
+            !filter.templateId &&
+            !isCanonicalPassiveTemplateId(e.templateId)) {
+            return false;
+        }
         if (term) {
             const hay = `${e.name} ${e.templateName}`.toLowerCase();
             if (!hay.includes(term))
                 return false;
         }
-        if (e.requiresEcho && e.requiresEcho.length > 0) {
+        // Echo gates apply only when an actor Echo context is supplied. Bare
+        // catalogue listings keep echo-locked identities (e.g. Passive: Thorns).
+        if (e.requiresEcho && e.requiresEcho.length > 0 && (echoKey || subChoiceKey)) {
             if (!echoRequirementMet(e.requiresEcho, echoKey, subChoiceKey))
                 return false;
         }

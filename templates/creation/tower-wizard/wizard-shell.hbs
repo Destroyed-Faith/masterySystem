@@ -39,40 +39,6 @@
     </section>
     {{/if}}
 
-    {{#if isDefensePassiveVariant}}
-    <section class="tower-wizard-step">
-      <h3>{{copy.defensePassiveVariant.heading}}</h3>
-      <p class="tower-wizard-prose">{{copy.defensePassiveVariant.body}}</p>
-      {{#if defensePackagePreview}}
-      <div class="tower-wizard-package-preview">
-        <h4>{{copy.defensePassiveVariant.previewHeading}}</h4>
-        <ul class="tower-wizard-package-preview-list">
-          {{#each defensePackagePreview.rows}}
-          <li class="tower-wizard-package-preview-row">
-            <span class="tower-wizard-package-preview-key">{{this.label}}</span>
-            <span class="tower-wizard-package-preview-value">{{this.value}}</span>
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/if}}
-      <div class="tower-wizard-cards tower-wizard-passive1-variant-cards">
-        {{#each passive1Variants}}
-        <button type="button" class="tower-wizard-card js-tw-select-passive1-variant{{#if (eq ../../selection.passive1TemplateId this.templateId)}} is-selected{{/if}}{{#if this.isLocked}} is-locked{{/if}}" data-passive-id="{{this.templateId}}">
-          <div class="tower-wizard-card-head">
-            <span class="tower-wizard-card-title">{{this.label}}</span>
-            {{#if this.isRecommended}}
-            <span class="tower-wizard-chip">{{#if this.isLocked}}{{../../copy.defensePassiveVariant.locked}}{{else}}{{../../copy.defensePassiveVariant.recommended}}{{/if}}</span>
-            {{/if}}
-          </div>
-          <span class="tower-wizard-card-text">{{this.description}}</span>
-          <span class="tower-wizard-card-meta">{{this.mechanicsPreview}}</span>
-        </button>
-        {{/each}}
-      </div>
-    </section>
-    {{/if}}
-
     {{#if isPassive2}}
     <section class="tower-wizard-step">
       <h3>{{copy.passive2.heading}}</h3>
@@ -190,9 +156,11 @@
     </section>
     {{/if}}
 
-    {{#if isOffenseDelivery}}
-    <section class="tower-wizard-step">
-      <h3>{{copy.offenseDelivery.heading}}</h3>
+    {{#if isOffenseSpecial}}
+    <section class="tower-wizard-step tower-wizard-offense-special-step">
+      <h3>{{copy.offenseSpecial.heading}}</h3>
+      <p class="tower-wizard-prose">{{copy.offenseSpecial.body}}</p>
+      <h4>{{copy.offenseDelivery.heading}}</h4>
       <p class="tower-wizard-prose">{{copy.offenseDelivery.body}}</p>
       <div class="tower-wizard-cards">
         {{#each guidedDeliveryOptions}}
@@ -205,13 +173,7 @@
       {{#if guidedCoreAttackPreview}}
       <p class="tower-wizard-prose tower-wizard-core-attack-note">{{copy.offenseDelivery.coreNote}}</p>
       {{/if}}
-    </section>
-    {{/if}}
-
-    {{#if isOffenseSpecial}}
-    <section class="tower-wizard-step tower-wizard-offense-special-step">
-      <h3>{{copy.offenseSpecial.heading}}</h3>
-      <p class="tower-wizard-prose">{{copy.offenseSpecial.body}}</p>
+      {{#if selection.guidedAttackDelivery}}
       {{#unless guidedSpecialFocusGroups.length}}
       <p class="tower-wizard-warn">{{copy.offenseSpecial.emptyCatalog}}</p>
       {{/unless}}
@@ -230,6 +192,7 @@
         </div>
       </div>
       {{/each}}
+      {{/if}}
     </section>
     {{/if}}
 

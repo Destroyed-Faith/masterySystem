@@ -287,6 +287,6 @@ describe('R-05 Test L — retired heal actives not in catalog', () => {
     expect(getTemplate('active-ranged-aoe-restoration')).toBeTruthy();
     expect(isScarredRestorationTemplateId('active-ranged-aoe-restoration')).toBe(true);
     const regen = getTemplate('passive-regeneration');
-    expect(regen?.name || regen?.templateName).toMatch(/Restoration/i);
+    expect(regen?.name || regen?.templateName).toMatch(/Regeneration/i);
   });
 });

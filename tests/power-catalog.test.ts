@@ -5,6 +5,7 @@ import {
     getSubfamiliesByCategory,
     CATEGORY_ORDER,
     FINAL_ACTIVE_BUFF_TEMPLATE_IDS,
+    FINAL_PASSIVE_TEMPLATE_IDS,
     _resetCatalogCache,
     activeTemplateCanBeSpell,
     actorAlreadyHasPower,
@@ -14,6 +15,7 @@ import {
     findTemplateById,
     isDispelCatalogEntry,
     isSelectableActiveBuffTemplateId,
+    isCanonicalPassiveTemplateId,
     labelPowerSubfamily,
     powerSubfamilyHint,
 } from '../src/utils/power-catalog';
@@ -110,6 +112,29 @@ describe('Power Catalog (Templates refactor)', () => {
         const legacy = filterCatalog({ templateId: 'ab-healing' });
         expect(legacy).toHaveLength(1);
         expect(legacy[0].templateId).toBe('ab-healing');
+    });
+
+    it('offers exactly the final 28 Passives with canonical rulebook labels', () => {
+        const passives = filterCatalog({ category: 'passive' });
+        const got = new Set(passives.map((e) => e.templateId));
+        const missing = FINAL_PASSIVE_TEMPLATE_IDS.filter((id) => !got.has(id));
+        expect(missing, `missing passives: ${missing.join(', ')}`).toEqual([]);
+        expect(passives).toHaveLength(FINAL_PASSIVE_TEMPLATE_IDS.length);
+        expect(got).toEqual(new Set(FINAL_PASSIVE_TEMPLATE_IDS));
+        expect(passives.some((e) => e.templateId === 'passive-fortified-frame')).toBe(true);
+        expect(catalogSelectOptionLabel(passives.find((e) => e.templateId === 'passive-fortified-frame')!)).toBe(
+            'Passive: Armor',
+        );
+        const regen = passives.find((e) => e.templateId === 'passive-regeneration');
+        expect(regen?.name).toBe('Passive: Regeneration');
+        for (const e of passives) {
+            expect(isCanonicalPassiveTemplateId(e.templateId)).toBe(true);
+            expect(catalogSelectOptionLabel(e)).toBe(e.name);
+            expect(catalogSelectOptionLabel(e).startsWith('Passive:')).toBe(true);
+            expect(catalogSelectOptionLabel(e)).not.toMatch(/·|\[Passive\]/);
+        }
+        expect(passives.some((e) => e.templateId === 'passive-armor-temp-hp')).toBe(false);
+        expect(passives.some((e) => /Restoration/i.test(e.name))).toBe(false);
     });
 
     it('exposes the pure weapon-attack templates (no Special slot)', () => {

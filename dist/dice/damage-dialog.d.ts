@@ -135,6 +135,8 @@ export interface ApplyDamageOptions {
     damageInstanceId?: string | null;
     /** Explicit miss. Damage Transfer does not heal, and no bars are written. */
     attackSucceeded?: boolean;
+    /** Skip Thorns retaliation (used when applying Thorns damage itself). */
+    skipThorns?: boolean;
 }
 /** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
 export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number, attackContext?: ApplyDamageOptions): Promise<AppliedDamageSummary>;

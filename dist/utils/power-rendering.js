@@ -254,9 +254,10 @@ export function renderCatalogSelectionDetailsHtml(entry, selectedLevel = 1) {
     let activation = '—';
     if (entry.category === 'activeBuff' || String(raw.category || '') === 'activeBuff') {
         activation =
-            costAction === 'attack'
-                ? 'Preparation Phase — commit your base Attack Action for the upcoming Round'
-                : 'Preparation Phase activation';
+            'In combat only: Preparation Phase — commit your base Attack Action for the upcoming Round';
+    }
+    else if (entry.category === 'passive' || String(raw.category || '') === 'passive') {
+        activation = 'Always on while slotted (no Attack Action to learn or maintain)';
     }
     else if (costAction === 'attack') {
         activation = 'Attack Action';

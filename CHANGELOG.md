@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.755] - 2026-10-20
+
+### Changed
+
+- **Power catalogues:** New Passive/Active Buff selection is gated to the final 28 Passives and 18 Active Buffs with exact rulebook headings; retired and Combined options stay loadable for legacy characters but are not newly selectable.
+- **Combat Package Wizard:** Removed redundant Main Defense variant and standalone attack-delivery steps; second Passive uses catalogue selection groups; delivery sits on the offense-special step.
+- **Naming:** Passive and Active Buff pickers, package summaries, and new item names use full catalogue headings (`Passive: Armor`, `Active Buff: Temporary HP`, …).
+
+### Fixed
+
+- **Active Buff: Thorns:** Reflects eligible final HP damage in combat (Nd8, capped by loss, no reflection loops).
+
 ## [0.9.754] - 2026-10-20
 
 ### Changed
