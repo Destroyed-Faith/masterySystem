@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.758] - 2026-10-21
+
+### Fixed
+
+- **Rules Journals:** Journal entries now link their pages in the Compendium packs so Foundry shows the rule text instead of empty bodies.
+
 ## [0.9.757] - 2026-10-21
 
 ### Added

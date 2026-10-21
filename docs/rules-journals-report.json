@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T15:50:13.544Z",
+  "generatedAt": "2026-10-21T16:03:53.243Z",
   "source": "docs\\Rules\\players-guide.md",
   "sourceBytes": 682938,
   "chapterSpecs": 93,
@@ -47,7 +47,7 @@
       "label": "Destroyed Faith: Core Rules",
       "journals": 6,
       "pages": 47,
-      "sourceDocs": 53,
+      "sourceDocs": 6,
       "srcDir": "src\\packs\\rules-core",
       "packDir": "packs\\rules-core"
     },
@@ -55,7 +55,7 @@
       "label": "Destroyed Faith: World & Echoes",
       "journals": 11,
       "pages": 31,
-      "sourceDocs": 42,
+      "sourceDocs": 11,
       "srcDir": "src\\packs\\rules-world",
       "packDir": "packs\\rules-world"
     },
@@ -63,7 +63,7 @@
       "label": "Destroyed Faith: Quick Reference",
       "journals": 4,
       "pages": 8,
-      "sourceDocs": 12,
+      "sourceDocs": 4,
       "srcDir": "src\\packs\\rules-quickref",
       "packDir": "packs\\rules-quickref"
     }

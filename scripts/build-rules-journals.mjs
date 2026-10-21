@@ -29,11 +29,13 @@ const REPORT_PATH = path.join(ROOT, 'docs', 'rules-journals-report.json');
 
 const TEXT_FORMAT_HTML = 1; // CONST.JOURNAL_ENTRY_PAGE_FORMATS.HTML
 
-function journalDoc(id, name, sort, ownershipDefault) {
+function journalDoc(id, name, sort, ownershipDefault, pages = []) {
   return {
     _id: id,
     name,
-    pages: [],
+    // Full page docs (with _key). compilePack embeds them as !journal.pages!jid.pid
+    // and stores page IDs on the JournalEntry — empty pages[] leaves Foundry bodies blank.
+    pages,
     folder: null,
     sort,
     ownership: { default: ownershipDefault },
@@ -113,9 +115,8 @@ async function writePack(packKey, journalMap, report) {
     // Building Encounters journal is GM-leaning if any page is gmOnly
     const gmOnly = chapters.some((c) => c.gmOnly);
     const ownershipDefault = gmOnly ? 0 : 2; // NONE vs OBSERVER
-    docs.push(journalDoc(jid, journalName, journalSort, ownershipDefault));
-    journalSort += 100000;
 
+    const pages = [];
     let pageSort = 0;
     for (const ch of chapters) {
       const pid = stableId(`page:${packKey}:${slugify(journalName)}:${slugify(ch.page)}`);
@@ -125,7 +126,7 @@ async function writePack(packKey, journalMap, report) {
       if (issues.some((x) => x.includes('empty'))) {
         report.emptyPages.push({ pack: packKey, journal: journalName, page: ch.page });
       }
-      docs.push(pageDoc(jid, pid, ch.page, html, pageSort));
+      pages.push(pageDoc(jid, pid, ch.page, html, pageSort));
       pageSort += 100000;
       pageCount += 1;
       report.pages.push({
@@ -139,13 +140,15 @@ async function writePack(packKey, journalMap, report) {
         gmOnly: !!ch.gmOnly,
       });
     }
+
+    docs.push(journalDoc(jid, journalName, journalSort, ownershipDefault, pages));
+    journalSort += 100000;
   }
 
   let written = 0;
   for (const doc of docs) {
-    const kind = doc._key.startsWith('!journal.pages!') ? 'page' : 'journal';
-    const safe = slugify(doc.name || kind) || kind;
-    const file = path.join(srcDir, `${kind}_${safe}_${doc._id}.json`);
+    const safe = slugify(doc.name || 'journal') || 'journal';
+    const file = path.join(srcDir, `journal_${safe}_${doc._id}.json`);
     await writeFile(file, `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
     written += 1;
   }

@@ -111,20 +111,27 @@ describe('Rules Journals — generated packs', () => {
     expect(existsSync(srcDir), srcDir).toBe(true);
     expect(existsSync(packDir), packDir).toBe(true);
     const files = readdirSync(srcDir).filter((f) => f.endsWith('.json'));
-    expect(files.length).toBeGreaterThan(2);
+    expect(files.length).toBeGreaterThan(0);
     const journals = files.filter((f) => f.startsWith('journal_'));
-    const pages = files.filter((f) => f.startsWith('page_'));
     expect(journals.length).toBeGreaterThan(0);
-    expect(pages.length).toBeGreaterThan(0);
 
-    for (const file of pages.slice(0, 5)) {
+    let linkedPages = 0;
+    for (const file of journals) {
       const doc = JSON.parse(readFileSync(join(srcDir, file), 'utf8'));
-      expect(doc.type).toBe('text');
-      expect(doc.text?.format).toBe(1);
-      expect(String(doc.text?.content || '')).toMatch(/df-rules-journal/);
-      expect(String(doc.text?.content || '')).not.toMatch(/\\page\b/);
-      expect(String(doc.text?.content || '')).not.toMatch(/<img\b/i);
+      expect(Array.isArray(doc.pages)).toBe(true);
+      expect(doc.pages.length).toBeGreaterThan(0);
+      linkedPages += doc.pages.length;
+      for (const page of doc.pages.slice(0, 3)) {
+        expect(page._id).toBeTruthy();
+        expect(page._key).toMatch(/^!journal\.pages!/);
+        expect(page.type).toBe('text');
+        expect(page.text?.format).toBe(1);
+        expect(String(page.text?.content || '')).toMatch(/df-rules-journal/);
+        expect(String(page.text?.content || '')).not.toMatch(/\\page\b/);
+        expect(String(page.text?.content || '')).not.toMatch(/<img\b/i);
+      }
     }
+    expect(linkedPages).toBeGreaterThan(0);
   });
 
   it('report file lists three packs with no empty pages', () => {
