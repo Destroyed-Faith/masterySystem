@@ -41,11 +41,26 @@ export declare function spendDamageNegation(actor: any, combat: any, amount: num
 export declare function getTempDamageNegation(actor: any, combat: any): number;
 /** Active Buff temporary Damage Negation (spend before Passive reserve). */
 export declare function getBuffDamageNegation(actor: any): number;
+/** Resources actually spent by one Negation declaration (for refunds on cancellation). */
+export interface DamageNegationSpentBreakdown {
+    buff: number;
+    buffEffectId?: string;
+    temp: number;
+    reserve: number;
+}
 export interface DamageNegationSpend {
     /** Damage Dice removed from the pool assigned to this defender. */
     diceRemoved: number;
     note: string;
+    /** Present when points were spent from a resource (not for NPC auto negation). */
+    spent?: DamageNegationSpentBreakdown;
 }
+/**
+ * Give back the resources of one Negation declaration (the shared Autofire damage
+ * roll was cancelled before any die was revealed). Best-effort; never exceeds the
+ * printed pool maximum.
+ */
+export declare function refundDamageNegationSpend(actor: any, spent: DamageNegationSpentBreakdown | null | undefined): Promise<void>;
 /**
  * Active combat block for an NPC/summon (active boss phase, else root combat).
  */
@@ -72,6 +87,7 @@ export declare function formatDamageNegationDialogContent(input: {
 export declare function promptDamageNegationSpend(target: any, opts: {
     attacker?: any;
     totalDice: number;
+    hitLabel?: string;
 }): Promise<DamageNegationSpend>;
 /**
  * Refresh Active Buff: Damage Negation Pool to its printed max for every

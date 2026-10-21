@@ -101,6 +101,17 @@ export type SharedAoeDamagePayload = {
     armorPenetration?: number;
     /** True when this payload already applied Specials to one target (the roller). */
     specialsAppliedToTargetId?: string | null;
+    /**
+     * Autofire: the full ordered negatable d8 faces of the ONE shared roll (before any
+     * per-hit omission). `totalDamage` / `count8s` are the FULL roll values.
+     */
+    orderedDieFaces?: number[];
+    /** Maximization: every die is an artificial 8 (never a natural 8). */
+    artificialDice?: boolean;
+    /** Per-die floor (Brutal Impact / Mark spend) already included in `totalDamage`. */
+    dieFloor?: number;
+    /** Dice omitted for this hit (set on per-hit copies only). */
+    omitCount?: number;
 };
 export declare function toSharedAoeDamagePayload(result: {
     totalDamage?: number;
@@ -115,7 +126,25 @@ export declare function toSharedAoeDamagePayload(result: {
     mitigation?: {
         phased?: boolean;
     } | null;
+    sharedDice?: {
+        orderedDieFaces?: number[];
+        artificial?: boolean;
+        dieFloor?: number;
+    } | null;
 } | null | undefined): SharedAoeDamagePayload | null;
+export type AoePreDamageGate = {
+    outcome: 'escaped' | 'negated' | 'ready';
+    preDamage: any;
+};
+/** Dive for Cover + pre-damage reactions for one AoE hit. */
+export declare function runAoePreDamageGate(params: {
+    attacker: any;
+    defender: any;
+    tok: any | null;
+    attackTotal: number;
+    evadeTn: number;
+    allowDiveForCover?: boolean;
+}): Promise<AoePreDamageGate>;
 /** Confirm applying one shared AoE damage roll to many creatures. */
 export declare function confirmSharedAoeDamageApply(opts: {
     totalDamage: number;
@@ -135,6 +164,8 @@ export declare function applySharedAoePayloadToTarget(params: {
     preDamage: any;
     /** Skip re-applying Specials when this defender already received them from the roll dialog. */
     skipSpecials?: boolean;
+    /** Chat heading prefix (default "AoE"; Autofire passes "Autofire"). */
+    damageLabel?: string;
 }): Promise<'damaged' | 'cancelled'>;
 /**
  * Apply full printed payload to one AoE target via the normal damage dialog
@@ -152,6 +183,12 @@ export declare function resolveAoeFullPayloadOnTarget(params: {
     allowDiveForCover?: boolean;
     /** When set, skip the damage dialog and apply this shared roll instead. */
     sharedDamage?: SharedAoeDamagePayload | null;
+    /** Called with the rolled damage result when the damage dialog produced it (Autofire shares it). */
+    onDamageRolled?: (damageResult: any) => void;
+    /** Chat heading prefix (default "AoE"; Autofire passes "Autofire"). */
+    damageLabel?: string;
+    /** Skip re-applying Specials when applying a shared payload (roller already got them). */
+    skipSpecials?: boolean;
 }): Promise<'escaped' | 'negated' | 'damaged' | 'cancelled'>;
 /**
  * After the shared AoE attack roll: resolve every secondary token with its own

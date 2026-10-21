@@ -265,6 +265,17 @@ export type SharedAoeDamagePayload = {
   armorPenetration?: number;
   /** True when this payload already applied Specials to one target (the roller). */
   specialsAppliedToTargetId?: string | null;
+  /**
+   * Autofire: the full ordered negatable d8 faces of the ONE shared roll (before any
+   * per-hit omission). `totalDamage` / `count8s` are the FULL roll values.
+   */
+  orderedDieFaces?: number[];
+  /** Maximization: every die is an artificial 8 (never a natural 8). */
+  artificialDice?: boolean;
+  /** Per-die floor (Brutal Impact / Mark spend) already included in `totalDamage`. */
+  dieFloor?: number;
+  /** Dice omitted for this hit (set on per-hit copies only). */
+  omitCount?: number;
 };
 
 export function toSharedAoeDamagePayload(result: {
@@ -276,6 +287,7 @@ export function toSharedAoeDamagePayload(result: {
   damageChatRolls?: any[];
   attackContext?: { armorPenetration?: number } | null;
   mitigation?: { phased?: boolean } | null;
+  sharedDice?: { orderedDieFaces?: number[]; artificial?: boolean; dieFloor?: number } | null;
 } | null | undefined): SharedAoeDamagePayload | null {
   if (!result) return null;
   if (result.mitigation?.phased) return null;
@@ -292,16 +304,25 @@ export function toSharedAoeDamagePayload(result: {
       0,
       Math.floor(Number(result.attackContext?.armorPenetration) || 0),
     ),
+    ...(result.sharedDice
+      ? {
+          orderedDieFaces: Array.isArray(result.sharedDice.orderedDieFaces)
+            ? [...result.sharedDice.orderedDieFaces]
+            : [],
+          artificialDice: result.sharedDice.artificial === true,
+          dieFloor: Math.max(0, Math.floor(Number(result.sharedDice.dieFloor) || 0)),
+        }
+      : {}),
   };
 }
 
-type AoePreDamageGate = {
+export type AoePreDamageGate = {
   outcome: 'escaped' | 'negated' | 'ready';
   preDamage: any;
 };
 
 /** Dive for Cover + pre-damage reactions for one AoE hit. */
-async function runAoePreDamageGate(params: {
+export async function runAoePreDamageGate(params: {
   attacker: any;
   defender: any;
   tok: any | null;
@@ -448,6 +469,8 @@ export async function applySharedAoePayloadToTarget(params: {
   preDamage: any;
   /** Skip re-applying Specials when this defender already received them from the roll dialog. */
   skipSpecials?: boolean;
+  /** Chat heading prefix (default "AoE"; Autofire passes "Autofire"). */
+  damageLabel?: string;
 }): Promise<'damaged' | 'cancelled'> {
   const { attacker, defender, tok, attackTotal, evadeTn, shared, preDamage } = params;
   const combat = (game as any).combat ?? null;
@@ -484,7 +507,7 @@ export async function applySharedAoePayloadToTarget(params: {
     ? `<p class="mastery-damage-special-limit">${allLimitNotes.join('<br>')}</p>`
     : '';
   const aoeContent =
-    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${shared.totalDamage}</h3>` +
+    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${shared.totalDamage}</h3>` +
     (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
     `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p><em>— applying…</em></p></div>`;
 
@@ -547,7 +570,7 @@ export async function applySharedAoePayloadToTarget(params: {
     if (dmgMsg?.id) {
       await dmgMsg.update({
         content:
-          `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${shared.totalDamage}</h3>` +
+          `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${shared.totalDamage}</h3>` +
           (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
           `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p>${mitLine}</p></div>`,
       });
@@ -597,6 +620,12 @@ export async function resolveAoeFullPayloadOnTarget(params: {
   allowDiveForCover?: boolean;
   /** When set, skip the damage dialog and apply this shared roll instead. */
   sharedDamage?: SharedAoeDamagePayload | null;
+  /** Called with the rolled damage result when the damage dialog produced it (Autofire shares it). */
+  onDamageRolled?: (damageResult: any) => void;
+  /** Chat heading prefix (default "AoE"; Autofire passes "Autofire"). */
+  damageLabel?: string;
+  /** Skip re-applying Specials when applying a shared payload (roller already got them). */
+  skipSpecials?: boolean;
 }): Promise<'escaped' | 'negated' | 'damaged' | 'cancelled'> {
   const {
     attacker,
@@ -629,6 +658,8 @@ export async function resolveAoeFullPayloadOnTarget(params: {
       evadeTn,
       shared: params.sharedDamage,
       preDamage,
+      damageLabel: params.damageLabel,
+      skipSpecials: params.skipSpecials,
     });
   }
 
@@ -658,6 +689,11 @@ export async function resolveAoeFullPayloadOnTarget(params: {
     targetFlags,
   );
   if (!damageResult) return 'cancelled';
+  try {
+    params.onDamageRolled?.(damageResult);
+  } catch {
+    /* ignore */
+  }
 
   const details = Array.isArray(damageResult.rollDetails)
     ? (damageResult.rollDetails as string[]).map((l) => `<li>${String(l)}</li>`).join('')
@@ -669,7 +705,7 @@ export async function resolveAoeFullPayloadOnTarget(params: {
     ? `<p class="mastery-damage-special-limit">${limitNotes.join('<br>')}</p>`
     : '';
   const aoeContent =
-    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${damageResult.totalDamage}</h3>` +
     (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
     `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p><em>— applying…</em></p></div>`;
   const aoeRolls = Array.isArray(damageResult.damageChatRolls)
@@ -752,7 +788,7 @@ export async function resolveAoeFullPayloadOnTarget(params: {
       if (dmgMsg?.id) {
         await dmgMsg.update({
           content:
-            `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+            `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${damageResult.totalDamage}</h3>` +
             (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
             `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p>${mitLine}</p></div>`,
         });

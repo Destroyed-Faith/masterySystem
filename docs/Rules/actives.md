@@ -2607,35 +2607,42 @@ Successful splits resolve normally against their respective targets.
 
 ---
 
-### Autofire Rule
+### Autofire Rule — Stepped Attack Chain
 
-Autofire is one Ranged Power use that walks through an ordered chain of targets.
+**Autofire is not AoE.** Autofire is one Ranged Power use that declares an ordered series of **attack slots** up to the Power's printed **Attack Capacity**. A creature may appear more than once (A → B → A or A → A → A).
 
 Before rolling:
 
-1. Choose the first target within the Power's Range.
-2. Declare the remaining targets in order, up to the Power's Target Capacity.
-3. Every target after the first must be within **4 m of the previous target** and within the Power's Range.
-4. A creature cannot appear more than once in the same Autofire chain.
+1. Declare the ordered list of attack slots, up to the Power's Attack Capacity.
+2. Every slot must be within the Power's printed Range.
+3. Every slot after the first must be within **4 m of the preceding slot's target** (repeating the same creature is legal and satisfies this).
 
 Then make **one roll** using the Power's delivery:
 
-- Martial delivery makes one ranged **Attack Roll** and compares it against each target's Evade.
-- Spell delivery makes one **Casting Roll** and compares it against each target's Final Spell TN.
+- Martial delivery makes one ranged **Attack Roll**.
+- Spell delivery makes one **Casting Roll**.
 
-Resolve targets in the declared order. If the roll fails to affect a target, that target is missed or resists and **Autofire ends immediately**. Later declared targets are not checked.
+Resolve the declared slots **in order**. For slot *i* (starting at 1):
+
+> **TN(i) = target's applicable Evade or Final Spell TN + 4 × (i − 1) + 4 × Declared Paid Raises.**
+
+*(Autofire — Stepped Attack Chain.)*
+
+The cumulative +4 steps are **hit thresholds, not Paid Raises**; they grant no Raise damage or Special effects and cannot be removed by Intellect Free Raises. Ordinary Paid Raises are declared once for the whole use and add +4 per Raise to **every** slot.
+
+If the roll fails to affect a slot, that slot misses or resists and **Autofire ends immediately**. Later slots are not checked. Successful earlier slots remain hits.
 
 - **Reaction: Evade** applies only to Martial Autofire.
 - Legal Spell defenses apply to Spell Autofire.
 - **Dive for Cover cannot be used against Autofire.**
 
-Every target successfully affected receives the Power's **full delivery-appropriate payload**. Martial delivery includes weapon damage where printed. Spell delivery omits weapon damage but keeps full listed Power damage, Specials, legal Spell Focus damage, and other applicable Spell riders.
+Every successful slot is a **separate hit**, even against the same creature. Roll matching **Weapon Damage (Martial)** or **Spell Focus Damage (Spell)** together with the Power's eligible Damage Dice **once**; reuse that same damage result for every successful hit. Resolve Armor, Damage Reduction, Damage Negation, Temporary HP, Special Negation and other legal defenses **per hit**.
 
-If a Spell Autofire Casting Roll is below Spell Base TN, the Spell fizzles. If it reaches Spell Base TN but a target's Spell Resistance stops the chain, the Spell was cast and the chain ends normally.
+If a Spell Autofire Casting Roll is below Spell Base TN, the Spell fizzles. If it reaches Spell Base TN but an individual slot fails its stepped Final Spell TN, the Spell was cast and the chain ends normally.
 
-Autofire Target Capacity costs **30 PP per additional target** after the first target.
+Autofire Attack Capacity costs **30 PP per additional attack slot** after the first.
 
-Additional Autofire targets require **no target-count Raises**. Normal Raises may still be used for legal Raise effects of the Power.
+Additional Autofire slots require **no target-count Raises**. Normal Raises may still be used for legal Raise effects of the Power.
 
 ---
 :
@@ -2725,28 +2732,23 @@ A character uses a Level 7 Melee Split Attack with an Attack Pool of **12 dice**
 
 ### Example — Autofire
 
-A character uses a Level 8 Ranged Autofire Power. It can include up to **5 targets** and deals weapon damage + **5d8 damage** on every successful hit.
+A character uses a Level 8 Ranged Autofire Power. Attack Capacity **5**. It deals weapon damage + **5d8 damage** on every successful hit.
 
-Before rolling, the character declares:
+Before rolling, the character declares three attack slots:
 
-> A → B → C → D
+> A → B → A
 
-Each target is within 4 m of the previous target and all four are within the Power's Range.
+All slots are within Range. Slot 2 is within 4 m of A; slot 3 repeats A.
 
-The character makes one ranged Attack Roll and gets **27**.
+All three start from Evade **10**. Required TNs before Paid Raises: **10 / 14 / 18**.
 
-- Target A has Evade 18: hit.
-- Target B has Evade 23: hit.
-- Target C has Evade 25 and uses Reaction: Evade to raise its final Evade to 29: miss.
-- Autofire ends immediately. Target D is not checked.
+The character makes one ranged Attack Roll and gets **16**.
 
-Targets A and B each take:
+- Slot 1 vs A (TN 10): hit.
+- Slot 2 vs B (TN 14): hit.
+- Slot 3 vs A (TN 18): miss — chain ends.
 
-> weapon damage + **5d8 damage**
-
-Target C and Target D take nothing.
-
-Autofire uses no target-count Raises, and Dive for Cover cannot be used against it.
+The character rolls weapon damage + **5d8** once and applies that same raw result as two separate hits (one to A, one to B). Each hit resolves its own defenses. Autofire steps grant no Raise effects. Dive for Cover cannot be used.
 
 }}
 \page
@@ -3158,20 +3160,20 @@ A ranged technique that divides one attack sequence between multiple targets.
       Autofire Target Capacity = 30 PP per additional target<br>
       +1d8 Damage = 15 PP<br><br>
       DESIGN STRUCTURE<br>
-      Declare an ordered target chain before rolling. Every target after the first must be within 4 m of the previous target.<br>
-      Make one Attack Roll and compare the same result against each target's Evade in order. The first miss ends the chain.<br>
-      Autofire requires no Raises for additional targets.<br>
-      Every successful target receives full Weapon Damage, full listed Power damage, full Specials, and applicable offensive buffs.<br>
+      Declare ordered attack slots before rolling. Same creature may repeat. Every slot after the first must be within 4 m of the previous slot's target.<br>
+      Make one Attack Roll. Slot i TN = Defense + 4×(i−1) + 4×Paid Raises. Steps are not Paid Raises. First miss ends the chain; earlier hits remain.<br>
+      Autofire requires no Raises for additional slots.<br>
+      One shared Damage Roll (Weapon or Spell Focus + Power dice) is reused for every successful slot; each slot is a separate hit with its own mitigation.<br>
       Reaction: Evade can turn a hit into a miss and end the chain. Dive for Cover cannot be used.<br><br>
-      AUTOFIRE TARGET CAPACITY<br>
-      L1–2 → first target + 1 additional target<br>
-      L3–4 → first target + 2 additional targets<br>
-      L5–6 → first target + 3 additional targets<br>
-      L7–8 → first target + 4 additional targets<br>
-      L9–10 → first target + 5 additional targets<br>
-      L11–12 → first target + 6 additional targets<br>
-      L13–14 → first target + 7 additional targets<br>
-      L15–16 → first target + 8 additional targets<br>
+      AUTOFIRE ATTACK CAPACITY<br>
+      L1–2 → 2 attack slots<br>
+      L3–4 → 3 attack slots<br>
+      L5–6 → 4 attack slots<br>
+      L7–8 → 5 attack slots<br>
+      L9–10 → 6 attack slots<br>
+      L11–12 → 7 attack slots<br>
+      L13–14 → 8 attack slots<br>
+      L15–16 → 9 attack slots<br>
 <br>      LEVEL-BY-LEVEL CALCULATION<br>
       L1 → Target 30 PP: Range 8 m (0) + Autofire +1 targets (30) + Damage +0d8 (0) = 30 PP<br>
       L2 → Target 60 PP: Range 12 m (5) + Autofire +1 targets (30) + Damage +1d8 (15) = 50 PP<br>
@@ -3196,7 +3198,7 @@ A ranged technique that divides one attack sequence between multiple targets.
   </span>
 </h3>
 
-A ranged weapon attack that walks a burst through an ordered line of targets.
+A ranged stepped attack chain: ordered attack slots, one shared Attack Roll with cumulative +4 TN per later slot, one shared Damage Roll reused for every successful hit.
 
 ---
 :
@@ -3206,22 +3208,22 @@ A ranged weapon attack that walks a burst through an ordered line of targets.
 :
 | **Level** | **Type** | **Range** | **AoE** | **Duration** | **Effect** | **Special** |
 |:--:|:--|:--:|:--:|:--:|:--|:--|
-| **1** | Active | 8 m | — | Instant | Autofire up to **2 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage. | — |
-| **2** | Active | 12 m | — | Instant | Autofire up to **2 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **1d8 damage**. | — |
-| **3** | Active | 16 m | — | Instant | Autofire up to **3 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **1d8 damage**. | — |
-| **4** | Active | 20 m | — | Instant | Autofire up to **3 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **2d8 damage**. | — |
-| **5** | Active | 24 m | — | Instant | Autofire up to **4 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **2d8 damage**. | — |
-| **6** | Active | 28 m | — | Instant | Autofire up to **4 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **4d8 damage**. | — |
-| **7** | Active | 32 m | — | Instant | Autofire up to **5 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **4d8 damage**. | — |
-| **8** | Active | 36 m | — | Instant | Autofire up to **5 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **5d8 damage**. | — |
-| **9** | Active | 40 m | — | Instant | Autofire up to **6 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **5d8 damage**. | — |
-| **10** | Active | 44 m | — | Instant | Autofire up to **6 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **6d8 damage**. | — |
-| **11** | Active | 48 m | — | Instant | Autofire up to **7 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **6d8 damage**. | — |
-| **12** | Active | 52 m | — | Instant | Autofire up to **7 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **8d8 damage**. | — |
-| **13** | Active | 56 m | — | Instant | Autofire up to **8 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **8d8 damage**. | — |
-| **14** | Active | 60 m | — | Instant | Autofire up to **8 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **9d8 damage**. | — |
-| **15** | Active | 64 m | — | Instant | Autofire up to **9 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **9d8 damage**. | — |
-| **16** | Active | 68 m | — | Instant | Autofire up to **9 targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes weapon damage + **11d8 damage**. | — |
+| **1** | Active | 8 m | — | Instant | Autofire up to **2 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage. | — |
+| **2** | Active | 12 m | — | Instant | Autofire up to **2 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **1d8 damage**. | — |
+| **3** | Active | 16 m | — | Instant | Autofire up to **3 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **1d8 damage**. | — |
+| **4** | Active | 20 m | — | Instant | Autofire up to **3 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **2d8 damage**. | — |
+| **5** | Active | 24 m | — | Instant | Autofire up to **4 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **2d8 damage**. | — |
+| **6** | Active | 28 m | — | Instant | Autofire up to **4 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **4d8 damage**. | — |
+| **7** | Active | 32 m | — | Instant | Autofire up to **5 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **4d8 damage**. | — |
+| **8** | Active | 36 m | — | Instant | Autofire up to **5 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **5d8 damage**. | — |
+| **9** | Active | 40 m | — | Instant | Autofire up to **6 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **5d8 damage**. | — |
+| **10** | Active | 44 m | — | Instant | Autofire up to **6 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **6d8 damage**. | — |
+| **11** | Active | 48 m | — | Instant | Autofire up to **7 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **6d8 damage**. | — |
+| **12** | Active | 52 m | — | Instant | Autofire up to **7 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **8d8 damage**. | — |
+| **13** | Active | 56 m | — | Instant | Autofire up to **8 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **8d8 damage**. | — |
+| **14** | Active | 60 m | — | Instant | Autofire up to **8 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **9d8 damage**. | — |
+| **15** | Active | 64 m | — | Instant | Autofire up to **9 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **9d8 damage**. | — |
+| **16** | Active | 68 m | — | Instant | Autofire up to **9 attack slots** (same creature may repeat). Each next slot must be within **4 m** of the previous. One Attack Roll; TN(i) = Evade + 4×(i−1) + Paid Raises. First miss ends the chain. One shared Damage Roll; every successful slot takes weapon damage + **11d8 damage**. | — |
 
 ---
 }}

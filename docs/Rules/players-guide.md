@@ -1860,7 +1860,9 @@ Your victories will be small, your sacrifices great yet even the smallest triump
 
 > **Evade:** The TN an Attack must reach to hit a creature. For an AoE Attack, one roll is compared separately against the defense of each valid creature in the area.
 
-> **AoE Attack:** Roll once for the whole area. A Martial AoE compares that result separately against each creature's Evade. A Spell AoE compares the same Casting Roll separately against each creature's Final Spell TN.
+> **AoE Attack:** Roll once for the area; compare separately with each creature's Evade (Martial) or Final Spell TN (Spell). Each hit receives any printed Power Damage and full Specials. Pure AoE Specials buy **no Power Damage Dice**. No Primary Target, splitting, Weapon Damage, or Spell Focus Damage.
+
+> **Autofire:** Declare an ordered series of attacks up to the Power's printed capacity; the same target may appear repeatedly. Make **one** Attack or Casting Roll. Attack number 1 uses the target's normal TN; each later attack adds a cumulative **+4** to its own target TN. The first miss or resistance ends the chain. Roll the complete matching Weapon/Spell Focus plus Power Damage Pool **once** and reuse it for each successful hit; defend against each hit separately.
 
 > **Raises:** Before rolling, declare Paid Raises (+4 TN each). After success, each Raise adds +MR d8 Damage (AoE: +ceil(MR/2) d8) or +MR to an existing Special. Intellect Free Raises use the same options without increasing TN.
 
@@ -5622,9 +5624,9 @@ Predator Sense is separate from both Base Values and does not scale with Artifac
 
 Breath Weapon grants **two alternative catalogue modes** at the same Artifact Level: **Damage Breath = Melee AoE Attack** and **Ruin Breath = Melee AoE Special: Ruin**, both at the listed Power Level. Choose exactly one mode on each use. These are not a combined Power and use the same Breath Weapon use counter.
 
-Both modes are **self-centered Martial AoE Powers** using their own exact catalogue radii. No Cone/Line geometries or separate dragon-specific damage dice are granted. Damage Breath uses Dragon Head's current **Bite Weapon Damage** as the melee Weapon Damage source and adds only the catalogue's printed Melee AoE Attack bonus Damage Dice. Ruin Breath applies only the catalogue's printed Ruin(X), without Weapon or Power damage.
+Both modes are **self-centered Martial AoE Powers** using their exact catalogue radii. No Cone/Line geometry or separate dragon-specific damage is granted. Damage Breath deals **only the printed Melee AoE Attack Power Damage Dice**, without Bite Weapon Damage. Ruin Breath applies the printed **Ruin(X)** only. Neither AoE adds Weapon Damage or Spell Focus Damage.
 
-Make one Martial AoE Attack Roll, compare it separately to each affected creature's Evade, and use the normal Dive for Cover and other defenses. Neither mode creates additional attacks or special riders. A successful Damage Breath may use the normal Weapon Special rules only if the source actually has such a Special; Bite has none by default.
+Make one Martial AoE Attack Roll, compare it separately to each affected creature's Evade, and use the normal Dive for Cover and other defenses. Neither mode creates additional attacks or special riders. Damage Breath uses one shared Power Damage Roll for all hit creatures; Bite damage never multiplies across targets. It has no additional Bite Special by default.
 
 ---
 
@@ -5653,13 +5655,13 @@ Breath Weapon can be used a number of times per Safe Haven Rest equal to half th
 
 | **Artifact Level** | **Artifact Name** | **Type** | **Range** | **AoE** | **Duration** | **Effect** |
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
-| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: Bite Weapon Damage + **4d8** Power Damage, radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage). Use one AoE attack and the shared Breath Weapon counter. |
+| **1** | **Breath Weapon I**<span class="artifactTechnicalReference">Melee AoE Attack (PL 4) OR Melee AoE Special: Ruin (PL 4)</span> | Artifact Active | Self | Damage: radius 3 m / Ruin: radius 3 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 4: **4d8** Power Damage (no Bite damage), radius 3 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 4: **Ruin(5)**, radius 3 m, no damage). Use one AoE attack and the shared Breath Weapon counter. |
 | **2** | **Draconic Roar I**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 4)</span> | Active Buff | Self | Radius 8 m | Mastery Rank Rounds | You and allies in the area gain **+12 Armor**. |
 | **3** | **Draconic Recovery I**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 4)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **1 spent Stone** of the Attribute chosen for Draconic Recovery. |
-| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: Bite Weapon Damage + **7d8** Power Damage, radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
+| **4** | **Breath Weapon II**<span class="artifactTechnicalReference">Melee AoE Attack (PL 10) OR Melee AoE Special: Ruin (PL 10)</span> | Artifact Active | Self | Damage: radius 6 m / Ruin: radius 5 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 10: **7d8** Power Damage (no Bite damage), radius 6 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 10: **Ruin(9)**, radius 5 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon I. |
 | **5** | **Draconic Roar II**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 10)</span> | Active Buff | Self | Radius 20 m | Mastery Rank Rounds | You and allies in the area gain **+28 Armor**. This replaces Draconic Roar I. |
 | **6** | **Draconic Recovery II**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 10)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **2 spent Stones** of the chosen Attribute. This replaces Draconic Recovery I. |
-| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: Bite Weapon Damage + **13d8** Power Damage, radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
+| **7** | **Breath Weapon III**<span class="artifactTechnicalReference">Melee AoE Attack (PL 16) OR Melee AoE Special: Ruin (PL 16)</span> | Artifact Active | Self | Damage: radius 8 m / Ruin: radius 7 m | Instant | Choose **Damage Breath** (Melee AoE Attack PL 16: **13d8** Power Damage (no Bite damage), radius 8 m) **or Ruin Breath** (Melee AoE Special: Ruin PL 16: **Ruin(10)**, radius 7 m, no damage). Use one AoE attack and the shared Breath Weapon counter. This replaces Breath Weapon II. |
 | **8** | **Draconic Roar III**<span class="artifactTechnicalReference">Active Buff: Armor Aura (PL 16)</span> | Active Buff | Self | Radius 32 m | Mastery Rank Rounds | You and allies in the area gain **+44 Armor**. This replaces Draconic Roar II. |
 | **9** | **Draconic Recovery III**<span class="artifactTechnicalReference">Artifact Active: Stone Refresh (PL 16)</span> | Artifact Active, Support | Self | — | Instant | As an Attack Action, once per Safe Haven Rest, restore **4 spent Stones** of the chosen Attribute. This replaces Draconic Recovery II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Dragon Head)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
@@ -5718,9 +5720,7 @@ Dragon Claws are Echo-bound and cannot normally be removed or replaced.
 
 Claw / Tail Damage is Weapon Damage. 
 Penetration and Brutal Impact apply to Claw and Tail attacks granted by this Artifact.
-Rending Spiral and Tail Sweep use the current Claw / Tail Weapon Damage.
-
-Rending Spiral is the pure **Melee AoE Special: Lacerate**. Tail Sweep is a pure **Melee Push / Pull (Push only)** targeting one creature within Melee Reach; the catalogue has no AoE Push definition, so Tail Sweep is not an AoE. Neither Power deals Weapon Damage. Both use exact printed PL 4/10/16 catalogue profiles.
+Rending Spiral is an **AoE** and adds **no Claw / Tail Weapon Damage**. Tail Sweep is a **single-target Martial Push** and uses matching Claw / Tail Weapon Damage when it hits; it purchases no extra Power Damage. Rending Spiral applies the full printed **Lacerate(X)** to each hit creature without splitting. Both retain their PL 4/10/16 catalogue profiles.
 
 ---
 }}
@@ -5733,13 +5733,13 @@ Rending Spiral is the pure **Melee AoE Special: Lacerate**. Tail Sweep is a pure
 | :--: | :-- | :-- | :--: | :--: | :--: | :-- |
 | **1** | **Damage Support I**<span class="artifactTechnicalReference">Might Ability: Damage (Stone Power Support, Rank 2)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 2**. Rank 1 must still be paid. |
 | **2** | **Rending Spiral I**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 4)</span> | Active, Special | Self | Radius 3 m | Instant | Apply **Lacerate(5)** to each hit creature; **no damage**. |
-| **3** | **Tail Sweep I**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 4)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 8 m**, no damage and no AoE. |
+| **3** | **Tail Sweep I**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 4)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 8 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. |
 | **4** | **Damage Support II**<span class="artifactTechnicalReference">Might Ability: Damage (Stone Power Support, Rank 3)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 3**. Ranks 1 and 2 must still be paid. |
 | **5** | **Rending Spiral II**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 10)</span> | Active, Special | Self | Radius 5 m | Instant | Apply **Lacerate(9)** to each hit creature; **no damage**. This replaces Rending Spiral I. |
-| **6** | **Tail Sweep II**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 10)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 20 m**, no damage and no AoE. This replaces Tail Sweep I. |
+| **6** | **Tail Sweep II**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 10)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 20 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep I. |
 | **7** | **Damage Support III**<span class="artifactTechnicalReference">Might Ability: Damage (Stone Power Support, Rank 4)</span> | Stone Power Support | Self | — | Instant | Pre-fill **Rank 4**. Ranks 1, 2, and 3 must still be paid. |
 | **8** | **Rending Spiral III**<span class="artifactTechnicalReference">Melee AoE Special: Lacerate (PL 16)</span> | Active, Special | Self | Radius 7 m | Instant | Apply **Lacerate(10)** to each hit creature; **no damage**. This replaces Rending Spiral II. |
-| **9** | **Tail Sweep III**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 16)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 32 m**, no damage and no AoE. This replaces Tail Sweep II. |
+| **9** | **Tail Sweep III**<span class="artifactTechnicalReference">Melee Push / Pull: Push (PL 16)</span> | Active, Control | Melee Reach | — | Instant | Make one melee control Attack Roll against one target; on hit **Push 32 m** plus Claw / Tail Weapon Damage; no AoE or purchased Power Damage. This replaces Tail Sweep II. |
 | **10** | **Artifact Awakening**<span class="artifactTechnicalReference">Artifact Level 10: Awakening (Dragon Claws)</span> | Artifact Function | Self | — | Special | Use the universal **Artifact Awakening** rules for this Artifact's granted Powers, Stone support, and Stone resources. Permanent Passives remain unchanged. |
 
 ---
@@ -8153,6 +8153,8 @@ Multiple Raises may be assigned to the same option. **Range, Melee Reach, AoE si
 
 **Split Attack:** One Power use makes up to two separate Attack or Casting Rolls using its divided Pool. Declare one Paid Raise count for the Power; add the same TN increase to both rolls. After resolving both rolls, choose the Raise effects **once** and apply that same choice to each successful split. Each successful split deals full Damage and its full Special payload. The split rolls determine hits independently.
 
+**Autofire:** Declare the ordered attack slots before rolling. For attack number *i*, its TN is that target's applicable defense **+4 × (i − 1)**, plus **+4 per Paid Raise** declared for this Power use. This positional increase is **not a Paid Raise**, grants no Raise effect, and cannot be canceled with Intellect Free Raises. Declare Paid and Free Raises only **once** for the whole Autofire use. Choose legal Raise effects once after resolving the chain; the chosen effects apply equally to each successful hit. Autofire uses one Attack/Casting Roll and one common Damage Roll, not one roll per slot.
+
 **Intellect Free Raises:** Declare how many of the current Round's allowance are committed to this use before rolling. They use the same two options without raising TN, and are consumed as described by the Stone Ability. For Split Attack, commit them once for the Power, not separately for each split.
 
 **Example:** At MR3 a character declares one Paid Raise against TN22, making the new TN26. A roll of 25 fails; a roll of 28 succeeds. After success, the player chooses **+3d8 Damage**, **+2d8 Damage if the Power is AoE**, or **+3 to an existing numeric Special**. Martial and Spell use the same values.
@@ -8622,7 +8624,7 @@ At the start of the next Round, before anyone moves or acts, resolve Initiative 
 ## Attacks
 
 An attack is any action that tries to hit a target through an attack roll. 
-This includes weapon attacks and attack-based Active Powers.
+This includes weapon attacks and attack-based Active Powers. A successful hostile single-target Martial Power adds its matching Weapon Damage; an eligible single-target Spell uses Spell Focus Damage instead. **AoE Powers add neither source**, applying full printed Power effects separately to every hit creature. Non-attack Support Powers do not gain delivery damage.
 Spells follow the Magic rules, but still use the same core dice and Raise engine.
 
 ---
@@ -8686,7 +8688,7 @@ When resolving an Attack, Spell, or another hostile effect, follow the applicabl
 
 #### 1. Choose the Target and Effect
 
-Choose the target and the Attack, Spell, Power, weapon, or other hostile effect being used. Confirm that the target is valid, within Range, and can legally be affected by the chosen effect.
+Choose the target and the Attack, Spell, Power, weapon, or other hostile effect being used. Confirm that the target is valid, within Range, and can legally be affected by the chosen effect. For **Autofire**, declare the complete ordered list of attacks before the shared roll; the same creature may occupy multiple attack slots.
 
 #### 2. Determine the Target Number
 
@@ -8697,13 +8699,14 @@ Determine the defense used by the effect.
  - A direct Spell uses **Final Spell TN = Spell Base TN + Target Spell Resistance**.
  - A Martial AoE uses one Attack Roll and compares that same result separately against the **Evade of each valid creature** in the area.
  - A Spell AoE uses one Casting Roll and compares that same result separately against the **Final Spell TN of each valid creature** in the area.
+ - **Autofire** checks each declared attack in order against that slot's Martial **Evade** or Spell **Final Spell TN**, with an extra **+4 × (slot number − 1)**; normal Paid Raises add their +4 per Raise to every slot.
 ---
 
 AoE targets are checked separately. **Passive: Enemy Evade Reduction** and **Passive: Spell Resistance Piercing** modify only the owner's eligible Martial and Spell TNs, respectively; neither changes the target's listed defenses.
 
 #### 3. Declare Raises
 
-Declare Paid Raises and Intellect Free Raises before rolling. Every Paid Raise adds **+4** to the target's applicable TN, which becomes its sole hit/effect TN. Free Raises do not increase TN. After successful roll resolution, assign each eligible Raise to **Damage** or to an **existing numeric Special**, using the Universal Combat Raise Catalog. For an AoE, check each target separately against the raised TN and use the halved, rounded-up Damage Raise dice. Split Attack uses one Raise selection shared by its successful splits.
+Declare Paid Raises and Intellect Free Raises before rolling. Every Paid Raise adds **+4** to each applicable target TN. Free Raises do not increase TN. After successful roll resolution, assign each eligible Raise to **Damage** or to an **existing numeric Special**, using the Universal Combat Raise Catalog. For an AoE, check each target separately against the raised TN and use the halved, rounded-up Damage Raise dice. Split Attack uses one Raise selection shared by its successful splits. **Autofire's +4 per later attack is a separate cumulative hit threshold, not a Paid Raise or a Raise effect.**
 
 #### 4. Build the Attack or Spell Pool
 
@@ -8729,9 +8732,9 @@ If the eligible Pool is reduced to **0 dice**, a Martial Attack is **Fully Parri
 #### 6. Make the Roll
 
 Roll the remaining Attack or Spell Pool, resolve exploding dice, keep the appropriate number of dice, and compare the final result to the applicable Target Number. A Martial result below its defense misses. For a Spell, a result below Spell Base TN fizzles; a result that reaches Spell Base TN but not a creature's Final Spell TN is cast successfully but resisted by that creature. 
-For an **AoE Attack**, use the same final roll for every valid creature in the area and compare it separately against that creature's defense. A miss against one creature does not affect any other creature. After the comparison, a creature that would be hit may use **Dive for Cover** at its specifically listed pre-payload window.
+For an **AoE Attack**, use the same final roll for every valid creature in the area and compare it separately against that creature's defense. A miss against one creature does not affect any other creature. After the comparison, a creature that would be hit may use **Dive for Cover** at its specifically listed pre-payload window. For **Autofire**, use that one shared Attack or Casting Roll against each successive, cumulatively raised slot TN; **stop on the first miss or resistance**. Dive for Cover does not apply to Autofire.
 
-Every creature whose **raised TN** is met receives the Power's **full printed payload** and all selected successful Raise Effects, including weapon damage when the Power uses a weapon, listed Power damage, listed Specials, and applicable offensive buffs. AoE damage and Specials are not divided because several creatures were hit. A target whose raised TN is missed receives no payload even if the unraised TN would have been met.
+Every successful hit receives its full eligible payload and Raise Effects. A successful hostile **single-target or Autofire** Martial hit adds matching Weapon Damage; a legal Spell hit instead adds matching Spell Focus Damage. An **AoE adds neither**: every hit creature receives the full printed Power Damage and Specials, without a Primary Target or division. A missed raised TN receives no payload even if the unraised TN was met.
 
 #### 7. Resolve Phasing
 
@@ -8754,11 +8757,11 @@ A successful Attack, Spell, or AoE does not automatically trigger a second defen
 
 #### 10. Build the Damage Pool
 
-Determine the complete Damage Pool assigned to the target, including weapon damage when the effect uses a weapon, Power damage, successful Raise damage, bonus Damage Dice, and all other legal damage modifiers. Spell delivery does not add Weapon Damage. **For Hex and Sundered bonus Damage Dice, use only stacks present on the target before this hit applied any Specials. Stacks created by the current hit benefit subsequent hits, not this one.**
+Build the eligible Damage Pool: a successful hostile **single-target Martial Power or Martial Autofire hit** adds matching Weapon Damage; an eligible **single-target Spell or Spell Autofire hit** adds Spell Focus Damage, even if only a Special/control effect was purchased. **AoE Powers add neither Weapon nor Spell Focus Damage.** Add printed Power Damage, successful Raise damage, and other eligible non-focus bonuses. Non-attacking Support/placement Powers gain no delivery damage. **Hex and Sundered bonus dice use only stacks present before the relevant hit; new stacks benefit later hits.**
 
 #### 11. Apply Damage Negation
 
-Before the Damage Pool is rolled, the target chooses how many of its assigned Damage Dice to remove, from **0 up to the full number of incoming Damage Dice**, limited only by its **total available Damage Negation** from legal sources. Each point spent removes **1 Damage Die**. The defender may remove the entire Damage Pool (for example, 8d8 becomes 0d8 by spending 8 points), in which case no Damage Dice are rolled. Spend temporary Damage Negation before the Passive Reserve; **choose the order among separate temporary pools**, track each independently, and apply its own expiry. Negation changes neither the Attack's hit nor Specials, flat damage, or other hit effects.
+Before the Damage Pool is rolled, the target chooses how many of its assigned Damage Dice to remove, from **0 up to the full number of incoming Damage Dice**, limited only by its **total available Damage Negation** from legal sources. Each point spent removes **1 Damage Die**. The defender may remove the entire Damage Pool (for example, 8d8 becomes 0d8 by spending 8 points), in which case no Damage Dice are rolled. Spend temporary Damage Negation before the Passive Reserve; **choose the order among separate temporary pools**, track each independently, and apply its own expiry. For a shared **AoE or Autofire** Damage Roll, each defender declares Negation before rolling, **separately for each eligible hit** (including repeated hits against one creature); omit that many dice from the same ordered shared roll **for that hit only**, without rolling a new base pool. The resource is spent for each hit that uses it. Negation does not change the hit, Specials or other effects.
 }}
 
 \page
@@ -8766,7 +8769,7 @@ Before the Damage Pool is rolled, the target chooses how many of its assigned Da
 {{wide
 #### 12. Roll Damage
 
-Normally roll the remaining Damage Dice; they do not explode unless stated. **After Damage Negation, before rolling**, you may spend one eligible use of **Passive: Maximization** or **Vitality Stone Ability: Maximization** to make every remaining die in the complete roll an **artificial 8**, with no natural-8 effects. Choose **one source per roll**, never both.
+Normally roll the remaining Damage Dice; they do not explode unless stated. For a damaging **AoE or Autofire**, roll the common eligible Damage Pool **once**; reuse those recorded die results for every successful AoE target or Autofire hit. For Autofire, that common Pool includes eligible Weapon or Spell Focus Damage. Each hit applies its declared Damage Negation and other defenses separately; target-specific dice are resolved only for that hit. **After Damage Negation, before rolling**, you may spend one eligible use of **Passive: Maximization** or **Vitality Stone Ability: Maximization** to make every remaining die in the complete roll an **artificial 8**, with no natural-8 effects. Choose **one source per roll**, never both.
 
 The slotted Passive grants **1 / 2 / 3 free uses per Combat** at PL 4-7 / 8-14 / 15-16. Vitality Maximization grants **1 / 2 / 3 / 4 shared Combat uses** if paid for in the first Preparation Phase. Track them separately. One shared AoE roll costs one use; separate rolls cost separate uses. Either source may maximize a legal **Limited Power** or eligible **Healing Roll**, but adds no attack or dice. Resolve Armor, DR and other mitigation normally. **Damage Transfer** has no separate Healing Roll.
 
@@ -10590,7 +10593,7 @@ This makes heavy preparation a tactical risk without adding extra math.
 | **Thrown (X m)** | You may make a ranged attack by throwing the weapon up to **X m** (you must retrieve it afterward unless a rule says otherwise). |
 | **Load** | After you fire, the weapon is **Unloaded**. To fire again, spend **1 Attack Action** to reload it. You need **one free hand** to do so. **Quick Load** may instead use Movement as described in the Movement rules. |
 | **Defensive** | While wielding this weapon **two-handed**, add your **Mastery (max +6)** to your **Evade**. |
-| **Spell Focus (+Xd8)** | When you deal damage with a Power that has the Spell tag, add +Xd8 bonus damage dice. This does not add damage to non-damaging Spells.|
+| **Spell Focus (+Xd8)** | Adds +Xd8 damage to a successful hostile single-target attack-delivered Spell **or each successful Spell Autofire hit**, even one purchasing only a Special/control effect. Never adds damage to AoE, Support, persistent zone or placement Spells. |
 
 
 }}
@@ -10656,9 +10659,10 @@ Ranged Active catalogue entries may be written using a **Martial baseline** even
 - a printed **Ranged Weapon or Thrown Weapon** requirement applies only to the Martial version and is replaced by the normal Spell delivery requirements,
 - **Attack Pool / Attack Roll** becomes **Casting Pool / Casting Roll**,
 - **Evade** becomes the affected creature's **Final Spell TN**,
-- **weapon damage** is omitted because it is delivery-specific,
-- printed **Power damage**, Specials, Range, AoE, Duration, target count, split structure, control, and other non-delivery effects remain unchanged,
-- and **Spell Focus** applies normally when the resulting Spell is damaging.
+- **Weapon Damage** is omitted and replaced by eligible **Spell Focus Damage** for a hostile single-target attack **or Autofire hit**, even if only a Special or control effect is purchased,
+- **AoE Powers** add neither Weapon Damage nor Spell Focus Damage, regardless of delivery,
+- printed **Power Damage**, Specials, Range, AoE, Duration, target count, split structure, control, and other non-delivery effects remain unchanged,
+- non-attacking Support, placement and persistent-zone effects gain no damage from delivery.
 
 These substitutions do not create a second Power. They are the Spell delivery of the same base Technical Reference.
 
@@ -10678,7 +10682,7 @@ Examples:
 Delivery-specific rules remain delivery-specific:
 
 - **Weapon Damage**, **Damage (Might Stone Ability)**, and effects that explicitly require a weapon or Martial Attack do not become Spell effects.
-- **Spell Focus** and **Spell Resistance** apply only to Spells.
+- **Spell Focus** applies only to eligible single-target attack-delivered Spells and **Spell Autofire hits**; **Spell Resistance** applies to Spells as normally specified.
 - A rule that explicitly refers to an **Attack Roll** does not automatically modify a Casting Roll, and vice versa, unless that rule says it works with both.
 
 ---
@@ -10933,6 +10937,20 @@ Actives may include:
 Actives use their own Power templates and PP structure.
 
 See: <a href="https://homebrewery.naturalcrit.com/share/Xlht6xfyn5br" target="_blank" rel="noopener noreferrer">Actives</a>
+
+#### Autofire — Stepped Attack Chain
+
+**Autofire is not AoE.** Before rolling, declare up to the Power's printed **Attack Capacity** as an ordered series. A creature may appear more than once (A → B → A or A → A → A). Every slot must be within printed Range, and each slot after the first must be within **4 m of the preceding target**. The first slot costs no additional TN.
+
+Make **one** Martial Attack Roll or eligible Spell Casting Roll. Resolve the declared slots in order. For slot *i* (starting at 1):
+
+**TN(i) = target's applicable Evade or Final Spell TN + 4 × (i − 1) + 4 × declared Paid Raises.**
+
+The cumulative +4 steps are **hit thresholds, not Paid Raises**; they grant no additional Damage or Special effect and are not removed by Intellect Free Raises. **The first unsuccessful slot ends the chain**; successful earlier slots remain hits. A Spell below Spell Base TN fizzles as normal. Reaction: Evade works against Martial Autofire; legal Spell defenses apply to Spell Autofire. **Dive for Cover is not available.**
+
+Every successful slot is a **separate hit**, even against the same creature. Roll matching **Weapon Damage (Martial)** or **Spell Focus Damage (Spell)** together with the Power's eligible Damage Dice **once**; reuse the same die results for all successful hits. Resolve Armor, Damage Reduction, Damage Negation, Temporary HP, Special Negation and other legal defenses **per hit**; do not combine repeated hits before mitigation. Choose any normal Raise effects once for the Power use and apply them to successful hits according to the normal rules.
+
+*Example:* Three attacks against Evade 10 require **10 / 14 / 18** before ordinary Paid Raises. An Attack Roll of **16** hits the first two; the third misses. All damage dice are rolled just once. The Power's existing PP costs, range, Attack Capacity and PL damage progression remain unchanged.
 
 ---
 

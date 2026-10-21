@@ -581,18 +581,19 @@ Split AoE applies the same principle to multiple placements:
 
 ### 9.7 Autofire
 
-Autofire is a ranged ordered chain:
+Autofire is a ranged **stepped attack chain** (not AoE):
 
-- one ranged Attack Roll;
-- targets declared in order;
-- every target after the first must be within 4 m of the previous target and inside Range;
-- the first miss ends the chain;
-- successful targets receive the full printed payload;
+- declare ordered **attack slots** up to Attack Capacity (same creature may repeat);
+- every slot after the first must be within 4 m of the preceding slot's target and inside Range;
+- one Attack/Casting Roll;
+- TN(i) = Defense(i) + 4×(i−1) + 4×Paid Raises (steps are not Paid Raises);
+- the first miss ends the chain; earlier hits remain;
+- one shared Damage Roll (Weapon or Spell Focus + Power dice) reused per successful slot as a separate hit;
 - Dive for Cover is not available against Autofire under the current catalogue rule.
 
-Target capacity costs:
+Attack Capacity costs:
 
-> **30 PP per additional target after the first**
+> **30 PP per additional attack slot after the first**
 
 ### 9.8 Support Actives
 

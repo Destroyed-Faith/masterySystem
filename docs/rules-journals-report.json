@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-10-21T16:50:38.112Z",
+  "generatedAt": "2026-10-21T18:52:31.148Z",
   "source": "docs\\Rules\\players-guide.md",
-  "sourceBytes": 682938,
+  "sourceBytes": 688263,
   "chapterSpecs": 93,
   "matched": 93,
   "missing": [],
@@ -9,37 +9,37 @@
     {
       "journal": "_excluded",
       "page": "Minor Expressions Catalogue",
-      "startLine": 11296
+      "startLine": 11314
     },
     {
       "journal": "_excluded",
       "page": "ME Might",
-      "startLine": 11300
+      "startLine": 11318
     },
     {
       "journal": "_excluded",
       "page": "ME Agility",
-      "startLine": 11389
+      "startLine": 11407
     },
     {
       "journal": "_excluded",
       "page": "ME Intellect",
-      "startLine": 11478
+      "startLine": 11496
     },
     {
       "journal": "_excluded",
       "page": "ME Resolve",
-      "startLine": 11569
+      "startLine": 11587
     },
     {
       "journal": "_excluded",
       "page": "ME Influence",
-      "startLine": 11658
+      "startLine": 11676
     },
     {
       "journal": "_excluded",
       "page": "ME Wits",
-      "startLine": 11747
+      "startLine": 11765
     }
   ],
   "packs": {
@@ -93,8 +93,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Attributes",
-      "startLine": 1970,
-      "endLine": 2008,
+      "startLine": 1972,
+      "endLine": 2010,
       "chars": 1771,
       "htmlChars": 2284,
       "gmOnly": false
@@ -103,8 +103,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Starting Attributes",
-      "startLine": 2009,
-      "endLine": 2071,
+      "startLine": 2011,
+      "endLine": 2073,
       "chars": 1964,
       "htmlChars": 2266,
       "gmOnly": false
@@ -113,8 +113,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Example: Attributes",
-      "startLine": 2072,
-      "endLine": 2101,
+      "startLine": 2074,
+      "endLine": 2103,
       "chars": 1530,
       "htmlChars": 2432,
       "gmOnly": false
@@ -123,8 +123,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Skills",
-      "startLine": 2102,
-      "endLine": 3131,
+      "startLine": 2104,
+      "endLine": 3133,
       "chars": 32116,
       "htmlChars": 36991,
       "gmOnly": false
@@ -133,8 +133,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Example: Skills",
-      "startLine": 3132,
-      "endLine": 3152,
+      "startLine": 3134,
+      "endLine": 3154,
       "chars": 901,
       "htmlChars": 990,
       "gmOnly": false
@@ -143,8 +143,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Choosing Powers",
-      "startLine": 3153,
-      "endLine": 3275,
+      "startLine": 3155,
+      "endLine": 3277,
       "chars": 4719,
       "htmlChars": 5530,
       "gmOnly": false
@@ -153,8 +153,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Example: Powers",
-      "startLine": 3276,
-      "endLine": 3297,
+      "startLine": 3278,
+      "endLine": 3299,
       "chars": 1357,
       "htmlChars": 2006,
       "gmOnly": false
@@ -163,8 +163,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Languages",
-      "startLine": 3298,
-      "endLine": 3339,
+      "startLine": 3300,
+      "endLine": 3341,
       "chars": 1435,
       "htmlChars": 1947,
       "gmOnly": false
@@ -173,8 +173,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Schticks",
-      "startLine": 3340,
-      "endLine": 3493,
+      "startLine": 3342,
+      "endLine": 3495,
       "chars": 7196,
       "htmlChars": 10542,
       "gmOnly": false
@@ -183,8 +183,8 @@
       "pack": "rules-core",
       "journal": "Character Creation",
       "page": "Example: Languages and Schticks",
-      "startLine": 3494,
-      "endLine": 3523,
+      "startLine": 3496,
+      "endLine": 3525,
       "chars": 1113,
       "htmlChars": 1203,
       "gmOnly": false
@@ -253,8 +253,8 @@
       "pack": "rules-core",
       "journal": "Stones & Progression",
       "page": "Progression (XP)",
-      "startLine": 9804,
-      "endLine": 10038,
+      "startLine": 9807,
+      "endLine": 10041,
       "chars": 8996,
       "htmlChars": 15476,
       "gmOnly": false
@@ -263,8 +263,8 @@
       "pack": "rules-core",
       "journal": "Stones & Progression",
       "page": "Mastery Rank Progression",
-      "startLine": 10039,
-      "endLine": 10143,
+      "startLine": 10042,
+      "endLine": 10146,
       "chars": 4977,
       "htmlChars": 7342,
       "gmOnly": false
@@ -284,17 +284,17 @@
       "journal": "Combat Core",
       "page": "Raises",
       "startLine": 8139,
-      "endLine": 8165,
-      "chars": 2342,
-      "htmlChars": 2826,
+      "endLine": 8167,
+      "chars": 2947,
+      "htmlChars": 3513,
       "gmOnly": false
     },
     {
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Combat Senses",
-      "startLine": 8166,
-      "endLine": 8233,
+      "startLine": 8168,
+      "endLine": 8235,
       "chars": 5772,
       "htmlChars": 6727,
       "gmOnly": false
@@ -303,8 +303,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Stealth, Hidden, and Invisibility",
-      "startLine": 8234,
-      "endLine": 8415,
+      "startLine": 8236,
+      "endLine": 8417,
       "chars": 11218,
       "htmlChars": 12950,
       "gmOnly": false
@@ -313,8 +313,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Round Structure",
-      "startLine": 8416,
-      "endLine": 8562,
+      "startLine": 8418,
+      "endLine": 8564,
       "chars": 6501,
       "htmlChars": 7965,
       "gmOnly": false
@@ -323,8 +323,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Initiative",
-      "startLine": 8563,
-      "endLine": 8621,
+      "startLine": 8565,
+      "endLine": 8623,
       "chars": 3184,
       "htmlChars": 4125,
       "gmOnly": false
@@ -333,18 +333,18 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Attacks",
-      "startLine": 8622,
-      "endLine": 8821,
-      "chars": 19156,
-      "htmlChars": 21775,
+      "startLine": 8624,
+      "endLine": 8824,
+      "chars": 20929,
+      "htmlChars": 23771,
       "gmOnly": false
     },
     {
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Armor and Shields",
-      "startLine": 8822,
-      "endLine": 8863,
+      "startLine": 8825,
+      "endLine": 8866,
       "chars": 997,
       "htmlChars": 2249,
       "gmOnly": false
@@ -353,8 +353,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Opposed Attribute Contests",
-      "startLine": 8864,
-      "endLine": 9086,
+      "startLine": 8867,
+      "endLine": 9089,
       "chars": 9971,
       "htmlChars": 12147,
       "gmOnly": false
@@ -363,8 +363,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Advantage and Disadvantage",
-      "startLine": 9087,
-      "endLine": 9121,
+      "startLine": 9090,
+      "endLine": 9124,
       "chars": 796,
       "htmlChars": 890,
       "gmOnly": false
@@ -373,8 +373,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Health & Fear",
-      "startLine": 9122,
-      "endLine": 9389,
+      "startLine": 9125,
+      "endLine": 9392,
       "chars": 13018,
       "htmlChars": 15899,
       "gmOnly": false
@@ -383,8 +383,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Combat Maneuvers",
-      "startLine": 9390,
-      "endLine": 9700,
+      "startLine": 9393,
+      "endLine": 9703,
       "chars": 11672,
       "htmlChars": 13691,
       "gmOnly": false
@@ -393,8 +393,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Rest & Recovery",
-      "startLine": 9701,
-      "endLine": 9803,
+      "startLine": 9704,
+      "endLine": 9806,
       "chars": 5758,
       "htmlChars": 6782,
       "gmOnly": false
@@ -403,8 +403,8 @@
       "pack": "rules-core",
       "journal": "Combat Core",
       "page": "Special Effects Reference",
-      "startLine": 10144,
-      "endLine": 10314,
+      "startLine": 10147,
+      "endLine": 10317,
       "chars": 10252,
       "htmlChars": 15603,
       "gmOnly": false
@@ -413,8 +413,8 @@
       "pack": "rules-core",
       "journal": "Equipment, Magic & Powers",
       "page": "Equipment",
-      "startLine": 10315,
-      "endLine": 10545,
+      "startLine": 10318,
+      "endLine": 10548,
       "chars": 6938,
       "htmlChars": 5245,
       "gmOnly": false
@@ -423,38 +423,38 @@
       "pack": "rules-core",
       "journal": "Equipment, Magic & Powers",
       "page": "Weapons",
-      "startLine": 10546,
-      "endLine": 10600,
-      "chars": 5189,
-      "htmlChars": 7215,
+      "startLine": 10549,
+      "endLine": 10603,
+      "chars": 5299,
+      "htmlChars": 7337,
       "gmOnly": false
     },
     {
       "pack": "rules-core",
       "journal": "Equipment, Magic & Powers",
       "page": "Magic",
-      "startLine": 10601,
-      "endLine": 10795,
-      "chars": 9279,
-      "htmlChars": 11000,
+      "startLine": 10604,
+      "endLine": 10799,
+      "chars": 9619,
+      "htmlChars": 11386,
       "gmOnly": false
     },
     {
       "pack": "rules-core",
       "journal": "Equipment, Magic & Powers",
       "page": "Powers",
-      "startLine": 10796,
-      "endLine": 11172,
-      "chars": 20023,
-      "htmlChars": 23700,
+      "startLine": 10800,
+      "endLine": 11190,
+      "chars": 21904,
+      "htmlChars": 25845,
       "gmOnly": false
     },
     {
       "pack": "rules-core",
       "journal": "Equipment, Magic & Powers",
       "page": "Minor Expressions",
-      "startLine": 11173,
-      "endLine": 11295,
+      "startLine": 11191,
+      "endLine": 11313,
       "chars": 3817,
       "htmlChars": 4627,
       "gmOnly": false
@@ -463,8 +463,8 @@
       "pack": "rules-core",
       "journal": "Rituals, Summons & Artifacts",
       "page": "Rituals",
-      "startLine": 11835,
-      "endLine": 12444,
+      "startLine": 11853,
+      "endLine": 12462,
       "chars": 31828,
       "htmlChars": 38718,
       "gmOnly": false
@@ -473,8 +473,8 @@
       "pack": "rules-core",
       "journal": "Rituals, Summons & Artifacts",
       "page": "Summons",
-      "startLine": 12445,
-      "endLine": 12849,
+      "startLine": 12463,
+      "endLine": 12867,
       "chars": 14089,
       "htmlChars": 19690,
       "gmOnly": false
@@ -483,8 +483,8 @@
       "pack": "rules-core",
       "journal": "Rituals, Summons & Artifacts",
       "page": "Summon Examples",
-      "startLine": 12850,
-      "endLine": 13009,
+      "startLine": 12868,
+      "endLine": 13027,
       "chars": 4185,
       "htmlChars": 6349,
       "gmOnly": false
@@ -493,8 +493,8 @@
       "pack": "rules-core",
       "journal": "Rituals, Summons & Artifacts",
       "page": "Minor Magic Items",
-      "startLine": 13010,
-      "endLine": 13087,
+      "startLine": 13028,
+      "endLine": 13105,
       "chars": 6299,
       "htmlChars": 6583,
       "gmOnly": false
@@ -503,8 +503,8 @@
       "pack": "rules-core",
       "journal": "Rituals, Summons & Artifacts",
       "page": "Artifacts",
-      "startLine": 13088,
-      "endLine": 13227,
+      "startLine": 13106,
+      "endLine": 13245,
       "chars": 6818,
       "htmlChars": 8298,
       "gmOnly": false
@@ -513,8 +513,8 @@
       "pack": "rules-core",
       "journal": "Advanced & Optional",
       "page": "Building Encounters",
-      "startLine": 13228,
-      "endLine": 13786,
+      "startLine": 13246,
+      "endLine": 13804,
       "chars": 27388,
       "htmlChars": 33756,
       "gmOnly": true
@@ -523,8 +523,8 @@
       "pack": "rules-core",
       "journal": "Advanced & Optional",
       "page": "Game System Details",
-      "startLine": 14127,
-      "endLine": 14781,
+      "startLine": 14145,
+      "endLine": 14799,
       "chars": 22021,
       "htmlChars": 37057,
       "gmOnly": false
@@ -533,8 +533,8 @@
       "pack": "rules-core",
       "journal": "Advanced & Optional",
       "page": "Limited Power Modifier",
-      "startLine": 14782,
-      "endLine": 14808,
+      "startLine": 14800,
+      "endLine": 14826,
       "chars": 3520,
       "htmlChars": 4331,
       "gmOnly": false
@@ -623,8 +623,8 @@
       "pack": "rules-world",
       "journal": "Playable Echoes",
       "page": "Overview",
-      "startLine": 3524,
-      "endLine": 3564,
+      "startLine": 3526,
+      "endLine": 3566,
       "chars": 2711,
       "htmlChars": 3104,
       "gmOnly": false
@@ -633,8 +633,8 @@
       "pack": "rules-world",
       "journal": "Playable Echoes",
       "page": "Example: Choosing an Echo",
-      "startLine": 3565,
-      "endLine": 3583,
+      "startLine": 3567,
+      "endLine": 3585,
       "chars": 963,
       "htmlChars": 825,
       "gmOnly": false
@@ -643,8 +643,8 @@
       "pack": "rules-world",
       "journal": "Playable Echoes",
       "page": "Echo Artifacts",
-      "startLine": 3584,
-      "endLine": 3700,
+      "startLine": 3586,
+      "endLine": 3702,
       "chars": 4589,
       "htmlChars": 6861,
       "gmOnly": false
@@ -653,8 +653,8 @@
       "pack": "rules-world",
       "journal": "Humans",
       "page": "Overview",
-      "startLine": 3701,
-      "endLine": 3740,
+      "startLine": 3703,
+      "endLine": 3742,
       "chars": 2239,
       "htmlChars": 2527,
       "gmOnly": false
@@ -663,8 +663,8 @@
       "pack": "rules-world",
       "journal": "Humans",
       "page": "Echo Deck",
-      "startLine": 3741,
-      "endLine": 3894,
+      "startLine": 3743,
+      "endLine": 3896,
       "chars": 3156,
       "htmlChars": 3727,
       "gmOnly": false
@@ -673,8 +673,8 @@
       "pack": "rules-world",
       "journal": "Halflings",
       "page": "Overview",
-      "startLine": 3895,
-      "endLine": 3938,
+      "startLine": 3897,
+      "endLine": 3940,
       "chars": 3512,
       "htmlChars": 3846,
       "gmOnly": false
@@ -683,8 +683,8 @@
       "pack": "rules-world",
       "journal": "Halflings",
       "page": "Artifacts",
-      "startLine": 3939,
-      "endLine": 4021,
+      "startLine": 3941,
+      "endLine": 4023,
       "chars": 6857,
       "htmlChars": 9385,
       "gmOnly": false
@@ -693,8 +693,8 @@
       "pack": "rules-world",
       "journal": "Halflings",
       "page": "Echo Deck",
-      "startLine": 4022,
-      "endLine": 4177,
+      "startLine": 4024,
+      "endLine": 4179,
       "chars": 2975,
       "htmlChars": 3552,
       "gmOnly": false
@@ -703,8 +703,8 @@
       "pack": "rules-world",
       "journal": "Dwarves",
       "page": "Overview",
-      "startLine": 4178,
-      "endLine": 4225,
+      "startLine": 4180,
+      "endLine": 4227,
       "chars": 2879,
       "htmlChars": 3234,
       "gmOnly": false
@@ -713,8 +713,8 @@
       "pack": "rules-world",
       "journal": "Dwarves",
       "page": "Artifacts",
-      "startLine": 4226,
-      "endLine": 4314,
+      "startLine": 4228,
+      "endLine": 4316,
       "chars": 7492,
       "htmlChars": 10866,
       "gmOnly": false
@@ -723,8 +723,8 @@
       "pack": "rules-world",
       "journal": "Dwarves",
       "page": "Echo Deck",
-      "startLine": 4315,
-      "endLine": 4469,
+      "startLine": 4317,
+      "endLine": 4471,
       "chars": 2995,
       "htmlChars": 3390,
       "gmOnly": false
@@ -733,8 +733,8 @@
       "pack": "rules-world",
       "journal": "Elorians",
       "page": "Overview",
-      "startLine": 4470,
-      "endLine": 4510,
+      "startLine": 4472,
+      "endLine": 4512,
       "chars": 2941,
       "htmlChars": 3479,
       "gmOnly": false
@@ -743,8 +743,8 @@
       "pack": "rules-world",
       "journal": "Elorians",
       "page": "Artifacts",
-      "startLine": 4511,
-      "endLine": 4746,
+      "startLine": 4513,
+      "endLine": 4748,
       "chars": 7666,
       "htmlChars": 11319,
       "gmOnly": false
@@ -753,8 +753,8 @@
       "pack": "rules-world",
       "journal": "Sentinels",
       "page": "Overview",
-      "startLine": 4747,
-      "endLine": 4805,
+      "startLine": 4749,
+      "endLine": 4807,
       "chars": 3524,
       "htmlChars": 4144,
       "gmOnly": false
@@ -763,8 +763,8 @@
       "pack": "rules-world",
       "journal": "Sentinels",
       "page": "Echo Artifacts",
-      "startLine": 4806,
-      "endLine": 5106,
+      "startLine": 4808,
+      "endLine": 5108,
       "chars": 14656,
       "htmlChars": 19898,
       "gmOnly": false
@@ -773,8 +773,8 @@
       "pack": "rules-world",
       "journal": "Titanborn",
       "page": "Overview",
-      "startLine": 5107,
-      "endLine": 5169,
+      "startLine": 5109,
+      "endLine": 5171,
       "chars": 3499,
       "htmlChars": 3869,
       "gmOnly": false
@@ -783,8 +783,8 @@
       "pack": "rules-world",
       "journal": "Titanborn",
       "page": "Artifacts",
-      "startLine": 5170,
-      "endLine": 5241,
+      "startLine": 5172,
+      "endLine": 5243,
       "chars": 5511,
       "htmlChars": 7900,
       "gmOnly": false
@@ -793,8 +793,8 @@
       "pack": "rules-world",
       "journal": "Titanborn",
       "page": "Echo Deck",
-      "startLine": 5242,
-      "endLine": 5398,
+      "startLine": 5244,
+      "endLine": 5400,
       "chars": 2688,
       "htmlChars": 3256,
       "gmOnly": false
@@ -803,10 +803,10 @@
       "pack": "rules-world",
       "journal": "Dragonborn",
       "page": "Overview",
-      "startLine": 5399,
+      "startLine": 5401,
       "endLine": 5751,
-      "chars": 23220,
-      "htmlChars": 35129,
+      "chars": 23259,
+      "htmlChars": 35189,
       "gmOnly": false
     },
     {
@@ -854,9 +854,9 @@
       "journal": "Core Terms",
       "page": "Core Terms",
       "startLine": 1849,
-      "endLine": 1969,
-      "chars": 6020,
-      "htmlChars": 8241,
+      "endLine": 1971,
+      "chars": 6577,
+      "htmlChars": 8920,
       "gmOnly": false
     },
     {
@@ -874,17 +874,17 @@
       "journal": "Combat Quick Reference",
       "page": "Raises",
       "startLine": 8139,
-      "endLine": 8165,
-      "chars": 2342,
-      "htmlChars": 2826,
+      "endLine": 8167,
+      "chars": 2947,
+      "htmlChars": 3513,
       "gmOnly": false
     },
     {
       "pack": "rules-quickref",
       "journal": "Combat Quick Reference",
       "page": "Round Structure",
-      "startLine": 8416,
-      "endLine": 8562,
+      "startLine": 8418,
+      "endLine": 8564,
       "chars": 6501,
       "htmlChars": 7965,
       "gmOnly": false
@@ -893,8 +893,8 @@
       "pack": "rules-quickref",
       "journal": "Combat Quick Reference",
       "page": "Health & Fear",
-      "startLine": 9122,
-      "endLine": 9389,
+      "startLine": 9125,
+      "endLine": 9392,
       "chars": 13018,
       "htmlChars": 15899,
       "gmOnly": false
@@ -903,8 +903,8 @@
       "pack": "rules-quickref",
       "journal": "Combat Quick Reference",
       "page": "Special Effects Reference",
-      "startLine": 10144,
-      "endLine": 10314,
+      "startLine": 10147,
+      "endLine": 10317,
       "chars": 10252,
       "htmlChars": 15603,
       "gmOnly": false
@@ -913,8 +913,8 @@
       "pack": "rules-quickref",
       "journal": "Player Cheat Sheets",
       "page": "Core Flow",
-      "startLine": 13787,
-      "endLine": 13954,
+      "startLine": 13805,
+      "endLine": 13972,
       "chars": 5457,
       "htmlChars": 7190,
       "gmOnly": false
@@ -923,8 +923,8 @@
       "pack": "rules-quickref",
       "journal": "Player Cheat Sheets",
       "page": "Defense & Resources",
-      "startLine": 13955,
-      "endLine": 14126,
+      "startLine": 13973,
+      "endLine": 14144,
       "chars": 7042,
       "htmlChars": 8764,
       "gmOnly": false

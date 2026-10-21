@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.760] - 2026-10-21
+
+### Changed
+
+- **Stepped Autofire:** Ordered attack slots (repeats allowed), cumulative +4 TN per later slot, one shared Attack/Casting roll and one shared Damage Roll with per-hit mitigation; Weapon / Spell Focus damage retained.
+- **Autofire Damage Negation:** Each successful slot declares Negation before the shared roll and omits a deterministic prefix of the ordered dice for that hit only.
+- **Maximization order:** All damage cards (Single Target, Instant AoE, Autofire) spend Maximization after Damage Negation and only when remaining dice remain.
+- **Rules:** Players Guide, Actives catalogue Autofire section, and Core Rules Journals updated for Stepped Autofire.
+
 ## [0.9.759] - 2026-10-21
 
 ### Changed

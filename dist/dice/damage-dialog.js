@@ -21,35 +21,11 @@ import { artifactIsSpellFocusOnly } from '../utils/artifact-rules.js';
 import { deriveArtifactWeaponDamage } from '../utils/artifact-base-derive.js';
 import { getActorSpellFocusBonusDice, listActorSpellFocusSources } from '../utils/artifact-base-values.js';
 import { bindChosenSpecialIntoLevelData, buildAvailableRaiseOptions, declaredRaiseFromOptionId, isRaiseAllocationComplete, resolvePowerSnapshot, snapshotToDamageFormula, snapshotToSpecialStrings, } from '../combat/raise-resolution.js';
-/** Shared Raise allocation for Split / AoE / Autofire of one Power use. */
-const sharedRaiseAllocByKey = new Map();
-function raiseAllocShareKey(flags) {
-    if (!flags)
-        return '';
-    const split = String(flags.splitPairId || '').trim();
-    if (split)
-        return `split:${split}`;
-    if (flags.autofire === true) {
-        return `autofire:${flags.attackerId}:${flags.attackTotal}:${flags.raiseTn}`;
-    }
-    if (flags.aoeMeleeWeapon === true || String(flags.aoeMeleeWeapon) === 'true') {
-        return `aoe:${flags.attackerId}:${flags.attackTotal}:${flags.raiseTn}`;
-    }
-    return '';
-}
-export function rememberSharedRaiseAllocation(key, plan) {
-    const k = String(key || '').trim();
-    if (!k || !plan.length)
-        return;
-    sharedRaiseAllocByKey.set(k, plan.map((r) => ({ ...r })));
-}
-export function peekSharedRaiseAllocation(key) {
-    const k = String(key || '').trim();
-    if (!k)
-        return null;
-    const plan = sharedRaiseAllocByKey.get(k);
-    return plan ? plan.map((r) => ({ ...r })) : null;
-}
+import { forgetSharedRaiseAllocation, peekSharedRaiseAllocation, raiseAllocShareKey, rememberSharedRaiseAllocation, } from '../combat/shared-raise-allocation.js';
+import { getAutofireSession } from '../combat/autofire-shared-damage.js';
+// Shared Raise allocation for Split / AoE / Autofire of one Power use. Autofire keys
+// off a unique `powerUseId` (`autofire:${powerUseId}`); see shared-raise-allocation.ts.
+export { forgetSharedRaiseAllocation, peekSharedRaiseAllocation, rememberSharedRaiseAllocation, };
 function cloneBaseForDisplay(base) {
     return {
         ...base,
@@ -895,6 +871,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     raiseTn: flags?.raiseTn ?? null,
                     aoeMeleeWeapon: flags?.aoeMeleeWeapon ?? null,
                     autofire: flags?.autofire ?? null,
+                    powerUseId: flags?.powerUseId ?? flags?.autofireUseId ?? null,
+                    autofireUseId: flags?.autofireUseId ?? flags?.powerUseId ?? null,
                     powerIsSpell: !!flags?.powerIsSpell,
                     weaponDamageDice: flags?.weaponDamageDice ?? null,
                     masteryRank: flags?.masteryRank ?? null,
@@ -1256,23 +1234,28 @@ export function attachDamageCardHandlers(messageId) {
                     /* best-effort */
                 }
             }
-            // Roll vs Roll Maximum — no confirm dialog. Button click is the decision.
+            // Roll vs Roll Maximum — button click only *requests* Maximization.
+            // The charge is spent AFTER Damage Negation inside calculateDamageResult
+            // (Players Guide: Negation → Maximization → roll). Cancel before that spends nothing.
             activeDamageMaximized = false;
             const wantMax = String($btn.attr('data-maximize') ?? $btn.data('maximize') ?? '0') === '1';
-            if (wantMax) {
-                try {
-                    const { spendMaximization } = await import('../stones/stone-combat-effects.js');
-                    const maxSourceRaw = String($btn.attr('data-max-source') || 'stone');
-                    const maxSource = maxSourceRaw === 'stone' || maxSourceRaw === 'passive' ? maxSourceRaw : null;
-                    activeDamageMaximized = await spendMaximization(attacker, maxSource);
-                    if (!activeDamageMaximized) {
-                        ui.notifications?.warn('No Maximization remaining — rolling normally.');
+            const autofireSession = flags.autofire === true ? getAutofireSession(flags.powerUseId ?? flags.autofireUseId) : null;
+            const maxSourceRawForRoll = String($btn.attr('data-max-source') || 'stone');
+            const deferredMaximization = wantMax
+                ? async () => {
+                    try {
+                        const { spendMaximization } = await import('../stones/stone-combat-effects.js');
+                        const src = maxSourceRawForRoll === 'stone' || maxSourceRawForRoll === 'passive'
+                            ? maxSourceRawForRoll
+                            : null;
+                        return await spendMaximization(attacker, src);
+                    }
+                    catch (err) {
+                        console.debug?.('Mastery System | Damage Maximization spend skipped', err);
+                        return false;
                     }
                 }
-                catch (err) {
-                    console.debug?.('Mastery System | Damage Maximization spend skipped', err);
-                }
-            }
+                : undefined;
             const raiseSelections = new Map();
             // Mark spend is chosen AFTER the roll via a post-roll prompt inside
             // calculateDamageResult (exact "total → new total" options per spend).
@@ -1280,7 +1263,10 @@ export function attachDamageCardHandlers(messageId) {
             const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, 0, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee', true, {
                 attackTotal: flags.attackTotal ?? null,
                 evadeTn: flags.normalTn ?? flags.baseEvade ?? flags.targetEvade ?? null,
-            }, true);
+            }, true, false, {
+                useId: autofireSession?.useId ?? null,
+                spendMaximizationAfterNegation: deferredMaximization,
+            });
             // Mechanical npcStressD8 / Stress on hit retired.
             completeDamageCard(messageId, result);
             rollDamageCompleted = true;
@@ -2509,12 +2495,21 @@ skipApply = false,
  * Phasing was already offered for this strike (e.g. Faith-Fracture reroll
  * recursion) — do not prompt again.
  */
-skipPhasingPrompt = false) {
+skipPhasingPrompt = false, 
+/**
+ * Shared Damage Roll options:
+ * - Autofire (`useId`): per-hit Negation via session; full pool rolled once; faces returned.
+ * - All paths: `spendMaximizationAfterNegation` spends the charge AFTER Negation,
+ *   only when remaining dice > 0 (Players Guide order).
+ */
+damageRollOpts) {
     // Rulebook attack sequence step 7: Phasing resolves after the hit is
     // confirmed but BEFORE any damage dice are rolled and BEFORE Specials
     // apply. If the target phases, the strike ends here — no damage roll,
     // no on-hit Specials, no riders.
-    if (target && !skipPhasingPrompt) {
+    const autofireShared = damageRollOpts;
+    const sharedSession = autofireShared?.useId ? getAutofireSession(autofireShared.useId) : null;
+    if (target && !skipPhasingPrompt && !sharedSession) {
         try {
             const { promptPhasingConsume, consumePhasingCharge } = await import('../combat/phasing.js');
             const phased = await promptPhasingConsume(target, { attacker });
@@ -2569,7 +2564,14 @@ skipPhasingPrompt = false) {
                 countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
                 raiseDamagePicks +
                 Math.max(0, Math.floor(npcAutoDamageDice));
-            if (originalDice >= 2) {
+            if (sharedSession) {
+                // Shared Autofire roll: collect every hit's Negation now (dice not revealed yet).
+                // The pool is NOT stripped; each hit omits its own prefix after the one roll.
+                await sharedSession.collectNegation(originalDice);
+                for (const note of sharedSession.notes)
+                    negationNotes.push(note);
+            }
+            else if (originalDice >= 2) {
                 const { promptDamageNegationSpend } = await import('../combat/damage-negation.js');
                 const spend = await promptDamageNegationSpend(target, { attacker, totalDice: originalDice });
                 if (spend.diceRemoved > 0) {
@@ -2606,6 +2608,35 @@ skipPhasingPrompt = false) {
             console.debug?.('Mastery System | [CALCULATE DAMAGE] Damage Negation skipped', err);
         }
     }
+    // Maximization AFTER Damage Negation, BEFORE any dice are revealed.
+    // Skip entirely when Negation removed the whole pool (no charge for a 0-dice roll).
+    // Autofire: pool is not stripped here (per-hit omit later); Maximization applies to
+    // the full shared pool when that pool still has dice.
+    if (damageRollOpts?.spendMaximizationAfterNegation && !skipPhasingPrompt) {
+        let raiseDamagePicksLeft = 0;
+        for (let i = 0; i < raises; i++) {
+            if (raiseSelections.get(i)?.type === 'damage')
+                raiseDamagePicksLeft++;
+        }
+        raiseDamagePicksLeft = Math.max(0, raiseDamagePicksLeft - negationSkipRaiseDice);
+        const remainingDice = countD8DiceInFormula(sanitizeDiceNotation(baseDamage || '0')) +
+            Math.max(0, Math.floor(stoneDamageBonusDice)) +
+            countD8DiceInFormula(sanitizeDiceNotation(powerDamage || '0')) +
+            countD8DiceInFormula(sanitizeDiceNotation(passiveDamage || '0')) +
+            raiseDamagePicksLeft +
+            Math.max(0, Math.floor(npcAutoDamageDice));
+        const { shouldSpendMaximizationAfterNegation } = await import('../combat/maximization-order.js');
+        if (shouldSpendMaximizationAfterNegation({ wantMaximization: true, remainingDice })) {
+            activeDamageMaximized = await damageRollOpts.spendMaximizationAfterNegation();
+            if (!activeDamageMaximized) {
+                ui.notifications?.warn('No Maximization remaining — rolling normally.');
+            }
+        }
+        else {
+            activeDamageMaximized = false;
+        }
+    }
+    const poolFaces = [];
     // Roll base damage
     // Sanitize dice notations before rolling
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
@@ -2619,7 +2650,7 @@ skipPhasingPrompt = false) {
     if (activeDamageMaximized) {
         rollDetails.push('Maximization: every d8 is 8 (not a natural 8, does not explode)');
     }
-    const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
+    const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon', undefined, poolFaces);
     const baseDamageRolled = baseRoll.total;
     if (baseRoll.line)
         rollDetails.push(baseRoll.line);
@@ -2629,7 +2660,7 @@ skipPhasingPrompt = false) {
     const martialGrantedAtStart = Math.max(0, Math.floor(Number(stoneDamageBonusDice) || 0));
     let stoneMightDamageRolled = 0;
     if (stoneDamageBonusDice > 0) {
-        const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Martial Damage');
+        const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Martial Damage', undefined, poolFaces);
         stoneMightDamageRolled = stoneRoll.total;
         if (stoneRoll.line)
             rollDetails.push(stoneRoll.line);
@@ -2654,7 +2685,7 @@ skipPhasingPrompt = false) {
             console.warn('Mastery System | Could not consume Martial Damage bonus after roll', e);
         }
     }
-    const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power');
+    const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power', undefined, poolFaces);
     const powerDamageRolled = powerRoll.total;
     if (powerRoll.line)
         rollDetails.push(powerRoll.line);
@@ -2670,7 +2701,7 @@ skipPhasingPrompt = false) {
         if (auraRoll.roll)
             damageChatRolls.push(auraRoll.roll);
     }
-    const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
+    const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive', undefined, poolFaces);
     const passiveDamageRolled = passiveRoll.total;
     if (passiveRoll.line)
         rollDetails.push(passiveRoll.line);
@@ -2693,7 +2724,7 @@ skipPhasingPrompt = false) {
                     rollDetails.push(`Raise ${raiseDiceCount} (+1d8): removed by Damage Negation`);
                     continue;
                 }
-                const r = await rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`);
+                const r = await rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`, undefined, poolFaces);
                 raiseDamage += r.total;
                 if (r.line)
                     rollDetails.push(r.line);
@@ -2719,7 +2750,7 @@ skipPhasingPrompt = false) {
     let npcAutoDiceIdx = 0;
     for (let j = 0; j < npcAutoDamageDice; j++) {
         npcAutoDiceIdx += 1;
-        const r = await rollDiceWithDetail('1d8', `NSC auto (+1d8) #${npcAutoDiceIdx}`);
+        const r = await rollDiceWithDetail('1d8', `NSC auto (+1d8) #${npcAutoDiceIdx}`, undefined, poolFaces);
         raiseDamage += r.total;
         if (r.line)
             rollDetails.push(r.line);
@@ -2927,7 +2958,10 @@ skipPhasingPrompt = false) {
             const cur = Number(attacker?.system?.faithFractures?.current ?? 0) || 0;
             await attacker.update({ 'system.faithFractures.current': Math.max(0, cur - 1) });
             ui.notifications?.info(`${attacker.name} spent 1 Reroll Point — rerolling damage (was ${prevTotal}).`);
-            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext, skipApply, true);
+            const rerolled = await calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice, npcAutoDamageDice, npcAutoSpecialStrings, selectedPowerId, splitAttack, attackType, false, attackContext, skipApply, true, // phasing was already offered before the first roll
+            autofireShared
+                ? { useId: autofireShared.useId } // Negation already committed; Maximization already spent
+                : undefined);
             rerolled.rollDetails = [
                 `Reroll — 1 Reroll Point spent (previous total: ${prevTotal})`,
                 ...(rerolled.rollDetails ?? []),
@@ -3086,6 +3120,16 @@ skipPhasingPrompt = false) {
         attackContext: skipApply ? applyContext : undefined,
         prePostedChatMessageId,
     };
+    if (sharedSession) {
+        const maximizedPool = poolFaces.length > 0 && poolFaces.every((f) => f.artificial);
+        result.sharedDice = {
+            orderedDieFaces: poolFaces.map((f) => f.face),
+            artificial: maximizedPool,
+            // Brutal Impact / Mark floors were added to the full total per die: omitted dice
+            // must give back max(face, floor), not just the raw face.
+            dieFloor: Math.max(brutalImpactFloor, markSpendToConsume),
+        };
+    }
     return result;
 }
 /**
@@ -3136,7 +3180,12 @@ function summarizeRollDiceFaces(roll) {
  * Roll one damage pool (Foundry v13+: must evaluate asynchronously — sync mode throws for standard dice).
  */
 let activeDamageMaximized = false;
-async function rollDiceWithDetail(diceNotation, label, maximize = activeDamageMaximized) {
+async function rollDiceWithDetail(diceNotation, label, maximize = activeDamageMaximized, 
+/**
+ * Shared Autofire roll: collects every d8 of this pool in roll order (an artificial
+ * 8 per die under Maximization) so each hit can omit its own prefix afterwards.
+ */
+faceSink) {
     if (!diceNotation || diceNotation === "0") {
         return { total: 0, line: "", roll: null };
     }
@@ -3147,6 +3196,12 @@ async function rollDiceWithDetail(diceNotation, label, maximize = activeDamageMa
     formula = masteryCoercePlainNumberToNd8(formula);
     if (formula === "0") {
         return { total: 0, line: "", roll: null };
+    }
+    if (maximize && faceSink) {
+        // Maximization replaces d8s with flat 8s (no Roll terms): record one artificial 8 per die.
+        const n = countD8DiceInFormula(formula);
+        for (let i = 0; i < n; i++)
+            faceSink.push({ face: 8, artificial: true });
     }
     if (maximize) {
         const { maximizeDamageFormula } = await import('../stones/stone-combat-effects.js');
@@ -3162,6 +3217,16 @@ async function rollDiceWithDetail(diceNotation, label, maximize = activeDamageMa
         const total = roll.total ?? 0;
         const detail = summarizeRollDiceFaces(roll);
         const line = `${label}: ${detail} → ${total}`;
+        if (faceSink && !maximize) {
+            for (const term of roll.terms || []) {
+                if (term?.faces !== 8 || !Array.isArray(term?.results))
+                    continue;
+                for (const r of term.results) {
+                    if (r && r.active !== false)
+                        faceSink.push({ face: Number(r.result) || 0, artificial: false });
+                }
+            }
+        }
         return { total, line, roll };
     }
     catch (error) {

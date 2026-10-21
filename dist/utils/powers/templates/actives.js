@@ -924,7 +924,7 @@ function splitWeaponAttackTemplate(flavour) {
 }
 // Autofire progression: (additional targets X, bonus dice); range = 8 + 4*(L-1).
 // Matches docs/Rules/actives.md Ranged Autofire (30 PP × X capacity tax).
-const AUTOFIRE_PROG = [
+export const AUTOFIRE_PROG = [
     { extra: 1, dice: 0 }, { extra: 1, dice: 1 }, { extra: 2, dice: 1 }, { extra: 2, dice: 2 },
     { extra: 3, dice: 2 }, { extra: 3, dice: 4 }, { extra: 4, dice: 4 }, { extra: 4, dice: 5 },
     { extra: 5, dice: 5 }, { extra: 5, dice: 6 }, { extra: 6, dice: 6 }, { extra: 6, dice: 8 },
@@ -939,7 +939,7 @@ function autofireWeaponAttackTemplate() {
         category: 'active',
         tags: [],
         spellHints: { defaultResolution: 'spellAttack' },
-        fluff: 'A ranged weapon attack that walks through an ordered chain of targets. One roll is checked against each Evade in order; the first miss ends the chain. Every hit takes the full printed payload.',
+        fluff: 'A ranged weapon attack that walks a stepped chain of attack slots (the same creature may repeat). One roll is checked against each slot in order, with +4 TN per step; the first miss ends the chain. One shared Damage Roll is reused for every successful slot.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: 'agility' },
         levels: buildLevels((lvl) => {
@@ -947,7 +947,7 @@ function autofireWeaponAttackTemplate() {
             const totalTargets = 1 + p.extra;
             const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
             const payload = p.dice === 0 ? 'weapon damage' : `weapon damage + **${p.dice}d8 damage**`;
-            const effect = `Autofire up to **${totalTargets} targets**. Each next target must be within **4 m** of the previous target. Make one Attack Roll and check it against each target's Evade in order; the first miss ends the chain. Every hit takes ${payload}. Dive for Cover cannot be used.`;
+            const effect = `Autofire up to **${totalTargets} attack slots** (the same creature may repeat). Each slot after the first must be within **4 m** of the preceding target. Make one Attack Roll; slot *i* needs Defense + 4 × (*i* − 1) + 4 per Paid Raise (the +4 steps are not Raises). The first miss ends the chain; earlier hits remain valid. Make one shared Damage Roll (${payload}) and reuse it for every successful slot as a separate hit with its own mitigation. Dive for Cover cannot be used.`;
             return activeRow({
                 type: 'Ranged',
                 range: rangedRange(lvl),

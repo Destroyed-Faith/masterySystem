@@ -1,12 +1,14 @@
 /**
- * Autofire chain targeting — declare an ordered target list before the roll.
+ * Autofire chain targeting — declare ordered attack slots before the roll.
  *
- * Rules: first target in Power Range; each next target within 4 m of the previous
- * and still within Range; no duplicates; up to maxTargets.
+ * Stepped Attack Chain: first slot in Power Range; each next slot's target is
+ * within 4 m of the preceding slot's target (the same creature may be chosen again,
+ * 0 m) and still within Range; up to Attack Capacity. Each slot adds +4 TN
+ * (slot 1: +0, slot 2: +4, slot 3: +8 …) — not a Paid Raise.
  */
 import { isWithinRangeMeters, measureSceneDistanceBetweenPoints } from './utils/grid-range.js';
 import { filterPerceivableTargetIds } from './combat/perception-gate.js';
-import { AUTOFIRE_CHAIN_LINK_M, getAutofireMaxTargets, } from './combat/autofire.js';
+import { AUTOFIRE_CHAIN_LINK_M, autofireSlotTnSurcharge, getAutofireMaxTargets, isAutofireSlotLegal, } from './combat/autofire.js';
 function tokenLabel(tok) {
     return String(tok?.name || tok?.actor?.name || tok?.id || '?');
 }
@@ -51,24 +53,37 @@ function collectInRangeHostileIds(attackerToken, rangeMeters) {
         return ids;
     return [...filterPerceivableTargetIds(attackerActor, new Set(ids), attackerToken)];
 }
-function validNextIds(attackerToken, rangeMeters, chain, allInRange) {
-    const used = new Set(chain);
+/**
+ * Legal next slots. Repeats are allowed: the previous slot's own target is always
+ * legal (0 m), so a creature can fill many slots.
+ */
+function validNextIds(attackerToken, rangeMeters, chain, allInRange, capacity) {
+    if (chain.length >= capacity)
+        return [];
     if (chain.length === 0) {
-        return allInRange.filter((id) => !used.has(id));
+        return allInRange.filter((id) => isAutofireSlotLegal({ slotCount: 0, capacity, previousTargetId: null, candidateId: id }));
     }
-    const prev = canvas?.tokens?.get(chain[chain.length - 1]);
+    const prevId = chain[chain.length - 1];
+    const prev = canvas?.tokens?.get(prevId);
     if (!prev)
         return [];
     return allInRange.filter((id) => {
-        if (used.has(id))
-            return false;
         const tok = canvas?.tokens?.get(id);
         if (!tok)
             return false;
         if (!isWithinRangeMeters(attackerToken.center, tok.center, rangeMeters))
             return false;
-        return metersBetweenTokens(prev, tok) <= AUTOFIRE_CHAIN_LINK_M + 0.05;
+        return isAutofireSlotLegal({
+            slotCount: chain.length,
+            capacity,
+            previousTargetId: prevId,
+            candidateId: id,
+            distanceFromPreviousM: id === prevId ? 0 : metersBetweenTokens(prev, tok),
+        });
     });
+}
+function surchargeLabel(slotIndex0) {
+    return `+${autofireSlotTnSurcharge(slotIndex0)} TN`;
 }
 function askPickerStep(opts) {
     const DialogCls = globalThis.Dialog;
@@ -78,9 +93,10 @@ function askPickerStep(opts) {
         : chain
             .map((id, i) => {
             const t = canvas?.tokens?.get(id);
-            return `${i + 1}. ${tokenLabel(t)}`;
+            return `Slot ${i + 1}: ${tokenLabel(t)} <small>(${surchargeLabel(i)})</small>`;
         })
             .join('<br>');
+    const nextSurcharge = surchargeLabel(chain.length);
     const optionsHtml = nextIds
         .map((id) => {
         const t = canvas?.tokens?.get(id);
@@ -96,7 +112,7 @@ function askPickerStep(opts) {
         if (nextIds.length) {
             buttons.add = {
                 icon: '<i class="fas fa-plus"></i>',
-                label: chain.length === 0 ? 'Add first target' : 'Add next target',
+                label: `Add slot ${chain.length + 1} (${nextSurcharge})`,
                 callback: (html) => {
                     const root = html?.[0] ?? html;
                     const sel = root?.querySelector?.('#ms-autofire-next') ??
@@ -107,9 +123,19 @@ function askPickerStep(opts) {
             };
         }
         if (chain.length >= 1) {
+            buttons.removeLast = {
+                icon: '<i class="fas fa-undo"></i>',
+                label: 'Remove last',
+                callback: () => resolve({ type: 'removeLast' }),
+            };
+            buttons.clear = {
+                icon: '<i class="fas fa-trash"></i>',
+                label: 'Clear',
+                callback: () => resolve({ type: 'clear' }),
+            };
             buttons.confirm = {
                 icon: '<i class="fas fa-check"></i>',
-                label: `Confirm (${chain.length} target${chain.length === 1 ? '' : 's'})`,
+                label: `Confirm (${chain.length} slot${chain.length === 1 ? '' : 's'})`,
                 callback: () => resolve({ type: 'confirm' }),
             };
         }
@@ -119,15 +145,17 @@ function askPickerStep(opts) {
             callback: () => resolve({ type: 'cancel' }),
         };
         new DialogCls({
-            title: `Autofire chain (${chain.length}/${maxTargets})`,
+            title: `Autofire chain (${chain.length}/${maxTargets} slots)`,
             content: `
         <div class="mastery-autofire-picker">
-          <p><strong>Current chain</strong> (each next ≤ ${AUTOFIRE_CHAIN_LINK_M} m from previous; all within ${rangeMeters} m):</p>
+          <p><strong>Attack slots</strong> (each next target ≤ ${AUTOFIRE_CHAIN_LINK_M} m from the previous slot's target; the same creature may repeat; all within ${rangeMeters} m):</p>
           <p>${chainHtml}</p>
           ${nextIds.length
-                ? `<p><label>Next target:<br><select id="ms-autofire-next" style="width:100%">${optionsHtml}</select></label></p>`
-                : `<p><em>No further legal targets from the current end of the chain.</em></p>`}
-          <p class="notes">One Attack Roll is checked against each Evade in order. First miss ends the chain. Dive for Cover cannot be used.</p>
+                ? `<p><label>Slot ${chain.length + 1} target (${nextSurcharge}):<br><select id="ms-autofire-next" style="width:100%">${optionsHtml}</select></label></p>`
+                : chain.length >= maxTargets
+                    ? `<p><em>Attack Capacity reached.</em></p>`
+                    : `<p><em>No further legal targets from the current end of the chain.</em></p>`}
+          <p class="notes">One Attack Roll. Slot TN = Defense + 4 × (slot − 1) + 4 per Paid Raise (Autofire steps are not Raises). First miss ends the chain; earlier hits stay. One shared Damage Roll is reused for every hit. Dive for Cover cannot be used.</p>
         </div>
       `,
             buttons,
@@ -137,7 +165,8 @@ function askPickerStep(opts) {
     });
 }
 /**
- * Interactive Autofire chain picker. Returns ordered token ids, or null if cancelled.
+ * Interactive Autofire chain picker. Returns ordered token ids — one entry per
+ * attack slot, so the same id may appear several times — or null if cancelled.
  */
 export async function promptAutofireChain(attackerToken, option) {
     const maxTargets = getAutofireMaxTargets(option);
@@ -148,8 +177,10 @@ export async function promptAutofireChain(attackerToken, option) {
         return null;
     }
     const chain = [];
-    while (chain.length < maxTargets) {
-        const nextIds = validNextIds(attackerToken, rangeMeters, chain, allInRange);
+    // Loop until the player confirms or cancels. Reaching capacity keeps the dialog
+    // open so the declaration can still be adjusted (Remove last / Clear) before the roll.
+    for (;;) {
+        const nextIds = validNextIds(attackerToken, rangeMeters, chain, allInRange, maxTargets);
         if (!nextIds.length && chain.length === 0) {
             ui.notifications?.warn?.('Autofire: no valid targets in range.');
             return null;
@@ -162,19 +193,19 @@ export async function promptAutofireChain(attackerToken, option) {
         });
         if (action.type === 'cancel')
             return null;
-        if (action.type === 'confirm') {
+        if (action.type === 'confirm')
             return chain.length ? chain.slice() : null;
+        if (action.type === 'removeLast') {
+            chain.pop();
+            continue;
+        }
+        if (action.type === 'clear') {
+            chain.length = 0;
+            continue;
         }
         if (action.type === 'add' && nextIds.includes(action.id)) {
             chain.push(action.id);
-            if (chain.length >= maxTargets)
-                return chain.slice();
-            // If no further legal links, auto-confirm.
-            const more = validNextIds(attackerToken, rangeMeters, chain, allInRange);
-            if (!more.length)
-                return chain.slice();
         }
     }
-    return chain.length ? chain.slice() : null;
 }
 //# sourceMappingURL=autofire-targeting.js.map

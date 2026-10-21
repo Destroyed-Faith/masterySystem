@@ -224,10 +224,19 @@ export function toSharedAoeDamagePayload(result) {
         rollDetails: Array.isArray(result.rollDetails) ? [...result.rollDetails] : undefined,
         damageChatRolls: Array.isArray(result.damageChatRolls) ? result.damageChatRolls : undefined,
         armorPenetration: Math.max(0, Math.floor(Number(result.attackContext?.armorPenetration) || 0)),
+        ...(result.sharedDice
+            ? {
+                orderedDieFaces: Array.isArray(result.sharedDice.orderedDieFaces)
+                    ? [...result.sharedDice.orderedDieFaces]
+                    : [],
+                artificialDice: result.sharedDice.artificial === true,
+                dieFloor: Math.max(0, Math.floor(Number(result.sharedDice.dieFloor) || 0)),
+            }
+            : {}),
     };
 }
 /** Dive for Cover + pre-damage reactions for one AoE hit. */
-async function runAoePreDamageGate(params) {
+export async function runAoePreDamageGate(params) {
     const { attacker, defender, tok, attackTotal, evadeTn } = params;
     const allowDive = params.allowDiveForCover !== false;
     const combat = game.combat ?? null;
@@ -376,7 +385,7 @@ export async function applySharedAoePayloadToTarget(params) {
     const limitHtml = allLimitNotes.length
         ? `<p class="mastery-damage-special-limit">${allLimitNotes.join('<br>')}</p>`
         : '';
-    const aoeContent = `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${shared.totalDamage}</h3>` +
+    const aoeContent = `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${shared.totalDamage}</h3>` +
         (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
         `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p><em>— applying…</em></p></div>`;
     const aoeRolls = Array.isArray(shared.damageChatRolls)
@@ -431,7 +440,7 @@ export async function applySharedAoePayloadToTarget(params) {
     try {
         if (dmgMsg?.id) {
             await dmgMsg.update({
-                content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${shared.totalDamage}</h3>` +
+                content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${shared.totalDamage}</h3>` +
                     (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
                     `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p>${mitLine}</p></div>`,
             });
@@ -493,6 +502,8 @@ export async function resolveAoeFullPayloadOnTarget(params) {
             evadeTn,
             shared: params.sharedDamage,
             preDamage,
+            damageLabel: params.damageLabel,
+            skipSpecials: params.skipSpecials,
         });
     }
     const targetFlags = {
@@ -511,6 +522,12 @@ export async function resolveAoeFullPayloadOnTarget(params) {
     const damageResult = await showDamageDialog(attacker, defender, weaponId, targetFlags.selectedPowerId || null, 0, targetFlags);
     if (!damageResult)
         return 'cancelled';
+    try {
+        params.onDamageRolled?.(damageResult);
+    }
+    catch {
+        /* ignore */
+    }
     const details = Array.isArray(damageResult.rollDetails)
         ? damageResult.rollDetails.map((l) => `<li>${String(l)}</li>`).join('')
         : '';
@@ -520,7 +537,7 @@ export async function resolveAoeFullPayloadOnTarget(params) {
     const limitHtml = limitNotes.length
         ? `<p class="mastery-damage-special-limit">${limitNotes.join('<br>')}</p>`
         : '';
-    const aoeContent = `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+    const aoeContent = `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${damageResult.totalDamage}</h3>` +
         (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
         `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p><em>— applying…</em></p></div>`;
     const aoeRolls = Array.isArray(damageResult.damageChatRolls)
@@ -588,7 +605,7 @@ export async function resolveAoeFullPayloadOnTarget(params) {
         try {
             if (dmgMsg?.id) {
                 await dmgMsg.update({
-                    content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+                    content: `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${damageResult.totalDamage}</h3>` +
                         (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
                         `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p>${mitLine}</p></div>`,
                 });

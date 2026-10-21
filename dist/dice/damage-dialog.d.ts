@@ -2,9 +2,9 @@
  * Damage Dialog for Mastery System
  * Appears after successful attack roll to calculate and apply damage
  */
-import { type DeclaredRaise } from '../combat/raise-resolution.js';
-export declare function rememberSharedRaiseAllocation(key: string, plan: DeclaredRaise[]): void;
-export declare function peekSharedRaiseAllocation(key: string): DeclaredRaise[] | null;
+import { forgetSharedRaiseAllocation, peekSharedRaiseAllocation, rememberSharedRaiseAllocation } from '../combat/shared-raise-allocation.js';
+import { type SharedDicePool } from '../combat/autofire-shared-damage.js';
+export { forgetSharedRaiseAllocation, peekSharedRaiseAllocation, rememberSharedRaiseAllocation, };
 export { computeMarkFloorBonus, clampMarkSpend, listUsefulMarkSpends } from './mark-floor.js';
 /**
  * Re-attach Roll / Cancel listeners when the log re-renders (Foundry v13
@@ -72,6 +72,12 @@ export interface DamageResult {
      * damage card. Caller should update it instead of creating a second one.
      */
     prePostedChatMessageId?: string;
+    /**
+     * Shared Autofire roll only: the full ordered negatable d8 pool (see
+     * `autofire-shared-damage.ts`). `totalDamage` / `count8s` are the FULL roll values;
+     * each hit omits its own prefix of `orderedDieFaces`.
+     */
+    sharedDice?: SharedDicePool;
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
 /**
@@ -167,7 +173,18 @@ skipApply?: boolean,
  * Phasing was already offered for this strike (e.g. Faith-Fracture reroll
  * recursion) — do not prompt again.
  */
-skipPhasingPrompt?: boolean): Promise<DamageResult>;
+skipPhasingPrompt?: boolean, 
+/**
+ * Shared Damage Roll options:
+ * - Autofire (`useId`): per-hit Negation via session; full pool rolled once; faces returned.
+ * - All paths: `spendMaximizationAfterNegation` spends the charge AFTER Negation,
+ *   only when remaining dice > 0 (Players Guide order).
+ */
+damageRollOpts?: {
+    useId?: string | null;
+    /** Spends one Maximization charge AFTER Negation, before dice are revealed. */
+    spendMaximizationAfterNegation?: () => Promise<boolean>;
+}): Promise<DamageResult>;
 /**
  * After HP is applied for a hit, open Push/Pull destination picking when the
  * specials list includes Push(X) / Pull(X). Safe no-op when metres are 0.

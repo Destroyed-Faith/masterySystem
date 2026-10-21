@@ -161,10 +161,87 @@ export function getBuffDamageNegation(actor: any): number {
   }
 }
 
+/** Resources actually spent by one Negation declaration (for refunds on cancellation). */
+export interface DamageNegationSpentBreakdown {
+  buff: number;
+  buffEffectId?: string;
+  temp: number;
+  reserve: number;
+}
+
 export interface DamageNegationSpend {
   /** Damage Dice removed from the pool assigned to this defender. */
   diceRemoved: number;
   note: string;
+  /** Present when points were spent from a resource (not for NPC auto negation). */
+  spent?: DamageNegationSpentBreakdown;
+}
+
+/**
+ * Give back the resources of one Negation declaration (the shared Autofire damage
+ * roll was cancelled before any die was revealed). Best-effort; never exceeds the
+ * printed pool maximum.
+ */
+export async function refundDamageNegationSpend(
+  actor: any,
+  spent: DamageNegationSpentBreakdown | null | undefined,
+): Promise<void> {
+  if (!actor || !spent) return;
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const combat = (globalThis as any).game?.combat ?? null;
+
+  const reserve = Math.max(0, Math.floor(Number(spent.reserve) || 0));
+  if (reserve > 0 && combat?.id) {
+    const item = findDamageNegationItem(owner);
+    const max = damageNegationReserveForLevel(Number(item?.system?.level) || 1);
+    const remaining = getDamageNegationRemaining(owner, combat);
+    await owner?.setFlag?.(FLAG_SCOPE, FLAG_RESERVE, {
+      combatId: String(combat.id),
+      remaining: Math.min(max, remaining + reserve),
+      maxAtInit: max,
+    } satisfies ReserveFlag);
+  }
+
+  const temp = Math.max(0, Math.floor(Number(spent.temp) || 0));
+  if (temp > 0 && combat) {
+    try {
+      const { getRoundState: grs, setRoundState: srs } = await import('./action-economy.js');
+      const rs = grs(owner, combat);
+      if (rs.stoneBonuses) {
+        rs.stoneBonuses.tempDamageNegation = (rs.stoneBonuses.tempDamageNegation ?? 0) + temp;
+        await srs(owner, rs);
+      }
+    } catch (e) {
+      console.warn('Mastery System | temp Damage Negation refund failed', e);
+    }
+  }
+
+  const buff = Math.max(0, Math.floor(Number(spent.buff) || 0));
+  if (buff > 0) {
+    try {
+      const effects = owner?.effects;
+      const list = Array.isArray(effects)
+        ? effects
+        : Array.isArray(effects?.contents)
+          ? effects.contents
+          : [];
+      const effect =
+        list.find((e: any) => spent.buffEffectId && e?.id === spent.buffEffectId) ??
+        list.find((e: any) => e?.flags?.['mastery-system']?.activeBuff);
+      const flags = effect?.flags?.['mastery-system'];
+      if (effect && flags) {
+        const cur = Math.max(0, Math.floor(Number(flags?.mechanics?.damageNegation) || 0));
+        const poolMax = Math.floor(Number(flags?.mechanics?.damageNegationPoolMax) || 0);
+        const next = poolMax > 0 ? Math.min(poolMax, cur + buff) : cur + buff;
+        if (flags.mechanics) flags.mechanics.damageNegation = next;
+        if (typeof effect.update === 'function') {
+          await effect.update({ 'flags.mastery-system.mechanics.damageNegation': next });
+        }
+      }
+    } catch (e) {
+      console.warn('Mastery System | buff Damage Negation refund failed', e);
+    }
+  }
 }
 
 /**
@@ -237,7 +314,7 @@ export function formatDamageNegationDialogContent(input: {
  */
 export async function promptDamageNegationSpend(
   target: any,
-  opts: { attacker?: any; totalDice: number },
+  opts: { attacker?: any; totalDice: number; hitLabel?: string },
 ): Promise<DamageNegationSpend> {
   const none: DamageNegationSpend = { diceRemoved: 0, note: '' };
   try {
@@ -282,7 +359,7 @@ export async function promptDamageNegationSpend(
         return;
       }
       const dlg = new DialogCtor({
-        title: `Damage Negation — ${name}`,
+        title: `Damage Negation — ${name}${opts.hitLabel ? ` (${opts.hitLabel})` : ''}`,
         content,
         buttons: {
           spend: {
@@ -315,9 +392,11 @@ export async function promptDamageNegationSpend(
 
     // Spend order: Active Buff temp → Stone temp → Passive reserve.
     let left = picked;
+    const spent: DamageNegationSpentBreakdown = { buff: 0, temp: 0, reserve: 0 };
     if (buffDn > 0 && left > 0) {
       const useBuff = Math.min(buffDn, left);
       left -= useBuff;
+      spent.buff = useBuff;
       try {
         const effects = owner?.effects;
         const list = Array.isArray(effects)
@@ -338,6 +417,7 @@ export async function promptDamageNegationSpend(
               'flags.mastery-system.mechanics.damageNegation': next,
             });
           }
+          spent.buffEffectId = String(effect?.id ?? '') || undefined;
           break;
         }
       } catch (e) {
@@ -347,6 +427,7 @@ export async function promptDamageNegationSpend(
     if (tempDn > 0 && combat && left > 0) {
       const useTemp = Math.min(tempDn, left);
       left -= useTemp;
+      spent.temp = useTemp;
       try {
         const { getRoundState: grs, setRoundState: srs } = await import('./action-economy.js');
         const rs = grs(owner, combat);
@@ -367,12 +448,15 @@ export async function promptDamageNegationSpend(
         return {
           diceRemoved: picked - left,
           note: `Damage Negation −${picked - left} dice`,
+          spent,
         };
       }
+      spent.reserve = left;
     }
     return {
       diceRemoved: picked,
       note: `Damage Negation −${picked} Damage Dice (before roll)`,
+      spent,
     };
   } catch (e) {
     console.warn('Mastery System | Damage Negation prompt failed', e);
