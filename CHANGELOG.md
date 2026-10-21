@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.759] - 2026-10-21
+
+### Changed
+
+- **Instant AoE combat:** One shared Attack/Casting roll and one shared Power damage roll; every hit target receives the full printed Power damage and/or Special. No Primary Target, no damage/Special allocation, and no Weapon or Spell Focus damage on Instant AoE.
+- **AoE Attack progression:** Melee and Ranged AoE Attack PL 1–16 match the approved catalogue (PL 1 deals 1d8 Power damage with the +5 PP minimum exception). Pure Special AoEs remain damage-free.
+- **Power Purchase Dialog:** Active filters redesigned (Effect / Delivery / Special; Active Buff Focus All/Defensive/Offensive).
+
+### Fixed
+
+- **Rules Journals:** Strip redundant in-page headings that duplicated Foundry’s Journal TOC titles.
+
 ## [0.9.758] - 2026-10-21
 
 ### Fixed

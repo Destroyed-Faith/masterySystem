@@ -853,6 +853,67 @@ export async function executeAttackRollFromCard(
         }
         return;
       }
+
+      // Instant AoE (Melee / Ranged AoE Attack, AoE Special Attacks): ONE shared
+      // Attack/Casting roll, NO Primary Target. The card's anchor token is only the
+      // roll carrier — it is resolved exactly like every other creature in the area
+      // (own Evade / Final Spell TN, own Dive for Cover), then ONE shared Power
+      // damage roll with the full printed Special is applied to every creature hit.
+      // No Weapon Damage and no Spell Focus damage (damage dialog enforces both).
+      const isInstantAoeCard =
+        flags.aoeMeleeWeapon === true ||
+        String(flags.aoeMeleeWeapon) === 'true' ||
+        flags.instantAoe === true ||
+        String(flags.instantAoe) === 'true' ||
+        button.attr('data-aoe-melee') === '1';
+      if (isInstantAoeCard) {
+        const aoeAttacker = freshAttacker || (game as any).actors?.get(flags.attackerId);
+        const idsFromBtn = String(button.attr('data-aoe-secondary-ids') || '')
+          .split('|')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+        const idsFromFlags = String(flags.aoeMeleeSecondaryTokenIds || '')
+          .split(',')
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+        const carrierId = String(flags.targetTokenId || '').trim();
+        const aoeTokenIds = [
+          ...new Set([
+            ...(carrierId ? [carrierId] : []),
+            ...(idsFromBtn.length > 0 ? idsFromBtn : idsFromFlags),
+          ]),
+        ];
+        if (aoeAttacker && aoeTokenIds.length > 0) {
+          let aoeFlags: Record<string, any> = { ...flags };
+          try {
+            const msg = (game as any).messages?.get(messageId);
+            const msgFlags = msg?.getFlag?.('mastery-system') || msg?.flags?.['mastery-system'];
+            if (msgFlags) aoeFlags = { ...flags, ...msgFlags };
+          } catch {
+            /* keep original flags */
+          }
+          const aoeAttackTotal = Math.floor(Number(result?.total) || 0);
+          const { resolveAoeFromSharedRoll } = await import('../combat/aoe-melee-resolution.js');
+          await resolveAoeFromSharedRoll({
+            attacker: aoeAttacker as any,
+            tokenIds: aoeTokenIds,
+            attackTotal: aoeAttackTotal,
+            declaredRaiseSlots,
+            isSpell: isSpellcasting || (aoeFlags as any).powerIsSpell === true,
+            spellBaseTn: (aoeFlags as any).spellBaseTn ?? null,
+            flags: {
+              ...aoeFlags,
+              attackTotal: aoeAttackTotal,
+              freeRaiseSlots,
+              ignoreWeaponDamage: true,
+              instantAoe: true,
+              aoeMeleeWeapon: true,
+            },
+            weaponId: null,
+          });
+          return;
+        }
+      }
       
       // Final TN hit only → damage dialog. Miss Final TN → no payload.
       if (raiseOutcome === 'full') {
@@ -1022,33 +1083,8 @@ export async function executeAttackRollFromCard(
             // Needed so Reaction: Evade can compare Evade+bonus vs this total.
             attackTotal: Math.floor(Number(result?.total) || 0),
           };
-          // Import and show damage dialog - pass only IDs, not full objects
-          // Debug log before calling showDamageDialog
-          // Prefer AoE metadata from the roll button — chat-message flags can be
-          // pruned or merged inconsistently across Foundry versions.
-          const aoeIdsFromBtn = String(button.attr('data-aoe-secondary-ids') || '')
-            .split('|')
-            .map((s: string) => s.trim())
-            .filter(Boolean);
-          const aoeDiceFromBtn = Math.max(0, Math.floor(Number(button.attr('data-aoe-power-dice')) || 0));
-          const aoeFromBtn = button.attr('data-aoe-melee') === '1';
-
-          const aoeSecondaries =
-            aoeIdsFromBtn.length > 0
-              ? aoeIdsFromBtn
-              : String(updatedFlags.aoeMeleeSecondaryTokenIds || '')
-                  .split(',')
-                  .map((s: string) => s.trim())
-                  .filter(Boolean);
-          const aoeDice =
-            aoeDiceFromBtn > 0
-              ? aoeDiceFromBtn
-              : Math.max(0, Math.floor(Number(updatedFlags.aoeMeleePowerBonusDice) || 0));
-          const aoeWeapon =
-            aoeFromBtn ||
-            updatedFlags.aoeMeleeWeapon === true ||
-            String(updatedFlags.aoeMeleeWeapon) === 'true';
-          const isAreaAttack = aoeWeapon;
+          // Instant AoE cards return earlier (shared-roll path) — this is single-target only.
+          const isAreaAttack = false;
 
           // Phase 1 — direct target reacts immediately after the attack Roll,
           // before the damage dialog / damage roll. (Threatened Ranged
@@ -1216,81 +1252,10 @@ export async function executeAttackRollFromCard(
           // Threatened Ranged reactions were already offered at DECLARATION
           // (PG 9725) — no post-resolution opportunity window.
 
-          // Secondaries: each compared separately against its own Evade / Final
-          // Spell TN. Resolve even if the primary Evaded, dove out, or was missed
-          // for raise purposes — a miss against one creature does not protect others.
-          if (aoeWeapon && aoeSecondaries.length > 0) {
-            const { resolveAoeMeleeSecondaries } = await import('../combat/aoe-melee-resolution.js');
-            const atkMr = Math.max(
-              1,
-              Math.min(8, Math.floor(Number(updatedFlags.masteryRank) || 2)),
-            );
-            await resolveAoeMeleeSecondaries({
-              attacker: freshAttackerForDialog as any,
-              attackerMasteryRank: atkMr,
-              secondaryTokenIds: aoeSecondaries,
-              powerBonusDice: aoeDice,
-              isSpell: (updatedFlags as any).powerIsSpell === true,
-              attackTotal: updatedFlags.attackTotal ?? null,
-              evadeTn: updatedFlags.normalTn ?? updatedFlags.baseEvade ?? null,
-              flags: updatedFlags,
-              weaponId,
-              declaredRaiseSlots,
-              spellBaseTn: (updatedFlags as any).spellBaseTn ?? null,
-            });
-          }
+          // Instant AoE never reaches this single-target path: it returns earlier via
+          // resolveAoeFromSharedRoll (no Primary Target, no secondary special-casing).
         }
       } else {
-        // Miss vs the anchor TN — for AoE, still check every other creature
-        // independently (a miss against one does not end the AoE).
-        if (
-          (flags.aoeMeleeWeapon === true || String(flags.aoeMeleeWeapon) === 'true') ||
-          !!button.attr('data-aoe-melee')
-        ) {
-          const aoeIdsMiss = String(button.attr('data-aoe-secondary-ids') || '')
-            .split('|')
-            .map((s: string) => s.trim())
-            .filter(Boolean);
-          const aoeSecondariesMiss =
-            aoeIdsMiss.length > 0
-              ? aoeIdsMiss
-              : String(flags.aoeMeleeSecondaryTokenIds || '')
-                  .split(',')
-                  .map((s: string) => s.trim())
-                  .filter(Boolean);
-          if (aoeSecondariesMiss.length > 0) {
-            try {
-              const { resolveAoeMeleeSecondaries } = await import(
-                '../combat/aoe-melee-resolution.js'
-              );
-              const missAttacker = freshAttacker || (game as any).actors?.get(flags.attackerId);
-              if (missAttacker) {
-                await resolveAoeMeleeSecondaries({
-                  attacker: missAttacker as any,
-                  attackerMasteryRank: Math.max(
-                    1,
-                    Math.min(8, Math.floor(Number(flags.masteryRank) || 2)),
-                  ),
-                  secondaryTokenIds: aoeSecondariesMiss,
-                  powerBonusDice: 0,
-                  isSpell: (flags as any).powerIsSpell === true,
-                  attackTotal: Math.floor(Number(result?.total) || 0),
-                  flags: {
-                    ...flags,
-                    attackTotal: Math.floor(Number(result?.total) || 0),
-                    raiseOutcome: 'fail',
-                  },
-                  weaponId: flags.weaponId || null,
-                  declaredRaiseSlots,
-                  spellBaseTn: (flags as any).spellBaseTn ?? null,
-                });
-              }
-            } catch (aoeMissErr) {
-              console.warn('Mastery System | AoE secondary resolve on anchor miss failed', aoeMissErr);
-            }
-          }
-        }
-
         // Miss — target reacts first; Threatened Ranged OA + allies after.
         try {
           let missTarget: any = null;

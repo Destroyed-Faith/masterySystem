@@ -1,20 +1,15 @@
 /**
  * Power Creation Dialog — Template-based (post-Trees).
  *
- * Three-stage filter:
- *   Stage 1: Category (Movement / Passive / Reaction / Active / Active Buff)
- *   Stage 2: Subfamily (teleport / flight / damage-aoe / weapon-attack / …)
- *   Stage 3: Special + free-text search
- *     - Special dropdown lists every Special the current filter can resolve
- *       (blight, hex, prone, dread, disoriented, regeneration, disrupt, …)
- *       — Tier is NOT a player-facing search axis (Tier is an internal
- *       pricing bucket only).
- *     - Pure weapon/illusion Actives (no Special slot) surface via
- *       Category + Subfamily alone and ignore the Special filter.
+ * Filter model:
+ *   - Category (Movement / Passive / Reaction / Active / Active Buff)
+ *   - Actives: Effect + Delivery (UI discovery) + Special + search
+ *   - Active Buffs: no Kind filter — browse/search the final 18
+ *   - Other categories: Kind (subfamily) + search (unchanged)
  *
- * For Actives (category === 'active'), a Step 4 panel exposes the
- * "Make this a Spell?" toggle and the casting attribute (Intellect/Resolve).
- * Spell Delivery uses a Casting Roll against Final Spell TN (Spell Base TN + Spell Resistance).
+ * For Actives, a Spell panel exposes "Cast this Active as a Spell?" and the
+ * casting attribute (Intellect/Resolve). Spell Delivery uses a Casting Roll
+ * against Final Spell TN (Spell Base TN + Spell Resistance).
  */
 import type { PowerCategory } from '../types/item.js';
 /**

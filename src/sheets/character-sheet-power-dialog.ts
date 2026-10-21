@@ -1,20 +1,15 @@
 /**
  * Power Creation Dialog — Template-based (post-Trees).
  *
- * Three-stage filter:
- *   Stage 1: Category (Movement / Passive / Reaction / Active / Active Buff)
- *   Stage 2: Subfamily (teleport / flight / damage-aoe / weapon-attack / …)
- *   Stage 3: Special + free-text search
- *     - Special dropdown lists every Special the current filter can resolve
- *       (blight, hex, prone, dread, disoriented, regeneration, disrupt, …)
- *       — Tier is NOT a player-facing search axis (Tier is an internal
- *       pricing bucket only).
- *     - Pure weapon/illusion Actives (no Special slot) surface via
- *       Category + Subfamily alone and ignore the Special filter.
+ * Filter model:
+ *   - Category (Movement / Passive / Reaction / Active / Active Buff)
+ *   - Actives: Effect + Delivery (UI discovery) + Special + search
+ *   - Active Buffs: no Kind filter — browse/search the final 18
+ *   - Other categories: Kind (subfamily) + search (unchanged)
  *
- * For Actives (category === 'active'), a Step 4 panel exposes the
- * "Make this a Spell?" toggle and the casting attribute (Intellect/Resolve).
- * Spell Delivery uses a Casting Roll against Final Spell TN (Spell Base TN + Spell Resistance).
+ * For Actives, a Spell panel exposes "Cast this Active as a Spell?" and the
+ * casting attribute (Intellect/Resolve). Spell Delivery uses a Casting Roll
+ * against Final Spell TN (Spell Base TN + Spell Resistance).
  */
 
 import type {
@@ -64,6 +59,12 @@ import {
     getVisibleSpecialOptions,
     type CatalogEntry,
 } from '../utils/power-catalog.js';
+import {
+    ACTIVE_UI_DELIVERIES,
+    ACTIVE_UI_EFFECTS,
+    labelActiveUiDelivery,
+    labelActiveUiEffect,
+} from '../utils/power-purchase-ui-filters.js';
 import type { PowerTemplate } from '../utils/powers/templates/index.js';
 import { creationBaselineRank } from '../utils/power-xp-refund.js';
 
@@ -97,31 +98,60 @@ export async function showPowerCreationDialog(
     const xpState = getXpState(actor);
     const isGm = !!(game as any).user?.isGM;
 
+    const effectOptions = ACTIVE_UI_EFFECTS.map(
+        (k) => `<option value="${k}">${labelActiveUiEffect(k)}</option>`,
+    ).join('');
+    const deliveryOptions = ACTIVE_UI_DELIVERIES.map(
+        (k) => `<option value="${k}">${labelActiveUiDelivery(k)}</option>`,
+    ).join('');
+
     const content = `
     <form class="power-creation-form power-catalog-form">
       <div class="power-catalog-filters">
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Category:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="category">
+          <label class="power-form-label" for="pc-category">Category</label>
           <select name="category" id="pc-category" class="power-form-select">
             <option value="">-- Any Category --</option>
             ${categoryOptions}
           </select>
         </div>
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Kind:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="kind" id="pc-kind-field">
+          <label class="power-form-label" for="pc-subfamily">Kind</label>
           <select name="subfamily" id="pc-subfamily" class="power-form-select">
             <option value="">-- Any kind --</option>
           </select>
-          <p class="pc-subfamily-hint" id="pc-subfamily-hint"></p>
+          <p class="pc-subfamily-hint" id="pc-subfamily-hint" hidden></p>
         </div>
-        <div class="form-group power-form-group pc-special-group" style="display:none;">
-          <label class="power-form-label">Special:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="buff-focus" id="pc-buff-focus-field" hidden>
+          <label class="power-form-label" for="pc-buff-focus">Focus</label>
+          <select name="buffFocus" id="pc-buff-focus" class="power-form-select">
+            <option value="all" selected>All</option>
+            <option value="defensive">Defensive</option>
+            <option value="offensive">Offensive</option>
+          </select>
+        </div>
+        <div class="form-group power-form-group power-filter-field" data-filter="effect" id="pc-effect-field" hidden>
+          <label class="power-form-label" for="pc-effect">Effect</label>
+          <select name="effect" id="pc-effect" class="power-form-select">
+            <option value="">-- Any Effect --</option>
+            ${effectOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group power-filter-field" data-filter="delivery" id="pc-delivery-field" hidden>
+          <label class="power-form-label" for="pc-delivery">Delivery</label>
+          <select name="delivery" id="pc-delivery" class="power-form-select">
+            <option value="">-- Any Delivery --</option>
+            ${deliveryOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group power-filter-field pc-special-group" data-filter="special" hidden>
+          <label class="power-form-label" for="pc-special">Special</label>
           <select name="special" id="pc-special" class="power-form-select">
             <option value="">-- Any Special --</option>
           </select>
         </div>
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Search:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="search">
+          <label class="power-form-label" for="pc-search">Search</label>
           <input type="text" id="pc-search" class="power-form-input" placeholder="Name contains…" />
         </div>
       </div>
@@ -403,7 +433,14 @@ export async function showPowerCreationDialog(
             }, 0);
 
             const $categorySelect = html.find('#pc-category');
+            const $kindField = html.find('#pc-kind-field');
             const $subfamilySelect = html.find('#pc-subfamily');
+            const $buffFocusField = html.find('#pc-buff-focus-field');
+            const $buffFocusSelect = html.find('#pc-buff-focus');
+            const $effectField = html.find('#pc-effect-field');
+            const $effectSelect = html.find('#pc-effect');
+            const $deliveryField = html.find('#pc-delivery-field');
+            const $deliverySelect = html.find('#pc-delivery');
             const $specialWrap = html.find('.pc-special-group');
             const $specialSelect = html.find('#pc-special');
             const $searchInput = html.find('#pc-search');
@@ -476,7 +513,7 @@ export async function showPowerCreationDialog(
                 const category = ($categorySelect.val() as string) || '';
                 $subfamilySelect.empty();
                 $subfamilySelect.append('<option value="">-- Any kind --</option>');
-                if (!category) return;
+                if (!category || category === 'active' || category === 'activeBuff') return;
                 for (const sub of getSubfamiliesByCategory(category as PowerCategory)) {
                     const opt = document.createElement('option');
                     opt.value = sub;
@@ -487,15 +524,36 @@ export async function showPowerCreationDialog(
 
             const refreshSubfamilyHint = () => {
                 const $hint = html.find('#pc-subfamily-hint');
+                const category = ($categorySelect.val() as string) || '';
                 const sub = ($subfamilySelect.val() as string) || '';
-                $hint.text(powerSubfamilyHint(sub));
+                const hint = category === 'active' || category === 'activeBuff' ? '' : powerSubfamilyHint(sub);
+                $hint.text(hint);
+                $hint.prop('hidden', !hint);
             };
 
-            const refreshActiveOnlyVisibility = () => {
+            /** Show/hide Kind vs Focus vs Effect/Delivery/Special; clear filters that no longer apply. */
+            const refreshFilterVisibility = () => {
                 const category = ($categorySelect.val() as string) || '';
                 const isActive = category === 'active';
-                $specialWrap.toggle(isActive);
+                const isActiveBuff = category === 'activeBuff';
+                const useKind = !!category && !isActive && !isActiveBuff;
+
+                $kindField.prop('hidden', !useKind);
+                $buffFocusField.prop('hidden', !isActiveBuff);
+                $effectField.prop('hidden', !isActive);
+                $deliveryField.prop('hidden', !isActive);
+                $specialWrap.prop('hidden', !isActive);
+
+                if (!useKind) {
+                    $subfamilySelect.val('');
+                    html.find('#pc-subfamily-hint').text('').prop('hidden', true);
+                }
+                if (!isActiveBuff) {
+                    $buffFocusSelect.val('all');
+                }
                 if (!isActive) {
+                    $effectSelect.val('');
+                    $deliverySelect.val('');
                     $specialSelect.val('');
                     $isSpell.prop('checked', false);
                     $spellFields.hide();
@@ -515,11 +573,19 @@ export async function showPowerCreationDialog(
 
             const refreshSpecialDropdown = () => {
                 const category = ($categorySelect.val() as string) || '';
-                const subfamily = ($subfamilySelect.val() as string) || '';
+                if (category !== 'active') {
+                    $specialSelect.empty();
+                    $specialSelect.append('<option value="">-- Any Special --</option>');
+                    return;
+                }
+                const uiEffect = ($effectSelect.val() as string) || '';
+                const uiDelivery = ($deliverySelect.val() as string) || '';
                 const prev = ($specialSelect.val() as string) || '';
                 const opts = getVisibleSpecialOptions({
-                    category: (category || null) as PowerCategory | null,
-                    subfamily: subfamily || null,
+                    category: 'active',
+                    subfamily: null,
+                    uiEffect: uiEffect || null,
+                    uiDelivery: uiDelivery || null,
                     actorEchoKey,
                     actorSubChoiceKey,
                 });
@@ -532,17 +598,47 @@ export async function showPowerCreationDialog(
                     $specialSelect.append(opt);
                 }
                 if (prev && opts.some((o) => o.key === prev)) $specialSelect.val(prev);
+                else $specialSelect.val('');
+            };
+
+            const appendPowerOptions = (available: CatalogEntry[]) => {
+                $powerSelect.empty();
+                if (available.length === 0) {
+                    $powerSelect.append(
+                        '<option value="">-- No powers match these filters — try clearing Focus, Effect, Delivery, Special, or Search --</option>',
+                    );
+                    return;
+                }
+                $powerSelect.append('<option value="">-- Select a Power --</option>');
+                // Flat list (no optgroups): dual Focus classification must not duplicate rows.
+                for (const e of available) {
+                    const opt = document.createElement('option');
+                    opt.value = e.name;
+                    opt.textContent = catalogSelectOptionLabel(e);
+                    opt.dataset.templateId = e.templateId;
+                    $powerSelect.append(opt);
+                }
             };
 
             const refreshList = () => {
                 const category = ($categorySelect.val() as string) || '';
-                const subfamily = ($subfamilySelect.val() as string) || '';
-                const special = ($specialSelect.val() as string) || '';
+                const isActive = category === 'active';
+                const isActiveBuff = category === 'activeBuff';
+                const subfamily = (!isActive && !isActiveBuff)
+                    ? (($subfamilySelect.val() as string) || '')
+                    : '';
+                const uiEffect = isActive ? (($effectSelect.val() as string) || '') : '';
+                const uiDelivery = isActive ? (($deliverySelect.val() as string) || '') : '';
+                const special = isActive ? (($specialSelect.val() as string) || '') : '';
+                const buffFocus = isActiveBuff ? (($buffFocusSelect.val() as string) || 'all') : '';
                 const search = ($searchInput.val() as string) || '';
 
                 const entries = filterCatalog({
                     category: (category || null) as PowerCategory | null,
                     subfamily: subfamily || null,
+                    uiEffect: uiEffect || null,
+                    uiDelivery: uiDelivery || null,
+                    uiActiveBuffFocus: buffFocus && buffFocus !== 'all' ? buffFocus : null,
                     special: special || null,
                     search,
                     actorEchoKey,
@@ -554,25 +650,21 @@ export async function showPowerCreationDialog(
                 );
                 const available = entries.filter((e) => !ownedKeys.has(powerIdentityKeyFromEntry(e)));
 
-                $powerSelect.empty();
-                if (available.length === 0) {
-                    $powerSelect.append('<option value="">-- No matching powers --</option>');
-                } else {
-                    $powerSelect.append('<option value="">-- Select a Power --</option>');
-                    for (const e of available) {
-                        const opt = document.createElement('option');
-                        opt.value = e.name;
-                        opt.textContent = catalogSelectOptionLabel(e);
-                        opt.dataset.templateId = e.templateId;
-                        $powerSelect.append(opt);
-                    }
-                }
+                appendPowerOptions(available);
                 const skipped = entries.length - available.length;
-                const base = `${available.length} available`;
-                const suffix = skipped > 0
-                    ? ` (${skipped} already on character)`
-                    : ` (${entries.length} match filter)`;
-                $count.text(`${base}${suffix}`);
+                if (available.length === 0) {
+                    $count.text(
+                        entries.length === 0
+                            ? 'No powers match these filters. Clear Effect, Delivery, Special, or Search.'
+                            : `No available powers (${entries.length} match filters but are already on this character).`,
+                    );
+                } else {
+                    const base = `${available.length} available`;
+                    const suffix = skipped > 0
+                        ? ` (${skipped} already on character)`
+                        : ` (${entries.length} match filter)`;
+                    $count.text(`${base}${suffix}`);
+                }
                 $details.hide();
                 $description.empty();
                 $levelTable.empty();
@@ -608,12 +700,21 @@ export async function showPowerCreationDialog(
             $categorySelect.on('change', () => {
                 refreshSubfamilyDropdown();
                 refreshSubfamilyHint();
-                refreshActiveOnlyVisibility();
+                refreshFilterVisibility();
                 refreshSpecialDropdown();
                 refreshList();
             });
             $subfamilySelect.on('change', () => {
                 refreshSubfamilyHint();
+                refreshSpecialDropdown();
+                refreshList();
+            });
+            $buffFocusSelect.on('change', refreshList);
+            $effectSelect.on('change', () => {
+                refreshSpecialDropdown();
+                refreshList();
+            });
+            $deliverySelect.on('change', () => {
                 refreshSpecialDropdown();
                 refreshList();
             });
@@ -657,7 +758,7 @@ export async function showPowerCreationDialog(
             // Initial boot
             refreshSubfamilyDropdown();
             refreshSubfamilyHint();
-            refreshActiveOnlyVisibility();
+            refreshFilterVisibility();
             refreshSpecialDropdown();
             refreshList();
             updatePcSpellRulesHint();

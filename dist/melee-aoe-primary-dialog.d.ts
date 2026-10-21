@@ -1,5 +1,10 @@
 /**
- * Melee weapon AoE — pick the primary target (full payload) vs secondary targets (power AoE only).
+ * @deprecated Instant AoE has NO Primary Target (Destroyed Faith AoE rework).
+ * Nothing imports this module any more: Melee/Ranged AoE resolve through one shared
+ * roll (`resolveAoeFromSharedRoll`) with `excludeAlliesFromAoePool` for the ally
+ * filter. Kept only so old references/tests do not break; safe to delete.
+ *
+ * (Legacy) Melee weapon AoE — pick the primary target (full payload) vs secondary targets (power AoE only).
  */
 import type { RadialCombatOption } from './token-radial-menu.js';
 export type MeleeAoePrimaryChoice = 'cancelled' | {

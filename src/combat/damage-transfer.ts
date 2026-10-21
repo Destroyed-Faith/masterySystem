@@ -38,16 +38,55 @@ export function damageTransferApplies(opts: { damageTransfer?: boolean; hit: boo
   return opts.damageTransfer === true && opts.hit === true;
 }
 
+type InstantAoeFlagBag = {
+  aoeMeleeWeapon?: boolean | string;
+  instantAoe?: boolean | string;
+};
+
+function flagTrue(v: unknown): boolean {
+  return v === true || String(v) === 'true';
+}
+
 /**
- * Martial delivery includes weapon damage. Spell delivery and an explicit
- * ignore flag do not. NPC spell rows are spell delivery.
+ * Instant AoE Attack (Melee / Ranged AoE Attack, AoE Special Attacks): one shared
+ * Attack/Casting roll and one shared Power damage roll. These attacks never add
+ * Weapon Damage or Spell Focus damage and have no Primary Target.
+ *
+ * `aoeMeleeWeapon` is the legacy flag name kept for compatibility with existing
+ * attack-card data; `instantAoe` is the preferred name.
  */
-export function martialWeaponDamageApplies(flags: {
-  ignoreWeaponDamage?: boolean;
-  powerIsSpell?: boolean;
-  npcIsSpell?: boolean;
-}): boolean {
-  return flags.ignoreWeaponDamage !== true && flags.powerIsSpell !== true && flags.npcIsSpell !== true;
+export function isInstantAoeFlags(flags: InstantAoeFlagBag | null | undefined): boolean {
+  if (!flags) return false;
+  return flagTrue(flags.instantAoe) || flagTrue(flags.aoeMeleeWeapon);
+}
+
+/**
+ * Martial delivery includes weapon damage. Spell delivery, an explicit
+ * ignore flag and Instant AoE do not. NPC spell rows are spell delivery.
+ */
+export function martialWeaponDamageApplies(
+  flags: {
+    ignoreWeaponDamage?: boolean;
+    powerIsSpell?: boolean;
+    npcIsSpell?: boolean;
+  } & InstantAoeFlagBag,
+): boolean {
+  return (
+    flags.ignoreWeaponDamage !== true &&
+    flags.powerIsSpell !== true &&
+    flags.npcIsSpell !== true &&
+    !isInstantAoeFlags(flags)
+  );
+}
+
+/**
+ * Spell Focus dice boost single-target Spell damage. Instant AoE never receives
+ * them (shared Power damage only).
+ */
+export function spellFocusDamageApplies(
+  flags: { isSpell?: boolean; isNpcAttackFlow?: boolean } & InstantAoeFlagBag,
+): boolean {
+  return flags.isSpell === true && flags.isNpcAttackFlow !== true && !isInstantAoeFlags(flags);
 }
 
 /** Limited doubles the printed power-damage pool only, never a following weapon term. */

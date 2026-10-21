@@ -1186,8 +1186,13 @@ async function confirmUtilityTargets(state) {
             endUtilityTargeting(false);
             return;
         }
-        const primary = targets[0];
-        const secondaries = targets.slice(1).map((t) => String(t.id));
+        // Instant AoE: NO Primary Target. One shared Attack/Casting roll, one shared
+        // Power damage roll, same payload for every creature hit (no Weapon Damage, no
+        // Spell Focus). The attack card is anchored to the first token only as the
+        // roll carrier (casting TN / Raise / Crit UI) — on Roll, the carrier and all
+        // other tokens are resolved equally via resolveAoeFromSharedRoll.
+        const rollCarrier = targets[0];
+        const otherAoeTokenIds = targets.slice(1).map((t) => String(t.id));
         let powerBonus = 0;
         if (state.option.source === 'npc-attack' && actor) {
             const row = getNpcAttackByIndex(actor.system, state.option.npcAttackIndex ?? 0, state.option.npcPhaseIndex);
@@ -1198,15 +1203,15 @@ async function confirmUtilityTargets(state) {
         else if (state.option.item) {
             powerBonus = extractMeleeAoePowerBonusD8(state.option.item);
         }
-        // Pass AoE context so secondaries each get a per-Evade check + full payload.
+        // Pass AoE context so every creature gets its own hit check + the shared payload.
         try {
             const { createRangedAttackCard } = await import('./combat/attack-executor.js');
             if (state.center) {
                 state.option.spellZoneCenterX = state.center.x;
                 state.option.spellZoneCenterY = state.center.y;
             }
-            await createRangedAttackCard(state.casterToken, primary, state.option, {
-                secondaryTokenIds: secondaries,
+            await createRangedAttackCard(state.casterToken, rollCarrier, state.option, {
+                secondaryTokenIds: otherAoeTokenIds,
                 powerBonusDice: powerBonus,
             });
         }

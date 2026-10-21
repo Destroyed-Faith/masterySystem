@@ -57,6 +57,36 @@ describe('Rules Journals — Homebrewery cleanup', () => {
     expect(html).toMatch(/df-rules-table|<table/);
     expect(html).not.toMatch(/\\page/);
   });
+
+  it('does not inject a duplicate page-title heading (Foundry TOC / page name)', () => {
+    const same = markdownToJournalHtml('## Attributes\n\nBody text.\n', { pageTitle: 'Attributes' });
+    expect(same).not.toMatch(/df-rules-page-header/);
+    expect(same).not.toMatch(/<h[1-4][^>]*>\s*Attributes\s*<\/h[1-4]>/i);
+    expect(same).toMatch(/Body text/);
+
+    const distinct = markdownToJournalHtml(
+      '## Example: Alaris Chooses Her Attributes\n\nAlaris is a skirmisher.\n',
+      { pageTitle: 'Example: Attributes' },
+    );
+    expect(distinct).not.toMatch(/df-rules-page-header/);
+    expect(distinct).not.toMatch(/<h1[^>]*>\s*Example: Attributes\s*<\/h1>/i);
+    expect(distinct).toMatch(/Example: Alaris Chooses Her Attributes/);
+
+    const quoted = markdownToJournalHtml(
+      '> ## Core Terms\n>\n> **Pool & Keep:** Roll d8.\n',
+      { pageTitle: 'Core Terms' },
+    );
+    expect(quoted).not.toMatch(/<h[1-4][^>]*>\s*Core Terms\s*<\/h[1-4]>/i);
+    expect(quoted).toMatch(/Pool &amp; Keep|Pool & Keep/);
+
+    const midPage = markdownToJournalHtml(
+      '## Skills\n\nIntro.\n\n## Skills\n\nAgain.\n',
+      { pageTitle: 'Skills' },
+    );
+    expect(midPage.match(/<h[1-4][^>]*>\s*Skills\s*<\/h[1-4]>/gi) || []).toHaveLength(0);
+    expect(midPage).toMatch(/Intro/);
+    expect(midPage).toMatch(/Again/);
+  });
 });
 
 describe('Rules Journals — chapter extraction', () => {

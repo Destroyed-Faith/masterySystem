@@ -182,8 +182,8 @@ function damageAoeTemplate(def) {
             const d = (isRanged ? RANGED_AOE_DMG_DICE : MELEE_AOE_DMG_DICE)[def.tier][lvl - 1];
             const rank = (isRanged ? RANGED_AOE_DMG_SPECIAL : MELEE_AOE_DMG_SPECIAL)[def.tier][lvl - 1];
             const effectText = d === 0
-                ? 'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Every creature hit takes weapon damage and the full printed Special. Dive for Cover may be used after the hit check and before payload.'
-                : `Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes weapon damage + **+${d}d8 damage** and the full printed Special. Dive for Cover may be used after the hit check and before payload.`;
+                ? 'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Apply the full printed Special to every creature hit; no Power damage. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.'
+                : `Make one AoE Attack Roll and compare it separately against each creature's Evade. Every creature hit takes **${d}d8 Power damage** (one shared roll) and the full printed Special. No weapon or Spell Focus bonus. Dive for Cover may be used after the hit check and before payload.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
                 range: isRanged ? rangedRange(lvl, 8) : { kind: 'self' },
@@ -664,7 +664,7 @@ function targetedSpecialAoeAttackTemplate(flavour) {
                     center: isRanged ? 'targetPoint' : 'self',
                     targetFilter: 'enemies',
                 },
-                effectText: 'Make one AoE weapon attack. Every creature hit takes weapon damage. Qualifying targets also gain the chosen targeted Special.',
+                effectText: 'Make one AoE Attack Roll and compare it separately against each creature\'s Evade. Qualifying creatures hit gain the chosen targeted Special; no Power damage. No weapon or Spell Focus bonus.',
                 specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial (Exorcism or Requiem)' }],
                 mechanics: { applyWhen: 'attack-rider' },
             });
@@ -820,13 +820,13 @@ function singleWeaponAttackTemplate(flavour) {
 }
 // AoE Weapon Attack progression — exact PL tables from docs/Rules/actives.md.
 const MELEE_AOE_PROG = [
-    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 4 },
+    { radiusM: 2, dice: 1 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 4 },
     { radiusM: 4, dice: 4 }, { radiusM: 4, dice: 6 }, { radiusM: 5, dice: 6 }, { radiusM: 5, dice: 7 },
     { radiusM: 6, dice: 7 }, { radiusM: 6, dice: 7 }, { radiusM: 7, dice: 7 }, { radiusM: 7, dice: 7 },
     { radiusM: 8, dice: 7 }, { radiusM: 8, dice: 9 }, { radiusM: 8, dice: 11 }, { radiusM: 8, dice: 13 },
 ];
 const RANGED_AOE_PROG = [
-    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 3 },
+    { radiusM: 2, dice: 1 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 3 },
     { radiusM: 4, dice: 3 }, { radiusM: 4, dice: 4 }, { radiusM: 5, dice: 4 }, { radiusM: 5, dice: 4 },
     { radiusM: 6, dice: 4 }, { radiusM: 6, dice: 4 }, { radiusM: 7, dice: 4 }, { radiusM: 7, dice: 5 },
     { radiusM: 7, dice: 5 }, { radiusM: 8, dice: 5 }, { radiusM: 8, dice: 6 }, { radiusM: 8, dice: 8 },
@@ -843,8 +843,8 @@ function aoeWeaponAttackTemplate(flavour) {
         tags: [],
         spellHints: { defaultResolution: 'spellAttack' },
         fluff: isRanged
-            ? 'A ranged weapon attack that bursts around a target point. One roll is compared separately against each creature\'s Evade; every hit takes the full printed payload.'
-            : 'A self-centered weapon sweep or burst around the attacker. One roll is compared separately against each creature\'s Evade; every hit takes the full printed payload.',
+            ? 'A ranged Instant AoE attack that bursts around a target point. One shared Attack roll is compared separately against each creature\'s Evade; one shared Power damage roll is applied to every creature hit. No primary target; no weapon or Spell Focus bonus.'
+            : 'A self-centered Instant AoE burst around the attacker. One shared Attack roll is compared separately against each creature\'s Evade; one shared Power damage roll is applied to every creature hit. No primary target; no weapon or Spell Focus bonus.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
@@ -855,20 +855,16 @@ function aoeWeaponAttackTemplate(flavour) {
                 center: isRanged ? 'targetPoint' : 'self',
                 targetFilter: 'enemies',
             };
-            const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
-            const effect = p.dice === 0
-                ? `Make one ${isRanged ? 'ranged' : 'melee'} AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage and may use Dive for Cover before payload.`
-                : `Make one ${isRanged ? 'ranged' : 'melee'} AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes weapon damage + **${p.dice}d8 damage** and may use Dive for Cover before payload.`;
+            const diceText = `+${p.dice}d8`;
+            const effect = `Make one ${isRanged ? 'ranged' : 'melee'} AoE Attack Roll and compare it separately against the Evade of each valid creature in the area. Every creature hit takes **${p.dice}d8 Power damage** (one shared damage roll) and may use Dive for Cover before payload.`;
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
                 range: isRanged ? rangedRange(lvl) : { kind: 'self' },
                 aoe,
                 effectText: effect,
-                dice: diceText || undefined,
+                dice: diceText,
                 specials: [],
-                mechanics: p.dice === 0
-                    ? { applyWhen: 'attack-rider' }
-                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
+                mechanics: { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
             });
         }),
     };

@@ -13,6 +13,8 @@
  *  - templateId  : canonical template id (e.g. 'active-ranged-damage-t4')
  *  - tier        : 3 | 4 | 5 | 6     (Actives only)
  *  - special     : Special key   (Actives only — matches chosenSpecial.key)
+ *  - uiEffect    : UI-only Active Effect discovery filter
+ *  - uiDelivery  : UI-only Active Delivery discovery filter
  *  - search      : free-text across name + templateName
  *
  * Legacy filter axes (`tag`, `effectType`, `sourceName`) are preserved as
@@ -193,6 +195,22 @@ export interface CatalogFilter {
     templateId?: string | null;
     tier?: ActiveSpecialTier | null;
     special?: string | null;
+    /**
+     * UI-only Active discovery filter (Effect dropdown).
+     * Matches templates whose purchase-UI metadata lists this effect.
+     * Ignored when empty; does not change mechanical categories.
+     */
+    uiEffect?: string | null;
+    /**
+     * UI-only Active discovery filter (Delivery dropdown).
+     * Matches templates whose purchase-UI metadata lists this delivery.
+     */
+    uiDelivery?: string | null;
+    /**
+     * UI-only Active Buff focus (`all` / `defensive` / `offensive`).
+     * Empty or `all` keeps every approved buff; does not change mechanics.
+     */
+    uiActiveBuffFocus?: string | null;
     /** Free-text search over name / templateName. */
     search?: string | null;
     /** @deprecated — legacy, retained for compile compatibility. */

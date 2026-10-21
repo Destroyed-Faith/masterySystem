@@ -10,7 +10,7 @@ import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } 
 import type { RadialCombatOption } from './token-radial-menu';
 import { getSegmentIdForOption } from './radial-menu/options';
 import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting';
-import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
+import { excludeAlliesFromAoePool } from './combat/aoe-target-filter.js';
 import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting';
 import { startConeAttackMode, startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
@@ -145,7 +145,7 @@ export function initializeTokenActionSelector() {
     // Convert html to jQuery if it's not already (Foundry v13 compatibility)
     const $html = (html instanceof jQuery ? html : $(html)) as JQuery;
 
-    // Place the radial-menu button in the MIDDLE column of the Token HUD —
+    // Place the radial-menu button in the MIDDLE column of the Token HUD â€”
     // centered between the left (combat toggle) and right (config) button
     // stacks, as far from Start/Exit Combat as possible. Fall back to the
     // right column on layouts without a middle column.
@@ -242,13 +242,13 @@ export function initializeTokenActionSelector() {
 
     // If nothing is selected, block movement
     if (!action.category || !action.optionId) {
-      ui.notifications.warn('Bitte zuerst im Token-HUD eine Movement-Aktion wählen.');
+      ui.notifications.warn('Bitte zuerst im Token-HUD eine Movement-Aktion wÃ¤hlen.');
       return false;
     }
 
     // Only allow movement if the category is "movement"
     if (action.category !== 'movement') {
-      ui.notifications.warn('Du hast aktuell keine Movement-Aktion gewählt.');
+      ui.notifications.warn('Du hast aktuell keine Movement-Aktion gewÃ¤hlt.');
       return false;
     }
 
@@ -362,7 +362,7 @@ export function initializeTokenActionSelector() {
         if (!ok) return;
       }
 
-      console.log("[MS NPC Targeting] rangedTargetSelected → createRangedAttackCard", {
+      console.log("[MS NPC Targeting] rangedTargetSelected â†’ createRangedAttackCard", {
         attacker: attackerToken.name,
         target: targetToken.name,
         option: option?.name,
@@ -370,7 +370,7 @@ export function initializeTokenActionSelector() {
         rangeMinMeters: (option as any)?.rangeMinMeters,
       });
       await createRangedAttackCard(attackerToken, targetToken, option);
-      console.log("[MS NPC Targeting] rangedTargetSelected → attack card created");
+      console.log("[MS NPC Targeting] rangedTargetSelected â†’ attack card created");
     } catch (e) {
       console.error("Mastery System | [TOKEN ACTION SELECTOR] rangedTargetSelected hook failed", e);
     }
@@ -409,7 +409,7 @@ async function openMasteryActionRadialMenu(token: any) {
 
 /**
  * Snap a world point to the center of its grid cell (hex/square).
- * Foundry `getOffset` / `getCenterPoint` require a `{x,y}` point — never bare x,y args.
+ * Foundry `getOffset` / `getCenterPoint` require a `{x,y}` point â€” never bare x,y args.
  */
 function hexCenterFromWorldPoint(point: { x: number; y: number }): { x: number; y: number } {
   const grid: any = canvas.grid;
@@ -488,7 +488,7 @@ function hexKeyUnderTokenAtTopLeft(token: any, topLeft: { x: number; y: number }
   return `${o.i},${o.j}`;
 }
 
-/** Hex keys of grid cells where other tokens (with an actor) have their center — cannot end movement here. */
+/** Hex keys of grid cells where other tokens (with an actor) have their center â€” cannot end movement here. */
 function collectBlockedHexKeysFromOtherTokens(movingToken: any): Set<string> {
   const keys = new Set<string>();
   const grid: any = canvas.grid;
@@ -507,7 +507,7 @@ function paintStaticMovementRange(state: MovementState): void {
   if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) return;
   const steps = Math.max(0, state.budget.remainingSteps);
   if (steps <= 0) return;
-  // Always paint from `state.origin` — not `token.center`, which lags during
+  // Always paint from `state.origin` â€” not `token.center`, which lags during
   // Foundry's move animation and would keep the yellow blob at the start hex.
   highlightHexesWithinStepsFromPoint(
     state.origin,
@@ -790,7 +790,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     if (steps === null || steps > state.budget.remainingSteps) {
       ui.notifications.warn(
         game.i18n?.localize('MASTERY.combat.moveOutOfRange') ??
-          'Ziel liegt außerhalb der Bewegungsreichweite.'
+          'Ziel liegt auÃŸerhalb der Bewegungsreichweite.'
       );
       return;
     }
@@ -866,7 +866,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
       { x: destTL.x, y: destTL.y },
       {
         animate: true,
-        // Foundry V14 TokenRuler — do not keep a walked-path trail for this step.
+        // Foundry V14 TokenRuler â€” do not keep a walked-path trail for this step.
         showRuler: false,
         // Portrait tokens: do not spin to face the move vector.
         autoRotate: false,
@@ -874,7 +874,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
       },
     );
 
-    // Region OnEnter pause/stop may halt at the boundary before dest — wait, then spend only walked distance.
+    // Region OnEnter pause/stop may halt at the boundary before dest â€” wait, then spend only walked distance.
     try {
       const anim =
         token.object?.movementAnimationPromise ?? token.document?.object?.movementAnimationPromise;
@@ -912,7 +912,7 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
       state.budget = spendMovementMeters(state.budget, metersUsed);
     }
     state.movedOnce = true;
-    // Use the document position after any region stop — not the intended dest.
+    // Use the document position after any region stop â€” not the intended dest.
     state.origin = actualCenter;
     state.blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
 
@@ -935,8 +935,8 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     const left = Math.max(0, Math.round(state.budget.remainingMeters));
     ui.notifications?.info?.(
       reconciled.haltedShort
-        ? `Stopped at region boundary — ${left} m left; click to continue.`
-        : `${left} m left — click to step, right-click to finish.`,
+        ? `Stopped at region boundary â€” ${left} m left; click to continue.`
+        : `${left} m left â€” click to step, right-click to finish.`,
     );
   } catch (error) {
     console.error('Mastery System | Error during token movement', error);
@@ -1095,7 +1095,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   const isActiveBuff = segmentId === 'active-buff';
   
   if (isActiveBuff) {
-    // Reject in the combat execution path — Buffs activate only in Preparation.
+    // Reject in the combat execution path â€” Buffs activate only in Preparation.
     ui.notifications?.warn(
       'Active Buffs are activated during the Preparation Phase (Stone Powers), not from the radial menu.',
     );
@@ -1295,7 +1295,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       });
       if (tokenT.burstMeleeAoE !== worldT.burstMeleeAoE || tokenT.isRanged !== worldT.isRanged) {
         console.warn(
-          '[MS NPC Targeting] SELECT MISMATCH — token and world disagree; using token.actor (combat source)',
+          '[MS NPC Targeting] SELECT MISMATCH â€” token and world disagree; using token.actor (combat source)',
           { token: npcTargetingSnap(tokenRow), world: npcTargetingSnap(worldRow) },
         );
       }
@@ -1305,7 +1305,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     option = applyNpcAttackTargetingToOption(option, row);
     const after = resolveNpcAttackTargeting(row);
     logNpcTargeting(
-      `SELECT applied live row → burst=${after.burstMeleeAoE} ranged=${after.isRanged} aoe=${after.aoeRad} (option.burst before=${beforeBurst} after=${option.burstMeleeAoE})`,
+      `SELECT applied live row â†’ burst=${after.burstMeleeAoE} ranged=${after.isRanged} aoe=${after.aoeRad} (option.burst before=${beforeBurst} after=${option.burstMeleeAoE})`,
       { snap: npcTargetingSnap(row), after },
     );
     logNpcOptionBranch('SELECT planned branch', option, after);
@@ -1337,7 +1337,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     return;
   }
 
-  // Parry Stance → enter Passive Parry pool (must run before melee targeting —
+  // Parry Stance â†’ enter Passive Parry pool (must run before melee targeting â€”
   // the maneuver uses slot "attack" with a melee-ish range).
   if (option.source === 'maneuver' && option.maneuver?.id === 'parry-stance') {
     const atkAvail = getAvailableAttackActions(actor, combat);
@@ -1372,7 +1372,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       }
       const attrLabel = result.attribute === 'agility' ? 'Agility' : 'Might';
       ui.notifications?.info(
-        `Parry entered — pool ${result.pool}/${result.max} (${attrLabel}). Attack Actions given up this round.`,
+        `Parry entered â€” pool ${result.pool}/${result.max} (${attrLabel}). Attack Actions given up this round.`,
       );
       await (globalThis as any).ChatMessage?.create?.({
         user: (game as any).user?.id,
@@ -1547,8 +1547,8 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         aoeShape: option.aoeShape,
         tags: option.tags,
       });
-      const burstIds = collectMeleeBurstHostileTokenIds(token, option);
-      if (!burstIds.length) {
+      const collectedBurstIds = collectMeleeBurstHostileTokenIds(token, option);
+      if (!collectedBurstIds.length) {
         ui.notifications?.warn?.('Melee AoE: no hostile targets in range.');
         console.warn('Mastery System | [RADIAL FLOW] melee burst: zero hostile targets in AoE', {
           option: option.name,
@@ -1557,143 +1557,32 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         return;
       }
 
-      // Paint the burst footprint around the attacker while the primary dialog is open.
-      const burstHighlightId = `mastery-melee-aoe-${token.id}`;
-      const burstM =
-        typeof option.burstMeleeRadiusMeters === 'number' && option.burstMeleeRadiusMeters > 0
-          ? option.burstMeleeRadiusMeters
-          : (option.meleeReachMeters ?? option.range ?? 2);
-      try {
-        const steps = masteryPowerMaxSteps(burstM);
-        if (steps > 0 && token.center) {
-          highlightHexesWithinStepsFromPoint(
-            token.center,
-            steps,
-            burstHighlightId,
-            0xff6644,
-            0.38,
-          );
-        }
-      } catch (err) {
-        console.warn('Mastery System | Melee AoE preview failed', err);
+      // Instant AoE has NO Primary Target: every valid creature in the burst is an
+      // equal participant of ONE shared Attack roll and ONE shared Power damage
+      // roll (no Weapon Damage, no Spell Focus). Allies/players are excluded.
+      // Attack card is anchored to the first token only as the Roll/Raise carrier;
+      // on Roll, carrier + others resolve equally via resolveAoeFromSharedRoll.
+      const effectiveBurstIds = excludeAlliesFromAoePool(token, collectedBurstIds);
+      if (!effectiveBurstIds.length) {
+        ui.notifications?.warn?.('Melee AoE: no valid targets in the area (only allies in range).');
+        return;
       }
 
-      // Power bonus dice are part of the full payload (not splash-only).
+      const carrierId = effectiveBurstIds[0]!;
+      const carrierTok = canvas.tokens?.get(carrierId);
+      if (!carrierTok) {
+        ui.notifications?.warn?.('Melee AoE: could not resolve a roll-carrier token.');
+        return;
+      }
+      const otherIds = effectiveBurstIds.slice(1);
       const powerBonus =
         option.source === 'npc-attack' ? 0 : extractMeleeAoePowerBonusD8(option.item);
 
-      let choice: Awaited<ReturnType<typeof promptMeleeAoePrimaryChoice>>;
-      try {
-        choice = await promptMeleeAoePrimaryChoice(burstIds, token.id, option);
-      } finally {
-        clearHexHighlight(burstHighlightId);
-      }
-      if (choice === 'cancelled') {
-        return;
-      }
-
-      // Ally filter from the dialog: secondaries come from the effective pool.
-      const effectiveBurstIds = choice.effectiveBurstTokenIds;
-
-      if (choice.primaryTokenId === null) {
-        if (!effectiveBurstIds.length) {
-          ui.notifications?.warn?.('Melee AoE (no primary): no valid targets in the area.');
-          return;
-        }
-        if (option.costsAction) {
-          const consumed = await consumeAttackAction(actor, combat);
-          if (!consumed) {
-            ui.notifications?.warn?.('Failed to consume attack action.');
-            return;
-          }
-        }
-        if (option.source === 'power' && option.item?.id) {
-          await markPowerUsedThisRound(actor, combat, option.item.id);
-        }
-        if (option.source === 'npc-attack' && option.costsAction) {
-          await markNpcAttackUsedThisRound(
-            actor,
-            combat,
-            String(option.npcAttackUsageKey || option.id || ''),
-          );
-        }
-
-        // No-primary AoE: roll once (TN = first creature's Evade for the roll
-        // UI), then compare that same total separately against every creature.
-        const { getAttackAttribute, getAttributeValue, getMasteryRank, getTargetEvade } =
-          await import('./combat/attack-executor.js');
-        const mr = getMasteryRank(actor);
-        const attribute = getAttackAttribute(actor, null, option, 'melee');
-        const { resolveNpcSheetToHit } = await import('./utils/npc-attack-model.js');
-        const sheetHit = resolveNpcSheetToHit({
-          actorType: actor?.type,
-          system: actor?.system,
-          masteryRank: mr,
-          attackIndex: option.source === 'npc-attack' ? ((option as any).npcAttackIndex ?? 0) : 0,
-          phaseIndex: (option as any).npcPhaseIndex ?? null,
-        });
-        let numDice =
-          sheetHit && sheetHit.dice > 0
-            ? sheetHit.dice
-            : Math.max(1, getAttributeValue(actor, attribute));
-        const keepDice = sheetHit && sheetHit.keep > 0 ? sheetHit.keep : mr;
-        const firstTok = canvas.tokens?.get(effectiveBurstIds[0]);
-        const anchorTn = getTargetEvade(firstTok?.actor) || 6;
-        const { masteryRoll } = await import('./dice/roll-handler.js');
-        const areaRoll = await masteryRoll({
-          numDice,
-          keepDice,
-          skill: 0,
-          tn: anchorTn,
-          label: sheetHit?.name
-            ? sheetHit.name
-            : `AoE Attack (${attribute.charAt(0).toUpperCase() + attribute.slice(1)})`,
-          flavor: `Roll ${numDice}d8 keep ${keepDice} — AoE: same result compared separately against each creature's Evade`,
-          actorId: (actor as any).id,
-          rollKind: 'attack',
-          autoFailIntent: 'attack',
-          checkContext: { tags: ['sight'] },
-          normalTn: anchorTn,
-        });
-        const attackTotal = Math.floor(Number(areaRoll?.total) || 0);
-
-        const { resolveAoeFromSharedRoll } = await import('./combat/aoe-melee-resolution.js');
-        const isSpellAoe =
-          (option as any).artifactIsSpell === true ||
-          (option as any).npcIsSpell === true ||
-          ((option.item?.system as any)?.isSpell === true);
-        await resolveAoeFromSharedRoll({
-          attacker: actor as any,
-          tokenIds: effectiveBurstIds.slice(),
-          attackTotal,
-          isSpell: isSpellAoe,
-          flags: {
-            selectedPowerId: option.item?.id ?? null,
-            masteryRank: mr,
-            attackType: 'melee',
-            powerIsSpell: isSpellAoe,
-            aoeMeleeWeapon: true,
-          },
-          weaponId: null,
-        });
-        return;
-      }
-
-      const primaryId = choice.primaryTokenId;
-      const secondaries = effectiveBurstIds.filter((id) => id !== primaryId);
-      const primaryTok = canvas.tokens?.get(primaryId);
-      if (!primaryTok) {
-        ui.notifications?.warn?.('Melee AoE: primary token not found.');
-        return;
-      }
-
-      // Always attach secondaries — each gets a per-Evade check + full payload.
-      const aoeMelee = secondaries.length
-        ? { secondaryTokenIds: secondaries, powerBonusDice: powerBonus }
-        : null;
-
       const { createMeleeAttackCard } = await import('./combat/attack-executor.js');
-      await createMeleeAttackCard(token, primaryTok, option, null, aoeMelee);
+      await createMeleeAttackCard(token, carrierTok, option, null, {
+        secondaryTokenIds: otherIds,
+        powerBonusDice: powerBonus,
+      });
       return;
     }
 
@@ -1784,7 +1673,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     }
     closeRadialMenu();
 
-    // Autofire: ordered chain targeting → one attack card vs first target.
+    // Autofire: ordered chain targeting â†’ one attack card vs first target.
     try {
       const { detectAutofire } = await import('./combat/autofire.js');
       if (detectAutofire(option)) {
@@ -1842,7 +1731,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       return;
     } else if (option.aoeShape === 'cone') {
       ui.notifications?.warn('Cone targeting not yet implemented');
-      console.warn('Mastery System | [RADIAL FLOW] utility cone not implemented — no action spent', {
+      console.warn('Mastery System | [RADIAL FLOW] utility cone not implemented â€” no action spent', {
         option: option.name
       });
       return;
@@ -1851,7 +1740,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
 
   if (option.source === 'power' && option.item) {
     closeRadialMenu();
-    console.warn('Mastery System | [RADIAL FLOW] branch: non-melee attack power — no targeting/roll pipeline yet', {
+    console.warn('Mastery System | [RADIAL FLOW] branch: non-melee attack power â€” no targeting/roll pipeline yet', {
       name: option.name,
       slot: option.slot,
       range: option.range,
@@ -1859,17 +1748,17 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       note: 'Attack actions are NOT consumed here; use a melee-range power or weapon attack until ranged powers are wired up.'
     });
     ui.notifications?.warn(
-      `${option.name}: Fern-/Ranged-Angriff ist noch nicht angebunden — keine Aktion verbraucht. Nahkampf (Reichweite ≤4m) wählen oder später erneut testen.`
+      `${option.name}: Fern-/Ranged-Angriff ist noch nicht angebunden â€” keine Aktion verbraucht. Nahkampf (Reichweite â‰¤4m) wÃ¤hlen oder spÃ¤ter erneut testen.`
     );
   } else if (option.source === 'maneuver' && option.maneuver) {
     closeRadialMenu();
-    console.warn('Mastery System | [RADIAL FLOW] branch: maneuver fallback — no executor', {
+    console.warn('Mastery System | [RADIAL FLOW] branch: maneuver fallback â€” no executor', {
       name: option.name,
       slot: option.slot,
       range: option.range,
       maneuverId: option.maneuver.id
     });
-    ui.notifications?.info(`Action selected: ${option.name} (${option.slot}) — Ausführung noch nicht implementiert (keine Aktion verbraucht).`);
+    ui.notifications?.info(`Action selected: ${option.name} (${option.slot}) â€” AusfÃ¼hrung noch nicht implementiert (keine Aktion verbraucht).`);
   }
 }
 
@@ -2029,7 +1918,7 @@ async function reloadEquippedLoadWeapons(actor: any): Promise<string[]> {
 
 /**
  * Drop Load (PG "Dropping Load"): safely drop carried gear to remove
- * Encumbered / Overloaded — 1 Attack Action Encumbered, 2 Overloaded.
+ * Encumbered / Overloaded â€” 1 Attack Action Encumbered, 2 Overloaded.
  * Dropped items leave the carry grid (moved to the stash as "on the ground").
  */
 async function executeDropLoadAction(token: any, option: RadialCombatOption): Promise<void> {
@@ -2039,7 +1928,7 @@ async function executeDropLoadAction(token: any, option: RadialCombatOption): Pr
   const { getActorInventoryLoadZone, LOAD_ZONE_LABEL } = await import('./utils/encumbrance.js');
   const zone = getActorInventoryLoadZone(actor);
   if (zone === 'normal') {
-    ui.notifications?.info('Not Encumbered or Overloaded — nothing to drop.');
+    ui.notifications?.info('Not Encumbered or Overloaded â€” nothing to drop.');
     return;
   }
   const cost = zone === 'overloaded' ? 2 : 1;
@@ -2049,7 +1938,7 @@ async function executeDropLoadAction(token: any, option: RadialCombatOption): Pr
   if (combat) {
     if (getAvailableAttackActions(actor, combat) < cost) {
       ui.notifications?.warn(
-        `Drop Load (${LOAD_ZONE_LABEL[zone]}) costs ${cost} Attack Action${cost > 1 ? 's' : ''} — not enough left.`,
+        `Drop Load (${LOAD_ZONE_LABEL[zone]}) costs ${cost} Attack Action${cost > 1 ? 's' : ''} â€” not enough left.`,
       );
       return;
     }
@@ -2080,7 +1969,7 @@ async function executeDropLoadAction(token: any, option: RadialCombatOption): Pr
       speaker: ChatMessage.getSpeaker({ actor, token: token.document }),
       content: `<div class="mastery-system-action">
         <h3><i class="fas fa-box-open"></i> Drop Load</h3>
-        <p><strong>${actor.name}</strong> safely drops the carried load (${cost} Attack Action${cost > 1 ? 's' : ''} — was ${LOAD_ZONE_LABEL[zone]}).</p>
+        <p><strong>${actor.name}</strong> safely drops the carried load (${cost} Attack Action${cost > 1 ? 's' : ''} â€” was ${LOAD_ZONE_LABEL[zone]}).</p>
         <p>Dropped to the ground (stash): ${droppedNames.join(', ')}.</p>
       </div>`,
       style: CONST.CHAT_MESSAGE_STYLES.OTHER,
@@ -2091,7 +1980,7 @@ async function executeDropLoadAction(token: any, option: RadialCombatOption): Pr
 }
 
 /**
- * Reload (Attack Action) — PG "Load": spend 1 Attack Action to reload.
+ * Reload (Attack Action) â€” PG "Load": spend 1 Attack Action to reload.
  */
 async function executeReloadAction(token: any, option: RadialCombatOption): Promise<void> {
   const actor = token.actor;
@@ -2112,7 +2001,7 @@ async function executeReloadAction(token: any, option: RadialCombatOption): Prom
   }
   const reloaded = await reloadEquippedLoadWeapons(actor);
   if (reloaded.length === 0) {
-    ui.notifications?.info('No Unloaded weapon equipped — nothing to reload.');
+    ui.notifications?.info('No Unloaded weapon equipped â€” nothing to reload.');
     return;
   }
   if (combat) await consumeAttackAction(actor, combat);
@@ -2131,7 +2020,7 @@ async function executeReloadAction(token: any, option: RadialCombatOption): Prom
 }
 
 /**
- * Quick Load — spend Movement (already consumed) for Reload (1).
+ * Quick Load â€” spend Movement (already consumed) for Reload (1).
  * Caps total Reload this Turn at Mastery Rank. No token movement.
  */
 async function executeQuickLoad(token: any, option: RadialCombatOption): Promise<void> {
@@ -2186,7 +2075,7 @@ async function executeQuickLoad(token: any, option: RadialCombatOption): Promise
     speaker: ChatMessage.getSpeaker({ actor, token: token.document }),
     content: `<div class="mastery-system-action">
       <h3><i class="fas fa-sync-alt"></i> ${option.name}</h3>
-      <p>Reload (1). Movement converted to reload — no repositioning.</p>
+      <p>Reload (1). Movement converted to reload â€” no repositioning.</p>
       <p><em>Quick Load this Turn: ${used + 1} / ${mr} (Mastery Rank)</em></p>
     </div>`,
     style: CONST.CHAT_MESSAGE_STYLES.OTHER,
@@ -2196,6 +2085,6 @@ async function executeQuickLoad(token: any, option: RadialCombatOption): Promise
   } catch (error) {
     console.warn('Mastery System | Could not create Quick Load chat message:', error);
   }
-  ui.notifications?.info(`${actor.name}: Quick Load — Reload (1) (${used + 1}/${mr}).`);
+  ui.notifications?.info(`${actor.name}: Quick Load â€” Reload (1) (${used + 1}/${mr}).`);
 }
 

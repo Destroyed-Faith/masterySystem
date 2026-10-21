@@ -49,16 +49,24 @@ export interface MeleeBurstVolleyContext {
     volleyTotal: number;
 }
 /**
- * Weapon / martial AoE context. One Attack Roll is compared separately against
- * each creature's Evade (or Final Spell TN for spell AoEs). Every hit receives
- * the full printed payload; Dive for Cover may be used before payload.
+ * Instant AoE Attack context (Melee / Ranged AoE Attack, AoE Special Attacks).
+ *
+ * One shared Attack/Casting roll is compared separately against each creature's
+ * Evade (or Final Spell TN for spell AoEs). One shared Power damage roll is applied
+ * to every creature hit, with the full printed Special. There is NO Primary Target:
+ * the attack card is anchored to one token only as the roll carrier (TN preview);
+ * on Roll, the anchor and every token in `secondaryTokenIds` are resolved equally via
+ * `resolveAoeFromSharedRoll`. Instant AoE never adds Weapon Damage or Spell Focus.
  */
 export interface AoeMeleeWeaponContext {
-    /** Other tokens in the area besides the card's display/primary target. */
+    /**
+     * All other tokens in the area besides the card's roll carrier. The carrier is
+     * NOT a primary target — it is resolved like every other creature.
+     */
     secondaryTokenIds: string[];
     /**
-     * Power bonus d8 (damageRider). Kept for UI/debug; secondaries now resolve
-     * full payload via the damage dialog, not splash-only dice.
+     * Printed Power bonus d8 (damageRider). Informational (Crit legality / UI);
+     * damage is rolled once through the damage dialog.
      */
     powerBonusDice: number;
 }

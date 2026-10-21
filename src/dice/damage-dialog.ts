@@ -32,8 +32,10 @@ import { applySpecialDeliveryBonuses } from '../combat/special-boost.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import {
   applyLimitedToTransferPowerDamage,
+  isInstantAoeFlags,
   martialWeaponDamageApplies,
   settleDamageTransfer,
+  spellFocusDamageApplies,
 } from '../combat/damage-transfer.js';
 import { hpLostFromHealthUpdate } from '../utils/blood-pool.js';
 import { summonArmorAuraBonus, summonDamageAuraBonusDice } from '../combat/aura-modifiers.js';
@@ -537,6 +539,9 @@ export async function showDamageDialog(
       ignoreWeaponDamage: flags?.ignoreWeaponDamage === true,
       powerIsSpell: flags?.powerIsSpell === true,
       npcIsSpell: flags?.npcIsSpell === true,
+      // Instant AoE: Power damage only — never Weapon Damage.
+      aoeMeleeWeapon: flags?.aoeMeleeWeapon,
+      instantAoe: flags?.instantAoe,
     });
 
   // Method 0: Forced weapon (artifact / natural weapon attack) — this attack
@@ -960,7 +965,15 @@ export async function showDamageDialog(
   // (not Waffe); Waffe stays 0 for casting attacks (`ignoreWeaponDamage`).
   const powerDamageBeforeFocus = powerDamage;
   let spellFocusBonusDice = 0;
-  if (attackIsSpell && !isNpcAttackFlow) {
+  // Instant AoE never adds Spell Focus (shared Power damage only).
+  if (
+    spellFocusDamageApplies({
+      isSpell: attackIsSpell,
+      isNpcAttackFlow,
+      aoeMeleeWeapon: flags?.aoeMeleeWeapon,
+      instantAoe: flags?.instantAoe,
+    })
+  ) {
     try {
       spellFocusBonusDice = getActorSpellFocusBonusDice(actorToUse as Actor);
       if (spellFocusBonusDice > 0) {
@@ -976,7 +989,7 @@ export async function showDamageDialog(
     ? String(weaponForDamage.name || '').trim()
     : '';
   const spellFocusSources =
-    attackIsSpell && !isNpcAttackFlow && spellFocusBonusDice > 0
+    attackIsSpell && !isNpcAttackFlow && spellFocusBonusDice > 0 && !isInstantAoeFlags(flags)
       ? listActorSpellFocusSources(actorToUse as Actor)
       : [];
 
@@ -1009,7 +1022,7 @@ export async function showDamageDialog(
         spellFocusDice: spellFocusBonusDice,
         weaponName: weaponDisplayName,
         spellFocusSources,
-        castingNoWeapon: !!flags?.ignoreWeaponDamage,
+        castingNoWeapon: !!flags?.ignoreWeaponDamage || isInstantAoeFlags(flags),
       },
       formatSplitStrikeBanner(flags),
       {

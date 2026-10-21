@@ -26,6 +26,12 @@ import {
     powerSubfamilyHint,
     type CatalogEntry,
 } from '../utils/power-catalog.js';
+import {
+    ACTIVE_UI_DELIVERIES,
+    ACTIVE_UI_EFFECTS,
+    labelActiveUiDelivery,
+    labelActiveUiEffect,
+} from '../utils/power-purchase-ui-filters.js';
 import type { PowerTemplate } from '../utils/powers/templates/index.js';
 import {
     applyPowerReplace,
@@ -91,6 +97,16 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
     const wasSpell = powerItem.system?.isSpell === true;
     const oldCasting = (powerItem.system?.castingAttribute as CastingAttribute) || 'intellect';
 
+    const isActiveCat = category === 'active';
+    const isActiveBuffCat = category === 'activeBuff';
+    const useKind = !isActiveCat && !isActiveBuffCat;
+    const effectOptions = ACTIVE_UI_EFFECTS.map(
+        (k) => `<option value="${k}">${labelActiveUiEffect(k)}</option>`,
+    ).join('');
+    const deliveryOptions = ACTIVE_UI_DELIVERIES.map(
+        (k) => `<option value="${k}">${labelActiveUiDelivery(k)}</option>`,
+    ).join('');
+
     const content = `
     <form class="power-creation-form power-catalog-form power-replace-form">
       <p class="power-replace-banner">
@@ -100,30 +116,52 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
         Provenance (Startfähigkeit / GM / XP) and level stay the same — no XP change.
       </p>
       <div class="power-catalog-filters">
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Category:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="category">
+          <label class="power-form-label">Category</label>
           <input type="hidden" id="pr-category" value="${escapeHtml(category)}" />
           <span class="power-form-fixed-rank">${escapeHtml(categoryLabel)} <span class="power-form-hint">(locked)</span></span>
         </div>
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Level:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="level">
+          <label class="power-form-label">Level</label>
           <span class="power-form-fixed-rank">Level ${level} <span class="power-form-hint">(same as slot)</span></span>
         </div>
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Kind:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="kind" id="pr-kind-field"${useKind ? '' : ' hidden'}>
+          <label class="power-form-label" for="pr-subfamily">Kind</label>
           <select name="subfamily" id="pr-subfamily" class="power-form-select">
             <option value="">-- Any kind --</option>
           </select>
-          <p class="pc-subfamily-hint" id="pr-subfamily-hint"></p>
+          <p class="pc-subfamily-hint" id="pr-subfamily-hint" hidden></p>
         </div>
-        <div class="form-group power-form-group pc-special-group" style="display:none;">
-          <label class="power-form-label">Special:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="buff-focus" id="pr-buff-focus-field"${isActiveBuffCat ? '' : ' hidden'}>
+          <label class="power-form-label" for="pr-buff-focus">Focus</label>
+          <select name="buffFocus" id="pr-buff-focus" class="power-form-select">
+            <option value="all" selected>All</option>
+            <option value="defensive">Defensive</option>
+            <option value="offensive">Offensive</option>
+          </select>
+        </div>
+        <div class="form-group power-form-group power-filter-field" data-filter="effect" id="pr-effect-field"${isActiveCat ? '' : ' hidden'}>
+          <label class="power-form-label" for="pr-effect">Effect</label>
+          <select name="effect" id="pr-effect" class="power-form-select">
+            <option value="">-- Any Effect --</option>
+            ${effectOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group power-filter-field" data-filter="delivery" id="pr-delivery-field"${isActiveCat ? '' : ' hidden'}>
+          <label class="power-form-label" for="pr-delivery">Delivery</label>
+          <select name="delivery" id="pr-delivery" class="power-form-select">
+            <option value="">-- Any Delivery --</option>
+            ${deliveryOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group power-filter-field pc-special-group" data-filter="special"${isActiveCat ? '' : ' hidden'}>
+          <label class="power-form-label" for="pr-special">Special</label>
           <select name="special" id="pr-special" class="power-form-select">
             <option value="">-- Any Special --</option>
           </select>
         </div>
-        <div class="form-group power-form-group">
-          <label class="power-form-label">Search:</label>
+        <div class="form-group power-form-group power-filter-field" data-filter="search">
+          <label class="power-form-label" for="pr-search">Search</label>
           <input type="text" id="pr-search" class="power-form-input" placeholder="Name contains…" />
         </div>
       </div>
@@ -237,7 +275,9 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                     setTimeout(() => setupPowerCatalogDialogChrome(html), 0);
 
                     const $subfamilySelect = html.find('#pr-subfamily');
-                    const $specialWrap = html.find('.pc-special-group');
+                    const $buffFocusSelect = html.find('#pr-buff-focus');
+                    const $effectSelect = html.find('#pr-effect');
+                    const $deliverySelect = html.find('#pr-delivery');
                     const $specialSelect = html.find('#pr-special');
                     const $searchInput = html.find('#pr-search');
                     const $powerSelect = html.find('#pr-power');
@@ -253,6 +293,7 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                     const refreshSubfamilyDropdown = () => {
                         $subfamilySelect.empty();
                         $subfamilySelect.append('<option value="">-- Any kind --</option>');
+                        if (!useKind) return;
                         for (const sub of getSubfamiliesByCategory(category as PowerCategory)) {
                             const opt = document.createElement('option');
                             opt.value = sub;
@@ -262,19 +303,11 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                     };
 
                     const refreshSubfamilyHint = () => {
+                        const $hint = html.find('#pr-subfamily-hint');
                         const sub = ($subfamilySelect.val() as string) || '';
-                        html.find('#pr-subfamily-hint').text(powerSubfamilyHint(sub));
-                    };
-
-                    const refreshActiveOnlyVisibility = () => {
-                        const isActive = category === 'active';
-                        $specialWrap.toggle(isActive);
-                        if (!isActive) {
-                            $specialSelect.val('');
-                            $isSpell.prop('checked', false);
-                            $spellFields.hide();
-                            $spellPanel.hide();
-                        }
+                        const hint = useKind ? powerSubfamilyHint(sub) : '';
+                        $hint.text(hint);
+                        $hint.prop('hidden', !hint);
                     };
 
                     const refreshSpellEligibility = (entry?: CatalogEntry) => {
@@ -290,11 +323,19 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                     };
 
                     const refreshSpecialDropdown = () => {
-                        const subfamily = ($subfamilySelect.val() as string) || '';
+                        if (category !== 'active') {
+                            $specialSelect.empty();
+                            $specialSelect.append('<option value="">-- Any Special --</option>');
+                            return;
+                        }
+                        const uiEffect = ($effectSelect.val() as string) || '';
+                        const uiDelivery = ($deliverySelect.val() as string) || '';
                         const prev = ($specialSelect.val() as string) || '';
                         const opts = getVisibleSpecialOptions({
                             category,
-                            subfamily: subfamily || null,
+                            subfamily: null,
+                            uiEffect: uiEffect || null,
+                            uiDelivery: uiDelivery || null,
                             actorEchoKey,
                             actorSubChoiceKey,
                         });
@@ -307,6 +348,7 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                             $specialSelect.append(opt);
                         }
                         if (prev && opts.some((o) => o.key === prev)) $specialSelect.val(prev);
+                        else $specialSelect.val('');
                     };
 
                     const updateSpellHint = () => {
@@ -329,13 +371,38 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                         );
                     };
 
+                    const appendPowerOptions = (available: CatalogEntry[]) => {
+                        $powerSelect.empty();
+                        if (available.length === 0) {
+                            $powerSelect.append(
+                                '<option value="">-- No powers match these filters — try clearing Focus, Effect, Delivery, Special, or Search --</option>',
+                            );
+                            return;
+                        }
+                        $powerSelect.append('<option value="">-- Select a Power --</option>');
+                        for (const e of available) {
+                            const opt = document.createElement('option');
+                            opt.value = e.name;
+                            opt.textContent = catalogSelectOptionLabel(e);
+                            $powerSelect.append(opt);
+                        }
+                    };
+
                     const refreshList = () => {
-                        const subfamily = ($subfamilySelect.val() as string) || '';
-                        const special = ($specialSelect.val() as string) || '';
+                        const subfamily = useKind ? (($subfamilySelect.val() as string) || '') : '';
+                        const uiEffect = isActiveCat ? (($effectSelect.val() as string) || '') : '';
+                        const uiDelivery = isActiveCat ? (($deliverySelect.val() as string) || '') : '';
+                        const special = isActiveCat ? (($specialSelect.val() as string) || '') : '';
+                        const buffFocus = isActiveBuffCat
+                            ? (($buffFocusSelect.val() as string) || 'all')
+                            : '';
                         const search = ($searchInput.val() as string) || '';
                         const entries = filterCatalog({
                             category,
                             subfamily: subfamily || null,
+                            uiEffect: uiEffect || null,
+                            uiDelivery: uiDelivery || null,
+                            uiActiveBuffFocus: buffFocus && buffFocus !== 'all' ? buffFocus : null,
                             special: special || null,
                             search,
                             actorEchoKey,
@@ -351,25 +418,22 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
                         const ownedKeys = collectOwnedPowerIdentityKeys(otherPowers);
                         const available = entries.filter((e) => !ownedKeys.has(powerIdentityKeyFromEntry(e)));
 
-                        $powerSelect.empty();
-                        if (available.length === 0) {
-                            $powerSelect.append('<option value="">-- No matching powers --</option>');
-                        } else {
-                            $powerSelect.append('<option value="">-- Select a Power --</option>');
-                            for (const e of available) {
-                                const opt = document.createElement('option');
-                                opt.value = e.name;
-                                opt.textContent = catalogSelectOptionLabel(e);
-                                $powerSelect.append(opt);
-                            }
-                        }
+                        appendPowerOptions(available);
                         const skipped = entries.length - available.length;
-                        const base = `${available.length} available`;
-                        const suffix =
-                            skipped > 0
-                                ? ` (${skipped} already on character)`
-                                : ` (${entries.length} match filter)`;
-                        $count.text(`${base}${suffix}`);
+                        if (available.length === 0) {
+                            $count.text(
+                                entries.length === 0
+                                    ? 'No powers match these filters. Clear Effect, Delivery, Special, or Search.'
+                                    : `No available powers (${entries.length} match filters but are already on this character).`,
+                            );
+                        } else {
+                            const base = `${available.length} available`;
+                            const suffix =
+                                skipped > 0
+                                    ? ` (${skipped} already on character)`
+                                    : ` (${entries.length} match filter)`;
+                            $count.text(`${base}${suffix}`);
+                        }
                         $details.hide();
                         $description.empty();
                         $levelTable.empty();
@@ -378,6 +442,15 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
 
                     $subfamilySelect.on('change', () => {
                         refreshSubfamilyHint();
+                        refreshSpecialDropdown();
+                        refreshList();
+                    });
+                    $buffFocusSelect.on('change', refreshList);
+                    $effectSelect.on('change', () => {
+                        refreshSpecialDropdown();
+                        refreshList();
+                    });
+                    $deliverySelect.on('change', () => {
                         refreshSpecialDropdown();
                         refreshList();
                     });
@@ -412,7 +485,14 @@ export async function showPowerReplaceDialog(actor: Actor, powerItem: any): Prom
 
                     refreshSubfamilyDropdown();
                     refreshSubfamilyHint();
-                    refreshActiveOnlyVisibility();
+                    if (!isActiveCat) {
+                        $specialSelect.val('');
+                        if (!wasSpell) {
+                            $isSpell.prop('checked', false);
+                            $spellFields.hide();
+                            $spellPanel.hide();
+                        }
+                    }
                     refreshSpecialDropdown();
                     refreshList();
                     if (wasSpell && category === 'active') {

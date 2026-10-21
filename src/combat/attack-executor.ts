@@ -226,16 +226,24 @@ export interface MeleeBurstVolleyContext {
 }
 
 /**
- * Weapon / martial AoE context. One Attack Roll is compared separately against
- * each creature's Evade (or Final Spell TN for spell AoEs). Every hit receives
- * the full printed payload; Dive for Cover may be used before payload.
+ * Instant AoE Attack context (Melee / Ranged AoE Attack, AoE Special Attacks).
+ *
+ * One shared Attack/Casting roll is compared separately against each creature's
+ * Evade (or Final Spell TN for spell AoEs). One shared Power damage roll is applied
+ * to every creature hit, with the full printed Special. There is NO Primary Target:
+ * the attack card is anchored to one token only as the roll carrier (TN preview);
+ * on Roll, the anchor and every token in `secondaryTokenIds` are resolved equally via
+ * `resolveAoeFromSharedRoll`. Instant AoE never adds Weapon Damage or Spell Focus.
  */
 export interface AoeMeleeWeaponContext {
-  /** Other tokens in the area besides the card's display/primary target. */
+  /**
+   * All other tokens in the area besides the card's roll carrier. The carrier is
+   * NOT a primary target — it is resolved like every other creature.
+   */
   secondaryTokenIds: string[];
   /**
-   * Power bonus d8 (damageRider). Kept for UI/debug; secondaries now resolve
-   * full payload via the damage dialog, not splash-only dice.
+   * Printed Power bonus d8 (damageRider). Informational (Crit legality / UI);
+   * damage is rolled once through the damage dialog.
    */
   powerBonusDice: number;
 }
@@ -514,6 +522,12 @@ export async function createAttackCard(
   burstVolley: MeleeBurstVolleyContext | null = null,
   aoeMelee: AoeMeleeWeaponContext | null = null,
 ): Promise<string | null> {
+  // Instant AoE: Power damage only. Never Weapon Damage; never Spell Focus
+  // (the damage dialog also skips both when the aoeMeleeWeapon/instantAoe flag is set).
+  if (aoeMelee && option.ignoreWeaponDamage !== true) {
+    option = { ...option, ignoreWeaponDamage: true };
+  }
+
   // Autofire is handled before createAttackCard (chain targeting → one card
   // with autofireChainTokenIds). Do not treat it as Split-Attack.
 
@@ -977,7 +991,9 @@ export async function createAttackCard(
     meleeBurstVolleyId: burstVolley?.volleyId ?? null,
     meleeBurstVolleyIndex: burstVolley?.volleyIndex ?? null,
     meleeBurstVolleyTotal: burstVolley?.volleyTotal ?? null,
+    // Instant AoE flags (aoeMeleeWeapon = legacy name, instantAoe = preferred).
     aoeMeleeWeapon: !!aoeMelee,
+    instantAoe: !!aoeMelee,
     aoeMeleeSecondaryTokenIds:
       aoeMelee && aoeMelee.secondaryTokenIds?.length ? aoeMelee.secondaryTokenIds.join(",") : "",
     aoeMeleePowerBonusDice:
@@ -1309,7 +1325,11 @@ export async function createAttackCard(
     <div class="mastery-attack-card">
       <div class="attack-header">
         <h3><i class="fas ${headerIcon}"></i> ${optionName}</h3>
-        <p class="attack-participants"><strong>${attackerName}</strong> → <strong>${targetName}</strong></p>
+        <p class="attack-participants"><strong>${attackerName}</strong> → ${
+          aoeMelee
+            ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} Ziel(e) — ein Wurf, kein Primärziel)`
+            : `<strong>${targetName}</strong>`
+        }</p>
       </div>
       ${threatenedHtml}
       <div class="attack-details">

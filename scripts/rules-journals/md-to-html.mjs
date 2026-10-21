@@ -217,12 +217,62 @@ function fallbackMarkdownToHtml(md) {
 }
 
 /**
+ * Normalize heading / page titles for duplicate detection.
+ * @param {string} s
+ */
+export function normalizeHeadingText(s) {
+  return String(s || '')
+    .replace(/[*_`~]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Drop a leading markdown heading that merely repeats the Journal page name.
+ * Foundry already shows the page title and builds a TOC from in-page headings —
+ * a duplicate H1/H2 creates a second identical sidebar entry under the page.
+ * Handles plain headings and Homebrewery note openers (`> ## Title`).
+ * @param {string} md
+ * @param {string} [pageTitle]
+ */
+export function stripRedundantLeadingHeading(md, pageTitle) {
+  const titleNorm = normalizeHeadingText(pageTitle);
+  if (!titleNorm) return md;
+  return String(md || '').replace(
+    /^(?:\s*\n)*(?:>\s*)*#{1,4}\s+(.+?)\s*(?:\n|$)/,
+    (full, headingText) => (normalizeHeadingText(headingText) === titleNorm ? '' : full),
+  );
+}
+
+/**
+ * Remove every in-page H1–H4 whose visible text equals the Journal page name.
+ * Prevents Foundry's heading TOC from nesting a second copy of the page title
+ * (including headings that appear mid-page or inside notes/blockquotes).
+ * @param {string} html
+ * @param {string} [pageTitle]
+ */
+export function stripDuplicateTitleHeadingsFromHtml(html, pageTitle) {
+  const titleNorm = normalizeHeadingText(pageTitle);
+  if (!titleNorm) return html;
+  return String(html || '').replace(/<h([1-4])(\s[^>]*)?>([\s\S]*?)<\/h\1>/gi, (full, _level, _attrs, inner) => {
+    const text = String(inner).replace(/<[^>]+>/g, '');
+    return normalizeHeadingText(text) === titleNorm ? '' : full;
+  });
+}
+
+/**
  * Convert a markdown fragment to Journal HTML.
  * @param {string} md
  * @param {{ pageTitle?: string }} [opts]
  */
 export function markdownToJournalHtml(md, opts = {}) {
-  const cleaned = cleanHomebreweryMarkdown(md);
+  // Do not inject an extra <h1> for the page title: Foundry Journal pages already
+  // render `name` when title.show is true, and in-page H1/H2 feed the TOC sidebar.
+  const cleaned = stripRedundantLeadingHeading(
+    cleanHomebreweryMarkdown(md),
+    opts.pageTitle,
+  );
   let html;
   if (markedParse) {
     html = String(markedParse(cleaned));
@@ -233,7 +283,7 @@ export function markdownToJournalHtml(md, opts = {}) {
   // Post-process: tag notes / tables for CSS
   html = html.replace(/<blockquote>/g, '<blockquote class="df-rules-note">');
   html = html.replace(/<table>/g, '<table class="df-rules-table">');
+  html = stripDuplicateTitleHeadingsFromHtml(html, opts.pageTitle);
 
-  const title = opts.pageTitle ? `<header class="df-rules-page-header"><h1>${escapeHtml(opts.pageTitle)}</h1></header>\n` : '';
-  return `<div class="df-rules-journal">${title}${html}</div>`;
+  return `<div class="df-rules-journal">${html}</div>`;
 }

@@ -374,6 +374,11 @@ export async function openSplitPair(attackerToken, targetToken, option, attackTy
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
 export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null, burstVolley = null, aoeMelee = null) {
+    // Instant AoE: Power damage only. Never Weapon Damage; never Spell Focus
+    // (the damage dialog also skips both when the aoeMeleeWeapon/instantAoe flag is set).
+    if (aoeMelee && option.ignoreWeaponDamage !== true) {
+        option = { ...option, ignoreWeaponDamage: true };
+    }
     // Autofire is handled before createAttackCard (chain targeting → one card
     // with autofireChainTokenIds). Do not treat it as Split-Attack.
     // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
@@ -779,7 +784,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         meleeBurstVolleyId: burstVolley?.volleyId ?? null,
         meleeBurstVolleyIndex: burstVolley?.volleyIndex ?? null,
         meleeBurstVolleyTotal: burstVolley?.volleyTotal ?? null,
+        // Instant AoE flags (aoeMeleeWeapon = legacy name, instantAoe = preferred).
         aoeMeleeWeapon: !!aoeMelee,
+        instantAoe: !!aoeMelee,
         aoeMeleeSecondaryTokenIds: aoeMelee && aoeMelee.secondaryTokenIds?.length ? aoeMelee.secondaryTokenIds.join(",") : "",
         aoeMeleePowerBonusDice: aoeMelee && aoeMelee.powerBonusDice > 0 ? Math.floor(aoeMelee.powerBonusDice) : 0,
         // Autofire ordered chain (includes the card's primary as index 0).
@@ -1057,7 +1064,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     <div class="mastery-attack-card">
       <div class="attack-header">
         <h3><i class="fas ${headerIcon}"></i> ${optionName}</h3>
-        <p class="attack-participants"><strong>${attackerName}</strong> → <strong>${targetName}</strong></p>
+        <p class="attack-participants"><strong>${attackerName}</strong> → ${aoeMelee
+        ? `<strong>AoE</strong> (${1 + (aoeMelee.secondaryTokenIds?.length ?? 0)} Ziel(e) — ein Wurf, kein Primärziel)`
+        : `<strong>${targetName}</strong>`}</p>
       </div>
       ${threatenedHtml}
       <div class="attack-details">

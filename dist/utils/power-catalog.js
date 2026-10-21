@@ -13,6 +13,8 @@
  *  - templateId  : canonical template id (e.g. 'active-ranged-damage-t4')
  *  - tier        : 3 | 4 | 5 | 6     (Actives only)
  *  - special     : Special key   (Actives only — matches chosenSpecial.key)
+ *  - uiEffect    : UI-only Active Effect discovery filter
+ *  - uiDelivery  : UI-only Active Delivery discovery filter
  *  - search      : free-text across name + templateName
  *
  * Legacy filter axes (`tag`, `effectType`, `sourceName`) are preserved as
@@ -23,6 +25,7 @@ import { ALL_POWER_TEMPLATES } from './powers/templates/index.js';
 import { POWER_LEVEL_KEYS } from '../types/power-levels.js';
 import { ALL_SPECIAL_EFFECTS } from './special-effects.js';
 import { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId, PASSIVE_SELECTION_GROUP_ORDER, PASSIVE_SELECTION_GROUPS, } from './passive-selection-groups.js';
+import { activeBuffMatchesUiFocus, activeMatchesUiDelivery, activeMatchesUiEffect, } from './power-purchase-ui-filters.js';
 /** Final Passive catalogue (28) — TOC order Offensive → Defensive → Utility. */
 export const FINAL_PASSIVE_TEMPLATE_IDS = PASSIVE_SELECTION_GROUP_ORDER.flatMap((g) => PASSIVE_SELECTION_GROUPS[g]);
 export { CANONICAL_PASSIVE_TEMPLATE_IDS, isCanonicalPassiveTemplateId };
@@ -482,6 +485,15 @@ export function filterCatalog(filter) {
             return false;
         if (filter.special && !(e.specialKeys.includes(filter.special)))
             return false;
+        if (filter.uiEffect && !activeMatchesUiEffect(e.templateId, filter.uiEffect))
+            return false;
+        if (filter.uiDelivery && !activeMatchesUiDelivery(e.templateId, filter.uiDelivery))
+            return false;
+        if (e.category === 'activeBuff' &&
+            filter.uiActiveBuffFocus &&
+            !activeBuffMatchesUiFocus(e.templateId, filter.uiActiveBuffFocus)) {
+            return false;
+        }
         if (filter.effectType && !e.effectTypes.includes(filter.effectType))
             return false;
         if (filter.tag && !e.tags.includes(filter.tag))
