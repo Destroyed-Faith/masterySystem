@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.761] - 2026-10-21
+
+### Fixed
+
+- **Instant AoE:** Remaining hit targets receive the shared damage/Special payload automatically — no extra Apply-to-all confirm (fixes pure Special AoEs such as Slow only applying to the first creature).
+
 ## [0.9.760] - 2026-10-21
 
 ### Changed

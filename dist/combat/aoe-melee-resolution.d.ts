@@ -14,9 +14,10 @@
  *   - NO Primary Target. NO Weapon Damage. NO Spell Focus damage.
  *
  * Default (and only) flow: `resolveAoeFromSharedRoll` → every token gets its own
- * hit check + Dive for Cover; one damage dialog rolls the Power damage once
- * (against the first remaining hit, purely as the roll surface); one Apply-to-all
- * confirmation then applies the same payload to every other hit.
+ * hit check + Dive for Cover; one damage dialog rolls the Power damage / Specials
+ * once (against the first remaining hit, purely as the roll surface); the same
+ * payload is then applied automatically to every other hit — no extra confirm,
+ * no Primary Target, no distribution (including pure Special AoEs with 0 damage).
  */
 /** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
 export declare function resolveBurstTarget(tid: string): {

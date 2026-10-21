@@ -14,9 +14,10 @@
  *   - NO Primary Target. NO Weapon Damage. NO Spell Focus damage.
  *
  * Default (and only) flow: `resolveAoeFromSharedRoll` → every token gets its own
- * hit check + Dive for Cover; one damage dialog rolls the Power damage once
- * (against the first remaining hit, purely as the roll surface); one Apply-to-all
- * confirmation then applies the same payload to every other hit.
+ * hit check + Dive for Cover; one damage dialog rolls the Power damage / Specials
+ * once (against the first remaining hit, purely as the roll surface); the same
+ * payload is then applied automatically to every other hit — no extra confirm,
+ * no Primary Target, no distribution (including pure Special AoEs with 0 damage).
  */
 
 import {
@@ -506,9 +507,19 @@ export async function applySharedAoePayloadToTarget(params: {
   const limitHtml = allLimitNotes.length
     ? `<p class="mastery-damage-special-limit">${allLimitNotes.join('<br>')}</p>`
     : '';
+  const statusSpecialsForChat = filterStatusSpecialLines(shared.specialsUsed);
+  const specialLine = statusSpecialsForChat.length
+    ? `<p><strong>Specials:</strong> ${statusSpecialsForChat.map((s) => String(s)).join(', ')}</p>`
+    : '';
+  const label = params.damageLabel ?? 'AoE';
+  const heading =
+    shared.totalDamage > 0 || !statusSpecialsForChat.length
+      ? `${label} Damage: ${shared.totalDamage}`
+      : `${label} Effect (no Power damage)`;
   const aoeContent =
-    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${shared.totalDamage}</h3>` +
+    `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${heading}</h3>` +
     (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+    specialLine +
     `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p><em>— applying…</em></p></div>`;
 
   const aoeRolls = Array.isArray(shared.damageChatRolls)
@@ -570,8 +581,9 @@ export async function applySharedAoePayloadToTarget(params: {
     if (dmgMsg?.id) {
       await dmgMsg.update({
         content:
-          `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${params.damageLabel ?? 'AoE'} Damage: ${shared.totalDamage}</h3>` +
+          `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${heading}</h3>` +
           (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+          specialLine +
           `<p><strong>Target:</strong> ${defender.name}</p>${limitHtml}<p>${mitLine}</p></div>`,
       });
     }
@@ -965,11 +977,16 @@ export async function resolveAoeMeleeSecondaries(params: {
   if (!pending.length) return;
 
   let shared = params.sharedDamage ?? null;
-  let rollerId: string | null = null;
+  /** Actor id that already received Specials from the damage dialog (skip re-apply). */
+  let rollerActorId: string | null = null;
+  /** Token id of the dialog surface (prefer token identity when filtering rest). */
+  let rollerTokId: string | null = null;
 
   // Open one damage dialog (against the first remaining hit, purely as the roll
   // surface) to roll the Power damage / Specials once, then share that payload
-  // with every other hit. The roller is not a "primary" — same raw total for all.
+  // with every other hit automatically. The roller is not a "primary" — same raw
+  // damage + full Special for all. No extra Apply-to-all confirm (pure Special
+  // AoEs with 0 damage must still deliver Slow etc. to every hit).
   if (!shared) {
     const roller = pending[0]!;
     const targetFlags: Record<string, any> = {
@@ -996,8 +1013,9 @@ export async function resolveAoeMeleeSecondaries(params: {
 
     shared = toSharedAoeDamagePayload(damageResult);
     if (!shared) return;
-    shared.specialsAppliedToTargetId = String(roller.defender.id || '');
-    rollerId = String(roller.defender.id || '');
+    rollerActorId = String(roller.defender.id || '');
+    rollerTokId = roller.tok?.id ? String(roller.tok.id) : null;
+    shared.specialsAppliedToTargetId = rollerActorId || null;
 
     // Apply HP to the roller (Specials already applied inside the dialog).
     let rollerMitLine = 'Applied (shared AoE roll).';
@@ -1044,6 +1062,14 @@ export async function resolveAoeMeleeSecondaries(params: {
         }
       }
     }
+    const statusSpecials = filterStatusSpecialLines(damageResult.specialsUsed);
+    const specialLine = statusSpecials.length
+      ? `<p><strong>Specials:</strong> ${statusSpecials.map((s) => String(s)).join(', ')}</p>`
+      : '';
+    const heading =
+      damageResult.totalDamage > 0 || !statusSpecials.length
+        ? `AoE Damage: ${damageResult.totalDamage}`
+        : `AoE Effect (no Power damage)`;
     try {
       const details = Array.isArray(damageResult.rollDetails)
         ? damageResult.rollDetails.map((l) => `<li>${String(l)}</li>`).join('')
@@ -1052,8 +1078,9 @@ export async function resolveAoeMeleeSecondaries(params: {
         user: (game as any).user?.id,
         speaker: ChatMessage.getSpeaker({ actor: attacker }),
         content:
-          `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> AoE Damage: ${damageResult.totalDamage}</h3>` +
+          `<div class="mastery-system-damage"><h3><i class="fas fa-sword"></i> ${heading}</h3>` +
           (details ? `<ul class="mastery-damage-roll-list">${details}</ul>` : '') +
+          specialLine +
           `<p><strong>Target:</strong> ${roller.defender.name}</p>` +
           `<p>${rollerMitLine}</p></div>`,
         rolls: Array.isArray(damageResult.damageChatRolls)
@@ -1068,18 +1095,17 @@ export async function resolveAoeMeleeSecondaries(params: {
     }
   }
 
-  const rest = rollerId
-    ? pending.filter((p) => String(p.defender.id || '') !== rollerId)
-    : pending;
+  // Remaining hits: prefer token identity so two unlinked tokens of the same name
+  // both receive the shared payload. Same linked Actor is still de-duped for
+  // Specials via specialsAppliedToTargetId (actor id).
+  const rest = pending.filter((p) => {
+    if (rollerTokId && p.tok?.id) return String(p.tok.id) !== rollerTokId;
+    if (rollerActorId) return String(p.defender.id || '') !== rollerActorId;
+    return true;
+  });
   if (!rest.length || !shared) return;
 
-  const ok = await confirmSharedAoeDamageApply({
-    totalDamage: shared.totalDamage,
-    specialsUsed: shared.specialsUsed,
-    targetNames: rest.map((p) => String(p.defender.name || 'Target')),
-  });
-  if (!ok) return;
-
+  // No Apply-to-all confirm — Instant AoE must not ask for distribution.
   for (const p of rest) {
     await applySharedAoePayloadToTarget({
       attacker,
