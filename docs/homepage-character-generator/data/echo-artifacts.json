@@ -155,7 +155,7 @@
           "range": "Self",
           "duration": "Special",
           "effect": "When you activate an Active Buff that grants Armor, you may increase that Buff's effective Power Level by +1 and its duration by +1 round (cannot exceed PL 16). Uses per Safe Haven Rest: half MR, rounded up.",
-          "special": "Armor Buff Empowerment"
+          "special": "Armor Empowerment"
         },
         {
           "level": 4,
@@ -182,7 +182,7 @@
           "range": "Self",
           "duration": "Special",
           "effect": "When you activate an Active Buff that grants Armor, you may increase its Power Level by +2 and duration by +2 rounds (cannot exceed PL 16).",
-          "special": "Armor Buff Empowerment"
+          "special": "Armor Empowerment"
         },
         {
           "level": 7,
@@ -209,7 +209,7 @@
           "range": "Self",
           "duration": "Special",
           "effect": "When you activate an Active Buff that grants Armor, you may increase its Power Level by +3 and duration by +3 rounds (cannot exceed PL 16).",
-          "special": "Armor Buff Empowerment"
+          "special": "Armor Empowerment"
         },
         {
           "level": 10,
@@ -245,11 +245,16 @@
           "name": "Elorian Cling"
         },
         "3": {
-          "name": "Elorian Focus",
+          "name": "Crit Support",
           "stoneFunction": {
             "kind": "stonePowerSupport",
             "attribute": "agility",
-            "stonePowerId": "agility.crit"
+            "stonePowerId": "agility.crit",
+            "supportStages": [
+              3,
+              6,
+              9
+            ]
           }
         }
       },
@@ -267,93 +272,12 @@
       ],
       "levelProgression": [
         {
-          "level": 1,
-          "name": "Otherworld Reflex I",
-          "type": "Reaction",
-          "range": "Self",
-          "duration": "Triggering attack only",
-          "effect": "Gain +2 Evade against the triggering attack.",
-          "special": "Otherworld Reflex"
-        },
-        {
-          "level": 2,
-          "name": "Elorian Cling I",
-          "type": "Movement",
-          "range": "Self",
-          "duration": "Instant",
-          "effect": "Move up to 10 m along walls, ceilings, or similar solid surfaces.",
-          "special": "Wall Walk"
-        },
-        {
-          "level": 3,
-          "name": "Elorian Focus I",
-          "type": "Stone Power Support",
-          "range": "Self",
-          "duration": "Instant",
-          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
-          "special": "agility.crit"
-        },
-        {
-          "level": 4,
-          "name": "Otherworld Reflex II",
-          "type": "Reaction",
-          "range": "Self",
-          "duration": "Triggering attack only",
-          "effect": "Gain +4 Evade against the triggering attack.",
-          "special": "Otherworld Reflex"
-        },
-        {
-          "level": 5,
-          "name": "Elorian Cling II",
-          "type": "Movement",
-          "range": "Self",
-          "duration": "Instant",
-          "effect": "Move up to 25 m along walls, ceilings, or similar solid surfaces.",
-          "special": "Wall Walk"
-        },
-        {
-          "level": 6,
-          "name": "Elorian Focus II",
-          "type": "Stone Power Support",
-          "range": "Self",
-          "duration": "Instant",
-          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 3. You must still pay Tiers 1, 2 yourself. If Tiers 1, 2 are not paid, the pre-filled Tier 3 has no effect.",
-          "special": "agility.crit"
-        },
-        {
-          "level": 7,
-          "name": "Otherworld Reflex III",
-          "type": "Reaction",
-          "range": "Self",
-          "duration": "Triggering attack only",
-          "effect": "Gain +6 Evade against the triggering attack.",
-          "special": "Otherworld Reflex"
-        },
-        {
-          "level": 8,
-          "name": "Elorian Cling III",
-          "type": "Movement",
-          "range": "Self",
-          "duration": "Instant",
-          "effect": "Move up to 28 m along walls, ceilings, or similar solid surfaces.",
-          "special": "Wall Walk"
-        },
-        {
-          "level": 9,
-          "name": "Elorian Focus III",
-          "type": "Stone Power Support",
-          "range": "Self",
-          "duration": "Instant",
-          "effect": "Supports the Agility Ability: Crit Stone Power and pre-fills Tier 4. You must still pay Tiers 1, 2, 3 yourself. If Tiers 1, 2, 3 are not paid, the pre-filled Tier 4 has no effect.",
-          "special": "agility.crit"
-        },
-        {
           "level": 10,
           "name": "True Elorian Stride",
           "type": "Ultimate",
           "range": "Self",
           "duration": "Special",
-          "effect": "Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, focus, or agility effect with GM approval.",
+          "effect": "Elorian Stride fully awakens. Choose or define one final movement, reflex, clinging, Crit Support, or agility effect with GM approval.",
           "special": "True Elorian Stride"
         }
       ]
@@ -411,7 +335,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Supports Might Ability: Melee Damage and pre-fills Tier 2. Tier 1 must still be paid.",
+          "effect": "Supports Might Ability: Martial Damage and pre-fills Tier 2. Tier 1 must still be paid.",
           "special": "might.meleeDamage"
         },
         {
@@ -420,7 +344,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Use Remove Scar through Titan Scars and pay its normal Stone cost.",
+          "effect": "Supports Vitality Ability: Remove Scar and pre-fills Tier 2. Unresolved Tiers Seal 1 / 2 / 4 / 8 (cumulative). Each newly resolved Tier recovers 1 Scarred Health Bar. Colorless Stones cannot pay this cost.",
           "special": "vitality.removeScar"
         },
         {
@@ -447,7 +371,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Remove Scar used through Titan Scars may recover 1 Scarred Health Bar, as written by the Stone Power. Pay its normal Stone cost.",
+          "effect": "Remove Scar used through Titan Scars follows the cumulative Seal rule. Pay only Tiers not yet resolved since the last Daily Reset. Each newly resolved Tier recovers 1 Scarred Health Bar.",
           "special": "vitality.removeScar"
         },
         {
@@ -474,7 +398,7 @@
           "type": "Stone Power Support",
           "range": "Self / Touch",
           "duration": "Instant",
-          "effect": "Use Remove Scar on yourself or one touched willing creature. Pay its normal Stone cost.",
+          "effect": "Use Remove Scar on yourself or one touched willing creature. Seal costs stay cumulative (1 / 2 / 4 / 8 per unresolved Tier). Colorless Stones cannot pay this cost.",
           "special": "vitality.removeScar"
         },
         {
@@ -559,7 +483,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Wyrm Scales support the Vitality Ability ARMOR Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+          "effect": "Wyrm Scales support the Vitality Ability ARMOR Stone Power and pre-fill Rank 2. Rank 1 must still be paid normally.",
           "special": "ARMOR Stone Power"
         },
         {
@@ -586,7 +510,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Wyrm Scales pre-fill Tier 3 of the Vitality Ability ARMOR Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.",
+          "effect": "Wyrm Scales pre-fill Rank 3 of the Vitality Ability ARMOR Stone Power. Ranks 1 and 2 must still be paid normally.",
           "special": "ARMOR Stone Power"
         },
         {
@@ -613,7 +537,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Wyrm Scales pre-fill Tier 4 of the Vitality Ability ARMOR Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.",
+          "effect": "Wyrm Scales pre-fill Rank 4 of the Vitality Ability ARMOR Stone Power. Ranks 1, 2, and 3 must still be paid normally.",
           "special": "ARMOR Stone Power"
         },
         {
@@ -663,8 +587,8 @@
           ],
           "stageNames": [
             "Serpent Evasion I",
-            "Mobility Buff Extension II",
-            "Mobility Buff Extension III"
+            "Mobility Extension II",
+            "Mobility Extension III"
           ]
         },
         "3": {
@@ -709,7 +633,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Serpent Scales support the Agility Ability EVADE Stone Power and pre-fill Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+          "effect": "Serpent Scales support the Agility Ability EVADE Stone Power and pre-fill Rank 2. Rank 1 must still be paid normally.",
           "special": "EVADE Stone Power"
         },
         {
@@ -723,12 +647,12 @@
         },
         {
           "level": 5,
-          "name": "Mobility Buff Extension II",
+          "name": "Mobility Extension II",
           "type": "Support",
           "range": "Self",
           "duration": "Passive",
           "effect": "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +2 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
-          "special": "Mobility Buff Extension",
+          "special": "Mobility Extension",
           "powerTemplateId": "extend-buff-mobility"
         },
         {
@@ -737,7 +661,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Serpent Scales pre-fill Tier 3 of the Agility Ability EVADE Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.",
+          "effect": "Serpent Scales pre-fill Rank 3 of the Agility Ability EVADE Stone Power. Ranks 1 and 2 must still be paid normally.",
           "special": "EVADE Stone Power"
         },
         {
@@ -751,12 +675,12 @@
         },
         {
           "level": 8,
-          "name": "Mobility Buff Extension III",
+          "name": "Mobility Extension III",
           "type": "Support",
           "range": "Self",
           "duration": "Passive",
           "effect": "Whenever you activate an Active Buff that grants Evade or Movement as one of its effects, increase that Buff's duration by +3 rounds. This does not increase the Buff's value. This does not allow you to maintain a second Active Buff.",
-          "special": "Mobility Buff Extension",
+          "special": "Mobility Extension",
           "powerTemplateId": "extend-buff-mobility"
         },
         {
@@ -765,7 +689,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Serpent Scales pre-fill Tier 4 of the Agility Ability EVADE Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.",
+          "effect": "Serpent Scales pre-fill Rank 4 of the Agility Ability EVADE Stone Power. Ranks 1, 2, and 3 must still be paid normally.",
           "special": "EVADE Stone Power"
         },
         {
@@ -797,7 +721,7 @@
       "progressionPickSpecs": {
         "2": {
           "name": "Rending Spiral",
-          "templateId": "active-melee-weapon-aoe",
+          "templateId": "active-melee-aoe-damage-t4",
           "special": "lacerate"
         },
         "3": {
@@ -830,7 +754,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 2. You must still pay Tier 1 yourself.",
+          "effect": "Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Rank 2. Rank 1 must still be paid normally.",
           "special": ""
         },
         {
@@ -859,7 +783,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 3. You must still pay Tier 1 and 2 yourself.",
+          "effect": "Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.",
           "special": ""
         },
         {
@@ -888,7 +812,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Dragon Claws support the Might Ability Melee Damage Stone Power. They pre-fill Tier 4. You must still pay Tier 1, 2 and 3 yourself.",
+          "effect": "Dragon Claws support the Might Ability Martial Damage Stone Power. They pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.",
           "special": ""
         },
         {
@@ -1079,8 +1003,8 @@
       "restriction": "A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.",
       "progressionPickSpecs": {
         "1": {
-          "templateId": "active-ranged-single-heal",
-          "name": "Single Heal"
+          "templateId": "active-ranged-health-level-heal",
+          "name": "Sentinel Restoration"
         },
         "2": {
           "name": "Resolve Core",
@@ -1101,7 +1025,7 @@
       "extraStoneFunctions": [
         {
           "level": 5,
-          "name": "Special Reduction Support",
+          "name": "Ward Support",
           "kind": "stonePowerSupport",
           "attribute": "resolve",
           "stonePowerId": "resolve.ward",
@@ -1122,12 +1046,12 @@
       "levelProgression": [
         {
           "level": 1,
-          "name": "Single Heal I",
-          "type": "Active",
-          "range": "8 m",
+          "name": "Sentinel Restoration I",
+          "type": "Active, Support",
+          "range": "20 m",
           "duration": "Instant",
-          "effect": "Use a single-target healing Active at Power Level 4.",
-          "special": "Healing"
+          "effect": "Restore up to 2 Scarred Health Bars per Safe Haven Rest on one creature (full HP each). Does not heal HP.",
+          "special": "Ranged Single Target Restoration (PL 4)"
         },
         {
           "level": 2,
@@ -1149,20 +1073,20 @@
         },
         {
           "level": 4,
-          "name": "Single Heal II",
-          "type": "Active",
-          "range": "8 m",
+          "name": "Sentinel Restoration II",
+          "type": "Active, Support",
+          "range": "44 m",
           "duration": "Instant",
-          "effect": "Single Heal improves to Power Level 10.",
-          "special": "Healing"
+          "effect": "Sentinel Restoration improves to Power Level 10: pool of 6 Scarred Health Bars per Safe Haven Rest. Replaces Sentinel Restoration I.",
+          "special": "Ranged Single Target Restoration (PL 10)"
         },
         {
           "level": 5,
-          "name": "Special Reduction Support I",
+          "name": "Ward Support I",
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Supports Resolve Ability: Special Reduction and pre-fills Tier 3. Tiers 1 and 2 must still be paid.",
+          "effect": "Supports Resolve Ability: Ward and pre-fills Tier 3. Tiers 1 and 2 must still be paid.",
           "special": "resolve.ward"
         },
         {
@@ -1176,12 +1100,12 @@
         },
         {
           "level": 7,
-          "name": "Single Heal III",
-          "type": "Active",
-          "range": "8 m",
+          "name": "Sentinel Restoration III",
+          "type": "Active, Support",
+          "range": "68 m",
           "duration": "Instant",
-          "effect": "Single Heal improves to Power Level 16.",
-          "special": "Healing"
+          "effect": "Sentinel Restoration improves to Power Level 16: pool of 10 Scarred Health Bars per Safe Haven Rest. Replaces Sentinel Restoration II.",
+          "special": "Ranged Single Target Restoration (PL 16)"
         },
         {
           "level": 8,
@@ -1194,11 +1118,11 @@
         },
         {
           "level": 9,
-          "name": "Special Reduction Support II",
+          "name": "Ward Support II",
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fill Tier 4 of Resolve Ability: Special Reduction. Tiers 1, 2, and 3 must still be paid.",
+          "effect": "Pre-fill Tier 4 of Resolve Ability: Ward. Tiers 1, 2, and 3 must still be paid.",
           "special": "resolve.ward"
         },
         {
@@ -1238,7 +1162,7 @@
           "stoneFunction": {
             "kind": "stonePowerSupport",
             "attribute": "influence",
-            "stonePowerId": "influence.regeneration"
+            "stonePowerId": "influence.colorlessRecovery"
           }
         }
       },
@@ -1257,7 +1181,7 @@
           "range": "Self",
           "duration": "Passive",
           "effect": "When activating an Active Buff that grants Armor, empower it by +1 Power Level and +1 round (cannot exceed PL 16).",
-          "special": "Armor Buff Empowerment"
+          "special": "Armor Empowerment"
         },
         {
           "level": 2,
@@ -1274,8 +1198,8 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Judicator Frame supports the Regeneration Stone Power and pre-fills Tier 2.",
-          "special": "Regeneration Stone Power"
+          "effect": "Judicator Frame supports Influence Ability: Regeneration and pre-fills Tier 2.",
+          "special": "influence.regeneration"
         },
         {
           "level": 4,
@@ -1283,8 +1207,8 @@
           "type": "Active Buff Empowerment",
           "range": "Self",
           "duration": "Passive",
-          "effect": "Armor Buff Empowerment improves to +2 PL and +2 rounds.",
-          "special": "Armor Buff Empowerment"
+          "effect": "Armor Empowerment improves to +2 PL and +2 rounds.",
+          "special": "Armor Empowerment"
         },
         {
           "level": 5,
@@ -1301,8 +1225,8 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fills Tier 3 of the Regeneration Stone Power.",
-          "special": "Regeneration Stone Power"
+          "effect": "Pre-fills Tier 3 of Influence Ability: Regeneration.",
+          "special": "influence.regeneration"
         },
         {
           "level": 7,
@@ -1310,8 +1234,8 @@
           "type": "Active Buff Empowerment",
           "range": "Self",
           "duration": "Passive",
-          "effect": "Armor Buff Empowerment improves to +3 PL and +3 rounds.",
-          "special": "Armor Buff Empowerment"
+          "effect": "Armor Empowerment improves to +3 PL and +3 rounds.",
+          "special": "Armor Empowerment"
         },
         {
           "level": 8,
@@ -1328,8 +1252,8 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fills Tier 4 of the Regeneration Stone Power.",
-          "special": "Regeneration Stone Power"
+          "effect": "Pre-fills Tier 4 of Influence Ability: Regeneration.",
+          "special": "influence.regeneration"
         },
         {
           "level": 10,
@@ -1371,7 +1295,7 @@
           "stoneFunction": {
             "kind": "stonePowerSupport",
             "attribute": "influence",
-            "stonePowerId": "influence.aidRoll"
+            "stonePowerId": "influence.cleanse"
           }
         },
         "3": {
@@ -1406,7 +1330,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+          "effect": "Oracle Frame supports the Influence Ability: Aid Roll Stone Power and pre-fills Rank 2. Rank 1 must still be paid normally.",
           "special": "Aid Roll Stone Power"
         },
         {
@@ -1434,7 +1358,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Oracle Frame pre-fills Tier 3 of the Influence Ability: Aid Roll Stone Power. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.",
+          "effect": "Oracle Frame pre-fills Rank 3 of the Influence Ability: Aid Roll Stone Power. Ranks 1 and 2 must still be paid normally.",
           "special": "Aid Roll Stone Power"
         },
         {
@@ -1462,7 +1386,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Oracle Frame pre-fills Tier 4 of the Influence Ability: Aid Roll Stone Power. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If Tier 1, Tier 2, and Tier 3 are not paid, the pre-filled Tier 4 has no effect.",
+          "effect": "Oracle Frame pre-fills Rank 4 of the Influence Ability: Aid Roll Stone Power. Ranks 1, 2, and 3 must still be paid normally.",
           "special": "Aid Roll Stone Power"
         },
         {
@@ -1491,7 +1415,7 @@
       "echoKey": "halflings",
       "slot": "amulet",
       "baseProfile": "noArmorBody",
-      "description": "Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Healing Aura, and Single Heal.",
+      "description": "Halfling Echo Artifact: family rings on one chain. No numeric Base Values. Influence Ability: Not a Target, Cleanse, Melee AoE Restoration (Hearth Circle), and Ranged Single Target Restoration (Remembered Hands).",
       "restriction": "The Ringchain occupies the Amulet Slot. A Halfling with the Ringchain cannot wear another Amulet Artifact. Echo-bound and cannot normally be removed, replaced, sold, stolen, or unbound.",
       "extraStoneFunctions": [
         {
@@ -1521,7 +1445,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fill Tier 2 of Influence Ability: Not a Target. Tier 1 must still be paid.",
+          "effect": "Pre-fill Rank 2. Rank 1 must still be paid normally.",
           "special": "influence.notATarget"
         },
         {
@@ -1536,12 +1460,13 @@
         {
           "level": 3,
           "name": "Hearth Circle I",
-          "type": "Active Buff",
-          "range": "Self",
+          "type": "Active, Support",
+          "range": "Melee Reach",
           "aoe": "Radius 2 m",
-          "duration": "Mastery Rank Rounds",
-          "effect": "At the end of each of your turns, allies inside the aura heal 3d8 HP. Each creature can be affected only once per Round.",
-          "special": "Active Buff: Healing Aura (PL 4)"
+          "duration": "Instant",
+          "effect": "Restore up to 2 Scarred Health Bars per Safe Haven Rest among allies within 2 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP.",
+          "special": "Melee AoE Restoration (PL 4)",
+          "powerTemplateId": "active-melee-aoe-restoration"
         },
         {
           "level": 4,
@@ -1549,8 +1474,9 @@
           "type": "Active, Support",
           "range": "44 m",
           "duration": "Instant",
-          "effect": "Heal one creature for 13d8 HP. This profile has a pool of 2 Health Levels per Safe Haven Rest.",
-          "special": "Ranged Single Target Heal (PL 10)"
+          "effect": "Restore up to 6 Scarred Health Bars per Safe Haven Rest on one creature at a time (full HP each). Does not heal HP.",
+          "special": "Ranged Single Target Restoration (PL 10)",
+          "powerTemplateId": "active-ranged-health-level-heal"
         },
         {
           "level": 5,
@@ -1558,7 +1484,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fill Tier 3 of Influence Ability: Not a Target. Tiers 1 and 2 must still be paid.",
+          "effect": "Pre-fill Rank 3. Ranks 1 and 2 must still be paid normally.",
           "special": "influence.notATarget"
         },
         {
@@ -1576,18 +1502,20 @@
           "type": "Active, Support",
           "range": "68 m",
           "duration": "Instant",
-          "effect": "Heal one creature for 19d8 HP. This profile has a pool of 4 Health Levels per Safe Haven Rest and replaces Remembered Hands I.",
-          "special": "Ranged Single Target Heal (PL 16)"
+          "effect": "Restore up to 10 Scarred Health Bars per Safe Haven Rest on one creature at a time (full HP each). Does not heal HP. Replaces Remembered Hands I.",
+          "special": "Ranged Single Target Restoration (PL 16)",
+          "powerTemplateId": "active-ranged-health-level-heal"
         },
         {
           "level": 8,
           "name": "Hearth Circle II",
-          "type": "Active Buff",
-          "range": "Self",
+          "type": "Active, Support",
+          "range": "Melee Reach",
           "aoe": "Radius 4 m",
-          "duration": "Mastery Rank Rounds",
-          "effect": "At the end of each of your turns, allies inside the aura heal 11d8 HP. Each creature can be affected only once per Round. This replaces Hearth Circle I.",
-          "special": "Active Buff: Healing Aura (PL 16)"
+          "duration": "Instant",
+          "effect": "Restore up to 9 Scarred Health Bars per Safe Haven Rest among allies within 4 m (full HP each). The pool is shared across the AoE; allocate bars among eligible allies. Does not heal HP. This replaces Hearth Circle I.",
+          "special": "Melee AoE Restoration (PL 16)",
+          "powerTemplateId": "active-melee-aoe-restoration"
         },
         {
           "level": 9,
@@ -1595,7 +1523,7 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fill Tier 4 of Influence Ability: Not a Target. Tiers 1, 2, and 3 must still be paid.",
+          "effect": "Pre-fill Rank 4. Ranks 1, 2, and 3 must still be paid normally.",
           "special": "influence.notATarget"
         },
         {
@@ -1664,8 +1592,8 @@
           "type": "Stone Power Support",
           "range": "Self",
           "duration": "Instant",
-          "effect": "Pre-fill Tier 2 of the fixed Predator Stone choice (Might — Melee Damage). Tier 1 must still be paid.",
-          "special": "Might Ability: Melee Damage (choose one, Tier 2+)"
+          "effect": "Pre-fill Tier 2 of the fixed Predator Stone choice (Might — Martial Damage). Tier 1 must still be paid.",
+          "special": "Might Ability: Martial Damage (choose one, Tier 2+)"
         },
         {
           "level": 2,
@@ -1692,7 +1620,7 @@
           "range": "Self",
           "duration": "Instant",
           "effect": "Pre-fill Tier 3 of the same Predator Stone choice. Tiers 1 and 2 must still be paid.",
-          "special": "Might Ability: Melee Damage (choose one, Tier 2+)"
+          "special": "Might Ability: Martial Damage (choose one, Tier 2+)"
         },
         {
           "level": 5,
@@ -1719,7 +1647,7 @@
           "range": "Self",
           "duration": "Instant",
           "effect": "Pre-fill Tier 4 of the same Predator Stone choice. Tiers 1, 2, and 3 must still be paid.",
-          "special": "Might Ability: Melee Damage (choose one, Tier 2+)"
+          "special": "Might Ability: Martial Damage (choose one, Tier 2+)"
         },
         {
           "level": 8,
@@ -1909,7 +1837,7 @@
         "level": 1,
         "kind": "stonePowerSupport",
         "attribute": "intellect",
-        "stonePowerId": "intellect.raiseFocus",
+        "stonePowerId": "intellect.raises",
         "name": "Predator Stone"
       },
       "progressionPickSpecs": {
@@ -2045,7 +1973,7 @@
         "level": 1,
         "kind": "stonePowerSupport",
         "attribute": "intellect",
-        "stonePowerId": "intellect.raiseFocus",
+        "stonePowerId": "intellect.raises",
         "name": "Witch Stone"
       },
       "progressionPickSpecs": {
@@ -2186,7 +2114,7 @@
         "level": 1,
         "kind": "stonePowerSupport",
         "attribute": "intellect",
-        "stonePowerId": "intellect.raiseFocus",
+        "stonePowerId": "intellect.raises",
         "name": "Witch Stone"
       },
       "progressionPickSpecs": {
@@ -2327,7 +2255,7 @@
         "level": 1,
         "kind": "stonePowerSupport",
         "attribute": "intellect",
-        "stonePowerId": "intellect.raiseFocus",
+        "stonePowerId": "intellect.raises",
         "name": "Witch Stone"
       },
       "progressionPickSpecs": {
@@ -2468,7 +2396,7 @@
         "level": 2,
         "kind": "stonePowerSupport",
         "attribute": "vitality",
-        "stonePowerId": "vitality.extendActiveBuff",
+        "stonePowerId": "vitality.damageMaximization",
         "name": "Alchemist Stone"
       },
       "progressionPickSpecs": {
@@ -2640,7 +2568,7 @@
           "range": "Self",
           "duration": "Instant",
           "effect": "Pre-fill Tier 2. Tier 1 must still be paid.",
-          "special": "Resolve Ability: Special Reduction (Stone Power Support, Tier 2)"
+          "special": "Resolve Ability: Ward (Stone Power Support, Tier 2)"
         },
         {
           "level": 4,
@@ -2667,7 +2595,7 @@
           "range": "Self",
           "duration": "Instant",
           "effect": "Pre-fill Tier 3. Tiers 1 and 2 must still be paid.",
-          "special": "Resolve Ability: Special Reduction (Stone Power Support, Tier 3)"
+          "special": "Resolve Ability: Ward (Stone Power Support, Tier 3)"
         },
         {
           "level": 7,
@@ -2694,7 +2622,7 @@
           "range": "Self",
           "duration": "Instant",
           "effect": "Pre-fill Tier 4. Tiers 1, 2, and 3 must still be paid.",
-          "special": "Resolve Ability: Special Reduction (Stone Power Support, Tier 4)"
+          "special": "Resolve Ability: Ward (Stone Power Support, Tier 4)"
         },
         {
           "level": 10,

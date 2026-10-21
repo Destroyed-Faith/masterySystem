@@ -7,7 +7,8 @@ export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing
 export type OffensePackageId = 'lacerate-push' | 'ruin' | 'slow' | 'expose' | 'corrode-damage' | 'mark' | 'hex-spell' | 'weaken-save' | 'direct-damage';
 export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
-export type GuidedAttackDelivery = 'melee' | 'ranged' | 'spell' | 'natural';
+/** Attack style on guided Step 4. Legacy `melee` / `ranged` map to Martial. */
+export type GuidedAttackDelivery = 'martial' | 'spell' | 'natural' | 'melee' | 'ranged';
 export type TowerWizardStep = 'passive1' | 'defense' | 'defensePassiveVariant' | 'passive2' | 'activeBuffChoice' | 'offensiveBuff' | 'offenseDelivery' | 'offenseSpecial' | 'offense' | 'weakenSave' | 'delivery' | 'review';
 export type OffenseActiveVariant = 'weapon-single' | 'weapon-aoe' | 'weapon-split' | 'damage-t3' | 'damage-t4' | 'damage-t4-spell';
 export type PackageGrantKey = 'passive-1' | 'passive-2' | 'active-buff' | 'reaction' | 'offense-0' | 'offense-1';

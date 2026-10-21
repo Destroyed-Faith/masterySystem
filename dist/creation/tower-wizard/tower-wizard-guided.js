@@ -270,35 +270,35 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'focus-one',
         label: 'Focus one enemy',
-        explanation: 'Use this when you want one enemy to become the main target or easier to punish.',
+        explanation: 'Specials that make one enemy easier to punish or focus.',
         specials: [
             {
                 specialKey: 'mark',
                 playerTitle: 'Mark a Priority Target — Mark',
                 powerName: 'Mark',
-                explanation: 'Focus pressure on one enemy when the party can pile onto that target.',
+                explanation: 'Hitters can spend Mark on this target to raise the Damage Floor on that hit.',
                 whenToUse: '',
             },
             {
                 specialKey: 'expose',
-                playerTitle: 'Open an Enemy to More Damage — Expose',
+                playerTitle: 'Easier to Hit — Expose',
                 powerName: 'Expose',
-                explanation: 'Lower the target\'s Evade so the party can burst it down.',
+                explanation: 'Lowers the target\'s Evade so Martial attacks land more easily. Does not lower Spell Resistance.',
                 whenToUse: '',
             },
             {
                 specialKey: 'sundered',
-                playerTitle: 'More Damage for Everyone — Sundered',
+                playerTitle: 'More Martial Damage — Sundered',
                 powerName: 'Sundered',
-                explanation: 'Anyone who hits this target with a non-Spell attack deals extra damage.',
+                explanation: 'Non-Spell hits against this target deal bonus damage.',
                 whenToUse: '',
-                modes: ['melee', 'ranged'],
+                modes: ['martial'],
             },
             {
                 specialKey: 'hex',
                 playerTitle: 'More Spell Damage — Hex',
                 powerName: 'Hex',
-                explanation: 'Spells that hit this target deal extra damage.',
+                explanation: 'Spell hits against this target deal bonus damage.',
                 whenToUse: '',
                 modes: ['spell'],
             },
@@ -307,13 +307,13 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'break-defenses',
         label: 'Break defenses',
-        explanation: 'Use this when enemies are hard to damage because of Armor or defenses.',
+        explanation: 'Specials that strip Armor or other hard defenses.',
         specials: [
             {
                 specialKey: 'corrode',
                 playerTitle: 'Break Enemy Armor — Corrode',
                 powerName: 'Corrode',
-                explanation: 'Strip Armor from heavily defended enemies.',
+                explanation: 'Reduces the target\'s Armor.',
                 whenToUse: '',
             },
         ],
@@ -321,20 +321,20 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'control-movement',
         label: 'Control movement',
-        explanation: 'Use this when you want to control where enemies can go, or punish them for moving.',
+        explanation: 'Specials that slow, pin, or punish movement.',
         specials: [
             {
                 specialKey: 'slow',
-                playerTitle: 'Stop Free Movement — Slow',
+                playerTitle: 'Reduce Speed — Slow',
                 powerName: 'Slow',
-                explanation: 'Keep enemies from reaching allies, escaping, or controlling space.',
+                explanation: 'Reduces the target\'s Speed.',
                 whenToUse: '',
             },
             {
                 specialKey: 'root',
                 playerTitle: 'Hold an Enemy in Place — Root',
                 powerName: 'Root',
-                explanation: 'Pin a key target so it cannot move.',
+                explanation: 'Speed becomes 0 m; the target cannot move voluntarily.',
                 whenToUse: '',
             },
             {
@@ -349,7 +349,7 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'pressure-over-time',
         label: 'Apply pressure over time',
-        explanation: 'Use this when you want continuing pressure instead of only one hit.',
+        explanation: 'Specials that keep dealing pressure after the hit.',
         specials: [
             {
                 specialKey: 'ruin',
@@ -370,7 +370,7 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'weaken-enemies',
         label: 'Weaken enemies',
-        explanation: 'Use this when you want enemies to become less effective.',
+        explanation: 'Specials that make enemies less effective in the fight.',
         specials: [
             {
                 specialKey: 'weaken',
@@ -391,7 +391,7 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'support-allies',
         label: 'Help allies',
-        explanation: 'Use this when you want to restore allies instead of pressuring an enemy.',
+        explanation: 'Support Actives instead of pressuring an enemy.',
         specials: [
             {
                 specialKey: 'heal',
@@ -412,21 +412,21 @@ const SPECIAL_FOCUS_PURPOSE_GROUPS = [
     {
         id: 'advanced-control',
         label: 'Advanced control',
-        explanation: 'These are situational tools. Choose them only if you know exactly why your character needs them.',
+        explanation: 'Situational positioning tools.',
         isAdvanced: true,
         specials: [
             {
                 specialKey: 'push',
                 playerTitle: 'Push Enemies Around — Push',
                 powerName: 'Push',
-                explanation: 'Force enemies into bad positions or away from allies.',
+                explanation: 'Force the target away from you.',
                 whenToUse: '',
             },
             {
                 specialKey: 'pull',
                 playerTitle: 'Pull Enemies Closer — Pull',
                 powerName: 'Pull',
-                explanation: 'Drag enemies where you want them.',
+                explanation: 'Pull the target toward you.',
                 whenToUse: '',
             },
         ],
@@ -441,14 +441,9 @@ const DEDICATED_SPECIAL_TEMPLATE_IDS = {
 };
 export const GUIDED_DELIVERY_OPTIONS = [
     {
-        id: 'melee',
-        label: 'Melee',
-        explanation: 'You fight in close combat with a weapon, claws, fists, or another close-range attack.',
-    },
-    {
-        id: 'ranged',
-        label: 'Ranged',
-        explanation: 'You fight at distance. If your axe, blade, bow, spell-shot, or artifact attack is meant to hit enemies far away, choose Ranged.',
+        id: 'martial',
+        label: 'Martial',
+        explanation: 'You fight with weapons, fists, claws, or other physical attacks — melee or ranged.',
     },
     {
         id: 'spell',
@@ -570,16 +565,16 @@ export function getGuidedFirstPassiveIntentGroups(actorEchoKey, actorSubChoiceKe
     });
 }
 export function guidedDeliveryToCombatDelivery(mode) {
-    if (mode === 'ranged' || mode === 'spell')
+    // Martial specials resolve against the melee catalog (same Specials as ranged).
+    // Spell Core / Specials use the ranged catalog so they can be Cast as Spell.
+    if (mode === 'spell' || mode === 'ranged')
         return 'ranged';
     return 'melee';
 }
 function effectiveSpecialMode(mode) {
     if (mode === 'spell')
         return 'spell';
-    if (mode === 'ranged')
-        return 'ranged';
-    return 'melee';
+    return 'martial';
 }
 function specialAllowedForMode(spec, mode) {
     if (!spec.modes?.length)
@@ -591,11 +586,13 @@ export function resolveGuidedCoreAttackPick(mode) {
     let templateId;
     let coreIsSpell = false;
     switch (mode) {
+        case 'martial':
         case 'melee':
         case 'natural':
             templateId = 'active-melee-weapon-single';
             break;
         case 'ranged':
+            // Legacy guided pick — still a Martial weapon attack.
             templateId = 'active-ranged-weapon-single';
             break;
         case 'spell':
@@ -656,7 +653,6 @@ export function getGuidedSpecialFocusGroups(deliveryMode, actorEchoKey, selected
             const pick = resolveGuidedSpecialPick(deliveryMode, spec.specialKey, actorEchoKey);
             if (!pick)
                 continue;
-            const entry = findCatalogEntry(pick.templateId, pick.special ?? undefined);
             cards.push({
                 pickId: pick.pickId,
                 templateId: pick.templateId,
@@ -665,7 +661,8 @@ export function getGuidedSpecialFocusGroups(deliveryMode, actorEchoKey, selected
                 explanation: spec.explanation,
                 whenToUse: spec.whenToUse,
                 powerName: spec.powerName,
-                mechanicsPreview: entry ? catalogMechanicsText(entry, OFF_RANK) : '',
+                // Step 4 shows plain-language Special purpose only — no "+Xd8" / "Hex(4)" clutter.
+                mechanicsPreview: '',
                 isSelected: selectedPickId === pick.pickId,
             });
         }

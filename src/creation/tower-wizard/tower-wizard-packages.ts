@@ -1826,8 +1826,9 @@ export function buildReviewPowerRows(selection: TowerWizardSelection): ReviewPow
                 label: playerFacingVariantLabel(id, spec),
             })),
             override: spellOverride,
-            showSpellConfig: key !== 'offense-0'
-                && resolved.category === 'active'
+            // Core Attack stays locked for Change Power in guided flow, but Cast as Spell /
+            // casting attribute must remain editable (e.g. Resolve on a Spell Core Attack).
+            showSpellConfig: resolved.category === 'active'
                 && activeTemplateCanBeSpell(spec.templateId),
             locked: selectionUsesGuidedOffenseFlow(selection) && key === 'offense-0',
         };

@@ -315,23 +315,26 @@ export class TowerWizardDialog extends BaseDialog {
 
         const overrides = [...(this.selection.offenseActiveOverrides ?? [])];
         const coreIdx = overrides.findIndex((o) => o.grantKey === 'offense-0');
+        const prevCore = coreIdx >= 0 ? overrides[coreIdx] : undefined;
         const coreOverride = {
             grantKey: 'offense-0',
-            isSpell: core.coreIsSpell,
-            castingAttribute: 'intellect' as CastingAttribute,
-            spellResolution: 'spellAttack' as SpellResolution,
+            isSpell: prevCore?.isSpell ?? core.coreIsSpell,
+            castingAttribute: (prevCore?.castingAttribute ?? 'intellect') as CastingAttribute,
+            spellResolution: (prevCore?.spellResolution ?? 'spellAttack') as SpellResolution,
         };
         if (coreIdx >= 0) overrides[coreIdx] = { ...overrides[coreIdx], ...coreOverride };
         else overrides.push(coreOverride);
 
         const specialPick = this.selection.offenseActivePicks?.[1];
-        if (this.selection.guidedAttackDelivery === 'spell' && specialPick) {
+        const deliveryIsSpell = this.selection.guidedAttackDelivery === 'spell';
+        if (deliveryIsSpell && specialPick) {
             const specialIdx = overrides.findIndex((o) => o.grantKey === 'offense-1');
+            const prevSpecial = specialIdx >= 0 ? overrides[specialIdx] : undefined;
             const specialOverride = {
                 grantKey: 'offense-1',
-                isSpell: true,
-                castingAttribute: 'intellect' as CastingAttribute,
-                spellResolution: 'spellAttack' as SpellResolution,
+                isSpell: prevSpecial?.isSpell ?? true,
+                castingAttribute: (prevSpecial?.castingAttribute ?? 'intellect') as CastingAttribute,
+                spellResolution: (prevSpecial?.spellResolution ?? 'spellAttack') as SpellResolution,
             };
             if (specialIdx >= 0) overrides[specialIdx] = { ...overrides[specialIdx], ...specialOverride };
             else overrides.push(specialOverride);

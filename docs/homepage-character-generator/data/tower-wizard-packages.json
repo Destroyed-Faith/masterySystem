@@ -1,11 +1,9 @@
 {
   "stepOrder": [
-    "defense",
-    "defensePassiveVariant",
+    "passive1",
     "passive2",
     "activeBuffChoice",
     "offensiveBuff",
-    "offenseDelivery",
     "offenseSpecial",
     "offense",
     "weakenSave",
@@ -201,43 +199,35 @@
   "offensiveActiveBuffs": [
     {
       "id": "ab-damage",
-      "label": "Flat damage on every attack",
+      "label": "Active Buff: Damage",
       "explanation": "The simplest offensive buff — your weapon and power hits deal extra damage every time they land.",
       "groupLabel": "Raw damage",
       "rankPreview": "Your attacks deal +9d8 damage while the buff is active.",
-      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
-    },
-    {
-      "id": "ab-penetration",
-      "label": "Ignore enemy Armor",
-      "explanation": "Best against heavily armored targets. Your attacks treat part of their Armor as gone.",
-      "groupLabel": "Armor break",
-      "rankPreview": "Your attacks gain Penetration(17) while the buff is active.",
-      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
-    },
-    {
-      "id": "ab-damage-penetration",
-      "label": "Damage and Armor penetration",
-      "explanation": "A hybrid buff for sustained pressure — hit harder and punch through Armor at the same time.",
-      "groupLabel": "Armor break",
-      "rankPreview": "Your attacks deal +4d8 damage and gain Penetration(9) while the buff is active.",
-      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
     },
     {
       "id": "ab-critical",
-      "label": "Critical subsystem",
+      "label": "Active Buff: Critical",
       "explanation": "Your maintained offensive buff grants Critical(1–4) at milestone ranks. No bonus damage, penetration, or other filler — Critical only.",
       "groupLabel": "Critical hits",
-      "rankPreview": "Your attacks gain Critical(1) (1 Critical attack per Round; Attack Dice explode on 7–8).",
-      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+      "rankPreview": "Gain Critical(1) (1 designated roll per combat; natural 7s and 8s explode).",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
     },
     {
-      "id": "ab-special-overdrive",
-      "label": "Boost a Special on your attacks",
-      "explanation": "Pick a Special you already use (Mark, Lacerate, Slow, …) and make it hit harder while the buff lasts.",
-      "groupLabel": "Special effects",
-      "rankPreview": "Choose one eligible Special(X). While the buff is active, any such Special you apply is increased by +1.",
-      "durationNote": "Lasts for your Mastery Rank in rounds. Costs your Attack action to activate."
+      "id": "ab-damage-aura",
+      "label": "Active Buff: Damage Aura",
+      "explanation": "End-of-turn damage pulse against nearby enemies while maintained.",
+      "groupLabel": "Auras",
+      "rankPreview": "At the end of each of your turns, enemies within 2 m take 3d8 damage.",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
+    },
+    {
+      "id": "ab-thorns",
+      "label": "Active Buff: Thorns",
+      "explanation": "When you take final HP damage, retaliate with Thorns dice (capped by the loss).",
+      "groupLabel": "Retaliation",
+      "rankPreview": "Gain Thorns 4d8. When you take final HP damage, deal that much (capped by the loss) to the source.",
+      "durationNote": "Duration: Mastery Rank complete Rounds. In combat, activate during Preparation (commits base Attack Action)."
     }
   ]
 }

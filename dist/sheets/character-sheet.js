@@ -49,8 +49,8 @@ import { attributeBandCost, skillBandCost, powerLevelCost, MAX_ATTRIBUTE, standa
 import { getRulesMasteryRank } from '../utils/mastery-rank-sync.js';
 import { buildStoneProgressionSlots, chunkLifetimeSlots, effectiveStoneAssignments, permanentColorlessCap, permanentColorlessCount, permanentStonesFromLifetimeXp, stoneConcentrationCap, usesV099Stones, } from '../progression/v099-rules.js';
 import { lifetimeXpForActor } from '../progression/build-value.js';
-import { STONE_REDISTRIBUTE_FLAG, V099_LIFETIME_FLAG, V099_RESPEC_FLAG } from '../progression/v099-migration.js';
-import { openStoneSlotChoice, openV099LifetimeDialog, openV099RespecDialog } from '../progression/v099-respec-dialog.js';
+import { STONE_REDISTRIBUTE_FLAG, v099PrepareUpdate } from '../progression/v099-migration.js';
+import { openStoneSlotChoice } from '../progression/v099-respec-dialog.js';
 import { migrationStoneSlotLabel, releaseAllStoneSlots, releaseStoneSlot, stoneOrderActorUpdate, stoneOrderForActor, stonePlacementOptions, stoneSlotProgress, unblockStonePoolsUpdate, } from '../progression/v099-respec-flow.js';
 import { attributeScalingEnabled, calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildSkillUseBoxes } from '../utils/skill-use-boxes.js';
@@ -1371,8 +1371,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
                 return this.actor.flags?.['mastery-system']?.[key] === true;
             };
-            const needsRespec = flag(V099_RESPEC_FLAG);
-            const needsLifetime = flag(V099_LIFETIME_FLAG);
             // Lifetime XP = Nach Ausgabe (Build-Wert-Tabelle), not grant counters.
             const lifetimeXp = lifetimeXpForActor(this.actor);
             const assignments = usesV099Stones(sys)
@@ -1411,8 +1409,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const rank = getRulesMasteryRank(sys);
             const concentrationCap = stoneConcentrationCap(stones, rank, lifetimeXp == null ? null : Number(lifetimeXp));
             context.v099 = {
-                needsRespec,
-                needsLifetime,
                 lifetimeLabel: lifetimeXp == null ? '—' : String(lifetimeXp),
                 lifetimeXp,
                 permanentStones: stones,
@@ -1421,7 +1417,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 permanentColorlessCap: permanentColorlessCap(stones),
                 concentrationCap,
                 stoneSummary: lifetimeXp == null
-                    ? 'Enter Lifetime XP during the v0.9.9 migration.'
+                    ? 'Lifetime XP not set yet.'
                     : `${assigned}/${stones} Stones assigned` +
                         (colorless > 0 ? ` · ${colorless} Permanent Colorless (max ${permanentColorlessCap(stones)})` : '') +
                         ` · max ${concentrationCap} per Attribute`,
@@ -2497,14 +2493,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         bindReliableControlClick(html, '.gm-award-faith-fracture', this.#onGmAwardFaithFracture.bind(this));
         bindReliableControlClick(html, '.gm-reset-reroll-points', this.#onGmResetRerollPoints.bind(this));
         bindReliableControlClick(html, '.gm-edit-xp', this.#onGmEditXp.bind(this));
-        bindReliableControlClick(html, '.v099-open-respec', (ev) => {
-            ev.preventDefault();
-            void this.#openV099Migration();
-        });
-        bindReliableControlClick(html, '.v099-open-lifetime', (ev) => {
-            ev.preventDefault();
-            void this.#openV099Lifetime();
-        });
         bindReliableControlClick(html, '[data-action="v099-assign-stone"]', (ev) => {
             ev.preventDefault();
             void this.#onV099StoneSlot(ev);
@@ -6737,22 +6725,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         };
         window.setTimeout(() => document.addEventListener('mousedown', onDoc, true), 0);
     }
-    async #openV099Migration() {
-        if (!this.actor.isOwner && !game.user?.isGM) {
-            ui.notifications?.warn('Only the owner or GM can finish the v0.9.9 migration.');
-            return;
-        }
-        await openV099RespecDialog(this.actor);
-        this.render();
-    }
-    async #openV099Lifetime() {
-        if (!this.actor.isOwner && !game.user?.isGM) {
-            ui.notifications?.warn('Only the owner or GM can enter Lifetime XP.');
-            return;
-        }
-        await openV099LifetimeDialog(this.actor);
-        this.render();
-    }
     /** Persist Nach Ausgabe as progression.lifetimeXp so other systems stay aligned. */
     async #syncLifetimeXpFromProgress() {
         if (this.#lifetimeSyncInFlight)
@@ -6783,18 +6755,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             this.#lifetimeSyncInFlight = false;
         }
     }
+    /** Quietly clear leftover migration flags / enable Stones without a respec dialog. */
+    async #ensureV099StonesReady() {
+        const update = v099PrepareUpdate(this.actor);
+        if (!update)
+            return true;
+        if (!this.actor.isOwner && !game.user?.isGM) {
+            ui.notifications?.warn('Only the owner or GM can update Stone progression.');
+            return false;
+        }
+        try {
+            await this.actor.update(update);
+            return true;
+        }
+        catch (err) {
+            console.warn('Mastery System | v0.9.9 schema ensure failed', err);
+            return false;
+        }
+    }
     async #onV099StoneSlot(ev) {
         let sys = this.actor.system ?? {};
-        const pending = this.actor.getFlag?.('mastery-system', V099_RESPEC_FLAG) === true;
-        if (pending || !usesV099Stones(sys)) {
-            await this.#openV099Migration();
-            return;
+        if (!usesV099Stones(sys)) {
+            const ok = await this.#ensureV099StonesReady();
+            if (!ok)
+                return;
+            sys = this.actor.system ?? {};
         }
         const lifetime = lifetimeXpForActor(this.actor);
-        const needsLife = this.actor.getFlag?.('mastery-system', V099_LIFETIME_FLAG) === true
-            || lifetime == null;
-        if (needsLife) {
-            await this.#openV099Lifetime();
+        if (lifetime == null) {
+            ui.notifications?.warn('Lifetime XP is not available for this character yet.');
             return;
         }
         if (!this.actor.isOwner && !game.user?.isGM) {

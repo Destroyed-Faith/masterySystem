@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.9.762] - 2026-10-21
+
+### Changed
+
+- **Combat Package Wizard Step 4:** Attack style is Martial vs Spell (Melee/Ranged merged); Special cards show plain-language purpose only (no `+Xd8` / `Hex(4)` clutter); Expose and Slow copy match the catalogue.
+- **Review:** Guided Core Attack stays locked for Change Power but Cast as Spell / casting attribute (e.g. Resolve) remain editable.
+
+### Removed
+
+- **v0.9.9 migration UI:** No more “Complete v0.9.9 migration” banner; leftover flags are cleared quietly on load without rewriting Attribute values.
+
 ## [0.9.761] - 2026-10-21
 
 ### Fixed

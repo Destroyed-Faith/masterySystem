@@ -127,14 +127,18 @@ describe('tower-wizard-packages', () => {
     });
 
     it('guided core attack resolves from delivery mode', () => {
+        expect(resolveGuidedCoreAttackPick('martial')?.pick.templateId).toBe('active-melee-weapon-single');
+        expect(resolveGuidedCoreAttackPick('martial')?.coreIsSpell).toBe(false);
+        expect(resolveGuidedCoreAttackPick('spell')?.pick.templateId).toBe('active-ranged-weapon-single');
+        expect(resolveGuidedCoreAttackPick('spell')?.coreIsSpell).toBe(true);
+        // Legacy melee / ranged still resolve.
         expect(resolveGuidedCoreAttackPick('melee')?.pick.templateId).toBe('active-melee-weapon-single');
         expect(resolveGuidedCoreAttackPick('ranged')?.pick.templateId).toBe('active-ranged-weapon-single');
-        expect(resolveGuidedCoreAttackPick('spell')?.coreIsSpell).toBe(true);
-        expect(GUIDED_DELIVERY_OPTIONS.map((o) => o.id)).toEqual(['melee', 'ranged', 'spell']);
+        expect(GUIDED_DELIVERY_OPTIONS.map((o) => o.id)).toEqual(['martial', 'spell']);
     });
 
     it('guided special focus groups use tactical purpose labels', () => {
-        const groups = getGuidedSpecialFocusGroups('melee');
+        const groups = getGuidedSpecialFocusGroups('martial');
         expect(groups.some((g) => g.label === 'Focus one enemy')).toBe(true);
         expect(groups.some((g) => g.label === 'Apply pressure over time')).toBe(true);
         const cards = groups.flatMap((g) => g.cards);
@@ -142,12 +146,20 @@ describe('tower-wizard-packages', () => {
         const mark = cards.find((c) => c.powerName === 'Mark');
         const ruin = cards.find((c) => c.powerName === 'Ruin');
         const sundered = cards.find((c) => c.powerName === 'Sundered');
+        const expose = cards.find((c) => c.powerName === 'Expose');
+        const slow = cards.find((c) => c.powerName === 'Slow');
         expect(lacerate?.playerTitle).toMatch(/Punish Movement — Lacerate/i);
         expect(groups.find((g) => g.cards.includes(lacerate!))?.label).toBe('Control movement');
         expect(ruin?.playerTitle).toMatch(/Ongoing Damage — Ruin/i);
         expect(sundered?.playerTitle).toMatch(/Sundered/i);
         expect(mark?.playerTitle).toMatch(/Mark a Priority Target — Mark/);
-        expect(mark?.mechanicsPreview).toMatch(/Mark \(/);
+        expect(expose?.playerTitle).toMatch(/Easier to Hit — Expose/i);
+        expect(expose?.explanation).toMatch(/Evade/i);
+        expect(expose?.explanation).not.toMatch(/more damage/i);
+        expect(slow?.playerTitle).toMatch(/Reduce Speed — Slow/i);
+        expect(slow?.explanation).toMatch(/Speed/i);
+        expect(mark?.mechanicsPreview).toBe('');
+        expect(cards.every((c) => !c.mechanicsPreview)).toBe(true);
         expect(cards.some((c) => c.powerName === 'Hex')).toBe(false);
         expect(cards.some((c) => c.powerName === 'Disarm')).toBe(false);
         expect(cards.some((c) => c.powerName === 'Stun')).toBe(false);
@@ -159,27 +171,28 @@ describe('tower-wizard-packages', () => {
         expect(groups.some((g) => g.label === 'Advanced control')).toBe(true);
     });
 
-    it('melee and ranged share the same specials; spells swap Sundered for Hex', () => {
-        const names = (mode: 'melee' | 'ranged' | 'spell') =>
+    it('martial and legacy melee/ranged share specials; spells swap Sundered for Hex', () => {
+        const names = (mode: 'martial' | 'melee' | 'ranged' | 'spell') =>
             getGuidedSpecialFocusGroups(mode).flatMap((g) => g.cards.map((c) => c.powerName)).sort();
-        expect(names('melee')).toEqual(names('ranged'));
-        expect(names('melee')).toContain('Sundered');
-        expect(names('melee')).not.toContain('Hex');
+        expect(names('martial')).toEqual(names('melee'));
+        expect(names('martial')).toEqual(names('ranged'));
+        expect(names('martial')).toContain('Sundered');
+        expect(names('martial')).not.toContain('Hex');
         expect(names('spell')).toContain('Hex');
         expect(names('spell')).not.toContain('Sundered');
         expect(names('spell')).toContain('Weaken');
         expect(names('spell')).toContain('Challenge');
         expect(names('spell')).toContain('Lacerate');
         expect(names('spell')).toContain('Ruin');
-        expect(names('melee')).toContain('Restoration');
-        expect(names('melee')).toContain('Cleanse');
+        expect(names('martial')).toContain('Restoration');
+        expect(names('martial')).toContain('Cleanse');
         expect(names('spell')).toContain('Restoration');
         expect(names('spell')).toContain('Cleanse');
     });
 
     it('guided package review includes build summary', () => {
-        const core = resolveGuidedCoreAttackPick('melee')!.pick;
-        const groups = getGuidedSpecialFocusGroups('melee');
+        const core = resolveGuidedCoreAttackPick('martial')!.pick;
+        const groups = getGuidedSpecialFocusGroups('martial');
         const special = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Mark');
         expect(special).toBeDefined();
         const review = buildPackageReview({
@@ -190,7 +203,7 @@ describe('tower-wizard-packages', () => {
                 templateId: special!.templateId,
                 special: special!.special,
             }],
-            guidedAttackDelivery: 'melee',
+            guidedAttackDelivery: 'martial',
         });
         expect(review.guidedBuildSummary?.slots.length).toBeGreaterThan(4);
         expect(review.guidedBuildSummary?.rotationSteps).toHaveLength(5);
@@ -198,6 +211,46 @@ describe('tower-wizard-packages', () => {
         expect(review.offenseReviewRows[0]?.locked).toBe(true);
         expect(review.offenseReviewRows[1]?.role).toBe('Special Attack');
         expect(review.offenseReviewRows[1]?.locked).toBe(false);
+    });
+
+    it('guided spell Core Attack stays locked for Change Power but shows Cast as Spell config', () => {
+        const core = resolveGuidedCoreAttackPick('spell')!;
+        const groups = getGuidedSpecialFocusGroups('spell');
+        const hex = groups.flatMap((g) => g.cards).find((c) => c.powerName === 'Hex');
+        expect(hex).toBeDefined();
+        const review = buildPackageReview({
+            ...baseSelection,
+            offenseId: undefined,
+            offenseActivePicks: [core.pick, {
+                pickId: hex!.pickId,
+                templateId: hex!.templateId,
+                special: hex!.special,
+            }],
+            guidedAttackDelivery: 'spell',
+            offenseActiveOverrides: [
+                {
+                    grantKey: 'offense-0',
+                    isSpell: true,
+                    castingAttribute: 'resolve',
+                    spellResolution: 'spellAttack',
+                },
+                {
+                    grantKey: 'offense-1',
+                    isSpell: true,
+                    castingAttribute: 'resolve',
+                    spellResolution: 'spellAttack',
+                },
+            ],
+        });
+        const coreRow = review.offenseReviewRows[0];
+        const hexRow = review.offenseReviewRows[1];
+        expect(coreRow?.locked).toBe(true);
+        expect(coreRow?.showSpellConfig).toBe(true);
+        expect(coreRow?.override?.castingAttribute).toBe('resolve');
+        expect(hexRow?.playerName).toBe('Hex');
+        expect(hexRow?.locked).toBe(false);
+        expect(hexRow?.showSpellConfig).toBe(true);
+        expect(hexRow?.override?.castingAttribute).toBe('resolve');
     });
 
     it('buildPackageGrantSpecs uses the selected Passive 1 variant', () => {

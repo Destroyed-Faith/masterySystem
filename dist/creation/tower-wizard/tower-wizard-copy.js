@@ -53,12 +53,12 @@ export const TOWER_WIZARD_COPY = {
     },
     offenseDelivery: {
         heading: 'Attack style',
-        body: 'Choose Melee, Ranged, or Spell for your Core Weapon Attack. Then pick your Special Focus below.',
-        coreNote: 'Your Core Attack is a Weapon Attack matching this style.',
+        body: 'Choose Martial or Spell for your Core Attack. Then pick your Special Focus below.',
+        coreNote: 'Martial gives you a Weapon Attack. Spell gives you a Spell Attack.',
     },
     offenseSpecial: {
         heading: 'How do you fight?',
-        body: 'Choose your Core Attack style, then the Special that defines your second Active Power.',
+        body: 'Choose Martial or Spell, then the Special that defines your second Active Power.',
         whenToUse: 'When to use it',
         powerLabel: 'Power',
         emptyCatalog: 'No Special Attacks are available for this attack style in the catalog.',

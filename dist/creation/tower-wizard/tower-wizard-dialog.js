@@ -230,24 +230,27 @@ export class TowerWizardDialog extends BaseDialog {
             return;
         const overrides = [...(this.selection.offenseActiveOverrides ?? [])];
         const coreIdx = overrides.findIndex((o) => o.grantKey === 'offense-0');
+        const prevCore = coreIdx >= 0 ? overrides[coreIdx] : undefined;
         const coreOverride = {
             grantKey: 'offense-0',
-            isSpell: core.coreIsSpell,
-            castingAttribute: 'intellect',
-            spellResolution: 'spellAttack',
+            isSpell: prevCore?.isSpell ?? core.coreIsSpell,
+            castingAttribute: (prevCore?.castingAttribute ?? 'intellect'),
+            spellResolution: (prevCore?.spellResolution ?? 'spellAttack'),
         };
         if (coreIdx >= 0)
             overrides[coreIdx] = { ...overrides[coreIdx], ...coreOverride };
         else
             overrides.push(coreOverride);
         const specialPick = this.selection.offenseActivePicks?.[1];
-        if (this.selection.guidedAttackDelivery === 'spell' && specialPick) {
+        const deliveryIsSpell = this.selection.guidedAttackDelivery === 'spell';
+        if (deliveryIsSpell && specialPick) {
             const specialIdx = overrides.findIndex((o) => o.grantKey === 'offense-1');
+            const prevSpecial = specialIdx >= 0 ? overrides[specialIdx] : undefined;
             const specialOverride = {
                 grantKey: 'offense-1',
-                isSpell: true,
-                castingAttribute: 'intellect',
-                spellResolution: 'spellAttack',
+                isSpell: prevSpecial?.isSpell ?? true,
+                castingAttribute: (prevSpecial?.castingAttribute ?? 'intellect'),
+                spellResolution: (prevSpecial?.spellResolution ?? 'spellAttack'),
             };
             if (specialIdx >= 0)
                 overrides[specialIdx] = { ...overrides[specialIdx], ...specialOverride };

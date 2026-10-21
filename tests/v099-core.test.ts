@@ -94,12 +94,34 @@ describe('v0.9.9 Attribute migration', () => {
     const update = v099PrepareUpdate(first);
     expect(update).not.toBeNull();
     expect((update as any)['system.progression'].earnedAttributeXp).toBe(0);
+    expect((update as any)['system.progression'].v099Stones).toBe(true);
+    expect((update as any)['flags.mastery-system.needsV099Respec']).toBe(false);
     expect(first.system.attributes.might.value).toBe(8);
     first.system.progression = (update as any)['system.progression'];
     first.flags['mastery-system'].v099CorePrepared = true;
     expect(v099PrepareUpdate(first)).toBeNull();
     expect(planV099Migration(first).alreadyPrepared).toBe(true);
     expect(first.system.attributes.might.value).toBe(8);
+  });
+
+  it('clears a leftover needsV099Respec flag without rewriting attributes', () => {
+    const existing = actor(
+      {
+        attributes: attrs([8, 8, 6, 6, 4, 4, 2]),
+        progression: {
+          v099Prepared: true,
+          v099Stones: true,
+          earnedAttributeXp: 0,
+          lifetimeXp: 20,
+        },
+      },
+      { needsV099Respec: true },
+    );
+    const update = v099PrepareUpdate(existing);
+    expect(update).not.toBeNull();
+    expect((update as any)['flags.mastery-system.needsV099Respec']).toBe(false);
+    expect((update as any)['system.progression'].v099Stones).toBe(true);
+    expect(existing.system.attributes.might.value).toBe(8);
   });
 });
 
@@ -120,7 +142,7 @@ describe('v0.9.9 Lifetime XP and Stones', () => {
     const unknown = actor({ attributes: attrs([8, 8, 6, 6, 4, 4, 2]) });
     const plan = planV099Migration(unknown);
     expect(plan.lifetimeXp).toBeNull();
-    expect(plan.needsLifetimeInput).toBe(true);
+    expect(plan.needsLifetimeInput).toBe(false);
   });
 
   it('enforces MR × 2 from Lifetime XP, including the 100 XP MR3 step', () => {

@@ -1,14 +1,17 @@
 /**
- * One-time v0.9.9.0 migration for player characters.
+ * Quiet v0.9.9 schema ensure for player characters.
  *
- * Computes preserved Attribute XP and Lifetime XP, then flags the actor for
- * a single respec. Running again does not recompute or rewrite Attributes.
+ * Attribute / Stone rules are already live. This no longer opens a respec
+ * dialog or sets `needsV099Respec`. It only stamps prepared + Stones-on and
+ * clears any leftover migration flags from older worlds.
  */
 
 import { earnedAttributeXpInvestment, deriveLifetimeXp, readAttributeValues, V099_SCHEMA_VERSION } from './v099-rules.js';
 
 export const V099_PREPARED_FLAG = 'v099CorePrepared';
+/** @deprecated Cleared on load; migration UI is retired. */
 export const V099_RESPEC_FLAG = 'needsV099Respec';
+/** @deprecated Cleared on load; migration UI is retired. */
 export const V099_LIFETIME_FLAG = 'needsV099LifetimeXp';
 /** GM opened this character's assigned Stones so they can be cleared and placed again. */
 export const STONE_REDISTRIBUTE_FLAG = 'stoneRedistribute';
@@ -43,7 +46,7 @@ export function planV099Migration(actor: any): V099PrepareResult {
       earnedSource: 'stored',
       lifetimeXp: typeof life === 'number' ? Math.max(0, Math.floor(life)) : null,
       lifetimeSource: String(system?.progression?.lifetimeXpSource || 'stored'),
-      needsLifetimeInput: flag(actor, V099_LIFETIME_FLAG) === true,
+      needsLifetimeInput: false,
     };
   }
 
@@ -58,30 +61,59 @@ export function planV099Migration(actor: any): V099PrepareResult {
     earnedSource: earned.source,
     lifetimeXp: life.lifetimeXp,
     lifetimeSource: life.source,
-    needsLifetimeInput: life.lifetimeXp == null,
+    needsLifetimeInput: false,
   };
 }
 
+/**
+ * Ensure the actor is on live Stone rules with no pending migration UI.
+ * Does not rewrite Attribute values.
+ */
 export function v099PrepareUpdate(actor: any): Record<string, unknown> | null {
   if (actor?.type && actor.type !== 'character') return null;
+
+  const system = actor?.system ?? {};
+  const prepared = flag(actor, V099_PREPARED_FLAG) === true || system?.progression?.v099Prepared === true;
+  const stonesOn = system?.progression?.v099Stones === true;
+  const needsRespec = flag(actor, V099_RESPEC_FLAG) === true;
+  const needsLife = flag(actor, V099_LIFETIME_FLAG) === true;
+
+  if (prepared && stonesOn && !needsRespec && !needsLife) return null;
+
   const plan = planV099Migration(actor);
-  if (!plan.changed) return null;
+  const storedLife = system?.progression?.lifetimeXp;
+  const lifetimeXp =
+    typeof storedLife === 'number' && Number.isFinite(storedLife)
+      ? Math.max(0, Math.floor(storedLife))
+      : plan.lifetimeXp != null
+        ? plan.lifetimeXp
+        : 0;
+  const lifetimeSource =
+    typeof storedLife === 'number' && Number.isFinite(storedLife)
+      ? String(system?.progression?.lifetimeXpSource || 'stored')
+      : plan.lifetimeSource || 'derived';
+
   const progression = {
-    ...(actor?.system?.progression ?? {}),
+    ...(system.progression ?? {}),
     rulesVersion: V099_SCHEMA_VERSION,
     v099Prepared: true,
-    v099Stones: false,
-    earnedAttributeXp: plan.earnedAttributeXp,
-    earnedAttributeXpSource: plan.earnedSource,
-    lifetimeXp: plan.lifetimeXp,
-    lifetimeXpSource: plan.lifetimeSource,
+    v099Stones: true,
+    earnedAttributeXp: prepared
+      ? Math.max(0, Math.floor(Number(system?.progression?.earnedAttributeXp) || 0))
+      : plan.earnedAttributeXp,
+    earnedAttributeXpSource: prepared
+      ? String(system?.progression?.earnedAttributeXpSource || 'stored')
+      : plan.earnedSource,
+    lifetimeXp,
+    lifetimeXpSource: lifetimeSource,
   };
+
   return {
     'system.progression': progression,
     'flags.mastery-system.schemaVersion': V099_SCHEMA_VERSION,
     [`flags.mastery-system.${V099_PREPARED_FLAG}`]: true,
-    [`flags.mastery-system.${V099_RESPEC_FLAG}`]: true,
-    [`flags.mastery-system.${V099_LIFETIME_FLAG}`]: plan.needsLifetimeInput,
+    [`flags.mastery-system.${V099_RESPEC_FLAG}`]: false,
+    [`flags.mastery-system.${V099_LIFETIME_FLAG}`]: false,
   };
 }
 
@@ -97,7 +129,7 @@ export async function runV099CoreMigration(actors: any[]): Promise<number> {
       await actor.update(update);
       migrated += 1;
     } catch (err) {
-      console.warn('Mastery System | v0.9.9 migration failed', actor?.name, err);
+      console.warn('Mastery System | v0.9.9 schema ensure failed', actor?.name, err);
     }
   }
   try {

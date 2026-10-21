@@ -180,19 +180,6 @@
     {{/if}}
     </div>
   </header>
-  {{#if v099.needsRespec}}
-  <div class="v099-migration-banner" role="status">
-    <strong>v0.9.9 migration pending.</strong>
-    Attribute scale and Stones changed. Invested Attribute XP is preserved until you confirm the one-time respec.
-    <button type="button" class="v099-open-respec">Complete v0.9.9 migration</button>
-  </div>
-  {{else if v099.needsLifetime}}
-  <div class="v099-migration-banner" role="status">
-    <strong>Lifetime XP needed.</strong>
-    Total earned XP could not be reconstructed. Enter it once, then assign the unlocked Stones.
-    <button type="button" class="v099-open-lifetime">Enter Lifetime XP</button>
-  </div>
-  {{/if}}
   {{#if v099}}
   <section class="v099-lifetime" aria-label="Lifetime XP">
     <div class="v099-lifetime-head">

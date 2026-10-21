@@ -28,7 +28,8 @@ export type DeliveryMode = 'melee' | 'ranged';
 
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 
-export type GuidedAttackDelivery = 'melee' | 'ranged' | 'spell' | 'natural';
+/** Attack style on guided Step 4. Legacy `melee` / `ranged` map to Martial. */
+export type GuidedAttackDelivery = 'martial' | 'spell' | 'natural' | 'melee' | 'ranged';
 
 export type TowerWizardStep =
     | 'passive1'
